@@ -49,7 +49,6 @@
     |  |-- dashboard.sh
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
-    |  |-- ulogger.sh
   |-- templates
     |  |-- legacy-template.md
     |  |-- milestone-template.md
