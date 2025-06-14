@@ -44,26 +44,28 @@
     |  |-- uos_overview.md
     |  |-- uos_terminology.md
     |  |-- ux_philosophy.md
-  |-- src
+  |-- sandbox
+  |-- scripts
     |  |-- dashboard.sh
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
     |  |-- ulog.sh
     |  |-- ulogger.sh
     |  |-- ushell.sh
+  |-- templates
+    |  |-- legacy-template.md
+    |  |-- milestone-template.md
+    |  |-- mission-template.md
+    |  |-- move-template.md
   |-- uKnowledge
+    |-- map
+    |-- state
+  |-- uMemory
     |-- legacy
     |-- logs
       |-- moves
         |  |-- 2025-06-13-move-1749833275.md
       |  |-- moves.md
       |  |-- ulog-2025-06-14.md
-    |-- map
     |-- milestones
     |-- missions
-    |-- state
-    |-- templates
-      |  |-- legacy-template.md
-      |  |-- milestone-template.md
-      |  |-- mission-template.md
-      |  |-- move-template.md
