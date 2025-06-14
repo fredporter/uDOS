@@ -1,19 +1,18 @@
+# Python and build artifacts
 __pycache__/
 *.pyc
 *.pyo
 *.log
-.env
 *.zip
+
+# Environment and editor files
+.env
 .vscode/
 .idea/
 *.DS_Store
+
+# Docker override (local config)
 docker-compose.override.yml
 
-# uKnowledge personal data - DO NOT COMMIT
-uKnowledge/logs/
-uKnowledge/legacy/
-uKnowledge/missions/
-uKnowledge/milestones/
-# Optional: ignore all generated content
-uKnowledge/**/*.md
-!uKnowledge/templates/*.md
+# uMemory - personal, private, local-only storage
+uMemory/
