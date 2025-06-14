@@ -40,7 +40,7 @@ while true; do
 
   case "$cmd" in
     dashboard)
-      $SRC_DIR/dashboard.sh
+      $SCRIPT_DIR/dashboard.sh
       log_move "dashboard"
       ;;
     help)
