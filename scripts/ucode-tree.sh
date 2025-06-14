@@ -1,11 +1,11 @@
 #!/bin/bash
-# Generate repo_structure.txt (skipping dotfiles)
+# Generate repo_structure.txt skipping dotfiles
 
 OUTPUT_FILE="repo_structure.txt"
 START_DIR="."
 INDENT="  "
 
-echo "📦 Generating project tree (excluding hidden files)..."
+echo "📦 Generating project tree..."
 
 generate_tree() {
   local dir=$1
@@ -30,4 +30,4 @@ echo "✅ Repo tree written to $OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 
 # Log the move
-echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> /uKnowledge/logs/moves.md
+echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> /uMemory/logs/moves.md
