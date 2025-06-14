@@ -68,7 +68,7 @@ while true; do
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
       echo "🔧 Move: Listed current working directory"
-      echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: lost (whereami)" >> /uKnowledge/logs/moves.md
+      echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: lost" >> /uKnowledge/logs/moves.md
       ;;
     recent)
       echo "📜 Recent Moves:"
