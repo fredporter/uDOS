@@ -6,8 +6,8 @@
 echo "🔁 Launching uOS..."
 
 # Step into uOS project directory
-cd ~/Code/uOS-docker || {
-  echo "❌ Could not enter ~/Code/uOS-docker"
+cd ~/uOS || {
+  echo "❌ Could not enter ~/uOS"
   exit 1
 }
 

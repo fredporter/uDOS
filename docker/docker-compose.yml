@@ -5,7 +5,7 @@ services:
     stdin_open: true         # Enables interactive input
     tty: true                # Allocates a pseudo-TTY
     volumes:
-      - .:/app               # Root of uOS-docker mapped to /app
-      - ./uKnowledge:/uKnowledge   # Shared uKnowledge mount
+      - $UOS_DIR:/app               # Root of uOS-docker mapped to /app
+      - $UOS_DIR/uKnowledge:/uKnowledge   # Shared uKnowledge mount
     working_dir: /app
     command: ["bash", "src/uCode.sh"]

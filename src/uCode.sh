@@ -36,7 +36,7 @@ while true; do
 
   case "$cmd" in
     dashboard)
-      ./src/dashboard.sh
+      $SRC_DIR/dashboard.sh
       log_move "dashboard"
       ;;
     help)
