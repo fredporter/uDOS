@@ -2,11 +2,12 @@ services:
   uos:
     build: .
     container_name: uos-container
-    stdin_open: true
-    tty: true
+    stdin_open: true       # Enables interactive input (STDIN)
+    tty: true              # Allocates a pseudo-TTY
     volumes:
-      - .:/uOS
-      - ./src:/uOS/src
-      - ./uKnowledge:/uKnowledge
+      - .:/uOS                   # Mount entire uOS repo
+      - ./scripts:/uOS/scripts  # CLI and backend logic
+      - ./uMemory:/uMemory      # Private local memory (ignored in Git)
+      - ./uKnowledge:/uKnowledge  # Public shared knowledge
     working_dir: /uOS
-    command: ["bash", "src/uCode.sh"]
+    command: ["bash", "scripts/uCode.sh"]
