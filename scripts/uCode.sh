@@ -62,8 +62,6 @@ while true; do
     tree)
       SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
       bash "$SCRIPT_DIR/ucode-tree.sh"
-      echo ""
-      echo "🌳 Repository Structure:"
       cat "$SCRIPT_DIR/../repo_structure.txt"
       log_move "tree"
       ;;
