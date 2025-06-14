@@ -1,6 +1,9 @@
 #!/bin/bash
 # uCode CLI - interactive shell for uOS
 
+# Set script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Print startup status
 echo "🌀 uCode CLI started. Type 'help' to begin."
 echo ""
@@ -48,7 +51,7 @@ while true; do
       log_move "map"
       ;;
     mission)
-      cat /uKnowledge/state/current_mission.md 2>/dev/null || echo "No mission active."
+      cat /uMemory/state/current_mission.md 2>/dev/null || echo "No mission active."
       log_move "mission"
       ;;
     move)
