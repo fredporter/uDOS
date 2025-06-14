@@ -1,76 +1,69 @@
 .
-  |-- .DS_Store
-  |-- LICENSE
-  |-- requirements.txt
-  |-- uKnowledge
-  |  |-- .DS_Store
-  |  |-- missions
-  |  |-- legacy
-  |  |-- state
-  |  |-- map
-  |  |-- logs
-  |  |  |-- moves
-  |  |  |  |-- 2025-06-13-move-1749833275.md
-  |  |  |-- moves.md
-  |  |  |-- ulog-2025-06-14.md
-  |  |-- milestones
-  |  |-- templates
-  |  |  |-- .DS_Store
-  |  |  |-- move-template.md
-  |  |  |-- mission-template.md
-  |  |  |-- legacy-template.md
-  |  |  |-- milestone-template.md
-  |-- roadmap
-  |  |-- uKnowledge Storage Plan.md
-  |  |-- uCode.md
-  |  |-- uos_terminology.md
-  |  |-- uos_development_guidelines.md
-  |  |-- uos_overview.md
-  |  |-- uOS ASCII Dashboard.md
-  |  |-- uOS Core Values.md
-  |  |-- location.md
-  |  |-- dashboard.md
-  |  |-- Milestone 001 Build U Knowledge.md
-  |  |-- map.md
-  |  |-- tower_of_knowledge.md
-  |  |-- ascii_ethos.md
-  |  |-- Move Template.md
-  |  |-- ASCII UI Design.md
-  |  |-- uOS Move Log.md
-  |  |-- uScript Examples.md
-  |  |-- Move Log Index.md
+  |  |-- Dockerfile
+  |  |-- LICENSE
+  |  |-- Launch-uOS.command
   |  |-- README.md
-  |  |-- Map Editor.md
-  |  |-- data_sharing.md
-  |  |-- uScript Format.md
-  |  |-- uOS Dashboard Interface.md
-  |  |-- uOS Development Guidelines.md
-  |  |-- uOS Mission Template.md
-  |  |-- Move Logger.md
-  |  |-- Mission Build uKnowledge.md
-  |  |-- uOS Terminology.md
-  |  |-- Nethack.md
-  |  |-- uScript.md
-  |  |-- Wizards Tower Map.md
-  |  |-- Move 2025 0527 001.md
-  |  |-- uOS Overview.md
-  |  |-- Milestone Template.md
-  |  |-- ux_philosophy.md
-  |  |-- uOS Interactive Map Logic.md
-  |  |-- Mission Build uKnowledge .md
-  |-- Dockerfile
-  |-- .devcontainer
-  |  |-- devcontainer.json
-  |-- Launch-uOS.command
-  |-- README.md
-  |-- .gitignore
-  |-- .gitattributes
-  |-- docker-compose.yml
+  |  |-- docker-compose.yml
+  |  |-- repo_structure.txt
+  |  |-- requirements.txt
+  |-- roadmap
+    |  |-- ASCII UI Design.md
+    |  |-- Map Editor.md
+    |  |-- Milestone 001 Build U Knowledge.md
+    |  |-- Milestone Template.md
+    |  |-- Mission Build uKnowledge .md
+    |  |-- Mission Build uKnowledge.md
+    |  |-- Move 2025 0527 001.md
+    |  |-- Move Log Index.md
+    |  |-- Move Logger.md
+    |  |-- Move Template.md
+    |  |-- Nethack.md
+    |  |-- README.md
+    |  |-- Wizards Tower Map.md
+    |  |-- ascii_ethos.md
+    |  |-- dashboard.md
+    |  |-- data_sharing.md
+    |  |-- location.md
+    |  |-- map.md
+    |  |-- tower_of_knowledge.md
+    |  |-- uCode.md
+    |  |-- uKnowledge Storage Plan.md
+    |  |-- uOS ASCII Dashboard.md
+    |  |-- uOS Core Values.md
+    |  |-- uOS Dashboard Interface.md
+    |  |-- uOS Development Guidelines.md
+    |  |-- uOS Interactive Map Logic.md
+    |  |-- uOS Mission Template.md
+    |  |-- uOS Move Log.md
+    |  |-- uOS Overview.md
+    |  |-- uOS Terminology.md
+    |  |-- uScript Examples.md
+    |  |-- uScript Format.md
+    |  |-- uScript.md
+    |  |-- uos_development_guidelines.md
+    |  |-- uos_overview.md
+    |  |-- uos_terminology.md
+    |  |-- ux_philosophy.md
   |-- src
-  |  |-- dashboard.sh
-  |  |-- ushell.sh
-  |  |-- .DS_Store
-  |  |-- uCode.sh
-  |  |-- ulogger.sh
-  |  |-- ulog.sh
-  |  |-- ucode-tree.sh
+    |  |-- dashboard.sh
+    |  |-- uCode.sh
+    |  |-- ucode-tree.sh
+    |  |-- ulog.sh
+    |  |-- ulogger.sh
+    |  |-- ushell.sh
+  |-- uKnowledge
+    |-- legacy
+    |-- logs
+      |-- moves
+        |  |-- 2025-06-13-move-1749833275.md
+      |  |-- moves.md
+      |  |-- ulog-2025-06-14.md
+    |-- map
+    |-- milestones
+    |-- missions
+    |-- state
+    |-- templates
+      |  |-- legacy-template.md
+      |  |-- milestone-template.md
+      |  |-- mission-template.md
+      |  |-- move-template.md
