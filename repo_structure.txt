@@ -56,8 +56,8 @@
     |  |-- mission-template.md
     |  |-- move-template.md
   |-- uKnowledge
+    |-- general
     |-- map
-    |-- state
   |-- uMemory
     |-- legacy
     |-- logs
@@ -67,3 +67,4 @@
       |  |-- ulog-2025-06-14.md
     |-- milestones
     |-- missions
+    |-- state
