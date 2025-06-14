@@ -71,10 +71,6 @@ while true; do
       ls -1p | grep -v '^\.' || echo "(empty)"
       log_move "lost"
       ;;
-    log)
-      "$SCRIPT_DIR/ulogger.sh"
-      log_move "log"
-      ;;
     recent)
       echo "📜 Recent Moves:"
       tail -n 5 "${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
