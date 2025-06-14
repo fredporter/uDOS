@@ -1,32 +1,33 @@
 #!/bin/bash
+# Generate repo_structure.txt (skipping dotfiles)
 
-# uCode Tree: Generates a tree-like view of the repo into repo_structure.txt
+OUTPUT_FILE="repo_structure.txt"
+START_DIR="."
+INDENT="  "
 
-# Go to uOS repo root from script location
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-OUTFILE="$ROOT_DIR/repo_structure.txt"
+echo "📦 Generating project tree (excluding hidden files)..."
 
-# Config
-OUTFILE="repo_structure.txt"
-EXCLUDES=(
-  ".git"
-  "node_modules"
-  "__pycache__"
-  "venv"
-  ".idea"
-  ".vscode"
-  "repo_structure.txt"
-)
+generate_tree() {
+  local dir=$1
+  local prefix=$2
 
-# Build find command with exclusions
-FIND_CMD="find ."
-for EX in "${EXCLUDES[@]}"; do
-  FIND_CMD+=" -path \"./$EX\" -prune -o"
-done
-FIND_CMD+=" -print"
+  find "$dir" -mindepth 1 -maxdepth 1 ! -name ".*" | sort | while read -r entry; do
+    local name=$(basename "$entry")
+    if [ -d "$entry" ]; then
+      echo "${prefix}|-- $name" >> "$OUTPUT_FILE"
+      generate_tree "$entry" "$prefix$INDENT"
+    else
+      echo "${prefix}|  |-- $name" >> "$OUTPUT_FILE"
+    fi
+  done
+}
 
-# Execute and format output
-eval $FIND_CMD | sed -e 's/[^-][^\/]*\//  |/g' -e 's/|\([^ ]\)/|-- \1/' > "$OUTFILE"
+# Clear and start
+echo "." > "$OUTPUT_FILE"
+generate_tree "$START_DIR" "$INDENT"
 
-echo "[uCode] Repo structure written to $OUTFILE"
+echo "✅ Repo tree written to $OUTPUT_FILE"
+cat "$OUTPUT_FILE"
+
+# Log the move
+echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> /uKnowledge/logs/moves.md

@@ -64,10 +64,11 @@ while true; do
       log_move "tree"
       ;;
     lost)
-      echo "📂 You are here: $(pwd)"
-      echo "📦 Contents:"
-      ls -lah --color=auto
-      log_move "lost"
+      echo "📂 Current directory: $(pwd)"
+      echo "📄 Visible contents:"
+      ls -1p | grep -v '^\.' || echo "(empty)"
+      echo "🔧 Move: Listed current working directory"
+      echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: lost (whereami)" >> /uKnowledge/logs/moves.md
       ;;
     recent)
       echo "📜 Recent Moves:"

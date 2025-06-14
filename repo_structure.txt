@@ -1,19 +1,4 @@
 .
-  |-- documentation
-  |  |-- uos_terminology.md
-  |  |-- uos_development_guidelines.md
-  |  |-- uos_overview.md
-  |  |-- location.md
-  |  |-- dashboard.md
-  |  |-- map.md
-  |  |-- tower_of_knowledge.md
-  |  |-- ascii_ethos.md
-  |  |-- README.md
-  |  |-- data_sharing.md
-  |  |-- Mission Build uKnowledge.md
-  |  |-- ux_philosophy.md
-  |-- launcher
-  |  |-- Launch-uOS.command
   |-- .DS_Store
   |-- LICENSE
   |-- requirements.txt
@@ -35,24 +20,34 @@
   |  |  |-- mission-template.md
   |  |  |-- legacy-template.md
   |  |  |-- milestone-template.md
-  |-- Dockerfile
-  |-- library
+  |-- roadmap
   |  |-- uKnowledge Storage Plan.md
   |  |-- uCode.md
+  |  |-- uos_terminology.md
+  |  |-- uos_development_guidelines.md
+  |  |-- uos_overview.md
   |  |-- uOS ASCII Dashboard.md
   |  |-- uOS Core Values.md
+  |  |-- location.md
+  |  |-- dashboard.md
   |  |-- Milestone 001 Build U Knowledge.md
+  |  |-- map.md
+  |  |-- tower_of_knowledge.md
+  |  |-- ascii_ethos.md
   |  |-- Move Template.md
   |  |-- ASCII UI Design.md
   |  |-- uOS Move Log.md
   |  |-- uScript Examples.md
   |  |-- Move Log Index.md
+  |  |-- README.md
   |  |-- Map Editor.md
+  |  |-- data_sharing.md
   |  |-- uScript Format.md
   |  |-- uOS Dashboard Interface.md
   |  |-- uOS Development Guidelines.md
   |  |-- uOS Mission Template.md
   |  |-- Move Logger.md
+  |  |-- Mission Build uKnowledge.md
   |  |-- uOS Terminology.md
   |  |-- Nethack.md
   |  |-- uScript.md
@@ -60,10 +55,13 @@
   |  |-- Move 2025 0527 001.md
   |  |-- uOS Overview.md
   |  |-- Milestone Template.md
+  |  |-- ux_philosophy.md
   |  |-- uOS Interactive Map Logic.md
   |  |-- Mission Build uKnowledge .md
+  |-- Dockerfile
   |-- .devcontainer
   |  |-- devcontainer.json
+  |-- Launch-uOS.command
   |-- README.md
   |-- .gitignore
   |-- .gitattributes
