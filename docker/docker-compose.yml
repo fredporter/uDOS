@@ -1,0 +1,11 @@
+services:
+  uos:
+    build: .
+    container_name: uos-container
+    stdin_open: true         # Enables interactive input
+    tty: true                # Allocates a pseudo-TTY
+    volumes:
+      - .:/app               # Root of uOS-docker mapped to /app
+      - ./uKnowledge:/uKnowledge   # Shared uKnowledge mount
+    working_dir: /app
+    command: ["bash", "src/uCode.sh"]

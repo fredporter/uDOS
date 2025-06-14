@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.env
+*.zip
+.vscode/
+.idea/
+*.DS_Store
+docker-compose.override.yml
+
+# uKnowledge personal data - DO NOT COMMIT
+uKnowledge/logs/
+uKnowledge/legacy/
+uKnowledge/missions/
+uKnowledge/milestones/
+# Optional: ignore all generated content
+uKnowledge/**/*.md
+!uKnowledge/templates/*.md

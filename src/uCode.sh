@@ -1,0 +1,90 @@
+#!/bin/bash
+# uCode CLI - interactive shell for uOS
+
+# Print startup status
+echo "🌀 uCode CLI started. Type 'help' to begin."
+echo ""
+echo "📁 Checking system state..."
+
+# Show mounting and logging
+echo "📚 uKnowledge mounted at: ${UOS_KNOWLEDGE_DIR:-/uKnowledge}"
+echo "📝 Move log path: ${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+echo "🔧 Config directory: ${UOS_CONFIG_DIR:-/config}"
+echo ""
+
+# Dashboard Display
+echo "╔═══════════════════[ uOS DASHBOARD ]════════════════════╗"
+echo "║ User: Master                                            ║"
+echo "║ Location: The Crypt                                     ║"
+echo "║ Mission: Activate uCode Interface                      ║"
+echo "║ Date: $(date +"%A, %d %B %Y %H:%M:%S")                  ║"
+echo "╚═════════════════════════════════════════════════════════╝"
+echo ""
+
+# Move logger
+log_move() {
+  local cmd="$1"
+  local ts
+  ts=$(date +"%Y-%m-%d %H:%M:%S")
+  local log_path="${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+  echo "- [$ts] Move: \`$cmd\`" >> "$log_path"
+}
+
+# Begin CLI loop
+while true; do
+  read -rp "uCode > " cmd
+
+  case "$cmd" in
+    dashboard)
+      ./src/dashboard.sh
+      log_move "dashboard"
+      ;;
+    help)
+      echo "Commands: dashboard, map, mission, move, tree, lost, recent, restart, exit"
+      ;;
+    map)
+      cat /uKnowledge/map/current_region.txt 2>/dev/null || echo "No map loaded."
+      log_move "map"
+      ;;
+    mission)
+      cat /uKnowledge/state/current_mission.md 2>/dev/null || echo "No mission active."
+      log_move "mission"
+      ;;
+    move)
+      echo "🔧 Move recorded at $(date)" >> /uKnowledge/logs/moves.md
+      log_move "manual move"
+      echo "Move recorded."
+      ;;
+    tree)
+      SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+      bash "$SCRIPT_DIR/ucode-tree.sh"
+      echo ""
+      echo "🌳 Repository Structure:"
+      cat "$SCRIPT_DIR/../repo_structure.txt"
+      log_move "tree"
+      ;;
+    lost)
+      echo "📂 You are here: $(pwd)"
+      echo "📦 Contents:"
+      ls -lah --color=auto
+      log_move "lost"
+      ;;
+    recent)
+      echo "📜 Recent Moves:"
+      tail -n 5 "${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+      log_move "recent"
+      ;;
+    restart)
+      echo "🔄 Restarting uCode CLI..."
+      log_move "restart"
+      exec "$BASH_SOURCE"
+      ;;
+    exit)
+      echo "Exiting uOS..."
+      break
+      ;;
+    *)
+      echo "❓ Unknown command: $cmd"
+      ;;
+  esac
+done

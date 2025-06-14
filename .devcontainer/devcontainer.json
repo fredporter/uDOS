@@ -1,0 +1,11 @@
+{
+  "name": "uOS Dev",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "settings": {},
+  "extensions": ["ms-python.python"],
+  "forwardPorts": [],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "remoteUser": "root"
+}
