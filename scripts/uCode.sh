@@ -41,7 +41,7 @@ while true; do
       log_move "dashboard"
       ;;
     help)
-      echo "Commands: dashboard, map, mission, move, tree, lost, recent, restart, exit"
+      echo "Commands: dashboard, map, mission, move, tree, log, lost, recent, restart, exit"
       ;;
     map)
       cat /uKnowledge/map/current_region.txt 2>/dev/null || echo "No map loaded."
@@ -69,6 +69,10 @@ while true; do
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
       log_move "lost"
+      ;;
+    log)
+      "$SRC_DIR/ulogger.sh"
+      log_move "log"
       ;;
     recent)
       echo "📜 Recent Moves:"

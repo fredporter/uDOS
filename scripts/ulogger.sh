@@ -1,44 +1,31 @@
 #!/bin/bash
+# uLogger - Session Move Logger for uOS
 
-# uLogger: logs each Move into uKnowledge
-LOG_DIR="/uKnowledge/logs/moves"
-TEMPLATE="/uKnowledge/templates/move-template.md"
-USERNAME=$(whoami)
-TIMESTAMP=$(date +%s)
-ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-DATE=$(date +%Y-%m-%d)
+UMEMORY_DIR="${UOS_MEMORY_DIR:-/uMemory}"
+ulog_path="$UMEMORY_DIR/logs/ulog-$(date +%Y-%m-%d).md"
 
-# Ensure log dir exists
-mkdir -p "$LOG_DIR"
+mkdir -p "$(dirname "$ulog_path")"
 
-echo "🌀 uLogger active. Type your commands below (type 'exit' or Ctrl-D to quit)."
-echo ""
+echo "# 🌀 uLog — $(date +%Y-%m-%d)" >> "$ulog_path"
+echo "" >> "$ulog_path"
 
 while true; do
-  echo -n "↪ "
-  read -e CMD || break
+  echo -n "uShell > "
+  read user_cmd
 
-  # Break loop on empty input
-  [[ -z "$CMD" ]] && continue
+  # Skip empty input
+  [[ -z "$user_cmd" ]] && continue
 
-  # Run command and capture output
-  OUTPUT=$(eval "$CMD" 2>&1)
-  STATUS=$?
+  timestamp=$(date '+%H:%M:%S')
+  echo "## 🔹 Move @ $timestamp" >> "$ulog_path"
+  echo '```bash' >> "$ulog_path"
+  echo "$user_cmd" >> "$ulog_path"
+  echo '```' >> "$ulog_path"
 
-  # Generate unique log ID
-  ID="move-$TIMESTAMP"
-  FILE="$LOG_DIR/$DATE-$ID.md"
-
-  # Fill template
-  cat "$TEMPLATE" | sed \
-    -e "s|{{timestamp}}|$TIMESTAMP|g" \
-    -e "s|{{iso8601}}|$ISO8601|g" \
-    -e "s|{{username}}|$USERNAME|g" \
-    -e "s|{{description}}|$CMD|g" \
-    -e "s|{{command}}|$CMD|g" \
-    -e "s|{{output}}|$OUTPUT|g" \
-    -e "s|{{date}}|$DATE|g" \
-    > "$FILE"
-
-  echo -e "$OUTPUT"
+  # Execute and capture output
+  echo "### 🔸 Output:" >> "$ulog_path"
+  echo '```' >> "$ulog_path"
+  eval "$user_cmd" 2>&1 | tee -a "$ulog_path"
+  echo '```' >> "$ulog_path"
+  echo "" >> "$ulog_path"
 done
