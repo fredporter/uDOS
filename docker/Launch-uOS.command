@@ -1,24 +1,24 @@
 #!/bin/bash
 
 # uOS Launcher Script
-# Launches uOS from Mac into Docker with full path mapping for repo sync
+# Ensure Docker container runs interactively with uCode prompt
 
 echo "🔁 Launching uOS..."
 
-# Step into uOS project directory
-cd ~/uOS || {
-  echo "❌ Could not enter ~/uOS"
+# Step into Docker folder inside ~/uOS
+cd ~/uOS/docker || {
+  echo "❌ Failed to find uOS docker folder."
   exit 1
 }
 
-# Ensure any previous session is closed
+# Shutdown any existing container
 echo "🧼 Stopping previous uOS containers..."
 docker-compose down
 
-# Rebuild to catch changes
+# Rebuild container
 echo "🔨 Rebuilding uOS container..."
 docker-compose build
 
-# Launch container interactively with mounted repo path
+# Run uOS interactively with terminal input/output
 echo "🚀 Starting uOS interactive shell..."
 docker-compose run --rm uos
