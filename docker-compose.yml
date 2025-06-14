@@ -1,0 +1,12 @@
+services:
+  uos:
+    build: .
+    container_name: uos-container
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+      - ./src:/app/src
+      - ./uKnowledge:/uKnowledge
+    working_dir: /app
+    command: ["bash", "src/uCode.sh"]
