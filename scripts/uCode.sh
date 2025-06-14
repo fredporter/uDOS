@@ -8,7 +8,8 @@ echo "📁 Checking system state..."
 
 # Show mounting and logging
 echo "📚 uKnowledge mounted at: ${UOS_KNOWLEDGE_DIR:-/uKnowledge}"
-echo "📝 Move log path: ${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+echo "🧠 uMemory mounted at: ${UOS_MEMORY_DIR:-/uMemory}"
+echo "📝 Move log path: ${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
 echo "🔧 Config directory: ${UOS_CONFIG_DIR:-/config}"
 echo ""
 
@@ -26,7 +27,7 @@ log_move() {
   local cmd="$1"
   local ts
   ts=$(date +"%Y-%m-%d %H:%M:%S")
-  local log_path="${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+  local log_path="${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
   echo "- [$ts] Move: \`$cmd\`" >> "$log_path"
 }
 
@@ -51,7 +52,7 @@ while true; do
       log_move "mission"
       ;;
     move)
-      echo "🔧 Move recorded at $(date)" >> /uKnowledge/logs/moves.md
+      echo "🔧 Move recorded at $(date)" >> "${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
       log_move "manual move"
       echo "Move recorded."
       ;;
@@ -67,12 +68,11 @@ while true; do
       echo "📂 Current directory: $(pwd)"
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
-      echo "🔧 Move: Listed current working directory"
-      echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: lost" >> /uKnowledge/logs/moves.md
+      log_move "lost"
       ;;
     recent)
       echo "📜 Recent Moves:"
-      tail -n 5 "${UOS_KNOWLEDGE_DIR:-/uKnowledge}/logs/moves.md"
+      tail -n 5 "${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
       log_move "recent"
       ;;
     restart)
