@@ -71,7 +71,7 @@ while true; do
       log_move "lost"
       ;;
     log)
-      "$SRC_DIR/ulogger.sh"
+      "$SCRIPT_DIR/ulogger.sh"
       log_move "log"
       ;;
     recent)
