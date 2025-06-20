@@ -1,6 +1,6 @@
 #!/bin/bash
-# uCode CLI v1.3 — Action-Based Shell for uOS
-# Supports: new, run, log, redo, undo + dash, recent
+# uCode CLI v1.3.1 — Unified Command Shell for uOS
+# Supports: new, log, run, redo, undo, dash, recent, map, mission, move, tree, list, restart, exit
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UOS_ROOT="$HOME/uOS"
@@ -9,6 +9,7 @@ UOS_KNOWLEDGE="$UOS_ROOT/uKnowledge"
 TEMPLATES="$UOS_ROOT/templates"
 LOG_PATH="$UOS_MEMORY/logs/moves"
 STATE_PATH="$UOS_MEMORY/state"
+MOVE_LOG="$LOG_PATH/moves.md"
 
 mkdir -p "$LOG_PATH" "$STATE_PATH"
 
@@ -16,7 +17,7 @@ log_move() {
   local cmd="$1"
   local ts
   ts=$(date +"%Y-%m-%d %H:%M:%S")
-  echo "- [$ts] Move: \`$cmd\`" >> "$LOG_PATH/moves.md"
+  echo "- [$ts] Move: \`$cmd\`" >> "$MOVE_LOG"
 }
 
 create_from_template() {
@@ -31,29 +32,13 @@ create_from_template() {
   log_move "new $type"
 }
 
-run_script() {
-  local name="$1"
-  
-  # Ensure it ends in .sh
-  [[ "$name" != *.sh ]] && name="${name}.sh"
-  
-  local script="$UOS_ROOT/scripts/$name"
-  if [[ -x "$script" ]]; then
-    bash "$script"
-    log_move "run $name"
-  else
-    echo "❌ Script not found: $script"
-  fi
-}
-
 log_current_item() {
   local type="$1"
   local src="$STATE_PATH/current_${type}.md"
   if [[ -f "$src" ]]; then
-    echo "📥 Logging current $type..."
     local target="$UOS_MEMORY/${type}s/$(date +%Y-%m-%d)-${type}-$(date +%s).md"
     cp "$src" "$target"
-    echo "✅ Saved as $target"
+    echo "✅ Logged $type as $target"
     log_move "log $type"
   else
     echo "❌ No current $type to log."
@@ -62,8 +47,8 @@ log_current_item() {
 
 redo_item() {
   local type="$1"
-  local current="$STATE_PATH/current_${type}.md"
-  [[ -f "$current" ]] && rm "$current" && echo "🗑️ Removed current $type." || echo "No active $type."
+  local file="$STATE_PATH/current_${type}.md"
+  [[ -f "$file" ]] && rm "$file" && echo "🗑️ Removed current $type." || echo "No active $type."
   log_move "redo $type"
 }
 
@@ -74,31 +59,39 @@ undo_move() {
     echo "🕓 Last Move:"
     cat "$last_file"
     read -p "↩️ Undo this move? (y/N): " confirm
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-      rm "$last_file"
-      echo "✅ Move undone."
-    else
-      echo "❎ Move kept."
-    fi
+    [[ "$confirm" =~ ^[Yy]$ ]] && rm "$last_file" && echo "✅ Move undone." || echo "❎ Move kept."
   else
     echo "❌ No move found to undo."
   fi
 }
 
-show_recent_moves() {
-  echo "📜 Recent Moves:"
-  tail -n 10 "$LOG_PATH/moves.md" 2>/dev/null || echo "No moves yet."
+run_script() {
+  local name="$1"
+  [[ "$name" != *.sh ]] && name="${name}.sh"
+  local script="$UOS_ROOT/scripts/$name"
+  if [[ -x "$script" ]]; then
+    bash "$script"
+    log_move "run $name"
+  else
+    echo "❌ Script not found: $script"
+  fi
 }
 
 show_dashboard() {
-  bash "$SCRIPT_DIR/dashboard.sh"
+  [[ -x "$SCRIPT_DIR/dashboard.sh" ]] && bash "$SCRIPT_DIR/dashboard.sh" || echo "⚠️ dashboard.sh not found or not executable."
   log_move "dash"
 }
 
-# === MAIN LOOP ===
+# Mini dash on load
 clear
-echo "🌿 Welcome to uCode v1.3 — Type 'help' for options."
+echo "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗"
+echo "║ User: Master                           $(date '+%Y-%m-%d %H:%M:%S')                ║"
+echo "║ Location: The Crypt                                                           ║"
+echo "║ Active Mission: Activate uCode Interface                                      ║"
+echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
+echo ""
 
+# === MAIN LOOP ===
 while true; do
   read -rp "uCode > " cmd
 
@@ -106,45 +99,74 @@ while true; do
     help)
       echo "🧭 Commands:"
       echo "  new [object]     → Create new mission/move/etc."
+      echo "  log [object]     → Save current draft to archive"
+      echo "  redo [object]    → Remove current draft"
+      echo "  undo move        → Revert last move (with confirm)"
       echo "  run [script]     → Run containerized script"
-      echo "  log [object]     → Commit current draft"
-      echo "  redo [object]    → Discard current draft"
-      echo "  undo move        → Delete last move"
       echo "  dash             → View dashboard"
-      echo "  recent           → Show last moves"
+      echo "  recent           → Show last 10 moves"
+      echo "  map              → Show current region"
+      echo "  mission          → View current mission"
+      echo "  move             → Log manual move"
+      echo "  tree             → Show file structure"
+      echo "  list             → Show visible files"
+      echo "  restart          → Restart this shell"
       echo "  exit             → Quit uCode"
       ;;
     dash)
       show_dashboard
       ;;
     recent)
-      show_recent_moves
+      tail -n 10 "$MOVE_LOG" || echo "No recent moves."
+      log_move "recent"
       ;;
-    undo\ move)
-      undo_move
+    map)
+      cat "$UOS_KNOWLEDGE/map/current_region.txt" 2>/dev/null || echo "No map loaded."
+      log_move "map"
+      ;;
+    mission)
+      cat "$UOS_MEMORY/state/current_mission.md" 2>/dev/null || echo "No mission active."
+      log_move "mission"
+      ;;
+    move)
+      echo "🔧 Manual move recorded at $(date)" >> "$MOVE_LOG"
+      log_move "manual move"
+      ;;
+    tree)
+      bash "$SCRIPT_DIR/ucode-tree.sh" 2>/dev/null || echo "Missing ucode-tree.sh"
+      log_move "tree"
+      ;;
+    list)
+      echo "📂 Directory: $(pwd)"
+      ls -1p | grep -v '^\.' || echo "(empty)"
+      log_move "list"
+      ;;
+    restart)
+      log_move "restart"
+      exec "$BASH_SOURCE"
       ;;
     exit)
       echo "👋 Exiting uCode. Goodbye, Master."
       break
       ;;
-    new\ *)
-      obj="${cmd#new }"
-      create_from_template "$obj"
+    undo\ move)
+      undo_move
       ;;
-    run\ *)
-      script="${cmd#run }"
-      run_script "$script"
+    new\ *)
+      create_from_template "${cmd#new }"
       ;;
     log\ *)
-      obj="${cmd#log }"
-      log_current_item "$obj"
+      log_current_item "${cmd#log }"
       ;;
     redo\ *)
-      obj="${cmd#redo }"
-      redo_item "$obj"
+      redo_item "${cmd#redo }"
+      ;;
+    run\ *)
+      run_script "${cmd#run }"
       ;;
     *)
       echo "❓ Unknown command: $cmd"
+      # Optional suggestion logic omitted for brevity
       ;;
   esac
 done
