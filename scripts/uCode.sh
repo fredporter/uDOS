@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Print startup status
-echo "🌀 uCode CLI started. Type 'help' to begin."
+echo "🌀 uCode started. Type 'help' to begin."
 echo ""
 echo "📁 Checking system state..."
 
@@ -34,17 +34,19 @@ log_move() {
   echo "- [$ts] Move: \`$cmd\`" >> "$log_path"
 }
 
+UOS_MEMORY_DIR="${UOS_MEMORY_DIR:-/uMemory}"
+
 # Begin CLI loop
 while true; do
   read -rp "uCode > " cmd
 
   case "$cmd" in
-    dashboard)
+    dash)
       $SCRIPT_DIR/dashboard.sh
-      log_move "dashboard"
+      log_move "dashboard check"
       ;;
     help)
-      echo "Commands: dashboard, map, mission, move, tree, lost, recent, restart, exit"
+      echo "Commands: dash, map, mission, move, tree, list, recent, restart, exit"
       ;;
     map)
       cat /uKnowledge/map/current_region.txt 2>/dev/null || echo "No map loaded."
@@ -57,27 +59,25 @@ while true; do
     move)
       echo "🔧 Move recorded at $(date)" >> "${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
       log_move "manual move"
-      echo "Move recorded."
+      echo "Manual move recorded."
       ;;
     tree)
-      SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
       bash "$SCRIPT_DIR/ucode-tree.sh"
-      cat "$SCRIPT_DIR/../repo_structure.txt"
       log_move "tree"
       ;;
-    lost)
+    list)
       echo "📂 Current directory: $(pwd)"
-      echo "📄 Visible contents:"
+      echo "📄 Listing contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
-      log_move "lost"
+      log_move "list directory"
       ;;
     recent)
       echo "📜 Recent Moves:"
-      tail -n 5 "${UOS_MEMORY_DIR:-/uMemory}/logs/moves.md"
+      tail -n 5 "$UOS_MEMORY_DIR/logs/moves.md"
       log_move "recent"
       ;;
     restart)
-      echo "🔄 Restarting uCode CLI..."
+      echo "🔄 Restarting uCode ..."
       log_move "restart"
       exec "$BASH_SOURCE"
       ;;
