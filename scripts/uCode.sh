@@ -33,7 +33,11 @@ create_from_template() {
 
 run_script() {
   local name="$1"
-  local script="$UOS_ROOT/scripts/${name}.sh"
+  
+  # Ensure it ends in .sh
+  [[ "$name" != *.sh ]] && name="${name}.sh"
+  
+  local script="$UOS_ROOT/scripts/$name"
   if [[ -x "$script" ]]; then
     bash "$script"
     log_move "run $name"
