@@ -3,6 +3,7 @@
   |  |-- LICENSE
   |  |-- Launch-uOS.command
   |  |-- README.md
+  |  |-- dashboard.sh
   |  |-- docker-compose.yml
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -47,8 +48,17 @@
     |  |-- uScript Format.md
     |  |-- uScript.md
   |-- sandbox
+    |  |-- draft-move-2025-06-21-1750428998.md
   |-- scripts
+    |  |-- accept_share.sh
+    |  |-- authorize_share.sh
     |  |-- dashboard.sh
+    |  |-- generate_stats.sh
+    |  |-- log_legacy.sh
+    |  |-- log_milestone.sh
+    |  |-- log_mission.sh
+    |  |-- sandbox_draft.sh
+    |  |-- sandbox_finalize.sh
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
   |-- templates
@@ -68,4 +78,3 @@
       |  |-- ulog-2025-06-14.md
     |-- milestones
     |-- missions
-    |-- state
