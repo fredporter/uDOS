@@ -9,23 +9,14 @@
   |-- roadmap
     |-- Features
       |  |-- Map Editor.md
+      |  |-- Nethack.md
       |  |-- Wizards Tower Map.md
       |  |-- location.md
       |  |-- map.md
       |  |-- tower_of_knowledge.md
       |  |-- uKnowledge Storage Plan.md
       |  |-- uOS Interactive Map Logic.md
-    |-- Inspiration
-      |  |-- Nethack.md
-    |  |-- Milestone Template.md
-    |-- Missions
-      |  |-- Milestone 001 Build U Knowledge.md
-      |  |-- Mission Build uKnowledge.md
-    |  |-- Move Template.md
-    |-- Moves
-      |  |-- Move 2025 0527 001.md
-      |  |-- Move Log Index.md
-      |  |-- Move Logger.md
+    |  |-- Move Log Dashboard.md
     |  |-- README.md
     |-- System
       |  |-- data_sharing.md
@@ -41,7 +32,6 @@
       |  |-- uOS ASCII Dashboard.md
       |  |-- uOS Dashboard Interface.md
       |  |-- ux_philosophy.md
-    |  |-- uOS Mission Template.md
     |  |-- uOS-spellbound-toad.md
     |  |-- uScript Examples.md
     |  |-- uScript Format.md
@@ -61,11 +51,13 @@
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
   |-- templates
+    |  |-- Milestone Template.md
+    |  |-- Move Template.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
-  |  |-- uCode.sh
+    |  |-- uOS Mission Template.md
   |-- uKnowledge
     |-- general
     |-- map
@@ -73,9 +65,12 @@
     |-- legacy
     |-- logs
       |-- moves
+        |  |-- 2025-05-27-move-001.md
         |  |-- 2025-06-13-move-1749833275.md
       |  |-- moves.md
       |  |-- ulog-2025-06-14.md
     |-- milestones
+      |  |-- Milestone 001 Build U Knowledge.md
     |-- missions
+      |  |-- Mission Build uKnowledge.md
     |-- state
