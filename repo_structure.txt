@@ -7,43 +7,45 @@
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
-    |  |-- ASCII UI Design.md
-    |  |-- Map Editor.md
-    |  |-- Milestone 001 Build U Knowledge.md
+    |-- Features
+      |  |-- Map Editor.md
+      |  |-- Wizards Tower Map.md
+      |  |-- location.md
+      |  |-- map.md
+      |  |-- tower_of_knowledge.md
+      |  |-- uKnowledge Storage Plan.md
+      |  |-- uOS Interactive Map Logic.md
+    |-- Inspiration
+      |  |-- Nethack.md
     |  |-- Milestone Template.md
-    |  |-- Mission Build uKnowledge .md
-    |  |-- Mission Build uKnowledge.md
-    |  |-- Move 2025 0527 001.md
-    |  |-- Move Log Index.md
-    |  |-- Move Logger.md
+    |-- Missions
+      |  |-- Milestone 001 Build U Knowledge.md
+      |  |-- Mission Build uKnowledge.md
     |  |-- Move Template.md
-    |  |-- Nethack.md
+    |-- Moves
+      |  |-- Move 2025 0527 001.md
+      |  |-- Move Log Index.md
+      |  |-- Move Logger.md
     |  |-- README.md
-    |  |-- Wizards Tower Map.md
-    |  |-- ascii_ethos.md
-    |  |-- dashboard.md
-    |  |-- data_sharing.md
-    |  |-- location.md
-    |  |-- map.md
-    |  |-- tower_of_knowledge.md
-    |  |-- uCode.md
-    |  |-- uKnowledge Storage Plan.md
-    |  |-- uOS ASCII Dashboard.md
-    |  |-- uOS Core Values.md
-    |  |-- uOS Dashboard Interface.md
-    |  |-- uOS Development Guidelines.md
-    |  |-- uOS Interactive Map Logic.md
+    |-- System
+      |  |-- data_sharing.md
+      |  |-- uCode.md
+      |  |-- uOS Core Values.md
+      |  |-- uOS Development Guidelines.md
+      |  |-- uOS Overview.md
+      |  |-- uOS Terminology.md
+    |-- UX
+      |  |-- ASCII UI Design.md
+      |  |-- ascii_ethos.md
+      |  |-- dashboard.md
+      |  |-- uOS ASCII Dashboard.md
+      |  |-- uOS Dashboard Interface.md
+      |  |-- ux_philosophy.md
     |  |-- uOS Mission Template.md
-    |  |-- uOS Move Log.md
-    |  |-- uOS Overview.md
-    |  |-- uOS Terminology.md
+    |  |-- uOS-spellbound-toad.md
     |  |-- uScript Examples.md
     |  |-- uScript Format.md
     |  |-- uScript.md
-    |  |-- uos_development_guidelines.md
-    |  |-- uos_overview.md
-    |  |-- uos_terminology.md
-    |  |-- ux_philosophy.md
   |-- sandbox
   |-- scripts
     |  |-- dashboard.sh
