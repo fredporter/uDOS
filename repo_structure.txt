@@ -3,7 +3,6 @@
   |  |-- LICENSE
   |  |-- Launch-uOS.command
   |  |-- README.md
-  |  |-- dashboard.sh
   |  |-- docker-compose.yml
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -78,3 +77,4 @@
       |  |-- ulog-2025-06-14.md
     |-- milestones
     |-- missions
+    |-- state

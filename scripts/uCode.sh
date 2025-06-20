@@ -84,6 +84,15 @@ show_dashboard() {
 
 # Mini dash on load
 clear
+# Print startup status
+clear
+echo "🌀 uCode→ loaded. Type 'help' for available commands."
+echo ""
+echo "📚 uKnowledge mounted at: $UOS_KNOWLEDGE_DIR"
+echo "🧠 uMemory mounted at: $UOS_MEMORY_DIR"
+echo "📝 Move log path: $MOVE_LOG"
+echo "🔧 Config directory: $UOS_CONFIG_DIR"
+echo ""
 echo "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗"
 echo "║ User: Master                           $(date '+%Y-%m-%d %H:%M:%S')                ║"
 echo "║ Location: The Crypt                                                           ║"
@@ -93,7 +102,7 @@ echo ""
 
 # === MAIN LOOP ===
 while true; do
-  read -rp "uCode > " cmd
+  read -rp "🌀 uCode→ " cmd
 
   case "$cmd" in
     help)
