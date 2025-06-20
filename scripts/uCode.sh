@@ -1,137 +1,146 @@
 #!/bin/bash
-# uCode CLI v1.2 — Single-process Command Interface for uOS
+# uCode CLI v1.3 — Action-Based Shell for uOS
+# Supports: new, run, log, redo, undo + dash, recent
 
-# Set script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UOS_ROOT="$HOME/uOS"
+UOS_MEMORY="$UOS_ROOT/uMemory"
+UOS_KNOWLEDGE="$UOS_ROOT/uKnowledge"
+TEMPLATES="$UOS_ROOT/templates"
+LOG_PATH="$UOS_MEMORY/logs/moves"
+STATE_PATH="$UOS_MEMORY/state"
 
-# Default paths
-UOS_MEMORY_DIR="${UOS_MEMORY_DIR:-/uMemory}"
-UOS_KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-/uKnowledge}"
-UOS_CONFIG_DIR="${UOS_CONFIG_DIR:-/config}"
-MOVE_LOG="${UOS_MEMORY_DIR}/logs/moves.md"
+mkdir -p "$LOG_PATH" "$STATE_PATH"
 
-# Print startup status
-clear
-echo "🌀 uCode CLI started. Type 'help' for available commands."
-echo ""
-echo "📚 uKnowledge mounted at: $UOS_KNOWLEDGE_DIR"
-echo "🧠 uMemory mounted at: $UOS_MEMORY_DIR"
-echo "📝 Move log path: $MOVE_LOG"
-echo "🔧 Config directory: $UOS_CONFIG_DIR"
-echo ""
-
-# Dashboard header
-echo "╔═══════════════════[ uOS STATUS DASHBOARD ]════════════════════╗"
-echo "║ User: Master                                            ║"
-echo "║ Location: The Crypt                                     ║"
-echo "║ Mission: Activate uCode Interface                      ║"
-echo "║ Date: $(date +"%A, %d %B %Y %H:%M:%S")                  ║"
-echo "╚═════════════════════════════════════════════════════════╝"
-echo ""
-
-# Move logger
 log_move() {
   local cmd="$1"
   local ts
   ts=$(date +"%Y-%m-%d %H:%M:%S")
-  echo "- [$ts] Move: \`$cmd\`" >> "$MOVE_LOG"
+  echo "- [$ts] Move: \`$cmd\`" >> "$LOG_PATH/moves.md"
 }
 
-# Known command list
-known=("dash" "map" "mission" "move" "tree" "list" "recent" "restart" "exit" "help")
+create_from_template() {
+  local type="$1"
+  local template="$TEMPLATES/${type}-template.md"
+  local filename="$UOS_MEMORY/${type}s/$(date +%Y-%m-%d)-${type}-$(date +%s).md"
+  mkdir -p "$(dirname "$filename")"
+  cp "$template" "$filename"
+  cp "$filename" "$STATE_PATH/current_${type}.md"
+  echo "📄 New $type created: $filename"
+  nano "$filename"
+  log_move "new $type"
+}
 
-# Begin CLI loop
+run_script() {
+  local name="$1"
+  local script="$UOS_ROOT/scripts/${name}.sh"
+  if [[ -x "$script" ]]; then
+    bash "$script"
+    log_move "run $name"
+  else
+    echo "❌ Script not found: $script"
+  fi
+}
+
+log_current_item() {
+  local type="$1"
+  local src="$STATE_PATH/current_${type}.md"
+  if [[ -f "$src" ]]; then
+    echo "📥 Logging current $type..."
+    local target="$UOS_MEMORY/${type}s/$(date +%Y-%m-%d)-${type}-$(date +%s).md"
+    cp "$src" "$target"
+    echo "✅ Saved as $target"
+    log_move "log $type"
+  else
+    echo "❌ No current $type to log."
+  fi
+}
+
+redo_item() {
+  local type="$1"
+  local current="$STATE_PATH/current_${type}.md"
+  [[ -f "$current" ]] && rm "$current" && echo "🗑️ Removed current $type." || echo "No active $type."
+  log_move "redo $type"
+}
+
+undo_move() {
+  local last_file
+  last_file=$(ls -1t "$LOG_PATH"/20*-move-*.md 2>/dev/null | head -n 1)
+  if [[ -f "$last_file" ]]; then
+    echo "🕓 Last Move:"
+    cat "$last_file"
+    read -p "↩️ Undo this move? (y/N): " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      rm "$last_file"
+      echo "✅ Move undone."
+    else
+      echo "❎ Move kept."
+    fi
+  else
+    echo "❌ No move found to undo."
+  fi
+}
+
+show_recent_moves() {
+  echo "📜 Recent Moves:"
+  tail -n 10 "$LOG_PATH/moves.md" 2>/dev/null || echo "No moves yet."
+}
+
+show_dashboard() {
+  bash "$SCRIPT_DIR/dashboard.sh"
+  log_move "dash"
+}
+
+# === MAIN LOOP ===
+clear
+echo "🌿 Welcome to uCode v1.3 — Type 'help' for options."
+
 while true; do
   read -rp "uCode > " cmd
 
   case "$cmd" in
+    help)
+      echo "🧭 Commands:"
+      echo "  new [object]     → Create new mission/move/etc."
+      echo "  run [script]     → Run containerized script"
+      echo "  log [object]     → Commit current draft"
+      echo "  redo [object]    → Discard current draft"
+      echo "  undo move        → Delete last move"
+      echo "  dash             → View dashboard"
+      echo "  recent           → Show last moves"
+      echo "  exit             → Quit uCode"
+      ;;
     dash)
-      bash "$SCRIPT_DIR/dashboard.sh"
-      log_move "dash"
-      ;;
-    map)
-      cat "$UOS_KNOWLEDGE_DIR/map/current_region.txt" 2>/dev/null || echo "No map loaded."
-      log_move "map"
-      ;;
-    mission)
-      cat "$UOS_MEMORY_DIR/state/current_mission.md" 2>/dev/null || echo "No mission active."
-      log_move "mission"
-      ;;
-    move)
-      echo "🔧 Move recorded at $(date)" >> "$MOVE_LOG"
-      log_move "manual move"
-      echo "Move recorded."
-      ;;
-    tree)
-      bash "$SCRIPT_DIR/ucode-tree.sh"
-      log_move "tree"
-      ;;
-    list)
-      echo "📂 Current directory: $(pwd)"
-      echo "📄 Visible contents:"
-      ls -1p | grep -v '^\.' || echo "(empty)"
-      log_move "list"
+      show_dashboard
       ;;
     recent)
-      echo "📜 Recent Moves:"
-      tail -n 5 "$MOVE_LOG"
-      log_move "recent"
+      show_recent_moves
       ;;
-    restart)
-      echo "🔄 Restarting uCode CLI..."
-      log_move "restart"
-      exec "$BASH_SOURCE"
+    undo\ move)
+      undo_move
       ;;
     exit)
-      echo "👋 Exiting uCode CLI. Goodbye, Master."
+      echo "👋 Exiting uCode. Goodbye, Master."
       break
       ;;
-    help)
-      echo "🧭 Available Commands:"
-      echo "  dash         → View dashboard"
-      echo "  map          → Show current map region"
-      echo "  mission      → View current mission"
-      echo "  move         → Record manual move"
-      echo "  tree         → View directory structure"
-      echo "  list         → Show visible files"
-      echo "  recent       → Tail move log"
-      echo "  restart      → Restart this shell"
-      echo "  exit         → Quit uCode"
+    new\ *)
+      obj="${cmd#new }"
+      create_from_template "$obj"
+      ;;
+    run\ *)
+      script="${cmd#run }"
+      run_script "$script"
+      ;;
+    log\ *)
+      obj="${cmd#log }"
+      log_current_item "$obj"
+      ;;
+    redo\ *)
+      obj="${cmd#redo }"
+      redo_item "$obj"
       ;;
     *)
       echo "❓ Unknown command: $cmd"
-
-      best_match=""
-      shortest_distance=999
-      for option in "${known[@]}"; do
-        dist=$(echo "$cmd $option" | awk '
-          function min(a,b,c) { return (a<b ? (a<c?a:c) : (b<c?b:c)) }
-          function edit(s,t) {
-            m = length(s)
-            n = length(t)
-            for (i=0;i<=m;i++) d[i,0]=i
-            for (j=0;j<=n;j++) d[0,j]=j
-            for (i=1;i<=m;i++) {
-              for (j=1;j<=n;j++) {
-                cost = (substr(s,i,1)==substr(t,j,1)) ? 0 : 1
-                d[i,j] = min(d[i-1,j]+1, d[i,j-1]+1, d[i-1,j-1]+cost)
-              }
-            }
-            return d[m,n]
-          }
-          { print edit($1,$2) }
-        ')
-        if (( dist < shortest_distance )); then
-          shortest_distance=$dist
-          best_match="$option"
-        fi
-      done
-
-      if (( shortest_distance <= 2 )); then
-        echo "💡 Did you mean: '$best_match'?"
-      else
-        echo "📘 Type 'help' for available commands."
-      fi
       ;;
   esac
 done
