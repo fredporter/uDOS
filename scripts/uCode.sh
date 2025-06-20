@@ -85,8 +85,49 @@ while true; do
       echo "Exiting uOS..."
       break
       ;;
-    *)
-      echo "❓ Unknown command: $cmd"
-      ;;
+*)
+  echo "❓ Unknown command: $cmd"
+  
+  # List of known commands
+known=("dash" "map" "mission" "move" "tree" "list" "recent" "restart" "exit" "help")
+
+  # Find closest match using simple edit distance logic
+  best_match=""
+  shortest_distance=999
+
+  for option in "${known[@]}"; do
+    dist=$(echo "$cmd $option" | awk '
+      function min(a,b,c) {
+        return (a<b ? (a<c?a:c) : (b<c?b:c))
+      }
+      function edit(s,t) {
+        m = length(s)
+        n = length(t)
+        for (i=0;i<=m;i++) d[i,0]=i
+        for (j=0;j<=n;j++) d[0,j]=j
+        for (i=1;i<=m;i++) {
+          for (j=1;j<=n;j++) {
+            cost = (substr(s,i,1)==substr(t,j,1)) ? 0 : 1
+            d[i,j] = min(d[i-1,j]+1, d[i,j-1]+1, d[i-1,j-1]+cost)
+          }
+        }
+        return d[m,n]
+      }
+      {
+        print edit($1,$2)
+      }')
+
+    if (( dist < shortest_distance )); then
+      shortest_distance=$dist
+      best_match="$option"
+    fi
+  done
+
+  if (( shortest_distance <= 2 )); then
+    echo "💡 Did you mean: '$best_match'?"
+  else
+    echo "📘 Type 'help' for a list of available commands."
+  fi
+  ;;
   esac
 done
