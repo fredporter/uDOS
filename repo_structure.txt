@@ -65,6 +65,7 @@
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
+  |  |-- uCode.sh
   |-- uKnowledge
     |-- general
     |-- map

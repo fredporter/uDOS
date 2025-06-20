@@ -38,7 +38,3 @@ Concise explanation of what this Milestone represents and its intended impact.
 * Milestones can be **reversed**, unlike Moves.
 * Each Milestone connects upward to a Mission and downward to a list of related Moves.
 * Milestone state affects Dashboard display and map logic.
-
----
-
-Would you like me to define a real sample Milestone instance next?
