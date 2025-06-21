@@ -1,181 +1,123 @@
 #!/bin/bash
-# uCode CLI v1.3.1 — Unified Command Shell for uOS
-# Supports: new, log, run, redo, undo, dash, recent, map, mission, move, tree, list, restart, exit
+# uCode CLI v1.4 — Unified Input/Output Logger for uOS
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UOS_ROOT="$HOME/uOS"
-UOS_MEMORY="$UOS_ROOT/uMemory"
-UOS_KNOWLEDGE="$UOS_ROOT/uKnowledge"
-TEMPLATES="$UOS_ROOT/templates"
-LOG_PATH="$UOS_MEMORY/logs/moves"
-STATE_PATH="$UOS_MEMORY/state"
-MOVE_LOG="$LOG_PATH/moves.md"
+UOS_MEMORY_DIR="${UOS_MEMORY_DIR:-/uMemory}"
+UOS_KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-/uKnowledge}"
+UOS_CONFIG_DIR="${UOS_CONFIG_DIR:-/config}"
+MOVE_LOG_DIR="$UOS_MEMORY_DIR/logs/moves"
+SESSION_LOG="$UOS_MEMORY_DIR/logs/dashlog-$(date +%F).md"
 
-mkdir -p "$LOG_PATH" "$STATE_PATH"
+mkdir -p "$MOVE_LOG_DIR"
+mkdir -p "$UOS_MEMORY_DIR/state"
+
+touch "$UOS_MEMORY_DIR/state/current_mission.txt"
+touch "$UOS_MEMORY_DIR/state/current_milestone.txt"
+touch "$UOS_MEMORY_DIR/state/current_legacy.txt"
+
+if [ ! -f "$SESSION_LOG" ]; then
+  echo "# 🧭 Dashlog – $(date +%F)" > "$SESSION_LOG"
+  echo "- Session started at $(date)" >> "$SESSION_LOG"
+fi
 
 log_move() {
   local cmd="$1"
+  local output="$2"
   local ts
   ts=$(date +"%Y-%m-%d %H:%M:%S")
-  echo "- [$ts] Move: \`$cmd\`" >> "$MOVE_LOG"
+  local epoch=$(date +%s)
+  local move_file="$MOVE_LOG_DIR/$(date +%F)-move-${epoch}.md"
+
+  cat > "$move_file" <<EOF
+# Move: $cmd
+
+## 🔖 ID
+move_${epoch}
+
+## 📅 Timestamp
+$ts
+
+## 📥 Input
+$cmd
+
+## 📤 Output
+$output
+
+## 🧾 Notes
+Auto-logged by uOS CLI
+EOF
+
+  echo "- [$ts] Move: \`$cmd\` → [$move_file]" >> "$SESSION_LOG"
 }
 
-create_from_template() {
-  local type="$1"
-  local template="$TEMPLATES/${type}-template.md"
-  local filename="$UOS_MEMORY/${type}s/$(date +%Y-%m-%d)-${type}-$(date +%s).md"
-  mkdir -p "$(dirname "$filename")"
-  cp "$template" "$filename"
-  cp "$filename" "$STATE_PATH/current_${type}.md"
-  echo "📄 New $type created: $filename"
-  nano "$filename"
-  log_move "new $type"
-}
-
-log_current_item() {
-  local type="$1"
-  local src="$STATE_PATH/current_${type}.md"
-  if [[ -f "$src" ]]; then
-    local target="$UOS_MEMORY/${type}s/$(date +%Y-%m-%d)-${type}-$(date +%s).md"
-    cp "$src" "$target"
-    echo "✅ Logged $type as $target"
-    log_move "log $type"
-  else
-    echo "❌ No current $type to log."
-  fi
-}
-
-redo_item() {
-  local type="$1"
-  local file="$STATE_PATH/current_${type}.md"
-  [[ -f "$file" ]] && rm "$file" && echo "🗑️ Removed current $type." || echo "No active $type."
-  log_move "redo $type"
-}
-
-undo_move() {
-  local last_file
-  last_file=$(ls -1t "$LOG_PATH"/20*-move-*.md 2>/dev/null | head -n 1)
-  if [[ -f "$last_file" ]]; then
-    echo "🕓 Last Move:"
-    cat "$last_file"
-    read -p "↩️ Undo this move? (y/N): " confirm
-    [[ "$confirm" =~ ^[Yy]$ ]] && rm "$last_file" && echo "✅ Move undone." || echo "❎ Move kept."
-  else
-    echo "❌ No move found to undo."
-  fi
-}
-
-run_script() {
-  local name="$1"
-  [[ "$name" != *.sh ]] && name="${name}.sh"
-  local script="$UOS_ROOT/scripts/$name"
-  if [[ -x "$script" ]]; then
-    bash "$script"
-    log_move "run $name"
-  else
-    echo "❌ Script not found: $script"
-  fi
-}
-
-show_dashboard() {
-  [[ -x "$SCRIPT_DIR/dashboard.sh" ]] && bash "$SCRIPT_DIR/dashboard.sh" || echo "⚠️ dashboard.sh not found or not executable."
-  log_move "dash"
-}
-
-# Mini dash on load
 clear
-# Print startup status
-clear
-echo "🌀 uCode→ loaded. Type 'help' for available commands."
-echo ""
-echo "📚 uKnowledge mounted at: $UOS_KNOWLEDGE_DIR"
-echo "🧠 uMemory mounted at: $UOS_MEMORY_DIR"
-echo "📝 Move log path: $MOVE_LOG"
-echo "🔧 Config directory: $UOS_CONFIG_DIR"
-echo ""
-echo "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗"
-echo "║ User: Master                           $(date '+%Y-%m-%d %H:%M:%S')                ║"
-echo "║ Location: The Crypt                                                           ║"
-echo "║ Active Mission: Activate uCode Interface                                      ║"
-echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
+echo "🌀 uCode CLI v1.4 – Welcome back, Master."
+echo "📅 Session: $(date +%F)"
+echo "📚 Knowledge: $UOS_KNOWLEDGE_DIR"
+echo "🧠 Memory: $UOS_MEMORY_DIR"
 echo ""
 
-# === MAIN LOOP ===
 while true; do
-  read -rp "🌀 uCode→ " cmd
+  read -rp "uCode > " cmd
 
   case "$cmd" in
-    help)
-      echo "🧭 Commands:"
-      echo "  new [object]     → Create new mission/move/etc."
-      echo "  log [object]     → Save current draft to archive"
-      echo "  redo [object]    → Remove current draft"
-      echo "  undo move        → Revert last move (with confirm)"
-      echo "  run [script]     → Run containerized script"
-      echo "  dash             → View dashboard"
-      echo "  recent           → Show last 10 moves"
-      echo "  map              → Show current region"
-      echo "  mission          → View current mission"
-      echo "  move             → Log manual move"
-      echo "  tree             → Show file structure"
-      echo "  list             → Show visible files"
-      echo "  restart          → Restart this shell"
-      echo "  exit             → Quit uCode"
-      ;;
     dash)
-      show_dashboard
-      ;;
-    recent)
-      tail -n 10 "$MOVE_LOG" || echo "No recent moves."
-      log_move "recent"
-      ;;
-    map)
-      cat "$UOS_KNOWLEDGE/map/current_region.txt" 2>/dev/null || echo "No map loaded."
-      log_move "map"
-      ;;
-    mission)
-      cat "$UOS_MEMORY/state/current_mission.md" 2>/dev/null || echo "No mission active."
-      log_move "mission"
-      ;;
-    move)
-      echo "🔧 Manual move recorded at $(date)" >> "$MOVE_LOG"
-      log_move "manual move"
-      ;;
-    tree)
-      bash "$SCRIPT_DIR/ucode-tree.sh" 2>/dev/null || echo "Missing ucode-tree.sh"
-      log_move "tree"
+      out=$(bash "$SCRIPT_DIR/dashboard.sh")
+      echo "$out"
+      log_move "dash" "$out"
       ;;
     list)
-      echo "📂 Directory: $(pwd)"
-      ls -1p | grep -v '^\.' || echo "(empty)"
-      log_move "list"
+      out=$(ls -1p | grep -v '^\.' || echo "(empty)")
+      echo "$out"
+      log_move "list" "$out"
+      ;;
+    tree)
+      out=$(bash "$SCRIPT_DIR/ucode-tree.sh")
+      log_move "tree" "$out"
+      ;;
+    map)
+      file="$UOS_KNOWLEDGE_DIR/map/current_region.txt"
+      out=$(cat "$file" 2>/dev/null || echo "No map loaded.")
+      echo "$out"
+      log_move "map" "$out"
+      ;;
+    mission)
+      file="$UOS_MEMORY_DIR/state/current_mission.txt"
+      out=$(cat "$file" 2>/dev/null || echo "No mission active.")
+      echo "$out"
+      log_move "mission" "$out"
+      ;;
+    recent)
+      out=$(tail -n 5 "$SESSION_LOG")
+      echo "$out"
+      log_move "recent" "$out"
       ;;
     restart)
-      log_move "restart"
+      echo "🔄 Restarting uCode..."
+      log_move "restart" "Restart triggered"
       exec "$BASH_SOURCE"
       ;;
     exit)
-      echo "👋 Exiting uCode. Goodbye, Master."
+      echo "👋 Goodbye, Master."
+      log_move "exit" "uCode exited"
       break
       ;;
-    undo\ move)
-      undo_move
-      ;;
-    new\ *)
-      create_from_template "${cmd#new }"
-      ;;
-    log\ *)
-      log_current_item "${cmd#log }"
-      ;;
-    redo\ *)
-      redo_item "${cmd#redo }"
-      ;;
-    run\ *)
-      run_script "${cmd#run }"
+    help)
+      cat <<EOF
+🧭 Available Commands:
+  dash       → View dashboard
+  map        → Show map region
+  mission    → View current mission
+  tree       → View project tree
+  list       → List current folder
+  recent     → Show last 5 moves
+  restart    → Reload this shell
+  exit       → Quit uCode
+EOF
       ;;
     *)
       echo "❓ Unknown command: $cmd"
-      # Optional suggestion logic omitted for brevity
+      log_move "$cmd" "Unknown command"
       ;;
   esac
 done
