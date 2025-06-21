@@ -7,35 +7,40 @@
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
-    |-- Features
-      |  |-- Map Editor.md
-      |  |-- Nethack.md
-      |  |-- Wizards Tower Map.md
-      |  |-- location.md
-      |  |-- map.md
-      |  |-- tower_of_knowledge.md
-      |  |-- uKnowledge Storage Plan.md
-      |  |-- uOS Interactive Map Logic.md
-    |  |-- Move Log Dashboard.md
+    |-- 01-core
+      |  |-- 001-uOS-spellbound-toad.md
+      |  |-- 010-uOS-overview.md
+      |  |-- 011-uOS-core-values.md
+      |  |-- 012-uOS-terminology.md
+      |  |-- 013-uOS-development-guidelines.md
+      |  |-- 014-ucode.md
+    |-- 02-structure
+      |  |-- 020-move-template.md
+      |  |-- 021-mission-template.md
+      |  |-- 022-milestone-template.md
+      |  |-- 023-move-log-dashboard.md
+      |  |-- 024-uMemory-uKnowledge-storage-plan.md
+    |-- 03-ux
+      |  |-- 030-ux-philosophy.md
+      |  |-- 031-ascii-ui-design.md
+      |  |-- 032-dashboard-concepts.md
+      |  |-- 033-ascii-dashboard.md
+      |  |-- 034-interface-mockup-notes.md
+      |  |-- 035-ascii-ethos.md
+    |-- 04-knowledge
+      |  |-- 040-tower-of-knowledge.md
+      |  |-- 041-uKnowledge Map Logic.md
+      |  |-- 042-map-editor.md
+      |  |-- 043-nethack-integration.md
+      |  |-- 044-location-mechanics.md
+      |  |-- 045-wizard-tower-overview.md
+      |  |-- 046-map-mechanics.md
+    |-- 05-system
+      |  |-- 050-uscript.md
+      |  |-- 051-uScript-format.md
+      |  |-- 052-uScript-examples.md
+      |  |-- 053-data-sharing.md
     |  |-- README.md
-    |-- System
-      |  |-- data_sharing.md
-      |  |-- uCode.md
-      |  |-- uOS Core Values.md
-      |  |-- uOS Development Guidelines.md
-      |  |-- uOS Overview.md
-      |  |-- uOS Terminology.md
-    |-- UX
-      |  |-- ASCII UI Design.md
-      |  |-- ascii_ethos.md
-      |  |-- dashboard.md
-      |  |-- uOS ASCII Dashboard.md
-      |  |-- uOS Dashboard Interface.md
-      |  |-- ux_philosophy.md
-    |  |-- uOS-spellbound-toad.md
-    |  |-- uScript Examples.md
-    |  |-- uScript Format.md
-    |  |-- uScript.md
   |-- sandbox
     |  |-- draft-move-2025-06-21-1750428998.md
   |-- scripts
@@ -51,13 +56,10 @@
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
   |-- templates
-    |  |-- Milestone Template.md
-    |  |-- Move Template.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
-    |  |-- uOS Mission Template.md
   |-- uKnowledge
     |-- general
     |-- map
