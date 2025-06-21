@@ -1,7 +1,7 @@
 #!/bin/bash
 # dashboard-sync.sh — Generate ASCII dashboard status snapshot for uOS CLI
 
-BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd"
+BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEM="$BASE/uMemory"
 STATE="$UMEM/state"
 LOGS="$UMEM/logs/moves"
