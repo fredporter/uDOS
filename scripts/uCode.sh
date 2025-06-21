@@ -36,27 +36,36 @@ echo "- Session started at $(date)" >> "$SESSION_FILE"
 
 log_move() {
   local cmd="$1"
-  local ts
-  ts=$(date +"%Y-%m-%d %H:%M:%S")
-  local id="move-$(date +%s)"
-  local path="$MOVE_DIR/$(date +%Y-%m-%d)-$id.md"
-  echo "- [$ts] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
+  local ts_epoch
+  local ts_iso
+  local user
+  local path
+  local output=""
+
+  ts_epoch=$(date +%s)
+  ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  user=$(whoami)
+  path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
+
+  # Run command and capture output (optional)
+  # output=$(eval "$cmd" 2>&1)  # Be careful with eval for safety
+
+  echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
   if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
+    sed -i.bak \
+      -e "s/{{timestamp}}/$ts_epoch/g" \
+      -e "s/{{iso8601}}/$ts_iso/g" \
+      -e "s/{{username}}/$user/g" \
+      -e "s/{{command}}/$cmd/g" \
+      -e "s/{{output}}/$output/g" \
+      "$path"
+    rm -f "$path.bak"
     echo "📄 New move created: $path"
   else
-    echo "# Move: $cmd" > "$path"
+    echo -e "Move: $cmd\nTimestamp: $ts_iso\nUser: $user\nCommand: $cmd" > "$path"
     echo "⚠️ No move template found. Using blank file."
     log_error "Missing move template for: $cmd"
-  fi
-
-  # Cross-platform compatible sed (OS-aware)
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/{{command}}/$cmd/" "$path" 2>/dev/null
-    sed -i '' "s/{{timestamp}}/$(date +%s)/" "$path" 2>/dev/null
-  else
-    sed -i "s/{{command}}/$cmd/" "$path" 2>/dev/null
-    sed -i "s/{{timestamp}}/$(date +%s)/" "$path" 2>/dev/null
   fi
 }
 
