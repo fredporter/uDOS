@@ -2,7 +2,9 @@
 
 # === uOS Move 012 (Revised): Generate Dashboard Stats into uMemory ===
 
-UMEMORY="$HOME/uOS/uMemory"
+UROOT="$(dirname "$(realpath "$0")")/.."   # One level up from scripts/
+UMEMORY="$UROOT/uMemory"
+UKNOWLEDGE="$UROOT/uKnowledge"
 LOG_DIR="$UMEMORY/logs"
 DATESTAMP=$(date '+%Y-%m-%d')
 ULOG="$LOG_DIR/ulog-${DATESTAMP}.md"

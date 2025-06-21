@@ -1,8 +1,9 @@
 #!/bin/bash
 # uOS Dashboard v1.1 — Combines static blocks + live memory stats
 
-UMEMORY="$HOME/uOS/uMemory"
-UKNOWLEDGE="$HOME/uOS/uKnowledge"
+UROOT="$(dirname "$(realpath "$0")")/.."   # One level up from scripts/
+UMEMORY="$UROOT/uMemory"
+UKNOWLEDGE="$UROOT/uKnowledge"
 LOG_DIR="$UMEMORY/logs"
 ULOG=$(ls -1t "$LOG_DIR"/ulog-*.md 2>/dev/null | head -n 1)
 REGION="$UKNOWLEDGE/map/current_region.txt"
