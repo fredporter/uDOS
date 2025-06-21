@@ -1,31 +1,27 @@
+# ┌────────────────────────────────────────────┐
+# │         uOS Dockerfile - v1.4.2+           │
+# └────────────────────────────────────────────┘
+
 FROM python:3.11-alpine
 
-LABEL maintainer="Master <master@uos.local>"
-LABEL description="uOS - lightweight AI-driven OS shell in Docker"
+# Set working directory inside container
+WORKDIR /uOS
 
-# Set working directory
-WORKDIR /app
-
-# Install required system packages
+# Ensure bash, curl, git, nano, tini (process manager) are available
 RUN apk add --no-cache bash curl git tini nano
 
-# Copy everything into /app
-COPY . /app
+# Copy app source and dependencies
+COPY . /uOS
+COPY requirements.txt .
 
 # Install Python dependencies
-COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set environment paths
-ENV UOS_KNOWLEDGE_DIR=/uKnowledge
-ENV UOS_MEMORY_DIR=/uMemory
-ENV UOS_CONFIG_DIR=/config
+# Create persistent volume directories
+RUN mkdir -p /uKnowledge /uMemory /config /uMemory/logs/system
 
-# Create required directories inside container
-RUN mkdir -p $UOS_KNOWLEDGE_DIR $UOS_MEMORY_DIR $UOS_CONFIG_DIR
+# Ensure launch script is executable
+RUN chmod +x scripts/launch-uOS.sh
 
-# Use tini as init
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Launch uCode CLI by default
-CMD ["bash", "scripts/uCode.sh"]
+# Default command to run when container starts
+CMD ["bash", "scripts/launch-uOS.sh"]
