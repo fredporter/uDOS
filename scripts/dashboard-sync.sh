@@ -75,12 +75,27 @@ fi
 # Tower of Knowledge placeholder
 TOWER_PEAK="No rooms indexed yet."
 
-# Health Check → Include uLog if exists
+# Health Check from ulog
 ULOG_FILE="$MEMORY_DIR/logs/ulog-$(date +%Y-%m-%d).md"
+HEALTH_CHECK_LINES=()
 if [[ -f "$ULOG_FILE" ]]; then
-  HEALTH_CHECK="System log: $(basename "$ULOG_FILE")"
+  while IFS= read -r line; do
+    case "$line" in
+      "🕰️  Uptime:"*)          UPTIME="${line#*: }" ;;
+      "💾 Memory:"*)           MEMORY_USAGE="${line#*: }" ;;
+      "🎮 Total Moves:"*)      TOTAL_MOVES="${line#*: }" ;;
+      "📑 Moves Today:"*)      MOVES_TODAY="${line#*: }" ;;
+      "🧪 Drafts in Sandbox:"*) SANDBOX_DRAFTS="${line#*: }" ;;
+    esac
+  done < "$ULOG_FILE"
+
+  [[ -n "$UPTIME" ]] && HEALTH_CHECK_LINES+=("Uptime: $UPTIME")
+  [[ -n "$MEMORY_USAGE" ]] && HEALTH_CHECK_LINES+=("Memory: $MEMORY_USAGE")
+  [[ -n "$TOTAL_MOVES" ]] && HEALTH_CHECK_LINES+=("Total Moves: $TOTAL_MOVES")
+  [[ -n "$MOVES_TODAY" ]] && HEALTH_CHECK_LINES+=("Moves Today: $MOVES_TODAY")
+  [[ -n "$SANDBOX_DRAFTS" ]] && HEALTH_CHECK_LINES+=("Sandbox Drafts: $SANDBOX_DRAFTS")
 else
-  HEALTH_CHECK="No stat log available. Run refresh or generate_stats.sh."
+  HEALTH_CHECK_LINES+=("No stat log available. Run refresh or generate_stats.sh.")
 fi
 
 ENCRYPTION_STATUS="[ENABLED]"
@@ -88,7 +103,7 @@ PRIVACY_STATUS="$PRIVACY"
 LIFESPAN_STATUS="$LIFESPAN"
 SYNC_STATUS="Local OK, No pending exports"
 
-# ─ Display ─
+# Display dashboard
 WIDTH=75
 printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 printf '║ User: %-59s %19s ║\n' "$USER_NAME" "$NOW"
@@ -124,7 +139,9 @@ printf '║ %-73s ║\n' "$TOWER_PEAK"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ ✅ Health Check%56s ║\n' ""
-printf '║ %-73s ║\n' "$HEALTH_CHECK"
+for line in "${HEALTH_CHECK_LINES[@]}"; do
+  printf '║ %-73s ║\n' "$line"
+done
 printf '║ Encryption: %-9s   Privacy: %-6s   Lifespan: %-6s ║\n' "$ENCRYPTION_STATUS" "$PRIVACY_STATUS" "$LIFESPAN_STATUS"
 printf '║ Sync Status: %-45s ║\n' "$SYNC_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"

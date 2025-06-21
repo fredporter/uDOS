@@ -136,6 +136,10 @@
         |  |-- 2025-06-21-move-1750513423.md
         |  |-- 2025-06-21-move-1750514476.md
         |  |-- 2025-06-21-move-1750514787.md
+        |  |-- 2025-06-21-move-1750514805.md
+        |  |-- 2025-06-21-move-1750516240.md
+        |  |-- 2025-06-21-move-1750516318.md
+        |  |-- 2025-06-21-move-1750516332.md
         |  |-- index-sess-20250621-1233.md
         |  |-- index-sess-20250621-1234.md
         |  |-- index-sess-20250621-1237.md
@@ -153,10 +157,14 @@
         |  |-- index-sess-20250621-1401.md
         |  |-- index-sess-20250621-1402.md
         |  |-- index-sess-20250621-1406.md
+        |  |-- index-sess-20250621-1430.md
+        |  |-- index-sess-20250621-1431.md
+        |  |-- index-sess-20250621-1432.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
       |-- system
         |  |-- launch-2025-06-21_09-18-03.log
+      |  |-- ulog-2025-06-21.md
     |-- milestones
       |  |-- Milestone 001 Build U Knowledge.md
     |-- missions
