@@ -1,38 +1,30 @@
 #!/bin/bash
-# uOS Launcher – Fullscreen Optimised Terminal Boot (macOS)
-# Author: Master & AI — Side by Side ∴ v1.0
-
-#d────────────────────────────────────────────────────────────
-#d uOS Terminal Layout Notes:
-#d - Target character grid: 320x180 characters
-#d - Bounds used: {0, 22, 2048, 1440} = Fullscreen on Retina 13–15"
-#d - This can later support:
-#d    > dynamic tput/stty screen sizing
-#d    > tiled grid terminal interface
-#d────────────────────────────────────────────────────────────
+# Launch-uOS.command v1.2 – Clean launch with resize & feedback
+# uOS by Master & ChatGPT
 
 echo "🔁 Launching uOS..."
 
-# Step into the uOS project root
-cd ~/uOS || exit 1
-
-# Stop any previously running containers
-echo "🧼 Stopping previous uOS containers..."
-docker compose down
-
-# Rebuild Docker container to ensure updates apply
-echo "🔨 Rebuilding uOS container..."
-docker compose build
-
-# Launch uOS in fullscreen terminal using AppleScript
-echo "🚀 Starting uOS interactive shell in fullscreen..."
-
+# Resize current Terminal window BEFORE shell starts
 osascript <<EOF
 tell application "Terminal"
-    do script "cd ~/uOS && docker compose run --rm uos"
-    delay 0.5
-    set bounds of front window to {0, 22, 2048, 1440}
+    set bounds of front window to {0, 22, 1280, 720}
 end tell
 EOF
 
-exit 0
+# Step into uOS directory
+cd ~/uOS || {
+  echo "❌ Error: ~/uOS directory not found."
+  exit 1
+}
+
+# Stop existing container
+echo "🧼 Stopping previous uOS containers..."
+docker compose down
+
+# Rebuild container
+echo "🔨 Rebuilding uOS container..."
+docker compose build
+
+# Launch uOS interactive shell (reuses this window)
+echo "🚀 Starting uOS interactive shell..."
+docker compose run --rm uos
