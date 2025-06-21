@@ -13,7 +13,6 @@ MOVE_DIR="$LOG_DIR/moves"
 SESSION_FILE="$LOG_DIR/session-$(date +%Y-%m-%d).md"
 ERROR_LOG="$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
 DEFAULT_EDITOR="${EDITOR:-nano}"
-QUIT_CMD="$UROOT/macos/Quit-uOS.command"
 
 mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
 
@@ -192,26 +191,21 @@ while true; do
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
 
+      # In Docker: just exit the shell
       if grep -q docker /proc/1/cgroup 2>/dev/null; then
-        echo "🧩 Detected Docker environment — container remains running."
-      else
-        read -rp "🛑 Also shut down Docker container? (y/N): " confirm_shutdown
-        case "$confirm_shutdown" in
-          y|Y)
-            echo "🔌 Running Quit-uOS.command..."
-            if [[ -x "$QUIT_CMD" ]]; then
-              "$QUIT_CMD"
-            else
-              echo "⚠️ Quit-uOS.command not found or not executable at $QUIT_CMD"
-              log_error "exit: Quit-uOS.command missing or not executable"
-            fi
-            ;;
-          *)
-            echo "🌀 Docker container will remain running."
-            ;;
-        esac
+        echo "🧩 Detected Docker environment — container will exit cleanly."
+        break
       fi
-      break
+
+      # macOS GUI terminal auto-close
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "🌀 Closing Terminal window..."
+        osascript -e 'tell application "Terminal" to close front window' &>/dev/null
+        exit 0
+      fi
+
+      # Default fallback for Linux or others
+      exit 0
       ;;
     
     *)
