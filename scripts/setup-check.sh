@@ -1,40 +1,39 @@
 #!/bin/bash
-# setup-check.sh – Verifies uOS environment integrity
+# setup-check.sh — Check template, EDITOR, and uMemory structure
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-MEM="$ROOT/uMemory"
-TEMPLATES="$ROOT/templates"
-EDITOR_DEFAULT="${EDITOR:-nano}"
+BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+pass="✅"
+fail="❌"
 
-echo "🔍 Running setup check..."
+echo "🔍 Checking uOS setup..."
 
-# Template check
+# Templates
 echo ""
-echo "📂 Template Files:"
-for t in move-template.md mission-template.md milestone-template.md legacy-template.md; do
-  if [ -f "$TEMPLATES/$t" ]; then
-    echo "✅ $t found"
+echo "📁 Templates:"
+for t in move mission milestone legacy; do
+  if [ -f "$BASE/templates/${t}-template.md" ]; then
+    echo "$pass $t-template.md exists"
   else
-    echo "❌ $t missing"
+    echo "$fail Missing $t-template.md"
   fi
 done
 
-# Directory structure
+# Folders
 echo ""
-echo "🧠 uMemory structure:"
-for d in logs logs/moves logs/errors state missions milestones legacy; do
-  if [ -d "$MEM/$d" ]; then
-    echo "✅ $d exists"
+echo "📂 Required directories:"
+for d in logs logs/moves logs/errors milestones missions state; do
+  if [ -d "$BASE/uMemory/$d" ]; then
+    echo "$pass uMemory/$d/"
   else
-    echo "❌ $d missing"
+    echo "$fail Missing uMemory/$d/"
   fi
 done
 
 # Editor
 echo ""
-echo "✏️ Editor:"
-if command -v "$EDITOR_DEFAULT" >/dev/null 2>&1; then
-  echo "✅ Editor '$EDITOR_DEFAULT' available"
+echo "📝 Editor availability:"
+if command -v ${EDITOR:-nano} >/dev/null 2>&1; then
+  echo "$pass Editor found: ${EDITOR:-nano}"
 else
-  echo "⚠️  Editor '$EDITOR_DEFAULT' not found"
+  echo "$fail No editor found! Try setting EDITOR or installing nano/vi"
 fi

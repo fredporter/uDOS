@@ -1,148 +1,125 @@
 #!/bin/bash
-# uCode v1.4.2 – Unified Shell for uOS with logging and fallback editor
+# uCode v1.4.2 — Unified command shell for uOS with logging and fallback support
 
-# Resolve script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+UOS_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Paths
+# Default directories
 UOS_MEMORY_DIR="${UOS_MEMORY_DIR:-$UOS_ROOT/uMemory}"
-UOS_TEMPLATE_DIR="${UOS_TEMPLATE_DIR:-$UOS_ROOT/templates}"
-UOS_LOG_DIR="$UOS_MEMORY_DIR/logs"
-UOS_MOVES_DIR="$UOS_LOG_DIR/moves"
-UOS_ERROR_DIR="$UOS_LOG_DIR/errors"
-DASHLOG="$UOS_LOG_DIR/dashlog-$(date '+%Y-%m-%d').md"
+UOS_KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UOS_ROOT/uKnowledge}"
+UOS_CONFIG_DIR="${UOS_CONFIG_DIR:-$UOS_ROOT/config}"
+MOVE_LOG="$UOS_MEMORY_DIR/logs/moves/moves.md"
 
-# Init logging folders
-mkdir -p "$UOS_MOVES_DIR" "$UOS_ERROR_DIR"
+source "$SCRIPT_DIR/error-logger.sh"
 
-# Error logging helper
-log_error() {
-  local msg="$1"
-  local now="$(date '+%Y-%m-%d %H:%M:%S')"
-  echo "- [$now] $msg" >> "$UOS_ERROR_DIR/error-$(date '+%Y-%m-%d').md"
+ensure_dirs() {
+  mkdir -p "$UOS_MEMORY_DIR/logs/moves"
+  mkdir -p "$UOS_MEMORY_DIR/logs/errors"
+  mkdir -p "$UOS_MEMORY_DIR/state"
 }
+ensure_dirs
 
-# Move logger
-log_move() {
-  local cmd="$1"
-  local ts=$(date '+%Y-%m-%d %H:%M:%S')
-  local id=$(date +%s)
-  local file="$UOS_MOVES_DIR/$(date '+%Y-%m-%d')-move-${id}.md"
-
-  {
-    echo "---"
-    echo "id: move-${id}"
-    echo "type: move"
-    echo "timestamp: ${ts}"
-    echo "user: $(whoami)"
-    echo "container: uos-container"
-    echo "description: "$cmd""
-    echo "result: "${cmd_output}""
-    echo "tags: [uos, move, log]"
-    echo "---"
-    echo ""
-    echo "## ➤ Move"
-    echo ""
-    echo "**Command:**"
-    echo "\`\`\`bash"
-    echo "$cmd"
-    echo "\`\`\`"
-    echo ""
-    echo "**Output:**"
-    echo "\`\`\`"
-    echo "$cmd_output"
-    echo "\`\`\`"
-  } > "$file"
-
-  echo "- [${ts}] Move: \`$cmd\` → [$file]" >> "$DASHLOG"
-}
-
-# Startup Display
-clear
-echo "🌀 uCode CLI v1.4.2 started."
-echo "📚 Knowledge: $UOS_ROOT/uKnowledge"
-echo "🧠 Memory: $UOS_MEMORY_DIR"
-echo "📝 Moves Log: $UOS_MOVES_DIR"
-echo "🔧 Config: $UOS_ROOT/config"
+echo "🌀 uCode CLI started. Type 'help' for available commands."
+echo "📚 uKnowledge: $UOS_KNOWLEDGE_DIR"
+echo "🧠 uMemory: $UOS_MEMORY_DIR"
+echo "📝 Log file: $MOVE_LOG"
 echo ""
 
-echo "╔═══════════════════[ uOS DASHBOARD ]════════════════════╗"
-echo "║ User: Master                                            ║"
-echo "║ Location: The Crypt                                     ║"
-echo "║ Mission: Activate uCode Interface                      ║"
-echo "║ Date: $(date '+%A, %d %B %Y %H:%M:%S')                  ║"
-echo "╚═════════════════════════════════════════════════════════╝"
-echo "- Session started at $(date)" >> "$DASHLOG"
+session_ts=$(date)
+echo "- Session started at $session_ts" >> "$MOVE_LOG"
 
-# Command List
-commands=("new" "log" "redo" "undo" "run" "dash" "recent" "map" "mission" "move" "tree" "list" "restart" "exit" "help")
+log_move() {
+  local cmd="$1"
+  local now="$(date '+%Y-%m-%d %H:%M:%S')"
+  local move_id="$(date +%s)"
+  local file="$UOS_MEMORY_DIR/logs/moves/$(date +%Y-%m-%d)-move-$move_id.md"
+  echo "- [$now] Move: \`$cmd\` → [$file]" >> "$MOVE_LOG"
+  echo "# uOS Move Log" > "$file"
+  echo "**Command:** $cmd" >> "$file"
+  echo "**Time:** $now" >> "$file"
+}
 
-# Begin CLI
+print_help() {
+  echo "🧭 Commands:"
+  echo "  new [type]       → Create new mission/move/milestone/legacy"
+  echo "  log [type]       → Save current draft to archive"
+  echo "  redo [type]      → Remove current draft"
+  echo "  undo move        → Revert last move (confirm)"
+  echo "  run [script]     → Run script from uOS/scripts"
+  echo "  dash             → Show dashboard"
+  echo "  recent           → Show last 5 session moves"
+  echo "  map              → Show current region"
+  echo "  mission          → Print current mission"
+  echo "  move             → Log manual move"
+  echo "  tree             → Show project tree"
+  echo "  list             → List visible files"
+  echo "  restart          → Restart shell"
+  echo "  exit             → Quit"
+}
+
 while true; do
   read -rp "🌀 uCode→ " cmd args
 
   case "$cmd" in
     new)
-      if [[ "$args" == "move" ]]; then
-        ts=$(date +%s)
-        out="$UOS_MEMORY_DIR/moves/$(date '+%Y-%m-%d')-move-${ts}.md"
-        cp "$UOS_TEMPLATE_DIR/move-template.md" "$out" || { log_error "Template not found: move-template.md"; continue; }
-        ${EDITOR:-nano} "$out" || log_error "Editor failed or not set"
-        log_move "new move"
-      else
-        echo "⚠️  new type not supported"
-      fi
+      type="$args"
+      tpl="$UOS_ROOT/templates/${type}-template.md"
+      if [ ! -f "$tpl" ]; then log_error "❌ Template missing: $tpl"; echo "❌ Template not found: $tpl"; continue; fi
+      ts=$(date +%s)
+      out="$UOS_MEMORY_DIR/${type}s/$(date +%Y-%m-%d)-${type}-$ts.md"
+      mkdir -p "$(dirname "$out")"
+      cp "$tpl" "$out" || { log_error "❌ Failed to copy $tpl"; continue; }
+      echo "📄 New $type created: $out"
+      ${EDITOR:-nano} "$out" || vi "$out"
+      ;;
+    log)
+      echo "(logging not implemented yet)"
+      ;;
+    redo)
+      echo "(redo not implemented yet)"
+      ;;
+    undo)
+      echo "(undo not implemented yet)"
       ;;
     run)
-      script="$UOS_ROOT/scripts/${args}.sh"
-      if [ -f "$script" ]; then
-        cmd_output="$(bash "$script" 2>&1)"
-        echo "$cmd_output"
-        log_move "run $args.sh"
-      else
-        echo "❌ Script not found: $script"
-        log_error "Script missing: $script"
-      fi
+      script="$SCRIPT_DIR/$args.sh"
+      if [ ! -f "$script" ]; then log_error "❌ Script not found: $script"; echo "❌ Script not found: $script"; continue; fi
+      bash "$script"
+      log_move "run $args.sh"
       ;;
     dash)
-      bash "$SCRIPT_DIR/dashboard.sh" || log_error "Dashboard script failed"
+      bash "$SCRIPT_DIR/dashboard.sh" || log_error "❌ Failed to run dashboard"
       log_move "dash"
       ;;
     recent)
-      tail -n 5 "$DASHLOG"
+      tail -n 5 "$MOVE_LOG"
       ;;
     map)
-      cat "$UOS_ROOT/uKnowledge/map/current_region.txt" 2>/dev/null || echo "No map found"
-      log_move "map"
+      cat "$UOS_KNOWLEDGE_DIR/map/current_region.txt" 2>/dev/null || echo "❌ No region map"
       ;;
     mission)
-      cat "$UOS_MEMORY_DIR/state/current_mission.md" 2>/dev/null || echo "No active mission"
-      log_move "mission"
+      cat "$UOS_MEMORY_DIR/state/current_mission.md" 2>/dev/null || echo "❌ No active mission"
       ;;
     move)
-      echo "Manual move at $(date)" >> "$DASHLOG"
       log_move "manual move"
+      echo "📝 Move recorded."
       ;;
     tree)
       bash "$SCRIPT_DIR/ucode-tree.sh"
-      log_move "tree"
       ;;
     list)
       ls -1p | grep -v '^\.' || echo "(empty)"
-      log_move "list"
       ;;
     restart)
-      echo "Restarting shell..."
+      echo "🔄 Restarting..."
       exec "$BASH_SOURCE"
       ;;
-    exit)
-      echo "Goodbye."
-      break
-      ;;
     help)
-      echo "🧭 Commands:"
-      printf "  %s\n" "${commands[@]}"
+      print_help
+      ;;
+    exit)
+      echo "👋 Exiting. Goodbye, Master."
+      break
       ;;
     *)
       echo "❓ Unknown command: $cmd"
