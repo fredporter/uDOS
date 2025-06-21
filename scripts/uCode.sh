@@ -1,6 +1,5 @@
-```bash
 #!/bin/bash
-# uCode CLI v1.4.2 — Unified Input/Output Shell for uOS
+# uCode CLI v1.4.3 — Unified Input/Output Shell for uOS
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
@@ -43,10 +42,22 @@ log_move() {
   local path="$MOVE_DIR/$(date +%Y-%m-%d)-$id.md"
   echo "- [$ts] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
-  cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null || echo "# Move: $cmd" > "$path"
-  sed -i '' "s/{{command}}/$cmd/" "$path" 2>/dev/null
-  sed -i '' "s/{{timestamp}}/$(date +%s)/" "$path" 2>/dev/null
-  echo "📄 New move created: $path"
+  if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
+    echo "📄 New move created: $path"
+  else
+    echo "# Move: $cmd" > "$path"
+    echo "⚠️ No move template found. Using blank file."
+    log_error "Missing move template for: $cmd"
+  fi
+
+  # Cross-platform compatible sed (OS-aware)
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/{{command}}/$cmd/" "$path" 2>/dev/null
+    sed -i '' "s/{{timestamp}}/$(date +%s)/" "$path" 2>/dev/null
+  else
+    sed -i "s/{{command}}/$cmd/" "$path" 2>/dev/null
+    sed -i "s/{{timestamp}}/$(date +%s)/" "$path" 2>/dev/null
+  fi
 }
 
 log_error() {
@@ -87,14 +98,23 @@ while true; do
             echo "📄 New move created: $path"
             ${EDITOR:-nano} "$path"
           else
-            echo "❌ Template not found."
-            log_error "Failed to create move: template missing"
+            echo "# Move: manual creation" > "$path"
+            echo "⚠️ No move template found. Using blank file: $path"
+            log_error "new: move template missing"
+            ${EDITOR:-nano} "$path"
           fi
           ;;
         mission|milestone|legacy)
           path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
-          cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null || touch "$path"
-          ${EDITOR:-nano} "$path"
+          if cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null; then
+            echo "📄 New $args created: $path"
+            ${EDITOR:-nano} "$path"
+          else
+            echo "# $args created on $(date)" > "$path"
+            echo "⚠️ No $args template found. Blank file created."
+            log_error "new: missing template for $args"
+            ${EDITOR:-nano} "$path"
+          fi
           ;;
         *)
           echo "❌ Usage: new [move|mission|milestone|legacy]"
@@ -153,21 +173,26 @@ while true; do
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
 
-      read -rp "🛑 Also shut down Docker container? (y/N): " confirm_shutdown
-      case "$confirm_shutdown" in
-        y|Y)
-          echo "🔌 Running Quit-uOS.command..."
-          if [ -x "$HOME/uOS/Quit-uOS.command" ]; then
-            "$HOME/uOS/Quit-uOS.command"
-          else
-            echo "⚠️ Quit-uOS.command not found or not executable at $HOME/uOS/Quit-uOS.command"
-            log_error "exit: Quit-uOS.command missing or not executable"
-          fi
-          ;;
-        *)
-          echo "🌀 Docker container will remain running."
-          ;;
-      esac
+      # Skip macOS-specific logic if running inside Docker
+      if grep -q docker /proc/1/cgroup 2>/dev/null; then
+        echo "🧩 Detected Docker environment — container remains running."
+      else
+        read -rp "🛑 Also shut down Docker container? (y/N): " confirm_shutdown
+        case "$confirm_shutdown" in
+          y|Y)
+            echo "🔌 Running Quit-uOS.command..."
+            if [ -x "$HOME/uOS/Quit-uOS.command" ]; then
+              "$HOME/uOS/Quit-uOS.command"
+            else
+              echo "⚠️ Quit-uOS.command not found or not executable at $HOME/uOS/Quit-uOS.command"
+              log_error "exit: Quit-uOS.command missing or not executable"
+            fi
+            ;;
+          *)
+            echo "🌀 Docker container will remain running."
+            ;;
+        esac
+      fi
       break
       ;;
     *)
@@ -175,5 +200,3 @@ while true; do
       ;;
   esac
 done
-
-```
