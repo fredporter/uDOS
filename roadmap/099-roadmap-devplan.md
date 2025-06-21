@@ -66,3 +66,80 @@ Together, the Moves build the memory.
 Each file is a stone. Each stage a level.
 Let’s continue upward.
 
+# 099 - Roadmap Devplan (v1.4.2)
+
+This document tracks the evolving development roadmap for uOS.
+
+---
+
+## 📍 Current Version: `v1.4.2`
+
+* ⌛ Released: 2025-06-21
+* 🎙️ Codename: "Otter Awakens"
+* 🧙 Introduced: Otter (assistant identity)
+* 💬 Collaboration confirmed between Wizard (user) and Otter (AI)
+
+---
+
+## ✅ Completed Milestones
+
+| ID  | Title                 | Folder       | File                                   |
+| --- | --------------------- | ------------ | -------------------------------------- |
+| 010 | uOS Overview          | 01-core      | 010-uOS-overview\.md                   |
+| 011 | Core Values           | 01-core      | 011-uOS-core-values.md                 |
+| 012 | Terminology           | 01-core      | 012-uOS-terminology.md                 |
+| 014 | uCode Interface       | 01-core      | 014-uCode.md                           |
+| 020 | Move Template         | 02-structure | 020-move-template.md                   |
+| 021 | Mission Template      | 02-structure | 021-mission-template.md                |
+| 022 | Milestone Template    | 02-structure | 022-milestone-template.md              |
+| 023 | Move Log & Dashboard  | 02-structure | 023-move-log-dashboard.md              |
+| 024 | Storage Layout Plan   | 02-structure | 024-uMemory-uKnowledge-storage-plan.md |
+| 031 | ASCII UI Design       | 03-ux        | 031-ascii-ui-design.md                 |
+| 033 | ASCII Dashboard       | 03-ux        | 033-ascii-dashboard.md                 |
+| 040 | Tower of Knowledge    | 04-knowledge | 040-tower-of-knowledge.md              |
+| 045 | Wizard Tower Overview | 04-knowledge | 045-wizard-tower-overview\.md          |
+| 050 | uScript Overview      | 05-system    | 050-uScript.md                         |
+| 053 | Data Sharing Model    | 05-system    | 053-data-sharing.md                    |
+
+---
+
+## 🔄 Active Development (v1.4.x)
+
+* [ ] Finalize `uCode.sh` command dispatcher: full `log`, `undo`, `redo`
+* [ ] Clean command-line output parsing & colorization
+* [ ] Link dashboard sections to stats, map, and current session
+* [ ] Add `.desktop` file support for Linux users
+* [ ] Refactor Mac `.app` to use clean `macos/` folder and strip system files
+* [ ] Standardize GitHub `.gitignore` to prevent platform debris
+* [ ] Sandbox cleanup tools (finalize/archive/diff)
+
+---
+
+## 🧭 Near Future
+
+* [ ] Tour Mode draft design (offline personal AI)
+* [ ] Lifetime tracker logic and Legacy evaluator
+* [ ] Milestone → Legacy pipeline & archival rules
+* [ ] uMap Explorer tool and World Editor
+* [ ] Plugin system concept for extending uCode (simple bash hooks)
+
+---
+
+## 🏁 Long-Term Goals
+
+* [ ] Native TUI frontend with animated map window (ASCII world explorer)
+* [ ] Legacy compilation toolchain (build your own uOS Book)
+* [ ] NFT/device-bound uOS Identity Lock module
+* [ ] Fully offline self-updating shell
+
+---
+
+## ✍️ Author Notes
+
+This roadmap is live and evolves with each Move.
+For internal logic tracking, all roadmap entries now match filename prefixes.
+Use `tree` or dashboard peek to preview structure.
+
+Collaboration is active. Otter listens.
+
+> *“The spell is cast with every Move. The Tower grows.”*
