@@ -51,6 +51,7 @@
   |-- scripts
     |  |-- accept_share.sh
     |  |-- authorize_share.sh
+    |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
     |  |-- generate_stats.sh
@@ -114,6 +115,26 @@
         |  |-- 2025-06-21-move-1750507549.md
         |  |-- 2025-06-21-move-1750508019.md
         |  |-- 2025-06-21-move-1750508071.md
+        |  |-- 2025-06-21-move-1750508073.md
+        |  |-- 2025-06-21-move-1750508122.md
+        |  |-- 2025-06-21-move-1750508136.md
+        |  |-- 2025-06-21-move-1750509195.md
+        |  |-- 2025-06-21-move-1750509250.md
+        |  |-- 2025-06-21-move-1750509458.md
+        |  |-- 2025-06-21-move-1750511800.md
+        |  |-- 2025-06-21-move-1750512243.md
+        |  |-- 2025-06-21-move-1750512254.md
+        |  |-- 2025-06-21-move-1750512376.md
+        |  |-- 2025-06-21-move-1750512752.md
+        |  |-- 2025-06-21-move-1750512784.md
+        |  |-- index-sess-20250621-1233.md
+        |  |-- index-sess-20250621-1234.md
+        |  |-- index-sess-20250621-1237.md
+        |  |-- index-sess-20250621-1242.md
+        |  |-- index-sess-20250621-1248.md
+        |  |-- index-sess-20250621-1259.md
+        |  |-- index-sess-20250621-1332.md
+        |  |-- index-sess-20250621-1333.md
         |  |-- moves.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
@@ -127,6 +148,9 @@
       |  |-- current_legacy.txt
       |  |-- current_milestone.txt
       |  |-- current_mission.txt
+      |  |-- session.md
+      |  |-- user.md
+      |  |-- version.md
   |-- uX
     |  |-- diamond-icon-1.png
     |  |-- diamond-icon-2.png
