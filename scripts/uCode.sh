@@ -29,6 +29,13 @@ echo ""
 
 echo "- Session started at $(date)" >> "$SESSION_FILE"
 
+refresh_uos() {
+  echo "♻️ Refreshing uOS environment..."
+  ./scripts/setup-check.sh
+  ./scripts/dashboard-sync.sh
+  echo "✅ uOS refreshed."
+}
+
 # ──────────────────────────────────────────────
 # 🧠 Logging Functions
 # ──────────────────────────────────────────────
@@ -66,7 +73,7 @@ log_error() {
   echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
 }
 
-/scripts/dashboard-sync.sh
+./scripts/dashboard-sync.sh
 
 # ──────────────────────────────────────────────
 # 🚦 Command Dispatcher
@@ -184,6 +191,10 @@ while true; do
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
       ;;
+
+refresh)
+  refresh_uos
+  ;;
     
     restart)
       echo "🔄 Restarting uCode CLI..."
