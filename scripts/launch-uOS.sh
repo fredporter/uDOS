@@ -5,7 +5,7 @@ set -e
 echo "🚀 uOS is launching..."
 
 # Run setup check
-/scripts/setup-check.sh
+setup-check.sh
 
 # Start uCode CLI or Dashboard
-/scripts/uCode.sh
+uCode.sh
