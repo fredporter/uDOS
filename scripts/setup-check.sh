@@ -85,12 +85,12 @@ if [ ! -f "$USER_FILE" ]; then
   done
 
   now=$(date '+%Y%m%d-%H%M%S')
-  # Generate a 6-digit random number (000000 to 999999)
-  rand_num=$(shuf -i 0-999999 -n 1)
+  # Generate a 3-digit random number (000000 to 999999)
+  rand_num=$(shuf -i 0-999 -n 1)
   rand_num=$(printf "%06d" "$rand_num")
 
   uid="${uname}-${now}-${rand_num}"
-  iid="${uname}-${now}-${rand_num}"
+  iid="${now}-${rand_num}"
 
   move_count=$(find "$UMEM/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
   instance_num=$((move_count + 1))
