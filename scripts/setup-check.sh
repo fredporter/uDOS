@@ -48,27 +48,81 @@ fi
 
 # -------------------------------------
 # 4. User file check
-USER_FILE="$UMEM/state/user.md"
-echo ""
-echo "👤 User configuration:"
-if [ -f "$USER_FILE" ]; then
-  echo "$pass Found user file."
-else
-  echo "$fail No user file found. Starting new user setup..."
+USER_FILE="$STATE/user.md"
+if [ ! -f "$USER_FILE" ]; then
+  echo "👤 No user profile found — starting first-time setup."
 
-  read -p "🪪 Enter your username: " uname
-  uid=$(openssl rand -hex 3)
+  # Ask for simple fields
+  while true; do
+    read -p "🪪 Enter your username (no spaces or symbols): " uname
+    if [[ "$uname" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+      break
+    else
+      echo "❌ Invalid username. Use only letters, numbers, dashes or underscores."
+    fi
+  done
+
+  read -p "🌍 Location (e.g., City, Country): " location
+  read -p "🎯 Define your Mission (e.g., revive old Mac, AI dashboard): " mission
+  read -p "🏛️  What legacy should uOS preserve for you?: " legacy
+
+  # Privacy: crypt or beacon only
+  while true; do
+    read -p "🔒 Privacy level [crypt/beacon]: " privacy
+    if [[ "$privacy" == "crypt" || "$privacy" == "beacon" ]]; then
+      break
+    else
+      echo "❌ Must be either 'crypt' or 'beacon'."
+    fi
+  done
+
+  # Lifespan: short, medium, long, infinite
+  while true; do
+    read -p "⏳ Lifespan [short/medium/long/infinite]: " lifespan
+    if [[ "$lifespan" =~ ^(short|medium|long|infinite)$ ]]; then
+      break
+    else
+      echo "❌ Must be one of: short, medium, long, infinite."
+    fi
+  done
+
+  # Generate IDs with timestamp and hex
+  now=$(date '+%Y%d%m-%H%M%S')
+  ms=$(printf "%02d" $(($(date +%N) / 10000000)))
+  timestamp="${now}${ms}"
+  hex=$(openssl rand -hex 3)
+
+  uid="uos-${uname}-${timestamp}-${hex}"
+  iid="inst-${timestamp}-${hex}"
+
+  # Instance number based on move logs
+  instance_num=$(find "$MEMORY_DIR/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
+  instance_num=$((instance_num + 1))
+
   created=$(date '+%Y-%m-%d %H:%M:%S')
+  version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
 
+  # Save profile
   cat > "$USER_FILE" <<EOF
 # uOS User Profile
 
 **Username**: $uname  
 **User ID**: $uid  
+**Instance ID**: $iid  
+**Instance Number**: $instance_num  
 **Created**: $created  
+**Location**: $location  
+**Mission**: $mission  
+**Legacy**: $legacy  
+**Lifespan**: $lifespan  
+**Privacy**: $privacy  
+**uOS Version**: $version
 
-Welcome to uOS, $uname!
+Welcome to uOS, $uname. Your instance is now active.
 EOF
+
+  echo "✅ User profile created: $USER_FILE"
+fi
 
   echo "✅ Created: state/user.md"
   echo "👋 Welcome, $uname. Your ID is $uid."
