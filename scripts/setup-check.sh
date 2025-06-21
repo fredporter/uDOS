@@ -63,8 +63,8 @@ if [ ! -f "$USER_FILE" ]; then
   done
 
   read -p "🌍 Location: " location
-  read -p "🎯 Define your Mission: " mission
-  read -p "🏛️ What Legacy should uOS preserve?: " legacy
+  read -p "🎯 Outline your Mission: " mission
+  read -p "🏛️  What Legacy will you leave?: " legacy
 
   while true; do
     read -p "🔒 Privacy level [crypt/beacon]: " privacy
@@ -85,8 +85,8 @@ if [ ! -f "$USER_FILE" ]; then
   done
 
   now=$(date '+%Y%m%d-%H%M%S')
-  # Generate a 3-digit random number (000000 to 999999)
-  rand_num=$(shuf -i 0-999 -n 1)
+  # Generate a 6-digit random number (000000 to 999999)
+  rand_num=$(shuf -i 0-999999 -n 1)
   rand_num=$(printf "%06d" "$rand_num")
 
   uid="${uname}-${now}-${rand_num}"
