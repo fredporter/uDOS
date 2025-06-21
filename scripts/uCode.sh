@@ -31,14 +31,18 @@ echo "- Session started at $(date)" >> "$SESSION_FILE"
 
 refresh_uos() {
   echo "♻️ Refreshing uOS environment..."
-  ./scripts/setup-check.sh
-  ./scripts/dashboard-sync.sh
+  bash "$UROOT/scripts/setup-check.sh"
+  bash "$UROOT/scripts/dashboard-sync.sh"
   echo "✅ uOS refreshed."
 }
 
 # ──────────────────────────────────────────────
 # 🧠 Logging Functions
 # ──────────────────────────────────────────────
+
+log_error() {
+  echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
+}
 
 log_move() {
   local cmd="$1"
@@ -48,7 +52,7 @@ log_move() {
   ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   user=$(whoami)
   path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
-  output=""  # Reserved for future command capture
+  output=""  # Placeholder for future command output capture
 
   echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
@@ -69,14 +73,11 @@ log_move() {
   fi
 }
 
-log_error() {
-  echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
-}
-
-./scripts/dashboard-sync.sh
+# Show dashboard on startup
+bash "$UROOT/scripts/dashboard-sync.sh"
 
 # ──────────────────────────────────────────────
-# 🚦 Command Dispatcher
+# 🚦 Command Dispatcher Loop
 # ──────────────────────────────────────────────
 
 while true; do
@@ -84,27 +85,29 @@ while true; do
 
   case "$cmd" in
     help)
-      echo "🧭 Commands:"
-      echo "  new [type]       → Create new mission/move/milestone/legacy"
-      echo "  log [type]       → Save current draft to archive"
-      echo "  redo [type]      → Remove current draft"
-      echo "  undo move        → Revert last move (confirm)"
-      echo "  run [script]     → Run script from uOS/scripts"
-      echo "  dash             → Show dashboard"
-      echo "  recent           → Show last 5 session moves"
-      echo "  map              → Show current region"
-      echo "  mission          → Print current mission"
-      echo "  move             → Log manual move"
-      echo "  tree             → Show project tree"
-      echo "  list             → List visible files"
-      echo "  restart          → Restart shell"
-      echo "  exit             → Quit"
+      cat <<EOF
+🧭 Commands:
+  new [move|mission|milestone|legacy]  → Create new item
+  log [type]                          → Save current draft (coming soon)
+  redo [type]                         → Remove current draft (coming soon)
+  undo move                          → Revert last move (confirm)
+  run [script]                       → Run a script from scripts/
+  dash                              → Show dashboard
+  recent                            → Show last 5 session moves
+  map                               → Show current region map
+  mission                           → Show current mission
+  move                              → Log manual move
+  tree                              → Show project tree
+  list                              → List visible files
+  refresh                           → Refresh uOS environment
+  restart                           → Restart CLI
+  exit                              → Quit
+EOF
       ;;
-    
+
     new)
       case "$args" in
         move)
-          local id path
           id=$(date +%s)
           path="$MOVE_DIR/$(date +%Y-%m-%d)-move-${id}.md"
           if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
@@ -118,7 +121,6 @@ while true; do
           fi
           ;;
         mission|milestone|legacy)
-          local path
           path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
           if cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null; then
             echo "📄 New $args created: $path"
@@ -135,21 +137,37 @@ while true; do
           ;;
       esac
       ;;
-    
+
     log)
       echo "📝 Logging for $args is not yet implemented."
       ;;
-    
+
     redo)
       echo "🧹 Redo logic placeholder for: $args"
       ;;
-    
+
     undo)
-      echo "🧺 Undoing last move not yet implemented."
+      if [[ "$args" == "move" ]]; then
+        last_move=$(ls -1t "$MOVE_DIR"/*.md 2>/dev/null | head -1)
+        if [[ -z "$last_move" ]]; then
+          echo "⚠️ No moves to undo."
+        else
+          read -rp "⚠️ Confirm undo last move $(basename "$last_move")? (y/N): " confirm
+          if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            rm -f "$last_move"
+            echo "✅ Last move undone: $(basename "$last_move")"
+            echo "- Undo move: $(basename "$last_move")" >> "$SESSION_FILE"
+          else
+            echo "❌ Undo canceled."
+          fi
+        fi
+      else
+        echo "❌ Usage: undo move"
+      fi
       ;;
-    
+
     run)
-      local script="$UROOT/scripts/$args.sh"
+      script="$UROOT/scripts/$args.sh"
       if [[ -f "$script" ]]; then
         bash "$script"
         log_move "run $args"
@@ -158,69 +176,68 @@ while true; do
         log_error "run: script not found $script"
       fi
       ;;
-    
+
     dash)
-      bash "$UROOT/scripts/dashboard.sh" || echo "❌ Failed to load dashboard."
+      bash "$UROOT/scripts/dashboard-sync.sh" || echo "❌ Failed to load dashboard."
       log_move "dash"
       ;;
-    
+
     recent)
       echo "📜 Recent Moves:"
       tail -n 5 "$SESSION_FILE"
       ;;
-    
+
     map)
       cat "$KNOWLEDGE_DIR/map/current_region.txt" 2>/dev/null || echo "🗺️ No map loaded."
       ;;
-    
+
     mission)
-      cat "$MEMORY_DIR/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
+      cat "$MEMORY_DIR/state/current_mission.txt" 2>/dev/null || echo "🎯 No mission active."
       ;;
-    
+
     move)
       log_move "manual move"
       ;;
-    
+
     tree)
       bash "$UROOT/scripts/ucode-tree.sh"
       log_move "tree"
       ;;
-    
+
     list)
       echo "📂 Current directory: $(pwd)"
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
       ;;
 
-refresh)
-  refresh_uos
-  ;;
-    
+    refresh)
+      refresh_uos
+      ;;
+
     restart)
       echo "🔄 Restarting uCode CLI..."
       exec bash "$BASH_SOURCE"
       ;;
-    
+
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
 
-      # In Docker: just exit the shell
+      # Detect Docker container (exit shell cleanly)
       if grep -q docker /proc/1/cgroup 2>/dev/null; then
         echo "🧩 Detected Docker environment — container will exit cleanly."
         break
       fi
 
-      # macOS GUI terminal auto-close
-      if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS Terminal GUI auto-close
+      if [[ "$OSTYPE" == darwin* ]]; then
         echo "🌀 Closing Terminal window..."
         osascript -e 'tell application "Terminal" to close front window' &>/dev/null
         exit 0
       fi
 
-      # Default fallback for Linux or others
       exit 0
       ;;
-    
+
     *)
       echo "❓ Unknown command: $cmd"
       ;;

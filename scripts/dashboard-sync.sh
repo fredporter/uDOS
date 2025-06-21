@@ -1,81 +1,66 @@
 #!/bin/bash
-# dashboard-sync.sh — Generate ASCII dashboard status snapshot for uOS CLI
+# dashboard-sync.sh — Unified uOS ASCII dashboard generator
 
 BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEM="$BASE/uMemory"
 STATE="$UMEM/state"
-LOGS="$UMEM/logs/moves"
+LOGS="$UMEM/logs"
+MOVES="$LOGS/moves"
+STATS_LOG="$(ls -t "$LOGS"/ulog-*.md 2>/dev/null | head -1)"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Load user data safely using sed (BusyBox compatible)
-# ─────────────────────────────────────────────────────────────────────────────
+# === Load user info ===
 USER_FILE="$STATE/user.md"
 USERNAME="Unknown"
 LOCATION="Unknown"
-MISSION="(none)"
+PRIVACY="n/a"
 LIFESPAN="n/a"
-PRIVACY="crypt"
-
 if [ -f "$USER_FILE" ]; then
-  USERNAME=$(sed -n 's/\*\*Username\*\*: //p' "$USER_FILE")
-  LOCATION=$(sed -n 's/\*\*Location\*\*: //p' "$USER_FILE")
-  MISSION=$(sed -n 's/\*\*Mission\*\*: //p' "$USER_FILE")
-  LIFESPAN=$(sed -n 's/\*\*Lifespan\*\*: //p' "$USER_FILE")
-  PRIVACY=$(sed -n 's/\*\*Privacy\*\*: //p' "$USER_FILE")
+  USERNAME=$(grep -oP '(?<=\*\*Username\*\*: ).*' "$USER_FILE")
+  LOCATION=$(grep -oP '(?<=\*\*Location\*\*: ).*' "$USER_FILE")
+  PRIVACY=$(grep -oP '(?<=\*\*Privacy\*\*: ).*' "$USER_FILE")
+  LIFESPAN=$(grep -oP '(?<=\*\*Lifespan\*\*: ).*' "$USER_FILE")
 fi
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Load datetime + mission fallback
-# ─────────────────────────────────────────────────────────────────────────────
+# === Active mission ===
+ACTIVE_MISSION="(none)"
+if [ -f "$STATE/current_mission.txt" ]; then
+  ACTIVE_MISSION=$(head -n1 "$STATE/current_mission.txt")
+elif [ -f "$STATE/active_mission.md" ]; then
+  ACTIVE_MISSION=$(head -n1 "$STATE/active_mission.md" | sed 's/# *//')
+fi
+
+# === Datetime now ===
 DATETIME=$(date '+%Y-%m-%d %H:%M:%S')
-MISSION_FILE="$STATE/active_mission.md"
-if [ -f "$MISSION_FILE" ]; then
-  MISSION=$(head -n 1 "$MISSION_FILE" | sed 's/# *//')
-fi
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Today’s Focus & Region Pointer (default values for now)
-# ─────────────────────────────────────────────────────────────────────────────
-TODAYS_FOCUS="Suggested Move: Run 'log_mission.sh' to begin your next journey"
-REGION_POINTER="/vault/crypt"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Recent Moves (from latest session index file)
-# ─────────────────────────────────────────────────────────────────────────────
-LATEST_INDEX=$(ls -t "$LOGS"/index-sess-*.md 2>/dev/null | head -1)
+# === Recent Moves ===
+LATEST_INDEX=$(ls -t "$MOVES"/index-sess-*.md 2>/dev/null | head -1)
 RECENT_MOVES=()
 if [ -f "$LATEST_INDEX" ]; then
-  while IFS= read -r line; do
-    move=$(echo "$line" | sed 's/- .*Move: //')
-    RECENT_MOVES+=("$move")
-  done < <(grep 'Move:' "$LATEST_INDEX" | tail -5)
+  RECENT_MOVES=($(grep -oP '(?<=Move: ).*' "$LATEST_INDEX" | tail -5))
 fi
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Map + Tower placeholders
-# ─────────────────────────────────────────────────────────────────────────────
-MAP_PEEK="No map data available."
-TOWER_KNOWLEDGE="No rooms indexed yet."
+# === Health Check Data ===
+if [ -f "$STATS_LOG" ]; then
+  HEALTH_STATS=$(tail -n 10 "$STATS_LOG")
+else
+  HEALTH_STATS="No stat log available. Run generate_stats.sh."
+fi
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Health Check
-# ─────────────────────────────────────────────────────────────────────────────
-HEALTH_CHECK="No stat log available. Run generate_stats.sh."
 ENCRYPTION_STATUS="[ENABLED]"
-SYNC_STATUS="Local OK, No pending exports"
+REGION_POINTER="/vault/crypt"
+TOWER_KNOWLEDGE="No rooms indexed yet."
+MAP_PEEK="No map data available."
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ASCII Dashboard Output
-# ─────────────────────────────────────────────────────────────────────────────
+# === Output ASCII Dashboard ===
 cat <<EOF
 ╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗
-║ User: $USERNAME                             $DATETIME ║
-║ Location: $LOCATION                                                    ║
-║ Active Mission: $MISSION                                                    ║
+║ User: ${USERNAME:-Unknown}                             $DATETIME ║
+║ Location: ${LOCATION:-Unknown}                                                         ║
+║ Active Mission: ${ACTIVE_MISSION:-none}                                                    ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ 🔎 Today’s Focus                                                              ║
-║ $TODAYS_FOCUS                                                               ║
-║ Region Pointer: $REGION_POINTER                                              ║
+║ Suggested Move: Run 'log_mission.sh' to begin your next journey               ║
+║ Region Pointer: $REGION_POINTER                                                  ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ 📝 Recent Moves                                                               ║
 EOF
@@ -97,9 +82,19 @@ cat <<EOF
 ║ $TOWER_KNOWLEDGE                                                             ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ ✅ Health Check                                                               ║
-║ $HEALTH_CHECK                                                                ║
-║ Encryption: $ENCRYPTION_STATUS   Privacy: $PRIVACY   Lifespan: $LIFESPAN     ║
-║ Sync Status: $SYNC_STATUS                                                  ║
+EOF
+
+if [ "$HEALTH_STATS" != "" ]; then
+  echo "$HEALTH_STATS" | while read -r line; do
+    printf "║ %-78s ║\n" "$line"
+  done
+else
+  echo "║ No health stats found.                                                      ║"
+fi
+
+cat <<EOF
+║ Encryption: $ENCRYPTION_STATUS   Privacy: ${PRIVACY:-n/a}   Lifespan: ${LIFESPAN:-n/a}     ║
+║ Sync Status: Local OK, No pending exports                                      ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 🧭 Use 'help' for available commands. Make your next move, Master.
