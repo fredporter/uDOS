@@ -1,17 +1,40 @@
 #!/bin/bash
-
-# Terminal launch notes (160x90 characters ≈ 1280x720 pixels on most macOS fonts)
-# Adjust window size manually or use AppleScript-based launcher if needed.
+# Launch-uOS.command v1.4 – Clean launch with resize & feedback
+# uOS by Master & ChatGPT
 
 echo "🔁 Launching uOS..."
 
-cd ~/uOS || exit
+# Resize current Terminal window BEFORE shell starts
+osascript <<EOF
+tell application "Terminal"
+  set bounds of front window to {100, 100, 1400, 1000}
+end tell
+EOF
 
+# Step into uOS directory
+cd ~/uOS || {
+  echo "❌ Error: ~/uOS directory not found."
+  exit 1
+}
+
+# Ensure Docker is running
+if ! docker info >/dev/null 2>&1; then
+  echo "🐳 Starting Docker Desktop..."
+  open -a Docker
+  while ! docker info >/dev/null 2>&1; do
+    echo "⌛ Waiting for Docker to initialise..."
+    sleep 2
+  done
+fi
+
+# Stop any existing containers (cleanup)
 echo "🧼 Stopping previous uOS containers..."
-docker-compose down
+docker compose down || echo "⚠️  Nothing to stop."
 
+# Rebuild container
 echo "🔨 Rebuilding uOS container..."
-docker-compose build
+docker compose build
 
+# Launch uOS interactive shell (same window)
 echo "🚀 Starting uOS interactive shell..."
-docker-compose run --rm uos
+docker compose run --rm uos
