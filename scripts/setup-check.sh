@@ -3,6 +3,7 @@
 
 BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEM="$BASE/uMemory"
+STATE="$UMEM/state"
 pass="✅"
 fail="❌"
 
@@ -66,7 +67,6 @@ if [ ! -f "$USER_FILE" ]; then
   read -p "🎯 Define your Mission (e.g., revive old Mac, AI dashboard): " mission
   read -p "🏛️  What legacy should uOS preserve for you?: " legacy
 
-  # Privacy: crypt or beacon only
   while true; do
     read -p "🔒 Privacy level [crypt/beacon]: " privacy
     if [[ "$privacy" == "crypt" || "$privacy" == "beacon" ]]; then
@@ -76,7 +76,6 @@ if [ ! -f "$USER_FILE" ]; then
     fi
   done
 
-  # Lifespan: short, medium, long, infinite
   while true; do
     read -p "⏳ Lifespan [short/medium/long/infinite]: " lifespan
     if [[ "$lifespan" =~ ^(short|medium|long|infinite)$ ]]; then
@@ -86,18 +85,17 @@ if [ ! -f "$USER_FILE" ]; then
     fi
   done
 
-  # Generate IDs with timestamp and hex
   now=$(date '+%Y%d%m-%H%M%S')
-  ms=$(printf "%02d" $(($(date +%N) / 10000000)))
+  ms=$(printf "%02d" $(( $(date +%N) / 10000000 )))
   timestamp="${now}${ms}"
-  hex=$(openssl rand -hex 3)
+  hex=$(openssl rand -hex 3 2>/dev/null || echo "abc123")
 
   uid="uos-${uname}-${timestamp}-${hex}"
   iid="inst-${timestamp}-${hex}"
 
   # Instance number based on move logs
-  instance_num=$(find "$MEMORY_DIR/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
-  instance_num=$((instance_num + 1))
+  move_count=$(find "$UMEM/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
+  instance_num=$((move_count + 1))
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
   version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
@@ -122,15 +120,13 @@ Welcome to uOS, $uname. Your instance is now active.
 EOF
 
   echo "✅ User profile created: $USER_FILE"
-fi
-
   echo "✅ Created: state/user.md"
   echo "👋 Welcome, $uname. Your ID is $uid."
 fi
 
 # -------------------------------------
 # 5. Version file check
-VERSION_FILE="$UMEM/state/version.md"
+VERSION_FILE="$STATE/version.md"
 echo ""
 echo "📦 uOS Version:"
 if [ -f "$VERSION_FILE" ]; then
@@ -143,7 +139,7 @@ fi
 
 # -------------------------------------
 # 6. Session start and Move log index
-SESSION_FILE="$UMEM/state/session.md"
+SESSION_FILE="$STATE/session.md"
 sid="sess-$(date '+%Y%m%d-%H%M')"
 echo ""
 echo "📆 Session startup:"
@@ -155,7 +151,6 @@ else
   echo "$pass Created new session.md"
 fi
 
-# Create fresh move index for this session
 MOVE_INDEX="$UMEM/logs/moves/index-$sid.md"
 if [ ! -f "$MOVE_INDEX" ]; then
   echo "# Move Index – $sid" > "$MOVE_INDEX"
