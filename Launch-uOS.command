@@ -1,30 +1,39 @@
 #!/bin/bash
-# Launch-uOS.command v1.2 – Clean launch with resize & feedback
-# uOS by Master & ChatGPT
 
+# ╔════════════════════════════════════════════════════════════════╗
+# ║ uOS Launcher (Mac)                                            ║
+# ║ Launches Docker + Terminal window at custom resolution        ║
+# ╚════════════════════════════════════════════════════════════════╝
+
+# 1. Define base directory
+cd ~/uOS || exit
+
+# 2. Optional: Prelaunch Docker.app if not running
+if ! pgrep -f Docker.app >/dev/null; then
+  echo "🐳 Starting Docker Desktop..."
+  open -a Docker
+  while ! docker system info >/dev/null 2>&1; do
+    echo "⌛ Waiting for Docker to initialise..."
+    sleep 2
+  done
+fi
+
+# 3. Stop previous containers (cleanup)
 echo "🔁 Launching uOS..."
+echo "🧼 Stopping previous uOS containers..."
+docker-compose down
 
-# Resize current Terminal window BEFORE shell starts
+# 4. Rebuild container
+echo "🔨 Rebuilding uOS container..."
+docker-compose build
+
+# 5. Launch full-resolution uOS terminal via AppleScript (macOS-specific)
 osascript <<EOF
-tell application "Terminal"
-    set bounds of front window to {0, 22, 1280, 840}
-end tell
+  tell application "Terminal"
+    do script "cd ~/uOS && docker-compose run --rm uos"
+    delay 0.5
+    set bounds of front window to {100, 100, 1400, 1000} -- approx 160x90 char grid
+  end tell
 EOF
 
-# Step into uOS directory
-cd ~/uOS || {
-  echo "❌ Error: ~/uOS directory not found."
-  exit 1
-}
-
-# Stop existing container
-echo "🧼 Stopping previous uOS containers..."
-docker compose down
-
-# Rebuild container
-echo "🔨 Rebuilding uOS container..."
-docker compose build
-
-# Launch uOS interactive shell (reuses this window)
-echo "🚀 Starting uOS interactive shell..."
-docker compose run --rm uos
+exit 0
