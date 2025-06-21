@@ -12,11 +12,22 @@ RECENT_MOVES_DIR="$UMEMORY/logs/moves"
 
 # Header
 clear
-echo "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗"
-echo "║ User: Master                           $(date '+%Y-%m-%d %H:%M:%S')                ║"
-echo "║ Location: The Crypt                                                           ║"
-echo "║ Active Mission: Activate uCode Interface                                      ║"
-echo "╠═══════════════════════════════════════════════════════════════════════════════╣"
+USER_NAME=$(whoami)
+printf "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗\n"
+printf "║ User: %-32s %s ║\n" "$USER_NAME" "$(date '+%Y-%m-%d %H:%M:%S')"
+
+LOCATION=$(basename "$(cat "$REGION" 2>/dev/null)" 2>/dev/null)
+[ -z "$LOCATION" ] && LOCATION="Unknown"
+printf "║ Location: %-64s║\n" "$LOCATION"
+
+MISSION_FILE="$UMEMORY/state/current_mission.md"
+if [[ -f "$MISSION_FILE" ]]; then
+  ACTIVE_MISSION=$(grep -i '^Title:' "$MISSION_FILE" | cut -d':' -f2- | xargs)
+else
+  ACTIVE_MISSION="(none)"
+fi
+printf "║ Active Mission: %-58s║\n" "$ACTIVE_MISSION"
+printf "╠═══════════════════════════════════════════════════════════════════════════════╣\n"
 
 # Today’s Focus Block
 echo "║ 🔎 Today’s Focus                                                              ║"
@@ -29,17 +40,16 @@ echo "║ 📝 Recent Moves                                                     
 if ls "$RECENT_MOVES_DIR"/*.md &>/dev/null; then
   recent_moves=$(ls -1t "$RECENT_MOVES_DIR"/*.md 2>/dev/null | head -n 5)
   for move_file in $recent_moves; do
-    # Extract timestamp from filename
-    move_date=$(basename "$move_file" | cut -d'-' -f1-3 | tr '-' '/')
-    
-    # Extract the Move name from inside the file
-    move_name=$(grep -i '^Move:' "$move_file" | cut -d':' -f2- | xargs)
-    
-    # Fallback if no move name found
-    if [[ -z "$move_name" ]]; then
-      move_name="[unnamed move]"
-    fi
-    
+    # Extract ISO date from inside file or fallback to filename
+    move_date=$(grep -i '^timestamp:' "$move_file" | cut -d'T' -f1 | cut -d':' -f2- | xargs)
+    [ -z "$move_date" ] && move_date=$(basename "$move_file" | cut -d'-' -f1-3 | tr '-' '/')
+
+    # Extract command from YAML
+    move_name=$(grep -i '^command:' "$move_file" | head -n1 | cut -d':' -f2- | sed 's/^ *//;s/^"//;s/"$//')
+
+    # Fallback if no move name
+    [ -z "$move_name" ] && move_name="[unnamed move]"
+
     printf "║ [%s] Move: %-60s║\n" "$move_date" "$move_name"
   done
 else

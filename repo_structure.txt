@@ -1,63 +1,65 @@
 .
   |  |-- Dockerfile
   |  |-- LICENSE
-  |-- Launch 🌀 uOS.app
-    |-- Contents
-      |  |-- Info.plist
-      |-- MacOS
-        |  |-- Automator Application Stub
-      |-- Resources
-        |  |-- ApplicationStub.icns
-        |  |-- Assets.car
-        |  |-- InfoPlist.loctable
-        |-- ar.lproj
-        |-- ca.lproj
-        |-- cs.lproj
-        |-- da.lproj
-        |-- de.lproj
-        |-- el.lproj
-        |-- en.lproj
-        |-- en_AU.lproj
-        |-- en_GB.lproj
-        |-- es.lproj
-        |-- es_419.lproj
-        |-- fi.lproj
-        |-- fr.lproj
-        |-- fr_CA.lproj
-        |-- he.lproj
-        |-- hi.lproj
-        |-- hr.lproj
-        |-- hu.lproj
-        |-- id.lproj
-        |-- it.lproj
-        |-- ja.lproj
-        |-- ko.lproj
-        |-- ms.lproj
-        |-- nl.lproj
-        |-- no.lproj
-        |-- pl.lproj
-        |-- pt.lproj
-        |-- pt_PT.lproj
-        |-- ro.lproj
-        |-- ru.lproj
-        |-- sk.lproj
-        |-- sl.lproj
-        |-- sv.lproj
-        |-- th.lproj
-        |-- tr.lproj
-        |-- uk.lproj
-        |-- vi.lproj
-        |-- zh_CN.lproj
-        |-- zh_HK.lproj
-        |-- zh_TW.lproj
-      |-- _CodeSignature
-        |  |-- CodeResources
-      |  |-- document.wflow
-    |  |-- Icon
-  |  |-- Launch-uOS.command
-  |  |-- Quit-uOS.command
   |  |-- README.md
   |  |-- docker-compose.yml
+  |-- macos
+    |  |-- Launch-uOS.command
+    |-- Launch🌀uOS.app
+      |-- Contents
+        |  |-- Info.plist
+        |-- MacOS
+          |  |-- Automator Application Stub
+        |-- Resources
+          |  |-- ApplicationStub.icns
+          |  |-- Assets.car
+          |  |-- InfoPlist.loctable
+          |-- ar.lproj
+          |-- ca.lproj
+          |-- cs.lproj
+          |-- da.lproj
+          |-- de.lproj
+          |-- el.lproj
+          |-- en.lproj
+          |-- en_AU.lproj
+          |-- en_GB.lproj
+          |-- es.lproj
+          |-- es_419.lproj
+          |-- fi.lproj
+          |-- fr.lproj
+          |-- fr_CA.lproj
+          |-- he.lproj
+          |-- hi.lproj
+          |-- hr.lproj
+          |-- hu.lproj
+          |-- id.lproj
+          |-- it.lproj
+          |-- ja.lproj
+          |-- ko.lproj
+          |-- ms.lproj
+          |-- nl.lproj
+          |-- no.lproj
+          |-- pl.lproj
+          |-- pt.lproj
+          |-- pt_PT.lproj
+          |-- ro.lproj
+          |-- ru.lproj
+          |-- sk.lproj
+          |-- sl.lproj
+          |-- sv.lproj
+          |-- th.lproj
+          |-- tr.lproj
+          |-- uk.lproj
+          |-- vi.lproj
+          |-- zh_CN.lproj
+          |-- zh_HK.lproj
+          |-- zh_TW.lproj
+        |-- _CodeSignature
+          |  |-- CodeResources
+        |  |-- document.wflow
+      |  |-- Icon
+    |  |-- Quit-uOS.command
+    |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -128,6 +130,7 @@
       |  |-- dashlog-2025-06-14.md
       |  |-- dashlog-2025-06-21.md
       |-- errors
+        |  |-- 2025-06-21-errorlog.md
       |-- moves
         |  |-- 2025-05-27-move-001.md
         |  |-- 2025-06-13-move-1749833275.md
@@ -135,6 +138,18 @@
         |  |-- 2025-06-21-move-1750487039.md
         |  |-- 2025-06-21-move-1750498840.md
         |  |-- 2025-06-21-move-1750498877.md
+        |  |-- 2025-06-21-move-1750498906.md
+        |  |-- 2025-06-21-move-1750502463.md
+        |  |-- 2025-06-21-move-1750503594.md
+        |  |-- 2025-06-21-move-1750503607.md
+        |  |-- 2025-06-21-move-1750503635.md
+        |  |-- 2025-06-21-move-1750503955.md
+        |  |-- 2025-06-21-move-1750503966.md
+        |  |-- 2025-06-21-move-1750503969.md
+        |  |-- 2025-06-21-move-1750504556.md
+        |  |-- 2025-06-21-move-1750504560.md
+        |  |-- 2025-06-21-move-1750504567.md
+        |  |-- 2025-06-21-move-1750504579.md
         |  |-- moves.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
