@@ -6,26 +6,25 @@ LABEL description="uOS - lightweight AI-driven OS shell in Docker"
 # Set working directory
 WORKDIR /app
 
-# Install required system packages
-RUN apk add --no-cache bash curl git tini
+# Install system dependencies
+RUN apk add --no-cache bash curl git tini nano
 
-# Copy Python requirements if needed
-COPY requirements.txt .
+# Copy full uOS repo contents
+COPY . /app
+
+# Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the source code
-COPY ./src /app/src
-
-# Set environment variables
+# Set uOS environment variables
+ENV UOS_MEMORY_DIR=/uMemory
 ENV UOS_KNOWLEDGE_DIR=/uKnowledge
 ENV UOS_CONFIG_DIR=/config
 
-# Create required directories
-RUN mkdir -p $UOS_KNOWLEDGE_DIR $UOS_CONFIG_DIR
+# Create required uOS directories
+RUN mkdir -p $UOS_MEMORY_DIR $UOS_KNOWLEDGE_DIR $UOS_CONFIG_DIR
 
-# Use tini as init system
+# Use Tini as init system to handle signals properly
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Launch the uShell CLI by default
-
-CMD ["bash", "./src/uCode.sh"]
+# Default command: launch uCode shell
+CMD ["bash", "./scripts/uCode.sh"]
