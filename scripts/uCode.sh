@@ -190,10 +190,10 @@ while true; do
         case "$confirm_shutdown" in
           y|Y)
             echo "🔌 Running Quit-uOS.command..."
-            if [ -x "$HOME/uOS/Quit-uOS.command" ]; then
-              "$HOME/uOS/Quit-uOS.command"
+            if [ -x "$HOME/uOS/macos/Quit-uOS.command" ]; then
+              "$HOME/uOS/macos/Quit-uOS.command"
             else
-              echo "⚠️ Quit-uOS.command not found or not executable at $HOME/uOS/Quit-uOS.command"
+              echo "⚠️ Quit-uOS.command not found or not executable at $HOME/uOS/macos/Quit-uOS.command"
               log_error "exit: Quit-uOS.command missing or not executable"
             fi
             ;;
