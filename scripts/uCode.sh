@@ -168,7 +168,7 @@ while true; do
       ;;
     restart)
       echo "🔄 Restarting uCode CLI..."
-      exec "$BASH_SOURCE"
+      exec bash "$BASH_SOURCE"
       ;;
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
