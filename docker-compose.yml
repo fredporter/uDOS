@@ -1,13 +1,19 @@
+version: "3.8"
+
 services:
   uos:
     build: .
     container_name: uos-container
-    stdin_open: true       # Enables interactive input (STDIN)
-    tty: true              # Allocates a pseudo-TTY
     volumes:
-      - .:/uOS                   # Mount entire uOS repo
-      - ./scripts:/uOS/scripts  # CLI and backend logic
-      - ./uMemory:/uMemory      # Private local memory (ignored in Git)
-      - ./uKnowledge:/uKnowledge  # Public shared knowledge
+      - .:/uOS
+      - ./uMemory:/uMemory
+      - ./uKnowledge:/uKnowledge
+      - ./scripts:/uOS/scripts
     working_dir: /uOS
+    stdin_open: true
+    tty: true
+    environment:
+      - UOS_KNOWLEDGE_DIR=/uKnowledge
+      - UOS_MEMORY_DIR=/uMemory
+      - UOS_CONFIG_DIR=/config
     command: ["bash", "scripts/uCode.sh"]
