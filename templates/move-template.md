@@ -3,13 +3,16 @@ id: move-{{timestamp}}
 type: move
 timestamp: {{iso8601}}
 user: {{username}}
-container: uos-container
-description: "{{description}}"
+command: "{{command}}"
 result: "{{output}}"
+context:
+  mission: null
+  milestone: null
+  related_files: []
 tags: [uos, move, log]
 ---
 
-## ➤ Move
+## ➤ Move Executed
 
 **Command:**  
 ```bash

@@ -1,28 +1,25 @@
 ---
-id: legacy-{{uuid}}
+id: legacy-{{slug}}
 type: legacy
 title: "{{title}}"
+user: {{username}}
 created: {{iso8601}}
-retired: false
-summary: "{{summary}}"
 tags: [uos, legacy]
 ---
 
-# 🪦 Legacy: {{title}}
+## 🪦 Legacy Vision
 
-## Summary
+{{vision}}
 
-{{summary}}
+## 🧬 Lifelong Meaning
 
-## Origin
+{{meaning}}
 
-- **Missions completed**: ...
-- **Final Milestones**: ...
+## 📚 Contributions
 
-## Final Thoughts
+- mission-{{id}}
+- milestone-{{id}}
 
-...
+## 🧾 Final Reflections
 
-## Archived Files
-
-- ...
+{{notes}}

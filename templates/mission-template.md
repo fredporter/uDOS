@@ -1,24 +1,31 @@
 ---
-id: mission-{{uuid}}
+
+## 📄 `mission-template.md`
+
+```markdown
+---
+id: mission-{{slug}}
 type: mission
 title: "{{title}}"
 created: {{iso8601}}
-status: in-progress
-priority: medium
-milestones: []
+user: {{username}}
+status: planned
 tags: [uos, mission]
 ---
 
-# 🎯 Mission: {{title}}
+## 🎯 Mission Objective
 
-## Objective
+{{objective}}
 
-{{description}}
+## 🧭 Context
 
-## Milestones
+{{background}}
 
-- [ ] ...
+## 📌 Linked Milestones
 
-## Notes
+- milestone-{{id1}}
+- milestone-{{id2}}
 
-...
+## 🧾 Notes
+
+{{notes}}

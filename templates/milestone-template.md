@@ -1,24 +1,25 @@
 ---
-id: milestone-{{uuid}}
+id: milestone-{{slug}}
 type: milestone
 title: "{{title}}"
 created: {{iso8601}}
-status: in-progress
-linked_mission: "{{mission-id}}"
-moves: []
+user: {{username}}
+status: active
 tags: [uos, milestone]
 ---
 
-# 🪜 Milestone: {{title}}
+## 📍 Milestone Goal
 
-## Goal
+{{goal}}
 
-{{description}}
+## 🧠 Strategy
 
-## Progress
+{{strategy}}
 
-- [ ] ...
+## 🔗 Linked Mission
 
-## Related Moves
+- mission-{{slug}}
 
-- `move-xxxxxx`
+## 📜 Notes
+
+{{notes}}
