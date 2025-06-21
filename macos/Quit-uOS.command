@@ -6,6 +6,7 @@ echo "🛑 Shutting down uOS..."
 # Resolve absolute path to root of uOS repo
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 UOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 
 cd "$UOS_ROOT" || {
   echo "❌ Error: Unable to locate uOS root directory."
