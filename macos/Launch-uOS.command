@@ -7,7 +7,7 @@ echo "🔁 Launching uOS..."
 # Resize current Terminal window BEFORE shell starts
 osascript <<EOF
 tell application "Terminal"
-  set bounds of front window to {100, 100, 1400, 1000}
+  set bounds of front window to {100, 100, 1380, 820}
 end tell
 EOF
 
