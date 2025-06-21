@@ -53,7 +53,6 @@ USER_FILE="$STATE/user.md"
 if [ ! -f "$USER_FILE" ]; then
   echo "👤 No user profile found — starting first-time setup."
 
-  # Ask for simple fields
   while true; do
     read -p "🪪 Enter your username (no spaces or symbols): " uname
     if [[ "$uname" =~ ^[a-zA-Z0-9_-]+$ ]]; then
@@ -85,22 +84,20 @@ if [ ! -f "$USER_FILE" ]; then
     fi
   done
 
-  now=$(date '+%Y%d%m-%H%M%S')
+  now=$(date '+%Y%m%d-%H%M%S')
   ms=$(printf "%02d" $(( $(date +%N) / 10000000 )))
   timestamp="${now}${ms}"
   hex=$(openssl rand -hex 3 2>/dev/null || echo "abc123")
 
   uid="uos-${uname}-${timestamp}-${hex}"
-  iid="inst-${timestamp}-${hex}"
+  iid="inst-${uname}-${timestamp}-${hex}"
 
-  # Instance number based on move logs
   move_count=$(find "$UMEM/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
   instance_num=$((move_count + 1))
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
   version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
 
-  # Save profile
   cat > "$USER_FILE" <<EOF
 # uOS User Profile
 
