@@ -66,6 +66,8 @@ log_error() {
   echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
 }
 
+/scripts/dashboard-sync.sh
+
 # ──────────────────────────────────────────────
 # 🚦 Command Dispatcher
 # ──────────────────────────────────────────────
