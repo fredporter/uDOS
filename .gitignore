@@ -1,3 +1,17 @@
+# Ignore system-generated internals inside the .app
+macos/Launch🌀uOS.app/Contents/
+macos/Launch🌀uOS.app/_CodeSignature/
+macos/Launch🌀uOS.app/Resources/
+macos/Launch🌀uOS.app/Icon
+macos/Launch🌀uOS.app/document.wflow
+
+# Keep base .app folder for packaging/distribution
+!macos/Launch🌀uOS.app/
+
+# Keep launcher shell scripts
+!macos/Launch-uOS.command
+!macos/Quit-uOS.command
+
 # Python and build artifacts
 __pycache__/
 *.pyc
