@@ -62,9 +62,9 @@ if [ ! -f "$USER_FILE" ]; then
     fi
   done
 
-  read -p "🌍 Location (e.g., City, Country): " location
-  read -p "🎯 Define your Mission (e.g., revive old Mac, AI dashboard): " mission
-  read -p "🏛️  What legacy should uOS preserve for you?: " legacy
+  read -p "🌍 Location: " location
+  read -p "🎯 Define your Mission: " mission
+  read -p "🏛️ What Legacy should uOS preserve?: " legacy
 
   while true; do
     read -p "🔒 Privacy level [crypt/beacon]: " privacy
@@ -85,12 +85,12 @@ if [ ! -f "$USER_FILE" ]; then
   done
 
   now=$(date '+%Y%m%d-%H%M%S')
-  ms=$(printf "%02d" $(( $(date +%N) / 10000000 )))
-  timestamp="${now}${ms}"
-  hex=$(openssl rand -hex 3 2>/dev/null || echo "abc123")
+  # Generate a 6-digit random number (000000 to 999999)
+  rand_num=$(shuf -i 0-999999 -n 1)
+  rand_num=$(printf "%06d" "$rand_num")
 
-  uid="uos-${uname}-${timestamp}-${hex}"
-  iid="inst-${uname}-${timestamp}-${hex}"
+  uid="${uname}-${now}-${rand_num}"
+  iid="${uname}-${now}-${rand_num}"
 
   move_count=$(find "$UMEM/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
   instance_num=$((move_count + 1))
