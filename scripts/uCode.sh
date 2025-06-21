@@ -1,5 +1,5 @@
 #!/bin/bash
-# uCode CLI v1.4.5 — Unified Input/Output Shell for uOS
+# uCode CLI v1.4.6 — Unified Input/Output Shell for uOS
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
@@ -32,6 +32,7 @@ echo "- Session started at $(date)" >> "$SESSION_FILE"
 refresh_uos() {
   echo "♻️ Refreshing uOS environment..."
   bash "$UROOT/scripts/setup-check.sh"
+  bash "$UROOT/scripts/generate_stats.sh"
   bash "$UROOT/scripts/dashboard-sync.sh"
   echo "✅ uOS refreshed."
 }
@@ -52,7 +53,7 @@ log_move() {
   ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   user=$(whoami)
   path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
-  output=""  # Placeholder for future command output capture
+  output=""
 
   echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
@@ -100,7 +101,6 @@ while true; do
   tree                              → Show project tree
   list                              → List visible files
   refresh                           → Refresh uOS environment
-  restart                           → Restart CLI
   exit                              → Quit
 EOF
       ;;
@@ -214,21 +214,14 @@ EOF
       refresh_uos
       ;;
 
-    restart)
-      echo "🔄 Restarting uCode CLI..."
-      exec bash "$BASH_SOURCE"
-      ;;
-
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
 
-      # Detect Docker container (exit shell cleanly)
       if grep -q docker /proc/1/cgroup 2>/dev/null; then
         echo "🧩 Detected Docker environment — container will exit cleanly."
         break
       fi
 
-      # macOS Terminal GUI auto-close
       if [[ "$OSTYPE" == darwin* ]]; then
         echo "🌀 Closing Terminal window..."
         osascript -e 'tell application "Terminal" to close front window' &>/dev/null
