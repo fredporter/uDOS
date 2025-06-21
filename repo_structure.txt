@@ -13,7 +13,7 @@
       |  |-- 011-uOS-core-values.md
       |  |-- 012-uOS-terminology.md
       |  |-- 013-uOS-development-guidelines.md
-      |  |-- 014-ucode.md
+      |  |-- 014-uCode.md
     |-- 02-structure
       |  |-- 020-move-template.md
       |  |-- 021-mission-template.md
@@ -25,18 +25,18 @@
       |  |-- 031-ascii-ui-design.md
       |  |-- 032-dashboard-concepts.md
       |  |-- 033-ascii-dashboard.md
-      |  |-- 034-interface-mockup-notes.md
+      |  |-- 034-interface-mockup.md
       |  |-- 035-ascii-ethos.md
     |-- 04-knowledge
       |  |-- 040-tower-of-knowledge.md
-      |  |-- 041-uKnowledge Map Logic.md
+      |  |-- 041-uKnowledge-map-logic.md
       |  |-- 042-map-editor.md
       |  |-- 043-nethack-integration.md
       |  |-- 044-location-mechanics.md
       |  |-- 045-wizard-tower-overview.md
       |  |-- 046-map-mechanics.md
     |-- 05-system
-      |  |-- 050-uscript.md
+      |  |-- 050-uScript.md
       |  |-- 051-uScript-format.md
       |  |-- 052-uScript-examples.md
       |  |-- 053-data-sharing.md
