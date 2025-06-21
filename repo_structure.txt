@@ -4,7 +4,6 @@
   |  |-- Launch-uOS.command
   |  |-- README.md
   |  |-- docker-compose.yml
-  |  |-- rename-roadmap-readmes.sh
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -56,6 +55,9 @@
     |  |-- log_mission.sh
     |  |-- sandbox_draft.sh
     |  |-- sandbox_finalize.sh
+    |  |-- uCode-1-3-1.sh
+    |  |-- uCode-1-4-1.sh
+    |  |-- uCode-1-4.sh
     |  |-- uCode.sh
     |  |-- ucode-tree.sh
   |-- templates
@@ -63,19 +65,25 @@
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
+  |  |-- uCode.sh
   |-- uKnowledge
     |-- general
     |-- map
   |-- uMemory
     |-- legacy
     |-- logs
+      |  |-- dashlog-2025-06-14.md
+      |  |-- dashlog-2025-06-21.md
       |-- moves
         |  |-- 2025-05-27-move-001.md
         |  |-- 2025-06-13-move-1749833275.md
+        |  |-- 2025-06-21-move-1750478867.md
       |  |-- moves.md
-      |  |-- ulog-2025-06-14.md
     |-- milestones
       |  |-- Milestone 001 Build U Knowledge.md
     |-- missions
       |  |-- Mission Build uKnowledge.md
     |-- state
+      |  |-- current_legacy.txt
+      |  |-- current_milestone.txt
+      |  |-- current_mission.txt
