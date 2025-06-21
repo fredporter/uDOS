@@ -26,8 +26,20 @@ echo "╠═══════════════════════�
 # Recent Moves
 echo "║ 📝 Recent Moves                                                               ║"
 if ls "$RECENT_MOVES_DIR"/*.md &>/dev/null; then
-  tail -n 5 "$RECENT_MOVES_DIR"/*.md 2>/dev/null | while read -r line; do
-    printf "║ %s%-74s║\n" "" "$line"
+  recent_moves=$(ls -1t "$RECENT_MOVES_DIR"/*.md 2>/dev/null | head -n 5)
+  for move_file in $recent_moves; do
+    # Extract timestamp from filename
+    move_date=$(basename "$move_file" | cut -d'-' -f1-3 | tr '-' '/')
+    
+    # Extract the Move name from inside the file
+    move_name=$(grep -i '^Move:' "$move_file" | cut -d':' -f2- | xargs)
+    
+    # Fallback if no move name found
+    if [[ -z "$move_name" ]]; then
+      move_name="[unnamed move]"
+    fi
+    
+    printf "║ [%s] Move: %-60s║\n" "$move_date" "$move_name"
   done
 else
   echo "║ No recent moves found.                                                        ║"
