@@ -11,35 +11,47 @@ SESSION_FILE="$MEMORY_DIR/logs/session-$(date +%Y-%m-%d).md"
 
 NOW="$(date '+%Y-%m-%d %H:%M:%S')"
 
-# Fetch User name cleanly
+# Initialize all user variables with sensible defaults
 USER_NAME="Unknown"
+USER_ID="N/A"
+INSTANCE_ID="N/A"
+INSTANCE_NUMBER="N/A"
+CREATED="N/A"
+LOCATION="Unknown"
+ACTIVE_MISSION="none"
+LEGACY="none"
+LIFESPAN="n/a"
+PRIVACY="n/a"
+UOS_VERSION="n/a"
+
 USER_FILE="$STATE_DIR/user.md"
 if [[ -f "$USER_FILE" ]]; then
-  # Extract username from lines like "username: Master"
-  USER_NAME=$(grep -iE '^\s*(username|user):' "$USER_FILE" | head -1 | sed -E 's/^\s*(username|user):\s*//I' | tr -d '\r\n')
-  if [[ -z "$USER_NAME" ]]; then
-    # fallback to first non-empty line without markdown decorations
-    USER_NAME=$(grep -vE '^\s*#|^\s*$' "$USER_FILE" | head -1 | tr -d '\r\n')
-  fi
-fi
-[[ -z "$USER_NAME" ]] && USER_NAME=$(whoami 2>/dev/null || echo "Unknown")
+  while IFS= read -r line; do
+    # Parse lines of the form: **Key**: Value
+    if [[ "$line" =~ \*\*(.+)\*\*:\ (.+) ]]; then
+      key="${BASH_REMATCH[1]}"
+      value="${BASH_REMATCH[2]}"
+      # Trim whitespace from key and value
+      key="${key//[[:space:]]/}"
+      value="${value#"${value%%[![:space:]]*}"}"
+      value="${value%"${value##*[![:space:]]}"}"
 
-# Fetch Location
-LOCATION="Unknown"
-LOC_FILE="$STATE_DIR/location.txt"
-if [[ -f "$LOC_FILE" ]]; then
-  LOCATION=$(head -1 "$LOC_FILE" | tr -d '\r\n')
+      case "$key" in
+        Username) USER_NAME="$value" ;;
+        "UserID") USER_ID="$value" ;;
+        "InstanceID") INSTANCE_ID="$value" ;;
+        "InstanceNumber") INSTANCE_NUMBER="$value" ;;
+        Created) CREATED="$value" ;;
+        Location) LOCATION="$value" ;;
+        Mission) ACTIVE_MISSION="$value" ;;
+        Legacy) LEGACY="$value" ;;
+        Lifespan) LIFESPAN="$value" ;;
+        Privacy) PRIVACY="$value" ;;
+        "uOSVersion") UOS_VERSION="$value" ;;
+      esac
+    fi
+  done < "$USER_FILE"
 fi
-
-# Fetch Active Mission
-ACTIVE_MISSION="none"
-for f in "$STATE_DIR/current_mission.md" "$STATE_DIR/current_mission.txt"; do
-  if [[ -f "$f" ]]; then
-    ACTIVE_MISSION=$(head -1 "$f" | tr -d '\r\n')
-    [[ -n "$ACTIVE_MISSION" ]] && break
-  fi
-done
-[[ -z "$ACTIVE_MISSION" ]] && ACTIVE_MISSION="none"
 
 # Fetch Recent Moves (up to 5 newest)
 RECENT_MOVES=()
@@ -84,8 +96,8 @@ fi
 
 # Encryption, Privacy, Lifespan, Sync Status placeholders
 ENCRYPTION_STATUS="[ENABLED]"
-PRIVACY_STATUS="n/a"
-LIFESPAN_STATUS="n/a"
+PRIVACY_STATUS="$PRIVACY"
+LIFESPAN_STATUS="$LIFESPAN"
 SYNC_STATUS="Local OK, No pending exports"
 
 # Dashboard width (75 chars)
@@ -93,8 +105,14 @@ WIDTH=75
 
 printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 printf '║ User: %-59s %19s ║\n' "$USER_NAME" "$NOW"
+printf '║ User ID: %-65s ║\n' "$USER_ID"
+printf '║ Instance ID: %-60s ║\n' "$INSTANCE_ID"
+printf '║ Instance Number: %-54s ║\n' "$INSTANCE_NUMBER"
+printf '║ Created: %-66s ║\n' "$CREATED"
 printf '║ Location: %-67s ║\n' "$LOCATION"
 printf '║ Active Mission: %-59s ║\n' "$ACTIVE_MISSION"
+printf '║ Legacy: %-68s ║\n' "$LEGACY"
+printf '║ uOS Version: %-63s ║\n' "$UOS_VERSION"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ 🔎 Today’s Focus%56s ║\n' ""
