@@ -117,10 +117,33 @@ while true; do
     help)
       print_help
       ;;
-    exit)
-      echo "👋 Exiting. Goodbye, Master."
-      break
-      ;;
+exit)
+echo "👋 Exiting uCode CLI. Goodbye, Master."
+break
+;;
+
+With the following enhanced logic:
+
+exit)
+echo "👋 Exiting uCode CLI. Goodbye, Master."
+
+read -rp "🛑 Also shut down Docker container? (y/N): " confirm_shutdown
+case "$confirm_shutdown" in
+y|Y)
+echo "🔌 Running Quit-uOS.command..."
+if [ -x "$HOME/uOS/Quit-uOS.command" ]; then
+"$HOME/uOS/Quit-uOS.command"
+else
+echo "⚠️ Quit-uOS.command not found or not executable."
+fi
+;;
+*)
+echo "🌀 Docker container will remain running."
+;;
+esac
+
+break
+;;
     *)
       echo "❓ Unknown command: $cmd"
       ;;
