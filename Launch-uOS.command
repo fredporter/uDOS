@@ -1,39 +1,17 @@
 #!/bin/bash
 
-# ╔════════════════════════════════════════════════════════════════╗
-# ║ uOS Launcher (Mac)                                            ║
-# ║ Launches Docker + Terminal window at custom resolution        ║
-# ╚════════════════════════════════════════════════════════════════╝
+# Terminal launch notes (160x90 characters ≈ 1280x720 pixels on most macOS fonts)
+# Adjust window size manually or use AppleScript-based launcher if needed.
 
-# 1. Define base directory
+echo "🔁 Launching uOS..."
+
 cd ~/uOS || exit
 
-# 2. Optional: Prelaunch Docker.app if not running
-if ! pgrep -f Docker.app >/dev/null; then
-  echo "🐳 Starting Docker Desktop..."
-  open -a Docker
-  while ! docker system info >/dev/null 2>&1; do
-    echo "⌛ Waiting for Docker to initialise..."
-    sleep 2
-  done
-fi
-
-# 3. Stop previous containers (cleanup)
-echo "🔁 Launching uOS..."
 echo "🧼 Stopping previous uOS containers..."
 docker-compose down
 
-# 4. Rebuild container
 echo "🔨 Rebuilding uOS container..."
 docker-compose build
 
-# 5. Launch full-resolution uOS terminal via AppleScript (macOS-specific)
-osascript <<EOF
-  tell application "Terminal"
-    do script "cd ~/uOS && docker-compose run --rm uos"
-    delay 0.5
-    set bounds of front window to {100, 100, 1400, 1000} -- approx 160x90 char grid
-  end tell
-EOF
-
-exit 0
+echo "🚀 Starting uOS interactive shell..."
+docker-compose run --rm uos
