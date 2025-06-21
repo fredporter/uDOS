@@ -1,8 +1,3 @@
-Here is your updated README.md for the root of the ~/uOS repo, combining the Docker usage instructions and the uOS vision:
-
-⸻
-
-
 # 🌀 uOS — The User Operating System
 
 uOS is a single-process, Markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
