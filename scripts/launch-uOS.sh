@@ -1,11 +1,10 @@
 #!/bin/bash
-# launch-uOS.sh — Boot uOS + run initial checks
-set -e
+# launch-uOS.sh
 
-echo "🚀 uOS is launching..."
+echo "🌀 Launching uOS..."
 
-# Run setup check
-setup-check.sh
+# Run setup check — use relative path inside container
+./scripts/setup-check.sh
 
 # Start uCode CLI or Dashboard
-uCode.sh
+./scripts/uCode.sh
