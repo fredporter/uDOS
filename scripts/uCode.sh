@@ -1,19 +1,19 @@
 #!/bin/bash
-# uCode CLI v1.4.3 — Unified Input/Output Shell for uOS
+# uCode CLI v1.4.4 — Unified Input/Output Shell for uOS
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
 # ──────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UOS_ROOT="${SCRIPT_DIR%/*}"
-TEMPLATE_DIR="$UOS_ROOT/templates"
-MEMORY_DIR="${UOS_MEMORY_DIR:-$UOS_ROOT/uMemory}"
-KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UOS_ROOT/uKnowledge}"
+UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMPLATE_DIR="$UROOT/templates"
+MEMORY_DIR="${UOS_MEMORY_DIR:-$UROOT/uMemory}"
+KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
 LOG_DIR="$MEMORY_DIR/logs"
 MOVE_DIR="$LOG_DIR/moves"
 SESSION_FILE="$LOG_DIR/session-$(date +%Y-%m-%d).md"
-DEFAULT_EDITOR="${EDITOR:-nano}"
 ERROR_LOG="$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
+DEFAULT_EDITOR="${EDITOR:-nano}"
+QUIT_CMD="$UROOT/macos/Quit-uOS.command"
 
 mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
 
@@ -36,19 +36,11 @@ echo "- Session started at $(date)" >> "$SESSION_FILE"
 
 log_move() {
   local cmd="$1"
-  local ts_epoch
-  local ts_iso
-  local user
-  local path
+  local ts_epoch=$(date +%s)
+  local ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  local user=$(whoami)
+  local path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
   local output=""
-
-  ts_epoch=$(date +%s)
-  ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  user=$(whoami)
-  path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
-
-  # Run command and capture output (optional)
-  # output=$(eval "$cmd" 2>&1)  # Be careful with eval for safety
 
   echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
@@ -98,6 +90,7 @@ while true; do
       echo "  restart          → Restart shell"
       echo "  exit             → Quit"
       ;;
+    
     new)
       case "$args" in
         move)
@@ -105,24 +98,24 @@ while true; do
           path="$MOVE_DIR/$(date +%Y-%m-%d)-move-${id}.md"
           if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
             echo "📄 New move created: $path"
-            ${EDITOR:-nano} "$path"
+            $DEFAULT_EDITOR "$path"
           else
             echo "# Move: manual creation" > "$path"
             echo "⚠️ No move template found. Using blank file: $path"
             log_error "new: move template missing"
-            ${EDITOR:-nano} "$path"
+            $DEFAULT_EDITOR "$path"
           fi
           ;;
         mission|milestone|legacy)
           path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
           if cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null; then
             echo "📄 New $args created: $path"
-            ${EDITOR:-nano} "$path"
+            $DEFAULT_EDITOR "$path"
           else
             echo "# $args created on $(date)" > "$path"
             echo "⚠️ No $args template found. Blank file created."
             log_error "new: missing template for $args"
-            ${EDITOR:-nano} "$path"
+            $DEFAULT_EDITOR "$path"
           fi
           ;;
         *)
@@ -130,18 +123,22 @@ while true; do
           ;;
       esac
       ;;
+    
     log)
       echo "📝 Logging for $args is not yet implemented."
       ;;
+    
     redo)
       echo "🧹 Redo logic placeholder for: $args"
       ;;
+    
     undo)
       echo "🧺 Undoing last move not yet implemented."
       ;;
+    
     run)
-      script="$UOS_ROOT/scripts/$args.sh"
-      if [ -f "$script" ]; then
+      script="$UROOT/scripts/$args.sh"
+      if [[ -f "$script" ]]; then
         bash "$script"
         log_move "run $args"
       else
@@ -149,40 +146,48 @@ while true; do
         log_error "run: script not found $script"
       fi
       ;;
+    
     dash)
-      bash "$UOS_ROOT/scripts/dashboard.sh" || echo "❌ Failed to load dashboard."
+      bash "$UROOT/scripts/dashboard.sh" || echo "❌ Failed to load dashboard."
       log_move "dash"
       ;;
+    
     recent)
       echo "📜 Recent Moves:"
       tail -n 5 "$SESSION_FILE"
       ;;
+    
     map)
       cat "$KNOWLEDGE_DIR/map/current_region.txt" 2>/dev/null || echo "🗺️ No map loaded."
       ;;
+    
     mission)
       cat "$MEMORY_DIR/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
       ;;
+    
     move)
       log_move "manual move"
       ;;
+    
     tree)
-      bash "$UOS_ROOT/scripts/ucode-tree.sh"
+      bash "$UROOT/scripts/ucode-tree.sh"
       log_move "tree"
       ;;
+    
     list)
       echo "📂 Current directory: $(pwd)"
       echo "📄 Visible contents:"
       ls -1p | grep -v '^\.' || echo "(empty)"
       ;;
+    
     restart)
       echo "🔄 Restarting uCode CLI..."
       exec bash "$BASH_SOURCE"
       ;;
+    
     exit)
       echo "👋 Exiting uCode CLI. Goodbye, Master."
 
-      # Skip macOS-specific logic if running inside Docker
       if grep -q docker /proc/1/cgroup 2>/dev/null; then
         echo "🧩 Detected Docker environment — container remains running."
       else
@@ -190,10 +195,10 @@ while true; do
         case "$confirm_shutdown" in
           y|Y)
             echo "🔌 Running Quit-uOS.command..."
-            if [ -x "$HOME/uOS/macos/Quit-uOS.command" ]; then
-              "$HOME/uOS/macos/Quit-uOS.command"
+            if [[ -x "$QUIT_CMD" ]]; then
+              "$QUIT_CMD"
             else
-              echo "⚠️ Quit-uOS.command not found or not executable at $HOME/uOS/macos/Quit-uOS.command"
+              echo "⚠️ Quit-uOS.command not found or not executable at $QUIT_CMD"
               log_error "exit: Quit-uOS.command missing or not executable"
             fi
             ;;
@@ -204,6 +209,7 @@ while true; do
       fi
       break
       ;;
+    
     *)
       echo "❓ Unknown command: $cmd"
       ;;
