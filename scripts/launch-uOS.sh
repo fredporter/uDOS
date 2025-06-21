@@ -1,13 +1,11 @@
 #!/bin/bash
+# launch-uOS.sh — Boot uOS + run initial checks
 set -e
 
-echo "🚀 uOS is starting..."
+echo "🚀 uOS is launching..."
 
-# Verify uCode.sh exists
-if [ ! -f scripts/uCode.sh ]; then
-  echo "❌ ERROR: scripts/uCode.sh not found in /uOS"
-  exit 1
-fi
+# Run setup check
+/scripts/setup-check.sh
 
-echo "✅ Found uCode.sh, launching..."
-bash scripts/uCode.sh
+# Start uCode CLI or Dashboard
+/scripts/uCode.sh

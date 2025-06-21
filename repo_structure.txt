@@ -6,7 +6,6 @@
   |-- macos
     |  |-- Launch-uOS.command
     |-- Launch🌀uOS.app
-    |  |-- Quit-uOS.command
     |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -112,6 +111,9 @@
         |  |-- 2025-06-21-move-1750507090.md
         |  |-- 2025-06-21-move-1750507372.md
         |  |-- 2025-06-21-move-1750507547.md
+        |  |-- 2025-06-21-move-1750507549.md
+        |  |-- 2025-06-21-move-1750508019.md
+        |  |-- 2025-06-21-move-1750508071.md
         |  |-- moves.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
