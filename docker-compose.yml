@@ -14,4 +14,4 @@ services:
       - UOS_KNOWLEDGE_DIR=/uKnowledge
       - UOS_MEMORY_DIR=/uMemory
       - UOS_CONFIG_DIR=/config
-    command: ["bash", "scripts/uCode.sh"]
+    command: ["bash", "scripts/launch-uOS.sh"]  # ✅ the key fix
