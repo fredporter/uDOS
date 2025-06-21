@@ -6,58 +6,6 @@
   |-- macos
     |  |-- Launch-uOS.command
     |-- Launch🌀uOS.app
-      |-- Contents
-        |  |-- Info.plist
-        |-- MacOS
-          |  |-- Automator Application Stub
-        |-- Resources
-          |  |-- ApplicationStub.icns
-          |  |-- Assets.car
-          |  |-- InfoPlist.loctable
-          |-- ar.lproj
-          |-- ca.lproj
-          |-- cs.lproj
-          |-- da.lproj
-          |-- de.lproj
-          |-- el.lproj
-          |-- en.lproj
-          |-- en_AU.lproj
-          |-- en_GB.lproj
-          |-- es.lproj
-          |-- es_419.lproj
-          |-- fi.lproj
-          |-- fr.lproj
-          |-- fr_CA.lproj
-          |-- he.lproj
-          |-- hi.lproj
-          |-- hr.lproj
-          |-- hu.lproj
-          |-- id.lproj
-          |-- it.lproj
-          |-- ja.lproj
-          |-- ko.lproj
-          |-- ms.lproj
-          |-- nl.lproj
-          |-- no.lproj
-          |-- pl.lproj
-          |-- pt.lproj
-          |-- pt_PT.lproj
-          |-- ro.lproj
-          |-- ru.lproj
-          |-- sk.lproj
-          |-- sl.lproj
-          |-- sv.lproj
-          |-- th.lproj
-          |-- tr.lproj
-          |-- uk.lproj
-          |-- vi.lproj
-          |-- zh_CN.lproj
-          |-- zh_HK.lproj
-          |-- zh_TW.lproj
-        |-- _CodeSignature
-          |  |-- CodeResources
-        |  |-- document.wflow
-      |  |-- Icon
     |  |-- Quit-uOS.command
     |  |-- README.md
   |  |-- repo_structure.txt
@@ -154,6 +102,12 @@
         |  |-- 2025-06-21-move-1750504601.md
         |  |-- 2025-06-21-move-1750505474.md
         |  |-- 2025-06-21-move-1750505852.md
+        |  |-- 2025-06-21-move-1750505877.md
+        |  |-- 2025-06-21-move-1750506558.md
+        |  |-- 2025-06-21-move-1750506562.md
+        |  |-- 2025-06-21-move-1750506566.md
+        |  |-- 2025-06-21-move-1750506569.md
+        |  |-- 2025-06-21-move-1750506578.md
         |  |-- moves.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
