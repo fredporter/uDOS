@@ -3,9 +3,10 @@
 
 echo "🛑 Shutting down uOS..."
 
-# Navigate to uOS directory
-cd ~/uOS || {
-  echo "❌ Error: ~/uOS directory not found."
+# Get path of this .command script and go up to root uOS dir
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.." || {
+  echo "❌ Error: Unable to locate uOS root directory."
   exit 1
 }
 

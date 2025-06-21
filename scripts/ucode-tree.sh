@@ -1,8 +1,9 @@
 #!/bin/bash
-# Generate repo_structure.txt skipping dotfiles
+# generate_tree.sh — Generate repo_structure.txt with filtered output
 
-OUTPUT_FILE="repo_structure.txt"
-START_DIR="."
+UOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUTPUT_FILE="$UOS_ROOT/repo_structure.txt"
+START_DIR="$UOS_ROOT"
 INDENT="  "
 
 echo "📦 Generating project tree..."
@@ -13,6 +14,20 @@ generate_tree() {
 
   find "$dir" -mindepth 1 -maxdepth 1 ! -name ".*" | sort | while read -r entry; do
     local name=$(basename "$entry")
+
+    # Exclude specific macOS or unwanted system internals
+    case "$name" in
+      "Contents"|"Icon"|"_CodeSignature"|*.lproj|*.car|*.icns|"Assets.car"|"Info.plist"|"document.wflow")
+        continue
+        ;;
+    esac
+
+    # Skip inside .app bundles
+    if [[ "$entry" == *".app/"* ]] || [[ "$entry" == *".app"* && -d "$entry" ]]; then
+      echo "${prefix}|-- $name" >> "$OUTPUT_FILE"
+      continue
+    fi
+
     if [ -d "$entry" ]; then
       echo "${prefix}|-- $name" >> "$OUTPUT_FILE"
       generate_tree "$entry" "$prefix$INDENT"
@@ -22,7 +37,7 @@ generate_tree() {
   done
 }
 
-# Clear and start
+# Clear file
 echo "." > "$OUTPUT_FILE"
 generate_tree "$START_DIR" "$INDENT"
 
@@ -30,4 +45,6 @@ echo "✅ Repo tree written to $OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 
 # Log the move
-echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> /uMemory/logs/moves.md
+MOVE_LOG="$UOS_ROOT/uMemory/logs/moves.md"
+mkdir -p "$(dirname "$MOVE_LOG")"
+echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> "$MOVE_LOG"

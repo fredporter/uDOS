@@ -1,9 +1,17 @@
+# ──────────────────────────────────────────────
+# uOS .gitignore — excludes system/cache/local content
+# ──────────────────────────────────────────────
+
 # Ignore system-generated internals inside the .app
 macos/Launch🌀uOS.app/Contents/
 macos/Launch🌀uOS.app/_CodeSignature/
 macos/Launch🌀uOS.app/Resources/
 macos/Launch🌀uOS.app/Icon
 macos/Launch🌀uOS.app/document.wflow
+macos/Launch🌀uOS.app/*.lproj
+macos/Launch🌀uOS.app/*.icns
+macos/Launch🌀uOS.app/Assets.car
+macos/Launch🌀uOS.app/Info.plist
 
 # Keep base .app folder for packaging/distribution
 !macos/Launch🌀uOS.app/
@@ -12,14 +20,14 @@ macos/Launch🌀uOS.app/document.wflow
 !macos/Launch-uOS.command
 !macos/Quit-uOS.command
 
-# Python and build artifacts
+# Python + general build artifacts
 __pycache__/
 *.pyc
 *.pyo
 *.log
 *.zip
 
-# Environment and editor files
+# Editor/IDE cruft
 .env
 .vscode/
 .idea/
@@ -28,5 +36,5 @@ __pycache__/
 # Docker override (local config)
 docker-compose.override.yml
 
-# uMemory - personal, private, local-only storage
+# uMemory — personal, private, local-only storage
 uMemory/

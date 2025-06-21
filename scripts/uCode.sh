@@ -1,5 +1,5 @@
 #!/bin/bash
-# uCode CLI v1.4.4 — Unified Input/Output Shell for uOS
+# uCode CLI v1.4.5 — Unified Input/Output Shell for uOS
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
@@ -36,11 +36,13 @@ echo "- Session started at $(date)" >> "$SESSION_FILE"
 
 log_move() {
   local cmd="$1"
-  local ts_epoch=$(date +%s)
-  local ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  local user=$(whoami)
-  local path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
-  local output=""
+  local ts_epoch ts_iso user path output
+
+  ts_epoch=$(date +%s)
+  ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  user=$(whoami)
+  path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
+  output=""  # Reserved for future command capture
 
   echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
 
@@ -94,6 +96,7 @@ while true; do
     new)
       case "$args" in
         move)
+          local id path
           id=$(date +%s)
           path="$MOVE_DIR/$(date +%Y-%m-%d)-move-${id}.md"
           if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
@@ -107,6 +110,7 @@ while true; do
           fi
           ;;
         mission|milestone|legacy)
+          local path
           path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
           if cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null; then
             echo "📄 New $args created: $path"
@@ -137,7 +141,7 @@ while true; do
       ;;
     
     run)
-      script="$UROOT/scripts/$args.sh"
+      local script="$UROOT/scripts/$args.sh"
       if [[ -f "$script" ]]; then
         bash "$script"
         log_move "run $args"
