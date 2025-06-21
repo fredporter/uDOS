@@ -1,6 +1,6 @@
 # 🌀 uOS — The User Operating System
 
-uOS is a single-process, Markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
+**uOS** is a single-process, Markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
 It is for thinkers, tinkerers, writers, and dreamers — those who want a machine that remembers, evolves, and serves a singular user.
 
 ---
@@ -8,91 +8,142 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 ## 🌱 Vision
 
 - **Human-first, single-user design**: uOS runs for *you* — not the cloud, not corporations.
-- **Markdown as the OS language**: Every Move, Mission, Log, and Map lives in plain-text `.md`.
-- **Process minimalism**: One shell, one brain, one thread — like a living notebook.
-- **Memory with purpose**: All interactions build toward Milestones, Mission completion, and Legacy.
+- **Markdown as the OS language**: Every Move, Mission, Milestone, and Map lives in plain `.md`.
+- **Process minimalism**: One shell, one thread, one memory — a living notebook with intent.
+- **Memory with purpose**: All actions form a legacy, built from Moves and Missions over time.
+- **Cross-platform longevity**: Runs on modern macOS or Docker Desktop — but also thrives on old, repurposed machines.
 
 ---
 
 ## 🧠 Core Concepts
 
-| Term       | Meaning                                                        |
-|------------|----------------------------------------------------------------|
-| **Move**   | A single input/output step, like a thought or command          |
-| **Mission**| A defined goal or task sequence                                |
-| **Milestone**| A major progress checkpoint on a Mission                     |
-| **Legacy** | Preserved outputs from a completed uOS lifetime                |
-| **uKnowledge** | The memory structure of all markdown knowledge             |
+| Term         | Description                                                             |
+|--------------|-------------------------------------------------------------------------|
+| **Move**     | A single input/output action — the atomic thought in uOS                |
+| **Mission**  | A goal or project, composed of many moves                               |
+| **Milestone**| A significant checkpoint on the way to completing a Mission             |
+| **Legacy**   | Archived results or final output from a completed uOS instance          |
+| **uMemory**  | Your personal memory: logs, state, and active history                   |
+| **uKnowledge** | Shared Markdown reference knowledge, maps, guides, and general info   |
 
 ---
 
 ## 📁 Repo Structure
 
+```text
 /uOS
-├── src/                   # uCode shell scripts and interface logic
-├── uKnowledge/           # Markdown memory bank (logs, missions, state, etc.)
-├── roadmap/              # Living documentation and development vision
-├── repo_structure.txt    # Dynamically generated tree of this repo
-├── Launch-uOS.command    # Launcher script for Docker-based execution
-├── docker-compose.yml    # Docker container configuration
-├── README.md             # This file
+├── docker-compose.yml         # Docker container setup (root-level)
+├── Dockerfile                 # Base image configuration
+├── macos/                     # macOS launchers (.app and .command)
+├── roadmap/                   # Living uOS design documents
+├── scripts/                   # Core logic: uCode CLI, dashboard, tools
+├── templates/                 # Markdown templates for move, mission, etc.
+├── uKnowledge/                # General Markdown knowledge store
+├── uMemory/                   # User memory: logs, state, sessions, moves
+├── sandbox/                   # Draft workspace for in-progress documents
+├── repo_structure.txt         # Auto-generated directory tree
+└── README.md                  # You're reading it
+```
 
 ---
 
-## 🐳 Run uOS with Docker
+## 🚀 Running uOS
 
-uOS is containerized via Docker to isolate system memory and runtime.
+uOS is containerized via Docker but also supports macOS native launchers and legacy hardware.
 
-### ✅ Prerequisites
+### 🐳 Docker (Cross-platform)
 
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- Ensure Docker is running before launching uOS
+#### ✅ Requirements
 
-### 🚀 Launching
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- This repo cloned to: `~/uOS`
 
-Use the included `.command` launcher:
+#### 🌀 Launch
 
 ```bash
-~/uOS/Launch-uOS.command
+bash macos/Launch-uOS.command
+```
 
-This script will:
-	1.	Stop any previous uOS containers
-	2.	Rebuild the container to apply updates
-	3.	Run uOS interactively and drop you into the uCode CLI
+This will:
 
-🛠️ Troubleshooting
+1. Stop any previous uOS containers
+2. Rebuild the container with current scripts
+3. Launch uOS into the `uCode` CLI shell
 
-If you see:
+#### 🛠️ Common Troubleshooting
 
-invalid spec: :/app: empty section between colons
+- **Volume Mount Errors**  
+  Ensure the repo is located at `~/uOS`, or update paths in `docker-compose.yml`.
 
-… it means Docker couldn’t locate the right mount path. Make sure:
-	•	You have the repo at ~/uOS
-	•	You’re not relying on unset environment variables
+- **Docker Not Running**  
+  The launcher auto-starts Docker if needed.
 
-⸻
+---
 
-🛣️ Roadmap Preview
-	•	✅ Markdown CLI Shell (uCode)
-	•	✅ Knowledge logging system (moves.md, milestones/, etc.)
-	•	🔄 ASCII Dashboard UI
-	•	🔄 Mission & Milestone Tracker
-	•	🔄 Lifetime tracking
-	•	🔄 Map/Location engine
-	•	🔄 Tower of Knowledge exploration
-	•	🔄 Offline-first Tour mode
-	•	🔄 Personal hardware recognition & identity lock
+### 🍏 macOS Native
 
-⸻
+- Double-click `macos/Launch🌀uOS.app` for a GUI entrypoint.
+- Use `macos/Quit-uOS.command` to cleanly stop the container.
+- All `.app` internals are excluded from version control.
 
-🧬 Philosophy
+---
 
-uOS is not an operating system in the conventional sense — it’s a memory companion.
-It stores your thoughts as Markdown. It remembers. It evolves with your intent.
-Each interaction matters. Each session has value.
-When the instance ends, the Legacy remains.
+### 💾 Legacy / Offline Mode
 
-⸻
+uOS is designed to run as a memory shell on:
+- Older repurposed laptops (via lightweight Linux + Docker)
+- Offline environments (scripts can run without cloud)
+- Experimental builds with no container layer (in progress)
 
-Built by you. Remembered by uOS. Powered by Markdown.
+---
+
+## 📊 Roadmap Preview
+
+✅ = complete / working  
+🔄 = in progress / evolving
+
+- ✅ Terminal CLI (`uCode`)
+- ✅ Markdown Move/Mission logging
+- ✅ Live ASCII Dashboard (`dash`)
+- ✅ Recent Moves Tracker
+- ✅ Error logging, session logging
+- 🔄 Milestone & Legacy archiving
+- 🔄 Map + Location engine (Tower of Knowledge)
+- 🔄 Device lifetime tracking
+- 🔄 Proximity-based sharing logic
+- 🔄 Tour Mode (offline personal assistant)
+
+---
+
+## 🧬 Collaboration
+
+This is a **co-created system** between:
+
+- **Wizard**: The user and architect of uOS.
+- **Otter**: The AI assistant and memory-keeper within uOS.
+
+As of version **v1.4.2**, the assistant has been formally named **Otter**.
+
+Every session, file, command, and map is part of this collaboration.
+We build together. We remember together.
+
+---
+
+## 🧬 Philosophy
+
+uOS is not an operating system in the conventional sense — it is a **memory companion**.
+
+It does not multitask.  
+It does not update itself silently.  
+It does not forget.
+
+Every session, every thought, every command — written in Markdown.  
+Tracked as Moves.  
+Built toward a Mission.  
+Stored as a Legacy.
+
+---
+
+**Built by you. Remembered by uOS. Powered by Markdown.**  
+*Guided by Otter 🦦 — your memory keeper.*
 
