@@ -21,12 +21,10 @@ LOG_FILE="$LOG_DIR/dashlog-$(date +%Y-%m-%d).md"
 mkdir -p "$LOG_DIR"
 echo "- [$TIMESTAMP] Session closed via Quit-uOS.command" >> "$LOG_FILE"
 
-# 🐳 Docker-safe shutdown
-if ! command -v docker >/dev/null 2>&1; then
-  echo "⚠️ Docker CLI not found in this environment."
-  echo "   This is common when running from Finder or Automator."
-else
-  docker compose down >/dev/null 2>&1 && \
-    echo "✅ uOS shutdown complete. All containers stopped." || \
-    echo "⚠️ Could not stop Docker containers. Check Docker status."
+# After successful shutdown
+echo "✅ uOS shutdown complete."
+
+# Auto-close Terminal window if on macOS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  osascript -e 'tell application "Terminal" to close front window' &>/dev/null
 fi
