@@ -4,9 +4,11 @@
   |  |-- Launch-uOS.command
   |  |-- README.md
   |  |-- docker-compose.yml
+  |  |-- rename-roadmap-readmes.sh
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
+    |  |-- 000-readme.md
     |-- 01-core
       |  |-- 001-uOS-spellbound-toad.md
       |  |-- 010-uOS-overview.md
@@ -40,6 +42,7 @@
       |  |-- 051-uScript-format.md
       |  |-- 052-uScript-examples.md
       |  |-- 053-data-sharing.md
+    |  |-- 099-roadmap-devplan.md
     |  |-- README.md
   |-- sandbox
     |  |-- draft-move-2025-06-21-1750428998.md
