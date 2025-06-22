@@ -24,8 +24,13 @@ printf "║ Location: %-64s║\n" "$LOCATION"
 MISSION_FILE="$UMEMORY/state/current_mission.md"
 if [[ -f "$MISSION_FILE" ]]; then
   ACTIVE_MISSION=$(grep -i '^Title:' "$MISSION_FILE" | cut -d':' -f2- | xargs)
+  if [ -z "$ACTIVE_MISSION" ]; then
+    ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+    [ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
+  fi
 else
-  ACTIVE_MISSION="(none)"
+  ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+  [ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
 fi
 printf "║ Active Mission: %-58s║\n" "$ACTIVE_MISSION"
 printf "╠═══════════════════════════════════════════════════════════════════════════════╣\n"
@@ -79,6 +84,7 @@ else
   echo "║ No rooms indexed yet.                                                         ║"
 fi
 echo "╠═══════════════════════════════════════════════════════════════════════════════╣"
+echo ""
 
 # Health Check Block (Live Stats)
 echo "║ ✅ Health Check                                                               ║"
@@ -96,6 +102,14 @@ UOS_VERSION=$(grep -i '^uOS Version:' "$UMEMORY/state/instance.md" 2>/dev/null |
 
 printf "║ Sharing: %-65s║\n" "${SHARING:-Unknown}"
 printf "║ Lifespan: %-64s║\n" "${LIFESPAN:-Unknown}"
+
+if [[ "$LIFESPAN" == "0" ]]; then
+  MOVES_REMAINING="∞"
+else
+  MOVES_REMAINING=$(( LIFESPAN * 1000 ))
+fi
+printf "║ Moves Remaining: %-57s║\n" "$MOVES_REMAINING"
+
 printf "║ uOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
 
 echo "║ Encryption: [ENABLED]      Sync Status: Local OK, No pending exports          ║"
