@@ -25,8 +25,8 @@ UOS_VERSION="n/a"
 SANDBOX_USER_FILE="$UROOT/sandbox/user.md"
 if [[ -f "$SANDBOX_USER_FILE" ]]; then
   while IFS= read -r line; do
-    if [[ "$line" =~ ^([A-Za-z]+):[[:space:]]*(.+)$ ]]; then
-      key="${BASH_REMATCH[1]}"
+    if [[ "$line" =~ ^([A-Za-z ]+):[[:space:]]*(.+)$ ]]; then
+      key="${BASH_REMATCH[1]// /}"
       value="${BASH_REMATCH[2]}"
       case "$key" in
         Username) USER_NAME="$value" ;;
@@ -40,8 +40,8 @@ fi
 INSTANCE_FILE="$STATE_DIR/instance.md"
 if [[ -f "$INSTANCE_FILE" ]]; then
   while IFS= read -r line; do
-    if [[ "$line" =~ ^([A-Za-z]+):[[:space:]]*(.+)$ ]]; then
-      key="${BASH_REMATCH[1]}"
+    if [[ "$line" =~ ^([A-Za-z ]+):[[:space:]]*(.+)$ ]]; then
+      key="${BASH_REMATCH[1]// /}"
       value="${BASH_REMATCH[2]}"
       case "$key" in
         Created) CREATED="$value" ;;

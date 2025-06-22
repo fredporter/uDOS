@@ -12,8 +12,18 @@ RECENT_MOVES_DIR="$UMEMORY/logs/moves"
 
 # Header
 clear
-USER_NAME=$(grep -i '^Username:' "$UROOT/sandbox/user.md" 2>/dev/null | cut -d':' -f2- | xargs)
-[ -z "$USER_NAME" ] && USER_NAME=$(whoami)
+USER_FILE="$UROOT/sandbox/user.md"
+if [[ -f "$USER_FILE" && -s "$USER_FILE" ]]; then
+  USER_NAME=$(grep -i '^Username:' "$USER_FILE" | head -n1 | cut -d':' -f2- | xargs)
+  if [[ -z "$USER_NAME" ]]; then
+    USER_NAME="(unknown)"
+  fi
+else
+  USER_NAME="(unknown)"
+fi
+# DEBUG: Uncomment to debug user file
+# echo "DEBUG: USER_FILE contents:"; cat "$USER_FILE"
+# echo "DEBUG: Parsed USER_NAME: $USER_NAME"
 printf "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗\n"
 printf "║ User: %-32s %s ║\n" "$USER_NAME" "$(date '+%Y-%m-%d %H:%M:%S')"
 
@@ -23,16 +33,15 @@ printf "║ Location: %-64s║\n" "$LOCATION"
 
 MISSION_FILE="$UMEMORY/state/current_mission.md"
 if [[ -f "$MISSION_FILE" ]]; then
-  ACTIVE_MISSION=$(grep -i '^Title:' "$MISSION_FILE" | cut -d':' -f2- | xargs)
-  if [ -z "$ACTIVE_MISSION" ]; then
-    ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
-    [ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
-  fi
-else
-  ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
-  [ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
+  # Try to extract Title: line for mission name
+  ACTIVE_MISSION=$(grep -i '^Title:' "$MISSION_FILE" | head -n1 | cut -d':' -f2- | xargs)
 fi
-printf "║ Active Mission: %-58s║\n" "$ACTIVE_MISSION"
+if [[ -z "$ACTIVE_MISSION" ]]; then
+  # Fallback to instance.md Mission:
+  ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+fi
+[ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
+printf "║ Mission: %-62s║\n" "$ACTIVE_MISSION"
 printf "╠═══════════════════════════════════════════════════════════════════════════════╣\n"
 
 # Today’s Focus Block
@@ -112,7 +121,6 @@ printf "║ Moves Remaining: %-57s║\n" "$MOVES_REMAINING"
 
 printf "║ uOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
 
-echo "║ Encryption: [ENABLED]      Sync Status: Local OK, No pending exports          ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
 echo ""
 echo "🧭 Use 'help' for available commands. Make your next move, Master."
