@@ -3,8 +3,6 @@
   |  |-- LICENSE
   |  |-- README.md
   |  |-- docker-compose.yml
-  |  |-- fix-grep-patch.sh
-  |  |-- fix-grep-patch.sh.bak
   |-- macos
     |  |-- Launch-uOS.command
     |-- Launch🌀uOS.app
@@ -48,6 +46,15 @@
       |  |-- 053-data-sharing.md
     |  |-- 099-roadmap-devplan.md
     |  |-- README.md
+    |  |-- datetime_format.md
+    |  |-- display_modes.md
+    |  |-- filenames_and_structure.md
+    |  |-- move_log_roadmap.md
+    |  |-- uOS_base_map_120x60_accurate.md
+    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
+    |  |-- u_os_cartography_roadmap.md
+    |  |-- uos_roadmap_q3.md
+    |  |-- uos_template_generator.md
   |-- sandbox
     |  |-- draft-move-2025-06-21-1750428998.md
   |-- scripts
@@ -140,6 +147,8 @@
         |  |-- 2025-06-21-move-1750516240.md
         |  |-- 2025-06-21-move-1750516318.md
         |  |-- 2025-06-21-move-1750516332.md
+        |  |-- 2025-06-21-move-1750516362.md
+        |  |-- 2025-06-21-move-1750516563.md
         |  |-- index-sess-20250621-1233.md
         |  |-- index-sess-20250621-1234.md
         |  |-- index-sess-20250621-1237.md
@@ -160,8 +169,16 @@
         |  |-- index-sess-20250621-1430.md
         |  |-- index-sess-20250621-1431.md
         |  |-- index-sess-20250621-1432.md
+        |  |-- index-sess-20250621-1435.md
+        |  |-- index-sess-20250621-1443.md
+        |  |-- index-sess-20250621-1452.md
+        |  |-- index-sess-20250621-1455.md
+        |  |-- index-sess-20250621-1456.md
+        |  |-- index-sess-20250621-1459.md
+        |  |-- index-sess-20250622-1149.md
       |  |-- moves.md
       |  |-- session-2025-06-21.md
+      |  |-- session-2025-06-22.md
       |-- system
         |  |-- launch-2025-06-21_09-18-03.log
       |  |-- ulog-2025-06-21.md
