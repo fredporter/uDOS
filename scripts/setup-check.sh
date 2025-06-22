@@ -49,12 +49,12 @@ fi
 
 # -------------------------------------
 # 4. User file check
-USER_FILE="$STATE/user.md"
+USER_FILE="$BASE/sandbox/user.txt"
 if [ ! -f "$USER_FILE" ]; then
   echo "👤 No user profile found — starting first-time setup."
 
   while true; do
-    read -p "🪪 Enter your username (no spaces or symbols): " uname
+    read -p "🪪 Choose your username: " uname
     if [[ "$uname" =~ ^[a-zA-Z0-9_-]+$ ]]; then
       break
     else
@@ -62,100 +62,76 @@ if [ ! -f "$USER_FILE" ]; then
     fi
   done
 
-  read -p "🌍 Location: " location
-  read -p "🎯 Outline your Mission: " mission
-  read -p "🏛️  What Legacy will you leave?: " legacy
+  read -p "🌍 Where in the world are you now? " location
+  read -p "🎯 What's your mission today? " mission
+  read -p "🏛️ What kind of legacy will you leave? " legacy
 
   while true; do
-    read -p "🔒 Privacy level [crypt/beacon]: " privacy
-    if [[ "$privacy" == "crypt" || "$privacy" == "beacon" ]]; then
+    read -p "🔒 Choose a sharing level [0] tomb (closed - default), [1] crypt (explicit sharing), or [2] beacon (open)? " sharing
+    if [[ "$sharing" == "1" || "$sharing" == "2" ]]; then
       break
     else
-      echo "❌ Must be either 'crypt' or 'beacon'."
+      sharing="0"
+      break
     fi
   done
 
   while true; do
-    read -p "⏳ Lifespan [short/medium/long/infinite]: " lifespan
-    if [[ "$lifespan" =~ ^(short|medium|long|infinite)$ ]]; then
+    read -p "⏳ How long does this instance live? [0] infinite moves (default), or type number of moves in 000s from 1 to 999 " lifespan
+    if [[ "$lifespan" == "0" ]]; then
+      break
+    elif [[ "$lifespan" =~ ^[0-9]{3}$ ]] && [[ "$lifespan" -ge 1 ]] && [[ "$lifespan" -le 999 ]]; then
       break
     else
-      echo "❌ Must be one of: short, medium, long, infinite."
+      echo "❌ Must be '0' or a number from 001 to 999."
     fi
   done
 
-  now=$(date '+%Y%m%d-%H%M%S')
-  # Generate a 6-digit random number (000000 to 999999)
-  rand_num=$(shuf -i 0-999999 -n 1)
-  rand_num=$(printf "%06d" "$rand_num")
-
-  uid="${uname}-${now}-${rand_num}"
-  iid="${now}-${rand_num}"
-
-  move_count=$(find "$UMEM/logs/moves/" -type f 2>/dev/null | wc -l | awk '{print $1}')
-  instance_num=$((move_count + 1))
+  while true; do
+    read -s -p "🔑 Set a password: " password
+    echo
+    read -s -p "🔑 Confirm your password: " password_confirm
+    echo
+    if [ "$password" == "$password_confirm" ] && [ -n "$password" ]; then
+      break
+    else
+      echo "❌ Passwords do not match or empty. Please try again."
+    fi
+  done
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
   version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
 
   cat > "$USER_FILE" <<EOF
-# uOS User Profile
+Username: $uname
+Password: $password
+EOF
 
-**Username**: $uname  
-**User ID**: $uid  
-**Instance ID**: $iid  
-**Instance Number**: $instance_num  
-**Created**: $created  
-**Location**: $location  
-**Mission**: $mission  
-**Legacy**: $legacy  
-**Lifespan**: $lifespan  
-**Privacy**: $privacy  
-**uOS Version**: $version
-
-Welcome to uOS, $uname. Your instance is now active.
+  cat > "$STATE/instance.md" <<EOF
+Created: $created
+Location: $location
+Mission: $mission
+Legacy: $legacy
+Lifespan: $lifespan
+Sharing: $sharing
+uOS Version: $version
 EOF
 
   echo "✅ User profile created: $USER_FILE"
-  echo "✅ Created: state/user.md"
-  echo "👋 Welcome, $uname. Your ID is $uid."
+  echo "👋 Welcome, $uname."
 fi
 
 # -------------------------------------
 # 5. Version file check
-VERSION_FILE="$STATE/version.md"
+VERSION_FILE="$BASE/sandbox/version.txt"
 echo ""
 echo "📦 uOS Version:"
 if [ -f "$VERSION_FILE" ]; then
-  echo "$pass Found version.md"
+  echo "$pass Found version.txt"
 else
   version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
-  echo "**uOS Version**: $version" > "$VERSION_FILE"
-  echo "$pass Initialized version.md with $version"
-fi
-
-# -------------------------------------
-# 6. Session start and Move log index
-SESSION_FILE="$STATE/session.md"
-sid="sess-$(date '+%Y%m%d-%H%M')"
-echo ""
-echo "📆 Session startup:"
-if [ -f "$SESSION_FILE" ]; then
-  echo "$pass Previous session file found."
-else
-  echo "**Session ID**: $sid" > "$SESSION_FILE"
-  echo "**Started**: $(date '+%Y-%m-%d %H:%M:%S')" >> "$SESSION_FILE"
-  echo "$pass Created new session.md"
-fi
-
-MOVE_INDEX="$UMEM/logs/moves/index-$sid.md"
-if [ ! -f "$MOVE_INDEX" ]; then
-  echo "# Move Index – $sid" > "$MOVE_INDEX"
-  echo "" >> "$MOVE_INDEX"
-  echo "_All Moves from this session will be listed here._" >> "$MOVE_INDEX"
-  echo "$pass Initialized: index-$sid.md"
-else
-  echo "$pass Move index already exists: $MOVE_INDEX"
+  echo "$version" > "$VERSION_FILE"
+  echo "$pass Initialized version.txt with $version"
 fi
 
 # -------------------------------------

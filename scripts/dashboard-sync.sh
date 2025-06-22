@@ -12,38 +12,48 @@ NOW="$(date '+%Y-%m-%d %H:%M:%S')"
 
 # Initialize user variables with safe defaults
 USER_NAME="Unknown"
-USER_ID="N/A"
-INSTANCE_ID="N/A"
-INSTANCE_NUMBER="N/A"
+PASSWORD="N/A"
 CREATED="N/A"
 LOCATION="Unknown"
 ACTIVE_MISSION="none"
 LEGACY="none"
 LIFESPAN="n/a"
-PRIVACY="n/a"
+SHARING="n/a"
 UOS_VERSION="n/a"
 
-USER_FILE="$STATE_DIR/user.md"
-if [[ -f "$USER_FILE" ]]; then
+# Read Username and Password from sandbox user.md
+SANDBOX_USER_FILE="$UROOT/sandbox/user.md"
+if [[ -f "$SANDBOX_USER_FILE" ]]; then
   while IFS= read -r line; do
     if [[ "$line" =~ \*\*(.+)\*\*:\ (.+) ]]; then
       key="${BASH_REMATCH[1]//[[:space:]]/}"
       value="$(echo "${BASH_REMATCH[2]}" | xargs)"
       case "$key" in
         Username) USER_NAME="$value" ;;
-        UserID) USER_ID="$value" ;;
-        InstanceID) INSTANCE_ID="$value" ;;
-        InstanceNumber) INSTANCE_NUMBER="$value" ;;
+        Password) PASSWORD="$value" ;;
+      esac
+    fi
+  done < "$SANDBOX_USER_FILE"
+fi
+
+# Read other fields from instance.md
+INSTANCE_FILE="$STATE_DIR/instance.md"
+if [[ -f "$INSTANCE_FILE" ]]; then
+  while IFS= read -r line; do
+    if [[ "$line" =~ \*\*(.+)\*\*:\ (.+) ]]; then
+      key="${BASH_REMATCH[1]//[[:space:]]/}"
+      value="$(echo "${BASH_REMATCH[2]}" | xargs)"
+      case "$key" in
         Created) CREATED="$value" ;;
         Location) LOCATION="$value" ;;
         Mission) ACTIVE_MISSION="$value" ;;
         Legacy) LEGACY="$value" ;;
         Lifespan) LIFESPAN="$value" ;;
-        Privacy) PRIVACY="$value" ;;
+        Sharing) SHARING="$value" ;;
         uOSVersion) UOS_VERSION="$value" ;;
       esac
     fi
-  done < "$USER_FILE"
+  done < "$INSTANCE_FILE"
 fi
 
 # Recent Moves
@@ -99,7 +109,7 @@ else
 fi
 
 ENCRYPTION_STATUS="[ENABLED]"
-PRIVACY_STATUS="$PRIVACY"
+PRIVACY_STATUS="$SHARING"
 LIFESPAN_STATUS="$LIFESPAN"
 SYNC_STATUS="Local OK, No pending exports"
 
@@ -107,9 +117,6 @@ SYNC_STATUS="Local OK, No pending exports"
 WIDTH=75
 printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 printf '║ User: %-59s %19s ║\n' "$USER_NAME" "$NOW"
-printf '║ User ID: %-65s ║\n' "$USER_ID"
-printf '║ Instance ID: %-60s ║\n' "$INSTANCE_ID"
-printf '║ Instance Number: %-54s ║\n' "$INSTANCE_NUMBER"
 printf '║ Created: %-66s ║\n' "$CREATED"
 printf '║ Location: %-67s ║\n' "$LOCATION"
 printf '║ Active Mission: %-59s ║\n' "$ACTIVE_MISSION"

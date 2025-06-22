@@ -12,11 +12,12 @@ RECENT_MOVES_DIR="$UMEMORY/logs/moves"
 
 # Header
 clear
-USER_NAME=$(whoami)
+USER_NAME=$(grep -i '^Username:' "$UROOT/sandbox/user.md" 2>/dev/null | cut -d':' -f2- | xargs)
+[ -z "$USER_NAME" ] && USER_NAME=$(whoami)
 printf "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗\n"
 printf "║ User: %-32s %s ║\n" "$USER_NAME" "$(date '+%Y-%m-%d %H:%M:%S')"
 
-LOCATION=$(basename "$(cat "$REGION" 2>/dev/null)" 2>/dev/null)
+LOCATION=$(grep -i '^Location:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
 [ -z "$LOCATION" ] && LOCATION="Unknown"
 printf "║ Location: %-64s║\n" "$LOCATION"
 
@@ -88,6 +89,15 @@ if [[ -f "$ULOG" ]]; then
 else
   echo "║ No stat log available. Run generate_stats.sh.                                 ║"
 fi
+
+SHARING=$(grep -i '^Sharing:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+LIFESPAN=$(grep -i '^Lifespan:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+UOS_VERSION=$(grep -i '^uOS Version:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+
+printf "║ Sharing: %-65s║\n" "${SHARING:-Unknown}"
+printf "║ Lifespan: %-64s║\n" "${LIFESPAN:-Unknown}"
+printf "║ uOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
+
 echo "║ Encryption: [ENABLED]      Sync Status: Local OK, No pending exports          ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
 echo ""

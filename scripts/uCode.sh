@@ -1,5 +1,5 @@
 #!/bin/bash
-# uCode CLI v1.4.6 — Unified Input/Output Shell for uOS
+# uCode CLI v1.6 — Unified Input/Output Shell for uOS (Filename Spec Compliant)
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
@@ -15,6 +15,21 @@ ERROR_LOG="$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
 DEFAULT_EDITOR="${EDITOR:-nano}"
 
 mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
+
+# ──────────────────────────────────────────────
+# 🔤 Canonical Filename Generator (v1.6)
+# ──────────────────────────────────────────────
+generate_filename() {
+  local CATEGORY="$1"         # e.g. uML, uIO, uSL
+  local LOCATION="${2:-F00:00:00}"  # fallback location
+  local TZCODE="P10"
+
+  local DATESTAMP=$(date +%Y%m%d)
+  local TIMESTAMP=$(date +%H%M%S%3N)
+  local LOCATION_SAFE=$(echo "$LOCATION" | tr ':' '-')
+
+  echo "${CATEGORY}-${DATESTAMP}-${TIMESTAMP}-${TZCODE}-${LOCATION_SAFE}.md"
+}
 
 # ──────────────────────────────────────────────
 # 📌 Startup Header
@@ -40,22 +55,23 @@ refresh_uos() {
 # ──────────────────────────────────────────────
 # 🧠 Logging Functions
 # ──────────────────────────────────────────────
-
 log_error() {
   echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
 }
 
 log_move() {
   local cmd="$1"
-  local ts_epoch ts_iso user path output
-
+  local ts_epoch ts_iso user output
   ts_epoch=$(date +%s)
   ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   user=$(whoami)
-  path="$MOVE_DIR/$(date +%Y-%m-%d)-move-$ts_epoch.md"
   output=""
 
-  echo "- [$ts_iso] Move: \`$cmd\` → [$path]" >> "$SESSION_FILE"
+  local location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
+  local filename=$(generate_filename "uML" "$location")
+  local path="$MOVE_DIR/$filename"
+
+  echo "- [$ts_iso] Move: \`$cmd\` → [$filename]" >> "$SESSION_FILE"
 
   if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
     sed -i.bak \
@@ -68,7 +84,7 @@ log_move() {
     rm -f "$path.bak"
     echo "📄 New move created: $path"
   else
-    echo -e "Move: $cmd\nTimestamp: $ts_iso\nUser: $user\nCommand: $cmd" > "$path"
+    echo -e "# Move: $cmd\nTimestamp: $ts_iso\nUser: $user" > "$path"
     echo "⚠️ No move template found. Using blank file."
     log_error "Missing move template for: $cmd"
   fi
@@ -80,9 +96,15 @@ bash "$UROOT/scripts/dashboard-sync.sh"
 # ──────────────────────────────────────────────
 # 🚦 Command Dispatcher Loop
 # ──────────────────────────────────────────────
-
 while true; do
   read -rp "🌀 uCode→ " cmd args
+
+  # Optional: Log all input to sandbox uIO log
+  # SANDBOX_IO_LOG="$UROOT/sandbox/uIO-$(date +%Y%m%d).md"
+  # location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "unknown")
+  # echo "## [$(date +%H:%M)] @ $location" >> "$SANDBOX_IO_LOG"
+  # echo "> $cmd $args" >> "$SANDBOX_IO_LOG"
+  # echo "" >> "$SANDBOX_IO_LOG"
 
   case "$cmd" in
     help)
@@ -108,8 +130,9 @@ EOF
     new)
       case "$args" in
         move)
-          id=$(date +%s)
-          path="$MOVE_DIR/$(date +%Y-%m-%d)-move-${id}.md"
+          location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
+          filename=$(generate_filename "uML" "$location")
+          path="$MOVE_DIR/$filename"
           if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
             echo "📄 New move created: $path"
             $DEFAULT_EDITOR "$path"
@@ -148,7 +171,7 @@ EOF
 
     undo)
       if [[ "$args" == "move" ]]; then
-        last_move=$(ls -1t "$MOVE_DIR"/*.md 2>/dev/null | head -1)
+        last_move=$(ls -1t "$MOVE_DIR"/uML-*.md 2>/dev/null | head -1)
         if [[ -z "$last_move" ]]; then
           echo "⚠️ No moves to undo."
         else
