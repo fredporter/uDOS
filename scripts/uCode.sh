@@ -201,7 +201,7 @@ EOF
       ;;
 
     dash)
-      bash "$UROOT/scripts/dashboard-sync.sh" || echo "❌ Failed to load dashboard."
+      bash "$UROOT/scripts/dashboard.sh" || echo "❌ Failed to load dashboard."
       log_move "dash"
       ;;
 

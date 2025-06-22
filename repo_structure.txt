@@ -92,8 +92,10 @@
         |  |-- uML-20250622-131124-P10-F00-00-00.md
         |  |-- uML-20250622-131128-P10-F00-00-00.md
         |  |-- uML-20250622-131136-P10-F00-00-00.md
+        |  |-- uML-20250622-131235-P10-F00-00-00.md
       |  |-- moves.md
       |  |-- session-2025-06-22.md
+      |  |-- ulog-2025-06-22.md
     |-- milestones
       |  |-- Milestone 001 Build U Knowledge.md
     |-- missions
