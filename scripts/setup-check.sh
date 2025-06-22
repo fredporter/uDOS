@@ -67,37 +67,48 @@ if [ ! -f "$USER_FILE" ]; then
   read -p "🏛️ What kind of legacy will you leave? " legacy
 
   while true; do
-    read -p "🔒 Choose a sharing level [0] tomb (closed - default), [1] crypt (explicit sharing), or [2] beacon (open)? " sharing
-    if [[ "$sharing" == "1" || "$sharing" == "2" ]]; then
+    read -p "🔒 Choose a sharing level [0] tomb (closed - default), [1] crypt (explicit sharing), or [2] beacon (open)? " sharing_input
+    if [ "$sharing_input" == "1" ]; then
+      sharing="crypt"
+      echo "Selected sharing mode: crypt"
+      break
+    elif [ "$sharing_input" == "2" ]; then
+      sharing="beacon"
+      echo "Selected sharing mode: beacon"
       break
     else
-      sharing="0"
+      sharing="tomb"
+      echo "Selected sharing mode: tomb"
       break
     fi
   done
 
   while true; do
-    read -p "⏳ How long does this instance live? [0] infinite moves (default), or type number of moves in 000s from 1 to 999 " lifespan
-    if [[ "$lifespan" == "0" ]]; then
+    read -p "⏳ How long does this instance live? [0] infinite moves (default), or type number of moves in 000s from 1 to 999 " lifespan_input
+    if [[ "$lifespan_input" == "0" ]]; then
+      lifespan="0"
+      echo "Lifespan set to infinite moves (0)."
       break
-    elif [[ "$lifespan" =~ ^[0-9]{3}$ ]] && [[ "$lifespan" -ge 1 ]] && [[ "$lifespan" -le 999 ]]; then
+    elif [[ "$lifespan_input" =~ ^[0-9]{3}$ ]] && [[ "$lifespan_input" -ge 1 ]] && [[ "$lifespan_input" -le 999 ]]; then
+      lifespan="$lifespan_input"
       break
     else
-      echo "❌ Must be '0' or a number from 001 to 999."
+      lifespan="0"
+      echo "Invalid input. Lifespan set to infinite moves (0)."
+      break
     fi
   done
 
-  while true; do
-    read -s -p "🔑 Set a password: " password
-    echo
+  read -s -p "🔑 Set a password (leave blank to skip): " password
+  echo
+  if [ -n "$password" ]; then
     read -s -p "🔑 Confirm your password: " password_confirm
     echo
-    if [ "$password" == "$password_confirm" ] && [ -n "$password" ]; then
-      break
-    else
-      echo "❌ Passwords do not match or empty. Please try again."
+    if [ "$password" != "$password_confirm" ]; then
+      echo "❌ Passwords do not match. Skipping password setup."
+      password=""
     fi
-  done
+  fi
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
   version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")

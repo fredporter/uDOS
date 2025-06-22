@@ -109,9 +109,23 @@ else
 fi
 
 ENCRYPTION_STATUS="[ENABLED]"
-PRIVACY_STATUS="$SHARING"
+SHARING_STATUS="$SHARING"
 LIFESPAN_STATUS="$LIFESPAN"
 SYNC_STATUS="Local OK, No pending exports"
+
+# Compute Moves Remaining
+if [[ "$LIFESPAN" == "0" ]]; then
+  MOVES_REMAINING="∞"
+else
+  # Attempt to parse LIFESPAN as number, default to 0 if invalid
+  if [[ "$LIFESPAN" =~ ^[0-9]+$ ]]; then
+    MOVES_REMAINING=$((LIFESPAN * 1000))
+  else
+    MOVES_REMAINING="N/A"
+  fi
+fi
+
+HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 
 # Display dashboard
 WIDTH=75
@@ -149,7 +163,7 @@ printf '║ ✅ Health Check%56s ║\n' ""
 for line in "${HEALTH_CHECK_LINES[@]}"; do
   printf '║ %-73s ║\n' "$line"
 done
-printf '║ Encryption: %-9s   Privacy: %-6s   Lifespan: %-6s ║\n' "$ENCRYPTION_STATUS" "$PRIVACY_STATUS" "$LIFESPAN_STATUS"
+printf '║ Encryption: %-9s   Privacy: %-6s   Lifespan: %-6s ║\n' "$ENCRYPTION_STATUS" "$SHARING_STATUS" "$LIFESPAN_STATUS"
 printf '║ Sync Status: %-45s ║\n' "$SYNC_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
