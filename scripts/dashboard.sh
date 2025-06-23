@@ -70,7 +70,7 @@ fi
 # HEALTH
 printf "┌───────────── ✅ Health Stats ──────────────────────────────────────────────┐\n"
 printf "│ 🎯 Moves: 0   🚀 Missions: 1   📌 Milestones: 1   📝 Drafts: 2                  │\n"
-printf "│ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%   │\n"
+printf "│ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%%   │\n"
 printf "│ 🧭 LastMission: N/A                                                          │\n"
 printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
