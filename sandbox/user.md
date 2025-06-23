@@ -1,2 +1,2 @@
-Username: Wizard
+Username: GoldTiger
 Password: 

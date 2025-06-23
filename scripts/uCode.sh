@@ -58,7 +58,7 @@ log_move() {
   duration=""
 
   # Write a single truncated log line into the daily move log file
-  echo "[$ts_time] CMD: $cmd | $location | $duration" >> "$MOVE_LOG"
+  printf "🌀→ %s | %s | %s | %s\n" "$(date +%H:%M:%S.%3N)" "$(echo "$cmd" | tr '[:lower:]' '[:upper:]')" "$location" "$duration" >> "$MOVE_LOG"
 }
 
 # Show dashboard on startup
@@ -70,12 +70,11 @@ bash "$UROOT/scripts/dashboard-sync.sh"
 while true; do
   read -rp "🌀 uCode→ " cmd args
 
-  # Optional: Log all input to sandbox uIO log
-  # SANDBOX_IO_LOG="$UROOT/sandbox/uIO-$(date +%Y%m%d).md"
-  # location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "unknown")
-  # echo "## [$(date +%H:%M)] @ $location" >> "$SANDBOX_IO_LOG"
-  # echo "> $cmd $args" >> "$SANDBOX_IO_LOG"
-  # echo "" >> "$SANDBOX_IO_LOG"
+  timestamp=$(date +%H:%M:%S.%3N)
+  location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
+  if [[ ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|reboot|destroy|exit)$ ]]; then
+    echo "🌀→ $cmd $args | $location | $timestamp" >> "$MOVE_LOG"
+  fi
 
   case "$cmd" in
     help)
@@ -276,4 +275,12 @@ EOF
       echo "❓ Unknown command: $cmd"
       ;;
   esac
+
+  # Capture and log command output if appropriate
+  if [[ -n "$cmd" && ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|reboot|destroy|exit)$ ]]; then
+    exec 3>&1
+    output=$( { eval "$cmd $args"; } 2>&1 | tee /dev/fd/3 )
+    echo "💬← $output" >> "$MOVE_LOG"
+  fi
+
 done

@@ -168,7 +168,15 @@ printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ 📝 Recent Moves%67s ║\n' ""
 for line in "${RECENT_DISPLAY[@]}"; do
-  printf '║ %-77s ║\n' "$line"
+  if [[ "$line" == "[STATS]"* ]]; then
+    continue  # Skip [STATS] lines from display
+  elif [[ "$line" == 📌* ]]; then
+    printf '║ %-77s ║\n' "$line"
+  elif [[ "$line" == \[*\]*\ CMD:* ]]; then
+    printf '║ %-77s ║\n' "$line"
+  else
+    printf '║ %-77s ║\n' "$line"
+  fi
 done
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 

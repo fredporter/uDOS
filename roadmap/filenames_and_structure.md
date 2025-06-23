@@ -1,4 +1,4 @@
-# uOS Filename and File Structure Specification (v1.6)
+# uDOS Filename and File Structure Specification (Beta v1.6.1)
 
 This standard defines all filenames and folder conventions used within uOS for logs, moves, tasks, maps, and sandbox operations.
 
@@ -9,38 +9,41 @@ This standard defines all filenames and folder conventions used within uOS for l
 All filenames follow this strict structure:
 
 ```
-<uXYZ>-<DATETIMESTAMP>-<LOCATIONSTAMP>.md
+<type>-<YYYYMMDD-HHMMSSmmm>-<location>-<timezone>.md
 ```
 
 ### Example:
 
 ```
-uMLG-20250622-142310456-P10-F18-03-27.md
+moves-20250623-142310361-F180327-AEST.md
 ```
+
+Note: Colons in location stamps are removed in filenames for compatibility.
 
 ### Components:
 
 | Part          | Format                              | Example                |
 | ------------- | ----------------------------------- | ---------------------- |
-| Category Code | Always starts with "u" + 2 CAPS/NUM | uML, uIO, uCF, uSP     |
-| DateTimeStamp | YYYYMMDD-HHMMSSSSS-TZCODE           | 20250622-142310456-P10 |
-| LocationStamp | Tile Code from uMaps                | F18:03:27              |
+| Category Code | Type of file                        | moves                  |
+| DateTimeStamp | YYYYMMDD-HHMMSSmmm (24hr clock, milliseconds)     | 20250622-142310361     |
+| Timezone      | Readable TZ (e.g. AEST, PST, UTC)  | AEST                   |
+| LocationStamp | Tile Code from uMaps (no colons)    | F180327                |
 | Extension     | Always .md (lowercase)              | .md                    |
+
+Default timezone and location are derived at startup from /uMemory/state/location.txt.
 
 ---
 
 ## 2. Category Codes
 
-| Code | Type                   |
-| ---- | ---------------------- |
-| uML  | Move Log               |
-| uIO  | Input/Output pair      |
-| uMP  | Map Definition or Tile |
-| uCF  | Configuration file     |
-| uTA  | Task/Action            |
-| uMS  | Memory/Snapshot        |
-| uSL  | System Log             |
-| uMR  | uMap Draft/Revision    |
+| Code    | Type                |
+|---------|---------------------|
+| moves   | Move logs           |
+| mission | Active missions     |
+| legacy  | Archived records    |
+| draft   | Drafted input       |
+| map     | Map tile or region  |
+| config  | Configuration file  |
 
 Note: This is a recommended convention, but not enforced. In some cases, may be omitted from the filename altogether.
 
@@ -98,4 +101,3 @@ This structure ensures consistent naming, cross-compatibility with uMap addressi
 All filenames are safe for sorting, transfer, compression, and long-term storage.
 
 End of spec.
-
