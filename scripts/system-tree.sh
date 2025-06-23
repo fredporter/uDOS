@@ -1,5 +1,5 @@
 #!/bin/bash
-# ucode-tree.sh — Generate repo_structure.txt with filtered output
+# system-tree.sh — Generate repo_structure.txt with filtered output
 
 uDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUTPUT_FILE="$uDOS_ROOT/repo_structure.txt"

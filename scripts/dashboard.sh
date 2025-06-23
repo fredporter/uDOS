@@ -1,11 +1,11 @@
 #!/bin/bash
-# uOS Dashboard v1.1 — Combines static blocks + live memory stats
+# uDOS Dashboard Beta v1.6 — Combines static blocks + live memory stats
 
 UROOT="$(dirname "$(realpath "$0")")/.."   # One level up from scripts/
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"
 LOG_DIR="$UMEMORY/logs"
-ULOG=$(ls -1t "$LOG_DIR"/ulog-*.md 2>/dev/null | head -n 1)
+ULOG=$(ls -1t "$LOG_DIR"/moves-*.md 2>/dev/null | head -n 1)
 REGION="$UKNOWLEDGE/map/current_region.txt"
 ROOMS_DIR="$UKNOWLEDGE/rooms"
 RECENT_MOVES_DIR="$UMEMORY/logs/moves"
@@ -24,7 +24,7 @@ fi
 # DEBUG: Uncomment to debug user file
 # echo "DEBUG: USER_FILE contents:"; cat "$USER_FILE"
 # echo "DEBUG: Parsed USER_NAME: $USER_NAME"
-printf "╔═══════════════════════════[ uOS STATUS DASHBOARD ]═══════════════════════════╗\n"
+printf "╔═══════════════════════════[ uDOS STATUS DASHBOARD ]═══════════════════════════╗\n"
 printf "║ User: %-32s %s ║\n" "$USER_NAME" "$(date '+%Y-%m-%d %H:%M:%S')"
 
 LOCATION=$(grep -i '^Location:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
@@ -98,11 +98,11 @@ echo ""
 # Health Check Block (Live Stats)
 echo "║ ✅ Health Check                                                               ║"
 if [[ -f "$ULOG" ]]; then
-  grep -E 'Moves|Missions|Milestones|Legacy|Drafts' "$ULOG" | while read -r stat; do
-    printf "║ %s%-74s║\n" "" "$stat"
+  grep '^\[STATS\]' "$ULOG" | while read -r stat; do
+    # Remove the [STATS] prefix for cleaner display
+    stat_line=${stat#\[STATS\] }
+    printf "║ %s%-74s║\n" "" "$stat_line"
   done
-else
-  echo "║ No stat log available. Run generate_stats.sh.                                 ║"
 fi
 
 SHARING=$(grep -i '^Sharing:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
@@ -119,7 +119,7 @@ else
 fi
 printf "║ Moves Remaining: %-57s║\n" "$MOVES_REMAINING"
 
-printf "║ uOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
+printf "║ uDOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
 
 echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
 echo ""

@@ -56,6 +56,32 @@ if [[ -f "$INSTANCE_FILE" ]]; then
   done < "$INSTANCE_FILE"
 fi
 
+# If called with 'check' argument, output simple status summary and exit
+if [[ "$1" == "check" ]]; then
+  if [[ ! -f "$MOVE_LOG" ]]; then
+    echo "Status: Move log file not found."
+    exit 1
+  fi
+
+  # Count number of recent moves (lines) in today's move log
+  RECENT_MOVES_COUNT=$(wc -l < "$MOVE_LOG" 2>/dev/null)
+  if ! [[ "$RECENT_MOVES_COUNT" =~ ^[0-9]+$ ]]; then
+    RECENT_MOVES_COUNT=0
+  fi
+
+  # Validate essential values
+  if [[ -z "$USER_NAME" || "$USER_NAME" == "Unknown" ]] || [[ -z "$LOCATION" || "$LOCATION" == "Unknown" ]] || [[ -z "$ACTIVE_MISSION" ]]; then
+    echo "Status: Invalid or missing data."
+    exit 1
+  fi
+
+  echo "Username: $USER_NAME"
+  echo "Location: $LOCATION"
+  echo "Active Mission: $ACTIVE_MISSION"
+  echo "Recent Moves Today: $RECENT_MOVES_COUNT"
+  exit 0
+fi
+
 # Recent Moves
 RECENT_DISPLAY=()
 if [[ -f "$MOVE_LOG" ]]; then

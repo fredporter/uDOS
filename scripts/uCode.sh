@@ -106,6 +106,8 @@ while true; do
   tree                              → Show project tree
   list                              → List visible files
   refresh                           → Refresh uDOS environment
+  check setup                       → Run setup validation and environment check
+  check dash                        → Verify dashboard status and output summary
   exit                              → Quit
 EOF
       ;;
@@ -218,6 +220,22 @@ EOF
 
     refresh)
       refresh_udos
+      ;;
+
+    check)
+      case "$args" in
+        setup)
+          bash "$UROOT/scripts/check-setup.sh"
+          log_move "check setup"
+          ;;
+        dash)
+          bash "$UROOT/scripts/dashboard-sync.sh" check
+          log_move "check dash"
+          ;;
+        *)
+          echo "❌ Usage: check setup"
+          ;;
+      esac
       ;;
 
     exit)

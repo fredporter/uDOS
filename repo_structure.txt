@@ -12,10 +12,6 @@
     |  |-- ChatGPT-uOS Docker.md
     |  |-- ChatGPT-uOS Refinement Sunday.md
   |  |-- docker-compose.yml
-  |-- macos
-    |  |-- Launch-uOS.command
-    |-- Launch🌀uOS.app
-    |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -74,7 +70,7 @@
     |  |-- dashboard.sh
     |  |-- error-logger.sh
     |  |-- generate_stats.sh
-    |  |-- launch-uOS.sh
+    |  |-- launch-uDOS.sh
     |  |-- log_legacy.sh
     |  |-- log_milestone.sh
     |  |-- log_mission.sh
@@ -117,6 +113,8 @@
         |  |-- uML-20250622-134126-P10-F00-00-00.md
         |  |-- uML-20250622-134329-P10-F00-00-00.md
         |  |-- uML-20250622-134341-P10-F00-00-00.md
+        |  |-- uML-20250623-104941-P10-F00-00-00.md
+      |  |-- moves-2025-06-23.md
       |  |-- moves.md
       |  |-- session-2025-06-22.md
       |  |-- session-2025-06-23.md
@@ -127,7 +125,11 @@
       |  |-- Mission Build uKnowledge.md
     |-- state
       |  |-- instance.md
-  |-- uX
+  |-- uXP
     |  |-- diamond-icon-1.png
     |  |-- diamond-icon-2.png
     |  |-- diamond-icon-3.png
+  |-- xOS
+    |  |-- Launch-uDOS.command
+    |  |-- README.md
+    |-- 🌀 uDOS Docker Launch.app
