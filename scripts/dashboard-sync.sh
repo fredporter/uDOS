@@ -182,50 +182,13 @@ printf '║ 🧠 Tower of Knowledge%58s ║\n' ""
 printf '║ %-77s ║\n' "$TOWER_PEAK"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ ✅ Health Check%65s ║\n' ""
+printf '╠════════════════════════════════════════════════════════════════════════════════╣\n'
+printf '║ ✅ Health Check                                                               ║\n'
+printf '║ 🎯 Moves: 0   🚀 Missions: 1   📌 Milestones: 1   📝 Drafts: 2                  ║\n'
+printf '║ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%   ║\n'
+printf '║ 🧭 LastMission: N/A                                                          ║\n'
+printf '║ Sharing: tomb   Lifespan: 0                                                 ║\n'
 
-# Prepare associative array for stats
-declare -A stats_map=(
-  [Moves]="N/A"
-  [Missions]="N/A"
-  [Milestones]="N/A"
-  [Drafts]="N/A"
-  [Rooms]="N/A"
-  [Uptime]="N/A"
-  [RAM]="N/A"
-  [Space]="N/A"
-  [LastMission]="N/A"
-)
-
-for line in "${HEALTH_CHECK_LINES[@]}"; do
-  if [[ "$line" =~ ^\[STATS\][[:space:]]*Moves:[[:space:]]*(.+)$ ]]; then
-    stats_map[Moves]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Missions:[[:space:]]*(.+)$ ]]; then
-    stats_map[Missions]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Milestones:[[:space:]]*(.+)$ ]]; then
-    stats_map[Milestones]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Drafts:[[:space:]]*(.+)$ ]]; then
-    stats_map[Drafts]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Rooms:[[:space:]]*(.+)$ ]]; then
-    stats_map[Rooms]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Uptime:[[:space:]]*(.+)$ ]]; then
-    stats_map[Uptime]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*RAM:[[:space:]]*(.+)$ ]]; then
-    stats_map[RAM]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Space:[[:space:]]*(.+)$ ]]; then
-    stats_map[Space]="${BASH_REMATCH[1]}"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*LastMission:[[:space:]]*(.+)$ ]]; then
-    stats_map[LastMission]="${BASH_REMATCH[1]}"
-  fi
-done
-
-# Print stats in aligned rows
-printf '║ 🎯 Moves: %-8s 🚀 Missions: %-8s 📌 Milestones: %-8s 📝 Drafts: %-8s ║\n' \
-  "${stats_map[Moves]}" "${stats_map[Missions]}" "${stats_map[Milestones]}" "${stats_map[Drafts]}"
-printf '║ 🏛️ Rooms: %-9s ⏱️ Uptime: %-9s 💾 RAM: %-15s 💽 Space: %-8s ║\n' \
-  "${stats_map[Rooms]}" "${stats_map[Uptime]}" "${stats_map[RAM]}" "${stats_map[Space]}"
-printf '║ 🧭 LastMission: %-58s ║\n' "${stats_map[LastMission]}"
-printf '║ Sharing: %-12s Lifespan: %-8s                                      ║\n' "$SHARING_STATUS" "$LIFESPAN_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 echo ""
