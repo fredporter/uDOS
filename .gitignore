@@ -1,24 +1,24 @@
 # ──────────────────────────────────────────────
-# uOS .gitignore — excludes system/cache/local content
+# uDOS .gitignore — excludes system/cache/local content
 # ──────────────────────────────────────────────
 
 # Ignore system-generated internals inside the .app
-macos/Launch🌀uOS.app/Contents/
-macos/Launch🌀uOS.app/_CodeSignature/
-macos/Launch🌀uOS.app/Resources/
-macos/Launch🌀uOS.app/Icon
-macos/Launch🌀uOS.app/document.wflow
-macos/Launch🌀uOS.app/*.lproj
-macos/Launch🌀uOS.app/*.icns
-macos/Launch🌀uOS.app/Assets.car
-macos/Launch🌀uOS.app/Info.plist
+xOS/🌀 uDOS Docker Launch.app/Contents/
+xOS/🌀 uDOS Docker Launch.app/_CodeSignature/
+xOS/🌀 uDOS Docker Launch.app/Resources/
+xOS/🌀 uDOS Docker Launch.app/Icon
+xOS/🌀 uDOS Docker Launch.app/document.wflow
+xOS/🌀 uDOS Docker Launch.app/*.lproj
+xOS/🌀 uDOS Docker Launch.app/*.icns
+xOS/🌀 uDOS Docker Launch.app/Assets.car
+xOS/🌀 uDOS Docker Launch.app/Info.plist
 
 # Keep base .app folder for packaging/distribution
-!macos/Launch🌀uOS.app/
+!xOS/🌀 uDOS Docker Launch.app/
 
 # Keep launcher shell scripts
-!macos/Launch-uOS.command
-!macos/Quit-uOS.command
+!xOS/Launch-uDOS.command
+!xOS/Quit-uDOS.command
 
 # Python + general build artifacts
 __pycache__/

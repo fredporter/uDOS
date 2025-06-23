@@ -1,8 +1,8 @@
 #!/bin/bash
-# Launch-uOS.command v1.4 – Clean launch with resize & feedback
-# uOS by Master & ChatGPT
+# Launch-uDOS.command Beta v1.6 – Clean launch with resize & feedback
+# uDOS by Master & ChatGPT
 
-echo "🔁 Launching uOS..."
+echo "🔁 Launching uDOS..."
 
 # Resize current Terminal window BEFORE shell starts
 osascript <<EOF
@@ -11,9 +11,9 @@ tell application "Terminal"
 end tell
 EOF
 
-# Step into uOS directory
-cd ~/uOS || {
-  echo "❌ Error: ~/uOS directory not found."
+# Step into uDOS directory
+cd ~/uDOS || {
+  echo "❌ Error: ~/uDOS directory not found."
   exit 1
 }
 
@@ -28,13 +28,13 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 # Stop any existing containers (cleanup)
-echo "🧼 Stopping previous uOS containers..."
+echo "🧼 Stopping previous uDOS containers..."
 docker compose down || echo "⚠️  Nothing to stop."
 
 # Rebuild container
-echo "🔨 Rebuilding uOS container..."
+echo "🔨 Rebuilding uDOS container..."
 docker compose build
 
-# Launch uOS interactive shell (same window)
-echo "🚀 Starting uOS interactive shell..."
-docker compose run --rm uos
+# Launch uDOS interactive shell (same window)
+echo "🚀 Starting uDOS interactive shell..."
+docker compose run --rm udos
