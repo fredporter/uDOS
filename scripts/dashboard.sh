@@ -2,6 +2,7 @@
 # uDOS Dashboard Beta v1.6 — Combines static blocks + live memory stats
 
 UROOT="$(dirname "$(realpath "$0")")/.."   # One level up from scripts/
+bash "$UROOT/scripts/check-setup.sh" >/dev/null
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"
 LOG_DIR="$UMEMORY/logs"

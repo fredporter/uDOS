@@ -15,20 +15,7 @@ DEFAULT_EDITOR="${EDITOR:-nano}"
 
 mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
 
-# ──────────────────────────────────────────────
-# 🔤 Canonical Filename Generator (Beta v1.6)
-# ──────────────────────────────────────────────
-generate_filename() {
-  local CATEGORY="$1"         # e.g. uML, uIO, uSL
-  local LOCATION="${2:-F00:00:00}"  # fallback location
-  local TZCODE="P10"
-
-  local DATESTAMP=$(date +%Y%m%d)
-  local TIMESTAMP=$(date +%H%M%S%3N)
-  local LOCATION_SAFE=$(echo "$LOCATION" | tr ':' '-')
-
-  echo "${CATEGORY}-${DATESTAMP}-${TIMESTAMP}-${TZCODE}-${LOCATION_SAFE}.md"
-}
+bash "$UROOT/scripts/check-setup.sh" >/dev/null
 
 # ──────────────────────────────────────────────
 # 📌 Startup Header

@@ -2,6 +2,7 @@
 # dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
 UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+bash "$UROOT/scripts/check-setup.sh" >/dev/null
 MEMORY_DIR="${UOS_MEMORY_DIR:-$UROOT/uMemory}"
 KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
 
