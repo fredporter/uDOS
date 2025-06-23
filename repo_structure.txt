@@ -2,6 +2,10 @@
   |  |-- Dockerfile
   |  |-- LICENSE
   |  |-- README.md
+  |-- assets
+    |  |-- diamond-icon-1.png
+    |  |-- diamond-icon-2.png
+    |  |-- diamond-icon-3.png
   |-- companion
     |  |-- ChatGPT-Building uOS Together.md
     |  |-- ChatGPT-Custom-Instructions-uOS-Otter.md
@@ -61,11 +65,12 @@
     |  |-- uos_roadmap_q3.md
     |  |-- uos_template_generator.md
   |-- sandbox
-    |  |-- user.txt
-    |  |-- version.txt
+    |  |-- user.md
+    |  |-- version.md
   |-- scripts
     |  |-- accept_share.sh
     |  |-- authorize_share.sh
+    |  |-- check-setup.sh
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
@@ -76,9 +81,8 @@
     |  |-- log_mission.sh
     |  |-- sandbox_draft.sh
     |  |-- sandbox_finalize.sh
-    |  |-- setup-check.sh
+    |  |-- system-tree.sh
     |  |-- uCode.sh
-    |  |-- ucode-tree.sh
     |-- utils
       |  |-- filename-gen.sh
   |-- templates
@@ -125,10 +129,6 @@
       |  |-- Mission Build uKnowledge.md
     |-- state
       |  |-- instance.md
-  |-- uXP
-    |  |-- diamond-icon-1.png
-    |  |-- diamond-icon-2.png
-    |  |-- diamond-icon-3.png
   |-- xOS
     |  |-- Launch-uDOS.command
     |  |-- README.md
