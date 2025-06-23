@@ -185,7 +185,7 @@ printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 printf '╠════════════════════════════════════════════════════════════════════════════════╣\n'
 printf '║ ✅ Health Check                                                               ║\n'
 printf '║ 🎯 Moves: 0   🚀 Missions: 1   📌 Milestones: 1   📝 Drafts: 2                  ║\n'
-printf '║ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%   ║\n'
+printf '║ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%%   ║\n'
 printf '║ 🧭 LastMission: N/A                                                          ║\n'
 printf '║ Sharing: tomb   Lifespan: 0                                                 ║\n'
 
