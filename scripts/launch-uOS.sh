@@ -1,7 +1,7 @@
 #!/bin/bash
-# launch-uOS.sh
+# launch-uDOS.sh
 
-echo "🌀 Launching uOS..."
+echo "🌀 Launching uDOS..."
 
 # Run setup check — use relative path inside container
 ./scripts/setup-check.sh

@@ -1,5 +1,5 @@
 #!/bin/bash
-# dashboard-sync.sh — Generate and display uOS status dashboard (improved)
+# dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
 UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MEMORY_DIR="${UOS_MEMORY_DIR:-$UROOT/uMemory}"
@@ -7,7 +7,7 @@ KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
 
 STATE_DIR="$MEMORY_DIR/state"
 MOVE_DIR="$MEMORY_DIR/logs/moves"
-SESSION_FILE="$MEMORY_DIR/logs/session-$(date +%Y-%m-%d).md"
+MOVE_LOG="$MEMORY_DIR/logs/moves-$(date +%Y-%m-%d).md"
 NOW="$(date '+%Y-%m-%d %H:%M:%S')"
 
 # Initialize user variables with safe defaults
@@ -19,7 +19,7 @@ ACTIVE_MISSION="none"
 LEGACY="none"
 LIFESPAN="n/a"
 SHARING="n/a"
-UOS_VERSION="n/a"
+UDOS_VERSION="n/a"
 
 # Read Username and Password from sandbox user.md
 SANDBOX_USER_FILE="$UROOT/sandbox/user.md"
@@ -50,29 +50,26 @@ if [[ -f "$INSTANCE_FILE" ]]; then
         Legacy) LEGACY="$value" ;;
         Lifespan) LIFESPAN="$value" ;;
         Sharing) SHARING="$value" ;;
-        uOSVersion) UOS_VERSION="$value" ;;
+        uOSVersion) UDOS_VERSION="$value" ;;
       esac
     fi
   done < "$INSTANCE_FILE"
 fi
 
 # Recent Moves
-RECENT_MOVES=()
-if compgen -G "$MOVE_DIR/*.md" > /dev/null; then
-  RECENT_MOVES=($(ls -1t "$MOVE_DIR"/*.md | head -5))
-fi
-
 RECENT_DISPLAY=()
-if [[ ${#RECENT_MOVES[@]} -eq 0 ]]; then
-  RECENT_DISPLAY+=("No recent moves logged.")
+if [[ -f "$MOVE_LOG" ]]; then
+  mapfile -t recent_lines < <(tail -n 5 "$MOVE_LOG")
+  if [[ ${#recent_lines[@]} -eq 0 ]]; then
+    RECENT_DISPLAY+=("No recent moves logged.")
+  else
+    for line in "${recent_lines[@]}"; do
+      trimmed_line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      RECENT_DISPLAY+=("$trimmed_line")
+    done
+  fi
 else
-  for move_file in "${RECENT_MOVES[@]}"; do
-    basename_file=$(basename "$move_file")
-    date_part=$(echo "$basename_file" | cut -d'-' -f1-3)
-    cmd_line=$(grep -m1 -E '^(Command:|Move:)' "$move_file" | sed -E 's/^(Command:|Move:)\s*//I' | tr -d '\r\n')
-    [[ -z "$cmd_line" ]] && cmd_line="$basename_file"
-    RECENT_DISPLAY+=("[$date_part] Move: $cmd_line")
-  done
+  RECENT_DISPLAY+=("No recent moves logged.")
 fi
 
 # Map Peek
@@ -85,28 +82,8 @@ fi
 # Tower of Knowledge placeholder
 TOWER_PEAK="No rooms indexed yet."
 
-# Health Check from ulog
-ULOG_FILE="$MEMORY_DIR/logs/ulog-$(date +%Y-%m-%d).md"
-HEALTH_CHECK_LINES=()
-if [[ -f "$ULOG_FILE" ]]; then
-  while IFS= read -r line; do
-    case "$line" in
-      "🕰️  Uptime:"*)          UPTIME="${line#*: }" ;;
-      "💾 Memory:"*)           MEMORY_USAGE="${line#*: }" ;;
-      "🎮 Total Moves:"*)      TOTAL_MOVES="${line#*: }" ;;
-      "📑 Moves Today:"*)      MOVES_TODAY="${line#*: }" ;;
-      "🧪 Drafts in Sandbox:"*) SANDBOX_DRAFTS="${line#*: }" ;;
-    esac
-  done < "$ULOG_FILE"
-
-  [[ -n "$UPTIME" ]] && HEALTH_CHECK_LINES+=("Uptime: $UPTIME")
-  [[ -n "$MEMORY_USAGE" ]] && HEALTH_CHECK_LINES+=("Memory: $MEMORY_USAGE")
-  [[ -n "$TOTAL_MOVES" ]] && HEALTH_CHECK_LINES+=("Total Moves: $TOTAL_MOVES")
-  [[ -n "$MOVES_TODAY" ]] && HEALTH_CHECK_LINES+=("Moves Today: $MOVES_TODAY")
-  [[ -n "$SANDBOX_DRAFTS" ]] && HEALTH_CHECK_LINES+=("Sandbox Drafts: $SANDBOX_DRAFTS")
-else
-  HEALTH_CHECK_LINES+=("No stat log available. Run refresh or generate_stats.sh.")
-fi
+# Health Check placeholder (removed ulog references)
+HEALTH_CHECK_LINES=("No stat log available. Run refresh or generate_stats.sh.")
 
 ENCRYPTION_STATUS="[ENABLED]"
 SHARING_STATUS="$SHARING"
@@ -135,7 +112,7 @@ printf '║ Created: %-66s ║\n' "$CREATED"
 printf '║ Location: %-67s ║\n' "$LOCATION"
 printf '║ Active Mission: %-59s ║\n' "$ACTIVE_MISSION"
 printf '║ Legacy: %-68s ║\n' "$LEGACY"
-printf '║ uOS Version: %-63s ║\n' "$UOS_VERSION"
+printf '║ uDOS Version: %-63s ║\n' "$UDOS_VERSION"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ 🔎 Today’s Focus%56s ║\n' ""
@@ -168,4 +145,5 @@ printf '║ Sync Status: %-45s ║\n' "$SYNC_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 echo ""
-echo "🧭 Use 'help' for available commands. Make your next move, Master."
+echo "🧭 Use 'help' for available commands."
+echo "Make your next move, Master."

@@ -1,5 +1,5 @@
 #!/bin/bash
-# setup-check.sh — Validate uOS setup, initialize user/session/version
+# setup-check.sh — Validate uDOS setup, initialize user/version
 
 BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEM="$BASE/uMemory"
@@ -7,7 +7,7 @@ STATE="$UMEM/state"
 pass="✅"
 fail="❌"
 
-echo "🔍 Checking uOS setup..."
+echo "🔍 Checking uDOS setup..."
 
 # -------------------------------------
 # 1. Templates check
@@ -125,7 +125,7 @@ Mission: $mission
 Legacy: $legacy
 Lifespan: $lifespan
 Sharing: $sharing
-uOS Version: $version
+uDOS Version: $version
 EOF
 
   echo "✅ User profile created: $USER_FILE"
@@ -136,7 +136,7 @@ fi
 # 5. Version file check
 VERSION_FILE="$BASE/sandbox/version.txt"
 echo ""
-echo "📦 uOS Version:"
+echo "📦 uDOS Version:"
 if [ -f "$VERSION_FILE" ]; then
   echo "$pass Found version.txt"
 else
@@ -147,4 +147,4 @@ fi
 
 # -------------------------------------
 echo ""
-echo "🧪 uOS setup complete."
+echo "🧪 uDOS setup complete."

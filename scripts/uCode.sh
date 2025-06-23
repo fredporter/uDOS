@@ -1,23 +1,22 @@
 #!/bin/bash
-# uCode CLI v1.6 — Unified Input/Output Shell for uOS (Filename Spec Compliant)
+# uCode CLI Beta v1.6 — Unified Input/Output Shell for uDOS (Filename Spec Compliant)
 
 # ──────────────────────────────────────────────
 # 📁 Environment and Defaults
 # ──────────────────────────────────────────────
 UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE_DIR="$UROOT/templates"
-MEMORY_DIR="${UOS_MEMORY_DIR:-$UROOT/uMemory}"
-KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
+MEMORY_DIR="${UDOS_MEMORY_DIR:-$UROOT/uMemory}"
+KNOWLEDGE_DIR="${UDOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
 LOG_DIR="$MEMORY_DIR/logs"
 MOVE_DIR="$LOG_DIR/moves"
-SESSION_FILE="$LOG_DIR/session-$(date +%Y-%m-%d).md"
-ERROR_LOG="$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
+MOVE_LOG="$LOG_DIR/moves-$(date +%Y-%m-%d).md"
 DEFAULT_EDITOR="${EDITOR:-nano}"
 
 mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
 
 # ──────────────────────────────────────────────
-# 🔤 Canonical Filename Generator (v1.6)
+# 🔤 Canonical Filename Generator (Beta v1.6)
 # ──────────────────────────────────────────────
 generate_filename() {
   local CATEGORY="$1"         # e.g. uML, uIO, uSL
@@ -39,55 +38,39 @@ echo "🌀 uCode CLI started. Type 'help' for available commands."
 echo ""
 echo "📚 uKnowledge: $KNOWLEDGE_DIR"
 echo "🧠 uMemory: $MEMORY_DIR"
-echo "📝 Log file: $SESSION_FILE"
+echo "📝 Log file: $MOVE_LOG"
 echo ""
 
-echo "- Session started at $(date)" >> "$SESSION_FILE"
+echo "- Session started at $(date)" >> "$MOVE_LOG"
 
-refresh_uos() {
-  echo "♻️ Refreshing uOS environment..."
+refresh_udos() {
+  echo "♻️ Refreshing uDOS environment..."
   bash "$UROOT/scripts/setup-check.sh"
   bash "$UROOT/scripts/generate_stats.sh"
   bash "$UROOT/scripts/dashboard-sync.sh"
-  echo "✅ uOS refreshed."
+  echo "✅ uDOS refreshed."
 }
 
 # ──────────────────────────────────────────────
 # 🧠 Logging Functions
 # ──────────────────────────────────────────────
 log_error() {
-  echo "- [$(date)] ERROR: $1" >> "$ERROR_LOG"
+  echo "- [$(date)] ERROR: $1" >> "$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
 }
 
 log_move() {
   local cmd="$1"
-  local ts_epoch ts_iso user output
-  ts_epoch=$(date +%s)
+  local ts_time ts_iso user location duration
+
+  ts_time=$(date +%H:%M)
   ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   user=$(whoami)
-  output=""
+  location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
+  duration=""
 
-  local location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
-  local filename=$(generate_filename "uML" "$location")
-  local path="$MOVE_DIR/$filename"
-
-  echo "- [$ts_iso] Move: \`$cmd\` → [$filename]" >> "$SESSION_FILE"
-
-  if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
-    sed -i.bak \
-      -e "s/{{timestamp}}/$ts_epoch/g" \
-      -e "s/{{iso8601}}/$ts_iso/g" \
-      -e "s/{{username}}/$user/g" \
-      -e "s/{{command}}/$cmd/g" \
-      -e "s/{{output}}/$output/g" \
-      "$path"
-    rm -f "$path.bak"
-    echo "📄 New move created: $path"
-  else
-    echo -e "# Move: $cmd\nTimestamp: $ts_iso\nUser: $user" > "$path"
-    echo "⚠️ No move template found. Using blank file."
-    log_error "Missing move template for: $cmd"
-  fi
+  # Write a single truncated log line into the daily move log file
+  echo "[$ts_time] CMD: $cmd | $location | $duration" >> "$MOVE_LOG"
+  echo "📄 Move logged in $MOVE_LOG"
 }
 
 # Show dashboard on startup
@@ -122,7 +105,7 @@ while true; do
   move                              → Log manual move
   tree                              → Show project tree
   list                              → List visible files
-  refresh                           → Refresh uOS environment
+  refresh                           → Refresh uDOS environment
   exit                              → Quit
 EOF
       ;;
@@ -179,7 +162,7 @@ EOF
           if [[ "$confirm" =~ ^[Yy]$ ]]; then
             rm -f "$last_move"
             echo "✅ Last move undone: $(basename "$last_move")"
-            echo "- Undo move: $(basename "$last_move")" >> "$SESSION_FILE"
+            echo "- Undo move: $(basename "$last_move")" >> "$MOVE_LOG"
           else
             echo "❌ Undo canceled."
           fi
@@ -207,7 +190,7 @@ EOF
 
     recent)
       echo "📜 Recent Moves:"
-      tail -n 5 "$SESSION_FILE"
+      tail -n 5 "$MOVE_LOG"
       ;;
 
     map)
@@ -234,7 +217,7 @@ EOF
       ;;
 
     refresh)
-      refresh_uos
+      refresh_udos
       ;;
 
     exit)

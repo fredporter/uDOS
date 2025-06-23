@@ -1,9 +1,9 @@
 #!/bin/bash
-# generate_tree.sh — Generate repo_structure.txt with filtered output
+# ucode-tree.sh — Generate repo_structure.txt with filtered output
 
-UOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUTPUT_FILE="$UOS_ROOT/repo_structure.txt"
-START_DIR="$UOS_ROOT"
+uDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUTPUT_FILE="$uDOS_ROOT/repo_structure.txt"
+START_DIR="$uDOS_ROOT"
 INDENT="  "
 
 echo "📦 Generating project tree..."
@@ -45,6 +45,6 @@ echo "✅ Repo tree written to $OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 
 # Log the move
-MOVE_LOG="$UOS_ROOT/uMemory/logs/moves.md"
+MOVE_LOG="$uDOS_ROOT/uMemory/logs/moves-$(date +%Y-%m-%d).md"
 mkdir -p "$(dirname "$MOVE_LOG")"
 echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> "$MOVE_LOG"

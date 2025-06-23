@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# === uOS Move 012: Generate Dashboard Stats into uMemory (Enhanced) ===
+# === uDOS Move 012: Generate Dashboard Stats into uMemory (Enhanced) ===
 
 UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEMORY="$UROOT/uMemory"
@@ -9,7 +9,6 @@ STATE="$UMEMORY/state"
 LOG_DIR="$UMEMORY/logs"
 MOVE_LOGS="$LOG_DIR/moves"
 DATESTAMP=$(date '+%Y-%m-%d')
-ULOG="$LOG_DIR/ulog-${DATESTAMP}.md"
 
 mkdir -p "$LOG_DIR"
 
@@ -47,32 +46,10 @@ if [ -f "$USER_FILE" ]; then
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Session Info: Number of moves today (from today’s session)
+# Append stats summary to today's move log
 # ─────────────────────────────────────────────────────────────────────────────
-SESSION_FILE="$LOG_DIR/session-${DATESTAMP}.md"
-MOVES_TODAY=$(grep -c 'Move:' "$SESSION_FILE" 2>/dev/null || echo "0")
+DAILY_MOVE_LOG="$LOG_DIR/moves-${DATESTAMP}.md"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Write to today's Unified Log (ulog)
-# ─────────────────────────────────────────────────────────────────────────────
-cat <<EOF > "$ULOG"
-### 🧠 uOS System Summary — $DATESTAMP
+echo "[STATS] Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY" >> "$DAILY_MOVE_LOG"
 
-🔢 Instance ID:  $INSTANCE_ID
-🔐 Lifespan:     $LIFESPAN
-🧭 Hostname:     $HOSTNAME
-🕰️  Uptime:      $UPTIME
-💾 Memory:       $MEMORY
-🖥️  OS Version:  $OS_VERSION
-
-🎮 Total Moves:        $TOTAL_MOVES
-📌 Missions Logged:    $TOTAL_MISSIONS
-📍 Milestones:         $TOTAL_MILESTONES
-🪦 Legacy Files:       $TOTAL_LEGACY
-🧪 Drafts in Sandbox:  $SANDBOX_DRAFTS
-📑 Moves Today:        $MOVES_TODAY
-
-EOF
-
-echo "✅ System stats updated: $ULOG"
-cat "$ULOG"
+echo "✅ System stats appended to: $DAILY_MOVE_LOG"
