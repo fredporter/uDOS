@@ -2,12 +2,6 @@
   |  |-- Dockerfile
   |  |-- LICENSE
   |  |-- README.md
-  |-- assets
-    |-- companion
-      |  |-- uc.md
-    |  |-- diamond-icon-1.png
-    |  |-- diamond-icon-2.png
-    |  |-- diamond-icon-3.png
   |  |-- docker-compose.yml
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -64,7 +58,7 @@
     |  |-- version.md
   |-- scripts
     |  |-- accept_share.sh
-    |  |-- authorize_share.sh
+    |  |-- authorise_share.sh
     |  |-- check-setup.sh
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
@@ -76,16 +70,19 @@
     |  |-- log_milestone.sh
     |  |-- log_mission.sh
     |  |-- sandbox_draft.sh
-    |  |-- sandbox_finalize.sh
+    |  |-- sandbox_finalise.sh
+    |  |-- system-command.sh
     |  |-- system-tree.sh
     |  |-- uCode.sh
-  |-- templates
-    |  |-- legacy-template.md
-    |  |-- milestone-template.md
-    |  |-- mission-template.md
   |-- uKnowledge
-    |-- general
-    |-- map
+    |-- assets
+      |  |-- diamond-icon-1.png
+      |  |-- diamond-icon-2.png
+      |  |-- diamond-icon-3.png
+    |-- companion
+      |  |-- uc-Otter.md
+    |-- general-library
+    |-- maps
   |-- uMemory
     |-- legacy
     |-- logs
@@ -96,6 +93,10 @@
     |-- missions
     |-- state
       |  |-- instance.md
+  |-- uTemplate
+    |  |-- legacy-template.md
+    |  |-- milestone-template.md
+    |  |-- mission-template.md
   |-- xOS
     |  |-- Launch-uDOS.command
     |  |-- README.md
