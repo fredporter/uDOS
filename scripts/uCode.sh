@@ -222,6 +222,12 @@ EOF
       esac
       ;;
 
+    restart)
+      echo "🔁 Restarting uDOS environment..."
+      refresh_udos
+      bash "$UROOT/scripts/dashboard-sync.sh"
+      log_move "restart"
+      ;;
     reboot)
       refresh_udos
       bash "$UROOT/scripts/dashboard-sync.sh"
