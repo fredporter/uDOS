@@ -1,17 +1,17 @@
 services:
-  uos:
+  udos:
     build: .
-    container_name: uos-container
+    container_name: udos-container
     volumes:
-      - .:/uOS
+      - .:/uDOS
       - ./uMemory:/uMemory
       - ./uKnowledge:/uKnowledge
-      - ./scripts:/uOS/scripts
-    working_dir: /uOS
+      - ./scripts:/uDOS/scripts
+    working_dir: /uDOS
     stdin_open: true
     tty: true
     environment:
-      - UOS_KNOWLEDGE_DIR=/uKnowledge
-      - UOS_MEMORY_DIR=/uMemory
-      - UOS_CONFIG_DIR=/config
-    command: ["bash", "scripts/launch-uOS.sh"]  # ✅ the key fix
+      - UDOS_KNOWLEDGE_DIR=/uKnowledge
+      - UDOS_MEMORY_DIR=/uMemory
+      - UDOS_CONFIG_DIR=/config
+    command: ["bash", "scripts/launch-uDOS.sh"]  # ✅ the key fix
