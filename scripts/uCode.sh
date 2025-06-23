@@ -26,6 +26,8 @@ echo ""
 echo "📚 uKnowledge: $KNOWLEDGE_DIR"
 echo "🧠 uMemory: $MEMORY_DIR"
 echo "📝 Log file: $MOVE_LOG"
+UDOS_VERSION=$(cat "$UROOT/sandbox/version.md" 2>/dev/null || echo "uDOS Beta v1.6.1")
+echo "💡 Running $UDOS_VERSION"
 echo ""
 
 echo "- Session started at $(date)" >> "$MOVE_LOG"
