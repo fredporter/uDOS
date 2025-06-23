@@ -3,18 +3,11 @@
   |  |-- LICENSE
   |  |-- README.md
   |-- assets
+    |-- companion
+      |  |-- uc.md
     |  |-- diamond-icon-1.png
     |  |-- diamond-icon-2.png
     |  |-- diamond-icon-3.png
-  |-- companion
-    |  |-- ChatGPT-Building uOS Together.md
-    |  |-- ChatGPT-Custom-Instructions-uOS-Otter.md
-    |  |-- ChatGPT-Master OS Vision.md
-    |  |-- ChatGPT-Otter Assistant Ready.md
-    |  |-- ChatGPT-iOS Roapmap.md
-    |  |-- ChatGPT-uOS Check Setup Script.md
-    |  |-- ChatGPT-uOS Docker.md
-    |  |-- ChatGPT-uOS Refinement Sunday.md
   |  |-- docker-compose.yml
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -54,6 +47,8 @@
       |  |-- 052-uScript-examples.md
       |  |-- 053-data-sharing.md
     |  |-- 099-roadmap-devplan.md
+    |  |-- Milestone 001 Build U Knowledge.md
+    |  |-- Mission Build uKnowledge.md
     |  |-- README.md
     |  |-- datetime_format.md
     |  |-- display_modes.md
@@ -74,6 +69,7 @@
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
+    |  |-- filename-gen.sh
     |  |-- generate_stats.sh
     |  |-- launch-uDOS.sh
     |  |-- log_legacy.sh
@@ -83,13 +79,10 @@
     |  |-- sandbox_finalize.sh
     |  |-- system-tree.sh
     |  |-- uCode.sh
-    |-- utils
-      |  |-- filename-gen.sh
   |-- templates
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
-    |  |-- move-template.md
   |-- uKnowledge
     |-- general
     |-- map
@@ -100,9 +93,7 @@
       |-- moves
       |  |-- moves-2025-06-23.md
     |-- milestones
-      |  |-- Milestone 001 Build U Knowledge.md
     |-- missions
-      |  |-- Mission Build uKnowledge.md
     |-- state
       |  |-- instance.md
   |-- xOS

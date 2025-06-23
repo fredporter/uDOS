@@ -13,7 +13,7 @@ echo "🔍 Checking uDOS setup..."
 # 1. Templates check
 echo ""
 echo "📁 Templates:"
-for t in move mission milestone legacy; do
+for t in mission milestone legacy; do
   file="$BASE/templates/${t}-template.md"
   if [ -f "$file" ]; then
     echo "$pass $t-template.md exists"
@@ -26,7 +26,7 @@ done
 # 2. Folder structure check
 echo ""
 echo "📂 Required directories:"
-required_dirs=( logs logs/moves logs/errors milestones missions state )
+required_dirs=( logs logs/errors milestones missions legacy state )
 for d in "${required_dirs[@]}"; do
   path="$UMEM/$d"
   if [ -d "$path" ]; then
