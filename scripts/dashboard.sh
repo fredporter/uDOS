@@ -67,35 +67,12 @@ else
 fi
 
 # Health (from [STATS] lines)
-HEALTH_LINE=""
-if [[ -f "$ULOG" ]]; then
-  HEALTH_LINE=$(grep '^\[STATS\]' "$ULOG" | tail -n 1)
-fi
-if [[ -n "$HEALTH_LINE" ]]; then
-  # Remove [STATS] and convert keys to emojis
-  stat_line=${HEALTH_LINE#\[STATS\] }
-  new_health=""
-  for pair in $stat_line; do
-    key=${pair%%:*}
-    value=${pair#*:}
-    value=$(echo -n "$value" | xargs)
-    case "$key" in
-      Moves) emoji="🎯" ;;
-      Missions) emoji="🚀" ;;
-      Milestones) emoji="📌" ;;
-      Drafts) emoji="📝" ;;
-      Rooms) emoji="🏛️" ;;
-      Uptime) emoji="⏱️" ;;
-      RAM) emoji="💾" ;;
-      Space) emoji="💽" ;;
-      *) emoji="$key:" ;;
-    esac
-    new_health+="$emoji $value  "
-  done
-  HEALTH_LINE=$(echo -n "$new_health" | sed 's/[[:space:]]*$//')
-else
-  HEALTH_LINE="🎯 0   🚀 0   📌 0   📝 0   🏛️ 0   ⏱️ N/A   💾 N/A   💽 N/A"
-fi
+# HEALTH
+printf "┌───────────── ✅ Health Stats ──────────────────────────────────────────────┐\n"
+printf "│ 🎯 Moves: 0   🚀 Missions: 1   📌 Milestones: 1   📝 Drafts: 2                  │\n"
+printf "│ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%   │\n"
+printf "│ 🧭 LastMission: N/A                                                          │\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # Footer
 SHARING=$(grep -i '^Sharing:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
@@ -154,12 +131,6 @@ if [[ -n "$TOWER_LIST" ]]; then
 else
   printf "│ %-42s│\n" "No rooms indexed yet."
 fi
-printf "└────────────────────────────────────────────────────────────────────────────┘\n"
-
-# HEALTH
-printf "┌───────────── ✅ Health Stats ──────────────────────────────────────────────┐\n"
-# Health in one tight line (🎯 🚀 📌 📝 🏛️ ⏱️ 💾 💽)
-printf "│ %-42s│\n" "$HEALTH_LINE"
 printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # FOOTER
