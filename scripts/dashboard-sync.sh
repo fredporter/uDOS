@@ -50,7 +50,7 @@ if [[ -f "$INSTANCE_FILE" ]]; then
         Legacy) LEGACY="$value" ;;
         Lifespan) LIFESPAN="$value" ;;
         Sharing) SHARING="$value" ;;
-        uOSVersion) UDOS_VERSION="$value" ;;
+        uDOSVersion) UDOS_VERSION="$value" ;;
       esac
     fi
   done < "$INSTANCE_FILE"
@@ -106,10 +106,27 @@ if [[ -f "$MAP_FILE" ]]; then
 fi
 
 # Tower of Knowledge placeholder
-TOWER_PEAK="No rooms indexed yet."
+ROOMS_INDEXED_COUNT=0
+ROOMS_DIR="$KNOWLEDGE_DIR/rooms"
+if [[ -d "$ROOMS_DIR" ]]; then
+  ROOMS_INDEXED_COUNT=$(find "$ROOMS_DIR" -maxdepth 1 -type f -name '*.md' | wc -l)
+fi
+TOWER_PEAK="Rooms Indexed: $ROOMS_INDEXED_COUNT"
 
-# Health Check placeholder (removed ulog references)
-HEALTH_CHECK_LINES=("No stat log available. Run refresh or generate_stats.sh.")
+# Health Check placeholder replaced with parsed [STATS] lines from current move log
+HEALTH_CHECK_LINES=()
+if [[ -f "$MOVE_LOG" ]]; then
+  mapfile -t stats_lines < <(grep '^\[STATS\]' "$MOVE_LOG")
+  if [[ ${#stats_lines[@]} -gt 0 ]]; then
+    for stat_line in "${stats_lines[@]}"; do
+      HEALTH_CHECK_LINES+=("$stat_line")
+    done
+  else
+    HEALTH_CHECK_LINES=("No stat log available. Run refresh or generate_stats.sh.")
+  fi
+else
+  HEALTH_CHECK_LINES=("No stat log available. Run refresh or generate_stats.sh.")
+fi
 
 ENCRYPTION_STATUS="[ENABLED]"
 SHARING_STATUS="$SHARING"

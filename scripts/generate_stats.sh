@@ -19,7 +19,7 @@ count_files() {
   find "$1" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' '
 }
 
-TOTAL_MOVES=$(count_files "$MOVE_LOGS")
+TOTAL_MOVES=$(grep -h -v '^\[STATS\]' "$MOVE_LOGS"/moves-*.md 2>/dev/null | wc -l)
 TOTAL_MISSIONS=$(count_files "$UMEMORY/missions")
 TOTAL_MILESTONES=$(count_files "$UMEMORY/milestones")
 TOTAL_LEGACY=$(count_files "$UMEMORY/legacy")
@@ -31,18 +31,18 @@ SANDBOX_DRAFTS=$(count_files "$UROOT/sandbox")
 UPTIME=$(uptime -p 2>/dev/null || echo "Unavailable")
 MEMORY=$(free -m 2>/dev/null | awk '/Mem:/ { print $3 "MB used / " $2 "MB total" }' || echo "Unavailable")
 HOSTNAME=$(hostname)
-OS_VERSION=$(uname -a)
+
+VERSION_FILE="$UROOT/sandbox/version.md"
+UDOS_VERSION=$(cat "$VERSION_FILE" 2>/dev/null || echo "Unknown Version")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# User State Info: lifespan, instance ID
+# User State Info: lifespan
 # ─────────────────────────────────────────────────────────────────────────────
-USER_FILE="$STATE/user.md"
+USER_FILE="$STATE/instance.md"
 LIFESPAN="n/a"
-INSTANCE_ID="n/a"
 
 if [ -f "$USER_FILE" ]; then
-  LIFESPAN=$(sed -n 's/\*\*Lifespan\*\*: //p' "$USER_FILE")
-  INSTANCE_ID=$(sed -n 's/\*\*Instance ID\*\*: //p' "$USER_FILE")
+  LIFESPAN=$(grep -i '^Lifespan:' "$USER_FILE" | cut -d':' -f2- | xargs)
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -50,6 +50,6 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 DAILY_MOVE_LOG="$LOG_DIR/moves-${DATESTAMP}.md"
 
-echo "[STATS] Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY" >> "$DAILY_MOVE_LOG"
+echo "[STATS] Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Version: $UDOS_VERSION" >> "$DAILY_MOVE_LOG"
 
 echo "✅ System stats appended to: $DAILY_MOVE_LOG"

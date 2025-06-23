@@ -105,9 +105,11 @@ while true; do
   move                              → Log manual move
   tree                              → Show project tree
   list                              → List visible files
-  refresh                           → Refresh uDOS environment
+  refresh                           → Refresh uDOS environment and verify dashboard
   check setup                       → Run setup validation and environment check
   check dash                        → Verify dashboard status and output summary
+  reboot                           → Restart environment and reload dashboard
+  destroy                          → Delete user identity (with confirmation and password)
   exit                              → Quit
 EOF
       ;;
@@ -156,18 +158,12 @@ EOF
 
     undo)
       if [[ "$args" == "move" ]]; then
-        last_move=$(ls -1t "$MOVE_DIR"/uML-*.md 2>/dev/null | head -1)
-        if [[ -z "$last_move" ]]; then
-          echo "⚠️ No moves to undo."
+        read -rp "⚠️ Confirm undo last move? (y/N): " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+          log_move "undo move"
+          echo "✅ Last move undone."
         else
-          read -rp "⚠️ Confirm undo last move $(basename "$last_move")? (y/N): " confirm
-          if [[ "$confirm" =~ ^[Yy]$ ]]; then
-            rm -f "$last_move"
-            echo "✅ Last move undone: $(basename "$last_move")"
-            echo "- Undo move: $(basename "$last_move")" >> "$MOVE_LOG"
-          else
-            echo "❌ Undo canceled."
-          fi
+          echo "❌ Undo canceled."
         fi
       else
         echo "❌ Usage: undo move"
@@ -208,7 +204,7 @@ EOF
       ;;
 
     tree)
-      bash "$UROOT/scripts/ucode-tree.sh"
+      bash "$UROOT/scripts/system-tree.sh"
       log_move "tree"
       ;;
 
@@ -220,6 +216,7 @@ EOF
 
     refresh)
       refresh_udos
+      bash "$UROOT/scripts/dashboard-sync.sh" check
       ;;
 
     check)
@@ -236,6 +233,38 @@ EOF
           echo "❌ Usage: check setup"
           ;;
       esac
+      ;;
+
+    reboot)
+      refresh_udos
+      bash "$UROOT/scripts/dashboard-sync.sh"
+      log_move "reboot"
+      ;;
+
+    destroy)
+      read -rp "⚠️  Are you sure you want to destroy your identity and reboot? (y/N): " confirm_destroy
+      if [[ ! "$confirm_destroy" =~ ^[Yy]$ ]]; then
+        echo "❌ Destruction canceled."
+        continue
+      fi
+
+      USER_FILE="$UROOT/sandbox/user.md"
+      if [[ -f "$USER_FILE" ]]; then
+        if grep -q '^Password:' "$USER_FILE"; then
+          read -rsp "Enter password: " input_pass
+          echo ""
+          stored_pass=$(grep '^Password:' "$USER_FILE" | head -1 | sed 's/^Password:[[:space:]]*//')
+          if [[ "$input_pass" != "$stored_pass" ]]; then
+            echo "❌ Incorrect password. Destruction canceled."
+            continue
+          fi
+        fi
+      fi
+
+      rm -f "$USER_FILE"
+      echo "🗑️ User identity destroyed."
+      bash "$UROOT/scripts/check-setup.sh"
+      log_move "destroy identity"
       ;;
 
     exit)

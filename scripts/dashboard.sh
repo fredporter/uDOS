@@ -15,6 +15,7 @@ clear
 USER_FILE="$UROOT/sandbox/user.md"
 if [[ -f "$USER_FILE" && -s "$USER_FILE" ]]; then
   USER_NAME=$(grep -i '^Username:' "$USER_FILE" | head -n1 | cut -d':' -f2- | xargs)
+  USER_NAME=$(echo -n "$USER_NAME" | sed 's/[[:space:]]*$//')
   if [[ -z "$USER_NAME" ]]; then
     USER_NAME="(unknown)"
   fi
@@ -28,6 +29,7 @@ printf "╔═══════════════════════
 printf "║ User: %-32s %s ║\n" "$USER_NAME" "$(date '+%Y-%m-%d %H:%M:%S')"
 
 LOCATION=$(grep -i '^Location:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+LOCATION=$(echo -n "$LOCATION" | sed 's/[[:space:]]*$//')
 [ -z "$LOCATION" ] && LOCATION="Unknown"
 printf "║ Location: %-64s║\n" "$LOCATION"
 
@@ -35,10 +37,12 @@ MISSION_FILE="$UMEMORY/state/current_mission.md"
 if [[ -f "$MISSION_FILE" ]]; then
   # Try to extract Title: line for mission name
   ACTIVE_MISSION=$(grep -i '^Title:' "$MISSION_FILE" | head -n1 | cut -d':' -f2- | xargs)
+  ACTIVE_MISSION=$(echo -n "$ACTIVE_MISSION" | sed 's/[[:space:]]*$//')
 fi
 if [[ -z "$ACTIVE_MISSION" ]]; then
   # Fallback to instance.md Mission:
   ACTIVE_MISSION=$(grep -i '^Mission:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+  ACTIVE_MISSION=$(echo -n "$ACTIVE_MISSION" | sed 's/[[:space:]]*$//')
 fi
 [ -z "$ACTIVE_MISSION" ] && ACTIVE_MISSION="(none)"
 printf "║ Mission: %-62s║\n" "$ACTIVE_MISSION"
@@ -52,20 +56,9 @@ echo "╠═══════════════════════�
 
 # Recent Moves
 echo "║ 📝 Recent Moves                                                               ║"
-if ls "$RECENT_MOVES_DIR"/*.md &>/dev/null; then
-  recent_moves=$(ls -1t "$RECENT_MOVES_DIR"/*.md 2>/dev/null | head -n 5)
-  for move_file in $recent_moves; do
-    # Extract ISO date from inside file or fallback to filename
-    move_date=$(grep -i '^timestamp:' "$move_file" | cut -d'T' -f1 | cut -d':' -f2- | xargs)
-    [ -z "$move_date" ] && move_date=$(basename "$move_file" | cut -d'-' -f1-3 | tr '-' '/')
-
-    # Extract command from YAML
-    move_name=$(grep -i '^command:' "$move_file" | head -n1 | cut -d':' -f2- | sed 's/^ *//;s/^"//;s/"$//')
-
-    # Fallback if no move name
-    [ -z "$move_name" ] && move_name="[unnamed move]"
-
-    printf "║ [%s] Move: %-60s║\n" "$move_date" "$move_name"
+if [[ -f "$ULOG" ]]; then
+  tail -n 100 "$ULOG" | grep -v '^\[STATS\]' | tail -n 5 | while read -r line; do
+    printf "║ %s%-74s║\n" "" "$line"
   done
 else
   echo "║ No recent moves found.                                                        ║"
@@ -86,8 +79,9 @@ echo "╠═══════════════════════�
 # Tower Snapshot (Knowledge Rooms)
 echo "║ 🧠 Tower of Knowledge                                                         ║"
 if [[ -d "$ROOMS_DIR" ]]; then
-  ls -1 "$ROOMS_DIR" | head -n 5 | while read -r room; do
-    printf "║ - %s%-70s║\n" "" "$room"
+  find "$ROOMS_DIR" -maxdepth 1 -type f -name '*.md' | sort | head -n 5 | while read -r room; do
+    room_name=$(basename "$room")
+    printf "║ - %s%-70s║\n" "" "$room_name"
   done
 else
   echo "║ No rooms indexed yet.                                                         ║"
@@ -98,16 +92,26 @@ echo ""
 # Health Check Block (Live Stats)
 echo "║ ✅ Health Check                                                               ║"
 if [[ -f "$ULOG" ]]; then
+  stats_found=0
   grep '^\[STATS\]' "$ULOG" | while read -r stat; do
+    stats_found=1
     # Remove the [STATS] prefix for cleaner display
     stat_line=${stat#\[STATS\] }
     printf "║ %s%-74s║\n" "" "$stat_line"
   done
+  if [[ $stats_found -eq 0 ]]; then
+    echo "║ No system stats found.                                                        ║"
+  fi
+else
+  echo "║ No system stats found.                                                        ║"
 fi
 
 SHARING=$(grep -i '^Sharing:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+SHARING=$(echo -n "$SHARING" | sed 's/[[:space:]]*$//')
 LIFESPAN=$(grep -i '^Lifespan:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
-UOS_VERSION=$(grep -i '^uOS Version:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+LIFESPAN=$(echo -n "$LIFESPAN" | sed 's/[[:space:]]*$//')
+UDOS_VERSION=$(grep -i '^uDOSVersion:' "$UMEMORY/state/instance.md" 2>/dev/null | cut -d':' -f2- | xargs)
+UDOS_VERSION=$(echo -n "$UDOS_VERSION" | sed 's/[[:space:]]*$//')
 
 printf "║ Sharing: %-65s║\n" "${SHARING:-Unknown}"
 printf "║ Lifespan: %-64s║\n" "${LIFESPAN:-Unknown}"
@@ -119,7 +123,7 @@ else
 fi
 printf "║ Moves Remaining: %-57s║\n" "$MOVES_REMAINING"
 
-printf "║ uDOS Version: %-61s║\n" "${UOS_VERSION:-Unknown}"
+printf "║ uDOS Version: %-61s║\n" "${UDOS_VERSION:-Unknown}"
 
 echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
 echo ""

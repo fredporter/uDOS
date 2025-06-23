@@ -49,9 +49,9 @@ fi
 
 # -------------------------------------
 # 4. User file check
-USER_FILE="$BASE/sandbox/user.txt"
-if [ ! -f "$USER_FILE" ]; then
-  echo "👤 No user profile found — starting first-time setup."
+USER_FILE="$BASE/sandbox/user.md"
+if [ ! -s "$USER_FILE" ]; then
+  echo "👤 No user profile found or empty — starting first-time setup."
 
   while true; do
     read -p "🪪 Choose your username: " uname
@@ -111,7 +111,7 @@ if [ ! -f "$USER_FILE" ]; then
   fi
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
-  version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
+  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
 
   cat > "$USER_FILE" <<EOF
 Username: $uname
@@ -130,19 +130,21 @@ EOF
 
   echo "✅ User profile created: $USER_FILE"
   echo "👋 Welcome, $uname."
+else
+  echo "✅ User profile exists and is non-empty: $USER_FILE"
 fi
 
 # -------------------------------------
 # 5. Version file check
-VERSION_FILE="$BASE/sandbox/version.txt"
+VERSION_FILE="$BASE/sandbox/version.md"
 echo ""
 echo "📦 uDOS Version:"
-if [ -f "$VERSION_FILE" ]; then
-  echo "$pass Found version.txt"
-else
-  version=$(git -C "$BASE" describe --tags 2>/dev/null || echo "v0.0.1")
+if [ ! -s "$VERSION_FILE" ]; then
+  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
   echo "$version" > "$VERSION_FILE"
-  echo "$pass Initialized version.txt with $version"
+  echo "$pass Initialized version.md with $version"
+else
+  echo "$pass Found version.md"
 fi
 
 # -------------------------------------
