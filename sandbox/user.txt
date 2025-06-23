@@ -1,2 +1,0 @@
-Username: Wizard
-Password: 
