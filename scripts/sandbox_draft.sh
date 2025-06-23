@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# === uOS Move 008: Draft a New File in Sandbox from Template ===
+# === uDOS Draft Generator: Create New File in Sandbox from Template ===
 
-SANDBOX="$HOME/uOS/sandbox"
-TEMPLATES="$HOME/uOS/templates"
+SANDBOX="../sandbox"
+UTEMPLATE="../uTemplate"
 
 echo "📘 Available Templates:"
-select type in "move" "mission" "milestone" "legacy" "custom"; do
+select type in "mission" "milestone" "legacy" "custom"; do
   case $type in
-    move)      TEMPLATE="$TEMPLATES/move-template.md"; PREFIX="draft-move" ;;
-    mission)   TEMPLATE="$TEMPLATES/mission-template.md"; PREFIX="draft-mission" ;;
-    milestone) TEMPLATE="$TEMPLATES/milestone-template.md"; PREFIX="draft-milestone" ;;
-    legacy)    TEMPLATE="$TEMPLATES/legacy-template.md"; PREFIX="draft-legacy" ;;
-    custom)    read -p "🔧 Enter path to custom template: " TEMPLATE; PREFIX="draft-custom" ;;
-    *) echo "❌ Invalid choice"; exit 1 ;;
+    mission)   TEMPLATE="$UTEMPLATE/mission-template.md";   PREFIX="draft-mission" ;;
+    milestone) TEMPLATE="$UTEMPLATE/milestone-template.md"; PREFIX="draft-milestone" ;;
+    legacy)    TEMPLATE="$UTEMPLATE/legacy-template.md";    PREFIX="draft-legacy" ;;
+    custom)    
+      read -p "🔧 Enter full path to custom template: " TEMPLATE
+      PREFIX="draft-custom"
+      ;;
+    *) 
+      echo "❌ Invalid choice"
+      exit 1 
+      ;;
   esac
   break
 done
@@ -31,7 +36,7 @@ DEST="$SANDBOX/$FILENAME"
 echo "📄 Creating sandbox draft: $FILENAME"
 cp "$TEMPLATE" "$DEST"
 
-echo "📝 Opening with nano (press Ctrl+O, then Ctrl+X to save and exit)..."
+echo "📝 Opening with nano..."
 nano "$DEST"
 
-echo "🎉 Draft ready: $DEST"
+echo "🎉 Draft saved to: $DEST"

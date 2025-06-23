@@ -1,9 +1,13 @@
 #!/bin/bash
-# invoke-command.sh — Wrapper to run commands and log stderr if failure
+# system-command.sh — Wrapper to run commands and log stderr if failure
 
 cmd="$*"
-output="$(eval "$cmd" 2>&1)"
+tmpfile="$(mktemp)"
+bash -c "$cmd" > "$tmpfile" 2>&1
 status=$?
+
+output="$(cat "$tmpfile")"
+rm -f "$tmpfile"
 
 if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"

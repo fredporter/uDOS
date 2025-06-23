@@ -2,7 +2,7 @@
 
 UROOT="$HOME/uDOS"
 UMEMORY="$UROOT/uMemory/milestones"
-TEMPLATE="$UROOT/templates/milestone-template.md"
+TEMPLATE="$UROOT/uTemplate/milestone-template.md"
 DATESTAMP=$(date +%Y%m%d)
 TIMESTAMP=$(date +%H%M%S%3N)
 LOCATION=$(cat "$UROOT/uMemory/state/location.txt" 2>/dev/null || echo "F00:00:00")

@@ -14,7 +14,7 @@ echo "🔍 Checking uDOS setup..."
 echo ""
 echo "📁 Templates:"
 for t in mission milestone legacy; do
-  file="$BASE/templates/${t}-template.md"
+  file="$BASE/uTemplate/${t}-template.md"
   if [ -f "$file" ]; then
     echo "$pass $t-template.md exists"
   else

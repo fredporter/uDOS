@@ -57,6 +57,6 @@ LAST_MISSION=$(find "$UMEMORY/missions" -name '*.md' -type f -print0 | xargs -0 
 # ─────────────────────────────────────────────────────────────────────────────
 DAILY_MOVE_LOG="$LOG_DIR/moves-${DATESTAMP}.md"
 
-echo "[STATS] Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION" >> "$DAILY_MOVE_LOG"
+echo "Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION" >> "$DAILY_MOVE_LOG"
 
 echo "✅ System stats appended to: $DAILY_MOVE_LOG"

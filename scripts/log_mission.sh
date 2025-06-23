@@ -3,7 +3,7 @@
 
 UROOT="$HOME/uDOS"
 UMEMORY="$UROOT/uMemory/missions"
-TEMPLATE="$UROOT/templates/mission-template.md"
+TEMPLATE="$UROOT/uTemplate/mission-template.md"
 DEFAULT_EDITOR="${EDITOR:-nano}"
 
 # ──────────────────────────────────────────────

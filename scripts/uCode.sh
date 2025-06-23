@@ -5,7 +5,7 @@
 # 📁 Environment and Defaults
 # ──────────────────────────────────────────────
 UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TEMPLATE_DIR="$UROOT/templates"
+TEMPLATE_DIR="$UROOT/uTemplate"
 MEMORY_DIR="${UDOS_MEMORY_DIR:-$UROOT/uMemory}"
 KNOWLEDGE_DIR="${UDOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
 LOG_DIR="$MEMORY_DIR/logs"
@@ -104,18 +104,8 @@ EOF
     new)
       case "$args" in
         move)
-          location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
-          filename=$(generate_filename "uML" "$location")
-          path="$MOVE_DIR/$filename"
-          if cp "$TEMPLATE_DIR/move-template.md" "$path" 2>/dev/null; then
-            echo "📄 New move created: $path"
-            $DEFAULT_EDITOR "$path"
-          else
-            echo "# Move: manual creation" > "$path"
-            echo "⚠️ No move template found. Using blank file: $path"
-            log_error "new: move template missing"
-            $DEFAULT_EDITOR "$path"
-          fi
+          echo "ℹ️ Moves are now tracked in the daily move log only."
+          echo "📄 File: $MOVE_LOG"
           ;;
         mission|milestone|legacy)
           path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
@@ -283,10 +273,9 @@ EOF
   esac
 
   # Capture and log command output if appropriate
-  if [[ -n "$cmd" && ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|reboot|destroy|exit)$ ]]; then
-    exec 3>&1
-    output=$( { eval "$cmd $args"; } 2>&1 | tee /dev/fd/3 )
-    echo "💬← $output" >> "$MOVE_LOG"
+  if [[ -n "$cmd" && ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|restart|reboot|destroy|exit)$ ]]; then
+    log_move "$cmd $args"
+    "$UROOT/scripts/system-command.sh" "$cmd $args"
   fi
 
 done
