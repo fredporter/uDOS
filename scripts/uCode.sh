@@ -59,7 +59,6 @@ log_move() {
 
   # Write a single truncated log line into the daily move log file
   echo "[$ts_time] CMD: $cmd | $location | $duration" >> "$MOVE_LOG"
-  echo "📄 Move logged in $MOVE_LOG"
 }
 
 # Show dashboard on startup
