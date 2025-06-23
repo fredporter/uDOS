@@ -20,7 +20,7 @@ ACTIVE_MISSION="none"
 LEGACY="none"
 LIFESPAN="n/a"
 SHARING="n/a"
-UDOS_VERSION="n/a"
+UDOS_VERSION="uDOS Beta v1.6.1"
 
 # Read Username and Password from sandbox user.md
 SANDBOX_USER_FILE="$UROOT/sandbox/user.md"
@@ -55,6 +55,8 @@ if [[ -f "$INSTANCE_FILE" ]]; then
       esac
     fi
   done < "$INSTANCE_FILE"
+else
+  UDOS_VERSION="uDOS Beta v1.6.1"
 fi
 
 # If called with 'check' argument, output simple status summary and exit
