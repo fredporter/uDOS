@@ -34,7 +34,7 @@ echo "- Session started at $(date)" >> "$MOVE_LOG"
 
 refresh_udos() {
   echo "♻️ Refreshing uDOS environment..."
-  bash "$UROOT/scripts/setup-check.sh"
+  bash "$UROOT/scripts/check-setup.sh"
   bash "$UROOT/scripts/generate_stats.sh"
   bash "$UROOT/scripts/dashboard-sync.sh"
   echo "✅ uDOS refreshed."
