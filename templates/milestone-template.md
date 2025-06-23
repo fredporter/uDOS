@@ -5,10 +5,12 @@ title: "{{title}}"
 created: {{iso8601}}
 user: {{username}}
 status: active
-tags: [uos, milestone]
+tags: [udos, milestone]
+location: {{location}}
+timezone: {{timezone}}
 ---
 
-## 📍 Milestone Goal
+## 📍 Objective
 
 {{goal}}
 
@@ -20,6 +22,6 @@ tags: [uos, milestone]
 
 - mission-{{slug}}
 
-## 📜 Notes
+## 🧾 Additional Notes
 
 {{notes}}

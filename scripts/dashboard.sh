@@ -104,10 +104,20 @@ printf "└───────────────────────
 printf "┌──────────── 📝 Recent Moves ──────────────────────────────────────────────┐\n"
 if [[ -n "$RECENT_MOVES" ]]; then
   while IFS= read -r line; do
-    printf "│ %-42s│\n" "$line"
+    if [[ "$line" =~ ^🌀→ ]]; then
+      timestamp=$(echo "$line" | awk -F'|' '{print $1}' | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}' || echo "--:--:--.---")
+      summary=$(echo "$line" | cut -d'|' -f2 | xargs)
+      printf "│ 🌀 %-56s %s │\n" "$summary" "$timestamp"
+    elif [[ "$line" =~ ^💬← ]]; then
+      echo "$line" | grep -q '✅' && emoji="✅" || emoji="💬"
+      summary=$(echo "$line" | cut -d'←' -f2- | xargs)
+      printf "│ %s %-60s │\n" "$emoji" "$summary"
+    else
+      printf "│ %-77s │\n" "$line"
+    fi
   done <<< "$RECENT_MOVES"
 else
-  printf "│ %-42s│\n" "No recent moves found."
+  printf "│ %-77s │\n" "No recent moves found."
 fi
 printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
@@ -130,6 +140,19 @@ if [[ -n "$TOWER_LIST" ]]; then
   done <<< "$TOWER_LIST"
 else
   printf "│ %-42s│\n" "No rooms indexed yet."
+fi
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
+
+# LEGACY
+printf "┌──────────── 🗃️  Legacy Archive ─────────────────────────────────────────────┐\n"
+LEGACY_LOGS=$(find "$UMEMORY/legacy" -type f -name 'legacy-*.md' | sort -r | head -n 3)
+if [[ -n "$LEGACY_LOGS" ]]; then
+  while IFS= read -r file; do
+    base=$(basename "$file")
+    printf "│ %-77s │\n" "$base"
+  done <<< "$LEGACY_LOGS"
+else
+  printf "│ %-77s │\n" "No legacy logs found."
 fi
 printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 

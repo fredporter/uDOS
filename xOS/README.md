@@ -1,30 +1,30 @@
-# 🌀 uOS macOS Launch Guide
+# 🌀 uDOS macOS Launch Guide
 
-Welcome to the **macOS launch toolkit** for uOS. This folder contains native-friendly tools for launching uOS cleanly from a Mac desktop or Terminal.
+Welcome to the **macOS launch toolkit** for uDOS. This folder contains native-friendly tools for launching uDOS cleanly from a Mac desktop or Terminal.
 
 ---
 
 ## 🧭 Launch Options (macOS)
 
-### ✅ 1. `Launch-uOS.command`
+### ✅ 1. `Launch-uDOS.command`
 
 - **Description:** Recommended method for developers and terminal users.
 - **Usage:**
-  - Double-click `Launch-uOS.command` OR
+  - Double-click `Launch-uDOS.command` OR
   - Run it from Terminal:
     ```bash
-    bash macos/Launch-uOS.command
+    bash xOS/Launch-uDOS.command
     ```
-- **Behavior:** Resizes terminal, checks Docker, cleans previous containers, starts fresh uOS CLI.
+- **Behavior:** Resizes terminal, checks Docker, cleans previous containers, starts fresh uDOS CLI.
 
 ---
 
-### 🌀 2. `Launch🌀uOS.app`
+### 🌀 2. `🌀 uDOS Docker Launch.app`
 
 - **Description:** Automator-based `.app` launcher for desktop use.
 - **Usage:**
   - Drag to Dock or Desktop.
-  - Double-click to launch uOS via terminal.
+  - Double-click to launch uDOS via terminal.
 - **Note:** Launching the `.app` may cause macOS to generate system files in:
   - `Contents/`
   - `_CodeSignature/`
@@ -35,10 +35,10 @@ These are ignored by `.gitignore` and **should not be committed** unless packagi
 
 ---
 
-## 🚪 `Quit-uOS.command`
+## 🚪 `Quit-uDOS.command`
 
-- **Stops** the running uOS container.
+- **Stops** the running uDOS container.
 - Useful if you're done with a session or need a manual shutdown.
 
 ```bash
-bash macos/Quit-uOS.command
+bash xOS/Quit-uDOS.command```

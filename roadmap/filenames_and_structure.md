@@ -9,25 +9,25 @@ This standard defines all filenames and folder conventions used within uOS for l
 All filenames follow this strict structure:
 
 ```
-<type>-<YYYYMMDD-HHMMSSmmm>-<location>-<timezone>.md
+<type>-<YYYYMMDD-HHMMSSmmm>-<timezone>-<location>.md
 ```
 
 ### Example:
 
 ```
-moves-20250623-142310361-F180327-AEST.md
+mission-20250623-142310361-AEST-F180327.md
 ```
 
-Note: Colons in location stamps are removed in filenames for compatibility.
+Note: Location colons are removed for compatibility. Timezone comes before location.
 
 ### Components:
 
 | Part          | Format                              | Example                |
 | ------------- | ----------------------------------- | ---------------------- |
-| Category Code | Type of file                        | moves                  |
-| DateTimeStamp | YYYYMMDD-HHMMSSmmm (24hr clock, milliseconds)     | 20250622-142310361     |
-| Timezone      | Readable TZ (e.g. AEST, PST, UTC)  | AEST                   |
-| LocationStamp | Tile Code from uMaps (no colons)    | F180327                |
+| Category Code | Type of file                        | mission                |
+| DateTimeStamp | YYYYMMDD-HHMMSSmmm (24hr clock, milliseconds)     | 20250623-142310361     |
+| Timezone      | Readable TZ (e.g. AEST, PST, UTC)        | AEST                   |
+| LocationStamp | Tile Code from uMaps (no colons)         | F180327                |
 | Extension     | Always .md (lowercase)              | .md                    |
 
 Default timezone and location are derived at startup from /uMemory/state/location.txt.

@@ -4,18 +4,20 @@ type: legacy
 title: "{{title}}"
 user: {{username}}
 created: {{iso8601}}
-tags: [uos, legacy]
+location: {{location}}
+timezone: {{timezone}}
+tags: [udos, legacy]
 ---
 
-## 🪦 Legacy Vision
+## 🪦 Legacy Summary
 
 {{vision}}
 
-## 🧬 Lifelong Meaning
+## 🧬 Personal Impact
 
 {{meaning}}
 
-## 📚 Contributions
+## 📚 Linked Records
 
 - mission-{{id}}
 - milestone-{{id}}

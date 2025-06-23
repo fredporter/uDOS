@@ -1,10 +1,14 @@
 #!/bin/bash
 
-UMEMORY="$HOME/uOS/uMemory/legacy"
-TEMPLATE="$HOME/uOS/templates/legacy-template.md"
-DATESTAMP=$(date '+%Y-%m-%d')
-EPOCH=$(date '+%s')
-FILENAME="${DATESTAMP}-legacy-${EPOCH}.md"
+UROOT="$HOME/uDOS"
+UMEMORY="$UROOT/uMemory/legacy"
+TEMPLATE="$UROOT/templates/legacy-template.md"
+DATESTAMP=$(date +%Y%m%d)
+TIMESTAMP=$(date +%H%M%S%3N)
+LOCATION=$(cat "$UROOT/uMemory/state/location.txt" 2>/dev/null || echo "F00:00:00")
+LOCATION_SAFE=$(echo "$LOCATION" | tr -d ':')
+TIMEZONE="AEST"
+FILENAME="legacy-${DATESTAMP}-${TIMESTAMP}-${TIMEZONE}-${LOCATION_SAFE}.md"
 DEST="$UMEMORY/$FILENAME"
 
 mkdir -p "$UMEMORY"
