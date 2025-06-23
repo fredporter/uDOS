@@ -151,71 +151,80 @@ fi
 HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 
 # Display dashboard
-WIDTH=75
+WIDTH=80
 printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-printf '║ User: %-59s %19s ║\n' "$USER_NAME" "$NOW"
-printf '║ Created: %-66s ║\n' "$CREATED"
-printf '║ Location: %-67s ║\n' "$LOCATION"
-printf '║ Active Mission: %-59s ║\n' "$ACTIVE_MISSION"
-printf '║ Legacy: %-68s ║\n' "$LEGACY"
-printf '║ uDOS Version: %-63s ║\n' "$UDOS_VERSION"
+printf '║ User: %-62s %17s ║\n' "$USER_NAME" "$NOW"
+printf '║ Created: %-69s ║\n' "$CREATED"
+printf '║ Location: %-70s ║\n' "$LOCATION"
+printf '║ Active Mission: %-62s ║\n' "$ACTIVE_MISSION"
+printf '║ Legacy: %-69s ║\n' "$LEGACY"
+printf '║ uDOS Version: %-64s ║\n' "$UDOS_VERSION"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ 🔎 Today’s Focus%56s ║\n' ""
-printf '║ → Mission: %-62s ║\n' "$ACTIVE_MISSION"
-printf '║ → Next Move: Type '\''new mission'\'' or '\''log mission'\''              ║\n'
+printf '║ 🔎 Today’s Focus%65s ║\n' ""
+printf '║ → Mission: %-66s ║\n' "$ACTIVE_MISSION"
+printf '║ → Next Move: Type '\''new mission'\'' or '\''log mission'\''                   ║\n'
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ 📝 Recent Moves%58s ║\n' ""
+printf '║ 📝 Recent Moves%67s ║\n' ""
 for line in "${RECENT_DISPLAY[@]}"; do
-  printf '║ %-73s ║\n' "$line"
+  printf '║ %-77s ║\n' "$line"
 done
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ 🗺️  Map Peek%61s ║\n' ""
+printf '║ 🗺️  Map Peek%70s ║\n' ""
 while IFS= read -r line; do
-  printf '║ %-73s ║\n' "$line"
+  printf '║ %-77s ║\n' "$line"
 done <<< "$MAP_PEEK"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ 🧠 Tower of Knowledge%49s ║\n' ""
-printf '║ %-73s ║\n' "$TOWER_PEAK"
+printf '║ 🧠 Tower of Knowledge%58s ║\n' ""
+printf '║ %-77s ║\n' "$TOWER_PEAK"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
-printf '║ ✅ Health Check%56s ║\n' ""
-# Emoji-based styling for [STATS] lines
+printf '║ ✅ Health Check%65s ║\n' ""
+
+# Prepare associative array for stats
+declare -A stats_map=(
+  [Moves]="N/A"
+  [Missions]="N/A"
+  [Milestones]="N/A"
+  [Drafts]="N/A"
+  [Rooms]="N/A"
+  [Uptime]="N/A"
+  [RAM]="N/A"
+  [Space]="N/A"
+  [LastMission]="N/A"
+)
+
 for line in "${HEALTH_CHECK_LINES[@]}"; do
-  if [[ "$line" =~ ^\[STATS\][[:space:]]*Moves: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Moves:/🎯 Moves:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Missions: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Missions:/🚀 Missions:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Milestones: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Milestones:/📌 Milestones:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Drafts: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Drafts:/📝 Drafts:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Uptime: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Uptime:/⏱️ Uptime:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*RAM: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*RAM:/💾 RAM:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Rooms: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Rooms:/🏛️ Rooms:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Space: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*Space:/💽 Space:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  elif [[ "$line" =~ ^\[STATS\][[:space:]]*LastMission: ]]; then
-    mod_line="${line/\[STATS\][[:space:]]*LastMission:/🧭 LastMission:}"
-    printf '║ %-73s ║\n' "$mod_line"
-  else
-    printf '║ %-73s ║\n' "$line"
+  if [[ "$line" =~ ^\[STATS\][[:space:]]*Moves:[[:space:]]*(.+)$ ]]; then
+    stats_map[Moves]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Missions:[[:space:]]*(.+)$ ]]; then
+    stats_map[Missions]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Milestones:[[:space:]]*(.+)$ ]]; then
+    stats_map[Milestones]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Drafts:[[:space:]]*(.+)$ ]]; then
+    stats_map[Drafts]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Rooms:[[:space:]]*(.+)$ ]]; then
+    stats_map[Rooms]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Uptime:[[:space:]]*(.+)$ ]]; then
+    stats_map[Uptime]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*RAM:[[:space:]]*(.+)$ ]]; then
+    stats_map[RAM]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Space:[[:space:]]*(.+)$ ]]; then
+    stats_map[Space]="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*LastMission:[[:space:]]*(.+)$ ]]; then
+    stats_map[LastMission]="${BASH_REMATCH[1]}"
   fi
 done
+
+# Print stats in aligned rows
+printf '║ 🎯 Moves: %-8s 🚀 Missions: %-8s 📌 Milestones: %-8s 📝 Drafts: %-8s ║\n' \
+  "${stats_map[Moves]}" "${stats_map[Missions]}" "${stats_map[Milestones]}" "${stats_map[Drafts]}"
+printf '║ 🏛️ Rooms: %-9s ⏱️ Uptime: %-9s 💾 RAM: %-15s 💽 Space: %-8s ║\n' \
+  "${stats_map[Rooms]}" "${stats_map[Uptime]}" "${stats_map[RAM]}" "${stats_map[Space]}"
+printf '║ 🧭 LastMission: %-58s ║\n' "${stats_map[LastMission]}"
 printf '║ Sharing: %-12s Lifespan: %-8s                                      ║\n' "$SHARING_STATUS" "$LIFESPAN_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 

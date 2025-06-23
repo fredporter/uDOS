@@ -94,7 +94,7 @@ if [[ -n "$HEALTH_LINE" ]]; then
   done
   HEALTH_LINE=$(echo -n "$new_health" | sed 's/[[:space:]]*$//')
 else
-  HEALTH_LINE="🎯 0  🚀 0  📌 0  📝 0  🏛️ 0  ⏱️ N/A  💾 N/A  💽 N/A"
+  HEALTH_LINE="🎯 0   🚀 0   📌 0   📝 0   🏛️ 0   ⏱️ N/A   💾 N/A   💽 N/A"
 fi
 
 # Footer
@@ -112,19 +112,19 @@ fi
 
 ### ASCII Dashboard (rounded blocks, max 80 chars)
 # HEADER
-printf "┌───────────────────────────── 🌀 uDOS Beta ──────────────────────────────┐\n"
+printf "┌───────────────────────────── 🌀 uDOS Beta ────────────────────────────────┐\n"
 printf "│ User: %-16s  %s\n" "$USER_NAME" "$DATE_NOW"
 printf "│ Location: %-56s│\n" "$LOCATION"
-printf "└────────────────────────────────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # FOCUS
-printf "┌───────────── 🔎 Today’s Focus ─────────────┐\n"
+printf "┌───────────── 🔎 Today’s Focus ─────────────────────────────────────────────┐\n"
 printf "│ Mission: %-34s│\n" "$ACTIVE_MISSION"
 printf "│ Next:    %-34s│\n" "$NEXT_ACTION"
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # MOVES
-printf "┌──────────── 📝 Recent Moves ──────────────┐\n"
+printf "┌──────────── 📝 Recent Moves ──────────────────────────────────────────────┐\n"
 if [[ -n "$RECENT_MOVES" ]]; then
   while IFS= read -r line; do
     printf "│ %-42s│\n" "$line"
@@ -132,10 +132,10 @@ if [[ -n "$RECENT_MOVES" ]]; then
 else
   printf "│ %-42s│\n" "No recent moves found."
 fi
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # MAP PEEK
-printf "┌───────────── 🗺️  Map Peek ───────────────┐\n"
+printf "┌───────────── 🗺️  Map Peek ────────────────────────────────────────────────┐\n"
 if [[ -n "$MAP_PEEK" ]]; then
   while IFS= read -r line; do
     printf "│ %-42s│\n" "$line"
@@ -143,10 +143,10 @@ if [[ -n "$MAP_PEEK" ]]; then
 else
   printf "│ %-42s│\n" "No map data available."
 fi
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # TOWER
-printf "┌──────────── 🧠 Indexed Rooms ─────────────┐\n"
+printf "┌──────────── 🧠 Indexed Rooms ─────────────────────────────────────────────┐\n"
 if [[ -n "$TOWER_LIST" ]]; then
   while IFS= read -r room; do
     printf "│ %-42s│\n" "$room"
@@ -154,19 +154,19 @@ if [[ -n "$TOWER_LIST" ]]; then
 else
   printf "│ %-42s│\n" "No rooms indexed yet."
 fi
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # HEALTH
-printf "┌───────────── ✅ Health Stats ─────────────┐\n"
+printf "┌───────────── ✅ Health Stats ──────────────────────────────────────────────┐\n"
 # Health in one tight line (🎯 🚀 📌 📝 🏛️ ⏱️ 💾 💽)
 printf "│ %-42s│\n" "$HEALTH_LINE"
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 # FOOTER
-printf "┌───────────── 🧭 Status & Info ────────────┐\n"
+printf "┌───────────── 🧭 Status & Info ─────────────────────────────────────────────┐\n"
 printf "│ Sharing: %-10s  Lifespan: %-6s  Version: %-8s│\n" "${SHARING:-Unknown}" "${LIFESPAN:-Unknown}" "${UDOS_VERSION:-uDOS Beta v0.0.1}"
 printf "│ Moves Remaining: %-27s│\n" "$MOVES_REMAINING"
-printf "└────────────────────────────────────────────┘\n"
+printf "└────────────────────────────────────────────────────────────────────────────┘\n"
 
 echo
 echo "🧭 Use 'help' for available commands. Make your next move, Master."
