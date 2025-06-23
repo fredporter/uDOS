@@ -62,7 +62,7 @@
 					<string>bash
 open -a "Docker"
 sleep 5
-open ~/uOS/macos/Launch-uOS.command</string>
+open ~/uDOS/xOS/Launch-uDOS.command</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
 					<key>inputMethod</key>
