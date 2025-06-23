@@ -1,13 +1,13 @@
 ---
-title: uOS Date and Time Format Specification
-version: 1.0
+title: uDOS Date and Time Format Specification
+version: 1.1
 author: Otter (uOS)
-date: 2025-06-22
+date: 2025-06-24
 ---
 
-# 📅 uOS Date and Time Format Specification
+# 📅 uDOS Date and Time Format Specification
 
-This document defines the standard formats for date and time used throughout uOS, including log entries, filenames, and all time-based identifiers.
+This document defines the standard formats for date and time used throughout uDOS, including log entries, filenames, and all time-based identifiers.
 
 ## 🧠 Goals
 - Human-readable and machine-parsable
@@ -42,7 +42,7 @@ YYYY-MM-DD HH:mm:ss.SSS ±hh:mm
 
 ## 🗂 Filename Timestamp Format
 
-Used for naming all uOS-generated files, folders, and unique log IDs. Designed for filesystem safety and maximum compatibility.
+Used for naming all uDOS-generated files, folders, and unique log IDs. Designed for filesystem safety and maximum compatibility.
 
 ```
 YYYYMMDD-HHMMSS-SSS-TZCODE
@@ -89,10 +89,10 @@ YYYYMMDD-HHMMSS-SSS-TZCODE
 |------------------|------------------------------------|---------------------------------|
 | Display/logging  | `YYYY-MM-DD HH:mm:ss.SSS ±hh:mm`   | `2025-06-22 14:23:10.456 +10:00`|
 | Filename ID      | `YYYYMMDD-HHMMSS-SSS-TZCODE`       | `20250622-142310-456-P10`       |
+| ISO fallback     | `YYYY-MM-DDTHH:mm:ss.SSSZ`          | `2025-06-22T14:23:10.456Z`      |
 
-All timestamps in uOS shall use these formats by default.
+> NOTE: ISO fallback format may be used in interop layers, API calls, or legacy import/export bridges. It is not preferred for internal use.
 
 ---
 
 *End of spec.*
-
