@@ -51,8 +51,8 @@ printf "╠═══════════════════════
 
 # Today’s Focus Block
 echo "║ 🔎 Today’s Focus                                                              ║"
-echo "║ Suggested Move: Run 'log_mission.sh' to begin your next journey               ║"
-echo "║ Region Pointer: /vault/crypt                                                  ║"
+printf "║ → Mission: %-62s║\n" "${ACTIVE_MISSION:-None}"
+echo "║ → Next Move: Type 'new mission' or 'log mission' to begin                    ║"
 echo "╠═══════════════════════════════════════════════════════════════════════════════╣"
 
 # Recent Moves
@@ -96,9 +96,33 @@ if [[ -f "$ULOG" ]]; then
   stats_found=0
   grep '^\[STATS\]' "$ULOG" | while read -r stat; do
     stats_found=1
-    # Remove the [STATS] prefix for cleaner display
+    # Remove the [STATS] prefix for cleaner display and replace labels with emojis
     stat_line=${stat#\[STATS\] }
-    printf "║ %s%-74s║\n" "" "$stat_line"
+    # Parse key:value pairs and replace keys with emojis, trim values
+    # We'll split stat_line by spaces, then by colon, and rebuild line
+    new_line=""
+    for pair in $stat_line; do
+      key=${pair%%:*}
+      value=${pair#*:}
+      value=$(echo -n "$value" | xargs) # trim spaces
+      case "$key" in
+        Moves) emoji="🎯" ;;
+        Missions) emoji="🚀" ;;
+        Milestones) emoji="📌" ;;
+        Drafts) emoji="📝" ;;
+        Uptime) emoji="⏱️" ;;
+        RAM) emoji="💾" ;;
+        Rooms) emoji="🏛️" ;;
+        Space) emoji="💽" ;;
+        LastMission) emoji="🧭" ;;
+        *) emoji="$key:" ;;
+      esac
+      new_line+="$emoji $value  "
+    done
+    # Trim trailing spaces
+    new_line=$(echo -n "$new_line" | sed 's/[[:space:]]*$//')
+    # Format to fit dashboard width (max 74 chars inside borders)
+    printf "║ %s%-74s║\n" "" "$new_line"
   done
   if [[ $stats_found -eq 0 ]]; then
     echo "║ No system stats found.                                                        ║"
@@ -124,7 +148,7 @@ else
 fi
 printf "║ Moves Remaining: %-57s║\n" "$MOVES_REMAINING"
 
-printf "║ uDOS Version: %-61s║\n" "${UDOS_VERSION:-Unknown}"
+printf "║ uDOS Version: %-61s║\n" "${UDOS_VERSION:-uDOS Beta v0.0.1}"
 
 echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
 echo ""

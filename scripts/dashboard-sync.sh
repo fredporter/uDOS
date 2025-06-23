@@ -160,8 +160,8 @@ printf '║ uDOS Version: %-63s ║\n' "$UDOS_VERSION"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ 🔎 Today’s Focus%56s ║\n' ""
-printf '║ Suggested Move: Run '\''log_mission.sh'\'' to begin your next journey%7s ║\n' ""
-printf '║ Region Pointer: /vault/crypt%52s ║\n' ""
+printf '║ → Mission: %-62s ║\n' "$ACTIVE_MISSION"
+printf '║ → Next Move: Type '\''new mission'\'' or '\''log mission'\''              ║\n'
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ 📝 Recent Moves%58s ║\n' ""
@@ -181,11 +181,40 @@ printf '║ %-73s ║\n' "$TOWER_PEAK"
 printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 printf '║ ✅ Health Check%56s ║\n' ""
+# Emoji-based styling for [STATS] lines
 for line in "${HEALTH_CHECK_LINES[@]}"; do
-  printf '║ %-73s ║\n' "$line"
+  if [[ "$line" =~ ^\[STATS\][[:space:]]*Moves: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Moves:/🎯 Moves:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Missions: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Missions:/🚀 Missions:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Milestones: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Milestones:/📌 Milestones:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Drafts: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Drafts:/📝 Drafts:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Uptime: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Uptime:/⏱️ Uptime:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*RAM: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*RAM:/💾 RAM:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Rooms: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Rooms:/🏛️ Rooms:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*Space: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*Space:/💽 Space:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  elif [[ "$line" =~ ^\[STATS\][[:space:]]*LastMission: ]]; then
+    mod_line="${line/\[STATS\][[:space:]]*LastMission:/🧭 LastMission:}"
+    printf '║ %-73s ║\n' "$mod_line"
+  else
+    printf '║ %-73s ║\n' "$line"
+  fi
 done
-printf '║ Encryption: %-9s   Privacy: %-6s   Lifespan: %-6s ║\n' "$ENCRYPTION_STATUS" "$SHARING_STATUS" "$LIFESPAN_STATUS"
-printf '║ Sync Status: %-45s ║\n' "$SYNC_STATUS"
+printf '║ Sharing: %-12s Lifespan: %-8s                                      ║\n' "$SHARING_STATUS" "$LIFESPAN_STATUS"
 printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
 
 echo ""

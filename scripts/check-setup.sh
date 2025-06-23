@@ -111,7 +111,7 @@ if [ ! -s "$USER_FILE" ]; then
   fi
 
   created=$(date '+%Y-%m-%d %H:%M:%S')
-  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
+  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "uDOS Beta v1.6.1")
 
   cat > "$USER_FILE" <<EOF
 Username: $uname
@@ -140,7 +140,7 @@ VERSION_FILE="$BASE/sandbox/version.md"
 echo ""
 echo "📦 uDOS Version:"
 if [ ! -s "$VERSION_FILE" ]; then
-  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
+  version=$(git -C "$BASE" describe --tags --abbrev=0 2>/dev/null || echo "uDOS Beta v1.6.1")
   echo "$version" > "$VERSION_FILE"
   echo "$pass Initialized version.md with $version"
 else
