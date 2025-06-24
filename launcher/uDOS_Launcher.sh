@@ -40,4 +40,4 @@ docker compose build
 
 # Launch interactive uDOS shell and pipe output to log (optional)
 echo "🚀 Starting uDOS interactive shell..."
-docker compose run --rm udos | tee -a ~/uDOS/logs/udos-$(date +%Y-%m-%d).log
+exec docker compose run --rm udos | tee -a ~/uDOS/logs/udos-$(date +%Y-%m-%d).log
