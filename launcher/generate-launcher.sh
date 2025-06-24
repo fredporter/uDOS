@@ -122,7 +122,7 @@ EOF
 # Create executable wrapper script
 cat > "$APP_PATH/Contents/MacOS/uDOS-Wrapper" <<EOF
 #!/bin/bash
-bash ~/launcher/Launcher.command
+bash ~/.udos/uDOS\ Launcher
 EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
