@@ -50,6 +50,7 @@ if [[ -f "$PROFILE_SOURCE" ]]; then
   echo "🖼️ Installing Terminal profile..."
   open "$PROFILE_SOURCE"
   sleep 2
+  osascript -e 'tell application "Terminal" to close front window' &>/dev/null
   defaults write com.apple.Terminal "Startup Window Settings" -string "uDOS"
   defaults write com.apple.Terminal "Default Window Settings" -string "uDOS"
   echo "✅ Terminal profile 'uDOS' imported and set as default."
