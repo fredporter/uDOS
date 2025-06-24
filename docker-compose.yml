@@ -3,15 +3,15 @@ services:
     build: .
     container_name: udos-container
     volumes:
-      - .:/uDOS
+      - .:/root/uDOS
       - ./uMemory:/uMemory
       - ./uKnowledge:/uKnowledge
-      - ./scripts:/uDOS/scripts
-    working_dir: /uDOS
+      - ./scripts:/root/uDOS/scripts
+    working_dir: /root/uDOS
     stdin_open: true
     tty: true
     environment:
       - UDOS_KNOWLEDGE_DIR=/uKnowledge
       - UDOS_MEMORY_DIR=/uMemory
       - UDOS_CONFIG_DIR=/config
-    command: ["bash", "scripts/launch-uDOS.sh"]  # ✅ the key fix
+    command: ["bash", "/root/uDOS/scripts/launch-uDOS.sh"]  # ✅ the key fix
