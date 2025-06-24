@@ -1,4 +1,18 @@
 #!/bin/bash
+# Prevent infinite loop if already launched from new Terminal window
+if [ "$UDOS_WINDOW_ACTIVE" == "1" ]; then
+  echo "🚀 uDOS is already running in a new terminal window."
+else
+  export UDOS_WINDOW_ACTIVE=1
+  osascript <<APPLESCRIPT
+  tell application "Terminal"
+    do script "export UDOS_WINDOW_ACTIVE=1; cd ~/uDOS && bash uDOS_Launcher.sh"
+    delay 0.5
+    set bounds of front window to {100, 100, 1380, 820}
+  end tell
+  APPLESCRIPT
+  exit 0
+fi
 # uDOS_Launcher.sh – Full launch logic for uDOS from Terminal
 # uDOS by Master & Otter 🦦 v1.0
 
@@ -31,14 +45,3 @@ docker compose down || echo "⚠️  Nothing to stop."
 echo "🔨 Rebuilding uDOS container..."
 docker compose build
 
-
-# Open a new Terminal window and resize it
-osascript <<APPLESCRIPT
-tell application "Terminal"
-  do script "cd ~/uDOS && bash uDOS_Launcher.sh"
-  delay 0.5
-  set bounds of front window to {100, 100, 1380, 820}
-end tell
-APPLESCRIPT
-
-exit 0
