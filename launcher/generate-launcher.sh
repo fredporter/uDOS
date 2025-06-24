@@ -80,11 +80,10 @@ chmod +x "$TARGET_SCRIPT"
 
 # 4. Attach custom icon (if available)
 if [ -f "$ICON_SOURCE" ]; then
-  echo "💎 Embedding icon metadata with Rez/DeRez..."
-  ICON_RSRC="$TARGET_SCRIPT.rsrc"
-  DeRez -only icns "$ICON_SOURCE" > "$ICON_RSRC"
-  Rez -append "$ICON_RSRC" -o "$TARGET_SCRIPT"
-  SetFile -a C "$TARGET_SCRIPT"
+  echo "🎨 Assigning icon to launcher..."
+  cp "$ICON_SOURCE" "$DESKTOP_PATH/diamond.icns"
+  defaults write "$DESKTOP_PATH/Info" CFBundleIconFile "diamond.icns"
+  touch "$DESKTOP_PATH"
 else
   echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
 fi
@@ -127,14 +126,5 @@ bash ~/launcher/Launcher.command
 EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
-
-# Copy icon if available
-if [ -f "$ICON_SOURCE" ]; then
-  cp "$ICON_SOURCE" "$APP_PATH/Contents/Resources/diamond.icns"
-  echo "🎨 Icon embedded at $APP_PATH/Contents/Resources/diamond.icns"
-  SetFile -a C "$APP_PATH"
-else
-  echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
-fi
 
 echo "🎉 .app Launcher created: $APP_PATH"
