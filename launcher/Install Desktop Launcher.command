@@ -1,60 +1,46 @@
 #!/bin/bash
-# uDOS Platypus Launcher Builder
-# Requires Platypus CLI installed via https://sveinbjorn.org/platypus
+# Native uDOS Launcher App Creator – No Platypus
 
 APP_NAME="uDOS Launcher"
-ICON_PATH="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
 SCRIPT_PATH="$HOME/.udos/$APP_NAME"
+ICON_PATH="$HOME/uDOS/launcher/diamond.icns"
 DEST_APP="$HOME/Desktop/$APP_NAME.app"
 
-echo "🔍 Checking for Platypus CLI..."
-if ! command -v platypus &> /dev/null; then
-  echo "❌ Platypus CLI not found."
-  echo "📦 Attempting to install via Homebrew..."
-  if ! command -v brew &> /dev/null; then
-    echo "🔧 Homebrew not found. Installing Homebrew first..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    export PATH="/opt/homebrew/bin:$PATH"
-  fi
-  brew install --cask platypus
-  if [ ! -f "/usr/local/bin/platypus" ]; then
-    echo "🔗 Linking Platypus CLI..."
-    sudo ln -s /Applications/Platypus.app/Contents/MacOS/Platypus /usr/local/bin/platypus
-  fi
-  if ! command -v platypus &> /dev/null; then
-    echo "❌ Platypus installation failed. Please install manually from https://sveinbjorn.org/platypus"
-    exit 1
-  fi
-  echo "✅ Platypus installed successfully!"
-fi
-
-echo "🧹 Removing previous launcher..."
+echo "🧹 Cleaning up previous launcher..."
 rm -rf "$DEST_APP"
 
-echo "📁 SCRIPT_PATH: $SCRIPT_PATH"
-echo "📁 DEST_APP: $DEST_APP"
-echo "🔍 Checking if script exists and is executable..."
-if [ ! -x "$SCRIPT_PATH" ]; then
-  echo "❌ ERROR: Script at $SCRIPT_PATH is missing or not executable."
-  exit 1
-fi
+echo "📁 Creating app bundle structure..."
+mkdir -p "$DEST_APP/Contents/MacOS"
+mkdir -p "$DEST_APP/Contents/Resources"
 
-echo "🚀 Building $APP_NAME with Platypus..."
-platypus -y --interface-type None \
-  -a "$APP_NAME" \
-  -o None \
-  -i "$ICON_PATH" \
-  -p /bin/bash \
-  -V "1.0" \
-  -B \
-  -R "$SCRIPT_PATH" \
-  "$DEST_APP"
+echo "📄 Copying script..."
+cp "$SCRIPT_PATH" "$DEST_APP/Contents/MacOS/$APP_NAME"
+chmod +x "$DEST_APP/Contents/MacOS/$APP_NAME"
 
-echo "🔓 Removing macOS quarantine flag..."
-xattr -d com.apple.quarantine "$DEST_APP" 2>/dev/null || echo "⚠️ Could not remove quarantine attribute (may not be set)."
+echo "🎨 Adding icon..."
+cp "$ICON_PATH" "$DEST_APP/Contents/Resources/diamond.icns"
 
-if [ $? -eq 0 ]; then
-  echo "✅ Launcher built successfully: $DEST_APP"
-else
-  echo "❌ Failed to build launcher"
-fi
+echo "🧠 Writing Info.plist..."
+cat > "$DEST_APP/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>$APP_NAME</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.agentdigital.udos.launcher</string>
+  <key>CFBundleName</key>
+  <string>$APP_NAME</string>
+  <key>CFBundleIconFile</key>
+  <string>diamond</string>
+</dict>
+</plist>
+EOF
+
+echo "🔓 Removing quarantine flags..."
+xattr -dr com.apple.quarantine "$DEST_APP"
+
+echo "🎉 Done! Launcher created at: $DEST_APP"
+open "$DEST_APP"
