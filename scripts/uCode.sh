@@ -233,6 +233,9 @@ while true; do
     LOG)
       cmd_log
       ;;
+    SAVE)
+      cmd_log
+      ;;
     REDO)
       cmd_redo
       ;;
@@ -240,6 +243,9 @@ while true; do
       cmd_undo
       ;;
     RUN)
+      cmd_run
+      ;;
+    GO|START)
       cmd_run
       ;;
     TREE)
@@ -285,7 +291,9 @@ while true; do
       echo "🧠 Available uDOS commands:"
       echo "   NEW       → Create new item (mission, milestone, legacy)"
       echo "   LOG       → Log mission/milestone/legacy"
+      echo "   SAVE      → Alias for LOG"
       echo "   RUN       → Run a command"
+      echo "   GO/START  → Alias for RUN"
       echo "   TREE      → Show file tree"
       echo "   STATS     → Generate dashboard stats"
       echo "   LIST      → List current folder"
