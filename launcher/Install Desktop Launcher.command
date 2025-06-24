@@ -11,9 +11,10 @@ cd "$(dirname "$0")"
 # Run the generator
 chmod +x generate-launcher.sh
 ./generate-launcher.sh
-
-echo "🎨 Skipping icon embedding: no iconset or .icns file found in this folder."
-echo "📝 To add a custom app icon, place 'diamond-icon.iconset' or 'diamond.icns' in the same folder and re-run this script."
+if [ $? -ne 0 ]; then
+  echo "❌ Launcher generation failed. Exiting."
+  exit 1
+fi
 
 echo "🧩 Creating ~/.udos/uDOS Launcher target script..."
 mkdir -p "$HOME/.udos"

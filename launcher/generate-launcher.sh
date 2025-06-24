@@ -4,16 +4,7 @@
 
 DESKTOP_PATH=~/Desktop
 ICON_NAME="diamond.icns"
-
-# Try both icon locations
-ICON_SOURCE=""
-if [ -f "$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns" ]; then
-  ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns"
-elif [ -f "$(cd "$(dirname "$0")" && pwd)/diamond.icns" ]; then
-  ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
-else
-  echo "⚠️  No icon source found. App will use default icon."
-fi
+ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/$ICON_NAME"
 
 echo "🔎 Using icon source: $ICON_SOURCE"
 
@@ -114,18 +105,14 @@ chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
 
 ICON_DEST="$APP_PATH/Contents/Resources/diamond.icns"
 
-if [ -n "$ICON_SOURCE" ] && [ -f "$ICON_SOURCE" ]; then
-  echo "🎨 Copying icon into app bundle..."
-  cp "$ICON_SOURCE" "$ICON_DEST"
-  touch "$APP_PATH"
-  if command -v SetFile >/dev/null 2>&1; then
-    /usr/bin/SetFile -a C "$APP_PATH"
-    echo "✅ Custom icon flag set"
-  else
-    echo "⚠️  SetFile not available; skipping custom icon flag"
-  fi
+echo "🎨 Copying icon into app bundle..."
+cp "$ICON_SOURCE" "$ICON_DEST"
+touch "$APP_PATH"
+if command -v SetFile >/dev/null 2>&1; then
+  /usr/bin/SetFile -a C "$APP_PATH"
+  echo "✅ Custom icon flag set"
 else
-  echo "⚠️  No valid icon source found, skipping custom icon."
+  echo "⚠️  SetFile not available; skipping custom icon flag"
 fi
 
 # Force macOS to refresh icon cache
