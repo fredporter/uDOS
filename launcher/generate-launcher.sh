@@ -128,6 +128,12 @@ else
   echo "⚠️  No valid icon source found, skipping custom icon."
 fi
 
+# Force macOS to refresh icon cache
+echo "🔁 Refreshing Finder icon cache..."
+touch "$APP_PATH"
+qlmanage -r > /dev/null 2>&1
+qlmanage -r cache > /dev/null 2>&1
+
 # Clean up accidental loose files on Desktop
 rm -f "$DESKTOP_PATH/diamond.icns"
 rm -f "$DESKTOP_PATH/Info.plist"
