@@ -8,7 +8,11 @@ export UDOS_LOG="${UDOS_HOME}/udos.log"
 export UDOS_IDENTITY="${UDOS_HOME}/identity.id"
 export UDOS_DASHBOARD="${UDOS_HOME}/dashboard.json"
 export UDOS_TEMP="${UDOS_HOME}/temp"
-mkdir -p "$UDOS_HOME" "$UDOS_TEMP"
+export UDOS_MOVES_DIR="${UDOS_HOME}/logs/moves"
+mkdir -p "$UDOS_HOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
+
+# Log session start
+echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
 
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
@@ -31,6 +35,18 @@ log_error() {
 
 log_command() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') [CMD] $1" >> "$UDOS_LOG"
+}
+
+log_move_template() {
+  local cmd="$1"
+  local timestamp
+  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  local id="move-$(date +%s)"
+  local file="$UDOS_MOVES_DIR/$(date +%Y-%m-%d)-$id.md"
+  echo "# Move: $cmd" > "$file"
+  echo "- Timestamp: $timestamp" >> "$file"
+  echo "- Command: $cmd" >> "$file"
+  echo "📄 Move logged to: $file"
 }
 
 # Dashboard Sync
@@ -93,10 +109,12 @@ cmd_undo() {
 
 cmd_run() {
   bash "$UDOS_HOME/scripts/command.sh" "$args"
+  log_move_template "run $args"
 }
 
 cmd_tree() {
   bash "$UDOS_HOME/scripts/make-tree.sh"
+  log_move_template "tree"
 }
 
 cmd_stats() {
@@ -124,6 +142,7 @@ cmd_dash() {
     echo "⚠️ Dashboard not found."
   fi
   log_info "Dashboard displayed."
+  log_move_template "dash"
 }
 
 cmd_restart() {
@@ -168,9 +187,33 @@ cmd_bye() {
     D) cmd_destroy ;;
     *) echo "🌀 Returning to CLI..." ;;
   esac
+
+  if grep -q docker /proc/1/cgroup 2>/dev/null; then
+    echo ""
+    read -rp "💤 Also shut down Docker container? (y/N): " shut
+    if [[ "$shut" =~ ^[Yy]$ ]]; then
+      QUIT_CMD="$HOME/uDOS/launcher/Quit-uDOS.command"
+      if [[ -x "$QUIT_CMD" ]]; then
+        echo "🔌 Executing Quit-uDOS.command..."
+        "$QUIT_CMD"
+      else
+        echo "⚠️ Quit-uDOS.command not found or not executable."
+        log_error "Quit-uDOS.command missing or not executable."
+      fi
+      exit 0
+    else
+      echo "🌀 Docker container will remain active."
+    fi
+  fi
+}
+
+cmd_recent() {
+  echo "📜 Recent moves:"
+  tail -n 10 "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
 }
 
 # Main Command Dispatch Loop
+trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   read -rp "uDOS> " input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
@@ -225,6 +268,9 @@ while true; do
     EXIT|QUIT)
       cmd_bye
       ;;
+    RECENT|HISTORY)
+      cmd_recent
+      ;;
     SYNC)
       sync_dashboard
       ;;
@@ -244,6 +290,7 @@ while true; do
       echo "   REBOOT    → Reboot system"
       echo "   DESTROY   → Delete your identity"
       echo "   BYE/EXIT/QUIT → Close session"
+      echo "   RECENT/HISTORY → Show last 10 moves"
       ;;
     "")
       # Ignore empty input
