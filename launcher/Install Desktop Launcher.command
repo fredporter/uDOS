@@ -1,36 +1,35 @@
 #!/bin/bash
-# uDOS Launcher Installer for macOS
-# Version: v1.0
+# uDOS Platypus Launcher Builder
+# Requires Platypus CLI installed via https://sveinbjorn.org/platypus
 
-echo "🚀 Installing uDOS Launcher to your Desktop..."
-echo "📦 uDOS Launcher v1.0"
+APP_NAME="uDOS Launcher"
+ICON_PATH="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
+SCRIPT_PATH="$HOME/.udos/$APP_NAME"
+DEST_APP="$HOME/Desktop/$APP_NAME.app"
 
-# Ensure this script runs from inside the launcher folder
-cd "$(dirname "$0")"
-
-# Run the generator
-chmod +x generate-launcher.sh
-./generate-launcher.sh
-if [ $? -ne 0 ]; then
-  echo "❌ Failed to generate launcher. Exiting."
+echo "🔍 Checking for Platypus CLI..."
+if ! command -v platypus &> /dev/null; then
+  echo "❌ Platypus CLI not found. Please install it from https://sveinbjorn.org/platypus and ensure 'platypus' is in your PATH."
   exit 1
 fi
 
-echo "🧩 Creating ~/.udos/uDOS Launcher target script..."
-mkdir -p "$HOME/.udos"
+echo "🧹 Removing previous launcher..."
+rm -rf "$DEST_APP"
 
-LAUNCHER_TARGET="$HOME/.udos/uDOS Launcher"
+echo "🚀 Building $APP_NAME with Platypus..."
+platypus \
+  -a "$APP_NAME" \
+  -o None \
+  -i "$ICON_PATH" \
+  -p /bin/bash \
+  -V "1.0" \
+  -B \
+  -R \
+  "$SCRIPT_PATH" \
+  "$DEST_APP"
 
-if [ ! -f "$LAUNCHER_TARGET" ]; then
-  cat <<EOF > "$LAUNCHER_TARGET"
-#!/bin/bash
-echo '🚀 uDOS Launcher script running!'
-cd \$HOME/uDOS && open -a Terminal .
-EOF
-  chmod +x "$LAUNCHER_TARGET"
-  echo "✅ Created default launcher script at ~/.udos/uDOS Launcher"
+if [ $? -eq 0 ]; then
+  echo "✅ Launcher built successfully: $DEST_APP"
 else
-  echo "ℹ️ Found existing launcher at ~/.udos/uDOS Launcher"
+  echo "❌ Failed to build launcher"
 fi
-
-echo "✅ uDOS Launcher installed. You may now double-click it from your Desktop!"
