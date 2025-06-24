@@ -12,20 +12,6 @@ cd "$(dirname "$0")"
 chmod +x generate-launcher.sh
 ./generate-launcher.sh
 
-ICON_SOURCE="$(pwd)/diamond.icns"
-APP_PATH="$HOME/Desktop/uDOS Launcher.app"
-
-if [ -f "$ICON_SOURCE" ]; then
-  echo "💎 Copying icon to app bundle..."
-  mkdir -p "$APP_PATH/Contents/Resources"
-  cp "$ICON_SOURCE" "$APP_PATH/Contents/Resources/diamond.icns"
-  touch "$APP_PATH"
-  killall Finder
-  echo "✅ Icon embedded successfully."
-else
-  echo "⚠️ Icon file not found at $ICON_SOURCE. Skipping icon embedding."
-fi
-
 echo "🧩 Creating ~/.udos/uDOS Launcher target script..."
 mkdir -p "$HOME/.udos"
 

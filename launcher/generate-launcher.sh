@@ -5,10 +5,10 @@
 DESKTOP_PATH=~/Desktop
 ICON_NAME="diamond.icns"
 ICONSET_PATH="$(cd "$(dirname "$0")" && pwd)/diamond-icon.iconset"
-ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/${ICON_NAME}"
 
 echo "🔎 Checking iconset and converting if needed..."
 
+ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/${ICON_NAME}"
 if [ ! -f "$ICON_SOURCE" ]; then
   if [ -d "$ICONSET_PATH" ]; then
     echo "🔄 Converting iconset to .icns..."
@@ -78,17 +78,6 @@ EOF
 # 3. Make the script executable
 chmod +x "$TARGET_SCRIPT"
 
-# 4. Attach custom icon (if available)
-if [ -f "$ICON_SOURCE" ]; then
-  echo "🎨 Assigning icon to launcher..."
-  cp "$ICON_SOURCE" "$APP_PATH/Contents/Resources/diamond.icns"
-  touch "$APP_PATH"
-else
-  echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
-fi
-
-echo "✅ uDOS Launcher script created internally at: $TARGET_SCRIPT"
-
 # 5. Create uDOS Launcher .app wrapper using shell-based binary
 APP_NAME="uDOS Launcher.app"
 APP_PATH="$DESKTOP_PATH/$APP_NAME"
@@ -125,6 +114,21 @@ bash ~/.udos/uDOS\ Launcher
 EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
+
+ICON_SOURCE="$APP_PATH/Contents/Resources/diamond.icns"
+
+if [ -f "$ICON_SOURCE" ]; then
+  echo "✅ Icon already embedded at $ICON_SOURCE"
+else
+  ICON_ORIGIN="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
+  if [ -f "$ICON_ORIGIN" ]; then
+    echo "🎨 Copying icon into app Resources..."
+    cp "$ICON_ORIGIN" "$APP_PATH/Contents/Resources/diamond.icns"
+    touch "$APP_PATH"
+  else
+    echo "⚠️  Icon source not found at $ICON_ORIGIN"
+  fi
+fi
 
 # Clean up accidental loose files on Desktop
 rm -f "$DESKTOP_PATH/diamond.icns"
