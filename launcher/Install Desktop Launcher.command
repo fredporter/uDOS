@@ -9,8 +9,19 @@ DEST_APP="$HOME/Desktop/$APP_NAME.app"
 
 echo "🔍 Checking for Platypus CLI..."
 if ! command -v platypus &> /dev/null; then
-  echo "❌ Platypus CLI not found. Please install it from https://sveinbjorn.org/platypus and ensure 'platypus' is in your PATH."
-  exit 1
+  echo "❌ Platypus CLI not found."
+  echo "📦 Attempting to install via Homebrew..."
+  if ! command -v brew &> /dev/null; then
+    echo "🔧 Homebrew not found. Installing Homebrew first..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    export PATH="/opt/homebrew/bin:$PATH"
+  fi
+  brew install --cask platypus
+  if ! command -v platypus &> /dev/null; then
+    echo "❌ Platypus installation failed. Please install manually from https://sveinbjorn.org/platypus"
+    exit 1
+  fi
+  echo "✅ Platypus installed successfully!"
 fi
 
 echo "🧹 Removing previous launcher..."
