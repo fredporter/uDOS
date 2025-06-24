@@ -1,5 +1,3 @@
-
-
 #!/bin/bash
 # init-structure.sh — Ensure required uDOS directories and templates exist
 
@@ -11,8 +9,7 @@ LOG_DIR="$MEMORY_DIR/logs"
 
 # Create necessary directories
 mkdir -p "$TEMPLATE_DIR" "$SANDBOX_DIR"
-mkdir -p "$MEMORY_DIR/missions" "$MEMORY_DIR/milestones" "$MEMORY_DIR/moves" "$MEMORY_DIR/state" "$LOG_DIR"
-mkdir -p "$UDOSE_HOME/uKnowledge/assets" "$UDOSE_HOME/uKnowledge/companion"
+mkdir -p "$MEMORY_DIR/missions" "$MEMORY_DIR/milestones" "$MEMORY_DIR/state" "$LOG_DIR"
 
 # Create default templates if they don't exist
 create_template() {
