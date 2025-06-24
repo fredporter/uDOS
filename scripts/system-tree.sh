@@ -1,7 +1,14 @@
 #!/bin/bash
 # system-tree.sh — Generate repo_structure.txt with filtered output
 
-uDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+uDOS_ROOT="$UDOSE_HOME"
+
+if [ ! -d "$uDOS_ROOT" ]; then
+  echo "❌ uDOS root directory not found at: $uDOS_ROOT"
+  exit 1
+fi
+
 OUTPUT_FILE="$uDOS_ROOT/repo_structure.txt"
 START_DIR="$uDOS_ROOT"
 INDENT="  "

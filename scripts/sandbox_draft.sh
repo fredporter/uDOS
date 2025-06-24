@@ -2,8 +2,9 @@
 
 # === uDOS Draft Generator: Create New File in Sandbox from Template ===
 
-SANDBOX="../sandbox"
-UTEMPLATE="../uTemplate"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+SANDBOX="$UDOSE_HOME/sandbox"
+UTEMPLATE="$UDOSE_HOME/uTemplate"
 
 echo "📘 Available Templates:"
 select type in "mission" "milestone" "legacy" "custom"; do

@@ -1,14 +1,16 @@
 #!/bin/bash
 # check_permissions.sh — Validate and fix permissions for uDOS scripts and files
 
-LOG_FILE="$HOME/uDOS/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+
+LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 TARGET_DIRS=(
-  "$HOME/uDOS/scripts"
-  "$HOME/uDOS/uMemory"
-  "$HOME/uDOS/uKnowledge"
-  "$HOME/uDOS/sandbox"
+  "$UDOSE_HOME/scripts"
+  "$UDOSE_HOME/uMemory"
+  "$UDOSE_HOME/uKnowledge"
+  "$UDOSE_HOME/sandbox"
 )
 
 get_file_owner_and_perm() {
@@ -72,7 +74,7 @@ for DIR in "${TARGET_DIRS[@]}"; do
 done
 
 # Explicit check for system-command.sh
-SYSTEM_CMD="$HOME/uDOS/scripts/system-command.sh"
+SYSTEM_CMD="$UDOSE_HOME/scripts/system-command.sh"
 if [[ -f "$SYSTEM_CMD" && ! -x "$SYSTEM_CMD" ]]; then
   chmod +x "$SYSTEM_CMD"
   echo "✅ Fixed permissions: $SYSTEM_CMD" | tee -a "$LOG_FILE"
@@ -81,26 +83,32 @@ check_shebang "$SYSTEM_CMD"
 
 echo "✅ Permissions check completed at $(date)" | tee -a "$LOG_FILE"
 
-BYE)
-  echo "👋 uDOS is now entering shutdown mode..."
-  echo "🔒 Session is idle. You can type:"
-  echo "   [R] RESTART → Soft refresh"
-  echo "   [B] REBOOT  → Full setup and check"
-  echo "   [D] DESTROY → Delete your identity"
-  echo "   [C] CANCEL  → Return to CLI"
-  read -n1 -rp "👉 Choose next step: " next
-  echo ""
-  case "${next^^}" in
-    R) $0 RESTART ;;
-    B) $0 REBOOT ;;
-    D) $0 DESTROY ;;
-    *) echo "🌀 Returning to CLI..." ;;
-  esac
-  ;;
+# Main command dispatch loop
+case "${1^^}" in
+  # ... (other command cases go here)
 
-EXIT)
-  $0 BYE
-  ;;
-QUIT)
-  $0 BYE
-  ;;
+  BYE)
+    echo "👋 uDOS is now entering shutdown mode..."
+    echo "🔒 Session is idle. You can type:"
+    echo "   [R] RESTART → Soft refresh"
+    echo "   [B] REBOOT  → Full setup and check"
+    echo "   [D] DESTROY → Delete your identity"
+    echo "   [C] CANCEL  → Return to CLI"
+    read -n1 -rp "👉 Choose next step: " next
+    echo ""
+    case "${next^^}" in
+      R) $0 RESTART ;;
+      B) $0 REBOOT ;;
+      D) $0 DESTROY ;;
+      *) echo "🌀 Returning to CLI..." ;;
+    esac
+    ;;
+
+  EXIT)
+    $0 BYE
+    ;;
+
+  QUIT)
+    $0 BYE
+    ;;
+esac

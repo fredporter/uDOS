@@ -1,10 +1,11 @@
 #!/bin/bash
 # dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
-UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UROOT="$UDOSE_HOME"
 bash "$UROOT/scripts/check-setup.sh" >/dev/null
-MEMORY_DIR="${UOS_MEMORY_DIR:-$UROOT/uMemory}"
-KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
+MEMORY_DIR="${UOS_MEMORY_DIR:-$UDOSE_HOME/uMemory}"
+KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UDOSE_HOME/uKnowledge}"
 
 STATE_DIR="$MEMORY_DIR/state"
 MOVE_DIR="$MEMORY_DIR/logs/moves"
@@ -23,7 +24,7 @@ SHARING="n/a"
 UDOS_VERSION="uDOS Beta v1.6.1"
 
 # Read Username and Password from sandbox user.md
-SANDBOX_USER_FILE="$UROOT/sandbox/user.md"
+SANDBOX_USER_FILE="$UDOSE_HOME/sandbox/user.md"
 if [[ -f "$SANDBOX_USER_FILE" ]]; then
   while IFS= read -r line; do
     if [[ "$line" =~ ^([A-Za-z ]+):[[:space:]]*(.+)$ ]]; then

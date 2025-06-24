@@ -2,9 +2,11 @@
 
 # === uDOS Move 007: Finalise File from Sandbox ===
 
-SANDBOX="../sandbox"
-UMEMORY="../uMemory"
-UKNOWLEDGE="../uKnowledge"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+
+SANDBOX="$UDOSE_HOME/sandbox"
+UMEMORY="$UDOSE_HOME/uMemory"
+UKNOWLEDGE="$UDOSE_HOME/uKnowledge"
 
 echo "🧪 Finalising file from sandbox..."
 

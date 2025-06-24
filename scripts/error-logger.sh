@@ -1,5 +1,7 @@
 #!/bin/bash
-# invoke-command.sh — Wrapper to run commands and log stderr if failure
+# error-logger.sh — Capture and log command failure summaries
+
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
 
 cmd="$*"
 output="$(eval "$cmd" 2>&1)"
@@ -7,7 +9,7 @@ status=$?
 
 if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"
-  bash /uDOS/scripts/error-logger.sh "$summary" "$output"
+  bash "$UDOSE_HOME/scripts/error-logger.sh" "$summary" "$output"
 
   echo ""
   echo "💥 An error occurred while executing:"
@@ -23,10 +25,10 @@ if [ $status -ne 0 ]; then
   echo ""
 
   case "${choice^^}" in
-    R) echo "🔄 Refreshing..."; $HOME/uDOS/scripts/uCode.sh REFRESH ;;
-    B) echo "♻️ Rebooting..."; $HOME/uDOS/scripts/uCode.sh REBOOT ;;
-    D) echo "☠️ Destroying..."; $HOME/uDOS/scripts/uCode.sh DESTROY ;;
-    V) echo "📜 Showing error log:"; tail -n 20 $HOME/uDOS/uMemory/logs/errors/$(date +%Y-%m-%d)-errorlog.md ;;
+    R) echo "🔄 Refreshing..."; "$UDOSE_HOME/scripts/uCode.sh" REFRESH ;;
+    B) echo "♻️ Rebooting..."; "$UDOSE_HOME/scripts/uCode.sh" REBOOT ;;
+    D) echo "☠️ Destroying..."; "$UDOSE_HOME/scripts/uCode.sh" DESTROY ;;
+    V) echo "📜 Showing error log:"; tail -n 20 "$UDOSE_HOME/uMemory/logs/errors/$(date +%Y-%m-%d)-errorlog.md" ;;
     *) echo "👋 Exiting."; exit $status ;;
   esac
 else

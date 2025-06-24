@@ -1,6 +1,7 @@
 #!/bin/bash
 
-UROOT="$HOME/uDOS"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UROOT="$UDOSE_HOME"
 UMEMORY="$UROOT/uMemory/legacy"
 TEMPLATE="$UROOT/uTemplate/legacy-template.md"
 DATESTAMP=$(date +%Y%m%d)

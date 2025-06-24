@@ -1,0 +1,23 @@
+# Ignore development and local-only files/folders from build context
+
+# macOS system metadata
+.DS_Store
+
+# Git version control
+.git
+.gitignore
+
+# uDOS runtime & personal data
+uMemory/
+uKnowledge/
+sandbox/
+
+# Local tools and launchers
+launcher/
+
+# Compressed files
+*.log
+*.zip
+
+# Markdown docs (optional)
+*.md

@@ -1,11 +1,13 @@
 #!/bin/bash
 # check_permissions.sh — Validate permissions for uDOS directories and scripts
 
-LOG_FILE="$HOME/uDOS/logs/permission-check.log"
-TARGET_DIRS=("$HOME/uDOS/launcher" "$HOME/uDOS/scripts")
-SYSTEM_CMD="$HOME/uDOS/scripts/system-command.sh"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
 
-mkdir -p "$HOME/uDOS/logs"
+LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+TARGET_DIRS=("$UDOSE_HOME/launcher" "$UDOSE_HOME/scripts")
+SYSTEM_CMD="$UDOSE_HOME/scripts/system-command.sh"
+
+mkdir -p "$(dirname "$LOG_FILE")"
 
 echo "🔍 Checking permissions for uDOS..."
 

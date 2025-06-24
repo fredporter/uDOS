@@ -2,9 +2,10 @@
 
 # === uDOS Move 010: Accept & Validate Shared File ===
 
-SANDBOX="../sandbox"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+SANDBOX="$UDOSE_HOME/sandbox"
 MY_DEVICE_ID="frogbyte-999"
-MY_KEY="$HOME/.uDOS/keys/private.pem"
+MY_KEY="$UDOSE_HOME/keys/private.pem"
 
 read -p "📄 Path to incoming shared .md file: " SHARED_FILE
 

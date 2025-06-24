@@ -2,7 +2,8 @@
 
 # === uDOS Move 012: Generate Dashboard Stats into uMemory (Enhanced) ===
 
-UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UROOT="$UDOSE_HOME"
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"
 STATE="$UMEMORY/state"

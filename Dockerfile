@@ -1,11 +1,1 @@
-# Ignore launcher tools, logs, and system metadata
-launcher/
-.DS_Store
-.git
-.gitignore
-*.md
-*.log
-*.zip
-uMemory/
-uKnowledge/
-sandbox/
+# This Dockerfile is currently empty after removing invalid ignore patterns. Add your Docker instructions below.

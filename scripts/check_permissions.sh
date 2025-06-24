@@ -2,8 +2,15 @@
 # check_permissions.sh – Auto-fix permissions for uDOS scripts
 # uDOS by Master & Otter 🦦
 
-LOG_FILE="$HOME/uDOS/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
-TARGET_DIRS=("$HOME/uDOS/launcher" "$HOME/uDOS/scripts")
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+
+if [ "$HOME" = "/root" ] && [ -d "/uDOS" ]; then
+  export HOME="/uDOS"
+  UDOSE_HOME="/uDOS"
+fi
+
+LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+TARGET_DIRS=("$UDOSE_HOME/launcher" "$UDOSE_HOME/scripts")
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -14,6 +21,7 @@ for dir in "${TARGET_DIRS[@]}"; do
   if [ -d "$dir" ]; then
     echo "📂 Scanning $dir..." >> "$LOG_FILE"
     find "$dir" -type f \( -name "*.sh" -o -name "*.command" \) | while read -r file; do
+      if [[ "$file" == "$LOG_FILE" ]]; then continue; fi
       if [ ! -x "$file" ]; then
         chmod +x "$file"
         echo "✅ Fixed permissions: $file" | tee -a "$LOG_FILE"

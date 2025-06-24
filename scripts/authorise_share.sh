@@ -2,8 +2,9 @@
 
 # === uDOS Move 009: Proximity Share Authorization ===
 
-UMEMORY="$HOME/uOS/uMemory"
-KEYDIR="$HOME/.uOS/keys"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UMEMORY="$UDOSE_HOME/uMemory"
+KEYDIR="$UDOSE_HOME/keys"
 LOG="$UMEMORY/logs/share-events.md"
 
 mkdir -p "$KEYDIR"
