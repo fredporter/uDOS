@@ -21,11 +21,6 @@ echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}
 echo "🚀 Welcome to uDOS Beta v1.6.1"
 echo "🧠 Loading environment..."
 
-# Refresh environment on startup
-if [[ -x "$UDOS_HOME/scripts/check-setup.sh" ]]; then
-  bash "$UDOS_HOME/scripts/check-setup.sh"
-fi
-
 if [[ -x "$UDOS_HOME/scripts/make-stats.sh" ]]; then
   bash "$UDOS_HOME/scripts/make-stats.sh"
 fi
@@ -35,10 +30,6 @@ if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
 fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
   echo "🔑 No identity found."
-  echo "🛠  Running setup check before proceeding..."
-  if [[ -x "$UDOS_HOME/scripts/check-setup.sh" ]]; then
-    bash "$UDOS_HOME/scripts/check-setup.sh"
-  fi
   echo "❌ No identity present. System must be initialised using DESTROY or REBOOT."
 else
   echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
