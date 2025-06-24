@@ -2,24 +2,6 @@
 # uDOS .gitignore — excludes system/cache/local content
 # ──────────────────────────────────────────────
 
-# Ignore system-generated internals inside the .app
-xOS/🌀 uDOS Docker Launch.app/Contents/
-xOS/🌀 uDOS Docker Launch.app/_CodeSignature/
-xOS/🌀 uDOS Docker Launch.app/Resources/
-xOS/🌀 uDOS Docker Launch.app/Icon
-xOS/🌀 uDOS Docker Launch.app/document.wflow
-xOS/🌀 uDOS Docker Launch.app/*.lproj
-xOS/🌀 uDOS Docker Launch.app/*.icns
-xOS/🌀 uDOS Docker Launch.app/Assets.car
-xOS/🌀 uDOS Docker Launch.app/Info.plist
-
-# Keep base .app folder for packaging/distribution
-!xOS/🌀 uDOS Docker Launch.app/
-
-# Keep launcher shell scripts
-!xOS/Launch-uDOS.command
-!xOS/Quit-uDOS.command
-
 # Python + general build artifacts
 __pycache__/
 *.pyc

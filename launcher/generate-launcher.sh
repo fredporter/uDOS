@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS Launcher Generator v1.6.1
+# uDOS Launcher Generator v1.0
 # Otter x Master
 
 DESKTOP_PATH=~/Desktop
@@ -17,7 +17,7 @@ mkdir -p "$LAUNCHER_DIR"
 # 2. Write the launch script
 cat > "$TARGET_SCRIPT" <<'EOF'
 #!/bin/bash
-# Launch-uDOS.command Beta v1.6 – Clean launch with resize & feedback
+# Launch-uDOS.command v1.0 – Clean launch with resize & feedback
 # uDOS by Master & ChatGPT
 
 echo "🔁 Launching uDOS..."

@@ -1,9 +1,9 @@
 #!/bin/bash
-# Launch-uDOS.command Beta v1.6.1 – Clean launch with resize & feedback
+# Launch-uDOS.command v1.0 – Clean launch with resize & feedback
 # uDOS by Master & ChatGPT
 
 echo "🔁 Launching uDOS..."
-echo "📦 Version: Beta v1.6.1"
+echo "📦 uDOS Launcher v1.0"
 
 # Resize current Terminal window BEFORE shell starts
 osascript <<EOF
