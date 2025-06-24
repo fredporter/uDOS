@@ -115,12 +115,12 @@ cmd_undo() {
 }
 
 cmd_run() {
-  bash "$UDOS_HOME/scripts/command.sh" "$args"
+  bash "$HOME/uDOS/scripts/command.sh" "$args"
   log_move_template "run $args"
 }
 
 cmd_tree() {
-  bash "$UDOS_HOME/scripts/make-tree.sh"
+  bash "$HOME/uDOS/scripts/make-tree.sh"
   log_move_template "tree"
 }
 
