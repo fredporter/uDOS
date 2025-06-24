@@ -2,8 +2,10 @@
 # check_permissions.sh – Auto-fix permissions for uDOS scripts
 # uDOS by Master & Otter 🦦
 
-LOG_FILE="$HOME/uDOS/logs/permission-check.log"
+LOG_FILE="$HOME/uDOS/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
 TARGET_DIRS=("$HOME/uDOS/launcher" "$HOME/uDOS/scripts")
+
+mkdir -p "$(dirname "$LOG_FILE")"
 
 echo "🔐 Checking uDOS script permissions..." | tee -a "$LOG_FILE"
 echo "Timestamp: $(date)" >> "$LOG_FILE"
