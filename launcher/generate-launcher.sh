@@ -95,9 +95,15 @@ end run
 # Build using osacompile
 osacompile -o "$APP_PATH" -e "$APPLESCRIPT_WRAPPER"
 
+ICONSET_PATH="launcher/diamond-icon.iconset"
+
 if [ ! -f "$ICON_SOURCE" ]; then
-  echo "🔄 Converting iconset to .icns..."
-  iconutil -c icns launcher/diamond-icon.iconset -o "$ICON_SOURCE"
+  if [ -d "$ICONSET_PATH" ]; then
+    echo "🔄 Converting iconset to .icns..."
+    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
+  else
+    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
+  fi
 fi
 
 # Apply icon if available
