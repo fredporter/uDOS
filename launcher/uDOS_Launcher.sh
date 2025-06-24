@@ -4,6 +4,8 @@
 # uDOS_Launcher.sh – Opens a new Terminal window and launches uDOS
 # uDOS by Master & Otter 🦦
 
+echo "📦 uDOS is launching in a new Terminal window..."
+sleep 0.8
 osascript <<APPLESCRIPT
 tell application "Terminal"
   do script "cd ~/uDOS && bash uDOS_Run.sh"

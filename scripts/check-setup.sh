@@ -4,7 +4,13 @@
 UDOSE_HOME="/root/uDOS"
 
 LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
-TARGET_DIRS=("$UDOSE_HOME/launcher" "$UDOSE_HOME/scripts")
+TARGET_DIRS=(
+  "$UDOSE_HOME/scripts"
+  "$UDOSE_HOME/uTemplate"
+  "$UDOSE_HOME/sandbox"
+  "$UDOSE_HOME/uMemory"
+  "$UDOSE_HOME/uMemory/logs"
+)
 SYSTEM_CMD="$UDOSE_HOME/scripts/system-command.sh"
 
 mkdir -p "$(dirname "$LOG_FILE")"

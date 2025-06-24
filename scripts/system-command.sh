@@ -4,12 +4,8 @@
 UDOSE_HOME="/root/uDOS"
 
 cmd="$*"
-tmpfile="$(mktemp)"
-bash -c "$cmd" > "$tmpfile" 2>&1
+output="$(bash -c "$cmd" 2>&1)"
 status=$?
-
-output="$(cat "$tmpfile")"
-rm -f "$tmpfile"
 
 if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"

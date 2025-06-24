@@ -1,20 +1,14 @@
 #!/bin/bash
-# launch-uDOS.sh
+# launch-uDOS.sh – uDOS inside-container entrypoint
 
-
-if [ -d "/root/uDOS" ]; then
-  UDOSE_HOME="/root/uDOS"
-else
-  UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
-fi
-
+UDOSE_HOME="/root/uDOS"
 echo "🌀 Launching uDOS..."
 
-# Initialize structure if needed
-"$UDOSE_HOME/scripts/init-structure.sh"
+# Initialize directory structure
+bash "$UDOSE_HOME/scripts/init-structure.sh"
 
-# Run setup check — use absolute path inside container
-"$UDOSE_HOME/scripts/check-setup.sh"
+# Check setup and permissions
+bash "$UDOSE_HOME/scripts/check-setup.sh"
 
-# Start uCode CLI or Dashboard
-"$UDOSE_HOME/scripts/uCode.sh"
+# Start the CLI
+exec bash "$UDOSE_HOME/scripts/uCode.sh"
