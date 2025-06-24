@@ -5,7 +5,7 @@
 osascript <<EOF
 tell application "Terminal"
   activate
-  set newTab to do script "bash ~/uDOS/launcher/uDOS_Launcher.sh"
+  set newTab to do script "cd ~/uDOS/launcher && ./uDOS_Run.sh"
   delay 0.5
 end tell
 EOF
