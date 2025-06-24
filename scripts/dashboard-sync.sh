@@ -1,7 +1,7 @@
 #!/bin/bash
 # dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 UROOT="$UDOSE_HOME"
 bash "$UROOT/scripts/check-setup.sh" >/dev/null
 MEMORY_DIR="${UOS_MEMORY_DIR:-$UDOSE_HOME/uMemory}"

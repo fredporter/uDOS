@@ -2,7 +2,7 @@
 
 # === uDOS Move 012: Generate Dashboard Stats into uMemory (Enhanced) ===
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 UROOT="$UDOSE_HOME"
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"

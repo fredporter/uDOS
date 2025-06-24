@@ -1,7 +1,7 @@
 #!/bin/bash
 # system-command.sh — Wrapper to run commands and log stderr if failure
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 
 cmd="$*"
 tmpfile="$(mktemp)"

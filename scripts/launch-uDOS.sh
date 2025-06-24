@@ -2,8 +2,8 @@
 # launch-uDOS.sh
 
 
-if [ -d "/uDOS" ]; then
-  UDOSE_HOME="/uDOS"
+if [ -d "/root/uDOS" ]; then
+  UDOSE_HOME="/root/uDOS"
 else
   UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
 fi

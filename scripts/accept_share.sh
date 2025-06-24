@@ -2,7 +2,7 @@
 
 # === uDOS Move 010: Accept & Validate Shared File ===
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 SANDBOX="$UDOSE_HOME/sandbox"
 MY_DEVICE_ID="frogbyte-999"
 MY_KEY="$UDOSE_HOME/keys/private.pem"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # error-logger.sh — Capture and log command failure summaries
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 
 cmd="$*"
 output="$(eval "$cmd" 2>&1)"

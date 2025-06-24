@@ -1,7 +1,7 @@
 #!/bin/bash
 # check_permissions.sh — Validate and fix permissions for uDOS scripts and files
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 
 LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
 mkdir -p "$(dirname "$LOG_FILE")"

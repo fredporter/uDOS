@@ -1,7 +1,7 @@
 #!/bin/bash
 # system-tree.sh — Generate repo_structure.txt with filtered output
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 uDOS_ROOT="$UDOSE_HOME"
 
 if [ ! -d "$uDOS_ROOT" ]; then

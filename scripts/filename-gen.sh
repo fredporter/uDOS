@@ -1,7 +1,7 @@
 #!/bin/bash
 # filename-gen.sh — uDOS Filename Generator v1.6.1 (moved to /scripts)
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 
 generate_filename() {
   CATEGORY="$1" # e.g. uML, uIO, uTA

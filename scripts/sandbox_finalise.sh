@@ -2,7 +2,7 @@
 
 # === uDOS Move 007: Finalise File from Sandbox ===
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 
 SANDBOX="$UDOSE_HOME/sandbox"
 UMEMORY="$UDOSE_HOME/uMemory"

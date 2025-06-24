@@ -1,7 +1,7 @@
 #!/bin/bash
 # uDOS Dashboard Beta v1.6 — Combines static blocks + live memory stats
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 UROOT="$UDOSE_HOME"   # Base directory
 
 bash "$UROOT/scripts/check-setup.sh" >/dev/null

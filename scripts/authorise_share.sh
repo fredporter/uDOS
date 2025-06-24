@@ -2,7 +2,7 @@
 
 # === uDOS Move 009: Proximity Share Authorization ===
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 UMEMORY="$UDOSE_HOME/uMemory"
 KEYDIR="$UDOSE_HOME/keys"
 LOG="$UMEMORY/logs/share-events.md"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 UROOT="$UDOSE_HOME"
 UMEMORY="$UROOT/uMemory/legacy"
 TEMPLATE="$UROOT/uTemplate/legacy-template.md"

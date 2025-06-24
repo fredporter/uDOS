@@ -2,7 +2,7 @@
 
 # === uDOS Draft Generator: Create New File in Sandbox from Template ===
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UDOSE_HOME="/root/uDOS"
 SANDBOX="$UDOSE_HOME/sandbox"
 UTEMPLATE="$UDOSE_HOME/uTemplate"
 
@@ -18,7 +18,7 @@ select type in "mission" "milestone" "legacy" "custom"; do
       ;;
     *) 
       echo "❌ Invalid choice"
-      exit 1 
+      exit 1
       ;;
   esac
   break
