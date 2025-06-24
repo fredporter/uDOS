@@ -11,6 +11,9 @@ export UDOS_TEMP="${UDOS_HOME}/temp"
 export UDOS_MOVES_DIR="${UDOS_HOME}/logs/moves"
 mkdir -p "$UDOS_HOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
 
+# Ensure uMemory subdirectories exist
+mkdir -p "${UDOS_HOME}/uMemory/missions" "${UDOS_HOME}/uMemory/milestones" "${UDOS_HOME}/uMemory/legacies"
+
 # Log session start
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
 
@@ -64,22 +67,26 @@ sync_dashboard() {
 # Command Functions
 
 cmd_new() {
-  echo "🆕 Creating new item..."
-  read -rp "Enter new item name: " item_name
-  if [ -z "$item_name" ]; then
-    echo "❌ Item name cannot be empty."
-    log_error "Attempted to create new item with empty name."
-    return 1
-  fi
-  item_file="${UDOS_HOME}/${item_name}.txt"
-  if [ -f "$item_file" ]; then
-    echo "⚠️ Item '$item_name' already exists."
-    log_info "New item creation aborted: '$item_name' exists."
-    return 1
-  fi
-  touch "$item_file"
-  echo "✅ New item '$item_name' created."
-  log_info "New item created: $item_name"
+  echo "🆕 What would you like to create?"
+  read -rp "Choose type (mission, milestone, legacy): " type
+  case "$type" in
+    mission|milestone|legacy)
+      template="$UDOS_HOME/uTemplate/${type}-template.md"
+      target="${UDOS_HOME}/uMemory/${type}s/$(date +%Y-%m-%d)-${type}.md"
+      mkdir -p "$(dirname "$target")"
+      if [[ -f "$template" ]]; then
+        cp "$template" "$target"
+      else
+        echo "# New $type" > "$target"
+      fi
+      ${EDITOR:-nano} "$target"
+      log_info "New $type created: $target"
+      log_move_template "new $type"
+      ;;
+    *)
+      echo "❌ Unknown type: $type"
+      ;;
+  esac
 }
 
 cmd_log() {
@@ -276,7 +283,7 @@ while true; do
       ;;
     HELP)
       echo "🧠 Available uDOS commands:"
-      echo "   NEW       → Create new item"
+      echo "   NEW       → Create new item (mission, milestone, legacy)"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   RUN       → Run a command"
       echo "   TREE      → Show file tree"
