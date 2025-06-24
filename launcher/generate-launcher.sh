@@ -81,9 +81,9 @@ chmod +x "$TARGET_SCRIPT"
 # 4. Attach custom icon (if available)
 if [ -f "$ICON_SOURCE" ]; then
   echo "🎨 Assigning icon to launcher..."
-  cp "$ICON_SOURCE" "$DESKTOP_PATH/diamond.icns"
-  defaults write "$DESKTOP_PATH/Info" CFBundleIconFile "diamond.icns"
-  touch "$DESKTOP_PATH"
+  cp "$ICON_SOURCE" "$APP_PATH/Contents/Resources/diamond.icns"
+  defaults write "$APP_PATH/Contents/Info" CFBundleIconFile "diamond.icns"
+  touch "$APP_PATH"
 else
   echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
 fi
@@ -126,5 +126,9 @@ bash ~/launcher/Launcher.command
 EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
+
+# Clean up accidental loose files on Desktop
+rm -f "$DESKTOP_PATH/diamond.icns"
+rm -f "$DESKTOP_PATH/Info.plist"
 
 echo "🎉 .app Launcher created: $APP_PATH"
