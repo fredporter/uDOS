@@ -1,7 +1,12 @@
 #!/bin/bash
 # launch-uDOS.sh
 
-UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+
+if [ -d "/uDOS" ]; then
+  UDOSE_HOME="/uDOS"
+else
+  UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+fi
 
 echo "🌀 Launching uDOS..."
 
