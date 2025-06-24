@@ -158,12 +158,15 @@ render_template() {
   done < "$file"
 }
 
-render_template "$UDOSE_HOME/uTemplate/dashboard-header.tmpl"
-render_template "$UDOSE_HOME/uTemplate/dashboard-recent.tmpl"
-render_template "$UDOSE_HOME/uTemplate/dashboard-map.tmpl"
-render_template "$UDOSE_HOME/uTemplate/dashboard-knowledge.tmpl"
-render_template "$UDOSE_HOME/uTemplate/dashboard-health.tmpl"
-render_template "$UDOSE_HOME/uTemplate/dashboard-footer.tmpl"
+#
+# Use new dashboard template directory
+DASHBOARD_TEMPLATE_DIR="$UDOSE_HOME/uTemplate/dashboards"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.tmpl"
 
 echo ""
 echo "🧭 Use 'help' for available commands."
