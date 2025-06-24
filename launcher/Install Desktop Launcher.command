@@ -31,16 +31,23 @@ fi
 echo "🧹 Removing previous launcher..."
 rm -rf "$DEST_APP"
 
+echo "📁 SCRIPT_PATH: $SCRIPT_PATH"
+echo "📁 DEST_APP: $DEST_APP"
+echo "🔍 Checking if script exists and is executable..."
+if [ ! -x "$SCRIPT_PATH" ]; then
+  echo "❌ ERROR: Script at $SCRIPT_PATH is missing or not executable."
+  exit 1
+fi
+
 echo "🚀 Building $APP_NAME with Platypus..."
-platypus \
+platypus -y --interface-type None \
   -a "$APP_NAME" \
   -o None \
   -i "$ICON_PATH" \
   -p /bin/bash \
   -V "1.0" \
   -B \
-  -R \
-  "$SCRIPT_PATH" \
+  -R "$SCRIPT_PATH" \
   "$DEST_APP"
 
 echo "🔓 Removing macOS quarantine flag..."
