@@ -3,9 +3,24 @@
 # Otter x Master
 
 DESKTOP_PATH=~/Desktop
-SCRIPT_NAME="uDOS Launcher"
 ICON_NAME="diamond.icns"
+ICONSET_PATH="launcher/diamond-icon.iconset"
 ICON_SOURCE="$HOME/.udos/${ICON_NAME}"
+
+echo "🔎 Checking iconset and converting if needed..."
+
+if [ ! -f "$ICON_SOURCE" ]; then
+  if [ -d "$ICONSET_PATH" ]; then
+    echo "🔄 Converting iconset to .icns..."
+    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
+  else
+    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
+  fi
+else
+  echo "✅ Icon found at $ICON_SOURCE"
+fi
+
+SCRIPT_NAME="uDOS Launcher"
 
 mkdir -p "$HOME/.udos"
 TARGET_SCRIPT="$HOME/.udos/$SCRIPT_NAME"
@@ -78,17 +93,6 @@ else
 fi
 
 echo "✅ uDOS Launcher script created internally at: $TARGET_SCRIPT"
-
-ICONSET_PATH="launcher/diamond-icon.iconset"
-
-if [ ! -f "$ICON_SOURCE" ]; then
-  if [ -d "$ICONSET_PATH" ]; then
-    echo "🔄 Converting iconset to .icns..."
-    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
-  else
-    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
-  fi
-fi
 
 # 5. Create uDOS Launcher .app wrapper
 APP_NAME="uDOS Launcher.app"
