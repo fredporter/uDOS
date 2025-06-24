@@ -10,6 +10,9 @@ fi
 
 echo "🌀 Launching uDOS..."
 
+# Initialize structure if needed
+"$UDOSE_HOME/scripts/init-structure.sh"
+
 # Run setup check — use absolute path inside container
 "$UDOSE_HOME/scripts/check-setup.sh"
 
