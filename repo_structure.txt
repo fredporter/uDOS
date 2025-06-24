@@ -50,8 +50,8 @@
     |  |-- move_log_roadmap.md
     |  |-- uOS_base_map_120x60_accurate.md
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
+    |  |-- u_dos_roadmap_q_3_2025.md
     |  |-- u_os_cartography_roadmap.md
-    |  |-- uos_roadmap_q3.md
     |  |-- uos_template_generator.md
   |-- sandbox
     |  |-- user.md
@@ -97,6 +97,7 @@
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
+    |  |-- uc-template.md
   |-- xOS
     |  |-- Launch-uDOS.command
     |  |-- README.md
