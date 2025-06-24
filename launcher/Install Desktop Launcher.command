@@ -42,5 +42,4 @@ EOF
 echo "🔓 Removing quarantine flags..."
 xattr -dr com.apple.quarantine "$DEST_APP"
 
-echo "🎉 Done! Launcher created at: $DEST_APP"
-open "$DEST_APP"
+echo "✅ Desktop launcher installed successfully. You may now open it from the Desktop."
