@@ -20,8 +20,26 @@ echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
 echo "🧠 Loading environment..."
+
+# Refresh environment on startup
+if [[ -x "$UDOS_HOME/scripts/check-setup.sh" ]]; then
+  bash "$UDOS_HOME/scripts/check-setup.sh"
+fi
+
+if [[ -x "$UDOS_HOME/scripts/make-stats.sh" ]]; then
+  bash "$UDOS_HOME/scripts/make-stats.sh"
+fi
+
+if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
+  bash "$UDOS_HOME/scripts/dashboard-sync.sh"
+fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
-  echo "🔑 No identity found. Please create a new one with NEW command."
+  echo "🔑 No identity found."
+  echo "🛠  Running setup check before proceeding..."
+  if [[ -x "$UDOS_HOME/scripts/check-setup.sh" ]]; then
+    bash "$UDOS_HOME/scripts/check-setup.sh"
+  fi
+  echo "❌ No identity present. System must be initialised using DESTROY or REBOOT."
 else
   echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
 fi
@@ -65,29 +83,6 @@ sync_dashboard() {
 }
 
 # Command Functions
-
-cmd_new() {
-  echo "🆕 What would you like to create?"
-  read -rp "Choose type (mission, milestone, legacy): " type
-  case "$type" in
-    mission|milestone|legacy)
-      template="$UDOS_HOME/uTemplate/${type}-template.md"
-      target="${UDOS_HOME}/uMemory/${type}s/$(date +%Y-%m-%d)-${type}.md"
-      mkdir -p "$(dirname "$target")"
-      if [[ -f "$template" ]]; then
-        cp "$template" "$target"
-      else
-        echo "# New $type" > "$target"
-      fi
-      ${EDITOR:-nano} "$target"
-      log_info "New $type created: $target"
-      log_move_template "new $type"
-      ;;
-    *)
-      echo "❌ Unknown type: $type"
-      ;;
-  esac
-}
 
 cmd_log() {
   read -rp "📝 Log what? (mission/milestone/legacy): " what
@@ -227,9 +222,6 @@ while true; do
   args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"
   case "$cmd" in
-    NEW)
-      cmd_new
-      ;;
     LOG)
       cmd_log
       ;;
@@ -289,7 +281,6 @@ while true; do
       ;;
     HELP)
       echo "🧠 Available uDOS commands:"
-      echo "   NEW       → Create new item (mission, milestone, legacy)"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   SAVE      → Alias for LOG"
       echo "   RUN       → Run a command"
