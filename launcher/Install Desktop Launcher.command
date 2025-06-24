@@ -2,7 +2,7 @@
 # Native uDOS Launcher App Creator – No Platypus
 
 APP_NAME="uDOS Launcher"
-SCRIPT_PATH="$HOME/.udos/$APP_NAME"
+SCRIPT_PATH="$HOME/uDOS/launcher/app-wrapper.sh"
 ICON_PATH="$HOME/uDOS/launcher/diamond.icns"
 DEST_APP="$HOME/Desktop/$APP_NAME.app"
 
