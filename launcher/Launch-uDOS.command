@@ -1,8 +1,9 @@
 #!/bin/bash
-# Launch-uDOS.command Beta v1.6 – Clean launch with resize & feedback
+# Launch-uDOS.command Beta v1.6.1 – Clean launch with resize & feedback
 # uDOS by Master & ChatGPT
 
 echo "🔁 Launching uDOS..."
+echo "📦 Version: Beta v1.6.1"
 
 # Resize current Terminal window BEFORE shell starts
 osascript <<EOF
@@ -38,3 +39,4 @@ docker compose build
 # Launch uDOS interactive shell (same window)
 echo "🚀 Starting uDOS interactive shell..."
 docker compose run --rm udos
+echo "✅ uDOS session ended. Welcome back, Master."

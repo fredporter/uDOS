@@ -1,4 +1,4 @@
-# 🌀 uDOS macOS Launch Guide
+# 💠 uDOS macOS Launcher Guide
 
 Welcome to the **macOS launch toolkit** for uDOS. This folder contains native-friendly tools for launching uDOS cleanly from a Mac desktop or Terminal.
 
@@ -13,7 +13,7 @@ Welcome to the **macOS launch toolkit** for uDOS. This folder contains native-fr
   - Double-click `Launch-uDOS.command` OR
   - Run it from Terminal:
     ```bash
-    bash xOS/Launch-uDOS.command
+    bash launcher/Launch-uDOS.command
     ```
 - **Behavior:** Resizes terminal, checks Docker, cleans previous containers, starts fresh uDOS CLI.
 
@@ -41,4 +41,4 @@ These are ignored by `.gitignore` and **should not be committed** unless packagi
 - Useful if you're done with a session or need a manual shutdown.
 
 ```bash
-bash xOS/Quit-uDOS.command```
+bash launcher/Quit-uDOS.command```
