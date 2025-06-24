@@ -3,6 +3,18 @@
   |  |-- LICENSE
   |  |-- README.md
   |  |-- docker-compose.yml
+  |-- launcher
+    |  |-- Install Desktop Launcher.command
+    |  |-- Quit-uDOS.command
+    |  |-- README.md
+    |  |-- app-wrapper.sh
+    |  |-- uDOS.terminal
+    |  |-- uDOS_Launcher.scpt
+    |  |-- uDOS_Launcher.sh
+    |  |-- uDOS_Run.sh
+  |-- logs
+    |  |-- udos-2025-06-24.log
+    |  |-- udos-2025-06-25.log
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -48,6 +60,7 @@
     |  |-- display_modes.md
     |  |-- filenames_and_structure.md
     |  |-- move_log_roadmap.md
+    |  |-- uDOS_roadmap_sandbox_sharing.md
     |  |-- uOS_base_map_120x60_accurate.md
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
     |  |-- u_dos_roadmap_q_3_2025.md
@@ -57,28 +70,20 @@
     |  |-- user.md
     |  |-- version.md
   |-- scripts
-    |  |-- accept_share.sh
-    |  |-- authorise_share.sh
+    |  |-- check-permissions.sh
     |  |-- check-setup.sh
+    |  |-- command.sh
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
-    |  |-- filename-gen.sh
-    |  |-- generate_stats.sh
-    |  |-- launch-uDOS.sh
-    |  |-- log_legacy.sh
-    |  |-- log_milestone.sh
-    |  |-- log_mission.sh
-    |  |-- sandbox_draft.sh
-    |  |-- sandbox_finalise.sh
-    |  |-- system-command.sh
-    |  |-- system-tree.sh
+    |  |-- make-log.sh
+    |  |-- make-stats.sh
+    |  |-- make-structure.sh
+    |  |-- make-tree.sh
+    |  |-- start.sh
     |  |-- uCode.sh
   |-- uKnowledge
     |-- assets
-      |  |-- diamond-icon-1.png
-      |  |-- diamond-icon-2.png
-      |  |-- diamond-icon-3.png
     |-- companion
       |  |-- uc-Otter.md
     |-- general-library
@@ -89,16 +94,25 @@
       |-- errors
       |-- moves
       |  |-- moves-2025-06-23.md
+      |  |-- moves-2025-06-24.md
+      |  |-- permissions-2025-06-24.log
     |-- milestones
     |-- missions
+    |-- moves
     |-- state
       |  |-- instance.md
   |-- uTemplate
+    |-- dashboards
+      |  |-- dashboard-focus.tmpl
+      |  |-- dashboard-footer.tmpl
+      |  |-- dashboard-header.tmpl
+      |  |-- dashboard-health.tmpl
+      |  |-- dashboard-legacy.tmpl
+      |  |-- dashboard-map.tmpl
+      |  |-- dashboard-recent.tmpl
+      |  |-- dashboard-rooms.tmpl
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
+    |  |-- move-template.md
     |  |-- uc-template.md
-  |-- xOS
-    |  |-- Launch-uDOS.command
-    |  |-- README.md
-    |-- 🌀 uDOS Docker Launch.app

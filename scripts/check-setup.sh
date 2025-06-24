@@ -60,3 +60,25 @@ get_stat() {
 
   echo "🧪 Permission check complete. Log saved to $LOG_FILE"
 } | tee -a "$LOG_FILE"
+
+# Prompt for user identity setup if not present
+USER_FILE="$UDOSE_HOME/sandbox/user.md"
+if [[ ! -f "$USER_FILE" ]]; then
+  echo ""
+  echo "🔑 No identity found. Let's set up your user profile."
+
+  read -rp "👤 Enter your preferred username: " username
+  read -rsp "🔒 Enter a password: " password
+  echo ""
+  read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
+
+  mkdir -p "$(dirname "$USER_FILE")"
+  {
+    echo "Username: $username"
+    echo "Password: $password"
+    echo "Location: $location"
+    echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  } > "$USER_FILE"
+
+  echo "✅ User identity created at $USER_FILE"
+fi
