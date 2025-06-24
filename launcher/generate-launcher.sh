@@ -82,7 +82,6 @@ chmod +x "$TARGET_SCRIPT"
 if [ -f "$ICON_SOURCE" ]; then
   echo "🎨 Assigning icon to launcher..."
   cp "$ICON_SOURCE" "$APP_PATH/Contents/Resources/diamond.icns"
-  defaults write "$APP_PATH/Contents/Info" CFBundleIconFile "diamond.icns"
   touch "$APP_PATH"
 else
   echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
