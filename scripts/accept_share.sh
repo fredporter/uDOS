@@ -42,9 +42,14 @@ ENCRYPTED=$(grep -q "^encryption: true" "$SHARED_FILE" && echo "yes" || echo "no
 
 if [[ "$ENCRYPTED" == "yes" ]]; then
   echo "🔐 Attempting to decrypt..."
-  # TODO: Replace with actual decryption command using $MY_KEY
-  cp "$SHARED_FILE" "$SANDBOX/decrypted-$(basename "$SHARED_FILE")"
-  echo "✅ Decrypted (simulation only)"
+  DECRYPTED_FILE="$SANDBOX/decrypted-$(basename "$SHARED_FILE")"
+  openssl smime -decrypt -in "$SHARED_FILE" -inform PEM -inkey "$MY_KEY" -out "$DECRYPTED_FILE" 2>/dev/null
+  if [[ $? -eq 0 ]]; then
+    echo "✅ File decrypted successfully to $DECRYPTED_FILE"
+  else
+    echo "❌ Decryption failed. Check your key or file format."
+    exit 1
+  fi
 else
   cp "$SHARED_FILE" "$SANDBOX/$(basename "$SHARED_FILE")"
   echo "📥 Copied to sandbox for review."

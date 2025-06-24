@@ -9,9 +9,10 @@ status=$?
 
 if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"
-  bash "$UDOSE_HOME/scripts/error-logger.sh" "$summary" "$output"
   echo "💥 Error while executing: $cmd"
   echo "💬 $output"
+  echo "❌ Command failed with exit code $status" >> "$UDOSE_HOME/uMemory/logs/command-errors-$(date +%Y-%m-%d).log"
+  bash "$UDOSE_HOME/scripts/error-logger.sh" "$summary" "$output"
 else
   echo "$output"
 fi
