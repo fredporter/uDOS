@@ -12,6 +12,8 @@ cd "$(dirname "$0")"
 chmod +x generate-launcher.sh
 ./generate-launcher.sh
 
+echo "🎨 Icon embedding will be handled by the launcher generator if available."
+
 echo "🧩 Creating ~/.udos/uDOS Launcher target script..."
 mkdir -p "$HOME/.udos"
 
