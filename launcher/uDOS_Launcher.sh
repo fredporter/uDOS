@@ -4,13 +4,6 @@
 
 echo "🔁 Launching uDOS..."
 
-# Resize the current Terminal window
-osascript <<APPLESCRIPT
-tell application "Terminal"
-  set bounds of front window to {100, 100, 1380, 820}
-end tell
-APPLESCRIPT
-
 # Navigate to uDOS directory
 cd ~/uDOS || {
   echo "❌ Error: ~/uDOS directory not found."
@@ -38,6 +31,14 @@ docker compose down || echo "⚠️  Nothing to stop."
 echo "🔨 Rebuilding uDOS container..."
 docker compose build
 
-# Launch interactive uDOS shell and pipe output to log (optional)
-echo "🚀 Starting uDOS interactive shell..."
-exec docker compose run --rm udos | tee -a ~/uDOS/logs/udos-$(date +%Y-%m-%d).log
+
+# Open a new Terminal window and resize it
+osascript <<APPLESCRIPT
+tell application "Terminal"
+  do script "cd ~/uDOS && bash uDOS_Launcher.sh"
+  delay 0.5
+  set bounds of front window to {100, 100, 1380, 820}
+end tell
+APPLESCRIPT
+
+exit 0
