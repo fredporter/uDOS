@@ -79,6 +79,17 @@ fi
 
 echo "✅ uDOS Launcher script created internally at: $TARGET_SCRIPT"
 
+ICONSET_PATH="launcher/diamond-icon.iconset"
+
+if [ ! -f "$ICON_SOURCE" ]; then
+  if [ -d "$ICONSET_PATH" ]; then
+    echo "🔄 Converting iconset to .icns..."
+    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
+  else
+    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
+  fi
+fi
+
 # 5. Create uDOS Launcher .app wrapper
 APP_NAME="uDOS Launcher.app"
 APP_PATH="$DESKTOP_PATH/$APP_NAME"
@@ -94,17 +105,6 @@ end run
 
 # Build using osacompile
 osacompile -o "$APP_PATH" -e "$APPLESCRIPT_WRAPPER"
-
-ICONSET_PATH="launcher/diamond-icon.iconset"
-
-if [ ! -f "$ICON_SOURCE" ]; then
-  if [ -d "$ICONSET_PATH" ]; then
-    echo "🔄 Converting iconset to .icns..."
-    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
-  else
-    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
-  fi
-fi
 
 # Apply icon if available
 if [ -f "$ICON_SOURCE" ]; then
