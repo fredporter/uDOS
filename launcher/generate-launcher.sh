@@ -65,12 +65,13 @@ EOF
 # 3. Make the script executable
 chmod +x "$TARGET_SCRIPT"
 
-# 5. Create uDOS Launcher .app wrapper using shell-based binary
 APP_NAME="uDOS Launcher.app"
 APP_PATH="$DESKTOP_PATH/$APP_NAME"
 
-echo "🧱 Creating .app wrapper at $APP_PATH..."
+echo "🧹 Cleaning previous launcher at $APP_PATH..."
+rm -rf "$APP_PATH"
 
+echo "🧱 Creating .app wrapper at $APP_PATH..."
 mkdir -p "$APP_PATH/Contents/MacOS"
 mkdir -p "$APP_PATH/Contents/Resources"
 
