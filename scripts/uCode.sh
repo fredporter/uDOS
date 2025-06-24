@@ -1,281 +1,38 @@
 #!/bin/bash
-# uCode CLI Beta v1.6 — Unified Input/Output Shell for uDOS (Filename Spec Compliant)
+# check_permissions.sh — Validate and fix permissions for uDOS scripts and files
 
-# ──────────────────────────────────────────────
-# 📁 Environment and Defaults
-# ──────────────────────────────────────────────
-UROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TEMPLATE_DIR="$UROOT/uTemplate"
-MEMORY_DIR="${UDOS_MEMORY_DIR:-$UROOT/uMemory}"
-KNOWLEDGE_DIR="${UDOS_KNOWLEDGE_DIR:-$UROOT/uKnowledge}"
-LOG_DIR="$MEMORY_DIR/logs"
-MOVE_DIR="$LOG_DIR/moves"
-MOVE_LOG="$LOG_DIR/moves-$(date +%Y-%m-%d).md"
-DEFAULT_EDITOR="${EDITOR:-nano}"
+LOG_FILE="$HOME/uDOS/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+mkdir -p "$(dirname "$LOG_FILE")"
 
-mkdir -p "$MOVE_DIR" "$LOG_DIR/errors"
+TARGET_DIRS=(
+  "$HOME/uDOS/scripts"
+  "$HOME/uDOS/uMemory"
+  "$HOME/uDOS/uKnowledge"
+  "$HOME/uDOS/sandbox"
+)
 
-bash "$UROOT/scripts/check-setup.sh" >/dev/null
+echo "🔍 Starting permissions check at $(date)" | tee -a "$LOG_FILE"
 
-# ──────────────────────────────────────────────
-# 📌 Startup Header
-# ──────────────────────────────────────────────
-clear
-echo "🌀 uCode CLI started. Type 'help' for available commands."
-echo ""
-echo "📚 uKnowledge: $KNOWLEDGE_DIR"
-echo "🧠 uMemory: $MEMORY_DIR"
-echo "📝 Log file: $MOVE_LOG"
-UDOS_VERSION=$(cat "$UROOT/sandbox/version.md" 2>/dev/null || echo "uDOS Beta v1.6.1")
-echo "💡 Running $UDOS_VERSION"
-echo ""
-
-echo "- Session started at $(date)" >> "$MOVE_LOG"
-
-refresh_udos() {
-  echo "♻️ Refreshing uDOS environment..."
-  bash "$UROOT/scripts/check-setup.sh"
-  bash "$UROOT/scripts/generate_stats.sh"
-  bash "$UROOT/scripts/dashboard-sync.sh"
-  echo "✅ uDOS refreshed."
-}
-
-# ──────────────────────────────────────────────
-# 🧠 Logging Functions
-# ──────────────────────────────────────────────
-log_error() {
-  echo "- [$(date)] ERROR: $1" >> "$LOG_DIR/errors/$(date +%Y-%m-%d)-errorlog.md"
-}
-
-log_move() {
-  local cmd="$1"
-  local ts_time ts_iso user location duration
-
-  ts_time=$(date +%H:%M)
-  ts_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  user=$(whoami)
-  location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
-  duration=""
-
-  # Write a single truncated log line into the daily move log file
-  printf "🌀→ %s | %s | %s | %s\n" "$(date +%H:%M:%S.%3N)" "$(echo "$cmd" | tr '[:lower:]' '[:upper:]')" "$location" "$duration" >> "$MOVE_LOG"
-}
-
-# Show dashboard on startup
-bash "$UROOT/scripts/dashboard-sync.sh"
-
-# ──────────────────────────────────────────────
-# 🚦 Command Dispatcher Loop
-# ──────────────────────────────────────────────
-while true; do
-  read -rp "🌀 uCode→ " cmd args
-
-  timestamp=$(date +%H:%M:%S.%3N)
-  location=$(cat "$MEMORY_DIR/state/location.txt" 2>/dev/null || echo "F00:00:00")
-  if [[ ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|reboot|destroy|exit)$ ]]; then
-    echo "🌀→ $cmd $args | $location | $timestamp" >> "$MOVE_LOG"
-  fi
-
-  case "$cmd" in
-    help)
-      cat <<EOF
-🧭 Commands:
-  new [move|mission|milestone|legacy]  → Create new item
-  log [type]                          → Save current draft (coming soon)
-  redo [type]                         → Remove current draft (coming soon)
-  undo move                          → Revert last move (confirm)
-  run [script]                       → Run a script from scripts/
-  dash                              → Show dashboard
-  recent                            → Show last 5 session moves
-  map                               → Show current region map
-  mission                           → Show current mission
-  move                              → Log manual move
-  tree                              → Show project tree
-  list                              → List visible files
-  refresh                           → Refresh uDOS environment and verify dashboard
-  check setup                       → Run setup validation and environment check
-  check dash                        → Verify dashboard status and output summary
-  reboot                           → Restart environment and reload dashboard
-  destroy                          → Delete user identity (with confirmation and password)
-  exit                              → Quit
-EOF
-      ;;
-
-    new)
-      case "$args" in
-        move)
-          echo "ℹ️ Moves are now tracked in the daily move log only."
-          echo "📄 File: $MOVE_LOG"
-          ;;
-        mission|milestone|legacy)
-          path="$MEMORY_DIR/${args}s/$(date +%Y-%m-%d)-${args}.md"
-          if cp "$TEMPLATE_DIR/${args}-template.md" "$path" 2>/dev/null; then
-            echo "📄 New $args created: $path"
-            $DEFAULT_EDITOR "$path"
-          else
-            echo "# $args created on $(date)" > "$path"
-            echo "⚠️ No $args template found. Blank file created."
-            log_error "new: missing template for $args"
-            $DEFAULT_EDITOR "$path"
-          fi
-          ;;
-        *)
-          echo "❌ Usage: new [move|mission|milestone|legacy]"
-          ;;
-      esac
-      ;;
-
-    log)
-      echo "📝 Logging for $args is not yet implemented."
-      ;;
-
-    redo)
-      echo "🧹 Redo logic placeholder for: $args"
-      ;;
-
-    undo)
-      if [[ "$args" == "move" ]]; then
-        read -rp "⚠️ Confirm undo last move? (y/N): " confirm
-        if [[ "$confirm" =~ ^[Yy]$ ]]; then
-          log_move "undo move"
-          echo "✅ Last move undone."
-        else
-          echo "❌ Undo canceled."
-        fi
-      else
-        echo "❌ Usage: undo move"
-      fi
-      ;;
-
-    run)
-      script="$UROOT/scripts/$args.sh"
-      if [[ -f "$script" ]]; then
-        bash "$script"
-        log_move "run $args"
-      else
-        echo "❌ Script not found: $script"
-        log_error "run: script not found $script"
-      fi
-      ;;
-
-    dash)
-      bash "$UROOT/scripts/dashboard.sh" || echo "❌ Failed to load dashboard."
-      log_move "dash"
-      ;;
-
-    recent)
-      echo "📜 Recent Moves:"
-      tail -n 5 "$MOVE_LOG"
-      ;;
-
-    map)
-      cat "$KNOWLEDGE_DIR/map/current_region.txt" 2>/dev/null || echo "🗺️ No map loaded."
-      ;;
-
-    mission)
-      cat "$MEMORY_DIR/state/current_mission.txt" 2>/dev/null || echo "🎯 No mission active."
-      ;;
-
-    move)
-      log_move "manual move"
-      ;;
-
-    tree)
-      bash "$UROOT/scripts/system-tree.sh"
-      log_move "tree"
-      ;;
-
-    list)
-      echo "📂 Current directory: $(pwd)"
-      echo "📄 Visible contents:"
-      ls -1p | grep -v '^\.' || echo "(empty)"
-      ;;
-
-    refresh)
-      refresh_udos
-      bash "$UROOT/scripts/dashboard-sync.sh" check
-      ;;
-
-    check)
-      case "$args" in
-        setup)
-          bash "$UROOT/scripts/check-setup.sh"
-          log_move "check setup"
-          ;;
-        dash)
-          bash "$UROOT/scripts/dashboard-sync.sh" check
-          log_move "check dash"
-          ;;
-        *)
-          echo "❌ Usage: check setup"
-          ;;
-      esac
-      ;;
-
-    restart)
-      echo "🔁 Restarting uDOS environment..."
-      refresh_udos
-      bash "$UROOT/scripts/dashboard-sync.sh"
-      log_move "restart"
-      ;;
-    reboot)
-      refresh_udos
-      bash "$UROOT/scripts/dashboard-sync.sh"
-      log_move "reboot"
-      ;;
-
-    destroy)
-      read -rp "⚠️  Are you sure you want to destroy your identity and reboot? (y/N): " confirm_destroy
-      if [[ ! "$confirm_destroy" =~ ^[Yy]$ ]]; then
-        echo "❌ Destruction canceled."
+for DIR in "${TARGET_DIRS[@]}"; do
+  if [[ -d "$DIR" ]]; then
+    find "$DIR" -type f ! -perm /u+x | while read -r FILE; do
+      # Skip system-command.sh here to handle explicitly later
+      if [[ "$(basename "$FILE")" == "system-command.sh" ]]; then
         continue
       fi
-
-      USER_FILE="$UROOT/sandbox/user.md"
-      if [[ -f "$USER_FILE" ]]; then
-        if grep -q '^Password:' "$USER_FILE"; then
-          read -rsp "Enter password: " input_pass
-          echo ""
-          stored_pass=$(grep '^Password:' "$USER_FILE" | head -1 | sed 's/^Password:[[:space:]]*//')
-          if [[ "$input_pass" != "$stored_pass" ]]; then
-            echo "❌ Incorrect password. Destruction canceled."
-            continue
-          fi
-        fi
-      fi
-
-      rm -f "$USER_FILE"
-      echo "🗑️ User identity destroyed."
-      bash "$UROOT/scripts/check-setup.sh"
-      log_move "destroy identity"
-      ;;
-
-    exit)
-      echo "👋 Exiting uCode CLI. Goodbye, Master."
-
-      if grep -q docker /proc/1/cgroup 2>/dev/null; then
-        echo "🧩 Detected Docker environment — container will exit cleanly."
-        break
-      fi
-
-      if [[ "$OSTYPE" == darwin* ]]; then
-        echo "🌀 Closing Terminal window..."
-        osascript -e 'tell application "Terminal" to close front window' &>/dev/null
-        exit 0
-      fi
-
-      exit 0
-      ;;
-
-    *)
-      echo "❓ Unknown command: $cmd"
-      ;;
-  esac
-
-  # Capture and log command output if appropriate
-  if [[ -n "$cmd" && ! "$cmd" =~ ^(help|new|log|redo|undo|run|dash|recent|map|mission|move|tree|list|refresh|check|restart|reboot|destroy|exit)$ ]]; then
-    log_move "$cmd $args"
-    "$UROOT/scripts/system-command.sh" "$cmd $args"
+      chmod +x "$FILE"
+      echo "✅ Fixed permissions: $FILE" | tee -a "$LOG_FILE"
+    done
+  else
+    echo "⚠️ Directory not found: $DIR" | tee -a "$LOG_FILE"
   fi
-
 done
+
+# Explicit check for system-command.sh
+SYSTEM_CMD="$HOME/uDOS/scripts/system-command.sh"
+if [[ -f "$SYSTEM_CMD" && ! -x "$SYSTEM_CMD" ]]; then
+  chmod +x "$SYSTEM_CMD"
+  echo "✅ Fixed permissions: $SYSTEM_CMD" | tee -a "$LOG_FILE"
+fi
+
+echo "✅ Permissions check completed at $(date)" | tee -a "$LOG_FILE"
