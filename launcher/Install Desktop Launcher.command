@@ -17,6 +17,10 @@ if ! command -v platypus &> /dev/null; then
     export PATH="/opt/homebrew/bin:$PATH"
   fi
   brew install --cask platypus
+  if [ ! -f "/usr/local/bin/platypus" ]; then
+    echo "🔗 Linking Platypus CLI..."
+    sudo ln -s /Applications/Platypus.app/Contents/MacOS/Platypus /usr/local/bin/platypus
+  fi
   if ! command -v platypus &> /dev/null; then
     echo "❌ Platypus installation failed. Please install manually from https://sveinbjorn.org/platypus"
     exit 1
