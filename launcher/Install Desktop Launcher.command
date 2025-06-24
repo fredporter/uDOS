@@ -43,6 +43,9 @@ platypus \
   "$SCRIPT_PATH" \
   "$DEST_APP"
 
+echo "🔓 Removing macOS quarantine flag..."
+xattr -d com.apple.quarantine "$DEST_APP" 2>/dev/null || echo "⚠️ Could not remove quarantine attribute (may not be set)."
+
 if [ $? -eq 0 ]; then
   echo "✅ Launcher built successfully: $DEST_APP"
 else
