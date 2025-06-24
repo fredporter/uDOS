@@ -4,22 +4,9 @@
 
 DESKTOP_PATH=~/Desktop
 ICON_NAME="diamond.icns"
-ICONSET_PATH="$(cd "$(dirname "$0")" && pwd)/diamond-icon.iconset"
 
-echo "🔎 Checking iconset and converting if needed..."
-
-ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/${ICON_NAME}"
-if [ ! -f "$ICON_SOURCE" ]; then
-  if [ -d "$ICONSET_PATH" ]; then
-    echo "🔄 Converting iconset to .icns..."
-    iconutil -c icns "$ICONSET_PATH" -o "$ICON_SOURCE"
-    echo "✅ Created icon file at $ICON_SOURCE"
-  else
-    echo "❌ Iconset not found at $ICONSET_PATH. Skipping conversion."
-  fi
-else
-  echo "✅ Icon found at $ICON_SOURCE"
-fi
+ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns"
+echo "🔎 Looking for icon at $ICON_SOURCE"
 
 SCRIPT_NAME="uDOS Launcher"
 
@@ -115,14 +102,14 @@ EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
 
-ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
 ICON_DEST="$APP_PATH/Contents/Resources/diamond.icns"
 
 if [ -f "$ICON_SOURCE" ]; then
   echo "🎨 Copying icon from local folder..."
   cp "$ICON_SOURCE" "$ICON_DEST"
   touch "$APP_PATH"
-  echo "✅ Icon embedded from source: $ICON_SOURCE"
+  /usr/bin/SetFile -a C "$APP_PATH" 2>/dev/null || echo "⚠️  SetFile not available; skipping custom icon flag"
+  echo "✅ Icon embedded and refresh triggered"
 elif [ -f "$ICON_DEST" ]; then
   echo "🟡 Icon already exists in app bundle: $ICON_DEST"
 else
