@@ -31,9 +31,9 @@ The `Dockerfile` and `docker-compose.yml` required to build and run uDOS are loc
 - **Description:** Native `.app` bundle that runs the uDOS launcher script directly, without using Platypus or Automator.
 - **Usage:**
   - Drag to Desktop or Dock.
-  - Double-click to launch your `~/.udos/uDOS Launcher` script.
+  - Double-click to launch your `~/uDOS/launcher/uDOS_Launcher.sh` via Terminal.
 - **Tech Notes:**
-  - Built using standard macOS `.app` structure.
+  - Built using standard macOS `.app` structure with an AppleScript wrapper that opens Terminal and runs the launcher.
   - Icon: `diamond.icns` (included).
   - No external dependencies or editors required.
   - The app is created via the included `Install Desktop Launcher.command`.
@@ -87,3 +87,14 @@ bash launcher/Quit-uDOS.command
 ```
 
 This flow outlines the steps taken by `Launch-uDOS.command` during execution. It ensures a clean and consistent shell session each time you launch uDOS.
+
+## 🔐 Permission Fix (Coming Soon)
+
+In some macOS environments, uDOS scripts may lose executable permissions after download or sync. We're adding self-healing logic that auto-checks and repairs script permissions on launch.
+
+Planned logic:
+- Detect `.sh` and `.command` files in `~/uDOS/launcher` and `~/uDOS/scripts`
+- Automatically apply `chmod +x` if not executable
+- Log results to `~/uDOS/logs/permission-check.log`
+
+This will ensure smoother first-run experience and simplify portability across machines.
