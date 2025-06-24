@@ -4,9 +4,11 @@
 
 DESKTOP_PATH=~/Desktop
 SCRIPT_NAME="uDOS Launcher"
-ICON_NAME="diamond-icon.iconset"
-ICON_SOURCE="launcher/${ICON_NAME}"  # update path if needed
-TARGET_SCRIPT="$DESKTOP_PATH/$SCRIPT_NAME"
+ICON_NAME="diamond.icns"
+ICON_SOURCE="$HOME/.udos/${ICON_NAME}"
+
+mkdir -p "$HOME/.udos"
+TARGET_SCRIPT="$HOME/.udos/$SCRIPT_NAME"
 
 echo "🔧 Generating uDOS Launcher on Desktop..."
 
@@ -75,7 +77,7 @@ else
   echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
 fi
 
-echo "✅ uDOS Launcher ready on Desktop: $TARGET_SCRIPT"
+echo "✅ uDOS Launcher script created internally at: $TARGET_SCRIPT"
 
 # 5. Create uDOS Launcher .app wrapper
 APP_NAME="uDOS Launcher.app"
@@ -86,12 +88,17 @@ echo "🧱 Creating .app wrapper at $APP_PATH..."
 # Use Automator-style AppleScript app as wrapper
 APPLESCRIPT_WRAPPER='
 on run
-  do shell script "bash ~/Desktop/uDOS\\ Launcher"
+  do shell script "bash $HOME/.udos/uDOS\\ Launcher"
 end run
 '
 
 # Build using osacompile
 osacompile -o "$APP_PATH" -e "$APPLESCRIPT_WRAPPER"
+
+if [ ! -f "$ICON_SOURCE" ]; then
+  echo "🔄 Converting iconset to .icns..."
+  iconutil -c icns launcher/diamond-icon.iconset -o "$ICON_SOURCE"
+fi
 
 # Apply icon if available
 if [ -f "$ICON_SOURCE" ]; then

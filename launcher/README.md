@@ -5,6 +5,7 @@
 Welcome to the **official v1.0 launcher toolkit** for uDOS. This folder contains native-friendly tools for launching uDOS cleanly from a Mac desktop or Terminal.
 
 > ℹ️ **Requirements:** This launcher toolkit assumes you have [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop) installed and running. uDOS uses container-based execution, and the launcher will not function unless Docker is available.
+https://docs.docker.com/desktop/setup/install/mac-install/
 
 The `Dockerfile` and `docker-compose.yml` required to build and run uDOS are located in the root `uDOS/` folder. These files define the environment, dependencies, and CLI entry point for your containerized uDOS shell. This launcher simply wraps those definitions into a repeatable local experience.
 
