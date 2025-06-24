@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 chmod +x generate-launcher.sh
 ./generate-launcher.sh
 if [ $? -ne 0 ]; then
-  echo "❌ Launcher generation failed. Exiting."
+  echo "❌ Failed to generate launcher. Exiting."
   exit 1
 fi
 
