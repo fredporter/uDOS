@@ -26,19 +26,28 @@ The `Dockerfile` and `docker-compose.yml` required to build and run uDOS are loc
 
 ---
 
-### 🌀 2. `🌀 uDOS Docker Launch.app`
+### 🧿 2. `uDOS Launcher.app`
 
-- **Description:** Automator-based `.app` launcher for desktop use.
+- **Description:** Native `.app` bundle that runs the uDOS launcher script directly, without using Platypus or Automator.
 - **Usage:**
-  - Drag to Dock or Desktop.
-  - Double-click to launch uDOS via terminal.
-- **Note:** Launching the `.app` may cause macOS to generate system files in:
-  - `Contents/`
-  - `_CodeSignature/`
-  - `Resources/`
-  - `document.wflow`, etc.
+  - Drag to Desktop or Dock.
+  - Double-click to launch your `~/.udos/uDOS Launcher` script.
+- **Tech Notes:**
+  - Built using standard macOS `.app` structure.
+  - Icon: `diamond.icns` (included).
+  - No external dependencies or editors required.
+  - The app is created via the included `Install Desktop Launcher.command`.
 
-These are ignored by `.gitignore` and **should not be committed** unless packaging a release.
+- **File Structure:**
+  ```
+  uDOS Launcher.app/
+  └── Contents/
+      ├── Info.plist
+      ├── MacOS/
+      │   └── uDOS Launcher
+      └── Resources/
+          └── diamond.icns
+  ```
 
 ---
 
