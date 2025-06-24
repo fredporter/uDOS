@@ -3,7 +3,7 @@
 # Full-featured command-line interface for uDOS environment
 
 # Environment Setup
-export UDOS_HOME="${HOME}/.udos"
+export UDOS_HOME="${HOME}/uDOS"
 export UDOS_LOG="${UDOS_HOME}/udos.log"
 export UDOS_IDENTITY="${UDOS_HOME}/identity.id"
 export UDOS_DASHBOARD="${UDOS_HOME}/dashboard.json"
