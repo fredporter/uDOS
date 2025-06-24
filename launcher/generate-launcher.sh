@@ -5,8 +5,17 @@
 DESKTOP_PATH=~/Desktop
 ICON_NAME="diamond.icns"
 
-ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns"
-echo "🔎 Looking for icon at $ICON_SOURCE"
+# Try both icon locations
+ICON_SOURCE=""
+if [ -f "$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns" ]; then
+  ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/Contents/Resources/diamond.icns"
+elif [ -f "$(cd "$(dirname "$0")" && pwd)/diamond.icns" ]; then
+  ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
+else
+  echo "⚠️  No icon source found. App will use default icon."
+fi
+
+echo "🔎 Using icon source: $ICON_SOURCE"
 
 SCRIPT_NAME="uDOS Launcher"
 
