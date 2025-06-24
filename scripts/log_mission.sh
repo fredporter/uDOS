@@ -1,7 +1,8 @@
 #!/bin/bash
 # === uDOS Move 011-B: Log New Mission [v1.6.1 compliant] ===
 
-UROOT="$HOME/uDOS"
+UDOSE_HOME="${UDOSE_HOME:-$HOME/uDOS}"
+UROOT="$UDOSE_HOME"
 UMEMORY="$UROOT/uMemory/missions"
 TEMPLATE="$UROOT/uTemplate/mission-template.md"
 DEFAULT_EDITOR="${EDITOR:-nano}"
