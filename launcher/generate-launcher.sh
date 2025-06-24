@@ -3,21 +3,20 @@
 # Otter x Master
 
 DESKTOP_PATH=~/Desktop
-SCRIPT_NAME="Launch-uDOS.command"
+SCRIPT_NAME="uDOS Launcher"
 ICON_NAME="diamond-icon.iconset"
 ICON_SOURCE="launcher/${ICON_NAME}"  # update path if needed
-LAUNCHER_DIR="$DESKTOP_PATH/Launch uDOS Docker"
-TARGET_SCRIPT="$LAUNCHER_DIR/$SCRIPT_NAME"
+TARGET_SCRIPT="$DESKTOP_PATH/$SCRIPT_NAME"
 
 echo "🔧 Generating uDOS Launcher on Desktop..."
 
 # 1. Create directory for the launcher shortcut
-mkdir -p "$LAUNCHER_DIR"
+# mkdir -p "$LAUNCHER_DIR"
 
 # 2. Write the launch script
 cat > "$TARGET_SCRIPT" <<'EOF'
 #!/bin/bash
-# Launch-uDOS.command v1.0 – Clean launch with resize & feedback
+# uDOS Launcher v1.0 – Clean launch with resize & feedback
 # uDOS by Master & ChatGPT
 
 echo "🔁 Launching uDOS..."
@@ -76,5 +75,36 @@ else
   echo "⚠️  Icon not found at $ICON_SOURCE. Skipping icon assignment."
 fi
 
-echo "✅ uDOS Launcher ready: $TARGET_SCRIPT"
-open "$LAUNCHER_DIR"
+echo "✅ uDOS Launcher ready on Desktop: $TARGET_SCRIPT"
+
+# 5. Create uDOS Launcher .app wrapper
+APP_NAME="uDOS Launcher.app"
+APP_PATH="$DESKTOP_PATH/$APP_NAME"
+
+echo "🧱 Creating .app wrapper at $APP_PATH..."
+
+# Use Automator-style AppleScript app as wrapper
+APPLESCRIPT_WRAPPER='
+on run
+  do shell script "bash ~/Desktop/uDOS\\ Launcher"
+end run
+'
+
+# Build using osacompile
+osacompile -o "$APP_PATH" -e "$APPLESCRIPT_WRAPPER"
+
+# Apply icon if available
+if [ -f "$ICON_SOURCE" ]; then
+  echo "🎨 Applying icon to .app..."
+  /usr/bin/osascript <<APPLESCRIPT
+  set iconPath to POSIX file "$ICON_SOURCE" as alias
+  set appPath to POSIX file "$APP_PATH" as alias
+  tell application "Finder"
+    set icon of appPath to icon of iconPath
+  end tell
+APPLESCRIPT
+else
+  echo "⚠️  Icon not found at $ICON_SOURCE. Skipping .app icon assignment."
+fi
+
+echo "🎉 .app Launcher created: $APP_PATH"
