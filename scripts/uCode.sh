@@ -6,7 +6,7 @@
 export UDOS_HOME="${HOME}/uDOS"
 export UDOS_LOG="${UDOS_HOME}/udos.log"
 export UDOS_IDENTITY="${UDOS_HOME}/identity.id"
-export UDOS_DASHBOARD="${UDOS_HOME}/dashboard.json"
+export UDOS_DASHBOARD="${UDOS_HOME}/uMemory/state/dashboard.json"
 export UDOS_TEMP="${UDOS_HOME}/temp"
 export UDOS_MOVES_DIR="${UDOS_HOME}/logs/moves"
 mkdir -p "$UDOS_HOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
@@ -138,11 +138,9 @@ cmd_map() {
 
 cmd_dash() {
   echo "📈 Displaying dashboard..."
-  if [ -f "$UDOS_DASHBOARD" ]; then
-    cat "$UDOS_DASHBOARD"
-  else
-    echo "⚠️ Dashboard not found."
-  fi
+  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-header.tmpl"
+  [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
+  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-footer.tmpl"
   log_info "Dashboard displayed."
   log_move_template "dash"
 }
