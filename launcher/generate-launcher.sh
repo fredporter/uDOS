@@ -6,6 +6,9 @@ DESKTOP_PATH=~/Desktop
 ICON_NAME="diamond.icns"
 ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/$ICON_NAME"
 
+TEMP_ICON_PATH="/tmp/udos-launcher-icon.icns"
+cp "$ICON_SOURCE" "$TEMP_ICON_PATH"
+
 echo "🔎 Using icon source: $ICON_SOURCE"
 
 SCRIPT_NAME="uDOS Launcher"
@@ -75,6 +78,12 @@ echo "🧱 Creating .app wrapper at $APP_PATH..."
 mkdir -p "$APP_PATH/Contents/MacOS"
 mkdir -p "$APP_PATH/Contents/Resources"
 
+ICON_DEST="$APP_PATH/Contents/Resources/diamond.icns"
+
+# Copy icon before creating Info.plist
+echo "🎨 Copying icon into app bundle..."
+cp "$TEMP_ICON_PATH" "$ICON_DEST"
+
 # Write Info.plist
 cat > "$APP_PATH/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -103,10 +112,6 @@ EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
 
-ICON_DEST="$APP_PATH/Contents/Resources/diamond.icns"
-
-echo "🎨 Copying icon into app bundle..."
-cp "$ICON_SOURCE" "$ICON_DEST"
 touch "$APP_PATH"
 if command -v SetFile >/dev/null 2>&1; then
   /usr/bin/SetFile -a C "$APP_PATH"
@@ -124,5 +129,8 @@ qlmanage -r cache > /dev/null 2>&1
 # Clean up accidental loose files on Desktop
 rm -f "$DESKTOP_PATH/diamond.icns"
 rm -f "$DESKTOP_PATH/Info.plist"
+
+# Rebuild LaunchServices for the app
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP_PATH"
 
 echo "🎉 .app Launcher created: $APP_PATH"
