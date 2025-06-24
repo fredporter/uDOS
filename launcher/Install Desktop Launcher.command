@@ -43,3 +43,16 @@ echo "🔓 Removing quarantine flags..."
 xattr -dr com.apple.quarantine "$DEST_APP"
 
 echo "✅ Desktop launcher installed successfully. You may now open it from the Desktop."
+
+# 📦 Install Terminal profile if available
+PROFILE_SOURCE="$HOME/uDOS/launcher/uDOS.terminal"
+if [[ -f "$PROFILE_SOURCE" ]]; then
+  echo "🖼️ Installing Terminal profile..."
+  open "$PROFILE_SOURCE"
+  sleep 2
+  defaults write com.apple.Terminal "Startup Window Settings" -string "uDOS"
+  defaults write com.apple.Terminal "Default Window Settings" -string "uDOS"
+  echo "✅ Terminal profile 'uDOS' imported and set as default."
+else
+  echo "⚠️ Terminal profile 'uDOS.terminal' not found. Skipping profile setup."
+fi
