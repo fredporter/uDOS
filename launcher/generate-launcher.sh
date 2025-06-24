@@ -115,19 +115,18 @@ EOF
 
 chmod +x "$APP_PATH/Contents/MacOS/uDOS-Wrapper"
 
-ICON_SOURCE="$APP_PATH/Contents/Resources/diamond.icns"
+ICON_SOURCE="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
+ICON_DEST="$APP_PATH/Contents/Resources/diamond.icns"
 
 if [ -f "$ICON_SOURCE" ]; then
-  echo "✅ Icon already embedded at $ICON_SOURCE"
+  echo "🎨 Copying icon from local folder..."
+  cp "$ICON_SOURCE" "$ICON_DEST"
+  touch "$APP_PATH"
+  echo "✅ Icon embedded from source: $ICON_SOURCE"
+elif [ -f "$ICON_DEST" ]; then
+  echo "🟡 Icon already exists in app bundle: $ICON_DEST"
 else
-  ICON_ORIGIN="$(cd "$(dirname "$0")" && pwd)/diamond.icns"
-  if [ -f "$ICON_ORIGIN" ]; then
-    echo "🎨 Copying icon into app Resources..."
-    cp "$ICON_ORIGIN" "$APP_PATH/Contents/Resources/diamond.icns"
-    touch "$APP_PATH"
-  else
-    echo "⚠️  Icon source not found at $ICON_ORIGIN"
-  fi
+  echo "⚠️  No icon source found. App will use default icon."
 fi
 
 # Clean up accidental loose files on Desktop
