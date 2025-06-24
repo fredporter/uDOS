@@ -5,6 +5,12 @@
 osascript <<EOF
 tell application "Terminal"
   activate
-  do script "~/uDOS/launcher/uDOS_Launcher.sh"
+  set newTab to do script "bash ~/uDOS/launcher/uDOS_Launcher.sh"
+  delay 0.5
+  if (count of windows) > 1 then
+    try
+      close front window
+    end try
+  end if
 end tell
 EOF
