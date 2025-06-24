@@ -1,5 +1,5 @@
 #!/bin/bash
-# check_permissions.sh — Validate permissions for uDOS directories and scripts
+# check-setup.sh — Validate permissions for uDOS directories and scripts
 
 UDOSE_HOME="/root/uDOS"
 
@@ -11,7 +11,7 @@ TARGET_DIRS=(
   "$UDOSE_HOME/uMemory"
   "$UDOSE_HOME/uMemory/logs"
 )
-SYSTEM_CMD="$UDOSE_HOME/scripts/system-command.sh"
+SYSTEM_CMD="$UDOSE_HOME/scripts/command.sh"
 
 mkdir -p "$(dirname "$LOG_FILE")"
 

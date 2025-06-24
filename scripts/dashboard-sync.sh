@@ -151,54 +151,19 @@ fi
 
 HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 
-# Display dashboard
-WIDTH=80
-printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-printf '║ User: %-62s %17s ║\n' "$USER_NAME" "$NOW"
-printf '║ Created: %-69s ║\n' "$CREATED"
-printf '║ Location: %-70s ║\n' "$LOCATION"
-printf '║ Active Mission: %-62s ║\n' "$ACTIVE_MISSION"
-printf '║ Legacy: %-69s ║\n' "$LEGACY"
-printf '║ uDOS Version: %-64s ║\n' "$UDOS_VERSION"
-printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
+render_template() {
+  local file="$1"
+  while IFS= read -r line; do
+    eval "echo \"${line//\{\{/\${}\""
+  done < "$file"
+}
 
-printf '║ 🔎 Today’s Focus%65s ║\n' ""
-printf '║ → Mission: %-66s ║\n' "$ACTIVE_MISSION"
-printf '║ → Next Move: Type '\''new mission'\'' or '\''log mission'\''                   ║\n'
-printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-
-printf '║ 📝 Recent Moves%67s ║\n' ""
-for line in "${RECENT_DISPLAY[@]}"; do
-  if [[ "$line" == "[STATS]"* ]]; then
-    continue  # Skip [STATS] lines from display
-  elif [[ "$line" == 📌* ]]; then
-    printf '║ %-77s ║\n' "$line"
-  elif [[ "$line" == \[*\]*\ CMD:* ]]; then
-    printf '║ %-77s ║\n' "$line"
-  else
-    printf '║ %-77s ║\n' "$line"
-  fi
-done
-printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-
-printf '║ 🗺️  Map Peek%70s ║\n' ""
-while IFS= read -r line; do
-  printf '║ %-77s ║\n' "$line"
-done <<< "$MAP_PEEK"
-printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-
-printf '║ 🧠 Tower of Knowledge%58s ║\n' ""
-printf '║ %-77s ║\n' "$TOWER_PEAK"
-printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
-
-printf '╠════════════════════════════════════════════════════════════════════════════════╣\n'
-printf '║ ✅ Health Check                                                               ║\n'
-printf '║ 🎯 Moves: 0   🚀 Missions: 1   📌 Milestones: 1   📝 Drafts: 2                  ║\n'
-printf '║ 🏛️ Rooms: 0   ⏱️ Uptime: Unavailable   💾 RAM: 396MB / 7838MB   💽 Space: 49%%   ║\n'
-printf '║ 🧭 LastMission: N/A                                                          ║\n'
-printf '║ Sharing: tomb   Lifespan: 0                                                 ║\n'
-
-printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $WIDTH))"
+render_template "$UDOSE_HOME/uTemplate/dashboard-header.tmpl"
+render_template "$UDOSE_HOME/uTemplate/dashboard-recent.tmpl"
+render_template "$UDOSE_HOME/uTemplate/dashboard-map.tmpl"
+render_template "$UDOSE_HOME/uTemplate/dashboard-knowledge.tmpl"
+render_template "$UDOSE_HOME/uTemplate/dashboard-health.tmpl"
+render_template "$UDOSE_HOME/uTemplate/dashboard-footer.tmpl"
 
 echo ""
 echo "🧭 Use 'help' for available commands."

@@ -1,5 +1,5 @@
 #!/bin/bash
-# init-structure.sh — Ensure required uDOS directories and templates exist
+# make-structure.sh — Ensure required uDOS directories and templates exist
 
 UDOSE_HOME="/root/uDOS"
 TEMPLATE_DIR="$UDOSE_HOME/uTemplate"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# system-tree.sh — Generate repo_structure.txt with filtered output
+# make-tree.sh — Generate repo_structure.txt with filtered output
 
 UDOSE_HOME="/root/uDOS"
 uDOS_ROOT="$UDOSE_HOME"

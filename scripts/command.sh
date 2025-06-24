@@ -1,5 +1,5 @@
 #!/bin/bash
-# system-command.sh — Wrapper to run commands and log stderr if failure
+# command.sh — Wrapper to run commands and log stderr if failure
 
 UDOSE_HOME="/root/uDOS"
 

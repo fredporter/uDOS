@@ -1,5 +1,5 @@
 #!/bin/bash
-# check_permissions.sh – Auto-fix permissions for uDOS scripts
+# check-permissions.sh – Auto-fix permissions for uDOS scripts
 # uDOS by Master & Otter 🦦
 
 UDOSE_HOME="/root/uDOS"

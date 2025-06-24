@@ -67,11 +67,12 @@ cmd_new() {
 }
 
 cmd_log() {
-  echo "📝 Saving progress..."
-  # Simulate saving current session or data
-  sleep 1
-  echo "✅ Progress saved."
-  log_info "Progress saved by user."
+  read -rp "📝 Log what? (mission/milestone/legacy): " what
+  if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
+    bash "$UDOS_HOME/scripts/make-log.sh" "$what"
+  else
+    echo "❌ Invalid log type."
+  fi
 }
 
 cmd_redo() {
@@ -91,11 +92,28 @@ cmd_undo() {
 }
 
 cmd_run() {
-  echo "▶️ Running current item..."
-  # Placeholder for running current item logic
-  sleep 1
-  echo "✅ Run completed."
-  log_info "Run command executed."
+  bash "$UDOS_HOME/scripts/command.sh" "$args"
+}
+
+cmd_tree() {
+  bash "$UDOS_HOME/scripts/make-tree.sh"
+}
+
+cmd_stats() {
+  bash "$UDOS_HOME/scripts/make-stats.sh"
+}
+
+cmd_list() {
+  echo "📂 Current directory: $(pwd)"
+  ls -1Ap | grep -v '^\.'
+}
+
+cmd_mission() {
+  cat "$UDOS_HOME/state/current_mission.txt" 2>/dev/null || echo "🎯 No mission active."
+}
+
+cmd_map() {
+  cat "$UDOS_HOME/uKnowledge/map/current_region.txt" 2>/dev/null || echo "🗺️ No map loaded."
 }
 
 cmd_dash() {
@@ -156,6 +174,7 @@ cmd_bye() {
 while true; do
   read -rp "uDOS> " input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
+  args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"
   case "$cmd" in
     NEW)
@@ -172,6 +191,21 @@ while true; do
       ;;
     RUN)
       cmd_run
+      ;;
+    TREE)
+      cmd_tree
+      ;;
+    STATS)
+      cmd_stats
+      ;;
+    LIST)
+      cmd_list
+      ;;
+    MISSION)
+      cmd_mission
+      ;;
+    MAP)
+      cmd_map
       ;;
     DASH)
       cmd_dash
@@ -197,10 +231,13 @@ while true; do
     HELP)
       echo "🧠 Available uDOS commands:"
       echo "   NEW       → Create new item"
-      echo "   RUN       → Start current item"
-      echo "   LOG       → Save progress"
-      echo "   UNDO      → Reverse last move"
-      echo "   REDO      → Reapply last undone move"
+      echo "   LOG       → Log mission/milestone/legacy"
+      echo "   RUN       → Run a command"
+      echo "   TREE      → Show file tree"
+      echo "   STATS     → Generate dashboard stats"
+      echo "   LIST      → List current folder"
+      echo "   MAP       → Show current region"
+      echo "   MISSION   → Display active mission"
       echo "   DASH      → Show dashboard"
       echo "   SYNC      → Sync dashboard"
       echo "   RESTART   → Restart shell"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# === uDOS Move 012: Generate Dashboard Stats into uMemory (Enhanced) ===
+# make-stats.sh — Generate dashboard stats into uMemory (Enhanced)
 
 UDOSE_HOME="/root/uDOS"
 UROOT="$UDOSE_HOME"
