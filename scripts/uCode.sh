@@ -1,5 +1,5 @@
 #!/bin/bash
-# uCode.sh - uDOS Beta v1.6.1 CLI Shell
+# uCode.sh - uDOS Beta v1.6.3 CLI Shell
 # Full-featured command-line interface for uDOS environment
 
 # Environment Setup
@@ -18,7 +18,7 @@ mkdir -p "${UDOS_HOME}/uMemory/missions" "${UDOS_HOME}/uMemory/milestones" "${UD
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
 
 # Startup Header
-echo "🚀 Welcome to uDOS Beta v1.6.1"
+echo "🚀 Welcome to uDOS Beta v1.6.3"
 echo "🧠 Loading environment..."
 
 if [[ -x "$UDOS_HOME/scripts/make-stats.sh" ]]; then
@@ -206,10 +206,44 @@ cmd_recent() {
   tail -n 10 "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
 }
 
+cmd_check() {
+  echo "🔍 Running system checks..."
+  # Example checks
+  if [ -f "$UDOS_IDENTITY" ]; then
+    echo "✅ Identity file present."
+  else
+    echo "❌ Identity file missing."
+  fi
+  if [ -f "$UDOS_DASHBOARD" ]; then
+    echo "✅ Dashboard file present."
+  else
+    echo "❌ Dashboard file missing."
+  fi
+  # Add more checks as needed
+  log_info "System check completed."
+}
+
+# Enhanced input handling and identity display
+display_identity() {
+  if [ -f "$UDOS_IDENTITY" ]; then
+    echo "🔑 Current Identity:"
+    cat "$UDOS_IDENTITY"
+    echo "Version: Beta v1.6.3"
+  else
+    echo "🔑 No identity loaded."
+  fi
+}
+
+display_prompt() {
+  display_identity
+  echo -n "uDOS> "
+}
+
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"' EXIT
 while true; do
-  read -rp "uDOS> " input
+  display_prompt
+  read -r input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"
@@ -271,6 +305,9 @@ while true; do
     SYNC)
       sync_dashboard
       ;;
+    CHECK)
+      cmd_check
+      ;;
     HELP)
       echo "🧠 Available uCode commands:"
       printf "%-12s %-30s %-20s\n" "Command" "Description" "Aliases"
@@ -283,6 +320,7 @@ while true; do
       printf "%-12s %-30s %-20s\n" "MAP"       "Show current region map"          "-"
       printf "%-12s %-30s %-20s\n" "MISSION"   "Display active mission"           "-"
       printf "%-12s %-30s %-20s\n" "RECENT"    "Show last 10 moves"               "HISTORY"
+      printf "%-12s %-30s %-20s\n" "CHECK"     "Run system checks"                "-"
       printf "%-12s %-30s %-20s\n" "QUIT"      "Exit or shutdown the session"     "BYE, EXIT"
       ;;
     "")
