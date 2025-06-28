@@ -8,6 +8,17 @@ current_type=""
 
 selections=()
 while IFS= read -r line; do
+  if [[ "$line" =~ ^## ]]; then
+    if [[ -n "$current_var" || -n "$current_prompt" || -n "$current_default" || -n "$current_type" ]]; then
+      echo "❌ Incomplete block detected before: $line"
+      echo "   DATA: $current_var"
+      echo "   ASK: $current_prompt"
+      echo "   DEFAULT: $current_default"
+      echo "   TYPE: $current_type"
+      echo "   ➤ Aborting due to malformed input block."
+      exit 1
+    fi
+  fi
   case "$line" in
     DATA:*)
       current_var="${line#DATA: }"
@@ -31,6 +42,16 @@ while IFS= read -r line; do
       ;;
     TYPE:*)
       current_type="${line#TYPE: }"
+
+      if [[ -z "$current_var" || -z "$current_prompt" || -z "$current_default" || -z "$current_type" ]]; then
+        echo "❌ Missing required fields before TYPE prompt."
+        echo "   DATA: $current_var"
+        echo "   ASK: $current_prompt"
+        echo "   DEFAULT: $current_default"
+        echo "   TYPE: $current_type"
+        echo "   ➤ Aborting due to malformed input block."
+        exit 1
+      fi
 
       echo ""
       if [[ "$current_type" == "password" ]]; then
@@ -97,6 +118,7 @@ while IFS= read -r line; do
       current_var=$(echo "$current_var" | xargs)
       value=$(echo "$value" | xargs)
       export "$current_var"="$value"
+      echo "✅ Captured: $current_var = $value"
 
       # Reset current vars
       current_var=""
