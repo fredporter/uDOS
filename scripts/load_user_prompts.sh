@@ -36,8 +36,12 @@ while IFS= read -r line; do
       if [[ -t 0 ]]; then
         echo ""
         if [[ "$current_type" == "password" ]]; then
-          read -rsp "🔒 $current_prompt [$current_default]: " value
-          echo ""
+          while true; do
+            read -rsp "🔒 $current_prompt [$current_default] (enter 'd' to use default): " value
+            echo ""
+            [[ "$value" == "d" || -z "$value" ]] && value="$current_default"
+            break
+          done
         elif [[ "$current_type" == "select" ]]; then
           echo "📋 $current_prompt"
           IFS=',' read -ra options <<< "$current_default"
@@ -46,22 +50,29 @@ while IFS= read -r line; do
             break
           done
         elif [[ "$current_type" == "freetext" ]]; then
-          read -rp "🔹 $current_prompt [$current_default]: " value
-          [ -z "$value" ] && value="$current_default"
-          # Limit to 120 characters and clean up special characters
-          value="${value:0:120}"
-          value=$(echo "$value" | sed 's/[^a-zA-Z0-9 .,/_-]//g')
+          while true; do
+            read -rp "🔹 $current_prompt [$current_default] (enter 'd' to use default): " value
+            [[ "$value" == "d" || -z "$value" ]] && value="$current_default"
+            value="${value:0:120}"
+            value=$(echo "$value" | sed 's/[^a-zA-Z0-9 .,/_-]//g')
+            break
+          done
         elif [[ "$current_type" == "shorttext" ]]; then
-          read -rp "🔹 $current_prompt [$current_default]: " value
-          [ -z "$value" ] && value="$current_default"
-          # Limit to 10 characters and allow only A-Z, a-z, 0-9, space, dash
-          value="${value:0:10}"
-          value=$(echo "$value" | sed 's/[^a-zA-Z0-9 -]//g')
+          while true; do
+            read -rp "🔹 $current_prompt [$current_default] (enter 'd' to use default): " value
+            [[ "$value" == "d" || -z "$value" ]] && value="$current_default"
+            value="${value:0:10}"
+            value=$(echo "$value" | sed 's/[^a-zA-Z0-9 -]//g')
+            break
+          done
         elif [[ "$current_type" == "yesno" ]]; then
           while true; do
-            read -rp "🔹 $current_prompt [Y/n] (default: $current_default): " value
-            value="${value,,}"  # lowercase
-            [[ -z "$value" ]] && value="$current_default"
+            read -rp "🔹 $current_prompt [Y/n] (default: $current_default) (enter 'd' to use default): " value
+            if [[ "$value" == "d" || -z "$value" ]]; then
+              value="$current_default"
+            else
+              value="${value,,}"  # lowercase
+            fi
             case "$value" in
               y|yes) value="yes"; break ;;
               n|no) value="no"; break ;;
@@ -77,7 +88,11 @@ while IFS= read -r line; do
           done
           value=$(IFS=','; echo "${selections[*]}")
         else
-          read -rp "🔹 $current_prompt [$current_default]: " value
+          while true; do
+            read -rp "🔹 $current_prompt [$current_default] (enter 'd' to use default): " value
+            [[ "$value" == "d" || -z "$value" ]] && value="$current_default"
+            break
+          done
         fi
         [ -z "$value" ] && value="$current_default"
       else
@@ -87,7 +102,6 @@ while IFS= read -r line; do
       current_var=$(echo "$current_var" | xargs)
       value=$(echo "$value" | xargs)
       export "$current_var"="$value"
-      echo "export $current_var=\"$value\"" >> "$UHOME/sandbox/user-vars.env"
 
       # Reset current vars
       current_var=""
