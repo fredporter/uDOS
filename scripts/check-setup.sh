@@ -3,7 +3,7 @@
 
 UDOSE_HOME="/root/uDOS"
 
-LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).md"
 TARGET_DIRS=(
   "$UDOSE_HOME/scripts"
   "$UDOSE_HOME/uTemplate"
@@ -81,4 +81,12 @@ if [[ ! -f "$USER_FILE" ]]; then
   } > "$USER_FILE"
 
   echo "✅ User identity created at $USER_FILE"
+
+  IDENTITY_FILE="$UDOSE_HOME/identity.md"
+  echo "$username" > "$IDENTITY_FILE"
+  echo "✅ System identity stored at $IDENTITY_FILE"
+
+  MOVE_LOG="$UDOSE_HOME/uMemory/logs/moves/moves-$(date +%Y-%m-%d).md"
+  mkdir -p "$(dirname "$MOVE_LOG")"
+  echo "- [$(date +%H:%M)] ✅ System setup completed by '$username' at $location" >> "$MOVE_LOG"
 fi

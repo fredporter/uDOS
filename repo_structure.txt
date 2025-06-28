@@ -15,6 +15,7 @@
   |-- logs
     |-- moves
       |  |-- 2025-06-24-move-1750775805.md
+      |  |-- 2025-06-28-move-1751082906.md
       |  |-- moves-2025-06-24.md
       |  |-- moves-2025-06-28.md
     |  |-- udos-2025-06-24.log
@@ -87,7 +88,6 @@
     |  |-- make-tree.sh
     |  |-- start.sh
     |  |-- uCode.sh
-  |-- temp
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -114,9 +114,12 @@
   |-- uTemplate
     |-- dashboards
       |  |-- dashboard-focus.tmpl
+      |  |-- dashboard-footer.md
       |  |-- dashboard-footer.tmpl
+      |  |-- dashboard-header.md
       |  |-- dashboard-header.tmpl
       |  |-- dashboard-health.tmpl
+      |  |-- dashboard-knowledge.md
       |  |-- dashboard-legacy.tmpl
       |  |-- dashboard-map.tmpl
       |  |-- dashboard-recent.tmpl
