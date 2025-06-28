@@ -47,5 +47,13 @@ else
   echo "⚠️ No template found. Created blank file."
 fi
 
-echo "📄 New $TARGET logged: $DEST"
-echo "[$(date +%H:%M:%S)] → make-log $TARGET → ${FILE_NAME}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+
+# Check the length of the content and decide how to log
+CONTENT_LENGTH=$(wc -c < "$DEST")
+if [[ "$CONTENT_LENGTH" -le 120 ]]; then
+  rm "$DEST"
+  echo "[$(date +%H:%M:%S)] → make-log $TARGET → inline entry only" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+else
+  echo "[$(date +%H:%M:%S)] → make-log $TARGET → see: ${DEST#"$UHOME/"}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo "📄 New $TARGET logged: $DEST"
+fi

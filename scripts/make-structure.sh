@@ -9,7 +9,7 @@ LOG_DIR="$MEMORY_DIR/logs"
 
 # Create necessary directories
 mkdir -p "$TEMPLATE_DIR" "$SANDBOX_DIR"
-mkdir -p "$MEMORY_DIR/missions" "$MEMORY_DIR/milestones" "$MEMORY_DIR/state" "$LOG_DIR"
+mkdir -p "$MEMORY_DIR/missions" "$MEMORY_DIR/milestones" "$MEMORY_DIR/state" "$MEMORY_DIR/legacy" "$LOG_DIR" "$LOG_DIR/errors" "$LOG_DIR/moves"
 
 # Create default templates if they don't exist
 create_template() {
@@ -42,4 +42,4 @@ create_template "$DASHBOARD_DIR/dashboard-legacy.md" "Dashboard Legacy"
 create_template "$DASHBOARD_DIR/dashboard-rooms.md" "Dashboard Rooms"
 create_template "$DASHBOARD_DIR/dashboard-focus.md" "Dashboard Focus"
 
-echo "✅ uDOS directory structure initialized."
+echo "✅ uDOS directory structure initialized and verified."

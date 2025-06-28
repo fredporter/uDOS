@@ -52,6 +52,6 @@ echo "✅ Repo tree written to $OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 
 # Log the move
-MOVE_LOG="$uDOS_ROOT/uMemory/logs/moves-$(date +%Y-%m-%d).md"
-mkdir -p "$(dirname "$MOVE_LOG")"
-echo "📌 $(date +"%Y-%m-%d %H:%M:%S") - Move: tree (generate repo_structure)" >> "$MOVE_LOG"
+DASH_LOG="$uDOS_ROOT/sandbox/dash-log-$(date +%Y-%m-%d).md"
+mkdir -p "$(dirname "$DASH_LOG")"
+echo "[$(date +%H:%M:%S)] → tree → repo_structure.txt updated" >> "$DASH_LOG"
