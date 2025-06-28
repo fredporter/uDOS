@@ -154,7 +154,7 @@ HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 render_template() {
   local file="$1"
   while IFS= read -r line; do
-    eval "echo \"${line//\{\{/\${}\""
+    echo "${line//\{\{*/🔲}"
   done < "$file"
 }
 

@@ -32,13 +32,9 @@ if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
   bash "$UDOS_HOME/scripts/dashboard-sync.sh"
 fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
-  if [ ! -d "$UDOS_HOME/uMemory" ] || [ ! -d "$UDOS_HOME/sandbox" ]; then
-    echo "⚙️ No memory or user data found. Launching setup..."
-    bash "$UDOS_HOME/scripts/setup.sh"
-    exit 0
-  fi
-  echo "🔑 No identity found."
-  echo "❌ No identity present. System must be initialised using DESTROY or REBOOT."
+  echo "⚙️ No identity file found. Launching setup..."
+  bash "$UDOS_HOME/scripts/setup.sh"
+  exit 0
 else
   echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
 fi
@@ -155,9 +151,19 @@ cmd_restart() {
 cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
   log_info "System reboot initiated."
-  # Placeholder for reboot logic (could reset environment)
-  sleep 2
-  exec "$0" # Relaunch script
+
+  echo "🧼 Rebuilding structure..."
+  bash "$UDOS_HOME/scripts/make-structure.sh"
+
+  echo "🔍 Rechecking setup and permissions..."
+  bash "$UDOS_HOME/scripts/check-setup.sh"
+
+  echo "📊 Rebuilding stats and dashboard..."
+  bash "$UDOS_HOME/scripts/make-stats.sh"
+  bash "$UDOS_HOME/scripts/dashboard-sync.sh"
+
+  echo "🌀 Relaunching shell..."
+  exec "$0"
 }
 
 cmd_destroy() {
