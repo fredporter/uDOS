@@ -3,6 +3,7 @@
   |  |-- LICENSE
   |  |-- README.md
   |  |-- docker-compose.yml
+  |  |-- identity.md
   |-- launcher
     |  |-- Install Desktop Launcher.command
     |  |-- Quit-uDOS.command
@@ -16,8 +17,10 @@
     |-- moves
       |  |-- 2025-06-24-move-1750775805.md
       |  |-- 2025-06-28-move-1751082906.md
+      |  |-- 2025-06-28-move-1751083205.md
       |  |-- moves-2025-06-24.md
       |  |-- moves-2025-06-28.md
+      |  |-- moves-log-2025-06-28.md
     |  |-- udos-2025-06-24.log
     |  |-- udos-2025-06-25.log
     |  |-- udos-2025-06-28.log
@@ -88,6 +91,7 @@
     |  |-- make-tree.sh
     |  |-- start.sh
     |  |-- uCode.sh
+  |-- temp
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -104,26 +108,27 @@
       |  |-- moves-2025-06-23.md
       |  |-- moves-2025-06-24.md
       |  |-- moves-2025-06-28.md
+      |  |-- moves-log-2025-06-28.md
       |  |-- permissions-2025-06-24.log
       |  |-- permissions-2025-06-28.log
+      |  |-- permissions-2025-06-28.md
     |-- milestones
     |-- missions
+      |  |-- mission-log-20250628-050151-AEST-F000000.md
     |-- moves
     |-- state
       |  |-- instance.md
   |-- uTemplate
     |-- dashboards
-      |  |-- dashboard-focus.tmpl
+      |  |-- dashboard-focus.md
       |  |-- dashboard-footer.md
-      |  |-- dashboard-footer.tmpl
       |  |-- dashboard-header.md
-      |  |-- dashboard-header.tmpl
-      |  |-- dashboard-health.tmpl
+      |  |-- dashboard-health.md
       |  |-- dashboard-knowledge.md
-      |  |-- dashboard-legacy.tmpl
-      |  |-- dashboard-map.tmpl
-      |  |-- dashboard-recent.tmpl
-      |  |-- dashboard-rooms.tmpl
+      |  |-- dashboard-legacy.md
+      |  |-- dashboard-map.md
+      |  |-- dashboard-recent.md
+      |  |-- dashboard-rooms.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md

@@ -171,53 +171,72 @@ cmd_reboot() {
 }
 
 cmd_destroy() {
-  echo "💥 Destroying identity and data..."
-  read -rp "Are you sure you want to delete your identity? (yes/no): " confirm
-  if [[ "$confirm" =~ ^[Yy][Ee][Ss]$ ]]; then
-    rm -f "$UDOS_IDENTITY" "$UDOS_LOG" "$UDOS_DASHBOARD"
-    rm -rf "$UDOS_HOME/sandbox"
-    rm -rf "$UDOS_HOME/uMemory"
-    echo "✅ Identity and related data deleted."
-    log_info "Identity destroyed by user."
-  else
-    echo "❌ Destroy cancelled."
-    log_info "Destroy command cancelled by user."
-  fi
+  echo "💥 uDOS DESTROY Mode:"
+  echo "  [A] Remove identity only"
+  echo "  [B] Remove identity and uMemory"
+  echo "  [C] Remove identity, archive uMemory to /legacy, then delete uMemory"
+  echo "  [D] Reboot only (no data loss)"
+  echo "  [E] Exit to uCode only (no reboot, no data loss)"
+  read -n1 -rp "👉 Select DESTROY option: " choice
+  echo ""
+
+  case "${choice^^}" in
+    A)
+      echo "⚠️ Deleting identity only..."
+      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      echo "✅ Identity deleted."
+      log_info "DESTROY mode A: identity only"
+      ;;
+    B)
+      echo "⚠️ Deleting identity and uMemory..."
+      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -rf "$UDOS_HOME/uMemory"
+      echo "✅ Identity and memory deleted."
+      log_info "DESTROY mode B: identity and uMemory"
+      ;;
+    C)
+      echo "⚠️ Deleting all uMemory contents except 'legacy'..."
+      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      find "$UDOS_HOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
+      echo "✅ Identity removed. Legacy preserved."
+      log_info "DESTROY mode C: preserved legacy only"
+      ;;
+    D)
+      echo "♻️ Rebooting system only..."
+      cmd_reboot
+      return
+      ;;
+    E)
+      echo "🌀 Exiting to uCode..."
+      log_info "DESTROY mode E: soft return to uCode"
+      return
+      ;;
+    *)
+      echo "❌ Invalid option. Cancelled."
+      log_info "DESTROY aborted"
+      return
+      ;;
+  esac
+
+  echo "🔁 Rebooting to apply changes..."
+  cmd_reboot
 }
 
 cmd_bye() {
-  echo "👋 uDOS is now entering shutdown mode..."
-  echo "🔒 Session is idle. You can type:"
-  echo "   [R] RESTART → Soft refresh"
-  echo "   [B] REBOOT  → Full setup and check"
-  echo "   [D] DESTROY → Delete your identity"
-  echo "   [C] CANCEL  → Return to CLI"
+  echo "👋 uDOS is entering pause mode..."
+  echo "🔒 System is inactive. Choose next action:"
+  echo "   [R] RESTART → Refresh the current uCode session"
+  echo "   [B] REBOOT  → Reload all system components"
+  echo "   [D] DESTROY → Clear identity or memory"
+  echo "   [C] CONTINUE → Resume uDOS"
   read -n1 -rp "👉 Choose next step: " next
   echo ""
   case "${next^^}" in
     R) cmd_restart ;;
     B) cmd_reboot ;;
     D) cmd_destroy ;;
-    *) echo "🌀 Returning to CLI..." ;;
+    *) echo "🌀 Resuming uCode session..." ;;
   esac
-
-  if grep -q docker /proc/1/cgroup 2>/dev/null; then
-    echo ""
-    read -rp "💤 Also shut down Docker container? (y/N): " shut
-    if [[ "$shut" =~ ^[Yy]$ ]]; then
-      QUIT_CMD="$HOME/uDOS/launcher/Quit-uDOS.command"
-      if [[ -x "$QUIT_CMD" ]]; then
-        echo "🔌 Executing Quit-uDOS.command..."
-        "$QUIT_CMD"
-      else
-        echo "⚠️ Quit-uDOS.command not found or not executable."
-        log_error "Quit-uDOS.command missing or not executable."
-      fi
-      exit 0
-    else
-      echo "🌀 Docker container will remain active."
-    fi
-  fi
 }
 
 cmd_recent() {
