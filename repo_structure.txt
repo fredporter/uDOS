@@ -73,6 +73,7 @@
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
+    |  |-- load_user_prompts.sh
     |  |-- make-dash.sh
     |  |-- make-log.sh
     |  |-- make-stats.sh
@@ -82,7 +83,6 @@
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
-  |  |-- uDOS-devcontainer.zip
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -111,9 +111,11 @@
       |  |-- dashboard-map.md
       |  |-- dashboard-recent.md
       |  |-- dashboard-rooms.md
+    |  |-- dataset-map-city.md
+    |  |-- dataset-time-space.md
+    |  |-- getdata-user-setup.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
-    |  |-- system-time-space.env.md
     |  |-- uc-template.md

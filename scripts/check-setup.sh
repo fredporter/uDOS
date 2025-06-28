@@ -27,12 +27,12 @@ get_stat() {
   fi
 }
 
-source "$UHOME/scripts/utils/load_user_prompts.sh"
+source "$UHOME/scripts/load_user_prompts.sh"
 
 USER_FILE="$UHOME/sandbox/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
   echo "⚠️ No identity found. Gathering details from user-setup.md..."
-  bash "$UHOME/scripts/utils/load_user_prompts.sh" "$UHOME/sandbox/user-setup.md"
+  bash "$UHOME/scripts/load_user_prompts.sh" "$UHOME/sandbox/user-setup.md"
 fi
 
 mkdir -p "$(dirname "$USER_FILE")"
