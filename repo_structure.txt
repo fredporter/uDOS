@@ -79,8 +79,10 @@
     |  |-- make-structure.sh
     |  |-- make-tree.sh
     |  |-- roadmap.md
+    |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
+  |  |-- uDOS-devcontainer.zip
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -95,7 +97,6 @@
       |-- moves
     |-- milestones
     |-- missions
-      |  |-- mission-log-20250628-2108563N-AEST-F000000.md
     |-- state
       |  |-- identity.md
       |  |-- instance.md
@@ -114,4 +115,5 @@
     |  |-- milestone-template.md
     |  |-- mission-template.md
     |  |-- move-template.md
+    |  |-- system-time-space.env.md
     |  |-- uc-template.md
