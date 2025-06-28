@@ -28,7 +28,7 @@ if [ $status -ne 0 ]; then
     R) echo "🔄 Refreshing..."; "$UDOSE_HOME/scripts/uCode.sh" REFRESH ;;
     B) echo "♻️ Rebooting..."; "$UDOSE_HOME/scripts/uCode.sh" REBOOT ;;
     D) echo "☠️ Destroying..."; "$UDOSE_HOME/scripts/uCode.sh" DESTROY ;;
-    V) echo "📜 Showing error log:"; tail -n 20 "$UDOSE_HOME/uMemory/logs/errors/$(date +%Y-%m-%d)-errorlog.md" ;;
+    V) echo "📜 Showing error log:"; tail -n 20 "$UDOSE_HOME/uMemory/logs/errors/$(date +%Y-%m-%d)-error-log.md" ;;
     *) echo "👋 Exiting."; exit $status ;;
   esac
 else

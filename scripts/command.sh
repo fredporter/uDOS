@@ -11,7 +11,7 @@ if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"
   echo "💥 Error while executing: $cmd"
   echo "💬 $output"
-  echo "❌ Command failed with exit code $status" >> "$UDOSE_HOME/uMemory/logs/command-errors-$(date +%Y-%m-%d).log"
+  echo "❌ Command failed with exit code $status" >> "$UDOSE_HOME/uMemory/logs/command-errors-log-$(date +%Y-%m-%d).md"
   bash "$UDOSE_HOME/scripts/error-logger.sh" "$summary" "$output"
 else
   echo "$output"

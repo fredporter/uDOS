@@ -4,7 +4,7 @@
 
 UDOSE_HOME="/root/uDOS"
 
-LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).log"
+LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-log-$(date +%Y-%m-%d).md"
 TARGET_DIRS=("$UDOSE_HOME/launcher" "$UDOSE_HOME/scripts" "$UDOSE_HOME/uTemplate" "$UDOSE_HOME/sandbox")
 
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -12,7 +12,7 @@ mkdir -p "$(dirname "$LOG_FILE")"
 fixed_count=0
 
 echo "🔐 Checking uDOS script permissions..." | tee -a "$LOG_FILE"
-echo "Timestamp: $(date)" >> "$LOG_FILE"
+echo "🕒 Timestamp: $(date)" >> "$LOG_FILE"
 
 for dir in "${TARGET_DIRS[@]}"; do
   if [ -d "$dir" ]; then

@@ -8,7 +8,7 @@ bash "$UROOT/scripts/check-setup.sh" >/dev/null
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"
 LOG_DIR="$UMEMORY/logs"
-ULOG=$(ls -1t "$LOG_DIR"/moves-*.md 2>/dev/null | head -n 1)
+ULOG=$(ls -1t "$LOG_DIR"/moves-log-*.md 2>/dev/null | head -n 1)
 REGION="$UKNOWLEDGE/map/current_region.txt"
 ROOMS_DIR="$UKNOWLEDGE/rooms"
 RECENT_MOVES_DIR="$UMEMORY/logs/moves"
@@ -76,14 +76,14 @@ render_template() {
   done < "$file"
 }
 
-render_template "$UROOT/uTemplate/dashboard-header.tmpl"
-render_template "$UROOT/uTemplate/dashboard-focus.tmpl"
-render_template "$UROOT/uTemplate/dashboard-recent.tmpl"
-render_template "$UROOT/uTemplate/dashboard-map.tmpl"
-render_template "$UROOT/uTemplate/dashboard-rooms.tmpl"
-render_template "$UROOT/uTemplate/dashboard-legacy.tmpl"
-render_template "$UROOT/uTemplate/dashboard-health.tmpl"
-render_template "$UROOT/uTemplate/dashboard-footer.tmpl"
+render_template "$UROOT/uTemplate/dashboards/dashboard-header.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-focus.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-recent.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-map.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-rooms.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-legacy.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-health.md"
+render_template "$UROOT/uTemplate/dashboards/dashboard-footer.md"
 
 echo
 echo "🧭 Use 'help' for available commands. Make your next move, Master."

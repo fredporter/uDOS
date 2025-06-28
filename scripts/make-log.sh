@@ -15,7 +15,7 @@ generate_filename() {
   # Normalise location for filename
   LOCATION_SAFE=$(echo "$LOCATION" | tr -d ':')
 
-  echo "${CATEGORY}-${DATESTAMP}-${TIMESTAMP}-${TIMEZONE}-${LOCATION_SAFE}.md"
+  echo "${CATEGORY}-log-${DATESTAMP}-${TIMESTAMP}-${TIMEZONE}-${LOCATION_SAFE}.md"
 }
 
 TARGET="$1"  # mission, milestone, legacy

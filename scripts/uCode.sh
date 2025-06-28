@@ -5,7 +5,7 @@
 # Environment Setup
 export UDOS_HOME="${HOME}/uDOS"
 export UDOS_LOG="${UDOS_HOME}/udos.log"
-export UDOS_IDENTITY="${UDOS_HOME}/identity.id"
+export UDOS_IDENTITY="${UDOS_HOME}/identity.md"
 export UDOS_DASHBOARD="${UDOS_HOME}/uMemory/state/dashboard.json"
 export UDOS_TEMP="${UDOS_HOME}/temp"
 export UDOS_MOVES_DIR="${UDOS_HOME}/logs/moves"
@@ -13,9 +13,12 @@ mkdir -p "$UDOS_HOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
 
 # Ensure uMemory subdirectories exist
 mkdir -p "${UDOS_HOME}/uMemory/missions" "${UDOS_HOME}/uMemory/milestones" "${UDOS_HOME}/uMemory/legacies"
+mkdir -p "${UDOS_HOME}/uMemory/logs/errors"
+mkdir -p "${UDOS_HOME}/uMemory/logs/moves"
+mkdir -p "${UDOS_HOME}/uMemory/state"
 
 # Log session start
-echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
+echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
 
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
@@ -58,8 +61,8 @@ log_move_template() {
   local cmd="$1"
   local timestamp
   timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  local id="move-$(date +%s)"
-  local file="$UDOS_MOVES_DIR/$(date +%Y-%m-%d)-$id.md"
+  local id="move-log-$(date +%s)"
+  local file="$UDOS_MOVES_DIR/${id}.md"
   echo "# Move: $cmd" > "$file"
   echo "- Timestamp: $timestamp" >> "$file"
   echo "- Command: $cmd" >> "$file"
@@ -95,6 +98,7 @@ cmd_redo() {
   sleep 1
   echo "✅ Redo completed."
   log_info "Redo command executed."
+  log_move_template "redo"
 }
 
 cmd_undo() {
@@ -103,6 +107,7 @@ cmd_undo() {
   sleep 1
   echo "✅ Undo completed."
   log_info "Undo command executed."
+  log_move_template "undo"
 }
 
 cmd_run() {
@@ -207,11 +212,11 @@ cmd_bye() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"
+  tail -n 10 "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
 }
 
 # Main Command Dispatch Loop
-trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-$(date +%Y-%m-%d).md"' EXIT
+trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   read -rp "uDOS> " input
   cmd=$(echo "$input" | awk '{print toupper($1)}')

@@ -161,12 +161,12 @@ render_template() {
 #
 # Use new dashboard template directory
 DASHBOARD_TEMPLATE_DIR="$UDOSE_HOME/uTemplate/dashboards"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.tmpl"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.tmpl"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.tmpl"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.tmpl"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.tmpl"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.tmpl"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.md"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.md"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.md"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.md"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.md"
+render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.md"
 
 echo ""
 echo "🧭 Use 'help' for available commands."
