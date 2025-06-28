@@ -41,3 +41,4 @@ else
 fi
 
 echo "📄 New $TARGET logged: $DEST"
+echo "[$(date +%H:%M:%S)] → make-log $TARGET → ${FILE_NAME}" >> "$UHOME/uMemory/logs/moves/move-$(date +%Y-%m-%d).md"

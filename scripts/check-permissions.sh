@@ -4,33 +4,20 @@
 
 UHOME="${HOME}/uDOS"
 
-LOG_FILE="$UHOME/uMemory/logs/permissions-log-$(date +%Y-%m-%d).md"
 TARGET_DIRS=("$UHOME/launcher" "$UHOME/scripts" "$UHOME/uTemplate" "$UHOME/sandbox")
-
-mkdir -p "$(dirname "$LOG_FILE")"
 
 fixed_count=0
 
-echo "🔐 Checking uDOS script permissions..." | tee -a "$LOG_FILE"
-echo "🕒 Timestamp: $(date)" >> "$LOG_FILE"
-
 for dir in "${TARGET_DIRS[@]}"; do
   if [ -d "$dir" ]; then
-    echo "📂 Scanning $dir..." >> "$LOG_FILE"
     find "$dir" -type f \( -name "*.sh" -o -name "*.command" \) | while read -r file; do
       if [[ "$file" == "$LOG_FILE" ]]; then continue; fi
       if [ ! -x "$file" ]; then
         chmod +x "$file"
-        echo "✅ Fixed permissions: $file" | tee -a "$LOG_FILE"
         fixed_count=$((fixed_count + 1))
-      else
-        echo "✔️ OK: $file" >> "$LOG_FILE"
       fi
     done
-  else
-    echo "⚠️ Directory not found: $dir" >> "$LOG_FILE"
   fi
 done
 
-echo "✅ Permission check complete." | tee -a "$LOG_FILE"
-echo "Total files fixed: $fixed_count" | tee -a "$LOG_FILE"
+echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/moves/move-$(date +%Y-%m-%d).md"

@@ -4,7 +4,6 @@
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDOS_LOG="${UHOME}/udos.log"
 export UDOS_IDENTITY="${UHOME}/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
@@ -17,7 +16,7 @@ mkdir -p "${UHOME}/uMemory/logs/moves"
 mkdir -p "${UHOME}/uMemory/state"
 
 # Log session start
-echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
+echo "[START] $(date '+%H:%M:%S')" >> "${UDOS_MOVES_DIR}/move-$(date +%Y-%m-%d).md"
 
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
@@ -105,29 +104,14 @@ echo "- Legacy items: $(find "$UHOME/uMemory/legacies" -type f | wc -l)"
 echo "- Total logs: $(find "$UHOME/uMemory/logs/moves" -type f | wc -l)"
 echo ""
 
-# Logging Functions
-log_info() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >> "$UDOS_LOG"
-}
-
-log_error() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" >> "$UDOS_LOG"
-}
-
-log_command() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [CMD] $1" >> "$UDOS_LOG"
-}
-
-log_move_template() {
+# Logging Function - unified move log
+log_move() {
   local cmd="$1"
   local timestamp
-  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  local id="move-log-$(date +%s)"
-  local file="${UDOS_MOVES_DIR}/${id}.md"
-  echo "# Move: $cmd" > "$file"
-  echo "- Timestamp: $timestamp" >> "$file"
-  echo "- Command: $cmd" >> "$file"
-  echo "📄 Move logged to: $file"
+  timestamp=$(date +"%H:%M:%S")
+  local log_file="${UDOS_MOVES_DIR}/move-$(date +%Y-%m-%d).md"
+  echo "[$timestamp] → $cmd" >> "$log_file"
+  echo "📄 Move logged: $cmd"
 }
 
 # Dashboard Sync
@@ -158,8 +142,7 @@ cmd_check() {
       ;;
     SETUP)
       bash "$UHOME/scripts/check-setup.sh"
-      log_info "CHECK SETUP executed"
-      log_move_template "check setup"
+      log_move "check setup"
       ;;
     IDENTITY)
       cmd_identity
@@ -182,8 +165,7 @@ cmd_identity() {
   else
     echo "❌ No identity file found."
   fi
-  log_info "IDENTITY command executed"
-  log_move_template "identity"
+  log_move "identity"
 }
 
 cmd_log() {
@@ -201,8 +183,7 @@ cmd_redo() {
   # Placeholder for redo logic
   sleep 1
   echo "✅ Redo completed."
-  log_info "Redo command executed."
-  log_move_template "redo"
+  log_move "redo"
 }
 
 cmd_undo() {
@@ -210,18 +191,17 @@ cmd_undo() {
   # Placeholder for undo logic
   sleep 1
   echo "✅ Undo completed."
-  log_info "Undo command executed."
-  log_move_template "undo"
+  log_move "undo"
 }
 
 cmd_run() {
   bash "$HOME/uDOS/scripts/command.sh" "$args"
-  log_move_template "run $args"
+  log_move "run $args"
 }
 
 cmd_tree() {
   bash "$HOME/uDOS/scripts/make-tree.sh"
-  log_move_template "tree"
+  log_move "tree"
 }
 
 cmd_stats() {
@@ -238,8 +218,7 @@ cmd_time() {
   else
     echo "ℹ️ Timezone unchanged."
   fi
-  log_info "TIME command executed"
-  log_move_template "time"
+  log_move "time"
 }
 
 cmd_location() {
@@ -251,8 +230,7 @@ cmd_location() {
   else
     echo "ℹ️ Location unchanged."
   fi
-  log_info "LOCATION command executed"
-  log_move_template "location"
+  log_move "location"
 }
 
 cmd_list() {
@@ -289,19 +267,16 @@ cmd_dash() {
   # cat "$UHOME/uTemplate/dashboards/dashboard-header.md"
   # [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
   # cat "$UHOME/uTemplate/dashboards/dashboard-footer.md"
-  log_info "Dashboard displayed."
-  log_move_template "dash"
+  log_move "dash"
 }
 
 cmd_restart() {
   echo "🔄 Restarting uDOS shell..."
-  log_info "System restart initiated."
   exec "$0" # Relaunch script
 }
 
 cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
-  log_info "System reboot initiated."
 
   echo "🧼 Rebuilding structure..."
   bash "$UHOME/scripts/make-structure.sh"
@@ -330,23 +305,20 @@ cmd_destroy() {
   case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     A)
       echo "⚠️ Deleting identity only..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       echo "✅ Identity deleted."
-      log_info "DESTROY mode A: identity only"
       ;;
     B)
       echo "⚠️ Deleting identity and uMemory..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       rm -rf "$UHOME/uMemory"
       echo "✅ Identity and memory deleted."
-      log_info "DESTROY mode B: identity and uMemory"
       ;;
     C)
       echo "⚠️ Deleting all uMemory contents except 'legacy'..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
-      log_info "DESTROY mode C: preserved legacy only"
       ;;
     D)
       echo "♻️ Rebooting system only..."
@@ -355,12 +327,10 @@ cmd_destroy() {
       ;;
     E)
       echo "🌀 Exiting to uCode..."
-      log_info "DESTROY mode E: soft return to uCode"
       return
       ;;
     *)
       echo "❌ Invalid option. Cancelled."
-      log_info "DESTROY aborted"
       return
       ;;
   esac
@@ -392,7 +362,7 @@ cmd_recent() {
 }
 
 # Main Command Dispatch Loop
-trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
+trap 'echo "[END] $(date "+%H:%M:%S")" >> "${UDOS_MOVES_DIR}/move-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   echo -ne "\033[1;36m🌀 \033[0m"
   # Flash cursor once at prompt
@@ -400,7 +370,6 @@ while true; do
   read -rp "" input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
-  log_command "$input"
   case "$cmd" in
     LOG)
       cmd_log
