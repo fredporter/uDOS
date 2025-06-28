@@ -93,6 +93,7 @@
       |-- errors
       |-- moves
         |  |-- move-log-1751091052.md
+        |  |-- move-log-1751091242.md
         |  |-- moves-2025-06-28.md
         |  |-- moves-log-2025-06-28.md
       |  |-- moves-2025-06-28.md

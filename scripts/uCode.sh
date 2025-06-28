@@ -223,8 +223,23 @@ cmd_location() {
 }
 
 cmd_list() {
-  echo "📂 Current directory: $(pwd)"
-  ls -1Ap | grep -v '^\.'
+  local target="$1"
+  local base="${UHOME}"
+
+  # Default to root if no path is given
+  if [[ -z "$target" ]]; then
+    target="$base"
+  else
+    # Expand and sanitize target path
+    target="$(realpath -m "$base/$target")"
+    [[ "$target" == "$base"* ]] || {
+      echo "❌ Access denied: Outside uDOS root."
+      return 1
+    }
+  fi
+
+  echo "📂 uDOS directory: ${target/$HOME/~}"
+  ls -lA "$target"
 }
 
 cmd_mission() {
