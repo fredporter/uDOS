@@ -64,13 +64,20 @@ get_stat() {
 # Prompt for user identity setup if not present
 USER_FILE="$UDOSE_HOME/sandbox/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
-  echo ""
-  echo "🔑 No identity found. Let's set up your user profile."
+  if [ ! -t 0 ]; then
+    echo "⚠️ Non-interactive shell detected. Creating default identity."
+    username="default"
+    password="none"
+    location="unknown"
+  else
+    echo ""
+    echo "🔑 No identity found. Let's set up your user profile."
 
-  read -rp "👤 Enter your preferred username: " username
-  read -rsp "🔒 Enter a password: " password
-  echo ""
-  read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
+    read -rp "👤 Enter your preferred username: " username
+    read -rsp "🔒 Enter a password: " password
+    echo ""
+    read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
+  fi
 
   mkdir -p "$(dirname "$USER_FILE")"
   {
