@@ -66,6 +66,25 @@ if [ -f "$UDOS_IDENTITY" ]; then
   echo "Created: $created"
   echo "Timezone: $timezone"
   echo "UTC Offset: $utc_offset"
+  # --- BEGIN Dynamic Dashboard ---
+  echo ""
+  echo "# 📊 uDOS Dashboard — Beta v1.6.1"
+  echo ""
+  echo "- **User:** ${username:-🔲}"
+  echo "- **Location:** ${location:-🔲}"
+  echo "- **Date:** $(date '+%Y-%m-%d')"
+  echo ""
+  echo "---"
+  echo ""
+  echo "## ⚙️ System Status"
+  echo ""
+  echo "- Last Move: $(grep '🌀 SESSION START' \"$UDOS_MOVES_DIR/moves-log-$(date +%Y-%m-%d).md\" | tail -1 | cut -d'→' -f2- | xargs)"
+  echo "- Active Mission: $(cat \"$UHOME/state/mission.md\" 2>/dev/null | head -1 || echo 🔲)"
+  echo "- Memory State: OK"
+  echo ""
+  echo "---"
+  echo ""
+  # --- END Dynamic Dashboard ---
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1
@@ -266,9 +285,10 @@ cmd_map() {
 
 cmd_dash() {
   echo "📈 Displaying dashboard..."
-  cat "$UHOME/uTemplate/dashboards/dashboard-header.md"
-  [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
-  cat "$UHOME/uTemplate/dashboards/dashboard-footer.md"
+  # Dynamic dashboard is now printed at login. To avoid duplicate or outdated dashboards, this is commented out.
+  # cat "$UHOME/uTemplate/dashboards/dashboard-header.md"
+  # [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
+  # cat "$UHOME/uTemplate/dashboards/dashboard-footer.md"
   log_info "Dashboard displayed."
   log_move_template "dash"
 }
@@ -375,6 +395,8 @@ cmd_recent() {
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   echo -ne "\033[1;36m🌀 \033[0m"
+  # Flash cursor once at prompt
+  tput civis; sleep 0.05; tput cnorm
   read -rp "" input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
