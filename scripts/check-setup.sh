@@ -84,4 +84,7 @@ if [[ ! -f "$UHOME/uMemory/state/identification.md" ]]; then
   mv "$UHOME/sandbox/identification.md" "$UHOME/uMemory/state/"
   echo "[$(date +%H:%M:%S)] → check-setup → sandbox state files moved to uMemory/state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   cp "$UHOME/uMemory/state/identification.md" "$UHOME/uMemory/state/identity.md"
+  # Cleanup original sandbox copies
+  rm -f "$UHOME/sandbox/instance.md"
+  rm -f "$UHOME/sandbox/identification.md"
 fi

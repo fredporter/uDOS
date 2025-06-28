@@ -4,7 +4,7 @@
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDENT="${UHOME}/uMemory/state/identity.md"
+export UDENT="$UHOME/sandbox/user.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
@@ -37,15 +37,15 @@ cat << "EOF"
 EOF
 echo "🧠 Loading environment..."
 
-if [ ! -f "$UDENT" ]; then
+USER_FILE="$UHOME/sandbox/user.md"
+if [[ ! -f "$USER_FILE" ]]; then
   echo "⚙️ No identity file found. Running check-setup..."
-  source "$UHOME/scripts/check-setup.sh"
-  # Ensure UDENT is set to the latest file path after setup
-  export UDENT="${UHOME}/uMemory/state/identity.md"
-  if [[ -f "$UDENT" ]]; then
+  bash "$UHOME/scripts/check-setup.sh"
+
+  if [[ -f "$USER_FILE" ]]; then
     echo "✅ Identity confirmed."
   else
-    echo "❌ Identity file still not found."
+    echo "❌ Identity file still not found after setup."
     exit 1
   fi
   echo "🔍 check-setup.sh completed."

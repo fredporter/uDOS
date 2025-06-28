@@ -10,6 +10,7 @@
     |  |-- uDOS_Launcher.sh
     |  |-- uDOS_Run.sh
     |  |-- uDOS.terminal
+  |-- legacy
   |  |-- LICENSE
   |  |-- README.md
   |  |-- repo_structure.txt
@@ -65,6 +66,8 @@
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
+    |  |-- identification.md
+    |  |-- instance.md
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -72,6 +75,7 @@
     |  |-- command.sh
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
+    |  |-- destroy.sh
     |  |-- error-logger.sh
     |  |-- load_user_prompts.sh
     |  |-- make-dash.sh
@@ -98,7 +102,7 @@
     |-- milestones
     |-- missions
     |-- state
-      |  |-- identity.md
+      |  |-- identification.md
       |  |-- instance.md
   |-- uTemplate
     |-- dashboards
