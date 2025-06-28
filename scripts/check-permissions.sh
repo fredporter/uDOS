@@ -20,4 +20,4 @@ for dir in "${TARGET_DIRS[@]}"; do
   fi
 done
 
-echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/moves/move-$(date +%Y-%m-%d).md"
+echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"

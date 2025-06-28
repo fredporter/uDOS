@@ -80,7 +80,6 @@
     |  |-- roadmap.md
     |  |-- start.sh
     |  |-- uCode.sh
-  |  |-- udos.log
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -92,12 +91,10 @@
     |-- logs
       |-- errors
       |-- moves
-        |  |-- move-log-1751091052.md
-        |  |-- move-log-1751091242.md
-        |  |-- move-log-1751091778.md
-        |  |-- move-log-1751092206.md
         |  |-- move-2025-06-28.md
-        |  |-- move-log-2025-06-28.md
+        |  |-- moves-2025-06-28.md
+      |  |-- moves-log-2025-06-28.md
+      |  |-- permissions-2025-06-28.md
     |-- milestones
     |-- missions
     |-- state

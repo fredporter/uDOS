@@ -28,7 +28,14 @@ if [[ -z "$TARGET" ]]; then
 fi
 
 FILE_NAME=$(generate_filename "$TARGET" "$LOCATION" "$TIMEZONE")
-DEST="$UHOME/uMemory/${TARGET}s/$FILE_NAME"
+
+# Rename legacy folder to singular form
+if [[ "$TARGET" == "legacy" ]]; then
+  DEST="$UHOME/uMemory/legacy/$FILE_NAME"
+else
+  DEST="$UHOME/uMemory/${TARGET}s/$FILE_NAME"
+fi
+
 TEMPLATE="$UHOME/uTemplate/${TARGET}-template.md"
 
 mkdir -p "$(dirname "$DEST")"
@@ -41,4 +48,4 @@ else
 fi
 
 echo "📄 New $TARGET logged: $DEST"
-echo "[$(date +%H:%M:%S)] → make-log $TARGET → ${FILE_NAME}" >> "$UHOME/uMemory/logs/moves/move-$(date +%Y-%m-%d).md"
+echo "[$(date +%H:%M:%S)] → make-log $TARGET → ${FILE_NAME}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"

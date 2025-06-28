@@ -77,7 +77,7 @@ if [ -f "$UDOS_IDENTITY" ]; then
   echo ""
   echo "## ⚙️ System Status"
   echo ""
-  echo "- Last Move: $(grep '🌀 SESSION START' \"$UDOS_MOVES_DIR/moves-log-$(date +%Y-%m-%d).md\" | tail -1 | cut -d'→' -f2- | xargs)"
+  echo "- Last Move: $(grep '🌀 SESSION START' \"$UDOS_MOVES_DIR/move-log-$(date +%Y-%m-%d).md\" | tail -1 | cut -d'→' -f2- | xargs)"
   echo "- Active Mission: $(cat \"$UHOME/state/mission.md\" 2>/dev/null | head -1 || echo 🔲)"
   echo "- Memory State: OK"
   echo ""
@@ -358,7 +358,7 @@ cmd_bye() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
+  tail -n 10 "${UDOS_MOVES_DIR}/move-log-$(date +%Y-%m-%d).md"
 }
 
 # Main Command Dispatch Loop
