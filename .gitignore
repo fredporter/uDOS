@@ -20,4 +20,4 @@ docker-compose.override.yml
 
 # uMemory — personal, private, local-only storage
 uMemory/
-identity.md
+sandbox/
