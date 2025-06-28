@@ -22,6 +22,15 @@ echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}
 
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
+cat << "EOF"
+ _    _  ____   ___   ____  ______ _____  
+| |  | |/ __ \ / _ \ / __ \|  ____|  __ \ 
+| |  | | |  | | | | | |  | | |__  | |  | |
+| |  | | |  | | | | | |  | |  __| | |  | |
+| |__| | |__| | |_| | |__| | |____| |__| |
+ \____/ \____/ \___/ \____/|______|_____/  
+     uCode Shell · Beta v1.6.1 🌀
+EOF
 echo "🧠 Loading environment..."
 
 if [[ -x "$UDOS_HOME/scripts/make-stats.sh" ]]; then
@@ -84,7 +93,8 @@ sync_dashboard() {
 # Command Functions
 
 cmd_log() {
-  read -rp "📝 Log what? (mission/milestone/legacy): " what
+  echo -ne "\033[1;34m📝 Log Entry Type\033[0m (mission/milestone/legacy): "
+  read what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
     bash "$UDOS_HOME/scripts/make-log.sh" "$what"
   else
@@ -247,7 +257,9 @@ cmd_recent() {
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
-  read -rp "uDOS> " input
+  echo -ne "\033[1;36m🌀 uCode is ready for your next move...\033[0m"
+  sleep 1
+  read -rp $'\n\033[1;32muDOS> \033[0m' input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"

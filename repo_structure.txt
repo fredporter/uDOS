@@ -18,6 +18,10 @@
       |  |-- 2025-06-24-move-1750775805.md
       |  |-- 2025-06-28-move-1751082906.md
       |  |-- 2025-06-28-move-1751083205.md
+      |  |-- move-log-1751086920.md
+      |  |-- move-log-1751086927.md
+      |  |-- move-log-1751087003.md
+      |  |-- move-log-1751088120.md
       |  |-- moves-2025-06-24.md
       |  |-- moves-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
@@ -89,6 +93,7 @@
     |  |-- make-stats.sh
     |  |-- make-structure.sh
     |  |-- make-tree.sh
+    |  |-- roadmap.md
     |  |-- start.sh
     |  |-- uCode.sh
   |-- temp
@@ -103,6 +108,7 @@
     |-- legacy
     |-- logs
       |  |-- command-errors-2025-06-24.log
+      |  |-- command-errors-log-2025-06-28.md
       |-- errors
       |-- moves
       |  |-- moves-2025-06-23.md
