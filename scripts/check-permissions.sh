@@ -4,7 +4,7 @@
 
 UHOME="${HOME}/uDOS"
 
-TARGET_DIRS=("$UHOME/launcher" "$UHOME/scripts" "$UHOME/uTemplate" "$UHOME/sandbox")
+TARGET_DIRS=("$UHOME/launcher" "$UHOME/scripts" "$UHOME/uTemplate" "$UHOME/sandbox" "$UHOME/uMemory" "$UHOME/uKnowledge")
 
 fixed_count=0
 

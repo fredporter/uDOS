@@ -40,6 +40,7 @@ echo "🧠 Loading environment..."
 if [ ! -f "$UDENT" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
   source "$UHOME/scripts/check-setup.sh"
+  echo "🔍 check-setup.sh completed. Identity present? $( [ -f "$UDENT" ] && echo yes || echo no )"
   echo "🔁 Rechecking identity after setup..."
 
   if [ ! -f "$UDENT" ]; then
@@ -47,7 +48,8 @@ if [ ! -f "$UDENT" ]; then
 
     read -rp "💥 Run DESTROY now? (Y/n): " do_destroy
     if [[ "$do_destroy" =~ ^[Yy]$ || -z "$do_destroy" ]]; then
-      cmd_destroy
+      echo "💥 DESTROY selected. Executing..."
+      bash "$UHOME/scripts/destroy.sh"
     else
       echo "🛑 uDOS cannot continue without identity. Exiting."
       exit 1

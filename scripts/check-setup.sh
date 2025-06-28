@@ -27,12 +27,22 @@ get_stat() {
   fi
 }
 
-source "$UHOME/scripts/load_user_prompts.sh"
+
 
 USER_FILE="$UHOME/sandbox/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
-  echo "⚠️ No identity found. Gathering details from user-setup.md..."
-  source "$UHOME/scripts/load_user_prompts.sh" "$UHOME/uTemplate/input-user-setup.md"
+  if [[ -z "$username" || -z "$location" ]]; then
+    echo "⚠️ No identity found. Please enter your details:"
+    read -p "👤 Enter username: " username
+    read -p "🔒 Enter password (optional): " password
+    read -p "📍 Enter location: " location
+    read -p "🌐 Enter timezone (e.g. Australia/Sydney): " timezone
+  fi
+
+  # Auto-calculate UTC offset if not provided
+  if [[ -z "$utc_offset" ]]; then
+    utc_offset=$(date +%z | sed 's/^\([+-][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/')
+  fi
 
   if [[ -z "$username" || -z "$location" ]]; then
     echo "❌ Setup failed: required user data missing."
@@ -66,6 +76,17 @@ if [[ ! -f "$USER_FILE" ]]; then
   echo "Location: $location" > "$STATE_FILE"
   echo "Timezone: $timezone" >> "$STATE_FILE"
   echo "UTC Offset: $utc_offset" >> "$STATE_FILE"
+fi
+
+IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+if [[ ! -f "$IDENTITY_FILE" ]]; then
+  mkdir -p "$(dirname "$IDENTITY_FILE")"
+  echo "Installation ID: [Pending]" > "$IDENTITY_FILE"
+  echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
+  echo "Timezone: $timezone" >> "$IDENTITY_FILE"
+  echo "UTC Offset: $utc_offset" >> "$IDENTITY_FILE"
+  echo "Version: Beta v1.6.3" >> "$IDENTITY_FILE"
+  echo "[$(date +%H:%M:%S)] → check-setup → identity.md (re)created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
 
 echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"

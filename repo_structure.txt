@@ -64,7 +64,7 @@
     |  |-- uos_template_generator.md
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
-    |  |-- dash-log-2025-06-28.md
+    |  |-- dash-log-2025-06-29.md
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -93,7 +93,7 @@
     |-- legacy
     |-- logs
       |-- errors
-      |  |-- move-log-2025-06-28.md
+      |  |-- move-log-2025-06-29.md
       |-- moves
     |-- milestones
     |-- missions
@@ -113,7 +113,7 @@
       |  |-- dashboard-rooms.md
     |  |-- dataset-map-city.md
     |  |-- dataset-time-space.md
-    |  |-- getdata-user-setup.md
+    |  |-- input-user-setup.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
     |  |-- mission-template.md

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SETUP_FILE="${1:-$UHOME/uTemplate/getdata-user-setup.md}"
+SETUP_FILE="${1:-$UHOME/uTemplate/input-user-setup.md}"
 current_var=""
 current_prompt=""
 current_default=""

@@ -14,4 +14,4 @@ services:
       - UDOS_KNOWLEDGE_DIR=/uKnowledge
       - UDOS_MEMORY_DIR=/uMemory
       - UDOS_CONFIG_DIR=/config
-    command: ["bash", "/root/uDOS/scripts/launch-uDOS.sh"]  # ✅ the key fix
+    command: ["bash", "/root/uDOS/scripts/start.sh"]
