@@ -40,6 +40,15 @@ echo "🧠 Loading environment..."
 if [ ! -f "$UDENT" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
   source "$UHOME/scripts/check-setup.sh"
+  # Ensure UDENT is set to the latest file path after setup
+  export UDENT="${UHOME}/uMemory/state/identity.md"
+  # Force hard check of identity file
+  if [[ -f "$UDENT" ]]; then
+    echo "✅ Identity confirmed."
+  else
+    echo "❌ Identity file still not found."
+    exit 1
+  fi
   echo "🔍 check-setup.sh completed. Identity present? $( [ -f "$UDENT" ] && echo yes || echo no )"
   echo "🔁 Rechecking identity after setup..."
 
@@ -50,6 +59,8 @@ if [ ! -f "$UDENT" ]; then
     if [[ "$do_destroy" =~ ^[Yy]$ || -z "$do_destroy" ]]; then
       echo "💥 DESTROY selected. Executing..."
       bash "$UHOME/scripts/destroy.sh"
+      echo "🔁 Relaunching shell after DESTROY..."
+      exec "$0"
     else
       echo "🛑 uDOS cannot continue without identity. Exiting."
       exit 1
