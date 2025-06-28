@@ -54,6 +54,13 @@ if [[ -f "$PROFILE_SOURCE" ]]; then
   defaults write com.apple.Terminal "Startup Window Settings" -string "uDOS"
   defaults write com.apple.Terminal "Default Window Settings" -string "uDOS"
   echo "✅ Terminal profile 'uDOS' imported and set as default."
+
+  echo "🧠 Writing AppleScript launcher to open Terminal cleanly..."
+  cat > "$DEST_APP/Contents/MacOS/$APP_NAME" <<LAUNCHER
+#!/bin/bash
+osascript -e 'tell application "Terminal" to do script "bash ~/uDOS/scripts/uCode.sh"'
+LAUNCHER
+  chmod +x "$DEST_APP/Contents/MacOS/$APP_NAME"
 else
   echo "⚠️ Terminal profile 'uDOS.terminal' not found. Skipping profile setup."
 fi
