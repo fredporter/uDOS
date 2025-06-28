@@ -59,14 +59,6 @@ if [[ ! -f "$USER_FILE" ]]; then
   echo "🔍 check-setup.sh completed."
 fi
 
-# Run stats and dashboard sync after setup check
-if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
-  bash "$UHOME/scripts/make-stats.sh"
-fi
-if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
-  bash "$UHOME/scripts/dashboard-sync.sh"
-fi
-
 if [ -f "$UDENT" ]; then
   username=""
   location=""
@@ -89,16 +81,32 @@ if [ -f "$UDENT" ]; then
   echo "Created: $created"
   echo "Timezone: $timezone"
   echo "UTC Offset: $utc_offset"
-
-  # Check for password field after identity loaded
-  PASSWORD=$(grep "Password" "$UDENT" | cut -d':' -f2 | xargs)
-  if [[ -z "$PASSWORD" && "$0" =~ (reboot|restart) ]]; then
-    echo "⚠️  Password is blank. Skipping check on reboot/restart."
-  fi
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1
 fi
+
+PASSWORD=$(grep "Password" "$UDENT" | cut -d':' -f2- | xargs)
+if [[ -n "$PASSWORD" && "$REBOOT_FLAG" == "true" ]]; then
+  echo -n "🔐 Enter password to continue: "
+  read -rs input_pw
+  echo ""
+  if [[ "$input_pw" != "$PASSWORD" ]]; then
+    echo "❌ Incorrect password. Aborting."
+    exit 1
+  else
+    echo "✅ Password accepted."
+  fi
+fi
+
+# Run stats and dashboard sync after setup check
+if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
+  bash "$UHOME/scripts/make-stats.sh"
+fi
+if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
+  bash "$UHOME/scripts/dashboard-sync.sh"
+fi
+
 echo ""
 
 echo "📋 Session Info:"
@@ -148,6 +156,10 @@ cmd_check() {
     IDENTITY)
       cmd_identity
       ;;
+    INPUT)
+      bash "$UHOME/scripts/make-input.sh"
+      log_move "check input"
+      ;;
     *)
       echo "🔎 CHECK what?"
       echo "   TIME      → View or set timezone"
@@ -155,6 +167,7 @@ cmd_check() {
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   SETUP     → Run full environment check"
       echo "   IDENTITY  → Display current identity"
+      echo "   INPUT     → Generate user input file"
       ;;
   esac
 }
@@ -292,6 +305,7 @@ cmd_reboot() {
   bash "$UHOME/scripts/dashboard-sync.sh"
 
   echo "🌀 Relaunching shell..."
+  export REBOOT_FLAG=true
   exec "$0"
 }
 

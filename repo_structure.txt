@@ -10,7 +10,6 @@
     |  |-- uDOS_Launcher.sh
     |  |-- uDOS_Run.sh
     |  |-- uDOS.terminal
-  |-- legacy
   |  |-- LICENSE
   |  |-- README.md
   |  |-- repo_structure.txt
@@ -100,7 +99,6 @@
     |-- milestones
     |-- missions
     |-- state
-      |  |-- identification.md
       |  |-- identity.md
       |  |-- instance.md
   |-- uTemplate
