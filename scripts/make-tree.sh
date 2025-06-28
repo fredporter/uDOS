@@ -1,8 +1,8 @@
 #!/bin/bash
 # make-tree.sh — Generate repo_structure.txt with filtered output
 
-UDOSE_HOME="/root/uDOS"
-uDOS_ROOT="$UDOSE_HOME"
+UHOME="${HOME}/uDOS"
+uDOS_ROOT="$UHOME"
 
 if [ ! -d "$uDOS_ROOT" ]; then
   echo "❌ uDOS root directory not found at: $uDOS_ROOT"
