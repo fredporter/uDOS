@@ -4,7 +4,7 @@
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDOS_IDENTITY="${UHOME}/uMemory/state/identity.md"
+export UDENT="${UHOME}/uMemory/state/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
@@ -37,12 +37,12 @@ cat << "EOF"
 EOF
 echo "🧠 Loading environment..."
 
-if [ ! -f "$UDOS_IDENTITY" ]; then
+if [ ! -f "$UDENT" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
-  bash "$UHOME/scripts/check-setup.sh"
+  source "$UHOME/scripts/check-setup.sh"
   echo "🔁 Rechecking identity after setup..."
 
-  if [ ! -f "$UDOS_IDENTITY" ]; then
+  if [ ! -f "$UDENT" ]; then
     echo "❌ Identity still missing. Would you like to run DESTROY or REBOOT?"
 
     read -rp "💥 Run DESTROY now? (Y/n): " do_destroy
@@ -63,7 +63,7 @@ if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
   bash "$UHOME/scripts/dashboard-sync.sh"
 fi
 
-if [ -f "$UDOS_IDENTITY" ]; then
+if [ -f "$UDENT" ]; then
   username=""
   location=""
   created=""
@@ -78,7 +78,7 @@ if [ -f "$UDOS_IDENTITY" ]; then
       Timezone) timezone="$value" ;;
       UTC\ Offset) utc_offset="$value" ;;
     esac
-  done < "$UDOS_IDENTITY"
+  done < "$UDENT"
 
   echo "🔑 Identity loaded: User: $username"
   echo "Location: $location"
@@ -151,8 +151,8 @@ cmd_check() {
 
 cmd_identity() {
   echo "🆔 Current uDOS Identity:"
-  if [ -f "$UDOS_IDENTITY" ]; then
-    cat "$UDOS_IDENTITY"
+  if [ -f "$UDENT" ]; then
+    cat "$UDENT"
   else
     echo "❌ No identity file found."
   fi
@@ -298,20 +298,20 @@ cmd_destroy() {
   case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     A)
       echo "⚠️ Deleting identity only..."
-      rm -f "$UDOS_IDENTITY"
+      rm -f "$UDENT"
       echo "✅ Identity deleted."
       log_move "DESTROY mode A: identity only"
       ;;
     B)
       echo "⚠️ Deleting identity and uMemory..."
-      rm -f "$UDOS_IDENTITY"
+      rm -f "$UDENT"
       rm -rf "$UHOME/uMemory"
       echo "✅ Identity and memory deleted."
       log_move "DESTROY mode B: identity and uMemory"
       ;;
     C)
       echo "⚠️ Deleting all uMemory contents except 'legacy'..."
-      rm -f "$UDOS_IDENTITY"
+      rm -f "$UDENT"
       find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
       log_move "DESTROY mode C: preserved legacy only"
