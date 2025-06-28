@@ -11,25 +11,19 @@ export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
 
 # Ensure uMemory subdirectories exist
-mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacies"
+mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacy"
 mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/logs/moves"
 mkdir -p "${UHOME}/uMemory/state"
 
-log_move_template() {
+log_move() {
   local cmd="$1"
-  local timestamp
-  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  local id="move-log-$(date +%s)"
-  local file="${UDOS_MOVES_DIR}/${id}.md"
-  echo "# Move: $cmd" > "$file"
-  echo "- Timestamp: $timestamp" >> "$file"
-  echo "- Command: $cmd" >> "$file"
-  echo "📄 Move logged to: $file"
+  local log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo "[$(date +%H:%M:%S)] → $cmd" >> "$log_file"
 }
 
 # Log session start
-echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
+echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 
 # Startup Header
 echo "🚀 Welcome to uDOS Beta v1.6.1"
@@ -94,7 +88,7 @@ echo ""
 echo "🧠 Memory Stats:"
 echo "- Missions: $(find "$UHOME/uMemory/missions" -type f | wc -l)"
 echo "- Milestones: $(find "$UHOME/uMemory/milestones" -type f | wc -l)"
-echo "- Legacy items: $(find "$UHOME/uMemory/legacies" -type f | wc -l)"
+echo "- Legacy items: $(find "$UHOME/uMemory/legacy" -type f | wc -l)"
 echo "- Total logs: $(find "$UHOME/uMemory/logs/moves" -type f | wc -l)"
 echo ""
 
@@ -140,7 +134,7 @@ cmd_check() {
     SETUP)
       bash "$UHOME/scripts/check-setup.sh"
       log_info "CHECK SETUP executed"
-      log_move_template "check setup"
+      log_move "check setup"
       ;;
     IDENTITY)
       cmd_identity
@@ -164,7 +158,7 @@ cmd_identity() {
     echo "❌ No identity file found."
   fi
   log_info "IDENTITY command executed"
-  log_move_template "identity"
+  log_move "identity"
 }
 
 cmd_log() {
@@ -183,7 +177,7 @@ cmd_redo() {
   sleep 1
   echo "✅ Redo completed."
   log_info "Redo command executed."
-  log_move_template "redo"
+  log_move "redo"
 }
 
 cmd_undo() {
@@ -192,17 +186,17 @@ cmd_undo() {
   sleep 1
   echo "✅ Undo completed."
   log_info "Undo command executed."
-  log_move_template "undo"
+  log_move "undo"
 }
 
 cmd_run() {
   bash "$HOME/uDOS/scripts/command.sh" "$args"
-  log_move_template "run $args"
+  log_move "run $args"
 }
 
 cmd_tree() {
   bash "$HOME/uDOS/scripts/make-tree.sh"
-  log_move_template "tree"
+  log_move "tree"
 }
 
 cmd_stats() {
@@ -220,7 +214,7 @@ cmd_time() {
     echo "ℹ️ Timezone unchanged."
   fi
   log_info "TIME command executed"
-  log_move_template "time"
+  log_move "time"
 }
 
 cmd_location() {
@@ -233,7 +227,7 @@ cmd_location() {
     echo "ℹ️ Location unchanged."
   fi
   log_info "LOCATION command executed"
-  log_move_template "location"
+  log_move "location"
 }
 
 cmd_list() {
@@ -270,7 +264,7 @@ cmd_dash() {
   echo ""
   echo "📋 Dashboard Output:"
   [ -f "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ] && cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
-  log_move_template "dash"
+  log_move "dash"
 }
 
 cmd_restart() {
@@ -368,11 +362,11 @@ cmd_bye() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
+  tail -n 10 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 }
 
 # Main Command Dispatch Loop
-trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
+trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   echo -ne "\033[1;36m🌀 \033[0m"
   read -rp "" input
