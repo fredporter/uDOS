@@ -4,7 +4,7 @@
 DATA: username  
 ASK: Enter your preferred username  
 DEFAULT: agentdigital  
-TYPE: text  
+TYPE: freetext  
 
 ---
 
@@ -20,7 +20,7 @@ TYPE: password
 DATA: location  
 ASK: Enter your current location code (e.g., F00:00:00)  
 DEFAULT: F00:00:00  
-TYPE: text  
+TYPE: freetext  
 
 ---
 
@@ -28,7 +28,7 @@ TYPE: text
 DATA: timezone  
 ASK: Enter your timezone (e.g., Australia/Sydney)  
 DEFAULT: Australia/Sydney  
-TYPE: text  
+TYPE: freetext  
 
 ---
 
@@ -36,4 +36,4 @@ TYPE: text
 DATA: utc_offset  
 ASK: (auto-detect from timezone)  
 DEFAULT: +1000  
-TYPE: text  
+TYPE: freetext  
