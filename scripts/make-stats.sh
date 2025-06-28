@@ -2,8 +2,8 @@
 
 # make-stats.sh — Generate dashboard stats into uMemory (Enhanced)
 
-UDOSE_HOME="/root/uDOS"
-UROOT="$UDOSE_HOME"
+UHOME="${HOME}/uDOS"
+UROOT="$UHOME"
 UMEMORY="$UROOT/uMemory"
 UKNOWLEDGE="$UROOT/uKnowledge"
 STATE="$UMEMORY/state"

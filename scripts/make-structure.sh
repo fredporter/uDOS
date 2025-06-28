@@ -1,10 +1,10 @@
 #!/bin/bash
 # make-structure.sh — Ensure required uDOS directories and templates exist
 
-UDOSE_HOME="/root/uDOS"
-TEMPLATE_DIR="$UDOSE_HOME/uTemplate"
-SANDBOX_DIR="$UDOSE_HOME/sandbox"
-MEMORY_DIR="$UDOSE_HOME/uMemory"
+UHOME="${HOME}/uDOS"
+TEMPLATE_DIR="$UHOME/uTemplate"
+SANDBOX_DIR="$UHOME/sandbox"
+MEMORY_DIR="$UHOME/uMemory"
 LOG_DIR="$MEMORY_DIR/logs"
 
 # Create necessary directories

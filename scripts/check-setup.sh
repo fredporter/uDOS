@@ -1,17 +1,17 @@
 #!/bin/bash
 # check-setup.sh — Validate permissions for uDOS directories and scripts
 
-UDOSE_HOME="/root/uDOS"
+UHOME="$HOME/uDOS"
 
-LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-$(date +%Y-%m-%d).md"
+LOG_FILE="$UHOME/uMemory/logs/permissions-$(date +%Y-%m-%d).md"
 TARGET_DIRS=(
-  "$UDOSE_HOME/scripts"
-  "$UDOSE_HOME/uTemplate"
-  "$UDOSE_HOME/sandbox"
-  "$UDOSE_HOME/uMemory"
-  "$UDOSE_HOME/uMemory/logs"
+  "$UHOME/scripts"
+  "$UHOME/uTemplate"
+  "$UHOME/sandbox"
+  "$UHOME/uMemory"
+  "$UHOME/uMemory/logs"
 )
-SYSTEM_CMD="$UDOSE_HOME/scripts/command.sh"
+SYSTEM_CMD="$UHOME/scripts/command.sh"
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -62,7 +62,7 @@ get_stat() {
 } | tee -a "$LOG_FILE"
 
 # Prompt for user identity setup if not present
-USER_FILE="$UDOSE_HOME/sandbox/user.md"
+USER_FILE="$UHOME/sandbox/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
   if [ ! -t 0 ]; then
     echo "⚠️ Non-interactive shell detected. Creating default identity."
@@ -77,6 +77,20 @@ if [[ ! -f "$USER_FILE" ]]; then
     read -rsp "🔒 Enter a password: " password
     echo ""
     read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
+    timezone=$(date +%Z)
+    utc_offset=$(date +%z)
+    echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
+    read -rp "📌 Is this correct? (Y/n): " confirm_tz
+    if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
+      read -rp "🌐 Enter your correct timezone (e.g., Australia/Sydney): " tz_input
+      if [[ -n "$tz_input" ]]; then
+        export TZ="$tz_input"
+        timezone=$(date +%Z)
+        utc_offset=$(date +%z)
+        echo "📍 Updated timezone: $timezone (UTC$utc_offset)"
+      fi
+    fi
+    location="$timezone"
   fi
 
   mkdir -p "$(dirname "$USER_FILE")"
@@ -86,14 +100,20 @@ if [[ ! -f "$USER_FILE" ]]; then
     echo "Location: $location"
     echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   } > "$USER_FILE"
+  echo "Timezone: $(date +%Z)" >> "$USER_FILE"
+  echo "UTC Offset: $(date +%z)" >> "$USER_FILE"
 
   echo "✅ User identity created at $USER_FILE"
 
-  MOVE_LOG="$UDOSE_HOME/uMemory/logs/moves/moves-$(date +%Y-%m-%d).md"
+  MOVE_LOG="$UHOME/uMemory/logs/moves/moves-$(date +%Y-%m-%d).md"
   mkdir -p "$(dirname "$MOVE_LOG")"
   echo "- [$(date +%H:%M)] ✅ System setup completed by '$username' at $location" >> "$MOVE_LOG"
 fi
 
-IDENTITY_FILE="$UDOSE_HOME/identity.md"
-echo "$username" > "$IDENTITY_FILE"
+IDENTITY_FILE="$UHOME/identity.md"
+echo "User: $username" > "$IDENTITY_FILE"
+echo "Location: $location" >> "$IDENTITY_FILE"
+echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
+echo "Timezone: $(date +%Z)" >> "$IDENTITY_FILE"
+echo "UTC Offset: $(date +%z)" >> "$IDENTITY_FILE"
 echo "✅ System identity stored at $IDENTITY_FILE"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # make-log.sh — Unified logger for uDOS missions, milestones, legacies (v1.6.1)
 
-UDOSE_HOME="/root/uDOS"
+UHOME="${HOME}/uDOS"
 
 generate_filename() {
   CATEGORY="$1" # e.g. uML, uIO, uTA
@@ -19,7 +19,7 @@ generate_filename() {
 }
 
 TARGET="$1"  # mission, milestone, legacy
-LOCATION=$(cat "$UDOSE_HOME/uMemory/state/location.txt" 2>/dev/null || echo "F00:00:00")
+LOCATION=$(cat "$UHOME/uMemory/state/location.txt" 2>/dev/null || echo "F00:00:00")
 TIMEZONE="AEST"
 
 if [[ -z "$TARGET" ]]; then
@@ -28,8 +28,8 @@ if [[ -z "$TARGET" ]]; then
 fi
 
 FILE_NAME=$(generate_filename "$TARGET" "$LOCATION" "$TIMEZONE")
-DEST="$UDOSE_HOME/uMemory/${TARGET}s/$FILE_NAME"
-TEMPLATE="$UDOSE_HOME/uTemplate/${TARGET}-template.md"
+DEST="$UHOME/uMemory/${TARGET}s/$FILE_NAME"
+TEMPLATE="$UHOME/uTemplate/${TARGET}-template.md"
 
 mkdir -p "$(dirname "$DEST")"
 

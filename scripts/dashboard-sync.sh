@@ -1,11 +1,11 @@
 #!/bin/bash
 # dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
-UDOSE_HOME="/root/uDOS"
-UROOT="$UDOSE_HOME"
+UHOME="${HOME}/uDOS"
+UROOT="$UHOME"
 bash "$UROOT/scripts/check-setup.sh" >/dev/null
-MEMORY_DIR="${UOS_MEMORY_DIR:-$UDOSE_HOME/uMemory}"
-KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UDOSE_HOME/uKnowledge}"
+MEMORY_DIR="${UOS_MEMORY_DIR:-$UHOME/uMemory}"
+KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UHOME/uKnowledge}"
 
 STATE_DIR="$MEMORY_DIR/state"
 MOVE_DIR="$MEMORY_DIR/logs/moves"
@@ -23,8 +23,9 @@ LIFESPAN="n/a"
 SHARING="n/a"
 UDOS_VERSION="uDOS Beta v1.6.1"
 
+#
 # Read Username and Password from sandbox user.md
-SANDBOX_USER_FILE="$UDOSE_HOME/sandbox/user.md"
+SANDBOX_USER_FILE="$UHOME/sandbox/user.md"
 if [[ -f "$SANDBOX_USER_FILE" ]]; then
   while IFS= read -r line; do
     if [[ "$line" =~ ^([A-Za-z ]+):[[:space:]]*(.+)$ ]]; then
@@ -159,8 +160,9 @@ render_template() {
 }
 
 #
+#
 # Use new dashboard template directory
-DASHBOARD_TEMPLATE_DIR="$UDOSE_HOME/uTemplate/dashboards"
+DASHBOARD_TEMPLATE_DIR="$UHOME/uTemplate/dashboards"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.md"

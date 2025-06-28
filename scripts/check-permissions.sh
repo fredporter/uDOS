@@ -2,10 +2,10 @@
 # check-permissions.sh – Auto-fix permissions for uDOS scripts
 # uDOS by Master & Otter 🦦
 
-UDOSE_HOME="/root/uDOS"
+UHOME="${HOME}/uDOS"
 
-LOG_FILE="$UDOSE_HOME/uMemory/logs/permissions-log-$(date +%Y-%m-%d).md"
-TARGET_DIRS=("$UDOSE_HOME/launcher" "$UDOSE_HOME/scripts" "$UDOSE_HOME/uTemplate" "$UDOSE_HOME/sandbox")
+LOG_FILE="$UHOME/uMemory/logs/permissions-log-$(date +%Y-%m-%d).md"
+TARGET_DIRS=("$UHOME/launcher" "$UHOME/scripts" "$UHOME/uTemplate" "$UHOME/sandbox")
 
 mkdir -p "$(dirname "$LOG_FILE")"
 

@@ -3,19 +3,19 @@
 # Full-featured command-line interface for uDOS environment
 
 # Environment Setup
-export UDOS_HOME="${HOME}/uDOS"
-export UDOS_LOG="${UDOS_HOME}/udos.log"
-export UDOS_IDENTITY="${UDOS_HOME}/identity.md"
-export UDOS_DASHBOARD="${UDOS_HOME}/uMemory/state/dashboard.json"
-export UDOS_TEMP="${UDOS_HOME}/temp"
-export UDOS_MOVES_DIR="${UDOS_HOME}/logs/moves"
-mkdir -p "$UDOS_HOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
+export UHOME="${HOME}/uDOS"
+export UDOS_LOG="${UHOME}/udos.log"
+export UDOS_IDENTITY="${UHOME}/identity.md"
+export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
+export UDOS_TEMP="${UHOME}/temp"
+export UDOS_MOVES_DIR="${UHOME}/logs/moves"
+mkdir -p "$UHOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
 
 # Ensure uMemory subdirectories exist
-mkdir -p "${UDOS_HOME}/uMemory/missions" "${UDOS_HOME}/uMemory/milestones" "${UDOS_HOME}/uMemory/legacies"
-mkdir -p "${UDOS_HOME}/uMemory/logs/errors"
-mkdir -p "${UDOS_HOME}/uMemory/logs/moves"
-mkdir -p "${UDOS_HOME}/uMemory/state"
+mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacies"
+mkdir -p "${UHOME}/uMemory/logs/errors"
+mkdir -p "${UHOME}/uMemory/logs/moves"
+mkdir -p "${UHOME}/uMemory/state"
 
 # Log session start
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
@@ -33,16 +33,16 @@ cat << "EOF"
 EOF
 echo "🧠 Loading environment..."
 
-if [[ -x "$UDOS_HOME/scripts/make-stats.sh" ]]; then
-  bash "$UDOS_HOME/scripts/make-stats.sh"
+if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
+  bash "$UHOME/scripts/make-stats.sh"
 fi
 
-if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
-  bash "$UDOS_HOME/scripts/dashboard-sync.sh"
+if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
+  bash "$UHOME/scripts/dashboard-sync.sh"
 fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
-  bash "$UDOS_HOME/scripts/check-setup.sh"
+  bash "$UHOME/scripts/check-setup.sh"
 fi
 
 if [ -f "$UDOS_IDENTITY" ]; then
@@ -92,11 +92,53 @@ sync_dashboard() {
 
 # Command Functions
 
+cmd_check() {
+  subcmd=$(echo "$args" | awk '{print toupper($1)}')
+  case "$subcmd" in
+    TIME)
+      cmd_time
+      ;;
+    LOCATION)
+      cmd_location
+      ;;
+    LOG)
+      cmd_log
+      ;;
+    SETUP)
+      bash "$UHOME/scripts/check-setup.sh"
+      log_info "CHECK SETUP executed"
+      log_move_template "check setup"
+      ;;
+    IDENTITY)
+      cmd_identity
+      ;;
+    *)
+      echo "🔎 CHECK what?"
+      echo "   TIME      → View or set timezone"
+      echo "   LOCATION  → View or set location code"
+      echo "   LOG       → Log mission/milestone/legacy"
+      echo "   SETUP     → Run full environment check"
+      echo "   IDENTITY  → Display current identity"
+      ;;
+  esac
+}
+
+cmd_identity() {
+  echo "🆔 Current uDOS Identity:"
+  if [ -f "$UDOS_IDENTITY" ]; then
+    cat "$UDOS_IDENTITY"
+  else
+    echo "❌ No identity file found."
+  fi
+  log_info "IDENTITY command executed"
+  log_move_template "identity"
+}
+
 cmd_log() {
   echo -ne $'\033[1;34m📝 Log Entry Type:\033[0m '
   read what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
-    bash "$UDOS_HOME/scripts/make-log.sh" "$what"
+    bash "$UHOME/scripts/make-log.sh" "$what"
   else
     echo "❌ Invalid log type."
   fi
@@ -131,7 +173,34 @@ cmd_tree() {
 }
 
 cmd_stats() {
-  bash "$UDOS_HOME/scripts/make-stats.sh"
+  bash "$UHOME/scripts/make-stats.sh"
+}
+
+cmd_time() {
+  echo "🕒 Current timezone: $(date +%Z)"
+  echo "🕓 UTC offset: $(date +%z)"
+  read -rp "🌐 Enter new timezone (e.g., Australia/Sydney) or leave blank to keep: " new_tz
+  if [[ -n "$new_tz" ]]; then
+    export TZ="$new_tz"
+    echo "✅ Timezone updated to: $(date +%Z) (UTC$(date +%z))"
+  else
+    echo "ℹ️ Timezone unchanged."
+  fi
+  log_info "TIME command executed"
+  log_move_template "time"
+}
+
+cmd_location() {
+  echo "📍 Current location (based on timezone): $(date +%Z)"
+  read -rp "🗺️ Enter new location code (or leave blank to keep current): " new_loc
+  if [[ -n "$new_loc" ]]; then
+    echo "✅ Location updated: $new_loc"
+    echo "$new_loc" > "$UHOME/uMemory/state/location.md"
+  else
+    echo "ℹ️ Location unchanged."
+  fi
+  log_info "LOCATION command executed"
+  log_move_template "location"
 }
 
 cmd_list() {
@@ -140,18 +209,18 @@ cmd_list() {
 }
 
 cmd_mission() {
-  cat "$UDOS_HOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
+  cat "$UHOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
 }
 
 cmd_map() {
-  cat "$UDOS_HOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
+  cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
 }
 
 cmd_dash() {
   echo "📈 Displaying dashboard..."
-  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-header.md"
+  cat "$UHOME/uTemplate/dashboards/dashboard-header.md"
   [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
-  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-footer.md"
+  cat "$UHOME/uTemplate/dashboards/dashboard-footer.md"
   log_info "Dashboard displayed."
   log_move_template "dash"
 }
@@ -167,14 +236,14 @@ cmd_reboot() {
   log_info "System reboot initiated."
 
   echo "🧼 Rebuilding structure..."
-  bash "$UDOS_HOME/scripts/make-structure.sh"
+  bash "$UHOME/scripts/make-structure.sh"
 
   echo "🔍 Rechecking setup and permissions..."
-  bash "$UDOS_HOME/scripts/check-setup.sh"
+  bash "$UHOME/scripts/check-setup.sh"
 
   echo "📊 Rebuilding stats and dashboard..."
-  bash "$UDOS_HOME/scripts/make-stats.sh"
-  bash "$UDOS_HOME/scripts/dashboard-sync.sh"
+  bash "$UHOME/scripts/make-stats.sh"
+  bash "$UHOME/scripts/dashboard-sync.sh"
 
   echo "🌀 Relaunching shell..."
   exec "$0"
@@ -200,14 +269,14 @@ cmd_destroy() {
     B)
       echo "⚠️ Deleting identity and uMemory..."
       rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
-      rm -rf "$UDOS_HOME/uMemory"
+      rm -rf "$UHOME/uMemory"
       echo "✅ Identity and memory deleted."
       log_info "DESTROY mode B: identity and uMemory"
       ;;
     C)
       echo "⚠️ Deleting all uMemory contents except 'legacy'..."
       rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
-      find "$UDOS_HOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
+      find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
       log_info "DESTROY mode C: preserved legacy only"
       ;;
@@ -282,11 +351,20 @@ while true; do
     GO|START)
       cmd_run
       ;;
+    CHECK)
+      cmd_check
+      ;;
     TREE)
       cmd_tree
       ;;
     STATS)
       cmd_stats
+      ;;
+    TIME)
+      cmd_time
+      ;;
+    LOCATION)
+      cmd_location
       ;;
     LIST)
       cmd_list
@@ -326,9 +404,12 @@ while true; do
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   SAVE      → Alias for LOG"
       echo "   RUN       → Run a command"
-      echo "   GO/START  → Alias for RUN"
+      echo "   GO/START   → Alias for RUN"
+      echo "   CHECK      → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
       echo "   TREE      → Show file tree"
       echo "   STATS     → Generate dashboard stats"
+      echo "   TIME      → Check or set your timezone"
+      echo "   LOCATION  → Check or set your location code"
       echo "   LIST      → List current folder"
       echo "   MAP       → Show current region"
       echo "   MISSION   → Display active mission"
@@ -337,6 +418,7 @@ while true; do
       echo "   RESTART   → Restart shell"
       echo "   REBOOT    → Reboot system"
       echo "   DESTROY   → Delete your identity"
+      echo "   IDENTITY  → Display user identity file"
       echo "   BYE/EXIT/QUIT → Close session"
       echo "   RECENT/HISTORY → Show last 10 moves"
       ;;
