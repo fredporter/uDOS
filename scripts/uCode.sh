@@ -93,7 +93,7 @@ sync_dashboard() {
 # Command Functions
 
 cmd_log() {
-  echo -ne "\033[1;34m📝 Log Entry Type\033[0m (mission/milestone/legacy): "
+  echo -ne $'\033[1;34m📝 Log Entry Type:\033[0m '
   read what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
     bash "$UDOS_HOME/scripts/make-log.sh" "$what"
@@ -187,7 +187,7 @@ cmd_destroy() {
   echo "  [C] Remove identity, archive uMemory to /legacy, then delete uMemory"
   echo "  [D] Reboot only (no data loss)"
   echo "  [E] Exit to uCode only (no reboot, no data loss)"
-  read -n1 -rp "👉 Select DESTROY option: " choice
+  read -n1 -rp $'\033[1;34m👉 Select DESTROY option:\033[0m ' choice
   echo ""
 
   case "${choice^^}" in
@@ -239,7 +239,7 @@ cmd_bye() {
   echo "   [B] REBOOT  → Reload all system components"
   echo "   [D] DESTROY → Clear identity or memory"
   echo "   [C] CONTINUE → Resume uDOS"
-  read -n1 -rp "👉 Choose next step: " next
+  read -n1 -rp $'\033[1;34m👉 Choose next step:\033[0m ' next
   echo ""
   case "${next^^}" in
     R) cmd_restart ;;
@@ -257,9 +257,9 @@ cmd_recent() {
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
-  echo -ne "\033[1;36m🌀 uCode is ready for your next move...\033[0m"
+  echo -ne "\033[1;36m🌀 \033[0m"
   sleep 1
-  read -rp $'\n\033[1;32muDOS> \033[0m' input
+  read -rp $'\033[1;32muDOS> \033[0m' input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"
