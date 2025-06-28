@@ -1,7 +1,6 @@
 .
   |  |-- docker-compose.yml
   |  |-- Dockerfile
-  |  |-- identity.md
   |-- launcher
     |  |-- app-wrapper.sh
     |  |-- Install Desktop Launcher.command
@@ -82,7 +81,6 @@
     |  |-- roadmap.md
     |  |-- start.sh
     |  |-- uCode.sh
-  |  |-- udos.log
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -97,7 +95,9 @@
       |-- moves
     |-- milestones
     |-- missions
+      |  |-- mission-log-20250628-2108563N-AEST-F000000.md
     |-- state
+      |  |-- identity.md
       |  |-- instance.md
   |-- uTemplate
     |-- dashboards
