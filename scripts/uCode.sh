@@ -8,11 +8,11 @@ export UDOS_IDENTITY="${UHOME}/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
-
-# Ensure uMemory subdirectories exist
+# --- Ensure required folders exist before any logging or stats ---
+mkdir -p "$UHOME/uMemory/logs/moves"
+mkdir -p "$UHOME/sandbox"
 mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacy"
 mkdir -p "${UHOME}/uMemory/logs/errors"
-mkdir -p "${UHOME}/uMemory/logs/moves"
 mkdir -p "${UHOME}/uMemory/state"
 
 log_move() {
@@ -37,16 +37,17 @@ cat << "EOF"
 EOF
 echo "🧠 Loading environment..."
 
-if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
-  bash "$UHOME/scripts/make-stats.sh"
-fi
-
-if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
-  bash "$UHOME/scripts/dashboard-sync.sh"
-fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
   bash "$UHOME/scripts/check-setup.sh"
+fi
+
+# Run stats and dashboard sync after setup check
+if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
+  bash "$UHOME/scripts/make-stats.sh"
+fi
+if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
+  bash "$UHOME/scripts/dashboard-sync.sh"
 fi
 
 if [ -f "$UDOS_IDENTITY" ]; then
