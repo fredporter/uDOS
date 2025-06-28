@@ -34,9 +34,13 @@ fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
   bash "$UDOS_HOME/scripts/check-setup.sh"
-  exit 0
-else
+fi
+
+if [ -f "$UDOS_IDENTITY" ]; then
   echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
+else
+  echo "❌ Identity still missing. Please run DESTROY or REBOOT."
+  exit 1
 fi
 echo ""
 
