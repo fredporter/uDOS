@@ -4,11 +4,11 @@
 UHOME="/root/uDOS"
 echo "🌀 Launching uDOS..."
 
-# Initialize directory structure
+# Create required directories
 bash "$UHOME/scripts/make-structure.sh"
 
-# Check setup and permissions
+# Run full identity and system setup
 bash "$UHOME/scripts/check-setup.sh"
 
-# Start the CLI
+# Only then launch the uCode shell
 exec bash "$UHOME/scripts/uCode.sh"

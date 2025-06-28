@@ -3,8 +3,10 @@
 
 UHOME="$HOME/uDOS"
 
-# Ensure sandbox directory exists before any logging
-mkdir -p "$UHOME/sandbox"
+# Ensure directory structure exists before continuing
+if [[ ! -d "$UHOME/uMemory" || ! -d "$UHOME/sandbox" || ! -d "$UHOME/uTemplate" ]]; then
+  bash "$UHOME/scripts/make-structure.sh"
+fi
 
 TARGET_DIRS=(
   "$UHOME/scripts"
