@@ -13,8 +13,13 @@
     |  |-- uDOS_Launcher.sh
     |  |-- uDOS_Run.sh
   |-- logs
+    |-- moves
+      |  |-- 2025-06-24-move-1750775805.md
+      |  |-- moves-2025-06-24.md
+      |  |-- moves-2025-06-28.md
     |  |-- udos-2025-06-24.log
     |  |-- udos-2025-06-25.log
+    |  |-- udos-2025-06-28.log
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -82,6 +87,7 @@
     |  |-- make-tree.sh
     |  |-- start.sh
     |  |-- uCode.sh
+  |-- temp
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -89,13 +95,17 @@
     |-- general-library
     |-- maps
   |-- uMemory
+    |-- legacies
     |-- legacy
     |-- logs
+      |  |-- command-errors-2025-06-24.log
       |-- errors
       |-- moves
       |  |-- moves-2025-06-23.md
       |  |-- moves-2025-06-24.md
+      |  |-- moves-2025-06-28.md
       |  |-- permissions-2025-06-24.log
+      |  |-- permissions-2025-06-28.log
     |-- milestones
     |-- missions
     |-- moves
@@ -116,3 +126,4 @@
     |  |-- mission-template.md
     |  |-- move-template.md
     |  |-- uc-template.md
+  |  |-- udos.log

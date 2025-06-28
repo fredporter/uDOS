@@ -29,6 +29,11 @@ if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
   bash "$UDOS_HOME/scripts/dashboard-sync.sh"
 fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
+  if [ ! -d "$UDOS_HOME/uMemory" ] || [ ! -d "$UDOS_HOME/sandbox" ]; then
+    echo "⚙️ No memory or user data found. Launching setup..."
+    bash "$UDOS_HOME/scripts/setup.sh"
+    exit 0
+  fi
   echo "🔑 No identity found."
   echo "❌ No identity present. System must be initialised using DESTROY or REBOOT."
 else
@@ -120,18 +125,18 @@ cmd_list() {
 }
 
 cmd_mission() {
-  cat "$UDOS_HOME/state/current_mission.txt" 2>/dev/null || echo "🎯 No mission active."
+  cat "$UDOS_HOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
 }
 
 cmd_map() {
-  cat "$UDOS_HOME/uKnowledge/map/current_region.txt" 2>/dev/null || echo "🗺️ No map loaded."
+  cat "$UDOS_HOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
 }
 
 cmd_dash() {
   echo "📈 Displaying dashboard..."
-  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-header.tmpl"
+  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-header.md"
   [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
-  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-footer.tmpl"
+  cat "$UDOS_HOME/uTemplate/dashboards/dashboard-footer.md"
   log_info "Dashboard displayed."
   log_move_template "dash"
 }
@@ -155,6 +160,8 @@ cmd_destroy() {
   read -rp "Are you sure you want to delete your identity? (yes/no): " confirm
   if [[ "$confirm" =~ ^[Yy][Ee][Ss]$ ]]; then
     rm -f "$UDOS_IDENTITY" "$UDOS_LOG" "$UDOS_DASHBOARD"
+    rm -rf "$UDOS_HOME/sandbox"
+    rm -rf "$UDOS_HOME/uMemory"
     echo "✅ Identity and related data deleted."
     log_info "Identity destroyed by user."
   else
