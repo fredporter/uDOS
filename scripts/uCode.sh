@@ -32,8 +32,8 @@ if [[ -x "$UDOS_HOME/scripts/dashboard-sync.sh" ]]; then
   bash "$UDOS_HOME/scripts/dashboard-sync.sh"
 fi
 if [ ! -f "$UDOS_IDENTITY" ]; then
-  echo "⚙️ No identity file found. Launching setup..."
-  bash "$UDOS_HOME/scripts/setup.sh"
+  echo "⚙️ No identity file found. Running check-setup..."
+  bash "$UDOS_HOME/scripts/check-setup.sh"
   exit 0
 else
   echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
