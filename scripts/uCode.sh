@@ -278,7 +278,7 @@ cmd_destroy() {
   read -n1 -rp $'\033[1;34m👉 Select DESTROY option:\033[0m ' choice
   echo ""
 
-  case "${choice^^}" in
+  case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     A)
       echo "⚠️ Deleting identity only..."
       rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
