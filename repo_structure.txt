@@ -66,8 +66,6 @@
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
-    |  |-- identification.md
-    |  |-- instance.md
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -103,6 +101,7 @@
     |-- missions
     |-- state
       |  |-- identification.md
+      |  |-- identity.md
       |  |-- instance.md
   |-- uTemplate
     |-- dashboards

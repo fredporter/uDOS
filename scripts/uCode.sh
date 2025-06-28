@@ -15,6 +15,14 @@ mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMe
 mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/state"
 
+# --- uDOS Version Detection ---
+IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+if [[ -f "$IDENTITY_FILE" ]]; then
+  UVERSION=$(grep "Version:" "$IDENTITY_FILE" | cut -d':' -f2 | xargs)
+else
+  UVERSION="Unknown"
+fi
+
 log_move() {
   local cmd="$1"
   local log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
@@ -25,15 +33,15 @@ log_move() {
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 
 # Startup Header
-echo "🚀 Welcome to uDOS Beta v1.6.1"
-cat << "EOF"
+echo "🚀 Welcome to uDOS $UVERSION"
+cat << EOF
  _    _  ____   ___   ____  ______ _____  
 | |  | |/ __ \ / _ \ / __ \|  ____|  __ \ 
 | |  | | |  | | | | | |  | | |__  | |  | |
 | |  | | |  | | | | | |  | |  __| | |  | |
 | |__| | |__| | |_| | |__| | |____| |__| |
  \____/ \____/ \___/ \____/|______|_____/  
-     uCode Shell · Beta v1.6.1 🌀
+     uCode Shell · $UVERSION 🌀
 EOF
 echo "🧠 Loading environment..."
 
@@ -81,6 +89,12 @@ if [ -f "$UDENT" ]; then
   echo "Created: $created"
   echo "Timezone: $timezone"
   echo "UTC Offset: $utc_offset"
+
+  # Check for password field after identity loaded
+  PASSWORD=$(grep "Password" "$UDENT" | cut -d':' -f2 | xargs)
+  if [[ -z "$PASSWORD" ]]; then
+    echo "⚠️  No password found in user profile. Skipping password check for now."
+  fi
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1

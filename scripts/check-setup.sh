@@ -6,6 +6,7 @@ NON_INTERACTIVE=${NON_INTERACTIVE:-false}
 
 # Load reusable prompt questions and default vars
 
+echo "[$(date +%H:%M:%S)] → check-setup started" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
 
 # Ensure directory structure exists before continuing
 if [[ ! -d "$UHOME/uMemory" || ! -d "$UHOME/sandbox" || ! -d "$UHOME/uTemplate" ]]; then
@@ -35,11 +36,12 @@ USER_FILE="$UHOME/sandbox/user.md"
 need_prompt=false
 
 if [[ -f "$USER_FILE" ]]; then
-  username=$(grep "^Username:" "$USER_FILE" | cut -d':' -f2 | xargs)
-  location=$(grep "^Location:" "$USER_FILE" | cut -d':' -f2 | xargs)
-  timezone=$(grep "^Timezone:" "$USER_FILE" | cut -d':' -f2 | xargs)
+  username=$(grep "Username" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
+  password=$(grep "Password" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
+  location=$(grep "Location" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
+  timezone=$(grep "Timezone" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
 
-  [[ -z "$username" || -z "$location" || -z "$timezone" ]] && need_prompt=true
+  [[ -z "$username" || -z "$password" || -z "$location" || -z "$timezone" ]] && need_prompt=true
 else
   need_prompt=true
 fi
@@ -48,9 +50,23 @@ if [[ "$need_prompt" = true ]]; then
   echo "🧑 Created user profile in sandbox/user.md"
   echo "🧑 Creating user profile. Please provide the following details:"
   if [[ -z "$username" ]]; then read -rp "Username: " username; fi
+  if [[ -z "$password" ]]; then read -rsp "Password: " password; echo ""; fi
   if [[ -z "$location" ]]; then read -rp "Location: " location; fi
-  if [[ -z "$timezone" ]]; then read -rp "Timezone: " timezone; fi
-  utc_offset=$(date +%z | sed 's/^\([+-][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/')
+
+  timezone=$(date +%Z)
+  utc_offset=$(date +%z)
+  echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
+  read -rp "📌 Is this correct? (Y/n): " confirm_tz
+  if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
+    read -rp "🌐 Enter your correct timezone (e.g., Australia/Sydney): " tz_input
+    if [[ -n "$tz_input" ]]; then
+      export TZ="$tz_input"
+      timezone=$(date +%Z)
+      utc_offset=$(date +%z)
+      echo "📍 Updated timezone: $timezone (UTC$utc_offset)"
+    fi
+  fi
+
   mkdir -p "$UHOME/sandbox"
   {
     echo "# uDOS User Profile"
@@ -62,29 +78,30 @@ if [[ "$need_prompt" = true ]]; then
 
   # Refresh local vars from saved user.md
   username=$(grep "^-" "$USER_FILE" | grep "Username" | cut -d':' -f2 | xargs)
+  password=$(grep "^-" "$USER_FILE" | grep "Password" | cut -d':' -f2 | xargs)
   location=$(grep "^-" "$USER_FILE" | grep "Location" | cut -d':' -f2 | xargs)
   timezone=$(grep "^-" "$USER_FILE" | grep "Timezone" | cut -d':' -f2 | xargs)
 
-  echo "# Instance File" > "$UHOME/sandbox/instance.md"
-  echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$UHOME/sandbox/instance.md"
-  echo "Version: Beta v1.6.1" >> "$UHOME/sandbox/instance.md"
-
-  echo "# Identification File" > "$UHOME/sandbox/identification.md"
-  echo "User: $username" >> "$UHOME/sandbox/identification.md"
-  echo "Location: $location" >> "$UHOME/sandbox/identification.md"
-  echo "Timezone: $timezone" >> "$UHOME/sandbox/identification.md"
-  echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$UHOME/sandbox/identification.md"
-  echo "UTC Offset: $utc_offset" >> "$UHOME/sandbox/identification.md"
   echo "[$(date +%H:%M:%S)] → check-setup → user.md (re)created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
 
-if [[ ! -f "$UHOME/uMemory/state/identification.md" ]]; then
-  mkdir -p "$UHOME/uMemory/state"
-  mv "$UHOME/sandbox/instance.md" "$UHOME/uMemory/state/"
-  mv "$UHOME/sandbox/identification.md" "$UHOME/uMemory/state/"
-  echo "[$(date +%H:%M:%S)] → check-setup → sandbox state files moved to uMemory/state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
-  cp "$UHOME/uMemory/state/identification.md" "$UHOME/uMemory/state/identity.md"
-  # Cleanup original sandbox copies
-  rm -f "$UHOME/sandbox/instance.md"
-  rm -f "$UHOME/sandbox/identification.md"
+mkdir -p "$UHOME/uMemory/state"
+echo "# Instance File" > "$UHOME/uMemory/state/instance.md"
+echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$UHOME/uMemory/state/instance.md"
+echo "Version: Beta v1.6.1" >> "$UHOME/uMemory/state/instance.md"
+echo "Location: $location" >> "$UHOME/uMemory/state/instance.md"
+echo "Timezone: $timezone" >> "$UHOME/uMemory/state/instance.md"
+echo "UTC Offset: $utc_offset" >> "$UHOME/uMemory/state/instance.md"
+
+IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+if [[ ! -f "$IDENTITY_FILE" ]]; then
+  echo "# Identity File" > "$IDENTITY_FILE"
+  echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
+  echo "Version: Beta v1.6.1" >> "$IDENTITY_FILE"
+  echo "Timezone: $timezone" >> "$IDENTITY_FILE"
+  echo "UTC Offset: $utc_offset" >> "$IDENTITY_FILE"
+  echo "Install Location: $location" >> "$IDENTITY_FILE"
+  echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
+
+echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
