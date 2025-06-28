@@ -92,8 +92,8 @@ if [ -f "$UDENT" ]; then
 
   # Check for password field after identity loaded
   PASSWORD=$(grep "Password" "$UDENT" | cut -d':' -f2 | xargs)
-  if [[ -z "$PASSWORD" ]]; then
-    echo "⚠️  No password found in user profile. Skipping password check for now."
+  if [[ -z "$PASSWORD" && "$0" =~ (reboot|restart) ]]; then
+    echo "⚠️  Password is blank. Skipping check on reboot/restart."
   fi
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
