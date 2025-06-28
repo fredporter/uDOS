@@ -73,6 +73,7 @@
     |  |-- dashboard-sync.sh
     |  |-- dashboard.sh
     |  |-- error-logger.sh
+    |  |-- make-dash.sh
     |  |-- make-log.sh
     |  |-- make-stats.sh
     |  |-- make-structure.sh
@@ -80,6 +81,7 @@
     |  |-- roadmap.md
     |  |-- start.sh
     |  |-- uCode.sh
+  |  |-- udos.log
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -92,7 +94,7 @@
       |-- errors
       |  |-- move-log-2025-06-28.md
       |-- moves
-        |  |-- move-2025-06-28.md
+        |  |-- moves-log-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
     |-- milestones
     |-- missions

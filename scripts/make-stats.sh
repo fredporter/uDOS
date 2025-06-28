@@ -20,7 +20,7 @@ count_files() {
   find "$1" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' '
 }
 
-TOTAL_MOVES=$(grep -h -v '^\[STATS\]' "$MOVE_LOGS"/moves-*.md 2>/dev/null | wc -l)
+TOTAL_MOVES=$(grep -h '^\[' "$LOG_DIR"/move-log-*.md 2>/dev/null | wc -l)
 TOTAL_MISSIONS=$(count_files "$UMEMORY/missions")
 TOTAL_MILESTONES=$(count_files "$UMEMORY/milestones")
 TOTAL_LEGACY=$(count_files "$UMEMORY/legacy")
@@ -56,8 +56,11 @@ LAST_MISSION=$(find "$UMEMORY/missions" -name '*.md' -type f -print0 | xargs -0 
 # ─────────────────────────────────────────────────────────────────────────────
 # Append stats summary to today's move log
 # ─────────────────────────────────────────────────────────────────────────────
-DAILY_MOVE_LOG="$LOG_DIR/moves-log-${DATESTAMP}.md"
+DAILY_MOVE_LOG="$LOG_DIR/move-log-${DATESTAMP}.md"
 
-echo "Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION" >> "$DAILY_MOVE_LOG"
+summary="Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION"
+echo "[STATS] $summary" >> "$DAILY_MOVE_LOG"
+
+echo "[$(date +%H:%M:%S)] → make-stats summary written" >> "$UHOME/sandbox/dash-log-$DATESTAMP.md"
 
 echo "✅ System stats appended to: $DAILY_MOVE_LOG"

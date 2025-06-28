@@ -10,7 +10,8 @@ TARGET_DIRS=(
   "$UHOME/uMemory"
   "$UHOME/uMemory/logs"
 )
-SYSTEM_CMD="$UHOME/scripts/command.sh"
+
+echo "[$(date +%H:%M:%S)] → check-setup started" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
 
 get_stat() {
   # Try GNU stat format first, fallback to BSD/macOS stat
@@ -20,8 +21,6 @@ get_stat() {
     stat -f "%Lp %Su" "$1"
   fi
 }
-
-echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 
 # Prompt for user identity setup if not present
 USER_FILE="$UHOME/sandbox/user.md"
@@ -35,16 +34,16 @@ if [[ ! -f "$USER_FILE" ]]; then
     echo ""
     echo "🔑 No identity found. Let's set up your user profile."
 
-    read -rp "👤 Enter your preferred username: " username
-    read -rsp "🔒 Enter a password: " password
+    echo ""; read -rp "👤 Enter your preferred username: " username
+    echo ""; read -rsp "🔒 Enter a password: " password
     echo ""
-    read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
+    echo ""; read -rp "📍 Enter your current location code (e.g., F00:00:00): " location
     timezone=$(date +%Z)
     utc_offset=$(date +%z)
     echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
-    read -rp "📌 Is this correct? (Y/n): " confirm_tz
+    echo ""; read -rp "📌 Is this correct? (Y/n): " confirm_tz
     if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
-      read -rp "🌐 Enter your correct timezone (e.g., Australia/Sydney): " tz_input
+      echo ""; read -rp "🌐 Enter your correct timezone (e.g., Australia/Sydney): " tz_input
       if [[ -n "$tz_input" ]]; then
         export TZ="$tz_input"
         timezone=$(date +%Z)
@@ -69,7 +68,7 @@ if [[ ! -f "$USER_FILE" ]]; then
 
   MOVE_LOG="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   mkdir -p "$(dirname "$MOVE_LOG")"
-  echo "- [$(date +%H:%M)] ✅ System setup completed by '$username' at $location" >> "$MOVE_LOG"
+  echo "[$(date +%H:%M:%S)] → check-setup → user.md + identity.md created for '$username'" >> "$MOVE_LOG"
 fi
 
 IDENTITY_FILE="$UHOME/identity.md"
@@ -78,3 +77,11 @@ echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
 echo "Timezone: $(date +%Z)" >> "$IDENTITY_FILE"
 echo "UTC Offset: $(date +%z)" >> "$IDENTITY_FILE"
 echo "Version: Beta v1.6.3" >> "$IDENTITY_FILE"
+
+STATE_FILE="$UHOME/uMemory/state/instance.md"
+echo "Location: $location" > "$STATE_FILE"
+echo "Timezone: $timezone" >> "$STATE_FILE"
+echo "UTC Offset: $utc_offset" >> "$STATE_FILE"
+
+echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"

@@ -9,11 +9,9 @@ status=$?
 
 if [ $status -ne 0 ]; then
   summary="Command failed: $cmd"
-  bash "$UHOME/scripts/error-logger.sh" "$summary" "$output"
 
   # Log the error context to a timestamped markdown file
   ERROR_LOG_DIR="$UHOME/uMemory/logs/errors"
-  mkdir -p "$ERROR_LOG_DIR"
   timestamp=$(date +"%Y-%m-%d-%H%M%S")
   error_log_file="$ERROR_LOG_DIR/error-log-$timestamp.md"
 
@@ -27,6 +25,8 @@ if [ $status -ne 0 ]; then
     echo "$output"
     echo '```'
   } > "$error_log_file"
+
+  echo "[$(date +%H:%M:%S)] → error → see: ${error_log_file#"$UHOME/"}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 
   echo "📝 Error saved to: $error_log_file"
 
@@ -47,7 +47,7 @@ if [ $status -ne 0 ]; then
     R) echo "🔄 Refreshing..."; exec "$UHOME/scripts/uCode.sh" ;;
     B) echo "♻️ Rebooting..."; "$UHOME/scripts/uCode.sh" REBOOT ;;
     D) echo "☠️ Destroying..."; "$UHOME/scripts/uCode.sh" DESTROY ;;
-    V) echo "📜 Showing error log:"; tail -n 20 "$UHOME/uMemory/logs/errors/$(date +%Y-%m-%d)-error-log.md" ;;
+    V) echo "📜 Showing error log:"; tail -n 20 "$error_log_file" ;;
     *) echo "🌀 Returning to uCode..."; "$UHOME/scripts/uCode.sh"; return ;;
   esac
 else

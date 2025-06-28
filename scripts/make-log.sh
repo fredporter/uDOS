@@ -1,5 +1,5 @@
 #!/bin/bash
-# make-log.sh — Unified logger for uDOS missions, milestones, legacies (v1.6.1)
+# make-log.sh — Logs a mission, milestone or legacy to uMemory (v1.6.1)
 
 UHOME="${HOME}/uDOS"
 
@@ -48,12 +48,14 @@ else
 fi
 
 
-# Check the length of the content and decide how to log
+# Log outcome to move-log (only keep long-form file if content exceeds 120 characters)
 CONTENT_LENGTH=$(wc -c < "$DEST")
 if [[ "$CONTENT_LENGTH" -le 120 ]]; then
+  echo "ℹ️ Content too short, skipping file creation."
   rm "$DEST"
   echo "[$(date +%H:%M:%S)] → make-log $TARGET → inline entry only" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 else
   echo "[$(date +%H:%M:%S)] → make-log $TARGET → see: ${DEST#"$UHOME/"}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo "✅ Long-form log created at ${DEST#"$UHOME/"}"
   echo "📄 New $TARGET logged: $DEST"
 fi

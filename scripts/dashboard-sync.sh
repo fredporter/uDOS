@@ -9,8 +9,11 @@ KNOWLEDGE_DIR="${UOS_KNOWLEDGE_DIR:-$UHOME/uKnowledge}"
 
 STATE_DIR="$MEMORY_DIR/state"
 MOVE_DIR="$MEMORY_DIR/logs/moves"
-MOVE_LOG="$MEMORY_DIR/logs/moves-$(date +%Y-%m-%d).md"
+MOVE_LOG="$MEMORY_DIR/logs/move-log-$(date +%Y-%m-%d).md"
 NOW="$(date '+%Y-%m-%d %H:%M:%S')"
+
+# Log execution to session dash-log
+echo "[$(date +%H:%M:%S)] → dashboard-sync" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
 
 # Initialize user variables with safe defaults
 USER_NAME="Unknown"
@@ -160,6 +163,10 @@ HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 
 render_template() {
   local file="$1"
+  if [[ ! -f "$file" ]]; then
+    echo "⚠️ Missing template: $file"
+    return
+  fi
   while IFS= read -r line; do
     echo "${line//\{\{*/🔲}"
   done < "$file"

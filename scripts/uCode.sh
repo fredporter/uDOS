@@ -16,6 +16,18 @@ mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/logs/moves"
 mkdir -p "${UHOME}/uMemory/state"
 
+log_move_template() {
+  local cmd="$1"
+  local timestamp
+  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  local id="move-log-$(date +%s)"
+  local file="${UDOS_MOVES_DIR}/${id}.md"
+  echo "# Move: $cmd" > "$file"
+  echo "- Timestamp: $timestamp" >> "$file"
+  echo "- Command: $cmd" >> "$file"
+  echo "📄 Move logged to: $file"
+}
+
 # Log session start
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"
 
@@ -97,18 +109,6 @@ log_error() {
 
 log_command() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') [CMD] $1" >> "$UDOS_LOG"
-}
-
-log_move_template() {
-  local cmd="$1"
-  local timestamp
-  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  local id="move-log-$(date +%s)"
-  local file="${UDOS_MOVES_DIR}/${id}.md"
-  echo "# Move: $cmd" > "$file"
-  echo "- Timestamp: $timestamp" >> "$file"
-  echo "- Command: $cmd" >> "$file"
-  echo "📄 Move logged to: $file"
 }
 
 # Dashboard Sync
@@ -266,11 +266,11 @@ cmd_map() {
 
 cmd_dash() {
   echo "📈 Building dashboard..."
-  bash "$UHOME/scripts/build-dash.sh"
+  bash "$UHOME/scripts/make-dash.sh"
   echo ""
   echo "📋 Dashboard Output:"
-  cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
-  log_move "dash"
+  [ -f "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ] && cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  log_move_template "dash"
 }
 
 cmd_restart() {
