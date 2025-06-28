@@ -4,7 +4,7 @@
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDOS_IDENTITY="${UHOME}/identity.md"
+export UDOS_IDENTITY="${UHOME}/uMemory/state/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
