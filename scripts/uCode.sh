@@ -45,7 +45,27 @@ if [ ! -f "$UDOS_IDENTITY" ]; then
 fi
 
 if [ -f "$UDOS_IDENTITY" ]; then
-  echo "🔑 Identity loaded: $(cat "$UDOS_IDENTITY")"
+  username=""
+  location=""
+  created=""
+  timezone=""
+  utc_offset=""
+
+  while IFS=': ' read -r key value; do
+    case "$key" in
+      Username) username="$value" ;;
+      Location) location="$value" ;;
+      Created) created="$value" ;;
+      Timezone) timezone="$value" ;;
+      UTC\ Offset) utc_offset="$value" ;;
+    esac
+  done < "$UDOS_IDENTITY"
+
+  echo "🔑 Identity loaded: User: $username"
+  echo "Location: $location"
+  echo "Created: $created"
+  echo "Timezone: $timezone"
+  echo "UTC Offset: $utc_offset"
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1

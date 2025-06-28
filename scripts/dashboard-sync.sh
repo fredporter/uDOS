@@ -90,7 +90,10 @@ fi
 # Recent Moves
 RECENT_DISPLAY=()
 if [[ -f "$MOVE_LOG" ]]; then
-  mapfile -t recent_lines < <(tail -n 5 "$MOVE_LOG")
+  recent_lines=()
+  while IFS= read -r line; do
+    recent_lines+=("$line")
+  done < <(tail -n 5 "$MOVE_LOG")
   if [[ ${#recent_lines[@]} -eq 0 ]]; then
     RECENT_DISPLAY+=("No recent moves logged.")
   else
@@ -121,7 +124,10 @@ TOWER_PEAK="Rooms Indexed: $ROOMS_INDEXED_COUNT"
 # Health Check placeholder replaced with parsed [STATS] lines from current move log
 HEALTH_CHECK_LINES=()
 if [[ -f "$MOVE_LOG" ]]; then
-  mapfile -t stats_lines < <(grep '^\[STATS\]' "$MOVE_LOG")
+  stats_lines=()
+  while IFS= read -r line; do
+    stats_lines+=("$line")
+  done < <(grep '^\[STATS\]' "$MOVE_LOG")
   if [[ ${#stats_lines[@]} -gt 0 ]]; then
     for stat_line in "${stats_lines[@]}"; do
       HEALTH_CHECK_LINES+=("$stat_line")

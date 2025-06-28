@@ -12,9 +12,6 @@
     |  |-- uDOS_Run.sh
     |  |-- uDOS.terminal
   |  |-- LICENSE
-  |-- logs
-    |-- moves
-      |  |-- moves-log-2025-06-28.md
   |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -83,7 +80,6 @@
     |  |-- roadmap.md
     |  |-- start.sh
     |  |-- uCode.sh
-  |-- temp
   |  |-- udos.log
   |-- uKnowledge
     |-- assets
@@ -96,7 +92,10 @@
     |-- logs
       |-- errors
       |-- moves
+        |  |-- move-log-1751091052.md
         |  |-- moves-2025-06-28.md
+        |  |-- moves-log-2025-06-28.md
+      |  |-- moves-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
       |  |-- permissions-2025-06-28.md
     |-- milestones
