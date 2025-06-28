@@ -70,4 +70,3 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "[$(date +%H:%M:%S)] → check-setup → identity.md (re)created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
 
-echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
