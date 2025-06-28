@@ -3,6 +3,9 @@
 
 UHOME="$HOME/uDOS"
 
+# Ensure sandbox directory exists before any logging
+mkdir -p "$UHOME/sandbox"
+
 TARGET_DIRS=(
   "$UHOME/scripts"
   "$UHOME/uTemplate"

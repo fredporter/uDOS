@@ -8,6 +8,7 @@ MEMORY_DIR="$UHOME/uMemory"
 LOG_DIR="$MEMORY_DIR/logs"
 
 # Create necessary directories
+mkdir -p "$SANDBOX_DIR"
 mkdir -p "$TEMPLATE_DIR" "$SANDBOX_DIR"
 mkdir -p "$MEMORY_DIR/missions" "$MEMORY_DIR/milestones" "$MEMORY_DIR/state" "$MEMORY_DIR/legacy" "$LOG_DIR" "$LOG_DIR/errors" "$LOG_DIR/moves"
 
