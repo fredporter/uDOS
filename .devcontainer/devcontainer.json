@@ -1,11 +1,27 @@
 {
-  "name": "uOS Dev",
+  "name": "uDOS DevEnv v1.6.1",
   "build": {
-    "dockerfile": "../Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
-  "settings": {},
-  "extensions": ["ms-python.python"],
-  "forwardPorts": [],
-  "postCreateCommand": "pip install -r requirements.txt",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true
+    }
+  },
+  "extensions": [
+    "yzhang.markdown-all-in-one",
+    "ms-azuretools.vscode-docker",
+    "tamasfe.even-better-toml",
+    "bierner.markdown-preview-github-styles"
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/uMemory,target=/uDOS/uMemory,type=bind",
+    "source=${localWorkspaceFolder}/sandbox,target=/uDOS/sandbox,type=bind"
+  ],
+  "postCreateCommand": "bash scripts/setup-dev.sh || true",
   "remoteUser": "root"
 }
