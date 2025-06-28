@@ -265,12 +265,12 @@ cmd_map() {
 }
 
 cmd_dash() {
-  echo "📈 Displaying dashboard..."
-  cat "$UHOME/uTemplate/dashboards/dashboard-header.md"
-  [ -f "$UDOS_DASHBOARD" ] && cat "$UDOS_DASHBOARD"
-  cat "$UHOME/uTemplate/dashboards/dashboard-footer.md"
-  log_info "Dashboard displayed."
-  log_move_template "dash"
+  echo "📈 Building dashboard..."
+  bash "$UHOME/scripts/build-dash.sh"
+  echo ""
+  echo "📋 Dashboard Output:"
+  cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  log_move "dash"
 }
 
 cmd_restart() {
