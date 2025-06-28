@@ -6,6 +6,7 @@ current_prompt=""
 current_default=""
 current_type=""
 
+selections=()
 while IFS= read -r line; do
   case "$line" in
     DATA:*)
@@ -15,15 +16,24 @@ while IFS= read -r line; do
       current_prompt="${line#ASK: }"
       ;;
     DEFAULT:*)
-      current_default="${line#DEFAULT: }"
+      DEFAULT_LINE="${line#DEFAULT: }"
+      if [[ "$DEFAULT_LINE" == \$DATASET:* ]]; then
+        dataset_path="${DEFAULT_LINE#\$DATASET:}"
+        if [[ -f "$UHOME/uTemplate/$dataset_path" ]]; then
+          current_default=$(paste -sd, "$UHOME/uTemplate/$dataset_path")
+        else
+          echo "⚠️ Dataset file not found: $UHOME/uTemplate/$dataset_path"
+          current_default=""
+        fi
+      else
+        current_default="$DEFAULT_LINE"
+      fi
       ;;
     TYPE:*)
       current_type="${line#TYPE: }"
 
       # Prompt only when TYPE is defined (end of a block)
-      if [ ! -t 0 ]; then
-        value="$current_default"
-      else
+      if [[ -t 0 ]]; then
         echo ""
         if [[ "$current_type" == "password" ]]; then
           read -rsp "🔒 $current_prompt [$current_default]: " value
@@ -35,11 +45,43 @@ while IFS= read -r line; do
             value="$opt"
             break
           done
+        elif [[ "$current_type" == "freetext" ]]; then
+          read -rp "🔹 $current_prompt [$current_default]: " value
+          [ -z "$value" ] && value="$current_default"
+          # Limit to 120 characters and clean up special characters
+          value="${value:0:120}"
+          value=$(echo "$value" | sed 's/[^a-zA-Z0-9 .,/_-]//g')
+        elif [[ "$current_type" == "shorttext" ]]; then
+          read -rp "🔹 $current_prompt [$current_default]: " value
+          [ -z "$value" ] && value="$current_default"
+          # Limit to 10 characters and allow only A-Z, a-z, 0-9, space, dash
+          value="${value:0:10}"
+          value=$(echo "$value" | sed 's/[^a-zA-Z0-9 -]//g')
+        elif [[ "$current_type" == "yesno" ]]; then
+          while true; do
+            read -rp "🔹 $current_prompt [Y/n] (default: $current_default): " value
+            value="${value,,}"  # lowercase
+            [[ -z "$value" ]] && value="$current_default"
+            case "$value" in
+              y|yes) value="yes"; break ;;
+              n|no) value="no"; break ;;
+              *) echo "Please enter yes or no." ;;
+            esac
+          done
+        elif [[ "$current_type" == "multiple" ]]; then
+          echo "📋 $current_prompt"
+          IFS=',' read -ra options <<< "$current_default"
+          select opt in "${options[@]}" "Done"; do
+            [[ "$opt" == "Done" ]] && break
+            selections+=("$opt")
+          done
+          value=$(IFS=','; echo "${selections[*]}")
         else
           read -rp "🔹 $current_prompt [$current_default]: " value
         fi
-
         [ -z "$value" ] && value="$current_default"
+      else
+        value="$current_default"
       fi
 
       current_var=$(echo "$current_var" | xargs)
