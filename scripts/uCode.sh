@@ -7,9 +7,8 @@ export UHOME="${HOME}/uDOS"
 export UDOS_LOG="${UHOME}/udos.log"
 export UDOS_IDENTITY="${UHOME}/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
-export UDOS_TEMP="${UHOME}/temp"
-export UDOS_MOVES_DIR="${UHOME}/logs/moves"
-mkdir -p "$UHOME" "$UDOS_TEMP" "$UDOS_MOVES_DIR"
+export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
+mkdir -p "$UHOME"
 
 # Ensure uMemory subdirectories exist
 mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacies"
@@ -71,7 +70,7 @@ log_move_template() {
   local timestamp
   timestamp=$(date +"%Y-%m-%d %H:%M:%S")
   local id="move-log-$(date +%s)"
-  local file="$UDOS_MOVES_DIR/${id}.md"
+  local file="${UDOS_MOVES_DIR}/${id}.md"
   echo "# Move: $cmd" > "$file"
   echo "- Timestamp: $timestamp" >> "$file"
   echo "- Command: $cmd" >> "$file"
