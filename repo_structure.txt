@@ -90,16 +90,11 @@
     |-- general-library
     |-- maps
   |-- uMemory
-    |-- legacies
+    |-- legacy
     |-- logs
       |-- errors
       |  |-- move-log-2025-06-28.md
       |-- moves
-        |  |-- move-log-1751106307.md
-        |  |-- move-log-1751106314.md
-        |  |-- move-log-1751106322.md
-        |  |-- move-log-1751106342.md
-        |  |-- moves-log-2025-06-28.md
     |-- milestones
     |-- missions
     |-- state

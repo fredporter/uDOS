@@ -71,12 +71,13 @@ if [[ ! -f "$USER_FILE" ]]; then
   echo "[$(date +%H:%M:%S)] → check-setup → user.md + identity.md created for '$username'" >> "$MOVE_LOG"
 fi
 
-IDENTITY_FILE="$UHOME/identity.md"
+IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
 echo "Installation ID: [Pending]" > "$IDENTITY_FILE"
 echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
 echo "Timezone: $(date +%Z)" >> "$IDENTITY_FILE"
 echo "UTC Offset: $(date +%z)" >> "$IDENTITY_FILE"
 echo "Version: Beta v1.6.3" >> "$IDENTITY_FILE"
+echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 
 STATE_FILE="$UHOME/uMemory/state/instance.md"
 echo "Location: $location" > "$STATE_FILE"

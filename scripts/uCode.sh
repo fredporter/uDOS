@@ -4,7 +4,6 @@
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDOS_LOG="${UHOME}/udos.log"
 export UDOS_IDENTITY="${UHOME}/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
@@ -92,19 +91,6 @@ echo "- Legacy items: $(find "$UHOME/uMemory/legacy" -type f | wc -l)"
 echo "- Total logs: $(find "$UHOME/uMemory/logs/moves" -type f | wc -l)"
 echo ""
 
-# Logging Functions
-log_info() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >> "$UDOS_LOG"
-}
-
-log_error() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" >> "$UDOS_LOG"
-}
-
-log_command() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [CMD] $1" >> "$UDOS_LOG"
-}
-
 # Dashboard Sync
 sync_dashboard() {
   if [ -f "$UDOS_DASHBOARD" ]; then
@@ -133,7 +119,6 @@ cmd_check() {
       ;;
     SETUP)
       bash "$UHOME/scripts/check-setup.sh"
-      log_info "CHECK SETUP executed"
       log_move "check setup"
       ;;
     IDENTITY)
@@ -157,7 +142,6 @@ cmd_identity() {
   else
     echo "❌ No identity file found."
   fi
-  log_info "IDENTITY command executed"
   log_move "identity"
 }
 
@@ -176,7 +160,6 @@ cmd_redo() {
   # Placeholder for redo logic
   sleep 1
   echo "✅ Redo completed."
-  log_info "Redo command executed."
   log_move "redo"
 }
 
@@ -185,7 +168,6 @@ cmd_undo() {
   # Placeholder for undo logic
   sleep 1
   echo "✅ Undo completed."
-  log_info "Undo command executed."
   log_move "undo"
 }
 
@@ -213,7 +195,6 @@ cmd_time() {
   else
     echo "ℹ️ Timezone unchanged."
   fi
-  log_info "TIME command executed"
   log_move "time"
 }
 
@@ -226,7 +207,6 @@ cmd_location() {
   else
     echo "ℹ️ Location unchanged."
   fi
-  log_info "LOCATION command executed"
   log_move "location"
 }
 
@@ -269,13 +249,13 @@ cmd_dash() {
 
 cmd_restart() {
   echo "🔄 Restarting uDOS shell..."
-  log_info "System restart initiated."
+  log_move "System restart initiated."
   exec "$0" # Relaunch script
 }
 
 cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
-  log_info "System reboot initiated."
+  log_move "System reboot initiated."
 
   echo "🧼 Rebuilding structure..."
   bash "$UHOME/scripts/make-structure.sh"
@@ -304,23 +284,23 @@ cmd_destroy() {
   case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     A)
       echo "⚠️ Deleting identity only..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       echo "✅ Identity deleted."
-      log_info "DESTROY mode A: identity only"
+      log_move "DESTROY mode A: identity only"
       ;;
     B)
       echo "⚠️ Deleting identity and uMemory..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       rm -rf "$UHOME/uMemory"
       echo "✅ Identity and memory deleted."
-      log_info "DESTROY mode B: identity and uMemory"
+      log_move "DESTROY mode B: identity and uMemory"
       ;;
     C)
       echo "⚠️ Deleting all uMemory contents except 'legacy'..."
-      rm -f "$UDOS_IDENTITY" "$UDOS_LOG"
+      rm -f "$UDOS_IDENTITY"
       find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
-      log_info "DESTROY mode C: preserved legacy only"
+      log_move "DESTROY mode C: preserved legacy only"
       ;;
     D)
       echo "♻️ Rebooting system only..."
@@ -329,12 +309,12 @@ cmd_destroy() {
       ;;
     E)
       echo "🌀 Exiting to uCode..."
-      log_info "DESTROY mode E: soft return to uCode"
+      log_move "DESTROY mode E: soft return to uCode"
       return
       ;;
     *)
       echo "❌ Invalid option. Cancelled."
-      log_info "DESTROY aborted"
+      log_move "DESTROY aborted"
       return
       ;;
   esac
@@ -372,7 +352,7 @@ while true; do
   read -rp "" input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
-  log_command "$input"
+  log_move "$input"
   case "$cmd" in
     LOG)
       cmd_log
