@@ -10,7 +10,7 @@ export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
 # --- Ensure required folders exist before any logging or stats ---
 mkdir -p "$UHOME/uMemory/logs/moves"
-mkdir -p "$UHOME/sandbox"
+# mkdir -p "$UHOME/sandbox"
 mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacy"
 mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/state"
