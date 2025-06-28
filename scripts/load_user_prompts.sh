@@ -42,6 +42,8 @@ while IFS= read -r line; do
         [ -z "$value" ] && value="$current_default"
       fi
 
+      current_var=$(echo "$current_var" | xargs)
+      value=$(echo "$value" | xargs)
       export "$current_var"="$value"
       echo "export $current_var=\"$value\"" >> "$UHOME/sandbox/user-vars.env"
 
