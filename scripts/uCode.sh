@@ -72,6 +72,20 @@ else
 fi
 echo ""
 
+echo "📋 Session Info:"
+echo "- Hostname: $(hostname)"
+echo "- Shell: $SHELL"
+echo "- User: $USER"
+echo "- uDOS Path: $UHOME"
+echo ""
+
+echo "🧠 Memory Stats:"
+echo "- Missions: $(find "$UHOME/uMemory/missions" -type f | wc -l)"
+echo "- Milestones: $(find "$UHOME/uMemory/milestones" -type f | wc -l)"
+echo "- Legacy items: $(find "$UHOME/uMemory/legacies" -type f | wc -l)"
+echo "- Total logs: $(find "$UHOME/uMemory/logs/moves" -type f | wc -l)"
+echo ""
+
 # Logging Functions
 log_info() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >> "$UDOS_LOG"
@@ -361,8 +375,7 @@ cmd_recent() {
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "${UDOS_MOVES_DIR}/moves-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
   echo -ne "\033[1;36m🌀 \033[0m"
-  sleep 1
-  read -rp $'\033[1;32muDOS> \033[0m' input
+  read -rp "" input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_command "$input"
