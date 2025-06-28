@@ -42,7 +42,7 @@ while IFS= read -r line; do
         [ -z "$value" ] && value="$current_default"
       fi
 
-      export "$current_var=$value"
+      export "$current_var"="$value"
       echo "export $current_var=\"$value\"" >> "$UHOME/sandbox/user-vars.env"
 
       # Reset current vars
