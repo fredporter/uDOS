@@ -386,6 +386,12 @@ cmd_recent() {
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
+  # Simulate a quick flashing block to show readiness
+  printf "\033[?25h"   # ensure cursor visible
+  printf "\033[?1c"    # show block cursor
+  printf "\033[1;30m█\033[0m"  # flash once
+  sleep 0.1
+  printf "\r  \r"
   echo -ne "\033[1;36m🌀 \033[0m"
   read -rp "" input
   cmd=$(echo "$input" | awk '{print toupper($1)}')

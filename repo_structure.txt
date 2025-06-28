@@ -74,8 +74,9 @@
     |  |-- dashboard.sh
     |  |-- destroy.sh
     |  |-- error-logger.sh
-    |  |-- load_user_prompts.sh
+    |  |-- get-user-input.sh
     |  |-- make-dash.sh
+    |  |-- make-input.sh
     |  |-- make-log.sh
     |  |-- make-stats.sh
     |  |-- make-structure.sh
@@ -114,6 +115,7 @@
       |  |-- dashboard-rooms.md
     |  |-- dataset-map-city.md
     |  |-- dataset-time-space.md
+    |  |-- input-template.md
     |  |-- input-user-setup.md
     |  |-- legacy-template.md
     |  |-- milestone-template.md
