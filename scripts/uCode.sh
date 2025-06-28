@@ -40,6 +40,19 @@ echo "🧠 Loading environment..."
 if [ ! -f "$UDOS_IDENTITY" ]; then
   echo "⚙️ No identity file found. Running check-setup..."
   bash "$UHOME/scripts/check-setup.sh"
+  echo "🔁 Rechecking identity after setup..."
+
+  if [ ! -f "$UDOS_IDENTITY" ]; then
+    echo "❌ Identity still missing. Would you like to run DESTROY or REBOOT?"
+
+    read -rp "💥 Run DESTROY now? (Y/n): " do_destroy
+    if [[ "$do_destroy" =~ ^[Yy]$ || -z "$do_destroy" ]]; then
+      cmd_destroy
+    else
+      echo "🛑 uDOS cannot continue without identity. Exiting."
+      exit 1
+    fi
+  fi
 fi
 
 # Run stats and dashboard sync after setup check
