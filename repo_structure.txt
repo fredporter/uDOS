@@ -90,9 +90,11 @@
     |-- legacies
     |-- logs
       |-- errors
+      |  |-- move-log-2025-06-28.md
       |-- moves
         |  |-- move-2025-06-28.md
         |  |-- moves-2025-06-28.md
+      |  |-- moves-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
       |  |-- permissions-2025-06-28.md
     |-- milestones
