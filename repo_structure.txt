@@ -1,33 +1,21 @@
 .
-  |  |-- Dockerfile
-  |  |-- LICENSE
-  |  |-- README.md
   |  |-- docker-compose.yml
+  |  |-- Dockerfile
   |  |-- identity.md
   |-- launcher
+    |  |-- app-wrapper.sh
     |  |-- Install Desktop Launcher.command
     |  |-- Quit-uDOS.command
     |  |-- README.md
-    |  |-- app-wrapper.sh
-    |  |-- uDOS.terminal
     |  |-- uDOS_Launcher.scpt
     |  |-- uDOS_Launcher.sh
     |  |-- uDOS_Run.sh
+    |  |-- uDOS.terminal
+  |  |-- LICENSE
   |-- logs
     |-- moves
-      |  |-- 2025-06-24-move-1750775805.md
-      |  |-- 2025-06-28-move-1751082906.md
-      |  |-- 2025-06-28-move-1751083205.md
-      |  |-- move-log-1751086920.md
-      |  |-- move-log-1751086927.md
-      |  |-- move-log-1751087003.md
-      |  |-- move-log-1751088120.md
-      |  |-- moves-2025-06-24.md
-      |  |-- moves-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
-    |  |-- udos-2025-06-24.log
-    |  |-- udos-2025-06-25.log
-    |  |-- udos-2025-06-28.log
+  |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -66,22 +54,21 @@
       |  |-- 052-uScript-examples.md
       |  |-- 053-data-sharing.md
     |  |-- 099-roadmap-devplan.md
-    |  |-- Milestone 001 Build U Knowledge.md
-    |  |-- Mission Build uKnowledge.md
-    |  |-- README.md
     |  |-- datetime_format.md
     |  |-- display_modes.md
     |  |-- filenames_and_structure.md
+    |  |-- Milestone 001 Build U Knowledge.md
+    |  |-- Mission Build uKnowledge.md
     |  |-- move_log_roadmap.md
-    |  |-- uDOS_roadmap_sandbox_sharing.md
-    |  |-- uOS_base_map_120x60_accurate.md
-    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
+    |  |-- README.md
     |  |-- u_dos_roadmap_q_3_2025.md
     |  |-- u_os_cartography_roadmap.md
+    |  |-- uDOS_roadmap_sandbox_sharing.md
+    |  |-- uOS_base_map_120x60_accurate.md
     |  |-- uos_template_generator.md
+    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- user.md
-    |  |-- version.md
   |-- scripts
     |  |-- check-permissions.sh
     |  |-- check-setup.sh
@@ -97,6 +84,7 @@
     |  |-- start.sh
     |  |-- uCode.sh
   |-- temp
+  |  |-- udos.log
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -105,25 +93,15 @@
     |-- maps
   |-- uMemory
     |-- legacies
-    |-- legacy
     |-- logs
-      |  |-- command-errors-2025-06-24.log
-      |  |-- command-errors-log-2025-06-28.md
       |-- errors
       |-- moves
-      |  |-- moves-2025-06-23.md
-      |  |-- moves-2025-06-24.md
-      |  |-- moves-2025-06-28.md
+        |  |-- moves-2025-06-28.md
       |  |-- moves-log-2025-06-28.md
-      |  |-- permissions-2025-06-24.log
-      |  |-- permissions-2025-06-28.log
       |  |-- permissions-2025-06-28.md
     |-- milestones
     |-- missions
-      |  |-- mission-log-20250628-050151-AEST-F000000.md
-    |-- moves
     |-- state
-      |  |-- instance.md
   |-- uTemplate
     |-- dashboards
       |  |-- dashboard-focus.md
@@ -140,4 +118,3 @@
     |  |-- mission-template.md
     |  |-- move-template.md
     |  |-- uc-template.md
-  |  |-- udos.log
