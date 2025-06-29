@@ -55,6 +55,10 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 LAST_MISSION=$(find "$UMEMORY/missions" -name '*.md' -type f -print0 | xargs -0 ls -t 2>/dev/null | head -n 1 | xargs grep -m 1 '^# ' | cut -d'#' -f2- | xargs)
 
+# Write single-line stat summary to sandbox/stat-log-YYYY-MM-DD.txt
+SUMMARY="Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION"
+echo "$SUMMARY" > "$UHOME/sandbox/stat-log-${DATESTAMP}.txt"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Append stats summary to today's move log
 # ─────────────────────────────────────────────────────────────────────────────
@@ -63,11 +67,8 @@ DAILY_MOVE_LOG="$LOG_DIR/move-log-${DATESTAMP}.md"
 mkdir -p "$(dirname "$DAILY_MOVE_LOG")"
 touch "$DAILY_MOVE_LOG"
 
-summary="Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION"
-echo "$summary" > "$LOG_DIR/stats-${DATESTAMP}.txt"
+
 
 if [[ "$HEADLESS" != "true" ]]; then
   echo "[$(date +%H:%M:%S)] → make-stats summary written" >> "$UHOME/sandbox/dash-log-$DATESTAMP.md"
 fi
-
-echo "✅ System stats appended to: $DAILY_MOVE_LOG"

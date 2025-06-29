@@ -4,9 +4,6 @@
 
 echo "🐚 Running uDOS..."
 echo "Welcome to uDOS, your personal OS 🦦"
-mkdir -p ~/uDOS/logs
-LOGFILE=~/uDOS/logs/udos-$(date +%Y-%m-%d).log
-echo "===== uDOS launch started at $(date) =====" >> "$LOGFILE"
 
 # Navigate to uDOS directory
 cd ~/uDOS || {
@@ -32,10 +29,8 @@ if ! docker info >/dev/null 2>&1; then
   open -a Docker
   while ! docker info >/dev/null 2>&1; do
     echo "⌛ Waiting for Docker to initialise..."
-    echo "⌛ Waiting for Docker to initialise..." >> "$LOGFILE"
     sleep 2
   done
-  echo "✅ Docker is now running." >> "$LOGFILE"
 fi
 
 # Optional: Prepare logs directory
@@ -49,8 +44,6 @@ docker compose down || echo "⚠️  Nothing to stop."
 echo "🔨 Rebuilding uDOS container..."
 docker compose build
 
-# Launch interactive uDOS shell and pipe output to log
+# Launch interactive uDOS shell
 echo "🚀 Starting uDOS interactive shell..."
-UCODE_HEADLESS=true docker compose run --rm udos scripts/start.sh | tee -a "$LOGFILE"
-
-echo "===== uDOS session ended at $(date) =====" >> "$LOGFILE"
+UCODE_HEADLESS=true docker compose run --rm udos scripts/start.sh

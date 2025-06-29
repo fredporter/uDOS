@@ -65,7 +65,6 @@
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
-    |  |-- system-log-2025-06-29.md
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
