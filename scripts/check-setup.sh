@@ -84,13 +84,14 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
       tile="UNKNOWN"
     fi
   else
-    timezone="$sys_tz"
-    location_default="System Default"
+    timezone="UTC"
+    location_default="London"
     tile="UNKNOWN"
   fi
 
+  echo "📍 Default location based on timezone [$timezone]: $location_default"
   # Prompt for custom location (optional)
-  echo -n "🛰️ Enter your location name/code (press Enter to use '$location_default'): "; read location
+  echo -n "🛰️ Enter your location name/code (press Enter to use default): "; read location
   [[ -z "$location" ]] && location="$location_default"
 
   # Now write user.md
@@ -121,7 +122,6 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
   echo "Version: Beta v1.6.1" >> "$IDENTITY_FILE"
   echo "Timezone: $timezone" >> "$IDENTITY_FILE"
-  echo "UTC Offset: $sys_utc" >> "$IDENTITY_FILE"
   echo "Install Location: $location" >> "$IDENTITY_FILE"
   echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
