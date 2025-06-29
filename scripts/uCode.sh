@@ -109,7 +109,10 @@ if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
   bash "$UHOME/scripts/make-stats.sh"
 fi
 if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
+  echo "⏳ Syncing dashboard..."
+  SECONDS=0
   bash "$UHOME/scripts/dashboard-sync.sh"
+  echo "✅ Dashboard sync complete in ${SECONDS}s."
 fi
 
 echo ""
