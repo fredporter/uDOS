@@ -42,15 +42,14 @@ echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
-cat << EOF
- _    _  ____   ___   ____  ______ _____  
-| |  | |/ __ \ / _ \ / __ \|  ____|  __ \ 
-| |  | | |  | | | | | |  | | |__  | |  | |
-| |  | | |  | | | | | |  | |  __| | |  | |
-| |__| | |__| | |_| | |__| | |____| |__| |
- \____/ \____/ \___/ \____/|______|_____/  
-     uCode Shell · $UVERSION 🌀
-EOF
+echo -e "\033[1;31m _    _  ____   ___   ____  ______ _____  \033[0m"
+echo -e "\033[1;33m| |  | |/ __ \ / _ \ / __ \|  ____|  __ \ \033[0m"
+echo -e "\033[1;32m| |  | | |  | | | | | |  | | |__  | |  | |\033[0m"
+echo -e "\033[1;36m| |  | | |  | | | | | |  | |  __| | |  | |\033[0m"
+echo -e "\033[1;34m| |__| | |__| | |_| | |__| | |____| |__| |\033[0m"
+echo -e "\033[1;35m \____/ \____/ \___/ \____/|______|_____/ \033[0m"
+echo -e "    \033[1;37muCode Shell · $UVERSION 🌀\033[0m"
+echo ""
 echo "🧠 Loading environment..."
 
 USER_FILE="$UHOME/sandbox/user.md"
@@ -65,6 +64,7 @@ if [[ ! -f "$USER_FILE" ]]; then
     exit 1
   fi
   echo "🔍 check-setup.sh completed."
+  echo ""
 fi
 
 if [ -f "$UDENT" ]; then
@@ -84,10 +84,13 @@ if [ -f "$UDENT" ]; then
     esac
   done < "$UDENT"
 
+  [[ -z "$username" ]] && username="user"
+
   echo "🔑 Identity loaded: User: $username"
   echo "Location: $location"
   echo "Created: $created"
   echo "Timezone: $timezone"
+  echo ""
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1
@@ -135,7 +138,7 @@ echo ""
 echo "📋 Session Info:"
 echo "- Hostname: $(hostname)"
 echo "- Shell: $SHELL"
-echo "- User: $USER"
+echo "- User: $username"
 echo "- uDOS Path: $UHOME"
 echo ""
 
@@ -189,6 +192,7 @@ cmd_check() {
       echo "   SETUP     → Run full environment check"
       echo "   IDENTITY  → Display current identity"
       echo "   INPUT     → Generate user input file"
+      echo ""
       ;;
   esac
 }
@@ -200,6 +204,7 @@ cmd_identity() {
   else
     echo "❌ No identity file found."
   fi
+  echo ""
 }
 
 cmd_log() {
@@ -210,6 +215,7 @@ cmd_log() {
   else
     echo "❌ Invalid log type."
   fi
+  echo ""
 }
 
 cmd_redo() {
@@ -217,6 +223,7 @@ cmd_redo() {
   # Placeholder for redo logic
   sleep 1
   echo "✅ Redo completed."
+  echo ""
 }
 
 cmd_undo() {
@@ -224,6 +231,7 @@ cmd_undo() {
   # Placeholder for undo logic
   sleep 1
   echo "✅ Undo completed."
+  echo ""
 }
 
 cmd_run() {
@@ -248,6 +256,7 @@ cmd_time() {
   else
     echo "ℹ️ Timezone unchanged."
   fi
+  echo ""
 }
 
 cmd_location() {
@@ -259,6 +268,7 @@ cmd_location() {
   else
     echo "ℹ️ Location unchanged."
   fi
+  echo ""
 }
 
 cmd_list() {
@@ -279,14 +289,17 @@ cmd_list() {
 
   echo "📂 uDOS directory: ${target/$HOME/~}"
   ls -lA "$target"
+  echo ""
 }
 
 cmd_mission() {
   cat "$UHOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
+  echo ""
 }
 
 cmd_map() {
   cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
+  echo ""
 }
 
 cmd_dash() {
@@ -295,6 +308,7 @@ cmd_dash() {
   echo ""
   echo "📋 Dashboard Output:"
   [ -f "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ] && cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo ""
 }
 
 cmd_restart() {
@@ -382,11 +396,13 @@ cmd_bye() {
     D) cmd_destroy ;;
     *) echo "🌀 Resuming uCode session..." ;;
   esac
+  echo ""
 }
 
 cmd_recent() {
   echo "📜 Recent moves:"
   tail -n 10 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo ""
 }
 
 # --- Development Diagnostics ---
@@ -405,6 +421,7 @@ cmd_debug() {
   find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
   echo ""
   echo "🧩 uDOS Version: $UVERSION"
+  echo ""
 }
 
 #
@@ -519,6 +536,7 @@ while true; do
       echo "   IDENTITY  → Display user identity file"
       echo "   BYE/EXIT/QUIT → Close session"
       echo "   RECENT/HISTORY → Show last 10 moves"
+      echo ""
       ;;
     "")
       # Ignore empty input
