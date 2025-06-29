@@ -45,23 +45,53 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
 
   echo -n "🔐 Password (input hidden): "; read -s password; echo ""
 
-  echo -n "🌍 Location (e.g., Sydney): "; read location
-  [[ -z "$location" ]] && location="Unknown"
-
-  # Detect timezone
-  timezone=$(date +%Z)
-  utc_offset=$(date +%z)
-  echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
-  echo -n "📌 Is this correct? (Y/n): "; read confirm_tz
-  if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
-    echo -n "🌐 Enter your timezone (e.g., Australia/Sydney): "; read tz_input
-    if [[ -n "$tz_input" ]]; then
-      export TZ="$tz_input"
-      timezone=$(date +%Z)
-      utc_offset=$(date +%z)
-      echo "📍 Updated timezone: $timezone (UTC$utc_offset)"
-    fi
+  # Timezone and time confirmation
+  if date +%N &>/dev/null; then
+    now_time=$(date +"%Y-%m-%d %H:%M:%S.%3N")
+  else
+    now_time=$(date +"%Y-%m-%d %H:%M:%S")  # Fallback if %3N unsupported
   fi
+
+  sys_tz=$(date +%Z)
+  sys_utc=$(date +%z)
+
+  echo "🕒 Current system time: $now_time"
+  echo "🌍 Detected timezone: $sys_tz (UTC$sys_utc)"
+  echo -n "📌 Is this correct? (Y/n): "; read confirm
+
+  if [[ "$confirm" =~ ^[Nn]$ ]]; then
+    echo -n "🌐 Enter a 3-letter timezone code (e.g., AES): "; read tz_code
+
+    # Attempt to locate in dataset
+    DATASET="$UHOME/uTemplate/dataset-time-space.md"
+    if [[ -f "$DATASET" ]]; then
+      line=$(grep -E "^$tz_code\|" "$DATASET")
+      if [[ -n "$line" ]]; then
+        IFS='|' read -r code gmt country city tile <<< "$line"
+        timezone="$code"
+        location_default="$city"
+        tile="$tile"
+      else
+        echo "❌ Timezone code not found. Defaulting to UTC."
+        timezone="UTC"
+        location_default="London"
+        tile="F30"
+      fi
+    else
+      echo "⚠️ Dataset not found, skipping lookup."
+      timezone="$tz_code"
+      location_default="Unknown"
+      tile="UNKNOWN"
+    fi
+  else
+    timezone="$sys_tz"
+    location_default="System Default"
+    tile="UNKNOWN"
+  fi
+
+  # Prompt for custom location (optional)
+  echo -n "🛰️ Enter your location name/code (press Enter to use '$location_default'): "; read location
+  [[ -z "$location" ]] && location="$location_default"
 
   # Now write user.md
   mkdir -p "$UHOME/sandbox"
@@ -77,12 +107,13 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
 fi
 
 mkdir -p "$UHOME/uMemory/state"
-echo "# Instance File" > "$UHOME/uMemory/state/instance.md"
-echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$UHOME/uMemory/state/instance.md"
-echo "Version: Beta v1.6.1" >> "$UHOME/uMemory/state/instance.md"
-echo "Location: $location" >> "$UHOME/uMemory/state/instance.md"
-echo "Timezone: $timezone" >> "$UHOME/uMemory/state/instance.md"
-echo "UTC Offset: $utc_offset" >> "$UHOME/uMemory/state/instance.md"
+INSTANCE_FILE="$UHOME/uMemory/state/instance.md"
+echo "# uDOS Instance Settings" > "$INSTANCE_FILE"
+echo "- **Timezone**: $timezone" >> "$INSTANCE_FILE"
+echo "- **Time**: $now_time" >> "$INSTANCE_FILE"
+echo "- **Location**: $location" >> "$INSTANCE_FILE"
+echo "- **Tile**: $tile" >> "$INSTANCE_FILE"
+echo "- **Confirmed**: Yes" >> "$INSTANCE_FILE"
 
 IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
 if [[ ! -f "$IDENTITY_FILE" ]]; then
@@ -90,7 +121,7 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$IDENTITY_FILE"
   echo "Version: Beta v1.6.1" >> "$IDENTITY_FILE"
   echo "Timezone: $timezone" >> "$IDENTITY_FILE"
-  echo "UTC Offset: $utc_offset" >> "$IDENTITY_FILE"
+  echo "UTC Offset: $sys_utc" >> "$IDENTITY_FILE"
   echo "Install Location: $location" >> "$IDENTITY_FILE"
   echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
