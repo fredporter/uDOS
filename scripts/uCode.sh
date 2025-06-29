@@ -24,6 +24,7 @@ else
 fi
 
 log_move() {
+  if [[ "$UCODE_BOOTING" == "true" ]]; then return; fi
   local cmd="$1"
   local log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   echo "[$(date +%H:%M:%S)] → $cmd" >> "$log_file"
@@ -105,6 +106,7 @@ if [[ -n "$PASSWORD" && "$REBOOT_FLAG" == "true" ]]; then
 fi
 
 # Run stats and dashboard sync after setup check
+export UCODE_BOOTING=true
 if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
   bash "$UHOME/scripts/make-stats.sh"
 fi
@@ -114,6 +116,7 @@ if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
   bash "$UHOME/scripts/dashboard-sync.sh"
   echo "✅ Dashboard sync complete in ${SECONDS}s."
 fi
+unset UCODE_BOOTING
 
 echo ""
 
