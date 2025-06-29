@@ -80,7 +80,7 @@ if [ -f "$UDENT" ]; then
       Location) location="$value" ;;
       Created) created="$value" ;;
       Timezone) timezone="$value" ;;
-      UTC\ Offset|UTC Offset) utc_offset="$value" ;;
+      UTC_Offset|UTCOffset|UTCOffset\|UTC Offset) utc_offset="$value" ;;
     esac
   done < "$UDENT"
 
