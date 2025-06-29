@@ -12,6 +12,10 @@ MOVE_DIR="$MEMORY_DIR/logs/moves"
 MOVE_LOG="$MEMORY_DIR/logs/move-log-$(date +%Y-%m-%d).md"
 NOW="$(date '+%Y-%m-%d %H:%M:%S')"
 
+# Ensure sandbox directory and dash-log file exist
+mkdir -p "$UHOME/sandbox"
+touch "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+
 # Log execution to session dash-log
 echo "[$(date +%H:%M:%S)] → dashboard-sync" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
 
