@@ -70,7 +70,6 @@ if [ -f "$UDENT" ]; then
   location=""
   created=""
   timezone=""
-  utc_offset=""
 
   while IFS=':' read -r key value; do
     key=$(echo "$key" | sed 's/^[-* ]*//;s/\*\*$//;s/^ *//;s/ *$//')
@@ -80,7 +79,6 @@ if [ -f "$UDENT" ]; then
       Location) location="$value" ;;
       Created) created="$value" ;;
       Timezone) timezone="$value" ;;
-      UTCOffset) utc_offset="$value" ;;
     esac
   done < "$UDENT"
 
@@ -88,7 +86,6 @@ if [ -f "$UDENT" ]; then
   echo "Location: $location"
   echo "Created: $created"
   echo "Timezone: $timezone"
-  echo "UTC Offset: $utc_offset"
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
   exit 1
