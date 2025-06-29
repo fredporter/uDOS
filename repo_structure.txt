@@ -4,17 +4,12 @@
   |  |-- README.md
   |  |-- docker-compose.yml
   |-- launcher
-    |  |-- Install Desktop Launcher.command
-    |  |-- Quit-uDOS.command
     |  |-- README.md
-    |  |-- app-wrapper.sh
+    |  |-- Run Launcher Builder.command
+    |-- assets
     |  |-- build-mac-launcher.sh
     |-- uDOS.app
-    |  |-- uDOS.terminal
-    |  |-- uDOS_Launcher.scpt
-    |  |-- uDOS_Launcher.sh
     |  |-- uDOS_Run.sh
-  |  |-- launcher.zip
   |-- logs
     |  |-- udos-2025-06-29.log
   |  |-- repo_structure.txt
@@ -90,6 +85,7 @@
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
+  |  |-- scripts.zip
   |-- uKnowledge
     |-- assets
     |-- companion

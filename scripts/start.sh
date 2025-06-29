@@ -2,6 +2,10 @@
 # start.sh – uDOS inside-container entrypoint
 
 UHOME="/root/uDOS"
+if [ -s "$UHOME/sandbox/user.md" ]; then
+  echo "✅ User profile already initialized: $UHOME/sandbox/user.md"
+  exit 0
+fi
 echo "🌀 Launching uDOS..."
 
 # Create required directories

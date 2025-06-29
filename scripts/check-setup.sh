@@ -4,6 +4,12 @@
 UHOME="$HOME/uDOS"
 NON_INTERACTIVE=${NON_INTERACTIVE:-false}
 
+USER_FILE="$UHOME/sandbox/user.md"
+if [[ -s "$USER_FILE" && -n "$(grep 'Username:' "$USER_FILE")" ]]; then
+  echo "✅ User already initialized. Skipping setup."
+  exit 0
+fi
+
 # Load reusable prompt questions and default vars
 
 echo "[$(date +%H:%M:%S)] → check-setup started" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
@@ -31,7 +37,6 @@ get_stat() {
   fi
 }
 
-USER_FILE="$UHOME/sandbox/user.md"
 
 if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
   echo "🧑 Let's create your user profile for uDOS."

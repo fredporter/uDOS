@@ -13,6 +13,15 @@ cd ~/uDOS || {
   exit 1
 }
 
+# Check for existing user profile
+if [ ! -s "sandbox/user.md" ]; then
+  echo "🧑 Let's create your user profile for uDOS."
+  echo "Please run: bash scripts/start.sh to initialize your user."
+  exit 1
+else
+  echo "✅ Found user profile: sandbox/user.md"
+fi
+
 # Ensure Docker is running
 if ! docker info >/dev/null 2>&1; then
   echo "🐳 Starting Docker Desktop..."
