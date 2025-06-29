@@ -9,6 +9,8 @@
     |  |-- uDOS_Run.sh
     |-- uDOS.app
   |  |-- LICENSE
+  |-- logs
+    |  |-- udos-2025-06-29.log
   |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
@@ -63,6 +65,7 @@
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
+    |  |-- system-log-2025-06-29.md
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -95,6 +98,7 @@
       |-- errors
       |  |-- move-log-2025-06-29.md
       |-- moves
+      |  |-- stats-2025-06-29.txt
     |-- milestones
     |-- missions
     |-- state

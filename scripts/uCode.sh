@@ -15,6 +15,9 @@ mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMe
 mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/state"
 
+# Track if session end has been logged
+export UCODE_SESSION_ENDED=false
+
 # --- uDOS Version Detection ---
 IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
 if [[ -f "$IDENTITY_FILE" ]]; then
@@ -25,25 +28,13 @@ fi
 
 log_move() {
   local cmd="$1"
-  # Suppress all move logging during boot or for blank/whitespace commands
-  if [[ "$UCODE_BOOTING" == "true" || -z "${cmd// }" ]]; then return; fi
-  local log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
-  echo "[$(date +%H:%M:%S)] → $cmd" >> "$log_file"
+  local trimmed="${cmd// }"
+  if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
+    return
+  fi
+  echo "[$(date +%H:%M:%S)] → $cmd" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 }
 
-# Log session start
-move_log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
-sys_log_file="$UHOME/sandbox/system-log-$(date +%Y-%m-%d).md"
-if [[ -f "$move_log_file" ]]; then
-  echo "📘 Daily move log located for $(date +%Y-%m-%d)"
-else
-  echo "📗 Daily move log initiated for $(date +%Y-%m-%d)"
-fi
-echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
-
-# Append minimal system stats line to system log (not move log)
-echo "📊 [BOOT] $(date '+%H:%M') $UVERSION · $username · $timezone" >> "$sys_log_file"
-echo "✅ System stats appended sandbox/system-log-$(date +%Y-%m-%d)"
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -437,7 +428,7 @@ cmd_debug() {
 
 #
 # Main Command Dispatch Loop
-trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
+trap 'if [ "$UCODE_SESSION_ENDED" = false ]; then echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"; export UCODE_SESSION_ENDED=true; fi' EXIT
 trap 'echo -e "\n🛑 Interrupted. Type EXIT or BYE to quit safely."' SIGINT
 while true; do
   # Prompt for input with visible swirl and blinking block cursor
