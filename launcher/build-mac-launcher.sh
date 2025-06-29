@@ -71,7 +71,7 @@ echo "Attempting AppleScript-based launch..." >> "\$APP_ROOT/launcher/uDOS_launc
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "cd '$APP_ROOT'; ./uDOS_Run.sh" in window 1
+  do script "cd '$APP_ROOT'; ./uDOS_Run.sh"
 end tell
 OSA
 
