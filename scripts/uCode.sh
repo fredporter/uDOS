@@ -42,6 +42,7 @@ echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
 
 # Append minimal system stats line to move log
 echo "📊 [STATS] $(date '+%H:%M') System ready: $UVERSION | User: $username | TZ: $timezone" >> "$move_log_file"
+echo "✅ System stats appended move-log-$(date +%Y-%m-%d)"
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -130,6 +131,10 @@ if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
 
   if [[ "$dash_status" -eq 0 ]]; then
     echo "✅ Dashboard sync complete."
+  elif [[ "$dash_status" -eq 143 ]]; then
+    echo "⚠️ Dashboard sync timed out (code 143: SIGTERM)"
+    echo "❌ Skipping dashboard display to prevent lock-up."
+    echo "🧪 Review: scripts/dashboard-sync.sh for potential delays"
   else
     echo "⚠️ Dashboard sync error (code $dash_status)"
     echo "❌ Skipping dashboard display to prevent lock-up."

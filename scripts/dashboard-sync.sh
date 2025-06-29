@@ -1,6 +1,8 @@
 #!/bin/bash
 # dashboard-sync.sh — Generate and display uDOS status dashboard (improved)
 
+trap 'echo "🛑 Dashboard sync interrupted."; exit 143' SIGTERM
+
 UHOME="${HOME}/uDOS"
 UROOT="$UHOME"
 bash "$UROOT/scripts/check-setup.sh" >/dev/null
@@ -181,6 +183,12 @@ render_template() {
 #
 # Use new dashboard template directory
 DASHBOARD_TEMPLATE_DIR="$UHOME/uTemplate/dashboards"
+
+if [[ ! -d "$DASHBOARD_TEMPLATE_DIR" ]]; then
+  echo "🚫 Missing dashboard templates: $DASHBOARD_TEMPLATE_DIR"
+  exit 2
+fi
+
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.md"
@@ -188,7 +196,10 @@ render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.md"
 
-if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
+if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" && "$UCODE_HEADLESS" == "true" ]]; then
+  echo "⚠️ Headless fallback: dashboard output suppressed."
+  exit 1
+elif [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
   ERROR_LOG_DIR="$UHOME/uMemory/logs/errors"
   mkdir -p "$ERROR_LOG_DIR"
   ERROR_FILE="$ERROR_LOG_DIR/fallback-$(date +%Y-%m-%d_%H%M%S).md"
