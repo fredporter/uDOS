@@ -159,14 +159,12 @@ cmd_check() {
       ;;
     SETUP)
       bash "$UHOME/scripts/check-setup.sh"
-      log_move "check setup"
       ;;
     IDENTITY)
       cmd_identity
       ;;
     INPUT)
       bash "$UHOME/scripts/make-input.sh"
-      log_move "check input"
       ;;
     *)
       echo "🔎 CHECK what?"
@@ -187,7 +185,6 @@ cmd_identity() {
   else
     echo "❌ No identity file found."
   fi
-  log_move "identity"
 }
 
 cmd_log() {
@@ -205,7 +202,6 @@ cmd_redo() {
   # Placeholder for redo logic
   sleep 1
   echo "✅ Redo completed."
-  log_move "redo"
 }
 
 cmd_undo() {
@@ -213,17 +209,14 @@ cmd_undo() {
   # Placeholder for undo logic
   sleep 1
   echo "✅ Undo completed."
-  log_move "undo"
 }
 
 cmd_run() {
   bash "$HOME/uDOS/scripts/command.sh" "$args"
-  log_move "run $args"
 }
 
 cmd_tree() {
   bash "$HOME/uDOS/scripts/make-tree.sh"
-  log_move "tree"
 }
 
 cmd_stats() {
@@ -240,7 +233,6 @@ cmd_time() {
   else
     echo "ℹ️ Timezone unchanged."
   fi
-  log_move "time"
 }
 
 cmd_location() {
@@ -252,7 +244,6 @@ cmd_location() {
   else
     echo "ℹ️ Location unchanged."
   fi
-  log_move "location"
 }
 
 cmd_list() {
@@ -289,7 +280,6 @@ cmd_dash() {
   echo ""
   echo "📋 Dashboard Output:"
   [ -f "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ] && cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
-  log_move "dash"
 }
 
 cmd_restart() {
