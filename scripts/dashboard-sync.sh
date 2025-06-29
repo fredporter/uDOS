@@ -169,11 +169,12 @@ render_template() {
   local file="$1"
   if [[ ! -f "$file" ]]; then
     echo "⚠️ Missing template: $file"
-    return
+    return 1
   fi
   while IFS= read -r line; do
     echo "${line//\{\{*/🔲}"
   done < "$file"
+  return 0
 }
 
 #
@@ -187,6 +188,40 @@ render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.md"
 render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.md"
 
+if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
+  ERROR_LOG_DIR="$UHOME/uMemory/logs/errors"
+  mkdir -p "$ERROR_LOG_DIR"
+  ERROR_FILE="$ERROR_LOG_DIR/fallback-$(date +%Y-%m-%d_%H%M%S).md"
+  {
+    echo "# 🚨 Dashboard Fallback Triggered"
+    echo "- Timestamp: $(date)"
+    echo "- User: $USER_NAME"
+    echo "- Location: $LOCATION"
+    echo "- Reason: One or more dashboard templates failed or returned no content."
+    echo ""
+    echo "Recent moves: $(tail -n 5 "$MOVE_LOG" 2>/dev/null)"
+  } > "$ERROR_FILE"
+
+  echo "# 📊 uDOS Dashboard — (Fallback Mode)" > "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "Username: ${USER_NAME:-unknown}" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "Location: ${LOCATION:-unknown}" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "Recent Moves: (unavailable)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "Health: (unknown)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  echo "🛟 Dashboard fallback rendered due to missing or broken data."
+  echo ""
+  echo "💥 FATAL ERROR: Dashboard failed to initialize properly."
+  echo "🧹 To repair your environment, a full DESTROY will now be offered."
+  echo ""
+  read -n1 -rp "❓ Proceed with DESTROY and environment reset? [Y/n]: " destroy_confirm
+  echo ""
+  case "${destroy_confirm^^}" in
+    Y|"") echo "☠️ Destroying environment..."; "$UHOME/scripts/uCode.sh" DESTROY ;;
+    *) echo "🛑 Cancelled. uDOS may not function correctly until reset." ;;
+  esac
+fi
+
 echo ""
 echo "🧭 Use 'help' for available commands."
 echo "Make your next move, Master."
+echo "✅ Dashboard rendering complete."

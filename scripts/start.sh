@@ -1,4 +1,5 @@
 #!/bin/bash
+export UCODE_HEADLESS=true
 if [ ! -s "sandbox/user.md" ]; then
   echo "🧑 Creating new user profile..."
   bash scripts/make-structure.sh

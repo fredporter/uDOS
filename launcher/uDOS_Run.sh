@@ -50,6 +50,6 @@ docker compose build
 
 # Launch interactive uDOS shell and pipe output to log
 echo "🚀 Starting uDOS interactive shell..."
-docker compose run --rm udos scripts/start.sh | tee -a "$LOGFILE"
+UCODE_HEADLESS=true docker compose run --rm udos scripts/start.sh | tee -a "$LOGFILE"
 
 echo "===== uDOS session ended at $(date) =====" >> "$LOGFILE"

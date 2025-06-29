@@ -113,8 +113,13 @@ fi
 if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
   echo "⏳ Syncing dashboard..."
   SECONDS=0
-  bash "$UHOME/scripts/dashboard-sync.sh"
-  echo "✅ Dashboard sync complete in ${SECONDS}s."
+  if timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"; then
+    echo "✅ Dashboard sync complete in ${SECONDS}s."
+  else
+    echo "⚠️ Dashboard sync failed or timed out after ${SECONDS}s."
+    echo "❌ Skipping dashboard display to prevent lock-up."
+    echo "🧪 Please check: scripts/dashboard-sync.sh for errors."
+  fi
 fi
 unset UCODE_BOOTING
 
@@ -384,6 +389,23 @@ cmd_recent() {
   tail -n 10 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 }
 
+# --- Development Diagnostics ---
+cmd_debug() {
+  echo "🔍 uDOS DEBUG MODE"
+  echo "🧬 Environment Variables:"
+  env | grep -E 'UHOME|USER|SHELL|PWD|TZ'
+  echo ""
+  echo "📄 Last 20 Moves:"
+  tail -n 20 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo ""
+  echo "🗂️ Available Scripts:"
+  ls -1 "$UHOME/scripts"
+  echo ""
+  echo "❗ Recent Errors (if any):"
+  find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
+  echo ""
+}
+
 #
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
@@ -462,6 +484,9 @@ while true; do
       ;;
     RECENT|HISTORY)
       cmd_recent
+      ;;
+    DEBUG)
+      cmd_debug
       ;;
     SYNC)
       sync_dashboard
