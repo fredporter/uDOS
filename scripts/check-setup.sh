@@ -34,17 +34,31 @@ get_stat() {
 USER_FILE="$UHOME/sandbox/user.md"
 
 if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
-  echo "🧑 Creating user profile. Please provide the following details:"
-  read -rp "Username: " username
-  read -rsp "Password: " password; echo ""
-  read -rp "Location: " location
+  echo "🧑 Let's create your user profile for uDOS."
 
+  # Prompt for user info
+  read -rp "📝 Username: " username
+  while [[ -z "$username" ]]; do
+    echo "⚠️  Username cannot be empty."
+    read -rp "📝 Username: " username
+  done
+
+  read -rsp "🔐 Password (input hidden): " password; echo ""
+  while [[ -z "$password" ]]; do
+    echo "⚠️  Password cannot be empty."
+    read -rsp "🔐 Password (input hidden): " password; echo ""
+  done
+
+  read -rp "🌍 Location (e.g., Sydney): " location
+  [[ -z "$location" ]] && location="Unknown"
+
+  # Detect timezone
   timezone=$(date +%Z)
   utc_offset=$(date +%z)
   echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
   read -rp "📌 Is this correct? (Y/n): " confirm_tz
   if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
-    read -rp "🌐 Enter your correct timezone (e.g., Australia/Sydney): " tz_input
+    read -rp "🌐 Enter your timezone (e.g., Australia/Sydney): " tz_input
     if [[ -n "$tz_input" ]]; then
       export TZ="$tz_input"
       timezone=$(date +%Z)
@@ -53,6 +67,7 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
     fi
   fi
 
+  # Now write user.md
   mkdir -p "$UHOME/sandbox"
   {
     echo "# uDOS User Profile"
