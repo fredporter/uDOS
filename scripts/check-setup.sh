@@ -37,28 +37,28 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
   echo "🧑 Let's create your user profile for uDOS."
 
   # Prompt for user info
-  read -rp "📝 Username: " username
+  echo -n "📝 Username: "; read username
   while [[ -z "$username" ]]; do
     echo "⚠️  Username cannot be empty."
-    read -rp "📝 Username: " username
+    echo -n "📝 Username: "; read username
   done
 
-  read -rsp "🔐 Password (input hidden): " password; echo ""
+  echo -n "🔐 Password (input hidden): "; read -s password; echo ""
   while [[ -z "$password" ]]; do
     echo "⚠️  Password cannot be empty."
-    read -rsp "🔐 Password (input hidden): " password; echo ""
+    echo -n "🔐 Password (input hidden): "; read -s password; echo ""
   done
 
-  read -rp "🌍 Location (e.g., Sydney): " location
+  echo -n "🌍 Location (e.g., Sydney): "; read location
   [[ -z "$location" ]] && location="Unknown"
 
   # Detect timezone
   timezone=$(date +%Z)
   utc_offset=$(date +%z)
   echo "🕒 Detected timezone: $timezone (UTC$utc_offset)"
-  read -rp "📌 Is this correct? (Y/n): " confirm_tz
+  echo -n "📌 Is this correct? (Y/n): "; read confirm_tz
   if [[ "$confirm_tz" =~ ^[Nn]$ ]]; then
-    read -rp "🌐 Enter your timezone (e.g., Australia/Sydney): " tz_input
+    echo -n "🌐 Enter your timezone (e.g., Australia/Sydney): "; read tz_input
     if [[ -n "$tz_input" ]]; then
       export TZ="$tz_input"
       timezone=$(date +%Z)
