@@ -40,6 +40,9 @@ else
 fi
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
 
+# Append minimal system stats line to move log
+echo "📊 [STATS] $(date '+%H:%M') System ready: $UVERSION | User: $username | TZ: $timezone" >> "$move_log_file"
+
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
 echo -e "\033[1;31m _    _  ____   ___   ____  ______ _____  \033[0m"
@@ -116,19 +119,21 @@ if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
 fi
 if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
   echo "⏳ Syncing dashboard..."
-  SECONDS=0
   if command -v timeout &>/dev/null; then
-    if timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"; then
-      echo "✅ Dashboard sync complete in ${SECONDS}s."
-    else
-      echo "⚠️ Dashboard sync failed or timed out after ${SECONDS}s."
-      echo "❌ Skipping dashboard display to prevent lock-up."
-      echo "🧪 Please check: scripts/dashboard-sync.sh for errors."
-    fi
+    timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"
+    dash_status=$?
   else
     echo "⚠️ 'timeout' not found. Running dashboard sync without timeout..."
     bash "$UHOME/scripts/dashboard-sync.sh"
-    echo "✅ Dashboard sync completed."
+    dash_status=$?
+  fi
+
+  if [[ "$dash_status" -eq 0 ]]; then
+    echo "✅ Dashboard sync complete."
+  else
+    echo "⚠️ Dashboard sync error (code $dash_status)"
+    echo "❌ Skipping dashboard display to prevent lock-up."
+    echo "🧪 Check: scripts/dashboard-sync.sh"
   fi
 fi
 unset UCODE_BOOTING
