@@ -197,7 +197,7 @@ if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
     echo "- Timestamp: $(date)"
     echo "- User: $USER_NAME"
     echo "- Location: $LOCATION"
-    echo "- Reason: One or more dashboard templates failed or returned no content."
+    echo "- Reason: Dashboard failed to render or timed out."
     echo ""
     echo "Recent moves: $(tail -n 5 "$MOVE_LOG" 2>/dev/null)"
   } > "$ERROR_FILE"
@@ -208,6 +208,12 @@ if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
   echo "Recent Moves: (unavailable)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
   echo "Health: (unknown)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
   echo "" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+
+  if [[ "$UCODE_HEADLESS" == "true" ]]; then
+    echo "🛟 Fallback dashboard in headless mode. Skipping DESTROY prompt."
+    exit 1
+  fi
+
   echo "🛟 Dashboard fallback rendered due to missing or broken data."
   echo ""
   echo "💥 FATAL ERROR: Dashboard failed to initialize properly."
