@@ -388,16 +388,18 @@ cmd_recent() {
   tail -n 10 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 }
 
+#
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
 while true; do
-  # Simulate a quick flashing block to show readiness
-  printf "\033[?25h"   # ensure cursor visible
-  printf "\033[?1c"    # show block cursor
-  printf "\033[1;30m█\033[0m\r"  # flash once
+  # Prompt for input with visible swirl and blinking block cursor
+  printf "\033[?25h"      # Show cursor
+  printf "\033[?1c"       # Enable blinking block (may vary by terminal)
+  printf "\033[1;30m█\033[0m\r"
   sleep 0.1
   printf "  \r"
-  echo -ne "\033[1;36m🌀 \033[0m"; read input
+  echo -ne "\033[1;36m🌀 \033[0m"
+  read -r input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_move "$input"
