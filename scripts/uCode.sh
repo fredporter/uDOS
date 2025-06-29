@@ -30,7 +30,13 @@ log_move() {
 }
 
 # Log session start
-echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+move_log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+if [[ -f "$move_log_file" ]]; then
+  echo "📘 Daily move log located for $(date +%Y-%m-%d)"
+else
+  echo "📗 Daily move log initiated for $(date +%Y-%m-%d)"
+fi
+echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -66,13 +72,15 @@ if [ -f "$UDENT" ]; then
   timezone=""
   utc_offset=""
 
-  while IFS=': ' read -r key value; do
+  while IFS=':' read -r key value; do
+    key=$(echo "$key" | sed 's/^[-* ]*//;s/\*\*$//;s/^ *//;s/ *$//')
+    value=$(echo "$value" | xargs)
     case "$key" in
       Username) username="$value" ;;
       Location) location="$value" ;;
       Created) created="$value" ;;
       Timezone) timezone="$value" ;;
-      UTC\ Offset) utc_offset="$value" ;;
+      UTC\ Offset|UTC Offset) utc_offset="$value" ;;
     esac
   done < "$UDENT"
 
@@ -389,11 +397,10 @@ while true; do
   # Simulate a quick flashing block to show readiness
   printf "\033[?25h"   # ensure cursor visible
   printf "\033[?1c"    # show block cursor
-  printf "\033[1;30m█\033[0m"  # flash once
+  printf "\033[1;30m█\033[0m\r"  # flash once
   sleep 0.1
-  printf "\r  \r"
-  echo -ne "\033[1;36m🌀 \033[0m"
-  read -rp "" input
+  printf "  \r"
+  echo -ne "\033[1;36m🌀 \033[0m"; read input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   log_move "$input"
