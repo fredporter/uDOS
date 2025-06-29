@@ -115,9 +115,6 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
     echo "- **Timezone**: $timezone"
   } > "$USER_FILE"
 
-  if [[ "$HEADLESS" != "true" ]]; then
-    echo "[$(date +%H:%M:%S)] → check-setup → user.md created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
-  fi
 fi
 
 mkdir -p "$UHOME/uMemory/state"
@@ -136,9 +133,6 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Version: Beta v1.6.1" >> "$IDENTITY_FILE"
   echo "Timezone: $timezone" >> "$IDENTITY_FILE"
   echo "Install Location: $location" >> "$IDENTITY_FILE"
-  if [[ "$HEADLESS" != "true" ]]; then
-    echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
-  fi
 fi
 
 if [[ "$HEADLESS" != "true" ]]; then

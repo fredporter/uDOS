@@ -53,9 +53,7 @@ CONTENT_LENGTH=$(wc -c < "$DEST")
 if [[ "$CONTENT_LENGTH" -le 120 ]]; then
   echo "ℹ️ Content too short, skipping file creation."
   rm "$DEST"
-  echo "[$(date +%H:%M:%S)] → make-log $TARGET → inline entry only" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 else
-  echo "[$(date +%H:%M:%S)] → make-log $TARGET → see: ${DEST#"$UHOME/"}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   echo "✅ Long-form log created at ${DEST#"$UHOME/"}"
   echo "📄 New $TARGET logged: $DEST"
 fi

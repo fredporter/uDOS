@@ -29,6 +29,3 @@ if [[ "$HEADLESS" != "true" ]]; then
   echo "[$(date +%H:%M:%S)] → check-permissions complete" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
 fi
 
-if [[ "$HEADLESS" != "true" ]]; then
-  echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
-fi

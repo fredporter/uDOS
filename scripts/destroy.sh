@@ -1,6 +1,8 @@
 #!/bin/bash
 # destroy.sh - Safe identity/memory wipe tool for uDOS
 
+HEADLESS="${UCODE_HEADLESS:-false}"
+
 UHOME="${HOME}/uDOS"
 UDENT="${UHOME}/uMemory/state/identity.md"
 
@@ -13,23 +15,31 @@ echo "  [E] Exit to uCode (no data loss)"
 read -n1 -rp $'\033[1;34m👉 Select DESTROY option:\033[0m ' choice
 echo ""
 
+if [[ "$HEADLESS" == "true" ]]; then
+  echo "🧪 DESTROY called in headless mode. Auto-exiting..."
+  exit 0
+fi
+
 case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
   A)
     echo "⚠️ Deleting sandbox only..."
     [ -d "$UHOME/sandbox" ] && rm -rf "$UHOME/sandbox"
     echo "✅ Sandbox deleted."
+    echo "📝 Action: DESTROY A → sandbox wiped"
     ;;
   B)
     echo "⚠️ Deleting sandbox and uMemory..."
     [ -d "$UHOME/sandbox" ] && rm -rf "$UHOME/sandbox"
     [ -d "$UHOME/uMemory" ] && rm -rf "$UHOME/uMemory"
     echo "✅ Sandbox and memory deleted."
+    echo "📝 Action: DESTROY B → sandbox and memory wiped"
     ;;
   C)
     echo "⚠️ Flushing uMemory except legacy..."
     mkdir -p "$UHOME/legacy"
     [ -d "$UHOME/uMemory" ] && find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
     echo "✅ Legacy preserved. All other memory cleared."
+    echo "📝 Action: DESTROY C → legacy preserved, memory flushed"
     ;;
   D)
     echo "♻️ Rebooting system only..."
@@ -45,4 +55,4 @@ case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
 esac
 
 echo "🔁 Rebooting to apply changes..."
-exec "$UHOME/scripts/uCode.sh"
+exec "$UHOME/scripts/uCode.sh" || exec bash

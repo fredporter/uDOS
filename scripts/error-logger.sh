@@ -17,6 +17,7 @@ if [ $status -ne 0 ]; then
   ERROR_LOG_DIR="$UHOME/uMemory/logs/errors"
   mkdir -p "$ERROR_LOG_DIR"
   timestamp=$(date +"%Y-%m-%d-%H%M%S")
+  LAST_MOVE="$(tail -n 1 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null || echo "N/A")"
   error_log_file="$ERROR_LOG_DIR/error-log-$timestamp.md"
 
   {
@@ -24,16 +25,17 @@ if [ $status -ne 0 ]; then
     echo "- 🕒 Timestamp: $(date)"
     echo "- 💬 Command: $cmd"
     echo "- ⚠️ Exit Status: $status"
+    echo "- 🧭 Last User Input: $LAST_MOVE"
     echo ""
     echo "## 🔎 Output"
     echo '```'
     echo "$output"
     echo '```'
+    echo ""
+    echo "## 🛠 Recovery Suggestion"
+    echo "You may try resetting uDOS by running:"
+    echo '`bash scripts/uCode.sh DESTROY`'
   } > "$error_log_file"
-
-  if [[ "$HEADLESS" != "true" ]]; then
-    echo "[$(date +%H:%M:%S)] → error → see: ${error_log_file#"$UHOME/"}" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
-  fi
 
   echo "📝 Error saved to: $error_log_file"
 
@@ -46,25 +48,30 @@ if [ $status -ne 0 ]; then
   echo "$output"
   echo ""
 
-  if [[ "$HEADLESS" == "true" ]]; then
-    echo "🚨 Non-interactive error captured. Headless mode enabled."
-    exit $status
-  else
-    echo "🧭 What would you like to do?"
-    echo "   [R] Refresh  [B] Reboot  [D] Destroy  [V] View error log  [E] Exit"
-    read -n1 -rp "👉 Choose an option: " choice
-    echo ""
-
-    case "${choice^^}" in
-      R) echo "🔄 Refreshing..."; exec "$UHOME/scripts/uCode.sh" ;;
-      B) echo "♻️ Rebooting..."; "$UHOME/scripts/uCode.sh" REBOOT ;;
-      D) echo "☠️ Destroying..."; "$UHOME/scripts/uCode.sh" DESTROY ;;
-      V) echo "📜 Showing error log:"; tail -n 20 "$error_log_file" ;;
-      *) echo "🌀 Returning to uCode..."; "$UHOME/scripts/uCode.sh"; return ;;
-    esac
-  fi
+  echo "🚨 Fatal error logged. Recommend reviewing: $error_log_file"
+  exit $status
 else
   echo "$output"
 fi
+
+show_error_log_browser() {
+  echo "🗂️ Recent Error Logs:"
+  find "$ERROR_LOG_DIR" -type f -name "error-log-*.md" | sort -r | head -5 | while read -r file; do
+    echo "- $(basename "$file")"
+  done
+  echo ""
+  read -rp "📄 Enter error log filename to view (or press Enter to cancel): " fname
+  [[ -z "$fname" ]] && return
+  fullpath="$ERROR_LOG_DIR/$fname"
+  if [[ -f "$fullpath" ]]; then
+    echo ""
+    echo "📜 Showing $fname"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━"
+    cat "$fullpath"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━"
+  else
+    echo "❌ File not found: $fullpath"
+  fi
+}
 
 exit $status

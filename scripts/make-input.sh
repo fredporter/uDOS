@@ -5,6 +5,14 @@
 
 # Paths
 TEMPLATE="$UHOME/uTemplate/input-user-setup.md"
+
+HEADLESS="${UCODE_HEADLESS:-false}"
+
+if [[ ! -f "$TEMPLATE" ]]; then
+  echo "❌ Missing input template: $TEMPLATE"
+  exit 1
+fi
+
 OUTPUT="$UHOME/uMemory/input.md"
 
 # Ensure output directory exists
@@ -31,4 +39,4 @@ done < "$TEMPLATE"
 # Final flush
 [ -n "$current_block" ] && echo -e "$current_block\n" >> "$OUTPUT"
 
-echo "✅ User input written to $OUTPUT"
+[[ "$HEADLESS" != "true" ]] && echo "✅ User input written to $OUTPUT"

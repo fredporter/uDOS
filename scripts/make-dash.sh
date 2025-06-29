@@ -1,6 +1,7 @@
 #!/bin/bash
 
 UHOME="${HOME}/uDOS"
+HEADLESS="${UCODE_HEADLESS:-false}"
 DATE=$(date +%Y-%m-%d)
 TIME=$(date +%H:%M)
 DASH_FILE="$UHOME/sandbox/dash-log-$DATE.md"
@@ -10,15 +11,14 @@ MISSION_DIR="$UHOME/uMemory/missions"
 MILESTONE_DIR="$UHOME/uMemory/milestones"
 STATE_FILE="$UHOME/uMemory/state/instance.md"
 
-# Count total and long moves
-TOTAL_MOVES=$(grep -c "^\[" "$MOVE_LOG" 2>/dev/null || echo 0)
-LONG_MOVES=$(grep -c "→ see:" "$MOVE_LOG" 2>/dev/null || echo 0)
-LAST_MOVE=$(grep "^\[" "$MOVE_LOG" | tail -1)
-
 if [ ! -f "$MOVE_LOG" ]; then
   TOTAL_MOVES=0
   LONG_MOVES=0
   LAST_MOVE="N/A"
+else
+  TOTAL_MOVES=$(grep -c "^\[" "$MOVE_LOG")
+  LONG_MOVES=$(grep -c "→ see:" "$MOVE_LOG")
+  LAST_MOVE=$(grep "^\[" "$MOVE_LOG" | tail -1)
 fi
 
 # Count files
@@ -55,4 +55,6 @@ $(tail -n 5 "$MOVE_LOG" 2>/dev/null)
 - Timezone: $TIMEZONE
 EOF
 
-echo "✅ Dashboard generated at $DASH_FILE"
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "✅ Dashboard generated at $DASH_FILE"
+fi

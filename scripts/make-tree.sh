@@ -50,8 +50,3 @@ generate_tree "$START_DIR" "$INDENT"
 
 echo "✅ Repo tree written to $OUTPUT_FILE"
 cat "$OUTPUT_FILE"
-
-# Log the move
-DASH_LOG="$uDOS_ROOT/sandbox/dash-log-$(date +%Y-%m-%d).md"
-mkdir -p "$(dirname "$DASH_LOG")"
-echo "[$(date +%H:%M:%S)] → tree → repo_structure.txt updated" >> "$DASH_LOG"

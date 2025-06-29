@@ -299,13 +299,11 @@ cmd_dash() {
 
 cmd_restart() {
   echo "🔄 Restarting uDOS shell..."
-  log_move "System restart initiated."
   exec "$0" # Relaunch script
 }
 
 cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
-  log_move "System reboot initiated."
 
   echo "🧼 Rebuilding structure..."
   bash "$UHOME/scripts/make-structure.sh"
@@ -337,21 +335,18 @@ cmd_destroy() {
       echo "⚠️ Deleting identity only..."
       rm -f "$UDENT"
       echo "✅ Identity deleted."
-      log_move "DESTROY mode A: identity only"
       ;;
     B)
       echo "⚠️ Deleting identity and uMemory..."
       rm -f "$UDENT"
       rm -rf "$UHOME/uMemory"
       echo "✅ Identity and memory deleted."
-      log_move "DESTROY mode B: identity and uMemory"
       ;;
     C)
       echo "⚠️ Deleting all uMemory contents except 'legacy'..."
       rm -f "$UDENT"
       find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
-      log_move "DESTROY mode C: preserved legacy only"
       ;;
     D)
       echo "♻️ Rebooting system only..."
@@ -360,12 +355,10 @@ cmd_destroy() {
       ;;
     E)
       echo "🌀 Exiting to uCode..."
-      log_move "DESTROY mode E: soft return to uCode"
       return
       ;;
     *)
       echo "❌ Invalid option. Cancelled."
-      log_move "DESTROY aborted"
       return
       ;;
   esac
@@ -411,11 +404,13 @@ cmd_debug() {
   echo "❗ Recent Errors (if any):"
   find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
   echo ""
+  echo "🧩 uDOS Version: $UVERSION"
 }
 
 #
 # Main Command Dispatch Loop
 trap 'echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"' EXIT
+trap 'echo -e "\n🛑 Interrupted. Type EXIT or BYE to quit safely."' SIGINT
 while true; do
   # Prompt for input with visible swirl and blinking block cursor
   printf "\033[?25h"      # Show cursor
@@ -502,6 +497,7 @@ while true; do
       sync_dashboard
       ;;
     HELP)
+      echo "🧩 uDOS Version: $UVERSION"
       echo "🧠 Available uDOS commands:"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   SAVE      → Alias for LOG"

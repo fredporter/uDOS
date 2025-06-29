@@ -1,15 +1,23 @@
 #!/bin/bash
 export UCODE_HEADLESS=true
+# Ensure sandbox exists before anything else
+mkdir -p sandbox
 if [ ! -s "sandbox/user.md" ]; then
-  echo "🧑 Creating new user profile..."
+  # No logging if headless
+  if [[ "$UCODE_HEADLESS" != "true" ]]; then
+    echo "🧑 Creating new user profile..."
+  fi
   bash scripts/make-structure.sh
   bash scripts/check-setup.sh
 else
   USERNAME=$(grep 'Username:' sandbox/user.md | cut -d ':' -f2 | xargs)
-  echo "✅ Found user profile: sandbox/user.md"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "🦦 Welcome back to uDOS, $USERNAME!"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  [[ -z "$USERNAME" ]] && USERNAME="user"
+  if [[ "$UCODE_HEADLESS" != "true" ]]; then
+    echo "✅ Found user profile: sandbox/user.md"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🦦 Welcome back to uDOS, $USERNAME!"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  fi
 fi
 
 exec bash scripts/uCode.sh

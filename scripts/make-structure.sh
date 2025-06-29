@@ -9,7 +9,6 @@ TEMPLATE_DIR="$UHOME/uTemplate"
 MEMORY_DIR="$UHOME/uMemory"
 LOG_DIR="$MEMORY_DIR/logs"
 
-mkdir -p "$UHOME/uMemory/logs/moves"
 
 # Defer sandbox creation to check-setup
 
