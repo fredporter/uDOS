@@ -1,0 +1,4 @@
+# Built macOS app bundle
+uDOS.app/
+/launcher/uDOS_installation.log
+/launcher/uDOS.app
