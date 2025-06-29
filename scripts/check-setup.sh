@@ -31,27 +31,13 @@ get_stat() {
   fi
 }
 
-# Prompt for user input if sandbox/user.md is missing or incomplete
 USER_FILE="$UHOME/sandbox/user.md"
-need_prompt=false
 
-if [[ -f "$USER_FILE" ]]; then
-  username=$(grep "Username" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
-  password=$(grep "Password" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
-  location=$(grep "Location" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
-  timezone=$(grep "Timezone" "$USER_FILE" | head -n1 | cut -d':' -f2 | xargs)
-
-  [[ -z "$username" || -z "$password" || -z "$location" || -z "$timezone" ]] && need_prompt=true
-else
-  need_prompt=true
-fi
-
-if [[ "$need_prompt" = true ]]; then
-  echo "🧑 Created user profile in sandbox/user.md"
+if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
   echo "🧑 Creating user profile. Please provide the following details:"
-  if [[ -z "$username" ]]; then read -rp "Username: " username; fi
-  if [[ -z "$password" ]]; then read -rsp "Password: " password; echo ""; fi
-  if [[ -z "$location" ]]; then read -rp "Location: " location; fi
+  read -rp "Username: " username
+  read -rsp "Password: " password; echo ""
+  read -rp "Location: " location
 
   timezone=$(date +%Z)
   utc_offset=$(date +%z)
@@ -76,13 +62,7 @@ if [[ "$need_prompt" = true ]]; then
     echo "- **Timezone**: $timezone"
   } > "$USER_FILE"
 
-  # Refresh local vars from saved user.md
-  username=$(grep "^-" "$USER_FILE" | grep "Username" | cut -d':' -f2 | xargs)
-  password=$(grep "^-" "$USER_FILE" | grep "Password" | cut -d':' -f2 | xargs)
-  location=$(grep "^-" "$USER_FILE" | grep "Location" | cut -d':' -f2 | xargs)
-  timezone=$(grep "^-" "$USER_FILE" | grep "Timezone" | cut -d':' -f2 | xargs)
-
-  echo "[$(date +%H:%M:%S)] → check-setup → user.md (re)created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  echo "[$(date +%H:%M:%S)] → check-setup → user.md created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
 fi
 
 mkdir -p "$UHOME/uMemory/state"
