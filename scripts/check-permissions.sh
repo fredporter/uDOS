@@ -4,6 +4,10 @@
 
 UHOME="${HOME}/uDOS"
 
+HEADLESS="${UCODE_HEADLESS:-false}"
+mkdir -p "$UHOME/sandbox"
+mkdir -p "$UHOME/uMemory/logs"
+
 TARGET_DIRS=("$UHOME/launcher" "$UHOME/scripts" "$UHOME/uTemplate" "$UHOME/sandbox" "$UHOME/uMemory" "$UHOME/uKnowledge")
 
 fixed_count=0
@@ -21,6 +25,10 @@ done
 
 echo "🔧 Permission audit complete: $fixed_count file(s) fixed."
 
-echo "[$(date +%H:%M:%S)] → check-permissions complete" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "[$(date +%H:%M:%S)] → check-permissions complete" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+fi
 
-echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "[$(date +%H:%M:%S)] → check-permissions → $fixed_count files fixed" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+fi

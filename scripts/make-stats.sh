@@ -11,6 +11,8 @@ LOG_DIR="$UMEMORY/logs"
 MOVE_LOGS="$LOG_DIR/moves"
 DATESTAMP=$(date '+%Y-%m-%d')
 
+HEADLESS="${UCODE_HEADLESS:-false}"
+
 mkdir -p "$LOG_DIR"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -58,9 +60,14 @@ LAST_MISSION=$(find "$UMEMORY/missions" -name '*.md' -type f -print0 | xargs -0 
 # ─────────────────────────────────────────────────────────────────────────────
 DAILY_MOVE_LOG="$LOG_DIR/move-log-${DATESTAMP}.md"
 
+mkdir -p "$(dirname "$DAILY_MOVE_LOG")"
+touch "$DAILY_MOVE_LOG"
+
 summary="Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION"
 echo "[STATS] $summary" >> "$DAILY_MOVE_LOG"
 
-echo "[$(date +%H:%M:%S)] → make-stats summary written" >> "$UHOME/sandbox/dash-log-$DATESTAMP.md"
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "[$(date +%H:%M:%S)] → make-stats summary written" >> "$UHOME/sandbox/dash-log-$DATESTAMP.md"
+fi
 
 echo "✅ System stats appended to: $DAILY_MOVE_LOG"

@@ -1,6 +1,8 @@
 #!/bin/bash
 # check-setup.sh — Validate permissions for uDOS directories and scripts
 
+HEADLESS="${UCODE_HEADLESS:-false}"
+
 UHOME="$HOME/uDOS"
 mkdir -p "$UHOME/sandbox"
 DASH_LOG="$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
@@ -14,7 +16,9 @@ fi
 
 # Load reusable prompt questions and default vars
 
-echo "[$(date +%H:%M:%S)] → check-setup started" >> "$DASH_LOG" 2>/dev/null
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "[$(date +%H:%M:%S)] → check-setup started" >> "$DASH_LOG" 2>/dev/null
+fi
 
 # Ensure directory structure exists before continuing
 if [[ ! -d "$UHOME/uMemory" || ! -d "$UHOME/sandbox" || ! -d "$UHOME/uTemplate" ]]; then
@@ -111,7 +115,9 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
     echo "- **Timezone**: $timezone"
   } > "$USER_FILE"
 
-  echo "[$(date +%H:%M:%S)] → check-setup → user.md created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
+  if [[ "$HEADLESS" != "true" ]]; then
+    echo "[$(date +%H:%M:%S)] → check-setup → user.md created in sandbox/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
+  fi
 fi
 
 mkdir -p "$UHOME/uMemory/state"
@@ -130,7 +136,11 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Version: Beta v1.6.1" >> "$IDENTITY_FILE"
   echo "Timezone: $timezone" >> "$IDENTITY_FILE"
   echo "Install Location: $location" >> "$IDENTITY_FILE"
-  echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
+  if [[ "$HEADLESS" != "true" ]]; then
+    echo "[$(date +%H:%M:%S)] → check-setup → identity.md created in state/" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md" 2>/dev/null
+  fi
 fi
 
-echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$DASH_LOG" 2>/dev/null
+if [[ "$HEADLESS" != "true" ]]; then
+  echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$DASH_LOG" 2>/dev/null
+fi

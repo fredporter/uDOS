@@ -24,8 +24,9 @@ else
 fi
 
 log_move() {
-  if [[ "$UCODE_BOOTING" == "true" ]]; then return; fi
   local cmd="$1"
+  # Suppress all move logging during boot or for blank/whitespace commands
+  if [[ "$UCODE_BOOTING" == "true" || -z "${cmd// }" ]]; then return; fi
   local log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   echo "[$(date +%H:%M:%S)] → $cmd" >> "$log_file"
 }
@@ -420,7 +421,10 @@ while true; do
   read -r input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
-  log_move "$input"
+  # Only log moves if not blank and not during boot
+  if [[ -n "${input// }" && "$UCODE_BOOTING" != "true" ]]; then
+    log_move "$input"
+  fi
   case "$cmd" in
     LOG)
       cmd_log

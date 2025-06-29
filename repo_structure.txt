@@ -1,17 +1,15 @@
 .
-  |  |-- Dockerfile
-  |  |-- LICENSE
-  |  |-- README.md
   |  |-- docker-compose.yml
+  |  |-- Dockerfile
   |-- launcher
-    |  |-- README.md
-    |  |-- Run Launcher Builder.command
     |-- assets
     |  |-- build-mac-launcher.sh
-    |-- uDOS.app
+    |  |-- README.md
+    |  |-- Run Launcher Builder.command
     |  |-- uDOS_Run.sh
-  |-- logs
-    |  |-- udos-2025-06-29.log
+    |-- uDOS.app
+  |  |-- LICENSE
+  |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -50,19 +48,19 @@
       |  |-- 052-uScript-examples.md
       |  |-- 053-data-sharing.md
     |  |-- 099-roadmap-devplan.md
-    |  |-- Milestone 001 Build U Knowledge.md
-    |  |-- Mission Build uKnowledge.md
-    |  |-- README.md
     |  |-- datetime_format.md
     |  |-- display_modes.md
     |  |-- filenames_and_structure.md
+    |  |-- Milestone 001 Build U Knowledge.md
+    |  |-- Mission Build uKnowledge.md
     |  |-- move_log_roadmap.md
-    |  |-- uDOS_roadmap_sandbox_sharing.md
-    |  |-- uOS_base_map_120x60_accurate.md
-    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
+    |  |-- README.md
     |  |-- u_dos_roadmap_q_3_2025.md
     |  |-- u_os_cartography_roadmap.md
+    |  |-- uDOS_roadmap_sandbox_sharing.md
+    |  |-- uOS_base_map_120x60_accurate.md
     |  |-- uos_template_generator.md
+    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
     |  |-- user.md
@@ -85,7 +83,6 @@
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
-  |  |-- scripts.zip
   |-- uKnowledge
     |-- assets
     |-- companion
