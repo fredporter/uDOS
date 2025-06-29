@@ -4,6 +4,7 @@
 
 echo "🐚 Running uDOS..."
 echo "Welcome to uDOS, your personal OS 🦦"
+mkdir -p ~/uDOS/logs
 LOGFILE=~/uDOS/logs/udos-$(date +%Y-%m-%d).log
 echo "===== uDOS launch started at $(date) =====" >> "$LOGFILE"
 

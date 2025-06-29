@@ -114,12 +114,18 @@ fi
 if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
   echo "⏳ Syncing dashboard..."
   SECONDS=0
-  if timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"; then
-    echo "✅ Dashboard sync complete in ${SECONDS}s."
+  if command -v timeout &>/dev/null; then
+    if timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"; then
+      echo "✅ Dashboard sync complete in ${SECONDS}s."
+    else
+      echo "⚠️ Dashboard sync failed or timed out after ${SECONDS}s."
+      echo "❌ Skipping dashboard display to prevent lock-up."
+      echo "🧪 Please check: scripts/dashboard-sync.sh for errors."
+    fi
   else
-    echo "⚠️ Dashboard sync failed or timed out after ${SECONDS}s."
-    echo "❌ Skipping dashboard display to prevent lock-up."
-    echo "🧪 Please check: scripts/dashboard-sync.sh for errors."
+    echo "⚠️ 'timeout' not found. Running dashboard sync without timeout..."
+    bash "$UHOME/scripts/dashboard-sync.sh"
+    echo "✅ Dashboard sync completed."
   fi
 fi
 unset UCODE_BOOTING
