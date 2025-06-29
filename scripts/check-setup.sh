@@ -72,6 +72,9 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
 
   if [[ "$confirm" =~ ^[Nn]$ ]]; then
     echo -n "🌐 Enter a 3-letter timezone code (e.g., AES): "; read tz_code
+    if [[ -z "$tz_code" ]]; then
+      tz_code="UTC"
+    fi
 
     # Attempt to locate in dataset
     DATASET="$UHOME/uTemplate/dataset-time-space.md"
@@ -91,12 +94,12 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
     else
       echo "⚠️ Dataset not found, skipping lookup."
       timezone="$tz_code"
-      location_default="Unknown"
-      tile="UNKNOWN"
+      [[ -z "$location_default" ]] && location_default="Unknown"
+      [[ -z "$tile" ]] && tile="UNKNOWN"
     fi
   else
-    timezone="UTC"
-    location_default="London"
+    timezone="$sys_tz"
+    location_default="Unknown"
     tile="UNKNOWN"
   fi
 
@@ -109,10 +112,10 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
   mkdir -p "$UHOME/sandbox"
   {
     echo "# uDOS User Profile"
-    echo "- **Username**: $username"
-    echo "- **Password**: $password"
-    echo "- **Location**: $location"
-    echo "- **Timezone**: $timezone"
+    echo "Username: $username"
+    echo "Password: $password"
+    echo "Location: $location"
+    echo "Timezone: $timezone"
   } > "$USER_FILE"
 
 fi

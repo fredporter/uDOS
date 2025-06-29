@@ -33,6 +33,7 @@ log_move() {
 
 # Log session start
 move_log_file="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+sys_log_file="$UHOME/sandbox/system-log-$(date +%Y-%m-%d).md"
 if [[ -f "$move_log_file" ]]; then
   echo "📘 Daily move log located for $(date +%Y-%m-%d)"
 else
@@ -40,9 +41,9 @@ else
 fi
 echo "🌀 SESSION START → $(date '+%Y-%m-%d %H:%M:%S')" >> "$move_log_file"
 
-# Append minimal system stats line to move log
-echo "📊 [STATS] $(date '+%H:%M') System ready: $UVERSION | User: $username | TZ: $timezone" >> "$move_log_file"
-echo "✅ System stats appended move-log-$(date +%Y-%m-%d)"
+# Append minimal system stats line to system log (not move log)
+echo "📊 [BOOT] $(date '+%H:%M') $UVERSION · $username · $timezone" >> "$sys_log_file"
+echo "✅ System stats appended sandbox/system-log-$(date +%Y-%m-%d)"
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -140,8 +141,8 @@ if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
     echo "❌ Skipping dashboard display to prevent lock-up."
     echo "🧪 Check: scripts/dashboard-sync.sh"
   fi
+  unset UCODE_BOOTING
 fi
-unset UCODE_BOOTING
 
 echo ""
 

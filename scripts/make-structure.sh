@@ -24,6 +24,7 @@ create_template() {
     echo "# $title Template" > "$file"
     echo "Created: $(date)" >> "$file"
     echo "" >> "$file"
+    [[ "$UCODE_VERBOSE" == "true" ]] && echo "Created template: $file"
   fi
 }
 
@@ -36,15 +37,24 @@ create_template "$TEMPLATE_DIR/mission-template.md" "Mission"
 create_template "$TEMPLATE_DIR/milestone-template.md" "Milestone"
 create_template "$TEMPLATE_DIR/legacy-template.md" "Legacy"
 
-# Create dashboard templates if they don't exist
-create_template "$DASHBOARD_DIR/dashboard-header.md" "Dashboard Header"
-create_template "$DASHBOARD_DIR/dashboard-footer.md" "Dashboard Footer"
-create_template "$DASHBOARD_DIR/dashboard-map.md" "Dashboard Map"
-create_template "$DASHBOARD_DIR/dashboard-knowledge.md" "Dashboard Knowledge"
-create_template "$DASHBOARD_DIR/dashboard-health.md" "Dashboard Health"
-create_template "$DASHBOARD_DIR/dashboard-recent.md" "Dashboard Recent"
-create_template "$DASHBOARD_DIR/dashboard-legacy.md" "Dashboard Legacy"
-create_template "$DASHBOARD_DIR/dashboard-rooms.md" "Dashboard Rooms"
-create_template "$DASHBOARD_DIR/dashboard-focus.md" "Dashboard Focus"
+DASHBOARD_FILES=(
+  "dashboard-header.md" "Dashboard Header"
+  "dashboard-footer.md" "Dashboard Footer"
+  "dashboard-map.md" "Dashboard Map"
+  "dashboard-knowledge.md" "Dashboard Knowledge"
+  "dashboard-health.md" "Dashboard Health"
+  "dashboard-recent.md" "Dashboard Recent"
+  "dashboard-legacy.md" "Dashboard Legacy"
+  "dashboard-rooms.md" "Dashboard Rooms"
+  "dashboard-focus.md" "Dashboard Focus"
+)
 
-echo "✅ uDOS directory structure initialized and verified."
+for ((i=0; i<${#DASHBOARD_FILES[@]}; i+=2)); do
+  file="$DASHBOARD_DIR/${DASHBOARD_FILES[i]}"
+  title="${DASHBOARD_FILES[i+1]}"
+  create_template "$file" "$title"
+done
+
+if [[ "$UCODE_HEADLESS" != "true" ]]; then
+  echo "✅ uDOS directory structure initialized and verified."
+fi

@@ -41,19 +41,19 @@ TEMPLATE="$UHOME/uTemplate/${TARGET}-template.md"
 mkdir -p "$(dirname "$DEST")"
 
 if [[ -f "$TEMPLATE" ]]; then
+  CONTENT_LENGTH=$(wc -c < "$TEMPLATE")
+  if [[ "$CONTENT_LENGTH" -le 120 ]]; then
+    echo "ℹ️ Template content too short, skipping file creation."
+    exit 0
+  fi
   cp "$TEMPLATE" "$DEST"
 else
   echo "# $TARGET created on $(date)" > "$DEST"
   echo "⚠️ No template found. Created blank file."
 fi
 
+echo "📄 New $TARGET logged: ${DEST#"$UHOME/"}"
 
-# Log outcome to move-log (only keep long-form file if content exceeds 120 characters)
-CONTENT_LENGTH=$(wc -c < "$DEST")
-if [[ "$CONTENT_LENGTH" -le 120 ]]; then
-  echo "ℹ️ Content too short, skipping file creation."
-  rm "$DEST"
-else
-  echo "✅ Long-form log created at ${DEST#"$UHOME/"}"
-  echo "📄 New $TARGET logged: $DEST"
-fi
+# Log to move-log
+LOG_FILE="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+echo "📄 [$TIMESTAMP] $TARGET saved: ${DEST#"$UHOME/"}" >> "$LOG_FILE"
