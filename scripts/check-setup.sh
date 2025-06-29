@@ -44,10 +44,6 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
   done
 
   echo -n "🔐 Password (input hidden): "; read -s password; echo ""
-  while [[ -z "$password" ]]; do
-    echo "⚠️  Password cannot be empty."
-    echo -n "🔐 Password (input hidden): "; read -s password; echo ""
-  done
 
   echo -n "🌍 Location (e.g., Sydney): "; read location
   [[ -z "$location" ]] && location="Unknown"
