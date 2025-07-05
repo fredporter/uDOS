@@ -61,19 +61,15 @@ cat > "$LAUNCH_SCRIPT" <<EOF
 #!/bin/bash
 # uDOS macOS Launcher (final hybrid version)
 
-APP_ROOT="\$(cd "\$(dirname "\$0")/../../.." && pwd)"
+APP_ROOT="$APP_ROOT"
 chmod +x "\$APP_ROOT/scripts/start.sh"
-
-LAUNCH_CMD="cd \"\$APP_ROOT/launcher\"; bash uDOS_Run.sh"
-
-echo "APP_ROOT is: \$APP_ROOT" >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
-echo "Attempting AppleScript-based launch..." >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
+chmod +x "\$APP_ROOT/launcher/uDOS_Run.sh"
 
 /usr/bin/osascript <<OSA
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "$LAUNCH_CMD"
+  do script "cd $APP_ROOT/launcher; bash uDOS_Run.sh"
 end tell
 OSA
 
