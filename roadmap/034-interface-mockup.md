@@ -4,7 +4,7 @@
 +-----------------------------------------------------+
 |                   [🧠 uOS DASHBOARD]                 |
 +----------------------+------------------------------+
-| 🌱 STEPS             |  📜 MISSIONS                |
+| 🌱 MOVES             |  📜 MISSIONS                |
 +----------------------+------------------------------+
 | Current:     17       |  In Progress:   🧭 Map Codex |
 | Total at EOL: ∞       |  Planned:       🌌 uBasic AI |
@@ -29,11 +29,11 @@
 
 ## Section Logic
 
-* **\[Steps]**
+* **\[Moves]**
 
   * Current steps taken during the user’s journey.
-  * Reversible Steps indicated with ✅.
-  * EOL Steps accumulate for Legacy determination.
+  * Reversible Moves indicated with ✅.
+  * EOL Moves accumulate for Legacy determination.
 
 * **\[Missions]**
 
@@ -49,13 +49,9 @@
 
 * **\[Location Map]**
 
-  * Each tile links to a uKnowledge memory (past), active mission (present), or legacy (future).
-  * Example: ⚔️ Wizard Tower → Active Mission → Editing Map Codex
+  * Each tile can link to a uMemory milestone (past), active mission (present), or legacy (knowledge for the future).
+
 
 * **\[System Status]**
 
-  * Displays current AI mode, memory capacity, and whether containerized `uScript` services are active.
-
----
-
-Next: Would you like this ASCII dashboard to become interactive via `[shortcodes]` calling `uScript` containers for live updates, or proceed with building the map tile rendering logic?
+  * Displays current mode, memory capacity, and whether containerized `uScript` services are active.

@@ -119,16 +119,16 @@ Pre-built service containers can be used:
 
 ## 🛡️ Security
 
-- Scripts are sandboxed in Docker or Podman containers.
+- Scripts are sandboxed in containers.
 - Read-only file systems by default.
 - Only whitelisted paths and variables are exposed.
-- Execution logs are recorded in uOS Markdown format.
+- Execution logs are recorded in uMemory Markdown format.
 
 ---
 
-## 🔗 Integration with uBASIC
+## 🔗 Integration with uCode
 
-uBASIC calls uScript using shortcodes embedded in Markdown:
+uCode calls uScript using shortcodes embedded in Markdown:
 
 ```markdown
 [RUN:greet_lifeform name="World"]
@@ -138,30 +138,6 @@ When rendered or parsed by the uOS engine, this triggers the corresponding conta
 
 Use ASCII output for visual returns (see `ascii-engine`).
 
----
-
-## 📘 Directory Structure
-
-```text
-/usr/lib/utos/
-├── scripts/
-│   ├── greet_lifeform.usr.yaml
-│   ├── greet.py
-│   └── math_tool.usr.yaml
-└── engines/
-    ├── python:3.10-slim
-    └── bash:5
-```
-
----
-
-## 📥 Future Extensions
-
-- `return:` key to support structured outputs (JSON, Markdown, etc.)
-- Smart caching and pre-compilation of common scripts
-- Interactive script debugger via uBASIC console
-
----
 
 ## 🧩 Sample Shortcode Index
 
@@ -175,4 +151,4 @@ Use these patterns to build rich, logic-driven workflows with lightweight contai
 
 ---
 
-✨ uScript transforms uBASIC input into live, isolated logic executions while respecting the simplicity of Markdown and the charm of ASCII.
+✨ uScript transforms uCode input into live, isolated logic executions while respecting the simplicity of Markdown and the charm of ASCII.

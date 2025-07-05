@@ -2,7 +2,7 @@
 
 ## \[Overview]
 
-`uScript` is the native scripting language of uOS, built to extend and evolve user interaction beyond uBASIC. Inspired by Markdown, BASIC, and modern scripting paradigms, it is designed for clarity, power, and seamless container integration.
+`uScript` is the native scripting language of uOS, built to extend and evolve user interaction beyond uCode. Inspired by Markdown, Visual BASIC, and modern scripting paradigms, it is designed for clarity, power, and seamless container integration.
 
 * **No line numbers**, modern syntax
 * **Fully Markdown-compatible**
@@ -173,7 +173,7 @@ draw map:
 
 ## \[uScript Goals]
 
-* Expand from uBASIC with structured logic and interactive storytelling
+* Expand from uCode with structured logic and interactive storytelling
 * Enable integration with containerized AI, agents, or automation
 * Act as the core scripting interface for uOS modules and maps
 

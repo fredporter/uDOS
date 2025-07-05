@@ -8,7 +8,7 @@ This document defines the logging behaviour at the beginning of each loop cycle 
 
 ## 🔁 Loop Start: Move Logging
 
-At the **start of each loop**, `uCode` captures a minimal **Move Log Entry**, appending it to the current day’s **daily move log** file in the user's sandbox folder.
+At the **end of each loop**, `uCode` captures a minimal **Move Log Entry**, appending it to the current day’s **daily move log** file 
 
 ### 📍 File Location
 

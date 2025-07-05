@@ -30,18 +30,10 @@ The user experience (UX) of uOS is designed to be minimal, non-distracting, and 
    - System remembers where you were, not just what you said.
    - UX design mimics long-form thought rather than chat sessions.
 
-## User Roles and Modes
-
-- **Explorer**: Browses the Map or Tower of Knowledge.
-- **Agent**: Executes Missions and triggers Moves.
-- **Archivist**: Reviews past Moves and Legacy material.
-- **Collaborator**: Engages in data sharing or external imports.
-
 ---
 
 ## Accessibility
 
-- Colorblind-friendly themes (ASCII symbols > color).
 - All navigation is keyboard- and markdown-compatible.
 - No dependence on mouse or screen size.
 

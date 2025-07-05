@@ -14,14 +14,14 @@ This document provides guiding principles and best practices for developing the 
    The uOS architecture is a single-process system that operates like ChatGPT.  
    Each **Move** consists of exactly one user input and one system output.
 
-3. **Stepwise Development:**  
+3. **Move by Move Development:**  
    Build the uOS personality and system capabilities incrementally, respecting the evolving system structure and user needs.
 
 4. **Comprehensive Logging:**  
-   Every Move must be recorded sequentially in a single chronological log file for auditability and history.
+   Movves are recorded sequentially in a single chronological log file for auditability and history of that 24 hour period.
 
 5. **Structured Knowledge Storage:**  
-   Milestones, Missions, Legacy, and other uKnowledge entries are stored as individual Markdown files based on predefined templates.
+   Milestones, Missions, Legacy, and other uMemory entries are stored as individual Markdown files based on predefined templates.
 
 6. **Privacy-First, Local-Only:**  
    No external cloud or third-party services should be used without explicit user permission.  
@@ -45,7 +45,7 @@ This document provides guiding principles and best practices for developing the 
 - Break the Mission down into **Milestones**.
 - Execute actions through atomic **Moves**.
 - Record each Move in the Move log.
-- Update Milestones and other uKnowledge entries as progress occurs.
+- Update Milestones and other uMemory entries as progress occurs.
 - Use uCode to interactively present information and accept commands.
 - Use uScript for executing complex scripted tasks.
 - Regularly review Milestones and Legacy for insights and system health.
@@ -54,7 +54,7 @@ This document provides guiding principles and best practices for developing the 
 
 ## Version Control and Updates
 
-- All Markdown files (Moves log, Milestones, Missions, Legacy, etc.) should be version controlled.
+- All Markdown files (Daily Move log, Milestones, Missions, Legacy, etc.) should be version controlled.
 - Updates to uOS personality or core logic should be reflected as Moves or Milestones to maintain traceability.
 
 ---

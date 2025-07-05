@@ -39,11 +39,6 @@ Any annotations, purpose tags, or user comments.
 
 ## 🧬 Properties
 
-* **Immutable**: A Move cannot be edited once saved.
-* **Non-reversible**: Unlike Milestones, Moves cannot be undone.
+
 * **Timestamped**: Used to track temporal progression.
 * **Compositional**: Multiple Moves contribute to a Milestone.
-
----
-
-Would you like to generate the first real Move instance next, or define the move logger and storage structure?

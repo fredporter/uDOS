@@ -26,8 +26,3 @@
 ║ [C] Code Editor     [M] Mission List     [L] Lore Map  ║
 ║ [R] Resources       [V] View Moves Log   [D] Dev Logs  ║
 ╚════════════════════════════════════════════════════════╝
-
-# Log Hook
-- Any mission status change triggers `uScript/move_logger.sh`
-- New moves are appended to `/uKnowledge/moves/move_log.md`
-- Dashboard includes a live count of total moves

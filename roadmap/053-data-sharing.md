@@ -6,7 +6,7 @@ Data Sharing in uOS refers to the controlled, transparent, and explicit method o
 
 ## Purpose
 
-- To enable secure, intentional sharing of knowledge artifacts.
+- To enable secure, intentional sharing of knowledge and memory artifacts.
 - To maintain user sovereignty over all data sharing actions.
 - To support inter-user collaboration while preserving local privacy.
 
@@ -21,8 +21,8 @@ Data Sharing in uOS refers to the controlled, transparent, and explicit method o
 
 ## Methods of Sharing
 
-- **Local Export**: Markdown zip files, PDFs, or HTML exports.
-- **Physical Transfer**: USB, QR codes, encrypted NFC.
+- **Local Export**: Markdown files or ZIP tomes
+- **Physical Transfer**: USB, QR codes, encrypted NFC, custom bluetooth network, helium network/long-fi
 - **Trusted Sync**: Optional sync with user-authorized mirror device.
 
 ## Shared Elements

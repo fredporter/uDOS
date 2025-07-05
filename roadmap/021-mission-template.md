@@ -29,9 +29,6 @@ Brief mission purpose and philosophical context.
 - [ ] milestone_002: Draft bank index and search
 - [ ] milestone_003: Build memory binding logic
 
-## 📁 Linked Files
-- uKnowledge/bank/index.md
-- uScript/python/bind_memory.py
 
 ## 🧠 Related Concepts
 - uCode interface blocks: `[mission:status]`
@@ -51,17 +48,13 @@ Flag: eligible | not-eligible | predefined
   * Achieved (✔)
   * Reversible (↩️)
   * Archived at EOL into **Legacy**
-* **Steps** (Input/Output operations) are atomic, and may trigger milestone creation or update
+* **Moves** (Input/Output operations) are atomic, and may trigger milestone creation or update
 
 ---
 
 ## 🔂 Redefinitions
 
-* **Step**: A single atomic I/O event in uOS. Like a message or script call. Stateless.
+* **Move**: A single atomic I/O event in uOS. Like a message or script call. Stateless.
 * **Milestone**: A goal-related unit of progression. Tracks meaningful progress. Reversible.
 * **Mission**: A persistent objective composed of Milestones.
 * **Legacy**: A sealed archive of missions + milestones defined at EOL.
-
----
-
-Next Step: Create a sample mission file using this template and store it under `uKnowledge/missions/`?

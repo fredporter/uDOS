@@ -1,4 +1,4 @@
-# uOS Roadmap Notes
+# uDOS Roadmap Notes
 
 ## Vision and Philosophy
 
@@ -22,12 +22,8 @@ uOS is envisioned as a lifelong AI-powered operating system designed to:
 3. **Data Sovereignty**:
    - Users have full control over their data, including deletion and legacy settings.
 
-4. **Dual Streams**:
-   - Public Stream: Spellbound-Toad for open-source collaboration and community features.
-   - Private Stream: Magic-Toad-Secrets for advanced, experimental development.
-
-5. **Legacy System**:
-   - Lifespan measured in "steps."
+4. **Legacy System**:
+   - Lifespan measured in "moves."
    - At the end of life (EOL), users can choose to delete, preserve, or share a "time capsule" of knowledge.
 
 ---
@@ -62,7 +58,7 @@ uOS is envisioned as a lifelong AI-powered operating system designed to:
    - Built-in wellbeing checks, triggered manually or automatically.
 
 2. **Step Tracking**:
-   - Lifespan measured in steps (input-output cycles).
+   - Lifespan measured in moves (input-output cycles).
    - Users can review, adjust, or reclaim steps.
 
 3. **Advanced Data Privacy**:
@@ -98,7 +94,7 @@ uOS is envisioned as a lifelong AI-powered operating system designed to:
 1. **NetHack Integration**:
    - Gamified educational tools inspired by NetHack mechanics.
 
-2. **uBASIC Development**:
+2. **uCode Development**:
    - Scripting interface for creating object behaviors.
    - Tutorials for programming basics.
 

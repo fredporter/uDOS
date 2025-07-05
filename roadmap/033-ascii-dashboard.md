@@ -27,7 +27,7 @@ This ASCII dashboard serves as the main interface for users running uOS. It's re
 
 ## 🔧 Shortcode Logic (uBASIC)
 
-```ubasic
+```uCode
 IF mode == "exploration" THEN
   SHOW map_overlay
 ENDIF
@@ -57,13 +57,9 @@ ENDIF
 🔋 = RESOURCE MODULE
 ⌛ = LIFESPAN CLOCK
 🪙 = LEGACY TOMES
-🧭 = STEP COUNTER
+🧭 = MOVE COUNTER
 📦 = SCRIPT CONTAINER
 📘 = LOGBOOK
 📁 = ACTIVE MISSION
 🗺 = MAP OVERLAY
 ```
-
----
-
-Would you like to animate container usage or evolve the mission tracker into a scrollable quest log?

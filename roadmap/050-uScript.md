@@ -34,50 +34,8 @@
 3. A container is spun up with isolated environment.
 4. Script executes, output is streamed back to `uCode`.
 5. Step count is incremented and logged against mission or legacy.
-6. If marked as persistent, a link is created to `uKnowledge`.
+6. If marked as persistent, a link is created to `uMemory`.
 
----
-
-## Example: Shell Script Execution
-
-```markdown
-:::sh
-#!/bin/bash
-uname -a
-echo "Hello from uScript container!"
-:::
-```
-
-## Example: Python Logic
-
-```markdown
-:::py
-from datetime import datetime
-print("Current Time:", datetime.now())
-:::
-```
-
----
-
-## Script Container Architecture
-
-* Uses Linux namespaces and cgroups for isolation
-* Mounted uOS-specific volume for logs and ephemeral memory
-* `uos_env.json` config provided per user/session
-* Custom syscall guards to prevent unauthorized network/file access
-
----
-
-## Integration with uCode
-
-* uCode interprets the UI/Markdown layer and translates interactive blocks into calls to uScript.
-* Output is returned via rendered block or chat response.
-* Shortcodes:
-
-  * `[run:py name="timer"]` links to an existing `.py` file
-  * `{uos:mission_tracker}` runs an internal uOS script
-
----
 
 ## Permissions and Safety
 
@@ -117,5 +75,5 @@ print("The Wanderer leaves behind their final log...")
 
 * Add support for compiled languages (Rust, Zig) with limited IO
 * Introduce stateful containers per mission
-* Deep linking between `uScript` containers and `uKnowledge` entries
+* Deep linking between `uScript` containers and `uMemory` entries
 * Runtime visualisation of script impact per step
