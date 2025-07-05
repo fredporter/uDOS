@@ -4,7 +4,6 @@
 
 UHOME="${HOME}/uDOS"
 
-HEADLESS="${UCODE_HEADLESS:-false}"
 mkdir -p "$UHOME/sandbox"
 mkdir -p "$UHOME/uMemory/logs"
 
@@ -14,7 +13,7 @@ fixed_count=0
 
 for dir in "${TARGET_DIRS[@]}"; do
   if [ -d "$dir" ]; then
-    find "$dir" -type f \( -name "*.sh" -o -name "*.command" \) | while read -r file; do
+    for file in $(find "$dir" -type f \( -name "*.sh" -o -name "*.command" \)); do
       if [ ! -x "$file" ]; then
         chmod +x "$file"
         fixed_count=$((fixed_count + 1))
@@ -25,7 +24,4 @@ done
 
 echo "🔧 Permission audit complete: $fixed_count file(s) fixed."
 
-if [[ "$HEADLESS" != "true" ]]; then
-  echo "[$(date +%H:%M:%S)] → check-permissions complete" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
-fi
-
+echo "[$(date +%H:%M:%S)] → check-permissions complete" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
