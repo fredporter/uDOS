@@ -1,6 +1,6 @@
 # uDOS dataset-cols=5 format=pipe
 TZ|UTZ|OFFSET|COUNTRY|CITY|TILE
-Y|Y|-12:00|USA|Baker Island|A60
+Y|YYY|-12:00|USA|Baker Island|A60
 SST|SST|-11:00|USA|Pago Pago|C60
 HST|HST|-10:00|USA|Honolulu|E58
 MART|MRT|-09:30|French Polynesia|Marquesas Islands|G60
