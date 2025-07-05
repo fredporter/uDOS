@@ -19,10 +19,10 @@ else
   fi
 fi
 
-exec bash scripts/uCode.sh
-
 if [[ "$UCODE_HEADLESS" != "true" ]]; then
   echo ""
   echo "🌀 uDOS started successfully."
   echo "Type 'help' or 'dash' to begin."
 fi
+
+bash scripts/uCode.sh
