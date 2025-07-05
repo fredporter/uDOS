@@ -18,6 +18,7 @@
     |  |-- 003-uDOS-execution.md
     |  |-- 004-uDOS-interface.md
     |  |-- 005-uDOS-location.md
+    |  |-- ROADMAP_INDEX.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
     |  |-- dash-log-2025-07-05.md

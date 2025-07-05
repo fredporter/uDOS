@@ -167,34 +167,20 @@ fi
 
 HEALTH_CHECK_LINES+=("Moves Remaining: $MOVES_REMAINING")
 
-render_template() {
-  local file="$1"
-  if [[ ! -f "$file" ]]; then
-    echo "⚠️ Missing template: $file"
-    return 1
-  fi
-  while IFS= read -r line; do
-    echo "${line//\{\{*/🔲}"
-  done < "$file"
-  return 0
-}
 
 #
 #
 # Use new dashboard template directory
-DASHBOARD_TEMPLATE_DIR="$UHOME/uTemplate/dashboards"
+DASHBOARD_TEMPLATE_DIR="$UHOME/uTemplate/dashboard"
 
 if [[ ! -d "$DASHBOARD_TEMPLATE_DIR" ]]; then
   echo "🚫 Missing dashboard templates: $DASHBOARD_TEMPLATE_DIR"
   exit 2
 fi
 
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-header.md"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-recent.md"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-map.md"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-knowledge.md"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-health.md"
-render_template "$DASHBOARD_TEMPLATE_DIR/dashboard-footer.md"
+# Unified dashboard rendering
+bash "$UROOT/scripts/make-dash.sh"
+cat "$UROOT/uMemory/rendered/dash-rendered.md"
 
 if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" && "$UCODE_HEADLESS" == "true" ]]; then
   echo "⚠️ Headless fallback: dashboard output suppressed."

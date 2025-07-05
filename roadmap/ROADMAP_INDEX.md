@@ -42,6 +42,9 @@ Spatial and cartographic model:
 - Base maps and uMap integration
 - Data sharing across regions
 
+### 006. [uDOS Future Concepts](006-uDOS-future.md)
+Speculative and upcoming features, tools, and interface enhancements under consideration for future development.
+
 ---
 
 ## 🌀 Usage

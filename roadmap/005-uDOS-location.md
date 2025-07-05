@@ -24,11 +24,11 @@ This document defines the physical, logical, and cartographic location systems u
 ---
 
 ## 📍 Location Mechanics
-# uOS Feature: Location
+# uDOS Feature: Location
 
 ## Overview
 
-A **Location** in uOS represents a dynamic pointer to the user's current context within the map, system interface, or Mission state. It’s used to define “where” the user is in their journey or interface.
+A **Location** in uDOS represents a dynamic pointer to the user's current context within the map, system interface, or Mission state. It’s used to define “where” the user is in their journey or interface.
 
 ## Purpose
 
@@ -38,10 +38,10 @@ A **Location** in uOS represents a dynamic pointer to the user's current context
 
 ## Types of Location
 
-- **Memory Location**: Current node or file being accessed in uMemory.
-- **Mission Location**: The active Mission or Milestone the user is working on.
-- **Conversation Location**: Active topic or logical thread in the conversation.
-- **Map Location**: The user’s current visible region or area on the conceptual Map.
+  - **Memory Location**: Current node or file being accessed in uMemory.
+  - **Mission Location**: The active Mission or Milestone the user is working on.
+  - **Conversation Location**: Active topic or logical thread in the conversation.
+  - **Map Location**: The user’s current visible region or area on the conceptual Map.
 
 ## How It Works
 
@@ -52,17 +52,17 @@ A **Location** in uOS represents a dynamic pointer to the user's current context
 ---
 
 ## 🗂️ Map Mechanics
-# uOS Feature: Map
+# uDOS Feature: Map
 
 ## Overview
 
-The **Map** in uOS is a conceptual and navigational framework that visualizes and organizes the user's Moves, Missions, Milestones, and digital environment as locations within a virtual space. It allows for both spatial and cognitive navigation of the uOS system.
+The **Map** in uDOS is a conceptual and navigational framework that visualizes and organizes the user's Moves, Missions, Milestones, and digital environment as locations within a virtual space. It allows for both spatial and cognitive navigation of the uDOS system.
 
 ## Purpose
 
-- To provide a visual and navigational model for exploring knowledge and system states.
-- To represent Milestones, Missions, and Legacy nodes as destinations or regions.
-- To enable intuitive interaction and memory reinforcement via spatial metaphor.
+  - To provide a visual and navigational model for exploring knowledge and system states.
+  - To represent Milestones, Missions, and Legacy nodes as destinations or regions.
+  - To enable intuitive interaction and memory reinforcement via spatial metaphor.
 
 ## Components
 
@@ -73,22 +73,24 @@ The **Map** in uOS is a conceptual and navigational framework that visualizes an
 
 ## Functionality
 
-- Users can navigate the Map through uCode interface using Markdown representations.
-- Locations dynamically update based on progress (e.g. new region unlocked after a Mission is complete).
-- Interactive links allow quick jumps to associated uKnowledge files.
+  - Users can navigate the Map through uCode interface using Markdown representations.
+  - Locations dynamically update based on progress (e.g. new region unlocked after a Mission is complete).
+  - Interactive links allow quick jumps to associated uKnowledge files.
 
 ## Design Principles
 
-- All regions and paths are stored as Markdown maps linked to Milestones or Missions.
+  - All regions and paths are stored as Markdown maps linked to Milestones or Missions.
 
 ---
 
 ## 🗺️ Cartography Roadmap
-## uOS Cartography Roadmap
+## uDOS Cartography Roadmap
 
 ### Purpose
 
-To develop a robust and expressive ASCII-based mapping specification for uOS, balancing clarity, visual distinction, and multi-scale spatial legibility. This roadmap focuses on how maps should be interpreted, constructed, layered, and extended, with a keen eye toward expandability and real-time rendering efficiency.
+To develop a robust and expressive ASCII-based mapping specification for uDOS, balancing clarity, visual distinction, and multi-scale spatial legibility. This roadmap focuses on how maps should be interpreted, constructed, layered, and extended, with a keen eye toward expandability and real-time rendering efficiency.
+
+Maps in uDOS are currently rendered as **static Markdown grid overlays**. These are updated manually or by script but do not represent dynamic or live interfaces (yet). Each tile refers to a fixed coordinate and name.
 
 ---
 
@@ -408,11 +410,11 @@ Zoom-level detail with city placements, regional terrain, and land/water contras
 ---
 
 ## 🔗 Data Sharing Across Regions
-# uOS Feature: Data Sharing
+# uDOS Feature: Data Sharing
 
 ## Overview
 
-Data Sharing in uOS refers to the controlled, transparent, and explicit method of exporting, sharing, or syncing portions of the uKnowledge with external systems or people.
+Data Sharing in uDOS refers to the controlled, transparent, and explicit method of exporting, sharing, or syncing portions of the uKnowledge with external systems or people.
 
 ## Purpose
 
@@ -456,4 +458,4 @@ User wants to share a Milestone with a collaborator:
 
 - They export `deep_learning_notes.md` with “view-only” tag.
 - The file is zipped and signed using local cryptographic keys.
-- The collaborator imports it into their own uOS under sandbox.
+  - The collaborator imports it into their own uDOS under sandbox.

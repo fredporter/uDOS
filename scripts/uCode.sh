@@ -306,6 +306,7 @@ cmd_map() {
 
 cmd_dash() {
   echo "📈 Building dashboard..."
+  bash "$UHOME/scripts/make-stats.sh"
   bash "$UHOME/scripts/make-dash.sh"
   echo ""
   echo "📋 Dashboard Output:"

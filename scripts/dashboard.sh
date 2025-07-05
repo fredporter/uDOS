@@ -76,14 +76,8 @@ render_template() {
   done < "$file"
 }
 
-render_template "$UROOT/uTemplate/dashboards/dashboard-header.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-focus.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-recent.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-map.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-rooms.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-legacy.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-health.md"
-render_template "$UROOT/uTemplate/dashboards/dashboard-footer.md"
+bash "$UROOT/scripts/make-dash.sh"
+cat "$UROOT/uMemory/rendered/dash-rendered.md"
 
 echo
 echo "🧭 Use 'help' for available commands. Make your next move, Master."

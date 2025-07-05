@@ -59,6 +59,21 @@ LAST_MISSION=$(find "$UMEMORY/missions" -name '*.md' -type f -print0 | xargs -0 
 SUMMARY="Moves: $TOTAL_MOVES | Missions: $TOTAL_MISSIONS | Milestones: $TOTAL_MILESTONES | Rooms: $TOTAL_ROOMS | Drafts: $SANDBOX_DRAFTS | Uptime: $UPTIME | RAM: $MEMORY | Space: $DISK_USAGE | Version: $UDOS_VERSION | LastMission: $LAST_MISSION"
 echo "$SUMMARY" > "$UHOME/sandbox/stat-log-${DATESTAMP}.txt"
 
+# Dashboard-friendly markdown version
+DASH_HEALTH="$UROOT/uTemplate/dashboard/dashboard-health.md"
+echo "### System Health" > "$DASH_HEALTH"
+echo "" >> "$DASH_HEALTH"
+echo "- 🧠 Total Moves: $TOTAL_MOVES" >> "$DASH_HEALTH"
+echo "- 🎯 Missions: $TOTAL_MISSIONS" >> "$DASH_HEALTH"
+echo "- 🗺️ Rooms: $TOTAL_ROOMS" >> "$DASH_HEALTH"
+echo "- ⛏️ Milestones: $TOTAL_MILESTONES" >> "$DASH_HEALTH"
+echo "- 📂 Drafts in sandbox/: $SANDBOX_DRAFTS" >> "$DASH_HEALTH"
+echo "- 💚 Uptime: $UPTIME" >> "$DASH_HEALTH"
+echo "- 🧮 RAM: $MEMORY" >> "$DASH_HEALTH"
+echo "- 💾 Disk Usage: $DISK_USAGE" >> "$DASH_HEALTH"
+echo "- 🔖 uDOS Version: $UDOS_VERSION" >> "$DASH_HEALTH"
+echo "- 🧬 Last Mission: $LAST_MISSION" >> "$DASH_HEALTH"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Append stats summary to today's move log
 # ─────────────────────────────────────────────────────────────────────────────

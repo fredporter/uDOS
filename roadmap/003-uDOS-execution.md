@@ -78,11 +78,16 @@ Translates into a query and fetches the associated Markdown fragment.
 
 ---
 
+
 ## 🔁 Communication Flow
 
 
 * All processing is single-threaded and event-based.
 * uCode receives input, parses shortcodes or interactions, routes logic to `uScript`, then renders results.
+
+Each interaction is part of a linear single-process loop. The flow is:
+→ receive input → parse → run script → log output → return Markdown.
+Logging always occurs at the **end** of the cycle, once the full output is rendered.
 
 ---
 
@@ -203,16 +208,17 @@ To begin:
 
 ## ✅ Summary
 
-uCode is the user-friendly Markdown interface of uOS. It lets users interact with uScript containers using simple, readable blocks and shortcodes—all in a retro ASCII UI style.
+uCode is the user-friendly Markdown interface of uDOS. It lets users interact with uScript containers using simple, readable blocks and shortcodes—all in a retro ASCII UI style.
+This execution is always stateless and Markdown-first, respecting the purity of input/output in uDOS.
 
 ---
 
 ## 📜 uScript — Lightweight Automation Engine
 # uScript
 
-**Role:** Execution Engine for uOS Scripts
+**Role:** Execution Engine for uDOS Scripts
 
-**Purpose:** uScript is the execution backend for all shell, Python, and future user-defined scripting languages within the uOS ecosystem. It operates as a single-process containerized runtime, designed to interpret and securely execute user logic on demand via interface calls from `uCode`.
+**Purpose:** uScript is the execution backend for all shell, Python, and future user-defined scripting languages within the uDOS ecosystem. It operates as a single-process containerized runtime, designed to interpret and securely execute user logic on demand via interface calls from `uCode`.
 
 ---
 
@@ -255,6 +261,8 @@ Each script is tagged with a permission profile:
 * `network`: Allows outbound-only connections
 * `filesystem`: Grants read access to specific dirs
 
+All executions are logged as atomic entries and timestamped. No session IDs or usernames are recorded.
+
 Permission must be granted by Wizard (Parent Account).
 
 ---
@@ -293,7 +301,7 @@ print("The Wanderer leaves behind their final log...")
 ## 🔣 uScript Format Specification
 # uScript.md
 
-uScript is the execution backbone of uOS, designed to safely and flexibly run logic, automation, and tooling through containerized shell and Python scripts. It is the runtime counterpart to uBASIC, which handles the user-facing scripting syntax. uScript executes securely in isolated environments, guided by markdown-driven configurations and shortcodes.
+uScript is the execution backbone of uDOS, designed to safely and flexibly run logic, automation, and tooling through containerized shell and Python scripts. It is the runtime counterpart to uBASIC, which handles the user-facing scripting syntax. uScript executes securely in isolated environments, guided by markdown-driven configurations and shortcodes.
 
 ## 🧱 Structure
 
@@ -449,11 +457,11 @@ Use these patterns to build rich, logic-driven workflows with lightweight contai
 ---
 
 ## 🧪 uScript Examples
-# uScript: uOS Native Scripting Language
+# uScript: uDOS Native Scripting Language
 
 ## \[Overview]
 
-`uScript` is the native scripting language of uOS, built to extend and evolve user interaction beyond uCode. Inspired by Markdown, Visual BASIC, and modern scripting paradigms, it is designed for clarity, power, and seamless container integration.
+`uScript` is the native scripting language of uDOS, built to extend and evolve user interaction beyond uCode. Inspired by Markdown, Visual BASIC, and modern scripting paradigms, it is designed for clarity, power, and seamless container integration.
 
 * **No line numbers**, modern syntax
 * **Fully Markdown-compatible**
@@ -626,7 +634,7 @@ draw map:
 
 * Expand from uCode with structured logic and interactive storytelling
 * Enable integration with containerized AI, agents, or automation
-* Act as the core scripting interface for uOS modules and maps
+* Act as the core scripting interface for uDOS modules and maps
 
 ## \[Next]
 

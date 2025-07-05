@@ -55,6 +55,35 @@ $(tail -n 5 "$MOVE_LOG" 2>/dev/null)
 - Timezone: $TIMEZONE
 EOF
 
+# Render new unified dashboard
+TEMPLATE="$UHOME/uTemplate/dashboard/dashboard.md"
+OUTPUT="$UHOME/uMemory/rendered/dash-rendered.md"
+mkdir -p "$(dirname "$OUTPUT")"
+cp "$TEMPLATE" "$OUTPUT"
+
+# Replace includes
+grep -o "{{ include '[^']*' }}" "$TEMPLATE" | while read -r line; do
+  FILE=$(echo "$line" | sed -E "s/\{\{ include '(.*)' \}\}/\1/")
+  INCLUDE_FILE="$UHOME/uTemplate/dashboard/$FILE"
+  if [ -f "$INCLUDE_FILE" ]; then
+    CONTENT=$(cat "$INCLUDE_FILE")
+    ESCAPED=$(printf '%s\n' "$CONTENT" | sed -e 's/[\/&]/\\&/g')
+    sed -i "" "s/$line/$ESCAPED/" "$OUTPUT"
+  fi
+done
+
+# Insert today's date
+TODAY=$(date '+%Y-%m-%d')
+sed -i "" "s/{{ today }}/$TODAY/" "$OUTPUT"
+
+# Add usage notice at top of rendered dashboard
+sed -i "" "1s;^;<!-- This file is auto-generated. Do not edit directly. -->\\n\\n;" "$OUTPUT"
+
+# Future template variable: uOS_VERSION
+sed -i "" "s/{{ uOS_VERSION }}/Beta v1.6.1/" "$OUTPUT"
+
 if [[ "$HEADLESS" != "true" ]]; then
-  echo "✅ Dashboard generated at $DASH_FILE"
+  echo "✅ Dashboard logs saved:"
+  echo "- Legacy snapshot: $DASH_FILE"
+  echo "- Rendered ASCII dashboard: $OUTPUT"
 fi

@@ -205,6 +205,8 @@ uDOS is a private, physical AI-based operating system designed to serve as a lif
 
 The system is conversational in nature, operating through discrete single input/output operations called **Moves** (similar to ChatGPT interactions). These Moves build toward higher-level progress markers called **Milestones**, which in turn support longer-term goals called **Missions**. Ultimately, the system accumulates a **Legacy** that represents the end-of-life story and accumulated knowledge of the uDOS instance.
 
+uDOS is a **single-process, input/output loop** system. Like a living notebook, it handles one request at a time. Each Move represents a complete cycle of input → processing → output → log. This model ensures full traceability and simplicity.
+
 ---
 
 ## Core Principles
@@ -388,6 +390,16 @@ uDOS integrates a NetHack-style fantasy structure to map account types, privileg
 * Configurable EOL: `Resurrect`, `Tomb`, or `Transform` into Ghost.
 
 ---
+
+## 🔐 Identity & Binding
+
+Each uDOS system is permanently tied to a **unique user and device instance**. No remote authentication, cloud syncing, or virtualization is used. This local-first architecture ensures:
+
+- Full control over data and execution
+- Total memory ownership
+- Reproducible environments across devices
+
+Bindings may later include physical signatures or system IDs, but no identifying user info is ever stored outside `sandbox/user.md`.
 
 ## 📎 Appendix A: Key Terminology
 # uDOS Terminology and Naming Conventions

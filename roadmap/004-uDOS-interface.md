@@ -25,11 +25,11 @@ This document defines the visual, structural, and philosophical interface standa
 ---
 
 ## 🎯 UX Vision & Philosophy
-# uOS UX Philosophy
+# uDOS UX Philosophy
 
 ## Overview
 
-The user experience (UX) of uOS is designed to be minimal, non-distracting, and purpose-driven. It borrows inspiration from retro computing interfaces and humanistic design to provide a focused, intelligent, and non-invasive environment.
+The user experience (UX) of uDOS is designed to be minimal, non-distracting, and purpose-driven. It borrows inspiration from retro computing interfaces and humanistic design to provide a focused, intelligent, and non-invasive environment.
 
 ## Core UX Principles
 
@@ -43,7 +43,7 @@ The user experience (UX) of uOS is designed to be minimal, non-distracting, and 
 
 3. **No GUI Overhead**:
    - No graphical clutter or windowed interface.
-   - uOS interfaces are terminal- or plaintext-oriented.
+   - uDOS interfaces are terminal- or plaintext-oriented.
 
 4. **Contextual Awareness**:
    - The system is always aware of Location and historical context.
@@ -67,11 +67,13 @@ The user experience (UX) of uOS is designed to be minimal, non-distracting, and 
 ---
 
 ## 🧱 ASCII Interface Design
-# uOS Dashboard
+# uDOS Dashboard
 
 ## Overview
 
-The **Dashboard** is the single-entry summary view of the user’s current state in uOS. It is composed entirely of Markdown and ASCII, and is dynamically generated at each session entry or on request.
+The **Dashboard** is the single-entry summary view of the user’s current state in uDOS. It is composed entirely of Markdown and ASCII, and is dynamically generated at each session entry or on request.
+
+Dashboards are generated using helper scripts such as `make-dash.sh` and `dashboard-sync.sh`. These pull structured values from uMemory and uTemplate to compose the latest rendered interface for the current session.
 
 ## Core Sections
 
@@ -94,16 +96,16 @@ The **Dashboard** is the single-entry summary view of the user’s current state
 - Collapsible views based on verbosity preference.
 - Corresponding  .md file uMemory bank
 
-# uOS Visual ASCII UI Design
+# uDOS Visual ASCII UI Design
 
 ---
 
 ## ✨ Interface Ethos
-# ASCII Display Ethos in uOS
+# ASCII Display Ethos in uDOS
 
 ## Overview
 
-uOS uses ASCII and plain-text graphical metaphors as a core aesthetic and functional philosophy. This design choice reinforces its goals of simplicity, portability, and longevity.
+uDOS uses ASCII and plain-text graphical metaphors as a core aesthetic and functional philosophy. This design choice reinforces its goals of simplicity, portability, and longevity.
 
 ## Guiding Principles
 
@@ -126,10 +128,10 @@ uOS uses ASCII and plain-text graphical metaphors as a core aesthetic and functi
 ---
 
 ## 📊 Dashboard Concepts
-# uOS Dashboard — Specification
+# uDOS Dashboard — Specification
 
 ## Purpose
-The uOS Dashboard serves as the user's live mission control panel. It aggregates personal progress and uMemory state into a single screen view.
+The uDOS Dashboard serves as the user's live mission control panel. It aggregates personal progress and uMemory state into a single screen view.
 
 ---
 
@@ -153,12 +155,16 @@ The uOS Dashboard serves as the user's live mission control panel. It aggregates
 - Shows visited areas and next directions
 - Interconnected nodes (e.g. `[Creative Valley] --> [Structure Peak]`)
 
+- **Dynamic Sync**:
+  - Dashboards refresh via scripts pulling from live mission state.
+  - Values are re-rendered per Move, or on command (`dash`, `make-dash.sh`)
 
-# uOS Dashboard
+
+# uDOS Dashboard
 
 ## Overview
 
-The **Dashboard** is the single-entry summary view of the user’s current state in uOS. It is composed entirely of Markdown and ASCII, and is dynamically generated at each session entry or on request.
+The **Dashboard** is the single-entry summary view of the user’s current state in uDOS. It is composed entirely of Markdown and ASCII, and is dynamically generated at each session entry or on request.
 
 ## Core Sections
 
@@ -191,15 +197,15 @@ The **Dashboard** is the single-entry summary view of the user’s current state
 
 ## 🖥️ Display Modes
 ---
-title: uOS Display Modes Specification
+title: uDOS Display Modes Specification
 version: 1.0
-author: Otter (uOS)
+author: Otter (uDOS)
 date: 2025-06-22
 ---
 
-# 🖥️ uOS Display Modes Specification
+# 🖥️ uDOS Display Modes Specification
 
-This document outlines the supported display modes for uOS, including dimensions, ratios, viewport area, and dashboard placement.
+This document outlines the supported display modes for uDOS, including dimensions, ratios, viewport area, and dashboard placement.
 
 ## 🎯 Purpose
 - Define resolution grids for terminal layouts
@@ -243,15 +249,15 @@ This document outlines the supported display modes for uOS, including dimensions
 ---
 
 ## 🧩 Visual Mockups
-# uOS ASCII Dashboard UI
+# uDOS ASCII Dashboard UI
 
-This ASCII dashboard serves as the main interface for users running uOS. It's rendered entirely in a character grid (e.g. 160x90), uses uBASIC for layout/interaction, and invokes uScript containers for dynamic content.
+This ASCII dashboard serves as the main interface for users running uDOS. It's rendered entirely in a character grid (e.g. 160x90), uses uBASIC for layout/interaction, and invokes uScript containers for dynamic content.
 
 ## 📊 Dashboard Layout (160x32)
 
 ```
 +------------------------------------------------------------------------------------------------------------------------------+
-| ████ uOS :: WIZARD DASHBOARD ████                                                                                             |
+| ████ uDOS :: WIZARD DASHBOARD ████                                                                                             |
 +----------------------+----------------------+----------------------+----------------------+----------------------+-------------+
 | 🧠 MEMORY:  12.3 MB   | 🔋 RESOURCES: 89%     | ⌛ LIFESPAN: 27,391    | 🪙 LEGACY: 3 TOMES     | 🧭 STEPS: 1,203,556     | @U: Wizard     |
 +----------------------+----------------------+----------------------+----------------------+----------------------+-------------+
@@ -312,11 +318,11 @@ ENDIF
 ---
 
 ## 🧪 Interface Drafts and Render Planning
-# uOS Dashboard Interface
+# uDOS Dashboard Interface
 
 ```
 +-----------------------------------------------------+
-|                   [🧠 uOS DASHBOARD]                 |
+|                   [🧠 uDOS DASHBOARD]                 |
 +----------------------+------------------------------+
 | 🌱 MOVES             |  📜 MISSIONS                |
 +----------------------+------------------------------+

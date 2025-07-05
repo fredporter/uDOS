@@ -29,9 +29,9 @@ This document consolidates all reusable templates, dashboard rendering logic, fo
 ## 🧾 Templates
 
 ### 📍 Move Template
-# Move Template – uOS
+# Move Template – uDOS
 
-A **Move** is the smallest atomic operation in uOS. Each Move consists of one user input and one system output. It represents a moment of interaction, reflection, execution, or expression.
+A **Move** is the smallest atomic operation in uDOS. Each Move consists of one user input and one system output. It represents a moment of interaction, reflection, execution, or expression.
 
 Moves form the building blocks of Milestones and are counted toward system lifespan and progression.
 
@@ -77,9 +77,9 @@ Any annotations, purpose tags, or user comments.
 ---
 
 ### 🧭 Mission Template
-# uOS Mission Template
+# uDOS Mission Template
 
-A **Mission** in uOS defines a future or in-progress purpose. Missions remain persistent even after completion, unless elevated to **Legacy** at the end-of-life (EOL) phase of the user's installation.
+A **Mission** in uDOS defines a future or in-progress purpose. Missions remain persistent even after completion, unless elevated to **Legacy** at the end-of-life (EOL) phase of the user's installation.
 
 ---
 
@@ -133,7 +133,7 @@ Flag: eligible | not-eligible | predefined
 
 ## 🔂 Redefinitions
 
-* **Move**: A single atomic I/O event in uOS. Like a message or script call. Stateless.
+* **Move**: A single atomic I/O event in uDOS. Like a message or script call. Stateless.
 * **Milestone**: A goal-related unit of progression. Tracks meaningful progress. Reversible.
 * **Mission**: A persistent objective composed of Milestones.
 * **Legacy**: A sealed archive of missions + milestones defined at EOL.
@@ -141,9 +141,9 @@ Flag: eligible | not-eligible | predefined
 ---
 
 ### 🎯 Milestone Template
-# Milestone Template – uOS
+# Milestone Template – uDOS
 
-Milestones are units of meaningful progress within uOS. Each Milestone contributes to a Mission or Legacy and is composed of individual atomic Moves (input/output).
+Milestones are units of meaningful progress within uDOS. Each Milestone contributes to a Mission or Legacy and is composed of individual atomic Moves (input/output).
 
 ---
 
@@ -185,7 +185,7 @@ Concise explanation of what this Milestone represents and its intended impact.
 ## 📊 Dashboard Rendering
 ```
 ╔════════════════════════════════════════════════════════╗
-║                      uOS DASHBOARD                    ║
+║                      uDOS DASHBOARD                    ║
 ╠════════════════════════════════════════════════════════╣
 ║ USER: Wizard_Owl         LOCATION: Mossy_Hollow       ║
 ║ UPTIME: 1523 Steps       STATUS: ★ Active             ║
@@ -218,7 +218,7 @@ Concise explanation of what this Milestone represents and its intended impact.
 ---
 title: uDOS Date and Time Format Specification
 version: 1.1
-author: Otter (uOS)
+author: Otter (uDOS)
 date: 2025-06-24
 ---
 
@@ -281,7 +281,7 @@ YYYYMMDD-HHMMSS-SSS-TZCODE
 ## 🗂️ Filenames & Folder Structure
 # uDOS Filename and File Structure Specification (Beta v1.6.1)
 
-This standard defines all filenames and folder conventions used within uOS for logs, moves, tasks, maps, and sandbox operations.
+This standard defines all filenames and folder conventions used within uDOS for logs, moves, tasks, maps, and sandbox operations.
 
 ---
 
@@ -326,8 +326,8 @@ Default timezone and location are derived at startup from /uMemory/state/locatio
 | map     | Map tile or region  |
 | config  | Configuration file  |
 
-Note: This is a recommended convention, but not enforced. In some cases, may be omitted from the filename altogether.
-
+---
+📝 Note: All filenames and folders must follow Markdown-safe, ISO-date and lowercase-hyphenated formats for compatibility and readability. Spaces, special characters, and mixed case are disallowed.
 ---
 
 ## 3. Folder Structure
@@ -377,7 +377,7 @@ Each base cell (120×60) represents \~3° lat × 3° lon. Zoom layers allow incr
 
 ---
 
-This structure ensures consistent naming, cross-compatibility with uMap addressing, and clean archival across all uOS interfaces.
+This structure ensures consistent naming, cross-compatibility with uMap addressing, and clean archival across all uDOS interfaces.
 
 All filenames are safe for sorting, transfer, compression, and long-term storage.
 
@@ -441,6 +441,10 @@ This finalised `.md` file becomes read-only and serves as a durable, inspectable
 - Provide **minimal but complete traceability** of session activity
 - Enable future replay, summarisation, or audit of user-driven events
 - Maintain a lightweight, human-readable log format consistent with Markdown-based uDOS design
+
+---
+
+⚠️ Important: The move log file format was simplified in Beta v1.6.1. Previous session-based logging and verbose formats were deprecated. Each move is now logged as a **single-line entry** in a daily `.md` file with only the essentials: command, timestamp, location, and brief response. No session IDs, user names, or assistant identifiers are recorded in `uMemory`.
 
 ---
 
