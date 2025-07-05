@@ -105,36 +105,6 @@ if [[ -n "$PASSWORD" && "$REBOOT_FLAG" == "true" ]]; then
   fi
 fi
 
-# Run stats and dashboard sync after setup check
-export UCODE_BOOTING=true
-if [[ -x "$UHOME/scripts/make-stats.sh" ]]; then
-  bash "$UHOME/scripts/make-stats.sh"
-fi
-if [[ -x "$UHOME/scripts/dashboard-sync.sh" ]]; then
-  echo "⏳ Syncing dashboard..."
-  if command -v timeout &>/dev/null; then
-    timeout 5s bash "$UHOME/scripts/dashboard-sync.sh"
-    dash_status=$?
-  else
-    echo "⚠️ 'timeout' not found. Running dashboard sync without timeout..."
-    bash "$UHOME/scripts/dashboard-sync.sh"
-    dash_status=$?
-  fi
-
-  if [[ "$dash_status" -eq 0 ]]; then
-    echo "✅ Dashboard sync complete."
-  elif [[ "$dash_status" -eq 143 ]]; then
-    echo "⚠️ Dashboard sync timed out (code 143: SIGTERM)"
-    echo "❌ Skipping dashboard display to prevent lock-up."
-    echo "🧪 Review: scripts/dashboard-sync.sh for potential delays"
-  else
-    echo "⚠️ Dashboard sync error (code $dash_status)"
-    echo "❌ Skipping dashboard display to prevent lock-up."
-    echo "🧪 Check: scripts/dashboard-sync.sh"
-  fi
-  unset UCODE_BOOTING
-fi
-
 echo ""
 
 echo "📋 Session Info:"
@@ -305,12 +275,18 @@ cmd_map() {
 }
 
 cmd_dash() {
-  echo "📈 Building dashboard..."
+  echo ""
+  echo "╔════════════════════════════════════════════════════╗"
+  echo "║ 🦦 uDOS Dashboard                                 ║"
+  echo "╠════════════════════════════════════════════════════╣"
+  echo "║ User: $username    │ Location: $location             ║"
+  echo "║ Mission: $(cat "$UHOME/state/current_mission.md" 2>/dev/null || echo 'None') ║"
+  echo "╚════════════════════════════════════════════════════╝"
+  echo ""
+
   bash "$UHOME/scripts/make-stats.sh"
   bash "$UHOME/scripts/make-dash.sh"
-  echo ""
-  echo "📋 Dashboard Output:"
-  [ -f "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ] && cat "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
+  tail -n 60 "$UHOME/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
   echo ""
 }
 
@@ -327,10 +303,6 @@ cmd_reboot() {
 
   echo "🔍 Rechecking setup and permissions..."
   bash "$UHOME/scripts/check-setup.sh"
-
-  echo "📊 Rebuilding stats and dashboard..."
-  bash "$UHOME/scripts/make-stats.sh"
-  bash "$UHOME/scripts/dashboard-sync.sh"
 
   echo "🌀 Relaunching shell..."
   export REBOOT_FLAG=true

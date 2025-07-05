@@ -1,28 +1,24 @@
 #!/bin/bash
-# Canonical startup for uDOS (replaces uDOS_Run.sh)
+# Canonical startup for uDOS 
+
 mkdir -p sandbox
+
 if [ ! -s "sandbox/user.md" ]; then
   # No logging if headless
-  if [[ "$UCODE_HEADLESS" != "true" ]]; then
-    echo "🧑 Creating new user profile..."
-  fi
-  bash scripts/make-structure.sh
-  bash scripts/check-setup.sh
+  echo "🧑 Creating new user profile..."
+  bash "$UROOT/scripts/make-structure.sh"
+  bash "$UROOT/scripts/check-setup.sh"
 else
   USERNAME=$(grep 'Username:' sandbox/user.md | cut -d ':' -f2 | xargs)
   [[ -z "$USERNAME" ]] && USERNAME="user"
-  if [[ "$UCODE_HEADLESS" != "true" ]]; then
-    echo "✅ Found user profile: sandbox/user.md"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🦦 Welcome back to uDOS, $USERNAME!"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  fi
+  echo "✅ Found user profile: sandbox/user.md"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "🦦 Welcome back to uDOS, $USERNAME!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 fi
 
-if [[ "$UCODE_HEADLESS" != "true" ]]; then
-  echo ""
-  echo "🌀 uDOS started successfully."
-  echo "Type 'help' or 'dash' to begin."
-fi
+echo ""
+echo "🌀 uDOS started successfully."
+echo "Type 'help' or 'dash' to begin."
 
-bash scripts/uCode.sh
+bash "$UROOT/scripts/uCode.sh"

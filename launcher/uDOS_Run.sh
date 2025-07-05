@@ -1,4 +1,11 @@
 #!/bin/bash
 
-cd "$(dirname "$0")/../scripts"
-bash uCode.sh
+# Set UROOT as the project root (2 levels up from this script)
+export UROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export UHOME="$HOME"
+
+# Ensure we always run from root
+cd "$UROOT/scripts"
+
+# Start the system
+bash start.sh

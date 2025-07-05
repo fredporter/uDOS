@@ -61,19 +61,25 @@ OUTPUT="$UHOME/uMemory/rendered/dash-rendered.md"
 mkdir -p "$(dirname "$OUTPUT")"
 cp "$TEMPLATE" "$OUTPUT"
 
-# Render dashboard using portable awk processor
-awk '
-{
-  if ($0 ~ /\{\{ include .*\}\}/) {
-    match($0, /\{\{ include '\''([^'\'']+)'\'' \}\}/, arr);
-    include_file = ENVIRON["UHOME"] "/uTemplate/dashboard/" arr[1];
-    while ((getline line < include_file) > 0) print line;
-    close(include_file);
-  } else {
-    print;
-  }
-}
-' "$TEMPLATE" > "$OUTPUT"
+
+# Render dashboard using safe shell-based include processor
+TEMP="$OUTPUT.tmp"
+> "$TEMP"
+
+while IFS= read -r line; do
+  if [[ "$line" =~ \{\{\ include\ \'([^\']+)\'\ \}\} ]]; then
+    INCLUDE_FILE="$UHOME/uTemplate/dashboard/${BASH_REMATCH[1]}"
+    if [[ -f "$INCLUDE_FILE" ]]; then
+      cat "$INCLUDE_FILE" >> "$TEMP"
+    else
+      echo "⚠️ Missing include: ${BASH_REMATCH[1]}" >> "$TEMP"
+    fi
+  else
+    echo "$line" >> "$TEMP"
+  fi
+done < "$TEMPLATE"
+
+mv "$TEMP" "$OUTPUT"
 
 # Replace template variables
 awk -v today="$(date '+%Y-%m-%d')" '{gsub(/\{\{ today \}\}/, today); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
