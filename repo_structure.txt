@@ -1,69 +1,53 @@
 .
-  |  |-- docker-compose.yml
   |  |-- Dockerfile
-  |-- launcher
-    |-- assets
-    |  |-- build-mac-launcher.sh
-    |  |-- README.md
-    |  |-- Run Launcher Builder.command
-    |  |-- uDOS_Run.sh
-    |-- uDOS.app
   |  |-- LICENSE
   |  |-- README.md
+  |  |-- docker-compose.yml
+  |-- launcher
+    |  |-- README.md
+    |  |-- Run Launcher Builder.command
+    |-- assets
+    |  |-- build-mac-launcher.sh
+    |-- uDOS.app
+    |  |-- uDOS_Run.sh
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
-    |  |-- 000-readme.md
-    |-- 01-core
-      |  |-- 001-uOS-spellbound-toad.md
-      |  |-- 010-uOS-overview.md
-      |  |-- 011-uOS-core-values.md
-      |  |-- 012-uOS-terminology.md
-      |  |-- 013-uOS-development-guidelines.md
-      |  |-- 014-uCode.md
-    |-- 02-structure
-      |  |-- 020-move-template.md
-      |  |-- 021-mission-template.md
-      |  |-- 022-milestone-template.md
-      |  |-- 023-move-log-dashboard.md
-      |  |-- 024-uMemory-uKnowledge-storage-plan.md
-    |-- 03-ux
-      |  |-- 030-ux-philosophy.md
-      |  |-- 031-ascii-ui-design.md
-      |  |-- 032-dashboard-concepts.md
-      |  |-- 033-ascii-dashboard.md
-      |  |-- 034-interface-mockup.md
-      |  |-- 035-ascii-ethos.md
-    |-- 04-knowledge
-      |  |-- 040-tower-of-knowledge.md
-      |  |-- 041-uKnowledge-map-logic.md
-      |  |-- 042-map-editor.md
-      |  |-- 043-nethack-integration.md
-      |  |-- 044-location-mechanics.md
-      |  |-- 045-wizard-tower-overview.md
-      |  |-- 046-map-mechanics.md
-    |-- 05-system
-      |  |-- 050-uScript.md
-      |  |-- 051-uScript-format.md
-      |  |-- 052-uScript-examples.md
-      |  |-- 053-data-sharing.md
-    |  |-- 099-roadmap-devplan.md
+    |  |-- 001-uOS-intro.md
+    |  |-- 010-uOS-overview.md
+    |  |-- 011-uOS-core-values.md
+    |  |-- 012-uOS-terminology.md
+    |  |-- 013-uOS-development-guidelines.md
+    |  |-- 014-uCode.md
+    |  |-- 020-move-template.md
+    |  |-- 021-mission-template.md
+    |  |-- 022-milestone-template.md
+    |  |-- 023-move-log-dashboard.md
+    |  |-- 030-ux-philosophy.md
+    |  |-- 031-ascii-ui-design.md
+    |  |-- 032-dashboard-concepts.md
+    |  |-- 033-ascii-dashboard.md
+    |  |-- 034-interface-mockup.md
+    |  |-- 035-ascii-ethos.md
+    |  |-- 043-nethack-integration.md
+    |  |-- 044-location-mechanics.md
+    |  |-- 046-map-mechanics.md
+    |  |-- 050-uScript.md
+    |  |-- 051-uScript-format.md
+    |  |-- 052-uScript-examples.md
+    |  |-- 053-data-sharing.md
     |  |-- datetime_format.md
     |  |-- display_modes.md
     |  |-- filenames_and_structure.md
-    |  |-- Milestone 001 Build U Knowledge.md
-    |  |-- Mission Build uKnowledge.md
     |  |-- move_log_roadmap.md
-    |  |-- README.md
-    |  |-- u_dos_roadmap_q_3_2025.md
-    |  |-- u_os_cartography_roadmap.md
-    |  |-- uDOS_roadmap_sandbox_sharing.md
     |  |-- uOS_base_map_120x60_accurate.md
-    |  |-- uos_template_generator.md
     |  |-- uOS_uMap_Australia_NewZealand_120x60.md
+    |  |-- u_os_cartography_roadmap.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
+    |  |-- dash-log-2025-07-05.md
     |  |-- stat-log-2025-06-29.txt
+    |  |-- stat-log-2025-07-05.txt
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -80,7 +64,6 @@
     |  |-- make-stats.sh
     |  |-- make-structure.sh
     |  |-- make-tree.sh
-    |  |-- roadmap.md
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
@@ -95,6 +78,7 @@
     |-- logs
       |-- errors
       |  |-- move-log-2025-06-29.md
+      |  |-- move-log-2025-07-05.md
       |-- moves
     |-- milestones
     |-- missions
