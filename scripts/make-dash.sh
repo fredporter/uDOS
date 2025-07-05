@@ -61,26 +61,26 @@ OUTPUT="$UHOME/uMemory/rendered/dash-rendered.md"
 mkdir -p "$(dirname "$OUTPUT")"
 cp "$TEMPLATE" "$OUTPUT"
 
-# Replace includes
-grep -o "{{ include '[^']*' }}" "$TEMPLATE" | while read -r line; do
-  FILE=$(echo "$line" | sed -E "s/\{\{ include '(.*)' \}\}/\1/")
-  INCLUDE_FILE="$UHOME/uTemplate/dashboard/$FILE"
-  if [ -f "$INCLUDE_FILE" ]; then
-    CONTENT=$(cat "$INCLUDE_FILE")
-    ESCAPED=$(printf '%s\n' "$CONTENT" | sed -e 's/[\/&]/\\&/g')
-    sed -i "" "s/$line/$ESCAPED/" "$OUTPUT"
-  fi
-done
+# Render dashboard using portable awk processor
+awk '
+{
+  if ($0 ~ /\{\{ include .*\}\}/) {
+    match($0, /\{\{ include '\''([^'\'']+)'\'' \}\}/, arr);
+    include_file = ENVIRON["UHOME"] "/uTemplate/dashboard/" arr[1];
+    while ((getline line < include_file) > 0) print line;
+    close(include_file);
+  } else {
+    print;
+  }
+}
+' "$TEMPLATE" > "$OUTPUT"
 
-# Insert today's date
-TODAY=$(date '+%Y-%m-%d')
-sed -i "" "s/{{ today }}/$TODAY/" "$OUTPUT"
+# Replace template variables
+awk -v today="$(date '+%Y-%m-%d')" '{gsub(/\{\{ today \}\}/, today); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v version="Beta v1.6.1" '{gsub(/\{\{ uOS_VERSION \}\}/, version); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
 
-# Add usage notice at top of rendered dashboard
-sed -i "" "1s;^;<!-- This file is auto-generated. Do not edit directly. -->\\n\\n;" "$OUTPUT"
-
-# Future template variable: uOS_VERSION
-sed -i "" "s/{{ uOS_VERSION }}/Beta v1.6.1/" "$OUTPUT"
+# Prepend generation notice
+{ echo "<!-- This file is auto-generated. Do not edit directly. -->"; cat "$OUTPUT"; } > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
 
 if [[ "$HEADLESS" != "true" ]]; then
   echo "✅ Dashboard logs saved:"

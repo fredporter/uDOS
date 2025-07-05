@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ensure sandbox exists before anything else
+# Canonical startup for uDOS (replaces uDOS_Run.sh)
 mkdir -p sandbox
 if [ ! -s "sandbox/user.md" ]; then
   # No logging if headless
@@ -20,3 +20,9 @@ else
 fi
 
 exec bash scripts/uCode.sh
+
+if [[ "$UCODE_HEADLESS" != "true" ]]; then
+  echo ""
+  echo "🌀 uDOS started successfully."
+  echo "Type 'help' or 'dash' to begin."
+fi
