@@ -35,6 +35,7 @@
     |  |-- destroy.sh
     |  |-- log.sh
     |  |-- make-tree.sh
+    |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- structure.sh
     |  |-- ucode.sh
