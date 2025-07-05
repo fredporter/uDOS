@@ -61,7 +61,7 @@ cat > "$LAUNCH_SCRIPT" <<EOF
 #!/bin/bash
 # uDOS macOS Launcher (final hybrid version)
 
-APP_ROOT="$APP_ROOT"
+APP_ROOT="\$(cd "\$(dirname "\$0")/../.." && pwd)"
 chmod +x "\$APP_ROOT/scripts/start.sh"
 chmod +x "\$APP_ROOT/launcher/uDOS_Run.sh"
 
@@ -69,7 +69,7 @@ chmod +x "\$APP_ROOT/launcher/uDOS_Run.sh"
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "cd $APP_ROOT/launcher; bash uDOS_Run.sh"
+  do script "cd \$APP_ROOT/launcher; bash uDOS_Run.sh"
 end tell
 OSA
 
