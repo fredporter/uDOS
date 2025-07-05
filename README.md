@@ -97,21 +97,15 @@ uDOS is designed to run as a memory shell on:
 
 ---
 
-## 📊 Roadmap Preview
+## 🗺️ Roadmap Index
 
-✅ = complete / working  
-🔄 = in progress / evolving
+For full architecture, system structure, and design documents, see [`roadmap/`](roadmap/):
 
-- ✅ Terminal CLI (`uCode`)
-- ✅ Markdown Move/Mission logging
-- ✅ Live ASCII Dashboard (`dash`)
-- ✅ Recent Moves Tracker
-- ✅ Daily move logs
-- 🔄 Milestone & Legacy archiving
-- 🔄 Map + Location engine (Tower of Knowledge)
-- 🔄 Device lifetime tracking
-- 🔄 Proximity-based sharing logic
-- 🔄 Tour Mode (offline personal assistant)
+- [001-uDOS-foundation.md](roadmap/001-uDOS-foundation.md) — Core principles, terminology, mission structure
+- [002-uDOS-format.md](roadmap/002-uDOS-format.md) — Templates, filenames, dashboard format, move logging
+- [003-uDOS-execution.md](roadmap/003-uDOS-execution.md) — uCode runtime and uScript automation logic
+- [004-uDOS-interface.md](roadmap/004-uDOS-interface.md) — ASCII UI design, UX philosophy, display modes
+- [005-uDOS-location.md](roadmap/005-uDOS-location.md) — Tile logic, map mechanics, cross-device data sharing
 
 ---
 
@@ -122,7 +116,7 @@ This is a **co-created system** between:
 - **Wizard**: The user and architect of uDOS.
 - **Otter**: The AI assistant and memory-keeper within uDOS.
 
-As of version **Beta v1.6**, the assistant has been formally named **Otter**.
+As of version **Beta v1.6.1**, the assistant has been formally named **Otter**.
 
 Every session, file, command, and map is part of this collaboration.
 We build together. We remember together.
@@ -143,6 +137,5 @@ Built toward a Mission.
 Stored as a Legacy.
 
 ---
-
-**Built by you. Remembered by uDOS. Powered by Markdown.**  
-*Guided by Otter 🦦 — your memory keeper.*
+**uDOS Beta v1.6.1** — memory-bound and Markdown-powered.  
+🦦 Otter active. Listening, logging, learning.
