@@ -276,13 +276,6 @@ cmd_map() {
 
 cmd_dash() {
   echo ""
-  echo "╔════════════════════════════════════════════════════╗"
-  echo "║ 🦦 uDOS Dashboard                                 ║"
-  echo "╠════════════════════════════════════════════════════╣"
-  echo "║ User: $username    │ Location: $location             ║"
-  echo "║ Mission: $(cat "$UHOME/state/current_mission.md" 2>/dev/null || echo 'None') ║"
-  echo "╚════════════════════════════════════════════════════╝"
-  echo ""
 
   bash "$UHOME/scripts/make-stats.sh"
   bash "$UHOME/scripts/make-dash.sh"

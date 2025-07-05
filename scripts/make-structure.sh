@@ -29,8 +29,9 @@ create_template() {
 }
 
 
-# Ensure dashboards subdirectory exists
-DASHBOARD_DIR="$TEMPLATE_DIR/dashboards"
+
+# Ensure dashboard subdirectory exists
+DASHBOARD_DIR="$TEMPLATE_DIR/dashboard"
 mkdir -p "$DASHBOARD_DIR"
 
 create_template "$TEMPLATE_DIR/mission-template.md" "Mission"

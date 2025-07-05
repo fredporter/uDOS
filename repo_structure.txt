@@ -1,15 +1,15 @@
 .
-  |  |-- Dockerfile
-  |  |-- LICENSE
-  |  |-- README.md
   |  |-- docker-compose.yml
+  |  |-- Dockerfile
   |-- launcher
-    |  |-- README.md
-    |  |-- Run Launcher Builder.command
     |-- assets
     |  |-- build-mac-launcher.sh
-    |-- uDOS.app
+    |  |-- README.md
+    |  |-- Run Launcher Builder.command
     |  |-- uDOS_Run.sh
+    |-- uDOS.app
+  |  |-- LICENSE
+  |  |-- README.md
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
@@ -18,12 +18,15 @@
     |  |-- 003-uDOS-execution.md
     |  |-- 004-uDOS-interface.md
     |  |-- 005-uDOS-location.md
+    |  |-- 006-uDOS-future.md
     |  |-- ROADMAP_INDEX.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
     |  |-- dash-log-2025-07-05.md
+    |  |-- dash-log-2025-07-06.md
     |  |-- stat-log-2025-06-29.txt
     |  |-- stat-log-2025-07-05.txt
+    |  |-- stat-log-2025-07-06.txt
     |  |-- user.md
   |-- scripts
     |  |-- check-permissions.sh
@@ -55,14 +58,18 @@
       |-- errors
       |  |-- move-log-2025-06-29.md
       |  |-- move-log-2025-07-05.md
+      |  |-- move-log-2025-07-06.md
       |-- moves
     |-- milestones
     |-- missions
+    |-- rendered
+      |  |-- dash-rendered.md
     |-- state
       |  |-- identity.md
       |  |-- instance.md
   |-- uTemplate
-    |-- dashboards
+    |  |-- dash-template.md
+    |-- dashboard
       |  |-- dashboard-focus.md
       |  |-- dashboard-footer.md
       |  |-- dashboard-header.md

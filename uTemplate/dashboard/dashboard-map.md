@@ -1,4 +1,3 @@
-╔══════════╦═════════════════════════════════╗
-║ 🗺️ MAP    ║ No region selected              ║
-╚══════════╩═════════════════════════════════╝
-> Use `MAP` or `RUN region` to load map.
+# Dashboard Map Template
+Created: Sun  6 Jul 2025 01:09:11 AEST
+

@@ -1,8 +1,3 @@
-<!-- dashboard-header.md -->
-╔════════════════════════════════════════════════════╗
-║ 🦦 uDOS Beta v1.6.1 - Personal Dashboard Terminal   ║
-╠════════════════════════════════════════════════════╣
-║ 🧑 User: Master                                     ║
-║ 💾 Device: Local                                    ║
-║ 📅 Date: {{ today }}                                ║
-╚════════════════════════════════════════════════════╝
+# Dashboard Header Template
+Created: Sun  6 Jul 2025 01:09:11 AEST
+

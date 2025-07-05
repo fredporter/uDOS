@@ -1,8 +1,3 @@
-╔════════════════════════════════════════════╗
-║ 📎 FOOTER                                   ║
-╠════════════════════════════════════════════╣
-║ System Status: OK                          ║
-║ Last Move: {{LAST_MOVE}}                   ║
-║ Active Mission: {{CURRENT_MISSION}}        ║
-╚════════════════════════════════════════════╝
-💡 Tip: Use `RECENT` to view move history.
+# Dashboard Footer Template
+Created: Sun  6 Jul 2025 01:09:11 AEST
+

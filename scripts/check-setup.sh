@@ -74,7 +74,7 @@ if [[ ! -f "$USER_FILE" || -z "$(grep 'Username:' "$USER_FILE")" ]]; then
     fi
 
     # Attempt to locate in dataset
-    DATASET="$UHOME/uTemplate/dataset-time-space.md"
+    DATASET="$UHOME/uTemplate/dashboard/dataset-time-space.md"
     if [[ -f "$DATASET" ]]; then
       line=$(grep -E "^$tz_code\|" "$DATASET")
       if [[ -n "$line" ]]; then
