@@ -35,26 +35,9 @@
     |  |-- destroy.sh
     |  |-- log.sh
     |  |-- make-tree.sh
-    |-- sandbox
     |  |-- start.sh
     |  |-- structure.sh
     |  |-- ucode.sh
-  |-- scripts_old
-    |  |-- check-permissions.sh
-    |  |-- check-setup.sh
-    |  |-- command.sh
-    |  |-- dashboard-sync.sh
-    |  |-- dashboard.sh
-    |  |-- destroy.sh
-    |  |-- error-logger.sh
-    |  |-- get-user-input.sh
-    |  |-- make-dash.sh
-    |  |-- make-input.sh
-    |  |-- make-log.sh
-    |  |-- make-stats.sh
-    |  |-- make-structure.sh
-    |  |-- start.sh
-    |  |-- uCode.sh
   |-- uCode
   |-- uKnowledge
     |-- assets

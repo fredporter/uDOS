@@ -5,10 +5,9 @@
 # Constants
 UHOME="${HOME}/uDOS"
 PATHS=(
-  "uCode"
   "uMemory/moves"
   "uMemory/state"
-  "uTemplate"
+  "uTemplate/dashboard.md"
   "uKnowledge"
   "sandbox"
 )
@@ -25,8 +24,13 @@ create_folder() {
   if [[ -d "$UHOME/$dir" && "$FORCE" = false ]]; then
     log "exists: $dir"
   else
-    mkdir -p "$UHOME/$dir"
-    log "created: $dir"
+    if [[ "$dir" == *.md ]]; then
+      touch "$UHOME/$dir"
+      log "created file: $dir"
+    else
+      mkdir -p "$UHOME/$dir"
+      log "created dir: $dir"
+    fi
   fi
 }
 
