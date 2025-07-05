@@ -1,0 +1,89 @@
+#!/bin/bash
+# uDOS Beta v1.6.1
+# 📁 structure.sh — build and validate uDOS folder architecture
+
+# Constants
+UHOME="${HOME}/uDOS"
+PATHS=(
+  "uCode"
+  "uMemory/moves"
+  "uMemory/state"
+  "uTemplate"
+  "uKnowledge"
+  "sandbox"
+)
+FORCE=false
+INCLUDE_INPUT=false
+
+# Helpers
+log() {
+  echo "[structure] $1"
+}
+
+create_folder() {
+  local dir="$1"
+  if [[ -d "$UHOME/$dir" && "$FORCE" = false ]]; then
+    log "exists: $dir"
+  else
+    mkdir -p "$UHOME/$dir"
+    log "created: $dir"
+  fi
+}
+
+make_input() {
+  local inputfile="$UHOME/sandbox/input.md"
+  if [[ -f "$inputfile" && "$FORCE" = false ]]; then
+    log "input.md already exists"
+  else
+    cat <<EOF > "$inputfile"
+# 📥 input.md
+## Enter your uDOS move, mission or idea below:
+EOF
+    log "generated: sandbox/input.md"
+  fi
+}
+
+# Commands
+build_structure() {
+  log "creating uDOS folder structure in $UHOME"
+  mkdir -p "$UHOME"
+  for path in "${PATHS[@]}"; do
+    create_folder "$path"
+  done
+
+  [[ "$INCLUDE_INPUT" == true ]] && make_input
+}
+
+check_structure() {
+  log "checking folder layout in $UHOME"
+  for path in "${PATHS[@]}"; do
+    if [[ -d "$UHOME/$path" ]]; then
+      echo "✔ $path"
+    else
+      echo "✘ $path (missing)"
+    fi
+  done
+}
+
+# Parse Args
+case "$1" in
+  build)
+    shift
+    while [[ "$1" != "" ]]; do
+      case "$1" in
+        --force) FORCE=true ;;
+        --input) INCLUDE_INPUT=true ;;
+      esac
+      shift
+    done
+    build_structure
+    ;;
+  check)
+    check_structure
+    ;;
+  *)
+    echo "Usage:"
+    echo "  ./structure.sh build [--force] [--input]  # Create folders"
+    echo "  ./structure.sh check                     # Verify folders"
+    ;;
+esac

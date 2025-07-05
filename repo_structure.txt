@@ -24,11 +24,22 @@
     |  |-- dash-log-2025-06-29.md
     |  |-- dash-log-2025-07-05.md
     |  |-- dash-log-2025-07-06.md
+    |  |-- input.md
     |  |-- stat-log-2025-06-29.txt
     |  |-- stat-log-2025-07-05.txt
     |  |-- stat-log-2025-07-06.txt
     |  |-- user.md
   |-- scripts
+    |  |-- check.sh
+    |  |-- dash.sh
+    |  |-- destroy.sh
+    |  |-- log.sh
+    |  |-- make-tree.sh
+    |-- sandbox
+    |  |-- start.sh
+    |  |-- structure.sh
+    |  |-- ucode.sh
+  |-- scripts_old
     |  |-- check-permissions.sh
     |  |-- check-setup.sh
     |  |-- command.sh
@@ -42,10 +53,9 @@
     |  |-- make-log.sh
     |  |-- make-stats.sh
     |  |-- make-structure.sh
-    |  |-- make-tree.sh
-    |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- uCode.sh
+  |-- uCode
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -62,6 +72,8 @@
       |-- moves
     |-- milestones
     |-- missions
+    |-- moves
+      |  |-- moves-2025-07-06.md
     |-- rendered
       |  |-- dash-rendered.md
     |-- state

@@ -32,7 +32,7 @@ log_move() {
   if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
     return
   fi
-  echo "[$(date +%H:%M:%S)] → $cmd" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  bash "$UHOME/scripts/log.sh" move "$cmd"
 }
 
 
@@ -148,13 +148,13 @@ cmd_check() {
       cmd_log
       ;;
     SETUP)
-      bash "$UHOME/scripts/check-setup.sh"
+      bash "$UHOME/scripts/check.sh" all
       ;;
     IDENTITY)
       cmd_identity
       ;;
     INPUT)
-      bash "$UHOME/scripts/make-input.sh"
+      bash "$UHOME/scripts/structure.sh" build --input
       ;;
     *)
       echo "🔎 CHECK what?"
@@ -180,10 +180,9 @@ cmd_identity() {
 }
 
 cmd_log() {
-  echo -ne $'\033[1;34m📝 Log Entry Type:\033[0m '
-  read what
+  read -rp "📝 What do you want to log (mission/milestone/legacy)? " what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
-    bash "$UHOME/scripts/make-log.sh" "$what"
+    bash "$UHOME/scripts/log.sh" move "Logged $what entry"
   else
     echo "❌ Invalid log type."
   fi
@@ -277,8 +276,7 @@ cmd_map() {
 cmd_dash() {
   echo ""
 
-  bash "$UHOME/scripts/make-stats.sh"
-  bash "$UHOME/scripts/make-dash.sh"
+  bash "$UHOME/scripts/dash.sh"
   tail -n 60 "$UHOME/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
   echo ""
 }
@@ -292,10 +290,10 @@ cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
 
   echo "🧼 Rebuilding structure..."
-  bash "$UHOME/scripts/make-structure.sh"
+  bash "$UHOME/scripts/structure.sh" build
 
   echo "🔍 Rechecking setup and permissions..."
-  bash "$UHOME/scripts/check-setup.sh"
+  bash "$UHOME/scripts/check.sh" all
 
   echo "🌀 Relaunching shell..."
   export REBOOT_FLAG=true
@@ -369,7 +367,7 @@ cmd_bye() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  tail -n 10 "$UHOME/uMemory/moves/moves-$(date +%Y-%m-%d).md"
   echo ""
 }
 
