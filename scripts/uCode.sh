@@ -174,6 +174,15 @@ cmd_check() {
     INPUT)
       bash "$UHOME/scripts/structure.sh" build --input
       ;;
+    STATS)
+      cmd_stats
+      ;;
+    MISSION)
+      cmd_mission
+      ;;
+    MAP)
+      cmd_map
+      ;;
     *)
       echo "🔎 CHECK what?"
       echo "   TIME      → View or set timezone"
@@ -182,6 +191,9 @@ cmd_check() {
       echo "   SETUP     → Run full environment check"
       echo "   IDENTITY  → Display current identity"
       echo "   INPUT     → Generate user input file"
+      echo "   STATS     → Generate dashboard stats"
+      echo "   MISSION   → Display active mission"
+      echo "   MAP       → Show current region"
       echo ""
       ;;
   esac
@@ -207,19 +219,17 @@ cmd_log() {
   echo ""
 }
 
-cmd_redo() {
-  echo "↪️ Redoing last undone action..."
-  # Placeholder for redo logic
-  sleep 1
-  echo "✅ Redo completed."
+cmd_stats() {
+  bash "$UHOME/scripts/make-stats.sh"
+}
+
+cmd_mission() {
+  cat "$UHOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
   echo ""
 }
 
-cmd_undo() {
-  echo "↩️ Undoing last action..."
-  # Placeholder for undo logic
-  sleep 1
-  echo "✅ Undo completed."
+cmd_map() {
+  cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
   echo ""
 }
 
@@ -231,10 +241,7 @@ cmd_tree() {
   bash "$HOME/uDOS/scripts/make-tree.sh"
 }
 
-cmd_stats() {
-  bash "$UHOME/scripts/make-stats.sh"
-}
-
+# --- Timezone Command ---
 cmd_time() {
   echo "🕒 Current timezone: $(date +%Z)"
   echo "🕓 UTC offset: $(date +%z)"
@@ -248,12 +255,13 @@ cmd_time() {
   echo ""
 }
 
+# --- Location Command ---
 cmd_location() {
-  echo "📍 Current location (based on timezone): $(date +%Z)"
+  echo "📍 Current location code: $(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")"
   read -rp "🗺️ Enter new location code (or leave blank to keep current): " new_loc
   if [[ -n "$new_loc" ]]; then
-    echo "✅ Location updated: $new_loc"
     echo "$new_loc" > "$UHOME/uMemory/state/location.md"
+    echo "✅ Location updated to $new_loc"
   else
     echo "ℹ️ Location unchanged."
   fi
@@ -278,16 +286,6 @@ cmd_list() {
 
   echo "📂 uDOS directory: ${target/$HOME/~}"
   ls -lA "$target"
-  echo ""
-}
-
-cmd_mission() {
-  cat "$UHOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
-  echo ""
-}
-
-cmd_map() {
-  cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
   echo ""
 }
 
@@ -365,24 +363,6 @@ cmd_destroy() {
   cmd_reboot
 }
 
-cmd_bye() {
-  echo "👋 uDOS is entering pause mode..."
-  echo "🔒 System is inactive. Choose next action:"
-  echo "   [R] RESTART → Refresh the current uCode session"
-  echo "   [B] REBOOT  → Reload all system components"
-  echo "   [D] DESTROY → Clear identity or memory"
-  echo "   [C] CONTINUE → Resume uDOS"
-  read -n1 -rp $'\033[1;34m👉 Choose next step:\033[0m ' next
-  echo ""
-  case "${next^^}" in
-    R) cmd_restart ;;
-    B) cmd_reboot ;;
-    D) cmd_destroy ;;
-    *) echo "🌀 Resuming uCode session..." ;;
-  esac
-  echo ""
-}
-
 cmd_recent() {
   echo "📜 Recent moves:"
   tail -n 10 "$UHOME/uMemory/moves/moves-$(date +%Y-%m-%d).md"
@@ -431,47 +411,20 @@ while true; do
     LOG)
       cmd_log
       ;;
-    SAVE)
-      cmd_log
-      ;;
-    REDO)
-      cmd_redo
-      ;;
-    UNDO)
-      cmd_undo
-      ;;
     RUN)
       cmd_run
-      ;;
-    GO|START)
-      cmd_run
-      ;;
-    CHECK)
-      cmd_check
       ;;
     TREE)
       cmd_tree
       ;;
-    STATS)
-      cmd_stats
-      ;;
-    TIME)
-      cmd_time
-      ;;
-    LOCATION)
-      cmd_location
-      ;;
     LIST)
-      cmd_list
-      ;;
-    MISSION)
-      cmd_mission
-      ;;
-    MAP)
-      cmd_map
+      cmd_list "$args"
       ;;
     DASH)
       cmd_dash
+      ;;
+    SYNC)
+      sync_dashboard
       ;;
     RESTART)
       cmd_restart
@@ -482,48 +435,39 @@ while true; do
     DESTROY)
       cmd_destroy
       ;;
-    BYE)
-      cmd_bye
-      ;;
-    EXIT|QUIT)
-      cmd_bye
-      ;;
-    RECENT|HISTORY)
-      cmd_recent
-      ;;
-    DEBUG)
-      cmd_debug
-      ;;
-    SYNC)
-      sync_dashboard
+    IDENTITY)
+      cmd_identity
       ;;
     DEVCON)
       cmd_devcontainer
+      ;;
+    QUIT)
+      echo "👋 uDOS session ended."
+      exit 0
+      ;;
+    RECENT)
+      cmd_recent
+      ;;
+    CHECK)
+      cmd_check
       ;;
     HELP)
       echo "🧩 uDOS Version: $UVERSION"
       echo "🧠 Available uDOS commands:"
       echo "   LOG       → Log mission/milestone/legacy"
-      echo "   SAVE      → Alias for LOG"
-      echo "   RUN       → Run a command"
-      echo "   GO/START   → Alias for RUN"
-      echo "   CHECK      → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
-      echo "   TREE      → Show file tree"
-      echo "   STATS     → Generate dashboard stats"
-      echo "   TIME      → Check or set your timezone"
-      echo "   LOCATION  → Check or set your location code"
-      echo "   LIST      → List current folder"
-      echo "   MAP       → Show current region"
-      echo "   MISSION   → Display active mission"
+      echo "   RUN       → Run a uScript"
+      echo "   TREE      → Generate file tree"
+      echo "   LIST      → List Sandbox and uMemory folders"
       echo "   DASH      → Show dashboard"
       echo "   SYNC      → Sync dashboard"
       echo "   RESTART   → Restart shell"
       echo "   REBOOT    → Reboot system"
-      echo "   DESTROY   → Delete your identity"
+      echo "   DESTROY   → Delete your identity and/or files"
       echo "   IDENTITY  → Display user identity file"
-      echo "   DEVCON → Check and run .devcontainer/setup-dev.sh"
-      echo "   BYE/EXIT/QUIT → Close session"
-      echo "   RECENT/HISTORY → Show last 10 moves"
+      echo "   DEVCON    → Check and run setup-dev.sh"
+      echo "   QUIT      → Close session"
+      echo "   RECENT    → Show last 10 moves"
+      echo "   CHECK     → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
       echo ""
       ;;
     "")
