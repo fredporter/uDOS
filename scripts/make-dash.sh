@@ -81,6 +81,20 @@ done < "$TEMPLATE"
 
 mv "$TEMP" "$OUTPUT"
 
+# Inject dynamic values for new dashboard format
+awk -v val="$TOTAL_MOVES" '{gsub(/\{\{STEPS\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="$LAST_MOVE" '{gsub(/\{\{LOG_1\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="None" '{gsub(/\{\{LOG_2\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="None" '{gsub(/\{\{LOG_3\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="$LOCATION" '{gsub(/\{\{LOCATION\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="fred" '{gsub(/\{\{USER\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="0" '{gsub(/\{\{LEGACY\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="Exploration" '{gsub(/\{\{MODE\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="Recover the Tome of Ancestral Lore from the 3rd Layer of Forgotten Depths" '{gsub(/\{\{MISSION\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="12.3 MB" '{gsub(/\{\{MEMORY\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="89%" '{gsub(/\{\{POWER\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+awk -v val="27391" '{gsub(/\{\{LIFESPAN\}\}/, val); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
+
 # Replace template variables
 awk -v today="$(date '+%Y-%m-%d')" '{gsub(/\{\{ today \}\}/, today); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"
 awk -v version="Beta v1.6.1" '{gsub(/\{\{ uOS_VERSION \}\}/, version); print}' "$OUTPUT" > "$OUTPUT.tmp" && mv "$OUTPUT.tmp" "$OUTPUT"

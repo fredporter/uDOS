@@ -79,13 +79,6 @@ render_template() {
 bash "$UROOT/scripts/make-dash.sh"
 
 echo ""
-echo "╔════════════════════════════════════════════════════╗"
-echo "║ 🦦 uDOS Dashboard                                 ║"
-echo "╠════════════════════════════════════════════════════╣"
-echo "║ User: $USER_NAME     │ Location: $LOCATION              ║"
-echo "║ Mission: $ACTIVE_MISSION                              ║"
-echo "╚════════════════════════════════════════════════════╝"
-echo ""
-tail -n 60 "$UROOT/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
+cat "$UROOT/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
 echo ""
 echo "🧭 Use 'help' for available commands. Make your next move, Master."
