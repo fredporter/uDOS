@@ -64,8 +64,6 @@ cat > "$LAUNCH_SCRIPT" <<EOF
 APP_ROOT="\$(cd "\$(dirname "\$0")/../../.." && pwd)"
 chmod +x "\$APP_ROOT/scripts/start.sh"
 
-LAUNCH_CMD="cd '\$APP_ROOT' && bash scripts/start.sh"
-
 echo "APP_ROOT is: \$APP_ROOT" >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
 echo "Attempting AppleScript-based launch..." >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
 
@@ -73,7 +71,7 @@ echo "Attempting AppleScript-based launch..." >> "\$APP_ROOT/launcher/uDOS_launc
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "\$LAUNCH_CMD"
+  do script "cd \$APP_ROOT; bash launcher/uDOS_Run.sh"
 end tell
 OSA
 
