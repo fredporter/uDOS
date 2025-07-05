@@ -54,7 +54,3 @@ for ((i=0; i<${#DASHBOARD_FILES[@]}; i+=2)); do
   title="${DASHBOARD_FILES[i+1]}"
   create_template "$file" "$title"
 done
-
-if [[ "$UCODE_HEADLESS" != "true" ]]; then
-  echo "✅ uDOS directory structure initialized and verified."
-fi

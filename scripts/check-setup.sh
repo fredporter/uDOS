@@ -1,7 +1,6 @@
 #!/bin/bash
 # check-setup.sh — Validate permissions for uDOS directories and scripts
 
-HEADLESS="${UCODE_HEADLESS:-false}"
 
 UHOME="$HOME/uDOS"
 mkdir -p "$UHOME/sandbox"
@@ -16,9 +15,7 @@ fi
 
 # Load reusable prompt questions and default vars
 
-if [[ "$HEADLESS" != "true" ]]; then
-  echo "[$(date +%H:%M:%S)] → check-setup started" >> "$DASH_LOG" 2>/dev/null
-fi
+echo "[$(date +%H:%M:%S)] → check-setup started" >> "$DASH_LOG" 2>/dev/null
 
 # Ensure directory structure exists before continuing
 if [[ ! -d "$UHOME/uMemory" || ! -d "$UHOME/sandbox" || ! -d "$UHOME/uTemplate" ]]; then
@@ -138,6 +135,4 @@ if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Install Location: $location" >> "$IDENTITY_FILE"
 fi
 
-if [[ "$HEADLESS" != "true" ]]; then
-  echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$DASH_LOG" 2>/dev/null
-fi
+echo "[$(date +%H:%M:%S)] → check-setup completed" >> "$DASH_LOG" 2>/dev/null

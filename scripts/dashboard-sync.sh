@@ -182,10 +182,7 @@ fi
 bash "$UROOT/scripts/make-dash.sh"
 cat "$UROOT/uMemory/rendered/dash-rendered.md"
 
-if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" && "$UCODE_HEADLESS" == "true" ]]; then
-  echo "⚠️ Headless fallback: dashboard output suppressed."
-  exit 1
-elif [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
+if [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
   ERROR_LOG_DIR="$UHOME/uMemory/logs/errors"
   mkdir -p "$ERROR_LOG_DIR"
   ERROR_FILE="$ERROR_LOG_DIR/fallback-$(date +%Y-%m-%d_%H%M%S).md"
@@ -205,11 +202,6 @@ elif [[ ! -s "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md" ]]; then
   echo "Recent Moves: (unavailable)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
   echo "Health: (unknown)" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
   echo "" >> "$UHOME/sandbox/dash-log-$(date +%Y-%m-%d).md"
-
-  if [[ "$UCODE_HEADLESS" == "true" ]]; then
-    echo "🛟 Fallback dashboard in headless mode. Skipping DESTROY prompt."
-    exit 1
-  fi
 
   echo "🛟 Dashboard fallback rendered due to missing or broken data."
   echo ""
