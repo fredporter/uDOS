@@ -38,7 +38,6 @@
     |  |-- start.sh
     |  |-- structure.sh
     |  |-- ucode.sh
-  |-- uCode
   |-- uKnowledge
     |-- assets
     |-- companion
@@ -64,16 +63,7 @@
       |  |-- instance.md
   |-- uTemplate
     |  |-- dash-template.md
-    |-- dashboard
-      |  |-- dashboard-focus.md
-      |  |-- dashboard-footer.md
-      |  |-- dashboard-header.md
-      |  |-- dashboard-health.md
-      |  |-- dashboard-knowledge.md
-      |  |-- dashboard-legacy.md
-      |  |-- dashboard-map.md
-      |  |-- dashboard-recent.md
-      |  |-- dashboard-rooms.md
+    |  |-- dashboard.md
     |  |-- dataset-map-city.md
     |  |-- dataset-time-space.md
     |  |-- input-template.md
