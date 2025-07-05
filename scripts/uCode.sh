@@ -1,3 +1,21 @@
+# --- Devcontainer Command ---
+cmd_devcontainer() {
+  echo "🛠️  Checking devcontainer setup..."
+  if [ -d "$UHOME/.devcontainer" ]; then
+    echo "📁 .devcontainer directory exists."
+    tree "$UHOME/.devcontainer" 2>/dev/null || ls -R "$UHOME/.devcontainer"
+    echo ""
+    if [ -f "$UHOME/scripts/setup-dev.sh" ]; then
+      echo "🚀 Running dev setup script..."
+      bash "$UHOME/scripts/setup-dev.sh"
+    else
+      echo "⚠️ setup-dev.sh not found. Skipping script execution."
+    fi
+  else
+    echo "❌ .devcontainer folder not found in $UHOME"
+  fi
+  echo ""
+}
 #!/bin/bash
 # uCode.sh - uDOS Beta v1.6.1 CLI Shell
 # Full-featured command-line interface for uDOS environment
@@ -479,6 +497,9 @@ while true; do
     SYNC)
       sync_dashboard
       ;;
+    DEVCON)
+      cmd_devcontainer
+      ;;
     HELP)
       echo "🧩 uDOS Version: $UVERSION"
       echo "🧠 Available uDOS commands:"
@@ -500,6 +521,7 @@ while true; do
       echo "   REBOOT    → Reboot system"
       echo "   DESTROY   → Delete your identity"
       echo "   IDENTITY  → Display user identity file"
+      echo "   DEVCON → Check and run .devcontainer/setup-dev.sh"
       echo "   BYE/EXIT/QUIT → Close session"
       echo "   RECENT/HISTORY → Show last 10 moves"
       echo ""

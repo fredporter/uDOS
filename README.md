@@ -137,5 +137,6 @@ Built toward a Mission.
 Stored as a Legacy.
 
 ---
+
 **uDOS Beta v1.6.1** — memory-bound and Markdown-powered.  
 🦦 Otter active. Listening, logging, learning.
