@@ -1,5 +1,4 @@
 #!/bin/bash
-export UCODE_HEADLESS=true
 # Ensure sandbox exists before anything else
 mkdir -p sandbox
 if [ ! -s "sandbox/user.md" ]; then
