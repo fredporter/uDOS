@@ -269,23 +269,16 @@ cmd_location() {
 }
 
 cmd_list() {
-  local target="$1"
-  local base="${UHOME}"
-
-  # Default to root if no path is given
-  if [[ -z "$target" ]]; then
-    target="$base"
-  else
-    # Expand and sanitize target path
-    target="$(realpath -m "$base/$target")"
-    [[ "$target" == "$base"* ]] || {
-      echo "❌ Access denied: Outside uDOS root."
-      return 1
-    }
-  fi
-
-  echo "📂 uDOS directory: ${target/$HOME/~}"
-  ls -lA "$target"
+  echo "📁 uDOS Directory Listing"
+  echo ""
+  echo "🗂️ sandbox/"
+  tree -L 2 "$UHOME/sandbox" 2>/dev/null || ls -R "$UHOME/sandbox"
+  echo ""
+  echo "🧠 uMemory/"
+  tree -L 2 "$UHOME/uMemory" 2>/dev/null || ls -R "$UHOME/uMemory"
+  echo ""
+  echo "📚 uKnowledge/"
+  tree -L 2 "$UHOME/uKnowledge" 2>/dev/null || ls -R "$UHOME/uKnowledge"
   echo ""
 }
 
