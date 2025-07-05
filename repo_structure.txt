@@ -13,36 +13,11 @@
   |  |-- repo_structure.txt
   |  |-- requirements.txt
   |-- roadmap
-    |  |-- 001-uOS-intro.md
-    |  |-- 010-uOS-overview.md
-    |  |-- 011-uOS-core-values.md
-    |  |-- 012-uOS-terminology.md
-    |  |-- 013-uOS-development-guidelines.md
-    |  |-- 014-uCode.md
-    |  |-- 020-move-template.md
-    |  |-- 021-mission-template.md
-    |  |-- 022-milestone-template.md
-    |  |-- 023-move-log-dashboard.md
-    |  |-- 030-ux-philosophy.md
-    |  |-- 031-ascii-ui-design.md
-    |  |-- 032-dashboard-concepts.md
-    |  |-- 033-ascii-dashboard.md
-    |  |-- 034-interface-mockup.md
-    |  |-- 035-ascii-ethos.md
-    |  |-- 043-nethack-integration.md
-    |  |-- 044-location-mechanics.md
-    |  |-- 046-map-mechanics.md
-    |  |-- 050-uScript.md
-    |  |-- 051-uScript-format.md
-    |  |-- 052-uScript-examples.md
-    |  |-- 053-data-sharing.md
-    |  |-- datetime_format.md
-    |  |-- display_modes.md
-    |  |-- filenames_and_structure.md
-    |  |-- move_log_roadmap.md
-    |  |-- uOS_base_map_120x60_accurate.md
-    |  |-- uOS_uMap_Australia_NewZealand_120x60.md
-    |  |-- u_os_cartography_roadmap.md
+    |  |-- 001-uDOS-foundation.md
+    |  |-- 002-uDOS-format.md
+    |  |-- 003-uDOS-execution.md
+    |  |-- 004-uDOS-interface.md
+    |  |-- 005-uDOS-location.md
   |-- sandbox
     |  |-- dash-log-2025-06-29.md
     |  |-- dash-log-2025-07-05.md
