@@ -73,17 +73,7 @@ cd ~/uDOS
 ./uCode/ucode.sh
 ```
 
-### 🐳 Docker (Legacy - Optional)
-
-For containerized environments:
-
-```bash
-docker-compose up
-```
-
-*Note: Docker support is maintained for legacy systems but VS Code native execution is preferred.*
-
-### 💾 Legacy Hardware Support
+###  Legacy Hardware Support
 
 uDOS can run on older machines via:
 - Lightweight Linux distributions + VS Code

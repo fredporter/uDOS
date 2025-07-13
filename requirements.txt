@@ -1,5 +1,0 @@
-markdown
-requests
-openai
-PyYAML
-flask

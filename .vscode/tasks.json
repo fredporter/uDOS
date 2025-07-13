@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🌀 Start uDOS",
+            "type": "shell",
+            "command": "./uCode/ucode.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [],
+            "detail": "Launch uDOS shell in VS Code terminal"
+        },
+        {
+            "label": "🔍 Check uDOS Setup",
+            "type": "shell",
+            "command": "./uCode/check.sh",
+            "args": ["all"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📊 Generate Dashboard",
+            "type": "shell",
+            "command": "./uCode/dash.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌳 Generate File Tree",
+            "type": "shell",
+            "command": "./uCode/make-tree.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🧹 Clean uDOS (Destroy)",
+            "type": "shell",
+            "command": "./uCode/destroy.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📝 Create New Mission",
+            "type": "shell",
+            "command": "./uCode/structure.sh",
+            "args": ["build", "--input"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

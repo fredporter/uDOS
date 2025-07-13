@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# uDOS .gitignore — excludes system/cache/local content
+# uDOS .gitignore — Modern VS Code + Copilot version
 # ──────────────────────────────────────────────
 
 # Python + general build artifacts
@@ -12,14 +12,12 @@ __pycache__/
 *.out
 *.exe
 
-# Editor/IDE cruft
+# Editor/IDE cruft  
 .env
-.vscode/
-.idea/
 *.DS_Store
 
-# Docker override (local config)
-docker-compose.override.yml
+# VS Code settings (keep workspace config but exclude personal settings)
+.vscode/settings.json.local
 
 # uMemory — personal, private, local-only storage
 uMemory/
@@ -28,3 +26,6 @@ sandbox/
 # System files
 /tmp/
 .ipynb_checkpoints/
+
+# macOS launcher generated files
+launcher/uDOS_installation.log

@@ -1,0 +1,29 @@
+{
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "files.associations": {
+        "*.md": "markdown",
+        "ucode.sh": "shellscript",
+        "*.uTemplate": "markdown"
+    },
+    "markdown.preview.breaks": true,
+    "markdown.preview.linkify": true,
+    "files.exclude": {
+        "**/uMemory/logs/**": false,
+        "**/launcher/uDOS.app/**": true,
+        "**/.DS_Store": true
+    },
+    "search.exclude": {
+        "**/launcher/uDOS.app/**": true
+    },
+    "workbench.colorCustomizations": {
+        "terminal.background": "#1a1a1a",
+        "terminal.foreground": "#d4d4d4",
+        "terminalCursor.background": "#36d9d9",
+        "terminalCursor.foreground": "#36d9d9"
+    },
+    "editor.rulers": [80],
+    "editor.wordWrap": "on",
+    "markdown.extension.toc.updateOnSave": true,
+    "git.ignoreLimitWarning": true
+}
