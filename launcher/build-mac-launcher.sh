@@ -62,7 +62,7 @@ cat > "$LAUNCH_SCRIPT" <<'EOF'
 # uDOS macOS Launcher (hybrid version)
 
 APP_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-CLI_ENTRY="$APP_ROOT/uCode/uCode.sh"
+CLI_ENTRY="$APP_ROOT/uCode/ucode.sh"
 LOG_FILE="$APP_ROOT/launcher/uDOS_launcher_debug.log"
 
 chmod +x "$CLI_ENTRY" 2>/dev/null || true
@@ -74,7 +74,7 @@ echo "Attempting AppleScript-based launch..." >> "\$LOG_FILE"
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "cd '$APP_ROOT'; ./uCode/uCode.sh"
+  do script "cd '$APP_ROOT'; ./uCode/ucode.sh"
 end tell
 OSA
 
