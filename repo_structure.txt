@@ -9,6 +9,7 @@
   |  |-- LICENSE
   |  |-- OPTIMIZATION.md
   |  |-- README.md
+  |  |-- REORGANIZATION_SUMMARY.md
   |  |-- repo_structure.txt
   |  |-- start-udos.sh
   |-- uCode
