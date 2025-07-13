@@ -5,9 +5,9 @@ cmd_devcontainer() {
     echo "📁 .devcontainer directory exists."
     tree "$UHOME/.devcontainer" 2>/dev/null || ls -R "$UHOME/.devcontainer"
     echo ""
-    if [ -f "$UHOME/scripts/setup-dev.sh" ]; then
+    if [ -f "$UHOME/uCode/setup-dev.sh" ]; then
       echo "🚀 Running dev setup script..."
-      bash "$UHOME/scripts/setup-dev.sh"
+      bash "$UHOME/uCode/setup-dev.sh"
     else
       echo "⚠️ setup-dev.sh not found. Skipping script execution."
     fi
@@ -50,7 +50,7 @@ log_move() {
   if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
     return
   fi
-  bash "$UHOME/scripts/log.sh" move "$cmd"
+  bash "$UHOME/uCode/log.sh" move "$cmd"
 }
 
 
@@ -69,7 +69,7 @@ echo "🧠 Loading environment..."
 USER_FILE="$UHOME/sandbox/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
   echo "⚙️ No identity file found. Running check-setup..."
-  bash "$UHOME/scripts/check-setup.sh"
+  bash "$UHOME/uCode/check-setup.sh"
 
   if [[ -f "$USER_FILE" ]]; then
     echo "✅ Identity confirmed."
@@ -166,13 +166,13 @@ cmd_check() {
       cmd_log
       ;;
     SETUP)
-      bash "$UHOME/scripts/check.sh" all
+      bash "$UHOME/uCode/check.sh" all
       ;;
     IDENTITY)
       cmd_identity
       ;;
     INPUT)
-      bash "$UHOME/scripts/structure.sh" build --input
+      bash "$UHOME/uCode/structure.sh" build --input
       ;;
     STATS)
       cmd_stats
@@ -212,7 +212,7 @@ cmd_identity() {
 cmd_log() {
   read -rp "📝 What do you want to log (mission/milestone/legacy)? " what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
-    bash "$UHOME/scripts/log.sh" move "Logged $what entry"
+    bash "$UHOME/uCode/log.sh" move "Logged $what entry"
   else
     echo "❌ Invalid log type."
   fi
@@ -220,7 +220,7 @@ cmd_log() {
 }
 
 cmd_stats() {
-  bash "$UHOME/scripts/make-stats.sh"
+  bash "$UHOME/uCode/make-stats.sh"
 }
 
 cmd_mission() {
@@ -234,11 +234,11 @@ cmd_map() {
 }
 
 cmd_run() {
-  bash "$HOME/uDOS/scripts/command.sh" "$args"
+  bash "$HOME/uDOS/uCode/command.sh" "$args"
 }
 
 cmd_tree() {
-  bash "$HOME/uDOS/scripts/make-tree.sh"
+  bash "$HOME/uDOS/uCode/make-tree.sh"
 }
 
 # --- Timezone Command ---
@@ -285,7 +285,7 @@ cmd_list() {
 cmd_dash() {
   echo ""
 
-  bash "$UHOME/scripts/dash.sh"
+  bash "$UHOME/uCode/dash.sh"
   tail -n 60 "$UHOME/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
   echo ""
 }
@@ -299,10 +299,10 @@ cmd_reboot() {
   echo "♻️ Rebooting uDOS system..."
 
   echo "🧼 Rebuilding structure..."
-  bash "$UHOME/scripts/structure.sh" build
+  bash "$UHOME/uCode/structure.sh" build
 
   echo "🔍 Rechecking setup and permissions..."
-  bash "$UHOME/scripts/check.sh" all
+  bash "$UHOME/uCode/check.sh" all
 
   echo "🌀 Relaunching shell..."
   export REBOOT_FLAG=true

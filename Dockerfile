@@ -1,7 +1,7 @@
 FROM python:3.11-alpine
 
 LABEL maintainer="Master <master@uos.local>"
-LABEL description="uOS - lightweight AI-driven OS shell in Docker"
+LABEL description="uDOS - lightweight AI-driven OS shell in Docker"
 
 # Set working directory to mounted source
 WORKDIR /uDOS

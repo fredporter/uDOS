@@ -7,8 +7,8 @@ mkdir -p "$UROOT/sandbox"
 if [ ! -s "sandbox/user.md" ]; then
   # No logging if headless
   echo "🧑 Creating new user profile..."
-  bash "$UROOT/scripts/structure.sh" build --input
-  bash "$UROOT/scripts/check.sh" all
+  bash "$UROOT/uCode/structure.sh" build --input
+  bash "$UROOT/uCode/check.sh" all
 else
   USERNAME=$(grep 'Username:' sandbox/user.md | cut -d ':' -f2 | xargs)
   [[ -z "$USERNAME" ]] && USERNAME="user"
@@ -22,4 +22,4 @@ echo ""
 echo "🌀 uDOS started successfully."
 echo "Type 'help' or 'dash' to begin."
 
-bash "$UROOT/scripts/uCode.sh"
+bash "$UROOT/uCode/uCode.sh"

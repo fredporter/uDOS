@@ -70,7 +70,7 @@ This is the canonical source for planning, sequencing, and navigation.
 These roadmap files are intended to remain versioned, minimal, and readable by both developers and AI agents.  
 Each one may link out to supporting documents inside:
 - `/uTemplate/` for reusable content structures
-- `/scripts/` for executable logic
+- `/uCode/` for executable logic
 - `/uMemory/` for live state examples
 
 Use `README.md` at root level for install/runtime.  

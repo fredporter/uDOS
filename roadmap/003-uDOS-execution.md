@@ -568,7 +568,7 @@ uScript integrates with containers using the `call` keyword. Arguments can be pa
 ```
 (code)
 call python:
-  script: "/scripts/generate_poem.py"
+  script: "/uCode/generate_poem.py"
   args:
     theme: "stars"
     lines: 4
@@ -582,7 +582,7 @@ Returned content can be used in uScript as plain text or ASCII renderings:
 ```
 (code)
 result = call python:
-  script: "/scripts/get_weather.py"
+  script: "/uCode/get_weather.py"
   args:
     city: "Sydney"
 print result

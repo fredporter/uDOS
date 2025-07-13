@@ -36,7 +36,7 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 ├── Dockerfile                 # Base image configuration
 ├── macos/                     # macOS launchers (.app and .command)
 ├── roadmap/                   # Living uDOS design documents
-├── scripts/                   # Core logic: uCode CLI, dashboard, tools
+├── uCode/                     # Core logic: uCode CLI, dashboard, tools
 ├── templates/                 # Markdown templates for move, mission, etc.
 ├── uKnowledge/                # General Markdown knowledge store
 ├── uMemory/                   # User memory: logs, state, sessions, moves

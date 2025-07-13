@@ -22,6 +22,6 @@
     "source=${localWorkspaceFolder}/uMemory,target=/uDOS/uMemory,type=bind",
     "source=${localWorkspaceFolder}/sandbox,target=/uDOS/sandbox,type=bind"
   ],
-  "postCreateCommand": "bash scripts/setup-dev.sh || true",
+  "postCreateCommand": "bash uCode/setup-dev.sh || true",
   "remoteUser": "root"
 }
