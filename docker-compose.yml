@@ -14,4 +14,4 @@ services:
       - UDOS_KNOWLEDGE_DIR=/uDOS/uKnowledge
       - UDOS_MEMORY_DIR=/uDOS/uMemory
       - UDOS_CONFIG_DIR=/uDOS/config
-    command: ["bash", "/uDOS/uCode/uCode.sh"]
+    command: ["bash", "/uDOS/uCode/ucode.sh"]
