@@ -17,15 +17,15 @@ This is the canonical source for planning, sequencing, and navigation.
 
 ## ✅ CORE SYSTEM (001–019)
 
-- 001. [uDOS Core](001-uDOS-core.md) — Core philosophy and operating principles
-- 002. [uDOS Commands](002-uDOS-commands.md) — uCode command map and CLI expectations
-- 003. [uDOS Execution Model](003-uDOS-execution.md) — Single-process runtime, uCode shell, uScript logic
-- 004. [uDOS Interface](004-uDOS-interface.md) — ASCII UX, dashboard, display modes
-- 005. [uDOS Location](005-uDOS-location.md) — Tile mechanics, map logic, region data
-- 006. [uDOS Format Guide](006-uDOS-format.md) — Markdown standards, templates, logging, filenames
-- 007. [uDOS NetHack](007-uDOS-nethack.md) — NetHack integration, game logic, learning
-- 008. [uDOS Security](008-uDOS-security.md) — Sandboxing, permissions, user isolation
-- 009. [uDOS Dev Cycle](009-uDOS-dev-cycle.md) — Release, testing, versioning, feedback
+- 001. [uDOS Foundation](001-uDOS-foundation.md) — Core philosophy and operating principles ✅
+- 002. [uDOS Format Guide](002-uDOS-format.md) — Markdown standards, templates, logging, filenames ✅
+- 003. [uDOS Execution Model](003-uDOS-execution.md) — Single-process runtime, uCode shell, uScript logic ✅
+- 004. [uDOS Interface](004-uDOS-interface.md) — ASCII UX, dashboard, display modes ✅
+- 005. [uDOS Location](005-uDOS-location.md) — Tile mechanics, map logic, region data ✅
+- 006. [uDOS Future Features](006-uDOS-future.md) — Planned features and enhancements 🔄
+- 007. [uDOS Future Expansion](007-uDOS-future.md) — Long-term roadmap items 🔄
+- 008. [uDOS Future Vision](008-uDOS-future.md) — Strategic direction and goals 🔄
+- 009. [uDOS Dev Cycle](009-uDOS-dev-cycle.md) — Release, testing, versioning, feedback ✅
 - 010. [uDOS Boot](010-uDOS-boot.md) — Startup, initialization, environment detection
 - 011. [uDOS Hardware](011-uDOS-hardware.md) — Device support, abstraction, hardware map
 - 012. [uDOS Storage](012-uDOS-storage.md) — Filesystem, persistence, data layout
