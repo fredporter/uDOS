@@ -22,7 +22,7 @@ if [[ "$CMD" == "run" && "$SCRIPT" == *.md ]]; then
       rm "$TMP"
       ;;
     uCode|*)
-      echo "[uCode] Would interpret $SCRIPT"
+      python3 "$(dirname "$0")/ucode-interpreter.py" "$SCRIPT"
       ;;
   esac
 else

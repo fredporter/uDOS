@@ -1,0 +1,8 @@
+[
+  {"command": "PRINT", "syntax": "PRINT <string>", "description": "Outputs a string."},
+  {"command": "SET", "syntax": "SET <var> = <value>", "description": "Assigns a value to a variable."},
+  {"command": "IF", "syntax": "IF <condition> THEN <command>", "description": "Conditional execution."},
+  {"command": "FOR", "syntax": "FOR <var> = <start> TO <end> ... NEXT", "description": "Looping."},
+  {"command": "INCLUDE", "syntax": "INCLUDE <filename>", "description": "Import another script."},
+  {"command": "WAIT", "syntax": "WAIT <seconds>", "description": "Pause execution."}
+]
