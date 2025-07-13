@@ -1,15 +1,23 @@
 ---
 title: "uDOS Template & Format Guide"
-version: "Beta v1.6.1"
+version: "Beta v1.7.0"
 id: "002"
-tags: ["template", "formatting", "logging", "structure", "dashboard"]
+tags: ["template", "formatting", "logging", "structure", "dashboard", "vscode", "ai-enhanced"]
 created: 2025-07-05
-updated: 2025-07-05
+updated: 2025-07-13
+status: "✅ Optimized"
 ---
 
 # 🧱 uDOS Template & Format Guide
 
-This document consolidates all reusable templates, dashboard rendering logic, formatting specifications, and move log architecture for uDOS. It is intended to serve as a technical and structural reference for content creators, developers, and AI agents using or contributing to the system.
+This document consolidates all reusable templates, dashboard rendering logic, formatting specifications, and move log architecture for uDOS. It serves as a technical and structural reference for content creators, developers, and AI agents using or contributing to the system.
+
+**v1.7.0 Optimization Update*## ✅ Summary
+
+| When       | What                                | Where                                   | v1.7.0 Enhancement |
+| ---------- | ----------------------------------- | ----------------------------------------|-------------------|
+| Loop End   | Log input/output with timestamp, AI context, performance after loop completes | `/uMemory/logs/moves-YYYY-MM-DD.md` | AI tracking, perf metrics |
+| Day's End  | Finalize log to flat history with optimization summary | `/uMemory/logs/moves-YYYYMMDD.md` | Performance analytics |anced with VS Code integration patterns, AI-assisted templates, and optimized performance specifications.
 
 ---
 
@@ -20,9 +28,11 @@ This document consolidates all reusable templates, dashboard rendering logic, fo
    - [Mission Template](#mission-template)
    - [Milestone Template](#milestone-template)
 2. [Dashboard Rendering](#dashboard-rendering)
-3. [Date & Time Format](#date--time-format)
-4. [Filenames & Folder Structure](#filenames--folder-structure)
-5. [Move Log Roadmap](#move-log-roadmap)
+3. [VS Code Integration Formats](#vs-code-integration-formats)
+4. [AI-Enhanced Template Patterns](#ai-enhanced-template-patterns)
+5. [Date & Time Format](#date--time-format)
+6. [Filenames & Folder Structure](#filenames--folder-structure)
+7. [Move Log Roadmap](#move-log-roadmap)
 
 ---
 
@@ -60,10 +70,15 @@ System response or result (rendered Markdown or uScript result)
 - Related Files: uScript/... uKnowledge/...
 
 ## 🧠 Type
-reflection | command | query | expression | system | creation
+reflection | command | query | expression | system | creation | vscode-task | ai-assisted
 
 ## 🧾 Notes
 Any annotations, purpose tags, or user comments.
+
+## 🤖 AI Enhancement (v1.7.0)
+- Copilot suggestions for related moves
+- Intelligent context linking
+- Auto-completion for common patterns
 ```
 
 ---
@@ -214,6 +229,118 @@ Concise explanation of what this Milestone represents and its intended impact.
 
 ---
 
+## 🔧 VS Code Integration Formats
+
+### Task Definition Template
+```json
+{
+    "label": "🎯 Task Name",
+    "type": "shell",
+    "command": "./uCode/script.sh",
+    "args": ["${input:parameter}"],
+    "group": "build|test",
+    "isBackground": false,
+    "problemMatcher": ["$shell"],
+    "detail": "Human-readable description"
+}
+```
+
+### VS Code Settings Template
+```json
+{
+    "files.associations": {
+        "*.utemplate": "markdown",
+        "ucode.sh": "shellscript"
+    },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "copilot.enable": {
+        "*": true,
+        "markdown": true,
+        "shellscript": true
+    }
+}
+```
+
+### Workspace Configuration
+```json
+{
+    "folders": [
+        {
+            "name": "uDOS",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "search.exclude": {
+            "**/uMemory/logs/**": true,
+            "**/sandbox/**": false
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "github.copilot",
+            "ms-vscode.vscode-markdown"
+        ]
+    }
+}
+```
+
+---
+
+## 🤖 AI-Enhanced Template Patterns
+
+### Copilot-Friendly Documentation Structure
+```markdown
+<!-- Purpose: Clear intent for AI understanding -->
+# Component: [Name]
+
+## Intent
+Brief description of what this component does
+
+## Usage Pattern
+```language
+// Example usage with context
+```
+
+## Related Components
+- Links to related files
+- Dependencies and relationships
+
+## AI Assistance Areas
+- Code generation opportunities
+- Pattern recognition hints
+- Suggested improvements
+```
+
+### AI-Assisted Move Template
+```markdown
+# Move: <title>
+
+## 🤖 AI Context
+- **Copilot Suggestions**: Available for [specific areas]
+- **Pattern Recognition**: Identifies [common patterns]
+- **Auto-completion**: Enabled for [file types]
+
+## 🔖 ID
+move_<YYYY>_<MMDD>_<index>
+
+## 📅 Timestamp
+YYYY-MM-DD HH:MM:SS
+
+## 📥 Input
+User input or command (with AI suggestions noted)
+
+## 📤 Output
+System response (enhanced with AI assistance)
+
+## 🧠 AI Enhancement Log
+- Copilot suggested: [specific suggestions]
+- Pattern matched: [recognized patterns]
+- Efficiency gain: [time/error reduction]
+```
+
+---
+
 ## ⏳ Date & Time Format
 ---
 title: uDOS Date and Time Format Specification
@@ -279,9 +406,9 @@ YYYYMMDD-HHMMSS-SSS-TZCODE
 ---
 
 ## 🗂️ Filenames & Folder Structure
-# uDOS Filename and File Structure Specification (Beta v1.6.1)
+# uDOS Filename and File Structure Specification (Beta v1.7.0)
 
-This standard defines all filenames and folder conventions used within uDOS for logs, moves, tasks, maps, and sandbox operations.
+This standard defines all filenames and folder conventions used within uDOS for logs, moves, tasks, maps, and sandbox operations. Enhanced with VS Code integration and AI assistance patterns.
 
 ---
 
@@ -386,11 +513,11 @@ End of spec.
 ---
 
 ## 📜 Move Log Roadmap
-_uDOS v1.6.1 format_
+_uDOS v1.7.0 optimized format_
 
 # uDOS Move Log Roadmap (`uCode` Loop Protocol)
 
-This document defines the logging behaviour at the beginning of each loop cycle in `uCode`, the user interaction shell within uDOS.
+This document defines the logging behavior at the beginning of each loop cycle in `uCode`, the user interaction shell within uDOS. Enhanced with VS Code integration and AI assistance tracking.
 
 ---
 
@@ -404,7 +531,7 @@ At the **end of each loop**, after input/output completes, `uCode` captures a mi
 /uMemory/logs/moves-YYYY-MM-DD.md
 ```
 
-### 🛠 What Gets Logged
+### 🛠 What Gets Logged (v1.7.0 Enhanced)
 
 Each entry includes:
 
@@ -412,39 +539,45 @@ Each entry includes:
 - `Location` – current uMap tile code (e.g. F180327)
 - `Input` – user command or raw input (prefixed `🌀→`)
 - `Output` – single-line feedback or result (prefixed `💬←`)
+- `AI Context` – Copilot assistance level (prefixed `🤖`)
+- `Performance` – execution time in optimized shell (prefixed `⚡`)
 
-This ensures that every user-driven action is timestamped and locationally grounded for future inspection or replay.
+This ensures that every user-driven action is timestamped, locationally grounded, and AI-enhanced for future inspection or replay.
 
-> Example Log Entry:
+> Example Log Entry (v1.7.0):
 
 ```markdown
 🌀→ DASH | F180327 | 14:02:55.493
 💬← ✅ Dashboard displayed.
+🤖 Copilot: Template suggestions provided
+⚡ Execution: 0.3s (15x faster than v1.6.1)
 ```
 
 ---
 
 ## 📦 Daily Move Log Commit
 
-At the end of the 24h session (or on manual trigger), the current log is moved into local persistent memory:
+At the end of the 24h session (or on manual trigger), the current log is moved into local persistent memory with optimization metrics:
 
 ```
 /uMemory/logs/moves-YYYYMMDD.md
 ```
 
-This finalised `.md` file becomes read-only and serves as a durable, inspectable record of all user inputs for that day.
+This finalized `.md` file becomes read-only and serves as a durable, inspectable record of all user inputs for that day, including AI assistance patterns and performance improvements.
 
 ---
 
-## 🧠 Purpose
+## 🧠 Purpose (v1.7.0 Enhanced)
 
 - Provide **minimal but complete traceability** of session activity
-- Enable future replay, summarisation, or audit of user-driven events
+- Enable future replay, summarization, or audit of user-driven events
+- Track **AI assistance effectiveness** and pattern recognition
+- Monitor **performance improvements** from optimization
 - Maintain a lightweight, human-readable log format consistent with Markdown-based uDOS design
 
 ---
 
-⚠️ Important: The move log file format was simplified in Beta v1.6.1. Previous session-based logging and verbose formats were deprecated. Each move is now logged as a **single-line entry** in a daily `.md` file with only the essentials: command, timestamp, location, and brief response. No session IDs, user names, or assistant identifiers are recorded in `uMemory`.
+⚠️ Important: The move log file format was enhanced in Beta v1.7.0. Added AI assistance tracking, performance metrics, and VS Code integration context. Each move is now logged as a **multi-line entry** with essentials plus optimization data: command, timestamp, location, brief response, AI context, and execution performance. No session IDs, user names, or assistant identifiers are recorded in `uMemory`.
 
 ---
 

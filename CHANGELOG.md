@@ -1,6 +1,6 @@
 # 📝 uDOS Changelog
 
-## [1.7.0] - 2025-07-13 - The Great Modernization
+## [1.7.0] - 2025-07-13 - The Great Optimization
 
 ### 🚀 Major Changes
 - **BREAKING**: Removed Docker dependency completely
@@ -36,7 +36,7 @@
 
 ### 📖 Documentation
 - Updated README.md with modern installation instructions
-- Created MODERNIZATION.md with migration strategy
+- Created OPTIMIZATION.md with migration strategy
 - Enhanced roadmap documentation
 - Added comprehensive setup guides
 

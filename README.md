@@ -1,4 +1,5 @@
 # 🌀 uDOS — The User DOS Shell
+*Version: Beta v1.7.0 — Modern VS Code Integration*
 
 **uDOS** is a single-process, Markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
 It is for thinkers, tinkerers, writers, and dreamers — those who want a machine that remembers, evolves, and serves a singular user.
@@ -80,7 +81,7 @@ uDOS can run on older machines via:
 - Offline environments (scripts run without cloud dependencies)
 - Raspberry Pi or similar ARM devices
 
-For legacy setup instructions, see `MODERNIZATION.md`.
+For legacy setup instructions, see `OPTIMIZATION.md`.
 
 ---
 
@@ -88,7 +89,10 @@ For legacy setup instructions, see `MODERNIZATION.md`.
 
 For full architecture, system structure, and design documents, see:
 
-➡️ [`roadmap/ROADMAP_INDEX.md`](roadmap/ROADMAP_INDEX.md)
+➡️ [`roadmap/ROADMAP_INDEX.md`](roadmap/ROADMAP_INDEX.md)  
+➡️ [`roadmap/ROADMAP_STATUS.md`](roadmap/ROADMAP_STATUS.md) — Implementation progress and status  
+➡️ [`CHANGELOG.md`](CHANGELOG.md) — Version history and migration guides  
+➡️ [`OPTIMIZATION.md`](OPTIMIZATION.md) — VS Code integration strategy
 
 This index tracks all roadmap files from 001 to 099.
 

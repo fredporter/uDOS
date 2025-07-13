@@ -73,6 +73,47 @@
                 "reveal": "always"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "📦 Install Package: ripgrep",
+            "type": "shell",
+            "command": "./uCode/packages/install-ripgrep.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": [],
+            "detail": "Install ripgrep for fast text searching"
+        },
+        {
+            "label": "🔍 Search with ripgrep",
+            "type": "shell",
+            "command": "./uCode/packages/run-ripgrep.sh",
+            "args": ["${input:searchTerm}", "${input:searchPath}"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": [],
+            "detail": "Fast text search across uDOS files"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "searchTerm",
+            "description": "Enter search term",
+            "default": "TODO",
+            "type": "promptString"
+        },
+        {
+            "id": "searchPath",
+            "description": "Enter search path",
+            "default": "./uMemory/",
+            "type": "promptString"
         }
     ]
 }

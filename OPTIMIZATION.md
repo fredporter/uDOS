@@ -124,7 +124,7 @@ docker-compose up
 
 ## 🚀 Next Phase: Advanced Features (v1.8.0+)
 
-The modernization foundation enables advanced features:
+The optimization foundation enables advanced features:
 
 ### Planned Enhancements
 - **Smart File Watching**: Auto-regenerate dashboard on memory changes
@@ -134,9 +134,9 @@ The modernization foundation enables advanced features:
 - **AI Agents**: Intelligent mission planning and automation
 
 ### Roadmap Integration
-This modernization plan is now integrated into:
+This optimization plan is now integrated into:
 - **[010-uDOS-vscode.md](roadmap/010-uDOS-vscode.md)**: VS Code integration details
-- **[006-uDOS-future.md](roadmap/006-uDOS-future.md)**: Post-modernization features
+- **[006-uDOS-future.md](roadmap/006-uDOS-future.md)**: Post-optimization features
 - **[007-uDOS-uScript.md](roadmap/007-uDOS-uScript.md)**: Programming language roadmap
 - **[008-uDOS-packages.md](roadmap/008-uDOS-packages.md)**: Package ecosystem plan
 - **[CHANGELOG.md](CHANGELOG.md)**: Detailed version history
