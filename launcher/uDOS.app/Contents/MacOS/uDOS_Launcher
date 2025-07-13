@@ -7,8 +7,8 @@ LOG_FILE="$APP_ROOT/launcher/uDOS_launcher_debug.log"
 
 chmod +x "$CLI_ENTRY" 2>/dev/null || true
 
-echo "APP_ROOT is: \$APP_ROOT" >> "\$LOG_FILE"
-echo "Attempting AppleScript-based launch..." >> "\$LOG_FILE"
+echo "APP_ROOT is: $APP_ROOT" >> "$LOG_FILE"
+echo "Attempting AppleScript-based launch..." >> "$LOG_FILE"
 
 /usr/bin/osascript <<OSA
 tell application "Terminal"

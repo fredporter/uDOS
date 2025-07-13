@@ -57,15 +57,15 @@ cat > "$PLIST_PATH" <<EOF
 EOF
 
 # Create launch script
-cat > "$LAUNCH_SCRIPT" <<'EOF'
+cat > "$LAUNCH_SCRIPT" <<EOF
 #!/bin/bash
 # uDOS macOS Launcher (hybrid version)
 
-APP_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-CLI_ENTRY="$APP_ROOT/uCode/ucode.sh"
-LOG_FILE="$APP_ROOT/launcher/uDOS_launcher_debug.log"
+APP_ROOT="\$(cd "\$(dirname "\$0")/../../.." && pwd)"
+CLI_ENTRY="\$APP_ROOT/uCode/ucode.sh"
+LOG_FILE="\$APP_ROOT/launcher/uDOS_launcher_debug.log"
 
-chmod +x "$CLI_ENTRY" 2>/dev/null || true
+chmod +x "\$CLI_ENTRY" 2>/dev/null || true
 
 echo "APP_ROOT is: \$APP_ROOT" >> "\$LOG_FILE"
 echo "Attempting AppleScript-based launch..." >> "\$LOG_FILE"
@@ -74,7 +74,7 @@ echo "Attempting AppleScript-based launch..." >> "\$LOG_FILE"
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "cd '$APP_ROOT'; ./uCode/ucode.sh"
+  do script "cd '\$APP_ROOT'; ./uCode/ucode.sh"
 end tell
 OSA
 
