@@ -6,8 +6,11 @@
 __pycache__/
 *.pyc
 *.pyo
-*.log
+**/*.log
 *.zip
+*.so
+*.out
+*.exe
 
 # Editor/IDE cruft
 .env
@@ -21,3 +24,7 @@ docker-compose.override.yml
 # uMemory — personal, private, local-only storage
 uMemory/
 sandbox/
+
+# System files
+/tmp/
+.ipynb_checkpoints/

@@ -59,19 +59,22 @@ EOF
 # Create launch script
 cat > "$LAUNCH_SCRIPT" <<'EOF'
 #!/bin/bash
-# uDOS macOS Launcher (final hybrid version)
+# uDOS macOS Launcher (hybrid version)
 
 APP_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-chmod +x "$APP_ROOT/launcher/uDOS_Run.sh"
+CLI_ENTRY="$APP_ROOT/uCode/uCode.sh"
+LOG_FILE="$APP_ROOT/launcher/uDOS_launcher_debug.log"
 
-echo "APP_ROOT is: \$APP_ROOT" >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
-echo "Attempting AppleScript-based launch..." >> "\$APP_ROOT/launcher/uDOS_launcher_debug.log"
+chmod +x "$CLI_ENTRY" 2>/dev/null || true
+
+echo "APP_ROOT is: \$APP_ROOT" >> "\$LOG_FILE"
+echo "Attempting AppleScript-based launch..." >> "\$LOG_FILE"
 
 /usr/bin/osascript <<OSA
 tell application "Terminal"
   if not (exists window 1) then reopen
   activate
-  do script "cd '$APP_ROOT'; ./uDOS_Run.sh"
+  do script "cd '$APP_ROOT'; ./uCode/uCode.sh"
 end tell
 OSA
 
@@ -105,7 +108,7 @@ echo "🧹 Removing macOS quarantine flags..."
 xattr -dr com.apple.quarantine "$APP_DIR"
 
 echo "✅ uDOS.app has been created at: $APP_DIR"
-open "$APP_DIR"
+open -a "$APP_DIR"
 
 # --- Ensure .gitignore entries for generated files
 echo "🛡️  Updating .gitignore for generated files..."

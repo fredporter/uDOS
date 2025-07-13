@@ -1,58 +1,39 @@
-# --- Devcontainer Command ---
-cmd_devcontainer() {
-  echo "🛠️  Checking devcontainer setup..."
-  if [ -d "$UHOME/.devcontainer" ]; then
-    echo "📁 .devcontainer directory exists."
-    tree "$UHOME/.devcontainer" 2>/dev/null || ls -R "$UHOME/.devcontainer"
-    echo ""
-    if [ -f "$UHOME/scripts/setup-dev.sh" ]; then
-      echo "🚀 Running dev setup script..."
-      bash "$UHOME/scripts/setup-dev.sh"
-    else
-      echo "⚠️ setup-dev.sh not found. Skipping script execution."
-    fi
-  else
-    echo "❌ .devcontainer folder not found in $UHOME"
-  fi
-  echo ""
-}
 #!/bin/bash
 # uCode.sh - uDOS Beta v1.6.1 CLI Shell
-# Full-featured command-line interface for uDOS environment
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDENT="$UHOME/sandbox/user.md"
-export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
-export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
-mkdir -p "$UHOME"
-# --- Ensure required folders exist before any logging or stats ---
-mkdir -p "$UHOME/uMemory/logs/moves"
-# mkdir -p "$UHOME/sandbox"
-mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacy"
-mkdir -p "${UHOME}/uMemory/logs/errors"
-mkdir -p "${UHOME}/uMemory/state"
+export UCODE_HOME="$UHOME/uCode"
+export UCODE_DATASETS="$UCODE_HOME/datasets"
+export UCODE_VARS="$UCODE_HOME/vars"
+export UCODE_LOGS="$UCODE_HOME/logs"
+export UCODE_TEMPLATES="$UCODE_HOME/templates"
+export UCODE_EXAMPLES="$UCODE_HOME/examples"
+export UDENT="$UCODE_VARS/user.md"
+export UDOS_DASHBOARD="$UCODE_HOME/state/dashboard.json"
+export UDOS_MOVES_DIR="$UCODE_LOGS/moves"
+mkdir -p "$UCODE_HOME" "$UCODE_DATASETS" "$UCODE_VARS" "$UCODE_LOGS" "$UCODE_TEMPLATES" "$UCODE_EXAMPLES"
+mkdir -p "$UCODE_LOGS/moves" "$UCODE_LOGS/errors" "$UCODE_HOME/state"
 
-# Track if session end has been logged
 export UCODE_SESSION_ENDED=false
 
 # --- uDOS Version Detection ---
-IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+IDENTITY_FILE="$UCODE_VARS/identity.md"
 if [[ -f "$IDENTITY_FILE" ]]; then
   UVERSION=$(grep "Version:" "$IDENTITY_FILE" | cut -d':' -f2 | xargs)
 else
   UVERSION="Unknown"
 fi
 
+# Log moves to uCode/logs/
 log_move() {
   local cmd="$1"
   local trimmed="${cmd// }"
   if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
     return
   fi
-  bash "$UHOME/scripts/log.sh" move "$cmd"
+  echo "$cmd" >> "$UCODE_LOGS/move-log-$(date +%Y-%m-%d).md"
 }
-
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -66,10 +47,10 @@ echo -e "    \033[1;37muCode Shell · $UVERSION 🌀\033[0m"
 echo ""
 echo "🧠 Loading environment..."
 
-USER_FILE="$UHOME/sandbox/user.md"
+USER_FILE="$UCODE_VARS/user.md"
 if [[ ! -f "$USER_FILE" ]]; then
   echo "⚙️ No identity file found. Running check-setup..."
-  bash "$UHOME/scripts/check-setup.sh"
+  bash "$UCODE_HOME/check.sh" setup
 
   if [[ -f "$USER_FILE" ]]; then
     echo "✅ Identity confirmed."
@@ -124,26 +105,22 @@ if [[ -n "$PASSWORD" && "$REBOOT_FLAG" == "true" ]]; then
 fi
 
 echo ""
-
 echo "📋 Session Info:"
 echo "- Hostname: $(hostname)"
 echo "- Shell: $SHELL"
 echo "- User: $username"
 echo "- uDOS Path: $UHOME"
 echo ""
-
 echo "🧠 Memory Stats:"
-echo "- Missions: $(find "$UHOME/uMemory/missions" -type f | wc -l)"
-echo "- Milestones: $(find "$UHOME/uMemory/milestones" -type f | wc -l)"
-echo "- Legacy items: $(find "$UHOME/uMemory/legacy" -type f | wc -l)"
-echo "- Total logs: $(find "$UHOME/uMemory/logs/moves" -type f | wc -l)"
+echo "- Datasets: $(find "$UCODE_DATASETS" -type f | wc -l)"
+echo "- Templates: $(find "$UCODE_TEMPLATES" -type f | wc -l)"
+echo "- Logs: $(find "$UCODE_LOGS" -type f | wc -l)"
 echo ""
 
 # Dashboard Sync
 sync_dashboard() {
   if [ -f "$UDOS_DASHBOARD" ]; then
     echo "📊 Syncing dashboard..."
-    # Simulate dashboard sync (could be replaced with real sync logic)
     sleep 1
     echo "✅ Dashboard synced."
   else
@@ -156,33 +133,15 @@ sync_dashboard() {
 cmd_check() {
   subcmd=$(echo "$args" | awk '{print toupper($1)}')
   case "$subcmd" in
-    TIME)
-      cmd_time
-      ;;
-    LOCATION)
-      cmd_location
-      ;;
-    LOG)
-      cmd_log
-      ;;
-    SETUP)
-      bash "$UHOME/scripts/check.sh" all
-      ;;
-    IDENTITY)
-      cmd_identity
-      ;;
-    INPUT)
-      bash "$UHOME/scripts/structure.sh" build --input
-      ;;
-    STATS)
-      cmd_stats
-      ;;
-    MISSION)
-      cmd_mission
-      ;;
-    MAP)
-      cmd_map
-      ;;
+    TIME) cmd_time ;;
+    LOCATION) cmd_location ;;
+    LOG) cmd_log ;;
+    SETUP) bash "$UCODE_HOME/check.sh" all ;;
+    IDENTITY) cmd_identity ;;
+    INPUT) bash "$UCODE_HOME/structure.sh" build --input ;;
+    STATS) cmd_stats ;;
+    MISSION) cmd_mission ;;
+    MAP) cmd_map ;;
     *)
       echo "🔎 CHECK what?"
       echo "   TIME      → View or set timezone"
@@ -212,7 +171,7 @@ cmd_identity() {
 cmd_log() {
   read -rp "📝 What do you want to log (mission/milestone/legacy)? " what
   if [[ "$what" =~ ^(mission|milestone|legacy)$ ]]; then
-    bash "$UHOME/scripts/log.sh" move "Logged $what entry"
+    bash "$UCODE_HOME/log.sh" move "$cmd"
   else
     echo "❌ Invalid log type."
   fi
@@ -220,100 +179,74 @@ cmd_log() {
 }
 
 cmd_stats() {
-  bash "$UHOME/scripts/make-stats.sh"
+  bash "$UCODE_HOME/make-stats.sh"
 }
 
 cmd_mission() {
-  cat "$UHOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
+  cat "$UCODE_HOME/state/current_mission.md" 2>/dev/null || echo "🎯 No mission active."
   echo ""
 }
 
 cmd_map() {
-  cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
+  cat "$UCODE_DATASETS/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
   echo ""
 }
 
 cmd_run() {
-  bash "$HOME/uDOS/scripts/command.sh" "$args"
+  # Usage: RUN <script>
+  script_path="$args"
+  # Prefer uCode/examples/ if not absolute path
+  if [[ ! "$script_path" = /* ]]; then
+    script_path="$UCODE_EXAMPLES/$script_path"
+  fi
+  if [[ -f "$script_path" ]]; then
+    bash "$UCODE_HOME/ucode-runner.sh" run "$script_path"
+  else
+    echo "❌ Script not found: $script_path"
+    echo "   (Looked in $script_path)"
+  fi
 }
 
 cmd_tree() {
-  bash "$HOME/uDOS/scripts/make-tree.sh"
-}
-
-# --- Timezone Command ---
-cmd_time() {
-  echo "🕒 Current timezone: $(date +%Z)"
-  echo "🕓 UTC offset: $(date +%z)"
-  read -rp "🌐 Enter new timezone (e.g., Australia/Sydney) or leave blank to keep: " new_tz
-  if [[ -n "$new_tz" ]]; then
-    export TZ="$new_tz"
-    echo "✅ Timezone updated to: $(date +%Z) (UTC$(date +%z))"
-  else
-    echo "ℹ️ Timezone unchanged."
-  fi
-  echo ""
-}
-
-# --- Location Command ---
-cmd_location() {
-  echo "📍 Current location code: $(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")"
-  read -rp "🗺️ Enter new location code (or leave blank to keep current): " new_loc
-  if [[ -n "$new_loc" ]]; then
-    echo "$new_loc" > "$UHOME/uMemory/state/location.md"
-    echo "✅ Location updated to $new_loc"
-  else
-    echo "ℹ️ Location unchanged."
-  fi
-  echo ""
+  tree -L 2 "$UCODE_HOME" 2>/dev/null || ls -R "$UCODE_HOME"
 }
 
 cmd_list() {
-  echo "📁 uDOS Directory Listing"
+  echo "📁 uCode Directory Listing"
   echo ""
-  echo "🗂️ sandbox/"
-  tree -L 2 "$UHOME/sandbox" 2>/dev/null || ls -R "$UHOME/sandbox"
-  echo ""
-  echo "🧠 uMemory/"
-  tree -L 2 "$UHOME/uMemory" 2>/dev/null || ls -R "$UHOME/uMemory"
-  echo ""
-  echo "📚 uKnowledge/"
-  tree -L 2 "$UHOME/uKnowledge" 2>/dev/null || ls -R "$UHOME/uKnowledge"
+  echo "🗂️ uCode/"
+  tree -L 2 "$UCODE_HOME" 2>/dev/null || ls -R "$UCODE_HOME"
   echo ""
 }
 
 cmd_dash() {
   echo ""
-
-  bash "$UHOME/scripts/dash.sh"
-  tail -n 60 "$UHOME/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
+  bash "$UCODE_HOME/dash.sh"
+  tail -n 60 "$UCODE_HOME/rendered/dash-rendered.md" 2>/dev/null | grep -v '^<!--'
   echo ""
 }
 
 cmd_restart() {
-  echo "🔄 Restarting uDOS shell..."
-  exec "$0" # Relaunch script
+  echo "🔄 Restarting uCode shell..."
+  exec "$0"
 }
 
 cmd_reboot() {
-  echo "♻️ Rebooting uDOS system..."
-
+  echo "♻️ Rebooting uCode system..."
   echo "🧼 Rebuilding structure..."
-  bash "$UHOME/scripts/structure.sh" build
-
+  bash "$UCODE_HOME/structure.sh" build
   echo "🔍 Rechecking setup and permissions..."
-  bash "$UHOME/scripts/check.sh" all
-
+  bash "$UCODE_HOME/check.sh" all
   echo "🌀 Relaunching shell..."
   export REBOOT_FLAG=true
   exec "$0"
 }
 
 cmd_destroy() {
-  echo "💥 uDOS DESTROY Mode:"
+  echo "💥 uCode DESTROY Mode:"
   echo "  [A] Remove identity only"
-  echo "  [B] Remove identity and uMemory"
-  echo "  [C] Remove identity, archive uMemory to /legacy, then delete uMemory"
+  echo "  [B] Remove identity and all logs"
+  echo "  [C] Remove identity, archive logs to /legacy, then delete logs"
   echo "  [D] Reboot only (no data loss)"
   echo "  [E] Exit to uCode only (no reboot, no data loss)"
   read -n1 -rp $'\033[1;34m👉 Select DESTROY option:\033[0m ' choice
@@ -326,15 +259,15 @@ cmd_destroy() {
       echo "✅ Identity deleted."
       ;;
     B)
-      echo "⚠️ Deleting identity and uMemory..."
+      echo "⚠️ Deleting identity and logs..."
       rm -f "$UDENT"
-      rm -rf "$UHOME/uMemory"
-      echo "✅ Identity and memory deleted."
+      rm -rf "$UCODE_LOGS"
+      echo "✅ Identity and logs deleted."
       ;;
     C)
-      echo "⚠️ Deleting all uMemory contents except 'legacy'..."
+      echo "⚠️ Deleting all logs except 'legacy'..."
       rm -f "$UDENT"
-      find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
+      find "$UCODE_LOGS" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
       echo "✅ Identity removed. Legacy preserved."
       ;;
     D)
@@ -358,37 +291,43 @@ cmd_destroy() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "$UHOME/uMemory/moves/moves-$(date +%Y-%m-%d).md"
+  tail -n 10 "$UCODE_LOGS/move-log-$(date +%Y-%m-%d).md"
   echo ""
 }
 
-# --- Development Diagnostics ---
 cmd_debug() {
-  echo "🔍 uDOS DEBUG MODE"
+  echo "🔍 uCode DEBUG MODE"
   echo "🧬 Environment Variables:"
-  env | grep -E 'UHOME|USER|SHELL|PWD|TZ'
+  env | grep -E 'UHOME|UCODE_HOME|USER|SHELL|PWD|TZ'
   echo ""
   echo "📄 Last 20 Moves:"
-  tail -n 20 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  tail -n 20 "$UCODE_LOGS/move-log-$(date +%Y-%m-%d).md"
   echo ""
   echo "🗂️ Available Scripts:"
-  ls -1 "$UHOME/scripts"
+  ls -1 "$UCODE_HOME"
   echo ""
   echo "❗ Recent Errors (if any):"
-  find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
+  find "$UCODE_LOGS/errors" -type f -exec tail -n 5 {} \;
   echo ""
-  echo "🧩 uDOS Version: $UVERSION"
+  echo "🧩 uCode Version: $UVERSION"
   echo ""
 }
 
-#
+cmd_devcontainer() {
+  echo "🛠️  Devcontainer setup not implemented."
+  echo ""
+}
+
+cmd_cleanup() {
+  bash "$UCODE_HOME/../uScript/cleanup.sh"
+}
+
 # Main Command Dispatch Loop
-trap 'if [ "$UCODE_SESSION_ENDED" = false ]; then echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"; export UCODE_SESSION_ENDED=true; fi' EXIT
+trap 'if [ "$UCODE_SESSION_ENDED" = false ]; then echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UCODE_LOGS/move-log-$(date +%Y-%m-%d).md"; export UCODE_SESSION_ENDED=true; fi' EXIT
 trap 'echo -e "\n🛑 Interrupted. Type EXIT or BYE to quit safely."' SIGINT
 while true; do
-  # Prompt for input with visible swirl and blinking block cursor
-  printf "\033[?25h"      # Show cursor
-  printf "\033[?1c"       # Enable blinking block (may vary by terminal)
+  printf "\033[?25h"
+  printf "\033[?1c"
   printf "\033[1;30m█\033[0m\r"
   sleep 0.1
   printf "  \r"
@@ -396,61 +335,33 @@ while true; do
   read -r input
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
-  # Only log moves if not blank and not during boot
   if [[ -n "${input// }" && "$UCODE_BOOTING" != "true" ]]; then
     log_move "$input"
   fi
   case "$cmd" in
-    LOG)
-      cmd_log
-      ;;
-    RUN)
-      cmd_run
-      ;;
-    TREE)
-      cmd_tree
-      ;;
-    LIST)
-      cmd_list "$args"
-      ;;
-    DASH)
-      cmd_dash
-      ;;
-    SYNC)
-      sync_dashboard
-      ;;
-    RESTART)
-      cmd_restart
-      ;;
-    REBOOT)
-      cmd_reboot
-      ;;
-    DESTROY)
-      cmd_destroy
-      ;;
-    IDENTITY)
-      cmd_identity
-      ;;
-    DEVCON)
-      cmd_devcontainer
-      ;;
-    QUIT)
-      echo "👋 uDOS session ended."
-      exit 0
-      ;;
-    RECENT)
-      cmd_recent
-      ;;
-    CHECK)
-      cmd_check
-      ;;
+    LOG) cmd_log ;;
+    RUN) cmd_run ;;
+    TREE) cmd_tree ;;
+    LIST) cmd_list "$args" ;;
+    DASH) cmd_dash ;;
+    SYNC) sync_dashboard ;;
+    RESTART) cmd_restart ;;
+    REBOOT) cmd_reboot ;;
+    DESTROY) cmd_destroy ;;
+    IDENTITY) cmd_identity ;;
+    DEVCON) cmd_devcontainer ;;
+    QUIT) echo "👋 uCode session ended."; exit 0 ;;
+    RECENT) cmd_recent ;;
+    CHECK) cmd_check ;;
+    DEBUG) cmd_debug ;;
+    CLEANUP) cmd_cleanup ;;
     HELP)
-      echo "🧩 uDOS Version: $UVERSION"
-      echo "🧠 Available uDOS commands:"
+      echo "🧩 uCode Version: $UVERSION"
+      echo "🧠 Available uCode commands:"
       echo "   LOG       → Log mission/milestone/legacy"
-      echo "   RUN       → Run a uScript"
+      echo "   RUN       → Run a uCode script"
       echo "   TREE      → Generate file tree"
-      echo "   LIST      → List Sandbox and uMemory folders"
+      echo "   LIST      → List uCode folders"
       echo "   DASH      → Show dashboard"
       echo "   SYNC      → Sync dashboard"
       echo "   RESTART   → Restart shell"
@@ -461,13 +372,10 @@ while true; do
       echo "   QUIT      → Close session"
       echo "   RECENT    → Show last 10 moves"
       echo "   CHECK     → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
+      echo "   DEBUG     → Show diagnostics"
       echo ""
       ;;
-    "")
-      # Ignore empty input
-      ;;
-    *)
-      echo "❓ Unknown command '$cmd'. Type HELP for list of commands."
-      ;;
+    "") ;;
+    *) echo "❓ Unknown command '$cmd'. Type HELP for list of commands." ;;
   esac
 done

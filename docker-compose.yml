@@ -3,15 +3,15 @@ services:
     build: .
     container_name: udos-container
     volumes:
-      - .:/root/uDOS
-      - ./uMemory:/uMemory
-      - ./uKnowledge:/uKnowledge
-      - ./scripts:/root/uDOS/scripts
-    working_dir: /root/uDOS
+      - .:/uDOS
+      - ./uMemory:/uDOS/uMemory
+      - ./uKnowledge:/uDOS/uKnowledge
+      - ./uCode:/uDOS/uCode
+    working_dir: /uDOS
     stdin_open: true
     tty: true
     environment:
-      - UDOS_KNOWLEDGE_DIR=/uKnowledge
-      - UDOS_MEMORY_DIR=/uMemory
-      - UDOS_CONFIG_DIR=/config
-    command: ["bash", "/root/uDOS/scripts/start.sh"]
+      - UDOS_KNOWLEDGE_DIR=/uDOS/uKnowledge
+      - UDOS_MEMORY_DIR=/uDOS/uMemory
+      - UDOS_CONFIG_DIR=/uDOS/config
+    command: ["bash", "/uDOS/uCode/uCode.sh"]

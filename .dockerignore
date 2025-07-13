@@ -21,3 +21,12 @@ launcher/
 
 # Markdown docs (optional)
 *.md
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+.ipynb_checkpoints/
+
+.devcontainer/
