@@ -5,7 +5,7 @@ export UROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export UHOME="$HOME"
 
 # Ensure we always run from root
-cd "$UROOT/scripts"
+cd "$UROOT/uCode"
 
 # Start the system
 bash start.sh
