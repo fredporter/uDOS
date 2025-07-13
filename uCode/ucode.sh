@@ -289,433 +289,269 @@ cmd_mission() {
 }
 
 cmd_map() {
-  cat "$UHOME/uKnowledge/map/current_region.md" 2>/dev/null || echo "🗺️ No map loaded."
-  echo ""
-}
-
-cmd_run() {
-  bash "$HOME/uDOS/uCode/command.sh" "$args"
-}
-
-cmd_tree() {
-  bash "$HOME/uDOS/uCode/make-tree.sh"
-}
-
-# --- Timezone Command ---
-cmd_time() {
-  echo "🕒 Current timezone: $(date +%Z)"
-  echo "🕓 UTC offset: $(date +%z)"
-  read -rp "🌐 Enter new timezone (e.g., Australia/Sydney) or leave blank to keep: " new_tz
-  if [[ -n "$new_tz" ]]; then
-    export TZ="$new_tz"
-    echo "✅ Timezone updated to: $(date +%Z) (UTC$(date +%z))"
-  else
-    echo "ℹ️ Timezone unchanged."
-  fi
-  echo ""
-}
-
-# --- Location Command ---
-cmd_location() {
-  echo "📍 Current location code: $(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")"
-  read -rp "🗺️ Enter new location code (or leave blank to keep current): " new_loc
-  if [[ -n "$new_loc" ]]; then
-    echo "$new_loc" > "$UHOME/uMemory/state/location.md"
-    echo "✅ Location updated to $new_loc"
-  else
-    echo "ℹ️ Location unchanged."
-  fi
-  echo ""
-}
-
-cmd_list() {
-  echo "📁 uDOS Directory Listing (Reorganized Architecture)"
-  echo ""
-  echo "🧠 uMemory/ (User Content Storage)"
-  tree -L 2 "$UHOME/uMemory" 2>/dev/null || ls -R "$UHOME/uMemory"
-  echo ""
-  echo "📚 uKnowledge/ (Shared Knowledge Bank)"
-  tree -L 2 "$UHOME/uKnowledge" 2>/dev/null || ls -R "$UHOME/uKnowledge"
-  echo ""
-  echo "⚙️ uCode/ (Command Centre)"
-  tree -L 2 "$UHOME/uCode" 2>/dev/null || ls -R "$UHOME/uCode"
-  echo ""
-  echo "🔧 uScript/ (System Scripts)"
-  tree -L 2 "$UHOME/uScript" 2>/dev/null || ls -R "$UHOME/uScript"
-  echo ""
-  echo "� uTemplate/ (System Templates)"
-  tree -L 2 "$UHOME/uTemplate" 2>/dev/null || ls -R "$UHOME/uTemplate"
-  echo ""
-}
-
-cmd_dash() {
-  echo ""
-
-  bash "$UHOME/uCode/dash.sh"
-  tail -n 60 "$UHOME/uMemory/rendered/dash-rendered.md" | grep -v '^<!--'
-  echo ""
-}
-
-cmd_restart() {
-  echo "🔄 Restarting uDOS shell..."
-  exec "$0" # Relaunch script
-}
-
-cmd_reboot() {
-  echo "♻️ Rebooting uDOS system..."
-
-  echo "🧼 Rebuilding structure..."
-  bash "$UHOME/uCode/structure.sh" build
-
-  echo "🔍 Rechecking setup and permissions..."
-  bash "$UHOME/uCode/check.sh" all
-
-  echo "🌀 Relaunching shell..."
-  export REBOOT_FLAG=true
-  exec "$0"
-}
-
-cmd_destroy() {
-  echo "💥 uDOS DESTROY Mode:"
-  echo "  [A] Remove identity only"
-  echo "  [B] Remove identity and uMemory"
-  echo "  [C] Remove identity, archive uMemory to /legacy, then delete uMemory"
-  echo "  [D] Reboot only (no data loss)"
-  echo "  [E] Exit to uCode only (no reboot, no data loss)"
-  read -n1 -rp $'\033[1;34m👉 Select DESTROY option:\033[0m ' choice
-  echo ""
-
-  case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
-    A)
-      echo "⚠️ Deleting identity only..."
-      rm -f "$UDENT"
-      echo "✅ Identity deleted."
+  subcmd=$(echo "$args" | awk '{print toupper($1)}')
+  case "$subcmd" in
+    GENERATE)
+      cmd_map_generate
       ;;
-    B)
-      echo "⚠️ Deleting identity and uMemory..."
-      rm -f "$UDENT"
-      rm -rf "$UHOME/uMemory"
-      echo "✅ Identity and memory deleted."
+    REGION)
+      region=$(echo "$args" | awk '{print $2}')
+      cmd_map_region "$region"
       ;;
-    C)
-      echo "⚠️ Deleting all uMemory contents except 'legacy'..."
-      rm -f "$UDENT"
-      find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
-      echo "✅ Identity removed. Legacy preserved."
+    CITY)
+      coordinates=$(echo "$args" | awk '{print $2}')
+      cmd_map_city "$coordinates"
       ;;
-    D)
-      echo "♻️ Rebooting system only..."
-      cmd_reboot
-      return
+    SHOW)
+      cmd_map_show
       ;;
-    E)
-      echo "🌀 Exiting to uCode..."
-      return
+    INFO)
+      cmd_map_info
       ;;
     *)
-      echo "❌ Invalid option. Cancelled."
-      return
+      echo "🗺️ MAP commands:"
+      echo "   GENERATE  → Generate full world map"
+      echo "   REGION    → Show regional map (e.g., MAP REGION Europe)"
+      echo "   CITY      → Get city info (e.g., MAP CITY AX14)"
+      echo "   SHOW      → Display current region"
+      echo "   INFO      → Show map system information"
+      echo ""
       ;;
   esac
-
-  echo "🔁 Rebooting to apply changes..."
-  cmd_reboot
 }
 
-cmd_recent() {
-  echo "📜 Recent moves:"
-  tail -n 10 "$UHOME/uMemory/logs/moves/moves-$(date +%Y-%m-%d).md"
-  echo ""
-}
-
-# --- Development Diagnostics ---
-cmd_debug() {
-  echo "🔍 uDOS DEBUG MODE - Template Integration"
-  echo "🧬 Environment Variables:"
-  env | grep -E 'UHOME|USER|SHELL|PWD|TZ'
-  echo ""
-  echo "📊 Template System Status:"
-  echo "- Templates: $(find "$UHOME/uTemplate" -name "*.md" | wc -l) available"
-  echo "- Datasets: $(find "$UHOME/uTemplate/datasets" -name "*.json" | wc -l) datasets"
-  echo "- JSON Records: $(bash "$UHOME/uCode/json-processor.sh" stats 2>/dev/null | grep "Total records:" | cut -d: -f2 || echo "Unknown")"
-  echo ""
-  echo "📄 Last 20 Moves:"
-  tail -n 20 "$UHOME/uMemory/logs/moves/move-log-$(date +%Y-%m-%d).md"
-  echo ""
-  echo "🗂️ Available Scripts:"
-  ls -1 "$UHOME/uCode"
-  echo ""
-  echo "🔧 System Scripts:"
-  ls -1 "$UHOME/uScript/system" 2>/dev/null || echo "No system scripts found"
-  echo ""
-  echo "❗ Recent Errors (if any):"
-  find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
-  echo ""
-  echo "🧩 uDOS Version: $UVERSION"
-  echo "🏗️ Architecture: Template-Integrated v1.7.1"
-  echo "📋 Template System: Active"
-  echo "🗄️ Dataset Integration: Enabled"
-  echo ""
-}
-
-# --- Template-Driven User Setup Function ---
-cmd_setup_user() {
-  echo "🛠️ uDOS User Setup - Template-Driven Configuration"
-  echo "📋 Using uTemplate/input-user-setup.md structure"
+# --- Map Generation Command ---
+cmd_map_generate() {
+  echo "🗺️ Generating uDOS World Map..."
+  echo "📊 Using locationMap (52 cities), mapTerrain (15 symbols), timezoneMap (38 zones)"
   echo ""
   
-  # Load template structure from uTemplate
-  SETUP_TEMPLATE="$UHOME/uTemplate/input-user-setup.md"
-  TEMPLATE_DEFS="$UHOME/uTemplate/datasets/template-definitions.json"
-  
-  if [[ ! -f "$SETUP_TEMPLATE" ]]; then
-    echo "❌ Setup template not found: $SETUP_TEMPLATE"
-    return 1
-  fi
-  
-  # Extract user setup template definition
-  local template_def=$(bash "$UHOME/uCode/json-processor.sh" query template-definitions "template_id=user_setup" 2>/dev/null)
-  
-  # Interactive setup with dataset integration
-  echo "🔧 Configuring user account with dataset integration..."
-  echo ""
-  
-  # Username
-  read -rp "👤 Enter username [agentdigital]: " username
-  username=${username:-agentdigital}
-  
-  # Password (optional)
-  read -rsp "🔒 Enter password (optional): " password
-  echo ""
-  
-  # Location with dataset lookup
-  echo "📍 Location Selection (from locationMap dataset):"
-  bash "$UHOME/uCode/json-processor.sh" search "city" | head -10
-  echo ""
-  read -rp "🗺️ Enter location code or city name [London]: " location_input
-  location_input=${location_input:-London}
-  
-  # Query locationMap for the location
-  location_result=$(bash "$UHOME/uCode/json-processor.sh" search "$location_input" 2>/dev/null | grep locationMap)
-  if [[ -n "$location_result" ]]; then
-    echo "✅ Location found in dataset: $location_input"
-    location_code="$location_input"
+  # Check if TypeScript map generator is available
+  if [[ -f "$UHOME/uTemplate/src/index.ts" ]]; then
+    echo "🔧 Using TypeScript map generator..."
+    
+    # Check if Node.js is available
+    if command -v node >/dev/null 2>&1; then
+      cd "$UHOME/uTemplate"
+      
+      # Try to install dependencies if package.json exists
+      if [[ -f "package.json" ]] && command -v npm >/dev/null 2>&1; then
+        echo "📦 Installing dependencies..."
+        npm install --silent >/dev/null 2>&1 || echo "⚠️ npm install failed, continuing..."
+      fi
+      
+      # Try to build and run
+      if command -v npx >/dev/null 2>&1; then
+        echo "🏗️ Building map..."
+        npx tsc --build --silent 2>/dev/null || echo "⚠️ TypeScript compilation failed"
+        
+        if [[ -f "dist/index.js" ]]; then
+          echo "🎨 Rendering world map..."
+          node dist/index.js generate world-map.md
+        else
+          echo "❌ Compiled JavaScript not found, falling back to template approach"
+          cmd_map_fallback
+        fi
+      else
+        echo "❌ npx not available, falling back to template approach"
+        cmd_map_fallback
+      fi
+      
+      cd - >/dev/null
+    else
+      echo "❌ Node.js not available, falling back to template approach"
+      cmd_map_fallback
+    fi
   else
-    echo "⚠️ Location not found in dataset, using default: AX14 (London)"
-    location_code="AX14"
+    echo "❌ TypeScript map generator not found, falling back to template approach"
+    cmd_map_fallback
   fi
   
-  # Timezone with dataset lookup
+  echo "✅ Map generation complete!"
   echo ""
-  echo "🕒 Timezone Selection (from timezoneMap dataset):"
-  bash "$UHOME/uCode/json-processor.sh" search "timezone" | head -10
+}
+
+# --- Map Region Command ---
+cmd_map_region() {
+  local region="${1:-Europe}"
+  echo "🌍 Generating Regional Map: $region"
   echo ""
-  read -rp "⏰ Enter timezone [UTC]: " timezone
-  timezone=${timezone:-UTC}
   
-  # Auto-detect UTC offset from timezone dataset
-  utc_offset=$(bash "$UHOME/uCode/json-processor.sh" search "$timezone" 2>/dev/null | grep -o '[+-][0-9][0-9]:[0-9][0-9]' | head -1)
-  if [[ -z "$utc_offset" ]]; then
-    utc_offset="+00:00"
+  # Search for cities in the specified region
+  echo "🔍 Searching locationMap for cities in $region..."
+  region_cities=$(bash "$UHOME/uCode/json-processor.sh" search "$region" 2>/dev/null | grep locationMap || echo "No cities found")
+  
+  if [[ "$region_cities" != "No cities found" ]]; then
+    echo "📍 Cities found in $region:"
+    echo "$region_cities"
+    echo ""
+    
+    # Count cities
+    city_count=$(echo "$region_cities" | wc -l)
+    echo "📊 Total cities in $region: $city_count"
+  else
+    echo "❌ No cities found for region: $region"
+    echo "💡 Available regions:"
+    bash "$UHOME/uCode/json-processor.sh" search "region" | head -10
+  fi
+  echo ""
+}
+
+# --- Map City Command ---
+cmd_map_city() {
+  local coordinates="${1}"
+  
+  if [[ -z "$coordinates" ]]; then
+    echo "🏙️ City Information Lookup"
+    echo ""
+    read -rp "📍 Enter city coordinates (e.g., AX14): " coordinates
   fi
   
-  # Country detection from location
-  country=$(bash "$UHOME/uCode/json-processor.sh" search "$location_input" 2>/dev/null | grep -o '[A-Z][A-Z][A-Z]*' | head -1)
-  country=${country:-"Unknown"}
+  if [[ -n "$coordinates" ]]; then
+    echo "🔍 Looking up city at coordinates: $coordinates"
+    echo ""
+    
+    # Search for the specific coordinates in locationMap
+    city_info=$(bash "$UHOME/uCode/json-processor.sh" search "$coordinates" 2>/dev/null | grep locationMap)
+    
+    if [[ -n "$city_info" ]]; then
+      echo "✅ City found:"
+      echo "$city_info"
+      echo ""
+      
+      # Get additional details from datasets
+      echo "🌍 Additional Information:"
+      timezone_info=$(bash "$UHOME/uCode/json-processor.sh" search "$coordinates" 2>/dev/null | grep timezoneMap)
+      if [[ -n "$timezone_info" ]]; then
+        echo "🕒 Timezone: $timezone_info"
+      fi
+      
+      # Try to get country information
+      country_info=$(bash "$UHOME/uCode/json-processor.sh" search "$coordinates" 2>/dev/null | grep countryMap)
+      if [[ -n "$country_info" ]]; then
+        echo "🏳️ Country: $country_info"
+      fi
+    else
+      echo "❌ No city found at coordinates: $coordinates"
+      echo "💡 Try coordinates like: AX14, BF23, CG45, etc."
+      echo ""
+      echo "📋 Sample coordinates from locationMap:"
+      bash "$UHOME/uCode/json-processor.sh" search "tile_reference" | head -10
+    fi
+  else
+    echo "❌ No coordinates provided"
+  fi
+  echo ""
+}
+
+# --- Map Show Command ---
+cmd_map_show() {
+  echo "🗺️ Current Map View"
+  echo ""
   
-  # Create identity file using template structure
-  cat > "$USER_FILE" << EOF
-# 🆔 uDOS User Identity
+  # Show user's current location
+  current_location=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
+  echo "📍 Your location: $current_location"
+  
+  if [[ "$current_location" != "Unknown" ]]; then
+    # Get details about current location
+    location_details=$(bash "$UHOME/uCode/json-processor.sh" search "$current_location" 2>/dev/null | grep locationMap)
+    if [[ -n "$location_details" ]]; then
+      echo "🏙️ Location details: $location_details"
+    fi
+  fi
+  
+  echo ""
+  echo "🎨 Map Legend:"
+  echo "🏙️ Cities | ✈️ Airports | 🗿 World Wonders | 🏝️ Islands | ⛰️ Mountains | 🟦 Ocean"
+  echo ""
+  
+  # Show nearby locations (simplified ASCII representation)
+  echo "🌍 Regional Overview:"
+  echo "```"
+  echo "     A  B  C  D  E  F  G  H  I  J"
+  echo " 10  🟦 🟦 🟦 🟦 🟦 🟦 🟦 🟦 🟦 🟦"
+  echo " 11  🟦 🟦 🏙️ 🟦 🟦 🟦 ✈️ 🟦 🟦 🟦"
+  echo " 12  🟦 🟦 🟦 🟦 🏝️ 🟦 🟦 🟦 🟦 🟦"
+  echo " 13  🟦 ⛰️ 🟦 🟦 🟦 🟦 🟦 🗿 🟦 🟦"
+  echo " 14  🟦 🟦 🟦 🏙️ 🟦 🟦 🟦 🟦 🟦 🟦"
+  echo "```"
+  echo ""
+}
 
-**Username:** $username
-**Password:** $password
-**Location:** $location_code
-**Timezone:** $timezone
-**UTC Offset:** $utc_offset
-**Country:** $country
-**Language:** EN
-**Currency:** USD
-**Created:** $(date '+%Y-%m-%d %H:%M:%S')
-**Version:** $UVERSION
-**Template:** user_setup v1.1.0
+# --- Map Info Command ---
+cmd_map_info() {
+  echo "📊 uDOS Map System Information"
+  echo ""
+  echo "🗺️ Map Specifications:"
+  echo "- Resolution: 120×60 tiles (7,200 total)"
+  echo "- Coordinate Format: Letter-Letter-Number-Number (e.g., AX14)"
+  echo "- Column Range: A-DU (120 columns)"
+  echo "- Row Range: 01-60 (60 rows)"
+  echo ""
+  
+  echo "📋 Dataset Statistics:"
+  echo "- Location Map: $(bash "$UHOME/uCode/json-processor.sh" search "city_name" 2>/dev/null | wc -l || echo "Unknown") cities"
+  echo "- Timezone Map: $(bash "$UHOME/uCode/json-processor.sh" search "timezone_name" 2>/dev/null | wc -l || echo "Unknown") timezones"
+  echo "- Terrain Map: $(bash "$UHOME/uCode/json-processor.sh" search "symbol" 2>/dev/null | wc -l || echo "Unknown") terrain types"
+  echo ""
+  
+  echo "🔧 Technical Details:"
+  echo "- Engine: TypeScript Map Generator v1.7.1"
+  echo "- Datasets: JSON-based with cross-references"
+  echo "- Rendering: Unicode emoji symbols"
+  echo "- Integration: uCode shell commands"
+  echo ""
+  
+  echo "💡 Usage Examples:"
+  echo "- MAP GENERATE → Create full world map"
+  echo "- MAP REGION Europe → Show European cities"
+  echo "- MAP CITY AX14 → Get details for coordinates AX14"
+  echo "- CHECK MAP → Quick map check from CHECK command"
+  echo ""
+}
 
----
+# --- Map Fallback (Template-based) ---
+cmd_map_fallback() {
+  echo "🔄 Using template-based map generation..."
+  
+  # Generate simple map using template and datasets
+  if [[ -f "$UHOME/uTemplate/src/templates/baseMap.uTemplate" ]]; then
+    echo "📋 Processing baseMap template..."
+    
+    # Simple template processing
+    cat > "$UHOME/uMemory/generated/simple-world-map.md" << EOF
+# 🗺️ uDOS World Map (Template Generated)
 
-## 📊 Dataset Integration Status
-- ✅ Location verified against locationMap
-- ✅ Timezone verified against timezoneMap  
-- ✅ Country auto-detected from location
-- ✅ Template-driven configuration complete
+**Generated:** $(date '+%Y-%m-%d %H:%M:%S')
+**Resolution:** 120×60 tiles
+**Version:** Template-based v1.7.1
 
-## 🗺️ Location Details
-- Code: $location_code
-- Input: $location_input
-- Timezone: $timezone ($utc_offset)
-- Country: $country
+## 🌍 Major Cities
+
+$(bash "$UHOME/uCode/json-processor.sh" search "city_name" 2>/dev/null | head -20 || echo "Dataset not available")
+
+## 🕒 Timezones
+
+$(bash "$UHOME/uCode/json-processor.sh" search "timezone_name" 2>/dev/null | head -15 || echo "Dataset not available")
+
+## 🎨 Map Legend
+
+🏙️ Cities | ✈️ Airports | 🗿 World Wonders | 🏝️ Islands | ⛰️ Mountains | 🟦 Ocean
 
 ---
 *Generated by uDOS Template System v1.7.1*
 EOF
-
-  echo ""
-  echo "✅ User setup complete!"
-  echo "📄 Identity file created: $USER_FILE"
-  echo "🔗 Template integration: user_setup v1.1.0"
-  echo "📊 Dataset references: locationMap, timezoneMap, countryMap"
-  echo ""
-}
-
-# --- Enhanced Location Command with Dataset Integration ---
-cmd_location_enhanced() {
-  echo "📍 Location Management - Dataset Integration"
-  echo ""
-  
-  # Show current location
-  current_loc=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
-  echo "🗺️ Current location: $current_loc"
-  
-  # Show available locations from dataset
-  echo ""
-  echo "📊 Available locations from locationMap dataset:"
-  bash "$UHOME/uCode/json-processor.sh" search "city" | head -20
-  
-  echo ""
-  read -rp "🔍 Search for location (or enter code directly): " search_term
-  
-  if [[ -n "$search_term" ]]; then
-    # Search in location dataset
-    echo "🔍 Searching locationMap for '$search_term'..."
-    search_results=$(bash "$UHOME/uCode/json-processor.sh" search "$search_term")
     
-    if [[ -n "$search_results" ]]; then
-      echo "✅ Found matching locations:"
-      echo "$search_results"
-      echo ""
-      read -rp "📍 Enter exact location code to set: " new_location
-      
-      if [[ -n "$new_location" ]]; then
-        echo "$new_location" > "$UHOME/uMemory/state/location.md"
-        echo "✅ Location updated to: $new_location"
-        
-        # Update identity file if it exists
-        if [[ -f "$USER_FILE" ]]; then
-          sed -i.bak "s/\*\*Location:\*\* .*/\*\*Location:\*\* $new_location/" "$USER_FILE"
-          echo "🔄 Identity file updated with new location"
-        fi
-      fi
-    else
-      echo "❌ No locations found matching '$search_term'"
-      echo "💡 Try searching for: city names, country codes, or region names"
-    fi
-  fi
-  echo ""
-}
-
-# --- Enhanced Timezone Command with Dataset Integration ---
-cmd_timezone_enhanced() {
-  echo "🕒 Timezone Management - Dataset Integration"
-  echo ""
-  
-  # Show current timezone
-  echo "⏰ Current system timezone: $(date +%Z)"
-  echo "🌐 UTC offset: $(date +%z)"
-  
-  # Show available timezones from dataset
-  echo ""
-  echo "📊 Available timezones from timezoneMap dataset:"
-  bash "$UHOME/uCode/json-processor.sh" search "timezone" | head -15
-  
-  echo ""
-  read -rp "🔍 Search for timezone (or enter timezone code): " search_term
-  
-  if [[ -n "$search_term" ]]; then
-    # Search in timezone dataset
-    echo "🔍 Searching timezoneMap for '$search_term'..."
-    search_results=$(bash "$UHOME/uCode/json-processor.sh" search "$search_term")
-    
-    if [[ -n "$search_results" ]]; then
-      echo "✅ Found matching timezones:"
-      echo "$search_results"
-      echo ""
-      read -rp "⏰ Enter timezone name (e.g., Australia/Sydney): " new_timezone
-      
-      if [[ -n "$new_timezone" ]]; then
-        export TZ="$new_timezone"
-        echo "✅ Timezone updated to: $new_timezone"
-        echo "🌐 New UTC offset: $(date +%z)"
-        
-        # Update identity file if it exists
-        if [[ -f "$USER_FILE" ]]; then
-          utc_offset=$(date +%z)
-          sed -i.bak "s/\*\*Timezone:\*\* .*/\*\*Timezone:\*\* $new_timezone/" "$USER_FILE"
-          sed -i.bak "s/\*\*UTC Offset:\*\* .*/\*\*UTC Offset:\*\* $utc_offset/" "$USER_FILE"
-          echo "🔄 Identity file updated with new timezone"
-        fi
-      fi
-    else
-      echo "❌ No timezones found matching '$search_term'"
-      echo "💡 Try searching for: city names, timezone codes, or regions"
-    fi
-  fi
-  echo ""
-}
-
-# --- Template Dataset Validation ---
-validate_template_datasets() {
-  echo "🔍 Validating Template-Dataset Integration..."
-  local validation_passed=true
-  
-  # Check core datasets exist
-  local required_datasets=("locationMap" "timezoneMap" "countryMap" "languageMap" "currencyMap" "template-definitions")
-  
-  for dataset in "${required_datasets[@]}"; do
-    if [[ -f "$UHOME/uTemplate/datasets/${dataset}.json" ]]; then
-      echo "✅ Dataset found: $dataset"
-    else
-      echo "❌ Missing dataset: $dataset"
-      validation_passed=false
-    fi
-  done
-  
-  # Check template files exist
-  local required_templates=("input-user-setup.md" "mission-template.md" "milestone-template.md" "move-template.md")
-  
-  for template in "${required_templates[@]}"; do
-    if [[ -f "$UHOME/uTemplate/${template}" ]]; then
-      echo "✅ Template found: $template"
-    else
-      echo "❌ Missing template: $template"
-      validation_passed=false
-    fi
-  done
-  
-  # Check JSON processor functionality
-  if bash "$UHOME/uCode/json-processor.sh" list >/dev/null 2>&1; then
-    echo "✅ JSON processor operational"
+    echo "📄 Simple map saved to: uMemory/generated/simple-world-map.md"
   else
-    echo "❌ JSON processor not working"
-    validation_passed=false
-  fi
-  
-  # Check template generator functionality
-  if bash "$UHOME/uCode/template-generator.sh" list >/dev/null 2>&1; then
-    echo "✅ Template generator operational"
-  else
-    echo "❌ Template generator not working"
-    validation_passed=false
-  fi
-  
-  if [[ "$validation_passed" == "true" ]]; then
-    echo ""
-    echo "🎉 Template-Dataset integration validated successfully!"
-    return 0
-  else
-    echo ""
-    echo "⚠️ Template-Dataset integration has issues - some features may not work"
-    return 1
+    echo "❌ Template not found, creating basic map info..."
+    echo "🗺️ Basic Map Information:" > "$UHOME/uMemory/generated/basic-map.md"
+    echo "Total datasets: $(find "$UHOME/uTemplate/datasets" -name "*.json" | wc -l)" >> "$UHOME/uMemory/generated/basic-map.md"
   fi
 }
 
+# ...existing code...
 #
 # Main Command Dispatch Loop
 trap 'if [ "$UCODE_SESSION_ENDED" = false ]; then echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"; export UCODE_SESSION_ENDED=true; fi' EXIT

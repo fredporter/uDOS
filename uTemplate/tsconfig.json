@@ -1,15 +1,27 @@
-   {
-     "projects": [
-       {
-         "name": "Project A",
-         "milestones": [
-           {
-             "title": "Milestone 1",
-             "due_date": "2023-01-01",
-             "status": "Completed",
-             "assigned_to": "Team X"
-           }
-         ]
-       }
-     ]
-   }
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ]
+}
