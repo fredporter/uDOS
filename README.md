@@ -99,13 +99,11 @@ uDOS is designed to run as a memory shell on:
 
 ## 🗺️ Roadmap Index
 
-For full architecture, system structure, and design documents, see [`roadmap/`](roadmap/):
+For full architecture, system structure, and design documents, see:
 
-- [001-uDOS-foundation.md](roadmap/001-uDOS-foundation.md) — Core principles, terminology, mission structure
-- [002-uDOS-format.md](roadmap/002-uDOS-format.md) — Templates, filenames, dashboard format, move logging
-- [003-uDOS-execution.md](roadmap/003-uDOS-execution.md) — uCode runtime and uScript automation logic
-- [004-uDOS-interface.md](roadmap/004-uDOS-interface.md) — ASCII UI design, UX philosophy, display modes
-- [005-uDOS-location.md](roadmap/005-uDOS-location.md) — Tile logic, map mechanics, cross-device data sharing
+➡️ [`roadmap/ROADMAP_INDEX.md`](roadmap/ROADMAP_INDEX.md)
+
+This index tracks all roadmap files from 001 to 099.
 
 ---
 
@@ -125,18 +123,17 @@ We build together. We remember together.
 
 ## 🧬 Philosophy
 
-uDOS is not an operating system in the conventional sense — it is a **memory companion**.
+uDOS is not a traditional operating system — it is a **memory companion**.
 
 It does not multitask.  
-It does not update itself silently.  
+It does not update silently.  
 It does not forget.
 
-Every session, every thought, every command — written in Markdown.  
-Tracked as Moves.  
-Built toward a Mission.  
-Stored as a Legacy.
+Every session is remembered.  
+Every command is logged.  
+Every mission leaves a trace.
 
----
+Everything is Markdown.  
+Everything is yours.
 
-**uDOS Beta v1.6.1** — memory-bound and Markdown-powered.  
-🦦 Otter active. Listening, logging, learning.
+**uDOS Beta v1.6.1**
