@@ -88,6 +88,20 @@
             "detail": "Install ripgrep for fast text searching"
         },
         {
+            "label": "🏗️ Reorganize uDOS",
+            "type": "shell",
+            "command": "./uCode/reorganize.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": [],
+            "detail": "Migrate repository to new architectural structure"
+        },
+        {
             "label": "🔍 Search with ripgrep",
             "type": "shell",
             "command": "./uCode/packages/run-ripgrep.sh",

@@ -1,6 +1,6 @@
 ---
 title: "uDOS Template & Format Guide"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "002"
 tags: ["template", "formatting", "logging", "structure", "dashboard", "vscode", "ai-enhanced"]
 created: 2025-07-05
@@ -12,9 +12,9 @@ status: "✅ Optimized"
 
 This document consolidates all reusable templates, dashboard rendering logic, formatting specifications, and move log architecture for uDOS. It serves as a technical and structural reference for content creators, developers, and AI agents using or contributing to the system.
 
-**v1.7.0 Optimization Update*## ✅ Summary
+**v1.7.1 Optimization Update*## ✅ Summary
 
-| When       | What                                | Where                                   | v1.7.0 Enhancement |
+| When       | What                                | Where                                   | v1.7.1 Enhancement |
 | ---------- | ----------------------------------- | ----------------------------------------|-------------------|
 | Loop End   | Log input/output with timestamp, AI context, performance after loop completes | `/uMemory/logs/moves-YYYY-MM-DD.md` | AI tracking, perf metrics |
 | Day's End  | Finalize log to flat history with optimization summary | `/uMemory/logs/moves-YYYYMMDD.md` | Performance analytics |anced with VS Code integration patterns, AI-assisted templates, and optimized performance specifications.
@@ -75,7 +75,7 @@ reflection | command | query | expression | system | creation | vscode-task | ai
 ## 🧾 Notes
 Any annotations, purpose tags, or user comments.
 
-## 🤖 AI Enhancement (v1.7.0)
+## 🤖 AI Enhancement (v1.7.1)
 - Copilot suggestions for related moves
 - Intelligent context linking
 - Auto-completion for common patterns
@@ -406,7 +406,7 @@ YYYYMMDD-HHMMSS-SSS-TZCODE
 ---
 
 ## 🗂️ Filenames & Folder Structure
-# uDOS Filename and File Structure Specification (Beta v1.7.0)
+# uDOS Filename and File Structure Specification (Beta v1.7.1)
 
 This standard defines all filenames and folder conventions used within uDOS for logs, moves, tasks, maps, and sandbox operations. Enhanced with VS Code integration and AI assistance patterns.
 
@@ -513,7 +513,7 @@ End of spec.
 ---
 
 ## 📜 Move Log Roadmap
-_uDOS v1.7.0 optimized format_
+_uDOS v1.7.1 optimized format_
 
 # uDOS Move Log Roadmap (`uCode` Loop Protocol)
 
@@ -531,7 +531,7 @@ At the **end of each loop**, after input/output completes, `uCode` captures a mi
 /uMemory/logs/moves-YYYY-MM-DD.md
 ```
 
-### 🛠 What Gets Logged (v1.7.0 Enhanced)
+### 🛠 What Gets Logged (v1.7.1 Enhanced)
 
 Each entry includes:
 
@@ -544,7 +544,7 @@ Each entry includes:
 
 This ensures that every user-driven action is timestamped, locationally grounded, and AI-enhanced for future inspection or replay.
 
-> Example Log Entry (v1.7.0):
+> Example Log Entry (v1.7.1):
 
 ```markdown
 🌀→ DASH | F180327 | 14:02:55.493
@@ -567,7 +567,7 @@ This finalized `.md` file becomes read-only and serves as a durable, inspectable
 
 ---
 
-## 🧠 Purpose (v1.7.0 Enhanced)
+## 🧠 Purpose (v1.7.1 Enhanced)
 
 - Provide **minimal but complete traceability** of session activity
 - Enable future replay, summarization, or audit of user-driven events
@@ -577,7 +577,7 @@ This finalized `.md` file becomes read-only and serves as a durable, inspectable
 
 ---
 
-⚠️ Important: The move log file format was enhanced in Beta v1.7.0. Added AI assistance tracking, performance metrics, and VS Code integration context. Each move is now logged as a **multi-line entry** with essentials plus optimization data: command, timestamp, location, brief response, AI context, and execution performance. No session IDs, user names, or assistant identifiers are recorded in `uMemory`.
+⚠️ Important: The move log file format was enhanced in Beta v1.7.1. Added AI assistance tracking, performance metrics, and VS Code integration context. Each move is now logged as a **multi-line entry** with essentials plus optimization data: command, timestamp, location, brief response, AI context, and execution performance. No session IDs, user names, or assistant identifiers are recorded in `uMemory`.
 
 ---
 

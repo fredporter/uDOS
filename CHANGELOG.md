@@ -1,5 +1,57 @@
 # 📝 uDOS Changelog
 
+## [1.7.1] ### 📖 Documentation Updates
+- **Architecture Guide**: Complete reorganization documentation
+- **Migration Process**: Automatic and manual migration steps
+- **Updated References**: All path references updated throughout
+- **Version Consistency**: All components updated to v1.7.1
+
+### 🗑️ Cleanup & Modernization
+- **REMOVED**: Obsolete `.devcontainer/` Docker configuration
+- **REMOVED**: Redundant `.dockerignore` file
+- **REMOVED**: Empty `roadmap/` directory from old structure
+- **UPDATED**: All version references to v1.7.1
+- **UPDATED**: Path references to new architecture
+- **UPDATED**: .gitignore for reorganized structure07-13 - The Great Reorganization
+
+### 🏗️ Architectural Restructuring
+- **BREAKING**: Complete repository reorganization around clear architectural principles
+- **NEW**: `uKnowledge` = Central shared knowledge bank (system docs only)
+- **NEW**: `uMemory` = All user content storage (missions, scripts, sandbox)
+- **NEW**: `uScript` = System scripts and bash execution environment
+- **NEW**: `uTemplate` = System templates and datasets (read-only)
+- **ENHANCED**: `uCode` = Complete command centre
+
+### 📁 Directory Structure Changes
+- **Moved**: `roadmap/` → `uKnowledge/roadmap/` (system documentation)
+- **Moved**: `sandbox/` → `uMemory/sandbox/` (user workspace)
+- **Moved**: User scripts → `uMemory/scripts/` (user content)
+- **Moved**: System scripts → `uScript/system/` (system execution)
+- **Moved**: Templates → `uTemplate/system/` (system templates)
+- **Moved**: User identity → `uMemory/user/identity.md`
+
+### ✨ New Features
+- **Architecture Migration Script**: `./uCode/reorganize.sh`
+- **VS Code Task**: "🏗️ Reorganize uDOS" for easy migration
+- **Updated Help System**: Shows new architecture in uCode shell
+- **Comprehensive Documentation**: `uKnowledge/ARCHITECTURE.md`
+
+### 🔧 Technical Improvements
+- **Clear Separation**: System vs user content completely separated
+- **Logical Organization**: Related files grouped by architectural purpose
+- **Enhanced Maintainability**: Easier to update system vs user content
+- **Improved Security**: User content isolated from system files
+
+### �️ Cleanup & Modernization
+- **REMOVED**: Obsolete `.devcontainer/` Docker configuration
+- **REMOVED**: Redundant `.dockerignore` file
+- **REMOVED**: Empty `roadmap/` directory from old structure
+- **UPDATED**: All version references to v1.7.1
+- **UPDATED**: Path references to new architecture
+- **UPDATED**: .gitignore for reorganized structure
+
+---
+
 ## [1.7.0] - 2025-07-13 - The Great Optimization
 
 ### 🚀 Major Changes

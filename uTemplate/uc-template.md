@@ -63,7 +63,7 @@ role: companion-ai
 name: {{name}}
 version: {{version}}
 linked_file: uKnowledge/companion/{{name}}.md
-defined_by: uDOS Beta v1.6.1
+defined_by: uDOS Beta v1.7.1
 last_edited: {{iso8601}}
 status: active
 tags: [companion, ai, instruction, {{name|lower}}]

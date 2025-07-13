@@ -12,7 +12,7 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 - **Markdown as the OS language**: Every Move, Mission, Milestone, and Map lives in plain `.md`.
 - **Process minimalism**: One shell, one thread, one memory — a living notebook with intent.
 - **Memory with purpose**: All actions form a legacy, built from Moves and Missions over time.
-- **Cross-platform longevity**: Runs on modern macOS or Docker Desktop — but also thrives on old, repurposed machines.
+- **Cross-platform longevity**: Runs natively on modern macOS and Linux — lightweight and thrives on old, repurposed machines.
 
 ---
 
@@ -29,28 +29,71 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 
 ---
 
-## 📁 Repo Structure
+## 📁 Repo Structure (Reorganized v1.7.1)
 
 ```text
 /uDOS
-├── docker-compose.yml         # Docker container setup (root-level)
-├── Dockerfile                 # Base image configuration
-├── macos/                     # macOS launchers (.app and .command)
-├── roadmap/                   # Living uDOS design documents
-├── uCode/                     # Core logic: uCode CLI, dashboard, tools
-├── templates/                 # Markdown templates for move, mission, etc.
-├── uKnowledge/                # General Markdown knowledge store
-├── uMemory/                   # User memory: logs, state, sessions, moves
-├── sandbox/                   # Draft workspace for in-progress documents
-├── repo_structure.txt         # Auto-generated directory tree
-└── README.md                  # You're reading it
+├── 🏗️ ARCHITECTURE OVERVIEW
+│
+├── 📚 uKnowledge/               # Central shared knowledge bank
+│   ├── roadmap/                 # System roadmap documents (001-011)
+│   ├── packages/                # Package documentation
+│   ├── companion/               # AI assistance guides
+│   ├── general-library/         # General documentation
+│   └── maps/                    # System maps and navigation
+│
+├── 🧠 uMemory/                  # All user content storage
+│   ├── user/                    # User identity and settings
+│   ├── scripts/                 # User-created scripts
+│   ├── templates/               # User-customized templates
+│   ├── sandbox/                 # User workspace
+│   ├── missions/                # User missions
+│   ├── milestones/              # User milestones
+│   ├── legacy/                  # User legacy items
+│   ├── logs/                    # User activity logs
+│   └── state/                   # User state data
+│
+├── ⚙️ uCode/                    # Complete command centre
+│   ├── ucode.sh                 # Main shell interface
+│   ├── packages/                # Package integration scripts
+│   ├── reorganize.sh            # Architecture migration script
+│   └── *.sh                     # System utilities
+│
+├── 🔧 uScript/                  # System scripts and bash execution
+│   ├── system/                  # Core system scripts
+│   ├── utilities/               # Utility scripts
+│   ├── automation/              # Automation scripts
+│   ├── examples/                # Example scripts
+│   └── extract/                 # Data extraction tools
+│
+├── 📋 uTemplate/                # System templates and datasets
+│   ├── system/                  # System templates
+│   ├── datasets/                # System datasets
+│   ├── variables/               # System variables
+│   └── [TypeScript project]     # Template engine
+│
+├── 🚀 launcher/                 # macOS launchers (.app and .command)
+├── 📖 CHANGELOG.md              # Version history
+├── 📖 README.md                 # You're reading it
+├── 📖 repo_structure.txt        # Auto-generated directory tree
+└── 📖 .vscode/                  # VS Code integration
+    ├── tasks.json               # Pre-configured operations
+    └── settings.json            # Optimized configuration
 ```
+
+### 🎯 Architectural Principles
+
+- **📚 uKnowledge**: System documentation that doesn't change with user activity
+- **🧠 uMemory**: All user content, scripts, and personalized data
+- **⚙️ uCode**: Central command and control system
+- **🔧 uScript**: System-level script execution environment  
+- **📋 uTemplate**: Read-only system templates and datasets
 
 ---
 
 ## 🚀 Running uDOS
 
-uDOS has been modernized for VS Code + Copilot integration. **No Docker required!**
+uDOS has been completely modernized for VS Code + Copilot integration with a reorganized architecture. **No Docker, no containers, no complexity!**
 
 ### ⚡ Quick Start (VS Code - Recommended)
 
@@ -105,7 +148,7 @@ This is a **co-created system** between:
 - **Wizard**: The user and architect of uDOS.
 - **Otter**: The AI assistant and memory-keeper within uDOS.
 
-As of version **Beta v1.6.1**, the assistant has been formally named **Otter**.
+As of version **Beta v1.7.1**, the assistant has been formally named **Otter**.
 
 Every session, file, command, and map is part of this collaboration.
 We build together. We remember together.
@@ -127,4 +170,4 @@ Every mission leaves a trace.
 Everything is Markdown.  
 Everything is yours.
 
-**uDOS Beta v1.6.1**
+**uDOS Beta v1.7.1**

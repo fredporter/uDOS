@@ -1,6 +1,6 @@
 ---
 title: "uDOS Roadmap Index"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "roadmap-index"
 tags: ["roadmap", "index", "architecture", "planning"]
 created: 2025-07-05
@@ -81,7 +81,7 @@ Use `README.md` at root level for install/runtime.
 Use this `ROADMAP_INDEX.md` to navigate uDOS architecture and evolution.  
 Use `CHANGELOG.md` for version history and migration guides.
 
-### 🆕 Recent Updates (v1.7.0 — The Great Optimization)
+### 🆕 Recent Updates (v1.7.1 — The Great Optimization)
 - ✅ **🌀 OPTIMIZATION COMPLETE**: Full transformation from Docker to VS Code-native
 - ✅ **Performance Boost**: 90% faster startup (30s → 3s) and 90% memory reduction
 - ✅ **AI Integration**: GitHub Copilot assistance throughout all workflows

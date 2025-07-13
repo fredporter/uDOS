@@ -1,6 +1,6 @@
 ---
 title: "uDOS Optimization Achievement"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "011-optimization"
 tags: ["optimization", "achievement", "vs-code", "milestone"]
 created: 2025-07-13
@@ -16,7 +16,7 @@ This roadmap documents the successful completion of the uDOS optimization from D
 ## 🎯 Optimization Overview
 
 ### Transformation Scope
-The v1.7.0 optimization eliminated Docker complexity and established uDOS as a VS Code-native system with AI assistance, setting the foundation for advanced features in future versions.
+The v1.7.1 optimization eliminated Docker complexity and established uDOS as a VS Code-native system with AI assistance, setting the foundation for advanced features in future versions.
 
 ### Success Metrics
 - **Performance**: 90% startup time improvement (30s → 3s)
@@ -98,7 +98,7 @@ AI: No integration
 Tasks: Manual command execution
 ```
 
-### Post-Optimization (v1.7.0)
+### Post-Optimization (v1.7.1)
 ```
 Startup: 2-3 seconds (native)
 Memory: ~50MB (shell only)
@@ -124,7 +124,7 @@ Tasks: 8 one-click operations
 Before (v1.6.1):
 Docker Container → Volume Mounts → Complex Launcher → uCode Shell
 
-After (v1.7.0):
+After (v1.7.1):
 VS Code Tasks → Native Execution → uCode Shell + AI Assistance
 ```
 

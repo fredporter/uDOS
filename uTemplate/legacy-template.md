@@ -59,5 +59,5 @@ last_edited: {{iso8601}}
 user: {{username}}
 legacy_type: {{legacy_type}}
 status: archived
-version: uDOS Beta v1.6.1
+version: uDOS Beta v1.7.1
 ```

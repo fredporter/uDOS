@@ -1,11 +1,21 @@
 #!/bin/bash
-# uDOS Beta v1.6.1
+# uDOS Beta v1.7.1 - Reorganized Architecture
 # 🧪 check.sh — Validate uDOS system integrity and permissions
 
 UHOME="${HOME}/uDOS"
-SANDBOX="${UHOME}/sandbox"
 UMEM="${UHOME}/uMemory"
-REQUIRED_DIRS=("uCode" "uMemory/moves" "uMemory/state" "uTemplate" "uKnowledge" "sandbox")
+SANDBOX="${UHOME}/uMemory/sandbox"
+REQUIRED_DIRS=(
+  "uCode" 
+  "uMemory/logs/moves" 
+  "uMemory/state" 
+  "uMemory/user"
+  "uMemory/sandbox"
+  "uTemplate" 
+  "uKnowledge" 
+  "uScript/system"
+  "uTemplate/system"
+)
 
 # Output helpers
 ok()   { echo "✔ $1"; }
@@ -34,7 +44,7 @@ check_permissions() {
     ok "Sandbox writable"
     rm "$testfile"
   else
-    fail "Cannot write to sandbox/ — check permissions"
+    fail "Cannot write to uMemory/sandbox/ — check permissions"
   fi
 
   if [[ -w "$UMEM/state" ]]; then

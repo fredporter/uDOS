@@ -1,15 +1,44 @@
 #!/bin/bash
-# uDOS Beta v1.6.1
+# uDOS Beta v1.7.1 - Reorganized Architecture
 # 📁 structure.sh — build and validate uDOS folder architecture
 
 # Constants
 UHOME="${HOME}/uDOS"
 PATHS=(
-  "uMemory/moves"
+  # uMemory = All user content storage
+  "uMemory/user"
+  "uMemory/scripts"
+  "uMemory/templates"
+  "uMemory/sandbox"
+  "uMemory/missions"
+  "uMemory/milestones"
+  "uMemory/legacy"
+  "uMemory/logs/moves"
+  "uMemory/logs/errors"
   "uMemory/state"
-  "uTemplate/dashboard.md"
-  "uKnowledge"
-  "sandbox"
+  
+  # uKnowledge = Central shared knowledge bank
+  "uKnowledge/roadmap"
+  "uKnowledge/packages"
+  "uKnowledge/companion"
+  "uKnowledge/general-library"
+  "uKnowledge/maps"
+  
+  # uCode = Complete command centre (already exists)
+  "uCode/packages"
+  
+  # uScript = System scripts and bash execution
+  "uScript/system"
+  "uScript/utilities"
+  "uScript/automation"
+  "uScript/examples"
+  "uScript/extract"
+  
+  # uTemplate = System templates and datasets
+  "uTemplate/system"
+  "uTemplate/datasets"
+  "uTemplate/variables"
+  "uTemplate/system/dashboard.md"
 )
 FORCE=false
 INCLUDE_INPUT=false
@@ -35,7 +64,7 @@ create_folder() {
 }
 
 make_input() {
-  local inputfile="$UHOME/sandbox/input.md"
+  local inputfile="$UHOME/uMemory/sandbox/input.md"
   if [[ -f "$inputfile" && "$FORCE" = false ]]; then
     log "input.md already exists"
   else

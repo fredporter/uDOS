@@ -40,6 +40,6 @@ status: planned
 tags: [udos, mission]
 location: {{location}}
 timezone: {{timezone}}
-version: uDOS Beta v1.6.1
+version: uDOS Beta v1.7.1
 ```
 

@@ -1,6 +1,6 @@
 ---
 title: "uDOS Location & Map Logic"
-version: "Beta v1.6.1"
+version: "Beta v1.7.1"
 id: "005"
 tags: ["location", "mapping", "cartography", "tile", "uMap", "data-sharing"]
 created: 2025-07-05

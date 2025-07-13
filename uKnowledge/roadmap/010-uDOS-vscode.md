@@ -1,6 +1,6 @@
 ---
 title: "uDOS VS Code Integration"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "010-vscode"
 tags: ["vscode", "integration", "development", "workflow"]
 created: 2025-07-13
@@ -153,7 +153,7 @@ docker-compose up
 # Debug Docker networking issues
 ```
 
-### After (v1.7.0)
+### After (v1.7.1)
 ```bash
 # Just press Cmd+Shift+P → "🌀 Start uDOS"
 # Or double-click uDOS-Modern.app
@@ -199,7 +199,7 @@ interface uDOSTask {
 
 ### Startup Time Comparison
 
-| Method | v1.6.1 (Docker) | v1.7.0 (Native) |
+| Method | v1.6.1 (Docker) | v1.7.1 (Native) |
 |--------|------------------|------------------|
 | Cold Start | ~30-45 seconds | ~2-3 seconds |
 | Warm Start | ~10-15 seconds | ~1 second |

@@ -1,19 +1,46 @@
 #!/bin/bash
-# uCode.sh - uDOS Beta v1.6.1 CLI Shell
+# uCode.sh - uDOS Beta v1.7.1 CLI Shell
 # Full-featured command-line interface for uDOS environment
 
 # Environment Setup
 export UHOME="${HOME}/uDOS"
-export UDENT="$UHOME/sandbox/user.md"
+export UDENT="$UHOME/uMemory/user/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
-# --- Ensure required folders exist before any logging or stats ---
+
+# --- Ensure required folders exist following new architecture ---
+# uMemory = All user content storage
 mkdir -p "$UHOME/uMemory/logs/moves"
-# mkdir -p "$UHOME/sandbox"
-mkdir -p "${UHOME}/uMemory/missions" "${UHOME}/uMemory/milestones" "${UHOME}/uMemory/legacy"
-mkdir -p "${UHOME}/uMemory/logs/errors"
-mkdir -p "${UHOME}/uMemory/state"
+mkdir -p "$UHOME/uMemory/logs/errors"
+mkdir -p "$UHOME/uMemory/missions"
+mkdir -p "$UHOME/uMemory/milestones" 
+mkdir -p "$UHOME/uMemory/legacy"
+mkdir -p "$UHOME/uMemory/state"
+mkdir -p "$UHOME/uMemory/user"
+mkdir -p "$UHOME/uMemory/scripts"
+mkdir -p "$UHOME/uMemory/templates"
+mkdir -p "$UHOME/uMemory/sandbox"
+
+# uKnowledge = Central shared knowledge bank (system docs)
+mkdir -p "$UHOME/uKnowledge/packages"
+mkdir -p "$UHOME/uKnowledge/companion"
+mkdir -p "$UHOME/uKnowledge/general-library"
+mkdir -p "$UHOME/uKnowledge/maps"
+mkdir -p "$UHOME/uKnowledge/roadmap"
+
+# uCode = Complete command centre (already exists)
+mkdir -p "$UHOME/uCode/packages"
+
+# uScript = System scripts and bash execution
+mkdir -p "$UHOME/uScript/system"
+mkdir -p "$UHOME/uScript/utilities"
+mkdir -p "$UHOME/uScript/automation"
+
+# uTemplate = System templates and datasets (read-only)
+mkdir -p "$UHOME/uTemplate/system"
+mkdir -p "$UHOME/uTemplate/datasets"
+mkdir -p "$UHOME/uTemplate/variables"
 
 # Track if session end has been logged
 export UCODE_SESSION_ENDED=false
@@ -66,10 +93,17 @@ echo -e "    \033[1;37muCode Shell · $UVERSION 🌀\033[0m"
 echo ""
 echo "🧠 Loading environment..."
 
-USER_FILE="$UHOME/sandbox/user.md"
+USER_FILE="$UHOME/uMemory/user/identity.md"
 if [[ ! -f "$USER_FILE" ]]; then
-  echo "⚙️ No identity file found. Running check-setup..."
-  bash "$UHOME/uCode/check-setup.sh"
+  # Check legacy location first
+  if [[ -f "$UHOME/sandbox/user.md" ]]; then
+    echo "🔄 Migrating user identity to new location..."
+    mv "$UHOME/sandbox/user.md" "$USER_FILE"
+    echo "✅ Identity migrated to uMemory/user/"
+  else
+    echo "⚙️ No identity file found. Running check-setup..."
+    bash "$UHOME/uCode/check.sh"
+  fi
 
   if [[ -f "$USER_FILE" ]]; then
     echo "✅ Identity confirmed."
@@ -269,16 +303,22 @@ cmd_location() {
 }
 
 cmd_list() {
-  echo "📁 uDOS Directory Listing"
+  echo "📁 uDOS Directory Listing (Reorganized Architecture)"
   echo ""
-  echo "🗂️ sandbox/"
-  tree -L 2 "$UHOME/sandbox" 2>/dev/null || ls -R "$UHOME/sandbox"
-  echo ""
-  echo "🧠 uMemory/"
+  echo "🧠 uMemory/ (User Content Storage)"
   tree -L 2 "$UHOME/uMemory" 2>/dev/null || ls -R "$UHOME/uMemory"
   echo ""
-  echo "📚 uKnowledge/"
+  echo "📚 uKnowledge/ (Shared Knowledge Bank)"
   tree -L 2 "$UHOME/uKnowledge" 2>/dev/null || ls -R "$UHOME/uKnowledge"
+  echo ""
+  echo "⚙️ uCode/ (Command Centre)"
+  tree -L 2 "$UHOME/uCode" 2>/dev/null || ls -R "$UHOME/uCode"
+  echo ""
+  echo "🔧 uScript/ (System Scripts)"
+  tree -L 2 "$UHOME/uScript" 2>/dev/null || ls -R "$UHOME/uScript"
+  echo ""
+  echo "� uTemplate/ (System Templates)"
+  tree -L 2 "$UHOME/uTemplate" 2>/dev/null || ls -R "$UHOME/uTemplate"
   echo ""
 }
 
@@ -358,7 +398,7 @@ cmd_destroy() {
 
 cmd_recent() {
   echo "📜 Recent moves:"
-  tail -n 10 "$UHOME/uMemory/moves/moves-$(date +%Y-%m-%d).md"
+  tail -n 10 "$UHOME/uMemory/logs/moves/moves-$(date +%Y-%m-%d).md"
   echo ""
 }
 
@@ -369,15 +409,19 @@ cmd_debug() {
   env | grep -E 'UHOME|USER|SHELL|PWD|TZ'
   echo ""
   echo "📄 Last 20 Moves:"
-  tail -n 20 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  tail -n 20 "$UHOME/uMemory/logs/moves/move-log-$(date +%Y-%m-%d).md"
   echo ""
   echo "🗂️ Available Scripts:"
   ls -1 "$UHOME/uCode"
+  echo ""
+  echo "🔧 System Scripts:"
+  ls -1 "$UHOME/uScript/system" 2>/dev/null || echo "No system scripts found"
   echo ""
   echo "❗ Recent Errors (if any):"
   find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
   echo ""
   echo "🧩 uDOS Version: $UVERSION"
+  echo "🏗️ Architecture: Reorganized v1.7.0"
   echo ""
 }
 
@@ -445,12 +489,12 @@ while true; do
       cmd_check
       ;;
     HELP)
-      echo "🧩 uDOS Version: $UVERSION"
+      echo "🧩 uDOS Version: $UVERSION (Reorganized Architecture)"
       echo "🧠 Available uDOS commands:"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   RUN       → Run a uScript"
       echo "   TREE      → Generate file tree"
-      echo "   LIST      → List Sandbox and uMemory folders"
+      echo "   LIST      → List reorganized directory structure"
       echo "   DASH      → Show dashboard"
       echo "   SYNC      → Sync dashboard"
       echo "   RESTART   → Restart shell"
@@ -461,6 +505,13 @@ while true; do
       echo "   QUIT      → Close session"
       echo "   RECENT    → Show last 10 moves"
       echo "   CHECK     → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
+      echo ""
+      echo "🏗️ New Architecture:"
+      echo "   uMemory   → All user content storage"
+      echo "   uKnowledge → Shared knowledge bank (system docs)"
+      echo "   uCode     → Complete command centre"
+      echo "   uScript   → System scripts and bash execution"
+      echo "   uTemplate → System templates and datasets"
       echo ""
       ;;
     "")

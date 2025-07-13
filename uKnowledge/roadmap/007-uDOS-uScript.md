@@ -1,6 +1,6 @@
 ---
 title: "uScript & uCode Programming Language"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "007-uScript"
 tags: ["uScript", "uCode", "programming", "automation", "visual-basic"]
 created: 2025-07-13
@@ -46,7 +46,7 @@ This roadmap defines the **uScript programming language** and **uCode command ex
 
 ## � Implementation Roadmap
 
-### ✅ Phase 1 — Foundation (v1.7.0 - Current)
+### ✅ Phase 1 — Foundation (v1.7.1 - Current)
 - [x] **Basic uCode Commands**: Core command set defined
 - [x] **Markdown Integration**: `.md`-based script format established
 - [x] **VS Code Tasks**: uScript execution via task system

@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS Beta v1.6.1
+# uDOS Beta v1.7.1
 # 📊 dash.sh — Dashboard creator, refresher and viewer
 
 UHOME="${HOME}/uDOS"

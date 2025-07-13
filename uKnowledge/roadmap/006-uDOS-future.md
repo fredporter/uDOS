@@ -1,6 +1,6 @@
 ---
 title: "uDOS Future Concepts"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "006"
 tags: ["future", "roadmap", "features", "ideas", "vscode", "ai"]
 created: 2025-07-05
@@ -9,7 +9,7 @@ updated: 2025-07-13
 
 # 🔮 uDOS Future Concepts — Post-Optimization
 
-This document outlines future improvements, experimental features, and roadmap items building on the v1.7.0 VS Code-native optimization. It acts as a rolling concept log and planning area for new mechanics, interface layers, and AI-enhanced workflows.
+This document outlines future improvements, experimental features, and roadmap items building on the v1.7.1 VS Code-native optimization. It acts as a rolling concept log and planning area for new mechanics, interface layers, and AI-enhanced workflows.
 
 **Note**: Many Docker-era concepts have been achieved through VS Code integration. This roadmap focuses on the next phase of intelligent, AI-assisted development.
 
@@ -182,7 +182,7 @@ This document outlines future improvements, experimental features, and roadmap i
 
 ---
 
-## 📋 Completed in v1.7.0 Optimization
+## 📋 Completed in v1.7.1 Optimization
 
 ### ✅ Achieved Goals
 - ~~Docker complexity elimination~~

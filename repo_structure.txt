@@ -10,28 +10,6 @@
   |  |-- OPTIMIZATION.md
   |  |-- README.md
   |  |-- repo_structure.txt
-  |-- roadmap
-    |  |-- 001-uDOS-foundation.md
-    |  |-- 002-uDOS-format.md
-    |  |-- 003-uDOS-execution.md
-    |  |-- 004-uDOS-interface.md
-    |  |-- 005-uDOS-location.md
-    |  |-- 006-uDOS-future.md
-    |  |-- 007-uDOS-uScript.md
-    |  |-- 008-uDOS-packages.md
-    |  |-- 009-uDOS-dev-cycle.md
-    |  |-- 010-uDOS-vscode.md
-    |  |-- 011-uDOS-optimization.md
-    |  |-- ROADMAP_INDEX.md
-    |  |-- ROADMAP_STATUS.md
-  |-- sandbox
-    |  |-- dash-log-2025-06-29.md
-    |  |-- dash-log-2025-07-05.md
-    |  |-- dash-log-2025-07-06.md
-    |  |-- input.md
-    |  |-- stat-log-2025-06-29.txt
-    |  |-- stat-log-2025-07-05.txt
-    |  |-- stat-log-2025-07-06.txt
   |  |-- start-udos.sh
   |-- uCode
     |  |-- check.sh
@@ -41,11 +19,13 @@
     |  |-- make-tree.sh
     |-- packages
       |  |-- install-ripgrep.sh
+    |  |-- reorganize.sh
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- structure.sh
     |  |-- ucode.sh
   |-- uKnowledge
+    |  |-- ARCHITECTURE.md
     |-- assets
     |-- companion
       |  |-- uc-Otter.md
@@ -53,20 +33,48 @@
     |-- maps
     |-- packages
       |  |-- ripgrep.md
+    |-- roadmap
+      |  |-- 001-uDOS-foundation.md
+      |  |-- 002-uDOS-format.md
+      |  |-- 003-uDOS-execution.md
+      |  |-- 004-uDOS-interface.md
+      |  |-- 005-uDOS-location.md
+      |  |-- 006-uDOS-future.md
+      |  |-- 007-uDOS-uScript.md
+      |  |-- 008-uDOS-packages.md
+      |  |-- 009-uDOS-dev-cycle.md
+      |  |-- 010-uDOS-vscode.md
+      |  |-- 011-uDOS-modernization.md
+      |  |-- 011-uDOS-optimization.md
+      |  |-- ROADMAP_INDEX.md
+      |  |-- ROADMAP_STATUS.md
   |-- uMemory
     |-- legacy
     |-- logs
       |-- errors
+      |  |-- move-log-2025-07-13.md
       |-- moves
     |-- milestones
     |-- missions
     |-- moves
+      |  |-- moves-2025-07-13.md
+    |-- sandbox
+      |  |-- dash-log-2025-06-29.md
+      |  |-- dash-log-2025-07-05.md
+      |  |-- dash-log-2025-07-06.md
+      |  |-- input.md
+      |  |-- stat-log-2025-06-29.txt
+      |  |-- stat-log-2025-07-05.txt
+      |  |-- stat-log-2025-07-06.txt
+    |-- scripts
+      |  |-- hello.md
+      |  |-- uCode-BASIC.md
     |-- state
+    |-- templates
+    |-- user
+      |  |-- identity.md
   |-- uScript
-    |  |-- cleanup.sh
-    |-- datasets
-      |  |-- cityMap.json
-      |  |-- ucode-commands.json
+    |-- automation
     |-- examples
       |  |-- demo-python.md
       |  |-- hello-world.md
@@ -74,19 +82,18 @@
       |  |-- 005-uDOS-location.md
       |  |-- extract_roadmap.py
       |  |-- README.md
-    |  |-- hello.md
     |  |-- README.md
-    |  |-- uCode-BASIC.md
-    |  |-- ucode-interpreter.py
-    |  |-- ucode-runner.sh
-    |-- vars
-      |  |-- env.json
-      |  |-- user-vars.json
+    |-- system
+      |  |-- cleanup.sh
+      |  |-- ucode-interpreter.py
+      |  |-- ucode-runner.sh
+    |-- utilities
   |-- uTemplate
-    |  |-- dash-template.md
-    |  |-- dashboard.md
     |  |-- dataset-map-city.md
     |  |-- dataset-time-space.md
+    |-- datasets
+      |  |-- cityMap.json
+      |  |-- ucode-commands.json
     |  |-- input-template.md
     |  |-- input-user-setup.md
     |  |-- legacy-template.md
@@ -103,5 +110,11 @@
         |  |-- baseMap.uTemplate
       |-- utils
         |  |-- parser.ts
+    |-- system
+      |  |-- dash-template.md
+      |  |-- dashboard.md
     |  |-- tsconfig.json
     |  |-- uc-template.md
+    |-- variables
+      |  |-- env.json
+      |  |-- user-vars.json

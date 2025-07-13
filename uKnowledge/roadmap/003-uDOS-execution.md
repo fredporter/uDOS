@@ -1,6 +1,6 @@
 ---
 title: "uDOS Execution Model — uCode & uScript"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "003"
 tags: ["execution", "uCode", "uScript", "shell", "task", "automation", "vscode", "optimized"]
 created: 2025-07-05
@@ -12,7 +12,7 @@ status: "✅ Optimized"
 
 This document defines the operational logic of the uDOS runtime system, including user input/output via `uCode` and programmable automation via `uScript`.
 
-**v1.7.0 Optimization Update**: Completely redesigned execution model eliminating Docker containers in favor of native VS Code integration with 15x performance improvement.
+**v1.7.1 Optimization Update**: Completely redesigned execution model eliminating Docker containers in favor of native VS Code integration with 15x performance improvement.
 
 ---
 
@@ -28,7 +28,7 @@ This document defines the operational logic of the uDOS runtime system, includin
 ---
 
 ## 🌀 uCode — The uDOS Shell
-# uCode: The User Interface Layer for uDOS (v1.7.0 Optimized)
+# uCode: The User Interface Layer for uDOS (v1.7.1 Optimized)
 
 `uCode` is the primary **input/output interface layer** for uDOS. It is a VS Code-native environment that interprets user input, presents system output, and serves as the bridge between the user and the execution scripts in `uScript`. It uses lightweight shell scripts and VS Code tasks to provide direct system execution without container overhead.
 
@@ -115,9 +115,9 @@ Logging always occurs at the **end** of the cycle, once the full output is rende
 
 ## 🚀 Planned Enhancements
 
-* [x] Eliminate Docker containers (✅ Completed in v1.7.0)
-* [x] Native VS Code integration (✅ Completed in v1.7.0)  
-* [x] GitHub Copilot integration (✅ Completed in v1.7.0)
+* [x] Eliminate Docker containers (✅ Completed in v1.7.1)
+* [x] Native VS Code integration (✅ Completed in v1.7.1)  
+* [x] GitHub Copilot integration (✅ Completed in v1.7.1)
 * [ ] Thematic color macros for ASCII
 * [ ] `@mention` style queries to reference Milestones, Missions, or uKnowledge docs
 * [ ] Visual editors for dashboard blocks using only text syntax
@@ -128,7 +128,7 @@ Logging always occurs at the **end** of the cycle, once the full output is rende
 
 ### Task-Based Architecture
 
-uDOS v1.7.0 uses VS Code's native task system for all execution:
+uDOS v1.7.1 uses VS Code's native task system for all execution:
 
 ```json
 {
@@ -161,7 +161,7 @@ uDOS v1.7.0 uses VS Code's native task system for all execution:
 
 ### Performance Metrics
 
-| Metric | v1.6.1 (Docker) | v1.7.0 (Native) | Improvement |
+| Metric | v1.6.1 (Docker) | v1.7.1 (Native) | Improvement |
 |--------|-----------------|------------------|-------------|
 | Startup Time | 30 seconds | 2-3 seconds | 15x faster |
 | Memory Usage | 500MB | 50MB | 10x reduction |
@@ -174,14 +174,14 @@ uDOS v1.7.0 uses VS Code's native task system for all execution:
 
 ### Elimination of Container Overhead
 
-v1.7.0 removes all Docker dependencies:
+v1.7.1 removes all Docker dependencies:
 
 ```bash
 # v1.6.1 (Container-based)
 docker run -v $(pwd):/workspace ucode:latest ./script.sh
 # Startup: 30s, Memory: 500MB
 
-# v1.7.0 (Native)  
+# v1.7.1 (Native)  
 ./uCode/script.sh
 # Startup: 2s, Memory: 50MB
 ```
@@ -210,8 +210,8 @@ docker run -v $(pwd):/workspace ucode:latest ./script.sh
 * **No memory retention in interface**.
 * **Stateless rendering and stateless inputs**.
 * **Markdown is the OS**: every command, interaction, or expression is ultimately just a Markdown file.
-* **Native Performance**: Direct execution without container overhead (v1.7.0).
-* **AI-Enhanced**: GitHub Copilot integration throughout all workflows (v1.7.0).
+* **Native Performance**: Direct execution without container overhead (v1.7.1).
+* **AI-Enhanced**: GitHub Copilot integration throughout all workflows (v1.7.1).
 
 
 # 🧠 uCode – Markdown-Based Interface
@@ -313,13 +313,13 @@ This execution is always stateless and Markdown-first, respecting the purity of 
 ---
 
 ## 📜 uScript — Lightweight Automation Engine
-# uScript (v1.7.0 Optimized)
+# uScript (v1.7.1 Optimized)
 
 **Role:** Native Execution Engine for uDOS Scripts
 
 **Purpose:** uScript is the native execution backend for all shell, Python, and user-defined scripting languages within the uDOS ecosystem. It operates as a direct shell execution system, designed to interpret and securely execute user logic on demand via VS Code task calls from `uCode`.
 
-**v1.7.0 Optimization**: Eliminated container overhead in favor of native shell execution with GitHub Copilot assistance.
+**v1.7.1 Optimization**: Eliminated container overhead in favor of native shell execution with GitHub Copilot assistance.
 
 ---
 
@@ -399,9 +399,9 @@ print("The Wanderer leaves behind their final log...")
 
 ## Roadmap
 
-* [x] Eliminate container dependencies (✅ Completed in v1.7.0)
-* [x] Native VS Code integration (✅ Completed in v1.7.0)
-* [x] GitHub Copilot assistance (✅ Completed in v1.7.0)
+* [x] Eliminate container dependencies (✅ Completed in v1.7.1)
+* [x] Native VS Code integration (✅ Completed in v1.7.1)
+* [x] GitHub Copilot assistance (✅ Completed in v1.7.1)
 * [ ] Add support for compiled languages (Rust, Zig) with limited IO
 * [ ] Introduce stateful execution per mission through file system
 * [ ] Deep linking between `uScript` execution and `uMemory` entries
@@ -410,11 +410,11 @@ print("The Wanderer leaves behind their final log...")
 ---
 
 ## 🔣 uScript Format Specification
-# uScript.md (v1.7.0 Native Execution)
+# uScript.md (v1.7.1 Native Execution)
 
 uScript is the native execution backbone of uDOS, designed to safely and flexibly run logic, automation, and tooling through direct shell and Python scripts. It is the runtime counterpart to uBASIC, which handles the user-facing scripting syntax. uScript executes natively through VS Code integration, guided by markdown-driven configurations and task definitions.
 
-**v1.7.0 Optimization**: Eliminated container dependencies in favor of native execution with 10x performance improvement.
+**v1.7.1 Optimization**: Eliminated container dependencies in favor of native execution with 10x performance improvement.
 
 ## 🧱 Structure
 
@@ -427,7 +427,7 @@ uScript scripts are designed to be modular, declarative, and human-readable. The
 
 ---
 
-## 📂 Script Format (v1.7.0)
+## 📂 Script Format (v1.7.1)
 
 ```json
 // .vscode/tasks.json
@@ -459,7 +459,7 @@ Which triggers native shell execution with environment parameters.
 
 ---
 
-## 🔄 Chaining Logic (v1.7.0)
+## 🔄 Chaining Logic (v1.7.1)
 
 Scripts can return exit codes and outputs which are piped forward through native shell operations:
 
@@ -483,7 +483,7 @@ uScript will chain the execution through VS Code task dependencies, storing cont
 
 ---
 
-## 🧪 Example: Math Assistant (v1.7.0)
+## 🧪 Example: Math Assistant (v1.7.1)
 
 ```bash
 #!/bin/bash
@@ -517,7 +517,7 @@ Trigger: `Cmd+Shift+P` → "Tasks: Run Task" → "🧮 Math Tool"
 
 ---
 
-## 🤖 Native Integration (v1.7.0)
+## 🤖 Native Integration (v1.7.1)
 
 Pre-built native operations can be used:
 
@@ -534,7 +534,7 @@ Pre-built native operations can be used:
 
 ---
 
-## 🛡️ Security (v1.7.0)
+## 🛡️ Security (v1.7.1)
 
 - Scripts execute with user permissions in native environment
 - File system access controlled by workspace configuration
@@ -546,7 +546,7 @@ Pre-built native operations can be used:
 
 ---
 
-## 🔗 Integration with uCode (v1.7.0)
+## 🔗 Integration with uCode (v1.7.1)
 
 uCode calls uScript using VS Code tasks accessible via command palette:
 

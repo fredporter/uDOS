@@ -1,18 +1,18 @@
 ---
 title: "uDOS Foundation"
-version: "Beta v1.7.0"
+version: "Beta v1.7.1"
 id: "001"
-tags: ["core", "foundation", "overview", "philosophy"]
+tags: ["core", "foundation", "overview", "philosophy", "reorganized"]
 created: 2025-07-05
 updated: 2025-07-13
 ---
 
-# 🧭 uDOS Core Foundation — Beta v1.7.0
+# 🧭 uDOS Core Foundation — Beta v1.7.1
 
-This document consolidates the core philosophy, values, structure, terminology, development practices, and optimization achievements of the uDOS system. It serves as the unified reference point for all contributors and users, reflecting the successful transformation to a VS Code-native, AI-enhanced operating system.
+This document consolidates the core philosophy, values, structure, terminology, development practices, and optimization achievements of the uDOS system. It serves as the unified reference point for all contributors and users, reflecting the successful transformation to a VS Code-native, AI-enhanced operating system with reorganized architecture.
 
-**Status**: Post-Optimization Era (v1.7.0)  
-**Architecture**: VS Code-Native with GitHub Copilot Integration  
+**Status**: Post-Reorganization Era (v1.7.1)  
+**Architecture**: VS Code-Native with GitHub Copilot Integration and Reorganized Structure  
 **Performance**: 90% faster startup, zero Docker dependencies
 
 ---
@@ -22,7 +22,7 @@ This document consolidates the core philosophy, values, structure, terminology, 
 1. [Introduction](#introduction)
 2. [System Overview](#system-overview)
 3. [Core Values](#core-values)
-4. [v1.7.0 Optimization Achievements](#v170-optimization-achievements)
+4. [v1.7.1 Optimization Achievements](#v170-optimization-achievements)
 5. [VS Code Integration](#vs-code-integration)
 6. [AI-Enhanced Workflows](#ai-enhanced-workflows)
 7. [NetHack Integration](#nethack-as-core-mechanic)
@@ -33,7 +33,7 @@ This document consolidates the core philosophy, values, structure, terminology, 
 
 ## 🪪 Introduction
 
-uDOS is a revolutionary operating system that combines the simplicity of markdown-native computing with the power of AI assistance and modern development workflows. Born from the vision of a privacy-first, user-centric computing environment, uDOS has evolved through v1.7.0 into a VS Code-native system that eliminates complexity while maximizing productivity.
+uDOS is a revolutionary operating system that combines the simplicity of markdown-native computing with the power of AI assistance and modern development workflows. Born from the vision of a privacy-first, user-centric computing environment, uDOS has evolved through v1.7.1 into a VS Code-native system that eliminates complexity while maximizing productivity.
 
 ### Vision and Philosophy
 
@@ -44,7 +44,7 @@ uDOS is designed as a lifelong AI-powered operating system that:
 - **Optimizes Performance**: Native execution with 90% faster startup than container-based systems
 - **Simplifies Development**: VS Code-native workflow with one-click operations
 
-### Post-Optimization Architecture (v1.7.0)
+### Post-Optimization Architecture (v1.7.1)
 
 The system has undergone a fundamental transformation:
 - **From**: Docker-dependent, complex container architecture
@@ -215,7 +215,7 @@ This document consolidates everything discussed so far and sets the stage for co
 
 ## 🧱 System Overview
 
-### Modern Architecture (Post-v1.7.0 Optimization)
+### Modern Architecture (Post-v1.7.1 Optimization)
 
 uDOS has evolved into a streamlined, VS Code-native operating system that eliminates complexity while maximizing productivity and AI integration.
 
@@ -401,12 +401,12 @@ Milestone are reflections of meaningful past moments on the way to completing a 
 
 ---
 
-## � v1.7.0 Optimization Achievements
+## � v1.7.1 Optimization Achievements
 
 ### Performance Revolution
-The v1.7.0 optimization represents a fundamental architectural transformation:
+The v1.7.1 optimization represents a fundamental architectural transformation:
 
-| Metric | Before (v1.6.1) | After (v1.7.0) | Improvement |
+| Metric | Before (v1.6.1) | After (v1.7.1) | Improvement |
 |--------|------------------|-----------------|-------------|
 | **Startup Time** | 30-45 seconds | 2-3 seconds | 🚀 **15x faster** |
 | **Memory Usage** | ~500MB+ | ~50MB | 🧠 **10x reduction** |
@@ -547,11 +547,11 @@ Each uDOS system is permanently tied to a **unique user and device instance**. N
 - Total memory ownership
 - Reproducible environments across devices
 
-Bindings may later include physical signatures or system IDs, but no identifying user info is ever stored outside `sandbox/user.md`.
+Bindings may later include physical signatures or system IDs, but no identifying user info is ever stored outside `uMemory/user/identity.md`.
 
 ## 📎 Appendix A: Key Terminology
 
-### Core Concepts (Updated for v1.7.0)
+### Core Concepts (Updated for v1.7.1)
 
 #### Move
 - **Definition**: The atomic input/output operation in uDOS
@@ -611,7 +611,7 @@ Bindings may later include physical signatures or system IDs, but no identifying
 
 ### Development Terminology
 
-#### Optimization (v1.7.0)
+#### Optimization (v1.7.1)
 - **Definition**: The transformation from Docker-based to VS Code-native architecture
 - **Impact**: 90% performance improvement and elimination of external dependencies
 - **Benefits**: Enhanced developer experience with AI integration
@@ -634,7 +634,7 @@ This terminology reflects the current state of uDOS as an optimized, AI-enhanced
 
 ## 🛠️ Appendix B: Development Guidelines
 
-### Modern Development Principles (v1.7.0)
+### Modern Development Principles (v1.7.1)
 
 1. **VS Code-Native Development:**  
    All development work happens within VS Code using native tasks, terminal integration, and AI assistance.  
@@ -703,7 +703,7 @@ This terminology reflects the current state of uDOS as an optimized, AI-enhanced
 
 ## 🎉 Summary
 
-The uDOS v1.7.0 foundation represents a mature, optimized system that successfully combines:
+The uDOS v1.7.1 foundation represents a mature, optimized system that successfully combines:
 
 - **Performance**: Native execution with 15x faster startup
 - **Intelligence**: AI-enhanced workflows with GitHub Copilot

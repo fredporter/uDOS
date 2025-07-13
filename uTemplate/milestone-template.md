@@ -60,5 +60,5 @@ created: {{iso8601}}
 last_edited: {{iso8601}}
 user: {{username}}
 status: {{status}}
-version: uDOS Beta v1.6.1
+version: uDOS Beta v1.7.1
 ```

@@ -10,14 +10,14 @@
 | [003-uDOS-execution.md](003-uDOS-execution.md) | ✅ Current | v1.6.1 | Execution model and shell logic |
 | [004-uDOS-interface.md](004-uDOS-interface.md) | ✅ Current | v1.6.1 | ASCII UX and display modes |
 | [005-uDOS-location.md](005-uDOS-location.md) | ✅ Current | v1.6.1 | Tile mechanics and map logic |
-| [006-uDOS-future.md](006-uDOS-future.md) | ✅ **Updated** | v1.7.0 | Post-optimization future concepts |
-| [007-uDOS-uScript.md](007-uDOS-uScript.md) | ✅ **Updated** | v1.7.0 | Visual BASIC-style programming language |
-| [008-uDOS-packages.md](008-uDOS-packages.md) | ✅ **Updated** | v1.7.0 | Third-party tool integrations and ecosystem |
-| [009-uDOS-dev-cycle.md](009-uDOS-dev-cycle.md) | ✅ **Updated** | v1.7.0 | Development cycle with VS Code integration |
-| [010-uDOS-vscode.md](010-uDOS-vscode.md) | ✅ **New** | v1.7.0 | Modern VS Code integration guide |
-| [011-uDOS-optimization.md](011-uDOS-optimization.md) | ✅ **New** | v1.7.0 | Optimization achievement documentation |
+| [006-uDOS-future.md](006-uDOS-future.md) | ✅ **Updated** | v1.7.1 | Post-optimization future concepts |
+| [007-uDOS-uScript.md](007-uDOS-uScript.md) | ✅ **Updated** | v1.7.1 | Visual BASIC-style programming language |
+| [008-uDOS-packages.md](008-uDOS-packages.md) | ✅ **Updated** | v1.7.1 | Third-party tool integrations and ecosystem |
+| [009-uDOS-dev-cycle.md](009-uDOS-dev-cycle.md) | ✅ **Updated** | v1.7.1 | Development cycle with VS Code integration |
+| [010-uDOS-vscode.md](010-uDOS-vscode.md) | ✅ **New** | v1.7.1 | Modern VS Code integration guide |
+| [011-uDOS-optimization.md](011-uDOS-optimization.md) | ✅ **New** | v1.7.1 | Optimization achievement documentation |
 
-## 🚀 Major Achievements (v1.7.0)
+## 🚀 Major Achievements (v1.7.1)
 
 ### ✅ Optimization Completed
 - **Docker Elimination**: Removed all container dependencies
@@ -29,7 +29,7 @@
 ### 📝 Documentation Updates
 - **Comprehensive Changelog**: Complete version history and migration guide
 - **Optimization Strategy**: Detailed VS Code integration approach
-- **Future Roadmap**: Updated concepts building on v1.7.0 foundation
+- **Future Roadmap**: Updated concepts building on v1.7.1 foundation
 - **Roadmap Index**: Consolidated navigation and status tracking
 
 ## 🎯 Implementation Status
@@ -101,7 +101,7 @@
 
 ## 🎉 Optimization Summary
 
-The v1.7.0 optimization represents a **fundamental shift** in uDOS architecture:
+The v1.7.1 optimization represents a **fundamental shift** in uDOS architecture:
 
 **From**: Docker-dependent, complex launcher system  
 **To**: VS Code-native, AI-enhanced development environment
@@ -117,4 +117,4 @@ The system is now ready for daily use with a foundation for advanced AI features
 
 ---
 
-*This status report reflects the state of uDOS roadmaps as of the v1.7.0 optimization milestone.*
+*This status report reflects the state of uDOS roadmaps as of the v1.7.1 optimization milestone.*
