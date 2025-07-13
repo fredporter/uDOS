@@ -1,21 +1,3 @@
-# --- Devcontainer Command ---
-cmd_devcontainer() {
-  echo "🛠️  Checking devcontainer setup..."
-  if [ -d "$UHOME/.devcontainer" ]; then
-    echo "📁 .devcontainer directory exists."
-    tree "$UHOME/.devcontainer" 2>/dev/null || ls -R "$UHOME/.devcontainer"
-    echo ""
-    if [ -f "$UHOME/uCode/setup-dev.sh" ]; then
-      echo "🚀 Running dev setup script..."
-      bash "$UHOME/uCode/setup-dev.sh"
-    else
-      echo "⚠️ setup-dev.sh not found. Skipping script execution."
-    fi
-  else
-    echo "❌ .devcontainer folder not found in $UHOME"
-  fi
-  echo ""
-}
 #!/bin/bash
 # uCode.sh - uDOS Beta v1.6.1 CLI Shell
 # Full-featured command-line interface for uDOS environment
@@ -34,6 +16,43 @@ mkdir -p "${UHOME}/uMemory/logs/errors"
 mkdir -p "${UHOME}/uMemory/state"
 
 # Track if session end has been logged
+export UCODE_SESSION_ENDED=false
+
+# --- uDOS Version Detection ---
+IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+if [[ -f "$IDENTITY_FILE" ]]; then
+  UVERSION=$(grep "Version:" "$IDENTITY_FILE" | cut -d':' -f2 | xargs)
+else
+  UVERSION="Unknown"
+fi
+
+log_move() {
+  local cmd="$1"
+  local trimmed="${cmd// }"
+  if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
+    return
+  fi
+  bash "$UHOME/uCode/log.sh" move "$cmd"
+}
+
+# --- Devcontainer Command ---
+cmd_devcontainer() {
+  echo "🛠️  Checking devcontainer setup..."
+  if [ -d "$UHOME/.devcontainer" ]; then
+    echo "📁 .devcontainer directory exists."
+    tree "$UHOME/.devcontainer" 2>/dev/null || ls -R "$UHOME/.devcontainer"
+    echo ""
+    if [ -f "$UHOME/uCode/setup-dev.sh" ]; then
+      echo "🚀 Running dev setup script..."
+      bash "$UHOME/uCode/setup-dev.sh"
+    else
+      echo "⚠️ setup-dev.sh not found. Skipping script execution."
+    fi
+  else
+    echo "❌ .devcontainer folder not found in $UHOME"
+  fi
+  echo ""
+}
 export UCODE_SESSION_ENDED=false
 
 # --- uDOS Version Detection ---
