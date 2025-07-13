@@ -1,48 +1,74 @@
-### Project Outline
+# uTemplate System - v1.7.1
 
-1. **Define Project Scope**
-   - Identify the purpose of breaking out the dataset.
-   - Determine the key stakeholders and their requirements.
-   - Establish the timeline and milestones for the project.
+**uTemplate** is the centralized template and dataset management system for uDOS, providing standardized templates and comprehensive geographic, linguistic, and system datasets.
 
-2. **Gather Requirements**
-   - Review the existing roadmap file to understand its structure and content.
-   - Identify the specific datasets that need to be extracted.
-   - Determine the desired output format and structure for the templates.
+## 🗂️ Structure Overview
 
-3. **Set Up Development Environment**
-   - Install necessary tools and libraries, including uTemplate.
-   - Set up a version control system (e.g., Git) for collaboration and tracking changes.
+### Core Templates
+- **input-template.md** - Interactive user input collection
+- **input-user-setup.md** - User environment configuration
+- **legacy-template.md** - Legacy system compatibility
+- **milestone-template.md** - Project milestone tracking
+- **mission-template.md** - Mission creation and management
+- **move-template.md** - Individual move documentation
+- **uc-template.md** - uCode command template
 
-4. **Data Extraction**
-   - Write a script or use a tool to parse the roadmap file.
-   - Extract relevant datasets and organize them into a structured format (e.g., JSON, CSV).
+### 🗄️ Datasets (JSON)
+Complete dataset collection with 355+ records across 11 datasets:
 
-5. **Design Template Structure**
-   - Define the structure of the templates using uTemplate.
-   - Create a template for each type of dataset identified in the roadmap.
-   - Ensure that the templates are flexible and reusable.
+#### Geographic & Location Data
+- **locationMap.json** (52 cities) - Global city coordinates with map tile integration
+- **mapTerrain.json** (15 symbols) - ASCII terrain symbols for cartography
+- **timezoneMap.json** (38 zones) - Global timezone data with map references
+- **countryMap.json** (195 countries) - ISO country codes and regional data
+- **cityMap.json** (50 cities) - Major world cities with coordinates
 
-6. **Implement uTemplate**
-   - Use uTemplate to create the templates based on the defined structure.
-   - Integrate the extracted datasets into the templates.
-   - Test the templates to ensure they render correctly with the data.
+#### Language & Currency Data  
+- **languageMap.json** (50 languages) - ISO language codes and regional usage
+- **currencyMap.json** (168 currencies) - Global currency data with exchange rates
 
-7. **Documentation**
-   - Document the project, including the purpose, structure, and usage of the templates.
-   - Provide examples of how to use the templates with different datasets.
+#### System Data
+- **ucode-commands.json** (9 commands) - uDOS command definitions
+- **template-definitions.json** (9 templates) - Template schema and metadata
+- **template-system-config.json** - Template engine configuration
+- **dataset-metadata.json** - Dataset versioning and schema definitions
 
-8. **Testing and Validation**
-   - Conduct thorough testing to ensure that the templates work as expected.
-   - Validate the output against the original roadmap file to ensure accuracy.
+## 🛠️ Template Engine Features
 
-9. **Deployment**
-   - Deploy the templates to a suitable environment where stakeholders can access them.
-   - Provide training or resources for users to understand how to utilize the templates.
+### Dynamic Variable Substitution
+Templates support dynamic variables with automatic dataset integration:
+```markdown
+Location: {{location}}
+Timezone: {{timezone}}
+Currency: {{currency}}
+```
 
-10. **Feedback and Iteration**
-    - Gather feedback from stakeholders on the templates and their usability.
-    - Make necessary adjustments based on feedback and continue to iterate on the project.
+### Schema Validation
+All datasets include comprehensive JSON schemas for data validation and consistency.
+
+### Export Formats
+- JSON (native)
+- CSV export capability
+- YAML conversion
+- TSV format support
+- Plain text output
+
+## 🚀 Usage with uDOS
+
+### Command Integration
+Access templates through uDOS shell:
+```bash
+TEMPLATE list
+TEMPLATE generate mission-template
+JSON query locationMap "region=Europe"
+```
+
+### Development Workflow
+1. Define template structure using markdown
+2. Create dataset schemas with validation rules
+3. Generate templates with variable substitution
+4. Export in required formats
+5. Integrate with uDOS commands
 
 ### Example Implementation Steps
 

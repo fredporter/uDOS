@@ -1,24 +1,35 @@
-import pandas as pd
-
-# Load the roadmap file
-roadmap_file = 'path/to/roadmap_file.csv'
-roadmap_data = pd.read_csv(roadmap_file)
-
-# Extract relevant columns
-structured_data = roadmap_data[['Milestone', 'Deadline', 'Task', 'Responsible Party']]
-
-# Example of transforming data into uTemplate format
-def generate_utemplate(data):
-    template = """
-    {{#each milestones}}
-    - Milestone: {{this.Milestone}}
-      Deadline: {{this.Deadline}}
-      Task: {{this.Task}}
-      Responsible: {{this.Responsible Party}}
-    {{/each}}
-    """
-    return template
-
-# Generate the uTemplate output
-utemplate_output = generate_utemplate(structured_data.to_dict(orient='records'))
-print(utemplate_output)
+{
+  "name": "udos-template-system",
+  "version": "1.7.1",
+  "description": "uDOS Template System with Dataset Integration and Map Generation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "map": "npm run build && node dist/index.js",
+    "map:generate": "npm run build && node dist/index.js generate",
+    "map:region": "npm run build && node dist/index.js region",
+    "map:city": "npm run build && node dist/index.js city",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "udos",
+    "template", 
+    "mapping",
+    "coordinates",
+    "dataset",
+    "typescript"
+  ],
+  "author": "uDOS Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

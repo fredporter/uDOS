@@ -1,0 +1,134 @@
+[
+  {
+    "template_id": "mission",
+    "name": "Mission Template",
+    "category": "planning",
+    "description": "Structured template for defining project missions with objectives, timeline, and resources",
+    "file_path": "mission-template.md",
+    "variables": [
+      {"name": "mission_name", "type": "string", "required": true, "description": "Name of the mission"},
+      {"name": "objective", "type": "text", "required": true, "description": "Primary objective"},
+      {"name": "start_date", "type": "date", "required": true, "description": "Mission start date"},
+      {"name": "end_date", "type": "date", "required": false, "description": "Target completion date"},
+      {"name": "priority", "type": "enum", "options": ["low", "medium", "high", "critical"], "required": true, "description": "Mission priority level"},
+      {"name": "resources", "type": "array", "required": false, "description": "Required resources"},
+      {"name": "team_members", "type": "array", "required": false, "description": "Assigned team members"}
+    ],
+    "output_format": "markdown",
+    "tags": ["mission", "planning", "project"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "milestone",
+    "name": "Milestone Template", 
+    "category": "tracking",
+    "description": "Template for defining project milestones with deliverables and success criteria",
+    "file_path": "milestone-template.md",
+    "variables": [
+      {"name": "milestone_name", "type": "string", "required": true, "description": "Name of the milestone"},
+      {"name": "description", "type": "text", "required": true, "description": "Milestone description"},
+      {"name": "due_date", "type": "date", "required": true, "description": "Milestone due date"},
+      {"name": "deliverables", "type": "array", "required": true, "description": "Expected deliverables"},
+      {"name": "success_criteria", "type": "array", "required": true, "description": "Success criteria"},
+      {"name": "dependencies", "type": "array", "required": false, "description": "Dependencies on other milestones"},
+      {"name": "assigned_to", "type": "string", "required": false, "description": "Person responsible"}
+    ],
+    "output_format": "markdown",
+    "tags": ["milestone", "tracking", "deliverable"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "move",
+    "name": "Move Template",
+    "category": "action",
+    "description": "Template for documenting individual actions or moves within a project",
+    "file_path": "move-template.md",
+    "variables": [
+      {"name": "move_id", "type": "string", "required": true, "description": "Unique move identifier"},
+      {"name": "action", "type": "string", "required": true, "description": "Action to be taken"},
+      {"name": "context", "type": "text", "required": true, "description": "Context and reasoning"},
+      {"name": "expected_outcome", "type": "text", "required": true, "description": "Expected result"},
+      {"name": "timestamp", "type": "datetime", "required": true, "description": "Move timestamp"},
+      {"name": "location", "type": "string", "required": false, "description": "Current location context"},
+      {"name": "priority", "type": "enum", "options": ["low", "medium", "high"], "required": false, "description": "Move priority"}
+    ],
+    "output_format": "markdown", 
+    "tags": ["move", "action", "tracking"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "input",
+    "name": "Input Template",
+    "category": "data",
+    "description": "Template for capturing user input and data collection",
+    "file_path": "input-template.md",
+    "variables": [
+      {"name": "input_type", "type": "string", "required": true, "description": "Type of input being collected"},
+      {"name": "prompt", "type": "text", "required": true, "description": "Input prompt for user"},
+      {"name": "validation_rules", "type": "array", "required": false, "description": "Validation rules"},
+      {"name": "default_value", "type": "string", "required": false, "description": "Default input value"},
+      {"name": "required", "type": "boolean", "required": true, "description": "Whether input is required"},
+      {"name": "format", "type": "string", "required": false, "description": "Expected input format"}
+    ],
+    "output_format": "markdown",
+    "tags": ["input", "data", "collection"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "uc",
+    "name": "uCode Template",
+    "category": "development",
+    "description": "Template for creating uCode scripts with proper structure and documentation",
+    "file_path": "uc-template.md",
+    "variables": [
+      {"name": "script_name", "type": "string", "required": true, "description": "Name of the uCode script"},
+      {"name": "purpose", "type": "text", "required": true, "description": "Script purpose and functionality"},
+      {"name": "commands", "type": "array", "required": true, "description": "uCode commands to execute"},
+      {"name": "parameters", "type": "array", "required": false, "description": "Script parameters"},
+      {"name": "expected_output", "type": "text", "required": false, "description": "Expected script output"},
+      {"name": "dependencies", "type": "array", "required": false, "description": "Script dependencies"}
+    ],
+    "output_format": "markdown",
+    "tags": ["ucode", "script", "development"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "user_setup",
+    "name": "User Setup Template",
+    "category": "configuration",
+    "description": "Template for user configuration and setup processes with location and timezone integration",
+    "file_path": "input-user-setup.md",
+    "variables": [
+      {"name": "username", "type": "string", "required": true, "description": "User name", "default": "agentdigital"},
+      {"name": "password", "type": "password", "required": false, "description": "User password", "default": ""},
+      {"name": "location", "type": "location_code", "required": true, "description": "Location code from locationMap dataset", "default": "AX14", "dataset_ref": "locationMap"},
+      {"name": "timezone", "type": "timezone", "required": true, "description": "User timezone from timezoneMap dataset", "default": "UTC", "dataset_ref": "timezoneMap"},
+      {"name": "utc_offset", "type": "string", "required": false, "description": "UTC offset (auto-detected from timezone)", "auto_generate": true},
+      {"name": "country", "type": "country", "required": false, "description": "Country from countryMap dataset", "dataset_ref": "countryMap"},
+      {"name": "language", "type": "language", "required": false, "description": "Preferred language from languageMap", "default": "EN", "dataset_ref": "languageMap"},
+      {"name": "currency", "type": "currency", "required": false, "description": "Local currency from currencyMap", "dataset_ref": "currencyMap"}
+    ],
+    "output_format": "markdown",
+    "tags": ["user", "setup", "configuration", "location", "timezone"],
+    "version": "1.1.0"
+  },
+  {
+    "template_id": "legacy",
+    "name": "Legacy Template", 
+    "category": "migration",
+    "description": "Template for documenting legacy systems and migration plans",
+    "file_path": "legacy-template.md",
+    "variables": [
+      {"name": "system_name", "type": "string", "required": true, "description": "Legacy system name"},
+      {"name": "current_version", "type": "string", "required": true, "description": "Current version"},
+      {"name": "end_of_life", "type": "date", "required": false, "description": "End of life date"},
+      {"name": "replacement_system", "type": "string", "required": false, "description": "Replacement system"},
+      {"name": "migration_plan", "type": "text", "required": false, "description": "Migration strategy"},
+      {"name": "dependencies", "type": "array", "required": true, "description": "System dependencies"},
+      {"name": "data_volume", "type": "string", "required": false, "description": "Amount of data to migrate"}
+    ],
+    "output_format": "markdown",
+    "tags": ["legacy", "migration", "systems"],
+    "version": "1.0.0"
+  }
+]

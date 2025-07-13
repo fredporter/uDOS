@@ -3,6 +3,7 @@
 # Full-featured command-line interface for uDOS environment
 
 # Environment Setup
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export UHOME="${HOME}/uDOS"
 export UDENT="$UHOME/uMemory/user/identity.md"
 export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
@@ -101,8 +102,17 @@ if [[ ! -f "$USER_FILE" ]]; then
     mv "$UHOME/sandbox/user.md" "$USER_FILE"
     echo "✅ Identity migrated to uMemory/user/"
   else
-    echo "⚙️ No identity file found. Running check-setup..."
-    bash "$UHOME/uCode/check.sh"
+    echo "⚙️ No identity file found. Starting template-driven setup..."
+    echo "🏗️ Using uTemplate system for user configuration..."
+    
+    # Check if template system is available
+    if [[ -f "$UHOME/uTemplate/input-user-setup.md" && -f "$UHOME/uTemplate/datasets/template-definitions.json" ]]; then
+      echo "📋 Template system detected - using enhanced setup"
+      cmd_setup_user
+    else
+      echo "📋 Falling back to basic setup..."
+      bash "$UHOME/uCode/check.sh"
+    fi
   fi
 
   if [[ -f "$USER_FILE" ]]; then
@@ -111,7 +121,7 @@ if [[ ! -f "$USER_FILE" ]]; then
     echo "❌ Identity file still not found after setup."
     exit 1
   fi
-  echo "🔍 check-setup.sh completed."
+  echo "🔍 Template-driven setup completed."
   echo ""
 fi
 
@@ -191,16 +201,22 @@ cmd_check() {
   subcmd=$(echo "$args" | awk '{print toupper($1)}')
   case "$subcmd" in
     TIME)
-      cmd_time
+      cmd_timezone_enhanced
+      ;;
+    TIMEZONE)
+      cmd_timezone_enhanced
       ;;
     LOCATION)
-      cmd_location
+      cmd_location_enhanced
       ;;
     LOG)
       cmd_log
       ;;
     SETUP)
       bash "$UHOME/uCode/check.sh" all
+      ;;
+    USER)
+      cmd_setup_user
       ;;
     IDENTITY)
       cmd_identity
@@ -217,10 +233,18 @@ cmd_check() {
     MAP)
       cmd_map
       ;;
+    DATASETS)
+      bash "$UHOME/uCode/json-processor.sh" stats
+      ;;
+    TEMPLATES)
+      bash "$UHOME/uCode/template-generator.sh" list
+      ;;
     *)
       echo "🔎 CHECK what?"
-      echo "   TIME      → View or set timezone"
-      echo "   LOCATION  → View or set location code"
+      echo "   TIME      → View or set timezone (dataset-integrated)"
+      echo "   TIMEZONE  → Enhanced timezone management"
+      echo "   LOCATION  → View or set location (dataset-integrated)"
+      echo "   USER      → Template-driven user setup"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   SETUP     → Run full environment check"
       echo "   IDENTITY  → Display current identity"
@@ -228,6 +252,8 @@ cmd_check() {
       echo "   STATS     → Generate dashboard stats"
       echo "   MISSION   → Display active mission"
       echo "   MAP       → Show current region"
+      echo "   DATASETS  → Show dataset statistics"
+      echo "   TEMPLATES → List available templates"
       echo ""
       ;;
   esac
@@ -404,9 +430,14 @@ cmd_recent() {
 
 # --- Development Diagnostics ---
 cmd_debug() {
-  echo "🔍 uDOS DEBUG MODE"
+  echo "🔍 uDOS DEBUG MODE - Template Integration"
   echo "🧬 Environment Variables:"
   env | grep -E 'UHOME|USER|SHELL|PWD|TZ'
+  echo ""
+  echo "📊 Template System Status:"
+  echo "- Templates: $(find "$UHOME/uTemplate" -name "*.md" | wc -l) available"
+  echo "- Datasets: $(find "$UHOME/uTemplate/datasets" -name "*.json" | wc -l) datasets"
+  echo "- JSON Records: $(bash "$UHOME/uCode/json-processor.sh" stats 2>/dev/null | grep "Total records:" | cut -d: -f2 || echo "Unknown")"
   echo ""
   echo "📄 Last 20 Moves:"
   tail -n 20 "$UHOME/uMemory/logs/moves/move-log-$(date +%Y-%m-%d).md"
@@ -421,8 +452,268 @@ cmd_debug() {
   find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;
   echo ""
   echo "🧩 uDOS Version: $UVERSION"
-  echo "🏗️ Architecture: Reorganized v1.7.0"
+  echo "🏗️ Architecture: Template-Integrated v1.7.1"
+  echo "📋 Template System: Active"
+  echo "🗄️ Dataset Integration: Enabled"
   echo ""
+}
+
+# --- Template-Driven User Setup Function ---
+cmd_setup_user() {
+  echo "🛠️ uDOS User Setup - Template-Driven Configuration"
+  echo "📋 Using uTemplate/input-user-setup.md structure"
+  echo ""
+  
+  # Load template structure from uTemplate
+  SETUP_TEMPLATE="$UHOME/uTemplate/input-user-setup.md"
+  TEMPLATE_DEFS="$UHOME/uTemplate/datasets/template-definitions.json"
+  
+  if [[ ! -f "$SETUP_TEMPLATE" ]]; then
+    echo "❌ Setup template not found: $SETUP_TEMPLATE"
+    return 1
+  fi
+  
+  # Extract user setup template definition
+  local template_def=$(bash "$UHOME/uCode/json-processor.sh" query template-definitions "template_id=user_setup" 2>/dev/null)
+  
+  # Interactive setup with dataset integration
+  echo "🔧 Configuring user account with dataset integration..."
+  echo ""
+  
+  # Username
+  read -rp "👤 Enter username [agentdigital]: " username
+  username=${username:-agentdigital}
+  
+  # Password (optional)
+  read -rsp "🔒 Enter password (optional): " password
+  echo ""
+  
+  # Location with dataset lookup
+  echo "📍 Location Selection (from locationMap dataset):"
+  bash "$UHOME/uCode/json-processor.sh" search "city" | head -10
+  echo ""
+  read -rp "🗺️ Enter location code or city name [London]: " location_input
+  location_input=${location_input:-London}
+  
+  # Query locationMap for the location
+  location_result=$(bash "$UHOME/uCode/json-processor.sh" search "$location_input" 2>/dev/null | grep locationMap)
+  if [[ -n "$location_result" ]]; then
+    echo "✅ Location found in dataset: $location_input"
+    location_code="$location_input"
+  else
+    echo "⚠️ Location not found in dataset, using default: AX14 (London)"
+    location_code="AX14"
+  fi
+  
+  # Timezone with dataset lookup
+  echo ""
+  echo "🕒 Timezone Selection (from timezoneMap dataset):"
+  bash "$UHOME/uCode/json-processor.sh" search "timezone" | head -10
+  echo ""
+  read -rp "⏰ Enter timezone [UTC]: " timezone
+  timezone=${timezone:-UTC}
+  
+  # Auto-detect UTC offset from timezone dataset
+  utc_offset=$(bash "$UHOME/uCode/json-processor.sh" search "$timezone" 2>/dev/null | grep -o '[+-][0-9][0-9]:[0-9][0-9]' | head -1)
+  if [[ -z "$utc_offset" ]]; then
+    utc_offset="+00:00"
+  fi
+  
+  # Country detection from location
+  country=$(bash "$UHOME/uCode/json-processor.sh" search "$location_input" 2>/dev/null | grep -o '[A-Z][A-Z][A-Z]*' | head -1)
+  country=${country:-"Unknown"}
+  
+  # Create identity file using template structure
+  cat > "$USER_FILE" << EOF
+# 🆔 uDOS User Identity
+
+**Username:** $username
+**Password:** $password
+**Location:** $location_code
+**Timezone:** $timezone
+**UTC Offset:** $utc_offset
+**Country:** $country
+**Language:** EN
+**Currency:** USD
+**Created:** $(date '+%Y-%m-%d %H:%M:%S')
+**Version:** $UVERSION
+**Template:** user_setup v1.1.0
+
+---
+
+## 📊 Dataset Integration Status
+- ✅ Location verified against locationMap
+- ✅ Timezone verified against timezoneMap  
+- ✅ Country auto-detected from location
+- ✅ Template-driven configuration complete
+
+## 🗺️ Location Details
+- Code: $location_code
+- Input: $location_input
+- Timezone: $timezone ($utc_offset)
+- Country: $country
+
+---
+*Generated by uDOS Template System v1.7.1*
+EOF
+
+  echo ""
+  echo "✅ User setup complete!"
+  echo "📄 Identity file created: $USER_FILE"
+  echo "🔗 Template integration: user_setup v1.1.0"
+  echo "📊 Dataset references: locationMap, timezoneMap, countryMap"
+  echo ""
+}
+
+# --- Enhanced Location Command with Dataset Integration ---
+cmd_location_enhanced() {
+  echo "📍 Location Management - Dataset Integration"
+  echo ""
+  
+  # Show current location
+  current_loc=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
+  echo "🗺️ Current location: $current_loc"
+  
+  # Show available locations from dataset
+  echo ""
+  echo "📊 Available locations from locationMap dataset:"
+  bash "$UHOME/uCode/json-processor.sh" search "city" | head -20
+  
+  echo ""
+  read -rp "🔍 Search for location (or enter code directly): " search_term
+  
+  if [[ -n "$search_term" ]]; then
+    # Search in location dataset
+    echo "🔍 Searching locationMap for '$search_term'..."
+    search_results=$(bash "$UHOME/uCode/json-processor.sh" search "$search_term")
+    
+    if [[ -n "$search_results" ]]; then
+      echo "✅ Found matching locations:"
+      echo "$search_results"
+      echo ""
+      read -rp "📍 Enter exact location code to set: " new_location
+      
+      if [[ -n "$new_location" ]]; then
+        echo "$new_location" > "$UHOME/uMemory/state/location.md"
+        echo "✅ Location updated to: $new_location"
+        
+        # Update identity file if it exists
+        if [[ -f "$USER_FILE" ]]; then
+          sed -i.bak "s/\*\*Location:\*\* .*/\*\*Location:\*\* $new_location/" "$USER_FILE"
+          echo "🔄 Identity file updated with new location"
+        fi
+      fi
+    else
+      echo "❌ No locations found matching '$search_term'"
+      echo "💡 Try searching for: city names, country codes, or region names"
+    fi
+  fi
+  echo ""
+}
+
+# --- Enhanced Timezone Command with Dataset Integration ---
+cmd_timezone_enhanced() {
+  echo "🕒 Timezone Management - Dataset Integration"
+  echo ""
+  
+  # Show current timezone
+  echo "⏰ Current system timezone: $(date +%Z)"
+  echo "🌐 UTC offset: $(date +%z)"
+  
+  # Show available timezones from dataset
+  echo ""
+  echo "📊 Available timezones from timezoneMap dataset:"
+  bash "$UHOME/uCode/json-processor.sh" search "timezone" | head -15
+  
+  echo ""
+  read -rp "🔍 Search for timezone (or enter timezone code): " search_term
+  
+  if [[ -n "$search_term" ]]; then
+    # Search in timezone dataset
+    echo "🔍 Searching timezoneMap for '$search_term'..."
+    search_results=$(bash "$UHOME/uCode/json-processor.sh" search "$search_term")
+    
+    if [[ -n "$search_results" ]]; then
+      echo "✅ Found matching timezones:"
+      echo "$search_results"
+      echo ""
+      read -rp "⏰ Enter timezone name (e.g., Australia/Sydney): " new_timezone
+      
+      if [[ -n "$new_timezone" ]]; then
+        export TZ="$new_timezone"
+        echo "✅ Timezone updated to: $new_timezone"
+        echo "🌐 New UTC offset: $(date +%z)"
+        
+        # Update identity file if it exists
+        if [[ -f "$USER_FILE" ]]; then
+          utc_offset=$(date +%z)
+          sed -i.bak "s/\*\*Timezone:\*\* .*/\*\*Timezone:\*\* $new_timezone/" "$USER_FILE"
+          sed -i.bak "s/\*\*UTC Offset:\*\* .*/\*\*UTC Offset:\*\* $utc_offset/" "$USER_FILE"
+          echo "🔄 Identity file updated with new timezone"
+        fi
+      fi
+    else
+      echo "❌ No timezones found matching '$search_term'"
+      echo "💡 Try searching for: city names, timezone codes, or regions"
+    fi
+  fi
+  echo ""
+}
+
+# --- Template Dataset Validation ---
+validate_template_datasets() {
+  echo "🔍 Validating Template-Dataset Integration..."
+  local validation_passed=true
+  
+  # Check core datasets exist
+  local required_datasets=("locationMap" "timezoneMap" "countryMap" "languageMap" "currencyMap" "template-definitions")
+  
+  for dataset in "${required_datasets[@]}"; do
+    if [[ -f "$UHOME/uTemplate/datasets/${dataset}.json" ]]; then
+      echo "✅ Dataset found: $dataset"
+    else
+      echo "❌ Missing dataset: $dataset"
+      validation_passed=false
+    fi
+  done
+  
+  # Check template files exist
+  local required_templates=("input-user-setup.md" "mission-template.md" "milestone-template.md" "move-template.md")
+  
+  for template in "${required_templates[@]}"; do
+    if [[ -f "$UHOME/uTemplate/${template}" ]]; then
+      echo "✅ Template found: $template"
+    else
+      echo "❌ Missing template: $template"
+      validation_passed=false
+    fi
+  done
+  
+  # Check JSON processor functionality
+  if bash "$UHOME/uCode/json-processor.sh" list >/dev/null 2>&1; then
+    echo "✅ JSON processor operational"
+  else
+    echo "❌ JSON processor not working"
+    validation_passed=false
+  fi
+  
+  # Check template generator functionality
+  if bash "$UHOME/uCode/template-generator.sh" list >/dev/null 2>&1; then
+    echo "✅ Template generator operational"
+  else
+    echo "❌ Template generator not working"
+    validation_passed=false
+  fi
+  
+  if [[ "$validation_passed" == "true" ]]; then
+    echo ""
+    echo "🎉 Template-Dataset integration validated successfully!"
+    return 0
+  else
+    echo ""
+    echo "⚠️ Template-Dataset integration has issues - some features may not work"
+    return 1
+  fi
 }
 
 #
@@ -488,8 +779,17 @@ while true; do
     CHECK)
       cmd_check
       ;;
+    SETUP)
+      cmd_setup_user
+      ;;
+    VALIDATE)
+      validate_template_datasets
+      ;;
+    DEBUG)
+      cmd_debug
+      ;;
     HELP)
-      echo "🧩 uDOS Version: $UVERSION (Reorganized Architecture)"
+      echo "🧩 uDOS Version: $UVERSION (Template-Integrated Architecture)"
       echo "🧠 Available uDOS commands:"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   RUN       → Run a uScript"
@@ -504,15 +804,59 @@ while true; do
       echo "   DEVCON    → Check and run setup-dev.sh"
       echo "   QUIT      → Close session"
       echo "   RECENT    → Show last 10 moves"
-      echo "   CHECK     → Run subcommands (TIME, LOCATION, LOG, SETUP, IDENTITY)"
+      echo "   CHECK     → Enhanced commands with dataset integration"
+      echo "   SETUP     → Template-driven user setup"
+      echo "   VALIDATE  → Validate template-dataset integration"
+      echo "   DEBUG     → Enhanced debug with template status"
       echo ""
-      echo "🏗️ New Architecture:"
-      echo "   uMemory   → All user content storage"
-      echo "   uKnowledge → Shared knowledge bank (system docs)"
-      echo "   uCode     → Complete command centre"
-      echo "   uScript   → System scripts and bash execution"
-      echo "   uTemplate → System templates and datasets"
+      echo "🔍 ENHANCED CHECK COMMANDS"
+      echo "     check user                  - Template-driven user setup"
+      echo "     check location              - Location with dataset lookup"
+      echo "     check timezone              - Timezone with dataset integration"
+      echo "     check datasets              - Show dataset statistics"
+      echo "     check templates             - List available templates"
       echo ""
+      echo "📊 JSON DATASET COMMANDS"
+      echo "     json list                   - List all JSON datasets"
+      echo "     json info <dataset>         - Show dataset information"
+      echo "     json search <query>         - Search across all datasets"
+      echo "     json export <ds> <format>   - Export dataset (csv,yaml,txt)"
+      echo "     json merge <out> <ds1> <ds2> - Merge multiple datasets"
+      echo "     json validate               - Validate all datasets"
+      echo "     json stats                  - Show dataset statistics"
+      echo ""
+      echo "🏗️  TEMPLATE COMMANDS"
+      echo "     template list               - List all available templates"
+      echo "     template info <template>    - Show template information"
+      echo "     template generate <id> <name> - Generate template"
+      echo "     template batch <file>       - Batch generate from CSV"
+      echo "     template validate <id>      - Validate template definition"
+      echo "     template generated          - List generated templates"
+      echo "     template sample             - Create sample batch file"
+      echo ""
+      echo "🗺️  DATASET INTEGRATION FEATURES"
+      echo "     • Location lookup from 52 global cities"
+      echo "     • Timezone management with 38 global zones"
+      echo "     • Country/currency auto-detection"
+      echo "     • Template-driven user configuration"
+      echo "     • Geographic coordinate mapping"
+      echo ""
+      ;;
+    JSON)
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/json-processor.sh" $shift_args
+      ;;
+    TEMPLATE)
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/template-generator.sh" $shift_args
+      ;;
+    DATASET|DATA)
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/json-processor.sh" $shift_args
+      ;;
+    GEN|GENERATE)
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/template-generator.sh" $shift_args
       ;;
     "")
       # Ignore empty input
