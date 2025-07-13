@@ -1,35 +1,47 @@
-# uDOS Launcher
+# 🍎 uDOS macOS Launchers
 
-This directory builds a clickable macOS `.app` for launching `uDOS`.
+Multiple launcher options for macOS users, from simple to sophisticated.
 
-## 🔧 Files
+## 🌟 **Modern Launchers (Recommended)**
 
-- `uDOS_Run.sh` – Launch script embedded inside the `.app`
-- `build-mac-launcher.sh` – CLI tool to build the app bundle
-- `Run Launcher Builder.command` – GUI double-click builder
-- `assets/diamonds.icns` – macOS icon (you must add this yourself)
+### 1. **uDOS-Modern.app** 
+- ✅ **Clean, modern app bundle**
+- ✅ **Choice between VS Code or Terminal**
+- ✅ **Native macOS dialogs**
+- ✅ **No Docker dependency**
 
-## 🚀 Build Instructions
+**To build**: `./build-modern-app.sh`  
+**To use**: Double-click `uDOS-Modern.app`
 
-### GUI:
-Double-click:
-```bash
-Run Launcher Builder.command
-```
+### 2. **Launch-uDOS-Modern.command**
+- ✅ **Simple terminal launcher**
+- ✅ **Intelligent VS Code detection**
+- ✅ **One-click execution**
 
-### Terminal:
-```bash
-cd launcher
-chmod +x build-mac-launcher.sh
-./build-mac-launcher.sh
-```
+**To use**: Double-click `Launch-uDOS-Modern.command`
 
-## ✅ Result
+### 3. **Automator Launcher**
+- ✅ **Native macOS Automator app**
+- ✅ **Deep system integration**
+- ✅ **Notification support**
 
-A fully working `uDOS.app` will be created with your custom icon.
+**To create**: `./create-automator-launcher.sh`
 
-## 📁 .gitignore suggestion
+## 🎯 **Recommended Workflow**
 
-```bash
-/uDOS.app/
-```
+1. **First time**: Run `./build-modern-app.sh`
+2. **Drag** `uDOS-Modern.app` to Applications or Dock
+3. **Double-click** to launch uDOS
+4. **Choose** VS Code (recommended) or Terminal
+
+## 🗂️ **Legacy Components**
+
+See `README_LEGACY.md` for Docker-based launchers (maintained for compatibility).
+
+## � **Features**
+
+- **Smart detection** of VS Code installation
+- **User choice** between VS Code and Terminal
+- **Error handling** with helpful messages
+- **No complex dependencies** or Docker
+- **Native macOS integration**

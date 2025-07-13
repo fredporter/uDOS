@@ -53,25 +53,6 @@ cmd_devcontainer() {
   fi
   echo ""
 }
-export UCODE_SESSION_ENDED=false
-
-# --- uDOS Version Detection ---
-IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
-if [[ -f "$IDENTITY_FILE" ]]; then
-  UVERSION=$(grep "Version:" "$IDENTITY_FILE" | cut -d':' -f2 | xargs)
-else
-  UVERSION="Unknown"
-fi
-
-log_move() {
-  local cmd="$1"
-  local trimmed="${cmd// }"
-  if [[ "$UCODE_BOOTING" == "true" || -z "$trimmed" || "$cmd" == "exit" || "$cmd" == "bye" ]]; then
-    return
-  fi
-  bash "$UHOME/uCode/log.sh" move "$cmd"
-}
-
 
 # Startup Header
 echo "🚀 Welcome to uDOS $UVERSION"
@@ -391,7 +372,7 @@ cmd_debug() {
   tail -n 20 "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
   echo ""
   echo "🗂️ Available Scripts:"
-  ls -1 "$UHOME/scripts"
+  ls -1 "$UHOME/uCode"
   echo ""
   echo "❗ Recent Errors (if any):"
   find "$UHOME/uMemory/logs/errors" -type f -exec tail -n 5 {} \;

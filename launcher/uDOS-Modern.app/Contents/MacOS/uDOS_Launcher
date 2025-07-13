@@ -1,0 +1,60 @@
+#!/bin/bash
+# Modern uDOS Launcher Script
+
+UDOS_PATH="$HOME/uDOS"
+
+# Check if uDOS exists
+if [[ ! -d "$UDOS_PATH" ]]; then
+    /usr/bin/osascript <<OSA
+display dialog "uDOS not found at ~/uDOS
+
+Please clone the repository first:
+git clone https://github.com/fredporter/uDOS.git ~/uDOS" buttons {"OK"} default button "OK" with icon stop
+OSA
+    exit 1
+fi
+
+# Check for VS Code
+if command -v code &> /dev/null; then
+    # Show choice dialog
+    choice=$(/usr/bin/osascript <<OSA
+display dialog "🌀 uDOS Modern Launcher
+
+Choose your preferred launch method:" buttons {"Terminal", "VS Code", "Cancel"} default button "VS Code" with icon note
+button returned of result
+OSA
+)
+
+    case "$choice" in
+        "VS Code")
+            cd "$UDOS_PATH"
+            code .
+            /usr/bin/osascript <<OSA
+display notification "uDOS opened in VS Code! Use Cmd+Shift+P → '🌀 Start uDOS'" with title "uDOS Modern"
+OSA
+            ;;
+        "Terminal")
+            cd "$UDOS_PATH"
+            /usr/bin/osascript <<OSA
+tell application "Terminal"
+    if not (exists window 1) then reopen
+    activate
+    do script "cd '$UDOS_PATH' && ./start-udos.sh"
+end tell
+OSA
+            ;;
+        "Cancel")
+            exit 0
+            ;;
+    esac
+else
+    # No VS Code, launch in Terminal
+    cd "$UDOS_PATH"
+    /usr/bin/osascript <<OSA
+tell application "Terminal"
+    if not (exists window 1) then reopen
+    activate
+    do script "cd '$UDOS_PATH' && ./start-udos.sh"
+end tell
+OSA
+fi

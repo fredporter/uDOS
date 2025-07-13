@@ -49,51 +49,48 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 
 ## 🚀 Running uDOS
 
-uDOS is containerized via Docker but also supports macOS native launchers and legacy hardware.
+uDOS has been modernized for VS Code + Copilot integration. **No Docker required!**
 
-### 🐳 Docker (Cross-platform)
+### ⚡ Quick Start (VS Code - Recommended)
 
-#### ✅ Requirements
+1. **Open in VS Code**: `code ~/uDOS`
+2. **Launch uDOS**: `Cmd+Shift+P` → "🌀 Start uDOS"
+3. **Start exploring**: Type `help` in the uDOS shell
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- This repo cloned to: `~/uDOS`
+### 🎯 VS Code Tasks Available
 
-#### 🌀 Launch
+- **🌀 Start uDOS** - Launch the main shell
+- **🔍 Check uDOS Setup** - Verify system integrity  
+- **📊 Generate Dashboard** - Create status dashboard
+- **🌳 Generate File Tree** - Build repository structure
+- **� Create New Mission** - Start a new project
+- **🧹 Clean uDOS** - Reset system state
+
+### 🖥️ Native Terminal (Alternative)
 
 ```bash
-bash macos/Launch-uDOS.command
+cd ~/uDOS
+./uCode/ucode.sh
 ```
 
-This will:
+### 🐳 Docker (Legacy - Optional)
 
-1. Stop any previous uDOS containers
-2. Rebuild the container with current scripts
-3. Launch uDOS into the `uCode` CLI shell
+For containerized environments:
 
-#### 🛠️ Common Troubleshooting
+```bash
+docker-compose up
+```
 
-- **Volume Mount Errors**  
-  Ensure the repo is located at `~/uDOS`, or update paths in `docker-compose.yml`.
+*Note: Docker support is maintained for legacy systems but VS Code native execution is preferred.*
 
-- **Docker Not Running**  
-  The launcher auto-starts Docker if needed.
+### 💾 Legacy Hardware Support
 
----
+uDOS can run on older machines via:
+- Lightweight Linux distributions + VS Code
+- Offline environments (scripts run without cloud dependencies)
+- Raspberry Pi or similar ARM devices
 
-### 🍏 macOS Native
-
-- Double-click `macos/Launch🌀uDOS.app` for a GUI entrypoint.
-- Use `macos/Quit-uDOS.command` to cleanly stop the container.
-- All `.app` internals are excluded from version control.
-
----
-
-### 💾 Legacy / Offline Mode
-
-uDOS is designed to run as a memory shell on:
-- Older repurposed laptops (via lightweight Linux + Docker)
-- Offline environments (scripts can run without cloud)
-- Experimental builds with no container layer (in progress)
+For legacy setup instructions, see `MODERNIZATION.md`.
 
 ---
 

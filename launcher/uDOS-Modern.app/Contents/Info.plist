@@ -6,25 +6,22 @@
   <key>CFBundleExecutable</key>
   <string>uDOS_Launcher</string>
   <key>CFBundleIdentifier</key>
-  <string>com.uos.launcher</string>
+  <string>com.udos.modern</string>
   <key>CFBundleName</key>
-  <string>uDOS</string>
+  <string>uDOS Modern</string>
+  <key>CFBundleDisplayName</key>
+  <string>uDOS Modern</string>
   <key>CFBundleVersion</key>
-  <string>1.0</string>
+  <string>2.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>2.0</string>
   <key>CFBundleIconFile</key>
   <string>uDOS.icns</string>
-  <key>NSAppleScriptEnabled</key>
+  <key>LSUIElement</key>
+  <false/>
+  <key>NSHighResolutionCapable</key>
   <true/>
-  <key>CFBundleURLTypes</key>
-  <array>
-    <dict>
-      <key>CFBundleURLName</key>
-      <string>Quit uDOS</string>
-      <key>CFBundleURLSchemes</key>
-      <array>
-        <string>quitudos</string>
-      </array>
-    </dict>
-  </array>
+  <key>NSRequiresAquaSystemAppearance</key>
+  <false/>
 </dict>
 </plist>
