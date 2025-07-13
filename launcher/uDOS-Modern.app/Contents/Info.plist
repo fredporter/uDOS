@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>uDOS_Launcher</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.udos.modern</string>
+  <key>CFBundleName</key>
+  <string>uDOS Modern</string>
+  <key>CFBundleDisplayName</key>
+  <string>uDOS Modern</string>
+  <key>CFBundleVersion</key>
+  <string>2.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>2.0</string>
+  <key>CFBundleIconFile</key>
+  <string>uDOS.icns</string>
+  <key>LSUIElement</key>
+  <false/>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>NSRequiresAquaSystemAppearance</key>
+  <false/>
+</dict>
+</plist>
