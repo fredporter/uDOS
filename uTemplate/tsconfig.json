@@ -1,0 +1,15 @@
+   {
+     "projects": [
+       {
+         "name": "Project A",
+         "milestones": [
+           {
+             "title": "Milestone 1",
+             "due_date": "2023-01-01",
+             "status": "Completed",
+             "assigned_to": "Team X"
+           }
+         ]
+       }
+     ]
+   }
