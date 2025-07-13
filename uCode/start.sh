@@ -22,4 +22,4 @@ echo ""
 echo "🌀 uDOS started successfully."
 echo "Type 'help' or 'dash' to begin."
 
-bash "$UROOT/uCode/uCode.sh"
+bash "$UROOT/uCode/ucode.sh"

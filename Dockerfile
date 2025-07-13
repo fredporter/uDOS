@@ -25,4 +25,4 @@ RUN mkdir -p $UOS_KNOWLEDGE_DIR $UOS_MEMORY_DIR $UOS_CONFIG_DIR
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Launch the uCode CLI by default
-CMD ["bash", "uCode/uCode.sh"]
+CMD ["bash", "uCode/ucode.sh"]

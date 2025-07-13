@@ -43,7 +43,7 @@ case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     ;;
   D)
     echo "♻️ Rebooting system only..."
-    exec "$UHOME/uCode/uCode.sh"
+    exec "$UHOME/uCode/ucode.sh"
     ;;
   E)
     echo "🌀 Exiting to uCode..."
@@ -55,4 +55,4 @@ case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
 esac
 
 echo "🔁 Rebooting to apply changes..."
-exec "$UHOME/uCode/uCode.sh" || exec bash
+exec "$UHOME/uCode/ucode.sh" || exec bash
