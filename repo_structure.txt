@@ -1,21 +1,46 @@
 .
+  |  |-- ALPHA_RELEASE_PREP.md
   |  |-- CHANGELOG.md
+  |  |-- DATASET_IMPLEMENTATION_COMPLETE.md
+  |  |-- docker-compose.yml
+  |  |-- Dockerfile
   |-- launcher
     |-- assets
+    |  |-- build-mac-launcher.sh
     |  |-- build-modern-app.sh
+    |  |-- create-automator-launcher.sh
     |  |-- Launch-uDOS-Modern.command
+    |  |-- README_LEGACY.md
     |  |-- README.md
     |-- uDOS-Modern.app
   |  |-- LICENSE
+  |  |-- MODERNIZATION.md
   |  |-- OPTIMIZATION.md
   |  |-- README.md
+  |  |-- RELEASE_READY.md
   |  |-- REORGANIZATION_SUMMARY.md
   |  |-- repo_structure.txt
+  |-- roadmap
+    |  |-- 001-uDOS-foundation.md
+    |  |-- 002-uDOS-format.md
+    |  |-- 003-uDOS-execution.md
+    |  |-- 004-uDOS-interface.md
+    |  |-- 006-uDOS-future.md
+    |  |-- 007-uDOS-uScript.md
+    |  |-- 008-uDOS-packages.md
+    |  |-- 009-uDOS-dev-cycle.md
+    |  |-- 010-uDOS-vscode.md
+    |  |-- 011-uDOS-modernization.md
+    |  |-- ROADMAP_INDEX.md
+    |  |-- ROADMAP_STATUS.md
   |  |-- start-udos.sh
+  |  |-- TEMPLATE_INTEGRATION_COMPLETE.md
+  |  |-- TEMPLATE_STANDARDIZATION_COMPLETE.md
   |-- uCode
     |  |-- check.sh
     |  |-- dash.sh
     |  |-- destroy.sh
+    |  |-- json-processor.sh
     |  |-- log.sh
     |  |-- make-tree.sh
     |-- packages
@@ -24,12 +49,13 @@
     |  |-- setup-dev.sh
     |  |-- start.sh
     |  |-- structure.sh
+    |  |-- template-generator.sh
     |  |-- ucode.sh
+    |  |-- validate-alpha.sh
   |-- uKnowledge
     |  |-- ARCHITECTURE.md
     |-- assets
     |-- companion
-      |  |-- uc-Otter.md
     |-- general-library
     |-- maps
     |-- packages
@@ -50,6 +76,11 @@
       |  |-- ROADMAP_INDEX.md
       |  |-- ROADMAP_STATUS.md
   |-- uMemory
+    |-- generated
+      |  |-- first-move.markdown
+      |  |-- my-first-mission.markdown
+      |  |-- project-milestone-1.markdown
+      |  |-- sample-batch.csv
     |-- legacy
     |-- logs
       |-- errors
@@ -59,6 +90,7 @@
     |-- missions
     |-- moves
       |  |-- moves-2025-07-13.md
+      |  |-- moves-2025-07-17.md
     |-- sandbox
       |  |-- dash-log-2025-06-29.md
       |  |-- dash-log-2025-07-05.md
@@ -76,24 +108,43 @@
       |  |-- identity.md
   |-- uScript
     |-- automation
+      |  |-- daily-cleanup.md
+      |  |-- mission-tracker.md
     |-- examples
+      |  |-- advanced-features.md
       |  |-- demo-python.md
       |  |-- hello-world.md
-    |-- extract
-      |  |-- 005-uDOS-location.md
-      |  |-- extract_roadmap.py
-      |  |-- README.md
+    |-- libraries
+      |  |-- date-utils.md
+      |  |-- file-utils.md
+      |  |-- logging-utils.md
     |  |-- README.md
+    |  |-- RESTRUCTURING_SUMMARY.md
     |-- system
       |  |-- cleanup.sh
+      |  |-- extract_roadmap.py
       |  |-- ucode-interpreter.py
       |  |-- ucode-runner.sh
+    |-- templates
+      |  |-- data-analysis.md
+      |  |-- mission-automation.md
+    |-- tests
+      |  |-- integration-tests.md
+      |  |-- syntax-tests.md
     |-- utilities
   |-- uTemplate
-    |  |-- dataset-map-city.md
-    |  |-- dataset-time-space.md
     |-- datasets
       |  |-- cityMap.json
+      |  |-- countryMap.json
+      |  |-- currencyMap.json
+      |  |-- dataset-metadata.json
+      |  |-- languageMap.json
+      |  |-- locationMap.json
+      |  |-- mapTerrain.json
+      |  |-- README.md
+      |  |-- template-definitions.json
+      |  |-- template-system-config.json
+      |  |-- timezoneMap.json
       |  |-- ucode-commands.json
     |  |-- input-template.md
     |  |-- input-user-setup.md
@@ -107,6 +158,7 @@
       |-- data
         |  |-- worldMap.json
       |  |-- index.ts
+      |  |-- README.md
       |-- templates
         |  |-- baseMap.uTemplate
       |-- utils

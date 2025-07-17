@@ -170,4 +170,4 @@ Every mission leaves a trace.
 Everything is Markdown.  
 Everything is yours.
 
-**uDOS Beta v1.7.1**
+**uDOS Alpha v1.0.0**

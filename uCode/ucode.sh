@@ -512,6 +512,7 @@ cmd_map_info() {
 }
 
 # --- Map Fallback (Template-based) ---
+# --- Map Fallback (Template-based) ---
 cmd_map_fallback() {
   echo "🔄 Using template-based map generation..."
   
@@ -551,8 +552,267 @@ EOF
   fi
 }
 
-# ...existing code...
-#
+# --- Missing Command Functions for Alpha v1.0 ---
+
+cmd_timezone_enhanced() {
+  echo "🕒 Enhanced Timezone Management (Dataset-Integrated)"
+  echo ""
+  
+  current_timezone=$(cat "$UHOME/uMemory/state/timezone.md" 2>/dev/null || echo "UTC")
+  echo "📍 Current timezone: $current_timezone"
+  echo ""
+  
+  if [[ "$args" =~ ^[A-Z]{3}[0-9]{2}$ ]]; then
+    # Coordinate-based timezone lookup
+    coordinates="$args"
+    echo "🔍 Looking up timezone for coordinates: $coordinates"
+    timezone_info=$(bash "$UHOME/uCode/json-processor.sh" search "$coordinates" 2>/dev/null | grep timezoneMap)
+    if [[ -n "$timezone_info" ]]; then
+      echo "✅ Found: $timezone_info"
+      echo "$timezone_info" > "$UHOME/uMemory/state/timezone.md"
+    else
+      echo "❌ No timezone found for coordinates: $coordinates"
+    fi
+  else
+    echo "💡 Available timezones:"
+    bash "$UHOME/uCode/json-processor.sh" search "timezone_name" 2>/dev/null | head -10 || echo "Dataset not available"
+    echo ""
+    echo "🔧 Usage: CHECK TIMEZONE [coordinates] (e.g., CHECK TIMEZONE AX14)"
+  fi
+  echo ""
+}
+
+cmd_location_enhanced() {
+  echo "🌍 Enhanced Location Management (Dataset-Integrated)"
+  echo ""
+  
+  current_location=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
+  echo "📍 Current location: $current_location"
+  echo ""
+  
+  if [[ -n "$args" && "$args" != "" ]]; then
+    # Search for location in dataset
+    location_query="$args"
+    echo "🔍 Searching for location: $location_query"
+    location_info=$(bash "$UHOME/uCode/json-processor.sh" search "$location_query" 2>/dev/null | grep locationMap)
+    if [[ -n "$location_info" ]]; then
+      echo "✅ Found: $location_info"
+      echo "$location_info" > "$UHOME/uMemory/state/location.md"
+    else
+      echo "❌ No location found matching: $location_query"
+    fi
+  else
+    echo "💡 Available locations:"
+    bash "$UHOME/uCode/json-processor.sh" search "city_name" 2>/dev/null | head -10 || echo "Dataset not available"
+    echo ""
+    echo "🔧 Usage: CHECK LOCATION [search term] (e.g., CHECK LOCATION London)"
+  fi
+  echo ""
+}
+
+cmd_setup_user() {
+  echo "👤 Template-Driven User Setup"
+  echo ""
+  
+  if [[ -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
+    echo "📋 Using enhanced template-driven setup..."
+    bash "$UHOME/uCode/template-generator.sh" generate user-setup "User Identity"
+    
+    if [[ -f "$UHOME/uMemory/generated/user-setup.md" ]]; then
+      echo "✅ User setup template generated"
+      echo "📝 Please edit: uMemory/generated/user-setup.md"
+      echo "🔄 Then run: VALIDATE to apply settings"
+    fi
+  else
+    echo "📋 Using basic setup..."
+    bash "$UHOME/uCode/check.sh" all
+  fi
+  echo ""
+}
+
+cmd_debug() {
+  echo "🔧 uDOS Debug Information (Enhanced with Template Status)"
+  echo ""
+  echo "📊 System Status:"
+  echo "- Version: $UVERSION"
+  echo "- UHOME: $UHOME"
+  echo "- Shell: $SHELL"
+  echo "- Date: $(date)"
+  echo ""
+  
+  echo "📁 Directory Status:"
+  echo "- uCode scripts: $(find "$UHOME/uCode" -name "*.sh" | wc -l)"
+  echo "- uMemory items: $(find "$UHOME/uMemory" -type f | wc -l)"
+  echo "- uKnowledge docs: $(find "$UHOME/uKnowledge" -type f | wc -l)"
+  echo "- uTemplate files: $(find "$UHOME/uTemplate" -type f | wc -l)"
+  echo ""
+  
+  echo "🎛️ Template System Status:"
+  if [[ -f "$UHOME/uCode/template-generator.sh" ]]; then
+    echo "✅ Template generator available"
+    template_count=$(bash "$UHOME/uCode/template-generator.sh" list 2>/dev/null | wc -l)
+    echo "📋 Available templates: $template_count"
+  else
+    echo "❌ Template generator not found"
+  fi
+  
+  echo ""
+  echo "🔍 Dataset Status:"
+  if [[ -f "$UHOME/uCode/json-processor.sh" ]]; then
+    echo "✅ JSON processor available"
+    dataset_count=$(find "$UHOME/uTemplate/datasets" -name "*.json" 2>/dev/null | wc -l)
+    echo "📊 Available datasets: $dataset_count"
+  else
+    echo "❌ JSON processor not found"
+  fi
+  
+  echo ""
+  echo "⚠️ Recent Errors:"
+  if [[ -d "$UHOME/uMemory/logs/errors" ]]; then
+    recent_errors=$(find "$UHOME/uMemory/logs/errors" -type f -mtime -1 | wc -l)
+    echo "🚨 Last 24h errors: $recent_errors"
+    if [[ $recent_errors -gt 0 ]]; then
+      echo "📄 Latest error log:"
+      find "$UHOME/uMemory/logs/errors" -type f -mtime -1 | head -1 | xargs tail -5
+    fi
+  else
+    echo "📁 Error log directory not found"
+  fi
+  echo ""
+}
+
+cmd_run() {
+  echo "🚀 uScript Runner"
+  script_name="$args"
+  
+  if [[ -z "$script_name" ]]; then
+    echo "📋 Available uScripts:"
+    find "$UHOME/uScript" -name "*.sh" -o -name "*.usc" | head -10
+    echo ""
+    echo "🔧 Usage: RUN [script-name]"
+    return
+  fi
+  
+  # Look for script in uScript directory
+  script_path=""
+  if [[ -f "$UHOME/uScript/system/$script_name.sh" ]]; then
+    script_path="$UHOME/uScript/system/$script_name.sh"
+  elif [[ -f "$UHOME/uScript/utilities/$script_name.sh" ]]; then
+    script_path="$UHOME/uScript/utilities/$script_name.sh"
+  elif [[ -f "$UHOME/uMemory/scripts/$script_name.sh" ]]; then
+    script_path="$UHOME/uMemory/scripts/$script_name.sh"
+  else
+    echo "❌ Script not found: $script_name"
+    return
+  fi
+  
+  echo "▶️ Running: $script_path"
+  bash "$script_path"
+}
+
+cmd_tree() {
+  echo "🌳 Generating uDOS File Tree"
+  bash "$UHOME/uCode/make-tree.sh"
+}
+
+cmd_list() {
+  target_dir="${args:-$UHOME}"
+  echo "📁 Directory listing: $target_dir"
+  echo ""
+  
+  if [[ -d "$target_dir" ]]; then
+    if command -v tree >/dev/null 2>&1; then
+      tree "$target_dir" -L 3
+    else
+      find "$target_dir" -type d -maxdepth 3 | head -20
+    fi
+  else
+    echo "❌ Directory not found: $target_dir"
+  fi
+  echo ""
+}
+
+cmd_dash() {
+  echo "📊 Generating uDOS Dashboard"
+  bash "$UHOME/uCode/dash.sh"
+}
+
+cmd_restart() {
+  echo "🔄 Restarting uDOS shell..."
+  exec bash "$UHOME/uCode/ucode.sh"
+}
+
+cmd_reboot() {
+  echo "⚠️ REBOOT will restart the entire system."
+  read -rp "🔄 Continue? (y/N): " confirm
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    export REBOOT_FLAG=true
+    exec bash "$UHOME/uCode/ucode.sh"
+  else
+    echo "🚫 Reboot cancelled."
+  fi
+}
+
+cmd_destroy() {
+  echo "⚠️ DESTROY will permanently delete data."
+  echo "🔧 Options:"
+  echo "   A) Sandbox only"
+  echo "   B) Sandbox + Memory"
+  echo "   C) Complete system reset"
+  read -rp "🗑️ Choose option (A/B/C) or Cancel (N): " choice
+  
+  case "$choice" in
+    A|a)
+      bash "$UHOME/uCode/destroy.sh" sandbox
+      ;;
+    B|b)
+      bash "$UHOME/uCode/destroy.sh" memory
+      ;;
+    C|c)
+      bash "$UHOME/uCode/destroy.sh" all
+      ;;
+    *)
+      echo "🚫 Destroy cancelled."
+      ;;
+  esac
+}
+
+cmd_recent() {
+  echo "📝 Recent Moves (Last 10)"
+  echo ""
+  recent_log="$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"
+  if [[ -f "$recent_log" ]]; then
+    tail -10 "$recent_log"
+  else
+    echo "📄 No moves recorded today."
+  fi
+  echo ""
+}
+
+validate_template_datasets() {
+  echo "✅ Validating Template-Dataset Integration"
+  echo ""
+  
+  # Check template system
+  if [[ -f "$UHOME/uCode/template-generator.sh" ]]; then
+    echo "🏗️ Running template validation..."
+    bash "$UHOME/uCode/template-generator.sh" validate
+  else
+    echo "❌ Template generator not found"
+  fi
+  
+  echo ""
+  
+  # Check dataset system
+  if [[ -f "$UHOME/uCode/json-processor.sh" ]]; then
+    echo "📊 Running dataset validation..."
+    bash "$UHOME/uCode/json-processor.sh" validate
+  else
+    echo "❌ JSON processor not found"
+  fi
+  echo ""
+}
+
 # Main Command Dispatch Loop
 trap 'if [ "$UCODE_SESSION_ENDED" = false ]; then echo "🌀 SESSION END → $(date "+%Y-%m-%d %H:%M:%S")" >> "$UHOME/uMemory/logs/move-log-$(date +%Y-%m-%d).md"; export UCODE_SESSION_ENDED=true; fi' EXIT
 trap 'echo -e "\n🛑 Interrupted. Type EXIT or BYE to quit safely."' SIGINT
