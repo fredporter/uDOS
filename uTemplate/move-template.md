@@ -1,4 +1,4 @@
-# 🔄 Move: {{action}}
+# Template: Move - {{action}}
 
 **Move ID:** {{move_id}}  
 **Timestamp:** {{timestamp}}  

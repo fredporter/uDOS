@@ -1,0 +1,343 @@
+{
+  "vb_integration_system": {
+    "name": "uDOS VB Integration Configuration",
+    "version": "2.1.0",
+    "description": "Configuration for [Shortcode] and $Variable integration with grid system",
+    "last_updated": "2025-07-18"
+  },
+  "shortcode_categories": {
+    "grid": {
+      "description": "Grid position and coordinate operations",
+      "variables": ["GRID_POSITION", "GRID_DATA", "GRID_HISTORY"],
+      "operations": [
+        "current - Get current grid position",
+        "move:position - Move to new grid position",
+        "data:position - Get data for grid position",
+        "history - Show grid movement history"
+      ],
+      "examples": [
+        "[grid:current]",
+        "[grid:move:B5]",
+        "[grid:data:A1]"
+      ]
+    },
+    "location": {
+      "description": "Geographic location and timezone operations",
+      "variables": ["CURRENT_LOCATION", "CURRENT_TIMEZONE", "LOCATION_HISTORY"],
+      "operations": [
+        "current - Get current location",
+        "timezone - Get current timezone",
+        "coordinates - Get grid coordinates for location",
+        "lookup:name - Lookup location details"
+      ],
+      "examples": [
+        "[location:current]",
+        "[location:timezone]",
+        "[location:lookup:London]"
+      ]
+    },
+    "time": {
+      "description": "Time and timestamp operations",
+      "variables": ["DATETIME", "TIMESTAMP", "DATE_TODAY"],
+      "operations": [
+        "now - Current date and time",
+        "timestamp - Filename-safe timestamp",
+        "date - Current date only",
+        "filename - Timestamp for filenames"
+      ],
+      "examples": [
+        "[time:now]",
+        "[time:timestamp]",
+        "[time:filename]"
+      ]
+    },
+    "file": {
+      "description": "Dynamic filename generation",
+      "variables": ["CURRENT_MISSION", "CURRENT_USER", "GRID_POSITION"],
+      "operations": [
+        "mission - Mission-based filename",
+        "log - Log filename with context",
+        "script - Script filename with context",
+        "template:type - Template-based filename"
+      ],
+      "examples": [
+        "[file:mission]",
+        "[file:log]",
+        "[file:script]",
+        "[file:template:report]"
+      ]
+    },
+    "template": {
+      "description": "Template generation and management",
+      "variables": ["TEMPLATE_VERSION", "TEMPLATE_CONTEXT"],
+      "operations": [
+        "mission:name - Generate mission template",
+        "milestone:name - Generate milestone template",
+        "list - List available templates"
+      ],
+      "examples": [
+        "[template:mission:ProjectAlpha]",
+        "[template:milestone:Phase1]",
+        "[template:list]"
+      ]
+    },
+    "mission": {
+      "description": "Mission and project management",
+      "variables": ["CURRENT_MISSION", "MISSION_STATUS", "MISSION_PROGRESS"],
+      "operations": [
+        "current - Get current mission",
+        "status - Get mission status",
+        "create:name - Create new mission",
+        "list - List all missions"
+      ],
+      "examples": [
+        "[mission:current]",
+        "[mission:status]",
+        "[mission:create:NewProject]"
+      ]
+    },
+    "script": {
+      "description": "Script execution and management",
+      "variables": ["SCRIPT_CONTEXT", "EXECUTION_PATH"],
+      "operations": [
+        "run:name - Execute script",
+        "create:name - Create new script",
+        "list - List available scripts"
+      ],
+      "examples": [
+        "[script:run:backup]",
+        "[script:create:analyzer]",
+        "[script:list]"
+      ]
+    }
+  },
+  "system_variables": {
+    "core_system": [
+      {
+        "name": "UDOS_VERSION",
+        "type": "String",
+        "description": "Current uDOS version",
+        "example": "1.0.0",
+        "read_only": true
+      },
+      {
+        "name": "CURRENT_USER",
+        "type": "String", 
+        "description": "Current system user",
+        "example": "agent",
+        "read_only": true
+      },
+      {
+        "name": "UHOME",
+        "type": "String",
+        "description": "uDOS home directory path",
+        "example": "/Users/agent/uDOS",
+        "read_only": true
+      }
+    ],
+    "location_context": [
+      {
+        "name": "CURRENT_LOCATION",
+        "type": "String",
+        "description": "Current geographic location",
+        "example": "London",
+        "grid_mapped": true
+      },
+      {
+        "name": "CURRENT_TIMEZONE",
+        "type": "String",
+        "description": "Current timezone",
+        "example": "UTC",
+        "grid_mapped": true
+      },
+      {
+        "name": "GRID_POSITION",
+        "type": "String",
+        "description": "Current grid coordinate",
+        "example": "B5",
+        "format": "[A-Z][1-99]"
+      }
+    ],
+    "time_context": [
+      {
+        "name": "DATETIME",
+        "type": "String",
+        "description": "Current date and time",
+        "example": "2025-07-18 15:30:00 UTC",
+        "format": "YYYY-MM-DD HH:MM:SS TZ"
+      },
+      {
+        "name": "TIMESTAMP",
+        "type": "String",
+        "description": "Filename-safe timestamp",
+        "example": "20250718-153000",
+        "format": "YYYYMMDD-HHMMSS"
+      },
+      {
+        "name": "DATE_TODAY",
+        "type": "String",
+        "description": "Current date only",
+        "example": "2025-07-18",
+        "format": "YYYY-MM-DD"
+      }
+    ],
+    "mission_context": [
+      {
+        "name": "CURRENT_MISSION",
+        "type": "String",
+        "description": "Active mission name",
+        "example": "uDOS-v1.0-Launch",
+        "default": "none"
+      },
+      {
+        "name": "MISSION_STATUS",
+        "type": "String",
+        "description": "Current mission status",
+        "example": "in-progress",
+        "values": ["planning", "active", "on-hold", "completed"]
+      },
+      {
+        "name": "MISSION_PROGRESS",
+        "type": "Integer",
+        "description": "Mission completion percentage",
+        "example": "75",
+        "range": "0-100"
+      }
+    ]
+  },
+  "grid_system": {
+    "description": "Grid-based coordinate system for location and data mapping",
+    "format": "[A-Z][1-99]",
+    "examples": ["A1", "B5", "Z99"],
+    "capabilities": {
+      "data_storage": "Each grid position can store associated data",
+      "script_placement": "Scripts can be organized by grid position",
+      "template_context": "Templates can be grid-aware",
+      "variable_binding": "Variables can be bound to grid positions"
+    },
+    "directories": {
+      "data": "uMemory/grid/data/{position}.json",
+      "scripts": "uMemory/grid/scripts/{position}/",
+      "templates": "uMemory/grid/templates/{position}/"
+    }
+  },
+  "integration_patterns": {
+    "filename_generation": {
+      "description": "Dynamic filename generation using shortcodes and variables",
+      "patterns": [
+        "{type}_{timestamp}_{grid}.{ext}",
+        "{mission}_{date}_{user}.{ext}",
+        "{location}_{time}_{context}.{ext}"
+      ],
+      "examples": [
+        "mission_20250718-153000_B5.md",
+        "log_2025-07-18_agent.log",
+        "script_London_153000_analysis.sh"
+      ]
+    },
+    "template_processing": {
+      "description": "Template generation with variable and shortcode substitution",
+      "workflow": [
+        "Load template file",
+        "Process [shortcode] expressions",
+        "Substitute $variable references",
+        "Apply grid/location context",
+        "Generate final output"
+      ]
+    },
+    "script_execution": {
+      "description": "Context-aware script execution",
+      "context_variables": [
+        "EXECUTION_GRID",
+        "EXECUTION_TIME", 
+        "EXECUTION_USER",
+        "EXECUTION_MISSION"
+      ],
+      "execution_paths": [
+        "Grid-specific: uMemory/grid/scripts/{position}/",
+        "User-specific: uMemory/scripts/user/",
+        "System-wide: uScript/system/"
+      ]
+    }
+  },
+  "customization": {
+    "user_shortcodes": {
+      "location": "uMemory/user/shortcodes.json",
+      "description": "User-defined shortcodes for custom operations",
+      "structure": {
+        "name": "shortcode name",
+        "type": "operation type",
+        "script": "execution script path",
+        "parameters": "parameter definitions"
+      }
+    },
+    "user_variables": {
+      "location": "uMemory/user/variables.json",
+      "description": "User-defined variables with persistence",
+      "features": [
+        "Type checking",
+        "Grid binding",
+        "Persistence control",
+        "Access control"
+      ]
+    },
+    "grid_customization": {
+      "location": "uMemory/grid/",
+      "description": "Grid position customization",
+      "capabilities": [
+        "Position-specific data storage",
+        "Custom scripts per position",
+        "Position-aware templates",
+        "Movement history tracking"
+      ]
+    }
+  },
+  "advanced_features": {
+    "variable_expressions": {
+      "description": "Complex variable expressions combining shortcodes",
+      "examples": [
+        "$missionFile = [file:mission]_[time:timestamp]",
+        "$gridContext = [grid:current]:[location:current]",
+        "$executionPath = $UHOME/grid/[grid:current]/scripts"
+      ]
+    },
+    "conditional_shortcodes": {
+      "description": "Shortcodes that adapt based on context",
+      "examples": [
+        "[file:auto] - Choose filename based on current context",
+        "[grid:smart] - Intelligent grid positioning",
+        "[template:adaptive] - Context-aware template selection"
+      ]
+    },
+    "nested_processing": {
+      "description": "Nested shortcode and variable processing",
+      "examples": [
+        "[template:[mission:current]]",
+        "$dynamicVar = [grid:[location:coordinates]]",
+        "[file:template:[time:date]]"
+      ]
+    }
+  },
+  "best_practices": {
+    "naming_conventions": [
+      "Use descriptive variable names: $missionContext not $mc",
+      "Include type in complex variables: $configFilePath",
+      "Use grid position in location-specific variables: $dataB5"
+    ],
+    "shortcode_usage": [
+      "Keep shortcodes focused on single operations",
+      "Use parameters for customization: [file:template:report]",
+      "Combine shortcodes for complex operations"
+    ],
+    "grid_organization": [
+      "Group related functionality by grid areas",
+      "Use consistent naming across grid positions",
+      "Document grid position purposes"
+    ],
+    "performance": [
+      "Cache frequently used variable values",
+      "Minimize complex shortcode nesting",
+      "Use appropriate variable types for data"
+    ]
+  }
+}

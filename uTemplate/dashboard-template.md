@@ -1,43 +1,68 @@
-# 🌀 uDOS Enhanced Dashboard Template
+# 🌀 uDOS v1.0 Enhanced Dashboard
 
 **Generated**: {{generated_date}}  
 **User**: {{user_name}}  
 **Location**: {{location}}  
-**System Health**: {{health_status}}
+**Timezone**: {{timezone}}  
+**System Health**: {{health_status}}  
+**Version**: {{udos_version}}
 
 ---
 
-## 📊 System Metrics Dashboard
+## 📊 Executive Summary
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
-║                                    🌀 uDOS METRICS CENTER 🌀                                  ║
+║                                  🌀 uDOS v1.0 COMMAND CENTER 🌀                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ 🎯 MISSIONS: {{missions_count}}     │ 🔄 MOVES TODAY: {{moves_today}}   │ 📋 TEMPLATES: {{templates_count}}    ║
-║ ❌ ERRORS: {{errors_today}}       │ 📊 DATASETS: {{datasets_count}}    │ 📦 RECORDS: {{dataset_records}}     ║
-║ ⏳ UPTIME: {{uptime_days}} days   │ 💚 HEALTH: {{health_status}}       │ 🕐 TIME: {{current_time}}           ║
+║ 🎯 PROJECTS: {{projects_count}}      │ 🚀 MISSIONS: {{missions_count}}     │ � MILESTONES: {{milestones_count}}║
+║ ✅ COMPLETED: {{completed_count}}    │ 🔄 IN PROGRESS: {{in_progress}}     │ ⏳ PENDING: {{pending_count}}     ║
+║ 📊 DATASETS: {{datasets_count}}      │ 🎨 TEMPLATES: {{templates_count}}   │ � RECORDS: {{total_records}}     ║
+║ ⚠️ ISSUES: {{issues_count}}         │ 🎯 SUCCESS RATE: {{success_rate}}%  │ 🕐 UPDATED: {{last_update}}       ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
 
-## 🎯 Active Missions
+## 🎯 Project Portfolio Status
 
-{{#if active_missions}}
-{{#each active_missions}}
-### 📋 {{this.name}}
-- **Priority**: {{this.priority}}
-- **Status**: {{this.status}}
-- **Progress**: {{this.progress}}%
-- **Created**: {{this.created_date}}
+{{#if active_projects}}
+{{#each active_projects}}
+### 🏗️ {{this.name}} ({{this.status}})
+**Manager**: {{this.manager}} | **Priority**: {{this.priority}} | **Health**: {{this.health}}
 
+```
+Progress: [{{this.progress_bar}}] {{this.progress}}%
+Budget:   [{{this.budget_bar}}] ${{this.spent}}/${{this.budget}}
+Timeline: {{this.start_date}} → {{this.end_date}} ({{this.days_remaining}} days left)
+```
+
+**Current Phase**: {{this.current_phase}}  
+**Next Milestone**: {{this.next_milestone}} ({{this.milestone_date}})  
+**Team Size**: {{this.team_size}} members  
+
+{{#if this.blockers}}
+⚠️ **Blockers**: {{this.blockers}}
+{{/if}}
+
+{{#if this.recent_achievements}}
+✅ **Recent Wins**: {{this.recent_achievements}}
+{{/if}}
+
+---
 {{/each}}
 {{else}}
-*No active missions found*
+### 🌟 Ready to Start Your First Project?
 
-**💡 Quick Start:**
-- Use `[mission:create name=my-project]` to create a new mission
-- Use `TEMPLATE generate mission project-name` for structured mission planning
+**Quick Actions:**
+- 🚀 Create Project: `./uCode/structure.sh project "My Project"`
+- 📋 New Mission: `./uCode/structure.sh mission "My Mission"`
+- 🎯 Add Milestone: `./uCode/structure.sh milestone "My Goal"`
+
+**Templates Available:**
+- `project-template.md` - Comprehensive project planning
+- `mission-template.md` - Mission-focused execution
+- `milestone-template.md` - Goal tracking
 {{/if}}
 
 ---

@@ -1,4 +1,4 @@
-# 🧩 uDOS Input Field Template v1.7.1
+# Template: uDOS Input Field Template v1.7.1
 
 Use this format to define user prompts in Markdown with dataset integration support. These fields will be rendered dynamically in CLI during onboarding or config steps.
 

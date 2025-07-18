@@ -29,6 +29,26 @@ else
   echo "⚠️ Dynamic command system not found - using static commands only"
 fi
 
+# Load VB command interpreter
+if [[ -f "$SCRIPT_DIR/vb-command-interpreter.sh" ]]; then
+  source "$SCRIPT_DIR/vb-command-interpreter.sh"
+  echo "🔷 VB command interpreter loaded"
+  VB_INTERPRETER_AVAILABLE=true
+else
+  echo "⚠️ VB command interpreter not found"
+  VB_INTERPRETER_AVAILABLE=false
+fi
+
+# Load enhanced VB interpreter with shortcode integration
+if [[ -f "$SCRIPT_DIR/vb-enhanced-interpreter.sh" ]]; then
+  source "$SCRIPT_DIR/vb-enhanced-interpreter.sh"
+  echo "🔷 Enhanced VB interpreter loaded"
+  VB_ENHANCED_AVAILABLE=true
+else
+  echo "⚠️ Enhanced VB interpreter not found"
+  VB_ENHANCED_AVAILABLE=false
+fi
+
 # Load error handling system
 if [[ -f "$SCRIPT_DIR/error-handler.sh" ]]; then
   source "$SCRIPT_DIR/error-handler.sh"
@@ -358,6 +378,16 @@ echo "🧠 Loading environment..."
 # Initialize dynamic command system
 if command -v initialize_dynamic_commands >/dev/null 2>&1; then
   initialize_dynamic_commands
+fi
+
+# Initialize VB command interpreter
+if [[ "$VB_INTERPRETER_AVAILABLE" == "true" ]]; then
+  vb_init
+fi
+
+# Initialize enhanced VB interpreter
+if [[ "$VB_ENHANCED_AVAILABLE" == "true" ]]; then
+  vb_enhanced_init
 fi
 
 USER_FILE="$UHOME/uMemory/user/identity.md"
@@ -1198,6 +1228,26 @@ while true; do
         echo "❌ Container system not available"
       fi
       ;;
+    # === VB COMMAND LANGUAGE INTEGRATION ===
+    VB|VB.*)
+      if [[ "$VB_INTERPRETER_AVAILABLE" == "true" ]]; then
+        vb_command "$cmd" "$args"
+      else
+        echo "❌ VB command interpreter not available"
+        echo "💡 The VB interpreter provides Visual Basic-style commands"
+        echo "   Try: DIM, SET, PRINT, FOR, IF, SUB, CALL, etc."
+      fi
+      ;;
+    DIM|SET|PRINT|INPUT|IF|FOR|NEXT|SUB|CALL|REM|END)
+      # Direct VB commands (classic VB syntax)
+      if [[ "$VB_INTERPRETER_AVAILABLE" == "true" ]]; then
+        vb_execute_line "$input"
+      else
+        echo "❌ VB command interpreter not available"
+        echo "💡 These are Visual Basic-style commands"
+        echo "   Install VB interpreter: vb-command-interpreter.sh"
+      fi
+      ;;
     TREE)
       cmd_tree
       ;;
@@ -1282,6 +1332,39 @@ while true; do
       ;;
     DEBUG)
       cmd_debug
+      ;;
+    # === VB PROGRAM MANAGEMENT ===
+    VBRUN|VB.RUN)
+      if [[ -f "$SCRIPT_DIR/vb-program-runner.sh" ]]; then
+        bash "$SCRIPT_DIR/vb-program-runner.sh" run "$args"
+      else
+        echo "❌ VB program runner not available"
+      fi
+      ;;
+    VBLIST|VB.LIST)
+      if [[ -f "$SCRIPT_DIR/vb-program-runner.sh" ]]; then
+        bash "$SCRIPT_DIR/vb-program-runner.sh" list
+      else
+        echo "❌ VB program runner not available"
+      fi
+      ;;
+    VBCREATE|VB.CREATE)
+      if [[ -f "$SCRIPT_DIR/vb-program-runner.sh" ]]; then
+        bash "$SCRIPT_DIR/vb-program-runner.sh" create "$args"
+      else
+        echo "❌ VB program runner not available"
+      fi
+      ;;
+    VBHELP|VB.HELP)
+      if [[ "$VB_INTERPRETER_AVAILABLE" == "true" ]]; then
+        if [[ -n "$args" ]]; then
+          vb_help "$args"
+        else
+          vb_help
+        fi
+      else
+        echo "❌ VB command interpreter not available"
+      fi
       ;;
     HELP)
       echo "🧩 uDOS Version: $UVERSION (Template-Integrated Architecture)"

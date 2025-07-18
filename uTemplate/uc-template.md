@@ -1,4 +1,4 @@
-# 🤖 uCode Script: {{script_name}}
+# Template: uCode Script - {{script_name}}
 
 **Template Version:** v1.7.1  
 **Generated:** {{timestamp}}  

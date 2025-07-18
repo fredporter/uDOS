@@ -23,9 +23,9 @@ FAILED_CHECKS=0
 WARNING_CHECKS=0
 
 log_info() { echo -e "${BLUE}ℹ️  $1${NC}" | tee -a "$VALIDATION_LOG"; }
-log_success() { echo -e "${GREEN}✅ $1${NC}" | tee -a "$VALIDATION_LOG"; ((PASSED_CHECKS++)); }
-log_warning() { echo -e "${YELLOW}⚠️  $1${NC}" | tee -a "$VALIDATION_LOG"; ((WARNING_CHECKS++)); }
-log_error() { echo -e "${RED}❌ $1${NC}" | tee -a "$VALIDATION_LOG"; ((FAILED_CHECKS++)); }
+log_success() { echo -e "${GREEN}✅ $1${NC}" | tee -a "$VALIDATION_LOG"; PASSED_CHECKS=$((PASSED_CHECKS + 1)); }
+log_warning() { echo -e "${YELLOW}⚠️  $1${NC}" | tee -a "$VALIDATION_LOG"; WARNING_CHECKS=$((WARNING_CHECKS + 1)); }
+log_error() { echo -e "${RED}❌ $1${NC}" | tee -a "$VALIDATION_LOG"; FAILED_CHECKS=$((FAILED_CHECKS + 1)); }
 log_bold() { echo -e "${BOLD}$1${NC}" | tee -a "$VALIDATION_LOG"; }
 
 print_header() {
@@ -38,7 +38,7 @@ print_header() {
 }
 
 check_item() {
-    ((TOTAL_CHECKS++))
+    TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
     echo "$1" >> "$VALIDATION_LOG"
 }
 
@@ -431,7 +431,7 @@ generate_report() {
     log_bold "📊 COMPREHENSIVE VALIDATION SUMMARY"
     echo "" | tee -a "$VALIDATION_LOG"
     
-    local pass_rate=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
+    local pass_rate=$(safe_divide $PASSED_CHECKS $TOTAL_CHECKS)
     
     echo "Total Checks: $TOTAL_CHECKS" | tee -a "$VALIDATION_LOG"
     echo "✅ Passed: $PASSED_CHECKS" | tee -a "$VALIDATION_LOG"
@@ -470,18 +470,18 @@ generate_report() {
 main() {
     local mode="${1:-full}"
     
+    # Initialize log file
+    echo "uDOS v1.0 Comprehensive Validation Report - $(date)" > "$VALIDATION_LOG"
+    echo "========================================" >> "$VALIDATION_LOG"
+    echo "Mode: $mode" >> "$VALIDATION_LOG"
+    echo "" >> "$VALIDATION_LOG"
+    
     print_header
     
     echo "uDOS v1.0 Comprehensive Validation Suite"
     echo "Mode: $mode"
     echo "Results will be logged to: $VALIDATION_LOG"
     echo ""
-    
-    # Start logging
-    echo "uDOS v1.0 Comprehensive Validation Report - $(date)" > "$VALIDATION_LOG"
-    echo "========================================" >> "$VALIDATION_LOG"
-    echo "Mode: $mode" >> "$VALIDATION_LOG"
-    echo "" >> "$VALIDATION_LOG"
     
     case "$mode" in
         "quick"|"q")
@@ -544,7 +544,18 @@ main() {
 }
 
 # Error handling
-trap 'log_error "Validation failed on line $LINENO"' ERR
+trap 'echo "❌ Validation failed on line $LINENO"; exit 1' ERR
+
+# Safe division function
+safe_divide() {
+    local numerator=${1:-0}
+    local denominator=${2:-1}
+    if [[ $denominator -eq 0 ]]; then
+        echo "0"
+    else
+        echo $((numerator * 100 / denominator))
+    fi
+}
 
 # Show usage if requested
 if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then

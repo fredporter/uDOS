@@ -1,17 +1,19 @@
-# uTemplate System - v1.7.1
+# uTemplate System - v2.0.0
 
-**uTemplate** is the centralized template and dataset management system for uDOS, providing standardized templates and comprehensive geographic, linguistic, and system datasets.
+**uTemplate** is the enhanced centralized template and dataset management system for uDOS v1.0, providing comprehensive, standardized templates and extensive geographic, linguistic, and system datasets with advanced tracking and integration capabilities.
 
 ## 🗂️ Structure Overview
 
-### Core Templates
-- **input-template.md** - Interactive user input collection
+### 🎯 Core Templates (Enhanced for v1.0)
+- **project-template.md** ⭐ **NEW** - Comprehensive project management with phases, stakeholders, and risk assessment
+- **mission-template.md** ✨ **ENHANCED** - Advanced mission planning with KPIs, risk assessment, and uDOS integration
+- **milestone-template.md** ✨ **ENHANCED** - Detailed milestone tracking with quality gates and testing strategies
+- **input-template.md** - Interactive user input collection with dataset integration
 - **input-user-setup.md** - User environment configuration
+- **uc-template.md** - Advanced uCode command template with comprehensive testing and validation
+- **dashboard-template.md** ✨ **ENHANCED** - Real-time project portfolio dashboard with executive summary
 - **legacy-template.md** - Legacy system compatibility
-- **milestone-template.md** - Project milestone tracking
-- **mission-template.md** - Mission creation and management
 - **move-template.md** - Individual move documentation
-- **uc-template.md** - uCode command template
 
 ### 🗄️ Datasets (JSON)
 Complete dataset collection with 355+ records across 11 datasets:
@@ -43,32 +45,71 @@ Timezone: {{timezone}}
 Currency: {{currency}}
 ```
 
-### Schema Validation
-All datasets include comprehensive JSON schemas for data validation and consistency.
+## 🛠️ Template Engine Features v2.0
 
-### Export Formats
-- JSON (native)
-- CSV export capability
-- YAML conversion
-- TSV format support
-- Plain text output
-
-## 🚀 Usage with uDOS
-
-### Command Integration
-Access templates through uDOS shell:
-```bash
-TEMPLATE list
-TEMPLATE generate mission-template
-JSON query locationMap "region=Europe"
+### 🔄 Enhanced Dynamic Variable Substitution
+Templates support comprehensive dynamic variables with automatic dataset integration:
+```markdown
+Location: {{location}}
+Timezone: {{timezone}}
+Currency: {{currency}}
+Project Health: {{health_status}}
+Team Allocation: {{team_allocation}}
+Budget Status: {{budget_utilization}}%
 ```
 
-### Development Workflow
-1. Define template structure using markdown
-2. Create dataset schemas with validation rules
-3. Generate templates with variable substitution
-4. Export in required formats
-5. Integrate with uDOS commands
+### 📊 Advanced Schema Validation
+All datasets include comprehensive JSON schemas for data validation and consistency with enhanced v1.0 features:
+- **Type validation** with custom patterns
+- **Conditional logic** for template branching
+- **Complex object** and array handling
+- **Cross-reference validation** between related templates
+- **Real-time validation** during template generation
+
+### 🎯 Template Categories
+- **Planning**: Project, Mission, Milestone templates with comprehensive tracking
+- **Execution**: Enhanced uCode scripts with testing and validation
+- **Monitoring**: Real-time dashboards with executive summaries
+- **Documentation**: Input templates with dataset integration
+- **Legacy**: Backward compatibility support
+
+### 📤 Export Formats
+- **Markdown** (primary format with rich formatting)
+- **JSON** (structured data with metadata)
+- **HTML** (web-ready with CSS styling)
+- **PDF** (printable reports via pandoc)
+- **CSV/TSV** (data export for analysis)
+- **YAML** (configuration file format)
+
+## 🚀 Enhanced Usage with uDOS v1.0
+
+### 🌀 Command Integration
+Access enhanced templates through uDOS shell:
+```bash
+# Template Management
+TEMPLATE list                           # Show all available templates
+TEMPLATE generate project "My Project"  # Generate comprehensive project
+TEMPLATE generate mission "Deploy v1.0" # Create enhanced mission
+TEMPLATE generate milestone "Beta Release" # Track detailed milestone
+
+# Advanced Queries
+JSON query locationMap "region=Europe&population>1000000"
+JSON filter currencyMap "exchange_rate>1.0"
+DATASET stats                          # Show dataset statistics
+
+# Integration Commands
+ucode.sh template-sync                 # Sync templates with uMemory
+dash.sh template-metrics              # Template usage analytics
+```
+
+### 🎯 Enhanced Development Workflow
+1. **Template Design**: Use enhanced markdown with conditional logic
+2. **Schema Definition**: Create comprehensive validation rules
+3. **Dataset Integration**: Link with geographic and system data
+4. **Variable Mapping**: Define dynamic substitution patterns
+5. **Quality Assurance**: Built-in validation and testing
+6. **uDOS Integration**: Memory system and dashboard integration
+7. **Deployment**: Live template generation and monitoring
 
 ### Example Implementation Steps
 
