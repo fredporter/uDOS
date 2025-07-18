@@ -20,6 +20,14 @@ dim() { echo -e "\033[2m$1\033[0m"; }
 # Create temp directory
 mkdir -p "$TEMP_DIR"
 
+# Check bash version for associative array support
+if [[ ${BASH_VERSION%%.*} -lt 4 ]]; then
+    echo "❌ Template setup requires bash 4.0+ for associative arrays"
+    echo "💡 Current bash version: $BASH_VERSION"
+    echo "🔄 Falling back to legacy setup..."
+    exit 1
+fi
+
 # Declare associative array for variables
 declare -A SETUP_VARS
 
