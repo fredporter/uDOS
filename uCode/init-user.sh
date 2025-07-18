@@ -9,6 +9,7 @@ UHOME="${HOME}/uDOS"
 UMEM="${UHOME}/uMemory"
 USER_IDENTITY="${UMEM}/user/identity.md"
 SETUP_PROCESSOR="${UHOME}/uCode/setup-template-processor.sh"
+SETUP_PROCESSOR_COMPAT="${UHOME}/uCode/setup-template-processor-compat.sh"
 
 # Color output helpers
 red() { echo -e "\033[0;31m$1\033[0m"; }
@@ -107,17 +108,24 @@ setup_user_identity() {
     echo
     
     # Check if template processor exists
-    if [[ ! -f "$SETUP_PROCESSOR" ]]; then
-        red "❌ Template processor not found: $SETUP_PROCESSOR"
+    if [[ ! -f "$SETUP_PROCESSOR" ]] && [[ ! -f "$SETUP_PROCESSOR_COMPAT" ]]; then
+        red "❌ Template processor not found"
         echo "Falling back to legacy setup..."
         setup_user_identity_legacy
         return
     fi
     
+    # Determine which processor to use based on bash version
+    local processor="$SETUP_PROCESSOR"
+    if [[ ${BASH_VERSION%%.*} -lt 4 ]]; then
+        yellow "⚠️ Bash 3.x detected, using compatibility processor"
+        processor="$SETUP_PROCESSOR_COMPAT"
+    fi
+    
     # Run the template-based setup
     log "Starting template-based user setup"
     
-    if "$SETUP_PROCESSOR"; then
+    if "$processor"; then
         green "✅ Template-based setup completed successfully"
         
         # Load the generated configuration
