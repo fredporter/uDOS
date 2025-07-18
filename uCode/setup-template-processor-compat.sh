@@ -170,8 +170,8 @@ EOF
     cat > "$preferences_file" << EOF
 {
   "theme": "${theme:-default}",
-  "debug": $(if [[ "${debug,,}" == "y" ]]; then echo "true"; else echo "false"; fi),
-  "autoBackup": $(if [[ "${backup,,}" == "n" ]]; then echo "false"; else echo "true"; fi),
+  "debug": $(if [[ "$(echo "${debug}" | tr 'A-Z' 'a-z')" == "y" ]]; then echo "true"; else echo "false"; fi),
+  "autoBackup": $(if [[ "$(echo "${backup}" | tr 'A-Z' 'a-z')" == "n" ]]; then echo "false"; else echo "true"; fi),
   "setupMethod": "template-bash32",
   "setupDate": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
   "version": "1.0"

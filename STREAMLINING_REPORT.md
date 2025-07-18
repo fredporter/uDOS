@@ -8,20 +8,25 @@
 ## ⚠️ **Bash Compatibility Issue Identified & Fixed**
 
 ### **Template Setup System Update**
-- **Issue**: `declare -A` associative arrays require bash 4.0+
+- **Issue**: `declare -A` associative arrays require bash 4.0+ (macOS ships with bash 3.2.57)
 - **Impact**: Template-based setup falling back to legacy mode
-- **Solution**: Added bash version detection with graceful fallback
-- **Status**: ✅ **RESOLVED** - Enhanced error handling implemented
+- **Solution**: Created bash 3.2 compatible processor with graceful detection
+- **Files**: Added `setup-template-processor-compat.sh` with bash version detection
+- **Status**: ✅ **RESOLVED** - Full compatibility across bash versions
 
 ### **Compatibility Enhancement**
 ```bash
-# Added to setup-template-processor.sh
+# Automatic bash version detection in init-user.sh
 if [[ ${BASH_VERSION%%.*} -lt 4 ]]; then
-    echo "❌ Template setup requires bash 4.0+ for associative arrays"
-    echo "🔄 Falling back to legacy setup..."
-    exit 1
+    processor="$SETUP_PROCESSOR_COMPAT"  # Use bash 3.2 compatible version
+else
+    processor="$SETUP_PROCESSOR"          # Use full featured version
 fi
 ```
+
+**New Files Added**:
+- `uCode/setup-template-processor-compat.sh` - Bash 3.2 compatible template processor
+- Enhanced `uCode/init-user.sh` with automatic version detection
 
 ---
 
@@ -148,7 +153,8 @@ uDOS/                           # Clean root with essential files
 
 ### **Streamlining Achievements**
 - ✅ **7 redundant files** archived to `progress/v1.1-archive/`
-- ✅ **Bash compatibility fix** for template setup system
+- ✅ **Bash compatibility issue** resolved with dual-processor system
+- ✅ **Cross-platform compatibility** ensured for macOS default bash
 - ✅ **Documentation hierarchy** aligned and current
 - ✅ **Command system** validated and comprehensive
 - ✅ **Roadmap alignment** complete across all documents
@@ -175,7 +181,8 @@ uDOS/                           # Clean root with essential files
 
 **Key Achievements**:
 - Redundant documentation archived while preserving development history
-- Bash compatibility issue identified and resolved for template system
+- Critical bash compatibility issue resolved with dual-processor architecture
+- Cross-platform compatibility ensured for default macOS bash (3.2.57)
 - All command systems validated and current (uCode + VB commands)
 - Documentation hierarchy aligned with clear future roadmap
 - Repository structure optimized for new user experience
