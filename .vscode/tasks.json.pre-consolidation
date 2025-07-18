@@ -180,7 +180,7 @@
         {
             "label": "🌳 Generate File Tree",
             "type": "shell",
-            "command": "./uCode/tree-generator.sh",
+            "command": "./uCode/make-tree.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -268,7 +268,7 @@
         {
             "label": "📦 Package Manager",
             "type": "shell",
-            "command": "./uCode/packages/consolidated-manager.sh",
+            "command": "./uCode/packages/manager-simple.sh",
             "args": ["list"],
             "group": "build",
             "detail": "Manage uDOS packages"
@@ -276,7 +276,7 @@
         {
             "label": "📦 Install All Packages",
             "type": "shell",
-            "command": "./uCode/packages/consolidated-manager.sh",
+            "command": "./uCode/packages/manager-simple.sh",
             "args": ["install-all"],
             "group": "build",
             "detail": "Install all uDOS packages"

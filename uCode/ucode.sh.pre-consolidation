@@ -1267,7 +1267,7 @@ cmd_tree() {
   if [[ -f "$UHOME/uCode/make-tree-simple.sh" ]]; then
     bash "$UHOME/uCode/make-tree-simple.sh"
   else
-    bash "$UHOME/uCode/tree-generator.sh"
+    bash "$UHOME/uCode/make-tree.sh"
   fi
 }
 

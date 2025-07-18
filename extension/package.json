@@ -1,7 +1,7 @@
 {
   "name": "udos-extension",
-  "displayName": "uDOS v1.0 - User DOS Shell",
-  "description": "VS Code extension for uDOS v1.0 markdown-native operating system with user roles and Chester AI companion",
+  "displayName": "uDOS 1.1.0 - User DOS Shell",
+  "description": "VS Code extension for uDOS 1.1.0 markdown-native operating system with user roles and Chester AI companion",
   "version": "1.0.0",
   "publisher": "udos",
   "engines": {
@@ -26,7 +26,8 @@
     "user-roles",
     "chester",
     "ai-companion",
-    "privacy-first"
+    "privacy-first",
+    "template-system"
   ],
   "activationEvents": [
     "onLanguage:uscript",
@@ -139,6 +140,17 @@
           "type": "boolean",
           "default": true,
           "description": "Enable GitHub Copilot integration for uScript"
+        },
+        "udos.userRole": {
+          "type": "string",
+          "enum": ["wizard", "sorcerer", "ghost", "imp"],
+          "default": "ghost",
+          "description": "Current user role in uDOS system"
+        },
+        "udos.enableChester": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Chester AI companion integration"
         }
       }
     }

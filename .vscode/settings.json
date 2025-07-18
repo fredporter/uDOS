@@ -1,52 +1,64 @@
 {
-    "github.copilot.enable": {
-        "*": true,
-        "yaml": true,
-        "plaintext": true,
-        "markdown": true,
-        "uscript": true
-    },
-    "github.copilot.advanced": {
-        "debug.overrideEngine": "copilot",
-        "length": 500,
-        "temperature": 0.1,
-        "top_p": 1,
-        "stop": ["\n\n"]
-    },
-    "files.associations": {
-        "*.uscript": "uscript",
-        "*.us": "uscript",
-        "*.udos": "uscript"
-    },
-    "editor.quickSuggestions": {
-        "other": true,
-        "comments": true,
-        "strings": true
-    },
-    "editor.suggest.showWords": false,
-    "editor.suggest.showSnippets": true,
-    "editor.tabCompletion": "on",
-    "editor.wordBasedSuggestions": "currentDocument",
-    "workbench.colorCustomizations": {
-        "editorBracketHighlight.foreground1": "#FFD700",
-        "editorBracketHighlight.foreground2": "#DA70D6",
-        "editorBracketHighlight.foreground3": "#87CEEB"
-    },
-    "editor.bracketPairColorization.enabled": true,
-    "editor.guides.bracketPairs": true,
-    "markdown.preview.breaks": true,
-    "markdown.preview.linkify": true,
-    "terminal.integrated.defaultProfile.osx": "zsh",
-    "terminal.integrated.fontSize": 13,
-    "files.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
-        "**/.git": true,
-        "**/uMemory/logs/**": true
-    },
-    "search.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
-        "**/uMemory/logs/**": true
-    }
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "terminal.integrated.fontSize": 13,
+  
+  "files.watcherExclude": {
+    "**/uMemory/**": true,
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/progress/**": true,
+    "**/*.vsix": true,
+    "**/dist/**": true,
+    "**/out/**": true
+  },
+  
+  "search.exclude": {
+    "**/uMemory/**": true,
+    "**/node_modules/**": true,
+    "**/progress/**": true,
+    "**/*.vsix": true
+  },
+  
+  "files.associations": {
+    "*.uscript": "uscript",
+    "*.us": "uscript",
+    "mission-*.md": "markdown",
+    "move-*.md": "markdown",
+    "*-template.md": "markdown"
+  },
+  
+  "markdown.preview.theme": "dark",
+  "markdown.preview.fontSize": 14,
+  "markdown.preview.lineHeight": 1.6,
+  
+  "editor.fontSize": 14,
+  "editor.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
+  "editor.minimap.enabled": false,
+  "editor.wordWrap": "on",
+  "editor.rulers": [80, 120],
+  
+  "workbench.colorTheme": "Dark+ (default dark)",
+  "workbench.iconTheme": "vs-seti",
+  "workbench.tree.indent": 8,
+  
+  "git.ignoreLimitWarning": true,
+  "git.enabled": true,
+  "git.autofetch": true,
+  
+  "udos.shellPath": "./uCode/ucode.sh",
+  "udos.enableCopilot": true,
+  "udos.userRole": "ghost",
+  "udos.enableChester": true,
+  "udos.autoValidate": true,
+  "udos.templatePath": "./uTemplate",
+  "udos.memoryPath": "./uMemory",
+  
+  "github.copilot.enable": {
+    "*": true,
+    "uscript": true,
+    "markdown": true,
+    "javascript": true,
+    "typescript": true
+  }
 }
