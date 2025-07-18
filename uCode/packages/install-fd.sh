@@ -89,7 +89,7 @@ if command -v fd >/dev/null 2>&1; then
     fi
     
     # Create usage examples
-    cat > "${UDOS_ROOT}/uKnowledge/packages/fd.md" << 'EOF'
+    cat > "${UDOS_ROOT}/package/utils/fd.md" << 'EOF'
 # fd - Fast File Finder
 
 ## Overview
@@ -151,7 +151,7 @@ fd "*.log" -x grep -l "ERROR" {}
 ```
 EOF
 
-    log_success "Package documentation created: uKnowledge/packages/fd.md"
+    log_success "Package documentation created: package/utils/fd.md"
     log_success "fd installation complete and ready for use!"
     
 else

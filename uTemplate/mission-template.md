@@ -1,53 +1,85 @@
-# Template: Mission - {{mission_name}}
+# Mission: {{mission_name}}
 
-**Created:** {{start_date}}  
-**Priority:** {{priority}}  
-{{#if end_date}}**Target Completion:** {{end_date}}{{/if}}  
-**Status:** {{status}}  
-**Location:** {{location}}  
-**Timezone:** {{timezone}}
+**Template Version:** v2.1.0  
+**Generated:** {{instance_time}}  
+**Instance:** {{instance_location}}  
+**Session:** {{instance_session}}  
+**Document ID:** {{document_id}}  
+**Priority:** {{input:priority|enum:low,medium,high,critical}}  
+**Status:** {{input:status|enum:planning,active,on-hold,completed,cancelled|default:planning}}
 
-> **Mission Type:** {{mission_type}}  
-> **Complexity:** {{complexity}}  
-> **Estimated Duration:** {{estimated_duration}}
+> **Mission Type:** {{input:mission_type|enum:development,research,deployment,maintenance,enhancement}}  
+> **Complexity:** {{input:complexity|enum:low,medium,high,enterprise}}  
+> **Estimated Duration:** {{input:estimated_duration}}  
+> **Start Date:** {{input:start_date|date}}  
+> {{#if input:end_date}}**Target Completion:** {{input:end_date|date}}{{/if}}
+
+## 📊 Metadata Block
+
+**Template System:** v2.1.0  
+**Dataset Version:** {{dataset_version}}  
+**Cross-References:** {{cross_references_count}}  
+**Generated With:** [template:generate mission --name={{mission_name}}]
+
+### 🔗 Cross-References
+- **[project:current]({{ref:project.current.path}})** - {{ref:project.current.name}}
+- **[dashboard:metrics]({{ref:dashboard.metrics.path}})** - Real-time progress tracking
+- **[team:members]({{ref:team.members.path}})** - Team assignment details
+
+### 📊 Related Datasets
+- **Geographic Data** - [dataset:cities.{{input:primary_location}}] - Mission location data
+- **Team Resources** - [dataset:team_resources] - Available team members
+- **Project Templates** - [dataset:project_templates] - Related project types
 
 ---
 
 ## 📋 Mission Overview
 
 ### 🎯 Primary Objective
-{{objective}}
+{{input:objective|required|min:10}}
 
 ### 🔍 Mission Context
-{{#if context}}
-{{context}}
+{{input:context|"Context will be added as mission develops"}}
+
+### � Location & Timezone
+- **Primary Location:** {{dataset:cities.{{input:primary_location}}.name}}
+- **Timezone:** {{dataset:timezones.{{input:timezone}}.name}} ({{dataset:timezones.{{input:timezone}}.offset}})
+- **Local Time:** {{calc:current_time_in_timezone}}
+
+## 💼 Resource Allocation
+
+### 👥 Team Composition
+{{#if input:team_members}}
+{{#each input:team_members}}
+- **{{this.name}}** ({{this.role}}) - {{this.allocation}}% allocation
+  - Skills: {{dataset:team_skills.{{this.id}}.primary_skills}}
+  - Availability: {{dataset:team_availability.{{this.id}}.current_status}}
+{{/each}}
 {{else}}
-*Context will be added as mission develops*
+*Team assignment pending*
 {{/if}}
 
-## 🎯 Success Criteria
+### 💰 Budget Overview
+{{#if input:budget}}
+- **Total Budget:** ${{input:budget|number}}
+- **Monthly Burn Rate:** ${{calc:budget / duration_months}}
+- **Current Spend:** ${{calc:current_spend}}
+- **Remaining:** ${{calc:budget - current_spend}}
+{{/if}}
 
-{{#each success_criteria}}
+## 🎯 Success Criteria & KPIs
+
+### ✅ Success Criteria
+{{#each input:success_criteria}}
 - [ ] {{this}}
 {{/each}}
 
-## 🎲 Risk Assessment
-
-{{#if risks}}
-### ⚠️ Identified Risks
-{{#each risks}}
-- **{{this.type}}**: {{this.description}} (Impact: {{this.impact}}, Probability: {{this.probability}})
+### 📊 Key Performance Indicators
+{{#if input:kpis}}
+{{#each input:kpis}}
+- **{{this.metric}}**: Target {{this.target}} | Current: {{this.current}} | Progress: {{calc:this.current / this.target * 100}}%
 {{/each}}
-{{else}}
-*Risk assessment to be completed during mission planning*
 {{/if}}
-
-## 📊 Key Performance Indicators (KPIs)
-
-{{#if kpis}}
-{{#each kpis}}
-- **{{this.metric}}**: {{this.target}} (Current: {{this.current}})
-{{/each}}
 {{else}}
 *KPIs to be defined based on mission objectives*
 {{/if}}

@@ -1,48 +1,87 @@
 [
   {
-    "template_id": "mission",
-    "name": "Mission Template",
+    "template_id": "enhanced_mission",
+    "name": "Enhanced Mission Template v2.1",
     "category": "planning",
-    "description": "Enhanced structured template for defining comprehensive project missions with objectives, timeline, resources, and advanced tracking",
+    "version": "2.1.0",
+    "description": "Comprehensive mission template with dataset integration, cross-references, and enhanced features",
     "file_path": "mission-template.md",
-    "variables": [
-      {"name": "mission_name", "type": "string", "required": true, "description": "Name of the mission"},
-      {"name": "objective", "type": "text", "required": true, "description": "Primary objective"},
-      {"name": "start_date", "type": "date", "required": true, "description": "Mission start date"},
-      {"name": "end_date", "type": "date", "required": false, "description": "Target completion date"},
-      {"name": "priority", "type": "enum", "options": ["low", "medium", "high", "critical"], "required": true, "description": "Mission priority level"},
-      {"name": "status", "type": "enum", "options": ["planning", "active", "on-hold", "completed", "cancelled"], "required": false, "description": "Current mission status"},
-      {"name": "mission_type", "type": "enum", "options": ["development", "research", "deployment", "maintenance", "enhancement"], "required": false, "description": "Type of mission"},
-      {"name": "complexity", "type": "enum", "options": ["low", "medium", "high", "enterprise"], "required": false, "description": "Mission complexity level"},
-      {"name": "estimated_duration", "type": "string", "required": false, "description": "Estimated time to complete"},
-      {"name": "context", "type": "text", "required": false, "description": "Mission background and context"},
-      {"name": "location", "type": "string", "required": false, "description": "Primary mission location"},
-      {"name": "timezone", "type": "string", "required": false, "description": "Mission timezone"},
-      {"name": "resources", "type": "array", "required": false, "description": "Required resources"},
-      {"name": "technologies", "type": "array", "required": false, "description": "Technologies and tools required"},
-      {"name": "team_members", "type": "array", "required": false, "description": "Team composition with roles and allocation"},
-      {"name": "stakeholders", "type": "array", "required": false, "description": "Project stakeholders"},
-      {"name": "budget", "type": "number", "required": false, "description": "Mission budget"},
-      {"name": "budget_breakdown", "type": "array", "required": false, "description": "Detailed budget allocation"},
-      {"name": "burn_rate", "type": "number", "required": false, "description": "Monthly burn rate"},
-      {"name": "success_criteria", "type": "array", "required": true, "description": "Success criteria"},
-      {"name": "risks", "type": "array", "required": false, "description": "Risk assessment"},
-      {"name": "kpis", "type": "array", "required": false, "description": "Key performance indicators"},
-      {"name": "milestones", "type": "array", "required": false, "description": "Mission milestones"},
-      {"name": "progress_metrics", "type": "array", "required": false, "description": "Progress tracking metrics"},
-      {"name": "blockers", "type": "array", "required": false, "description": "Current blockers"},
-      {"name": "recent_updates", "type": "array", "required": false, "description": "Recent mission updates"},
-      {"name": "ucode_integration", "type": "boolean", "required": false, "description": "uCode system integration status"},
-      {"name": "dashboard_tracking", "type": "boolean", "required": false, "description": "Dashboard tracking enabled"},
-      {"name": "memory_integration", "type": "boolean", "required": false, "description": "Memory system integration"},
-      {"name": "related_missions", "type": "array", "required": false, "description": "Related missions"},
-      {"name": "external_references", "type": "array", "required": false, "description": "External documentation"},
-      {"name": "generated_date", "type": "datetime", "required": false, "description": "Template generation timestamp"},
-      {"name": "last_updated", "type": "datetime", "required": false, "description": "Last update timestamp"}
+    
+    "variables": {
+      "instance": [
+        {"name": "instance_time", "type": "datetime", "auto": true, "description": "Current timestamp"},
+        {"name": "instance_location", "type": "string", "auto": true, "description": "System hostname"},
+        {"name": "instance_session", "type": "string", "auto": true, "description": "Session ID"},
+        {"name": "document_id", "type": "uuid", "auto": true, "description": "Document unique ID"}
+      ],
+      "required_input": [
+        {"name": "mission_name", "type": "string", "min": 3, "max": 100, "description": "Name of the mission"},
+        {"name": "objective", "type": "text", "min": 10, "description": "Primary objective"},
+        {"name": "priority", "type": "enum", "values": ["low","medium","high","critical"], "description": "Mission priority level"}
+      ],
+      "optional_input": [
+        {"name": "mission_type", "type": "enum", "values": ["development","research","deployment","maintenance","enhancement"], "description": "Type of mission"},
+        {"name": "complexity", "type": "enum", "values": ["low","medium","high","enterprise"], "description": "Mission complexity level"},
+        {"name": "estimated_duration", "type": "string", "description": "Estimated time to complete"},
+        {"name": "start_date", "type": "date", "format": "YYYY-MM-DD", "description": "Mission start date"},
+        {"name": "end_date", "type": "date", "format": "YYYY-MM-DD", "description": "Target completion date"},
+        {"name": "budget", "type": "number", "min": 0, "description": "Mission budget"},
+        {"name": "team_members", "type": "array", "separator": ",", "description": "Team members"},
+        {"name": "primary_location", "type": "string", "description": "Primary mission location"},
+        {"name": "timezone", "type": "string", "description": "Mission timezone"}
+      ],
+      "calculated": [
+        {"name": "completion_rate", "formula": "completed_tasks / total_tasks * 100", "description": "Mission completion percentage"},
+        {"name": "days_remaining", "formula": "end_date - current_date", "description": "Days until deadline"},
+        {"name": "budget_burn_rate", "formula": "spent_amount / elapsed_days", "description": "Daily budget consumption"},
+        {"name": "team_utilization", "formula": "allocated_hours / available_hours * 100", "description": "Team capacity utilization"}
+      ],
+      "dataset_references": [
+        {"name": "location_data", "dataset": "cities", "field": "{{primary_location}}", "description": "Location information"},
+        {"name": "timezone_data", "dataset": "timezones", "field": "{{timezone}}", "description": "Timezone details"},
+        {"name": "team_skills", "dataset": "team_resources", "field": "skills", "description": "Team member skills"},
+        {"name": "project_templates", "dataset": "project_templates", "field": "mission_type", "description": "Related project types"}
+      ],
+      "cross_references": [
+        {"name": "project_status", "template": "project", "field": "current_status", "description": "Related project status"},
+        {"name": "dashboard_metrics", "template": "dashboard", "field": "metrics", "description": "Real-time metrics"},
+        {"name": "team_assignment", "template": "team", "field": "members", "description": "Team assignments"}
+      ]
+    },
+    
+    "shortcodes": [
+      {"name": "mission", "args": ["create", "status", "update", "complete", "archive"], "description": "Mission management commands"},
+      {"name": "team", "args": ["add", "remove", "list", "assign", "skills"], "description": "Team management commands"},
+      {"name": "progress", "args": ["update", "report", "chart", "forecast"], "description": "Progress tracking commands"},
+      {"name": "budget", "args": ["allocate", "spend", "report", "forecast"], "description": "Budget management commands"}
     ],
-    "output_format": "markdown",
-    "tags": ["mission", "planning", "project", "enhanced", "tracking"],
-    "version": "2.0.0"
+    
+    "validation": {
+      "required_fields": ["mission_name", "objective", "priority"],
+      "field_validation": {
+        "mission_name": {"min_length": 3, "max_length": 100},
+        "objective": {"min_length": 10},
+        "priority": {"allowed_values": ["low", "medium", "high", "critical"]},
+        "budget": {"min_value": 0},
+        "start_date": {"format": "YYYY-MM-DD"},
+        "end_date": {"format": "YYYY-MM-DD", "after": "start_date"}
+      },
+      "dataset_validation": {
+        "validate_location": true,
+        "validate_timezone": true,
+        "validate_team_members": true
+      },
+      "cross_reference_validation": {
+        "check_references": true,
+        "validate_paths": true
+      }
+    },
+    
+    "output_formats": ["markdown", "html", "pdf", "json"],
+    "features": ["dataset_integration", "cross_references", "calculated_variables", "input_validation"],
+    "auto_update": true,
+    "backup_enabled": true,
+    "tags": ["mission", "planning", "project", "enhanced", "tracking", "v2.1"]
   },
   {
     "template_id": "milestone",

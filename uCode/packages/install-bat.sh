@@ -90,7 +90,7 @@ if command -v bat >/dev/null 2>&1; then
     fi
     
     # Create usage examples
-    cat > "${UDOS_ROOT}/uKnowledge/packages/bat.md" << 'EOF'
+    cat > "${UDOS_ROOT}/package/utils/bat.md" << 'EOF'
 # bat - Syntax-highlighted File Viewer
 
 ## Overview
@@ -132,7 +132,7 @@ Create `~/.config/bat/config` for custom settings:
 ```
 EOF
 
-    log_success "Package documentation created: uKnowledge/packages/bat.md"
+    log_success "Package documentation created: package/utils/bat.md"
     log_success "bat installation complete and ready for use!"
     
 else

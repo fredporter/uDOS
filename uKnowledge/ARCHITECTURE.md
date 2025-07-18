@@ -36,7 +36,7 @@ uDOS v1.7.0 introduces a major architectural reorganization that clarifies the s
 ```
 uDOS/
 ├── uKnowledge/               # 📚 Shared knowledge (system)
-│   ├── roadmap/             # System roadmap documents
+│   ├── documentation/       # Centralized documentation and planning
 │   ├── packages/            # Package documentation  
 │   ├── companion/           # AI assistance guides
 │   ├── general-library/     # General documentation

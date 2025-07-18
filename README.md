@@ -1,21 +1,18 @@
 # 🌀 uDOS — The User DOS Shell
-*Version: v1.0.0 — Production Ready with Complete User Role System*
+*Version: v1.1.0 — Enhanced with Advanced Mapping & Analytics*
 
-**uDOS** is a single-process, *### ⚡ Quick Start (VS Code - Recommended)
-
-1. **Clone and enter**: `git clone [repo] && cd uDOS`
-2. **Install extension**: Run VS Code task `🔌 Install uDOS VS Code Extension` 
-3. **Start system**: Run VS Code task `🌀 Start uDOS` or `./uCode/ucode.sh`
-4. **Validate setup**: Run `🔍 Check uDOS Setup` task
-
-The VS Code extension (in `uExtension/`) provides uScript language support, Chester AI integration, and direct command execution.erations**:
-- **🌀 Start uDOS** - Launch the main shell with user validation
-- **🔐 Initialize User** - First-time setup and role assignment
-- **✅ Validate Installation** - Comprehensive integrity and privacy checks
-- **👑 Show User Role** - Display current user permissionsown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
+**uDOS** is a single-process, markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
 It is for thinkers, tinkerers, writers, and dreamers — those who want a machine that remembers, evolves, and serves a singular user.
 
-**🎉 v1.0 Release Features**:
+**� v1.1 New Features**:
+- 🗺️ **Advanced Mapping System**: Multi-dimensional geospatial visualization with virtual layers
+- 📊 **Enhanced Analytics**: Comprehensive activity tracking with ASCII dashboards  
+- 🏷️ **Shortcode Templates**: Template-driven content generation with 20+ shortcode types
+- ⏰ **Temporal Navigation**: Historical data playback and predictive modeling
+- 📝 **Smart Logging v2.1**: JSON-structured analytics with performance metrics
+- 🎯 **Daily Objectives**: Goal-oriented productivity tracking system
+
+**✅ v1.0 Production Foundation**:
 - ✅ Complete user role system (wizard/sorcerer/ghost/imp)
 - ✅ Single-user installation enforcement (privacy-first ethos)
 - ✅ First-time setup with automated validation
@@ -33,6 +30,7 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 - **Process minimalism**: One shell, one thread, one memory — a living notebook with intent.
 - **Memory with purpose**: All actions form a legacy, built from Moves and Missions over time.
 - **Cross-platform longevity**: Runs natively on modern macOS and Linux — lightweight and thrives on old, repurposed machines.
+- **Intelligent visualization**: Advanced mapping and analytics transform data into insights.
 
 ---
 
@@ -40,14 +38,16 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 
 | Term         | Description                                                             |
 |--------------|-------------------------------------------------------------------------|
-| **Move**     | A single input/output action — the atomic thought in uDOS                |
-| **Mission**  | A goal or project, composed of many moves                               |
-| **Milestone**| A significant checkpoint on the way to completing a Mission             |
-| **Legacy**   | Archived results or final output from a completed uDOS instance          |
+| **Move**     | A single input/output action — the atomic thought in uDOS with analytics |
+| **Mission**  | A goal or project, composed of many moves with progress tracking        |
+| **Milestone**| A significant checkpoint with objective-based completion metrics        |
+| **Legacy**   | Archived results or final output from a completed uDOS instance        |
 | **uMemory**  | Your personal memory: logs, state, and active history (privacy-protected) |
 | **uKnowledge** | Shared Markdown reference knowledge, maps, guides, and general info   |
 | **User Role**| NetHack-inspired permission system (wizard/sorcerer/ghost/imp)         |
 | **Companion**| AI assistant system (Chester the Wizard's Assistant by default)       |
+| **Map Layer**| Multi-dimensional data visualization from Earth's core to orbital space |
+| **Shortcode**| Template-driven content generation with variable substitution          |
 
 ### 🔐 Core Ethos: One Installation Per User
 
@@ -66,7 +66,6 @@ uDOS enforces a **single-user installation model** for maximum privacy:
 ├── 🏗️ CORE ARCHITECTURE (v1.0)
 │
 ├── 📚 uKnowledge/               # Central shared knowledge bank
-│   ├── roadmap/                 # System roadmap documents (001-011)  
 │   ├── packages/                # Package documentation
 │   ├── companion/               # AI companion guides (Chester, etc.)
 │   ├── general-library/         # General documentation
@@ -80,9 +79,15 @@ uDOS enforces a **single-user installation model** for maximum privacy:
 │   ├── missions/                # User missions
 │   ├── milestones/              # User milestones  
 │   ├── moves/                   # User action history
-│   ├── sandbox/                 # User workspace
 │   ├── templates/               # User-customized templates
 │   └── legacy/                  # User legacy items
+│
+├── 🏖️ sandbox/                  # Daily working space (v1.0)
+│   ├── today/                   # Current session workspace
+│   ├── sessions/                # Historical daily sessions
+│   ├── temp/                    # Temporary files (auto-cleanup)
+│   ├── drafts/                  # Work in progress
+│   └── finalized/               # Ready for uMemory storage
 │
 ├── ⚙️ uCode/                    # Complete command centre
 │   ├── ucode.sh                 # Main shell interface
@@ -100,34 +105,98 @@ uDOS enforces a **single-user installation model** for maximum privacy:
 │   ├── examples/                # Example scripts
 │   └── tests/                   # Script testing framework
 │
-├── 📋 uTemplate/                # System templates and datasets
+├── 📋 uTemplate/                # Enhanced templates with mapping & analytics v1.1
 │   ├── system/                  # System templates
 │   ├── datasets/                # System datasets (locations, users, etc.)
 │   ├── variables/               # System variables
+│   ├── mapping/                 # 🗺️ Advanced mapping system (NEW v1.1)
+│   │   ├── map-layers.md        # Multi-dimensional layer definitions
+│   │   ├── process-map-shortcodes.sh  # Shortcode processor engine
+│   │   ├── demo-map-integration.sh    # Interactive demo system
+│   │   └── README.md            # Mapping system documentation
+│   ├── installers/              # Multi-platform installer templates
+│   ├── daily-move-log-v2.md     # 📊 Enhanced daily tracking (NEW v1.1)
 │   ├── chester-uc-template.md   # Chester-enhanced template system
 │   └── [TypeScript project]     # Template engine
 │
 ├── 🚀 launcher/                 # macOS launchers (.app and .command)
-├── � uExtension/               # VS Code extension (system installation)
+├── 🔌 extension/                # VS Code extension (renamed from uExtension)
 │   ├── src/                     # TypeScript extension source
 │   ├── syntaxes/                # uScript language grammar
 │   ├── snippets/                # uScript code snippets
 │   └── *.vsix                   # Packaged extension files
-├── �📊 progress/                 # Development tracking and archived files
-├── 📖 CHANGELOG.md              # Version history
+├── 📦 package/                  # Package management system (v1.0)
+│   ├── manifest.json            # Package definitions and auto-install
+│   ├── install-queue.txt        # Startup installation queue
+│   └── README.md                # Package system documentation
+├── 🚀 install/                  # Installation and setup system (v1.0)
+│   ├── install-udos.sh          # Main installation script
+│   ├── setup-wizard.sh          # First-time setup wizard
+│   ├── user-provisioning.sh     # User role setup
+│   └── README.md                # Installation documentation
+├── 📊 progress/                 # Development tracking and archived files
+├── 📖 CHANGELOG.md              # Version history (v1.1 updates)
 ├── 📖 README.md                 # You're reading it
 └── 📖 .vscode/                  # VS Code integration (25+ pre-configured tasks)
     ├── tasks.json               # One-click operations
     └── settings.json            # Optimized configuration
 ```
 
-### 🎯 Architectural Principles (v1.0)
+### 🗺️ Advanced Mapping System (NEW v1.1)
+
+uDOS now includes a sophisticated geospatial visualization framework with multi-dimensional capabilities:
+
+#### Virtual Layer Architecture
+```ascii
+                    ┌─────────────────────────────────┐
+                    │     ATMOSPHERE (+∞)            │  🛰️ Satellites & Weather
+                    ├─────────────────────────────────┤
+                    │     AVIATION (+10km)           │  ✈️ Flight Paths & Traffic
+                    ├─────────────────────────────────┤
+                    │     CLOUDS (+2km)              │  ☁️ Weather Systems
+                    ├─────────────────────────────────┤
+                    │     SURFACE (0m)               │  🌍 Geography & Cities
+                    ├─────────────────────────────────┤
+                    │     SUBSURFACE (-100m)         │  🚇 Infrastructure
+                    ├─────────────────────────────────┤
+                    │     GEOLOGICAL (-1km)          │  🪨 Rock & Minerals
+                    ├─────────────────────────────────┤
+                    │     CORE (-6,371km)            │  🌋 Tectonic Data
+                    └─────────────────────────────────┘
+```
+
+#### Key Features
+- **20+ Shortcode Types**: Template-driven map generation
+- **3 Projection Systems**: Mercator, Robinson, 3D Orthographic
+- **Temporal Navigation**: Historical data, real-time feeds, predictive models
+- **Interactive Processing**: Automatic shortcode extraction and visualization
+- **ASCII Dashboards**: Enhanced data presentation with visual blocks
+
+### 📊 Enhanced Analytics (NEW v1.1)
+
+#### Smart Daily Tracking
+- **Activity Dashboards**: ASCII-powered progress visualization
+- **Performance Metrics**: Command timing and success rate analysis
+- **Objective Tracking**: Goal-oriented productivity system
+- **Predictive Insights**: Pattern recognition and workflow optimization
+
+#### Enhanced Logging v2.1.0
+- **JSON Analytics**: Structured performance data collection
+- **Multi-format Export**: JSON, CSV, Markdown output options
+- **Auto-archival**: Intelligent cleanup of historical data
+- **Error Context**: Comprehensive error tracking with command context
+
+### 🎯 Architectural Principles (v1.1)
 
 - **📚 uKnowledge**: System documentation and shared knowledge (version controlled)
 - **🧠 uMemory**: ALL user data - completely private and local-only (gitignored)  
-- **⚙️ uCode**: Central command and control system with user role enforcement
+- **🏖️ sandbox**: Daily working space for organized session management (v1.0)
+- **⚙️ uCode**: Central command and control system with enhanced logging (v1.1)
 - **🔧 uScript**: System-level script execution environment
-- **📋 uTemplate**: Read-only system templates with companion integration
+- **📋 uTemplate**: Enhanced templates with mapping & analytics system (v1.1)
+- **📦 package**: Bundled application management with auto-install (v1.0)
+- **🚀 install**: Installation and user provisioning system (v1.0)
+- **🔌 extension**: VS Code integration with uScript language support (v1.0)
 - **🔐 Single-User**: One installation per user for maximum privacy and security
 
 ---
@@ -181,16 +250,17 @@ For legacy setup instructions, see `OPTIMIZATION.md`.
 
 ---
 
-## 🗺️ Documentation & Roadmap
+## 🗺️ Documentation & Development Planning
 
-For complete system documentation and development roadmap:
+For complete system documentation and development planning:
 
-➡️ [`uKnowledge/roadmap/ROADMAP_INDEX.md`](uKnowledge/roadmap/ROADMAP_INDEX.md) — Complete roadmap index  
-➡️ [`uKnowledge/roadmap/ROADMAP_STATUS.md`](uKnowledge/roadmap/ROADMAP_STATUS.md) — Implementation progress  
-➡️ [`uKnowledge/roadmap/001-uDOS-foundation.md`](uKnowledge/roadmap/001-uDOS-foundation.md) — Core philosophy & ethos  
+➡️ [`docs/README.md`](docs/README.md) — Complete documentation index and navigation  
+➡️ [`docs/future-roadmap.md`](docs/future-roadmap.md) — Comprehensive development planning  
+➡️ [`docs/development-strategy.md`](docs/development-strategy.md) — Strategic development framework  
+➡️ [`docs/technical-architecture.md`](docs/technical-architecture.md) — System architecture guide  
 ➡️ [`CHANGELOG.md`](CHANGELOG.md) — Version history and migration guides
 
-**Note**: Roadmap documentation is now correctly located in `uKnowledge/roadmap/` (v1.0 cleanup)
+**Note**: All roadmap content consolidated into main documentation (July 2025)
 
 ---
 

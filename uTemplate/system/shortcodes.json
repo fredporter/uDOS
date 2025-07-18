@@ -1,6 +1,6 @@
 {
-  "version": "1.7.1",
-  "description": "uDOS Shortcode Configuration",
+  "version": "2.0.0",
+  "description": "uDOS Shortcode Configuration - Updated with Editor Integration",
   "shortcodes": [
     {
       "name": "run",
@@ -24,6 +24,54 @@
         "[bash:ls -la]",
         "[bash:find . -name '*.md']",
         "[bash:echo 'Hello World']"
+      ]
+    },
+    {
+      "name": "edit",
+      "type": "editor_integration",
+      "description": "Edit files with smart editor selection",
+      "script": "uCode/editor-integration.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[edit:notes.md]",
+        "[edit:script.sh vim]",
+        "[edit:config.json code]"
+      ]
+    },
+    {
+      "name": "draft",
+      "type": "file_creation",
+      "description": "Create draft files in sandbox",
+      "script": "uCode/editor-integration.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[draft:meeting-notes]",
+        "[draft:ideas txt]",
+        "[draft:project-plan md]"
+      ]
+    },
+    {
+      "name": "session",
+      "type": "session_management",
+      "description": "Create or open session files",
+      "script": "uCode/editor-integration.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[session]",
+        "[session:project-alpha]",
+        "[session:2025-07-18]"
+      ]
+    },
+    {
+      "name": "script",
+      "type": "script_development",
+      "description": "Create and edit scripts with templates",
+      "script": "uScript/utilities/script-editor-integration.sh",
+      "permissions": ["read", "write", "execute"],
+      "examples": [
+        "[script:create backup-tool automation]",
+        "[script:edit existing-script.sh]",
+        "[script:test my-script.sh]"
       ]
     },
     {
@@ -121,8 +169,114 @@
         "[tree:show depth=3]",
         "[tree:save file=structure.md]"
       ]
+    },
+    {
+      "name": "sandbox",
+      "type": "workspace_management",
+      "description": "Manage sandbox workspace and user data",
+      "script": "uCode/sandbox-manager.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[sandbox:list]",
+        "[sandbox:clean]",
+        "[sandbox:organize]",
+        "[sandbox:backup]"
+      ]
+    },
+    {
+      "name": "today",
+      "type": "daily_management",
+      "description": "Manage today's files and tasks",
+      "script": "uCode/sandbox-manager.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[today:notes]",
+        "[today:tasks]",
+        "[today:summary]"
+      ]
+    },
+    {
+      "name": "research",
+      "type": "research_management",
+      "description": "Manage research files and notes",
+      "script": "uCode/sandbox-manager.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[research:new topic=ai]",
+        "[research:list]",
+        "[research:archive]"
+      ]
+    },
+    {
+      "name": "template",
+      "type": "template_processing",
+      "description": "Process and generate templates",
+      "script": "uCode/template-processor.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[template:process file=example.md]",
+        "[template:generate type=report]",
+        "[template:list]"
+      ]
+    },
+    {
+      "name": "vb",
+      "type": "vb_command_system",
+      "description": "Execute VB-style commands",
+      "script": "uCode/vb-enhanced-interpreter.sh",
+      "permissions": ["read", "write", "execute"],
+      "examples": [
+        "[vb:DIM userName As String]",
+        "[vb:GRID.POSITION A5]",
+        "[vb:PRINT 'Hello World']"
+      ]
+    },
+    {
+      "name": "location",
+      "type": "location_management",
+      "description": "Manage location and grid context",
+      "script": "uCode/location-manager.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[location:set Sydney]",
+        "[location:grid B5]",
+        "[location:timezone Australia/Sydney]"
+      ]
+    },
+    {
+      "name": "backup",
+      "type": "backup_management",
+      "description": "Backup and restore operations",
+      "script": "uScript/utilities/backup-manager.sh",
+      "permissions": ["read", "write"],
+      "examples": [
+        "[backup:create]",
+        "[backup:restore date=2025-07-18]",
+        "[backup:list]"
+      ]
     }
   ],
+  "shortcode_processors": [
+    {
+      "name": "basic_processor",
+      "type": "string_replacement",
+      "description": "Basic shortcode processing with string replacement",
+      "script": "uCode/shortcode-processor-simple.sh"
+    },
+    {
+      "name": "advanced_processor", 
+      "type": "context_aware",
+      "description": "Advanced shortcode processing with context awareness",
+      "script": "uCode/shortcode-processor.sh"
+    }
+  ],
+  "integration_settings": {
+    "auto_process": true,
+    "context_aware": true,
+    "user_data_separation": true,
+    "sandbox_integration": true,
+    "memory_logging": true
+  },
   "security": {
     "max_execution_time": 300,
     "allowed_paths": [

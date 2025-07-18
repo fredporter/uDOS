@@ -128,7 +128,7 @@ check_status() {
 
 show_docs() {
     local package="$1"
-    local docs_file="${UDOS_ROOT}/uKnowledge/packages/${package}.md"
+    local docs_file="${UDOS_ROOT}/package/utils/${package}.md"
     
     if [[ -f "$docs_file" ]]; then
         if command -v glow >/dev/null 2>&1; then
@@ -331,7 +331,7 @@ check_status() {
 
 show_docs() {
     local package="$1"
-    local docs_file="${UDOS_ROOT}/uKnowledge/packages/${package}.md"
+    local docs_file="${UDOS_ROOT}/package/utils/${package}.md"
     
     if [[ -f "$docs_file" ]]; then
         if command -v glow >/dev/null 2>&1; then

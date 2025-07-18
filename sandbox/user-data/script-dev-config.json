@@ -1,0 +1,17 @@
+{
+  "development_preferences": {
+    "auto_format": true,
+    "syntax_check": true,
+    "auto_backup": true,
+    "test_on_save": false,
+    "preferred_shell": "bash",
+    "indentation": "2_spaces",
+    "line_endings": "unix"
+  },
+  "project_structure": {
+    "scripts_dir": "sandbox/scripts",
+    "templates_dir": "uScript/templates", 
+    "utilities_dir": "uScript/utilities",
+    "tests_dir": "sandbox/scripts/testing"
+  }
+}

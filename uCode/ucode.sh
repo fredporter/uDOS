@@ -10,6 +10,30 @@ export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
 
+# Load Display Configuration System
+DISPLAY_VARS="${UHOME}/uMemory/config/display-vars.sh"
+if [[ -f "$DISPLAY_VARS" ]]; then
+    source "$DISPLAY_VARS"
+    echo "🖥️  Display configuration loaded ($UDOS_DISPLAY_MODE mode)"
+else
+    echo "🖥️  Initializing template-based display configuration..."
+    if [[ -f "$SCRIPT_DIR/display-template-processor.sh" ]]; then
+        "$SCRIPT_DIR/display-template-processor.sh" process
+        source "$DISPLAY_VARS" 2>/dev/null || echo "⚠️  Display configuration partial"
+    else
+        echo "⚠️  Display template processor not found - using legacy fallback"
+        if [[ -f "$SCRIPT_DIR/display-config.sh" ]]; then
+            "$SCRIPT_DIR/display-config.sh" init
+            source "$DISPLAY_VARS" 2>/dev/null || echo "⚠️  Display configuration partial"
+        else
+            echo "⚠️  No display configuration available - using defaults"
+            export UDOS_DISPLAY_MODE="auto"
+            export UDOS_TERMINAL_COLS="${COLUMNS:-80}"
+            export UDOS_TERMINAL_ROWS="${LINES:-24}"
+        fi
+    fi
+fi
+
 # User Setup Check - Core uDOS ethos: One installation per user
 if [[ ! -f "$UDENT" ]]; then
     echo "🔐 First-time setup detected - initializing user..."
@@ -84,11 +108,12 @@ mkdir -p "$UHOME/uMemory/templates"
 mkdir -p "$UHOME/uMemory/sandbox"
 
 # uKnowledge = Central shared knowledge bank (system docs)
-mkdir -p "$UHOME/uKnowledge/packages"
 mkdir -p "$UHOME/uKnowledge/companion"
 mkdir -p "$UHOME/uKnowledge/general-library"
 mkdir -p "$UHOME/uKnowledge/maps"
-mkdir -p "$UHOME/uKnowledge/roadmap"
+
+# docs = Centralized documentation (roadmaps migrated here)
+mkdir -p "$UHOME/docs/roadmap"
 
 # uCode = Complete command centre (already exists)
 mkdir -p "$UHOME/uCode/packages"
@@ -102,6 +127,19 @@ mkdir -p "$UHOME/uScript/automation"
 mkdir -p "$UHOME/uTemplate/system"
 mkdir -p "$UHOME/uTemplate/datasets"
 mkdir -p "$UHOME/uTemplate/variables"
+
+# Alpha v1.0: Auto-install packages on first run
+PACKAGE_FLAG_FILE="$UHOME/uMemory/state/.packages-installed"
+if [[ ! -f "$PACKAGE_FLAG_FILE" && -f "$SCRIPT_DIR/package-manager.sh" ]]; then
+  echo "🚀 Alpha v1.0: Installing essential packages..."
+  if bash "$SCRIPT_DIR/package-manager.sh" install-all; then
+    echo "✅ Package installation complete"
+    touch "$PACKAGE_FLAG_FILE"
+  else
+    echo "⚠️ Some packages may not have installed correctly"
+    echo "💡 Run 'PACKAGE VALIDATE' to check status"
+  fi
+fi
 
 # Track if session end has been logged
 export UCODE_SESSION_ENDED=false
@@ -123,9 +161,69 @@ log_move() {
   bash "$UHOME/uCode/log.sh" move "$cmd"
 }
 
-# --- Enhanced User Setup Function with Template Integration ---
+# --- Enhanced User Setup Function with Template Integration v2.0 ---
 cmd_setup_user() {
-  echo "👤 Template-Integrated User Setup"
+  echo "👤 uDOS Template-Based User Setup v2.0"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "🔧 Using unified uTemplate system with [shortcodes] and \$Variables"
+  echo ""
+  
+  # Check if template-based setup processor exists
+  local setup_processor="$UHOME/uCode/setup-template-processor.sh"
+  if [[ -f "$setup_processor" ]]; then
+    echo "✅ Template processor found - launching enhanced setup..."
+    echo ""
+    
+    # Run the template-based setup
+    if bash "$setup_processor"; then
+      echo ""
+      echo "🎉 Template-based setup completed successfully!"
+      echo ""
+      
+      # Load and display the generated configuration
+      local config_file="$UHOME/uMemory/config/setup-vars.sh"
+      if [[ -f "$config_file" ]]; then
+        echo "📋 Configuration Summary:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        
+        # Show key configuration values
+        source "$config_file"
+        echo "👤 Username: ${UDOS_USERNAME:-'Not set'}"
+        echo "🎯 Role: ${UDOS_DEFAULT_ROLE:-'Not set'}"
+        echo "🌍 Location: ${UDOS_CITY_NAME:-'Not set'}"
+        echo "⏰ Timezone: ${UDOS_TIMEZONE:-'Not set'}"
+        echo "🎨 Theme: ${UDOS_THEME:-'Not set'}"
+        echo "🤖 AI Companion: ${UDOS_AI_COMPANION:-'Not set'}"
+        echo ""
+        
+        echo "📁 Generated Files:"
+        echo "   📄 Identity: uMemory/user/identity.md"
+        echo "   ⚙️  Config: uMemory/config/setup-vars.sh"
+        echo "   🎯 Mission: uMemory/missions/001-welcome-mission.md"
+        echo ""
+        
+        echo "🚀 Next Steps:"
+        echo "   1. Run: ucode CHECK all"
+        echo "   2. Try: ucode DASH live"
+        echo "   3. Read: docs/user-manual.md"
+      else
+        echo "⚠️  Configuration file not generated - setup may be incomplete"
+      fi
+    else
+      echo "❌ Template-based setup failed - trying legacy setup..."
+      cmd_setup_user_legacy
+    fi
+  else
+    echo "⚠️  Template processor not found - using legacy setup"
+    echo ""
+    cmd_setup_user_legacy
+  fi
+}
+
+# Legacy setup function for fallback
+cmd_setup_user_legacy() {
+  echo "👤 uDOS User Setup (Legacy Mode)"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
   echo "🆔 Let's set up your uDOS identity using the enhanced template system..."
   echo ""
@@ -634,6 +732,132 @@ cmd_mission() {
   echo ""
 }
 
+# --- Display Configuration Command ---
+cmd_display_config() {
+  local subcmd="${1:-summary}"
+  
+  case "$subcmd" in
+    INIT|SETUP|CONFIGURE)
+      echo "🖥️  Initializing template-based display configuration..."
+      if [[ -f "$SCRIPT_DIR/display-template-processor.sh" ]]; then
+        bash "$SCRIPT_DIR/display-template-processor.sh" process
+        # Reload variables
+        source "${UHOME}/uMemory/config/display-vars.sh" 2>/dev/null || true
+        echo "✅ Template-based display configuration completed"
+      else
+        echo "⚠️  Template processor not found - using legacy system"
+        if [[ -f "$SCRIPT_DIR/display-config.sh" ]]; then
+          bash "$SCRIPT_DIR/display-config.sh" init
+          source "${UHOME}/uMemory/config/display-vars.sh" 2>/dev/null || true
+          echo "✅ Legacy display configuration completed"
+        else
+          echo "❌ No display configuration system available"
+        fi
+      fi
+      ;;
+    DETECT|SIZE)
+      echo "🔍 Current terminal size:"
+      if [[ -n "${UDOS_TERMINAL_COLS:-}" ]] && [[ -n "${UDOS_TERMINAL_ROWS:-}" ]]; then
+        echo "Configured: ${UDOS_TERMINAL_COLS} × ${UDOS_TERMINAL_ROWS} (${UDOS_DETECTION_METHOD:-unknown})"
+      fi
+      
+      # Also show current detection
+      local current_cols current_rows
+      if command -v tput >/dev/null 2>&1; then
+        current_cols=$(tput cols 2>/dev/null || echo "${COLUMNS:-unknown}")
+        current_rows=$(tput lines 2>/dev/null || echo "${LINES:-unknown}")
+        echo "Current: ${current_cols} × ${current_rows} (tput)"
+      else
+        echo "Current: ${COLUMNS:-unknown} × ${LINES:-unknown} (environment)"
+      fi
+      ;;
+    MODE)
+      echo "🎯 Display mode information:"
+      if [[ -n "${UDOS_DISPLAY_MODE:-}" ]]; then
+        echo "Display Mode: $UDOS_DISPLAY_MODE"
+        echo "Viewport: ${UDOS_VIEWPORT_COLS:-80} × ${UDOS_VIEWPORT_ROWS:-24}"
+        echo "Dashboard: ${UDOS_DASH_COLS:-80} × ${UDOS_DASH_ROWS:-15} (${UDOS_DASH_POSITION:-bottom})"
+        echo "Grid System: ${UDOS_GRID_MODE:-standard} (${UDOS_GRID_COLS_MAX:-26}×${UDOS_GRID_ROWS_MAX:-99})"
+        echo "Block Style: ${UDOS_BORDER_STYLE:-single} (${UDOS_BLOCK_WIDTH:-40}×${UDOS_BLOCK_HEIGHT:-6})"
+      else
+        echo "❌ Display configuration not loaded"
+        echo "💡 Run: DISPLAY INIT"
+      fi
+      ;;
+    TEST)
+      echo "🧪 Testing ASCII interface elements..."
+      if [[ -f "$SCRIPT_DIR/display-template-processor.sh" ]]; then
+        bash "$SCRIPT_DIR/display-template-processor.sh" test
+      elif [[ -f "$SCRIPT_DIR/display-config.sh" ]]; then
+        bash "$SCRIPT_DIR/display-config.sh" test
+      else
+        echo "❌ No display testing system available"
+      fi
+      ;;
+    SUMMARY|SHOW|"")
+      echo "📊 Display Configuration Summary:"
+      if [[ -f "$SCRIPT_DIR/display-template-processor.sh" ]]; then
+        bash "$SCRIPT_DIR/display-template-processor.sh" summary
+      elif [[ -f "$SCRIPT_DIR/display-config.sh" ]]; then
+        bash "$SCRIPT_DIR/display-config.sh" summary
+      else
+        echo "❌ No display configuration system available"
+        echo "💡 Run: DISPLAY INIT to set up display configuration"
+      fi
+      ;;
+    TEMPLATE)
+      echo "🔧 Display template system information:"
+      local template_file="${UHOME}/uTemplate/display-config-template.md"
+      if [[ -f "$template_file" ]]; then
+        echo "✅ Template available: $template_file"
+        echo "� Template size: $(wc -l < "$template_file") lines"
+        if [[ -f "${UHOME}/uMemory/config/display-vars.sh" ]]; then
+          echo "✅ Configuration generated: $(stat -f '%Sm' -t '%Y-%m-%d %H:%M:%S' "${UHOME}/uMemory/config/display-vars.sh" 2>/dev/null || echo 'unknown')"
+        else
+          echo "❌ Configuration not generated"
+        fi
+      else
+        echo "❌ Template not found: $template_file"
+      fi
+      ;;
+    VARS|VARIABLES)
+      echo "📝 Display configuration variables:"
+      if [[ -f "$SCRIPT_DIR/display-template-processor.sh" ]]; then
+        bash "$SCRIPT_DIR/display-template-processor.sh" vars
+      else
+        echo "❌ Template processor not available"
+      fi
+      ;;
+    HELP)
+      echo "🖥️  uDOS Display Configuration Commands:"
+      echo ""
+      echo "DISPLAY INIT       - Initialize template-based display configuration"
+      echo "DISPLAY DETECT     - Detect current terminal size"
+      echo "DISPLAY MODE       - Show display mode information"
+      echo "DISPLAY TEST       - Test ASCII interface elements"
+      echo "DISPLAY SUMMARY    - Show configuration summary"
+      echo "DISPLAY TEMPLATE   - Show template system status"
+      echo "DISPLAY VARS       - Show generated variables"
+      echo "DISPLAY HELP       - Show this help"
+      echo ""
+      echo "� Template System v2.0:"
+      echo "  • Uses [shortcode] and \$Variable format"
+      echo "  • Processes display-config-template.md"
+      echo "  • Generates executable configuration files"
+      echo "  • Automatically adapts to terminal size"
+      echo ""
+      echo "📱 Supported display modes:"
+      echo "  • micro (80×45)   • mini (80×60)     • compact (160×90)"
+      echo "  • console (160×120) • wide (320×180)  • full (320×240)"
+      echo "  • mega (640×360)   • ultra (640×480)"
+      ;;
+    *)
+      echo "❓ Unknown display command: $subcmd"
+      echo "💡 Try: DISPLAY HELP"
+      ;;
+  esac
+}
+
 cmd_map() {
   subcmd=$(echo "$args" | awk '{print toupper($1)}')
   case "$subcmd" in
@@ -1038,8 +1262,13 @@ cmd_run() {
 }
 
 cmd_tree() {
-  echo "🌳 Generating uDOS File Tree"
-  bash "$UHOME/uCode/make-tree.sh"
+  echo "🌳 Generating Alpha v1.0 Clean File Tree"
+  echo "📋 (Production ready structure - system folders filtered)"
+  if [[ -f "$UHOME/uCode/make-tree-simple.sh" ]]; then
+    bash "$UHOME/uCode/make-tree-simple.sh"
+  else
+    bash "$UHOME/uCode/make-tree.sh"
+  fi
 }
 
 cmd_list() {
@@ -1049,9 +1278,10 @@ cmd_list() {
   
   if [[ -d "$target_dir" ]]; then
     if command -v tree >/dev/null 2>&1; then
-      tree "$target_dir" -L 3
+      # Alpha v1.0: Filter out system folders and build artifacts
+      tree "$target_dir" -L 3 -I 'node_modules|.git|.DS_Store|*.log|dist|build|out|uMemory|progress'
     else
-      find "$target_dir" -type d -maxdepth 3 | head -20
+      find "$target_dir" -type d -maxdepth 3 | grep -v -E '\.(git|DS_Store)|node_modules|dist|build|out|uMemory|progress' | head -20
     fi
   else
     echo "❌ Directory not found: $target_dir"
@@ -1327,6 +1557,9 @@ while true; do
     SETUP)
       cmd_setup_user
       ;;
+    DISPLAY)
+      cmd_display_config "$args"
+      ;;
     VALIDATE)
       validate_template_datasets
       ;;
@@ -1367,7 +1600,7 @@ while true; do
       fi
       ;;
     HELP)
-      echo "🧩 uDOS Version: $UVERSION (Template-Integrated Architecture)"
+      echo "🧩 uDOS Version: $UVERSION (Alpha v1.0 - Production Ready)"
       echo "🧠 Available uDOS commands:"
       echo "   LOG       → Log mission/milestone/legacy"
       echo "   RUN       → Run a uScript"
@@ -1384,8 +1617,25 @@ while true; do
       echo "   RECENT    → Show last 10 moves"
       echo "   CHECK     → Enhanced commands with dataset integration"
       echo "   SETUP     → Template-driven user setup"
+      echo "   DISPLAY   → Terminal display configuration and ASCII interface"
       echo "   VALIDATE  → Validate template-dataset integration"
       echo "   DEBUG     → Enhanced debug with template status"
+      echo ""
+      echo "🆕 ALPHA v1.0 NEW FEATURES"
+      echo "   PACKAGE   → Package management (install/list/info/validate)"
+      echo "   SANDBOX   → Daily session management (start/finalize/clean)"
+      echo "   DEVELOPER → Developer mode (enable/disable/status/backup)"
+      echo "   EDIT      → Edit files with integrated text editor"
+      echo "   CREATE    → Create new files in sandbox"
+      echo "   VIEW      → View files with syntax highlighting"
+      echo "   SEARCH    → Fast text search with ripgrep"
+      echo ""
+      echo "🖥️  DISPLAY CONFIGURATION"
+      echo "     display init               - Initialize display configuration"
+      echo "     display detect             - Detect current terminal size"
+      echo "     display mode               - Show display mode information"
+      echo "     display test               - Test ASCII interface elements"
+      echo "     display summary            - Show configuration summary"
       echo ""
       echo "🔍 ENHANCED CHECK COMMANDS"
       echo "     check user                  - Template-driven user setup"
@@ -1393,6 +1643,26 @@ while true; do
       echo "     check timezone              - Timezone with dataset integration"
       echo "     check datasets              - Show dataset statistics"
       echo "     check templates             - List available templates"
+      echo ""
+      echo "📦 PACKAGE SYSTEM"
+      echo "     package install <name>      - Install specific package"
+      echo "     package install-all         - Install all auto-packages"
+      echo "     package list               - List available packages"
+      echo "     package info <name>        - Show package information"
+      echo "     package validate           - Check installation status"
+      echo ""
+      echo "🏖️ SANDBOX SYSTEM"
+      echo "     sandbox start              - Start new daily session"
+      echo "     sandbox finalize           - Finalize current session"
+      echo "     sandbox clean              - Clean temporary files"
+      echo "     sandbox status             - Show current session status"
+      echo "     sandbox list               - List sandbox contents"
+      echo ""
+      echo "🔧 DEVELOPER MODE"
+      echo "     developer enable           - Enable developer mode"
+      echo "     developer disable          - Disable developer mode"
+      echo "     developer status           - Show current mode status"
+      echo "     developer backup           - Create script backups"
       echo ""
       echo "📊 JSON DATASET COMMANDS"
       echo "     json list                   - List all JSON datasets"
@@ -1435,6 +1705,92 @@ while true; do
       echo "     • Geographic coordinate mapping"
       echo "     • Dynamic command extension system"
       echo ""
+      ;;
+    # === ALPHA v1.0 NEW COMMANDS ===
+    PACKAGE)
+      # Package management system
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/package-manager.sh" $shift_args
+      ;;
+    SANDBOX)
+      # Sandbox session management
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/sandbox-manager.sh" $shift_args
+      ;;
+    DEVELOPER)
+      # Developer mode management
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/developer-mode.sh" $shift_args
+      ;;
+    EDIT)
+      # Integrated text editor command
+      if [[ -n "$args" ]]; then
+        if command -v micro >/dev/null 2>&1; then
+          micro "$args"
+        elif command -v nano >/dev/null 2>&1; then
+          nano "$args"
+        else
+          echo "❌ No text editor available. Install packages first."
+          echo "💡 Run: PACKAGE INSTALL-ALL"
+        fi
+      else
+        echo "Usage: EDIT <filename>"
+      fi
+      ;;
+    CREATE)
+      # Create new files in sandbox
+      if [[ -n "$args" ]]; then
+        local filename="$args"
+        # Default to markdown if no extension
+        if [[ "$filename" != *.* ]]; then
+          filename="${filename}.md"
+        fi
+        
+        # Create in sandbox/today if it exists, otherwise current directory
+        if [[ -d "${UDOS_ROOT}/sandbox/today" ]]; then
+          local target_file="${UDOS_ROOT}/sandbox/today/$filename"
+        else
+          local target_file="$filename"
+        fi
+        
+        # Create basic template
+        echo "# $(basename "$filename" .md)" > "$target_file"
+        echo "" >> "$target_file"
+        echo "Created: $(date)" >> "$target_file"
+        echo "" >> "$target_file"
+        
+        echo "✅ Created: $target_file"
+        echo "💡 Use EDIT $filename to open"
+      else
+        echo "Usage: CREATE <filename>"
+      fi
+      ;;
+    VIEW)
+      # View files with syntax highlighting
+      if [[ -n "$args" ]]; then
+        if command -v bat >/dev/null 2>&1; then
+          bat "$args"
+        elif command -v glow >/dev/null 2>&1 && [[ "$args" =~ \.md$ ]]; then
+          glow "$args"
+        else
+          cat "$args"
+        fi
+      else
+        echo "Usage: VIEW <filename>"
+      fi
+      ;;
+    SEARCH)
+      # Fast text search
+      if [[ -n "$args" ]]; then
+        if command -v rg >/dev/null 2>&1; then
+          rg "$args" "${UDOS_ROOT}"
+        else
+          echo "❌ ripgrep not available. Install packages first."
+          echo "💡 Run: PACKAGE INSTALL-ALL"
+        fi
+      else
+        echo "Usage: SEARCH <pattern>"
+      fi
       ;;
     JSON)
       shift_args=$(echo "$args" | cut -d' ' -f1-)

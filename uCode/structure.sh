@@ -18,8 +18,6 @@ PATHS=(
   "uMemory/state"
   
   # uKnowledge = Central shared knowledge bank
-  "uKnowledge/roadmap"
-  "uKnowledge/packages"
   "uKnowledge/companion"
   "uKnowledge/general-library"
   "uKnowledge/maps"

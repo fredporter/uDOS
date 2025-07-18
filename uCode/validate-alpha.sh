@@ -72,8 +72,8 @@ ESSENTIAL_DOCS=(
     "README.md"
     "CHANGELOG.md" 
     "ALPHA_RELEASE_PREP.md"
-    "uKnowledge/roadmap/ROADMAP_STATUS.md"
-    "uKnowledge/roadmap/001-uDOS-foundation.md"
+    "docs/roadmap/ROADMAP_STATUS.md"
+    "docs/roadmap/001-uDOS-foundation.md"
 )
 
 missing_docs=0

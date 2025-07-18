@@ -1,0 +1,11 @@
+# Auto-install queue for uDOS startup
+# Packages listed here will be installed automatically on first run
+# One package per line, matches package names in manifest.json
+
+nano
+ripgrep
+fd
+bat
+micro
+glow
+jq

@@ -81,7 +81,7 @@ if command -v glow >/dev/null 2>&1; then
     fi
     
     # Create usage examples
-    cat > "${UDOS_ROOT}/uKnowledge/packages/glow.md" << 'EOF'
+    cat > "${UDOS_ROOT}/package/utils/glow.md" << 'EOF'
 # glow - Terminal Markdown Renderer
 
 ## Overview
@@ -137,10 +137,12 @@ pager: true
 ## uDOS Specific Usage
 
 ```bash
-# View roadmap files
-glow uKnowledge/roadmap/001-uDOS-foundation.md
-
-# View mission templates
+    # Test with a uDOS document
+    echo "📖 Testing with uDOS documentation..."
+    if command -v glow >/dev/null 2>&1; then
+        echo "✨ Displaying uDOS foundation document with glow:"
+        echo ""
+        glow docs/roadmap/001-uDOS-foundation.md# View mission templates
 glow uTemplate/system/mission-template.md
 
 # View dashboard markdown
@@ -151,7 +153,7 @@ glow uMemory/state/dashboard.md
 ```
 EOF
 
-    log_success "Package documentation created: uKnowledge/packages/glow.md"
+    log_success "Package documentation created: package/utils/glow.md"
     log_success "glow installation complete and ready for use!"
     
 else

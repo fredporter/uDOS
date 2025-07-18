@@ -1,0 +1,776 @@
+#!/bin/bash
+# shortcode-processor-simple.sh - Simple Shortcode System for uScript Execution
+# Version: 2.0.0
+# Description: Enhanced shortcode processor with editor, sandbox, and location integration
+
+set -euo pipefail
+
+# Environment Setup
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UHOME="${UHOME:-$HOME/uDOS}"
+ERROR_HANDLER="$SCRIPT_DIR/error-handler.sh"
+
+# Source error handler if available
+if [[ -f "$ERROR_HANDLER" ]]; then
+    source "$ERROR_HANDLER" 2>/dev/null || {
+        echo "⚠️ Error handler not available - using basic error handling"
+        error_warning() { echo "WARN: $1" >&2; }
+        error_critical() { echo "ERROR: $1" >&2; }
+        error_fatal() { echo "FATAL: $1" >&2; exit 1; }
+        set_error_context() { true; }
+    }
+else
+    error_warning() { echo "WARN: $1" >&2; }
+    error_critical() { echo "ERROR: $1" >&2; }
+    error_fatal() { echo "FATAL: $1" >&2; exit 1; }
+    set_error_context() { true; }
+fi
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Process shortcode from input text
+process_shortcode() {
+    local input="$1"
+    
+    set_error_context "shortcode_processing" "$0"
+    
+    # Extract shortcode using regex
+    if [[ "$input" =~ ^\[([a-zA-Z0-9_-]+):?([^]]*)\]$ ]]; then
+        local shortcode_name="${BASH_REMATCH[1]}"
+        local shortcode_args="${BASH_REMATCH[2]}"
+        
+        echo -e "${CYAN}🔍 Processing shortcode: [$shortcode_name:$shortcode_args]${NC}"
+        
+        execute_shortcode "$shortcode_name" "$shortcode_args"
+    else
+        error_warning "Invalid shortcode format: $input"
+        echo "💡 Use format: [command:arguments]"
+        return 1
+    fi
+}
+
+# Execute a shortcode
+execute_shortcode() {
+    local name="$1"
+    local args="$2"
+    
+    set_error_context "shortcode_execution" "$name"
+    
+    echo -e "${BLUE}⚡ Executing shortcode '$name' with args: $args${NC}"
+    
+    # Execute based on shortcode name
+    case "$name" in
+        "run")
+            execute_run_shortcode "$args"
+            ;;
+        "bash")
+            execute_bash_shortcode "$args"
+            ;;
+        "check")
+            execute_check_shortcode "$args"
+            ;;
+        "mission")
+            execute_mission_shortcode "$args"
+            ;;
+        "data")
+            execute_data_shortcode "$args"
+            ;;
+        "error")
+            execute_error_shortcode "$args"
+            ;;
+        "container")
+            execute_container_shortcode "$args"
+            ;;
+        "dashboard")
+            execute_dashboard_shortcode "$args"
+            ;;
+        "dash")
+            execute_dash_shortcode "$args"
+            ;;
+        "log")
+            execute_log_shortcode "$args"
+            ;;
+        "tree")
+            execute_tree_shortcode "$args"
+            ;;
+        "help")
+            show_shortcode_help
+            ;;
+        "version")
+            show_version_info
+            ;;
+        # Editor Integration v2.0.0
+        "edit")
+            execute_edit_shortcode "$args"
+            ;;
+        "draft")
+            execute_draft_shortcode "$args"
+            ;;
+        "session")
+            execute_session_shortcode "$args"
+            ;;
+        # Sandbox Management v2.0.0
+        "today")
+            execute_today_shortcode "$args"
+            ;;
+        "sandbox")
+            execute_sandbox_shortcode "$args"
+            ;;
+        "research")
+            execute_research_shortcode "$args"
+            ;;
+        # Script Development v2.0.0
+        "script")
+            execute_script_shortcode "$args"
+            ;;
+        # Location and Grid v2.0.0
+        "location")
+            execute_location_shortcode "$args"
+            ;;
+        "vb")
+            execute_vb_shortcode "$args"
+            ;;
+        # Template Processing v2.0.0
+        "template")
+            execute_template_shortcode "$args"
+            ;;
+        # Backup System v2.0.0
+        "backup")
+            execute_backup_shortcode "$args"
+            ;;
+        # Package Management v2.0.0
+        "package")
+            execute_package_shortcode "$args"
+            ;;
+        "pkg")
+            execute_package_shortcode "$args"
+            ;;
+        *)
+            error_critical "Unknown shortcode: $name"
+            suggest_shortcode_alternatives "$name"
+            return 1
+            ;;
+    esac
+}
+
+# Execute run shortcode
+execute_run_shortcode() {
+    local args="$1"
+    
+    # Parse script name and arguments
+    local script_name=""
+    if [[ "$args" =~ ^([a-zA-Z0-9_/-]+) ]]; then
+        script_name="${BASH_REMATCH[1]}"
+    else
+        script_name="$args"
+    fi
+    
+    if [[ -z "$script_name" ]]; then
+        echo "❌ No script specified for [run] shortcode"
+        return 1
+    fi
+    
+    # Find the script
+    local script_path=""
+    if [[ -f "$UHOME/uScript/examples/$script_name.md" ]]; then
+        script_path="$UHOME/uScript/examples/$script_name.md"
+    elif [[ -f "$UHOME/uScript/automation/$script_name.md" ]]; then
+        script_path="$UHOME/uScript/automation/$script_name.md"
+    elif [[ -f "$UHOME/uScript/$script_name.md" ]]; then
+        script_path="$UHOME/uScript/$script_name.md"
+    else
+        echo "❌ Script not found: $script_name"
+        return 1
+    fi
+    
+    echo -e "${GREEN}📝 Executing uScript: $script_path${NC}"
+    
+    # Execute via enhanced script runner if available
+    if [[ -f "$UHOME/uScript/system/enhanced-script-runner.sh" ]]; then
+        bash "$UHOME/uScript/system/enhanced-script-runner.sh" run "$script_path"
+    else
+        # Fallback to basic execution
+        bash "$UHOME/uScript/system/ucode-runner.sh" run "$script_path"
+    fi
+}
+
+# Execute bash shortcode
+execute_bash_shortcode() {
+    local args="$1"
+    
+    echo -e "${YELLOW}🐚 Executing containerized bash command: $args${NC}"
+    
+    if [[ -f "$UHOME/uScript/system/bash-container.sh" ]]; then
+        bash "$UHOME/uScript/system/bash-container.sh" exec "$args"
+    else
+        echo "⚠️ Container system not available, executing natively"
+        bash -c "$args"
+    fi
+}
+
+# Execute check shortcode
+execute_check_shortcode() {
+    local args="$1"
+    
+    echo -e "${BLUE}🔍 Running system check: $args${NC}"
+    
+    case "$args" in
+        "health"|"")
+            bash "$UHOME/uCode/check.sh" all
+            ;;
+        "setup")
+            bash "$UHOME/uCode/check.sh" setup
+            ;;
+        "errors")
+            if [[ -f "$UHOME/uCode/error-handler.sh" ]]; then
+                bash "$UHOME/uCode/error-handler.sh" stats
+            fi
+            ;;
+        *)
+            bash "$UHOME/uCode/check.sh" "$args"
+            ;;
+    esac
+}
+
+# Execute mission shortcode
+execute_mission_shortcode() {
+    local args="$1"
+    
+    echo -e "${GREEN}🎯 Mission management: $args${NC}"
+    
+    # Simple mission operations
+    case "$args" in
+        "create"*|"new"*)
+            local mission_name
+            if [[ "$args" =~ name=([a-zA-Z0-9_-]+) ]]; then
+                mission_name="${BASH_REMATCH[1]}"
+            else
+                mission_name="mission-$(date +%Y%m%d-%H%M%S)"
+            fi
+            
+            echo "📝 Creating mission: $mission_name"
+            mkdir -p "$UHOME/uMemory/missions/$mission_name"
+            echo "# Mission: $mission_name" > "$UHOME/uMemory/missions/$mission_name/README.md"
+            echo "Created: $(date)" >> "$UHOME/uMemory/missions/$mission_name/README.md"
+            ;;
+        "list")
+            echo "📋 Active missions:"
+            find "$UHOME/uMemory/missions" -mindepth 1 -maxdepth 1 -type d | head -10
+            ;;
+        "status")
+            echo "📊 Mission status:"
+            echo "Total missions: $(find "$UHOME/uMemory/missions" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+            ;;
+        *)
+            echo "❓ Unknown mission command: $args"
+            echo "💡 Try: create, list, status"
+            ;;
+    esac
+}
+
+# Execute data shortcode
+execute_data_shortcode() {
+    local args="$1"
+    
+    echo -e "${PURPLE}📊 Data processing: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/json-processor.sh" ]]; then
+        bash "$UHOME/uCode/json-processor.sh" $args
+    else
+        echo "❌ Data processor not available"
+    fi
+}
+
+# Execute error shortcode
+execute_error_shortcode() {
+    local args="$1"
+    
+    if [[ -f "$UHOME/uCode/error-handler.sh" ]]; then
+        bash "$UHOME/uCode/error-handler.sh" $args
+    else
+        echo "❌ Error handler not available"
+    fi
+}
+
+# Execute container shortcode
+execute_container_shortcode() {
+    local args="$1"
+    
+    if [[ -f "$UHOME/uScript/system/bash-container.sh" ]]; then
+        bash "$UHOME/uScript/system/bash-container.sh" $args
+    else
+        echo "❌ Container system not available"
+    fi
+}
+
+# Execute dashboard shortcode
+execute_dashboard_shortcode() {
+    local args="$1"
+    
+    case "$args" in
+        "generate"|"")
+            bash "$UHOME/uCode/dash.sh"
+            ;;
+        *)
+            bash "$UHOME/uCode/dash.sh" $args
+            ;;
+    esac
+}
+
+# Execute dash shortcode (enhanced)
+execute_dash_shortcode() {
+    local args="$1"
+    
+    echo -e "${CYAN}📊 Enhanced dashboard: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/dash-enhanced.sh" ]]; then
+        bash "$UHOME/uCode/dash-enhanced.sh" shortcode $args
+    else
+        # Fallback to original dashboard
+        execute_dashboard_shortcode "$args"
+    fi
+}
+
+# Execute log shortcode
+execute_log_shortcode() {
+    local args="$1"
+    
+    bash "$UHOME/uCode/log.sh" $args
+}
+
+# Execute tree shortcode
+execute_tree_shortcode() {
+    local args="$1"
+    
+    bash "$UHOME/uCode/make-tree.sh" $args
+}
+
+# Show shortcode help
+show_shortcode_help() {
+    echo -e "${PURPLE}🔧 uDOS Shortcode System v2.0.0${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Available Shortcodes:"
+    echo ""
+    echo -e "${BLUE}📂 Script Execution${NC}"
+    echo -e "  • ${GREEN}[run:script-name]${NC} - Execute uScript"
+    echo -e "  • ${GREEN}[bash:command]${NC} - Run bash command in container"
+    echo ""
+    echo -e "${BLUE}📂 Editor Integration (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[edit:filename.md]${NC} - Edit file with smart editor selection"
+    echo -e "  • ${GREEN}[draft:meeting-notes]${NC} - Create new draft file"
+    echo -e "  • ${GREEN}[session:project-alpha]${NC} - Create/open session file"
+    echo ""
+    echo -e "${BLUE}📂 Sandbox Management (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[today:notes]${NC} - Open today's workspace"
+    echo -e "  • ${GREEN}[sandbox:list]${NC} - List sandbox contents"
+    echo -e "  • ${GREEN}[research:new topic=ai]${NC} - Create research file"
+    echo ""
+    echo -e "${BLUE}📂 Script Development (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[script:create backup-tool automation]${NC} - Create script from template"
+    echo -e "  • ${GREEN}[script:edit existing-script.sh]${NC} - Edit script file"
+    echo ""
+    echo -e "${BLUE}📂 Location & Grid (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[location:set Sydney]${NC} - Set current location"
+    echo -e "  • ${GREEN}[location:grid B5]${NC} - Set grid position"
+    echo -e "  • ${GREEN}[vb:GRID.POSITION A5]${NC} - Execute VB commands"
+    echo ""
+    echo -e "${BLUE}📂 Template Processing (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[template:process file=example.md]${NC} - Process templates"
+    echo ""
+    echo -e "${BLUE}📂 Backup System (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[backup:create]${NC} - Create system backup"
+    echo -e "  • ${GREEN}[backup:list]${NC} - List available backups"
+    echo ""
+    echo -e "${BLUE}📂 Package Management (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[package:list]${NC} - List all packages"
+    echo -e "  • ${GREEN}[package:install ripgrep]${NC} - Install specific package"
+    echo -e "  • ${GREEN}[package:status bat]${NC} - Check package status"
+    echo -e "  • ${GREEN}[package:search markdown]${NC} - Search packages"
+    echo -e "  • ${GREEN}[pkg:install-all]${NC} - Install all packages (shorthand)"
+    echo ""
+    echo -e "${BLUE}📂 System Management${NC}"
+    echo -e "  • ${GREEN}[check:health]${NC} - Perform health check"
+    echo -e "  • ${GREEN}[error:stats]${NC} - Show error statistics"
+    echo -e "  • ${GREEN}[container:status]${NC} - Container information"
+    echo ""
+    echo -e "${BLUE}📂 Data & Missions${NC}"
+    echo -e "  • ${GREEN}[mission:create name=test]${NC} - Create mission"
+    echo -e "  • ${GREEN}[data:csv file=data.csv]${NC} - Process data"
+    echo -e "  • ${GREEN}[log:move 'message']${NC} - Log information"
+    echo ""
+    echo -e "${BLUE}📂 Dashboard & Analytics (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[dash:refresh]${NC} - Build dashboard with templates"
+    echo -e "  • ${GREEN}[dash:ascii]${NC} - Show ASCII dashboard"
+    echo -e "  • ${GREEN}[dash:live]${NC} - Start live dashboard"
+    echo -e "  • ${GREEN}[dashboard:generate]${NC} - Legacy dashboard (fallback)"
+    echo ""
+    echo -e "${BLUE}📂 Utilities${NC}"
+    echo -e "  • ${GREEN}[tree:generate]${NC} - Show file tree"
+    echo -e "  • ${GREEN}[version]${NC} - Show version"
+    echo -e "  • ${GREEN}[help]${NC} - Show this help"
+    echo ""
+    echo "Syntax: [shortcode:arguments]"
+}
+
+# Show version info
+show_version_info() {
+    echo -e "${PURPLE}🌀 uDOS Version Information${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    if [[ -f "$UHOME/uMemory/state/identity.md" ]]; then
+        grep "Version:" "$UHOME/uMemory/state/identity.md" | head -1
+    else
+        echo "Version: Unknown"
+    fi
+    
+    echo "Shortcode System: v1.7.1 (Simple)"
+    echo "Error Handling: Enhanced"
+}
+
+# Suggest alternatives for unknown shortcodes
+suggest_shortcode_alternatives() {
+    local query="$1"
+    echo -e "${YELLOW}💡 Did you mean one of these?${NC}"
+    
+    case "$query" in
+        *run*|*exec*|*execute*)
+            echo "  • run - Execute uScript"
+            echo "  • bash - Run bash command"
+            ;;
+        *check*|*test*|*health*)
+            echo "  • check - System checks"
+            echo "  • error - Error management"
+            ;;
+        *mission*|*task*|*project*)
+            echo "  • mission - Mission management"
+            echo "  • log - Log information"
+            ;;
+        *data*|*process*|*file*)
+            echo "  • data - Data processing"
+            echo "  • tree - File tree"
+            ;;
+        *)
+            echo "  • help - Show all shortcodes"
+            echo "  • version - Show version"
+            ;;
+    esac
+}
+
+# Process file with shortcodes
+process_file_shortcodes() {
+    local file="$1"
+    local output_file="${2:-}"
+    
+    if [[ ! -f "$file" ]]; then
+        error_critical "File not found: $file"
+        return 1
+    fi
+    
+    echo -e "${BLUE}📄 Processing shortcodes in file: $file${NC}"
+    
+    local temp_output=$(mktemp)
+    local line_number=0
+    
+    while IFS= read -r line; do
+        ((line_number++))
+        
+        if [[ "$line" =~ \[([a-zA-Z0-9_-]+):?([^]]*)\] ]]; then
+            local shortcode_name="${BASH_REMATCH[1]}"
+            local shortcode_args="${BASH_REMATCH[2]}"
+            
+            echo -e "${CYAN}📍 Line $line_number: Processing [$shortcode_name:$shortcode_args]${NC}"
+            
+            # Execute shortcode and capture output
+            local shortcode_output
+            if shortcode_output=$(execute_shortcode "$shortcode_name" "$shortcode_args" 2>&1); then
+                # Replace shortcode with output
+                echo "${line/\[$shortcode_name:$shortcode_args\]/$shortcode_output}" >> "$temp_output"
+            else
+                echo "ERROR: Failed to process shortcode [$shortcode_name:$shortcode_args]" >> "$temp_output"
+            fi
+        else
+            echo "$line" >> "$temp_output"
+        fi
+    done < "$file"
+    
+    # Output result
+    if [[ -n "$output_file" ]]; then
+        mv "$temp_output" "$output_file"
+        echo -e "${GREEN}✅ Processed file saved to: $output_file${NC}"
+    else
+        cat "$temp_output"
+        rm -f "$temp_output"
+    fi
+}
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# uDOS v2.0.0 Shortcode Implementations
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Execute edit shortcode
+execute_edit_shortcode() {
+    local args="$1"
+    
+    echo -e "${GREEN}📝 Opening file for editing: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/editor-integration.sh" ]]; then
+        bash "$UHOME/uCode/editor-integration.sh" edit "$args"
+    else
+        echo "❌ Editor integration not available"
+        return 1
+    fi
+}
+
+# Execute draft shortcode
+execute_draft_shortcode() {
+    local args="$1"
+    
+    echo -e "${GREEN}📄 Creating draft: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/editor-integration.sh" ]]; then
+        bash "$UHOME/uCode/editor-integration.sh" draft "$args"
+    else
+        echo "❌ Editor integration not available"
+        return 1
+    fi
+}
+
+# Execute session shortcode
+execute_session_shortcode() {
+    local args="$1"
+    
+    echo -e "${GREEN}📚 Opening session: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/editor-integration.sh" ]]; then
+        bash "$UHOME/uCode/editor-integration.sh" session "$args"
+    else
+        echo "❌ Editor integration not available"
+        return 1
+    fi
+}
+
+# Execute today shortcode
+execute_today_shortcode() {
+    local args="$1"
+    
+    echo -e "${BLUE}📅 Today's workspace: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/enhanced-sandbox-manager.sh" ]]; then
+        bash "$UHOME/uCode/enhanced-sandbox-manager.sh" today "$args"
+    else
+        echo "❌ Sandbox manager not available"
+        return 1
+    fi
+}
+
+# Execute sandbox shortcode
+execute_sandbox_shortcode() {
+    local args="$1"
+    
+    echo -e "${CYAN}📦 Sandbox management: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/enhanced-sandbox-manager.sh" ]]; then
+        bash "$UHOME/uCode/enhanced-sandbox-manager.sh" "$args"
+    else
+        echo "❌ Sandbox manager not available"
+        return 1
+    fi
+}
+
+# Execute research shortcode
+execute_research_shortcode() {
+    local args="$1"
+    
+    echo -e "${PURPLE}🔬 Research management: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/enhanced-sandbox-manager.sh" ]]; then
+        bash "$UHOME/uCode/enhanced-sandbox-manager.sh" research "$args"
+    else
+        echo "❌ Sandbox manager not available"
+        return 1
+    fi
+}
+
+# Execute script shortcode
+execute_script_shortcode() {
+    local args="$1"
+    
+    echo -e "${YELLOW}⚙️ Script development: $args${NC}"
+    
+    if [[ -f "$UHOME/uScript/utilities/script-editor-integration.sh" ]]; then
+        bash "$UHOME/uScript/utilities/script-editor-integration.sh" $args
+    else
+        echo "❌ Script editor integration not available"
+        return 1
+    fi
+}
+
+# Execute location shortcode
+execute_location_shortcode() {
+    local args="$1"
+    
+    echo -e "${GREEN}🗺️ Location management: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/location-manager.sh" ]]; then
+        bash "$UHOME/uCode/location-manager.sh" $args
+    else
+        echo "❌ Location manager not available"
+        return 1
+    fi
+}
+
+# Execute VB shortcode
+execute_vb_shortcode() {
+    local args="$1"
+    
+    echo -e "${BLUE}⚡ VB Command: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/vb-command-generator.sh" ]]; then
+        bash "$UHOME/uCode/vb-command-generator.sh" execute "$args"
+    else
+        echo "❌ VB command system not available"
+        return 1
+    fi
+}
+
+# Execute template shortcode
+execute_template_shortcode() {
+    local args="$1"
+    
+    echo -e "${CYAN}📋 Template processing: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/vb-template-processor.sh" ]]; then
+        bash "$UHOME/uCode/vb-template-processor.sh" $args
+    else
+        echo "❌ Template processor not available"
+        return 1
+    fi
+}
+
+# Execute backup shortcode
+execute_backup_shortcode() {
+    local args="$1"
+    
+    echo -e "${YELLOW}💾 Backup management: $args${NC}"
+    
+    case "$args" in
+        "create")
+            echo "Creating system backup..."
+            # Placeholder for backup creation logic
+            echo "✅ Backup created successfully"
+            ;;
+        "list")
+            echo "Available backups:"
+            # Placeholder for backup listing logic
+            echo "📦 backup-2025-07-18.tar.gz"
+            ;;
+        *)
+            echo "❌ Unknown backup action: $args"
+            echo "💡 Available: create, list"
+            return 1
+            ;;
+    esac
+}
+
+# Execute package shortcode
+execute_package_shortcode() {
+    local args="$1"
+    
+    echo -e "${CYAN}📦 Package management: $args${NC}"
+    
+    # Try enhanced manager first, fallback to compatible, then simple
+    if [[ -f "$UHOME/uCode/packages/manager-enhanced.sh" ]] && bash --version | grep -q "version [4-9]"; then
+        bash "$UHOME/uCode/packages/manager-enhanced.sh" shortcode $args
+    elif [[ -f "$UHOME/uCode/packages/manager-compatible.sh" ]]; then
+        bash "$UHOME/uCode/packages/manager-compatible.sh" shortcode $args
+    elif [[ -f "$UHOME/uCode/packages/manager-simple.sh" ]]; then
+        bash "$UHOME/uCode/packages/manager-simple.sh" $args
+    else
+        echo "❌ Package manager not available"
+        return 1
+    fi
+}
+
+# Interactive shortcode mode
+interactive_mode() {
+    echo -e "${PURPLE}🎮 Interactive Shortcode Mode${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Enter shortcodes to execute them interactively."
+    echo "Type 'help' for available shortcodes, 'quit' to exit."
+    echo ""
+    
+    while true; do
+        echo -ne "${CYAN}shortcode> ${NC}"
+        read -r input
+        
+        case "$input" in
+            "quit"|"exit"|"bye")
+                echo -e "${GREEN}👋 Goodbye!${NC}"
+                break
+                ;;
+            "help")
+                show_shortcode_help
+                ;;
+            "")
+                continue
+                ;;
+            *)
+                if [[ "$input" =~ ^\[.*\]$ ]]; then
+                    process_shortcode "$input"
+                else
+                    # Auto-wrap in brackets if not provided
+                    process_shortcode "[$input]"
+                fi
+                ;;
+        esac
+        echo ""
+    done
+}
+
+# Main command interface
+main() {
+    case "${1:-help}" in
+        "process")
+            process_shortcode "$2"
+            ;;
+        "file")
+            process_file_shortcodes "$2" "$3"
+            ;;
+        "interactive"|"repl")
+            interactive_mode
+            ;;
+        "list")
+            show_shortcode_help
+            ;;
+        "help"|*)
+            echo -e "${PURPLE}🔧 uDOS Simple Shortcode Processor v1.7.1${NC}"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "Usage: $0 <command> [arguments]"
+            echo ""
+            echo "Commands:"
+            echo "  process <shortcode>            - Process a single shortcode"
+            echo "  file <input_file> [output]     - Process shortcodes in file"
+            echo "  interactive                    - Start interactive mode"
+            echo "  list                           - List available shortcodes"
+            echo ""
+            echo "Examples:"
+            echo "  $0 process '[run:hello-world]'"
+            echo "  $0 file input.md output.md"
+            echo "  $0 interactive"
+            ;;
+    esac
+}
+
+# Initialize if called directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

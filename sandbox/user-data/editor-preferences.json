@@ -1,0 +1,22 @@
+{
+  "user_preferences": {
+    "default_editor": "auto",
+    "preferred_terminal_editor": "nano",
+    "preferred_gui_editor": "code",
+    "auto_save": true,
+    "backup_files": true,
+    "syntax_highlighting": true,
+    "line_numbers": true,
+    "file_type_preferences": {
+      "markdown": "micro",
+      "code": "code",
+      "config": "nano",
+      "logs": "nano"
+    }
+  },
+  "session_settings": {
+    "remember_last_files": true,
+    "auto_restore_session": false,
+    "max_recent_files": 10
+  }
+}

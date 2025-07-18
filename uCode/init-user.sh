@@ -1,13 +1,14 @@
 #!/bin/bash
 # uDOS v1.0 - User Setup and Installation Detection
 # 🔐 init-user.sh — First-time setup and user validation
+# v2.0 - Template System Integration
 
 set -euo pipefail
 
 UHOME="${HOME}/uDOS"
 UMEM="${UHOME}/uMemory"
 USER_IDENTITY="${UMEM}/user/identity.md"
-USER_SETUP_TEMPLATE="${UHOME}/uTemplate/input-user-setup.md"
+SETUP_PROCESSOR="${UHOME}/uCode/setup-template-processor.sh"
 
 # Color output helpers
 red() { echo -e "\033[0;31m$1\033[0m"; }
@@ -98,9 +99,64 @@ validate_installation() {
     return 0
 }
 
-# Interactive user setup
+# Template-based user setup (v2.0)
 setup_user_identity() {
-    bold "🎭 uDOS User Identity Setup"
+    bold "🎭 uDOS User Identity Setup v2.0"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🔧 Using uDOS Template System for setup"
+    echo
+    
+    # Check if template processor exists
+    if [[ ! -f "$SETUP_PROCESSOR" ]]; then
+        red "❌ Template processor not found: $SETUP_PROCESSOR"
+        echo "Falling back to legacy setup..."
+        setup_user_identity_legacy
+        return
+    fi
+    
+    # Run the template-based setup
+    log "Starting template-based user setup"
+    
+    if "$SETUP_PROCESSOR"; then
+        green "✅ Template-based setup completed successfully"
+        
+        # Load the generated configuration
+        local config_file="${UMEM}/config/setup-vars.sh"
+        if [[ -f "$config_file" ]]; then
+            source "$config_file"
+            export_udos_vars
+            log "Configuration variables loaded: $config_file"
+        fi
+        
+        # Set up user role using the role management system
+        local username="${UDOS_USERNAME:-$USER}"
+        local default_role="${UDOS_DEFAULT_ROLE:-wizard}"
+        create_user_role_profile "$username" "$default_role"
+        
+        log "Template-based user setup completed for: $username"
+    else
+        red "❌ Template-based setup failed"
+        echo "Falling back to legacy setup..."
+        setup_user_identity_legacy
+    fi
+}
+
+# Export uDOS variables for system use
+export_udos_vars() {
+    # Make variables available to the shell session
+    local config_file="${UMEM}/config/setup-vars.sh"
+    if [[ -f "$config_file" ]]; then
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^export\ UDOS_.*= ]]; then
+                eval "$line"
+            fi
+        done < "$config_file"
+    fi
+}
+
+# Legacy setup function (fallback)
+setup_user_identity_legacy() {
+    bold "🎭 uDOS User Identity Setup (Legacy)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
     
@@ -122,7 +178,7 @@ setup_user_identity() {
     debug_mode=$([ "$debug_mode" = "y" ] && echo "true" || echo "false")
     
     read -p "💾 Enable auto backup? (Y/n): " auto_backup  
-    auto_backup=$([ "$debug_mode" = "n" ] && echo "false" || echo "true")
+    auto_backup=$([ "$auto_backup" = "n" ] && echo "false" || echo "true")
     
     # Create user identity file
     cat > "$USER_IDENTITY" << EOF
@@ -160,22 +216,20 @@ $([ -n "$email" ] && echo "- **Email**: ${email}")
 
 EOF
 
-    # Set up user role using the role management system
-    create_user_role_profile "$username"
-    
-    green "✅ User identity created successfully"
-    log "User identity created for: $username"
+    green "✅ User identity created successfully (legacy mode)"
+    log "User identity created for: $username (legacy setup)"
 }
 
 # Create user role profile using the role management system
 create_user_role_profile() {
     local username="$1"
+    local role="${2:-wizard}"
     
-    log "🔐 Setting up user role profile for $username..."
+    log "🔐 Setting up user role profile for $username with role: $role..."
     
-    # Use the role management system to create wizard role
+    # Use the role management system to create user role
     if [[ -f "${UHOME}/uCode/user-roles.sh" ]]; then
-        "${UHOME}/uCode/user-roles.sh" create "$username" wizard
+        "${UHOME}/uCode/user-roles.sh" create "$username" "$role"
         log "User role profile created via role management system"
     else
         yellow "⚠️  Role management system not found - creating basic profile"
@@ -184,11 +238,11 @@ create_user_role_profile() {
         cat > "${UMEM}/users/profiles/${username}.md" << EOF
 # User Profile: ${username}
 
-**Role**: wizard
-**Permission Level**: Owner  
+**Role**: ${role}
+**Permission Level**: $([ "$role" = "wizard" ] && echo "Owner" || echo "User")
 **Created**: $(date '+%Y-%m-%d %H:%M:%S')
 **Status**: Active
-**Description**: Primary user with full system access
+**Description**: $([ "$role" = "wizard" ] && echo "Primary user with full system access" || echo "User with $role permissions")
 
 ## Installation Binding
 - **Device ID**: $(system_profiler SPHardwareDataType 2>/dev/null | grep "Hardware UUID" | awk '{print $3}' || echo "unknown")
@@ -197,7 +251,7 @@ create_user_role_profile() {
 EOF
     fi
     
-    green "✅ User role profile configured"
+    green "✅ User role profile configured: $role"
 }
 
 # Show welcome message

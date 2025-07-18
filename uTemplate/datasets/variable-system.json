@@ -1,73 +1,112 @@
 {
   "variable_system": {
-    "name": "uDOS Variable Management System",
-    "version": "1.0.0",
-    "description": "Comprehensive variable and environment management for uDOS",
-    "last_updated": "2025-07-17"
+    "name": "uDOS Enhanced Variable Management System",
+    "version": "2.1.0",
+    "description": "Comprehensive variable and environment management for uDOS with dataset integration",
+    "last_updated": "2025-07-18",
+    "features": ["instance_variables", "dataset_integration", "cross_references", "calculated_variables"]
   },
-  "system_variables": {
-    "UDOS_VERSION": {
-      "value": "1.0.0-alpha",
-      "type": "string",
-      "readonly": true,
-      "description": "Current uDOS version"
+  "instance_variables": {
+    "description": "Instance-specific variables that replace user-specific references",
+    "auto_generated": true,
+    "variables": {
+      "instance_time": {
+        "value": "{{auto:current_timestamp}}",
+        "type": "datetime",
+        "format": "ISO8601",
+        "readonly": true,
+        "description": "Current timestamp in ISO 8601 format"
+      },
+      "instance_location": {
+        "value": "{{auto:hostname}}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current system hostname/location identifier"
+      },
+      "instance_id": {
+        "value": "{{auto:generate_uuid}}",
+        "type": "uuid",
+        "readonly": true,
+        "description": "Unique instance identifier"
+      },
+      "instance_session": {
+        "value": "{{auto:session_id}}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current session identifier"
+      },
+      "instance_timezone": {
+        "value": "{{auto:system_timezone}}",
+        "type": "string",
+        "readonly": true,
+        "description": "System timezone"
+      },
+      "instance_user": {
+        "value": "{{auto:current_user}}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current system user (for sandbox identity only)",
+        "restricted_to": "sandbox/identity.md"
+      }
+    }
+  },
+  "dataset_variables": {
+    "description": "Variables that reference dataset values",
+    "syntax": "{{dataset:collection.key.field}}",
+    "examples": {
+      "city_population": "{{dataset:cities.london.population}}",
+      "country_capital": "{{dataset:countries.australia.capital}}",
+      "currency_symbol": "{{dataset:currencies.usd.symbol}}",
+      "timezone_offset": "{{dataset:timezones.aest.offset}}"
     },
-    "UDOS_HOME": {
-      "value": "${HOME}/uDOS",
-      "type": "path",
-      "readonly": true,
-      "description": "uDOS installation directory"
+    "supported_operations": ["direct_access", "filtered_queries", "aggregations", "joins"]
+  },
+  "calculated_variables": {
+    "description": "Variables calculated from other values",
+    "syntax": "{{calc:formula}}",
+    "examples": {
+      "completion_percentage": "{{calc:completed_tasks / total_tasks * 100}}",
+      "days_remaining": "{{calc:end_date - current_date}}",
+      "team_utilization": "{{calc:allocated_hours / available_hours * 100}}",
+      "budget_burn_rate": "{{calc:spent_amount / elapsed_days}}"
     },
-    "UDOS_USER": {
-      "value": "",
-      "type": "string",
-      "readonly": false,
-      "description": "Current uDOS user identity"
+    "supported_functions": ["math", "date", "string", "array", "conditional"]
+  },
+  "input_variables": {
+    "description": "Variables requiring user input with validation",
+    "syntax": "{{input:variable_name|type|validation}}",
+    "types": {
+      "string": {"validation": ["required", "min", "max", "pattern"]},
+      "number": {"validation": ["required", "min", "max", "integer"]},
+      "date": {"validation": ["required", "format", "min_date", "max_date"]},
+      "enum": {"validation": ["required", "values"]},
+      "boolean": {"validation": ["default"]},
+      "array": {"validation": ["required", "separator", "min_items", "max_items"]},
+      "file": {"validation": ["required", "exists", "extension", "readable"]}
     },
-    "UDOS_TIMEZONE": {
-      "value": "UTC",
-      "type": "string",
-      "readonly": false,
-      "description": "User timezone setting"
+    "examples": {
+      "project_name": "{{input:project_name|string|required|min:3|max:50}}",
+      "priority": "{{input:priority|enum|values:low,medium,high,critical}}",
+      "start_date": "{{input:start_date|date|required|format:YYYY-MM-DD}}",
+      "team_size": "{{input:team_size|number|min:1|max:20|default:1}}",
+      "enable_notifications": "{{input:enable_notifications|boolean|default:true}}",
+      "technologies": "{{input:technologies|array|separator:,}}",
+      "config_file": "{{input:config_file|file|exists:true|extension:json}}"
+    }
+  },
+  "cross_reference_variables": {
+    "description": "Variables that reference other templates or documents",
+    "syntax": "{{ref:template.field}}",
+    "examples": {
+      "mission_status": "{{ref:mission.current_status}}",
+      "project_completion": "{{ref:project.completion_rate}}",
+      "dashboard_metrics": "{{ref:dashboard.metrics.errors}}",
+      "team_members": "{{ref:team.members.count}}"
     },
-    "UDOS_LOCATION": {
-      "value": "",
-      "type": "string",
-      "readonly": false,
-      "description": "User location (city/coordinates)"
-    },
-    "UDOS_THEME": {
-      "value": "default",
-      "type": "enum",
-      "options": ["default", "dark", "light", "retro", "minimal"],
-      "readonly": false,
-      "description": "UI theme preference"
-    },
-    "UDOS_DEBUG": {
-      "value": false,
-      "type": "boolean",
-      "readonly": false,
-      "description": "Enable debug mode"
-    },
-    "UDOS_LOG_LEVEL": {
-      "value": "info",
-      "type": "enum",
-      "options": ["debug", "info", "warn", "error"],
-      "readonly": false,
-      "description": "Logging verbosity level"
-    },
-    "UDOS_AUTO_BACKUP": {
-      "value": true,
-      "type": "boolean",
-      "readonly": false,
-      "description": "Enable automatic backups"
-    },
-    "UDOS_BACKUP_INTERVAL": {
-      "value": "daily",
-      "type": "enum",
-      "options": ["hourly", "daily", "weekly", "monthly"],
-      "readonly": false,
-      "description": "Automatic backup frequency"
+    "validation": {
+      "check_references": true,
+      "validate_paths": true,
+      "update_on_change": true
     }
   },
   "user_variables": {

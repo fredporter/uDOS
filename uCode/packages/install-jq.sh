@@ -81,7 +81,7 @@ if command -v jq >/dev/null 2>&1; then
        "$PACKAGE_FILE" > "$PACKAGE_FILE.tmp" && mv "$PACKAGE_FILE.tmp" "$PACKAGE_FILE"
     
     # Create usage examples
-    cat > "${UDOS_ROOT}/uKnowledge/packages/jq.md" << 'EOF'
+    cat > "${UDOS_ROOT}/package/utils/jq.md" << 'EOF'
 # jq - JSON Processor
 
 ## Overview
@@ -173,7 +173,7 @@ jq 'if type == "array" then length else "not an array" end'
 ```
 EOF
 
-    log_success "Package documentation created: uKnowledge/packages/jq.md"
+    log_success "Package documentation created: package/utils/jq.md"
     log_success "jq installation complete and ready for use!"
     
 else

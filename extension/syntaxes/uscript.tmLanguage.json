@@ -1,0 +1,114 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "uScript",
+  "scopeName": "source.uscript",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#udos-commands"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.apostrophe.uscript",
+          "match": "'.*$"
+        },
+        {
+          "name": "comment.line.rem.uscript",
+          "match": "(?i)\\bREM\\b.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.uscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.uscript",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.uscript",
+          "match": "(?i)\\b(IF|THEN|ELSE|END\\s+IF|FOR|NEXT|DO|WHILE|LOOP|FUNCTION|END\\s+FUNCTION|SUB|END\\s+SUB|RETURN|EXIT)\\b"
+        },
+        {
+          "name": "keyword.operator.uscript",
+          "match": "(?i)\\b(AND|OR|NOT|MOD|DIV)\\b"
+        },
+        {
+          "name": "keyword.declaration.uscript",
+          "match": "(?i)\\b(DIM|SET|AS|CONST)\\b"
+        },
+        {
+          "name": "support.type.uscript",
+          "match": "(?i)\\b(STRING|INTEGER|BOOLEAN|ARRAY|OBJECT)\\b"
+        }
+      ]
+    },
+    "udos-commands": {
+      "patterns": [
+        {
+          "name": "support.function.udos.uscript",
+          "match": "(?i)\\b(LOG|RUN|TREE|LIST|DASH|SYNC|HELP|RESTART|REBOOT|DESTROY|IDENTITY|DEBUG|RECENT)\\b"
+        },
+        {
+          "name": "support.function.udos.check.uscript",
+          "match": "(?i)\\b(CHECK)\\s+(USER|LOCATION|TIMEZONE|DATASETS|TEMPLATES|SETUP|STATS|MISSION|MAP)\\b"
+        },
+        {
+          "name": "support.function.udos.json.uscript",
+          "match": "(?i)\\b(JSON)\\s+(LIST|INFO|SEARCH|EXPORT|MERGE|VALIDATE|STATS)\\b"
+        },
+        {
+          "name": "support.function.udos.template.uscript",
+          "match": "(?i)\\b(TEMPLATE)\\s+(LIST|INFO|GENERATE|BATCH|VALIDATE|GENERATED|SAMPLE)\\b"
+        },
+        {
+          "name": "support.function.udos.map.uscript",
+          "match": "(?i)\\b(MAP)\\s+(GENERATE|REGION|CITY|SHOW|INFO)\\b"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.uscript",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.uscript",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    }
+  }
+}

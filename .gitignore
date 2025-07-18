@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-# uDOS v1.0 Distribution .gitignore
-# Clean Repository Architecture - Security Model Compliant
+# uDOS Alpha v1.0 .gitignore
+# Clean Repository Architecture - Production Ready
 # ──────────────────────────────────────────────
 
 # ════════════════════════════════════════════════════════════════
@@ -10,20 +10,6 @@
 # 🔐 Level 1: uMemory - Private User Files (NEVER in repo)
 # Contains personal data, logs, state, missions, moves
 uMemory/
-
-# 🔧 Level 2: uExtension - Local Development Only (NEVER in repo)
-# VS Code extension source and builds - distributed via uKnowledge packages
-uExtension/
-
-# 📦 Level 3: Local User Development & Testing
-# Sandbox environments and user-specific configurations
-uMemory/sandbox/
-uMemory/user/
-uMemory/state/
-uMemory/logs/
-uMemory/missions/
-uMemory/moves/
-uMemory/milestones/
 
 # ════════════════════════════════════════════════════════════════
 # 🚫 BUILD ARTIFACTS & DEVELOPMENT FILES
@@ -36,30 +22,49 @@ __pycache__/
 *.so
 *.out
 *.exe
-*.zip
-*.tar.gz
-*.dmg
-*.vsix
 dist/
 build/
 out/
+
+# Package manager files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Logs and temporary files
 **/*.log
 *.tmp
 *.working
-*.backup
-*.bak
 validation-*.log
+test.log
 test-*.log
 test-output-*
 
-# Node.js dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
+# macOS system files
+.DS_Store
+**/.DS_Store
+.ipynb_checkpoints/
+Thumbs.db
+
+# Distribution archives
+*.zip
+*.tar.gz
+*.dmg
+*.vsix
+uDOS-v*.tar.gz
+uDOS-v*.zip
+
+# Old/backup folders and files
+uDOS-clean-dist/
+uDOS-Extension/
+uExtension/
+*.backup
+*.bak
+*.old
+
+# Development progress tracking (archived)
+progress/
 
 # ════════════════════════════════════════════════════════════════
 # 🛠️ EDITOR & IDE ARTIFACTS
@@ -69,24 +74,18 @@ package-lock.json
 .vscode/settings.json.local
 .env
 
-# System cruft
-*.DS_Store
-.ipynb_checkpoints/
-Thumbs.db
-
 # ════════════════════════════════════════════════════════════════
 # 📱 DISTRIBUTION ARTIFACTS (built locally)
 # ════════════════════════════════════════════════════════════════
 
 # Generated distribution packages
 release/
-launcher/uDOS.app/
+launcher/uDOS.app/Contents/
 launcher/build/
 launcher/*.dmg
 launcher/uDOS_installation.log
 
 # Generated documentation exports
-*.pdf
 exports/
 
 # ════════════════════════════════════════════════════════════════
@@ -99,8 +98,7 @@ temp/
 testing/
 scratch/
 
-# Development progress tracking (use GitHub Issues instead)
-progress/
+# Development progress tracking (archived in progress/ folder)
 dev-notes/
 personal-notes/
 
@@ -109,12 +107,16 @@ config.local.*
 settings.local.*
 
 # ════════════════════════════════════════════════════════════════
-# 📝 NOTES: WHAT STAYS IN REPOSITORY
+# 📝 ALPHA v1.0 - WHAT STAYS IN REPOSITORY
 # ════════════════════════════════════════════════════════════════
-# ✅ uCode/ - Core system scripts (read-only for most users)
-# ✅ uKnowledge/ - Documentation and packages (read-only)
-# ✅ uScript/ - System automation scripts (sorcerer+ access)
-# ✅ uTemplate/ - Standard templates (read-only)
+# ✅ uCode/ - Core system scripts with Alpha v1.0 enhancements
+# ✅ uKnowledge/ - Documentation and knowledge base
+# ✅ uScript/ - System automation scripts
+# ✅ uTemplate/ - Standard templates and datasets
+# ✅ extension/ - VS Code extension (renamed from uExtension)
+# ✅ package/ - Package management system (NEW)
+# ✅ install/ - Installation and build scripts (NEW)
+# ✅ sandbox/ - Daily workspace structure (NEW)
 # ✅ Distribution scripts (install-udos.sh, etc.)
 # ✅ Core documentation (README.md, roadmaps, etc.)
 # ✅ VS Code workspace configuration (.vscode/tasks.json)

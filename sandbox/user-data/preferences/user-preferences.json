@@ -1,0 +1,20 @@
+{
+  "user_preferences": {
+    "workspace": {
+      "default_editor": "auto",
+      "auto_save": true,
+      "backup_frequency": "daily",
+      "theme": "default"
+    },
+    "organization": {
+      "file_naming": "timestamp_prefix",
+      "auto_categorize": true,
+      "daily_cleanup": true
+    },
+    "privacy": {
+      "exclude_from_sync": ["passwords", "keys", "private"],
+      "encrypt_sensitive": false,
+      "backup_location": "local"
+    }
+  }
+}

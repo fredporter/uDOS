@@ -1,11 +1,29 @@
 # 🌀 uDOS v1.0 Enhanced Dashboard
 
-**Generated**: {{generated_date}}  
-**User**: {{user_name}}  
-**Location**: {{location}}  
-**Timezone**: {{timezone}}  
+**Generated**: {{instance_time}}  
+**Instance**: {{instance_location}}  
+**Session**: {{instance_session}}  
+**Timezone**: {{dataset:timezones.{{instance_timezone}}.name}}  
 **System Health**: {{health_status}}  
-**Version**: {{udos_version}}
+**Version**: {{udos_version}}  
+**Document ID**: {{document_id}}
+
+## 📊 Metadata Block
+
+**Template System:** v2.1.0  
+**Dataset Version:** {{dataset_version}}  
+**Cross-References:** {{cross_references_count}}  
+**Generated With:** [template:generate dashboard]
+
+### 🔗 Cross-References
+- **[mission:current]({{ref:mission.current.path}})** - {{ref:mission.current.name}}
+- **[packages:registry]({{ref:packages.registry.path}})** - Package installation status
+- **[system:health]({{ref:system.health.path}})** - System health metrics
+
+### 📊 Related Datasets
+- **System Metrics** - [dataset:system_metrics] - Real-time system data
+- **Package Registry** - [dataset:packages] - Installation database
+- **Geographic Data** - [dataset:cities] - Location information
 
 ---
 
@@ -14,11 +32,12 @@
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                  🌀 uDOS v1.0 COMMAND CENTER 🌀                              ║
+║                                Instance: {{instance_location}} | {{instance_time}}              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ 🎯 PROJECTS: {{projects_count}}      │ 🚀 MISSIONS: {{missions_count}}     │ � MILESTONES: {{milestones_count}}║
+║ 🎯 PROJECTS: {{projects_count}}      │ 🚀 MISSIONS: {{missions_count}}     │ ⭐ MILESTONES: {{milestones_count}}║
 ║ ✅ COMPLETED: {{completed_count}}    │ 🔄 IN PROGRESS: {{in_progress}}     │ ⏳ PENDING: {{pending_count}}     ║
-║ 📊 DATASETS: {{datasets_count}}      │ 🎨 TEMPLATES: {{templates_count}}   │ � RECORDS: {{total_records}}     ║
-║ ⚠️ ISSUES: {{issues_count}}         │ 🎯 SUCCESS RATE: {{success_rate}}%  │ 🕐 UPDATED: {{last_update}}       ║
+║ 📊 DATASETS: {{dataset:datasets.count}} │ 🎨 TEMPLATES: {{template:templates.count}} │ 📊 RECORDS: {{total_records}}     ║
+║ ⚠️ ISSUES: {{issues_count}}         │ 🎯 SUCCESS RATE: {{calc:success_rate}}%  │ 🕐 UPDATED: {{instance_time}}       ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 ```
 

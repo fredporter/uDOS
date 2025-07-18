@@ -201,7 +201,7 @@ validate_installation() {
     local key_files=(
         "uCode/ucode.sh"
         "uMemory"
-        "uKnowledge/roadmap"
+        "docs/roadmap"
         ".vscode/tasks.json"
     )
     
@@ -239,8 +239,8 @@ print_post_install_info() {
     echo "5. 👥 Create child installations:"
     echo "   Use wizard commands to create sorcerer/ghost/imp users"
     echo ""
-    echo "6. 📚 Explore roadmaps:"
-    echo "   Browse $INSTALL_DIR/uKnowledge/roadmap/"
+    echo "6. 📚 Explore documentation:"
+    echo "   Browse $INSTALL_DIR/docs/ for roadmaps and guides"
     echo ""
     echo -e "${BOLD}Support:${NC}"
     echo "- 📖 Documentation: README.md and roadmap documents"

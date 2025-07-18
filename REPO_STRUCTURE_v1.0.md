@@ -1,8 +1,8 @@
-# 🏗️ uDOS v1.0 Repository Structure - Clean & Organized
+# 🏗️ uDOS Alpha v1.0 Repository Structure - Production Ready
 
-**Date:** January 27, 2025  
-**Status:** Production Ready ✅ v1.0 COMPLETE
-**Architecture:** Native VS Code Integration with uExtension
+**Date:** July 18, 2025  
+**Status:** Alpha v1.0 Ready for GitHub Launch ✅
+**Architecture:** Native VS Code Integration with Complete Alpha v1.0 Feature Set
 
 ## 📁 Root Directory Structure
 
@@ -18,16 +18,35 @@ uDOS/
 │   └── tasks.json              # Command palette integration
 ├── launcher/                   # macOS application launchers
 ├── progress/                   # Development history and archives
-├── uCode/                      # Core shell system
+├── uCode/                      # Core shell system with Alpha v1.0 enhancements
 ├── uScript/                    # Visual BASIC-style programming
 ├── uTemplate/                  # Template generation system
 ├── uKnowledge/                 # Documentation and knowledge base
-│   ├── roadmap/               # Architecture and design documentation
+│   ├── documentation/         # Centralized documentation hub
 │   ├── companion/             # Companion system profiles
 │   └── packages/              # Package documentation
 ├── uMemory/                    # User data and memory management
 │   └── users/                 # User role management system
-└── uExtension/                   # VS Code extension (system installation) ✅ v1.0
+├── sandbox/                    # Daily working space (v1.0) ✅
+│   ├── today/                 # Current session workspace
+│   ├── sessions/              # Historical daily sessions
+│   ├── temp/                  # Temporary files (auto-cleanup)
+│   ├── drafts/                # Work in progress
+│   └── finalized/             # Ready for uMemory storage
+├── package/                    # Package management system (v1.0) ✅
+│   ├── manifest.json          # Package definitions and auto-install
+│   ├── install-queue.txt      # Startup installation queue
+│   └── README.md              # Package system documentation
+├── install/                    # Installation and setup system (v1.0) ✅
+│   ├── install-udos.sh        # Main installation script
+│   ├── setup-wizard.sh        # First-time setup wizard
+│   ├── user-provisioning.sh   # User role setup
+│   └── README.md              # Installation documentation
+└── extension/                  # VS Code extension (renamed from uExtension) ✅
+    ├── src/                   # TypeScript extension source
+    ├── syntaxes/              # uScript language grammar
+    ├── snippets/              # uScript code snippets
+    └── *.vsix                 # Packaged extension files
 ```
 
 ## 🎯 Clean Organization Principles
@@ -36,6 +55,39 @@ uDOS/
 - **Minimal & Essential**: Only core files and directories
 - **Self-Explanatory**: Clear purpose for each item
 - **Production Ready**: No development artifacts or temporary files
+- **Alpha v1.0 Features**: Complete sandbox, package, and install systems
+
+### 🆕 Alpha v1.0 New Features
+
+#### 🏖️ Sandbox System
+- **Daily Sessions**: Organized per-day working environments
+- **Automatic Archiving**: Sessions move to uMemory automatically
+- **Clean Workflow**: today/ → finalized/ → uMemory/archive/
+- **User Data Separation**: Keeps personal work organized and separate
+
+#### 📦 Package Management
+- **Auto-Install**: Essential tools installed at startup
+- **uCode Integration**: Direct commands (EDIT, VIEW, SEARCH)
+- **Manifest-Driven**: JSON-based package definitions
+- **Tool Support**: nano, micro, ripgrep, fd, bat, glow, jq
+
+#### 🚀 Installation System
+- **Wizard Setup**: First-time user configuration
+- **Role Provisioning**: Complete user role system
+- **System Validation**: Comprehensive installation checks
+- **Privacy Enforcement**: Single-user security model
+
+#### 🔧 Developer Mode
+- **Single Mode**: One developer mode instead of multiple
+- **Limited Backups**: Core script backups (ucode.sh, etc.)
+- **Selective Access**: uCode, uTemplate, uKnowledge editing
+- **Wizard Compatibility**: Still works when developer mode off
+
+#### 🔌 Extension System (Renamed)
+- **uExtension → extension**: Simplified naming
+- **Root Level**: Better organization
+- **VS Code Integration**: Native language support
+- **uScript Support**: Complete syntax highlighting
 
 ### 📊 progress/ Directory
 - **Development History**: All progress reports and milestones
@@ -77,13 +129,14 @@ uDOS/
 | `uScript/` | User programming and automation | ✅ Production |
 | `uTemplate/` | Dynamic content generation | ✅ Production |
 | `uKnowledge/` | Documentation and reference | ✅ Production |
-| `uKnowledge/roadmap/` | Architecture and design docs | ✅ Reference |
+| `docs/` | Centralized documentation | ✅ Production |
+| `docs/` | Centralized documentation and planning | ✅ Reference |
 | `uKnowledge/companion/` | Companion system profiles | ✅ Production |
 | `uMemory/` | User data and state management | ✅ Production |
 | `uMemory/users/` | User role management | 🚧 Foundation |
 | `launcher/` | macOS application launchers | ✅ Production |
 | `progress/` | Development archives | 📁 Archived |
-| `uDOS-Extension/` | VS Code extension | 🚧 Development |
+| `extension/` | VS Code extension | ✅ Production |
 
 ## 🔐 Security & Access
 

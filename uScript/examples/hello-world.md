@@ -246,7 +246,7 @@ When editing uScript files in VS Code with Copilot enabled:
 
 ### Beginner Path
 1. **Explore More Examples**: Check `uScript/examples/` for advanced patterns
-2. **Read Language Specification**: Review `roadmap/007-uDOS-uScript.md`
+2. **Read Language Specification**: Review `docs/development-strategy.md` and `docs/future-roadmap.md`
 3. **Try Templates**: Use `uScript/templates/` for common workflows
 4. **Run Tests**: Execute `uScript/tests/syntax-tests.md` to understand language features
 

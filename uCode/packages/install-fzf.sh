@@ -97,7 +97,7 @@ if command -v fzf >/dev/null 2>&1; then
     fi
     
     # Create usage examples
-    cat > "${UDOS_ROOT}/uKnowledge/packages/fzf.md" << 'EOF'
+    cat > "${UDOS_ROOT}/package/utils/fzf.md" << 'EOF'
 # fzf - Fuzzy Finder
 
 ## Overview
@@ -207,7 +207,7 @@ export FZF_ALT_C_COMMAND='fd --type d'
 ```
 EOF
 
-    log_success "Package documentation created: uKnowledge/packages/fzf.md"
+    log_success "Package documentation created: package/utils/fzf.md"
     log_success "fzf installation complete and ready for use!"
     
 else
