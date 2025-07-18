@@ -10,6 +10,46 @@ export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
 
+# User Setup Check - Core uDOS ethos: One installation per user
+if [[ ! -f "$UDENT" ]]; then
+    echo "🔐 First-time setup detected - initializing user..."
+    if [[ -f "$SCRIPT_DIR/init-user.sh" ]]; then
+        "$SCRIPT_DIR/init-user.sh"
+    else
+        echo "❌ User initialization script missing - uDOS setup incomplete"
+        exit 1
+    fi
+fi
+
+# Load dynamic command system
+if [[ -f "$SCRIPT_DIR/dynamic-command-loader.sh" ]]; then
+  source "$SCRIPT_DIR/dynamic-command-loader.sh"
+  echo "🔧 Dynamic command system loaded"
+else
+  echo "⚠️ Dynamic command system not found - using static commands only"
+fi
+
+# Load error handling system
+if [[ -f "$SCRIPT_DIR/error-handler.sh" ]]; then
+  source "$SCRIPT_DIR/error-handler.sh"
+  echo "🛡️ Error handling system loaded"
+else
+  echo "⚠️ Error handler not found - using basic error handling"
+  error_warning() { echo "WARN: $1" >&2; }
+  error_critical() { echo "ERROR: $1" >&2; }
+  error_fatal() { echo "FATAL: $1" >&2; exit 1; }
+  set_error_context() { true; }
+fi
+
+# Load shortcode processor
+if [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
+  echo "🔧 Simple shortcode system available"
+elif [[ -f "$SCRIPT_DIR/shortcode-processor.sh" ]]; then
+  echo "🔧 Advanced shortcode system available (may need compatibility updates)"
+else
+  echo "⚠️ Shortcode processor not found - [shortcode] syntax unavailable"
+fi
+
 # --- Ensure required folders exist following new architecture ---
 # uMemory = All user content storage
 mkdir -p "$UHOME/uMemory/logs/moves"
@@ -63,6 +103,227 @@ log_move() {
   bash "$UHOME/uCode/log.sh" move "$cmd"
 }
 
+# --- Enhanced User Setup Function with Template Integration ---
+cmd_setup_user() {
+  echo "👤 Template-Integrated User Setup"
+  echo ""
+  echo "🆔 Let's set up your uDOS identity using the enhanced template system..."
+  echo ""
+  
+  # Initialize variables for template processing
+  local username=""
+  local email=""
+  local location=""
+  local timezone=""
+  local full_name=""
+  local preferences=""
+  
+  # Check if datasets are available for enhanced setup
+  local dataset_available=false
+  if [[ -f "$UHOME/uTemplate/datasets/locationMap.json" && -f "$UHOME/uTemplate/datasets/timezoneMap.json" ]]; then
+    dataset_available=true
+    echo "📊 Enhanced setup available with location and timezone datasets!"
+    echo ""
+  fi
+  
+  # Collect user information interactively
+  read -p "👤 Enter your username: " username
+  echo ""
+  
+  read -p "👋 Enter your full name (optional): " full_name
+  echo ""
+  
+  read -p "📧 Enter your email (optional): " email
+  echo ""
+  
+  # Enhanced location setup with dataset integration
+  if [[ "$dataset_available" == true ]]; then
+    echo "🌍 Location Setup (Dataset-Enhanced)"
+    echo "💡 Available locations from our global dataset:"
+    if command -v jq >/dev/null 2>&1; then
+      jq -r '.data[:10][] | "   🏙️ \(.city), \(.country) (\(.tile))"' "$UHOME/uTemplate/datasets/locationMap.json" 2>/dev/null | head -10 || echo "   📍 Dataset temporarily unavailable"
+    fi
+    echo ""
+    read -p "📍 Enter your location (city or coordinates like AX14): " location
+    
+    # Validate location against dataset if jq is available
+    if [[ -n "$location" ]] && command -v jq >/dev/null 2>&1; then
+      local location_match=$(jq -r --arg loc "$location" '.data[] | select(.city | test($loc; "i")) | "\(.city), \(.country) (\(.tile))"' "$UHOME/uTemplate/datasets/locationMap.json" 2>/dev/null | head -1)
+      if [[ -n "$location_match" ]]; then
+        echo "✅ Found matching location: $location_match"
+        location="$location_match"
+      fi
+    fi
+  else
+    read -p "📍 Enter your location: " location
+  fi
+  echo ""
+  
+  # Enhanced timezone setup with dataset integration
+  if [[ "$dataset_available" == true ]]; then
+    echo "🕒 Timezone Setup (Dataset-Enhanced)"
+    echo "💡 Popular timezones from our global dataset:"
+    if command -v jq >/dev/null 2>&1; then
+      jq -r '.data[:8][] | "   🌍 \(.timezone_code) - \(.timezone_name) (\(.utc_offset))"' "$UHOME/uTemplate/datasets/timezoneMap.json" 2>/dev/null | head -8 || echo "   ⏰ Dataset temporarily unavailable"
+    fi
+    echo ""
+    read -p "🌍 Enter your timezone (e.g., UTC, EST, PST): " timezone
+    
+    # Validate timezone against dataset if jq is available
+    if [[ -n "$timezone" ]] && command -v jq >/dev/null 2>&1; then
+      local timezone_match=$(jq -r --arg tz "$timezone" '.data[] | select(.timezone_code | test($tz; "i")) | "\(.timezone_code) - \(.timezone_name)"' "$UHOME/uTemplate/datasets/timezoneMap.json" 2>/dev/null | head -1)
+      if [[ -n "$timezone_match" ]]; then
+        echo "✅ Found matching timezone: $timezone_match"
+        timezone=$(echo "$timezone_match" | cut -d' ' -f1)
+      fi
+    fi
+  else
+    read -p "🌍 Enter your timezone (e.g., UTC, EST, PST): " timezone
+  fi
+  echo ""
+  
+  # Collect preferences
+  echo "⚙️ User Preferences (optional)"
+  local theme=""
+  local debug_mode=""
+  local auto_backup=""
+  
+  read -p "🎨 Choose theme (default/dark/light) [default]: " theme
+  read -p "🔧 Enable debug mode? (y/N): " debug_mode
+  read -p "💾 Enable auto-backup? (Y/n): " auto_backup
+  echo ""
+  
+  # Set defaults
+  username="${username:-user}"
+  timezone="${timezone:-UTC}"
+  location="${location:-local}"
+  email="${email:-}"
+  full_name="${full_name:-}"
+  theme="${theme:-default}"
+  debug_mode="${debug_mode:-n}"
+  auto_backup="${auto_backup:-Y}"
+  
+  # Convert preferences to JSON format
+  local debug_bool="false"
+  local backup_bool="true"
+  [[ "$debug_mode" =~ ^[Yy]$ ]] && debug_bool="true"
+  [[ "$auto_backup" =~ ^[Nn]$ ]] && backup_bool="false"
+  
+  preferences="{\"theme\":\"$theme\",\"debug_mode\":$debug_bool,\"auto_backup\":$backup_bool}"
+  
+  # Create identity file using template system if available
+  identity_file="$UHOME/uMemory/user/identity.md"
+  mkdir -p "$(dirname "$identity_file")"
+  
+  if [[ -f "$UHOME/uCode/template-generator.sh" && -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
+    echo "🏗️ Generating identity using template system..."
+    
+    # Create variables for template generation
+    local temp_vars_file="$UHOME/uMemory/generated/temp-user-vars.json"
+    mkdir -p "$(dirname "$temp_vars_file")"
+    
+    cat > "$temp_vars_file" << EOF
+{
+  "username": "$username",
+  "full_name": "$full_name",
+  "email": "$email",
+  "location": "$location",
+  "timezone": "$timezone",
+  "preferences": $preferences,
+  "created_date": "$(date '+%Y-%m-%d %H:%M:%S')"
+}
+EOF
+    
+    # Generate using template system
+    if bash "$UHOME/uCode/template-generator.sh" generate user-setup "$temp_vars_file" > "$identity_file" 2>/dev/null; then
+      echo "✅ Identity generated using template system"
+    else
+      echo "⚠️ Template generation failed, falling back to basic creation"
+      cmd_create_basic_identity
+    fi
+    
+    # Clean up temporary file
+    rm -f "$temp_vars_file"
+  else
+    echo "⚠️ Template system not available, creating basic identity"
+    cmd_create_basic_identity
+  fi
+  
+  # Update user variables file
+  if [[ -f "$UHOME/uTemplate/variables/user-vars.json" ]]; then
+    echo "📝 Updating user variables..."
+    local user_vars_file="$UHOME/uTemplate/variables/user-vars.json"
+    
+    if command -v jq >/dev/null 2>&1; then
+      jq --arg username "$username" \
+         --arg full_name "$full_name" \
+         --arg email "$email" \
+         --arg location "$location" \
+         --arg timezone "$timezone" \
+         --arg theme "$theme" \
+         --argjson debug_mode "$debug_bool" \
+         --argjson auto_backup "$backup_bool" \
+         --arg updated "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+         '.USERNAME = $username | .FULL_NAME = $full_name | .EMAIL = $email | .LOCATION = $location | .TIMEZONE = $timezone | .THEME = $theme | .DEBUG_MODE = $debug_mode | .AUTO_BACKUP = $auto_backup | .LAST_UPDATED = $updated' \
+         "$user_vars_file" > "${user_vars_file}.tmp" && mv "${user_vars_file}.tmp" "$user_vars_file"
+      echo "✅ User variables updated"
+    else
+      echo "⚠️ jq not available, skipping variable file update"
+    fi
+  fi
+  
+  echo ""
+  echo "✅ Enhanced user identity created successfully!"
+  echo "👤 Username: $username"
+  echo "🌍 Location: $location"
+  echo "⏰ Timezone: $timezone"
+  [[ -n "$full_name" ]] && echo "👋 Full Name: $full_name"
+  [[ -n "$email" ]] && echo "📧 Email: $email"
+  echo "🎨 Theme: $theme"
+  echo "🔧 Debug Mode: $debug_bool"
+  echo "💾 Auto Backup: $backup_bool"
+  echo ""
+  echo "🎯 Your uDOS environment is ready with template integration!"
+  echo ""
+}
+
+# --- Fallback basic identity creation ---
+cmd_create_basic_identity() {
+  cat > "$identity_file" << EOF
+# uDOS User Identity
+
+**Username**: $username
+**Location**: $location
+**Created**: $(date +%Y-%m-%d)
+**Timezone**: $timezone
+**Version**: v1.7.1 Enhanced
+**Architecture**: Template-Integrated v1.7.1
+
+## Profile
+- **Role**: uDOS User
+- **Setup**: Complete
+- **Full Name**: $full_name
+- **Email**: $email
+
+## Preferences
+- **Theme**: $theme
+- **Debug Mode**: $debug_bool
+- **Auto Backup**: $backup_bool
+
+## System
+- **uDOS Path**: ~/uDOS
+- **Identity Location**: uMemory/user/identity.md
+- **Template System**: Available
+- **Dataset Integration**: $([ "$dataset_available" = true ] && echo "Enabled" || echo "Limited")
+
+## Template Integration
+- **User Variables**: Updated
+- **Location Dataset**: $([ -f "$UHOME/uTemplate/datasets/locationMap.json" ] && echo "Available" || echo "Missing")
+- **Timezone Dataset**: $([ -f "$UHOME/uTemplate/datasets/timezoneMap.json" ] && echo "Available" || echo "Missing")
+- **Last Updated**: $(date +%Y-%m-%d)
+EOF
+}
+
 # --- Devcontainer Command ---
 cmd_devcontainer() {
   echo "🛠️  Checking devcontainer setup..."
@@ -94,6 +355,11 @@ echo -e "    \033[1;37muCode Shell · $UVERSION 🌀\033[0m"
 echo ""
 echo "🧠 Loading environment..."
 
+# Initialize dynamic command system
+if command -v initialize_dynamic_commands >/dev/null 2>&1; then
+  initialize_dynamic_commands
+fi
+
 USER_FILE="$UHOME/uMemory/user/identity.md"
 if [[ ! -f "$USER_FILE" ]]; then
   # Check legacy location first
@@ -102,26 +368,67 @@ if [[ ! -f "$USER_FILE" ]]; then
     mv "$UHOME/sandbox/user.md" "$USER_FILE"
     echo "✅ Identity migrated to uMemory/user/"
   else
-    echo "⚙️ No identity file found. Starting template-driven setup..."
-    echo "🏗️ Using uTemplate system for user configuration..."
+    echo "⚙️ No identity file found. Starting enhanced template-driven setup..."
+    echo "🏗️ Using integrated uTemplate system for user configuration..."
+    echo ""
     
-    # Check if template system is available
-    if [[ -f "$UHOME/uTemplate/input-user-setup.md" && -f "$UHOME/uTemplate/datasets/template-definitions.json" ]]; then
-      echo "📋 Template system detected - using enhanced setup"
+    # Check template system availability
+    local template_available=false
+    local dataset_available=false
+    
+    if [[ -f "$UHOME/uCode/template-generator.sh" ]]; then
+      template_available=true
+      echo "✅ Template system available"
+    fi
+    
+    if [[ -f "$UHOME/uTemplate/datasets/template-definitions.json" ]]; then
+      dataset_available=true
+      echo "✅ Dataset system available"
+    fi
+    
+    if [[ -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
+      echo "✅ User setup template available"
+    fi
+    
+    echo ""
+    
+    # Enhanced setup with template integration
+    if [[ "$template_available" == true && "$dataset_available" == true ]]; then
+      echo "� Enhanced setup with full template-dataset integration"
+      cmd_setup_user
+    elif [[ -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
+      echo "�📋 Template system detected - using enhanced setup"
       cmd_setup_user
     else
-      echo "📋 Falling back to basic setup..."
-      bash "$UHOME/uCode/check.sh"
+      echo "📋 Falling back to compatibility mode..."
+      echo "⚠️ Some features may be limited without full template system"
+      cmd_setup_user
     fi
   fi
 
+  # Verify setup completed
   if [[ -f "$USER_FILE" ]]; then
-    echo "✅ Identity confirmed."
+    echo "✅ Identity setup completed successfully."
+    echo ""
+    
+    # Show setup summary
+    echo "📊 Setup Summary:"
+    if grep -q "Template-Integrated" "$USER_FILE" 2>/dev/null; then
+      echo "   🏗️ Template system: Integrated"
+    fi
+    if grep -q "Dataset Integration: Enabled" "$USER_FILE" 2>/dev/null; then
+      echo "   📊 Dataset integration: Enabled"
+    fi
+    if [[ -f "$UHOME/uTemplate/variables/user-vars.json" ]]; then
+      echo "   📝 User variables: Updated"
+    fi
+    
   else
     echo "❌ Identity file still not found after setup."
+    echo "🔧 Please check template system configuration or run SETUP command manually."
     exit 1
   fi
-  echo "🔍 Template-driven setup completed."
+  echo "🔍 Enhanced template-driven setup completed."
   echo ""
 fi
 
@@ -148,6 +455,15 @@ if [ -f "$UDENT" ]; then
   echo "Location: $location"
   echo "Created: $created"
   echo "Timezone: $timezone"
+  
+  # Check for template integration features
+  if grep -q "Template-Integrated" "$UDENT" 2>/dev/null; then
+    echo "🏗️ Template system: Integrated"
+  fi
+  if grep -q "Dataset Integration: Enabled" "$UDENT" 2>/dev/null; then
+    echo "📊 Dataset integration: Active"
+  fi
+  
   echo ""
 else
   echo "❌ Identity still missing. Please run DESTROY or REBOOT."
@@ -610,25 +926,6 @@ cmd_location_enhanced() {
   echo ""
 }
 
-cmd_setup_user() {
-  echo "👤 Template-Driven User Setup"
-  echo ""
-  
-  if [[ -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
-    echo "📋 Using enhanced template-driven setup..."
-    bash "$UHOME/uCode/template-generator.sh" generate user-setup "User Identity"
-    
-    if [[ -f "$UHOME/uMemory/generated/user-setup.md" ]]; then
-      echo "✅ User setup template generated"
-      echo "📝 Please edit: uMemory/generated/user-setup.md"
-      echo "🔄 Then run: VALIDATE to apply settings"
-    fi
-  else
-    echo "📋 Using basic setup..."
-    bash "$UHOME/uCode/check.sh" all
-  fi
-  echo ""
-}
 
 cmd_debug() {
   echo "🔧 uDOS Debug Information (Enhanced with Template Status)"
@@ -825,6 +1122,25 @@ while true; do
   printf "  \r"
   echo -ne "\033[1;36m🌀 \033[0m"
   read -r input
+  
+  # Check for shortcode syntax first
+  if [[ "$input" =~ ^\[.*\]$ ]]; then
+    echo -e "\033[1;35m🔧 Processing shortcode...\033[0m"
+    if [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
+      bash "$SCRIPT_DIR/shortcode-processor-simple.sh" process "$input"
+    elif [[ -f "$SCRIPT_DIR/shortcode-processor.sh" ]]; then
+      bash "$SCRIPT_DIR/shortcode-processor.sh" process "$input"
+    else
+      echo "❌ Shortcode processor not available"
+    fi
+    continue
+  fi
+  
+  # Set error context for command execution
+  if command -v set_error_context >/dev/null 2>&1; then
+    set_error_context "command_execution" "ucode.sh" 
+  fi
+  
   cmd=$(echo "$input" | awk '{print toupper($1)}')
   args=$(echo "$input" | cut -d' ' -f2-)
   # Only log moves if not blank and not during boot
@@ -836,7 +1152,51 @@ while true; do
       cmd_log
       ;;
     RUN)
-      cmd_run
+      # Enhanced RUN command with script runner integration
+      if [[ -f "$UHOME/uScript/system/enhanced-script-runner.sh" ]]; then
+        echo "🚀 Using Enhanced Script Runner"
+        bash "$UHOME/uScript/system/enhanced-script-runner.sh" run "$args"
+      else
+        cmd_run
+      fi
+      ;;
+    BASH)
+      # New BASH command for containerized execution
+      if [[ -f "$UHOME/uScript/system/bash-container.sh" ]]; then
+        echo "🐳 Executing in containerized environment"
+        bash "$UHOME/uScript/system/bash-container.sh" exec "$args"
+      else
+        echo "❌ Bash container not available"
+        if command -v error_warning >/dev/null 2>&1; then
+          error_warning "Bash container system not found"
+        fi
+      fi
+      ;;
+    SHORTCODE)
+      # Shortcode management commands
+      if [[ -f "$UHOME/uCode/shortcode-processor-simple.sh" ]]; then
+        bash "$UHOME/uCode/shortcode-processor-simple.sh" "$args"
+      elif [[ -f "$UHOME/uCode/shortcode-processor.sh" ]]; then
+        bash "$UHOME/uCode/shortcode-processor.sh" "$args"
+      else
+        echo "❌ Shortcode processor not available"
+      fi
+      ;;
+    ERROR)
+      # Error handling commands
+      if [[ -f "$UHOME/uCode/error-handler.sh" ]]; then
+        bash "$UHOME/uCode/error-handler.sh" "$args"
+      else
+        echo "❌ Error handler not available"
+      fi
+      ;;
+    CONTAINER)
+      # Container management
+      if [[ -f "$UHOME/uScript/system/bash-container.sh" ]]; then
+        bash "$UHOME/uScript/system/bash-container.sh" "$args"
+      else
+        echo "❌ Container system not available"
+      fi
       ;;
     TREE)
       cmd_tree
@@ -845,7 +1205,46 @@ while true; do
       cmd_list "$args"
       ;;
     DASH)
-      cmd_dash
+      # Enhanced dashboard command with multiple options
+      case "$args" in
+        "enhanced"|"ascii")
+          if [[ -f "$UHOME/uCode/enhanced-dash.sh" ]]; then
+            bash "$UHOME/uCode/enhanced-dash.sh" show
+          else
+            cmd_dash
+          fi
+          ;;
+        "live"|"watch")
+          if [[ -f "$UHOME/uCode/enhanced-dash.sh" ]]; then
+            bash "$UHOME/uCode/enhanced-dash.sh" live
+          else
+            cmd_dash
+          fi
+          ;;
+        "stats")
+          if [[ -f "$UHOME/uCode/enhanced-dash.sh" ]]; then
+            bash "$UHOME/uCode/enhanced-dash.sh" stats
+          else
+            cmd_dash
+          fi
+          ;;
+        "export")
+          if [[ -f "$UHOME/uCode/enhanced-dash.sh" ]]; then
+            bash "$UHOME/uCode/enhanced-dash.sh" export json
+          else
+            cmd_dash
+          fi
+          ;;
+        *)
+          # Default dashboard behavior - try enhanced first
+          if [[ -f "$UHOME/uCode/enhanced-dash.sh" ]]; then
+            bash "$UHOME/uCode/enhanced-dash.sh" build
+            bash "$UHOME/uCode/enhanced-dash.sh" show
+          else
+            cmd_dash
+          fi
+          ;;
+      esac
       ;;
     SYNC)
       sync_dashboard
@@ -865,7 +1264,7 @@ while true; do
     DEVCON)
       cmd_devcontainer
       ;;
-    QUIT)
+    QUIT|EXIT|BYE)
       echo "👋 uDOS session ended."
       exit 0
       ;;
@@ -924,18 +1323,34 @@ while true; do
       echo "🏗️  TEMPLATE COMMANDS"
       echo "     template list               - List all available templates"
       echo "     template info <template>    - Show template information"
-      echo "     template generate <id> <name> - Generate template"
+      echo "     template generate <id> <n> - Generate template"
       echo "     template batch <file>       - Batch generate from CSV"
       echo "     template validate <id>      - Validate template definition"
       echo "     template generated          - List generated templates"
       echo "     template sample             - Create sample batch file"
       echo ""
-      echo "🗺️  DATASET INTEGRATION FEATURES"
+      echo "� DYNAMIC COMMANDS (Dataset-Driven Extensions)"
+      if [[ "$DYNAMIC_COMMANDS_COUNT" -gt 0 ]]; then
+        echo "     DYNAMIC list                - List all dynamic commands"
+        echo "     DYNAMIC help <command>      - Get help for dynamic command"
+        echo "     DYNAMIC status              - Show dynamic system status"
+        echo "     Available: INSTALL, SEARCH, EXPORT, BACKUP, HEALTH, CONFIG, PACKAGE, WORKFLOW"
+      else
+        echo "     DYNAMIC reload              - Load dynamic command system"
+      fi
+      echo ""
+      echo "🔧 VARIABLE MANAGEMENT"
+      echo "     variable-manager.sh set <name> <value> [scope]"
+      echo "     variable-manager.sh get <name> [scope]"
+      echo "     variable-manager.sh list [scope]"
+      echo ""
+      echo "�🗺️  DATASET INTEGRATION FEATURES"
       echo "     • Location lookup from 52 global cities"
       echo "     • Timezone management with 38 global zones"
       echo "     • Country/currency auto-detection"
       echo "     • Template-driven user configuration"
       echo "     • Geographic coordinate mapping"
+      echo "     • Dynamic command extension system"
       echo ""
       ;;
     JSON)
@@ -958,7 +1373,35 @@ while true; do
       # Ignore empty input
       ;;
     *)
+      # Try dynamic command system first
+      if command -v handle_dynamic_command >/dev/null 2>&1; then
+        if handle_dynamic_command "$cmd" "$args"; then
+          # Command handled by dynamic system
+          continue
+        fi
+      fi
+      
+      # Log unknown command as warning
+      if command -v error_warning >/dev/null 2>&1; then
+        error_warning "Unknown command: $cmd"
+      fi
+      
       echo "❓ Unknown command '$cmd'. Type HELP for list of commands."
+      echo "💡 Try using shortcode syntax: [run:script-name] or [bash:command]"
+      echo "🔧 Use 'SHORTCODE list' to see available shortcodes."
+      
+      # Suggest similar commands
+      case "$cmd" in
+        *RUN*|*EXEC*|*EXECUTE*)
+          echo "💡 Did you mean: RUN, BASH, or [run:script-name]?"
+          ;;
+        *ERROR*|*LOG*)
+          echo "💡 Did you mean: ERROR, LOG, or CHECK?"
+          ;;
+        *HELP*|*INFO*)
+          echo "💡 Did you mean: HELP, DEBUG, or CHECK?"
+          ;;
+      esac
       ;;
   esac
 done

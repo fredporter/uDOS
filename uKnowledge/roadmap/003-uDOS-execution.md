@@ -1,18 +1,18 @@
 ---
 title: "uDOS Execution Model — uCode & uScript"
-version: "Beta v1.7.1"
+version: "v1.0.0"
 id: "003"
-tags: ["execution", "uCode", "uScript", "shell", "task", "automation", "vscode", "optimized"]
+tags: ["execution", "uCode", "uScript", "shell", "task", "automation", "vscode", "user-roles", "chester"]
 created: 2025-07-05
-updated: 2025-07-13
-status: "✅ Optimized"
+updated: 2025-07-18
+status: "✅ v1.0 Complete"
 ---
 
-# 🧮 uDOS Execution Model
+# 🧮 uDOS Execution Model — v1.0
 
 This document defines the operational logic of the uDOS runtime system, including user input/output via `uCode` and programmable automation via `uScript`.
 
-**v1.7.1 Optimization Update**: Completely redesigned execution model eliminating Docker containers in favor of native VS Code integration with 15x performance improvement.
+**v1.0 Production Update**: Complete execution model with user role enforcement, Chester AI companion integration, comprehensive validation system, and privacy-first architecture ensuring single-user installation compliance.
 
 ---
 

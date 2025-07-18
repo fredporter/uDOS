@@ -12,7 +12,9 @@
       {"name": "end_date", "type": "date", "required": false, "description": "Target completion date"},
       {"name": "priority", "type": "enum", "options": ["low", "medium", "high", "critical"], "required": true, "description": "Mission priority level"},
       {"name": "resources", "type": "array", "required": false, "description": "Required resources"},
-      {"name": "team_members", "type": "array", "required": false, "description": "Assigned team members"}
+      {"name": "team_members", "type": "array", "required": false, "description": "Assigned team members"},
+      {"name": "budget", "type": "number", "required": false, "description": "Mission budget"},
+      {"name": "success_criteria", "type": "array", "required": true, "description": "Success criteria"}
     ],
     "output_format": "markdown",
     "tags": ["mission", "planning", "project"],
@@ -31,7 +33,8 @@
       {"name": "deliverables", "type": "array", "required": true, "description": "Expected deliverables"},
       {"name": "success_criteria", "type": "array", "required": true, "description": "Success criteria"},
       {"name": "dependencies", "type": "array", "required": false, "description": "Dependencies on other milestones"},
-      {"name": "assigned_to", "type": "string", "required": false, "description": "Person responsible"}
+      {"name": "assigned_to", "type": "string", "required": false, "description": "Person responsible"},
+      {"name": "progress", "type": "number", "required": false, "description": "Completion percentage"}
     ],
     "output_format": "markdown",
     "tags": ["milestone", "tracking", "deliverable"],
@@ -48,87 +51,107 @@
       {"name": "action", "type": "string", "required": true, "description": "Action to be taken"},
       {"name": "context", "type": "text", "required": true, "description": "Context and reasoning"},
       {"name": "expected_outcome", "type": "text", "required": true, "description": "Expected result"},
-      {"name": "timestamp", "type": "datetime", "required": true, "description": "Move timestamp"},
-      {"name": "location", "type": "string", "required": false, "description": "Current location context"},
-      {"name": "priority", "type": "enum", "options": ["low", "medium", "high"], "required": false, "description": "Move priority"}
-    ],
-    "output_format": "markdown", 
-    "tags": ["move", "action", "tracking"],
-    "version": "1.0.0"
-  },
-  {
-    "template_id": "input",
-    "name": "Input Template",
-    "category": "data",
-    "description": "Template for capturing user input and data collection",
-    "file_path": "input-template.md",
-    "variables": [
-      {"name": "input_type", "type": "string", "required": true, "description": "Type of input being collected"},
-      {"name": "prompt", "type": "text", "required": true, "description": "Input prompt for user"},
-      {"name": "validation_rules", "type": "array", "required": false, "description": "Validation rules"},
-      {"name": "default_value", "type": "string", "required": false, "description": "Default input value"},
-      {"name": "required", "type": "boolean", "required": true, "description": "Whether input is required"},
-      {"name": "format", "type": "string", "required": false, "description": "Expected input format"}
+      {"name": "actual_outcome", "type": "text", "required": false, "description": "Actual result"},
+      {"name": "timestamp", "type": "datetime", "required": true, "description": "When the move was made"},
+      {"name": "duration", "type": "number", "required": false, "description": "Time taken in minutes"},
+      {"name": "tags", "type": "array", "required": false, "description": "Categorization tags"}
     ],
     "output_format": "markdown",
-    "tags": ["input", "data", "collection"],
+    "tags": ["move", "action", "log"],
     "version": "1.0.0"
   },
   {
-    "template_id": "uc",
-    "name": "uCode Template",
-    "category": "development",
-    "description": "Template for creating uCode scripts with proper structure and documentation",
-    "file_path": "uc-template.md",
+    "template_id": "dashboard",
+    "name": "Dashboard Template",
+    "category": "reporting",
+    "description": "Template for generating comprehensive system dashboards",
+    "file_path": "dashboard-template.md",
     "variables": [
-      {"name": "script_name", "type": "string", "required": true, "description": "Name of the uCode script"},
-      {"name": "purpose", "type": "text", "required": true, "description": "Script purpose and functionality"},
-      {"name": "commands", "type": "array", "required": true, "description": "uCode commands to execute"},
-      {"name": "parameters", "type": "array", "required": false, "description": "Script parameters"},
-      {"name": "expected_output", "type": "text", "required": false, "description": "Expected script output"},
-      {"name": "dependencies", "type": "array", "required": false, "description": "Script dependencies"}
+      {"name": "title", "type": "string", "required": true, "description": "Dashboard title"},
+      {"name": "generated_date", "type": "datetime", "required": true, "description": "Generation timestamp"},
+      {"name": "user_name", "type": "string", "required": true, "description": "Current user"},
+      {"name": "active_missions", "type": "array", "required": false, "description": "Current active missions"},
+      {"name": "recent_moves", "type": "array", "required": false, "description": "Recent moves"},
+      {"name": "system_stats", "type": "object", "required": false, "description": "System statistics"},
+      {"name": "health_status", "type": "string", "required": false, "description": "Overall system health"}
     ],
     "output_format": "markdown",
-    "tags": ["ucode", "script", "development"],
+    "tags": ["dashboard", "reporting", "status"],
     "version": "1.0.0"
   },
   {
-    "template_id": "user_setup",
+    "template_id": "user-setup",
     "name": "User Setup Template",
     "category": "configuration",
-    "description": "Template for user configuration and setup processes with location and timezone integration",
+    "description": "Template for initial user configuration and identity setup",
     "file_path": "input-user-setup.md",
     "variables": [
-      {"name": "username", "type": "string", "required": true, "description": "User name", "default": "agentdigital"},
-      {"name": "password", "type": "password", "required": false, "description": "User password", "default": ""},
-      {"name": "location", "type": "location_code", "required": true, "description": "Location code from locationMap dataset", "default": "AX14", "dataset_ref": "locationMap"},
-      {"name": "timezone", "type": "timezone", "required": true, "description": "User timezone from timezoneMap dataset", "default": "UTC", "dataset_ref": "timezoneMap"},
-      {"name": "utc_offset", "type": "string", "required": false, "description": "UTC offset (auto-detected from timezone)", "auto_generate": true},
-      {"name": "country", "type": "country", "required": false, "description": "Country from countryMap dataset", "dataset_ref": "countryMap"},
-      {"name": "language", "type": "language", "required": false, "description": "Preferred language from languageMap", "default": "EN", "dataset_ref": "languageMap"},
-      {"name": "currency", "type": "currency", "required": false, "description": "Local currency from currencyMap", "dataset_ref": "currencyMap"}
+      {"name": "username", "type": "string", "required": true, "description": "User identifier"},
+      {"name": "full_name", "type": "string", "required": false, "description": "Full name"},
+      {"name": "email", "type": "email", "required": false, "description": "Email address"},
+      {"name": "location", "type": "string", "required": false, "description": "User location"},
+      {"name": "timezone", "type": "string", "required": false, "description": "User timezone"},
+      {"name": "preferences", "type": "object", "required": false, "description": "User preferences"},
+      {"name": "created_date", "type": "datetime", "required": true, "description": "Account creation date"}
     ],
     "output_format": "markdown",
-    "tags": ["user", "setup", "configuration", "location", "timezone"],
-    "version": "1.1.0"
+    "tags": ["user", "setup", "configuration"],
+    "version": "1.0.0"
   },
   {
-    "template_id": "legacy",
-    "name": "Legacy Template", 
-    "category": "migration",
-    "description": "Template for documenting legacy systems and migration plans",
-    "file_path": "legacy-template.md",
+    "template_id": "package-info",
+    "name": "Package Information Template",
+    "category": "documentation",
+    "description": "Template for documenting package installations and configurations",
+    "file_path": "package-template.md",
     "variables": [
-      {"name": "system_name", "type": "string", "required": true, "description": "Legacy system name"},
-      {"name": "current_version", "type": "string", "required": true, "description": "Current version"},
-      {"name": "end_of_life", "type": "date", "required": false, "description": "End of life date"},
-      {"name": "replacement_system", "type": "string", "required": false, "description": "Replacement system"},
-      {"name": "migration_plan", "type": "text", "required": false, "description": "Migration strategy"},
-      {"name": "dependencies", "type": "array", "required": true, "description": "System dependencies"},
-      {"name": "data_volume", "type": "string", "required": false, "description": "Amount of data to migrate"}
+      {"name": "package_name", "type": "string", "required": true, "description": "Package name"},
+      {"name": "version", "type": "string", "required": true, "description": "Package version"},
+      {"name": "description", "type": "text", "required": true, "description": "Package description"},
+      {"name": "install_date", "type": "datetime", "required": true, "description": "Installation date"},
+      {"name": "dependencies", "type": "array", "required": false, "description": "Package dependencies"},
+      {"name": "usage_examples", "type": "array", "required": false, "description": "Usage examples"},
+      {"name": "configuration", "type": "object", "required": false, "description": "Configuration settings"}
     ],
     "output_format": "markdown",
-    "tags": ["legacy", "migration", "systems"],
+    "tags": ["package", "documentation", "installation"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "workflow",
+    "name": "Workflow Template",
+    "category": "automation",
+    "description": "Template for defining automated workflows and processes",
+    "file_path": "workflow-template.md",
+    "variables": [
+      {"name": "workflow_name", "type": "string", "required": true, "description": "Workflow identifier"},
+      {"name": "description", "type": "text", "required": true, "description": "Workflow purpose"},
+      {"name": "trigger", "type": "string", "required": true, "description": "What triggers the workflow"},
+      {"name": "steps", "type": "array", "required": true, "description": "Workflow steps"},
+      {"name": "schedule", "type": "string", "required": false, "description": "Execution schedule"},
+      {"name": "enabled", "type": "boolean", "required": true, "description": "Whether workflow is active"}
+    ],
+    "output_format": "markdown",
+    "tags": ["workflow", "automation", "process"],
+    "version": "1.0.0"
+  },
+  {
+    "template_id": "report",
+    "name": "Report Template",
+    "category": "documentation",
+    "description": "Template for generating various types of reports",
+    "file_path": "report-template.md",
+    "variables": [
+      {"name": "report_title", "type": "string", "required": true, "description": "Report title"},
+      {"name": "report_type", "type": "enum", "options": ["status", "analysis", "summary", "detailed"], "required": true, "description": "Type of report"},
+      {"name": "period", "type": "string", "required": false, "description": "Reporting period"},
+      {"name": "author", "type": "string", "required": true, "description": "Report author"},
+      {"name": "executive_summary", "type": "text", "required": false, "description": "Executive summary"},
+      {"name": "findings", "type": "array", "required": false, "description": "Key findings"},
+      {"name": "recommendations", "type": "array", "required": false, "description": "Recommendations"}
+    ],
+    "output_format": "markdown",
+    "tags": ["report", "documentation", "analysis"],
     "version": "1.0.0"
   }
 ]

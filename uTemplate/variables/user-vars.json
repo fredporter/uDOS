@@ -1,5 +1,17 @@
 {
-  "USERNAME": "otter",
-  "MODE": "test",
-  "LAST_RUN": "2025-07-13T12:00:00Z"
+  "USERNAME": "Fred",
+  "FULL_NAME": "Fred Porter",
+  "EMAIL": "me@fredporter.com",
+  "LOCATION": "ai35",
+  "TIMEZONE": "BIT",
+  "THEME": "default",
+  "DEBUG_MODE": true,
+  "AUTO_BACKUP": true,
+  "BACKUP_INTERVAL": "daily",
+  "CURRENT_PROJECT": "",
+  "PROJECT_LEAD": "",
+  "PROJECT_DEADLINE": "",
+  "PROJECT_BUDGET": 0,
+  "LAST_UPDATED": "2025-07-17T14:22:29Z",
+  "TEST_VAR": "test_value"
 }

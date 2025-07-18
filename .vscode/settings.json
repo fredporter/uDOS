@@ -1,29 +1,52 @@
 {
-    "terminal.integrated.defaultProfile.osx": "zsh",
-    "terminal.integrated.cwd": "${workspaceFolder}",
-    "files.associations": {
-        "*.md": "markdown",
-        "ucode.sh": "shellscript",
-        "*.uTemplate": "markdown"
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": true,
+        "plaintext": true,
+        "markdown": true,
+        "uscript": true
     },
+    "github.copilot.advanced": {
+        "debug.overrideEngine": "copilot",
+        "length": 500,
+        "temperature": 0.1,
+        "top_p": 1,
+        "stop": ["\n\n"]
+    },
+    "files.associations": {
+        "*.uscript": "uscript",
+        "*.us": "uscript",
+        "*.udos": "uscript"
+    },
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": true,
+        "strings": true
+    },
+    "editor.suggest.showWords": false,
+    "editor.suggest.showSnippets": true,
+    "editor.tabCompletion": "on",
+    "editor.wordBasedSuggestions": "currentDocument",
+    "workbench.colorCustomizations": {
+        "editorBracketHighlight.foreground1": "#FFD700",
+        "editorBracketHighlight.foreground2": "#DA70D6",
+        "editorBracketHighlight.foreground3": "#87CEEB"
+    },
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
     "markdown.preview.breaks": true,
     "markdown.preview.linkify": true,
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.fontSize": 13,
     "files.exclude": {
-        "**/uMemory/logs/**": false,
-        "**/launcher/uDOS.app/**": true,
-        "**/.DS_Store": true
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/.git": true,
+        "**/uMemory/logs/**": true
     },
     "search.exclude": {
-        "**/launcher/uDOS.app/**": true
-    },
-    "workbench.colorCustomizations": {
-        "terminal.background": "#1a1a1a",
-        "terminal.foreground": "#d4d4d4",
-        "terminalCursor.background": "#36d9d9",
-        "terminalCursor.foreground": "#36d9d9"
-    },
-    "editor.rulers": [80],
-    "editor.wordWrap": "on",
-    "markdown.extension.toc.updateOnSave": true,
-    "git.ignoreLimitWarning": true
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/uMemory/logs/**": true
+    }
 }
