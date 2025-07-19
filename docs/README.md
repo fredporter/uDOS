@@ -1,21 +1,138 @@
-# 📚 uDOS Documentation Index
+# 📚 uDOS Documentation
 
 **Complete documentation hub for uDOS v1.0 production system**  
 **Version**: 1.0 Production  
-**Last Updated**: July 18, 2025  
-**Repository**: [uDOS Official Repository](https://github.com/agentdigital/uDOS)
+**Last Updated**: July 19, 2025  
 
 ---
 
-## 🎯 Quick Start
+## 🚀 Quick Start
 
-**New to uDOS?** Start here for immediate productivity:
+**New to uDOS?** Start here:
 
-1. **[📖 User Manual](user-manual.md)** - Complete guide to all commands and features
-2. **[🎯 Feature Guide](feature-guide.md)** - Comprehensive feature overview with examples
-3. **[📋 Command Reference](command-reference.md)** - Quick reference for all commands and VS Code tasks
+1. **[📖 User Manual](user/manual.md)** - Complete guide to all commands and features
+2. **[🎯 Feature Guide](user/features.md)** - Comprehensive feature overview with examples  
+3. **[📋 Command Reference](user/commands.md)** - Quick reference for all commands
+
+**Quick Commands:**
+- `SHOW manual` - View user manual with glow
+- `SHOW features` - Browse feature guide
+- `SHOW list` - List all available documentation
 
 ---
+
+## 👤 User Documentation
+
+Essential guides for daily uDOS use:
+
+| Document | Description | Command |
+|----------|-------------|---------|
+| **[📖 Manual](user/manual.md)** | Complete usage guide | `SHOW manual` |
+| **[🎯 Features](user/features.md)** | Detailed feature documentation | `SHOW features` |
+| **[📋 Commands](user/commands.md)** | Quick command reference | `SHOW commands` |
+
+---
+
+## ⚙️ System Documentation
+
+Technical architecture and system information:
+
+| Document | Description | Command |
+|----------|-------------|---------|
+| **[🏗️ Architecture](system/architecture.md)** | System architecture guide | `SHOW architecture` |
+| **[🗺️ Roadmap](system/roadmap.md)** | Future development planning | `SHOW roadmap` |
+| **[🚀 Strategy](system/strategy.md)** | Development strategy | `SHOW strategy` |
+| **[📋 Templates](system/templates.md)** | Template system guide | `SHOW templates` |
+
+---
+
+## 📦 Package Documentation
+
+Package ecosystem and tool integration:
+
+| Document | Description | Command |
+|----------|-------------|---------|
+| **[� Index](packages/index.md)** | Package management guide | `SHOW index` |
+| **Package Guides** | Individual tool documentation | `SHOW <package-name>` |
+
+Available packages: `ripgrep`, `fd`, `bat`, `glow`, `fzf`, `jq`
+
+---
+
+## 🛠️ Development Documentation
+
+*Available in developer mode (Wizard/Sorcerer roles only)*
+
+| Document | Description | Command |
+|----------|-------------|---------|
+| **[🛠️ Dev Index](development/README.md)** | Development documentation hub | `SHOW development/README` |
+| **Architecture Specs** | Repository structure & specs | `SHOW development/architecture/...` |
+| **Optimization Reports** | Performance improvements | `SHOW development/optimization/...` |
+| **Development Reports** | System evolution reports | `SHOW development/reports/...` |
+
+---
+
+## 🔍 Documentation Commands
+
+### SHOW Command Usage
+
+```bash
+# View documentation index
+SHOW
+
+# View specific documents  
+SHOW manual          # User manual
+SHOW features        # Feature guide
+SHOW commands        # Command reference
+SHOW architecture    # System architecture
+
+# List all documents
+SHOW list
+
+# Search documentation
+SHOW search <term>
+```
+
+### Integration with uDOS
+
+- **Read-only by default** - Documentation is protected from accidental modification
+- **Developer mode** - Advanced docs available for Wizard/Sorcerer roles
+- **Glow integration** - Beautiful markdown rendering in terminal
+- **Search capability** - Fast text search across all documentation
+- **VS Code tasks** - Integrated with VS Code workspace tasks
+
+---
+
+## 📊 Documentation Organization
+
+### Structure Principles
+
+1. **User-First** - Essential user docs prominently featured
+2. **Clear Separation** - User docs separate from system/dev docs
+3. **Simplified Naming** - Removed "enhanced", version numbers, etc.
+4. **Logical Grouping** - Related documents grouped together
+5. **Command Integration** - Every doc accessible via `SHOW` command
+
+### Access Levels
+
+- **👤 User Docs** - Available to all users
+- **⚙️ System Docs** - Technical documentation, all roles
+- **📦 Package Docs** - Tool-specific guides, all roles  
+- **🛠️ Dev Docs** - Development-only, Wizard/Sorcerer roles
+
+---
+
+## 💡 Pro Tips
+
+- Use `SHOW list` to see all available documentation
+- Use `SHOW search <term>` to find specific information
+- Documentation is optimized for terminal viewing with `glow`
+- All docs are cross-referenced for easy navigation
+- Use VS Code tasks for integrated workflow
+
+---
+
+*This documentation structure separates user content from system documentation while providing excellent discoverability and beautiful presentation.*
 
 ## 📖 User Documentation
 
@@ -48,6 +165,12 @@
 ### System Implementation Guides
 - **[� Template System v2.1](enhanced-template-system-v2.1.md)** - Advanced template implementation
 - **[📊 Dashboard Integration](dashboard-integration-summary.md)** - Enhanced dashboard with ASCII and template support
+
+### Development Documentation
+- **[🛠️ Development Directory](development/README.md)** - Internal development documentation and reports
+  - Architecture specifications and repository structure
+  - Optimization summaries and performance improvements
+  - Development reports and consolidation summaries
 - **[📦 Package Management](package-management.md)** - Comprehensive package ecosystem documentation
 - **[🧠 uMemory Structure](uMemory-structure.md)** - User data architecture and organization
 

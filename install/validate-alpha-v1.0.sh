@@ -114,7 +114,7 @@ echo "==========================="
 
 # Test documentation updates
 run_test "README updated" "grep -q 'sandbox/' '$UDOS_ROOT/README.md'"
-run_test "REPO_STRUCTURE updated" "grep -q 'Alpha v1.0' '$UDOS_ROOT/REPO_STRUCTURE_v1.0.md'"
+run_test "REPO_STRUCTURE updated" "grep -q 'Alpha v1.0' '$UDOS_ROOT/docs/development/architecture/REPO_STRUCTURE_v1.0.md'"
 run_test "Alpha v1.0 summary exists" "[[ -f '$UDOS_ROOT/ALPHA_v1.0_READY.md' ]]"
 
 echo ""

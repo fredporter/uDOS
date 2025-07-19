@@ -234,7 +234,7 @@ create_compatibility_links() {
 
 # Generate consolidation report
 generate_report() {
-    local report_file="$UHOME/SCRIPT_CONSOLIDATION_REPORT.md"
+    local report_file="$UHOME/docs/development/reports/SCRIPT_CONSOLIDATION_REPORT.md"
     
     blue "📊 Generating consolidation report..."
     

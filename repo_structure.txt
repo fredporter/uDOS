@@ -7,7 +7,12 @@ uDOS/
 ├── CHANGELOG.md                # Version history and changes
 ├── start-udos.sh               # Quick launcher script
 ├── install-udos.sh             # One-click installation
-├── STREAMLINING_REPORT.md      # System optimization report
+├── docs/                       # Complete documentation
+│   ├── development/            # Development documentation (dev-only)
+│   │   ├── architecture/       # Repository structure specs
+│   │   ├── optimization/       # Performance improvements
+│   │   └── reports/            # Development reports
+│   └── roadmap/                # Future development plans
 ├── docs/                       # Complete documentation
 │   ├── command-reference.md    # 484-line complete command reference
 │   ├── user-manual.md          # Comprehensive user guide

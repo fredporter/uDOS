@@ -344,6 +344,63 @@
             },
             "problemMatcher": [],
             "detail": "Install uDOS VS Code Extension dependencies"
+        },
+        {
+            "label": "📚 Show Documentation",
+            "type": "shell",
+            "command": "./uCode/show-docs.sh",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "View documentation index with glow"
+        },
+        {
+            "label": "📖 Show User Manual",
+            "type": "shell",
+            "command": "./uCode/show-docs.sh",
+            "args": ["manual"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "View user manual with glow"
+        },
+        {
+            "label": "📋 Show Command Reference",
+            "type": "shell",
+            "command": "./uCode/show-docs.sh",
+            "args": ["commands"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "View command reference with glow"
+        },
+        {
+            "label": "🔍 List All Documentation",
+            "type": "shell",
+            "command": "./uCode/show-docs.sh",
+            "args": ["list"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "problemMatcher": [],
+            "detail": "List all available documentation"
         }
     ],
     "inputs": [

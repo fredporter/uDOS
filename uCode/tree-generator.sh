@@ -29,18 +29,32 @@ generate_simple_tree() {
 # Generated with consolidated tree generator
 
 uDOS/
+uDOS/
 ├── README.md                    # Main documentation and installation guide
 ├── LICENSE                     # MIT License
 ├── CHANGELOG.md                # Version history and changes
 ├── start-udos.sh               # Quick launcher script
 ├── install-udos.sh             # One-click installation
-├── STREAMLINING_REPORT.md      # System optimization report
 ├── docs/                       # Complete documentation
 │   ├── command-reference.md    # 484-line complete command reference
 │   ├── user-manual.md          # Comprehensive user guide
 │   ├── feature-guide.md        # Feature documentation
 │   ├── technical-architecture.md # System architecture
 │   ├── template-system-v2-implementation.md # Template system docs
+│   ├── development/            # Development documentation (dev-only)
+│   └── roadmap/                # Future development plans
+├── launcher/                   # macOS application launcher
+├── LICENSE                     # MIT License
+├── CHANGELOG.md                # Version history and changes
+├── start-udos.sh               # Quick launcher script
+├── install-udos.sh             # One-click installation
+├── docs/                       # Complete documentation
+│   ├── command-reference.md    # 484-line complete command reference
+│   ├── user-manual.md          # Comprehensive user guide
+│   ├── feature-guide.md        # Feature documentation
+│   ├── technical-architecture.md # System architecture
+│   ├── template-system-v2-implementation.md # Template system docs
+│   ├── development/            # Development documentation (dev-only)
 │   └── roadmap/                # Future development plans
 ├── launcher/                   # macOS application launcher
 │   ├── Launch-uDOS.command     # Command line launcher

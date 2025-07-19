@@ -1706,6 +1706,7 @@ while true; do
       echo "   RECENT    → Show last 10 moves"
       echo "   CHECK     → Enhanced commands with dataset integration"
       echo "   SETUP     → Template-driven user setup"
+      echo "   SHOW      → View documentation with glow (SHOW manual, SHOW list)"
       echo "   DISPLAY   → Terminal display configuration and ASCII interface"
       echo "   VALIDATE  → Validate template-dataset integration"
       echo ""
@@ -1891,6 +1892,11 @@ while true; do
       else
         echo "Usage: SEARCH <pattern>"
       fi
+      ;;
+    SHOW)
+      # Documentation viewer with glow
+      shift_args=$(echo "$args" | cut -d' ' -f1-)
+      bash "$SCRIPT_DIR/show-docs.sh" $shift_args
       ;;
     JSON)
       shift_args=$(echo "$args" | cut -d' ' -f1-)
