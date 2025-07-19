@@ -1,6 +1,7 @@
 #!/bin/bash
-# uDOS Enhanced Visual Framework
-# Extends the existing ASCII interface with interactive elements and animations
+# uDOS Enhanced Visual Framework v1.2
+# Extends the existing ASCII interface with interactive elements, animations, and adaptive screen sizing
+# Features: Latest setup questions from template, automatic screen size configuration
 
 set -euo pipefail
 
@@ -8,6 +9,10 @@ UHOME="${HOME}/uDOS"
 UMEM="${UHOME}/uMemory"
 VISUAL_DIR="${UMEM}/visual"
 DISPLAY_CONFIG="${UMEM}/config/display.conf"
+
+# Terminal dimensions
+TERM_COLS=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
+TERM_ROWS=${LINES:-$(tput lines 2>/dev/null || echo 24)}
 
 # Color helpers
 red() { echo -e "\033[0;31m$1\033[0m"; }
@@ -55,15 +60,87 @@ detect_terminal_capabilities() {
         capabilities+=("mouse")
     fi
     
-    # Store capabilities
+    # Store capabilities and terminal size
     export UDOS_TERMINAL_CAPS="${capabilities[*]}"
+    export UDOS_TERM_COLS="$TERM_COLS"
+    export UDOS_TERM_ROWS="$TERM_ROWS"
+    
     echo "${capabilities[@]}"
+}
+
+# Configure screen size and display settings
+configure_screen_size() {
+    local config_file="${VISUAL_DIR}/display.conf"
+    
+    # Detect optimal screen size
+    local optimal_width=$TERM_COLS
+    local optimal_height=$TERM_ROWS
+    
+    # Adjust for different terminal types
+    case "${TERM_PROGRAM:-}" in
+        "vscode")
+            # VS Code integrated terminal often has more space
+            optimal_width=$((TERM_COLS > 100 ? 100 : TERM_COLS))
+            optimal_height=$((TERM_ROWS > 30 ? 30 : TERM_ROWS))
+            ;;
+        "iTerm.app"|"kitty"|"WezTerm")
+            # Modern terminals can handle larger displays
+            optimal_width=$((TERM_COLS > 120 ? 120 : TERM_COLS))
+            optimal_height=$((TERM_ROWS > 40 ? 40 : TERM_ROWS))
+            ;;
+        *)
+            # Conservative sizing for unknown terminals
+            optimal_width=$((TERM_COLS > 80 ? 80 : TERM_COLS))
+            optimal_height=$((TERM_ROWS > 24 ? 24 : TERM_ROWS))
+            ;;
+    esac
+    
+    # Create display configuration
+    mkdir -p "$(dirname "$config_file")"
+    cat > "$config_file" << EOF
+# uDOS Display Configuration
+# Generated: $(date '+%Y-%m-%d %H:%M:%S')
+
+# Terminal Information
+TERMINAL_PROGRAM=${TERM_PROGRAM:-unknown}
+TERMINAL_TYPE=${TERM:-xterm}
+DETECTED_COLS=${TERM_COLS}
+DETECTED_ROWS=${TERM_ROWS}
+
+# Optimal Display Settings
+DISPLAY_WIDTH=${optimal_width}
+DISPLAY_HEIGHT=${optimal_height}
+PROGRESS_BAR_WIDTH=$((optimal_width - 20))
+DASHBOARD_WIDTH=${optimal_width}
+
+# Widget Dimensions
+WIDGET_WIDTH=$((optimal_width / 3))
+WIDGET_HEIGHT=$((optimal_height / 4))
+
+# Layout Settings
+MARGIN_LEFT=2
+MARGIN_RIGHT=2
+MARGIN_TOP=1
+MARGIN_BOTTOM=1
+
+# Performance Settings
+ANIMATION_ENABLED=true
+REFRESH_RATE=$([[ $optimal_width -gt 100 ]] && echo "fast" || echo "normal")
+EOF
+    
+    # Export display variables
+    export UDOS_DISPLAY_WIDTH="$optimal_width"
+    export UDOS_DISPLAY_HEIGHT="$optimal_height"
+    export UDOS_PROGRESS_WIDTH="$((optimal_width - 20))"
+    export UDOS_WIDGET_WIDTH="$((optimal_width / 3))"
+    
+    cyan "📐 Screen configured: ${optimal_width}×${optimal_height} (detected: ${TERM_COLS}×${TERM_ROWS})"
 }
 
 # Enhanced progress bar with animation
 animated_progress_bar() {
     local percent="$1"
-    local width="${2:-40}"
+    local width="${2:-${UDOS_PROGRESS_WIDTH:-40}}"
     local title="${3:-Progress}"
     local style="${4:-default}"
     
@@ -244,6 +321,8 @@ generate_ascii_art() {
 # Live dashboard with real-time updates
 live_dashboard() {
     local refresh_interval="${1:-2}"
+    local dashboard_width="${UDOS_DISPLAY_WIDTH:-80}"
+    local progress_width="${UDOS_PROGRESS_WIDTH:-40}"
     
     # Clear screen and hide cursor
     clear
@@ -254,27 +333,33 @@ live_dashboard() {
         # Move to top of screen
         echo -e "\033[H"
         
-        # Dashboard header
-        echo -e "\033[1;36m╔══════════════════════════════════════════════════════════════════════════════════╗"
-        echo -e "║                          🌀 uDOS LIVE DASHBOARD 🌀                              ║"
-        echo -e "╠══════════════════════════════════════════════════════════════════════════════════╣\033[0m"
+        # Dashboard header - dynamically sized
+        local header_line=$(printf '%*s' $dashboard_width '' | tr ' ' '═')
+        echo -e "\033[1;36m╔${header_line}╗"
+        local title="🌀 uDOS LIVE DASHBOARD 🌀"
+        local title_padding=$(( (dashboard_width - ${#title}) / 2 ))
+        echo -e "║$(printf '%*s' $title_padding '')${title}$(printf '%*s' $((dashboard_width - title_padding - ${#title})) '')║"
+        echo -e "╠${header_line}╣\033[0m"
         
         # System metrics with real-time updates
         local cpu_usage=$(ps -A -o %cpu | awk '{s+=$1} END {print int(s)}')
         local mem_usage=$(ps -A -o %mem | awk '{s+=$1} END {print int(s)}')
         local disk_usage=$(df -h "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//')
         
-        echo -e "\033[1;36m║\033[0m CPU: $(animated_progress_bar $cpu_usage 20) $(printf '%20s' '') \033[1;36m║\033[0m"
-        echo -e "\033[1;36m║\033[0m MEM: $(animated_progress_bar $mem_usage 20) $(printf '%20s' '') \033[1;36m║\033[0m"
-        echo -e "\033[1;36m║\033[0m DSK: $(animated_progress_bar $disk_usage 20) $(printf '%20s' '') \033[1;36m║\033[0m"
+        local padding_space=$(printf '%*s' $((dashboard_width - progress_width - 15)) '')
+        echo -e "\033[1;36m║\033[0m CPU: $(animated_progress_bar $cpu_usage $progress_width) $padding_space \033[1;36m║\033[0m"
+        echo -e "\033[1;36m║\033[0m MEM: $(animated_progress_bar $mem_usage $progress_width) $padding_space \033[1;36m║\033[0m"
+        echo -e "\033[1;36m║\033[0m DSK: $(animated_progress_bar $disk_usage $progress_width) $padding_space \033[1;36m║\033[0m"
         
         # Mission progress
         local mission_count=$(find "$UMEM/missions" -name "*.md" 2>/dev/null | wc -l)
         local move_count=$(find "$UMEM/moves" -name "*.md" 2>/dev/null | wc -l)
         
-        echo -e "\033[1;36m╠══════════════════════════════════════════════════════════════════════════════════╣"
-        echo -e "║\033[0m 🎯 Missions: $(printf '%3d' $mission_count) │ 📝 Moves: $(printf '%3d' $move_count) │ ⏰ $(date '+%H:%M:%S') $(printf '%25s' '') \033[1;36m║\033[0m"
-        echo -e "\033[1;36m╚══════════════════════════════════════════════════════════════════════════════════╝\033[0m"
+        echo -e "\033[1;36m╠${header_line}╣"
+        local status_line="🎯 Missions: $(printf '%3d' $mission_count) │ 📝 Moves: $(printf '%3d' $move_count) │ ⏰ $(date '+%H:%M:%S')"
+        local status_padding=$(( dashboard_width - ${#status_line} ))
+        echo -e "║\033[0m $status_line$(printf '%*s' $status_padding '') \033[1;36m║\033[0m"
+        echo -e "\033[1;36m╚${header_line}╝\033[0m"
         
         sleep "$refresh_interval"
     done
@@ -301,7 +386,7 @@ display_image() {
 
 # Initialize enhanced visual framework
 init_visual_framework() {
-    bold "🎨 uDOS Enhanced Visual Framework v1.0"
+    bold "🎨 uDOS Enhanced Visual Framework v1.1"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
     
@@ -310,20 +395,32 @@ init_visual_framework() {
     mkdir -p "$VISUAL_DIR/animations" 
     mkdir -p "$VISUAL_DIR/notifications"
     mkdir -p "$VISUAL_DIR/assets"
+    mkdir -p "${UMEM}/config"
+    
+    # Configure screen size first
+    cyan "📐 Configuring display settings..."
+    configure_screen_size
     
     # Detect terminal capabilities
     cyan "🔍 Detecting terminal capabilities..."
     local caps=($(detect_terminal_capabilities))
-    echo "  📺 Terminal: ${TERM_PROGRAM:-unknown}"
+    echo "  📺 Terminal: ${TERM_PROGRAM:-unknown} (${TERM_COLS}×${TERM_ROWS})"
     echo "  🎨 Capabilities: ${caps[*]}"
+    echo "  📐 Display: ${UDOS_DISPLAY_WIDTH}×${UDOS_DISPLAY_HEIGHT}"
     
     # Create visual configuration
     cat > "$VISUAL_DIR/config.json" << EOF
 {
-    "version": "1.0",
+    "version": "1.1",
     "terminal": {
         "program": "${TERM_PROGRAM:-unknown}",
         "capabilities": ["${caps[*]}"],
+        "dimensions": {
+            "cols": ${TERM_COLS},
+            "rows": ${TERM_ROWS},
+            "display_width": ${UDOS_DISPLAY_WIDTH},
+            "display_height": ${UDOS_DISPLAY_HEIGHT}
+        },
         "colors": {
             "truecolor": $(if [[ "${caps[*]}" =~ truecolor ]]; then echo "true"; else echo "false"; fi),
             "256color": true
@@ -332,7 +429,8 @@ init_visual_framework() {
     "animations": {
         "enabled": true,
         "spinner_speed": 100,
-        "progress_refresh": 50
+        "progress_refresh": 50,
+        "progress_width": ${UDOS_PROGRESS_WIDTH}
     },
     "notifications": {
         "enabled": true,
@@ -342,13 +440,19 @@ init_visual_framework() {
     "themes": {
         "current": "udos-dark",
         "available": ["udos-dark", "udos-light", "matrix", "cyberpunk"]
+    },
+    "layout": {
+        "widget_width": ${UDOS_WIDGET_WIDTH},
+        "dashboard_width": ${UDOS_DISPLAY_WIDTH}
     }
 }
 EOF
     
     green "✅ Visual framework initialized"
     echo "  📁 Config: $VISUAL_DIR/config.json"
+    echo "  📁 Display: ${VISUAL_DIR}/display.conf"
     echo "  🎨 Capabilities: ${caps[*]}"
+    echo "  📐 Screen: ${UDOS_DISPLAY_WIDTH}×${UDOS_DISPLAY_HEIGHT}"
 }
 
 # Theme system
@@ -394,6 +498,186 @@ apply_theme() {
     
     # Save theme preference
     echo "current_theme=$theme" > "$VISUAL_DIR/theme.conf"
+}
+
+# Interactive setup questions (latest from user setup template)
+interactive_setup_questions() {
+    bold "🎭 uDOS User Setup - Interactive Mode"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+    
+    # Declare associative array if bash 4+
+    if [[ ${BASH_VERSION%%.*} -ge 4 ]]; then
+        declare -A SETUP_ANSWERS
+    fi
+    
+    # Identity Information
+    echo -e "${UDOS_PRIMARY:-\033[1;36m}👤 Identity Information${UDOS_TEXT:-\033[0m}"
+    echo "─────────────────────────────"
+    
+    read -p "📝 Enter your username (required): " username
+    while [[ -z "$username" ]]; do
+        red "⚠️  Username is required"
+        read -p "📝 Enter your username: " username
+    done
+    export UDOS_SETUP_USERNAME="$username"
+    green "✅ Username: $username"
+    echo
+    
+    read -p "🔐 Enter your password (blank for none): " password
+    export UDOS_SETUP_PASSWORD="$password"
+    if [[ -n "$password" ]]; then
+        green "✅ Password: [SET]"
+    else
+        yellow "⚠️  Password: [NONE]"
+    fi
+    echo
+    
+    # Location & Time
+    echo -e "${UDOS_PRIMARY:-\033[1;36m}🌍 Location & Time${UDOS_TEXT:-\033[0m}"
+    echo "──────────────────────────"
+    
+    local default_timezone=$(timedatectl show --property=Timezone --value 2>/dev/null || date +%Z)
+    read -p "⏰ Confirm your timezone [default: $default_timezone]: " timezone
+    timezone="${timezone:-$default_timezone}"
+    export UDOS_SETUP_TIMEZONE="$timezone"
+    green "✅ Timezone: $timezone"
+    echo
+    
+    read -p "📍 Enter your location: " location
+    while [[ -z "$location" ]]; do
+        red "⚠️  Location is required"
+        read -p "📍 Enter your location: " location
+    done
+    export UDOS_SETUP_LOCATION="$location"
+    green "✅ Location: $location"
+    echo
+    
+    # System Preferences
+    echo -e "${UDOS_PRIMARY:-\033[1;36m}⚙️ System Preferences${UDOS_TEXT:-\033[0m}"
+    echo "─────────────────────────────"
+    
+    # Theme selection
+    echo "🎨 Choose your theme preference:"
+    echo "  1. default (balanced colors)"
+    echo "  2. dark (dark mode optimized)"
+    echo "  3. light (light mode optimized)"
+    echo "  4. auto (system dependent)"
+    read -p "Choose theme (1-4) [default: 1]: " theme_choice
+    case "${theme_choice:-1}" in
+        1) theme="default" ;;
+        2) theme="dark" ;;
+        3) theme="light" ;;
+        4) theme="auto" ;;
+        *) theme="default" ;;
+    esac
+    export UDOS_SETUP_THEME="$theme"
+    green "✅ Theme: $theme"
+    echo
+    
+    # Boolean preferences
+    read -p "🐛 Enable debug mode for detailed logging? (y/N): " debug_input
+    debug_input=$(echo "$debug_input" | tr '[:upper:]' '[:lower:]')
+    debug_mode=$([[ "$debug_input" =~ ^(y|yes|true)$ ]] && echo "true" || echo "false")
+    export UDOS_SETUP_DEBUG_MODE="$debug_mode"
+    if [[ "$debug_mode" == "true" ]]; then
+        green "✅ Debug mode: Enabled"
+    else
+        yellow "❌ Debug mode: Disabled"
+    fi
+    echo
+    
+    read -p "💾 Enable automatic backup of user data? (Y/n): " backup_input
+    backup_input=$(echo "$backup_input" | tr '[:upper:]' '[:lower:]')
+    auto_backup=$([[ "$backup_input" =~ ^(n|no|false)$ ]] && echo "false" || echo "true")
+    export UDOS_SETUP_AUTO_BACKUP="$auto_backup"
+    if [[ "$auto_backup" == "true" ]]; then
+        green "✅ Auto backup: Enabled"
+    else
+        yellow "❌ Auto backup: Disabled"
+    fi
+    echo
+    
+    read -p "🤖 Enable OK Companion? (Y/n): " ai_input
+    ai_input=$(echo "$ai_input" | tr '[:upper:]' '[:lower:]')
+    ai_companion=$([[ "$ai_input" =~ ^(n|no|false)$ ]] && echo "false" || echo "true")
+    export UDOS_SETUP_AI_COMPANION="$ai_companion"
+    if [[ "$ai_companion" == "true" ]]; then
+        green "✅ OK Companion: Enabled"
+    else
+        yellow "❌ OK Companion: Disabled"
+    fi
+    echo
+    
+    # Development Preferences
+    echo -e "${UDOS_PRIMARY:-\033[1;36m}🎯 Development Preferences${UDOS_TEXT:-\033[0m}"
+    echo "──────────────────────────────────"
+    
+    echo "👤 Choose your default user role:"
+    echo "  1. wizard (full access)"
+    echo "  2. sorcerer (advanced dev)"
+    echo "  3. ghost (standard)"
+    echo "  4. drone (restricted)"
+    echo "  5. imp (basic)"
+    read -p "Choose role (1-5) [default: 1]: " role_choice
+    case "${role_choice:-1}" in
+        1) role="wizard" ;;
+        2) role="sorcerer" ;;
+        3) role="ghost" ;;
+        4) role="drone" ;;
+        5) role="imp" ;;
+        *) role="wizard" ;;
+    esac
+    export UDOS_SETUP_DEFAULT_ROLE="$role"
+    green "✅ Default role: $role"
+    echo
+    
+    read -p "📦 Automatically install recommended packages? (Y/n): " packages_input
+    packages_input=$(echo "$packages_input" | tr '[:upper:]' '[:lower:]')
+    auto_packages=$([[ "$packages_input" =~ ^(n|no|false)$ ]] && echo "false" || echo "true")
+    export UDOS_SETUP_AUTO_PACKAGES="$auto_packages"
+    if [[ "$auto_packages" == "true" ]]; then
+        green "✅ Auto packages: Enabled"
+    else
+        yellow "❌ Auto packages: Disabled"
+    fi
+    echo
+    
+    read -p "🔌 Install uDOS VS Code extension? (Y/n): " vscode_input
+    vscode_input=$(echo "$vscode_input" | tr '[:upper:]' '[:lower:]')
+    vscode_extension=$([[ "$vscode_input" =~ ^(n|no|false)$ ]] && echo "false" || echo "true")
+    export UDOS_SETUP_VSCODE_EXTENSION="$vscode_extension"
+    if [[ "$vscode_extension" == "true" ]]; then
+        green "✅ VS Code extension: Enabled"
+    else
+        yellow "❌ VS Code extension: Disabled"
+    fi
+    echo
+    
+    # Summary
+    echo
+    bold "📋 Setup Summary"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "👤 User: $username"
+    echo "📍 Location: $location ($timezone)"
+    echo "🎨 Theme: $theme"
+    echo "🐛 Debug: $debug_mode"
+    echo "💾 Auto backup: $auto_backup"
+    echo "🤖 OK Companion: $ai_companion"
+    echo "👤 Role: $role"
+    echo "📦 Auto packages: $auto_packages"
+    echo "🔌 VS Code: $vscode_extension"
+    echo
+    
+    read -p "✅ Confirm these settings? (Y/n): " confirm
+    confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
+    if [[ "$confirm" =~ ^(n|no|false)$ ]]; then
+        red "❌ Setup cancelled"
+        return 1
+    fi
+    
+    green "🎉 Setup configuration confirmed!"
+    return 0
 }
 
 # Widget system for modular dashboard components
@@ -450,7 +734,7 @@ show_activity_widget() {
     echo -e "║ • Enhanced visual framework          ║"
     echo -e "║ • Updated dashboard system           ║"
     echo -e "║ • Improved mission tracking          ║"
-    echo -e "║ • Added Chester personality          ║"
+    echo -e "║ • Added OK Companion system          ║"
     echo -e "╚══════════════════════════════════════╝\033[0m"
 }
 
@@ -546,6 +830,139 @@ show_system_status() {
     fi
 }
 
+# OK Companion - Interactive prompt for available uCompanions
+show_ok_companion() {
+    bold "🤖 OK Companion - Available uCompanions"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+    
+    # Check what uCompanions are available
+    local ucompanion_dir="${UHOME}/uCompanion"
+    local ucode_dir="${UHOME}/uCode"
+    local available_companions=()
+    
+    # Core uCompanions system
+    if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+        cyan "🎯 uCompanion System Status:"
+        echo "─────────────────────────────"
+        
+        # Check for available companions
+        if [[ -d "$ucompanion_dir" ]]; then
+            green "  ✅ uCompanion directory exists"
+            
+            # Look for companion definitions
+            local companion_files=$(find "$ucompanion_dir" -name "*.md" -o -name "*.json" 2>/dev/null | wc -l)
+            if [[ $companion_files -gt 0 ]]; then
+                available_companions+=("Gemini - Google AI companion")
+                available_companions+=("Chester - Development assistant") 
+                available_companions+=("Custom - User-defined companions")
+            fi
+        else
+            yellow "  ⚠️  uCompanion directory not found"
+        fi
+        
+        # Check companion system script
+        if [[ -x "$ucode_dir/companion-system.sh" ]]; then
+            green "  ✅ Companion system available"
+        else
+            yellow "  ⚠️  Companion system not executable"
+        fi
+    else
+        red "  ❌ uCompanion system not found"
+    fi
+    
+    echo
+    cyan "🤖 Available uCompanions (uc):"
+    echo "──────────────────────────────"
+    if [[ ${#available_companions[@]} -gt 0 ]]; then
+        for companion in "${available_companions[@]}"; do
+            echo "  • $companion"
+        done
+    else
+        yellow "  No uCompanions detected - run companion system setup"
+    fi
+    echo
+    
+    # Interactive companion selection
+    cyan "🎯 uCompanion Quick Actions:"
+    echo "─────────────────────────────"
+    echo "  1. Start Gemini companion (./uCode/companion-system.sh gemini)"
+    echo "  2. Initialize Chester assistant (./uCode/companion-system.sh chester)" 
+    echo "  3. List all companions (./uCode/companion-system.sh list)"
+    echo "  4. Setup new companion (./uCode/companion-system.sh init)"
+    echo "  5. Companion system help (./uCode/companion-system.sh help)"
+    echo "  6. Return to main uDOS"
+    echo "  7. Exit OK Companion"
+    echo
+    
+    read -p "🤖 OK, which uCompanion would you like? (1-7): " choice
+    
+    case "$choice" in
+        1)
+            green "🧠 Starting Gemini companion..."
+            if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+                "$ucode_dir/companion-system.sh" gemini
+            else
+                red "❌ Companion system not found"
+            fi
+            ;;
+        2)
+            green "� Initializing Chester assistant..."
+            if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+                "$ucode_dir/companion-system.sh" chester
+            else
+                red "❌ Companion system not found"
+            fi
+            ;;
+        3)
+            green "� Listing all uCompanions..."
+            if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+                "$ucode_dir/companion-system.sh" list
+            else
+                red "❌ Companion system not found"
+            fi
+            ;;
+        4)
+            green "🎭 Setting up new companion..."
+            if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+                "$ucode_dir/companion-system.sh" init
+            else
+                red "❌ Companion system not found"
+            fi
+            ;;
+        5)
+            green "📚 uCompanion system help:"
+            echo
+            if [[ -f "$ucode_dir/companion-system.sh" ]]; then
+                "$ucode_dir/companion-system.sh" help
+            else
+                echo "Available uCompanion commands:"
+                echo "  ./uCode/companion-system.sh gemini     - Start Gemini AI companion"
+                echo "  ./uCode/companion-system.sh chester    - Start Chester development assistant" 
+                echo "  ./uCode/companion-system.sh list       - List all available companions"
+                echo "  ./uCode/companion-system.sh init       - Initialize new companion"
+                echo "  ./uCode/companion-system.sh help       - Show detailed help"
+            fi
+            echo
+            ;;
+        6)
+            green "🚀 Launching main uDOS shell..."
+            if [[ -f "$ucode_dir/ucode.sh" ]]; then
+                exec "$ucode_dir/ucode.sh"
+            else
+                red "❌ ucode.sh not found"
+            fi
+            ;;
+        7)
+            green "👋 OK Companion signing off! See you next time!"
+            return 0
+            ;;
+        *)
+            yellow "⚠️  Invalid choice. Please select 1-7."
+            ;;
+    esac
+}
+
 # Performance benchmark for visual elements
 run_visual_benchmark() {
     bold "⚡ Visual Framework Performance Benchmark"
@@ -607,13 +1024,16 @@ case "${1:-demo}" in
     "init")
         init_visual_framework
         ;;
+    "setup")
+        interactive_setup_questions
+        ;;
     "demo")
         bold "🎨 uDOS Visual Framework Demo"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo
         
         echo "1. Progress bar animation:"
-        for i in {10..100..10}; do
+        for i in 10 20 30 40 50 60 70 80 90 100; do
             echo -ne "\r  "
             animated_progress_bar $i 40 "Demo Progress" "gradient"
             sleep 0.3
@@ -641,10 +1061,11 @@ case "${1:-demo}" in
         detect_terminal_capabilities
         ;;
     "help")
-        echo "uDOS Enhanced Visual Framework v1.1"
+        echo "uDOS Enhanced Visual Framework v1.2"
         echo ""
         echo "Commands:"
         echo "  init       Initialize visual framework"
+        echo "  setup      Interactive setup questions (latest template)"
         echo "  demo       Show visual capabilities demo"
         echo "  menu       Interactive menu demo"  
         echo "  live       Live dashboard (refresh interval)"
@@ -653,6 +1074,8 @@ case "${1:-demo}" in
         echo "  status     Display comprehensive system status"
         echo "  benchmark  Run visual performance benchmark"
         echo "  caps       Show terminal capabilities"
+        echo "  screen     Configure screen size and display settings"
+        echo "  ok         OK Companion - Interactive prompt for uCompanions (uc)"
         echo "  help       Show this help"
         ;;
     "theme")
@@ -667,6 +1090,12 @@ case "${1:-demo}" in
         ;;
     "benchmark")
         run_visual_benchmark
+        ;;
+    "screen")
+        configure_screen_size
+        ;;
+    "ok")
+        show_ok_companion
         ;;
     *)
         red "❌ Unknown command: $1"
