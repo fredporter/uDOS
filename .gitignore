@@ -73,6 +73,11 @@ uExtension/
 # Development progress tracking (archived)
 progress/
 
+# Test files (temporary)
+test-destroy.sh
+test-trash.sh
+test-*.sh
+
 # ════════════════════════════════════════════════════════════════
 # 🛠️ EDITOR & IDE ARTIFACTS
 # ════════════════════════════════════════════════════════════════
@@ -118,6 +123,11 @@ sandbox/sessions/*
 sandbox/temp/*
 !sandbox/sessions/.gitkeep
 !sandbox/temp/.gitkeep
+
+# uCompanion system state (optional persistence)
+uCompanion/state/
+uCompanion/.companion-state
+uCompanion/temp/
 
 # Development progress tracking (archived in progress/ folder)
 dev-notes/

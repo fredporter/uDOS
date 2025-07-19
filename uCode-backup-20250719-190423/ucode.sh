@@ -37,9 +37,7 @@ fi
 # User Setup Check - Core uDOS ethos: One installation per user
 if [[ ! -f "$UDENT" ]]; then
     echo "🔐 First-time setup detected - initializing user..."
-    if [[ -f "$SCRIPT_DIR/core.sh" ]]; then
-        "$SCRIPT_DIR/core.sh" init
-    elif [[ -f "$SCRIPT_DIR/init-user.sh" ]]; then
+    if [[ -f "$SCRIPT_DIR/init-user.sh" ]]; then
         "$SCRIPT_DIR/init-user.sh"
     else
         echo "❌ User initialization script missing - uDOS setup incomplete"
@@ -88,9 +86,7 @@ else
 fi
 
 # Load shortcode processor
-if [[ -f "$SCRIPT_DIR/processor.sh" ]]; then
-  echo "🔧 Unified processing system available"
-elif [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
+if [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
   echo "🔧 Simple shortcode system available"
 elif [[ -f "$SCRIPT_DIR/shortcode-processor.sh" ]]; then
   echo "🔧 Advanced shortcode system available (may need compatibility updates)"
@@ -657,7 +653,7 @@ cmd_check() {
       cmd_log
       ;;
     SETUP)
-      bash "$UHOME/uCode/core.sh" all
+      bash "$UHOME/uCode/check.sh" all
       ;;
     USER)
       cmd_setup_user
@@ -1371,9 +1367,7 @@ while true; do
   # Check for shortcode syntax first
   if [[ "$input" =~ ^\[.*\]$ ]]; then
     echo -e "\033[1;35m🔧 Processing SHORTCODE...\033[0m"
-    if [[ -f "$SCRIPT_DIR/processor.sh" ]]; then
-      bash "$SCRIPT_DIR/processor.sh" process "$input"
-    elif [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
+    if [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
       bash "$SCRIPT_DIR/shortcode-processor-simple.sh" process "$input"
     elif [[ -f "$SCRIPT_DIR/shortcode-processor.sh" ]]; then
       bash "$SCRIPT_DIR/shortcode-processor.sh" process "$input"
@@ -1421,9 +1415,7 @@ while true; do
       ;;
     SHORTCODE)
       # Shortcode management commands
-      if [[ -f "$UHOME/uCode/processor.sh" ]]; then
-        bash "$UHOME/uCode/processor.sh" "$args"
-      elif [[ -f "$UHOME/uCode/shortcode-processor-simple.sh" ]]; then
+      if [[ -f "$UHOME/uCode/shortcode-processor-simple.sh" ]]; then
         bash "$UHOME/uCode/shortcode-processor-simple.sh" "$args"
       elif [[ -f "$UHOME/uCode/shortcode-processor.sh" ]]; then
         bash "$UHOME/uCode/shortcode-processor.sh" "$args"
