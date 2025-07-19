@@ -8,6 +8,15 @@ set -euo pipefail
 UDOS_VERSION="v1.0.0"
 VALIDATION_LOG="validation-$(date +%Y%m%d-%H%M%S).log"
 
+# Environment setup
+UHOME="${HOME}/uDOS"
+UMEM="${UHOME}/uMemory"
+
+# Result tracking arrays
+declare -a validation_results=()
+declare -a warnings=()
+declare -a errors=()
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -27,6 +36,26 @@ log_success() { echo -e "${GREEN}✅ $1${NC}" | tee -a "$VALIDATION_LOG"; ((PASS
 log_warning() { echo -e "${YELLOW}⚠️  $1${NC}" | tee -a "$VALIDATION_LOG"; ((WARNING_CHECKS++)); }
 log_error() { echo -e "${RED}❌ $1${NC}" | tee -a "$VALIDATION_LOG"; ((FAILED_CHECKS++)); }
 log_bold() { echo -e "${BOLD}$1${NC}" | tee -a "$VALIDATION_LOG"; }
+
+# Result tracking function
+add_result() {
+    local status="$1"
+    local message="$2"
+    
+    case "$status" in
+        "pass"|"success")
+            validation_results+=("${GREEN}✅ $message${NC}")
+            ;;
+        "warn"|"warning")
+            validation_results+=("${YELLOW}⚠️  $message${NC}")
+            warnings+=("$message")
+            ;;
+        "fail"|"error")
+            validation_results+=("${RED}❌ $message${NC}")
+            errors+=("$message")
+            ;;
+    esac
+}
 
 print_header() {
     echo -e "${BOLD}${BLUE}"
@@ -308,7 +337,7 @@ main() {
     
     case "$mode" in
         "quick"|"q")
-            check_core_structure
+            validate_core_structure
             check_user_system
             ;;
         "privacy"|"p") 
@@ -317,7 +346,7 @@ main() {
             check_permissions
             ;;
         "full"|"f"|*)
-            check_core_structure
+            validate_core_structure
             check_system_files
             check_umemory_structure
             check_user_system

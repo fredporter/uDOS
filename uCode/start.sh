@@ -2,6 +2,10 @@
 cd "$(dirname "$0")/.." || exit 1
 # Canonical startup for uDOS - v1.7.1 Reorganized
 
+# Set environment variables
+UHOME="${HOME}/uDOS"
+UROOT="$(pwd)"
+
 mkdir -p "$UHOME/uMemory/user"
 
 if [ ! -s "uMemory/user/identity.md" ]; then
