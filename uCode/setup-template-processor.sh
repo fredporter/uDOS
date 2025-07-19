@@ -172,6 +172,20 @@ process_text_input() {
         default="$USER"
     elif [[ "$default" == '$SYSTEM_TIMEZONE' ]]; then
         default=$(timedatectl show --property=Timezone --value 2>/dev/null || date +%Z)
+    elif [[ "$default" == "Dataset timezone city name" ]]; then
+        # Try to find a city for the selected timezone
+        local selected_timezone="${SETUP_VARS[TIMEZONE]:-}"
+        if [[ -n "$selected_timezone" && -f "$UHOME/uTemplate/datasets/cityMap.json" ]]; then
+            local city_for_timezone
+            city_for_timezone=$(jq -r ".[] | select(.TIMEZONE==\"$selected_timezone\" or .TIMEZONE | test(\"$selected_timezone\"; \"i\")) | .CITY" "$UHOME/uTemplate/datasets/cityMap.json" 2>/dev/null | head -1)
+            if [[ -n "$city_for_timezone" && "$city_for_timezone" != "null" ]]; then
+                default="$city_for_timezone"
+            else
+                default="Unknown"
+            fi
+        else
+            default="Unknown"
+        fi
     fi
     
     while true; do
@@ -200,6 +214,20 @@ process_text_input() {
                 red "⚠️  Please use only letters and numbers"
                 continue
             fi
+        fi
+        
+        if [[ "$validation" == *"timezone"* ]] && [[ -n "$user_input" ]]; then
+            # Basic timezone validation - allow common formats
+            if ! [[ "$user_input" =~ ^[A-Za-z]+/[A-Za-z_]+$ ]] && ! [[ "$user_input" =~ ^(UTC|GMT)$ ]] && ! [[ "$user_input" =~ ^[A-Z]{3,4}$ ]]; then
+                red "⚠️  Please enter a valid timezone (e.g., America/New_York, UTC, EST)"
+                continue
+            fi
+        fi
+        
+        # Check for "can't be blank" validation
+        if [[ "$validation" == *"can't be blank"* ]] && [[ -z "$user_input" ]]; then
+            red "⚠️  This field cannot be blank"
+            continue
         fi
         
         break
@@ -236,12 +264,12 @@ process_variables() {
         local city_data_file="$UHOME/uTemplate/datasets/cityMap.json"
         if [[ -f "$city_data_file" ]]; then
             local location_data
-            location_data=$(jq -r ".cities[] | select(.code==\"$location_code\")" "$city_data_file" 2>/dev/null || echo "{}")
+            location_data=$(jq -r ".[] | select(.TILE==\"$location_code\" or .CITY | test(\"$location_code\"; \"i\"))" "$city_data_file" 2>/dev/null | head -1 || echo "{}")
             
             if [[ "$location_data" != "{}" ]]; then
-                SETUP_VARS["CITY_NAME"]=$(echo "$location_data" | jq -r '.name // empty')
-                SETUP_VARS["COUNTRY_CODE"]=$(echo "$location_data" | jq -r '.country // empty')
-                SETUP_VARS["COORDINATES"]=$(echo "$location_data" | jq -r '.coordinates // empty')
+                SETUP_VARS["CITY_NAME"]=$(echo "$location_data" | jq -r '.CITY // empty')
+                SETUP_VARS["COUNTRY_CODE"]=$(echo "$location_data" | jq -r '.COUNTRY // empty')
+                SETUP_VARS["COORDINATES"]=$(echo "$location_data" | jq -r '"\(.LAT),\(.LON)"')
                 green "📍 Location data found: ${SETUP_VARS[CITY_NAME]}"
             else
                 yellow "⚠️  Location code '$location_code' not found in database"
@@ -311,15 +339,14 @@ main() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     process_input_block "INPUT_USERNAME"
-    process_input_block "INPUT_FULLNAME"
-    process_input_block "INPUT_EMAIL"
+    process_input_block "INPUT_PASSWORD"
     
     echo
     bold "🌍 Location & Time Settings"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
-    process_input_block "INPUT_LOCATION"
     process_input_block "INPUT_TIMEZONE"
+    process_input_block "INPUT_LOCATION"
     
     echo
     bold "⚙️ System Preferences"
@@ -345,15 +372,29 @@ main() {
     bold "📄 Generating configuration files..."
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
-    # Create output files
-    mkdir -p "${UMEM}/user" "${UMEM}/config" "${UMEM}/missions"
+    # Create timestamp with time, seconds, grid code, and timezone code for filename
+    local timestamp=$(date '+%Y%m%d-%H%M%S-%S')
+    local grid_code="${SETUP_VARS[GRID_CODE]:-XX00}"
+    local tz_code="${SETUP_VARS[TZ_CODE]:-UNK}"
+    local file_prefix="${timestamp}-${grid_code}-${tz_code}"
     
-    generate_output "USER_IDENTITY" "${UMEM}/user/identity.md"
-    generate_output "CONFIG_VARS" "${UMEM}/config/setup-vars.sh"
-    generate_output "FIRST_MISSION" "${UMEM}/missions/001-welcome-mission.md"
+    # Create output directories
+    mkdir -p "${UMEM}/user" "${UMEM}/config" "${UMEM}/missions" "${UHOME}/sandbox/identity"
+    
+    # Generate files with new naming convention
+    generate_output "USER_IDENTITY" "${UMEM}/user/${file_prefix}-user-identity.md"
+    generate_output "CONFIG_VARS" "${UMEM}/config/${file_prefix}-setup-vars.sh"
+    generate_output "SANDBOX_IDENTITY" "${UHOME}/sandbox/identity/user_auth.md"
+    generate_output "FIRST_MISSION" "${UMEM}/missions/${file_prefix}-welcome-mission.md"
     
     echo
     green "🎉 Setup completed successfully!"
+    echo
+    bold "📁 Files created:"
+    echo "   🔐 Identity: sandbox/identity/user_auth.md (username + password only)"
+    echo "   👤 Profile: user/${file_prefix}_user_identity.md"
+    echo "   ⚙️  Config: config/${file_prefix}_setup_vars.sh"
+    echo "   🎯 Mission: missions/${file_prefix}_welcome_mission.md"
     echo
     bold "Next steps:"
     echo "1. 🔍 Run: ucode CHECK all"
@@ -367,9 +408,20 @@ main() {
 
 # Export variables for use in other scripts
 export_setup_vars() {
-    local config_file="${UMEM}/config/setup-vars.sh"
+    # Look for the most recent setup-vars file (chronological naming)
+    local config_file
+    config_file=$(find "${UMEM}/config" -name "*_setup_vars.sh" -type f | sort | tail -1)
+    
     if [[ -f "$config_file" ]]; then
         source "$config_file"
+        log "Loaded setup variables from: $config_file"
+    else
+        # Fallback to legacy location
+        local legacy_config="${UMEM}/config/setup-vars.sh"
+        if [[ -f "$legacy_config" ]]; then
+            source "$legacy_config"
+            log "Loaded setup variables from: $legacy_config"
+        fi
     fi
 }
 

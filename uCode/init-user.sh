@@ -25,14 +25,24 @@ log() {
 
 # Enhanced first-time setup detection
 is_first_time_setup() {
-    # Check for user identity and proper uMemory structure
-    if [[ ! -f "$USER_IDENTITY" ]] || ! check_umemory_structure; then
+    # Check for sandbox identity file and uMemory structure
+    local sandbox_identity="${UHOME}/sandbox/identity/user_auth.md"
+    
+    if [[ ! -f "$sandbox_identity" ]] || ! check_umemory_structure; then
         return 0  # Is first-time setup
     fi
     
-    # Check if user role profile exists
+    # Check if any chronological user identity files exist
+    local user_identity_files
+    user_identity_files=$(find "${UMEM}/user" -name "*_user_identity.md" -type f 2>/dev/null | wc -l)
+    
+    if [[ "$user_identity_files" -eq 0 ]]; then
+        return 0  # Is first-time setup
+    fi
+    
+    # Check if user role profile exists  
     local username
-    username=$(grep "^\*\*Username\*\*:" "$USER_IDENTITY" 2>/dev/null | cut -d' ' -f2)
+    username=$(grep "^\*\*Username\*\*:" "$sandbox_identity" 2>/dev/null | cut -d' ' -f2)
     if [[ -z "$username" ]] || [[ ! -f "${UMEM}/users/profiles/${username}.md" ]]; then
         return 0  # Is first-time setup
     fi
@@ -128,12 +138,22 @@ setup_user_identity() {
     if "$processor"; then
         green "✅ Template-based setup completed successfully"
         
-        # Load the generated configuration
-        local config_file="${UMEM}/config/setup-vars.sh"
+        # Load the generated configuration (look for most recent chronological file)
+        local config_file
+        config_file=$(find "${UMEM}/config" -name "*_setup_vars.sh" -type f | sort | tail -1)
+        
         if [[ -f "$config_file" ]]; then
             source "$config_file"
             export_udos_vars
             log "Configuration variables loaded: $config_file"
+        else
+            # Fallback to legacy location
+            local legacy_config="${UMEM}/config/setup-vars.sh"
+            if [[ -f "$legacy_config" ]]; then
+                source "$legacy_config"
+                export_udos_vars
+                log "Configuration variables loaded: $legacy_config (legacy)"
+            fi
         fi
         
         # Set up user role using the role management system
@@ -332,8 +352,9 @@ main() {
         show_setup_summary
     else
         # Existing user - validate their identity and installation
-        if [[ -f "$USER_IDENTITY" ]]; then
-            username=$(grep "^\*\*Username\*\*:" "$USER_IDENTITY" | cut -d' ' -f2)
+        local sandbox_identity="${UHOME}/sandbox/identity/user_auth.md"
+        if [[ -f "$sandbox_identity" ]]; then
+            username=$(grep "^\*\*Username\*\*:" "$sandbox_identity" | cut -d' ' -f2)
             green "✅ Welcome back, $username!"
             log "User session started: $username"
             
@@ -342,7 +363,7 @@ main() {
                 "${UHOME}/uCode/user-roles.sh" validate
             fi
         else
-            yellow "⚠️  User identity file missing - run setup again"
+            yellow "⚠️  Sandbox identity file missing - run setup again"
             exit 1
         fi
     fi
