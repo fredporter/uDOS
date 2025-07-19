@@ -137,6 +137,10 @@ installation-report.txt
 # ✅ uCode/ - Core system scripts with Alpha v1.0 enhancements
 # ✅ uKnowledge/ - Documentation and knowledge base
 # ✅ uScript/ - System automation scripts
+# 🗑️  TRASH SYSTEM - Old/deprecated files
+# Contains archived progress, deprecated code, and deleted items
+trash/
+
 # ✅ uTemplate/ - Standard templates and datasets
 # ✅ extension/ - VS Code extension (renamed from uExtension)
 # ✅ package/ - Package management system (NEW)

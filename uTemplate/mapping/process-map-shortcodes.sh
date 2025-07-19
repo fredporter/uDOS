@@ -294,7 +294,7 @@ generate_layer_definition() {
     local layer_type="$1"
     local output_base="$2"
     
-    cat > "$OUTPUT_DIR/layers/${layer_type,,}-layer.json" << EOF
+    cat > "$OUTPUT_DIR/layers/$(echo ${layer_type} | tr '[:upper:]' '[:lower:]')-layer.json" << EOF
 {
     "name": "${layer_type} Layer",
     "type": "${layer_type,,}",

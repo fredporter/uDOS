@@ -1729,6 +1729,9 @@ while true; do
       echo "   CREATE    → Create new files in sandbox"
       echo "   VIEW      → View files with syntax highlighting"
       echo "   SEARCH    → Fast text search with ripgrep"
+      echo "   TRASH     → Manage deleted files (move, list, restore, empty)"
+      echo "   DELETE    → Move files to trash (safe deletion)"
+      echo "   EMPTY TRASH → Permanently delete all trash contents"
       echo ""
       echo "🖥️  DISPLAY CONFIGURATION"
       echo "     display init               - Initialize display configuration"
@@ -1913,6 +1916,38 @@ while true; do
     GEN|GENERATE)
       shift_args=$(echo "$args" | cut -d' ' -f1-)
       bash "$SCRIPT_DIR/template-generator.sh" $shift_args
+      ;;
+    TRASH)
+      # uDOS Trash Management System
+      if [[ -f "$SCRIPT_DIR/trash.sh" ]]; then
+        shift_args=$(echo "$args" | cut -d' ' -f1-)
+        bash "$SCRIPT_DIR/trash.sh" $shift_args
+      else
+        echo "❌ Trash management system not available"
+      fi
+      ;;
+    "EMPTY TRASH")
+      # Quick access to empty trash functionality
+      if [[ -f "$SCRIPT_DIR/trash.sh" ]]; then
+        bash "$SCRIPT_DIR/trash.sh" empty
+      else
+        echo "❌ Trash management system not available"
+      fi
+      ;;
+    DELETE)
+      # Move files to trash instead of permanent deletion
+      if [[ -n "$args" ]]; then
+        if [[ -f "$SCRIPT_DIR/trash.sh" ]]; then
+          bash "$SCRIPT_DIR/trash.sh" move $args
+        else
+          echo "❌ Trash management system not available"
+          echo "💡 Using rm command would permanently delete files"
+          echo "   This is disabled for safety - install trash system"
+        fi
+      else
+        echo "❌ Please specify files to delete"
+        echo "💡 Usage: DELETE <file1> [file2] [file3]..."
+      fi
       ;;
     "")
       # Ignore empty input

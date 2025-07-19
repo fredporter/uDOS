@@ -1,8 +1,8 @@
 {
   "name": "udos-extension",
-  "displayName": "uDOS 1.1.0 - User DOS Shell",
-  "description": "VS Code extension for uDOS 1.1.0 markdown-native operating system with user roles and Chester AI companion",
-  "version": "1.0.0",
+  "displayName": "uDOS v1.1.0 Enhanced - Mission System & User Companions",
+  "description": "Enhanced VS Code extension for uDOS v1.1.0 with Mission Control, User Companions, Advanced Mapping, and Analytics Dashboard",
+  "version": "1.1.0",
   "publisher": "udos",
   "engines": {
     "vscode": "^1.60.0"
@@ -24,17 +24,20 @@
     "operating system",
     "uScript",
     "user-roles",
+    "mission-control",
+    "user-companions",
     "chester",
-    "ai-companion",
+    "sorcerer",
+    "analytics",
+    "mapping",
     "privacy-first",
     "template-system"
   ],
   "activationEvents": [
     "onLanguage:uscript",
     "onCommand:udos.runCommand",
-    "onCommand:udos.validateInstallation", 
-    "onCommand:udos.showUserRole",
-    "onCommand:udos.startChester",
+    "onCommand:udos.quickSetup",
+    "onCommand:udos.systemStatus",
     "workspaceContains:**/uCode/ucode.sh"
   ],
   "main": "./dist/extension.js",
@@ -58,114 +61,184 @@
       {
         "language": "uscript",
         "path": "./snippets/uscript.json"
+      },
+      {
+        "language": "shell",
+        "path": "./snippets/udos-enhanced.json"
+      },
+      {
+        "language": "bash",
+        "path": "./snippets/udos-enhanced.json"
       }
     ],
     "commands": [
       {
-        "command": "udos.runCommand",
-        "title": "Run uDOS Command",
-        "category": "uDOS"
+        "command": "udos.quickSetup",
+        "title": "🚀 Quick Setup",
+        "category": "uDOS v1.1.0"
       },
       {
-        "command": "udos.generateDashboard",
-        "title": "Generate Dashboard",
-        "category": "uDOS"
+        "command": "udos.systemStatus", 
+        "title": "📊 System Status",
+        "category": "uDOS v1.1.0"
+      },
+      {
+        "command": "udos.runCommand",
+        "title": "⚡ Run Command",
+        "category": "uDOS v1.1.0"
       },
       {
         "command": "udos.createMission",
-        "title": "Create New Mission",
-        "category": "uDOS"
+        "title": "🎯 Create Mission",
+        "category": "Mission Control"
       },
       {
-        "command": "udos.viewWithGlow",
-        "title": "View with Glow",
-        "category": "uDOS"
+        "command": "udos.listMissions",
+        "title": "📋 List Missions", 
+        "category": "Mission Control"
       },
       {
-        "command": "udos.validateInstallation",
-        "title": "Validate Installation",
-        "category": "uDOS"
+        "command": "udos.missionStats",
+        "title": "📈 Mission Statistics",
+        "category": "Mission Control"
       },
       {
-        "command": "udos.showUserRole",
-        "title": "Show User Role",
-        "category": "uDOS"
+        "command": "udos.createMilestone",
+        "title": "⭐ Create Milestone",
+        "category": "Mission Control"
       },
       {
-        "command": "udos.initializeUser",
-        "title": "Initialize User",
-        "category": "uDOS"
+        "command": "udos.listCompanions",
+        "title": "🤝 List Companions",
+        "category": "User Companions"
       },
       {
         "command": "udos.startChester",
-        "title": "Start Chester AI",
-        "category": "uDOS"
+        "title": "🧙‍♂️ Start Chester (Wizard's Assistant)",
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.startSorcerer",
+        "title": "🔮 Start Sorcerer's Assistant",
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.useImpCompanion",
+        "title": "👹 Use Imp Companion",
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.useDroneCompanion",
+        "title": "🤖 Use Drone Companion",
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.useGhostCompanion",
+        "title": "👻 Use Ghost Companion", 
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.companionStatus",
+        "title": "📋 Companion System Status",
+        "category": "User Companions"
+      },
+      {
+        "command": "udos.showDashboard",
+        "title": "📊 Show Live Dashboard",
+        "category": "Analytics"
+      },
+      {
+        "command": "udos.generateDashboard",
+        "title": "🔨 Generate Dashboard",
+        "category": "Analytics"
+      },
+      {
+        "command": "udos.updateAnalytics",
+        "title": "📈 Update Analytics",
+        "category": "Analytics"
+      },
+      {
+        "command": "udos.showMapping",
+        "title": "🗺️ Show Advanced Mapping",
+        "category": "Mapping System"
+      },
+      {
+        "command": "udos.showMissionMapping",
+        "title": "📍 Show Mission Locations",
+        "category": "Mapping System"
+      },
+      {
+        "command": "udos.processShortcodes",
+        "title": "⚙️ Process Shortcodes",
+        "category": "Templates"
+      },
+      {
+        "command": "udos.viewWithGlow",
+        "title": "📖 View with Glow",
+        "category": "Tools"
+      },
+      {
+        "command": "udos.validateInstallation",
+        "title": "✅ Validate Installation",
+        "category": "System"
+      },
+      {
+        "command": "udos.showUserRole",
+        "title": "👤 Show User Roles",
+        "category": "System"
       }
     ],
     "menus": {
-      "explorer/context": [
-        {
-          "when": "resourceExtname == .md",
-          "command": "udos.viewWithGlow",
-          "group": "navigation"
-        }
-      ],
       "commandPalette": [
         {
-          "command": "udos.runCommand",
-          "when": "workspaceContains:**/uCode/ucode.sh"
+          "command": "udos.quickSetup",
+          "when": "true"
         },
         {
-          "command": "udos.generateDashboard",
-          "when": "workspaceContains:**/uCode/enhanced-dash.sh"
+          "command": "udos.systemStatus", 
+          "when": "true"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "udos.processShortcodes",
+          "when": "resourceExtname == .md",
+          "group": "uDOS"
+        },
+        {
+          "command": "udos.viewWithGlow",
+          "when": "resourceExtname == .md", 
+          "group": "uDOS"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "udos.runCommand",
+        "command": "udos.quickSetup",
         "key": "ctrl+shift+u",
         "mac": "cmd+shift+u"
+      },
+      {
+        "command": "udos.systemStatus",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      },
+      {
+        "command": "udos.runCommand",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
       }
-    ],
-    "configuration": {
-      "title": "uDOS",
-      "properties": {
-        "udos.shellPath": {
-          "type": "string",
-          "default": "./uCode/ucode.sh",
-          "description": "Path to uDOS shell script"
-        },
-        "udos.enableCopilot": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable GitHub Copilot integration for uScript"
-        },
-        "udos.userRole": {
-          "type": "string",
-          "enum": ["wizard", "sorcerer", "ghost", "imp"],
-          "default": "ghost",
-          "description": "Current user role in uDOS system"
-        },
-        "udos.enableChester": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable Chester AI companion integration"
-        }
-      }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "npx @vscode/vsce package",
-    "install-extension": "code --install-extension $(ls -t *.vsix | head -n1)"
+    "package": "vsce package"
   },
   "devDependencies": {
+    "@types/node": "^14.x",
     "@types/vscode": "^1.60.0",
-    "@types/node": "16.x",
-    "typescript": "^4.9.4",
-    "@vscode/vsce": "^2.15.0"
+    "typescript": "^4.4.4"
   }
 }
