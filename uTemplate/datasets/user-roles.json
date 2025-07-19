@@ -1,0 +1,204 @@
+[
+  {
+    "role": "wizard",
+    "role_id": "WIZ",
+    "level": 100,
+    "description": "Master administrator with full system access and server-like powers",
+    "permissions": {
+      "read": ["*"],
+      "write": ["*"],
+      "execute": ["*"],
+      "admin": true,
+      "dev_mode_available": true,
+      "spawn_users": true,
+      "system_folders": true,
+      "template_editing": true,
+      "code_editing": true,
+      "script_editing": true,
+      "database_access": true,
+      "server_management": true,
+      "user_management": true
+    },
+    "folder_access": {
+      "sandbox": "full",
+      "uMemory": "full",
+      "uKnowledge": "full",
+      "uTemplate": "conditional_dev",
+      "uCode": "conditional_dev",
+      "uScript": "conditional_dev",
+      "package": "conditional_dev",
+      "extension": "conditional_dev",
+      "docs": "full",
+      "logs": "full",
+      "config": "full"
+    },
+    "dev_mode": {
+      "enabled": false,
+      "write_system_folders": false,
+      "template_modification": false,
+      "code_modification": false,
+      "script_modification": false,
+      "package_management": false,
+      "extension_development": false,
+      "danger_level": "high"
+    },
+    "spawning": {
+      "can_create_users": true,
+      "max_spawned_users": 50,
+      "default_role": "sorcerer",
+      "inheritance": "partial"
+    }
+  },
+  {
+    "role": "sorcerer",
+    "role_id": "SOR",
+    "level": 75,
+    "description": "Magical practitioner with elevated powers and limited system access",
+    "permissions": {
+      "read": ["sandbox", "uMemory", "uKnowledge", "docs"],
+      "write": ["sandbox", "uMemory/user", "uMemory/projects"],
+      "execute": ["scripts", "templates", "dashboard"],
+      "admin": false,
+      "dev_mode_available": false,
+      "spawn_users": false,
+      "system_folders": false,
+      "template_editing": false,
+      "code_editing": false,
+      "script_editing": false,
+      "database_access": "limited",
+      "server_management": false,
+      "user_management": false
+    },
+    "folder_access": {
+      "sandbox": "full",
+      "uMemory": "read_write_limited",
+      "uKnowledge": "read_only",
+      "uTemplate": "read_only",
+      "uCode": "read_only",
+      "uScript": "read_only",
+      "package": "none",
+      "extension": "none",
+      "docs": "read_only",
+      "logs": "read_only",
+      "config": "none"
+    },
+    "dev_mode": {
+      "enabled": false,
+      "available": false
+    }
+  },
+  {
+    "role": "imp",
+    "role_id": "IMP",
+    "level": 50,
+    "description": "Mischievous spirit with script and template creation powers",
+    "permissions": {
+      "read": ["sandbox", "uMemory", "uKnowledge", "uTemplate", "uScript", "docs"],
+      "write": ["sandbox", "uMemory/user", "uScript/user"],
+      "execute": ["scripts", "templates", "dashboard", "development"],
+      "admin": false,
+      "dev_mode_available": false,
+      "spawn_users": false,
+      "system_folders": false,
+      "template_editing": "user_only",
+      "code_editing": false,
+      "script_editing": "user_only",
+      "database_access": "read_only",
+      "server_management": false,
+      "user_management": false
+    },
+    "folder_access": {
+      "sandbox": "full",
+      "uMemory": "read_write_user",
+      "uKnowledge": "read_only",
+      "uTemplate": "read_only",
+      "uCode": "read_only",
+      "uScript": "read_write_user",
+      "package": "none",
+      "extension": "none",
+      "docs": "read_only",
+      "logs": "read_only",
+      "config": "none"
+    },
+    "dev_mode": {
+      "enabled": false,
+      "available": false
+    }
+  },
+  {
+    "role": "drone",
+    "role_id": "DRN", 
+    "level": 25,
+    "description": "Automated entity with structured access to basic operations and sandbox",
+    "permissions": {
+      "read": ["sandbox", "docs/public", "uMemory/shared"],
+      "write": ["sandbox/user", "sandbox/temp"],
+      "execute": ["basic_scripts", "templates"],
+      "admin": false,
+      "dev_mode_available": false,
+      "spawn_users": false,
+      "system_folders": false,
+      "template_editing": false,
+      "code_editing": false,
+      "script_editing": false,
+      "database_access": "read_only",
+      "server_management": false,
+      "user_management": false
+    },
+    "folder_access": {
+      "sandbox": "read_write_limited",
+      "uMemory": "read_only",
+      "uKnowledge": "none",
+      "uTemplate": "read_only",
+      "uCode": "none",
+      "uScript": "read_only",
+      "package": "none",
+      "extension": "none",
+      "docs": "read_only",
+      "logs": "none",
+      "config": "none"
+    },
+    "dev_mode": {
+      "enabled": false,
+      "available": false
+    }
+  },
+  {
+    "role": "ghost",
+    "role_id": "GST",
+    "level": 10,
+    "description": "Ethereal presence with limited access for temporary or demonstration purposes",
+    "permissions": {
+      "read": ["sandbox/demo", "docs/public"],
+      "write": ["sandbox/demo/temp"],
+      "execute": ["demo_scripts"],
+      "admin": false,
+      "dev_mode_available": false,
+      "spawn_users": false,
+      "system_folders": false,
+      "template_editing": false,
+      "code_editing": false,
+      "script_editing": false,
+      "database_access": "none",
+      "server_management": false,
+      "user_management": false
+    },
+    "folder_access": {
+      "sandbox": "demo_only",
+      "uMemory": "none",
+      "uKnowledge": "none",
+      "uTemplate": "none",
+      "uCode": "none",
+      "uScript": "none",
+      "package": "none",
+      "extension": "none",
+      "docs": "public_only",
+      "logs": "none",
+      "config": "none"
+    },
+    "dev_mode": {
+      "enabled": false,
+      "available": false
+    }
+  }
+]

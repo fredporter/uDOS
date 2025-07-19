@@ -143,44 +143,44 @@ create_default_shortcode_config() {
 {
   "shortcodes": [
     {
-      "name": "run",
+      "name": "RUN",
       "type": "script_execution",
       "description": "Execute a uScript file",
       "script": "uScript/system/script-runner.sh",
       "permissions": ["read", "execute"],
-      "examples": ["[run:hello-world]", "[run:data-analysis mission=test]"]
+      "examples": ["[RUN:hello-world]", "[RUN:data-analysis mission=test]"]
     },
     {
-      "name": "mission",
+      "name": "MISSION",
       "type": "mission_management",
       "description": "Create or manage missions",
       "script": "uScript/automation/mission-manager.sh",
       "permissions": ["read", "write"],
-      "examples": ["[mission:create name=test]", "[mission:status]"]
+      "examples": ["[MISSION:create name=test]", "[MISSION:status]"]
     },
     {
-      "name": "data",
+      "name": "DATA",
       "type": "data_processing",
       "description": "Process data files",
       "script": "uScript/utilities/data-processor.sh",
       "permissions": ["read", "write"],
-      "examples": ["[data:csv file=data.csv]", "[data:json file=config.json]"]
+      "examples": ["[DATA:csv file=data.csv]", "[DATA:json file=config.json]"]
     },
     {
-      "name": "check",
+      "name": "CHECK",
       "type": "system_check",
       "description": "Perform system checks",
       "script": "uCode/check.sh",
       "permissions": ["read"],
-      "examples": ["[check:health]", "[check:setup]"]
+      "examples": ["[CHECK:health]", "[CHECK:setup]"]
     },
     {
-      "name": "bash",
+      "name": "BASH",
       "type": "shell_execution",
       "description": "Execute bash commands in containerized environment",
       "script": "uScript/system/bash-container.sh",
       "permissions": ["read", "write", "execute"],
-      "examples": ["[bash:ls -la]", "[bash:find . -name '*.md']"]
+      "examples": ["[BASH:ls -la]", "[BASH:find . -name '*.md']"]
     }
   ]
 }
@@ -231,21 +231,21 @@ load_shortcodes() {
 # Register built-in shortcodes
 register_builtin_shortcodes() {
     # Core system shortcodes
-    register_shortcode "help" "system" "Show available shortcodes" "$SCRIPT_DIR/shortcode-processor.sh"
-    register_shortcode "version" "system" "Show uDOS version" "$UHOME/uCode/ucode.sh"
-    register_shortcode "dashboard" "system" "Show dashboard" "$UHOME/uCode/dash.sh"
-    register_shortcode "log" "logging" "Log information" "$UHOME/uCode/log.sh"
-    register_shortcode "error" "logging" "Report error" "$UHOME/uCode/error-handler.sh"
+    register_shortcode "HELP" "system" "Show available shortcodes" "$SCRIPT_DIR/shortcode-processor.sh"
+    register_shortcode "VERSION" "system" "Show uDOS version" "$UHOME/uCode/ucode.sh"
+    register_shortcode "DASHBOARD" "system" "Show dashboard" "$UHOME/uCode/dash.sh"
+    register_shortcode "LOG" "logging" "Log information" "$UHOME/uCode/log.sh"
+    register_shortcode "ERROR" "logging" "Report error" "$UHOME/uCode/error-handler.sh"
     
     # Navigation shortcodes
-    register_shortcode "tree" "navigation" "Show file tree" "$UHOME/uCode/make-tree.sh"
-    register_shortcode "list" "navigation" "List directory contents" "/bin/ls"
-    register_shortcode "find" "navigation" "Find files" "/usr/bin/find"
+    register_shortcode "TREE" "navigation" "Show file tree" "$UHOME/uCode/make-tree.sh"
+    register_shortcode "LIST" "navigation" "List directory contents" "/bin/ls"
+    register_shortcode "FIND" "navigation" "Find files" "/usr/bin/find"
     
     # Development shortcodes
-    register_shortcode "validate" "development" "Validate system" "$UHOME/uCode/validate-alpha.sh"
-    register_shortcode "test" "development" "Run tests" "$UHOME/uScript/tests/test-runner.sh"
-    register_shortcode "debug" "development" "Debug mode" "$UHOME/uCode/ucode.sh"
+    register_shortcode "VALIDATE" "development" "Validate system" "$UHOME/uCode/validate-alpha.sh"
+    register_shortcode "TEST" "development" "Run tests" "$UHOME/uScript/tests/test-runner.sh"
+    register_shortcode "DEBUG" "development" "Debug mode" "$UHOME/uCode/ucode.sh"
 }
 
 # Register a shortcode
@@ -283,7 +283,7 @@ process_shortcode() {
     local shortcode_pattern='\[([a-zA-Z0-9_-]+):?([^]]*)\]'
     
     if [[ "$input" =~ $shortcode_pattern ]]; then
-        local shortcode_name="${BASH_REMATCH[1]}"
+        local shortcode_name=$(echo "${BASH_REMATCH[1]}" | awk '{print toupper($0)}')
         local shortcode_args="${BASH_REMATCH[2]}"
         
         echo -e "${CYAN}🔍 Processing shortcode: [$shortcode_name:$shortcode_args]${NC}"
@@ -552,13 +552,13 @@ show_shortcode_help() {
     done
     
     echo "Usage Examples:"
-    echo "  [run:hello-world]           - Execute hello-world uScript"
-    echo "  [bash:ls -la]               - Run bash command in container"
-    echo "  [mission:create name=test]  - Create new mission"
-    echo "  [data:csv file=data.csv]    - Process CSV file"
-    echo "  [check:health]              - Perform health check"
+    echo "  [RUN:hello-world]           - Execute hello-world uScript"
+    echo "  [BASH:ls -la]               - Run bash command in container"
+    echo "  [MISSION:create name=test]  - Create new mission"
+    echo "  [DATA:csv file=data.csv]    - Process CSV file"
+    echo "  [CHECK:health]              - Perform health check"
     echo ""
-    echo "Syntax: [shortcode:arguments]"
+    echo "Syntax: [SHORTCODE:arguments]"
 }
 
 # Show version info
@@ -596,7 +596,7 @@ process_file_shortcodes() {
         ((line_number++))
         
         if [[ "$line" =~ \[([a-zA-Z0-9_-]+):?([^]]*)\] ]]; then
-            local shortcode_name="${BASH_REMATCH[1]}"
+            local shortcode_name=$(echo "${BASH_REMATCH[1]}" | awk '{print toupper($0)}')
             local shortcode_args="${BASH_REMATCH[2]}"
             
             echo -e "${CYAN}📍 Line $line_number: Processing [$shortcode_name:$shortcode_args]${NC}"
@@ -697,7 +697,7 @@ main() {
             echo "  list                           - List available shortcodes"
             echo ""
             echo "Examples:"
-            echo "  $0 process '[run:hello-world]'"
+            echo "  $0 process '[RUN:hello-world]'"
             echo "  $0 file input.md output.md"
             echo "  $0 interactive"
             ;;

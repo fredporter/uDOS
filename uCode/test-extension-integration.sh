@@ -1,6 +1,7 @@
 #!/bin/bash
-# uDOS VS Code Extension Integration Test v1.0.0
+# uDOS VS Code Extension Integration Test v1.1.0
 # Comprehensive test for extension templating and configuration
+# Now enforces CAPITAL rule across commands, shortcodes, and variables
 
 set -euo pipefail
 

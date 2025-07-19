@@ -186,9 +186,9 @@ vb_process_shortcodes() {
     local input="$1"
     local processed="$input"
     
-    # Find all shortcodes: [shortcode:params]
+    # Find all shortcodes: [SHORTCODE:params]
     while [[ "$processed" =~ \[([^:]+):([^\]]+)\] ]]; do
-        local shortcode_name="${BASH_REMATCH[1]}"
+        local shortcode_name=$(echo "${BASH_REMATCH[1]}" | awk '{print toupper($0)}')
         local shortcode_params="${BASH_REMATCH[2]}"
         local shortcode_full="${BASH_REMATCH[0]}"
         
@@ -207,25 +207,25 @@ vb_execute_shortcode() {
     local params="$2"
     
     case "$shortcode_name" in
-        "grid")
+        "GRID")
             vb_shortcode_grid "$params"
             ;;
-        "location")
+        "LOCATION")
             vb_shortcode_location "$params"
             ;;
-        "time")
+        "TIME")
             vb_shortcode_time "$params"
             ;;
-        "file")
+        "FILE")
             vb_shortcode_file "$params"
             ;;
-        "template")
+        "TEMPLATE")
             vb_shortcode_template "$params"
             ;;
-        "mission")
+        "MISSION")
             vb_shortcode_mission "$params"
             ;;
-        "script")
+        "SCRIPT")
             vb_shortcode_script "$params"
             ;;
         *)

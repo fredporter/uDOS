@@ -841,7 +841,7 @@ cmd_display_config() {
       echo "DISPLAY HELP       - Show this help"
       echo ""
       echo "� Template System v2.0:"
-      echo "  • Uses [shortcode] and \$Variable format"
+      echo "  • Uses [SHORTCODE] and \$VARIABLE format (ALL CAPITALS)"
       echo "  • Processes display-config-template.md"
       echo "  • Generates executable configuration files"
       echo "  • Automatically adapts to terminal size"
@@ -1262,31 +1262,35 @@ cmd_run() {
 }
 
 cmd_tree() {
-  echo "🌳 Generating Alpha v1.0 Clean File Tree"
-  echo "📋 (Production ready structure - system folders filtered)"
-  if [[ -f "$UHOME/uCode/make-tree-simple.sh" ]]; then
-    bash "$UHOME/uCode/make-tree-simple.sh"
-  else
-    bash "$UHOME/uCode/tree-generator.sh"
-  fi
+  echo "🌳 Generating uDOS v1.1.0 Project Tree"
+  echo "📋 Using consolidated tree generator"
+  bash "$UHOME/uCode/tree-generator.sh" simple
 }
 
 cmd_list() {
-  target_dir="${args:-$UHOME}"
-  echo "📁 Directory listing: $target_dir"
-  echo ""
+  # Enhanced LIST command with role-based access control
+  local list_type="${args:-default}"
   
-  if [[ -d "$target_dir" ]]; then
-    if command -v tree >/dev/null 2>&1; then
-      # Alpha v1.0: Filter out system folders and build artifacts
-      tree "$target_dir" -L 3 -I 'node_modules|.git|.DS_Store|*.log|dist|build|out|uMemory|progress'
-    else
-      find "$target_dir" -type d -maxdepth 3 | grep -v -E '\.(git|DS_Store)|node_modules|dist|build|out|uMemory|progress' | head -20
-    fi
+  if [[ -f "$UHOME/uCode/enhanced-list-command.sh" ]]; then
+    bash "$UHOME/uCode/enhanced-list-command.sh" "$list_type"
   else
-    echo "❌ Directory not found: $target_dir"
+    # Fallback to original listing
+    target_dir="${args:-$UHOME}"
+    echo "📁 Directory listing: $target_dir"
+    echo ""
+    
+    if [[ -d "$target_dir" ]]; then
+      if command -v tree >/dev/null 2>&1; then
+        # Alpha v1.0: Filter out system folders and build artifacts
+        tree "$target_dir" -L 3 -I 'node_modules|.git|.DS_Store|*.log|dist|build|out|uMemory|progress'
+      else
+        find "$target_dir" -type d -maxdepth 3 | grep -v -E '\.(git|DS_Store)|node_modules|dist|build|out|uMemory|progress' | head -20
+      fi
+    else
+      echo "❌ Directory not found: $target_dir"
+    fi
+    echo ""
   fi
-  echo ""
 }
 
 cmd_dash() {
@@ -1311,27 +1315,8 @@ cmd_reboot() {
 }
 
 cmd_destroy() {
-  echo "⚠️ DESTROY will permanently delete data."
-  echo "🔧 Options:"
-  echo "   A) Sandbox only"
-  echo "   B) Sandbox + Memory"
-  echo "   C) Complete system reset"
-  read -rp "🗑️ Choose option (A/B/C) or Cancel (N): " choice
-  
-  case "$choice" in
-    A|a)
-      bash "$UHOME/uCode/destroy.sh" sandbox
-      ;;
-    B|b)
-      bash "$UHOME/uCode/destroy.sh" memory
-      ;;
-    C|c)
-      bash "$UHOME/uCode/destroy.sh" all
-      ;;
-    *)
-      echo "🚫 Destroy cancelled."
-      ;;
-  esac
+  # Call destroy.sh directly without duplicate prompts
+  bash "$UHOME/uCode/destroy.sh"
 }
 
 cmd_recent() {
@@ -1385,7 +1370,7 @@ while true; do
   
   # Check for shortcode syntax first
   if [[ "$input" =~ ^\[.*\]$ ]]; then
-    echo -e "\033[1;35m🔧 Processing shortcode...\033[0m"
+    echo -e "\033[1;35m🔧 Processing SHORTCODE...\033[0m"
     if [[ -f "$SCRIPT_DIR/shortcode-processor-simple.sh" ]]; then
       bash "$SCRIPT_DIR/shortcode-processor-simple.sh" process "$input"
     elif [[ -f "$SCRIPT_DIR/shortcode-processor.sh" ]]; then
@@ -1599,30 +1584,144 @@ while true; do
         echo "❌ VB command interpreter not available"
       fi
       ;;
+    # === CONSOLIDATED MANAGEMENT COMMANDS ===
+    # === ROLE MANAGEMENT SYSTEM ===
+    ROLE|ROLES)
+      # User role management system
+      echo "👤 User Role Management"
+      if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        if [[ -n "$args" ]]; then
+          bash "$UHOME/uCode/user-role-manager.sh" $args
+        else
+          bash "$UHOME/uCode/user-role-manager.sh" status
+        fi
+      else
+        echo "❌ Role management system not available"
+      fi
+      ;;
+    DEVMODE|DEV-MODE)
+      # Toggle dev mode (wizard only)
+      echo "🔧 Developer Mode Management"
+      if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" dev-mode "$args"
+      else
+        echo "❌ Role management system not available"
+      fi
+      ;;
+    WHOAMI|WHO)
+      # Show current user and role information
+      if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" status
+      else
+        echo "👤 User: ${USER:-unknown}"
+        echo "🏠 Home: $UHOME"
+        if [[ -f "$UDENT" ]]; then
+          echo "📋 Identity file exists"
+        else
+          echo "⚠️ Identity file missing"
+        fi
+      fi
+      ;;
+    PERMISSIONS|PERMS)
+      # Show folder access permissions
+      echo "🔐 Folder Access Permissions"
+      if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" folders
+      else
+        echo "❌ Role management system not available"
+      fi
+      ;;
+    MANAGE|UNIFIED)
+      # Access unified management system
+      echo "🛠️ uDOS Unified Management System"
+      if [[ -n "$args" ]]; then
+        bash "$UHOME/uCode/unified-manager.sh" $args
+      else
+        bash "$UHOME/uCode/unified-manager.sh" help
+      fi
+      ;;
+    PACKAGE|PKG)
+      # Package management through unified system
+      echo "📦 Package Management"
+      if [[ -n "$args" ]]; then
+        bash "$UHOME/uCode/unified-manager.sh" package $args
+      else
+        bash "$UHOME/uCode/unified-manager.sh" package help
+      fi
+      ;;
+    TEMPLATE|TPL)
+      # Template processing through unified system
+      echo "🔧 Template Processing"
+      if [[ -n "$args" ]]; then
+        bash "$UHOME/uCode/unified-manager.sh" template $args
+      else
+        bash "$UHOME/uCode/unified-manager.sh" template help
+      fi
+      ;;
+    TREEGEN)
+      # Advanced tree generation with options
+      echo "🌳 Advanced Tree Generator"
+      if [[ -n "$args" ]]; then
+        bash "$UHOME/uCode/tree-generator.sh" $args
+      else
+        bash "$UHOME/uCode/tree-generator.sh" help
+      fi
+      ;;
     HELP)
-      echo "🧩 uDOS Version: $UVERSION (Alpha v1.0 - Production Ready)"
-      echo "🧠 Available uDOS commands:"
-      echo "   LOG       → Log mission/milestone/legacy"
-      echo "   RUN       → Run a uScript"
-      echo "   TREE      → Generate file tree"
-      echo "   LIST      → List reorganized directory structure"
-      echo "   DASH      → Show dashboard"
-      echo "   SYNC      → Sync dashboard"
-      echo "   RESTART   → Restart shell"
-      echo "   REBOOT    → Reboot system"
-      echo "   DESTROY   → Delete your identity and/or files"
-      echo "   IDENTITY  → Display user identity file"
-      echo "   DEVCON    → Check and run setup-dev.sh"
-      echo "   QUIT      → Close session"
+      # Enhanced HELP with dataset integration
+      BOLD='\033[1m'
+      NC='\033[0m'
+      GREEN='\033[0;32m'
+      
+      if [[ -n "$args" ]]; then
+        # Show help for specific command using enhanced system
+        if [[ -f "$UHOME/uCode/enhanced-help-system.sh" ]]; then
+          bash "$UHOME/uCode/enhanced-help-system.sh" command "$args"
+        else
+          echo "Command help for: $(echo "$args" | tr '[:lower:]' '[:upper:]')"
+          # Fallback to basic help
+        fi
+      else
+        # Show general help with dataset integration notice
+        echo "🧩 uDOS Version: $UVERSION (Alpha v1.0 - Production Ready)"
+        echo ""
+        echo -e "🔧 ${BOLD}Enhanced Help System Available!${NC}"
+        echo -e "💡 Try: ${GREEN}HELP <command>${NC} for detailed command information"
+        echo -e "🎮 Try: ${GREEN}./uCode/enhanced-help-system.sh interactive${NC} for interactive help"
+        echo -e "📚 Try: ${GREEN}./uCode/enhanced-help-system.sh generate${NC} to create comprehensive docs"
+        echo ""
+        echo "🧠 Available uDOS commands:"
+        echo "   LOG       → Log mission/milestone/legacy"
+        echo "   RUN       → Run a uScript"
+        echo "   TREE      → Generate file tree"
+        echo "   LIST      → Role-based folder structure display"
+        echo "   DASH      → Show dashboard"
+        echo "   SYNC      → Sync dashboard"
+        echo "   RESTART   → Restart shell"
+        echo "   REBOOT    → Reboot system"
+        echo "   DESTROY   → Delete your identity and/or files"
+        echo "   IDENTITY  → Display user identity file"
+        echo "   DEVCON    → Check and run setup-dev.sh"
+        echo "   QUIT      → Close session"
       echo "   RECENT    → Show last 10 moves"
       echo "   CHECK     → Enhanced commands with dataset integration"
       echo "   SETUP     → Template-driven user setup"
       echo "   DISPLAY   → Terminal display configuration and ASCII interface"
       echo "   VALIDATE  → Validate template-dataset integration"
+      echo ""
+      echo "👤 USER ROLE MANAGEMENT"
+      echo "   ROLE      → Show current user role and permissions"
+      echo "   ROLES     → List all available roles"
+      echo "   WHOAMI    → Show current user information"
+      echo "   PERMISSIONS → Show folder access permissions"
+      echo "   DEVMODE   → Toggle dev mode (Wizard only)"
       echo "   DEBUG     → Enhanced debug with template status"
       echo ""
       echo "🆕 ALPHA v1.0 NEW FEATURES"
-      echo "   PACKAGE   → Package management (install/list/info/validate)"
+      echo "   PACKAGE   → Package management (unified system)"
+      echo "   TEMPLATE  → Template processing (setup/vscode/vb)"
+      echo "   MANAGE    → Unified management interface"
+      echo "   TREEGEN   → Advanced tree generator (simple/dynamic/stats)"
       echo "   SANDBOX   → Daily session management (start/finalize/clean)"
       echo "   DEVELOPER → Developer mode (enable/disable/status/backup)"
       echo "   EDIT      → Edit files with integrated text editor"
@@ -1705,6 +1804,7 @@ while true; do
       echo "     • Geographic coordinate mapping"
       echo "     • Dynamic command extension system"
       echo ""
+      fi  # Close the if-else block for HELP command
       ;;
     # === ALPHA v1.0 NEW COMMANDS ===
     PACKAGE)
@@ -1827,12 +1927,12 @@ while true; do
       
       echo "❓ Unknown command '$cmd'. Type HELP for list of commands."
       echo "💡 Try using shortcode syntax: [run:script-name] or [bash:command]"
-      echo "🔧 Use 'SHORTCODE list' to see available shortcodes."
+      echo "🔧 Use 'SHORTCODE list' to see available SHORTCODES."
       
       # Suggest similar commands
       case "$cmd" in
         *RUN*|*EXEC*|*EXECUTE*)
-          echo "💡 Did you mean: RUN, BASH, or [run:script-name]?"
+          echo "💡 Did you mean: RUN, BASH, or [RUN:script-name]?"
           ;;
         *ERROR*|*LOG*)
           echo "💡 Did you mean: ERROR, LOG, or CHECK?"

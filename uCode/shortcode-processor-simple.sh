@@ -43,7 +43,7 @@ process_shortcode() {
     
     # Extract shortcode using regex
     if [[ "$input" =~ ^\[([a-zA-Z0-9_-]+):?([^]]*)\]$ ]]; then
-        local shortcode_name="${BASH_REMATCH[1]}"
+        local shortcode_name=$(echo "${BASH_REMATCH[1]}" | awk '{print toupper($0)}')
         local shortcode_args="${BASH_REMATCH[2]}"
         
         echo -e "${CYAN}🔍 Processing shortcode: [$shortcode_name:$shortcode_args]${NC}"
@@ -67,90 +67,103 @@ execute_shortcode() {
     
     # Execute based on shortcode name
     case "$name" in
-        "run")
+        "RUN")
             execute_run_shortcode "$args"
             ;;
-        "bash")
+        "BASH")
             execute_bash_shortcode "$args"
             ;;
-        "check")
+        "CHECK")
             execute_check_shortcode "$args"
             ;;
-        "mission")
+        "MISSION")
             execute_mission_shortcode "$args"
             ;;
-        "data")
+        "DATA")
             execute_data_shortcode "$args"
             ;;
-        "error")
+        "ERROR")
             execute_error_shortcode "$args"
             ;;
-        "container")
+        "CONTAINER")
             execute_container_shortcode "$args"
             ;;
-        "dashboard")
+        "DASHBOARD")
             execute_dashboard_shortcode "$args"
             ;;
-        "dash")
+        "DASH")
             execute_dash_shortcode "$args"
             ;;
-        "log")
+        "LOG")
             execute_log_shortcode "$args"
             ;;
-        "tree")
+        "TREE")
             execute_tree_shortcode "$args"
             ;;
-        "help")
+        "HELP")
             show_shortcode_help
             ;;
-        "version")
+        "VERSION")
             show_version_info
             ;;
         # Editor Integration v2.0.0
-        "edit")
+        "EDIT")
             execute_edit_shortcode "$args"
             ;;
-        "draft")
+        "DRAFT")
             execute_draft_shortcode "$args"
             ;;
-        "session")
+        "SESSION")
             execute_session_shortcode "$args"
             ;;
         # Sandbox Management v2.0.0
-        "today")
+        "TODAY")
             execute_today_shortcode "$args"
             ;;
-        "sandbox")
+        "SANDBOX")
             execute_sandbox_shortcode "$args"
             ;;
-        "research")
+        "RESEARCH")
             execute_research_shortcode "$args"
             ;;
         # Script Development v2.0.0
-        "script")
+        "SCRIPT")
             execute_script_shortcode "$args"
             ;;
         # Location and Grid v2.0.0
-        "location")
+        "LOCATION")
             execute_location_shortcode "$args"
             ;;
-        "vb")
+        "VB")
             execute_vb_shortcode "$args"
             ;;
         # Template Processing v2.0.0
-        "template")
+        "TEMPLATE")
             execute_template_shortcode "$args"
             ;;
         # Backup System v2.0.0
-        "backup")
+        "BACKUP")
             execute_backup_shortcode "$args"
             ;;
         # Package Management v2.0.0
-        "package")
+        "PACKAGE")
             execute_package_shortcode "$args"
             ;;
-        "pkg")
+        "PKG")
             execute_package_shortcode "$args"
+            ;;
+        # Role Management v2.0.0
+        "ROLE")
+            execute_role_shortcode "$args"
+            ;;
+        "WHOAMI")
+            execute_whoami_shortcode "$args"
+            ;;
+        "PERMISSIONS"|"PERMS")
+            execute_permissions_shortcode "$args"
+            ;;
+        "DEVMODE")
+            execute_devmode_shortcode "$args"
             ;;
         *)
             error_critical "Unknown shortcode: $name"
@@ -352,72 +365,89 @@ execute_tree_shortcode() {
     bash "$UHOME/uCode/make-tree.sh" $args
 }
 
-# Show shortcode help
+# Show enhanced shortcode help with dataset integration
 show_shortcode_help() {
-    echo -e "${PURPLE}🔧 uDOS Shortcode System v2.0.0${NC}"
+    echo -e "${PURPLE}🔧 uDOS Shortcode System v2.0.0 - Dataset Enhanced${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
+    
+    # Link to enhanced help system
+    if [[ -f "$UHOME/uCode/enhanced-help-system.sh" ]]; then
+        echo -e "${CYAN}💡 For detailed command help, use: ${GREEN}HELP <command>${NC}"
+        echo -e "${CYAN}🔍 Interactive help explorer: ${GREEN}./uCode/enhanced-help-system.sh interactive${NC}"
+        echo -e "${CYAN}📚 Generate docs: ${GREEN}./uCode/enhanced-help-system.sh generate${NC}"
+        echo ""
+    fi
+    
     echo "Available Shortcodes:"
     echo ""
     echo -e "${BLUE}📂 Script Execution${NC}"
-    echo -e "  • ${GREEN}[run:script-name]${NC} - Execute uScript"
-    echo -e "  • ${GREEN}[bash:command]${NC} - Run bash command in container"
+    echo -e "  • ${GREEN}[RUN:script-name]${NC} - Execute uScript"
+    echo -e "  • ${GREEN}[BASH:command]${NC} - Run bash command in container"
     echo ""
     echo -e "${BLUE}📂 Editor Integration (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[edit:filename.md]${NC} - Edit file with smart editor selection"
-    echo -e "  • ${GREEN}[draft:meeting-notes]${NC} - Create new draft file"
-    echo -e "  • ${GREEN}[session:project-alpha]${NC} - Create/open session file"
+    echo -e "  • ${GREEN}[EDIT:filename.md]${NC} - Edit file with smart editor selection"
+    echo -e "  • ${GREEN}[DRAFT:meeting-notes]${NC} - Create new draft file"
+    echo -e "  • ${GREEN}[SESSION:project-alpha]${NC} - Create/open session file"
     echo ""
     echo -e "${BLUE}📂 Sandbox Management (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[today:notes]${NC} - Open today's workspace"
-    echo -e "  • ${GREEN}[sandbox:list]${NC} - List sandbox contents"
-    echo -e "  • ${GREEN}[research:new topic=ai]${NC} - Create research file"
+    echo -e "  • ${GREEN}[TODAY:notes]${NC} - Open today's workspace"
+    echo -e "  • ${GREEN}[SANDBOX:list]${NC} - List sandbox contents"
+    echo -e "  • ${GREEN}[RESEARCH:new topic=ai]${NC} - Create research file"
     echo ""
     echo -e "${BLUE}📂 Script Development (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[script:create backup-tool automation]${NC} - Create script from template"
-    echo -e "  • ${GREEN}[script:edit existing-script.sh]${NC} - Edit script file"
+    echo -e "  • ${GREEN}[SCRIPT:create backup-tool automation]${NC} - Create script from template"
+    echo -e "  • ${GREEN}[SCRIPT:edit existing-script.sh]${NC} - Edit script file"
     echo ""
     echo -e "${BLUE}📂 Location & Grid (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[location:set Sydney]${NC} - Set current location"
-    echo -e "  • ${GREEN}[location:grid B5]${NC} - Set grid position"
-    echo -e "  • ${GREEN}[vb:GRID.POSITION A5]${NC} - Execute VB commands"
+    echo -e "  • ${GREEN}[LOCATION:set Sydney]${NC} - Set current location"
+    echo -e "  • ${GREEN}[LOCATION:grid B5]${NC} - Set grid position"
+    echo -e "  • ${GREEN}[VB:GRID.POSITION A5]${NC} - Execute VB commands"
     echo ""
     echo -e "${BLUE}📂 Template Processing (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[template:process file=example.md]${NC} - Process templates"
+    echo -e "  • ${GREEN}[TEMPLATE:process file=example.md]${NC} - Process templates"
     echo ""
     echo -e "${BLUE}📂 Backup System (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[backup:create]${NC} - Create system backup"
-    echo -e "  • ${GREEN}[backup:list]${NC} - List available backups"
+    echo -e "  • ${GREEN}[BACKUP:create]${NC} - Create system backup"
+    echo -e "  • ${GREEN}[BACKUP:list]${NC} - List available backups"
     echo ""
     echo -e "${BLUE}📂 Package Management (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[package:list]${NC} - List all packages"
-    echo -e "  • ${GREEN}[package:install ripgrep]${NC} - Install specific package"
-    echo -e "  • ${GREEN}[package:status bat]${NC} - Check package status"
-    echo -e "  • ${GREEN}[package:search markdown]${NC} - Search packages"
-    echo -e "  • ${GREEN}[pkg:install-all]${NC} - Install all packages (shorthand)"
+    echo -e "  • ${GREEN}[PACKAGE:list]${NC} - List all packages"
+    echo -e "  • ${GREEN}[PACKAGE:install ripgrep]${NC} - Install specific package"
+    echo -e "  • ${GREEN}[PACKAGE:status bat]${NC} - Check package status"
+    echo -e "  • ${GREEN}[PACKAGE:search markdown]${NC} - Search packages"
+    echo -e "  • ${GREEN}[PKG:install-all]${NC} - Install all packages (shorthand)"
+    echo ""
+    echo -e "${BLUE}📂 User Role Management (v2.0.0)${NC}"
+    echo -e "  • ${GREEN}[ROLE:status]${NC} - Show current user role and permissions"
+    echo -e "  • ${GREEN}[ROLE:list]${NC} - List all available roles"
+    echo -e "  • ${GREEN}[WHOAMI]${NC} - Show user information"
+    echo -e "  • ${GREEN}[PERMISSIONS]${NC} - Show folder access permissions"
+    echo -e "  • ${GREEN}[DEVMODE:on]${NC} - Enable dev mode (Wizard only)"
+    echo -e "  • ${GREEN}[DEVMODE:off]${NC} - Disable dev mode"
     echo ""
     echo -e "${BLUE}📂 System Management${NC}"
-    echo -e "  • ${GREEN}[check:health]${NC} - Perform health check"
-    echo -e "  • ${GREEN}[error:stats]${NC} - Show error statistics"
-    echo -e "  • ${GREEN}[container:status]${NC} - Container information"
+    echo -e "  • ${GREEN}[CHECK:health]${NC} - Perform health check"
+    echo -e "  • ${GREEN}[ERROR:stats]${NC} - Show error statistics"
+    echo -e "  • ${GREEN}[CONTAINER:status]${NC} - Container information"
     echo ""
     echo -e "${BLUE}📂 Data & Missions${NC}"
-    echo -e "  • ${GREEN}[mission:create name=test]${NC} - Create mission"
-    echo -e "  • ${GREEN}[data:csv file=data.csv]${NC} - Process data"
-    echo -e "  • ${GREEN}[log:move 'message']${NC} - Log information"
+    echo -e "  • ${GREEN}[MISSION:create name=test]${NC} - Create mission"
+    echo -e "  • ${GREEN}[DATA:csv file=data.csv]${NC} - Process data"
+    echo -e "  • ${GREEN}[LOG:move 'message']${NC} - Log information"
     echo ""
     echo -e "${BLUE}📂 Dashboard & Analytics (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[dash:refresh]${NC} - Build dashboard with templates"
-    echo -e "  • ${GREEN}[dash:ascii]${NC} - Show ASCII dashboard"
-    echo -e "  • ${GREEN}[dash:live]${NC} - Start live dashboard"
-    echo -e "  • ${GREEN}[dashboard:generate]${NC} - Legacy dashboard (fallback)"
+    echo -e "  • ${GREEN}[DASH:refresh]${NC} - Build dashboard with templates"
+    echo -e "  • ${GREEN}[DASH:ascii]${NC} - Show ASCII dashboard"
+    echo -e "  • ${GREEN}[DASH:live]${NC} - Start live dashboard"
+    echo -e "  • ${GREEN}[DASHBOARD:generate]${NC} - Legacy dashboard (fallback)"
     echo ""
     echo -e "${BLUE}📂 Utilities${NC}"
-    echo -e "  • ${GREEN}[tree:generate]${NC} - Show file tree"
-    echo -e "  • ${GREEN}[version]${NC} - Show version"
-    echo -e "  • ${GREEN}[help]${NC} - Show this help"
+    echo -e "  • ${GREEN}[TREE:generate]${NC} - Show file tree"
+    echo -e "  • ${GREEN}[VERSION]${NC} - Show version"
+    echo -e "  • ${GREEN}[HELP]${NC} - Show this help"
     echo ""
-    echo "Syntax: [shortcode:arguments]"
+    echo "Syntax: [SHORTCODE:arguments]"
 }
 
 # Show version info
@@ -442,24 +472,24 @@ suggest_shortcode_alternatives() {
     
     case "$query" in
         *run*|*exec*|*execute*)
-            echo "  • run - Execute uScript"
-            echo "  • bash - Run bash command"
+            echo "  • RUN - Execute uScript"
+            echo "  • BASH - Run bash command"
             ;;
         *check*|*test*|*health*)
-            echo "  • check - System checks"
-            echo "  • error - Error management"
+            echo "  • CHECK - System checks"
+            echo "  • ERROR - Error management"
             ;;
         *mission*|*task*|*project*)
-            echo "  • mission - Mission management"
-            echo "  • log - Log information"
+            echo "  • MISSION - Mission management"
+            echo "  • LOG - Log information"
             ;;
         *data*|*process*|*file*)
-            echo "  • data - Data processing"
-            echo "  • tree - File tree"
+            echo "  • DATA - Data processing"
+            echo "  • TREE - File tree"
             ;;
         *)
-            echo "  • help - Show all shortcodes"
-            echo "  • version - Show version"
+            echo "  • HELP - Show all shortcodes"
+            echo "  • VERSION - Show version"
             ;;
     esac
 }
@@ -483,7 +513,7 @@ process_file_shortcodes() {
         ((line_number++))
         
         if [[ "$line" =~ \[([a-zA-Z0-9_-]+):?([^]]*)\] ]]; then
-            local shortcode_name="${BASH_REMATCH[1]}"
+            local shortcode_name=$(echo "${BASH_REMATCH[1]}" | awk '{print toupper($0)}')
             local shortcode_args="${BASH_REMATCH[2]}"
             
             echo -e "${CYAN}📍 Line $line_number: Processing [$shortcode_name:$shortcode_args]${NC}"
@@ -699,6 +729,73 @@ execute_package_shortcode() {
     fi
 }
 
+# Execute role shortcode
+execute_role_shortcode() {
+    local args="$1"
+    
+    echo -e "${PURPLE}👤 Role management: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        case "$args" in
+            ""|"status"|"show")
+                bash "$UHOME/uCode/user-role-manager.sh" status
+                ;;
+            "list"|"all")
+                bash "$UHOME/uCode/user-role-manager.sh" roles
+                ;;
+            *)
+                bash "$UHOME/uCode/user-role-manager.sh" $args
+                ;;
+        esac
+    else
+        echo "❌ Role management system not available"
+        return 1
+    fi
+}
+
+# Execute whoami shortcode
+execute_whoami_shortcode() {
+    local args="$1"
+    
+    echo -e "${BLUE}🔍 User information: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" status
+    else
+        echo "👤 User: ${USER:-unknown}"
+        echo "🏠 uDOS Home: $UHOME"
+        echo "⚠️ Role management not available"
+    fi
+}
+
+# Execute permissions shortcode
+execute_permissions_shortcode() {
+    local args="$1"
+    
+    echo -e "${YELLOW}🔐 Permissions check: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" folders
+    else
+        echo "❌ Permission system not available"
+        return 1
+    fi
+}
+
+# Execute devmode shortcode
+execute_devmode_shortcode() {
+    local args="$1"
+    
+    echo -e "${RED}🔧 Dev mode management: $args${NC}"
+    
+    if [[ -f "$UHOME/uCode/user-role-manager.sh" ]]; then
+        bash "$UHOME/uCode/user-role-manager.sh" dev-mode $args
+    else
+        echo "❌ Dev mode management not available"
+        return 1
+    fi
+}
+
 # Interactive shortcode mode
 interactive_mode() {
     echo -e "${PURPLE}🎮 Interactive Shortcode Mode${NC}"
@@ -763,7 +860,7 @@ main() {
             echo "  list                           - List available shortcodes"
             echo ""
             echo "Examples:"
-            echo "  $0 process '[run:hello-world]'"
+            echo "  $0 process '[RUN:hello-world]'"
             echo "  $0 file input.md output.md"
             echo "  $0 interactive"
             ;;

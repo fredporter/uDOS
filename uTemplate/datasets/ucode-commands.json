@@ -56,11 +56,11 @@
     "version": "1.0.0"
   },
   {
-    "command": "INCLUDE",
+    "command": "HOOK",
     "category": "file",
-    "syntax": "INCLUDE <filename>",
+    "syntax": "HOOK <filename>",
     "description": "Import and execute another script file",
-    "examples": ["INCLUDE \"utils.uc\"", "INCLUDE $script_path", "INCLUDE \"../common/setup.uc\""],
+    "examples": ["HOOK \"utils.uc\"", "HOOK $script_path", "HOOK \"../common/setup.uc\""],
     "version": "1.0.0"
   },
   {
@@ -112,59 +112,59 @@
     "version": "1.0.0"
   },
   {
-    "command": "CD",
+    "command": "GOTO",
     "category": "file",
-    "syntax": "CD <directory>",
+    "syntax": "GOTO <directory>",
     "description": "Change current working directory",
-    "examples": ["CD \"/home/user\"", "CD $workspace", "CD \"../parent\""],
+    "examples": ["GOTO \"/home/user\"", "GOTO $workspace", "GOTO \"../parent\""],
     "version": "1.0.0"
   },
   {
-    "command": "PWD",
+    "command": "SHOW",
     "category": "file",
-    "syntax": "PWD",
+    "syntax": "SHOW",
     "description": "Print current working directory",
-    "examples": ["PWD"],
+    "examples": ["SHOW"],
     "version": "1.0.0"
   },
   {
-    "command": "LS",
+    "command": "LIST",
     "category": "file",
-    "syntax": "LS [directory] [options]",
+    "syntax": "LIST [directory] [options]",
     "description": "List directory contents",
-    "examples": ["LS", "LS \"/home\"", "LS -la", "LS $path -R"],
+    "examples": ["LIST", "LIST \"/home\"", "LIST -la", "LIST $path -R"],
     "version": "1.0.0"
   },
   {
-    "command": "MKDIR",
+    "command": "MAKE",
     "category": "file",
-    "syntax": "MKDIR <directory>",
+    "syntax": "MAKE <directory>",
     "description": "Create a new directory",
-    "examples": ["MKDIR \"new_folder\"", "MKDIR $project_dir", "MKDIR -p \"path/to/deep/folder\""],
+    "examples": ["MAKE \"new_folder\"", "MAKE $project_dir", "MAKE -p \"path/to/deep/folder\""],
     "version": "1.0.0"
   },
   {
-    "command": "RM",
+    "command": "KILL",
     "category": "file",
-    "syntax": "RM <file|directory> [options]",
+    "syntax": "KILL <file|directory> [options]",
     "description": "Remove files or directories",
-    "examples": ["RM \"file.txt\"", "RM -rf \"folder\"", "RM $temp_file"],
+    "examples": ["KILL \"file.txt\"", "KILL -rf \"folder\"", "KILL $temp_file"],
     "version": "1.0.0"
   },
   {
-    "command": "CP",
+    "command": "COPY",
     "category": "file",
-    "syntax": "CP <source> <destination>",
+    "syntax": "COPY <source> <destination>",
     "description": "Copy files or directories",
-    "examples": ["CP \"file.txt\" \"backup.txt\"", "CP -r \"folder\" \"backup_folder\""],
+    "examples": ["COPY \"file.txt\" \"backup.txt\"", "COPY -r \"folder\" \"backup_folder\""],
     "version": "1.0.0"
   },
   {
-    "command": "MV",
+    "command": "MOVE",
     "category": "file",
-    "syntax": "MV <source> <destination>",
+    "syntax": "MOVE <source> <destination>",
     "description": "Move or rename files/directories",
-    "examples": ["MV \"old.txt\" \"new.txt\"", "MV \"folder\" \"../new_location\""],
+    "examples": ["MOVE \"old.txt\" \"new.txt\"", "MOVE \"folder\" \"../new_location\""],
     "version": "1.0.0"
   },
   {
@@ -176,11 +176,11 @@
     "version": "1.0.0"
   },
   {
-    "command": "GREP",
+    "command": "PEEK",
     "category": "search",
-    "syntax": "GREP <pattern> [IN <file>] [options]",
+    "syntax": "PEEK <pattern> [IN <file>] [options]",
     "description": "Search for text patterns in files",
-    "examples": ["GREP \"error\" IN \"log.txt\"", "GREP -i \"warning\" IN $logfile"],
+    "examples": ["PEEK \"error\" IN \"log.txt\"", "PEEK -i \"warning\" IN $logfile"],
     "version": "1.0.0"
   },
   {
