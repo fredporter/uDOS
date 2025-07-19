@@ -78,7 +78,7 @@ The installer will check and guide you to install missing requirements.
 
 ### VS Code Integration Not Working
 ```bash
-./uExtension/install-extension.sh
+./extension/install-extension.sh
 ```
 
 ---

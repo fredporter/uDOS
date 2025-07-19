@@ -1,6 +1,6 @@
-# 🔌 uExtension - uDOS VS Code Integration Guide
+# 🔌 extension - uDOS VS Code Integration Guide
 
-The `uExtension` folder contains the complete VS Code extension for uDOS v1.0, providing native IDE support for the markdown-native operating system.
+The `extension` folder contains the complete VS Code extension for uDOS v1.0, providing native IDE support for the markdown-native operating system.
 
 ## 📦 Installation
 
@@ -11,13 +11,13 @@ The `uExtension` folder contains the complete VS Code extension for uDOS v1.0, p
 
 ### Method 2: Manual Installation
 ```bash
-cd uExtension
+cd extension
 ./install-extension.sh
 ```
 
 ### Method 3: Development Installation
 ```bash
-cd uExtension
+cd extension
 npm install
 npm run compile
 npm run package

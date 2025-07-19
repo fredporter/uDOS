@@ -146,9 +146,9 @@ setup_vscode_integration() {
         log_info "Setting up VS Code integration..."
         
         # Install uDOS extension if available
-        if [[ -f "uExtension/install-extension.sh" ]]; then
-            log_info "Installing uDOS VS Code extension..."
-            cd uExtension
+        if [[ -f "extension/install-extension.sh" ]]; then
+            echo "📦 Installing uDOS VS Code Extension..."
+            cd extension
             if ./install-extension.sh; then
                 log_success "VS Code extension installed"
             else

@@ -1,14 +1,14 @@
-# 🔌 uExtension - System Integration Folder
+# 🔌 extension - System Integration Folder
 
 **Purpose**: Official VS Code extension and IDE integration for uDOS v1.0
 
 ## 🏗️ System Architecture Role
 
-`uExtension` is a core system directory that provides professional development environment integration:
+`extension` is a core system directory that provides professional development environment integration:
 
 ### 📁 Directory Structure
 ```
-uExtension/
+extension/
 ├── src/                          # TypeScript extension source code
 ├── syntaxes/                     # uScript language grammar definitions
 ├── snippets/                     # uScript code snippet library
@@ -41,13 +41,13 @@ uExtension/
 
 ### 🚀 Usage
 
-The uExtension system integrates seamlessly with uDOS workflows:
+The extension system integrates seamlessly with uDOS workflows:
 
-1. **Automatic Detection**: VS Code tasks detect and use uExtension
+1. **Automatic Detection**: VS Code tasks detect and use extension
 2. **One-Click Install**: `🔌 Install uDOS VS Code Extension` task handles everything
 3. **Native Integration**: Extension becomes part of local VS Code environment
 4. **System Commands**: Direct access to all uDOS functionality from IDE
 
 ---
 
-**uExtension completes the uDOS v1.0 professional development environment, providing a fully integrated, privacy-first IDE experience! 🌟**
+**The extension completes the uDOS v1.0 professional development environment, providing a fully integrated, privacy-first IDE experience! 🌟**

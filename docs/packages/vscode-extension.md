@@ -89,7 +89,7 @@ Use the "🔌 Install uDOS VS Code Extension" task in VS Code.
 
 ### Development
 
-For extension development, see `docs/uExtension-development.md`
+For extension development, see `docs/extension-development.md`
 
 ---
 

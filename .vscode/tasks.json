@@ -227,7 +227,7 @@
         {
             "label": "🔌 Install uDOS VS Code Extension",
             "type": "shell",
-            "command": "./uExtension/install-extension.sh",
+            "command": "./extension/install-extension.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
