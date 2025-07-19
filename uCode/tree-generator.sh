@@ -83,7 +83,7 @@ uDOS/
 │   ├── ucode.sh               # Main uDOS shell (1,846 lines)
 │   ├── unified-manager.sh     # Consolidated script manager
 │   ├── dash.sh                # Dashboard system
-│   ├── companion-system.sh   # Chester AI companion
+│   ├── companion-system.sh   # Chester OK companion
 │   ├── validate-installation.sh # System validation
 │   ├── vscode-template-processor.sh # VS Code templates
 │   ├── shortcode-processor-simple.sh # Shortcode system
@@ -135,7 +135,7 @@ uDOS/
 Key Features:
 • 🎯 User DOS Shell - Markdown-native operating system
 • 👤 User Role System - wizard, sorcerer, ghost, imp roles
-• 🤖 Chester AI Companion - Integrated AI assistance
+• 🤖 Chester OK Companion - Integrated OK assistance
 • 📝 uScript Language - Custom scripting language with VS Code support
 • 🔧 Template System v2.1.0 - Advanced template processing
 • 📊 Real-time Dashboard - System monitoring and analytics

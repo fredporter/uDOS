@@ -94,7 +94,7 @@ setup_config() {
 - **Theme**: dark
 - **Debug Mode**: false
 - **Auto Backup**: true
-- **AI Companion**: enabled
+- **OK Companion**: enabled
 - **Role**: wizard
 
 ---
@@ -115,7 +115,7 @@ export UDOS_USERNAME="$username"
 export UDOS_LOCATION="Earth"
 export UDOS_TIMEZONE="$timezone"
 export UDOS_THEME="dark"
-export UDOS_AI_COMPANION="enabled"
+export UDOS_OK_COMPANION="enabled"
 export UDOS_DEFAULT_ROLE="wizard"
 
 # System Configuration
@@ -173,7 +173,7 @@ EOF
     echo "   🌍 Location: Earth"
     echo "   ⏰ Timezone: $timezone"
     echo "   🎨 Theme: dark"
-    echo "   🤖 AI Companion: enabled"
+    echo "   🤖 OK Companion: enabled"
     echo "   👑 Role: wizard"
     echo ""
     echo "📁 Created Files:"

@@ -74,7 +74,7 @@ The extension automatically adapts to your assigned user role:
 
 ## 🤖 Chester AI Integration
 
-The extension provides direct integration with Chester, your small dog personality AI companion:
+The extension provides direct integration with Chester, your small dog personality OK companion:
 
 ### Chester Commands
 - **Error Detection**: Automatic detection of uScript syntax errors

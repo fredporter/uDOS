@@ -1,5 +1,5 @@
 {
-  "USERNAME": "Fred",
+  "USERNAME": "fred",
   "FULL_NAME": "",
   "EMAIL": "",
   "LOCATION": "local",
@@ -12,6 +12,6 @@
   "PROJECT_LEAD": "",
   "PROJECT_DEADLINE": "",
   "PROJECT_BUDGET": 0,
-  "LAST_UPDATED": "2025-07-19T08:49:07Z",
+  "LAST_UPDATED": "2025-07-19T09:52:06Z",
   "TEST_VAR": "test_value"
 }

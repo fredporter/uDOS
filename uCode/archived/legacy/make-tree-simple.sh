@@ -68,7 +68,7 @@ exit 1
 # │   └── ...                    # Other core scripts
 # ├── uKnowledge/                 # Knowledge base
 # │   ├── roadmap/               # Architecture docs
-# │   ├── companion/             # AI companions
+# │   ├── companion/             # OK companions
 # │   └── packages/              # Package docs
 # ├── uTemplate/                  # Template system
 # │   ├── datasets/              # System datasets

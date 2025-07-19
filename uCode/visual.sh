@@ -542,7 +542,7 @@ interactive_setup_questions() {
                     [[ -n "$UDOS_LOCATION" ]] && echo "📍 Location: $UDOS_LOCATION"
                     [[ -n "$UDOS_TIMEZONE" ]] && echo "⏰ Timezone: $UDOS_TIMEZONE"
                     [[ -n "$UDOS_THEME" ]] && echo "🎨 Theme: $UDOS_THEME"
-                    [[ -n "$UDOS_AI_COMPANION" ]] && echo "🤖 OK Companion: $UDOS_AI_COMPANION"
+                    [[ -n "$UDOS_OK_COMPANION" ]] && echo "🤖 OK Companion: $UDOS_OK_COMPANION"
                     [[ -n "$UDOS_DEFAULT_ROLE" ]] && echo "👤 Role: $UDOS_DEFAULT_ROLE"
                 }
             fi
@@ -750,7 +750,7 @@ show_ok_companion() {
             # Look for companion definitions
             local companion_files=$(find "$ucompanion_dir" -name "*.md" -o -name "*.json" 2>/dev/null | wc -l)
             if [[ $companion_files -gt 0 ]]; then
-                available_companions+=("Gemini - Google AI companion")
+                available_companions+=("Gemini - Google OK companion")
                 available_companions+=("Chester - Development assistant") 
                 available_companions+=("Custom - User-defined companions")
             fi
@@ -834,7 +834,7 @@ show_ok_companion() {
                 "$ucode_dir/companion-system.sh" help
             else
                 echo "Available uCompanion commands:"
-                echo "  ./uCode/companion-system.sh gemini     - Start Gemini AI companion"
+                echo "  ./uCode/companion-system.sh gemini     - Start Gemini OK companion"
                 echo "  ./uCode/companion-system.sh chester    - Start Chester development assistant" 
                 echo "  ./uCode/companion-system.sh list       - List all available companions"
                 echo "  ./uCode/companion-system.sh init       - Initialize new companion"

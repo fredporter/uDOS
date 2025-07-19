@@ -84,14 +84,14 @@ Default: true
 Help: Automatically backs up uMemory data during system operations
 [/INPUT_AUTO_BACKUP]
 
-[INPUT_AI_COMPANION]
-Question: Enable Chester AI companion?
-Variable: $AI_COMPANION_ENABLED
+[INPUT_OK_COMPANION]
+Question: Enable Chester OK companion?
+Variable: $OK_COMPANION_ENABLED
 Validation: required,boolean
 Options: true,false
 Default: true
 Help: Chester provides intelligent assistance and development support
-[/INPUT_AI_COMPANION]
+[/INPUT_OK_COMPANION]
 
 ### 🎯 Development Preferences
 
@@ -195,7 +195,7 @@ $( [[ -n "$COORDINATES" ]] && echo "- **Coordinates**: $COORDINATES" )
 - **Theme**: $THEME
 - **Debug Mode**: $DEBUG_MODE
 - **Auto Backup**: $AUTO_BACKUP
-- **AI Companion**: $AI_COMPANION_ENABLED
+- **OK Companion**: $OK_COMPANION_ENABLED
 - **Auto Install Packages**: $AUTO_INSTALL_PACKAGES
 - **VS Code Extension**: $VSCODE_EXTENSION
 
@@ -236,7 +236,7 @@ export UDOS_TZ_CODE="$TZ_CODE"
 export UDOS_THEME="$THEME"
 export UDOS_DEBUG_MODE="$DEBUG_MODE"
 export UDOS_AUTO_BACKUP="$AUTO_BACKUP"
-export UDOS_AI_COMPANION="$AI_COMPANION_ENABLED"
+export UDOS_OK_COMPANION="$OK_COMPANION_ENABLED"
 export UDOS_AUTO_PACKAGES="$AUTO_INSTALL_PACKAGES"
 export UDOS_VSCODE_EXTENSION="$VSCODE_EXTENSION"
 export UDOS_DEFAULT_ROLE="$DEFAULT_ROLE"
@@ -285,7 +285,7 @@ Get familiar with your new uDOS development environment and complete initial set
 - [ ] **Verify Installation**: Run `ucode CHECK all` to validate system
 - [ ] **Explore Commands**: Try `ucode HELP` to see available commands
 - [ ] **Test Dashboard**: Run `ucode DASH live` for real-time monitoring
-$( [[ "$AI_COMPANION_ENABLED" == "true" ]] && echo "- [ ] **Meet Chester**: Start AI companion with \`ucode CHESTER start\`" )
+$( [[ "$OK_COMPANION_ENABLED" == "true" ]] && echo "- [ ] **Meet Chester**: Start OK companion with \`ucode CHESTER start\`" )
 $( [[ "$VSCODE_EXTENSION" == "true" ]] && echo "- [ ] **VS Code Setup**: Open project in VS Code and explore tasks" )
 - [ ] **Create Project**: Use `ucode STRUCTURE build` to create first project
 - [ ] **Template Test**: Try `ucode TEMPLATE process` to test template system

@@ -11,7 +11,7 @@ USERS_DIR="${UMEM}/users"
 # Role definitions based on NetHack archetypes but adapted for uDOS
 get_role_description() {
     case "$1" in
-        "wizard") echo "Primary user with full system access and AI companion management" ;;
+        "wizard") echo "Primary user with full system access and OK companion management" ;;
         "sorcerer") echo "Advanced user with scripting and automation privileges" ;;
         "ghost") echo "Limited user with read-only access to most systems" ;;
         "imp") echo "Restricted user for testing and sandboxed operations" ;;
@@ -154,7 +154,7 @@ create_role_profile() {
     case "$role" in
         "wizard")
             capabilities="- 🧙‍♂️ Full system access and configuration
-- 🤖 AI companion management (Chester, etc.)
+- 🤖 OK companion management (Chester, etc.)
 - 📝 Template creation and modification
 - 🔧 System script execution and development
 - 🛡️ Privacy and security configuration"
@@ -162,7 +162,7 @@ create_role_profile() {
         "sorcerer")
             capabilities="- 🔮 Advanced scripting and automation
 - 📝 Template creation
-- 🤖 AI companion interaction
+- 🤖 OK companion interaction
 - 📊 Full uMemory access
 - 👁️ System monitoring (read-only)"
             ;;
@@ -249,11 +249,11 @@ show_role_info() {
     case "$role" in
         "wizard")
             purple "🧙‍♂️ Wizard - Master of uDOS"
-            echo "You have full access to all uDOS systems and can manage AI companions."
+            echo "You have full access to all uDOS systems and can manage OK companions."
             ;;
         "sorcerer") 
             blue "🔮 Sorcerer - Advanced User"
-            echo "You can create scripts, templates, and interact with AI companions."
+            echo "You can create scripts, templates, and interact with OK companions."
             ;;
         "ghost")
             yellow "👻 Ghost - Observer"

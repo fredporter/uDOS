@@ -8,7 +8,7 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 - ✅ **Complete User Role System**: wizard/sorcerer/ghost/imp permission matrix
 - ✅ **Single-User Installation**: Privacy-first architecture with local data control
 - ✅ **Automated Setup & Validation**: First-time installation with integrity checks
-- ✅ **Chester AI Companion**: Integrated assistant with personality system
+- ✅ **Chester OK Companion**: Integrated assistant with personality system
 - ✅ **VS Code Integration**: Native extension with uScript language support and 25+ tasks
 - ✅ **Package Management**: Unified system for essential development tools
 - ✅ **Template System**: Markdown-driven content generation with shortcode processing

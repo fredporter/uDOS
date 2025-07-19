@@ -61,7 +61,7 @@ You should see:
 
 1. **[📖 Read the User Manual](../user/manual.md)** - Learn all commands and features
 2. **[🎮 Try the Interactive Tutorial](getting-started.md)** - Hands-on learning
-3. **[🧙‍♂️ Meet Chester](../user/chester.md)** - Your AI companion guide
+3. **[🧙‍♂️ Meet Chester](../user/chester.md)** - Your OK companion guide
 
 ## 🆘 Troubleshooting
 

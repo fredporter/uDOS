@@ -10,7 +10,7 @@ This package provides the uDOS VS Code extension for optimal development experie
 - **uDOS Commands**: Integrated command palette with all uDOS operations
 - **Template System**: Quick insertion and generation of uDOS templates
 - **User Role Integration**: Respects wizard/sorcerer/ghost/imp permissions
-- **Chester AI**: Integrated AI companion for assistance
+- **Chester OK**: Integrated OK companion for assistance
 - **Markdown-Native**: Enhanced markdown editing for uDOS documents
 
 ### Installation

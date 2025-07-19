@@ -244,7 +244,7 @@ print_post_install_info() {
     echo ""
     echo -e "${BOLD}Support:${NC}"
     echo "- 📖 Documentation: README.md and roadmap documents"
-    echo "- 🤖 AI Companion: Chester is available for assistance"
+    echo "- 🤖 OK Companion: Chester is available for assistance"
     echo "- 🔍 Validation: Run 'CHECK SETUP' anytime"
     echo ""
     if [[ -d "$BACKUP_DIR" ]]; then

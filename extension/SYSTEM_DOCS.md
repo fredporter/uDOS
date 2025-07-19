@@ -28,7 +28,7 @@ extension/
 **Development Integration**: Provides native VS Code support for:
 - uScript programming language
 - uDOS command execution
-- Chester AI companion access
+- Chester OK companion access
 - User role-aware functionality
 - System validation and debugging
 

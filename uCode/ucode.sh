@@ -188,7 +188,7 @@ cmd_setup_user() {
         echo "🌍 Location: ${UDOS_CITY_NAME:-'Not set'}"
         echo "⏰ Timezone: ${UDOS_TIMEZONE:-'Not set'}"
         echo "🎨 Theme: ${UDOS_THEME:-'Not set'}"
-        echo "🤖 AI Companion: ${UDOS_AI_COMPANION:-'Not set'}"
+        echo "🤖 OK Companion: ${UDOS_OK_COMPANION:-'Not set'}"
         echo ""
         
         echo "📁 Generated Files:"

@@ -260,7 +260,9 @@ setup_fallback_questions() {
     
     # AI Companion
     echo
-    blue "📋 Choose your AI companion:"
+    # OK Companion
+    echo ""
+    blue "📋 Choose your OK companion:"
     echo "   1. Gemini (Google AI)"
     echo "   2. OK Companion (Local)"
     echo "   3. None"
@@ -273,8 +275,8 @@ setup_fallback_questions() {
         *) companion="ok" ;;
     esac
     
-    set_var "UDOS_AI_COMPANION" "$companion"
-    green "   ✓ AI Companion: $companion"
+    set_var "UDOS_OK_COMPANION" "$companion"
+    green "   ✓ OK Companion: $companion"
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -304,7 +306,7 @@ generate_config_files() {
 ## Configuration
 
 - **Theme**: $(get_var "UDOS_THEME")
-- **AI Companion**: $(get_var "UDOS_AI_COMPANION")
+- **OK Companion**: $(get_var "UDOS_OK_COMPANION")
 - **Shell**: $SHELL
 - **Platform**: $(uname -s)
 
@@ -331,7 +333,7 @@ export UDOS_USERNAME="$(get_var "UDOS_USERNAME")"
 export UDOS_LOCATION="$(get_var "UDOS_LOCATION")"  
 export UDOS_TIMEZONE="$(get_var "UDOS_TIMEZONE")"
 export UDOS_THEME="$(get_var "UDOS_THEME")"
-export UDOS_AI_COMPANION="$(get_var "UDOS_AI_COMPANION")"
+export UDOS_OK_COMPANION="$(get_var "UDOS_OK_COMPANION")"
 
 # System Configuration
 export UDOS_VERSION="1.0"
@@ -382,7 +384,7 @@ Welcome $(get_var "UDOS_USERNAME") to uDOS! Complete your initial setup and expl
 - [ ] Run system health check: \`ucode core health\`
 - [ ] Generate dashboard: \`ucode dash live\`
 - [ ] Check available packages: \`ucode package list\`
-- [ ] Set up AI companion: \`ucode companion setup\`
+- [ ] Set up OK companion: \`ucode companion setup\`
 
 ### 3. Customization
 
@@ -428,7 +430,7 @@ interactive_template_setup() {
     show_intro
     
     # Process standard setup blocks
-    local setup_blocks=("USERNAME" "LOCATION" "TIMEZONE" "THEME" "AI_COMPANION")
+    local setup_blocks=("USERNAME" "LOCATION" "TIMEZONE" "THEME" "OK_COMPANION")
     
     for block in "${setup_blocks[@]}"; do
         process_input_block "$block"
@@ -448,7 +450,7 @@ interactive_template_setup() {
     echo "📍 Location: $(get_var "UDOS_LOCATION")"
     echo "⏰ Timezone: $(get_var "UDOS_TIMEZONE")"
     echo "🎨 Theme: $(get_var "UDOS_THEME")"
-    echo "🤖 AI Companion: $(get_var "UDOS_AI_COMPANION")"
+    echo "🤖 OK Companion: $(get_var "UDOS_OK_COMPANION")"
     
     echo
     bold "🚀 Next Steps:"
@@ -469,7 +471,7 @@ quick_setup() {
     set_var "UDOS_LOCATION" "Earth"
     set_var "UDOS_TIMEZONE" "UTC"
     set_var "UDOS_THEME" "dark"
-    set_var "UDOS_AI_COMPANION" "ok"
+    set_var "UDOS_OK_COMPANION" "ok"
     
     generate_config_files
     

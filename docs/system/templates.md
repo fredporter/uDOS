@@ -91,7 +91,7 @@ export UDOS_USERNAME="username"
 export UDOS_LOCATION_CODE="NYC"
 export UDOS_CITY_NAME="New York"
 export UDOS_THEME="dark"
-export UDOS_AI_COMPANION="true"
+export UDOS_OK_COMPANION="true"
 ```
 
 ---
