@@ -411,12 +411,13 @@ show_shortcode_help() {
     echo -e "  • ${GREEN}[BACKUP:create]${NC} - Create system backup"
     echo -e "  • ${GREEN}[BACKUP:list]${NC} - List available backups"
     echo ""
-    echo -e "${BLUE}📂 Package Management (v2.0.0)${NC}"
-    echo -e "  • ${GREEN}[PACKAGE:list]${NC} - List all packages"
+    echo -e "${BLUE}📂 Package Management (v2.0.0) - On-Demand Installation${NC}"
+    echo -e "  • ${GREEN}[PACKAGE:install-all]${NC} - Install all essential packages"
+    echo -e "  • ${GREEN}[PACKAGE:list]${NC} - List all packages with status"
     echo -e "  • ${GREEN}[PACKAGE:install ripgrep]${NC} - Install specific package"
     echo -e "  • ${GREEN}[PACKAGE:status bat]${NC} - Check package status"
     echo -e "  • ${GREEN}[PACKAGE:search markdown]${NC} - Search packages"
-    echo -e "  • ${GREEN}[PKG:install-all]${NC} - Install all packages (shorthand)"
+    echo -e "  • ${GREEN}[PKG:install-all]${NC} - Quick install all (shorthand)"
     echo ""
     echo -e "${BLUE}📂 User Role Management (v2.0.0)${NC}"
     echo -e "  • ${GREEN}[ROLE:status]${NC} - Show current user role and permissions"
@@ -716,15 +717,12 @@ execute_package_shortcode() {
     
     echo -e "${CYAN}📦 Package management: $args${NC}"
     
-    # Try enhanced manager first, fallback to compatible, then simple
-    if [[ -f "$UHOME/uCode/packages/manager-enhanced.sh" ]] && bash --version | grep -q "version [4-9]"; then
-        bash "$UHOME/uCode/packages/manager-enhanced.sh" shortcode $args
-    elif [[ -f "$UHOME/uCode/packages/manager-compatible.sh" ]]; then
-        bash "$UHOME/uCode/packages/manager-compatible.sh" shortcode $args
-    elif [[ -f "$UHOME/uCode/packages/manager-simple.sh" ]]; then
-        bash "$UHOME/uCode/packages/manager-simple.sh" $args
+    # Use consolidated manager with shortcode support
+    if [[ -f "$UHOME/uCode/packages/consolidated-manager.sh" ]]; then
+        bash "$UHOME/uCode/packages/consolidated-manager.sh" shortcode $args
     else
         echo "❌ Package manager not available"
+        echo "💡 Run installation validation to check system setup"
         return 1
     fi
 }

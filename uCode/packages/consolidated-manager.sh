@@ -353,6 +353,95 @@ show_package_info() {
     echo
 }
 
+# Handle shortcode commands
+handle_shortcode_command() {
+    local cmd="${1:-help}"
+    shift || true
+    
+    case "$cmd" in
+        "list"|"ls")
+            list_packages "${1:-table}"
+            ;;
+        "install")
+            if [[ $# -eq 0 ]]; then
+                red "❌ Package name required"
+                echo "Usage: [PACKAGE:install package_name]"
+                return 1
+            fi
+            install_package "$1" "${2:-false}"
+            ;;
+        "install-all")
+            install_all_packages "${1:-false}"
+            ;;
+        "status")
+            if [[ $# -eq 0 ]]; then
+                list_packages "simple"
+            else
+                show_package_info "$1"
+            fi
+            ;;
+        "info")
+            if [[ $# -eq 0 ]]; then
+                red "❌ Package name required"
+                echo "Usage: [PACKAGE:info package_name]"
+                return 1
+            fi
+            show_package_info "$1"
+            ;;
+        "search")
+            # Simple search by description
+            local query="${1:-}"
+            if [[ -z "$query" ]]; then
+                red "❌ Search term required"
+                echo "Usage: [PACKAGE:search search_term]"
+                return 1
+            fi
+            
+            echo "🔍 Searching packages for: $query"
+            echo "═══════════════════════════════════════"
+            local found=false
+            for package in $(get_packages); do
+                local desc=$(get_package_description "$package")
+                if [[ "$desc" =~ $query ]] || [[ "$package" =~ $query ]]; then
+                    printf "%-12s %s\n" "$package" "$desc"
+                    found=true
+                fi
+            done
+            if [[ "$found" == false ]]; then
+                echo "No packages found matching: $query"
+            fi
+            ;;
+        "help"|"")
+            echo "📦 Package Shortcode Commands"
+            echo "═══════════════════════════════════════"
+            echo
+            echo "Available shortcode commands:"
+            echo "  [PACKAGE:list]              - List all packages"
+            echo "  [PACKAGE:install package]   - Install specific package"
+            echo "  [PACKAGE:install-all]       - Install all packages"
+            echo "  [PACKAGE:status]            - Show installation status"
+            echo "  [PACKAGE:status package]    - Show specific package status"
+            echo "  [PACKAGE:info package]      - Show detailed package info"
+            echo "  [PACKAGE:search term]       - Search packages"
+            echo "  [PACKAGE:help]              - Show this help"
+            echo
+            echo "Shorthand alternatives:"
+            echo "  [PKG:list]                  - Same as PACKAGE:list"
+            echo "  [PKG:install-all]           - Same as PACKAGE:install-all"
+            echo
+            echo "Examples:"
+            echo "  [PACKAGE:install ripgrep]   - Install ripgrep"
+            echo "  [PKG:install-all]           - Install all packages"
+            echo "  [PACKAGE:search markdown]   - Find markdown-related tools"
+            ;;
+        *)
+            red "❌ Unknown shortcode command: $cmd"
+            echo "Use [PACKAGE:help] for available commands"
+            return 1
+            ;;
+    esac
+}
+
 # Main function
 main() {
     local command="${1:-help}"
@@ -394,6 +483,10 @@ main() {
             ;;
         "status")
             list_packages "simple"
+            ;;
+        "shortcode")
+            # Handle shortcode commands
+            handle_shortcode_command "$@"
             ;;
         "help"|"--help"|"-h")
             echo

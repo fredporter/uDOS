@@ -128,18 +128,9 @@ mkdir -p "$UHOME/uTemplate/system"
 mkdir -p "$UHOME/uTemplate/datasets"
 mkdir -p "$UHOME/uTemplate/variables"
 
-# Alpha v1.0: Auto-install packages on first run
-PACKAGE_FLAG_FILE="$UHOME/uMemory/state/.packages-installed"
-if [[ ! -f "$PACKAGE_FLAG_FILE" && -f "$SCRIPT_DIR/package-manager.sh" ]]; then
-  echo "🚀 Alpha v1.0: Installing essential packages..."
-  if bash "$SCRIPT_DIR/package-manager.sh" install-all; then
-    echo "✅ Package installation complete"
-    touch "$PACKAGE_FLAG_FILE"
-  else
-    echo "⚠️ Some packages may not have installed correctly"
-    echo "💡 Run 'PACKAGE VALIDATE' to check status"
-  fi
-fi
+# Package management moved to shortcode commands
+# Use [PACKAGE:install-all] or [PKG:install-all] to install packages
+# See available commands: [PACKAGE:help] or [PKG:help]
 
 # Track if session end has been logged
 export UCODE_SESSION_ENDED=false
@@ -557,6 +548,11 @@ if [[ ! -f "$USER_FILE" ]]; then
     exit 1
   fi
   echo "🔍 Enhanced template-driven setup completed."
+  echo ""
+  echo "💡 Next Steps:"
+  echo "   📦 Install essential packages: [PACKAGE:install-all]"
+  echo "   🔍 List available packages: [PACKAGE:list]"
+  echo "   📋 Get package help: [PACKAGE:help]"
   echo ""
 fi
 

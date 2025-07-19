@@ -1,6 +1,9 @@
-# Auto-install queue for uDOS startup
-# Packages listed here will be installed automatically on first run
-# One package per line, matches package names in manifest.json
+# Package Installation Queue - uDOS v1.0
+# These packages can be installed using shortcode commands:
+# [PACKAGE:install-all] - Install all packages listed below
+# [PACKAGE:install package_name] - Install specific package
+# 
+# Essential packages for uDOS development environment:
 
 nano
 ripgrep
