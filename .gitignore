@@ -47,13 +47,20 @@ test-output-*
 .ipynb_checkpoints/
 Thumbs.db
 
-# Distribution archives
+# Distribution archives and installation artifacts
 *.zip
 *.tar.gz
 *.dmg
 *.vsix
 uDOS-v*.tar.gz
 uDOS-v*.zip
+
+# Local installation artifacts (generated during install)
+install-udos.log
+installation.log
+validation-*.log
+user-config.local
+setup-complete.flag
 
 # Old/backup folders and files
 uDOS-clean-dist/
@@ -80,13 +87,21 @@ progress/
 
 # Generated distribution packages
 release/
+dist-packages/
 launcher/uDOS.app/Contents/
 launcher/build/
 launcher/*.dmg
 launcher/uDOS_installation.log
 
+# Local user modifications and configs
+user.config
+local.settings
+*.user.md
+personal-*.md
+
 # Generated documentation exports
 exports/
+generated-docs/
 
 # ════════════════════════════════════════════════════════════════
 # 🧪 TESTING & DEVELOPMENT
@@ -98,6 +113,12 @@ temp/
 testing/
 scratch/
 
+# Generated sandbox content (daily workspace files)
+sandbox/sessions/*
+sandbox/temp/*
+!sandbox/sessions/.gitkeep
+!sandbox/temp/.gitkeep
+
 # Development progress tracking (archived in progress/ folder)
 dev-notes/
 personal-notes/
@@ -105,6 +126,10 @@ personal-notes/
 # User-specific configurations
 config.local.*
 settings.local.*
+
+# Generated files that should be rebuilt on install
+system-info.txt
+installation-report.txt
 
 # ════════════════════════════════════════════════════════════════
 # 📝 ALPHA v1.0 - WHAT STAYS IN REPOSITORY

@@ -1,80 +1,55 @@
-# 🚀 uDOS Installation System v1.0
+# 🛠️ uDOS Installation Scripts
 
-**Purpose**: Centralized installation and setup management for uDOS Alpha v1.0.
+**Centralized installation and build management for uDOS v1.0**
 
-## 📁 Installation Structure
+## 📁 Script Directory
 
-```
-install/
-├── README.md           # This file
-├── install-udos.sh     # Main installation script
-├── setup-wizard.sh     # First-time setup wizard
-├── validate-system.sh  # System validation
-├── user-provisioning.sh # User role setup
-└── assets/            # Installation assets
-```
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `validate-alpha-v1.0.sh` | Alpha v1.0 validation | `./install/validate-alpha-v1.0.sh` |
+| `validate-comprehensive.sh` | Comprehensive system check | `./install/validate-comprehensive.sh` |
+| `build-macos-app.sh` | macOS app bundle builder | `./install/build-macos-app.sh` |
+| `prepare-release.sh` | Release preparation | `./install/prepare-release.sh` |
+| `create-clean-distribution.sh` | Clean distribution builder | `./install/create-clean-distribution.sh` |
+| `cleanup-root.sh` | Repository cleanup | `./install/cleanup-root.sh` |
 
-## 🎯 Installation Workflow
+## 📚 User Documentation
 
-### 1. **System Installation**
+**Installation guides and tutorials have been moved to:**
+
+- **[📦 Quick Start](../docs/installation/quick-start.md)** - 5-minute setup guide
+- **[🎮 Getting Started](../docs/installation/getting-started.md)** - Interactive tutorial  
+- **[🛠️ Installation Guide](../docs/installation/installation-guide.md)** - Comprehensive setup
+
+## 🎯 Build Process
+
+### Development Validation
 ```bash
-./install/install-udos.sh
-```
-- Validates system requirements
-- Creates directory structure  
-- Sets up core components
-- Installs VS Code extension
-- Configures package system
+# Validate current development state
+./install/validate-comprehensive.sh
 
-### 2. **User Setup Wizard**
+# Run alpha v1.0 specific tests
+./install/validate-alpha-v1.0.sh
+```
+
+### Release Preparation
 ```bash
-./install/setup-wizard.sh
-```
-- First-time user configuration
-- Role selection (wizard/sorcerer/ghost/imp)
-- Privacy settings
-- Initial knowledge base setup
-- Sandbox initialization
+# Prepare clean distribution
+./install/create-clean-distribution.sh
 
-### 3. **System Validation**
+# Build macOS application bundle
+./install/build-macos-app.sh
+
+# Prepare final release package
+./install/prepare-release.sh
+```
+
+### Repository Maintenance
 ```bash
-./install/validate-system.sh
+# Clean up root directory
+./install/cleanup-root.sh
 ```
-- Comprehensive system checks
-- Permission validation
-- Package installation verification
-- Extension functionality test
 
-## 🔐 User Role Provisioning
+---
 
-The installation system supports the complete user role hierarchy:
-
-| Role | Access Level | Permissions |
-|------|-------------|-------------|
-| **👑 Wizard** | Full system | All uCode, uTemplate, uKnowledge |
-| **🧙 Sorcerer** | Developer | uCode backups, limited modifications |
-| **👻 Ghost** | Standard | Read uKnowledge, sandbox access |
-| **😈 Imp** | Restricted | Sandbox only |
-
-## 🎮 Developer Mode
-
-**Single Developer Mode** includes:
-- ✅ Limited backups of modified core scripts (ucode.sh)
-- ✅ Ability to modify uKnowledge folder
-- ✅ Full access to uTemplates
-- ✅ uCode script editing capabilities
-
-**Wizard Mode** (when developer off):
-- ✅ Can still run all wizard functions
-- ❌ Cannot edit uCode or uTemplate
-- ✅ Always maintains uKnowledge read/write access
-
-## 📦 Package Integration
-
-Installation automatically:
-- Sets up package management system
-- Installs essential tools (nano, ripgrep, fd, bat)
-- Creates uCode command mappings
-- Configures startup auto-installation
-
-*Installation follows uDOS filename conventions - no complex folder structures required.*
+**For user installation instructions, see the [documentation directory](../docs/installation/)**.

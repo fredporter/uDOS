@@ -49,6 +49,22 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 | **Map Layer**| Multi-dimensional data visualization from Earth's core to orbital space |
 | **Shortcode**| Template-driven content generation with variable substitution          |
 
+## ⚡ Quick Install
+
+**Get uDOS running in under 5 minutes:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fredporter/uDOS/main/install-udos.sh | bash
+```
+
+**Manual Installation:**
+```bash
+git clone https://github.com/fredporter/uDOS.git ~/uDOS
+cd ~/uDOS && ./install-udos.sh
+```
+
+**📚 Complete Installation Guide:** See [`docs/installation/`](docs/installation/) for detailed setup instructions, tutorials, and troubleshooting.
+
 ### 🔐 Core Ethos: One Installation Per User
 
 uDOS enforces a **single-user installation model** for maximum privacy:

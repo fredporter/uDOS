@@ -10,9 +10,11 @@
 
 **New to uDOS?** Start here:
 
-1. **[📖 User Manual](user/manual.md)** - Complete guide to all commands and features
-2. **[🎯 Feature Guide](user/features.md)** - Comprehensive feature overview with examples  
-3. **[📋 Command Reference](user/commands.md)** - Quick reference for all commands
+1. **[⚡ Quick Install](installation/quick-start.md)** - Get uDOS running in 5 minutes
+2. **[🎮 Getting Started](installation/getting-started.md)** - Interactive tutorial for first-time users
+3. **[📖 User Manual](user/manual.md)** - Complete guide to all commands and features
+4. **[🎯 Feature Guide](user/features.md)** - Comprehensive feature overview with examples  
+5. **[📋 Command Reference](user/commands.md)** - Quick reference for all commands
 
 **Quick Commands:**
 - `SHOW manual` - View user manual with glow
@@ -21,7 +23,20 @@
 
 ---
 
-## 👤 User Documentation
+## � Installation & Setup
+
+New user installation and setup guides:
+
+| Document | Description | Purpose |
+|----------|-------------|---------|
+| **[📦 Installation Hub](installation/README.md)** | Installation overview | Central installation guide |
+| **[⚡ Quick Start](installation/quick-start.md)** | 5-minute installation guide | Get uDOS running fast |
+| **[🎮 Getting Started](installation/getting-started.md)** | Interactive tutorial | Learn by doing |
+| **[🛠️ Installation Guide](installation/installation-guide.md)** | Comprehensive setup | Advanced installation |
+
+---
+
+## �👤 User Documentation
 
 Essential guides for daily uDOS use:
 
