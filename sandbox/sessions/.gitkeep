@@ -1,2 +1,0 @@
-# This file ensures the sessions directory exists in the repository
-# while allowing the contents to be gitignored
