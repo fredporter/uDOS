@@ -15,7 +15,7 @@ UTEMPLATE="$UHOME/uTemplate"
 DASHBOARD_DIR="$UMEM/dashboard"
 DASHBOARD_FILE="$DASHBOARD_DIR/current.md"
 ASCII_DASHBOARD="$DASHBOARD_DIR/ascii.txt"
-ANALYTICS_FILE="$UMEM/state/analytics.json"
+ANALYTICS_FILE="$UDEV/state/analytics.json"
 CONFIG_FILE="$DASHBOARD_DIR/config.json"
 
 # Template Files
@@ -55,7 +55,7 @@ initialize_dashboard() {
     
     # Create directories
     mkdir -p "$DASHBOARD_DIR"
-    mkdir -p "$UMEM/state"
+    mkdir -p "$UDEV/state"
     mkdir -p "$UMEM/logs"
     
     # Create default configuration
@@ -104,7 +104,7 @@ EOF
 collect_system_metrics() {
     log_info "Collecting system metrics..."
     
-    local metrics_file="$UMEM/state/metrics-$(date +%Y%m%d-%H%M%S).json"
+    local metrics_file="$UDEV/state/metrics-$(date +%Y%m%d-%H%M%S).json"
     
     # System information
     local hostname=$(hostname)

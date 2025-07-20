@@ -103,7 +103,7 @@ setup_config() {
 EOF
     
     # Create configuration variables
-    local config_file="$UMEM/config/setup-vars.sh"
+    local config_file="$UDEV/config/setup-vars.sh"
     
     cat > "$config_file" << EOF
 #!/bin/bash

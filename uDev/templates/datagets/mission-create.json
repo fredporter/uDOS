@@ -1,0 +1,158 @@
+{
+    "title": "🎯 Create New Mission",
+    "description": "Define a new mission with objectives, timeline, and resource requirements",
+    "category": "mission",
+    "version": "1.0.0",
+    "fields": [
+        {
+            "name": "mission_name",
+            "label": "📝 Mission Name",
+            "type": "text",
+            "required": true,
+            "noblank": true,
+            "validation": "^[A-Za-z0-9][A-Za-z0-9\\s\\-_]{2,49}$",
+            "help": "Enter a descriptive mission name (3-50 characters)",
+            "default": "New Mission"
+        },
+        {
+            "name": "mission_type",
+            "label": "🏷️ Mission Type",
+            "type": "choice",
+            "options": ["development", "research", "analysis", "deployment", "maintenance", "learning", "experiment"],
+            "required": true,
+            "noblank": true,
+            "help": "Select the primary category for this mission",
+            "default": "development"
+        },
+        {
+            "name": "priority_level",
+            "label": "⚡ Priority Level",
+            "type": "choice",
+            "options": ["low", "medium", "high", "critical", "urgent"],
+            "required": true,
+            "noblank": true,
+            "help": "Set the urgency and importance level for this mission",
+            "default": "medium"
+        },
+        {
+            "name": "description",
+            "label": "📋 Mission Description",
+            "type": "textarea",
+            "required": true,
+            "noblank": true,
+            "max_length": 500,
+            "help": "Provide a detailed description of the mission objectives and scope",
+            "default": "Mission objective and requirements to be defined..."
+        },
+        {
+            "name": "estimated_duration",
+            "label": "⏱️ Estimated Duration",
+            "type": "choice",
+            "options": ["1-2 hours", "3-8 hours", "1-3 days", "1-2 weeks", "1 month", "2-3 months", "long-term"],
+            "required": true,
+            "noblank": true,
+            "help": "Estimate how long this mission will take to complete",
+            "default": "1-3 days"
+        },
+        {
+            "name": "start_date",
+            "label": "📅 Start Date",
+            "type": "date",
+            "required": true,
+            "noblank": true,
+            "help": "When should this mission begin? (YYYY-MM-DD format)",
+            "default": "today"
+        },
+        {
+            "name": "target_completion",
+            "label": "🎯 Target Completion Date",
+            "type": "date",
+            "required": false,
+            "noblank": true,
+            "help": "Set a target completion date (YYYY-MM-DD format)",
+            "default": "+7days"
+        },
+        {
+            "name": "required_skills",
+            "label": "🛠️ Required Skills",
+            "type": "multi_select",
+            "options": ["bash_scripting", "json_processing", "template_creation", "data_analysis", "system_administration", "documentation", "testing", "debugging"],
+            "required": false,
+            "noblank": true,
+            "help": "Select skills required for this mission (multiple selections allowed)",
+            "default": ["bash_scripting"]
+        },
+        {
+            "name": "resources_needed",
+            "label": "📦 Resources Needed",
+            "type": "multi_select",
+            "options": ["external_tools", "datasets", "templates", "documentation", "testing_environment", "backup_storage", "network_access"],
+            "required": false,
+            "noblank": true,
+            "help": "Select resources needed for this mission (multiple selections allowed)",
+            "default": ["templates"]
+        },
+        {
+            "name": "success_criteria",
+            "label": "✅ Success Criteria",
+            "type": "textarea",
+            "required": true,
+            "noblank": true,
+            "max_length": 300,
+            "help": "Define measurable criteria that indicate mission completion",
+            "default": "Mission completed successfully with all objectives met and documented."
+        },
+        {
+            "name": "companion_assistance",
+            "label": "🤖 Companion Assistance",
+            "type": "choice",
+            "options": ["none", "minimal", "standard", "intensive"],
+            "required": false,
+            "noblank": true,
+            "help": "Level of AI companion assistance needed for this mission",
+            "default": "standard"
+        },
+        {
+            "name": "auto_track_progress",
+            "label": "📊 Auto-track Progress",
+            "type": "boolean",
+            "required": false,
+            "noblank": true,
+            "help": "Automatically track and log mission progress",
+            "default": true
+        }
+    ],
+    "actions": {
+        "save": "auto",
+        "validate": "real_time",
+        "output_format": "json",
+        "create_mission_file": true,
+        "update_mission_registry": true
+    },
+    "output_files": [
+        {
+            "path": "uMemory/missions/active/{{mission_name}}.json",
+            "format": "json",
+            "template": "mission-template"
+        },
+        {
+            "path": "uMemory/missions/active/{{mission_name}}.md",
+            "format": "markdown",
+            "template": "mission-documentation-template"
+        }
+    ],
+    "post_actions": [
+        {
+            "action": "update_mission_registry",
+            "target": "uMemory/missions/registry.json"
+        },
+        {
+            "action": "create_mission_directory",
+            "path": "uMemory/missions/active/{{mission_name}}"
+        },
+        {
+            "action": "initialize_mission_tracking",
+            "create_log": true
+        }
+    ]
+}

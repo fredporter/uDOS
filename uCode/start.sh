@@ -8,15 +8,15 @@ UROOT="$(pwd)"
 
 mkdir -p "$UHOME/uMemory/user"
 
-if [ ! -s "uMemory/user/identity.md" ]; then
+if [ ! -s "sandbox/identity.md" ]; then
   # No logging if headless
   echo "🧑 Creating new user profile..."
   bash "uCode/structure.sh" build --input
   bash "uCode/check.sh" all
 else
-  USERNAME=$(grep 'Username:' uMemory/user/identity.md | cut -d ':' -f2 | xargs)
+  USERNAME=$(grep 'Username:' sandbox/identity.md | cut -d ':' -f2 | xargs)
   [[ -z "$USERNAME" ]] && USERNAME="user"
-  echo "✅ Found user profile: uMemory/user/identity.md"
+  echo "✅ Found user profile: sandbox/identity.md"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "🦦 Welcome back to uDOS, $USERNAME!"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

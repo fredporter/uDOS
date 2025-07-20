@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="${UHOME:-$HOME/uDOS}"
 ROLES_DATASET="$UHOME/uTemplate/datasets/user-roles.json"
 USER_PROFILE="$UHOME/uMemory/user/profile.json"
-IDENTITY_FILE="$UHOME/uMemory/user/identity.md"
+IDENTITY_FILE="$UHOME/sandbox/identity.md"
 
 # Colors for output
 RED='\033[0;31m'

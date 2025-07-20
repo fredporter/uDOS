@@ -4,7 +4,7 @@
 HEADLESS="${UCODE_HEADLESS:-false}"
 
 UHOME="${HOME}/uDOS"
-UDENT="${UHOME}/uMemory/state/identity.md"
+UDENT="${UHOME}/sandbox/identity.md"
 
 echo "💥 uDOS DESTROY Mode:"
 echo "  [A] Remove identity (empty sandbox)"
@@ -36,8 +36,12 @@ case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
     ;;
   C)
     echo "⚠️ Flushing uMemory except legacy..."
-    mkdir -p "$UHOME/legacy"
+    # Ensure legacy directory exists in uMemory
+    mkdir -p "$UHOME/uMemory/legacy"
+    # Remove everything from uMemory except the legacy folder
     [ -d "$UHOME/uMemory" ] && find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
+    # Also remove sandbox
+    [ -d "$UHOME/sandbox" ] && rm -rf "$UHOME/sandbox"
     echo "✅ Legacy preserved. All other memory cleared."
     echo "📝 Action: DESTROY C → legacy preserved, memory flushed"
     ;;

@@ -1,0 +1,338 @@
+{
+  "shortcode_system": {
+    "name": "uDOS Enhanced Shortcode System",
+    "version": "2.1.0",
+    "description": "Comprehensive shortcode system with template, dataset, and cross-reference integration",
+    "last_updated": "2025-07-18",
+    "features": ["template_integration", "dataset_access", "cross_references", "interactive_processing"]
+  },
+  
+  "template_shortcodes": {
+    "description": "Shortcodes for template management and generation",
+    "prefix": "template",
+    "commands": {
+      "generate": {
+        "syntax": "[template:generate template_name]",
+        "description": "Generate document from template",
+        "args": {
+          "template_name": {"type": "string", "required": true, "description": "Template identifier"},
+          "name": {"type": "string", "required": false, "description": "Document name"},
+          "interactive": {"type": "boolean", "default": false, "description": "Interactive mode"},
+          "validate": {"type": "boolean", "default": true, "description": "Validate input"},
+          "output": {"type": "enum", "values": ["markdown", "html", "pdf"], "default": "markdown"}
+        },
+        "examples": [
+          "[template:generate mission]",
+          "[template:generate mission --name=\"Project Alpha\"]",
+          "[template:generate mission --interactive --validate]"
+        ]
+      },
+      "list": {
+        "syntax": "[template:list]",
+        "description": "List available templates",
+        "args": {
+          "category": {"type": "string", "required": false, "description": "Filter by category"},
+          "format": {"type": "enum", "values": ["table", "list", "json"], "default": "table"}
+        },
+        "examples": [
+          "[template:list]",
+          "[template:list --category=planning]",
+          "[template:list --format=json]"
+        ]
+      },
+      "info": {
+        "syntax": "[template:info template_name]",
+        "description": "Show template information",
+        "args": {
+          "template_name": {"type": "string", "required": true, "description": "Template identifier"},
+          "detail": {"type": "enum", "values": ["basic", "full", "variables"], "default": "basic"}
+        },
+        "examples": [
+          "[template:info mission]",
+          "[template:info mission --detail=full]",
+          "[template:info mission --detail=variables]"
+        ]
+      },
+      "update": {
+        "syntax": "[template:update document_path]",
+        "description": "Update existing document with fresh template data",
+        "args": {
+          "document_path": {"type": "file", "required": true, "description": "Path to document"},
+          "refresh_data": {"type": "boolean", "default": true, "description": "Refresh dataset references"},
+          "validate": {"type": "boolean", "default": true, "description": "Validate after update"},
+          "backup": {"type": "boolean", "default": true, "description": "Create backup before update"}
+        },
+        "examples": [
+          "[template:update mission.md]",
+          "[template:update mission.md --refresh-data --validate]"
+        ]
+      },
+      "validate": {
+        "syntax": "[template:validate target]",
+        "description": "Validate templates or documents",
+        "args": {
+          "target": {"type": "string", "required": true, "description": "Template name or 'all'"},
+          "strict": {"type": "boolean", "default": false, "description": "Strict validation mode"}
+        },
+        "examples": [
+          "[template:validate mission]",
+          "[template:validate all --strict]"
+        ]
+      }
+    }
+  },
+  
+  "dataset_shortcodes": {
+    "description": "Shortcodes for dataset access and manipulation",
+    "prefix": "dataset",
+    "commands": {
+      "query": {
+        "syntax": "[dataset:query dataset_name filter]",
+        "description": "Query dataset with filter",
+        "args": {
+          "dataset_name": {"type": "string", "required": true, "description": "Dataset identifier"},
+          "filter": {"type": "string", "required": false, "description": "Query filter"},
+          "limit": {"type": "number", "default": 100, "description": "Maximum results"},
+          "format": {"type": "enum", "values": ["table", "json", "csv"], "default": "table"}
+        },
+        "examples": [
+          "[dataset:query cities \"population > 1000000\"]",
+          "[dataset:query countries --filter=\"continent=Asia\" --limit=20]",
+          "[dataset:query cities --format=json]"
+        ]
+      },
+      "get": {
+        "syntax": "[dataset:get path]",
+        "description": "Get specific dataset value",
+        "args": {
+          "path": {"type": "string", "required": true, "description": "Dataset path (collection.key.field)"}
+        },
+        "examples": [
+          "[dataset:get cities.london.population]",
+          "[dataset:get countries.australia.capital]",
+          "[dataset:get currencies.usd.symbol]"
+        ]
+      },
+      "list": {
+        "syntax": "[dataset:list]",
+        "description": "List available datasets",
+        "args": {
+          "category": {"type": "string", "required": false, "description": "Filter by category"},
+          "detail": {"type": "enum", "values": ["names", "summary", "full"], "default": "summary"}
+        },
+        "examples": [
+          "[dataset:list]",
+          "[dataset:list --category=geographic]",
+          "[dataset:list --detail=full]"
+        ]
+      },
+      "search": {
+        "syntax": "[dataset:search term]",
+        "description": "Search across all datasets",
+        "args": {
+          "term": {"type": "string", "required": true, "description": "Search term"},
+          "dataset": {"type": "string", "required": false, "description": "Specific dataset to search"},
+          "field": {"type": "string", "required": false, "description": "Specific field to search"}
+        },
+        "examples": [
+          "[dataset:search \"Tokyo\"]",
+          "[dataset:search \"USD\" --dataset=currencies]",
+          "[dataset:search \"London\" --field=name]"
+        ]
+      },
+      "export": {
+        "syntax": "[dataset:export dataset_name format]",
+        "description": "Export dataset to file",
+        "args": {
+          "dataset_name": {"type": "string", "required": true, "description": "Dataset identifier"},
+          "format": {"type": "enum", "values": ["json", "csv", "yaml", "xml"], "required": true},
+          "filter": {"type": "string", "required": false, "description": "Export filter"},
+          "output": {"type": "file", "required": false, "description": "Output file path"}
+        },
+        "examples": [
+          "[dataset:export cities csv]",
+          "[dataset:export countries json --filter=\"continent=Europe\"]",
+          "[dataset:export currencies yaml --output=currencies.yaml]"
+        ]
+      },
+      "update": {
+        "syntax": "[dataset:update dataset_name]",
+        "description": "Update dataset from external sources",
+        "args": {
+          "dataset_name": {"type": "string", "required": true, "description": "Dataset identifier or 'all'"},
+          "source": {"type": "enum", "values": ["external", "backup", "manual"], "default": "external"},
+          "validate": {"type": "boolean", "default": true, "description": "Validate after update"}
+        },
+        "examples": [
+          "[dataset:update cities]",
+          "[dataset:update all --source=external]",
+          "[dataset:update countries --validate]"
+        ]
+      }
+    }
+  },
+  
+  "reference_shortcodes": {
+    "description": "Shortcodes for cross-references and linking",
+    "prefix": "ref",
+    "commands": {
+      "get": {
+        "syntax": "[ref:get reference_path]",
+        "description": "Get referenced value from another document",
+        "args": {
+          "reference_path": {"type": "string", "required": true, "description": "Reference path (template.field)"},
+          "default": {"type": "string", "required": false, "description": "Default value if reference not found"}
+        },
+        "examples": [
+          "[ref:get mission.current_status]",
+          "[ref:get project.completion_rate]",
+          "[ref:get dashboard.metrics.errors --default=\"0\"]"
+        ]
+      },
+      "link": {
+        "syntax": "[ref:link source target]",
+        "description": "Create bidirectional link between documents",
+        "args": {
+          "source": {"type": "file", "required": true, "description": "Source document path"},
+          "target": {"type": "file", "required": true, "description": "Target document path"},
+          "description": {"type": "string", "required": false, "description": "Link description"}
+        },
+        "examples": [
+          "[ref:link mission.md project.md]",
+          "[ref:link mission.md team.md --description=\"Team assignment\"]"
+        ]
+      },
+      "validate": {
+        "syntax": "[ref:validate target]",
+        "description": "Validate all references in document or system",
+        "args": {
+          "target": {"type": "string", "required": true, "description": "Document path or 'all'"},
+          "fix": {"type": "boolean", "default": false, "description": "Attempt to fix broken references"}
+        },
+        "examples": [
+          "[ref:validate mission.md]",
+          "[ref:validate all --fix]"
+        ]
+      },
+      "show": {
+        "syntax": "[ref:show reference_path]",
+        "description": "Display referenced content",
+        "args": {
+          "reference_path": {"type": "string", "required": true, "description": "Reference path"},
+          "format": {"type": "enum", "values": ["inline", "block", "preview"], "default": "inline"}
+        },
+        "examples": [
+          "[ref:show mission.objectives]",
+          "[ref:show project.timeline --format=block]"
+        ]
+      }
+    }
+  },
+  
+  "variable_shortcodes": {
+    "description": "Shortcodes for variable management",
+    "prefix": "var",
+    "commands": {
+      "set": {
+        "syntax": "[var:set name value]",
+        "description": "Set variable value",
+        "args": {
+          "name": {"type": "string", "required": true, "description": "Variable name"},
+          "value": {"type": "string", "required": true, "description": "Variable value"},
+          "type": {"type": "enum", "values": ["string", "number", "boolean", "date"], "default": "string"},
+          "scope": {"type": "enum", "values": ["global", "session", "document"], "default": "session"}
+        },
+        "examples": [
+          "[var:set project_name \"Alpha Project\"]",
+          "[var:set team_size 5 --type=number]",
+          "[var:set active true --type=boolean --scope=global]"
+        ]
+      },
+      "get": {
+        "syntax": "[var:get name]",
+        "description": "Get variable value",
+        "args": {
+          "name": {"type": "string", "required": true, "description": "Variable name"},
+          "default": {"type": "string", "required": false, "description": "Default value"},
+          "format": {"type": "string", "required": false, "description": "Output format"}
+        },
+        "examples": [
+          "[var:get project_name]",
+          "[var:get deadline --default=\"Not set\"]",
+          "[var:get budget --format=\"$%.2f\"]"
+        ]
+      },
+      "list": {
+        "syntax": "[var:list scope]",
+        "description": "List variables in scope",
+        "args": {
+          "scope": {"type": "enum", "values": ["global", "session", "document", "all"], "default": "session"},
+          "filter": {"type": "string", "required": false, "description": "Name filter pattern"}
+        },
+        "examples": [
+          "[var:list session]",
+          "[var:list all --filter=\"project_*\"]",
+          "[var:list global]"
+        ]
+      },
+      "calculate": {
+        "syntax": "[var:calculate expression]",
+        "description": "Calculate variable from expression",
+        "args": {
+          "expression": {"type": "string", "required": true, "description": "Calculation expression"},
+          "assign": {"type": "string", "required": false, "description": "Variable to assign result"}
+        },
+        "examples": [
+          "[var:calculate \"total_tasks / completed_tasks * 100\"]",
+          "[var:calculate \"end_date - start_date\" --assign=duration]",
+          "[var:calculate \"budget * 0.8\" --assign=available_budget]"
+        ]
+      }
+    }
+  },
+  
+  "integration_rules": {
+    "template_integration": {
+      "auto_process": true,
+      "recursive_processing": true,
+      "cache_results": true,
+      "error_handling": "graceful_fallback"
+    },
+    "dataset_integration": {
+      "cache_duration": 3600,
+      "auto_refresh": true,
+      "validate_references": true,
+      "fallback_to_cache": true
+    },
+    "cross_reference_integration": {
+      "validate_on_save": true,
+      "auto_update_links": true,
+      "bidirectional_links": true,
+      "broken_link_warnings": true
+    },
+    "variable_integration": {
+      "type_validation": true,
+      "scope_isolation": true,
+      "auto_save": true,
+      "conflict_resolution": "newest_wins"
+    }
+  },
+  
+  "processing_order": [
+    "instance_variables",
+    "input_variables", 
+    "dataset_references",
+    "cross_references",
+    "calculated_variables",
+    "template_shortcodes",
+    "final_validation"
+  ],
+  
+  "error_handling": {
+    "missing_datasets": "use_fallback_values",
+    "broken_references": "show_warning_continue",
+    "invalid_variables": "prompt_user_correction", 
+    "calculation_errors": "show_error_use_default",
+    "template_not_found": "show_available_templates"
+  }
+}

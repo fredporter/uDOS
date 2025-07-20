@@ -1,0 +1,117 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "description": "uDOS Shortcode Command Dataset",
+        "last_updated": "2025-07-20",
+        "total_shortcodes": 25
+    },
+    "categories": [
+        "system", "dashboard", "mission", "data", "template", "package", "error", "utility"
+    ],
+    "shortcodes": [
+        {
+            "command": "DASH",
+            "category": "dashboard",
+            "description": "Dashboard operations",
+            "args": ["live", "build", "stats", "export"],
+            "examples": ["[DASH:live]", "[DASH:build]", "[DASH:stats]"],
+            "help": "Generate and manage uDOS dashboard displays"
+        },
+        {
+            "command": "CHECK",
+            "category": "system", 
+            "description": "System validation and checks",
+            "args": ["health", "all", "setup", "time", "location", "user"],
+            "examples": ["[CHECK:health]", "[CHECK:all]", "[CHECK:setup]"],
+            "help": "Perform comprehensive system validation checks"
+        },
+        {
+            "command": "MISSION",
+            "category": "mission",
+            "description": "Mission management operations",
+            "args": ["create", "list", "show", "complete", "archive"],
+            "examples": ["[MISSION:create]", "[MISSION:list]", "[MISSION:show]"],
+            "help": "Create and manage uDOS missions and objectives"
+        },
+        {
+            "command": "PACKAGE",
+            "category": "package",
+            "description": "Package management system",
+            "args": ["install", "list", "update", "remove", "search"],
+            "examples": ["[PACKAGE:install-all]", "[PACKAGE:list]", "[PACKAGE:search:ripgrep]"],
+            "help": "Install and manage uDOS system packages"
+        },
+        {
+            "command": "PKG",
+            "category": "package",
+            "description": "Package management (short form)",
+            "args": ["install", "list", "update", "remove", "search"],
+            "examples": ["[PKG:install-all]", "[PKG:list]", "[PKG:update]"],
+            "help": "Short form package management commands"
+        },
+        {
+            "command": "DATA",
+            "category": "data",
+            "description": "Data processing and manipulation",
+            "args": ["query", "export", "import", "validate", "transform"],
+            "examples": ["[DATA:query:users]", "[DATA:export:csv]", "[DATA:validate]"],
+            "help": "Process and manipulate data files and datasets"
+        },
+        {
+            "command": "TEMPLATE",
+            "category": "template",
+            "description": "Template system operations",
+            "args": ["generate", "list", "validate", "process", "create"],
+            "examples": ["[TEMPLATE:generate:user-setup]", "[TEMPLATE:list]", "[TEMPLATE:validate]"],
+            "help": "Generate and manage uDOS templates"
+        },
+        {
+            "command": "LOG",
+            "category": "utility",
+            "description": "Logging system operations",
+            "args": ["create", "view", "export", "clean", "search"],
+            "examples": ["[LOG:create:mission]", "[LOG:view:recent]", "[LOG:export]"],
+            "help": "Create and manage system logs"
+        },
+        {
+            "command": "ERROR",
+            "category": "error",
+            "description": "Error handling and diagnostics",
+            "args": ["stats", "list", "clear", "export", "analyze"],
+            "examples": ["[ERROR:stats]", "[ERROR:list]", "[ERROR:analyze]"],
+            "help": "Handle and analyze system errors"
+        },
+        {
+            "command": "BASH",
+            "category": "utility",
+            "description": "Execute bash commands",
+            "args": ["*"],
+            "examples": ["[BASH:ls -la]", "[BASH:pwd]", "[BASH:grep -r 'pattern' .]"],
+            "help": "Execute bash commands with enhanced error handling"
+        },
+        {
+            "command": "SCRIPT",
+            "category": "utility",
+            "description": "Execute uDOS scripts",
+            "args": ["*"],
+            "examples": ["[SCRIPT:backup-system]", "[SCRIPT:update-all]"],
+            "help": "Execute custom uDOS scripts"
+        },
+        {
+            "command": "JSON",
+            "category": "data",
+            "description": "JSON processing operations",
+            "args": ["query", "validate", "format", "merge", "extract"],
+            "examples": ["[JSON:query:user.name]", "[JSON:validate:config.json]"],
+            "help": "Process and manipulate JSON files"
+        },
+        {
+            "command": "SEARCH",
+            "category": "utility",
+            "description": "Search system content",
+            "args": ["files", "content", "commands", "logs", "datasets"],
+            "examples": ["[SEARCH:files:*.md]", "[SEARCH:content:uDOS]"],
+            "help": "Search across uDOS system files and content"
+        }
+    ]
+}

@@ -7,7 +7,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="${UHOME:-$HOME/uDOS}"
 VB_COMMANDS_FILE="$UHOME/uTemplate/datasets/vb-commands.json"
-VB_VARIABLES_FILE="$UHOME/uMemory/state/vb-variables.json"
+VB_VARIABLES_FILE="$UHOME/uDev/vb-variables.json"
 VB_PROCEDURES_DIR="$UHOME/uMemory/scripts/vb-procedures"
 VB_MODULES_DIR="$UHOME/uMemory/scripts/vb-modules"
 

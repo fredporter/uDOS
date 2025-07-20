@@ -388,7 +388,7 @@ generate_config_template() {
     local output_file="$1"
     local config_type="${2:-system}"
     
-    [[ -z "$output_file" ]] && output_file="$UMEM/config/$(date +%Y%m%d_%H%M%S)_${config_type}.conf"
+    [[ -z "$output_file" ]] && output_file="$UDEV/config/$(date +%Y%m%d_%H%M%S)_${config_type}.conf"
     
     mkdir -p "$(dirname "$output_file")"
     
@@ -452,7 +452,7 @@ show_template_stats() {
     
     # Check generated files
     local user_files=$(find "$UMEM/user" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-    local config_files=$(find "$UMEM/config" -name "*.sh" -o -name "*.conf" 2>/dev/null | wc -l | tr -d ' ')
+    local config_files=$(find "$UDEV/config" -name "*.sh" -o -name "*.conf" 2>/dev/null | wc -l | tr -d ' ')
     local mission_files=$(find "$UMEM/missions" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
     
     echo

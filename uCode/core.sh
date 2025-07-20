@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="${HOME}/uDOS"
 UMEM="${UHOME}/uMemory"
-UDENT="${UHOME}/uMemory/user/identity.md"
+UDENT="${UHOME}/sandbox/identity.md"
 
 # Required directory structure
 REQUIRED_DIRS=(
@@ -38,14 +38,29 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m'
 
+# Load centralized logging
+source "$(dirname "$0")/log-utils.sh" 2>/dev/null || true
+
 # Logging functions
 log() { echo -e "${CYAN}[$(date '+%H:%M:%S')] [CORE]${NC} $1"; }
 ok() { echo -e "${GREEN}✔${NC} $1"; }
-warn() { echo -e "${YELLOW}⚠️${NC} $1"; }
+warn() { 
+    echo -e "${YELLOW}⚠️${NC} $1"
+    # Log to centralized system
+    if declare -f log_warning >/dev/null 2>&1; then
+        log_warning "$1" "core"
+    fi
+}
 fail() { echo -e "${RED}❌${NC} $1"; }
 info() { echo -e "${BLUE}ℹ️${NC} $1"; }
 success() { echo -e "${GREEN}✅${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+error() { 
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+    # Log to centralized system
+    if declare -f log_error >/dev/null 2>&1; then
+        log_error "$1" "core"
+    fi
+}
 
 # Header display
 show_header() {
@@ -246,11 +261,11 @@ init_config() {
     
     # Create initial log files
     touch "$UMEM/logs/setup.log"
-    touch "$UMEM/logs/system/startup.log"
+    touch "$UDEV/logs/system/startup.log"
     
     # Create basic configuration
-    mkdir -p "$UMEM/config"
-    cat > "$UMEM/config/system.conf" << EOF
+    mkdir -p "$UDEV/config"
+    cat > "$UDEV/config/system.conf" << EOF
 # uDOS System Configuration
 # Generated: $(date '+%Y-%m-%d %H:%M:%S')
 

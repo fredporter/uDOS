@@ -1,0 +1,230 @@
+{
+    "title": "⚙️ System Configuration",
+    "description": "Configure uDOS system settings, display options, and advanced features",
+    "category": "configuration",
+    "version": "1.0.0",
+    "fields": [
+        {
+            "name": "display_mode",
+            "label": "🖥️ Display Mode",
+            "type": "choice",
+            "options": ["micro", "mini", "compact", "console", "wide", "full", "mega", "ultra"],
+            "required": true,
+            "help": "Select display resolution: micro (80×45) to ultra (640×480)",
+            "default": "console"
+        },
+        {
+            "name": "border_style",
+            "label": "🎨 ASCII Border Style",
+            "type": "choice",
+            "options": ["single", "double", "heavy", "rounded", "minimal"],
+            "required": false,
+            "help": "Choose ASCII border style for interface blocks",
+            "default": "single"
+        },
+        {
+            "name": "color_scheme",
+            "label": "🌈 Color Scheme",
+            "type": "choice",
+            "options": ["default", "high_contrast", "monochrome", "terminal_green", "cyberpunk", "matrix"],
+            "required": false,
+            "help": "Select color scheme for terminal interface",
+            "default": "default"
+        },
+        {
+            "name": "logging_level",
+            "label": "📝 Logging Level",
+            "type": "choice",
+            "options": ["ERROR", "WARN", "INFO", "DEBUG", "TRACE"],
+            "required": true,
+            "help": "Set the verbosity level for system logging",
+            "default": "INFO"
+        },
+        {
+            "name": "enable_debug_mode",
+            "label": "🔧 Enable Debug Mode",
+            "type": "boolean",
+            "required": false,
+            "help": "Enable detailed debugging and diagnostic information",
+            "default": false
+        },
+        {
+            "name": "verbose_output",
+            "label": "💬 Verbose Output",
+            "type": "boolean",
+            "required": false,
+            "help": "Show detailed command execution information",
+            "default": false,
+            "conditional": {
+                "show_when": "enable_debug_mode",
+                "equals": true
+            }
+        },
+        {
+            "name": "auto_backup_interval",
+            "label": "💾 Auto Backup Interval",
+            "type": "choice",
+            "options": ["disabled", "hourly", "daily", "weekly", "monthly"],
+            "required": false,
+            "help": "Frequency of automatic system backups",
+            "default": "daily"
+        },
+        {
+            "name": "backup_retention",
+            "label": "🗂️ Backup Retention",
+            "type": "choice",
+            "options": ["7_days", "30_days", "90_days", "1_year", "indefinite"],
+            "required": false,
+            "help": "How long to keep backup files",
+            "default": "30_days",
+            "conditional": {
+                "show_when": "auto_backup_interval",
+                "not_equals": "disabled"
+            }
+        },
+        {
+            "name": "session_timeout",
+            "label": "⏰ Session Timeout",
+            "type": "choice",
+            "options": ["15_minutes", "30_minutes", "1_hour", "4_hours", "8_hours", "never"],
+            "required": false,
+            "help": "Automatic session timeout for security",
+            "default": "4_hours"
+        },
+        {
+            "name": "command_history_size",
+            "label": "📚 Command History Size",
+            "type": "number",
+            "min": 100,
+            "max": 10000,
+            "required": false,
+            "help": "Maximum number of commands to keep in history",
+            "default": 1000
+        },
+        {
+            "name": "enable_shortcuts",
+            "label": "⌨️ Enable Keyboard Shortcuts",
+            "type": "boolean",
+            "required": false,
+            "help": "Enable advanced keyboard shortcuts and hotkeys",
+            "default": true
+        },
+        {
+            "name": "shortcode_suggestions",
+            "label": "💡 Enable Shortcode Suggestions",
+            "type": "boolean",
+            "required": false,
+            "help": "Show intelligent shortcode suggestions while typing",
+            "default": true
+        },
+        {
+            "name": "predictive_input",
+            "label": "🔮 Enable Predictive Input",
+            "type": "boolean",
+            "required": false,
+            "help": "Enable predictive input system with auto-completion",
+            "default": true
+        },
+        {
+            "name": "dashboard_auto_refresh",
+            "label": "🔄 Dashboard Auto-Refresh",
+            "type": "choice",
+            "options": ["disabled", "5_seconds", "10_seconds", "30_seconds", "1_minute", "5_minutes"],
+            "required": false,
+            "help": "Automatic refresh interval for live dashboards",
+            "default": "30_seconds"
+        },
+        {
+            "name": "error_reporting",
+            "label": "🚨 Error Reporting Level",
+            "type": "choice",
+            "options": ["silent", "minimal", "standard", "detailed", "comprehensive"],
+            "required": false,
+            "help": "Level of detail in error reporting and diagnostics",
+            "default": "standard"
+        },
+        {
+            "name": "performance_monitoring",
+            "label": "📊 Performance Monitoring",
+            "type": "boolean",
+            "required": false,
+            "help": "Enable system performance monitoring and metrics collection",
+            "default": false
+        },
+        {
+            "name": "memory_limit",
+            "label": "💾 Memory Usage Limit",
+            "type": "choice",
+            "options": ["unlimited", "100MB", "500MB", "1GB", "2GB", "4GB"],
+            "required": false,
+            "help": "Maximum memory usage for uDOS operations",
+            "default": "1GB"
+        },
+        {
+            "name": "network_timeout",
+            "label": "🌐 Network Timeout",
+            "type": "number",
+            "min": 5,
+            "max": 300,
+            "required": false,
+            "help": "Network request timeout in seconds (5-300)",
+            "default": 30
+        },
+        {
+            "name": "experimental_features",
+            "label": "🧪 Enable Experimental Features",
+            "type": "boolean",
+            "required": false,
+            "help": "Access cutting-edge features still in development",
+            "default": false
+        },
+        {
+            "name": "telemetry_enabled",
+            "label": "📡 Enable Anonymous Telemetry",
+            "type": "boolean",
+            "required": false,
+            "help": "Send anonymous usage statistics to help improve uDOS",
+            "default": false
+        }
+    ],
+    "actions": {
+        "save": "auto",
+        "validate": "real_time", 
+        "output_format": "json",
+        "apply_settings": true
+    },
+    "output_files": [
+        {
+            "path": "uMemory/config/system-config.json",
+            "format": "json"
+        },
+        {
+            "path": "uMemory/config/display-vars.sh",
+            "format": "env_vars"
+        },
+        {
+            "path": "uMemory/config/system-settings.md",
+            "format": "markdown",
+            "template": "system-config-template"
+        }
+    ],
+    "post_actions": [
+        {
+            "action": "apply_display_configuration",
+            "script": "uCode/display-config.sh"
+        },
+        {
+            "action": "update_system_variables",
+            "target": "uTemplate/variables/system-vars.json"
+        },
+        {
+            "action": "restart_required_services",
+            "condition": "display_mode_changed || logging_level_changed"
+        },
+        {
+            "action": "create_backup_schedule",
+            "condition": "auto_backup_interval != 'disabled'",
+            "script": "uCode/backup-scheduler.sh"
+        }
+    ]
+}

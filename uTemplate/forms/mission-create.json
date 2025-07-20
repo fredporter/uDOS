@@ -1,0 +1,187 @@
+{
+    "title": "🎯 Create New Mission",
+    "description": "Define a new mission with objectives, timeline, and resource requirements",
+    "category": "mission",
+    "version": "1.0.0",
+    "fields": [
+        {
+            "name": "mission_name",
+            "label": "📝 Mission Name",
+            "type": "text",
+            "required": true,
+            "validation": "^[A-Za-z0-9][A-Za-z0-9\\s\\-_]{2,49}$",
+            "help": "Enter a descriptive mission name (3-50 characters)",
+            "default": ""
+        },
+        {
+            "name": "mission_type",
+            "label": "🏷️ Mission Type",
+            "type": "choice",
+            "options": ["development", "research", "analysis", "deployment", "maintenance", "learning", "experiment"],
+            "required": true,
+            "help": "Select the primary category for this mission",
+            "default": "development"
+        },
+        {
+            "name": "priority_level",
+            "label": "⚡ Priority Level",
+            "type": "choice",
+            "options": ["low", "medium", "high", "critical", "urgent"],
+            "required": true,
+            "help": "Set the urgency and importance level for this mission",
+            "default": "medium"
+        },
+        {
+            "name": "description",
+            "label": "📋 Mission Description",
+            "type": "textarea",
+            "required": true,
+            "max_length": 500,
+            "help": "Provide a detailed description of the mission objectives and scope",
+            "default": ""
+        },
+        {
+            "name": "estimated_duration",
+            "label": "⏱️ Estimated Duration",
+            "type": "choice",
+            "options": ["1-2 hours", "3-8 hours", "1-3 days", "1-2 weeks", "1 month", "2-3 months", "long-term"],
+            "required": true,
+            "help": "Estimate how long this mission will take to complete",
+            "default": "1-3 days"
+        },
+        {
+            "name": "start_date",
+            "label": "📅 Start Date",
+            "type": "date",
+            "required": true,
+            "help": "When should this mission begin? (YYYY-MM-DD format)",
+            "default": "today"
+        },
+        {
+            "name": "target_completion",
+            "label": "🎯 Target Completion Date",
+            "type": "date",
+            "required": false,
+            "help": "Optional: Set a target completion date (YYYY-MM-DD format)",
+            "default": ""
+        },
+        {
+            "name": "required_skills",
+            "label": "🛠️ Required Skills",
+            "type": "multi_select",
+            "options": ["bash_scripting", "json_processing", "template_creation", "data_analysis", "system_administration", "documentation", "testing", "debugging"],
+            "required": false,
+            "help": "Select skills required for this mission (multiple selections allowed)",
+            "default": []
+        },
+        {
+            "name": "resources_needed",
+            "label": "📦 Resources Needed",
+            "type": "multi_select", 
+            "options": ["datasets", "external_apis", "file_processing", "network_access", "elevated_privileges", "third_party_tools", "collaboration"],
+            "required": false,
+            "help": "Select resources that will be needed for this mission",
+            "default": []
+        },
+        {
+            "name": "success_criteria",
+            "label": "✅ Success Criteria",
+            "type": "textarea",
+            "required": true,
+            "max_length": 300,
+            "help": "Define clear criteria that indicate successful mission completion",
+            "default": ""
+        },
+        {
+            "name": "milestone_tracking",
+            "label": "📊 Enable Milestone Tracking",
+            "type": "boolean",
+            "required": false,
+            "help": "Track progress with intermediate milestones and checkpoints",
+            "default": true
+        },
+        {
+            "name": "auto_logging",
+            "label": "📝 Enable Auto-Logging",
+            "type": "boolean",
+            "required": false,
+            "help": "Automatically log mission progress and activities",
+            "default": true
+        },
+        {
+            "name": "collaboration_mode",
+            "label": "👥 Collaboration Mode",
+            "type": "choice",
+            "options": ["solo", "pair", "team", "community"],
+            "required": false,
+            "help": "How many people will work on this mission?",
+            "default": "solo"
+        },
+        {
+            "name": "related_missions",
+            "label": "🔗 Related Missions",
+            "type": "text",
+            "required": false,
+            "help": "Optional: List related mission IDs or names (comma-separated)",
+            "default": ""
+        },
+        {
+            "name": "risk_assessment",
+            "label": "⚠️ Risk Level",
+            "type": "choice",
+            "options": ["low", "medium", "high", "unknown"],
+            "required": false,
+            "help": "Assess the overall risk level for this mission",
+            "default": "medium"
+        },
+        {
+            "name": "backup_strategy",
+            "label": "💾 Backup Strategy",
+            "type": "choice",
+            "options": ["standard", "frequent", "continuous", "manual", "none"],
+            "required": false,
+            "help": "How often should mission data be backed up?",
+            "default": "standard",
+            "conditional": {
+                "show_when": "auto_logging",
+                "equals": true
+            }
+        }
+    ],
+    "actions": {
+        "save": "auto",
+        "validate": "real_time",
+        "output_format": "json",
+        "generate_mission_id": true
+    },
+    "output_files": [
+        {
+            "path": "uMemory/missions/{mission_id}-{mission_name_safe}.md",
+            "format": "markdown",
+            "template": "mission-template"
+        },
+        {
+            "path": "uMemory/config/missions/{mission_id}.json",
+            "format": "json"
+        }
+    ],
+    "post_actions": [
+        {
+            "action": "create_mission_directory",
+            "path": "uMemory/missions/{mission_id}"
+        },
+        {
+            "action": "initialize_mission_log",
+            "path": "uMemory/logs/missions/{mission_id}-log.md"
+        },
+        {
+            "action": "update_mission_registry",
+            "target": "uMemory/state/active-missions.json"
+        },
+        {
+            "action": "create_milestone_tracker",
+            "condition": "milestone_tracking == true",
+            "path": "uMemory/milestones/{mission_id}-milestones.json"
+        }
+    ]
+}

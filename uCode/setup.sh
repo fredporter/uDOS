@@ -322,7 +322,7 @@ generate_config_files() {
 EOF
 
     # Generate setup variables
-    local config_file="$UMEM/config/${file_prefix}_setup_vars.sh"
+    local config_file="$UDEV/config/${file_prefix}_setup_vars.sh"
     cat > "$config_file" << EOF
 #!/bin/bash
 # uDOS Setup Variables
@@ -572,7 +572,7 @@ main() {
             read -p "Continue? (y/N): " -n 1 -r
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then
-                rm -rf "$UMEM/config" "$UMEM/user/identity.md" 2>/dev/null || true
+                rm -rf "$UDEV/config" "$UMEM/user/identity.md" 2>/dev/null || true
                 success "Configuration reset complete"
             else
                 log "Reset cancelled"

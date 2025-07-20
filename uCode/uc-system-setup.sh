@@ -24,6 +24,9 @@ WHITE='\033[1;37m'
 NC='\033[0m'
 
 # Logging
+# Load centralized logging
+source "$(dirname "$0")/log-utils.sh" 2>/dev/null || true
+
 log() { 
     echo -e "${CYAN}[$(date '+%H:%M:%S')] [UC]${NC} $1"
 }
@@ -34,10 +37,18 @@ log_success() {
 
 log_warning() {
     echo -e "${YELLOW}[$(date '+%H:%M:%S')] [UC]${NC} ⚠️  $1"
+    # Also log to centralized system
+    if declare -f log_warning >/dev/null 2>&1; then
+        log_warning "$1" "uc-system"
+    fi
 }
 
 log_error() {
     echo -e "${RED}[$(date '+%H:%M:%S')] [UC]${NC} ❌ $1"
+    # Also log to centralized system
+    if declare -f log_error >/dev/null 2>&1; then
+        log_error "$1" "uc-system"
+    fi
 }
 
 print_header() {

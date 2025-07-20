@@ -5,8 +5,8 @@
 # Environment Setup
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export UHOME="${HOME}/uDOS"
-export UDENT="$UHOME/uMemory/user/identity.md"
-export UDOS_DASHBOARD="${UHOME}/uMemory/state/dashboard.json"
+export UDENT="$UHOME/sandbox/identity.md"
+export UDOS_DASHBOARD="${UHOME}/uDev/dashboard.json"
 export UDOS_MOVES_DIR="${UHOME}/uMemory/logs/moves"
 mkdir -p "$UHOME"
 
@@ -105,7 +105,7 @@ mkdir -p "$UHOME/uMemory/logs/errors"
 mkdir -p "$UHOME/uMemory/missions"
 mkdir -p "$UHOME/uMemory/milestones" 
 mkdir -p "$UHOME/uMemory/legacy"
-mkdir -p "$UHOME/uMemory/state"
+mkdir -p "$UHOME/sandbox"
 mkdir -p "$UHOME/uMemory/user"
 mkdir -p "$UHOME/uMemory/scripts"
 mkdir -p "$UHOME/uMemory/templates"
@@ -140,7 +140,7 @@ mkdir -p "$UHOME/uTemplate/variables"
 export UCODE_SESSION_ENDED=false
 
 # --- uDOS Version Detection ---
-IDENTITY_FILE="$UHOME/uMemory/state/identity.md"
+IDENTITY_FILE="$UHOME/sandbox/identity.md"
 if [[ -f "$IDENTITY_FILE" ]]; then
   UVERSION=$(grep "Version:" "$IDENTITY_FILE" | cut -d':' -f2 | xargs)
 else
@@ -192,7 +192,7 @@ cmd_setup_user() {
         echo ""
         
         echo "📁 Generated Files:"
-        echo "   📄 Identity: uMemory/user/identity.md"
+        echo "   📄 Identity: sandbox/identity.md"
         echo "   ⚙️  Config: uMemory/config/setup-vars.sh"
         echo "   🎯 Mission: uMemory/missions/001-welcome-mission.md"
         echo ""
@@ -325,7 +325,7 @@ cmd_setup_user_legacy() {
   preferences="{\"theme\":\"$theme\",\"debug_mode\":$debug_bool,\"auto_backup\":$backup_bool}"
   
   # Create identity file using template system if available
-  identity_file="$UHOME/uMemory/user/identity.md"
+  identity_file="$UHOME/sandbox/identity.md"
   mkdir -p "$(dirname "$identity_file")"
   
   if [[ -f "$UHOME/uCode/template-generator.sh" && -f "$UHOME/uTemplate/input-user-setup.md" ]]; then
@@ -425,7 +425,7 @@ cmd_create_basic_identity() {
 
 ## System
 - **uDOS Path**: ~/uDOS
-- **Identity Location**: uMemory/user/identity.md
+- **Identity Location**: sandbox/identity.md
 - **Template System**: Available
 - **Dataset Integration**: $([ "$dataset_available" = true ] && echo "Enabled" || echo "Limited")
 
@@ -483,7 +483,7 @@ if [[ "$VB_ENHANCED_AVAILABLE" == "true" ]]; then
   vb_enhanced_init
 fi
 
-USER_FILE="$UHOME/uMemory/user/identity.md"
+USER_FILE="$UHOME/sandbox/identity.md"
 if [[ ! -f "$USER_FILE" ]]; then
   # Check legacy location first
   if [[ -f "$UHOME/sandbox/user.md" ]]; then
@@ -1020,7 +1020,7 @@ cmd_map_show() {
   echo ""
   
   # Show user's current location
-  current_location=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
+  current_location=$(cat "$UHOME/sandbox/location.md" 2>/dev/null || echo "Unknown")
   echo "📍 Your location: $current_location"
   
   if [[ "$current_location" != "Unknown" ]]; then
@@ -1128,7 +1128,7 @@ cmd_timezone_enhanced() {
   echo "🕒 Enhanced Timezone Management (Dataset-Integrated)"
   echo ""
   
-  current_timezone=$(cat "$UHOME/uMemory/state/timezone.md" 2>/dev/null || echo "UTC")
+  current_timezone=$(cat "$UHOME/sandbox/timezone.md" 2>/dev/null || echo "UTC")
   echo "📍 Current timezone: $current_timezone"
   echo ""
   
@@ -1139,7 +1139,7 @@ cmd_timezone_enhanced() {
     timezone_info=$(bash "$UHOME/uCode/json-processor.sh" search "$coordinates" 2>/dev/null | grep timezoneMap)
     if [[ -n "$timezone_info" ]]; then
       echo "✅ Found: $timezone_info"
-      echo "$timezone_info" > "$UHOME/uMemory/state/timezone.md"
+      echo "$timezone_info" > "$UHOME/sandbox/timezone.md"
     else
       echo "❌ No timezone found for coordinates: $coordinates"
     fi
@@ -1156,7 +1156,7 @@ cmd_location_enhanced() {
   echo "🌍 Enhanced Location Management (Dataset-Integrated)"
   echo ""
   
-  current_location=$(cat "$UHOME/uMemory/state/location.md" 2>/dev/null || echo "Unknown")
+  current_location=$(cat "$UHOME/sandbox/location.md" 2>/dev/null || echo "Unknown")
   echo "📍 Current location: $current_location"
   echo ""
   
@@ -1167,7 +1167,7 @@ cmd_location_enhanced() {
     location_info=$(bash "$UHOME/uCode/json-processor.sh" search "$location_query" 2>/dev/null | grep locationMap)
     if [[ -n "$location_info" ]]; then
       echo "✅ Found: $location_info"
-      echo "$location_info" > "$UHOME/uMemory/state/location.md"
+      echo "$location_info" > "$UHOME/sandbox/location.md"
     else
       echo "❌ No location found matching: $location_query"
     fi
