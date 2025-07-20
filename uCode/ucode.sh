@@ -24,6 +24,14 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+# Rainbow colors for ASCII art
+RAINBOW_RED='\033[91m'
+RAINBOW_YELLOW='\033[93m'
+RAINBOW_GREEN='\033[92m'
+RAINBOW_CYAN='\033[96m'
+RAINBOW_BLUE='\033[94m'
+RAINBOW_PURPLE='\033[95m'
+
 # Logging
 log_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
 log_success() { echo -e "${GREEN}✅ $1${NC}"; }
@@ -51,10 +59,106 @@ init_directories() {
     done
 }
 
+# Rainbow ASCII Art
+show_rainbow_ascii() {
+    echo -e "${RAINBOW_RED}    ██╗   ██╗${RAINBOW_YELLOW}██████╗ ${RAINBOW_GREEN} ██████╗ ${RAINBOW_CYAN}███████╗${NC}"
+    echo -e "${RAINBOW_RED}    ██║   ██║${RAINBOW_YELLOW}██╔══██╗${RAINBOW_GREEN}██╔═══██╗${RAINBOW_CYAN}██╔════╝${NC}"
+    echo -e "${RAINBOW_RED}    ██║   ██║${RAINBOW_YELLOW}██║  ██║${RAINBOW_GREEN}██║   ██║${RAINBOW_CYAN}███████╗${NC}"
+    echo -e "${RAINBOW_RED}    ██║   ██║${RAINBOW_YELLOW}██║  ██║${RAINBOW_GREEN}██║   ██║${RAINBOW_CYAN}╚════██║${NC}"
+    echo -e "${RAINBOW_RED}    ╚██████╔╝${RAINBOW_YELLOW}██████╔╝${RAINBOW_GREEN}╚██████╔╝${RAINBOW_CYAN}███████║${NC}"
+    echo -e "${RAINBOW_RED}     ╚═════╝ ${RAINBOW_YELLOW}╚═════╝ ${RAINBOW_GREEN} ╚═════╝ ${RAINBOW_CYAN}╚══════╝${NC}"
+    echo -e ""
+    echo -e "${RAINBOW_PURPLE}    Universal Disk Operating System${NC}"
+    echo -e "${RAINBOW_BLUE}    ═══════════════ v1.2 ═══════════════${NC}"
+    echo -e ""
+}
+
+# System validation
+validate_system() {
+    local validation_failed=false
+    
+    log_info "Validating system integrity..."
+    
+    # Check critical directories
+    local critical_dirs=("$UHOME" "$UMEMORY" "$UTEMPLATE")
+    for dir in "${critical_dirs[@]}"; do
+        if [[ ! -d "$dir" ]]; then
+            log_error "Critical directory missing: $dir"
+            validation_failed=true
+        fi
+    done
+    
+    # Check critical files
+    local critical_files=("$UMEMORY/identity.md")
+    for file in "${critical_files[@]}"; do
+        if [[ ! -f "$file" ]]; then
+            log_warning "Critical file missing: $file"
+            validation_failed=true
+        fi
+    done
+    
+    # Check for DESTROY scenario
+    if [[ ! -f "$UMEMORY/identity.md" ]] || [[ ! -d "$UHOME" ]]; then
+        log_warning "DESTROY scenario detected - full setup required"
+        validation_failed=true
+    fi
+    
+    if [[ "$validation_failed" == true ]]; then
+        log_warning "System validation failed - initiating recovery"
+        return 1
+    fi
+    
+    log_success "System validation passed"
+    return 0
+}
+
+# Password authentication
+authenticate_user() {
+    # Check if password is set
+    local password_file="$UMEMORY/.auth"
+    
+    if [[ -f "$password_file" ]]; then
+        local stored_hash=$(cat "$password_file")
+        
+        # Skip if blank password is set
+        if [[ "$stored_hash" == "BLANK" ]]; then
+            return 0
+        fi
+        
+        echo -ne "${CYAN}🔐 Enter password: ${NC}"
+        read -s password
+        echo ""
+        
+        # Simple hash check (for demo - use proper hashing in production)
+        local input_hash=$(echo -n "$password" | sha256sum | cut -d' ' -f1)
+        
+        if [[ "$input_hash" != "$stored_hash" ]]; then
+            log_error "Authentication failed"
+            exit 1
+        fi
+        
+        log_success "Authentication successful"
+    else
+        # First time - set password
+        echo -ne "${CYAN}🔐 Set password (or press Enter for none): ${NC}"
+        read -s password
+        echo ""
+        
+        if [[ -z "$password" ]]; then
+            echo "BLANK" > "$password_file"
+            log_info "Password disabled"
+        else
+            echo -n "$password" | sha256sum | cut -d' ' -f1 > "$password_file"
+            log_success "Password set"
+        fi
+    fi
+}
+
 # Check if first-time setup needed
 check_setup() {
-    if [[ ! -f "$UMEMORY/identity.md" ]]; then
-        log_warning "First-time setup required"
+    # Always prompt setup if critical files missing or DESTROY scenario
+    if [[ ! -f "$UMEMORY/identity.md" ]] || [[ ! -d "$UHOME" ]] || [[ ! -d "$UMEMORY" ]]; then
+        log_warning "Critical system files missing - setup required"
         setup_user
         return 0
     fi
@@ -139,6 +243,88 @@ EOF
     log_success "Setup complete! Welcome to uDOS v1.2"
 }
 
+# Show dashboard
+show_dashboard() {
+    log_header "uDOS v1.2 Live Dashboard"
+    
+    # System Status
+    echo -e "${BOLD}📊 System Overview${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    # Memory stats
+    local memory_files=$(find "$UMEMORY" -type f | wc -l)
+    local memory_size=$(du -sh "$UMEMORY" 2>/dev/null | cut -f1)
+    echo -e "${CYAN}🧠 Memory:${NC}        $memory_files files ($memory_size)"
+    
+    # Mission stats
+    local missions=$(find "$UMEMORY" -name "*-mission.md" | wc -l)
+    local active_missions=$(grep -l "Status.*Active" "$UMEMORY"/*-mission.md 2>/dev/null | wc -l)
+    echo -e "${PURPLE}🎯 Missions:${NC}       $missions total ($active_missions active)"
+    
+    # Log stats
+    local logs=$(find "$UMEMORY" -name "*-log-*.md" | wc -l)
+    echo -e "${YELLOW}📝 Logs:${NC}          $logs entries"
+    
+    # Template stats
+    local templates=$(find "$UTEMPLATE" -name "*.md" | wc -l)
+    echo -e "${GREEN}📋 Templates:${NC}     $templates available"
+    
+    # System health
+    echo ""
+    echo -e "${BOLD}🔍 System Health${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    # Check critical commands
+    local health_status="✅"
+    for cmd in jq grep find; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            health_status="⚠️"
+            break
+        fi
+    done
+    echo -e "${GREEN}System Tools:${NC}     $health_status All essential tools available"
+    
+    # Storage check
+    local disk_usage=$(df "$UHOME" | tail -1 | awk '{print $5}')
+    if [[ ${disk_usage%\%} -gt 90 ]]; then
+        echo -e "${RED}Storage:${NC}          ⚠️  Disk usage: $disk_usage"
+    else
+        echo -e "${GREEN}Storage:${NC}          ✅ Disk usage: $disk_usage"
+    fi
+    
+    # Recent activity
+    echo ""
+    echo -e "${BOLD}📈 Recent Activity${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    # Show last 5 modified files
+    find "$UMEMORY" -type f -exec ls -lt {} + | head -5 | while read line; do
+        local file=$(echo "$line" | awk '{print $NF}')
+        local date=$(echo "$line" | awk '{print $6, $7, $8}')
+        local filename=$(basename "$file")
+        echo -e "${BLUE}•${NC} $filename ${CYAN}($date)${NC}"
+    done
+    
+    echo ""
+    echo -e "${BOLD}🎯 Quick Actions${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${GREEN}•${NC} Type ${BOLD}MISSION create <name>${NC} to start a new mission"
+    echo -e "${GREEN}•${NC} Type ${BOLD}MEMORY list${NC} to see all your files"
+    echo -e "${GREEN}•${NC} Type ${BOLD}LOG report${NC} to generate activity report"
+    echo ""
+}
+
+# WHIRL prompt with blinking cursor
+show_whirl_prompt() {
+    echo -ne "${RAINBOW_CYAN}WHIRL${NC}> "
+    # Show blinking cursor
+    for i in {1..3}; do
+        echo -ne "${BOLD}█${NC}"
+        sleep 0.3
+        echo -ne "\b \b"
+        sleep 0.3
+    done
+}
 # Show status
 show_status() {
     log_header "uDOS v1.2 System Status"
@@ -150,8 +336,8 @@ show_status() {
     echo "🎯 Version: $VERSION"
     
     if [[ -f "$UMEMORY/identity.md" ]]; then
-        local user=$(grep "Name:" "$UMEMORY/identity.md" | cut -d':' -f2 | xargs)
-        local role=$(grep "Role:" "$UMEMORY/identity.md" | cut -d':' -f2 | xargs)
+        local user=$(grep -E '\*\*Name\*\*:|\*\*Name:\*\*|Name:' "$UMEMORY/identity.md" | cut -d':' -f2 | xargs)
+        local role=$(grep -E '\*\*Role\*\*:|\*\*Role:\*\*|Role:' "$UMEMORY/identity.md" | cut -d':' -f2 | xargs)
         echo "👤 User: $user ($role)"
     fi
     
@@ -166,6 +352,8 @@ show_help() {
 ## Core Commands
 - `HELP` - Show this help
 - `STATUS` - System status and stats  
+- `DASH` - Live dashboard with real-time stats
+- `DESTROY` - Reset system (requires confirmation)
 - `SETUP` - Run first-time setup
 - `EXIT` - Exit uDOS
 
@@ -199,8 +387,44 @@ show_help() {
 - `[MEMORY:list]` - List memory files
 - `[MISSION:create:name]` - Create mission
 - `[PACKAGE:install:name]` - Install package
+- `[DASH:live]` - Live dashboard mode
 
 EOF
+}
+
+# DESTROY command - complete system reset
+handle_destroy() {
+    log_header "🧹 DESTROY - Complete System Reset"
+    log_warning "This will PERMANENTLY DELETE all uDOS data!"
+    echo ""
+    echo -e "${RED}This action will remove:${NC}"
+    echo -e "${RED}• All memory files${NC}"
+    echo -e "${RED}• All missions and logs${NC}"
+    echo -e "${RED}• User identity and settings${NC}"
+    echo -e "${RED}• All personal data${NC}"
+    echo ""
+    echo -ne "${BOLD}${RED}Type 'CONFIRM DESTROY' to proceed: ${NC}"
+    read -r confirmation
+    
+    if [[ "$confirmation" == "CONFIRM DESTROY" ]]; then
+        log_info "Initiating system destruction..."
+        
+        # Remove user data
+        rm -rf "$UMEMORY"
+        rm -rf "$UDEV"
+        
+        # Clear any cached data
+        rm -rf "$UHOME/.cache" 2>/dev/null
+        
+        log_success "System destroyed successfully"
+        log_info "Restarting fresh setup..."
+        
+        # Force fresh setup
+        init_directories
+        setup_user
+    else
+        log_info "Destruction cancelled"
+    fi
 }
 
 # Process shortcode
@@ -224,11 +448,35 @@ process_shortcode() {
         LOG)
             handle_log "$args"
             ;;
+        DASH)
+            handle_dash "$args"
+            ;;
         DEV)
             handle_dev "$args"
             ;;
         *)
             log_error "Unknown shortcode command: $cmd"
+            ;;
+    esac
+}
+
+# Handle dash commands
+handle_dash() {
+    local subcmd="$1"
+    
+    case "$subcmd" in
+        live)
+            log_info "Starting live dashboard..."
+            while true; do
+                clear
+                show_dashboard
+                echo ""
+                echo -e "${CYAN}Press Ctrl+C to exit live mode${NC}"
+                sleep 5
+            done
+            ;;
+        *)
+            show_dashboard
             ;;
     esac
 }
@@ -430,11 +678,10 @@ handle_dev() {
         report:*)
             local type=$(echo "$subcmd" | cut -d':' -f2)
             local timestamp=$(date +%Y%m%d_%H%M%S)
-            local type_upper=$(echo "$type" | tr '[:lower:]' '[:upper:]')
-            local report_file="$UDEV/reports/${type_upper}_REPORT_${timestamp}.md"
+            local report_file="$UDEV/reports/${type^^}_REPORT_${timestamp}.md"
             
             cat > "$report_file" << EOF
-# 📊 ${type_upper} Report
+# 📊 ${type^^} Report
 
 **Generated**: $(date +%Y-%m-%d)  
 **Type**: Development Report  
@@ -470,16 +717,28 @@ main() {
     # Initialize system
     init_directories
     
+    # Show rainbow ASCII art
+    show_rainbow_ascii
+    
+    # Authenticate user
+    authenticate_user
+    
+    # Validate system integrity
+    if ! validate_system; then
+        log_warning "System validation failed - forcing setup"
+        setup_user
+    fi
+    
     # Check for arguments
     if [[ $# -eq 0 ]]; then
         # Interactive mode
-        log_header "uDOS v1.2 - Unified Command System"
+        log_header "System Ready - Welcome to uDOS!"
         
-        # Check setup
+        # Check setup (hardened - always setup if files missing)
         check_setup
         
         while true; do
-            echo -n "uDOS> "
+            show_whirl_prompt
             read -r input
             
             # Skip empty input
@@ -487,7 +746,7 @@ main() {
             
             # Handle exit commands
             if [[ "$input" =~ ^(exit|quit|bye)$ ]]; then
-                log_success "Goodbye!"
+                log_success "Goodbye from uDOS v1.2! 👋"
                 break
             fi
             
@@ -520,6 +779,12 @@ process_input() {
             ;;
         STATUS|status)
             show_status
+            ;;
+        DASH|dash)
+            show_dashboard
+            ;;
+        DESTROY|destroy)
+            handle_destroy
             ;;
         SETUP|setup)
             setup_user

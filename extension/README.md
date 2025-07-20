@@ -1,6 +1,6 @@
 # uDOS VS Code Extension v1.2.0
 
-**Official VS Code extension for uDOS v1.2 - Universal Development & Operations System**
+**Official VS Code extension for uDOS v1.2 - Universal Disk Operating System**
 
 The VS Code extension provides native IDE support for uDOS development with unified architecture, OK-Assistant integration, and comprehensive template management.
 
@@ -38,7 +38,7 @@ The extension serves as the official IDE integration layer for uDOS v1.2:
 ### From VS Code Marketplace
 ```bash
 # Search for "uDOS" in VS Code Extensions
-# Install "uDOS v1.2.0 - Universal Development & Operations System"
+# Install "uDOS v1.2.0 - Universal Disk Operating System"
 ```
 
 ### Manual Installation (Development)

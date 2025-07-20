@@ -1,6 +1,6 @@
 {
   "name": "udos-extension",
-  "displayName": "uDOS v1.2.0 - Universal Development & Operations System",
+  "displayName": "uDOS v1.2.0 - Universal Disk Operating System",
   "description": "VS Code extension for uDOS v1.2.0 with unified architecture, OK-Assistant system, and enhanced template management",
   "version": "1.2.0",
   "publisher": "udos",
