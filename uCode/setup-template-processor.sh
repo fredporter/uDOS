@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="${SCRIPT_DIR}/.."
 UMEM="$UHOME/uMemory"
+UDEV="$UHOME/uDev"
 
 # Colors for output
 RED='\033[0;31m'
@@ -69,15 +70,17 @@ setup_config() {
     local mode="$2"
     local timezone="$3"
     
-    # Create directories
-    mkdir -p "$UMEM"/{user,config,missions,logs/system}
+    # Create directories with correct structure
+    mkdir -p "$UHOME/sandbox"
+    mkdir -p "$UMEM"/{config,legacy}
+    mkdir -p "$UDEV/logs"
     
     # Generate timestamp
     local setup_date
     setup_date=$(date '+%Y-%m-%d %H:%M:%S')
     
     # Create identity file
-    local identity_file="$UMEM/user/identity.md"
+    local identity_file="$UHOME/sandbox/identity.md"
     
     cat > "$identity_file" << EOF
 # uDOS User Identity
@@ -103,7 +106,8 @@ setup_config() {
 EOF
     
     # Create configuration variables
-    local config_file="$UDEV/config/setup-vars.sh"
+    local config_file="$UMEM/config/setup-vars.sh"
+    mkdir -p "$(dirname "$config_file")"
     
     cat > "$config_file" << EOF
 #!/bin/bash
