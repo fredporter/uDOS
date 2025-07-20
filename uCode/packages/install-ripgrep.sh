@@ -22,31 +22,29 @@ NC='\033[0m'
 # Logging functions
 log_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
-    [[ -d "$UHOME/uMemory/logs" ]] && echo "[$(date)] INFO: $1" >> "$UHOME/uMemory/logs/package-install.log"
+    echo "[$(date)] INFO: $1" >> "$UHOME/uMemory/package-install.log"
 }
 
 log_success() {
     echo -e "${GREEN}✅ $1${NC}"
-    [[ -d "$UHOME/uMemory/logs" ]] && echo "[$(date)] SUCCESS: $1" >> "$UHOME/uMemory/logs/package-install.log"
+    echo "[$(date)] SUCCESS: $1" >> "$UHOME/uMemory/package-install.log"
 }
 
 log_error() {
     echo -e "${RED}❌ $1${NC}" >&2
-    [[ -d "$UHOME/uMemory/logs" ]] && echo "[$(date)] ERROR: $1" >> "$UHOME/uMemory/logs/package-install.log"
+    echo "[$(date)] ERROR: $1" >> "$UHOME/uMemory/package-install.log"
 }
 
 log_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
-    [[ -d "$UHOME/uMemory/logs" ]] && echo "[$(date)] WARNING: $1" >> "$UHOME/uMemory/logs/package-install.log"
+    echo "[$(date)] WARNING: $1" >> "$UHOME/uMemory/package-install.log"
 }
 
 echo -e "${CYAN}📦 uDOS Package Installer: ripgrep v2.0.0${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Create necessary directories
-mkdir -p "$UHOME/uMemory/logs"
-mkdir -p "$UHOME/uMemory/packages/installed"
-mkdir -p "$UHOME/uMemory/packages/configs"
+mkdir -p "$UHOME/uMemory"
 
 # Check if already installed
 if command -v "$COMMAND_NAME" >/dev/null 2>&1; then
@@ -184,8 +182,8 @@ echo "🔍 Searching for '$SEARCH_TERM' in $SEARCH_PATH"
 rg "$SEARCH_TERM" "$SEARCH_PATH" --type md --context 2 --color always
 
 # Log search to uMemory
-mkdir -p "$UHOME/uMemory/logs"
-echo "$(date): Searched for '$SEARCH_TERM' in $SEARCH_PATH" >> "$UHOME/uMemory/logs/package-usage.log"
+mkdir -p "$UHOME/uMemory"
+echo "$(date): Searched for '$SEARCH_TERM' in $SEARCH_PATH" >> "$UHOME/uMemory/package-usage.log"
 EOF
 
 chmod +x "$SCRIPT_DIR/run-ripgrep.sh"
@@ -293,7 +291,7 @@ echo ""
 echo -e "${CYAN}📄 Configuration:${NC}"
 echo "  • Config file: ~/.config/ripgrep/config"
 echo "  • uDOS config: $UHOME/uMemory/packages/configs/ripgrep.md"
-echo "  • Usage logs: $UHOME/uMemory/logs/package-usage.log"
+echo "  • Usage logs: $UHOME/uMemory/package-usage.log"
 echo ""
 echo -e "${CYAN}💡 Next Steps:${NC}"
 echo "  1. Try: rg --help"

@@ -1,9 +1,9 @@
 #!/bin/bash
 # uDOS Package Installer: bat (syntax-highlighted file viewer)
-# Enhanced 'cat' with syntax highlighting and Git integration
+# 'cat' with syntax highlighting and Git integration
 
 PACKAGE_NAME="bat"
-PACKAGE_DESC="Syntax-highlighted file viewer (enhanced cat)"
+PACKAGE_DESC="Syntax-highlighted file viewer (cat)"
 UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 
 # Simple logging functions
@@ -118,7 +118,7 @@ bat -H 10:20 file.txt
 ## uDOS Integration
 
 Available in uCode shell:
-- `bat <file>` - Enhanced file viewing
+- `bat <file>` - file viewing
 - Integrated with uScript for code display
 - Used in dashboard for log file viewing
 

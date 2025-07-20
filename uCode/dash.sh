@@ -11,7 +11,7 @@ ANALYTICS="${UMEM}/state/analytics.json"
 TODAY="$(date +%Y-%m-%d)"
 MOVESFILE="${UMEM}/moves/moves-${TODAY}.md"
 
-# Colors for enhanced output
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -21,7 +21,7 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
-# Enhanced logging with timestamps
+# logging with timestamps
 log() { 
     echo -e "${CYAN}[$(date '+%H:%M:%S')] [dash]${NC} $1"
 }
@@ -82,7 +82,7 @@ collect_system_metrics() {
 EOF
 }
 
-# Enhanced header with ASCII art and real-time info
+# header with ASCII art and real-time info
 header() {
     cat > "$DASHBOARD" << 'EOF'
 ```
@@ -129,7 +129,7 @@ EOF
     fi
 }
 
-# Enhanced stats with analytics
+# stats with analytics
 render_stats() {
     section "📈 Analytics & Statistics"
     
@@ -172,7 +172,7 @@ render_recent_activity() {
     echo "" >> "$DASHBOARD"
 }
 
-# Enhanced moves with better formatting
+# moves with better formatting
 render_moves() {
     section "📋 Today's Moves"
     
@@ -259,7 +259,7 @@ generate_initial_stats() {
 ### System Statistics
 - Created: $(date '+%Y-%m-%d %H:%M:%S')
 - uDOS Version: v1.7.1
-- Architecture: Enhanced Dashboard
+- Architecture: Dashboard
 
 ### Usage Metrics
 - Dashboard builds: 1
@@ -324,7 +324,7 @@ open_dashboard() {
     fi
 }
 
-# Command parser with enhanced options
+# Command parser with options
 case "$1" in
     new|build)
         log "Building dashboard..."

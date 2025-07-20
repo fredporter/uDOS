@@ -1,8 +1,8 @@
 # 📚 uDOS Documentation
 
-**Complete documentation hub for uDOS v1.0 production system**  
-**Version**: 1.0 Production  
-**Last Updated**: July 19, 2025  
+**Complete documentation hub for uDOS v1.2 mature production system**  
+**Version**: 1.2 Production  
+**Last Updated**: January 2025  
 
 ---
 
@@ -174,7 +174,7 @@ SHOW search <term>
 | Document | Purpose | Audience | Status |
 |----------|---------|----------|--------|
 | **[🏗️ Technical Architecture](technical-architecture.md)** | Complete system architecture documentation | Developers, Admins | ✅ Current |
-| **[� Future Roadmap](future-roadmap.md)** | Comprehensive development planning and feature roadmap | Developers, Contributors | ✅ Current |
+| **[🔮 Future Roadmap](system/roadmap.md)** | Post-v1.2 development planning and feature roadmap | Developers, Contributors | ✅ Current |
 | **[🚀 Development Strategy](development-strategy.md)** | Strategic development planning and innovation framework | Technical Leaders, Contributors | ✅ Current |
 
 ### System Implementation Guides
@@ -199,7 +199,7 @@ SHOW search <term>
 **Recommended Reading Order**:
 1. [Technical Architecture](technical-architecture.md) - Complete system understanding
 2. [User Manual](user-manual.md) - All available commands and features
-3. [Future Roadmap](future-roadmap.md) - Development planning
+3. [Future Roadmap](system/roadmap.md) - Development planning
 4. [Development Strategy](development-strategy.md) - Strategic planning framework
 
 **Special Access**:
@@ -327,14 +327,14 @@ SHOW search <term>
 ### Development Resources
 
 - **[🏗️ Technical Architecture](technical-architecture.md)** - System design and implementation details
-- **[🚀 Future Roadmap](future-roadmap.md)** - Planned features and development priorities
+- **[🚀 Future Roadmap](system/roadmap.md)** - Planned features and development priorities
 - **[📦 Package Development](../package/README.md)** - Creating new packages and integrations
 - **[🔌 Extension Development](../extension/README.md)** - VS Code extension development
 
 ### Getting Involved
 
 1. **Understanding the System**: Start with [Technical Architecture](technical-architecture.md)
-2. **Feature Implementation**: Check [Future Roadmap](future-roadmap.md) for planned features
+2. **Feature Implementation**: Check [Future Roadmap](system/roadmap.md) for planned features
 3. **Package Contributions**: Follow [Package Development Guide](../package/README.md)
 4. **Extension Enhancement**: Use [Extension Development Guide](../extension/README.md)
 

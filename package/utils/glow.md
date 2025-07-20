@@ -71,8 +71,8 @@ glow ./progress/ROADMAP_STATUS.md
 # Generate and view dashboard
 ./uCode/dash.sh build && glow ./uMemory/dashboard.md
 
-# View project status
-glow ./docs/development/architecture/REPO_STRUCTURE_v1.0.md
+# View project documentation
+glow ./docs/README.md
 ```
 
 ## ⚙️ Configuration

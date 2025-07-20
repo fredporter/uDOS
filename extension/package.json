@@ -1,8 +1,8 @@
 {
   "name": "udos-extension",
-  "displayName": "uDOS v1.1.0 Enhanced - Mission System & User Companions",
-  "description": "Enhanced VS Code extension for uDOS v1.1.0 with Mission Control, User Companions, Advanced Mapping, and Analytics Dashboard",
-  "version": "1.1.0",
+  "displayName": "uDOS v1.2.0 - Universal Development & Operations System",
+  "description": "VS Code extension for uDOS v1.2.0 with unified architecture, OK-Assistant system, and enhanced template management",
+  "version": "1.2.0",
   "publisher": "udos",
   "engines": {
     "vscode": "^1.60.0"
@@ -21,13 +21,11 @@
     "uDOS",
     "markdown",
     "shell",
-    "operating system",
+    "development",
     "uScript",
-    "user-roles",
-    "mission-control",
-    "user-companions",
-    "chester",
-    "sorcerer",
+    "templates",
+    "ok-assistant",
+    "unified-architecture",
     "analytics",
     "mapping",
     "privacy-first",
@@ -75,102 +73,87 @@
       {
         "command": "udos.quickSetup",
         "title": "🚀 Quick Setup",
-        "category": "uDOS v1.1.0"
+        "category": "uDOS v1.2"
       },
       {
         "command": "udos.systemStatus", 
         "title": "📊 System Status",
-        "category": "uDOS v1.1.0"
+        "category": "uDOS v1.2"
       },
       {
         "command": "udos.runCommand",
         "title": "⚡ Run Command",
-        "category": "uDOS v1.1.0"
+        "category": "uDOS v1.2"
+      },
+      {
+        "command": "udos.createProject",
+        "title": "🎯 Create Project",
+        "category": "Templates"
       },
       {
         "command": "udos.createMission",
-        "title": "🎯 Create Mission",
-        "category": "Mission Control"
-      },
-      {
-        "command": "udos.listMissions",
-        "title": "📋 List Missions", 
-        "category": "Mission Control"
-      },
-      {
-        "command": "udos.missionStats",
-        "title": "📈 Mission Statistics",
-        "category": "Mission Control"
+        "title": "� Create Mission", 
+        "category": "Templates"
       },
       {
         "command": "udos.createMilestone",
         "title": "⭐ Create Milestone",
-        "category": "Mission Control"
+        "category": "Templates"
       },
       {
-        "command": "udos.listCompanions",
-        "title": "🤝 List Companions",
-        "category": "User Companions"
+        "command": "udos.listTemplates",
+        "title": "📋 List Templates",
+        "category": "Templates"
       },
       {
-        "command": "udos.startChester",
-        "title": "🧙‍♂️ Start Chester (Wizard's Assistant)",
-        "category": "User Companions"
+        "command": "udos.generateScript",
+        "title": "🔧 Generate Script from Template",
+        "category": "Templates"
       },
       {
-        "command": "udos.startSorcerer",
-        "title": "🔮 Start Sorcerer's Assistant",
-        "category": "User Companions"
+        "command": "udos.startAssistant",
+        "title": "🤖 Start OK-Assistant",
+        "category": "Assistants"
       },
       {
-        "command": "udos.useImpCompanion",
-        "title": "👹 Use Imp Companion",
-        "category": "User Companions"
+        "command": "udos.configureAssistant",
+        "title": "⚙️ Configure Assistant",
+        "category": "Assistants"
       },
       {
-        "command": "udos.useDroneCompanion",
-        "title": "🤖 Use Drone Companion",
-        "category": "User Companions"
-      },
-      {
-        "command": "udos.useGhostCompanion",
-        "title": "👻 Use Ghost Companion", 
-        "category": "User Companions"
-      },
-      {
-        "command": "udos.companionStatus",
-        "title": "📋 Companion System Status",
-        "category": "User Companions"
+        "command": "udos.listAssistants",
+        "title": "📋 List Available Assistants",
+        "category": "Assistants"
       },
       {
         "command": "udos.showDashboard",
         "title": "📊 Show Live Dashboard",
-        "category": "Analytics"
+        "category": "Monitoring"
       },
       {
         "command": "udos.generateDashboard",
         "title": "🔨 Generate Dashboard",
-        "category": "Analytics"
+        "category": "Monitoring"
       },
       {
         "command": "udos.updateAnalytics",
         "title": "📈 Update Analytics",
-        "category": "Analytics"
+        "category": "Monitoring"
       },
       {
-        "command": "udos.showMapping",
-        "title": "🗺️ Show Advanced Mapping",
-        "category": "Mapping System"
-      },
-      {
-        "command": "udos.showMissionMapping",
-        "title": "📍 Show Mission Locations",
-        "category": "Mapping System"
+        "command": "udos.browseMapping",
+        "title": "🗺️ Browse Geographic Data",
+        "category": "uMapping"
       },
       {
         "command": "udos.processShortcodes",
-        "title": "⚙️ Process Shortcodes",
+        "title": "⚙️ Process Template Shortcodes",
         "category": "Templates"
+      },
+      {
+        "command": "udos.openMemory",
+        "title": "🧠 Open Memory System",
+        "category": "uDOS v1.2"
       },
       {
         "command": "udos.viewWithGlow",

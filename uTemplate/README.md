@@ -1,39 +1,52 @@
-# uTemplate System - v2.0.0
+# uTemplate System - v1.2.0 (Data-Only Templates)
 
-**uTemplate** is the enhanced centralized template and dataset management system for uDOS v1.0, providing comprehensive, standardized templates and extensive geographic, linguistic, and system datasets with advanced tracking and integration capabilities.
+**uTemplate** is the clean, data-focused template repository for uDOS v1.2, providing standardized templates and configuration data for content generation and system operations.
 
-## 🗂️ Structure Overview
+## 🎯 System Philosophy
+uTemplate is now organized as a **data-only folder** containing:
+- ✅ **Templates** - Markdown template files for content generation
+- ✅ **DataGets** - JSON configuration files for data collection  
+- ✅ **Examples** - Sample implementations and use cases
+- ✅ **Variables** - Template variable definitions and schemas
+- ✅ **System** - System template configurations
 
-### 🎯 Core Templates (Enhanced for v1.0)
-- **project-template.md** ⭐ **NEW** - Comprehensive project management with phases, stakeholders, and risk assessment
-- **mission-template.md** ✨ **ENHANCED** - Advanced mission planning with KPIs, risk assessment, and uDOS integration
-- **milestone-template.md** ✨ **ENHANCED** - Detailed milestone tracking with quality gates and testing strategies
+**Moved to Specialized Folders:**
+- 📦 **Installers** → `install/installers/` (platform-specific installation templates)
+- 🗺️ **Datasets & Mapping** → `uMapping/` (TypeScript mapping system with geographic datasets)
+
+## 🗂️ Clean Structure Overview
+
+### 🎯 Core Templates (v1.2 Standard)
+- **ok-assistant-template.md** - Universal script template with assistant integration (replaces uc-template)
+- **project-template.md** - Comprehensive project management with phases, stakeholders, and risk assessment
+- **mission-template.md** - Advanced mission planning with KPIs, risk assessment, and uDOS integration
+- **milestone-template.md** - Detailed milestone tracking with quality gates and testing strategies
 - **input-template.md** - Interactive user input collection with dataset integration
 - **input-user-setup.md** - User environment configuration
-- **uc-template.md** - Advanced uCode command template with comprehensive testing and validation
-- **dashboard-template.md** ✨ **ENHANCED** - Real-time project portfolio dashboard with executive summary
+- **dashboard-template.md** - Real-time project portfolio dashboard with executive summary
 - **legacy-template.md** - Legacy system compatibility
-- **move-template.md** - Individual move documentation
+- **daily-move-log-v2.md** - Daily activity logging template
 
-### 🗄️ Datasets (JSON)
-Complete dataset collection with 355+ records across 11 datasets:
+### 🛠️ Specialized Templates
+- **command-help-template.md** - Documentation template for command help systems
+- **vb-command-set-template.md** - VB (Visual Basic) command set documentation
+- **package-template.md** - Package configuration and management
+- **display-config-template.md** - Display and interface configuration
+- **form-configuration-template.md** - Form and input configuration
+- **vscode-extension-template.md** - VS Code extension development
+- **vscode-workspace-template.md** - VS Code workspace configuration
+- **ascii-interface-template.md** - ASCII-based interface design
+- **dataget-configuration-template.md** - Data collection configuration
 
-#### Geographic & Location Data
-- **locationMap.json** (52 cities) - Global city coordinates with map tile integration
-- **mapTerrain.json** (15 symbols) - ASCII terrain symbols for cartography
-- **timezoneMap.json** (38 zones) - Global timezone data with map references
-- **countryMap.json** (195 countries) - ISO country codes and regional data
-- **cityMap.json** (50 cities) - Major world cities with coordinates
+### 📊 Dashboard & Interface Templates  
+- **ascii-dashboard-template.txt** - Text-based dashboard layouts
+- **system/dash-template.md** - System dashboard components
 
-#### Language & Currency Data  
-- **languageMap.json** (50 languages) - ISO language codes and regional usage
-- **currencyMap.json** (168 currencies) - Global currency data with exchange rates
-
-#### System Data
-- **ucode-commands.json** (9 commands) - uDOS command definitions
-- **template-definitions.json** (9 templates) - Template schema and metadata
-- **template-system-config.json** - Template engine configuration
-- **dataset-metadata.json** - Dataset versioning and schema definitions
+### � Configuration Data (DataGets)
+Clean JSON configuration files:
+- **mission-create.json** - Mission creation configuration
+- **system-config.json** - System-wide template configuration
+- **user-setup.json** - User setup and preferences configuration
 
 ## 🛠️ Template Engine Features
 

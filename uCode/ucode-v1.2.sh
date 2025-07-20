@@ -430,11 +430,10 @@ handle_dev() {
         report:*)
             local type=$(echo "$subcmd" | cut -d':' -f2)
             local timestamp=$(date +%Y%m%d_%H%M%S)
-            local type_upper=$(echo "$type" | tr '[:lower:]' '[:upper:]')
-            local report_file="$UDEV/reports/${type_upper}_REPORT_${timestamp}.md"
+            local report_file="$UDEV/reports/${type^^}_REPORT_${timestamp}.md"
             
             cat > "$report_file" << EOF
-# 📊 ${type_upper} Report
+# 📊 ${type^^} Report
 
 **Generated**: $(date +%Y-%m-%d)  
 **Type**: Development Report  

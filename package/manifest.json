@@ -1,6 +1,6 @@
 {
   "name": "uDOS Package System",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "packages": {
     "editors": {
       "nano": {
@@ -80,7 +80,7 @@
     },
     "development": {
       "vscode-extension": {
-        "version": "1.0.0",
+        "version": "1.2.0",
         "description": "uDOS VS Code extension with language support",
         "install_command": "./extension/install-extension.sh",
         "ucode_commands": ["VSCODE", "EXTENSION"],

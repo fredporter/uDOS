@@ -93,6 +93,6 @@ For extension development, see `docs/extension-development.md`
 
 ---
 
-**Version**: 1.0.0  
-**Compatibility**: uDOS v1.0+, VS Code 1.80+  
+**Version**: 1.2.0  
+**Compatibility**: uDOS v1.2+, VS Code 1.80+  
 **License**: MIT

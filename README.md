@@ -1,25 +1,26 @@
 # 🌀 uDOS — The User DOS Shell
-*Version: v1.0.0 — Production Ready Distribution*
+*Version: v1.2 — Mature Production Release*
 
 **uDOS** is a single-process, markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
 It is for thinkers, tinkerers, writers, and dreamers — those who want a machine that remembers, evolves, and serves a singular user.
 
-**🎯 v1.0 Production Features**:
+**🚀 v1.2 Standard Features**:
+- ✅ **Unified Template System**: Shortcodes `[COMMAND:args]`, datasets, datagets, and `$variables` 
+- ✅ **Dynamic Command System**: Runtime command loading and expansion
 - ✅ **Complete User Role System**: wizard/sorcerer/ghost/imp permission matrix
 - ✅ **Single-User Installation**: Privacy-first architecture with local data control
-- ✅ **Automated Setup & Validation**: First-time installation with integrity checks
+- ✅ **Streamlined Setup**: Single-path template-driven configuration
 - ✅ **Chester OK Companion**: Integrated assistant with personality system
 - ✅ **VS Code Integration**: Native extension with uScript language support and 25+ tasks
 - ✅ **Package Management**: Unified system for essential development tools
-- ✅ **Template System**: Markdown-driven content generation with shortcode processing
-- ✅ **Enhanced Logging**: Structured activity tracking and analytics
+- ✅ **Hierarchical Logging**: Moves → Milestones → Missions → Device Legacy with Notion-style formatting
 - ✅ **Sandbox Management**: Daily workspace organization and session tracking
 
-**✅ v1.0 Production Foundation**:
-- ✅ Complete user role system (wizard/sorcerer/ghost/imp)
+**🏆 v1.2 Production Foundation**:
+- ✅ Mature, standardized feature set (no more "enhanced" variants)
 - ✅ Single-user installation enforcement (privacy-first ethos)
-- ✅ First-time setup with automated validation
-- ✅ Comprehensive installation integrity checks
+- ✅ Streamlined setup with comprehensive validation
+- ✅ Template-driven content generation and form processing
 - ✅ Chester AI companion system integration
 - ✅ VS Code native integration with 25+ pre-configured tasks
 - ✅ Complete uDOS VS Code extension with uScript language support

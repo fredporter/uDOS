@@ -125,7 +125,7 @@ Critical for uDOS JSON processing:
 
 ```bash
 # Process uDOS datasets
-jq '.cityMap[] | select(.country == "US")' uTemplate/datasets/cityMap.json
+jq '.cityMap[] | select(.country == "US")' uMapping/datasets/cityMap.json
 
 # Update package registry
 jq --arg pkg "newpackage" '.[$pkg] = {"status": "installed"}' uMemory/state/packages.json
@@ -134,7 +134,8 @@ jq --arg pkg "newpackage" '.[$pkg] = {"status": "installed"}' uMemory/state/pack
 jq '{total: length, active: [.[] | select(.status == "active")] | length}' uMemory/state/packages.json
 
 # Validate template variables
-jq 'keys' uTemplate/variables/system-vars.json
+# Display variable structure
+jq 'keys' uTemplate/variables/user-vars.json
 
 # Extract mission data
 jq '.missions[] | select(.status == "active")' uMemory/state/missions.json

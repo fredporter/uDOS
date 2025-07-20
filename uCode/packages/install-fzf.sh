@@ -139,7 +139,7 @@ ls | fzf --prompt="Select file: "
 
 ## uDOS Integration
 
-Enhanced uCode shell workflows:
+uCode shell workflows:
 - Interactive file selection
 - Mission and milestone browsing
 - Template selection
@@ -156,7 +156,7 @@ fd "mission-*.md" uMemory/missions | fzf --preview 'glow {}'
 fd "*.md" uTemplate/system | fzf --preview 'head -20 {}'
 
 # Browse datasets
-fd "*.json" uTemplate/datasets | fzf --preview 'jq . {} | head -20'
+fd "*.json" uMapping/datasets | fzf --preview 'jq . {} | head -20'
 
 # Interactive log viewing
 fd "*.log" uMemory/logs | fzf --preview 'tail -20 {}'
@@ -192,7 +192,7 @@ fzf --header "Select a file:"
 
 ## Shell Integration
 
-Add to your shell config for enhanced experience:
+Add to your shell config for experience:
 
 ```bash
 # Bash/Zsh key bindings

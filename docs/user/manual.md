@@ -389,4 +389,4 @@ DESTROY sandbox          # Reset sandbox only (preserves data)
 
 ---
 
-*This manual covers uDOS v1.0 production features. For advanced topics and development guides, see the technical documentation in `docs/roadmap/`.*
+*This manual covers uDOS v1.2 production features. For advanced topics and development guides, see the technical documentation in `docs/system/` and `docs/development/`.*

@@ -129,7 +129,7 @@ Available in uCode shell:
 - `fd <pattern>` - Fast file search
 - Integrated with template system for file discovery
 - Used in dashboard for system file monitoring
-- Enhanced with ripgrep for content + filename search
+- with ripgrep for content + filename search
 
 ## Advanced Features
 

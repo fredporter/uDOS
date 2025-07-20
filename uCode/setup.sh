@@ -114,8 +114,8 @@ process_input_block() {
     local block_content
     
     if [[ ! -f "$SETUP_TEMPLATE" ]]; then
-        warn "Setup template not found, using fallback questions"
-        setup_fallback_questions
+        warn "Setup template not found, using basic questions"
+        setup_basic_questions
         return
     fi
     
@@ -210,9 +210,9 @@ process_input_block() {
     green "   ✓ $variable set to: $input"
 }
 
-# Fallback questions for when template is not available
-setup_fallback_questions() {
-    log "Using fallback setup questions..."
+# Basic questions for when template is not available
+setup_basic_questions() {
+    log "Using basic setup questions..."
     
     # Username
     echo
@@ -422,7 +422,7 @@ EOF
 # 🎭 INTERACTIVE SETUP MODES
 # ═══════════════════════════════════════════════════════════════════════
 
-# Template-based interactive setup
+# Standard interactive setup
 interactive_template_setup() {
     bold "🎭 uDOS Template-Based Setup"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -441,7 +441,7 @@ interactive_template_setup() {
     generate_config_files
     
     echo
-    success "🎉 Template-based setup complete!"
+    success "🎉 Standard setup complete!"
     
     echo
     bold "📊 Setup Summary:"

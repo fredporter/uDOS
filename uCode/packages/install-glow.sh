@@ -115,7 +115,7 @@ Available in uCode shell:
 - `glow <file>` - Beautiful markdown viewing
 - Integrated with documentation system
 - Used for viewing roadmap files
-- Enhanced mission and milestone display
+- mission and milestone display
 
 ## Styles Available
 
@@ -143,7 +143,8 @@ pager: true
         echo "✨ Displaying uDOS foundation document with glow:"
         echo ""
         glow docs/roadmap/001-uDOS-foundation.md# View mission templates
-glow uTemplate/system/mission-template.md
+# Display mission template
+glow uTemplate/mission-template.md
 
 # View dashboard markdown
 glow uMemory/state/dashboard.md

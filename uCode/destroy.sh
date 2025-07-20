@@ -37,7 +37,7 @@ case "$(echo "$choice" | tr '[:lower:]' '[:upper:]')" in
   C)
     echo "⚠️ Flushing uMemory except legacy..."
     # Ensure legacy directory exists in uMemory
-    mkdir -p "$UHOME/uMemory/legacy"
+    mkdir -p "$UHOME/uMemory"
     # Remove everything from uMemory except the legacy folder
     [ -d "$UHOME/uMemory" ] && find "$UHOME/uMemory" -mindepth 1 -maxdepth 1 ! -name "legacy" -exec rm -rf {} +
     # Also remove sandbox

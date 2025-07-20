@@ -14,13 +14,13 @@
 ### Basic JSON Processing
 ```bash
 # Pretty print JSON
-echo '{"name":"uDOS","version":"1.0"}' | jq .
+echo '{"name":"uDOS","version":"1.2"}' | jq .
 
 # Extract specific field
-echo '{"name":"uDOS","version":"1.0"}' | jq .name
+echo '{"name":"uDOS","version":"1.2"}' | jq .name
 
 # Extract multiple fields
-echo '{"name":"uDOS","version":"1.0","status":"active"}' | jq '{name, version}'
+echo '{"name":"uDOS","version":"1.2","status":"active"}' | jq '{name, version}'
 
 # Array processing
 echo '[{"id":1,"name":"mission1"},{"id":2,"name":"mission2"}]' | jq '.[].name'
