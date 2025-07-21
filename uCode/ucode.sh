@@ -59,6 +59,125 @@ init_directories() {
     done
 }
 
+# Terminal size detection and management
+detect_terminal_size() {
+    # Get current terminal dimensions
+    if command -v tput >/dev/null 2>&1; then
+        CURRENT_COLS=$(tput cols 2>/dev/null || echo "80")
+        CURRENT_ROWS=$(tput lines 2>/dev/null || echo "24")
+    else
+        # Fallback using stty
+        CURRENT_COLS=$(stty size 2>/dev/null | cut -d' ' -f2 || echo "80")
+        CURRENT_ROWS=$(stty size 2>/dev/null | cut -d' ' -f1 || echo "24")
+    fi
+    
+    # Ensure we have valid numbers
+    [[ "$CURRENT_COLS" =~ ^[0-9]+$ ]] || CURRENT_COLS=80
+    [[ "$CURRENT_ROWS" =~ ^[0-9]+$ ]] || CURRENT_ROWS=24
+}
+
+# Set terminal window size using ANSI escape sequences
+set_terminal_size() {
+    local cols=${1:-120}
+    local rows=${2:-30}
+    
+    # ANSI escape sequence to resize terminal (works on most terminals)
+    printf '\e[8;%d;%dt' "$rows" "$cols"
+    
+    # Additional positioning (center on screen)
+    printf '\e[3;100;100t'
+    
+    # For macOS Terminal.app specifically
+    if [[ "$OSTYPE" == "darwin"* ]] && [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+        local width=$((cols * 8 + 50))
+        local height=$((rows * 20 + 50))
+        osascript -e "tell application \"Terminal\" to set bounds of front window to {100, 100, $width, $height}" 2>/dev/null || true
+    fi
+    
+    # Update our tracking variables
+    CURRENT_COLS=$cols
+    CURRENT_ROWS=$rows
+}
+
+# Terminal size recommendation engine
+recommend_terminal_size() {
+    detect_terminal_size
+    
+    log_info "Current terminal: ${CURRENT_COLS}x${CURRENT_ROWS}"
+    
+    # Determine best recommendation based on current size
+    local recommended="standard"
+    local recommended_size="120x30"
+    
+    if (( CURRENT_COLS >= 160 )); then
+        recommended="ultra-wide"
+        recommended_size="160x40"
+    elif (( CURRENT_COLS >= 140 )); then
+        recommended="wide" 
+        recommended_size="140x35"
+    elif (( CURRENT_COLS >= 120 )); then
+        recommended="standard"
+        recommended_size="120x30"
+    else
+        recommended="compact"
+        recommended_size="80x24"
+    fi
+    
+    echo -e "\n${YELLOW}🖥️  Terminal Size Optimizer${NC}"
+    echo -e "${BLUE}Current Size:${NC} ${CURRENT_COLS}x${CURRENT_ROWS}"
+    echo -e "${GREEN}Recommended:${NC} ${recommended_size} (${recommended})"
+    echo -e ""
+    echo -e "${BOLD}Available Presets:${NC}"
+    echo -e "  ${CYAN}1.${NC} Compact     - 80x24 (minimal)"
+    echo -e "  ${CYAN}2.${NC} Standard    - 120x30 (recommended)"
+    echo -e "  ${CYAN}3.${NC} Wide        - 140x35 (comfortable)"
+    echo -e "  ${CYAN}4.${NC} Ultra-wide  - 160x40 (spacious)"
+    echo -e "  ${CYAN}5.${NC} Coding      - 120x50 (tall for code)"
+    echo -e "  ${CYAN}6.${NC} Dashboard   - 140x45 (data viewing)"
+    echo -e "  ${CYAN}c.${NC} Keep current size"
+    echo -e "  ${CYAN}Enter${NC} Use recommended (${recommended})"
+    echo -e ""
+    
+    read -p "Select size [1-6/c/Enter]: " choice
+    
+    case "$choice" in
+        1) apply_size_preset "compact" ;;
+        2) apply_size_preset "standard" ;;
+        3) apply_size_preset "wide" ;;
+        4) apply_size_preset "ultra-wide" ;;
+        5) apply_size_preset "coding" ;;
+        6) apply_size_preset "dashboard" ;;
+        c|C) log_info "Keeping current size: ${CURRENT_COLS}x${CURRENT_ROWS}" ;;
+        "") apply_size_preset "$recommended" ;;
+        *) log_warning "Invalid choice, keeping current size" ;;
+    esac
+}
+
+# Apply size preset
+apply_size_preset() {
+    local preset=$1
+    local size cols rows
+    
+    case "$preset" in
+        "compact") size="80x24" ;;
+        "standard") size="120x30" ;;
+        "wide") size="140x35" ;;
+        "ultra-wide") size="160x40" ;;
+        "coding") size="120x50" ;;
+        "dashboard") size="140x45" ;;
+        *) size="120x30" ;; # fallback
+    esac
+    
+    cols="${size%x*}"
+    rows="${size#*x}"
+    
+    log_info "Applying $preset preset: ${cols}x${rows}"
+    set_terminal_size "$cols" "$rows"
+    
+    # Brief pause to let terminal adjust
+    sleep 0.5
+}
+
 # Rainbow ASCII Art
 show_rainbow_ascii() {
     echo -e "${RAINBOW_RED}    ██╗   ██╗${RAINBOW_YELLOW}██████╗ ${RAINBOW_GREEN} ██████╗ ${RAINBOW_CYAN}███████╗${NC}"
@@ -353,6 +472,7 @@ show_help() {
 - `HELP` - Show this help
 - `STATUS` - System status and stats  
 - `DASH` - Live dashboard with real-time stats
+- `RESIZE` - Terminal size optimizer with intelligent recommendations
 - `DESTROY` - Reset system (requires confirmation)
 - `SETUP` - Run first-time setup
 - `EXIT` - Exit uDOS
@@ -720,6 +840,15 @@ main() {
     # Show rainbow ASCII art
     show_rainbow_ascii
     
+    # Terminal size optimization (on first run or if requested)
+    if [[ "${1:-}" == "--resize" ]] || [[ ! -f "$UMEMORY/terminal_size.conf" ]]; then
+        recommend_terminal_size
+        # Save preference for next time
+        mkdir -p "$UMEMORY"
+        detect_terminal_size
+        echo "${CURRENT_COLS}x${CURRENT_ROWS}" > "$UMEMORY/terminal_size.conf"
+    fi
+    
     # Authenticate user
     authenticate_user
     
@@ -782,6 +911,9 @@ process_input() {
             ;;
         DASH|dash)
             show_dashboard
+            ;;
+        RESIZE|resize)
+            recommend_terminal_size
             ;;
         DESTROY|destroy)
             handle_destroy
