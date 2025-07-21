@@ -433,16 +433,332 @@ show_dashboard() {
     echo ""
 }
 
-# WHIRL prompt with blinking cursor
-show_whirl_prompt() {
-    echo -ne "${RAINBOW_CYAN}WHIRL${NC}> "
-    # Show blinking cursor
-    for i in {1..3}; do
-        echo -ne "${BOLD}█${NC}"
-        sleep 0.3
-        echo -ne "\b \b"
-        sleep 0.3
+# Variable and dataget detection system
+detect_variables() {
+    local variables=()
+    
+    # Scan memory files for $variables
+    if [[ -d "$UMEMORY" ]]; then
+        while IFS= read -r var; do
+            variables+=("$var")
+        done < <(grep -ho '\$[A-Za-z_][A-Za-z0-9_]*' "$UMEMORY"/*.md 2>/dev/null | sort -u | head -20)
+    fi
+    
+    # Scan template files for $variables
+    if [[ -d "$UTEMPLATE" ]]; then
+        while IFS= read -r var; do
+            variables+=("$var")
+        done < <(grep -ho '\$[A-Za-z_][A-Za-z0-9_]*' "$UTEMPLATE"/*.md 2>/dev/null | sort -u | head -20)
+    fi
+    
+    # Return unique variables
+    printf '%s\n' "${variables[@]}" | sort -u
+}
+
+# Enhanced dataget processing with variable prediction
+process_dataget() {
+    local input="$1"
+    local variables=()
+    
+    # Detect available variables
+    mapfile -t variables < <(detect_variables)
+    
+    # If input contains partial variable, suggest completions
+    if [[ "$input" == *'$'* ]]; then
+        local partial_var=$(echo "$input" | grep -o '\$[A-Za-z_]*$' | tail -1)
+        if [[ -n "$partial_var" ]]; then
+            echo -e "\n${CYAN}💡 Available Variables:${NC}"
+            for var in "${variables[@]}"; do
+                if [[ "$var" == "$partial_var"* ]]; then
+                    echo -e "  ${YELLOW}$var${NC}"
+                fi
+            done
+            echo ""
+        fi
+    fi
+    
+    # Process the input normally
+    echo "$input"
+}
+
+# Intelligent input system with autocomplete and prediction
+intelligent_input() {
+    local prompt="${1:-${RAINBOW_CYAN}WHIRL${NC}> }"
+    local input=""
+    local suggestions=()
+    local suggestion_index=0
+    local cursor_pos=0
+    
+    # Build command database
+    local commands=("HELP" "STATUS" "DASH" "RESIZE" "DESTROY" "SETUP" "EXIT" 
+                   "MEMORY list" "MEMORY view" "MEMORY search"
+                   "MISSION list" "MISSION create" "MISSION complete"
+                   "LOG report" "LOG stats" "LOG move"
+                   "PACKAGE list" "PACKAGE install" "PACKAGE info"
+                   "DEV status" "DEV report")
+    
+    # Build shortcode database
+    local shortcodes=("[MEMORY:list]" "[MEMORY:view:]" "[MEMORY:search:]"
+                     "[MISSION:list]" "[MISSION:create:]" "[MISSION:complete:]"
+                     "[LOG:report]" "[LOG:stats]" "[LOG:move:]"
+                     "[PACKAGE:list]" "[PACKAGE:install:]" "[PACKAGE:info:]"
+                     "[DASH:live]" "[DEV:status]" "[DEV:report:]")
+    
+    # Get existing data for predictions
+    local existing_missions=()
+    local existing_files=()
+    local existing_packages=("ripgrep" "fd" "bat" "glow" "micro" "jq")
+    local existing_variables=()
+    
+    if [[ -d "$UMEMORY" ]]; then
+        mapfile -t existing_missions < <(find "$UMEMORY" -name "*-mission.md" -exec basename {} .md \; | sed 's/^[0-9]*-//' | sed 's/-mission$//')
+        mapfile -t existing_files < <(ls "$UMEMORY" 2>/dev/null | head -10)
+    fi
+    
+    # Get available variables
+    mapfile -t existing_variables < <(detect_variables)
+    
+    # Smart prediction based on input
+    predict_input() {
+        local current_input="$1"
+        suggestions=()
+        
+        # If input starts with [, show shortcode options
+        if [[ "$current_input" == "["* ]]; then
+            for shortcode in "${shortcodes[@]}"; do
+                if [[ "$shortcode" == "$current_input"* ]]; then
+                    suggestions+=("$shortcode")
+                fi
+            done
+        # Command prediction
+        elif [[ -n "$current_input" ]]; then
+            # Match commands
+            for cmd in "${commands[@]}"; do
+                if [[ "$cmd" == "$current_input"* ]] || [[ "${cmd,,}" == "${current_input,,}"* ]]; then
+                    suggestions+=("$cmd")
+                fi
+            done
+            
+            # Context-aware suggestions
+            case "$current_input" in
+                *"view "*|*"view:")
+                    for file in "${existing_files[@]}"; do
+                        suggestions+=("${current_input%view*}view $file")
+                    done
+                    ;;
+                *"complete "*|*"complete:")
+                    for mission in "${existing_missions[@]}"; do
+                        suggestions+=("${current_input%complete*}complete $mission")
+                    done
+                    ;;
+                *"install "*|*"install:")
+                    for pkg in "${existing_packages[@]}"; do
+                        suggestions+=("${current_input%install*}install $pkg")
+                    done
+                    ;;
+                *'$'*)
+                    # Variable suggestions
+                    local partial_var=$(echo "$current_input" | grep -o '\$[A-Za-z_]*$')
+                    for var in "${existing_variables[@]}"; do
+                        if [[ "$var" == "$partial_var"* ]]; then
+                            suggestions+=("${current_input%\$*}$var")
+                        fi
+                    done
+                    ;;
+            esac
+        else
+            # Default suggestions when no input
+            suggestions=("HELP" "STATUS" "DASH" "MEMORY list" "MISSION list" "[MEMORY:list]")
+        fi
+        
+        # Limit suggestions
+        if [[ ${#suggestions[@]} -gt 8 ]]; then
+            suggestions=("${suggestions[@]:0:8}")
+        fi
+    }
+    
+    # Display suggestions
+    show_suggestions() {
+        if [[ ${#suggestions[@]} -gt 0 ]]; then
+            echo -e "\n${CYAN}💡 Suggestions:${NC}"
+            for i in "${!suggestions[@]}"; do
+                if [[ $i -eq $suggestion_index ]]; then
+                    echo -e "  ${YELLOW}▶ ${suggestions[$i]}${NC}"
+                else
+                    echo -e "  ${BLUE}  ${suggestions[$i]}${NC}"
+                fi
+            done
+            echo ""
+        fi
+    }
+    
+    # Clear suggestions display
+    clear_suggestions() {
+        if [[ ${#suggestions[@]} -gt 0 ]]; then
+            local lines_to_clear=$((${#suggestions[@]} + 2))
+            for ((i=0; i<lines_to_clear; i++)); do
+                echo -e "\033[A\033[K"
+            done
+        fi
+    }
+    
+    echo -ne "$prompt"
+    
+    while true; do
+        # Get current input and update predictions
+        predict_input "$input"
+        
+        # Show suggestions if we have any
+        if [[ ${#suggestions[@]} -gt 0 ]]; then
+            show_suggestions
+            echo -ne "$prompt$input"
+        fi
+        
+        # Read single character
+        read -rsn1 char
+        
+        case "$char" in
+            # Enter key
+            "")
+                clear_suggestions
+                if [[ ${#suggestions[@]} -gt 0 && -n "${suggestions[$suggestion_index]}" ]]; then
+                    # Use selected suggestion
+                    input="${suggestions[$suggestion_index]}"
+                fi
+                echo ""
+                echo "$input"
+                return 0
+                ;;
+            # Tab key - autocomplete with first suggestion
+            $'\t')
+                if [[ ${#suggestions[@]} -gt 0 ]]; then
+                    clear_suggestions
+                    input="${suggestions[0]}"
+                    echo -ne "\r$prompt$input"
+                fi
+                ;;
+            # Up arrow - previous suggestion
+            $'\033')
+                read -rsn2 -t 0.1 arrow_key
+                case "$arrow_key" in
+                    "[A") # Up arrow
+                        if [[ ${#suggestions[@]} -gt 0 ]]; then
+                            ((suggestion_index--))
+                            if [[ $suggestion_index -lt 0 ]]; then
+                                suggestion_index=$((${#suggestions[@]} - 1))
+                            fi
+                            clear_suggestions
+                            echo -ne "\r$prompt$input"
+                        fi
+                        ;;
+                    "[B") # Down arrow
+                        if [[ ${#suggestions[@]} -gt 0 ]]; then
+                            ((suggestion_index++))
+                            if [[ $suggestion_index -ge ${#suggestions[@]} ]]; then
+                                suggestion_index=0
+                            fi
+                            clear_suggestions
+                            echo -ne "\r$prompt$input"
+                        fi
+                        ;;
+                    "[C") # Right arrow - accept suggestion
+                        if [[ ${#suggestions[@]} -gt 0 ]]; then
+                            clear_suggestions
+                            input="${suggestions[$suggestion_index]}"
+                            echo -ne "\r$prompt$input"
+                        fi
+                        ;;
+                esac
+                ;;
+            # Backspace
+            $'\177'|$'\b')
+                if [[ ${#input} -gt 0 ]]; then
+                    clear_suggestions
+                    input="${input%?}"
+                    suggestion_index=0
+                    echo -ne "\r$prompt$input\033[K"
+                fi
+                ;;
+            # Ctrl+C
+            $'\003')
+                clear_suggestions
+                echo ""
+                return 130
+                ;;
+            # Regular character
+            *)
+                clear_suggestions
+                input+="$char"
+                suggestion_index=0
+                echo -ne "\r$prompt$input"
+                ;;
+        esac
     done
+}
+
+# Enhanced shortcode browser
+browse_shortcodes() {
+    local category="${1:-all}"
+    
+    echo -e "\n${YELLOW}🔧 Shortcode Browser${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    case "$category" in
+        memory|MEMORY)
+            echo -e "${CYAN}🧠 Memory Shortcuts:${NC}"
+            echo "  [MEMORY:list] - List all memory files"
+            echo "  [MEMORY:view:filename] - View specific file"
+            echo "  [MEMORY:search:term] - Search memory"
+            ;;
+        mission|MISSION)
+            echo -e "${PURPLE}🎯 Mission Shortcuts:${NC}"
+            echo "  [MISSION:list] - List all missions"
+            echo "  [MISSION:create:name] - Create new mission"
+            echo "  [MISSION:complete:name] - Complete mission"
+            ;;
+        package|PACKAGE)
+            echo -e "${GREEN}📦 Package Shortcuts:${NC}"
+            echo "  [PACKAGE:list] - Show available packages"
+            echo "  [PACKAGE:install:name] - Install package"
+            echo "  [PACKAGE:info:name] - Package information"
+            ;;
+        log|LOG)
+            echo -e "${YELLOW}📝 Logging Shortcuts:${NC}"
+            echo "  [LOG:report] - Generate daily report"
+            echo "  [LOG:stats] - Show statistics"
+            echo "  [LOG:move:command] - Log a command"
+            ;;
+        dash|DASH)
+            echo -e "${BLUE}📊 Dashboard Shortcuts:${NC}"
+            echo "  [DASH:live] - Live dashboard mode"
+            ;;
+        all|*)
+            echo -e "${BOLD}📋 All Available Shortcodes:${NC}"
+            echo ""
+            browse_shortcodes "memory"
+            echo ""
+            browse_shortcodes "mission"
+            echo ""
+            browse_shortcodes "package"
+            echo ""
+            browse_shortcodes "log"
+            echo ""
+            browse_shortcodes "dash"
+            ;;
+    esac
+    
+    echo ""
+    echo -e "${CYAN}💡 Tips:${NC}"
+    echo "  • Type '[' to see shortcode suggestions"
+    echo "  • Use Tab to autocomplete"
+    echo "  • Use arrow keys to navigate suggestions"
+    echo "  • Type 'shortcuts' to see this browser again"
+    echo ""
+}
+
+# WHIRL prompt with intelligent input
+show_whirl_prompt() {
+    intelligent_input "${RAINBOW_CYAN}WHIRL${NC}> "
 }
 # Show status
 show_status() {
@@ -473,6 +789,7 @@ show_help() {
 - `STATUS` - System status and stats  
 - `DASH` - Live dashboard with real-time stats
 - `RESIZE` - Terminal size optimizer with intelligent recommendations
+- `SHORTCUTS` - Browse available shortcodes and smart input features
 - `DESTROY` - Reset system (requires confirmation)
 - `SETUP` - Run first-time setup
 - `EXIT` - Exit uDOS
@@ -862,13 +1179,18 @@ main() {
     if [[ $# -eq 0 ]]; then
         # Interactive mode
         log_header "System Ready - Welcome to uDOS!"
+        echo -e "${CYAN}💡 Smart Input Features:${NC}"
+        echo -e "  • Type '[' to browse shortcodes"
+        echo -e "  • Use Tab for autocomplete"
+        echo -e "  • Arrow keys to navigate suggestions"
+        echo -e "  • Type 'shortcuts' for full reference"
+        echo ""
         
         # Check setup (hardened - always setup if files missing)
         check_setup
         
         while true; do
-            show_whirl_prompt
-            read -r input
+            input=$(show_whirl_prompt)
             
             # Skip empty input
             [[ -z "$input" ]] && continue
@@ -891,6 +1213,12 @@ main() {
 # Process user input
 process_input() {
     local input="$1"
+    
+    # Special case: just '[' shows shortcode browser
+    if [[ "$input" == "[" ]]; then
+        browse_shortcodes
+        return
+    fi
     
     # Handle shortcode format [COMMAND:args]
     if [[ "$input" =~ ^\[.*\]$ ]]; then
@@ -915,6 +1243,9 @@ process_input() {
         RESIZE|resize)
             recommend_terminal_size
             ;;
+        SHORTCUTS|shortcuts)
+            browse_shortcodes
+            ;;
         DESTROY|destroy)
             handle_destroy
             ;;
@@ -938,7 +1269,7 @@ process_input() {
             ;;
         *)
             log_error "Unknown command: $cmd"
-            echo "Type 'HELP' for available commands"
+            echo "Type 'HELP' for available commands or '[' for shortcode browser"
             ;;
     esac
 }
