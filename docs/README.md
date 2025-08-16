@@ -37,7 +37,7 @@
 │     └── 🏗️ uDOS-Template-Standard.md  - Template creation guidelines      │
 │                                                                             │
 │  🎨 Visual & Interactive                                                   │
-│     ├── 🎭 ASCII-Art-Gallery.md       - Visual component library          │
+│     ├── 🎭 Art-Gallery.md             - Visual component library          │
 │     ├── 🎮 Gaming-Integration.md      - Interactive features & games      │
 │     └── 🧠 Smart-Input-System.md      - Intelligent input processing      │
 │                                                                             │
@@ -99,7 +99,7 @@ cat docs/uDOS-Template-Standard.md
 
 **2. Visual Components**
 ```bash
-cat docs/ASCII-Art-Gallery.md
+cat docs/Art-Gallery.md
 ```
 
 ---
@@ -160,7 +160,7 @@ cat docs/ASCII-Art-Gallery.md
 
 ### **Features & Functionality**
 
-#### 🎭 [ASCII-Art-Gallery.md](ASCII-Art-Gallery.md)
+#### 🎭 [Art-Gallery.md](Art-Gallery.md)
 *Complete visual component library*
 - System logos and branding
 - Interface elements
