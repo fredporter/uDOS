@@ -433,7 +433,7 @@ ASSIST DIAGNOSTICS       # ASSIST mode health check
 
 ### 📚 Documentation
 - **Architecture Guide**: `/docs/ARCHITECTURE.md`
-- **Style Guide**: `/docs/uDOS-Style-Guide-v3.md`
+- **Style Guide**: `/docs/Style-Guide.md`
 - **Development Guide**: `/uDEV/README.md`
 - **Task Templates**: `/sandbox/tasks/templates/`
 

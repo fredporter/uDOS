@@ -32,7 +32,7 @@
 │     └── 📋 PROJECT-PLANNING.md        - Implementation history & planning  │
 │                                                                             │
 │  📝 Documentation Standards                                                │
-│     ├── 🎨 uDOS-Style-Guide-v3.md     - CAPS-NUMERIC-DASH naming v1.3     │
+│     ├── 🎨 Style-Guide.md             - CAPS-NUMERIC-DASH naming v1.3     │
 │     ├── 📄 Markdown-Language-Spec.md  - uDOS markdown specification       │
 │     └── 🏗️ uDOS-Template-Standard.md  - Template creation guidelines      │
 │                                                                             │
@@ -60,7 +60,7 @@ cat docs/USER-GUIDE.md
 
 **2. Learn the Naming Convention**
 ```bash
-cat docs/uDOS-Style-Guide-v3.md
+cat docs/Style-Guide.md
 ```
 
 **3. Explore Features**
@@ -138,7 +138,7 @@ cat docs/Art-Gallery.md
 
 ### **Standards & Specifications**
 
-#### 🎨 [uDOS-Style-Guide-v3.md](uDOS-Style-Guide-v3.md)
+#### 🎨 [Style-Guide.md](Style-Guide.md)
 *Official v1.3 style guide with CAPS-NUMERIC-DASH naming*
 - File naming conventions
 - Typography standards

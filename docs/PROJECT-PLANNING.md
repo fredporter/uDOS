@@ -44,7 +44,7 @@ This document consolidates all planning documents, implementation summaries, and
 │     ├── USER-GUIDE.md              - Complete v1.3 user guide            │
 │     ├── ROADMAP.md                 - Development roadmap                   │
 │     ├── ARCHITECTURE.md            - System architecture                   │
-│     ├── uDOS-Style-Guide-v3.md     - CAPS-NUMERIC-DASH standards         │
+│     ├── Style-Guide.md             - CAPS-NUMERIC-DASH standards         │
 │     ├── Markdown-Language-Spec.md  - uDOS markdown specification         │
 │     ├── Art-Gallery.md             - Visual component library            │
 │     ├── Adventure.md               - Interactive features               │
