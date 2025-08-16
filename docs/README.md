@@ -34,7 +34,7 @@
 │  📝 Documentation Standards                                                │
 │     ├── 🎨 Style-Guide.md             - CAPS-NUMERIC-DASH naming v1.3     │
 │     ├── 📄 Markdown-Language-Spec.md  - uDOS markdown specification       │
-│     └── 🏗️ uDOS-Template-Standard.md  - Template creation guidelines      │
+│     └── 🏗️ Template-Standard.md       - Template creation guidelines      │
 │                                                                             │
 │  🎨 Visual & Interactive                                                   │
 │     ├── 🎭 Art-Gallery.md             - Visual component library          │
@@ -94,7 +94,7 @@ ls uCORE/docs/
 
 **1. Template System**
 ```bash
-cat docs/uDOS-Template-Standard.md
+cat docs/Template-Standard.md
 ```
 
 **2. Visual Components**
@@ -152,7 +152,7 @@ cat docs/Art-Gallery.md
 - Shortcode system
 - Data structure formatting
 
-#### 🏗️ [uDOS-Template-Standard.md](uDOS-Template-Standard.md)
+#### 🏗️ [Template-Standard.md](Template-Standard.md)
 *Template creation and management guidelines*
 - Template structure standards
 - Variable system usage

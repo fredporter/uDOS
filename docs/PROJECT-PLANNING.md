@@ -49,7 +49,7 @@ This document consolidates all planning documents, implementation summaries, and
 │     ├── Art-Gallery.md             - Visual component library            │
 │     ├── Adventure.md               - Interactive features               │
 │     ├── Smart-Input-System.md      - Intelligent input processing        │
-│     └── uDOS-Template-Standard.md  - Template creation guidelines        │
+│     └── Template-Standard.md       - Template creation guidelines        │
 │                                                                             │
 │  🛠️ uCORE/ - Core System                                                  │
 │     ├── code/                      - Core scripts and packages            │
