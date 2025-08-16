@@ -40,6 +40,24 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 
+# Large demo files and assets (should be downloaded separately)
+**/demo/
+**/demos/
+**/data/input.*
+**/data/output.*
+**/fonts/*.ttf
+**/fonts/*.ttc
+*.gif
+*.mp4
+*.avi
+*.mov
+*.webm
+
+# Generated/downloaded content
+downloads/
+cache/
+temp-downloads/
+
 # Logs and temporary files
 **/*.log
 *.tmp
