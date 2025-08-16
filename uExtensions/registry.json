@@ -1,0 +1,13 @@
+{
+    "extensions": {
+        "ai": {
+            "gemini-cli": {
+                "name": "Google Gemini CLI",
+                "path": "ai/gemini-cli",
+                "status": "installed",
+                "commands": ["assist", "command"],
+                "description": "AI-powered command assistant with natural language interface"
+            }
+        }
+    }
+}

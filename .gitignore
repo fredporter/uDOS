@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# uDOS Alpha v1.0 .gitignore
+# uDOS v1.2 .gitignore
 # Clean Repository Architecture - Production Ready
 # ──────────────────────────────────────────────
 
@@ -10,6 +10,13 @@
 # 🔐 Level 1: uMemory - Private User Files (NEVER in repo)
 # Contains personal data, logs, state, missions, moves
 uMemory/
+
+# 🔐 Level 2: uSandbox Personal Data
+uSandbox/user-profiles/user.md
+uSandbox/personal-data/*
+!uSandbox/personal-data/.gitkeep
+uSandbox/custom-scripts/personal/*
+!uSandbox/custom-scripts/personal/.gitkeep
 
 # ════════════════════════════════════════════════════════════════
 # 🚫 BUILD ARTIFACTS & DEVELOPMENT FILES
@@ -31,6 +38,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
 
 # Logs and temporary files
 **/*.log
@@ -40,6 +48,7 @@ validation-*.log
 test.log
 test-*.log
 test-output-*
+gemini-*.log
 
 # macOS system files
 .DS_Store
@@ -62,22 +71,6 @@ validation-*.log
 user-config.local
 setup-complete.flag
 
-# Old/backup folders and files
-uDOS-clean-dist/
-uDOS-Extension/
-uExtension/
-*.backup
-*.bak
-*.old
-
-# Development progress tracking (archived)
-progress/
-
-# Test files (temporary)
-test-destroy.sh
-test-trash.sh
-test-*.sh
-
 # ════════════════════════════════════════════════════════════════
 # 🛠️ EDITOR & IDE ARTIFACTS
 # ════════════════════════════════════════════════════════════════
@@ -85,6 +78,11 @@ test-*.sh
 # VS Code personal settings (keep workspace config)
 .vscode/settings.json.local
 .env
+.env.local
+
+# Gemini CLI authentication
+.gemini/
+~/.gemini/
 
 # ════════════════════════════════════════════════════════════════
 # 📱 DISTRIBUTION ARTIFACTS (built locally)
@@ -118,18 +116,7 @@ temp/
 testing/
 scratch/
 
-# Generated sandbox content (daily workspace files)
-sandbox/sessions/*
-sandbox/temp/*
-!sandbox/sessions/.gitkeep
-!sandbox/temp/.gitkeep
-
-# uCompanion system state (optional persistence)
-uCompanion/state/
-uCompanion/.companion-state
-uCompanion/temp/
-
-# Development progress tracking (archived in progress/ folder)
+# Development progress tracking
 dev-notes/
 personal-notes/
 
@@ -142,21 +129,29 @@ system-info.txt
 installation-report.txt
 
 # ════════════════════════════════════════════════════════════════
-# 📝 ALPHA v1.0 - WHAT STAYS IN REPOSITORY
+# 🗑️ TRASH SYSTEM - Archived and deprecated files
 # ════════════════════════════════════════════════════════════════
-# ✅ uCode/ - Core system scripts with Alpha v1.0 enhancements
-# ✅ uKnowledge/ - Documentation and knowledge base
-# ✅ uScript/ - System automation scripts
-# 🗑️  TRASH SYSTEM - Old/deprecated files
-# Contains archived progress, deprecated code, and deleted items
+# Contains old/deprecated files moved during cleanup
+# This folder is tracked to maintain cleanup history
 trash/
 
-# ✅ uTemplate/ - Standard templates and datasets
-# ✅ extension/ - VS Code extension (renamed from uExtension)
-# ✅ package/ - Package management system (NEW)
-# ✅ install/ - Installation and build scripts (NEW)
-# ✅ sandbox/ - Daily workspace structure (NEW)
-# ✅ Distribution scripts (install-udos.sh, etc.)
-# ✅ Core documentation (README.md, roadmaps, etc.)
-# ✅ VS Code workspace configuration (.vscode/tasks.json)
+# ════════════════════════════════════════════════════════════════
+# ✅ WHAT STAYS IN REPOSITORY (uDOS v1.2)
+# ════════════════════════════════════════════════════════════════
+# ✅ uCore/ - Core system scripts and configuration
+# ✅ uCode/ - Shell system and user interface scripts
+# ✅ uDocs/ - Documentation with location tile codes [A1-H3]
+# ✅ uExtensions/ - Modular extension system
+# ✅ uSandbox/ - User workspace (templates only, not personal data)
+# ✅ uInstall/ - Distribution and installation system
+# ✅ uTemplate/ - Template management system
+# ✅ uScript/ - Scripting framework
+# ✅ uKnowledge/ - Knowledge base system
+# ✅ uDev/ - Development tools and utilities
+# ✅ uCompanion/ - AI companion system
+# ✅ uMapping/ - Data mapping utilities
+# ✅ launcher/ - Application launcher system
+# ✅ package/ - Package management system
+# ✅ Core files: README.md, LICENSE, CHANGELOG.md, etc.
+# ✅ VS Code workspace configuration (.vscode/)
 # ════════════════════════════════════════════════════════════════

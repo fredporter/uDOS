@@ -1,0 +1,173 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "uScript Enhanced v1.1.0",
+  "scopeName": "source.uscript",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#mission-keywords"
+    },
+    {
+      "include": "#companion-keywords"
+    },
+    {
+      "include": "#analytics-keywords"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#udos-commands"
+    },
+    {
+      "include": "#shortcodes"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.apostrophe.uscript",
+          "match": "'.*$"
+        },
+        {
+          "name": "comment.line.rem.uscript",
+          "match": "(?i)\\bREM\\b.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.uscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.uscript",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "mission-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.mission.uscript",
+          "match": "(?i)\\b(CREATE\\s+MISSION|ADD\\s+MILESTONE|TRACK\\s+PROGRESS|COMPLETE\\s+MISSION|UPDATE\\s+STATUS)\\b"
+        },
+        {
+          "name": "entity.name.function.mission.uscript",
+          "match": "(?i)\\b(validate_mission|update_mission|create_milestone|track_milestone)\\b"
+        },
+        {
+          "name": "support.constant.mission.uscript",
+          "match": "(?i)\\b(mission_id|mission_name|mission_status|milestone_id|milestone_name)\\b"
+        }
+      ]
+    },
+    "companion-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.companion.uscript",
+          "match": "(?i)\\b(START\\s+COMPANION|USE\\s+ASSISTANT|CALL\\s+CHESTER|INVOKE\\s+SORCERER)\\b"
+        },
+        {
+          "name": "entity.name.function.companion.uscript",
+          "match": "(?i)\\b(start_ai_assistant|start_offline_companion|companion_request|assistant_help)\\b"
+        },
+        {
+          "name": "support.constant.companion.uscript",
+          "match": "(?i)\\b(Chester|Sorcerer|Imp|Drone|Ghost|Wizard|companion_type)\\b"
+        }
+      ]
+    },
+    "analytics-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.analytics.uscript",
+          "match": "(?i)\\b(TRACK\\s+EVENT|LOG\\s+ANALYTICS|UPDATE\\s+METRICS|GENERATE\\s+REPORT)\\b"
+        },
+        {
+          "name": "entity.name.function.analytics.uscript",
+          "match": "(?i)\\b(track_event|log_metric|update_analytics|generate_dashboard)\\b"
+        },
+        {
+          "name": "support.constant.analytics.uscript",
+          "match": "(?i)\\b(event_data|event_name|timestamp|user_role|event_type)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.uscript",
+          "match": "(?i)\\b(IF|THEN|ELSE|END\\s+IF|FOR|NEXT|WHILE|WEND|DO|LOOP|SELECT|CASE|EXIT|RETURN|CALL|FUNCTION|END\\s+FUNCTION|SUB|END\\s+SUB)\\b"
+        },
+        {
+          "name": "keyword.operator.uscript",
+          "match": "(?i)\\b(AND|OR|NOT|XOR|EQV|IMP)\\b"
+        },
+        {
+          "name": "storage.type.uscript",
+          "match": "(?i)\\b(DIM|SET|CONST|GLOBAL|LOCAL)\\b"
+        }
+      ]
+    },
+    "udos-commands": {
+      "patterns": [
+        {
+          "name": "support.function.udos.uscript",
+          "match": "(?i)\\b(HELP|DASH|CHECK|VALIDATE|MISSION|COMPANION|MAPPING|ANALYTICS)\\b"
+        },
+        {
+          "name": "support.function.system.uscript",
+          "match": "(?i)\\b(LOG|PRINT|INPUT|SYSTEM|SHELL|CREATE|DELETE|MOVE|COPY)\\b"
+        }
+      ]
+    },
+    "shortcodes": {
+      "patterns": [
+        {
+          "name": "markup.bold.shortcode.uscript",
+          "begin": "\\{",
+          "end": "\\}",
+          "patterns": [
+            {
+              "name": "entity.name.tag.shortcode.uscript",
+              "match": "(?i)\\b(MISSION_STATUS|COMPANION_LIST|ANALYTICS_CHART|MAP_LOCATION|PROGRESS_BAR|USER_ROLE|SYSTEM_INFO|GEO_CONTEXT)\\b"
+            }
+          ]
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.uscript",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.uscript",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    }
+  }
+}

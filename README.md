@@ -1,8 +1,10 @@
-# 🌀 uDOS — The User DOS Shell
+# 🌀 uDOS — The Universal Data Operating System
 *Version: v1.2 — Mature Production Release*
 
-**uDOS** is a single-process, markdown-native, terminal-first operating system designed to give old devices new life and intelligent memory.  
+**uDOS** is a single-process, markdown-native, terminal-first data operating system designed to give old devices new life and intelligent memory.  
 It is for thinkers, tinkerers, writers, and dreamers — those who want a machine that remembers, evolves, and serves a singular user.
+
+**🎯 Data-First Philosophy**: Unlike traditional disk-based systems, uDOS treats your information as living data — every command, file, and interaction becomes part of an intelligent memory system that learns and adapts to your workflow.
 
 **🚀 v1.2 Standard Features**:
 - ✅ **Unified Template System**: Shortcodes `[COMMAND:args]`, datasets, datagets, and `$variables` 
@@ -30,11 +32,12 @@ It is for thinkers, tinkerers, writers, and dreamers — those who want a machin
 ## 🌱 Vision
 
 - **Human-first, single-user design**: uDOS runs for *you* — not the cloud, not corporations.
+- **Data as the foundation**: Every interaction creates structured, searchable, intelligent data.
 - **Markdown as the OS language**: Every Move, Mission, Milestone, and Map lives in plain `.md`.
-- **Process minimalism**: One shell, one thread, one memory — a living notebook with intent.
-- **Memory with purpose**: All actions form a legacy, built from Moves and Missions over time.
+- **Process minimalism**: One shell, one thread, one memory — a living data ecosystem with intent.
+- **Memory with purpose**: All actions form a legacy, built from structured data over time.
 - **Cross-platform longevity**: Runs natively on modern macOS and Linux — lightweight and thrives on old, repurposed machines.
-- **Intelligent visualization**: Advanced mapping and analytics transform data into insights.
+- **Intelligent data visualization**: Advanced mapping and analytics transform information into insights.
 
 ---
 

@@ -1,0 +1,191 @@
+{
+    "uDOS": {
+        "version": "1.2",
+        "userRoles": {
+            "guest": {
+                "name": "Guest User",
+                "description": "Read-only access with basic viewing capabilities",
+                "permissions": {
+                    "read": ["uDocs", "uKnowledge", "uTemplate/user"],
+                    "write": [],
+                    "execute": ["uCore/ucode.sh"],
+                    "admin": false
+                },
+                "features": {
+                    "sandbox": false,
+                    "scripting": false,
+                    "extensions": false,
+                    "development": false,
+                    "aiCompanion": false
+                },
+                "restrictions": {
+                    "memoryQuota": "0MB",
+                    "scriptExecution": false,
+                    "systemAccess": false,
+                    "networkAccess": false
+                },
+                "defaultDistribution": "minimal"
+            },
+            "user": {
+                "name": "Standard User",
+                "description": "Personal workspace with basic automation capabilities",
+                "permissions": {
+                    "read": ["uDocs", "uKnowledge", "uTemplate", "uMemory/templates"],
+                    "write": ["uSandbox"],
+                    "execute": ["uCore", "uSandbox/personal-scripts"],
+                    "admin": false
+                },
+                "features": {
+                    "sandbox": true,
+                    "scripting": "basic",
+                    "extensions": "curated",
+                    "development": false,
+                    "aiCompanion": "basic"
+                },
+                "restrictions": {
+                    "memoryQuota": "100MB",
+                    "scriptExecution": "sandboxed",
+                    "systemAccess": "limited",
+                    "networkAccess": "filtered"
+                },
+                "defaultDistribution": "standard"
+            },
+            "powerUser": {
+                "name": "Power User",
+                "description": "Advanced features with script creation and system automation",
+                "permissions": {
+                    "read": ["uDocs", "uKnowledge", "uTemplate", "uMemory", "uScript/templates"],
+                    "write": ["uSandbox", "uTemplate/user"],
+                    "execute": ["uCore", "uScript", "uSandbox"],
+                    "admin": false
+                },
+                "features": {
+                    "sandbox": true,
+                    "scripting": "advanced",
+                    "extensions": "all",
+                    "development": "basic",
+                    "aiCompanion": "advanced"
+                },
+                "restrictions": {
+                    "memoryQuota": "500MB",
+                    "scriptExecution": "extended",
+                    "systemAccess": "expanded",
+                    "networkAccess": "open"
+                },
+                "defaultDistribution": "developer"
+            },
+            "developer": {
+                "name": "Developer",
+                "description": "Full development environment with system access",
+                "permissions": {
+                    "read": ["*"],
+                    "write": ["uSandbox", "uTemplate", "uDev", "uScript/user"],
+                    "execute": ["*"],
+                    "admin": "limited"
+                },
+                "features": {
+                    "sandbox": true,
+                    "scripting": "full",
+                    "extensions": "all",
+                    "development": "full",
+                    "aiCompanion": "full"
+                },
+                "restrictions": {
+                    "memoryQuota": "unlimited",
+                    "scriptExecution": "unrestricted",
+                    "systemAccess": "development",
+                    "networkAccess": "unrestricted"
+                },
+                "defaultDistribution": "wizard"
+            },
+            "administrator": {
+                "name": "System Administrator",
+                "description": "System configuration and user management",
+                "permissions": {
+                    "read": ["*"],
+                    "write": ["*", "!uCore/critical"],
+                    "execute": ["*"],
+                    "admin": "full"
+                },
+                "features": {
+                    "sandbox": true,
+                    "scripting": "full",
+                    "extensions": "all",
+                    "development": "full",
+                    "aiCompanion": "full",
+                    "userManagement": true,
+                    "systemConfig": true
+                },
+                "restrictions": {
+                    "memoryQuota": "unlimited",
+                    "scriptExecution": "unrestricted",
+                    "systemAccess": "administrative",
+                    "networkAccess": "unrestricted"
+                },
+                "defaultDistribution": "wizard"
+            },
+            "wizard": {
+                "name": "Master Wizard",
+                "description": "Complete system control with drone spawning capabilities",
+                "permissions": {
+                    "read": ["*"],
+                    "write": ["*"],
+                    "execute": ["*"],
+                    "admin": "supreme"
+                },
+                "features": {
+                    "sandbox": true,
+                    "scripting": "full",
+                    "extensions": "all",
+                    "development": "full",
+                    "aiCompanion": "full",
+                    "userManagement": true,
+                    "systemConfig": true,
+                    "droneSpawning": true,
+                    "distributionCreation": true
+                },
+                "restrictions": {
+                    "memoryQuota": "unlimited",
+                    "scriptExecution": "unrestricted",
+                    "systemAccess": "complete",
+                    "networkAccess": "unrestricted"
+                },
+                "defaultDistribution": "wizard"
+            }
+        },
+        "roleTransitions": {
+            "guest": ["user"],
+            "user": ["powerUser"],
+            "powerUser": ["developer"],
+            "developer": ["administrator"],
+            "administrator": ["wizard"],
+            "wizard": []
+        },
+        "roleValidation": {
+            "guest": {
+                "requirements": [],
+                "verification": "none"
+            },
+            "user": {
+                "requirements": ["email", "agreement"],
+                "verification": "email"
+            },
+            "powerUser": {
+                "requirements": ["user_experience", "scripting_knowledge"],
+                "verification": "quiz"
+            },
+            "developer": {
+                "requirements": ["coding_experience", "system_knowledge"],
+                "verification": "code_review"
+            },
+            "administrator": {
+                "requirements": ["admin_experience", "security_clearance"],
+                "verification": "certification"
+            },
+            "wizard": {
+                "requirements": ["master_certification", "community_standing"],
+                "verification": "council_approval"
+            }
+        }
+    }
+}

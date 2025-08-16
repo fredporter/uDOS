@@ -1,0 +1,116 @@
+{
+  "uScript Mission Template": {
+    "prefix": "mission",
+    "body": [
+      "' uScript Mission: ${1:Mission Name}",
+      "' Created: ${CURRENT_DATE}",
+      "' Purpose: ${2:Mission Purpose}",
+      "",
+      "SET mission_name = \"${1:Mission Name}\"",
+      "SET mission_status = \"active\"",
+      "",
+      "LOG \"Starting mission: \" + mission_name",
+      "",
+      "IF system_check() = \"passed\" THEN",
+      "    LOG \"System check passed - proceeding with mission\"",
+      "    ${3:' Add mission logic here}",
+      "    CREATE MILESTONE \"${4:Milestone Name}\"",
+      "ELSE",
+      "    LOG \"System check failed - aborting mission\"",
+      "    EXIT 1",
+      "END IF",
+      "",
+      "LOG \"Mission completed: \" + mission_name"
+    ],
+    "description": "Create a new uScript mission template"
+  },
+  "uScript Function": {
+    "prefix": "function",
+    "body": [
+      "FUNCTION ${1:function_name}(${2:parameters})",
+      "    ' Purpose: ${3:Function description}",
+      "    ${4:' Function body}",
+      "    RETURN ${5:result}",
+      "END FUNCTION"
+    ],
+    "description": "Create a uScript function"
+  },
+  "uScript If Statement": {
+    "prefix": "if",
+    "body": [
+      "IF ${1:condition} THEN",
+      "    ${2:' True branch}",
+      "ELSE",
+      "    ${3:' False branch}",
+      "END IF"
+    ],
+    "description": "Create an if-then-else statement"
+  },
+  "uScript For Loop": {
+    "prefix": "for",
+    "body": [
+      "FOR ${1:variable} = ${2:start} TO ${3:end}",
+      "    ${4:' Loop body}",
+      "NEXT ${1:variable}"
+    ],
+    "description": "Create a for loop"
+  },
+  "uScript While Loop": {
+    "prefix": "while",
+    "body": [
+      "DO WHILE ${1:condition}",
+      "    ${2:' Loop body}",
+      "LOOP"
+    ],
+    "description": "Create a while loop"
+  },
+  "uDOS Command": {
+    "prefix": "udos",
+    "body": [
+      "${1|LOG,RUN,TREE,LIST,DASH,SYNC,HELP,CHECK,JSON,TEMPLATE,MAP|} ${2:parameters}"
+    ],
+    "description": "Insert a uDOS command"
+  },
+  "Check Command": {
+    "prefix": "check",
+    "body": [
+      "CHECK ${1|USER,LOCATION,TIMEZONE,DATASETS,TEMPLATES,SETUP,STATS,MISSION,MAP|}"
+    ],
+    "description": "Insert a CHECK command"
+  },
+  "JSON Command": {
+    "prefix": "json",
+    "body": [
+      "JSON ${1|LIST,INFO,SEARCH,EXPORT,MERGE,VALIDATE,STATS|} ${2:parameters}"
+    ],
+    "description": "Insert a JSON command"
+  },
+  "Template Command": {
+    "prefix": "template",
+    "body": [
+      "TEMPLATE ${1|LIST,INFO,GENERATE,BATCH,VALIDATE,GENERATED,SAMPLE|} ${2:parameters}"
+    ],
+    "description": "Insert a TEMPLATE command"
+  },
+  "Map Command": {
+    "prefix": "map",
+    "body": [
+      "MAP ${1|GENERATE,REGION,CITY,SHOW,INFO|} ${2:parameters}"
+    ],
+    "description": "Insert a MAP command"
+  },
+  "Variable Declaration": {
+    "prefix": "set",
+    "body": [
+      "SET ${1:variable_name} = ${2:value}"
+    ],
+    "description": "Declare a variable"
+  },
+  "Log Message": {
+    "prefix": "log",
+    "body": [
+      "LOG \"${1:message}\""
+    ],
+    "description": "Log a message"
+  }
+}

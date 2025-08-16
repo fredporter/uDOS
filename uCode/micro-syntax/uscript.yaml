@@ -1,0 +1,52 @@
+filetype: uscript
+
+detect:
+    filename: "\\.us$"
+
+rules:
+    # uDOS Comments
+    - comment: "^\\s*#.*$"
+    
+    # uCODE Commands (shortcodes)
+    - special: "\\[([A-Z|]+)\\]"
+    - special: "\\[([A-Z|]+)\\|([^\\]]+)\\]"
+    
+    # uDOS Template Variables
+    - identifier.var: "\\{\\{[A-Z_]+\\}\\}"
+    - identifier.var: "\\{\\{[A-Z_]+:[^}]+\\}\\}"
+    - identifier.var: "\\{\\{INPUT:[^}]+\\}\\}"
+    - identifier.var: "\\{\\{CUSTOM:[^}]+\\}\\}"
+    
+    # Bash/Shell syntax (inherited)
+    - statement: "\\b(if|then|else|elif|fi|for|while|do|done|case|esac|function|return|exit|break|continue)\\b"
+    - statement: "\\b(echo|printf|read|source|export|local|declare)\\b"
+    
+    # uDOS Functions
+    - identifier.class: "\\b(log_info|log_error|log_success|log_warning|handle_[a-z_]+)\\b"
+    
+    # uDOS Variables
+    - identifier.var: "\\$\\{?(UHOME|UMEMORY|CURRENT_MODE|SCRIPT_DIR|NC|BOLD|[A-Z_]+_COLOR)\\}?"
+    
+    # Strings
+    - constant.string:
+        start: "\""
+        end: "\""
+        rules:
+            - constant.specialChar: "\\\\."
+            - identifier.var: "\\$\\{[^}]+\\}"
+            - identifier.var: "\\$[A-Za-z_][A-Za-z0-9_]*"
+    
+    - constant.string:
+        start: "'"
+        end: "'"
+        rules:
+            - constant.specialChar: "\\\\."
+    
+    # Numbers
+    - constant.number: "\\b[0-9]+\\b"
+    
+    # Operators
+    - symbol.operator: "(\\||\\|\\||&&|==|!=|<=|>=|<|>|=|\\+|\\-|\\*|/|%)"
+    
+    # Shebang
+    - preproc: "^#!.*"

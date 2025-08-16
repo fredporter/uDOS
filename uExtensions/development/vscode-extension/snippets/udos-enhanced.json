@@ -1,0 +1,268 @@
+{
+  "Mission Control: Create Mission": {
+    "prefix": "new-mission",
+    "body": [
+      "#!/bin/bash",
+      "# Create new uDOS mission using Mission Control System",
+      "",
+      "./uCode/mission-system.sh create \"${1:Mission Name}\" \"${2:Mission Description}\" ${3:40.7831} ${4:-73.9712}",
+      ""
+    ],
+    "description": "Create a new uDOS mission with location coordinates"
+  },
+  
+  "Mission Control: Add Milestone": {
+    "prefix": "new-milestone", 
+    "body": [
+      "#!/bin/bash",
+      "# Add milestone to existing mission",
+      "",
+      "./uCode/mission-system.sh milestone \"${1:mission-id}\" \"${2:Milestone Name}\" \"${3:Milestone Description}\"",
+      ""
+    ],
+    "description": "Add a milestone to an existing mission"
+  },
+
+  "User Companion: Start Chester": {
+    "prefix": "start-chester",
+    "body": [
+      "#!/bin/bash", 
+      "# Start Chester - Wizard's Assistant",
+      "",
+      "./uCompanion/gemini/uc-gemini.sh chester",
+      ""
+    ],
+    "description": "Start Chester - Wizard's Assistant (AI-connected)"
+  },
+
+  "User Companion: Start Sorcerer": {
+    "prefix": "start-sorcerer",
+    "body": [
+      "#!/bin/bash",
+      "# Start Sorcerer's Assistant", 
+      "",
+      "./uCompanion/gemini/uc-gemini.sh sorcerer",
+      ""
+    ],
+    "description": "Start Sorcerer's Assistant (AI-connected)"
+  },
+
+  "User Companion: List All": {
+    "prefix": "list-companions",
+    "body": [
+      "#!/bin/bash",
+      "# List all available User Companions",
+      "",
+      "./uCompanion/gemini/uc-gemini.sh list",
+      ""
+    ],
+    "description": "List all available User Companions"
+  },
+
+  "Offline Companion: Imp Tasks": {
+    "prefix": "imp-companion",
+    "body": [
+      "#!/bin/bash",
+      "# Use Imp Companion for quick tasks",
+      "",
+      "./uCompanion/gemini/uc-gemini.sh imp \"${1:task_description}\"",
+      ""
+    ],
+    "description": "Use Imp Companion for quick maintenance tasks"
+  },
+
+  "Offline Companion: Drone Monitor": {
+    "prefix": "drone-companion", 
+    "body": [
+      "#!/bin/bash",
+      "# Use Drone Companion for monitoring",
+      "",
+      "./uCompanion/gemini/uc-gemini.sh drone ${1:monitoring_target}",
+      ""
+    ],
+    "description": "Use Drone Companion for system monitoring"
+  },
+
+  "Offline Companion: Ghost Stealth": {
+    "prefix": "ghost-companion",
+    "body": [
+      "#!/bin/bash", 
+      "# Use Ghost Companion for stealth operations",
+      "",
+      "./uCompanion/gemini/uc-gemini.sh ghost \"${1:stealth_operation}\"",
+      ""
+    ],
+    "description": "Use Ghost Companion for background/stealth operations"
+  },
+
+  "Dashboard: Show Live Analytics": {
+    "prefix": "show-dashboard",
+    "body": [
+      "#!/bin/bash",
+      "# Launch uDOS Enhanced Dashboard",
+      "",
+      "./uCode/dash.sh live",
+      ""
+    ],
+    "description": "Launch the uDOS Enhanced Analytics Dashboard"
+  },
+
+  "Mapping: Interactive Demo": {
+    "prefix": "show-mapping",
+    "body": [
+      "#!/bin/bash",
+      "# Launch Interactive Mapping System",
+      "",
+      "./uTemplate/mapping/working-demo.sh",
+      ""
+    ],
+    "description": "Launch the uDOS Advanced Mapping System"
+  },
+
+  "Mapping: Mission Locations": {
+    "prefix": "mission-mapping",
+    "body": [
+      "#!/bin/bash",
+      "# Launch Mission Mapping Integration",
+      "",
+      "./uCode/mission-mapping-integration.sh all",
+      "# Open mission mapping demo",
+      "code /Users/agentdigital/uDOS/uTemplate/mapping/mission-mapping-demo.html"
+    ],
+    "description": "Generate and view mission location mapping"
+  },
+
+  "System: Full Status Check": {
+    "prefix": "system-status",
+    "body": [
+      "#!/bin/bash", 
+      "# Comprehensive uDOS system status",
+      "",
+      "echo \"🎯 Mission System Status:\"",
+      "./uCode/mission-system.sh stats",
+      "echo \"\"",
+      "echo \"🤝 User Companion Status:\"", 
+      "./uCode/uc-system-setup.sh status",
+      "echo \"\"",
+      "echo \"📊 Dashboard Status:\"",
+      "ps aux | grep -E 'dash\\.sh|analytics' | grep -v grep || echo 'Dashboard not running'",
+      ""
+    ],
+    "description": "Show comprehensive uDOS system status"
+  },
+
+  "Template: Process Shortcodes": {
+    "prefix": "process-shortcodes",
+    "body": [
+      "#!/bin/bash",
+      "# Process uDOS shortcodes in file",
+      "",
+      "./uCode/process-shortcodes.sh \"${1:input_file.md}\" \"${2:output_file.html}\"",
+      ""
+    ],
+    "description": "Process shortcodes in a markdown file"
+  },
+
+  "Analytics: Generate Report": {
+    "prefix": "analytics-report",
+    "body": [
+      "#!/bin/bash",
+      "# Generate analytics report",
+      "",
+      "./uCode/mission-dashboard-integration.sh analytics",
+      "echo \"Analytics report generated in uMemory/analytics/\"",
+      ""
+    ],
+    "description": "Generate mission and system analytics report"
+  },
+
+  "uScript: Advanced Mission Template": {
+    "prefix": "advanced-mission",
+    "body": [
+      "' uDOS Advanced Mission Template",
+      "' Mission: ${1:Mission Name}",
+      "' Created: ${CURRENT_DATE}",
+      "' Role: ${2|Wizard,Sorcerer,Imp,Drone,Ghost|}",
+      "' Priority: ${3|High,Medium,Low|}",
+      "",
+      "SET mission_id = \"${4:mission-id}\"",
+      "SET mission_name = \"${1:Mission Name}\"", 
+      "SET role = \"${2:Wizard}\"",
+      "SET priority = \"${3:Medium}\"",
+      "SET location = [${5:40.7831}, ${6:-73.9712}]",
+      "",
+      "LOG \"🎯 Starting mission: \" + mission_name",
+      "LOG \"📋 Role: \" + role + \" | Priority: \" + priority",
+      "",
+      "' Mission validation",
+      "IF validate_mission(mission_id) = \"passed\" THEN",
+      "    LOG \"✅ Mission validation passed\"",
+      "    ",
+      "    ' Create initial milestone",
+      "    CREATE MILESTONE \"${7:Initial Setup}\"",
+      "    ",
+      "    ' Mission logic here",
+      "    ${8:' Add mission implementation}",
+      "    ",
+      "    ' Complete mission",
+      "    SET mission_status = \"completed\"",
+      "    LOG \"🎉 Mission completed successfully\"",
+      "ELSE",
+      "    LOG \"❌ Mission validation failed\"",
+      "    EXIT 1",
+      "END IF",
+      "",
+      "' Update mission analytics", 
+      "CALL update_analytics(mission_id, \"completed\")",
+      ""
+    ],
+    "description": "Advanced uScript mission template with role-based features"
+  },
+
+  "uScript: Companion Integration": {
+    "prefix": "use-companion",
+    "body": [
+      "' uDOS User Companion Integration",
+      "' Companion: ${1|Chester,Sorcerer,Imp,Drone,Ghost|}",
+      "",
+      "SET companion_type = \"${1:Chester}\"",
+      "SET task_description = \"${2:Task description}\"",
+      "",
+      "LOG \"🤝 Requesting assistance from \" + companion_type",
+      "",
+      "IF companion_type = \"Chester\" OR companion_type = \"Sorcerer\" THEN",
+      "    ' AI-connected assistants",
+      "    CALL start_ai_assistant(companion_type, task_description)",
+      "ELSE",
+      "    ' Offline companions",
+      "    CALL start_offline_companion(companion_type, task_description)",
+      "END IF",
+      "",
+      "LOG \"✅ Companion assistance requested\"",
+      ""
+    ],
+    "description": "Integrate User Companions into uScript workflow"
+  },
+
+  "uScript: Analytics Integration": {
+    "prefix": "track-analytics",
+    "body": [
+      "' uDOS Analytics Tracking",
+      "' Event: ${1:Event Name}",
+      "",
+      "SET event_name = \"${1:Event Name}\"",
+      "SET event_data = {",
+      "    \"timestamp\": CURRENT_TIMESTAMP,",
+      "    \"mission_id\": \"${2:mission-id}\",", 
+      "    \"user_role\": \"${3|Wizard,Sorcerer,Imp,Drone,Ghost|}\",",
+      "    \"event_type\": \"${4|mission_start,milestone_complete,system_update,user_action|}\"",
+      "}",
+      "",
+      "' Log to analytics",
+      "CALL track_event(event_name, event_data)",
+      "LOG \"📊 Analytics event tracked: \" + event_name",
+      ""
+    ],
+    "description": "Add analytics tracking to uScript"
+  }
+}

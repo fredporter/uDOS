@@ -84,14 +84,44 @@
         {
             "label": "🤖 Install Gemini CLI",
             "type": "shell",
-            "command": "./uCode/packages/install-gemini.sh",
+            "command": "./uExtensions/ai/gemini-cli/install-gemini-cli.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
-                "reveal": "always"
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
             },
             "problemMatcher": [],
             "detail": "Install Google Gemini CLI for intelligent assistance"
+        },
+        {
+            "label": "🧠 Start ASSIST Mode",
+            "type": "shell",
+            "command": "./uCore/scripts/assist",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Start Gemini CLI in ASSIST mode with uDOS context"
+        },
+        {
+            "label": "🗣️ Start COMMAND Mode",
+            "type": "shell",
+            "command": "./uCore/scripts/command",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Start natural language command interface"
         },
         {
             "label": "🧠 Start Gemini Companion",
