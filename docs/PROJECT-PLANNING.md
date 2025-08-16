@@ -47,7 +47,7 @@ This document consolidates all planning documents, implementation summaries, and
 │     ├── uDOS-Style-Guide-v3.md     - CAPS-NUMERIC-DASH standards         │
 │     ├── Markdown-Language-Spec.md  - uDOS markdown specification         │
 │     ├── Art-Gallery.md             - Visual component library            │
-│     ├── Gaming-Integration.md      - Interactive features               │
+│     ├── Adventure.md               - Interactive features               │
 │     ├── Smart-Input-System.md      - Intelligent input processing        │
 │     └── uDOS-Template-Standard.md  - Template creation guidelines        │
 │                                                                             │

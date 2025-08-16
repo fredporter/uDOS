@@ -38,7 +38,7 @@
 │                                                                             │
 │  🎨 Visual & Interactive                                                   │
 │     ├── 🎭 Art-Gallery.md             - Visual component library          │
-│     ├── 🎮 Gaming-Integration.md      - Interactive features & games      │
+│     ├── 🎮 Adventure.md               - Interactive features & games      │
 │     └── 🧠 Smart-Input-System.md      - Intelligent input processing      │
 │                                                                             │
 │  🔧 Technical Reference                                                    │
@@ -167,7 +167,7 @@ cat docs/Art-Gallery.md
 - Data visualization components
 - Progress indicators and frames
 
-#### 🎮 [Gaming-Integration.md](Gaming-Integration.md)
+#### 🎮 [Adventure.md](Adventure.md)
 *Interactive features and gaming elements*
 - Adventure mode documentation
 - Interactive tutorial system
