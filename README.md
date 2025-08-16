@@ -18,40 +18,82 @@
 
 ## 🚀 What's New in v1.3
 
-### ✨ Key Features
+### ✨ Major Features
 
-#### 🌍 Global Timezone Integration
-- **38 timezone codes** automatically mapped from city dataset
-- **Real-time timezone detection** with automatic file timestamping
-- **Global compatibility** across all development workflows
-- **DST awareness** with automatic daylight saving time handling
+#### 🔌 Extension System
+- **Modular Architecture**: Plugin-based system for expanding functionality
+- **Deployment Manager**: Comprehensive deployment system (drone, standalone, server, portable, cloud, developer)
+- **Smart Input Enhanced**: Advanced form builders, wizards, and AI-powered input validation
+- **Extension Registry**: Centralized management and discovery system
 
-#### 🧙‍♂️ Wizard Development Mode (uDEV)
+#### 🧙‍♂️ Wizard Development Environment
+- **Renamed from uDEV**: Now called "wizard" for better user understanding
 - **Exclusive development environment** for advanced users
 - **Automated session logging** with comprehensive activity tracking
 - **VS Code integration** with dedicated development workspace
 - **Task management** integration with AI-enhanced workflows
 
-#### 🤖 Enhanced ASSIST Mode
+#### 🌍 Global Timezone Integration (v1.2+)
+- **38 timezone codes** automatically mapped from city dataset
+- **Real-time timezone detection** with automatic file timestamping
+- **Global compatibility** across all development workflows
+- **DST awareness** with automatic daylight saving time handling
+
+#### 🤖 Enhanced ASSIST Mode (v1.2+)
 - **Sandbox task management** for organized development workflows
 - **Natural language processing** for intuitive task creation
 - **AI-powered automation** with context-aware assistance
 - **Collaborative development** support with team workflows
 
-#### 📁 v1.3 Naming Convention
-- **CAPS-NUMERIC-DASH** standard across all system elements
-- **Enhanced filename format**: `uTYPE-YYYYMMDD-HHMM-TTZ-MMLLNN.md`
-- **Automated migration tools** for existing files
-- **Validation systems** ensuring naming compliance
+#### 📁 v1.3 Architecture Updates
+- **Clean uCORE Structure**: Minimal, expandable core with extension support
+- **Extension Development Kit**: Tools for building custom extensions
+- **Template-driven Deployments**: JSON-based configuration system
+- **Comprehensive Validation**: Input validation and deployment verification
 
 ## 🏗️ Directory Structure
 
 ```
 [00-00-00] uDOS/
 ├── [10-00-00] uCORE/          # Core system files (read-only in production)
+│   ├── code/                  # Main system scripts [10-20-00]
+│   ├── launcher/              # Cross-platform launching [10-10-00]
+│   └── extensions/            # Extension system [10-30-00]
+│       ├── registry.json      # Extension registry
+│       ├── extensions.sh      # Extension manager
+│       └── development/       # Extension development
 ├── [20-00-00] uMEMORY/        # User data & customizations  
 ├── [30-00-00] uKNOWLEDGE/     # Shared knowledge bank (Wizard managed)
-└── [40-00-00] sandbox/        # User workspace & drafts
+├── [40-00-00] sandbox/        # User workspace & drafts
+└── [50-00-00] wizard/         # Development environment (renamed from uDEV)
+    ├── logs/                  # Development session logs
+    ├── workflows/             # Workflow automation
+    ├── tools/                 # Development tools
+    └── vscode/                # VS Code integration
+```
+
+## 🔌 Extension System
+
+uDOS v1.3 introduces a powerful extension system for modular functionality:
+
+### Available Extensions
+- **🚁 Deployment Manager**: Multi-platform deployment system (drone, standalone, server, portable, cloud, developer)
+- **🧠 Smart Input Enhanced**: Advanced form builders, wizards, and AI-powered input validation
+- **🤖 AI Assistant**: Intelligent automation and assistance capabilities
+
+### Extension Usage
+```bash
+# List available extensions
+./uCORE/extensions/extensions.sh LIST
+
+# Run deployment manager
+./uCORE/extensions/extensions.sh RUN deployment-manager DRONE /path/to/target
+
+# Create interactive forms
+./uCORE/extensions/extensions.sh RUN smart-input-enhanced FORM CREATE "contact-form"
+
+# Run mission creation wizard
+./uCORE/extensions/extensions.sh RUN smart-input-enhanced WIZARD mission-creation
 ```
 
 ## 🌟 Key Features v1.2
@@ -69,13 +111,13 @@
 **System files, protected from user modification**
 - `code/` - Main uDOS scripts and logic [10-20-00]
 - `launcher/` - Cross-platform launching system [10-10-00]  
-- `extensions/` - System extensions and modules [10-30-00]
-  - `gemini/` - Google Gemini CLI integration [10-30-01]
-- `docs/` - System documentation [10-50-00]
+- `extensions/` - Extension system and modules [10-30-00]
+  - `registry.json` - Extension registry and metadata
+  - `extensions.sh` - Extension manager and loader
+  - `development/` - Extension development environment
+    - `deployment-manager.sh` - Multi-platform deployment system
+    - `smart-input-enhanced.sh` - Advanced input and form system
 - `templates/` - Core template library [10-40-00]
-- `development/` - Development tools [10-60-00]
-- `installers/` - Installation systems [10-70-00]
-- `datasets/` - Core datasets and mappings [10-80-00]
 
 ### 💾 uMEMORY/ - User Data [20-00-00]
 **Your personal data and customizations**
@@ -84,7 +126,8 @@
 - `scripts/` - Your custom scripts [20-30-00]
 - `datasets/` - Your personal datasets [20-40-00]
 - `projects/` - Your project files [20-50-00]
-- `extensions/` - Your personal extensions [20-60-00]
+- `forms/` - Generated forms and responses [20-60-00]
+- `deployments/` - Deployment configurations and logs [20-70-00]
 
 ### 📚 uKNOWLEDGE/ - Knowledge Bank [30-00-00]
 **Shared public knowledge (Wizard managed)**
@@ -98,6 +141,15 @@
 - `scripts/` - Experimental scripts [40-20-00]
 - `drafts/` - Work-in-progress files [40-30-00]
 - `experiments/` - Testing and prototyping area [40-40-00]
+- `test-deployment/` - Deployment testing environment [40-50-00]
+
+### 🧙‍♂️ wizard/ - Development Environment [50-00-00]
+**Advanced development and workflow system (renamed from uDEV)**
+- `logs/` - Development session logs and activity tracking [50-10-00]
+- `workflows/` - Automated workflow definitions [50-20-00]
+- `tools/` - Development and maintenance tools [50-30-00]
+- `vscode/` - VS Code integration and workspace files [50-40-00]
+- `reports/` - Generated reports and summaries [50-50-00]
 
 ## 🚀 Quick Start
 
@@ -218,7 +270,7 @@ code uDOS.code-workspace
 
 ---
 
-**uDOS v1.2** - *Where Data Meets Intelligence* ✨
+**uDOS v1.3** - *Where Data Meets Intelligence* ✨
 
-**Features**: Cross-Platform Launcher | Documentation Standards | Location Coding | VS Code Integration  
-**Updated**: August 16, 2025 | **Architecture**: Modern Modular Design
+**Features**: Extension System | Deployment Manager | Smart Input Enhanced | Wizard Development Environment  
+**Updated**: August 17, 2025 | **Architecture**: Modern Modular Design with Plugin Architecture

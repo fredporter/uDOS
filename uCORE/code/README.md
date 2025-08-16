@@ -74,7 +74,7 @@ uCode/
 - Shortcode expansion
 - Dynamic content generation
 
-### With uDev System
+### With wizard System
 - Development report creation
 - Migration documentation
 - System analysis tools

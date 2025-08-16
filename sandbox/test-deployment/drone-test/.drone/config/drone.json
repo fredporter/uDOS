@@ -1,0 +1,12 @@
+{
+  "drone_id": "2C802A8D-FB22-4962-A361-47208BC7E928",
+  "deployment_date": "2025-08-16T14:33:03Z",
+  "template": "minimal-drone",
+  "version": "1.0.0",
+  "parent_system": "Mac.net",
+  "config": {
+    "offline_mode": true,
+    "sync_enabled": false,
+    "telemetry_level": "minimal"
+  }
+}

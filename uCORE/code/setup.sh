@@ -9,6 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="${HOME}/uDOS"
 UMEM="${UHOME}/uMemory"
+UDEV="${UHOME}/wizard"
 SETUP_TEMPLATE="${UHOME}/uTemplate/user-setup-template.md"
 TEMP_DIR="${UMEM}/temp/setup-$$"
 VARS_FILE="${TEMP_DIR}/setup_vars.txt"

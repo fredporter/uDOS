@@ -8,7 +8,7 @@ UHOME="${UHOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 USCRIPT="$UHOME/uScript"
 USANDBOX="$UHOME/sandbox"
 TRASH="$UHOME/trash"
-UDEV="$UHOME/uDev"
+UDEV="$UHOME/wizard"
 
 # Colors
 RED='\033[0;31m'

@@ -1,0 +1,30 @@
+{
+  "template_id": "minimal-drone",
+  "name": "Minimal Drone Installation",
+  "type": "drone",
+  "description": "Lightweight remote installation with core functionality",
+  "requirements": {
+    "disk_space_mb": 50,
+    "memory_mb": 256,
+    "network": "optional"
+  },
+  "components": [
+    "uCORE/code/ucode.sh",
+    "uCORE/code/log.sh", 
+    "uCORE/templates/system/",
+    "uMEMORY/templates/"
+  ],
+  "structure": {
+    "uCode/": ["ucode.sh", "log.sh"],
+    "uMemory/": ["active/", "templates/", "archive/"],
+    "uTemplate/": ["drone/", "system/", "user/"],
+    ".drone/": ["config/", "status/", "logs/"],
+    "docs/": ["README.md"],
+    "install/": ["install-drone.sh"]
+  },
+  "config": {
+    "offline_capable": true,
+    "auto_sync": false,
+    "telemetry": "minimal"
+  }
+}

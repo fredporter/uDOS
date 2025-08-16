@@ -7,7 +7,7 @@
 - **Development Scripts**: Manage one-off cleanup and maintenance scripts
 - **Sandbox Execution**: Scripts run safely in the user sandbox
 - **Auto-cleanup**: Executed scripts moved to archive, then trash
-- **Development Mode**: Integration with uDev environment
+- **Development Mode**: Integration with wizard environment
 
 ## 📁 Directory Structure
 
@@ -20,7 +20,7 @@ uScript/
 └── logs/                # Execution logs
 
 uMemory/sandbox/scripts/ # Temporary execution location
-uDev/logs/scripts/       # System execution logs
+wizard/logs/scripts/       # System execution logs
 ```
 
 ## 🚀 Usage
@@ -92,7 +92,7 @@ uDev/logs/scripts/       # System execution logs
 - **Sandbox Execution**: Scripts run in isolated sandbox
 - **Backup Integration**: Automatic logging and history
 - **Error Handling**: Proper error reporting and rollback
-- **Development Mode**: Integration with uDev logging
+- **Development Mode**: Integration with wizard logging
 
 ## 🎯 Use Cases
 
@@ -105,7 +105,7 @@ uDev/logs/scripts/       # System execution logs
 ## 🔧 Integration
 
 - **uCode Integration**: Install scripts from uCode directory
-- **uDev Logging**: Execution logged to development environment
+- **wizard Logging**: Execution logged to development environment
 - **Sandbox Safety**: User data protected in sandbox
 - **Template System**: Pre-built script patterns
 - **VS Code**: Automatic editor integration

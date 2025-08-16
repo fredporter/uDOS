@@ -9,7 +9,7 @@ UKNOWLEDGE="$UHOME/uKnowledge"
 UDOCS="$UHOME/docs"
 UTEMPLATE="$UHOME/uTemplate"
 UCOMPANION="$UHOME/uCompanion"
-UDEV="$UHOME/uDev"
+UDEV="$UHOME/wizard"
 TRASH="$UHOME/trash"
 
 # Colors

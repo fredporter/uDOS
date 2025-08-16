@@ -59,7 +59,7 @@ uDOS (Universal Data Operating System) represents a paradigm shift in human-comp
 │  ✅ v1.3 Enhanced Features  📅 Q4 2025           │
 │     • CAPS-NUMERIC-DASH naming convention          │
 │     • Timezone integration (38 codes)              │
-│     • uDEV wizard development environment          │
+│     • wizard wizard development environment          │
 │     • Enhanced ASSIST mode with task management    │
 │     • Comprehensive documentation consolidation    │
 │     • VS Code integration and workspace setup      │
@@ -72,7 +72,7 @@ uDOS (Universal Data Operating System) represents a paradigm shift in human-comp
 #### **Core System Features**
 - ✅ **File Management**: CAPS-NUMERIC-DASH naming with timezone integration
 - ✅ **Memory System**: Flat-file architecture with markdown native storage
-- ✅ **Development Environment**: uDEV wizard mode with automated logging
+- ✅ **Development Environment**: wizard wizard mode with automated logging
 - ✅ **Task Management**: Sandbox system with ASSIST mode integration
 - ✅ **Documentation**: Comprehensive user and technical documentation
 - ✅ **Gaming Integration**: NetHack and adventure mode functionality
@@ -224,7 +224,7 @@ uDOS (Universal Data Operating System) represents a paradigm shift in human-comp
 ## 📈 Feature Development Timeline
 
 ### **Q4 2025 - Current**
-- ✅ **v1.3 Release**: CAPS-NUMERIC-DASH, timezone integration, uDEV mode
+- ✅ **v1.3 Release**: CAPS-NUMERIC-DASH, timezone integration, wizard mode
 - 🔄 **Documentation Consolidation**: Comprehensive docs organization
 - 🔄 **System Optimization**: Performance and usability improvements
 

@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEMORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/uMEMORY"
 UTEMPLATE="${UHOME}/uTemplate"
-UDEV="${UHOME}/wizard"
+UDEV="${UHOME}/uDev"
 
 # Version
 VERSION="v1.2"

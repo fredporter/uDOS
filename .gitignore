@@ -94,10 +94,10 @@ setup-complete.flag
 # 🛠️ DEVELOPMENT ENVIRONMENT FILES
 # ════════════════════════════════════════════════════════════════
 
-# uDEV wizard development environment - personal logs and sessions
-uDEV/logs/
-uDEV/summaries/
-uDEV/.dev-session-*
+# wizard wizard development environment - personal logs and sessions
+wizard/logs/
+wizard/summaries/
+wizard/.dev-session-*
 *.uLOG
 
 # ════════════════════════════════════════════════════════════════
@@ -168,7 +168,7 @@ trash/
 # ✅ WHAT STAYS IN REPOSITORY (uDOS v1.3)
 # ════════════════════════════════════════════════════════════════
 # ✅ uCORE/ - Core system architecture and functionality
-# ✅ uDEV/ - Wizard development environment (tools only, not logs)
+# ✅ wizard/ - Wizard development environment (tools only, not logs)
 # ✅ uKNOWLEDGE/ - Knowledge base system
 # ✅ docs/ - Consolidated documentation system
 # ✅ sandbox/ - User workspace templates and task management
