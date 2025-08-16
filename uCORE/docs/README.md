@@ -1,16 +1,151 @@
 # uDOS Documentation Index
 
-```
-    ██████╗  ██████╗  ██████╗███████╗    ██╗███╗   ██╗██████╗ ███████╗██╗  ██╗
-    ██╔══██╗██╔═══██╗██╔════╝██╔════╝    ██║████╗  ██║██╔══██╗██╔════╝╚██╗██╔╝
-    ██║  ██║██║   ██║██║     ███████╗    ██║██╔██╗ ██║██║  ██║█████╗   ╚███╔╝ 
-    ██║  ██║██║   ██║██║     ╚════██║    ██║██║╚██╗██║██║  ██║██╔══╝   ██╔██╗ 
-    ██████╔╝╚██████╔╝╚██████╗███████║    ██║██║ ╚████║██████╔╝███████╗██╔╝ ██╗
-    ╚═════╝  ╚═════╝  ╚═════╝╚══════╝    ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
+````markdown
+# uCORE Technical Documentation
 
-    Universal Data Operating System - Documentation Hub
-    ═══════════════════════════════════════════════════════════════════════════
 ```
+    ██╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗    ████████╗███████╗ ██████╗██╗  ██╗
+    ██║   ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝    ╚══██╔══╝██╔════╝██╔════╝██║  ██║
+    ██║   ██║██║     ██║   ██║██████╔╝█████╗         ██║   █████╗  ██║     ███████║
+    ██║   ██║██║     ██║   ██║██╔══██╗██╔══╝         ██║   ██╔══╝  ██║     ██╔══██║
+    ╚██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗       ██║   ███████╗╚██████╗██║  ██║
+     ╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝       ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝
+
+    uCORE Technical Documentation - Development & System Reference
+    ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+```
+
+**Version**: 1.3.0  
+**Last Updated**: August 16, 2025  
+**Scope**: Technical documentation for developers and system administrators  
+**Audience**: Advanced users, developers, contributors
+
+---
+
+## 📂 Documentation Structure
+
+```ascii
+┌─── uCORE TECHNICAL DOCUMENTATION ─────────────────────────────────────────┐
+│                                                                             │
+│  🏗️ System Architecture                                                    │
+│     ├── ARCHITECTURE.md               - Core system architecture           │
+│     └── system/                       - Detailed system components        │
+│                                                                             │
+│  🔧 Development Resources                                                  │
+│     ├── development/                  - Development guides & reports       │
+│     ├── Development-Guide.md          - Complete developer documentation   │
+│     └── Editor-Integration-Demo.md    - IDE integration examples          │
+│                                                                             │
+│  📋 Standards & Specifications                                            │
+│     ├── uDOS-Markdown-Standard.md     - Technical markdown specification   │
+│     ├── uDOS-User-File-Standard*.md   - File format specifications        │
+│     └── input-system-documentation.md - Input system technical docs       │
+│                                                                             │
+│  📊 Project Management                                                    │
+│     ├── REORGANIZATION_PLAN.md        - System reorganization planning    │
+│     ├── V1.2_RELEASE_SUMMARY.md       - Release documentation             │
+│     └── *-summary.md files            - Various project summaries         │
+│                                                                             │
+│  🔗 Integration Documentation                                             │
+│     ├── packages/                     - Package integration guides        │
+│     ├── user/                         - User system technical docs        │
+│     └── installation/                 - Installation & setup guides       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Documentation Categories
+
+### System Architecture
+- **Core Architecture**: System design and component relationships
+- **Memory Structure**: File organization and data management
+- **Location Mapping**: Geographic data integration systems
+
+### Development Documentation  
+- **Development Guides**: Complete developer onboarding and workflows
+- **Testing Reports**: System testing and validation documentation
+- **Migration Guides**: Version upgrade and migration procedures
+
+### Technical Specifications
+- **File Standards**: Technical file format specifications
+- **Input System**: Advanced input processing documentation
+- **Integration Protocols**: System integration guidelines
+
+### Project History
+- **Release Summaries**: Historical release documentation
+- **Reorganization Plans**: System evolution documentation
+- **Development Reports**: Detailed development progress tracking
+
+---
+
+## 🚀 Quick Navigation
+
+### For Developers
+**Start with:**
+1. [Development-Guide.md](Development-Guide.md) - Complete development guide
+2. [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture overview
+3. [development/README.md](development/README.md) - Development resources index
+
+### For System Administrators
+**Key documents:**
+1. [installation/](installation/) - Installation and setup guides
+2. [system/](system/) - System configuration documentation
+3. [packages/](packages/) - Package management documentation
+
+### For Contributors
+**Essential reading:**
+1. Development reports in [development/reports/](development/reports/)
+2. Standards documentation (uDOS-*-Standard.md files)
+3. Project planning documents (REORGANIZATION_PLAN.md, etc.)
+
+---
+
+## 📚 User Documentation Location
+
+**Note:** User-facing documentation has been moved to the root `docs/` folder:
+
+```
+/docs/                          # User-facing documentation
+├── USER-GUIDE.md              # Complete user guide
+├── ROADMAP.md                 # Development roadmap
+├── uDOS-Style-Guide-v3.md     # Naming conventions & style
+├── Markdown-Language-Spec.md  # Markdown specification
+├── ASCII-Art-Gallery.md       # Visual components
+└── README.md                  # Documentation hub
+```
+
+This separation ensures:
+- **Clear separation** between user and technical documentation
+- **Better organization** for different audiences
+- **Easier maintenance** of documentation sets
+- **Improved discoverability** for specific use cases
+
+---
+
+```ascii
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║                                                                              ║
+    ║     🔧 uCORE Technical Documentation 🔧                                    ║
+    ║                                                                              ║
+    ║   This technical documentation is designed for developers, system           ║
+    ║   administrators, and advanced users who need deep technical knowledge      ║
+    ║   of the uDOS system. For user-facing documentation, please visit the      ║
+    ║   root docs/ folder.                                                        ║
+    ║                                                                              ║
+    ║          🛠️ Technical excellence through documentation! 🛠️                ║
+    ║                                                                              ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+*uCORE Technical Documentation v1.3*  
+*Universal Data Operating System Project*  
+*August 2025*
+
+````
 
 **Version**: 1.2.0  
 **Last Updated**: August 16, 2025  

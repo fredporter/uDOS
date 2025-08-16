@@ -12,7 +12,7 @@
    ═══════════════════════════════════════════════════════════════
 ```
 
-**Collection**: uDOS v1.2 ASCII Art Library  
+**Collection**: uDOS v1.3 ASCII Art Library  
 **Style**: Terminal-Native Retro Computing  
 **Inspiration**: Acorn BBC Micro, VT100, Classic Computing
 

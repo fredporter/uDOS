@@ -8,14 +8,14 @@
     ██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██╗██████╔╝╚██████╔╝╚███╔███╔╝██║ ╚████║
     ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
 
-    uDOS Markdown Language Specification v1.2
+    uDOS Markdown Language Specification v1.3
     ══════════════════════════════════════════════════════════════════════════
 ```
 
-**Document Version**: 1.2.0  
+**Document Version**: 1.3.0  
 **Last Updated**: August 16, 2025  
 **Status**: Active Standard  
-**Compatibility**: uDOS v1.2+
+**Compatibility**: uDOS v1.3+ with CAPS-NUMERIC-DASH naming
 
 ---
 

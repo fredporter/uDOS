@@ -8,14 +8,14 @@
        ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗
        ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-    Universal Data Operating System - Template Library Standard v1.0
+    Universal Data Operating System - Template Library Standard v1.3
     ═════════════════════════════════════════════════════════════════════
 ```
 
-**Version**: 1.0  
+**Version**: 1.3  
 **Date**: August 16, 2025  
 **Part Number**: uDOS-TMP-STD-001  
-**Issue**: 1
+**Issue**: 3
 
 ---
 

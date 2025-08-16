@@ -8,13 +8,13 @@
     ██║ ╚████║███████╗   ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗
     ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
 
-              Classic Terminal Gaming in uDOS v1.2
+              Classic Terminal Gaming in uDOS v1.3
     ══════════════════════════════════════════════════════════════
 ```
 
 ## 🎮 Welcome to uDOS Gaming
 
-uDOS now includes classic terminal-based gaming experiences that perfectly complement the retro computing aesthetic. Experience the golden age of computer gaming with full integration into the uDOS ecosystem.
+uDOS v1.3 includes classic terminal-based gaming experiences that perfectly complement the retro computing aesthetic. Experience the golden age of computer gaming with full integration into the uDOS ecosystem.
 
 ## 🗡️ NetHack - The Ultimate Roguelike
 
