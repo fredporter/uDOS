@@ -1,0 +1,23 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=uDOS
+Comment=Universal Data Operating System
+Exec=/home/%u/uDOS/uCORE/launcher/platform/linux/uDOS.sh
+Icon=/home/%u/uDOS/uCORE/launcher/assets/udos-icon.png
+Terminal=false
+Categories=Development;Utility;
+Keywords=uDOS;data;operating;system;terminal;
+StartupNotify=true
+MimeType=text/plain;
+Actions=Terminal;VSCode;
+
+[Desktop Action Terminal]
+Name=Launch in Terminal
+Exec=/home/%u/uDOS/uCORE/launcher/platform/linux/uDOS.sh --terminal
+Icon=utilities-terminal
+
+[Desktop Action VSCode]
+Name=Launch in VS Code
+Exec=/home/%u/uDOS/uCORE/launcher/platform/linux/uDOS.sh --vscode
+Icon=code

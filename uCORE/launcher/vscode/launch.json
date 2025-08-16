@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🐛 Debug uDOS Core",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/uCORE/code/ucode.sh",
+            "cwd": "${workspaceFolder}",
+            "args": ["--debug"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "🐛 Debug Launcher",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/uCORE/launcher/universal/start-udos.sh",
+            "cwd": "${workspaceFolder}",
+            "args": ["--dev"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "🐛 Debug Platform Detection",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/uCORE/launcher/universal/detect-platform.sh",
+            "cwd": "${workspaceFolder}",
+            "args": ["--verbose"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

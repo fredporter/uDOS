@@ -1,0 +1,55 @@
+{
+    "folders": [
+        {
+            "name": "🏠 uDOS Root",
+            "path": "."
+        },
+        {
+            "name": "🧠 Core System",
+            "path": "./uCORE"
+        },
+        {
+            "name": "💾 User Memory",
+            "path": "./uMEMORY"
+        },
+        {
+            "name": "📚 Knowledge Base",
+            "path": "./uKNOWLEDGE"
+        },
+        {
+            "name": "🏗️ Sandbox",
+            "path": "./sandbox"
+        }
+    ],
+    "settings": {
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.defaultProfile.windows": "Git Bash",
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "files.associations": {
+            "*.us": "shellscript",
+            "*.utemplate": "markdown",
+            "*.umemory": "json"
+        },
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#2D3748",
+            "titleBar.activeForeground": "#FFFFFF",
+            "statusBar.background": "#2D3748",
+            "statusBar.foreground": "#FFFFFF"
+        },
+        "editor.rulers": [80, 120],
+        "editor.wordWrap": "on",
+        "markdown.preview.fontSize": 14,
+        "git.ignoreLimitWarning": true
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.vscode-typescript-next",
+            "yzhang.markdown-all-in-one",
+            "ms-vscode.powershell",
+            "rogalmic.bash-debug",
+            "mads-hartmann.bash-ide-vscode",
+            "jeff-hykin.better-shellscript-syntax"
+        ]
+    }
+}

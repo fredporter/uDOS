@@ -1,145 +1,137 @@
-# 🔧 uDev — Development Documentation System
-*Version: v1.2 — Development Reports & Analysis*
+# uDEV - uDOS Development Environment
 
-**Purpose**: Centralized development documentation, migration reports, and system analysis for uDOS evolution tracking.
+## 🧙‍♂️ Wizard User Development Mode
 
----
+Exclusive development environment for advanced uDOS development and system enhancement.
 
-## 🎯 Directory Structure
+## 📁 Directory Structure
 
 ```
-uDev/
-├── README.md              # This file
-├── reports/               # Development status reports
-├── migrations/            # System migration documentation
-├── analysis/              # Code and system analysis
-└── templates/             # Development documentation templates
+uDEV/
+├── vscode/              # VS Code configuration and extensions
+│   └── .vscode/         # Workspace settings, tasks, launch configs
+├── logs/                # Development activity logs (uLOG format)
+├── summaries/           # Development summary reports (uLOG format)
+├── tools/               # Development utilities and scripts
+├── extensions/          # Custom VS Code extensions for uDOS
+├── templates/           # Development templates and boilerplates
+├── testing/             # Development testing environments
+└── workspace/           # Active development workspace
 ```
 
----
+## 🎯 Purpose
 
-## 📁 Directory Purposes
+The uDEV environment provides:
 
-### 📊 `/reports/`
-Development status reports and progress summaries:
-- **Version release summaries** (`V1.2_RELEASE_SUMMARY.md`)
-- **Feature implementation reports** (`FEATURE_IMPLEMENTATION.md`)
-- **System status reports** (`SYSTEM_STATUS.md`)
-- **Performance analysis** (`PERFORMANCE_ANALYSIS.md`)
+### 🔧 Development Tools
+- **VS Code Integration**: Dedicated workspace configuration
+- **Custom Extensions**: uDOS-specific development tools
+- **Script Development**: Advanced shell scripting environment
+- **Template System**: Reusable development patterns
 
-### 🔄 `/migrations/`
-System migration and structural change documentation:
-- **Architecture migrations** (`UMEMORY_FLAT_MIGRATION_v1.2.md`)
-- **Database schema changes** (`SCHEMA_MIGRATION.md`)
-- **API version upgrades** (`API_MIGRATION.md`)
-- **File structure changes** (`STRUCTURE_MIGRATION.md`)
+### 📊 Development Logging
+- **Activity Logs**: All development actions logged in uLOG format
+- **Progress Tracking**: Milestone and feature development logs
+- **Debug Sessions**: Detailed debugging information
+- **Performance Metrics**: System optimization data
 
-### 🔍 `/analysis/`
-Code analysis and system insights:
-- **Codebase analysis** (`CODEBASE_ANALYSIS.md`)
-- **Dependency audits** (`DEPENDENCY_AUDIT.md`)
-- **Security analysis** (`SECURITY_ANALYSIS.md`)
-- **Performance benchmarks** (`PERFORMANCE_BENCHMARKS.md`)
+### 🧪 Testing Environment
+- **Isolated Testing**: Safe environment for experimental features
+- **Integration Testing**: Component interaction validation
+- **Performance Testing**: System optimization validation
+- **Regression Testing**: Change impact assessment
 
-### 📝 `/templates/`
-Templates for development documentation:
-- **Migration report template** (`migration-template.md`)
-- **Analysis report template** (`analysis-template.md`)
-- **Status report template** (`status-template.md`)
+## 🚀 Key Features
 
----
-
-## 📝 Naming Conventions
-
-### Report Files
-| Type | Format | Example |
-|------|--------|---------|
-| **Release Reports** | `V{version}_RELEASE_SUMMARY.md` | `V1.2_RELEASE_SUMMARY.md` |
-| **Migration Reports** | `{COMPONENT}_MIGRATION_v{version}.md` | `UMEMORY_FLAT_MIGRATION_v1.2.md` |
-| **Status Reports** | `{SYSTEM}_STATUS_{YYYYMMDD}.md` | `CORE_STATUS_20250720.md` |
-| **Analysis Reports** | `{TYPE}_ANALYSIS_{YYYYMMDD}.md` | `PERFORMANCE_ANALYSIS_20250720.md` |
-
-### Timestamp Format
-- **Date**: `YYYYMMDD` format (e.g., `20250720`)
-- **Version**: `v{major}.{minor}` format (e.g., `v1.2`)
-- **Component**: `UPPERCASE_WITH_UNDERSCORES` (e.g., `UMEMORY_FLAT`)
-
----
-
-## 🚀 Integration with uDOS
-
-### Automatic Report Generation
-```bash
-# Generate development report
-./uCode/ucode.sh DEV REPORT create migration
-
-# Archive old reports
-./uCode/ucode.sh DEV ARCHIVE reports older-than 30
-
-# List development documentation
-./uCode/ucode.sh DEV LIST reports
-```
+### Wizard User Exclusive
+- Advanced development capabilities
+- System-level access and modifications
+- Direct integration with uDOS core systems
+- Administrative development privileges
 
 ### VS Code Integration
-- **uDev Explorer**: Custom view for development documentation
-- **Report Templates**: Snippets for rapid report creation
-- **Search Integration**: Full-text search across all development docs
-- **Git Integration**: Automatic commit of significant reports
+- Custom workspace configuration
+- uDOS-specific snippets and templates
+- Integrated terminal with uDOS context
+- Extension development environment
+
+### Automated Logging
+- All development activities automatically logged
+- uLOG v1.3 naming convention compliance
+- Searchable development history
+- Progress tracking and reporting
+
+## 🛠️ Usage
+
+### Entering Wizard Dev Mode
+```bash
+# Access development environment
+cd /Users/agentdigital/uDOS/uDEV
+
+# Launch VS Code with uDOS development workspace
+code vscode/
+
+# Start development logging
+./tools/start-dev-session.sh
+```
+
+### Development Workflow
+1. **Initialize Session**: Start development logging
+2. **Define Objectives**: Create task in sandbox/tasks/
+3. **Develop Features**: Use uDEV tools and environment
+4. **Test Integration**: Validate changes in testing/
+5. **Document Progress**: Auto-logged in logs/ directory
+6. **Complete Session**: Archive results in summaries/
+
+## 🔗 Integration Points
+
+### uDOS Core Systems
+- **uCORE**: Direct access to core functionality
+- **uMEMORY**: Development state persistence
+- **uKNOWLEDGE**: Documentation and learning integration
+- **Sandbox Tasks**: Active task management integration
+
+### External Tools
+- **VS Code**: Primary development interface
+- **Git**: Version control integration
+- **Shell Scripts**: Advanced automation capabilities
+- **ASSIST Mode**: AI-enhanced development support
+
+## 📋 File Naming Convention
+
+All development files follow uDOS v1.3 naming convention:
+
+### Log Files
+```
+uLOG-YYYYMMDD-HHMM-TTZ-MMLLNN.md
+```
+
+### Development Scripts
+```
+uSCRIPT-YYYYMMDD-HHMM-TTZ-MMLLNN.sh
+```
+
+### Documentation
+```
+uDOC-YYYYMMDD-HHMM-TTZ-MMLLNN.md
+```
+
+## 🎯 Development Objectives
+
+### Primary Goals
+- **System Enhancement**: Continuous uDOS improvement
+- **Feature Development**: New capability implementation
+- **Performance Optimization**: System efficiency improvements
+- **Integration Expansion**: External tool and service integration
+
+### Quality Standards
+- **Code Quality**: Consistent, documented, testable code
+- **Documentation**: Comprehensive development documentation
+- **Testing**: Thorough validation of all changes
+- **Compliance**: Adherence to uDOS naming and structure conventions
 
 ---
 
-## 📋 Report Categories
-
-### 🔄 Migration Reports
-Document structural changes to the uDOS system:
-- Architecture migrations
-- Data structure changes
-- Configuration updates
-- Legacy system removal
-
-### 📊 Status Reports
-Regular system health and progress reports:
-- Version release summaries
-- Feature completion status
-- System performance metrics
-- User experience improvements
-
-### 🔍 Analysis Reports
-Deep-dive technical analysis:
-- Code quality metrics
-- Performance benchmarking
-- Security audit results
-- Dependency analysis
-
-### 📈 Progress Reports
-Development milestone tracking:
-- Feature implementation progress
-- Bug resolution status
-- Testing coverage reports
-- Documentation completion
-
----
-
-## 🎨 Report Standards
-
-### Markdown Format
-- **Consistent Headers**: Use proper heading hierarchy
-- **Emoji Indicators**: Visual status indicators throughout
-- **Code Blocks**: Proper syntax highlighting
-- **Tables**: Structured data presentation
-
-### Content Structure
-- **Executive Summary**: Key points at the top
-- **Technical Details**: Comprehensive information
-- **Action Items**: Clear next steps
-- **References**: Links to related documentation
-
-### Version Control
-- **Git Integration**: All reports tracked in version control
-- **Change History**: Document revisions with timestamps
-- **Author Attribution**: Clear ownership and responsibility
-- **Review Process**: Peer review for significant reports
-
----
-
-*uDev system provides comprehensive development documentation and analysis capabilities for uDOS evolution tracking and decision-making.*
+**Environment Status**: ACTIVE  
+**Last Updated**: uLOG-20250816-2250-28-00SY43  
+**Wizard Access**: ENABLED

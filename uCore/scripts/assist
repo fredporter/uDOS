@@ -1,6 +1,0 @@
-#!/bin/bash
-# uCore/scripts/assist
-# Quick launcher for Gemini CLI ASSIST mode from anywhere in uDOS
-
-UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-exec "$UDOS_ROOT/uExtensions/ai/gemini-cli/udos-gemini.sh" --assist "$@"

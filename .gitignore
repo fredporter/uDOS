@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# uDOS v1.2 .gitignore
+# uDOS v1.3 .gitignore
 # Clean Repository Architecture - Production Ready
 # ──────────────────────────────────────────────
 
@@ -7,16 +7,17 @@
 # 🔒 SECURITY MODEL ENFORCEMENT
 # ════════════════════════════════════════════════════════════════
 
-# 🔐 Level 1: uMemory - Private User Files (NEVER in repo)
+# 🔐 Level 1: uMEMORY - Private User Files (NEVER in repo)
 # Contains personal data, logs, state, missions, moves
-uMemory/
+uMEMORY/
+uMEMORY.backup/
 
-# 🔐 Level 2: uSandbox Personal Data
-uSandbox/user-profiles/user.md
-uSandbox/personal-data/*
-!uSandbox/personal-data/.gitkeep
-uSandbox/custom-scripts/personal/*
-!uSandbox/custom-scripts/personal/.gitkeep
+# 🔐 Level 2: Sandbox Personal Data
+sandbox/user.md
+sandbox/user-data/
+sandbox/experiments/
+sandbox/drafts/
+sandbox/personal/
 
 # ════════════════════════════════════════════════════════════════
 # 🚫 BUILD ARTIFACTS & DEVELOPMENT FILES
@@ -90,7 +91,17 @@ user-config.local
 setup-complete.flag
 
 # ════════════════════════════════════════════════════════════════
-# 🛠️ EDITOR & IDE ARTIFACTS
+# 🛠️ DEVELOPMENT ENVIRONMENT FILES
+# ════════════════════════════════════════════════════════════════
+
+# uDEV wizard development environment - personal logs and sessions
+uDEV/logs/
+uDEV/summaries/
+uDEV/.dev-session-*
+*.uLOG
+
+# ════════════════════════════════════════════════════════════════
+# �️ EDITOR & IDE ARTIFACTS
 # ════════════════════════════════════════════════════════════════
 
 # VS Code personal settings (keep workspace config)
@@ -109,10 +120,10 @@ setup-complete.flag
 # Generated distribution packages
 release/
 dist-packages/
-launcher/uDOS.app/Contents/
-launcher/build/
-launcher/*.dmg
-launcher/uDOS_installation.log
+uCORE/launcher/uDOS.app/Contents/
+uCORE/launcher/build/
+uCORE/launcher/*.dmg
+uCORE/launcher/uDOS_installation.log
 
 # Local user modifications and configs
 user.config
@@ -154,22 +165,13 @@ installation-report.txt
 trash/
 
 # ════════════════════════════════════════════════════════════════
-# ✅ WHAT STAYS IN REPOSITORY (uDOS v1.2)
+# ✅ WHAT STAYS IN REPOSITORY (uDOS v1.3)
 # ════════════════════════════════════════════════════════════════
-# ✅ uCore/ - Core system scripts and configuration
-# ✅ uCode/ - Shell system and user interface scripts
-# ✅ uDocs/ - Documentation with location tile codes [A1-H3]
-# ✅ uExtensions/ - Modular extension system
-# ✅ uSandbox/ - User workspace (templates only, not personal data)
-# ✅ uInstall/ - Distribution and installation system
-# ✅ uTemplate/ - Template management system
-# ✅ uScript/ - Scripting framework
-# ✅ uKnowledge/ - Knowledge base system
-# ✅ uDev/ - Development tools and utilities
-# ✅ uCompanion/ - AI companion system
-# ✅ uMapping/ - Data mapping utilities
-# ✅ launcher/ - Application launcher system
-# ✅ package/ - Package management system
+# ✅ uCORE/ - Core system architecture and functionality
+# ✅ uDEV/ - Wizard development environment (tools only, not logs)
+# ✅ uKNOWLEDGE/ - Knowledge base system
+# ✅ docs/ - Consolidated documentation system
+# ✅ sandbox/ - User workspace templates and task management
 # ✅ Core files: README.md, LICENSE, CHANGELOG.md, etc.
 # ✅ VS Code workspace configuration (.vscode/)
 # ════════════════════════════════════════════════════════════════

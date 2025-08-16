@@ -1,7 +1,0 @@
-# uDOS Development Mode Environment
-export UDOS_DEV_MODE=true
-export UDEV_ROOT="$UDEV"
-export UDOS_VALIDATION_STRICT=true
-export UDOS_DEBUG_LOGGING=true
-export UDOS_BACKUP_TEMPLATES=true
-export UDOS_SANDBOX_MODE=true

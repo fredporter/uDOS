@@ -1,0 +1,301 @@
+{
+  "version": "1.2",
+  "updated": "2025-08-16",
+  "description": "uDOS City Dataset for Tile Address Mapping",
+  "location": "[20-40-01] uMEMORY/datasets/cities.json",
+  
+  "cities": {
+    "NYC": {
+      "name": "New York City",
+      "fullName": "New York City, New York, USA",
+      "timezone": "America/New_York",
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {
+        "lat": 40.7128,
+        "lng": -74.0060
+      },
+      "tiles": {
+        "001": "Manhattan Central - Times Square, Broadway",
+        "002": "Financial District - Wall Street, WTC",
+        "003": "Midtown East - UN, Chrysler Building", 
+        "004": "Upper East Side - Central Park, Museums",
+        "005": "Brooklyn Heights - Bridge, Promenade"
+      }
+    },
+    
+    "LAX": {
+      "name": "Los Angeles",
+      "fullName": "Los Angeles, California, USA",
+      "timezone": "America/Los_Angeles",
+      "country": "United States", 
+      "region": "North America",
+      "coordinates": {
+        "lat": 34.0522,
+        "lng": -118.2437
+      },
+      "tiles": {
+        "001": "Downtown LA - Bunker Hill, Arts District",
+        "002": "Hollywood - Walk of Fame, Studios",
+        "003": "Beverly Hills - Rodeo Drive, Luxury",
+        "004": "Santa Monica - Beach, Pier",
+        "005": "Pasadena - Caltech, Rose Bowl"
+      }
+    },
+    
+    "CHI": {
+      "name": "Chicago",
+      "fullName": "Chicago, Illinois, USA", 
+      "timezone": "America/Chicago",
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {
+        "lat": 41.8781,
+        "lng": -87.6298
+      },
+      "tiles": {
+        "001": "The Loop - Financial, Willis Tower",
+        "002": "River North - Gallery, Magnificent Mile",
+        "003": "Lincoln Park - Zoo, DePaul University",
+        "004": "Millennium Park - Art Institute, Grant Park", 
+        "005": "Navy Pier - Tourism, Lake Michigan"
+      }
+    },
+    
+    "LON": {
+      "name": "London",
+      "fullName": "London, England, United Kingdom",
+      "timezone": "Europe/London", 
+      "country": "United Kingdom",
+      "region": "Europe",
+      "coordinates": {
+        "lat": 51.5074,
+        "lng": -0.1278
+      },
+      "tiles": {
+        "001": "City of London - Financial, Bank",
+        "002": "Westminster - Parliament, Big Ben",
+        "003": "Canary Wharf - Modern Business, Towers",
+        "004": "Camden - Markets, Alternative Culture",
+        "005": "Greenwich - Observatory, Maritime"
+      }
+    },
+    
+    "CDG": {
+      "name": "Paris",
+      "fullName": "Paris, France",
+      "timezone": "Europe/Paris",
+      "country": "France",
+      "region": "Europe", 
+      "coordinates": {
+        "lat": 48.8566,
+        "lng": 2.3522
+      },
+      "tiles": {
+        "001": "1st Arrondissement - Louvre, Châtelet",
+        "002": "8th Arrondissement - Champs-Élysées, Arc",
+        "003": "La Défense - Business District, Grande Arche",
+        "004": "Montmartre - Sacré-Cœur, Artists",
+        "005": "Latin Quarter - Sorbonne, Panthéon"
+      }
+    },
+    
+    "BER": {
+      "name": "Berlin", 
+      "fullName": "Berlin, Germany",
+      "timezone": "Europe/Berlin",
+      "country": "Germany",
+      "region": "Europe",
+      "coordinates": {
+        "lat": 52.5200,
+        "lng": 13.4050
+      },
+      "tiles": {
+        "001": "Mitte - Brandenburg Gate, Museums",
+        "002": "Kreuzberg - Alternative, Turkish Quarter",
+        "003": "Charlottenburg - Palace, Shopping",
+        "004": "Prenzlauer Berg - Hipster, Galleries",
+        "005": "Potsdamer Platz - Modern, Sony Center"
+      }
+    },
+    
+    "NRT": {
+      "name": "Tokyo",
+      "fullName": "Tokyo, Japan",
+      "timezone": "Asia/Tokyo",
+      "country": "Japan",
+      "region": "Asia",
+      "coordinates": {
+        "lat": 35.6762, 
+        "lng": 139.6503
+      },
+      "tiles": {
+        "001": "Shibuya - Crossing, Youth Culture",
+        "002": "Shinjuku - Business, Entertainment",
+        "003": "Ginza - Luxury Shopping, Traditional",
+        "004": "Akihabara - Electronics, Anime Culture",
+        "005": "Roppongi - International, Nightlife"
+      }
+    },
+    
+    "SYD": {
+      "name": "Sydney",
+      "fullName": "Sydney, New South Wales, Australia",
+      "timezone": "Australia/Sydney",
+      "country": "Australia", 
+      "region": "Oceania",
+      "coordinates": {
+        "lat": -33.8688,
+        "lng": 151.2093
+      },
+      "tiles": {
+        "001": "Sydney CBD - Harbour Bridge, Opera House",
+        "002": "The Rocks - Historic, Markets",
+        "003": "Darling Harbour - Convention, Aquarium", 
+        "004": "Bondi - Beach, Surfing Culture",
+        "005": "Manly - Ferry Terminal, Beach Resort"
+      }
+    },
+    
+    "HKG": {
+      "name": "Hong Kong",
+      "fullName": "Hong Kong, Special Administrative Region",
+      "timezone": "Asia/Hong_Kong",
+      "country": "Hong Kong",
+      "region": "Asia",
+      "coordinates": {
+        "lat": 22.3193,
+        "lng": 114.1694
+      },
+      "tiles": {
+        "001": "Central - Financial, IFC Tower",
+        "002": "Tsim Sha Tsui - Shopping, Museums",
+        "003": "Causeway Bay - Retail, Times Square",
+        "004": "Wan Chai - Convention, Nightlife",
+        "005": "Admiralty - Government, Consulates"
+      }
+    },
+    
+    "SIN": {
+      "name": "Singapore", 
+      "fullName": "Singapore, Republic of Singapore",
+      "timezone": "Asia/Singapore",
+      "country": "Singapore",
+      "region": "Asia",
+      "coordinates": {
+        "lat": 1.3521,
+        "lng": 103.8198
+      },
+      "tiles": {
+        "001": "Marina Bay - Financial, Gardens",
+        "002": "Orchard Road - Shopping, Hotels",
+        "003": "Chinatown - Heritage, Food",
+        "004": "Sentosa - Resort, Entertainment", 
+        "005": "Jurong - Industrial, Business Park"
+      }
+    },
+    
+    "MIA": {
+      "name": "Miami",
+      "fullName": "Miami, Florida, USA",
+      "timezone": "America/New_York",
+      "country": "United States",
+      "region": "North America", 
+      "coordinates": {
+        "lat": 25.7617,
+        "lng": -80.1918
+      },
+      "tiles": {
+        "001": "Downtown Miami - Financial, Brickell",
+        "002": "South Beach - Art Deco, Nightlife",
+        "003": "Little Havana - Cuban Culture, Food",
+        "004": "Design District - Fashion, Art",
+        "005": "Coral Gables - Mediterranean, University"
+      }
+    },
+    
+    "DEN": {
+      "name": "Denver",
+      "fullName": "Denver, Colorado, USA",
+      "timezone": "America/Denver", 
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {
+        "lat": 39.7392,
+        "lng": -104.9903
+      },
+      "tiles": {
+        "001": "Downtown Denver - 16th Street, Union Station",
+        "002": "LoDo - Historic, Breweries",
+        "003": "Capitol Hill - Arts, Music Venues",
+        "004": "Cherry Creek - Shopping, Galleries",
+        "005": "RiNo - River North, Creative District"
+      }
+    },
+    
+    "UTC": {
+      "name": "Universal", 
+      "fullName": "Universal Coordinated Time Zone",
+      "timezone": "UTC",
+      "country": "International",
+      "region": "Universal",
+      "coordinates": {
+        "lat": 0.0000,
+        "lng": 0.0000
+      },
+      "tiles": {
+        "001": "Universal Standard - Default Location",
+        "002": "Global East - Asian Business Hours",
+        "003": "Global West - American Business Hours", 
+        "004": "Global South - Southern Hemisphere",
+        "005": "Global North - Northern Hemisphere"
+      }
+    }
+  },
+  
+  "timezoneMapping": {
+    "America/New_York": "NYC",
+    "America/Detroit": "NYC", 
+    "America/Montreal": "NYC",
+    "America/Toronto": "NYC",
+    "America/Los_Angeles": "LAX",
+    "America/Vancouver": "LAX",
+    "America/Tijuana": "LAX",
+    "America/Chicago": "CHI",
+    "America/Winnipeg": "CHI",
+    "America/Mexico_City": "CHI",
+    "America/Denver": "DEN",
+    "America/Edmonton": "DEN",
+    "America/Phoenix": "DEN",
+    "America/Miami": "MIA",
+    "America/Nassau": "MIA",
+    "America/Havana": "MIA",
+    "Europe/London": "LON",
+    "Europe/Dublin": "LON", 
+    "Europe/Belfast": "LON",
+    "Europe/Paris": "CDG",
+    "Europe/Brussels": "CDG",
+    "Europe/Amsterdam": "CDG",
+    "Europe/Berlin": "BER",
+    "Europe/Vienna": "BER",
+    "Europe/Prague": "BER",
+    "Asia/Tokyo": "NRT",
+    "Asia/Osaka": "NRT",
+    "Asia/Hong_Kong": "HKG",
+    "Asia/Macau": "HKG",
+    "Asia/Singapore": "SIN",
+    "Asia/Kuala_Lumpur": "SIN",
+    "Australia/Sydney": "SYD",
+    "Australia/Melbourne": "SYD",
+    "Australia/Perth": "PER",
+    "Australia/Adelaide": "PER"
+  },
+  
+  "tileCategories": {
+    "001": "City Center / Financial District",
+    "002": "Business / Commercial District", 
+    "003": "Cultural / Entertainment District",
+    "004": "Residential / University Area",
+    "005": "Tourist / Special Interest Area"
+  }
+}

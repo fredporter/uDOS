@@ -1,6 +1,0 @@
-#!/bin/bash
-# uCore/scripts/command
-# Quick launcher for uDOS COMMAND mode from anywhere in uDOS
-
-UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-exec "$UDOS_ROOT/uExtensions/ai/gemini-cli/command-mode.sh" "$@"

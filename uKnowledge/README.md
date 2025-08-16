@@ -1,26 +1,26 @@
-# 📚 uKnowledge - Knowledge Base
+# uKNOWLEDGE - Shared Public Knowledge Bank
 
-This directory is reserved for the uDOS knowledge base and documentation system.
+**Managed by Wizard | Read-Only in Production | Editable in Dev Mode**
 
-## Purpose
-- **Knowledge Articles**: Technical documentation and guides
-- **Reference Materials**: System specifications and API docs  
-- **Tutorial Content**: Step-by-step learning materials
-- **Research Notes**: Development research and findings
+This directory contains the shared public knowledge base that powers
+uDOS intelligence and provides context for AI companions.
 
-## Structure (Future)
+## Access Levels
+- **Production**: Read-only access
+- **Dev Mode**: Full edit access for Wizards
+- **User Mode**: Read-only with suggestion system
+
+## Content
+- System architecture documentation
+- Best practices and patterns
+- Reference materials
+- Shared datasets and examples
+
+## Structure
 ```
-uKnowledge/
+uKNOWLEDGE/
 ├── articles/          # Technical articles
 ├── reference/         # API and system reference
 ├── tutorials/         # Learning materials
 └── research/          # Development research
 ```
-
-## Current Status
-This directory has been cleaned up with content moved to appropriate locations:
-- Architecture docs → `docs/`
-- Companion configs → `uCompanion/`  
-- Dataset files → `uTemplate/datasets/`
-
-Future knowledge base content will be organized here.

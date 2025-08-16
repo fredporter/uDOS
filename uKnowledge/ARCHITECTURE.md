@@ -36,10 +36,11 @@ uDOS follows a modular, user-centric architecture designed for simplicity and ex
 
 ### Version Information
 
-- **Architecture Version**: v1.0
+- **Architecture Version**: v1.3
 - **Template System**: v2.0 with enhanced shortcode and variable support
-- **Logging System**: Notion-style formatting with hierarchical relationships
-- **Setup System**: Modern template-based with legacy fallback
+- **Logging System**: v1.2 with Notion-style formatting and hierarchical relationships
+- **Setup System**: v1.2 with modern template-based approach and legacy fallback
+- **Filename Convention**: v1.3 with CAPS-NUMERIC-DASH standards and timezone integration
 
 ---
 *This architecture document is part of the uDOS knowledge base and should be updated as the system evolves.*
