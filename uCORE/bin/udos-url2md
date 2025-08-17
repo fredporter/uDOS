@@ -1,0 +1,130 @@
+#!/bin/bash
+# udos-url2md - uDOS URL to Markdown Converter
+# Wrapper for urltomarkdown with uDOS integration
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+URLTOMD_DIR="$(dirname "$SCRIPT_DIR")/code/packages/urltomarkdown"
+UHOME="${HOME}/uDOS"
+OUTPUT_DIR="$UHOME/uMEMORY/datagets/active"
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+show_help() {
+    echo -e "${CYAN}🌐 uDOS URL to Markdown Converter${NC}"
+    echo
+    echo "Usage: udos-url2md [OPTIONS] <URL>"
+    echo
+    echo "Options:"
+    echo "  -o, --output FILE    Save to specific file"
+    echo "  -d, --dir DIR        Save to specific directory"
+    echo "  -t, --title TITLE    Custom title for file"
+    echo "  -h, --help           Show this help"
+    echo
+    echo "Examples:"
+    echo "  udos-url2md https://example.com"
+    echo "  udos-url2md -o article.md https://blog.example.com/post"
+    echo "  udos-url2md -t \"My Article\" https://news.example.com"
+}
+
+# Default values
+URL=""
+OUTPUT_FILE=""
+OUTPUT_DIR_CUSTOM=""
+CUSTOM_TITLE=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -o|--output)
+            OUTPUT_FILE="$2"
+            shift 2
+            ;;
+        -d|--dir)
+            OUTPUT_DIR_CUSTOM="$2"
+            shift 2
+            ;;
+        -t|--title)
+            CUSTOM_TITLE="$2"
+            shift 2
+            ;;
+        -*)
+            echo -e "${RED}❌ Unknown option: $1${NC}" >&2
+            exit 1
+            ;;
+        *)
+            URL="$1"
+            shift
+            ;;
+    esac
+done
+
+# Validate URL
+if [[ -z "$URL" ]]; then
+    echo -e "${RED}❌ URL is required${NC}" >&2
+    show_help
+    exit 1
+fi
+
+# Ensure urltomarkdown is available
+if [[ ! -f "$URLTOMD_DIR/urltomarkdown.py" ]]; then
+    echo -e "${RED}❌ urltomarkdown not found. Please run: udos-install-packages urltomarkdown${NC}" >&2
+    exit 1
+fi
+
+# Determine Python command
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_CMD="python"
+else
+    echo -e "${RED}❌ Python not found${NC}" >&2
+    exit 1
+fi
+
+# Generate filename if not provided
+if [[ -z "$OUTPUT_FILE" ]]; then
+    if [[ -n "$CUSTOM_TITLE" ]]; then
+        FILENAME=$(echo "$CUSTOM_TITLE" | sed 's/[^a-zA-Z0-9]/_/g').md
+    else
+        FILENAME=$(echo "$URL" | sed 's|https\?://||' | sed 's/[^a-zA-Z0-9]/_/g').md
+    fi
+    
+    # Use custom directory or default
+    if [[ -n "$OUTPUT_DIR_CUSTOM" ]]; then
+        mkdir -p "$OUTPUT_DIR_CUSTOM"
+        OUTPUT_FILE="$OUTPUT_DIR_CUSTOM/$FILENAME"
+    else
+        mkdir -p "$OUTPUT_DIR"
+        OUTPUT_FILE="$OUTPUT_DIR/$FILENAME"
+    fi
+fi
+
+# Convert URL to Markdown
+echo -e "${CYAN}🌐 Converting URL to Markdown...${NC}"
+echo -e "   URL: $URL"
+echo -e "   Output: $OUTPUT_FILE"
+
+cd "$URLTOMD_DIR"
+if [[ -n "$CUSTOM_TITLE" ]]; then
+    $PYTHON_CMD urltomarkdown.py "$URL" "$CUSTOM_TITLE" > "$OUTPUT_FILE" 2>/dev/null
+else
+    $PYTHON_CMD urltomarkdown.py "$URL" > "$OUTPUT_FILE" 2>/dev/null
+fi
+
+if [[ $? -eq 0 ]]; then
+    echo -e "${GREEN}✅ Successfully converted and saved to: $OUTPUT_FILE${NC}"
+else
+    echo -e "${RED}❌ Failed to convert URL${NC}" >&2
+    exit 1
+fi

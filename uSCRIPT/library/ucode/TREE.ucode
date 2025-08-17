@@ -1,0 +1,104 @@
+' uDOS Tree Generator - Visual Basic Style uCode
+' Generates comprehensive repository structure documentation
+' Usage: TREE [generate|view|help]
+
+DIM output_file AS STRING = "repo_structure.txt"
+DIM project_root AS STRING = GetProjectRoot()
+DIM timestamp AS STRING = GetCurrentDateTime()
+DIM version AS STRING = "v1.3"
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse arguments
+    IF args = "" OR args = "generate" OR args = "update" THEN
+        RETURN GenerateRepositoryStructure()
+    ELSEIF args = "view" OR args = "show" OR args = "cat" THEN
+        RETURN ViewStructure()
+    ELSEIF args = "help" THEN
+        RETURN ShowTreeHelp()
+    ELSE
+        PRINT "Unknown tree command: " + args
+        RETURN ShowTreeHelp()
+    END IF
+END FUNCTION
+
+FUNCTION GenerateRepositoryStructure() AS INTEGER
+    PRINT "Generating uDOS repository structure documentation..."
+    
+    ' Count directories and files for statistics
+    DIM dir_count AS INTEGER = CountDirectories()
+    DIM file_count AS INTEGER = CountFiles()
+    
+    ' Create header
+    CALL WriteHeader(output_file, version, timestamp, project_root)
+    
+    ' Generate directory structure
+    IF HasCommand("tree") THEN
+        PRINT "Using tree command for structure generation..."
+        CALL GenerateWithTreeCommand(output_file)
+    ELSE
+        PRINT "Using find command for structure generation..."
+        CALL GenerateWithFindCommand(output_file)
+    END IF
+    
+    ' Add comprehensive documentation sections
+    CALL WriteArchitectureOverview(output_file)
+    CALL WriteFileNamingConventions(output_file)
+    CALL WriteSecurityModel(output_file)
+    CALL WriteSystemStatistics(output_file, dir_count, file_count)
+    CALL WriteFooter(output_file)
+    
+    PRINT "Repository structure generated: " + output_file
+    PRINT "Scanned " + STR(dir_count) + " directories and " + STR(file_count) + " files"
+    
+    ' Offer to view the generated file
+    DIM view_choice AS STRING
+    INPUT "View the generated structure? [Y/n]: ", view_choice
+    IF LCASE(view_choice) <> "n" THEN
+        PRINT ""
+        CALL ViewFile(output_file)
+    END IF
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ViewStructure() AS INTEGER
+    IF FileExists(output_file) THEN
+        CALL ViewFile(output_file)
+        RETURN 0
+    ELSE
+        PRINT "Repository structure file not found. Run 'TREE generate' first."
+        RETURN 1
+    END IF
+END FUNCTION
+
+FUNCTION ShowTreeHelp() AS INTEGER
+    PRINT ""
+    PRINT "🌳 TREE Command - Repository Structure Generator"
+    PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  TREE           - Generate repository structure documentation"
+    PRINT "  TREE generate  - Same as TREE (explicit)"
+    PRINT "  TREE view      - View existing structure documentation"
+    PRINT "  TREE help      - Show this help"
+    PRINT ""
+    PRINT "Description:"
+    PRINT "Generates comprehensive repository structure documentation including:"
+    PRINT "  • Complete directory tree - All folders with descriptions"
+    PRINT "  • Multi-installation overview - 6-tier role hierarchy"
+    PRINT "  • Security model - What's included vs excluded from distribution"
+    PRINT "  • File naming conventions - Hex filename system and standards"
+    PRINT "  • System statistics - Current directory/file counts"
+    PRINT ""
+    PRINT "Output:"
+    PRINT "  Creates " + output_file + " in the uDOS root directory"
+    PRINT "  Automatically detects available tools (tree vs find commands)"
+    PRINT "  Updates timestamps and statistics on each generation"
+    PRINT ""
+    PRINT "💡 Tip: Run TREE after major structural changes to keep documentation current"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper functions would be implemented in uCode runtime
+' These are placeholders for the VB-style syntax demonstration

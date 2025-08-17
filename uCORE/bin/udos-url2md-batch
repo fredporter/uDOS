@@ -1,0 +1,60 @@
+#!/bin/bash
+# udos-url2md-batch - Batch URL to Markdown conversion
+
+set -euo pipefail
+
+show_help() {
+    echo "🌐 uDOS Batch URL to Markdown Converter"
+    echo
+    echo "Usage: udos-url2md-batch <input-file> [output-directory]"
+    echo
+    echo "Arguments:"
+    echo "  input-file       File containing URLs (one per line)"
+    echo "  output-directory Optional output directory (default: auto-generated)"
+    echo
+    echo "Options:"
+    echo "  -h, --help       Show this help"
+    echo
+    echo "Example:"
+    echo "  udos-url2md-batch urls.txt"
+    echo "  udos-url2md-batch urls.txt /path/to/output"
+}
+
+# Check for help flag
+if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+UHOME="${HOME}/uDOS"
+UDOS_URL2MD="$UHOME/uCORE/bin/udos-url2md"
+INPUT_FILE="$1"
+OUTPUT_DIR="${2:-$UHOME/uMEMORY/datagets/active/batch_$(date +%Y%m%d_%H%M%S)}"
+
+if [[ ! -f "$INPUT_FILE" ]]; then
+    echo "❌ Input file not found: $INPUT_FILE" >&2
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+echo "🔄 Processing URLs from: $INPUT_FILE"
+echo "📁 Output directory: $OUTPUT_DIR"
+
+count=0
+while IFS= read -r url || [[ -n "$url" ]]; do
+    [[ -z "$url" || "$url" =~ ^# ]] && continue
+    
+    ((count++))
+    echo "[$count] Processing: $url"
+    
+    if "$UDOS_URL2MD" -d "$OUTPUT_DIR" "$url"; then
+        echo "  ✅ Success"
+    else
+        echo "  ❌ Failed"
+    fi
+    
+    sleep 1  # Be respectful to servers
+done < "$INPUT_FILE"
+
+echo "✅ Batch processing completed: $count URLs processed"
+echo "📁 Files saved to: $OUTPUT_DIR"

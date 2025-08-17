@@ -23,10 +23,11 @@ PACKAGE_glow="Terminal markdown renderer"
 PACKAGE_jq="JSON processor and query tool"
 PACKAGE_fzf="Fuzzy finder for interactive selection"
 PACKAGE_gemini="Google Gemini CLI companion for AI assistance"
+PACKAGE_urltomarkdown="Web content extraction to Markdown format"
 
 # Get package list
 get_packages() {
-    echo "ripgrep bat fd glow jq fzf gemini"
+    echo "ripgrep bat fd glow jq fzf gemini urltomarkdown"
 }
 
 # Get package description
@@ -40,6 +41,7 @@ get_package_description() {
         "jq") echo "$PACKAGE_jq" ;;
         "fzf") echo "$PACKAGE_fzf" ;;
         "gemini") echo "$PACKAGE_gemini" ;;
+        "urltomarkdown") echo "$PACKAGE_urltomarkdown" ;;
         *) echo "Unknown package" ;;
     esac
 }
@@ -50,6 +52,7 @@ is_installed() {
     case "$package" in
         "ripgrep") command -v rg >/dev/null 2>&1 ;;
         "gemini") command -v gemini >/dev/null 2>&1 ;;
+        "urltomarkdown") [[ -f "$SCRIPT_DIR/urltomarkdown/urltomarkdown.py" ]] ;;
         *) command -v "$package" >/dev/null 2>&1 ;;
     esac
 }

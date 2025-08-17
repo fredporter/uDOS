@@ -1,0 +1,321 @@
+```plaintext
+' uDOS Memory Management System - Visual Basic Style uCode
+' Memory file operations and management
+' Usage: MEMORY [list|search|create|read|stats|help] [args]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "list"
+    DIM argument AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        command = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            argument = parts(1)
+        END IF
+    END IF
+    
+    ' Execute memory command
+    SELECT CASE LCASE(command)
+        CASE "list", "ls"
+            RETURN ListMemoryFiles(argument)
+        CASE "search", "find"
+            RETURN SearchMemoryFiles(argument)
+        CASE "create", "new"
+            RETURN CreateMemoryFile(argument)
+        CASE "read", "view"
+            RETURN ReadMemoryFile(argument)
+        CASE "stats", "statistics"
+            RETURN ShowMemoryStats()
+        CASE "recent"
+            RETURN ShowRecentFiles()
+        CASE "help"
+            RETURN ShowMemoryHelp()
+        CASE ELSE
+            RETURN ListMemoryFiles("")
+    END SELECT
+END FUNCTION
+
+FUNCTION ListMemoryFiles(filter AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🧠 MEMORY - File Listing"
+    PRINT STRING(60, "━")
+    
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM files() AS STRING = GetDirectoryFiles(memory_path, "*.md")
+    DIM count AS INTEGER = 0
+    
+    ' Apply filter if provided
+    DIM file AS STRING
+    FOR EACH file IN files
+        DIM filename AS STRING = GetFileName(file)
+        
+        IF filter = "" OR InStr(LCASE(filename), LCASE(filter)) > 0 THEN
+            DIM size AS LONG = GetFileSize(file)
+            DIM modified AS STRING = GetFileModified(file)
+            
+            PRINT LEFT(filename, 35) + " | " + RIGHT("     " + STR(size), 8) + " | " + modified
+            count = count + 1
+        END IF
+    NEXT file
+    
+    PRINT STRING(60, "━")
+    PRINT "📁 Found " + STR(count) + " memory files"
+    
+    IF filter <> "" THEN
+        PRINT "🔍 Filter: " + filter
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION SearchMemoryFiles(searchTerm AS STRING) AS INTEGER
+    IF searchTerm = "" THEN
+        PRINT "❌ Search term required"
+        PRINT "Usage: MEMORY search <term>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🔍 MEMORY - Search Results for: " + searchTerm
+    PRINT STRING(60, "━")
+    
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM files() AS STRING = GetDirectoryFiles(memory_path, "*.md")
+    DIM matches AS INTEGER = 0
+    
+    DIM file AS STRING
+    FOR EACH file IN files
+        DIM content AS STRING = ReadFile(file)
+        IF InStr(LCASE(content), LCASE(searchTerm)) > 0 THEN
+            DIM filename AS STRING = GetFileName(file)
+            DIM lines() AS STRING = Split(content, vbCrLf)
+            
+            PRINT "📄 " + filename
+            
+            ' Show matching lines
+            DIM i AS INTEGER, line AS STRING
+            FOR i = 0 TO UBOUND(lines)
+                line = lines(i)
+                IF InStr(LCASE(line), LCASE(searchTerm)) > 0 THEN
+                    DIM lineNum AS STRING = RIGHT("   " + STR(i + 1), 4)
+                    PRINT "   " + lineNum + ": " + LEFT(TRIM(line), 50)
+                END IF
+            NEXT i
+            
+            matches = matches + 1
+            PRINT ""
+        END IF
+    NEXT file
+    
+    PRINT STRING(60, "━")
+    PRINT "🎯 Found " + STR(matches) + " files containing '" + searchTerm + "'"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION CreateMemoryFile(filename AS STRING) AS INTEGER
+    IF filename = "" THEN
+        PRINT "❌ Filename required"
+        PRINT "Usage: MEMORY create <filename>"
+        RETURN 1
+    END IF
+    
+    ' Generate proper filename with uDOS naming convention
+    DIM proper_name AS STRING = GenerateProperFilename(filename)
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM full_path AS STRING = memory_path + "/" + proper_name + ".md"
+    
+    ' Check if file exists
+    IF FileExists(full_path) THEN
+        PRINT "❌ File already exists: " + proper_name + ".md"
+        RETURN 1
+    END IF
+    
+    ' Create file with template
+    DIM template AS STRING = GetMemoryTemplate(proper_name)
+    CALL WriteFile(full_path, template)
+    
+    PRINT "✅ Created memory file: " + proper_name + ".md"
+    PRINT "📁 Location: " + full_path
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ReadMemoryFile(filename AS STRING) AS INTEGER
+    IF filename = "" THEN
+        PRINT "❌ Filename required"
+        PRINT "Usage: MEMORY read <filename>"
+        RETURN 1
+    END IF
+    
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM full_path AS STRING = memory_path + "/" + filename
+    
+    ' Add .md extension if not present
+    IF RIGHT(full_path, 3) <> ".md" THEN
+        full_path = full_path + ".md"
+    END IF
+    
+    IF NOT FileExists(full_path) THEN
+        PRINT "❌ File not found: " + filename
+        RETURN 1
+    END IF
+    
+    DIM content AS STRING = ReadFile(full_path)
+    DIM lines() AS STRING = Split(content, vbCrLf)
+    
+    PRINT ""
+    PRINT "📄 " + GetFileName(full_path)
+    PRINT STRING(60, "━")
+    
+    DIM i AS INTEGER
+    FOR i = 0 TO UBOUND(lines)
+        PRINT lines(i)
+    NEXT i
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "📊 " + STR(UBOUND(lines) + 1) + " lines | " + STR(LEN(content)) + " characters"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMemoryStats() AS INTEGER
+    PRINT ""
+    PRINT "📊 MEMORY - Statistics"
+    PRINT STRING(60, "━")
+    
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM files() AS STRING = GetDirectoryFiles(memory_path, "*.md")
+    DIM total_files AS INTEGER = UBOUND(files) + 1
+    DIM total_size AS LONG = 0
+    DIM recent_count AS INTEGER = 0
+    
+    ' Calculate statistics
+    DIM file AS STRING
+    FOR EACH file IN files
+        total_size = total_size + GetFileSize(file)
+        
+        ' Count recent files (last 7 days)
+        DIM days_old AS INTEGER = DateDiff("d", GetFileModified(file), Now())
+        IF days_old <= 7 THEN
+            recent_count = recent_count + 1
+        END IF
+    NEXT file
+    
+    ' Display statistics
+    PRINT "Total Files:     " + STR(total_files)
+    PRINT "Total Size:      " + FormatBytes(total_size)
+    PRINT "Recent Files:    " + STR(recent_count) + " (last 7 days)"
+    PRINT "Average Size:    " + FormatBytes(total_size / total_files) + " per file"
+    PRINT "Memory Path:     " + memory_path
+    
+    ' Most common file types
+    DIM types() AS STRING = {"mission", "log", "note", "data", "report", "task"}
+    PRINT ""
+    PRINT "File Type Distribution:"
+    
+    DIM type AS STRING
+    FOR EACH type IN types
+        DIM type_count AS INTEGER = CountFilesByType(files, type)
+        IF type_count > 0 THEN
+            DIM percentage AS SINGLE = (type_count / total_files) * 100
+            PRINT "  " + UCASE(LEFT(type, 1)) + MID(type, 2) + ": " + STR(type_count) + " (" + FORMAT(percentage, "0.1") + "%)"
+        END IF
+    NEXT type
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "💡 Use 'MEMORY recent' to see latest files"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowRecentFiles() AS INTEGER
+    PRINT ""
+    PRINT "🕒 MEMORY - Recent Files (Last 7 days)"
+    PRINT STRING(60, "━")
+    
+    DIM memory_path AS STRING = GetMemoryPath()
+    DIM files() AS STRING = GetDirectoryFiles(memory_path, "*.md")
+    DIM recent_files() AS STRING
+    DIM count AS INTEGER = 0
+    
+    ' Filter recent files
+    DIM file AS STRING
+    FOR EACH file IN files
+        DIM days_old AS INTEGER = DateDiff("d", GetFileModified(file), Now())
+        IF days_old <= 7 THEN
+            ReDim PRESERVE recent_files(count)
+            recent_files(count) = file
+            count = count + 1
+        END IF
+    NEXT file
+    
+    ' Sort by modification date (newest first)
+    CALL SortFilesByDate(recent_files)
+    
+    ' Display recent files
+    DIM recent_file AS STRING
+    FOR EACH recent_file IN recent_files
+        DIM filename AS STRING = GetFileName(recent_file)
+        DIM modified AS STRING = GetFileModified(recent_file)
+        DIM size AS LONG = GetFileSize(recent_file)
+        
+        PRINT LEFT(filename, 35) + " | " + modified + " | " + FormatBytes(size)
+    NEXT recent_file
+    
+    PRINT STRING(60, "━")
+    PRINT "📁 " + STR(count) + " recent files found"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMemoryHelp() AS INTEGER
+    PRINT ""
+    PRINT "🧠 MEMORY Command - File Management System"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  MEMORY              - List all memory files"
+    PRINT "  MEMORY list [filter] - List files with optional filter"
+    PRINT "  MEMORY search <term> - Search file contents"
+    PRINT "  MEMORY create <name> - Create new memory file"
+    PRINT "  MEMORY read <file>   - Read and display file"
+    PRINT "  MEMORY stats         - Show memory statistics"
+    PRINT "  MEMORY recent        - Show recent files (7 days)"
+    PRINT "  MEMORY help          - Show this help"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  MEMORY list mission  - List files containing 'mission'"
+    PRINT "  MEMORY search AI     - Find files mentioning 'AI'"
+    PRINT "  MEMORY create notes  - Create new note file"
+    PRINT ""
+    PRINT "Features:"
+    PRINT "  • Automatic uDOS filename generation"
+    PRINT "  • Content search across all files"
+    PRINT "  • File statistics and analytics"
+    PRINT "  • Recent activity tracking"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION GetMemoryPath() AS STRING
+FUNCTION GetDirectoryFiles(path AS STRING, pattern AS STRING) AS STRING()
+FUNCTION GetFileName(path AS STRING) AS STRING
+FUNCTION GetFileSize(path AS STRING) AS LONG
+FUNCTION GetFileModified(path AS STRING) AS STRING
+FUNCTION ReadFile(path AS STRING) AS STRING
+FUNCTION WriteFile(path AS STRING, content AS STRING)
+FUNCTION FileExists(path AS STRING) AS BOOLEAN
+FUNCTION GenerateProperFilename(name AS STRING) AS STRING
+FUNCTION GetMemoryTemplate(name AS STRING) AS STRING
+FUNCTION FormatBytes(bytes AS LONG) AS STRING
+FUNCTION CountFilesByType(files() AS STRING, type AS STRING) AS INTEGER
+FUNCTION SortFilesByDate(files() AS STRING)
+
+```

@@ -1,0 +1,466 @@
+```plaintext
+' uDOS Mission Management System - Visual Basic Style uCode
+' Mission creation, tracking, and management
+' Usage: MISSION [create|list|view|update|complete|help] [args]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "list"
+    DIM argument AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        command = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            argument = parts(1)
+        END IF
+    END IF
+    
+    ' Execute mission command
+    SELECT CASE LCASE(command)
+        CASE "create", "new"
+            RETURN CreateMission(argument)
+        CASE "list", "ls"
+            RETURN ListMissions(argument)
+        CASE "view", "show"
+            RETURN ViewMission(argument)
+        CASE "update", "edit"
+            RETURN UpdateMission(argument)
+        CASE "complete", "done"
+            RETURN CompleteMission(argument)
+        CASE "stats", "statistics"
+            RETURN ShowMissionStats()
+        CASE "active"
+            RETURN ListActiveMissions()
+        CASE "help"
+            RETURN ShowMissionHelp()
+        CASE ELSE
+            RETURN ListMissions("")
+    END SELECT
+END FUNCTION
+
+FUNCTION CreateMission(missionName AS STRING) AS INTEGER
+    IF missionName = "" THEN
+        PRINT "❌ Mission name required"
+        PRINT "Usage: MISSION create <mission-name>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🎯 MISSION - Creating New Mission"
+    PRINT STRING(60, "━")
+    
+    ' Generate mission filename
+    DIM mission_id AS STRING = GenerateMissionId()
+    DIM filename AS STRING = "uMISS-" + mission_id + "-" + SanitizeFilename(missionName) + ".md"
+    DIM mission_path AS STRING = GetMissionPath() + "/" + filename
+    
+    ' Check if mission exists
+    IF FileExists(mission_path) THEN
+        PRINT "❌ Mission already exists: " + missionName
+        RETURN 1
+    END IF
+    
+    ' Collect mission details
+    PRINT "📝 Mission: " + missionName
+    PRINT ""
+    
+    DIM description AS STRING, priority AS STRING, deadline AS STRING
+    INPUT "Description: ", description
+    INPUT "Priority (low|medium|high|critical): ", priority
+    INPUT "Deadline (YYYY-MM-DD or 'none'): ", deadline
+    
+    ' Validate inputs
+    IF priority = "" THEN priority = "medium"
+    IF NOT IsValidPriority(priority) THEN priority = "medium"
+    IF deadline = "" THEN deadline = "none"
+    
+    ' Create mission content
+    DIM content AS STRING = GenerateMissionTemplate(missionName, description, priority, deadline, mission_id)
+    CALL WriteFile(mission_path, content)
+    
+    PRINT ""
+    PRINT "✅ Mission created successfully!"
+    PRINT "📁 File: " + filename
+    PRINT "🆔 ID: " + mission_id
+    PRINT "🎯 Priority: " + UCASE(priority)
+    PRINT ""
+    
+    ' Add to active missions tracking
+    CALL AddToActiveMissions(mission_id, missionName)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ListMissions(filter AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🎯 MISSION - Mission Listing"
+    PRINT STRING(80, "━")
+    
+    DIM mission_path AS STRING = GetMissionPath()
+    DIM files() AS STRING = GetDirectoryFiles(mission_path, "uMISS-*.md")
+    DIM count AS INTEGER = 0
+    
+    ' Header
+    PRINT LEFT("Mission", 25) + " | " + LEFT("Status", 12) + " | " + LEFT("Priority", 10) + " | " + "Deadline"
+    PRINT STRING(80, "─")
+    
+    ' List missions
+    DIM file AS STRING
+    FOR EACH file IN files
+        DIM mission_info AS Object = ParseMissionFile(file)
+        DIM name AS STRING = mission_info.name
+        
+        ' Apply filter if provided
+        IF filter = "" OR InStr(LCASE(name), LCASE(filter)) > 0 THEN
+            DIM status AS STRING = mission_info.status
+            DIM priority AS STRING = mission_info.priority
+            DIM deadline AS STRING = mission_info.deadline
+            
+            ' Format status with color indicators
+            DIM status_display AS STRING = FormatStatus(status)
+            DIM priority_display AS STRING = FormatPriority(priority)
+            
+            PRINT LEFT(name, 25) + " | " + LEFT(status_display, 12) + " | " + LEFT(priority_display, 10) + " | " + deadline
+            count = count + 1
+        END IF
+    NEXT file
+    
+    PRINT STRING(80, "━")
+    PRINT "📊 " + STR(count) + " missions found"
+    
+    IF filter <> "" THEN
+        PRINT "🔍 Filter: " + filter
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ViewMission(missionId AS STRING) AS INTEGER
+    IF missionId = "" THEN
+        PRINT "❌ Mission ID or name required"
+        PRINT "Usage: MISSION view <id|name>"
+        RETURN 1
+    END IF
+    
+    DIM mission_file AS STRING = FindMissionFile(missionId)
+    IF mission_file = "" THEN
+        PRINT "❌ Mission not found: " + missionId
+        RETURN 1
+    END IF
+    
+    DIM mission_info AS Object = ParseMissionFile(mission_file)
+    
+    PRINT ""
+    PRINT "🎯 MISSION - " + mission_info.name
+    PRINT STRING(60, "━")
+    PRINT "🆔 ID: " + mission_info.id
+    PRINT "📝 Description: " + mission_info.description
+    PRINT "🏷️ Status: " + FormatStatus(mission_info.status)
+    PRINT "⚡ Priority: " + FormatPriority(mission_info.priority)
+    PRINT "📅 Created: " + mission_info.created
+    PRINT "⏰ Deadline: " + mission_info.deadline
+    PRINT "🕒 Updated: " + mission_info.updated
+    
+    ' Show tasks if any
+    IF mission_info.tasks.Count > 0 THEN
+        PRINT ""
+        PRINT "📋 Tasks (" + STR(mission_info.tasks.Count) + "):"
+        PRINT STRING(40, "─")
+        
+        DIM i AS INTEGER
+        FOR i = 0 TO mission_info.tasks.Count - 1
+            DIM task AS Object = mission_info.tasks(i)
+            DIM task_status AS STRING = IIF(task.completed, "✅", "⏳")
+            PRINT "  " + task_status + " " + task.description
+        NEXT i
+    END IF
+    
+    ' Show notes if any
+    IF mission_info.notes <> "" THEN
+        PRINT ""
+        PRINT "📝 Notes:"
+        PRINT STRING(40, "─")
+        PRINT mission_info.notes
+    END IF
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "💡 Use 'MISSION update " + mission_info.id + "' to modify"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION UpdateMission(missionId AS STRING) AS INTEGER
+    IF missionId = "" THEN
+        PRINT "❌ Mission ID or name required"
+        PRINT "Usage: MISSION update <id|name>"
+        RETURN 1
+    END IF
+    
+    DIM mission_file AS STRING = FindMissionFile(missionId)
+    IF mission_file = "" THEN
+        PRINT "❌ Mission not found: " + missionId
+        RETURN 1
+    END IF
+    
+    DIM mission_info AS Object = ParseMissionFile(mission_file)
+    
+    PRINT ""
+    PRINT "✏️ MISSION - Update " + mission_info.name
+    PRINT STRING(60, "━")
+    PRINT ""
+    
+    ' Show current values and allow updates
+    PRINT "Current values (press Enter to keep):"
+    PRINT ""
+    
+    DIM new_description AS STRING, new_priority AS STRING, new_status AS STRING, new_deadline AS STRING
+    
+    PRINT "Description: " + mission_info.description
+    INPUT "New description: ", new_description
+    IF new_description <> "" THEN mission_info.description = new_description
+    
+    PRINT "Priority: " + mission_info.priority
+    INPUT "New priority (low|medium|high|critical): ", new_priority
+    IF new_priority <> "" AND IsValidPriority(new_priority) THEN mission_info.priority = new_priority
+    
+    PRINT "Status: " + mission_info.status
+    INPUT "New status (planning|active|blocked|review|complete): ", new_status
+    IF new_status <> "" AND IsValidStatus(new_status) THEN mission_info.status = new_status
+    
+    PRINT "Deadline: " + mission_info.deadline
+    INPUT "New deadline (YYYY-MM-DD or 'none'): ", new_deadline
+    IF new_deadline <> "" THEN mission_info.deadline = new_deadline
+    
+    ' Add notes
+    DIM add_notes AS STRING
+    INPUT "Add notes (optional): ", add_notes
+    IF add_notes <> "" THEN
+        mission_info.notes = mission_info.notes + vbCrLf + GetTimestamp() + ": " + add_notes
+    END IF
+    
+    ' Update file
+    mission_info.updated = GetTimestamp()
+    DIM updated_content AS STRING = GenerateMissionContent(mission_info)
+    CALL WriteFile(mission_file, updated_content)
+    
+    PRINT ""
+    PRINT "✅ Mission updated successfully!"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION CompleteMission(missionId AS STRING) AS INTEGER
+    IF missionId = "" THEN
+        PRINT "❌ Mission ID or name required"
+        PRINT "Usage: MISSION complete <id|name>"
+        RETURN 1
+    END IF
+    
+    DIM mission_file AS STRING = FindMissionFile(missionId)
+    IF mission_file = "" THEN
+        PRINT "❌ Mission not found: " + missionId
+        RETURN 1
+    END IF
+    
+    DIM mission_info AS Object = ParseMissionFile(mission_file)
+    
+    ' Confirm completion
+    DIM confirm AS STRING
+    PRINT ""
+    PRINT "🎯 Complete Mission: " + mission_info.name
+    PRINT "❓ Are you sure? (y/N): "
+    INPUT "", confirm
+    
+    IF LCASE(confirm) <> "y" AND LCASE(confirm) <> "yes" THEN
+        PRINT "❌ Mission completion cancelled"
+        RETURN 1
+    END IF
+    
+    ' Mark as complete
+    mission_info.status = "complete"
+    mission_info.updated = GetTimestamp()
+    mission_info.completed = GetTimestamp()
+    mission_info.notes = mission_info.notes + vbCrLf + GetTimestamp() + ": Mission completed"
+    
+    ' Update file
+    DIM updated_content AS STRING = GenerateMissionContent(mission_info)
+    CALL WriteFile(mission_file, updated_content)
+    
+    ' Remove from active missions
+    CALL RemoveFromActiveMissions(mission_info.id)
+    
+    ' Move to completed folder
+    DIM completed_path AS STRING = GetCompletedMissionsPath()
+    DIM new_filename AS STRING = completed_path + "/" + GetFileName(mission_file)
+    CALL MoveFile(mission_file, new_filename)
+    
+    PRINT ""
+    PRINT "🎉 Mission completed successfully!"
+    PRINT "📁 Moved to completed missions folder"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ListActiveMissions() AS INTEGER
+    PRINT ""
+    PRINT "⚡ MISSION - Active Missions"
+    PRINT STRING(60, "━")
+    
+    DIM mission_path AS STRING = GetMissionPath()
+    DIM files() AS STRING = GetDirectoryFiles(mission_path, "uMISS-*.md")
+    DIM active_count AS INTEGER = 0
+    
+    DIM file AS STRING
+    FOR EACH file IN files
+        DIM mission_info AS Object = ParseMissionFile(file)
+        
+        IF mission_info.status <> "complete" THEN
+            DIM name AS STRING = mission_info.name
+            DIM priority AS STRING = FormatPriority(mission_info.priority)
+            DIM status AS STRING = FormatStatus(mission_info.status)
+            
+            PRINT "🎯 " + LEFT(name, 30) + " | " + priority + " | " + status
+            active_count = active_count + 1
+        END IF
+    NEXT file
+    
+    PRINT STRING(60, "━")
+    PRINT "⚡ " + STR(active_count) + " active missions"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMissionStats() AS INTEGER
+    PRINT ""
+    PRINT "📊 MISSION - Statistics"
+    PRINT STRING(60, "━")
+    
+    DIM mission_path AS STRING = GetMissionPath()
+    DIM completed_path AS STRING = GetCompletedMissionsPath()
+    
+    DIM active_files() AS STRING = GetDirectoryFiles(mission_path, "uMISS-*.md")
+    DIM completed_files() AS STRING = GetDirectoryFiles(completed_path, "uMISS-*.md")
+    
+    DIM total_missions AS INTEGER = UBOUND(active_files) + UBOUND(completed_files) + 2
+    DIM active_count AS INTEGER = UBOUND(active_files) + 1
+    DIM completed_count AS INTEGER = UBOUND(completed_files) + 1
+    
+    ' Status breakdown
+    DIM planning_count AS INTEGER = 0
+    DIM active_status_count AS INTEGER = 0
+    DIM blocked_count AS INTEGER = 0
+    DIM review_count AS INTEGER = 0
+    
+    DIM file AS STRING
+    FOR EACH file IN active_files
+        DIM mission_info AS Object = ParseMissionFile(file)
+        SELECT CASE mission_info.status
+            CASE "planning"
+                planning_count = planning_count + 1
+            CASE "active"
+                active_status_count = active_status_count + 1
+            CASE "blocked"
+                blocked_count = blocked_count + 1
+            CASE "review"
+                review_count = review_count + 1
+        END SELECT
+    NEXT file
+    
+    ' Priority breakdown
+    DIM high_priority AS INTEGER = 0
+    DIM critical_priority AS INTEGER = 0
+    
+    FOR EACH file IN active_files
+        DIM mission_info AS Object = ParseMissionFile(file)
+        IF mission_info.priority = "high" THEN high_priority = high_priority + 1
+        IF mission_info.priority = "critical" THEN critical_priority = critical_priority + 1
+    NEXT file
+    
+    ' Display statistics
+    PRINT "Total Missions:    " + STR(total_missions)
+    PRINT "Active Missions:   " + STR(active_count)
+    PRINT "Completed:         " + STR(completed_count)
+    PRINT ""
+    PRINT "Status Breakdown:"
+    PRINT "  Planning:        " + STR(planning_count)
+    PRINT "  Active:          " + STR(active_status_count)
+    PRINT "  Blocked:         " + STR(blocked_count)
+    PRINT "  Under Review:    " + STR(review_count)
+    PRINT ""
+    PRINT "Priority Breakdown:"
+    PRINT "  Critical:        " + STR(critical_priority)
+    PRINT "  High:            " + STR(high_priority)
+    PRINT ""
+    
+    ' Completion rate
+    IF total_missions > 0 THEN
+        DIM completion_rate AS SINGLE = (completed_count / total_missions) * 100
+        PRINT "Completion Rate:   " + FORMAT(completion_rate, "0.1") + "%"
+    END IF
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "💡 Use 'MISSION active' to see current missions"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMissionHelp() AS INTEGER
+    PRINT ""
+    PRINT "🎯 MISSION Command - Mission Management System"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  MISSION              - List all missions"
+    PRINT "  MISSION create <name> - Create new mission"
+    PRINT "  MISSION list [filter] - List missions with filter"
+    PRINT "  MISSION view <id>     - View mission details"
+    PRINT "  MISSION update <id>   - Update mission"
+    PRINT "  MISSION complete <id> - Mark mission complete"
+    PRINT "  MISSION active        - List active missions only"
+    PRINT "  MISSION stats         - Show mission statistics"
+    PRINT "  MISSION help          - Show this help"
+    PRINT ""
+    PRINT "Mission Status Values:"
+    PRINT "  planning  - Mission being planned"
+    PRINT "  active    - Currently working on mission"
+    PRINT "  blocked   - Waiting for external dependency"
+    PRINT "  review    - Mission under review"
+    PRINT "  complete  - Mission completed"
+    PRINT ""
+    PRINT "Priority Levels:"
+    PRINT "  low       - Nice to have"
+    PRINT "  medium    - Standard priority (default)"
+    PRINT "  high      - Important mission"
+    PRINT "  critical  - Urgent, high-impact mission"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  MISSION create 'Setup Development Environment'"
+    PRINT "  MISSION view DEV-001"
+    PRINT "  MISSION list development"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION GenerateMissionId() AS STRING
+FUNCTION SanitizeFilename(name AS STRING) AS STRING
+FUNCTION GetMissionPath() AS STRING
+FUNCTION GetCompletedMissionsPath() AS STRING
+FUNCTION IsValidPriority(priority AS STRING) AS BOOLEAN
+FUNCTION IsValidStatus(status AS STRING) AS BOOLEAN
+FUNCTION GenerateMissionTemplate(name AS STRING, desc AS STRING, priority AS STRING, deadline AS STRING, id AS STRING) AS STRING
+FUNCTION ParseMissionFile(filepath AS STRING) AS Object
+FUNCTION FindMissionFile(idOrName AS STRING) AS STRING
+FUNCTION FormatStatus(status AS STRING) AS STRING
+FUNCTION FormatPriority(priority AS STRING) AS STRING
+FUNCTION GetTimestamp() AS STRING
+FUNCTION GenerateMissionContent(mission AS Object) AS STRING
+FUNCTION AddToActiveMissions(id AS STRING, name AS STRING)
+FUNCTION RemoveFromActiveMissions(id AS STRING)
+FUNCTION MoveFile(source AS STRING, destination AS STRING)
+
+```

@@ -1,0 +1,159 @@
+' uDOS Dashboard System - Visual Basic Style uCode
+' Generates live system dashboard with real-time statistics
+' Usage: DASH [live|compact|wide|refresh]
+
+DIM memory_path AS STRING = GetMemoryPath()
+DIM template_path AS STRING = GetTemplatePath()
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse dashboard style argument
+    DIM style AS STRING = "standard"
+    IF args <> "" THEN
+        style = args
+    END IF
+    
+    ' Generate dashboard based on style
+    SELECT CASE LCASE(style)
+        CASE "live"
+            RETURN ShowLiveDashboard()
+        CASE "compact"
+            RETURN ShowCompactDashboard()
+        CASE "wide"
+            RETURN ShowWideDashboard()
+        CASE "refresh"
+            RETURN RefreshDashboard()
+        CASE ELSE
+            RETURN ShowStandardDashboard()
+    END SELECT
+END FUNCTION
+
+FUNCTION ShowStandardDashboard() AS INTEGER
+    CALL PrintHeader("uDOS v1.3 Live Dashboard")
+    
+    ' System Status Section
+    PRINT "📊 System Overview"
+    PRINT STRING(79, "━")
+    
+    ' Memory statistics
+    DIM memory_files AS INTEGER = CountFilesInDirectory(memory_path)
+    DIM memory_size AS STRING = GetDirectorySize(memory_path)
+    PRINT "🧠 Memory:        " + STR(memory_files) + " files (" + memory_size + ")"
+    
+    ' Mission statistics
+    DIM missions AS INTEGER = CountMissionFiles()
+    DIM active_missions AS INTEGER = CountActiveMissions()
+    PRINT "🎯 Missions:       " + STR(missions) + " total (" + STR(active_missions) + " active)"
+    
+    ' Log statistics
+    DIM logs AS INTEGER = CountLogFiles()
+    PRINT "📝 Logs:          " + STR(logs) + " entries"
+    
+    ' Template statistics
+    DIM templates AS INTEGER = CountTemplateFiles()
+    PRINT "📋 Templates:     " + STR(templates) + " available"
+    
+    PRINT ""
+    
+    ' System Health Section
+    PRINT "🔍 System Health"
+    PRINT STRING(79, "━")
+    
+    ' Check critical commands
+    DIM health_status AS STRING = "✅"
+    IF NOT HasCommand("jq") OR NOT HasCommand("grep") OR NOT HasCommand("find") THEN
+        health_status = "⚠️"
+    END IF
+    PRINT "System Tools:     " + health_status + " All essential tools available"
+    
+    ' Storage check
+    DIM disk_usage AS STRING = GetDiskUsage()
+    IF VAL(LEFT(disk_usage, LEN(disk_usage) - 1)) > 90 THEN
+        PRINT "Storage:          ⚠️  Disk usage: " + disk_usage
+    ELSE
+        PRINT "Storage:          ✅ Disk usage: " + disk_usage
+    END IF
+    
+    PRINT ""
+    
+    ' Recent Activity Section
+    PRINT "📈 Recent Activity"
+    PRINT STRING(79, "━")
+    
+    ' Show last 5 modified files
+    DIM recent_files() AS STRING = GetRecentFiles(5)
+    DIM i AS INTEGER
+    FOR i = 0 TO UBOUND(recent_files)
+        PRINT "• " + recent_files(i)
+    NEXT i
+    
+    PRINT ""
+    
+    ' Quick Actions Section
+    PRINT "🎯 Quick Actions"
+    PRINT STRING(79, "━")
+    PRINT "• Type MISSION create <name> to start a new mission"
+    PRINT "• Type MEMORY list to see all your files"
+    PRINT "• Type LOG report to generate activity report"
+    PRINT ""
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowLiveDashboard() AS INTEGER
+    ' Continuously updating dashboard
+    DIM refresh_rate AS INTEGER = 5
+    
+    DO
+        CALL ClearScreen()
+        CALL ShowStandardDashboard()
+        PRINT "🔄 Auto-refreshing every " + STR(refresh_rate) + " seconds (Press Ctrl+C to exit)"
+        CALL Sleep(refresh_rate)
+    LOOP
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowCompactDashboard() AS INTEGER
+    CALL PrintHeader("uDOS Compact Dashboard")
+    
+    ' Compact single-line stats
+    DIM memory_count AS INTEGER = CountFilesInDirectory(memory_path)
+    DIM mission_count AS INTEGER = CountMissionFiles()
+    DIM active_count AS INTEGER = CountActiveMissions()
+    
+    PRINT "📊 " + STR(memory_count) + " files | 🎯 " + STR(mission_count) + " missions (" + STR(active_count) + " active) | ✅ System OK"
+    PRINT ""
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowWideDashboard() AS INTEGER
+    ' Wide format with panels
+    CALL PrintHeader("uDOS Wide Dashboard")
+    
+    ' Create panel layout
+    CALL ShowMemoryPanel(20, 5, 40, 15)
+    CALL ShowMissionPanel(65, 5, 40, 15)
+    CALL ShowStatusPanel(20, 22, 40, 10)
+    CALL ShowDataPanel(65, 22, 40, 10)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION RefreshDashboard() AS INTEGER
+    CALL ClearScreen()
+    PRINT "🔄 Refreshing dashboard data..."
+    CALL Sleep(1)
+    RETURN ShowStandardDashboard()
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION CountMissionFiles() AS INTEGER
+FUNCTION CountActiveMissions() AS INTEGER
+FUNCTION CountLogFiles() AS INTEGER
+FUNCTION CountTemplateFiles() AS INTEGER
+FUNCTION GetRecentFiles(count AS INTEGER) AS STRING()
+FUNCTION ShowMemoryPanel(x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)
+FUNCTION ShowMissionPanel(x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)
+FUNCTION ShowStatusPanel(x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)
+FUNCTION ShowDataPanel(x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)

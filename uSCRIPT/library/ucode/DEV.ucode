@@ -1,0 +1,572 @@
+```plaintext
+' uDOS Development Tools - Visual Basic Style uCode
+' Development utilities, testing, and system tools for wizard users
+' Usage: DEV [test|build|deploy|debug|profile|help] [args]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "help"
+    DIM argument AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        command = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            argument = parts(1)
+        END IF
+    END IF
+    
+    ' Check if user has development permissions
+    IF NOT HasDevPermissions() THEN
+        PRINT "❌ Development tools require wizard-level access"
+        PRINT "💡 This feature is exclusive to Dev Mode installations"
+        RETURN 1
+    END IF
+    
+    ' Execute development command
+    SELECT CASE LCASE(command)
+        CASE "test", "tests"
+            RETURN RunTests(argument)
+        CASE "build"
+            RETURN BuildSystem(argument)
+        CASE "deploy"
+            RETURN DeploySystem(argument)
+        CASE "debug"
+            RETURN DebugSystem(argument)
+        CASE "profile", "perf"
+            RETURN ProfileSystem(argument)
+        CASE "validate"
+            RETURN ValidateSystem(argument)
+        CASE "backup"
+            RETURN BackupSystem(argument)
+        CASE "restore"
+            RETURN RestoreSystem(argument)
+        CASE "monitor"
+            RETURN MonitorSystem(argument)
+        CASE "help"
+            RETURN ShowDevHelp()
+        CASE ELSE
+            PRINT "❌ Unknown development command: " + command
+            PRINT "💡 Use 'DEV help' for available commands"
+            RETURN 1
+    END SELECT
+END FUNCTION
+
+FUNCTION RunTests(testSuite AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🧪 DEV - Running Test Suite"
+    PRINT STRING(60, "━")
+    
+    DIM test_suites() AS String
+    IF testSuite = "" THEN
+        test_suites = GetAvailableTestSuites()
+    ELSE
+        ReDim test_suites(0)
+        test_suites(0) = testSuite
+    END IF
+    
+    DIM total_tests AS INTEGER = 0
+    DIM passed_tests AS INTEGER = 0
+    DIM failed_tests AS INTEGER = 0
+    DIM skipped_tests AS INTEGER = 0
+    
+    DIM suite AS STRING
+    FOR EACH suite IN test_suites
+        PRINT "📋 Running test suite: " + suite
+        PRINT STRING(40, "─")
+        
+        DIM suite_results AS Object = RunTestSuite(suite)
+        
+        ' Display suite results
+        DIM test_result AS Object
+        FOR EACH test_result IN suite_results.tests
+            DIM status_icon AS STRING
+            SELECT CASE test_result.status
+                CASE "passed"
+                    status_icon = "✅"
+                    passed_tests = passed_tests + 1
+                CASE "failed"
+                    status_icon = "❌"
+                    failed_tests = failed_tests + 1
+                CASE "skipped"
+                    status_icon = "⏭️"
+                    skipped_tests = skipped_tests + 1
+            END SELECT
+            
+            PRINT "  " + status_icon + " " + test_result.name
+            IF test_result.status = "failed" THEN
+                PRINT "     ❌ " + test_result.error_message
+            END IF
+            
+            total_tests = total_tests + 1
+        NEXT test_result
+        
+        PRINT ""
+    NEXT suite
+    
+    ' Summary
+    PRINT STRING(60, "━")
+    PRINT "📊 Test Results Summary:"
+    PRINT "  Total Tests:       " + STR(total_tests)
+    PRINT "  Passed:            " + STR(passed_tests) + " (" + FORMAT((passed_tests / total_tests) * 100, "0.1") + "%)"
+    PRINT "  Failed:            " + STR(failed_tests) + " (" + FORMAT((failed_tests / total_tests) * 100, "0.1") + "%)"
+    PRINT "  Skipped:           " + STR(skipped_tests) + " (" + FORMAT((skipped_tests / total_tests) * 100, "0.1") + "%)"
+    
+    DIM success_rate AS SINGLE = (passed_tests / total_tests) * 100
+    IF success_rate >= 95 THEN
+        PRINT "  Status:            ✅ Excellent"
+    ELSEIF success_rate >= 80 THEN
+        PRINT "  Status:            ✅ Good"
+    ELSEIF success_rate >= 60 THEN
+        PRINT "  Status:            ⚠️ Warning"
+    ELSE
+        PRINT "  Status:            ❌ Critical"
+    END IF
+    
+    ' Generate test report
+    DIM report_file AS STRING = GenerateTestReport(total_tests, passed_tests, failed_tests, skipped_tests)
+    PRINT "  Report:            " + report_file
+    
+    PRINT ""
+    RETURN IIF(failed_tests = 0, 0, 1)
+END FUNCTION
+
+FUNCTION BuildSystem(target AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🔧 DEV - Building System"
+    PRINT STRING(60, "━")
+    
+    IF target = "" THEN target = "all"
+    
+    PRINT "🎯 Build target: " + target
+    PRINT "🕒 Started: " + FORMAT(Now(), "yyyy-MM-dd HH:mm:ss")
+    PRINT ""
+    
+    DIM build_steps() AS String = GetBuildSteps(target)
+    DIM step_count AS INTEGER = UBOUND(build_steps) + 1
+    DIM current_step AS INTEGER = 0
+    
+    DIM step AS STRING
+    FOR EACH step IN build_steps
+        current_step = current_step + 1
+        PRINT "📦 Step " + STR(current_step) + "/" + STR(step_count) + ": " + step
+        
+        DIM step_result AS INTEGER = ExecuteBuildStep(step)
+        IF step_result = 0 THEN
+            PRINT "   ✅ Completed successfully"
+        ELSE
+            PRINT "   ❌ Failed with error code " + STR(step_result)
+            PRINT ""
+            PRINT "❌ Build failed at step: " + step
+            RETURN step_result
+        END IF
+        
+        ' Show progress bar
+        DIM progress AS SINGLE = (current_step / step_count) * 100
+        PRINT "   📊 Progress: " + FORMAT(progress, "0.1") + "%"
+        PRINT ""
+    NEXT step
+    
+    PRINT STRING(60, "━")
+    PRINT "✅ Build completed successfully!"
+    PRINT "🕒 Finished: " + FORMAT(Now(), "yyyy-MM-dd HH:mm:ss")
+    
+    ' Generate build artifacts
+    DIM artifacts AS Object = GenerateBuildArtifacts(target)
+    IF artifacts.count > 0 THEN
+        PRINT ""
+        PRINT "📦 Build Artifacts:"
+        DIM i AS INTEGER
+        FOR i = 0 TO artifacts.count - 1
+            DIM artifact AS Object = artifacts.items(i)
+            PRINT "  • " + artifact.name + " (" + FormatBytes(artifact.size) + ")"
+        NEXT i
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION DeploySystem(environment AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🚀 DEV - Deploying System"
+    PRINT STRING(60, "━")
+    
+    IF environment = "" THEN environment = "development"
+    
+    ' Validate environment
+    IF NOT IsValidEnvironment(environment) THEN
+        PRINT "❌ Invalid environment: " + environment
+        PRINT "💡 Valid environments: development, staging, production"
+        RETURN 1
+    END IF
+    
+    PRINT "🎯 Target environment: " + environment
+    PRINT ""
+    
+    ' Pre-deployment checks
+    PRINT "🔍 Pre-deployment checks..."
+    DIM checks() AS String = {"system-health", "dependencies", "configuration", "permissions"}
+    
+    DIM check AS STRING
+    FOR EACH check IN checks
+        DIM check_result AS Boolean = RunPreDeploymentCheck(check)
+        DIM status AS String = IIF(check_result, "✅", "❌")
+        PRINT "  " + status + " " + check
+        
+        IF NOT check_result THEN
+            PRINT "❌ Pre-deployment check failed: " + check
+            RETURN 1
+        END IF
+    NEXT check
+    
+    PRINT ""
+    
+    ' Confirm deployment
+    IF environment = "production" THEN
+        DIM confirm AS STRING
+        PRINT "⚠️  WARNING: Deploying to PRODUCTION environment"
+        PRINT "❓ Are you sure? (yes/no): "
+        INPUT "", confirm
+        
+        IF LCASE(confirm) <> "yes" THEN
+            PRINT "❌ Deployment cancelled"
+            RETURN 1
+        END IF
+        PRINT ""
+    END IF
+    
+    ' Execute deployment
+    PRINT "🚀 Executing deployment..."
+    DIM deployment_steps() AS String = GetDeploymentSteps(environment)
+    
+    DIM deploy_step AS STRING
+    FOR EACH deploy_step IN deployment_steps
+        PRINT "  📋 " + deploy_step + "..."
+        
+        DIM step_result AS Integer = ExecuteDeploymentStep(deploy_step, environment)
+        IF step_result = 0 THEN
+            PRINT "     ✅ Success"
+        ELSE
+            PRINT "     ❌ Failed"
+            PRINT "❌ Deployment failed at step: " + deploy_step
+            
+            ' Trigger rollback
+            PRINT "🔄 Initiating rollback..."
+            CALL RollbackDeployment(environment)
+            RETURN step_result
+        END IF
+    NEXT deploy_step
+    
+    ' Post-deployment verification
+    PRINT ""
+    PRINT "🔍 Post-deployment verification..."
+    DIM verification_result AS Boolean = VerifyDeployment(environment)
+    
+    IF verification_result THEN
+        PRINT "✅ Deployment verified successfully!"
+        
+        ' Log deployment
+        CALL LogDeployment(environment, "success")
+        
+        ' Send notifications
+        CALL SendDeploymentNotification(environment, "success")
+        
+    ELSE
+        PRINT "❌ Deployment verification failed"
+        PRINT "🔄 Initiating rollback..."
+        CALL RollbackDeployment(environment)
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "🎉 Deployment to " + environment + " completed successfully!"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION DebugSystem(component AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🐛 DEV - System Debug Mode"
+    PRINT STRING(60, "━")
+    
+    IF component = "" THEN
+        ' Interactive debug menu
+        RETURN ShowDebugMenu()
+    ELSE
+        ' Debug specific component
+        RETURN DebugComponent(component)
+    END IF
+END FUNCTION
+
+FUNCTION ShowDebugMenu() AS INTEGER
+    PRINT "🐛 Debug Menu - Select component to debug:"
+    PRINT ""
+    PRINT "  1. Core System (uCORE)"
+    PRINT "  2. Script Engine (uSCRIPT)"
+    PRINT "  3. Memory System (uMEMORY)"
+    PRINT "  4. Package Manager"
+    PRINT "  5. File System"
+    PRINT "  6. Network & Security"
+    PRINT "  7. Performance Profiler"
+    PRINT "  8. Log Analysis"
+    PRINT "  9. Configuration"
+    PRINT "  0. Exit debug mode"
+    PRINT ""
+    
+    DIM choice AS STRING
+    INPUT "Select option (0-9): ", choice
+    
+    SELECT CASE choice
+        CASE "1"
+            RETURN DebugComponent("core")
+        CASE "2"
+            RETURN DebugComponent("script")
+        CASE "3"
+            RETURN DebugComponent("memory")
+        CASE "4"
+            RETURN DebugComponent("package")
+        CASE "5"
+            RETURN DebugComponent("filesystem")
+        CASE "6"
+            RETURN DebugComponent("network")
+        CASE "7"
+            RETURN DebugComponent("performance")
+        CASE "8"
+            RETURN DebugComponent("logs")
+        CASE "9"
+            RETURN DebugComponent("config")
+        CASE "0"
+            PRINT "Exiting debug mode"
+            RETURN 0
+        CASE ELSE
+            PRINT "❌ Invalid choice"
+            RETURN 1
+    END SELECT
+END FUNCTION
+
+FUNCTION ProfileSystem(duration AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "📊 DEV - System Performance Profiler"
+    PRINT STRING(60, "━")
+    
+    DIM profile_duration AS Integer = 60
+    IF duration <> "" AND IsNumeric(duration) THEN
+        profile_duration = VAL(duration)
+    END IF
+    
+    PRINT "🕒 Profiling duration: " + STR(profile_duration) + " seconds"
+    PRINT "📊 Starting system profiler..."
+    PRINT ""
+    
+    ' Initialize profiler
+    CALL InitializeProfiler()
+    
+    ' Start profiling
+    DIM start_time AS Date = Now()
+    DIM profile_data AS Object = CreateObject()
+    
+    ' Monitor system metrics
+    DIM elapsed AS Integer = 0
+    WHILE elapsed < profile_duration
+        ' Collect metrics
+        DIM metrics AS Object = CollectSystemMetrics()
+        CALL AppendProfileData(profile_data, metrics)
+        
+        ' Update progress
+        elapsed = DateDiff("s", start_time, Now())
+        DIM progress AS Single = (elapsed / profile_duration) * 100
+        
+        ' Display real-time metrics every 10 seconds
+        IF elapsed MOD 10 = 0 THEN
+            PRINT "📊 " + STR(elapsed) + "s | CPU: " + FORMAT(metrics.cpu_usage, "0.1") + "% | Memory: " + FORMAT(metrics.memory_usage, "0.1") + "% | I/O: " + STR(metrics.io_operations)
+        END IF
+        
+        ' Sleep for 1 second
+        CALL Sleep(1000)
+    WEND
+    
+    ' Generate profiling report
+    PRINT ""
+    PRINT "📋 Generating performance report..."
+    
+    DIM report AS Object = GenerateProfileReport(profile_data)
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "📊 Performance Profile Results:"
+    PRINT ""
+    PRINT "System Performance:"
+    PRINT "  Average CPU:       " + FORMAT(report.avg_cpu, "0.1") + "%"
+    PRINT "  Peak CPU:          " + FORMAT(report.peak_cpu, "0.1") + "%"
+    PRINT "  Average Memory:    " + FORMAT(report.avg_memory, "0.1") + "%"
+    PRINT "  Peak Memory:       " + FORMAT(report.peak_memory, "0.1") + "%"
+    PRINT "  Total I/O Ops:     " + STR(report.total_io)
+    PRINT "  I/O Rate:          " + STR(report.io_rate) + " ops/sec"
+    PRINT ""
+    
+    ' Performance bottlenecks
+    IF report.bottlenecks.Count > 0 THEN
+        PRINT "⚠️ Performance Bottlenecks:"
+        DIM j AS Integer
+        FOR j = 0 TO report.bottlenecks.Count - 1
+            DIM bottleneck AS Object = report.bottlenecks(j)
+            PRINT "  • " + bottleneck.description + " (Impact: " + bottleneck.severity + ")"
+        NEXT j
+        PRINT ""
+    END IF
+    
+    ' Recommendations
+    IF report.recommendations.Count > 0 THEN
+        PRINT "💡 Performance Recommendations:"
+        FOR j = 0 TO report.recommendations.Count - 1
+            DIM recommendation AS String = report.recommendations(j)
+            PRINT "  • " + recommendation
+        NEXT j
+        PRINT ""
+    END IF
+    
+    ' Save detailed report
+    DIM report_file AS String = SaveDetailedProfileReport(report)
+    PRINT "📄 Detailed report saved: " + report_file
+    PRINT ""
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ValidateSystem(component AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "✅ DEV - System Validation"
+    PRINT STRING(60, "━")
+    
+    DIM validation_components() AS String
+    IF component = "" THEN
+        validation_components = GetAllValidationComponents()
+    ELSE
+        ReDim validation_components(0)
+        validation_components(0) = component
+    END IF
+    
+    DIM total_validations AS Integer = 0
+    DIM passed_validations AS Integer = 0
+    DIM failed_validations AS Integer = 0
+    
+    DIM comp AS String
+    FOR EACH comp IN validation_components
+        PRINT "🔍 Validating " + comp + "..."
+        
+        DIM validation_results() AS Object = RunComponentValidation(comp)
+        
+        DIM validation AS Object
+        FOR EACH validation IN validation_results
+            DIM status_icon AS String = IIF(validation.passed, "✅", "❌")
+            PRINT "  " + status_icon + " " + validation.test_name
+            
+            IF NOT validation.passed THEN
+                PRINT "     ❌ " + validation.error_message
+                failed_validations = failed_validations + 1
+            ELSE
+                passed_validations = passed_validations + 1
+            END IF
+            
+            total_validations = total_validations + 1
+        NEXT validation
+        
+        PRINT ""
+    NEXT comp
+    
+    ' Summary
+    PRINT STRING(60, "━")
+    PRINT "📊 Validation Summary:"
+    PRINT "  Total Checks:      " + STR(total_validations)
+    PRINT "  Passed:            " + STR(passed_validations)
+    PRINT "  Failed:            " + STR(failed_validations)
+    
+    DIM validation_rate AS Single = (passed_validations / total_validations) * 100
+    PRINT "  Success Rate:      " + FORMAT(validation_rate, "0.1") + "%"
+    
+    IF failed_validations = 0 THEN
+        PRINT "  Status:            ✅ All validations passed"
+    ELSE
+        PRINT "  Status:            ❌ " + STR(failed_validations) + " validation(s) failed"
+    END IF
+    
+    PRINT ""
+    RETURN IIF(failed_validations = 0, 0, 1)
+END FUNCTION
+
+FUNCTION ShowDevHelp() AS INTEGER
+    PRINT ""
+    PRINT "🛠️ DEV Command - Development Tools (Wizard Mode Only)"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  DEV test [suite]     - Run test suites"
+    PRINT "  DEV build [target]   - Build system components"
+    PRINT "  DEV deploy [env]     - Deploy to environment"
+    PRINT "  DEV debug [comp]     - Debug system components"
+    PRINT "  DEV profile [secs]   - Performance profiling"
+    PRINT "  DEV validate [comp]  - Validate system integrity"
+    PRINT "  DEV backup [type]    - Backup system data"
+    PRINT "  DEV restore [backup] - Restore from backup"
+    PRINT "  DEV monitor [metric] - Monitor system metrics"
+    PRINT "  DEV help             - Show this help"
+    PRINT ""
+    PRINT "Test Suites:"
+    PRINT "  core      - Core system tests"
+    PRINT "  script    - uScript engine tests"
+    PRINT "  memory    - Memory system tests"
+    PRINT "  package   - Package manager tests"
+    PRINT "  security  - Security validation tests"
+    PRINT ""
+    PRINT "Build Targets:"
+    PRINT "  all       - Complete system build"
+    PRINT "  core      - Core components only"
+    PRINT "  scripts   - Script libraries"
+    PRINT "  docs      - Documentation generation"
+    PRINT ""
+    PRINT "Environments:"
+    PRINT "  development - Local development environment"
+    PRINT "  staging     - Pre-production testing"
+    PRINT "  production  - Live production system"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  DEV test core        - Run core system tests"
+    PRINT "  DEV build all        - Build complete system"
+    PRINT "  DEV deploy staging   - Deploy to staging environment"
+    PRINT "  DEV profile 120      - Profile for 2 minutes"
+    PRINT ""
+    PRINT "🔒 Note: Development tools require wizard-level permissions"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION HasDevPermissions() AS BOOLEAN
+FUNCTION GetAvailableTestSuites() AS STRING()
+FUNCTION RunTestSuite(suiteName AS STRING) AS Object
+FUNCTION GenerateTestReport(total AS INTEGER, passed AS INTEGER, failed AS INTEGER, skipped AS INTEGER) AS STRING
+FUNCTION GetBuildSteps(target AS STRING) AS STRING()
+FUNCTION ExecuteBuildStep(step AS STRING) AS INTEGER
+FUNCTION GenerateBuildArtifacts(target AS STRING) AS Object
+FUNCTION IsValidEnvironment(env AS STRING) AS BOOLEAN
+FUNCTION RunPreDeploymentCheck(check AS STRING) AS BOOLEAN
+FUNCTION GetDeploymentSteps(env AS STRING) AS STRING()
+FUNCTION ExecuteDeploymentStep(step AS STRING, env AS STRING) AS INTEGER
+FUNCTION VerifyDeployment(env AS STRING) AS BOOLEAN
+FUNCTION RollbackDeployment(env AS STRING)
+FUNCTION LogDeployment(env AS STRING, status AS STRING)
+FUNCTION SendDeploymentNotification(env AS STRING, status AS STRING)
+FUNCTION DebugComponent(component AS STRING) AS INTEGER
+FUNCTION InitializeProfiler()
+FUNCTION CollectSystemMetrics() AS Object
+FUNCTION AppendProfileData(data AS Object, metrics AS Object)
+FUNCTION GenerateProfileReport(data AS Object) AS Object
+FUNCTION SaveDetailedProfileReport(report AS Object) AS STRING
+FUNCTION GetAllValidationComponents() AS STRING()
+FUNCTION RunComponentValidation(component AS STRING) AS Object()
+FUNCTION Sleep(milliseconds AS INTEGER)
+FUNCTION FormatBytes(bytes AS LONG) AS STRING
+
+```

@@ -1,0 +1,517 @@
+```plaintext
+' uDOS Render System - Visual Basic Style uCode
+' Advanced text rendering, ASCII art, and visual display system
+' Usage: RENDER [art|text|chart|ui|animation|help] [args]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "help"
+    DIM arguments AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM spacePos AS INTEGER = InStr(args, " ")
+        IF spacePos > 0 THEN
+            command = Left(args, spacePos - 1)
+            arguments = Mid(args, spacePos + 1)
+        ELSE
+            command = args
+        END IF
+    END IF
+    
+    ' Execute render command
+    SELECT CASE LCASE(command)
+        CASE "art", "ascii"
+            RETURN RenderAsciiArt(arguments)
+        CASE "text", "format"
+            RETURN RenderFormattedText(arguments)
+        CASE "chart", "graph"
+            RETURN RenderChart(arguments)
+        CASE "ui", "interface"
+            RETURN RenderUserInterface(arguments)
+        CASE "animation", "anim"
+            RETURN RenderAnimation(arguments)
+        CASE "logo"
+            RETURN RenderLogo(arguments)
+        CASE "banner"
+            RETURN RenderBanner(arguments)
+        CASE "progress", "bar"
+            RETURN RenderProgressBar(arguments)
+        CASE "table"
+            RETURN RenderTable(arguments)
+        CASE "menu"
+            RETURN RenderMenu(arguments)
+        CASE "box", "border"
+            RETURN RenderBox(arguments)
+        CASE "gallery"
+            RETURN ShowAsciiGallery()
+        CASE "help"
+            RETURN ShowRenderHelp()
+        CASE ELSE
+            PRINT "❌ Unknown render command: " + command
+            PRINT "💡 Use 'RENDER help' for available commands"
+            RETURN 1
+    END SELECT
+END FUNCTION
+
+FUNCTION RenderAsciiArt(artName AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🎨 RENDER - ASCII Art Generator"
+    PRINT STRING(60, "━")
+    
+    IF artName = "" THEN
+        RETURN ShowAvailableArt()
+    END IF
+    
+    ' Load art template
+    DIM artData AS Object = LoadArtTemplate(artName)
+    
+    IF artData IS NOTHING THEN
+        PRINT "❌ ASCII art not found: " + artName
+        PRINT "💡 Use 'RENDER gallery' to see available art"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🎨 " + artData.title
+    IF artData.author <> "" THEN
+        PRINT "👨‍🎨 Artist: " + artData.author
+    END IF
+    IF artData.description <> "" THEN
+        PRINT "📝 " + artData.description
+    END IF
+    PRINT ""
+    
+    ' Render the ASCII art
+    DIM artLines() AS STRING = Split(artData.content, vbCrLf)
+    DIM line AS STRING
+    FOR EACH line IN artLines
+        ' Apply color codes if supported
+        IF artData.hasColors THEN
+            line = ApplyColorCodes(line)
+        END IF
+        PRINT line
+    NEXT line
+    
+    PRINT ""
+    PRINT "✨ Art rendered: " + artName
+    
+    ' Optionally save to file
+    IF artData.saveable THEN
+        DIM save_choice AS STRING
+        INPUT "💾 Save to file? (y/n): ", save_choice
+        IF LCASE(save_choice) = "y" OR LCASE(save_choice) = "yes" THEN
+            DIM filename AS STRING = SaveArtToFile(artName, artData.content)
+            PRINT "📄 Saved to: " + filename
+        END IF
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderFormattedText(textArgs AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "📝 RENDER - Text Formatter"
+    PRINT STRING(60, "━")
+    
+    IF textArgs = "" THEN
+        PRINT "❌ No text provided"
+        PRINT "💡 Usage: RENDER text \"Your text here\" [style] [width]"
+        RETURN 1
+    END IF
+    
+    ' Parse text formatting arguments
+    DIM parts() AS STRING = ParseQuotedArguments(textArgs)
+    DIM text AS STRING = parts(0)
+    DIM style AS STRING = "default"
+    DIM width AS INTEGER = 60
+    
+    IF UBOUND(parts) >= 1 THEN style = parts(1)
+    IF UBOUND(parts) >= 2 AND IsNumeric(parts(2)) THEN width = VAL(parts(2))
+    
+    PRINT ""
+    PRINT "📝 Formatting text with style: " + style
+    PRINT "📏 Width: " + STR(width) + " characters"
+    PRINT ""
+    
+    ' Apply text formatting
+    SELECT CASE LCASE(style)
+        CASE "title", "header"
+            CALL RenderTitleText(text, width)
+        CASE "center", "centered"
+            CALL RenderCenteredText(text, width)
+        CASE "box", "boxed"
+            CALL RenderBoxedText(text, width)
+        CASE "banner"
+            CALL RenderBannerText(text, width)
+        CASE "uppercase", "upper"
+            CALL RenderUppercaseText(text, width)
+        CASE "lowercase", "lower"
+            CALL RenderLowercaseText(text, width)
+        CASE "wrap", "wrapped"
+            CALL RenderWrappedText(text, width)
+        CASE "justify", "justified"
+            CALL RenderJustifiedText(text, width)
+        CASE ELSE
+            CALL RenderPlainText(text, width)
+    END SELECT
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderChart(chartArgs AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "📊 RENDER - Chart Generator"
+    PRINT STRING(60, "━")
+    
+    ' Parse chart arguments
+    DIM args() AS STRING = Split(chartArgs, " ")
+    DIM chartType AS STRING = "bar"
+    DIM dataSource AS STRING = ""
+    
+    IF UBOUND(args) >= 0 THEN chartType = args(0)
+    IF UBOUND(args) >= 1 THEN dataSource = args(1)
+    
+    ' Load chart data
+    DIM chartData AS Object
+    IF dataSource <> "" THEN
+        chartData = LoadChartData(dataSource)
+    ELSE
+        chartData = GetSampleChartData(chartType)
+    END IF
+    
+    IF chartData IS NOTHING THEN
+        PRINT "❌ No chart data available"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "📊 " + chartData.title
+    PRINT "📅 " + chartData.subtitle
+    PRINT ""
+    
+    ' Render chart based on type
+    SELECT CASE LCASE(chartType)
+        CASE "bar", "bars"
+            CALL RenderBarChart(chartData)
+        CASE "line", "lines"
+            CALL RenderLineChart(chartData)
+        CASE "pie"
+            CALL RenderPieChart(chartData)
+        CASE "histogram", "hist"
+            CALL RenderHistogram(chartData)
+        CASE "scatter"
+            CALL RenderScatterPlot(chartData)
+        CASE "timeline"
+            CALL RenderTimeline(chartData)
+        CASE ELSE
+            PRINT "❌ Unknown chart type: " + chartType
+            PRINT "💡 Available: bar, line, pie, histogram, scatter, timeline"
+            RETURN 1
+    END SELECT
+    
+    ' Show data summary
+    PRINT ""
+    PRINT "📋 Data Summary:"
+    PRINT "  Records: " + STR(chartData.recordCount)
+    PRINT "  Range:   " + STR(chartData.minValue) + " to " + STR(chartData.maxValue)
+    PRINT "  Average: " + FORMAT(chartData.average, "0.00")
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderUserInterface(uiType AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🖥️ RENDER - User Interface Generator"
+    PRINT STRING(60, "━")
+    
+    IF uiType = "" THEN uiType = "main"
+    
+    ' Load UI template
+    DIM uiTemplate AS Object = LoadUITemplate(uiType)
+    
+    IF uiTemplate IS NOTHING THEN
+        PRINT "❌ UI template not found: " + uiType
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🖥️ Rendering UI: " + uiTemplate.name
+    PRINT ""
+    
+    ' Clear screen for UI rendering
+    PRINT CHR(27) + "[2J" + CHR(27) + "[H"  ' ANSI clear screen
+    
+    ' Render UI components
+    DIM component AS Object
+    FOR EACH component IN uiTemplate.components
+        SELECT CASE component.type
+            CASE "header"
+                CALL RenderUIHeader(component)
+            CASE "menu"
+                CALL RenderUIMenu(component)
+            CASE "content"
+                CALL RenderUIContent(component)
+            CASE "sidebar"
+                CALL RenderUISidebar(component)
+            CASE "footer"
+                CALL RenderUIFooter(component)
+            CASE "dialog"
+                CALL RenderUIDialog(component)
+            CASE "form"
+                CALL RenderUIForm(component)
+            CASE "table"
+                CALL RenderUITable(component)
+        END SELECT
+    NEXT component
+    
+    ' Handle user interaction if UI is interactive
+    IF uiTemplate.interactive THEN
+        RETURN HandleUIInteraction(uiTemplate)
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderAnimation(animationType AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "🎬 RENDER - Animation System"
+    PRINT STRING(60, "━")
+    
+    IF animationType = "" THEN
+        RETURN ShowAvailableAnimations()
+    END IF
+    
+    ' Load animation data
+    DIM animData AS Object = LoadAnimationData(animationType)
+    
+    IF animData IS NOTHING THEN
+        PRINT "❌ Animation not found: " + animationType
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🎬 Starting animation: " + animData.name
+    PRINT "⏱️ Duration: " + STR(animData.duration) + "ms"
+    PRINT "🖼️ Frames: " + STR(animData.frameCount)
+    PRINT ""
+    PRINT "Press Ctrl+C to stop animation..."
+    PRINT ""
+    
+    ' Play animation
+    DIM frameIndex AS INTEGER = 0
+    DIM startTime AS Long = Timer()
+    
+    WHILE frameIndex < animData.frameCount
+        ' Clear screen
+        PRINT CHR(27) + "[2J" + CHR(27) + "[H"
+        
+        ' Render current frame
+        DIM currentFrame AS Object = animData.frames(frameIndex)
+        
+        ' Show frame info
+        PRINT "🎬 " + animData.name + " - Frame " + STR(frameIndex + 1) + "/" + STR(animData.frameCount)
+        PRINT ""
+        
+        ' Display frame content
+        DIM frameLine AS STRING
+        FOR EACH frameLine IN currentFrame.lines
+            PRINT frameLine
+        NEXT frameLine
+        
+        ' Wait for frame duration
+        DIM frameDelay AS INTEGER = animData.frameDelay
+        IF currentFrame.hasCustomDelay THEN
+            frameDelay = currentFrame.delay
+        END IF
+        
+        CALL Sleep(frameDelay)
+        
+        frameIndex = frameIndex + 1
+        
+        ' Loop animation if specified
+        IF frameIndex >= animData.frameCount AND animData.loop THEN
+            frameIndex = 0
+        END IF
+    WEND
+    
+    PRINT ""
+    PRINT "✨ Animation completed: " + animData.name
+    PRINT "⏱️ Total time: " + STR(Timer() - startTime) + "ms"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderProgressBar(progressArgs AS STRING) AS INTEGER
+    ' Parse progress arguments
+    DIM args() AS STRING = Split(progressArgs, " ")
+    DIM current AS INTEGER = 0
+    DIM total AS INTEGER = 100
+    DIM width AS INTEGER = 40
+    DIM label AS STRING = "Progress"
+    
+    IF UBOUND(args) >= 0 AND IsNumeric(args(0)) THEN current = VAL(args(0))
+    IF UBOUND(args) >= 1 AND IsNumeric(args(1)) THEN total = VAL(args(1))
+    IF UBOUND(args) >= 2 AND IsNumeric(args(2)) THEN width = VAL(args(2))
+    IF UBOUND(args) >= 3 THEN label = args(3)
+    
+    ' Calculate progress
+    DIM percentage AS SINGLE = (current / total) * 100
+    DIM filled AS INTEGER = INT((current / total) * width)
+    DIM remaining AS INTEGER = width - filled
+    
+    ' Build progress bar
+    DIM progressBar AS STRING = "["
+    progressBar = progressBar + STRING(filled, "█")
+    progressBar = progressBar + STRING(remaining, "░")
+    progressBar = progressBar + "]"
+    
+    ' Display progress bar
+    PRINT label + ": " + progressBar + " " + FORMAT(percentage, "0.1") + "% (" + STR(current) + "/" + STR(total) + ")"
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION RenderTable(tableArgs AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "📋 RENDER - Table Generator"
+    PRINT STRING(60, "━")
+    
+    ' For this example, render a sample table
+    DIM headers() AS STRING = {"Name", "Status", "Progress", "Actions"}
+    DIM colWidths() AS INTEGER = {15, 10, 12, 20}
+    
+    ' Render table header
+    PRINT "┌" + STRING(colWidths(0), "─") + "┬" + STRING(colWidths(1), "─") + "┬" + STRING(colWidths(2), "─") + "┬" + STRING(colWidths(3), "─") + "┐"
+    
+    DIM headerRow AS STRING = "│"
+    DIM i AS INTEGER
+    FOR i = 0 TO UBOUND(headers)
+        headerRow = headerRow + " " + PadString(headers(i), colWidths(i) - 1) + "│"
+    NEXT i
+    PRINT headerRow
+    
+    PRINT "├" + STRING(colWidths(0), "─") + "┼" + STRING(colWidths(1), "─") + "┼" + STRING(colWidths(2), "─") + "┼" + STRING(colWidths(3), "─") + "┤"
+    
+    ' Sample data rows
+    DIM sampleData(2, 3) AS STRING
+    sampleData(0, 0) = "Core System": sampleData(0, 1) = "Running": sampleData(0, 2) = "100%": sampleData(0, 3) = "Monitor, Restart"
+    sampleData(1, 0) = "uScript": sampleData(1, 1) = "Active": sampleData(1, 2) = "95%": sampleData(1, 3) = "Debug, Optimize"
+    sampleData(2, 0) = "Memory": sampleData(2, 1) = "Stable": sampleData(2, 2) = "78%": sampleData(2, 3) = "Clean, Backup"
+    
+    ' Render data rows
+    DIM row AS INTEGER
+    FOR row = 0 TO 2
+        DIM dataRow AS STRING = "│"
+        FOR i = 0 TO 3
+            dataRow = dataRow + " " + PadString(sampleData(row, i), colWidths(i) - 1) + "│"
+        NEXT i
+        PRINT dataRow
+    NEXT row
+    
+    PRINT "└" + STRING(colWidths(0), "─") + "┴" + STRING(colWidths(1), "─") + "┴" + STRING(colWidths(2), "─") + "┴" + STRING(colWidths(3), "─") + "┘"
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowRenderHelp() AS INTEGER
+    PRINT ""
+    PRINT "🎨 RENDER Command - Visual Display System"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  RENDER art [name]           - Display ASCII art"
+    PRINT "  RENDER text \"text\" [style]   - Format text with styles"
+    PRINT "  RENDER chart [type] [data]  - Generate charts and graphs"
+    PRINT "  RENDER ui [template]        - Render user interfaces"
+    PRINT "  RENDER animation [name]     - Play ASCII animations"
+    PRINT "  RENDER logo [variant]       - Display uDOS logos"
+    PRINT "  RENDER banner \"text\"        - Create text banners"
+    PRINT "  RENDER progress [n] [total] - Show progress bars"
+    PRINT "  RENDER table [data]         - Display data tables"
+    PRINT "  RENDER menu [items]         - Create interactive menus"
+    PRINT "  RENDER box \"text\" [style]   - Draw text boxes"
+    PRINT "  RENDER gallery              - Browse ASCII art gallery"
+    PRINT "  RENDER help                 - Show this help"
+    PRINT ""
+    PRINT "Text Styles:"
+    PRINT "  title     - Large title formatting"
+    PRINT "  center    - Center-aligned text"
+    PRINT "  box       - Text in decorative box"
+    PRINT "  banner    - Banner-style text"
+    PRINT "  upper     - Uppercase formatting"
+    PRINT "  lower     - Lowercase formatting"
+    PRINT "  wrap      - Word-wrapped text"
+    PRINT "  justify   - Justified alignment"
+    PRINT ""
+    PRINT "Chart Types:"
+    PRINT "  bar       - Vertical bar charts"
+    PRINT "  line      - Line graphs"
+    PRINT "  pie       - Pie charts (text-based)"
+    PRINT "  histogram - Data distribution"
+    PRINT "  scatter   - Scatter plots"
+    PRINT "  timeline  - Timeline visualization"
+    PRINT ""
+    PRINT "UI Templates:"
+    PRINT "  main      - Main application interface"
+    PRINT "  dashboard - System dashboard"
+    PRINT "  menu      - Navigation menu"
+    PRINT "  dialog    - Dialog boxes"
+    PRINT "  form      - Input forms"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  RENDER art dragon           - Show dragon ASCII art"
+    PRINT "  RENDER text \"Hello\" banner  - Create banner text"
+    PRINT "  RENDER chart bar data.json  - Bar chart from data"
+    PRINT "  RENDER progress 75 100     - 75% progress bar"
+    PRINT "  RENDER ui dashboard         - System dashboard"
+    PRINT ""
+    PRINT "🎨 The render system supports colors, animations, and interactive elements"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION ShowAvailableArt() AS INTEGER
+FUNCTION LoadArtTemplate(name AS STRING) AS Object
+FUNCTION ApplyColorCodes(text AS STRING) AS STRING
+FUNCTION SaveArtToFile(name AS STRING, content AS STRING) AS STRING
+FUNCTION ParseQuotedArguments(args AS STRING) AS STRING()
+FUNCTION RenderTitleText(text AS STRING, width AS INTEGER)
+FUNCTION RenderCenteredText(text AS STRING, width AS INTEGER)
+FUNCTION RenderBoxedText(text AS STRING, width AS INTEGER)
+FUNCTION RenderBannerText(text AS STRING, width AS INTEGER)
+FUNCTION RenderUppercaseText(text AS STRING, width AS INTEGER)
+FUNCTION RenderLowercaseText(text AS STRING, width AS INTEGER)
+FUNCTION RenderWrappedText(text AS STRING, width AS INTEGER)
+FUNCTION RenderJustifiedText(text AS STRING, width AS INTEGER)
+FUNCTION RenderPlainText(text AS STRING, width AS INTEGER)
+FUNCTION LoadChartData(source AS STRING) AS Object
+FUNCTION GetSampleChartData(chartType AS STRING) AS Object
+FUNCTION RenderBarChart(data AS Object)
+FUNCTION RenderLineChart(data AS Object)
+FUNCTION RenderPieChart(data AS Object)
+FUNCTION RenderHistogram(data AS Object)
+FUNCTION RenderScatterPlot(data AS Object)
+FUNCTION RenderTimeline(data AS Object)
+FUNCTION LoadUITemplate(uiType AS STRING) AS Object
+FUNCTION RenderUIHeader(component AS Object)
+FUNCTION RenderUIMenu(component AS Object)
+FUNCTION RenderUIContent(component AS Object)
+FUNCTION RenderUISidebar(component AS Object)
+FUNCTION RenderUIFooter(component AS Object)
+FUNCTION RenderUIDialog(component AS Object)
+FUNCTION RenderUIForm(component AS Object)
+FUNCTION RenderUITable(component AS Object)
+FUNCTION HandleUIInteraction(template AS Object) AS INTEGER
+FUNCTION ShowAvailableAnimations() AS INTEGER
+FUNCTION LoadAnimationData(animationType AS STRING) AS Object
+FUNCTION Sleep(milliseconds AS INTEGER)
+FUNCTION PadString(text AS STRING, length AS INTEGER) AS STRING
+FUNCTION ShowAsciiGallery() AS INTEGER
+
+```

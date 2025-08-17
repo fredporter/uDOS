@@ -20,11 +20,35 @@
 
 ### ✨ Major Features
 
+#### � Modular Architecture Revolution
+- **ucode-modular.sh**: Clean 350-line core shell with intelligent command routing
+- **Visual Basic-style uCode Scripts**: 9 comprehensive modules handling complex functionality
+- **Dual Interface Support**: Both shortcode format `[COMMAND]` and full commands
+- **Smart Command Routing**: Automatic detection between core commands and uCode scripts
+- **Separation of Concerns**: Core handles routing, uCode scripts handle complexity
+
+#### 🎯 Complete uCode Script Library
+- **MEMORY.ucode**: Advanced memory management with search, organization, backup
+- **MISSION.ucode**: Mission control system with planning, tracking, reporting  
+- **PACKAGE.ucode**: Package management with dependencies and versioning
+- **LOG.ucode**: Intelligent logging with filtering, analysis, monitoring
+- **DEV.ucode**: Complete development toolkit with testing, building, debugging
+- **RENDER.ucode**: Visual rendering system with ASCII art, charts, animations
+- **DASH.ucode**: Interactive dashboard with real-time monitoring
+- **PANEL.ucode**: System control panel with configuration management
+- **TREE.ucode**: Advanced directory visualization and navigation
+
 #### 🔌 Extension System
-- **Modular Architecture**: Plugin-based system for expanding functionality
+- **Plugin-based Architecture**: Modular system for expanding functionality
 - **Deployment Manager**: Comprehensive deployment system (drone, standalone, server, portable, cloud, developer)
 - **Smart Input Enhanced**: Advanced form builders, wizards, and AI-powered input validation
 - **Extension Registry**: Centralized management and discovery system
+
+#### 🌐 Web Content Integration
+- **URL to Markdown Converter**: Extract web content as clean markdown files
+- **Batch Processing**: Convert multiple URLs efficiently with `udos-url2md-batch`
+- **Metadata Tracking**: Automatic source tracking and timestamp generation
+- **uDOS Integration**: Web content automatically saved to uMEMORY datagets
 
 #### 🧙‍♂️ Wizard Development Environment
 - **Renamed from uDEV**: Now called "wizard" for better user understanding
@@ -45,10 +69,11 @@
 - **AI-powered automation** with context-aware assistance
 - **Collaborative development** support with team workflows
 
-#### 📁 v1.3 Architecture Updates
-- **Clean uCORE Structure**: Minimal, expandable core with extension support
-- **Extension Development Kit**: Tools for building custom extensions
-- **Template-driven Deployments**: JSON-based configuration system
+#### 📁 v1.3 Architecture Benefits
+- **Maintainability**: Modular design makes updates and debugging easier
+- **Extensibility**: New commands can be added as uCode scripts without modifying core
+- **Performance**: Optimized command processing and resource management
+- **Clean Code**: Separation between routing logic and functional implementation
 - **Comprehensive Validation**: Input validation and deployment verification
 
 ## 🏗️ Directory Structure
@@ -94,6 +119,11 @@ uDOS v1.3 introduces a powerful extension system for modular functionality:
 
 # Run mission creation wizard
 ./uCORE/extensions/extensions.sh RUN smart-input-enhanced WIZARD mission-creation
+
+# Convert web content to markdown
+udos-url2md https://example.com
+udos-url2md -t "My Article" https://blog.example.com/post
+udos-url2md-batch urls.txt
 ```
 
 ## 🌟 Key Features v1.2
@@ -104,6 +134,7 @@ uDOS v1.3 introduces a powerful extension system for modular functionality:
 - **💾 User Memory System**: Centralized user data management
 - **🤖 Gemini CLI Integration**: Google Gemini assistant capabilities
 - **🧪 Sandbox Environment**: Safe experimentation workspace
+- **🌐 Web Content Extraction**: URL to markdown conversion with batch processing
 
 ## 📦 Components
 
@@ -128,6 +159,7 @@ uDOS v1.3 introduces a powerful extension system for modular functionality:
 - `projects/` - Your project files [20-50-00]
 - `forms/` - Generated forms and responses [20-60-00]
 - `deployments/` - Deployment configurations and logs [20-70-00]
+- `datagets/` - Web content and extracted data [20-80-00]
 
 ### 📚 uKNOWLEDGE/ - Knowledge Bank [30-00-00]
 **Shared public knowledge (Wizard managed)**
@@ -186,6 +218,12 @@ uDOS v1.3 introduces a powerful extension system for modular functionality:
 
 # Generate live dashboard
 ./uCORE/code/dash.sh live
+
+# Convert web page to markdown
+udos-url2md https://example.com
+
+# Batch convert URLs from file
+udos-url2md-batch urls.txt
 ```
 
 ## 🤖 Gemini Integration
@@ -272,5 +310,5 @@ code uDOS.code-workspace
 
 **uDOS v1.3** - *Where Data Meets Intelligence* ✨
 
-**Features**: Extension System | Deployment Manager | Smart Input Enhanced | Wizard Development Environment  
+**Features**: Extension System | Deployment Manager | Smart Input Enhanced | Wizard Development Environment | Web Content Extraction  
 **Updated**: August 17, 2025 | **Architecture**: Modern Modular Design with Plugin Architecture
