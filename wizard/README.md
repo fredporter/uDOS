@@ -10,10 +10,10 @@ Special system development mode available only to Wizard Installations with adva
 wizard/
 ├── vscode/              # VS Code configuration and extensions
 │   └── .vscode/         # Workspace settings, tasks, launch configs
-├── uLOG/                # All development logs, reports, and summaries (flat structure)
+├── log/                 # All development logs, reports, and summaries (flat structure)
 ├── tools/               # Development utilities and scripts
 ├── scripts/             # Development and maintenance scripts
-├── reports/             # Analysis and metrics (non-uLOG files)
+├── reports/             # Analysis and metrics (non-uDEV files)
 ├── workflows/           # Enhanced workflow management
 │   ├── roadmaps/        # Project roadmaps and planning
 │   ├── versioning/      # Version planning and release management
@@ -22,7 +22,7 @@ wizard/
 │   ├── active/          # Active workflows
 │   ├── completed/       # Completed workflows
 │   └── templates/       # Workflow templates
-└── logs/                # System logs (non-uLOG format)
+└── logs/                # System logs (non-uDEV format)
 ```
 
 ## 🎯 Purpose
@@ -32,7 +32,7 @@ Dev Mode provides:
 ### 🔧 Development Tools
 - **VS Code Integration**: Dedicated workspace configuration
 - **Development Scripts**: Advanced development and maintenance scripting
-- **uLOG Management**: Centralized logging system with flat file structure
+- **uDEV Log Management**: Centralized logging system with flat file structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md)
 - **Workflow System**: Enhanced roadmap, versioning, and task management
 
 ### 🧙‍♂️ Wizard-Only Features
@@ -78,7 +78,7 @@ Dev Mode provides:
 ### Entering Wizard Dev Mode
 ```bash
 # Access development environment
-cd /Users/agentdigital/uDOS/uDEV
+cd /Users/agentdigital/uDOS/wizard
 
 # Launch VS Code with uDOS development workspace
 code vscode/
@@ -90,7 +90,7 @@ code vscode/
 ### Development Workflow
 1. **Initialize Session**: Start development logging
 2. **Define Objectives**: Create task in sandbox/tasks/
-3. **Develop Features**: Use uDEV tools and environment
+3. **Develop Features**: Use Dev Mode tools and environment
 4. **Test Integration**: Validate changes in testing/
 5. **Document Progress**: Auto-logged in logs/ directory
 6. **Complete Session**: Archive results in summaries/

@@ -50,7 +50,7 @@ uDOS/
 ##### **Dev Mode Environment (wizard/)**
 - **Special system development mode** available only to Wizard Installations
 - **Enhanced workflow management** with roadmaps, versioning, and task tracking
-- **Centralized uLOG system** with flat file structure for all logs, reports, summaries
+- **Centralized log system** with flat file structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md format)
 - **Advanced development tools** and utilities exclusive to Wizard users
 
 ##### **Extension Architecture (uCORE/extensions/)**

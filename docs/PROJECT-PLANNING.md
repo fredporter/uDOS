@@ -5,7 +5,7 @@
     ██████╗ ██╗      █████╗ ███╗   ██╗███╗ #### **4. Dev Mode (Wizard Installations)**
 - **Special system development mode** available only to Wizard Installations
 - **Enhanced workflow management**: roadmaps, versioning, development processes, task tracking
-- **Centralized uLOG system**: All logs, reports, summaries in flat structure
+- **Centralized log system**: All logs, reports, summaries in flat structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md)
 - **Advanced development tools**: VS Code integration and development utilities██╗███╗   ██╗ ██████╗ 
     ██╔══██╗██║     ██╔══██╗████╗  ██║████╗  ██║██║████╗  ██║██╔════╝ 
     ██████╔╝██║     ███████║██╔██╗ ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗

@@ -48,6 +48,6 @@ workflows/
 
 ### Usage
 
-This enhanced workflow system integrates with the flat uLOG structure in the parent directory, providing comprehensive tracking and management of all development activities in Dev Mode.
+This enhanced workflow system integrates with the flat log structure in the parent directory, providing comprehensive tracking and management of all development activities in Dev Mode.
 
-All workflow outputs, logs, and reports are centralized in the `../uLOG/` directory for easy access and organization.
+All workflow outputs, logs, and reports are centralized in the `../log/` directory for easy access and organization.

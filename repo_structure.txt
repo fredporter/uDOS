@@ -1,5 +1,5 @@
 # uDOS v1.3 Repository Structure
-Generated: 2025-08-17 17:26:20
+Generated: 2025-08-17 17:44:58
 
 ## Repository Overview
 ```
@@ -19,6 +19,7 @@ extension/
 install/
 sandbox/
     ├── tasks/
+        ├── completed/
 uKNOWLEDGE/
 uMEMORY/
     ├── .backup/
@@ -90,7 +91,7 @@ uSCRIPT/
         ├── python/
         ├── ucode/
 wizard/
-    ├── logs/
+    ├── log/
     ├── reports/
         ├── summaries/
     ├── scripts/
@@ -100,7 +101,6 @@ wizard/
         ├── migration/
         ├── validation/
     ├── tools/
-    ├── uLOG/
     ├── vscode/
         ├── .vscode/
     ├── workflows/

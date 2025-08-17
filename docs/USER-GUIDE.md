@@ -39,7 +39,7 @@ Example: uLOG-20250816-1640-28-00SY43.md
 #### Dev Mode (Wizard Installations)
 - **Special system development mode** available only to Wizard Installations
 - **Advanced development tools** housed in the wizard folder
-- **uLOG Management**: Centralized logging with flat file structure
+- **uDEV Log Management**: Centralized logging with flat file structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md)
 - **Workflow Management**: Enhanced roadmap, versioning, and task tracking
 
 #### uSCRIPT Production Script Library
@@ -496,7 +496,7 @@ uSCRIPT/
 - **Migration Script**: `/uCORE/scripts/migrate-to-v13.sh`
 - **Filename Generator**: `/uCORE/scripts/generate-filename-v3.sh`
 - **Timezone Mapper**: `/uCORE/scripts/timezone-mapper-v13.sh`
-- **Development Logger**: `/wizard/tools/dev-session-logger.sh`
+- **Dev Mode Logger**: `/wizard/tools/dev-session-logger.sh`
 
 ### 🤝 Community
 - **GitHub Repository**: uDOS project repository
