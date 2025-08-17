@@ -2,18 +2,18 @@
 
 ## System Architecture
 
-uDOS follows a modular, user-centric architecture designed for simplicity and extensibility.
+uDOS follows a predominently flat, modular, user-centric architecture designed for simplicity and extensibility.
 
 ### Core Components
 
 #### 🏗️ **Directory Structure**
 - **`sandbox/`** - User workspace with identity and temporary scripts
-- **`uMemory/`** - User data storage (moves, missions, milestones, legacy)
-- **`uDev/`** - System development logs and debugging information
-- **`uKnowledge/`** - Documentation and knowledge base
-- **`uScript/`** - Development script management and execution
-- **`uTemplate/`** - Template system for forms, datagets, and configurations
-- **`uCode/`** - Core system scripts and utilities
+- **`uMEMORY/`** - User data storage (moves, missions, milestones, legacy)
+- **`wizard/`** - System development logs and debugging information
+- **`uKNOWLEDGE/`** - Documentation and knowledge base
+- **`uSCRIPT/`** - Script management and execution
+- **`uCORE/templates/`** - Template system for forms, datagets, and configurations
+- **`uCORE/`** - Core system scripts and utilities
 
 #### 🔧 **Core Systems**
 - **Template System** - Unified template processing with shortcodes and variables
