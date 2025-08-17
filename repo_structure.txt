@@ -1,226 +1,200 @@
-# uDOS v1.3 Repository Structure
-Generated: 2025-08-17 17:44:58
-
-## Repository Overview
-```
-uDOS/ - uDOS Universal Development Operating System
-├── Core Architecture & Documentation
-├── Extension System & Development Tools  
-├── User Memory & Workspace Management
-└── Installation & Distribution System
-```
-
-## Complete Directory Structure
-
-```
-./
-docs/
-extension/
-install/
-sandbox/
-    ├── tasks/
-        ├── completed/
-uKNOWLEDGE/
-uMEMORY/
-    ├── .backup/
-    ├── datasets/
-        ├── mapping/
-            ├── map-05/
-                ├── locations/
-                ├── tiles/
-    ├── deployments/
-        ├── active/
-        ├── completed/
-        ├── logs/
-        ├── templates/
-    ├── forms/
-        ├── active/
-        ├── completed/
-        ├── drafts/
-        ├── templates/
-    ├── generated/
-        ├── explicit/
-        ├── public/
-    ├── logs/
-        ├── explicit/
-            ├── daily/
-            ├── movelog/
-        ├── public/
-    ├── milestones/
-        ├── explicit/
-        ├── public/
-    ├── missions/
-        ├── explicit/
-        ├── public/
-    ├── moves/
-        ├── explicit/
-        ├── public/
-    ├── scripts/
-        ├── explicit/
-        ├── public/
-    ├── state/
-        ├── explicit/
-        ├── public/
-    ├── templates/
-        ├── explicit/
-        ├── public/
-    ├── user/
-        ├── explicit/
-        ├── public/
-uSCRIPT/
-    ├── active/
-    ├── config/
-    ├── executed/
-    ├── library/
-        ├── automation/
-        ├── javascript/
-        ├── python/
-        ├── shell/
-        ├── ucode/
-        ├── utilities/
-    ├── registry/
-        ├── dependencies/
-        ├── versions/
-    ├── runtime/
-        ├── engines/
-        ├── logs/
-        ├── sandbox/
-    ├── templates/
-        ├── automation/
-        ├── javascript/
-        ├── python/
-        ├── ucode/
-wizard/
-    ├── log/
-    ├── reports/
-        ├── summaries/
-    ├── scripts/
-        ├── archive/
-        ├── cleanup/
-        ├── maintenance/
-        ├── migration/
-        ├── validation/
-    ├── tools/
-    ├── vscode/
-        ├── .vscode/
-    ├── workflows/
-        ├── active/
-        ├── completed/
-        ├── development/
-        ├── failed/
-        ├── pending/
-        ├── roadmaps/
-        ├── tasks/
-        ├── templates/
-        ├── versioning/
-```
-
-## Folder Descriptions
-
-### Core System (`uCORE/`)
-- **`code/`** - Core utilities and micro-syntax definitions
-- **`datasets/`** - Location, mapping, and system data files
-- **`extensions/`** - Extension development templates and VS Code integration
-- **`launcher/`** - Platform-specific application launchers
-- **`scripts/`** - Core system maintenance and utility scripts
-- **`templates/`** - System templates for forms, variables, and configurations
-
-### Development Environment (`wizard/`)
-- **`tools/`** - Development utilities and script executors
-- **`workflows/`** - Automated development workflow definitions
-- **`vscode/`** - VS Code integration and configuration
-- **`logs/`** - Development session logs (gitignored)
-- **`reports/`** - Generated development reports
-
-### Memory System (`uMEMORY/`)
-- **`datasets/`** - User-specific data collections
-- **`forms/`** - User interaction templates
-- **`missions/`** - Task and goal management
-- **`state/`** - System state persistence
-- **`user/`** - Personal user configurations
-
-### User Workspace (`sandbox/`)
-- **`tasks/`** - Task management and templates
-- **`scripts/`** - User development scripts
-- **`experiments/`** - Development experimentation area
-- **`test-deployment/`** - Testing environments
-
-### Documentation (`docs/`)
-- **Core documentation, architecture guides, and user manuals**
-- **Style guides and development standards**
-- **API documentation and integration guides**
-
-### Extension System (`uExtensions/`)
-- **`ai/`** - AI integration extensions (Gemini CLI, etc.)
-- **Extension registry and management**
-
-### Installation (`install/` & `uInstall/`)
-- **Platform-specific installation scripts**
-- **Distribution configurations and user roles**
-- **System setup and deployment tools**
-
-### Development Code (`uCode/`)
-- **`micro-syntax/`** - Language syntax definitions
-- **`packages/`** - Installable component packages
-- **Core development utilities and scripts**
-
-### Templates (`uTemplate/`)
-- **System-wide template definitions**
-- **Project scaffolding and boilerplate code**
-
-## File Naming Conventions
-
-### Core System Files
-- **Scripts**: `kebab-case.sh` (e.g., `cleanup-filenames.sh`)
-- **Configs**: `kebab-case.json` (e.g., `template-system-config.json`)
-- **Data**: `camelCase.json` (e.g., `locationMap.json`, `timezoneMap.json`)
-
-### Log Files
-- **Format**: `uLOG-YYYYMMDD-HHMM-TZ-TYPE.md`
-- **Example**: `uLOG-20250817-1045-28-00SY01.md`
-- **Components**:
-  - `YYYYMMDD-HHMM`: Timestamp
-  - `TZ`: Timezone code (28 = UTC+8)
-  - `TYPE`: Operation type code
-
-### Documentation
-- **Guides**: `TITLE-Guide.md` (e.g., `USER-GUIDE.md`)
-- **Standards**: `TITLE-Standard.md` (e.g., `Template-Standard.md`)
-- **Architecture**: `ARCHITECTURE.md`, `ROADMAP.md`
-
-### Memory System
-- **Missions**: `NNN-mission-name.md` (e.g., `001-welcome-mission.md`)
-- **State files**: `snake_case.conf` (e.g., `terminal_size.conf`)
-- **User data**: `user-*.md` format
-
-## Security Model
-
-### Public Repository (uDOS Core)
-- ✅ Core system architecture
-- ✅ Documentation and guides  
-- ✅ Extension framework
-- ✅ Installation tools
-- ✅ Development utilities
-
-### Private/Local Only (.gitignored)
-- 🔒 `uMEMORY/` - User personal data
-- 🔒 `wizard/logs/` - Development session logs
-- 🔒 `sandbox/user.md` - Personal workspace files
-- 🔒 `.vscode/` - Editor configurations
-- 🔒 Authentication tokens and local configs
-
-## Extension Architecture
-
-The uDOS v1.3 extension system provides:
-- **Modular plugin architecture**
-- **VS Code integration templates**
-- **AI service integrations (Gemini CLI)**
-- **Custom syntax highlighting**
-- **Development workflow automation**
-
----
-
-*Generated by uDOS Tree Generator v1.3*  
-*Repository: $(git remote get-url origin 2>/dev/null || echo "Local repository")*  
-*Branch: $(git branch --show-current 2>/dev/null || echo "Unknown")*  
-*Last Updated: $TIMESTAMP*
+.
+./CHANGELOG.md
+./docs
+./docs/Adventure.md
+./docs/ARCHITECTURE.md
+./docs/ASCII-Gallery.md
+./docs/Filename-Convention.md
+./docs/Markdown-Spec.md
+./docs/README.md
+./docs/Smart-Input-System.md
+./docs/Style-Guide.md
+./docs/Template-Standard.md
+./docs/uCode-Developer-Guide.md
+./docs/uDOS-Concepts-v1.3.md
+./docs/uDOS-Repository-Structure.md
+./docs/uSCRIPT-System.md
+./docs/USER-GUIDE.md
+./docs/VS-Code-Dev-Mode-Guide.md
+./extensions
+./extensions/gemini
+./extensions/gemini/AUTH_SETUP.md
+./extensions/gemini/command-mode.sh
+./extensions/gemini/context
+./extensions/gemini/context/auto-update.sh
+./extensions/gemini/context/current-missions.txt
+./extensions/gemini/context/uc-context-integration.sh
+./extensions/gemini/gemini
+./extensions/gemini/gemini/uc-gemini.sh
+./extensions/gemini/install-gemini-cli.sh
+./extensions/gemini/manifest.json
+./extensions/gemini/profiles
+./extensions/gemini/profiles/basic-gemini.md
+./extensions/gemini/profiles/sorcerer
+./extensions/gemini/profiles/sorcerer/profile.md
+./extensions/gemini/README.md
+./extensions/gemini/reasoning
+./extensions/gemini/reasoning/drone
+./extensions/gemini/reasoning/drone/core-reasoning.md
+./extensions/gemini/reasoning/drone/drone-engine.sh
+./extensions/gemini/reasoning/ghost
+./extensions/gemini/reasoning/ghost/core-reasoning.md
+./extensions/gemini/reasoning/ghost/ghost-engine.sh
+./extensions/gemini/reasoning/imp
+./extensions/gemini/reasoning/imp/core-reasoning.md
+./extensions/gemini/reasoning/imp/imp-engine.sh
+./extensions/gemini/test-installation.sh
+./extensions/gemini/ucode-commands.sh
+./extensions/gemini/udos-gemini.sh
+./extensions/README.md
+./install
+./install/create-drone-installation.sh
+./install/create-master-wizard.sh
+./install/create-ubuntu-public.sh
+./install/manage-installations.sh
+./install/roles
+./install/roles/drone
+./install/roles/drone/operation-logs
+./install/roles/drone/README.md
+./install/roles/drone/scheduler
+./install/roles/drone/task-automation
+./install/roles/ghost
+./install/roles/ghost/demo-interface
+./install/roles/ghost/public-docs
+./install/roles/ghost/README.md
+./install/roles/ghost/temp-sandbox
+./install/roles/imp
+./install/roles/imp/README.md
+./install/roles/imp/script-editor
+./install/roles/imp/template-manager
+./install/roles/imp/user-projects
+./install/roles/README.md
+./install/roles/sorcerer
+./install/roles/sorcerer/advanced-tools
+./install/roles/sorcerer/project-manager
+./install/roles/sorcerer/README.md
+./install/roles/sorcerer/user-admin
+./install/roles/tomb
+./install/roles/tomb/archive-browser
+./install/roles/tomb/backup-manager
+./install/roles/tomb/historical-data
+./install/roles/tomb/README.md
+./install/roles/wizard
+./LICENSE
+./README.md
+./repo_structure.txt
+./sandbox
+./sandbox/archived-tests
+./sandbox/archived-tests/drone-test-20250817
+./sandbox/archived-tests/drone-test-20250817/.drone
+./sandbox/archived-tests/drone-test-20250817/.drone/config
+./sandbox/archived-tests/drone-test-20250817/.drone/config/drone.json
+./sandbox/archived-tests/drone-test-20250817/.drone/logs
+./sandbox/archived-tests/drone-test-20250817/.drone/status
+./sandbox/archived-tests/drone-test-20250817/docs
+./sandbox/archived-tests/drone-test-20250817/install
+./sandbox/archived-tests/drone-test-20250817/README.md
+./sandbox/archived-tests/drone-test-20250817/start-drone.sh
+./sandbox/archived-tests/drone-test-20250817/uCode
+./sandbox/archived-tests/drone-test-20250817/uCode/log.sh
+./sandbox/archived-tests/drone-test-20250817/uCode/ucode.sh
+./sandbox/archived-tests/drone-test-20250817/uMemory
+./sandbox/archived-tests/drone-test-20250817/uMemory/active
+./sandbox/archived-tests/drone-test-20250817/uMemory/archive
+./sandbox/archived-tests/drone-test-20250817/uMemory/templates
+./sandbox/archived-tests/drone-test-20250817/uTemplate
+./sandbox/archived-tests/drone-test-20250817/uTemplate/ascii-dashboard-template.txt
+./sandbox/archived-tests/drone-test-20250817/uTemplate/ascii-interface-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/command-help-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/daily-move-log-v2.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/dashboard-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/dataget-configuration-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/datagets
+./sandbox/archived-tests/drone-test-20250817/uTemplate/datagets/mission-create.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/datagets/system-config.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/datagets/user-setup.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/display-config-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/drone
+./sandbox/archived-tests/drone-test-20250817/uTemplate/examples
+./sandbox/archived-tests/drone-test-20250817/uTemplate/examples/vb-grid-position-example.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/form-configuration-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/forms
+./sandbox/archived-tests/drone-test-20250817/uTemplate/input-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/input-user-setup.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/legacy-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/location
+./sandbox/archived-tests/drone-test-20250817/uTemplate/mapping
+./sandbox/archived-tests/drone-test-20250817/uTemplate/milestone-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/mission-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/ok-assistant-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/package-config-bat.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/package-config-ripgrep.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/package-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/project-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/README.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/smart-project-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/system
+./sandbox/archived-tests/drone-test-20250817/uTemplate/system/dash-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/system/error-config.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/system/shortcodes.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/user
+./sandbox/archived-tests/drone-test-20250817/uTemplate/user-setup-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/variables
+./sandbox/archived-tests/drone-test-20250817/uTemplate/variables/env.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/variables/session.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/variables/user-vars.json
+./sandbox/archived-tests/drone-test-20250817/uTemplate/vb-command-set-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/vscode-extension-template.md
+./sandbox/archived-tests/drone-test-20250817/uTemplate/vscode-workspace-template.md
+./sandbox/datagets
+./sandbox/datagets/Sandbox_Test.md
+./sandbox/drafts
+./sandbox/experiments
+./sandbox/scripts
+./sandbox/scripts/active
+./sandbox/scripts/active/cleanup-uknowledge.sh
+./sandbox/scripts/executed
+./sandbox/scripts/executed/test-logging-20250720-212407.sh
+./sandbox/scripts/README.md
+./sandbox/scripts/test-layout.us
+./sandbox/scripts/uscript.sh
+./sandbox/tasks
+./sandbox/tasks/assist-mode
+./sandbox/tasks/assist-mode/uTASK-20250816-2255-28-00SY01.md
+./sandbox/tasks/completed
+./sandbox/tasks/in-progress
+./sandbox/tasks/README.md
+./sandbox/tasks/templates
+./sandbox/tasks/templates/task-template.md
+./sandbox/user
+./sandbox/user.md
+./sandbox/user/.ssh
+./sandbox/user/README.md
+./shared
+./shared/configs
+./shared/permissions
+./shared/permissions/drone-permissions.json
+./shared/permissions/ghost-permissions.json
+./shared/permissions/imp-permissions.json
+./shared/permissions/sorcerer-permissions.json
+./shared/permissions/tomb-permissions.json
+./shared/permissions/wizard-permissions.json
+./shared/resources
+./uCORE
+./uCORE/bin
+./uCORE/bin/udos-url2md
+./uCORE/bin/udos-url2md-batch
+./uCORE/code
+./uCORE/code/dash.sh
+./uCORE/code/destroy.sh
+./uCORE/code/log.sh
+./uCORE/code/micro-syntax
+./uCORE/code/micro-syntax/udos-markdown.yaml
+./uCORE/code/micro-syntax/uscript.yaml
+./uCORE/code/packages
+./uCORE/code/packages/ascii-generator
+./uCORE/code/packages/ascii-generator/alphabets.py
+./uCORE/code/packages/ascii-generator/ASSETS_README.md
+./uCORE/code/packages/ascii-generator/img2img_color.py
+./uCORE/code/packages/ascii-generator/img2img.py
+./uCORE/code/packages/ascii-generator/img2txt.py

@@ -16,43 +16,258 @@
 
 ## 🧙‍♂️ Role-Based Architecture (v1.3 Foundation)
 
-uDOS v1.3 operates through six mystical installation roles, each with specific capabilities and access levels:
+uDOS v1.3 operates through six mystical installation roles, each with specific capabilities and access levels. The system supports a comprehensive multi-installation architecture where each role can be installed as a separate environment within the uDOS folder structure.
 
-### **👻 Ghost** (Learning & Exploration)
+### **👻 Ghost** (Level 10/100) - Demo Installation
 * **Purpose**: Safe learning environment for new users
 * **Capabilities**: Read-only system access, guided tutorials, sandbox experimentation
 * **Access**: Public documentation, community resources, basic script execution
-* **Memory Access**: Read-only access to public/ subdirectories only
+* **Memory Access**: Demo-only temporary sandbox
+* **Installation Features**: Demo interface, limited sandbox, read-only documentation
 
-### **⚰️ Tomb** (Archive & Research) 
+**Folder Access**:
+- 🟣 sandbox: demo_only
+- ❌ uMEMORY: none
+- ❌ uKNOWLEDGE: none
+- ❌ uCORE: none
+- ❌ uSCRIPT: none
+- ❌ wizard: none
+- 🟣 docs: public_only
+- 🟡 installations/ghost: full
+
+### **⚰️ Tomb** (Level 20/100) - Archive Installation
 * **Purpose**: Data archaeology and historical analysis
 * **Capabilities**: Advanced search, data mining, archive management
 * **Access**: Historical datasets, backup systems, research tools
-* **Memory Access**: Full read access to archived data and historical memories
+* **Memory Access**: Read-only access to archived content and historical memories
+* **Installation Features**: Archive browsing, historical data access, backup management
 
-### **🤖 Drone** (Automation & Operations)
+**Folder Access**:
+- 🔵 sandbox: read_only
+- 🔵 uMEMORY: read_only (archived)
+- 🔵 uKNOWLEDGE: read_only (historical)
+- ❌ uCORE: none
+- ❌ uSCRIPT: none
+- ❌ wizard: none
+- 🔵 docs: read_only
+- 🟡 installations/tomb: full
+
+### **🤖 Drone** (Level 40/100) - Automation Installation
 * **Purpose**: Automated task execution and monitoring
 * **Capabilities**: Scheduled operations, system monitoring, predictive maintenance
 * **Access**: Automation scripts, monitoring dashboards, operational logs
 * **Memory Access**: Read/write access to automation logs and operational data
+* **Installation Features**: Task automation, basic scripting, scheduled operations
 
-### **👹 Imp** (Creation & Experimentation)
+**Folder Access**:
+- 🟡 sandbox: read_write_limited
+- 🔵 uMEMORY: read_only
+- ❌ uKNOWLEDGE: none
+- 🔵 uCORE: read_only (limited)
+- 🔵 uSCRIPT: read_only
+- ❌ wizard: none
+- 🔵 docs: read_only
+- 🟡 installations/drone: full
+
+### **👹 Imp** (Level 60/100) - Developer Installation
 * **Purpose**: Creative projects and rapid prototyping
 * **Capabilities**: Template generation, creative scripting, project scaffolding
 * **Access**: Creative tools, template libraries, experimental environments
-* **Memory Access**: No direct access, operates through guided interfaces
+* **Memory Access**: Read/write access to own content and user areas
+* **Installation Features**: Development environment, script editor, template management
 
-### **🧙‍♀️ Sorcerer** (Advanced Projects & Collaboration)
+**Folder Access**:
+- ✅ sandbox: full
+- 🟡 uMEMORY: read_write_user
+- 🔵 uKNOWLEDGE: read_only
+- 🔵 uCORE: read_only
+- ✅ uSCRIPT: full (user space)
+- ❌ wizard: none
+- 🔵 docs: read_only
+- 🟡 installations/imp: full
+
+### **🧙‍♀️ Sorcerer** (Level 80/100) - Advanced User Installation
 * **Purpose**: Complex project management and team collaboration
 * **Capabilities**: Advanced workflows, resource optimization, team coordination
 * **Access**: Project management tools, collaboration systems, advanced analytics
 * **Memory Access**: Read/write access to sandbox/, scripts/, templates/
+* **Installation Features**: Advanced user interface, project management tools, limited scripting
 
-### **🧙‍♂️ Wizard** (System Administration & Development)
+**Folder Access**:
+- ✅ sandbox: full
+- ✅ uMEMORY: full
+- 🟡 uKNOWLEDGE: read_write_limited
+- 🔵 uCORE: read_only
+- 🟡 uSCRIPT: read_write_user
+- ❌ wizard: none
+- 🔵 docs: read_only
+- 🟡 installations/sorcerer: full
+
+### **🧙‍♂️ Wizard** (Level 100/100) - Full Installation
 * **Purpose**: Full system control and development oversight
 * **Capabilities**: System configuration, security management, development tools
 * **Access**: Complete system access, administrative controls, development environments
 * **Memory Access**: Full read/write access to all uMemory directories
+* **Installation Features**: Complete uDOS system, development utilities, advanced workflows
+
+**Folder Access**:
+- ✅ sandbox: full
+- ✅ uMEMORY: full  
+- ✅ uKNOWLEDGE: full
+- ✅ uCORE: full (dev mode)
+- ✅ uSCRIPT: full (dev mode)
+- ✅ wizard: full (exclusive)
+- ✅ docs: full
+- ✅ installations: full (can manage all)
+
+### 🏗️ Multi-Installation Architecture
+
+#### Installation Directory Structure
+```
+uDOS/
+├── uCORE/                      # Core system (shared)
+├── uMEMORY/                    # User memory (shared with permissions)
+├── uKNOWLEDGE/                 # Knowledge base (shared)
+├── uSCRIPT/                    # Script library (shared)
+├── sandbox/                    # User sandbox (shared with permissions)
+├── docs/                       # Documentation (shared)
+├── wizard/                     # Development environment (wizard only)
+├── installations/              # Role-specific installations
+│   ├── ghost/                  # Ghost installation
+│   │   ├── demo-interface/     # Demo-only interface
+│   │   ├── public-docs/        # Public documentation
+│   │   └── temp-sandbox/       # Temporary demo area
+│   ├── tomb/                   # Tomb installation
+│   │   ├── archive-browser/    # Archive access tools
+│   │   ├── backup-manager/     # Backup access system
+│   │   └── historical-data/    # Historical data access
+│   ├── drone/                  # Drone installation
+│   │   ├── task-automation/    # Automated task system
+│   │   ├── scheduler/          # Task scheduling
+│   │   └── operation-logs/     # Operation logging
+│   ├── imp/                    # Imp installation
+│   │   ├── script-editor/      # Development environment
+│   │   ├── template-manager/   # Template creation tools
+│   │   └── user-projects/      # Personal project space
+│   ├── sorcerer/               # Sorcerer installation
+│   │   ├── project-manager/    # Advanced project tools
+│   │   ├── user-admin/         # User management interface
+│   │   └── advanced-tools/     # Advanced user utilities
+│   └── wizard/                 # Wizard installation (symlink to ../wizard/)
+└── shared/                     # Shared resources and configurations
+    ├── permissions/            # Permission management
+    ├── configs/                # Shared configurations
+    └── resources/              # Common resources
+```
+
+#### Installation Features by Role
+
+##### 🧙‍♂️ Wizard Installation
+- **Complete uDOS System**: All features and capabilities
+- **Development Environment**: Full wizard/ folder with dev-utils.sh
+- **Git Integration**: SSH key management, push/pull capabilities  
+- **Permission Management**: Can create and manage other installations
+- **System Administration**: Full system control and configuration
+
+##### 🔮 Sorcerer Installation
+- **Advanced User Interface**: Enhanced project management tools
+- **User Administration**: Limited user management capabilities
+- **Advanced Workflows**: Complex task and project management
+- **Resource Allocation**: Can manage resource distribution
+- **Collaboration Tools**: Advanced sharing and collaboration features
+
+##### 👹 Imp Installation
+- **Development Environment**: Script and template development tools
+- **Creative Suite**: Advanced editing and creation capabilities
+- **User Project Management**: Personal project organization
+- **Template System**: Template creation and management
+- **Script Library**: Personal script collection and execution
+
+##### 🤖 Drone Installation
+- **Task Automation**: Automated task execution and scheduling
+- **Operation Monitoring**: System monitoring and logging
+- **Scheduled Operations**: Cron-like scheduling system
+- **Basic Scripting**: Limited script execution capabilities
+- **Status Reporting**: Automated status and health reporting
+
+##### ⚰️ Tomb Installation
+- **Archive Access**: Historical data browsing and retrieval
+- **Backup Management**: Backup creation and restoration tools
+- **Data Preservation**: Long-term data storage and organization
+- **Historical Analysis**: Timeline and historical data analysis
+- **Recovery Tools**: Data recovery and restoration utilities
+
+##### 👻 Ghost Installation
+- **Demo Interface**: Limited demonstration capabilities
+- **Public Access**: Public documentation and basic features
+- **Evaluation Mode**: Trial and evaluation functionality
+- **Temporary Access**: Session-based temporary operations
+- **Guest Features**: Basic guest user capabilities
+
+#### 🔐 Permission and Sharing System
+
+##### Permission Levels
+- **full**: Complete read/write access
+- **read_write_limited**: Read/write with restrictions
+- **read_write_user**: Read/write only to user-owned content
+- **read_only**: Read access only
+- **demo_only**: Limited demo access
+- **none**: No access
+
+##### Cross-Installation Communication
+
+###### Message System
+- **Wizard ↔ All**: Can communicate with any installation
+- **Sorcerer ↔ Imp/Drone**: Can manage and communicate with lower roles
+- **Imp ↔ Drone**: Limited project-based communication
+- **Tomb**: Receive-only communication for archival purposes
+- **Ghost**: No inter-installation communication
+
+###### Resource Sharing
+- **Templates**: Shared template library with role-based permissions
+- **Scripts**: Role-appropriate script sharing and execution
+- **Documentation**: Tiered access to documentation based on role
+- **Configurations**: Shared configurations with permission overlays
+
+#### 🛠️ Installation Management
+
+##### Installation Commands
+```bash
+# Install specific role environment
+./install-role.sh wizard
+./install-role.sh sorcerer
+./install-role.sh imp
+./install-role.sh drone
+./install-role.sh tomb
+./install-role.sh ghost
+
+# Manage installations
+./manage-installations.sh list
+./manage-installations.sh permissions
+./manage-installations.sh upgrade
+
+# Switch between installations
+./switch-role.sh imp
+./switch-role.sh wizard
+```
+
+##### Upgrade Paths
+- **Ghost → Tomb**: Archive access upgrade
+- **Tomb → Drone**: Automation upgrade  
+- **Drone → Imp**: Development upgrade
+- **Imp → Sorcerer**: Advanced user upgrade
+- **Sorcerer → Wizard**: Full system upgrade
+
+#### 📊 Role Comparison Matrix
+
+| Role     | Level | Features | Sandbox | uMEMORY | uKNOWLEDGE | uCORE | uSCRIPT | Wizard | Install Dir |
+|----------|-------|----------|---------|---------|------------|-------|---------|--------|-------------|
+| Wizard   | 100   | Complete | Full    | Full    | Full       | Full  | Full    | Full   | wizard/     |
+| Sorcerer | 80    | Advanced | Full    | Full    | Limited    | Read  | User    | None   | sorcerer/   |
+| Imp      | 60    | Developer| Full    | User    | Read       | Read  | Full    | None   | imp/        |
+| Drone    | 40    | Automation| Limited | Read    | None       | Read  | Read    | None   | drone/      |
+| Tomb     | 20    | Archive  | Read    | Archive | Historical | None  | None    | None   | tomb/       |
+| Ghost    | 10    | Demo     | Demo    | None    | None       | None  | None    | None   | ghost/      |
 
 ---
 
@@ -62,6 +277,21 @@ uDOS v1.3 operates through six mystical installation roles, each with specific c
 
 The `uMemory/` directory contains all private user data and is **NEVER included in the repository**. It is created locally during installation and managed by the user.
 
+### 📁 Hex Filename Integration
+
+All uMemory files use the hex filename convention for consistent temporal organization:
+
+**Move Files:** `uMOV-HEXCODE-description.md`  
+**Memory Files:** `uMEM-HEXCODE-memory-type.md`  
+**Mission Files:** `uMIS-HEXCODE-mission-name.md`  
+**Milestone Files:** `uMIL-HEXCODE-milestone-title.md`
+
+The 8-character hex code encodes:
+- **Date**: Days since 2025-01-01 epoch
+- **Time**: Hour/minute compression  
+- **Timezone**: UTC offset + 12 encoding
+- **Role/Tile**: Installation type and spatial location
+
 ### Directory Structure
 
 ```
@@ -69,10 +299,11 @@ uMemory/
 ├── user/           # User-specific configurations and settings
 ├── sandbox/        # Development and testing environments  
 ├── state/          # System state and session data
-├── logs/           # System and user activity logs
-├── missions/       # User-created mission files
-├── moves/          # User-created move files
-├── milestones/     # User progress tracking
+├── logs/           # System and user activity logs (hex-named)
+├── missions/       # User-created mission files (uMIS-XXXXXXXX-*.md)
+├── moves/          # User-created move files (uMOV-XXXXXXXX-*.md)
+├── memories/       # Memory files (uMEM-XXXXXXXX-*.md)
+├── milestones/     # User progress tracking (uMIL-XXXXXXXX-*.md)
 ├── scripts/        # User-created automation scripts
 ├── templates/      # User-customized templates
 └── generated/      # Auto-generated content and exports
@@ -106,24 +337,99 @@ Within uMemory, users can organize data into two sharding options:
 - ✅ User controls all sharing decisions
 - ✅ Encryption option available (future feature)
 
+### Shared Resource Management
+
+#### uMEMORY Sharing
+- **Wizard**: Full access to all memory areas
+- **Sorcerer**: Access to shared areas and own content
+- **Imp**: Access to own content and public areas
+- **Drone**: Read-only access to relevant operational data
+- **Tomb**: Read-only access to archived content
+- **Ghost**: No access
+
+#### uKNOWLEDGE Sharing  
+- **Wizard**: Full read/write access
+- **Sorcerer**: Read/write to shared knowledge areas
+- **Imp**: Read-only access to public knowledge
+- **Drone**: No access
+- **Tomb**: Read-only access to historical knowledge
+- **Ghost**: No access
+
+#### Sandbox Sharing
+- **Wizard**: Full access to all sandbox areas
+- **Sorcerer**: Full access to own sandbox + shared areas
+- **Imp**: Full access to own sandbox + project areas
+- **Drone**: Limited access to operational areas
+- **Tomb**: Read-only access to archived sandbox content
+- **Ghost**: Demo-only temporary sandbox
+
 ---
 
 ## 🚀 Moves (Lifespan Progress)
 
-Each uDOS v1.3 instance evolves via `moves` tracked across all installation roles. These are user-earned progress markers representing:
+Each uDOS v1.3 instance evolves via `moves` tracked across all installation roles using the hex filename convention. These are user-earned progress markers representing:
 
 * A completed interaction or achievement within role capabilities.
 * A learned skill, task, or insight appropriate to the user's role level.
 * A decision or key life event (manually or automatically registered).
 * Cross-installation collaboration milestones.
 
-Each `move` contains:
+### Move Logging System
 
-* A timestamp with timezone alpha code (AE, PS, UT, etc.).
-* A reference to a mission, memory, or location.
-* Role-specific metadata: intent, impact, type, permission level.
-* Validation hash (when uScript confirms its conditions).
-* Installation tracking for multi-role users.
+Moves are logged as structured markdown files using the hex filename convention:
+
+**Format:** `uMOV-HEXCODE-Move-Description.md`
+
+**Example:** `uMOV-E4A041A0-System-Milestone-Complete.md`
+
+Each `move` file contains:
+
+* **Hex-encoded timestamp**: 8-character hex code encoding date, time, timezone, and role
+* **Role context**: Installation type and permission level for the move
+* **Location binding**: Optional map tile or spatial context reference
+* **Mission linkage**: Connection to active or completed missions
+* **Memory anchoring**: Links to relevant memories or insights
+* **Validation signature**: Cryptographic hash when uScript confirms conditions
+* **Cross-installation tracking**: Collaboration metadata for multi-role users
+
+### Move File Structure
+
+```markdown
+# 🚀 Move: [Move Description]
+
+**Hex Code:** E4A041A0  
+**Role:** wizard  
+**Timestamp:** 2025-08-17 18:00:17 UTC+8  
+**Location:** [Tile ID or Context]  
+
+## Move Details
+- **Type:** [learning|creation|exploration|healing|connection|automation|administration]
+- **Scope:** [personal|shared|experimental|cross-installation|system-wide]
+- **Impact:** [low|medium|high|critical]
+- **Duration:** [time spent]
+
+## Connections
+- **Mission:** [Mission ID or None]
+- **Memory:** [Memory ID or None]  
+- **Location:** [Map tile or virtual space]
+
+## Validation
+- **Conditions Met:** [Yes/No]
+- **Signature:** [Hash when validated]
+- **Cross-Installation:** [Role collaboration details]
+
+## Context
+[Detailed description of the move, achievements, and impact]
+```
+
+### Role-Based Move Permissions
+
+- **👻 Ghost**: Demo moves only, no persistence beyond session
+- **⚰️ Tomb**: Archive-focused moves, historical data analysis
+- **🤖 Drone**: Automation moves, scheduled operations, monitoring
+- **👹 Imp**: Creative moves, development activities, experimentation  
+- **🧙‍♀️ Sorcerer**: Management moves, project coordination, advanced workflows
+- **🧙‍♂️ Wizard**: System moves, administrative actions, full capabilities
 
 ---
 
@@ -360,29 +666,37 @@ The **Tower of Knowledge** is a metaphorical and structural representation of th
 
 ## 🔁 Interlinking Logic (v1.3 Multi-Role)
 
-* A `move` may:
-  * Create or finalize a `memory` within role boundaries
-  * Unlock or complete a `mission` appropriate to current role
-  * Reveal new map tiles based on role access level
-  * Trigger cross-installation collaboration events
+* A `move` (logged as `uMOV-HEXCODE-title.md`) may:
+  * Create or finalize a `memory` within role boundaries using hex filename convention
+  * Unlock or complete a `mission` appropriate to current role with timestamped progression
+  * Reveal new map tiles based on role access level and hex-encoded spatial coordinates
+  * Trigger cross-installation collaboration events with role validation
   * Advance role progression when appropriate milestones are reached
+  * Generate structured activity logs with hex-encoded temporal relationships
 
-* A `mission` may:
+* A `mission` (logged as `uMIS-HEXCODE-title.md`) may:
   * Be auto-suggested by patterns in `memory` filtered by role capabilities
   * Require location visits to complete with role-appropriate access
   * Span multiple installations with proper permission coordination
   * Enable role transitions when completion criteria are met
+  * Reference moves through hex code temporal linking
+  * Track progress through hex-encoded milestone checkpoints
 
-* A `memory:anchor` may:
+* A `memory:anchor` (logged as `uMEM-HEXCODE-title.md`) may:
   * Trigger contextual conversations appropriate to current role
   * Limit or enable mission types based on role permissions
   * Serve as cross-installation reference points for shared experiences
   * Unlock advanced features when accessed by higher-tier roles
+  * Link to related moves through hex code temporal proximity
+  * Create spatial-temporal clusters of related activities
 
-* A `location` may:
+* A `location` (referenced in hex-encoded map tiles) may:
   * Update automatically based on user navigation and mission progress
   * Provide contextual awareness for AI responses and system behavior
   * Enable conditional mission unlocking based on spatial progression
+  * Support cross-installation collaboration through shared map exploration
+  * Maintain hex-encoded coordinate systems for precise spatial tracking
+  * Generate location-aware move logs with geographic context
   * Support cross-installation collaboration through shared map exploration
 
 ---
@@ -393,10 +707,11 @@ The **Tower of Knowledge** is a metaphorical and structural representation of th
 - **Multi-Installation Architecture**: All 6 roles implemented with proper boundaries
 - **Role-Based Permission System**: Comprehensive access controls and security
 - **Git Integration**: Native version control with SSH support and 11 uCODE commands
-- **Timezone Alpha Code System**: Geographic 2-letter codes replacing numeric offsets
+- **Hex Filename Convention v3.0**: 8-character hex encoding for all uDOS files (63+ files converted)
 - **uScript v1.3**: Role-aware script execution with cross-installation sharing
 - **Wizard Development Environment**: Complete toolkit with VS Code integration
-- **uMemory Privacy System**: Local-only memory with role-based access controls
+- **uMemory Privacy System**: Local-only memory with role-based access controls and hex naming
+- **Move Logging System**: Structured progress tracking with hex-encoded temporal relationships
 
 ### 🔄 Active Development
 - **Template Consolidation**: Optimizing 8 template directories for better maintainability
@@ -439,16 +754,26 @@ The **Tower of Knowledge** is a metaphorical and structural representation of th
 The `memory.db` referenced in map logic contains:
 
 ```sql
--- Core tables for spatial memory system
+-- Core tables for spatial memory system with hex filename integration
 CREATE TABLE moves (
-    id TEXT PRIMARY KEY,
-    timestamp TEXT,
-    timezone_alpha TEXT,
-    role TEXT,
-    state TEXT,
-    location_id TEXT,
-    mission_id TEXT,
-    memory_id TEXT
+    id TEXT PRIMARY KEY,              -- Hex filename: uMOV-HEXCODE-title
+    hex_code TEXT NOT NULL,           -- 8-character hex timestamp
+    timestamp TEXT NOT NULL,          -- Full timestamp for reference
+    timezone_offset INTEGER,          -- UTC offset encoded in hex
+    role TEXT NOT NULL,               -- Installation role (ghost, tomb, drone, imp, sorcerer, wizard)
+    state TEXT DEFAULT 'active',      -- locked, in_progress, complete, legacy
+    location_id TEXT,                 -- Map tile or virtual location
+    mission_id TEXT,                  -- Connected mission
+    memory_id TEXT,                   -- Connected memory
+    move_type TEXT,                   -- learning, creation, exploration, etc.
+    scope TEXT,                       -- personal, shared, cross-installation, etc.
+    impact_level TEXT,                -- low, medium, high, critical
+    validation_hash TEXT,             -- Cryptographic signature when validated
+    cross_installation TEXT,          -- JSON metadata for multi-role collaboration
+    created_timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (location_id) REFERENCES locations(id),
+    FOREIGN KEY (mission_id) REFERENCES missions(id),
+    FOREIGN KEY (memory_id) REFERENCES memories(id)
 );
 
 CREATE TABLE locations (

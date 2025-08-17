@@ -1,4 +1,4 @@
-# uCORE v1.3 - Universal Data Operating System Core
+# uCORE v1.3 - Universal Device Operating System Core
 
 ```ascii
     ██╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗
@@ -38,7 +38,7 @@ uCORE/
 │   ├── log.sh                  # Logging and activity tracking
 │   ├── dash.sh                 # Dashboard generation
 │   ├── setup.sh                # System initialization
-│   └── packages/               # Package management system
+│   └── packages/               # Integrated package management (core tools)
 ├── datasets/                    # Core data and configurations
 │   ├── location/               # Geographic and timezone data
 │   └── mapping/                # System mapping configurations
@@ -65,7 +65,7 @@ uCORE/
 - **log.sh**: Activity logging and reporting
 - **dash.sh**: Dashboard and status visualization
 - **setup.sh**: System initialization and configuration
-- **packages/**: Package management subsystem
+- **packages/**: Integrated package management (core tools only)
 
 **Principles**:
 - Single responsibility per script

@@ -29,7 +29,7 @@ fi
 UHOME="${HOME}/uDOS"
 UDOS_URL2MD="$UHOME/uCORE/bin/udos-url2md"
 INPUT_FILE="$1"
-OUTPUT_DIR="${2:-$UHOME/uMEMORY/datagets/active/batch_$(date +%Y%m%d_%H%M%S)}"
+OUTPUT_DIR="${2:-$UHOME/sandbox/datagets/batch_$(date +%Y%m%d_%H%M%S)}"
 
 if [[ ! -f "$INPUT_FILE" ]]; then
     echo "❌ Input file not found: $INPUT_FILE" >&2

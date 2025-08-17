@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# uCORE Extension Manager v1.0
+# uSCRIPT Extension Manager v1.1
 # Loads and manages extensions for the uDOS system
 
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly UCORE_DIR="$(dirname "$SCRIPT_DIR")"
+readonly USCRIPT_DIR="$(dirname "$SCRIPT_DIR")"
+readonly UDOS_ROOT="$(dirname "$USCRIPT_DIR")"
 readonly EXTENSIONS_DIR="$SCRIPT_DIR"
 readonly REGISTRY_FILE="$EXTENSIONS_DIR/registry.json"
 
@@ -29,7 +30,7 @@ load_registry() {
 
 # List available extensions
 list_extensions() {
-    echo -e "${BOLD}🔌 uCORE Extensions${NC}"
+    echo -e "${BOLD}🔌 uSCRIPT Extensions${NC}"
     echo ""
     
     local registry
@@ -39,8 +40,8 @@ list_extensions() {
         echo "$registry" | jq -r '.extensions | to_entries[] | "\(.key): \(.value.name) v\(.value.version) - \(.value.description)"'
     else
         echo "Registry file: $REGISTRY_FILE"
-        echo "Development extensions in: $EXTENSIONS_DIR/development/"
-        ls -la "$EXTENSIONS_DIR/development/" 2>/dev/null || echo "No development extensions found"
+        echo "Development extensions in: $EXTENSIONS_DIR/"
+        ls -la "$EXTENSIONS_DIR/" 2>/dev/null || echo "No development extensions found"
     fi
     echo ""
 }
@@ -50,7 +51,7 @@ run_extension() {
     local extension_id="$1"
     shift
     
-    local extension_script="$EXTENSIONS_DIR/development/${extension_id}.sh"
+    local extension_script="$EXTENSIONS_DIR/${extension_id}.sh"
     
     if [[ -f "$extension_script" && -x "$extension_script" ]]; then
         echo -e "${BLUE}🔌 Running extension: $extension_id${NC}"

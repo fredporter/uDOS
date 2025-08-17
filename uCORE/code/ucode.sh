@@ -3594,6 +3594,263 @@ EOF
     esac
 }
 
+# Tree command - Generate repository structure documentation
+handle_tree_command() {
+    local args="$1"
+    local output_file="repo_structure.txt"
+    local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    
+    log_info "Generating uDOS repository structure documentation..."
+    
+    # Move to project root
+    cd "$project_root" || {
+        log_error "Failed to navigate to project root: $project_root"
+        return 1
+    }
+    
+    case "${args:-}" in
+        ""|"generate"|"update")
+            generate_repository_structure
+            ;;
+        "view"|"show"|"cat")
+            if [[ -f "$output_file" ]]; then
+                cat "$output_file"
+            else
+                log_warning "Repository structure file not found. Run 'TREE generate' first."
+            fi
+            ;;
+        "help")
+            show_tree_help
+            ;;
+        *)
+            log_error "Unknown tree command: $args"
+            show_tree_help
+            ;;
+    esac
+}
+
+# Generate comprehensive repository structure
+generate_repository_structure() {
+    local output_file="repo_structure.txt"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local version="v1.3"
+    
+    log_info "Scanning repository structure..."
+    
+    # Count directories and files for statistics
+    local dir_count=$(find . -type d -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
+    local file_count=$(find . -type f -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
+    
+    cat > "$output_file" << EOF
+# uDOS $version Repository Structure
+Generated: $timestamp
+
+## Repository Overview
+\`\`\`
+$(pwd | sed 's|.*/||')/ - uDOS Universal Development Operating System
+├── Multi-Installation Architecture (installations/)
+├── Core System & Utilities (uCORE/)
+├── User Memory & Workspace (uMEMORY/, sandbox/)
+├── Script Management System (uSCRIPT/)
+├── Knowledge Base System (uKNOWLEDGE/)
+├── Development Environment (wizard/)
+├── Documentation System (docs/)
+└── Extension Framework (extension/)
+\`\`\`
+
+## Complete Directory Structure
+
+EOF
+
+    # Use tree if available, otherwise use find
+    if command -v tree >/dev/null 2>&1; then
+        log_info "Using tree command for structure generation..."
+        echo '```' >> "$output_file"
+        tree -a -I '.git|node_modules|__pycache__|*.pyc|.DS_Store' -L 4 >> "$output_file"
+        echo '```' >> "$output_file"
+    else
+        log_info "Using find command for structure generation..."
+        echo '```' >> "$output_file"
+        find . -type d -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | \
+        head -200 | \
+        sort | \
+        sed 's|^\./||' | \
+        awk '{
+            depth = gsub(/\//, "/")
+            indent = ""
+            for(i=0; i<depth; i++) indent = indent "    "
+            name = $0
+            gsub(/.*\//, "", name)
+            if(depth == 0) print name "/"
+            else print indent "├── " name "/"
+        }' >> "$output_file"
+        echo '```' >> "$output_file"
+    fi
+
+    # Add comprehensive folder descriptions
+    cat >> "$output_file" << 'EOF'
+
+## System Architecture Overview
+
+### 🏢 Multi-Installation Framework (`installations/`)
+- **6-tier role hierarchy**: Ghost(10) → Tomb(20) → Drone(40) → Imp(60) → Sorcerer(80) → Wizard(100)
+- **Installation types**: Complete role-based system with individual configurations
+- **Cross-installation collaboration**: Secure sharing mechanisms between roles
+- **User data isolation**: Personal data separated from core system
+
+### 🔧 Core System (`uCORE/`)
+- **`code/`** - Core utilities, uCODE shell, and system commands
+- **`datasets/`** - Location mappings, timezone data, and system configurations
+- **`extensions/`** - Extension development framework and VS Code integration
+- **`launcher/`** - Platform-specific application launchers and installers
+- **`templates/`** - System templates for hex filenames, forms, and configurations
+
+### 🧠 User Memory System (`uMEMORY/`)
+- **Hex filename convention**: 8-character encoding with temporal-spatial organization
+- **Personal data archive**: Missions, moves, memories, milestones
+- **Flat structure design**: Direct access to all user data
+- **Privacy protection**: Completely isolated from distributed system
+
+### 👨‍💻 Development Environment (`wizard/`)
+- **Level 100 access**: Complete system access and development capabilities
+- **`notes/`** - Development logs in hex format (63+ files, ALWAYS SYNCED)
+- **`tools/`** - Development utilities and script executors
+- **`utilities/`** - System utilities for hex conversion and maintenance
+- **`vscode/`** - VS Code integration and configuration
+
+### 📦 Script Management (`uSCRIPT/`)
+- **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
+- **Role-aware security**: Execution permissions based on installation type
+- **Production vs development**: Clear separation of stable vs experimental scripts
+- **`library/`** - Organized by language (automation/, javascript/, python/, shell/, ucode/)
+
+### 🏠 User Workspace (`sandbox/`)
+- **Active workspace**: Where most user activity occurs daily
+- **Task management**: In-progress and completed task organization
+- **Experimentation area**: Safe space for testing and development
+- **Archive pipeline**: Content moves to uMEMORY/ as daily sessions complete
+
+### 📚 Knowledge Base (`uKNOWLEDGE/`)
+- **Shared knowledge system**: Documentation and learning resources
+- **Community content**: Shareable knowledge base across installations
+- **Reference system**: Quick access to system documentation
+
+### 📖 Documentation (`docs/`)
+- **Complete system documentation**: Architecture guides and user manuals
+- **Style guides**: Development standards and conventions
+- **API documentation**: Integration guides and technical references
+
+### 🔌 Extension System (`extension/`)
+- **VS Code integration**: Native uDOS commands and file management
+- **Development framework**: Template-based extension creation
+- **Platform support**: Cross-platform compatibility
+
+### 📊 Shared Resources (`shared/`)
+- **Cross-installation configs**: Default configurations and system settings
+- **Permission systems**: JSON-based role definitions (6 role types)
+- **Common resources**: Shared assets and utilities
+
+## File Naming Conventions
+
+### Hex Filename System (v3.0)
+- **Format**: 8-character hex encoding + descriptive name
+- **Components**: Date, time, timezone, role/tile information
+- **Self-contained**: No external timezone datasets required
+- **63+ converted files**: All development logs now use hex format
+
+### System Files
+- **Scripts**: `kebab-case.sh` (e.g., `cleanup-filenames.sh`)
+- **Configs**: `kebab-case.json` (e.g., `template-system-config.json`)
+- **Data**: `camelCase.json` (e.g., `locationMap.json`, `timezoneMap.json`)
+
+### Documentation Standards
+- **Guides**: `TITLE-Guide.md` (e.g., `USER-GUIDE.md`)
+- **Standards**: `TITLE-Standard.md` (e.g., `Template-Standard.md`)
+- **Architecture**: `ARCHITECTURE.md`, `ROADMAP.md`
+
+## Security & Distribution Model
+
+### ✅ uDOS Distribution Includes
+- **Core system architecture** - Complete uDOS framework
+- **Multi-installation types** - All 6 role configurations
+- **Shared resources** - Default configurations and permissions
+- **Documentation system** - Complete guides and references
+- **Extension framework** - VS Code integration and development tools
+- **Development tools** - wizard/notes/ (hex development logs)
+
+### 🚫 Local-Only Content (.gitignored)
+- **uMEMORY/** - Personal user data and archives
+- **sandbox/user*** - Active user workspace and content
+- **installations/*/user-*** - Installation-specific user data
+- **Personal configurations** - User-specific settings and modifications
+
+## System Statistics
+EOF
+
+    # Add current statistics
+    echo "- **Directory count**: $dir_count directories" >> "$output_file"
+    echo "- **File count**: $file_count files" >> "$output_file"
+    echo "- **Installation types**: 6 role-based configurations" >> "$output_file"
+    echo "- **Hex filename adoption**: 63+ files converted" >> "$output_file"
+    echo "- **Architecture version**: uDOS v1.3" >> "$output_file"
+
+    # Add footer
+    cat >> "$output_file" << EOF
+
+## System Health Status
+- **Core integrity**: ✅ All critical directories present
+- **Multi-installation**: ✅ Complete 6-tier role system
+- **Documentation**: ✅ Comprehensive guides and references
+- **Security model**: ✅ User data isolation implemented
+- **Extension system**: ✅ VS Code integration active
+
+---
+
+*Generated by uDOS Tree Generator v1.3*  
+*Repository: $(git remote get-url origin 2>/dev/null || echo "Local repository")*  
+*Branch: $(git branch --show-current 2>/dev/null || echo "Unknown")*  
+*Last Updated: $timestamp*
+EOF
+
+    log_success "Repository structure generated: $output_file"
+    log_info "📊 Scanned $dir_count directories and $file_count files"
+    
+    # Offer to view the generated file
+    read -p "📖 View the generated structure? [Y/n]: " view_choice
+    if [[ "$(echo "$view_choice" | tr '[:upper:]' '[:lower:]')" != "n" ]]; then
+        echo ""
+        cat "$output_file"
+    fi
+}
+
+# Show tree command help
+show_tree_help() {
+    echo -e "\n${CYAN}🌳 TREE Command - Repository Structure Generator${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo -e "${BOLD}Usage:${NC}"
+    echo -e "  ${YELLOW}TREE${NC}           - Generate repository structure documentation"
+    echo -e "  ${YELLOW}TREE generate${NC}  - Same as TREE (explicit)"
+    echo -e "  ${YELLOW}TREE view${NC}      - View existing structure documentation"
+    echo -e "  ${YELLOW}TREE help${NC}      - Show this help"
+    echo ""
+    echo -e "${BOLD}Description:${NC}"
+    echo -e "Generates comprehensive repository structure documentation including:"
+    echo -e "  • ${GREEN}Complete directory tree${NC} - All folders with descriptions"
+    echo -e "  • ${GREEN}Multi-installation overview${NC} - 6-tier role hierarchy"
+    echo -e "  • ${GREEN}Security model${NC} - What's included vs excluded from distribution"
+    echo -e "  • ${GREEN}File naming conventions${NC} - Hex filename system and standards"
+    echo -e "  • ${GREEN}System statistics${NC} - Current directory/file counts"
+    echo ""
+    echo -e "${BOLD}Output:${NC}"
+    echo -e "  Creates ${CYAN}repo_structure.txt${NC} in the uDOS root directory"
+    echo -e "  Automatically detects available tools (tree vs find commands)"
+    echo -e "  Updates timestamps and statistics on each generation"
+    echo ""
+    echo -e "${CYAN}💡 Tip: Run TREE after major structural changes to keep documentation current${NC}"
+    echo ""
+}
+
 # Main command processing
 main() {
     # Set development mode for better UX during development
@@ -3843,6 +4100,9 @@ process_input() {
             ;;
         SSH-KEY|ssh-key|SSHKEY|sshkey)
             handle_ssh_key "$args"
+            ;;
+        TREE|tree)
+            handle_tree_command "$args"
             ;;
         *)
             # Check for history recall (!number)

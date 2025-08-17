@@ -19,7 +19,7 @@ bold() { echo -e "\033[1m$1\033[0m"; }
 PACKAGE_jq="JSON processor and query tool"
 PACKAGE_urltomarkdown="Web content extraction to Markdown format"
 
-# External packages (install manually - see EXTERNAL_PACKAGES.md)
+# External packages (install manually - see wizard/experiments/uDOC-4F2A8C60-External-Packages-Guide.md)
 EXTERNAL_ripgrep="Fast text search with rg command"
 EXTERNAL_bat="Syntax-highlighted file viewer"  
 EXTERNAL_fd="Fast file finder alternative to find"
@@ -154,19 +154,20 @@ show_package_status() {
 }
 
 show_external_guide() {
-    if [[ -f "$SCRIPT_DIR/EXTERNAL_PACKAGES.md" ]]; then
+    local external_guide="$SCRIPT_DIR/../../../wizard/experiments/uDOC-4F2A8C60-External-Packages-Guide.md"
+    if [[ -f "$external_guide" ]]; then
         echo -e "$(blue "📋 External Package Installation Guide:")"
         echo
         if command -v bat >/dev/null 2>&1; then
-            bat "$SCRIPT_DIR/EXTERNAL_PACKAGES.md"
+            bat "$external_guide"
         elif command -v glow >/dev/null 2>&1; then
-            glow "$SCRIPT_DIR/EXTERNAL_PACKAGES.md"
+            glow "$external_guide"
         else
-            cat "$SCRIPT_DIR/EXTERNAL_PACKAGES.md"
+            cat "$external_guide"
         fi
     else
-        echo -e "$(red "❌ EXTERNAL_PACKAGES.md not found")"
-        echo "Run package-cleanup.sh to generate the guide"
+        echo -e "$(red "❌ External Packages Guide not found in wizard/experiments/")"
+        echo "External packages have been moved to wizard/experiments/"
     fi
 }
 

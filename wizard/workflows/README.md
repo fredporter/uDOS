@@ -8,43 +8,30 @@ This directory provides comprehensive workflow management capabilities exclusive
 
 ```
 workflows/
-├── roadmaps/        # Project roadmaps and planning
-├── versioning/      # Version planning and release management
-├── development/     # Development workflows and processes
-├── tasks/           # Task management and tracking
-├── active/          # Currently active workflows
-├── completed/       # Completed workflow archives
-├── templates/       # Workflow templates and patterns
-├── pending/         # Pending workflows
-├── failed/          # Failed workflow analysis
-└── config.json      # Workflow system configuration
+├── README.md           # This file - workflow system overview
+├── config.json         # Workflow system configuration
+├── active/             # Currently running workflows
+├── roadmaps/           # Strategic planning and future roadmaps
+└── templates/          # Workflow template definitions
 ```
 
 ### Workflow Categories
 
 #### 🗺️ Roadmaps
-- Project planning and strategic roadmaps
-- Feature development timelines
+- Strategic planning and future roadmaps
+- Feature development timelines for upcoming versions
 - Release planning documentation
 - Long-term vision and architecture planning
 
-#### 📋 Versioning
-- Version planning and release management
-- Changelog generation workflows
-- Release testing and validation processes
-- Version compatibility tracking
+#### ⚡ Active
+- Currently running workflows
+- Real-time workflow execution tracking
+- Status monitoring and management
 
-#### 🔧 Development
-- Development process workflows
-- Code review and quality assurance
-- Testing and validation procedures
-- Deployment and distribution processes
-
-#### ✅ Tasks
-- Task management and tracking
-- Development task workflows
-- Issue resolution processes
-- Feature implementation tracking
+#### � Templates
+- Workflow template definitions and patterns
+- Reusable workflow configurations
+- Standard workflow procedures
 
 ### Usage
 

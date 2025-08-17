@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 URLTOMD_DIR="$(dirname "$SCRIPT_DIR")/code/packages/urltomarkdown"
 UHOME="${HOME}/uDOS"
-OUTPUT_DIR="$UHOME/uMEMORY/datagets/active"
+OUTPUT_DIR="$UHOME/sandbox/datagets"
 
 # Colors
 CYAN='\033[0;36m'

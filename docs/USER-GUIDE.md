@@ -15,7 +15,7 @@
 **Edition**: v1.3 Production Guide  
 **Published**: August 2025  
 **System**: Universal Data Operating System v1.3  
-**Features**: Timezone Integration, Wizard Mode, ASSIST Enhancement, uSCRIPT Production Library
+**Features**: Modular Architecture, uCode Script Library, Visual Basic Style Scripts, Clean Core System
 
 ---
 
@@ -23,36 +23,37 @@
 
 ### 🚀 What's New in v1.3
 
-#### Enhanced Naming Convention
-All files now follow the **CAPS-NUMERIC-DASH** standard:
+#### Modular Architecture Revolution
+uDOS v1.3 introduces a **complete architectural redesign**:
+- **Clean Core System**: Essential shell commands only (247 lines)
+- **uCode Script Library**: Complex functionality in Visual Basic-style scripts
+- **Modular Design**: Perfect separation of concerns and expandability
+- **Zero Empty Directories**: Streamlined, focused structure
+
+#### Complete uCode Script Library
+**9 comprehensive modules** written in Visual Basic syntax:
+- **MEMORY.ucode**: Memory file management with search, create, stats
+- **MISSION.ucode**: Mission creation, tracking, completion system
+- **PACKAGE.ucode**: Package install, remove, search, update management
+- **LOG.ucode**: Advanced logging, analysis, export, cleanup
+- **DEV.ucode**: Development tools (testing, build, deploy, debug, profiling)
+- **RENDER.ucode**: Visual rendering, ASCII art, charts, animations, UI
+- **DASH.ucode**: Live dashboard and system monitoring
+- **PANEL.ucode**: Interactive control panels
+- **TREE.ucode**: Repository structure generation and visualization
+
+#### Enhanced Command System
+**Dual command interface** with intelligent routing:
 ```
-uTYPE-YYYYMMDD-HHMM-TTZ-MMLLNN.md
-
-Example: uLOG-20250816-1640-28-00SY43.md
+[COMMAND|ACTION]     # Shortcode format for quick actions
+COMMAND [args]       # Full command format for detailed control
 ```
 
-#### Timezone Integration
-- **38 timezone codes** mapped from existing city dataset
-- **Automatic detection** of your current timezone
-- **Global compatibility** with standard timezone formats
-
-#### Dev Mode (Wizard Installations)
-- **Special system development mode** available only to Wizard Installations
-- **Advanced development tools** housed in the wizard folder
-- **uDEV Log Management**: Centralized logging with flat file structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md)
-- **Workflow Management**: Enhanced roadmap, versioning, and task tracking
-
-#### uSCRIPT Production Script Library
-- **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
-- **Security-first architecture**: Sandbox execution with configurable security levels
-- **Catalog-based organization**: Script registry with comprehensive metadata
-- **Production vs Development**: Clear separation from Dev Mode development scripts
-
-#### Enhanced ASSIST Mode
-- **Sandbox task management** for AI-enhanced workflows
-- **Natural language processing** for task creation
-- **Automated documentation** generation
-- **Context-aware assistance** with development integration
+#### Clean System Architecture
+- **uCORE**: Cleaned up core system with empty directories removed
+- **uSCRIPT**: Modular script library with Visual Basic-style uCode
+- **Smart Routing**: Core shell intelligently routes to appropriate uCode scripts
+- **Minimal Footprint**: Essential functionality only in core shell
 
 ---
 
@@ -62,118 +63,202 @@ Example: uLOG-20250816-1640-28-00SY43.md
 
 When you start uDOS v1.3, the system automatically:
 
-1. **Detects your timezone** and maps it to a 2-digit code
-2. **Sets up your development environment** (if wizard user)
-3. **Migrates existing files** to v1.3 naming convention
-4. **Initializes task management** system
+1. **Initializes modular architecture** with clean core shell
+2. **Loads uCode script library** with Visual Basic-style modules
+3. **Sets up intelligent command routing** between core and scripts
+4. **Provides dual interface** for both shortcode and full commands
 
 ### 📋 Basic Commands
 
 ```ascii
-┌─── ESSENTIAL COMMANDS ──────────────────────────────┐
+┌─── CORE SYSTEM COMMANDS ───────────────────────────┐
 │                                                     │
-│  STATUS       📊 System overview with v1.3 info    │
-│  HELP         📖 Comprehensive help system          │
-│  DASH         🎛️  Enhanced dashboard with timezone  │
-│  ASSIST       🤖 AI-powered task assistance         │
-│  DEV          🛠️  Enter Dev Mode (Wizard only)       │
+│  STATUS       📊 System overview and health        │
+│  HELP         📖 Complete command reference        │
+│  EXIT         🚪 Clean system shutdown             │
+│  RESTART      🔄 Restart uDOS session              │
+│  RESIZE       📐 Terminal size optimizer           │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+
+┌─── uCODE SCRIPT COMMANDS ──────────────────────────┐
+│                                                     │
+│  [DASH|LIVE]      🎛️ Live dashboard system          │
+│  [PANEL|DASH]     📋 Interactive control panels    │
+│  [TREE|GENERATE]  🌳 Repository structure tools    │
+│  [MEM|LIST]       � Memory file management        │
+│  [MISSION|CREATE] 🎯 Mission tracking system       │
+│  [PACK|LIST]      📦 Package management tools      │
+│  [LOG|REPORT]     📝 Advanced logging system       │
+│  [DEV|TEST]       🛠️ Development tools (wizard)     │
+│  [RENDER|ART]     🎨 Visual rendering & ASCII art  │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
-### 🌍 Timezone System
+### �️ Modular Architecture
 
-uDOS v1.3 automatically detects and uses your timezone:
+uDOS v1.3 features a revolutionary modular design:
 
-| Timezone Code | Region | UTC Offset | Example Location |
-|---------------|--------|------------|------------------|
-| 28 | AEDT/AEST | +10/+11 | Sydney, Australia |
-| 02 | EST/EDT | -5/-4 | New York, USA |
-| 08 | CET/CEST | +1/+2 | Berlin, Germany |
-| 23 | JST | +9 | Tokyo, Japan |
-| 09 | GMT | ±0 | London, UK |
+#### Core Shell (`ucode-modular.sh`)
+- **247 lines** of essential system functionality
+- **Smart routing** to uCode scripts
+- **Dual command interface** (shortcode + full commands)
+- **Clean, minimal design** with zero bloat
 
----
+#### uCode Script Library
+Located in `/uSCRIPT/library/ucode/` with **Visual Basic syntax**:
 
-## File Management
+| Script | Purpose | Key Features |
+|--------|---------|--------------|
+| `MEMORY.ucode` | Memory management | File operations, search, statistics |
+| `MISSION.ucode` | Task tracking | Create, track, complete missions |
+| `PACKAGE.ucode` | Package management | Install, remove, search, update |
+| `LOG.ucode` | Logging system | Analysis, export, cleanup, reports |
+| `DEV.ucode` | Development tools | Test, build, deploy, debug, profile |
+| `RENDER.ucode` | Visual system | ASCII art, charts, animations, UI |
+| `DASH.ucode` | Dashboard | Live monitoring, system status |
+| `PANEL.ucode` | Control panels | Interactive system controls |
+| `TREE.ucode` | Structure tools | Repository visualization |
 
-### 📁 v1.3 Naming Convention
-
-All files follow the enhanced naming standard:
-
-#### File Types
-- **uLOG**: Activity logs and session records
-- **uSCRIPT**: Executable scripts and automation
-- **uDOC**: Documentation and guides
-- **uTASK**: Task definitions and missions
-- **uDATA**: Datasets and information files
-
-#### Location Codes
-- **MMLLNN**: Map(00-99) + Location + Number
-- **00**: System template (Planet Earth)
-- **01-99**: Custom user maps
-
-#### Examples
-```
-uLOG-20250816-1640-28-00SY43.md    # Log file, Sydney timezone
-uSCRIPT-20250816-0930-02-00NY12.sh # Script, New York timezone
-uTASK-20250816-1500-08-00BE01.md   # Task, Berlin timezone
-```
-
-### 🔄 File Migration
-
-Existing files are automatically migrated to v1.3 format:
-
+#### Command Examples
 ```bash
-# Check migration status
-./uCORE/scripts/migrate-to-v13.sh . --dry-run
+# Shortcode format - quick actions
+[MEM|LIST]           # List memory files
+[MISSION|CREATE]     # Create new mission
+[RENDER|ART]         # Show ASCII art gallery
 
-# Perform migration
-./uCORE/scripts/migrate-to-v13.sh ./uMEMORY
+# Full command format - detailed control
+MEMORY search "keyword"          # Search memory files
+MISSION track project-alpha      # Track specific mission
+RENDER chart bar data.json       # Create bar chart from data
 ```
 
 ---
 
-## Dev Mode (Wizard Installations Only)
+## System Architecture
 
-### 🧙‍♂️ Entering Dev Mode
+### 🧠 Core Components
 
-For Wizard Installation users with special development access:
+#### uCORE - Clean Core System
+```
+uCORE/
+├── code/
+│   ├── ucode-modular.sh     # Main system shell (247 lines)
+│   ├── smart-input.sh       # Input processing
+│   ├── setup.sh            # System initialization
+│   └── destroy.sh          # Clean shutdown
+├── datasets/               # JSON configuration data
+├── templates/              # System templates
+└── launcher/              # System launchers
+```
+
+#### uSCRIPT - Script Library
+```
+uSCRIPT/library/ucode/
+├── MEMORY.ucode           # Memory file management
+├── MISSION.ucode          # Mission tracking system
+├── PACKAGE.ucode          # Package management
+├── LOG.ucode             # Advanced logging
+├── DEV.ucode             # Development tools
+├── RENDER.ucode          # Visual rendering
+├── DASH.ucode            # Live dashboard
+├── PANEL.ucode           # Control panels
+└── TREE.ucode            # Structure visualization
+```
+
+### 🔄 Command Flow
+
+1. **User Input** → Core Shell (`ucode-modular.sh`)
+2. **Command Parsing** → Identify core vs. script command
+3. **Smart Routing** → Execute locally or route to uCode script
+4. **Script Execution** → Visual Basic-style uCode interpreter
+5. **Result Display** → Formatted output to user
+
+### 📊 Visual Basic uCode Syntax
+
+All uCode scripts use consistent Visual Basic syntax:
+
+```vb
+FUNCTION Main(args AS STRING) AS INTEGER
+    DIM command AS STRING = "help"
+    
+    IF args <> "" THEN
+        command = args
+    END IF
+    
+    SELECT CASE LCASE(command)
+        CASE "create"
+            RETURN CreateMemoryFile()
+        CASE "list"
+            RETURN ListMemoryFiles()
+        CASE ELSE
+            PRINT "Unknown command"
+            RETURN 1
+    END SELECT
+END FUNCTION
+```
+
+---
+
+## Development System
+
+### 🛠️ DEV Command - Development Tools
+
+The DEV command provides comprehensive development tools (Wizard installations only):
 
 ```bash
-# Enter development environment
-cd wizard
+# Testing system
+DEV test [suite]        # Run test suites (core, script, memory, etc.)
+DEV test core          # Run core system tests
 
-# Start development session
-./tools/dev-session-logger.sh start "Session Title" "Objectives"
+# Building system
+DEV build [target]     # Build system components
+DEV build all          # Complete system build
 
-# Launch VS Code workspace
-code vscode/
+# Deployment
+DEV deploy [env]       # Deploy to environment
+DEV deploy staging     # Deploy to staging environment
+
+# Debugging
+DEV debug [component]  # Debug system components
+DEV debug memory       # Debug memory system
+
+# Performance
+DEV profile [duration] # Performance profiling
+DEV profile 120        # Profile for 2 minutes
+
+# System validation
+DEV validate [comp]    # Validate system integrity
+DEV backup [type]      # Backup system data
+DEV restore [backup]   # Restore from backup
 ```
 
-### 📊 Development Features
+### 🎨 RENDER Command - Visual System
 
-#### Automated Logging
-All development activities are automatically logged:
-```
-uLOG-20250816-1500-28-00SS0816.md  # Session log
-```
+The RENDER command provides advanced visual capabilities:
 
-#### Task Integration
-Connect development work with ASSIST mode tasks:
-```
-sandbox/tasks/assist-mode/    # AI-enhanced tasks
-sandbox/tasks/in-progress/    # Active development
-sandbox/tasks/completed/      # Finished work
-```
-
-#### Session Management
 ```bash
-# Log development activity
-./tools/dev-session-logger.sh log "CODE_CHANGE" "Updated timezone mapper"
+# ASCII Art
+RENDER art [name]           # Display ASCII art
+RENDER gallery              # Browse art gallery
 
-# End development session
-./tools/dev-session-logger.sh end "Session complete"
+# Text Formatting
+RENDER text "Hello" banner  # Create banner text
+RENDER text "Info" box      # Text in decorative box
+
+# Charts and Graphs
+RENDER chart bar data.json  # Bar chart from data
+RENDER chart line metrics   # Line graph
+RENDER chart pie usage      # Pie chart
+
+# User Interfaces
+RENDER ui dashboard         # System dashboard
+RENDER ui menu             # Interactive menu
+
+# Animations
+RENDER animation loading    # Play loading animation
+RENDER progress 75 100     # 75% progress bar
 ```
 
 ---
@@ -209,161 +294,216 @@ sandbox/tasks/assist-mode/uTASK-20250816-1600-28-00AI01.md
 
 ## Enhanced Dashboard
 
-### 📈 v1.3 Dashboard Features
+### 📈 v1.3 Modular Dashboard
 
-The dashboard now includes timezone-aware information:
+The dashboard now reflects the modular architecture:
 
 ```ascii
-┌─── uDOS v1.3 DASHBOARD ─────────────────────────────┐
+┌─── uDOS v1.3 MODULAR DASHBOARD ────────────────────┐
 │                                                     │
-│  🌍 Timezone: AEDT (28)    📅 Date: 2025-08-16     │
-│  🕐 Local: 16:40:23        🌐 UTC: 05:40:23         │
+│  �️  Architecture: Modular    📅 Date: 2025-08-17   │
+│  🧠 Core: 247 lines          🕐 Uptime: 2h 34m     │
 │                                                     │
-│  📊 System Status          🧠 Memory v1.3           │
-│  ══════════════            ═══════════════          │
-│  Online    ✅              Files: 42 (v1.3)        │
-│  Mode: Production          Naming: CAPS-NUM-DASH    │
-│  Layout: Enhanced          Migration: Complete      │
-│                                                     │
-│  🎯 Active Tasks          📈 Development Activity   │
-│  ═════════════            ══════════════════════   │
-│  ASSIST: 3                Sessions: 5 today        │
-│  DEV: 2                   Last: 30min ago          │
-│  COMPLETE: 8              Status: Active           │
+│  📊 System Components        🎯 uCode Scripts       │
+│  ══════════════════          ═══════════════       │
+│  Core Shell    ✅            MEMORY.ucode   ✅      │
+│  uSCRIPT       ✅            MISSION.ucode  ✅      │
+│  uMEMORY       ✅            PACKAGE.ucode  ✅      │
+│  Routing       ✅            LOG.ucode      ✅      │
+│                              DEV.ucode      ✅      │
+│                              RENDER.ucode   ✅      │
+│  📈 Performance Stats        🔧 Command Usage      │
+│  ═══════════════════         ═══════════════       │
+│  Core Efficiency: 98%        Shortcodes: 67%       │
+│  Script Load: <1ms           Full Commands: 33%    │
+│  Memory Usage: 12MB          Most Used: [MEM|LIST] │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
 ### 🎛️ Dashboard Commands
 ```bash
-DASH                 # Main dashboard
-DASH TIMEZONE        # Timezone information
-DASH DEV             # Development activity
-DASH ASSIST          # ASSIST mode status
-DASH MIGRATION       # v1.3 migration status
+DASH                    # Main modular dashboard
+DASH ARCHITECTURE       # Architecture overview
+DASH PERFORMANCE        # Performance metrics
+DASH SCRIPTS           # uCode script status
+DASH USAGE             # Command usage statistics
 ```
 
 ---
 
-## Task Management System
+## Memory & Mission Management
 
-### 📋 Sandbox Task Structure
+### 🧠 MEMORY Command System
 
-```
-sandbox/tasks/
-├── assist-mode/     # AI-enhanced tasks
-├── in-progress/     # Current work
-├── completed/       # Finished tasks
-└── templates/       # Task templates
-```
+The MEMORY command provides comprehensive file management:
 
-### 🎯 Task Workflow
-
-#### 1. Task Creation
-Use templates to create consistent tasks:
 ```bash
-# Copy template
-cp sandbox/tasks/templates/task-template.md sandbox/tasks/in-progress/
+# File Management
+MEMORY create "filename" "description"    # Create memory file
+MEMORY search "keyword"                   # Search memory files
+MEMORY list [filter]                     # List files with optional filter
+MEMORY stats                             # Show memory statistics
 
-# Rename with v1.3 convention
-mv task-template.md uTASK-20250816-1600-28-00PR01.md
+# Organization
+MEMORY organize                          # Auto-organize files
+MEMORY cleanup                           # Clean temporary files
+MEMORY backup                            # Backup memory system
+MEMORY restore "backup-name"             # Restore from backup
+
+# Shortcode Examples
+[MEM|LIST]              # Quick file listing
+[MEM|SEARCH] keyword    # Quick search
+[MEM|STATS]             # Quick statistics
 ```
 
-#### 2. ASSIST Integration
-ASSIST mode can automatically create and manage tasks:
-```bash
-ASSIST CREATE "Optimize timezone mapping performance"
-```
+### 🎯 MISSION Command System
 
-#### 3. Development Integration
-Link tasks with development sessions:
-```bash
-# Start session with task reference
-./wizard/tools/dev-session-logger.sh start "Task Implementation" "Working on uTASK-20250816-1600-28-00PR01"
-```
+The MISSION command handles task and project tracking:
 
-#### 4. Completion
-Move completed tasks to archive:
 ```bash
-mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
+# Mission Management
+MISSION create "title" "description"     # Create new mission
+MISSION list [status]                    # List missions by status
+MISSION track "mission-id"               # Track mission progress
+MISSION complete "mission-id"            # Mark mission complete
+
+# Mission Operations
+MISSION update "mission-id" "progress"   # Update mission progress
+MISSION assign "mission-id" "assignee"   # Assign mission to user
+MISSION archive "mission-id"             # Archive completed mission
+MISSION report                           # Generate mission report
+
+# Shortcode Examples
+[MISSION|CREATE] "Task title"    # Quick mission creation
+[MISSION|LIST]                   # Quick mission listing
+[MISSION|TRACK] mission-123      # Quick mission tracking
 ```
 
 ---
 
 ## Command Reference
 
-### 🔧 Core Commands v1.3
+### 🔧 Core System Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `STATUS` | System overview with v1.3 info | `STATUS` |
-| `DASH` | Enhanced dashboard | `DASH TIMEZONE` |
-| `ASSIST` | AI-powered assistance | `ASSIST CREATE TASK "title"` |
-| `DEV` | Dev Mode | `DEV START SESSION` |
-| `MIGRATE` | v1.3 file migration | `MIGRATE --dry-run` |
+| `STATUS` | System overview and health | `STATUS` |
+| `HELP` | Complete command reference | `HELP` |
+| `EXIT` | Clean system shutdown | `EXIT` |
+| `RESTART` | Restart uDOS session | `RESTART` |
+| `RESIZE` | Terminal size optimizer | `RESIZE` |
 
-### 📁 File Commands
+### 🎯 uCode Script Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `GENERATE FILENAME` | Create v1.3 filename | `GENERATE FILENAME SCRIPT "description"` |
-| `VALIDATE NAMING` | Check v1.3 compliance | `VALIDATE NAMING filename.md` |
-| `MAP TIMEZONE` | Convert timezone codes | `MAP TIMEZONE AEDT` |
+| Command | Script | Description | Example |
+|---------|--------|-------------|---------|
+| `MEMORY` | MEMORY.ucode | File management | `MEMORY search "keyword"` |
+| `MISSION` | MISSION.ucode | Task tracking | `MISSION create "title"` |
+| `PACKAGE` | PACKAGE.ucode | Package management | `PACKAGE install "name"` |
+| `LOG` | LOG.ucode | Advanced logging | `LOG analyze today` |
+| `DEV` | DEV.ucode | Development tools | `DEV test core` |
+| `RENDER` | RENDER.ucode | Visual rendering | `RENDER art dragon` |
+| `DASH` | DASH.ucode | Live dashboard | `DASH performance` |
+| `PANEL` | PANEL.ucode | Control panels | `PANEL system` |
+| `TREE` | TREE.ucode | Structure tools | `TREE generate` |
 
-### 🤖 ASSIST Commands
+### 📝 Shortcode Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `ASSIST CREATE TASK` | Create new task | `ASSIST CREATE TASK "title"` |
-| `ASSIST STATUS` | Show ASSIST activity | `ASSIST STATUS` |
-| `ASSIST HELP` | ASSIST mode help | `ASSIST HELP TASKS` |
+| Shortcode | Full Command | Description |
+|-----------|--------------|-------------|
+| `[MEM\|LIST]` | `MEMORY list` | List memory files |
+| `[MISSION\|CREATE]` | `MISSION create` | Create new mission |
+| `[PACK\|INSTALL]` | `PACKAGE install` | Install package |
+| `[LOG\|REPORT]` | `LOG report` | Generate log report |
+| `[DEV\|TEST]` | `DEV test` | Run development tests |
+| `[RENDER\|ART]` | `RENDER art` | Display ASCII art |
+| `[DASH\|LIVE]` | `DASH live` | Live dashboard |
+| `[PANEL\|SYSTEM]` | `PANEL system` | System control panel |
+| `[TREE\|GENERATE]` | `TREE generate` | Generate structure |
 
 ---
 
 ## Advanced Features
 
-### 🔧 Development Tools
+### 🔧 Development Tools (DEV Command)
 
-#### Filename Generator
+#### Comprehensive Testing System
 ```bash
-# Generate v1.3 compliant filename
-./uCORE/scripts/generate-filename-v3.sh SCRIPT "Build automation"
-# Output: uSCRIPT-20250816-1640-28-00SY43.sh
+# Test Suites
+DEV test core           # Core system tests
+DEV test script         # uScript engine tests  
+DEV test memory         # Memory system tests
+DEV test security       # Security validation tests
+
+# Build System
+DEV build all           # Complete system build
+DEV build core          # Core components only
+DEV build scripts       # Script libraries
+DEV build docs          # Documentation generation
+
+# Deployment Pipeline
+DEV deploy development  # Local development environment
+DEV deploy staging      # Pre-production testing
+DEV deploy production   # Live production system
 ```
 
-#### Timezone Mapper
+#### Performance Analysis
 ```bash
-# Convert timezone codes
-./uCORE/scripts/timezone-mapper-v13.sh map AEDT
-# Output: 28
+# System Profiling
+DEV profile 60          # Profile for 1 minute
+DEV profile 300         # Profile for 5 minutes
 
-# Show current timezone
-./uCORE/scripts/timezone-mapper-v13.sh current
-# Output: Current timezone: AEDT, 2-digit code: 28
+# Validation & Health
+DEV validate core       # Validate core system
+DEV validate scripts    # Validate all uCode scripts
+DEV backup system       # Backup entire system
+DEV restore latest      # Restore from latest backup
 ```
 
-#### Validation Tools
-```bash
-# Validate file naming
-./uCORE/scripts/validate-naming-v3.sh filename.md
+### 🎨 Visual Rendering System (RENDER Command)
 
-# Check system compliance
-./uCORE/scripts/validate-naming-v3.sh . --check-all
+#### ASCII Art & Graphics
+```bash
+# Art Gallery
+RENDER gallery          # Browse available ASCII art
+RENDER art dragon       # Display specific art piece
+RENDER logo uDOS        # Show uDOS logo variants
+
+# Text Formatting
+RENDER text "Hello World" banner    # Banner-style text
+RENDER text "Warning" box          # Text in decorative box
+RENDER text "Info" center          # Centered text formatting
+```
+
+#### Charts & Data Visualization
+```bash
+# Chart Generation
+RENDER chart bar sales.json        # Bar chart from data
+RENDER chart line performance.csv  # Line graph
+RENDER chart pie usage-stats       # Pie chart visualization
+RENDER chart timeline project      # Project timeline
+
+# Interactive Elements
+RENDER ui dashboard                # System dashboard
+RENDER ui menu navigation         # Navigation menu
+RENDER progress 75 100            # Progress indicator
+RENDER table system-status        # Data table display
 ```
 
 ### 📊 Monitoring & Analytics
 
-#### Development Session Analytics
-- **Session Duration**: Track development session lengths
-- **Activity Patterns**: Identify peak development times
-- **Task Completion**: Monitor task completion rates
-- **ASSIST Usage**: Track AI assistance effectiveness
-
 #### System Health Monitoring
-- **Naming Compliance**: v1.3 convention adherence
-- **Timezone Accuracy**: Automatic timezone detection success
-- **Migration Status**: Track file migration progress
-- **Performance Metrics**: System responsiveness tracking
+- **Modular Architecture**: Track core shell and uCode script performance
+- **Command Usage**: Monitor shortcode vs. full command usage patterns
+- **Script Performance**: Analyze uCode script execution times
+- **Memory Efficiency**: Track system resource utilization
+
+#### Development Analytics
+- **Script Development**: Monitor uCode script creation and modification
+- **Testing Metrics**: Track test suite execution and success rates
+- **Deployment History**: Monitor system deployment frequency and success
+- **Performance Trends**: Analyze system performance over time
 
 ---
 
@@ -371,115 +511,149 @@ mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
 
 ### 🚨 Common Issues v1.3
 
-#### Timezone Detection Problems
+#### uCode Script Execution Problems
 ```
-❌ Timezone detection failed
-✅ Solution: Manually set timezone using MAP TIMEZONE command
-```
-
-#### Naming Convention Errors
-```
-❌ File doesn't follow v1.3 convention
-✅ Solution: Use GENERATE FILENAME or VALIDATE NAMING commands
+❌ uCode script execution failed
+✅ Solution: Check script exists in /uSCRIPT/library/ucode/
+✅ Solution: Verify Visual Basic syntax in script file
+✅ Solution: Use DEV validate scripts command
 ```
 
-#### Dev Mode Access
+#### Command Routing Issues
 ```
-❌ Cannot enter wizard mode
+❌ Command not recognized by core shell
+✅ Solution: Check if command should route to uCode script
+✅ Solution: Use HELP command to see available commands
+✅ Solution: Try shortcode format [COMMAND|ACTION]
+```
+
+#### Core System Performance
+```
+❌ System responding slowly
+✅ Solution: Use DEV profile command to analyze performance
+✅ Solution: Check core shell with STATUS command
+✅ Solution: Restart system with RESTART command
+```
+
+#### Development Mode Access
+```
+❌ Cannot access DEV commands
 ✅ Solution: Ensure wizard user permissions are configured
-```
-
-#### Migration Issues
-```
-❌ Migration failed for some files
-✅ Solution: Run migration with --dry-run first, check permissions
+✅ Solution: Verify DEV.ucode script exists and is executable
+✅ Solution: Check system architecture with DASH architecture
 ```
 
 ### 🛠️ Diagnostic Commands
 
 ```bash
-STATUS                    # System overview
-VALIDATE SYSTEM          # Full system check
-DASH MIGRATION           # Migration status
-DEV STATUS               # Dev Mode status
-ASSIST DIAGNOSTICS       # ASSIST mode health check
+STATUS                      # Core system overview
+HELP                       # Complete command reference
+DASH architecture          # Modular architecture status
+DEV validate system        # Full system validation
+RENDER art gallery         # Test visual rendering system
+[MEM|STATS]               # Memory system diagnostics
+[LOG|REPORT]              # System log analysis
 ```
 
 ---
 
 ## Best Practices
 
-### 📝 File Management
-1. **Use v1.3 naming** for all new files
-2. **Migrate existing files** gradually using migration tools
-3. **Validate naming** regularly with validation scripts
-4. **Organize by type** using proper uTYPE prefixes
+### 🏗️ Modular Architecture
+1. **Use shortcode commands** for quick daily tasks
+2. **Use full commands** for detailed operations with specific parameters
+3. **Leverage uCode scripts** for complex functionality instead of extending core shell
+4. **Monitor system performance** with DEV profile and DASH commands
 
-### 🧙‍♂️ Development Workflow
-1. **Start sessions** with clear objectives
-2. **Log activities** regularly during development
-3. **Link tasks** to development sessions
-4. **Use ASSIST mode** for complex workflow automation
+### � Memory & Mission Management
+1. **Create descriptive missions** with clear objectives and timelines
+2. **Use memory search** to quickly locate files and information
+3. **Organize missions** by status and priority for better tracking
+4. **Regular cleanup** of completed missions and temporary files
 
-### 🤖 ASSIST Integration
-1. **Create tasks** with clear descriptions
-2. **Use natural language** for task requests
-3. **Review AI suggestions** before implementation
-4. **Archive completed tasks** for future reference
+### 🎨 Visual System Usage
+1. **Use RENDER gallery** to explore available ASCII art
+2. **Create custom charts** with your data for better visualization
+3. **Use progress bars** for long-running operations
+4. **Design interactive UIs** for complex system operations
 
-### 🌍 Timezone Management
-1. **Verify timezone detection** on system startup
-2. **Use consistent timezone codes** across files
-3. **Update location codes** when traveling
-4. **Validate timezone mapping** for accuracy
+### 🛠️ Development Workflow
+1. **Start with DEV validate** before making system changes
+2. **Use comprehensive testing** with DEV test before deployment
+3. **Profile performance** regularly with DEV profile
+4. **Document changes** using LOG command for traceability
 
 ---
 
-## uSCRIPT Production Script Library
+## uCode Script Library
 
-### 🚀 Script Management
+### 🚀 Visual Basic Style Scripts
 
-uSCRIPT v1.3 provides a production script library and execution engine:
+uDOS v1.3 features a complete library of Visual Basic-style uCode scripts:
+
+#### Core Management Scripts
+- **MEMORY.ucode**: Advanced memory file management with search, statistics, and organization
+- **MISSION.ucode**: Comprehensive mission tracking with creation, progress monitoring, and completion
+- **PACKAGE.ucode**: Full package management system with install, remove, search, and update capabilities
+- **LOG.ucode**: Advanced logging system with analysis, export, cleanup, and reporting features
+
+#### Development & Visualization Scripts  
+- **DEV.ucode**: Complete development toolkit with testing, building, deployment, debugging, and profiling
+- **RENDER.ucode**: Visual rendering system with ASCII art, charts, animations, and UI generation
+- **DASH.ucode**: Live dashboard system with real-time monitoring and system status
+- **PANEL.ucode**: Interactive control panels for system management
+- **TREE.ucode**: Repository structure generation and visualization tools
+
+### � Script Architecture
+
+Each uCode script follows consistent Visual Basic syntax patterns:
+
+```vb
+' Standard uCode script structure
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "help"
+    
+    IF args <> "" THEN
+        command = ExtractCommand(args)
+    END IF
+    
+    ' Execute command logic
+    SELECT CASE LCASE(command)
+        CASE "create"
+            RETURN HandleCreate(args)
+        CASE "list"
+            RETURN HandleList(args)
+        CASE "help"
+            RETURN ShowHelp()
+        CASE ELSE
+            PRINT "❌ Unknown command: " + command
+            RETURN 1
+    END SELECT
+END FUNCTION
+```
+
+### 📊 Script Execution Flow
+
+1. **Core Shell** receives user command
+2. **Command Parser** determines if command routes to uCode script
+3. **Script Executor** loads appropriate `.ucode` file
+4. **Visual Basic Interpreter** processes script logic
+5. **Formatted Output** returns results to user
+
+### 🎯 Script Development
+
+Future uCode scripts can be easily added to the library:
 
 ```bash
-# Navigate to uSCRIPT
-cd uSCRIPT
+# Create new uCode script
+touch /uSCRIPT/library/ucode/NEWSCRIPT.ucode
 
-# Initialize the system
-./uscript.sh init
+# Add routing in core shell
+# Edit ucode-modular.sh to include new script routing
 
-# List available scripts
-./uscript.sh list
-
-# Get script information
-./uscript.sh info <script-name>
-
-# Execute a script
-./uscript.sh run <script-name> [arguments...]
-```
-
-### 🔧 Supported Languages
-
-- **Python** (.py): Full Python 3 support with package management
-- **Shell** (.sh): Bash scripts with timeout and security controls
-- **JavaScript** (.js): Node.js execution environment
-- **uCODE** (.ucode.md): Native uDOS script format
-
-### 🛡️ Security Levels
-
-- **safe**: Read-only scripts, sandboxed execution
-- **elevated**: File modification allowed, requires confirmation
-- **admin**: Full system access, requires admin privileges
-
-### 📁 Directory Structure
-
-```
-uSCRIPT/
-├── library/     # Multi-language script storage
-├── config/      # JSON configuration system
-├── registry/    # Script catalog and metadata
-├── runtime/     # Execution environment
-└── executed/    # Execution archives
+# Test script execution
+DEV test script NEWSCRIPT
 ```
 
 ---
@@ -487,31 +661,55 @@ uSCRIPT/
 ## Support & Resources
 
 ### 📚 Documentation
-- **Architecture Guide**: `/docs/ARCHITECTURE.md`
-- **Style Guide**: `/docs/Style-Guide.md`
-- **Development Guide**: `/wizard/README.md`
-- **Task Templates**: `/sandbox/tasks/templates/`
+- **Architecture Guide**: `/docs/ARCHITECTURE.md` - Complete system architecture
+- **Modular Guide**: `/docs/uDOS-Concepts-v1.3.md` - v1.3 modular concepts
+- **Style Guide**: `/docs/Style-Guide.md` - Coding and documentation standards
+- **VS Code Guide**: `/docs/VS-Code-Dev-Mode-Guide.md` - Development environment setup
 
-### 🛠️ Tools & Utilities
-- **Migration Script**: `/uCORE/scripts/migrate-to-v13.sh`
-- **Filename Generator**: `/uCORE/scripts/generate-filename-v3.sh`
-- **Timezone Mapper**: `/uCORE/scripts/timezone-mapper-v13.sh`
-- **Dev Mode Logger**: `/wizard/tools/dev-session-logger.sh`
+### 🛠️ Core System Tools
+- **Modular Shell**: `/uCORE/code/ucode-modular.sh` - Main system shell (247 lines)
+- **Smart Input**: `/uCORE/code/smart-input.sh` - Input processing system
+- **System Setup**: `/uCORE/code/setup.sh` - System initialization
+- **Clean Shutdown**: `/uCORE/code/destroy.sh` - Safe system termination
+
+### 🎯 uCode Script Library
+- **MEMORY.ucode**: `/uSCRIPT/library/ucode/MEMORY.ucode` - Memory management
+- **MISSION.ucode**: `/uSCRIPT/library/ucode/MISSION.ucode` - Task tracking
+- **PACKAGE.ucode**: `/uSCRIPT/library/ucode/PACKAGE.ucode` - Package management
+- **LOG.ucode**: `/uSCRIPT/library/ucode/LOG.ucode` - Advanced logging
+- **DEV.ucode**: `/uSCRIPT/library/ucode/DEV.ucode` - Development tools
+- **RENDER.ucode**: `/uSCRIPT/library/ucode/RENDER.ucode` - Visual rendering
 
 ### 🤝 Community
-- **GitHub Repository**: uDOS project repository
-- **Development Discussions**: Community development forum
-- **Issue Tracking**: Bug reports and feature requests
-- **Knowledge Base**: Community-contributed documentation
+- **GitHub Repository**: uDOS project repository with modular architecture
+- **Development Discussions**: Community development forum for v1.3
+- **Issue Tracking**: Bug reports and feature requests for modular system
+- **Knowledge Base**: Community-contributed documentation and scripts
+
+### 🔧 Quick Reference Commands
+```bash
+# System Overview
+STATUS                  # Complete system health check
+HELP                   # Full command reference guide
+
+# Architecture Information  
+DASH architecture      # Modular architecture overview
+DEV validate system    # Comprehensive system validation
+
+# Script Information
+[MEM|STATS]           # Memory system statistics
+[LOG|REPORT]          # System activity report
+RENDER gallery        # Visual capabilities showcase
+```
 
 ---
 
-**Document Status**: Production Ready  
-**Version**: v1.3  
-**Last Updated**: August 16, 2025  
-**Next Review**: September 16, 2025
+**Document Status**: Production Ready - Modular Architecture v1.3  
+**Version**: v1.3 Modular  
+**Last Updated**: August 17, 2025  
+**Next Review**: September 17, 2025
 
 ---
 
 *uDOS v1.3 User Guide - Universal Data Operating System*  
-*Precision Through Standardization*
+*Modular Architecture • Visual Basic uCode Scripts • Clean Core Design*

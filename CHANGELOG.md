@@ -5,6 +5,29 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-08-17
+
+### 🚀 Universal Device Operating System v1.3
+
+#### Added
+- **Modular Architecture**: Complete system refactor with ucode-modular.sh
+- **Web Content Integration**: Full urltomarkdown system with Python converter
+- **Package Management**: Hybrid distribution strategy with core/external separation
+- **Filename Convention v3.0**: 8-character hex encoding with chronological sorting
+- **External Package Organization**: Moved to wizard/experiments for better separation
+- **Enhanced Documentation**: Updated all READMEs with proper naming conventions
+
+#### Changed
+- **System Name**: "Universal Data Operating System" → "Universal Device Operating System"
+- **Package Structure**: Separated core packages from external dependencies
+- **File Organization**: Applied hex filename convention across all documentation
+- **Package Manager**: Renamed to package-manager.sh for simpler access
+
+#### Fixed
+- **Interactive Loop**: Resolved command prompt infinite loop issues
+- **Terminal Handling**: Improved modular system with timeout detection
+- **File References**: Updated all package manager references to new locations
+
 ## [1.1.0] - 2025-07-18
 
 ### 🗺️ Advanced Mapping System

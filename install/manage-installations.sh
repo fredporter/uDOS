@@ -13,7 +13,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Installation directory
-INSTALL_DIR="/Users/agentdigital/uDOS/installations"
+INSTALL_DIR="/Users/agentdigital/uDOS/install/roles"
 SHARED_DIR="/Users/agentdigital/uDOS/shared"
 UCORE_DIR="/Users/agentdigital/uDOS/uCORE"
 
@@ -304,11 +304,11 @@ check_system_status() {
     echo
     echo -e "${BLUE}Installation Structure:${NC}"
     if [ -d "$INSTALL_DIR" ]; then
-        echo -e "  ✅ installations/ directory exists"
+        echo -e "  ✅ install/roles/ directory exists"
         local count=$(find "$INSTALL_DIR" -maxdepth 1 -type d -o -type l | wc -l)
         echo -e "  📊 Found $((count-1)) installations"
     else
-        echo -e "  ❌ installations/ directory missing"
+        echo -e "  ❌ install/roles/ directory missing"
     fi
     
     echo

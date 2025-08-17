@@ -1,26 +1,88 @@
 # ──────────────────────────────────────────────
-# uDOS v1.3 .gitignore
-# Clean Repository Architecture - Production Ready
+# uDOS v1.3 Multi-Installation Architecture .gitignore
+# Clean Distribution Repository - User Content Isolation
 # ──────────────────────────────────────────────
 
 # ════════════════════════════════════════════════════════════════
-# 🔒 SECURITY MODEL ENFORCEMENT
+# 🎯 uDOS DISTRIBUTION STRATEGY
+# ════════════════════════════════════════════════════════════════
+# ✅ Keep: Core system, installation types, shared resources, wizard dev tools
+# 🚫 Exclude: User content, personal data, session logs, sandbox activity
+# 🔄 Sync: Only Dev Mode changes to core system components
+
+# ════════════════════════════════════════════════════════════════
+# 🔒 USER CONTENT ISOLATION - NEVER IN DISTRIBUTION
 # ════════════════════════════════════════════════════════════════
 
-# 🔐 Level 1: uMEMORY - Private User Files (NEVER in repo)
-# Contains personal data, logs, state, missions, moves
+# 🔐 Level 1: uMEMORY - Personal Archive System (NEVER in repo)
+# Contains user missions, moves, memories, milestones, daily session data
 uMEMORY/
 uMEMORY.backup/
+uMEMORY/*/
 
-# 🔐 Level 2: Sandbox Personal Data
+# 🔐 Level 2: Sandbox - Active User Workspace (NEVER in repo)
+# Where most user activity occurs before archiving to uMEMORY
 sandbox/user.md
-sandbox/user-data/
+sandbox/user/
 sandbox/experiments/
 sandbox/drafts/
+sandbox/tasks/in-progress/
+sandbox/tasks/completed/
+sandbox/scripts/active/
+sandbox/scripts/executed/
+sandbox/archived-tests/
 sandbox/personal/
+sandbox/**/*.working
+sandbox/**/*.tmp
 
 # ════════════════════════════════════════════════════════════════
-# 🚫 BUILD ARTIFACTS & DEVELOPMENT FILES
+# 🏢 MULTI-INSTALLATION USER DATA ISOLATION
+# ════════════════════════════════════════════════════════════════
+
+# Installation-specific user data (not core installation functionality)
+installations/wizard/user-data/
+installations/wizard/personal/
+installations/wizard/session-logs/
+installations/sorcerer/user-projects/
+installations/sorcerer/personal-configs/
+installations/imp/user-projects/
+installations/imp/personal-scripts/
+installations/drone/user-tasks/
+installations/drone/personal-automation/
+installations/tomb/user-archives/
+installations/tomb/personal-backups/
+installations/ghost/user-demos/
+installations/ghost/personal-sandbox/
+
+# Shared user-specific configurations (not system defaults)
+shared/user-configs/
+shared/personal/
+shared/**/*.user
+shared/**/*.personal
+
+# ════════════════════════════════════════════════════════════════
+# 🛠️ DEVELOPMENT ISOLATION - DEV MODE ONLY
+# ════════════════════════════════════════════════════════════════
+
+# ✅ KEEP: wizard/notes/ - Development logs in hex format (ALWAYS SYNC)
+# These contain development progress and are part of the distribution
+# wizard/notes/ - SYNCED TO GIT
+
+# 🚫 EXCLUDE: Personal wizard development sessions
+wizard/personal/
+wizard/user-sessions/
+wizard/.dev-session-*
+wizard/**/*.personal
+wizard/**/*.user
+wizard/**/*.working
+
+# Development environment temporary files
+wizard/**/*.tmp
+wizard/**/*.log
+wizard/**/*.cache
+
+# ════════════════════════════════════════════════════════════════
+# 🚫 BUILD ARTIFACTS & COMPILATION OUTPUT
 # ════════════════════════════════════════════════════════════════
 
 # Build and compilation artifacts
@@ -34,65 +96,148 @@ dist/
 build/
 out/
 
-# Package manager files
+# Package manager files and dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+.npm/
+.yarn/
 
-# Large demo files and assets (should be downloaded separately)
-**/demo/
-**/demos/
-**/data/input.*
-**/data/output.*
+# ════════════════════════════════════════════════════════════════
+# 📦 LARGE ASSETS & DEMO CONTENT
+# ════════════════════════════════════════════════════════════════
+
+# Large demo files and assets (should be downloaded separately during installation)
+**/demo-content/
+**/large-assets/
+**/sample-data/
+**/test-data/
 **/fonts/*.ttf
 **/fonts/*.ttc
-*.gif
-*.mp4
-*.avi
-*.mov
-*.webm
+**/media/*.gif
+**/media/*.mp4
+**/media/*.avi
+**/media/*.mov
+**/media/*.webm
+*.iso
+*.img
 
-# Generated/downloaded content
+# Generated/downloaded content during installation
 downloads/
 cache/
 temp-downloads/
+installation-downloads/
 
-# Logs and temporary files
+# ════════════════════════════════════════════════════════════════
+# 📝 LOGS & TEMPORARY FILES
+# ════════════════════════════════════════════════════════════════
+
+# System and application logs (not development logs in wizard/notes/)
 **/*.log
 *.tmp
 *.working
+*.cache
 validation-*.log
 test.log
 test-*.log
 test-output-*
 gemini-*.log
+installation-*.log
+session-*.log
+
+# User-generated logs (different from core system logs)
+user-*.log
+personal-*.log
+sandbox-*.log
+**/user-logs/
+**/session-logs/
+
+# Temporary processing files
+*.processing
+*.temp
+temp-*
+processing-*
+
+# ════════════════════════════════════════════════════════════════
+# 💻 SYSTEM & OS FILES
+# ════════════════════════════════════════════════════════════════
 
 # macOS system files
 .DS_Store
 **/.DS_Store
 .ipynb_checkpoints/
 Thumbs.db
+.localized
 
-# Distribution archives and installation artifacts
+# Linux/Unix hidden files
+.*~
+.*.swp
+.*.swo
+
+# Windows system files
+desktop.ini
+*.lnk
+
+# ════════════════════════════════════════════════════════════════
+# 📦 DISTRIBUTION & PACKAGING ARTIFACTS
+# ════════════════════════════════════════════════════════════════
+
+# Distribution archives and packaging
 *.zip
 *.tar.gz
 *.dmg
 *.vsix
+*.deb
+*.rpm
 uDOS-v*.tar.gz
 uDOS-v*.zip
+uDOS-distribution-*
+release-*
 
-# Local installation artifacts (generated during install)
+# Installation artifacts (generated during user installation)
 install-udos.log
 installation.log
 validation-*.log
 user-config.local
 setup-complete.flag
+installation-report.txt
+system-info.txt
+
+# Generated distribution packages and builds
+release/
+dist-packages/
+packaging/
+builds/
+uCORE/launcher/uDOS.app/Contents/
+uCORE/launcher/build/
+uCORE/launcher/*.dmg
+uCORE/launcher/uDOS_installation.log
 
 # ════════════════════════════════════════════════════════════════
-# 🛠️ DEVELOPMENT ENVIRONMENT FILES
+# ⚙️ EDITOR & IDE CONFIGURATIONS
 # ════════════════════════════════════════════════════════════════
+
+# Personal VS Code settings (keep workspace shared settings)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+# Keep: .vscode/extensions.json, .vscode/workspace.code-workspace
+
+# Environment and authentication
+.env
+.env.local
+.env.user
+.gemini/
+~/.gemini/
+.anthropic/
+.openai/
+
+# IDE personal configurations
+.idea/
+*.sublime-*
+.atom/
 
 # wizard wizard development environment - personal logs and sessions
 wizard/logs/
@@ -136,42 +281,71 @@ exports/
 generated-docs/
 
 # ════════════════════════════════════════════════════════════════
-# 🧪 TESTING & DEVELOPMENT
+# 🧪 TESTING & DEVELOPMENT ENVIRONMENTS
 # ════════════════════════════════════════════════════════════════
 
-# Test environments
+# Test environments and temporary testing
 /tmp/
 temp/
 testing/
 scratch/
+test-environments/
+**/test-runs/
+**/test-results/
 
-# Development progress tracking
-dev-notes/
-personal-notes/
-
-# User-specific configurations
+# User-specific development configurations
 config.local.*
 settings.local.*
+user.config
+local.settings
+*.user.md
+personal-*.md
 
-# Generated files that should be rebuilt on install
-system-info.txt
-installation-report.txt
+# Generated documentation exports (not core docs)
+exports/
+generated-docs/
+user-exports/
 
 # ════════════════════════════════════════════════════════════════
-# 🗑️ TRASH SYSTEM - Archived and deprecated files
+# 🗑️ CLEANUP & MAINTENANCE
 # ════════════════════════════════════════════════════════════════
-# Contains old/deprecated files moved during cleanup
-# This folder is tracked to maintain cleanup history
+
+# Trash system - Archived and deprecated files
+# This folder is tracked to maintain cleanup history and system evolution
 trash/
 
+# Backup files created during maintenance
+*.backup
+*.bak
+*.old
+*~
+
 # ════════════════════════════════════════════════════════════════
-# ✅ WHAT STAYS IN REPOSITORY (uDOS v1.3)
+# ✅ uDOS v1.3 DISTRIBUTION INCLUDES
 # ════════════════════════════════════════════════════════════════
-# ✅ uCORE/ - Core system architecture and functionality
-# ✅ wizard/ - Wizard development environment (tools only, not logs)
-# ✅ uKNOWLEDGE/ - Knowledge base system
-# ✅ docs/ - Consolidated documentation system
-# ✅ sandbox/ - User workspace templates and task management
-# ✅ Core files: README.md, LICENSE, CHANGELOG.md, etc.
-# ✅ VS Code workspace configuration (.vscode/)
+# ✅ uCORE/ - Core system architecture and utilities
+# ✅ installations/ - Multi-installation framework (6 role types)
+# ✅ shared/ - Cross-installation resources and default configurations  
+# ✅ docs/ - Complete system documentation and guides
+# ✅ extension/ - VS Code extension development framework
+# ✅ install/ - Installation scripts for all platforms
+# ✅ wizard/notes/ - Development logs in hex format (ALWAYS SYNCED)
+# ✅ wizard/tools/ - Development utilities and workflows
+# ✅ wizard/utilities/ - System utilities for development
+# ✅ uKNOWLEDGE/ - Shared knowledge base system
+# ✅ uSCRIPT/ - Production script management system
+# ✅ sandbox/README.md - Workspace templates and task management framework
+# ✅ Core files: README.md, LICENSE, CHANGELOG.md, .gitignore
+# ✅ Shared workspace configuration: .vscode/extensions.json, workspace files
+
+# ════════════════════════════════════════════════════════════════
+# 🚫 uDOS v1.3 DISTRIBUTION EXCLUDES  
+# ════════════════════════════════════════════════════════════════
+# 🚫 uMEMORY/ - User personal archive (missions, moves, memories, milestones)
+# 🚫 sandbox/user* - Active user workspace and personal content
+# 🚫 installations/*/user-* - Installation-specific user data
+# 🚫 wizard/personal/ - Personal development sessions
+# 🚫 shared/user-* - User-specific shared configurations
+# 🚫 All *.log files except core system logs
+# 🚫 All personal, temporary, and build artifacts
 # ════════════════════════════════════════════════════════════════

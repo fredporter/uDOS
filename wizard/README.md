@@ -11,7 +11,8 @@ wizard/
 ├── dev-utils.sh         # Development utilities manager (main entry point)
 ├── vscode/              # VS Code configuration and extensions
 │   └── .vscode/         # Workspace settings, tasks, launch configs
-├── notes/               # All development logs, reports, summaries, and documentation (flat structure)
+├── notes/               # Historical planning documents and implementation records
+├── experiments/         # External packages and experimental tools
 ├── utilities/           # Development utility scripts
 │   └── generate-filename-v2.sh  # Filename generator v2.0
 ├── claude-vscode/       # Claude VS Code development notes
@@ -24,13 +25,11 @@ wizard/
 ├── scripts/             # Development and maintenance scripts
 ├── reports/             # Analysis and metrics (non-uDEV files)
 ├── workflows/           # Enhanced workflow management
-│   ├── roadmaps/        # Project roadmaps and planning
-│   ├── versioning/      # Version planning and release management
-│   ├── development/     # Development workflows and processes
-│   ├── tasks/           # Task management and tracking
-│   ├── active/          # Active workflows
-│   ├── completed/       # Completed workflows
-│   └── templates/       # Workflow templates
+│   ├── roadmaps/        # Strategic planning and future roadmaps
+│   ├── active/          # Currently running workflows
+│   ├── templates/       # Workflow template definitions
+│   ├── config.json      # Workflow system configuration
+│   └── README.md        # Workflow documentation
 └── logs/                # System logs (non-uDEV format)
 ```
 
@@ -44,6 +43,12 @@ Dev Mode provides:
 - **Claude VS Code Integration**: Dedicated notes and session tracking for AI-assisted development
 - **Workflow Management**: Enhanced roadmap, versioning, and task tracking with organized completion flow
 
+### 📚 Historical Documentation
+- **Notes Directory**: Historical planning documents and implementation records moved from `/docs`
+- **Strategic Archives**: Past development decisions and completed project documentation
+- **Implementation Records**: Technical migration and reorganization documentation
+- **Reference Materials**: Historical context for ongoing development
+
 ### 🧙‍♂️ Wizard-Only Features
 - **Development Environment**: Complete development toolkit for Wizard Installations
 - **Utility Script Management**: Build and run development utilities with integrated logging
@@ -52,12 +57,23 @@ Dev Mode provides:
 - **Git Integration**: Full Git support with SSH key management (uCODE commands: PUSH, PULL, COMMIT, CLONE, etc.)
 
 ### 📚 Documentation Access
-All documentation files are organized in the `notes/` directory with proper filename convention v2.0:
-- **Release Notes**: `notes/uDOC-*-Release-Notes-v1.3.md`
-- **Organization Summary**: `notes/uDOC-*-uDOS-Organization-Summary.md`
-- **Completion Summary**: `notes/uDOC-*-Wizard-Completion-Summary.md`
-- **Workflow System**: `notes/uDOC-*-Workflow-System.md`
-- **Development Logs**: `notes/uDEV-*` (automatically generated)
+Documentation is organized across multiple directories for different purposes:
+
+#### **Historical Documentation** (`notes/`)
+- **Implementation Records**: `notes/uNOTE-*-Project-Planning-History.md`
+- **Architecture Decisions**: `notes/uNOTE-*-Modular-Architecture-Migration.md`
+- **System Reorganization**: `notes/uNOTE-*-Extension-Reorganization.md`
+- **Historical Roadmaps**: `notes/uNOTE-*-Historical-Roadmap-v13.md`
+
+#### **Future Planning** (`workflows/roadmaps/`)
+- **Strategic Roadmaps**: `workflows/roadmaps/uRMP-*` files for v1.4-v1.5 planning
+- **AI Integration Plans**: Comprehensive AI development strategies
+- **Enterprise Features**: Business model and enterprise development plans
+
+#### **Development Logs** (Various Locations)
+- **Session Logs**: `claude-vscode/*/` - AI-assisted development tracking
+- **System Logs**: `logs/` - Development activity logs
+- **Reports**: `reports/` - Analysis and metrics
 
 ## 🚀 Getting Started
 

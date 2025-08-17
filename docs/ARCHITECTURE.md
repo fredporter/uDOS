@@ -1,8 +1,12 @@
 # uDOS v1.3 Architecture Overview
 
+**Last Updated:** August 17, 2025  
+**Status:** Multi-Installation Architecture with Hex Filename Convention  
+**Version:** v1.3 - Production Ready
+
 ## System Architecture
 
-uDOS v1.3 follows a modular, extensible architecture designed for development productivity and system maintainability with a clean 11-folder structure.
+uDOS v1.3 follows a modular, extensible architecture designed for multi-installation role-based access with a clean hierarchical structure supporting 6 installation types and hex-based filename conventions.
 
 ### Core Components
 
@@ -10,42 +14,66 @@ uDOS v1.3 follows a modular, extensible architecture designed for development pr
 
 ```
 uDOS/
-├── docs/           # Documentation and architecture guides
-├── extension/      # VS Code extension development
-├── install/        # Installation scripts and setup
-├── sandbox/        # User workspace and development area
-├── uCORE/          # Core system architecture and utilities
-│   ├── code/       # Core utilities and micro-syntax
-│   ├── datasets/   # System data and mappings
-│   ├── extensions/ # Extension development framework
-│   ├── launcher/   # Platform-specific launchers
-│   ├── scripts/    # Core maintenance scripts
-│   └── templates/  # System templates and configurations
-├── uKNOWLEDGE/     # Knowledge base and documentation system
-├── uMEMORY/        # User memory and data management
-├── uSCRIPT/        # Production script library & execution engine
-│   ├── config/     # JSON configuration system
-│   ├── library/    # Multi-language script storage
-│   ├── registry/   # Script catalog and metadata
-│   ├── runtime/    # Execution environment
-│   └── executed/   # Execution archives
-└── wizard/         # Development workflow tools and environment
-    ├── logs/       # Development session logs
-    ├── reports/    # Workflow analysis and metrics
-    ├── scripts/    # Development utilities
-    ├── summaries/  # Session summaries
-    ├── tools/      # Development utilities
-    ├── vscode/     # VS Code integration
-    └── workflows/  # Automated workflows
+├── docs/                   # System Documentation (✅ Hex convention updated)
+├── extension/              # VS Code extension development
+├── install/                # Installation scripts for multi-role setup
+├── installations/          # Multi-Installation Architecture (NEW v1.3)
+│   ├── wizard/            # Level 100 - Full system access (symlink)
+│   ├── sorcerer/          # Level 80 - Advanced management
+│   ├── imp/               # Level 60 - Developer tools
+│   ├── drone/             # Level 40 - Task automation
+│   ├── tomb/              # Level 20 - Archive management
+│   └── ghost/             # Level 10 - Demo installation
+├── sandbox/                # User workspace and development area
+├── shared/                 # Shared resources and permissions (NEW v1.3)
+│   ├── configs/           # Cross-installation configurations
+│   ├── permissions/       # Role-based permission files
+│   └── resources/         # Common resources
+├── uCORE/                  # Core system architecture and utilities
+│   ├── code/              # Core utilities and uCODE shell
+│   ├── datasets/          # System data and mappings
+│   ├── extensions/        # Extension development framework
+│   ├── launcher/          # Platform-specific launchers
+│   └── templates/         # System templates (enhanced for hex)
+├── uKNOWLEDGE/            # Knowledge base and documentation system
+├── uMEMORY/               # User memory with hex filename support
+│   ├── moves/            # Move files (uMOV-HEXCODE-*.md)
+│   ├── missions/         # Mission files (uMIS-HEXCODE-*.md)
+│   ├── memories/         # Memory files (uMEM-HEXCODE-*.md)
+│   └── milestones/       # Milestone files (uMIL-HEXCODE-*.md)
+├── uSCRIPT/               # Production script library & execution engine
+│   ├── config/           # JSON configuration system
+│   ├── library/          # Multi-language script storage
+│   ├── registry/         # Script catalog and metadata
+│   ├── runtime/          # Role-aware execution environment
+│   └── templates/        # Script generation templates
+└── wizard/                # Development environment (Level 100 only)
+    ├── notes/            # Development logs (63+ hex-named files)
+    ├── scripts/          # Development utilities
+    ├── utilities/        # Hex conversion tools
+    ├── vscode/           # VS Code integration
+    └── workflows/        # Development workflows
 ```
 
 #### 🔧 **Core Systems**
 
+##### **Multi-Installation Architecture (installations/)**
+- **6-tier role hierarchy**: Ghost(10) → Tomb(20) → Drone(40) → Imp(60) → Sorcerer(80) → Wizard(100)
+- **Role-based permissions**: JSON-configured access controls per installation type
+- **Cross-installation collaboration**: Secure sharing mechanisms between roles
+- **Installation management**: Complete toolkit for role creation and management
+
+##### **Hex Filename Convention System**
+- **8-character hex encoding**: Date, time, timezone, and role/tile information
+- **63+ files converted**: All uDOS generated files now use hex format
+- **Temporal organization**: Chronological sorting with spatial context
+- **Self-contained system**: No external timezone datasets required
+
 ##### **Production Script Management (uSCRIPT/)**
 - **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
-- **Security-first architecture**: Sandbox execution with configurable security levels
+- **Role-aware security**: Execution permissions based on installation type
 - **Catalog-based organization**: Script registry with comprehensive metadata
-- **Production-ready management**: Finalized, tested scripts vs development scripts
+- **Cross-installation sharing**: Template and script sharing with proper permissions
 
 ##### **Dev Mode Environment (wizard/)**
 - **Special system development mode** available only to Wizard Installations
@@ -159,38 +187,53 @@ uDOS/
 
 ### Version Information
 
-- **Architecture Version**: v1.3
-- **Extension System**: v1.0 with modular plugin architecture
-- **Memory System**: v1.3 with enhanced state management
-- **Development Environment**: v1.3 with wizard workflow system
-- **Production Script System**: uSCRIPT v1.3 with multi-language execution engine
+- **Architecture Version**: v1.3 - Multi-Installation with Hex Filename Convention
+- **Multi-Installation System**: v1.3 with 6-tier role hierarchy (Ghost→Tomb→Drone→Imp→Sorcerer→Wizard)
+- **Hex Filename Convention**: v3.0 with 8-character encoding (63+ files converted)
+- **Extension System**: v1.0 with modular plugin architecture and hex integration
+- **Memory System**: v1.3 with hex-based file organization and spatial context
+- **Development Environment**: v1.3 with wizard workflow system (Level 100 access)
+- **Production Script System**: uSCRIPT v1.3 with role-aware execution engine
 - **Knowledge Management**: uKNOWLEDGE v1.3 with documentation system
-- **Core System**: uCORE v1.3 with template processing and utilities
-- **Logging System**: v1.3 with structured development tracking
-- **Filename Convention**: v1.3 with CAPS-NUMERIC-DASH standards
-- **Repository Structure**: 11-folder clean architecture (reduced from scattered structure)
+- **Core System**: uCORE v1.3 with template processing and hex utilities
+- **Logging System**: v1.3 with hex-based temporal tracking
+- **Security Model**: v1.3 with JSON-configured role-based permissions
+- **Repository Structure**: 170+ directories with multi-installation architecture
 
 ### Security Model
+
+#### **Multi-Installation Security Architecture**
+- 🔐 **Role-based access control**: 6-tier permission system (10-100 levels)
+- 🔐 **JSON permission files**: `shared/permissions/` with role-specific configurations
+- 🔐 **Cross-installation collaboration**: Secure sharing mechanisms between roles
+- 🔐 **Installation isolation**: Separate execution environments per role type
 
 #### **Public Repository Content**
 - ✅ Core system architecture (`uCORE/`)
 - ✅ Documentation and guides (`docs/`)
-- ✅ Extension framework (`uExtensions/`)
-- ✅ Installation tools (`install/`, `uInstall/`)
-- ✅ Development utilities (`wizard/tools/`, `uCode/`)
-- ✅ Template system (`uTemplate/`)
+- ✅ Multi-installation framework (`installations/`)
+- ✅ Shared resources and configs (`shared/`)
+- ✅ Extension framework (`extension/`)
+- ✅ Installation tools (`install/`)
+- ✅ Development utilities (`wizard/tools/`)
+- ✅ Template system (`uCORE/templates/`)
 
 #### **Private/Local Only (.gitignored)**
-- 🔒 User memory and personal data (`uMEMORY/`)
-- 🔒 Development session logs (`wizard/logs/`)
+- 🔒 User memory and personal data (`uMEMORY/user/`)
+- 🔒 Development session logs (`wizard/notes/` - 63+ hex files)
 - 🔒 Personal workspace files (`sandbox/user.md`)
+- 🔒 Role-specific user data in installations
 - 🔒 Editor configurations (`.vscode/`)
 - 🔒 Authentication tokens and local configs
+
+#### **Hex Filename Security**
+- 🔐 **Temporal encoding**: Prevents filename conflicts across installations
+- 🔐 **Role identification**: Embedded role/tile information for access control
+- 🔐 **Timezone awareness**: Geographic context for security auditing
+- 🔐 **Self-contained**: No external dependencies for filename generation
 
 ---
 
 *This architecture document is part of the uDOS v1.3 knowledge base and is automatically updated with system evolution.*  
-*Last Updated: Generated by TREE command - see `repo_structure.txt` for complete structure*
-
----
-*This architecture document is part of the uDOS knowledge base and should be updated as the system evolves.*
+*Last Updated: August 17, 2025 - Updated for Multi-Installation Architecture and Hex Filename Convention v3.0*  
+*Repository Structure: 170+ directories documented in `docs/uDOS-Repository-Structure.md`*

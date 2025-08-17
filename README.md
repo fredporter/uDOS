@@ -1,4 +1,4 @@
-# uDOS v1.3 - Universal Data Operating System
+# uDOS v1.3 - Universal Device Operating System
 
 **A globally-aware, timezone-integrated development platform with AI-enhanced workflows and wizard user capabilities.**
 
@@ -10,7 +10,7 @@
     ╚██████╔╝██████╔╝╚██████╔╝███████║
      ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 
-    Universal Data Operating System
+    Universal Device Operating System
     ═══════════════ v1.3 ═══════════════
 ```
 
@@ -94,6 +94,8 @@
     ├── logs/                  # Development session logs
     ├── workflows/             # Workflow automation
     ├── tools/                 # Development tools
+    ├── notes/                 # Strategy and planning documents
+    ├── experiments/           # External packages and experimental tools
     └── vscode/                # VS Code integration
 ```
 
@@ -159,7 +161,6 @@ udos-url2md-batch urls.txt
 - `projects/` - Your project files [20-50-00]
 - `forms/` - Generated forms and responses [20-60-00]
 - `deployments/` - Deployment configurations and logs [20-70-00]
-- `datagets/` - Web content and extracted data [20-80-00]
 
 ### 📚 uKNOWLEDGE/ - Knowledge Bank [30-00-00]
 **Shared public knowledge (Wizard managed)**
@@ -174,6 +175,7 @@ udos-url2md-batch urls.txt
 - `drafts/` - Work-in-progress files [40-30-00]
 - `experiments/` - Testing and prototyping area [40-40-00]
 - `test-deployment/` - Deployment testing environment [40-50-00]
+- `datagets/` - Web content and extracted data [40-60-00]
 
 ### 🧙‍♂️ wizard/ - Development Environment [50-00-00]
 **Advanced development and workflow system (renamed from uDEV)**
