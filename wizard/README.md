@@ -8,9 +8,18 @@ Special system development mode available only to Wizard Installations with adva
 
 ```
 wizard/
+├── dev-utils.sh         # Development utilities manager (main entry point)
 ├── vscode/              # VS Code configuration and extensions
 │   └── .vscode/         # Workspace settings, tasks, launch configs
 ├── log/                 # All development logs, reports, and summaries (flat structure)
+├── utilities/           # Development utility scripts
+│   └── generate-filename-v2.sh  # Filename generator v2.0
+├── claude-vscode/       # Claude VS Code development notes
+│   ├── sessions/        # Development session notes
+│   ├── features/        # Feature development tracking
+│   ├── bugs/           # Bug fixes and issue resolution
+│   ├── architecture/   # Architecture decisions and changes
+│   └── completed/      # Completed development summaries
 ├── tools/               # Development utilities and scripts
 ├── scripts/             # Development and maintenance scripts
 ├── reports/             # Analysis and metrics (non-uDEV files)
@@ -22,6 +31,9 @@ wizard/
 │   ├── active/          # Active workflows
 │   ├── completed/       # Completed workflows
 │   └── templates/       # Workflow templates
+├── RELEASE_NOTES_v1.3.md          # Release documentation
+├── uDOS-ORGANIZATION-SUMMARY.md   # Organization and structure notes
+├── WORKFLOW-SYSTEM.md              # Workflow system documentation
 └── logs/                # System logs (non-uDEV format)
 ```
 
@@ -30,16 +42,49 @@ wizard/
 Dev Mode provides:
 
 ### 🔧 Development Tools
-- **VS Code Integration**: Dedicated workspace configuration
-- **Development Scripts**: Advanced development and maintenance scripting
-- **uDEV Log Management**: Centralized logging system with flat file structure (uDEV-YYYYMMDD-HHMM-TTZ-TYPE.md)
-- **Workflow System**: Enhanced roadmap, versioning, and task management
+- **Development Utilities Manager** (`./dev-utils.sh`): Central command for all development operations
+- **Filename Generator v2.0**: Generate compliant filenames with 40-char limit and HHMMSS precision
+- **Claude VS Code Integration**: Dedicated notes and session tracking for AI-assisted development
+- **Workflow Management**: Enhanced roadmap, versioning, and task tracking with organized completion flow
 
 ### 🧙‍♂️ Wizard-Only Features
-- **System Development**: Core system enhancement and modification
-- **Advanced Scripting**: Development mode exclusive utilities
-- **Version Planning**: Roadmap and release management workflows
-- **Development Tracking**: Comprehensive logging and reporting
+- **Development Environment**: Complete development toolkit for Wizard Installations
+- **Utility Script Management**: Build and run development utilities with integrated logging
+- **Release Notes Management**: Centralized development documentation and organization summaries
+- **Development Session Tracking**: Comprehensive logging with automatic organization to log/ folder
+
+## 🚀 Getting Started
+
+### Using Development Utilities
+
+```bash
+# Show available commands and utilities
+./dev-utils.sh help
+
+# Generate filename (general system file)
+./dev-utils.sh filename uLOG System-Status
+
+# Generate filename (uMEMORY file with location tile)
+./dev-utils.sh filename uNOTE Notes true 05
+
+# Check development status
+./dev-utils.sh status
+
+# Organize logs and completed summaries
+./dev-utils.sh organize
+
+# Manage roadmap tasks
+./dev-utils.sh roadmap list
+./dev-utils.sh roadmap add "New-Feature-Development"
+```
+
+### Development Workflow
+
+1. **Start Development Session**: Use appropriate subdirectory in claude-vscode/
+2. **Create Utilities**: Add scripts to utilities/ directory
+3. **Track Progress**: Use workflows/ for roadmaps and task management
+4. **Log Activities**: All actions automatically logged to log/ directory
+5. **Complete Sessions**: Move completed summaries using organize command
 
 ### 📊 Development Logging
 - **Activity Logs**: All development actions logged in uLOG format

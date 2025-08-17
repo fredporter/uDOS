@@ -29,49 +29,66 @@ uDOS v3.0 enforces strict naming conventions:
 
 ---
 
-## 📁 **FILENAME CONVENTION v1.3**
+## 📁 **FILENAME CONVENTION v2.0**
 
-### Universal File Format
+### Core Principles v2.0
+- **40 character maximum** filename limit (excluding .md extension)
+- **Local time adjustment** to user's current timezone
+- **HHMMSS precision** (6-digit time format)
+- **2-digit alphanumeric timezone codes**
+- **User location TILE only for uMEMORY files**
+- **Document title support** with proper formatting
+
+### General System Files Format
 ```
-uTYPE-YYYYMMDD-HHMM-TTZ-MMLLNN.md
+uTYPE-YYYYMMDD-HHMMSSTZ-Document-Title.md
+```
+
+### uMEMORY User Files Format (with TILE)
+```
+uTYPE-YYYYMMDD-HHMMSSTZ-TILE-Title.md
 ```
 
 ### Component Breakdown
-- **uTYPE**: File type prefix (see types below)
-- **YYYYMMDD**: ISO date (20250816)
-- **HHMM**: Time in 24-hour format (1640)
-- **TTZ**: 2-digit timezone code from existing uDOS cityMap dataset (see mapping below)
-- **MMLLNN**: Enhanced location code (Map+Location+Number)
+- **uTYPE**: File type prefix (uLOG, uDEV, uDATA, uDOC, uTASK, etc.)
+- **YYYYMMDD**: ISO date (20250817)
+- **HHMMSS**: Local time in 24-hour format (174530 = 5:45:30 PM)
+- **TZ**: 2-digit alphanumeric timezone code (C0 = UTC+8, B2 = UTC+0)
+- **TILE**: 2-digit location tile (uMEMORY files only, e.g., 05)
+- **Title**: Hyphen-Separated-Document-Title
 
-### Examples
+### Examples v2.0
 ```
-uSCRIPT-20250816-1640-33-00CQ43.md  # Script in Sydney (AEDT timezone)
-uLOG-20250816-0930-08-00SY01.md     # Log in New York (EST timezone)
-uDATA-20250816-1500-16-05DR15.md    # Data in Berlin (CET timezone)
-uDOC-20250816-2100-30-00NY12.md     # Doc in Tokyo (JST timezone)
-uMISSION-20250816-0800-33-00ME22.md # Mission in Sydney (AEDT timezone)
-uLEGACY-20250816-1200-15-12WZ05.md  # Legacy in London (GMT timezone)
+# General System Files (No TILE)
+uLOG-20250817-174530-C0-System-Startup.md      # 38 chars
+uDEV-20250817-174530-C0-Dev-Session.md         # 35 chars
+uDATA-20250817-174530-C0-User-Data.md          # 34 chars
+
+# uMEMORY User Files (With TILE)
+uNOTE-20250817-174530-C0-05-Personal.md        # 36 chars
+uLOG-20250817-174530-C0-05-Activity.md         # 35 chars
+uTASK-20250817-174530-C0-05-Goals.md           # 33 chars
 ```
 
 ---
 
-## 🏷️ **FILE TYPE PREFIXES**
+## 🏷️ **FILE TYPE PREFIXES v2.0**
 
 ### Core Types
-- **uSCRIPT** - Executable scripts and automation
-- **uLOG** - System and user activity logs
+- **uLOG** - System logs and activity logs
+- **uDEV** - Development mode logs (wizard/ folder only)
 - **uDATA** - Data files and datasets
 - **uDOC** - Documentation and guides
-- **uMISSION** - Mission and project files
-- **uLEGACY** - Historical and archived content
+- **uTASK** - Task and mission files
+- **uNOTE** - User notes and observations
+- **uREP** - Reports and summaries
+- **uCONF** - Configuration files
+- **uSCRIPT** - Script files
+- **uTEMP** - Template files
 
-### Extended Types
-- **uCONFIG** - Configuration files
-- **uTEMPLATE** - Template definitions
-- **uREPORT** - Generated reports
-- **uTEST** - Test files and validation
-- **uBACKUP** - Backup and recovery files
-- **uTMP** - Temporary working files
+### File Location Rules v2.0
+- **System Files** (No TILE): wizard/log/, uSCRIPT/, uCORE/, docs/, sandbox/
+- **User Files** (With TILE): uMEMORY/ - all user-specific content
 
 ### Special Files (No timestamp)
 - **README.md** - Repository documentation
@@ -80,7 +97,29 @@ uLEGACY-20250816-1200-15-12WZ05.md  # Legacy in London (GMT timezone)
 
 ---
 
-## 🌍 **TIMEZONE CODES v1.3**
+## 🌍 **TIMEZONE CODES v2.0 (2-digit alphanumeric)**
+
+### UTC Offset Mapping
+```
+UTC-12: A0    UTC-11: A1    UTC-10: A2    UTC-9: A3
+UTC-8:  A4    UTC-7:  A5    UTC-6:  A6    UTC-5: A7
+UTC-4:  A8    UTC-3:  A9    UTC-2:  B0    UTC-1: B1
+UTC+0:  B2    UTC+1:  B3    UTC+2:  B4    UTC+3: B5
+UTC+4:  B6    UTC+5:  B7    UTC+6:  B8    UTC+7: B9
+UTC+8:  C0    UTC+9:  C1    UTC+10: C2    UTC+11: C3
+UTC+12: C4    UTC+13: C5    UTC+14: C6
+```
+
+### Common Examples
+- **B2**: UTC+0 (London, GMT)
+- **A7**: UTC-5 (New York, EST)  
+- **A4**: UTC-8 (Los Angeles, PST)
+- **C0**: UTC+8 (Beijing, CST)
+- **C1**: UTC+9 (Tokyo, JST)
+
+---
+
+## 📍 **LOCATION TILES (uMEMORY only)**
 
 ### 2-Digit Timezone Mapping
 
