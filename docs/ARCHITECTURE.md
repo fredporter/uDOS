@@ -1,16 +1,8 @@
-# uDOS Architecture Overview
-
-## System Architecture
-
-uDOS follows a predominently flat, modular, user-centric architecture designed for simplicity and extensibility.
-
-### Core Components
-
 # uDOS v1.3 Architecture Overview
 
 ## System Architecture
 
-uDOS v1.3 follows a modular, extensible architecture designed for development productivity and system maintainability.
+uDOS v1.3 follows a modular, extensible architecture designed for development productivity and system maintainability with a clean 11-folder structure.
 
 ### Core Components
 
@@ -22,27 +14,46 @@ uDOS/
 ├── extension/      # VS Code extension development
 ├── install/        # Installation scripts and setup
 ├── sandbox/        # User workspace and development area
-├── uCode/          # Core development utilities
-├── uCORE/          # Core system architecture
+├── uCORE/          # Core system architecture and utilities
 │   ├── code/       # Core utilities and micro-syntax
 │   ├── datasets/   # System data and mappings
 │   ├── extensions/ # Extension development framework
 │   ├── launcher/   # Platform-specific launchers
 │   ├── scripts/    # Core maintenance scripts
 │   └── templates/  # System templates and configurations
-├── uExtensions/    # Extension registry and AI integrations
-├── uInstall/       # Installation configurations
+├── uKNOWLEDGE/     # Knowledge base and documentation system
 ├── uMEMORY/        # User memory and data management
-├── uTemplate/      # Global template system
-└── wizard/         # Development workflow tools
+├── uSCRIPT/        # Production script library & execution engine
+│   ├── config/     # JSON configuration system
+│   ├── library/    # Multi-language script storage
+│   ├── registry/   # Script catalog and metadata
+│   ├── runtime/    # Execution environment
+│   └── executed/   # Execution archives
+└── wizard/         # Development workflow tools and environment
+    ├── logs/       # Development session logs
+    ├── reports/    # Workflow analysis and metrics
+    ├── scripts/    # Development utilities
+    ├── summaries/  # Session summaries
     ├── tools/      # Development utilities
-    ├── workflows/  # Automated workflows
-    └── vscode/     # VS Code integration
+    ├── vscode/     # VS Code integration
+    └── workflows/  # Automated workflows
 ```
 
 #### 🔧 **Core Systems**
 
-##### **Extension Architecture**
+##### **Production Script Management (uSCRIPT/)**
+- **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
+- **Security-first architecture**: Sandbox execution with configurable security levels
+- **Catalog-based organization**: Script registry with comprehensive metadata
+- **Production-ready management**: Finalized, tested scripts vs development scripts
+
+##### **Development Environment (wizard/)**
+- **Exclusive development environment** for advanced users and one-off scripts
+- **Automated session logging** with comprehensive activity tracking
+- **VS Code integration** with dedicated development workspace
+- **Task management** integration with AI-enhanced workflows
+
+##### **Extension Architecture (uCORE/extensions/)**
 - **Modular plugin system** with registry-based management
 - **VS Code integration** templates and syntax highlighting
 - **AI service integrations** (Gemini CLI, development assistants)
@@ -54,17 +65,17 @@ uDOS/
 - **Personal workspace** isolation and privacy
 - **Development history** tracking and recovery
 
-##### **Template System (uTemplate/ & uCORE/templates/)**
-- **Unified template processing** with shortcodes and variables
-- **Form generation** for user interactions
-- **Configuration templates** for system setup
-- **Project scaffolding** and boilerplate generation
+##### **Knowledge Management (uKNOWLEDGE/)**
+- **Knowledge base system** for documentation and learning
+- **Information organization** and retrieval
+- **Documentation standards** and best practices
+- **Learning resource management**
 
-##### **Development Environment (wizard/)**
-- **Workflow orchestration** for development tasks
-- **Script execution** with logging and error handling
-- **Development session** tracking and reporting
-- **Tool integration** for modern development practices
+##### **Core System (uCORE/)**
+- **Unified template processing** with shortcodes and variables
+- **Core utilities** and micro-syntax support
+- **System datasets** and mapping configurations
+- **Extension development framework**
 
 #### 📊 **Data Flow**
 
@@ -73,19 +84,24 @@ uDOS/
    User Request → wizard/ Tools → uCORE/ Scripts → Output/Logs
    ```
 
-2. **Extension System**
+2. **Production Script Execution**
    ```
-   Extension Registry → uExtensions/ → VS Code → Development Tools
+   Script Request → uSCRIPT/ → Security Check → Execution → Logging
    ```
 
-3. **Memory Management**
+3. **Extension System**
+   ```
+   Extension Registry → uCORE/extensions/ → VS Code → Development Tools
+   ```
+
+4. **Memory Management**
    ```
    User Actions → uMEMORY/ → State Persistence → Mission Tracking
    ```
 
-4. **Template Processing**
+5. **Knowledge Processing**
    ```
-   Template Request → uTemplate/ → Processing → Generated Output
+   Knowledge Request → uKNOWLEDGE/ → Processing → Documentation Output
    ```
 
 ### Design Principles
@@ -106,6 +122,14 @@ uDOS/
 - **Public/private separation** with security model
 - **Local-only sensitive data** never committed to repository
 - **Extension sandboxing** for safe third-party integrations
+- **uSCRIPT security levels**: Multi-tier security (safe, elevated, admin)
+- **Sandbox execution environment** for script isolation
+
+#### **Script Management Architecture**
+- **Development vs Production**: Clear separation between wizard/ and uSCRIPT/
+- **Multi-language support**: Python, Shell, JavaScript, uCODE execution
+- **Catalog-based organization**: JSON metadata system for script management
+- **Security-first execution**: Sandboxed environments with permission levels
 
 #### **Maintainability**
 - **Consistent naming conventions** across all components
@@ -139,9 +163,12 @@ uDOS/
 - **Extension System**: v1.0 with modular plugin architecture
 - **Memory System**: v1.3 with enhanced state management
 - **Development Environment**: v1.3 with wizard workflow system
-- **Template System**: v2.1 with advanced shortcode support
+- **Production Script System**: uSCRIPT v1.3 with multi-language execution engine
+- **Knowledge Management**: uKNOWLEDGE v1.3 with documentation system
+- **Core System**: uCORE v1.3 with template processing and utilities
 - **Logging System**: v1.3 with structured development tracking
 - **Filename Convention**: v1.3 with CAPS-NUMERIC-DASH standards
+- **Repository Structure**: 11-folder clean architecture (reduced from scattered structure)
 
 ### Security Model
 

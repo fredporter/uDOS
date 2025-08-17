@@ -15,7 +15,7 @@
 **Edition**: v1.3 Production Guide  
 **Published**: August 2025  
 **System**: Universal Data Operating System v1.3  
-**Features**: Timezone Integration, uDEV Mode, ASSIST Enhancement
+**Features**: Timezone Integration, Wizard Mode, ASSIST Enhancement, uSCRIPT Production Library
 
 ---
 
@@ -36,11 +36,17 @@ Example: uLOG-20250816-1640-28-00SY43.md
 - **Automatic detection** of your current timezone
 - **Global compatibility** with standard timezone formats
 
-#### Wizard Development Mode (uDEV)
+#### Wizard Development Environment
 - **Exclusive development environment** for advanced users
 - **Automated session logging** with uLOG format
 - **VS Code integration** with dedicated workspace
 - **Task management** integration with ASSIST mode
+
+#### uSCRIPT Production Script Library
+- **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
+- **Security-first architecture**: Sandbox execution with configurable security levels
+- **Catalog-based organization**: Script registry with comprehensive metadata
+- **Production vs Development**: Clear separation from wizard development scripts
 
 #### Enhanced ASSIST Mode
 - **Sandbox task management** for AI-enhanced workflows
@@ -128,7 +134,7 @@ Existing files are automatically migrated to v1.3 format:
 
 ---
 
-## Wizard Development Mode (uDEV)
+## Wizard Development Environment
 
 ### 🧙‍♂️ Entering Development Mode
 
@@ -136,7 +142,7 @@ For advanced users with wizard access:
 
 ```bash
 # Enter development environment
-cd uDEV
+cd wizard
 
 # Start development session
 ./tools/dev-session-logger.sh start "Session Title" "Objectives"
@@ -273,7 +279,7 @@ ASSIST CREATE "Optimize timezone mapping performance"
 Link tasks with development sessions:
 ```bash
 # Start session with task reference
-./uDEV/tools/dev-session-logger.sh start "Task Implementation" "Working on uTASK-20250816-1600-28-00PR01"
+./wizard/tools/dev-session-logger.sh start "Task Implementation" "Working on uTASK-20250816-1600-28-00PR01"
 ```
 
 #### 4. Completion
@@ -379,7 +385,7 @@ mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
 
 #### Development Mode Access
 ```
-❌ Cannot enter uDEV mode
+❌ Cannot enter wizard mode
 ✅ Solution: Ensure wizard user permissions are configured
 ```
 
@@ -429,19 +435,68 @@ ASSIST DIAGNOSTICS       # ASSIST mode health check
 
 ---
 
+## uSCRIPT Production Script Library
+
+### 🚀 Script Management
+
+uSCRIPT v1.3 provides a production script library and execution engine:
+
+```bash
+# Navigate to uSCRIPT
+cd uSCRIPT
+
+# Initialize the system
+./uscript.sh init
+
+# List available scripts
+./uscript.sh list
+
+# Get script information
+./uscript.sh info <script-name>
+
+# Execute a script
+./uscript.sh run <script-name> [arguments...]
+```
+
+### 🔧 Supported Languages
+
+- **Python** (.py): Full Python 3 support with package management
+- **Shell** (.sh): Bash scripts with timeout and security controls
+- **JavaScript** (.js): Node.js execution environment
+- **uCODE** (.ucode.md): Native uDOS script format
+
+### 🛡️ Security Levels
+
+- **safe**: Read-only scripts, sandboxed execution
+- **elevated**: File modification allowed, requires confirmation
+- **admin**: Full system access, requires admin privileges
+
+### 📁 Directory Structure
+
+```
+uSCRIPT/
+├── library/     # Multi-language script storage
+├── config/      # JSON configuration system
+├── registry/    # Script catalog and metadata
+├── runtime/     # Execution environment
+└── executed/    # Execution archives
+```
+
+---
+
 ## Support & Resources
 
 ### 📚 Documentation
 - **Architecture Guide**: `/docs/ARCHITECTURE.md`
 - **Style Guide**: `/docs/Style-Guide.md`
-- **Development Guide**: `/uDEV/README.md`
+- **Development Guide**: `/wizard/README.md`
 - **Task Templates**: `/sandbox/tasks/templates/`
 
 ### 🛠️ Tools & Utilities
 - **Migration Script**: `/uCORE/scripts/migrate-to-v13.sh`
 - **Filename Generator**: `/uCORE/scripts/generate-filename-v3.sh`
 - **Timezone Mapper**: `/uCORE/scripts/timezone-mapper-v13.sh`
-- **Development Logger**: `/uDEV/tools/dev-session-logger.sh`
+- **Development Logger**: `/wizard/tools/dev-session-logger.sh`
 
 ### 🤝 Community
 - **GitHub Repository**: uDOS project repository

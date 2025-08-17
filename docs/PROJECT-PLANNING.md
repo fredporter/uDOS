@@ -14,7 +14,7 @@
 ```
 
 **Document Version**: 1.3.0  
-**Last Updated**: August 16, 2025  
+**Last Updated**: August 17, 2025  
 **Status**: Implementation Complete  
 **Scope**: Complete project planning and implementation history
 
@@ -54,24 +54,36 @@ This document consolidates all planning documents, implementation summaries, and
 │  🛠️ uCORE/ - Core System                                                  │
 │     ├── code/                      - Core scripts and packages            │
 │     ├── datasets/                  - Data files and mapping              │
-│     ├── development/               - Development tools and templates      │
-│     ├── docs/                      - Technical documentation             │
 │     ├── extensions/                - System extensions                    │
-│     ├── installers/                - Installation scripts               │
 │     ├── launcher/                  - Platform launchers                  │
-│     ├── package/                   - Package management                   │
 │     ├── scripts/                   - Utility scripts                     │
 │     └── templates/                 - System templates                     │
 │                                                                             │
-│  🧙‍♂️ uDEV/ - Wizard Development                                          │
+│  🧙‍♂️ wizard/ - Development Environment                                   │
 │     ├── logs/                      - Development session logs            │
+│     ├── reports/                   - Workflow analysis and metrics       │
+│     ├── scripts/                   - Development utilities               │
 │     ├── summaries/                 - Development summaries               │
 │     ├── tools/                     - Development utilities               │
-│     └── vscode/                    - VS Code integration                  │
+│     ├── vscode/                    - VS Code integration                  │
+│     └── workflows/                 - Automated workflows                  │
 │                                                                             │
-│  🔬 uKNOWLEDGE/ - Knowledge Base                                          │
-│     ├── ARCHITECTURE.md            - Knowledge system architecture        │
-│     └── README.md                  - Knowledge base overview             │
+│  🚀 uSCRIPT/ - Production Script Library                                 │
+│     ├── config/                    - JSON configuration system           │
+│     ├── library/                   - Multi-language script storage       │
+│     ├── registry/                  - Script catalog and metadata         │
+│     ├── runtime/                   - Execution environment               │
+│     └── executed/                  - Execution archives                   │
+│                                                                             │
+│  🔬 uKNOWLEDGE/ - Knowledge Management                                    │
+│     └── README.md                  - Knowledge base system               │
+│                                                                             │
+│  💾 uMEMORY/ - User Memory & Data Management                             │
+│     ├── datasets/                  - User data and mappings              │
+│     ├── forms/                     - Form data and templates             │
+│     ├── logs/                      - User activity logs                  │
+│     ├── missions/                  - Mission tracking                     │
+│     └── user/                      - Personal workspace                   │
 │                                                                             │
 │  📦 sandbox/ - User Workspace                                             │
 │     ├── scripts/                   - User scripts                        │
@@ -84,16 +96,24 @@ This document consolidates all planning documents, implementation summaries, and
 
 #### **1. Clear Separation of Concerns**
 - **User Documentation** (`docs/`) - User-facing guides and references
-- **Technical Documentation** (`uCORE/docs/`) - Developer and system documentation
 - **Core System** (`uCORE/`) - All system functionality and components
-- **Development Environment** (`uDEV/`) - Wizard user exclusive development tools
+- **Development Environment** (`wizard/`) - Development tools and workflows
+- **Production Scripts** (`uSCRIPT/`) - Production script library and execution engine
+- **Knowledge Management** (`uKNOWLEDGE/`) - Knowledge base and documentation system
+- **User Memory** (`uMEMORY/`) - User data and state management
 
-#### **2. CAPS-NUMERIC-DASH Naming Convention**
+#### **2. Development vs Production Script Management**
+- **wizard/**: Development environment for one-off scripts and experimentation
+- **uSCRIPT/**: Production script library with multi-language execution engine
+- **Security-first architecture**: Sandbox execution with configurable security levels
+- **Catalog-based organization**: JSON metadata system for script management
+
+#### **3. CAPS-NUMERIC-DASH Naming Convention**
 - **Strict Standards**: All files follow `uTYPE-YYYYMMDD-HHMM-TTZ-MMLLNN.md` format
 - **Timezone Integration**: 38 timezone codes from existing city dataset
 - **Improved Organization**: Consistent, searchable, and automation-friendly naming
 
-#### **3. Wizard Development Mode (uDEV)**
+#### **4. Wizard Development Mode**
 - **Exclusive Environment**: Advanced features for power users
 - **Automated Logging**: Session tracking with uLOG format
 - **VS Code Integration**: Dedicated workspace and configuration

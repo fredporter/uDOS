@@ -759,13 +759,17 @@ uDOS/
 │   ├── identity.md      # User profile
 │   ├── setup-vars.sh    # Environment config
 │   └── *.md            # User data files
-├── uTemplate/           # Template files
-│   ├── mission-template.md
-│   ├── note-template.md
-│   └── log-template.md
-└── uCode/              # System code
-    ├── ucode.sh        # Main system script
-    └── packages/       # Package management
+├── uCORE/              # Core system
+│   ├── templates/      # Template files
+│   ├── code/           # Core utilities
+│   └── datasets/       # System data
+├── uSCRIPT/            # Production script library
+│   ├── library/        # Multi-language scripts
+│   ├── config/         # Configuration system
+│   └── registry/       # Script catalog
+└── wizard/             # Development environment
+    ├── tools/          # Development utilities
+    └── workflows/      # Automated workflows
 ```
 
 ### 8.3 Metadata Standards
