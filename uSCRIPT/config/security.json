@@ -1,0 +1,84 @@
+{
+  "security": {
+    "default_sandbox": true,
+    "max_execution_time": 300,
+    "max_memory_mb": 512,
+    "max_disk_mb": 1024,
+    "allowed_network": false,
+    "allowed_paths": [
+      "uMEMORY/",
+      "sandbox/",
+      "uSCRIPT/runtime/sandbox/",
+      "uSCRIPT/library/",
+      "/tmp/uscript/"
+    ],
+    "forbidden_paths": [
+      "/",
+      "/etc/",
+      "/usr/",
+      "/System/",
+      "uCORE/code/",
+      "wizard/",
+      ".ssh/",
+      ".gitconfig"
+    ],
+    "forbidden_operations": [
+      "system_modification",
+      "user_account_changes",
+      "network_binding",
+      "privileged_access",
+      "kernel_modules"
+    ],
+    "allowed_commands": [
+      "echo", "cat", "grep", "awk", "sed", "sort", "uniq", "head", "tail",
+      "ls", "find", "wc", "cut", "tr", "date", "basename", "dirname"
+    ],
+    "security_levels": {
+      "sandbox": {
+        "description": "Full sandbox isolation",
+        "network": false,
+        "file_access": "restricted",
+        "system_calls": "filtered"
+      },
+      "elevated": {
+        "description": "Elevated permissions for system tasks",
+        "network": false,
+        "file_access": "extended",
+        "system_calls": "monitored",
+        "requires_confirmation": true
+      },
+      "network": {
+        "description": "Network access allowed",
+        "network": true,
+        "file_access": "restricted",
+        "system_calls": "filtered",
+        "requires_confirmation": true
+      },
+      "trusted": {
+        "description": "Trusted scripts with full access",
+        "network": true,
+        "file_access": "full",
+        "system_calls": "unrestricted",
+        "requires_confirmation": true,
+        "admin_approval": true
+      }
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "log_level": "INFO",
+    "log_format": "uLOG-YYYYMMDD-HHMM-TZ-SCRIPT-execution.md",
+    "log_location": "uSCRIPT/runtime/logs/",
+    "retention_days": 30,
+    "include_environment": true,
+    "include_performance": true,
+    "include_security": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "performance_tracking": true,
+    "resource_monitoring": true,
+    "error_reporting": true,
+    "success_metrics": true
+  }
+}

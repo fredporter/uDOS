@@ -1,0 +1,45 @@
+{
+  "system": {
+    "name": "uSCRIPT Execution Engine",
+    "version": "3.0.0",
+    "default_language": "shell",
+    "default_category": "utilities",
+    "auto_register": true,
+    "auto_validate": true
+  },
+  "execution": {
+    "sandbox_by_default": true,
+    "confirm_elevated": true,
+    "log_all_executions": true,
+    "performance_monitoring": true,
+    "timeout_seconds": 300,
+    "memory_limit_mb": 512
+  },
+  "library": {
+    "auto_discovery": true,
+    "validate_on_add": true,
+    "require_documentation": true,
+    "require_tests": false,
+    "version_control": true
+  },
+  "templates": {
+    "default_author": "uDOS User",
+    "default_license": "MIT",
+    "include_header": true,
+    "include_documentation": true,
+    "include_tests": false
+  },
+  "integration": {
+    "uMEMORY_access": true,
+    "uTemplate_integration": true,
+    "wizard_separation": true,
+    "extension_support": true,
+    "vscode_integration": true
+  },
+  "ui": {
+    "color_output": true,
+    "progress_bars": true,
+    "confirmations": true,
+    "verbose_logging": false
+  }
+}

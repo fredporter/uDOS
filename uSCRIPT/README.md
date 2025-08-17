@@ -1,116 +1,113 @@
-# 🔧 uScript - Development Script Manager v2.0
+# uSCRIPT v1.3 - Production Script Library & Execution Engine
 
-**uScript** is now a development script management system for executing one-off cleanup, migration, and development scripts in a safe sandbox environment.
+uSCRIPT v1.3 is a comprehensive production script library and execution engine for uDOS. Unlike the development-focused wizard folder, uSCRIPT is designed for managing and executing finalized, production-ready scripts across multiple programming languages.
 
-## 🎯 Purpose
+## Purpose
 
-- **Development Scripts**: Manage one-off cleanup and maintenance scripts
-- **Sandbox Execution**: Scripts run safely in the user sandbox
-- **Auto-cleanup**: Executed scripts moved to archive, then trash
-- **Development Mode**: Integration with uDev environment
+uSCRIPT v1.3 serves as:
+- **Production Script Library**: Repository for finalized, tested scripts
+- **Multi-Language Execution Engine**: Support for Python, Shell, JavaScript, and native uCODE
+- **Security-First Architecture**: Sandboxed execution with configurable security levels
+- **Enterprise Script Management**: Catalog-based organization with metadata and versioning
 
-## 📁 Directory Structure
+## Key Differences from Wizard
+
+| Aspect | uSCRIPT v1.3 | wizard/ |
+|--------|--------------|---------|
+| Purpose | Production script library | Development & testing |
+| Script Types | Finalized, production-ready | One-off development scripts |
+| Languages | Python, JS, Shell, uCODE | Primarily bash/development |
+| Security | Multi-level with sandboxing | Development-focused |
+| Organization | Catalog-based registry | Task-based folders |
+
+## Directory Structure
 
 ```
-uScript/
-├── uscript.sh           # Main script manager
-├── active/              # Active scripts ready to run
-├── executed/            # Recently executed scripts (archive)
-├── templates/           # Script templates
-└── logs/                # Execution logs
-
-uMemory/sandbox/scripts/ # Temporary execution location
-uDev/logs/scripts/       # System execution logs
+uSCRIPT/
+├── uscript.sh              # Main execution engine
+├── README.md               # This documentation
+├── config/                 # System configuration
+│   ├── defaults.json       # Default execution settings
+│   ├── engines.json        # Language engine configs
+│   └── security.json       # Security level definitions
+├── library/                # Script library organized by language/type
+│   ├── python/             # Python scripts (.py)
+│   ├── shell/              # Shell scripts (.sh)
+│   ├── javascript/         # JavaScript/Node.js scripts (.js)
+│   ├── ucode/              # Native uCODE scripts (.ucode.md)
+│   ├── utilities/          # General utility scripts
+│   └── automation/         # Automation and workflow scripts
+├── registry/               # Script catalog and metadata
+│   └── catalog.json        # Master script registry
+├── runtime/                # Execution environment
+│   ├── engines/            # Language-specific execution engines
+│   ├── sandbox/            # Sandboxed execution environments
+│   └── logs/               # Execution logs and history
+└── executed/               # Archive of completed executions
 ```
 
-## 🚀 Usage
+## Security Levels
 
-### Basic Commands
+uSCRIPT v1.3 implements a three-tier security model:
 
+- **safe**: Read-only scripts, sandboxed execution, no network/file write access
+- **elevated**: File modification allowed, requires user confirmation
+- **admin**: Full system access, requires admin confirmation and privileges
+
+## Usage
+
+### Initialize System
 ```bash
-# Show help
-./uScript/uscript.sh help
-
-# Create new script
-./uScript/uscript.sh create cleanup-logs
-
-# List all scripts  
-./uScript/uscript.sh list
-
-# Run script in sandbox
-./uScript/uscript.sh run cleanup-logs
-
-# Show system status
-./uScript/uscript.sh status
+./uscript.sh init
 ```
 
-### Development Commands
-
+### List Available Scripts
 ```bash
-# Install script from uCode/
-./uScript/uscript.sh install cleanup-uknowledge.sh
-
-# Create from template
-./uScript/uscript.sh template cleanup my-cleanup
-./uScript/uscript.sh template migration data-migration
-./uScript/uscript.sh template validation system-check
-
-# Clean up executed scripts
-./uScript/uscript.sh clean
+./uscript.sh list
 ```
 
-## 🔄 Script Lifecycle
+### Get Script Information
+```bash
+./uscript.sh info <script-name>
+```
 
-1. **Create/Install**: Script created in `active/` directory
-2. **Edit**: Optional editing in VS Code
-3. **Execute**: Script copied to sandbox, executed safely
-4. **Archive**: Successful script moved to `executed/`  
-5. **Cleanup**: Archive moved to trash, sandbox cleaned
+### Execute Script
+```bash
+./uscript.sh run <script-name> [arguments...]
+```
 
-## 📝 Script Templates
+### Help
+```bash
+./uscript.sh help
+```
 
-### Cleanup Template
-- File/directory reorganization
-- Reference updates
-- Validation checks
-- Summary reporting
+## Supported Languages
 
-### Migration Template  
-- Data migration scripts
-- System updates
-- Legacy cleanup
-- Verification steps
+1. **Python** (.py): Full Python 3 support with package management
+2. **Shell** (.sh): Bash scripts with timeout and security controls
+3. **JavaScript** (.js): Node.js execution environment
+4. **uCODE** (.ucode.md): Native uDOS script format (coming soon)
 
-### Validation Template
-- System validation
-- Health checks
-- Configuration validation
-- Report generation
+## Configuration
 
-## 🛡️ Safety Features
+All system behavior is controlled through JSON configuration files:
 
-- **Sandbox Execution**: Scripts run in isolated sandbox
-- **Backup Integration**: Automatic logging and history
-- **Error Handling**: Proper error reporting and rollback
-- **Development Mode**: Integration with uDev logging
+- `config/defaults.json`: Default execution parameters
+- `config/engines.json`: Language engine configurations
+- `config/security.json`: Security level definitions and restrictions
+- `registry/catalog.json`: Master script catalog with metadata
 
-## 🎯 Use Cases
+## Script Development
 
-1. **System Cleanup**: Reorganize directories and files
-2. **Migration Scripts**: Move data between locations
-3. **Validation Scripts**: Check system integrity  
-4. **One-off Tasks**: Temporary development scripts
-5. **Maintenance**: System cleanup and optimization
+Scripts in uSCRIPT should be:
+- **Production-ready**: Thoroughly tested and documented
+- **Properly cataloged**: Registered in catalog.json with complete metadata
+- **Security-conscious**: Assigned appropriate security levels
+- **Well-documented**: Include parameter descriptions and usage examples
 
-## 🔧 Integration
+## Version History
 
-- **uCode Integration**: Install scripts from uCode directory
-- **uDev Logging**: Execution logged to development environment
-- **Sandbox Safety**: User data protected in sandbox
-- **Template System**: Pre-built script patterns
-- **VS Code**: Automatic editor integration
-
----
-
-**Version 2.0** - Redesigned for development script management and sandbox execution
+- **v1.3.0** (2025-08-17): Complete redesign as production script library
+- **v1.2.x**: Development script manager (deprecated)
+- **v1.1.x**: Basic script execution (deprecated)
 

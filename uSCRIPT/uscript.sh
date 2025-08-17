@@ -1,631 +1,523 @@
 #!/bin/bash
-# uScript - Development Script Manager
-# Manages one-off cleanup and development scripts with sandbox execution
+# uSCRIPT v1.3 - Production Script Library & Execution Engine
+# Purpose: Execute and manage production-ready scripts across multiple languages
+# Author: uDOS Team
+# Version: 1.3.0
 
-set -euo pipefail
+# Configuration
+USCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="$USCRIPT_ROOT/config"
+LIBRARY_DIR="$USCRIPT_ROOT/library"
+REGISTRY_DIR="$USCRIPT_ROOT/registry"
+RUNTIME_DIR="$USCRIPT_ROOT/runtime"
+LOGS_DIR="$RUNTIME_DIR/logs"
+SANDBOX_DIR="$RUNTIME_DIR/sandbox"
 
-UHOME="${UHOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-USCRIPT="$UHOME/uScript"
-USANDBOX="$UHOME/sandbox"
-TRASH="$UHOME/trash"
-UDEV="$UHOME/uDev"
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\main() {
-    # Load centralized logging
-    source "\$UHOME/uCode/log-utils.sh" 2>/dev/null || true
-    
-    # Log cleanup start
-    if declare -f log_script_start >/dev/null 2>&1; then
-        log_script_start "cleanup-\$(basename "\${BASH_SOURCE[0]}" .sh)" "cleanup"
-    fi
-    
-    local start_time=\$(date +%s)
-    
-    cleanup_files
-    update_references  
-    create_summary
-    
-    # Log completion
-    local end_time=\$(date +%s)
-    local duration=\$((end_time - start_time))
-    
-    if declare -f log_script_end >/dev/null 2>&1; then
-        log_script_end "cleanup-\$(basename "\${BASH_SOURCE[0]}" .sh)" "0" "\$duration"
-    fi
-}
-
-if [[ "\${BASH_SOURCE[0]}" == "\${0}" ]]; then
-    if ! main "\$@"; then
-        if declare -f log_error >/dev/null 2>&1; then
-            log_error "Cleanup script failed: \$(basename "\${BASH_SOURCE[0]}")" "cleanup"
-        fi
-        exit 1
-    fi
-fi'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-# Version and info
-VERSION="2.0.0"
-SCRIPT_NAME="uScript Development Manager"
-
-show_header() {
-    echo -e "${CYAN}🔧 $SCRIPT_NAME v$VERSION${NC}"
-    echo "════════════════════════════════════════════"
-}
-
-show_help() {
-    show_header
-    echo "Development script management system for uDOS"
-    echo ""
-    echo "Usage: $0 [command] [options]"
-    echo ""
-    echo "Commands:"
-    echo "  create <name>         Create new development script"
-    echo "  list                  List available scripts"  
-    echo "  run <name>            Execute script in sandbox"
-    echo "  edit <name>           Edit script in VS Code"
-    echo "  delete <name>         Delete script permanently"
-    echo "  clean                 Clean up executed scripts"
-    echo "  status               Show system status"
-    echo ""
-    echo "Development Mode Commands:"
-    echo "  install <script>      Install script from uCode/ to uScript/"
-    echo "  template <type>       Create script from template"
-    echo ""
-    echo "Logging Commands:"
-    echo "  logs [type]          Show recent logs (system, errors, scripts, performance)"
-    echo "  logs-clean [days]    Clean old logs (default: 30 days)"
-    echo ""
-    echo "Examples:"
-    echo "  $0 create cleanup-logs"
-    echo "  $0 run cleanup-uknowledge" 
-    echo "  $0 install cleanup-uknowledge.sh"
-    echo "  $0 template cleanup"
-    echo "  $0 logs errors"
-}
-
-create_directories() {
-    mkdir -p "$USCRIPT"/{active,templates,executed,logs}
-    mkdir -p "$USANDBOX/scripts"
-    mkdir -p "$UDEV/logs/scripts"
-}
-
-create_script() {
-    local script_name="$1"
-    local script_file="$USCRIPT/active/${script_name}.sh"
-    
-    if [[ -f "$script_file" ]]; then
-        echo -e "${YELLOW}⚠️ Script '$script_name' already exists${NC}"
-        return 1
-    fi
-    
-    echo -e "${BLUE}📝 Creating new script: $script_name${NC}"
-    
-    cat > "$script_file" << EOF
-#!/bin/bash
-# Development Script: $script_name
-# Created: $(date)
-# Purpose: [Describe what this script does]
-
-set -euo pipefail
-
-UHOME="\${UHOME:-\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/../.." && pwd)}"
-
-# Colors
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
 
-echo "🔧 Running: $script_name"
-echo "═══════════════════════════════════"
-
-# Load centralized logging
-source "\$UHOME/uCode/log-utils.sh" 2>/dev/null || true
-
-main() {
-    echo -e "\${BLUE}📋 Starting $script_name...\${NC}"
+# Logging function
+log() {
+    local level="$1"
+    local message="$2"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] [$level] $message" >> "$LOGS_DIR/uscript.log"
     
-    # Log script start
-    if declare -f log_script_start >/dev/null 2>&1; then
-        log_script_start "$script_name" "custom"
-    fi
-    
-    local start_time=\$(date +%s)
-    
-    # TODO: Add your script logic here
-    echo "  • Step 1: [Describe step]"
-    echo "  • Step 2: [Describe step]"
-    
-    # Log completion
-    local end_time=\$(date +%s)
-    local duration=\$((end_time - start_time))
-    
-    if declare -f log_script_end >/dev/null 2>&1; then
-        log_script_end "$script_name" "0" "\$duration"
-    fi
-    
-    echo -e "\${GREEN}✅ $script_name completed successfully!\${NC}"
+    case "$level" in
+        "ERROR")   echo -e "${RED}[ERROR]${NC} $message" ;;
+        "SUCCESS") echo -e "${GREEN}[SUCCESS]${NC} $message" ;;
+        "WARNING") echo -e "${YELLOW}[WARNING]${NC} $message" ;;
+        "INFO")    echo -e "${BLUE}[INFO]${NC} $message" ;;
+        *)         echo "$message" ;;
+    esac
 }
 
-# Error handling wrapper
-run_with_error_handling() {
-    if ! main "\$@"; then
-        if declare -f log_error >/dev/null 2>&1; then
-            log_error "$script_name execution failed" "custom-script"
-        fi
-        exit 1
+# Initialize uSCRIPT system
+init_system() {
+    log "INFO" "Initializing uSCRIPT v1.3 system..."
+    
+    # Create directories if they don't exist
+    mkdir -p "$CONFIG_DIR" "$LIBRARY_DIR" "$REGISTRY_DIR" "$RUNTIME_DIR" "$LOGS_DIR" "$SANDBOX_DIR"
+    mkdir -p "$LIBRARY_DIR"/{python,shell,javascript,ucode,utilities,automation}
+    mkdir -p "$RUNTIME_DIR/engines"
+    
+    # Check for required dependencies
+    check_dependencies
+    
+    # Create default configurations if they don't exist
+    create_default_configs
+    
+    log "SUCCESS" "uSCRIPT v1.3 system initialized successfully"
+}
+
+# Check for required system dependencies
+check_dependencies() {
+    local missing_deps=()
+    
+    # Check for jq (JSON processing)
+    if ! command -v jq &> /dev/null; then
+        missing_deps+=("jq")
+    fi
+    
+    # Check for python3
+    if ! command -v python3 &> /dev/null; then
+        missing_deps+=("python3")
+    fi
+    
+    # Check for node (for JavaScript)
+    if ! command -v node &> /dev/null; then
+        missing_deps+=("node")
+    fi
+    
+    if [ ${#missing_deps[@]} -gt 0 ]; then
+        log "WARNING" "Missing dependencies: ${missing_deps[*]}"
+        log "INFO" "Some script types may not be available without these dependencies"
+    else
+        log "SUCCESS" "All dependencies are available"
     fi
 }
 
-# Run if executed directly
-if [[ "\${BASH_SOURCE[0]}" == "\${0}" ]]; then
-    run_with_error_handling "\$@"
-fi
+# Create default configuration files
+create_default_configs() {
+    # Create catalog.json if it doesn't exist
+    if [ ! -f "$REGISTRY_DIR/catalog.json" ]; then
+        cat > "$REGISTRY_DIR/catalog.json" << 'EOF'
+{
+  "version": "1.3.0",
+  "scripts": {
+    "data-processor": {
+      "name": "data-processor",
+      "type": "python",
+      "path": "library/python/data-processor.py",
+      "description": "Process and analyze data files with statistical summaries",
+      "version": "1.0.0",
+      "author": "uDOS Team",
+      "security_level": "safe",
+      "dependencies": ["pandas", "numpy"],
+      "parameters": {
+        "input_file": "string",
+        "output_format": "json|csv|txt"
+      },
+      "created": "2024-12-28",
+      "last_modified": "2024-12-28"
+    },
+    "system-backup": {
+      "name": "system-backup",
+      "type": "shell",
+      "path": "library/shell/system-backup.sh",
+      "description": "Create system backups with compression and verification",
+      "version": "1.0.0",
+      "author": "uDOS Team",
+      "security_level": "elevated",
+      "dependencies": ["tar", "gzip"],
+      "parameters": {
+        "source_dir": "string",
+        "backup_name": "string",
+        "compression": "gzip|bzip2|none"
+      },
+      "created": "2024-12-28",
+      "last_modified": "2024-12-28"
+    },
+    "report-generator": {
+      "name": "report-generator",
+      "type": "ucode",
+      "path": "library/ucode/report-generator.ucode.md",
+      "description": "Generate formatted reports using uCODE template system",
+      "version": "1.0.0",
+      "author": "uDOS Team",
+      "security_level": "safe",
+      "dependencies": ["ucode-engine"],
+      "parameters": {
+        "template": "string",
+        "data_source": "string",
+        "output_format": "html|pdf|md"
+      },
+      "created": "2024-12-28",
+      "last_modified": "2024-12-28"
+    }
+  }
+}
 EOF
-
-    chmod +x "$script_file"
-    echo -e "${GREEN}✅ Created: $script_file${NC}"
+        log "INFO" "Created default catalog.json"
+    fi
     
-    # Open in VS Code if available
-    if command -v code >/dev/null 2>&1; then
-        echo -e "${BLUE}🔧 Opening in VS Code...${NC}"
-        code "$script_file"
+    # Create security.json if it doesn't exist
+    if [ ! -f "$CONFIG_DIR/security.json" ]; then
+        cat > "$CONFIG_DIR/security.json" << 'EOF'
+{
+  "security_levels": {
+    "safe": {
+      "description": "Scripts that only read data and perform calculations",
+      "restrictions": ["no_file_write", "no_network", "no_system_calls"],
+      "sandbox": true,
+      "timeout": 300
+    },
+    "elevated": {
+      "description": "Scripts that can modify files but not system settings",
+      "restrictions": ["no_system_config", "no_user_management"],
+      "sandbox": true,
+      "timeout": 600,
+      "require_confirmation": true
+    },
+    "admin": {
+      "description": "Scripts with full system access",
+      "restrictions": [],
+      "sandbox": false,
+      "timeout": 1800,
+      "require_confirmation": true,
+      "require_admin": true
+    }
+  },
+  "default_level": "safe",
+  "sandbox_config": {
+    "max_memory": "512MB",
+    "max_cpu": "50%",
+    "network_access": false,
+    "file_system_access": "read_only"
+  }
+}
+EOF
+        log "INFO" "Created default security.json"
+    fi
+    
+    # Create engines.json if it doesn't exist
+    if [ ! -f "$CONFIG_DIR/engines.json" ]; then
+        cat > "$CONFIG_DIR/engines.json" << 'EOF'
+{
+  "engines": {
+    "python": {
+      "command": "python3",
+      "file_extension": ".py",
+      "timeout": 300,
+      "sandbox_supported": true,
+      "version_check": "python3 --version"
+    },
+    "shell": {
+      "command": "bash",
+      "file_extension": ".sh",
+      "timeout": 600,
+      "sandbox_supported": false,
+      "version_check": "bash --version"
+    },
+    "javascript": {
+      "command": "node",
+      "file_extension": ".js",
+      "timeout": 300,
+      "sandbox_supported": true,
+      "version_check": "node --version"
+    },
+    "ucode": {
+      "command": "ucode-engine",
+      "file_extension": ".ucode.md",
+      "timeout": 300,
+      "sandbox_supported": true,
+      "version_check": "echo 'uCODE v2.1'"
+    }
+  }
+}
+EOF
+        log "INFO" "Created default engines.json"
+    fi
+    
+    # Create defaults.json if it doesn't exist
+    if [ ! -f "$CONFIG_DIR/defaults.json" ]; then
+        cat > "$CONFIG_DIR/defaults.json" << 'EOF'
+{
+  "execution": {
+    "default_timeout": 300,
+    "max_concurrent": 3,
+    "log_level": "INFO",
+    "auto_cleanup": true
+  },
+  "output": {
+    "format": "json",
+    "include_metadata": true,
+    "color_output": true,
+    "timestamp": true
+  },
+  "security": {
+    "default_level": "safe",
+    "require_confirmation_above": "safe",
+    "sandbox_by_default": true
+  }
+}
+EOF
+        log "INFO" "Created default defaults.json"
     fi
 }
 
+# List all available scripts
 list_scripts() {
-    show_header
-    echo -e "${BLUE}📋 Available Development Scripts${NC}"
-    echo ""
+    log "INFO" "Listing available scripts..."
     
-    if [[ -d "$USCRIPT/active" ]] && [[ "$(ls -A "$USCRIPT/active" 2>/dev/null)" ]]; then
-        echo "Active Scripts:"
-        for script in "$USCRIPT/active"/*.sh; do
-            if [[ -f "$script" ]]; then
-                local name=$(basename "$script" .sh)
-                local size=$(stat -f%z "$script" 2>/dev/null || stat -c%s "$script" 2>/dev/null || echo "0")
-                local modified=$(stat -f%m "$script" 2>/dev/null || stat -c%Y "$script" 2>/dev/null || echo "0")
-                local date=$(date -r "$modified" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "Unknown")
-                printf "  • %-20s %6s bytes  %s\n" "$name" "$size" "$date"
-            fi
-        done
-        echo ""
-    else
-        echo "No active scripts found."
-        echo ""
+    if [ ! -f "$REGISTRY_DIR/catalog.json" ]; then
+        log "ERROR" "Script catalog not found. Run 'uscript init' first."
+        return 1
     fi
     
-    if [[ -d "$USCRIPT/executed" ]] && [[ "$(ls -A "$USCRIPT/executed" 2>/dev/null)" ]]; then
-        echo "Recently Executed (in trash):"
-        ls -la "$USCRIPT/executed" | tail -n +2 | while read -r line; do
-            echo "  📁 $line"
-        done
-        echo ""
-    fi
+    echo -e "\n${CYAN}📚 uSCRIPT v1.3 Script Library${NC}"
+    echo -e "${CYAN}================================${NC}\n"
+    
+    # Use jq to parse and display scripts
+    jq -r '.scripts | to_entries[] | 
+        "\(.key):\n  Type: \(.value.type)\n  Description: \(.value.description)\n  Security: \(.value.security_level)\n  Version: \(.value.version)\n"' \
+        "$REGISTRY_DIR/catalog.json"
+    
+    local script_count=$(jq '.scripts | length' "$REGISTRY_DIR/catalog.json")
+    echo -e "${GREEN}Total scripts available: $script_count${NC}\n"
 }
 
-run_script() {
+# Show detailed information about a specific script
+show_script_info() {
     local script_name="$1"
-    local script_file="$USCRIPT/active/${script_name}.sh"
-    local sandbox_file="$USANDBOX/scripts/${script_name}-$(date +%Y%m%d-%H%M%S).sh"
     
-    if [[ ! -f "$script_file" ]]; then
-        echo -e "${RED}❌ Script '$script_name' not found${NC}"
+    if [ -z "$script_name" ]; then
+        log "ERROR" "Script name required. Usage: uscript info <script-name>"
         return 1
     fi
     
-    echo -e "${BLUE}🚀 Executing script: $script_name${NC}"
-    echo "  • Copying to sandbox: $(basename "$sandbox_file")"
-    
-    # Copy to sandbox for execution
-    cp "$script_file" "$sandbox_file"
-    chmod +x "$sandbox_file"
-    
-    echo "  • Running in sandbox..."
-    echo ""
-    
-    # Load logging utilities
-    source "$UHOME/uCode/log-utils.sh" 2>/dev/null || true
-    
-    # Log script start and time execution
-    local start_time=$(date +%s)
-    if declare -f log_script_start >/dev/null 2>&1; then
-        log_script_start "$script_name" "uScript"
+    if [ ! -f "$REGISTRY_DIR/catalog.json" ]; then
+        log "ERROR" "Script catalog not found. Run 'uscript init' first."
+        return 1
     fi
     
-    # Execute in sandbox
-    local exit_code=0
-    if (cd "$USANDBOX" && "$sandbox_file"); then
-        exit_code=$?
-        echo ""
-        echo -e "${GREEN}✅ Script executed successfully${NC}"
-        
-        # Move executed script to executed folder (soft archive)
-        mkdir -p "$USCRIPT/executed"
-        mv "$script_file" "$USCRIPT/executed/${script_name}-$(date +%Y%m%d-%H%M%S).sh"
-        
-        # Calculate duration and log completion
-        local end_time=$(date +%s)
-        local duration=$((end_time - start_time))
-        
-        if declare -f log_script_end >/dev/null 2>&1; then
-            log_script_end "$script_name" "$exit_code" "$duration"
-        fi
-        
-        if declare -f log_performance >/dev/null 2>&1; then
-            log_performance "uScript execution: $script_name" "$duration"
-        fi
-        
-        echo "  • Script moved to executed archive"
-        echo "  • Sandbox copy will be cleaned up"
-        
-        # Clean up sandbox after 1 minute (background)
-        (sleep 60 && rm -f "$sandbox_file" 2>/dev/null) &
-        
-    else
-        exit_code=$?
-        echo ""
-        echo -e "${RED}❌ Script execution failed${NC}"
-        
-        # Log failure
-        local end_time=$(date +%s)
-        local duration=$((end_time - start_time))
-        
-        if declare -f log_script_end >/dev/null 2>&1; then
-            log_script_end "$script_name" "$exit_code" "$duration"
-        fi
-        
-        if declare -f log_error >/dev/null 2>&1; then
-            log_error "uScript execution failed: $script_name (exit code: $exit_code)" "uScript"
-        fi
-        echo "  • Check sandbox file: $sandbox_file"
+    # Check if script exists
+    local script_exists=$(jq --arg name "$script_name" '.scripts | has($name)' "$REGISTRY_DIR/catalog.json")
+    
+    if [ "$script_exists" = "false" ]; then
+        log "ERROR" "Script '$script_name' not found in catalog"
         return 1
+    fi
+    
+    echo -e "\n${CYAN}📋 Script Information: $script_name${NC}"
+    echo -e "${CYAN}=====================================${NC}\n"
+    
+    # Extract and display script information
+    jq --arg name "$script_name" -r '
+        .scripts[$name] | 
+        "Name: \(.name)\n" +
+        "Type: \(.type)\n" +
+        "Description: \(.description)\n" +
+        "Version: \(.version)\n" +
+        "Author: \(.author)\n" +
+        "Security Level: \(.security_level)\n" +
+        "Path: \(.path)\n" +
+        "Dependencies: \(.dependencies | join(", "))\n" +
+        "Created: \(.created)\n" +
+        "Last Modified: \(.last_modified)\n"
+    ' "$REGISTRY_DIR/catalog.json"
+    
+    # Show parameters if available
+    local has_params=$(jq --arg name "$script_name" '.scripts[$name] | has("parameters")' "$REGISTRY_DIR/catalog.json")
+    if [ "$has_params" = "true" ]; then
+        echo -e "${YELLOW}Parameters:${NC}"
+        jq --arg name "$script_name" -r '.scripts[$name].parameters | to_entries[] | "  \(.key): \(.value)"' "$REGISTRY_DIR/catalog.json"
+        echo ""
     fi
 }
 
-install_from_ucode() {
+# Execute a script
+execute_script() {
     local script_name="$1"
-    local source_file="$UHOME/uCode/$script_name"
-    local dest_file="$USCRIPT/active/$(basename "$script_name" .sh).sh"
+    shift
+    local script_args=("$@")
     
-    if [[ ! -f "$source_file" ]]; then
-        echo -e "${RED}❌ Script not found: $source_file${NC}"
+    if [ -z "$script_name" ]; then
+        log "ERROR" "Script name required. Usage: uscript run <script-name> [args...]"
         return 1
     fi
     
-    echo -e "${BLUE}📦 Installing script from uCode: $script_name${NC}"
+    if [ ! -f "$REGISTRY_DIR/catalog.json" ]; then
+        log "ERROR" "Script catalog not found. Run 'uscript init' first."
+        return 1
+    fi
     
-    # Copy and ensure it's executable
-    cp "$source_file" "$dest_file"
-    chmod +x "$dest_file"
+    # Check if script exists
+    local script_exists=$(jq --arg name "$script_name" '.scripts | has($name)' "$REGISTRY_DIR/catalog.json")
     
-    echo -e "${GREEN}✅ Installed: $(basename "$dest_file")${NC}"
-    echo "  • Source: $source_file"
-    echo "  • Destination: $dest_file"
-    echo "  • Run with: $0 run $(basename "$dest_file" .sh)"
-}
-
-create_from_template() {
-    local template_type="$1"
-    local script_name="${2:-${template_type}-$(date +%Y%m%d-%H%M%S)}"
+    if [ "$script_exists" = "false" ]; then
+        log "ERROR" "Script '$script_name' not found in catalog"
+        return 1
+    fi
     
-    case "$template_type" in
-        cleanup)
-            create_cleanup_template "$script_name"
+    # Get script information
+    local script_type=$(jq --arg name "$script_name" -r '.scripts[$name].type' "$REGISTRY_DIR/catalog.json")
+    local script_path=$(jq --arg name "$script_name" -r '.scripts[$name].path' "$REGISTRY_DIR/catalog.json")
+    local security_level=$(jq --arg name "$script_name" -r '.scripts[$name].security_level' "$REGISTRY_DIR/catalog.json")
+    
+    local full_script_path="$USCRIPT_ROOT/$script_path"
+    
+    if [ ! -f "$full_script_path" ]; then
+        log "ERROR" "Script file not found: $full_script_path"
+        return 1
+    fi
+    
+    log "INFO" "Executing script: $script_name (type: $script_type, security: $security_level)"
+    
+    # Security check
+    if [ "$security_level" = "elevated" ] || [ "$security_level" = "admin" ]; then
+        echo -e "${YELLOW}⚠️  This script requires '$security_level' permissions.${NC}"
+        echo -e "${YELLOW}Script: $script_name${NC}"
+        echo -e "${YELLOW}Path: $script_path${NC}"
+        read -p "Continue? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "INFO" "Script execution cancelled by user"
+            return 0
+        fi
+    fi
+    
+    # Get engine configuration
+    local engine_cmd=$(jq --arg type "$script_type" -r '.engines[$type].command' "$CONFIG_DIR/engines.json")
+    local engine_timeout=$(jq --arg type "$script_type" -r '.engines[$type].timeout' "$CONFIG_DIR/engines.json")
+    
+    if [ "$engine_cmd" = "null" ]; then
+        log "ERROR" "No engine configured for script type: $script_type"
+        return 1
+    fi
+    
+    # Execute the script
+    local start_time=$(date '+%Y-%m-%d %H:%M:%S')
+    local execution_id="exec_$(date +%s)_$script_name"
+    
+    log "INFO" "Starting execution (ID: $execution_id)"
+    
+    # Create execution log
+    mkdir -p "$LOGS_DIR/executions"
+    local exec_log="$LOGS_DIR/executions/${execution_id}.log"
+    
+    {
+        echo "Execution ID: $execution_id"
+        echo "Script: $script_name"
+        echo "Type: $script_type"
+        echo "Start Time: $start_time"
+        echo "Command: $engine_cmd $full_script_path ${script_args[*]}"
+        echo "Security Level: $security_level"
+        echo "=====================================\n"
+    } > "$exec_log"
+    
+    # Execute based on script type
+    case "$script_type" in
+        "python")
+            timeout "$engine_timeout" python3 "$full_script_path" "${script_args[@]}" 2>&1 | tee -a "$exec_log"
             ;;
-        migration)  
-            create_migration_template "$script_name"
+        "shell")
+            timeout "$engine_timeout" bash "$full_script_path" "${script_args[@]}" 2>&1 | tee -a "$exec_log"
             ;;
-        validation)
-            create_validation_template "$script_name"
+        "javascript")
+            timeout "$engine_timeout" node "$full_script_path" "${script_args[@]}" 2>&1 | tee -a "$exec_log"
+            ;;
+        "ucode")
+            log "WARNING" "uCODE execution not yet implemented"
+            return 1
             ;;
         *)
-            echo -e "${RED}❌ Unknown template type: $template_type${NC}"
-            echo "Available templates: cleanup, migration, validation"
+            log "ERROR" "Unknown script type: $script_type"
             return 1
             ;;
     esac
-}
-
-create_cleanup_template() {
-    local script_name="$1"
-    local script_file="$USCRIPT/active/${script_name}.sh"
     
-    cat > "$script_file" << 'EOF'
-#!/bin/bash
-# Cleanup Script Template
-# Purpose: Clean up and reorganize files/directories
-
-set -euo pipefail
-
-UHOME="${UHOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m' 
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-echo "🧹 Cleanup Script"
-echo "════════════════════"
-
-cleanup_files() {
-    echo "📋 Analyzing files to cleanup..."
+    local exit_code=$?
+    local end_time=$(date '+%Y-%m-%d %H:%M:%S')
     
-    # TODO: Add cleanup logic here
-    # Example:
-    # if [[ -f "$UHOME/path/to/file" ]]; then
-    #     echo "  • Moving file to appropriate location..."
-    #     mv "$UHOME/path/to/file" "$UHOME/new/location/"
-    # fi
+    {
+        echo "\n====================================="
+        echo "End Time: $end_time"
+        echo "Exit Code: $exit_code"
+    } >> "$exec_log"
     
-    echo "  • Cleanup logic goes here"
-}
-
-update_references() {
-    echo "🔧 Updating references..."
-    
-    # TODO: Update any file references
-    # Example:
-    # find "$UHOME" -name "*.sh" -exec sed -i '' 's|old/path|new/path|g' {} \;
-    
-    echo "  • Reference updates go here"
-}
-
-create_summary() {
-    echo ""
-    echo "📊 Cleanup Summary"
-    echo "════════════════════"
-    echo "  ✅ Files cleaned up"
-    echo "  ✅ References updated" 
-    echo "  ✅ System validated"
-    echo ""
-    echo "🎯 Cleanup completed successfully!"
-}
-
-main() {
-    cleanup_files
-    update_references  
-    create_summary
-}
-
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
-EOF
-
-    chmod +x "$script_file"
-    echo -e "${GREEN}✅ Created cleanup template: $script_name${NC}"
-}
-
-clean_executed() {
-    echo -e "${BLUE}🧹 Cleaning up executed scripts...${NC}"
-    
-    # Load logging utilities
-    source "$UHOME/uCode/log-utils.sh" 2>/dev/null || true
-    
-    local count=0
-    if [[ -d "$USCRIPT/executed" ]]; then
-        count=$(ls -1 "$USCRIPT/executed" 2>/dev/null | wc -l | tr -d ' ')
-        if [[ $count -gt 0 ]]; then
-            mkdir -p "$TRASH"
-            mv "$USCRIPT/executed"/* "$TRASH/" 2>/dev/null || {
-                if declare -f log_error >/dev/null 2>&1; then
-                    log_error "Failed to move executed scripts to trash" "uScript"
-                fi
-                echo -e "${RED}❌ Failed to clean executed scripts${NC}"
-                return 1
-            }
-            echo -e "${GREEN}✅ Moved $count executed scripts to trash${NC}"
-            
-            if declare -f log_system >/dev/null 2>&1; then
-                log_system "INFO" "Cleaned $count executed scripts"
-            fi
-        else
-            echo "No executed scripts to clean"
-        fi
-    fi
-    
-    # Clean up old sandbox scripts
-    if [[ -d "$USANDBOX/scripts" ]]; then
-        local cleaned_count=$(find "$USANDBOX/scripts" -name "*.sh" -mtime +1 2>/dev/null | wc -l | tr -d ' ')
-        find "$USANDBOX/scripts" -name "*.sh" -mtime +1 -delete 2>/dev/null || true
-        if [[ $cleaned_count -gt 0 ]]; then
-            echo "  • Cleaned up $cleaned_count old sandbox scripts"
-            if declare -f log_system >/dev/null 2>&1; then
-                log_system "INFO" "Cleaned $cleaned_count old sandbox scripts"
-            fi
-        else
-            echo "  • No old sandbox scripts to clean"
-        fi
-    fi
-}
-
-show_status() {
-    show_header
-    echo -e "${BLUE}📊 System Status${NC}"
-    echo ""
-    
-    # Active scripts
-    local active_count=0
-    if [[ -d "$USCRIPT/active" ]]; then
-        active_count=$(ls -1 "$USCRIPT/active"/*.sh 2>/dev/null | wc -l | tr -d ' ')
-    fi
-    echo "Active Scripts: $active_count"
-    
-    # Executed scripts
-    local executed_count=0
-    if [[ -d "$USCRIPT/executed" ]]; then
-        executed_count=$(ls -1 "$USCRIPT/executed" 2>/dev/null | wc -l | tr -d ' ')
-    fi
-    echo "Executed Scripts: $executed_count"
-    
-    # Sandbox scripts
-    local sandbox_count=0
-    if [[ -d "$USANDBOX/scripts" ]]; then
-        sandbox_count=$(find "$USANDBOX/scripts" -name "*.sh" 2>/dev/null | wc -l | tr -d ' ')
-    fi
-    echo "Sandbox Scripts: $sandbox_count"
-    
-    echo ""
-    echo "Directories:"
-    echo "  • Active: $USCRIPT/active/"
-    echo "  • Executed: $USCRIPT/executed/"
-    echo "  • Sandbox: $USANDBOX/scripts/"
-    echo "  • Logs: $UDEV/logs/scripts/"
-}
-
-show_logs() {
-    local log_type="${1:-all}"
-    local lines="${2:-20}"
-    
-    show_header
-    echo -e "${BLUE}📋 Recent Logs${NC}"
-    
-    case "$log_type" in
-        system)
-            echo ""
-            echo "System Logs (last $lines lines):"
-            if [[ -f "$UDEV/logs/system/$(date +%Y%m%d).log" ]]; then
-                tail -n "$lines" "$UDEV/logs/system/$(date +%Y%m%d).log" 2>/dev/null || echo "No system logs today"
-            else
-                echo "No system logs found for today"
-            fi
-            ;;
-        errors)
-            echo ""
-            echo "Error Logs (last $lines lines):"
-            if [[ -f "$UDEV/logs/errors/$(date +%Y%m%d).log" ]]; then
-                tail -n "$lines" "$UDEV/logs/errors/$(date +%Y%m%d).log" 2>/dev/null || echo "No error logs today"
-            else
-                echo "No error logs found for today"
-            fi
-            ;;
-        scripts)
-            echo ""
-            echo "Script Logs (last $lines lines):"
-            if [[ -f "$UDEV/logs/scripts/$(date +%Y%m%d).log" ]]; then
-                tail -n "$lines" "$UDEV/logs/scripts/$(date +%Y%m%d).log" 2>/dev/null || echo "No script logs today"
-            else
-                echo "No script logs found for today"
-            fi
-            ;;
-        performance)
-            echo ""
-            echo "Performance Logs (last $lines lines):"
-            if [[ -f "$UDEV/logs/performance/$(date +%Y%m%d).log" ]]; then
-                tail -n "$lines" "$UDEV/logs/performance/$(date +%Y%m%d).log" 2>/dev/null || echo "No performance logs today"
-            else
-                echo "No performance logs found for today"
-            fi
-            ;;
-        all|*)
-            echo ""
-            echo "All Log Types (last 10 lines each):"
-            echo ""
-            echo "=== System ==="
-            tail -n 10 "$UDEV/logs/system/$(date +%Y%m%d).log" 2>/dev/null || echo "No system logs"
-            echo ""
-            echo "=== Scripts ==="  
-            tail -n 10 "$UDEV/logs/scripts/$(date +%Y%m%d).log" 2>/dev/null || echo "No script logs"
-            echo ""
-            echo "=== Errors ==="
-            tail -n 10 "$UDEV/logs/errors/$(date +%Y%m%d).log" 2>/dev/null || echo "No error logs"
-            ;;
-    esac
-    echo ""
-}
-
-clean_logs() {
-    local days="${1:-30}"
-    
-    echo -e "${BLUE}🧹 Cleaning logs older than $days days...${NC}"
-    
-    # Load logging utilities
-    source "$UHOME/uCode/log-utils.sh" 2>/dev/null || true
-    
-    if declare -f cleanup_logs >/dev/null 2>&1; then
-        cleanup_logs "$days"
-        echo -e "${GREEN}✅ Log cleanup completed${NC}"
+    if [ $exit_code -eq 0 ]; then
+        log "SUCCESS" "Script execution completed successfully (ID: $execution_id)"
     else
-        echo -e "${YELLOW}⚠️ Log utilities not available${NC}"
-        return 1
+        log "ERROR" "Script execution failed with exit code $exit_code (ID: $execution_id)"
     fi
+    
+    return $exit_code
 }
 
-# Main command handling
-main() {
-    create_directories
+# Show help information
+show_help() {
+    echo -e "\n${CYAN}uSCRIPT v3.0 - Production Script Library & Execution Engine${NC}"
+    echo -e "${CYAN}==========================================================${NC}\n"
     
-    case "${1:-help}" in
-        create)
-            if [[ -z "${2:-}" ]]; then
-                echo -e "${RED}❌ Script name required${NC}"
-                echo "Usage: $0 create <script-name>"
-                exit 1
-            fi
-            create_script "$2"
+    echo -e "${YELLOW}USAGE:${NC}"
+    echo -e "  uscript <command> [options]\n"
+    
+    echo -e "${YELLOW}COMMANDS:${NC}"
+    echo -e "  ${GREEN}init${NC}                    Initialize uSCRIPT system and create default configs"
+    echo -e "  ${GREEN}list${NC}                    List all available scripts in the library"
+    echo -e "  ${GREEN}info${NC} <script-name>      Show detailed information about a specific script"
+    echo -e "  ${GREEN}run${NC} <script-name> [args] Execute a script with optional arguments"
+    echo -e "  ${GREEN}help${NC}                    Show this help message"
+    echo -e "  ${GREEN}version${NC}                 Show version information\n"
+    
+    echo -e "${YELLOW}EXAMPLES:${NC}"
+    echo -e "  uscript init"
+    echo -e "  uscript list"
+    echo -e "  uscript info data-processor"
+    echo -e "  uscript run system-backup /home/user backup-$(date +%Y%m%d)"
+    echo -e "  uscript run data-processor --input data.csv --format json\n"
+    
+    echo -e "${YELLOW}SCRIPT TYPES:${NC}"
+    echo -e "  ${PURPLE}python${NC}     - Python 3 scripts (.py)"
+    echo -e "  ${PURPLE}shell${NC}      - Bash shell scripts (.sh)"
+    echo -e "  ${PURPLE}javascript${NC} - Node.js scripts (.js)"
+    echo -e "  ${PURPLE}ucode${NC}      - uDOS native scripts (.ucode.md)\n"
+    
+    echo -e "${YELLOW}SECURITY LEVELS:${NC}"
+    echo -e "  ${GREEN}safe${NC}       - Read-only scripts, sandboxed execution"
+    echo -e "  ${YELLOW}elevated${NC}   - File modification allowed, requires confirmation"
+    echo -e "  ${RED}admin${NC}      - Full system access, requires admin confirmation\n"
+}
+
+# Show version information
+show_version() {
+    echo -e "${CYAN}uSCRIPT v3.0.0${NC}"
+    echo -e "Production Script Library & Execution Engine"
+    echo -e "Part of uDOS v1.3"
+    echo -e "https://github.com/udos-project/udos\n"
+}
+
+# Main command dispatcher
+main() {
+    local command="$1"
+    shift
+    
+    case "$command" in
+        "init")
+            init_system
             ;;
-        list)
+        "list")
             list_scripts
             ;;
-        run)
-            if [[ -z "${2:-}" ]]; then
-                echo -e "${RED}❌ Script name required${NC}"
-                echo "Usage: $0 run <script-name>"
-                exit 1
-            fi
-            run_script "$2"
+        "info")
+            show_script_info "$@"
             ;;
-        install)
-            if [[ -z "${2:-}" ]]; then
-                echo -e "${RED}❌ Script name required${NC}"
-                echo "Usage: $0 install <script-name>"
-                exit 1
-            fi
-            install_from_ucode "$2"
+        "run")
+            execute_script "$@"
             ;;
-        template)
-            if [[ -z "${2:-}" ]]; then
-                echo -e "${RED}❌ Template type required${NC}"
-                echo "Usage: $0 template <type> [name]"
-                exit 1
-            fi
-            create_from_template "$2" "${3:-}"
-            ;;
-        clean)
-            clean_executed
-            ;;
-        status)
-            show_status
-            ;;
-        logs)
-            show_logs "${2:-all}" "${3:-20}"
-            ;;
-        logs-clean)
-            clean_logs "${2:-30}"
-            ;;
-        help|--help|-h)
+        "help"|"--help"|"-h")
             show_help
+            ;;
+        "version"|"--version"|"-v")
+            show_version
+            ;;
+        "")
+            log "ERROR" "No command specified. Use 'uscript help' for usage information."
+            exit 1
             ;;
         *)
-            echo -e "${RED}❌ Unknown command: $1${NC}"
-            echo ""
-            show_help
+            log "ERROR" "Unknown command: $command. Use 'uscript help' for usage information."
             exit 1
             ;;
     esac
 }
 
-# Run if executed directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+# Run main function with all arguments
+main "$@"
