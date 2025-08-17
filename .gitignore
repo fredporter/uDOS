@@ -104,8 +104,8 @@ wizard/.dev-session-*
 # �️ EDITOR & IDE ARTIFACTS
 # ════════════════════════════════════════════════════════════════
 
-# VS Code personal settings (keep workspace config)
-.vscode/settings.json.local
+# VS Code personal settings and workspace
+.vscode/
 .env
 .env.local
 

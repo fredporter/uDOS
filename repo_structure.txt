@@ -1,0 +1,226 @@
+# uDOS v1.3 Repository Structure
+Generated: 2025-08-17 16:37:29
+
+## Repository Overview
+```
+uDOS/ - uDOS Universal Development Operating System
+├── Core Architecture & Documentation
+├── Extension System & Development Tools  
+├── User Memory & Workspace Management
+└── Installation & Distribution System
+```
+
+## Complete Directory Structure
+
+```
+./
+docs/
+extension/
+install/
+sandbox/
+    ├── drafts/
+    ├── experiments/
+    ├── tasks/
+        ├── assist-mode/
+        ├── completed/
+        ├── in-progress/
+        ├── templates/
+    ├── test-deployment/
+        ├── drone-test/
+            ├── docs/
+            ├── install/
+            ├── uMemory/
+                ├── active/
+                ├── archive/
+                ├── templates/
+            ├── uTemplate/
+                ├── forms/
+                ├── location/
+                ├── mapping/
+                ├── user/
+uKNOWLEDGE/
+uMEMORY/
+    ├── .backup/
+    ├── datasets/
+        ├── mapping/
+            ├── map-05/
+                ├── locations/
+                ├── tiles/
+    ├── deployments/
+        ├── active/
+        ├── completed/
+        ├── logs/
+        ├── templates/
+    ├── forms/
+        ├── active/
+        ├── completed/
+        ├── drafts/
+        ├── templates/
+    ├── generated/
+        ├── explicit/
+        ├── public/
+    ├── logs/
+        ├── explicit/
+            ├── daily/
+            ├── movelog/
+        ├── public/
+    ├── milestones/
+        ├── explicit/
+        ├── public/
+    ├── missions/
+        ├── explicit/
+        ├── public/
+    ├── moves/
+        ├── explicit/
+        ├── public/
+    ├── scripts/
+        ├── explicit/
+        ├── public/
+    ├── state/
+        ├── explicit/
+        ├── public/
+    ├── templates/
+        ├── explicit/
+        ├── public/
+    ├── user/
+        ├── explicit/
+        ├── public/
+uSCRIPT/
+    ├── active/
+    ├── executed/
+wizard/
+    ├── logs/
+        ├── daily/
+        ├── system/
+        ├── workflows/
+    ├── reports/
+        ├── analysis/
+        ├── metrics/
+        ├── summaries/
+    ├── scripts/
+        ├── archive/
+        ├── cleanup/
+        ├── maintenance/
+        ├── migration/
+        ├── validation/
+    ├── summaries/
+    ├── tools/
+    ├── vscode/
+        ├── .vscode/
+    ├── workflows/
+        ├── active/
+        ├── completed/
+        ├── failed/
+        ├── pending/
+        ├── templates/
+```
+
+## Folder Descriptions
+
+### Core System (`uCORE/`)
+- **`code/`** - Core utilities and micro-syntax definitions
+- **`datasets/`** - Location, mapping, and system data files
+- **`extensions/`** - Extension development templates and VS Code integration
+- **`launcher/`** - Platform-specific application launchers
+- **`scripts/`** - Core system maintenance and utility scripts
+- **`templates/`** - System templates for forms, variables, and configurations
+
+### Development Environment (`wizard/`)
+- **`tools/`** - Development utilities and script executors
+- **`workflows/`** - Automated development workflow definitions
+- **`vscode/`** - VS Code integration and configuration
+- **`logs/`** - Development session logs (gitignored)
+- **`reports/`** - Generated development reports
+
+### Memory System (`uMEMORY/`)
+- **`datasets/`** - User-specific data collections
+- **`forms/`** - User interaction templates
+- **`missions/`** - Task and goal management
+- **`state/`** - System state persistence
+- **`user/`** - Personal user configurations
+
+### User Workspace (`sandbox/`)
+- **`tasks/`** - Task management and templates
+- **`scripts/`** - User development scripts
+- **`experiments/`** - Development experimentation area
+- **`test-deployment/`** - Testing environments
+
+### Documentation (`docs/`)
+- **Core documentation, architecture guides, and user manuals**
+- **Style guides and development standards**
+- **API documentation and integration guides**
+
+### Extension System (`uExtensions/`)
+- **`ai/`** - AI integration extensions (Gemini CLI, etc.)
+- **Extension registry and management**
+
+### Installation (`install/` & `uInstall/`)
+- **Platform-specific installation scripts**
+- **Distribution configurations and user roles**
+- **System setup and deployment tools**
+
+### Development Code (`uCode/`)
+- **`micro-syntax/`** - Language syntax definitions
+- **`packages/`** - Installable component packages
+- **Core development utilities and scripts**
+
+### Templates (`uTemplate/`)
+- **System-wide template definitions**
+- **Project scaffolding and boilerplate code**
+
+## File Naming Conventions
+
+### Core System Files
+- **Scripts**: `kebab-case.sh` (e.g., `cleanup-filenames.sh`)
+- **Configs**: `kebab-case.json` (e.g., `template-system-config.json`)
+- **Data**: `camelCase.json` (e.g., `locationMap.json`, `timezoneMap.json`)
+
+### Log Files
+- **Format**: `uLOG-YYYYMMDD-HHMM-TZ-TYPE.md`
+- **Example**: `uLOG-20250817-1045-28-00SY01.md`
+- **Components**:
+  - `YYYYMMDD-HHMM`: Timestamp
+  - `TZ`: Timezone code (28 = UTC+8)
+  - `TYPE`: Operation type code
+
+### Documentation
+- **Guides**: `TITLE-Guide.md` (e.g., `USER-GUIDE.md`)
+- **Standards**: `TITLE-Standard.md` (e.g., `Template-Standard.md`)
+- **Architecture**: `ARCHITECTURE.md`, `ROADMAP.md`
+
+### Memory System
+- **Missions**: `NNN-mission-name.md` (e.g., `001-welcome-mission.md`)
+- **State files**: `snake_case.conf` (e.g., `terminal_size.conf`)
+- **User data**: `user-*.md` format
+
+## Security Model
+
+### Public Repository (uDOS Core)
+- ✅ Core system architecture
+- ✅ Documentation and guides  
+- ✅ Extension framework
+- ✅ Installation tools
+- ✅ Development utilities
+
+### Private/Local Only (.gitignored)
+- 🔒 `uMEMORY/` - User personal data
+- 🔒 `wizard/logs/` - Development session logs
+- 🔒 `sandbox/user.md` - Personal workspace files
+- 🔒 `.vscode/` - Editor configurations
+- 🔒 Authentication tokens and local configs
+
+## Extension Architecture
+
+The uDOS v1.3 extension system provides:
+- **Modular plugin architecture**
+- **VS Code integration templates**
+- **AI service integrations (Gemini CLI)**
+- **Custom syntax highlighting**
+- **Development workflow automation**
+
+---
+
+*Generated by uDOS Tree Generator v1.3*  
+*Repository: $(git remote get-url origin 2>/dev/null || echo "Local repository")*  
+*Branch: $(git branch --show-current 2>/dev/null || echo "Unknown")*  
+*Last Updated: $TIMESTAMP*
