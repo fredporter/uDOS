@@ -4,7 +4,8 @@
 
 WIZARD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UTILITIES_DIR="$WIZARD_ROOT/utilities"
-LOG_DIR="$WIZARD_ROOT/log"
+LOG_DIR="$WIZARD_ROOT/notes"
+UCORE_DIR="$(dirname "$WIZARD_ROOT")/uCORE"
 
 # Colors for output
 RED='\033[0;31m'
@@ -14,12 +15,55 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Function to get 2-letter timezone alpha code
+get_timezone_alpha() {
+    local tz_mapping_file="$UCORE_DIR/datasets/timezone-alpha-codes.json"
+    
+    # Get current timezone (try multiple methods)
+    local current_tz=""
+    if command -v timedatectl >/dev/null 2>&1; then
+        current_tz=$(timedatectl show --property=Timezone --value 2>/dev/null)
+    elif [ -n "$TZ" ]; then
+        current_tz="$TZ"
+    else
+        # Fallback: get from system
+        current_tz=$(date +%Z 2>/dev/null)
+    fi
+    
+    # Map common timezone names to our 2-letter alpha codes
+    case "$current_tz" in
+        "AEST"|"Australia/Sydney"|"Australia/Melbourne"|"AEDT") echo "AE" ;;
+        "AWST"|"Australia/Perth") echo "AW" ;;
+        "ACST"|"Australia/Adelaide") echo "AT" ;;
+        "UTC"|"GMT") echo "UT" ;;
+        "EST"|"US/Eastern") echo "ES" ;;
+        "PST"|"US/Pacific") echo "PS" ;;
+        "CST"|"US/Central") echo "CS" ;;
+        "MST"|"US/Mountain") echo "MS" ;;
+        "JST"|"Asia/Tokyo") echo "JS" ;;
+        "CET"|"Europe/Berlin"|"Europe/Paris") echo "CE" ;;
+        "EET"|"Europe/Athens") echo "EE" ;;
+        "IST"|"Asia/Kolkata") echo "IS" ;;
+        "BST"|"Asia/Dhaka") echo "BS" ;;
+        "NZST"|"Pacific/Auckland") echo "NZ" ;;
+        *) 
+            # Default fallback - try to extract from mapping file if it exists
+            if [ -f "$tz_mapping_file" ] && command -v jq >/dev/null 2>&1; then
+                local alpha_code=$(jq -r ".mappings[\"$current_tz\"] // \"AE\"" "$tz_mapping_file" 2>/dev/null)
+                echo "$alpha_code"
+            else
+                echo "AE"  # Default to Australian Eastern (original system timezone)
+            fi
+            ;;
+    esac
+}
+
 # Function to log actions
 log_action() {
     local action="$1"
     local description="$2"
     local timestamp=$(date +%Y%m%d-%H%M%S)
-    local tz_code="C0" # TODO: Auto-detect timezone
+    local tz_code=$(get_timezone_alpha)
     local logfile="uDEV-${timestamp}${tz_code}-Utility-${action}.md"
     
     cat > "$LOG_DIR/$logfile" << EOF

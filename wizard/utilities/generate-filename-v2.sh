@@ -2,38 +2,52 @@
 # uDOS Filename Generator v2.0
 # Generates filenames following the new v2.0 convention
 
-# Function to get 2-digit timezone code from UTC offset
-get_timezone_code() {
-    local offset=$1
-    case $offset in
-        "-12") echo "A0" ;;
-        "-11") echo "A1" ;;
-        "-10") echo "A2" ;;
-        "-9") echo "A3" ;;
-        "-8") echo "A4" ;;
-        "-7") echo "A5" ;;
-        "-6") echo "A6" ;;
-        "-5") echo "A7" ;;
-        "-4") echo "A8" ;;
-        "-3") echo "A9" ;;
-        "-2") echo "B0" ;;
-        "-1") echo "B1" ;;
-        "0") echo "B2" ;;
-        "+1") echo "B3" ;;
-        "+2") echo "B4" ;;
-        "+3") echo "B5" ;;
-        "+4") echo "B6" ;;
-        "+5") echo "B7" ;;
-        "+6") echo "B8" ;;
-        "+7") echo "B9" ;;
-        "+8") echo "C0" ;;
-        "+9") echo "C1" ;;
-        "+10") echo "C2" ;;
-        "+11") echo "C3" ;;
-        "+12") echo "C4" ;;
-        "+13") echo "C5" ;;
-        "+14") echo "C6" ;;
-        *) echo "B2" ;; # Default to UTC
+#!/bin/bash
+# uDOS Filename Generator v2.0
+# Generates filenames following the new v2.0 convention with timezone alpha codes
+
+# Function to get 2-letter timezone alpha code from the timezone dataset
+get_timezone_alpha() {
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local ucore_dir="$(dirname "$(dirname "$script_dir")")/uCORE"
+    local tz_mapping_file="$ucore_dir/datasets/timezone-alpha-codes.json"
+    
+    # Get current timezone (try multiple methods)
+    local current_tz=""
+    if command -v timedatectl >/dev/null 2>&1; then
+        current_tz=$(timedatectl show --property=Timezone --value 2>/dev/null)
+    elif [ -n "$TZ" ]; then
+        current_tz="$TZ"
+    else
+        # Fallback: get from system
+        current_tz=$(date +%Z 2>/dev/null)
+    fi
+    
+    # Map common timezone names to our 2-letter alpha codes
+    case "$current_tz" in
+        "AEST"|"Australia/Sydney"|"Australia/Melbourne"|"AEDT") echo "AE" ;;
+        "AWST"|"Australia/Perth") echo "AW" ;;
+        "ACST"|"Australia/Adelaide") echo "AT" ;;
+        "UTC"|"GMT") echo "UT" ;;
+        "EST"|"US/Eastern") echo "ES" ;;
+        "PST"|"US/Pacific") echo "PS" ;;
+        "CST"|"US/Central") echo "CS" ;;
+        "MST"|"US/Mountain") echo "MS" ;;
+        "JST"|"Asia/Tokyo") echo "JS" ;;
+        "CET"|"Europe/Berlin"|"Europe/Paris") echo "CE" ;;
+        "EET"|"Europe/Athens") echo "EE" ;;
+        "IST"|"Asia/Kolkata") echo "IS" ;;
+        "BST"|"Asia/Dhaka") echo "BS" ;;
+        "NZST"|"Pacific/Auckland") echo "NZ" ;;
+        *) 
+            # Default fallback - try to extract from mapping file if it exists
+            if [ -f "$tz_mapping_file" ] && command -v jq >/dev/null 2>&1; then
+                local alpha_code=$(jq -r ".mappings[\"$current_tz\"] // \"AE\"" "$tz_mapping_file" 2>/dev/null)
+                echo "$alpha_code"
+            else
+                echo "AE"  # Default to Australian Eastern (original system timezone)
+            fi
+            ;;
     esac
 }
 
@@ -48,9 +62,8 @@ generate_filename() {
     local date=$(date +%Y%m%d)
     local time=$(date +%H%M%S)
     
-    # Get timezone offset and convert to code
-    local tz_offset=$(date +%z | sed 's/^\([+-]\)\([0-9][0-9]\)\([0-9][0-9]\)$/\1\2/')
-    local tz_code=$(get_timezone_code "$tz_offset")
+    # Get timezone alpha code from the dataset
+    local tz_code=$(get_timezone_alpha)
     
     # Build filename
     local filename

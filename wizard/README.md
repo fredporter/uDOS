@@ -11,7 +11,7 @@ wizard/
 ├── dev-utils.sh         # Development utilities manager (main entry point)
 ├── vscode/              # VS Code configuration and extensions
 │   └── .vscode/         # Workspace settings, tasks, launch configs
-├── log/                 # All development logs, reports, and summaries (flat structure)
+├── notes/               # All development logs, reports, summaries, and documentation (flat structure)
 ├── utilities/           # Development utility scripts
 │   └── generate-filename-v2.sh  # Filename generator v2.0
 ├── claude-vscode/       # Claude VS Code development notes
@@ -31,9 +31,6 @@ wizard/
 │   ├── active/          # Active workflows
 │   ├── completed/       # Completed workflows
 │   └── templates/       # Workflow templates
-├── RELEASE_NOTES_v1.3.md          # Release documentation
-├── uDOS-ORGANIZATION-SUMMARY.md   # Organization and structure notes
-├── WORKFLOW-SYSTEM.md              # Workflow system documentation
 └── logs/                # System logs (non-uDEV format)
 ```
 
@@ -51,7 +48,16 @@ Dev Mode provides:
 - **Development Environment**: Complete development toolkit for Wizard Installations
 - **Utility Script Management**: Build and run development utilities with integrated logging
 - **Release Notes Management**: Centralized development documentation and organization summaries
-- **Development Session Tracking**: Comprehensive logging with automatic organization to log/ folder
+- **Development Session Tracking**: Comprehensive logging with automatic organization to notes/ folder
+- **Git Integration**: Full Git support with SSH key management (uCODE commands: PUSH, PULL, COMMIT, CLONE, etc.)
+
+### 📚 Documentation Access
+All documentation files are organized in the `notes/` directory with proper filename convention v2.0:
+- **Release Notes**: `notes/uDOC-*-Release-Notes-v1.3.md`
+- **Organization Summary**: `notes/uDOC-*-uDOS-Organization-Summary.md`
+- **Completion Summary**: `notes/uDOC-*-Wizard-Completion-Summary.md`
+- **Workflow System**: `notes/uDOC-*-Workflow-System.md`
+- **Development Logs**: `notes/uDEV-*` (automatically generated)
 
 ## 🚀 Getting Started
 
@@ -83,7 +89,7 @@ Dev Mode provides:
 1. **Start Development Session**: Use appropriate subdirectory in claude-vscode/
 2. **Create Utilities**: Add scripts to utilities/ directory
 3. **Track Progress**: Use workflows/ for roadmaps and task management
-4. **Log Activities**: All actions automatically logged to log/ directory
+4. **Log Activities**: All actions automatically logged to notes/ directory
 5. **Complete Sessions**: Move completed summaries using organize command
 
 ### 📊 Development Logging

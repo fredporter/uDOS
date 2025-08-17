@@ -1,0 +1,13 @@
+{
+    "role": "imp",
+    "level": 60,
+    "permissions": {
+        "uCORE": "role-based",
+        "uMEMORY": "role-based",
+        "uKNOWLEDGE": "role-based",
+        "sandbox": "role-based",
+        "installation": "full"
+    },
+    "created": "2025-08-17T19:26:26+10:00",
+    "version": "1.3"
+}

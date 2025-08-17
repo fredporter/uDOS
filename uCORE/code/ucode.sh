@@ -3811,6 +3811,39 @@ process_input() {
         TEMPLATE|template|TPL|tpl)
             handle_template_command "$args"
             ;;
+        GIT|git)
+            handle_git_command "$args"
+            ;;
+        PUSH|push)
+            handle_git_push "$args"
+            ;;
+        PULL|pull)
+            handle_git_pull "$args"
+            ;;
+        COMMIT|commit)
+            handle_git_commit "$args"
+            ;;
+        CLONE|clone)
+            handle_git_clone "$args"
+            ;;
+        BRANCH|branch)
+            handle_git_branch "$args"
+            ;;
+        MERGE|merge)
+            handle_git_merge "$args"
+            ;;
+        REBASE|rebase)
+            handle_git_rebase "$args"
+            ;;
+        STASH|stash)
+            handle_git_stash "$args"
+            ;;
+        REMOTE|remote)
+            handle_git_remote "$args"
+            ;;
+        SSH-KEY|ssh-key|SSHKEY|sshkey)
+            handle_ssh_key "$args"
+            ;;
         *)
             # Check for history recall (!number)
             if [[ "$cmd" =~ ^!([0-9]+)$ ]]; then
@@ -4892,6 +4925,538 @@ show_template_library() {
     echo "Use 'template create <name>' to create new templates"
     echo "Use 'template process <name>' for smart input processing"
     echo ""
+}
+
+# ============================================================================
+# GIT COMMANDS WITH SSH KEY SUPPORT - DEV MODE ONLY
+# ============================================================================
+
+# SSH key management for sandbox/user/.ssh
+get_ssh_dir() {
+    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/sandbox/user/.ssh"
+}
+
+# Check if we're in Dev Mode (wizard folder exists)
+check_dev_mode() {
+    if [[ ! -d "$UDEV" ]]; then
+        log_error "Dev Mode not available - wizard folder not found"
+        return 1
+    fi
+    return 0
+}
+
+# Setup SSH agent with keys from sandbox
+setup_ssh_agent() {
+    local ssh_dir=$(get_ssh_dir)
+    
+    if [[ ! -d "$ssh_dir" ]]; then
+        log_error "SSH directory not found: $ssh_dir"
+        return 1
+    fi
+    
+    # Start ssh-agent if not running
+    if [[ -z "$SSH_AUTH_SOCK" ]]; then
+        eval "$(ssh-agent -s)" > /dev/null
+    fi
+    
+    # Add all private keys found in sandbox ssh directory
+    local keys_added=0
+    for key in "$ssh_dir"/id_*; do
+        if [[ -f "$key" && ! "$key" == *.pub ]]; then
+            if ssh-add "$key" 2>/dev/null; then
+                ((keys_added++))
+                log_info "Added SSH key: $(basename "$key")"
+            fi
+        fi
+    done
+    
+    if [[ $keys_added -eq 0 ]]; then
+        log_warning "No SSH keys found or added from $ssh_dir"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Main Git command handler
+handle_git_command() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        log_error "Git operation required. Usage: GIT <operation> [options]"
+        echo "Available operations: STATUS, PUSH, PULL, COMMIT, CLONE, BRANCH, MERGE, REBASE, STASH, REMOTE"
+        return 1
+    fi
+    
+    local operation=$(echo "$args" | awk '{print $1}' | tr '[:lower:]' '[:upper:]')
+    local rest_args=""
+    if [[ "$args" == *" "* ]]; then
+        rest_args=$(echo "$args" | cut -d' ' -f2-)
+    fi
+    
+    case "$operation" in
+        STATUS)
+            git status
+            ;;
+        ADD)
+            git add $rest_args
+            ;;
+        DIFF)
+            git diff $rest_args
+            ;;
+        LOG)
+            git log --oneline -10 $rest_args
+            ;;
+        *)
+            log_error "Unknown git operation: $operation"
+            echo "Use specific commands: PUSH, PULL, COMMIT, CLONE, BRANCH, MERGE, REBASE, STASH, REMOTE"
+            ;;
+    esac
+}
+
+# Git push with SSH key support
+handle_git_push() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    log_info "Setting up SSH keys for git push..."
+    if ! setup_ssh_agent; then
+        log_error "Failed to setup SSH keys"
+        return 1
+    fi
+    
+    echo -e "${BLUE}🚀 Pushing to remote repository...${NC}"
+    if [[ -n "$args" ]]; then
+        git push $args
+    else
+        git push
+    fi
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Push completed successfully"
+    else
+        log_error "❌ Push failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git pull with SSH key support
+handle_git_pull() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    log_info "Setting up SSH keys for git pull..."
+    if ! setup_ssh_agent; then
+        log_error "Failed to setup SSH keys"
+        return 1
+    fi
+    
+    echo -e "${BLUE}⬇️  Pulling from remote repository...${NC}"
+    if [[ -n "$args" ]]; then
+        git pull $args
+    else
+        git pull
+    fi
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Pull completed successfully"
+    else
+        log_error "❌ Pull failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git commit
+handle_git_commit() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        log_error "Commit message required. Usage: COMMIT \"message\" [options]"
+        return 1
+    fi
+    
+    echo -e "${BLUE}📝 Creating commit...${NC}"
+    git commit -m "$args"
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Commit created successfully"
+    else
+        log_error "❌ Commit failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git clone with SSH key support
+handle_git_clone() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        log_error "Repository URL required. Usage: CLONE <repository_url> [directory]"
+        return 1
+    fi
+    
+    log_info "Setting up SSH keys for git clone..."
+    if ! setup_ssh_agent; then
+        log_error "Failed to setup SSH keys"
+        return 1
+    fi
+    
+    echo -e "${BLUE}📥 Cloning repository...${NC}"
+    git clone $args
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Clone completed successfully"
+    else
+        log_error "❌ Clone failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git branch operations
+handle_git_branch() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        git branch
+        return
+    fi
+    
+    local operation=$(echo "$args" | awk '{print $1}' | tr '[:lower:]' '[:upper:]')
+    local branch_name=""
+    if [[ "$args" == *" "* ]]; then
+        branch_name=$(echo "$args" | cut -d' ' -f2-)
+    fi
+    
+    case "$operation" in
+        LIST)
+            git branch -a
+            ;;
+        CREATE)
+            if [[ -n "$branch_name" ]]; then
+                git checkout -b "$branch_name"
+            else
+                log_error "Branch name required for CREATE operation"
+            fi
+            ;;
+        SWITCH|CHECKOUT)
+            if [[ -n "$branch_name" ]]; then
+                git checkout "$branch_name"
+            else
+                log_error "Branch name required for SWITCH operation"
+            fi
+            ;;
+        DELETE)
+            if [[ -n "$branch_name" ]]; then
+                git branch -d "$branch_name"
+            else
+                log_error "Branch name required for DELETE operation"
+            fi
+            ;;
+        *)
+            git branch $args
+            ;;
+    esac
+}
+
+# Git merge
+handle_git_merge() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        log_error "Branch name required. Usage: MERGE <branch> [options]"
+        return 1
+    fi
+    
+    echo -e "${BLUE}🔄 Merging branch...${NC}"
+    git merge $args
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Merge completed successfully"
+    else
+        log_error "❌ Merge failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git rebase
+handle_git_rebase() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        log_error "Branch name required. Usage: REBASE <branch> [options]"
+        return 1
+    fi
+    
+    echo -e "${BLUE}🔄 Rebasing onto branch...${NC}"
+    git rebase $args
+    
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        log_info "✅ Rebase completed successfully"
+    else
+        log_error "❌ Rebase failed with exit code $exit_code"
+    fi
+    
+    return $exit_code
+}
+
+# Git stash operations
+handle_git_stash() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        git stash
+        return
+    fi
+    
+    local operation=$(echo "$args" | awk '{print $1}' | tr '[:lower:]' '[:upper:]')
+    local rest_args=""
+    if [[ "$args" == *" "* ]]; then
+        rest_args=$(echo "$args" | cut -d' ' -f2-)
+    fi
+    
+    case "$operation" in
+        SAVE)
+            git stash save "$rest_args"
+            ;;
+        POP)
+            git stash pop
+            ;;
+        LIST)
+            git stash list
+            ;;
+        DROP)
+            git stash drop $rest_args
+            ;;
+        CLEAR)
+            git stash clear
+            ;;
+        SHOW)
+            git stash show $rest_args
+            ;;
+        *)
+            git stash $args
+            ;;
+    esac
+}
+
+# Git remote operations
+handle_git_remote() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    if [[ -z "$args" ]]; then
+        git remote -v
+        return
+    fi
+    
+    local operation=$(echo "$args" | awk '{print $1}' | tr '[:lower:]' '[:upper:]')
+    local remote_name=""
+    local remote_url=""
+    
+    if [[ "$args" == *" "* ]]; then
+        remote_name=$(echo "$args" | awk '{print $2}')
+        if [[ "$args" =~ [[:space:]][^[:space:]]+[[:space:]] ]]; then
+            remote_url=$(echo "$args" | awk '{print $3}')
+        fi
+    fi
+    
+    case "$operation" in
+        ADD)
+            if [[ -n "$remote_name" && -n "$remote_url" ]]; then
+                git remote add "$remote_name" "$remote_url"
+            else
+                log_error "Remote name and URL required. Usage: REMOTE ADD <name> <url>"
+            fi
+            ;;
+        REMOVE|RM)
+            if [[ -n "$remote_name" ]]; then
+                git remote remove "$remote_name"
+            else
+                log_error "Remote name required. Usage: REMOTE REMOVE <name>"
+            fi
+            ;;
+        SET-URL)
+            if [[ -n "$remote_name" && -n "$remote_url" ]]; then
+                git remote set-url "$remote_name" "$remote_url"
+            else
+                log_error "Remote name and URL required. Usage: REMOTE SET-URL <name> <url>"
+            fi
+            ;;
+        *)
+            git remote $args
+            ;;
+    esac
+}
+
+# SSH key management
+handle_ssh_key() {
+    local args="$1"
+    
+    if ! check_dev_mode; then
+        return 1
+    fi
+    
+    local ssh_dir=$(get_ssh_dir)
+    
+    if [[ -z "$args" ]]; then
+        log_error "SSH key operation required. Usage: SSH-KEY <operation> [options]"
+        echo "Available operations: GENERATE, LIST, ADD, TEST, REMOVE"
+        return 1
+    fi
+    
+    local operation=$(echo "$args" | awk '{print $1}' | tr '[:lower:]' '[:upper:]')
+    local key_name=""
+    if [[ "$args" == *" "* ]]; then
+        key_name=$(echo "$args" | cut -d' ' -f2-)
+    fi
+    
+    case "$operation" in
+        GENERATE|GEN)
+            if [[ -z "$key_name" ]]; then
+                key_name="id_rsa"
+            fi
+            
+            local key_path="$ssh_dir/$key_name"
+            if [[ -f "$key_path" ]]; then
+                log_warning "SSH key already exists: $key_path"
+                read -p "Overwrite? (y/N): " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    log_info "SSH key generation cancelled"
+                    return 0
+                fi
+            fi
+            
+            mkdir -p "$ssh_dir"
+            echo -e "${BLUE}🔑 Generating SSH key: $key_name${NC}"
+            ssh-keygen -t rsa -b 4096 -f "$key_path" -N ""
+            
+            if [[ -f "$key_path" ]]; then
+                chmod 600 "$key_path"
+                chmod 644 "$key_path.pub"
+                log_info "✅ SSH key generated: $key_path"
+                echo "Public key:"
+                cat "$key_path.pub"
+            else
+                log_error "❌ Failed to generate SSH key"
+            fi
+            ;;
+        LIST)
+            echo -e "${BLUE}🔑 SSH Keys in $ssh_dir:${NC}"
+            if [[ -d "$ssh_dir" ]]; then
+                local count=0
+                for key in "$ssh_dir"/id_*; do
+                    if [[ -f "$key" && ! "$key" == *.pub ]]; then
+                        local pub_key="${key}.pub"
+                        echo "  🔐 $(basename "$key")"
+                        if [[ -f "$pub_key" ]]; then
+                            echo "  🔓 $(basename "$pub_key")"
+                        fi
+                        ((count++))
+                    fi
+                done
+                if [[ $count -eq 0 ]]; then
+                    echo "  No SSH keys found"
+                fi
+            else
+                echo "  SSH directory not found: $ssh_dir"
+            fi
+            ;;
+        ADD)
+            if [[ -z "$key_name" ]]; then
+                key_name="id_rsa"
+            fi
+            
+            local key_path="$ssh_dir/$key_name"
+            if [[ -f "$key_path" ]]; then
+                ssh-add "$key_path"
+                log_info "✅ SSH key added to agent: $key_name"
+            else
+                log_error "SSH key not found: $key_path"
+            fi
+            ;;
+        TEST)
+            if [[ -z "$key_name" ]]; then
+                key_name="git@github.com"
+            fi
+            
+            echo -e "${BLUE}🧪 Testing SSH connection to $key_name...${NC}"
+            setup_ssh_agent
+            ssh -T "$key_name"
+            ;;
+        REMOVE|RM)
+            if [[ -z "$key_name" ]]; then
+                log_error "Key name required. Usage: SSH-KEY REMOVE <key_name>"
+                return 1
+            fi
+            
+            local key_path="$ssh_dir/$key_name"
+            if [[ -f "$key_path" ]]; then
+                read -p "Remove SSH key $key_name? (y/N): " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    rm -f "$key_path" "$key_path.pub"
+                    log_info "✅ SSH key removed: $key_name"
+                else
+                    log_info "SSH key removal cancelled"
+                fi
+            else
+                log_error "SSH key not found: $key_path"
+            fi
+            ;;
+        *)
+            log_error "Unknown SSH key operation: $operation"
+            echo "Available operations: GENERATE, LIST, ADD, TEST, REMOVE"
+            ;;
+    esac
 }
 
 # Run main function

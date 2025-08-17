@@ -208,7 +208,7 @@ DASH-LIVE       # Live dashboard
 #### **Private/Local Only**
 🔒 **Never Shared:**
 - User memory and personal data (`uMEMORY/`)
-- Development session logs (`wizard/logs/`)
+- Development session logs (`wizard/notes/`)
 - Personal workspace files (`sandbox/user.md`)
 - Editor configurations (`.vscode/`)
 - Authentication tokens and credentials

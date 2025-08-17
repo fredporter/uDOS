@@ -398,5 +398,93 @@
     "description": "Alias for QUIT command",
     "examples": ["EXIT", "EXIT 1", "EXIT $code"],
     "version": "1.0.0"
+  },
+  {
+    "command": "GIT",
+    "category": "git",
+    "syntax": "GIT <operation> [options]",
+    "description": "Git version control operations with SSH key support",
+    "examples": ["GIT STATUS", "GIT PUSH", "GIT PULL", "GIT COMMIT \"message\"", "GIT CLONE repo_url"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "PUSH",
+    "category": "git",
+    "syntax": "PUSH [remote] [branch] [options]",
+    "description": "Push commits to remote repository using SSH keys from sandbox/user/.ssh",
+    "examples": ["PUSH", "PUSH origin main", "PUSH --force-with-lease", "PUSH -u origin feature-branch"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "PULL",
+    "category": "git",
+    "syntax": "PULL [remote] [branch] [options]",
+    "description": "Pull changes from remote repository using SSH keys",
+    "examples": ["PULL", "PULL origin main", "PULL --rebase", "PULL upstream main"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "COMMIT",
+    "category": "git",
+    "syntax": "COMMIT <message> [options]",
+    "description": "Create git commit with message",
+    "examples": ["COMMIT \"fix: update configuration\"", "COMMIT \"feat: add new feature\" -a", "COMMIT \"docs: update readme\" --amend"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "CLONE",
+    "category": "git",
+    "syntax": "CLONE <repository_url> [directory] [options]",
+    "description": "Clone git repository using SSH keys",
+    "examples": ["CLONE \"git@github.com:user/repo.git\"", "CLONE \"https://github.com/user/repo.git\" myproject", "CLONE repo.git --depth 1"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "BRANCH",
+    "category": "git",
+    "syntax": "BRANCH [operation] [branch_name] [options]",
+    "description": "Git branch operations",
+    "examples": ["BRANCH", "BRANCH LIST", "BRANCH CREATE feature-x", "BRANCH DELETE old-feature", "BRANCH SWITCH main"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "MERGE",
+    "category": "git",
+    "syntax": "MERGE <branch> [options]",
+    "description": "Merge branch into current branch",
+    "examples": ["MERGE feature-branch", "MERGE --no-ff develop", "MERGE --squash feature"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "REBASE",
+    "category": "git",
+    "syntax": "REBASE <branch> [options]",
+    "description": "Rebase current branch onto another branch",
+    "examples": ["REBASE main", "REBASE --interactive HEAD~3", "REBASE --continue"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "STASH",
+    "category": "git",
+    "syntax": "STASH [operation] [options]",
+    "description": "Git stash operations for temporary changes",
+    "examples": ["STASH", "STASH SAVE \"work in progress\"", "STASH POP", "STASH LIST", "STASH DROP"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "REMOTE",
+    "category": "git",
+    "syntax": "REMOTE [operation] [name] [url]",
+    "description": "Manage git remote repositories",
+    "examples": ["REMOTE", "REMOTE ADD origin git@github.com:user/repo.git", "REMOTE REMOVE upstream", "REMOTE SET-URL origin new_url"],
+    "version": "1.2.0"
+  },
+  {
+    "command": "SSH-KEY",
+    "category": "git",
+    "syntax": "SSH-KEY <operation> [key_name] [options]",
+    "description": "Manage SSH keys for git operations in sandbox/user/.ssh",
+    "examples": ["SSH-KEY GENERATE id_rsa", "SSH-KEY LIST", "SSH-KEY ADD id_rsa", "SSH-KEY TEST git@github.com"],
+    "version": "1.2.0"
   }
 ]

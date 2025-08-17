@@ -9,7 +9,7 @@
 
 ### 1. Moved Completion Summary File
 - **From:** `wizard/WIZARD-COMPLETION-SUMMARY.md`
-- **To:** `wizard/log/uDEV-20250817-180017C0-Wizard-Environment-Setup-Complete.md`
+- **To:** `wizard/notes/uDOC-20250817-180940C0-Wizard-Completion-Summary.md`
 - **Reason:** Files should be logged with uDEV- prefix in proper log location
 
 ### 2. Updated Filename Format

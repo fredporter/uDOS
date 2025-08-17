@@ -1,21 +1,61 @@
 #!/bin/bash
 
-# uDEV Workflow Manager v1.3
-# Central orchestration system for development workflows
+# uDOS Wizard Workflow Manager v2.0
+# Central orchestration system for wizard development workflows
 
 set -euo pipefail
 
 # Configuration
-readonly UDEV_ROOT="/Users/agentdigital/uDOS/uDEV"
-readonly WORKFLOWS_DIR="$UDEV_ROOT/workflows"
-readonly SCRIPTS_DIR="$UDEV_ROOT/scripts"
-readonly LOGS_DIR="$UDEV_ROOT/logs"
-readonly REPORTS_DIR="$UDEV_ROOT/reports"
-readonly TOOLS_DIR="$UDEV_ROOT/tools"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly WIZARD_DIR="$(dirname "$SCRIPT_DIR")"
+readonly UCORE_DIR="$(dirname "$WIZARD_DIR")/uCORE"
+readonly WORKFLOWS_DIR="$WIZARD_DIR/workflows"
+readonly LOGS_DIR="$WIZARD_DIR/notes"
+readonly REPORTS_DIR="$WIZARD_DIR/reports"
+readonly TOOLS_DIR="$WIZARD_DIR/tools"
 
-# Timezone and location settings
-readonly TIMEZONE_CODE="28"
-readonly LOCATION_CODE="00SY01"
+# Function to get 2-letter timezone alpha code
+get_timezone_alpha() {
+    local tz_mapping_file="$UCORE_DIR/datasets/timezone-alpha-codes.json"
+    
+    # Get current timezone (try multiple methods)
+    local current_tz=""
+    if command -v timedatectl >/dev/null 2>&1; then
+        current_tz=$(timedatectl show --property=Timezone --value 2>/dev/null)
+    elif [ -n "$TZ" ]; then
+        current_tz="$TZ"
+    else
+        # Fallback: get from system
+        current_tz=$(date +%Z 2>/dev/null)
+    fi
+    
+    # Map common timezone names to our 2-letter alpha codes
+    case "$current_tz" in
+        "AEST"|"Australia/Sydney"|"Australia/Melbourne"|"AEDT") echo "AE" ;;
+        "AWST"|"Australia/Perth") echo "AW" ;;
+        "ACST"|"Australia/Adelaide") echo "AT" ;;
+        "UTC"|"GMT") echo "UT" ;;
+        "EST"|"US/Eastern") echo "ES" ;;
+        "PST"|"US/Pacific") echo "PS" ;;
+        "CST"|"US/Central") echo "CS" ;;
+        "MST"|"US/Mountain") echo "MS" ;;
+        "JST"|"Asia/Tokyo") echo "JS" ;;
+        "CET"|"Europe/Berlin"|"Europe/Paris") echo "CE" ;;
+        "EET"|"Europe/Athens") echo "EE" ;;
+        "IST"|"Asia/Kolkata") echo "IS" ;;
+        "BST"|"Asia/Dhaka") echo "BS" ;;
+        "NZST"|"Pacific/Auckland") echo "NZ" ;;
+        *) 
+            # Default fallback - try to extract from mapping file if it exists
+            if [ -f "$tz_mapping_file" ] && command -v jq >/dev/null 2>&1; then
+                local alpha_code=$(jq -r ".mappings[\"$current_tz\"] // \"AE\"" "$tz_mapping_file" 2>/dev/null)
+                echo "$alpha_code"
+            else
+                echo "AE"  # Default to Australian Eastern (original system timezone)
+            fi
+            ;;
+    esac
+}
 
 # Colors for output
 readonly RED='\033[0;31m'
@@ -72,7 +112,8 @@ generate_timestamp() {
 generate_log_filename() {
     local workflow_id="$1"
     local timestamp=$(generate_timestamp)
-    echo "$LOGS_DIR/workflows/uLOG-$timestamp-$TIMEZONE_CODE-WF$(echo "$workflow_id" | tr '[:lower:]' '[:upper:]' | head -c 4).md"
+    local tz_code=$(get_timezone_alpha)
+    echo "$LOGS_DIR/workflows/uLOG-$timestamp$tz_code-WF$(echo "$workflow_id" | tr '[:lower:]' '[:upper:]' | head -c 4).md"
 }
 
 # Initialize workflow system
