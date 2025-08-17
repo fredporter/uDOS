@@ -1,5 +1,5 @@
 # uDOS v1.3 Repository Structure
-Generated: 2025-08-17 16:37:29
+Generated: 2025-08-17 17:26:20
 
 ## Repository Overview
 ```
@@ -18,26 +18,7 @@ docs/
 extension/
 install/
 sandbox/
-    ├── drafts/
-    ├── experiments/
     ├── tasks/
-        ├── assist-mode/
-        ├── completed/
-        ├── in-progress/
-        ├── templates/
-    ├── test-deployment/
-        ├── drone-test/
-            ├── docs/
-            ├── install/
-            ├── uMemory/
-                ├── active/
-                ├── archive/
-                ├── templates/
-            ├── uTemplate/
-                ├── forms/
-                ├── location/
-                ├── mapping/
-                ├── user/
 uKNOWLEDGE/
 uMEMORY/
     ├── .backup/
@@ -87,15 +68,30 @@ uMEMORY/
         ├── public/
 uSCRIPT/
     ├── active/
+    ├── config/
     ├── executed/
+    ├── library/
+        ├── automation/
+        ├── javascript/
+        ├── python/
+        ├── shell/
+        ├── ucode/
+        ├── utilities/
+    ├── registry/
+        ├── dependencies/
+        ├── versions/
+    ├── runtime/
+        ├── engines/
+        ├── logs/
+        ├── sandbox/
+    ├── templates/
+        ├── automation/
+        ├── javascript/
+        ├── python/
+        ├── ucode/
 wizard/
     ├── logs/
-        ├── daily/
-        ├── system/
-        ├── workflows/
     ├── reports/
-        ├── analysis/
-        ├── metrics/
         ├── summaries/
     ├── scripts/
         ├── archive/
@@ -103,16 +99,20 @@ wizard/
         ├── maintenance/
         ├── migration/
         ├── validation/
-    ├── summaries/
     ├── tools/
+    ├── uLOG/
     ├── vscode/
         ├── .vscode/
     ├── workflows/
         ├── active/
         ├── completed/
+        ├── development/
         ├── failed/
         ├── pending/
+        ├── roadmaps/
+        ├── tasks/
         ├── templates/
+        ├── versioning/
 ```
 
 ## Folder Descriptions

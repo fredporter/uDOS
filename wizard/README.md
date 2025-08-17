@@ -1,33 +1,45 @@
-# uDEV - uDOS Development Environment
+# Dev Mode - uDOS Development Environment
 
-## 🧙‍♂️ Wizard User Development Mode
+## 🧙‍♂️ Wizard Installation Development Mode
 
-Exclusive development environment for advanced uDOS development and system enhancement.
+Special system development mode available only to Wizard Installations with advanced development tools housed in the wizard folder.
 
 ## 📁 Directory Structure
 
 ```
-uDEV/
+wizard/
 ├── vscode/              # VS Code configuration and extensions
 │   └── .vscode/         # Workspace settings, tasks, launch configs
-├── logs/                # Development activity logs (uLOG format)
-├── summaries/           # Development summary reports (uLOG format)
+├── uLOG/                # All development logs, reports, and summaries (flat structure)
 ├── tools/               # Development utilities and scripts
-├── extensions/          # Custom VS Code extensions for uDOS
-├── templates/           # Development templates and boilerplates
-├── testing/             # Development testing environments
-└── workspace/           # Active development workspace
+├── scripts/             # Development and maintenance scripts
+├── reports/             # Analysis and metrics (non-uLOG files)
+├── workflows/           # Enhanced workflow management
+│   ├── roadmaps/        # Project roadmaps and planning
+│   ├── versioning/      # Version planning and release management
+│   ├── development/     # Development workflows and processes
+│   ├── tasks/           # Task management and tracking
+│   ├── active/          # Active workflows
+│   ├── completed/       # Completed workflows
+│   └── templates/       # Workflow templates
+└── logs/                # System logs (non-uLOG format)
 ```
 
 ## 🎯 Purpose
 
-The uDEV environment provides:
+Dev Mode provides:
 
 ### 🔧 Development Tools
 - **VS Code Integration**: Dedicated workspace configuration
-- **Custom Extensions**: uDOS-specific development tools
-- **Script Development**: Advanced shell scripting environment
-- **Template System**: Reusable development patterns
+- **Development Scripts**: Advanced development and maintenance scripting
+- **uLOG Management**: Centralized logging system with flat file structure
+- **Workflow System**: Enhanced roadmap, versioning, and task management
+
+### 🧙‍♂️ Wizard-Only Features
+- **System Development**: Core system enhancement and modification
+- **Advanced Scripting**: Development mode exclusive utilities
+- **Version Planning**: Roadmap and release management workflows
+- **Development Tracking**: Comprehensive logging and reporting
 
 ### 📊 Development Logging
 - **Activity Logs**: All development actions logged in uLOG format

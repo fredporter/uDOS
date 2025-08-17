@@ -36,17 +36,17 @@ Example: uLOG-20250816-1640-28-00SY43.md
 - **Automatic detection** of your current timezone
 - **Global compatibility** with standard timezone formats
 
-#### Wizard Development Environment
-- **Exclusive development environment** for advanced users
-- **Automated session logging** with uLOG format
-- **VS Code integration** with dedicated workspace
-- **Task management** integration with ASSIST mode
+#### Dev Mode (Wizard Installations)
+- **Special system development mode** available only to Wizard Installations
+- **Advanced development tools** housed in the wizard folder
+- **uLOG Management**: Centralized logging with flat file structure
+- **Workflow Management**: Enhanced roadmap, versioning, and task tracking
 
 #### uSCRIPT Production Script Library
 - **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
 - **Security-first architecture**: Sandbox execution with configurable security levels
 - **Catalog-based organization**: Script registry with comprehensive metadata
-- **Production vs Development**: Clear separation from wizard development scripts
+- **Production vs Development**: Clear separation from Dev Mode development scripts
 
 #### Enhanced ASSIST Mode
 - **Sandbox task management** for AI-enhanced workflows
@@ -76,7 +76,7 @@ When you start uDOS v1.3, the system automatically:
 │  HELP         📖 Comprehensive help system          │
 │  DASH         🎛️  Enhanced dashboard with timezone  │
 │  ASSIST       🤖 AI-powered task assistance         │
-│  DEV          🛠️  Enter wizard development mode     │
+│  DEV          🛠️  Enter Dev Mode (Wizard only)       │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -134,11 +134,11 @@ Existing files are automatically migrated to v1.3 format:
 
 ---
 
-## Wizard Development Environment
+## Dev Mode (Wizard Installations Only)
 
-### 🧙‍♂️ Entering Development Mode
+### 🧙‍♂️ Entering Dev Mode
 
-For advanced users with wizard access:
+For Wizard Installation users with special development access:
 
 ```bash
 # Enter development environment
@@ -299,7 +299,7 @@ mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
 | `STATUS` | System overview with v1.3 info | `STATUS` |
 | `DASH` | Enhanced dashboard | `DASH TIMEZONE` |
 | `ASSIST` | AI-powered assistance | `ASSIST CREATE TASK "title"` |
-| `DEV` | Development mode | `DEV START SESSION` |
+| `DEV` | Dev Mode | `DEV START SESSION` |
 | `MIGRATE` | v1.3 file migration | `MIGRATE --dry-run` |
 
 ### 📁 File Commands
@@ -383,7 +383,7 @@ mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
 ✅ Solution: Use GENERATE FILENAME or VALIDATE NAMING commands
 ```
 
-#### Development Mode Access
+#### Dev Mode Access
 ```
 ❌ Cannot enter wizard mode
 ✅ Solution: Ensure wizard user permissions are configured
@@ -401,7 +401,7 @@ mv sandbox/tasks/in-progress/uTASK-* sandbox/tasks/completed/
 STATUS                    # System overview
 VALIDATE SYSTEM          # Full system check
 DASH MIGRATION           # Migration status
-DEV STATUS               # Development mode status
+DEV STATUS               # Dev Mode status
 ASSIST DIAGNOSTICS       # ASSIST mode health check
 ```
 

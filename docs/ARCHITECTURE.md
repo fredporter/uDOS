@@ -47,11 +47,11 @@ uDOS/
 - **Catalog-based organization**: Script registry with comprehensive metadata
 - **Production-ready management**: Finalized, tested scripts vs development scripts
 
-##### **Development Environment (wizard/)**
-- **Exclusive development environment** for advanced users and one-off scripts
-- **Automated session logging** with comprehensive activity tracking
-- **VS Code integration** with dedicated development workspace
-- **Task management** integration with AI-enhanced workflows
+##### **Dev Mode Environment (wizard/)**
+- **Special system development mode** available only to Wizard Installations
+- **Enhanced workflow management** with roadmaps, versioning, and task tracking
+- **Centralized uLOG system** with flat file structure for all logs, reports, summaries
+- **Advanced development tools** and utilities exclusive to Wizard users
 
 ##### **Extension Architecture (uCORE/extensions/)**
 - **Modular plugin system** with registry-based management
