@@ -40,9 +40,9 @@ if command -v code &> /dev/null; then
             echo "💡 In VS Code: Cmd+Shift+P → '🌀 Start uDOS'"
             ;;
         2)
-            echo "🖥️  Launching terminal session..."
+            echo "🖥️  Launching uDOS in this terminal..."
             cd "$UDOS_PATH"
-            open -a Terminal "$UDOS_PATH/start-udos.sh"
+            exec "$UDOS_PATH/uCORE/launcher/universal/start-udos.sh"
             ;;
         3)
             echo "👋 Cancelled"
@@ -54,9 +54,9 @@ if command -v code &> /dev/null; then
             ;;
     esac
 else
-    echo "🖥️  VS Code not found - launching in Terminal"
+    echo "🖥️  VS Code not found - launching uDOS in this terminal..."
     cd "$UDOS_PATH"
-    open -a Terminal "$UDOS_PATH/start-udos.sh"
+    exec "$UDOS_PATH/uCORE/launcher/universal/start-udos.sh"
 fi
 
 echo ""

@@ -96,9 +96,12 @@ OSA
             cd "$UDOS_PATH"
             /usr/bin/osascript <<OSA
 tell application "Terminal"
-    if not (exists window 1) then reopen
     activate
-    do script "cd '$UDOS_PATH' && ./start-udos.sh"
+    if not (exists window 1) then
+        do script "cd '$UDOS_PATH' && exec ./uCORE/launcher/universal/start-udos.sh"
+    else
+        do script "cd '$UDOS_PATH' && exec ./uCORE/launcher/universal/start-udos.sh" in window 1
+    end if
 end tell
 OSA
             ;;
@@ -111,9 +114,12 @@ else
     cd "$UDOS_PATH"
     /usr/bin/osascript <<OSA
 tell application "Terminal"
-    if not (exists window 1) then reopen
     activate
-    do script "cd '$UDOS_PATH' && ./start-udos.sh"
+    if not (exists window 1) then
+        do script "cd '$UDOS_PATH' && exec ./uCORE/launcher/universal/start-udos.sh"
+    else
+        do script "cd '$UDOS_PATH' && exec ./uCORE/launcher/universal/start-udos.sh" in window 1
+    end if
 end tell
 OSA
 fi
