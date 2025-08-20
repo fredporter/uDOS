@@ -10,8 +10,8 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UHOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UMEMORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/uMEMORY"
-UTEMPLATE="${UHOME}/uTemplate"
-UDEV="${UHOME}/wizard"
+UTEMPLATE="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/uMEMORY/templates"
+UDEV="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/wizard"
 
 # Version
 VERSION="v1.2"
@@ -1031,15 +1031,8 @@ show_enhanced_prompt() {
 init_directories() {
     local dirs=(
         "$UHOME"
-        "$UMEMORY" 
+        "$UMEMORY"
         "$UTEMPLATE"
-        "$UDEV"
-        "$UHOME/uScript"
-        "$UHOME/uKnowledge"
-        "$UHOME/package"
-        "$UHOME/sandbox"
-        "$UHOME/docs"
-        "$UHOME/extension"
     )
     
     for dir in "${dirs[@]}"; do
@@ -2344,7 +2337,7 @@ EOF
 
 start_uscript_editor() {
     local filename="${1:-new-script.us}"
-    local filepath="$UHOME/uScript/$filename"
+    local filepath="$(dirname "$UHOME")/uSCRIPT/active/$filename"
     
     set_mode_with_layout "USCRIPT" "$filepath" "script"
     
@@ -2355,8 +2348,8 @@ start_uscript_editor() {
     echo -e "${CYAN}Mode:${NC} uScript with bash syntax highlighting"
     echo ""
     
-    # Ensure uScript directory exists
-    mkdir -p "$UHOME/uScript"
+    # Ensure uScript directory exists in the actual uSCRIPT location
+    mkdir -p "$(dirname "$UHOME")/uSCRIPT/active"
     
     if [[ ! -f "$filepath" ]]; then
         echo -e "${BLUE}⚡ Creating new uScript file...${NC}"
