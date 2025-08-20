@@ -2904,7 +2904,7 @@ show_help() {
     format_text "- SETUP - Run first-time setup"
     format_text "- RESTART - Restart uDOS session (aliases: REBOOT, RELOAD)"
     format_text "- RESET - Refresh interface (aliases: REFRESH)"
-    format_text "- EXIT - Exit uDOS (aliases: QUIT, BYE)"
+    format_text "- EXIT - Backup uMEMORY and restart uDOS (aliases: QUIT, BYE)"
     echo ""
     
     echo "## Advanced input intelligence"
@@ -3814,12 +3814,21 @@ main() {
             
             # Handle exit and restart commands
             if [[ "$input" =~ ^(exit|quit|bye)$ ]]; then
-                log_success "Goodbye from uDOS v1.2! 👋"
-                break
+                log_info "Running uMEMORY backup before restart..."
+                # Run backup script if available
+                local backup_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/backup-umemory.sh"
+                if [[ -x "$backup_script" ]]; then
+                    "$backup_script" >/dev/null 2>&1 &
+                    sleep 1  # Give backup time to start
+                    log_success "uMEMORY backup initiated"
+                fi
+                log_success "Restarting uDOS... �"
+                clear
+                exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/startup.sh"  # Restart via startup script
             elif [[ "$input" =~ ^(restart|reboot|reload)$ ]]; then
                 log_info "Restarting uDOS session..."
                 clear
-                exec "$0" "$@"  # Restart the script with same arguments
+                exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/startup.sh"  # Restart via startup script
             elif [[ "$input" =~ ^(reset|refresh)$ ]]; then
                 log_info "Refreshing uDOS interface..."
                 clear

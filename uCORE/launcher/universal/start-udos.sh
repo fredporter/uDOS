@@ -175,11 +175,12 @@ launch_terminal() {
     
     cd "$UDOS_ROOT"
     
-    # Make sure script is executable
+    # Make sure scripts are executable
     chmod +x "$UDOS_ROOT/uCORE/code/ucode.sh"
+    chmod +x "$UDOS_ROOT/uCORE/code/startup.sh"
     
-    # Launch uDOS
-    exec "$UDOS_ROOT/uCORE/code/ucode.sh"
+    # Launch uDOS via startup script (includes auto-backup)
+    exec "$UDOS_ROOT/uCORE/code/startup.sh"
 }
 
 # Main execution
