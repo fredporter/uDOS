@@ -36,7 +36,6 @@ echo -e "${BLUE}📂 uDOS Root: $UDOS_ROOT${NC}"
 EXTENSIONS=(
     "ms-vscode.vscode-typescript-next"      # TypeScript support
     "yzhang.markdown-all-in-one"            # Markdown support
-    "ms-vscode.powershell"                  # PowerShell support
     "rogalmic.bash-debug"                   # Bash debugging
     "mads-hartmann.bash-ide-vscode"         # Bash IDE features
     "jeff-hykin.better-shellscript-syntax"  # Better shell syntax
@@ -50,6 +49,7 @@ EXTENSIONS=(
 # Optional extensions (ask user)
 OPTIONAL_EXTENSIONS=(
     "ms-python.python"                      # Python support
+    "ms-vscode.powershell"                  # PowerShell support (Windows users)
     "ms-vscode.cpptools"                    # C/C++ support
     "golang.go"                             # Go support
     "rust-lang.rust-analyzer"               # Rust support
