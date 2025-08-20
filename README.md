@@ -59,7 +59,7 @@
 - **RENDER.ucode**: Visual rendering system with ASCII art, charts, animations
 - **DASH.ucode**: Interactive dashboard with real-time monitoring
 - **PANEL.ucode**: System control panel with configuration management
-- **TREE.ucode**: Advanced directory visualization and navigation
+- **TREE.ucode**: Clean directory structure visualization (detailed docs in `docs/uDOS-System-Documentation.md`)
 
 #### 🔌 Extension System
 - **Plugin-based Architecture**: Modular system for expanding functionality
@@ -172,6 +172,7 @@ See **wizard/README.md** for full details of the Wizard environment, including s
 
 ### 📖 Documentation (`docs/`)
 - **Complete system documentation**: Architecture guides and user manuals
+- **[System Documentation](docs/uDOS-System-Documentation.md)**: File naming conventions, security model, and system standards
 - **Style guides**: Development standards and conventions
 - **API documentation**: Integration guides and technical references
 
