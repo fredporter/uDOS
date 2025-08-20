@@ -35,6 +35,41 @@
 - **installations/*/user-*** - Installation-specific user data
 - **Personal configurations** - User-specific settings and modifications
 
+## uMEMORY Backup System
+
+### Backup Architecture
+- **Automated backups**: Comprehensive uMEMORY backup to all role directories and sandbox
+- **Hex timestamp naming**: `HHHHHHHHH-TTTT-{role}-umemory-backup.tar.gz` format
+- **Visible backup folders**: Located in each role root directory (`{role}/backup/`)
+- **Compression**: All backups are compressed tar.gz files for efficient storage
+- **Cleanup**: Automatically maintains only the last 5 backups per location
+
+### Backup Locations
+- **Role-based backups**: `ghost/backup/`, `drone/backup/`, `imp/backup/`, `sorcerer/backup/`, `tomb/backup/`, `wizard/backup/`
+- **Sandbox backup**: `sandbox/backup/` - Central backup location for user workspace
+- **Flat structure preservation**: Maintains uMEMORY's flat-like organization with hex filenames
+
+### Usage
+```bash
+# Run full backup to all locations
+./uCORE/code/backup-umemory.sh
+
+# Clean old backups only (keep last 5)
+./uCORE/code/backup-umemory.sh clean
+
+# Generate backup report
+./uCORE/code/backup-umemory.sh report
+
+# Show help and options
+./uCORE/code/backup-umemory.sh help
+```
+
+### Backup Report
+- **Location**: `sandbox/backup/umemory-backup-report.md`
+- **Contains**: Backup status for all locations, file counts, sizes, timestamps
+- **Updated**: After each backup operation
+- **Format**: Markdown with structured backup information
+
 ## System Statistics
 *Last Updated: 2025-08-20 19:06:21*
 

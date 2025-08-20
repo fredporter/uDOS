@@ -320,6 +320,13 @@ trash/
 *.old
 *~
 
+# uMEMORY backup archives (keep directory structure, exclude backup files)
+**/backup/*.tar.gz
+**/backup/*.zip
+**/backup/*-umemory-backup.*
+**/backup/*-sandbox-backup.*
+**/backup/umemory-backup-report.md
+
 # ════════════════════════════════════════════════════════════════
 # ✅ uDOS v1.3 DISTRIBUTION INCLUDES
 # ════════════════════════════════════════════════════════════════
