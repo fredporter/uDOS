@@ -40,7 +40,6 @@ expected_dirs=(
     "uCORE/code"
     "uCORE/config"
     "uCORE/distribution"
-    "uCORE/install"
     "uCORE/json"
     "uCORE/launcher"
     "uCORE/mapping"
@@ -67,7 +66,7 @@ unexpected_dirs=()
 for dir in uCORE/*/; do
     dir_name=$(basename "$dir")
     case "$dir_name" in
-        bin|cache|code|config|distribution|install|json|launcher|mapping)
+        bin|cache|code|config|distribution|json|launcher|mapping)
             # Expected directories
             ;;
         *)
