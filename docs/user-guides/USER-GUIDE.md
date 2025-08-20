@@ -1,5 +1,11 @@
 # uDOS v1.3 User Guide
 
+---
+
+**Foreword**
+
+Welcome to uDOS v1.3. This manual is written in the tradition of classic home computer guides — clear, direct, and practical. Its aim is to get you working quickly, while giving you the background to explore further.
+
 ```
     ██╗   ██╗██████╗  ██████╗ ███████╗
     ██║   ██║██╔══██╗██╔═══██╗██╔════╝
@@ -19,11 +25,11 @@
 
 ---
 
-## Quick Start Guide
+## Getting Started Quickly
 
-### 🚀 What's New in v1.3
+### What's New in v1.3
 
-#### Modular Architecture Revolution
+#### Modular Architecture
 uDOS v1.3 introduces a **complete architectural redesign**:
 - **Clean Core System**: Essential shell commands only (247 lines)
 - **uCode Script Library**: Complex functionality in Visual Basic-style scripts
@@ -59,7 +65,7 @@ COMMAND [args]       # Full command format for detailed control
 
 ## Getting Started
 
-### 🎯 First Time Setup
+### * First Time Setup
 
 When you start uDOS v1.3, the system automatically:
 
@@ -68,35 +74,35 @@ When you start uDOS v1.3, the system automatically:
 3. **Sets up intelligent command routing** between core and scripts
 4. **Provides dual interface** for both shortcode and full commands
 
-### 📋 Basic Commands
+### [ ] Basic Commands
 
 ```ascii
 ┌─── CORE SYSTEM COMMANDS ───────────────────────────┐
 │                                                     │
-│  STATUS       📊 System overview and health        │
-│  HELP         📖 Complete command reference        │
-│  EXIT         🚪 Clean system shutdown             │
-│  RESTART      🔄 Restart uDOS session              │
-│  RESIZE       📐 Terminal size optimizer           │
+│  STATUS       [ ] System overview and health        │
+│  HELP         [ ] Complete command reference        │
+│  EXIT         [ ] Clean system shutdown             │
+│  RESTART      [ ] Restart uDOS session              │
+│  RESIZE       [ ] Terminal size optimizer           │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 
 ┌─── uCODE SCRIPT COMMANDS ──────────────────────────┐
 │                                                     │
-│  [DASH|LIVE]      🎛️ Live dashboard system          │
-│  [PANEL|DASH]     📋 Interactive control panels    │
-│  [TREE|GENERATE]  🌳 Repository structure tools    │
-│  [MEM|LIST]       � Memory file management        │
-│  [MISSION|CREATE] 🎯 Mission tracking system       │
-│  [PACK|LIST]      📦 Package management tools      │
-│  [LOG|REPORT]     📝 Advanced logging system       │
-│  [DEV|TEST]       🛠️ Development tools (wizard)     │
-│  [RENDER|ART]     🎨 Visual rendering & ASCII art  │
+│  [DASH|LIVE]      * Live dashboard system           │
+│  [PANEL|DASH]     [ ] Interactive control panels    │
+│  [TREE|GENERATE]  * Repository structure tools      │
+│  [MEM|LIST]       * Memory file management          │
+│  [MISSION|CREATE] * Mission tracking system         │
+│  [PACK|LIST]      * Package management tools        │
+│  [LOG|REPORT]     * Advanced logging system         │
+│  [DEV|TEST]       * Development tools (wizard)      │
+│  [RENDER|ART]     (Art) Visual rendering & ASCII art│
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
-### �️ Modular Architecture
+### Modular Architecture
 
 uDOS v1.3 features a revolutionary modular design:
 
@@ -138,7 +144,7 @@ RENDER chart bar data.json       # Create bar chart from data
 
 ## System Architecture
 
-### 🧠 Core Components
+### (M) Core Components
 
 #### uCORE - Clean Core System
 ```
@@ -167,7 +173,7 @@ uSCRIPT/library/ucode/
 └── TREE.ucode            # Structure visualization
 ```
 
-### 🔄 Command Flow
+### * Command Flow
 
 1. **User Input** → Core Shell (`ucode-modular.sh`)
 2. **Command Parsing** → Identify core vs. script command
@@ -175,7 +181,7 @@ uSCRIPT/library/ucode/
 4. **Script Execution** → Visual Basic-style uCode interpreter
 5. **Result Display** → Formatted output to user
 
-### 📊 Visual Basic uCode Syntax
+### [ ] Visual Basic uCode Syntax
 
 All uCode scripts use consistent Visual Basic syntax:
 
@@ -203,7 +209,7 @@ END FUNCTION
 
 ## Development System
 
-### 🛠️ DEV Command - Development Tools
+### * DEV Command - Development Tools
 
 The DEV command provides comprehensive development tools (Wizard installations only):
 
@@ -234,7 +240,7 @@ DEV backup [type]      # Backup system data
 DEV restore [backup]   # Restore from backup
 ```
 
-### 🎨 RENDER Command - Visual System
+### (Art) RENDER Command - Visual System
 
 The RENDER command provides advanced visual capabilities:
 
@@ -265,7 +271,7 @@ RENDER progress 75 100     # 75% progress bar
 
 ## ASSIST Mode Enhancement
 
-### 🤖 AI-Powered Task Management
+### (M) AI-Powered Task Management
 
 ASSIST mode now integrates with the sandbox task system:
 
@@ -294,34 +300,34 @@ sandbox/tasks/assist-mode/uTASK-20250816-1600-28-00AI01.md
 
 ## Enhanced Dashboard
 
-### 📈 v1.3 Modular Dashboard
+### [ ] v1.3 Modular Dashboard
 
 The dashboard now reflects the modular architecture:
 
 ```ascii
 ┌─── uDOS v1.3 MODULAR DASHBOARD ────────────────────┐
 │                                                     │
-│  �️  Architecture: Modular    📅 Date: 2025-08-17   │
-│  🧠 Core: 247 lines          🕐 Uptime: 2h 34m     │
+│  *  Architecture: Modular    [ ] Date: 2025-08-17   │
+│  (M) Core: 247 lines         [ ] Uptime: 2h 34m     │
 │                                                     │
-│  📊 System Components        🎯 uCode Scripts       │
-│  ══════════════════          ═══════════════       │
-│  Core Shell    ✅            MEMORY.ucode   ✅      │
-│  uSCRIPT       ✅            MISSION.ucode  ✅      │
-│  uMEMORY       ✅            PACKAGE.ucode  ✅      │
-│  Routing       ✅            LOG.ucode      ✅      │
-│                              DEV.ucode      ✅      │
-│                              RENDER.ucode   ✅      │
-│  📈 Performance Stats        🔧 Command Usage      │
-│  ═══════════════════         ═══════════════       │
-│  Core Efficiency: 98%        Shortcodes: 67%       │
-│  Script Load: <1ms           Full Commands: 33%    │
-│  Memory Usage: 12MB          Most Used: [MEM|LIST] │
+│  [ ] System Components        * uCode Scripts        │
+│  ══════════════════           ═══════════════        │
+│  Core Shell    [x]            MEMORY.ucode   [x]     │
+│  uSCRIPT       [x]            MISSION.ucode  [x]     │
+│  uMEMORY       [x]            PACKAGE.ucode  [x]     │
+│  Routing       [x]            LOG.ucode      [x]     │
+│                              DEV.ucode      [x]      │
+│                              RENDER.ucode   [x]      │
+│  [ ] Performance Stats        * Command Usage         │
+│  ═══════════════════          ═══════════════         │
+│  Core Efficiency: 98%         Shortcodes: 67%        │
+│  Script Load: <1ms            Full Commands: 33%     │
+│  Memory Usage: 12MB           Most Used: [MEM|LIST]  │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
-### 🎛️ Dashboard Commands
+### * Dashboard Commands
 ```bash
 DASH                    # Main modular dashboard
 DASH ARCHITECTURE       # Architecture overview
@@ -334,7 +340,7 @@ DASH USAGE             # Command usage statistics
 
 ## Memory & Mission Management
 
-### 🧠 MEMORY Command System
+### (M) MEMORY Command System
 
 The MEMORY command provides comprehensive file management:
 
@@ -357,7 +363,7 @@ MEMORY restore "backup-name"             # Restore from backup
 [MEM|STATS]             # Quick statistics
 ```
 
-### 🎯 MISSION Command System
+### * MISSION Command System
 
 The MISSION command handles task and project tracking:
 
@@ -384,7 +390,7 @@ MISSION report                           # Generate mission report
 
 ## Command Reference
 
-### 🔧 Core System Commands
+### * Core System Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -394,7 +400,7 @@ MISSION report                           # Generate mission report
 | `RESTART` | Restart uDOS session | `RESTART` |
 | `RESIZE` | Terminal size optimizer | `RESIZE` |
 
-### 🎯 uCode Script Commands
+### * uCode Script Commands
 
 | Command | Script | Description | Example |
 |---------|--------|-------------|---------|
@@ -408,7 +414,7 @@ MISSION report                           # Generate mission report
 | `PANEL` | PANEL.ucode | Control panels | `PANEL system` |
 | `TREE` | TREE.ucode | Structure tools | `TREE generate` |
 
-### 📝 Shortcode Commands
+### [ ] Shortcode Commands
 
 | Shortcode | Full Command | Description |
 |-----------|--------------|-------------|
@@ -426,7 +432,7 @@ MISSION report                           # Generate mission report
 
 ## Advanced Features
 
-### 🔧 Development Tools (DEV Command)
+### * Development Tools (DEV Command)
 
 #### Comprehensive Testing System
 ```bash
@@ -461,7 +467,7 @@ DEV backup system       # Backup entire system
 DEV restore latest      # Restore from latest backup
 ```
 
-### 🎨 Visual Rendering System (RENDER Command)
+### (Art) Visual Rendering System (RENDER Command)
 
 #### ASCII Art & Graphics
 ```bash
@@ -491,7 +497,7 @@ RENDER progress 75 100            # Progress indicator
 RENDER table system-status        # Data table display
 ```
 
-### 📊 Monitoring & Analytics
+### [ ] Monitoring & Analytics
 
 #### System Health Monitoring
 - **Modular Architecture**: Track core shell and uCode script performance
@@ -509,7 +515,7 @@ RENDER table system-status        # Data table display
 
 ## Troubleshooting
 
-### 🚨 Common Issues v1.3
+### * Common Issues v1.3
 
 #### uCode Script Execution Problems
 ```
@@ -543,7 +549,7 @@ RENDER table system-status        # Data table display
 ✅ Solution: Check system architecture with DASH architecture
 ```
 
-### 🛠️ Diagnostic Commands
+### * Diagnostic Commands
 
 ```bash
 STATUS                      # Core system overview
@@ -559,25 +565,25 @@ RENDER art gallery         # Test visual rendering system
 
 ## Best Practices
 
-### 🏗️ Modular Architecture
+### * Modular Architecture
 1. **Use shortcode commands** for quick daily tasks
 2. **Use full commands** for detailed operations with specific parameters
 3. **Leverage uCode scripts** for complex functionality instead of extending core shell
 4. **Monitor system performance** with DEV profile and DASH commands
 
-### � Memory & Mission Management
+### * Memory & Mission Management
 1. **Create descriptive missions** with clear objectives and timelines
 2. **Use memory search** to quickly locate files and information
 3. **Organize missions** by status and priority for better tracking
 4. **Regular cleanup** of completed missions and temporary files
 
-### 🎨 Visual System Usage
+### (Art) Visual System Usage
 1. **Use RENDER gallery** to explore available ASCII art
 2. **Create custom charts** with your data for better visualization
 3. **Use progress bars** for long-running operations
 4. **Design interactive UIs** for complex system operations
 
-### 🛠️ Development Workflow
+### * Development Workflow
 1. **Start with DEV validate** before making system changes
 2. **Use comprehensive testing** with DEV test before deployment
 3. **Profile performance** regularly with DEV profile
@@ -587,7 +593,7 @@ RENDER art gallery         # Test visual rendering system
 
 ## uCode Script Library
 
-### 🚀 Visual Basic Style Scripts
+### * Visual Basic Style Scripts
 
 uDOS v1.3 features a complete library of Visual Basic-style uCode scripts:
 
@@ -604,7 +610,7 @@ uDOS v1.3 features a complete library of Visual Basic-style uCode scripts:
 - **PANEL.ucode**: Interactive control panels for system management
 - **TREE.ucode**: Repository structure generation and visualization tools
 
-### � Script Architecture
+### * Script Architecture
 
 Each uCode script follows consistent Visual Basic syntax patterns:
 
@@ -627,13 +633,13 @@ FUNCTION Main(args AS STRING) AS INTEGER
         CASE "help"
             RETURN ShowHelp()
         CASE ELSE
-            PRINT "❌ Unknown command: " + command
+            PRINT "* Unknown command: " + command
             RETURN 1
     END SELECT
 END FUNCTION
 ```
 
-### 📊 Script Execution Flow
+### [ ] Script Execution Flow
 
 1. **Core Shell** receives user command
 2. **Command Parser** determines if command routes to uCode script
@@ -641,7 +647,7 @@ END FUNCTION
 4. **Visual Basic Interpreter** processes script logic
 5. **Formatted Output** returns results to user
 
-### 🎯 Script Development
+### * Script Development
 
 Future uCode scripts can be easily added to the library:
 
@@ -660,19 +666,19 @@ DEV test script NEWSCRIPT
 
 ## Support & Resources
 
-### 📚 Documentation
+### [ ] Documentation
 - **Architecture Guide**: `/docs/ARCHITECTURE.md` - Complete system architecture
 - **Modular Guide**: `/docs/uDOS-Concepts-v1.3.md` - v1.3 modular concepts
 - **Style Guide**: `/docs/Style-Guide.md` - Coding and documentation standards
 - **VS Code Guide**: `/docs/VS-Code-Dev-Mode-Guide.md` - Development environment setup
 
-### 🛠️ Core System Tools
+### * Core System Tools
 - **Modular Shell**: `/uCORE/code/ucode-modular.sh` - Main system shell (247 lines)
 - **Smart Input**: `/uCORE/code/smart-input.sh` - Input processing system
 - **System Setup**: `/uCORE/code/setup.sh` - System initialization
 - **Clean Shutdown**: `/uCORE/code/destroy.sh` - Safe system termination
 
-### 🎯 uCode Script Library
+### * uCode Script Library
 - **MEMORY.ucode**: `/uSCRIPT/library/ucode/MEMORY.ucode` - Memory management
 - **MISSION.ucode**: `/uSCRIPT/library/ucode/MISSION.ucode` - Task tracking
 - **PACKAGE.ucode**: `/uSCRIPT/library/ucode/PACKAGE.ucode` - Package management
@@ -680,13 +686,13 @@ DEV test script NEWSCRIPT
 - **DEV.ucode**: `/uSCRIPT/library/ucode/DEV.ucode` - Development tools
 - **RENDER.ucode**: `/uSCRIPT/library/ucode/RENDER.ucode` - Visual rendering
 
-### 🤝 Community
+### * Community
 - **GitHub Repository**: uDOS project repository with modular architecture
 - **Development Discussions**: Community development forum for v1.3
 - **Issue Tracking**: Bug reports and feature requests for modular system
 - **Knowledge Base**: Community-contributed documentation and scripts
 
-### 🔧 Quick Reference Commands
+### * Quick Reference Commands
 ```bash
 # System Overview
 STATUS                  # Complete system health check
@@ -701,6 +707,13 @@ DEV validate system    # Comprehensive system validation
 [LOG|REPORT]          # System activity report
 RENDER gallery        # Visual capabilities showcase
 ```
+
+
+---
+
+**Notes**
+
+This guide is designed to be read like the early home computer manuals — direct, practical, and a little nostalgic. Explore, make mistakes, and enjoy learning uDOS.
 
 ---
 

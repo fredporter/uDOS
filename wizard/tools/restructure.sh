@@ -58,7 +58,7 @@ create_structure() {
     print_step "Creating new directory structure..."
     
     # Main directories
-    mkdir -p uCORE/{code,system,extensions,installers,templates,package,launcher,docs,development,datasets}
+    mkdir -p uCORE/{bin,cache,code,config,datagets,datasets,distribution,install,launcher,templates}
     mkdir -p uMEMORY/{templates,scripts,datasets,configs,projects,extensions}
     mkdir -p uSANDBOX/{scripts,drafts,experiments}
     mkdir -p assistant

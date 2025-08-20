@@ -16,6 +16,29 @@
 
 ---
 
+## [ ] Documentation System
+
+*Manual Shelf: pick your guide, from quick start to deep architecture*
+
+```
+┌──────────────────────────────┐
+│ uDOS Documentation Library   │
+│ Practical Guides & Standards │
+└──────────────────────────────┘
+```
+
+- **[ARCHITECTURE Guide](docs/technical/ARCHITECTURE.md)** [10-50-00] – System architecture explained  
+- **[Core Concepts](docs/technical/Core-Concepts.md)** [10-50-01] – Foundations and philosophy  
+- **[User Guide](docs/user-guides/USER-GUIDE.md)** [10-50-03] – Practical user manual  
+- **[Wizard README](wizard/README.md)** [50-00-00] – Developer environment details  
+- **[uCode Developer Guide](docs/development/uCode-Developer-Guide.md)** [10-50-02] – Writing and extending uCode  
+- **[VS Code Dev Mode Guide](docs/development/VS-Code-Dev-Mode-Guide.md)** [10-10-05] – Editor integration  
+- **[Smart Input System](docs/technical/Smart-Input-System.md)** [10-30-00] – Input/output design  
+- **[Template Standard](docs/reference/Template-Standard.md)** [10-40-00] – Templates and consistency  
+- **[Markdown Spec](docs/reference/Markdown-Spec.md)** [10-50-01] – Documentation format  
+- **[Filename Convention](docs/reference/Filename-Convention.md)** [10-50-04] – Naming standards  
+- **[Style Guide](docs/reference/Style-Guide.md)** [10-50-02] – Coding and writing style  
+
 ## 🚀 What's New in v1.3
 
 ### ✨ Major Features
@@ -57,6 +80,8 @@
 - **VS Code integration** with dedicated development workspace
 - **Task management** integration with AI-enhanced workflows
 
+See **wizard/README.md** for full details of the Wizard environment, including session logging, workflows, tools, VS Code integration, and reports.
+
 #### 🌍 Global Timezone Integration (v1.2+)
 - **38 timezone codes** automatically mapped from city dataset
 - **Real-time timezone detection** with automatic file timestamping
@@ -96,6 +121,7 @@
     ├── tools/                 # Development tools
     ├── notes/                 # Strategy and planning documents
     ├── experiments/           # External packages and experimental tools
+    ├── reports/               # Generated reports and summaries
     └── vscode/                # VS Code integration
 ```
 
@@ -179,6 +205,7 @@ udos-url2md-batch urls.txt
 
 ### 🧙‍♂️ wizard/ - Development Environment [50-00-00]
 **Advanced development and workflow system (renamed from uDEV)**
+*See also:* `wizard/README.md` for setup, workflows, and usage.
 - `logs/` - Development session logs and activity tracking [50-10-00]
 - `workflows/` - Automated workflow definitions [50-20-00]
 - `tools/` - Development and maintenance tools [50-30-00]
@@ -205,6 +232,15 @@ udos-url2md-batch urls.txt
 
 # Or force terminal development mode
 ./uCORE/launcher/universal/start-udos.sh --dev
+```
+
+### Wizard Environment
+Start the focused developer environment (see wizard/README.md for details).
+```bash
+# Start Wizard workflows and developer tools
+./uCORE/launcher/universal/start-dev.sh --wizard
+# Or open the VS Code workspace directly
+code wizard/vscode/uDOS.code-workspace
 ```
 
 ### Manual Launch
@@ -267,10 +303,25 @@ Direct access to Gemini CLI integration
 - **[Cross-Platform Launcher](CROSS_PLATFORM_LAUNCHER_SUMMARY.md)** [00-21-00] - Launcher system implementation
 - **[Documentation Standards](DOCUMENTATION_STANDARDS_SUMMARY.md)** [00-22-00] - Standards implementation details
 
-### 📖 Component Documentation
-- **[Launcher System](uCORE/launcher/README.md)** [10-10-00] - Cross-platform launching
-- **[Core Scripts](uCORE/code/README.md)** [10-20-00] - Main system scripts
-- **[User Memory](uMEMORY/README.md)** [20-00-00] - User data management
+## [ ] Documentation System
+
+```
+┌──────────────────────────────┐
+│ uDOS Documentation Library   │
+│ Practical Guides & Standards │
+└──────────────────────────────┘
+```
+
+- **[ARCHITECTURE Guide](docs/technical/ARCHITECTURE.md)** [10-50-00] – System architecture explained  
+- **[Core Concepts](docs/technical/Core-Concepts.md)** [10-50-01] – Foundations and philosophy  
+- **[User Guide](docs/user-guides/USER-GUIDE.md)** [10-50-03] – Practical user manual  
+- **[uCode Developer Guide](docs/development/uCode-Developer-Guide.md)** [10-50-02] – Writing and extending uCode  
+- **[VS Code Dev Mode Guide](docs/development/VS-Code-Dev-Mode-Guide.md)** [10-10-05] – Editor integration  
+- **[Smart Input System](docs/technical/Smart-Input-System.md)** [10-30-00] – Input/output design  
+- **[Template Standard](docs/reference/Template-Standard.md)** [10-40-00] – Templates and consistency  
+- **[Markdown Spec](docs/reference/Markdown-Spec.md)** [10-50-01] – Documentation format  
+- **[Filename Convention](docs/reference/Filename-Convention.md)** [10-50-04] – Naming standards  
+- **[Style Guide](docs/reference/Style-Guide.md)** [10-50-02] – Coding and writing style  
 
 ## 🔧 Development Environment
 
@@ -314,3 +365,6 @@ code uDOS.code-workspace
 
 **Features**: Extension System | Deployment Manager | Smart Input Enhanced | Wizard Development Environment | Web Content Extraction  
 **Updated**: August 17, 2025 | **Architecture**: Modern Modular Design with Plugin Architecture
+
+---
+*For the full manual experience, see docs/user-guides/USER-GUIDE.md, written in the spirit of the Acorn 1981 User Manual.*

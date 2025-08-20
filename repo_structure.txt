@@ -79,6 +79,8 @@ uCORE/
             ├── urltomarkdown/
                 ├── public_html/
                 ├── tests/
+    ├── config/
+    ├── datagets/
     ├── datasets/
         ├── mapping/
             ├── map-output/
@@ -88,8 +90,7 @@ uCORE/
             ├── data/
             ├── templates/
             ├── utils/
-    ├── docs/
-    ├── extension/
+    ├── distribution/
     ├── install/
         ├── roles/
             ├── drone/
@@ -109,17 +110,11 @@ uCORE/
                 ├── Resources/
         ├── universal/
         ├── vscode/
-    ├── package/
-    ├── sandbox/
     ├── templates/
         ├── datagets/
         ├── examples/
         ├── system/
         ├── variables/
-    ├── uKnowledge/
-    ├── uScript/
-    ├── uTemplate/
-    ├── wizard/
 uKNOWLEDGE/
 uMEMORY/
     ├── .backup/
