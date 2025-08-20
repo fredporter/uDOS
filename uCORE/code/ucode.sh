@@ -3637,9 +3637,9 @@ generate_repository_structure() {
     
     log_info "Scanning repository structure..."
     
-    # Count directories and files for statistics
-    local dir_count=$(find . -type d -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
-    local file_count=$(find . -type f -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
+    # Count directories and files for statistics (excluding hidden files)
+    local dir_count=$(find . -type d -not -name ".*" -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
+    local file_count=$(find . -type f -not -name ".*" -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | wc -l | tr -d ' ')
     
     cat > "$output_file" << EOF
 # uDOS $version Repository Structure
@@ -3666,12 +3666,12 @@ EOF
     if command -v tree >/dev/null 2>&1; then
         log_info "Using tree command for structure generation..."
         echo '```' >> "$output_file"
-        tree -a -I '.git|node_modules|__pycache__|*.pyc|.DS_Store' -L 4 >> "$output_file"
+        tree -a -I '.git|node_modules|__pycache__|*.pyc|.DS_Store|.*' -L 4 >> "$output_file"
         echo '```' >> "$output_file"
     else
         log_info "Using find command for structure generation..."
         echo '```' >> "$output_file"
-        find . -type d -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | \
+        find . -type d -not -name ".*" -not -path "./.git*" -not -path "./node_modules*" -not -path "./__pycache__*" | \
         head -200 | \
         sort | \
         sed 's|^\./||' | \
@@ -3759,12 +3759,9 @@ EOF
     log_success "Repository structure generated: $output_file"
     log_info "📊 Scanned $dir_count directories and $file_count files"
     
-    # Offer to view the generated file
-    read -p "📖 View the generated structure? [Y/n]: " view_choice
-    if [[ "$(echo "$view_choice" | tr '[:upper:]' '[:lower:]')" != "n" ]]; then
-        echo ""
-        cat "$output_file"
-    fi
+    # Automatically display the generated file
+    echo ""
+    cat "$output_file"
 }
 
 # Show tree command help
