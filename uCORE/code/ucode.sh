@@ -3690,66 +3690,6 @@ EOF
     # Add comprehensive folder descriptions
     cat >> "$output_file" << 'EOF'
 
-## System Architecture Overview
-
-### 🏢 Multi-Installation Framework (`installations/`)
-- **6-tier role hierarchy**: Ghost(10) → Tomb(20) → Drone(40) → Imp(60) → Sorcerer(80) → Wizard(100)
-- **Installation types**: Complete role-based system with individual configurations
-- **Cross-installation collaboration**: Secure sharing mechanisms between roles
-- **User data isolation**: Personal data separated from core system
-
-### 🔧 Core System (`uCORE/`)
-- **`code/`** - Core utilities, uCODE shell, and system commands
-- **`datasets/`** - Location mappings, timezone data, and system configurations
-- **`extensions/`** - Extension development framework and VS Code integration
-- **`launcher/`** - Platform-specific application launchers and installers
-- **`templates/`** - System templates for hex filenames, forms, and configurations
-
-### 🧠 User Memory System (`uMEMORY/`)
-- **Hex filename convention**: 8-character encoding with temporal-spatial organization
-- **Personal data archive**: Missions, moves, memories, milestones
-- **Flat structure design**: Direct access to all user data
-- **Privacy protection**: Completely isolated from distributed system
-
-### 👨‍💻 Development Environment (`wizard/`)
-- **Level 100 access**: Complete system access and development capabilities
-- **`notes/`** - Development logs in hex format (63+ files, ALWAYS SYNCED)
-- **`tools/`** - Development utilities and script executors
-- **`utilities/`** - System utilities for hex conversion and maintenance
-- **`vscode/`** - VS Code integration and configuration
-
-### 📦 Script Management (`uSCRIPT/`)
-- **Multi-language execution engine**: Python, Shell, JavaScript, uCODE
-- **Role-aware security**: Execution permissions based on installation type
-- **Production vs development**: Clear separation of stable vs experimental scripts
-- **`library/`** - Organized by language (automation/, javascript/, python/, shell/, ucode/)
-
-### 🏠 User Workspace (`sandbox/`)
-- **Active workspace**: Where most user activity occurs daily
-- **Task management**: In-progress and completed task organization
-- **Experimentation area**: Safe space for testing and development
-- **Archive pipeline**: Content moves to uMEMORY/ as daily sessions complete
-
-### 📚 Knowledge Base (`uKNOWLEDGE/`)
-- **Shared knowledge system**: Documentation and learning resources
-- **Community content**: Shareable knowledge base across installations
-- **Reference system**: Quick access to system documentation
-
-### 📖 Documentation (`docs/`)
-- **Complete system documentation**: Architecture guides and user manuals
-- **Style guides**: Development standards and conventions
-- **API documentation**: Integration guides and technical references
-
-### 🔌 Extension System (`extension/`)
-- **VS Code integration**: Native uDOS commands and file management
-- **Development framework**: Template-based extension creation
-- **Platform support**: Cross-platform compatibility
-
-### 📊 Shared Resources (`shared/`)
-- **Cross-installation configs**: Default configurations and system settings
-- **Permission systems**: JSON-based role definitions (6 role types)
-- **Common resources**: Shared assets and utilities
-
 ## File Naming Conventions
 
 ### Hex Filename System (v3.0)
