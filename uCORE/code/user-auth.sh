@@ -334,6 +334,12 @@ trigger_destroy_reboot() {
     
     sleep 3
     
+    # Create session log for security destroy
+    local session_logger="$UDOS_ROOT/uCORE/code/session-logger.sh"
+    if [[ -x "$session_logger" ]]; then
+        "$session_logger" destroy >/dev/null 2>&1
+    fi
+    
     # Execute destroy script
     local destroy_script="$UDOS_ROOT/uCORE/code/destroy.sh"
     if [[ -x "$destroy_script" ]]; then

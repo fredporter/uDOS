@@ -137,6 +137,17 @@ main() {
     
     echo ""
     log_success "uDOS startup sequence completed!"
+    
+    # Create session log
+    log_info "Creating session log..."
+    local session_logger="$UDOS_ROOT/uCORE/code/session-logger.sh"
+    if [[ -x "$session_logger" ]]; then
+        "$session_logger" startup >/dev/null 2>&1
+        log_success "Session log created"
+    else
+        log_warning "Session logger not found"
+    fi
+    
     log_info "Launching main uDOS interface..."
     echo ""
     

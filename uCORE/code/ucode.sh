@@ -1267,7 +1267,10 @@ validate_system() {
     done
     
     # Check critical files
-    local critical_files=("$UMEMORY/identity.md")
+    # Check critical files - now uses sandbox/user.md instead of uMEMORY/identity.md
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local user_file="$udos_root/sandbox/user.md"
+    local critical_files=("$user_file")
     for file in "${critical_files[@]}"; do
         if [[ ! -f "$file" ]]; then
             log_warning "Critical file missing: $file"
@@ -1275,9 +1278,11 @@ validate_system() {
         fi
     done
     
-    # Check for DESTROY scenario
-    if [[ ! -f "$UMEMORY/identity.md" ]] || [[ ! -d "$UHOME" ]]; then
-        log_warning "DESTROY scenario detected - full setup required"
+    # Check for DESTROY scenario - now uses sandbox/user.md instead of uMEMORY/identity.md
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local user_file="$udos_root/sandbox/user.md"
+    if [[ ! -f "$user_file" ]] || [[ ! -d "$UHOME" ]]; then
+        log_warning "DESTROY scenario detected - user authentication missing"
         validation_failed=true
     fi
     
@@ -1340,9 +1345,12 @@ authenticate_user() {
 
 # Check if first-time setup needed
 check_setup() {
-    # Always prompt setup if critical files missing or DESTROY scenario
-    if [[ ! -f "$UMEMORY/identity.md" ]] || [[ ! -d "$UHOME" ]] || [[ ! -d "$UMEMORY" ]]; then
-        log_warning "Critical system files missing - setup required"
+    # Check if user authentication is set up instead of old identity.md
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local user_file="$udos_root/sandbox/user.md"
+    
+    if [[ ! -f "$user_file" ]] || [[ ! -d "$UHOME" ]] || [[ ! -d "$UMEMORY" ]]; then
+        log_warning "User authentication or system directories missing - setup required"
         setup_user
         return 0
     fi
@@ -2895,6 +2903,7 @@ show_help() {
     format_text "- DESTROY - Reset system requires confirmation"
     format_text "- SETUP - Run first-time setup"
     format_text "- USER - User account management and authentication"
+    format_text "- SESSION - Session logging and tracking"
     format_text "- RESTART - Restart uDOS session (aliases: REBOOT, RELOAD)"
     format_text "- RESET - Refresh interface (aliases: REFRESH)"
     format_text "- EXIT - Backup uMEMORY and restart uDOS (aliases: QUIT, BYE)"
@@ -3269,6 +3278,71 @@ handle_user_command() {
             echo "  • 1-16 character password limit"
             echo "  • Missing user.md triggers destroy/reboot"
             echo "  • Development mode bypasses authentication"
+            ;;
+    esac
+}
+
+# Handle session logging commands
+handle_session_command() {
+    local subcmd="${1:-list}"
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local session_logger="$udos_root/uCORE/code/session-logger.sh"
+    
+    # Check if session logger script exists
+    if [[ ! -x "$session_logger" ]]; then
+        log_error "Session logging system not available"
+        log_info "Expected location: $session_logger"
+        return 1
+    fi
+    
+    case "$subcmd" in
+        LIST|list|RECENT|recent)
+            local count="${2:-5}"
+            "$session_logger" list "$count"
+            ;;
+        CREATE|create|NEW|new)
+            local session_type="${2:-manual}"
+            "$session_logger" create "$session_type"
+            ;;
+        MANUAL|manual)
+            "$session_logger" manual
+            ;;
+        STARTUP|startup)
+            "$session_logger" startup
+            ;;
+        RESTART|restart)
+            "$session_logger" restart
+            ;;
+        REBOOT|reboot)
+            "$session_logger" reboot
+            ;;
+        DESTROY|destroy)
+            "$session_logger" destroy
+            ;;
+        HELP|help|*)
+            log_info "Session Management Commands:"
+            echo ""
+            echo "  SESSION LIST [count]  - Show recent session logs (default: 5)"
+            echo "  SESSION CREATE [type] - Create new session log"
+            echo "  SESSION MANUAL        - Create manual session log"
+            echo "  SESSION STARTUP       - Log system startup"
+            echo "  SESSION RESTART       - Log session restart"
+            echo "  SESSION REBOOT        - Log system reboot"
+            echo "  SESSION DESTROY       - Log security destroy/reboot"
+            echo "  SESSION HELP          - Show this help"
+            echo ""
+            echo "Session Types:"
+            echo "  • startup   - System startup/initialization"
+            echo "  • restart   - Session restart/reload"
+            echo "  • reboot    - System reboot"
+            echo "  • destroy   - Security destroy and reboot"
+            echo "  • manual    - Manually triggered log"
+            echo ""
+            echo "Session Logs:"
+            echo "  • Created as uLOG-YYYYMMDD-HHMMSS-HEX-Session.md"
+            echo "  • Stored in uMEMORY/ directory"
+            echo "  • Include system state and user context"
+            echo "  • Track activity and configuration changes"
             ;;
     esac
 }
@@ -3876,6 +3950,16 @@ main() {
                 clear
                 exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/startup.sh"  # Restart via startup script
             elif [[ "$input" =~ ^(restart|reboot|reload)$ ]]; then
+                # Create session log for reboot/restart
+                local session_logger="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/session-logger.sh"
+                if [[ -x "$session_logger" ]]; then
+                    if [[ "$input" =~ ^(reboot)$ ]]; then
+                        "$session_logger" reboot >/dev/null 2>&1
+                    else
+                        "$session_logger" restart >/dev/null 2>&1
+                    fi
+                fi
+                
                 log_info "Restarting uDOS session..."
                 clear
                 exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/startup.sh"  # Restart via startup script
@@ -3955,6 +4039,9 @@ process_input() {
             ;;
         USER|user)
             handle_user_command "$args"
+            ;;
+        SESSION|session)
+            handle_session_command "$args"
             ;;
         RESTART|restart|REBOOT|reboot|RELOAD|reload)
             log_info "Restarting uDOS session..."
