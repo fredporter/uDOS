@@ -1290,53 +1290,52 @@ validate_system() {
     return 0
 }
 
-# Password authentication
+# User authentication using sandbox/user.md
 authenticate_user() {
+    # Get the uDOS root directory
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local user_auth_script="$udos_root/uCORE/code/user-auth.sh"
+    local user_file="$udos_root/sandbox/user.md"
+    
     # Skip authentication in development mode or if --no-auth flag is passed
     if [[ "${UDOS_DEV_MODE:-false}" == "true" ]] || [[ "${1:-}" == "--no-auth" ]]; then
         log_info "Skipping authentication (development mode)"
         return 0
     fi
     
-    # Check if password is set
-    local password_file="$UMEMORY/.auth"
-    
-    if [[ -f "$password_file" ]]; then
-        local stored_hash=$(cat "$password_file")
+    # Check if user.md exists - missing file triggers destroy/reboot
+    if [[ ! -f "$user_file" ]]; then
+        log_error "SECURITY ALERT: User authentication file missing!"
+        log_warning "Triggering security destroy and reboot..."
         
-        # Skip if blank password is set
-        if [[ "$stored_hash" == "BLANK" ]]; then
-            return 0
-        fi
-        
-        echo -ne "${CYAN}🔐 Enter password: ${NC}"
-        read -s password
-        echo ""
-        
-        # Simple hash check (for demo - use proper hashing in production)
-        local input_hash=$(echo -n "$password" | sha256sum | cut -d' ' -f1 2>/dev/null || echo -n "$password" | shasum -a 256 | cut -d' ' -f1)
-        
-        if [[ "$input_hash" != "$stored_hash" ]]; then
-            log_error "Authentication failed"
-            exit 1
-        fi
-        
-        log_success "Authentication successful"
-    else
-        # First time - set password
-        echo -ne "${CYAN}🔐 Set password (or press Enter for none): ${NC}"
-        read -s password
-        echo ""
-        
-        if [[ -z "$password" ]]; then
-            echo "BLANK" > "$password_file"
-            log_info "Password disabled"
+        if [[ -x "$user_auth_script" ]]; then
+            exec "$user_auth_script" destroy
         else
-            local password_hash=$(echo -n "$password" | sha256sum | cut -d' ' -f1 2>/dev/null || echo -n "$password" | shasum -a 256 | cut -d' ' -f1)
-            echo "$password_hash" > "$password_file"
-            log_success "Password set"
+            # Fallback - manual security protocol
+            log_error "User authentication system compromised"
+            log_info "Initiating manual security cleanup..."
+            rm -rf "$udos_root/sandbox" 2>/dev/null || true
+            sleep 2
+            clear
+            exec "$udos_root/uCORE/code/startup.sh"
+        fi
+        return 1
+    fi
+    
+    # If user.md exists but no user-auth script, create minimal check
+    if [[ ! -x "$user_auth_script" ]]; then
+        log_warning "User authentication script missing - using basic validation"
+        if grep -q "^# 🎭 uDOS User Identity" "$user_file"; then
+            log_success "User file validated"
+            return 0
+        else
+            log_error "Invalid user file format"
+            return 1
         fi
     fi
+    
+    # Use the dedicated user authentication script
+    "$user_auth_script" auth
 }
 
 # Check if first-time setup needed
@@ -2895,6 +2894,7 @@ show_help() {
     format_text "- GO - Browse available shortcodes and smart input features"
     format_text "- DESTROY - Reset system requires confirmation"
     format_text "- SETUP - Run first-time setup"
+    format_text "- USER - User account management and authentication"
     format_text "- RESTART - Restart uDOS session (aliases: REBOOT, RELOAD)"
     format_text "- RESET - Refresh interface (aliases: REFRESH)"
     format_text "- EXIT - Backup uMEMORY and restart uDOS (aliases: QUIT, BYE)"
@@ -3212,6 +3212,63 @@ handle_umemory() {
             echo "  UMEMORY STATUS  - Show system status"
             echo "  UMEMORY RESET   - Reset system (careful!)"
             echo "  UMEMORY HELP    - Show this help"
+            ;;
+    esac
+}
+
+# Handle user authentication and management commands
+handle_user_command() {
+    local subcmd="${1:-info}"
+    local udos_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    local user_auth_script="$udos_root/uCORE/code/user-auth.sh"
+    
+    # Check if user authentication script exists
+    if [[ ! -x "$user_auth_script" ]]; then
+        log_error "User authentication system not available"
+        log_info "Expected location: $user_auth_script"
+        return 1
+    fi
+    
+    case "$subcmd" in
+        INFO|info|SHOW|show)
+            "$user_auth_script" info
+            ;;
+        AUTH|auth|LOGIN|login)
+            "$user_auth_script" auth
+            ;;
+        PASSWORD|password|PASSWD|passwd)
+            "$user_auth_script" password
+            ;;
+        SETUP|setup|CREATE|create)
+            "$user_auth_script" setup
+            ;;
+        RESET|reset)
+            "$user_auth_script" reset
+            ;;
+        CHECK|check|VALIDATE|validate)
+            if "$user_auth_script" check; then
+                log_success "User authentication file is valid"
+            else
+                log_error "User authentication file is missing or invalid"
+            fi
+            ;;
+        HELP|help|*)
+            log_info "User Management Commands:"
+            echo ""
+            echo "  USER INFO      - Show user information"
+            echo "  USER AUTH      - Authenticate user login"
+            echo "  USER PASSWORD  - Change user password"
+            echo "  USER SETUP     - Create/setup user account"
+            echo "  USER RESET     - Reset user account"
+            echo "  USER CHECK     - Validate user file"
+            echo "  USER HELP      - Show this help"
+            echo ""
+            echo "Security Features:"
+            echo "  • User data stored only in sandbox/user.md"
+            echo "  • Passwords hashed with SHA-256"
+            echo "  • 1-16 character password limit"
+            echo "  • Missing user.md triggers destroy/reboot"
+            echo "  • Development mode bypasses authentication"
             ;;
     esac
 }
@@ -3895,6 +3952,9 @@ process_input() {
             ;;
         SETUP|setup)
             setup_user
+            ;;
+        USER|user)
+            handle_user_command "$args"
             ;;
         RESTART|restart|REBOOT|reboot|RELOAD|reload)
             log_info "Restarting uDOS session..."

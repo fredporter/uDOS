@@ -75,6 +75,52 @@ check_system_integrity() {
     fi
 }
 
+# Check user authentication file on startup
+check_user_authentication() {
+    log_info "Checking user authentication..."
+    
+    local user_file="$UDOS_ROOT/sandbox/user.md"
+    local user_auth_script="$UDOS_ROOT/uCORE/code/user-auth.sh"
+    
+    # Check if user.md exists
+    if [[ ! -f "$user_file" ]]; then
+        log_warning "User authentication file missing!"
+        log_warning "This triggers security destroy and reboot protocol"
+        
+        # Give user a moment to see the warning
+        sleep 2
+        
+        # Execute security protocol
+        if [[ -x "$user_auth_script" ]]; then
+            log_info "Executing security protocol..."
+            exec "$user_auth_script" destroy
+        else
+            # Fallback manual cleanup
+            log_error "Security system compromised - manual cleanup"
+            rm -rf "$UDOS_ROOT/sandbox" 2>/dev/null || true
+            rm -rf "$UDOS_ROOT/uMEMORY/user" 2>/dev/null || true
+            log_info "System cleaned, restarting..."
+            sleep 2
+            clear
+            exec "$0"
+        fi
+        return 1
+    fi
+    
+    # Validate user file format
+    if ! grep -q "^# 🎭 uDOS User Identity" "$user_file"; then
+        log_warning "Invalid user authentication file format"
+        log_warning "Triggering security reset..."
+        
+        if [[ -x "$user_auth_script" ]]; then
+            exec "$user_auth_script" destroy
+        fi
+        return 1
+    fi
+    
+    log_success "User authentication file validated"
+}
+
 # Main startup sequence
 main() {
     show_startup_banner
@@ -86,6 +132,7 @@ main() {
     echo ""
     
     check_system_integrity
+    check_user_authentication
     run_startup_backup
     
     echo ""
