@@ -67,16 +67,10 @@
 
 **Reference Path**: Browse by need or follow Style-Guide.md → Markdown-Spec.md → Template-Standard.md
 
-### 🗂️ [Legacy](legacy/) - Historical Documentation
-*Archived documentation and migration guides*
+### � [Technical](technical/) - System Architecture & Analysis
+*Deep technical documentation and system analysis*
 
-| Document | Description | Status | Note |
-|----------|-------------|---------|------|
-| **[Adventure.md](legacy/Adventure.md)** | Early system concepts | Archived | Historical reference |
-| **[ASCII-Gallery.md](legacy/ASCII-Gallery.md)** | ASCII art and visual elements | Archived | Design reference |
-| **[uSCRIPT-System.md](legacy/uSCRIPT-System.md)** | Legacy script system | Archived | Migration reference |
-
-**Legacy Note**: These documents provide historical context and migration guidance.
+| Document | Description | Audience | Status |
 
 ---
 
@@ -126,7 +120,6 @@ Research Path → Knowledge Mastery
 ├── technical/uDOS-Concepts-v1.3.md (Conceptual Foundation)
 ├── user-guides/uScript-VB-Commands.md (Research Tools)
 ├── reference/Markdown-Spec.md (Documentation Standards)
-├── legacy/ (Historical Context)
 └── Focus: Knowledge organization and research workflows
 ```
 

@@ -74,7 +74,7 @@ Documentation is organized across multiple directories for different purposes:
 - **Historical Roadmaps**: `notes/uNOTE-*-Historical-Roadmap-v13.md`
 
 #### **Future Planning** (`workflows/roadmaps/`)
-- **Strategic Roadmaps**: `workflows/roadmaps/uRMP-*` files for v1.4-v1.5 planning
+- **Strategic Roadmaps**: `workflows/roadmaps/uTASK-*` files for v1.4-v1.5 planning
 - **AI Integration Plans**: Comprehensive AI development strategies
 - **Enterprise Features**: Business model and enterprise development plans
 

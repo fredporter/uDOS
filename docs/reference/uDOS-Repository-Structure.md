@@ -346,9 +346,9 @@ uDOS/
 │       ├── 📁 development/
 │       ├── 📁 failed/
 │       ├── 📁 pending/
-│       ├── 📁 roadmaps/                       # Project Roadmaps
-│       │   ├── 📄 uTSK-E4404AA0-Filename-v3-Implementation.md     # Converted
-│       │   └── 📄 uTSK-E4404AA0-Wizard-Environment-Enhancement.md # Converted
+│       ├── 📁 technical/                      # Technical Documentation
+│       │   ├── 📄 uTASK-E801032F-Filename-v3-Implementation-Task.md     # Converted
+│       │   └── 📄 uTASK-E8010333-Wizard-Environment-Enhancement-Task.md # Converted
 │       ├── 📁 tasks/
 │       ├── 📁 templates/
 │       └── 📁 versioning/

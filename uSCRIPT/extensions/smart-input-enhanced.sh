@@ -478,6 +478,11 @@ start_wizard() {
     esac
 }
 
+# Generate uHEX code for file naming
+generate_uhex() {
+    openssl rand -hex 4 | tr '[:lower:]' '[:upper:]' 2>/dev/null || printf "%08X" $((RANDOM * RANDOM))
+}
+
 # Mission creation wizard
 mission_creation_wizard() {
     echo -e "${CYAN}Mission Creation Wizard${NC}"
@@ -499,24 +504,58 @@ mission_creation_wizard() {
     local mission_description
     mission_description=$(smart_prompt "Mission Description" "text" "" "false" "Detailed description of what needs to be done")
     
-    # Create mission file
-    local mission_file="$PROJECT_ROOT/uMEMORY/missions/mission-$(date +%s).json"
+    # Create mission file with uHEX naming convention
+    local uhex_code=$(generate_uhex)
+    local clean_title="${mission_title//[^a-zA-Z0-9]/-}"
+    local mission_file="$PROJECT_ROOT/uMEMORY/user/missions/uTASK-${uhex_code}-${clean_title}.md"
+    
+    # Ensure directory exists
+    mkdir -p "$PROJECT_ROOT/uMEMORY/user/missions"
     
     cat > "$mission_file" << EOF
-{
-  "mission_id": "mission-$(date +%s)",
-  "title": "$mission_title",
-  "type": "$mission_type",
-  "priority": "$priority",
-  "estimated_duration": "$estimated_duration",
-  "description": "$mission_description",
-  "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "status": "active",
-  "progress": 0,
-  "tasks": [],
-  "resources": [],
-  "notes": []
-}
+---
+mission_id: "uTASK-${uhex_code}"
+title: "$mission_title"
+type: "$mission_type"
+priority: "$priority"
+status: "active"
+created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+estimated_duration: "$estimated_duration"
+progress: 0
+---
+
+# Mission: $mission_title
+
+## Description
+$mission_description
+
+## Type
+$mission_type
+
+## Priority
+$priority
+
+## Estimated Duration
+$estimated_duration
+
+## Progress
+- [ ] Initial planning
+- [ ] Implementation
+- [ ] Testing/Validation
+- [ ] Completion
+
+## Tasks
+*Add specific tasks here as you break down the mission*
+
+## Resources
+*Add links, files, or references needed for this mission*
+
+## Notes
+*Add progress notes, obstacles, insights as you work*
+
+---
+*Created: $(date)*  
+*Mission ID: uTASK-${uhex_code}*
 EOF
     
     echo -e "${GREEN}${PROMPT_SUCCESS} Mission created: $mission_file${NC}"

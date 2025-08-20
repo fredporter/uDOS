@@ -83,7 +83,7 @@ get_file_prefix() {
         *uREP*|*REP*|*REPORT*) echo "uREP" ;;
         *uLOG*|*LOG*) echo "uLOG" ;;
         *NOTE*|*note*) echo "uNOT" ;;
-        *TASK*|*task*) echo "uTDO" ;;
+        *TASK*|*task*) echo "uTASK" ;;
         *CONFIG*|*config*) echo "uCFG" ;;
         *SCRIPT*|*script*) echo "uSCR" ;;
         *TEMPLATE*|*template*) echo "uTMP" ;;
@@ -104,7 +104,7 @@ get_file_prefix() {
                 */logs/*) echo "uLOG" ;;
                 */scripts/*) echo "uSCR" ;;
                 */templates/*) echo "uTMP" ;;
-                */sandbox/*) echo "uTDO" ;;
+                */sandbox/*) echo "uTASK" ;;
                 *) echo "uDOC" ;; # Default
             esac
             ;;

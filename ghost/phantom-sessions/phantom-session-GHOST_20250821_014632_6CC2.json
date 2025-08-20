@@ -1,0 +1,16 @@
+{
+    "session_id": "GHOST_20250821_014632_6CC2",
+    "manifestation_time": "2025-08-21T01:46:32Z",
+    "realm": "ghost",
+    "access_level": "demo",
+    "spirit_type": "demonstration",
+    "ethereal_state": "active",
+    "public_safety": "guaranteed",
+    "demo_mode": true,
+    "session_limits": {
+        "duration": "30 minutes",
+        "access": "read-only",
+        "safety": "maximum"
+    },
+    "spectral_activities": []
+}

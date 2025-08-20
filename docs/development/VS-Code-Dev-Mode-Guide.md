@@ -59,14 +59,14 @@ wizard/
 │       └── syntaxes/         # uCode syntax highlighting
 ├── notes/                    # 📚 Historical documentation
 ├── workflows/                # 🔄 Workflow management
-│   └── roadmaps/            # Strategic planning documents
+│   └── workflows/           # Wizard workflow management (Level 100)
 └── utilities/               # 🛠️ Development tools and scripts
 ```
 
 ### **Key Directories for Development**
 - **`vscode/`** - Your VS Code workspace and configuration
 - **`notes/`** - Historical documentation and implementation records
-- **`workflows/roadmaps/`** - Strategic planning and future development
+- **`wizard/workflows/roadmaps/`** - Strategic planning and future development (uTASK-* files)
 - **`utilities/`** - Development tools and helper scripts
 
 ---

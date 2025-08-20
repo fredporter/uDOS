@@ -4,20 +4,22 @@
   "terminal.integrated.fontSize": 13,
   
   "files.watcherExclude": {
-    "**/uMemory/**": true,
+    "**/uMEMORY/**": true,
     "**/node_modules/**": true,
     "**/.git/**": true,
     "**/progress/**": true,
     "**/*.vsix": true,
     "**/dist/**": true,
-    "**/out/**": true
+    "**/out/**": true,
+    "**/trash/**": true
   },
   
   "search.exclude": {
-    "**/uMemory/**": true,
+    "**/uMEMORY/**": true,
     "**/node_modules/**": true,
     "**/progress/**": true,
-    "**/*.vsix": true
+    "**/*.vsix": true,
+    "**/trash/**": true
   },
   
   "files.associations": {
@@ -46,13 +48,13 @@
   "git.enabled": true,
   "git.autofetch": true,
   
-  "udos.shellPath": "./uCode/ucode.sh",
+  "udos.shellPath": "../../uCORE/code/ucode.sh",
   "udos.enableCopilot": true,
   "udos.userRole": "ghost",
   "udos.enableChester": true,
   "udos.autoValidate": true,
-  "udos.templatePath": "./uTemplate",
-  "udos.memoryPath": "./uMemory",
+  "udos.templatePath": "../../uSCRIPT/templates",
+  "udos.memoryPath": "../../uMEMORY",
   
   "github.copilot.enable": {
     "*": true,

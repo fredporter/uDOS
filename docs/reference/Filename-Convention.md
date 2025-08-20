@@ -36,7 +36,7 @@ uREP-4F2A8C35-Weekly-Progress-Summary.md
 - **uDOC**: Documentation and guides
 - **uREP**: Reports and summaries
 - **uMAP**: Map and location data
-- **uTDO**: Tasks and todos
+- **uTASK**: Tasks and todos
 - **uNOT**: Notes and observations
 - **uDEV**: Development logs (wizard only)
 - **uDAT**: Data files and datasets
@@ -186,7 +186,7 @@ function decodeHex(hexCode) {
 ### User Files (Tile = Location)
 - **uNOT**: Personal notes with location
 - **uMEM**: Memory files with spatial context
-- **uTDO**: Location-based tasks
+- **uTASK**: Location-based tasks
 - **uREP**: Personal reports
 - **uMIS**: User missions
 - **uMIL**: Personal milestones
@@ -214,7 +214,7 @@ uMAP-4F2A8C40-Location-Tile-Data.md             (31 chars)
 ```
 uNOT-3B7F1A05-Personal-Reflection.md            (33 chars)
 uMEM-3B7F1A10-Creative-Session.md               (30 chars)
-uTDO-3B7F1A15-Daily-Goals.md                    (25 chars)
+uTASK-3B7F1A15-Daily-Goals.md                    (25 chars)
 uMIS-3B7F1A20-Portfolio-Project.md              (31 chars)
 uMIL-3B7F1A25-Learning-Milestone.md             (32 chars)
 uLEG-3B7F1A30-Life-Summary.md                   (26 chars)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # uDOS Startup Script v1.3
-# Handles uDOS initialization, uMEMORY backup, and system startup
+# Handles uDOS initialization, uMEMORY backup, system startup, and timezone checks
 
 set -euo pipefail
 
@@ -14,6 +14,7 @@ NC='\033[0m'
 
 # Get the uDOS root directory
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+USCRIPT_DIR="$UDOS_ROOT/uSCRIPT/library/ucode"
 
 # Log functions
 log_info() { echo -e "${CYAN}ℹ️  $1${NC}"; }
@@ -31,27 +32,27 @@ show_startup_banner() {
     echo -e "${NC}"
 }
 
-# Run uMEMORY backup on startup
+# Run smart backup on startup
 run_startup_backup() {
-    log_info "Running automatic uMEMORY backup on startup..."
+    log_info "Running automatic smart backup on startup..."
     
-    local backup_script="$UDOS_ROOT/uCORE/code/backup-umemory.sh"
+    local smart_backup_script="$UDOS_ROOT/uCORE/code/smart-backup.sh"
     
-    if [[ -x "$backup_script" ]]; then
-        # Run backup silently in background
-        "$backup_script" >/dev/null 2>&1 &
+    if [[ -x "$smart_backup_script" ]]; then
+        # Run smart backup silently in background
+        "$smart_backup_script" >/dev/null 2>&1 &
         local backup_pid=$!
         
         # Wait a moment to ensure backup starts
         sleep 1
         
         if kill -0 "$backup_pid" 2>/dev/null; then
-            log_success "uMEMORY backup initiated (running in background)"
+            log_success "Smart backup initiated (running in background)"
         else
-            log_warning "uMEMORY backup completed immediately"
+            log_success "Smart backup completed"
         fi
     else
-        log_warning "uMEMORY backup script not found or not executable"
+        log_warning "Smart backup script not found or not executable"
     fi
 }
 
@@ -121,18 +122,41 @@ check_user_authentication() {
     log_success "User authentication file validated"
 }
 
+# Check timezone setup
+check_timezone_setup() {
+    log_info "Checking timezone and location setup..."
+    
+    # Set USCRIPT_DIR if not already set
+    if [[ -z "$USCRIPT_DIR" ]]; then
+        export USCRIPT_DIR="$UDOS_ROOT/uSCRIPT"
+    fi
+    
+    # Run timezone startup check using uSCRIPT
+    if [[ -f "$USCRIPT_DIR/uscript.sh" ]]; then
+        "$USCRIPT_DIR/uscript.sh" "library/ucode/timezone.sh" "startup_timezone_check" >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            log_success "Timezone and location verified"
+        else
+            log_warning "Timezone setup may need attention"
+        fi
+    else
+        log_warning "uSCRIPT not available for timezone check"
+    fi
+}
+
 # Main startup sequence
 main() {
     show_startup_banner
     
     log_info "Initializing uDOS system..."
     echo "  📁 Root: $UDOS_ROOT"
-    echo "  🗄️  Auto-backup: uMEMORY → role/backup/ + sandbox/backup/"
+    echo "  🗄️  Smart Backup: Role-based with encryption & retention"
     echo "  🔄 Restart behavior: exit/quit commands restart uDOS"
     echo ""
     
     check_system_integrity
     check_user_authentication
+    check_timezone_setup
     run_startup_backup
     
     echo ""

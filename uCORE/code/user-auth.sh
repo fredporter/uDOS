@@ -3,6 +3,7 @@
 # uDOS User Authentication System v1.3
 # Manages user.md file in sandbox for authentication and user data
 # Missing user.md triggers destroy and reboot for security
+# Includes timezone, location, and role management
 
 set -euo pipefail
 
@@ -19,6 +20,7 @@ NC='\033[0m' # No Color
 UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 SANDBOX_DIR="$UDOS_ROOT/sandbox"
 USER_FILE="$SANDBOX_DIR/user.md"
+USCRIPT_DIR="$UDOS_ROOT/uSCRIPT/library/ucode"
 
 # Log functions
 log_info() { echo -e "${CYAN}ℹ️  $1${NC}"; }
@@ -129,6 +131,11 @@ create_user_file() {
         password_hash=$(hash_password "$password")
     fi
     
+    # Get timezone information
+    local timezone=$(get_system_timezone)
+    local city=$(get_timezone_city "$timezone")
+    local current_time=$(date "+%Y-%m-%d %H:%M:%S %Z")
+    
     # Create user.md from template
     cat > "$USER_FILE" << EOF
 # 🎭 uDOS User Identity
@@ -143,15 +150,15 @@ create_user_file() {
 
 ## 🎯 User Settings
 **User ID**: $user_id  
-**Role**: user  
+**Role**: ghost  
+**Role Description**: Public Interface & Demo Access - Basic level
 **Theme**: default  
 **Debug Mode**: false
 
 ## 🌍 Location Profile
-**Timezone**: $(date +%Z)  
-**Location Code**: UNKNOWN  
-**City**: Unknown  
-**Country**: UNKNOWN
+**Timezone**: $timezone  
+**Location Name**: $city  
+**Last Timezone Check**: $current_time
 
 ## 📁 Workspace Preferences
 **Auto Backup**: true  
@@ -164,13 +171,42 @@ create_user_file() {
 *Missing this file will trigger system destroy and reboot for security.*
 EOF
 
+    # Set secure permissions
+    chmod 600 "$USER_FILE"
+    
     log_success "User file created: $USER_FILE"
     log_info "Username: $username"
     log_info "User ID: $user_id"
+    log_info "Role: ghost (default)"
+    log_info "Location: $city"
+    log_info "Timezone: $timezone"
     if [[ -n "$password" ]]; then
         log_info "Password: SET (${#password} characters)"
     else
         log_info "Password: NONE (authentication disabled)"
+    fi
+}
+
+# Get system timezone (helper function)
+get_system_timezone() {
+    if [[ -f /etc/timezone ]]; then
+        cat /etc/timezone
+    elif [[ -L /etc/localtime ]]; then
+        readlink /etc/localtime | sed 's|.*/zoneinfo/||'
+    elif command -v timedatectl >/dev/null 2>&1; then
+        timedatectl | grep "Time zone" | awk '{print $3}'
+    else
+        date +%Z
+    fi
+}
+
+# Get timezone city name (helper function)
+get_timezone_city() {
+    local tz="$1"
+    if [[ -n "$tz" && "$tz" =~ / ]]; then
+        echo "$tz" | cut -d'/' -f2 | tr '_' ' '
+    else
+        echo "Unknown"
     fi
 }
 

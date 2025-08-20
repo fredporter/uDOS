@@ -1,0 +1,13 @@
+#!/bin/bash
+# uDOS Hex Generator Alias - Quick access to hex generator from anywhere
+# Place in PATH or add alias: alias uhex='/path/to/this/script'
+
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+HEX_GENERATOR="$UDOS_ROOT/uCORE/bin/hex-generator.sh"
+
+if [ -f "$HEX_GENERATOR" ]; then
+    "$HEX_GENERATOR" "$@"
+else
+    echo "❌ Error: hex-generator.sh not found at $HEX_GENERATOR"
+    exit 1
+fi

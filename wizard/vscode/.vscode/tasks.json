@@ -4,7 +4,7 @@
         {
             "label": "🌀 Start uDOS",
             "type": "shell",
-            "command": "./uCode/ucode.sh",
+            "command": "../../uCORE/code/ucode.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -15,333 +15,7 @@
                 "clear": true
             },
             "problemMatcher": [],
-            "detail": "Launch uDOS shell in VS Code terminal"
-        },
-        {
-            "label": "🔍 Check uDOS Setup",
-            "type": "shell",
-            "command": "./uCode/check.sh",
-            "args": ["all"],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📊 Generate Dashboard",
-            "type": "shell",
-            "command": "./uCode/dash.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📊 Dashboard",
-            "type": "shell",
-            "command": "./uCode/dash.sh",
-            "args": ["build"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": [],
-            "detail": "Generate dashboard with real-time monitoring"
-        },
-        {
-            "label": "📺 Live Dashboard",
-            "type": "shell",
-            "command": "./uCode/dash.sh",
-            "args": ["live"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Start interactive live dashboard with real-time updates"
-        },
-        {
-            "label": "� Companion System Setup",
-            "type": "shell",
-            "command": "./uCode/companion-system.sh",
-            "args": ["init"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": [],
-            "detail": "Initialize uDOS Companion System with uc-template approach"
-        },
-        {
-            "label": "🤖 Install Gemini CLI",
-            "type": "shell",
-            "command": "./uExtensions/ai/gemini-cli/install-gemini-cli.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Install Google Gemini CLI for intelligent assistance"
-        },
-        {
-            "label": "🧠 Start ASSIST Mode",
-            "type": "shell",
-            "command": "./uCore/scripts/assist",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Start Gemini CLI in ASSIST mode with uDOS context"
-        },
-        {
-            "label": "🗣️ Start COMMAND Mode",
-            "type": "shell",
-            "command": "./uCore/scripts/command",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Start natural language command interface"
-        },
-        {
-            "label": "🧠 Start Gemini Companion",
-            "type": "shell",
-            "command": "./uCode/companion-system.sh",
-            "args": ["gemini"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Start Gemini CLI with uDOS project context"
-        },
-        {
-            "label": "🐕 Start Chester (Wizard's Assistant)",
-            "type": "shell",
-            "command": "./uCode/companion-system.sh",
-            "args": ["chester"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "detail": "Start Chester, your dedicated Wizard's Assistant for uDOS development"
-        },
-        {
-            "label": "🎯 Initialize Chester",
-            "type": "shell",
-            "command": "./uCode/companion-system.sh",
-            "args": ["init-chester"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": [],
-            "detail": "Initialize Chester with personality parameters and uc-template integration"
-        },
-        {
-            "label": "� List Companions",
-            "type": "shell",
-            "command": "./uCode/companion-system.sh",
-            "args": ["list"],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": [],
-            "detail": "Show available uDOS companions"
-        },
-        {
-            "label": "✅ Validate Installation",
-            "type": "shell",
-            "command": "./uCode/validate-installation.sh",
-            "args": ["full"],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Comprehensive validation of uDOS v1.0 installation"
-        },
-        {
-            "label": "🔍 Quick Installation Check",
-            "type": "shell", 
-            "command": "./uCode/validate-installation.sh",
-            "args": ["quick"],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Quick validation of core uDOS components"
-        },
-        {
-            "label": "🌳 Generate File Tree",
-            "type": "shell",
-            "command": "./uCode/tree-generator.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "🧹 Clean uDOS (Destroy)",
-            "type": "shell",
-            "command": "./uCode/destroy.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📝 Create New Mission",
-            "type": "shell",
-            "command": "./uCode/structure.sh",
-            "args": ["build", "--input"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📦 Install Package: ripgrep",
-            "type": "shell",
-            "command": "./uCode/packages/install-ripgrep.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": [],
-            "detail": "Install ripgrep for fast text searching"
-        },
-        {
-            "label": "🔌 Install uDOS VS Code Extension",
-            "type": "shell",
-            "command": "./extension/install-extension.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": [],
-            "detail": "Compile and install the uDOS VS Code extension"
-        },
-        {
-            "label": "🏗️ Reorganize uDOS",
-            "type": "shell",
-            "command": "./uCode/reorganize.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": [],
-            "detail": "Migrate repository to new architectural structure"
-        },
-        {
-            "label": "🔍 Search with ripgrep",
-            "type": "shell",
-            "command": "./uCode/packages/run-ripgrep.sh",
-            "args": ["${input:searchTerm}", "${input:searchPath}"],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "panel": "new"
-            },
-            "problemMatcher": [],
-            "detail": "Fast text search across uDOS files"
-        },
-        {
-            "label": "📦 Package Manager",
-            "type": "shell",
-            "command": "./uCode/packages/consolidated-manager.sh",
-            "args": ["list"],
-            "group": "build",
-            "detail": "Manage uDOS packages"
-        },
-        {
-            "label": "📦 Install All Packages",
-            "type": "shell",
-            "command": "./uCode/packages/consolidated-manager.sh",
-            "args": ["install-all"],
-            "group": "build",
-            "detail": "Install all uDOS packages"
-        },
-        {
-            "label": "🔍 Search with ripgrep",
-            "type": "shell",
-            "command": "rg",
-            "args": ["${input:searchTerm}", "${workspaceFolder}"],
-            "group": "test",
-            "detail": "Fast text search with ripgrep"
-        },
-        {
-            "label": "📄 View with bat",
-            "type": "shell",
-            "command": "bat",
-            "args": ["${file}"],
-            "group": "test",
-            "detail": "Syntax-highlighted file viewing"
-        },
-        {
-            "label": "🔍 Find files with fd",
-            "type": "shell",
-            "command": "fd",
-            "args": ["${input:searchPattern}", "${workspaceFolder}"],
-            "group": "test",
-            "detail": "Fast file finding"
-        },
-        {
-            "label": "📖 View markdown with glow",
-            "type": "shell",
-            "command": "glow",
-            "args": ["${file}"],
-            "group": "test",
-            "detail": "Beautiful markdown rendering"
+            "detail": "Launch uDOS shell from wizard environment"
         },
         {
             "label": "🎯 Compile VS Code Extension",
@@ -349,7 +23,7 @@
             "command": "npx",
             "args": ["tsc"],
             "options": {
-                "cwd": "${workspaceFolder}/uDOS-Extension"
+                "cwd": "${workspaceFolder}/vscode-extension"
             },
             "group": "build",
             "presentation": {
@@ -365,7 +39,7 @@
             "command": "npm",
             "args": ["install"],
             "options": {
-                "cwd": "${workspaceFolder}/uDOS-Extension"
+                "cwd": "${workspaceFolder}/vscode-extension"
             },
             "group": "build",
             "presentation": {
@@ -376,80 +50,320 @@
             "detail": "Install uDOS VS Code Extension dependencies"
         },
         {
-            "label": "📚 Show Documentation",
+            "label": "⚡ Watch Extension",
             "type": "shell",
-            "command": "./uCode/show-docs.sh",
+            "command": "npx",
+            "args": ["tsc", "--watch"],
+            "options": {
+                "cwd": "${workspaceFolder}/vscode-extension"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "panel": "dedicated"
+            },
+            "isBackground": true,
+            "problemMatcher": "$tsc-watch",
+            "detail": "Watch compile uDOS Extension for development"
+        },
+        {
+            "label": "📋 Initialize Dev Framework",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["init_framework"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Initialize development framework with notes, workflows, and roadmaps"
+        },
+        {
+            "label": "📝 Start Dev Session",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["session", "start", "${input:sessionType}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Start development session with framework integration"
+        },
+        {
+            "label": "🔄 End Dev Session",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["session", "end"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "End current development session"
+        },
+        {
+            "label": "📄 Create Note",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["note", "${input:noteType}", "${input:noteTitle}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Create development note with framework integration"
+        },
+        {
+            "label": "🔀 Advance Workflow",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["workflow", "advance", "${input:workflowName}", "${input:workflowStage}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Advance workflow stage with smart backup integration"
+        },
+        {
+            "label": "🗺️ Update Roadmap",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["roadmap", "update"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Update development roadmap with current progress"
+        },
+        {
+            "label": "💾 Create Checkpoint",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["checkpoint", "${input:checkpointName}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Create smart backup checkpoint with framework state"
+        },
+        {
+            "label": "📊 Development Analytics",
+            "type": "shell",
+            "command": "../dev-utils.sh",
+            "args": ["analytics", "${input:analyticsType}"],
             "group": "test",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": true,
                 "panel": "dedicated"
             },
             "problemMatcher": [],
-            "detail": "View documentation index with glow"
+            "detail": "Run development analytics and metrics"
         },
         {
-            "label": "📖 Show User Manual",
+            "label": "🧠 User Memory Overview",
             "type": "shell",
-            "command": "./uCode/show-docs.sh",
-            "args": ["manual"],
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["overview"],
             "group": "test",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": true,
                 "panel": "dedicated"
             },
             "problemMatcher": [],
-            "detail": "View user manual with glow"
+            "detail": "Show comprehensive user memory system status"
         },
         {
-            "label": "📋 Show Command Reference",
+            "label": "🎯 Create Mission",
             "type": "shell",
-            "command": "./uCode/show-docs.sh",
-            "args": ["commands"],
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["mission", "${input:missionName}", "${input:missionType}"],
             "group": "test",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": true,
                 "panel": "dedicated"
             },
             "problemMatcher": [],
-            "detail": "View command reference with glow"
+            "detail": "Create new user mission"
         },
         {
-            "label": "🔍 List All Documentation",
+            "label": "🏆 Add Milestone",
             "type": "shell",
-            "command": "./uCode/show-docs.sh",
-            "args": ["list"],
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["milestone", "${input:milestoneName}", "${input:milestoneDescription}"],
             "group": "test",
             "presentation": {
                 "echo": true,
-                "reveal": "always"
+                "reveal": "always",
+                "panel": "dedicated"
             },
             "problemMatcher": [],
-            "detail": "List all available documentation"
+            "detail": "Record achievement milestone"
+        },
+        {
+            "label": "📍 Log User Move",
+            "type": "shell",
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["move", "${input:moveType}", "${input:moveDescription}", "${input:moveLocation}"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Log user activity move"
+        },
+        {
+            "label": "🗃️ Create Legacy Archive",
+            "type": "shell",
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["legacy", "${input:legacyName}", "${input:legacyPath}"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Archive legacy content"
+        },
+        {
+            "label": "📋 Generate Memory Report",
+            "type": "shell",
+            "command": "../../uCORE/code/user-memory/user-memory-manager.sh",
+            "args": ["report"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "detail": "Generate comprehensive user memory report"
         }
     ],
     "inputs": [
         {
-            "id": "searchTerm",
-            "description": "Enter search term for ripgrep",
-            "default": "TODO",
+            "id": "sessionType",
+            "description": "Enter session type",
+            "default": "general",
             "type": "promptString"
         },
         {
-            "id": "searchPattern",
-            "description": "Enter file pattern for fd",
-            "default": "*.md",
+            "id": "noteType",
+            "description": "Enter note type",
+            "default": "feature",
+            "type": "pickString",
+            "options": ["session", "feature", "bug", "research", "workflow", "roadmap"]
+        },
+        {
+            "id": "noteTitle",
+            "description": "Enter note title",
+            "default": "New Development Note",
             "type": "promptString"
         },
         {
-            "id": "searchPath",
-            "description": "Enter search path",
-            "default": "./uMemory/",
+            "id": "workflowName",
+            "description": "Enter workflow name",
+            "default": "Feature Development",
+            "type": "promptString"
+        },
+        {
+            "id": "workflowStage",
+            "description": "Enter workflow stage",
+            "default": "implementation",
+            "type": "pickString",
+            "options": ["planning", "implementation", "testing", "documentation", "deployment"]
+        },
+        {
+            "id": "checkpointName",
+            "description": "Enter checkpoint name",
+            "default": "manual_checkpoint",
+            "type": "promptString"
+        },
+        {
+            "id": "analyticsType",
+            "description": "Enter analytics type",
+            "default": "summary",
+            "type": "pickString",
+            "options": ["summary", "productivity", "workflow"]
+        },
+        {
+            "id": "missionName",
+            "description": "Enter mission name",
+            "default": "New Mission",
+            "type": "promptString"
+        },
+        {
+            "id": "missionType",
+            "description": "Enter mission type",
+            "default": "learning",
+            "type": "pickString",
+            "options": ["learning", "work", "personal", "system", "tutorial"]
+        },
+        {
+            "id": "milestoneName",
+            "description": "Enter milestone name",
+            "default": "Achievement",
+            "type": "promptString"
+        },
+        {
+            "id": "milestoneDescription",
+            "description": "Enter milestone description",
+            "default": "New achievement unlocked",
+            "type": "promptString"
+        },
+        {
+            "id": "moveType",
+            "description": "Enter move type",
+            "default": "navigation",
+            "type": "pickString",
+            "options": ["navigation", "development", "learning", "research", "testing", "documentation"]
+        },
+        {
+            "id": "moveDescription",
+            "description": "Enter move description",
+            "default": "User activity",
+            "type": "promptString"
+        },
+        {
+            "id": "moveLocation",
+            "description": "Enter move location",
+            "default": "workspace/",
+            "type": "promptString"
+        },
+        {
+            "id": "legacyName",
+            "description": "Enter legacy archive name",
+            "default": "Archive",
+            "type": "promptString"
+        },
+        {
+            "id": "legacyPath",
+            "description": "Enter path to legacy content",
+            "default": "/path/to/content",
             "type": "promptString"
         }
     ]
