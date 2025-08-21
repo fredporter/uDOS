@@ -1,195 +1,424 @@
-# uDOS v1.3 Repository Structure
-Generated: 2025-08-20 19:59:13
+# uDOS Repository Structure
+*Generated: Thu 21 Aug 2025 14:50:31 AEST*  
+*Version: v1.3*  
+*Root: /Users/agentdigital/uDOS*
 
 ## Repository Overview
-```
-uDOS/ - uDOS Universal Development Operating System
-├── Multi-Installation Architecture (installations/)
-├── Core System & Utilities (uCORE/)
-├── User Memory & Workspace (uMEMORY/, sandbox/)
-├── Script Management System (uSCRIPT/)
-├── Knowledge Base System (uKNOWLEDGE/)
-├── Development Environment (wizard/)
-├── Documentation System (docs/)
-└── Extension Framework (extension/)
-```
+This is the complete uDOS (Universal Development Operating System) repository structure.
+Total directories: 467 | Total files: 6328
 
-## Complete Directory Structure
+## Directory Structure
 
 ```
+uDOS/
 docs/
-    ├── development/
-    ├── legacy/
-    ├── reference/
-    ├── technical/
-    ├── user-guides/
+  development/
+  legacy/
+  reference/
+  roadmaps/
+  technical/
+  user-guides/
 drone/
-    ├── backup/
-    ├── operation-logs/
-    ├── scheduler/
-    ├── task-automation/
+  automation-errors/
+  backup/
+  execution-sessions/
+  operation-logs/
+  scheduler/
+  task-automation/
 extensions/
-    ├── gemini/
-        ├── context/
-        ├── gemini/
-        ├── profiles/
-            ├── sorcerer/
-        ├── reasoning/
-            ├── drone/
-            ├── ghost/
-            ├── imp/
+  gemini/
+    context/
+    gemini/
+    profiles/
+      sorcerer/
+    reasoning/
+      drone/
+      ghost/
+      imp/
 ghost/
-    ├── backup/
-    ├── demo-interface/
-    ├── public-docs/
-    ├── temp-sandbox/
+  backup/
+  demo-interface/
+  ethereal-errors/
+  phantom-sessions/
+  public-docs/
+  spectral-logs/
+  temp-sandbox/
 imp/
-    ├── backup/
-    ├── script-editor/
-    ├── template-manager/
-    ├── user-projects/
+  backup/
+  script-editor/
+  template-manager/
+  user-projects/
 sandbox/
-    ├── backup/
-    ├── datagets/
-    ├── scripts/
-        ├── active/
-        ├── executed/
-    ├── tasks/
-        ├── assist-mode/
-        ├── completed/
-        ├── in-progress/
-        ├── templates/
-    ├── user/
+  backup/
+  datagets/
+  scripts/
+    active/
+    executed/
+  tasks/
+    assist-mode/
+    completed/
+    in-progress/
+    templates/
+  user/
+    .ssh/
 sorcerer/
-    ├── advanced-tools/
-    ├── backup/
-    ├── project-manager/
-    ├── user-admin/
+  advanced-tools/
+  backup/
+  project-manager/
+  user-admin/
 tomb/
-    ├── archive-browser/
-    ├── backup/
-    ├── backup-manager/
-    ├── historical-data/
+  archive-browser/
+  backup/
+  backup-manager/
+  historical-data/
+trash/
+  deprecated/
 uCORE/
-    ├── bin/
-    ├── cache/
-        ├── input/
-    ├── code/
-        ├── compat/
-        ├── micro-syntax/
-        ├── packages/
-            ├── ascii-generator/
-            ├── urltomarkdown/
-                ├── public_html/
-                ├── tests/
-    ├── config/
-    ├── datagets/
-    ├── datasets/
-        ├── mapping/
-            ├── map-output/
-                ├── js/
-            ├── maps/
-        ├── src/
-            ├── data/
-            ├── templates/
-            ├── utils/
-    ├── distribution/
-    ├── docs/
-    ├── extension/
-    ├── install/
-        ├── roles/
-            ├── drone/
-            ├── ghost/
-            ├── imp/
-            ├── sorcerer/
-            ├── tomb/
-    ├── launcher/
-        ├── assets/
-        ├── platform/
-            ├── linux/
-            ├── macos/
-            ├── windows/
-        ├── uDOS.app/
-            ├── Contents/
-                ├── MacOS/
-                ├── Resources/
-        ├── universal/
-        ├── vscode/
-    ├── package/
-    ├── sandbox/
-    ├── templates/
-        ├── datagets/
-        ├── examples/
-        ├── system/
-        ├── variables/
-    ├── uKnowledge/
-    ├── uScript/
-    ├── uTemplate/
-    ├── wizard/
+  bin/
+  cache/
+    input/
+  code/
+    compat/
+    micro-syntax/
+    packages/
+      ascii-generator/
+      urltomarkdown/
+        public_html/
+        tests/
+    user-memory/
+  config/
+  distribution/
+    roles/
+      drone/
+      ghost/
+      imp/
+      sorcerer/
+      tomb/
+  json/
+    src/
+      data/
+      templates/
+      utils/
+  launcher/
+    assets/
+    platform/
+      linux/
+      macos/
+      windows/
+    uDOS.app/
+      Contents/
+        MacOS/
+        Resources/
+    universal/
+    vscode/
+  mapping/
+    map-output/
+      js/
+  templates/
 uKNOWLEDGE/
 uMEMORY/
-    ├── datasets/
-    ├── scripts/
-        ├── explicit/
-    ├── user/
-        ├── explicit/
+  core/
+    datagets/
+    tiles/
+  setup/
+  system/
+    temp/
+    tile-cache/
+  templates/
+    datagets/
+    examples/
+    system/
+    variables/
+  user/
+    legacy/
+    milestones/
+    missions/
+    moves/
 uSCRIPT/
-    ├── active/
-    ├── config/
-    ├── executed/
-    ├── extensions/
-        ├── templates/
-            ├── drone/
-    ├── library/
-        ├── automation/
-        ├── javascript/
-        ├── python/
-        ├── shell/
-        ├── ucode/
-        ├── utilities/
-    ├── registry/
-        ├── dependencies/
-        ├── versions/
-    ├── runtime/
-        ├── engines/
-        ├── logs/
-        ├── sandbox/
-    ├── templates/
-        ├── automation/
-        ├── javascript/
-        ├── python/
-        ├── ucode/
+  active/
+  config/
+  executed/
+  extensions/
+    templates/
+      drone/
+  library/
+    automation/
+    javascript/
+    python/
+    shell/
+    ucode/
+    utilities/
+  registry/
+    dependencies/
+    versions/
+  runtime/
+    engines/
+    logs/
+    sandbox/
+  templates/
+    automation/
+    javascript/
+    python/
+    ucode/
 uSERVER/
-    ├── config/
-    ├── endpoints/
-    ├── middleware/
+  config/
+  endpoints/
+  middleware/
 wizard/
-    ├── backup/
-    ├── error-handling/
-    ├── experiments/
-        ├── nethack/
-    ├── notes/
-    ├── tools/
-    ├── utilities/
-    ├── vscode/
-        ├── vscode-extension/
-            ├── snippets/
-            ├── src/
-            ├── syntaxes/
-    ├── workflows/
-        ├── active/
-        ├── roadmaps/
-        ├── templates/
+  analytics/
+  backup/
+  dev-utils/
+    analytics/
+    automation/
+    integration/
+    optimization/
+  error-handling/
+  errors/
+  experiments/
+    nethack/
+  logs/
+  notes/
+    development/
+    roadmaps/
+    snapshots/
+      auto/
+      manual/
+    workflows/
+  roadmaps/
+    daily/
+    long-term/
+    quarterly/
+    sprint/
+  sessions/
+  tools/
+  utilities/
+  vscode/
+    .vscode/
+    vscode-extension/
+      snippets/
+      src/
+      syntaxes/
+  workflows/
+    active/
+    archived/
+    roadmaps/
+    templates/
+
+Key configuration files:
+  CHANGELOG.md
+  docs/Enhanced-Backup-System.md
+  docs/Legacy-Migration-Analysis.md
+  docs/Legacy-Migration-Complete.md
+  docs/Migration-v1.3-Complete.md
+  docs/README.md
+  docs/Smart-Backup-System.md
+  docs/Smart-Input-System.md
+  docs/TELETEXT-CONFIGURATION.md
+  docs/uDOS-System-Documentation.md
+  drone/permissions.json
+  drone/README.md
+  extensions/README.md
+  ghost/permissions.json
+  ghost/README.md
+  imp/permissions.json
+  imp/README.md
+  MAP-00-DEVELOPMENT-COMPLETE.md
+  MIGRATION-COMPLETE.md
+  QUICKSTART-GUIDE.md
+  README.md
+  sandbox/user.md
+  sorcerer/permissions.json
+  sorcerer/README.md
+  tomb/permissions.json
+  tomb/README.md
+  trash/IMPLEMENTATION-COMPLETE.md
+  trash/README.md
+  uCORE-CLEANUP-COMPLETE.md
+  uCORE/README.md
+  uKNOWLEDGE/README.md
+  uMAP-TILE-RENAMING-COMPLETE.md
+  uMEMORY/identity.md
+  uMEMORY/README.md
+  uMEMORY/uLOG-20250820-1B40FF26-Installation.md
+  uSCRIPT/README.md
+  uSERVER/README.md
+  wizard/dev-framework.md
+  wizard/framework-config.yml
+  wizard/framework-implementation.md
+  wizard/permissions.json
+  wizard/README.md
+
+Main executable scripts:
+  imp/imp-error-handler.sh
+  tomb/tomb-error-handler.sh
+  uSCRIPT/executed/test-logging-20250720-212407.sh
+  uSCRIPT/extensions/extensions.sh
+  uSCRIPT/setup-environment.sh
+  wizard/dev-utils.sh
+  wizard/error-handling/wizard-dev-logging.sh
+  wizard/error-handling/wizard-error-system.sh
+  wizard/experiments/install-bat-clean.sh
+  wizard/experiments/install-nethack.sh
+  wizard/experiments/install-typo.sh
+  wizard/tools/dev-session-logger.sh
+  wizard/tools/file-organizer.sh
+  wizard/tools/report-generator.sh
+  wizard/tools/script-executor.sh
+  wizard/tools/workflow-manager.sh
+  wizard/utilities/convert-to-hex-filenames.sh
+  wizard/utilities/convert-to-hex-v2.sh
+  wizard/utilities/generate-filename-v2.sh
+  wizard/utilities/test-hex-conversion.sh
 ```
 
-## Quick Stats
-- **Directories**: 163 | **Files**: 506 | **Version**: uDOS v1.3
+## System Architecture Overview
+
+### Multi-Role Framework
+uDOS supports a 6-tier installation hierarchy:
+- **Level 0**: drone (Basic automation, read-only)
+- **Level 1**: imp (Script execution, sandbox access)
+- **Level 2**: ghost (Advanced scripting, memory access)
+- **Level 3**: sorcerer (System administration, core access)
+- **Level 4**: tomb (Archive management, backup access)
+- **Level 5**: wizard (Full development, all access)
+
+### Core Components
+
+#### uCORE/ - Core System
+- **bin/**: Essential executables and utilities
+- **code/**: Core system scripts and modules
+- **mapping/**: uMAP location and navigation system
+- **templates/**: System configuration templates
+- **launcher/**: Application launch framework
+- **distribution/**: Multi-platform deployment assets
+
+#### uMEMORY/ - User Memory System
+- **user/**: User data with uHEX filename convention
+  - missions/: uTASK-uHEXcode-Title.md (mission tracking)
+  - milestones/: uTASK-uHEXcode-Title.md (achievement records)
+  - moves/: uLOG-uHEXcode-Title.md (activity logs)
+  - legacy/: uDOC-uHEXcode-Title.md (archived content)
+- **system/**: Core system memory and session data
+- **templates/**: Memory structure templates
+
+#### wizard/ - Development Environment (Level 5)
+- **vscode/**: VS Code workspace and extensions
+- **notes/**: Development documentation (uDEV/uDOC format)
+- **workflows/**: Development workflow automation
+- **sessions/**: Development session tracking
+- **analytics/**: Development metrics and insights
+
+#### uSCRIPT/ - Script Management
+- **library/**: Modular script library
+- **extensions/**: Enhanced functionality modules
+- **runtime/**: Script execution environment
+- **templates/**: Script generation templates
+
+#### sandbox/ - User Workspace
+- **user/**: Active development and experimentation
+- **scripts/**: User-created scripts
+- **tasks/**: Task automation and scheduling
+
+#### uKNOWLEDGE/ - Knowledge Base
+- Shared resources and documentation
+- Community-contributed content
+- Tutorial and learning materials
+
+#### docs/ - Documentation System
+- **technical/**: Technical documentation
+- **user-guides/**: End-user documentation
+- **development/**: Development guidelines
+- **reference/**: API and system references
+
+
+## File Naming Conventions
+
+### uHEX Naming System
+All user files follow standardized uHEX naming patterns:
+
+#### Mission Files (uTASK)
+- **Format**: `uTASK-uHEXcode-Title.md`
+- **Purpose**: Mission tracking, objectives, milestones
+- **Example**: `uTASK-F8A4B2E1-Learn-uScript-Advanced-Features.md`
+
+#### Activity Logs (uLOG)
+- **Format**: `uLOG-uHEXcode-Title.md` or `uLOG-YYYYMMDD-Title.md`
+- **Purpose**: Session logs, move tracking, activity records
+- **Example**: `uLOG-E4F5A6B7-session-20250821.md`
+
+#### Data Files (uDATA)
+- **Format**: `uDATA-YYYYMMDD-Title.json`
+- **Purpose**: Structured data, patterns, configurations
+- **Example**: `uDATA-20250821-move-patterns.json`
+
+#### Documentation (uDOC)
+- **Format**: `uDOC-uHEXcode-Title.md`
+- **Purpose**: Documentation, legacy archives, reports
+- **Example**: `uDOC-7A8B9C0D-Development-Notes.md`
+
+#### Development Files (uDEV)
+- **Format**: `uDEV-uHEXcode-Title.md`
+- **Purpose**: Development notes, session logs, system documentation
+- **Example**: `uDEV-E8012004-System-Implementation.md`
+
+### uHEX Code Generation
+- **Length**: 8 characters (uppercase hexadecimal)
+- **Generation**: `openssl rand -hex 4 | tr '[:lower:]' '[:upper:]'`
+- **Purpose**: Unique identification and temporal encoding
+
+
+## Security Model
+
+### Multi-Level Access Control
+Different installation levels have varying access to system components:
+
+#### Distribution Exclusions
+The following are excluded from standard distribution packages:
+- **wizard/**: Full development environment (Level 5 only)
+- **uMEMORY/user/**: Personal user data and memories
+- **sandbox/user/**: Personal development workspace
+- **Sensitive configuration files**: API keys, personal settings
+
+#### Role-Based File Access
+- **drone (Level 0)**: Read-only access to public documentation
+- **imp (Level 1)**: Execute scripts, access sandbox
+- **ghost (Level 2)**: Advanced scripting, limited memory access
+- **sorcerer (Level 3)**: System administration, core access
+- **tomb (Level 4)**: Archive management, backup systems
+- **wizard (Level 5)**: Full system access, development tools
+
+### File Permissions
+- **Executable scripts**: 755 permissions for system scripts
+- **User data**: 600-644 permissions for personal files
+- **Configuration**: 644 permissions for system configs
+- **Sensitive data**: 600 permissions, user-only access
+
+
+## System Statistics
+
+### Repository Metrics
+- **Total Directories**: 467
+- **Total Files**: 6328
+- **Generated**: Thu 21 Aug 2025 14:50:32 AEST
+- **Version**: v1.3
+
+### Directory Breakdown
+- Root level directories:       17
+- uCORE directories:       42
+- uMEMORY directories:       18
+- uSCRIPT directories:       26
+- wizard directories:       39
+
+### File Type Distribution
+- Shell scripts:      124
+- Markdown files:      290
+- JSON files:      132
+- YAML files:        5
+
 
 ---
 
-*Generated by uDOS Tree Generator v1.3*  
-*Repository: https://github.com/fredporter/uDOS.git | Branch: main*  
-*Last Updated: 2025-08-20 19:59:13*
+*This repository structure was generated automatically by the uDOS TREE command.*  
+*For more information about uDOS, visit: https://github.com/fredporter/uDOS*  
+*Last updated: Thu 21 Aug 2025 14:50:32 AEST*
 
-📖 **For detailed documentation**: See `docs/uDOS-System-Documentation.md`  
-🏗️  **For system architecture**: See `README.md`
