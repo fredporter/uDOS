@@ -88,15 +88,16 @@ init_dev_session() {
     local session_name="${1:-Development-Session}"
     local session_id="$(date +"%Y%m%d%H%M%S" | md5sum | cut -c1-8)"
     local session_date="$(date +%Y%m%d)"
-    local session_file="$WIZARD_ROOT/notes/uDEV-${session_id}-${session_date}-${session_name}.md"
+    local session_file="$WIZARD_ROOT/notes/uDEV-${session_date}-${session_name}.md"
     
     log_info "Initializing development session..."
     
     # Create session file
     cat > "$session_file" << EOF
-# uDEV-${session_id}-${session_date}-${session_name}
+# uDEV-${session_date}-${session_name}
 **Created:** $(date +"%Y-%m-%d %H:%M")  
 **Session ID:** ${session_id}  
+**Date:** ${session_date}  
 **Type:** Development Session  
 **Environment:** VS Code + AI Assistant  
 **Location:** wizard/notes/

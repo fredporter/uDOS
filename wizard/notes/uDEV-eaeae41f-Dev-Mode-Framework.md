@@ -45,22 +45,27 @@ wizard/
 
 ## 🔧 FILENAME PROTOCOLS
 
-### uHEX Development Naming Convention
-All development artifacts use 8-character hexadecimal identifiers:
+### Dev Mode Naming Convention (Date-Based)
+All development artifacts use YYYYMMDD date format instead of uHEX:
 
 #### Development Session Files
-- `uDEV-XXXXXXXX-SessionName.md` - Development session notes
-- `uLOG-XXXXXXXX-ImplementationName.md` - Implementation logs
-- `uDOC-XXXXXXXX-DocumentName.md` - Architecture/design documents
-- `uTASK-XXXXXXXX-TaskName.md` - Task planning and tracking
-- `uROAD-XXXXXXXX-RoadmapName.md` - Roadmap and milestone tracking
+- `uDEV-YYYYMMDD-SessionName.md` - Development session notes
+- `uLOG-YYYYMMDD-ImplementationName.md` - Implementation logs
+- `uDOC-YYYYMMDD-DocumentName.md` - Architecture/design documents
+- `uTASK-YYYYMMDD-TaskName.md` - Task planning and tracking
+- `uROAD-YYYYMMDD-RoadmapName.md` - Roadmap and milestone tracking
 
 #### Examples
-- `uDEV-eaeae41f-v1.3.1-Architecture-Implementation.md`
-- `uLOG-b4c7d8e9-Virtual-Environment-Setup.md`
-- `uDOC-f2a1b5c6-Command-Interface-Design.md`
-- `uTASK-9e8d7c6b-Script-Consolidation.md`
-- `uROAD-a1b2c3d4-Q4-2025-Development-Plan.md`
+- `uDEV-20250821-v1.3.1-Architecture-Implementation.md`
+- `uLOG-20250821-Virtual-Environment-Setup.md`
+- `uDOC-20250821-Command-Interface-Design.md`
+- `uTASK-20250821-Script-Consolidation.md`
+- `uROAD-20250821-Q4-2025-Development-Plan.md`
+
+### Production Mode vs Dev Mode
+- **Production Mode:** `PREFIX-UHEX-YYYYMMDD-Description.md` (8-char hex + date)
+- **Dev Mode:** `PREFIX-YYYYMMDD-Description.md` (date only, simpler)
+- **Error Fallback:** Always defaults to YYYYMMDD format when uHEX generation fails
 
 ---
 

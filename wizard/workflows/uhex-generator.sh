@@ -5,27 +5,37 @@
 set -euo pipefail
 
 # Generate uHEX using multiple methods for maximum compatibility
+# Falls back to YYYYMMDD format on any error (as per dev mode protocol)
 generate_uhex() {
     local uhex=""
     
     # Method 1: OpenSSL (most common)
     if command -v openssl >/dev/null 2>&1; then
-        uhex="$(openssl rand -hex 4)"
-    # Method 2: /dev/urandom (Unix systems)
-    elif [[ -r /dev/urandom ]]; then
-        uhex="$(head -c 4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-    # Method 3: Date + MD5 (fallback)
-    elif command -v md5sum >/dev/null 2>&1; then
-        uhex="$(date +"%Y%m%d%H%M%S%N" | md5sum | cut -c1-8)"
-    # Method 4: Date + shasum (macOS fallback)
-    elif command -v shasum >/dev/null 2>&1; then
-        uhex="$(date +"%Y%m%d%H%M%S" | shasum | cut -c1-8)"
-    # Method 5: Simple date-based (last resort)
-    else
-        uhex="$(date +"%H%M%S%N" | tail -c 9 | head -c 8)"
+        uhex="$(openssl rand -hex 4 2>/dev/null || echo "")"
     fi
     
-    # Ensure lowercase and 8 characters
+    # Method 2: /dev/urandom (Unix systems)
+    if [[ -z "$uhex" && -r /dev/urandom ]]; then
+        uhex="$(head -c 4 /dev/urandom 2>/dev/null | od -An -tx1 2>/dev/null | tr -d ' \n' || echo "")"
+    fi
+    
+    # Method 3: Date + MD5 (fallback)
+    if [[ -z "$uhex" ]] && command -v md5sum >/dev/null 2>&1; then
+        uhex="$(date +"%Y%m%d%H%M%S%N" 2>/dev/null | md5sum 2>/dev/null | cut -c1-8 || echo "")"
+    fi
+    
+    # Method 4: Date + shasum (macOS fallback)
+    if [[ -z "$uhex" ]] && command -v shasum >/dev/null 2>&1; then
+        uhex="$(date +"%Y%m%d%H%M%S" 2>/dev/null | shasum 2>/dev/null | cut -c1-8 || echo "")"
+    fi
+    
+    # Method 5: Error fallback - YYYYMMDD format (dev mode protocol)
+    if [[ -z "$uhex" ]]; then
+        uhex="$(date +%Y%m%d 2>/dev/null || echo "$(date +%Y%m%d)")"
+        log_warning "uHEX generation failed, using date format: $uhex" >&2
+    fi
+    
+    # Ensure lowercase and proper length
     echo "$uhex" | tr '[:upper:]' '[:lower:]' | head -c 8
 }
 
@@ -43,6 +53,22 @@ generate_filename() {
         echo "${prefix}-${uhex}-${date_part}-${clean_desc}.${extension}"
     else
         echo "${prefix}-${uhex}-${date_part}.${extension}"
+    fi
+}
+
+# Generate dev mode filename (date-based, no uHEX)
+generate_dev_filename() {
+    local prefix="${1:-uDEV}"
+    local description="${2:-}"
+    local extension="${3:-md}"
+    local date_part="$(date +%Y%m%d 2>/dev/null || echo "unknown")"
+    
+    if [[ -n "$description" ]]; then
+        # Clean description for filename
+        local clean_desc="$(echo "$description" | sed 's/[^a-zA-Z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')"
+        echo "${prefix}-${date_part}-${clean_desc}.${extension}"
+    else
+        echo "${prefix}-${date_part}.${extension}"
     fi
 }
 
@@ -127,9 +153,10 @@ uHEX Generator - Generate 8-character hex identifiers for uDOS files
 
 Usage:
   uhex-generator.sh generate                    - Generate single uHEX
-  uhex-generator.sh filename PREFIX DESC [EXT] - Generate full filename
+  uhex-generator.sh filename PREFIX DESC [EXT] - Generate full filename (production mode)
+  uhex-generator.sh devname PREFIX DESC [EXT]  - Generate dev mode filename (date-based)
   uhex-generator.sh validate UHEX              - Validate uHEX format
-  uhex-generator.sh extract FILENAME           - Extract uHEX from filename
+  uhex-generator.sh extract FILENAME           - Extract uHEX/date from filename
   uhex-generator.sh batch COUNT [PREFIX]       - Generate multiple uHEX
   uhex-generator.sh convert FILE [PREFIX]      - Convert file to uHEX naming
   uhex-generator.sh help                       - Show this help
@@ -139,19 +166,21 @@ Examples:
   # Output: a1b2c3d4
 
   uhex-generator.sh filename uDEV "Session Notes"
-  # Output: uDEV-a1b2c3d4-20250821-Session-Notes.md
+  # Output (Production): uDEV-a1b2c3d4-20250821-Session-Notes.md
+
+  uhex-generator.sh devname uDEV "Session Notes"  
+  # Output (Dev Mode): uDEV-20250821-Session-Notes.md
 
   uhex-generator.sh validate a1b2c3d4
   # Exit code 0 if valid, 1 if invalid
 
-  uhex-generator.sh extract "uDEV-a1b2c3d4-Session.md"
-  # Output: a1b2c3d4
+  uhex-generator.sh extract "uDEV-20250821-Session.md"
+  # Output: 20250821 (date format in dev mode)
 
-  uhex-generator.sh batch 5
-  # Output: 5 uHEX values, one per line
-
-  uhex-generator.sh convert "old-file.md" uDOC
-  # Renames file to uDOC-XXXXXXXX-YYYYMMDD-old-file.md
+Naming Conventions:
+  Production Mode: PREFIX-UHEX-YYYYMMDD-Description.ext
+  Dev Mode:       PREFIX-YYYYMMDD-Description.ext
+  Error Fallback: Always defaults to YYYYMMDD format
 
 Prefix Types:
   uDEV - Development session files
@@ -173,6 +202,9 @@ main() {
             ;;
         filename|file)
             generate_filename "${2:-uDEV}" "${3:-}" "${4:-md}"
+            ;;
+        devname|dev)
+            generate_dev_filename "${2:-uDEV}" "${3:-}" "${4:-md}"
             ;;
         validate|val)
             if [[ -z "${2:-}" ]]; then

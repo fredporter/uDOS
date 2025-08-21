@@ -46,16 +46,17 @@ dev_log() {
 create_dev_task() {
     local task_name="$1"
     local description="${2:-}"
-    local uhex="$(generate_uhex)"
+    local session_id="$(date +"%Y%m%d%H%M%S" | md5sum | cut -c1-8 2>/dev/null || date +%H%M%S)"
     local date_part="$(date +%Y%m%d)"
-    local task_file="$WIZARD_ROOT/notes/uTASK-${uhex}-${date_part}-${task_name}.md"
+    local task_file="$WIZARD_ROOT/notes/uTASK-${date_part}-${task_name}.md"
     
     log_info "Creating development task: $task_name"
     
     cat > "$task_file" << EOF
-# uTASK-${uhex}-${date_part}-${task_name}
+# uTASK-${date_part}-${task_name}
 **Created:** $(date +"%Y-%m-%d %H:%M")  
-**Task ID:** ${uhex}  
+**Session ID:** ${session_id}  
+**Date:** ${date_part}  
 **Type:** Development Task  
 **Status:** Open  
 **Location:** wizard/notes/
@@ -138,23 +139,24 @@ ${description:-Task description to be added}
 EOF
     
     log_success "Task created: $task_file"
-    echo "$uhex"
+    echo "$date_part"
 }
 
 # Create development roadmap
 create_dev_roadmap() {
     local roadmap_name="$1"
     local period="${2:-Q4-2025}"
-    local uhex="$(generate_uhex)"
+    local session_id="$(date +"%Y%m%d%H%M%S" | md5sum | cut -c1-8 2>/dev/null || date +%H%M%S)"
     local date_part="$(date +%Y%m%d)"
-    local roadmap_file="$WIZARD_ROOT/notes/uROAD-${uhex}-${date_part}-${roadmap_name}.md"
+    local roadmap_file="$WIZARD_ROOT/notes/uROAD-${date_part}-${roadmap_name}.md"
     
     log_info "Creating development roadmap: $roadmap_name"
     
     cat > "$roadmap_file" << EOF
-# uROAD-${uhex}-${date_part}-${roadmap_name}
+# uROAD-${date_part}-${roadmap_name}
 **Created:** $(date +"%Y-%m-%d %H:%M")  
-**Roadmap ID:** ${uhex}  
+**Session ID:** ${session_id}  
+**Date:** ${date_part}  
 **Type:** Development Roadmap  
 **Period:** ${period}  
 **Location:** wizard/notes/
@@ -233,7 +235,7 @@ ${period}
 EOF
     
     log_success "Roadmap created: $roadmap_file"
-    echo "$uhex"
+    echo "$date_part"
 }
 
 # Search development notes
@@ -255,8 +257,18 @@ search_dev_notes() {
     
     if command -v grep >/dev/null 2>&1; then
         grep -l "$query" $search_pattern 2>/dev/null | while read file; do
-            local uhex="$(extract_uhex "$(basename "$file")" 2>/dev/null || echo "unknown")"
-            echo "Found in: $(basename "$file") (ID: $uhex)"
+            local basename="$(basename "$file")"
+            local date_id="unknown"
+            
+            # Extract date from dev mode files (YYYYMMDD format)
+            if [[ "$basename" =~ u[A-Z]+-([0-9]{8})- ]]; then
+                date_id="${BASH_REMATCH[1]}"
+            # Fallback to uHEX extraction for older files
+            elif [[ "$basename" =~ u[A-Z]+-([0-9a-f]{8})- ]]; then
+                date_id="${BASH_REMATCH[1]}"
+            fi
+            
+            echo "Found in: $basename (ID: $date_id)"
             grep -n "$query" "$file" | head -3 | sed 's/^/  /'
             echo
         done
@@ -270,19 +282,21 @@ organize_dev_files() {
     log_info "Organizing development files..."
     
     local moved_count=0
+    local date_part="$(date +%Y%m%d)"
     
     # Find files in wizard root that should be in notes/
     find "$WIZARD_ROOT" -maxdepth 1 -name "*.md" -not -name "README.md" | while read file; do
         local basename="$(basename "$file")"
         
-        # Skip if already properly named with uHEX
-        if [[ "$basename" =~ ^u[A-Z]+-[0-9a-f]{8}- ]]; then
+        # Skip if already properly named with date or uHEX format
+        if [[ "$basename" =~ ^u[A-Z]+-([0-9]{8}|[0-9a-f]{8})- ]]; then
             continue
         fi
         
-        # Generate proper filename
+        # Generate proper date-based filename for dev mode
         local filename_no_ext="${basename%.md}"
-        local new_filename="$(generate_filename "uDEV" "$filename_no_ext" "md")"
+        local clean_name="$(echo "$filename_no_ext" | sed 's/[^a-zA-Z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')"
+        local new_filename="uDEV-${date_part}-${clean_name}.md"
         local new_path="$WIZARD_ROOT/notes/$new_filename"
         
         mv "$file" "$new_path"
@@ -300,7 +314,7 @@ show_dev_summary() {
     echo
     echo "📊 Development Statistics:"
     
-    # Count files by type
+    # Count files by type (handle both date and uHEX formats)
     local dev_count="$(ls "$WIZARD_ROOT"/notes/uDEV-*.md 2>/dev/null | wc -l | tr -d ' ')"
     local log_count="$(ls "$WIZARD_ROOT"/notes/uLOG-*.md 2>/dev/null | wc -l | tr -d ' ')"
     local doc_count="$(ls "$WIZARD_ROOT"/notes/uDOC-*.md 2>/dev/null | wc -l | tr -d ' ')"
@@ -318,8 +332,17 @@ show_dev_summary() {
     echo "📝 Recent Development Files:"
     ls -t "$WIZARD_ROOT"/notes/*.md 2>/dev/null | head -5 | while read file; do
         local basename="$(basename "$file")"
-        local uhex="$(extract_uhex "$basename" 2>/dev/null || echo "unknown")"
-        echo "   $basename (ID: $uhex)"
+        local file_id="unknown"
+        
+        # Extract date from dev mode files (YYYYMMDD format)
+        if [[ "$basename" =~ u[A-Z]+-([0-9]{8})- ]]; then
+            file_id="${BASH_REMATCH[1]}"
+        # Fallback to uHEX for older files
+        elif [[ "$basename" =~ u[A-Z]+-([0-9a-f]{8})- ]]; then
+            file_id="${BASH_REMATCH[1]}"
+        fi
+        
+        echo "   $basename (ID: $file_id)"
     done
     
     # Show active sessions
