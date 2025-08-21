@@ -1,0 +1,43 @@
+#!/bin/bash
+# uDOS Font Demo Script
+
+echo "🎨 uDOS Font Demonstration"
+echo "=========================="
+echo ""
+
+echo "📝 Default System Fonts Available:"
+echo "• Monaco (macOS default monospace)"
+echo "• Menlo (macOS programming font)"
+echo "• Courier New (cross-platform monospace)"
+echo "• JetBrains Mono (modern development font)"
+echo ""
+
+echo "🌐 Web Fonts Loaded:"
+echo "• VT323 (retro terminal)"
+echo "• Share Tech Mono (tech aesthetic)"
+echo "• Orbitron (futuristic display)"
+echo "• Space Mono (vintage computing)"
+echo "• Nova Mono (modern monospace)"
+echo ""
+
+echo "🎯 Font Testing:"
+echo "Primary Font: ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
+echo "Terminal Font: ░▒▓█▄▀■□▲►◄▼ ASCII GRAPHICS"
+echo "Display Font: ═══════════ HEADERS ═══════════"
+echo "Retro Font: ••• VINTAGE COMPUTING STYLE •••"
+echo ""
+
+echo "💡 Font Commands in uDOS:"
+echo "• fonts          - Show font info"
+echo "• font primary   - Default development font"
+echo "• font terminal  - Retro terminal font"
+echo "• font display   - Header/UI font"
+echo "• font retro     - Vintage computing font"
+echo "• font effects   - Toggle special effects"
+echo ""
+
+echo "✨ Special Effects Available:"
+echo "• Neon glow effects"
+echo "• Rainbow gradient text"
+echo "• Retro phosphor glow"
+echo "• ASCII art styling"

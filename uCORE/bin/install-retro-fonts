@@ -1,0 +1,37 @@
+#!/bin/bash
+# uDOS Retro Font Installation Script
+
+echo "🎮 Installing uDOS Retro Fonts"
+echo "==============================="
+echo ""
+
+# Check if fonts directory exists
+FONT_DIR="$HOME/.local/share/fonts"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    FONT_DIR="$HOME/Library/Fonts"
+fi
+
+echo "📁 Font directory: $FONT_DIR"
+mkdir -p "$FONT_DIR"
+
+echo "🌐 Installing web fonts (Google Fonts integration):"
+echo "• JetBrains Mono - Modern monospace"
+echo "• VT323 - Classic terminal"
+echo "• Share Tech Mono - Futuristic"
+echo "• Orbitron - Sci-fi display"
+echo "• Space Mono - Retro computing"
+echo "• Nova Mono - Clean monospace"
+echo ""
+
+echo "✅ Fonts are loaded via CSS @import from Google Fonts"
+echo "✅ No local installation required for web interface"
+echo ""
+
+echo "💡 For terminal usage, install these fonts manually:"
+echo "• Download from fonts.google.com"
+echo "• Install JetBrains Mono for best terminal experience"
+echo "• VT323 for authentic retro feel"
+echo ""
+
+echo "🎨 Font configuration complete!"
+echo "Launch uDOS web interface to see fonts in action."

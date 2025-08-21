@@ -1,53 +1,536 @@
-/* uDOS Teletext Block ASCII CSS */
-* {
+/* Authentic BBC Mode 7 Font Styling with Proper Aspect Ratio */
+body {
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    padding: 20px;
+    background: var(--color-black);
+    color: var(--color-white);
+    font-family: var(--font-teletext);
+    line-height: 1.2;
+    overflow-x: auto;
+    min-height: 100vh;
 }
 
-/* uDOS Core Rainbow Palette - Custom Professional Colors */
+/* MODE7 Font with Correct Aspect Ratio */
+.font-teletext,
+.mode7-screen,
+.mode7-screen * {
+    font-family: 'MODE7GX3', 'Courier New', monospace !important;
+    font-size: 20px !important;
+    line-height: 24px !important;
+    letter-spacing: 0px !important;
+    font-weight: normal !important;
+    transform: scaleY(1.3) !important; /* Correct BBC Mode 7 aspect ratio */
+    transform-origin: top !important;
+}
+
+/* Teletext Character Scaling Fix */
+.mode7-text {
+    display: inline-block;
+    transform: scaleY(1.3);
+    transform-origin: top;
+}
+
+/* Mode 7 Screen Container - Simplified and Cleaner */
+.mode7-screen {
+    width: 640px;
+    height: 500px;
+    background: var(--color-black);
+    border: 3px solid var(--color-blue);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 174, 239, 0.3);
+}
+
+/* Default Teletext Color Palette - New Vibrant uDOS Colors */
 :root {
-    --udos-red: #ce4a4a;        /* (206,74,74) - Muted Red */
-    --udos-green: #48a56a;      /* (72,165,106) - Forest Green */
-    --udos-blue: #6688c3;       /* (102,136,195) - Steel Blue */
-    --udos-yellow: #eaaf41;     /* (234,175,65) - Golden Yellow */
-    --udos-purple: #b25da6;     /* (178,93,166) - Soft Purple */
-    --udos-cyan: #4a9fb8;       /* Computed cyan to match palette */
-    --udos-orange: #d87538;     /* Computed orange between red/yellow */
-    --udos-magenta: #b25da6;    /* Same as purple for consistency */
+    /* New uDOS Vibrant Color Palette */
+    --color-red: #ef4136;        /* Vibrant Red (239,65,54) */
+    --color-orange: #f7941d;     /* Vibrant Orange (247,148,29) */
+    --color-amber: #fbb040;      /* Vibrant Amber (251,176,64) */
+    --color-yellow: #f9ed32;     /* Vibrant Yellow (249,237,50) */
+    --color-blue: #00aeef;       /* Vibrant Blue (0,174,239) */
+    --color-lime: #e9ff39;       /* Vibrant Lime (233,255,57) */
+    --color-green: #8cff1f;      /* Vibrant Green (140,255,31) */
+    --color-cyan: #00c6cc;       /* Vibrant Cyan (0,198,204) */
+    --color-pink: #f08ed3;       /* Vibrant Pink (240,142,211) */
     
-    /* Additional colors */
-    --udos-black: #000000;      /* Pure Black */
-    --udos-white: #ffffff;      /* Pure White */
-    --udos-grey: #808080;       /* Medium Grey */
-    --udos-light-grey: #c0c0c0; /* Light Grey */
-    --udos-dark-grey: #404040;  /* Dark Grey */
+    /* Dark Shades for Backgrounds and Styling */
+    --color-black: #000000;      /* Pure Black */
+    --color-dark-grey: #1a1a1a;  /* Very Dark Grey */
+    --color-grey: #333333;       /* Dark Grey */
+    --color-mid-grey: #666666;   /* Medium Grey */
+    --color-light-grey: #999999; /* Light Grey */
+    --color-pale-grey: #cccccc;  /* Pale Grey */
+    --color-white: #ffffff;      /* Pure White */
     
-    /* Theme Colors - Dark Mode Default */
-    --bg-dark: #000011;
-    --bg-dark-alt: #001122;
-    --bg-light: #f0f0f0;
-    --bg-light-alt: #e0e0e0;
+    /* Darker variants for backgrounds and borders */
+    --color-red-dark: #b8312a;
+    --color-orange-dark: #c2731d;
+    --color-amber-dark: #c49133;
+    --color-yellow-dark: #c4bb28;
+    --color-blue-dark: #0088bf;
+    --color-lime-dark: #b7c72c;
+    --color-green-dark: #6cc618;
+    --color-cyan-dark: #00999e;
+    --color-pink-dark: #c170a6;
     
-    --text-dark: var(--udos-green);
-    --text-light: var(--udos-black);
-    --text-accent: var(--udos-white);
+    /* Teletext compatibility mappings to new colors */
+    --teletext-black: var(--color-black);
+    --teletext-red: var(--color-red);
+    --teletext-green: var(--color-green);
+    --teletext-yellow: var(--color-yellow);
+    --teletext-blue: var(--color-blue);
+    --teletext-magenta: var(--color-pink);
+    --teletext-cyan: var(--color-cyan);
+    --teletext-white: var(--color-white);
+    
+    /* Legacy retro palette (kept for compatibility) */
+    --retro-red: var(--color-red);
+    --retro-green: var(--color-green);
+    --retro-blue: var(--color-blue);
+    --retro-yellow: var(--color-yellow);
+    --retro-purple: var(--color-pink);
+    --retro-cyan: var(--color-cyan);
+    --retro-orange: var(--color-orange);
+    --retro-magenta: var(--color-pink);
+    --retro-black: var(--color-black);
+    --retro-white: var(--color-white);
+    --retro-grey: var(--color-mid-grey);
+    --retro-light-grey: var(--color-light-grey);
+    --retro-dark-grey: var(--color-dark-grey);
+    
+    /* Current Active Palette - New Vibrant Colors */
+    --udos-red: var(--color-red);
+    --udos-green: var(--color-green);
+    --udos-blue: var(--color-blue);
+    --udos-yellow: var(--color-yellow);
+    --udos-purple: var(--color-pink);
+    --udos-cyan: var(--color-cyan);
+    --udos-orange: var(--color-orange);
+    --udos-magenta: var(--color-pink);
+    --udos-black: var(--color-black);
+    --udos-white: var(--color-white);
+    --udos-grey: var(--color-mid-grey);
+    --udos-light-grey: var(--color-light-grey);
+    --udos-dark-grey: var(--color-dark-grey);
+    
+    /* Theme Colors - Vibrant Mode Default */
+    --bg-dark: var(--color-black);
+    --bg-dark-alt: var(--color-dark-grey);
+    --bg-light: var(--color-white);
+    --bg-light-alt: var(--color-pale-grey);
+    
+    --text-dark: var(--color-green);
+    --text-light: var(--color-black);
+    --text-accent: var(--color-blue);
     
     /* Border Colors */
-    --border-primary: var(--udos-green);
-    --border-secondary: var(--udos-cyan);
+    --border-primary: var(--color-blue);
+    --border-secondary: var(--color-cyan);
     
-    /* Default Font - VT323 BBC Micro Authentic */
-    --font-default: 'VT323', 'Monaco', 'Courier New', monospace;
+    /* Teletext Font Settings */
+    --font-teletext: 'MODE7GX3', monospace;
+    --font-size-teletext: 20px;
+    --line-height-teletext: 20px;
+    
+    /* Default Font - Teletext Mode */
+    --font-default: var(--font-teletext);
+}
+
+/* Font Face Declarations */
+@font-face {
+    font-family: 'MODE7GX3';
+    src: url('/static/fonts/MODE7GX3.TTF') format('truetype'),
+         url('/static/fonts/MODE7GX3.EOT') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX0';
+    src: url('/static/fonts/MODE7GX0.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX2';
+    src: url('/static/fonts/MODE7GX2.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX4';
+    src: url('/static/fonts/MODE7GX4.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Display Controls Panel */
+.display-controls {
+    background-color: var(--color-dark-grey);
+    border: 2px solid var(--color-blue);
+    padding: 8px 12px;
+    margin: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.control-label {
+    color: var(--color-cyan);
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 4px;
+    font-family: var(--font-teletext);
+}
+
+/* Display Size Buttons */
+.size-btn {
+    background-color: var(--color-grey);
+    color: var(--color-white);
+    border: 1px solid var(--color-mid-grey);
+    padding: 4px 8px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 60px;
+    height: 26px;
+}
+
+.size-btn:hover {
+    background-color: var(--color-blue);
+    border-color: var(--color-blue);
+    transform: scale(1.05);
+}
+
+.size-btn.active {
+    background-color: var(--color-green);
+    color: var(--color-black);
+    border-color: var(--color-green);
+    font-weight: bold;
+}
+
+/* Quick Command Buttons */
+.quick-btn {
+    background-color: var(--color-amber);
+    color: var(--color-black);
+    border: 1px solid var(--color-amber-dark);
+    padding: 4px 10px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    height: 26px;
+    text-align: center;
+}
+
+.quick-btn:hover {
+    background-color: var(--color-amber-dark);
+    border-color: var(--color-amber);
+    transform: scale(1.1);
+}
+
+.quick-btn:active {
+    transform: scale(0.95);
+}
+
+/* Quick Button Color Variants */
+.quick-btn-tree {
+    background-color: var(--color-green);
+    border-color: var(--color-green-dark);
+}
+
+.quick-btn-tree:hover {
+    background-color: var(--color-green-dark);
+    border-color: var(--color-green);
+}
+
+.quick-btn-mem {
+    background-color: var(--color-blue);
+    border-color: var(--color-blue-dark);
+}
+
+.quick-btn-mem:hover {
+    background-color: var(--color-blue-dark);
+    border-color: var(--color-blue);
+}
+
+.quick-btn-dash {
+    background-color: var(--color-cyan);
+    border-color: var(--color-cyan-dark);
+}
+
+.quick-btn-dash:hover {
+    background-color: var(--color-cyan-dark);
+    border-color: var(--color-cyan);
+}
+
+.quick-btn-log {
+    background-color: var(--color-orange);
+    border-color: var(--color-orange-dark);
+}
+
+.quick-btn-log:hover {
+    background-color: var(--color-orange-dark);
+    border-color: var(--color-orange);
+}
+
+.quick-btn-dev {
+    background-color: var(--color-pink);
+    border-color: var(--color-pink-dark);
+}
+
+.quick-btn-dev:hover {
+    background-color: var(--color-pink-dark);
+    border-color: var(--color-pink);
+}
+
+.quick-btn-clear {
+    background-color: var(--color-red);
+    border-color: var(--color-red-dark);
+}
+
+.quick-btn-clear:hover {
+    background-color: var(--color-red-dark);
+    border-color: var(--color-red);
+}
+
+/* Responsive Design for Controls */
+@media (max-width: 800px) {
+    .display-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-group {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* BBC Mode 7 Button Styles with New Vibrant Colors */
+.mode7-button {
+    background-color: var(--color-green);
+    color: var(--color-black);
+    border: 2px solid var(--color-green-dark);
+    padding: 12px 20px;
+    font-family: var(--font-teletext);
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    text-shadow: 1px 1px 0px var(--color-dark-grey);
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+.mode7-button:hover {
+    background-color: var(--color-green-dark);
+    border-color: var(--color-green);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mode7-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Color Variants for Different Button Types */
+.mode7-btn-blue {
+    background-color: var(--color-blue);
+    border-color: var(--color-blue-dark);
+}
+
+.mode7-btn-blue:hover {
+    background-color: var(--color-blue-dark);
+    border-color: var(--color-blue);
+}
+
+.mode7-btn-red {
+    background-color: var(--color-red);
+    border-color: var(--color-red-dark);
+}
+
+.mode7-btn-red:hover {
+    background-color: var(--color-red-dark);
+    border-color: var(--color-red);
+}
+
+.mode7-btn-magenta {
+    background-color: var(--color-pink);
+    border-color: var(--color-pink-dark);
+}
+
+.mode7-btn-magenta:hover {
+    background-color: var(--color-pink-dark);
+    border-color: var(--color-pink);
+}
+
+.mode7-btn-cyan {
+    background-color: var(--color-cyan);
+    border-color: var(--color-cyan-dark);
+}
+
+.mode7-btn-cyan:hover {
+    background-color: var(--color-cyan-dark);
+    border-color: var(--color-cyan);
+}
+
+.mode7-btn-yellow {
+    background-color: var(--color-yellow);
+    border-color: var(--color-yellow-dark);
+}
+
+.mode7-btn-yellow:hover {
+    background-color: var(--color-yellow-dark);
+    border-color: var(--color-yellow);
+}
+
+.mode7-btn-orange {
+    background-color: var(--color-orange);
+    border-color: var(--color-orange-dark);
+}
+
+.mode7-btn-orange:hover {
+    background-color: var(--color-orange-dark);
+    border-color: var(--color-orange);
+}
+
+.mode7-btn-lime {
+    background-color: var(--color-lime);
+    color: var(--color-black);
+    border-color: var(--color-lime-dark);
+}
+
+.mode7-btn-lime:hover {
+    background-color: var(--color-lime-dark);
+    border-color: var(--color-lime);
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.dashboard-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Mode 7 Screen Container Updates */
+.mode7-screen {
+    background-color: var(--color-black);
+    border: 4px solid var(--color-blue);
+    color: var(--color-white);
+}
+
+/* Mode 7 Header Updates */
+.mode7-header {
+    background-color: var(--color-blue);
+    color: var(--color-white);
+    border-bottom: 2px solid var(--color-blue-dark);
+}
+
+/* Mode 7 Terminal Updates */
+.mode7-terminal {
+    background-color: var(--color-black);
+    border: 2px solid var(--color-grey);
+}
+
+/* Status Bar Updates */
+.mode7-status {
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
+    border-top: 1px solid var(--color-grey);
+}
+
+/* Command Input Updates */
+#command-input {
+    background-color: var(--color-black);
+    color: var(--color-green);
+    border: 1px solid var(--color-green);
+}
+
+#command-input:focus {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 5px var(--color-blue);
+}
+.font-teletext {
+    font-family: 'MODE7GX3', monospace !important;
+    font-size: 20px !important;
+    line-height: 20px !important;
+}
+
+.font-teletext-square {
+    font-family: 'MODE7GX0', monospace !important;
+    font-size: 18px !important;
+    line-height: 18px !important;
+}
+
+.font-teletext-wide {
+    font-family: 'MODE7GX4', monospace !important;
+    font-size: 22px !important;
+    line-height: 22px !important;
+}
+
+.uDOS-font-mode7gx2 {
+    font-family: 'MODE7GX2', monospace !important;
+    font-size: 19px !important;
+    line-height: 19px !important;
+}
+
+.font-terminal {
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace !important;
+    font-size: 16px !important;
+    line-height: 18px !important;
+}
+
+.font-system {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
 }
 
 body {
     font-family: var(--font-default);
+    font-size: var(--font-size-teletext);
+    line-height: var(--line-height-teletext);
     background: var(--bg-dark);
     color: var(--text-dark);
     height: 100vh;
     overflow: hidden;
     transition: all 0.3s ease;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
 }
 
 /* Theme Classes - Dark Mode is Default */
@@ -124,7 +607,7 @@ body.theme-rainbow .header::before {
     font-size: 18px;
     font-weight: bold;
     color: var(--text-accent);
-    text-shadow: 0 0 8px var(--border-primary);
+    text-shadow: none;
 }
 
 /* Rainbow mode title */
@@ -240,7 +723,7 @@ body.theme-rainbow .panel::after {
     border-bottom: 1px solid var(--border-primary);
     padding-bottom: 6px;
     font-size: 15px;
-    text-shadow: 0 0 6px var(--border-primary);
+    text-shadow: none;
 }
 
 /* Rainbow mode headers */
@@ -260,17 +743,62 @@ body.theme-rainbow .panel h3 {
     font-size: 14px;
 }
 
+/* Enhanced Terminal Output with Smooth Scrolling */
 .terminal-output {
     flex: 1;
     background: var(--bg-dark);
     border: 2px solid var(--border-primary);
     padding: 12px;
     overflow-y: auto;
-    font-size: 14px;
+    overflow-x: hidden;
+    font-size: 18px;
     line-height: 1.4;
     margin-bottom: 12px;
     position: relative;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-dark-grey);
+}
+
+/* Custom Scrollbar for WebKit browsers */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: var(--color-dark-grey);
+    border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: var(--color-blue);
+    border-radius: 4px;
+    border: 1px solid var(--color-blue-dark);
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cyan);
+}
+
+/* Auto-scroll indicator */
+.terminal-output.auto-scrolling::after {
+    content: "▼ AUTO-SCROLL";
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: var(--color-green);
+    color: var(--color-black);
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    animation: scroll-indicator 2s ease-in-out;
+    z-index: 1000;
+}
+
+@keyframes scroll-indicator {
+    0%, 100% { opacity: 0; transform: translateY(10px); }
+    50% { opacity: 1; transform: translateY(0); }
 }
 
 .terminal-output::before {
@@ -302,7 +830,7 @@ body.theme-rainbow .panel h3 {
     white-space: pre;
     margin-bottom: 12px;
     text-align: center;
-    text-shadow: 0 0 6px var(--border-primary);
+    text-shadow: none;
 }
 
 /* Rainbow mode welcome message */
@@ -316,6 +844,81 @@ body.theme-rainbow .welcome-message {
     text-shadow: none;
 }
 
+/* Terminal Line Type Styles with New Vibrant Colors */
+.terminal-line {
+    margin: 2px 0;
+    padding: 2px 0;
+    line-height: 1.3;
+}
+
+.terminal-line.command {
+    color: var(--color-blue);
+    font-weight: bold;
+}
+
+.terminal-line.output {
+    color: var(--color-white);
+}
+
+.terminal-line.success {
+    color: var(--color-green);
+    font-weight: bold;
+}
+
+.terminal-line.error {
+    color: var(--color-red);
+    font-weight: bold;
+}
+
+.terminal-line.warning {
+    color: var(--color-orange);
+    font-weight: bold;
+}
+
+.terminal-line.info {
+    color: var(--color-cyan);
+}
+
+.terminal-line.system {
+    color: var(--color-lime);
+    font-style: italic;
+}
+
+.terminal-line.rainbow {
+    background: linear-gradient(90deg, 
+        var(--color-red), 
+        var(--color-orange), 
+        var(--color-yellow), 
+        var(--color-green), 
+        var(--color-cyan), 
+        var(--color-blue), 
+        var(--color-pink)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+.terminal-line.whirlwind {
+    color: var(--color-pink);
+    animation: whirlwind-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes whirlwind-pulse {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1.02); }
+}
+
+/* uCODE Terminal Styling */
+.terminal-line.ucode {
+    color: var(--color-lime);
+    background: var(--color-dark-grey);
+    padding: 4px 8px;
+    border-left: 4px solid var(--color-green);
+    margin: 4px 0;
+}
+
 .command-input-container {
     display: flex;
     align-items: center;
@@ -324,6 +927,23 @@ body.theme-rainbow .welcome-message {
     border: 2px solid var(--border-primary);
     border-radius: 4px;
     position: relative;
+    transition: all 0.3s ease;
+}
+
+.command-input-container:focus-within {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 10px rgba(0, 174, 239, 0.3);
+    background: var(--color-dark-grey);
+}
+
+.command-input-container.command-executing {
+    border-color: var(--color-green);
+    animation: command-pulse 0.5s ease-in-out;
+}
+
+@keyframes command-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
 }
 
 .command-input-container::before {
@@ -338,11 +958,170 @@ body.theme-rainbow .welcome-message {
     opacity: 0.4;
 }
 
-.prompt {
-    color: var(--udos-yellow);
-    margin-right: 12px;
+/* Enhanced Command Input Field */
+#command-input {
+    flex: 1;
+    background: transparent;
+    color: var(--color-green);
+    border: none;
+    outline: none;
+    font-family: var(--font-default);
+    font-size: 18px;
+    padding: 4px 8px;
+    transition: all 0.3s ease;
+    caret-color: var(--color-green);
+}
+
+#command-input::placeholder {
+    color: var(--color-mid-grey);
+    font-style: italic;
+    transition: opacity 0.3s ease;
+}
+
+#command-input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Input status indicators */
+.input-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.status-indicator.connected {
+    background: var(--color-green);
+    box-shadow: 0 0 4px var(--color-green);
+    display: block;
+}
+
+.status-indicator.ucode-mode {
+    background: var(--color-cyan);
+    box-shadow: 0 0 4px var(--color-cyan);
+    animation: ucode-pulse 2s ease-in-out infinite;
+    display: block;
+}
+
+.status-indicator.typing {
+    background: var(--color-yellow);
+    animation: typing-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes ucode-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes typing-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+/* Command history popup */
+.command-history {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-dark-grey);
+    border: 1px solid var(--color-blue);
+    border-radius: 4px 4px 0 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.command-history.visible {
+    display: block;
+    animation: history-slide-up 0.2s ease-out;
+}
+
+@keyframes history-slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.history-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-grey);
+    color: var(--color-light-grey);
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.history-item:hover,
+.history-item.selected {
+    background: var(--color-blue);
+    color: var(--color-white);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+/* Command suggestions */
+.command-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-dark-grey);
+    border: 1px solid var(--color-cyan);
+    border-radius: 0 0 4px 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.command-suggestions.visible {
+    display: block;
+    animation: suggestions-slide-down 0.2s ease-out;
+}
+
+@keyframes suggestions-slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestion-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-grey);
+    color: var(--color-cyan);
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background: var(--color-cyan);
+    color: var(--color-black);
+}
+
+.suggestion-item .command-name {
     font-weight: bold;
-    text-shadow: 0 0 6px var(--udos-yellow);
+}
+
+.suggestion-item .command-desc {
+    color: var(--color-light-grey);
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
 }
 
 /* Rainbow mode prompt cycling */
@@ -362,14 +1141,14 @@ body.theme-rainbow .prompt {
     border: none;
     color: var(--text-dark);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 18px;
     outline: none;
-    text-shadow: 0 0 4px var(--text-dark);
+    text-shadow: none;
 }
 
 .command-input::placeholder {
     color: rgba(0, 255, 102, 0.5);
-    font-style: italic;
+    font-style: normal;
 }
 
 /* Light theme input */
@@ -723,4 +1502,50 @@ body.rainbow-mode {
     .font-controls, .theme-controls {
         flex-direction: column;
     }
+}
+
+/* Retro Color Palette Theme */
+body.theme-retro {
+    /* Switch to retro color palette */
+    --udos-red: var(--retro-red);
+    --udos-green: var(--retro-green);
+    --udos-blue: var(--retro-blue);
+    --udos-yellow: var(--retro-yellow);
+    --udos-purple: var(--retro-purple);
+    --udos-cyan: var(--retro-cyan);
+    --udos-orange: var(--retro-orange);
+    --udos-magenta: var(--retro-magenta);
+    --udos-black: var(--retro-black);
+    --udos-white: var(--retro-white);
+    
+    /* Retro theme colors */
+    --bg-dark: #000011;
+    --bg-dark-alt: #001122;
+    --text-dark: var(--retro-green);
+    --text-accent: var(--retro-white);
+    --border-primary: var(--retro-green);
+    --border-secondary: var(--retro-cyan);
+}
+
+/* Teletext Color Palette Theme (Default) */
+body.theme-teletext {
+    /* Classic teletext colors are already default */
+    --udos-red: var(--teletext-red);
+    --udos-green: var(--teletext-green);
+    --udos-blue: var(--teletext-blue);
+    --udos-yellow: var(--teletext-yellow);
+    --udos-purple: var(--teletext-magenta);
+    --udos-cyan: var(--teletext-cyan);
+    --udos-orange: #ff8000;
+    --udos-magenta: var(--teletext-magenta);
+    --udos-black: var(--teletext-black);
+    --udos-white: var(--teletext-white);
+    
+    /* Pure teletext theme */
+    --bg-dark: var(--teletext-black);
+    --bg-dark-alt: #001100;
+    --text-dark: var(--teletext-green);
+    --text-accent: var(--teletext-white);
+    --border-primary: var(--teletext-green);
+    --border-secondary: var(--teletext-cyan);
 }

@@ -1,0 +1,231 @@
+/* uDOS Display Standards and Viewport Management */
+
+/*
+ * AUTHENTIC RETRO DISPLAY MODES:
+ * Based on original computer display standards for authentic experience
+ * 
+ * BBC Micro Mode 7: 40×25 characters, 320×250 pixels, 1.28:1 aspect ratio
+ * Commodore 64: 40×25 characters, 320×200 pixels, 1.6:1 aspect ratio
+ * Amiga Workbench: 640×256 pixels (PAL), 640×200 pixels (NTSC)
+ * VT100 Terminal: 80×24 characters
+ */
+
+/* Core Display Variables */
+:root {
+    /* BBC Micro Mode 7 Display Standards */
+    --bbc-chars-width: 40;
+    --bbc-chars-height: 25;
+    --bbc-pixel-width: 320;
+    --bbc-pixel-height: 250;
+    --bbc-aspect-ratio: 1.28;
+    
+    /* Commodore 64 Display Standards */
+    --c64-chars-width: 40;
+    --c64-chars-height: 25;
+    --c64-pixel-width: 320;
+    --c64-pixel-height: 200;
+    --c64-aspect-ratio: 1.6;
+    
+    /* Amiga Display Standards */
+    --amiga-pixel-width-pal: 640;
+    --amiga-pixel-height-pal: 256;
+    --amiga-pixel-width-ntsc: 640;
+    --amiga-pixel-height-ntsc: 200;
+    
+    /* Modern Terminal Standards */
+    --terminal-chars-width: 80;
+    --terminal-chars-height: 24;
+    
+    /* Character sizing for authentic display */
+    --char-width-bbc: 8px;   /* 8×10 chars for MODE7GX3 */
+    --char-height-bbc: 10px;
+    --char-width-c64: 8px;   /* 8×8 chars for C64 */
+    --char-height-c64: 8px;
+    --char-width-amiga: 8px; /* 8×8 chars for Topaz */
+    --char-height-amiga: 8px;
+}
+
+/* Display Mode Classes */
+.display-mode-bbc {
+    width: calc(var(--bbc-chars-width) * var(--char-width-bbc));
+    height: calc(var(--bbc-chars-height) * var(--char-height-bbc));
+    aspect-ratio: var(--bbc-aspect-ratio);
+    font-size: 10px;
+    line-height: var(--char-height-bbc);
+}
+
+.display-mode-c64 {
+    width: calc(var(--c64-chars-width) * var(--char-width-c64));
+    height: calc(var(--c64-chars-height) * var(--char-height-c64));
+    aspect-ratio: var(--c64-aspect-ratio);
+    font-size: 8px;
+    line-height: var(--char-height-c64);
+}
+
+.display-mode-amiga-pal {
+    width: var(--amiga-pixel-width-pal);
+    height: var(--amiga-pixel-height-pal);
+    aspect-ratio: calc(640 / 256);
+    font-size: 8px;
+    line-height: var(--char-height-amiga);
+}
+
+.display-mode-amiga-ntsc {
+    width: var(--amiga-pixel-width-ntsc);
+    height: var(--amiga-pixel-height-ntsc);
+    aspect-ratio: calc(640 / 200);
+    font-size: 8px;
+    line-height: var(--char-height-amiga);
+}
+
+.display-mode-terminal {
+    width: calc(var(--terminal-chars-width) * 9px);
+    height: calc(var(--terminal-chars-height) * 16px);
+    font-size: 12px;
+    line-height: 16px;
+}
+
+/* Viewport Optimization for Teletext */
+.viewport-teletext {
+    /* Optimize for 1.3:1 aspect ratio teletext fonts */
+    container-type: inline-size;
+    aspect-ratio: 1.28; /* BBC Micro Mode 7 */
+    width: 100%;
+    max-width: 640px; /* 2× scale of 320px */
+    margin: 0 auto;
+}
+
+.viewport-c64 {
+    /* Optimize for Commodore 64 display */
+    container-type: inline-size;
+    aspect-ratio: 1.6; /* C64 aspect ratio */
+    width: 100%;
+    max-width: 640px; /* 2× scale of 320px */
+    margin: 0 auto;
+}
+
+.viewport-amiga {
+    /* Optimize for Amiga display */
+    container-type: inline-size;
+    aspect-ratio: 2.5; /* 640/256 PAL ratio */
+    width: 100%;
+    max-width: 1280px; /* 2× scale of 640px */
+    margin: 0 auto;
+}
+
+/* Responsive scaling for authentic display */
+@container (max-width: 640px) {
+    .display-mode-bbc,
+    .display-mode-c64 {
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+}
+
+@container (max-width: 480px) {
+    .display-mode-bbc,
+    .display-mode-c64 {
+        transform: scale(0.6);
+        transform-origin: top left;
+    }
+}
+
+/* Terminal output sizing for authentic displays */
+.terminal-output.display-bbc {
+    width: 320px;
+    height: 250px;
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: 0;
+}
+
+.terminal-output.display-c64 {
+    width: 320px;
+    height: 200px;
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: 0;
+}
+
+.terminal-output.display-amiga {
+    width: 640px;
+    height: 256px;
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: 0;
+}
+
+/* Fullscreen kiosk mode */
+.kiosk-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.kiosk-mode .main-interface {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Hide window controls in kiosk mode */
+.kiosk-mode .window-controls,
+.kiosk-mode .title-bar,
+.kiosk-mode .menu-bar {
+    display: none !important;
+}
+
+/* Command-controlled window sizing */
+.window-size-320x200 { width: 320px; height: 200px; }
+.window-size-320x240 { width: 320px; height: 240px; }
+.window-size-320x250 { width: 320px; height: 250px; }
+.window-size-640x200 { width: 640px; height: 200px; }
+.window-size-640x256 { width: 640px; height: 256px; }
+.window-size-640x400 { width: 640px; height: 400px; }
+.window-size-640x480 { width: 640px; height: 480px; }
+.window-size-640x512 { width: 640px; height: 512px; }
+.window-size-800x600 { width: 800px; height: 600px; }
+.window-size-1024x768 { width: 1024px; height: 768px; }
+
+/* Pixel perfect rendering */
+.pixel-perfect {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+}
+
+/* Character grid alignment */
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols, 40), 1fr);
+    grid-template-rows: repeat(var(--grid-rows, 25), 1fr);
+    gap: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.char-grid.bbc-grid {
+    --grid-cols: 40;
+    --grid-rows: 25;
+}
+
+.char-grid.c64-grid {
+    --grid-cols: 40;
+    --grid-rows: 25;
+}
+
+.char-grid.terminal-grid {
+    --grid-cols: 80;
+    --grid-rows: 24;
+}

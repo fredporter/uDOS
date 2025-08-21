@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Font Test</title>
+    <link rel="stylesheet" href="static/fonts.css">
+    <style>
+        body { margin: 20px; background: #000; color: #0f0; }
+        .test-box {
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .font-info { color: #888; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>uDOS Font Test</h1>
+    
+    <div class="test-box font-teletext">
+        <div class="font-info">font-teletext (MODE7GX3)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+    
+    <div class="test-box font-topaz">
+        <div class="font-info">font-topaz (Topaz A500)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+    
+    <div class="test-box font-microknight">
+        <div class="font-info">font-microknight (MicroKnight)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+    
+    <div class="test-box font-pot-noodle">
+        <div class="font-info">font-pot-noodle (P0T-NOoDLE)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+    
+    <div class="test-box font-terminal">
+        <div class="font-info">font-terminal (Source Code Pro)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+    
+    <div class="test-box font-system">
+        <div class="font-info">font-system (System Default)</div>
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !@#$%^&*()
+    </div>
+
+    <script>
+        // Show computed styles
+        setTimeout(() => {
+            document.querySelectorAll('.test-box').forEach(box => {
+                const style = window.getComputedStyle(box);
+                const info = box.querySelector('.font-info');
+                info.innerHTML += `<br>Computed: ${style.fontFamily}`;
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

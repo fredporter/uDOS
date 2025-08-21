@@ -1,24 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
-   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>BackgroundColor</key>
-    <data>
-    YnBsaXN0MDDUAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywt
-    ...
-    </data>
-    <key>Font</key>
-    <string>Menlo-Regular 13</string>
-    <key>CursorColor</key>
-    <string>#00FF7F</string>
-    <key>TextColor</key>
-    <string>#E0E0E0</string>
-    <key>SelectionColor</key>
-    <string>#355C7D</string>
-    <key>SelectionTextColor</key>
-    <string>#FFFFFF</string>
     <key>ProfileName</key>
     <string>uDOS Default</string>
+    <key>Guid</key>
+    <string>F1B8C0E0-7B9B-4F8D-9B7E-UD0S00000001</string>
+    <key>Type</key>
+    <string>Window Settings</string>
+    <key>UseBoldFonts</key>
+    <false/>
+    <key>UseBrightBold</key>
+    <true/>
+    <key>NumberOfColumns</key>
+    <integer>110</integer>
+    <key>NumberOfRows</key>
+    <integer>30</integer>
+    <key>VisualBell</key>
+    <false/>
+    <key>Bell</key>
+    <false/>
+    <key>CursorBlink</key>
+    <false/>
+    <key>ProfileCurrentVersion</key>
+    <real>2.0</real>
 </dict>
+    <key>BackgroundColor</key>
+    <dict>
+        <key>Blue Component</key>
+        <real>0.0</real>
+        <key>Green Component</key>
+        <real>0.0</real>
+        <key>Red Component</key>
+        <real>0.0</real>
+    </dict>
+    <key>TextColor</key>
+    <dict>
+        <key>Blue Component</key>
+        <real>0.878</real>
+        <key>Green Component</key>
+        <real>0.878</real>
+        <key>Red Component</key>
+        <real>0.878</real>
+    </dict>
 </plist>

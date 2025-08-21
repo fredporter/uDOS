@@ -2,168 +2,378 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewpor                             <!-- Font Display Panel (Info Only) -->
-                <div class="font-display-panel">
-                    <h4>📺 Authentic Retro Computing Fonts</h4>
-                    <div class="font-showcase">
-                        <div class="font-sample font-teletext">Current: Teletext50 Mode 7 📺</div>
-                        <div class="font-sample font-markdown">Use 'font' command to switch fonts</div>
-                    </div>
-                </div>
-
-                <!-- Theme Controls Panel -->
-                <div class="theme-controls-panel">
-                    <h4>🎨 Interface Themes</h4>
-                    <div class="theme-controls">
-                        <button onclick="setTheme('dark')" class="theme-btn" id="theme-dark">🌙 Dark</button>
-                        <button onclick="setTheme('light')" class="theme-btn" id="theme-light">☀️ Light</button>
-                        <button onclick="setTheme('professional')" class="theme-btn active" id="theme-professional">💼 Pro</button>
-                        <button onclick="setTheme('rainbow')" class="theme-btn" id="theme-rainbow">🌈 Rainbow</button>
-                    </div>
-                </div>nt Display Panel -->
-                <div class="font-display-panel">
-                    <h4>🎮 Retro Computing Fonts</h4>
-                    <div class="font-showcase">
-                        <div class="font-sample font-terminal text-primary">Terminal: Source Code Pro</div>
-                        <div class="font-sample font-bbs text-secondary">BBS/ANSI: Share Tech Mono</div>
-                        <div class="font-sample font-c64 text-accent">C64: Courier Prime</div>
-                        <div class="font-sample font-acorn text-purple">Acorn: Cutive Mono</div>
-                        <div class="font-sample font-display text-error">Display: Major Mono</div>
-                    </div>
-                    <div class="font-controls">
-                        <button onclick="cycleFont()" class="font-btn">🔄 Cycle Font</button>
-                    </div>
-                </div>dth=device-width, initial-scale=1.0">
-    <title>uDOS - Universal Development Operating System</title>
-    <link rel="stylesheet" href="/static/fonts.css">
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS - BBC Mode 7 Interface</title>
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+        /* Proper BBC Mode 7 Font Aspect Ratio */
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: 'MODE7GX3', 'Courier New', monospace;
+            font-size: 20px;
+            line-height: 1.0;
+            transform: scaleY(1.3); /* Correct BBC Mode 7 character aspect ratio */
+            transform-origin: top;
+            overflow-x: auto;
+        }
+        
+        /* Clean Mode 7 Container */
+        .mode7-interface {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000;
+            border: 4px solid #00f;
+            padding: 20px;
+            transform-origin: top;
+        }
+        
+        /* Simple Header */
+        .header {
+            text-align: center;
+            color: #ff0;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #00f;
+            border: 2px solid #fff;
+        }
+        
+        /* Easy-to-Use Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        /* Big, Chunky Buttons */
+        .mode7-btn {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 20px 10px;
+            font-family: 'MODE7GX3', 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .mode7-btn:hover {
+            background: #ff0;
+            transform: scale(1.05);
+        }
+        
+        .mode7-btn:active {
+            background: #f00;
+            color: #fff;
+        }
+        
+        /* Button Color Variations */
+        .btn-blue { background: #00f; color: #fff; }
+        .btn-red { background: #f00; color: #fff; }
+        .btn-magenta { background: #f0f; color: #fff; }
+        .btn-cyan { background: #0ff; color: #000; }
+        .btn-yellow { background: #ff0; color: #000; }
+        
+        /* Terminal Area */
+        .terminal {
+            background: #000;
+            border: 2px solid #fff;
+            padding: 15px;
+            margin: 20px 0;
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'MODE7GX3', 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+        
+        .terminal::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        .terminal::-webkit-scrollbar-track {
+            background: #000;
+        }
+        
+        .terminal::-webkit-scrollbar-thumb {
+            background: #fff;
+            border: 1px solid #000;
+        }
+        
+        /* Command Input */
+        .command-input {
+            width: 100%;
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 10px;
+            font-family: 'MODE7GX3', 'Courier New', monospace;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .command-input:focus {
+            outline: none;
+            border-color: #ff0;
+            color: #ff0;
+        }
+        
+        /* Quick Commands Row */
+        .quick-commands {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .quick-btn {
+            background: #888;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            font-family: 'MODE7GX3', 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #fff;
+        }
+        
+        .quick-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #00f;
+            color: #fff;
+            padding: 8px 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        /* Color Classes for Terminal Output */
+        .green { color: #0f0; }
+        .red { color: #f00; }
+        .yellow { color: #ff0; }
+        .blue { color: #00f; }
+        .cyan { color: #0ff; }
+        .magenta { color: #f0f; }
+        .white { color: #fff; }
+        
+        /* Flash Animation */
+        .flash {
+            animation: flash 1s infinite;
+        }
+        
+        @keyframes flash {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
+    <div class="mode7-interface">
         <!-- Header -->
-        <header class="header">
-            <div class="title">uDOS v1.3 - DEV MODE</div>
-            <div class="status" id="status">●●● CONNECTING</div>
-        </header>
-
-        <!-- Main Interface -->
-        <div class="main-container">
-            <!-- Left Panel: Command Interface -->
-            <div class="panel left-panel">
-                <h3>📟 COMMAND INTERFACE</h3>
-                <div class="terminal-output" id="terminal-output">
-                    <div class="welcome-message">
-╔══════════════════════════════════════════════════════════════════════════════════════╗
-║  ██╗   ██╗██████╗  ██████╗ ███████╗    ██╗   ██╗ ██╗  ██████╗                       ║
-║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝    ██║   ██║███║ ██╔════╝                       ║
-║  ██║   ██║██║  ██║██║   ██║███████╗    ██║   ██║╚██║ ╚█████╗                        ║
-║  ██║   ██║██║  ██║██║   ██║╚════██║    ╚██╗ ██╔╝ ██║  ╚═══██╗                       ║
-║  ╚██████╔╝██████╔╝╚██████╔╝███████║     ╚████╔╝  ██║ ██████╔╝                       ║
-║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝      ╚═══╝   ╚═╝ ╚═════╝                        ║
-║                                                                                      ║
-║  ▓▓▓ UNIVERSAL DEVELOPMENT OPERATING SYSTEM ▓▓▓                                     ║
-║  ░░░ Omni-Device uCODE Window v1.0 ░░░                                              ║
-║                                                                                      ║
-║  🌈 Rainbow Block Graphics Mode: ACTIVE                                             ║
-║  🚀 Whirlwind Prompt System: ENGAGED                                                ║
-║  🤖 ASSIST MODE: Ready for Integration                                              ║
-╚══════════════════════════════════════════════════════════════════════════════════════╝
-
-🎯 DEV MODE ACTIVATED - Type 'help' for available commands...
-💫 Dynamic prompts enabled - Watch the prompt change with your mode!
-                    </div>
-                </div>
-                <div class="command-input-container">
-                    <span class="prompt" id="dynamic-prompt">🌟 uDOS:DEV $</span>
-                    <input type="text" id="command-input" class="command-input" placeholder="Enter command... (try: help, status, rainbow)" autocomplete="off">
-                </div>
-            </div>
-
-            <!-- Right Panel: System Monitor -->
-            <div class="panel right-panel">
-                <h3>📊 SYSTEM MONITOR</h3>
-                
-                <!-- Status Panel -->
-                <div class="status-panel">
-                    <h4>Status</h4>
-                    <div id="system-status">
-                        <div class="status-item">Mode: <span id="mode">DEV</span></div>
-                        <div class="status-item">Clients: <span id="clients">0</span></div>
-                        <div class="status-item">Modules: <span id="modules">Loading...</span></div>
-                    </div>
-                </div>
-
-                <!-- Modules Panel -->
-                <div class="modules-panel">
-                    <h4>🌈 uDOS Modules</h4>
-                    <div class="module-grid">
-                        <div class="module-item">📦 uCORE</div>
-                        <div class="module-item">🌐 uSERVER</div>
-                        <div class="module-item">📜 uSCRIPT</div>
-                        <div class="module-item">🧠 uMEMORY</div>
-                        <div class="module-item">👻 ghost</div>
-                        <div class="module-item">🔮 sorcerer</div>
-                        <div class="module-item">😈 imp</div>
-                        <div class="module-item">⚰️ tomb</div>
-                        <div class="module-item">🚁 drone</div>
-                        <div class="module-item">🧙‍♂️ wizard</div>
-                        <div class="module-item">🗑️ trash</div>
-                        <div class="module-item">📖 uKNOWLEDGE</div>
-                    </div>
-                </div>
-
-                <!-- Logs Panel -->
-                <div class="logs-panel">
-                    <h4>Live Logs</h4>
-                    <div class="logs-output" id="logs-output"></div>
-                </div>
-
-                <!-- Font Display Panel -->
-                <div class="font-display-panel">
-                    <h4>📺 Authentic Retro Computing Fonts</h4>
-                    <div class="font-showcase">
-                        <div class="font-sample font-teletext">Default: Teletext50 Mode 7 �</div>
-                        <div class="font-sample font-c64">C64: Nova Mono (PETSCII-style) 🕹️</div>
-                        <div class="font-sample font-terminal">Terminal: Source Code Pro 💻</div>
-                        <div class="font-sample font-markdown">Markdown: Inter + Emoji 📝✨</div>
-                    </div>
-                </div>
-
-                <!-- Theme Controls Panel -->
-                <div class="theme-controls-panel">
-                    <h4>🎨 Interface Themes</h4>
-                    <div class="theme-controls">
-                        <button onclick="setTheme('dark')" class="theme-btn active" id="theme-dark">🌙 Dark</button>
-                        <button onclick="setTheme('light')" class="theme-btn" id="theme-light">☀️ Light</button>
-                        <button onclick="setTheme('professional')" class="theme-btn" id="theme-professional">💼 Pro</button>
-                        <button onclick="setTheme('rainbow')" class="theme-btn" id="theme-rainbow">🌈 Rainbow</button>
-                    </div>
-                </div>
-
-                <!-- Font Controls Panel (Bottom) -->
-                <div class="font-controls-panel">
-                    <h4>🔄 Font Switching</h4>
-                    <div class="font-controls">
-                        <button onclick="cycleFont()" class="font-btn" id="cycle-font-btn">🔄 Teletext50 (1/3)</button>
-                        <button onclick="resetToDefault()" class="font-btn">📺 Default</button>
-                        <button onclick="installTeletext50()" class="font-btn">📥 Install Fonts</button>
-                    </div>
-                </div>
-            </div>
+        <div class="header">
+            <div class="flash">uDOS v1.3 - BBC MODE 7</div>
+            <div style="font-size: 16px;">Universal Development Operating System</div>
         </div>
-
-        <!-- ASSIST MODE Integration -->
-        <div class="assist-panel" id="assist-panel">
-            <h3>🤖 ASSIST MODE (Copilot Integration)</h3>
-            <div class="assist-content">
-                <p>💡 This panel can integrate with VS Code Copilot Chat</p>
-                <p>🔗 Use the VS Code extension API to embed chat here</p>
-                <button onclick="toggleAssist()">Toggle Assist Mode</button>
-            </div>
+        
+        <!-- Main Module Buttons -->
+        <div class="button-grid">
+            <button class="mode7-btn" onclick="openModule('uCORE')">
+                ▌ uCORE ▐<br>
+                System Core
+            </button>
+            
+            <button class="mode7-btn btn-blue" onclick="openModule('uSCRIPT')">
+                ▌ uSCRIPT ▐<br>
+                Automation
+            </button>
+            
+            <button class="mode7-btn btn-magenta" onclick="openModule('uSERVER')">
+                ▌ uSERVER ▐<br>
+                Web Services
+            </button>
+            
+            <button class="mode7-btn btn-cyan" onclick="openMode('wizard')">
+                ▌ WIZARD ▐<br>
+                Development
+            </button>
+            
+            <button class="mode7-btn btn-red" onclick="openMode('sorcerer')">
+                ▌ SORCERER ▐<br>
+                Admin Tools
+            </button>
+            
+            <button class="mode7-btn btn-yellow" onclick="openMode('imp')">
+                ▌ IMP ▐<br>
+                Scripting
+            </button>
+        </div>
+        
+        <!-- Quick Commands -->
+        <div class="quick-commands">
+            <button class="quick-btn" onclick="quickCmd('help')">HELP</button>
+            <button class="quick-btn" onclick="quickCmd('tree')">TREE</button>
+            <button class="quick-btn" onclick="quickCmd('memory')">MEMORY</button>
+            <button class="quick-btn" onclick="quickCmd('dashboard')">DASHBOARD</button>
+            <button class="quick-btn" onclick="quickCmd('templates')">TEMPLATES</button>
+            <button class="quick-btn" onclick="quickCmd('clear')">CLEAR</button>
+        </div>
+        
+        <!-- Terminal Output -->
+        <div class="terminal" id="terminal">
+            <div class="green">READY</div>
+            <div class="yellow">uDOS BBC Mode 7 Interface Loaded</div>
+            <div class="cyan">Type commands or click buttons</div>
+            <div class="white">═══════════════════════════</div>
+        </div>
+        
+        <!-- Command Input -->
+        <input type="text" id="command-input" class="command-input" 
+               placeholder="Enter command..." 
+               autocomplete="off">
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div><span class="green">●</span> READY</div>
+            <div id="mode-display">MAIN MODE</div>
+            <div id="time-display"></div>
         </div>
     </div>
 
-    <script src="/static/app.js"></script>
+    <script>
+        // Terminal functions
+        function log(text, color = 'white') {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = color;
+            line.textContent = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Limit terminal history
+            if (terminal.children.length > 100) {
+                terminal.removeChild(terminal.firstChild);
+            }
+        }
+        
+        // Module functions
+        function openModule(module) {
+            log(`Loading ${module}...`, 'cyan');
+            document.getElementById('mode-display').textContent = module;
+            
+            // Real command execution
+            executeCommand(`dashboard ${module.toLowerCase()}`);
+        }
+        
+        function openMode(mode) {
+            log(`Switching to ${mode} mode...`, 'yellow');
+            document.getElementById('mode-display').textContent = mode.toUpperCase();
+            
+            // Real command execution
+            executeCommand(`mode ${mode}`);
+        }
+        
+        function quickCmd(cmd) {
+            log(`> ${cmd}`, 'white');
+            executeCommand(cmd);
+        }
+        
+        // Command processor
+        function executeCommand(cmd) {
+            const command = cmd.toLowerCase().trim();
+            
+            switch(command) {
+                case 'help':
+                    showHelp();
+                    break;
+                case 'clear':
+                    document.getElementById('terminal').innerHTML = '';
+                    break;
+                case 'tree':
+                    log('Generating project tree...', 'cyan');
+                    log('├── uCORE/', 'green');
+                    log('├── uSCRIPT/', 'green');
+                    log('├── uSERVER/', 'green');
+                    log('├── wizard/', 'blue');
+                    log('├── sorcerer/', 'red');
+                    log('└── imp/', 'yellow');
+                    break;
+                case 'memory':
+                    log('Memory Status:', 'cyan');
+                    log('System: 85% available', 'green');
+                    log('Cache: 12MB used', 'white');
+                    break;
+                case 'dashboard':
+                    log('Dashboard modules loaded', 'green');
+                    break;
+                case 'templates':
+                    log('Template system ready', 'magenta');
+                    break;
+                default:
+                    // Try to connect to real uDOS system
+                    if (window.udosApp) {
+                        window.udosApp.executeCommand(command);
+                    } else {
+                        log(`Command "${cmd}" not recognized. Type HELP for available commands.`, 'red');
+                    }
+            }
+        }
+        
+        function showHelp() {
+            log('uDOS BBC Mode 7 Commands:', 'yellow');
+            log('═══════════════════════════', 'cyan');
+            log('HELP     - Show this help', 'white');
+            log('CLEAR    - Clear screen', 'white');
+            log('TREE     - Show project structure', 'white');
+            log('MEMORY   - Show memory status', 'white');
+            log('DASHBOARD- Load dashboard', 'white');
+            log('TEMPLATES- Template system', 'white');
+            log('═══════════════════════════', 'cyan');
+        }
+        
+        // Command input handling
+        document.getElementById('command-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = this.value.trim();
+                if (cmd) {
+                    log('> ' + cmd, 'white');
+                    executeCommand(cmd);
+                    this.value = '';
+                }
+            }
+        });
+        
+        // Time display
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time-display').textContent = now.toLocaleTimeString();
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Initialize
+        log('System initialized', 'green');
+        log('Font: MODE7GX3 with 1:1.3 aspect ratio', 'cyan');
+        document.getElementById('command-input').focus();
+    </script>
 </body>
 </html>

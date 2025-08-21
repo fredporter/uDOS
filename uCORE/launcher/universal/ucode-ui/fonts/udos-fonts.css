@@ -51,22 +51,15 @@
 
 /* Special uDOS Font Effects */
 .font-glow {
-    text-shadow: 0 0 10px currentColor;
+    text-shadow: none;
 }
 
 .font-neon {
-    text-shadow: 
-        0 0 5px currentColor,
-        0 0 10px currentColor,
-        0 0 20px currentColor;
+    text-shadow: none;
 }
 
 .font-retro-glow {
-    text-shadow: 
-        0 0 2px #00ff88,
-        0 0 4px #00ff88,
-        0 0 8px #00ff88,
-        0 0 16px #00ff88;
+    text-shadow: none;
 }
 
 .font-rainbow {

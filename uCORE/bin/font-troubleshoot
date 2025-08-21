@@ -1,0 +1,61 @@
+#!/bin/bash
+# uDOS Font Troubleshooting Script
+
+echo "🔧 uDOS Font Troubleshooting"
+echo "============================"
+echo ""
+
+echo "🔍 Checking font availability..."
+echo ""
+
+# Check system fonts
+echo "📱 System Fonts:"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "• Monaco: $(system_profiler SPFontsDataType | grep -c Monaco || echo 'Not found')"
+    echo "• Menlo: $(system_profiler SPFontsDataType | grep -c Menlo || echo 'Not found')"
+    echo "• JetBrains Mono: $(ls ~/Library/Fonts/*JetBrains* 2>/dev/null | wc -l) installed"
+else
+    echo "• Checking Linux font directories..."
+    echo "• JetBrains Mono: $(fc-list | grep -c JetBrains || echo 'Not found')"
+    echo "• DejaVu Sans Mono: $(fc-list | grep -c 'DejaVu Sans Mono' || echo 'Not found')"
+fi
+echo ""
+
+echo "🌐 Web Font Status:"
+echo "• Google Fonts CSS: Loaded via @import"
+echo "• VT323: Available in browser"
+echo "• Share Tech Mono: Available in browser"
+echo "• Orbitron: Available in browser"
+echo "• Space Mono: Available in browser"
+echo ""
+
+echo "🎯 Font Fallbacks:"
+echo "• Primary: JetBrains Mono → Monaco → Menlo → monospace"
+echo "• Terminal: VT323 → Share Tech Mono → Courier New"
+echo "• Display: Orbitron → Arial → sans-serif"
+echo "• Retro: Space Mono → Nova Mono → monospace"
+echo ""
+
+echo "🔧 Common Issues & Solutions:"
+echo ""
+echo "1. Fonts not loading in browser:"
+echo "   - Check internet connection (Google Fonts)"
+echo "   - Clear browser cache"
+echo "   - Disable ad blockers temporarily"
+echo ""
+echo "2. Terminal fonts look wrong:"
+echo "   - Install JetBrains Mono locally"
+echo "   - Configure terminal to use monospace fonts"
+echo "   - Check terminal font settings"
+echo ""
+echo "3. ASCII art misaligned:"
+echo "   - Use monospace fonts only"
+echo "   - Check line height settings"
+echo "   - Verify character spacing"
+echo ""
+
+echo "💡 Quick Fixes:"
+echo "• Run: ./demo-fonts (to see available fonts)"
+echo "• Run: ./install-retro-fonts (to set up fonts)"
+echo "• In uDOS web: type 'fonts' for font info"
+echo "• In uDOS web: type 'font terminal' to test"

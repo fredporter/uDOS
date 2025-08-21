@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""
+uDOS Teletext Browser Launcher
+Launches the Omni-device uCODE Window in the default browser
+"""
+
+import os
+import sys
+import subprocess
+import time
+from pathlib import Path
+
+def main():
+    # Get uDOS root directory
+    udos_root = Path(__file__).parent.parent.parent
+    server_script = udos_root / "uSERVER" / "server.py"
+    
+    print("🚀 Launching uDOS Omni-device uCODE Window...")
+    print(f"📁 uDOS Root: {udos_root}")
+    
+    # Check if server script exists
+    if not server_script.exists():
+        print(f"❌ Server script not found: {server_script}")
+        sys.exit(1)
+    
+    # Change to uSERVER directory
+    os.chdir(server_script.parent)
+    
+    # Launch the server
+    try:
+        subprocess.run([sys.executable, "server.py"], check=True)
+    except KeyboardInterrupt:
+        print("\n👋 uDOS server stopped by user")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Server failed to start: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

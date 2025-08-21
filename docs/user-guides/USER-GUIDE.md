@@ -1,10 +1,10 @@
-# uDOS v1.3 User Guide
+# uDOS v1.3 User Guide - BBC Mode 7 Edition
 
 ---
 
 **Foreword**
 
-Welcome to uDOS v1.3. This manual is written in the tradition of classic home computer guides — clear, direct, and practical. Its aim is to get you working quickly, while giving you the background to explore further.
+Welcome to uDOS v1.3 with authentic BBC Mode 7 interface. This manual is written in the tradition of classic home computer guides — direct, practical, and nostalgic. Following the design principles from [BBC BASIC for Windows Manual](https://www.bbcbasic.co.uk/bbcwin/manual/bbcwinh.html), uDOS now features an authentic Mode 7 teletext interface with chunky block graphics and dashboard integration.
 
 ```
     ██╗   ██╗██████╗  ██████╗ ███████╗
@@ -18,10 +18,70 @@ Welcome to uDOS v1.3. This manual is written in the tradition of classic home co
     ═══════════════ v1.3 ═══════════════
 ```
 
-**Edition**: v1.3 Production Guide  
+**Edition**: v1.3 Production Guide - BBC Mode 7 Interface  
 **Published**: August 2025  
 **System**: Universal Data Operating System v1.3  
-**Features**: Modular Architecture, uCode Script Library, Visual Basic Style Scripts, Clean Core System
+**Features**: BBC Mode 7 Interface, Chunky Block Graphics, Dashboard Integration, Authentic Teletext Styling
+
+---
+
+## BBC Mode 7 Interface
+
+### What's New: Authentic Mode 7 Design
+
+#### BBC Mode 7 Teletext Interface
+uDOS v1.3 now features an **authentic BBC Mode 7 interface**:
+- **640×500 pixel display** with 40×25 character grid
+- **Authentic SAA5050 color palette** with BBC Micro teletext colors
+- **Chunky block graphics** using █ characters for buttons
+- **MODE7GX3 font** for authentic BBC Micro typography
+
+#### Dashboard Integration
+**Chunky block button system** for uDOS modules:
+- **uCORE System**: Green block buttons for core functions
+- **uSERVER Web**: Blue block buttons for web services  
+- **uSCRIPT Auto**: Magenta block buttons for automation
+- **uKNOWLEDGE**: Cyan block buttons for documentation
+- **Template System**: Mode 7 integrated template access
+
+#### Authentic Teletext Features
+- **Double-height text**: BBC Mode 7 standard character sizing
+- **Flashing text**: CSS animations for attention and authenticity
+- **Background colors**: Text with colored backgrounds per Mode 7 standard
+- **Block graphics**: Complete SAA5050 block character support
+
+### Mode 7 Interface Layout
+
+```ascii
+┌─── BBC MODE 7 INTERFACE (640×500) ──────────────────┐
+│                                                     │
+│  ██ uDOS v1.3 ██  UNIVERSAL DATA OPERATING SYSTEM   │
+│                                                     │
+│  ▌█ uCORE █▐    ▌█ uSERVER █▐    ▌█ uSCRIPT █▐      │
+│  SYSTEM CORE    WEB SERVICES     AUTOMATION         │
+│                                                     │
+│  ▌█ WIZARD █▐   ▌█ SORCERER █▐   ▌█ IMP █▐          │
+│  DEVELOPMENT    ADMIN TOOLS      SCRIPTING          │
+│                                                     │
+│  ▌█ uKNOWLEDGE █▐ ▌█ TEMPLATES █▐ ▌█ TERMINAL █▐   │
+│  DOCUMENTATION  GENERATORS       COMMAND LINE       │
+│                                                     │
+│  > [COMMAND INPUT]_                                 │
+│                                                     │
+│  Status: System Online | Time: 15:30 | Mode: Mode7 │
+└─────────────────────────────────────────────────────┘
+```
+
+### BBC Mode 7 Color Palette
+Following authentic SAA5050 teletext standard:
+- **Black** (#000000) - Text and backgrounds
+- **Red** (#ff0000) - Admin and critical functions  
+- **Green** (#00ff00) - System and core functions
+- **Yellow** (#ffff00) - Warnings and highlights
+- **Blue** (#0000ff) - Information and web services
+- **Magenta** (#ff00ff) - Special functions and automation
+- **Cyan** (#00ffff) - Utilities and documentation
+- **White** (#ffffff) - Primary text and interface
 
 ---
 

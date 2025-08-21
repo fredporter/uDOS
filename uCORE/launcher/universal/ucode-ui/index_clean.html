@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimal-ui, viewport-fit=cover">
+    <title>uDOS Universal Code Interface</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/fonts.css">
+    <link rel="stylesheet" href="static/display.css">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        /* Enhanced input styling for better UX */
+        .command-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--terminal-bg, #1a1a1a);
+            border: 2px solid var(--primary, #48a56a);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .command-input-container:focus-within {
+            border-color: var(--accent, #eaaf41);
+            box-shadow: 0 0 0 3px rgba(234, 175, 65, 0.2);
+        }
+        
+        .prompt {
+            color: var(--accent, #eaaf41);
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 8px;
+            white-space: nowrap;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+        
+        .command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary, #ffffff);
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-size: 16px;
+            outline: none;
+            padding: 4px 0;
+            caret-color: var(--accent, #eaaf41);
+        }
+        
+        .command-input::placeholder {
+            color: var(--text-secondary, #888888);
+            opacity: 0.7;
+        }
+        
+        /* Autocomplete suggestions */
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--panel-bg, #2a2a2a);
+            border: 1px solid var(--primary, #48a56a);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-size: 14px;
+            color: var(--text-primary, #ffffff);
+        }
+        
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
+            background: var(--primary, #48a56a);
+            color: #ffffff;
+        }
+        
+        .suggestion-desc {
+            font-size: 12px;
+            color: var(--text-secondary, #888888);
+            margin-left: 8px;
+        }
+        
+        /* Input history navigation */
+        .input-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+        }
+        
+        .input-btn {
+            background: var(--primary, #48a56a);
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-terminal, monospace);
+        }
+        
+        .input-btn:hover {
+            background: var(--accent, #eaaf41);
+            transform: translateY(-1px);
+        }
+        
+        .input-history {
+            flex: 1;
+            font-size: 12px;
+            color: var(--text-secondary, #888888);
+            font-family: var(--font-terminal, monospace);
+        }
+        
+        /* Clean panel layout */
+        .panel {
+            background: var(--panel-bg, rgba(42, 42, 42, 0.95));
+            border: 1px solid var(--primary, #48a56a);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .panel h3 {
+            margin: 0 0 1rem 0;
+            color: var(--accent, #eaaf41);
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-size: 18px;
+            border-bottom: 2px solid var(--primary, #48a56a);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Improved font display */
+        .font-showcase {
+            display: grid;
+            gap: 8px;
+            margin: 1rem 0;
+        }
+        
+        .font-sample {
+            padding: 8px 12px;
+            background: var(--terminal-bg, #1a1a1a);
+            border: 1px solid var(--primary, #48a56a);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .font-sample:hover {
+            border-color: var(--accent, #eaaf41);
+            transform: translateX(4px);
+        }
+        
+        /* Status indicators */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 1rem 0;
+        }
+        
+        .status-item {
+            background: var(--terminal-bg, #1a1a1a);
+            border: 1px solid var(--primary, #48a56a);
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-size: 12px;
+        }
+        
+        .status-value {
+            display: block;
+            color: var(--accent, #eaaf41);
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* Module grid improvements */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin: 1rem 0;
+        }
+        
+        .module-item {
+            background: var(--terminal-bg, #1a1a1a);
+            border: 1px solid var(--primary, #48a56a);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .module-item:hover {
+            border-color: var(--accent, #eaaf41);
+            background: var(--primary, #48a56a);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+        
+        /* Terminal output improvements */
+        .terminal-output {
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--terminal-bg, #1a1a1a);
+            border: 1px solid var(--primary, #48a56a);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .terminal-output::-webkit-scrollbar-track {
+            background: var(--panel-bg, #2a2a2a);
+            border-radius: 4px;
+        }
+        
+        .terminal-output::-webkit-scrollbar-thumb {
+            background: var(--primary, #48a56a);
+            border-radius: 4px;
+        }
+        
+        .terminal-output::-webkit-scrollbar-thumb:hover {
+            background: var(--accent, #eaaf41);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="title">uDOS v1.3 - DEV MODE</div>
+            <div class="status" id="status">●●● READY</div>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="main-container">
+            <!-- Left Panel: Enhanced Command Interface -->
+            <div class="panel left-panel">
+                <h3>📟 COMMAND INTERFACE</h3>
+                
+                <!-- Terminal Output -->
+                <div class="terminal-output" id="terminal-output">
+                    <div class="welcome-message">
+╔══════════════════════════════════════════════════════════════════════════════════════╗
+║  ██╗   ██╗██████╗  ██████╗ ███████╗    ██╗   ██╗ ██╗  ██████╗                       ║
+║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝    ██║   ██║███║ ██╔════╝                       ║
+║  ██║   ██║██║  ██║██║   ██║███████╗    ██║   ██║╚██║ ╚█████╗                        ║
+║  ██║   ██║██║  ██║██║   ██║╚════██║    ╚██╗ ██╔╝ ██║  ╚═══██╗                       ║
+║  ╚██████╔╝██████╔╝╚██████╔╝███████║     ╚████╔╝  ██║ ██████╔╝                       ║
+║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝      ╚═══╝   ╚═╝ ╚═════╝                        ║
+║                                                                                      ║
+║  ▓▓▓ UNIVERSAL DEVELOPMENT OPERATING SYSTEM ▓▓▓                                     ║
+║  ░░░ Enhanced Interface v1.3 with Clean Data Input ░░░                              ║
+║                                                                                      ║
+║  🌈 Rainbow Block Graphics Mode: ACTIVE                                             ║
+║  🚀 Whirlwind Prompt System: ENGAGED                                                ║
+║  💻 Enhanced Input System: READY                                                    ║
+║  📺 Display Management: BBC/C64/Amiga/Modern                                        ║
+╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+🎯 DEV MODE ACTIVATED - Enhanced input with autocomplete
+💡 Try: help, status, font [name], display [mode], size [WxH]
+                    </div>
+                </div>
+                
+                <!-- Enhanced Command Input -->
+                <div class="command-input-container">
+                    <span class="prompt" id="dynamic-prompt">🌟 uDOS:DEV $</span>
+                    <input type="text" id="command-input" class="command-input" 
+                           placeholder="Type command... (Tab for autocomplete)" 
+                           autocomplete="off" 
+                           spellcheck="false">
+                    <div class="autocomplete-suggestions" id="autocomplete-suggestions"></div>
+                </div>
+                
+                <!-- Input Controls -->
+                <div class="input-controls">
+                    <button class="input-btn" onclick="clearTerminal()">🧹 Clear</button>
+                    <button class="input-btn" onclick="showHelp()">❓ Help</button>
+                    <button class="input-btn" onclick="toggleHistory()">📜 History</button>
+                    <div class="input-history" id="input-history">Ready for commands...</div>
+                </div>
+            </div>
+
+            <!-- Right Panel: System Status & Controls -->
+            <div class="panel right-panel">
+                <h3>📊 SYSTEM STATUS</h3>
+                
+                <!-- Enhanced Status Display -->
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div>Mode</div>
+                        <span class="status-value" id="mode">DEV</span>
+                    </div>
+                    <div class="status-item">
+                        <div>Clients</div>
+                        <span class="status-value" id="clients">0</span>
+                    </div>
+                    <div class="status-item">
+                        <div>Display</div>
+                        <span class="status-value" id="display-mode">BBC</span>
+                    </div>
+                    <div class="status-item">
+                        <div>Font</div>
+                        <span class="status-value" id="current-font">MODE7GX</span>
+                    </div>
+                </div>
+
+                <!-- uDOS Modules -->
+                <h3>🌈 uDOS MODULES</h3>
+                <div class="module-grid">
+                    <div class="module-item" onclick="selectModule('uCORE')">📦 uCORE</div>
+                    <div class="module-item" onclick="selectModule('uSERVER')">🌐 uSERVER</div>
+                    <div class="module-item" onclick="selectModule('uSCRIPT')">📜 uSCRIPT</div>
+                    <div class="module-item" onclick="selectModule('uMEMORY')">🧠 uMEMORY</div>
+                    <div class="module-item" onclick="selectModule('ghost')">👻 ghost</div>
+                    <div class="module-item" onclick="selectModule('sorcerer')">🔮 sorcerer</div>
+                    <div class="module-item" onclick="selectModule('imp')">😈 imp</div>
+                    <div class="module-item" onclick="selectModule('tomb')">⚰️ tomb</div>
+                    <div class="module-item" onclick="selectModule('drone')">🚁 drone</div>
+                    <div class="module-item" onclick="selectModule('wizard')">🧙‍♂️ wizard</div>
+                    <div class="module-item" onclick="selectModule('trash')">🗑️ trash</div>
+                    <div class="module-item" onclick="selectModule('uKNOWLEDGE')">📖 uKNOWLEDGE</div>
+                </div>
+
+                <!-- Font Display -->
+                <h3>📺 RETRO FONTS</h3>
+                <div class="font-showcase">
+                    <div class="font-sample font-teletext">MODE7GX: Authentic BBC Micro Teletext 📺</div>
+                    <div class="font-sample font-amiga">Topaz A500: Classic Amiga Workbench 💾</div>
+                    <div class="font-sample font-c64">Nova Mono: C64-inspired monospace 🕹️</div>
+                    <div class="font-sample font-terminal">Source Code Pro: Modern terminal 💻</div>
+                </div>
+
+                <!-- Theme Controls -->
+                <h3>🎨 THEMES</h3>
+                <div class="theme-controls">
+                    <button onclick="setTheme('dark')" class="input-btn" id="theme-dark">🌙 Dark</button>
+                    <button onclick="setTheme('light')" class="input-btn" id="theme-light">☀️ Light</button>
+                    <button onclick="setTheme('professional')" class="input-btn active" id="theme-professional">💼 Pro</button>
+                    <button onclick="setTheme('rainbow')" class="input-btn" id="theme-rainbow">🌈 Rainbow</button>
+                </div>
+
+                <!-- Live Logs -->
+                <h3>📋 ACTIVITY LOG</h3>
+                <div class="logs-output" id="logs-output">
+                    <div style="color: var(--primary);">System initialized</div>
+                    <div style="color: var(--accent);">Font system loaded</div>
+                    <div style="color: var(--secondary);">Display manager ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/display-manager.js"></script>
+    <script src="static/app.js"></script>
+    <script>
+        // Enhanced input functionality
+        let commandHistory = [];
+        let historyIndex = -1;
+        let autocompleteVisible = false;
+        
+        const commands = [
+            { cmd: 'help', desc: 'Show available commands' },
+            { cmd: 'status', desc: 'Display system status' },
+            { cmd: 'clear', desc: 'Clear terminal output' },
+            { cmd: 'font teletext', desc: 'Switch to MODE7GX teletext font' },
+            { cmd: 'font amiga', desc: 'Switch to Topaz A500 font' },
+            { cmd: 'font c64', desc: 'Switch to C64-style font' },
+            { cmd: 'font terminal', desc: 'Switch to modern terminal font' },
+            { cmd: 'display bbc', desc: 'BBC Micro display mode (320×250)' },
+            { cmd: 'display c64', desc: 'Commodore 64 display mode (320×200)' },
+            { cmd: 'display amiga', desc: 'Amiga display mode (640×256)' },
+            { cmd: 'display modern', desc: 'Modern display mode (1024×768)' },
+            { cmd: 'size 320x200', desc: 'Set C64 resolution' },
+            { cmd: 'size 320x250', desc: 'Set BBC Micro resolution' },
+            { cmd: 'size 640x256', desc: 'Set Amiga resolution' },
+            { cmd: 'kiosk on', desc: 'Enable fullscreen kiosk mode' },
+            { cmd: 'kiosk off', desc: 'Disable kiosk mode' },
+            { cmd: 'pixels on', desc: 'Enable pixel perfect rendering' },
+            { cmd: 'pixels off', desc: 'Disable pixel perfect rendering' },
+            { cmd: 'rainbow', desc: 'Activate rainbow mode' },
+            { cmd: 'whirlwind', desc: 'Activate whirlwind prompts' },
+            { cmd: 'saa5050', desc: 'Show SAA5050 block graphics' },
+            { cmd: 'ascii', desc: 'Show ASCII art demo' },
+            { cmd: 'theme dark', desc: 'Switch to dark theme' },
+            { cmd: 'theme light', desc: 'Switch to light theme' },
+            { cmd: 'theme professional', desc: 'Switch to professional theme' },
+            { cmd: 'theme rainbow', desc: 'Switch to rainbow theme' }
+        ];
+        
+        function setupEnhancedInput() {
+            const input = document.getElementById('command-input');
+            const suggestions = document.getElementById('autocomplete-suggestions');
+            
+            input.addEventListener('input', handleAutocomplete);
+            input.addEventListener('keydown', handleKeydown);
+            input.addEventListener('blur', () => {
+                setTimeout(() => hideSuggestions(), 200);
+            });
+        }
+        
+        function handleAutocomplete(e) {
+            const value = e.target.value.toLowerCase();
+            const suggestions = document.getElementById('autocomplete-suggestions');
+            
+            if (value.length < 2) {
+                hideSuggestions();
+                return;
+            }
+            
+            const matches = commands.filter(cmd => 
+                cmd.cmd.toLowerCase().includes(value) || 
+                cmd.desc.toLowerCase().includes(value)
+            );
+            
+            if (matches.length > 0) {
+                showSuggestions(matches);
+            } else {
+                hideSuggestions();
+            }
+        }
+        
+        function showSuggestions(matches) {
+            const suggestions = document.getElementById('autocomplete-suggestions');
+            suggestions.innerHTML = matches.map(match => 
+                `<div class="suggestion-item" onclick="selectSuggestion('${match.cmd}')">
+                    <strong>${match.cmd}</strong>
+                    <span class="suggestion-desc">${match.desc}</span>
+                </div>`
+            ).join('');
+            suggestions.style.display = 'block';
+            autocompleteVisible = true;
+        }
+        
+        function hideSuggestions() {
+            const suggestions = document.getElementById('autocomplete-suggestions');
+            suggestions.style.display = 'none';
+            autocompleteVisible = false;
+        }
+        
+        function selectSuggestion(cmd) {
+            const input = document.getElementById('command-input');
+            input.value = cmd;
+            hideSuggestions();
+            input.focus();
+        }
+        
+        function handleKeydown(e) {
+            if (e.key === 'Tab' && autocompleteVisible) {
+                e.preventDefault();
+                const firstSuggestion = document.querySelector('.suggestion-item');
+                if (firstSuggestion) {
+                    const cmd = firstSuggestion.querySelector('strong').textContent;
+                    selectSuggestion(cmd);
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigateHistory(-1);
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateHistory(1);
+            } else if (e.key === 'Escape') {
+                hideSuggestions();
+            }
+        }
+        
+        function navigateHistory(direction) {
+            if (commandHistory.length === 0) return;
+            
+            historyIndex += direction;
+            if (historyIndex < 0) historyIndex = 0;
+            if (historyIndex >= commandHistory.length) historyIndex = commandHistory.length - 1;
+            
+            const input = document.getElementById('command-input');
+            input.value = commandHistory[historyIndex] || '';
+        }
+        
+        function addToHistory(command) {
+            if (command && !commandHistory.includes(command)) {
+                commandHistory.unshift(command);
+                if (commandHistory.length > 50) commandHistory.pop();
+            }
+            historyIndex = -1;
+            updateHistoryDisplay();
+        }
+        
+        function updateHistoryDisplay() {
+            const historyEl = document.getElementById('input-history');
+            if (commandHistory.length > 0) {
+                historyEl.textContent = `Last: ${commandHistory[0]} (${commandHistory.length} commands)`;
+            }
+        }
+        
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = '';
+        }
+        
+        function showHelp() {
+            const input = document.getElementById('command-input');
+            input.value = 'help';
+            input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+        }
+        
+        function toggleHistory() {
+            if (commandHistory.length > 0) {
+                const historyList = commandHistory.slice(0, 10).join(', ');
+                addToTerminal(`📜 Recent commands: ${historyList}`, 'info');
+            } else {
+                addToTerminal('📜 No command history yet', 'info');
+            }
+        }
+        
+        function selectModule(module) {
+            const input = document.getElementById('command-input');
+            input.value = `module ${module.toLowerCase()}`;
+            input.focus();
+        }
+        
+        // Initialize enhanced input when DOM is ready
+        document.addEventListener('DOMContentLoaded', setupEnhancedInput);
+    </script>
+</body>
+</html>

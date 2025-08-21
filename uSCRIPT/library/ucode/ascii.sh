@@ -6,21 +6,21 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
-# Colors and rainbow effects
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
+# Colors and rainbow effects - Updated Professional Palette
+RED='\033[38;2;206;74;74m'      # Muted Red #ce4a4a
+GREEN='\033[38;2;72;165;106m'   # Forest Green #48a56a
+BLUE='\033[38;2;102;136;195m'   # Steel Blue #6688c3
+YELLOW='\033[38;2;234;175;65m'  # Golden Yellow #eaaf41
+PURPLE='\033[38;2;178;93;166m'  # Soft Purple #b25da6
+CYAN='\033[38;2;74;159;184m'    # Professional Cyan #4a9fb8
 NC='\033[0m'
 BOLD='\033[1m'
 
-# Rainbow colors for the iconic banner
-RAINBOW_RED='\033[1;31m'
-RAINBOW_YELLOW='\033[1;33m'
-RAINBOW_GREEN='\033[1;32m'
-RAINBOW_CYAN='\033[1;36m'
+# Rainbow colors for the iconic banner - Professional Palette
+RAINBOW_RED='\033[38;2;206;74;74m'      # Muted Red
+RAINBOW_YELLOW='\033[38;2;234;175;65m'  # Golden Yellow  
+RAINBOW_GREEN='\033[38;2;72;165;106m'   # Forest Green
+RAINBOW_CYAN='\033[38;2;74;159;184m'    # Professional Cyan
 
 # The iconic uDOS startup ASCII banner with rainbow colors
 show_rainbow_ascii() {
@@ -186,8 +186,8 @@ show_validation_screen() {
     )
     
     for check in "${checks[@]}"; do
-        IFS=':' read -r item status <<< "$check"
-        case "$status" in
+        IFS=':' read -r item check_status <<< "$check"
+        case "$check_status" in
             "OK")
                 echo -e "${CYAN}║${NC} ${GREEN}✅${NC} ${item}$(printf "%*s" $((43 - ${#item})) "")${CYAN}║${NC}"
                 ;;
