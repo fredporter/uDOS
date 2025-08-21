@@ -1,4 +1,4 @@
-# Dev Mode - uDOS Development Environment
+# Dev Mode - uDOS Development Environment v1.3.1
 
 ## 📦 Wizard Folder Overview
 The **wizard** folder contains all advanced development utilities, experiments, workflows, and historical notes.  
@@ -7,10 +7,17 @@ Key highlights:
 - **VS Code Extensions**: Pre-configured workspace for development with integration support.
 - **Workflow Manager**: Roadmaps, templates, and active task tracking for structured development.
 - **Past Dev Notes**: Historical planning, decisions, and documentation for reference.
+- **v1.3.1 Features**: Enhanced development tools for font system optimization and smart input development.
 
 ## 🧙‍♂️ Wizard Installation Development Mode
 
 Special system development mode available only to Wizard Installations with advanced development tools housed in the wizard folder.
+
+### 🎯 v1.3.1 Development Highlights
+- **Font System Development**: Tools for font optimization and system integration
+- **Smart Input Development**: Autocomplete and command suggestion development utilities
+- **UI/UX Development**: Interface optimization and retro design development tools
+- **uMEMORY Integration**: Resource loading and configuration development utilities
 
 ## 📁 Directory Structure
 

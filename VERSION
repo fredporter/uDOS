@@ -1,0 +1,19 @@
+# uDOS - Version 1.3.1
+# Universal Digital Operating System
+# Build: 2024-08-22
+
+VERSION="1.3.1"
+BUILD_DATE="2024-08-22"
+BUILD_NAME="Font System Optimization & Smart Input Enhancement"
+
+# Major Features in v1.3.1:
+# - Font system optimization (removed legacy fonts, added system fonts)
+# - Enhanced smart input with autocomplete
+# - UI input and icon function fixes
+# - uMEMORY system integration improvements
+# - Professional color palette integration
+# - Authentic BBC Mode 7 teletext experience
+# - Improved performance and stability
+
+COMPATIBILITY="macOS 10.15+, Python 3.8+"
+ARCHITECTURE="Universal (ARM64/x86_64)"

@@ -5,6 +5,45 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2024-08-22
+
+### 🎨 Font System Optimization & Smart Input Enhancement
+
+#### Added
+- **System Font Integration**: Added 10 professional system fonts (Monaco, Menlo, SF Mono, Courier New, Consolas)
+- **Programming Font Support**: Integrated Fira Code, JetBrains Mono, Source Code Pro
+- **Smart Autocomplete System**: 50+ predefined commands with category-based suggestions
+- **Enhanced uMEMORY Integration**: Direct resource loading from uMEMORY system
+- **Progressive Startup Graphics**: 6-phase visual startup sequence with resource status
+- **Real-time Status Updates**: Font, theme, and system status tracking in status bar
+- **Professional UI Design**: Flat design with authentic retro computing aesthetics
+
+#### Changed
+- **Default Font**: MODE7GX3 → MODE7GX0 (more authentic BBC Mode 7 square aspect)
+- **Font Library**: Streamlined from 11 to 11 fonts, but with better system integration
+- **Command Suggestions**: Updated all font commands to reflect new font options
+- **HTML Structure**: Cleaned up duplicate elements and optimized layout
+
+#### Removed
+- **Legacy Fonts**: Removed Amiga fonts (TOPAZ_A500, TOPAZ_A1200)
+- **Commodore 64 Fonts**: Removed MICROKNIGHT font
+- **Redundant Mode 7 Variants**: Removed MODE7GX2, MODE7GX3, MODE7GX4
+- **Special Fonts**: Removed POT_NOODLE chunky display font
+- **Temporary Files**: Cleaned up development artifacts and cache files
+
+#### Fixed
+- **UI Icon Handlers**: All emoji and dashboard icons now properly functional
+- **Event Listeners**: Fixed onclick handlers and JavaScript function references
+- **Status Bar Integration**: Added missing display-stat element for proper updates
+- **Font Cycling**: Improved font switching with proper status updates
+- **HTML Structure**: Removed duplicate command input containers and script sections
+
+#### Technical Improvements
+- **Performance**: Reduced font loading overhead with system font integration
+- **Compatibility**: Better cross-platform font fallbacks
+- **Maintenance**: Cleaner codebase with fewer external font dependencies
+- **User Experience**: Keyboard navigation for autocomplete and command history
+
 ## [1.3.0] - 2025-08-17
 
 ### 🚀 Universal Device Operating System v1.3

@@ -1,943 +1,661 @@
-/* uDOS Professional Console - Clean Block Design */
+/* uDOS Universal Code Interface - Professional Flat Design */
 
-/* New Final Color Palette */
+/* =============================================================================
+   COLOR PALETTE & CORE VARIABLES + uMEMORY INTEGRATION
+   ============================================================================= */
+
 :root {
-    --color-cinnamon: #D45979;    /* Cinnamon Satin */
-    --color-yellow: #E8A05D;      /* Indian Yellow */
-    --color-caramel: #F8DC93;     /* Caramel */
-    --color-green: #4DA378;       /* Shiny Shamrock */
-    --color-blue: #4B5798;        /* Liberty */
-    --color-purple: #A25FAD;      /* Purple Plum */
-    --color-black: #000000;
-    --color-white: #FFFFFF;
-    --color-grey: #666666;
-    --color-dark-grey: #333333;
+    /* uDOS Professional Color Palette */
+    --udos-black: #000000;        /* Pure black background */
+    --udos-white: #ffffff;        /* Pure white text */
+    --udos-green: #00ff00;        /* Classic terminal green */
+    --udos-yellow: #ffff00;       /* Bright yellow accent */
+    --udos-red: #ff0000;          /* Pure red for errors */
+    --udos-cyan: #00ffff;         /* Cyan for info */
+    --udos-orange: #ffa500;       /* Orange for warnings */
+    --udos-grey: #808080;         /* Grey for secondary */
+    
+    /* uMEMORY Final Palette Integration */
+    --udos-cinnamon: #D45979;     /* Cinnamon Satin */
+    --udos-indian-yellow: #E8A05D; /* Indian Yellow */
+    --udos-caramel: #F8DC93;      /* Caramel */
+    --udos-shamrock: #4DA378;     /* Shiny Shamrock */
+    --udos-liberty: #4B5798;      /* Liberty */
+    --udos-purple: #A25FAD;       /* Purple Plum */
+    
+    /* Theme Colors - Dynamic */
+    --bg-primary: var(--udos-black);
+    --text-primary: var(--udos-green);
+    --text-accent: var(--udos-yellow);
+    --text-error: var(--udos-red);
+    --text-warning: var(--udos-orange);
+    --text-info: var(--udos-cyan);
+    --text-success: var(--udos-green);
+    --text-secondary: var(--udos-grey);
     
     /* Font Variables */
-    --font-teletext: 'MODE7GX-Teletext-Regular', 'Courier New', monospace;
-    --font-aspect-ratio: 1.3;
+    --current-font-family: 'MODE7GX3', 'VT323', monospace;
+    --current-font-size: 12px;
+    --current-line-height: 14px;
     
     /* Layout Variables */
-    --top-height: 10vh;
-    --bottom-height: 20vh;
-    --terminal-height: 70vh;
+    --emoji-row-height: 40px;
+    --terminal-padding: 10px;
+    --border-radius: 0px; /* Flat design - no rounded corners */
+    --box-shadow: none;   /* Flat design - no shadows */
 }
 
-/* Hybrid Mode: 1:1 text with 1:1.3 block graphics capability */
-.block-graphics {
-    display: inline-block;
-    font-family: 'MODE7GX-Teletext-Regular', monospace;
-    line-height: 1.3;
-    letter-spacing: 0;
-    transform: scaleY(1.3);
-    transform-origin: baseline;
+/* =============================================================================
+   THEME VARIANTS
+   ============================================================================= */
+
+.theme-dark {
+    --bg-primary: var(--udos-black);
+    --text-primary: var(--udos-green);
+    --text-accent: var(--udos-yellow);
+    --text-error: var(--udos-red);
+    --text-warning: var(--udos-orange);
+    --text-info: var(--udos-cyan);
+    --text-success: var(--udos-green);
+    --text-secondary: var(--udos-grey);
 }
 
-.block-char {
-    display: inline-block;
-    width: 1ch;
-    height: 1.3em;
-    text-align: center;
-    vertical-align: baseline;
+.theme-light {
+    --bg-primary: var(--udos-white);
+    --text-primary: var(--udos-black);
+    --text-accent: #0066cc;
+    --text-error: #cc0000;
+    --text-warning: #cc6600;
+    --text-info: #006699;
+    --text-success: #006600;
+    --text-secondary: #666666;
 }
 
-.teletext-block {
-    font-family: 'MODE7GX-Teletext-Regular', 'Teletext50', monospace;
-    line-height: 1.3;
-    letter-spacing: 0;
+.theme-udos-final {
+    --bg-primary: var(--udos-black);
+    --text-primary: var(--udos-white);
+    --text-accent: var(--udos-shamrock);
+    --text-secondary: var(--udos-liberty);
+    --text-error: var(--udos-cinnamon);
+    --text-warning: var(--udos-indian-yellow);
+    --text-info: var(--udos-shamrock);
+    --text-success: var(--udos-shamrock);
+    --text-highlight: var(--udos-caramel);
+    --text-special: var(--udos-purple);
 }
 
-/* 2-color block graphics support */
-.fg-color { color: var(--color-white); }
-.bg-color { background-color: var(--color-black); }
+/* =============================================================================
+   GLOBAL STYLES
+   ============================================================================= */
 
-.fg-red { color: var(--color-cinnamon); }
-.fg-yellow { color: var(--color-yellow); }
-.fg-green { color: var(--color-green); }
-.fg-blue { color: var(--color-blue); }
-.fg-purple { color: var(--color-purple); }
-.fg-cyan { color: #00FFFF; }
-
-.bg-red { background-color: var(--color-cinnamon); }
-.bg-yellow { background-color: var(--color-yellow); }
-.bg-green { background-color: var(--color-green); }
-.bg-blue { background-color: var(--color-blue); }
-.bg-purple { background-color: var(--color-purple); }
-.bg-cyan { background-color: #00FFFF; }
-
-/* Hybrid mode terminal styling */
-.terminal-output.hybrid-mode {
-    line-height: 1.2;
-    font-variant-ligatures: none;
-}
-
-.terminal-output.hybrid-mode .block-graphics {
-    line-height: 1.3;
-    transform: scaleY(1.083); /* Fine-tune 1:1.3 aspect for blocks */
-}
-
-/* Compact button styling for hybrid mode */
-.hybrid-mode .command-button {
-    padding: 2px 6px;
-    margin: 1px;
-    font-size: 0.9em;
-    line-height: 1.1;
-}
-
-.hybrid-mode .font-controls select {
-    font-size: 0.85em;
-    padding: 3px 6px;
-}
-
-/* Retro Computing Font Faces */
-@font-face {
-    font-family: 'Pet Me 64';
-    src: url('../fonts/Pet Me 64.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Pet Me 128';
-    src: url('../fonts/Pet Me 128.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'topaz_a500';
-    src: url('../fonts/topaz_a500.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'topaz_a1200';
-    src: url('../fonts/topaz_a1200.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'pot_noodle';
-    src: url('../fonts/pot_noodle.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'microknight';
-    src: url('../fonts/microknight.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Teletext50';
-    src: url('../fonts/Teletext50.otf') format('opentype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Teletext50-condensed';
-    src: url('../fonts/Teletext50-condensed.otf') format('opentype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX0';
-    src: url('../fonts/MODE7GX0.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX2';
-    src: url('../fonts/MODE7GX2.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX3';
-    src: url('../fonts/MODE7GX3.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX4';
-    src: url('../fonts/MODE7GX4.ttf') format('truetype');
-    font-display: swap;
-}
-
-/* Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    background: var(--color-black);
-    color: var(--color-white);
-    font-family: var(--font-teletext);
-    font-size: 16px;
-    line-height: 1.2;
+html, body {
     height: 100vh;
+    width: 100vw;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    font-family: var(--current-font-family);
+    font-size: var(--current-font-size);
+    line-height: var(--current-line-height);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    
+    /* Disable text selection for UI elements */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    /* Prevent scrolling on mobile */
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
-/* Top Functions Bar - 10% height */
-.top-bar {
-    height: var(--top-height);
-    background: var(--color-dark-grey);
-    border-bottom: 2px solid var(--color-green);
+/* Enable text selection for terminal content */
+.terminal-output, .command-input {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* =============================================================================
+   FONT CLASSES
+   ============================================================================= */
+
+.font-mode7gx3 { font-family: 'MODE7GX3', 'VT323', monospace !important; }
+.font-mode7gx0 { font-family: 'MODE7GX0', 'VT323', monospace !important; }
+.font-teletext { font-family: 'VT323', monospace !important; }
+.font-topaz { font-family: 'Topaz A500', 'Monaco', monospace !important; }
+.font-microknight { font-family: 'MicroKnight', 'Monaco', monospace !important; }
+.font-c64 { font-family: 'Pet Me 64', 'Nova Mono', monospace !important; }
+.font-terminal { font-family: 'JetBrains Mono', 'Monaco', monospace !important; }
+.font-vt100 { font-family: 'Source Code Pro', 'Monaco', monospace !important; }
+
+/* =============================================================================
+   DISPLAY SIZE CLASSES
+   ============================================================================= */
+
+.size-tiny { 
+    --current-font-size: 8px; 
+    --current-line-height: 8px; 
+}
+.size-small { 
+    --current-font-size: 10px; 
+    --current-line-height: 10px; 
+}
+.size-medium { 
+    --current-font-size: 12px; 
+    --current-line-height: 14px; 
+}
+.size-large { 
+    --current-font-size: 14px; 
+    --current-line-height: 16px; 
+}
+.size-huge { 
+    --current-font-size: 16px; 
+    --current-line-height: 18px; 
+}
+.size-giant { 
+    --current-font-size: 20px; 
+    --current-line-height: 22px; 
+}
+
+/* =============================================================================
+   MAIN LAYOUT
+   ============================================================================= */
+
+.main-container {
+    height: 100vh;
     display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+}
+
+/* =============================================================================
+   EMOJI CONTROL ROWS
+   ============================================================================= */
+
+.emoji-row {
+    display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 0 20px;
+    height: var(--emoji-row-height);
+    background: var(--bg-primary);
+    border: none; /* Flat design */
+    padding: 8px;
+    gap: 15px;
     flex-shrink: 0;
 }
 
-.system-functions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+.emoji-row.top-row {
+    border-bottom: 1px solid var(--text-accent);
 }
 
-.function-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+.emoji-row.bottom-row {
+    border-top: 1px solid var(--text-accent);
 }
 
-.sys-btn {
-    background: var(--color-grey);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: 8px 12px;
-    font-family: var(--font-teletext);
-    font-size: 14px;
-    font-weight: bold;
+.emoji-icon {
+    font-size: 24px;
     cursor: pointer;
-    border-radius: 0;
-    transition: all 0.2s ease;
+    transition: transform 0.1s ease;
+    padding: 5px;
+    border-radius: 0; /* Flat design */
+    background: transparent;
+    user-select: none;
 }
 
-.sys-btn:hover {
-    background: var(--color-green);
-    color: var(--color-black);
-    transform: scale(1.05);
+.emoji-icon:hover {
+    transform: scale(1.2);
+    background: var(--text-accent);
+    color: var(--bg-primary);
 }
 
-.font-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+.emoji-icon:active {
+    transform: scale(0.9);
 }
 
-.font-controls select {
-    background: var(--color-grey);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: 6px 10px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    border-radius: 0;
-    cursor: pointer;
+.emoji-divider {
+    color: var(--text-accent);
+    font-size: 20px;
+    margin: 0 10px;
 }
 
-.font-controls select:focus {
-    outline: none;
-    border-color: var(--color-green);
-    box-shadow: 0 0 5px var(--color-green);
-}
-
-.preview-btn {
-    background: var(--color-purple);
-    color: var(--color-white);
-    border: 1px solid var(--color-purple);
-    padding: 6px 12px;
-    font-family: var(--font-teletext);
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.2s ease;
-}
-
-.preview-btn:hover {
-    background: var(--color-cinnamon);
-    border-color: var(--color-cinnamon);
-    transform: scale(1.05);
-}
-
-.status-info {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-#connection-status {
-    color: var(--color-green);
-    font-size: 16px;
-}
-
-#mode-display {
-    color: var(--color-yellow);
-}
-
-#time-display {
-    color: var(--color-caramel);
-}
-
-/* Terminal Container - 70% height */
-.terminal-container {
-    height: var(--terminal-height);
-    background: var(--color-black);
-    border-top: 1px solid var(--color-dark-grey);
-    border-bottom: 1px solid var(--color-dark-grey);
-    overflow: hidden;
-    flex-grow: 1;
-}
+/* =============================================================================
+   TERMINAL OUTPUT
+   ============================================================================= */
 
 .terminal-output {
-    height: 100%;
-    padding: 20px;
+    flex: 1;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--current-font-family);
+    font-size: var(--current-font-size);
+    line-height: var(--current-line-height);
+    padding: var(--terminal-padding);
     overflow-y: auto;
     overflow-x: hidden;
-    background: var(--color-black);
-    font-family: var(--font-teletext);
-    font-size: 16px;
-    line-height: 1.4;
-    scroll-behavior: smooth;
+    border: none; /* Flat design - no borders */
+    width: 100%; /* Full width */
+    
+    /* Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-accent) var(--bg-primary);
 }
 
-/* Custom Scrollbar */
 .terminal-output::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
 }
 
 .terminal-output::-webkit-scrollbar-track {
-    background: var(--color-dark-grey);
+    background: var(--bg-primary);
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
-    background: var(--color-grey);
-    border: 1px solid var(--color-black);
+    background: var(--text-accent);
+    border-radius: 0; /* Flat design */
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
-    background: var(--color-green);
+    background: var(--text-primary);
 }
 
-/* Terminal Line Types */
 .terminal-line {
     margin-bottom: 2px;
     word-wrap: break-word;
     white-space: pre-wrap;
+    font-family: inherit;
 }
 
-.terminal-line.command {
-    color: var(--liberty);
-    font-weight: bold;
+/* Terminal line type styling */
+.terminal-output .terminal-line.terminal-info {
+    color: var(--text-info);
 }
 
-.terminal-line.output {
-    color: var(--color-white);
+.terminal-output .terminal-line.terminal-error {
+    color: var(--text-error);
 }
 
-.terminal-line.info {
-    color: var(--shiny-shamrock);
+.terminal-output .terminal-line.terminal-warning {
+    color: var(--text-warning);
 }
 
-.terminal-line.success {
-    color: var(--shiny-shamrock);
-    font-weight: bold;
+.terminal-output .terminal-line.terminal-success {
+    color: var(--text-success);
 }
 
-.terminal-line.error {
-    color: var(--cinnamon-satin);
-    font-weight: bold;
+.terminal-output .terminal-line.terminal-accent {
+    color: var(--text-accent);
 }
 
-.terminal-line.warning {
-    color: var(--indian-yellow);
-}
-
-.terminal-line.system {
-    color: var(--caramel);
-}
-
-/* Bottom Command Area - 20% height */
-.bottom-bar {
-    height: var(--bottom-height);
-    background: var(--color-dark-grey);
-    border-top: 2px solid var(--color-green);
-    display: flex;
-    flex-direction: column;
-    padding: 10px 20px;
-    flex-shrink: 0;
-}
-
-.quick-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.action-btn {
-    background: var(--color-grey);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: 6px 12px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-    background: var(--color-blue);
-    color: var(--color-white);
-    transform: translateY(-1px);
-}
+/* =============================================================================
+   COMMAND INPUT + SMART SUGGESTIONS
+   ============================================================================= */
 
 .command-input-container {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-    flex-grow: 1;
+    background: var(--bg-primary);
+    border: none; /* Flat design */
+    border-top: 1px solid var(--text-accent); /* Just a subtle line */
+    padding: 10px;
+    flex-shrink: 0;
+    position: relative; /* For suggestions positioning */
 }
 
-.command-prompt {
-    color: var(--color-green);
+.prompt {
+    color: var(--text-accent);
+    font-family: var(--current-font-family);
     font-weight: bold;
-    font-size: 14px;
-    min-width: 80px;
+    margin-right: 8px;
+    white-space: nowrap;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
 }
 
 .command-input {
-    flex-grow: 1;
-    background: var(--color-black);
-    color: var(--shiny-shamrock);
-    border: 2px solid var(--shiny-shamrock);
-    padding: 8px 12px;
-    font-family: var(--font-teletext);
-    font-size: 16px;
-    border-radius: 0;
-    outline: none;
-    transition: all 0.2s ease;
-}
-
-.command-input:focus {
-    border-color: var(--indian-yellow);
-    color: var(--indian-yellow);
-    box-shadow: 0 0 10px rgba(232, 160, 93, 0.3);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-/* Prompt indicator styling with WHIRL emoji animation */
-.prompt-indicator {
-    color: var(--indian-yellow);
-    font-weight: bold;
-    margin-right: 8px;
-    font-family: var(--font-teletext);
-    font-size: 16px;
-}
-
-.prompt-indicator.normal-mode {
-    color: var(--indian-yellow);
-}
-
-.prompt-indicator.whirl-prompt {
-    animation: whirl-spin 2s linear infinite;
-}
-
-.prompt-indicator.ucode-mode {
-    color: var(--purple-plum);
-    animation: ucode-pulse 1.5s infinite;
-}
-
-@keyframes whirl-spin {
-    0% { 
-        transform: rotate(0deg);
-        text-shadow: 0 0 5px var(--indian-yellow);
-    }
-    25% {
-        text-shadow: 0 0 8px var(--shiny-shamrock);
-    }
-    50% {
-        text-shadow: 0 0 10px var(--caramel);
-    }
-    75% {
-        text-shadow: 0 0 8px var(--liberty);
-    }
-    100% { 
-        transform: rotate(360deg);
-        text-shadow: 0 0 5px var(--indian-yellow);
-    }
-}
-
-@keyframes ucode-pulse {
-    0%, 100% { 
-        opacity: 1; 
-        text-shadow: 0 0 5px var(--purple-plum);
-    }
-    50% { 
-        opacity: 0.8; 
-        text-shadow: 0 0 10px var(--purple-plum);
-    }
-}
-
-.input-status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    height: 20px;
-}
-
-.command-suggestions {
-    background: var(--color-black);
-    border: 1px solid var(--color-green);
-    color: var(--color-green);
-    padding: 4px 8px;
-    font-size: 11px;
-    display: none;
-}
-
-.status-indicators {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.typing-indicator {
-    color: var(--shiny-shamrock);
-    opacity: 0.3;
-    transition: opacity 0.3s ease;
-}
-
-.history-indicator {
-    color: var(--indian-yellow);
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-
-.history-indicator:hover {
-    opacity: 1;
-}
-
-.mode-indicator {
-    color: var(--caramel);
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    border: 1px solid var(--caramel);
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--shiny-shamrock);
-    animation: heartbeat 2s infinite;
-    cursor: pointer;
-}
-
-@keyframes heartbeat {
-    0%, 100% { 
-        transform: scale(1); 
-        box-shadow: 0 0 5px var(--shiny-shamrock);
-    }
-    50% { 
-        transform: scale(1.1); 
-        box-shadow: 0 0 10px var(--shiny-shamrock);
-    }
-}
-
-/* Font Mode Selector */
-#fontModeSelector {
-    background: var(--color-blue);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: 4px 8px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    border-radius: 0;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-#fontModeSelector:focus {
-    outline: none;
-    border-color: var(--color-green);
-    box-shadow: 0 0 5px var(--color-green);
-}
-
-/* Font Selector */
-#fontSelector {
-    background: var(--color-grey);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: 4px 8px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    border-radius: 0;
-    cursor: pointer;
-}
-
-#fontSelector:focus {
-    outline: none;
-    border-color: var(--color-green);
-    box-shadow: 0 0 5px var(--color-green);
-}
-
-/* Font Preview Modal */
-.font-preview-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(4px);
-}
-
-.modal-content {
-    background: var(--color-black);
-    border: 3px solid var(--color-green);
-    border-radius: 0;
-    width: 90%;
-    max-width: 1000px;
-    max-height: 90%;
-    overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-
-.modal-header {
-    background: var(--color-blue);
-    color: var(--color-white);
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--color-green);
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-family: var(--font-teletext);
-    font-size: 18px;
-}
-
-.close-btn {
-    background: var(--color-cinnamon);
-    color: var(--color-white);
+    flex: 1;
+    background: transparent;
     border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 0;
-    font-size: 20px;
-    font-weight: bold;
+    color: var(--text-primary);
+    font-family: var(--current-font-family);
+    font-size: var(--current-font-size);
+    line-height: var(--current-line-height);
+    outline: none;
+    padding: 0;
+    caret-color: var(--text-accent);
+}
+
+.command-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Smart Suggestions Container */
+.smart-suggestions {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--text-accent);
+    border-bottom: none; /* Connects to input */
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+}
+
+.suggestion-item {
+    padding: 8px 12px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: var(--current-font-family);
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background: var(--text-accent);
+    color: var(--bg-primary);
+}
+
+.suggestion-item:hover .suggestion-category,
+.suggestion-item.selected .suggestion-category {
+    color: var(--bg-primary) !important;
+    opacity: 0.8;
+}
+
+.suggestion-main {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+    margin-bottom: 2px;
 }
 
-.close-btn:hover {
-    background: var(--color-yellow);
-    color: var(--color-black);
-    transform: scale(1.1);
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-/* Preview Controls */
-.preview-controls {
-    background: var(--color-dark-grey);
-    border: 2px solid var(--color-grey);
-    border-radius: 0;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.control-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 10px;
-}
-
-.control-row:last-child {
-    margin-bottom: 0;
-}
-
-.control-row label {
-    color: var(--color-caramel);
-    font-family: var(--font-teletext);
-    font-size: 12px;
+.suggestion-command {
     font-weight: bold;
-    min-width: 100px;
+    color: var(--text-primary);
+    font-size: var(--current-font-size);
 }
 
-.control-row select {
-    background: var(--color-grey);
-    color: var(--color-white);
-    border: 1px solid var(--color-green);
-    padding: 4px 8px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    border-radius: 0;
-    flex: 1;
+.suggestion-command mark {
+    background: var(--text-accent);
+    color: var(--bg-primary);
+    padding: 1px 2px;
+    border-radius: 0; /* Flat design */
 }
 
-.control-row input[type="range"] {
-    flex: 1;
-    margin-right: 10px;
-}
-
-#fontSizeValue {
-    color: var(--color-green);
-    font-family: var(--font-teletext);
+.suggestion-category {
+    font-size: calc(var(--current-font-size) * 0.8);
+    text-transform: uppercase;
     font-weight: bold;
-    min-width: 40px;
+    opacity: 0.8;
 }
 
-/* Font Samples */
-.font-samples h3 {
-    color: var(--color-green);
-    font-family: var(--font-teletext);
-    margin-bottom: 15px;
-    text-align: center;
-    border-bottom: 1px solid var(--color-grey);
-    padding-bottom: 8px;
+.suggestion-desc {
+    font-size: calc(var(--current-font-size) * 0.9);
+    color: var(--text-secondary);
+    line-height: 1.2;
 }
 
-.sample-section {
-    margin-bottom: 20px;
-    border: 1px solid var(--color-grey);
-    border-radius: 0;
-    padding: 15px;
-    background: var(--color-dark-grey);
+/* Scrollbar for suggestions */
+.smart-suggestions::-webkit-scrollbar {
+    width: 6px;
 }
 
-.sample-section h4 {
-    color: var(--color-yellow);
-    font-family: var(--font-teletext);
-    font-size: 14px;
-    margin: 0 0 10px 0;
-    border-bottom: 1px dotted var(--color-grey);
-    padding-bottom: 5px;
+.smart-suggestions::-webkit-scrollbar-track {
+    background: var(--bg-primary);
 }
 
-.font-sample {
-    background: var(--color-black);
-    border: 1px solid var(--color-green);
-    padding: 12px;
-    margin: 8px 0;
-    font-family: var(--font-teletext);
-    font-size: 20px;
-    line-height: 1.3;
-    color: var(--color-white);
-    border-radius: 0;
-    overflow-x: auto;
+.smart-suggestions::-webkit-scrollbar-thumb {
+    background: var(--text-accent);
+    border-radius: 0; /* Flat design */
+}
+
+.smart-suggestions::-webkit-scrollbar-thumb:hover {
+    background: var(--text-primary);
+}
+
+/* =============================================================================
+   WELCOME MESSAGE & ASCII ART
+   ============================================================================= */
+
+.welcome-message {
+    font-family: var(--current-font-family);
+    color: var(--text-accent);
     white-space: pre;
+    line-height: 1.2;
+    margin-bottom: 20px;
 }
 
-.terminal-sim {
-    background: var(--color-black);
-    color: var(--color-white);
+/* =============================================================================
+   SYSTEM INFO DASHBOARD
+   ============================================================================= */
+
+.system-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    background: var(--bg-primary);
+    border: none; /* Flat design */
+    font-family: var(--current-font-family);
+    font-size: calc(var(--current-font-size) * 0.9);
 }
 
-.terminal-sim .green { color: var(--color-green); }
-.terminal-sim .cyan { color: var(--color-blue); }
-.terminal-sim .yellow { color: var(--color-yellow); }
-.terminal-sim .white { color: var(--color-white); }
+.info-item {
+    background: transparent; /* Flat design */
+    border: 1px solid var(--text-accent);
+    padding: 10px;
+    border-radius: 0; /* Flat design */
+}
 
-.teletext-gfx {
-    background: var(--color-blue);
-    color: var(--color-white);
-    text-align: center;
+.info-label {
+    color: var(--text-accent);
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    color: var(--text-primary);
+}
+
+/* =============================================================================
+   TELETEXT BLOCK GRAPHICS SUPPORT
+   ============================================================================= */
+
+.teletext-blocks {
+    font-family: 'MODE7GX3', 'VT323', monospace;
+    line-height: 1.0;
+    letter-spacing: 0;
+    word-spacing: 0;
+}
+
+.block-graphics {
+    display: inline-block;
+    font-family: 'MODE7GX3', 'VT323', monospace;
+    line-height: 1.3; /* BBC Mode 7 aspect ratio */
     letter-spacing: 0;
 }
 
-.size-comparison {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+/* Block color classes */
+.block-red { color: var(--udos-red); }
+.block-green { color: var(--udos-green); }
+.block-yellow { color: var(--udos-yellow); }
+.block-blue { color: #0000ff; }
+.block-magenta { color: #ff00ff; }
+.block-cyan { color: var(--udos-cyan); }
+.block-white { color: var(--udos-white); }
+.block-black { color: var(--udos-black); }
 
-.small-font { font-size: 16px !important; }
-.medium-font { font-size: 20px !important; }
-.large-font { font-size: 24px !important; }
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
 
-/* Preview Actions */
-.preview-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 20px;
-    padding: 15px;
-    border-top: 2px solid var(--color-grey);
-}
-
-.apply-btn, .reset-btn, .test-btn {
-    padding: 10px 20px;
-    font-family: var(--font-teletext);
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 2px solid;
-}
-
-.apply-btn {
-    background: var(--color-green);
-    color: var(--color-black);
-    border-color: var(--color-green);
-}
-
-.apply-btn:hover {
-    background: var(--color-black);
-    color: var(--color-green);
-}
-
-.reset-btn {
-    background: var(--color-yellow);
-    color: var(--color-black);
-    border-color: var(--color-yellow);
-}
-
-.reset-btn:hover {
-    background: var(--color-black);
-    color: var(--color-yellow);
-}
-
-.test-btn {
-    background: var(--color-purple);
-    color: var(--color-white);
-    border-color: var(--color-purple);
-}
-
-.test-btn:hover {
-    background: var(--color-black);
-    color: var(--color-purple);
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-    .system-functions {
-        flex-direction: column;
+    .emoji-row {
         gap: 10px;
-        padding: 5px 0;
+        padding: 5px;
     }
     
-    .function-group {
-        gap: 5px;
+    .emoji-icon {
+        font-size: 20px;
     }
     
-    .font-controls {
-        gap: 5px;
+    .terminal-output {
+        padding: 8px;
     }
     
     .command-input-container {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .command-prompt {
-        min-width: auto;
-    }
-    
-    .modal-content {
-        width: 95%;
-        height: 95%;
-    }
-    
-    .preview-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .control-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    
-    .control-row label {
-        min-width: auto;
+        padding: 8px;
     }
 }
 
-/* Smart Scrolling Indicators */
-.terminal-output.auto-scrolling {
-    border-right: 3px solid var(--color-green);
+@media (max-width: 480px) {
+    .emoji-row {
+        gap: 8px;
+        padding: 4px;
+    }
+    
+    .emoji-icon {
+        font-size: 18px;
+    }
+    
+    .terminal-output {
+        padding: 6px;
+    }
 }
 
-/* Focus Management */
-.command-input:focus {
-    border-color: var(--color-yellow);
-    color: var(--color-yellow);
-    box-shadow: 0 0 10px rgba(232, 160, 93, 0.3);
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+.hidden {
+    display: none !important;
 }
 
-/* Animation for new terminal lines */
+.visible {
+    display: block !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.selectable {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* =============================================================================
+   ANIMATION CLASSES
+   ============================================================================= */
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.terminal-line {
-    animation: fadeIn 0.2s ease-in;
+.slide-in {
+    animation: slideIn 0.3s ease-out;
 }
 
-/* Hover effects for interactive elements */
-.sys-btn:active,
-.action-btn:active,
-.preview-btn:active {
-    transform: scale(0.95);
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* Command suggestions styling */
-.command-suggestions.visible {
-    display: block;
-    animation: slideDown 0.2s ease-out;
+/* =============================================================================
+   FOCUS STYLES
+   ============================================================================= */
+
+.emoji-icon:focus,
+.command-input:focus {
+    outline: 2px solid var(--text-accent);
+    outline-offset: 2px;
 }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+/* =============================================================================
+   PRINT STYLES
+   ============================================================================= */
+
+@media print {
+    .emoji-row {
+        display: none;
+    }
+    
+    .command-input-container {
+        display: none;
+    }
+    
+    .terminal-output {
+        color: black;
+        background: white;
+        font-size: 10pt;
+        line-height: 12pt;
+    }
 }
 
-/* History indicator active state */
-.history-indicator:hover {
-    color: var(--color-caramel);
-    transform: scale(1.1);
+/* =============================================================================
+   HIGH CONTRAST MODE
+   ============================================================================= */
+
+@media (prefers-contrast: high) {
+    :root {
+        --text-primary: var(--udos-white);
+        --bg-primary: var(--udos-black);
+        --text-accent: var(--udos-yellow);
+    }
 }
 
-/* Teletext font mode adjustments */
-body.teletext-mode {
-    font-stretch: condensed;
-    letter-spacing: -0.5px;
-}
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
 
-body.monospace-mode {
-    font-stretch: normal;
-    letter-spacing: 0px;
+@media (prefers-reduced-motion: reduce) {
+    .emoji-icon {
+        transition: none;
+    }
+    
+    .prompt {
+        animation: none;
+    }
+    
+    .fade-in,
+    .slide-in {
+        animation: none;
+    }
 }
