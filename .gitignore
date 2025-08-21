@@ -105,6 +105,12 @@ package-lock.json
 .npm/
 .yarn/
 
+# Python virtual environments (uSCRIPT venv system)
+uSCRIPT/venv/
+**/venv/
+**/.venv/
+*.venv
+
 # ════════════════════════════════════════════════════════════════
 # 📦 LARGE ASSETS & DEMO CONTENT
 # ════════════════════════════════════════════════════════════════

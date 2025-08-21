@@ -1,11 +1,11 @@
 # uDOS Repository Structure
-*Generated: Thu 21 Aug 2025 14:53:08 AEST*  
+*Generated: Thu 21 Aug 2025 15:07:04 AEST*  
 *Version: v1.3*  
 *Root: /Users/agentdigital/uDOS*
 
 ## Repository Overview
 This is the complete uDOS (Universal Development Operating System) repository structure.
-Total directories: 467 | Total files: 6337
+Total directories: 468 | Total files: 6349
 
 ## Directory Structure
 
@@ -124,6 +124,7 @@ uMEMORY/
 ├── system/
 │   ├── temp/
 │   ├── tile-cache/
+├── temp/
 ├── templates/
 │   ├── datagets/
 │   ├── examples/
@@ -397,20 +398,20 @@ The following are excluded from standard distribution packages:
 ## System Statistics
 
 ### Repository Metrics
-- **Total Directories**: 467
-- **Total Files**: 6337
-- **Generated**: Thu 21 Aug 2025 14:53:09 AEST
+- **Total Directories**: 468
+- **Total Files**: 6349
+- **Generated**: Thu 21 Aug 2025 15:07:05 AEST
 - **Version**: v1.3
 
 ### Directory Breakdown
 - Root level directories:       17
 - uCORE directories:       42
-- uMEMORY directories:       18
+- uMEMORY directories:       19
 - uSCRIPT directories:       26
 - wizard directories:       39
 
 ### File Type Distribution
-- Shell scripts:      124
+- Shell scripts:      129
 - Markdown files:      290
 - JSON files:      132
 - YAML files:        5
@@ -420,5 +421,5 @@ The following are excluded from standard distribution packages:
 
 *This repository structure was generated automatically by the uDOS TREE command.*  
 *For more information about uDOS, visit: https://github.com/fredporter/uDOS*  
-*Last updated: Thu 21 Aug 2025 14:53:09 AEST*
+*Last updated: Thu 21 Aug 2025 15:07:05 AEST*
 
