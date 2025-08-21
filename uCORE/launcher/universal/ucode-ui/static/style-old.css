@@ -1,0 +1,1745 @@
+/* Authentic BBC Mode 7 Font Styling with Proper Aspect Ratio */
+body {
+    margin: 0;
+    padding: 20px;
+    background: var(--color-black);
+    color: var(--color-white);
+    font-family: var(--font-teletext);
+    line-height: 1.2;
+    overflow-x: auto;
+    min-height: 100vh;
+}
+
+/* MODE7 Font with Correct Aspect Ratio */
+.font-teletext,
+.mode7-screen,
+.mode7-screen * {
+    font-family: 'MODE7GX3', 'Courier New', monospace !important;
+    font-size: 20px !important;
+    line-height: 24px !important;
+    letter-spacing: 0px !important;
+    font-weight: normal !important;
+    transform: scaleY(1.3) !important; /* Correct BBC Mode 7 aspect ratio */
+    transform-origin: top !important;
+}
+
+/* Teletext Character Scaling Fix */
+.mode7-text {
+    display: inline-block;
+    transform: scaleY(1.3);
+    transform-origin: top;
+}
+
+/* Mode 7 Screen Container - Simplified and Cleaner */
+.mode7-screen {
+    width: 640px;
+    height: 500px;
+    background: var(--color-black);
+    border: 3px solid var(--color-blue);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 174, 239, 0.3);
+}
+
+/* Default Teletext Color Palette - FINAL uDOS Palette */
+:root {
+    /* FINAL uDOS Professional Color Palette */
+    --color-black: #000000;          /* Pure Black */
+    --color-white: #FFFFFF;          /* Pure White */
+    --color-cinnamon: #D45979;       /* Cinnamon Satin - Primary accent */
+    --color-yellow: #E8A05D;         /* Indian Yellow - Warnings/highlights */
+    --color-caramel: #F8DC93;        /* Caramel - Secondary highlights */
+    --color-green: #4DA378;          /* Shiny Shamrock - Success/primary actions */
+    --color-blue: #4B5798;           /* Liberty - Interface elements */
+    --color-purple: #A25FAD;         /* Purple Plum - Special features */
+    
+    /* System greys */
+    --color-dark-grey: #333333;      /* Dark Grey */
+    --color-grey: #666666;           /* Medium Grey */
+    --color-light-grey: #999999;     /* Light Grey */
+    
+    /* Theme Colors - Final Professional Mode */
+    --bg-dark: var(--color-black);
+    --bg-dark-alt: var(--color-blue);
+    --bg-light: var(--color-white);
+    --bg-light-alt: var(--color-caramel);
+    
+    --text-dark: var(--color-white);
+    --text-light: var(--color-black);
+    --text-accent: var(--color-green);
+    --text-secondary: var(--color-caramel);
+    
+    /* Border Colors */
+    --border-primary: var(--color-green);
+    --border-secondary: var(--color-blue);
+    
+    /* Button Colors */
+    --btn-primary: var(--color-green);
+    --btn-secondary: var(--color-grey);
+    --btn-accent: var(--color-cinnamon);
+    --btn-warning: var(--color-yellow);
+    --btn-special: var(--color-purple);
+    
+    /* Teletext Font Settings */
+    --font-teletext: 'MODE7GX3', monospace;
+    --font-size-teletext: 20px;
+    --line-height-teletext: 20px;
+    
+    /* Default Font - Teletext Mode */
+    --font-default: var(--font-teletext);
+}
+
+/* Font Face Declarations - Centralized Font Management from uMEMORY */
+@font-face {
+    font-family: 'MODE7GX3';
+    src: url('/uMEMORY/system/fonts/MODE7GX3.TTF') format('truetype'),
+         url('/uMEMORY/system/fonts/MODE7GX3.EOT') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX0';
+    src: url('/uMEMORY/system/fonts/MODE7GX0.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX2';
+    src: url('/uMEMORY/system/fonts/MODE7GX2.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX4';
+    src: url('/uMEMORY/system/fonts/MODE7GX4.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MODE7GX1';
+    src: url('/uMEMORY/system/fonts/MODE7GX1.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TOPAZ_A500';
+    src: url('/uMEMORY/system/fonts/TopazA500.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TOPAZ_A1200';
+    src: url('/uMEMORY/system/fonts/TopazA1200.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MicroKnight';
+    src: url('/uMEMORY/system/fonts/MicroKnight.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'PotNoodle';
+    src: url('/uMEMORY/system/fonts/PotNoodle.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* System Icons & Controls */
+.system-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: var(--color-dark-grey);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+}
+
+.system-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    min-width: 60px;
+}
+
+.icon-item:hover {
+    background: var(--color-blue);
+    transform: scale(1.05);
+}
+
+.icon-item .icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.icon-item .label {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--text-dark);
+    font-family: var(--font-teletext);
+    text-align: center;
+}
+
+/* Display Controls Panel */
+.display-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-label {
+    color: var(--text-accent);
+    font-weight: bold;
+    font-size: 12px;
+    font-family: var(--font-teletext);
+    min-width: 40px;
+}
+
+/* Font Mode Selector */
+#fontModeSelector {
+    background: var(--color-blue);
+    color: var(--color-white);
+    border: 1px solid var(--border-primary);
+    padding: 4px 8px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#fontModeSelector:focus {
+    outline: none;
+    border-color: var(--color-green);
+    box-shadow: 0 0 5px var(--color-green);
+}
+
+/* Font Selector */
+#fontSelector {
+    background: var(--color-grey);
+    color: var(--color-white);
+    border: 1px solid var(--border-primary);
+    padding: 4px 8px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#fontSelector:focus {
+    outline: none;
+    border-color: var(--color-green);
+    box-shadow: 0 0 5px var(--color-green);
+}
+
+/* Preview Button */
+.preview-btn {
+    background: var(--color-purple);
+    color: var(--color-white);
+    border: 1px solid var(--color-purple);
+    padding: 4px 12px;
+    font-family: var(--font-teletext);
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.preview-btn:hover {
+    background: var(--color-cinnamon);
+    border-color: var(--color-cinnamon);
+    transform: scale(1.05);
+}
+
+/* Font Preview Modal */
+.font-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--color-black);
+    border: 3px solid var(--color-green);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.modal-header {
+    background: var(--color-blue);
+    color: var(--color-white);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--color-green);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-family: var(--font-teletext);
+    font-size: 18px;
+}
+
+.close-btn {
+    background: var(--color-cinnamon);
+    color: var(--color-white);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: var(--color-yellow);
+    color: var(--color-black);
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Preview Controls */
+.preview-controls {
+    background: var(--color-dark-grey);
+    border: 2px solid var(--color-grey);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.control-row label {
+    color: var(--color-caramel);
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.control-row select {
+    background: var(--color-grey);
+    color: var(--color-white);
+    border: 1px solid var(--color-green);
+    padding: 4px 8px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    border-radius: 4px;
+    flex: 1;
+}
+
+.control-row input[type="range"] {
+    flex: 1;
+    margin-right: 10px;
+}
+
+#fontSizeValue {
+    color: var(--color-green);
+    font-family: var(--font-teletext);
+    font-weight: bold;
+    min-width: 40px;
+}
+
+/* Font Samples */
+.font-samples h3 {
+    color: var(--color-green);
+    font-family: var(--font-teletext);
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--color-grey);
+    padding-bottom: 8px;
+}
+
+.sample-section {
+    margin-bottom: 20px;
+    border: 1px solid var(--color-grey);
+    border-radius: 4px;
+    padding: 15px;
+    background: var(--color-dark-grey);
+}
+
+.sample-section h4 {
+    color: var(--color-yellow);
+    font-family: var(--font-teletext);
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    border-bottom: 1px dotted var(--color-grey);
+    padding-bottom: 5px;
+}
+
+.font-sample {
+    background: var(--color-black);
+    border: 1px solid var(--color-green);
+    padding: 12px;
+    margin: 8px 0;
+    font-family: var(--font-teletext);
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--color-white);
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.terminal-sim {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
+.terminal-sim .green { color: var(--color-green); }
+.terminal-sim .cyan { color: var(--color-blue); }
+.terminal-sim .yellow { color: var(--color-yellow); }
+.terminal-sim .white { color: var(--color-white); }
+
+.teletext-gfx {
+    background: var(--color-blue);
+    color: var(--color-white);
+    text-align: center;
+    letter-spacing: 0;
+}
+
+.size-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.small-font { font-size: 16px !important; }
+.medium-font { font-size: 20px !important; }
+.large-font { font-size: 24px !important; }
+
+/* Preview Actions */
+.preview-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 15px;
+    border-top: 2px solid var(--color-grey);
+}
+
+.apply-btn, .reset-btn, .test-btn {
+    padding: 10px 20px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid;
+}
+
+.apply-btn {
+    background: var(--color-green);
+    color: var(--color-black);
+    border-color: var(--color-green);
+}
+
+.apply-btn:hover {
+    background: var(--color-black);
+    color: var(--color-green);
+}
+
+.reset-btn {
+    background: var(--color-yellow);
+    color: var(--color-black);
+    border-color: var(--color-yellow);
+}
+
+.reset-btn:hover {
+    background: var(--color-black);
+    color: var(--color-yellow);
+}
+
+.test-btn {
+    background: var(--color-purple);
+    color: var(--color-white);
+    border-color: var(--color-purple);
+}
+
+.test-btn:hover {
+    background: var(--color-black);
+    color: var(--color-purple);
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        height: 95%;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .control-row label {
+        min-width: auto;
+    }
+}
+
+/* Display Size Buttons */
+.size-btn {
+    background: var(--btn-secondary);
+    color: var(--color-white);
+    border: 1px solid var(--color-grey);
+    padding: 4px 8px;
+    font-family: var(--font-teletext);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    min-width: 70px;
+}
+
+.size-btn:hover {
+    background: var(--btn-primary);
+    border-color: var(--color-green);
+    transform: scale(1.05);
+}
+
+.size-btn.active {
+    background: var(--btn-primary);
+    color: var(--color-black);
+    border-color: var(--color-green);
+    font-weight: bold;
+}
+
+/* Responsive Design for Controls */
+@media (max-width: 800px) {
+    .system-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .system-icons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .display-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* BBC Mode 7 Button Styles - Professional Grey Theme */
+.mode7-button, .mode7-btn {
+    background: var(--btn-secondary);
+    color: var(--color-white);
+    border: 2px solid var(--color-grey);
+    padding: 12px 20px;
+    font-family: var(--font-teletext);
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    border-radius: 4px;
+}
+
+.mode7-button:hover, .mode7-btn:hover {
+    background: var(--btn-primary);
+    border-color: var(--color-green);
+    color: var(--color-black);
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mode7-button:active, .mode7-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: var(--color-blue);
+    color: var(--color-white);
+}
+
+/* Quick Command Buttons - Professional Grey Theme */
+.quick-btn {
+    background: var(--btn-secondary);
+    color: var(--color-white);
+    border: 1px solid var(--color-grey);
+    padding: 4px 10px;
+    font-family: var(--font-teletext);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 60px;
+    height: 26px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.quick-btn:hover {
+    background: var(--btn-primary);
+    border-color: var(--color-green);
+    color: var(--color-black);
+    transform: scale(1.05);
+}
+
+.quick-btn:active {
+    transform: scale(0.95);
+    background: var(--color-blue);
+    color: var(--color-white);
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.dashboard-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Mode 7 Screen Container Updates */
+.mode7-screen {
+    background-color: var(--color-black);
+    border: 4px solid var(--color-blue);
+    color: var(--color-white);
+}
+
+/* Mode 7 Header Updates */
+.mode7-header {
+    background-color: var(--color-blue);
+    color: var(--color-white);
+    border-bottom: 2px solid var(--color-blue-dark);
+}
+
+/* Mode 7 Terminal Updates */
+.mode7-terminal {
+    background-color: var(--color-black);
+    border: 2px solid var(--color-grey);
+}
+
+/* Status Bar Updates */
+.mode7-status {
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
+    border-top: 1px solid var(--color-grey);
+}
+
+/* Command Input Updates */
+#command-input {
+    background-color: var(--color-black);
+    color: var(--color-green);
+    border: 1px solid var(--color-green);
+}
+
+#command-input:focus {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 5px var(--color-blue);
+}
+.font-teletext {
+    font-family: 'MODE7GX3', monospace !important;
+    font-size: 20px !important;
+    line-height: 20px !important;
+}
+
+.font-teletext-square {
+    font-family: 'MODE7GX0', monospace !important;
+    font-size: 18px !important;
+    line-height: 18px !important;
+}
+
+.font-teletext-wide {
+    font-family: 'MODE7GX4', monospace !important;
+    font-size: 22px !important;
+    line-height: 22px !important;
+}
+
+.uDOS-font-mode7gx2 {
+    font-family: 'MODE7GX2', monospace !important;
+    font-size: 19px !important;
+    line-height: 19px !important;
+}
+
+.font-terminal {
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace !important;
+    font-size: 16px !important;
+    line-height: 18px !important;
+}
+
+.font-system {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+}
+
+body {
+    font-family: var(--font-default);
+    font-size: var(--font-size-teletext);
+    line-height: var(--line-height-teletext);
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+}
+
+/* Theme Classes - Dark Mode is Default */
+body.theme-dark, body {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+body.theme-light {
+    background: var(--bg-light);
+    color: var(--text-light);
+    --border-primary: #666666;
+    --border-secondary: #999999;
+}
+
+body.theme-mono {
+    background: #000000;
+    color: #00ff00;
+    --border-primary: #00ff00;
+    --border-secondary: #008800;
+}
+
+body.theme-professional {
+    background: #1a1a1a;
+    color: var(--udos-white);
+    --border-primary: var(--udos-green);
+    --border-secondary: var(--udos-blue);
+    --text-primary: var(--udos-green);
+    --text-secondary: var(--udos-blue);
+    --text-accent: var(--udos-yellow);
+}
+
+body.theme-rainbow {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--bg-dark-alt);
+    border-bottom: 2px solid var(--border-primary);
+    position: relative;
+}
+
+.header::before {
+    content: "████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.7;
+}
+
+/* Rainbow mode header decoration */
+body.theme-rainbow .header::before {
+    background: linear-gradient(90deg, 
+        var(--udos-red) 0%, var(--udos-orange) 14%, 
+        var(--udos-yellow) 28%, var(--udos-green) 42%, 
+        var(--udos-cyan) 57%, var(--udos-blue) 71%, 
+        var(--udos-purple) 85%, var(--udos-magenta) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-accent);
+    text-shadow: none;
+}
+
+/* Rainbow mode title */
+body.theme-rainbow .title {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status {
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-dark);
+    position: relative;
+}
+
+.status::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 4px;
+    color: var(--border-primary);
+    opacity: 0.6;
+}
+
+.status.connected {
+    color: var(--udos-green);
+    border-color: var(--udos-green);
+    /* box-shadow: 0 0 8px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+.status.disconnected {
+    color: var(--udos-red);
+    border-color: var(--udos-red);
+    /* box-shadow: 0 0 8px rgba(255, 0, 102, 0.3); -- REMOVED */
+}
+
+.main-container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.panel {
+    border: 2px solid var(--border-primary);
+    margin: 8px;
+    padding: 16px;
+    background: var(--bg-dark-alt);
+    position: relative;
+}
+
+.panel::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-size: 4px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.4;
+}
+
+.panel::after {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 4px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.4;
+}
+
+/* Rainbow mode panels */
+body.theme-rainbow .panel::before,
+body.theme-rainbow .panel::after {
+    background: linear-gradient(90deg, 
+        var(--udos-red) 0%, var(--udos-orange) 14%, 
+        var(--udos-yellow) 28%, var(--udos-green) 42%, 
+        var(--udos-cyan) 57%, var(--udos-blue) 71%, 
+        var(--udos-purple) 85%, var(--udos-magenta) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.left-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-panel {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.panel h3 {
+    color: var(--text-accent);
+    margin-bottom: 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: 6px;
+    font-size: 15px;
+    text-shadow: none;
+}
+
+/* Rainbow mode headers */
+body.theme-rainbow .panel h3 {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.panel h4 {
+    color: #ffff00;
+    margin: 10px 0 5px 0;
+    font-size: 14px;
+}
+
+/* Enhanced Terminal Output with Smooth Scrolling */
+.terminal-output {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 2px solid var(--border-primary);
+    padding: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 18px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-dark-grey);
+}
+
+/* Custom Scrollbar for WebKit browsers */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: var(--color-dark-grey);
+    border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: var(--color-blue);
+    border-radius: 4px;
+    border: 1px solid var(--color-blue-dark);
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cyan);
+}
+
+/* Auto-scroll indicator */
+.terminal-output.auto-scrolling::after {
+    content: "▼ AUTO-SCROLL";
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: var(--color-green);
+    color: var(--color-black);
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    animation: scroll-indicator 2s ease-in-out;
+    z-index: 1000;
+}
+
+@keyframes scroll-indicator {
+    0%, 100% { opacity: 0; transform: translateY(10px); }
+    50% { opacity: 1; transform: translateY(0); }
+}
+
+.terminal-output::before {
+    content: "█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.6;
+}
+
+.terminal-output::after {
+    content: "█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.6;
+}
+
+.welcome-message {
+    color: var(--text-accent);
+    white-space: pre;
+    margin-bottom: 12px;
+    text-align: center;
+    text-shadow: none;
+}
+
+/* Rainbow mode welcome message */
+body.theme-rainbow .welcome-message {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+/* Terminal Line Type Styles with New Vibrant Colors */
+.terminal-line {
+    margin: 2px 0;
+    padding: 2px 0;
+    line-height: 1.3;
+}
+
+.terminal-line.command {
+    color: var(--color-blue);
+    font-weight: bold;
+}
+
+.terminal-line.output {
+    color: var(--color-white);
+}
+
+.terminal-line.success {
+    color: var(--color-green);
+    font-weight: bold;
+}
+
+.terminal-line.error {
+    color: var(--color-red);
+    font-weight: bold;
+}
+
+.terminal-line.warning {
+    color: var(--color-orange);
+    font-weight: bold;
+}
+
+.terminal-line.info {
+    color: var(--color-cyan);
+}
+
+.terminal-line.system {
+    color: var(--color-lime);
+    font-style: italic;
+}
+
+.terminal-line.rainbow {
+    background: linear-gradient(90deg, 
+        var(--color-red), 
+        var(--color-orange), 
+        var(--color-yellow), 
+        var(--color-green), 
+        var(--color-cyan), 
+        var(--color-blue), 
+        var(--color-pink)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+.terminal-line.whirlwind {
+    color: var(--color-pink);
+    animation: whirlwind-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes whirlwind-pulse {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1.02); }
+}
+
+/* uCODE Terminal Styling */
+.terminal-line.ucode {
+    color: var(--color-lime);
+    background: var(--color-dark-grey);
+    padding: 4px 8px;
+    border-left: 4px solid var(--color-green);
+    margin: 4px 0;
+}
+
+.command-input-container {
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    padding: 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.command-input-container:focus-within {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 10px rgba(0, 174, 239, 0.3);
+    background: var(--color-dark-grey);
+}
+
+.command-input-container.command-executing {
+    border-color: var(--color-green);
+    animation: command-pulse 0.5s ease-in-out;
+}
+
+@keyframes command-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.command-input-container::before {
+    content: "████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    font-size: 3px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.4;
+}
+
+/* Enhanced Command Input Field */
+#command-input {
+    flex: 1;
+    background: transparent;
+    color: var(--color-green);
+    border: none;
+    outline: none;
+    font-family: var(--font-default);
+    font-size: 18px;
+    padding: 4px 8px;
+    transition: all 0.3s ease;
+    caret-color: var(--color-green);
+}
+
+#command-input::placeholder {
+    color: var(--color-mid-grey);
+    font-style: italic;
+    transition: opacity 0.3s ease;
+}
+
+#command-input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Input status indicators */
+.input-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.status-indicator.connected {
+    background: var(--color-green);
+    box-shadow: 0 0 4px var(--color-green);
+    display: block;
+}
+
+.status-indicator.ucode-mode {
+    background: var(--color-cyan);
+    box-shadow: 0 0 4px var(--color-cyan);
+    animation: ucode-pulse 2s ease-in-out infinite;
+    display: block;
+}
+
+.status-indicator.typing {
+    background: var(--color-yellow);
+    animation: typing-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes ucode-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes typing-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+/* Command history popup */
+.command-history {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-dark-grey);
+    border: 1px solid var(--color-blue);
+    border-radius: 4px 4px 0 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.command-history.visible {
+    display: block;
+    animation: history-slide-up 0.2s ease-out;
+}
+
+@keyframes history-slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.history-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-grey);
+    color: var(--color-light-grey);
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.history-item:hover,
+.history-item.selected {
+    background: var(--color-blue);
+    color: var(--color-white);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+/* Command suggestions */
+.command-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-dark-grey);
+    border: 1px solid var(--color-cyan);
+    border-radius: 0 0 4px 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.command-suggestions.visible {
+    display: block;
+    animation: suggestions-slide-down 0.2s ease-out;
+}
+
+@keyframes suggestions-slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestion-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-grey);
+    color: var(--color-cyan);
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background: var(--color-cyan);
+    color: var(--color-black);
+}
+
+.suggestion-item .command-name {
+    font-weight: bold;
+}
+
+.suggestion-item .command-desc {
+    color: var(--color-light-grey);
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Rainbow mode prompt cycling */
+body.theme-rainbow .prompt {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 18px;
+    outline: none;
+    text-shadow: none;
+}
+
+.command-input::placeholder {
+    color: rgba(0, 255, 102, 0.5);
+    font-style: normal;
+}
+
+/* Light theme input */
+body.theme-light .command-input {
+    color: var(--text-light);
+    text-shadow: none;
+}
+
+body.theme-light .command-input::placeholder {
+    color: rgba(51, 51, 51, 0.5);
+}
+
+.command-output {
+    margin: 5px 0;
+    padding: 5px;
+    border-left: 3px solid #00ff00;
+    background: #001100;
+}
+
+.command-output.error {
+    border-left-color: #ff4444;
+    color: #ff8888;
+}
+
+.command-output.success {
+    border-left-color: #00ff00;
+    color: #88ff88;
+}
+
+.status-panel, .modules-panel, .logs-panel {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #004400;
+    background: #000;
+}
+
+.status-item {
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.status-item span {
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.module-item {
+    padding: 6px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-primary);
+    text-align: center;
+    font-size: 11px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.module-item::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    font-size: 3px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.5;
+}
+
+.module-item:hover {
+    background: var(--bg-dark-alt);
+    cursor: pointer;
+    border-color: var(--border-secondary);
+    /* box-shadow: 0 0 8px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+/* Rainbow mode modules */
+body.theme-rainbow .module-item:nth-child(8n+1) { border-color: var(--udos-red); }
+body.theme-rainbow .module-item:nth-child(8n+2) { border-color: var(--udos-orange); }
+body.theme-rainbow .module-item:nth-child(8n+3) { border-color: var(--udos-yellow); }
+body.theme-rainbow .module-item:nth-child(8n+4) { border-color: var(--udos-green); }
+body.theme-rainbow .module-item:nth-child(8n+5) { border-color: var(--udos-cyan); }
+body.theme-rainbow .module-item:nth-child(8n+6) { border-color: var(--udos-blue); }
+body.theme-rainbow .module-item:nth-child(8n+7) { border-color: var(--udos-purple); }
+body.theme-rainbow .module-item:nth-child(8n+8) { border-color: var(--udos-magenta); }
+
+.logs-output {
+    height: 100px;
+    overflow-y: auto;
+    background: #000;
+    border: 1px solid #004400;
+    padding: 5px;
+    font-size: 11px;
+}
+
+.log-entry {
+    margin: 2px 0;
+    padding: 2px;
+    border-bottom: 1px dotted #004400;
+}
+
+.log-entry .timestamp {
+    color: #666;
+    font-size: 10px;
+}
+
+/* Font Display Panel */
+.font-display-panel {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #004400;
+    background: #000;
+}
+
+.font-showcase {
+    margin: 10px 0;
+}
+
+.font-sample {
+    padding: 8px;
+    margin: 5px 0;
+    background: linear-gradient(45deg, #001122, #002211);
+    border: 1px solid #00ff88;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.font-sample:hover {
+    background: linear-gradient(45deg, #002244, #004422);
+    transform: scale(1.02);
+}
+
+.font-controls {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.font-btn {
+    background: #002244;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.font-btn:hover {
+    background: var(--bg-dark-alt);
+    /* box-shadow: 0 0 8px rgba(0, 255, 136, 0.3); -- REMOVED */
+}
+
+/* Theme Controls */
+.theme-controls {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.theme-btn {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    border: 1px solid var(--border-primary);
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: var(--bg-dark-alt);
+    /* box-shadow: 0 0 6px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+.theme-btn.active {
+    background: var(--border-primary);
+    color: var(--bg-dark);
+}
+
+/* Remove all remaining animations and rainbow mode enhancements */
+body.rainbow-mode {
+    /* Static rainbow mode - no animations */
+    animation: none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-secondary);
+}
+
+.assist-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: #000044;
+    border-top: 2px solid #0088ff;
+    padding: 15px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.assist-panel.active {
+    transform: translateY(0);
+}
+
+.assist-panel h3 {
+    color: #0088ff;
+    margin-bottom: 10px;
+}
+
+.assist-content {
+    color: #88ccff;
+}
+
+.assist-content button {
+    background: #004488;
+    color: #88ccff;
+    border: 1px solid #0088ff;
+    padding: 8px 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.assist-content button:hover {
+    background: #0066cc;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #001100;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #004400;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #006600;
+}
+
+/* Animation effects - DISABLED for clean teletext aesthetic */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.status {
+    /* animation: blink 2s infinite; -- REMOVED */
+    opacity: 1; /* Static opacity instead of blinking */
+}
+
+/* Text effects - DISABLED for clean appearance */
+.title, .panel h3 {
+    /* text-shadow: 0 0 10px currentColor; -- REMOVED */
+    text-shadow: none; /* Clean text without glow */
+}
+
+/* ASSIST MODE Integration */
+.assist-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: var(--bg-dark-alt);
+    border-top: 2px solid var(--udos-cyan);
+    padding: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.assist-panel.active {
+    transform: translateY(0);
+}
+
+.assist-panel h3 {
+    color: var(--udos-cyan);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.assist-content {
+    color: var(--text-dark);
+}
+
+.assist-content button {
+    background: var(--bg-dark);
+    color: var(--udos-cyan);
+    border: 1px solid var(--udos-cyan);
+    padding: 6px 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.assist-content button:hover {
+    background: var(--bg-dark-alt);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .left-panel, .right-panel {
+        flex: none;
+        height: 50%;
+    }
+    
+    .module-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .font-controls, .theme-controls {
+        flex-direction: column;
+    }
+}
+
+/* Professional uDOS Theme - Final Implementation */
+body.theme-professional, body {
+    background: var(--color-black);
+    color: var(--color-white);
+    --border-primary: var(--color-green);
+    --border-secondary: var(--color-blue);
+    --text-primary: var(--color-white);
+    --text-secondary: var(--color-caramel);
+    --text-accent: var(--color-green);
+}

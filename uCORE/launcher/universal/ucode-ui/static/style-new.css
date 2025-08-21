@@ -23,145 +23,6 @@
     --terminal-height: 70vh;
 }
 
-/* Hybrid Mode: 1:1 text with 1:1.3 block graphics capability */
-.block-graphics {
-    display: inline-block;
-    font-family: 'MODE7GX-Teletext-Regular', monospace;
-    line-height: 1.3;
-    letter-spacing: 0;
-    transform: scaleY(1.3);
-    transform-origin: baseline;
-}
-
-.block-char {
-    display: inline-block;
-    width: 1ch;
-    height: 1.3em;
-    text-align: center;
-    vertical-align: baseline;
-}
-
-.teletext-block {
-    font-family: 'MODE7GX-Teletext-Regular', 'Teletext50', monospace;
-    line-height: 1.3;
-    letter-spacing: 0;
-}
-
-/* 2-color block graphics support */
-.fg-color { color: var(--color-white); }
-.bg-color { background-color: var(--color-black); }
-
-.fg-red { color: var(--color-cinnamon); }
-.fg-yellow { color: var(--color-yellow); }
-.fg-green { color: var(--color-green); }
-.fg-blue { color: var(--color-blue); }
-.fg-purple { color: var(--color-purple); }
-.fg-cyan { color: #00FFFF; }
-
-.bg-red { background-color: var(--color-cinnamon); }
-.bg-yellow { background-color: var(--color-yellow); }
-.bg-green { background-color: var(--color-green); }
-.bg-blue { background-color: var(--color-blue); }
-.bg-purple { background-color: var(--color-purple); }
-.bg-cyan { background-color: #00FFFF; }
-
-/* Hybrid mode terminal styling */
-.terminal-output.hybrid-mode {
-    line-height: 1.2;
-    font-variant-ligatures: none;
-}
-
-.terminal-output.hybrid-mode .block-graphics {
-    line-height: 1.3;
-    transform: scaleY(1.083); /* Fine-tune 1:1.3 aspect for blocks */
-}
-
-/* Compact button styling for hybrid mode */
-.hybrid-mode .command-button {
-    padding: 2px 6px;
-    margin: 1px;
-    font-size: 0.9em;
-    line-height: 1.1;
-}
-
-.hybrid-mode .font-controls select {
-    font-size: 0.85em;
-    padding: 3px 6px;
-}
-
-/* Retro Computing Font Faces */
-@font-face {
-    font-family: 'Pet Me 64';
-    src: url('../fonts/Pet Me 64.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Pet Me 128';
-    src: url('../fonts/Pet Me 128.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'topaz_a500';
-    src: url('../fonts/topaz_a500.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'topaz_a1200';
-    src: url('../fonts/topaz_a1200.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'pot_noodle';
-    src: url('../fonts/pot_noodle.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'microknight';
-    src: url('../fonts/microknight.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Teletext50';
-    src: url('../fonts/Teletext50.otf') format('opentype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Teletext50-condensed';
-    src: url('../fonts/Teletext50-condensed.otf') format('opentype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX0';
-    src: url('../fonts/MODE7GX0.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX2';
-    src: url('../fonts/MODE7GX2.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX3';
-    src: url('../fonts/MODE7GX3.ttf') format('truetype');
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MODE7GX4';
-    src: url('../fonts/MODE7GX4.ttf') format('truetype');
-    font-display: swap;
-}
-
 /* Reset and Base Styles */
 * {
     margin: 0;
@@ -332,11 +193,10 @@ body {
 .terminal-line {
     margin-bottom: 2px;
     word-wrap: break-word;
-    white-space: pre-wrap;
 }
 
 .terminal-line.command {
-    color: var(--liberty);
+    color: var(--color-yellow);
     font-weight: bold;
 }
 
@@ -345,25 +205,23 @@ body {
 }
 
 .terminal-line.info {
-    color: var(--shiny-shamrock);
+    color: var(--color-blue);
 }
 
 .terminal-line.success {
-    color: var(--shiny-shamrock);
-    font-weight: bold;
+    color: var(--color-green);
 }
 
 .terminal-line.error {
-    color: var(--cinnamon-satin);
-    font-weight: bold;
+    color: var(--color-cinnamon);
 }
 
 .terminal-line.warning {
-    color: var(--indian-yellow);
+    color: var(--color-yellow);
 }
 
 .terminal-line.system {
-    color: var(--caramel);
+    color: var(--color-caramel);
 }
 
 /* Bottom Command Area - 20% height */
@@ -421,74 +279,19 @@ body {
 .command-input {
     flex-grow: 1;
     background: var(--color-black);
-    color: var(--shiny-shamrock);
-    border: 2px solid var(--shiny-shamrock);
+    color: var(--color-green);
+    border: 2px solid var(--color-green);
     padding: 8px 12px;
     font-family: var(--font-teletext);
     font-size: 16px;
     border-radius: 0;
     outline: none;
-    transition: all 0.2s ease;
 }
 
 .command-input:focus {
-    border-color: var(--indian-yellow);
-    color: var(--indian-yellow);
-    box-shadow: 0 0 10px rgba(232, 160, 93, 0.3);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-/* Prompt indicator styling with WHIRL emoji animation */
-.prompt-indicator {
-    color: var(--indian-yellow);
-    font-weight: bold;
-    margin-right: 8px;
-    font-family: var(--font-teletext);
-    font-size: 16px;
-}
-
-.prompt-indicator.normal-mode {
-    color: var(--indian-yellow);
-}
-
-.prompt-indicator.whirl-prompt {
-    animation: whirl-spin 2s linear infinite;
-}
-
-.prompt-indicator.ucode-mode {
-    color: var(--purple-plum);
-    animation: ucode-pulse 1.5s infinite;
-}
-
-@keyframes whirl-spin {
-    0% { 
-        transform: rotate(0deg);
-        text-shadow: 0 0 5px var(--indian-yellow);
-    }
-    25% {
-        text-shadow: 0 0 8px var(--shiny-shamrock);
-    }
-    50% {
-        text-shadow: 0 0 10px var(--caramel);
-    }
-    75% {
-        text-shadow: 0 0 8px var(--liberty);
-    }
-    100% { 
-        transform: rotate(360deg);
-        text-shadow: 0 0 5px var(--indian-yellow);
-    }
-}
-
-@keyframes ucode-pulse {
-    0%, 100% { 
-        opacity: 1; 
-        text-shadow: 0 0 5px var(--purple-plum);
-    }
-    50% { 
-        opacity: 0.8; 
-        text-shadow: 0 0 10px var(--purple-plum);
-    }
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+    box-shadow: 0 0 10px rgba(75, 87, 152, 0.3);
 }
 
 .input-status {
@@ -515,50 +318,14 @@ body {
 }
 
 .typing-indicator {
-    color: var(--shiny-shamrock);
+    color: var(--color-green);
     opacity: 0.3;
     transition: opacity 0.3s ease;
 }
 
 .history-indicator {
-    color: var(--indian-yellow);
+    color: var(--color-yellow);
     cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-
-.history-indicator:hover {
-    opacity: 1;
-}
-
-.mode-indicator {
-    color: var(--caramel);
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    border: 1px solid var(--caramel);
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--shiny-shamrock);
-    animation: heartbeat 2s infinite;
-    cursor: pointer;
-}
-
-@keyframes heartbeat {
-    0%, 100% { 
-        transform: scale(1); 
-        box-shadow: 0 0 5px var(--shiny-shamrock);
-    }
-    50% { 
-        transform: scale(1.1); 
-        box-shadow: 0 0 10px var(--shiny-shamrock);
-    }
 }
 
 /* Font Mode Selector */

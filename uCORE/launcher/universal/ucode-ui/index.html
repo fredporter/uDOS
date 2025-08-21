@@ -1,379 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uDOS - BBC Mode 7 Interface</title>
+<he                              <select id="fontSelector" onchange="changeFont()">
+                    <option value="JetBrains Mono">✈️ JetBrains Mono</option>
+                    <option value="MODE7GX0.TTF">📺 BBC Mode 7</option>
+                    <option value="topaz_a500.ttf">🎮 Topaz A500</option>
+                    <option value="Pet Me 64">🎮 Pet Me 64</option>
+                    <option value="Pet Me 128">🎮 Pet Me 128</option>
+                    <option value="microknight.ttf">⚔️ MicroKnight</option>
+                    <option value="pot_noodle.ttf">🍜 Pot Noodle</option>
+                    <option value="Mallard Neueue">🦆 Mallard Neueue</option>
+                    <option value="Mallard Blocky">🦆 Mallard Blocky</option>
+                    <option value="Monaco">⌨️ Monaco</option>
+                    <option value="monospace">💻 System Monospace</option>
+                </select> <select id="fontSelector" onchange="changeFont()">
+                    <option value="JetBrains Mono">✈️ JetBrains Mono</option>
+                    <option value="MODE7GX0.TTF">📺 BBC Mode 7</option>
+                    <option value="topaz_a500.ttf">🎮 Topaz A500</option>
+                    <option value="Pet Me 64">🎮 Pet Me 64</option>
+                    <option value="Pet Me 128">🎮 Pet Me 128</option>
+                    <option value="microknight.ttf">⚔️ MicroKnight</option>
+                    <option value="pot_noodle.ttf">🍜 Pot Noodle</option>
+                    <option value="Mallard Neueue">🦆 Mallard Neueue</option>
+                    <option value="Mallard Blocky">🦆 Mallard Blocky</option>
+                    <option value="Monaco">⌨️ Monaco</option>
+                    <option value="monospace">💻 System Monospace</option>
+                </select>elect id="fontSelector" onchange="changeFont()">
+                    <option value="JetBrains Mono">✈️ JetBrains Mono</option>
+                    <option value="MODE7GX0.TTF">📺 MODE7GX0</option>
+                    <option value="topaz_a500.ttf">🎮 Topaz A500</option>
+                    <option value="microknight.ttf">⚔️ MicroKnight</option>
+                    <option value="pot_noodle.ttf">🍜 Pot Noodle</option>
+                    <option value="Consolas">💻 Consolas</option>
+                    <option value="Monaco">⌨️ Monaco</option>
+                    <option value="monospace">🔤 System Monospace</option>
+                </select>meta charset="UTF-8">
+    <meta name="viewport" conten                    <div class="control-row">
+                        <label>Font Mode:</label>
+                        <select id="previewMode" onchange="updatePreviewMode()">
+                            <option value="hybrid">📺⌨️ Hybrid - 1:1 text + 1:1.3 blocks</option>
+                            <option value="monospace">⌨️ Pure Monospace - 1:1 uniform</option>
+                            <option value="retro">🎮 Retro Computing - Authentic</option>
+                            <option value="system">💻 System Fonts - Modern OS</option>
+                        </select>
+                    </div>device-width, initial-scale=1.0">
+    <title>uDOS - Professional Console</title>
     <link rel="stylesheet" href="static/style.css">
-    <style>
-        /* Proper BBC Mode 7 Font Aspect Ratio */
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #000;
-            color: #fff;
-            font-family: 'MODE7GX3', 'Courier New', monospace;
-            font-size: 20px;
-            line-height: 1.0;
-            transform: scaleY(1.3); /* Correct BBC Mode 7 character aspect ratio */
-            transform-origin: top;
-            overflow-x: auto;
-        }
-        
-        /* Clean Mode 7 Container */
-        .mode7-interface {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #000;
-            border: 4px solid #00f;
-            padding: 20px;
-            transform-origin: top;
-        }
-        
-        /* Simple Header */
-        .header {
-            text-align: center;
-            color: #ff0;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #00f;
-            border: 2px solid #fff;
-        }
-        
-        /* Easy-to-Use Button Grid */
-        .button-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        /* Big, Chunky Buttons */
-        .mode7-btn {
-            background: #0f0;
-            color: #000;
-            border: none;
-            padding: 20px 10px;
-            font-family: 'MODE7GX3', 'Courier New', monospace;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .mode7-btn:hover {
-            background: #ff0;
-            transform: scale(1.05);
-        }
-        
-        .mode7-btn:active {
-            background: #f00;
-            color: #fff;
-        }
-        
-        /* Button Color Variations */
-        .btn-blue { background: #00f; color: #fff; }
-        .btn-red { background: #f00; color: #fff; }
-        .btn-magenta { background: #f0f; color: #fff; }
-        .btn-cyan { background: #0ff; color: #000; }
-        .btn-yellow { background: #ff0; color: #000; }
-        
-        /* Terminal Area */
-        .terminal {
-            background: #000;
-            border: 2px solid #fff;
-            padding: 15px;
-            margin: 20px 0;
-            min-height: 200px;
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: 'MODE7GX3', 'Courier New', monospace;
-            font-size: 16px;
-            line-height: 1.2;
-        }
-        
-        .terminal::-webkit-scrollbar {
-            width: 12px;
-        }
-        
-        .terminal::-webkit-scrollbar-track {
-            background: #000;
-        }
-        
-        .terminal::-webkit-scrollbar-thumb {
-            background: #fff;
-            border: 1px solid #000;
-        }
-        
-        /* Command Input */
-        .command-input {
-            width: 100%;
-            background: #000;
-            color: #0f0;
-            border: 2px solid #0f0;
-            padding: 10px;
-            font-family: 'MODE7GX3', 'Courier New', monospace;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        
-        .command-input:focus {
-            outline: none;
-            border-color: #ff0;
-            color: #ff0;
-        }
-        
-        /* Quick Commands Row */
-        .quick-commands {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .quick-btn {
-            background: #888;
-            color: #fff;
-            border: none;
-            padding: 8px 15px;
-            font-family: 'MODE7GX3', 'Courier New', monospace;
-            font-size: 14px;
-            cursor: pointer;
-            border: 1px solid #fff;
-        }
-        
-        .quick-btn:hover {
-            background: #fff;
-            color: #000;
-        }
-        
-        /* Status Bar */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            background: #00f;
-            color: #fff;
-            padding: 8px 15px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        
-        /* Color Classes for Terminal Output */
-        .green { color: #0f0; }
-        .red { color: #f00; }
-        .yellow { color: #ff0; }
-        .blue { color: #00f; }
-        .cyan { color: #0ff; }
-        .magenta { color: #f0f; }
-        .white { color: #fff; }
-        
-        /* Flash Animation */
-        .flash {
-            animation: flash 1s infinite;
-        }
-        
-        @keyframes flash {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-    </style>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
 <body>
-    <div class="mode7-interface">
-        <!-- Header -->
-        <div class="header">
-            <div class="flash">uDOS v1.3 - BBC MODE 7</div>
-            <div style="font-size: 16px;">Universal Development Operating System</div>
-        </div>
-        
-        <!-- Main Module Buttons -->
-        <div class="button-grid">
-            <button class="mode7-btn" onclick="openModule('uCORE')">
-                ▌ uCORE ▐<br>
-                System Core
-            </button>
+    <!-- Top Functions Bar (10% height) -->
+    <div class="top-bar">
+        <div class="system-functions">
+            <div class="function-group">
+                <button class="sys-btn" onclick="quickCmd('system')" title="System Status">⚙️</button>
+                <button class="sys-btn" onclick="quickCmd('memory')" title="Memory">💾</button>
+                <button class="sys-btn" onclick="quickCmd('files')" title="Files">📁</button>
+                <button class="sys-btn" onclick="quickCmd('help')" title="Help">❓</button>
+                <button class="sys-btn" onclick="quickCmd('stats')" title="Stats">📊</button>
+            </div>
             
-            <button class="mode7-btn btn-blue" onclick="openModule('uSCRIPT')">
-                ▌ uSCRIPT ▐<br>
-                Automation
-            </button>
+            <div class="font-controls">
+                <select id="fontSelector" onchange="changeFont()">
+                    <option value="JetBrains Mono">✈️ JetBrains Mono</option>
+                    <option value="MODE7GX3.TTF">📺 MODE7GX3</option>
+                    <option value="topaz_a500.ttf">🎮 Topaz A500</option>
+                    <option value="microknight.ttf">⚔️ MicroKnight</option>
+                    <option value="pot_noodle.ttf">🍜 Pot Noodle</option>
+                    <option value="Monaco">⌨️ Monaco</option>
+                    <option value="monospace">� System Monospace</option>
+                </select>
+                <button class="display-size-btn" onclick="cycleDisplaySize()" title="Cycle Display Size">�</button>
+            </div>
             
-            <button class="mode7-btn btn-magenta" onclick="openModule('uSERVER')">
-                ▌ uSERVER ▐<br>
-                Web Services
-            </button>
-            
-            <button class="mode7-btn btn-cyan" onclick="openMode('wizard')">
-                ▌ WIZARD ▐<br>
-                Development
-            </button>
-            
-            <button class="mode7-btn btn-red" onclick="openMode('sorcerer')">
-                ▌ SORCERER ▐<br>
-                Admin Tools
-            </button>
-            
-            <button class="mode7-btn btn-yellow" onclick="openMode('imp')">
-                ▌ IMP ▐<br>
-                Scripting
-            </button>
-        </div>
-        
-        <!-- Quick Commands -->
-        <div class="quick-commands">
-            <button class="quick-btn" onclick="quickCmd('help')">HELP</button>
-            <button class="quick-btn" onclick="quickCmd('tree')">TREE</button>
-            <button class="quick-btn" onclick="quickCmd('memory')">MEMORY</button>
-            <button class="quick-btn" onclick="quickCmd('dashboard')">DASHBOARD</button>
-            <button class="quick-btn" onclick="quickCmd('templates')">TEMPLATES</button>
-            <button class="quick-btn" onclick="quickCmd('clear')">CLEAR</button>
-        </div>
-        
-        <!-- Terminal Output -->
-        <div class="terminal" id="terminal">
-            <div class="green">READY</div>
-            <div class="yellow">uDOS BBC Mode 7 Interface Loaded</div>
-            <div class="cyan">Type commands or click buttons</div>
-            <div class="white">═══════════════════════════</div>
-        </div>
-        
-        <!-- Command Input -->
-        <input type="text" id="command-input" class="command-input" 
-               placeholder="Enter command..." 
-               autocomplete="off">
-        
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div><span class="green">●</span> READY</div>
-            <div id="mode-display">MAIN MODE</div>
-            <div id="time-display"></div>
+            <div class="status-info">
+                <span id="connection-status">●</span>
+                <span id="mode-display">CONSOLE</span>
+                <span id="time-display"></span>
+            </div>
         </div>
     </div>
 
+    <!-- Main Terminal Output (70% height - scrolling) -->
+    <div class="terminal-container">
+        <div id="terminal-output" class="terminal-output">
+            <div class="terminal-line system">🚀 uDOS Professional Console v1.3</div>
+            <div class="terminal-line system">📺 Enhanced font management with aspect ratio control</div>
+            <div class="terminal-line system">⚡ Type 'help' for commands or use function buttons</div>
+            <div class="terminal-line system">═══════════════════════════════════════════════════</div>
+        </div>
+    </div>
+
+    <!-- Bottom Command Area (20% height) -->
+    <div class="bottom-bar">
+        <div class="quick-actions">
+            <button class="action-btn" onclick="quickCmd('tree')">TREE</button>
+            <button class="action-btn" onclick="quickCmd('log')">LOG</button>
+            <button class="action-btn" onclick="quickCmd('dev')">DEV</button>
+            <button class="action-btn" onclick="quickCmd('dash')">DASH</button>
+            <button class="action-btn" onclick="quickCmd('clear')">CLEAR</button>
+        </div>
+        
+        <div class="command-input-container">
+            <div class="command-prompt">
+                <span id="dynamic-prompt" class="prompt-indicator normal-mode whirl-prompt">🌀</span>
+            </div>
+            <input type="text" id="command-input" class="command-input" 
+                   placeholder="Enter command..." 
+                   autocomplete="off">
+        </div>
+        
+        <div class="input-status">
+            <div class="command-suggestions" id="command-suggestions"></div>
+            <div class="status-indicators">
+                <span class="typing-indicator" id="typing-indicator">●</span>
+                <span class="history-indicator" id="history-indicator">📜</span>
+                <span class="mode-indicator" id="mode-indicator">CONSOLE</span>
+                <span class="status-dot" id="status-dot" title="System Status"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Font Preview Modal -->
+    <div id="fontPreviewModal" class="font-preview-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔤 Enhanced Font & Display Preview System</h2>
+                <button class="close-btn" onclick="closeFontPreview()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-controls">
+                    <div class="control-row">
+                        <label>Font Mode:</label>
+                        <select id="previewMode" onchange="updatePreviewMode()">
+                            <option value="teletext">� Teletext (1:1.3) - Classic BBC Micro</option>
+                            <option value="monospace">⌨️ Monospace (1:1) - Code Terminal</option>
+                            <option value="retro">🎮 Retro Computing - C64/Amiga</option>
+                            <option value="system">💻 System (1:1) - Modern OS</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label>Font Family:</label>
+                        <select id="previewFont" onchange="updatePreview()">
+                            <option value="MODE7GX-Teletext-Regular.ttf">MODE7GX Teletext</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label>Display Size:</label>
+                        <select id="previewSize" onchange="updatePreviewSize()">
+                            <option value="tiny">Tiny (10px) - Dense info</option>
+                            <option value="small">Small (12px) - Compact</option>
+                            <option value="normal">Normal (14px) - Standard</option>
+                            <option value="medium" selected>Medium (16px) - Comfortable</option>
+                            <option value="large">Large (18px) - Easy reading</option>
+                            <option value="huge">Huge (20px) - Headers</option>
+                            <option value="giant">Giant (24px) - Major headings</option>
+                        </select>
+                        <span id="fontSizeValue">16px</span>
+                    </div>
+                    <div class="control-row">
+                        <label>Emoji Support:</label>
+                        <button class="emoji-test-btn" onclick="testEmojiSupport()">🌀 Test Emojis</button>
+                    </div>
+                </div>
+                
+                <div class="font-samples">
+                    <h3>📝 Enhanced Font & Emoji Samples</h3>
+                    
+                    <div class="sample-section">
+                        <h4>🔤 Character Set & Emojis</h4>
+                        <div class="font-sample">
+                            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                            abcdefghijklmnopqrstuvwxyz<br>
+                            0123456789 !@#$%^&*()_+-=[]{}|<br>
+                            🌀⚙️⚡🚀 ▶▼▲◀ ✅❌⚠️ℹ️ 💻🔧📊
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>🧱 Block Graphics (Hybrid Mode 1:1.3)</h4>
+                        <div class="font-sample block-graphics">
+                            ██████████ Full blocks<br>
+                            ▀▀▀▀▀▀▀▀▀▀ Upper half-blocks<br>
+                            ▄▄▄▄▄▄▄▄▄▄ Lower half-blocks<br>
+                            ▌▌▌▌▌ ▐▐▐▐▐ Left/Right blocks<br>
+                            ▘▝▖▗ Quarter blocks<br>
+                            ░░▒▒▓▓██ Shading patterns
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>💻 Programming & Code</h4>
+                        <div class="font-sample code-sample">
+                            function initUDOS() {<br>
+                            &nbsp;&nbsp;const emoji = '🌀';<br>
+                            &nbsp;&nbsp;console.log(`${emoji} uDOS Ready!`);<br>
+                            &nbsp;&nbsp;return status.SUCCESS; ▶ ✅<br>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>🖥️ WHIRL Console Simulation</h4>
+                        <div class="font-sample terminal-sim">
+                            <span class="whirl">🌀</span> <span class="white">MEMORY list</span><br>
+                            <span class="arrow">▶</span> <span class="cyan">system.mem - Core memory</span><br>
+                            <span class="arrow">▶</span> <span class="cyan">user.mem - Session data</span><br>
+                            <span class="status">STATUS:</span> <span class="success">✅ READY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>📊 Status Indicators</h4>
+                        <div class="font-sample status-sample">
+                            ▶ Success: ✅ Operation complete<br>
+                            ▶ Error: ❌ System failure<br>
+                            ▶ Warning: ⚠️ Check required<br>
+                            ▶ Info: ℹ️ Additional details<br>
+                            ▶ Loading: 🔄 Processing...
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>🎨 Emoji Gallery Test</h4>
+                        <div class="font-sample emoji-gallery">
+                            System: 🌀⚙️🔧🔨💻📡🔋💾<br>
+                            Interface: ▶◀▲▼⏩⏪⏸️⏹️🔄<br>
+                            Files: 📁📂📄💾🗂️📦🗑️♻️<br>
+                            Network: 🌐📶☁️📤📥🔗⛓️
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>BBC Mode 7 Graphics</h4>
+                        <div class="font-sample teletext-gfx">
+                            ████████████████████████████<br>
+                            ██ ▌ uDOS CONSOLE ▐ ██<br>
+                            ████████████████████████████
+                        </div>
+                    </div>
+                    
+                    <div class="sample-section">
+                        <h4>Size Comparison</h4>
+                        <div class="size-comparison">
+                            <div class="font-sample small-font">Small: The quick brown fox</div>
+                            <div class="font-sample medium-font">Medium: The quick brown fox</div>
+                            <div class="font-sample large-font">Large: The quick brown fox</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-actions">
+                    <button class="apply-btn" onclick="applyPreviewFont()">✓ Apply</button>
+                    <button class="reset-btn" onclick="resetPreview()">↺ Reset</button>
+                    <button class="test-btn" onclick="testInTerminal()">🔧 Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/app.js"></script>
     <script>
-        // Terminal functions
-        function log(text, color = 'white') {
-            const terminal = document.getElementById('terminal');
+        // Initialize console interface
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeConsole();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+        
+        function initializeConsole() {
+            // Focus command input
+            document.getElementById('command-input').focus();
+            
+            // Initialize font system
+            changeFontMode();
+            
+            // Setup smart scrolling
+            setupSmartScrolling();
+            
+            // Setup command input handlers
+            setupCommandInput();
+            
+            // Initialize socket connection
+            if (typeof io !== 'undefined') {
+                initializeSocket();
+            }
+        }
+        
+        function setupSmartScrolling() {
+            const terminal = document.getElementById('terminal-output');
+            let isUserScrolling = false;
+            let scrollTimeout;
+            
+            terminal.addEventListener('scroll', () => {
+                isUserScrolling = true;
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isUserScrolling = false;
+                }, 1000);
+            });
+            
+            // Auto-scroll to bottom when new content is added
+            const observer = new MutationObserver(() => {
+                if (!isUserScrolling) {
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            });
+            
+            observer.observe(terminal, { childList: true });
+        }
+        
+        function setupCommandInput() {
+            const input = document.getElementById('command-input');
+            const suggestions = document.getElementById('command-suggestions');
+            
+            input.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case 'Enter':
+                        executeCommand(input.value.trim());
+                        input.value = '';
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateHistory(-1);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateHistory(1);
+                        break;
+                    case 'Tab':
+                        e.preventDefault();
+                        autoComplete(input);
+                        break;
+                    case 'Escape':
+                        input.value = '';
+                        hideSuggestions();
+                        break;
+                }
+            });
+            
+            input.addEventListener('input', (e) => {
+                showSuggestions(e.target.value);
+                showTypingIndicator();
+            });
+        }
+        
+        let commandHistory = [];
+        let historyIndex = -1;
+        
+        function navigateHistory(direction) {
+            const input = document.getElementById('command-input');
+            
+            if (direction === -1 && historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+            } else if (direction === 1 && historyIndex > 0) {
+                historyIndex--;
+                input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+            } else if (direction === 1 && historyIndex === 0) {
+                historyIndex = -1;
+                input.value = '';
+            }
+        }
+        
+        function executeCommand(command) {
+            if (!command) return;
+            
+            // Add to history
+            commandHistory.push(command);
+            historyIndex = -1;
+            
+            // Display command
+            addToTerminal(`$ ${command}`, 'command');
+            
+            // Process command
+            if (handleLocalCommand(command)) {
+                return;
+            }
+            
+            // Send to server if available
+            if (window.socket) {
+                window.socket.emit('execute_command', { command });
+            } else {
+                addToTerminal('Command executed locally', 'info');
+            }
+        }
+        
+        function handleLocalCommand(command) {
+            const cmd = command.toLowerCase().trim();
+            
+            switch(cmd) {
+                case 'help':
+                    showHelp();
+                    return true;
+                case 'clear':
+                    clearTerminal();
+                    return true;
+                case 'history':
+                    showCommandHistory();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        
+        function addToTerminal(text, type = 'output') {
+            const terminal = document.getElementById('terminal-output');
             const line = document.createElement('div');
-            line.className = color;
+            line.className = `terminal-line ${type}`;
             line.textContent = text;
             terminal.appendChild(line);
-            terminal.scrollTop = terminal.scrollHeight;
             
             // Limit terminal history
-            if (terminal.children.length > 100) {
+            if (terminal.children.length > 1000) {
                 terminal.removeChild(terminal.firstChild);
             }
         }
         
-        // Module functions
-        function openModule(module) {
-            log(`Loading ${module}...`, 'cyan');
-            document.getElementById('mode-display').textContent = module;
-            
-            // Real command execution
-            executeCommand(`dashboard ${module.toLowerCase()}`);
-        }
-        
-        function openMode(mode) {
-            log(`Switching to ${mode} mode...`, 'yellow');
-            document.getElementById('mode-display').textContent = mode.toUpperCase();
-            
-            // Real command execution
-            executeCommand(`mode ${mode}`);
-        }
-        
-        function quickCmd(cmd) {
-            log(`> ${cmd}`, 'white');
-            executeCommand(cmd);
-        }
-        
-        // Command processor
-        function executeCommand(cmd) {
-            const command = cmd.toLowerCase().trim();
-            
-            switch(command) {
-                case 'help':
-                    showHelp();
-                    break;
-                case 'clear':
-                    document.getElementById('terminal').innerHTML = '';
-                    break;
-                case 'tree':
-                    log('Generating project tree...', 'cyan');
-                    log('├── uCORE/', 'green');
-                    log('├── uSCRIPT/', 'green');
-                    log('├── uSERVER/', 'green');
-                    log('├── wizard/', 'blue');
-                    log('├── sorcerer/', 'red');
-                    log('└── imp/', 'yellow');
-                    break;
-                case 'memory':
-                    log('Memory Status:', 'cyan');
-                    log('System: 85% available', 'green');
-                    log('Cache: 12MB used', 'white');
-                    break;
-                case 'dashboard':
-                    log('Dashboard modules loaded', 'green');
-                    break;
-                case 'templates':
-                    log('Template system ready', 'magenta');
-                    break;
-                default:
-                    // Try to connect to real uDOS system
-                    if (window.udosApp) {
-                        window.udosApp.executeCommand(command);
-                    } else {
-                        log(`Command "${cmd}" not recognized. Type HELP for available commands.`, 'red');
-                    }
-            }
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = '';
         }
         
         function showHelp() {
-            log('uDOS BBC Mode 7 Commands:', 'yellow');
-            log('═══════════════════════════', 'cyan');
-            log('HELP     - Show this help', 'white');
-            log('CLEAR    - Clear screen', 'white');
-            log('TREE     - Show project structure', 'white');
-            log('MEMORY   - Show memory status', 'white');
-            log('DASHBOARD- Load dashboard', 'white');
-            log('TEMPLATES- Template system', 'white');
-            log('═══════════════════════════', 'cyan');
+            addToTerminal('uDOS Console Commands:', 'info');
+            addToTerminal('  help     - Show this help', 'output');
+            addToTerminal('  clear    - Clear terminal', 'output');
+            addToTerminal('  history  - Show command history', 'output');
+            addToTerminal('  tree     - Show file tree', 'output');
+            addToTerminal('  system   - System information', 'output');
+            addToTerminal('  memory   - Memory status', 'output');
         }
         
-        // Command input handling
-        document.getElementById('command-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const cmd = this.value.trim();
-                if (cmd) {
-                    log('> ' + cmd, 'white');
-                    executeCommand(cmd);
-                    this.value = '';
+        function showCommandHistory() {
+            addToTerminal('Command History:', 'info');
+            commandHistory.slice(-10).forEach((cmd, i) => {
+                addToTerminal(`  ${i + 1}. ${cmd}`, 'output');
+            });
+        }
+        
+        function quickCmd(command) {
+            if (commandSystem) {
+                // Clear current input and execute command directly
+                const input = document.getElementById('command-input');
+                input.value = '';
+                
+                // Handle special quick commands
+                switch(command) {
+                    case 'tree':
+                        commandSystem.executeCommand('TREE generate');
+                        break;
+                    case 'log':
+                        commandSystem.executeCommand('LOG report');
+                        break;
+                    case 'dev':
+                        commandSystem.executeCommand('DEV test');
+                        break;
+                    case 'dash':
+                        commandSystem.executeCommand('DASH live');
+                        break;
+                    case 'clear':
+                        commandSystem.executeCommand('clear');
+                        break;
+                    default:
+                        commandSystem.executeCommand(command);
                 }
             }
-        });
-        
-        // Time display
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('time-display').textContent = now.toLocaleTimeString();
         }
         
-        setInterval(updateTime, 1000);
-        updateTime();
+        function showSuggestions(input) {
+            // Implementation for command suggestions
+        }
         
-        // Initialize
-        log('System initialized', 'green');
-        log('Font: MODE7GX3 with 1:1.3 aspect ratio', 'cyan');
-        document.getElementById('command-input').focus();
+        function hideSuggestions() {
+            // Implementation to hide suggestions
+        }
+        
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            indicator.style.opacity = '1';
+            setTimeout(() => {
+                indicator.style.opacity = '0.3';
+            }, 500);
+        }
+        
+        function autoComplete(input) {
+            const commands = ['help', 'clear', 'history', 'tree', 'system', 'memory'];
+            const value = input.value.toLowerCase();
+            const match = commands.find(cmd => cmd.startsWith(value));
+            if (match) {
+                input.value = match;
+            }
+        }
+        
+        function updateTime() {
+            const timeElement = document.getElementById('time-display');
+            if (timeElement) {
+                timeElement.textContent = new Date().toLocaleTimeString();
+            }
+        }
+        
+        function initializeSocket() {
+            // Socket.IO initialization if needed
+        }
     </script>
 </body>
 </html>
