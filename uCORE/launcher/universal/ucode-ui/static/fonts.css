@@ -1,0 +1,74 @@
+/* uDOS Retro Computing Font Definitions */
+
+/*
+ * AUTHENTIC BBC MICRO TELETEXT FONTS:
+ * Teletext50 - The most authentic BBC Micro Mode 7 experience!
+ * This is a pixel-perfect recreation of the Mullard SAA5050 character set
+ * used in BBC Micro Mode 7 teletext displays.
+ * 
+ * Install locally using: uCORE/bin/install-teletext50-fonts
+ * Download from: https://galax.xyz/Teletext50/
+ * 
+ * AUTHENTIC C64 FONTS AVAILABLE:
+ * For the most authentic Commodore 64 experience, download the "Pet Me 64" font
+ * from Kreative Korp: https://www.kreativekorp.com/software/fonts/c64/
+ * Install "Pet Me 64" on your system and replace 'Nova Mono' with 'Pet Me 64'
+ * in the --font-c64 definition below for true PETSCII authenticity.
+ */
+
+/* Import core retro computing fonts */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');                   /* BBC Micro/Teletext - Fallback */
+@import url('https://fonts.googleapis.com/css2?family=Nova+Mono&display=swap');              /* C64 Style - Closer to PETSCII */
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap'); /* Terminal */
+
+/* Import fonts for markdown and emoji support */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+/* uDOS Font Stack Definitions - Teletext50 as Default */
+:root {
+    /* Core retro computing fonts - Teletext50 for authentic BBC Micro Mode 7 */
+    --font-default: 'Teletext50', 'VT323', 'Monaco', 'Courier New', monospace;     /* Default: Authentic BBC Micro Mode 7 */
+    --font-teletext: 'Teletext50', 'VT323', 'Monaco', 'Courier New', monospace;    /* BBC Micro Mode 7 (Most Authentic) */
+    --font-acorn: 'Teletext50', 'VT323', 'Monaco', 'Courier New', monospace;       /* BBC Micro/Acorn (Authentic) */
+    --font-c64: 'Nova Mono', 'Monaco', 'Courier New', monospace;                   /* Commodore 64 (PETSCII-style) */
+    --font-terminal: 'Source Code Pro', 'Monaco', 'Courier New', monospace;        /* Modern Terminal */
+    
+    /* Fonts for content and UI elements */
+    --font-markdown: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --font-code: 'JetBrains Mono', 'Source Code Pro', 'Cutive Mono', monospace;
+    --font-emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+/* Font Classes for Retro Computing Systems */
+.font-default { font-family: var(--font-default); }
+.font-teletext { font-family: var(--font-teletext); }
+.font-acorn { font-family: var(--font-acorn); }
+.font-c64 { font-family: var(--font-c64); }
+.font-terminal { font-family: var(--font-terminal); }
+
+/* Content and UI Font Classes */
+.font-markdown { font-family: var(--font-markdown); }
+.font-code { font-family: var(--font-code); }
+.font-emoji { font-family: var(--font-emoji); }
+
+/* Combined font stacks for complex content */
+.font-content { 
+    font-family: var(--font-markdown), var(--font-emoji); 
+}
+.font-mono-content { 
+    font-family: var(--font-default), var(--font-emoji); 
+}
+
+/* Text styling with uDOS professional color palette */
+.text-primary { color: var(--udos-green); }     /* Forest Green (#48a56a) */
+.text-secondary { color: var(--udos-blue); }    /* Steel Blue (#6688c3) */
+.text-accent { color: var(--udos-yellow); }     /* Golden Yellow (#eaaf41) */
+.text-warning { color: var(--udos-orange); }    /* Orange (#d87538) */
+.text-error { color: var(--udos-red); }         /* Muted Red (#ce4a4a) */
+.text-info { color: var(--udos-cyan); }         /* Cyan (#4a9fb8) */
+.text-purple { color: var(--udos-purple); }     /* Soft Purple (#b25da6) */
+.text-magenta { color: var(--udos-magenta); }   /* Soft Purple (#b25da6) */
+.text-black { color: var(--udos-black); }       /* Black (#000000) */
+.text-white { color: var(--udos-white); }       /* White (#ffffff) */
+.text-grey { color: var(--udos-grey); }         /* Grey (#808080) */

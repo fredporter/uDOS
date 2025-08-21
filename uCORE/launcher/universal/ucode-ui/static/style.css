@@ -1,0 +1,726 @@
+/* uDOS Teletext Block ASCII CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* uDOS Core Rainbow Palette - Custom Professional Colors */
+:root {
+    --udos-red: #ce4a4a;        /* (206,74,74) - Muted Red */
+    --udos-green: #48a56a;      /* (72,165,106) - Forest Green */
+    --udos-blue: #6688c3;       /* (102,136,195) - Steel Blue */
+    --udos-yellow: #eaaf41;     /* (234,175,65) - Golden Yellow */
+    --udos-purple: #b25da6;     /* (178,93,166) - Soft Purple */
+    --udos-cyan: #4a9fb8;       /* Computed cyan to match palette */
+    --udos-orange: #d87538;     /* Computed orange between red/yellow */
+    --udos-magenta: #b25da6;    /* Same as purple for consistency */
+    
+    /* Additional colors */
+    --udos-black: #000000;      /* Pure Black */
+    --udos-white: #ffffff;      /* Pure White */
+    --udos-grey: #808080;       /* Medium Grey */
+    --udos-light-grey: #c0c0c0; /* Light Grey */
+    --udos-dark-grey: #404040;  /* Dark Grey */
+    
+    /* Theme Colors - Dark Mode Default */
+    --bg-dark: #000011;
+    --bg-dark-alt: #001122;
+    --bg-light: #f0f0f0;
+    --bg-light-alt: #e0e0e0;
+    
+    --text-dark: var(--udos-green);
+    --text-light: var(--udos-black);
+    --text-accent: var(--udos-white);
+    
+    /* Border Colors */
+    --border-primary: var(--udos-green);
+    --border-secondary: var(--udos-cyan);
+    
+    /* Default Font - VT323 BBC Micro Authentic */
+    --font-default: 'VT323', 'Monaco', 'Courier New', monospace;
+}
+
+body {
+    font-family: var(--font-default);
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Theme Classes - Dark Mode is Default */
+body.theme-dark, body {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+body.theme-light {
+    background: var(--bg-light);
+    color: var(--text-light);
+    --border-primary: #666666;
+    --border-secondary: #999999;
+}
+
+body.theme-mono {
+    background: #000000;
+    color: #00ff00;
+    --border-primary: #00ff00;
+    --border-secondary: #008800;
+}
+
+body.theme-professional {
+    background: #1a1a1a;
+    color: var(--udos-white);
+    --border-primary: var(--udos-green);
+    --border-secondary: var(--udos-blue);
+    --text-primary: var(--udos-green);
+    --text-secondary: var(--udos-blue);
+    --text-accent: var(--udos-yellow);
+}
+
+body.theme-rainbow {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--bg-dark-alt);
+    border-bottom: 2px solid var(--border-primary);
+    position: relative;
+}
+
+.header::before {
+    content: "████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.7;
+}
+
+/* Rainbow mode header decoration */
+body.theme-rainbow .header::before {
+    background: linear-gradient(90deg, 
+        var(--udos-red) 0%, var(--udos-orange) 14%, 
+        var(--udos-yellow) 28%, var(--udos-green) 42%, 
+        var(--udos-cyan) 57%, var(--udos-blue) 71%, 
+        var(--udos-purple) 85%, var(--udos-magenta) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-accent);
+    text-shadow: 0 0 8px var(--border-primary);
+}
+
+/* Rainbow mode title */
+body.theme-rainbow .title {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status {
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-dark);
+    position: relative;
+}
+
+.status::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 4px;
+    color: var(--border-primary);
+    opacity: 0.6;
+}
+
+.status.connected {
+    color: var(--udos-green);
+    border-color: var(--udos-green);
+    /* box-shadow: 0 0 8px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+.status.disconnected {
+    color: var(--udos-red);
+    border-color: var(--udos-red);
+    /* box-shadow: 0 0 8px rgba(255, 0, 102, 0.3); -- REMOVED */
+}
+
+.main-container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.panel {
+    border: 2px solid var(--border-primary);
+    margin: 8px;
+    padding: 16px;
+    background: var(--bg-dark-alt);
+    position: relative;
+}
+
+.panel::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-size: 4px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.4;
+}
+
+.panel::after {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 4px;
+    color: var(--border-primary);
+    text-align: center;
+    line-height: 6px;
+    opacity: 0.4;
+}
+
+/* Rainbow mode panels */
+body.theme-rainbow .panel::before,
+body.theme-rainbow .panel::after {
+    background: linear-gradient(90deg, 
+        var(--udos-red) 0%, var(--udos-orange) 14%, 
+        var(--udos-yellow) 28%, var(--udos-green) 42%, 
+        var(--udos-cyan) 57%, var(--udos-blue) 71%, 
+        var(--udos-purple) 85%, var(--udos-magenta) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.left-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-panel {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.panel h3 {
+    color: var(--text-accent);
+    margin-bottom: 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: 6px;
+    font-size: 15px;
+    text-shadow: 0 0 6px var(--border-primary);
+}
+
+/* Rainbow mode headers */
+body.theme-rainbow .panel h3 {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.panel h4 {
+    color: #ffff00;
+    margin: 10px 0 5px 0;
+    font-size: 14px;
+}
+
+.terminal-output {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 2px solid var(--border-primary);
+    padding: 12px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-output::before {
+    content: "█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.6;
+}
+
+.terminal-output::after {
+    content: "█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    font-size: 6px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.6;
+}
+
+.welcome-message {
+    color: var(--text-accent);
+    white-space: pre;
+    margin-bottom: 12px;
+    text-align: center;
+    text-shadow: 0 0 6px var(--border-primary);
+}
+
+/* Rainbow mode welcome message */
+body.theme-rainbow .welcome-message {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.command-input-container {
+    display: flex;
+    align-items: center;
+    background: var(--bg-dark);
+    padding: 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    position: relative;
+}
+
+.command-input-container::before {
+    content: "████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████";
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    font-size: 3px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.4;
+}
+
+.prompt {
+    color: var(--udos-yellow);
+    margin-right: 12px;
+    font-weight: bold;
+    text-shadow: 0 0 6px var(--udos-yellow);
+}
+
+/* Rainbow mode prompt cycling */
+body.theme-rainbow .prompt {
+    background: linear-gradient(45deg, 
+        var(--udos-red), var(--udos-orange), var(--udos-yellow), var(--udos-green), 
+        var(--udos-cyan), var(--udos-blue), var(--udos-purple), var(--udos-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    text-shadow: 0 0 4px var(--text-dark);
+}
+
+.command-input::placeholder {
+    color: rgba(0, 255, 102, 0.5);
+    font-style: italic;
+}
+
+/* Light theme input */
+body.theme-light .command-input {
+    color: var(--text-light);
+    text-shadow: none;
+}
+
+body.theme-light .command-input::placeholder {
+    color: rgba(51, 51, 51, 0.5);
+}
+
+.command-output {
+    margin: 5px 0;
+    padding: 5px;
+    border-left: 3px solid #00ff00;
+    background: #001100;
+}
+
+.command-output.error {
+    border-left-color: #ff4444;
+    color: #ff8888;
+}
+
+.command-output.success {
+    border-left-color: #00ff00;
+    color: #88ff88;
+}
+
+.status-panel, .modules-panel, .logs-panel {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #004400;
+    background: #000;
+}
+
+.status-item {
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.status-item span {
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.module-item {
+    padding: 6px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-primary);
+    text-align: center;
+    font-size: 11px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.module-item::before {
+    content: "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    font-size: 3px;
+    color: var(--border-primary);
+    text-align: center;
+    opacity: 0.5;
+}
+
+.module-item:hover {
+    background: var(--bg-dark-alt);
+    cursor: pointer;
+    border-color: var(--border-secondary);
+    /* box-shadow: 0 0 8px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+/* Rainbow mode modules */
+body.theme-rainbow .module-item:nth-child(8n+1) { border-color: var(--udos-red); }
+body.theme-rainbow .module-item:nth-child(8n+2) { border-color: var(--udos-orange); }
+body.theme-rainbow .module-item:nth-child(8n+3) { border-color: var(--udos-yellow); }
+body.theme-rainbow .module-item:nth-child(8n+4) { border-color: var(--udos-green); }
+body.theme-rainbow .module-item:nth-child(8n+5) { border-color: var(--udos-cyan); }
+body.theme-rainbow .module-item:nth-child(8n+6) { border-color: var(--udos-blue); }
+body.theme-rainbow .module-item:nth-child(8n+7) { border-color: var(--udos-purple); }
+body.theme-rainbow .module-item:nth-child(8n+8) { border-color: var(--udos-magenta); }
+
+.logs-output {
+    height: 100px;
+    overflow-y: auto;
+    background: #000;
+    border: 1px solid #004400;
+    padding: 5px;
+    font-size: 11px;
+}
+
+.log-entry {
+    margin: 2px 0;
+    padding: 2px;
+    border-bottom: 1px dotted #004400;
+}
+
+.log-entry .timestamp {
+    color: #666;
+    font-size: 10px;
+}
+
+/* Font Display Panel */
+.font-display-panel {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #004400;
+    background: #000;
+}
+
+.font-showcase {
+    margin: 10px 0;
+}
+
+.font-sample {
+    padding: 8px;
+    margin: 5px 0;
+    background: linear-gradient(45deg, #001122, #002211);
+    border: 1px solid #00ff88;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.font-sample:hover {
+    background: linear-gradient(45deg, #002244, #004422);
+    transform: scale(1.02);
+}
+
+.font-controls {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.font-btn {
+    background: #002244;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.font-btn:hover {
+    background: var(--bg-dark-alt);
+    /* box-shadow: 0 0 8px rgba(0, 255, 136, 0.3); -- REMOVED */
+}
+
+/* Theme Controls */
+.theme-controls {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.theme-btn {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    border: 1px solid var(--border-primary);
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: var(--bg-dark-alt);
+    /* box-shadow: 0 0 6px rgba(0, 255, 102, 0.3); -- REMOVED */
+}
+
+.theme-btn.active {
+    background: var(--border-primary);
+    color: var(--bg-dark);
+}
+
+/* Remove all remaining animations and rainbow mode enhancements */
+body.rainbow-mode {
+    /* Static rainbow mode - no animations */
+    animation: none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-secondary);
+}
+
+.assist-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: #000044;
+    border-top: 2px solid #0088ff;
+    padding: 15px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.assist-panel.active {
+    transform: translateY(0);
+}
+
+.assist-panel h3 {
+    color: #0088ff;
+    margin-bottom: 10px;
+}
+
+.assist-content {
+    color: #88ccff;
+}
+
+.assist-content button {
+    background: #004488;
+    color: #88ccff;
+    border: 1px solid #0088ff;
+    padding: 8px 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.assist-content button:hover {
+    background: #0066cc;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #001100;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #004400;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #006600;
+}
+
+/* Animation effects - DISABLED for clean teletext aesthetic */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.status {
+    /* animation: blink 2s infinite; -- REMOVED */
+    opacity: 1; /* Static opacity instead of blinking */
+}
+
+/* Text effects - DISABLED for clean appearance */
+.title, .panel h3 {
+    /* text-shadow: 0 0 10px currentColor; -- REMOVED */
+    text-shadow: none; /* Clean text without glow */
+}
+
+/* ASSIST MODE Integration */
+.assist-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: var(--bg-dark-alt);
+    border-top: 2px solid var(--udos-cyan);
+    padding: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.assist-panel.active {
+    transform: translateY(0);
+}
+
+.assist-panel h3 {
+    color: var(--udos-cyan);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.assist-content {
+    color: var(--text-dark);
+}
+
+.assist-content button {
+    background: var(--bg-dark);
+    color: var(--udos-cyan);
+    border: 1px solid var(--udos-cyan);
+    padding: 6px 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.assist-content button:hover {
+    background: var(--bg-dark-alt);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .left-panel, .right-panel {
+        flex: none;
+        height: 50%;
+    }
+    
+    .module-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .font-controls, .theme-controls {
+        flex-direction: column;
+    }
+}

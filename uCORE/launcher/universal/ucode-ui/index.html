@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewpor                             <!-- Font Display Panel (Info Only) -->
+                <div class="font-display-panel">
+                    <h4>📺 Authentic Retro Computing Fonts</h4>
+                    <div class="font-showcase">
+                        <div class="font-sample font-teletext">Current: Teletext50 Mode 7 📺</div>
+                        <div class="font-sample font-markdown">Use 'font' command to switch fonts</div>
+                    </div>
+                </div>
+
+                <!-- Theme Controls Panel -->
+                <div class="theme-controls-panel">
+                    <h4>🎨 Interface Themes</h4>
+                    <div class="theme-controls">
+                        <button onclick="setTheme('dark')" class="theme-btn" id="theme-dark">🌙 Dark</button>
+                        <button onclick="setTheme('light')" class="theme-btn" id="theme-light">☀️ Light</button>
+                        <button onclick="setTheme('professional')" class="theme-btn active" id="theme-professional">💼 Pro</button>
+                        <button onclick="setTheme('rainbow')" class="theme-btn" id="theme-rainbow">🌈 Rainbow</button>
+                    </div>
+                </div>nt Display Panel -->
+                <div class="font-display-panel">
+                    <h4>🎮 Retro Computing Fonts</h4>
+                    <div class="font-showcase">
+                        <div class="font-sample font-terminal text-primary">Terminal: Source Code Pro</div>
+                        <div class="font-sample font-bbs text-secondary">BBS/ANSI: Share Tech Mono</div>
+                        <div class="font-sample font-c64 text-accent">C64: Courier Prime</div>
+                        <div class="font-sample font-acorn text-purple">Acorn: Cutive Mono</div>
+                        <div class="font-sample font-display text-error">Display: Major Mono</div>
+                    </div>
+                    <div class="font-controls">
+                        <button onclick="cycleFont()" class="font-btn">🔄 Cycle Font</button>
+                    </div>
+                </div>dth=device-width, initial-scale=1.0">
+    <title>uDOS - Universal Development Operating System</title>
+    <link rel="stylesheet" href="/static/fonts.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="title">uDOS v1.3 - DEV MODE</div>
+            <div class="status" id="status">●●● CONNECTING</div>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="main-container">
+            <!-- Left Panel: Command Interface -->
+            <div class="panel left-panel">
+                <h3>📟 COMMAND INTERFACE</h3>
+                <div class="terminal-output" id="terminal-output">
+                    <div class="welcome-message">
+╔══════════════════════════════════════════════════════════════════════════════════════╗
+║  ██╗   ██╗██████╗  ██████╗ ███████╗    ██╗   ██╗ ██╗  ██████╗                       ║
+║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝    ██║   ██║███║ ██╔════╝                       ║
+║  ██║   ██║██║  ██║██║   ██║███████╗    ██║   ██║╚██║ ╚█████╗                        ║
+║  ██║   ██║██║  ██║██║   ██║╚════██║    ╚██╗ ██╔╝ ██║  ╚═══██╗                       ║
+║  ╚██████╔╝██████╔╝╚██████╔╝███████║     ╚████╔╝  ██║ ██████╔╝                       ║
+║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝      ╚═══╝   ╚═╝ ╚═════╝                        ║
+║                                                                                      ║
+║  ▓▓▓ UNIVERSAL DEVELOPMENT OPERATING SYSTEM ▓▓▓                                     ║
+║  ░░░ Omni-Device uCODE Window v1.0 ░░░                                              ║
+║                                                                                      ║
+║  🌈 Rainbow Block Graphics Mode: ACTIVE                                             ║
+║  🚀 Whirlwind Prompt System: ENGAGED                                                ║
+║  🤖 ASSIST MODE: Ready for Integration                                              ║
+╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+🎯 DEV MODE ACTIVATED - Type 'help' for available commands...
+💫 Dynamic prompts enabled - Watch the prompt change with your mode!
+                    </div>
+                </div>
+                <div class="command-input-container">
+                    <span class="prompt" id="dynamic-prompt">🌟 uDOS:DEV $</span>
+                    <input type="text" id="command-input" class="command-input" placeholder="Enter command... (try: help, status, rainbow)" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Right Panel: System Monitor -->
+            <div class="panel right-panel">
+                <h3>📊 SYSTEM MONITOR</h3>
+                
+                <!-- Status Panel -->
+                <div class="status-panel">
+                    <h4>Status</h4>
+                    <div id="system-status">
+                        <div class="status-item">Mode: <span id="mode">DEV</span></div>
+                        <div class="status-item">Clients: <span id="clients">0</span></div>
+                        <div class="status-item">Modules: <span id="modules">Loading...</span></div>
+                    </div>
+                </div>
+
+                <!-- Modules Panel -->
+                <div class="modules-panel">
+                    <h4>🌈 uDOS Modules</h4>
+                    <div class="module-grid">
+                        <div class="module-item">📦 uCORE</div>
+                        <div class="module-item">🌐 uSERVER</div>
+                        <div class="module-item">📜 uSCRIPT</div>
+                        <div class="module-item">🧠 uMEMORY</div>
+                        <div class="module-item">👻 ghost</div>
+                        <div class="module-item">🔮 sorcerer</div>
+                        <div class="module-item">😈 imp</div>
+                        <div class="module-item">⚰️ tomb</div>
+                        <div class="module-item">🚁 drone</div>
+                        <div class="module-item">🧙‍♂️ wizard</div>
+                        <div class="module-item">🗑️ trash</div>
+                        <div class="module-item">📖 uKNOWLEDGE</div>
+                    </div>
+                </div>
+
+                <!-- Logs Panel -->
+                <div class="logs-panel">
+                    <h4>Live Logs</h4>
+                    <div class="logs-output" id="logs-output"></div>
+                </div>
+
+                <!-- Font Display Panel -->
+                <div class="font-display-panel">
+                    <h4>📺 Authentic Retro Computing Fonts</h4>
+                    <div class="font-showcase">
+                        <div class="font-sample font-teletext">Default: Teletext50 Mode 7 �</div>
+                        <div class="font-sample font-c64">C64: Nova Mono (PETSCII-style) 🕹️</div>
+                        <div class="font-sample font-terminal">Terminal: Source Code Pro 💻</div>
+                        <div class="font-sample font-markdown">Markdown: Inter + Emoji 📝✨</div>
+                    </div>
+                </div>
+
+                <!-- Theme Controls Panel -->
+                <div class="theme-controls-panel">
+                    <h4>🎨 Interface Themes</h4>
+                    <div class="theme-controls">
+                        <button onclick="setTheme('dark')" class="theme-btn active" id="theme-dark">🌙 Dark</button>
+                        <button onclick="setTheme('light')" class="theme-btn" id="theme-light">☀️ Light</button>
+                        <button onclick="setTheme('professional')" class="theme-btn" id="theme-professional">💼 Pro</button>
+                        <button onclick="setTheme('rainbow')" class="theme-btn" id="theme-rainbow">🌈 Rainbow</button>
+                    </div>
+                </div>
+
+                <!-- Font Controls Panel (Bottom) -->
+                <div class="font-controls-panel">
+                    <h4>🔄 Font Switching</h4>
+                    <div class="font-controls">
+                        <button onclick="cycleFont()" class="font-btn" id="cycle-font-btn">🔄 Teletext50 (1/3)</button>
+                        <button onclick="resetToDefault()" class="font-btn">📺 Default</button>
+                        <button onclick="installTeletext50()" class="font-btn">📥 Install Fonts</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASSIST MODE Integration -->
+        <div class="assist-panel" id="assist-panel">
+            <h3>🤖 ASSIST MODE (Copilot Integration)</h3>
+            <div class="assist-content">
+                <p>💡 This panel can integrate with VS Code Copilot Chat</p>
+                <p>🔗 Use the VS Code extension API to embed chat here</p>
+                <button onclick="toggleAssist()">Toggle Assist Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

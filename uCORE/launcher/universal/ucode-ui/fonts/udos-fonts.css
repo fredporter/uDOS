@@ -1,0 +1,103 @@
+/* uDOS Font Definitions */
+
+/* Import Google Fonts for retro computing aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nova+Mono&display=swap');
+
+/* uDOS Font Stack Definitions */
+:root {
+    /* Primary uDOS font stacks */
+    --font-primary: 'JetBrains Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    --font-terminal: 'VT323', 'Share Tech Mono', 'Courier New', monospace;
+    --font-display: 'Orbitron', 'Arial', sans-serif;
+    --font-retro: 'Space Mono', 'Nova Mono', monospace;
+    --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    
+    /* Font weights */
+    --weight-light: 300;
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
+    --weight-black: 900;
+}
+
+/* Font Classes for Dynamic Switching */
+.font-primary { font-family: var(--font-primary); }
+.font-terminal { font-family: var(--font-terminal); }
+.font-display { font-family: var(--font-display); }
+.font-retro { font-family: var(--font-retro); }
+.font-system { font-family: var(--font-system); }
+
+/* Font Size Classes */
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.text-4xl { font-size: 2.25rem; }
+
+/* Font Weight Classes */
+.font-light { font-weight: var(--weight-light); }
+.font-normal { font-weight: var(--weight-normal); }
+.font-medium { font-weight: var(--weight-medium); }
+.font-bold { font-weight: var(--weight-bold); }
+.font-black { font-weight: var(--weight-black); }
+
+/* Special uDOS Font Effects */
+.font-glow {
+    text-shadow: 0 0 10px currentColor;
+}
+
+.font-neon {
+    text-shadow: 
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 20px currentColor;
+}
+
+.font-retro-glow {
+    text-shadow: 
+        0 0 2px #00ff88,
+        0 0 4px #00ff88,
+        0 0 8px #00ff88,
+        0 0 16px #00ff88;
+}
+
+.font-rainbow {
+    background: linear-gradient(45deg, #ff0088, #8800ff, #0088ff, #00ff88, #ffff00, #ff8800);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fontRainbow 3s ease-in-out infinite;
+}
+
+@keyframes fontRainbow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ASCII Art Font Styles */
+.ascii-art {
+    font-family: 'VT323', monospace;
+    line-height: 0.8;
+    letter-spacing: -1px;
+}
+
+.ascii-banner {
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 1;
+    white-space: pre;
+}
+
+.ascii-block {
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    letter-spacing: 0;
+}
