@@ -79,35 +79,71 @@ generate_with_find_command() {
         cd "$UDOS_ROOT"
         echo "$(basename "$UDOS_ROOT")/"
         
-        # Generate directory structure
+        # Generate ASCII tree structure with proper indentation and tree characters
         find . -type d -name '.git' -prune -o -type d -print | 
         grep -v '^\.$' |
         sed 's|^\./||' | 
         sort | 
         while IFS= read -r dir; do
+            if [ -z "$dir" ]; then continue; fi
+            
             # Count directory depth
             depth=$(echo "$dir" | tr -cd '/' | wc -c)
-            indent=""
+            dirname=$(basename "$dir")
+            
+            # Build tree prefix based on depth
+            prefix=""
             for ((i=0; i<depth; i++)); do
-                indent="  $indent"
+                if [ $i -eq $((depth-1)) ]; then
+                    prefix="${prefix}├── "
+                else
+                    prefix="${prefix}│   "
+                fi
             done
-            echo "${indent}$(basename "$dir")/"
+            
+            echo "$prefix$dirname/"
         done
         
         echo ""
-        echo "Key configuration files:"
+        echo "📄 Key configuration files:"
         find . -maxdepth 2 -type f \( -name "*.md" -o -name "*.json" -o -name "*.yml" -o -name "*.yaml" \) |
         grep -v '.git' |
         sort |
-        sed 's|^\./|  |'
+        head -15 |
+        while IFS= read -r file; do
+            filename=$(echo "$file" | sed 's|^\./||')
+            echo "├── 📄 $filename"
+        done
         
         echo ""
-        echo "Main executable scripts:"
+        echo "🔧 Main executable scripts:"
         find . -maxdepth 3 -type f -name "*.sh" -perm +111 |
         grep -v '.git' |
-        head -20 |
+        head -15 |
         sort |
-        sed 's|^\./|  |'
+        while IFS= read -r file; do
+            filename=$(echo "$file" | sed 's|^\./||')
+            echo "├── 🔧 $filename"
+        done
+        
+        echo ""
+        echo "📁 Directory summary (first 3 levels):"
+        find . -maxdepth 3 -type d -name '.git' -prune -o -type d -print |
+        grep -v '^\.$' |
+        sed 's|^\./||' |
+        sort |
+        head -30 |
+        while IFS= read -r dir; do
+            depth=$(echo "$dir" | tr -cd '/' | wc -c)
+            if [ $depth -le 2 ]; then
+                dirname=$(basename "$dir")
+                indent=""
+                for ((i=0; i<depth; i++)); do
+                    indent="$indent  "
+                done
+                echo "├──$indent📁 $dirname/"
+            fi
+        done
     )
 }
 
