@@ -4,17 +4,18 @@
 
 VERSION="1.3.3"
 BUILD_DATE="2025-08-23"
-BUILD_NAME="Enhanced Workflow, Multi-Role Architecture, Undo/Redo System"
+BUILD_NAME="uGRID Display System, Documentation Modernization, uHEX v7.0"
 
 # Major Features in v1.3.3:
-# - Enhanced Workflow System with Assist Mode (OI) and Command Mode (IO)
-# - Complete uMEMORY reorganization with centralized logging
-# - Multi-role architecture with 8 security levels (wizard→crypt)
-# - Integrated undo/redo system with session-based state management
-# - Enhanced backup system v1.4.0 with encryption and role policies
-# - Move logging integration throughout uCORE operations
-# - Destroy/Restore/Repair operations with comprehensive logging
-# - Cleanup of legacy role folders - now using uMEMORY/sandbox layering
+# - uGRID Display System: Comprehensive tile-based architecture with 4× resolution
+# - Documentation Library: Flat structure with role-based learning paths
+# - uHEX Filename Convention v7.0: Optimized types (uWORK, uBRIEF, uTEMP)
+# - uDATA Format Integration: JSON processing standards for system data
+# - Comprehensive Style Guide: Complete v1.3.3 standards consolidation
+# - uMAP Location System: Advanced coordinate mapping with named regions
+# - Multi-device Support: 8 device classes from wearable to wallboard
+# - Widget System: Static, interactive, dynamic, composite, overlay widgets
+# - Performance Optimization: 60 FPS rendering with dirty rectangle updates
 
 COMPATIBILITY="macOS 10.15+, Python 3.8+"
 ARCHITECTURE="Universal (ARM64/x86_64)"
