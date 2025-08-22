@@ -1,4 +1,4 @@
-# uDOS Documentation Library
+# uDOS Documentation Library v1.3.3
 
 **Comprehensive documentation organized for efficient learning and reference**
 
@@ -14,63 +14,47 @@
     ════════════════════════════════════════════════════════════════════════════════════════
 ```
 
-**Version**: 1.3.0  
-**Updated**: August 20, 2025  
-**Organization**: Professional Documentation Library  
-**Access**: Role-based learning paths
+**Version**: 1.3.3
+**Updated**: August 23, 2025
+**Organization**: Flat directory structure for easy access
+**Access**: Role-based learning paths with comprehensive v1.3.3 standards
 
 ---
 
-## 📚 Library Organization
+## 📚 Documentation Library (Flat Structure)
 
-### 📖 [User Guides](user-guides/) - End-User Documentation
-*Start here for practical uDOS usage*
-
-| Document | Description | Audience | Updated |
-|----------|-------------|-----------|---------|
-| **[USER-GUIDE.md](user-guides/USER-GUIDE.md)** | Complete user manual and getting started guide | All Users | Aug 2025 |
-| **[uScript-VB-Commands.md](user-guides/uScript-VB-Commands.md)** | Comprehensive Visual Basic-style commands reference | All Users | Aug 2025 |
-
-**Quick Start Path**: USER-GUIDE.md → uScript-VB-Commands.md
-
-### 🏗️ [Technical](technical/) - Architecture & Concepts
-*Deep dive into system architecture and core concepts*
+### 👤 User Documentation
+*Essential guides for all uDOS users*
 
 | Document | Description | Audience | Updated |
 |----------|-------------|-----------|---------|
-| **[ARCHITECTURE.md](technical/ARCHITECTURE.md)** | Complete system architecture overview | Developers | Aug 2025 |
-| **[uDOS-Concepts-v1.3.md](technical/uDOS-Concepts-v1.3.md)** | Core concepts and design philosophy | All Users | Aug 2025 |
-| **[Smart-Input-System.md](technical/Smart-Input-System.md)** | Advanced input capabilities and forms | Developers | Aug 2025 |
+| **[USER-GUIDE.md](USER-GUIDE.md)** | Complete user manual and getting started guide | All Users | Aug 2025 |
+| **[uCODE-MANUAL.md](uCODE-MANUAL.md)** | Comprehensive uCODE command reference | All Users | Aug 2025 |
 
-**Learning Path**: uDOS-Concepts-v1.3.md → ARCHITECTURE.md → Smart-Input-System.md
+**Start Here**: USER-GUIDE.md → uCODE-MANUAL.md
 
-### 🛠️ [Development](development/) - Developer Resources
-*Essential guides for uDOS development*
-
-| Document | Description | Audience | Updated |
-|----------|-------------|-----------|---------|
-| **[uCode-Developer-Guide.md](development/uCode-Developer-Guide.md)** | Complete developer workflow guide | Developers | Aug 2025 |
-| **[VS-Code-Dev-Mode-Guide.md](development/VS-Code-Dev-Mode-Guide.md)** | VS Code integration and setup | Developers | Aug 2025 |
-
-**Development Path**: uCode-Developer-Guide.md → VS-Code-Dev-Mode-Guide.md
-
-### 📋 [Reference](reference/) - Standards & Conventions
-*Authoritative reference for standards and templates*
+### 🏗️ Technical Documentation
+*Architecture, systems, and core concepts*
 
 | Document | Description | Audience | Updated |
 |----------|-------------|-----------|---------|
-| **[Filename-Convention.md](reference/Filename-Convention.md)** | File naming standards and location codes | All Users | Aug 2025 |
-| **[Markdown-Spec.md](reference/Markdown-Spec.md)** | Documentation formatting standards | Content Creators | Aug 2025 |
-| **[Style-Guide.md](reference/Style-Guide.md)** | Writing and presentation standards | Content Creators | Aug 2025 |
-| **[Template-Standard.md](reference/Template-Standard.md)** | Template system and standards | Developers | Aug 2025 |
-| **[uDOS-Repository-Structure.md](reference/uDOS-Repository-Structure.md)** | Repository organization guide | Developers | Aug 2025 |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | Complete system architecture overview | Developers | Aug 2025 |
+| **[Smart-Input-System.md](Smart-Input-System.md)** | Advanced input capabilities and forms | Developers | Aug 2025 |
+| **[Grid-Display-Specs.md](Grid-Display-Specs.md)** | uGRID tile-based display system specification | Developers | Aug 2025 |
+| **[User-Authentication-System.md](User-Authentication-System.md)** | Authentication and security systems | Administrators | Aug 2025 |
+| **[User-Role-Capabilities.md](User-Role-Capabilities.md)** | Role-based access and capabilities | Administrators | Aug 2025 |
 
-**Reference Path**: Browse by need or follow Style-Guide.md → Markdown-Spec.md → Template-Standard.md
+**Learning Path**: ARCHITECTURE.md → Grid-Display-Specs.md → Smart-Input-System.md
 
-### � [Technical](technical/) - System Architecture & Analysis
-*Deep technical documentation and system analysis*
+### 📋 Standards & Reference
+*Style guides, templates, and conventions*
 
-| Document | Description | Audience | Status |
+| Document | Description | Audience | Updated |
+|----------|-------------|-----------|---------|
+| **[STYLE-GUIDE.md](STYLE-GUIDE.md)** | Comprehensive uDOS v1.3.3 style guide with uHEX, uCODE, Mode 7 design | All Users | Aug 2025 |
+| **[Template-Standard.md](Template-Standard.md)** | Template system and standards | Developers | Aug 2025 |
+
+**Reference**: STYLE-GUIDE.md (comprehensive v1.3.3 standards) → Template-Standard.md
 
 ---
 
@@ -80,47 +64,49 @@
 **Full access to all documentation with administrative focus**
 
 ```
-Start Here → Complete Path
-├── user-guides/USER-GUIDE.md (System Overview)
-├── technical/ARCHITECTURE.md (System Design)
-├── development/uCode-Developer-Guide.md (Development Control)
-├── reference/ (All Standards and Conventions)
-└── Advanced: System administration and user management
+Complete System Mastery
+├── USER-GUIDE.md (System Overview)
+├── ARCHITECTURE.md (System Design)
+├── User-Role-Capabilities.md (Role Management)
+├── User-Authentication-System.md (Security)
+├── STYLE-GUIDE.md (v1.3.3 Standards)
+└── uCODE-MANUAL.md (Complete Command Reference)
 ```
 
 ### 🔮 Sorcerer (Extension Developer)
 **Development-focused learning path**
 
 ```
-Developer Path → Extension Mastery
-├── user-guides/uScript-VB-Commands.md (Command Mastery)
-├── technical/Smart-Input-System.md (Advanced Features)
-├── development/VS-Code-Dev-Mode-Guide.md (Development Environment)
-├── reference/Template-Standard.md (Extension Standards)
-└── Advanced: Extension development and deployment
+Development Mastery
+├── uCODE-MANUAL.md (Command Mastery)
+├── Smart-Input-System.md (Advanced Features)
+├── Grid-Display-Specs.md (uGRID Display System)
+├── Template-Standard.md (Development Standards)
+├── ARCHITECTURE.md (System Understanding)
+└── STYLE-GUIDE.md (v1.3.3 Coding Standards)
 ```
 
 ### 👨‍🎓 Apprentice (Learning Mode)
 **Guided learning with safe experimentation**
 
 ```
-Learning Path → Practical Skills
-├── user-guides/USER-GUIDE.md (Getting Started)
-├── user-guides/uScript-VB-Commands.md (Command Practice)
-├── technical/uDOS-Concepts-v1.3.md (Understanding Concepts)
-├── reference/Style-Guide.md (Communication Standards)
-└── Practice: Sandbox experimentation and guided tutorials
+Learning Foundation
+├── USER-GUIDE.md (Getting Started)
+├── uCODE-MANUAL.md (Command Practice)
+├── STYLE-GUIDE.md (Communication Standards)
+└── Template-Standard.md (Best Practices)
 ```
 
 ### 📚 Scholar (Research Focus)
 **Research and knowledge management emphasis**
 
 ```
-Research Path → Knowledge Mastery
-├── technical/uDOS-Concepts-v1.3.md (Conceptual Foundation)
-├── user-guides/uScript-VB-Commands.md (Research Tools)
-├── reference/Markdown-Spec.md (Documentation Standards)
-└── Focus: Knowledge organization and research workflows
+Knowledge Mastery
+├── USER-GUIDE.md (Conceptual Foundation)
+├── uCODE-MANUAL.md (Research Tools)
+├── Smart-Input-System.md (Advanced Features)
+├── STYLE-GUIDE.md (Documentation Standards)
+└── Template-Standard.md (Knowledge Organization)
 ```
 
 ---
@@ -143,16 +129,16 @@ Research Path → Knowledge Mastery
 ### Common Learning Patterns
 ```bash
 # New user onboarding
-1. Read user-guides/USER-GUIDE.md
-2. Practice with user-guides/uScript-VB-Commands.md
-3. Explore technical/uDOS-Concepts-v1.3.md
-4. Reference as needed from reference/
+1. Read USER-GUIDE.md
+2. Practice with uCODE-MANUAL.md
+3. Reference STYLE-GUIDE.md for standards
+4. Explore specific technical docs as needed
 
 # Developer onboarding
-1. Read development/uCode-Developer-Guide.md
-2. Setup with development/VS-Code-Dev-Mode-Guide.md
-3. Study technical/ARCHITECTURE.md
-4. Follow standards in reference/Template-Standard.md
+1. Read ARCHITECTURE.md
+2. Study Grid-Display-Specs.md (uGRID system)
+3. Practice with Smart-Input-System.md
+4. Follow Template-Standard.md for development
 ```
 
 ---
@@ -160,19 +146,19 @@ Research Path → Knowledge Mastery
 ## 📈 Documentation Metrics
 
 ### Coverage
-- **User Guides**: 2 comprehensive documents covering all user needs
-- **Technical**: 3 detailed architecture and concept documents
-- **Development**: 2 complete developer workflow guides
-- **Reference**: 5 authoritative standards and convention documents
-- **Legacy**: 3 historical documents for migration context
+- **User Documentation**: 2 comprehensive documents covering all user needs
+- **Technical Documentation**: 5 detailed architecture and system documents
+- **Standards & Reference**: 2 authoritative standards and convention documents
+- **Total**: 9 core documents in flat, accessible structure
 
 ### Maintenance
-- **Update Frequency**: Monthly review and updates
+- **Update Frequency**: Monthly review and updates for v1.3.3 compliance
 - **Version Control**: All changes tracked with detailed commit messages
 - **Quality Assurance**: Documentation reviewed and validated through wizard workflow
-- **User Feedback**: Continuous improvement based on user needs
+- **User Feedback**: Continuous improvement based on role-specific user needs
 
 ### Accessibility
+- **Flat Structure**: All documents in single /docs directory for easy access
 - **Role-Based Access**: Clear learning paths for each user role
 - **Search Integration**: Full-text search across all documentation
 - **Cross-References**: Extensive linking between related documents
@@ -227,12 +213,12 @@ Research Path → Knowledge Mastery
 ```ascii
     ╔══════════════════════════════════════════════════════════════════════════════╗
     ║                                                                              ║
-    ║     🌟 Your Complete uDOS Knowledge Center 🌟                              ║
+    ║     🌟 Your Complete uDOS v1.3.3 Knowledge Center 🌟                       ║
     ║                                                                              ║
     ║   This documentation library provides comprehensive, role-based learning    ║
     ║   paths for all uDOS users. From quick command references to deep          ║
-    ║   architectural insights, everything is organized for efficient learning    ║
-    ║   and productive daily use.                                                 ║
+    ║   architectural insights, everything is organized in a flat, accessible     ║
+    ║   structure for efficient learning and productive daily use.                ║
     ║                                                                              ║
     ║          📚 Learn, Reference, Master - Documentation Done Right 📚          ║
     ║                                                                              ║
@@ -241,6 +227,6 @@ Research Path → Knowledge Mastery
 
 ---
 
-*uDOS Documentation Library v1.3*  
-*Professional Documentation Organization for Efficient Learning*  
-*August 20, 2025*
+*uDOS Documentation Library v1.3.3*
+*Flat Structure Organization for Efficient Access*
+*August 23, 2025*

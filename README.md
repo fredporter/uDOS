@@ -1,6 +1,6 @@
-# uDOS v1.3.1 - Universal Device Operating System
+# uDOS v1.3.3 - Universal Device Operating System
 
-**A globally-aware, timezone-integrated development platform with AI-enhanced workflows and wizard user capabilities.**
+**A globally-aware, timezone-integrated development platform with AI-enhanced workflows and comprehensive tile-based display system.**
 
 ```
     ██╗   ██╗██████╗  ██████╗ ███████╗
@@ -11,39 +11,59 @@
      ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 
     Universal Device Operating System
-    ═══════════════ v1.3.1 ══════════════
+    ═══════════════ v1.3.3 ══════════════
 ```
 
 ---
 
-## [ ] Documentation System
+## 📚 Documentation System
 
-*Manual Shelf: pick your guide, from quick start to deep architecture*
+*Comprehensive documentation library with flat structure for easy access*
 
 ```
 ┌──────────────────────────────┐
 │ uDOS Documentation Library   │
-│ Practical Guides & Standards │
+│ v1.3.3 Standards & Guides   │
 └──────────────────────────────┘
 ```
 
-- **[ARCHITECTURE Guide](docs/technical/ARCHITECTURE.md)** [10-50-00] – System architecture explained  
-- **[Core Concepts](docs/technical/Core-Concepts.md)** [10-50-01] – Foundations and philosophy  
-- **[User Guide](docs/user-guides/USER-GUIDE.md)** [10-50-03] – Practical user manual  
-- **[Wizard README](wizard/README.md)** [50-00-00] – Developer environment details  
-- **[uCode Developer Guide](docs/development/uCode-Developer-Guide.md)** [10-50-02] – Writing and extending uCode  
-- **[VS Code Dev Mode Guide](docs/development/VS-Code-Dev-Mode-Guide.md)** [10-10-05] – Editor integration  
-- **[Smart Input System](docs/technical/Smart-Input-System.md)** [10-30-00] – Input/output design  
-- **[Template Standard](docs/reference/Template-Standard.md)** [10-40-00] – Templates and consistency  
-- **[Markdown Spec](docs/reference/Markdown-Spec.md)** [10-50-01] – Documentation format  
-- **[Filename Convention](docs/reference/Filename-Convention.md)** [10-50-04] – Naming standards  
-- **[Style Guide](docs/reference/Style-Guide.md)** [10-50-02] – Coding and writing style  
+- **[Documentation Library](docs/README.md)** [10-50-00] – Complete documentation index with role-based learning paths
+- **[User Guide](docs/USER-GUIDE.md)** [10-50-03] – Practical user manual and getting started  
+- **[uCODE Manual](docs/uCODE-MANUAL.md)** [10-50-05] – Complete command reference and syntax
+- **[Architecture Guide](docs/ARCHITECTURE.md)** [10-50-01] – System architecture explained  
+- **[uGRID Display System](docs/Grid-Display-Specs.md)** [10-50-06] – Tile-based display architecture
+- **[Smart Input System](docs/Smart-Input-System.md)** [10-30-00] – Advanced input capabilities
+- **[Style Guide](docs/STYLE-GUIDE.md)** [10-50-02] – Comprehensive v1.3.3 standards with uHEX, uCODE, Mode 7
+- **[Template Standard](docs/Template-Standard.md)** [10-40-00] – Templates and consistency
+- **[User Authentication](docs/User-Authentication-System.md)** [10-30-01] – Security and authentication
+- **[User Role Capabilities](docs/User-Role-Capabilities.md)** [10-30-02] – Role-based access system  
 
-## 🚀 What's New in v1.3.1
+## 🚀 What's New in v1.3.3
 
 ### ✨ Major Features
 
-#### 🎨 Font System Optimization
+#### 🎨 uGRID Display System
+- **Tile-Based Architecture**: Comprehensive 16×16 uCELL grid system with 4× resolution enhancement
+- **uMAP Location System**: Advanced coordinate mapping with named regions and navigation
+- **Multi-Device Support**: 8 device classes from wearable (16×16) to wallboard (160×60)
+- **Widget System**: Static, interactive, dynamic, composite, and overlay widgets
+- **Screen Management**: Multiple screen contexts with smooth transitions
+- **Performance Optimized**: 60 FPS rendering with dirty rectangle updates
+
+#### 📚 Documentation Modernization  
+- **Flat Structure**: Simplified /docs organization for direct access
+- **Comprehensive Style Guide**: Complete v1.3.3 standards with uHEX filename convention v7.0
+- **uDATA Format**: Integrated JSON processing standards for system data
+- **Role-Based Learning**: Structured paths for Wizard, Sorcerer, Apprentice, Scholar roles
+- **Cross-Referenced**: Extensive linking between all documentation
+
+#### 🔤 uHEX Filename Convention v7.0
+- **Optimized Types**: Shorter, clearer prefixes (uWORK, uBRIEF, uTEMP)
+- **Character Budget**: 34-37 character optimal range for maximum compatibility
+- **Metadata Encoding**: Temporal-spatial organization with role-based access
+- **uCORE Integration**: Complete command support for generation and validation
+
+#### 🎨 Font System Optimization (Legacy v1.3.1)
 - **Streamlined Font Library**: Removed legacy Amiga, C64, and redundant Mode 7 fonts
 - **System Font Integration**: Added 10 professional system fonts (Monaco, Menlo, SF Mono, etc.)
 - **Programming Font Support**: Fira Code, JetBrains Mono, Source Code Pro
@@ -378,37 +398,37 @@ Direct access to Gemini CLI integration
 - **👨‍🎓 Apprentice**: Learning-focused interface with guidance
 - **📚 Scholar**: Research tools and knowledge management
 
-## � Documentation & Standards
+## 📚 Documentation & Standards
 
-### 📋 Core Documentation [10-50-00]
-- **[Markdown Standard v1.2](uCORE/docs/uDOS-Markdown-Standard.md)** [10-50-01] - Documentation formatting standards
-- **[Location Map](uCORE/docs/uDOS-Location-Map.md)** [10-50-04] - Complete system mapping with location codes
-- **[Development Guide](uCORE/docs/Development-Guide.md)** [10-50-02] - Developer workflow and best practices
-- **[User Manual](uCORE/docs/User-Manual.md)** [10-50-03] - Complete user documentation
+### 📋 Core Documentation Library [10-50-00]
+*All documentation now in flat /docs structure for easy access*
 
-### � Implementation Summaries
-- **[Cross-Platform Launcher](CROSS_PLATFORM_LAUNCHER_SUMMARY.md)** [00-21-00] - Launcher system implementation
-- **[Documentation Standards](DOCUMENTATION_STANDARDS_SUMMARY.md)** [00-22-00] - Standards implementation details
+- **[Documentation Library](docs/README.md)** [10-50-00] - Complete v1.3.3 documentation index
+- **[User Guide](docs/USER-GUIDE.md)** [10-50-03] - Comprehensive user manual  
+- **[uCODE Manual](docs/uCODE-MANUAL.md)** [10-50-05] - Complete command reference
+- **[Architecture Guide](docs/ARCHITECTURE.md)** [10-50-01] - System architecture overview
+- **[uGRID Display System](docs/Grid-Display-Specs.md)** [10-50-06] - Tile-based display specification
+- **[Style Guide](docs/STYLE-GUIDE.md)** [10-50-02] - v1.3.3 standards with uHEX v7.0, uDATA, Mode 7
 
 ## [ ] Documentation System
 
 ```
 ┌──────────────────────────────┐
 │ uDOS Documentation Library   │
-│ Practical Guides & Standards │
+│ v1.3.3 Comprehensive Guides │
 └──────────────────────────────┘
 ```
 
-- **[ARCHITECTURE Guide](docs/technical/ARCHITECTURE.md)** [10-50-00] – System architecture explained  
-- **[Core Concepts](docs/technical/Core-Concepts.md)** [10-50-01] – Foundations and philosophy  
-- **[User Guide](docs/user-guides/USER-GUIDE.md)** [10-50-03] – Practical user manual  
-- **[uCode Developer Guide](docs/development/uCode-Developer-Guide.md)** [10-50-02] – Writing and extending uCode  
-- **[VS Code Dev Mode Guide](docs/development/VS-Code-Dev-Mode-Guide.md)** [10-10-05] – Editor integration  
-- **[Smart Input System](docs/technical/Smart-Input-System.md)** [10-30-00] – Input/output design  
-- **[Template Standard](docs/reference/Template-Standard.md)** [10-40-00] – Templates and consistency  
-- **[Markdown Spec](docs/reference/Markdown-Spec.md)** [10-50-01] – Documentation format  
-- **[Filename Convention](docs/reference/Filename-Convention.md)** [10-50-04] – Naming standards  
-- **[Style Guide](docs/reference/Style-Guide.md)** [10-50-02] – Coding and writing style  
+- **[Documentation Library](docs/README.md)** [10-50-00] – Complete v1.3.3 documentation index
+- **[User Guide](docs/USER-GUIDE.md)** [10-50-03] – Practical user manual and getting started  
+- **[uCODE Manual](docs/uCODE-MANUAL.md)** [10-50-05] – Complete command reference and syntax
+- **[Architecture Guide](docs/ARCHITECTURE.md)** [10-50-01] – System architecture explained  
+- **[uGRID Display System](docs/Grid-Display-Specs.md)** [10-50-06] – Tile-based display architecture
+- **[Smart Input System](docs/Smart-Input-System.md)** [10-30-00] – Advanced input capabilities
+- **[Style Guide](docs/STYLE-GUIDE.md)** [10-50-02] – Comprehensive v1.3.3 standards
+- **[Template Standard](docs/Template-Standard.md)** [10-40-00] – Templates and consistency
+- **[User Authentication](docs/User-Authentication-System.md)** [10-30-01] – Security system
+- **[User Role Capabilities](docs/User-Role-Capabilities.md)** [10-30-02] – Role-based access  
 
 ## 🔧 Development Environment
 
@@ -448,10 +468,10 @@ code uDOS.code-workspace
 
 ---
 
-**uDOS v1.3** - *Where Data Meets Intelligence* ✨
+**uDOS v1.3.3** - *Where Data Meets Intelligence* ✨
 
-**Features**: Extension System | Deployment Manager | Smart Input Enhanced | Wizard Development Environment | Web Content Extraction  
-**Updated**: August 17, 2025 | **Architecture**: Modern Modular Design with Plugin Architecture
+**Features**: uGRID Display System | Comprehensive Documentation | uHEX v7.0 | uDATA Format | Role-Based Learning Paths  
+**Updated**: August 23, 2025 | **Architecture**: Modern Modular Design with Tile-Based Display System
 
 ---
-*For the full manual experience, see docs/user-guides/USER-GUIDE.md, written in the spirit of the Acorn 1981 User Manual.*
+*For the complete experience, start with docs/README.md for role-based learning paths, then docs/USER-GUIDE.md written in the spirit of the Acorn 1981 User Manual.*

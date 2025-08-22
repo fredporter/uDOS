@@ -1,19 +1,20 @@
-# uDOS - Version 1.3.1
+# uDOS - Version 1.3.3
 # Universal Digital Operating System
-# Build: 2024-08-22
+# Build: 2025-08-23
 
-VERSION="1.3.1"
-BUILD_DATE="2024-08-22"
-BUILD_NAME="Font System Optimization & Smart Input Enhancement"
+VERSION="1.3.3"
+BUILD_DATE="2025-08-23"
+BUILD_NAME="Enhanced Workflow, Multi-Role Architecture, Undo/Redo System"
 
-# Major Features in v1.3.1:
-# - Font system optimization (removed legacy fonts, added system fonts)
-# - Enhanced smart input with autocomplete
-# - UI input and icon function fixes
-# - uMEMORY system integration improvements
-# - Professional color palette integration
-# - Authentic BBC Mode 7 teletext experience
-# - Improved performance and stability
+# Major Features in v1.3.3:
+# - Enhanced Workflow System with Assist Mode (OI) and Command Mode (IO)
+# - Complete uMEMORY reorganization with centralized logging
+# - Multi-role architecture with 8 security levels (wizard→crypt)
+# - Integrated undo/redo system with session-based state management
+# - Enhanced backup system v1.4.0 with encryption and role policies
+# - Move logging integration throughout uCORE operations
+# - Destroy/Restore/Repair operations with comprehensive logging
+# - Cleanup of legacy role folders - now using uMEMORY/sandbox layering
 
 COMPATIBILITY="macOS 10.15+, Python 3.8+"
 ARCHITECTURE="Universal (ARM64/x86_64)"
