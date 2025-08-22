@@ -1,175 +1,175 @@
 #!/bin/bash
-# Development Mode Launcher for uDOS
-# Specifically designed for development workflow with VS Code integration
+# uDOS VS Code Development Mode Launcher (Wizard Only) v1.3.1
+# Enhanced development environment with full Git integration
 
-# Source platform detection
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/detect-platform.sh"
+set -euo pipefail
 
-# Run platform detection
-run_detection
+# Configuration
+export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+export UDOS_VERSION="1.3.1"
 
-# Color codes
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+# Color definitions
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
+readonly NC='\033[0m'
 
-# Development mode banner
-show_dev_banner() {
-    echo -e "${PURPLE}🧑‍💻 uDOS Development Mode${NC}"
-    echo -e "${CYAN}=============================${NC}"
-    echo -e "${BLUE}Platform: $PLATFORM_NAME${NC}"
-    echo -e "${BLUE}Root: $UDOS_ROOT${NC}"
-    echo -e "${BLUE}VS Code: $([ "$VSCODE_AVAILABLE" = true ] && echo -e "${GREEN}Available${NC}" || echo -e "${YELLOW}Not Available${NC}")${NC}"
-    echo ""
-}
-
-# Setup development environment
-setup_dev_environment() {
-    echo -e "${YELLOW}🔧 Setting up development environment...${NC}"
-    
-    # Ensure VS Code workspace configuration exists
-    if [ ! -d "$UDOS_ROOT/.vscode" ]; then
-        echo -e "${BLUE}📁 Creating VS Code workspace configuration...${NC}"
-        mkdir -p "$UDOS_ROOT/.vscode"
-        
-        # Copy VS Code configuration from launcher
-        if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/settings.json" ]; then
-            cp "$UDOS_ROOT/uCORE/launcher/vscode/settings.json" "$UDOS_ROOT/.vscode/"
-        fi
-        
-        if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/tasks.json" ]; then
-            cp "$UDOS_ROOT/uCORE/launcher/vscode/tasks.json" "$UDOS_ROOT/.vscode/"
-        fi
-        
-        if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/launch.json" ]; then
-            cp "$UDOS_ROOT/uCORE/launcher/vscode/launch.json" "$UDOS_ROOT/.vscode/"
-        fi
-    fi
-    
-    # Install recommended extensions if setup script exists
-    if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh" ]; then
-        echo -e "${BLUE}🔌 Installing recommended VS Code extensions...${NC}"
-        bash "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh"
-    fi
-}
-
-# Check development prerequisites
-check_dev_prerequisites() {
-    local missing_tools=()
-    
-    # Check for essential development tools
-    if ! command -v git >/dev/null 2>&1; then
-        missing_tools+=("git")
-    fi
-    
-    if ! command -v node >/dev/null 2>&1 && [ -d "$UDOS_ROOT/uDOS-Extension" ]; then
-        missing_tools+=("node.js (for extension development)")
-    fi
-    
-    if [ ${#missing_tools[@]} -gt 0 ]; then
-        echo -e "${YELLOW}⚠️  Missing development tools:${NC}"
-        for tool in "${missing_tools[@]}"; do
-            echo -e "  - ${RED}$tool${NC}"
-        done
-        echo ""
-        echo -e "${BLUE}💡 These tools are recommended for full development experience${NC}"
-        echo ""
-    fi
-}
-
-# Launch development environment
-launch_development() {
-    if [ "$VSCODE_AVAILABLE" = true ]; then
-        echo -e "${GREEN}🚀 Launching VS Code with uDOS project...${NC}"
-        
-        cd "$UDOS_ROOT"
-        
-        # Launch VS Code with specific files open
-        if command -v code >/dev/null 2>&1; then
-            # Open main files for development
-            code . \
-                --goto "README.md:1" \
-                --goto "uCORE/code/ucode.sh:1" \
-                --goto "uMEMORY/README.md:1"
-        else
-            # Platform-specific VS Code launching
-            case "$PLATFORM" in
-                macos)
-                    open -a "Visual Studio Code" .
-                    ;;
-                windows)
-                    start code .
-                    ;;
-                linux)
-                    if command -v code-insiders >/dev/null 2>&1; then
-                        code-insiders .
-                    else
-                        echo -e "${RED}❌ VS Code not properly installed${NC}"
-                        fallback_to_terminal
-                    fi
-                    ;;
-            esac
-        fi
-        
-        echo -e "${GREEN}✅ Development environment ready!${NC}"
-        echo -e "${BLUE}💡 Use VS Code tasks (Ctrl+Shift+P) to run uDOS commands${NC}"
-        
-    else
-        echo -e "${YELLOW}⚠️  VS Code not available, using enhanced terminal mode${NC}"
-        fallback_to_terminal
-    fi
-}
-
-# Fallback to enhanced terminal mode
-fallback_to_terminal() {
-    echo -e "${BLUE}🖥️  Starting uDOS in development terminal mode...${NC}"
-    
-    cd "$UDOS_ROOT"
-    
-    # Set development environment variables
-    export UDOS_DEV_MODE=true
-    export UDOS_DEBUG=true
-    
-    # Launch uDOS with development flags
-    exec "$UDOS_ROOT/uCORE/code/ucode.sh" --dev
-}
-
-# Main execution
-main() {
-    show_dev_banner
-    
-    # Check if uDOS exists
-    if [ ! -d "$UDOS_ROOT" ] || [ ! -f "$UDOS_ROOT/uCORE/code/ucode.sh" ]; then
-        echo -e "${RED}❌ uDOS installation not found${NC}"
-        echo -e "${YELLOW}💡 Expected location: $UDOS_ROOT${NC}"
+# Check if wizard role is available
+check_wizard_permissions() {
+    if [[ ! -d "$UDOS_ROOT/wizard" ]]; then
+        echo -e "${RED}❌ Wizard role not available${NC}"
+        echo -e "${YELLOW}💡 VS Code development mode requires wizard role${NC}"
         exit 1
     fi
     
-    check_dev_prerequisites
-    setup_dev_environment
-    launch_development
+    echo -e "${GREEN}✅ Wizard permissions verified${NC}"
 }
 
-# Handle command line arguments
-case "$1" in
-    --help|-h)
-        echo -e "${CYAN}uDOS Development Mode Launcher${NC}"
+# Check VS Code availability
+check_vscode_availability() {
+    if ! command -v code >/dev/null 2>&1; then
+        echo -e "${RED}❌ VS Code not found${NC}"
+        echo -e "${YELLOW}💡 Please install VS Code and add 'code' command to PATH${NC}"
         echo ""
-        echo "This script sets up and launches uDOS in development mode with:"
-        echo "  - VS Code integration (if available)"
-        echo "  - Development environment setup"
-        echo "  - Recommended extensions installation"
-        echo "  - Debug mode enabled"
-        echo ""
-        echo "Usage: $0 [--help]"
-        exit 0
-        ;;
-    *)
-        main "$@"
-        ;;
-esac
+        echo "Installation instructions:"
+        echo "1. Install VS Code from https://code.visualstudio.com/"
+        echo "2. Open VS Code"
+        echo "3. Press Cmd+Shift+P"
+        echo "4. Type 'Shell Command: Install 'code' command in PATH'"
+        echo "5. Select and run the command"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✅ VS Code available${NC}"
+}
+
+# Setup VS Code workspace
+setup_vscode_workspace() {
+    echo -e "${BLUE}🔧 Setting up VS Code workspace...${NC}"
+    
+    # Create .vscode directory if it doesn't exist
+    mkdir -p "$UDOS_ROOT/.vscode"
+    
+    # Create VS Code settings
+    cat > "$UDOS_ROOT/.vscode/settings.json" << 'EOF'
+{
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.profiles.osx": {
+        "uDOS Terminal": {
+            "path": "/bin/zsh",
+            "args": ["-c", "export UDOS_MODE=development && cd '${workspaceFolder}' && exec zsh"]
+        }
+    },
+    "files.associations": {
+        "*.udos": "json",
+        "*.uproject": "json",
+        "*.uconfig": "json"
+    },
+    "editor.fontSize": 12,
+    "editor.fontFamily": "Monaco, 'Courier New', monospace",
+    "terminal.integrated.fontSize": 11,
+    "terminal.integrated.fontFamily": "Monaco, 'Courier New', monospace",
+    "workbench.colorTheme": "Default Dark+",
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "extensions.autoUpdate": false,
+    "telemetry.telemetryLevel": "off"
+}
+EOF
+
+    # Create VS Code tasks
+    cat > "$UDOS_ROOT/.vscode/tasks.json" << 'EOF'
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🧙‍♂️ Start uDOS Wizard",
+            "type": "shell",
+            "command": "${workspaceFolder}/uCORE/launcher/universal/start-udos.sh",
+            "args": ["wizard", "--ui-mode"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔧 Start uSERVER Only",
+            "type": "shell",
+            "command": "${workspaceFolder}/uCORE/launcher/universal/start-udos.sh",
+            "args": ["wizard", "--server-only"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            }
+        }
+    ]
+}
+EOF
+
+    echo -e "${GREEN}✅ VS Code workspace configured${NC}"
+}
+
+# Launch VS Code development environment
+launch_vscode_development() {
+    echo -e "${PURPLE}🧙‍♂️ Launching VS Code Development Environment...${NC}"
+    
+    cd "$UDOS_ROOT"
+    
+    # Create workspace file
+    cat > "$UDOS_ROOT/uDOS.code-workspace" << 'EOF'
+{
+    "folders": [
+        {
+            "name": "🧙‍♂️ uDOS Wizard",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "terminal.integrated.defaultProfile.osx": "zsh"
+    }
+}
+EOF
+    
+    # Open workspace
+    code "$UDOS_ROOT/uDOS.code-workspace"
+    
+    echo -e "${GREEN}✅ VS Code development environment ready${NC}"
+    echo ""
+    echo -e "${WHITE}Available VS Code tasks:${NC}"
+    echo -e "  ${GREEN}🧙‍♂️ Start uDOS Wizard${NC} - Full wizard mode with UI"
+    echo -e "  ${GREEN}🔧 Start uSERVER Only${NC} - Server-only mode"
+    echo ""
+}
+
+# Main function
+main() {
+    echo -e "${PURPLE}"
+    echo "   🧙‍♂️ uDOS VS Code Development Mode"
+    echo "   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${NC}"
+    echo -e "${WHITE}Wizard Development Environment v$UDOS_VERSION${NC}"
+    echo ""
+    
+    check_wizard_permissions
+    check_vscode_availability
+    setup_vscode_workspace
+    launch_vscode_development
+}
+
+# Execute main function
+main

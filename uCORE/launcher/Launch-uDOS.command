@@ -1,63 +1,87 @@
 #!/bin/bash
-# uDOS macOS Launcher
-# Simple, clean launcher that works with VS Code integration
+# uDOS macOS Launcher v1.3.1
+# Enhanced launcher with role selection and startup choices
 
-set -e
+set -euo pipefail
 
-echo "🌀 uDOS macOS Launcher"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+# Configuration
+export UDOS_ROOT="${UDOS_ROOT:-$HOME/uDOS}"
 
-# Check if uDOS directory exists
-UDOS_PATH="$HOME/uDOS"
-if [[ ! -d "$UDOS_PATH" ]]; then
-    echo "❌ uDOS not found at $UDOS_PATH"
-    echo "📦 Please clone uDOS first:"
-    echo "   git clone https://github.com/fredporter/uDOS.git ~/uDOS"
-    echo ""
-    read -p "Press Enter to exit..."
-    exit 1
-fi
+# Color definitions
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
+readonly NC='\033[0m'
 
-echo "✅ Found uDOS at: $UDOS_PATH"
+echo -e "${CYAN}🌀 uDOS macOS Launcher v1.3.1${NC}"
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-# Check if VS Code is available
-if command -v code &> /dev/null; then
-    echo "🎯 VS Code detected - offering optimal experience"
+# Check if uDOS directory exists
+if [[ ! -d "$UDOS_ROOT" ]]; then
+    echo -e "${RED}❌ uDOS not found at $UDOS_ROOT${NC}"
     echo ""
-    echo "Choose your preferred launch method:"
-    echo "  [1] 🆚 Open in VS Code (Recommended)"
-    echo "  [2] 🖥️  Terminal only"
-    echo "  [3] ❌ Cancel"
+    echo -e "${BLUE}📦 Installation Required${NC}"
+    echo "uDOS needs to be installed. You can:"
     echo ""
-    read -p "👉 Your choice (1-3): " choice
+    echo -e "  ${GREEN}[1]${NC} 🚀 Run automatic installer"
+    echo -e "  ${GREEN}[2]${NC} � Get manual installation instructions"
+    echo -e "  ${GREEN}[3]${NC} ❌ Cancel"
+    echo ""
+    read -p "👉 Your choice (1-3): " install_choice
     
-    case "$choice" in
+    case "$install_choice" in
         1)
-            echo "🚀 Opening uDOS in VS Code..."
-            cd "$UDOS_PATH"
-            code .
-            echo "💡 In VS Code: Cmd+Shift+P → '🌀 Start uDOS'"
+            if [[ -f "$(dirname "$0")/platform/macos/install-udos.sh" ]]; then
+                exec "$(dirname "$0")/platform/macos/install-udos.sh"
+            else
+                echo -e "${RED}❌ Installer not found${NC}"
+                exit 1
+            fi
             ;;
         2)
-            echo "🖥️  Launching uDOS in this terminal..."
-            cd "$UDOS_PATH"
-            exec "$UDOS_PATH/uCORE/launcher/universal/start-udos.sh"
+            echo ""
+            echo -e "${BLUE}📋 Manual Installation${NC}"
+            echo "1. Open Terminal"
+            echo "2. Run: git clone https://github.com/fredporter/uDOS.git ~/uDOS"
+            echo "3. Launch uDOS again"
+            echo ""
+            read -p "Press Enter to exit..."
+            exit 0
             ;;
         3)
-            echo "👋 Cancelled"
+            echo -e "${YELLOW}Installation cancelled${NC}"
             exit 0
             ;;
         *)
-            echo "❌ Invalid choice"
+            echo -e "${RED}Invalid choice${NC}"
             exit 1
             ;;
     esac
+fi
+
+echo -e "${GREEN}✅ Found uDOS at: $UDOS_ROOT${NC}"
+echo ""
+
+# Check for VS Code
+VSCODE_AVAILABLE=false
+if command -v code >/dev/null 2>&1; then
+    VSCODE_AVAILABLE=true
+    echo -e "${GREEN}✅ VS Code detected${NC}"
 else
-    echo "🖥️  VS Code not found - launching uDOS in this terminal..."
-    cd "$UDOS_PATH"
-    exec "$UDOS_PATH/uCORE/launcher/universal/start-udos.sh"
+    echo -e "${YELLOW}ℹ️  VS Code not detected${NC}"
 fi
 
 echo ""
-echo "✨ uDOS launcher completed"
+
+# Use the app bundle launcher for enhanced startup menu
+if [[ -f "$UDOS_ROOT/uDOS.app/Contents/MacOS/uDOS" ]]; then
+    exec "$UDOS_ROOT/uDOS.app/Contents/MacOS/uDOS"
+else
+    # Fallback to universal launcher
+    exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
+fi
