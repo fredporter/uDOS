@@ -1298,87 +1298,30 @@ function executeEmojiCommand(command) {
 // SMART INPUT SYSTEM
 // =============================================================================
 
-// Smart input command database
-const smartCommands = {
-    // System Commands
-    'help': { desc: 'Show available commands', category: 'system' },
-    'clear': { desc: 'Clear terminal output', category: 'system' },
-    'status': { desc: 'Display system status', category: 'system' },
-    'history': { desc: 'Show command history', category: 'system' },
-    'startup': { desc: 'Show enhanced startup graphics', category: 'system' },
 
-    // Font Commands
-    'font': { desc: 'Change font (font [name])', category: 'display' },
-    'font MODE7GX0': { desc: 'Switch to MODE7GX0 square font (default)', category: 'display' },
-    'font MONACO': { desc: 'Switch to Monaco system font', category: 'display' },
-    'font MENLO': { desc: 'Switch to Menlo system font', category: 'display' },
-    'font SF_MONO': { desc: 'Switch to SF Mono system font', category: 'display' },
-    'font COURIER_NEW': { desc: 'Switch to Courier New system font', category: 'display' },
-    'font CONSOLAS': { desc: 'Switch to Consolas system font', category: 'display' },
-    'font FIRA_CODE': { desc: 'Switch to Fira Code programming font', category: 'display' },
-    'font JETBRAINS_MONO': { desc: 'Switch to JetBrains Mono programming font', category: 'display' },
-    'font SOURCE_CODE_PRO': { desc: 'Switch to Source Code Pro programming font', category: 'display' },
-    'font TERMINAL': { desc: 'Switch to terminal default font', category: 'display' },
-    'font VT100': { desc: 'Switch to VT100 terminal font', category: 'display' },
 
-    // Theme Commands
-    'theme': { desc: 'Toggle light/dark theme', category: 'display' },
-    'palette': { desc: 'Switch color palette (palette [name])', category: 'display' },
-    'palette dark': { desc: 'Switch to dark theme', category: 'display' },
-    'palette light': { desc: 'Switch to light theme', category: 'display' },
-    'palette udos_final': { desc: 'Switch to uMEMORY professional palette', category: 'display' },
+// Modular smart input system integration
+let smartCommands = {};
+let smartInputModule = null;
 
-    // Display Commands
-    'size': { desc: 'Change display size (size [name])', category: 'display' },
-    'size tiny': { desc: 'C64 PETSCII size (8×8)', category: 'display' },
-    'size small': { desc: 'BBC Mode 7 size (8×10)', category: 'display' },
-    'size medium': { desc: 'Amiga Workbench size (8×12)', category: 'display' },
-    'size large': { desc: 'VT100 Terminal size (7×14)', category: 'display' },
-    'size huge': { desc: 'Modern Terminal size (8×16)', category: 'display' },
-    'size giant': { desc: 'Presentation Mode size (10×20)', category: 'display' },
+async function setupModularSmartInput() {
+    try {
+        // Dynamically import the modular smart input system
+        smartInputModule = await import('/uCORE/code/smartInput.js');
+        smartCommands = await smartInputModule.loadSmartCommands();
+        console.log('✅ Modular smart input loaded');
+    } catch (err) {
+        console.error('❌ Failed to load modular smart input:', err);
+        // Fallback: load commands as before
+        if (typeof loadSmartCommands === 'function') {
+            await loadSmartCommands();
+        }
+    }
+}
 
-    'display': { desc: 'Switch display config (display [config])', category: 'display' },
-    'display bbc_authentic': { desc: 'BBC Mode 7 Authentic (640×500)', category: 'display' },
-    'display udos_optimized': { desc: 'uDOS Optimized (800×615)', category: 'display' },
-    'display compact': { desc: 'Compact Display (640×480)', category: 'display' },
-    'display widescreen': { desc: 'Widescreen Display (1024×768)', category: 'display' },
-
-    // uMEMORY Commands
-    'memory': { desc: 'uMEMORY system commands', category: 'memory' },
-    'memory status': { desc: 'Show uMEMORY system status', category: 'memory' },
-    'memory reload': { desc: 'Reload uMEMORY resources', category: 'memory' },
-    'memory fonts': { desc: 'Show uMEMORY font registry', category: 'memory' },
-    'memory palettes': { desc: 'Show available color palettes', category: 'memory' },
-    'memory config': { desc: 'Show uMEMORY system configuration', category: 'memory' },
-
-    // uCODE Module Commands
-    'ucode': { desc: 'Enter uCODE mode', category: 'ucode' },
-    'memory list': { desc: 'List memory files', category: 'ucode' },
-    'memory stats': { desc: 'Show memory statistics', category: 'ucode' },
-    'mission list': { desc: 'List active missions', category: 'ucode' },
-    'mission create': { desc: 'Create new mission', category: 'ucode' },
-    'render art': { desc: 'Generate ASCII art', category: 'ucode' },
-    'render chart': { desc: 'Show performance chart', category: 'ucode' },
-    'dev test': { desc: 'Run test suite', category: 'ucode' },
-    'dev debug': { desc: 'Show debug information', category: 'ucode' },
-    'log report': { desc: 'Show system log report', category: 'ucode' },
-
-    // System Module Commands
-    'sorcerer': { desc: 'Launch SORCERER advanced admin', category: 'modules' },
-    'sorcerer web': { desc: 'Web automation commands', category: 'modules' },
-    'wizard': { desc: 'Launch WIZARD development tools', category: 'modules' },
-    'wizard cast': { desc: 'Cast development spells', category: 'modules' },
-    'ghost': { desc: 'Background services', category: 'modules' },
-    'drone': { desc: 'Automation tasks', category: 'modules' },
-    'imp': { desc: 'Script execution engine', category: 'modules' },
-    'tomb': { desc: 'Archive and backup system', category: 'modules' },
-
-    // Quick Actions
-    'tree': { desc: 'Show file tree structure', category: 'quick' },
-    'reboot': { desc: 'Restart system', category: 'quick' },
-    'destroy': { desc: 'Emergency system reset', category: 'quick' },
-    'story': { desc: 'Show system story/documentation', category: 'quick' }
-};
+if (typeof window !== 'undefined') {
+    setupModularSmartInput();
+}
 
 let smartInput = {
     suggestions: [],
@@ -1393,18 +1336,10 @@ function setupSmartInput() {
     const input = document.getElementById('command-input');
     if (!input) return;
 
-    console.log('🧠 Setting up smart input system...');
-
-    // Create suggestions container
     createSuggestionsContainer();
-
-    // Set up event listeners
     input.addEventListener('input', handleSmartInput);
     input.addEventListener('keydown', handleSmartKeydown);
     input.addEventListener('blur', hideSuggestions);
-    input.addEventListener('focus', handleInputFocus);
-
-    console.log('✅ Smart input system ready');
 }
 
 function createSuggestionsContainer() {
@@ -1426,23 +1361,23 @@ function createSuggestionsContainer() {
 function handleSmartInput(e) {
     const value = e.target.value.toLowerCase().trim();
     smartInput.currentInput = value;
-
-    // Always reset selected index on new input
-    smartInput.selectedIndex = -1;
-
+    smartInput.selectedIndex = 0;
     if (value.length < 1) {
         hideSuggestions();
         return;
     }
-
-    // Find matching commands
-    const matches = findCommandMatches(value);
-
+    let matches = [];
+    if (smartInputModule && typeof smartInputModule.findCommandMatches === 'function') {
+        matches = smartInputModule.findCommandMatches(value, smartCommands);
+    } else {
+        matches = findCommandMatches(value);
+    }
     if (matches.length > 0) {
-        showSuggestions(matches);
-        // Always focus first suggestion for keyboard navigation
-        smartInput.selectedIndex = 0;
-        highlightSuggestion(0);
+        if (smartInputModule && typeof smartInputModule.showSuggestions === 'function') {
+            smartInputModule.showSuggestions(matches, document.getElementById('smart-suggestions'));
+        } else {
+            showSuggestions(matches);
+        }
     } else {
         hideSuggestions();
     }
@@ -1487,26 +1422,43 @@ function findCommandMatches(input) {
 function showSuggestions(matches) {
     const container = document.getElementById('smart-suggestions');
     if (!container) return;
-
-    smartInput.suggestions = matches;
-    smartInput.selectedIndex = -1;
+    const limitedMatches = matches.slice(0, 5);
+    smartInput.suggestions = limitedMatches;
+    smartInput.selectedIndex = 0;
     smartInput.isVisible = true;
-
-    const html = matches.map((match, index) => {
-        const categoryColor = getCategoryColor(match.category);
-        return `
-            <div class="suggestion-item" data-index="${index}" onclick="selectSuggestion(${index})">
-                <div class="suggestion-main">
-                    <span class="suggestion-command">${highlightMatch(match.command, smartInput.currentInput)}</span>
-                    <span class="suggestion-category" style="color: ${categoryColor}">${match.category}</span>
-                </div>
-                <div class="suggestion-desc">${match.desc}</div>
-            </div>
-        `;
+    container.innerHTML = limitedMatches.map((match, index) => {
+        let argsHtml = '';
+        if (match.args && match.args.length > 0) {
+            argsHtml = `<span class="suggestion-args">Args: ${match.args.join(', ')}</span>`;
+        }
+        return `<div class="suggestion-item${index === 0 ? ' highlighted' : ''}" data-index="${index}" onclick="selectSuggestion(${index})">
+            <span class="suggestion-command">${match.command}</span>
+            <span class="suggestion-desc">${match.desc}</span>
+            ${argsHtml}
+        </div>`;
     }).join('');
-
-    container.innerHTML = html;
     container.style.display = 'block';
+}
+
+function showInputValidation() {
+    const input = document.getElementById('command-input');
+    let status = document.getElementById('input-status');
+    if (!status) {
+        status = document.createElement('div');
+        status.id = 'input-status';
+        status.className = 'input-status';
+        input.parentNode.appendChild(status);
+    }
+    const value = input.value.trim();
+    if (value.length === 0) {
+        status.textContent = '';
+    } else if (value.length < 3) {
+        status.textContent = '✗ Too short';
+        status.style.color = '#eaaf41';
+    } else {
+        status.textContent = '✓ Valid';
+        status.style.color = '#48a56a';
+    }
 }
 
 function getCategoryColor(category) {
@@ -1541,16 +1493,13 @@ function hideSuggestions() {
 
 function selectSuggestion(index) {
     if (index < 0 || index >= smartInput.suggestions.length) return;
-
     const suggestion = smartInput.suggestions[index];
     const input = document.getElementById('command-input');
-
     if (input) {
         input.value = suggestion.command;
         input.focus();
     }
-
-    hideSuggestions();
+    highlightSuggestion(index);
 }
 
 function highlightSuggestion(index) {
@@ -1563,35 +1512,49 @@ function highlightSuggestion(index) {
 
 function handleSmartKeydown(e) {
     if (!smartInput.isVisible) {
-        handleHistoryNavigation(e);
+        // If suggestions are not visible, Enter should execute the current input
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const input = document.getElementById('command-input');
+            if (input && input.value.trim().length > 0) {
+                executeCommand(input.value.trim());
+                hideSuggestions();
+            }
+        } else {
+            handleHistoryNavigation(e);
+        }
         return;
     }
-
     switch (e.key) {
         case 'ArrowDown':
             e.preventDefault();
-            navigateSuggestions(1);
+            smartInput.selectedIndex = (smartInput.selectedIndex + 1) % smartInput.suggestions.length;
+            highlightSuggestion(smartInput.selectedIndex);
             break;
-
         case 'ArrowUp':
             e.preventDefault();
-            navigateSuggestions(-1);
+            smartInput.selectedIndex = (smartInput.selectedIndex - 1 + smartInput.suggestions.length) % smartInput.suggestions.length;
+            highlightSuggestion(smartInput.selectedIndex);
             break;
-
         case 'Tab':
         case 'Enter':
             if (smartInput.selectedIndex >= 0) {
                 e.preventDefault();
                 selectSuggestion(smartInput.selectedIndex);
                 if (e.key === 'Enter') {
-                    // Execute the command
-                    setTimeout(() => {
-                        e.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-                    }, 50);
+                    executeCommand(smartInput.suggestions[smartInput.selectedIndex].command);
+                    hideSuggestions();
+                }
+            } else if (e.key === 'Enter') {
+                // No suggestion selected, execute current input
+                e.preventDefault();
+                const input = document.getElementById('command-input');
+                if (input && input.value.trim().length > 0) {
+                    executeCommand(input.value.trim());
+                    hideSuggestions();
                 }
             }
             break;
-
         case 'Escape':
             e.preventDefault();
             hideSuggestions();

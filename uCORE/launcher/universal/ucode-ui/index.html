@@ -8,8 +8,36 @@
     <title>uDOS Universal Code Interface</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/fonts.css">
-    <link rel="stylesheet" hre <span class="stat-item">🔤 <span
-        id="font-stat">MODE7GX0</span></span>="static/display.css">
+    <link rel="stylesheet" href="static/display.css">
+    <style>
+        .font-mode7gx0 {
+            font-family: 'MODE7GX0', 'Menlo', monospace !important;
+        }
+
+        .font-petme64 {
+            font-family: 'Pet Me 64', 'Menlo', monospace !important;
+        }
+
+        .font-dotgothic16 {
+            font-family: 'DotGothic16', 'Menlo', monospace !important;
+        }
+
+        .font-perfectdos {
+            font-family: 'Perfect DOS VGA 437', 'Menlo', monospace !important;
+        }
+
+        .font-pixeloperator {
+            font-family: 'Pixel Operator', 'Menlo', monospace !important;
+        }
+
+        .font-unifont {
+            font-family: 'GNU Unifont', 'Menlo', monospace !important;
+        }
+
+        .font-valova {
+            font-family: 'Valova', 'Menlo', monospace !important;
+        }
+    </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <style>
         /* Enhanced input styling for better UX */
@@ -109,6 +137,13 @@
         .suggestion-item.highlighted {
             background: var(--primary, #48a56a);
             color: #ffffff;
+        }
+
+        .input-status {
+            font-size: 13px;
+            margin-top: 2px;
+            margin-left: 4px;
+            font-family: var(--font-teletext, 'MODE7GX3', monospace);
         }
 
         .suggestion-desc {
@@ -378,73 +413,99 @@
 </head>
 
 <body>
-    <div id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="title">uDOS v1.3 - DEV MODE</div>
-            <div class="status" id="status">●●● READY</div>
-        </header>
+    <div id="main-grid" class="u-grid font-mode7gx0"></div>
+    <!-- Smart Input UI -->
+    <div class="command-input-container" style="max-width: 480px; margin: 2rem auto 0 auto;">
+        <span class="prompt" id="smart-prompt" style="font-size: 22px;">🌀</span>
+        <input id="command-input" class="command-input" type="text" autocomplete="off" autocorrect="off"
+            autocapitalize="off" spellcheck="false" placeholder="Type a uCODE command..." />
+    </div>
+    <div id="smart-suggestions"></div>
+    <script>
+        // Read display size from installation.md via fetch (assume static server serves it)
+        async function getDisplaySettings() {
+            try {
+                const res = await fetch('/uMEMORY/user/installation.md');
+                const text = await res.text();
+                const sizeMatch = text.match(/display_size:\s*(\d+x\d+)/);
+                const aspectMatch = text.match(/aspect_ratio:\s*([\d:]+)/);
+                let size = sizeMatch ? sizeMatch[1] : '16x16';
+                let aspect = aspectMatch ? aspectMatch[1] : '16:9';
+                return { size, aspect };
+            } catch (e) {
+                return { size: '16x16', aspect: '16:9' };
+            }
+        }
 
-        <!-- Top Persistent Emoji Row -->
-        <div class="emoji-row top-row">
-            <span class="emoji-icon" onclick="executeEmojiCommand('backup')" title="BACKUP">💾</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('restore')" title="RESTORE">♻️</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('repair')" title="REPAIR">🛠️</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('session')" title="SESSION">🔁</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('push')" title="PUSH">📤</span>
-            <span class="emoji-divider">|</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('tree')" title="TREE">🌳</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('reboot')" title="REBOOT">🔄</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('destroy')" title="DESTROY">💥</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('story')" title="STORY">📖</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('ghost')" title="GHOST">👻</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('drone')" title="DRONE">🚁</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('imp')" title="IMP">😈</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('sorcerer')" title="SORCERER">🔮</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('wizard')" title="WIZARD">🧙‍♂️</span>
-            <span class="emoji-icon" onclick="executeEmojiCommand('dev')" title="DEV">💻</span>
-            <span class="emoji-divider">|</span>
-            <span class="emoji-icon" onclick="cycleDisplaySize()" title="DISPLAY SIZE">📐</span>
-            <span class="emoji-icon" onclick="cycleFont()" title="FONT">🔤</span>
-            <span class="emoji-icon" onclick="toggleTheme()" title="DARK/LIGHT">🌓</span>
-            <span class="emoji-icon" onclick="toggleMarkdown()" title="MARKDOWN">📝</span>
-        </div>
+        function parseGridSize(sizeStr) {
+            const [cols, rows] = sizeStr.split('x').map(Number);
+            return { cols, rows };
+        }
 
-        <!-- Main Interface -->
-        <div class="main-container">
-            <!-- Full Width Terminal Output -->
-            <div class="terminal-output" id="terminal-output">
-                <!-- Enhanced startup graphics now handled by JavaScript with uMEMORY integration -->
-            </div>
+        function buildGrid(cols, rows) {
+            const grid = document.getElementById('main-grid');
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = `repeat(${cols}, 16px)`;
+            grid.style.gridTemplateRows = `repeat(${rows}, 16px)`;
+            grid.style.width = `${cols * 16}px`;
+            grid.style.height = `${rows * 16}px`;
+            grid.style.margin = '0 auto';
 
-            <!-- Command Input -->
-            <div class="command-input-container">
-                <span class="prompt">uDOS></span>
-                <input type="text" id="command-input" class="command-input"
-                    placeholder="Type command... (Smart suggestions enabled)" autocomplete="off" spellcheck="false">
-            </div>
-        </div>
+            // Example demo elements (can be extended)
+            grid.innerHTML = `
+                <div class="u-cell" style="grid-column: 2 / span 4; grid-row: 2 / span 2; display: flex; align-items: center; justify-content: center;">
+                    <button style="width: 100%; height: 100%; font-size: 14px; font-family: inherit; background: #222; color: #eaaf41; border: 2px solid #48a56a; border-radius: 4px;">C O N T I N U E ▷</button>
+                </div>
+                <div class="u-cell" style="grid-column: 2 / span 8; grid-row: 5 / span 2; display: flex; align-items: center; justify-content: center;">
+                    <input type="text" placeholder="Username" style="width: 90%; height: 70%; font-size: 14px; font-family: inherit; background: #111; color: #fff; border: 2px solid #48a56a; border-radius: 4px; text-align: center;" />
+                </div>
+                <div class="u-cell" style="grid-column: 2 / span 4; grid-row: 8 / span 2; display: flex; align-items: center; justify-content: center;">
+                    <span style="display: inline-block; background: #48a56a; color: #fff; border-radius: 8px; padding: 2px 12px; font-size: 13px; font-family: inherit;">O N L I N E</span>
+                </div>
+                <div class="u-cell" style="grid-column: 10 / span 4; grid-row: 2 / span 4; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #eaaf41;">
+                    █▓▒░
+                </div>
+                <div class="u-cell" style="grid-column: 10 / span 6; grid-row: 8 / span 6; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #eaaf41;">
+                    <pre style="margin:0; font-family: inherit; background: none; color: #eaaf41;">
+....████....████....
+..████████████████..
+.██████████████████.
+.██████████████████.
+..████████████████..
+...██████████████...
+....████████████....
+.....██████████.....
+......████████......
+.......██████.......
+........████........
+.........██.........
+                    </pre>
+                </div>
+                <div class="u-cell" style="grid-column: 2 / span 8; grid-row: ${rows - 2} / span 2; display: flex; align-items: center; justify-content: center;">
+                    <select id="font-switcher" style="width: 90%; height: 70%; font-size: 14px; font-family: inherit; background: #222; color: #eaaf41; border: 2px solid #48a56a; border-radius: 4px; text-align: center;" onchange="changeFontUI(this.value)">
+                        <option value="font-mode7gx0">MODE7GX0 (BBC Micro)</option>
+                        <option value="font-petme64">Pet Me 64 (C64)</option>
+                        <option value="font-dotgothic16">DotGothic16</option>
+                        <option value="font-perfectdos">Perfect DOS VGA 437</option>
+                        <option value="font-pixeloperator">Pixel Operator</option>
+                        <option value="font-unifont">GNU Unifont</option>
+                        <option value="font-valova">Valova</option>
+                    </select>
+                </div>
+            `;
+        }
 
-        <!-- Bottom System Info Row -->
-        <div class="system-info-row">
-            <div class="system-stats">
-                <span class="stat-item">📺 <span id="display-mode-stat">BBC</span></span>
-                <span class="stat-item">🔤 <span id="font-stat">MODE7GX</span></span>
-                <span class="stat-item">🌓 <span id="theme-stat">DARK</span></span>
-                <span class="stat-item">📝 <span id="markdown-stat">OFF</span></span>
-                <span class="stat-item">💾 <span id="memory-stat">10GB</span></span>
-                <span class="stat-item">⚡ <span id="status-stat">READY</span></span>
-            </div>
-            <div class="dashboard-icons">
-                <span class="dashboard-icon" onclick="selectModule('uCORE')" title="uCORE">📦</span>
-                <span class="dashboard-icon" onclick="selectModule('uSERVER')" title="uSERVER">🌐</span>
-                <span class="dashboard-icon" onclick="selectModule('uSCRIPT')" title="uSCRIPT">📜</span>
-                <span class="dashboard-icon" onclick="selectModule('uMEMORY')" title="uMEMORY">🧠</span>
-                <span class="dashboard-icon" onclick="selectModule('tomb')" title="TOMB">⚰️</span>
-                <span class="dashboard-icon" onclick="selectModule('trash')" title="TRASH">🗑️</span>
-                <span class="dashboard-icon" onclick="selectModule('uKNOWLEDGE')" title="uKNOWLEDGE">📖</span>
-            </div>
-        </div>
+        function changeFontUI(fontClass) {
+            var grid = document.getElementById('main-grid');
+            grid.className = 'u-grid ' + fontClass;
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const settings = await getDisplaySettings();
+            const { cols, rows } = parseGridSize(settings.size);
+            buildGrid(cols, rows);
+        });
+    </script>
     </div>
     </div>
 
@@ -541,6 +602,13 @@
     </div>
 
     <script src="static/app.js"></script>
+    <script>
+        // Ensure Whirl emoji prompt always present
+        document.addEventListener('DOMContentLoaded', function () {
+            var prompt = document.getElementById('smart-prompt');
+            if (prompt) prompt.textContent = '🌀';
+        });
+    </script>
 </body>
 
 </html>
