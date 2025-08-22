@@ -1,5 +1,5 @@
 #!/bin/bash
-# uSERVER Startup Script v1.3.1
+# uSERVER Startup Script v1.3.1 - Enhanced Error Handling & Loop Detection
 # Integrated with uCORE for complete system management
 
 set -euo pipefail
@@ -8,6 +8,11 @@ set -euo pipefail
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 export USERVER_PORT="${USERVER_PORT:-8080}"
 export USERVER_HOST="${USERVER_HOST:-127.0.0.1}"
+SERVER_PID_FILE="/tmp/udos-server.pid"
+SERVER_LOCK_FILE="/tmp/udos-server.lock"
+
+# Load error handler
+source "$UDOS_ROOT/uCORE/system/error-handler.sh"
 
 # Color definitions
 readonly RED='\033[0;31m'
@@ -24,7 +29,15 @@ SERVER_PID=""
 DAEMON_MODE=false
 ROLE="${UDOS_CURRENT_ROLE:-wizard}"
 
+# Initialize error handling
+init_error_logging
+export UDOS_DEV_MODE="${UDOS_DEV_MODE:-true}"  # Enable dev mode for servers
+
 # Parse arguments
+DAEMON_MODE=false
+ROLE="${UDOS_CURRENT_ROLE:-wizard}"
+COMMAND=""
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --daemon)
@@ -39,12 +52,17 @@ while [[ $# -gt 0 ]]; do
             USERVER_PORT="${1#*=}"
             shift
             ;;
+        status|stop|restart)
+            COMMAND="$1"
+            shift
+            ;;
         --help)
             show_help
             exit 0
             ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
+            show_help
             exit 1
             ;;
     esac
@@ -62,6 +80,79 @@ show_help() {
     echo "  --help         Show this help"
 }
 
+# Check for existing server instance
+check_existing_server() {
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        local existing_pid=$(cat "$SERVER_PID_FILE")
+        if kill -0 "$existing_pid" 2>/dev/null; then
+            echo -e "${YELLOW}⚠️  uSERVER is already running (PID: $existing_pid)${NC}"
+            echo -e "${CYAN}🌐 URL: http://$USERVER_HOST:$USERVER_PORT${NC}"
+            echo ""
+            echo -e "${WHITE}Options:${NC}"
+            echo "  1. Stop existing and restart"
+            echo "  2. Connect to existing server"
+            echo "  3. Cancel"
+
+            read -p "Choose option (1-3): " choice
+            case $choice in
+                1)
+                    stop_existing_server
+                    return 0
+                    ;;
+                2)
+                    echo -e "${GREEN}✅ Connecting to existing server${NC}"
+                    exit 0
+                    ;;
+                3)
+                    echo -e "${YELLOW}Cancelled${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}Invalid choice${NC}"
+                    exit 1
+                    ;;
+            esac
+        else
+            # Clean up stale PID file
+            rm -f "$SERVER_PID_FILE"
+        fi
+    fi
+
+    # Check if port is in use by another process
+    if lsof -Pi :$USERVER_PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo -e "${RED}❌ Port $USERVER_PORT is already in use by another process${NC}"
+        exit 1
+    fi
+}
+
+# Stop existing server
+stop_existing_server() {
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        local pid=$(cat "$SERVER_PID_FILE")
+        echo -e "${YELLOW}🛑 Stopping existing server (PID: $pid)...${NC}"
+
+        # Try graceful shutdown first
+        if kill -TERM "$pid" 2>/dev/null; then
+            local count=0
+            while kill -0 "$pid" 2>/dev/null && [[ $count -lt 10 ]]; do
+                sleep 1
+                ((count++))
+            done
+
+            # Force kill if still running
+            if kill -0 "$pid" 2>/dev/null; then
+                echo -e "${YELLOW}⚠️  Force killing server...${NC}"
+                kill -KILL "$pid" 2>/dev/null || true
+            fi
+        fi
+
+        rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
+        echo -e "${GREEN}✅ Existing server stopped${NC}"
+    fi
+
+    # Also kill any stray python processes
+    pkill -f "uSERVER/server.py" 2>/dev/null || true
+}
 # Check Python availability
 check_python() {
     if command -v python3 >/dev/null 2>&1; then
@@ -73,7 +164,7 @@ check_python() {
         echo "Please install Python 3.7+ to run uSERVER"
         exit 1
     fi
-    
+
     # Check Python version
     local python_version=$($PYTHON_CMD --version 2>&1 | cut -d' ' -f2)
     echo -e "${GREEN}✅ Python $python_version${NC}"
@@ -82,9 +173,9 @@ check_python() {
 # Install Python dependencies
 install_dependencies() {
     echo -e "${BLUE}📦 Checking Python dependencies...${NC}"
-    
+
     local requirements_file="$UDOS_ROOT/uSERVER/requirements.txt"
-    
+
     if [[ -f "$requirements_file" ]]; then
         if $PYTHON_CMD -m pip install -r "$requirements_file" >/dev/null 2>&1; then
             echo -e "${GREEN}✅ Dependencies installed${NC}"
@@ -99,7 +190,7 @@ install_dependencies() {
 # Run system setup check
 run_setup_check() {
     echo -e "${BLUE}🔧 Running uCORE integration setup...${NC}"
-    
+
     # Run uCORE startup sequence
     local startup_script="$UDOS_ROOT/uCORE/code/startup.sh"
     if [[ -f "$startup_script" ]]; then
@@ -110,7 +201,7 @@ run_setup_check() {
             echo -e "${YELLOW}⚠️  uCORE startup had warnings${NC}"
         fi
     fi
-    
+
     # Run setup check
     local setup_check="$UDOS_ROOT/uSERVER/setup-check.py"
     if [[ -f "$setup_check" ]]; then
@@ -130,69 +221,77 @@ start_server() {
     echo -e "${CYAN}🌐 Port: $USERVER_PORT${NC}"
     echo -e "${CYAN}🎭 Role: $ROLE${NC}"
     echo ""
-    
+
+    # Create lock file
+    echo $$ > "$SERVER_LOCK_FILE"
+
     # Set environment variables for server
     export UDOS_CURRENT_ROLE="$ROLE"
     export UDOS_SERVER_MODE="integrated"
     export FLASK_ENV="development"
-    
+
     # Change to server directory
     cd "$UDOS_ROOT/uSERVER"
-    
+
     # Start server
     local server_script="$UDOS_ROOT/uSERVER/server.py"
-    
+
     if [[ "$DAEMON_MODE" == "true" ]]; then
         echo -e "${BLUE}🔧 Starting in daemon mode...${NC}"
-        $PYTHON_CMD "$server_script" >/dev/null 2>&1 &
+        nohup $PYTHON_CMD "$server_script" >/dev/null 2>&1 &
         SERVER_PID=$!
-        
-        # Wait for server to start
-        sleep 3
-        
-        if kill -0 "$SERVER_PID" 2>/dev/null; then
-            echo -e "${GREEN}✅ uSERVER started successfully (PID: $SERVER_PID)${NC}"
-            echo -e "${CYAN}🌐 Access UI: http://$USERVER_HOST:$USERVER_PORT${NC}"
-            
-            # Store PID for management
-            echo "$SERVER_PID" > "$UDOS_ROOT/uSERVER/.server.pid"
-        else
-            echo -e "${RED}❌ Failed to start uSERVER${NC}"
-            exit 1
-        fi
+        echo "$SERVER_PID" > "$SERVER_PID_FILE"
+
+        # Wait for server to start and verify
+        local attempts=0
+        while [[ $attempts -lt 15 ]]; do
+            if curl -s "http://$USERVER_HOST:$USERVER_PORT/api/status" >/dev/null 2>&1; then
+                echo -e "${GREEN}✅ uSERVER started successfully (PID: $SERVER_PID)${NC}"
+                echo -e "${CYAN}🌐 Access UI: http://$USERVER_HOST:$USERVER_PORT${NC}"
+                return 0
+            fi
+            echo -e "${YELLOW}⏳ Waiting for server... ($((attempts + 1))/15)${NC}"
+            sleep 1
+            ((attempts++))
+        done
+
+        echo -e "${RED}❌ Failed to start uSERVER${NC}"
+        stop_existing_server
+        exit 1
     else
         echo -e "${BLUE}🔧 Starting in interactive mode...${NC}"
         echo -e "${YELLOW}Press Ctrl+C to stop server${NC}"
         echo ""
-        
+
+        # Store PID for cleanup
+        echo $$ > "$SERVER_PID_FILE"
+
         # Trap for clean shutdown
         trap cleanup_server INT TERM
-        
-        $PYTHON_CMD "$server_script"
+
+        exec $PYTHON_CMD "$server_script"
     fi
 }
 
 # Cleanup server on exit
 cleanup_server() {
-    if [[ -n "$SERVER_PID" ]]; then
-        echo -e "\n${YELLOW}🛑 Stopping uSERVER...${NC}"
-        kill "$SERVER_PID" 2>/dev/null || true
-        rm -f "$UDOS_ROOT/uSERVER/.server.pid"
-        echo -e "${GREEN}✅ uSERVER stopped${NC}"
-    fi
+    echo -e "\n${YELLOW}🛑 Stopping uSERVER...${NC}"
+    rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
+    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    echo -e "${GREEN}✅ uSERVER stopped${NC}"
     exit 0
 }
 
 # Show server status
 show_status() {
-    if [[ -f "$UDOS_ROOT/uSERVER/.server.pid" ]]; then
-        local pid=$(cat "$UDOS_ROOT/uSERVER/.server.pid")
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        local pid=$(cat "$SERVER_PID_FILE")
         if kill -0 "$pid" 2>/dev/null; then
             echo -e "${GREEN}✅ uSERVER is running (PID: $pid)${NC}"
             echo -e "${CYAN}🌐 URL: http://$USERVER_HOST:$USERVER_PORT${NC}"
         else
             echo -e "${RED}❌ uSERVER is not running${NC}"
-            rm -f "$UDOS_ROOT/uSERVER/.server.pid"
+            rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
         fi
     else
         echo -e "${RED}❌ uSERVER is not running${NC}"
@@ -201,20 +300,23 @@ show_status() {
 
 # Stop server
 stop_server() {
-    if [[ -f "$UDOS_ROOT/uSERVER/.server.pid" ]]; then
-        local pid=$(cat "$UDOS_ROOT/uSERVER/.server.pid")
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        local pid=$(cat "$SERVER_PID_FILE")
         if kill -0 "$pid" 2>/dev/null; then
             echo -e "${YELLOW}🛑 Stopping uSERVER...${NC}"
-            kill "$pid"
-            rm -f "$UDOS_ROOT/uSERVER/.server.pid"
+            kill "$pid" 2>/dev/null || true
+            rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
             echo -e "${GREEN}✅ uSERVER stopped${NC}"
         else
             echo -e "${YELLOW}⚠️  uSERVER was not running${NC}"
-            rm -f "$UDOS_ROOT/uSERVER/.server.pid"
+            rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
         fi
     else
         echo -e "${YELLOW}⚠️  uSERVER is not running${NC}"
     fi
+
+    # Kill any stray processes
+    pkill -f "uSERVER/server.py" 2>/dev/null || true
 }
 
 # Main function
@@ -225,7 +327,8 @@ main() {
     echo -e "${NC}"
     echo -e "${WHITE}Omni-device uCODE Window Server v1.3.1${NC}"
     echo ""
-    
+
+    check_existing_server
     check_python
     install_dependencies
     run_setup_check
@@ -233,6 +336,26 @@ main() {
 }
 
 # Handle special commands
+if [[ -n "$COMMAND" ]]; then
+    case "$COMMAND" in
+        "status")
+            show_status
+            exit 0
+            ;;
+        "stop")
+            stop_server
+            exit 0
+            ;;
+        "restart")
+            stop_server
+            sleep 2
+            DAEMON_MODE=true
+            # Continue to main function
+            ;;
+    esac
+fi
+
+# Handle special commands (legacy support)
 case "${1:-start}" in
     "status")
         show_status

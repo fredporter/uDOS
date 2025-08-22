@@ -1,6 +1,6 @@
 #!/bin/bash
 # uDOS macOS App Launcher v1.3.1
-# Native macOS application launcher with enhanced startup choices
+# Clean single-instance launcher with process management
 
 set -euo pipefail
 
@@ -18,6 +18,93 @@ readonly PURPLE='\033[0;35m'
 readonly CYAN='\033[0;36m'
 readonly WHITE='\033[1;37m'
 readonly NC='\033[0m' # No Color
+
+# Process management
+SERVER_PID_FILE="/tmp/udos-server.pid"
+LOCK_FILE="/tmp/udos-app.lock"
+
+# Check for existing instance
+check_existing_instance() {
+    if [[ -f "$LOCK_FILE" ]]; then
+        local existing_pid=$(cat "$LOCK_FILE")
+        if kill -0 "$existing_pid" 2>/dev/null; then
+            echo -e "${YELLOW}⚠️  uDOS is already running${NC}"
+            echo ""
+            echo -e "${WHITE}Options:${NC}"
+            echo "  1. Connect to existing session"
+            echo "  2. Force restart"
+            echo "  3. Cancel"
+
+            read -p "Choose option (1-3): " choice
+            case $choice in
+                1)
+                    connect_existing
+                    exit 0
+                    ;;
+                2)
+                    cleanup_existing
+                    ;;
+                3)
+                    echo -e "${YELLOW}Cancelled${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}Invalid choice${NC}"
+                    exit 1
+                    ;;
+            esac
+        else
+            rm -f "$LOCK_FILE"
+        fi
+    fi
+
+    # Create lock file
+    echo $$ > "$LOCK_FILE"
+}
+
+# Connect to existing session
+connect_existing() {
+    echo -e "${CYAN}🔗 Connecting to existing uDOS session...${NC}"
+
+    # Open UI in browser
+    open http://localhost:8080 2>/dev/null || echo "Open browser to: http://localhost:8080"
+
+    # Open terminal to existing session
+    osascript -e 'tell application "Terminal" to activate' \
+              -e 'tell application "Terminal" to do script "cd /Users/agentdigital/uDOS && ./uCORE/launcher/universal/start-udos-managed.sh attach"'
+}
+
+# Clean up existing processes
+cleanup_existing() {
+    echo -e "${YELLOW}🧹 Cleaning up existing processes...${NC}"
+
+    # Kill existing processes
+    if [[ -f "$LOCK_FILE" ]]; then
+        local existing_pid=$(cat "$LOCK_FILE")
+        kill "$existing_pid" 2>/dev/null || true
+        rm -f "$LOCK_FILE"
+    fi
+
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        local server_pid=$(cat "$SERVER_PID_FILE")
+        kill "$server_pid" 2>/dev/null || true
+        rm -f "$SERVER_PID_FILE"
+    fi
+
+    # Kill any stray processes
+    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "start-udos" 2>/dev/null || true
+
+    echo -e "${GREEN}✅ Cleanup complete${NC}"
+}
+
+# Cleanup on exit
+cleanup_on_exit() {
+    rm -f "$LOCK_FILE"
+    cleanup_existing
+}
+
+trap cleanup_on_exit EXIT
 
 # uDOS branding
 show_udos_banner() {
@@ -37,19 +124,19 @@ show_udos_banner() {
 # Check system prerequisites
 check_prerequisites() {
     echo -e "${BLUE}🔍 Checking system prerequisites...${NC}"
-    
+
     # Check if uDOS exists
     if [[ ! -d "$UDOS_ROOT" ]]; then
         echo -e "${RED}❌ uDOS not found at $UDOS_ROOT${NC}"
         offer_git_install
         return 1
     fi
-    
+
     # Check for git
     if ! command -v git >/dev/null 2>&1; then
         echo -e "${YELLOW}⚠️  Git not found. Some features may be limited.${NC}"
     fi
-    
+
     # Check for VS Code
     if command -v code >/dev/null 2>&1; then
         export VSCODE_AVAILABLE=true
@@ -58,7 +145,7 @@ check_prerequisites() {
         export VSCODE_AVAILABLE=false
         echo -e "${YELLOW}ℹ️  VS Code not detected (wizard dev mode unavailable)${NC}"
     fi
-    
+
     echo -e "${GREEN}✅ Prerequisites checked${NC}"
     echo ""
 }
@@ -77,7 +164,7 @@ offer_git_install() {
     echo -e "  ${GREEN}[3]${NC} ❌ Cancel"
     echo ""
     read -p "👉 Choose installation method (1-3): " install_choice
-    
+
     case "$install_choice" in
         1)
             install_udos_from_git
@@ -99,7 +186,7 @@ offer_git_install() {
 # Automatic Git installation
 install_udos_from_git() {
     echo -e "${BLUE}📥 Installing uDOS from Git...${NC}"
-    
+
     # Check for git
     if ! command -v git >/dev/null 2>&1; then
         echo -e "${RED}❌ Git not found. Installing Xcode Command Line Tools...${NC}"
@@ -107,11 +194,11 @@ install_udos_from_git() {
         echo "⏳ Please complete the Xcode installation and run uDOS again."
         exit 1
     fi
-    
+
     # Clone repository
     echo "🔄 Cloning uDOS repository..."
     git clone "https://github.com/fredporter/uDOS.git" "$UDOS_ROOT"
-    
+
     if [[ -d "$UDOS_ROOT" ]]; then
         echo -e "${GREEN}✅ uDOS installed successfully!${NC}"
         echo ""
@@ -142,14 +229,14 @@ show_manual_install_instructions() {
 # Detect available roles based on installation
 detect_available_roles() {
     local roles=()
-    
+
     # Check each role directory
     for role in ghost tomb drone imp sorcerer wizard; do
         if [[ -d "$UDOS_ROOT/$role" ]]; then
             roles+=("$role")
         fi
     done
-    
+
     echo "${roles[@]}"
 }
 
@@ -157,15 +244,15 @@ detect_available_roles() {
 show_startup_menu() {
     local available_roles
     available_roles=($(detect_available_roles))
-    
+
     echo -e "${WHITE}🚀 uDOS Startup Menu${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo -e "${WHITE}Available Launch Modes:${NC}"
     echo ""
-    
+
     local choice_num=1
-    
+
     # VS Code Dev Mode (Wizard only)
     if [[ "$VSCODE_AVAILABLE" == "true" ]] && [[ " ${available_roles[*]} " =~ " wizard " ]]; then
         echo -e "  ${GREEN}[$choice_num]${NC} 🧙‍♂️ ${PURPLE}VS Code DEV Mode${NC} (Wizard - Full Development)"
@@ -173,7 +260,7 @@ show_startup_menu() {
         ((choice_num++))
         echo ""
     fi
-    
+
     # Role-based modes
     for role in "${available_roles[@]}"; do
         case "$role" in
@@ -205,7 +292,7 @@ show_startup_menu() {
         ((choice_num++))
         echo ""
     done
-    
+
     # System options
     echo -e "  ${GREEN}[$choice_num]${NC} 🔧 ${CYAN}System Update${NC} (Check for updates)"
     ((choice_num++))
@@ -213,9 +300,9 @@ show_startup_menu() {
     ((choice_num++))
     echo -e "  ${GREEN}[$choice_num]${NC} ❌ ${WHITE}Cancel${NC}"
     echo ""
-    
+
     read -p "👉 Choose your launch mode (1-$((choice_num-1))): " user_choice
-    
+
     process_startup_choice "$user_choice" "${available_roles[@]}"
 }
 
@@ -224,9 +311,9 @@ process_startup_choice() {
     local choice="$1"
     shift
     local available_roles=("$@")
-    
+
     local choice_num=1
-    
+
     # VS Code Dev Mode (if available)
     if [[ "$VSCODE_AVAILABLE" == "true" ]] && [[ " ${available_roles[*]} " =~ " wizard " ]]; then
         if [[ "$choice" == "$choice_num" ]]; then
@@ -235,7 +322,7 @@ process_startup_choice() {
         fi
         ((choice_num++))
     fi
-    
+
     # Role-based modes
     for role in "${available_roles[@]}"; do
         if [[ "$choice" == "$choice_num" ]]; then
@@ -244,25 +331,25 @@ process_startup_choice() {
         fi
         ((choice_num++))
     done
-    
+
     # System options
     if [[ "$choice" == "$choice_num" ]]; then
         system_update
         return
     fi
     ((choice_num++))
-    
+
     if [[ "$choice" == "$choice_num" ]]; then
         system_repair
         return
     fi
     ((choice_num++))
-    
+
     if [[ "$choice" == "$choice_num" ]]; then
         echo -e "${YELLOW}👋 Cancelled${NC}"
         exit 0
     fi
-    
+
     echo -e "${RED}❌ Invalid choice${NC}"
     exit 1
 }
@@ -271,21 +358,21 @@ process_startup_choice() {
 launch_vscode_dev_mode() {
     echo -e "${PURPLE}🧙‍♂️ Launching VS Code Development Mode...${NC}"
     echo ""
-    
+
     cd "$UDOS_ROOT"
-    
+
     # Apply uDOS terminal profile
     apply_terminal_profile
-    
+
     # Open VS Code
     echo -e "${BLUE}🚀 Opening VS Code with uDOS workspace...${NC}"
     code .
-    
+
     echo ""
     echo -e "${GREEN}✅ VS Code opened successfully!${NC}"
     echo -e "${CYAN}💡 In VS Code: Cmd+Shift+P → 'uDOS: Start Development'${NC}"
     echo ""
-    
+
     # Keep terminal open for server operations
     echo -e "${WHITE}🖥️  CLI reserved for uSERVER operations${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -295,18 +382,18 @@ launch_vscode_dev_mode() {
 # Launch specific role mode
 launch_role_mode() {
     local role="$1"
-    
+
     echo -e "${BLUE}🚀 Launching $role mode...${NC}"
     echo ""
-    
+
     cd "$UDOS_ROOT"
-    
+
     # Apply uDOS terminal profile
     apply_terminal_profile
-    
+
     # Set role environment
     export UDOS_CURRENT_ROLE="$role"
-    
+
     # Start uSERVER first
     echo -e "${BLUE}🔧 Starting uSERVER...${NC}"
     if [[ -f "$UDOS_ROOT/uSERVER/start-server.sh" ]]; then
@@ -317,12 +404,12 @@ launch_role_mode() {
     else
         echo -e "${YELLOW}⚠️  uSERVER not available${NC}"
     fi
-    
+
     # Open UI omniview
     echo -e "${BLUE}🌐 Opening UI omniview...${NC}"
     local ui_url="http://localhost:8080?role=${role}"
     open "$ui_url" 2>/dev/null || echo "Please open $ui_url in your browser"
-    
+
     # Continue with role-specific startup
     if [[ -f "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" ]]; then
         exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" "$role"
@@ -348,24 +435,24 @@ start_server_operations() {
     echo -e "${WHITE}uSERVER CLI Operations${NC}"
     echo "Available commands:"
     echo "  status    - Server status"
-    echo "  logs      - Show server logs" 
+    echo "  logs      - Show server logs"
     echo "  restart   - Restart server"
     echo "  update    - Check for updates"
     echo "  repair    - Repair installation"
     echo "  ui        - Open UI omniview"
     echo "  quit      - Exit"
     echo ""
-    
+
     # Start uSERVER if available
     if [[ -f "$UDOS_ROOT/uSERVER/start-server.sh" ]]; then
         echo -e "${BLUE}🔧 Starting uSERVER...${NC}"
         "$UDOS_ROOT/uSERVER/start-server.sh" --daemon
     fi
-    
+
     # CLI command loop
     while true; do
         read -p "uSERVER> " -r command
-        
+
         case "$command" in
             "status")
                 show_server_status
@@ -437,15 +524,15 @@ open_ui_omniview() {
 # System update
 system_update() {
     echo -e "${BLUE}🔄 Checking for uDOS updates...${NC}"
-    
+
     cd "$UDOS_ROOT"
-    
+
     if [[ -d ".git" ]]; then
         git fetch origin --quiet
-        
+
         local local_hash=$(git rev-parse HEAD)
         local remote_hash=$(git rev-parse origin/main)
-        
+
         if [[ "$local_hash" != "$remote_hash" ]]; then
             echo -e "${YELLOW}📦 Updates available!${NC}"
             echo ""
@@ -454,7 +541,7 @@ system_update() {
             echo ""
             read -p "Apply updates? [y/N]: " -n 1 -r
             echo
-            
+
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 echo -e "${BLUE}📥 Applying updates...${NC}"
                 git reset --hard origin/main
@@ -466,7 +553,7 @@ system_update() {
     else
         echo -e "${YELLOW}⚠️  Not a Git repository. Cannot check for updates.${NC}"
     fi
-    
+
     echo ""
     read -p "Press Enter to continue..."
 }
@@ -474,20 +561,20 @@ system_update() {
 # System repair
 system_repair() {
     echo -e "${YELLOW}🔧 Repairing uDOS installation...${NC}"
-    
+
     cd "$UDOS_ROOT"
-    
+
     if [[ -d ".git" ]]; then
         echo "🔄 Resetting to clean state..."
         git reset --hard HEAD
         git clean -fd
         echo -e "${GREEN}✅ Repository cleaned${NC}"
     fi
-    
+
     # Fix permissions
     echo "🔐 Fixing permissions..."
     find "$UDOS_ROOT" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
-    
+
     echo -e "${GREEN}✅ Repair complete!${NC}"
     echo ""
     read -p "Press Enter to continue..."
@@ -496,7 +583,7 @@ system_repair() {
 # Start integrated CLI for role operations
 start_integrated_cli() {
     local role="$1"
-    
+
     echo ""
     echo -e "${WHITE}🖥️  $role CLI Operations (uSERVER Integration)${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -510,11 +597,11 @@ start_integrated_cli() {
     echo "  repair      - Repair installation"
     echo "  quit        - Exit"
     echo ""
-    
+
     # CLI command loop with uSERVER integration
     while true; do
         read -p "$role> " -r command args
-        
+
         case "$command" in
             "status")
                 show_integrated_status
@@ -559,7 +646,7 @@ start_integrated_cli() {
 show_integrated_status() {
     echo -e "${BLUE}📊 System Status${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     # Check uSERVER status
     if [[ -f "$UDOS_ROOT/uSERVER/.server.pid" ]]; then
         local pid=$(cat "$UDOS_ROOT/uSERVER/.server.pid")
@@ -573,7 +660,7 @@ show_integrated_status() {
     else
         echo -e "${WHITE}uSERVER:${NC} ${RED}❌ Not running${NC}"
     fi
-    
+
     # Check system components
     echo -e "${WHITE}Role:${NC} $UDOS_CURRENT_ROLE"
     echo -e "${WHITE}Root:${NC} $UDOS_ROOT"
@@ -595,9 +682,13 @@ show_server_logs() {
 # Main launcher function
 main() {
     # Set working directory
-    cd "$UDOS_ROOT" 2>/dev/null || true
-    
+    cd "$UDOS_ROOT" 2>/dev/null || {
+        echo -e "${RED}❌ uDOS not found at $UDOS_ROOT${NC}"
+        exit 1
+    }
+
     show_udos_banner
+    check_existing_instance
     check_prerequisites
     show_startup_menu
 }

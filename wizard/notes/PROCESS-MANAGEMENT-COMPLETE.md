@@ -41,7 +41,7 @@ uDOS-Managed.command                # Desktop launcher
 ### **Session Management:**
 ```bash
 udos attach                         # Connect to existing session
-udos status                         # Check what's running  
+udos status                         # Check what's running
 udos stop                           # Stop everything
 udos force development              # Force restart
 ```

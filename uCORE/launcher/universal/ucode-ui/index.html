@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimal-ui, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimal-ui, viewport-fit=cover">
     <title>uDOS Universal Code Interface</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/fonts.css">
-    <link rel="stylesheet" hre                <span class="stat-item">🔤 <span id="font-stat">MODE7GX0</span></span>="static/display.css">
+    <link rel="stylesheet" hre <span class="stat-item">🔤 <span
+        id="font-stat">MODE7GX0</span></span>="static/display.css">
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <style>
         /* Enhanced input styling for better UX */
@@ -14,21 +17,29 @@
             position: relative;
             display: flex;
             align-items: center;
-            background: transparent; /* Flat design */
-            border: none; /* No border */
-            border-bottom: 1px solid var(--primary, #48a56a); /* Just a subtle underline */
-            border-radius: 0; /* No rounded corners */
-            padding: 8px 0; /* Reduce padding */
+            background: transparent;
+            /* Flat design */
+            border: none;
+            /* No border */
+            border-bottom: 1px solid var(--primary, #48a56a);
+            /* Just a subtle underline */
+            border-radius: 0;
+            /* No rounded corners */
+            padding: 8px 0;
+            /* Reduce padding */
             margin-top: 1rem;
-            box-shadow: none; /* No shadow */
+            box-shadow: none;
+            /* No shadow */
             transition: all 0.3s ease;
         }
-        
+
         .command-input-container:focus-within {
-            border-bottom-color: var(--accent, #eaaf41); /* Just change underline color */
-            box-shadow: none; /* No glow effect */
+            border-bottom-color: var(--accent, #eaaf41);
+            /* Just change underline color */
+            box-shadow: none;
+            /* No glow effect */
         }
-        
+
         .prompt {
             color: var(--accent, #eaaf41);
             font-family: var(--font-teletext, 'MODE7GX3', monospace);
@@ -38,12 +49,20 @@
             white-space: nowrap;
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.7; }
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0.7;
+            }
         }
-        
+
         .command-input {
             flex: 1;
             background: transparent;
@@ -55,12 +74,12 @@
             padding: 4px 0;
             caret-color: var(--accent, #eaaf41);
         }
-        
+
         .command-input::placeholder {
             color: var(--text-secondary, #888888);
             opacity: 0.7;
         }
-        
+
         /* Autocomplete suggestions */
         .autocomplete-suggestions {
             position: absolute;
@@ -76,7 +95,7 @@
             z-index: 1000;
             display: none;
         }
-        
+
         .suggestion-item {
             padding: 8px 12px;
             cursor: pointer;
@@ -85,19 +104,19 @@
             font-size: 14px;
             color: var(--text-primary, #ffffff);
         }
-        
+
         .suggestion-item:hover,
         .suggestion-item.highlighted {
             background: var(--primary, #48a56a);
             color: #ffffff;
         }
-        
+
         .suggestion-desc {
             font-size: 12px;
             color: var(--text-secondary, #888888);
             margin-left: 8px;
         }
-        
+
         /* Input history navigation */
         .input-controls {
             display: flex;
@@ -105,7 +124,7 @@
             margin-top: 8px;
             align-items: center;
         }
-        
+
         .input-btn {
             background: var(--primary, #48a56a);
             color: #ffffff;
@@ -117,19 +136,19 @@
             transition: all 0.2s ease;
             font-family: var(--font-terminal, monospace);
         }
-        
+
         .input-btn:hover {
             background: var(--accent, #eaaf41);
             transform: translateY(-1px);
         }
-        
+
         .input-history {
             flex: 1;
             font-size: 12px;
             color: var(--text-secondary, #888888);
             font-family: var(--font-terminal, monospace);
         }
-        
+
         /* Clean panel layout */
         .panel {
             background: var(--panel-bg, rgba(42, 42, 42, 0.95));
@@ -137,10 +156,10 @@
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
         }
-        
+
         .panel h3 {
             margin: 0 0 1rem 0;
             color: var(--accent, #eaaf41);
@@ -149,14 +168,14 @@
             border-bottom: 2px solid var(--primary, #48a56a);
             padding-bottom: 0.5rem;
         }
-        
+
         /* Improved font display */
         .font-showcase {
             display: grid;
             gap: 8px;
             margin: 1rem 0;
         }
-        
+
         .font-sample {
             padding: 8px 12px;
             background: var(--terminal-bg, #1a1a1a);
@@ -165,12 +184,12 @@
             font-size: 14px;
             transition: all 0.2s ease;
         }
-        
+
         .font-sample:hover {
             border-color: var(--accent, #eaaf41);
             transform: translateX(4px);
         }
-        
+
         /* Status indicators */
         .status-grid {
             display: grid;
@@ -178,7 +197,7 @@
             gap: 12px;
             margin: 1rem 0;
         }
-        
+
         .status-item {
             background: var(--terminal-bg, #1a1a1a);
             border: 1px solid var(--primary, #48a56a);
@@ -188,14 +207,14 @@
             font-family: var(--font-teletext, 'MODE7GX3', monospace);
             font-size: 12px;
         }
-        
+
         .status-value {
             display: block;
             color: var(--accent, #eaaf41);
             font-weight: bold;
             font-size: 14px;
         }
-        
+
         /* Module grid improvements */
         .module-grid {
             display: grid;
@@ -203,11 +222,13 @@
             gap: 8px;
             margin: 1rem 0;
         }
-        
+
         .module-item {
-            background: transparent; /* Completely flat - no background */
+            background: transparent;
+            /* Completely flat - no background */
             border: none;
-            border-radius: 0; /* No rounded corners */
+            border-radius: 0;
+            /* No rounded corners */
             padding: 8px;
             text-align: center;
             font-size: 12px;
@@ -215,13 +236,15 @@
             cursor: pointer;
             color: var(--text-primary, #ffffff);
         }
-        
+
         .module-item:hover {
-            background: rgba(72, 165, 106, 0.1); /* Very subtle hover */
+            background: rgba(72, 165, 106, 0.1);
+            /* Very subtle hover */
             color: var(--primary, #48a56a);
-            transform: none; /* No scaling effect */
+            transform: none;
+            /* No scaling effect */
         }
-        
+
         /* Persistent emoji icon rows */
         .emoji-row {
             display: flex;
@@ -229,24 +252,26 @@
             align-items: center;
             padding: 10px 0;
             font-size: 20px;
-            background: transparent; /* Flat design */
-            border-radius: 0; /* No rounded corners */
+            background: transparent;
+            /* Flat design */
+            border-radius: 0;
+            /* No rounded corners */
             margin: 5px 0;
             position: sticky;
         }
-        
+
         .emoji-row.top-row {
             top: 0;
             z-index: 100;
             border-bottom: 1px solid var(--primary, #48a56a);
         }
-        
+
         .emoji-row.bottom-row {
             bottom: 0;
             z-index: 100;
             border-top: 1px solid var(--primary, #48a56a);
         }
-        
+
         /* System info and dashboard row */
         .system-info-row {
             display: flex;
@@ -260,22 +285,22 @@
             bottom: 0;
             z-index: 100;
         }
-        
+
         .system-stats {
             display: flex;
             gap: 15px;
             font-family: var(--font-teletext, 'MODE7GX3', monospace);
         }
-        
+
         .stat-item {
             color: var(--text-primary, #ffffff);
         }
-        
+
         .dashboard-icons {
             display: flex;
             gap: 8px;
         }
-        
+
         .dashboard-icon {
             cursor: pointer;
             padding: 5px 8px;
@@ -283,65 +308,75 @@
             user-select: none;
             font-size: 16px;
         }
-        
+
         .dashboard-icon:hover {
             background: rgba(72, 165, 106, 0.1);
         }
-        
+
         .emoji-icon {
             cursor: pointer;
             padding: 5px 10px;
-            border-radius: 0; /* Completely flat */
+            border-radius: 0;
+            /* Completely flat */
             transition: all 0.2s ease;
             user-select: none;
         }
-        
+
         .emoji-icon:hover {
-            background: rgba(72, 165, 106, 0.1); /* Very subtle hover */
-            transform: none; /* No scaling */
+            background: rgba(72, 165, 106, 0.1);
+            /* Very subtle hover */
+            transform: none;
+            /* No scaling */
         }
-        
+
         .emoji-divider {
             color: var(--primary, #48a56a);
             padding: 0 10px;
             user-select: none;
         }
-        
+
         /* Full width terminal output */
         .terminal-output {
-            max-height: 70vh; /* Responsive height */
+            max-height: 70vh;
+            /* Responsive height */
             overflow-y: auto;
             background: transparent;
             border: none;
             border-radius: 0;
-            padding: 0; /* Remove padding for full width */
-            margin: 0; /* Remove margins */
+            padding: 0;
+            /* Remove padding for full width */
+            margin: 0;
+            /* Remove margins */
             font-family: var(--font-teletext, 'MODE7GX3', monospace);
             font-size: 14px;
-            line-height: 1.3; /* 1:1.3 ratio for teletext blocks */
-            width: 100%; /* Full width */
-            letter-spacing: 0; /* Monospace grid alignment */
+            line-height: 1.3;
+            /* 1:1.3 ratio for teletext blocks */
+            width: 100%;
+            /* Full width */
+            letter-spacing: 0;
+            /* Monospace grid alignment */
         }
-        
+
         .terminal-output::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         .terminal-output::-webkit-scrollbar-track {
             background: var(--panel-bg, #2a2a2a);
             border-radius: 4px;
         }
-        
+
         .terminal-output::-webkit-scrollbar-thumb {
             background: var(--primary, #48a56a);
             border-radius: 4px;
         }
-        
+
         .terminal-output::-webkit-scrollbar-thumb:hover {
             background: var(--accent, #eaaf41);
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <!-- Header -->
@@ -352,6 +387,12 @@
 
         <!-- Top Persistent Emoji Row -->
         <div class="emoji-row top-row">
+            <span class="emoji-icon" onclick="executeEmojiCommand('backup')" title="BACKUP">💾</span>
+            <span class="emoji-icon" onclick="executeEmojiCommand('restore')" title="RESTORE">♻️</span>
+            <span class="emoji-icon" onclick="executeEmojiCommand('repair')" title="REPAIR">🛠️</span>
+            <span class="emoji-icon" onclick="executeEmojiCommand('session')" title="SESSION">🔁</span>
+            <span class="emoji-icon" onclick="executeEmojiCommand('push')" title="PUSH">📤</span>
+            <span class="emoji-divider">|</span>
             <span class="emoji-icon" onclick="executeEmojiCommand('tree')" title="TREE">🌳</span>
             <span class="emoji-icon" onclick="executeEmojiCommand('reboot')" title="REBOOT">🔄</span>
             <span class="emoji-icon" onclick="executeEmojiCommand('destroy')" title="DESTROY">💥</span>
@@ -379,16 +420,12 @@
             <!-- Command Input -->
             <div class="command-input-container">
                 <span class="prompt">uDOS></span>
-                <input type="text" 
-                       id="command-input" 
-                       class="command-input" 
-                       placeholder="Type command... (Smart suggestions enabled)" 
-                       autocomplete="off"
-                       spellcheck="false">
+                <input type="text" id="command-input" class="command-input"
+                    placeholder="Type command... (Smart suggestions enabled)" autocomplete="off" spellcheck="false">
             </div>
         </div>
 
-                <!-- Bottom System Info Row -->
+        <!-- Bottom System Info Row -->
         <div class="system-info-row">
             <div class="system-stats">
                 <span class="stat-item">📺 <span id="display-mode-stat">BBC</span></span>
@@ -409,100 +446,101 @@
             </div>
         </div>
     </div>
+    </div>
+
+    <!-- Right Panel: System Status & Controls -->
+    <div class="panel right-panel">
+        <h3>📊 SYSTEM STATUS</h3>
+
+        <!-- Enhanced Status Display -->
+        <div class="status-grid">
+            <div class="status-item">
+                <div>Mode</div>
+                <span class="status-value" id="mode">DEV</span>
             </div>
-
-            <!-- Right Panel: System Status & Controls -->
-            <div class="panel right-panel">
-                <h3>📊 SYSTEM STATUS</h3>
-                
-                <!-- Enhanced Status Display -->
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div>Mode</div>
-                        <span class="status-value" id="mode">DEV</span>
-                    </div>
-                    <div class="status-item">
-                        <div>Clients</div>
-                        <span class="status-value" id="clients">0</span>
-                    </div>
-                    <div class="status-item">
-                        <div>Display</div>
-                        <span class="status-value" id="display-mode">BBC</span>
-                    </div>
-                    <div class="status-item">
-                        <div>Font</div>
-                        <span class="status-value" id="current-font">MODE7GX</span>
-                    </div>
-                </div>
-
-                <!-- uDOS Modules -->
-                <h3>🌈 uDOS MODULES</h3>
-                <div class="module-grid">
-                    <div class="module-item" onclick="selectModule('uCORE')">📦 uCORE</div>
-                    <div class="module-item" onclick="selectModule('uSERVER')">🌐 uSERVER</div>
-                    <div class="module-item" onclick="selectModule('uSCRIPT')">📜 uSCRIPT</div>
-                    <div class="module-item" onclick="selectModule('uMEMORY')">🧠 uMEMORY</div>
-                    <div class="module-item" onclick="selectModule('ghost')">👻 ghost</div>
-                    <div class="module-item" onclick="selectModule('sorcerer')">🔮 sorcerer</div>
-                    <div class="module-item" onclick="selectModule('imp')">😈 imp</div>
-                    <div class="module-item" onclick="selectModule('tomb')">⚰️ tomb</div>
-                    <div class="module-item" onclick="selectModule('drone')">🚁 drone</div>
-                    <div class="module-item" onclick="selectModule('wizard')">🧙‍♂️ wizard</div>
-                    <div class="module-item" onclick="selectModule('trash')">🗑️ trash</div>
-                    <div class="module-item" onclick="selectModule('uKNOWLEDGE')">📖 uKNOWLEDGE</div>
-                </div>
-
-                <!-- Font Display -->
-                <h3>📺 RETRO FONTS</h3>
-                <div class="font-showcase">
-                    <div class="font-sample font-teletext">MODE7GX: Authentic BBC Micro Teletext 📺</div>
-                    <div class="font-sample font-amiga">Topaz A500: Classic Amiga Workbench 💾</div>
-                    <div class="font-sample font-c64">Nova Mono: C64-inspired monospace 🕹️</div>
-                    <div class="font-sample font-terminal">Source Code Pro: Modern terminal 💻</div>
-                </div>
-
-                <!-- Theme Controls -->
-                <h3>🎨 THEMES</h3>
-                <div class="theme-controls">
-                    <button onclick="setTheme('dark')" class="input-btn" id="theme-dark">🌙 Dark</button>
-                    <button onclick="setTheme('light')" class="input-btn" id="theme-light">☀️ Light</button>
-                    <button onclick="setTheme('professional')" class="input-btn active" id="theme-professional">💼 Pro</button>
-                    <button onclick="setTheme('rainbow')" class="input-btn" id="theme-rainbow">🌈 Rainbow</button>
-                </div>
-
-                <!-- Live Logs -->
-                <h3>📋 ACTIVITY LOG</h3>
-                <div class="logs-output" id="logs-output">
-                    <div style="color: var(--primary);">System initialized</div>
-                    <div style="color: var(--accent);">Font system loaded</div>
-                    <div style="color: var(--secondary);">Display manager ready</div>
-                </div>
+            <div class="status-item">
+                <div>Clients</div>
+                <span class="status-value" id="clients">0</span>
+            </div>
+            <div class="status-item">
+                <div>Display</div>
+                <span class="status-value" id="display-mode">BBC</span>
+            </div>
+            <div class="status-item">
+                <div>Font</div>
+                <span class="status-value" id="current-font">MODE7GX</span>
             </div>
         </div>
 
-        <!-- Bottom System Info and Dashboard -->
-        <div class="system-info-row">
-            <div class="system-stats">
-                <span class="stat-item">📺 <span id="display-mode-stat">BBC</span></span>
-                <span class="stat-item">🔤 <span id="font-stat">MODE7GX</span></span>
-                <span class="stat-item">🌓 <span id="theme-stat">DARK</span></span>
-                <span class="stat-item">� <span id="display-stat">NORMAL</span></span>
-                <span class="stat-item">�📝 <span id="markdown-stat">OFF</span></span>
-                <span class="stat-item">💾 <span id="memory-stat">10GB</span></span>
-                <span class="stat-item">⚡ <span id="status-stat">READY</span></span>
-            </div>
-            <div class="dashboard-icons">
-                <span class="dashboard-icon" onclick="selectModule('uCORE')" title="uCORE">�</span>
-                <span class="dashboard-icon" onclick="selectModule('uSERVER')" title="uSERVER">🌐</span>
-                <span class="dashboard-icon" onclick="selectModule('uSCRIPT')" title="uSCRIPT">�</span>
-                <span class="dashboard-icon" onclick="selectModule('uMEMORY')" title="uMEMORY">🧠</span>
-                <span class="dashboard-icon" onclick="selectModule('tomb')" title="TOMB">⚰️</span>
-                <span class="dashboard-icon" onclick="selectModule('trash')" title="TRASH">🗑️</span>
-                <span class="dashboard-icon" onclick="selectModule('uKNOWLEDGE')" title="uKNOWLEDGE">�</span>
-            </div>
+        <!-- uDOS Modules -->
+        <h3>🌈 uDOS MODULES</h3>
+        <div class="module-grid">
+            <div class="module-item" onclick="selectModule('uCORE')">📦 uCORE</div>
+            <div class="module-item" onclick="selectModule('uSERVER')">🌐 uSERVER</div>
+            <div class="module-item" onclick="selectModule('uSCRIPT')">📜 uSCRIPT</div>
+            <div class="module-item" onclick="selectModule('uMEMORY')">🧠 uMEMORY</div>
+            <div class="module-item" onclick="selectModule('ghost')">👻 ghost</div>
+            <div class="module-item" onclick="selectModule('sorcerer')">🔮 sorcerer</div>
+            <div class="module-item" onclick="selectModule('imp')">😈 imp</div>
+            <div class="module-item" onclick="selectModule('tomb')">⚰️ tomb</div>
+            <div class="module-item" onclick="selectModule('drone')">🚁 drone</div>
+            <div class="module-item" onclick="selectModule('wizard')">🧙‍♂️ wizard</div>
+            <div class="module-item" onclick="selectModule('trash')">🗑️ trash</div>
+            <div class="module-item" onclick="selectModule('uKNOWLEDGE')">📖 uKNOWLEDGE</div>
         </div>
+
+        <!-- Font Display -->
+        <h3>📺 RETRO FONTS</h3>
+        <div class="font-showcase">
+            <div class="font-sample font-teletext">MODE7GX: Authentic BBC Micro Teletext 📺</div>
+            <div class="font-sample font-amiga">Topaz A500: Classic Amiga Workbench 💾</div>
+            <div class="font-sample font-c64">Nova Mono: C64-inspired monospace 🕹️</div>
+            <div class="font-sample font-terminal">Source Code Pro: Modern terminal 💻</div>
+        </div>
+
+        <!-- Theme Controls -->
+        <h3>🎨 THEMES</h3>
+        <div class="theme-controls">
+            <button onclick="setTheme('dark')" class="input-btn" id="theme-dark">🌙 Dark</button>
+            <button onclick="setTheme('light')" class="input-btn" id="theme-light">☀️ Light</button>
+            <button onclick="setTheme('professional')" class="input-btn active" id="theme-professional">💼 Pro</button>
+            <button onclick="setTheme('rainbow')" class="input-btn" id="theme-rainbow">🌈 Rainbow</button>
+        </div>
+
+        <!-- Live Logs -->
+        <h3>📋 ACTIVITY LOG</h3>
+        <div class="logs-output" id="logs-output">
+            <div style="color: var(--primary);">System initialized</div>
+            <div style="color: var(--accent);">Font system loaded</div>
+            <div style="color: var(--secondary);">Display manager ready</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Bottom System Info and Dashboard -->
+    <div class="system-info-row">
+        <div class="system-stats">
+            <span class="stat-item">📺 <span id="display-mode-stat">BBC</span></span>
+            <span class="stat-item">🔤 <span id="font-stat">MODE7GX</span></span>
+            <span class="stat-item">🌓 <span id="theme-stat">DARK</span></span>
+            <span class="stat-item">� <span id="display-stat">NORMAL</span></span>
+            <span class="stat-item">�📝 <span id="markdown-stat">OFF</span></span>
+            <span class="stat-item">💾 <span id="memory-stat">10GB</span></span>
+            <span class="stat-item">⚡ <span id="status-stat">READY</span></span>
+        </div>
+        <div class="dashboard-icons">
+            <span class="dashboard-icon" onclick="selectModule('uCORE')" title="uCORE">�</span>
+            <span class="dashboard-icon" onclick="selectModule('uSERVER')" title="uSERVER">🌐</span>
+            <span class="dashboard-icon" onclick="selectModule('uSCRIPT')" title="uSCRIPT">�</span>
+            <span class="dashboard-icon" onclick="selectModule('uMEMORY')" title="uMEMORY">🧠</span>
+            <span class="dashboard-icon" onclick="selectModule('tomb')" title="TOMB">⚰️</span>
+            <span class="dashboard-icon" onclick="selectModule('trash')" title="TRASH">🗑️</span>
+            <span class="dashboard-icon" onclick="selectModule('uKNOWLEDGE')" title="uKNOWLEDGE">�</span>
+        </div>
+    </div>
     </div>
 
     <script src="static/app.js"></script>
 </body>
+
 </html>

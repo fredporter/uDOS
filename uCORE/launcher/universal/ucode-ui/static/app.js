@@ -50,7 +50,7 @@ const udosColors = {
         background: '#000000',      // Pure Black
         foreground: '#FFFFFF',      // Pure White
         accent: '#4DA378',          // Shiny Shamrock (primary)
-        secondary: '#4B5798',       // Liberty (secondary) 
+        secondary: '#4B5798',       // Liberty (secondary)
         highlight: '#D45979',       // Cinnamon Satin (accent)
         warning: '#E8A05D',         // Indian Yellow (warning)
         special: '#F8DC93',         // Caramel (highlight)
@@ -63,39 +63,39 @@ const udosColors = {
 
 // uDOS Display Size Standards (Authentic Retro Computing)
 const udosDisplaySizes = {
-    tiny: { 
-        fontSize: '8px', 
-        lineHeight: '8px', 
+    tiny: {
+        fontSize: '8px',
+        lineHeight: '8px',
         description: 'C64 PETSCII (8×8)',
         chars: { width: 40, height: 25 }
     },
-    small: { 
-        fontSize: '10px', 
-        lineHeight: '10px', 
+    small: {
+        fontSize: '10px',
+        lineHeight: '10px',
         description: 'BBC Mode 7 (8×10)',
         chars: { width: 40, height: 25 }
     },
-    medium: { 
-        fontSize: '12px', 
-        lineHeight: '14px', 
+    medium: {
+        fontSize: '12px',
+        lineHeight: '14px',
         description: 'Amiga Workbench (8×12)',
         chars: { width: 80, height: 25 }
     },
-    large: { 
-        fontSize: '14px', 
-        lineHeight: '16px', 
+    large: {
+        fontSize: '14px',
+        lineHeight: '16px',
         description: 'VT100 Terminal (7×14)',
         chars: { width: 80, height: 24 }
     },
-    huge: { 
-        fontSize: '16px', 
-        lineHeight: '18px', 
+    huge: {
+        fontSize: '16px',
+        lineHeight: '18px',
         description: 'Modern Terminal (8×16)',
         chars: { width: 120, height: 40 }
     },
-    giant: { 
-        fontSize: '20px', 
-        lineHeight: '22px', 
+    giant: {
+        fontSize: '20px',
+        lineHeight: '22px',
         description: 'Presentation Mode (10×20)',
         chars: { width: 80, height: 30 }
     }
@@ -115,7 +115,7 @@ const udosFonts = {
         authentic: true,
         default: true
     },
-    
+
     // System Fonts (built-in macOS/system fonts)
     'MONACO': {
         family: 'Monaco, monospace',
@@ -189,7 +189,7 @@ const udosFonts = {
         lineHeight: '16px',
         system: true
     },
-    
+
     // Terminal/Fallback Fonts
     'TERMINAL': {
         family: 'Topaz A1200, Monaco, monospace',
@@ -213,7 +213,7 @@ const udosFonts = {
         authentic: false,
         platform: 'c64'
     },
-    
+
     // Terminal/Fallback Fonts
     'TERMINAL': {
         family: 'Monaco, Menlo, monospace',
@@ -262,7 +262,7 @@ const ucodeModules = {
 // System Module Handlers
 const systemModules = {
     uCORE: 'Core system management',
-    uSCRIPT: 'Script automation system', 
+    uSCRIPT: 'Script automation system',
     uSERVER: 'Web services and APIs',
     uMEMORY: 'Memory and storage system',
     WIZARD: 'Development wizard tools',
@@ -282,10 +282,10 @@ function cycleFont() {
     const currentIndex = fontNames.indexOf(udosApp.currentFont);
     const nextIndex = (currentIndex + 1) % fontNames.length;
     const newFont = fontNames[nextIndex];
-    
+
     changeFont(newFont);
     addToTerminal(`🔤 Font changed to: ${newFont} - ${udosFonts[newFont].description}`, 'info');
-    
+
     // Update status bar if element exists
     const fontStat = document.getElementById('font-stat');
     if (fontStat) {
@@ -295,29 +295,29 @@ function cycleFont() {
 
 function changeFont(fontName) {
     console.log(`🔤 Changing font to: ${fontName}`);
-    
+
     if (!udosFonts[fontName]) {
         addToTerminal(`❌ Font not found: ${fontName}`, 'error');
         addToTerminal(`Available fonts: ${Object.keys(udosFonts).join(', ')}`, 'info');
         return;
     }
-    
+
     udosApp.currentFont = fontName;
     const fontConfig = udosFonts[fontName];
-    
+
     // Apply font to all text elements
     document.documentElement.style.setProperty('--current-font-family', fontConfig.family);
-    
+
     // Update body class for font-specific styles
     document.body.className = document.body.className.replace(/font-\w+/g, '');
     document.body.classList.add(fontConfig.className);
-    
+
     // Apply to terminal specifically
     const terminal = document.getElementById('terminal-output');
     if (terminal) {
         terminal.style.fontFamily = fontConfig.family;
     }
-    
+
     console.log(`✅ Font applied: ${fontName}`);
 }
 
@@ -329,7 +329,7 @@ function toggleTheme() {
     udosApp.currentTheme = udosApp.currentTheme === 'dark' ? 'light' : 'dark';
     applyTheme(udosApp.currentTheme);
     addToTerminal(`🌓 Theme changed to: ${udosApp.currentTheme}`, 'info');
-    
+
     // Update status bar if element exists
     const themeStat = document.getElementById('theme-stat');
     if (themeStat) {
@@ -339,13 +339,13 @@ function toggleTheme() {
 
 function applyTheme(themeName) {
     console.log(`🌓 Applying theme: ${themeName}`);
-    
+
     const colors = udosColors[themeName];
     if (!colors) {
         console.error(`❌ Theme not found: ${themeName}`);
         return;
     }
-    
+
     // Apply CSS custom properties
     const root = document.documentElement;
     root.style.setProperty('--bg-primary', colors.background);
@@ -356,11 +356,11 @@ function applyTheme(themeName) {
     root.style.setProperty('--text-info', colors.info);
     root.style.setProperty('--text-success', colors.success);
     root.style.setProperty('--text-secondary', colors.secondary);
-    
+
     // Update body class
     document.body.className = document.body.className.replace(/theme-\w+/g, '');
     document.body.classList.add(`theme-${themeName}`);
-    
+
     console.log(`✅ Theme applied: ${themeName}`);
 }
 
@@ -373,10 +373,10 @@ function cycleDisplaySize() {
     const currentIndex = sizeNames.indexOf(udosApp.currentDisplaySize);
     const nextIndex = (currentIndex + 1) % sizeNames.length;
     const newSize = sizeNames[nextIndex];
-    
+
     changeDisplaySize(newSize);
     addToTerminal(`📐 Display size changed to: ${newSize} - ${udosDisplaySizes[newSize].description}`, 'info');
-    
+
     // Update status bar if element exists
     const displayStat = document.getElementById('display-mode-stat');
     if (displayStat) {
@@ -386,31 +386,31 @@ function cycleDisplaySize() {
 
 function changeDisplaySize(sizeName) {
     console.log(`📐 Changing display size to: ${sizeName}`);
-    
+
     if (!udosDisplaySizes[sizeName]) {
         addToTerminal(`❌ Display size not found: ${sizeName}`, 'error');
         addToTerminal(`Available sizes: ${Object.keys(udosDisplaySizes).join(', ')}`, 'info');
         return;
     }
-    
+
     udosApp.currentDisplaySize = sizeName;
     const sizeConfig = udosDisplaySizes[sizeName];
-    
+
     // Apply font size and line height
     document.documentElement.style.setProperty('--current-font-size', sizeConfig.fontSize);
     document.documentElement.style.setProperty('--current-line-height', sizeConfig.lineHeight);
-    
+
     // Apply to terminal
     const terminal = document.getElementById('terminal-output');
     if (terminal) {
         terminal.style.fontSize = sizeConfig.fontSize;
         terminal.style.lineHeight = sizeConfig.lineHeight;
     }
-    
+
     // Update body class for size-specific styles
     document.body.className = document.body.className.replace(/size-\w+/g, '');
     document.body.classList.add(`size-${sizeName}`);
-    
+
     console.log(`✅ Display size applied: ${sizeName}`);
 }
 
@@ -421,12 +421,12 @@ function changeDisplaySize(sizeName) {
 function addToTerminal(text, type = 'output') {
     const terminal = document.getElementById('terminal-output');
     if (!terminal) return;
-    
+
     const line = document.createElement('div');
     line.className = `terminal-line terminal-${type}`;
-    
+
     // Add appropriate styling based on type
-    switch(type) {
+    switch (type) {
         case 'info':
             line.style.color = 'var(--text-info)';
             break;
@@ -445,13 +445,13 @@ function addToTerminal(text, type = 'output') {
         default:
             line.style.color = 'var(--text-primary)';
     }
-    
+
     line.textContent = text;
     terminal.appendChild(line);
-    
+
     // Auto-scroll to bottom
     terminal.scrollTop = terminal.scrollHeight;
-    
+
     // Limit terminal history (keep last 1000 lines)
     while (terminal.children.length > 1000) {
         terminal.removeChild(terminal.firstChild);
@@ -473,21 +473,21 @@ function clearTerminal() {
 function executeCommand(command) {
     const cmd = command.trim();
     if (!cmd) return;
-    
+
     // Add command to history
     udosApp.commandHistory.push(cmd);
     udosApp.historyIndex = udosApp.commandHistory.length;
-    
+
     // Display command in terminal
     addToTerminal(`> ${cmd}`, 'accent');
-    
+
     // Parse command
     const parts = cmd.split(' ');
     const mainCommand = parts[0].toUpperCase();
     const args = parts.slice(1);
-    
+
     // Handle special commands first
-    switch(mainCommand) {
+    switch (mainCommand) {
         case 'HELP':
             showHelp();
             break;
@@ -578,18 +578,18 @@ function executeUCodeModule(module, action, args) {
         addToTerminal(`❌ Module ${module} not found`, 'error');
         return;
     }
-    
+
     addToTerminal(`🔄 Executing ${module}.${action}...`, 'info');
-    
+
     if (action === 'help') {
         addToTerminal(`📚 ${module} Module Help`, 'info');
         addToTerminal(`Description: ${moduleInfo.description}`, 'output');
         addToTerminal(`Available commands: ${moduleInfo.commands.join(', ')}`, 'output');
         return;
     }
-    
+
     // Module-specific command handling
-    switch(module) {
+    switch (module) {
         case 'MEMORY':
             handleMemoryCommand(action, args);
             break;
@@ -612,8 +612,8 @@ function executeUCodeModule(module, action, args) {
 
 function executeSystemModule(module, action, args) {
     addToTerminal(`🔧 Loading ${module} module...`, 'info');
-    
-    switch(module) {
+
+    switch (module) {
         case 'SORCERER':
             handleSorcererModule(action, args);
             break;
@@ -631,7 +631,7 @@ function executeSystemModule(module, action, args) {
 // =============================================================================
 
 function handleMemoryCommand(action, args) {
-    switch(action) {
+    switch (action) {
         case 'list':
             addToTerminal('📁 Memory Files:', 'info');
             addToTerminal('▶ system.mem - Core system memory', 'output');
@@ -650,7 +650,7 @@ function handleMemoryCommand(action, args) {
 }
 
 function handleMissionCommand(action, args) {
-    switch(action) {
+    switch (action) {
         case 'list':
             addToTerminal('🎯 Active Missions:', 'info');
             addToTerminal('▶ Mission-001: Font System Enhancement', 'output');
@@ -670,7 +670,7 @@ function handleMissionCommand(action, args) {
 }
 
 function handleRenderCommand(action, args) {
-    switch(action) {
+    switch (action) {
         case 'art':
             addToTerminal('🎨 ASCII Art Generator:', 'info');
             addToTerminal('', 'output');
@@ -689,7 +689,7 @@ function handleRenderCommand(action, args) {
 }
 
 function handleDevCommand(action, args) {
-    switch(action) {
+    switch (action) {
         case 'test':
             addToTerminal('🧪 Running test suite...', 'info');
             addToTerminal('▶ Font system tests: ✅ PASSED', 'output');
@@ -710,7 +710,7 @@ function handleDevCommand(action, args) {
 }
 
 function handleLogCommand(action, args) {
-    switch(action) {
+    switch (action) {
         case 'report':
             addToTerminal('📋 System Log Report:', 'info');
             addToTerminal('▶ Total entries: 2,847', 'output');
@@ -724,7 +724,7 @@ function handleLogCommand(action, args) {
 }
 
 function handleSorcererModule(action, args) {
-    switch(action) {
+    switch (action) {
         case 'web':
             addToTerminal('🌐 SORCERER Web Automation:', 'info');
             addToTerminal('▶ Web scraping capabilities', 'output');
@@ -743,7 +743,7 @@ function handleSorcererModule(action, args) {
 }
 
 function handleWizardModule(action, args) {
-    switch(action) {
+    switch (action) {
         case 'cast':
             addToTerminal('🧙‍♂️ WIZARD Spell Casting:', 'info');
             addToTerminal('▶ Development Environment Enchantment ✨', 'output');
@@ -763,7 +763,7 @@ function handleWizardModule(action, args) {
 async function loadMemorySystemResources() {
     try {
         console.log('🧠 Loading uMEMORY system resources...');
-        
+
         // Load color palettes
         try {
             const paletteResponse = await fetch('/static/memory-system/colors/color-palettes-final.json');
@@ -774,7 +774,7 @@ async function loadMemorySystemResources() {
         } catch (e) {
             console.log('⚠️ uMEMORY palettes not available, using built-in');
         }
-        
+
         // Load font registry
         try {
             const fontResponse = await fetch('/static/memory-system/fonts/font-registry.json');
@@ -785,7 +785,7 @@ async function loadMemorySystemResources() {
         } catch (e) {
             console.log('⚠️ uMEMORY font registry not available, using built-in');
         }
-        
+
         // Load system configuration
         try {
             const configResponse = await fetch('/static/memory-system/config/system-config.json');
@@ -796,7 +796,7 @@ async function loadMemorySystemResources() {
         } catch (e) {
             console.log('⚠️ uMEMORY system config not available, using built-in');
         }
-        
+
         return true;
     } catch (error) {
         console.error('❌ Error loading uMEMORY resources:', error);
@@ -806,15 +806,15 @@ async function loadMemorySystemResources() {
 
 function showEnhancedStartupGraphics() {
     if (udosApp.startupGraphicsShown) return;
-    
+
     console.log('🚀 Displaying enhanced startup graphics...');
-    
+
     // Clear terminal first
     const terminal = document.getElementById('terminal-output');
     if (terminal) {
         terminal.innerHTML = '';
     }
-    
+
     // Enhanced startup sequence with uMEMORY integration
     addToTerminal('', 'output');
     addToTerminal('╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗', 'accent');
@@ -832,18 +832,18 @@ function showEnhancedStartupGraphics() {
     addToTerminal('║                                                                                                   ║', 'accent');
     addToTerminal('╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝', 'accent');
     addToTerminal('', 'output');
-    
+
     // System initialization sequence
     addToTerminal('🔧 SYSTEM INITIALIZATION SEQUENCE', 'info');
     addToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'output');
-    
+
     setTimeout(() => {
         addToTerminal('🧠 Loading uMEMORY system resources...', 'info');
         addToTerminal(`   ▶ Color palettes: ${udosApp.memoryPalettes ? '✅ LOADED' : '⚠️  FALLBACK'}`, 'output');
         addToTerminal(`   ▶ Font registry:  ${udosApp.memoryFonts ? '✅ LOADED' : '⚠️  FALLBACK'}`, 'output');
         addToTerminal(`   ▶ System config:  ${udosApp.systemConfig ? '✅ LOADED' : '⚠️  FALLBACK'}`, 'output');
     }, 500);
-    
+
     setTimeout(() => {
         addToTerminal('🎨 Initializing display subsystem...', 'info');
         addToTerminal('   ▶ Font engine: MODE7GX3 Authentic BBC Teletext', 'output');
@@ -851,7 +851,7 @@ function showEnhancedStartupGraphics() {
         addToTerminal('   ▶ Display mode: BBC Mode 7 Compatible (40×25)', 'output');
         addToTerminal('   ▶ Aspect ratio: 1:1.3 (Authentic teletext)', 'output');
     }, 1000);
-    
+
     setTimeout(() => {
         addToTerminal('📺 Available display configurations:', 'info');
         if (udosApp.systemConfig) {
@@ -867,7 +867,7 @@ function showEnhancedStartupGraphics() {
             addToTerminal('   ▶ Widescreen Display: 1024×768 (MODE7GX4)', 'output');
         }
     }, 1500);
-    
+
     setTimeout(() => {
         addToTerminal('🔤 Available authentic fonts:', 'info');
         if (udosApp.memoryFonts) {
@@ -889,11 +889,11 @@ function showEnhancedStartupGraphics() {
             });
         }
     }, 2000);
-    
+
     setTimeout(() => {
         showTeletextBlockDemo();
     }, 2500);
-    
+
     setTimeout(() => {
         showSystemStatus();
         addToTerminal('', 'output');
@@ -902,7 +902,7 @@ function showEnhancedStartupGraphics() {
         addToTerminal('💡 Type HELP for commands or click emoji icons for instant access', 'info');
         addToTerminal('🎨 Use PALETTE, FONT, or DISPLAY commands to customize appearance', 'info');
         addToTerminal('', 'output');
-        
+
         udosApp.startupGraphicsShown = true;
     }, 3000);
 }
@@ -925,7 +925,7 @@ function showTeletextBlockDemo() {
     addToTerminal(' █                                                                                          █', 'info');
     addToTerminal(' ████████████████████████████████████████████████████████████████████████████████████████████', 'info');
     addToTerminal('', 'output');
-    
+
     // Show color palette if uMEMORY palette is loaded
     if (udosApp.memoryPalettes) {
         addToTerminal('🎨 uMEMORY COLOR PALETTE LOADED:', 'info');
@@ -945,14 +945,14 @@ function showTeletextBlockDemo() {
 
 function switchPalette(paletteName) {
     addToTerminal(`🎨 Switching to palette: ${paletteName}`, 'info');
-    
+
     if (udosApp.memoryPalettes) {
         const palettes = udosApp.memoryPalettes.color_palettes;
         if (palettes[paletteName]) {
             const palette = palettes[paletteName];
             addToTerminal(`✅ Applied palette: ${palette.name}`, 'success');
             addToTerminal(`   Description: ${palette.description}`, 'output');
-            
+
             // Apply palette colors if theme exists
             if (palette.themes && palette.themes.default) {
                 const theme = palette.themes.default;
@@ -972,7 +972,7 @@ function switchPalette(paletteName) {
 
 function showAvailablePalettes() {
     addToTerminal('🎨 Available Color Palettes:', 'info');
-    
+
     if (udosApp.memoryPalettes) {
         const palettes = udosApp.memoryPalettes.color_palettes;
         Object.keys(palettes).forEach(key => {
@@ -990,7 +990,7 @@ function showAvailablePalettes() {
 
 function switchDisplayConfig(configName) {
     addToTerminal(`📺 Switching to display config: ${configName}`, 'info');
-    
+
     if (udosApp.systemConfig) {
         const configs = udosApp.systemConfig.system_config.display_configurations;
         if (configs[configName]) {
@@ -999,7 +999,7 @@ function switchDisplayConfig(configName) {
             addToTerminal(`   Resolution: ${config.width}×${config.height}`, 'output');
             addToTerminal(`   Font: ${config.font} (${config.font_size})`, 'output');
             addToTerminal(`   Character grid: ${config.character_grid.columns}×${config.character_grid.rows}`, 'output');
-            
+
             // Apply the font and size
             if (udosFonts[config.font]) {
                 changeFont(config.font);
@@ -1016,7 +1016,7 @@ function switchDisplayConfig(configName) {
 
 function showAvailableDisplayConfigs() {
     addToTerminal('📺 Available Display Configurations:', 'info');
-    
+
     if (udosApp.systemConfig) {
         const configs = udosApp.systemConfig.system_config.display_configurations;
         Object.keys(configs).forEach(key => {
@@ -1033,7 +1033,7 @@ function showAvailableDisplayConfigs() {
 }
 
 function handleMemorySystemCommand(action, args) {
-    switch(action.toLowerCase()) {
+    switch (action.toLowerCase()) {
         case 'status':
             showMemorySystemInfo();
             break;
@@ -1064,13 +1064,13 @@ function handleMemorySystemCommand(action, args) {
 function showMemorySystemInfo() {
     addToTerminal('🧠 uMEMORY System Status:', 'info');
     addToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'output');
-    
+
     addToTerminal(`Color Palettes: ${udosApp.memoryPalettes ? '✅ LOADED' : '❌ NOT LOADED'}`, 'output');
     if (udosApp.memoryPalettes) {
         const paletteCount = Object.keys(udosApp.memoryPalettes.color_palettes).length - 2; // Exclude metadata and css_variables
         addToTerminal(`   Available palettes: ${paletteCount}`, 'output');
     }
-    
+
     addToTerminal(`Font Registry: ${udosApp.memoryFonts ? '✅ LOADED' : '❌ NOT LOADED'}`, 'output');
     if (udosApp.memoryFonts) {
         const bbcFonts = Object.keys(udosApp.memoryFonts.font_registry.bbc_mode7_fonts).length;
@@ -1078,29 +1078,29 @@ function showMemorySystemInfo() {
         addToTerminal(`   BBC Mode 7 fonts: ${bbcFonts}`, 'output');
         addToTerminal(`   Retro fonts: ${retroFonts}`, 'output');
     }
-    
+
     addToTerminal(`System Config: ${udosApp.systemConfig ? '✅ LOADED' : '❌ NOT LOADED'}`, 'output');
     if (udosApp.systemConfig) {
         const displayConfigs = Object.keys(udosApp.systemConfig.system_config.display_configurations).length;
         addToTerminal(`   Display configurations: ${displayConfigs}`, 'output');
     }
-    
+
     addToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'output');
 }
 
 function showMemoryFonts() {
     addToTerminal('🔤 uMEMORY Font Registry:', 'info');
-    
+
     if (udosApp.memoryFonts) {
         const registry = udosApp.memoryFonts.font_registry;
-        
+
         addToTerminal('BBC Mode 7 Fonts:', 'info');
         Object.keys(registry.bbc_mode7_fonts).forEach(key => {
             const font = registry.bbc_mode7_fonts[key];
             addToTerminal(`▶ ${key}: ${font.name} (${font.size}, ${font.aspect_ratio})`, 'output');
             addToTerminal(`   ${font.description}`, 'output');
         });
-        
+
         addToTerminal('', 'output');
         addToTerminal('Retro Computer Fonts:', 'info');
         Object.keys(registry.retro_fonts).forEach(key => {
@@ -1116,10 +1116,10 @@ function showMemoryFonts() {
 
 function showMemoryConfig() {
     addToTerminal('⚙️ uMEMORY System Configuration:', 'info');
-    
+
     if (udosApp.systemConfig) {
         const config = udosApp.systemConfig.system_config;
-        
+
         addToTerminal('Display Configurations:', 'info');
         Object.keys(config.display_configurations).forEach(key => {
             const display = config.display_configurations[key];
@@ -1127,7 +1127,7 @@ function showMemoryConfig() {
             addToTerminal(`   Resolution: ${display.width}×${display.height}`, 'output');
             addToTerminal(`   Font: ${display.font} (${display.font_size})`, 'output');
         });
-        
+
         addToTerminal('', 'output');
         addToTerminal('System Defaults:', 'info');
         const defaults = config.system_defaults;
@@ -1214,7 +1214,7 @@ function showUDOSArt() {
     addToTerminal(`║  STATUS: READY ● FONT: ${udosApp.currentFont} ● THEME: ${udosApp.currentTheme.toUpperCase()} ● SIZE: ${udosApp.currentDisplaySize.toUpperCase()}      ║`, 'success');
     addToTerminal('╚══════════════════════════════════════════════════════════════════════════════════════╝', 'accent');
     addToTerminal('', 'output');
-    
+
     // Show teletext block demonstration
     addToTerminal(' ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', 'info');
     addToTerminal(' █                                                                                 █', 'info');
@@ -1258,6 +1258,11 @@ function updatePrompt() {
 function executeEmojiCommand(command) {
     // Map emoji commands to their functions
     const emojiCommands = {
+        '💾': () => triggerWorkflowScript('BACKUP'),
+        '♻️': () => triggerWorkflowScript('RESTORE'),
+        '🛠️': () => triggerWorkflowScript('REPAIR'),
+        '🔁': () => triggerWorkflowScript('SESSION'),
+        '📤': () => triggerWorkflowScript('PUSH'),
         '🌳': () => executeCommand('TREE'),
         '🔄': () => executeCommand('REBOOT'),
         '💥': () => executeCommand('DESTROY'),
@@ -1273,7 +1278,15 @@ function executeEmojiCommand(command) {
         '🌓': () => toggleTheme(),
         '📝': () => addToTerminal('📝 Markdown mode activated', 'info')
     };
-    
+    // Trigger workflow shell scripts directly (for now)
+    function triggerWorkflowScript(action) {
+        // This would ideally call a backend API, but for now just show a message
+        addToTerminal(`🚀 Triggering workflow: ${action}`, 'info');
+        // Example: window.open(`/sandbox/user/backup.sh?cmd=${action}`, '_blank');
+        // Or use fetch/ajax to POST to backend
+        // For now, just show the command
+    }
+
     if (emojiCommands[command]) {
         emojiCommands[command]();
     } else {
@@ -1293,7 +1306,7 @@ const smartCommands = {
     'status': { desc: 'Display system status', category: 'system' },
     'history': { desc: 'Show command history', category: 'system' },
     'startup': { desc: 'Show enhanced startup graphics', category: 'system' },
-    
+
     // Font Commands
     'font': { desc: 'Change font (font [name])', category: 'display' },
     'font MODE7GX0': { desc: 'Switch to MODE7GX0 square font (default)', category: 'display' },
@@ -1307,14 +1320,14 @@ const smartCommands = {
     'font SOURCE_CODE_PRO': { desc: 'Switch to Source Code Pro programming font', category: 'display' },
     'font TERMINAL': { desc: 'Switch to terminal default font', category: 'display' },
     'font VT100': { desc: 'Switch to VT100 terminal font', category: 'display' },
-    
+
     // Theme Commands
     'theme': { desc: 'Toggle light/dark theme', category: 'display' },
     'palette': { desc: 'Switch color palette (palette [name])', category: 'display' },
     'palette dark': { desc: 'Switch to dark theme', category: 'display' },
     'palette light': { desc: 'Switch to light theme', category: 'display' },
     'palette udos_final': { desc: 'Switch to uMEMORY professional palette', category: 'display' },
-    
+
     // Display Commands
     'size': { desc: 'Change display size (size [name])', category: 'display' },
     'size tiny': { desc: 'C64 PETSCII size (8×8)', category: 'display' },
@@ -1323,13 +1336,13 @@ const smartCommands = {
     'size large': { desc: 'VT100 Terminal size (7×14)', category: 'display' },
     'size huge': { desc: 'Modern Terminal size (8×16)', category: 'display' },
     'size giant': { desc: 'Presentation Mode size (10×20)', category: 'display' },
-    
+
     'display': { desc: 'Switch display config (display [config])', category: 'display' },
     'display bbc_authentic': { desc: 'BBC Mode 7 Authentic (640×500)', category: 'display' },
     'display udos_optimized': { desc: 'uDOS Optimized (800×615)', category: 'display' },
     'display compact': { desc: 'Compact Display (640×480)', category: 'display' },
     'display widescreen': { desc: 'Widescreen Display (1024×768)', category: 'display' },
-    
+
     // uMEMORY Commands
     'memory': { desc: 'uMEMORY system commands', category: 'memory' },
     'memory status': { desc: 'Show uMEMORY system status', category: 'memory' },
@@ -1337,7 +1350,7 @@ const smartCommands = {
     'memory fonts': { desc: 'Show uMEMORY font registry', category: 'memory' },
     'memory palettes': { desc: 'Show available color palettes', category: 'memory' },
     'memory config': { desc: 'Show uMEMORY system configuration', category: 'memory' },
-    
+
     // uCODE Module Commands
     'ucode': { desc: 'Enter uCODE mode', category: 'ucode' },
     'memory list': { desc: 'List memory files', category: 'ucode' },
@@ -1349,7 +1362,7 @@ const smartCommands = {
     'dev test': { desc: 'Run test suite', category: 'ucode' },
     'dev debug': { desc: 'Show debug information', category: 'ucode' },
     'log report': { desc: 'Show system log report', category: 'ucode' },
-    
+
     // System Module Commands
     'sorcerer': { desc: 'Launch SORCERER advanced admin', category: 'modules' },
     'sorcerer web': { desc: 'Web automation commands', category: 'modules' },
@@ -1359,7 +1372,7 @@ const smartCommands = {
     'drone': { desc: 'Automation tasks', category: 'modules' },
     'imp': { desc: 'Script execution engine', category: 'modules' },
     'tomb': { desc: 'Archive and backup system', category: 'modules' },
-    
+
     // Quick Actions
     'tree': { desc: 'Show file tree structure', category: 'quick' },
     'reboot': { desc: 'Restart system', category: 'quick' },
@@ -1379,51 +1392,57 @@ let smartInput = {
 function setupSmartInput() {
     const input = document.getElementById('command-input');
     if (!input) return;
-    
+
     console.log('🧠 Setting up smart input system...');
-    
+
     // Create suggestions container
     createSuggestionsContainer();
-    
+
     // Set up event listeners
     input.addEventListener('input', handleSmartInput);
     input.addEventListener('keydown', handleSmartKeydown);
     input.addEventListener('blur', hideSuggestions);
     input.addEventListener('focus', handleInputFocus);
-    
+
     console.log('✅ Smart input system ready');
 }
 
 function createSuggestionsContainer() {
     const container = document.querySelector('.command-input-container');
     if (!container) return;
-    
+
     // Remove existing suggestions if any
     const existing = document.getElementById('smart-suggestions');
     if (existing) existing.remove();
-    
+
     const suggestions = document.createElement('div');
     suggestions.id = 'smart-suggestions';
     suggestions.className = 'smart-suggestions';
     suggestions.innerHTML = '';
-    
+
     container.appendChild(suggestions);
 }
 
 function handleSmartInput(e) {
     const value = e.target.value.toLowerCase().trim();
     smartInput.currentInput = value;
-    
+
+    // Always reset selected index on new input
+    smartInput.selectedIndex = -1;
+
     if (value.length < 1) {
         hideSuggestions();
         return;
     }
-    
+
     // Find matching commands
     const matches = findCommandMatches(value);
-    
+
     if (matches.length > 0) {
         showSuggestions(matches);
+        // Always focus first suggestion for keyboard navigation
+        smartInput.selectedIndex = 0;
+        highlightSuggestion(0);
     } else {
         hideSuggestions();
     }
@@ -1431,7 +1450,7 @@ function handleSmartInput(e) {
 
 function findCommandMatches(input) {
     const matches = [];
-    
+
     // Exact matches first
     Object.keys(smartCommands).forEach(cmd => {
         if (cmd.toLowerCase().startsWith(input)) {
@@ -1442,7 +1461,7 @@ function findCommandMatches(input) {
             });
         }
     });
-    
+
     // Partial matches
     if (matches.length < 5) {
         Object.keys(smartCommands).forEach(cmd => {
@@ -1455,7 +1474,7 @@ function findCommandMatches(input) {
             }
         });
     }
-    
+
     // Sort by relevance
     return matches.slice(0, 8).sort((a, b) => {
         if (a.matchType !== b.matchType) {
@@ -1468,11 +1487,11 @@ function findCommandMatches(input) {
 function showSuggestions(matches) {
     const container = document.getElementById('smart-suggestions');
     if (!container) return;
-    
+
     smartInput.suggestions = matches;
     smartInput.selectedIndex = -1;
     smartInput.isVisible = true;
-    
+
     const html = matches.map((match, index) => {
         const categoryColor = getCategoryColor(match.category);
         return `
@@ -1485,7 +1504,7 @@ function showSuggestions(matches) {
             </div>
         `;
     }).join('');
-    
+
     container.innerHTML = html;
     container.style.display = 'block';
 }
@@ -1505,10 +1524,10 @@ function getCategoryColor(category) {
 function highlightMatch(command, input) {
     const index = command.toLowerCase().indexOf(input);
     if (index === -1) return command;
-    
-    return command.substring(0, index) + 
-           `<mark>${command.substring(index, index + input.length)}</mark>` + 
-           command.substring(index + input.length);
+
+    return command.substring(0, index) +
+        `<mark>${command.substring(index, index + input.length)}</mark>` +
+        command.substring(index + input.length);
 }
 
 function hideSuggestions() {
@@ -1522,16 +1541,24 @@ function hideSuggestions() {
 
 function selectSuggestion(index) {
     if (index < 0 || index >= smartInput.suggestions.length) return;
-    
+
     const suggestion = smartInput.suggestions[index];
     const input = document.getElementById('command-input');
-    
+
     if (input) {
         input.value = suggestion.command;
         input.focus();
     }
-    
+
     hideSuggestions();
+}
+
+function highlightSuggestion(index) {
+    const container = document.getElementById('smart-suggestions');
+    if (!container) return;
+    Array.from(container.children).forEach((el, i) => {
+        el.classList.toggle('highlighted', i === index);
+    });
 }
 
 function handleSmartKeydown(e) {
@@ -1539,18 +1566,18 @@ function handleSmartKeydown(e) {
         handleHistoryNavigation(e);
         return;
     }
-    
-    switch(e.key) {
+
+    switch (e.key) {
         case 'ArrowDown':
             e.preventDefault();
             navigateSuggestions(1);
             break;
-            
+
         case 'ArrowUp':
             e.preventDefault();
             navigateSuggestions(-1);
             break;
-            
+
         case 'Tab':
         case 'Enter':
             if (smartInput.selectedIndex >= 0) {
@@ -1564,7 +1591,7 @@ function handleSmartKeydown(e) {
                 }
             }
             break;
-            
+
         case 'Escape':
             e.preventDefault();
             hideSuggestions();
@@ -1574,22 +1601,22 @@ function handleSmartKeydown(e) {
 
 function navigateSuggestions(direction) {
     if (smartInput.suggestions.length === 0) return;
-    
+
     // Remove previous highlight
     if (smartInput.selectedIndex >= 0) {
         const prevItem = document.querySelector(`.suggestion-item[data-index="${smartInput.selectedIndex}"]`);
         if (prevItem) prevItem.classList.remove('selected');
     }
-    
+
     // Update selection
     smartInput.selectedIndex += direction;
-    
+
     if (smartInput.selectedIndex < 0) {
         smartInput.selectedIndex = smartInput.suggestions.length - 1;
     } else if (smartInput.selectedIndex >= smartInput.suggestions.length) {
         smartInput.selectedIndex = 0;
     }
-    
+
     // Highlight new selection
     const newItem = document.querySelector(`.suggestion-item[data-index="${smartInput.selectedIndex}"]`);
     if (newItem) {
@@ -1610,9 +1637,9 @@ function handleHistoryNavigation(e) {
 
 function navigateCommandHistory(direction) {
     if (udosApp.commandHistory.length === 0) return;
-    
+
     udosApp.historyIndex += direction;
-    
+
     if (udosApp.historyIndex < 0) {
         udosApp.historyIndex = 0;
     } else if (udosApp.historyIndex >= udosApp.commandHistory.length) {
@@ -1620,7 +1647,7 @@ function navigateCommandHistory(direction) {
         document.getElementById('command-input').value = '';
         return;
     }
-    
+
     const input = document.getElementById('command-input');
     if (input) {
         input.value = udosApp.commandHistory[udosApp.historyIndex] || '';
@@ -1641,21 +1668,21 @@ function handleInputFocus() {
 function setupEventListeners() {
     const commandInput = document.getElementById('command-input');
     if (!commandInput) return;
-    
+
     // Set up smart input system
     setupSmartInput();
-    
+
     // Set up basic command input handlers
     commandInput.addEventListener('keydown', handleKeyDown);
-    
+
     // Set up emoji click handlers
     document.querySelectorAll('.emoji-icon').forEach(icon => {
-        icon.addEventListener('click', function() {
+        icon.addEventListener('click', function () {
             const title = this.getAttribute('title');
             const emoji = this.textContent;
-            
+
             console.log(`🎯 Emoji clicked: ${emoji} (${title})`);
-            
+
             // Special handling for control emojis
             if (title === 'DISPLAY SIZE') {
                 cycleDisplaySize();
@@ -1671,55 +1698,56 @@ function setupEventListeners() {
             }
         });
     });
-    
+
     // Set up dashboard icon handlers
     document.querySelectorAll('.dashboard-icon').forEach(icon => {
-        icon.addEventListener('click', function() {
+        icon.addEventListener('click', function () {
             const title = this.getAttribute('title');
             if (title) {
                 selectModule(title);
             }
         });
     });
-    
+
     console.log('✅ Event listeners configured');
 }
 
 function handleKeyDown(e) {
     const input = e.target;
-    
+
     // Don't handle if smart suggestions are visible (they handle their own keys)
     if (smartInput.isVisible && ['ArrowUp', 'ArrowDown', 'Tab', 'Escape'].includes(e.key)) {
         return; // Let smart input handle these
     }
-    
-    switch(e.key) {
-        case 'Enter':
+
+    switch (e.key) {
+        case 'ArrowDown':
             e.preventDefault();
-            const command = input.value.trim();
-            if (command) {
-                // Add to command history
-                if (!udosApp.commandHistory.includes(command)) {
-                    udosApp.commandHistory.unshift(command);
-                    if (udosApp.commandHistory.length > 50) {
-                        udosApp.commandHistory.pop();
-                    }
-                }
-                udosApp.historyIndex = -1;
-                
-                executeCommand(command);
-                input.value = '';
-                hideSuggestions();
+            if (smartInput.selectedIndex < smartInput.suggestions.length - 1) {
+                smartInput.selectedIndex++;
+                highlightSuggestion(smartInput.selectedIndex);
             }
             break;
-            
-        // History navigation is now handled by smart input system
-    }
-}
 
-function handleInput(e) {
-    // This function is no longer needed as smart input handles input events
-    // Keeping for backward compatibility
+        case 'ArrowUp':
+            e.preventDefault();
+            if (smartInput.selectedIndex > 0) {
+                smartInput.selectedIndex--;
+                highlightSuggestion(smartInput.selectedIndex);
+            }
+            break;
+
+        case 'Tab':
+        case 'Enter':
+            if (smartInput.selectedIndex >= 0) {
+                e.preventDefault();
+                selectSuggestion(smartInput.selectedIndex);
+            }
+            break;
+
+        default:
+            handleHistoryNavigation(e);
+    }
 }
 
 // Navigation is now handled by smart input system
@@ -1730,25 +1758,25 @@ function handleInput(e) {
 
 function initializeUDOS() {
     console.log('🚀 Initializing uDOS Universal Code Interface...');
-    
+
     // Load uMEMORY system resources first
     loadMemorySystemResources().then(resourcesLoaded => {
         console.log(`🧠 uMEMORY resources: ${resourcesLoaded ? 'loaded' : 'fallback mode'}`);
-        
+
         // Apply default settings
         applyTheme(udosApp.currentTheme);
         changeFont(udosApp.currentFont);
         changeDisplaySize(udosApp.currentDisplaySize);
-        
+
         // Set up event listeners
         setupEventListeners();
-        
+
         // Update prompt
         updatePrompt();
-        
+
         // Show enhanced startup graphics with uMEMORY integration
         showEnhancedStartupGraphics();
-        
+
         console.log('✅ uDOS initialization complete');
     });
 }
@@ -1767,12 +1795,12 @@ window.toggleTheme = toggleTheme;
 window.executeEmojiCommand = executeEmojiCommand;
 
 // Additional UI functions for icon compatibility
-window.selectModule = function(moduleName) {
+window.selectModule = function (moduleName) {
     addToTerminal(`🔧 Loading ${moduleName} module...`, 'info');
     executeCommand(moduleName.toLowerCase());
 };
 
-window.setTheme = function(themeName) {
+window.setTheme = function (themeName) {
     addToTerminal(`🎨 Switching to ${themeName} theme...`, 'info');
     if (themeName === 'professional' || themeName === 'udos_final') {
         applyTheme('udos_final');
@@ -1782,15 +1810,15 @@ window.setTheme = function(themeName) {
 };
 
 window.clearTerminal = clearTerminal;
-window.showHelp = function() {
+window.showHelp = function () {
     executeCommand('help');
 };
 
-window.toggleHistory = function() {
+window.toggleHistory = function () {
     executeCommand('history');
 };
 
-window.toggleMarkdown = function() {
+window.toggleMarkdown = function () {
     const current = document.getElementById('markdown-stat')?.textContent || 'OFF';
     const newMode = current === 'OFF' ? 'on' : 'off';
     addToTerminal(`📝 Markdown mode: ${newMode.toUpperCase()}`, 'info');
