@@ -81,7 +81,8 @@ create_deployment_templates() {
     "uCORE/code/ucode.sh",
     "uCORE/code/log.sh",
     "uCORE/templates/system/",
-    "uMEMORY/templates/"
+    "        "uMEMORY/system/templates/"
+        "uMEMORY/system/get/""
   ],
   "structure": {
     "uCode/": ["ucode.sh", "log.sh"],

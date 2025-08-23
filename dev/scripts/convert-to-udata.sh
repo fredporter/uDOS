@@ -115,7 +115,7 @@ main() {
     local base_output_dir="/Users/agentdigital/uDOS"
     local system_output_dir="$base_output_dir/uMEMORY/system/udata-converted"
     local config_output_dir="$base_output_dir/uCORE/config/udata-converted"
-    local templates_output_dir="$base_output_dir/uMEMORY/templates/udata-converted"
+    local templates_output_dir="$base_output_dir/uMEMORY/system/templates/udata-converted"
     local permissions_output_dir="$base_output_dir/permissions/udata-converted"
 
     mkdir -p "$system_output_dir"
@@ -152,14 +152,14 @@ main() {
 
     # Template system files
     local template_files=(
-        "/Users/agentdigital/uDOS/uMEMORY/templates/get/mission-create.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/get/system-config.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/get/user-setup.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/system/error-config.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/system/shortcodes.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/variables/env.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/variables/session.json:$templates_output_dir"
-        "/Users/agentdigital/uDOS/uMEMORY/templates/variables/user-vars.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/get/mission-create.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/get/system-config.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/get/user-setup.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/templates/system/error-config.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/templates/system/shortcodes.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/templates/variables/env.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/templates/variables/session.json:$templates_output_dir"
+        "/Users/agentdigital/uDOS/uMEMORY/system/templates/variables/user-vars.json:$templates_output_dir"
     )
 
     # Permission files

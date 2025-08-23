@@ -30,7 +30,7 @@ fi
 if [[ -d "/Users/agentdigital/uDOS/uMEMORY/templates/datagets" ]]; then
     echo "⚠️  Old uMEMORY/templates/datagets directory still exists"
 else
-    echo "✅ uMEMORY/templates/datagets → uMEMORY/templates/get migration complete"
+    echo "✅ uMEMORY/templates/datagets → uMEMORY/system/get migration complete"
 fi
 
 # Check if new get directories exist
@@ -40,10 +40,10 @@ else
     echo "❌ New sandbox/get directory missing"
 fi
 
-if [[ -d "/Users/agentdigital/uDOS/uMEMORY/templates/get" ]]; then
-    echo "✅ New uMEMORY/templates/get directory exists"
+if [[ -d "/Users/agentdigital/uDOS/uMEMORY/system/get" ]]; then
+    echo "✅ New uMEMORY/system/get directory exists"
 else
-    echo "❌ New uMEMORY/templates/get directory missing"
+    echo "❌ New uMEMORY/system/get directory missing"
 fi
 
 if [[ -d "/Users/agentdigital/uDOS/uMEMORY/get" ]]; then

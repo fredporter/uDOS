@@ -14,7 +14,7 @@ fi
 TEMPLATE_ENGINE_VERSION="current"
 TEMPLATE_CACHE_DIR="${UDOS_CACHE:-${HOME}/.udos/cache}/templates"
 TEMPLATE_SYSTEM_DIR="${UDOS_ROOT:-$(pwd)}/uMEMORY/system/templates"
-TEMPLATE_USER_DIR="${UDOS_ROOT:-$(pwd)}/uMEMORY/templates"
+TEMPLATE_USER_DIR="${UDOS_ROOT:-$(pwd)}/uMEMORY/system/templates"
 
 # Export UDOS_ROOT for sub-scripts
 export UDOS_ROOT="${UDOS_ROOT:-$(pwd)}"

@@ -19,13 +19,36 @@ UDOS_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 # Load uTILE location data if available
 TILES_DIR="$UDOS_ROOT/uMEMORY/core/tiles"
-USER_LOCATION_FILE="$UDOS_ROOT/sandbox/user.md"
+
+# Function to determine the correct user.md file path
+get_user_file_path() {
+    # Check environment variable first
+    if [ -n "$UDOS_USER_MD" ] && [ -f "$UDOS_USER_MD" ]; then
+        echo "$UDOS_USER_MD"
+        return
+    fi
+
+    # Check current role configuration
+    local role_conf="$UDOS_ROOT/sandbox/current-role.conf"
+    if [ -f "$role_conf" ]; then
+        local active_user_md=$(grep "^ACTIVE_USER_MD=" "$role_conf" 2>/dev/null | cut -d'=' -f2)
+        if [ -n "$active_user_md" ] && [ -f "$active_user_md" ]; then
+            echo "$active_user_md"
+            return
+        fi
+    fi
+
+    # Fallback to default location
+    echo "$UDOS_ROOT/sandbox/user.md"
+}
+
+USER_LOCATION_FILE=$(get_user_file_path)
 
 # Function to get user settings from user.md
 get_user_settings() {
     local setting_name="$1"
     local default_value="$2"
-    
+
     if [ -f "$USER_LOCATION_FILE" ]; then
         local value=$(grep -E "^\\\$$setting_name=" "$USER_LOCATION_FILE" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | head -1)
         if [ -n "$value" ]; then
@@ -42,19 +65,19 @@ get_user_settings() {
 detect_current_tile() {
     local location=$(get_user_settings "LOCATION" "00FFFF")
     local tile_code="FFFF"  # Default system tile
-    
+
     if [[ "$location" =~ ^00[A-Z]{2}[0-9]{2}$ ]]; then
         # Extract uTILE code from location (last 4 characters)
         tile_code="${location: -4}"
     fi
-    
+
     echo "$tile_code"
 }
 
 # Function to decode uTILE location name
 get_tile_name() {
     local tile_code="$1"
-    
+
     case "$tile_code" in
         "WG10") echo "Wizard Garden Level 10" ;;
         "HO35") echo "Home Office Level 35" ;;
@@ -76,33 +99,33 @@ get_tile_name() {
 # Function to get timezone from user.md (must be set)
 get_timezone_alpha() {
     local tz_alpha=$(get_user_settings "TIMEZONE" "")
-    
+
     if [ -z "$tz_alpha" ]; then
         echo "ERRO"
         return 1
     fi
-    
+
     # Validate 4-alpha format
     if [[ ! "$tz_alpha" =~ ^[A-Z]{4}$ ]]; then
         echo "ERRO"
         return 1
     fi
-    
+
     echo "$tz_alpha"
 }
 
 # Function to get user role from user.md
 get_user_role() {
     local role=$(get_user_settings "ROLE" "")
-    
+
     if [ -z "$role" ]; then
         echo "error"
         return 1
     fi
-    
+
     # Convert to uppercase for consistency
     role=$(echo "$role" | tr '[:lower:]' '[:upper:]')
-    
+
     # Validate role
     case "$role" in
         "GHOST"|"TOMB"|"DRONE"|"IMP"|"SORCERER"|"WIZARD")
@@ -121,12 +144,12 @@ calculate_days_since_epoch() {
     local year="${date_str:0:4}"
     local month="${date_str:4:2}"
     local day="${date_str:6:2}"
-    
+
     # Calculate days since 2025-01-01
     local epoch_date=$(date -d "2025-01-01" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "2025-01-01" +%s)
     local target_date=$(date -d "${year}-${month}-${day}" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month}-${day}" +%s)
     local days=$(( (target_date - epoch_date) / 86400 ))
-    
+
     echo $days
 }
 
@@ -134,7 +157,7 @@ calculate_days_since_epoch() {
 encode_timezone_alpha() {
     local tz_alpha="$1"
     local encoded=0
-    
+
     # Convert 4-character timezone to 16-bit value
     # Each character: A=1, B=2, ..., Z=26
     for i in {0..3}; do
@@ -145,7 +168,7 @@ encode_timezone_alpha() {
         fi
         encoded=$(( encoded * 27 + char_val ))  # Base-27 encoding
     done
-    
+
     # Keep within 16-bit range
     encoded=$(( encoded % 65536 ))
     echo $encoded
@@ -158,16 +181,16 @@ generate_hex_code() {
     local tz_alpha="$3"
     local role="$4"
     local tile_code="$5"
-    
+
     # Calculate days since epoch (max 255 for single byte)
     local days=$(calculate_days_since_epoch "$date_str")
     local date_byte=$(( days % 256 ))
-    
+
     # Extract time components and pack into single byte each
     local hour=$((10#${time_str:0:2}))
     local minute=$((10#${time_str:2:2}))
     local second=$((10#${time_str:4:2}))
-    
+
     # Encode 4-alpha timezone to single byte (Base-26 encoding)
     local tz_encoded=0
     for i in {0..3}; do
@@ -177,7 +200,7 @@ generate_hex_code() {
             tz_encoded=$(( (tz_encoded * 27 + char_val) % 256 ))
         fi
     done
-    
+
     # Role encoding (4 bits) + uTILE high bits (4 bits)
     local role_encoded=10 # Default WIZARD
     case "$role" in
@@ -189,7 +212,7 @@ generate_hex_code() {
         "WIZARD") role_encoded=10 ;;
         *) role_encoded=10 ;;
     esac
-    
+
     # uTILE code encoding (simplified to fit in remaining space)
     local tile_encoded=255  # Default FF for system files
     if [[ "$tile_code" =~ ^[A-Z]{2}[0-9]{2}$ ]]; then
@@ -199,16 +222,16 @@ generate_hex_code() {
         local num_part=$((10#${tile_code:2:2}))
         tile_encoded=$(( (char1 + char2 + num_part) % 256 ))
     fi
-    
+
     # Pack role and tile high bits
     local role_tile=$(( (role_encoded << 4) | (tile_encoded >> 4) ))
     local tile_low=$(( tile_encoded & 15 ))
-    
+
     # Generate 8-character uHEX code (4 bytes)
     # Format: DDHHMMSS where:
     # DD = Date (days since epoch)
     # HH = Hour
-    # MM = Minute  
+    # MM = Minute
     # SS = Second
     printf "%02X%02X%02X%02X" $date_byte $hour $minute $second
 }
@@ -233,37 +256,37 @@ generate_filename() {
     local prefix="$1"
     local title="$2"
     local extension="${3:-md}"
-    
+
     # Get current date/time
     local current_date=$(date +%Y%m%d)
     local current_time=$(date +%H%M%S)
-    
+
     # Get user settings from user.md (required)
     local tile_code=$(detect_current_tile)
     local tz_alpha=$(get_timezone_alpha)
     local current_role=$(get_user_role)
-    
+
     # Check for errors
     if [ "$tz_alpha" = "ERRO" ] || [ "$current_role" = "error" ]; then
         echo -e "${RED}❌ Cannot generate filename - check user.md settings${NC}"
         return 1
     fi
-    
+
     # Generate compact 8-character uHEX code
     local hex_code=$(generate_hex_code "$current_date" "$current_time" "$tz_alpha" "$current_role" "$tile_code")
-    
+
     # Clean and limit title (more space available with shorter uHEX)
     local clean_title=$(echo "$title" | sed 's/[^a-zA-Z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
     if [ ${#clean_title} -gt 30 ]; then
         clean_title="${clean_title:0:27}..."
     fi
-    
+
     # Create filename with compact format
     local filename="${prefix}-${hex_code}-${clean_title}.${extension}"
-    
+
     # Get full timezone name
     local tz_full_name=$(get_timezone_name "$tz_alpha")
-    
+
     echo -e "${GREEN}� uDOS Compact Hex Generator${NC}"
     echo -e "${GREEN}8-Character Hex Codes with Required user.md Settings${NC}"
     echo -e "${CYAN}📝 $filename${NC}"
@@ -274,31 +297,78 @@ generate_filename() {
     echo -e "${CYAN}📍 uTILE: 00$tile_code ($(get_tile_name "$tile_code"))${NC}"
     echo -e "${CYAN}🔢 uHEX#: $hex_code${NC}"
     echo ""
-    
+
     echo "$filename"
 }
 
 # Function to decode uHEX filename (for verification)
 decode_uhex_filename() {
     local filename="$1"
-    
-    if [[ "$filename" =~ ^(u[A-Z]+)-([0-9A-F]{16})-(.*)\.([^.]+)$ ]]; then
+
+    # Updated regex for 8-character uHEX format
+    if [[ "$filename" =~ ^(u[A-Z]+)-([0-9A-F]{8})-(.*)\.([^.]+)$ ]]; then
         local prefix="${BASH_REMATCH[1]}"
         local hex_code="${BASH_REMATCH[2]}"
         local title="${BASH_REMATCH[3]}"
         local ext="${BASH_REMATCH[4]}"
-        
+
         echo -e "${BLUE}🔍 Decoding: $filename${NC}"
         echo -e "${CYAN}   📝 Prefix: $prefix${NC}"
         echo -e "${CYAN}   🔢 uHEX#: $hex_code${NC}"
         echo -e "${CYAN}   📄 Title: $title${NC}"
         echo -e "${CYAN}   📎 Extension: $ext${NC}"
-        
-        # TODO: Add full hex decoding logic here
-        echo -e "${YELLOW}   ⚠️  Full decode implementation pending${NC}"
+
+        # Decode the 8-character hex code
+        decode_hex_metadata "$hex_code"
     else
         echo -e "${RED}❌ Invalid uHEX filename format${NC}"
+        echo -e "${YELLOW}   Expected: uPREFIX-XXXXXXXX-Title.ext (8-character hex)${NC}"
     fi
+}
+
+# Function to decode 8-character hex metadata
+decode_hex_metadata() {
+    local hex_code="$1"
+
+    # Extract bytes from hex code (DDHHMMSS format)
+    local date_byte="0x${hex_code:0:2}"
+    local hour_byte="0x${hex_code:2:2}"
+    local minute_byte="0x${hex_code:4:2}"
+    local second_byte="0x${hex_code:6:2}"
+
+    # Convert hex to decimal
+    local date_decimal=$((date_byte))
+    local hour_decimal=$((hour_byte))
+    local minute_decimal=$((minute_byte))
+    local second_decimal=$((second_byte))
+
+    # Calculate actual date (days since 2025-01-01)
+    local epoch_date="2025-01-01"
+    local actual_date=""
+
+    # Use date command to calculate the actual date
+    if command -v date >/dev/null 2>&1; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS date command
+            actual_date=$(date -j -v+"${date_decimal}d" -f "%Y-%m-%d" "$epoch_date" "+%Y-%m-%d" 2>/dev/null)
+        else
+            # Linux date command
+            actual_date=$(date -d "$epoch_date + $date_decimal days" "+%Y-%m-%d" 2>/dev/null)
+        fi
+    fi
+
+    if [ -z "$actual_date" ]; then
+        actual_date="2025-01-01 + $date_decimal days"
+    fi
+
+    echo -e "${GREEN}"
+    echo -e "   📅 Date: $actual_date (day $date_decimal since 2025-01-01)"
+    echo -e "   ⏰ Time: $(printf "%02d:%02d:%02d" $hour_decimal $minute_decimal $second_decimal)"
+    echo -e "${NC}"
+
+    # Note: Full timezone, role, and tile decoding would require the original encoding logic
+    # For now, we show what we can decode from the compact format
+    echo -e "${YELLOW}   ℹ️  Additional metadata (timezone, role, tile) encoded in generation context${NC}"
 }
 
 # Main interface
@@ -314,20 +384,20 @@ case "${1:-help}" in
     "decode")
         if [ -z "$2" ]; then
             echo -e "${RED}❌ Usage: $0 decode <filename>${NC}"
-            echo -e "${CYAN}   Example: $0 decode uLOG-1234567890ABCDEF-System-Startup.md${NC}"
+            echo -e "${CYAN}   Example: $0 decode uTASK-EA153614-Test-File.md${NC}"
             exit 1
         fi
-        decode_hex_filename "$2"
+        decode_uhex_filename "$2"
         ;;
     "tile")
         echo -e "${BLUE}📍 Current User Settings:${NC}"
         echo -e "${CYAN}Reading from: $USER_LOCATION_FILE${NC}"
         echo ""
-        
+
         tile_code=$(detect_current_tile)
         tz_alpha=$(get_timezone_alpha)
         current_role=$(get_user_role)
-        
+
         echo ""
         echo -e "${GREEN}Current Configuration:${NC}"
         echo -e "${GREEN}   TILE Code: $tile_code${NC}"
