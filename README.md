@@ -329,7 +329,7 @@ cd uDOS
 
 # One-click launchers:
 # 🍎 macOS: Double-click "🌀-Launch-uDOS-macOS.command"
-# 🪟 Windows: Double-click "🌀-Launch-uDOS-Windows.bat"  
+# 🪟 Windows: Double-click "🌀-Launch-uDOS-Windows.bat"
 # 🐧 Ubuntu: Run "./🌀-Launch-uDOS-Ubuntu.sh"
 ```
 
