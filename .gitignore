@@ -14,7 +14,12 @@
 # 🔒 USER CONTENT ISOLATION - NEVER IN DISTRIBUTION
 # ════════════════════════════════════════════════════════════════
 
-# 🔐 Level 1: uMEMORY - Personal Archive System (SELECTIVE EXCLUSION)
+# � Top-level exclusions for user content and development
+/sandbox/
+/dev/
+/backup/
+
+# �🔐 Level 1: uMEMORY - Personal Archive System (SELECTIVE EXCLUSION)
 # Contains user missions, moves, memories, milestones, daily session data
 # EXCLUDE most uMEMORY content but INCLUDE system configuration templates
 uMEMORY/
