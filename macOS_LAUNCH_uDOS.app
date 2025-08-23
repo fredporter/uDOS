@@ -1,1 +1,0 @@
-uCORE/launcher/uDOS.app

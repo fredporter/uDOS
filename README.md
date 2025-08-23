@@ -323,13 +323,20 @@ udos-url2md-batch urls.txt
 
 ### Easy Launch (All Platforms)
 ```bash
-# Universal installer
-./uCORE/launcher/install-launcher.sh
+# Clone repository
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
-# Then use platform-specific launcher:
-# • macOS: Double-click uDOS.command
-# • Windows: Double-click uDOS.bat
-# • Linux: Use desktop launcher or run uDOS.sh
+# One-click launchers:
+# 🍎 macOS: Double-click "🌀-Launch-uDOS-macOS.command"
+# 🪟 Windows: Double-click "🌀-Launch-uDOS-Windows.bat"  
+# 🐧 Ubuntu: Run "./🌀-Launch-uDOS-Ubuntu.sh"
+```
+
+### Advanced Installation
+```bash
+# Use universal installer for custom setup
+./uCORE/launcher/install-launcher.sh
 ```
 
 ### Development Mode
