@@ -12,13 +12,13 @@ cd uDOS
 
 ### 2️⃣ **Choose Your Platform Launcher**
 
-#### 🍎 **macOS** 
+#### 🍎 **macOS**
 ```bash
 # Double-click or run:
 open "Launch-uDOS-macOS.command"
 ```
 
-#### 🪟 **Windows**  
+#### 🪟 **Windows**
 ```bash
 # Double-click or run:
 "Launch-uDOS-Windows.bat"
@@ -49,7 +49,7 @@ uDOS will automatically:
 
 ### 🎭 **Role-Based Access**
 - **👻 Ghost** (Level 10) - Demo & Evaluation
-- **⚰️ Tomb** (Level 20) - Archive Management  
+- **⚰️ Tomb** (Level 20) - Archive Management
 - **🤖 Drone** (Level 40) - Task Automation
 - **👹 Imp** (Level 60) - Development Tools
 - **🔮 Sorcerer** (Level 80) - Advanced User
@@ -65,7 +65,7 @@ uDOS will automatically:
 - **Auto-detected**: Python3, VS Code
 - **Optional**: VS Code for enhanced development
 
-### 🪟 **Windows**  
+### 🪟 **Windows**
 - **Version**: Windows 10+
 - **Required**: Git for Windows (with Git Bash) OR WSL
 - **Download Git**: https://git-scm.com/download/win
@@ -232,7 +232,7 @@ export UDOS_DEV_MODE="true"
 
 ### **Learn More**
 - **📖 Full Documentation**: `docs/README.md`
-- **🔧 Development Guide**: `dev/README.md`  
+- **🔧 Development Guide**: `dev/README.md`
 - **🎭 Role Capabilities**: `docs/User-Role-Capabilities.md`
 - **🌐 Server Setup**: `uNETWORK/server/README.md`
 
@@ -253,7 +253,7 @@ export UDOS_DEV_MODE="true"
 **uDOS is now ready to use on your system.**
 
 - ✅ Cross-platform compatibility verified
-- ✅ Dependencies automatically managed  
+- ✅ Dependencies automatically managed
 - ✅ Role-based access configured
 - ✅ Development environment available
 
@@ -261,5 +261,5 @@ export UDOS_DEV_MODE="true"
 
 ---
 
-**uDOS v1.3.3** - Universal Device Operating System  
+**uDOS v1.3.3** - Universal Device Operating System
 *Simple one-click launchers for any platform*
