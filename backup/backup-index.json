@@ -1,0 +1,26 @@
+{
+  "latest": {
+    "id": "68A86E43-008CCA",
+    "file": "20250822-231859-wizard-exit-68A86E43-008CCA.tar.gz.enc",
+    "timestamp": "2025-08-22T13:18:59Z"
+  },
+  "by_type": {
+    "exit": {
+      "id": "68A86E43-008CCA",
+      "file": "20250822-231859-wizard-exit-68A86E43-008CCA.tar.gz.enc",
+      "timestamp": "2025-08-22T13:18:59Z"
+    },
+    "manual": {
+      "id": "68A86E3C-008C04",
+      "file": "20250822-231852-wizard-manual-68A86E3C-008C04.tar.gz.enc",
+      "timestamp": "2025-08-22T13:18:52Z"
+    }
+  },
+  "by_role": {
+    "wizard": {
+      "id": "68A86E43-008CCA",
+      "file": "20250822-231859-wizard-exit-68A86E43-008CCA.tar.gz.enc",
+      "timestamp": "2025-08-22T13:18:59Z"
+    }
+  }
+}

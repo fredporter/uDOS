@@ -29,7 +29,7 @@ fi
 UHOME="${HOME}/uDOS"
 UDOS_URL2MD="$UHOME/uCORE/bin/udos-url2md"
 INPUT_FILE="$1"
-OUTPUT_DIR="${2:-$UHOME/sandbox/datagets/batch_$(date +%Y%m%d_%H%M%S)}"
+OUTPUT_DIR="${2:-$UHOME/sandbox/get/batch_$(date +%Y%m%d_%H%M%S)}"
 
 if [[ ! -f "$INPUT_FILE" ]]; then
     echo "❌ Input file not found: $INPUT_FILE" >&2
@@ -43,16 +43,16 @@ echo "📁 Output directory: $OUTPUT_DIR"
 count=0
 while IFS= read -r url || [[ -n "$url" ]]; do
     [[ -z "$url" || "$url" =~ ^# ]] && continue
-    
+
     ((count++))
     echo "[$count] Processing: $url"
-    
+
     if "$UDOS_URL2MD" -d "$OUTPUT_DIR" "$url"; then
         echo "  ✅ Success"
     else
         echo "  ❌ Failed"
     fi
-    
+
     sleep 1  # Be respectful to servers
 done < "$INPUT_FILE"
 

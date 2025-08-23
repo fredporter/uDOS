@@ -1,9 +1,0 @@
-{
-    "USERNAME": "testuser",
-    "FULL-NAME": "Test User",
-    "EMAIL": "test@example.com",
-    "LOCATION": "San Francisco, CA",
-    "TIMEZONE": "America/Los_Angeles",
-    "CREATED-DATE": "2025-08-22T10:00:00Z",
-    "LAST-UPDATED": "2025-08-22T10:00:00Z"
-}

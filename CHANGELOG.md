@@ -5,6 +5,36 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2025-08-23
+
+### 🧹 System Organization & Extension Architecture
+
+#### Added
+- **Extension Architecture**: Complete cross-platform extension system with core/user separation
+- **CLI Server Enhancement**: Role-based access for GHOST/TOMB roles with command filtering
+- **Component Registry**: JSON-based tracking system for core components
+- **Clean Directory Structure**: Organized uCORE/code with essential components only
+- **Testing Environment**: Enhanced sandbox/experiments with development tools
+
+#### Changed
+- **Extension Organization**: Moved from scattered structure to organized extensions/ folder
+- **Smart-Input Classification**: Moved from user extension to core essential component
+- **uSCRIPT Library**: Cleaned and organized script library with proper categorization
+- **Component Location**: Core components now in uCORE/code instead of separate extensions
+- **Package Management**: Moved development tools to sandbox/experiments for testing
+
+#### Removed
+- **Legacy UI Components**: Removed viewport-manager and ucode-ui (preparing for rebuild)
+- **Empty Directories**: Cleaned up all empty folders throughout the system
+- **Obsolete Packages**: Removed uSCRIPT packages folder, kept only testing modules
+- **Duplicate Files**: Eliminated backup files and duplicate manager scripts
+- **Legacy Extensions**: Archived old extension backup folders
+
+#### Fixed
+- **Registry Format**: Corrected JSON structure for component tracking
+- **Path References**: Updated all system references to new component locations
+- **Documentation**: Aligned all README files with current clean structure
+
 ## [1.3.1] - 2024-08-22
 
 ### 🎨 Font System Optimization & Smart Input Enhancement

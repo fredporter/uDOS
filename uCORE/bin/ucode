@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS v1.3.1 - Pure Command Interface
+# uDOS v1.3.2 - Pure Command Interface
 # Routes commands to appropriate execution engines
 
 set -euo pipefail
@@ -29,12 +29,12 @@ main() {
     local command="${1:-HELP}"
     shift || true
     local args="$@"
-    
+
     # Show header for interactive commands
     if [[ "$command" != "help" && "$command" != "HELP" ]]; then
-        log_info "uDOS $UDOS_VERSION - $command"
+    log_info "uDOS v1.3.2 - $command"
     fi
-    
+
     # Route command to appropriate handler
     route_command "$command" $args
 }

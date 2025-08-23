@@ -1,0 +1,236 @@
+{
+    "metadata": {
+        "version": "1.3.3",
+        "description": "uDOS Command Reference Dataset v1.3.3 with uGRID and 8-role system",
+        "last_updated": "2025-08-23",
+        "system": "uDOS-v1.3.3",
+        "format": "uDATA-v1"
+    }
+}
+{
+    "command": "CHECK",
+    "args": [
+        "TIME",
+        "LOCATION",
+        "USER",
+        "SETUP",
+        "HEALTH",
+        "ALL"
+    ],
+    "description": "Check system status and configuration",
+    "category": "diagnostic"
+}
+{
+    "command": "DISPLAY",
+    "args": [
+        "INIT",
+        "MODE",
+        "TEST",
+        "SUMMARY",
+        "HELP"
+    ],
+    "description": "Display system information and modes",
+    "category": "interface"
+}
+{
+    "command": "MAP",
+    "args": [
+        "GENERATE",
+        "REGION",
+        "CITY",
+        "SHOW",
+        "INFO"
+    ],
+    "description": "Map generation and navigation commands",
+    "category": "mapping"
+}
+{
+    "command": "DASH",
+    "args": [
+        "BUILD",
+        "LIVE",
+        "EXPORT",
+        "STATS"
+    ],
+    "description": "Dashboard creation and management",
+    "category": "dashboard"
+}
+{
+    "command": "SETUP",
+    "args": [
+        "USER",
+        "SYSTEM",
+        "PACKAGES",
+        "TEMPLATES",
+        "ROLE",
+        "TEST"
+    ],
+    "description": "System setup and configuration",
+    "category": "configuration"
+}
+{
+    "command": "LIST",
+    "args": [
+        "COMMANDS",
+        "FILES",
+        "TEMPLATES",
+        "MISSIONS",
+        "ROLES",
+        "WIDGETS"
+    ],
+    "description": "List system resources and components",
+    "category": "information"
+}
+{
+    "command": "RUN",
+    "args": [
+        "SCRIPT",
+        "TEST",
+        "VALIDATION",
+        "BACKUP"
+    ],
+    "description": "Execute scripts and system operations",
+    "category": "execution"
+}
+{
+    "command": "HELP",
+    "args": [
+        "COMMANDS",
+        "TEMPLATES",
+        "SHORTCODES",
+        "SYSTEM",
+        "UGRID",
+        "ROLES"
+    ],
+    "description": "Help system and documentation",
+    "category": "documentation"
+}
+{
+    "command": "GRID",
+    "args": [
+        "INIT",
+        "SIZE",
+        "TILE",
+        "WIDGET",
+        "SCREEN",
+        "RENDER",
+        "CLEAR"
+    ],
+    "description": "uGRID grid system management",
+    "category": "grid"
+}
+{
+    "command": "WIDGET",
+    "args": [
+        "CREATE",
+        "UPDATE",
+        "MOVE",
+        "RESIZE",
+        "DELETE",
+        "LIST",
+        "REFRESH"
+    ],
+    "description": "Widget management for grid interface",
+    "category": "widget"
+}
+{
+    "command": "UMAP",
+    "args": [
+        "GOTO",
+        "REGION",
+        "ZOOM",
+        "PAN",
+        "OVERLAY"
+    ],
+    "description": "Map navigation and interaction",
+    "category": "mapping"
+}
+{
+    "command": "ROLE",
+    "args": [
+        "ACTIVATE",
+        "CURRENT",
+        "SWITCH",
+        "LIST",
+        "PERMISSIONS"
+    ],
+    "description": "User role management and switching",
+    "category": "security"
+}
+{
+    "command": "WORKFLOW",
+    "args": [
+        "MODE",
+        "ASSIST",
+        "BRIEFINGS",
+        "ROADMAPS",
+        "CLEANUP"
+    ],
+    "description": "Workflow and development assistance",
+    "category": "workflow"
+}
+{
+    "command": "MEMORY",
+    "args": [
+        "STORE",
+        "RETRIEVE",
+        "LIST",
+        "CLEAR"
+    ],
+    "description": "Memory system operations",
+    "category": "storage"
+}
+{
+    "command": "SESSION",
+    "args": [
+        "SAVE",
+        "UNDO",
+        "REDO",
+        "HISTORY",
+        "CLEAR"
+    ],
+    "description": "Session management and history",
+    "category": "session"
+}
+{
+    "command": "BACKUP",
+    "args": [
+        "CREATE",
+        "LIST",
+        "RESTORE"
+    ],
+    "description": "Backup and restore operations",
+    "category": "backup"
+}
+{
+    "command": "TRASH",
+    "args": [
+        "LIST",
+        "EMPTY",
+        "RESTORE"
+    ],
+    "description": "Trash management operations",
+    "category": "cleanup"
+}
+{
+    "command": "UDATA",
+    "args": [
+        "PARSE",
+        "CONVERT",
+        "VALIDATE",
+        "MERGE",
+        "FILTER"
+    ],
+    "description": "uDATA format processing and validation",
+    "category": "data"
+}
+{
+    "command": "UHEX",
+    "args": [
+        "GENERATE",
+        "PARSE",
+        "VALIDATE"
+    ],
+    "description": "uHEX coordinate system operations",
+    "category": "coordinates"
+}

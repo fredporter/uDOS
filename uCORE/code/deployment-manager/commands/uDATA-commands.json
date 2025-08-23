@@ -1,0 +1,81 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "extension": "deployment-manager",
+        "total_commands": 6
+    }
+}
+{
+    "command": "DEPLOY",
+    "syntax": "[DEPLOY*type*path*options]",
+    "description": "Deploy uDOS installation",
+    "category": "deployment",
+    "role_access": 50,
+    "examples": [
+        "[DEPLOY*drone*/tmp/udos]",
+        "[DEPLOY*standalone*/opt/udos*full]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "deploy_installation"
+}
+{
+    "command": "DEPLOY_DRONE",
+    "syntax": "[DEPLOY_DRONE*path*template]",
+    "description": "Deploy lightweight drone installation",
+    "category": "deployment",
+    "role_access": 50,
+    "examples": [
+        "[DEPLOY_DRONE*/remote/path*minimal]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "deploy_drone"
+}
+{
+    "command": "DEPLOY_STANDALONE",
+    "syntax": "[DEPLOY_STANDALONE*path*config]",
+    "description": "Deploy standalone installation",
+    "category": "deployment",
+    "role_access": 50,
+    "examples": [
+        "[DEPLOY_STANDALONE*/usr/local/udos*standard]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "deploy_standalone"
+}
+{
+    "command": "DEPLOY_SERVER",
+    "syntax": "[DEPLOY_SERVER*host*options]",
+    "description": "Deploy server-based installation",
+    "category": "deployment",
+    "role_access": 60,
+    "examples": [
+        "[DEPLOY_SERVER*udos.example.com*multiuser]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "deploy_server"
+}
+{
+    "command": "DEPLOY_VALIDATE",
+    "syntax": "[DEPLOY_VALIDATE*installation]",
+    "description": "Validate deployment installation",
+    "category": "deployment",
+    "role_access": 40,
+    "examples": [
+        "[DEPLOY_VALIDATE*/opt/udos]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "validate_deployment"
+}
+{
+    "command": "DEPLOY_LIST",
+    "syntax": "[DEPLOY_LIST*type]",
+    "description": "List available deployments",
+    "category": "deployment",
+    "role_access": 30,
+    "examples": [
+        "[DEPLOY_LIST]",
+        "[DEPLOY_LIST*active]"
+    ],
+    "library": "deployment-manager.sh",
+    "function": "list_deployments"
+}

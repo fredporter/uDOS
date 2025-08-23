@@ -1,266 +1,240 @@
-# uDOS Extensions v1.3
+# uDOS Extensions System
 
-The uDOS extension system provides modular functionality expansion through a clean plugin architecture distributed across logical locations.
+## 🏗️ **Architecture Overview**
 
-## Extension Architecture
+The uDOS extension system provides a clean, cross-platform foundation for extending functionality while maintaining maximum compatibility.
 
-### Current Structure
+### **Distribution Strategy**
+
+- **`uCORE/extensions/`** - Core essential extensions (ships with uDOS)
+- **`extensions/user/`** - User-installed extensions
+- **`extensions/platform/`** - Platform-specific shims (when absolutely necessary)
+- **`extensions/install/`** - Installation workspace
+
+### **Cross-Platform Core Principles**
+
+✅ **POSIX + Python**: Core logic uses portable shell and Python3
+✅ **Avoid GNU-only**: No `sed -r`, prefer `awk` and portable commands
+✅ **Single CLI Entry**: All extensions accessible via main `udos` command
+✅ **Platform Shims**: Only when unavoidable, isolated to `platform/` directory
+
+## 📁 **Directory Structure**
+
 ```
-extensions/                    # System-wide extensions
-├── README.md                  # This file
-└── gemini/                    # Gemini AI Integration
-    ├── manifest.json
-    ├── udos-gemini.sh
-    ├── context/
-    ├── reasoning/
-    └── profiles/
-
-uSCRIPT/extensions/           # Script-related extensions
-├── extensions.sh             # Extension manager
-├── registry.json             # Extension registry
-├── deployment-manager.sh     # Deployment system
-├── smart-input-enhanced.sh   # Enhanced input system
-└── templates/
-
-wizard/vscode/                # Development extensions
-├── .vscode/                  # VS Code settings
-└── vscode-extension/         # uDOS VS Code Extension
-    ├── package.json
-    ├── snippets/
-    ├── src/
-    └── syntaxes/
+extensions/
+├── uCORE/extensions/        # Core essential extensions (ships with uDOS)
+│   ├── deployment-manager/
+│   │   ├── manifest.json
+│   │   ├── deployment-manager.sh
+│   │   └── commands/uDATA-commands.json
+│   ├── viewport-manager/
+│   ├── smart-input/
+│   └── registry.json       # uCORE extensions registry
+│
+├── user/                   # User-installed extensions
+│   ├── ai-tools/
+│   │   └── gemini-cli/
+│   └── registry.json       # User extensions registry
+│
+├── platform/               # Platform-specific code (minimal)
+│   ├── linux/
+│   ├── macos/
+│   ├── windows/
+│   └── universal/          # Cross-platform utilities
+│
+├── install/                # Installation workspace
+│   ├── downloads/          # Downloaded extension packages
+│   ├── temp/              # Installation temporary files
+│   └── cache/             # Installation cache
+│
+├── sandbox/                # Extension development
+│   ├── dev/               # Development extensions
+│   ├── testing/           # Test extensions
+│   └── experiments/       # Experimental features
+│
+├── extension-manager.sh    # Extension management tool
+└── registry.json          # Master registry (all extensions)
 ```
 
-### Registry System
-Script extensions are registered in `uSCRIPT/extensions/registry.json` with metadata including:
-- Extension ID and version
-- Name and description  
-- Category classification
-- Configuration requirements
-- Installation status
+## 🚀 **Extension Management**
 
-## Available Extensions
-
-### System Extensions (extensions/)
-
-#### 1. Gemini AI Integration (`gemini`)
-**Version:** 1.0.0  
-**Purpose:** AI-powered assistance and context awareness
-
-##### Features:
-- **Context Integration**: Automatic context collection and processing
-- **Reasoning Engines**: Role-specific AI reasoning (ghost, drone, imp)
-- **Profile Management**: Sorcerer and other role-specific profiles
-- **Command Integration**: uCode command enhancement
-- **Auto-updates**: Intelligent context refresh and maintenance
-
-##### Usage:
+### **List Extensions**
 ```bash
-# Access Gemini features through uCode commands
-🌀 GEMINI context update
-🌀 GEMINI reasoning drone
-🌀 GEMINI profile sorcerer
+./extensions/extension-manager.sh list           # All extensions
+./extensions/extension-manager.sh list core     # uCORE extensions only
+./extensions/extension-manager.sh list user     # User extensions only
 ```
 
-### Script Extensions (uSCRIPT/extensions/)
-
-### Script Extensions (uSCRIPT/extensions/)
-
-#### 1. Deployment Manager (`deployment-manager`)
-**Version:** 1.0.0  
-**Purpose:** Comprehensive deployment system for multiple installation types
-
-##### Features:
-- **Drone Installations**: Lightweight remote deployments with minimal footprint
-- **Standalone Installations**: Complete self-contained uDOS systems
-- **Server Installations**: Multi-user server deployments with API support
-- **Portable Installations**: USB/removable media optimized packages
-- **Template System**: JSON-based deployment configuration templates
-- **Validation Engine**: Automatic deployment verification
-
-##### Usage:
+### **Install User Extension**
 ```bash
-# List deployment options
-./uSCRIPT/extensions/extensions.sh RUN deployment-manager LIST
-
-# Deploy a drone installation
-./uSCRIPT/extensions/extensions.sh RUN deployment-manager DRONE /path/to/target
-
-# Deploy standalone installation
-./uSCRIPT/extensions/extensions.sh RUN deployment-manager STANDALONE /path/to/install
-
-# Create portable installation
-./uSCRIPT/extensions/extensions.sh RUN deployment-manager PORTABLE /media/usb
+./extensions/extension-manager.sh install my-tools /path/to/extension
 ```
 
-##### Templates:
-- `minimal-drone.json`: Basic drone configuration
-- `standard-installation.json`: Full standalone setup
-- `server-deployment.json`: Multi-user server config
-- `portable-package.json`: USB-optimized package
-
-#### 2. Smart Input Enhanced (`smart-input-enhanced`)
-**Version:** 2.0.0  
-**Purpose:** Advanced input collection with AI suggestions and form builders
-
-##### Features:
-- **Enhanced Validation**: 12+ input types with smart validation
-- **Form Builder**: Interactive form creation with JSON export
-- **Wizard System**: Multi-step guided workflows
-- **Context-Aware Suggestions**: Dynamic input recommendations
-- **Rich UI**: Colored prompts, symbols, and enhanced user experience
-- **Multi-Selection Support**: Single and multiple choice inputs
-
-##### Usage:
+### **Extension Information**
 ```bash
-# Show available features
-./uSCRIPT/extensions/extensions.sh RUN smart-input-enhanced LIST
-
-# Create interactive form
-./uSCRIPT/extensions/extensions.sh RUN smart-input-enhanced FORM CREATE "contact-form"
-
-# Run mission creation wizard
-./uSCRIPT/extensions/extensions.sh RUN smart-input-enhanced WIZARD mission-creation
-
-# Smart prompt with validation
-./uSCRIPT/extensions/extensions.sh RUN smart-input-enhanced PROMPT "Enter email" email
+./extensions/extension-manager.sh info deployment-manager
+./extensions/extension-manager.sh info gemini-cli
 ```
 
-##### Input Types:
-- **Basic**: text, number, float, alphanum
-- **Formatted**: email, url, phone, date, time
-- **System**: filename, path, json
-- **Interactive**: select, multiselect, checkbox, textarea
-
-##### Wizards:
-- `mission-creation`: Step-by-step mission planning
-- `project-setup`: Project initialization guide
-- `template-builder`: Custom template creation
-- `system-config`: System configuration wizard
-
-### Development Extensions (wizard/vscode/)
-
-#### 1. uDOS VS Code Extension (`vscode-extension`)
-**Version:** 1.0.0  
-**Purpose:** Enhanced VS Code support for uDOS development
-
-##### Features:
-- **Syntax Highlighting**: uSCRIPT and uDOS file support
-- **Code Snippets**: Pre-built snippets for common patterns
-- **IntelliSense**: Auto-completion for uDOS commands
-- **Debugging Support**: Integrated debugging for uSCRIPT
-- **Project Templates**: Quick project setup templates
-
-##### Files:
-- `snippets/uscript.json`: uSCRIPT language snippets
-- `snippets/udos-enhanced.json`: Enhanced uDOS snippets
-- `syntaxes/`: Language syntax definitions
-- `src/`: Extension source code
-
-## Extension Management
-
-### Loading Script Extensions
+### **Validate Extension**
 ```bash
-# List all available script extensions
-./uSCRIPT/extensions/extensions.sh LIST
-
-# Run specific script extension
-./uSCRIPT/extensions/extensions.sh RUN <extension-id> [args...]
+./extensions/extension-manager.sh validate /path/to/extension
 ```
 
-### System Extensions
-System extensions (like Gemini) are integrated directly into the uDOS core system and accessed through standard uCode commands.
+## 📋 **Extension Manifest Format**
 
-### Development Extensions
-Development extensions are automatically available in the wizard environment when using VS Code.
+Each extension requires a `manifest.json` file in uDATA-compatible format:
 
-### Extension Registry
-Script extensions are tracked in `uSCRIPT/extensions/registry.json`:
-- Extension metadata and versions
-- Configuration requirements
-- Installation status
-- Dependencies and compatibility
+```json
+{
+  "metadata": {
+    "name": "extension-name",
+    "version": "1.0.0",
+    "type": "essential|user",
+    "platform": "universal|linux|macos|windows"
+  },
+  "description": "Extension description",
+  "author": "Extension Author",
+  "commands": ["COMMAND1", "COMMAND2"],
+  "dependencies": {
+    "shell": ["required", "shell", "commands"],
+    "python": ["required", "python", "modules"]
+  },
+  "integration": {
+    "sandbox": true,
+    "workflow": true,
+    "backup": false
+  },
+  "distribution": "core|user",
+  "features": ["feature1", "feature2"]
+}
+```
 
-### Development
-Script extensions are developed in `uSCRIPT/extensions/` and follow these conventions:
-- Script naming: `<extension-id>.sh`
-- Must be executable (`chmod +x`)
-- Self-contained with metadata headers
-- Support standard command patterns (LIST, HELP, etc.)
+## 🔧 **Current Extensions**
 
-## Integration with uDOS
+### **Core Essential Extensions (Ship with uDOS in uCORE)**
 
-### Core Integration
-Extensions integrate with core uDOS components:
-- **uMEMORY**: Store forms, deployment configs, logs
-- **wizard**: Development workflow integration
-- **uKNOWLEDGE**: Template and configuration storage
-- **Logging**: Centralized action logging
+#### **deployment-manager**
+- **Purpose**: Comprehensive deployment system
+- **Commands**: `DEPLOY`, `DEPLOY_DRONE`, `DEPLOY_STANDALONE`, etc.
+- **Features**: Multiple installation types, validation, remote deployment
 
-### Template System
-Extensions utilize uDOS template system for:
-- Deployment configurations
-- Form definitions
-- Workflow templates
-- System configurations
+#### **viewport-manager**
+- **Purpose**: Window and viewport management
+- **Commands**: `VIEWPORT`, `WINDOW`
+- **Features**: Multi-mode support, Chromium integration
 
-### Workflow Integration
-Extensions work with wizard workflows for:
-- Automated deployment processes
-- Form-driven data collection
-- Template-based project setup
-- System maintenance tasks
+#### **smart-input**
+- **Purpose**: Core uDOS smart input system (unique to uDOS)
+- **Commands**: `INPUT`, `INPUT_FORM`, `INPUT_WIZARD`, etc.
+- **Features**: Dynamic forms, intelligent suggestions, multi-step wizards
 
-## Future Extensions
+### **User Extensions (Install Separately)**
 
-### Planned Extensions:
-- **Cloud Deployment Manager**: AWS, Azure, GCP integration
-- **Developer Tools**: Enhanced development environment setup
-- **Backup & Sync**: Automated backup and synchronization
-- **API Extensions**: REST API generation and management
-- **Monitoring Tools**: System health and performance monitoring
+#### **gemini-cli**
+- **Purpose**: Google Gemini AI integration
+- **Commands**: `ASSIST`, `COMMAND`
+- **Features**: Natural language interface, AI assistance## 🛠️ **Creating Extensions**
 
-### Extension Framework:
-- Plugin API for third-party extensions
-- Extension marketplace and discovery
-- Automatic updates and dependency management
-- Cross-extension communication protocols
+### **1. Basic Structure**
+```bash
+mkdir -p my-extension/{commands,library/{shell,python},templates}
+```
 
-## Migration Notes
+### **2. Create Manifest**
+```json
+{
+  "metadata": {"name": "my-extension", "version": "1.0.0", "type": "user", "platform": "universal"},
+  "description": "My custom extension",
+  "commands": ["MYCMD"],
+  "dependencies": {"shell": ["awk"], "python": []},
+  "integration": {"sandbox": true, "workflow": false, "backup": false}
+}
+```
 
-### From Legacy Components:
-- **uCORE/extensions/** → Reorganized into logical locations
-- **drone-management.sh** → `deployment-manager` extension
-- **smart-input.sh** → Enhanced in `smart-input-enhanced` extension
-- Core functionality preserved and expanded
-- Backward compatibility maintained where possible
+### **3. Implement Commands (uDATA format)**
+```json
+{
+  "metadata": {"version": "1.0.0", "extension": "my-extension", "total_commands": 1}
+}
+{"command": "MYCMD", "syntax": "[MYCMD*param]", "description": "My command", "category": "custom", "role_access": 30, "examples": ["[MYCMD*test]"], "library": "my-script.sh", "function": "my_function"}
+```
 
-### Configuration Migration:
-- Legacy configs moved to appropriate extension locations
-- New distributed extension system
-- Template-driven setup replacing hardcoded configurations
-- Role-based extension access and management
+### **4. Cross-Platform Shell Library**
+```bash
+#!/usr/bin/env bash
+# Use POSIX-compliant shell code
 
-## Best Practices
+my_function() {
+    local param="$1"
 
-### Extension Development:
-1. Follow naming conventions (`extension-id.sh`)
-2. Place extensions in appropriate locations by purpose
-3. Include metadata headers with version info
-4. Implement standard commands (LIST, HELP)
-5. Use uDOS logging and directory conventions
-6. Provide comprehensive validation and error handling
+    # Use portable commands
+    echo "$param" | awk '{print toupper($0)}'  # Instead of tr
 
-### Usage Guidelines:
-1. Use appropriate extension manager for each type
-2. Check extension registry for capabilities and versions
-3. Use templates for consistent configurations
-4. Log actions for audit trails and debugging
-5. Validate inputs and outputs for system integrity
+    # Check dependencies
+    command -v required_tool >/dev/null 2>&1 || {
+        echo "Error: required_tool not found" >&2
+        return 1
+    }
+}
+```
+
+### **5. Install Extension**
+```bash
+./extensions/extension-manager.sh install my-extension /path/to/my-extension
+```
+
+## 🔗 **Integration with uDOS**
+
+### **Command Integration**
+Extensions automatically integrate with the uDOS command system:
+```bash
+# Extension commands available in help system
+help DEPLOY
+help ASSIST
+
+# Commands work from any uDOS interface
+[DEPLOY*drone*/tmp/installation]
+[ASSIST*"help me debug this script"]
+```
+
+### **Sandbox Integration**
+Extensions that support sandbox integration:
+```bash
+sandbox EXTENSION CREATE my-extension
+sandbox EXTENSION TEST my-extension
+```
+
+### **Workflow Integration**
+Extensions can participate in workflow tracking:
+```bash
+sandbox WORKFLOW MOVE development "Installing new extension"
+```
+
+## 🎯 **Benefits**
+
+✅ **Clean Distribution**: Core vs user separation
+✅ **Cross-Platform**: POSIX + Python foundation
+✅ **Unified Commands**: All extensions use uDATA command format
+✅ **Easy Installation**: Simple extension manager
+✅ **Development Ready**: Sandbox integration for testing
+✅ **Backwards Compatible**: Works with existing uDOS systems
+
+## 🏛️ **Legacy Migration**
+
+Previous extension files have been reorganized:
+
+- **`uSCRIPT/extensions/`** → **`extensions/legacy-udos-extensions/`** (backup)
+- **System tools** → **`extensions/core/essential/`**
+- **AI tools** → **`extensions/user/ai-tools/`**
+- **Development tools** → **`extensions/user/development-tools/`**
+
+## 📚 **Documentation**
+
+- **Extension Development**: See individual extension README files
+- **Command Reference**: Use `help <COMMAND>` for any extension command
+- **API Documentation**: See `uCORE/README.md` for core integration APIs
 
 ---
 
-**Status**: Active and Distributed  
-**Compatibility**: uDOS v1.3+  
-**Architecture**: Reorganized for logical distribution  
-**Last Updated**: August 17, 2025
+**The extension system grows through plugins, not core changes.** 🔌

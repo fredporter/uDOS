@@ -1,0 +1,48 @@
+# Development directory .gitignore
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# VSCode backups
+vscode-backup-*/
+
+# Development logs
+dev-*.log
+debug-*.log
+
+# Test outputs
+test-results/
+*.test.json
+
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+
+# IDE files (if any other editors used)
+.idea/
+*.swp
+*.swo
+
+# Local development configs
+local-config.*
+dev-config.*
+
+# Generated documentation
+docs/generated/
+
+# Node modules (if any JS tools used)
+node_modules/
+
+# Python cache (if any Python tools used)
+__pycache__/
+*.pyc
+*.pyo

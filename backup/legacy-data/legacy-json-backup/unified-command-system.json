@@ -1,0 +1,444 @@
+{
+    "metadata": {
+        "version": "1.3.3",
+        "description": "Unified uDOS Command System - Dynamic Help-Driven Dataset",
+        "last_updated": "2025-08-23",
+        "total_commands": 89,
+        "features": [
+            "Dynamic help system integration",
+            "Multi-language command support",
+            "Context-aware examples",
+            "Role-based command filtering",
+            "Real-time validation",
+            "Interactive assistance"
+        ]
+    },
+    "system_info": {
+        "help_engine": "v1.3.3",
+        "supported_languages": [
+            "uCODE",
+            "Shortcode",
+            "VB-Style",
+            "System"
+        ],
+        "integration_points": [
+            "CLI",
+            "Dashboard",
+            "Templates",
+            "Scripts"
+        ],
+        "data_sources": [
+            "commands.json",
+            "shortcodes.json",
+            "dynamic-commands.json",
+            "ucode-commands.json",
+            "vb-commands.json"
+        ]
+    },
+    "command_categories": [
+        {
+            "category": "system",
+            "description": "Core system operations",
+            "icon": "⚙️",
+            "color": "#2196F3",
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ]
+        },
+        {
+            "category": "ugrid",
+            "description": "uGRID display and widget management",
+            "icon": "🎮",
+            "color": "#4CAF50",
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ]
+        },
+        {
+            "category": "data",
+            "description": "Data processing and manipulation",
+            "icon": "📊",
+            "color": "#FF9800",
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ]
+        },
+        {
+            "category": "workflow",
+            "description": "Workflow and automation",
+            "icon": "🔄",
+            "color": "#9C27B0",
+            "role_access": [
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ]
+        },
+        {
+            "category": "git",
+            "description": "Version control operations",
+            "icon": "🔀",
+            "color": "#F44336",
+            "role_access": [
+                "SORCERER",
+                "WIZARD"
+            ]
+        },
+        {
+            "category": "debug",
+            "description": "Debugging and diagnostics",
+            "icon": "🐛",
+            "color": "#607D8B",
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ]
+        }
+    ],
+    "unified_commands": [
+        {
+            "command": "HELP",
+            "languages": [
+                "uCODE",
+                "Shortcode",
+                "VB",
+                "System"
+            ],
+            "category": "system",
+            "priority": 1,
+            "role_access": [
+                "GHOST",
+                "TOMB",
+                "CRYPT",
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "HELP [command] [language]",
+                "shortcode": "[HELP|COMMAND*lang]",
+                "vb": "VB.HELP [command]",
+                "system": "HELP <command>"
+            },
+            "description": "Dynamic help system with context-aware assistance",
+            "examples": {
+                "basic": [
+                    "HELP",
+                    "HELP PRINT",
+                    "HELP GRID"
+                ],
+                "filtered": [
+                    "HELP ROLE:WIZARD",
+                    "HELP CATEGORY:ugrid"
+                ],
+                "interactive": [
+                    "HELP --interactive",
+                    "HELP --examples"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "command",
+                    "type": "string",
+                    "required": false,
+                    "description": "Specific command to get help for"
+                },
+                {
+                    "name": "language",
+                    "type": "enum",
+                    "values": [
+                        "ucode",
+                        "shortcode",
+                        "vb",
+                        "system"
+                    ],
+                    "description": "Filter by command language"
+                },
+                {
+                    "name": "category",
+                    "type": "enum",
+                    "values": [
+                        "system",
+                        "ugrid",
+                        "data",
+                        "workflow",
+                        "git",
+                        "debug"
+                    ],
+                    "description": "Filter by category"
+                },
+                {
+                    "name": "role",
+                    "type": "enum",
+                    "values": [
+                        "GHOST",
+                        "TOMB",
+                        "CRYPT",
+                        "DRONE",
+                        "KNIGHT",
+                        "IMP",
+                        "SORCERER",
+                        "WIZARD"
+                    ],
+                    "description": "Filter by role access"
+                }
+            ],
+            "features": [
+                "Interactive command explorer",
+                "Role-based filtering",
+                "Real-time syntax validation",
+                "Context-aware examples",
+                "Cross-reference related commands"
+            ],
+            "integration": {
+                "script": "uCORE/core/help-engine-v1.3.3.sh",
+                "datasets": [
+                    "unified-command-system.json"
+                ],
+                "ui_components": [
+                    "help-dashboard",
+                    "command-explorer",
+                    "syntax-validator"
+                ]
+            }
+        },
+        {
+            "command": "GRID",
+            "languages": [
+                "uCODE",
+                "Shortcode"
+            ],
+            "category": "ugrid",
+            "priority": 5,
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "GRID <operation> [parameters]",
+                "shortcode": "[GRID|OPERATION*params]"
+            },
+            "description": "uGRID display system operations",
+            "operations": [
+                {
+                    "name": "INIT",
+                    "description": "Initialize grid with dimensions",
+                    "syntax": "GRID INIT <width>/<height>",
+                    "examples": [
+                        "GRID INIT 80/30",
+                        "GRID INIT 120/40"
+                    ]
+                },
+                {
+                    "name": "TILE",
+                    "description": "Create grid tile",
+                    "syntax": "GRID TILE CREATE <x>/<y> <content>",
+                    "examples": [
+                        "GRID TILE CREATE 0/0 'Header'",
+                        "GRID TILE CREATE 10/5 {USER-NAME}"
+                    ]
+                },
+                {
+                    "name": "WIDGET",
+                    "description": "Create widget in grid",
+                    "syntax": "GRID WIDGET CREATE <name> <x>/<y> <w>/<h>",
+                    "examples": [
+                        "GRID WIDGET CREATE status 0/0 40/8",
+                        "GRID WIDGET CREATE chart 20/10 60/20"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "uCORE/core/ugrid-engine-v1.3.3.sh",
+                "datasets": [
+                    "grid-layouts.json",
+                    "widget-definitions.json"
+                ],
+                "ui_components": [
+                    "grid-renderer",
+                    "widget-manager"
+                ]
+            }
+        },
+        {
+            "command": "ROLE",
+            "languages": [
+                "uCODE",
+                "Shortcode",
+                "System"
+            ],
+            "category": "system",
+            "priority": 3,
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "ROLE <operation> [role_name]",
+                "shortcode": "[ROLE|OPERATION*role]",
+                "system": "ROLE <action>"
+            },
+            "description": "8-role system management",
+            "operations": [
+                {
+                    "name": "CURRENT",
+                    "description": "Show current active role",
+                    "examples": [
+                        "ROLE CURRENT"
+                    ]
+                },
+                {
+                    "name": "SWITCH",
+                    "description": "Switch to different role",
+                    "examples": [
+                        "ROLE SWITCH WIZARD",
+                        "ROLE SWITCH IMP"
+                    ],
+                    "validation": "role_permission_check"
+                },
+                {
+                    "name": "LIST",
+                    "description": "List available roles and permissions",
+                    "examples": [
+                        "ROLE LIST",
+                        "ROLE LIST --detailed"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "uCORE/core/role-manager-v1.3.3.sh",
+                "datasets": [
+                    "user-roles.json"
+                ],
+                "validation": "role_permission_validator"
+            }
+        }
+    ],
+    "dynamic_help_features": {
+        "interactive_mode": {
+            "enabled": true,
+            "features": [
+                "Command autocomplete",
+                "Parameter suggestions",
+                "Real-time syntax checking",
+                "Example generation",
+                "Related command suggestions"
+            ]
+        },
+        "context_awareness": {
+            "current_role": "Filter commands by user role",
+            "active_session": "Show session-relevant commands",
+            "current_directory": "Show location-aware commands",
+            "recent_commands": "Suggest based on usage patterns"
+        },
+        "validation_engine": {
+            "syntax_checking": "Real-time parameter validation",
+            "permission_checking": "Role-based access control",
+            "dependency_checking": "Required service validation",
+            "example_testing": "Automated example verification"
+        }
+    },
+    "integration_architecture": {
+        "help_engine": {
+            "script": "uCORE/core/help-engine-v1.3.3.sh",
+            "functions": [
+                "load_command_datasets()",
+                "filter_by_role(role)",
+                "filter_by_category(category)",
+                "generate_examples(command)",
+                "validate_syntax(input)",
+                "suggest_commands(partial_input)"
+            ]
+        },
+        "data_loader": {
+            "script": "uCORE/core/data-loader-v1.3.3.sh",
+            "functions": [
+                "load_unified_commands()",
+                "merge_legacy_datasets()",
+                "validate_command_definitions()",
+                "cache_command_index()"
+            ]
+        },
+        "ui_integration": {
+            "dashboard_widgets": [
+                "command-explorer",
+                "help-panel",
+                "syntax-validator"
+            ],
+            "cli_enhancements": [
+                "autocomplete",
+                "inline-help",
+                "parameter-hints"
+            ],
+            "template_integration": [
+                "command-reference",
+                "help-blocks"
+            ]
+        }
+    },
+    "migration_plan": {
+        "phase_1": {
+            "description": "Consolidate existing command files",
+            "tasks": [
+                "Create unified-command-system.json",
+                "Merge all command definitions",
+                "Standardize schema format",
+                "Add role-based filtering"
+            ]
+        },
+        "phase_2": {
+            "description": "Implement dynamic help engine",
+            "tasks": [
+                "Create help-engine-v1.3.3.sh",
+                "Integrate with existing uCODE system",
+                "Add interactive features",
+                "Implement validation engine"
+            ]
+        },
+        "phase_3": {
+            "description": "UI integration and optimization",
+            "tasks": [
+                "Dashboard integration",
+                "CLI enhancements",
+                "Template system integration",
+                "Performance optimization"
+            ]
+        }
+    },
+    "cleanup_recommendations": {
+        "files_to_consolidate": [
+            "commands.json → unified-command-system.json",
+            "shortcodes.json → unified-command-system.json",
+            "dynamic-commands.json → unified-command-system.json",
+            "ucode-commands.json → unified-command-system.json",
+            "vb-commands.json → unified-command-system.json"
+        ],
+        "files_to_remove": [
+            "udata-converted/uDATA-*-commands.json (duplicates)",
+            "udata-converted/uDATA-*-shortcodes.json (duplicates)"
+        ],
+        "files_to_create": [
+            "help-engine-v1.3.3.sh",
+            "command-validator-v1.3.3.sh",
+            "interactive-help-ui.sh"
+        ]
+    }
+}

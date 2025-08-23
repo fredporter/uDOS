@@ -1,0 +1,40 @@
+{
+    "metadata": {
+        "name": "deployment-manager",
+        "version": "1.0.0",
+        "type": "essential",
+        "platform": "universal"
+    },
+    "description": "Comprehensive deployment system for multiple installation types",
+    "author": "uDOS Core Team",
+    "commands": [
+        "DEPLOY"
+    ],
+    "dependencies": {
+        "shell": [
+            "rsync",
+            "tar",
+            "ssh"
+        ],
+        "python": []
+    },
+    "integration": {
+        "sandbox": true,
+        "workflow": true,
+        "backup": true
+    },
+    "distribution": "core",
+    "supported_platforms": [
+        "macOS",
+        "Linux",
+        "Windows"
+    ],
+    "installation_types": {
+        "drone": "Lightweight remote installation with core functionality",
+        "standalone": "Complete self-contained installation",
+        "server": "Server-based installation with multi-user support",
+        "portable": "USB/removable media installation",
+        "cloud": "Cloud-based deployment with sync capabilities",
+        "developer": "Development environment with full toolchain"
+    }
+}

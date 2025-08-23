@@ -1,49 +1,40 @@
-# uSCRIPT v1.3 - Production Script Library & Execution Engine
+# uSCRIPT v1.3.3 - Production Script Library & Execution Engine
 
-uSCRIPT v1.3 is a comprehensive production script library and execution engine for uDOS. Unlike the development-focused wizard folder, uSCRIPT is designed for managing and executing finalized, production-ready scripts across multiple programming languages.
+uSCRIPT v1.3.3 is the modular home for advanced script features and execution engine for uDOS. This version has been cleaned and optimized for production use with organized libraries and proper package management.
 
-## Purpose
+## Key Features
+- **Clean Organization**: Scripts organized by language and purpose
+- **Package Management**: Integrated package installation and management
+- **Security Levels**: Three-tier security model for safe script execution
+- **Language Support**: Python, Shell, JavaScript, and uCODE formats
+- **Production Ready**: Thoroughly tested and documented scripts
 
-uSCRIPT v1.3 serves as:
-- **Production Script Library**: Repository for finalized, tested scripts
-- **Multi-Language Execution Engine**: Support for Python, Shell, JavaScript, and native uCODE
-- **Security-First Architecture**: Sandboxed execution with configurable security levels
-- **Enterprise Script Management**: Catalog-based organization with metadata and versioning
-
-## Key Differences from Wizard
-
-| Aspect | uSCRIPT v1.3 | wizard/ |
-|--------|--------------|---------|
-| Purpose | Production script library | Development & testing |
-| Script Types | Finalized, production-ready | One-off development scripts |
-| Languages | Python, JS, Shell, uCODE | Primarily bash/development |
-| Security | Multi-level with sandboxing | Development-focused |
-| Organization | Catalog-based registry | Task-based folders |
+## Usage
+- **Script Execution**: Use `./uscript.sh run <script-name>` for secure execution
+- **uCODE Modules**: Access native uDOS functionality through `library/ucode/`
+- **System Scripts**: Core system operations in `library/shell/system/`
+- **Development Tools**: Testing modules available in `sandbox/experiments/`
 
 ## Directory Structure
 
 ```
 uSCRIPT/
-├── uscript.sh              # Main execution engine
-├── README.md               # This documentation
-├── config/                 # System configuration
-│   ├── defaults.json       # Default execution settings
-│   ├── engines.json        # Language engine configs
-│   └── security.json       # Security level definitions
-├── library/                # Script library organized by language/type
-│   ├── python/             # Python scripts (.py)
-│   ├── shell/              # Shell scripts (.sh)
-│   ├── javascript/         # JavaScript/Node.js scripts (.js)
-│   ├── ucode/              # Native uCODE scripts (.ucode.md)
-│   ├── utilities/          # General utility scripts
-│   └── automation/         # Automation and workflow scripts
-├── registry/               # Script catalog and metadata
-│   └── catalog.json        # Master script registry
-├── runtime/                # Execution environment
-│   ├── engines/            # Language-specific execution engines
-│   ├── sandbox/            # Sandboxed execution environments
-│   └── logs/               # Execution logs and history
-└── executed/               # Archive of completed executions
+├── active/                  # Active development scripts
+│   ├── cleanup-uknowledge.sh
+│   ├── ucode-modular.sh     # Modular command system
+│   └── ucode-v13.sh         # Legacy modular code
+├── library/                 # Organized script library
+│   ├── core/                # Core system scripts
+│   ├── javascript/          # JavaScript modules
+│   ├── python/              # Python scripts and modules
+│   ├── shell/               # Shell scripts organized by category
+│   ├── ucode/               # Native uCODE scripts and modules
+│   └── user-memory/         # User memory management
+├── config/                  # Configuration files
+├── registry/                # Script registry and metadata
+├── runtime/                 # Runtime execution environment
+├── venv/                    # Python virtual environment
+└── uscript.sh               # Main execution engine
 ```
 
 ## Security Levels
@@ -59,8 +50,6 @@ uSCRIPT v1.3 implements a three-tier security model:
 ### Initialize System
 ```bash
 ./uscript.sh init
-```
-
 ### List Available Scripts
 ```bash
 ./uscript.sh list
@@ -107,6 +96,8 @@ Scripts in uSCRIPT should be:
 
 ## Version History
 
+- **v1.3.3** (2025-08-23): Cleaned and optimized structure, organized libraries
+- **v1.3.2** (2025-08-22): Modularized advanced features, improved organization
 - **v1.3.0** (2025-08-17): Complete redesign as production script library
 - **v1.2.x**: Development script manager (deprecated)
 - **v1.1.x**: Basic script execution (deprecated)

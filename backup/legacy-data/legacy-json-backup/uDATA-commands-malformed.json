@@ -1,0 +1,948 @@
+{
+    "metadata": {
+        "system": "uDOS-v1.3.3",
+        "version": "1.3.3",
+        "format": "uDATA-v1",
+        "description": "Unified uDOS Command System - All commands use [COMMAND|SYNTAX] format",
+        "command_count": 39,
+        "categories": [
+            "system",
+            "dashboard",
+            "ugrid",
+            "data",
+            "template",
+            "workflow",
+            "utility",
+            "security",
+            "mapping"
+        ]
+    }
+}
+{
+    "command": "CHECK",
+    "syntax": "[CHECK|ARG]",
+    "args": [
+        "TIME",
+        "LOCATION",
+        "USER",
+        "SETUP",
+        "HEALTH",
+        "ALL"
+    ],
+    "description": "Check system status and configuration",
+    "category": "system",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[CHECK|HEALTH]",
+        "[CHECK|TIME]",
+        "[CHECK|ALL]"
+    ]
+}
+{
+    "command": "DISPLAY",
+    "syntax": "[DISPLAY|ARG]",
+    "args": [
+        "INIT",
+        "MODE",
+        "TEST",
+        "SUMMARY",
+        "HELP"
+    ],
+    "description": "Display system information and modes",
+    "category": "system",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[DISPLAY|INIT]",
+        "[DISPLAY|MODE]",
+        "[DISPLAY|SUMMARY]"
+    ]
+}
+{
+    "command": "MAP",
+    "syntax": "[MAP|ARG]",
+    "args": [
+        "GENERATE",
+        "REGION",
+        "CITY",
+        "SHOW",
+        "INFO"
+    ],
+    "description": "Map generation and navigation commands",
+    "category": "mapping",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[MAP|GENERATE]",
+        "[MAP|REGION*europe]",
+        "[MAP|CITY*london]"
+    ]
+}
+{
+    "command": "DASH",
+    "syntax": "[DASH|ARG]",
+    "args": [
+        "BUILD",
+        "LIVE",
+        "EXPORT",
+        "STATS"
+    ],
+    "description": "Dashboard creation and management",
+    "category": "dashboard",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[DASH|LIVE]",
+        "[DASH|BUILD*my-dashboard]",
+        "[DASH|STATS]"
+    ]
+}
+{
+    "command": "SETUP",
+    "syntax": "[SETUP|ARG]",
+    "args": [
+        "USER",
+        "SYSTEM",
+        "PACKAGES",
+        "TEMPLATES",
+        "ROLE",
+        "TEST"
+    ],
+    "description": "System setup and configuration",
+    "category": "system",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[SETUP|USER]",
+        "[SETUP|SYSTEM]",
+        "[SETUP|ROLE*wizard]"
+    ]
+}
+{
+    "command": "LIST",
+    "syntax": "[LIST|ARG]",
+    "args": [
+        "COMMANDS",
+        "FILES",
+        "TEMPLATES",
+        "MISSIONS",
+        "ROLES",
+        "WIDGETS"
+    ],
+    "description": "List system resources and components",
+    "category": "utility",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[LIST|COMMANDS]",
+        "[LIST|FILES]",
+        "[LIST|ROLES]"
+    ]
+}
+{
+    "command": "RUN",
+    "syntax": "[RUN|ARG]",
+    "args": [
+        "SCRIPT",
+        "TEST",
+        "VALIDATION",
+        "BACKUP"
+    ],
+    "description": "Execute scripts and system operations",
+    "category": "utility",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[RUN|SCRIPT*backup.sh]",
+        "[RUN|TEST]",
+        "[RUN|VALIDATION]"
+    ]
+}
+{
+    "command": "HELP",
+    "syntax": "[HELP|ARG]",
+    "args": [
+        "COMMANDS",
+        "TEMPLATES",
+        "SHORTCODES",
+        "SYSTEM",
+        "UGRID",
+        "ROLES"
+    ],
+    "description": "Help system and documentation",
+    "category": "system",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[HELP|COMMANDS]",
+        "[HELP|UGRID]",
+        "[HELP|ROLES]"
+    ]
+}
+{
+    "command": "GRID",
+    "syntax": "[GRID|ARG]",
+    "args": [
+        "INIT",
+        "SIZE",
+        "TILE",
+        "WIDGET",
+        "SCREEN",
+        "RENDER",
+        "CLEAR"
+    ],
+    "description": "uGRID grid system management",
+    "category": "ugrid",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[GRID|INIT*120x48]",
+        "[GRID|WIDGET*clock]",
+        "[GRID|RENDER]"
+    ]
+}
+{
+    "command": "WIDGET",
+    "syntax": "[WIDGET|ARG]",
+    "args": [
+        "CREATE",
+        "UPDATE",
+        "MOVE",
+        "RESIZE",
+        "DELETE",
+        "LIST",
+        "REFRESH"
+    ],
+    "description": "Widget management for grid interface",
+    "category": "ugrid",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[WIDGET|CREATE*clock*A1]",
+        "[WIDGET|MOVE*clock*B2]",
+        "[WIDGET|LIST]"
+    ]
+}
+{
+    "command": "UMAP",
+    "syntax": "[UMAP|ARG]",
+    "args": [
+        "GOTO",
+        "REGION",
+        "ZOOM",
+        "PAN",
+        "OVERLAY"
+    ],
+    "description": "Map navigation and interaction",
+    "category": "mapping",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[UMAP|GOTO*london]",
+        "[UMAP|ZOOM*2]",
+        "[UMAP|OVERLAY*weather]"
+    ]
+}
+{
+    "command": "ROLE",
+    "syntax": "[ROLE|ARG]",
+    "args": [
+        "ACTIVATE",
+        "CURRENT",
+        "SWITCH",
+        "LIST",
+        "PERMISSIONS"
+    ],
+    "description": "User role management and switching",
+    "category": "security",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[ROLE|CURRENT]",
+        "[ROLE|SWITCH*sorcerer]",
+        "[ROLE|LIST]"
+    ]
+}
+{
+    "command": "WORKFLOW",
+    "syntax": "[WORKFLOW|ARG]",
+    "args": [
+        "MODE",
+        "ASSIST",
+        "BRIEFINGS",
+        "ROADMAPS",
+        "CLEANUP"
+    ],
+    "description": "Workflow and development assistance",
+    "category": "workflow",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[WORKFLOW|MODE]",
+        "[WORKFLOW|ASSIST*enter]",
+        "[WORKFLOW|BRIEFINGS]"
+    ]
+}
+{
+    "command": "MEMORY",
+    "syntax": "[MEMORY|ARG]",
+    "args": [
+        "STORE",
+        "RETRIEVE",
+        "LIST",
+        "CLEAR"
+    ],
+    "description": "Memory system operations",
+    "category": "data",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[MEMORY|STORE*key*value]",
+        "[MEMORY|RETRIEVE*key]",
+        "[MEMORY|LIST]"
+    ]
+}
+{
+    "command": "SESSION",
+    "syntax": "[SESSION|ARG]",
+    "args": [
+        "SAVE",
+        "UNDO",
+        "REDO",
+        "HISTORY",
+        "CLEAR"
+    ],
+    "description": "Session management and history",
+    "category": "utility",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[SESSION|SAVE]",
+        "[SESSION|HISTORY]",
+        "[SESSION|CLEAR]"
+    ]
+}
+{
+    "command": "BACKUP",
+    "syntax": "[BACKUP|ARG]",
+    "args": [
+        "CREATE",
+        "LIST",
+        "RESTORE"
+    ],
+    "description": "Backup and restore operations",
+    "category": "system",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[BACKUP|CREATE]",
+        "[BACKUP|LIST]",
+        "[BACKUP|RESTORE*filename]"
+    ]
+}
+{
+    "command": "TRASH",
+    "syntax": "[TRASH|ARG]",
+    "args": [
+        "LIST",
+        "EMPTY",
+        "RESTORE"
+    ],
+    "description": "Trash management operations",
+    "category": "utility",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[TRASH|LIST]",
+        "[TRASH|EMPTY]",
+        "[TRASH|RESTORE*filename]"
+    ]
+}
+{
+    "command": "UDATA",
+    "syntax": "[UDATA|ARG]",
+    "args": [
+        "PARSE",
+        "CONVERT",
+        "VALIDATE",
+        "MERGE",
+        "FILTER"
+    ],
+    "description": "uDATA format processing and validation",
+    "category": "data",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[UDATA|PARSE*file.json]",
+        "[UDATA|CONVERT*input.json]",
+        "[UDATA|VALIDATE*data.json]"
+    ]
+}
+{
+    "command": "UHEX",
+    "syntax": "[UHEX|ARG]",
+    "args": [
+        "GENERATE",
+        "PARSE",
+        "VALIDATE"
+    ],
+    "description": "uHEX coordinate generation and management",
+    "category": "data",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[UHEX|GENERATE*uWORK]",
+        "[UHEX|PARSE*filename]",
+        "[UHEX|VALIDATE*filename]"
+    ]
+}
+{
+    "command": "VERSION",
+    "syntax": "[VERSION|ARG]",
+    "args": [
+        "SHOW",
+        "CHECK",
+        "COMPARE"
+    ],
+    "description": "Version information operations",
+    "category": "system",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[VERSION|SHOW]",
+        "[VERSION|CHECK]",
+        "[VERSION|COMPARE*1.3.2]"
+    ]
+}
+{
+    "command": "TEMPLATE",
+    "syntax": "[TEMPLATE|ARG]",
+    "args": [
+        "PROCESS",
+        "VARIABLES",
+        "COMPILE",
+        "VALIDATE"
+    ],
+    "description": "Template processing operations",
+    "category": "template",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[TEMPLATE|PROCESS*file.md]",
+        "[TEMPLATE|VARIABLES]",
+        "[TEMPLATE|COMPILE]"
+    ]
+}
+{
+    "command": "GET",
+    "syntax": "[GET|ARG]",
+    "args": [
+        "VARIABLE",
+        "CONFIG",
+        "DATA",
+        "STATUS"
+    ],
+    "description": "Retrieve system information and variables",
+    "category": "data",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[GET|VARIABLE*USER-ROLE]",
+        "[GET|CONFIG*colors]",
+        "[GET|STATUS]"
+    ]
+}
+{
+    "command": "SET",
+    "syntax": "[SET|ARG]",
+    "args": [
+        "VARIABLE",
+        "CONFIG",
+        "PALETTE",
+        "MODE"
+    ],
+    "description": "Set system variables and configuration",
+    "category": "data",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[SET|VARIABLE*key*value]",
+        "[SET|PALETTE*polaroid_colors]",
+        "[SET|MODE*dev]"
+    ]
+}
+{
+    "command": "EXIT",
+    "syntax": "[EXIT|ARG]",
+    "args": [
+        "CLEAN",
+        "SAVE",
+        "FORCE"
+    ],
+    "description": "Exit system with optional cleanup",
+    "category": "system",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[EXIT|CLEAN]",
+        "[EXIT|SAVE]",
+        "[EXIT|FORCE]"
+    ]
+}
+{
+    "command": "CLEAR",
+    "syntax": "[CLEAR|ARG]",
+    "args": [
+        "SCREEN",
+        "CACHE",
+        "TEMP",
+        "ALL"
+    ],
+    "description": "Clear screen, cache, or temporary data",
+    "category": "utility",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[CLEAR|SCREEN]",
+        "[CLEAR|CACHE]",
+        "[CLEAR|ALL]"
+    ]
+}
+{
+    "command": "INIT",
+    "syntax": "[INIT|ARG]",
+    "args": [
+        "SYSTEM",
+        "USER",
+        "PROJECT",
+        "GRID"
+    ],
+    "description": "Initialize system components",
+    "category": "system",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[INIT|SYSTEM]",
+        "[INIT|USER*wizard]",
+        "[INIT|GRID*120x48]"
+    ]
+}
+{
+    "command": "LOAD",
+    "syntax": "[LOAD|ARG]",
+    "args": [
+        "CONFIG",
+        "PALETTE",
+        "TEMPLATE",
+        "DATA"
+    ],
+    "description": "Load configuration, palettes, or data",
+    "category": "data",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[LOAD|CONFIG*system]",
+        "[LOAD|PALETTE*polaroid_colors]",
+        "[LOAD|TEMPLATE*base]"
+    ]
+}
+{
+    "command": "SAVE",
+    "syntax": "[SAVE|ARG]",
+    "args": [
+        "CONFIG",
+        "SESSION",
+        "PROJECT",
+        "BACKUP"
+    ],
+    "description": "Save system state or user data",
+    "category": "data",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[SAVE|CONFIG]",
+        "[SAVE|SESSION]",
+        "[SAVE|PROJECT*mywork]"
+    ]
+}
+{
+    "command": "TEST",
+    "syntax": "[TEST|ARG]",
+    "args": [
+        "SYSTEM",
+        "COMMANDS",
+        "UDATA",
+        "CONNECTIONS"
+    ],
+    "description": "Run system tests and validations",
+    "category": "utility",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[TEST|SYSTEM]",
+        "[TEST|COMMANDS]",
+        "[TEST|UDATA]"
+    ]
+}
+{
+    "command": "UPDATE",
+    "syntax": "[UPDATE|ARG]",
+    "args": [
+        "SYSTEM",
+        "CONFIG",
+        "PALETTE",
+        "WIDGET"
+    ],
+    "description": "Update system components",
+    "category": "system",
+    "role_access": [
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[UPDATE|SYSTEM]",
+        "[UPDATE|CONFIG]",
+        "[UPDATE|WIDGET*clock]"
+    ]
+}
+{
+    "command": "DELETE",
+    "syntax": "[DELETE|ARG]",
+    "args": [
+        "FILE",
+        "WIDGET",
+        "SESSION",
+        "TEMP"
+    ],
+    "description": "Delete files, widgets, or temporary data",
+    "category": "utility",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[DELETE|FILE*temp.txt]",
+        "[DELETE|WIDGET*clock]",
+        "[DELETE|TEMP]"
+    ]
+}
+{
+    "command": "MOVE",
+    "syntax": "[MOVE|ARG]",
+    "args": [
+        "FILE",
+        "WIDGET",
+        "CURSOR"
+    ],
+    "description": "Move files, widgets, or cursor position",
+    "category": "utility",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[MOVE|FILE*src*dest]",
+        "[MOVE|WIDGET*clock*B2]",
+        "[MOVE|CURSOR*10*20]"
+    ]
+}
+{
+    "command": "COPY",
+    "syntax": "[COPY|ARG]",
+    "args": [
+        "FILE",
+        "WIDGET",
+        "CONFIG"
+    ],
+    "description": "Copy files, widgets, or configurations",
+    "category": "utility",
+    "role_access": [
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[COPY|FILE*src*dest]",
+        "[COPY|WIDGET*clock*clock2]",
+        "[COPY|CONFIG*backup]"
+    ]
+}
+{
+    "command": "RENAME",
+    "syntax": "[RENAME|ARG]",
+    "args": [
+        "FILE",
+        "WIDGET",
+        "SESSION"
+    ],
+    "description": "Rename files, widgets, or sessions",
+    "category": "utility",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[RENAME|FILE*old*new]",
+        "[RENAME|WIDGET*clock*timer]",
+        "[RENAME|SESSION*work]"
+    ]
+}
+{
+    "command": "FIND",
+    "syntax": "[FIND|ARG]",
+    "args": [
+        "FILE",
+        "COMMAND",
+        "WIDGET",
+        "DATA"
+    ],
+    "description": "Search for files, commands, widgets, or data",
+    "category": "utility",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[FIND|FILE*pattern]",
+        "[FIND|COMMAND*map]",
+        "[FIND|WIDGET*clock]"
+    ]
+}
+{
+    "command": "EXPORT",
+    "syntax": "[EXPORT|ARG]",
+    "args": [
+        "DATA",
+        "CONFIG",
+        "SESSION",
+        "DASHBOARD"
+    ],
+    "description": "Export data, configuration, or dashboard",
+    "category": "data",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[EXPORT|DATA*format]",
+        "[EXPORT|CONFIG*json]",
+        "[EXPORT|DASHBOARD*html]"
+    ]
+}
+{
+    "command": "IMPORT",
+    "syntax": "[IMPORT|ARG]",
+    "args": [
+        "DATA",
+        "CONFIG",
+        "PALETTE",
+        "TEMPLATE"
+    ],
+    "description": "Import data, configuration, palette, or template",
+    "category": "data",
+    "role_access": [
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[IMPORT|DATA*file.json]",
+        "[IMPORT|CONFIG*settings]",
+        "[IMPORT|PALETTE*custom]"
+    ]
+}
+{
+    "command": "REFRESH",
+    "syntax": "[REFRESH|ARG]",
+    "args": [
+        "SCREEN",
+        "WIDGET",
+        "DATA",
+        "ALL"
+    ],
+    "description": "Refresh screen, widgets, or data",
+    "category": "utility",
+    "role_access": [
+        "ghost",
+        "drone",
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[REFRESH|SCREEN]",
+        "[REFRESH|WIDGET*clock]",
+        "[REFRESH|ALL]"
+    ]
+}
+{
+    "command": "VALIDATE",
+    "syntax": "[VALIDATE|ARG]",
+    "args": [
+        "CONFIG",
+        "UDATA",
+        "COMMANDS",
+        "SYSTEM"
+    ],
+    "description": "Validate configuration, data, or system state",
+    "category": "utility",
+    "role_access": [
+        "knight",
+        "imp",
+        "sorcerer",
+        "wizard"
+    ],
+    "examples": [
+        "[VALIDATE|CONFIG]",
+        "[VALIDATE|UDATA*file]",
+        "[VALIDATE|SYSTEM]"
+    ]
+}

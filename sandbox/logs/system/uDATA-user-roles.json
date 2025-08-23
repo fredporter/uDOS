@@ -1,0 +1,9 @@
+{"metadata":{"system":"uDOS-v1.3.3","version":"1.3.3","format":"uDATA-v1","description":"uDOS User Role Definitions - 8-role hierarchy system","total_roles":8}}
+{"role":"wizard","role_id":"WIZ","level":100,"description":"Master administrator with full system access","permissions":{"admin":true,"dev_mode":true,"spawn_users":true,"ugrid_control":true},"max_grid":"160x60"}
+{"role":"sorcerer","role_id":"SOR","level":80,"description":"Development practitioner with elevated powers","permissions":{"admin":false,"dev_mode":false,"ugrid_control":true},"max_grid":"120x48"}
+{"role":"imp","role_id":"IMP","level":60,"description":"Advanced automation specialist with script powers","permissions":{"admin":false,"template_editing":true,"script_editing":true,"ugrid_control":true},"max_grid":"100x40"}
+{"role":"knight","role_id":"KNT","level":50,"description":"Security specialist with monitoring access","permissions":{"admin":false,"security_scripts":true,"monitoring":true,"ugrid_control":false},"max_grid":"80x30"}
+{"role":"drone","role_id":"DRN","level":40,"description":"Automated entity with basic operations access","permissions":{"admin":false,"basic_scripts":true,"ugrid_control":false},"max_grid":"80x30"}
+{"role":"crypt","role_id":"CRP","level":30,"description":"Secure storage manager with encrypted access","permissions":{"admin":false,"encryption_tools":true,"ugrid_control":false},"max_grid":"60x24"}
+{"role":"tomb","role_id":"TMB","level":20,"description":"Basic storage manager with archive access","permissions":{"admin":false,"archive_scripts":true,"ugrid_control":false},"max_grid":"40x16"}
+{"role":"ghost","role_id":"GST","level":10,"description":"Minimal read-only access for demonstration","permissions":{"admin":false,"demo_scripts":true,"ugrid_control":false},"max_grid":"40x16"}

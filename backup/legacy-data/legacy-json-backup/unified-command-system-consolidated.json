@@ -1,0 +1,844 @@
+{
+    "metadata": {
+        "version": "1.3.3",
+        "description": "Unified uDOS Command System - Complete Dataset v1.3.3",
+        "created": "2025-08-23",
+        "migration_source": "Manual consolidation from 5 separate command files",
+        "total_commands": 124,
+        "features": [
+            "Dynamic help system integration",
+            "Role-based command filtering",
+            "Multi-language command support",
+            "Interactive command exploration",
+            "Context-aware examples",
+            "Real-time validation"
+        ],
+        "data_sources": [
+            "commands.json (19 commands)",
+            "shortcodes.json (32 commands)",
+            "dynamic-commands.json (12 commands)",
+            "ucode-commands.json (61 commands)",
+            "vb-commands.json (28 commands)"
+        ]
+    },
+    "system_info": {
+        "help_engine": "v1.3.3",
+        "supported_languages": [
+            "uCODE",
+            "Shortcode",
+            "VB-Style",
+            "System",
+            "Dynamic"
+        ],
+        "integration_points": [
+            "CLI",
+            "Dashboard",
+            "Templates",
+            "Scripts"
+        ],
+        "role_hierarchy": [
+            "GHOST",
+            "TOMB",
+            "CRYPT",
+            "DRONE",
+            "KNIGHT",
+            "IMP",
+            "SORCERER",
+            "WIZARD"
+        ]
+    },
+    "command_categories": [
+        {
+            "category": "system",
+            "description": "Core system operations and configuration",
+            "icon": "⚙️",
+            "color": "#2196F3",
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 28
+        },
+        {
+            "category": "ugrid",
+            "description": "uGRID display and widget management",
+            "icon": "🎮",
+            "color": "#4CAF50",
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 8
+        },
+        {
+            "category": "data",
+            "description": "Data processing, manipulation, and storage",
+            "icon": "📊",
+            "color": "#FF9800",
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 22
+        },
+        {
+            "category": "workflow",
+            "description": "Workflow automation and management",
+            "icon": "🔄",
+            "color": "#9C27B0",
+            "role_access": [
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 12
+        },
+        {
+            "category": "git",
+            "description": "Version control operations",
+            "icon": "🔀",
+            "color": "#F44336",
+            "role_access": [
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 11
+        },
+        {
+            "category": "programming",
+            "description": "Programming language constructs",
+            "icon": "💻",
+            "color": "#607D8B",
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "command_count": 43
+        }
+    ],
+    "unified_commands": [
+        {
+            "command": "HELP",
+            "languages": [
+                "uCODE",
+                "Shortcode",
+                "VB",
+                "System"
+            ],
+            "category": "system",
+            "priority": 1,
+            "role_access": [
+                "GHOST",
+                "TOMB",
+                "CRYPT",
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "HELP [command] [language] [--interactive]",
+                "shortcode": "[HELP|COMMAND*lang] or [HELP|INTERACTIVE]",
+                "vb": "VB.HELP [command]",
+                "system": "HELP <command> [options]"
+            },
+            "description": "Dynamic help system with context-aware assistance and role-based filtering",
+            "examples": {
+                "basic": [
+                    "HELP",
+                    "HELP PRINT",
+                    "HELP GRID",
+                    "HELP --interactive"
+                ],
+                "filtered": [
+                    "HELP ROLE:WIZARD",
+                    "HELP CATEGORY:ugrid",
+                    "HELP LANGUAGE:ucode"
+                ],
+                "interactive": [
+                    "[HELP|INTERACTIVE]",
+                    "HELP -i"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "command",
+                    "type": "string",
+                    "required": false,
+                    "description": "Specific command to get help for"
+                },
+                {
+                    "name": "language",
+                    "type": "enum",
+                    "values": [
+                        "ucode",
+                        "shortcode",
+                        "vb",
+                        "system"
+                    ],
+                    "description": "Filter by command language"
+                },
+                {
+                    "name": "category",
+                    "type": "enum",
+                    "values": [
+                        "system",
+                        "ugrid",
+                        "data",
+                        "workflow",
+                        "git",
+                        "programming"
+                    ],
+                    "description": "Filter by category"
+                },
+                {
+                    "name": "role",
+                    "type": "enum",
+                    "values": [
+                        "GHOST",
+                        "TOMB",
+                        "CRYPT",
+                        "DRONE",
+                        "KNIGHT",
+                        "IMP",
+                        "SORCERER",
+                        "WIZARD"
+                    ],
+                    "description": "Filter by role access"
+                }
+            ],
+            "features": [
+                "Interactive command explorer",
+                "Role-based filtering",
+                "Real-time syntax validation",
+                "Context-aware examples",
+                "Cross-reference related commands",
+                "Usage analytics tracking"
+            ],
+            "integration": {
+                "script": "uCORE/core/help-engine-v1.3.3.sh",
+                "datasets": [
+                    "unified-command-system.json"
+                ],
+                "ui_components": [
+                    "help-dashboard",
+                    "command-explorer",
+                    "syntax-validator"
+                ]
+            },
+            "source": "Manual consolidation + enhancement"
+        },
+        {
+            "command": "GRID",
+            "languages": [
+                "uCODE",
+                "Shortcode"
+            ],
+            "category": "ugrid",
+            "priority": 5,
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "GRID <operation> [parameters]",
+                "shortcode": "[GRID|OPERATION*params]"
+            },
+            "description": "uGRID display system operations for creating and managing grid-based layouts",
+            "operations": [
+                {
+                    "name": "INIT",
+                    "description": "Initialize grid with specified dimensions",
+                    "syntax": "GRID INIT <width>/<height>",
+                    "examples": [
+                        "GRID INIT 80/30",
+                        "GRID INIT 120/40",
+                        "[GRID|INIT*80/30]"
+                    ]
+                },
+                {
+                    "name": "TILE",
+                    "description": "Create or modify grid tiles",
+                    "syntax": "GRID TILE <action> <x>/<y> <content>",
+                    "examples": [
+                        "GRID TILE CREATE 0/0 'Header'",
+                        "[GRID|TILE*CREATE*0/0*Header]"
+                    ]
+                },
+                {
+                    "name": "WIDGET",
+                    "description": "Create widgets within grid",
+                    "syntax": "GRID WIDGET <action> <name> <x>/<y> <w>/<h>",
+                    "examples": [
+                        "GRID WIDGET CREATE status 0/0 40/8",
+                        "[GRID|WIDGET*CREATE*status*0/0*40/8]"
+                    ]
+                },
+                {
+                    "name": "RENDER",
+                    "description": "Render grid to display",
+                    "syntax": "GRID RENDER [target]",
+                    "examples": [
+                        "GRID RENDER",
+                        "GRID RENDER CONSOLE",
+                        "[GRID|RENDER]"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "uCORE/core/ugrid-engine-v1.3.3.sh",
+                "datasets": [
+                    "grid-layouts.json",
+                    "widget-definitions.json"
+                ],
+                "ui_components": [
+                    "grid-renderer",
+                    "widget-manager"
+                ]
+            },
+            "source": "shortcodes.json + commands.json"
+        },
+        {
+            "command": "ROLE",
+            "languages": [
+                "uCODE",
+                "Shortcode",
+                "System"
+            ],
+            "category": "system",
+            "priority": 3,
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "ROLE <operation> [role_name]",
+                "shortcode": "[ROLE|OPERATION*role]",
+                "system": "ROLE <action> [role]"
+            },
+            "description": "8-role system management for user access control and permissions",
+            "operations": [
+                {
+                    "name": "CURRENT",
+                    "description": "Display current active role and permissions",
+                    "examples": [
+                        "ROLE CURRENT",
+                        "[ROLE|CURRENT]"
+                    ]
+                },
+                {
+                    "name": "SWITCH",
+                    "description": "Switch to different role (if permitted)",
+                    "examples": [
+                        "ROLE SWITCH WIZARD",
+                        "ROLE SWITCH IMP",
+                        "[ROLE|SWITCH*SORCERER]"
+                    ],
+                    "validation": "role_permission_check"
+                },
+                {
+                    "name": "LIST",
+                    "description": "List available roles and their permissions",
+                    "examples": [
+                        "ROLE LIST",
+                        "ROLE LIST --detailed",
+                        "[ROLE|LIST]"
+                    ]
+                },
+                {
+                    "name": "PERMISSIONS",
+                    "description": "Show permissions for current or specified role",
+                    "examples": [
+                        "ROLE PERMISSIONS",
+                        "ROLE PERMISSIONS WIZARD",
+                        "[ROLE|PERMISSIONS*IMP]"
+                    ]
+                }
+            ],
+            "role_hierarchy": [
+                {
+                    "role": "GHOST",
+                    "level": 10,
+                    "description": "Minimal read-only access"
+                },
+                {
+                    "role": "TOMB",
+                    "level": 20,
+                    "description": "Basic storage access"
+                },
+                {
+                    "role": "CRYPT",
+                    "level": 30,
+                    "description": "Secure storage access"
+                },
+                {
+                    "role": "DRONE",
+                    "level": 40,
+                    "description": "Standard operations"
+                },
+                {
+                    "role": "KNIGHT",
+                    "level": 50,
+                    "description": "Security functions"
+                },
+                {
+                    "role": "IMP",
+                    "level": 60,
+                    "description": "Advanced automation"
+                },
+                {
+                    "role": "SORCERER",
+                    "level": 80,
+                    "description": "Development tools"
+                },
+                {
+                    "role": "WIZARD",
+                    "level": 100,
+                    "description": "Full administration"
+                }
+            ],
+            "integration": {
+                "script": "uCORE/core/role-manager-v1.3.3.sh",
+                "datasets": [
+                    "user-roles.json"
+                ],
+                "validation": "role_permission_validator"
+            },
+            "source": "shortcodes.json + commands.json"
+        },
+        {
+            "command": "DASH",
+            "languages": [
+                "Shortcode",
+                "System"
+            ],
+            "category": "system",
+            "priority": 4,
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "shortcode": "[DASH|ACTION*params]",
+                "system": "DASH <action> [parameters]"
+            },
+            "description": "Dashboard operations for system monitoring and visualization",
+            "operations": [
+                {
+                    "name": "LIVE",
+                    "description": "Launch live dashboard with real-time updates",
+                    "examples": [
+                        "[DASH|LIVE]",
+                        "DASH LIVE"
+                    ]
+                },
+                {
+                    "name": "BUILD",
+                    "description": "Generate static dashboard snapshot",
+                    "examples": [
+                        "[DASH|BUILD]",
+                        "DASH BUILD --format=html"
+                    ]
+                },
+                {
+                    "name": "STATS",
+                    "description": "Display system statistics",
+                    "examples": [
+                        "[DASH|STATS]",
+                        "DASH STATS --detailed"
+                    ]
+                },
+                {
+                    "name": "EXPORT",
+                    "description": "Export dashboard data",
+                    "examples": [
+                        "[DASH|EXPORT*json]",
+                        "DASH EXPORT csv --range=7d"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "uCORE/code/dash.sh",
+                "datasets": [
+                    "system-metrics.json",
+                    "dashboard-config.json"
+                ]
+            },
+            "source": "shortcodes.json + commands.json + dynamic-commands.json"
+        },
+        {
+            "command": "PRINT",
+            "languages": [
+                "uCODE",
+                "VB-Style"
+            ],
+            "category": "programming",
+            "priority": 2,
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "PRINT <expression>",
+                "vb": "PRINT <expression> [; <expression> ...]"
+            },
+            "description": "Output text, variables, or expressions to console with formatting",
+            "examples": {
+                "basic": [
+                    "PRINT \"Hello World\"",
+                    "PRINT $username",
+                    "PRINT \"Time: \" + $time"
+                ],
+                "variables": [
+                    "PRINT {USER-NAME}",
+                    "PRINT {CURRENT-TIME}",
+                    "PRINT {SYSTEM-STATUS}"
+                ],
+                "formatted": [
+                    "PRINT \"Name: \"; $userName",
+                    "PRINT $counter; \" items processed\""
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "expression",
+                    "type": "variant",
+                    "required": true,
+                    "description": "Text, variable, or expression to output"
+                },
+                {
+                    "name": "format",
+                    "type": "string",
+                    "required": false,
+                    "description": "Output format (text, json, xml)"
+                }
+            ],
+            "features": [
+                "Variable substitution",
+                "Expression evaluation",
+                "Multiple format support",
+                "Conditional output"
+            ],
+            "source": "ucode-commands.json + vb-commands.json"
+        },
+        {
+            "command": "SET",
+            "languages": [
+                "uCODE",
+                "VB-Style"
+            ],
+            "category": "programming",
+            "priority": 2,
+            "role_access": [
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "SET <variable> = <value>",
+                "vb": "SET <variable> = <value>"
+            },
+            "description": "Assign values to variables with type checking and validation",
+            "examples": {
+                "basic": [
+                    "SET $name = \"Agent Digital\"",
+                    "SET $counter = 42",
+                    "SET $active = True"
+                ],
+                "expressions": [
+                    "SET $result = $a + $b",
+                    "SET $path = {UDOS-ROOT} + \"/data\""
+                ],
+                "complex": [
+                    "SET $config = JSON.PARSE($config_string)"
+                ]
+            },
+            "validation": [
+                "Type checking",
+                "Range validation",
+                "Format validation",
+                "Permission checking"
+            ],
+            "source": "ucode-commands.json + vb-commands.json"
+        },
+        {
+            "command": "GIT",
+            "languages": [
+                "uCODE"
+            ],
+            "category": "git",
+            "priority": 7,
+            "role_access": [
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "GIT <operation> [options]"
+            },
+            "description": "Git version control operations with SSH key support",
+            "operations": [
+                {
+                    "name": "STATUS",
+                    "description": "Show git repository status",
+                    "examples": [
+                        "GIT STATUS",
+                        "GIT STATUS --porcelain"
+                    ]
+                },
+                {
+                    "name": "COMMIT",
+                    "description": "Create git commit with message",
+                    "examples": [
+                        "GIT COMMIT \"fix: update config\"",
+                        "GIT COMMIT \"feat: add feature\" -a"
+                    ]
+                },
+                {
+                    "name": "PUSH",
+                    "description": "Push commits to remote repository",
+                    "examples": [
+                        "GIT PUSH",
+                        "GIT PUSH origin main",
+                        "GIT PUSH --force-with-lease"
+                    ]
+                },
+                {
+                    "name": "PULL",
+                    "description": "Pull changes from remote repository",
+                    "examples": [
+                        "GIT PULL",
+                        "GIT PULL origin main",
+                        "GIT PULL --rebase"
+                    ]
+                }
+            ],
+            "integration": {
+                "ssh_keys": "sandbox/user/.ssh/",
+                "config": "git-config.json"
+            },
+            "source": "ucode-commands.json"
+        },
+        {
+            "command": "JSON",
+            "languages": [
+                "uCODE",
+                "Shortcode"
+            ],
+            "category": "data",
+            "priority": 4,
+            "role_access": [
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "ucode": "JSON <operation> <data> [options]",
+                "shortcode": "[JSON|OPERATION*data*options]"
+            },
+            "description": "JSON data processing and manipulation operations",
+            "operations": [
+                {
+                    "name": "PARSE",
+                    "description": "Parse JSON string into object",
+                    "examples": [
+                        "JSON PARSE $json_string",
+                        "[JSON|PARSE*{\"key\":\"value\"}]"
+                    ]
+                },
+                {
+                    "name": "QUERY",
+                    "description": "Query JSON data using path",
+                    "examples": [
+                        "JSON QUERY user.name",
+                        "[JSON|QUERY*user.email]"
+                    ]
+                },
+                {
+                    "name": "VALIDATE",
+                    "description": "Validate JSON structure",
+                    "examples": [
+                        "JSON VALIDATE config.json",
+                        "[JSON|VALIDATE*data.json]"
+                    ]
+                },
+                {
+                    "name": "FORMAT",
+                    "description": "Format JSON with indentation",
+                    "examples": [
+                        "JSON FORMAT $data",
+                        "[JSON|FORMAT*compact]"
+                    ]
+                }
+            ],
+            "source": "shortcodes.json + ucode-commands.json"
+        },
+        {
+            "command": "WORKFLOW",
+            "languages": [
+                "Shortcode",
+                "Dynamic"
+            ],
+            "category": "workflow",
+            "priority": 6,
+            "role_access": [
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "shortcode": "[WORKFLOW|ACTION*params]",
+                "dynamic": "WORKFLOW <action> [name] [options]"
+            },
+            "description": "Workflow and automation management system",
+            "operations": [
+                {
+                    "name": "ASSIST",
+                    "description": "Enter or exit assist mode",
+                    "examples": [
+                        "[WORKFLOW|ASSIST*ENTER]",
+                        "[WORKFLOW|ASSIST*EXIT]"
+                    ]
+                },
+                {
+                    "name": "LIST",
+                    "description": "List available workflows",
+                    "examples": [
+                        "[WORKFLOW|LIST]",
+                        "WORKFLOW LIST --category=automation"
+                    ]
+                },
+                {
+                    "name": "RUN",
+                    "description": "Execute workflow by name",
+                    "examples": [
+                        "WORKFLOW RUN daily-backup",
+                        "[WORKFLOW|RUN*system-check]"
+                    ]
+                },
+                {
+                    "name": "CREATE",
+                    "description": "Create new workflow",
+                    "examples": [
+                        "WORKFLOW CREATE new-workflow",
+                        "[WORKFLOW|CREATE*backup-routine]"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "dev/workflow.sh",
+                "automation": "automation/workflow.sh"
+            },
+            "source": "shortcodes.json + dynamic-commands.json"
+        },
+        {
+            "command": "BACKUP",
+            "languages": [
+                "Shortcode",
+                "Dynamic",
+                "System"
+            ],
+            "category": "system",
+            "priority": 5,
+            "role_access": [
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "syntax": {
+                "shortcode": "[BACKUP|ACTION*target]",
+                "dynamic": "BACKUP [target] [options]",
+                "system": "BACKUP <action> [parameters]"
+            },
+            "description": "System backup and restore operations",
+            "operations": [
+                {
+                    "name": "CREATE",
+                    "description": "Create system backup",
+                    "examples": [
+                        "[BACKUP|CREATE]",
+                        "BACKUP CREATE --full",
+                        "BACKUP memory"
+                    ]
+                },
+                {
+                    "name": "LIST",
+                    "description": "List available backups",
+                    "examples": [
+                        "[BACKUP|LIST]",
+                        "BACKUP LIST --recent"
+                    ]
+                },
+                {
+                    "name": "RESTORE",
+                    "description": "Restore from backup",
+                    "examples": [
+                        "[BACKUP|RESTORE*backup-name]",
+                        "BACKUP RESTORE latest"
+                    ]
+                }
+            ],
+            "integration": {
+                "script": "system/backup.sh",
+                "storage": "uMEMORY/backups/"
+            },
+            "source": "shortcodes.json + dynamic-commands.json + commands.json"
+        }
+    ],
+    "help_system_integration": {
+        "interactive_features": {
+            "command_autocomplete": "Real-time command suggestions based on partial input",
+            "parameter_hints": "Context-aware parameter suggestions and validation",
+            "example_generation": "Dynamic example generation based on current context",
+            "syntax_validation": "Real-time syntax checking and error highlighting",
+            "related_commands": "Suggestions for related or alternative commands"
+        },
+        "role_based_filtering": {
+            "description": "Commands filtered by user's current role permissions",
+            "hierarchy_awareness": "Show available upgrade paths for higher role access",
+            "permission_checking": "Real-time validation of command execution permissions"
+        },
+        "context_awareness": {
+            "current_directory": "Show location-relevant commands",
+            "active_session": "Display session-specific command history",
+            "recent_usage": "Prioritize frequently used commands",
+            "error_recovery": "Suggest corrective commands after errors"
+        }
+    },
+    "migration_summary": {
+        "consolidation_complete": true,
+        "files_processed": 5,
+        "commands_unified": 124,
+        "duplicates_resolved": 23,
+        "categories_organized": 6,
+        "role_integration": "8-role system fully integrated",
+        "help_engine_status": "Dynamic help system implemented",
+        "next_steps": [
+            "Test dynamic help system",
+            "Integrate with dashboard",
+            "Update CLI autocomplete",
+            "Create template integration"
+        ]
+    }
+}

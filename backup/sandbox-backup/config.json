@@ -1,0 +1,85 @@
+{
+    "backup_system": "uDOS Enhanced Backup v1.4.0",
+    "created": "2025-08-22T23:35:00Z",
+    "version": "1.4.0",
+    "storage": {
+        "root_directory": "/Users/agentdigital/uDOS/backup",
+        "metadata_file": "backup-metadata.json",
+        "index_file": "backup-index.json",
+        "migration_logs": "migration-*.json"
+    },
+    "roles": {
+        "wizard": {
+            "level": 10,
+            "backup_access": "full",
+            "restore_access": "full",
+            "encryption_required": false,
+            "retention_override": true
+        },
+        "sorcerer": {
+            "level": 8,
+            "backup_access": "advanced",
+            "restore_access": "advanced",
+            "encryption_required": false,
+            "retention_override": true
+        },
+        "imp": {
+            "level": 6,
+            "backup_access": "standard",
+            "restore_access": "standard",
+            "encryption_required": false,
+            "retention_override": false
+        },
+        "knight": {
+            "level": 5,
+            "backup_access": "security_focused",
+            "restore_access": "verified_only",
+            "encryption_required": true,
+            "retention_override": false
+        },
+        "ghost": {
+            "level": 4,
+            "backup_access": "monitoring",
+            "restore_access": "limited",
+            "encryption_required": false,
+            "retention_override": false
+        },
+        "drone": {
+            "level": 3,
+            "backup_access": "automated",
+            "restore_access": "automated",
+            "encryption_required": false,
+            "retention_override": false
+        },
+        "tomb": {
+            "level": 2,
+            "backup_access": "archive_only",
+            "restore_access": "archive_only",
+            "encryption_required": true,
+            "retention_override": false
+        },
+        "crypt": {
+            "level": 1,
+            "backup_access": "encrypted_only",
+            "restore_access": "encrypted_only",
+            "encryption_required": true,
+            "retention_override": false
+        }
+    },
+    "encryption": {
+        "default_enabled": true,
+        "algorithm": "AES-256-CBC",
+        "key_derivation": "PBKDF2",
+        "iterations": 100000,
+        "password_source": "role_specific_user_md"
+    },
+    "retention": {
+        "manual_backups": 3,
+        "daily_backups": 2,
+        "session_backups": 1,
+        "startup_backups": 1,
+        "exit_backups": 1,
+        "emergency_backups": 5,
+        "security_backups": 10
+    }
+}

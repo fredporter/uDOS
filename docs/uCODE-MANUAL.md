@@ -1,6 +1,23 @@
-# uCODE MODULAR COMMAND REFERENCE MANUAL
+# uCODE MODULAR COMMAND REFERENCE MANUAL v1.3.3
 
-The essential command set for uCODE, the native programming language for uSCRIPT operations on devices running uDOS v1.3.3.
+```ascii
+    ██╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗
+    ██║   ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝
+    ██║   ██║██║     ██║   ██║██║  ██║█████╗
+    ██║   ██║██║     ██║   ██║██║  ██║██╔══╝
+    ╚██████╔╝╚██████╗╚██████╔╝██████╔╝███████╗
+     ╚═════╝  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+
+    uCODE Command Reference v1.3.3
+    ═══════════════════════════════════════════════════
+```
+
+**Version**: 1.3.3
+**Date**: August 23, 2025
+**Part Number**: uCODE-REF-001-v133
+**Status**: Production Ready
+
+The essential command set for uCODE, the native programming language for uSCRIPT operations on devices running uDOS v1.3.3 with uGRID display system, 8-role hierarchy, and uDATA format integration.
 
 ## TABLE OF CONTENTS
 
@@ -9,6 +26,7 @@ The essential command set for uCODE, the native programming language for uSCRIPT
 - [ROLE MANAGEMENT](#role-management)
 - [MEMORY & DATA](#memory--data)
 - [DATA CONTROL](#data-control)
+- [uGRID DISPLAY SYSTEM](#ugrid-display-system)
 - [WORKFLOW SYSTEM](#workflow-system)
 - [ASSIST MODE MANAGEMENT](#assist-mode-management)
 - [SETUP COMMANDS](#setup-commands)
@@ -16,6 +34,7 @@ The essential command set for uCODE, the native programming language for uSCRIPT
 - [UNDO/REDO OPERATIONS](#undoredo-operations)
 - [ERROR HANDLING](#error-handling)
 - [EXAMPLES](#examples)
+- [BEST PRACTICES](#best-practices)
 
 ## CORE COMMANDS
 
@@ -77,21 +96,24 @@ ROLE install {EXTENSION}    ~ Install role-specific extensions
 
 ### [ROLE] <ACTION> {ROLE-NAME}
 ```ucode
-~ Role operations
-[ROLE] <ACTIVATE> {DRONE}       ~ Activate role
-[ROLE] <ACTIVATE> {GHOST}
-[ROLE] <ACTIVATE> {IMP}
-[ROLE] <ACTIVATE> {SORCERER}
-[ROLE] <ACTIVATE> {WIZARD}
-[ROLE] <ACTIVATE|FORCE> {ROLE}  ~ Force role activation
-[ROLE] <CURRENT>                ~ Get current role
-[ROLE] <CURRENT|DETAILED>       ~ Get detailed role info
-[ROLE] <SWITCH> {NEW-ROLE}      ~ Switch to new role
+~ Role operations (8-Role System v1.3.3)
+[ROLE] <ACTIVATE> {GHOST}           ~ Activate Ghost role (Level 10)
+[ROLE] <ACTIVATE> {TOMB}            ~ Activate Tomb role (Level 20)
+[ROLE] <ACTIVATE> {CRYPT}           ~ Activate Crypt role (Level 30)
+[ROLE] <ACTIVATE> {DRONE}           ~ Activate Drone role (Level 40)
+[ROLE] <ACTIVATE> {KNIGHT}          ~ Activate Knight role (Level 50)
+[ROLE] <ACTIVATE> {IMP}             ~ Activate Imp role (Level 60)
+[ROLE] <ACTIVATE> {SORCERER}        ~ Activate Sorcerer role (Level 80)
+[ROLE] <ACTIVATE> {WIZARD}          ~ Activate Wizard role (Level 100)
+[ROLE] <ACTIVATE|FORCE> {ROLE}      ~ Force role activation
+[ROLE] <CURRENT>                    ~ Get current role
+[ROLE] <CURRENT|DETAILED>           ~ Get detailed role info
+[ROLE] <SWITCH> {NEW-ROLE}          ~ Switch to new role
 [ROLE] <SWITCH|PRESERVE> {NEW-ROLE} ~ Switch preserving session
-[ROLE] <LIST>                   ~ List available roles
-[ROLE] <LIST|ACTIVE>            ~ List only active roles
-[ROLE] <PERMISSIONS> {ROLE}     ~ Check role permissions
-[ROLE] <PERMISSIONS|FULL> {ROLE} ~ Full permission details
+[ROLE] <LIST>                       ~ List available roles
+[ROLE] <LIST|ACTIVE>                ~ List only active roles
+[ROLE] <PERMISSIONS> {ROLE}         ~ Check role permissions
+[ROLE] <PERMISSIONS|FULL> {ROLE}    ~ Full permission details
 ```
 
 ## MEMORY & DATA
@@ -180,6 +202,58 @@ ROLE install {EXTENSION}    ~ Install role-specific extensions
 [DATA] <MERGE|DEEP> {DATA-1} {DATA-2} ~ Deep merge data objects
 [DATA] <FILTER> {DATA} {CRITERIA} ~ Filter data
 [DATA] <FILTER|REGEX> {DATA} {CRITERIA} ~ Filter using regex
+```
+
+## uGRID DISPLAY SYSTEM
+
+### [GRID] <ACTION> {PARAMETER}
+```ucode
+~ uGRID display operations (v1.3.3)
+[GRID] <INIT> {WIDTH/HEIGHT}        ~ Initialize grid
+[GRID] <INIT|4X> {WIDTH/HEIGHT}     ~ Initialize with 4× resolution
+[GRID] <SIZE> {WIDTH/HEIGHT}        ~ Set grid dimensions
+[GRID] <SIZE|AUTO>                  ~ Auto-detect optimal size
+[GRID] <TILE> {CREATE*X/Y*CONTENT}  ~ Create tile at position
+[GRID] <TILE|UPDATE*X/Y*CONTENT>    ~ Update existing tile
+[GRID] <WIDGET> {CREATE*NAME*X/Y*W/H} ~ Create widget
+[GRID] <WIDGET|MOVE*NAME*X/Y}       ~ Move widget position
+[GRID] <SCREEN> {SWITCH*NAME}       ~ Switch screen context
+[GRID] <SCREEN|CREATE*NAME*LAYOUT}  ~ Create new screen
+[GRID] <RENDER>                     ~ Force render update
+[GRID] <RENDER|OPTIMIZE}            ~ Optimized rendering
+[GRID] <CLEAR>                      ~ Clear entire grid
+[GRID] <CLEAR|REGION*X/Y*W/H}       ~ Clear specific region
+```
+
+### [UMAP] <ACTION> {COORDINATE}
+```ucode
+~ uMAP coordinate operations
+[UMAP] <GOTO> {X/Y}                 ~ Navigate to coordinates
+[UMAP] <GOTO|SMOOTH> {X/Y}          ~ Smooth navigation
+[UMAP] <REGION> {DEFINE*NAME*X/Y*W/H} ~ Define region
+[UMAP] <REGION|SELECT*NAME}         ~ Select defined region
+[UMAP] <ZOOM> {LEVEL}               ~ Set zoom level
+[UMAP] <ZOOM|FIT*CONTENT}           ~ Zoom to fit content
+[UMAP] <PAN> {DIRECTION*DISTANCE}   ~ Pan view
+[UMAP] <PAN|CENTER}                 ~ Center view
+[UMAP] <OVERLAY> {ENABLE*4X}        ~ Enable 4× overlay
+[UMAP] <OVERLAY|DISABLE}            ~ Disable overlay
+```
+
+### [WIDGET] <ACTION> {WIDGET-NAME}
+```ucode
+~ Widget management operations
+[WIDGET] <CREATE> {NAME*TYPE*X/Y*W/H} ~ Create new widget
+[WIDGET] <CREATE|TEMPLATE*NAME*TYPE}  ~ Create from template
+[WIDGET] <UPDATE> {NAME*PROPERTY*VALUE} ~ Update widget property
+[WIDGET] <UPDATE|BULK*NAME*PROPERTIES}  ~ Bulk property update
+[WIDGET] <MOVE> {NAME*X/Y}            ~ Move widget
+[WIDGET] <RESIZE> {NAME*W/H}          ~ Resize widget
+[WIDGET] <DELETE> {NAME}              ~ Delete widget
+[WIDGET] <LIST>                       ~ List all widgets
+[WIDGET] <LIST|ACTIVE}                ~ List active widgets
+[WIDGET] <REFRESH> {NAME}             ~ Refresh widget content
+[WIDGET] <REFRESH|ALL}                ~ Refresh all widgets
 ```
 
 ## WORKFLOW SYSTEM
@@ -567,78 +641,419 @@ WEND
 <END-FUNCTION>
 ```
 
+### uGRID Dashboard Creation (v1.3.3)
+```ucode
+~ Complete uGRID dashboard setup with widgets and 8-role system
+<FUNCTION> {CREATE-DASHBOARD} {GRID-SIZE} {USER-ROLE}
+    [TRY]
+        ~ Initialize grid system
+        [GRID] <INIT|4X> {GRID-SIZE}
+        [GRID] <SCREEN|CREATE*DASHBOARD*DEFAULT-LAYOUT}
+
+        ~ Role-based dashboard configuration
+        IF {USER-ROLE} = WIZARD THEN
+            ~ Wizard dashboard: Full system control
+            [WIDGET] <CREATE> {SYSTEM-STATUS*STATUS*0/0*40/8}
+            [WIDGET] <CREATE> {ROLE-MANAGER*ROLE*40/0*40/8}
+            [WIDGET] <CREATE> {PERFORMANCE*CHART*0/8*80/15}
+            [WIDGET] <CREATE> {LOG-VIEWER*LOG*0/23*80/7}
+        ELSE IF {USER-ROLE} = SORCERER THEN
+            ~ Sorcerer dashboard: Development focus
+            [WIDGET] <CREATE> {CODE-STATUS*STATUS*0/0*50/6}
+            [WIDGET] <CREATE> {BUILD-OUTPUT*LOG*50/0*30/6}
+            [WIDGET] <CREATE> {GRID-EDITOR*EDITOR*0/6*80/20}
+            [WIDGET] <CREATE> {DEBUG-PANEL*DEBUG*0/26*80/4}
+        ELSE IF {USER-ROLE} = IMP THEN
+            ~ Imp dashboard: Automation tools
+            [WIDGET] <CREATE> {SCRIPT-STATUS*STATUS*0/0*60/5}
+            [WIDGET] <CREATE> {TASK-QUEUE*QUEUE*60/0*20/5}
+            [WIDGET] <CREATE> {AUTOMATION*CONTROL*0/5*80/20}
+            [WIDGET] <CREATE> {RESULTS*LOG*0/25*80/5}
+        ELSE
+            ~ Standard dashboard for other roles
+            [WIDGET] <CREATE> {USER-STATUS*STATUS*0/0*80/3}
+            [WIDGET] <CREATE> {MAIN-CONTENT*CONTENT*0/3*80/24}
+            [WIDGET] <CREATE> {FOOTER*INFO*0/27*80/3}
+        END IF
+
+        ~ Setup grid regions and navigation
+        [UMAP] <REGION> {DEFINE*HEADER*0/0*80/3}
+        [UMAP] <REGION> {DEFINE*MAIN*0/3*80/24}
+        [UMAP] <REGION> {DEFINE*FOOTER*0/27*80/3}
+
+        ~ Enable optimizations
+        [GRID] <RENDER|OPTIMIZE}
+        [UMAP] <OVERLAY> {ENABLE*4X}
+
+        [LOG] <INFO|TIMESTAMP> {Dashboard created for } + {USER-ROLE}
+        [LOG] <INFO|DETAILED> {Grid: } + {GRID-SIZE} + { | Widgets: } + {WIDGET-COUNT}
+
+    [CATCH] {ERROR}
+        [ERROR] <LOG|STACK> {Dashboard creation failed: } + {ERROR} {CRITICAL}
+        [GRID] <CLEAR>
+    [END]
+<END-FUNCTION>
+```
+
+### Multi-Role Security Operation (v1.3.3)
+```ucode
+~ Complex operation demonstrating 8-role hierarchy and security
+<FUNCTION> {SECURE-SYSTEM-OPERATION} {OPERATION-TYPE}
+    [TRY]
+        ~ Check current role and escalate if needed
+        DEF {CURRENT-ROLE} = [ROLE] <CURRENT>
+        DEF {ACCESS-LEVEL} = [ROLE] <PERMISSIONS> {CURRENT-ROLE}
+
+        ~ Role-based operation handling
+        IF {ACCESS-LEVEL} >= 80 THEN
+            ~ Wizard/Sorcerer: Full access
+            [LOG] <INFO|TIMESTAMP> {High-level access granted: } + {CURRENT-ROLE}
+            [ROLE] <ACTIVATE|PRESERVE> {WIZARD}
+
+            ~ Execute privileged operations
+            [SYS] <OPTIMIZE|FORCE> {DEEP-CLEAN}
+            [WORKFLOW] <CLEANUP|FORCE> {ALL}
+            [GRID] <INIT|4X> {160/60}  ~ High-resolution mode
+
+        ELSE IF {ACCESS-LEVEL} >= 50 THEN
+            ~ Knight/Imp: Limited administrative access
+            [LOG] <INFO|TIMESTAMP> {Mid-level access: } + {CURRENT-ROLE}
+            [ROLE] <ACTIVATE|PRESERVE> {IMP}
+
+            ~ Execute automation operations
+            [SYS] <OPTIMIZE> {STANDARD}
+            [WORKFLOW] <CLEANUP> {SELECTIVE}
+            [GRID] <INIT> {80/30}  ~ Standard resolution
+
+        ELSE IF {ACCESS-LEVEL} >= 30 THEN
+            ~ Drone/Crypt: Standard operations
+            [LOG] <INFO|TIMESTAMP> {Standard access: } + {CURRENT-ROLE}
+            [ROLE] <ACTIVATE|PRESERVE> {DRONE}
+
+            ~ Execute basic operations
+            [SYS] <STATUS|BRIEF>
+            [WORKFLOW] <BRIEFINGS> {UPDATE}
+            [GRID] <SIZE|AUTO>
+
+        ELSE
+            ~ Tomb/Ghost: Read-only access
+            [LOG] <WARNING|TIMESTAMP> {Limited access: } + {CURRENT-ROLE}
+            [ROLE] <ACTIVATE|PRESERVE> {GHOST}
+
+            ~ Read-only operations
+            [SYS] <STATUS>
+            [WORKFLOW] <BRIEFINGS> {LIST}
+            [GRID] <SIZE> {40/16}  ~ Minimal grid
+        END IF
+
+        ~ Store operation log with role context
+        DEF {OPERATION-LOG} = {
+            TYPE: OPERATION-TYPE,
+            ROLE: CURRENT-ROLE,
+            ACCESS: ACCESS-LEVEL,
+            TIMESTAMP: [SYS] <TIME|UTC>,
+            GRID: [GRID] <SIZE>
+        }
+        [MEM] <STORE|ENCRYPT> {SECURITY-LOG} {OPERATION-LOG}
+
+        [LOG] <INFO|DETAILED> {Operation completed: } + {OPERATION-TYPE}
+
+    [CATCH] {ERROR}
+        [ERROR] <LOG|ALERT> {Security operation failed: } + {ERROR} {CRITICAL}
+        [ROLE] <ACTIVATE> {GHOST}  ~ Fallback to minimal access
+    [END]
+<END-FUNCTION>
+```
+
+### uDATA Processing with uGRID Visualization (v1.3.3)
+```ucode
+~ Advanced data processing with grid-based visualization
+<FUNCTION> {PROCESS-UDATA-VISUALIZATION} {DATA-SOURCE} {CHART-TYPE}
+    [TRY]
+        ~ Role check for data processing
+        DEF {USER-ROLE} = [ROLE] <CURRENT>
+        IF {USER-ROLE} NOT IN [SORCERER, IMP, KNIGHT] THEN
+            [ERROR] <LOG|ALERT> {Insufficient role for data processing}
+            RETURN
+        END IF
+
+        ~ Initialize grid for visualization
+        [GRID] <INIT|4X> {120/48}
+        [GRID] <SCREEN|CREATE*DATA-VIZ*CHART-LAYOUT}
+
+        ~ Fetch and process data
+        DEF {RAW-DATA} = [GET] <JSON|RETRY> {DATA-SOURCE} {AUTH-TOKEN}
+        DEF {PARSED-DATA} = [DATA] <PARSE|STRICT> {RAW-DATA}
+        DEF {UDATA-FORMATTED} = [DATA] <CONVERT|PRESERVE> {PARSED-DATA} {UDATA}
+
+        ~ Create visualization widgets based on chart type
+        IF {CHART-TYPE} = BAR THEN
+            [WIDGET] <CREATE> {BAR-CHART*CHART*10/5*100/30}
+            [WIDGET] <UPDATE> {BAR-CHART*DATA*UDATA-FORMATTED}
+        ELSE IF {CHART-TYPE} = LINE THEN
+            [WIDGET] <CREATE> {LINE-CHART*CHART*10/5*100/30}
+            [WIDGET] <UPDATE> {LINE-CHART*DATA*UDATA-FORMATTED}
+        ELSE IF {CHART-TYPE} = GRID THEN
+            [WIDGET] <CREATE> {DATA-GRID*TABLE*10/5*100/35}
+            [WIDGET] <UPDATE> {DATA-GRID*DATA*UDATA-FORMATTED}
+        END IF
+
+        ~ Add control widgets
+        [WIDGET] <CREATE> {DATA-CONTROLS*CONTROL*0/0*120/4}
+        [WIDGET] <CREATE> {LEGEND*INFO*0/40*120/8}
+
+        ~ Setup navigation regions
+        [UMAP] <REGION> {DEFINE*CONTROLS*0/0*120/4}
+        [UMAP] <REGION> {DEFINE*CHART*10/5*100/30}
+        [UMAP] <REGION> {DEFINE*LEGEND*0/40*120/8}
+
+        ~ Store processed data
+        [MEM] <STORE|ENCRYPT> {CHART-DATA} {UDATA-FORMATTED}
+        [FILE] <WRITE|BACKUP> {/DATA/CHART-} + {CHART-TYPE} + {.JSON} {UDATA-FORMATTED}
+
+        [LOG] <INFO|DETAILED> {Data visualization created: } + {CHART-TYPE}
+        [LOG] <INFO|TIMESTAMP> {Grid: 120x48 | 4× Mode | Role: } + {USER-ROLE}
+
+    [CATCH] {ERROR}
+        [ERROR] <LOG|STACK> {Data visualization failed: } + {ERROR} {ERROR}
+        [GRID] <CLEAR>
+    [END]
+<END-FUNCTION>
+```
+
 ## BEST PRACTICES
 
-### Naming Conventions
-- **Variables**: Use {CAPITALS-DASH-1234567890} only
-  - Examples: {USER-DATA}, {PROJECT-NAME}, {API-TOKEN}
-  - No lowercase, underscores, or special characters except dash and numbers
-- **Functions**: Use <FUNCTION> {FUNCTION-NAME} ... <END-FUNCTION>
-  - Examples: {DAILY-MAINTENANCE}, {SETUP-PROJECT}
-- **Commands**: [SHORTCODE] <ACTION> {PARAMETER}
+## BEST PRACTICES v1.3.3
 
-### Comment Style
-- **Comments**: Use single ~ for comments (REM equivalent)
-  - Example: `~ This is a comment`
-  - Text to the right of ~ is comment-only
-- **Avoid Quotes**: uCODE avoids unnecessary quote symbols
-  - Use {MESSAGE-TEXT} instead of "message text" where possible
-  - String concatenation: {Hello } + {WORLD} instead of "Hello " + "World"
+### 📝 **Naming Conventions**
+```ucode
+~ Variables: Use {CAPS-DASH-NUMBERS} only
+{USER-DATA}      {PROJECT-NAME}      {API-TOKEN}
+{GRID-WIDTH}     {WIDGET-COUNT}      {ROLE-LEVEL}
+{SYSTEM-STATUS}  {UHEX-FILENAME}     {CHART-TYPE}
 
-### Command Usage
-- Use [TRY] ... [CATCH] ... [END] for error handling
-- Activate appropriate roles with [ROLE] <ACTIVATE> {ROLE-NAME}
-- Store session data with [MEM] <STORE> {KEY} {VALUE}
-- Log operations with [LOG] <LEVEL> {MESSAGE}
+~ Functions: Use <FUNCTION> {FUNCTION-NAME} ... <END-FUNCTION>
+<FUNCTION> {DAILY-MAINTENANCE}
+<FUNCTION> {SETUP-PROJECT}
+<FUNCTION> {CREATE-DASHBOARD}
 
-### Enhanced Command Best Practices
-- **Direct Commands**: Use bash-style commands (TRASH, BACKUP, ROLE) for quick operations
-- **uCODE Commands**: Use bracketed syntax [COMMAND] <ACTION> for script integration
-- **Assist Mode**: Use OK/END for quick assist mode toggling in interactive sessions
-- **Session Management**: Always save sessions before major operations with [SESSION] <SAVE>
-- **Undo Support**: Verify operations are undoable before permanent changes
-- **Role Isolation**: Use role-specific commands for data separation and security
+~ Commands: [SHORTCODE] <ACTION> {PARAMETER}
+[ROLE] <ACTIVATE> {WIZARD}
+[GRID] <INIT|4X> {160/60}
+[WIDGET] <CREATE> {STATUS*CHART*0/0*40/20}
+```
 
-### Setup and Testing Guidelines
-- **Testing Environment**: Use SETUP test for sandbox testing environment
-- **Production Safety**: Never test in development mode from everyday operations
-- **Role Configuration**: Use SETUP role to properly configure role environments
-- **Backup Strategy**: Create backups before major role switches or system changes
+### 🎨 **uGRID Display Best Practices**
+```ucode
+~ Grid Initialization
+[GRID] <INIT|4X> {WIDTH/HEIGHT}     ~ Use 4× for high-detail work
+[GRID] <SIZE|AUTO>                  ~ Auto-detect for device optimization
+[UMAP] <OVERLAY> {ENABLE*4X}        ~ Enable overlay for enhanced graphics
 
-### PIPE | Option Syntax
-- **Command Options**: Use PIPE | to specify command options and modifiers
-  - Format: [COMMAND] <Action|OPTION> {PARAMETER}
-  - Examples: [SYS] <STATUS|BRIEF>, [LOG] <INFO|TIMESTAMP> {MESSAGE}
-- **Option Guidelines**:
-  - Use CAPITALS-DASH-NUMBER format for option names: FORCE, RETRY, ENCRYPT, ASYNC, DETAILED
-  - Follow same naming rules as variables: only CAPITALS, DASH, and NUMBERS
-  - Chain options with additional pipes: <Action|OPTION-1|OPTION-2>
-  - Common options: BRIEF/DETAILED, FORCE/GENTLE, ASYNC/SYNC, ENCRYPT/PLAIN
-- **Best Practice Examples**:
-  - [GET] <REQUEST|RETRY> for robust API calls
-  - [MEM] <STORE|ENCRYPT> for secure data storage
-  - [ROLE] <ACTIVATE|PRESERVE> to maintain context
-  - [ERROR] <LOG|STACK> for detailed error reporting
+~ Widget Management
+[WIDGET] <CREATE|TEMPLATE*NAME*TYPE} ~ Use templates for consistency
+[WIDGET] <REFRESH|ALL}              ~ Refresh all widgets periodically
+[GRID] <RENDER|OPTIMIZE}            ~ Optimize rendering performance
 
-### Data Control Best Practices
-- Use [GET] for retrieving data from APIs and web services
-- Use [POST] for sending data, creating resources, and API calls
-- Always validate data with [DATA] <VALIDATE> before processing
-- Cache API responses with [MEM] <STORE> to reduce requests
-- Handle API errors with proper [TRY] ... [CATCH] blocks
+~ Screen Organization
+[GRID] <SCREEN|CREATE*NAME*LAYOUT}  ~ Create logical screen contexts
+[UMAP] <REGION> {DEFINE*NAME*X/Y*W/H} ~ Define regions for navigation
+[UMAP] <ZOOM|FIT*CONTENT}           ~ Auto-fit content to viewport
+```
 
-### Variable Management
-- Use descriptive names: {CURRENT-ROLE}, {SYSTEM-STATUS}
-- Use pattern prefixes: {USER-*}, {SESSION-*}, {WORKFLOW-*}
-- Clear temporary variables with [MEM] <CLEAR> {PATTERN}
-- Define variables with DEF {VARIABLE} = {VALUE}
+### 👥 **8-Role System Guidelines**
+```ucode
+~ Role Hierarchy (Access Levels 10-100)
+👻 GHOST (10)     ~ Read-only access, minimal grid
+⚰️ TOMB (20)      ~ Basic storage, simple operations
+🔐 CRYPT (30)     ~ Secure storage, standard operations
+🤖 DRONE (40)     ~ Automation tasks, standard grid
+⚔️ KNIGHT (50)    ~ Security functions, enhanced grid
+😈 IMP (60)       ~ Advanced automation, custom widgets
+🧙‍♂️ SORCERER (80) ~ Development tools, full grid control
+🧙‍♀️ WIZARD (100)  ~ System administration, all features
 
-### Workflow Integration
-- Enter assist mode for complex operations: [WORKFLOW] <ASSIST> {ENTER}
-- Update briefings for session continuity: [WORKFLOW] <BRIEFINGS> {UPDATE}
-- Use cleanup commands for maintenance: [WORKFLOW] <CLEANUP> {ALL}
-- Save sessions before major operations: [uCORE] <SESSION> {SAVE}
+~ Role-Based Development
+IF {ACCESS-LEVEL} >= 80 THEN         ~ Wizard/Sorcerer operations
+    [GRID] <INIT|4X> {160/60}        ~ High-resolution grids
+    [WIDGET] <CREATE> {ADVANCED-TYPE} ~ Advanced widget types
+ELSE IF {ACCESS-LEVEL} >= 50 THEN    ~ Knight/Imp operations
+    [GRID] <INIT> {120/48}           ~ Standard grids
+    [WIDGET] <CREATE> {STANDARD-TYPE} ~ Standard widgets
+ELSE                                 ~ Basic role operations
+    [GRID] <SIZE|AUTO>               ~ Auto-sized grids
+    [WIDGET] <CREATE> {BASIC-TYPE}   ~ Basic widgets only
+END IF
+```
+
+### ⌨️ **Command Syntax Standards**
+```ucode
+~ Modern Operator Usage (v1.3.3)
+|  ~ Pipe for command options and actions
+*  ~ Asterisk for parameters
+/  ~ Slash for multiple parameters
+
+~ Correct Format Examples
+[COMMAND|ACTION*param1*param2]
+[GRID|INIT*80/30]
+[WIDGET|CREATE*NAME*TYPE*X/Y*W/H]
+[ROLE|ACTIVATE|FORCE*WIZARD]
+
+~ Comment Style
+# This is a full line comment in uCODE
+[COMMAND] <ACTION> {PARAM}          ~ End-of-line comment
+~ Alternative comment style for line comments
+
+~ Character Avoidance in uCODE
+~ Avoid these in native syntax: '"`&%$
+~ Minimize quotes: Use CAPS instead of "quoted text"
+```
+
+### 💾 **Data Management Best Practices**
+```ucode
+~ uDATA Format Integration
+[DATA] <PARSE|STRICT> {JSON-DATA}   ~ Always use strict parsing
+[DATA] <CONVERT|PRESERVE> {DATA} {UDATA} ~ Preserve structure
+[FILE] <WRITE|BACKUP> {PATH} {DATA} ~ Always backup data files
+
+~ Memory Operations
+[MEM] <STORE|ENCRYPT> {KEY} {VALUE} ~ Encrypt sensitive data
+[MEM] <RETRIEVE|DECRYPT> {KEY}      ~ Decrypt on retrieval
+[MEM] <CLEAR> {PATTERN-WILDCARD}    ~ Use patterns for bulk operations
+
+~ Template Variables
+{CUSTOM:PROJECT-NAME}               ~ User-defined variables
+{INPUT:DESCRIPTION}                 ~ Interactive input prompts
+{UHEX:TYPE}                         ~ uHEX filename types
+{GRID-WIDTH}                        ~ System-generated values
+```
+
+### 🔄 **Error Handling and Session Management**
+```ucode
+~ Comprehensive Error Handling
+[TRY]
+    ~ Main operation block
+    [ROLE] <ACTIVATE|PRESERVE> {TARGET-ROLE}
+    [GRID] <INIT|4X> {GRID-SIZE}
+    ~ ... operations ...
+[CATCH] {ERROR}
+    ~ Error handling block
+    [ERROR] <LOG|STACK> {Operation failed: } + {ERROR} {CRITICAL}
+    [SESSION] <UNDO|FORCE>          ~ Undo on critical errors
+    [ROLE] <ACTIVATE> {GHOST}       ~ Fallback to safe role
+[END]
+
+~ Session Management
+[SESSION] <SAVE|AUTO>               ~ Enable auto-save
+[SESSION] <HISTORY|DETAILED>        ~ Track operation history
+[uCORE] <SESSION|SAVE>              ~ Save uCORE session state
+
+~ Undo/Redo Support
+UNDO                                ~ Quick undo last operation
+[SESSION] <UNDO|FORCE>              ~ Force undo with verification
+[SESSION] <REDO|CONFIRM>            ~ Redo with confirmation
+```
+
+### 🎯 **Performance Optimization**
+```ucode
+~ Grid Performance
+[GRID] <RENDER|OPTIMIZE}            ~ Optimize rendering cycles
+[WIDGET] <REFRESH> {SPECIFIC-WIDGET} ~ Refresh only changed widgets
+[UMAP] <PAN|CENTER}                 ~ Center view efficiently
+
+~ Data Processing
+[GET] <JSON|RETRY> {API} {TOKEN}    ~ Retry failed API calls
+[POST] <JSON|COMPRESS> {API} {DATA} ~ Compress large payloads
+[DATA] <FILTER|REGEX> {DATA} {PATTERN} ~ Use regex for complex filtering
+
+~ Memory Management
+[MEM] <CLEAR> {TEMP-*}              ~ Clear temporary variables
+[WORKFLOW] <CLEANUP|FORCE> {ALL}    ~ Regular system cleanup
+[SYS] <OPTIMIZE|DEEP> {MEMORY}      ~ Deep memory optimization
+```
+
+### 🔧 **Development Workflow Integration**
+```ucode
+~ Assist Mode Usage
+[WORKFLOW] <ASSIST|FORCE> {ENTER}   ~ Enter for complex operations
+OK                                  ~ Quick assist mode entry
+END                                 ~ Exit to command mode
+
+~ Documentation Standards
+~ Use markdown code blocks with 'ucode' language
+~ Include role-based examples for different access levels
+~ Provide both basic and advanced usage patterns
+~ Reference complete STYLE-GUIDE.md for comprehensive standards
+
+~ Template Processing
+[TEMPLATE|PROCESS*template.md*output.md*variables.json*grid-config.json]
+[TEMPLATE|GRID*PROCESS*layout*output*grid-size]
+[TEMPLATE|UDATA*PROCESS*template*output*--minified]
+```
+
+### 🌟 **Advanced Integration Patterns**
+```ucode
+~ Multi-System Integration
+<FUNCTION> {INTEGRATED-OPERATION} {OPERATION-TYPE}
+    ~ Role-based access control
+    DEF {ACCESS-LEVEL} = [ROLE] <PERMISSIONS> {CURRENT}
+
+    ~ Grid system integration
+    [GRID] <INIT|4X> {OPTIMAL-SIZE}
+    [UMAP] <OVERLAY> {ENABLE*4X}
+
+    ~ Data processing pipeline
+    DEF {DATA} = [GET] <JSON|RETRY> {API-ENDPOINT}
+    [DATA] <VALIDATE|REPORT> {DATA} {SCHEMA}
+
+    ~ Widget visualization
+    [WIDGET] <CREATE|TEMPLATE*DATA-VIZ*CHART}
+    [WIDGET] <UPDATE> {DATA-VIZ*DATA*PROCESSED-DATA}
+
+    ~ Session management
+    [SESSION] <SAVE|AUTO>
+    [MEM] <STORE|ENCRYPT> {OPERATION-LOG} {METADATA}
+<END-FUNCTION>
+
+~ Cross-Role Collaboration
+~ Design functions that adapt to different role capabilities
+~ Use access level checks for feature gating
+~ Implement graceful degradation for lower roles
+~ Provide role-specific UI elements and workflows
+```
 
 ---
 
-*This streamlined reference focuses on the essential uCODE commands with proper naming conventions (CAPITALS-DASH-1234567890), ~ comment style, minimal quotes, and enhanced data control capabilities for efficient uDOS v1.3.3 operations.*
+## 📚 **Reference Guidelines**
+
+### **Code Comments**
+- Use `~` for end-of-line comments in uCODE
+- Use `#` for full-line comments
+- Avoid excessive commenting in production scripts
+- Document complex role-based logic and grid operations
+
+### **Variable Management**
+- Use descriptive names: `{CURRENT-ROLE}`, `{GRID-STATUS}`
+- Use pattern prefixes: `{USER-*}`, `{GRID-*}`, `{WIDGET-*}`
+- Clear temporary variables: `[MEM] <CLEAR> {TEMP-*}`
+- Define constants: `DEF {MAX-WIDGETS} = 16`
+
+### **Function Design**
+- Keep functions focused on single responsibilities
+- Use role-based parameter validation
+- Implement comprehensive error handling
+- Support undo operations where applicable
+- Include grid-aware operations for UI functions
+
+### **System Integration**
+- Follow uCORE component naming conventions
+- Use uHEX v7.0 filename convention for generated files
+- Integrate with uDATA format for JSON processing
+- Implement uGRID layouts for visual components
+- Support multi-device deployment scenarios
+
+---
+
+*uCODE Command Reference v1.3.3 - Complete guide for uDOS native programming with uGRID display system, 8-role hierarchy, and modern syntax standards*
+
+*Production Ready | For style guidelines: [STYLE-GUIDE.md](STYLE-GUIDE.md) | For quick reference: [QUICK-STYLES.md](QUICK-STYLES.md)*

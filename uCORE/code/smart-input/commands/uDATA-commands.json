@@ -1,0 +1,68 @@
+{
+    "metadata": {
+        "version": "2.0.0",
+        "extension": "smart-input",
+        "total_commands": 5
+    }
+}
+{
+    "command": "INPUT",
+    "syntax": "[INPUT*type*field*validation]",
+    "description": "Core uDOS smart input collection",
+    "category": "input",
+    "role_access": 20,
+    "examples": [
+        "[INPUT*form*user_data]",
+        "[INPUT*wizard*setup]"
+    ],
+    "library": "smart-input-enhanced.sh",
+    "function": "smart_input_main"
+}
+{
+    "command": "INPUT_FORM",
+    "syntax": "[INPUT_FORM*template*data]",
+    "description": "Generate dynamic input forms",
+    "category": "input",
+    "role_access": 30,
+    "examples": [
+        "[INPUT_FORM*registration*user]"
+    ],
+    "library": "smart-input-enhanced.sh",
+    "function": "generate_form"
+}
+{
+    "command": "INPUT_WIZARD",
+    "syntax": "[INPUT_WIZARD*type*steps]",
+    "description": "Multi-step input wizard",
+    "category": "input",
+    "role_access": 30,
+    "examples": [
+        "[INPUT_WIZARD*setup*3]"
+    ],
+    "library": "smart-input-enhanced.sh",
+    "function": "input_wizard"
+}
+{
+    "command": "INPUT_VALIDATE",
+    "syntax": "[INPUT_VALIDATE*data*rules]",
+    "description": "Validate input data",
+    "category": "input",
+    "role_access": 20,
+    "examples": [
+        "[INPUT_VALIDATE*email*required]"
+    ],
+    "library": "smart-input-enhanced.sh",
+    "function": "validate_input"
+}
+{
+    "command": "INPUT_SUGGEST",
+    "syntax": "[INPUT_SUGGEST*field*context]",
+    "description": "Provide smart input suggestions",
+    "category": "input",
+    "role_access": 20,
+    "examples": [
+        "[INPUT_SUGGEST*username*project]"
+    ],
+    "library": "smart-input-enhanced.sh",
+    "function": "suggest_input"
+}

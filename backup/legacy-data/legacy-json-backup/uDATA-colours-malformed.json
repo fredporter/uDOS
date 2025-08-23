@@ -1,0 +1,291 @@
+{
+    "metadata": {
+        "system": "uDOS-v1.3.3",
+        "created": "2025-08-23T00:00:00Z",
+        "version": "1.3.3",
+        "format": "uDATA-v1",
+        "description": "Single source of truth for all uDOS color palette datasets",
+        "default_palette": "polaroid_colors"
+    },
+    "default_palette": "polaroid_colors"
+}
+{
+    "name": "polaroid_colors",
+    "title": "Polaroid Colors (Default)",
+    "type": "system_default",
+    "description": "Classic Polaroid instant camera color palette for authentic retro aesthetics",
+    "colors": {
+        "CYAN": "#00FFFF",
+        "LIME": "#32FF32",
+        "MAGENTA": "#FF00FF",
+        "YELLOW": "#FFFF00",
+        "ORANGE": "#FF8000",
+        "PURPLE": "#8000FF",
+        "PINK": "#FF6B9D",
+        "BLUE": "#0080FF",
+        "RED": "#FF0000",
+        "GREEN": "#00FF00",
+        "BLACK": "#000000",
+        "WHITE": "#FFFFFF"
+    },
+    "css_vars": {
+        "--udos-cyan": "#00FFFF",
+        "--udos-lime": "#32FF32",
+        "--udos-magenta": "#FF00FF",
+        "--udos-yellow": "#FFFF00",
+        "--udos-orange": "#FF8000",
+        "--udos-purple": "#8000FF",
+        "--udos-pink": "#FF6B9D",
+        "--udos-blue": "#0080FF",
+        "--udos-red": "#FF0000",
+        "--udos-green": "#00FF00",
+        "--udos-black": "#000000",
+        "--udos-white": "#FFFFFF"
+    },
+    "usage": "primary_interface",
+    "priority": 1
+}
+{
+    "name": "bbc_mode7_authentic",
+    "title": "BBC Mode 7 Authentic",
+    "type": "teletext",
+    "description": "Original BBC Micro teletext colors for authentic vintage computing",
+    "colors": {
+        "BLACK": "#000000",
+        "RED": "#FF0000",
+        "GREEN": "#00FF00",
+        "YELLOW": "#FFFF00",
+        "BLUE": "#0000FF",
+        "MAGENTA": "#FF00FF",
+        "CYAN": "#00FFFF",
+        "WHITE": "#FFFFFF"
+    },
+    "css_vars": {
+        "--mode7-black": "#000000",
+        "--mode7-red": "#FF0000",
+        "--mode7-green": "#00FF00",
+        "--mode7-yellow": "#FFFF00",
+        "--mode7-blue": "#0000FF",
+        "--mode7-magenta": "#FF00FF",
+        "--mode7-cyan": "#00FFFF",
+        "--mode7-white": "#FFFFFF"
+    },
+    "usage": "teletext_interface",
+    "priority": 2
+}
+{
+    "name": "udos_vibrant",
+    "title": "uDOS Vibrant",
+    "type": "enhanced",
+    "description": "Modern vibrant colors for high-contrast displays and accessibility",
+    "colors": {
+        "RED": "#EF4136",
+        "ORANGE": "#F7941D",
+        "AMBER": "#FBB040",
+        "YELLOW": "#F9ED32",
+        "BLUE": "#00AEEF",
+        "LIME": "#E9FF39",
+        "GREEN": "#8CFF1F",
+        "CYAN": "#00C6CC",
+        "MAGENTA": "#F08ED3",
+        "PINK": "#FF6B9D",
+        "BLACK": "#000000",
+        "WHITE": "#FFFFFF"
+    },
+    "css_vars": {
+        "--vibrant-red": "#EF4136",
+        "--vibrant-orange": "#F7941D",
+        "--vibrant-amber": "#FBB040",
+        "--vibrant-yellow": "#F9ED32",
+        "--vibrant-blue": "#00AEEF",
+        "--vibrant-lime": "#E9FF39",
+        "--vibrant-green": "#8CFF1F",
+        "--vibrant-cyan": "#00C6CC",
+        "--vibrant-magenta": "#F08ED3",
+        "--vibrant-pink": "#FF6B9D",
+        "--vibrant-black": "#000000",
+        "--vibrant-white": "#FFFFFF"
+    },
+    "usage": "high_contrast_interface",
+    "priority": 3
+}
+{
+    "name": "retro_unicorn",
+    "title": "Retro Unicorn",
+    "type": "fantasy",
+    "description": "Playful rainbow palette with magical retro computing vibes",
+    "colors": {
+        "PINK": "#FF6B9D",
+        "PURPLE": "#C77DFF",
+        "CYAN": "#7209B7",
+        "LIME": "#91FF00",
+        "ORANGE": "#FF8500",
+        "MAGENTA": "#E100FF",
+        "YELLOW": "#FFFF00",
+        "BLUE": "#00B4D8",
+        "RED": "#FF006E",
+        "GREEN": "#06FFA5",
+        "BLACK": "#000000",
+        "WHITE": "#FFFFFF"
+    },
+    "css_vars": {
+        "--unicorn-pink": "#FF6B9D",
+        "--unicorn-purple": "#C77DFF",
+        "--unicorn-cyan": "#7209B7",
+        "--unicorn-lime": "#91FF00",
+        "--unicorn-orange": "#FF8500",
+        "--unicorn-magenta": "#E100FF",
+        "--unicorn-yellow": "#FFFF00",
+        "--unicorn-blue": "#00B4D8",
+        "--unicorn-red": "#FF006E",
+        "--unicorn-green": "#06FFA5",
+        "--unicorn-black": "#000000",
+        "--unicorn-white": "#FFFFFF"
+    },
+    "usage": "playful_interface",
+    "priority": 4
+}
+{
+    "name": "nostalgia",
+    "title": "Nostalgia",
+    "type": "vintage",
+    "description": "Warm sepia and brown tones for vintage document aesthetics",
+    "colors": {
+        "BROWN": "#8B4513",
+        "CREAM": "#F5F5DC",
+        "SEPIA": "#704214",
+        "GOLD": "#FFD700",
+        "RUST": "#B7410E",
+        "BEIGE": "#F5F5DC",
+        "TAN": "#D2B48C",
+        "AMBER": "#FFBF00",
+        "COPPER": "#B87333",
+        "BRONZE": "#CD7F32",
+        "BLACK": "#2F1B14",
+        "WHITE": "#FDF5E6"
+    },
+    "css_vars": {
+        "--nostalgia-brown": "#8B4513",
+        "--nostalgia-cream": "#F5F5DC",
+        "--nostalgia-sepia": "#704214",
+        "--nostalgia-gold": "#FFD700",
+        "--nostalgia-rust": "#B7410E",
+        "--nostalgia-beige": "#F5F5DC",
+        "--nostalgia-tan": "#D2B48C",
+        "--nostalgia-amber": "#FFBF00",
+        "--nostalgia-copper": "#B87333",
+        "--nostalgia-bronze": "#CD7F32",
+        "--nostalgia-black": "#2F1B14",
+        "--nostalgia-white": "#FDF5E6"
+    },
+    "usage": "vintage_interface",
+    "priority": 5
+}
+{
+    "name": "tropical_sunrise",
+    "title": "Tropical Sunrise",
+    "type": "warm",
+    "description": "Energetic tropical colors inspired by ocean sunrises",
+    "colors": {
+        "CORAL": "#FF7F7F",
+        "ORANGE": "#FF8C42",
+        "PEACH": "#FFB07F",
+        "YELLOW": "#FFE66D",
+        "PINK": "#FF6B9D",
+        "LIME": "#C7FFED",
+        "TURQUOISE": "#4ECDC4",
+        "BLUE": "#45B7D1",
+        "TEAL": "#96CEB4",
+        "GREEN": "#FFEAA7",
+        "BLACK": "#2C3E50",
+        "WHITE": "#ECF0F1"
+    },
+    "css_vars": {
+        "--tropical-coral": "#FF7F7F",
+        "--tropical-orange": "#FF8C42",
+        "--tropical-peach": "#FFB07F",
+        "--tropical-yellow": "#FFE66D",
+        "--tropical-pink": "#FF6B9D",
+        "--tropical-lime": "#C7FFED",
+        "--tropical-turquoise": "#4ECDC4",
+        "--tropical-blue": "#45B7D1",
+        "--tropical-teal": "#96CEB4",
+        "--tropical-green": "#FFEAA7",
+        "--tropical-black": "#2C3E50",
+        "--tropical-white": "#ECF0F1"
+    },
+    "usage": "energetic_interface",
+    "priority": 6
+}
+{
+    "name": "pastel_power",
+    "title": "Pastel Power",
+    "type": "soft",
+    "description": "Gentle pastel colors for calm and accessible interfaces",
+    "colors": {
+        "PINK": "#FFB3BA",
+        "PURPLE": "#BFFCC6",
+        "BLUE": "#B3D9FF",
+        "YELLOW": "#FFFFBA",
+        "ORANGE": "#FFDFBA",
+        "MINT": "#C7FFED",
+        "LAVENDER": "#E6E6FA",
+        "PEACH": "#FFDAB9",
+        "SAGE": "#B2DFDB",
+        "CREAM": "#FFF8DC",
+        "BLACK": "#404040",
+        "WHITE": "#FEFEFE"
+    },
+    "css_vars": {
+        "--pastel-pink": "#FFB3BA",
+        "--pastel-purple": "#BFFCC6",
+        "--pastel-blue": "#B3D9FF",
+        "--pastel-yellow": "#FFFFBA",
+        "--pastel-orange": "#FFDFBA",
+        "--pastel-mint": "#C7FFED",
+        "--pastel-lavender": "#E6E6FA",
+        "--pastel-peach": "#FFDAB9",
+        "--pastel-sage": "#B2DFDB",
+        "--pastel-cream": "#FFF8DC",
+        "--pastel-black": "#404040",
+        "--pastel-white": "#FEFEFE"
+    },
+    "usage": "calm_interface",
+    "priority": 7
+}
+{
+    "name": "arcade_pastels",
+    "title": "Arcade Pastels",
+    "type": "gaming",
+    "description": "Retro gaming colors with modern pastel twist",
+    "colors": {
+        "NEON_PINK": "#FF10F0",
+        "ELECTRIC_BLUE": "#00FFFF",
+        "LIME_GREEN": "#32FF32",
+        "HOT_YELLOW": "#FFFF00",
+        "BRIGHT_ORANGE": "#FF8000",
+        "CYBER_PURPLE": "#8000FF",
+        "PLASMA_RED": "#FF0040",
+        "MINT_CYAN": "#40FFFF",
+        "LASER_GREEN": "#00FF80",
+        "GLOW_WHITE": "#FFFFFF",
+        "VOID_BLACK": "#000000",
+        "STEEL_GREY": "#808080"
+    },
+    "css_vars": {
+        "--arcade-neon-pink": "#FF10F0",
+        "--arcade-electric-blue": "#00FFFF",
+        "--arcade-lime-green": "#32FF32",
+        "--arcade-hot-yellow": "#FFFF00",
+        "--arcade-bright-orange": "#FF8000",
+        "--arcade-cyber-purple": "#8000FF",
+        "--arcade-plasma-red": "#FF0040",
+        "--arcade-mint-cyan": "#40FFFF",
+        "--arcade-laser-green": "#00FF80",
+        "--arcade-glow-white": "#FFFFFF",
+        "--arcade-void-black": "#000000",
+        "--arcade-steel-grey": "#808080"
+    },
+    "usage": "gaming_interface",
+    "priority": 8
+}

@@ -10,16 +10,16 @@
 uCORE/code/
 ├── README.md                   # This file
 ├── ucode.sh                    # 🌀 Main modular command system
-├── setup.sh                    # ⚙️ System setup utilities  
-├── startup.sh                  # � Boot sequence
+├── setup.sh                    # ⚙️ System setup utilities
+├── startup.sh                  # 🚀 Boot sequence
 ├── destroy.sh                  # 🧹 System cleanup utilities
 ├── creative-error-handler.sh   # 🔧 Error handling system
 ├── user-auth.sh               # 🔐 Authentication system
 ├── check-structure.sh         # ✅ System validation
-├── datagets-engine.sh         # � Data processing engine
+├── datagets-engine.sh         # 🔍 Data processing engine
 ├── compat/                    # 🔄 Compatibility modules
-├── micro-syntax/              # � Language processing
-└── packages/                  # 📦 Package management
+├── deployment-manager/        # 📦 System deployment tools
+└── smart-input/               # 🧠 Smart input processing
 ```
 
 ---
@@ -43,7 +43,7 @@ uCORE/code/
 ### ⚙️ `setup.sh` — System Setup
 **Purpose**: Initialize and configure uDOS system
 - First-time setup
-- User configuration  
+- User configuration
 - Directory structure creation
 - Module initialization
 
@@ -51,7 +51,7 @@ uCORE/code/
 **Purpose**: System startup and initialization
 - Environment setup
 - Module loading
-- Service initialization  
+- Service initialization
 - Health checks
 
 ### 🧹 `destroy.sh` — Cleanup Utilities
@@ -74,7 +74,7 @@ uCORE/code/
 
 ### With uSCRIPT Modules
 - **Input Processing**: `uSCRIPT/library/ucode/input.sh`
-- **Session Management**: `uSCRIPT/library/ucode/session.sh`  
+- **Session Management**: `uSCRIPT/library/ucode/session.sh`
 - **Dashboard Generation**: `uSCRIPT/library/ucode/dashboard.sh`
 - **Memory Operations**: `uSCRIPT/library/ucode/memory.sh`
 - **Terminal Management**: `uSCRIPT/library/ucode/terminal.sh`
@@ -101,7 +101,7 @@ uCORE/code/
 - **Modular Delegation**: Complex functionality in uSCRIPT modules
 - **Clean Separation**: Core system vs. extended functionality
 
-### Maximum Modularity  
+### Maximum Modularity
 - **Module Loading**: Dynamic loading of uSCRIPT components
 - **Focused Purpose**: Each module has single responsibility
 - **Independent Operation**: Modules work standalone when needed

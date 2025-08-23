@@ -3,8 +3,8 @@
 ```ascii
     ██╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗
     ██║   ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝
-    ██║   ██║██║     ██║   ██║██████╔╝█████╗  
-    ██║   ██║██║     ██║   ██║██╔══██╗██╔══╝  
+    ██║   ██║██║     ██║   ██║██████╔╝█████╗
+    ██║   ██║██║     ██║   ██║██╔══██╗██╔══╝
     ╚██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗
      ╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
@@ -12,19 +12,20 @@
     ═══════════════════════════════════════════════════════════════════════════════════════
 ```
 
-**Version**: 1.3.0  
-**Date**: August 17, 2025  
-**Type**: Core System Architecture  
+**Version**: 1.3.2
+**Date**: August 22, 2025
+**Type**: Core System Architecture
 **Status**: Production Clean
 
 ---
 
 ## 🎯 Design Philosophy
 
-uCORE v1.3 follows the **Clean, Minimal, Expandable** principle:
+uCORE v1.3.2 follows the **Clean, Minimal, Expandable, Modular** principle:
 - **Clean**: Only essential components, no redundancy
 - **Minimal**: Focused functionality with clear separation
 - **Expandable**: Structured for growth using wizard workflow system
+- **Modular**: All advanced features moved to uSCRIPT for Drone+ roles
 
 ---
 
@@ -38,7 +39,8 @@ uCORE/
 │   ├── log.sh                  # Logging and activity tracking
 │   ├── dash.sh                 # Dashboard generation
 │   ├── setup.sh                # System initialization
-│   └── packages/               # Integrated package management (core tools)
+│   ├── deployment-manager/     # System deployment tools
+│   └── smart-input/            # Smart input processing
 ├── datasets/                    # Core data and configurations
 │   ├── location/               # Geographic and timezone data
 │   └── mapping/                # System mapping configurations
@@ -65,7 +67,8 @@ uCORE/
 - **log.sh**: Activity logging and reporting
 - **dash.sh**: Dashboard and status visualization
 - **setup.sh**: System initialization and configuration
-- **packages/**: Integrated package management (core tools only)
+- **deployment-manager/**: System deployment and installation tools
+- **smart-input/**: Smart input processing system
 
 **Principles**:
 - Single responsibility per script
@@ -83,15 +86,17 @@ uCORE/
 - Version controlled data changes
 - Automated validation and testing
 
-### **extensions/** - Modular Expansion
-**Purpose**: Plugin architecture for system growth
-- **registry.json**: Central extension registry
-- **development/**: Extension development toolkit
+### **extensions/** - Core Essential Extensions
+**Purpose**: Core system extensions that ship with uDOS
+- **registry.json**: uCORE extension registry
+- **deployment-manager/**: System deployment tools
+- **viewport-manager/**: Window and viewport management
+- **smart-input/**: Core uDOS smart input system
 
 **Design**:
-- Self-contained extension modules
-- Standardized registration system
-- Development workflow integration
+- Essential system functionality as extensions
+- uDATA command integration
+- Cross-platform compatibility
 
 ### **launcher/** - System Entry Points
 **Purpose**: Multi-platform system launchers
@@ -251,6 +256,6 @@ Enhanced integrations:
 
 ---
 
-*uCORE v1.3 - Universal Data Operating System Core*  
-*Clean Architecture for Sustainable Development*  
+*uCORE v1.3 - Universal Data Operating System Core*
+*Clean Architecture for Sustainable Development*
 *August 2025*

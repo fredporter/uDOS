@@ -1,0 +1,577 @@
+{
+    "metadata": {
+        "version": "1.3.3",
+        "description": "uDOS Shortcode Command Dataset v1.3.3 with uGRID integration",
+        "last_updated": "2025-08-23",
+        "total_shortcodes": 32
+    },
+    "categories": [
+        "system",
+        "dashboard",
+        "mission",
+        "data",
+        "template",
+        "package",
+        "error",
+        "utility",
+        "ugrid",
+        "role",
+        "workflow"
+    ],
+    "shortcodes": [
+        {
+            "command": "DASH",
+            "category": "dashboard",
+            "description": "Dashboard operations",
+            "args": [
+                "live",
+                "build",
+                "stats",
+                "export"
+            ],
+            "examples": [
+                "[DASH|LIVE]",
+                "[DASH|BUILD]",
+                "[DASH|STATS]"
+            ],
+            "help": "Generate and manage uDOS dashboard displays"
+        },
+        {
+            "command": "CHECK",
+            "category": "system",
+            "description": "System validation and checks",
+            "args": [
+                "health",
+                "all",
+                "setup",
+                "time",
+                "location",
+                "user"
+            ],
+            "examples": [
+                "[CHECK|HEALTH]",
+                "[CHECK|ALL]",
+                "[CHECK|SETUP]"
+            ],
+            "help": "Perform comprehensive system validation checks"
+        },
+        {
+            "command": "MISSION",
+            "category": "mission",
+            "description": "Mission management operations",
+            "args": [
+                "create",
+                "list",
+                "show",
+                "complete",
+                "archive"
+            ],
+            "examples": [
+                "[MISSION|CREATE]",
+                "[MISSION|LIST]",
+                "[MISSION|SHOW]"
+            ],
+            "help": "Create and manage uDOS missions and objectives"
+        },
+        {
+            "command": "PACKAGE",
+            "category": "package",
+            "description": "Package management system",
+            "args": [
+                "install",
+                "list",
+                "update",
+                "remove",
+                "search"
+            ],
+            "examples": [
+                "[PACKAGE|INSTALL*ALL]",
+                "[PACKAGE|LIST]",
+                "[PACKAGE|SEARCH*ripgrep]"
+            ],
+            "help": "Install and manage uDOS system packages"
+        },
+        {
+            "command": "PKG",
+            "category": "package",
+            "description": "Package management (short form)",
+            "args": [
+                "install",
+                "list",
+                "update",
+                "remove",
+                "search"
+            ],
+            "examples": [
+                "[PKG|INSTALL*ALL]",
+                "[PKG|LIST]",
+                "[PKG|UPDATE]"
+            ],
+            "help": "Short form package management commands"
+        },
+        {
+            "command": "DATA",
+            "category": "data",
+            "description": "Data processing and manipulation",
+            "args": [
+                "query",
+                "export",
+                "import",
+                "validate",
+                "transform"
+            ],
+            "examples": [
+                "[DATA|QUERY*users]",
+                "[DATA|EXPORT*csv]",
+                "[DATA|VALIDATE]"
+            ],
+            "help": "Process and manipulate data files and datasets"
+        },
+        {
+            "command": "TEMPLATE",
+            "category": "template",
+            "description": "Template system operations",
+            "args": [
+                "generate",
+                "list",
+                "validate",
+                "process",
+                "create"
+            ],
+            "examples": [
+                "[TEMPLATE|GENERATE*user-setup]",
+                "[TEMPLATE|LIST]",
+                "[TEMPLATE|VALIDATE]"
+            ],
+            "help": "Generate and manage uDOS templates"
+        },
+        {
+            "command": "LOG",
+            "category": "utility",
+            "description": "Logging system operations",
+            "args": [
+                "create",
+                "view",
+                "export",
+                "clean",
+                "search"
+            ],
+            "examples": [
+                "[LOG|CREATE*mission]",
+                "[LOG|VIEW*recent]",
+                "[LOG|EXPORT]"
+            ],
+            "help": "Create and manage system logs"
+        },
+        {
+            "command": "ERROR",
+            "category": "error",
+            "description": "Error handling and diagnostics",
+            "args": [
+                "stats",
+                "list",
+                "clear",
+                "export",
+                "analyze"
+            ],
+            "examples": [
+                "[ERROR|STATS]",
+                "[ERROR|LIST]",
+                "[ERROR|ANALYZE]"
+            ],
+            "help": "Handle and analyze system errors"
+        },
+        {
+            "command": "BASH",
+            "category": "utility",
+            "description": "Execute bash commands",
+            "args": [
+                "*"
+            ],
+            "examples": [
+                "[BASH|EXEC*ls -la]",
+                "[BASH|EXEC*pwd]",
+                "[BASH|EXEC*grep -r 'pattern' .]"
+            ],
+            "help": "Execute bash commands with enhanced error handling"
+        },
+        {
+            "command": "SCRIPT",
+            "category": "utility",
+            "description": "Execute uDOS scripts",
+            "args": [
+                "*"
+            ],
+            "examples": [
+                "[SCRIPT|RUN*backup-system]",
+                "[SCRIPT|RUN*update-all]"
+            ],
+            "help": "Execute custom uDOS scripts"
+        },
+        {
+            "command": "JSON",
+            "category": "data",
+            "description": "JSON processing operations",
+            "args": [
+                "query",
+                "validate",
+                "format",
+                "merge",
+                "extract"
+            ],
+            "examples": [
+                "[JSON|QUERY*user.name]",
+                "[JSON|VALIDATE*config.json]"
+            ],
+            "help": "Process and manipulate JSON files"
+        },
+        {
+            "command": "SEARCH",
+            "category": "utility",
+            "description": "Search system content",
+            "args": [
+                "files",
+                "content",
+                "commands",
+                "logs",
+                "datasets"
+            ],
+            "examples": [
+                "[SEARCH|FILES**.md]",
+                "[SEARCH|CONTENT*uDOS]"
+            ],
+            "help": "Search across uDOS system files and content"
+        },
+        {
+            "command": "GRID",
+            "category": "ugrid",
+            "description": "uGRID display system operations",
+            "args": [
+                "init",
+                "size",
+                "tile",
+                "widget",
+                "screen",
+                "render",
+                "clear"
+            ],
+            "examples": [
+                "[GRID|INIT*80/30]",
+                "[GRID|TILE*CREATE*0/0*content]",
+                "[GRID|WIDGET*CREATE*status*0/0*40/8]"
+            ],
+            "help": "Initialize and manage uGRID display system"
+        },
+        {
+            "command": "WIDGET",
+            "category": "ugrid",
+            "description": "Widget management operations",
+            "args": [
+                "create",
+                "update",
+                "move",
+                "resize",
+                "delete",
+                "list",
+                "refresh"
+            ],
+            "examples": [
+                "[WIDGET|CREATE*chart*10/5*30/15]",
+                "[WIDGET|UPDATE*chart*data*new-data]",
+                "[WIDGET|REFRESH*ALL]"
+            ],
+            "help": "Create and manage uGRID widgets"
+        },
+        {
+            "command": "UMAP",
+            "category": "ugrid",
+            "description": "uMAP coordinate operations",
+            "args": [
+                "goto",
+                "region",
+                "zoom",
+                "pan",
+                "overlay"
+            ],
+            "examples": [
+                "[UMAP|GOTO*10/5]",
+                "[UMAP|REGION*DEFINE*header*0/0*80/3]",
+                "[UMAP|OVERLAY*ENABLE*4X]"
+            ],
+            "help": "Navigate and manage uMAP coordinates"
+        },
+        {
+            "command": "ROLE",
+            "category": "role",
+            "description": "8-Role system management",
+            "args": [
+                "activate",
+                "current",
+                "switch",
+                "list",
+                "permissions"
+            ],
+            "examples": [
+                "[ROLE|ACTIVATE*WIZARD]",
+                "[ROLE|CURRENT]",
+                "[ROLE|SWITCH*SORCERER]"
+            ],
+            "help": "Manage 8-role system operations"
+        },
+        {
+            "command": "WORKFLOW",
+            "category": "workflow",
+            "description": "Workflow management operations",
+            "args": [
+                "mode",
+                "assist",
+                "briefings",
+                "roadmaps",
+                "cleanup"
+            ],
+            "examples": [
+                "[WORKFLOW|ASSIST*ENTER]",
+                "[WORKFLOW|BRIEFINGS*LIST]",
+                "[WORKFLOW|CLEANUP*ALL]"
+            ],
+            "help": "Manage workflow and assist mode operations"
+        },
+        {
+            "command": "MEMORY",
+            "category": "data",
+            "description": "Memory management operations",
+            "args": [
+                "store",
+                "retrieve",
+                "list",
+                "clear"
+            ],
+            "examples": [
+                "[MEMORY|STORE*key*value]",
+                "[MEMORY|RETRIEVE*key]",
+                "[MEMORY|LIST]"
+            ],
+            "help": "Store and retrieve data in uDOS memory system"
+        },
+        {
+            "command": "KNOW",
+            "category": "data",
+            "description": "Knowledge base operations",
+            "args": [
+                "search",
+                "add",
+                "update",
+                "categories"
+            ],
+            "examples": [
+                "[KNOW|SEARCH*query]",
+                "[KNOW|ADD*topic*content]",
+                "[KNOW|CATEGORIES]"
+            ],
+            "help": "Manage uDOS knowledge base"
+        },
+        {
+            "command": "FILE",
+            "category": "utility",
+            "description": "File operations",
+            "args": [
+                "read",
+                "write",
+                "exists",
+                "list"
+            ],
+            "examples": [
+                "[FILE|READ*path]",
+                "[FILE|WRITE*path*content]",
+                "[FILE|LIST*directory]"
+            ],
+            "help": "Perform file system operations"
+        },
+        {
+            "command": "GET",
+            "category": "data",
+            "description": "HTTP GET operations",
+            "args": [
+                "request",
+                "api",
+                "file",
+                "json"
+            ],
+            "examples": [
+                "[GET|REQUEST*url]",
+                "[GET|API*endpoint*token]",
+                "[GET|JSON*api-url*params]"
+            ],
+            "help": "Perform HTTP GET requests and data retrieval"
+        },
+        {
+            "command": "POST",
+            "category": "data",
+            "description": "HTTP POST operations",
+            "args": [
+                "request",
+                "json",
+                "form",
+                "file",
+                "api"
+            ],
+            "examples": [
+                "[POST|REQUEST*url*data]",
+                "[POST|JSON*api-url*json-data]",
+                "[POST|FILE*url*file-path]"
+            ],
+            "help": "Perform HTTP POST requests and data submission"
+        },
+        {
+            "command": "SYS",
+            "category": "system",
+            "description": "System operations",
+            "args": [
+                "status",
+                "info",
+                "version",
+                "restart",
+                "optimize"
+            ],
+            "examples": [
+                "[SYS|STATUS]",
+                "[SYS|INFO*HARDWARE]",
+                "[SYS|OPTIMIZE*MEMORY]"
+            ],
+            "help": "Perform system-level operations and checks"
+        },
+        {
+            "command": "SESSION",
+            "category": "utility",
+            "description": "Session management operations",
+            "args": [
+                "save",
+                "undo",
+                "redo",
+                "history",
+                "clear"
+            ],
+            "examples": [
+                "[SESSION|SAVE]",
+                "[SESSION|UNDO]",
+                "[SESSION|HISTORY]"
+            ],
+            "help": "Manage session state and operations"
+        },
+        {
+            "command": "ASSIST",
+            "category": "workflow",
+            "description": "Assist mode management",
+            "args": [
+                "enter",
+                "exit",
+                "continue",
+                "analyze"
+            ],
+            "examples": [
+                "[ASSIST|ENTER]",
+                "[ASSIST|EXIT]",
+                "[ASSIST|ANALYZE]"
+            ],
+            "help": "Control assist mode operations"
+        },
+        {
+            "command": "SETUP",
+            "category": "system",
+            "description": "Setup and configuration operations",
+            "args": [
+                "role",
+                "test",
+                "check"
+            ],
+            "examples": [
+                "[SETUP|ROLE]",
+                "[SETUP|TEST]",
+                "[SETUP|CHECK]"
+            ],
+            "help": "Setup system components and configurations"
+        },
+        {
+            "command": "BACKUP",
+            "category": "utility",
+            "description": "Backup management operations",
+            "args": [
+                "create",
+                "list",
+                "restore"
+            ],
+            "examples": [
+                "[BACKUP|CREATE]",
+                "[BACKUP|LIST]",
+                "[BACKUP|RESTORE*backup-name]"
+            ],
+            "help": "Create and manage system backups"
+        },
+        {
+            "command": "TRASH",
+            "category": "utility",
+            "description": "Trash management operations",
+            "args": [
+                "list",
+                "empty",
+                "restore"
+            ],
+            "examples": [
+                "[TRASH|LIST]",
+                "[TRASH|EMPTY]",
+                "[TRASH|RESTORE*item-name]"
+            ],
+            "help": "Manage trash and deleted items"
+        },
+        {
+            "command": "UDATA",
+            "category": "data",
+            "description": "uDATA format operations",
+            "args": [
+                "parse",
+                "convert",
+                "validate",
+                "merge",
+                "filter"
+            ],
+            "examples": [
+                "[UDATA|PARSE*json-string]",
+                "[UDATA|CONVERT*xml*json]",
+                "[UDATA|VALIDATE*data*schema]"
+            ],
+            "help": "Process data in uDATA format"
+        },
+        {
+            "command": "UHEX",
+            "category": "utility",
+            "description": "uHEX filename operations",
+            "args": [
+                "generate",
+                "parse",
+                "validate"
+            ],
+            "examples": [
+                "[UHEX|GENERATE*uWORK]",
+                "[UHEX|PARSE*filename]",
+                "[UHEX|VALIDATE*filename]"
+            ],
+            "help": "Generate and manage uHEX v7.0 filenames"
+        },
+        {
+            "command": "VERSION",
+            "category": "system",
+            "description": "Version information operations",
+            "args": [
+                "show",
+                "check",
+                "compare"
+            ],
+            "examples": [
+                "[VERSION|SHOW]",
+                "[VERSION|CHECK*component]",
+                "[VERSION|COMPARE*v1*v2]"
+            ],
+            "help": "Display and manage version information"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+  "backups": [
+    {
+      "file": "/Users/agentdigital/uDOS/backup/role-backups/ghost/68A95E41-00DF7A-backup.tar.gz",
+      "type": "manual",
+      "description": "Integration test backup",
+      "role": "ghost",
+      "size": 11885720,
+      "created": "2025-08-23T06:22:58Z",
+      "encrypted": false
+    },
+    {
+      "file": "/Users/agentdigital/uDOS/backup/role-backups/ghost/68A95E61-00DFCF-backup.tar.gz",
+      "type": "manual",
+      "description": "Final integration test",
+      "role": "ghost",
+      "size": 11886108,
+      "created": "2025-08-23T06:23:30Z",
+      "encrypted": false
+    }
+  ]
+}

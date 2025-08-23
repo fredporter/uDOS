@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "total_extensions": 1,
+        "last_updated": "2025-08-23"
+    }
+}
+{
+    "name": "gemini-cli",
+    "version": "1.0.0",
+    "type": "user",
+    "status": "installed",
+    "location": "user/ai-tools/gemini-cli",
+    "commands": 2
+}

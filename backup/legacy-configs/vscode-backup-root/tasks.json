@@ -1,0 +1,92 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Start uDOS Development",
+            "type": "shell",
+            "command": "./uCORE/launcher/vscode/start-vscode-dev.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [],
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "🔄 Restart uDOS Server",
+            "type": "shell",
+            "command": "./uCORE/launcher/vscode/restart-server.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "🌐 Open UI Preview",
+            "type": "shell",
+            "command": "open",
+            "args": [
+                "http://localhost:8080"
+            ],
+            "group": "test"
+        },
+        {
+            "label": "🧪 Run Quick Tests",
+            "type": "shell",
+            "command": "./uCORE/launcher/universal/test-udos.sh",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "📝 Quick Commit",
+            "type": "shell",
+            "command": "git",
+            "args": [
+                "add",
+                "-A",
+                "&&",
+                "git",
+                "commit",
+                "-m",
+                "Development update - ${input:commitMessage}"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "🛑 Stop uDOS Server",
+            "type": "shell",
+            "command": "pkill",
+            "args": [
+                "-f",
+                "uSERVER/server.py"
+            ],
+            "group": "build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "commitMessage",
+            "description": "Commit message",
+            "default": "Development update",
+            "type": "promptString"
+        }
+    ]
+}

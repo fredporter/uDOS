@@ -341,7 +341,7 @@ trash/
 # ✅ uCORE/ - Core system architecture and utilities
 # ✅ uMEMORY/system/ - System templates and configuration data (v1.3.3)
 # ✅ installations/ - Multi-installation framework (6 role types)
-# ✅ shared/ - Cross-installation resources and default configurations  
+# ✅ shared/ - Cross-installation resources and default configurations
 # ✅ docs/ - Complete system documentation and guides
 # ✅ extension/ - VS Code extension development framework
 # ✅ install/ - Installation scripts for all platforms
@@ -355,7 +355,7 @@ trash/
 # ✅ Shared workspace configuration: .vscode/extensions.json, workspace files
 
 # ════════════════════════════════════════════════════════════════
-# 🚫 uDOS v1.3 DISTRIBUTION EXCLUDES  
+# 🚫 uDOS v1.3 DISTRIBUTION EXCLUDES
 # ════════════════════════════════════════════════════════════════
 # 🚫 uMEMORY/ - User personal archive (missions, moves, memories, milestones)
 # 🚫 sandbox/user* - Active user workspace and personal content

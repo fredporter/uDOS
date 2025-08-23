@@ -1,12 +1,12 @@
 #!/bin/bash
-# uDOS Universal Startup Script v1.3.1 - Enhanced CLI with Background Server
+# uDOS Universal Startup Script v1.3.2 - Enhanced CLI with Background Server
 # Keeps server running while providing interactive CLI with status and options
 
 set -euo pipefail
 
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)}"
-export UDOS_VERSION="1.3.1"
+export UDOS_VERSION="1.3.2"
 export UDOS_UI_PORT="${UDOS_UI_PORT:-8080}"
 export UDOS_SERVER_PORT="${UDOS_SERVER_PORT:-8080}"
 
@@ -23,12 +23,16 @@ readonly BOLD='\033[1m'
 
 # Global variables
 SERVER_PID=""
-SERVER_LOG_FILE="$UDOS_ROOT/uSERVER/server.log"
+SERVER_LOG_FILE="$UDOS_ROOT/uNETWORK/server/server.log"
 
 show_help() {
     echo "uDOS Universal Startup Script v$UDOS_VERSION"
     echo ""
     echo "Usage: $0 [ROLE] [OPTIONS]"
+    if [[ ! -x "$UDOS_ROOT/uNETWORK/server/server.py" ]]; then
+        echo -e "${RED}❌ uNETWORK/server script missing or not executable${NC}"
+        exit 1
+    fi
     echo ""
     echo "Roles:"
     echo "  ghost     - Level 10: Demo and evaluation"
@@ -40,8 +44,8 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  --ui-mode      Launch with UI omniview"
-    echo "  --server-only  Start only uSERVER (no CLI)"
-    echo "  --vscode-dev   Start VS Code development mode"
+    echo "  --server-only  Start only uNETWORK/server (no CLI)"
+    cd "$UDOS_ROOT/uNETWORK/server"
     echo "  --help         Show this help message"
     echo ""
     echo "CLI Commands (when server running):"
@@ -49,15 +53,44 @@ show_help() {
     echo "  server         Server management options"
     echo "  ui             Open UI omniview in browser"
     echo "  logs           View server logs"
-    echo "  restart        Restart uSERVER"
+    echo "  restart        Restart uNETWORK/server"
     echo "  shutdown       Stop server and exit"
     echo "  help           Show available commands"
 }
 
 # Parse command line arguments
-ROLE="${1:-wizard}"
+
+# Interactive mode prompt if no arguments
+if [[ $# -eq 0 ]]; then
+    echo -e "\033[1;36m🌀 uDOS Startup Mode\033[0m"
+    echo "Choose your preferred launch mode:"
+    echo "  1) Modern UI (browser)"
+    echo "  2) Terminal CLI"
+    echo "  3) VS Code Dev Mode"
+    echo "  4) Exit"
+    read -p "Enter choice [1-4]: " mode_choice
+    case "$mode_choice" in
+        1)
+            set -- --ui-mode
+            ;;
+        2)
+            set -- wizard
+            ;;
+        3)
+            set -- --vscode-dev
+            ;;
+        *)
+            echo "Exiting."
+            exit 0
+            ;;
+    esac
+fi
+
+
+ROLE="wizard"
 UI_MODE=false
 SERVER_ONLY=false
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -81,9 +114,14 @@ while [[ $# -gt 0 ]]; do
             show_help
             exit 0
             ;;
-        *)
+        ghost|tomb|drone|imp|sorcerer|wizard)
             ROLE="$1"
             shift
+            ;;
+        *)
+            echo -e "${RED}❌ Unknown option or role: $1${NC}"
+            show_help
+            exit 1
             ;;
     esac
 done
@@ -156,9 +194,9 @@ show_role_banner() {
     echo ""
 }
 
-# Start uSERVER in background
-start_userver_background() {
-    echo -e "${BLUE}🔧 Starting uSERVER for $UDOS_ROLE_NAME...${NC}"
+# Start uNETWORK/server in background
+start_unetwork_server_background() {
+    echo -e "${BLUE}🔧 Starting uNETWORK/server for $UDOS_ROLE_NAME...${NC}"
 
     # Set environment variables for server
     export UDOS_SERVER_ROLE="$ROLE"
@@ -167,12 +205,12 @@ start_userver_background() {
     export UDOS_SERVER_HOST="127.0.0.1"
 
     # Start server in background with logging
-    cd "$UDOS_ROOT/uSERVER"
+    cd "$UDOS_ROOT/uNETWORK/server"
     nohup python3 server.py > "$SERVER_LOG_FILE" 2>&1 &
     SERVER_PID=$!
 
     # Save PID for later reference
-    echo "$SERVER_PID" > "$UDOS_ROOT/uSERVER/server.pid"
+    echo "$SERVER_PID" > "$UDOS_ROOT/uNETWORK/server/server.pid"
 
     echo -e "${YELLOW}⏳ Starting server (PID: $SERVER_PID)...${NC}"
 
@@ -182,16 +220,16 @@ start_userver_background() {
 
     while [[ $attempt -le $max_attempts ]]; do
         if curl -s "http://127.0.0.1:${UDOS_SERVER_PORT}/api/status" >/dev/null 2>&1; then
-            echo -e "${GREEN}✅ uSERVER started successfully on port $UDOS_SERVER_PORT${NC}"
+            echo -e "${GREEN}✅ uNETWORK/server started successfully on port $UDOS_SERVER_PORT${NC}"
             echo -e "${CYAN}🌐 URL: http://127.0.0.1:${UDOS_SERVER_PORT}${NC}"
             return 0
         fi
-        echo -e "${YELLOW}⏳ Waiting for uSERVER... ($attempt/$max_attempts)${NC}"
+    echo -e "${YELLOW}⏳ Waiting for uNETWORK/server... ($attempt/$max_attempts)${NC}"
         sleep 1
         ((attempt++))
     done
 
-    echo -e "${RED}❌ uSERVER failed to start${NC}"
+    echo -e "${RED}❌ uNETWORK/server failed to start${NC}"
     return 1
 }
 
@@ -233,7 +271,7 @@ show_system_status() {
 
     # Server Status
     if is_server_running; then
-        echo -e "${WHITE}uSERVER Status:${NC} ${GREEN}✅ Running${NC}"
+    echo -e "${WHITE}uNETWORK/server Status:${NC} ${GREEN}✅ Running${NC}"
         echo -e "${WHITE}Process ID:${NC} $SERVER_PID"
         echo -e "${WHITE}Port:${NC} $UDOS_SERVER_PORT"
         echo -e "${WHITE}URL:${NC} http://127.0.0.1:${UDOS_SERVER_PORT}"
@@ -255,7 +293,7 @@ show_system_status() {
         echo -e "${WHITE}Connected Clients:${NC} $clients"
 
     else
-        echo -e "${WHITE}uSERVER Status:${NC} ${RED}❌ Not Running${NC}"
+    echo -e "${WHITE}uNETWORK/server Status:${NC} ${RED}❌ Not Running${NC}"
     fi
     echo ""
 
@@ -303,7 +341,7 @@ server_management() {
 
 # Restart server
 restart_server() {
-    echo -e "${YELLOW}🔄 Restarting uSERVER...${NC}"
+    echo -e "${YELLOW}🔄 Restarting uNETWORK/server...${NC}"
 
     if is_server_running; then
         echo -e "${BLUE}Stopping current server...${NC}"
@@ -311,7 +349,7 @@ restart_server() {
         sleep 2
     fi
 
-    start_userver_background
+    start_unetwork_server_background
 }
 
 # View server logs
@@ -414,7 +452,7 @@ start_enhanced_cli() {
     echo "  ${GREEN}server${NC}      - Server management options"
     echo "  ${GREEN}ui${NC}          - Open UI omniview in browser"
     echo "  ${GREEN}logs${NC}        - View recent server logs"
-    echo "  ${GREEN}restart${NC}     - Restart uSERVER"
+    echo "  ${GREEN}restart${NC}     - Restart uNETWORK/server"
     echo "  ${GREEN}shutdown${NC}    - Stop server and exit"
     echo "  ${GREEN}help${NC}        - Show available commands"
     echo ""
@@ -448,7 +486,7 @@ start_enhanced_cli() {
                 restart_server
                 ;;
             "shutdown"|"quit"|"exit")
-                echo -e "${YELLOW}🛑 Shutting down uSERVER...${NC}"
+                echo -e "${YELLOW}🛑 Shutting down uNETWORK/server...${NC}"
                 if is_server_running; then
                     kill "$SERVER_PID" 2>/dev/null || true
                     echo -e "${GREEN}✅ Server stopped${NC}"
@@ -462,7 +500,7 @@ start_enhanced_cli() {
                 echo "  ${GREEN}server${NC}      - Server management options"
                 echo "  ${GREEN}ui${NC}          - Open UI omniview in browser"
                 echo "  ${GREEN}logs${NC}        - View recent server logs"
-                echo "  ${GREEN}restart${NC}     - Restart uSERVER"
+                echo "  ${GREEN}restart${NC}     - Restart uNETWORK/server"
                 echo "  ${GREEN}shutdown${NC}    - Stop server and exit"
                 echo "  ${GREEN}help${NC}        - Show available commands"
                 ;;
@@ -496,15 +534,27 @@ cleanup() {
 # Set trap for cleanup
 trap cleanup EXIT INT TERM
 
-# Main execution
 main() {
     configure_role
     show_role_banner
 
+    # Check for required install scripts and launcher
+    if [[ ! -x "$UDOS_ROOT/uCORE/launcher/install-launcher.sh" ]]; then
+        echo -e "${RED}❌ Launcher install script missing or not executable${NC}"
+        echo -e "${YELLOW}Running install-launcher.sh...${NC}"
+        bash "$UDOS_ROOT/uCORE/launcher/install-launcher.sh"
+    fi
+
+    # Check for server script
+    if [[ ! -x "$UDOS_ROOT/uNETWORK/server/server.py" ]]; then
+        echo -e "${RED}❌ uNETWORK/server script missing or not executable${NC}"
+        exit 1
+    fi
+
     if [[ "$SERVER_ONLY" == "true" ]]; then
         # Server-only mode (no CLI)
-        if start_userver_background; then
-            echo -e "${GREEN}✅ uSERVER started in server-only mode${NC}"
+    if start_unetwork_server_background; then
+            echo -e "${GREEN}✅ uNETWORK/server started in server-only mode${NC}"
             echo -e "${CYAN}🌐 URL: http://127.0.0.1:${UDOS_SERVER_PORT}${NC}"
             echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
 
@@ -513,16 +563,16 @@ main() {
                 sleep 5
             done
         else
-            echo -e "${RED}❌ Failed to start uSERVER${NC}"
+            echo -e "${RED}❌ Failed to start uNETWORK/server${NC}"
             exit 1
         fi
     else
         # Normal mode with CLI
-        if start_userver_background; then
+    if start_unetwork_server_background; then
             launch_ui_omniview
             start_enhanced_cli
         else
-            echo -e "${RED}❌ Failed to start uSERVER${NC}"
+            echo -e "${RED}❌ Failed to start uNETWORK/server${NC}"
             echo -e "${YELLOW}Starting CLI without server...${NC}"
             start_enhanced_cli
         fi

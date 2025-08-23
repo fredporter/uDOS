@@ -51,10 +51,11 @@
 
 | Document | Description | Audience | Updated |
 |----------|-------------|-----------|---------|
+| **[QUICK-STYLES.md](QUICK-STYLES.md)** | Essential coding and formatting rules quick reference | All Users | Aug 2025 |
 | **[STYLE-GUIDE.md](STYLE-GUIDE.md)** | Comprehensive uDOS v1.3.3 style guide with uHEX, uCODE, Mode 7 design | All Users | Aug 2025 |
 | **[Template-Standard.md](Template-Standard.md)** | Template system and standards | Developers | Aug 2025 |
 
-**Reference**: STYLE-GUIDE.md (comprehensive v1.3.3 standards) → Template-Standard.md
+**Reference**: QUICK-STYLES.md (essential rules) → STYLE-GUIDE.md (comprehensive v1.3.3 standards) → Template-Standard.md
 
 ---
 

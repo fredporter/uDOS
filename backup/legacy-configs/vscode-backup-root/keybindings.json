@@ -1,0 +1,31 @@
+[
+    {
+        "key": "cmd+shift+u",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🚀 Start uDOS Development"
+    },
+    {
+        "key": "cmd+shift+r",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🔄 Restart uDOS Server"
+    },
+    {
+        "key": "cmd+shift+t",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🧪 Run Quick Tests"
+    },
+    {
+        "key": "cmd+shift+o",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🌐 Open UI Preview"
+    },
+    {
+        "key": "cmd+shift+p",
+        "command": "livePreview.start.preview.atFile"
+    },
+    {
+        "key": "cmd+shift+s",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🛑 Stop uDOS Server"
+    }
+]

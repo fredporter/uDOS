@@ -1,0 +1,13 @@
+{
+  "migration_date": "2025-08-22T13:17:56Z",
+  "files": [
+    {
+      "original_file": "/Users/agentdigital/uDOS/drone/backup/013500C4-07A7-drone-umemory-backup.tar.gz",
+      "original_location": "drone/backup",
+      "new_file": "/Users/agentdigital/uDOS/backup/20250822-231521-migrated-000001EC-013500C4-07A7-drone-umemory-backup.tar.gz",
+      "new_name": "20250822-231521-migrated-000001EC-013500C4-07A7-drone-umemory-backup.tar.gz",
+      "size": 3137,
+      "migrated_at": "2025-08-22T13:17:57Z"
+    }
+  ]
+}

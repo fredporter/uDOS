@@ -1,0 +1,25 @@
+{
+  "initialized": "2025-08-20T16:29:26Z",
+  "patterns": {
+    "frequent_moves": {
+      "milestone_achievement": 3,
+      "milestones/": 3,
+      "mission_creation": 2,
+      "missions/": 2,
+      "learning": 1,
+      "uSCRIPT/": 1,
+      "legacy_creation": 1,
+      "legacy/": 1,
+      "test": 1,
+      "uMEMORY/user/": 1
+    },
+    "move_sequences": [],
+    "time_patterns": {},
+    "session_stats": {
+      "total_sessions": 0,
+      "total_moves": 8,
+      "average_moves_per_session": 0
+    }
+  },
+  "last_updated": "2025-08-20T16:58:30Z"
+}
