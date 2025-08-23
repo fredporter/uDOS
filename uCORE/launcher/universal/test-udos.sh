@@ -49,7 +49,7 @@ fi
 # Test 4: File Structure
 echo -n "4. File Structure: "
 ((total++))
-if [ -f "$UDOS_ROOT/uSERVER/server.py" ] && [ -d "$UDOS_ROOT/uCORE" ]; then
+if [ -f "$UDOS_ROOT/uNETWORK/server/server.py" ] && [ -d "$UDOS_ROOT/uCORE" ]; then
     echo -e "${GREEN}✅ Pass${NC}"
     ((passed++))
 else

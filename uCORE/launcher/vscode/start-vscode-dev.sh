@@ -26,14 +26,14 @@ start_dev_server() {
     cd "$UDOS_ROOT"
 
     # Kill any existing server
-    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 
     # Start server with development flags
     export UDOS_CURRENT_ROLE="wizard"
     export UDOS_ACCESS_LEVEL="100"
     export UDOS_DEV_MODE="true"
 
-    python3 uSERVER/server.py &
+    python3 uNETWORK/server/server.py &
     SERVER_PID=$!
     echo $SERVER_PID > /tmp/udos-dev-server.pid
 
@@ -328,7 +328,7 @@ run_quick_tests() {
     # Test 4: File Structure
     echo -n "4. File Structure: "
     ((total++))
-    if [ -f "$UDOS_ROOT/uSERVER/server.py" ] && [ -d "$UDOS_ROOT/uCORE" ]; then
+    if [ -f "$UDOS_ROOT/uNETWORK/server/server.py" ] && [ -d "$UDOS_ROOT/uCORE" ]; then
         echo -e "${GREEN}✅ Pass${NC}"
         ((passed++))
     else
@@ -373,7 +373,7 @@ stop_dev_server() {
     fi
 
     # Also kill any remaining python server processes
-    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 
     echo -e "${GREEN}✅ Development server stopped${NC}"
 }

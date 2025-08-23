@@ -131,7 +131,7 @@ check_system_resources() {
             return 0
         else
             # Check if it's a zombie uDOS process
-            if echo "$port_process" | grep -q -i python && ps -p "$port_pid" -o args= | grep -q "uSERVER/server.py"; then
+            if echo "$port_process" | grep -q -i python && ps -p "$port_pid" -o args= | grep -q "uNETWORK/server/server.py"; then
                 echo -e "${YELLOW}Detected zombie uDOS server, cleaning up...${NC}"
                 kill "$port_pid" 2>/dev/null || true
                 sleep 2
@@ -172,7 +172,7 @@ start_managed_server() {
     export UDOS_DEV_MODE="true"
     export UDOS_MANAGED="true"
 
-    python3 uSERVER/server.py &
+    python3 uNETWORK/server/server.py &
     local server_pid=$!
     echo $server_pid > "$UDOS_SERVER_PID"
 
@@ -330,8 +330,8 @@ show_dev_logs() {
     echo "─────────────────────"
 
     # Show recent logs
-    if [ -f "$UDOS_ROOT/uSERVER/logs/server.log" ]; then
-        tail -20 "$UDOS_ROOT/uSERVER/logs/server.log"
+    if [ -f "$UDOS_ROOT/uNETWORK/server/logs/server.log" ]; then
+        tail -20 "$UDOS_ROOT/uNETWORK/server/logs/server.log"
     else
         echo -e "${YELLOW}No server logs found${NC}"
         echo "Server should be logging to console..."

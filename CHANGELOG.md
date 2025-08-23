@@ -32,7 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Fixed
 - **Registry Format**: Corrected JSON structure for component tracking
-- **Path References**: Updated all system references to new component locations
+- **Path References**: Updated all system references to new component locations (uSERVER → uNETWORK/server)
+- **Broken Symlinks**: Removed broken symlinks after directory reorganization
+- **Installation Scripts**: Updated all launcher and setup scripts with correct paths
 - **Documentation**: Aligned all README files with current clean structure
 
 ## [1.3.1] - 2024-08-22
@@ -103,7 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Added
 - **Multi-Dimensional Mapping**: Advanced geospatial visualization with 7+ virtual layers
-- **Shortcode Templates**: Template-driven map creation with 20+ shortcode types  
+- **Shortcode Templates**: Template-driven map creation with 20+ shortcode types
 - **Projection Support**: Mercator, Robinson, and interactive 3D Orthographic globe
 - **Temporal Navigation**: Historical playback, real-time updates, and predictive modeling
 - **ASCII Visualization**: Enhanced data presentation with ASCII art blocks
@@ -199,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security model with proper separation of system and user files
 
 #### 🤖 Chester AI Companion
-- Personality-driven AI assistant with small dog characteristics  
+- Personality-driven AI assistant with small dog characteristics
 - Context-aware help and guidance system
 - Integrated throughout uDOS experience
 - Role-appropriate assistance for all user types

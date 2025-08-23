@@ -6,7 +6,7 @@ UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 echo "🔄 Restarting uDOS development server..."
 
 # Kill existing server
-pkill -f "uSERVER/server.py" 2>/dev/null || true
+pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 if [ -f /tmp/udos-dev-server.pid ]; then
     kill -9 $(cat /tmp/udos-dev-server.pid) 2>/dev/null || true
     rm -f /tmp/udos-dev-server.pid
@@ -21,7 +21,7 @@ export UDOS_CURRENT_ROLE="wizard"
 export UDOS_ACCESS_LEVEL="100"
 export UDOS_DEV_MODE="true"
 
-python3 uSERVER/server.py &
+python3 uNETWORK/server/server.py &
 echo $! > /tmp/udos-dev-server.pid
 
 # Wait for server to start

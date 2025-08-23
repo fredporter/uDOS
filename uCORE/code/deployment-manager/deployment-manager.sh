@@ -150,14 +150,14 @@ EOF
   "components": [
     "uCORE/",
     "uMEMORY/shared/",
-    "uSERVER/",
+    "uNETWORK/server/",
     "uAUTH/",
     "docs/"
   ],
   "structure": {
     "uCORE/": "server-optimized",
     "uMEMORY/shared/": "multi-user",
-    "uSERVER/": ["api/", "web/", "auth/"],
+    "uNETWORK/server/": ["api/", "web/", "auth/"],
     "uAUTH/": ["users/", "permissions/", "sessions/"],
     "logs/": ["access/", "system/", "security/"]
   },

@@ -4,7 +4,7 @@
 
 UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
 UDOS_SERVER_PORT="${UDOS_SERVER_PORT:-8080}"
-LOG_FILE="$UDOS_ROOT/uSERVER/server.log"
+LOG_FILE="$UDOS_ROOT/uNETWORK/server/server.log"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

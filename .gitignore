@@ -26,7 +26,7 @@ uMEMORY/*/
 # Where most user activity occurs before archiving to uMEMORY
 sandbox/user.md
 sandbox/user/
-sandbox/experiments/
+sandbox/experiments/personal/
 sandbox/drafts/
 sandbox/tasks/in-progress/
 sandbox/tasks/completed/
@@ -334,6 +334,15 @@ trash/
 **/backup/*-umemory-backup.*
 **/backup/*-sandbox-backup.*
 **/backup/umemory-backup-report.md
+
+# Broken symlinks and temporary cleanup artifacts
+**/.DS_Store.bak
+**/broken-link-*
+**/temp-cleanup-*
+
+# Git cleanup files
+.git/refs/original/
+.git/logs/refs/original/
 
 # ════════════════════════════════════════════════════════════════
 # ✅ uDOS v1.3 DISTRIBUTION INCLUDES

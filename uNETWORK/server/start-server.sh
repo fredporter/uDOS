@@ -151,7 +151,7 @@ stop_existing_server() {
     fi
 
     # Also kill any stray python processes
-    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 }
 # Check Python availability
 check_python() {
@@ -174,7 +174,7 @@ check_python() {
 install_dependencies() {
     echo -e "${BLUE}📦 Checking Python dependencies...${NC}"
 
-    local requirements_file="$UDOS_ROOT/uSERVER/requirements.txt"
+    local requirements_file="$UDOS_ROOT/uNETWORK/server/requirements.txt"
 
     if [[ -f "$requirements_file" ]]; then
         if $PYTHON_CMD -m pip install -r "$requirements_file" >/dev/null 2>&1; then
@@ -203,7 +203,7 @@ run_setup_check() {
     fi
 
     # Run setup check
-    local setup_check="$UDOS_ROOT/uSERVER/setup-check.py"
+    local setup_check="$UDOS_ROOT/uNETWORK/server/setup-check.py"
     if [[ -f "$setup_check" ]]; then
         echo -e "${CYAN}🔍 Running system setup check...${NC}"
         if $PYTHON_CMD "$setup_check" 2>/dev/null; then
@@ -231,10 +231,10 @@ start_server() {
     export FLASK_ENV="development"
 
     # Change to server directory
-    cd "$UDOS_ROOT/uSERVER"
+    cd "$UDOS_ROOT/uNETWORK/server"
 
     # Start server
-    local server_script="$UDOS_ROOT/uSERVER/server.py"
+    local server_script="$UDOS_ROOT/uNETWORK/server/server.py"
 
     if [[ "$DAEMON_MODE" == "true" ]]; then
         echo -e "${BLUE}🔧 Starting in daemon mode...${NC}"
@@ -277,7 +277,7 @@ start_server() {
 cleanup_server() {
     echo -e "\n${YELLOW}🛑 Stopping uSERVER...${NC}"
     rm -f "$SERVER_PID_FILE" "$SERVER_LOCK_FILE"
-    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
     echo -e "${GREEN}✅ uSERVER stopped${NC}"
     exit 0
 }
@@ -316,7 +316,7 @@ stop_server() {
     fi
 
     # Kill any stray processes
-    pkill -f "uSERVER/server.py" 2>/dev/null || true
+    pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 }
 
 # Main function
