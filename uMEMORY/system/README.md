@@ -1,43 +1,42 @@
 # uMEMORY System Configuration v1.3.3
 
-This directory contains system configuration files, command definitions, operational data, and the new unified data management system for uDOS v1.3.3.
+This directory contains system configuration files in uDATA format - minified JSON with one record per line, maintaining compatibility with standard JSON tools while optimizing for uDOS processing.
 
 ## Contents
 
-### Command Definitions
-- `commands.json` - Core command definitions and metadata
-- `ucode-commands.json` - uCode-specific command configurations
-- `vb-commands.json` - Visual Basic-style command definitions
-- `dynamic-commands.json` - Dynamically loaded command configurations
+### uDATA System Files (✅ CLEAN FILENAMES)
+- `uDATA-commands.json` - Core command definitions and metadata (v1.3.3)
+- `uDATA-shortcodes.json` - Shortcode definitions and mappings
+- `uDATA-user-roles.json` - Role-based permission and access definitions
+- `uDATA-variable-system.json` - System variable definitions and configurations
+- `uDATA-colours.json` - Color palette definitions (Polaroid Colors default)## uDATA Format Specification
 
-### System Configuration
-- `user-roles.json` - Role-based permission and access definitions
-- `variable-system.json` - System variable definitions and configurations
-- `shortcodes.json` - Shortcode definitions and mappings
+### Format Features:
+- **Minified JSON**: No extra whitespace, optimized for performance
+- **One Record Per Line**: Fast parsing and streaming support
+- **Standard Compatible**: Works with regular JSON tools and parsers
+- **Metadata Header**: First record contains system metadata
 
-### v1.3.3 Data Management System
+### Example Format:
+```json
+{"metadata":{"system":"uDOS-v1.3.3","format":"uDATA-v1","version":"1.3.3"}}
+{"command":"HELP","category":"system","description":"Dynamic help system"}
+{"command":"GRID","category":"ugrid","description":"Advanced grid operations"}
+```
 
-#### `/get/` - Data Retrieval System
-- `user-data/` - User profile information
-- `setup-status/` - User setup completion status
-- `location/` - Geographic data cache
-- `timezone/` - Timezone information
-- `system-status/` - System health and status
-- `preferences/` - User preference data
+## System Integration
 
-#### `/post/` - Data Creation/Submission System
-- `user-creation/` - New user setup data
-- `form-submissions/` - Form submission data
-- `preference-updates/` - User preference changes
-- `location-updates/` - Location data updates
-- `system-configs/` - System configuration changes
+### uCORE Engine Access
+- Help system reads directly from `uDATA-commands.json`
+- Role system processes `uDATA-user-roles.json`
+- Color system uses `uDATA-colours.json` (Polaroid Colors default)
 
-#### `/templates/` - System Template Repository
-- `core/` - Essential system templates
-- `user/` - User interface templates
-- `forms/` - Data collection templates
-- `components/` - Reusable template components
-- `reports/` - Output formatting templates
+### Template System Access
+```bash
+[GET-COMMANDS] → uDATA-commands.json
+[GET-ROLES] → uDATA-user-roles.json
+[GET-COLORS] → uDATA-colours.json
+```
 
 ## v1.3.3 uCODE Integration
 

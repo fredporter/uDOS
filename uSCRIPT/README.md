@@ -31,10 +31,17 @@ uSCRIPT/
 │   ├── ucode/               # Native uCODE scripts and modules
 │   └── user-memory/         # User memory management
 ├── config/                  # Configuration files
+│   ├── requirements.txt     # Python dependencies
+│   └── *.json              # Engine and security configurations
 ├── registry/                # Script registry and metadata
 ├── runtime/                 # Runtime execution environment
 ├── venv/                    # Python virtual environment
-└── uscript.sh               # Main execution engine
+│   └── python/              # Isolated Python environment
+├── bin/                     # Utility scripts and tools
+├── uscript.sh               # Main execution engine
+├── setup-environment.sh     # Environment setup script (v1.3.3)
+├── activate-venv.sh         # Virtual environment activation helper
+└── venv-info.sh             # Environment information display
 ```
 
 ## Security Levels
@@ -50,6 +57,17 @@ uSCRIPT v1.3 implements a three-tier security model:
 ### Initialize System
 ```bash
 ./uscript.sh init
+```
+
+### Setup Python Environment
+```bash
+./setup-environment.sh
+```
+
+### Check Environment Status
+```bash
+./uscript.sh env
+```
 ### List Available Scripts
 ```bash
 ./uscript.sh list
@@ -96,9 +114,27 @@ Scripts in uSCRIPT should be:
 
 ## Version History
 
-- **v1.3.3** (2025-08-23): Cleaned and optimized structure, organized libraries
-- **v1.3.2** (2025-08-22): Modularized advanced features, improved organization
+- **v1.3.3** (2025-08-23): Enhanced Python virtual environment support, environment status commands, improved venv integration
+- **v1.3.2** (2025-08-22): Cleaned and optimized structure, organized libraries
 - **v1.3.0** (2025-08-17): Complete redesign as production script library
 - **v1.2.x**: Development script manager (deprecated)
 - **v1.1.x**: Basic script execution (deprecated)
+
+## New in v1.3.3
+
+### Enhanced Virtual Environment Support
+- **Automatic venv detection**: Scripts automatically use Python virtual environment when available
+- **Fallback to system Python**: Graceful fallback if venv is not set up
+- **Environment setup script**: `./setup-environment.sh` for easy environment configuration
+- **Helper scripts**: `activate-venv.sh` and `venv-info.sh` for environment management
+
+### Environment Management
+- **Status command**: `./uscript.sh env` shows complete environment status
+- **Dependency verification**: Checks Python, venv, and installed packages
+- **Setup validation**: Ensures all required components are properly configured
+
+### Improved Integration
+- **Clean venv isolation**: Python scripts run in isolated virtual environment
+- **Dependency management**: Automated installation from requirements.txt
+- **Configuration validation**: Built-in checks for proper setup
 

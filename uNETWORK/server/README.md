@@ -1,24 +1,47 @@
-# 1. Project Structure
+# uNETWORK Server v1.3.3
 
-This project consists of several key components that work together to create a functional server:
+**Flask-based web server for uDOS with uSCRIPT virtual environment integration**
 
-- **server.py**: This is the main entry point of the server application. It initializes the server, sets up middleware, and registers API endpoints to handle incoming requests.
-- **middleware**: Middleware functions act as intermediaries that process requests before they reach the endpoints. They can perform tasks such as authentication, logging, input validation, and error handling.
-- **endpoints**: These are the specific routes or handlers that respond to client requests. Each endpoint defines the logic for processing a particular type of request and returning the appropriate response.
-- **config**: This module contains configuration settings such as environment variables, database connection details, and other parameters that control the server's behavior.
+## Overview
 
-# 2. Request Flow
+The uNETWORK server provides the web interface and API endpoints for uDOS. This server integrates with the uSCRIPT virtual environment and provides real-time communication via WebSockets.
 
-When a client sends a request to the server, it follows this flow:
+## Directory Structure
 
-1. The request first passes through the middleware stack. Each middleware function can inspect, modify, or reject the request. Common middleware tasks include verifying authentication tokens, logging request details, and validating input data.
-2. After successfully passing through all middleware, the request reaches the appropriate endpoint based on the URL path and HTTP method.
-3. The endpoint processes the request, interacts with any necessary services or databases, and constructs a response.
-4. The response is sent back to the client, completing the request-response cycle.
+```
+server/
+├── server.py                    # Main Flask server application
+├── start-server.sh             # Server startup script with venv support
+├── setup-check.py              # System validation and startup checks
+├── requirements.txt            # Python dependencies
+├── config/                     # Configuration files
+│   └── server-config.example.json
+├── examples/                   # Example scripts and testing tools
+│   ├── manage-server.sh        # Server management utility
+│   ├── test-api.py            # HTTP API testing
+│   ├── test-websocket.py      # WebSocket testing
+│   └── README.md              # Examples documentation
+├── utils/                      # Utility scripts
+│   ├── validate-config.py     # Configuration validation
+│   └── README.md              # Utils documentation
+└── README.md                  # This file
+```
 
-This layered approach ensures that requests are systematically processed and validated before any business logic is executed.
+## Features
 
-# 3. Recommendations
+### Core Functionality
+- **Flask web server** with configurable host/port
+- **WebSocket support** for real-time communication
+- **Static file serving** for uDOS web interface
+- **JSON API endpoints** for system integration
+- **Process management** with PID tracking
+- **Comprehensive logging** with rotation
+
+### uSCRIPT Integration
+- **Automatic venv detection**: Uses uSCRIPT virtual environment when available
+- **Graceful fallback**: Falls back to system Python if venv not set up
+- **Shared dependencies**: Leverages uSCRIPT dependency management
+- **Environment validation**: Checks venv status during startup
 
 To improve the server's security, scalability, and maintainability, consider the following suggestions:
 

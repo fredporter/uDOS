@@ -8,12 +8,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 UMEMORY_SYSTEM="$UDOS_ROOT/uMEMORY/system"
 
-# uDATA file paths
-UDATA_SYSTEM_CONFIG="$UMEMORY_SYSTEM/uDATA-system-config.json"
-UDATA_CONFIG="$UMEMORY_SYSTEM/uDATA-config.json"
+# uDATA file paths - Updated for clean filenames (no date stamps)
+UDATA_SYSTEM_CONFIG="$UMEMORY_SYSTEM/uDATA-system-config.json"  # If exists
+UDATA_CONFIG="$UMEMORY_SYSTEM/uDATA-config.json"  # If exists
 UDATA_COLOURS="$UMEMORY_SYSTEM/uDATA-colours.json"
 UDATA_COMMANDS="$UMEMORY_SYSTEM/uDATA-commands.json"
 UDATA_USER_ROLES="$UMEMORY_SYSTEM/uDATA-user-roles.json"
+UDATA_SHORTCODES="$UMEMORY_SYSTEM/uDATA-shortcodes.json"
+UDATA_VARIABLES="$UMEMORY_SYSTEM/uDATA-variable-system.json"
 
 # Function to read uDATA value by name (handles both formats)
 get_udata_value() {

@@ -1,27 +1,29 @@
 #!/bin/bash
-# uSERVER Startup Script v1.3.1 - Enhanced Error Handling & Loop Detection
+# uSERVER Startup Script v1.3.3 - Enhanced with uSCRIPT venv Integration
 # Integrated with uCORE for complete system management
 
 set -euo pipefail
 
 # Configuration
-export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 export USERVER_PORT="${USERVER_PORT:-8080}"
 export USERVER_HOST="${USERVER_HOST:-127.0.0.1}"
 SERVER_PID_FILE="/tmp/udos-server.pid"
 SERVER_LOCK_FILE="/tmp/udos-server.lock"
+USCRIPT_VENV="$UDOS_ROOT/uSCRIPT/venv/python"
 
 # Load error handler
-source "$UDOS_ROOT/uCORE/system/error-handler.sh"
+source "$UDOS_ROOT/uCORE/system/error-handler.sh" 2>/dev/null || true
 
-# Color definitions
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly PURPLE='\033[0;35m'
-readonly CYAN='\033[0;36m'
-readonly WHITE='\033[1;37m'
+# Color definitions (compatible with error handler)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+NC='\033[0m'
 readonly NC='\033[0m'
 
 # Server state
@@ -153,21 +155,36 @@ stop_existing_server() {
     # Also kill any stray python processes
     pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 }
-# Check Python availability
+# Check Python availability and use uSCRIPT venv
 check_python() {
-    if command -v python3 >/dev/null 2>&1; then
-        PYTHON_CMD="python3"
-    elif command -v python >/dev/null 2>&1; then
+    # First, try to use uSCRIPT virtual environment
+    if [[ -f "$USCRIPT_VENV/bin/activate" ]]; then
+        echo -e "${GREEN}✅ Using uSCRIPT virtual environment${NC}"
+        source "$USCRIPT_VENV/bin/activate"
         PYTHON_CMD="python"
+        USING_VENV=true
+    elif command -v python3 >/dev/null 2>&1; then
+        echo -e "${YELLOW}⚠️ uSCRIPT venv not found, using system Python${NC}"
+        PYTHON_CMD="python3"
+        USING_VENV=false
+    elif command -v python >/dev/null 2>&1; then
+        echo -e "${YELLOW}⚠️ uSCRIPT venv not found, using system Python${NC}"
+        PYTHON_CMD="python"
+        USING_VENV=false
     else
         echo -e "${RED}❌ Python not found${NC}"
-        echo "Please install Python 3.7+ to run uSERVER"
+        echo "Please install Python 3.7+ or set up uSCRIPT environment:"
+        echo "  cd $UDOS_ROOT/uSCRIPT && ./setup-environment.sh"
         exit 1
     fi
 
     # Check Python version
     local python_version=$($PYTHON_CMD --version 2>&1 | cut -d' ' -f2)
     echo -e "${GREEN}✅ Python $python_version${NC}"
+
+    if [[ "$USING_VENV" == "true" ]]; then
+        echo -e "${BLUE}📦 Virtual environment: $USCRIPT_VENV${NC}"
+    fi
 }
 
 # Install Python dependencies
@@ -176,11 +193,15 @@ install_dependencies() {
 
     local requirements_file="$UDOS_ROOT/uNETWORK/server/requirements.txt"
 
-    if [[ -f "$requirements_file" ]]; then
+    if [[ "$USING_VENV" == "true" ]]; then
+        echo -e "${GREEN}✅ Using uSCRIPT virtual environment${NC}"
+        echo -e "${BLUE}💡 Dependencies managed by uSCRIPT - run './uSCRIPT/setup-environment.sh' to update${NC}"
+    elif [[ -f "$requirements_file" ]]; then
         if $PYTHON_CMD -m pip install -r "$requirements_file" >/dev/null 2>&1; then
             echo -e "${GREEN}✅ Dependencies installed${NC}"
         else
             echo -e "${YELLOW}⚠️  Some dependencies may be missing${NC}"
+            echo -e "${BLUE}💡 Consider setting up uSCRIPT virtual environment: cd $UDOS_ROOT/uSCRIPT && ./setup-environment.sh${NC}"
         fi
     else
         echo -e "${YELLOW}⚠️  Requirements file not found${NC}"

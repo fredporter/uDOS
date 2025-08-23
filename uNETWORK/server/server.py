@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-uDOS Server v1.3.1 - Enhanced with Error Handling & Loop Detection
-Serves the browser-based UI with comprehensive error management
+uDOS Server v1.3.3 - Enhanced with uSCRIPT venv Integration and uCORE Protocol Compatibility
+Serves the browser-based UI with comprehensive error management, role-based permissions,
+and full integration with uCORE logging, error handling, and backup protocols
 """
 
 import os
@@ -26,10 +27,29 @@ CRASH_LOG_PATH = UDOS_ROOT / "wizard" / "logs" / "crashes"
 
 sys.path.append(str(UDOS_ROOT / "uCORE" / "core"))
 
+# Import uCORE integration
+try:
+    sys.path.append(str(Path(__file__).parent / "integration"))
+    from ucore_protocols import create_ucore_integration
+    UCORE_INTEGRATION_AVAILABLE = True
+except ImportError:
+    UCORE_INTEGRATION_AVAILABLE = False
+    print("Warning: uCORE integration not available")
+
 # Ensure log directories exist
 ERROR_LOG_PATH.mkdir(parents=True, exist_ok=True)
 DEBUG_LOG_PATH.mkdir(parents=True, exist_ok=True)
 CRASH_LOG_PATH.mkdir(parents=True, exist_ok=True)
+
+# Initialize uCORE integration
+ucore_protocols = None
+if UCORE_INTEGRATION_AVAILABLE:
+    try:
+        ucore_protocols = create_ucore_integration(str(UDOS_ROOT))
+        print(f"✅ uCORE integration initialized for role: {ucore_protocols.current_role}")
+    except Exception as e:
+        print(f"Warning: uCORE integration failed: {e}")
+        UCORE_INTEGRATION_AVAILABLE = False
 
 # Configure logging
 logging.basicConfig(
@@ -144,12 +164,22 @@ def get_role_error_message(error_type, role=None):
     return messages.get(role, default_messages).get(error_type, default_messages['server_error'])
 
 def log_error(error_type, message, exception=None):
-    """Enhanced error logging with role customization"""
+    """Enhanced error logging with uCORE protocol integration"""
     global ERROR_COUNT
     ERROR_COUNT += 1
     system_status['error_count'] = ERROR_COUNT
 
     error_id = generate_error_id()
+
+    # Use uCORE integration if available
+    if ucore_protocols:
+        try:
+            error_id = ucore_protocols.log_error(error_type, message, exception)
+            return error_id
+        except Exception as e:
+            print(f"uCORE error logging failed, using fallback: {e}")
+
+    # Fallback error logging
     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
     role = system_status.get('udos_mode', 'wizard')
 
@@ -174,6 +204,7 @@ def log_error(error_type, message, exception=None):
         f.write(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
         f.write(f"Timestamp: {timestamp}\n")
         f.write(f"Type: {error_type}\n")
+        f.write(f"Source: uNETWORK\n")
         f.write(f"Role: {role}\n")
         f.write(f"Message: {message}\n")
         if exception:
@@ -283,8 +314,15 @@ def index():
 
 @app.route('/api/status')
 def status():
-    """Enhanced system status endpoint with error reporting"""
+    """Enhanced system status endpoint with error reporting and role permissions"""
     try:
+        # Check permissions if uCORE integration is available
+        if ucore_protocols and not ucore_protocols.check_permission('network_status'):
+            return jsonify({
+                'status': 'forbidden',
+                'message': f'Role {ucore_protocols.current_role} cannot access status endpoint'
+            }), 403
+
         status_data = {
             'status': 'running' if system_status['health_status'] != 'critical' else 'degraded',
             'health': system_status['health_status'],
@@ -302,6 +340,11 @@ def status():
             'restart_count': system_status['restart_count'],
             'recent_errors': error_logs[-5:] if error_logs else []
         }
+
+        # Add uCORE integration status if available
+        if ucore_protocols:
+            status_data['ucore_integration'] = ucore_protocols.get_system_status()
+
         return jsonify(status_data)
     except Exception as e:
         error_id = log_error('API_ERROR', f'Status API error: {str(e)}', e)
@@ -688,11 +731,36 @@ def handle_palette_change(data):
     })
 
 def process_udos_command(command):
-    """Process uDOS command with enhanced functionality"""
-    # Placeholder implementation
+    """Process uDOS command with enhanced functionality and role permissions"""
+
+    # Check permissions for command execution
+    if ucore_protocols and not ucore_protocols.check_permission('network_execute'):
+        return {
+            'output': f'Permission denied: Role {ucore_protocols.current_role} cannot execute commands',
+            'success': False,
+            'role': ucore_protocols.current_role
+        }
+
+    # Handle uSCRIPT integration commands
+    if command.startswith('uscript '):
+        uscript_cmd = command[8:].strip()
+        if ucore_protocols:
+            result = ucore_protocols.execute_uscript('system-info' if uscript_cmd == 'status' else uscript_cmd)
+            return {
+                'output': result.get('output', result.get('error', 'Unknown error')),
+                'success': result.get('success', False),
+                'uscript_result': result
+            }
+        else:
+            return {
+                'output': '❌ uSCRIPT integration not available',
+                'success': False
+            }
+
+    # Placeholder implementation for other commands
     if command.startswith('help'):
         return {
-            'output': '''uDOS Commands v1.3.1:
+            'output': '''uDOS Commands v1.3.3 (with uCORE Integration):
 - help: Show this help
 - status: System status
 - modules: List modules
@@ -705,18 +773,93 @@ def process_udos_command(command):
 - display <mode>: Change display mode
 - server restart: Restart the server
 - server stop: Stop the server
+- uscript <command>: Execute uSCRIPT commands
+- role info: Show current role information
+- permissions: Show current permissions
+- backup create: Create system backup (if permitted)
 - clear: Clear terminal output''',
             'success': True
         }
+    elif command.startswith('role info'):
+        if ucore_protocols:
+            return {
+                'output': f'''Current Role Information:
+Role: {ucore_protocols.current_role}
+Level: {ucore_protocols.role_permissions.get(ucore_protocols.current_role, {}).get("level", "Unknown")}
+Network Access: {"✅" if ucore_protocols.check_permission("network") else "❌"}
+uScript Access: {"✅" if ucore_protocols.check_permission("uscript_execute") else "❌"}
+Admin Access: {"✅" if ucore_protocols.check_permission("admin") else "❌"}
+Backup Access: {"✅" if ucore_protocols.check_permission("backup_create") else "❌"}''',
+                'success': True
+            }
+        else:
+            return {
+                'output': f'Role: {system_status["udos_mode"]} (uCORE integration unavailable)',
+                'success': True
+            }
+    elif command.startswith('permissions'):
+        if ucore_protocols:
+            perms = []
+            test_permissions = ['network', 'uscript_execute', 'admin', 'backup_create', 'umemory_read', 'sandbox']
+            for perm in test_permissions:
+                status = "✅" if ucore_protocols.check_permission(perm) else "❌"
+                perms.append(f"{status} {perm}")
+            return {
+                'output': f'Permissions for role {ucore_protocols.current_role}:\n' + '\n'.join(perms),
+                'success': True
+            }
+        else:
+            return {
+                'output': 'Permission checking requires uCORE integration',
+                'success': False
+            }
+    elif command.startswith('backup create'):
+        if ucore_protocols:
+            if ucore_protocols.check_permission('backup_create'):
+                # Trigger backup through uCORE protocols
+                try:
+                    backup_file = ucore_protocols.create_error_backup('MANUAL', 'User-requested backup')
+                    return {
+                        'output': f'✅ Backup created successfully',
+                        'success': True
+                    }
+                except Exception as e:
+                    return {
+                        'output': f'❌ Backup failed: {str(e)}',
+                        'success': False
+                    }
+            else:
+                return {
+                    'output': f'❌ Permission denied: Role {ucore_protocols.current_role} cannot create backups',
+                    'success': False
+                }
+        else:
+            return {
+                'output': '❌ Backup requires uCORE integration',
+                'success': False
+            }
     elif command.startswith('status'):
-        return {
-            'output': f'''uDOS System Status v1.3.1:
+        status_info = f'''uDOS System Status v1.3.3:
 Mode: {system_status["udos_mode"]}
 Clients: {len(connected_clients)}
-Modules: uCORE, uSERVER, uSCRIPT, uMEMORY
+Modules: uCORE, uNETWORK, uSCRIPT, uMEMORY
 Uptime: {time.time() - system_status["startup_time"]:.1f}s
 Memory: Available
-Version: 1.3.1''',
+Version: 1.3.3'''
+
+        if ucore_protocols:
+            integration_status = ucore_protocols.get_system_status()
+            status_info += f'''
+uCORE Integration: ✅ Active
+Role: {ucore_protocols.current_role}
+Permissions: ✅ Loaded
+uSCRIPT: {"✅" if integration_status.get("uscript_integration", {}).get("available") else "❌"}
+Sandbox: {"✅" if integration_status.get("sandbox_integration", {}).get("available") else "❌"}'''
+        else:
+            status_info += '\nuCORE Integration: ❌ Not available'
+
+        return {
+            'output': status_info,
             'success': True
         }
     elif command.startswith('server restart'):

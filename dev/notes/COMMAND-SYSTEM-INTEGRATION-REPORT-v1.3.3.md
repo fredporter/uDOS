@@ -119,7 +119,7 @@ GHOST (1) → VISITOR (2) → USER (3) → DRONE (4) → PILOT (5) → ADMIN (6)
 ### New Files
 1. **`unified-command-system-consolidated.json`** - Master command dataset
 2. **`help-engine.sh`** - Dynamic help system engine with uDATA support
-3. **`migrate-command-system.sh`** - Migration and consolidation script
+3. **`migrate-command-system.sh`** - Migration and consolidation script (moved to sandbox/scripts/)
 
 ### Updated Files
 - **Command Index Cache**: Auto-generated performance optimization
