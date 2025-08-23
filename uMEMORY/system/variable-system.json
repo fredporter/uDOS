@@ -1,0 +1,422 @@
+{
+  "variable_system": {
+    "name": "uDOS Enhanced Variable Management System",
+    "version": "2.1.3",
+    "description": "Comprehensive variable and environment management for uDOS v1.3.3 with dataset integration",
+    "last_updated": "2025-08-23",
+    "features": ["instance_variables", "dataset_integration", "cross_references", "calculated_variables", "ugrid_variables", "role_based_variables"]
+  },
+  "instance_variables": {
+    "description": "Instance-specific variables that replace user-specific references (v1.3.3 format)",
+    "auto_generated": true,
+    "variables": {
+      "INSTANCE-TIME": {
+        "value": "{auto:current-timestamp}",
+        "type": "datetime",
+        "format": "ISO8601",
+        "readonly": true,
+        "description": "Current timestamp in ISO 8601 format"
+      },
+      "INSTANCE-LOCATION": {
+        "value": "{auto:hostname}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current system hostname/location identifier"
+      },
+      "INSTANCE-ID": {
+        "value": "{auto:generate-uuid}",
+        "type": "uuid",
+        "readonly": true,
+        "description": "Unique instance identifier"
+      },
+      "INSTANCE-SESSION": {
+        "value": "{auto:session-id}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current session identifier"
+      },
+      "INSTANCE-TIMEZONE": {
+        "value": "{auto:system-timezone}",
+        "type": "string",
+        "readonly": true,
+        "description": "System timezone"
+      },
+      "INSTANCE-USER": {
+        "value": "{auto:current-user}",
+        "type": "string",
+        "readonly": true,
+        "description": "Current system user (for sandbox identity only)",
+        "restricted_to": "sandbox/identity.md"
+      }
+    }
+  },
+  "dataset_variables": {
+    "description": "Variables that reference dataset values (v1.3.3 format)",
+    "syntax": "{dataset:collection.key.field}",
+    "examples": {
+      "CITY-POPULATION": "{dataset:cities.london.population}",
+      "COUNTRY-CAPITAL": "{dataset:countries.australia.capital}",
+      "CURRENCY-SYMBOL": "{dataset:currencies.usd.symbol}",
+      "TIMEZONE-OFFSET": "{dataset:timezones.aest.offset}"
+    },
+    "supported_operations": ["direct_access", "filtered_queries", "aggregations", "joins"]
+  },
+  "calculated_variables": {
+    "description": "Variables calculated from other values (v1.3.3 format)",
+    "syntax": "{calc:formula}",
+    "examples": {
+      "COMPLETION-PERCENTAGE": "{calc:completed-tasks / total-tasks * 100}",
+      "DAYS-REMAINING": "{calc:end-date - current-date}",
+      "TEAM-UTILIZATION": "{calc:allocated-hours / available-hours * 100}",
+      "BUDGET-BURN-RATE": "{calc:spent-amount / elapsed-days}"
+    },
+    "supported_functions": ["math", "date", "string", "array", "conditional"]
+  },
+  "input_variables": {
+    "description": "Variables requiring user input with validation (v1.3.3 format)",
+    "syntax": "{input:VARIABLE-NAME|type|validation}",
+    "types": {
+      "string": {"validation": ["required", "min", "max", "pattern"]},
+      "number": {"validation": ["required", "min", "max", "integer"]},
+      "date": {"validation": ["required", "format", "min_date", "max_date"]},
+      "enum": {"validation": ["required", "values"]},
+      "boolean": {"validation": ["default"]},
+      "array": {"validation": ["required", "separator", "min_items", "max_items"]},
+      "file": {"validation": ["required", "exists", "extension", "readable"]},
+      "role": {"validation": ["required", "access_level", "permissions"]},
+      "grid": {"validation": ["required", "device_class", "resolution"]}
+    },
+    "examples": {
+      "PROJECT-NAME": "{input:PROJECT-NAME|string|required|min:3|max:50}",
+      "PRIORITY": "{input:PRIORITY|enum|values:low,medium,high,critical}",
+      "START-DATE": "{input:START-DATE|date|required|format:YYYY-MM-DD}",
+      "TEAM-SIZE": "{input:TEAM-SIZE|number|min:1|max:20|default:1}",
+      "ENABLE-NOTIFICATIONS": "{input:ENABLE-NOTIFICATIONS|boolean|default:true}",
+      "TECHNOLOGIES": "{input:TECHNOLOGIES|array|separator:,}",
+      "CONFIG-FILE": "{input:CONFIG-FILE|file|exists:true|extension:json}",
+      "USER-ROLE": "{input:USER-ROLE|role|access_level:40|permissions:read,write}",
+      "GRID-SIZE": "{input:GRID-SIZE|grid|device_class:terminal|resolution:80x30}"
+    }
+  },
+  "cross_reference_variables": {
+    "description": "Variables that reference other templates or documents (v1.3.3 format)",
+    "syntax": "{ref:template.field}",
+    "examples": {
+      "MISSION-STATUS": "{ref:mission.current-status}",
+      "PROJECT-COMPLETION": "{ref:project.completion-rate}",
+      "DASHBOARD-METRICS": "{ref:dashboard.metrics.errors}",
+      "TEAM-MEMBERS": "{ref:team.members.count}",
+      "GRID-STATUS": "{ref:ugrid.status.widgets}",
+      "ROLE-LEVEL": "{ref:user.role.access-level}"
+    },
+    "validation": {
+      "check_references": true,
+      "validate_paths": true,
+      "update_on_change": true
+    }
+  },
+  "user_variables": {
+    "description": "User-defined variables for templates and scripts (v1.3.3 format)",
+    "scope": "global",
+    "persistence": "file",
+    "examples": {
+      "PROJECT-NAME": {
+        "value": "My Project",
+        "type": "string",
+        "description": "Current project name"
+      },
+      "TEAM-LEAD": {
+        "value": "John Doe",
+        "type": "string",
+        "description": "Project team leader"
+      },
+      "DEADLINE": {
+        "value": "2025-12-31",
+        "type": "date",
+        "description": "Project deadline"
+      },
+      "BUDGET": {
+        "value": 50000.00,
+        "type": "number",
+        "description": "Project budget"
+      },
+      "USER-ROLE": {
+        "value": "sorcerer",
+        "type": "role",
+        "description": "Current user role"
+      },
+      "GRID-SIZE": {
+        "value": "80x30",
+        "type": "grid",
+        "description": "Current grid dimensions"
+      }
+    }
+  },
+  "session_variables": {
+    "description": "Temporary variables for current session (v1.3.3 format)",
+    "scope": "session",
+    "persistence": "memory",
+    "auto_generated": {
+      "SESSION-ID": {
+        "value": "auto-generated-uuid",
+        "type": "string",
+        "description": "Unique session identifier"
+      },
+      "SESSION-START": {
+        "value": "auto-generated-datetime",
+        "type": "datetime",
+        "description": "Session start time"
+      },
+      "LAST-COMMAND": {
+        "value": "",
+        "type": "string",
+        "description": "Last executed command"
+      },
+      "COMMAND-COUNT": {
+        "value": 0,
+        "type": "number",
+        "description": "Commands executed this session"
+      },
+      "CURRENT-MISSION": {
+        "value": "",
+        "type": "string",
+        "description": "Currently active mission"
+      },
+      "CURRENT-ROLE": {
+        "value": "",
+        "type": "string",
+        "description": "Currently active role"
+      },
+      "GRID-STATUS": {
+        "value": "",
+        "type": "string",
+        "description": "Current uGRID status"
+      },
+      "WIDGET-COUNT": {
+        "value": 0,
+        "type": "number",
+        "description": "Number of active widgets"
+      }
+    }
+  },
+  "environment_variables": {
+    "description": "System environment integration (v1.3.3 format)",
+    "mapping": {
+      "USER": "UDOS-SYSTEM-USER",
+      "HOME": "UDOS-SYSTEM-HOME",
+      "PATH": "UDOS-SYSTEM-PATH",
+      "SHELL": "UDOS-SYSTEM-SHELL",
+      "TERM": "UDOS-SYSTEM-TERM",
+      "LANG": "UDOS-SYSTEM-LANG"
+    }
+  },
+  "ugrid_variables": {
+    "description": "uGRID display system variables (v1.3.3)",
+    "auto_generated": true,
+    "variables": {
+      "GRID-WIDTH": {
+        "value": "{auto:grid-width}",
+        "type": "number",
+        "description": "Current grid width in uCELLs"
+      },
+      "GRID-HEIGHT": {
+        "value": "{auto:grid-height}",
+        "type": "number",
+        "description": "Current grid height in uCELLs"
+      },
+      "GRID-SIZE": {
+        "value": "{auto:grid-size}",
+        "type": "string",
+        "description": "Current grid dimensions (WxH format)"
+      },
+      "DEVICE-CLASS": {
+        "value": "{auto:device-class}",
+        "type": "string",
+        "description": "Current device class (terminal/mobile/wallboard)"
+      },
+      "WIDGET-COUNT": {
+        "value": "{auto:widget-count}",
+        "type": "number",
+        "description": "Number of active widgets"
+      },
+      "SCREEN-NAME": {
+        "value": "{auto:screen-name}",
+        "type": "string",
+        "description": "Current screen context"
+      },
+      "OVERLAY-4X": {
+        "value": "{auto:overlay-4x}",
+        "type": "boolean",
+        "description": "4× resolution overlay status"
+      },
+      "RENDER-FPS": {
+        "value": "{auto:render-fps}",
+        "type": "number",
+        "description": "Current rendering frame rate"
+      }
+    }
+  },
+  "role_based_variables": {
+    "description": "8-Role system variables (v1.3.3)",
+    "auto_generated": true,
+    "variables": {
+      "CURRENT-ROLE": {
+        "value": "{auto:current-role}",
+        "type": "string",
+        "description": "Current active role name"
+      },
+      "ACCESS-LEVEL": {
+        "value": "{auto:access-level}",
+        "type": "number",
+        "description": "Current role access level (10-100)"
+      },
+      "ROLE-PERMISSIONS": {
+        "value": "{auto:role-permissions}",
+        "type": "array",
+        "description": "Current role permission set"
+      },
+      "MAX-GRID-SIZE": {
+        "value": "{auto:max-grid-size}",
+        "type": "string",
+        "description": "Maximum grid size for current role"
+      },
+      "UGRID-CONTROL": {
+        "value": "{auto:ugrid-control}",
+        "type": "boolean",
+        "description": "uGRID control permission"
+      },
+      "WIDGET-CREATION": {
+        "value": "{auto:widget-creation}",
+        "type": "boolean",
+        "description": "Widget creation permission"
+      },
+      "ROLE-FEATURES": {
+        "value": "{auto:role-features}",
+        "type": "array",
+        "description": "Available features for current role"
+      }
+    }
+  },
+  "variable_types": {
+    "string": {
+      "validation": "^.*$",
+      "default": "",
+      "operations": ["concat", "substring", "replace", "uppercase", "lowercase"]
+    },
+    "number": {
+      "validation": "^-?\\d+(\\.\\d+)?$",
+      "default": 0,
+      "operations": ["add", "subtract", "multiply", "divide", "round"]
+    },
+    "boolean": {
+      "validation": "^(true|false)$",
+      "default": false,
+      "operations": ["and", "or", "not"]
+    },
+    "date": {
+      "validation": "^\\d{4}-\\d{2}-\\d{2}$",
+      "default": "2025-01-01",
+      "operations": ["add_days", "subtract_days", "format", "compare"]
+    },
+    "datetime": {
+      "validation": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z?$",
+      "default": "2025-01-01T00:00:00Z",
+      "operations": ["add_time", "subtract_time", "format", "timezone_convert"]
+    },
+    "path": {
+      "validation": "^(/|\\./|\\.\\./).*$",
+      "default": "./",
+      "operations": ["join", "dirname", "basename", "exists", "absolute"]
+    },
+    "enum": {
+      "validation": "defined_in_options",
+      "default": "first_option",
+      "operations": ["validate", "list_options"]
+    },
+    "array": {
+      "validation": "json_array",
+      "default": "[]",
+      "operations": ["push", "pop", "join", "filter", "map", "length"]
+    },
+    "object": {
+      "validation": "json_object",
+      "default": "{}",
+      "operations": ["get_property", "set_property", "keys", "values"]
+    },
+    "role": {
+      "validation": "^(ghost|tomb|crypt|drone|knight|imp|sorcerer|wizard)$",
+      "default": "ghost",
+      "operations": ["validate", "get_access_level", "check_permissions"]
+    },
+    "grid": {
+      "validation": "^\\d+x\\d+$",
+      "default": "80x30",
+      "operations": ["parse_dimensions", "validate_device", "check_support"]
+    },
+    "device": {
+      "validation": "^(wearable|mobile|tablet|terminal|desktop|wallboard)$",
+      "default": "terminal",
+      "operations": ["get_optimal_grid", "check_capabilities"]
+    }
+  },
+  "variable_operations": {
+    "get": {
+      "syntax": "GET <variable_name>",
+      "description": "Retrieve variable value"
+    },
+    "set": {
+      "syntax": "SET <variable_name> = <value>",
+      "description": "Set variable value with type validation"
+    },
+    "unset": {
+      "syntax": "UNSET <variable_name>",
+      "description": "Remove variable"
+    },
+    "list": {
+      "syntax": "LIST [scope]",
+      "description": "List all variables in scope"
+    },
+    "export": {
+      "syntax": "EXPORT <variable_name>",
+      "description": "Export variable to system environment"
+    },
+    "import": {
+      "syntax": "IMPORT <env_variable>",
+      "description": "Import system environment variable"
+    },
+    "save": {
+      "syntax": "SAVE [filename]",
+      "description": "Save current variables to file"
+    },
+    "load": {
+      "syntax": "LOAD <filename>",
+      "description": "Load variables from file"
+    }
+  },
+  "template_integration": {
+    "variable_substitution": {
+      "syntax": "{VARIABLE-NAME}",
+      "description": "Replace with variable value in templates (v1.3.3 format)"
+    },
+    "conditional_blocks": {
+      "syntax": "{#if VARIABLE-NAME} content {/if}",
+      "description": "Conditional content based on variable value"
+    },
+    "loops": {
+      "syntax": "{#each ARRAY-VARIABLE} {this} {/each}",
+      "description": "Iterate over array variables"
+    },
+    "expressions": {
+      "syntax": "{VARIABLE-NAME | operation:parameter}",
+      "description": "Apply operations to variables in templates"
+    },
+    "role_conditional": {
+      "syntax": "{#role ACCESS-LEVEL} content {/role}",
+      "description": "Role-based conditional content"
+    },
+    "grid_conditional": {
+      "syntax": "{#grid DEVICE-CLASS} content {/grid}",
+      "description": "Device class conditional content"
+    }
+  }
+}

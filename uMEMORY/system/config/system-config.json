@@ -1,0 +1,193 @@
+{
+  "system_config": {
+    "metadata": {
+      "version": "1.0",
+      "created": "2025-08-21",
+      "description": "uDOS System Configuration Management",
+      "last_updated": "2025-08-21T22:55:00Z"
+    },
+    "display_configurations": {
+      "bbc_mode7_authentic": {
+        "name": "BBC Mode 7 Authentic",
+        "width": 640,
+        "height": 500,
+        "aspect_ratio": 1.3,
+        "font": "MODE7GX3",
+        "font_size": "20px",
+        "line_height": "24px",
+        "character_grid": {
+          "columns": 40,
+          "rows": 25
+        },
+        "scaling": {
+          "transform": "scaleY(1.3)",
+          "transform_origin": "top"
+        },
+        "theme": "bbc_mode7_dark",
+        "description": "Authentic BBC Micro teletext display"
+      },
+      "udos_optimized": {
+        "name": "uDOS Optimized",
+        "width": 800,
+        "height": 615,
+        "aspect_ratio": 1.3,
+        "font": "MODE7GX3",
+        "font_size": "20px", 
+        "line_height": "24px",
+        "character_grid": {
+          "columns": 50,
+          "rows": 30
+        },
+        "scaling": {
+          "transform": "scaleY(1.3)",
+          "transform_origin": "top center"
+        },
+        "theme": "udos_vibrant_dark",
+        "description": "Optimized for modern displays",
+        "recommended": true
+      },
+      "compact": {
+        "name": "Compact Display",
+        "width": 640,
+        "height": 480,
+        "aspect_ratio": 1.1,
+        "font": "MODE7GX2",
+        "font_size": "18px",
+        "line_height": "20px",
+        "character_grid": {
+          "columns": 45,
+          "rows": 30
+        },
+        "scaling": {
+          "transform": "scaleY(1.1)",
+          "transform_origin": "top"
+        },
+        "theme": "bbc_mode7_dark",
+        "description": "Compact mode for smaller screens"
+      },
+      "widescreen": {
+        "name": "Widescreen Display",
+        "width": 1024,
+        "height": 768,
+        "aspect_ratio": 1.0,
+        "font": "MODE7GX4",
+        "font_size": "22px",
+        "line_height": "24px",
+        "character_grid": {
+          "columns": 60,
+          "rows": 40
+        },
+        "scaling": {
+          "transform": "scaleX(1.1)",
+          "transform_origin": "center"
+        },
+        "theme": "udos_vibrant_dark",
+        "description": "Widescreen mode for large displays"
+      }
+    },
+    "interface_modes": {
+      "bbc_mode7": {
+        "name": "BBC Mode 7",
+        "display_config": "bbc_mode7_authentic",
+        "color_palette": "bbc_mode7_authentic",
+        "font_family": "MODE7GX3",
+        "features": {
+          "teletext_graphics": true,
+          "flash_text": true,
+          "double_height": true,
+          "color_backgrounds": true
+        },
+        "description": "Full BBC Mode 7 teletext experience"
+      },
+      "enhanced_terminal": {
+        "name": "Enhanced Terminal",
+        "display_config": "udos_optimized", 
+        "color_palette": "udos_vibrant",
+        "font_family": "MODE7GX3",
+        "features": {
+          "smart_scrolling": true,
+          "command_history": true,
+          "auto_complete": true,
+          "syntax_highlighting": true
+        },
+        "description": "Modern terminal with retro aesthetics"
+      },
+      "retro_amiga": {
+        "name": "Retro Amiga",
+        "display_config": "compact",
+        "color_palette": "amiga_workbench", 
+        "font_family": "TOPAZ_A500",
+        "features": {
+          "amiga_graphics": true,
+          "workbench_style": true,
+          "classic_menus": true
+        },
+        "description": "Amiga Workbench inspired interface"
+      }
+    },
+    "system_defaults": {
+      "startup": {
+        "interface_mode": "enhanced_terminal",
+        "display_config": "udos_optimized",
+        "color_palette": "udos_vibrant",
+        "font": "MODE7GX3",
+        "auto_optimize": true,
+        "check_system_resources": true,
+        "create_required_folders": true
+      },
+      "features": {
+        "whirlwind_mode": true,
+        "smart_terminal": true,
+        "command_history": true,
+        "auto_complete": true,
+        "real_time_updates": true,
+        "font_scaling": true,
+        "responsive_design": true
+      },
+      "paths": {
+        "fonts": "/uMEMORY/system/fonts",
+        "colors": "/uMEMORY/system/colors", 
+        "config": "/uMEMORY/system/config",
+        "cache": "/uMEMORY/cache",
+        "temp": "/uMEMORY/temp",
+        "logs": "/uMEMORY/system/logs"
+      }
+    },
+    "font_management": {
+      "font_loading": {
+        "primary_fonts": ["MODE7GX3", "MODE7GX2", "MODE7GX0"],
+        "fallback_fonts": ["Courier New", "monospace"],
+        "preload": true,
+        "cache_fonts": true
+      },
+      "font_switching": {
+        "allow_runtime_switching": true,
+        "preserve_aspect_ratio": true,
+        "auto_adjust_sizing": true
+      }
+    },
+    "performance": {
+      "optimization": {
+        "auto_detect_display": true,
+        "limit_terminal_history": 1000,
+        "cache_command_results": true,
+        "lazy_load_modules": true
+      },
+      "memory_management": {
+        "clear_temp_on_startup": true,
+        "compress_logs": true,
+        "limit_cache_size": "50MB"
+      }
+    },
+    "development": {
+      "debug_mode": false,
+      "verbose_logging": false,
+      "development_tools": {
+        "font_debugger": true,
+        "color_picker": true,
+        "display_ruler": true,
+        "performance_monitor": true
+      }
+    }
+  }
+}
