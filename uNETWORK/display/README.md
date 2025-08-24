@@ -153,7 +153,6 @@ Enables remote access to:
 ### Launcher Scripts
 - **udos-display.sh**: Main launcher with mode selection and help
 - **setup-display-system.sh**: Dependency installation and environment setup
-- **launch-display-server.sh**: Legacy browser-only launcher (maintained for compatibility)
 
 ## Role-Based Permissions
 
@@ -188,25 +187,17 @@ Enables remote access to:
 display/
 ├── udos-display.sh              # Main launcher script
 ├── setup-display-system.sh     # Setup and installation script
-├── launch-display-server.sh    # Legacy browser launcher
 ├── server/
 │   └── display-server.py       # Backend server with WebSocket support
 ├── static/
 │   ├── css/
-│   │   ├── dashboard.css        # Dashboard styling with Polaroid theme
-│   │   └── terminal.css         # Terminal emulator styling
+│   │   └── dashboard.css        # Dashboard styling with Polaroid theme
 │   └── js/
-│       ├── dashboard.js         # Real-time dashboard functionality
-│       └── terminal.js          # Terminal emulator with WebSocket
+│       └── dashboard.js         # Real-time dashboard functionality
 ├── templates/
 │   ├── dashboard.html           # System status dashboard template
 │   ├── terminal.html            # Terminal emulator interface
 │   └── memory.html              # uMEMORY browser template
-├── tauri-template/
-│   ├── tauri.conf.json          # Tauri application configuration
-│   ├── Cargo.toml               # Rust dependencies and build config
-│   ├── main.rs                  # Rust main process for desktop app
-│   └── package.json             # Node.js build configuration
 └── README.md                    # This file
 ```
 

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS v1.4 - Memory Browser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>🧠 uMEMORY Browser</h1>
+            <div class="header-info">
+                <span id="status">Connected</span>
+                <span id="timestamp"></span>
+            </div>
+        </header>
+
+        <nav class="dashboard-nav">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/terminal" class="nav-link">Terminal</a>
+            <a href="/memory" class="nav-link active">Memory</a>
+        </nav>
+
+        <main class="dashboard-main">
+            <section class="memory-section">
+                <h2>Memory System Browser</h2>
+                <div class="memory-grid">
+                    <div class="memory-card">
+                        <h3>Identity</h3>
+                        <div class="memory-content">
+                            <p>Current user identity and role information</p>
+                            <button onclick="loadIdentity()">Load Identity</button>
+                        </div>
+                    </div>
+
+                    <div class="memory-card">
+                        <h3>Session Memory</h3>
+                        <div class="memory-content">
+                            <p>Active session data and temporary storage</p>
+                            <button onclick="loadSession()">Load Session</button>
+                        </div>
+                    </div>
+
+                    <div class="memory-card">
+                        <h3>Core Memory</h3>
+                        <div class="memory-content">
+                            <p>Persistent system knowledge and configurations</p>
+                            <button onclick="loadCore()">Load Core</button>
+                        </div>
+                    </div>
+
+                    <div class="memory-card">
+                        <h3>Role Memory</h3>
+                        <div class="memory-content">
+                            <p>Role-specific permissions and capabilities</p>
+                            <button onclick="loadRole()">Load Role</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="memory-viewer">
+                <h3>Memory Contents</h3>
+                <div id="memory-display" class="memory-display">
+                    <p>Select a memory category to view contents</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Socket.IO connection
+        const socket = io();
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+        }
+        setInterval(updateTimestamp, 1000);
+        updateTimestamp();
+
+        // Memory loading functions
+        function loadIdentity() {
+            fetch('/api/memory/browse?type=identity')
+                .then(response => response.json())
+                .then(data => displayMemory('Identity', data))
+                .catch(error => displayError('Failed to load identity memory'));
+        }
+
+        function loadSession() {
+            fetch('/api/memory/browse?type=session')
+                .then(response => response.json())
+                .then(data => displayMemory('Session', data))
+                .catch(error => displayError('Failed to load session memory'));
+        }
+
+        function loadCore() {
+            fetch('/api/memory/browse?type=core')
+                .then(response => response.json())
+                .then(data => displayMemory('Core', data))
+                .catch(error => displayError('Failed to load core memory'));
+        }
+
+        function loadRole() {
+            fetch('/api/memory/browse?type=role')
+                .then(response => response.json())
+                .then(data => displayMemory('Role', data))
+                .catch(error => displayError('Failed to load role memory'));
+        }
+
+        function displayMemory(type, data) {
+            const display = document.getElementById('memory-display');
+            display.innerHTML = `
+                <h4>${type} Memory</h4>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        function displayError(message) {
+            const display = document.getElementById('memory-display');
+            display.innerHTML = `<p class="error">${message}</p>`;
+        }
+
+        // Socket events
+        socket.on('connect', function () {
+            document.getElementById('status').textContent = 'Connected';
+            document.getElementById('status').className = 'status-connected';
+        });
+
+        socket.on('disconnect', function () {
+            document.getElementById('status').textContent = 'Disconnected';
+            document.getElementById('status').className = 'status-disconnected';
+        });
+    </script>
+</body>
+
+</html>

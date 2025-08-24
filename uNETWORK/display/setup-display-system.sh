@@ -82,14 +82,7 @@ setup_tauri_project() {
         polaroid_echo "cyan" "   Creating new Tauri project..."
         npm create tauri-app@latest -- --name udos-display --template vanilla --yes
 
-        # Move our existing assets
-        if [[ -d "static" ]]; then
-            polaroid_echo "cyan" "   Integrating existing web assets..."
-            cp -r static/* src/ 2>/dev/null || true
-        fi
-        if [[ -d "templates" ]]; then
-            cp -r templates/* src/ 2>/dev/null || true
-        fi
+        polaroid_echo "cyan" "   Tauri project created successfully"
     else
         polaroid_echo "lime" "✅ Tauri project already exists"
     fi
