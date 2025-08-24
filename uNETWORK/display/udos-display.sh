@@ -1,6 +1,6 @@
 #!/bin/bash
 # uDOS v1.4 Display Mode Launcher
-# Three distinct modes: CLI (always), Desktop App (DRONE+), Web Export (sharing)
+# Three distinct modes: CLI (always), Desktop App (Crypt and above), Web Export (sharing)
 
 set -euo pipefail
 
@@ -92,16 +92,16 @@ check_role_permissions() {
     case "$mode" in
         "desktop"|"app")
             if [[ "$current_role" == "ghost" ]] || [[ "$current_role" == "tomb" ]]; then
-                polaroid_echo "orange" "❌ Desktop app requires DRONE+ role permissions"
+                polaroid_echo "orange" "❌ Desktop app requires Crypt and above role permissions"
                 polaroid_echo "cyan" "   Current role: $current_role"
                 polaroid_echo "cyan" "   Available: CLI mode only"
                 return 1
             fi
             ;;
         "export"|"web")
-            # Web export available to all DRONE+ roles
+            # Web export available to all Crypt and above roles
             if [[ "$current_role" == "ghost" ]] || [[ "$current_role" == "tomb" ]]; then
-                polaroid_echo "orange" "❌ Web export requires DRONE+ role permissions"
+                polaroid_echo "orange" "❌ Web export requires Crypt and above role permissions"
                 polaroid_echo "cyan" "   Current role: $current_role"
                 return 1
             fi
@@ -172,8 +172,8 @@ Three distinct display modes for different purposes:
 
 MODES:
   cli         CLI terminal interface (always available)
-  app         Desktop application (DRONE+ roles)
-  export      Web export for sharing (DRONE+ roles)
+  app         Desktop application (Crypt and above roles)
+  export      Web export for sharing (Crypt and above roles)
 
 USAGE:
   $0 cli                      # Show CLI information

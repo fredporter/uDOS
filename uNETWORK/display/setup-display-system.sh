@@ -133,13 +133,53 @@ main() {
             build_desktop_app
             ;;
         "test")
+            polaroid_echo "cyan" "🧪 Testing display system..."
+
+            # Check if display launcher exists
             if [[ -f "$DISPLAY_DIR/udos-display.sh" ]]; then
-                "$DISPLAY_DIR/udos-display.sh" help 2>/dev/null || {
-                    polaroid_echo "cyan" "🧪 Testing display system..."
-                    polaroid_echo "lime" "✅ Display launcher found: $DISPLAY_DIR/udos-display.sh"
-                }
+                polaroid_echo "lime" "✅ Display launcher found: $DISPLAY_DIR/udos-display.sh"
             else
                 polaroid_echo "orange" "❌ Display launcher not found."
+                return 1
+            fi
+
+            # Check dependencies
+            local has_node=0
+            local has_rust=0
+            local has_tauri=0
+
+            if command -v node >/dev/null 2>&1; then
+                polaroid_echo "lime" "✅ Node.js: $(node --version)"
+                has_node=1
+            else
+                polaroid_echo "orange" "❌ Node.js not installed"
+            fi
+
+            if command -v cargo >/dev/null 2>&1; then
+                polaroid_echo "lime" "✅ Rust: $(rustc --version | cut -d' ' -f2)"
+                has_rust=1
+            else
+                polaroid_echo "orange" "❌ Rust not installed"
+            fi
+
+            # Check if Tauri app is built
+            if [[ -f "$DISPLAY_DIR/src-tauri/target/release/udos-display" ]] || \
+               [[ -f "$DISPLAY_DIR/src-tauri/target/debug/udos-display" ]]; then
+                polaroid_echo "lime" "✅ Tauri desktop app built"
+                has_tauri=1
+            else
+                polaroid_echo "orange" "❌ Tauri desktop app not built"
+            fi
+
+            echo
+            if [[ $has_node -eq 1 && $has_rust -eq 1 && $has_tauri -eq 1 ]]; then
+                polaroid_echo "lime" "🎉 Display system fully ready!"
+            elif [[ $has_node -eq 1 && $has_rust -eq 1 ]]; then
+                polaroid_echo "yellow" "⚠️  Display system ready, but desktop app needs building"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh build"
+            else
+                polaroid_echo "orange" "❌ Display system needs setup"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh setup"
             fi
             ;;
         "help"|"-h"|"--help")
