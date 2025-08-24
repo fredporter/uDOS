@@ -13,14 +13,7 @@ if [[ -f "$UDOS_ROOT/uCORE/system/polaroid-colors.sh" ]]; then
     source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
     polaroid_echo "cyan" "🌀 uDOS v1.4 - Ubuntu Launcher"
 else
-    # Fallback colors
-    readonly CYAN='\033[0;36m'
-    readonly GREEN='\033[0;32m'
-    readonly RED='\033[0;31m'
-    readonly YELLOW='\033[1;33m'
-    readonly PURPLE='\033[0;35m'
-    readonly NC='\033[0m'
-    echo -e "${CYAN}🌀 uDOS v1.4 - Ubuntu Launcher${NC}"
+    echo -e "\033[0;36m🌀 uDOS v1.4 - Ubuntu Launcher\033[0m"
 fi
 
 # Check if we're in the right place
@@ -28,7 +21,7 @@ if [[ ! -f "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" ]]; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "orange" "❌ uDOS not found in current directory"
     else
-        echo -e "${RED}❌ uDOS not found in current directory${NC}"
+        echo -e "\033[0;31m❌ uDOS not found in current directory\033[0m"
     fi
     echo "Please run this script from the uDOS root directory"
     exit 1
@@ -38,7 +31,7 @@ fi
 if command -v polaroid_echo >/dev/null 2>&1; then
     polaroid_echo "yellow" "🔍 Checking dependencies..."
 else
-    echo -e "${YELLOW}🔍 Checking dependencies...${NC}"
+    echo -e "\033[1;33m🔍 Checking dependencies...\033[0m"
 fi
 
 # Check for bash
@@ -46,7 +39,7 @@ if ! command -v bash >/dev/null 2>&1; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "orange" "❌ Bash not found"
     else
-        echo -e "${RED}❌ Bash not found${NC}"
+        echo -e "\033[0;31m❌ Bash not found\033[0m"
     fi
     echo "Please install bash: sudo apt update && sudo apt install bash"
     exit 1
@@ -57,7 +50,7 @@ if ! command -v python3 >/dev/null 2>&1; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "yellow" "⚠️  Python3 not found, installing..."
     else
-        echo -e "${YELLOW}⚠️  Python3 not found, installing...${NC}"
+        echo -e "\033[1;33m⚠️  Python3 not found, installing...\033[0m"
     fi
     sudo apt update && sudo apt install python3 python3-pip -y
 fi
@@ -67,7 +60,7 @@ if ! command -v git >/dev/null 2>&1; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "yellow" "⚠️  Git not found, installing..."
     else
-        echo -e "${YELLOW}⚠️  Git not found, installing...${NC}"
+        echo -e "\033[1;33m⚠️  Git not found, installing...\033[0m"
     fi
     sudo apt update && sudo apt install git -y
 fi
@@ -77,7 +70,7 @@ if ! command -v node >/dev/null 2>&1; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "yellow" "💡 Node.js not found (needed for Desktop App)"
     else
-        echo -e "${YELLOW}💡 Node.js not found (needed for Desktop App)${NC}"
+        echo -e "\033[1;33m💡 Node.js not found (needed for Desktop App)\033[0m"
     fi
     echo "   Install Node.js for desktop application support"
 fi
@@ -86,7 +79,7 @@ if ! command -v cargo >/dev/null 2>&1; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "yellow" "💡 Rust not found (needed for Desktop App)"
     else
-        echo -e "${YELLOW}💡 Rust not found (needed for Desktop App)${NC}"
+        echo -e "\033[1;33m💡 Rust not found (needed for Desktop App)\033[0m"
     fi
     echo "   Install Rust for desktop application support"
 fi
@@ -114,7 +107,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "lime" "✅ Starting CLI Terminal..."
         else
-            echo -e "${GREEN}✅ Starting CLI Terminal...${NC}"
+            echo -e "\033[0;32m✅ Starting CLI Terminal...\033[0m"
         fi
         chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
         exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
@@ -124,7 +117,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "cyan" "🪟 Launching Desktop Application..."
         else
-            echo -e "${CYAN}🪟 Launching Desktop Application...${NC}"
+            echo -e "\033[0;36m🪟 Launching Desktop Application...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uNETWORK/display/udos-display.sh" ]]; then
             chmod +x "$UDOS_ROOT/uNETWORK/display/udos-display.sh"
@@ -133,7 +126,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ Desktop app not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ Desktop app not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ Desktop app not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
@@ -144,7 +137,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "cyan" "🌐 Starting Web Export..."
         else
-            echo -e "${CYAN}🌐 Starting Web Export...${NC}"
+            echo -e "\033[0;36m🌐 Starting Web Export...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uNETWORK/display/udos-display.sh" ]]; then
             chmod +x "$UDOS_ROOT/uNETWORK/display/udos-display.sh"
@@ -153,7 +146,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ Web export not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ Web export not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ Web export not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" --ui-mode
@@ -164,7 +157,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "purple" "🧙‍♂️ Starting VS Code Development..."
         else
-            echo -e "${PURPLE}🧙‍♂️ Starting VS Code Development...${NC}"
+            echo -e "\033[0;35m🧙‍♂️ Starting VS Code Development...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh" ]]; then
             chmod +x "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh"
@@ -173,7 +166,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ VS Code dev mode not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ VS Code dev mode not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ VS Code dev mode not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" --vscode-dev
@@ -183,7 +176,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "orange" "❌ Invalid choice, starting CLI Terminal"
         else
-            echo -e "${YELLOW}❌ Invalid choice, starting CLI Terminal${NC}"
+            echo -e "\033[1;33m❌ Invalid choice, starting CLI Terminal\033[0m"
         fi
         chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
         exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
