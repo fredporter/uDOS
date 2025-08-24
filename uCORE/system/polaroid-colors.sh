@@ -12,7 +12,7 @@ init_polaroid_colors() {
     fi
 
     # Set colors based on terminal capabilities
-    if [[ "$UDOS_COLORS" == "256" ]]; then
+    if [[ "${UDOS_COLORS:-mono}" == "256" ]]; then
         # 256-color mode - Full Polaroid palette
         readonly POLAROID_ORANGE_POP="$(tput setaf 203)"     # Orange Pop (Polaroid signature)
         readonly POLAROID_LIME_GLOW="$(tput setaf 154)"      # Lime Glow
@@ -31,7 +31,7 @@ init_polaroid_colors() {
         readonly PURPLE="$POLAROID_MAGENTA_BUZZ"
         readonly CYAN="$POLAROID_BLUE_CHILL"
 
-    elif [[ "$UDOS_COLORS" == "16" ]]; then
+    elif [[ "${UDOS_COLORS:-mono}" == "16" ]]; then
         # 16-color mode - Basic color mapping
         readonly POLAROID_ORANGE_POP="$(tput setaf 9)"       # Bright red
         readonly POLAROID_LIME_GLOW="$(tput setaf 10)"       # Bright green
