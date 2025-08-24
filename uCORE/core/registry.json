@@ -1,0 +1,4 @@
+{"metadata":{"format":"uDATA","version":"1.0","generated":"2025-08-24T22:34:38.944842","records":3,"description":"uDOS Data Format - Minified JSON records, one per line"}}
+{"metadata":{"version":"1.0.0","total_components":2,"last_updated":"2025-08-23","location":"uCORE/code"}}
+{"category":"components","index":0,"name":"deployment-manager","version":"1.0.0","type":"essential","status":"active","location":"uCORE/code/deployment-manager","commands":6}
+{"category":"components","index":1,"name":"smart-input","version":"2.0.0","type":"essential","status":"active","location":"uCORE/code/smart-input","commands":5}

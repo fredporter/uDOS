@@ -4,9 +4,9 @@ set -euo pipefail
 
 # Error Handler Configuration
 export UDOS_ERROR_HANDLER_VERSION="1.3.1"
-export UDOS_ERROR_LOG_DIR="${UDOS_ROOT}/wizard/logs/errors"
-export UDOS_DEBUG_LOG_DIR="${UDOS_ROOT}/wizard/logs/debug"
-export UDOS_CRASH_LOG_DIR="${UDOS_ROOT}/wizard/logs/crashes"
+export UDOS_ERROR_LOG_DIR="${UDOS_ROOT}/uMEMORY/system/logs/errors"
+export UDOS_DEBUG_LOG_DIR="${UDOS_ROOT}/uMEMORY/system/logs/debug"
+export UDOS_CRASH_LOG_DIR="${UDOS_ROOT}/uMEMORY/system/logs/crashes"
 export UDOS_LOOP_DETECTION_FILE="/tmp/udos-loop-detection"
 export UDOS_ERROR_THRESHOLD=5
 export UDOS_LOOP_THRESHOLD=3

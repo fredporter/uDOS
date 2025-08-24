@@ -1,0 +1,56 @@
+{
+    "metadata": {
+        "title": "Sample uDOS System Data",
+        "version": "1.0",
+        "created": "2025-08-24",
+        "description": "Test data for uDATA conversion"
+    },
+    "users": [
+        {
+            "id": "user_001",
+            "name": "System Admin",
+            "role": "wizard",
+            "level": 100,
+            "capabilities": [
+                "full",
+                "admin",
+                "development"
+            ]
+        },
+        {
+            "id": "user_002",
+            "name": "Developer",
+            "role": "dev",
+            "level": 80,
+            "capabilities": [
+                "development",
+                "scripting",
+                "debugging"
+            ]
+        }
+    ],
+    "system_config": {
+        "display_modes": [
+            "cli",
+            "web",
+            "desktop"
+        ],
+        "default_role": "ghost",
+        "auto_backup": true,
+        "log_level": "info"
+    },
+    "locations": [
+        {
+            "city": "London",
+            "tile": "BX15",
+            "timezone": "GMT",
+            "active": true
+        },
+        {
+            "city": "Tokyo",
+            "tile": "CY22",
+            "timezone": "JST",
+            "active": true
+        }
+    ]
+}

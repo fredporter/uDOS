@@ -275,10 +275,10 @@ except Exception as e:
 # Test log directory structure
 test_log_structure() {
     local required_log_dirs=(
-        "$UDOS_ROOT/wizard/logs"
-        "$UDOS_ROOT/wizard/logs/errors"
-        "$UDOS_ROOT/wizard/logs/debug"
-        "$UDOS_ROOT/wizard/logs/crashes"
+        "$UDOS_ROOT/uMEMORY/system/logs"
+        "$UDOS_ROOT/uMEMORY/system/logs/errors"
+        "$UDOS_ROOT/uMEMORY/system/logs/debug"
+        "$UDOS_ROOT/uMEMORY/system/logs/crashes"
     )
 
     for log_dir in "${required_log_dirs[@]}"; do

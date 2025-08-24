@@ -68,20 +68,25 @@ wizard/**/*.session.*
 **/*.cache
 **/*.temp
 
-# System files
-.DS_Store
-**/.DS_Store
-node_modules/
-__pycache__/
+# Development environments and build artifacts
+**/venv/
+**/venv3/
+**/.venv/
+**/node_modules/
+**/__pycache__/
 *.pyc
-
-# Build artifacts
-dist/
-build/
-out/
+**/cache/
+**/Cache/
+**/dist/
+**/build/
+**/out/
 *.dmg
 *.zip
 *.tar.gz
+
+# System files
+.DS_Store
+**/.DS_Store
 
 # Personal configurations
 .env
@@ -91,7 +96,7 @@ out/
 personal-*
 user-*
 
-# IDE configurations
+# IDE configurations (keep shared configs, exclude personal)
 .vscode/settings.json
 .vscode/launch.json
 .idea/
@@ -169,3 +174,4 @@ uMEMORY/user/                   # User memory archives (LOCAL ONLY)
 
 # Centralized backup system (local only)
 BACKUP/
+uSCRIPT/venv/

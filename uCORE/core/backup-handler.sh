@@ -60,7 +60,7 @@ handle_backup_create() {
         "$BACKUP_SCRIPT" backup "$backup_type" "$description"
     else
         echo -e "${YELLOW}⚠️  Enhanced backup system not found, using simple backup${NC}"
-        "$UDOS_ROOT/uCORE/code/backup.sh" "$backup_type"
+        "$UDOS_ROOT/uCORE/core/utilities/backup.sh" "$backup_type"
     fi
 }
 

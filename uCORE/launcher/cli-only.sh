@@ -5,7 +5,7 @@
 set -euo pipefail
 
 UDOS_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-CLI_SERVER="$UDOS_ROOT/uCORE/server/cli_server.py"
+CLI_SERVER="$UDOS_ROOT/uCORE/system/server/cli_server.py"
 
 # Colors for CLI output (if terminal supports it)
 if [[ -t 1 ]] && command -v tput >/dev/null 2>&1; then

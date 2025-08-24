@@ -29,6 +29,14 @@ launch_desktop_app() {
         else
             polaroid_echo "orange" "❌ Desktop app requires Node.js and Tauri"
             polaroid_echo "cyan" "   Run: ./setup-display-system.sh setup"
+            echo
+            polaroid_echo "cyan" "💡 Alternative: Try web export mode (available now):"
+            polaroid_echo "cyan" "   ./uNETWORK/display/udos-display.sh export dashboard --open"
+            polaroid_echo "cyan" "   ./uNETWORK/display/udos-display.sh export terminal"
+            polaroid_echo "cyan" "   ./uNETWORK/display/udos-display.sh export memory"
+            echo
+            polaroid_echo "cyan" "📋 See all available modes:"
+            polaroid_echo "cyan" "   ./setup-display-system.sh quick"
             return 1
         fi
     fi

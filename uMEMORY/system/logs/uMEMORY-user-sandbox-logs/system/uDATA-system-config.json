@@ -1,0 +1,114 @@
+{
+    "metadata": {
+        "system": "uDOS-v1.3.3",
+        "version": "1.3.3",
+        "format": "uDATA-v1",
+        "description": "uDOS System Base Configuration - Essential settings for distribution",
+        "config_count": 15
+    }
+}
+{
+    "name": "DEFAULT_DISPLAY_MODE",
+    "value": "udos_optimized",
+    "type": "display",
+    "readonly": false,
+    "description": "Default display configuration mode"
+}
+{
+    "name": "DEFAULT_INTERFACE_MODE",
+    "value": "enhanced_terminal",
+    "type": "interface",
+    "readonly": false,
+    "description": "Default interface mode"
+}
+{
+    "name": "DEFAULT_FONT",
+    "value": "MODE7GX3",
+    "type": "font",
+    "readonly": false,
+    "description": "Default system font"
+}
+{
+    "name": "DEFAULT_FONT_SIZE",
+    "value": "20px",
+    "type": "font",
+    "readonly": false,
+    "description": "Default font size"
+}
+{
+    "name": "DEFAULT_GRID_COLUMNS",
+    "value": "50",
+    "type": "ugrid",
+    "readonly": false,
+    "description": "Default grid width in columns"
+}
+{
+    "name": "DEFAULT_GRID_ROWS",
+    "value": "30",
+    "type": "ugrid",
+    "readonly": false,
+    "description": "Default grid height in rows"
+}
+{
+    "name": "DEFAULT_VIEWPORT_WIDTH",
+    "value": "800",
+    "type": "display",
+    "readonly": false,
+    "description": "Default viewport width"
+}
+{
+    "name": "DEFAULT_VIEWPORT_HEIGHT",
+    "value": "615",
+    "type": "display",
+    "readonly": false,
+    "description": "Default viewport height"
+}
+{
+    "name": "ENABLE_SMART_TERMINAL",
+    "value": "true",
+    "type": "feature",
+    "readonly": false,
+    "description": "Enable smart terminal features"
+}
+{
+    "name": "ENABLE_COMMAND_HISTORY",
+    "value": "true",
+    "type": "feature",
+    "readonly": false,
+    "description": "Enable command history"
+}
+{
+    "name": "ENABLE_AUTO_COMPLETE",
+    "value": "true",
+    "type": "feature",
+    "readonly": false,
+    "description": "Enable auto-completion"
+}
+{
+    "name": "ENABLE_FONT_SCALING",
+    "value": "true",
+    "type": "feature",
+    "readonly": false,
+    "description": "Enable responsive font scaling"
+}
+{
+    "name": "CACHE_LIMIT_MB",
+    "value": "50",
+    "type": "performance",
+    "readonly": false,
+    "description": "Memory cache limit in MB"
+}
+{
+    "name": "TERMINAL_HISTORY_LIMIT",
+    "value": "1000",
+    "type": "performance",
+    "readonly": false,
+    "description": "Terminal history line limit"
+}
+{
+    "name": "DEBUG_MODE",
+    "value": "false",
+    "type": "development",
+    "readonly": false,
+    "description": "Enable development debug mode"
+}

@@ -81,7 +81,7 @@ else
 fi
 
 # Check CLI server
-cli_server="$UDOS_ROOT/uCORE/server/cli_server.py"
+cli_server="$UDOS_ROOT/uCORE/system/server/cli_server.py"
 if [[ -f "$cli_server" ]]; then
     echo -e "  📄 Checking: ${BLUE}cli_server.py${NC}"
 

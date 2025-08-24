@@ -197,6 +197,55 @@ main() {
             polaroid_echo "cyan" "🐍 Installing Python dependencies in uSCRIPT venv..."
             setup_dependencies
             ;;
+        "quick"|"available")
+            # Show what's currently available without full setup
+            polaroid_echo "cyan" "🚀 uDOS v1.4 Available Display Modes"
+            echo
+
+            # Check what's available now
+            local has_python=0
+            if [[ -f "$UDOS_ROOT/uSCRIPT/activate-venv.sh" ]]; then
+                # Use a temp file to communicate from subshell
+                local temp_check="/tmp/udos_python_check_$$"
+                (
+                    source "$UDOS_ROOT/uSCRIPT/activate-venv.sh" >/dev/null 2>&1
+                    if python -c "import flask, flask_socketio, psutil, eventlet" >/dev/null 2>&1; then
+                        echo "1" > "$temp_check"
+                    else
+                        echo "0" > "$temp_check"
+                    fi
+                ) 2>/dev/null
+                if [[ -f "$temp_check" ]]; then
+                    has_python=$(cat "$temp_check" 2>/dev/null || echo "0")
+                    rm -f "$temp_check" 2>/dev/null
+                fi
+            fi
+
+            polaroid_echo "lime" "✅ CLI Terminal Mode (always available)"
+            polaroid_echo "cyan" "   Usage: udos terminal"
+            echo
+
+            if [[ $has_python -eq 1 ]]; then
+                polaroid_echo "lime" "✅ Web Export Mode (ready now!)"
+                polaroid_echo "cyan" "   Usage: ./uNETWORK/display/udos-display.sh export dashboard"
+                polaroid_echo "cyan" "   Usage: ./uNETWORK/display/udos-display.sh export terminal"
+                polaroid_echo "cyan" "   Usage: ./uNETWORK/display/udos-display.sh export memory"
+                echo
+                polaroid_echo "cyan" "💡 Try it now: ./uNETWORK/display/udos-display.sh export dashboard --open"
+            else
+                polaroid_echo "orange" "❌ Web Export Mode (needs Python setup)"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh python"
+            fi
+            echo
+
+            if command -v node >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
+                polaroid_echo "yellow" "⚠️  Desktop App Mode (needs building)"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh build"
+            else
+                polaroid_echo "orange" "❌ Desktop App Mode (needs Node.js and Rust)"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh setup"
+            fi
+            ;;
         "build")
             build_desktop_app
             ;;
@@ -287,6 +336,7 @@ Usage: $0 <command>
 Commands:
   setup     Install Node.js, Rust, and set up Tauri project
   python    Install only Python dependencies in uSCRIPT venv
+  quick     Show available modes with current dependencies
   build     Build the desktop application
   test      Test if display system is working
   help      Show this help
@@ -297,6 +347,8 @@ This sets up the three-mode display system:
   - Web Export (browser interface)
 
 The Python backend leverages the existing uSCRIPT virtual environment.
+
+💡 Quick Start: Run './setup-display-system.sh quick' to see what's available now!
 EOF
             ;;
         *)

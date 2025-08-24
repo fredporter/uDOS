@@ -18,24 +18,24 @@ NC='\033[0m'
 
 show_dashboard() {
     clear
-    
+
     # Show banner
     "$UDOS_ROOT/uSCRIPT/library/ucode/display.sh" simple-banner
-    
+
     echo ""
     echo -e "${CYAN}╔═══════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                    SYSTEM DASHBOARD                  ║${NC}"
     echo -e "${CYAN}╚═══════════════════════════════════════════════════════╝${NC}"
     echo ""
-    
+
     # System status overview
     show_status_overview
     echo ""
-    
+
     # Quick actions menu
     show_quick_menu
     echo ""
-    
+
     # Recent activity
     show_recent_activity
 }
@@ -43,7 +43,7 @@ show_dashboard() {
 show_status_overview() {
     echo -e "${BLUE}📊 System Overview${NC}"
     echo ""
-    
+
     # User status
     if [[ -f "$SANDBOX/user.md" ]]; then
         local username=$(grep "^Username:" "$SANDBOX/user.md" 2>/dev/null | cut -d' ' -f2-)
@@ -51,18 +51,18 @@ show_status_overview() {
     else
         echo -e "  👤 User: ${RED}Not authenticated${NC}"
     fi
-    
+
     # Session info
     local session_count=$(find "$UMEMORY" -name "*Session.md" 2>/dev/null | wc -l)
     echo -e "  📝 Sessions: ${session_count}"
-    
+
     # Module count
     local module_count=$(find "$UDOS_ROOT/uSCRIPT/library/ucode" -name "*.sh" 2>/dev/null | wc -l)
     echo -e "  📦 Modules: ${module_count}"
-    
+
     # System time
     echo -e "  🕐 Time: $(date '+%H:%M:%S')"
-    
+
     # Disk usage
     local disk_usage=$(df "$UDOS_ROOT" | tail -1 | awk '{print $5}')
     echo -e "  💾 Disk: ${disk_usage} used"
@@ -76,6 +76,11 @@ show_quick_menu() {
     echo "  [5] Help System          [6] Terminal Layout"
     echo "  [7] Development Tools    [8] System Settings"
     echo ""
+    echo -e "${CYAN}🖥️  Display Modes${NC}"
+    echo ""
+    echo "  [d1] Web Export Mode     [d2] Desktop App Mode"
+    echo "  [d3] Display Setup       [d4] Available Modes"
+    echo ""
     echo "  [r] Restart uDOS         [d] Destroy Session"
     echo "  [c] Clear Screen         [q] Quit Dashboard"
 }
@@ -83,20 +88,20 @@ show_quick_menu() {
 show_recent_activity() {
     echo -e "${BLUE}📈 Recent Activity${NC}"
     echo ""
-    
+
     # Latest session log
     local latest_session=$(find "$UMEMORY" -name "*Session.md" -exec stat -f "%m %N" {} \; 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)
     if [[ -n "$latest_session" ]]; then
         local session_name=$(basename "$latest_session" | sed 's/uLOG-//' | sed 's/-Session.md//')
         echo -e "  📝 Last session: ${session_name}"
-        
+
         # Show session timestamp
         local session_date=$(echo "$session_name" | cut -d'-' -f1-3)
         echo -e "  📅 Date: ${session_date}"
     else
         echo -e "  📝 No recent sessions"
     fi
-    
+
     # Check for user authentication
     if [[ -f "$SANDBOX/user.md" ]]; then
         local last_login=$(grep "Last Login:" "$SANDBOX/user.md" 2>/dev/null | cut -d' ' -f3-)
@@ -106,9 +111,9 @@ show_recent_activity() {
 
 handle_dashboard_input() {
     echo ""
-    echo -e "${YELLOW}Select an option (1-8, r, d, c, q):${NC} "
+    echo -e "${YELLOW}Select an option (1-8, d1-d4, r, d, c, q):${NC} "
     read -r choice
-    
+
     case "$choice" in
         "1")
             echo ""
@@ -162,6 +167,34 @@ handle_dashboard_input() {
             read -p "Press Enter to continue..." -r
             show_dashboard
             ;;
+        "d1")
+            echo ""
+            echo -e "${CYAN}🌐 Launching Web Export Mode...${NC}"
+            cd "$UDOS_ROOT"
+            exec ./uNETWORK/display/udos-display.sh export dashboard --open
+            ;;
+        "d2")
+            echo ""
+            echo -e "${CYAN}🖥️ Launching Desktop App Mode...${NC}"
+            cd "$UDOS_ROOT"
+            exec ./uNETWORK/display/udos-display.sh desktop
+            ;;
+        "d3")
+            echo ""
+            echo -e "${CYAN}🔧 Display System Setup${NC}"
+            cd "$UDOS_ROOT"
+            ./uNETWORK/display/setup-display-system.sh
+            read -p "Press Enter to continue..." -r
+            show_dashboard
+            ;;
+        "d4")
+            echo ""
+            echo -e "${CYAN}📋 Available Display Modes${NC}"
+            cd "$UDOS_ROOT"
+            ./uNETWORK/display/setup-display-system.sh quick
+            read -p "Press Enter to continue..." -r
+            show_dashboard
+            ;;
         "r")
             echo ""
             echo -e "${YELLOW}Restarting uDOS...${NC}"
@@ -199,7 +232,7 @@ show_interactive_dashboard() {
 # Main function
 dashboard_main() {
     local action="${1:-interactive}"
-    
+
     case "$action" in
         "interactive"|"")
             show_interactive_dashboard
