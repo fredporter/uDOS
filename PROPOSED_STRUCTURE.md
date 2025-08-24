@@ -1,77 +1,83 @@
-# uDOS v1.4 Proposed Folder Structure
-## Clean Distribution & uMEMORY Role-Based Isolation
+# uDOS v1.4 Structure - DEV/Sandbox/uMEMORY + Browser-UI
+
+## Overview
+uDOS v1.4 introduces a comprehensive restructuring with protected development environments, flushable user workspaces, persistent memory archives, and a modern Browser-UI system.
+
+## Core Architectural Principles
+
+### 🔧 **Protected DEV Environment**
+- **Purpose**: Core uDOS system development (Wizard + DEV mode only)
+- **Location**: `/dev/` - Never flushed, persistent development workspace
+- **Access**: Restricted to Wizard role with DEV mode activated
+
+### 🚀 **Flushable Sandbox Workspace**
+- **Purpose**: User development, testing, experimentation (all roles)
+- **Location**: `/sandbox/` - Designed to be flushed at session end
+- **Flow**: Active work → Archive to uMEMORY → Flush → Fresh workspace
+
+### 🧠 **Persistent Memory Archives**
+- **Purpose**: Long-term storage of role/user data and session archives
+- **Location**: `/uMEMORY/` - Permanent storage, never flushed
+- **Organization**: Role-specific and user-specific memory isolation
+
+### 🌐 **Browser-UI System** (NEW in v1.4)
+- **Purpose**: Modern web interface for uDOS with full terminal compatibility
+- **Location**: `/uNETWORK/display/` - Complete browser-based experience
+- **Features**: Terminal emulation, memory browsing, visual session management
+
+## Directory Structure
 
 ```
-uDOS/                           # Distribution root (GitHub)
-├── .gitignore                 # Selective exclusion rules
-├── README.md                  # Main documentation
-├── QUICKSTART.md              # Installation guide
-├── LICENSE                    # Distribution license
-├── install.sh                 # Main installer script
+uDOS/
+├── dev/                        # 🔧 CORE uDOS DEVELOPMENT (Protected)
+│   ├── README.md              # ✅ DEV mode guide
+│   ├── active/                # 🚫 Local (persistent core dev work)
+│   ├── scripts/               # 🚫 Local (core system scripts)
+│   ├── tools/                 # ✅ Framework + 🚫 Local tools
+│   ├── templates/             # ✅ Core templates
+│   ├── vscode-extension/      # ✅ Framework + 🚫 Local dev
+│   └── workflow-manager.sh    # ✅ Core workflow tools
 ├──
-├── uCORE/                     # Core system (DISTRIBUTION)
-│   ├── bin/                   # Core executables & scripts
-│   ├── launcher/              # Installation & launch scripts
-│   ├── system/                # System configuration
-│   └── distribution/          # Role definitions & install scripts
-│       ├── wizard/            # Wizard role installer
-│       ├── sorcerer/          # Sorcerer role installer
-│       ├── imp/               # Imp role installer
-│       ├── drone/             # Drone role installer
-│       ├── tomb/              # Tomb role installer
-│       └── ghost/             # Ghost role installer
-│
-├── uMEMORY/                   # Memory framework (CORE + USER)
-│   ├── README.md              # Memory system guide
-│   ├── core/                  # Core memory system (DISTRIBUTION)
-│   └── system/                # System memory (DISTRIBUTION)
-│
-├── docs/                      # Documentation (DISTRIBUTION)
-├── extensions/                # Core extensions (DISTRIBUTION)
-├── shared/                    # Shared templates (DISTRIBUTION)
+├── sandbox/                   # 🚀 USER WORKSPACE (Flushable)
+│   ├── README.md             # ✅ User workspace guide
+│   ├── current-session.md    # 🚫 Local (FLUSHABLE)
+│   ├── scripts/              # 🚫 Local (FLUSHABLE user scripts)
+│   ├── experiments/          # 🚫 Local (FLUSHABLE experiments)
+│   ├── tasks/                # 🚫 Local (FLUSHABLE current tasks)
+│   ├── sessions/             # 🚫 Local (FLUSHABLE → archived)
+│   │   ├── README.md         # ✅ Session system guide
+│   │   ├── current/          # 🚫 Active session data
+│   │   └── archive/          # 🚫 Pre-archive staging
+│   └── logs/                 # 🚫 Local (FLUSHABLE → archived)
 ├──
-├── dev/                       # Development framework (CORE ONLY)
-│   ├── README.md              # Development guide
-│   ├── scripts/               # Core dev scripts
-│   ├── tools/                 # Development utilities
-│   ├── templates/             # Development templates
-│   └── vscode-extension/      # VS Code extension
-│
-├── sandbox/                   # Sandbox framework (CORE ONLY)
-│   ├── README.md              # Sandbox guide
-│   ├── demos/                 # Demo scripts
-│   └── templates/             # Sandbox templates
-│
-├── uSCRIPT/                   # Script management (DISTRIBUTION)
-├── uKNOWLEDGE/                # Knowledge base (DISTRIBUTION)
-└── uNETWORK/                  # Network components (DISTRIBUTION)
-
-# ══════════════════════════════════════════════════════════════
-# LOCAL INSTALLATION STRUCTURE (Post-install, LOCAL ONLY)
-# ══════════════════════════════════════════════════════════════
-
-uDOS/                           # Local installation root
-├── [... all distribution files above ...]
+├── uMEMORY/                  # 🧠 MEMORY ARCHIVE SYSTEM
+│   ├── README.md             # ✅ Memory system guide
+│   ├── role/                 # 🚫 Local (role memory archives)
+│   │   ├── README.md         # ✅ Role memory guide
+│   │   ├── wizard/           # 🚫 Wizard role memory
+│   │   ├── sorcerer/         # 🚫 Sorcerer role memory
+│   │   └── [other roles]/    # 🚫 Role-specific archives
+│   ├── user/                 # 🚫 Local (user memory archives)
+│   │   └── README.md         # ✅ User memory guide
+│   ├── core/                 # ✅ Core memory templates
+│   └── system/               # ✅ System memory
 ├──
-├── uMEMORY/                   # Memory organization framework
-│   ├── role/                  # ✨ NEW: Role-specific installations
-│   │   ├── wizard/            # 🧙 Wizard role data & config
-│   │   │   ├── config/        # Role configuration
-│   │   │   ├── data/          # Role-specific data
-│   │   │   ├── projects/      # Role projects
-│   │   │   └── logs/          # Role activity logs
-│   │   ├── sorcerer/          # 🔮 Sorcerer role data
-│   │   ├── imp/               # 👹 Imp role data
-│   │   ├── drone/             # 🤖 Drone role data
-│   │   ├── tomb/              # ⚰️  Tomb role data
-│   │   └── ghost/             # 👻 Ghost role data
-│   └── user/                  # ✨ NEW: User personal data
-│       ├── dev/               # Personal development files
-│       ├── memory/            # Session memory & logs
-│       ├── sandbox/           # Personal experiments
-│       └── extensions/        # User-installed extensions
+├── uNETWORK/                 # 🌐 NETWORK & BROWSER-UI
+│   ├── display/              # 🌐 NEW: Browser-UI System
+│   │   ├── README.md         # ✅ Browser-UI guide
+│   │   ├── ui_server.py      # ✅ Main UI server
+│   │   ├── components/       # ✅ UI components framework
+│   │   ├── assets/           # ✅ Static assets (CSS, JS)
+│   │   ├── templates/        # ✅ HTML templates
+│   │   ├── api/              # ✅ REST API endpoints
+│   │   └── static/           # 🚫 Generated assets
+│   └── server/               # ✅ Network server components
 ├──
-├── BACKUP/                    # ✨ NEW: Centralized backup system
+├── uCORE/                    # ✅ Core system (protected)
+├── docs/                     # ✅ Documentation
+├── extensions/               # ✅ Extension framework
+└── [other core folders]/     # ✅ Distribution framework
+```
 │   ├── wizard/                # Wizard role data (if installed)
 │   │   ├── projects/          # Wizard-specific projects
 │   │   ├── sessions/          # Development sessions

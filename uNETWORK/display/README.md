@@ -1,20 +1,60 @@
-# uNETWORK Display Components
+# uNETWORK Display - Browser-UI System (v1.4)
 
-**Display rendering and UI components for network-based uDOS interfaces**
+**Modern web interface for uDOS with full terminal compatibility**
 
-## Purpose
+## Overview
+The uDOS Browser-UI system provides a modern web interface for interacting with uDOS. This system transforms the terminal-based experience into an intuitive browser interface while maintaining full compatibility with terminal workflows.
 
-This directory contains display components and rendering systems for uDOS network interfaces. These components work in conjunction with the uNETWORK server to provide rich, interactive displays for web-based and future peer-to-peer uDOS interfaces.
+## v1.4 Browser-UI Structure
+```
+display/
+├── README.md           # This file
+├── ui_server.py        # Main UI server (existing)
+├──
+├── components/         # 🚀 NEW: UI Components
+│   ├── README.md       # Component system guide
+│   ├── terminal/       # Terminal interface components
+│   ├── dashboard/      # Dashboard components
+│   ├── memory/         # Memory viewer components
+│   └── role/           # Role-specific UI components
+├──
+├── assets/             # 🚀 NEW: Static Assets
+│   ├── css/            # Stylesheets
+│   ├── js/             # JavaScript modules
+│   ├── fonts/          # Typography
+│   └── icons/          # UI icons and graphics
+├──
+├── templates/          # 🚀 NEW: HTML Templates
+│   ├── base.html       # Base template
+│   ├── dashboard.html  # Main dashboard
+│   ├── terminal.html   # Terminal interface
+│   └── role/           # Role-specific templates
+├──
+├── api/                # 🚀 NEW: API Endpoints
+│   ├── README.md       # API documentation
+│   ├── terminal.py     # Terminal API
+│   ├── memory.py       # Memory API
+│   └── role.py         # Role management API
+├──
+└── static/             # 🚀 NEW: Generated Assets
+    ├── build/          # Built assets
+    └── dist/           # Distribution files
+```
 
-## Development Area
+## Browser-UI Features (v1.4)
+- **Modern Web Interface** - Clean, responsive design
+- **Terminal Emulation** - Full terminal access in browser
+- **Role-Based UI** - Interface adapts to current role
+- **Memory Visualization** - Browse and search uMEMORY archives
+- **Session Management** - Visual session controls
+- **DEV Mode Integration** - Browser-UI for core system development
+- **Real-time Updates** - Live terminal and system updates
 
-This is an active development area for v1.3.3+ display enhancements. Components being developed include:
-
-### Current Development Focus
-- **Web-based display components** for browser interfaces
-- **Real-time rendering** for dynamic uDOS content
-- **Interactive widgets** for system monitoring and control
-- **Responsive design** for multiple screen sizes and devices
+## Development Integration
+- **Protected DEV Access** - Browser interface for `/dev/` (Wizard + DEV mode)
+- **Sandbox Workspace** - Visual interface for `/sandbox/` (all roles)
+- **uMEMORY Browser** - Graphical memory archive browsing
+- **Session Flow UI** - Visual session management and archiving
 
 ### Planned Components
 

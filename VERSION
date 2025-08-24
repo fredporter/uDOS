@@ -1,21 +1,22 @@
-# uDOS - Version 1.3.3
+# uDOS - Version 1.4.0-beta
 # Universal Digital Operating System
-# Build: 2025-08-23
+# Build: 2025-08-24
 
-VERSION="1.3.3"
-BUILD_DATE="2025-08-23"
-BUILD_NAME="uGRID Display System, Documentation Modernization, uHEX v7.0"
+VERSION="1.4.0-beta"
+BUILD_DATE="2025-08-24"
+BUILD_NAME="Browser-UI System, DEV/Sandbox/Memory Isolation"
 
-# Major Features in v1.3.3:
-# - uGRID Display System: Comprehensive tile-based architecture with 4× resolution
-# - Documentation Library: Flat structure with role-based learning paths
-# - uHEX Filename Convention v7.0: Optimized types (uWORK, uBRIEF, uTEMP)
-# - uDATA Format Integration: JSON processing standards for system data
-# - Comprehensive Style Guide: Complete v1.3.3 standards consolidation
-# - uMAP Location System: Advanced coordinate mapping with named regions
-# - Multi-device Support: 8 device classes from wearable to wallboard
-# - Widget System: Static, interactive, dynamic, composite, overlay widgets
-# - Performance Optimization: 60 FPS rendering with dirty rectangle updates
+# Major Features in v1.4.0:
+# - Browser-UI System: Complete web interface with terminal emulation
+# - DEV/Sandbox/Memory Isolation: Protected development vs flushable workspace
+# - Session Archiving System: Automatic data preservation before sandbox flush
+# - Role-Based Access Control: Wizard + DEV mode for core development
+# - uMEMORY Organization: Persistent role and user memory archives
+# - Modern Web Interface: Real-time updates, responsive design
+# - API System: RESTful endpoints for browser-UI integration
+# - Session Management: Visual session controls and workflow
+# - Protected Development: Core system development environment
+# - Clean Distribution: GitHub sync framework, local user data
 
-COMPATIBILITY="macOS 10.15+, Python 3.8+"
-ARCHITECTURE="Universal (ARM64/x86_64)"
+COMPATIBILITY="macOS 10.15+, Python 3.8+, Modern Browsers"
+ARCHITECTURE="Universal (ARM64/x86_64) + Web"

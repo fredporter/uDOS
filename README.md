@@ -1,6 +1,6 @@
-# uDOS v1.3.3 - Universal Device Operating System
+# uDOS v1.4 - Universal Device Operating System
 
-**A globally-aware, timezone-integrated development platform with AI-enhanced workflows and comprehensive tile-based display system.**
+**A globally-aware development platform with AI-enhanced workflows, Browser-UI, and comprehensive DEV/Sandbox/Memory isolation.**
 
 ```
     ██╗   ██╗██████╗  ██████╗ ███████╗
@@ -11,8 +11,31 @@
      ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 
     Universal Device Operating System
-    ═══════════════ v1.3.3 ══════════════
+    ═══════════════ v1.4 ══════════════
 ```
+
+## 🚀 **What's New in v1.4**
+
+### 🌐 **Browser-UI System**
+- **Modern Web Interface** - Complete browser-based uDOS experience
+- **Terminal Emulation** - Full terminal compatibility in browser
+- **Real-time Updates** - Live system monitoring and interaction
+- **Role-Based UI** - Interface adapts to user role and capabilities
+
+### 🔧 **Protected DEV Environment**
+- **Core Development Workspace** - `/dev/` for uDOS system development
+- **Access Control** - Wizard + DEV mode only
+- **Persistent Protection** - Never flushed, always preserved
+
+### 🚀 **Flushable Sandbox**
+- **User Workspace** - `/sandbox/` for all user development and experimentation
+- **Session Management** - Archive valuable data before flushing
+- **Clean Reset** - Fresh workspace for each session
+
+### 🧠 **Memory Archive System**
+- **Persistent Storage** - `/uMEMORY/` for long-term data preservation
+- **Role Isolation** - Separate memory spaces for each role
+- **Session Archiving** - Automatic data preservation before sandbox flush
 
 ---
 
