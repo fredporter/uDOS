@@ -1,0 +1,100 @@
+{
+    "metadata": {
+        "system": "uDOS-v1.3.3",
+        "version": "1.3.3",
+        "format": "uDATA-v1",
+        "description": "Core uDOS configuration variables and system settings",
+        "variable_count": 13
+    }
+}
+{
+    "name": "SYSTEM_VERSION",
+    "value": "1.3.3",
+    "type": "system",
+    "readonly": true,
+    "description": "uDOS system version"
+}
+{
+    "name": "UDATA_FORMAT",
+    "value": "v1",
+    "type": "system",
+    "readonly": true,
+    "description": "uDATA format version"
+}
+{
+    "name": "SYSTEM_CONFIG_FILE",
+    "value": "uDATA-system-config.json",
+    "type": "system",
+    "readonly": true,
+    "description": "System base configuration file reference"
+}
+{
+    "name": "DEFAULT_PALETTE",
+    "value": "polaroid_colors",
+    "type": "color",
+    "readonly": false,
+    "description": "Default color palette name"
+}
+{
+    "name": "GRID_MAX_WIDTH",
+    "value": "160",
+    "type": "ugrid",
+    "readonly": false,
+    "description": "Maximum grid width in columns"
+}
+{
+    "name": "GRID_MAX_HEIGHT",
+    "value": "60",
+    "type": "ugrid",
+    "readonly": false,
+    "description": "Maximum grid height in rows"
+}
+{
+    "name": "INSTANCE_TIME",
+    "value": "{auto:timestamp}",
+    "type": "instance",
+    "readonly": true,
+    "description": "Current system timestamp"
+}
+{
+    "name": "INSTANCE_USER",
+    "value": "{auto:user}",
+    "type": "instance",
+    "readonly": true,
+    "description": "Current system user"
+}
+{
+    "name": "CURRENT_ROLE",
+    "value": "{auto:role}",
+    "type": "session",
+    "readonly": false,
+    "description": "Currently active user role"
+}
+{
+    "name": "TEMPLATE_ROOT",
+    "value": "{path:templates}",
+    "type": "path",
+    "readonly": true,
+    "description": "Template system root path"
+}
+{
+    "name": "MEMORY_ROOT",
+    "value": "{path:uMemory}",
+    "type": "path",
+    "readonly": true,
+    "description": "Memory system root path"
+}
+{
+    "name": "GRID_CURRENT_SIZE",
+    "value": "{auto:grid_size}",
+    "type": "ugrid",
+    "readonly": true,
+    "description": "Current grid dimensions"
+}
+{
+    "name": "SESSION_ID",
+    "value": "{auto:session_id}",
+    "type": "session",
+    "readonly": true,
+    "description": "Current session identifier"
+}

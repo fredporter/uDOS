@@ -1,6 +1,0 @@
-#!/bin/bash
-# uScript - uDOS Script
-# Created: $(date +%Y-%m-%d)
-
-# Your script content here
-echo "Hello from uScript!"
