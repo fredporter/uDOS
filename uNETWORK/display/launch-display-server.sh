@@ -54,15 +54,39 @@ start_server() {
 
     polaroid_echo "cyan" "🚀 Starting uDOS Display Server..."
 
-    # Check Python dependencies
-    if ! python3 -c "import flask, flask_socketio, psutil" 2>/dev/null; then
-        polaroid_echo "orange" "📦 Installing required Python packages..."
-        pip3 install flask flask-socketio psutil eventlet
+    # Use uSCRIPT venv for Python dependencies
+    local venv_activate="$UDOS_ROOT/uSCRIPT/activate-venv.sh"
+    local python_cmd="python3"
+
+    if [[ -f "$venv_activate" ]]; then
+        polaroid_echo "cyan" "🐍 Using uSCRIPT virtual environment..."
+        # Check dependencies in venv
+        if ! (source "$venv_activate" >/dev/null 2>&1 && python -c "import flask, flask_socketio, psutil" 2>/dev/null); then
+            polaroid_echo "orange" "📦 Python dependencies missing in uSCRIPT venv"
+            polaroid_echo "cyan" "   Run: ./setup-display-system.sh python"
+            return 1
+        fi
+
+        # Use venv python
+        python_cmd="source $venv_activate >/dev/null 2>&1 && python"
+    else
+        # Fallback to global Python
+        polaroid_echo "yellow" "⚠️  uSCRIPT venv not found, using global Python..."
+        if ! python3 -c "import flask, flask_socketio, psutil" 2>/dev/null; then
+            polaroid_echo "orange" "📦 Installing required Python packages globally..."
+            pip3 install flask flask-socketio psutil eventlet
+        fi
     fi
 
     # Start server in background
     cd "$UDOS_ROOT"
-    python3 "$DISPLAY_SERVER" > /tmp/udos-display-server.log 2>&1 &
+    if [[ -f "$venv_activate" ]]; then
+        # Use venv
+        bash -c "source $venv_activate >/dev/null 2>&1 && python $DISPLAY_SERVER" > /tmp/udos-display-server.log 2>&1 &
+    else
+        # Use global python
+        python3 "$DISPLAY_SERVER" > /tmp/udos-display-server.log 2>&1 &
+    fi
     local server_pid=$!
 
     # Save PID

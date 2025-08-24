@@ -39,11 +39,50 @@ launch_web_export() {
 
     polaroid_echo "cyan" "🌐 Generating web export ($export_type)..."
 
-    # Start backend server for web export
-    "$DISPLAY_DIR/launch-display-server.sh" start
+    # Use uSCRIPT venv for Python server
+    local venv_activate="$UDOS_ROOT/uSCRIPT/activate-venv.sh"
+    local display_server="$DISPLAY_DIR/server/display-server.py"
+    local pid_file="/tmp/udos-display-server.pid"
 
-    # Wait for server to start
-    sleep 2
+    # Check if server is already running
+    if [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
+        polaroid_echo "lime" "✅ Display server already running"
+    else
+        if [[ -f "$venv_activate" ]]; then
+            polaroid_echo "cyan" "🐍 Starting server with uSCRIPT venv..."
+            # Check dependencies in venv
+            if ! (source "$venv_activate" >/dev/null 2>&1 && python -c "import flask, flask_socketio, psutil" 2>/dev/null); then
+                polaroid_echo "orange" "📦 Python dependencies missing in uSCRIPT venv"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh python"
+                return 1
+            fi
+
+            # Start server with venv
+            cd "$UDOS_ROOT"
+            bash -c "source $venv_activate >/dev/null 2>&1 && python $display_server" > /tmp/udos-display-server.log 2>&1 &
+            echo $! > "$pid_file"
+        else
+            polaroid_echo "yellow" "⚠️  uSCRIPT venv not found, using global Python..."
+            if ! python3 -c "import flask, flask_socketio, psutil" 2>/dev/null; then
+                polaroid_echo "orange" "❌ Python dependencies not installed"
+                polaroid_echo "cyan" "   Run: ./setup-display-system.sh python"
+                return 1
+            fi
+
+            # Start server with global Python
+            cd "$UDOS_ROOT"
+            python3 "$display_server" > /tmp/udos-display-server.log 2>&1 &
+            echo $! > "$pid_file"
+        fi
+
+        # Wait for server to start
+        sleep 3
+        if ! kill -0 "$(cat "$pid_file")" 2>/dev/null; then
+            polaroid_echo "orange" "❌ Failed to start display server"
+            polaroid_echo "cyan" "   Check logs: tail /tmp/udos-display-server.log"
+            return 1
+        fi
+    fi
 
     case "$export_type" in
         "dashboard"|"status")
@@ -66,6 +105,8 @@ launch_web_export() {
             open "http://localhost:8080"
         elif command -v xdg-open >/dev/null 2>&1; then
             xdg-open "http://localhost:8080"
+        else
+            polaroid_echo "cyan" "   Please open http://localhost:8080 in your browser"
         fi
     fi
 }
