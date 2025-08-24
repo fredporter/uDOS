@@ -1,6 +1,6 @@
 #!/bin/bash
-# uDOS v1.4 Hybrid Display System Setup
-# Sets up both native wrapper and browser fallback
+# uDOS v1.4 Display System Setup
+# Sets up desktop app and web export capabilities
 
 set -euo pipefail
 
@@ -10,6 +10,15 @@ DISPLAY_DIR="$UDOS_ROOT/uNETWORK/display"
 # Load core systems
 source "$UDOS_ROOT/uSCRIPT/library/shell/ensure-utf8.sh"
 source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
+
+main() {
+    polaroid_echo "cyan" "🎯 Setting up uDOS v1.4 Display Modes"
+    echo
+    polaroid_echo "cyan" "Available display modes:"
+    polaroid_echo "lime" "  1. CLI Terminal (always available)"
+    polaroid_echo "lime" "  2. Desktop App (for DRONE+ roles)"  
+    polaroid_echo "lime" "  3. Web Export (for sharing/presenting)"
+    echo
 
 # Setup functions
 setup_nodejs() {
