@@ -4,19 +4,21 @@
 
 VERSION="1.4.0-beta"
 BUILD_DATE="2025-08-24"
-BUILD_NAME="Browser-UI System, DEV/Sandbox/Memory Isolation"
+BUILD_NAME="Three-Mode Display System, DEV/Sandbox/Memory Isolation"
 
 # Major Features in v1.4.0:
-# - Browser-UI System: Complete web interface with terminal emulation
+# - Three-Mode Display System: CLI Terminal, Desktop Application, Web Export
+# - CLI Terminal: Always available, all roles, UTF-8 foundation with Polaroid colors
+# - Desktop Application: Native Tauri app for DRONE+ roles with system tray
+# - Web Export: Share dashboards, terminals, and memory remotely
 # - DEV/Sandbox/Memory Isolation: Protected development vs flushable workspace
 # - Session Archiving System: Automatic data preservation before sandbox flush
-# - Role-Based Access Control: Wizard + DEV mode for core development
+# - Role-Based Access Control: GHOST/TOMB CLI-only, DRONE+ full access
 # - uMEMORY Organization: Persistent role and user memory archives
-# - Modern Web Interface: Real-time updates, responsive design
-# - API System: RESTful endpoints for browser-UI integration
-# - Session Management: Visual session controls and workflow
-# - Protected Development: Core system development environment
+# - Real-Time Backend: Flask/SocketIO with WebSocket support
+# - Native Desktop Integration: Cross-platform with professional window management
 # - Clean Distribution: GitHub sync framework, local user data
+# - Simplified Architecture: Three tools, three purposes, no fallback complexity
 
-COMPATIBILITY="macOS 10.15+, Python 3.8+, Modern Browsers"
-ARCHITECTURE="Universal (ARM64/x86_64) + Web"
+COMPATIBILITY="macOS 10.15+, Python 3.8+, Node.js 16+, Rust"
+ARCHITECTURE="Universal (CLI/Desktop/Web) + Cross-Platform"
