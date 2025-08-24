@@ -1,10 +1,10 @@
-# uDOS - Version 1.4.0-beta
+# uDOS - Version 1.4.0
 # Universal Digital Operating System
-# Build: 2025-08-24
+# Build: 2025-08-25
 
-VERSION="1.4.0-beta"
-BUILD_DATE="2025-08-24"
-BUILD_NAME="Three-Mode Display System, DEV/Sandbox/Memory Isolation"
+VERSION="1.4.0"
+BUILD_DATE="2025-08-25"
+BUILD_NAME="System Organization & Logging Consolidation Complete"
 
 # Major Features in v1.4.0:
 # - Three-Mode Display System: CLI Terminal, Desktop Application, Web Export

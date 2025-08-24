@@ -16,7 +16,13 @@
 
 ## 🚀 **What's New in v1.4**
 
-### 🌐 **Three-Mode Display System**
+### � **System Organization & Architecture**
+- **Data Separation** - Clean separation between system code (uCORE) and user data (uMEMORY)
+- **Centralized Logging** - All logs consolidated in `/uMEMORY/system/logs/` for proper data isolation
+- **Repository Health** - Development environment bloat removed from git tracking
+- **Development Guidelines** - Comprehensive v1.4 development framework established
+
+### �🌐 **Three-Mode Display System**
 - **CLI Terminal** - Always available for direct system control and automation
 - **Desktop Application** - Native app for DRONE+ roles with system tray integration
 - **Web Export** - Share dashboards, terminals, and memory remotely
@@ -26,6 +32,7 @@
 - **Core Development Workspace** - `/dev/` for uDOS system development
 - **Access Control** - Wizard + DEV mode only
 - **Persistent Protection** - Never flushed, always preserved
+- **Clean Distribution** - Proper separation of development tools vs user content
 
 ### 🚀 **Flushable Sandbox**
 - **User Workspace** - `/sandbox/` for all user development and experimentation
