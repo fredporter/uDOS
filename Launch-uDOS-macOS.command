@@ -13,13 +13,7 @@ if [[ -f "$UDOS_ROOT/uCORE/system/polaroid-colors.sh" ]]; then
     source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
     polaroid_echo "cyan" "🌀 uDOS v1.4 - macOS Launcher"
 else
-    # Fallback colors
-    readonly CYAN='\033[0;36m'
-    readonly GREEN='\033[0;32m'
-    readonly YELLOW='\033[1;33m'
-    readonly RED='\033[0;31m'
-    readonly NC='\033[0m'
-    echo -e "${CYAN}🌀 uDOS v1.4 - macOS Launcher${NC}"
+    echo -e "\033[0;36m🌀 uDOS v1.4 - macOS Launcher\033[0m"
 fi
 
 # Check if we're in the right place
@@ -27,7 +21,7 @@ if [[ ! -f "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" ]]; then
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "orange" "❌ uDOS not found in current directory"
     else
-        echo -e "${RED}❌ uDOS not found in current directory${NC}"
+        echo -e "\033[0;31m❌ uDOS not found in current directory\033[0m"
     fi
     echo "Please run this script from the uDOS root directory"
     exit 1
@@ -35,18 +29,17 @@ fi
 
 # Show three-mode launch options
 echo ""
-echo "🎯 uDOS v1.4 Display Modes:"
-echo "  1) 🖥️  CLI Terminal (all roles - uCORE)"
-echo "  2) 🪟 Desktop Application (DRONE+ roles: level 40+)"
-echo "  3) 🌐 Web Export (DRONE+ roles: level 40+)"
-echo "  4) 🧙‍♂️ VS Code Development (Wizard only: level 100)"
+echo -e "\033[0;36m🎯 uDOS v1.4 Display Modes:\033[0m"
+echo -e "   \033[1;33m1)\033[0m 🖥️  CLI Terminal \033[0;35m(all roles - uCORE)\033[0m"
+echo -e "   \033[1;33m2)\033[0m 🪟 Desktop Application \033[0;32m(Crypt and above: level 30+)\033[0m"
+echo -e "   \033[1;33m3)\033[0m 🌐 Web Export \033[0;32m(Crypt and above: level 30+)\033[0m"
+echo -e "   \033[1;33m4)\033[0m 🧙‍♂️ VS Code Development \033[0;95m(Wizard only: level 100)\033[0m"
 echo ""
-echo "💡 Feature Access by Role Level:"
-echo "   Ghost/Tomb (10-20): uCORE only"
-echo "   Crypt+ (30+): uCORE + uNETWORK + uSCRIPT"
-echo "   DRONE+ (40+): + Desktop App + Web Export"
-echo "   Sorcerer+ (80+): + Gemini-CLI"
-echo "   Wizard (100): + VS Code Dev Mode"
+echo -e "\033[0;36m💡 Feature Access by Role Level:\033[0m"
+echo -e "   \033[0;35mGhost/Tomb (10-20):\033[0m uCORE only"
+echo -e "   \033[0;34mCrypt and above (30+):\033[0m uCORE + uNETWORK + uSCRIPT + Display Modes"
+echo -e "   \033[1;33mSorcerer and above (80+):\033[0m + Gemini-CLI"
+echo -e "   \033[0;95mWizard (100):\033[0m + VS Code Dev Mode"
 echo ""
 
 read -p "Select mode [1-4]: " mode_choice
@@ -57,7 +50,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "lime" "✅ Starting CLI Terminal..."
         else
-            echo -e "${GREEN}✅ Starting CLI Terminal...${NC}"
+            echo -e "\033[0;32m✅ Starting CLI Terminal...\033[0m"
         fi
         chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
         exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
@@ -67,7 +60,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "cyan" "🪟 Launching Desktop Application..."
         else
-            echo -e "${CYAN}🪟 Launching Desktop Application...${NC}"
+            echo -e "\033[0;36m🪟 Launching Desktop Application...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uNETWORK/display/udos-display.sh" ]]; then
             chmod +x "$UDOS_ROOT/uNETWORK/display/udos-display.sh"
@@ -76,7 +69,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ Desktop app not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ Desktop app not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ Desktop app not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
@@ -87,7 +80,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "cyan" "🌐 Starting Web Export..."
         else
-            echo -e "${CYAN}🌐 Starting Web Export...${NC}"
+            echo -e "\033[0;36m🌐 Starting Web Export...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uNETWORK/display/udos-display.sh" ]]; then
             chmod +x "$UDOS_ROOT/uNETWORK/display/udos-display.sh"
@@ -96,7 +89,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ Web export not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ Web export not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ Web export not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" --ui-mode
@@ -107,7 +100,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "purple" "🧙‍♂️ Starting VS Code Development..."
         else
-            echo -e "${PURPLE}🧙‍♂️ Starting VS Code Development...${NC}"
+            echo -e "\033[0;35m🧙‍♂️ Starting VS Code Development...\033[0m"
         fi
         if [[ -f "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh" ]]; then
             chmod +x "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh"
@@ -116,7 +109,7 @@ case "$mode_choice" in
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ VS Code dev mode not available - falling back to CLI"
             else
-                echo -e "${YELLOW}❌ VS Code dev mode not available - falling back to CLI${NC}"
+                echo -e "\033[1;33m❌ VS Code dev mode not available - falling back to CLI\033[0m"
             fi
             chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
             exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" --vscode-dev
@@ -126,7 +119,7 @@ case "$mode_choice" in
         if command -v polaroid_echo >/dev/null 2>&1; then
             polaroid_echo "orange" "❌ Invalid choice, starting CLI Terminal"
         else
-            echo -e "${YELLOW}❌ Invalid choice, starting CLI Terminal${NC}"
+            echo -e "\033[1;33m❌ Invalid choice, starting CLI Terminal\033[0m"
         fi
         chmod +x "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"
         exec "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh"

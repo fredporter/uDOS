@@ -37,27 +37,28 @@ show_help() {
     echo ""
     echo "Display Modes (v1.4):"
     echo "  CLI Terminal     - Always available for all roles (this script)"
-    echo "  Desktop App      - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh app"
-    echo "  Web Export       - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh export"
+    echo "  Desktop App      - Crypt and above (30+): ./uNETWORK/display/udos-display.sh app"
+    echo "  Web Export       - Crypt and above (30+): ./uNETWORK/display/udos-display.sh export"
     echo ""
     echo "Role Hierarchy with Feature Access:"
     echo "  ghost     - Level 10: Demo/evaluation (uCORE only)"
     echo "  tomb      - Level 20: Archive management (uCORE only)"
     echo "  crypt     - Level 30: Security/encryption (uCORE + uNETWORK + uSCRIPT)"
-    echo "  drone     - Level 40: Task automation (+ display modes - DRONE+)"
-    echo "  knight    - Level 50: Protection/defense (inherits drone+)"
+    echo "  crypt     - Level 30: Encryption/security (+ display modes - uNETWORK access)"
+    echo "  drone     - Level 40: Task automation (inherits crypt capabilities)"
+    echo "  knight    - Level 50: Protection/defense (inherits drone capabilities)"
     echo "  user      - Level 55: Personal workspace (inherits knight+)"
     echo "  imp       - Level 60: Development tools (inherits user+)"
     echo "  dev       - Level 70: Advanced development (inherits imp+)"
     echo "  sorcerer  - Level 80: User management (+ Gemini-CLI - inherits dev+)"
-    echo "  wizard    - Level 100: Full system access (+ VS Code dev - inherits sorcerer+)"
+    echo "  wizard    - Level 100: Full system access (+ VS Code dev - inherits sorcerer capabilities)"
     echo ""
     echo "Feature Access Levels:"
     echo "  uCORE only       - Ghost, Tomb (basic CLI)"
-    echo "  + uNETWORK       - Crypt+ (display system, networking)"
-    echo "  + uSCRIPT        - Crypt+ (scripting environment)"
-    echo "  + Display Modes  - DRONE+ (desktop app, web export)"
-    echo "  + Gemini-CLI     - Sorcerer+ (AI assistance)"
+    echo "  + uNETWORK       - Crypt and above (display system, networking)"
+    echo "  + uSCRIPT        - Crypt and above (scripting environment)"
+    echo "  + Display Modes  - Crypt and above (desktop app, web export)"
+    echo "  + Gemini-CLI     - Sorcerer and above (AI assistance)"
     echo "  + VS Code Dev    - Wizard only (development environment)"
     echo ""
     echo "Options:"
@@ -83,7 +84,7 @@ if [[ $# -eq 0 ]]; then
     echo -e "\033[1;36m🌀 uDOS v1.4 Startup Mode\033[0m"
     echo "Choose your preferred launch mode:"
     echo "  1) CLI Terminal (always available)"
-    echo "  2) Desktop Application (DRONE+ roles)"
+    echo "  2) Desktop Application (Crypt and above roles)"
     echo "  3) Web Export (sharing mode)"
     echo "  4) VS Code Dev Mode (Wizard only)"
     echo "  5) Exit"
@@ -93,12 +94,12 @@ if [[ $# -eq 0 ]]; then
             set -- wizard
             ;;
         2)
-            echo -e "\033[1;33m💡 Desktop app requires DRONE+ role (40+)\033[0m"
+            echo -e "\033[1;33m💡 Desktop app requires Crypt and above role (30+)\033[0m"
             echo "   Starting CLI mode with UI available..."
             set -- --ui-mode
             ;;
         3)
-            echo -e "\033[1;33m💡 Web export requires DRONE+ role (40+)\033[0m"
+            echo -e "\033[1;33m💡 Web export requires Crypt and above role (30+)\033[0m"
             echo "   Starting CLI mode with UI available..."
             set -- --ui-mode
             ;;
@@ -186,7 +187,7 @@ configure_role() {
             export UDOS_ROLE_ICON="🔐"
             export UDOS_ROLE_COLOR="$PURPLE"
             export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,ucore,unetwork,uscript"
-            export UDOS_DRONE_PLUS="false"
+            export UDOS_DRONE_PLUS="true"
             export UDOS_UNETWORK_ACCESS="true"
             export UDOS_USCRIPT_ACCESS="true"
             export UDOS_GEMINI_ACCESS="false"
@@ -361,43 +362,43 @@ show_role_banner() {
     echo "   ╚██████╔╝██████╔╝╚██████╔╝███████║"
     echo "    ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
     echo -e "${NC}"
-    
+
     echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
-    
+
     # Show feature access
     echo -e "${WHITE}Feature Access:${NC}"
     echo -e "  ${GREEN}✅ uCORE${NC} (CLI Terminal)"
-    
+
     if [[ "$UDOS_UNETWORK_ACCESS" == "true" ]]; then
         echo -e "  ${GREEN}✅ uNETWORK${NC} (Networking & Display System)"
     else
         echo -e "  ${RED}❌ uNETWORK${NC} (uCORE only)"
     fi
-    
+
     if [[ "$UDOS_USCRIPT_ACCESS" == "true" ]]; then
         echo -e "  ${GREEN}✅ uSCRIPT${NC} (Scripting Environment)"
     else
         echo -e "  ${RED}❌ uSCRIPT${NC} (uCORE only)"
     fi
-    
+
     if [[ "$UDOS_DRONE_PLUS" == "true" ]]; then
         echo -e "  ${GREEN}✅ Display Modes${NC} (Desktop App & Web Export)"
     else
         echo -e "  ${RED}❌ Display Modes${NC} (CLI Terminal only)"
     fi
-    
+
     if [[ "$UDOS_GEMINI_ACCESS" == "true" ]]; then
         echo -e "  ${GREEN}✅ Gemini-CLI${NC} (AI Assistant)"
     else
-        echo -e "  ${YELLOW}⚪ Gemini-CLI${NC} (Sorcerer+ only)"
+        echo -e "  ${YELLOW}⚪ Gemini-CLI${NC} (Sorcerer and above only)"
     fi
-    
+
     if [[ "$UDOS_VSCODE_ACCESS" == "true" ]]; then
         echo -e "  ${GREEN}✅ VS Code Dev${NC} (Development Environment)"
     else
         echo -e "  ${YELLOW}⚪ VS Code Dev${NC} (Wizard only)"
     fi
-    
+
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }# Start uNETWORK/server in background
