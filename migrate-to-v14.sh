@@ -118,36 +118,36 @@ analyze_current_structure() {
 
 create_new_structure() {
     echo_header "🏗️  Creating v1.4 directory structure"
-    
+
     # Create main directories under uMEMORY
     mkdir -p uMEMORY/role/wizard uMEMORY/role/sorcerer uMEMORY/role/imp uMEMORY/role/drone uMEMORY/role/tomb uMEMORY/role/ghost
     mkdir -p uMEMORY/user/dev uMEMORY/user/memory uMEMORY/user/sandbox uMEMORY/user/extensions
     mkdir -p BACKUP
-    
+
     echo_success "✅ Directory structure created"
 }
 
 migrate_user_data() {
     echo_header "👤 Migrating user data"
-    
+
     # Migrate user development files
     if [ -d "dev" ]; then
         echo_info "� Moving dev/ to uMEMORY/user/dev/"
         cp -r dev/* uMEMORY/user/dev/ 2>/dev/null || true
     fi
-    
+
     # Migrate user sandbox
     if [ -d "sandbox" ]; then
         echo_info "🏖️  Moving sandbox/ to uMEMORY/user/sandbox/"
         cp -r sandbox/* uMEMORY/user/sandbox/ 2>/dev/null || true
     fi
-    
+
     # Migrate user extensions
     if [ -d "USER/extensions" ]; then
         echo_info "� Moving USER/extensions/ to uMEMORY/user/extensions/"
         cp -r USER/extensions/* uMEMORY/user/extensions/ 2>/dev/null || true
     fi
-    
+
     # Migrate user memory files
     find . -name "*user*" -o -name "*session*" -o -name "*memory*" | grep -v uMEMORY | while read file; do
         if [ -f "$file" ]; then
@@ -155,19 +155,19 @@ migrate_user_data() {
             cp "$file" uMEMORY/user/memory/ 2>/dev/null || true
         fi
     done
-    
+
     echo_success "✅ User data migration complete"
 }
 
 migrate_role_data() {
     echo_header "🎭 Migrating role data"
-    
+
     # Migrate wizard data
     if [ -d "wizard" ]; then
         echo_info "🧙 Moving wizard/ to uMEMORY/role/wizard/"
         cp -r wizard/* uMEMORY/role/wizard/ 2>/dev/null || true
     fi
-    
+
     # Migrate other role directories if they exist
     for role in sorcerer imp drone tomb ghost; do
         if [ -d "$role" ]; then
@@ -175,7 +175,7 @@ migrate_role_data() {
             cp -r "$role"/* "uMEMORY/role/$role/" 2>/dev/null || true
         fi
     done
-    
+
     echo_success "✅ Role data migration complete"
 }
 

@@ -16,7 +16,7 @@ main() {
     echo
     polaroid_echo "cyan" "Available display modes:"
     polaroid_echo "lime" "  1. CLI Terminal (always available)"
-    polaroid_echo "lime" "  2. Desktop App (for DRONE+ roles)"  
+    polaroid_echo "lime" "  2. Desktop App (for DRONE+ roles)"
     polaroid_echo "lime" "  3. Web Export (for sharing/presenting)"
     echo
 

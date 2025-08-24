@@ -1,101 +1,163 @@
-# uNETWORK v1.3.3 - Network Services & Future P2P Infrastructure
+# uNETWORK v1.4 - Display Services & Network Infrastructure
 
-**Centralized network services for uDOS with foundation for future peer-to-peer networking**
+**Three-mode display system and network services for uDOS with foundation for future P2P networking**
 
 ## Overview
 
-uNETWORK provides the network infrastructure for uDOS, currently focused on local web services and API endpoints. This module is designed with extensibility in mind to support future peer-to-peer networking capabilities.
+uNETWORK provides the display and network infrastructure for uDOS v1.4, featuring a clean three-mode display architecture and robust network services. This module is designed with extensibility in mind to support future peer-to-peer networking capabilities.
 
-## Current Services (v1.3.3)
+## v1.4 Display System
 
-### Web Server (`server/`)
-- **Flask-based HTTP server** for uDOS web interface
-- **WebSocket support** for real-time communication
-- **API endpoints** for system integration
-- **uSCRIPT venv integration** for isolated Python environment
-- **Error handling & logging** with comprehensive crash detection
+### Three Distinct Display Modes
 
-### Features
-- **Port**: Default 8080 (configurable via `USERVER_PORT`)
-- **Host**: 127.0.0.1 (configurable via `USERVER_HOST`)
-- **Static file serving** for uDOS web interface
-- **JSON API endpoints** for system status and commands
-- **Auto-restart capabilities** with loop detection
-- **Process management** with PID tracking
+**1. CLI Terminal (Always Available)**
+- **Purpose**: Direct system control, automation, core uDOS tasks
+- **Users**: All roles (GHOST, TOMB, DRONE+)
+- **Access**: `udos terminal`, `udos` commands
+- **Features**: Full terminal interface, scriptable, headless-friendly
+
+**2. Desktop Application (DRONE+ Roles)**
+- **Purpose**: Professional development interface with native window control
+- **Users**: DRONE+ roles (USER, DEV, WIZARD)
+- **Access**: `udos app` (via `./udos-display.sh app`)
+- **Features**: Native desktop app, system tray, window management, professional UI
+
+**3. Web Export (DRONE+ Roles)**
+- **Purpose**: Share uDOS state, remote viewing, presentations
+- **Users**: DRONE+ roles for sharing with others
+- **Access**: `udos export` (via `./udos-display.sh export`)
+- **Features**: Dashboard export, terminal session sharing, memory browser
 
 ## Directory Structure
 
 ```
 uNETWORK/
-├── server/                     # Current web server implementation
-│   ├── server.py              # Main Flask server (v1.3.3)
-│   ├── ui_server.py           # UI-specific server components
-│   ├── start-server.sh        # Server startup script with venv support
-│   ├── setup-check.py         # Environment validation
-│   ├── requirements.txt       # Python dependencies
-│   ├── config/                # Server configuration files
-│   ├── endpoints/             # API endpoint definitions
-│   ├── middleware/            # Request/response middleware
+├── display/                    # v1.4 Display System (NEW)
+│   ├── udos-display.sh        # Main display mode launcher
+│   ├── setup-display-system.sh # Setup script for all display modes
+│   ├── server/                # Backend server for desktop app and web export
+│   │   └── display-server.py  # Flask/SocketIO server with WebSocket support
+│   ├── static/                # Web assets (CSS, JS, images)
+│   │   ├── css/              # Polaroid-themed stylesheets
+│   │   └── js/               # Real-time dashboard and terminal JS
+│   ├── templates/             # HTML templates for web export
+│   │   ├── dashboard.html    # System status dashboard
+│   │   ├── terminal.html     # Terminal emulator interface
+│   │   └── memory.html       # uMEMORY browser interface
+│   ├── tauri-template/        # Native desktop app configuration
+│   │   ├── tauri.conf.json   # Tauri configuration
+│   │   ├── Cargo.toml        # Rust dependencies
+│   │   ├── main.rs           # Rust main process
+│   │   └── package.json      # Node.js build configuration
+│   └── README.md              # Display system documentation
+├── server/                     # Legacy web server (maintained for compatibility)
+│   ├── server.py              # Original Flask server
+│   ├── start-server.sh        # Legacy server startup
 │   └── README.md              # Server-specific documentation
-├── display/                    # Display & UI components (NEW v1.3.3)
-│   └── [Future development area]
 └── README.md                  # This file
 ```
 
-## Integration
+## Quick Start (v1.4)
 
-### uSCRIPT Virtual Environment
-uNETWORK services automatically integrate with the uSCRIPT virtual environment:
-
+### Check Display Mode Status
 ```bash
-# Server automatically uses uSCRIPT venv if available
-cd uNETWORK/server
-./start-server.sh
-
-# Setup uSCRIPT environment first (recommended)
-cd ../../uSCRIPT
-./setup-environment.sh
+./uNETWORK/display/udos-display.sh status
 ```
 
-### System Integration
-- **uCORE compatibility**: Integrates with uCORE error handling and system management
-- **uMEMORY access**: Can read system configuration and user data
-- **uSCRIPT execution**: Supports running scripts through network API calls
-- **Logging integration**: Uses uDOS logging infrastructure
-
-## Usage
-
-### Start Web Server
+### Use CLI Mode (Always Available)
 ```bash
-# From uNETWORK/server directory
-./start-server.sh
-
-# Or from uDOS root
-./uNETWORK/server/start-server.sh
+udos                    # Main uDOS interface
+udos terminal           # Force CLI mode
+./uNETWORK/display/udos-display.sh cli    # Show CLI information
 ```
 
-### Check Server Status
+### Setup Desktop Application
 ```bash
-# View server logs
-tail -f uNETWORK/server/server.log
+# Install dependencies (Node.js, Rust, Tauri)
+./uNETWORK/display/setup-display-system.sh setup
 
-# Check if server is running
-ps aux | grep "server.py"
+# Build the desktop app
+./uNETWORK/display/udos-display.sh build
 
-# Test connection
-curl http://localhost:8080/api/status
+# Launch desktop application
+./uNETWORK/display/udos-display.sh app
 ```
 
-### Stop Server
+### Use Web Export
 ```bash
-# From server directory
-pkill -f "server.py"
+# Export system dashboard
+./uNETWORK/display/udos-display.sh export dashboard --open
 
-# Or use the built-in stop functionality
-curl -X POST http://localhost:8080/api/shutdown
+# Share terminal session
+./uNETWORK/display/udos-display.sh export terminal
+
+# Browse uMEMORY via web
+./uNETWORK/display/udos-display.sh export memory --open
 ```
 
-## Future Development: Peer-to-Peer Network
+## Role-Based Access Control
+
+### CLI Terminal (All Roles)
+- **GHOST**: Minimal command-line access for basic operations
+- **TOMB**: Extended CLI for archive and recovery operations  
+- **USER**: Full CLI access for standard development work
+- **DEV**: Advanced CLI with development tools and debugging
+- **WIZARD**: Complete CLI access with system administration
+
+### Desktop Application (DRONE+ Only)
+- **USER**: Standard desktop interface with project management
+- **DEV**: Enhanced interface with debugging and profiling tools
+- **WIZARD**: Full administrative interface with system controls
+
+### Web Export (DRONE+ Only)
+- **USER**: Can export personal dashboards and session data
+- **DEV**: Can share development environments and debug sessions
+- **WIZARD**: Can export system status and administrative reports
+
+## Display System Philosophy
+
+### Simplicity First
+- **No complexity**: Each mode serves a distinct, clear purpose
+- **No fallbacks**: No confusing auto-detection or failure modes
+- **Right tool for the job**: CLI for control, Desktop for work, Web for sharing
+
+### Role-Appropriate Access
+- **GHOST/TOMB**: CLI-only for security and simplicity
+- **DRONE+**: All modes available based on needs
+- **Professional focus**: Desktop app provides native OS integration
+
+### Clear Mental Model
+- **Work Locally**: CLI (direct) or Desktop App (professional)
+- **Share Results**: Web Export (present to others)
+- **No Overlap**: Each mode optimized for its specific use case
+
+## Technical Architecture (v1.4)
+
+### Backend Server
+- **Flask + SocketIO**: Real-time web interface with WebSocket support
+- **Terminal sessions**: Browser-based terminal emulation with role permissions
+- **System monitoring**: CPU, memory, disk usage with live updates
+- **uMEMORY integration**: Browse and manage memory system via web
+- **API endpoints**: RESTful interface for system status and operations
+
+### Desktop Application (Tauri)
+- **Native WebView**: Platform-optimized rendering
+- **System tray**: Background operation with quick access
+- **Window management**: Professional desktop integration
+- **Process management**: Automatic backend server lifecycle
+- **Cross-platform**: macOS, Windows, Linux from single codebase
+
+### Web Export Engine
+- **Dashboard export**: System status as shareable web page
+- **Terminal sharing**: Live terminal sessions via web interface
+- **Memory browser**: uMEMORY navigation and visualization
+- **Presentation mode**: Clean interfaces for sharing with others
+
+### Integration Points
+- **UTF-8 foundation**: Consistent text rendering across all modes
+- **Polaroid colors**: Unified visual theme matching terminal interface
+- **Role system**: Integrated permission checking across all display modes
+- **uMEMORY persistence**: Display preferences saved to user memory
 
 ### Vision
 uNETWORK is designed to evolve into a comprehensive peer-to-peer networking system for uDOS instances, enabling:

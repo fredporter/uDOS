@@ -1,174 +1,285 @@
-# uNETWORK Display - Browser-UI System (v1.4)
+# uDOS v1.4 Display System
 
-**Modern web interface for uDOS with full terminal compatibility**
+**Three-mode display architecture: CLI Terminal, Desktop Application, and Web Export**
 
 ## Overview
-The uDOS Browser-UI system provides a modern web interface for interacting with uDOS. This system transforms the terminal-based experience into an intuitive browser interface while maintaining full compatibility with terminal workflows.
+The uDOS v1.4 Display System provides three distinct, purpose-driven interfaces for different use cases and user roles. Each mode is optimized for its specific purpose, with no complexity or fallback confusion.
 
-## v1.4 Browser-UI Structure
+## Three Display Modes
+
+### 1. CLI Terminal (Always Available)
+**Purpose**: Direct system control, automation, and core uDOS operations
+- **Users**: All roles (GHOST, TOMB, DRONE+)
+- **Access**: `udos`, `udos terminal`
+- **Features**: 
+  - Full terminal interface with Polaroid color theme
+  - Scriptable and automation-friendly
+  - Headless server compatible
+  - UTF-8 foundation with Unicode/ASCII fallback
+  - Role-based command availability
+
+### 2. Desktop Application (DRONE+ Roles)
+**Purpose**: Professional development interface with native OS integration
+- **Users**: DRONE+ roles (USER, DEV, WIZARD)
+- **Access**: `./udos-display.sh app`
+- **Features**:
+  - Native desktop application built with Tauri
+  - System tray integration for background operation
+  - Professional window management and sizing controls
+  - Real-time system monitoring dashboard
+  - Integrated terminal emulator with session management
+  - uMEMORY browser with visual navigation
+
+### 3. Web Export (DRONE+ Roles)  
+**Purpose**: Share uDOS state, create presentations, and enable remote viewing
+- **Users**: DRONE+ roles for sharing with others
+- **Access**: `./udos-display.sh export [type] [--open]`
+- **Features**:
+  - Dashboard export for system status sharing
+  - Terminal session sharing via web interface
+  - uMEMORY browser for remote memory exploration
+  - Clean presentation interfaces optimized for viewing
+  - Mobile-responsive design for universal access
+
+## Quick Start
+
+### Check System Status
+```bash
+./udos-display.sh status
+```
+Shows availability of each display mode and current user role.
+
+### Launch Desktop Application
+```bash
+# Setup dependencies (first time only)
+./setup-display-system.sh setup
+
+# Build the application (first time only)  
+./udos-display.sh build
+
+# Launch the desktop app
+./udos-display.sh app
+```
+
+### Export for Sharing
+```bash
+# Export system dashboard
+./udos-display.sh export dashboard --open
+
+# Share live terminal session
+./udos-display.sh export terminal
+
+# Browse memory via web interface
+./udos-display.sh export memory --open
+```
+
+### Get Help
+```bash
+./udos-display.sh help
+```
+Shows complete usage guide with examples.
+
+## Desktop Application Features
+
+### System Dashboard
+- **Real-time metrics**: CPU, memory, and disk usage with live updates
+- **uDOS status**: Active sessions, memory system status, version info
+- **Quick actions**: Launch terminal, browse memory, view logs
+- **Activity log**: Recent system activities and status changes
+
+### Terminal Emulator  
+- **Full terminal**: Interactive bash sessions with command history
+- **Role-based access**: Different capabilities based on user role
+- **Session management**: Multiple concurrent terminal sessions
+- **Quick commands**: Preset buttons for common operations
+- **Color themes**: Polaroid color scheme with customization options
+
+### Memory Browser
+- **Visual navigation**: Browse uMEMORY structure with file/folder interface
+- **File operations**: View, edit, and manage memory files
+- **Search capabilities**: Find content across memory system
+- **Role permissions**: Access control based on user role
+
+### System Tray Integration
+- **Background operation**: App runs in system tray when minimized
+- **Quick access**: Right-click menu for common operations
+- **Status indicator**: Visual indication of uDOS system health
+- **Native integration**: Platform-appropriate behavior on each OS
+
+## Web Export Capabilities
+
+### Dashboard Export
+Creates shareable web pages showing:
+- Current system status and metrics
+- Active processes and resource usage
+- uDOS configuration and role information
+- Recent activity and system logs
+
+### Terminal Session Sharing
+Provides web-based access to:
+- Live terminal sessions with real-time updates
+- Command history and session state
+- Read-only viewing for observers
+- Interactive access for authorized users
+
+### Memory Browser Web Interface
+Enables remote access to:
+- uMEMORY structure and content
+- File browsing with download capabilities
+- Search functionality across memory system
+- Role-based access control for remote users
+
+## Architecture Details
+
+### Backend Server (`server/display-server.py`)
+- **Flask + SocketIO**: Real-time web framework with WebSocket support
+- **Terminal sessions**: Managed subprocess execution with streaming output
+- **System monitoring**: Live metrics collection using psutil
+- **uMEMORY integration**: Direct access to memory system APIs
+- **Role management**: Permission checking for all operations
+
+### Frontend Assets (`static/` and `templates/`)
+- **Responsive CSS**: Mobile-first design with Polaroid color theme
+- **Real-time JavaScript**: WebSocket integration for live updates
+- **Terminal emulation**: Browser-based terminal with full feature support
+- **Dashboard components**: Modular widgets for system information
+
+### Native Application (`tauri-template/`)
+- **Tauri framework**: Rust backend with native WebView frontend
+- **Cross-platform**: Single codebase for macOS, Windows, and Linux
+- **System integration**: Native window management and tray support
+- **Process management**: Automatic backend server lifecycle control
+
+### Launcher Scripts
+- **udos-display.sh**: Main launcher with mode selection and help
+- **setup-display-system.sh**: Dependency installation and environment setup
+- **launch-display-server.sh**: Legacy browser-only launcher (maintained for compatibility)
+
+## Role-Based Permissions
+
+### GHOST Role
+- **CLI only**: Terminal interface access
+- **No display modes**: Desktop app and web export not available
+- **Basic operations**: Core uDOS functionality only
+
+### TOMB Role  
+- **CLI only**: Extended terminal access for archive operations
+- **No display modes**: Desktop app and web export not available
+- **Archive focus**: Recovery and backup operations
+
+### USER Role (DRONE+)
+- **All modes available**: CLI, desktop app, and web export
+- **Standard interface**: Full feature access appropriate for development work
+- **Project focus**: Personal workspace and project management
+
+### DEV Role (DRONE+)
+- **All modes available**: Enhanced interfaces with development tools
+- **Debug capabilities**: Advanced debugging and profiling features
+- **Enhanced export**: Development environment sharing capabilities
+
+### WIZARD Role (DRONE+)
+- **All modes available**: Administrative interfaces and system controls
+- **System management**: Full administrative access across all modes
+- **Advanced export**: System-wide status and administrative reporting
+
+## File Structure
+
 ```
 display/
-├── README.md           # This file
-├── ui_server.py        # Main UI server (existing)
-├──
-├── components/         # 🚀 NEW: UI Components
-│   ├── README.md       # Component system guide
-│   ├── terminal/       # Terminal interface components
-│   ├── dashboard/      # Dashboard components
-│   ├── memory/         # Memory viewer components
-│   └── role/           # Role-specific UI components
-├──
-├── assets/             # 🚀 NEW: Static Assets
-│   ├── css/            # Stylesheets
-│   ├── js/             # JavaScript modules
-│   ├── fonts/          # Typography
-│   └── icons/          # UI icons and graphics
-├──
-├── templates/          # 🚀 NEW: HTML Templates
-│   ├── base.html       # Base template
-│   ├── dashboard.html  # Main dashboard
-│   ├── terminal.html   # Terminal interface
-│   └── role/           # Role-specific templates
-├──
-├── api/                # 🚀 NEW: API Endpoints
-│   ├── README.md       # API documentation
-│   ├── terminal.py     # Terminal API
-│   ├── memory.py       # Memory API
-│   └── role.py         # Role management API
-├──
-└── static/             # 🚀 NEW: Generated Assets
-    ├── build/          # Built assets
-    └── dist/           # Distribution files
+├── udos-display.sh              # Main launcher script
+├── setup-display-system.sh     # Setup and installation script
+├── launch-display-server.sh    # Legacy browser launcher
+├── server/
+│   └── display-server.py       # Backend server with WebSocket support
+├── static/
+│   ├── css/
+│   │   ├── dashboard.css        # Dashboard styling with Polaroid theme
+│   │   └── terminal.css         # Terminal emulator styling
+│   └── js/
+│       ├── dashboard.js         # Real-time dashboard functionality
+│       └── terminal.js          # Terminal emulator with WebSocket
+├── templates/
+│   ├── dashboard.html           # System status dashboard template
+│   ├── terminal.html            # Terminal emulator interface
+│   └── memory.html              # uMEMORY browser template
+├── tauri-template/
+│   ├── tauri.conf.json          # Tauri application configuration
+│   ├── Cargo.toml               # Rust dependencies and build config
+│   ├── main.rs                  # Rust main process for desktop app
+│   └── package.json             # Node.js build configuration
+└── README.md                    # This file
 ```
 
-## Browser-UI Features (v1.4)
-- **Modern Web Interface** - Clean, responsive design
-- **Terminal Emulation** - Full terminal access in browser
-- **Role-Based UI** - Interface adapts to current role
-- **Memory Visualization** - Browse and search uMEMORY archives
-- **Session Management** - Visual session controls
-- **DEV Mode Integration** - Browser-UI for core system development
-- **Real-time Updates** - Live terminal and system updates
+## Development and Building
 
-## Development Integration
-- **Protected DEV Access** - Browser interface for `/dev/` (Wizard + DEV mode)
-- **Sandbox Workspace** - Visual interface for `/sandbox/` (all roles)
-- **uMEMORY Browser** - Graphical memory archive browsing
-- **Session Flow UI** - Visual session management and archiving
+### Prerequisites
+- **Python 3.8+**: For backend server
+- **Node.js 16+**: For Tauri build system
+- **Rust**: For native application compilation
+- **Platform tools**: Xcode (macOS), Visual Studio (Windows), build-essential (Linux)
 
-### Planned Components
+### Setup Development Environment
+```bash
+# Install all dependencies
+./setup-display-system.sh setup
 
-#### Display Engines
-- **HTML/CSS/JS renderers** for web interfaces
-- **Terminal emulation** for authentic retro computing experience
-- **Canvas-based graphics** for pixel-perfect displays
-- **WebGL acceleration** for advanced visual effects
-
-#### UI Widgets
-- **System status displays** with real-time updates
-- **Command input interfaces** with smart completion
-- **File browsers** for uMEMORY and system navigation
-- **Log viewers** with filtering and search capabilities
-
-#### Theming System
-- **BBC Mode 7 authentic themes** with proper fonts and colors
-- **Modern dark/light themes** for contemporary displays
-- **Custom theme support** with CSS variable integration
-- **Responsive breakpoints** for mobile and desktop
-
-### Integration Points
-
-#### uSCRIPT Integration
-- JavaScript components can utilize uSCRIPT virtual environment
-- Python rendering scripts for server-side display generation
-- Dynamic component loading from uSCRIPT library
-
-#### uMEMORY Integration
-- Access to color palettes and font definitions
-- Theme configuration from uDATA system files
-- User preference storage and retrieval
-
-#### uNETWORK Server Integration
-- WebSocket-based real-time updates
-- API endpoints for component data
-- Static file serving for display assets
-
-## Directory Structure (Planned)
-
-```
-display/
-├── components/              # Reusable UI components
-│   ├── terminal/           # Terminal emulation components
-│   ├── widgets/            # System monitoring widgets
-│   ├── forms/              # Input and form components
-│   └── navigation/         # Navigation and menu components
-├── themes/                 # Display themes and styling
-│   ├── bbc-mode7/          # Authentic BBC Mode 7 theme
-│   ├── modern-dark/        # Modern dark theme
-│   ├── modern-light/       # Modern light theme
-│   └── custom/             # Custom theme support
-├── engines/                # Rendering engines
-│   ├── html/               # HTML-based rendering
-│   ├── canvas/             # Canvas-based graphics
-│   └── terminal/           # Terminal-based rendering
-├── assets/                 # Static display assets
-│   ├── fonts/              # Web font files (linked to uMEMORY)
-│   ├── images/             # Icons and graphics
-│   └── styles/             # Base CSS and styling
-├── scripts/                # Display-related scripts
-│   ├── builders/           # Component builders
-│   ├── renderers/          # Content renderers
-│   └── utilities/          # Display utilities
-└── README.md               # This file
+# This installs:
+# - Node.js and npm
+# - Rust and Cargo
+# - Python dependencies (Flask, SocketIO, psutil)
+# - Tauri CLI tools
 ```
 
-## Development Status
+### Build Desktop Application
+```bash
+# Development build (faster, larger)
+./udos-display.sh dev
 
-### Current Phase: Foundation (v1.3.3)
-- 🔄 **Directory structure setup** - In progress
-- 📋 **Component architecture design** - Planning
-- 📋 **Theme system design** - Planning
-- 📋 **Integration specifications** - Planning
+# Production build (optimized, smaller)
+./udos-display.sh build
 
-### Next Phase: Core Components (v1.4.x)
-- 📋 **Terminal emulation component** - Planned
-- 📋 **Basic widget library** - Planned
-- 📋 **BBC Mode 7 theme implementation** - Planned
-- 📋 **WebSocket real-time updates** - Planned
+# Build creates platform-specific installers:
+# - macOS: .app bundle and .dmg installer
+# - Windows: .exe installer and .msi package  
+# - Linux: .AppImage portable and .deb package
+```
 
-### Future Phases
-- 📋 **Advanced theming system** - Future
-- 📋 **Mobile-responsive components** - Future
-- 📋 **Peer-to-peer display sharing** - Future
-- 📋 **Collaborative interface features** - Future
+### Testing
+```bash
+# Test CLI mode (always available)
+./udos-display.sh cli
 
-## Getting Started
+# Test web export without building desktop app
+./udos-display.sh export dashboard --open
 
-This directory is prepared for collaborative development. To begin working on display components:
+# Check system status
+./udos-display.sh status
+```
 
-1. **Review the architecture** outlined in this README
-2. **Check integration points** with existing uDOS modules
-3. **Start with basic components** before advanced features
-4. **Follow uDOS coding standards** and documentation practices
+## Integration with uDOS Core
 
-## Technical Requirements
+### UTF-8 Foundation
+- Integrates with `uSCRIPT/library/shell/ensure-utf8.sh`
+- Consistent text rendering across all display modes
+- Automatic locale detection and fallback handling
 
-### Dependencies
-- **Modern web browsers** with HTML5/CSS3/ES6 support
-- **WebSocket support** for real-time features
-- **Canvas API** for graphics rendering (optional)
-- **WebGL support** for advanced graphics (optional)
+### Polaroid Color System
+- Uses `uCORE/system/polaroid-colors.sh` for consistent theming
+- Terminal and web interfaces share color palette
+- Role-appropriate color coding for different interface elements
 
-### Integration Requirements
-- **uNETWORK server** for API and WebSocket endpoints
-- **uSCRIPT environment** for JavaScript/Python integration
-- **uMEMORY system** for configuration and theming data
-- **uCORE fonts** for authentic retro computing experience
+### uMEMORY Integration
+- Direct access to user and system memory
+- Display preferences persist in `uMEMORY/user/display-config.env`
+- Memory browser provides visual navigation of memory structure
 
-## Collaboration Notes
-
-This directory is ready for collaborative development work. The architecture is designed to be modular and extensible, allowing for parallel development of different components and themes.
+### Role System Integration
+- Automatic role detection and permission enforcement
+- Display mode availability based on user role
+- Consistent role-based feature access across all modes
 
 ---
 
-*Ready for collaborative development - Let's build amazing uDOS display experiences!*
+**Philosophy**: Three tools, three purposes. No complexity, no fallbacks - just the right interface for each job.
+
+*uDOS v1.4 Display System - Simple, powerful, role-appropriate interfaces*

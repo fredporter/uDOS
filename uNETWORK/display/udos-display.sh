@@ -14,9 +14,9 @@ source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
 # Mode functions
 launch_desktop_app() {
     polaroid_echo "cyan" "🖥️  Launching uDOS Desktop App..."
-    
+
     cd "$DISPLAY_DIR"
-    
+
     # Check if desktop app is built
     if [[ -f "src-tauri/target/release/udos-display" ]]; then
         ./src-tauri/target/release/udos-display
@@ -36,15 +36,15 @@ launch_desktop_app() {
 
 launch_web_export() {
     local export_type="${1:-dashboard}"
-    
+
     polaroid_echo "cyan" "🌐 Generating web export ($export_type)..."
-    
+
     # Start backend server for web export
     "$DISPLAY_DIR/launch-display-server.sh" start
-    
+
     # Wait for server to start
     sleep 2
-    
+
     case "$export_type" in
         "dashboard"|"status")
             polaroid_echo "lime" "✅ System dashboard available at: http://localhost:8080"
@@ -59,7 +59,7 @@ launch_web_export() {
             polaroid_echo "lime" "✅ Web interface available at: http://localhost:8080"
             ;;
     esac
-    
+
     # Optionally open browser for immediate viewing
     if [[ "${2:-}" == "--open" ]]; then
         if command -v open >/dev/null 2>&1; then
@@ -88,7 +88,7 @@ show_cli_info() {
 check_role_permissions() {
     local mode="$1"
     local current_role="${UDOS_USER_ROLE:-user}"
-    
+
     case "$mode" in
         "desktop"|"app")
             if [[ "$current_role" == "ghost" ]] || [[ "$current_role" == "tomb" ]]; then
@@ -112,7 +112,7 @@ check_role_permissions() {
 
 main() {
     local mode="${1:-help}"
-    
+
     case "$mode" in
         "app"|"desktop"|"gui")
             if check_role_permissions "desktop"; then
@@ -132,10 +132,10 @@ main() {
         "status"|"info")
             polaroid_echo "cyan" "🎯 uDOS v1.4 Display Modes Status"
             echo
-            
+
             # Check CLI availability
             polaroid_echo "lime" "✅ CLI Mode: Always available"
-            
+
             # Check Desktop App
             if [[ -f "$DISPLAY_DIR/src-tauri/target/release/udos-display" ]] || \
                [[ -f "$DISPLAY_DIR/src-tauri/target/debug/udos-display" ]]; then
@@ -143,14 +143,14 @@ main() {
             else
                 polaroid_echo "yellow" "⏳ Desktop App: Needs building"
             fi
-            
+
             # Check Web Export
             if [[ -f "$DISPLAY_DIR/server/display-server.py" ]]; then
                 polaroid_echo "lime" "✅ Web Export: Available"
             else
                 polaroid_echo "orange" "❌ Web Export: Not configured"
             fi
-            
+
             echo
             polaroid_echo "cyan" "Current role: ${UDOS_USER_ROLE:-user}"
             ;;
@@ -179,7 +179,7 @@ USAGE:
   $0 cli                      # Show CLI information
   $0 app                      # Launch desktop application
   $0 export [type] [--open]   # Generate web export
-  
+
   $0 status                   # Show mode availability
   $0 build                    # Build desktop application
   $0 help                     # Show this help
