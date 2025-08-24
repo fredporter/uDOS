@@ -379,7 +379,7 @@ udos
 # Desktop Application (DRONE+ roles only)
 ./uNETWORK/display/udos-display.sh app
 
-# Web Export for sharing (DRONE+ roles only) 
+# Web Export for sharing (DRONE+ roles only)
 ./uNETWORK/display/udos-display.sh export dashboard --open
 ```
 

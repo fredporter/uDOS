@@ -11,7 +11,7 @@ The uDOS v1.4 Display System provides three distinct, purpose-driven interfaces 
 **Purpose**: Direct system control, automation, and core uDOS operations
 - **Users**: All roles (GHOST, TOMB, DRONE+)
 - **Access**: `udos`, `udos terminal`
-- **Features**: 
+- **Features**:
   - Full terminal interface with Polaroid color theme
   - Scriptable and automation-friendly
   - Headless server compatible
@@ -30,7 +30,7 @@ The uDOS v1.4 Display System provides three distinct, purpose-driven interfaces 
   - Integrated terminal emulator with session management
   - uMEMORY browser with visual navigation
 
-### 3. Web Export (DRONE+ Roles)  
+### 3. Web Export (DRONE+ Roles)
 **Purpose**: Share uDOS state, create presentations, and enable remote viewing
 - **Users**: DRONE+ roles for sharing with others
 - **Access**: `./udos-display.sh export [type] [--open]`
@@ -54,7 +54,7 @@ Shows availability of each display mode and current user role.
 # Setup dependencies (first time only)
 ./setup-display-system.sh setup
 
-# Build the application (first time only)  
+# Build the application (first time only)
 ./udos-display.sh build
 
 # Launch the desktop app
@@ -87,7 +87,7 @@ Shows complete usage guide with examples.
 - **Quick actions**: Launch terminal, browse memory, view logs
 - **Activity log**: Recent system activities and status changes
 
-### Terminal Emulator  
+### Terminal Emulator
 - **Full terminal**: Interactive bash sessions with command history
 - **Role-based access**: Different capabilities based on user role
 - **Session management**: Multiple concurrent terminal sessions
@@ -162,7 +162,7 @@ Enables remote access to:
 - **No display modes**: Desktop app and web export not available
 - **Basic operations**: Core uDOS functionality only
 
-### TOMB Role  
+### TOMB Role
 - **CLI only**: Extended terminal access for archive operations
 - **No display modes**: Desktop app and web export not available
 - **Archive focus**: Recovery and backup operations
@@ -240,7 +240,7 @@ display/
 
 # Build creates platform-specific installers:
 # - macOS: .app bundle and .dmg installer
-# - Windows: .exe installer and .msi package  
+# - Windows: .exe installer and .msi package
 # - Linux: .AppImage portable and .deb package
 ```
 

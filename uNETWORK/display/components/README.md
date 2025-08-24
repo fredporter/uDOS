@@ -11,7 +11,7 @@ Frontend components for the uDOS v1.4 three-mode display system, supporting both
 - **Color System**: Polaroid color theme with tput integration
 - **Role Integration**: Command availability based on user permissions
 
-### 2. Desktop Application Components  
+### 2. Desktop Application Components
 **Purpose**: Native desktop app interface built with Tauri
 - **Dashboard Widgets**: Real-time system monitoring components
 - **Terminal Emulator**: Browser-based terminal with full feature support

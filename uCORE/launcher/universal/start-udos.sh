@@ -1,12 +1,13 @@
 #!/bin/bash
-# uDOS Universal Startup Script v1.3.2 - Enhanced CLI with Background Server
+# uDOS Universal Startup Script v1.4.0 - Enhanced CLI with Background Server
 # Keeps server running while providing interactive CLI with status and options
+# Supports three-mode display system: CLI Terminal, Desktop App, Web Export
 
 set -euo pipefail
 
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)}"
-export UDOS_VERSION="1.3.2"
+export UDOS_VERSION="1.4.0"
 export UDOS_UI_PORT="${UDOS_UI_PORT:-8080}"
 export UDOS_SERVER_PORT="${UDOS_SERVER_PORT:-8080}"
 
@@ -34,13 +35,18 @@ show_help() {
         exit 1
     fi
     echo ""
-    echo "Roles:"
-    echo "  ghost     - Level 10: Demo and evaluation"
-    echo "  tomb      - Level 20: Archive management"
-    echo "  drone     - Level 40: Task automation"
-    echo "  imp       - Level 60: Development tools"
-    echo "  sorcerer  - Level 80: Advanced user management"
-    echo "  wizard    - Level 100: Full system access (default)"
+    echo "Display Modes (v1.4):"
+    echo "  CLI Terminal     - Always available for all roles (this script)"
+    echo "  Desktop App      - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh app"
+    echo "  Web Export       - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh export"
+    echo ""
+    echo "Role Hierarchy (higher roles inherit all lower role capabilities):"
+    echo "  ghost     - Level 10: Demo and evaluation (CLI only)"
+    echo "  tomb      - Level 20: Archive management (CLI only)"
+    echo "  drone     - Level 40: Task automation (DRONE+ - all display modes)"
+    echo "  imp       - Level 60: Development tools (DRONE+ - inherits drone+)"
+    echo "  sorcerer  - Level 80: Advanced user management (DRONE+ - inherits imp+)"
+    echo "  wizard    - Level 100: Full system access (DRONE+ - inherits sorcerer+, default)"
     echo ""
     echo "Options:"
     echo "  --ui-mode      Launch with UI omniview"
@@ -62,21 +68,29 @@ show_help() {
 
 # Interactive mode prompt if no arguments
 if [[ $# -eq 0 ]]; then
-    echo -e "\033[1;36m🌀 uDOS Startup Mode\033[0m"
+    echo -e "\033[1;36m🌀 uDOS v1.4 Startup Mode\033[0m"
     echo "Choose your preferred launch mode:"
-    echo "  1) Modern UI (browser)"
-    echo "  2) Terminal CLI"
-    echo "  3) VS Code Dev Mode"
-    echo "  4) Exit"
-    read -p "Enter choice [1-4]: " mode_choice
+    echo "  1) CLI Terminal (always available)"
+    echo "  2) Desktop Application (DRONE+ roles)"
+    echo "  3) Web Export (sharing mode)"
+    echo "  4) VS Code Dev Mode"
+    echo "  5) Exit"
+    read -p "Enter choice [1-5]: " mode_choice
     case "$mode_choice" in
         1)
-            set -- --ui-mode
-            ;;
-        2)
             set -- wizard
             ;;
+        2)
+            echo -e "\033[1;33m💡 Desktop app requires uNETWORK display system\033[0m"
+            echo "   Falling back to CLI with UI mode..."
+            set -- --ui-mode
+            ;;
         3)
+            echo -e "\033[1;33m💡 Web export requires uNETWORK display system\033[0m"
+            echo "   Falling back to CLI with UI mode..."
+            set -- --ui-mode
+            ;;
+        4)
             set -- --vscode-dev
             ;;
         *)
@@ -143,33 +157,69 @@ configure_role() {
             export UDOS_ROLE_COLOR="$YELLOW"
             export UDOS_CAPABILITIES="archive,backup,restore"
             ;;
+        "ghost")
+            export UDOS_ACCESS_LEVEL=10
+            export UDOS_ROLE_NAME="Ghost"
+            export UDOS_ROLE_ICON="👻"
+            export UDOS_ROLE_COLOR="$CYAN"
+            export UDOS_CAPABILITIES="demo,docs"
+            export UDOS_DRONE_PLUS="false"
+            ;;
+        "tomb")
+            export UDOS_ACCESS_LEVEL=20
+            export UDOS_ROLE_NAME="Tomb"
+            export UDOS_ROLE_ICON="⚰️"
+            export UDOS_ROLE_COLOR="$YELLOW"
+            export UDOS_CAPABILITIES="archive,backup,restore"
+            export UDOS_DRONE_PLUS="false"
+            ;;
         "drone")
             export UDOS_ACCESS_LEVEL=40
             export UDOS_ROLE_NAME="Drone"
             export UDOS_ROLE_ICON="🤖"
             export UDOS_ROLE_COLOR="$BLUE"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
             ;;
         "imp")
             export UDOS_ACCESS_LEVEL=60
             export UDOS_ROLE_NAME="Imp"
             export UDOS_ROLE_ICON="👹"
             export UDOS_ROLE_COLOR="$RED"
-            export UDOS_CAPABILITIES="development,scripting,templates"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
             ;;
         "sorcerer")
             export UDOS_ACCESS_LEVEL=80
             export UDOS_ROLE_NAME="Sorcerer"
             export UDOS_ROLE_ICON="🔮"
             export UDOS_ROLE_COLOR="$PURPLE"
-            export UDOS_CAPABILITIES="advanced,management,administration"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,advanced,management,administration,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
             ;;
         "wizard")
             export UDOS_ACCESS_LEVEL=100
             export UDOS_ROLE_NAME="Wizard"
             export UDOS_ROLE_ICON="🧙‍♂️"
             export UDOS_ROLE_COLOR="$WHITE"
-            export UDOS_CAPABILITIES="full,development,git,administration"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,advanced,management,administration,full,git,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "user")
+            export UDOS_ACCESS_LEVEL=50
+            export UDOS_ROLE_NAME="User"
+            export UDOS_ROLE_ICON="👤"
+            export UDOS_ROLE_COLOR="$GREEN"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,personal,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "dev")
+            export UDOS_ACCESS_LEVEL=70
+            export UDOS_ROLE_NAME="Developer"
+            export UDOS_ROLE_ICON="👨‍💻"
+            export UDOS_ROLE_COLOR="$CYAN"
+            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,debugging,advanced,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
             ;;
         *)
             echo -e "${RED}❌ Unknown role: $ROLE${NC}"
@@ -189,7 +239,15 @@ show_role_banner() {
     echo "   ╚██████╔╝██████╔╝╚██████╔╝███████║"
     echo "    ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
     echo -e "${NC}"
-    echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
+    
+    if [[ "$UDOS_DRONE_PLUS" == "true" ]]; then
+        echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL - DRONE+)${NC}"
+        echo -e "${CYAN}✅ Desktop App & Web Export Available${NC}"
+    else
+        echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
+        echo -e "${YELLOW}⚠️  CLI Terminal Only${NC}"
+    fi
+    
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }

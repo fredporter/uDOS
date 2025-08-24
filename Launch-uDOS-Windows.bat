@@ -1,8 +1,8 @@
 @echo off
-REM 🌀 uDOS Windows Launcher v1.3.3
-REM Simple one-click launcher for Windows
+REM 🌀 uDOS Windows Launcher v1.4.0
+REM Three-mode display launcher for Windows: CLI Terminal, Desktop App, Web Export
 
-echo 🌀 Launching uDOS...
+echo 🌀 uDOS v1.4 - Windows Launcher
 
 REM Get the directory where this script is located
 set "UDOS_ROOT=%~dp0"
@@ -16,9 +16,108 @@ if not exist "%UDOS_ROOT%\uCORE\launcher\universal\start-udos.sh" (
     exit /b 1
 )
 
-echo ✅ Starting uDOS...
+echo.
+echo 🎯 uDOS v1.4 Display Modes:
+echo   1^) 🖥️  CLI Terminal ^(all roles^)
+echo   2^) 🪟 Desktop Application ^(DRONE+ roles: level 40+^)
+echo   3^) 🌐 Web Export ^(DRONE+ roles: level 40+^)
+echo   4^) 🧙‍♂️ VS Code Development
+echo.
+echo 💡 DRONE+ roles ^(40+^): Drone, Imp, Sorcerer, Wizard
+echo    Higher roles inherit all capabilities of lower roles
+echo.
 
-REM Check for Git Bash or WSL
+set /p mode_choice="Select mode [1-4]: "
+
+if "%mode_choice%"=="1" goto cli_mode
+if "%mode_choice%"=="2" goto desktop_mode
+if "%mode_choice%"=="3" goto web_export_mode
+if "%mode_choice%"=="4" goto vscode_mode
+goto cli_mode
+
+:cli_mode
+echo ✅ Starting CLI Terminal...
+goto launch_cli
+
+:desktop_mode
+echo 🪟 Launching Desktop Application...
+if exist "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" (
+    goto launch_desktop
+) else (
+    echo ❌ Desktop app not available - falling back to CLI
+    goto launch_cli
+)
+
+:web_export_mode
+echo 🌐 Starting Web Export...
+if exist "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" (
+    goto launch_web_export
+) else (
+    echo ❌ Web export not available - falling back to CLI with UI
+    goto launch_cli_ui
+)
+
+:vscode_mode
+echo 🧙‍♂️ Starting VS Code Development...
+if exist "%UDOS_ROOT%\uCORE\launcher\vscode\start-vscode-dev.sh" (
+    goto launch_vscode
+) else (
+    echo ❌ VS Code dev mode not available - falling back to CLI
+    goto launch_cli
+)
+
+:launch_desktop
+REM Check for Git Bash or WSL for desktop app
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" app
+) else if exist "C:\Windows\System32\bash.exe" (
+    bash.exe "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" app
+) else (
+    echo ❌ Desktop app requires Git Bash or WSL - falling back to CLI
+    goto launch_cli
+)
+goto end
+
+:launch_web_export
+REM Check for Git Bash or WSL for web export
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" export dashboard --open
+) else if exist "C:\Windows\System32\bash.exe" (
+    bash.exe "%UDOS_ROOT%\uNETWORK\display\udos-display.sh" export dashboard --open
+) else (
+    echo ❌ Web export requires Git Bash or WSL - falling back to CLI
+    goto launch_cli
+)
+goto end
+
+:launch_vscode
+REM Check for Git Bash or WSL for VS Code dev
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%UDOS_ROOT%\uCORE\launcher\vscode\start-vscode-dev.sh"
+) else if exist "C:\Windows\System32\bash.exe" (
+    bash.exe "%UDOS_ROOT%\uCORE\launcher\vscode\start-vscode-dev.sh"
+) else (
+    echo ❌ VS Code dev requires Git Bash or WSL - falling back to CLI
+    goto launch_cli
+)
+goto end
+
+:launch_cli_ui
+REM Launch CLI with UI mode
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%UDOS_ROOT%\uCORE\launcher\universal\start-udos.sh" --ui-mode
+) else if exist "C:\Windows\System32\bash.exe" (
+    bash.exe "%UDOS_ROOT%\uCORE\launcher\universal\start-udos.sh" --ui-mode
+) else (
+    echo ❌ Bash not found. Please install Git for Windows or WSL.
+    echo Download Git for Windows: https://git-scm.com/download/win
+    pause
+    exit /b 1
+)
+goto end
+
+:launch_cli
+REM Launch standard CLI
 if exist "C:\Program Files\Git\bin\bash.exe" (
     "C:\Program Files\Git\bin\bash.exe" "%UDOS_ROOT%\uCORE\launcher\universal\start-udos.sh"
 ) else if exist "C:\Windows\System32\bash.exe" (
@@ -29,3 +128,5 @@ if exist "C:\Program Files\Git\bin\bash.exe" (
     pause
     exit /b 1
 )
+
+:end

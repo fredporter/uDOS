@@ -99,7 +99,7 @@ udos terminal           # Force CLI mode
 
 ### CLI Terminal (All Roles)
 - **GHOST**: Minimal command-line access for basic operations
-- **TOMB**: Extended CLI for archive and recovery operations  
+- **TOMB**: Extended CLI for archive and recovery operations
 - **USER**: Full CLI access for standard development work
 - **DEV**: Advanced CLI with development tools and debugging
 - **WIZARD**: Complete CLI access with system administration
