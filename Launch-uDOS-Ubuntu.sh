@@ -99,8 +99,9 @@ echo "  2) 🪟 Desktop Application (DRONE+ roles: level 40+)"
 echo "  3) 🌐 Web Export (DRONE+ roles: level 40+)"
 echo "  4) 🧙‍♂️ VS Code Development"
 echo ""
-echo "💡 DRONE+ roles (40+): Drone, Imp, Sorcerer, Wizard"
+echo "💡 DRONE+ roles (40+): Drone, Knight, User, Imp, Dev, Sorcerer, Wizard"
 echo "   Higher roles inherit all capabilities of lower roles"
+echo "   Complete hierarchy: Ghost(10) → Tomb(20) → Crypt(30) → DRONE+(40+)"
 echo ""
 
 read -p "Select mode [1-4]: " mode_choice

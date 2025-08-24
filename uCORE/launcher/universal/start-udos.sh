@@ -43,9 +43,13 @@ show_help() {
     echo "Role Hierarchy (higher roles inherit all lower role capabilities):"
     echo "  ghost     - Level 10: Demo and evaluation (CLI only)"
     echo "  tomb      - Level 20: Archive management (CLI only)"
+    echo "  crypt     - Level 30: Security and encryption (CLI only)"
     echo "  drone     - Level 40: Task automation (DRONE+ - all display modes)"
-    echo "  imp       - Level 60: Development tools (DRONE+ - inherits drone+)"
-    echo "  sorcerer  - Level 80: Advanced user management (DRONE+ - inherits imp+)"
+    echo "  knight    - Level 50: Protection and defense (DRONE+ - inherits drone+)"
+    echo "  user      - Level 55: Personal workspace (DRONE+ - inherits knight+)"
+    echo "  imp       - Level 60: Development tools (DRONE+ - inherits user+)"
+    echo "  dev       - Level 70: Advanced development (DRONE+ - inherits imp+)"
+    echo "  sorcerer  - Level 80: User management (DRONE+ - inherits dev+)"
     echo "  wizard    - Level 100: Full system access (DRONE+ - inherits sorcerer+, default)"
     echo ""
     echo "Options:"
@@ -128,7 +132,7 @@ while [[ $# -gt 0 ]]; do
             show_help
             exit 0
             ;;
-        ghost|tomb|drone|imp|sorcerer|wizard)
+        ghost|tomb|crypt|drone|knight|imp|user|dev|sorcerer|wizard)
             ROLE="$1"
             shift
             ;;
@@ -149,20 +153,6 @@ configure_role() {
             export UDOS_ROLE_ICON="👻"
             export UDOS_ROLE_COLOR="$CYAN"
             export UDOS_CAPABILITIES="demo,docs"
-            ;;
-        "tomb")
-            export UDOS_ACCESS_LEVEL=20
-            export UDOS_ROLE_NAME="Tomb"
-            export UDOS_ROLE_ICON="⚰️"
-            export UDOS_ROLE_COLOR="$YELLOW"
-            export UDOS_CAPABILITIES="archive,backup,restore"
-            ;;
-        "ghost")
-            export UDOS_ACCESS_LEVEL=10
-            export UDOS_ROLE_NAME="Ghost"
-            export UDOS_ROLE_ICON="👻"
-            export UDOS_ROLE_COLOR="$CYAN"
-            export UDOS_CAPABILITIES="demo,docs"
             export UDOS_DRONE_PLUS="false"
             ;;
         "tomb")
@@ -171,6 +161,14 @@ configure_role() {
             export UDOS_ROLE_ICON="⚰️"
             export UDOS_ROLE_COLOR="$YELLOW"
             export UDOS_CAPABILITIES="archive,backup,restore"
+            export UDOS_DRONE_PLUS="false"
+            ;;
+        "crypt")
+            export UDOS_ACCESS_LEVEL=30
+            export UDOS_ROLE_NAME="Crypt"
+            export UDOS_ROLE_ICON="🔐"
+            export UDOS_ROLE_COLOR="$PURPLE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption"
             export UDOS_DRONE_PLUS="false"
             ;;
         "drone")
@@ -178,7 +176,23 @@ configure_role() {
             export UDOS_ROLE_NAME="Drone"
             export UDOS_ROLE_ICON="🤖"
             export UDOS_ROLE_COLOR="$BLUE"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks,display-desktop,display-export"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "knight")
+            export UDOS_ACCESS_LEVEL=50
+            export UDOS_ROLE_NAME="Knight"
+            export UDOS_ROLE_ICON="⚔️"
+            export UDOS_ROLE_COLOR="$WHITE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "user")
+            export UDOS_ACCESS_LEVEL=55
+            export UDOS_ROLE_NAME="User"
+            export UDOS_ROLE_ICON="�"
+            export UDOS_ROLE_COLOR="$GREEN"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,display-desktop,display-export"
             export UDOS_DRONE_PLUS="true"
             ;;
         "imp")
@@ -186,31 +200,7 @@ configure_role() {
             export UDOS_ROLE_NAME="Imp"
             export UDOS_ROLE_ICON="👹"
             export UDOS_ROLE_COLOR="$RED"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,display-desktop,display-export"
-            export UDOS_DRONE_PLUS="true"
-            ;;
-        "sorcerer")
-            export UDOS_ACCESS_LEVEL=80
-            export UDOS_ROLE_NAME="Sorcerer"
-            export UDOS_ROLE_ICON="🔮"
-            export UDOS_ROLE_COLOR="$PURPLE"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,advanced,management,administration,display-desktop,display-export"
-            export UDOS_DRONE_PLUS="true"
-            ;;
-        "wizard")
-            export UDOS_ACCESS_LEVEL=100
-            export UDOS_ROLE_NAME="Wizard"
-            export UDOS_ROLE_ICON="🧙‍♂️"
-            export UDOS_ROLE_COLOR="$WHITE"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,advanced,management,administration,full,git,display-desktop,display-export"
-            export UDOS_DRONE_PLUS="true"
-            ;;
-        "user")
-            export UDOS_ACCESS_LEVEL=50
-            export UDOS_ROLE_NAME="User"
-            export UDOS_ROLE_ICON="👤"
-            export UDOS_ROLE_COLOR="$GREEN"
-            export UDOS_CAPABILITIES="automation,monitoring,tasks,development,personal,display-desktop,display-export"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,display-desktop,display-export"
             export UDOS_DRONE_PLUS="true"
             ;;
         "dev")
@@ -218,6 +208,25 @@ configure_role() {
             export UDOS_ROLE_NAME="Developer"
             export UDOS_ROLE_ICON="👨‍💻"
             export UDOS_ROLE_COLOR="$CYAN"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "sorcerer")
+            export UDOS_ACCESS_LEVEL=80
+            export UDOS_ROLE_NAME="Sorcerer"
+            export UDOS_ROLE_ICON="�"
+            export UDOS_ROLE_COLOR="$PURPLE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,management,administration,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
+        "wizard")
+            export UDOS_ACCESS_LEVEL=100
+            export UDOS_ROLE_NAME="Wizard"
+            export UDOS_ROLE_ICON="🧙‍♂️"
+            export UDOS_ROLE_COLOR="$WHITE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,management,administration,full,git,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            ;;
             export UDOS_CAPABILITIES="automation,monitoring,tasks,development,scripting,templates,debugging,advanced,display-desktop,display-export"
             export UDOS_DRONE_PLUS="true"
             ;;
@@ -239,7 +248,7 @@ show_role_banner() {
     echo "   ╚██████╔╝██████╔╝╚██████╔╝███████║"
     echo "    ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
     echo -e "${NC}"
-    
+
     if [[ "$UDOS_DRONE_PLUS" == "true" ]]; then
         echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL - DRONE+)${NC}"
         echo -e "${CYAN}✅ Desktop App & Web Export Available${NC}"
@@ -247,7 +256,7 @@ show_role_banner() {
         echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
         echo -e "${YELLOW}⚠️  CLI Terminal Only${NC}"
     fi
-    
+
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }
