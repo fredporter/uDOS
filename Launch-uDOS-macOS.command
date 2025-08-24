@@ -36,14 +36,17 @@ fi
 # Show three-mode launch options
 echo ""
 echo "🎯 uDOS v1.4 Display Modes:"
-echo "  1) 🖥️  CLI Terminal (all roles)"
+echo "  1) 🖥️  CLI Terminal (all roles - uCORE)"
 echo "  2) 🪟 Desktop Application (DRONE+ roles: level 40+)"
 echo "  3) 🌐 Web Export (DRONE+ roles: level 40+)"
-echo "  4) 🧙‍♂️ VS Code Development"
+echo "  4) 🧙‍♂️ VS Code Development (Wizard only: level 100)"
 echo ""
-echo "💡 DRONE+ roles (40+): Drone, Knight, User, Imp, Dev, Sorcerer, Wizard"
-echo "   Higher roles inherit all capabilities of lower roles"
-echo "   Complete hierarchy: Ghost(10) → Tomb(20) → Crypt(30) → DRONE+(40+)"
+echo "💡 Feature Access by Role Level:"
+echo "   Ghost/Tomb (10-20): uCORE only"
+echo "   Crypt+ (30+): uCORE + uNETWORK + uSCRIPT"
+echo "   DRONE+ (40+): + Desktop App + Web Export"
+echo "   Sorcerer+ (80+): + Gemini-CLI"
+echo "   Wizard (100): + VS Code Dev Mode"
 echo ""
 
 read -p "Select mode [1-4]: " mode_choice

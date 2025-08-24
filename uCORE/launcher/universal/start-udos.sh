@@ -40,17 +40,25 @@ show_help() {
     echo "  Desktop App      - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh app"
     echo "  Web Export       - DRONE+ roles (40+): ./uNETWORK/display/udos-display.sh export"
     echo ""
-    echo "Role Hierarchy (higher roles inherit all lower role capabilities):"
-    echo "  ghost     - Level 10: Demo and evaluation (CLI only)"
-    echo "  tomb      - Level 20: Archive management (CLI only)"
-    echo "  crypt     - Level 30: Security and encryption (CLI only)"
-    echo "  drone     - Level 40: Task automation (DRONE+ - all display modes)"
-    echo "  knight    - Level 50: Protection and defense (DRONE+ - inherits drone+)"
-    echo "  user      - Level 55: Personal workspace (DRONE+ - inherits knight+)"
-    echo "  imp       - Level 60: Development tools (DRONE+ - inherits user+)"
-    echo "  dev       - Level 70: Advanced development (DRONE+ - inherits imp+)"
-    echo "  sorcerer  - Level 80: User management (DRONE+ - inherits dev+)"
-    echo "  wizard    - Level 100: Full system access (DRONE+ - inherits sorcerer+, default)"
+    echo "Role Hierarchy with Feature Access:"
+    echo "  ghost     - Level 10: Demo/evaluation (uCORE only)"
+    echo "  tomb      - Level 20: Archive management (uCORE only)"
+    echo "  crypt     - Level 30: Security/encryption (uCORE + uNETWORK + uSCRIPT)"
+    echo "  drone     - Level 40: Task automation (+ display modes - DRONE+)"
+    echo "  knight    - Level 50: Protection/defense (inherits drone+)"
+    echo "  user      - Level 55: Personal workspace (inherits knight+)"
+    echo "  imp       - Level 60: Development tools (inherits user+)"
+    echo "  dev       - Level 70: Advanced development (inherits imp+)"
+    echo "  sorcerer  - Level 80: User management (+ Gemini-CLI - inherits dev+)"
+    echo "  wizard    - Level 100: Full system access (+ VS Code dev - inherits sorcerer+)"
+    echo ""
+    echo "Feature Access Levels:"
+    echo "  uCORE only       - Ghost, Tomb (basic CLI)"
+    echo "  + uNETWORK       - Crypt+ (display system, networking)"
+    echo "  + uSCRIPT        - Crypt+ (scripting environment)"
+    echo "  + Display Modes  - DRONE+ (desktop app, web export)"
+    echo "  + Gemini-CLI     - Sorcerer+ (AI assistance)"
+    echo "  + VS Code Dev    - Wizard only (development environment)"
     echo ""
     echo "Options:"
     echo "  --ui-mode      Launch with UI omniview"
@@ -77,7 +85,7 @@ if [[ $# -eq 0 ]]; then
     echo "  1) CLI Terminal (always available)"
     echo "  2) Desktop Application (DRONE+ roles)"
     echo "  3) Web Export (sharing mode)"
-    echo "  4) VS Code Dev Mode"
+    echo "  4) VS Code Dev Mode (Wizard only)"
     echo "  5) Exit"
     read -p "Enter choice [1-5]: " mode_choice
     case "$mode_choice" in
@@ -85,16 +93,17 @@ if [[ $# -eq 0 ]]; then
             set -- wizard
             ;;
         2)
-            echo -e "\033[1;33m💡 Desktop app requires uNETWORK display system\033[0m"
-            echo "   Falling back to CLI with UI mode..."
+            echo -e "\033[1;33m💡 Desktop app requires DRONE+ role (40+)\033[0m"
+            echo "   Starting CLI mode with UI available..."
             set -- --ui-mode
             ;;
         3)
-            echo -e "\033[1;33m💡 Web export requires uNETWORK display system\033[0m"
-            echo "   Falling back to CLI with UI mode..."
+            echo -e "\033[1;33m💡 Web export requires DRONE+ role (40+)\033[0m"
+            echo "   Starting CLI mode with UI available..."
             set -- --ui-mode
             ;;
         4)
+            echo -e "\033[1;33m💡 VS Code dev mode requires Wizard role (100)\033[0m"
             set -- --vscode-dev
             ;;
         *)
@@ -152,8 +161,36 @@ configure_role() {
             export UDOS_ROLE_NAME="Ghost"
             export UDOS_ROLE_ICON="👻"
             export UDOS_ROLE_COLOR="$CYAN"
-            export UDOS_CAPABILITIES="demo,docs"
+            export UDOS_CAPABILITIES="demo,docs,ucore-only"
             export UDOS_DRONE_PLUS="false"
+            export UDOS_UNETWORK_ACCESS="false"
+            export UDOS_USCRIPT_ACCESS="false"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "tomb")
+            export UDOS_ACCESS_LEVEL=20
+            export UDOS_ROLE_NAME="Tomb"
+            export UDOS_ROLE_ICON="⚰️"
+            export UDOS_ROLE_COLOR="$YELLOW"
+            export UDOS_CAPABILITIES="archive,backup,restore,ucore-only"
+            export UDOS_DRONE_PLUS="false"
+            export UDOS_UNETWORK_ACCESS="false"
+            export UDOS_USCRIPT_ACCESS="false"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "crypt")
+            export UDOS_ACCESS_LEVEL=30
+            export UDOS_ROLE_NAME="Crypt"
+            export UDOS_ROLE_ICON="🔐"
+            export UDOS_ROLE_COLOR="$PURPLE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,ucore,unetwork,uscript"
+            export UDOS_DRONE_PLUS="false"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
             ;;
         "tomb")
             export UDOS_ACCESS_LEVEL=20
@@ -176,8 +213,84 @@ configure_role() {
             export UDOS_ROLE_NAME="Drone"
             export UDOS_ROLE_ICON="🤖"
             export UDOS_ROLE_COLOR="$BLUE"
-            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,display-desktop,display-export"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,ucore,unetwork,uscript,display-desktop,display-export"
             export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "knight")
+            export UDOS_ACCESS_LEVEL=50
+            export UDOS_ROLE_NAME="Knight"
+            export UDOS_ROLE_ICON="⚔️"
+            export UDOS_ROLE_COLOR="$WHITE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,ucore,unetwork,uscript,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "user")
+            export UDOS_ACCESS_LEVEL=55
+            export UDOS_ROLE_NAME="User"
+            export UDOS_ROLE_ICON="👤"
+            export UDOS_ROLE_COLOR="$GREEN"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,ucore,unetwork,uscript,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "imp")
+            export UDOS_ACCESS_LEVEL=60
+            export UDOS_ROLE_NAME="Imp"
+            export UDOS_ROLE_ICON="👹"
+            export UDOS_ROLE_COLOR="$RED"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,ucore,unetwork,uscript,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "dev")
+            export UDOS_ACCESS_LEVEL=70
+            export UDOS_ROLE_NAME="Developer"
+            export UDOS_ROLE_ICON="👨‍💻"
+            export UDOS_ROLE_COLOR="$CYAN"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,ucore,unetwork,uscript,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="false"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "sorcerer")
+            export UDOS_ACCESS_LEVEL=80
+            export UDOS_ROLE_NAME="Sorcerer"
+            export UDOS_ROLE_ICON="🔮"
+            export UDOS_ROLE_COLOR="$PURPLE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,management,administration,ucore,unetwork,uscript,gemini-cli,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="true"
+            export UDOS_VSCODE_ACCESS="false"
+            ;;
+        "wizard")
+            export UDOS_ACCESS_LEVEL=100
+            export UDOS_ROLE_NAME="Wizard"
+            export UDOS_ROLE_ICON="🧙‍♂️"
+            export UDOS_ROLE_COLOR="$WHITE"
+            export UDOS_CAPABILITIES="archive,backup,restore,security,encryption,automation,monitoring,tasks,protection,defense,development,personal,scripting,templates,debugging,advanced,management,administration,full,git,ucore,unetwork,uscript,gemini-cli,vscode-dev,display-desktop,display-export"
+            export UDOS_DRONE_PLUS="true"
+            export UDOS_UNETWORK_ACCESS="true"
+            export UDOS_USCRIPT_ACCESS="true"
+            export UDOS_GEMINI_ACCESS="true"
+            export UDOS_VSCODE_ACCESS="true"
             ;;
         "knight")
             export UDOS_ACCESS_LEVEL=50
@@ -248,20 +361,46 @@ show_role_banner() {
     echo "   ╚██████╔╝██████╔╝╚██████╔╝███████║"
     echo "    ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
     echo -e "${NC}"
-
-    if [[ "$UDOS_DRONE_PLUS" == "true" ]]; then
-        echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL - DRONE+)${NC}"
-        echo -e "${CYAN}✅ Desktop App & Web Export Available${NC}"
+    
+    echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
+    
+    # Show feature access
+    echo -e "${WHITE}Feature Access:${NC}"
+    echo -e "  ${GREEN}✅ uCORE${NC} (CLI Terminal)"
+    
+    if [[ "$UDOS_UNETWORK_ACCESS" == "true" ]]; then
+        echo -e "  ${GREEN}✅ uNETWORK${NC} (Networking & Display System)"
     else
-        echo -e "${UDOS_ROLE_COLOR}${UDOS_ROLE_ICON} ${UDOS_ROLE_NAME} Mode ${NC}${WHITE}(Level $UDOS_ACCESS_LEVEL)${NC}"
-        echo -e "${YELLOW}⚠️  CLI Terminal Only${NC}"
+        echo -e "  ${RED}❌ uNETWORK${NC} (uCORE only)"
     fi
-
+    
+    if [[ "$UDOS_USCRIPT_ACCESS" == "true" ]]; then
+        echo -e "  ${GREEN}✅ uSCRIPT${NC} (Scripting Environment)"
+    else
+        echo -e "  ${RED}❌ uSCRIPT${NC} (uCORE only)"
+    fi
+    
+    if [[ "$UDOS_DRONE_PLUS" == "true" ]]; then
+        echo -e "  ${GREEN}✅ Display Modes${NC} (Desktop App & Web Export)"
+    else
+        echo -e "  ${RED}❌ Display Modes${NC} (CLI Terminal only)"
+    fi
+    
+    if [[ "$UDOS_GEMINI_ACCESS" == "true" ]]; then
+        echo -e "  ${GREEN}✅ Gemini-CLI${NC} (AI Assistant)"
+    else
+        echo -e "  ${YELLOW}⚪ Gemini-CLI${NC} (Sorcerer+ only)"
+    fi
+    
+    if [[ "$UDOS_VSCODE_ACCESS" == "true" ]]; then
+        echo -e "  ${GREEN}✅ VS Code Dev${NC} (Development Environment)"
+    else
+        echo -e "  ${YELLOW}⚪ VS Code Dev${NC} (Wizard only)"
+    fi
+    
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-}
-
-# Start uNETWORK/server in background
+}# Start uNETWORK/server in background
 start_unetwork_server_background() {
     echo -e "${BLUE}🔧 Starting uNETWORK/server for $UDOS_ROLE_NAME...${NC}"
 
