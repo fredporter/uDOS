@@ -6,20 +6,18 @@
 # ════════════════════════════════════════════════════════════════
 # 🎯 uDOS DISTRIBUTION STRATEGY
 # ════════════════════════════════════════════════════════════════
-# ✅ Keep: Core system, installation types, shared resources, wizard dev tools
-# 🚫 Exclude: User content, personal data, session logs, sandbox activity
-# 🔄 Sync: Only Dev Mode changes to core system components
+# ✅ Keep: Core system, dev tools, sandbox framework
+# 🚫 Exclude: User content, personal data, session logs, backup files
+# 🔄 Sync: Only core system components, no user data
 
 # ════════════════════════════════════════════════════════════════
 # 🔒 USER CONTENT ISOLATION - NEVER IN DISTRIBUTION
 # ════════════════════════════════════════════════════════════════
 
-# � Top-level exclusions for user content and development
-/sandbox/
-/dev/
+# Complete exclusion - never sync to GitHub
 /backup/
 
-# �🔐 Level 1: uMEMORY - Personal Archive System (SELECTIVE EXCLUSION)
+# 🔐 Level 1: uMEMORY - Personal Archive System (SELECTIVE EXCLUSION)
 # Contains user missions, moves, memories, milestones, daily session data
 # EXCLUDE most uMEMORY content but INCLUDE system configuration templates
 uMEMORY/
@@ -27,8 +25,8 @@ uMEMORY/
 uMEMORY.backup/
 uMEMORY/*/
 
-# 🔐 Level 2: Sandbox - Active User Workspace (NEVER in repo)
-# Where most user activity occurs before archiving to uMEMORY
+# 🔐 Level 2: Sandbox - Active User Workspace (SELECTIVE EXCLUSION)
+# Keep core structure and READMEs, exclude user data
 sandbox/user.md
 sandbox/user/
 sandbox/experiments/personal/
@@ -41,6 +39,27 @@ sandbox/archived-tests/
 sandbox/personal/
 sandbox/**/*.working
 sandbox/**/*.tmp
+sandbox/logs/
+sandbox/session/
+sandbox/temp/
+sandbox/get/
+sandbox/workflow/
+sandbox/current-role.conf
+
+# 🛠️ Development Folder - User Data Exclusions
+# Keep core structure and READMEs, exclude user data and personal files
+dev/notes/
+dev/briefings/
+dev/roadmaps/
+dev/active/
+dev/sandbox/
+dev/config.json
+dev/.assist-mode
+dev/**/*.working
+dev/**/*.tmp
+dev/**/*.personal
+dev/**/*.user
+dev/**/*.log
 
 # ════════════════════════════════════════════════════════════════
 # 🏢 MULTI-INSTALLATION USER DATA ISOLATION
@@ -259,41 +278,6 @@ wizard/.dev-session-*
 *.uLOG
 
 # ════════════════════════════════════════════════════════════════
-# �️ EDITOR & IDE ARTIFACTS
-# ════════════════════════════════════════════════════════════════
-
-# VS Code personal settings and workspace
-.vscode/
-.env
-.env.local
-
-# Gemini CLI authentication
-.gemini/
-~/.gemini/
-
-# ════════════════════════════════════════════════════════════════
-# 📱 DISTRIBUTION ARTIFACTS (built locally)
-# ════════════════════════════════════════════════════════════════
-
-# Generated distribution packages
-release/
-dist-packages/
-uCORE/launcher/uDOS.app/Contents/
-uCORE/launcher/build/
-uCORE/launcher/*.dmg
-uCORE/launcher/uDOS_installation.log
-
-# Local user modifications and configs
-user.config
-local.settings
-*.user.md
-personal-*.md
-
-# Generated documentation exports
-exports/
-generated-docs/
-
-# ════════════════════════════════════════════════════════════════
 # 🧪 TESTING & DEVELOPMENT ENVIRONMENTS
 # ════════════════════════════════════════════════════════════════
 
@@ -364,15 +348,19 @@ trash/
 # ✅ wizard/utilities/ - System utilities for development
 # ✅ uKNOWLEDGE/ - Shared knowledge base system
 # ✅ uSCRIPT/ - Production script management system
-# ✅ sandbox/README.md - Workspace templates and task management framework
+# ✅ dev/ - Core development tools and scripts (no user data)
+# ✅ sandbox/ - Core framework and templates (no user data)
 # ✅ Core files: README.md, LICENSE, CHANGELOG.md, .gitignore
 # ✅ Shared workspace configuration: .vscode/extensions.json, workspace files
 
 # ════════════════════════════════════════════════════════════════
 # 🚫 uDOS v1.3 DISTRIBUTION EXCLUDES
 # ════════════════════════════════════════════════════════════════
+# 🚫 backup/ - Never synced to GitHub (completely local)
 # 🚫 uMEMORY/ - User personal archive (missions, moves, memories, milestones)
 # 🚫 sandbox/user* - Active user workspace and personal content
+# 🚫 sandbox/logs/, sandbox/session/, sandbox/workflow/ - User activity data
+# 🚫 dev/notes/, dev/briefings/, dev/config.json - User development data
 # 🚫 installations/*/user-* - Installation-specific user data
 # 🚫 wizard/personal/ - Personal development sessions
 # 🚫 shared/user-* - User-specific shared configurations
