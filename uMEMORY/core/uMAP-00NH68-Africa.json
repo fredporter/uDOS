@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "map_id": "00NH68",
+        "parent_map": "00",
+        "name": "Africa",
+        "description": "Detailed map of Africa with major cities and regions",
+        "type": "continental",
+        "created": "2025-08-20T21:12:00Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "zoom_level": 1
+    },
+    "bounds": {
+        "north": 37.0,
+        "south": -35.0,
+        "east": 51.0,
+        "west": -18.0
+    },
+    "major_cities": {
+        "00ON70-1m": {
+            "name": "Cairo",
+            "country": "Egypt",
+            "coordinates": [30.0444, 31.2357],
+            "submaps": ["02CAI"]
+        },
+        "00NH69-1m": {
+            "name": "Johannesburg",
+            "country": "South Africa",
+            "coordinates": [-26.2041, 28.0473],
+            "submaps": ["02JHB"]
+        }
+    },
+    "regions": {
+        "north_africa": {
+            "bounds": {"north": 37.0, "south": 15.0, "east": 51.0, "west": -18.0},
+            "major_cities": ["00ON70-1m"],
+            "submaps": ["02NAF"]
+        },
+        "west_africa": {
+            "bounds": {"north": 20.0, "south": 4.0, "east": 15.0, "west": -18.0},
+            "submaps": ["02WAF"]
+        },
+        "east_africa": {
+            "bounds": {"north": 18.0, "south": -12.0, "east": 51.0, "west": 22.0},
+            "submaps": ["02EAF"]
+        },
+        "central_africa": {
+            "bounds": {"north": 10.0, "south": -13.0, "east": 30.0, "west": 7.0},
+            "submaps": ["02CAF"]
+        },
+        "southern_africa": {
+            "bounds": {"north": -8.0, "south": -35.0, "east": 33.0, "west": 11.0},
+            "major_cities": ["00NH69-1m"],
+            "submaps": ["02SAF"]
+        }
+    },
+    "submap_links": {
+        "02CAI": "Cairo metropolitan area",
+        "02JHB": "Johannesburg metropolitan area",
+        "02NAF": "North Africa detailed map",
+        "02WAF": "West Africa detailed map",
+        "02EAF": "East Africa detailed map",
+        "02CAF": "Central Africa detailed map",
+        "02SAF": "Southern Africa detailed map"
+    },
+    "navigation": {
+        "parent": "00",
+        "zoom_in": ["02CAI", "02JHB"],
+        "adjacent": ["01EU", "01AS", "01SA"]
+    }
+}

@@ -1,0 +1,203 @@
+{
+  "metadata": {
+    "name": "Map Terrain and Symbol System", 
+    "description": "ASCII-based mapping symbols and terrain definitions for uDOS cartography",
+    "version": "1.0.0",
+    "created": "2025-07-13",
+    "updated": "2025-07-13",
+    "records": 15,
+    "format": "uDOS terrain symbol dataset",
+    "map_resolution": "120x60",
+    "coordinate_system": "tile_based",
+    "fields": ["symbol", "terrain_type", "description", "usage", "examples", "priority"]
+  },
+  "schema": {
+    "symbol": {
+      "type": "string",
+      "description": "Unicode emoji symbol for terrain",
+      "required": true
+    },
+    "terrain_type": {
+      "type": "string", 
+      "description": "Classification of terrain type",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of terrain representation"
+    },
+    "usage": {
+      "type": "string",
+      "description": "Guidelines for using this terrain symbol"
+    },
+    "examples": {
+      "type": "array",
+      "description": "Example locations where this terrain appears"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "Display priority when multiple terrains overlap (higher wins)",
+      "range": [1, 10]
+    }
+  },
+  "coordinate_system": {
+    "tile_format": "XY##",
+    "description": "Each tile coordinate uses 2 letters (A-Z) + 2 digits (01-60)",
+    "coverage": "Each base cell represents 3° latitude × 3° longitude",
+    "example": "F18 represents coastal France area",
+    "sub_tiles": "F18:zz for zoom detail, F18:zz:xy for deep detail"
+  },
+  "map_specifications": {
+    "base_resolution": "120×60",
+    "world_coverage": "Complete global representation",
+    "zoom_levels": ["base", "regional", "detailed"],
+    "format": "Markdown-safe ASCII with emoji terrain",
+    "rendering": "Fixed-width UTF-8 compatible"
+  },
+  "data": [
+    {
+      "symbol": "🟦",
+      "terrain_type": "ocean_sea",
+      "description": "Ocean or sea surface, also used for Markdown layout-safe water representation",
+      "usage": "Default background for water areas, preserves grid layout",
+      "examples": ["Pacific Ocean", "Atlantic Ocean", "Mediterranean Sea"],
+      "priority": 1
+    },
+    {
+      "symbol": "🟫", 
+      "terrain_type": "continental_land",
+      "description": "Continental landmass, basic land representation",
+      "usage": "Default land terrain when no specific biome applies",
+      "examples": ["Generic landmass", "Mixed terrain areas"],
+      "priority": 2
+    },
+    {
+      "symbol": "🟩",
+      "terrain_type": "lowland_plains",
+      "description": "Lowland plains and grasslands",
+      "usage": "Flat, fertile agricultural areas and grasslands", 
+      "examples": ["Great Plains", "Pampas", "European Plains"],
+      "priority": 3
+    },
+    {
+      "symbol": "🟨",
+      "terrain_type": "dry_arid",
+      "description": "Dry/arid zones including semi-desert and dry edges",
+      "usage": "Semi-arid regions, desert edges, dry climate zones",
+      "examples": ["Sahara edges", "Australian Outback edges", "Great Basin"],
+      "priority": 4
+    },
+    {
+      "symbol": "🟧",
+      "terrain_type": "desert",
+      "description": "Full desert terrain, particularly Australian desert/land",
+      "usage": "Major desert regions, extreme arid areas",
+      "examples": ["Australian Outback", "Sahara Desert", "Arabian Desert"],
+      "priority": 5
+    },
+    {
+      "symbol": "🌲",
+      "terrain_type": "temperate_forest",
+      "description": "Temperate forest and woodland",
+      "usage": "Deciduous and mixed forests in temperate climates",
+      "examples": ["European forests", "North American deciduous", "Taiga edges"],
+      "priority": 6
+    },
+    {
+      "symbol": "🌳",
+      "terrain_type": "tropical_forest",
+      "description": "Tropical forest and jungle regions",
+      "usage": "Dense tropical rainforests and jungle areas",
+      "examples": ["Amazon rainforest", "Congo Basin", "Southeast Asian jungles"],
+      "priority": 7
+    },
+    {
+      "symbol": "⛰️",
+      "terrain_type": "mountains_highlands",
+      "description": "Mountains, highlands, and elevated terrain",
+      "usage": "Mountain ranges, hills, elevated geographic features",
+      "examples": ["Himalayas", "Andes", "Alps", "Rocky Mountains"],
+      "priority": 8
+    },
+    {
+      "symbol": "🏝️",
+      "terrain_type": "island",
+      "description": "Islands at medium to large scale",
+      "usage": "Significant islands visible at map resolution",
+      "examples": ["Madagascar", "New Zealand", "British Isles", "Japan"],
+      "priority": 9
+    },
+    {
+      "symbol": "🏙️",
+      "terrain_type": "major_city",
+      "description": "Major metropolitan areas and city cores",
+      "usage": "Cities and urban centers override terrain symbols",
+      "examples": ["New York", "Tokyo", "London", "Shanghai"],
+      "priority": 10
+    },
+    {
+      "symbol": "✈️",
+      "terrain_type": "airport",
+      "description": "Major international airports",
+      "usage": "Significant aviation hubs and international airports",
+      "examples": ["Heathrow", "JFK", "Dubai International"],
+      "priority": 9
+    },
+    {
+      "symbol": "🗿",
+      "terrain_type": "wonder_moai",
+      "description": "Easter Island Moai (Seven Wonders)",
+      "usage": "Represents Easter Island and its famous statues",
+      "examples": ["Easter Island"],
+      "priority": 10
+    },
+    {
+      "symbol": "🕌",
+      "terrain_type": "wonder_taj",
+      "description": "Taj Mahal (Seven Wonders)",
+      "usage": "Represents the Taj Mahal in India",
+      "examples": ["Agra, India"],
+      "priority": 10
+    },
+    {
+      "symbol": "🧱",
+      "terrain_type": "wonder_wall",
+      "description": "Great Wall of China (Seven Wonders)",
+      "usage": "Represents the Great Wall of China",
+      "examples": ["Northern China"],
+      "priority": 10
+    },
+    {
+      "symbol": "🎭",
+      "terrain_type": "wonder_colosseum",
+      "description": "Roman Colosseum (Seven Wonders)",
+      "usage": "Represents the Colosseum in Rome",
+      "examples": ["Rome, Italy"],
+      "priority": 10
+    }
+  ],
+  "rendering_rules": {
+    "priority_system": "Higher priority symbols override lower priority in same tile",
+    "city_override": "Cities and wonders always override terrain",
+    "water_default": "🟦 used as background for layout preservation",
+    "single_symbol": "Each tile displays only one symbol",
+    "markdown_safe": "All symbols must render correctly in markdown viewers"
+  },
+  "additional_wonders": [
+    {
+      "symbol": "🏞️",
+      "name": "Grand Canyon",
+      "location": "Arizona, USA"
+    },
+    {
+      "symbol": "🗽", 
+      "name": "Statue of Liberty",
+      "location": "New York, USA"
+    },
+    {
+      "symbol": "⛰️",
+      "name": "Machu Picchu", 
+      "location": "Peru"
+    }
+  ]
+}

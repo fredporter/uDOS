@@ -166,7 +166,7 @@ show_role_selection() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo -e "${CYAN}NEW in v1.4: Multi-role installation system${NC}"
-    echo "You can install multiple roles. Each role is installed separately in ROLE/ folder."
+    echo "You can install multiple roles. Each role is installed separately in uMEMORY/role/ folder."
     echo ""
 
     echo -e "  ${GREEN}[1]${NC} 👻 ${CYAN}Ghost${NC} (Level 10) - Demo & Evaluation"
@@ -303,20 +303,20 @@ install_selected_roles() {
         echo -e "${CYAN}Installing ${role} role...${NC}"
 
         # Create role directory structure
-        mkdir -p "ROLE/$role"/{config,data,projects,logs}
+        mkdir -p "uMEMORY/role/$role"/{config,data,projects,logs}
 
         # Run role-specific installer if it exists
         local role_installer="uCORE/distribution/$role/install.sh"
         if [[ -f "$role_installer" ]]; then
             echo -e "${BLUE}  🔧 Running $role installer...${NC}"
-            bash "$role_installer" "ROLE/$role"
+            bash "$role_installer" "uMEMORY/role/$role"
         else
             echo -e "${YELLOW}  ⚠️  No specific installer for $role role${NC}"
             echo -e "${BLUE}  📁 Created basic role structure${NC}"
         fi
 
         # Set up role configuration
-        cat > "ROLE/$role/config/role.conf" << EOF
+        cat > "uMEMORY/role/$role/config/role.conf" << EOF
 # uDOS Role Configuration
 ROLE_NAME="$role"
 ROLE_LEVEL=$(case "$role" in
@@ -335,7 +335,7 @@ EOF
     done
 
     echo ""
-    echo -e "${GREEN}✅ All roles installed in ROLE/ directory${NC}"
+    echo -e "${GREEN}✅ All roles installed in uMEMORY/role/ directory${NC}"
 }
 
 setup_user_directories() {
@@ -398,10 +398,10 @@ UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$UDOS_ROOT"
 
 # Show role selection if multiple roles installed
-if [[ $(ls ROLE/ 2>/dev/null | wc -l) -gt 1 ]]; then
+if [[ $(ls uMEMORY/role/ 2>/dev/null | wc -l) -gt 1 ]]; then
     echo "Multiple roles installed. Select role to launch:"
     echo ""
-    select role in $(ls ROLE/ 2>/dev/null) "System Menu"; do
+    select role in $(ls uMEMORY/role/ 2>/dev/null) "System Menu"; do
         case "$role" in
             "System Menu")
                 exec ./uCORE/launcher/universal/start-udos.sh
@@ -410,7 +410,7 @@ if [[ $(ls ROLE/ 2>/dev/null | wc -l) -gt 1 ]]; then
                 echo "Invalid selection"
                 ;;
             *)
-                if [[ -d "ROLE/$role" ]]; then
+                if [[ -d "uMEMORY/role/$role" ]]; then
                     export UDOS_ACTIVE_ROLE="$role"
                     exec ./uCORE/launcher/universal/start-udos.sh
                 else
@@ -480,7 +480,7 @@ show_installation_summary() {
     echo ""
 
     echo -e "${WHITE}Directory Structure:${NC}"
-    echo -e "  ${CYAN}ROLE/${NC} - Role installations ($(ls ROLE/ 2>/dev/null | wc -l) roles)"
+    echo -e "  ${CYAN}uMEMORY/role/${NC} - Role installations ($(ls uMEMORY/role/ 2>/dev/null | wc -l) roles)"
     echo -e "  ${CYAN}USER/${NC} - Your personal data & configurations"
     echo -e "  ${CYAN}BACKUP/${NC} - Centralized backup system"
     echo -e "  ${CYAN}Core System${NC} - uCORE/, docs/, dev/, sandbox/"
@@ -514,7 +514,7 @@ show_installation_summary() {
     echo -e "  ${GREEN}✅${NC} Personal data preserved locally"
     echo ""
 
-    echo -e "${CYAN}💡 Your personal data stays in USER/ and ROLE/ folders${NC}"
+    echo -e "${CYAN}💡 Your personal data stays in uMEMORY/user/ and uMEMORY/role/ folders${NC}"
     echo -e "${CYAN}💡 Updates only affect core system, preserving your data${NC}"
     echo ""
 }

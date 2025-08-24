@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "tile_id": "00OQ72-1m",
+        "map_id": "00",
+        "coordinates": {
+            "latitude": 55.7558,
+            "longitude": 37.6176,
+            "depth": "1m"
+        },
+        "bounds": {
+    "north": 57.255800,
+    "south": 54.255800,
+    "east": 39.117600,
+    "west": 36.117600,
+    "center": {
+        "latitude": 55.7558,
+        "longitude": 37.6176
+    }
+},
+        "type": "capital",
+        "description": "Moscow, Russia",
+        "created": "2025-08-20T12:27:53Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "projection": "mercator"
+    },
+    "geography": {
+    "hemispheres": {
+        "north_south": "Northern",
+        "east_west": "Eastern"
+    },
+    "continent": "Europe",
+    "ocean_basin": "Indian Ocean",
+    "climate_zone": "Continental",
+    "timezone_estimate": "UTC+3",
+    "elevation_estimate": "sea_level",
+    "terrain_type": "unknown",
+    "population_density": "unknown",
+    "land_use": "unknown"
+},
+    "layers": {
+        "surface": {
+            "enabled": true,
+            "opacity": 1.0,
+            "data_sources": [],
+            "features": []
+        },
+        "subsurface": {
+            "enabled": false,
+            "depth_range": "1m-1m",
+            "data_sources": [],
+            "features": []
+        }
+    },
+    "temporal": {
+        "created": "2025-08-20T12:27:53Z",
+        "modified": "2025-08-20T12:27:53Z",
+        "accessed": "2025-08-20T12:27:53Z",
+        "version_history": []
+    },
+    "access_control": {
+        "read": ["dev", "wizard", "sorcerer", "ghost", "imp"],
+        "write": ["dev", "wizard"],
+        "create_derived": ["wizard", "sorcerer"]
+    },
+    "extensions": {
+        "custom_properties": {},
+        "external_links": [],
+        "related_tiles": []
+    }
+}

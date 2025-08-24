@@ -117,99 +117,66 @@ analyze_current_structure() {
 }
 
 create_new_structure() {
-    echo -e "${BLUE}🏗️  Creating new directory structure...${NC}"
-
-    # Create main isolation directories
-    mkdir -p ROLE/wizard
-    mkdir -p ROLE/sorcerer
-    mkdir -p ROLE/imp
-    mkdir -p ROLE/drone
-    mkdir -p ROLE/tomb
-    mkdir -p ROLE/ghost
-
-    mkdir -p USER/memory/{missions,moves,milestones,sessions}
-    mkdir -p USER/sandbox/{experiments,projects,logs,temp}
-    mkdir -p USER/dev/{notes,briefings,roadmaps,config}
-    mkdir -p USER/extensions
-
-    mkdir -p BACKUP/{daily,weekly,migrations,role-configs,user-data,system}
-
-    echo -e "${GREEN}✅ Directory structure created${NC}"
+    echo_header "🏗️  Creating v1.4 directory structure"
+    
+    # Create main directories under uMEMORY
+    mkdir -p uMEMORY/role/wizard uMEMORY/role/sorcerer uMEMORY/role/imp uMEMORY/role/drone uMEMORY/role/tomb uMEMORY/role/ghost
+    mkdir -p uMEMORY/user/dev uMEMORY/user/memory uMEMORY/user/sandbox uMEMORY/user/extensions
+    mkdir -p BACKUP
+    
+    echo_success "✅ Directory structure created"
 }
 
 migrate_user_data() {
-    echo -e "${BLUE}👤 Migrating user data...${NC}"
-
-    # Migrate dev user data
-    if [[ -d "dev/notes" ]]; then
-        echo "  📝 Moving dev/notes/ → USER/dev/notes/"
-        [[ "$DRY_RUN" == "false" ]] && mv dev/notes/* USER/dev/notes/ 2>/dev/null || true
+    echo_header "👤 Migrating user data"
+    
+    # Migrate user development files
+    if [ -d "dev" ]; then
+        echo_info "� Moving dev/ to uMEMORY/user/dev/"
+        cp -r dev/* uMEMORY/user/dev/ 2>/dev/null || true
     fi
-
-    if [[ -d "dev/briefings" ]]; then
-        echo "  📋 Moving dev/briefings/ → USER/dev/briefings/"
-        [[ "$DRY_RUN" == "false" ]] && mv dev/briefings/* USER/dev/briefings/ 2>/dev/null || true
+    
+    # Migrate user sandbox
+    if [ -d "sandbox" ]; then
+        echo_info "🏖️  Moving sandbox/ to uMEMORY/user/sandbox/"
+        cp -r sandbox/* uMEMORY/user/sandbox/ 2>/dev/null || true
     fi
-
-    if [[ -d "dev/roadmaps" ]]; then
-        echo "  🗺️  Moving dev/roadmaps/ → USER/dev/roadmaps/"
-        [[ "$DRY_RUN" == "false" ]] && mv dev/roadmaps/* USER/dev/roadmaps/ 2>/dev/null || true
+    
+    # Migrate user extensions
+    if [ -d "USER/extensions" ]; then
+        echo_info "� Moving USER/extensions/ to uMEMORY/user/extensions/"
+        cp -r USER/extensions/* uMEMORY/user/extensions/ 2>/dev/null || true
     fi
-
-    if [[ -f "dev/config.json" ]]; then
-        echo "  ⚙️  Moving dev/config.json → USER/dev/config/"
-        [[ "$DRY_RUN" == "false" ]] && mv dev/config.json USER/dev/config/
-    fi
-
-    # Migrate sandbox user data
-    if [[ -d "sandbox/logs" ]]; then
-        echo "  📊 Moving sandbox/logs/ → USER/sandbox/logs/"
-        [[ "$DRY_RUN" == "false" ]] && mv sandbox/logs/* USER/sandbox/logs/ 2>/dev/null || true
-    fi
-
-    if [[ -d "sandbox/session" ]]; then
-        echo "  📅 Moving sandbox/session/ → USER/sandbox/logs/"
-        [[ "$DRY_RUN" == "false" ]] && mv sandbox/session/* USER/sandbox/logs/ 2>/dev/null || true
-    fi
-
-    if [[ -d "sandbox/workflow" ]]; then
-        echo "  🔄 Moving sandbox/workflow/ → USER/sandbox/projects/"
-        [[ "$DRY_RUN" == "false" ]] && mv sandbox/workflow/* USER/sandbox/projects/ 2>/dev/null || true
-    fi
-
-    # Migrate uMEMORY user data
-    if [[ -d "uMEMORY/user" ]]; then
-        echo "  💭 Moving uMEMORY/user/ → USER/memory/"
-        [[ "$DRY_RUN" == "false" ]] && cp -r uMEMORY/user/* USER/memory/ 2>/dev/null || true
-    fi
-
-    echo -e "${GREEN}✅ User data migration complete${NC}"
+    
+    # Migrate user memory files
+    find . -name "*user*" -o -name "*session*" -o -name "*memory*" | grep -v uMEMORY | while read file; do
+        if [ -f "$file" ]; then
+            echo_info "🧠 Moving memory file: $(basename "$file")"
+            cp "$file" uMEMORY/user/memory/ 2>/dev/null || true
+        fi
+    done
+    
+    echo_success "✅ User data migration complete"
 }
 
 migrate_role_data() {
-    echo -e "${BLUE}🎭 Migrating role data...${NC}"
-
-    # Migrate wizard role data if exists
-    if [[ -d "wizard" && ! -d "wizard/notes" ]]; then  # Exclude distribution wizard/notes
-        echo "  🧙‍♂️ Moving wizard/ → ROLE/wizard/"
-        [[ "$DRY_RUN" == "false" ]] && cp -r wizard/* ROLE/wizard/ 2>/dev/null || true
+    echo_header "🎭 Migrating role data"
+    
+    # Migrate wizard data
+    if [ -d "wizard" ]; then
+        echo_info "🧙 Moving wizard/ to uMEMORY/role/wizard/"
+        cp -r wizard/* uMEMORY/role/wizard/ 2>/dev/null || true
     fi
-
-    # Migrate uMEMORY role data
-    if [[ -d "uMEMORY/role" ]]; then
-        echo "  🎭 Moving uMEMORY/role/ → ROLE/*/memory/"
-        [[ "$DRY_RUN" == "false" ]] && {
-            for role_dir in uMEMORY/role/*/; do
-                if [[ -d "$role_dir" ]]; then
-                    role_name=$(basename "$role_dir")
-                    mkdir -p "ROLE/$role_name/memory"
-                    cp -r "$role_dir"* "ROLE/$role_name/memory/" 2>/dev/null || true
-                fi
-            done
-        }
-    fi
-
-    echo -e "${GREEN}✅ Role data migration complete${NC}"
+    
+    # Migrate other role directories if they exist
+    for role in sorcerer imp drone tomb ghost; do
+        if [ -d "$role" ]; then
+            echo_info "🎭 Moving $role/ to uMEMORY/role/$role/"
+            cp -r "$role"/* "uMEMORY/role/$role/" 2>/dev/null || true
+        fi
+    done
+    
+    echo_success "✅ Role data migration complete"
 }
 
 migrate_backup_data() {

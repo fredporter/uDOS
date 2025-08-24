@@ -1,0 +1,130 @@
+{
+    "metadata": {
+        "map_id": "00EN20",
+        "parent_map": "00US01",
+        "tile_id": "00EN20-1m",
+        "name": "Los Angeles Metropolitan Area",
+        "description": "Greater Los Angeles metropolitan area including LA County and surrounding regions",
+        "type": "metropolitan",
+        "created": "2025-08-20T21:12:00Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "zoom_level": 2
+    },
+    "bounds": {
+        "north": 34.8,
+        "south": 33.1,
+        "east": -117.1,
+        "west": -119.3
+    },
+    "city_center": {
+        "tile_id": "00EN20-1m",
+        "coordinates": [34.0522, -118.2437],
+        "name": "Downtown Los Angeles"
+    },
+    "districts": {
+        "downtown": {
+            "tile_id": "00EN20-1m",
+            "coordinates": [34.0522, -118.2437],
+            "submaps": ["03DLA"]
+        },
+        "hollywood": {
+            "tile_id": "00EN20-1m", 
+            "coordinates": [34.0928, -118.3287],
+            "submaps": ["03HOL"]
+        },
+        "beverly_hills": {
+            "tile_id": "00EN20-1m",
+            "coordinates": [34.0736, -118.4004],
+            "submaps": ["03BEV"]
+        },
+        "santa_monica": {
+            "tile_id": "00EN20-1m",
+            "coordinates": [34.0195, -118.4912],
+            "submaps": ["03SMO"]
+        },
+        "pasadena": {
+            "coordinates": [34.1478, -118.1445],
+            "submaps": ["03PAS"]
+        },
+        "long_beach": {
+            "coordinates": [33.7701, -118.1937],
+            "submaps": ["03LGB"]
+        }
+    },
+    "landmarks": {
+        "griffith_observatory": {
+            "coordinates": [34.1184, -118.3004],
+            "district": "hollywood",
+            "submaps": ["04GRI"]
+        },
+        "santa_monica_pier": {
+            "coordinates": [34.0092, -118.4967],
+            "district": "santa_monica",
+            "submaps": ["04SMP"]
+        },
+        "getty_center": {
+            "coordinates": [34.0780, -118.4740],
+            "district": "beverly_hills",
+            "submaps": ["04GET"]
+        },
+        "dodger_stadium": {
+            "coordinates": [34.0739, -118.2400],
+            "district": "downtown",
+            "submaps": ["04DOD"]
+        }
+    },
+    "transportation": {
+        "airports": {
+            "lax": {
+                "coordinates": [33.9425, -118.4081],
+                "submaps": ["04LAX"]
+            },
+            "burbank": {
+                "coordinates": [34.2007, -118.3585],
+                "submaps": ["04BUR"]
+            },
+            "long_beach": {
+                "coordinates": [33.8177, -118.1516],
+                "submaps": ["04LGB"]
+            }
+        },
+        "major_highways": {
+            "highway_101": {
+                "description": "Hollywood Freeway",
+                "submaps": ["04H101"]
+            },
+            "highway_405": {
+                "description": "San Diego Freeway",
+                "submaps": ["04H405"]
+            },
+            "highway_10": {
+                "description": "Santa Monica Freeway",
+                "submaps": ["04H010"]
+            }
+        }
+    },
+    "submap_links": {
+        "03DLA": "Downtown Los Angeles detailed map",
+        "03HOL": "Hollywood district detailed map", 
+        "03BEV": "Beverly Hills area detailed map",
+        "03SMO": "Santa Monica detailed map",
+        "03PAS": "Pasadena detailed map",
+        "03LGB": "Long Beach detailed map",
+        "04GRI": "Griffith Observatory area",
+        "04SMP": "Santa Monica Pier area",
+        "04GET": "Getty Center area",
+        "04DOD": "Dodger Stadium area",
+        "04LAX": "LAX Airport area",
+        "04BUR": "Burbank Airport area",
+        "04H101": "Highway 101 corridor",
+        "04H405": "Highway 405 corridor",
+        "04H010": "Highway 10 corridor"
+    },
+    "navigation": {
+        "parent": "00US01",
+        "zoom_in": ["03DLA", "03HOL", "03BEV", "03SMO", "03PAS", "03LGB"],
+        "zoom_out": "00US01",
+        "adjacent": ["00SF02", "00SD03", "00LV04"]
+    }
+}

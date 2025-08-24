@@ -1,5 +1,5 @@
 # uDOS v1.4 Proposed Folder Structure
-## Clean Distribution & Role-Based Isolation
+## Clean Distribution & uMEMORY Role-Based Isolation
 
 ```
 uDOS/                           # Distribution root (GitHub)
@@ -20,6 +20,11 @@ uDOS/                           # Distribution root (GitHub)
 │       ├── drone/             # Drone role installer
 │       ├── tomb/              # Tomb role installer
 │       └── ghost/             # Ghost role installer
+│
+├── uMEMORY/                   # Memory framework (CORE + USER)
+│   ├── README.md              # Memory system guide
+│   ├── core/                  # Core memory system (DISTRIBUTION)
+│   └── system/                # System memory (DISTRIBUTION)
 │
 ├── docs/                      # Documentation (DISTRIBUTION)
 ├── extensions/                # Core extensions (DISTRIBUTION)
@@ -48,7 +53,25 @@ uDOS/                           # Distribution root (GitHub)
 uDOS/                           # Local installation root
 ├── [... all distribution files above ...]
 ├──
-├── ROLE/                      # ✨ NEW: Role-specific installations
+├── uMEMORY/                   # Memory organization framework
+│   ├── role/                  # ✨ NEW: Role-specific installations
+│   │   ├── wizard/            # 🧙 Wizard role data & config
+│   │   │   ├── config/        # Role configuration
+│   │   │   ├── data/          # Role-specific data
+│   │   │   ├── projects/      # Role projects
+│   │   │   └── logs/          # Role activity logs
+│   │   ├── sorcerer/          # 🔮 Sorcerer role data
+│   │   ├── imp/               # 👹 Imp role data
+│   │   ├── drone/             # 🤖 Drone role data
+│   │   ├── tomb/              # ⚰️  Tomb role data
+│   │   └── ghost/             # 👻 Ghost role data
+│   └── user/                  # ✨ NEW: User personal data
+│       ├── dev/               # Personal development files
+│       ├── memory/            # Session memory & logs
+│       ├── sandbox/           # Personal experiments
+│       └── extensions/        # User-installed extensions
+├──
+├── BACKUP/                    # ✨ NEW: Centralized backup system
 │   ├── wizard/                # Wizard role data (if installed)
 │   │   ├── projects/          # Wizard-specific projects
 │   │   ├── sessions/          # Development sessions

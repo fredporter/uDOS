@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "tile_id": "00GO34-1m",
+        "map_id": "00",
+        "coordinates": {
+            "latitude": 38.9072,
+            "longitude": -77.0369,
+            "depth": "1m"
+        },
+        "bounds": {
+    "north": 40.407200,
+    "south": 37.407200,
+    "east": -75.536900,
+    "west": -78.536900,
+    "center": {
+        "latitude": 38.9072,
+        "longitude": -77.0369
+    }
+},
+        "type": "capital",
+        "description": "Washington DC, USA",
+        "created": "2025-08-20T12:26:38Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "projection": "mercator"
+    },
+    "geography": {
+    "hemispheres": {
+        "north_south": "Northern",
+        "east_west": "Western"
+    },
+    "continent": "North America",
+    "ocean_basin": "North Atlantic",
+    "climate_zone": "Subtropical",
+    "timezone_estimate": "UTC-4",
+    "elevation_estimate": "sea_level",
+    "terrain_type": "unknown",
+    "population_density": "unknown",
+    "land_use": "unknown"
+},
+    "layers": {
+        "surface": {
+            "enabled": true,
+            "opacity": 1.0,
+            "data_sources": [],
+            "features": []
+        },
+        "subsurface": {
+            "enabled": false,
+            "depth_range": "1m-1m",
+            "data_sources": [],
+            "features": []
+        }
+    },
+    "temporal": {
+        "created": "2025-08-20T12:26:38Z",
+        "modified": "2025-08-20T12:26:38Z",
+        "accessed": "2025-08-20T12:26:38Z",
+        "version_history": []
+    },
+    "access_control": {
+        "read": ["dev", "wizard", "sorcerer", "ghost", "imp"],
+        "write": ["dev", "wizard"],
+        "create_derived": ["wizard", "sorcerer"]
+    },
+    "extensions": {
+        "custom_properties": {},
+        "external_links": [],
+        "related_tiles": []
+    }
+}

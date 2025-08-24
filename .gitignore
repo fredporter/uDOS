@@ -111,10 +111,18 @@ user-*
 
 # ════════════════════════════════════════════════════════════════
 # 🚫 uDOS v1.4 DISTRIBUTION EXCLUDES
-# ════════════════════════════════════════════════════════════════
-# 🚫 ROLE/ - All role installations (installed locally)
-# 🚫 USER/ - All user data (personal content)
-# 🚫 BACKUP/ - All backup files (local backup system)
-# 🚫 Personal configurations and session data
-# 🚫 Build artifacts and temporary files
-# ════════════════════════════════════════════════════════════════
+# =============================================================================
+# uDOS v1.4 - Clean Distribution Configuration  
+# Role/User/Backup isolation with uMEMORY organization
+# =============================================================================
+
+# Personal data isolation (keep these LOCAL ONLY)
+uMEMORY/role/
+uMEMORY/user/
+BACKUP/
+
+# Keep framework structure (these stay on GitHub)
+!uMEMORY/
+!uMEMORY/README.md
+!uMEMORY/core/
+!uMEMORY/system/

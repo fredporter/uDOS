@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "tile_id": "00VN06-1m",
+        "map_id": "00",
+        "coordinates": {
+            "latitude": 35.6762,
+            "longitude": 139.6503,
+            "depth": "1m"
+        },
+        "bounds": {
+    "north": 37.176200,
+    "south": 34.176200,
+    "east": 141.150300,
+    "west": 138.150300,
+    "center": {
+        "latitude": 35.6762,
+        "longitude": 139.6503
+    }
+},
+        "type": "capital",
+        "description": "Tokyo, Japan",
+        "created": "2025-08-20T12:27:29Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "projection": "mercator"
+    },
+    "geography": {
+    "hemispheres": {
+        "north_south": "Northern",
+        "east_west": "Eastern"
+    },
+    "continent": "Asia",
+    "ocean_basin": "Indian Ocean",
+    "climate_zone": "Subtropical",
+    "timezone_estimate": "UTC+9",
+    "elevation_estimate": "sea_level",
+    "terrain_type": "unknown",
+    "population_density": "unknown",
+    "land_use": "unknown"
+},
+    "layers": {
+        "surface": {
+            "enabled": true,
+            "opacity": 1.0,
+            "data_sources": [],
+            "features": []
+        },
+        "subsurface": {
+            "enabled": false,
+            "depth_range": "1m-1m",
+            "data_sources": [],
+            "features": []
+        }
+    },
+    "temporal": {
+        "created": "2025-08-20T12:27:29Z",
+        "modified": "2025-08-20T12:27:29Z",
+        "accessed": "2025-08-20T12:27:29Z",
+        "version_history": []
+    },
+    "access_control": {
+        "read": ["dev", "wizard", "sorcerer", "ghost", "imp"],
+        "write": ["dev", "wizard"],
+        "create_derived": ["wizard", "sorcerer"]
+    },
+    "extensions": {
+        "custom_properties": {},
+        "external_links": [],
+        "related_tiles": []
+    }
+}

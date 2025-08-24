@@ -1,0 +1,91 @@
+{
+    "metadata": {
+        "map_id": "00SO94",
+        "parent_map": "00",
+        "name": "Asia",
+        "description": "Detailed map of Asia with major cities and regions",
+        "type": "continental",
+        "created": "2025-08-20T21:12:00Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "zoom_level": 1
+    },
+    "bounds": {
+        "north": 77.0,
+        "south": 10.0,
+        "east": 180.0,
+        "west": 40.0
+    },
+    "major_cities": {
+        "00VN06-1m": {
+            "name": "Tokyo",
+            "country": "Japan",
+            "coordinates": [35.6762, 139.6503],
+            "submaps": ["02TOK"]
+        },
+        "00TO98-1m": {
+            "name": "Beijing",
+            "country": "China",
+            "coordinates": [39.9042, 116.4074],
+            "submaps": ["02BEI"]
+        },
+        "00RN85-1m": {
+            "name": "New Delhi",
+            "country": "India",
+            "coordinates": [28.6139, 77.2090],
+            "submaps": ["02DEL"]
+        },
+        "00OQ72-1m": {
+            "name": "Moscow",
+            "country": "Russia",
+            "coordinates": [55.7558, 37.6176],
+            "submaps": ["02MOS"]
+        }
+    },
+    "regions": {
+        "east_asia": {
+            "bounds": {"north": 50.0, "south": 20.0, "east": 180.0, "west": 100.0},
+            "major_cities": ["00VN06-1m", "00TO98-1m"],
+            "submaps": ["02EAS"]
+        },
+        "south_asia": {
+            "bounds": {"north": 37.0, "south": 5.0, "east": 95.0, "west": 60.0},
+            "major_cities": ["00RN85-1m"],
+            "submaps": ["02SAS"]
+        },
+        "central_asia": {
+            "bounds": {"north": 55.0, "south": 35.0, "east": 87.0, "west": 46.0},
+            "submaps": ["02CAS"]
+        },
+        "north_asia": {
+            "bounds": {"north": 77.0, "south": 50.0, "east": 180.0, "west": 40.0},
+            "major_cities": ["00OQ72-1m"],
+            "submaps": ["02NAS"]
+        },
+        "southeast_asia": {
+            "bounds": {"north": 25.0, "south": 10.0, "east": 140.0, "west": 92.0},
+            "submaps": ["02SEA"]
+        },
+        "west_asia": {
+            "bounds": {"north": 42.0, "south": 12.0, "east": 60.0, "west": 26.0},
+            "submaps": ["02WAS"]
+        }
+    },
+    "submap_links": {
+        "02TOK": "Tokyo metropolitan area",
+        "02BEI": "Beijing metropolitan area",
+        "02DEL": "Delhi metropolitan area",
+        "02MOS": "Moscow metropolitan area",
+        "02EAS": "East Asia detailed map",
+        "02SAS": "South Asia detailed map",
+        "02CAS": "Central Asia detailed map",
+        "02NAS": "North Asia (Siberia) detailed map",
+        "02SEA": "Southeast Asia detailed map",
+        "02WAS": "West Asia (Middle East) detailed map"
+    },
+    "navigation": {
+        "parent": "00",
+        "zoom_in": ["02TOK", "02BEI", "02DEL", "02MOS"],
+        "adjacent": ["01EU", "01AF", "01OC"]
+    }
+}

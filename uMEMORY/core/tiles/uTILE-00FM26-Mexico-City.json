@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "tile_id": "00FM26-1m",
+        "map_id": "00",
+        "coordinates": {
+            "latitude": 19.4326,
+            "longitude": -99.1332,
+            "depth": "1m"
+        },
+        "bounds": {
+    "north": 20.932600,
+    "south": 17.932600,
+    "east": -97.633200,
+    "west": -100.633200,
+    "center": {
+        "latitude": 19.4326,
+        "longitude": -99.1332
+    }
+},
+        "type": "capital",
+        "description": "Mexico City, Mexico",
+        "created": "2025-08-20T12:26:57Z",
+        "version": "1.0.0",
+        "coordinate_system": "WGS84",
+        "projection": "mercator"
+    },
+    "geography": {
+    "hemispheres": {
+        "north_south": "Northern",
+        "east_west": "Western"
+    },
+    "continent": "North America",
+    "ocean_basin": "North Atlantic",
+    "climate_zone": "Equatorial",
+    "timezone_estimate": "UTC-6",
+    "elevation_estimate": "sea_level",
+    "terrain_type": "unknown",
+    "population_density": "unknown",
+    "land_use": "unknown"
+},
+    "layers": {
+        "surface": {
+            "enabled": true,
+            "opacity": 1.0,
+            "data_sources": [],
+            "features": []
+        },
+        "subsurface": {
+            "enabled": false,
+            "depth_range": "1m-1m",
+            "data_sources": [],
+            "features": []
+        }
+    },
+    "temporal": {
+        "created": "2025-08-20T12:26:57Z",
+        "modified": "2025-08-20T12:26:57Z",
+        "accessed": "2025-08-20T12:26:57Z",
+        "version_history": []
+    },
+    "access_control": {
+        "read": ["dev", "wizard", "sorcerer", "ghost", "imp"],
+        "write": ["dev", "wizard"],
+        "create_derived": ["wizard", "sorcerer"]
+    },
+    "extensions": {
+        "custom_properties": {},
+        "external_links": [],
+        "related_tiles": []
+    }
+}
