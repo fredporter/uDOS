@@ -2,6 +2,19 @@
 
 This is your **primary development workspace** for uDOS. **All development, testing, and experimentation should happen here** - keep the main directories clean!
 
+## 🚨 **FLUSHABLE WORKSPACE WARNING**
+**This entire sandbox is designed to be flushed at session end!**
+- All valuable work is archived to `/uMEMORY/` before flushing
+- Never store permanent files here - use this for active session work only
+- Session archiving happens automatically (future implementation)
+
+## 🔄 **Session Archive Flow** (Future Implementation)
+```
+[Session Active] → All work happens in /sandbox/
+[Session End] → Valuable data archived to /uMEMORY/role/ or /uMEMORY/user/
+[Sandbox Flush] → /sandbox/ cleared for next session
+```
+
 ## 🎯 **Keep It Clean Rule**
 **NO MORE scattered scripts, notes, or utilities in random directories!**
 Everything has a proper place in the sandbox structure.
