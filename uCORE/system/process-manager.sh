@@ -8,16 +8,10 @@ UDOS_LOCK_FILE="/tmp/udos/udos.lock"
 UDOS_SERVER_PID="/tmp/udos/server.pid"
 UDOS_SESSION_FILE="/tmp/udos/session.info"
 
-# Load error handler
+# Load core systems
+source "$UDOS_ROOT/uSCRIPT/library/shell/ensure-utf8.sh"
+source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
 source "$UDOS_ROOT/uCORE/system/error-handler.sh"
-
-# Colors
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly WHITE='\033[1;37m'
-readonly NC='\033[0m'
 
 # Ensure PID directory exists
 mkdir -p "$UDOS_PID_DIR"

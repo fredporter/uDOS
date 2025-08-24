@@ -11,15 +11,29 @@ export UDOS_LOOP_DETECTION_FILE="/tmp/udos-loop-detection"
 export UDOS_ERROR_THRESHOLD=5
 export UDOS_LOOP_THRESHOLD=3
 
-# Color definitions
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly PURPLE='\033[0;35m'
-readonly CYAN='\033[0;36m'
-readonly WHITE='\033[1;37m'
-readonly NC='\033[0m'
+# Load core display systems if not already loaded
+if [[ "$UDOS_POLAROID_INITIALIZED" != "1" ]]; then
+    # Load UTF-8 and color systems
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [[ -f "$SCRIPT_DIR/../uSCRIPT/library/shell/ensure-utf8.sh" ]]; then
+        source "$SCRIPT_DIR/../uSCRIPT/library/shell/ensure-utf8.sh"
+    fi
+    if [[ -f "$SCRIPT_DIR/polaroid-colors.sh" ]]; then
+        source "$SCRIPT_DIR/polaroid-colors.sh"
+    fi
+fi
+
+# Legacy color definitions for compatibility (will use Polaroid colors if loaded)
+if [[ -z "${RED:-}" ]]; then
+    readonly RED='\033[0;31m'
+    readonly GREEN='\033[0;32m'
+    readonly YELLOW='\033[1;33m'
+    readonly BLUE='\033[0;34m'
+    readonly PURPLE='\033[0;35m'
+    readonly CYAN='\033[0;36m'
+    readonly WHITE='\033[1;37m'
+    readonly NC='\033[0m'
+fi
 
 # Ensure log directories exist
 init_error_logging() {
