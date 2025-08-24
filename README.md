@@ -16,11 +16,11 @@
 
 ## 🚀 **What's New in v1.4**
 
-### 🌐 **Browser-UI System**
-- **Modern Web Interface** - Complete browser-based uDOS experience
-- **Terminal Emulation** - Full terminal compatibility in browser
-- **Real-time Updates** - Live system monitoring and interaction
-- **Role-Based UI** - Interface adapts to user role and capabilities
+### 🌐 **Three-Mode Display System**
+- **CLI Terminal** - Always available for direct system control and automation
+- **Desktop Application** - Native app for DRONE+ roles with system tray integration
+- **Web Export** - Share dashboards, terminals, and memory remotely
+- **Role-Based Access** - Interface availability based on user permissions
 
 ### 🔧 **Protected DEV Environment**
 - **Core Development Workspace** - `/dev/` for uDOS system development
@@ -369,6 +369,18 @@ cd uDOS
 
 # Or force terminal development mode
 ./uCORE/launcher/universal/start-udos.sh --dev
+```
+
+### Display Modes (v1.4)
+```bash
+# CLI Terminal (always available - all roles)
+udos
+
+# Desktop Application (DRONE+ roles only)
+./uNETWORK/display/udos-display.sh app
+
+# Web Export for sharing (DRONE+ roles only) 
+./uNETWORK/display/udos-display.sh export dashboard --open
 ```
 
 ### Wizard Environment
