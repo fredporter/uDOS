@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal.css') }}">
     <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
     <div class="terminal-container">
         <!-- Terminal Header -->
@@ -41,8 +43,8 @@
         <div class="terminal-input-container">
             <div class="input-line">
                 <span class="terminal-prompt" id="terminalPrompt">uDOS$</span>
-                <input type="text" class="terminal-input" id="terminalInput" 
-                       placeholder="Type commands here..." autocomplete="off" spellcheck="false">
+                <input type="text" class="terminal-input" id="terminalInput" placeholder="Type commands here..."
+                    autocomplete="off" spellcheck="false">
                 <button class="send-btn" id="sendBtn">⏎</button>
             </div>
         </div>
@@ -145,4 +147,5 @@
 
     <script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
 </body>
+
 </html>

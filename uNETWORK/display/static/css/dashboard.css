@@ -2,13 +2,19 @@
 
 :root {
     /* Polaroid Color Palette */
-    --polaroid-orange: #ff6b35;    /* Orange Pop */
-    --polaroid-lime: #7cb342;      /* Lime Glow */
-    --polaroid-cyan: #00bcd4;      /* Cyan Flash */
-    --polaroid-magenta: #e91e63;   /* Magenta Buzz */
-    --polaroid-yellow: #ffc107;    /* Yellow Burst */
-    --polaroid-blue: #2196f3;      /* Blue Chill */
-    
+    --polaroid-orange: #ff6b35;
+    /* Orange Pop */
+    --polaroid-lime: #7cb342;
+    /* Lime Glow */
+    --polaroid-cyan: #00bcd4;
+    /* Cyan Flash */
+    --polaroid-magenta: #e91e63;
+    /* Magenta Buzz */
+    --polaroid-yellow: #ffc107;
+    /* Yellow Burst */
+    --polaroid-blue: #2196f3;
+    /* Blue Chill */
+
     /* UI Colors */
     --bg-primary: #1a1a1a;
     --bg-secondary: #2d2d2d;
@@ -16,13 +22,13 @@
     --text-primary: #ffffff;
     --text-secondary: #b0b0b0;
     --text-muted: #808080;
-    
+
     /* Borders & Shadows */
     --border-color: #444444;
     --border-radius: 8px;
-    --shadow-light: 0 2px 8px rgba(0,0,0,0.2);
-    --shadow-heavy: 0 4px 16px rgba(0,0,0,0.3);
-    
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-heavy: 0 4px 16px rgba(0, 0, 0, 0.3);
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -47,7 +53,7 @@ body {
 
 .udos-container {
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
         "header header"
         "nav main"
         "footer footer";
@@ -355,7 +361,7 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .udos-container {
-        grid-template-areas: 
+        grid-template-areas:
             "header"
             "nav"
             "main"
@@ -363,24 +369,24 @@ body {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto 1fr auto;
     }
-    
+
     .udos-nav {
         display: flex;
         overflow-x: auto;
         padding: var(--spacing-sm) 0;
     }
-    
+
     .nav-item {
         white-space: nowrap;
         border-left: none;
         border-bottom: 3px solid transparent;
     }
-    
+
     .nav-item.active {
         border-left: none;
         border-bottom-color: var(--polaroid-orange);
     }
-    
+
     .status-grid {
         grid-template-columns: 1fr;
     }
@@ -388,8 +394,15 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .status-card {

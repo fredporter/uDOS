@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
     <div class="udos-container">
         <!-- Header -->
@@ -129,8 +131,8 @@
                     </div>
                     <div class="terminal-content">
                         <div class="terminal-line">🎯 uDOS v1.4 Browser Interface Ready</div>
-                        <div class="terminal-line">   Click "Open Terminal" for interactive session</div>
-                        <div class="terminal-line">   Or use quick actions above</div>
+                        <div class="terminal-line"> Click "Open Terminal" for interactive session</div>
+                        <div class="terminal-line"> Or use quick actions above</div>
                     </div>
                 </div>
             </div>
@@ -144,4 +146,5 @@
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
+
 </html>

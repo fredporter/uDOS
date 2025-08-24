@@ -1,0 +1,109 @@
+{
+    "build": {
+        "beforeDevCommand": "python3 ../server/display-server.py &",
+        "beforeBuildCommand": "",
+        "devPath": "../static",
+        "distDir": "../static",
+        "withGlobalTauri": false
+    },
+    "package": {
+        "productName": "uDOS Display",
+        "version": "1.4.0"
+    },
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "execute": true,
+                "sidecar": true,
+                "open": true
+            },
+            "protocol": {
+                "asset": true,
+                "assetScope": [
+                    "**"
+                ]
+            },
+            "http": {
+                "all": true,
+                "request": true,
+                "scope": [
+                    "http://localhost:8080/**",
+                    "ws://localhost:8080/**"
+                ]
+            },
+            "fs": {
+                "all": false,
+                "readFile": true,
+                "writeFile": false,
+                "scope": [
+                    "$RESOURCE/*",
+                    "$APPDATA/*"
+                ]
+            }
+        },
+        "bundle": {
+            "active": true,
+            "targets": "all",
+            "identifier": "org.udos.display",
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "category": "DeveloperTool",
+            "shortDescription": "uDOS v1.4 Display Interface",
+            "longDescription": "Professional desktop interface for the uDOS universal development and operations system. Provides terminal emulation, system monitoring, and memory browsing in a native desktop application.",
+            "resources": [],
+            "externalBin": [],
+            "copyright": "© 2025 uDOS Project",
+            "licenseFile": "../../LICENSE",
+            "deb": {
+                "depends": [
+                    "libwebkit2gtk-4.0-37"
+                ]
+            },
+            "macOS": {
+                "frameworks": [],
+                "minimumSystemVersion": "10.13",
+                "exceptionDomain": "localhost"
+            },
+            "windows": {
+                "certificateThumbprint": null,
+                "digestAlgorithm": "sha256",
+                "timestampUrl": ""
+            }
+        },
+        "security": {
+            "csp": "default-src 'self'; connect-src 'self' ws://localhost:8080 http://localhost:8080; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+        },
+        "updater": {
+            "active": false
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "resizable": true,
+                "title": "uDOS Display v1.4",
+                "width": 1200,
+                "height": 800,
+                "minWidth": 800,
+                "minHeight": 600,
+                "center": true,
+                "decorations": true,
+                "alwaysOnTop": false,
+                "skipTaskbar": false,
+                "theme": "Dark",
+                "url": "http://localhost:8080"
+            }
+        ],
+        "systemTray": {
+            "iconPath": "icons/icon.png",
+            "iconAsTemplate": true,
+            "menuOnLeftClick": false
+        }
+    }
+}

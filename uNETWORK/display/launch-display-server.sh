@@ -1,8 +1,27 @@
 #!/bin/bash
 # uDOS v1.4 Display Server Launcher
-# Starts the Browser-UI server with proper environment setup
+# Legacy browser-only launcher - use udos-display.sh for hybrid mode
 
 set -euo pipefail
+
+# Check if hybrid launcher exists and suggest using it
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+HYBRID_LAUNCHER="$UDOS_ROOT/uNETWORK/display/udos-display.sh"
+
+if [[ -f "$HYBRID_LAUNCHER" ]] && [[ "${UDOS_FORCE_LEGACY:-0}" != "1" ]]; then
+    echo "🎯 uDOS v1.4 suggests using the hybrid display launcher:"
+    echo "   $HYBRID_LAUNCHER"
+    echo
+    echo "   For native app: $HYBRID_LAUNCHER"
+    echo "   For browser only: $HYBRID_LAUNCHER browser"
+    echo "   To force this launcher: UDOS_FORCE_LEGACY=1 $0"
+    echo
+    echo "⚡ Auto-redirecting to hybrid launcher in 3 seconds..."
+    echo "   (Press Ctrl+C to cancel)"
+
+    sleep 3
+    exec "$HYBRID_LAUNCHER" browser "$@"
+fi
 
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DISPLAY_SERVER="$UDOS_ROOT/uNETWORK/display/server/display-server.py"
@@ -32,23 +51,23 @@ start_server() {
         polaroid_echo "yellow" "⚠️  Display server already running (PID: $(cat $PID_FILE))"
         return 0
     fi
-    
+
     polaroid_echo "cyan" "🚀 Starting uDOS Display Server..."
-    
+
     # Check Python dependencies
     if ! python3 -c "import flask, flask_socketio, psutil" 2>/dev/null; then
         polaroid_echo "orange" "📦 Installing required Python packages..."
         pip3 install flask flask-socketio psutil eventlet
     fi
-    
+
     # Start server in background
     cd "$UDOS_ROOT"
     python3 "$DISPLAY_SERVER" > /tmp/udos-display-server.log 2>&1 &
     local server_pid=$!
-    
+
     # Save PID
     echo "$server_pid" > "$PID_FILE"
-    
+
     # Wait a moment to check if it started successfully
     sleep 2
     if kill -0 "$server_pid" 2>/dev/null; then
@@ -56,7 +75,7 @@ start_server() {
         polaroid_echo "cyan" "   Server PID: $server_pid"
         polaroid_echo "cyan" "   Server URL: http://localhost:8080"
         polaroid_echo "cyan" "   Log file: /tmp/udos-display-server.log"
-        
+
         # Open browser if requested
         if [[ "${1:-}" == "--open" ]] || [[ "${1:-}" == "-o" ]]; then
             sleep 1
@@ -68,7 +87,7 @@ start_server() {
                 polaroid_echo "yellow" "   Please open http://localhost:8080 in your browser"
             fi
         fi
-        
+
         return 0
     else
         polaroid_echo "orange" "❌ Failed to start display server"
@@ -83,10 +102,10 @@ stop_server() {
         polaroid_echo "yellow" "⚠️  Display server is not running"
         return 0
     fi
-    
+
     local pid=$(cat "$PID_FILE")
     polaroid_echo "cyan" "🛑 Stopping display server (PID: $pid)..."
-    
+
     if kill "$pid" 2>/dev/null; then
         # Wait for graceful shutdown
         local count=0
@@ -94,12 +113,12 @@ stop_server() {
             sleep 1
             ((count++))
         done
-        
+
         # Force kill if still running
         if kill -0 "$pid" 2>/dev/null; then
             kill -9 "$pid" 2>/dev/null
         fi
-        
+
         rm -f "$PID_FILE"
         polaroid_echo "lime" "✅ Display server stopped"
     else
@@ -124,7 +143,7 @@ show_status() {
         polaroid_echo "lime" "✅ Display server is running"
         polaroid_echo "cyan" "   PID: $pid"
         polaroid_echo "cyan" "   URL: http://localhost:8080"
-        
+
         # Show memory usage if possible
         if command -v ps >/dev/null 2>&1; then
             local mem_usage=$(ps -o rss= -p "$pid" 2>/dev/null | tr -d ' ')
@@ -153,7 +172,7 @@ show_logs() {
 # Main command handler
 main() {
     local command="${1:-start}"
-    
+
     case "$command" in
         "start"|"-s"|"--start")
             start_server "${2:-}"
