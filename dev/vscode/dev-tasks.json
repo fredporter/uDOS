@@ -1,0 +1,48 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🔧 DEV: Build Core System",
+            "type": "shell",
+            "command": "./dev/scripts/build/build-core.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "🧪 DEV: Run Core Tests",
+            "type": "shell",
+            "command": "./dev/scripts/test/test-core-system.sh",
+            "group": "test",
+            "dependsOn": "🔧 DEV: Build Core System"
+        },
+        {
+            "label": "📋 DEV: Validate System References",
+            "type": "shell",
+            "command": "./dev/scripts/test/validate-system-references.sh",
+            "group": "test"
+        },
+        {
+            "label": "🚀 DEV: Deploy to Staging",
+            "type": "shell",
+            "command": "./dev/scripts/deploy/deploy-staging.sh",
+            "group": "build"
+        },
+        {
+            "label": "🧹 DEV: System Maintenance",
+            "type": "shell",
+            "command": "./dev/scripts/maintenance/system-cleanup.sh",
+            "group": "build"
+        }
+    ]
+}

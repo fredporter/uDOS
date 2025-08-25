@@ -175,3 +175,17 @@ uMEMORY/user/                   # User memory archives (LOCAL ONLY)
 # Centralized backup system (local only)
 BACKUP/
 uSCRIPT/venv/
+
+# Dev folder patterns - sync templates and docs, exclude active work
+dev/active/
+dev/scripts/maintenance/temp-*
+dev/tools/temp-*
+dev/copilot/temp-*
+
+# Keep these for collaboration
+!dev/templates/
+!dev/docs/
+!dev/roadmaps/
+!dev/copilot/instructions/
+!dev/copilot/context/
+!dev/vscode/configs/

@@ -7,17 +7,18 @@ uDOS (Universal Device Operating System) v1.4.0 is a modular, role-based system 
 
 ### Core Modules
 - **uCORE**: System code, launchers, templates, and core functionality
-- **uMEMORY**: User data storage, logs, sessions, and persistent memory
+- **uMEMORY**: User data storage, sessions, and persistent memory (logs moved to sandbox)
 - **uNETWORK**: Flask/SocketIO server, display system, and client connectivity
 - **uSCRIPT**: Script library, utilities, and automation tools
 - **uKNOWLEDGE**: Documentation, help system, and knowledge base
-- **sandbox**: User workspace for active development and experimentation
+- **sandbox**: User workspace for active work, logging, and experimentation
 - **extensions**: Modular extension system with user/platform/core categories
+- **dev**: Core development environment (wizard role + DEV mode only)
 
 ### Critical Architecture Principles (v1.4)
-1. **Data Separation**: uCORE contains system code, uMEMORY contains user data
-2. **Logging Consolidation**: All logs flow through centralized uMEMORY system
-3. **Role-Based Access**: Different permission levels (user/wizard/sorcerer/imp/student/admin)
+1. **Data Separation**: uCORE contains system code, sandbox contains active work and logging
+2. **Role-Based Development**: Core development (/dev) requires wizard role + DEV mode
+3. **Workspace Separation**: sandbox (active/flushable) vs uMEMORY (permanent archive)
 4. **Three-Mode Display**: CLI Terminal, Desktop Application, Web Export compatibility
 
 ## 🧙‍♂️ uCODE Programming Language
@@ -98,14 +99,23 @@ uCORE/
 uMEMORY/
 ├── user/           # User-specific data
 ├── system/         # System logs and data
-├── logs/           # Centralized logging
-└── sessions/       # Session management
+├── role/           # Role-specific configurations
+└── templates/      # Data templates
 
 sandbox/
-├── workflow/       # User journey tracking
-├── session/        # Current session data
+├── logs/           # All system and user logging
+├── sessions/       # Current session data
 ├── tasks/          # Task management
-└── development/    # Active development workspace
+├── scripts/        # Temporary scripts
+└── experiments/    # Development workspace
+
+dev/                # Core development (wizard + DEV mode only)
+├── active/         # Current core development projects
+├── scripts/        # Development automation scripts
+├── templates/      # Development templates
+├── docs/           # Architecture documentation
+├── copilot/        # AI assistant context
+└── vscode/         # VS Code development configs
 ```
 
 ### Naming Conventions
@@ -171,6 +181,14 @@ All configuration files use consistent JSON structure:
 - Check role permissions before executing privileged operations
 - Use role-specific directories and configurations
 - Implement graceful degradation for lower privilege levels
+
+### Development Access (Wizard + DEV Mode Only)
+- **Core Development**: `/dev` folder for system development
+- **User Development**: `/sandbox` for experiments and user scripts
+- **Templates**: Use `/dev/templates` for consistent development patterns
+- **Documentation**: Architecture docs in `/dev/docs`
+- **AI Integration**: Development context in `/dev/copilot`
+- **VS Code**: Development configs in `/dev/vscode`
 
 ## 🚨 Important Guidelines
 

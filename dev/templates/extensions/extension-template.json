@@ -1,0 +1,23 @@
+{
+    "metadata": {
+        "name": "extension-name",
+        "version": "1.0.0",
+        "type": "user",
+        "platform": "universal",
+        "author": "developer-name",
+        "description": "Extension description"
+    },
+    "commands": {
+        "COMMAND_NAME": {
+            "syntax": "[COMMAND] <ACTION> {PARAMETER}",
+            "description": "Command description",
+            "implementation": "commands/command-name.sh",
+            "permissions": ["user", "wizard"]
+        }
+    },
+    "dependencies": [],
+    "installation": {
+        "files": ["commands/", "library/", "templates/"],
+        "setup": "setup.sh"
+    }
+}
