@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS Error Handler Core v1.3.1 - Comprehensive Error Management
+# uDOS Error Handler Core - Comprehensive Error Management
 set -euo pipefail
 
 # Error Handler Configuration
@@ -464,6 +464,6 @@ export -f show_error_summary
 # Initialize if called directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     init_error_logging
-    echo -e "${GREEN}✅ uDOS Error Handler v1.3.1 initialized${NC}"
+    echo -e "${GREEN}✅ uDOS Error Handler initialized${NC}"
     show_error_summary
 fi

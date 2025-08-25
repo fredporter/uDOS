@@ -1,4 +1,4 @@
-{"metadata":{"version":"1.3.3","description":"uDOS Command Reference Dataset v1.3.3 with uGRID and 8-role system","last_updated":"2025-08-23","system":"uDOS-v1.3.3","format":"uDATA-v1"}}
+{"metadata":{"version":"1.4.0","description":"uDOS Command Reference Dataset v1.4.0 with uGRID and role system","last_updated":"2025-08-25","system":"uDOS-v1.4.0","format":"uDATA-v1"}}
 {"command":"CHECK","args":["TIME","LOCATION","USER","SETUP","HEALTH","ALL"],"description":"Check system status and configuration","category":"diagnostic"}
 {"command":"DISPLAY","args":["INIT","MODE","TEST","SUMMARY","HELP"],"description":"Display system information and modes","category":"interface"}
 {"command":"MAP","args":["GENERATE","REGION","CITY","SHOW","INFO"],"description":"Map generation and navigation commands","category":"mapping"}

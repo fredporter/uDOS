@@ -1,6 +1,6 @@
 #!/bin/bash
-# uDOS Integration Compatibility Test v1.3.3
-# Tests compatibility between uNETWORK, uSCRIPT, and uCORE protocols
+# uDOS Integration Compatibility Test
+# Tests integration compatibility across system components
 
 set -euo pipefail
 
@@ -312,7 +312,7 @@ test_role_switching() {
 
 # Main test execution
 main() {
-    echo "uDOS Integration Compatibility Test v1.3.3"
+    echo "uDOS Integration Compatibility Test"
     echo "==========================================="
     echo "Test log: $TEST_LOG"
     echo
