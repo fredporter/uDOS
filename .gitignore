@@ -141,7 +141,7 @@ BACKUP/
 # ════════════════════════════════════════════════════════════════
 # ✅ uCORE/ - Core system
 # ✅ dev/templates/ - Development templates
-# ✅ dev/docs/ - Architecture documentation  
+# ✅ dev/docs/ - Architecture documentation
 # ✅ dev/copilot/ - AI assistant context
 # ✅ dev/vscode/ - Shared VS Code configs
 # ✅ docs/ - User documentation

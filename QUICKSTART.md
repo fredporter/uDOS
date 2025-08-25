@@ -1,4 +1,4 @@
-# 🚀 uDOS QuickStart Guide v1.3.3
+# 🚀 uDOS QuickStart Guide v1.4.0
 
 **Get up and running with uDOS in under 5 minutes on any platform**
 
@@ -44,16 +44,17 @@ uDOS will automatically:
 ### 🔄 **First Launch**
 1. **Platform Detection**: Automatically detects your OS and requirements
 2. **Dependency Check**: Installs missing dependencies (Python3, Git, etc.)
-3. **Role Selection**: Choose your access level (Ghost → Wizard)
-4. **Interface Launch**: Opens Terminal or VS Code based on availability
+3. **Three-Mode Display**: Choose CLI Terminal, Desktop App, or Web Export
+4. **Role Selection**: Choose your access level (Ghost → Wizard)
+5. **Development Environment**: Access to /dev folder (Wizard + DEV mode only)
 
 ### 🎭 **Role-Based Access**
-- **👻 Ghost** (Level 10) - Demo & Evaluation
-- **⚰️ Tomb** (Level 20) - Archive Management
-- **🤖 Drone** (Level 40) - Task Automation
-- **👹 Imp** (Level 60) - Development Tools
-- **🔮 Sorcerer** (Level 80) - Advanced User
-- **🧙‍♂️ Wizard** (Level 100) - Full Development Access
+- **👻 Ghost** (Level 10) - CLI Terminal only, demo access
+- **⚰️ Tomb** (Level 20) - CLI Terminal, archive management
+- **🤖 Drone** (Level 40) - All modes, task automation, desktop app access
+- **👹 Imp** (Level 60) - Development tools, sandbox workspace
+- **🔮 Sorcerer** (Level 80) - Advanced features, memory management
+- **🧙‍♂️ Wizard** (Level 100) - Full access, /dev environment, core development
 
 ---
 
@@ -69,6 +70,7 @@ uDOS will automatically:
 - **Version**: Windows 10+
 - **Required**: Git for Windows (with Git Bash) OR WSL
 - **Download Git**: https://git-scm.com/download/win
+- **Desktop App**: Native Tauri application for DRONE+ roles
 - **Auto-detected**: VS Code, Python3
 
 ### 🐧 **Ubuntu 22+**
@@ -85,18 +87,18 @@ uDOS will automatically:
 
 - **uCORE/** → Core system & utilities (shell, datasets, templates, installers)
 - **uSCRIPT/** → Script management system (multi-language engines, libraries, registry)
-- **uMEMORY/** → User memory & workspace (missions, notes, personal archive)
+- **uMEMORY/** → User memory & permanent data archive (user/, role/, templates/)
 - **uKNOWLEDGE/** → Shared knowledge base and references
-- **dev/** → Development environment (tools, notes, VS Code integration)
+- **sandbox/** → Active workspace for all logging, sessions, and flushable work
+- **dev/** → Core development environment (wizard role + DEV mode only)
 - **docs/** → Documentation system (guides, standards, technical references)
 - **extensions/** → Extension framework (core/user separation)
-- **sandbox/** → User's active workspace (tasks, experiments, daily activity)
-- **uNETWORK/** → Server endpoints, middleware, and network configs
+- **uNETWORK/** → Server endpoints, middleware, and three-mode display system
 
 ### **How They Work Together**
 
 ```
-User (sandbox/)
+User (sandbox/ - active workspace)
       |
       v
 +-----------+      +-----------+
@@ -115,7 +117,8 @@ User (sandbox/)
 +-------------------------+
       |
       v
-   Output → User
+   Three-Mode Display → User
+   (CLI/Desktop/Web)
 ```
 
 ### **Step-by-Step Flow**
@@ -123,33 +126,39 @@ User (sandbox/)
 1. **User Input**: Begin in `sandbox/` with commands or tasks
 2. **Core Processing**: `uCORE/` handles system operations and routing
 3. **Script Execution**: `uSCRIPT/` manages multi-language script execution
-4. **Data Management**: `uMEMORY/` stores user workspace and archive
-5. **Knowledge Access**: `uKNOWLEDGE/` provides shared references
-6. **Extension Layer**: Role-based capabilities and extensions enhance processing
-7. **Output**: Results returned to user in `sandbox/` workspace
+4. **Active Work**: All logging and session data flows through `sandbox/`
+5. **Data Archive**: Important data filed from `sandbox/` to `uMEMORY/`
+6. **Knowledge Access**: `uKNOWLEDGE/` provides shared references
+7. **Extension Layer**: Role-based capabilities and extensions enhance processing
+8. **Three-Mode Output**: Results delivered via CLI Terminal, Desktop App, or Web Export
 
 ---
 
-## 🎮 **Launch Modes**
+## 🎮 **Display Modes**
 
-### 🖥️ **Terminal Mode (Default)**
+### 🖥️ **CLI Terminal Mode** (All Roles)
 - Native terminal interface with uDOS command system
-- Full command-line access to all system functions
-- Role-based command availability
-- Real-time status and logging
+- Full command-line access to role-appropriate functions
+- Real-time logging in sandbox/logs/
+- Available on all platforms and roles
 
-### 🧙‍♂️ **VS Code Development Mode** (Wizard Role)
-- Complete integrated development environment
-- Git integration and version control
-- Pre-configured tasks and debugging
-- Extension marketplace access
-- Dual terminal/GUI workflow
+### 🖼️ **Desktop Application Mode** (DRONE+ Roles)
+- Native Tauri desktop application
+- System tray integration and window management
+- Enhanced file browser and visual interfaces
+- Cross-platform native app experience
 
-### 🌐 **Server Mode** (Advanced)
-- Web-based interface via uNETWORK server
-- Multi-user capability
-- Remote access and collaboration
-- Browser-based file management
+### 🌐 **Web Export Mode** (DRONE+ Roles)
+- Browser-based interface via uNETWORK server
+- Remote access and collaboration capabilities
+- Share dashboards and terminals
+- Real-time WebSocket communication
+
+### 🧙‍♂️ **Development Mode** (Wizard + DEV Only)
+- Full VS Code integration with /dev environment
+- Core system development and debugging
+- Git integration and extension development
+- Protected development workspace
 
 ---
 
@@ -221,9 +230,10 @@ export UDOS_CURRENT_ROLE="wizard"
 
 ### **Development Mode**
 ```bash
-# Enable development features:
+# Enable development features (Wizard role required):
 export UDOS_DEV_MODE="true"
-# Access additional debugging and development tools
+# Access /dev environment for core development
+# Full VS Code integration and build tools
 ```
 
 ---
@@ -232,9 +242,10 @@ export UDOS_DEV_MODE="true"
 
 ### **Learn More**
 - **📖 Full Documentation**: `docs/README.md`
-- **🔧 Development Guide**: `dev/README.md`
+- **🔧 Development Guide**: `dev/README.md` (Wizard + DEV mode)
 - **🎭 Role Capabilities**: `docs/User-Role-Capabilities.md`
-- **🌐 Server Setup**: `uNETWORK/server/README.md`
+- **🌐 Three-Mode Display**: `uNETWORK/server/README.md`
+- **🗃️ Data Architecture**: `sandbox/STRUCTURE.md` and `uMEMORY/README.md`
 
 ### **Get Help**
 - **💬 Community**: GitHub Discussions
@@ -250,16 +261,18 @@ export UDOS_DEV_MODE="true"
 
 ## 🎉 **You're All Set!**
 
-**uDOS is now ready to use on your system.**
+**uDOS v1.4.0 is now ready to use on your system.**
 
 - ✅ Cross-platform compatibility verified
 - ✅ Dependencies automatically managed
+- ✅ Three-mode display system available
 - ✅ Role-based access configured
-- ✅ Development environment available
+- ✅ Sandbox workspace for active work
+- ✅ Development environment available (Wizard + DEV mode)
 
-**Start exploring the universal device operating system!** 🚀
+**Start exploring the universal device operating system with organized data architecture!** 🚀
 
 ---
 
-**uDOS v1.3.3** - Universal Device Operating System
-*Simple one-click launchers for any platform*
+**uDOS v1.4.0** - Universal Device Operating System
+*Three-mode display system with clean data separation*
