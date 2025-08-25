@@ -53,6 +53,13 @@ dev/
 - `.vscode/` - Main VS Code configuration
 - `dev/vscode/` - Development-specific configurations
 - Custom tasks for core development workflow
+- Enhanced debugging for core system components
+
+### Browser-UI Integration
+- `/api/dev/*` endpoints - DEV mode API access
+- Protected UI - Core development interfaces
+- Build monitoring - Visual build and test status
+- Real-time development feedback
 
 ### Role-Based Access
 - **Wizard + DEV**: Full access to `/dev` environment
