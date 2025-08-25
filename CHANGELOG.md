@@ -5,6 +5,76 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-08-25
+
+### 🎯 **Major System Reorganization**
+
+#### Added
+- **Centralized Logging**: All system logs consolidated in `/sandbox/logs/`
+- **Development Environment**: Structured `/dev` folder for wizard role development
+- **AI Assistant Integration**: GitHub Copilot instructions and development context
+- **VS Code Integration**: Development-specific configurations and tasks
+- **Role-Based Access Control**: Enhanced DEV mode for core development
+- **Build/Test Infrastructure**: Automated build and test scripts for core system
+- **Development Templates**: Standardized templates for extensions and commands
+- **Git Sync Strategy**: Selective synchronization for collaboration vs individual work
+
+#### Changed
+- **Data Separation**: uCORE contains only system code, sandbox contains active work
+- **Logging Architecture**: All logging redirected from uMEMORY to sandbox
+- **Directory Philosophy**: uMEMORY = filing cabinet, sandbox = active workspace
+- **Development Workflow**: Core development in `/dev`, user experiments in `/sandbox`
+- **System Scripts**: Updated error handler, smart input, and deployment manager for new log locations
+- **Repository Structure**: Clean separation of system code vs user/development data
+
+#### Removed
+- **Development Bloat**: Cleaned up old development artifacts and empty directories
+- **Redundant Documentation**: Consolidated DEV-MODE-INSTRUCTIONS.md into dev structure
+- **Legacy Log Locations**: Migrated all logging from uMEMORY to sandbox
+- **Versioned Filenames**: Removed version numbers from all filenames for clean distribution
+
+#### Fixed
+- **Git Repository Health**: Proper .gitignore patterns for development environments
+- **Log Path References**: Updated all system scripts to use new sandbox log locations
+- **Directory Structure**: Eliminated duplicate and empty directories
+- **Documentation Consistency**: Single source of truth for development instructions
+
+### 🔧 **Technical Improvements**
+
+#### **Memory/Sandbox Reorganization**
+- **Workflow**: Work in sandbox → Process in sandbox → File in uMEMORY
+- **Logging**: All logs centralized in `sandbox/logs/` with organized categories
+- **Compatibility**: Symlink `uMEMORY/logs` → `../sandbox/logs` for legacy references
+
+#### **Development Framework**
+- **Structure**: Organized dev folder with active/, scripts/, templates/, docs/
+- **Access Control**: Wizard + DEV mode required for core development
+- **AI Integration**: Copilot context and examples for consistent development
+- **Build System**: Automated core system building and testing
+
+#### **System Updates**
+- **Error Handler**: Updated to use sandbox/logs/errors
+- **Smart Input**: Logging redirected to sandbox/logs/system
+- **Deployment Manager**: Log files moved to sandbox/logs/system
+
+### 🐛 **Bug Fixes**
+- Fixed logging placement issues (user data in system directories)
+- Resolved directory organization inconsistencies
+- Corrected git tracking patterns for development files
+- Enhanced backward compatibility with symlinks
+
+### 🛠️ **Breaking Changes**
+- Log file locations moved (symlinks provide compatibility)
+- Development environment structure reorganized
+- Version numbers removed from filenames
+- Enhanced git exclusion patterns
+
+### 📋 **Migration Notes**
+- Existing log references work via compatibility symlinks
+- Development environments properly excluded from git
+- All logging now flows through sandbox for session management
+- uMEMORY reserved for permanent data archival only
+
 ## [1.3.3] - 2025-08-23
 
 ### 🧹 System Organization & Extension Architecture

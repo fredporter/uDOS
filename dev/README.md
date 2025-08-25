@@ -2,7 +2,7 @@
 
 ## 🧙‍♂️ **Wizard Role + DEV Mode Only**
 
-This development environment is restricted to **wizard role with DEV mode activated**. 
+This development environment is restricted to **wizard role with DEV mode activated**.
 
 ## 📁 **Structure**
 
@@ -10,7 +10,7 @@ This development environment is restricted to **wizard role with DEV mode activa
 dev/
 ├── active/              # Current core development (local only)
 │   ├── core/           # Core system development
-│   ├── extensions/     # Extension development  
+│   ├── extensions/     # Extension development
 │   └── tools/          # Tool development
 ├── scripts/            # Development automation
 │   ├── build/         # Build scripts
