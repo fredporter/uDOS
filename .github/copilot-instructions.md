@@ -206,9 +206,47 @@ All configuration files use consistent JSON structure:
 
 ### Testing Patterns
 - Use `./uCORE/launcher/universal/test-udos.sh` for system tests
+- Use `./dev/scripts/test/test-core-system.sh` for development tests
 - Implement unit tests for critical components
 - Test cross-platform compatibility
 - Validate role-based access controls
+
+## 🔧 Development Environment
+
+### /dev Folder - Wizard Role + DEV Mode Only
+The `/dev` folder is the core development environment, accessible only to wizard role with DEV mode activated.
+
+#### Development Structure
+```
+dev/
+├── active/              # Current core development (local only)
+│   ├── core/           # Core system development
+│   ├── extensions/     # Extension development
+│   └── tools/          # Tool development
+├── scripts/            # Development automation
+│   ├── build/         # Build scripts (./dev/scripts/build/build-core.sh)
+│   ├── test/          # Test scripts (./dev/scripts/test/test-core-system.sh)
+│   ├── deploy/        # Deployment scripts
+│   └── maintenance/   # Maintenance scripts
+├── templates/          # Development templates (synced)
+│   ├── commands/      # Command templates
+│   ├── extensions/    # Extension templates
+│   └── configs/       # Configuration templates
+├── docs/              # Architecture documentation (synced)
+├── copilot/           # AI assistant context (synced)
+└── vscode/            # VS Code configurations (synced)
+```
+
+#### Development Workflow
+- **Core development** → `/dev/active/` (wizard + DEV mode required)
+- **User experiments** → `/sandbox/` (all roles, flushable workspace)
+- **Build system** → `./dev/scripts/build/build-core.sh`
+- **Testing** → `./dev/scripts/test/test-core-system.sh`
+- **Templates** → Use `/dev/templates/` for consistent development
+
+#### Git Sync Strategy
+- **Synced**: `/dev/templates/`, `/dev/docs/`, `/dev/copilot/`, `/dev/vscode/`
+- **Local only**: `/dev/active/`, temporary scripts, work-in-progress files
 
 ## 🔌 Extension Development
 
@@ -268,24 +306,31 @@ extensions/user/my-extension/
 ## 🎯 Common Development Tasks
 
 ### Adding New Commands
-1. Define uCODE syntax in documentation
+1. Use templates from `dev/templates/commands/`
 2. Implement command in appropriate module
-3. Add to command registry
-4. Create tests and documentation
-5. Update help system
+3. Test with `./dev/scripts/test/test-core-system.sh`
+4. Add to command registry
+5. Update help system and documentation
 
 ### Creating Extensions
-1. Use extension template structure
-2. Register in extension manager
-3. Follow naming conventions
-4. Implement proper error handling
-5. Test cross-platform compatibility
+1. Use extension template from `dev/templates/extensions/`
+2. Develop in `dev/active/extensions/` (wizard + DEV mode)
+3. Test with extension manager
+4. Deploy to `extensions/` when ready
+5. Follow naming conventions and documentation standards
+
+### Development Best Practices
+1. **Use dev environment**: Work in `/dev/active/` for core development
+2. **Follow templates**: Use `/dev/templates/` for consistency
+3. **Test thoroughly**: Run `./dev/scripts/test/` before deployment
+4. **Document changes**: Update `/dev/docs/` with architectural changes
+5. **Sync selectively**: Only collaborative content goes to git
 
 ### Modifying Core Systems
-1. Create backup before changes
-2. Follow data separation principles
-3. Update documentation
-4. Test role-based permissions
-5. Validate logging integration
+1. **Check permissions**: Wizard role + DEV mode required
+2. **Create backup**: Use development branching
+3. **Follow data separation**: uCORE = system code, sandbox = active work
+4. **Test role-based permissions**: Validate access controls
+5. **Update documentation**: Keep `/dev/docs/` current
 
 This document should be referenced whenever working on the uDOS codebase to ensure consistency with established patterns and architectural principles.

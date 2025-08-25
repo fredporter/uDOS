@@ -1,74 +1,83 @@
 # ══════════════════════════════════════════════════
 # uDOS v1.4 Clean Distribution .gitignore
-# Role/User/Backup Isolation System
+# Development/User/Memory Isolation System
 # ══════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════
 # 🎯 uDOS DISTRIBUTION STRATEGY v1.4
 # ════════════════════════════════════════════════════════════════
-# ✅ Keep: Core system, role installers, shared frameworks
-# 🚫 Exclude: User data, role installations, backup files
-# 🔄 Sync: Only distribution components, no personal content
+# ✅ Keep: Core system, dev framework, shared templates
+# 🚫 Exclude: User data, active development, personal content
+# 🔄 Sync: Only collaborative components
 
 # ════════════════════════════════════════════════════════════════
-# 🔒 COMPLETE LOCAL-ONLY EXCLUSIONS
+# � DEV FOLDER - Wizard Role + DEV Mode Development
 # ════════════════════════════════════════════════════════════════
+# ✅ Sync: Templates, docs, copilot context, shared configs
+# 🚫 Local: Active development work, personal tools, temp files
 
-# Role installations (local only after install)
-/ROLE/
+dev/active/                     # Core development work (LOCAL ONLY)
+dev/scripts/maintenance/temp-*  # Temporary maintenance scripts
+dev/tools/temp-*               # Temporary development tools
+dev/**/*.local.*               # Local development files
+dev/**/*.personal.*            # Personal development tools
+dev/**/*.working               # Work-in-progress files
+dev/**/*.tmp                   # Temporary dev files
 
-# User data isolation (local only)
-/USER/
-
-# Centralized backup system (local only)
-/BACKUP/
-
-# ════════════════════════════════════════════════════════════════
-# 🛠️ DEVELOPMENT FRAMEWORK EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# Keep core dev tools, exclude user dev data
-dev/USER/
-dev/**/*.user.*
-dev/**/*.personal.*
-dev/**/*.working
-dev/**/*.tmp
-
-# Keep core sandbox framework, exclude user sandbox data
-sandbox/USER/
-sandbox/**/*.user.*
-sandbox/**/*.personal.*
-sandbox/**/*.working
-sandbox/**/*.tmp
+# Keep collaborative dev content
+!dev/templates/                 # Development templates (SYNCED)
+!dev/docs/                     # Architecture docs (SYNCED)
+!dev/roadmaps/                 # Project roadmaps (SYNCED)
+!dev/copilot/                  # AI assistant context (SYNCED)
+!dev/vscode/                   # VS Code configs (SYNCED)
+!dev/scripts/build/            # Build scripts (SYNCED)
+!dev/scripts/test/             # Test scripts (SYNCED)
+!dev/scripts/deploy/           # Deploy scripts (SYNCED)
 
 # ════════════════════════════════════════════════════════════════
-# 🏗️ SYSTEM COMPONENT EXCLUSIONS
+# 🚀 SANDBOX - All Roles User Workspace (FLUSHABLE)
+# ════════════════════════════════════════════════════════════════
+# ✅ Sync: Framework structure only
+# 🚫 Local: ALL user content (designed to be flushable)
+
+sandbox/logs/                   # All logging (LOCAL ONLY)
+sandbox/sessions/               # Session data (LOCAL ONLY)
+sandbox/scripts/                # User scripts (LOCAL ONLY)
+sandbox/experiments/            # User experiments (LOCAL ONLY)
+sandbox/tasks/                  # Current tasks (LOCAL ONLY)
+sandbox/documents/              # Document processing (LOCAL ONLY)
+sandbox/data/                   # Data processing (LOCAL ONLY)
+sandbox/**/*.user.*             # User-specific content
+sandbox/**/*.session.*          # Session-specific content
+sandbox/**/*.working            # Work-in-progress files
+sandbox/**/*.tmp                # Temporary files
+
+# Keep framework structure only
+!sandbox/README.md
+!sandbox/STRUCTURE.md
+
+# ════════════════════════════════════════════════════════════════
+# 🧠 uMEMORY - Memory Archive System
+# ════════════════════════════════════════════════════════════════
+# ✅ Sync: Framework structure and templates
+# 🚫 Local: User/role data archives
+
+uMEMORY/user/                   # User memory archives (LOCAL ONLY)
+uMEMORY/role/                   # Role memory archives (LOCAL ONLY)
+uMEMORY/**/*.user.*             # User-specific data
+uMEMORY/**/*.personal.*         # Personal memory data
+
+# Keep framework structure
+!uMEMORY/README.md
+!uMEMORY/templates/
+!uMEMORY/user/README.md
+!uMEMORY/role/README.md
+
+# ════════════════════════════════════════════════════════════════
+# � STANDARD DEVELOPMENT EXCLUSIONS
 # ════════════════════════════════════════════════════════════════
 
-# uMEMORY: Keep system templates, exclude user/role data
-uMEMORY/user/
-uMEMORY/role/
-uMEMORY/**/*.user.*
-uMEMORY/**/*.personal.*
-
-# Wizard: Keep distribution notes/tools, exclude user sessions
-wizard/USER/
-wizard/**/*.user.*
-wizard/**/*.personal.*
-wizard/**/*.session.*
-
-# ════════════════════════════════════════════════════════════════
-# 🚫 STANDARD EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# Logs and temporary files
-**/*.log
-**/*.tmp
-**/*.working
-**/*.cache
-**/*.temp
-
-# Development environments and build artifacts
+# Development environments
 **/venv/
 **/venv3/
 **/.venv/
@@ -80,9 +89,15 @@ wizard/**/*.session.*
 **/dist/
 **/build/
 **/out/
-*.dmg
-*.zip
-*.tar.gz
+
+# Logs and temporary files
+**/*.log
+**/*.tmp
+**/*.working
+**/*.cache
+**/*.temp
+**/*.bak
+**/*.old
 
 # System files
 .DS_Store
@@ -96,96 +111,42 @@ wizard/**/*.session.*
 personal-*
 user-*
 
-# IDE configurations (keep shared configs, exclude personal)
+# IDE configurations (exclude personal, keep shared)
 .vscode/settings.json
 .vscode/launch.json
 .idea/
 
-# ════════════════════════════════════════════════════════════════
-# ✅ uDOS v1.4 DISTRIBUTION INCLUDES
-# ════════════════════════════════════════════════════════════════
-# ✅ uCORE/ - Core system with role installers
-# ✅ dev/ - Development framework (core tools only)
-# ✅ sandbox/ - Sandbox framework (core templates only)
-# ✅ docs/ - Complete documentation
-# ✅ shared/ - Shared resources and templates
-# ✅ extensions/ - Core extensions
-# ✅ wizard/ - Distribution notes and tools
-# ✅ install.sh - Main installer
-# ✅ README.md, LICENSE, documentation files
+# Build artifacts
+*.dmg
+*.zip
+*.tar.gz
 
 # ════════════════════════════════════════════════════════════════
-# 🚫 uDOS v1.4 DISTRIBUTION EXCLUDES
-# =============================================================================
-# uDOS v1.4 - Clean Distribution Configuration
-# DEV/Sandbox/uMEMORY isolation system
-# =============================================================================
-
-# ════════════════════════════════════════════════════════════════
-# 🔧 DEV MODE (Wizard + DEV activated) - Core uDOS Development
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Framework tools, templates, core scripts
-# 🚫 Local: Active development work, personal tools
-
-dev/active/                     # Core dev work (LOCAL ONLY)
-dev/scripts/*.local.*           # Local development scripts
-dev/tools/*.personal.*          # Personal development tools
-dev/**/*.working                # Work-in-progress files
-dev/**/*.tmp                    # Temporary dev files
-
-# ════════════════════════════════════════════════════════════════
-# 🚀 SANDBOX (All roles) - User workspace (FLUSHABLE)
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Framework structure, guides, templates
-# 🚫 Local: ALL user content (designed to be flushable)
-
-sandbox/current-session.md      # Current session data
-sandbox/scripts/                # User scripts (flushable)
-sandbox/experiments/            # User experiments (flushable)
-sandbox/tasks/                  # Current tasks (flushable)
-sandbox/sessions/               # Session data (flushable → archive)
-sandbox/logs/                   # Session logs (flushable → archive)
-sandbox/dev/                    # User dev work (flushable)
-sandbox/**/*.user.*             # User-specific content
-sandbox/**/*.session.*          # Session-specific content
-sandbox/**/*.working            # Work-in-progress files
-sandbox/**/*.tmp                # Temporary files
-
-# ════════════════════════════════════════════════════════════════
-# 🧠 uMEMORY - Memory archive system
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Framework structure, core memory, system memory
-# 🚫 Local: Role/user memory archives
-
-uMEMORY/role/                   # Role memory archives (LOCAL ONLY)
-uMEMORY/user/                   # User memory archives (LOCAL ONLY)
-
-# Keep framework structure (these stay on GitHub)
-!uMEMORY/
-!uMEMORY/README.md
-!uMEMORY/core/
-!uMEMORY/system/
-!uMEMORY/role/README.md
-!uMEMORY/user/README.md
-
-# ════════════════════════════════════════════════════════════════
-# 📦 OTHER SYSTEMS
+# 🗑️ CLEANUP EXCLUSIONS
 # ════════════════════════════════════════════════════════════════
 
-# Centralized backup system (local only)
+# Trash and backup directories
+trash/
+backup/
 BACKUP/
-uSCRIPT/venv/
 
-# Dev folder patterns - sync templates and docs, exclude active work
-dev/active/
-dev/scripts/maintenance/temp-*
-dev/tools/temp-*
-dev/copilot/temp-*
+# Legacy and cleanup files
+**/legacy/
+**/deprecated/
+**/*.legacy.*
+**/*.deprecated.*
 
-# Keep these for collaboration
-!dev/templates/
-!dev/docs/
-!dev/roadmaps/
-!dev/copilot/instructions/
-!dev/copilot/context/
-!dev/vscode/configs/
+# ════════════════════════════════════════════════════════════════
+# ✅ DISTRIBUTION INCLUDES SUMMARY
+# ════════════════════════════════════════════════════════════════
+# ✅ uCORE/ - Core system
+# ✅ dev/templates/ - Development templates
+# ✅ dev/docs/ - Architecture documentation  
+# ✅ dev/copilot/ - AI assistant context
+# ✅ dev/vscode/ - Shared VS Code configs
+# ✅ docs/ - User documentation
+# ✅ extensions/ - Extension system
+# ✅ uNETWORK/ - Network components
+# ✅ uSCRIPT/ - Script system
+# ✅ uKNOWLEDGE/ - Knowledge base
+# ✅ README.md, LICENSE, CHANGELOG.md
