@@ -31,7 +31,7 @@ readonly NC='\033[0m'
 log_action() {
     local message="$1"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$timestamp] DEPLOY: $message" >> "$PROJECT_ROOT/uMEMORY/logs/deployment.log"
+    echo "[$timestamp] DEPLOY: $message" >> "$PROJECT_ROOT/sandbox/logs/system/deployment.log"
 }
 
 # Display extension header
@@ -55,7 +55,7 @@ init_deployment_system() {
     mkdir -p "$TEMPLATES_DIR"/{drone,standalone,server,portable,cloud,developer}
 
     # Create deployment log
-    touch "$PROJECT_ROOT/uMEMORY/logs/deployment.log"
+    touch "$PROJECT_ROOT/sandbox/logs/system/deployment.log"
 
     log_action "Deployment system initialized"
 }

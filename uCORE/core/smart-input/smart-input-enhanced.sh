@@ -48,16 +48,16 @@ readonly PROMPT_WIZARD="🧙‍♂️"
 log_input_action() {
     local message="$1"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$timestamp] SMART-INPUT: $message" >> "$PROJECT_ROOT/uMEMORY/logs/input.log"
+    echo "[$timestamp] SMART-INPUT: $message" >> "$PROJECT_ROOT/sandbox/logs/system/input.log"
 }
 
 # Initialize enhanced input system
 init_smart_input_system() {
     mkdir -p "$FORMS_DIR"/{active,completed,templates,drafts}
     mkdir -p "$TEMPLATES_DIR"/{basic,advanced,wizard,validation}
-    mkdir -p "$PROJECT_ROOT/uMEMORY/logs"
-    
-    touch "$PROJECT_ROOT/uMEMORY/logs/input.log"
+    mkdir -p "$PROJECT_ROOT/sandbox/logs/system"
+
+    touch "$PROJECT_ROOT/sandbox/logs/system/input.log"
     log_input_action "Smart Input Enhanced system initialized"
 }
 
@@ -68,28 +68,28 @@ smart_prompt() {
     local suggestions="${3:-}"
     local required="${4:-true}"
     local help_text="${5:-}"
-    
+
     local input=""
     local attempts=0
     local max_attempts=3
-    
+
     while [[ $attempts -lt $max_attempts ]]; do
         # Display prompt with style
         echo -ne "${CYAN}${PROMPT_INPUT} ${prompt_text}${NC}"
-        
+
         # Show suggestions if provided
         if [[ -n "$suggestions" ]]; then
             echo -ne "${DIM} (Suggestions: $suggestions)${NC}"
         fi
-        
+
         # Show help if provided
         if [[ -n "$help_text" ]]; then
             echo -ne "${DIM} 💡 $help_text${NC}"
         fi
-        
+
         echo -ne "${WHITE}\n❯ ${NC}"
         read -r input
-        
+
         # Validation
         if validate_input "$input" "$validation_type" "$required"; then
             echo -e "${GREEN}${PROMPT_SUCCESS} Valid input accepted${NC}"
@@ -99,13 +99,13 @@ smart_prompt() {
         else
             echo -e "${RED}${PROMPT_ERROR} Invalid input. Please try again.${NC}"
             ((attempts++))
-            
+
             if [[ $attempts -lt $max_attempts ]]; then
                 show_validation_help "$validation_type"
             fi
         fi
     done
-    
+
     echo -e "${RED}${PROMPT_ERROR} Maximum attempts reached. Using default or empty value.${NC}"
     log_input_action "Input validation failed after $max_attempts attempts"
     echo ""
@@ -117,12 +117,12 @@ validate_input() {
     local input="$1"
     local type="$2"
     local required="$3"
-    
+
     # Check if required and empty
     if [[ "$required" == "true" && -z "$input" ]]; then
         return 1
     fi
-    
+
     case "$type" in
         "email")
             [[ "$input" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]
@@ -166,7 +166,7 @@ validate_input() {
 # Show validation help
 show_validation_help() {
     local type="$1"
-    
+
     echo -e "${YELLOW}${PROMPT_INFO} Validation Help:${NC}"
     case "$type" in
         "email") echo -e "  Format: user@domain.com" ;;
@@ -190,43 +190,43 @@ smart_select() {
     local options_string="$2"
     local allow_multiple="${3:-false}"
     local required="${4:-true}"
-    
+
     # Convert options string to array
     IFS='|' read -ra options <<< "$options_string"
-    
+
     echo -e "${CYAN}${PROMPT_SELECT} $prompt${NC}"
     echo ""
-    
+
     # Display options
     for i in "${!options[@]}"; do
         local option_num=$((i + 1))
         echo -e "  ${WHITE}$option_num)${NC} ${options[i]}"
     done
-    
+
     echo ""
-    
+
     if [[ "$allow_multiple" == "true" ]]; then
         echo -e "${DIM}Enter multiple numbers separated by commas (e.g., 1,3,5)${NC}"
     else
         echo -e "${DIM}Enter the number of your choice${NC}"
     fi
-    
+
     local selection=""
     echo -ne "${WHITE}❯ ${NC}"
     read -r selection
-    
+
     if [[ "$allow_multiple" == "true" ]]; then
         # Handle multiple selections
         IFS=',' read -ra selected_nums <<< "$selection"
         local results=()
-        
+
         for num in "${selected_nums[@]}"; do
             num=$(echo "$num" | tr -d ' ')  # Remove spaces
             if [[ "$num" =~ ^[0-9]+$ ]] && [[ $num -ge 1 ]] && [[ $num -le ${#options[@]} ]]; then
                 results+=("${options[$((num-1))]}")
             fi
         done
-        
+
         if [[ ${#results[@]} -gt 0 ]]; then
             printf '%s\n' "${results[@]}"
             log_input_action "Multi-select completed: ${#results[@]} items"
@@ -240,7 +240,7 @@ smart_select() {
             return 0
         fi
     fi
-    
+
     echo -e "${RED}${PROMPT_ERROR} Invalid selection${NC}"
     log_input_action "Invalid selection attempted"
     return 1
@@ -250,12 +250,12 @@ smart_select() {
 create_form() {
     local form_name="$1"
     local form_type="${2:-basic}"
-    
+
     echo -e "${MAGENTA}${PROMPT_WIZARD} Form Builder - Creating '$form_name'${NC}"
     echo ""
-    
+
     local form_file="$FORMS_DIR/drafts/${form_name}-$(date +%s).json"
-    
+
     # Initialize form structure
     cat > "$form_file" << EOF
 {
@@ -269,51 +269,51 @@ create_form() {
   "actions": {}
 }
 EOF
-    
+
     # Interactive form building
     local title
     title=$(smart_prompt "Form Title" "text" "" "true" "Brief descriptive title for the form")
-    
+
     local description
     description=$(smart_prompt "Form Description" "text" "" "false" "Optional detailed description")
-    
+
     # Update form metadata
     local updated_form
     updated_form=$(jq --arg title "$title" --arg desc "$description" \
         '.title = $title | .description = $desc' "$form_file")
     echo "$updated_form" > "$form_file"
-    
+
     # Build fields interactively
     build_form_fields "$form_file"
-    
+
     echo -e "${GREEN}${PROMPT_SUCCESS} Form '$form_name' created successfully!${NC}"
     echo -e "Location: $form_file"
-    
+
     log_input_action "Form created: $form_name"
 }
 
 # Interactive field builder
 build_form_fields() {
     local form_file="$1"
-    
+
     echo -e "${CYAN}Building form fields...${NC}"
     echo ""
-    
+
     while true; do
         echo -e "${WHITE}Add a field to the form:${NC}"
-        
+
         local field_name
         field_name=$(smart_prompt "Field Name" "alphanum" "name,email,message,phone" "true" "Internal field identifier")
-        
+
         local field_label
         field_label=$(smart_prompt "Field Label" "text" "" "true" "User-visible label")
-        
+
         local field_type
         field_type=$(smart_select "Field Type" "text|email|number|date|select|multiselect|textarea|checkbox" "false" "true")
-        
+
         local required
         required=$(smart_select "Required Field?" "yes|no" "false" "true")
-        
+
         local validation=""
         if [[ "$field_type" == "email" ]]; then
             validation="email"
@@ -322,7 +322,7 @@ build_form_fields() {
         elif [[ "$field_type" == "date" ]]; then
             validation="date"
         fi
-        
+
         # Add field to form
         local field_json
         field_json=$(jq -n \
@@ -339,18 +339,18 @@ build_form_fields() {
                 validation: $val,
                 options: []
             }')
-        
+
         # Update form file
         local updated_form
         updated_form=$(jq --argjson field "$field_json" '.fields += [$field]' "$form_file")
         echo "$updated_form" > "$form_file"
-        
+
         echo -e "${GREEN}${PROMPT_SUCCESS} Field '$field_name' added${NC}"
         echo ""
-        
+
         local continue_adding
         continue_adding=$(smart_select "Add another field?" "yes|no" "false" "true")
-        
+
         if [[ "$continue_adding" == "no" ]]; then
             break
         fi
@@ -361,18 +361,18 @@ build_form_fields() {
 execute_form() {
     local form_file="$1"
     local output_file="${2:-$FORMS_DIR/completed/form-response-$(date +%s).json}"
-    
+
     if [[ ! -f "$form_file" ]]; then
         echo -e "${RED}${PROMPT_ERROR} Form file not found: $form_file${NC}"
         return 1
     fi
-    
+
     local form_title
     form_title=$(jq -r '.title' "$form_file")
-    
+
     local form_description
     form_description=$(jq -r '.description' "$form_file")
-    
+
     # Display form header
     echo ""
     echo -e "${BOLD}${UNDERLINE}$form_title${NC}"
@@ -380,45 +380,45 @@ execute_form() {
         echo -e "${DIM}$form_description${NC}"
     fi
     echo ""
-    
+
     # Initialize response object
     local response_json='{}'
     response_json=$(jq --arg form_id "$(jq -r '.form_id' "$form_file")" \
         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         '. + {form_id: $form_id, submitted_at: $timestamp, responses: {}}' <<< "$response_json")
-    
+
     # Process each field
     local field_count
     field_count=$(jq '.fields | length' "$form_file")
-    
+
     for ((i=0; i<field_count; i++)); do
         local field
         field=$(jq ".fields[$i]" "$form_file")
-        
+
         local field_name
         field_name=$(jq -r '.name' <<< "$field")
-        
+
         local field_label
         field_label=$(jq -r '.label' <<< "$field")
-        
+
         local field_type
         field_type=$(jq -r '.type' <<< "$field")
-        
+
         local field_required
         field_required=$(jq -r '.required' <<< "$field")
-        
+
         local field_validation
         field_validation=$(jq -r '.validation' <<< "$field")
-        
+
         local response=""
-        
+
         case "$field_type" in
             "select"|"multiselect")
                 local options
                 options=$(jq -r '.options | join("|")' <<< "$field")
                 local allow_multi="false"
                 [[ "$field_type" == "multiselect" ]] && allow_multi="true"
-                
+
                 response=$(smart_select "$field_label" "$options" "$allow_multi" "$field_required")
                 ;;
             "checkbox")
@@ -427,24 +427,24 @@ execute_form() {
             *)
                 local validation_type="text"
                 [[ "$field_validation" != "null" && -n "$field_validation" ]] && validation_type="$field_validation"
-                
+
                 response=$(smart_prompt "$field_label" "$validation_type" "" "$field_required")
                 ;;
         esac
-        
+
         # Add response to JSON
         response_json=$(jq --arg key "$field_name" --arg val "$response" \
             '.responses[$key] = $val' <<< "$response_json")
-        
+
         echo ""
     done
-    
+
     # Save response
     echo "$response_json" > "$output_file"
-    
+
     echo -e "${GREEN}${PROMPT_SUCCESS} Form completed successfully!${NC}"
     echo -e "Response saved to: $output_file"
-    
+
     log_input_action "Form executed: $form_title -> $output_file"
     echo "$output_file"
 }
@@ -453,10 +453,10 @@ execute_form() {
 start_wizard() {
     local wizard_name="$1"
     local wizard_config="${2:-}"
-    
+
     echo -e "${MAGENTA}${PROMPT_WIZARD} Starting Wizard: $wizard_name${NC}"
     echo ""
-    
+
     case "$wizard_name" in
         "mission-creation")
             mission_creation_wizard
@@ -488,30 +488,30 @@ mission_creation_wizard() {
     echo -e "${CYAN}Mission Creation Wizard${NC}"
     echo -e "${DIM}Let's create a new mission step by step${NC}"
     echo ""
-    
+
     local mission_title
     mission_title=$(smart_prompt "Mission Title" "text" "Learn,Build,Explore,Research" "true" "What do you want to accomplish?")
-    
+
     local mission_type
     mission_type=$(smart_select "Mission Type" "learning|project|research|maintenance|exploration" "false" "true")
-    
+
     local priority
     priority=$(smart_select "Priority Level" "low|medium|high|urgent" "false" "true")
-    
+
     local estimated_duration
     estimated_duration=$(smart_prompt "Estimated Duration" "text" "1 hour,1 day,1 week,1 month" "false" "How long do you think this will take?")
-    
+
     local mission_description
     mission_description=$(smart_prompt "Mission Description" "text" "" "false" "Detailed description of what needs to be done")
-    
+
     # Create mission file with uHEX naming convention
     local uhex_code=$(generate_uhex)
     local clean_title="${mission_title//[^a-zA-Z0-9]/-}"
     local mission_file="$PROJECT_ROOT/uMEMORY/user/missions/uTASK-${uhex_code}-${clean_title}.md"
-    
+
     # Ensure directory exists
     mkdir -p "$PROJECT_ROOT/uMEMORY/user/missions"
-    
+
     cat > "$mission_file" << EOF
 ---
 mission_id: "uTASK-${uhex_code}"
@@ -554,10 +554,10 @@ $estimated_duration
 *Add progress notes, obstacles, insights as you work*
 
 ---
-*Created: $(date)*  
+*Created: $(date)*
 *Mission ID: uTASK-${uhex_code}*
 EOF
-    
+
     echo -e "${GREEN}${PROMPT_SUCCESS} Mission created: $mission_file${NC}"
     log_input_action "Mission created via wizard: $mission_title"
 }
@@ -566,26 +566,26 @@ EOF
 list_smart_features() {
     echo -e "${BOLD}🧠 Smart Input Enhanced Features${NC}"
     echo ""
-    
+
     echo -e "${CYAN}📋 FORMS${NC}"
     echo -e "  • create_form <name> [type] - Build interactive forms"
     echo -e "  • execute_form <form_file> [output] - Run form and collect responses"
     echo -e "  • validate_input <input> <type> - Advanced input validation"
     echo ""
-    
+
     echo -e "${CYAN}🧙‍♂️ WIZARDS${NC}"
     echo -e "  • mission-creation - Create new missions step-by-step"
     echo -e "  • project-setup - Initialize new projects"
     echo -e "  • template-builder - Build custom templates"
     echo -e "  • system-config - Configure system settings"
     echo ""
-    
+
     echo -e "${CYAN}📝 INPUT TYPES${NC}"
     echo -e "  • text, email, url, number, float, date, time"
     echo -e "  • phone, alphanum, filename, path, json"
     echo -e "  • select, multiselect, checkbox, textarea"
     echo ""
-    
+
     echo -e "${CYAN}💡 FEATURES${NC}"
     echo -e "  • Smart validation with helpful error messages"
     echo -e "  • Context-aware suggestions"
@@ -593,7 +593,7 @@ list_smart_features() {
     echo -e "  • Form builder with JSON export"
     echo -e "  • Enhanced UI with colors and symbols"
     echo ""
-    
+
     # Show existing forms
     if [[ -d "$FORMS_DIR" ]]; then
         local form_count
@@ -613,7 +613,7 @@ list_smart_features() {
 # Main command dispatcher
 main() {
     init_smart_input_system
-    
+
     case "${1:-LIST}" in
         "PROMPT")
             [[ $# -lt 2 ]] && { echo "Usage: smart-input-enhanced.sh PROMPT <text> [type] [suggestions] [required] [help]" >&2; exit 1; }
