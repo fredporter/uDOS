@@ -49,8 +49,8 @@ get_role_emoji() {
 # Function to display header
 show_header() {
     echo -e "${PURPLE}┌─────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│     🏗️  uDOS v1.3 Installation Manager     │${NC}"
-    echo -e "${PURPLE}│        Multi-Role Architecture v2.0        │${NC}"
+    echo -e "${PURPLE}│     🏗️  uDOS v1.0.4.1 Installation Manager │${NC}"
+    echo -e "${PURPLE}│        Multi-Role Architecture v1.0        │${NC}"
     echo -e "${PURPLE}└─────────────────────────────────────────────┘${NC}"
     echo
 }
@@ -59,12 +59,12 @@ show_header() {
 list_installations() {
     echo -e "${CYAN}📂 Available Installations:${NC}"
     echo
-    
+
     for role in "${ROLE_NAMES[@]}"; do
         local level=$(get_role_level "$role")
         local emoji=$(get_role_emoji "$role")
         local dir_path="$INSTALL_DIR/$role"
-        
+
         if [ -d "$dir_path" ] || [ -L "$dir_path" ]; then
             local status="${GREEN}✅ Installed${NC}"
             if [ -L "$dir_path" ]; then
@@ -73,7 +73,7 @@ list_installations() {
         else
             local status="${RED}❌ Not Found${NC}"
         fi
-        
+
         printf "  %s %-10s (Level %3s) - %s\n" "$emoji" "$role" "$level" "$status"
     done
     echo
@@ -82,37 +82,37 @@ list_installations() {
 # Function to show installation details
 show_installation_details() {
     local role="$1"
-    
+
     if [ -z "$role" ]; then
         echo -e "${RED}❌ Error: No role specified${NC}"
         return 1
     fi
-    
+
     local level=$(get_role_level "$role")
     if [ -z "$level" ]; then
         echo -e "${RED}❌ Error: Invalid role '$role'${NC}"
         return 1
     fi
-    
+
     local emoji=$(get_role_emoji "$role")
     local dir_path="$INSTALL_DIR/$role"
-    
+
     echo -e "${CYAN}$emoji $role Installation Details (Level $level):${NC}"
     echo
-    
+
     if [ -d "$dir_path" ] || [ -L "$dir_path" ]; then
         echo -e "${GREEN}✅ Status: Installed${NC}"
         echo -e "📁 Location: $dir_path"
-        
+
         if [ -L "$dir_path" ]; then
             local target=$(readlink "$dir_path")
             echo -e "🔗 Symlink Target: $target"
         fi
-        
+
         echo
         echo -e "${BLUE}📊 Directory Contents:${NC}"
         ls -la "$dir_path" 2>/dev/null | head -10
-        
+
         if [ -f "$dir_path/README.md" ]; then
             echo
             echo -e "${YELLOW}📖 README Available: $dir_path/README.md${NC}"
@@ -127,24 +127,24 @@ show_installation_details() {
 # Function to validate role permissions
 validate_permissions() {
     local role="$1"
-    
+
     echo -e "${CYAN}🔐 Validating Permissions for $role:${NC}"
     echo
-    
+
     # Check shared resources access
     echo -e "${BLUE}Shared Resources:${NC}"
-    
+
     local permissions_file="$SHARED_DIR/permissions/${role}-permissions.json"
     if [ -f "$permissions_file" ]; then
         echo -e "  ✅ Permissions file: $permissions_file"
     else
         echo -e "  ❌ Missing permissions file: $permissions_file"
     fi
-    
+
     # Check uCORE access based on role level
     local level=$(get_role_level "$role")
     echo -e "${BLUE}uCORE Access (Level $level):${NC}"
-    
+
     case "$role" in
         "wizard")
             echo -e "  ✅ Full system access"
@@ -183,18 +183,18 @@ validate_permissions() {
 # Function to create missing installation
 create_installation() {
     local role="$1"
-    
+
     local level=$(get_role_level "$role")
     if [ -z "$level" ]; then
         echo -e "${RED}❌ Error: Invalid role '$role'${NC}"
         return 1
     fi
-    
+
     local emoji=$(get_role_emoji "$role")
     local dir_path="$INSTALL_DIR/$role"
-    
+
     echo -e "${YELLOW}🔧 Creating $emoji $role installation...${NC}"
-    
+
     # Create role-specific directories based on role type
     case "$role" in
         "wizard")
@@ -217,14 +217,14 @@ create_installation() {
             mkdir -p "$dir_path"/{demo-interface,public-docs,temp-sandbox}
             ;;
     esac
-    
+
     # Create role-specific README if it doesn't exist
     if [ ! -f "$dir_path/README.md" ] && [ "$role" != "wizard" ]; then
         echo "# $emoji $role Installation" > "$dir_path/README.md"
         echo "Role Level: $level/100" >> "$dir_path/README.md"
         echo "Created: $(date)" >> "$dir_path/README.md"
     fi
-    
+
     # Create permissions file
     local permissions_file="$SHARED_DIR/permissions/${role}-permissions.json"
     if [ ! -f "$permissions_file" ]; then
@@ -245,7 +245,7 @@ create_installation() {
 }
 EOF
     fi
-    
+
     echo -e "${GREEN}✅ $emoji $role installation created successfully${NC}"
     echo
 }
@@ -254,14 +254,14 @@ EOF
 show_role_comparison() {
     echo -e "${CYAN}📊 Role Comparison Matrix:${NC}"
     echo
-    
+
     printf "%-10s %-6s %-10s %-10s %-12s %-8s\n" "Role" "Level" "Sandbox" "uMemory" "uKnowledge" "System"
     printf "%-10s %-6s %-10s %-10s %-12s %-8s\n" "------" "-----" "-------" "--------" "----------" "------"
-    
+
     for role in ghost tomb drone imp sorcerer wizard; do
         local emoji=$(get_role_emoji "$role")
         local level=$(get_role_level "$role")
-        
+
         case "$role" in
             "wizard")
                 printf "%s %-8s %-6s %-10s %-10s %-12s %-8s\n" "$emoji" "$role" "$level" "Full" "Full" "Full" "Dev"
@@ -290,7 +290,7 @@ show_role_comparison() {
 check_system_status() {
     echo -e "${CYAN}🔍 System Status Check:${NC}"
     echo
-    
+
     # Check core directories
     echo -e "${BLUE}Core Directories:${NC}"
     for dir in uCORE uMEMORY uKNOWLEDGE uSCRIPT sandbox; do
@@ -300,7 +300,7 @@ check_system_status() {
             echo -e "  ❌ $dir (missing)"
         fi
     done
-    
+
     echo
     echo -e "${BLUE}Installation Structure:${NC}"
     if [ -d "$INSTALL_DIR" ]; then
@@ -310,7 +310,7 @@ check_system_status() {
     else
         echo -e "  ❌ install/roles/ directory missing"
     fi
-    
+
     echo
     echo -e "${BLUE}Shared Resources:${NC}"
     if [ -d "$SHARED_DIR" ]; then
@@ -331,7 +331,7 @@ check_system_status() {
 # Main function
 main() {
     show_header
-    
+
     case "${1:-help}" in
         "list"|"ls")
             list_installations

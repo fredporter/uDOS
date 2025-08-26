@@ -1,5 +1,5 @@
 #!/bin/bash
-# 🌀 uDOS macOS Launcher v1.4.0
+# 🌀 uDOS macOS Launcher v1.0.4.1
 # Three-mode display launcher for macOS: CLI Terminal, Desktop App, Web Export
 
 set -euo pipefail

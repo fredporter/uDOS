@@ -25,7 +25,7 @@ CULTURAL_DATA="$GEO_DATA/cultural"
 DOCS_DATA="$GEO_DATA/documentation"
 
 # System configuration
-export UDOS_GEO_VERSION="1.4.0"
+export UDOS_GEO_VERSION="1.0.4.1"
 export UDOS_GEO_ENGINE="geo-core"
 export UDOS_GEO_DATA_PATH="$GEO_DATA"
 
