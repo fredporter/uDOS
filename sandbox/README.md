@@ -21,15 +21,14 @@ Everything has a proper place in the sandbox structure.
 
 ## 📁 Structure
 
-- **`logs/`** - All system and user logging (migrated from uMEMORY)
-- **`trash/`** - All deleted files with timestamps (category-YYYYMMDD-HHMMSSTZCODE/)
-- **`backup/`** - System and user backups with timestamps
-- **`sessions/`** - Current session data and management
-- **`scripts/`** - Temporary user scripts and utilities
-- **`experiments/`** - Experimental features and development workspace
-- **`tasks/`** - Task management and workflows
-- **`user/`** - User workspace and temporary files
-- **`templates/`** - Template files for generation
+- **`dev/`** - Development files, scripts being worked on
+- **`temp/`** - Temporary files (auto-cleaned every hour)
+- **`session/`** - Session management and logging
+- **`workflow/`** - User journey management (moves→milestones→missions→legacy)
+- **`logs/`** - All system logs (migrated from uMEMORY)
+- **`experiments/`** - Experimental features and tests
+- **`tests/`** - Test scripts and validation
+- **`scripts/`** - User scripts and utilities
 
 ## 🚀 **Quick Start**
 

@@ -127,6 +127,54 @@ Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
 
 ## 🛠️ Development Workflows
 
+### 🧠 ASSIST Mode (DEV MODE Enhancement)
+**High-efficiency development mode for Wizard + Claude Copilot collaboration**
+
+**Automatic Session Finalization:**
+1. **Generate Summary**: Create comprehensive session log in `sandbox/logs/session-finalization-YYYYMMDD-HHMMSSTZCODE.md`
+2. **Auto-Commit**: Use session summary as git commit message with format:
+   ```bash
+   git add -A
+   git commit -m "Session: [Date] - [Summary]
+
+   [Key Changes Bullet Points]
+
+   [Files Modified/Added/Removed]
+
+   [Next Recommended Actions]"
+   ```
+3. **Workflow Continuation**: Suggest next logical development task based on session analysis
+
+**ASSIST Mode Commands:**
+- `[ASSIST|ENTER]` - Activate ASSIST mode for current session
+- `[ASSIST|FINALIZE]` - Generate session summary and auto-commit to git
+- `[ASSIST|NEXT]` - Analyze context and recommend next development task
+- `[ASSIST|EXIT]` - Deactivate ASSIST mode and return to standard workflow
+
+**Session Analysis Pattern:**
+```markdown
+# Session Finalization - [26 August 2025] [4:05 PM AEST]
+
+## Session Summary
+[Comprehensive overview of work completed]
+
+## Key Achievements
+- [Major accomplishment 1]
+- [Major accomplishment 2]
+- [System improvements made]
+
+## Files Modified
+- Added: [new files with purpose]
+- Modified: [changed files with reason]
+- Removed: [deleted files moved to trash]
+
+## Next Development Priority
+[Recommended next task based on current system state]
+
+## Technical Notes
+[Any important technical decisions or context for future development]
+```
+
 ### Startup Banner System
 - Retro rainbow ASCII banner displays on first launch and key commands
 - Banner triggers: help, status, install, setup commands
@@ -136,7 +184,6 @@ Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
 ### File Management Rules
 - **Always move .old files to sandbox/trash**: Never leave orphaned .old files in the system
 - **Timestamp trash directories**: Use format `sandbox/trash/category-YYYYMMDD-HHMMSSTZCODE/`
-- **Install script location**: `/install.sh` in repository root for GitHub distribution
 - **Documentation migration**: uDOC files moved from system/get to /docs with integration
 - **Clean architecture**: Remove obsolete files to maintain system clarity
 
