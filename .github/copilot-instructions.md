@@ -153,10 +153,12 @@ Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
 - `[ASSIST|EXIT]` - Deactivate ASSIST mode and return to standard workflow
 
 **Roadmap Integration:**
-- **Live Updates**: Roadmaps updated during development sessions
+- **Live Updates**: Roadmaps updated during development sessions via `dev/roadmaps/current/`
 - **Feature Completion**: Move completed features from roadmaps to `/docs`
+- **Archive Management**: Completed roadmaps moved to `dev/roadmaps/archive/` (local only)
 - **Future Planning**: Generate new roadmap suggestions based on development patterns
 - **Priority Adjustment**: Reorder roadmap priorities based on session outcomes
+- **GitHub Visibility**: Current roadmaps remain in `docs/roadmaps/current/` via symlink
 
 **Session Analysis Pattern:**
 ```markdown
@@ -260,6 +262,9 @@ sandbox/
 
 dev/                # Core development (wizard + DEV mode only)
 ├── active/         # Current core development projects
+├── roadmaps/       # Development roadmap management
+│   ├── current/    # → symlink to /docs/roadmaps/current (GitHub visible)
+│   └── archive/    # Local archive (completed roadmaps, local only)
 ├── scripts/        # Development automation scripts
 ├── templates/      # Development templates
 ├── docs/           # Architecture documentation

@@ -21,7 +21,7 @@ Following successful documentation consolidation and ASSIST mode implementation,
 
 ### Phase 1: Core Router (Day 1)
 - **Create**: `uCORE/code/command-router.sh`
-- **Features**: 
+- **Features**:
   - Parse `[COMMAND|ACTION*params]` syntax
   - Basic command validation
   - Error handling and user feedback

@@ -37,11 +37,11 @@ Located in: `/docs/`
 
 - **[Documentation Consolidation System](../Documentation-Consolidation-System.md)** - ASSIST mode and doc structure (Completed 26 Aug 2025)
 
-### 📚 Archived Planning
-Located in: `/docs/roadmaps/archive/`
-
-- **[Markdown Specification](archive/Markdown-Spec.md)** - Comprehensive markdown language spec
-- **[Markdown Archive Notes](archive/Markdown-Spec-Archive-Notes.md)** - Archive rationale
+### �️ Archive Management
+**Archived roadmaps**: Stored in `/dev/roadmaps/archive/` (local development only)
+- Completed roadmaps moved to local archive for reference
+- GitHub repository shows only current active roadmaps
+- Archives accessible to development team via dev workspace
 
 ---
 
