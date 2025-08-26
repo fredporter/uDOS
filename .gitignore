@@ -1,10 +1,10 @@
 # ══════════════════════════════════════════════════
-# uDOS v1.4 Clean Distribution .gitignore
+# uDOS v1.0.4.1 Clean Distribution .gitignore
 # Development/User/Memory Isolation System
 # ══════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════
-# 🎯 uDOS DISTRIBUTION STRATEGY v1.4
+# 🎯 uDOS DISTRIBUTION STRATEGY v1.0.4.1
 # ════════════════════════════════════════════════════════════════
 # ✅ Keep: Core system, dev framework, shared templates
 # 🚫 Exclude: User data, active development, personal content
@@ -47,6 +47,10 @@ sandbox/experiments/            # User experiments (LOCAL ONLY)
 sandbox/tasks/                  # Current tasks (LOCAL ONLY)
 sandbox/documents/              # Document processing (LOCAL ONLY)
 sandbox/data/                   # Data processing (LOCAL ONLY)
+sandbox/generated/              # Generated content (LOCAL ONLY)
+sandbox/workflow/               # Workflow data (LOCAL ONLY)
+sandbox/user.md                 # User profile (LOCAL ONLY)
+sandbox/test-*.json             # Test data (LOCAL ONLY)
 sandbox/**/*.user.*             # User-specific content
 sandbox/**/*.session.*          # Session-specific content
 sandbox/**/*.working            # Work-in-progress files
@@ -64,8 +68,13 @@ sandbox/**/*.tmp                # Temporary files
 
 uMEMORY/user/                   # User memory archives (LOCAL ONLY)
 uMEMORY/role/                   # Role memory archives (LOCAL ONLY)
+uMEMORY/system/environment-*.sh # User environment configs (LOCAL ONLY)
 uMEMORY/**/*.user.*             # User-specific data
 uMEMORY/**/*.personal.*         # Personal memory data
+uMEMORY/**/*-testuser.*         # Test user data
+uMEMORY/**/profile-*.md         # User profiles
+uMEMORY/**/welcome-*.md         # Welcome messages
+uMEMORY/**/*testuser*           # All test user content
 
 # Keep framework structure
 !uMEMORY/README.md
