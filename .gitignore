@@ -1,23 +1,48 @@
 # ══════════════════════════════════════════════════
-# uDOS v1.0.4.1 Minimal Distribution .gitignore
-# Broad Exclusions with Selective Includes Strategy
+# uDOS v1.0.4.1 Development-Ready Distribution
+# Essential Infrastructure + Clean Framework Strategy
 # ══════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════
 # 🎯 MINIMAL DISTRIBUTION STRATEGY
 # ════════════════════════════════════════════════════════════════
-# ✅ Include: Core system, essential docs, clean framework
+# ✅ Include: Core system, essential docs, dev infrastructure
 # 🚫 Exclude: User data, runtime, dev work, logs, configs
 
 # ════════════════════════════════════════════════════════════════
 # 📁 BROAD DIRECTORY EXCLUSIONS (LOCAL ONLY)
 # ════════════════════════════════════════════════════════════════
 
-# Development workspace (exclude entirely except templates)
-dev/
-!dev/README.md
-!dev/templates/
-!dev/docs/SETUP-COMPLETE.md
+# Development workspace (include infrastructure, exclude work)
+dev/active/
+dev/roadmaps/archive/
+dev/roadmaps/current/
+dev/copilot/.last-instruction-review
+dev/copilot/context/
+dev/copilot/examples/
+dev/docs/architecture/
+dev/docs/uCODE-MANUAL-development-snapshot-*
+dev/docs/DEVELOPMENT-PHILOSOPHY.md
+dev/docs/versioning-philosophy.md
+dev/docs/REORGANIZATION-MEMORY-SANDBOX.md
+dev/docs/DEV-MODE-IMPLEMENTATION.md
+dev/docs/GITHUB-BRANCH-STRATEGY.md
+dev/docs/VARIABLE-SYSTEM-IMPLEMENTATION.md
+dev/docs/BRANCH-STRATEGY-DETAILED.md
+dev/docs/ROLE-INSTALLATIONS.md
+dev/progress-tracking.json
+dev/scripts/build/
+dev/scripts/deploy/
+dev/scripts/maintenance/
+dev/scripts/test/
+dev/scripts/development/
+dev/scripts/copilot-workflow.sh
+dev/scripts/create-role-branches.sh
+dev/scripts/implement-role-branches.sh
+dev/scripts/simple-role-branches.sh
+dev/scripts/test-variable-system.sh
+dev/tools/
+dev/vscode-extension/
 
 # User workspace (exclude entirely except structure docs)
 sandbox/
@@ -44,8 +69,10 @@ trash/
 # GitHub workflow/actions (we don't need these)
 .github/
 
-# VS Code workspace (local development only)
-.vscode/
+# VS Code configuration (include dev setup, exclude user configs)
+.vscode/settings.json
+.vscode/keybindings.json
+.vscode/launch.json
 
 # Development artifacts
 **/__pycache__/
@@ -80,7 +107,7 @@ extensions/install/downloads/
 extensions/install/temp/
 
 # ════════════════════════════════════════════════════════════════
-# ✅ CLEAN DISTRIBUTION INCLUDES (Auto-included)
+# ✅ DEVELOPMENT DISTRIBUTION INCLUDES
 # ════════════════════════════════════════════════════════════════
 # ✅ Root files: README.md, LICENSE, install.sh, launchers
 # ✅ uCORE/ - Core system (essential only)
@@ -91,7 +118,13 @@ extensions/install/temp/
 # ✅ docs/ - Documentation
 # ✅ uMEMORY/system/ - System templates only
 # ✅ uMEMORY/templates/ - Memory templates
+# ✅ dev/README.md - Development overview
 # ✅ dev/templates/ - Development templates
-# ✅ dev/docs/SETUP-COMPLETE.md - Essential setup doc
+# ✅ dev/copilot/ - AI assistant context (core files)
+# ✅ dev/docs/SETUP-COMPLETE.md - Essential setup guide
+# ✅ dev/vscode/ - VS Code development configs
+# ✅ dev/scripts/ - Core development scripts (selective)
+# ✅ .vscode/tasks.json - Task definitions
+# ✅ .vscode/extensions.json - Required extensions
 
-# Target: ~50-100 files (vs current 577)
+# Target: Essential dev infrastructure + clean distribution

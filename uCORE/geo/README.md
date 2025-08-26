@@ -388,13 +388,13 @@ Map states and configurations are automatically saved to uMemory:
 ### Automated Testing
 ```bash
 # Run system tests
-./test-mapping-system.sh
+../../sandbox/scripts/test-mapping-system.sh
 
 # Validate shortcode processing
-./test-shortcodes.sh
+../../sandbox/scripts/test-shortcodes.sh
 
 # Performance benchmarks
-./test-performance.sh
+../../sandbox/scripts/test-performance.sh
 ```
 
 ### Manual Testing
