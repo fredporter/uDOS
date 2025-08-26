@@ -573,6 +573,253 @@ def get_logs():
     """Get system logs"""
     return jsonify(system_logs[-100:])  # Last 100 logs
 
+# Documentation Browser Routes
+@app.route('/docs')
+def docs_browser():
+    """uDOS Documentation Browser"""
+    try:
+        ucode_ui_path = UDOS_ROOT / "uCORE" / "launcher" / "universal" / "ucode-ui"
+        return send_from_directory(ucode_ui_path, 'index.html')
+    except Exception as e:
+        error_id = log_error('ROUTE_ERROR', f'Failed to load documentation browser: {str(e)}', e)
+        return f"Documentation browser error: {error_id}", 500
+
+@app.route('/docs/static/<path:filename>')
+def docs_static(filename):
+    """Serve static files for documentation browser"""
+    try:
+        ucode_ui_path = UDOS_ROOT / "uCORE" / "launcher" / "universal" / "ucode-ui"
+        return send_from_directory(ucode_ui_path, filename)
+    except Exception as e:
+        error_id = log_error('ROUTE_ERROR', f'Failed to serve static file: {filename}', e)
+        return f"Static file error: {error_id}", 404
+
+@app.route('/api/docs/tree')
+def get_docs_tree():
+    """Get documentation file tree"""
+    try:
+        import glob
+        from pathlib import Path
+
+        def build_tree(root_path, base_path=""):
+            """Recursively build file tree"""
+            tree = []
+            root = Path(root_path)
+
+            if not root.exists():
+                return tree
+
+            # Get directories first
+            for item in sorted(root.iterdir()):
+                if item.is_dir() and not item.name.startswith('.'):
+                    relative_path = str(item.relative_to(UDOS_ROOT))
+                    children = build_tree(item, base_path)
+                    if children:  # Only include directories with markdown files
+                        tree.append({
+                            'name': item.name,
+                            'type': 'folder',
+                            'path': relative_path,
+                            'children': children
+                        })
+
+            # Get markdown files
+            for item in sorted(root.iterdir()):
+                if item.is_file() and item.suffix.lower() == '.md':
+                    relative_path = str(item.relative_to(UDOS_ROOT))
+                    tree.append({
+                        'name': item.name,
+                        'type': 'file',
+                        'path': relative_path,
+                        'size': item.stat().st_size,
+                        'modified': item.stat().st_mtime
+                    })
+
+            return tree
+
+        # Build tree for main documentation directories
+        docs_tree = []
+
+        # Main docs directory
+        docs_path = UDOS_ROOT / "docs"
+        if docs_path.exists():
+            docs_tree.append({
+                'name': 'docs',
+                'type': 'folder',
+                'path': 'docs',
+                'children': build_tree(docs_path)
+            })
+
+        # Development docs
+        dev_docs_path = UDOS_ROOT / "dev" / "docs"
+        if dev_docs_path.exists():
+            docs_tree.append({
+                'name': 'dev/docs',
+                'type': 'folder',
+                'path': 'dev/docs',
+                'children': build_tree(dev_docs_path)
+            })
+
+        # README files in major directories
+        for dir_name in ['uCORE', 'uMEMORY', 'uNETWORK', 'uSCRIPT', 'sandbox', 'extensions']:
+            dir_path = UDOS_ROOT / dir_name
+            if dir_path.exists():
+                readme_files = []
+                for readme in ['README.md', 'readme.md', 'Readme.md']:
+                    readme_path = dir_path / readme
+                    if readme_path.exists():
+                        readme_files.append({
+                            'name': readme,
+                            'type': 'file',
+                            'path': str(readme_path.relative_to(UDOS_ROOT)),
+                            'size': readme_path.stat().st_size,
+                            'modified': readme_path.stat().st_mtime
+                        })
+
+                if readme_files:
+                    docs_tree.append({
+                        'name': dir_name,
+                        'type': 'folder',
+                        'path': dir_name,
+                        'children': readme_files
+                    })
+
+        return jsonify(docs_tree)
+
+    except Exception as e:
+        error_id = log_error('API_ERROR', f'Failed to get docs tree: {str(e)}', e)
+        return jsonify({
+            'error': 'Failed to load documentation tree',
+            'error_id': error_id
+        }), 500
+
+@app.route('/api/docs/content')
+def get_doc_content():
+    """Get content of a specific document"""
+    try:
+        doc_path = request.args.get('path')
+        if not doc_path:
+            return jsonify({'error': 'Document path required'}), 400
+
+        # Security: ensure path is within UDOS_ROOT
+        full_path = UDOS_ROOT / doc_path
+        try:
+            full_path = full_path.resolve()
+            UDOS_ROOT.resolve()
+            if not str(full_path).startswith(str(UDOS_ROOT.resolve())):
+                return jsonify({'error': 'Invalid document path'}), 403
+        except:
+            return jsonify({'error': 'Invalid document path'}), 403
+
+        if not full_path.exists():
+            return jsonify({'error': 'Document not found'}), 404
+
+        if not full_path.suffix.lower() == '.md':
+            return jsonify({'error': 'Not a markdown document'}), 400
+
+        # Read and return content
+        with open(full_path, 'r', encoding='utf-8', errors='replace') as f:
+            content = f.read()
+
+        # Get file metadata
+        stat = full_path.stat()
+
+        return jsonify({
+            'content': content,
+            'path': doc_path,
+            'name': full_path.name,
+            'size': stat.st_size,
+            'modified': stat.st_mtime,
+            'encoding': 'utf-8'
+        })
+
+    except Exception as e:
+        error_id = log_error('API_ERROR', f'Failed to get document content: {str(e)}', e)
+        return jsonify({
+            'error': 'Failed to load document',
+            'error_id': error_id
+        }), 500
+
+@app.route('/api/docs/search')
+def search_docs():
+    """Search through documentation content"""
+    try:
+        query = request.args.get('q', '').strip()
+        if not query or len(query) < 2:
+            return jsonify({'results': []})
+
+        import re
+        from pathlib import Path
+
+        results = []
+        query_lower = query.lower()
+
+        # Search through all markdown files
+        for md_file in UDOS_ROOT.rglob('*.md'):
+            try:
+                # Skip hidden directories and files
+                if any(part.startswith('.') for part in md_file.parts):
+                    continue
+
+                relative_path = str(md_file.relative_to(UDOS_ROOT))
+
+                # Check if filename matches
+                if query_lower in md_file.name.lower():
+                    results.append({
+                        'path': relative_path,
+                        'name': md_file.name,
+                        'type': 'filename',
+                        'match': md_file.name,
+                        'score': 100
+                    })
+                    continue
+
+                # Search file content
+                try:
+                    with open(md_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+
+                    if query_lower in content.lower():
+                        # Find context around matches
+                        lines = content.split('\n')
+                        for i, line in enumerate(lines):
+                            if query_lower in line.lower():
+                                # Get context (line before and after)
+                                start = max(0, i - 1)
+                                end = min(len(lines), i + 2)
+                                context = '\n'.join(lines[start:end])
+
+                                results.append({
+                                    'path': relative_path,
+                                    'name': md_file.name,
+                                    'type': 'content',
+                                    'match': line.strip(),
+                                    'context': context,
+                                    'line': i + 1,
+                                    'score': 50
+                                })
+                                break  # Only first match per file
+
+                except Exception:
+                    continue  # Skip files that can't be read
+
+            except Exception:
+                continue  # Skip files with path issues
+
+        # Sort by score (filename matches first)
+        results.sort(key=lambda x: x['score'], reverse=True)
+
+        # Limit results
+        results = results[:20]
+
+        return jsonify({'results': results, 'query': query})
+
+    except Exception as e:
+        error_id = log_error('API_ERROR', f'Failed to search docs: {str(e)}', e)
+        return jsonify({
+            'error': 'Search failed',
+            'error_id': error_id
+        }), 500
+
 def update_server_status():
     """Update and display current server status"""
     uptime = time.time() - system_status['startup_time']
