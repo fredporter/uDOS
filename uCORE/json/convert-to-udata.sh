@@ -95,20 +95,24 @@ convert_json_python() {
     python3 << EOF
 import json
 import sys
+import time
 
 def convert_json_to_udata(input_path, output_path):
     try:
+        print("🔄 Loading JSON data...")
         with open(input_path, 'r') as f:
             data = json.load(f)
 
         records = []
 
+        print("📊 Processing data structure...")
         if isinstance(data, list):
             records = data
         elif isinstance(data, dict):
             # Handle metadata separately
             if 'metadata' in data:
                 records.append({'metadata': data['metadata']})
+                print("📋 ✓ Metadata record processed")
                 del data['metadata']
 
             # Convert object properties to records
@@ -128,15 +132,35 @@ def convert_json_to_udata(input_path, output_path):
                 else:
                     records.append({'name': key, 'value': value})
 
-        # Write uDATA format (one JSON record per line)
-        with open(output_path, 'w') as f:
-            for record in records:
-                f.write(json.dumps(record, separators=(',', ':')) + '\n')
+        print(f"🎯 Writing {len(records)} records to uDATA format...")
+        print("┌─────────────────────────────────────────┐")
+        print("│          uDATA MINIFICATION             │")
+        print("└─────────────────────────────────────────┘")
 
+        # Write uDATA format (one JSON record per line) with progress
+        with open(output_path, 'w') as f:
+            for i, record in enumerate(records, 1):
+                minified_json = json.dumps(record, separators=(',', ':'))
+                f.write(minified_json + '\n')
+
+                # Show progress for every record
+                if i <= 5 or i % max(1, len(records) // 10) == 0 or i == len(records):
+                    progress = (i / len(records)) * 100
+                    bar_length = 20
+                    filled_length = int(bar_length * i // len(records))
+                    bar = '█' * filled_length + '░' * (bar_length - filled_length)
+                    print(f"📝 [{bar}] {progress:5.1f}% | Record {i:3d}/{len(records)} | {len(minified_json):4d} chars")
+
+        print("┌─────────────────────────────────────────┐")
+        print("│            ✨ COMPLETE ✨               │")
+        print("└─────────────────────────────────────────┘")
         print(f"✅ Converted {len(records)} records to {output_path}")
         return True
 
     except Exception as e:
+        print("┌─────────────────────────────────────────┐")
+        print("│              ❌ ERROR ❌                │")
+        print("└─────────────────────────────────────────┘")
         print(f"❌ Error: {e}")
         return False
 

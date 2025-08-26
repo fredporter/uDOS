@@ -1,5 +1,5 @@
 #!/bin/bash
-# uCORE Geographic System Engine v1.4.0
+# uCORE Geographic System Engine v1.0.4.1
 # Integrated geographic data processing with uMEMORY/system/geo
 
 set -euo pipefail
@@ -335,7 +335,7 @@ except:
 
 show_system_status() {
     echo -e "${PURPLE}════════════════════════════════════════${NC}"
-    echo -e "${PURPLE}🌍 uDOS Geographic System Status v1.4.0${NC}"
+    echo -e "${PURPLE}🌍 uDOS Geographic System Status v1.0.4.1${NC}"
     echo -e "${PURPLE}════════════════════════════════════════${NC}"
     echo ""
 
@@ -381,7 +381,7 @@ show_system_status() {
 # ═══════════════════════════════════════════════════════════════════════
 
 show_help() {
-    echo -e "${BLUE}uDOS Geographic System Engine v1.4.0${NC}"
+    echo -e "${BLUE}uDOS Geographic System Engine v1.0.4.1${NC}"
     echo ""
     echo "Usage: $0 [command] [options]"
     echo ""

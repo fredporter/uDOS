@@ -1,0 +1,6 @@
+{"metadata":{"map_id":"00UH04","parent_map":"00","name":"Oceania","description":"Detailed map of Oceania with major cities and regions","type":"continental","created":"2025-08-20T21:12:00Z","version":"1.0.0","coordinate_system":"WGS84","zoom_level":1}}
+{"name":"bounds","north":-10.0,"south":-50.0,"east":180.0,"west":110.0}
+{"name":"major_cities","00WG10-1m":{"name":"Sydney","country":"Australia","coordinates":[-33.8688,151.2093],"submaps":["02SYD"]}}
+{"name":"regions","australia":{"bounds":{"north":-10.0,"south":-44.0,"east":154.0,"west":112.0},"major_cities":["00WG10-1m"],"submaps":["02AUS"]},"new_zealand":{"bounds":{"north":-34.0,"south":-47.0,"east":179.0,"west":166.0},"submaps":["02NZL"]},"melanesia":{"bounds":{"north":-2.0,"south":-22.0,"east":180.0,"west":140.0},"submaps":["02MEL"]},"micronesia":{"bounds":{"north":20.0,"south":-2.0,"east":180.0,"west":130.0},"submaps":["02MIC"]},"polynesia":{"bounds":{"north":30.0,"south":-30.0,"east":-110.0,"west":130.0},"submaps":["02POL"]}}
+{"name":"submap_links","02SYD":"Sydney metropolitan area","02AUS":"Australia detailed map","02NZL":"New Zealand detailed map","02MEL":"Melanesia detailed map","02MIC":"Micronesia detailed map","02POL":"Polynesia detailed map"}
+{"name":"navigation","parent":"00","zoom_in":["02SYD"],"adjacent":["01AS","01SA"]}

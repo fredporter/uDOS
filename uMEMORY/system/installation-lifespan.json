@@ -1,0 +1,52 @@
+{
+    "installation_id": "unknown",
+    "created": "2025-08-25T17:13:16Z",
+    "version": "v1.0.4.1",
+    "lifespan": {
+        "duration_months": 12,
+        "phase": "setup",
+        "start_date": "2025-08-25T17:13:16Z",
+        "estimated_completion": "2026-08-26",
+        "eol_warning_months": 2,
+        "legacy_preparation_months": 3
+    },
+    "phases": {
+        "setup": {
+            "start": "2025-08-25T17:13:16Z",
+            "completed": false,
+            "duration_estimate": "1-2 weeks"
+        },
+        "active": {
+            "start": null,
+            "completed": false,
+            "duration_estimate": "8 months"
+        },
+        "maintenance": {
+            "start": null,
+            "completed": false,
+            "duration_estimate": "2-3 months"
+        },
+        "legacy_prep": {
+            "start": null,
+            "completed": false,
+            "duration_estimate": "1 month"
+        },
+        "archival": {
+            "start": null,
+            "completed": false,
+            "duration_estimate": "1-2 weeks"
+        },
+        "eol": {
+            "start": null,
+            "completed": false,
+            "duration_estimate": "final"
+        }
+    },
+    "tracking": {
+        "total_moves": 0,
+        "total_milestones": 0,
+        "total_missions": 0,
+        "legacy_items": 0,
+        "last_activity": "2025-08-25T17:13:16Z"
+    }
+}

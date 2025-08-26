@@ -2,6 +2,9 @@
 # uDOS Command Router - Enhanced with Undo/Redo and Move Logging
 # Handles command parsing, routing, and session-based state management
 
+# Get uDOS root directory
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
 # Session management for undo/redo
 UNDO_STACK_FILE="/tmp/udos-undo-stack-$$"
 REDO_STACK_FILE="/tmp/udos-redo-stack-$$"
@@ -163,7 +166,7 @@ route_command() {
     local command="$1"
     shift
     local args="$@"
-    local start_time=$(date +%s%3N)
+    local start_time=$(date +%s)
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
     # Initialize session stacks if not already done
@@ -256,8 +259,8 @@ route_command() {
         add_to_undo_stack "$command" "$args" "$timestamp" "$pre_state"
     fi
 
-    # Calculate execution time and log completion
-    local end_time=$(date +%s%3N)
+    # Calculate execution time and log completion (macOS compatible)
+    local end_time=$(date +%s)
     local execution_time=$((end_time - start_time))
     log_command_completion "$command" "$args" "$result" "$execution_time"
 
@@ -1029,11 +1032,14 @@ execute_bash_command() {
     local args="$@"
 
     local script_path="$USCRIPT/library/ucode/${command}.sh"
+    local ucore_path="$UDOS_ROOT/uCORE/core/utilities/${command}.sh"
 
     if [[ -f "$script_path" && -x "$script_path" ]]; then
         "$script_path" $args
+    elif [[ -f "$ucore_path" && -x "$ucore_path" ]]; then
+        "$ucore_path" $args
     else
-        log_error "Script not found: $command"
+        log_error "Script not found: $command (checked uSCRIPT and uCORE)"
         return 1
     fi
 }

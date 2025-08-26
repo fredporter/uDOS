@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS VS Code Development Mode Launcher (Wizard Only) v1.3.1
+# uDOS VS Code Development Mode Launcher (Wizard Only) v1.0.4.1
 # Enhanced development environment with full Git integration
 
 set -euo pipefail

@@ -29,9 +29,9 @@ def integrate_commands():
     metadata = {
         "metadata": {
             "version": "1.4.0",
-            "description": "Integrated uDOS Command System v1.4.0 - Commands with shortcode syntax support",
+            "description": "Integrated uDOS Command System v1.0.4.1 - Commands with shortcode syntax support",
             "last_updated": datetime.now().strftime("%Y-%m-%d"),
-            "system": "uDOS-v1.4.0",
+            "system": "uDOS-v1.0.4.1",
             "format": "uDATA-v1",
             "integration_note": "Merged commands and shortcodes systems",
             "syntax_support": ["COMMAND ARG", "[COMMAND|ARG]", "[COMMAND|ARG*param]"]

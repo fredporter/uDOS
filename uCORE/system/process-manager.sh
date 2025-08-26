@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS Process Manager v1.3.1 - Enhanced with Error Handling & Loop Detection
+# uDOS Process Manager v1.0.4.1 - Enhanced with Error Handling & Loop Detection
 set -euo pipefail
 
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

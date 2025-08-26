@@ -1,34 +1,32 @@
-# uDOS v1.3.3 Comprehensive Style Guide
+# uDOS Comprehensive Style Guide
 
 ```
-    ██╗   ██╗██████╗  ██████╗ ███████╗    ██╗   ██████╗ ██████╗
-    ██║   ██║██╔══██╗██╔═══██╗██╔════╝    ██║   ╚════██╗╚════██╗
-    ██║   ██║██║  ██║██║   ██║███████╗    ██║    █████╔╝ █████╔╝
-    ██║   ██║██║  ██║██║   ██║╚════██║    ██║    ╚═══██╗ ╚═══██╗
-    ╚██████╔╝██████╔╝╚██████╔╝███████║    ██║██╗██████╔╝██████╔╝
-     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝    ╚═╝╚═╝╚═════╝ ╚═════╝
-
-    Universal Data Operating System v1.3.3 - Style Guide
-    ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+███████ ████████ ██   ██ ██     ███████  ██████  ██    ██ ██ ██████  ███████
+██         ██     ██ ██  ██     ██      ██       ██    ██ ██ ██   ██ ██
+███████    ██      ███   ██     █████   ██   ███ ██    ██ ██ ██   ██ █████
+     ██    ██      ██    ██     ██      ██    ██ ██    ██ ██ ██   ██ ██
+███████    ██      ██    ██████ ███████  ██████   ██████  ██ ██████  ███████
 ```
 
-**Version**: 1.3.3
-**Date**: August 23, 2025
-**Implementation**: Active Standard (85+ files converted)
-**Integration**: Complete uCORE and 8-role system
+*Universal Device Operating System*
+
+**Version**: 1.0.4.1
+**Date**: August 25, 2025
+**Implementation**: Foundational Standard
+**Integration**: Core uCORE and 8-role system
 
 > **🚀 Quick Reference**: For essential coding rules and shortcuts, see **[QUICK-STYLES.md](QUICK-STYLES.md)**
 > **📚 Complete Guide**: This document contains comprehensive specifications and detailed standards
 
 ---
 
-## 🎯 **CORE PRINCIPLE: uCODE SYNTAX & uHEX INTEGRATION v7.0**
+## 🎯 **CORE PRINCIPLE: uCODE SYNTAX & uHEX INTEGRATION**
 
-uDOS v1.3.3 enforces modern standards:
+uDOS v1.0.4.1 establishes foundational standards:
 - **uCODE language** with CAPITALS-DASH-NUMBER syntax
-- **uHEX filename convention v7.0** with 8-character type prefixes and metadata encoding
+- **uHEX filename convention** with 8-character type prefixes and metadata encoding
 - **8-role system** support (Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard)
-- **BBC Mode 7** inspired visual design with authentic teletext graphics
+- **Terminal color palettes** with 8 complete schemes and tput/ANSI compatibility
 - **uCORE integration** for consistent system management
 
 ---
@@ -682,6 +680,55 @@ Use the `{{USER_NAME}}` variable in your template
 - **Sections**: Use descriptive anchor text `[uHEX Convention](#uhex-filename-convention)`
 - **External**: Include full context `[GitHub Repository](https://github.com/user/repo)`
 
+### uDOS Markdown Extensions
+
+#### Enhanced Headers with Icons
+```markdown
+# 🌟 Level 1 Header
+## ⚡ Level 2 Header
+### 🎯 Level 3 Header
+#### 🔧 Level 4 Header
+##### 📝 Level 5 Header
+###### 💡 Level 6 Header
+```
+
+#### Icon Lists for Better Organization
+```markdown
+- 📝 Documentation task
+- 🔧 Development work
+- 🐛 Bug fix needed
+- ✅ Completed item
+- [ ] Pending task
+- [x] Completed task
+- [!] Important task
+```
+
+#### ASCII Art Integration
+```markdown
+```ascii
+┌─── SYSTEM STATUS ───┐
+│ Status: ✅ Online   │
+│ Users:  👥 42       │
+│ Memory: 📊 85%      │
+└─────────────────────┘
+```
+```
+
+#### uCODE Shortcode Integration
+```markdown
+Quick actions: [STATUS] [MEM|LIST] [HELP]
+View memory: [MEM|VIEW|filename.md]
+Create mission: [MISSION|CREATE|"Task Name"]
+```
+
+#### Progress Indicators
+```markdown
+Project Progress:
+▓▓▓▓▓▓░░░░ 60% Complete
+
+Status: 🔄 Processing → ✅ Complete
+```
+
 ### Documentation File Types
 **UPPERCASE for main documentation**:
 - `README.md` - Project overview
@@ -770,30 +817,120 @@ Use the `{{USER_NAME}}` variable in your template
 ### Inspired by BBC BASIC Manual
 Following the design principles from [BBC BASIC for Windows Manual](https://www.bbcbasic.co.uk/bbcwin/manual/bbcwinh.html), uDOS implements authentic Mode 7 teletext graphics with chunky block UI elements.
 
-### BBC Mode 7 Color Palette (Vibrant Scheme)
-```css
-/* New uDOS Vibrant Color Palette */
---color-red: #ef4136        /* Vibrant Red (239,65,54) */
---color-orange: #f7941d     /* Vibrant Orange (247,148,29) */
---color-amber: #fbb040      /* Vibrant Amber (251,176,64) */
---color-yellow: #f9ed32     /* Vibrant Yellow (249,237,50) */
---color-blue: #00aeef       /* Vibrant Blue (0,174,239) */
---color-lime: #e9ff39       /* Vibrant Lime (233,255,57) */
---color-green: #8cff1f      /* Vibrant Green (140,255,31) */
---color-cyan: #00c6cc       /* Vibrant Cyan (0,198,204) */
---color-pink: #f08ed3       /* Vibrant Pink (240,142,211) */
+### Terminal Color Palettes (8 Complete Schemes)
 
-/* Dark/Grey/Light variants for styling */
---color-black: #000000      /* Pure Black */
---color-dark-grey: #1a1a1a  /* Very Dark Grey */
---color-grey: #333333       /* Dark Grey */
---color-mid-grey: #666666   /* Medium Grey */
---color-light-grey: #999999 /* Light Grey */
---color-pale-grey: #cccccc  /* Pale Grey */
---color-white: #ffffff      /* Pure White */
+**Default System Palette**: Polaroid - High-contrast photo-inspired colors for bold visual punch
+**Configuration**: `/uMEMORY/system/uDATA-colours.json` with tput/xterm-256/ANSI system support
+
+#### 1. Polaroid (System Default)
+```css
+/* High-contrast, photo-inspired colors for bold visual punch */
+--red:     #FF1744    /* tput 196 - Bold Red */
+--green:   #00E676    /* tput 46  - Bright Green */
+--yellow:  #FFEB3B    /* tput 226 - Yellow Burst */
+--blue:    #2196F3    /* tput 21  - Deep Blue */
+--purple:  #E91E63    /* tput 201 - Magenta Pink */
+--cyan:    #00E5FF    /* tput 51  - Cyan Flash */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
 ```
 
-### uDOS Professional Color Palette (Secondary)
+#### 2. Retro Unicorn
+```css
+/* Vivid, nostalgic brights reminiscent of classic terminals with playful twist */
+--red:     #FF69B4    /* tput 203 - Hot Pink */
+--green:   #32CD32    /* tput 77  - Lime Green */
+--yellow:  #FFD700    /* tput 227 - Gold */
+--blue:    #1E90FF    /* tput 75  - Dodger Blue */
+--purple:  #DA70D6    /* tput 141 - Orchid */
+--cyan:    #00FFFF    /* tput 51  - Aqua */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 3. Nostalgia
+```css
+/* Muted, earthy colors with retro 80s/90s computing vibe */
+--red:     #CD5C5C    /* tput 131 - Indian Red */
+--green:   #9ACD32    /* tput 65  - Yellow Green */
+--yellow:  #DEB887    /* tput 179 - Burlywood */
+--blue:    #5F9EA0    /* tput 67  - Cadet Blue */
+--purple:  #9370DB    /* tput 139 - Medium Purple */
+--cyan:    #40E0D0    /* tput 73  - Turquoise */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 4. Tropical Sunrise
+```css
+/* Warm, vibrant palette evoking sunrise on tropical beach */
+--red:     #FF6347    /* tput 210 - Tomato */
+--green:   #98FB98    /* tput 115 - Pale Green */
+--yellow:  #FFFF00    /* tput 226 - Yellow */
+--blue:    #00BFFF    /* tput 39  - Deep Sky Blue */
+--purple:  #DDA0DD    /* tput 177 - Plum */
+--cyan:    #00FFFF    /* tput 51  - Cyan */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 5. Pastel Power
+```css
+/* Soft, friendly pastels for gentle, modern look */
+--red:     #FFB6C1    /* tput 217 - Light Pink */
+--green:   #98FB98    /* tput 151 - Pale Green */
+--yellow:  #FFFACD    /* tput 229 - Lemon Chiffon */
+--blue:    #ADD8E6    /* tput 153 - Light Blue */
+--purple:  #DDA0DD    /* tput 183 - Plum */
+--cyan:    #AFEEEE    /* tput 159 - Pale Turquoise */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 6. Arcade Pastels
+```css
+/* Fun, light pastels with retro arcade feel */
+--red:     #FF6347    /* tput 210 - Tomato */
+--green:   #90EE90    /* tput 121 - Light Green */
+--yellow:  #FFFACD    /* tput 229 - Lemon Chiffon */
+--blue:    #87CEEB    /* tput 117 - Sky Blue */
+--purple:  #DDA0DD    /* tput 183 - Plum */
+--cyan:    #AFEEEE    /* tput 159 - Pale Turquoise */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 7. Grayscale
+```css
+/* Monochrome palette for minimal or accessibility-friendly modes */
+--red:     #BCBCBC    /* tput 250 - Light Gray */
+--green:   #8A8A8A    /* tput 245 - Gray */
+--yellow:  #A8A8A8    /* tput 248 - Dark Gray */
+--blue:    #585858    /* tput 240 - Dim Gray */
+--purple:  #808080    /* tput 244 - Gray */
+--cyan:    #C6C6C6    /* tput 251 - Light Gray */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+#### 8. Solar Punk
+```css
+/* Optimistic, futuristic colors inspired by eco-technology and solar themes */
+--red:     #FF69B4    /* tput 203 - Hot Pink */
+--green:   #7CFC00    /* tput 112 - Lawn Green */
+--yellow:  #FFFF54    /* tput 190 - Yellow Green */
+--blue:    #00FFFF    /* tput 45  - Cyan */
+--purple:  #9370DB    /* tput 140 - Medium Purple */
+--cyan:    #00FF7F    /* tput 50  - Spring Green */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
+```
+
+### Terminal Implementation
+- **tput compatibility**: All colors include tput index numbers for terminal control
+- **ANSI fallback**: Standard ANSI escape codes for basic terminal support
+- **xterm-256 support**: Full 256-color terminal compatibility
+- **Configuration**: Stored in minified uDATA format for optimal performance
 ```css
 /* uDOS Professional Color Palette */
 --udos-red: #ce4a4a        /* Muted Red - RGB(206,74,74) */
@@ -890,29 +1027,31 @@ Inside one 16×16 uCELL, enable a **4×4 overlay grid** for crisp icons or dithe
 
 ## 🔤 **TYPOGRAPHY STANDARDS**
 
-### Authentic BBC Mode 7 Fonts
-```css
-/* Primary: Authentic MODE7GX teletext fonts */
---font-mode7gx3: 'MODE7GX3', monospace;     /* Standard teletext */
---font-mode7gx0: 'MODE7GX0', monospace;     /* Square aspect */
---font-mode7gx2: 'MODE7GX2', monospace;     /* Alternative */
---font-mode7gx4: 'MODE7GX4', monospace;     /* Wide aspect */
-```
+### Safe-to-Bundle Fonts (uDOS Pack)
 
-### Bundled Pixel/Retro Fonts
-- **MODE7GX0.TTF** (default teletext look)
-- **pot_noodle.ttf** (retro/BBS)
-- **Pet Me 64** (C64)
-- **Perfect DOS VGA 437**
-- **Pixel Operator**
-- **DotGothic16**
-- **GNU Unifont** (Unicode coverage)
-- **Valova** (tile-based)
+#### Google Fonts (primary pack)
+- IBM Plex Mono (OFL)
+- VT323 (OFL)
+- Space Mono (OFL)
+- Roboto Mono (Apache 2.0)
+- Press Start 2P (OFL)
+- Silkscreen (OFL)
+- Major Mono Display (OFL)
+- Share Tech Mono (OFL) — optional swap for Roboto Mono
+
+#### Well-known Add-ons (also safe)
+- Fira Code (OFL)
+- DejaVu Sans Mono (Bitstream/DejaVu licence — permissive)
+- Hack (permissive open licence)
+- Ubuntu Mono (Ubuntu Font Licence)
+- DSEG7 Classic (OFL) — authentic 7‑segment look if you want a truer LCD than Major Mono Display
+- Terminus (OFL/GPL dual‑licensed builds exist) — excellent for block/ASCII shading
+- C64 Pro Mono (OFL) — clean, redistributable C64 feel
 
 ### System Monospace Fallbacks
-- **macOS**: Menlo, SF Mono
-- **Linux/Ubuntu**: Ubuntu Mono, DejaVu Sans Mono
-- **Windows/Chrome**: Consolas, Courier New
+- **macOS**: Menlo, SF Mono  
+- **Windows**: Consolas, Courier New  
+- **Linux/Unix**: DejaVu Sans Mono, Liberation Mono
 
 ### Capitalization Rules
 

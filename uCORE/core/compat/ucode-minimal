@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # Configuration
-UDOS_VERSION="v1.3.1-minimal"
+UDOS_VERSION="v1.0.4.1-minimal"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors (if supported)
@@ -32,7 +32,7 @@ log_error() { echo -e "${RED}❌ $1${NC}"; }
 # Basic commands implemented in pure bash
 cmd_help() {
     cat << 'HELP_EOF'
-uDOS Minimal v1.3.1 - Bash-Only Installation
+uDOS Minimal v1.0.4.1 - Bash-Only Installation
 
 Available Commands:
   help      Show this help

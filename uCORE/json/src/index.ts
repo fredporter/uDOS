@@ -1,5 +1,5 @@
 /**
- * uDOS Map Generator v1.7.2
+ * uDOS Map Generator v1.0.4.1
  * TypeScript-based world map generation using dataset integration
  * Enhanced with uDATA format support
  */
@@ -330,7 +330,7 @@ if (require.main === module) {
       break;
 
     default:
-      console.log('uDOS Map Generator v1.7.1');
+      console.log('uDOS Map Generator v1.0.4.1');
       console.log('Usage:');
       console.log('  npm run map generate [filename]  - Generate world map');
       console.log('  npm run map region <region>      - Generate region map');

@@ -1,425 +1,522 @@
 # uDOS Repository Structure
-*Generated: Thu 21 Aug 2025 15:07:04 AEST*  
-*Version: v1.3*  
-*Root: /Users/agentdigital/uDOS*
-
-## Repository Overview
-This is the complete uDOS (Universal Development Operating System) repository structure.
-Total directories: 468 | Total files: 6349
-
-## Directory Structure
+*Generated: Tue Aug 26 01:13:48 AEST 2025*
 
 ```
 uDOS/
-docs/
-├── development/
-├── legacy/
-├── reference/
-├── roadmaps/
-├── technical/
-├── user-guides/
-drone/
-├── automation-errors/
+├── .github/
+├── .vscode/
 ├── backup/
-├── execution-sessions/
-├── operation-logs/
-├── scheduler/
-├── task-automation/
-extensions/
-├── gemini/
-│   ├── context/
-│   ├── gemini/
-│   ├── profiles/
-│   │   ├── sorcerer/
-│   ├── reasoning/
-│   │   ├── drone/
-│   │   ├── ghost/
-│   │   ├── imp/
-ghost/
-├── backup/
-├── demo-interface/
-├── ethereal-errors/
-├── phantom-sessions/
-├── public-docs/
-├── spectral-logs/
-├── temp-sandbox/
-imp/
-├── backup/
-├── script-editor/
-├── template-manager/
-├── user-projects/
-sandbox/
-├── backup/
-├── datagets/
-├── scripts/
-│   ├── active/
-│   ├── executed/
-├── tasks/
-│   ├── assist-mode/
-│   ├── completed/
-│   ├── in-progress/
-│   ├── templates/
-├── user/
-│   ├── .ssh/
-sorcerer/
-├── advanced-tools/
-├── backup/
-├── project-manager/
-├── user-admin/
-tomb/
-├── archive-browser/
-├── backup/
-├── backup-manager/
-├── historical-data/
-trash/
-├── deprecated/
-uCORE/
-├── bin/
-├── cache/
-│   ├── input/
-├── code/
-│   ├── compat/
-│   ├── micro-syntax/
-│   ├── packages/
-│   │   ├── ascii-generator/
-│   │   ├── urltomarkdown/
-│   │   │   ├── public_html/
-│   │   │   ├── tests/
-│   ├── user-memory/
-├── config/
-├── distribution/
-│   ├── roles/
-│   │   ├── drone/
-│   │   ├── ghost/
-│   │   ├── imp/
-│   │   ├── sorcerer/
-│   │   ├── tomb/
-├── json/
-│   ├── src/
-│   │   ├── data/
-│   │   ├── templates/
-│   │   ├── utils/
-├── launcher/
-│   ├── assets/
-│   ├── platform/
-│   │   ├── linux/
-│   │   ├── macos/
-│   │   ├── windows/
-│   ├── uDOS.app/
-│   │   ├── Contents/
-│   │   │   ├── MacOS/
-│   │   │   ├── Resources/
-│   ├── universal/
-│   ├── vscode/
-├── mapping/
-│   ├── map-output/
-│   │   ├── js/
-├── templates/
-uKNOWLEDGE/
-uMEMORY/
-├── core/
-│   ├── datagets/
-│   ├── tiles/
-├── setup/
-├── system/
-│   ├── temp/
-│   ├── tile-cache/
-├── temp/
-├── templates/
-│   ├── datagets/
-│   ├── examples/
-│   ├── system/
-│   ├── variables/
-├── user/
-│   ├── legacy/
-│   ├── milestones/
-│   ├── missions/
-│   ├── moves/
-uSCRIPT/
-├── active/
-├── config/
-├── executed/
+├── dev/
+    ├── active/
+        ├── core/
+        ├── extensions/
+        ├── tools/
+    ├── copilot/
+        ├── context/
+        ├── examples/
+        ├── instructions/
+    ├── docs/
+        ├── api/
+        ├── architecture/
+        ├── contributing/
+    ├── roadmaps/
+        ├── archive/
+        ├── current/
+    ├── scripts/
+        ├── build/
+        ├── deploy/
+        ├── development/
+        ├── maintenance/
+        ├── test/
+    ├── templates/
+        ├── commands/
+        ├── configs/
+        ├── extensions/
+    ├── tools/
+        ├── analysis/
+        ├── debugging/
+        ├── development/
+    ├── vscode/
+    ├── vscode-extension/
+        ├── configs/
+        ├── snippets/
+        ├── tasks/
+├── docs/
 ├── extensions/
-│   ├── templates/
-│   │   ├── drone/
-├── library/
-│   ├── automation/
-│   ├── javascript/
-│   ├── python/
-│   ├── shell/
-│   ├── ucode/
-│   ├── utilities/
-├── registry/
-│   ├── dependencies/
-│   ├── versions/
-├── runtime/
-│   ├── engines/
-│   ├── logs/
-│   ├── sandbox/
-├── templates/
-│   ├── automation/
-│   ├── javascript/
-│   ├── python/
-│   ├── ucode/
-uSERVER/
-├── config/
-├── endpoints/
-├── middleware/
-wizard/
-├── analytics/
-├── backup/
-├── dev-utils/
-│   ├── analytics/
-│   ├── automation/
-│   ├── integration/
-│   ├── optimization/
-├── error-handling/
-├── errors/
-├── experiments/
-│   ├── nethack/
-├── logs/
-├── notes/
-│   ├── development/
-│   ├── roadmaps/
-│   ├── snapshots/
-│   │   ├── auto/
-│   │   ├── manual/
-│   ├── workflows/
-├── roadmaps/
-│   ├── daily/
-│   ├── long-term/
-│   ├── quarterly/
-│   ├── sprint/
-├── sessions/
-├── tools/
-├── utilities/
-├── vscode/
-│   ├── .vscode/
-│   ├── vscode-extension/
-│   │   ├── snippets/
-│   │   ├── src/
-│   │   ├── syntaxes/
-├── workflows/
-│   ├── active/
-│   ├── archived/
-│   ├── roadmaps/
-│   ├── templates/
+    ├── core/
+        ├── essential/
+            ├── deployment-manager/
+                ├── commands/
+            ├── smart-input/
+                ├── commands/
+            ├── viewport-manager/
+                ├── commands/
+    ├── install/
+        ├── cache/
+        ├── downloads/
+        ├── temp/
+    ├── platform/
+        ├── linux/
+        ├── macos/
+        ├── universal/
+        ├── windows/
+    ├── user/
+        ├── ai-tools/
+            ├── gemini-cli/
+            ├── smart-input/
+        ├── companion/
+            ├── gemini-cli/
+        ├── tools/
+            ├── drone/
+            ├── ghost/
+            ├── imp/
+            ├── sorcerer/
+├── sandbox/
+    ├── backup/
+    ├── data/
+        ├── incoming/
+        ├── processing/
+        ├── staging/
+    ├── dev-logs/
+    ├── documents/
+        ├── drafts/
+        ├── processing/
+        ├── ready/
+    ├── experiments/
+    ├── logs/
+        ├── crashes/
+        ├── debug/
+        ├── errors/
+        ├── network/
+            ├── wizard/
+                ├── crashes/
+                ├── debug/
+                ├── errors/
+                ├── logs/
+                    ├── crashes/
+                    ├── debug/
+                    ├── errors/
+                    ├── network/
+                ├── network/
+        ├── runtime/
+            ├── logs/
+        ├── system/
+        ├── user/
+            ├── sandbox/
+                ├── archive/
+                    ├── 20250823/
+                ├── archived/
+                    ├── uscript/
+                    ├── user-milestones/
+                    ├── user-missions/
+                    ├── user-moves/
+                ├── daily/
+                    ├── wizard/
+                ├── debug/
+                    ├── wizard/
+                ├── development/
+                ├── error/
+                ├── errors/
+                    ├── wizard/
+                ├── logs/
+                    ├── archive/
+                        ├── 20250823/
+                    ├── archived/
+                        ├── uscript/
+                        ├── user-milestones/
+                        ├── user-missions/
+                        ├── user-moves/
+                    ├── daily/
+                        ├── wizard/
+                    ├── debug/
+                        ├── wizard/
+                    ├── development/
+                    ├── error/
+                    ├── errors/
+                        ├── wizard/
+                    ├── logs/
+                    ├── moves/
+                    ├── session/
+                    ├── system/
+                    ├── undo-stack/
+                ├── moves/
+                ├── session/
+                ├── system/
+                ├── undo-stack/
+            ├── wizard/
+                ├── crashes/
+                ├── debug/
+                ├── errors/
+                ├── logs/
+                    ├── crashes/
+                    ├── debug/
+                    ├── errors/
+                    ├── network/
+                ├── network/
+    ├── scripts/
+        ├── dev/
+        ├── temp/
+        ├── utils/
+    ├── sessions/
+        ├── archive/
+        ├── current/
+    ├── tasks/
+        ├── active/
+        ├── completed/
+    ├── user/
+├── trash/
+├── uCORE/
+    ├── bin/
+    ├── cache/
+        ├── input/
+    ├── code/
+        ├── deployment-manager/
+        ├── smart-input/
+        ├── viewport-manager/
+    ├── config/
+    ├── core/
+        ├── commands/
+        ├── compat/
+        ├── deployment-manager/
+            ├── commands/
+        ├── smart-input/
+            ├── commands/
+        ├── utilities/
+    ├── distribution/
+        ├── roles/
+            ├── drone/
+            ├── ghost/
+            ├── imp/
+            ├── sorcerer/
+            ├── tomb/
+    ├── extensions/
+        ├── deployment-manager/
+        ├── smart-input/
+        ├── viewport-manager/
+    ├── geo/
+        ├── cache/
+        ├── engines/
+        ├── processing/
+        ├── templates/
+        ├── utilities/
+        ├── visualization/
+            ├── map-output/
+                ├── js/
+    ├── json/
+        ├── src/
+            ├── data/
+            ├── templates/
+            ├── utils/
+    ├── launcher/
+        ├── assets/
+        ├── platform/
+            ├── linux/
+            ├── macos/
+            ├── windows/
+        ├── universal/
+        ├── vscode/
+    ├── server/
+    ├── system/
+        ├── display/
+        ├── server/
+    ├── trash/
+├── uKNOWLEDGE/
+├── uMEMORY/
+    ├── core/
+    ├── role/
+        ├── crypt/
+        ├── drone/
+        ├── ghost/
+        ├── imp/
+        ├── knight/
+        ├── sorcerer/
+        ├── tomb/
+        ├── wizard/
+    ├── system/
+        ├── fonts/
+        ├── geo/
+            ├── cultural/
+            ├── maps/
+            ├── tiles/
+        ├── get/
+            ├── setup-status/
+            ├── user-data/
+        ├── templates/
+    ├── templates/
+    ├── user/
+        ├── extensions/
+        ├── milestones/
+        ├── missions/
+        ├── moves/
+├── uNETWORK/
+    ├── backup/
+        ├── network/
+    ├── display/
+        ├── api/
+        ├── components/
+        ├── server/
+        ├── static/
+            ├── css/
+            ├── js/
+        ├── tauri-template/
+        ├── templates/
+    ├── server/
+        ├── config/
+        ├── examples/
+        ├── integration/
+        ├── utils/
+    ├── wizard/
+        ├── logs/
+            ├── crashes/
+            ├── debug/
+            ├── errors/
+            ├── network/
+├── uSCRIPT/
+    ├── active/
+    ├── bin/
+    ├── config/
+    ├── executed/
+    ├── integration/
+    ├── library/
+        ├── core/
+        ├── javascript/
+        ├── legacy/
+            ├── static/
+        ├── packages/
+        ├── python/
+        ├── shell/
+            ├── system/
+        ├── ucode/
+        ├── user-memory/
+    ├── registry/
+    ├── runtime/
+        ├── logs/
+    ├── venv/
+        ├── python/
+            ├── bin/
+            ├── include/
+                ├── site/
+                    ├── python3.9/
+                        ├── greenlet/
+            ├── lib/
+                ├── python3.9/
+                    ├── site-packages/
+                        ├── _distutils_hack/
+                        ├── _yaml/
+                        ├── bidict/
+                        ├── bidict-0.23.1.dist-info/
+                        ├── blinker/
+                        ├── blinker-1.9.0.dist-info/
+                        ├── certifi/
+                        ├── certifi-2025.8.3.dist-info/
+                            ├── licenses/
+                        ├── charset_normalizer/
+                        ├── charset_normalizer-3.4.3.dist-info/
+                            ├── licenses/
+                            ├── cli/
+                        ├── click/
+                        ├── click-8.1.8.dist-info/
+                        ├── dns/
+                            ├── dnssecalgs/
+                            ├── quic/
+                            ├── rdtypes/
+                                ├── ANY/
+                                ├── CH/
+                                ├── IN/
+                        ├── dnspython-2.7.0.dist-info/
+                            ├── licenses/
+                        ├── engineio/
+                            ├── async_drivers/
+                        ├── eventlet/
+                        ├── eventlet-0.40.2.dist-info/
+                            ├── licenses/
+                            ├── green/
+                                ├── http/
+                                ├── OpenSSL/
+                                ├── urllib/
+                            ├── greenio/
+                            ├── hubs/
+                            ├── support/
+                            ├── zipkin/
+                                ├── _thrift/
+                                    ├── zipkinCore/
+                                ├── example/
+                        ├── flask/
+                        ├── flask_socketio/
+                        ├── Flask_SocketIO-5.5.1.dist-info/
+                        ├── flask-3.1.2.dist-info/
+                            ├── licenses/
+                            ├── json/
+                            ├── sansio/
+                        ├── greenlet/
+                        ├── greenlet-3.2.4.dist-info/
+                            ├── licenses/
+                            ├── platform/
+                            ├── tests/
+                        ├── gunicorn/
+                        ├── gunicorn-23.0.0.dist-info/
+                            ├── app/
+                            ├── http/
+                            ├── instrument/
+                            ├── workers/
+                        ├── h11/
+                        ├── h11-0.16.0.dist-info/
+                            ├── licenses/
+                        ├── idna/
+                        ├── idna-3.10.dist-info/
+                        ├── importlib_metadata/
+                        ├── importlib_metadata-8.7.0.dist-info/
+                            ├── licenses/
+                            ├── compat/
+                        ├── itsdangerous/
+                        ├── itsdangerous-2.2.0.dist-info/
+                        ├── jinja2/
+                        ├── jinja2-3.1.6.dist-info/
+                            ├── licenses/
+                        ├── markupsafe/
+                        ├── MarkupSafe-3.0.2.dist-info/
+                        ├── packaging/
+                        ├── packaging-25.0.dist-info/
+                            ├── licenses/
+                            ├── licenses/
+                        ├── pip/
+                        ├── pip-25.2.dist-info/
+                            ├── licenses/
+                                ├── src/
+                                    ├── pip/
+                                        ├── _vendor/
+                                            ├── cachecontrol/
+                                            ├── certifi/
+                                            ├── dependency_groups/
+                                            ├── distlib/
+                                            ├── distro/
+                                            ├── idna/
+                                            ├── msgpack/
+                                            ├── packaging/
+                                            ├── pkg_resources/
+                                            ├── platformdirs/
+                                            ├── pygments/
+                                            ├── pyproject_hooks/
+                                            ├── requests/
+                                            ├── resolvelib/
+                                            ├── rich/
+                                            ├── tomli/
+                                            ├── tomli_w/
+                                            ├── truststore/
+                                            ├── urllib3/
+                            ├── _internal/
+                                ├── cli/
+                                ├── commands/
+                                ├── distributions/
+                                ├── index/
+                                ├── locations/
+                                ├── metadata/
+                                    ├── importlib/
+                                ├── models/
+                                ├── network/
+                                ├── operations/
+                                    ├── build/
+                                    ├── install/
+                                ├── req/
+                                ├── resolution/
+                                    ├── resolvelib/
+                                ├── utils/
+                                ├── vcs/
+                            ├── _vendor/
+                                ├── cachecontrol/
+                                    ├── caches/
+                                ├── certifi/
+                                ├── dependency_groups/
+                                ├── distlib/
+                                ├── distro/
+                                ├── idna/
+                                ├── msgpack/
+                                ├── packaging/
+                                    ├── licenses/
+                                ├── pkg_resources/
+                                ├── platformdirs/
+                                ├── pygments/
+                                    ├── filters/
+                                    ├── formatters/
+                                    ├── lexers/
+                                    ├── styles/
+                                ├── pyproject_hooks/
+                                    ├── _in_process/
+                                ├── requests/
+                                ├── resolvelib/
+                                    ├── resolvers/
+                                ├── rich/
+                                ├── tomli/
+                                ├── tomli_w/
+                                ├── truststore/
+                                ├── urllib3/
+                                    ├── contrib/
+                                        ├── _securetransport/
+                                    ├── packages/
+                                        ├── backports/
+                                    ├── util/
+                        ├── pkg_resources/
+                            ├── _vendor/
+                                ├── packaging/
+                            ├── extern/
+                            ├── tests/
+                                ├── data/
+                                    ├── my-test-package-source/
+                        ├── psutil/
+                        ├── psutil-7.0.0.dist-info/
+                            ├── tests/
+                        ├── python_engineio-4.12.2.dist-info/
+                            ├── licenses/
+                        ├── python_socketio-5.13.0.dist-info/
+                            ├── licenses/
+                        ├── PyYAML-6.0.2.dist-info/
+                        ├── requests/
+                        ├── requests-2.32.5.dist-info/
+                            ├── licenses/
+                        ├── setuptools/
+                        ├── setuptools-58.0.4.dist-info/
+                            ├── _distutils/
+                                ├── command/
+                            ├── _vendor/
+                                ├── more_itertools/
+                                ├── packaging/
+                            ├── command/
+                            ├── extern/
+                        ├── simple_websocket/
+                        ├── simple_websocket-1.1.0.dist-info/
+                        ├── socketio/
+                        ├── urllib3/
+                        ├── urllib3-2.5.0.dist-info/
+                            ├── licenses/
+                            ├── contrib/
+                                ├── emscripten/
+                            ├── http2/
+                            ├── util/
+                        ├── werkzeug/
+                        ├── werkzeug-3.1.3.dist-info/
+                            ├── datastructures/
+                            ├── debug/
+                                ├── shared/
+                            ├── middleware/
+                            ├── routing/
+                            ├── sansio/
+                            ├── wrappers/
+                        ├── wsproto/
+                        ├── wsproto-1.2.0.dist-info/
+                        ├── yaml/
+                        ├── zipp/
+                        ├── zipp-3.23.0.dist-info/
+                            ├── licenses/
+                            ├── compat/
 
-📄 Key configuration files:
-├── 📄 CHANGELOG.md
-├── 📄 docs/Enhanced-Backup-System.md
-├── 📄 docs/Legacy-Migration-Analysis.md
-├── 📄 docs/Legacy-Migration-Complete.md
-├── 📄 docs/Migration-v1.3-Complete.md
-├── 📄 docs/README.md
-├── 📄 docs/Smart-Backup-System.md
-├── 📄 docs/Smart-Input-System.md
-├── 📄 docs/TELETEXT-CONFIGURATION.md
-├── 📄 docs/uDOS-System-Documentation.md
-├── 📄 drone/permissions.json
-├── 📄 drone/README.md
-├── 📄 extensions/README.md
-├── 📄 ghost/permissions.json
-├── 📄 ghost/README.md
-
-🔧 Main executable scripts:
-├── 🔧 imp/imp-error-handler.sh
-├── 🔧 tomb/tomb-error-handler.sh
-├── 🔧 wizard/error-handling/wizard-dev-logging.sh
-├── 🔧 wizard/error-handling/wizard-error-system.sh
-├── 🔧 wizard/experiments/install-bat-clean.sh
-├── 🔧 wizard/experiments/install-nethack.sh
-├── 🔧 wizard/experiments/install-typo.sh
-├── 🔧 wizard/tools/dev-session-logger.sh
-├── 🔧 wizard/tools/file-organizer.sh
-├── 🔧 wizard/tools/report-generator.sh
-├── 🔧 wizard/tools/script-executor.sh
-├── 🔧 wizard/tools/workflow-manager.sh
-├── 🔧 wizard/utilities/convert-to-hex-filenames.sh
-├── 🔧 wizard/utilities/generate-filename-v2.sh
-├── 🔧 wizard/utilities/test-hex-conversion.sh
-
-📁 Directory summary (first 3 levels):
-├──��� docs/
-├──��� development/
-├──��� legacy/
-├──��� reference/
-├──��� roadmaps/
-├──��� technical/
-├──��� user-guides/
-├──��� drone/
-├──��� automation-errors/
-├──��� backup/
-├──��� execution-sessions/
-├──��� operation-logs/
-├──��� scheduler/
-├──��� task-automation/
-├──��� extensions/
-├──��� gemini/
-├──��� context/
-├──��� gemini/
-├──��� profiles/
-├──��� reasoning/
-├──��� ghost/
-├──��� backup/
-├──��� demo-interface/
-├──��� ethereal-errors/
-├──��� phantom-sessions/
-├──��� public-docs/
-├──��� spectral-logs/
-├──��� temp-sandbox/
-├──��� imp/
-├──��� backup/
+Key files:
+├── CHANGELOG.md
+├── install.sh
+├── Launch-uDOS-Ubuntu.sh
+├── QUICKSTART.md
+├── README.md
+├── repo_structure.txt
 ```
 
-## System Architecture Overview
-
-### Multi-Role Framework
-uDOS supports a 6-tier installation hierarchy:
-- **Level 0**: drone (Basic automation, read-only)
-- **Level 1**: imp (Script execution, sandbox access)
-- **Level 2**: ghost (Advanced scripting, memory access)
-- **Level 3**: sorcerer (System administration, core access)
-- **Level 4**: tomb (Archive management, backup access)
-- **Level 5**: wizard (Full development, all access)
-
-### Core Components
-
-#### uCORE/ - Core System
-- **bin/**: Essential executables and utilities
-- **code/**: Core system scripts and modules
-- **mapping/**: uMAP location and navigation system
-- **templates/**: System configuration templates
-- **launcher/**: Application launch framework
-- **distribution/**: Multi-platform deployment assets
-
-#### uMEMORY/ - User Memory System
-- **user/**: User data with uHEX filename convention
-  - missions/: uTASK-uHEXcode-Title.md (mission tracking)
-  - milestones/: uTASK-uHEXcode-Title.md (achievement records)
-  - moves/: uLOG-uHEXcode-Title.md (activity logs)
-  - legacy/: uDOC-uHEXcode-Title.md (archived content)
-- **system/**: Core system memory and session data
-- **templates/**: Memory structure templates
-
-#### wizard/ - Development Environment (Level 5)
-- **vscode/**: VS Code workspace and extensions
-- **notes/**: Development documentation (uDEV/uDOC format)
-- **workflows/**: Development workflow automation
-- **sessions/**: Development session tracking
-- **analytics/**: Development metrics and insights
-
-#### uSCRIPT/ - Script Management
-- **library/**: Modular script library
-- **extensions/**: Enhanced functionality modules
-- **runtime/**: Script execution environment
-- **templates/**: Script generation templates
-
-#### sandbox/ - User Workspace
-- **user/**: Active development and experimentation
-- **scripts/**: User-created scripts
-- **tasks/**: Task automation and scheduling
-
-#### uKNOWLEDGE/ - Knowledge Base
-- Shared resources and documentation
-- Community-contributed content
-- Tutorial and learning materials
-
-#### docs/ - Documentation System
-- **technical/**: Technical documentation
-- **user-guides/**: End-user documentation
-- **development/**: Development guidelines
-- **reference/**: API and system references
-
-
-## File Naming Conventions
-
-### uHEX Naming System
-All user files follow standardized uHEX naming patterns:
-
-#### Mission Files (uTASK)
-- **Format**: `uTASK-uHEXcode-Title.md`
-- **Purpose**: Mission tracking, objectives, milestones
-- **Example**: `uTASK-F8A4B2E1-Learn-uScript-Advanced-Features.md`
-
-#### Activity Logs (uLOG)
-- **Format**: `uLOG-uHEXcode-Title.md` or `uLOG-YYYYMMDD-Title.md`
-- **Purpose**: Session logs, move tracking, activity records
-- **Example**: `uLOG-E4F5A6B7-session-20250821.md`
-
-#### Data Files (uDATA)
-- **Format**: `uDATA-YYYYMMDD-Title.json`
-- **Purpose**: Structured data, patterns, configurations
-- **Example**: `uDATA-20250821-move-patterns.json`
-
-#### Documentation (uDOC)
-- **Format**: `uDOC-uHEXcode-Title.md`
-- **Purpose**: Documentation, legacy archives, reports
-- **Example**: `uDOC-7A8B9C0D-Development-Notes.md`
-
-#### Development Files (uDEV)
-- **Format**: `uDEV-uHEXcode-Title.md`
-- **Purpose**: Development notes, session logs, system documentation
-- **Example**: `uDEV-E8012004-System-Implementation.md`
-
-### uHEX Code Generation
-- **Length**: 8 characters (uppercase hexadecimal)
-- **Generation**: `openssl rand -hex 4 | tr '[:lower:]' '[:upper:]'`
-- **Purpose**: Unique identification and temporal encoding
-
-
-## Security Model
-
-### Multi-Level Access Control
-Different installation levels have varying access to system components:
-
-#### Distribution Exclusions
-The following are excluded from standard distribution packages:
-- **wizard/**: Full development environment (Level 5 only)
-- **uMEMORY/user/**: Personal user data and memories
-- **sandbox/user/**: Personal development workspace
-- **Sensitive configuration files**: API keys, personal settings
-
-#### Role-Based File Access
-- **drone (Level 0)**: Read-only access to public documentation
-- **imp (Level 1)**: Execute scripts, access sandbox
-- **ghost (Level 2)**: Advanced scripting, limited memory access
-- **sorcerer (Level 3)**: System administration, core access
-- **tomb (Level 4)**: Archive management, backup systems
-- **wizard (Level 5)**: Full system access, development tools
-
-### File Permissions
-- **Executable scripts**: 755 permissions for system scripts
-- **User data**: 600-644 permissions for personal files
-- **Configuration**: 644 permissions for system configs
-- **Sensitive data**: 600 permissions, user-only access
-
-
-## System Statistics
-
-### Repository Metrics
-- **Total Directories**: 468
-- **Total Files**: 6349
-- **Generated**: Thu 21 Aug 2025 15:07:05 AEST
-- **Version**: v1.3
-
-### Directory Breakdown
-- Root level directories:       17
-- uCORE directories:       42
-- uMEMORY directories:       19
-- uSCRIPT directories:       26
-- wizard directories:       39
-
-### File Type Distribution
-- Shell scripts:      129
-- Markdown files:      290
-- JSON files:      132
-- YAML files:        5
-
-
 ---
-
-*This repository structure was generated automatically by the uDOS TREE command.*  
-*For more information about uDOS, visit: https://github.com/fredporter/uDOS*  
-*Last updated: Thu 21 Aug 2025 15:07:05 AEST*
-
+*Generated by uCORE TREE command*

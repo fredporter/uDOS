@@ -1,5 +1,5 @@
-/**
- * uDOS v1.4 Dashboard JavaScript
+/*
+ * uDOS Dashboard JavaScript
  * Real-time dashboard with WebSocket integration
  */
 
@@ -193,7 +193,7 @@ function browseMemory() {
 
 function viewLogs() {
     // TODO: Implement log viewer
-    alert('Log viewer coming soon in v1.4!');
+    alert('Log viewer coming soon!');
 }
 
 function refreshStatus() {

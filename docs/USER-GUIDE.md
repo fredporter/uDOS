@@ -1,10 +1,10 @@
-# uDOS v1.3.3 User Guide - Multi-Role Edition
+# uDOS User Guide - Multi-Role Edition
 
 ---
 
 **Foreword**
 
-Welcome to uDOS v1.3.3 with enhanced multi-role architecture and centralized data management. This manual is written in the tradition of classic home computer guides — direct, practical, and nostalgic. Following the design principles from [BBC BASIC for Windows Manual](https://www.bbcbasic.co.uk/bbcwin/manual/bbcwinh.html), uDOS now features an authentic Mode 7 teletext interface with chunky block graphics, enhanced backup system, and comprehensive role-based data organization.
+Welcome to uDOS with multi-role architecture and centralized data management. This manual is written in the tradition of classic home computer guides — direct, practical, and nostalgic. Following the design principles from [BBC BASIC for Windows Manual](https://www.bbcbasic.co.uk/bbcwin/manual/bbcwinh.html), uDOS features an authentic Mode 7 teletext interface with chunky block graphics, backup system, and comprehensive role-based data organization.
 
 ```
     ██╗   ██╗██████╗  ██████╗ ███████╗
@@ -15,25 +15,25 @@ Welcome to uDOS v1.3.3 with enhanced multi-role architecture and centralized dat
      ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 
     Universal Data Operating System
-    ═══════════════ v1.3.3 ═══════════════
+    ═══════════════ v1.0.4.1 ═══════════════
 ```
 
-**Edition**: v1.3.3 Production Guide - Multi-Role Architecture & Enhanced Backup
+**Edition**: v1.0.4.1 Development Guide - Multi-Role Architecture
 **Published**: August 2025
-**System**: Universal Data Operating System v1.3.3
-**Features**: 8-Role Architecture, Centralized Logging, Enhanced Backup v1.4.0, uMEMORY Reorganization, Security Roles
+**System**: Universal Device Operating System v1.0.4.1
+**Features**: 8-Role Architecture, Centralized Logging, Backup System, uMEMORY Organization, Security Roles
 
 ---
 
 ## BBC Mode 7 Interface
 
-### What's New: Enhanced Multi-Role Architecture
+### What's New: Multi-Role Architecture
 
-#### Enhanced uMEMORY Organization v1.4.0
-uDOS v1.3.3 now features **comprehensive data reorganization**:
+#### uMEMORY Organization
+uDOS features **comprehensive data reorganization**:
 - **Centralized logging** in `uMEMORY/log/` with role-specific organization
 - **Role-based data** in `uMEMORY/role/` for 8 distinct user roles
-- **Enhanced backup system** with password encryption and centralized storage
+- **Backup system** with password encryption and centralized storage
 - **Terminology consistency** using `get` (not datagets), `role` (not modes), `log` (not logging)
 
 #### 8-Role Security Architecture
@@ -47,7 +47,7 @@ uDOS v1.3.3 now features **comprehensive data reorganization**:
 - **Sorcerer (Level 8)**: Advanced scripting and system configuration
 - **Wizard (Level 10)**: Full system access and administration
 
-#### Enhanced Backup System v1.4.0
+#### Backup System
 **Centralized backup management** with security features:
 - **Root backup storage** in `/backup/` folder for clean organization
 - **Password encryption** using OpenSSL AES-256-CBC for sensitive data
@@ -57,9 +57,9 @@ uDOS v1.3.3 now features **comprehensive data reorganization**:
 ### Multi-Role Interface Layout
 
 ```ascii
-┌─── uDOS v1.3.3 MULTI-ROLE INTERFACE ────────────────┐
+┌─── uDOS MULTI-ROLE INTERFACE ────────────────┐
 │                                                     │
-│  ██ uDOS v1.3.3 ██  ROLE-BASED OPERATING SYSTEM    │
+│  ██ uDOS v1.0.4.1 ██  ROLE-BASED OPERATING SYSTEM    │
 │                                                     │
 │  Role Hierarchy (8 Levels):                        │
 │  ┌─ WIZARD (10) ─┐ ┌─ SORCERER (8) ─┐              │
@@ -79,35 +79,35 @@ uDOS v1.3.3 now features **comprehensive data reorganization**:
 │  └───────────────┘ └────────────────┘              │
 │                                                     │
 │  Current Role: WIZARD | Logs: Centralized          │
-│  Backup: Enhanced v1.4.0 | Data: Role-Separated    │
+│  Backup: v1.0.4.1 | Data: Role-Separated    │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Enhanced Data Architecture
-Following the v1.3.3 reorganization principles:
+### Data Architecture
+Following the reorganization principles:
 - **Role-based separation**: Each role has dedicated data spaces
 - **Centralized logging**: All logs organized by role in `uMEMORY/log/`
-- **Secure backup storage**: Enhanced encryption and centralized location
+- **Secure backup storage**: Encryption and centralized location
 - **Clean terminology**: Consistent use of `get`, `role`, and `log` naming
 
 ---
 
 ## Getting Started Quickly
 
-### What's New in v1.3.3
+### What's New
 
-#### Enhanced Data Organization v1.4.0
-uDOS v1.3.3 introduces **comprehensive data reorganization**:
+#### Data Organization
+uDOS introduces **comprehensive data reorganization**:
 - **Centralized Logging**: All logs moved to `uMEMORY/log/` with role-specific organization
 - **Role-Based Data**: Complete separation of data by role in `uMEMORY/role/`
-- **Enhanced Backup**: Centralized storage with encryption and improved retention policies
+- **Backup System**: Centralized storage with encryption and retention policies
 - **Clean Architecture**: Streamlined structure with consistent terminology
 
 #### 8-Role Security System
 **Complete role hierarchy** with security-focused additions:
 - **Knight (Level 5)**: New security operations role for threat protection and access control
 - **Crypt (Level 1)**: New encryption vault role for cryptographic operations only
-- **Enhanced hierarchy**: Each role has specific permissions and data separation
+- **Role hierarchy**: Each role has specific permissions and data separation
 - **Role switching**: Dynamic role management with proper user identity handling
 
 #### Terminology Standardization
@@ -121,14 +121,14 @@ uDOS v1.3.3 introduces **comprehensive data reorganization**:
 
 ## Getting Started
 
-### * First Time Setup
+### First Time Setup
 
-When you start uDOS v1.3.3, the system automatically:
+When you start uDOS, the system automatically:
 
 1. **Initializes role-based architecture** with centralized data organization
 2. **Sets up current role** (default: wizard) with proper user identity
 3. **Configures centralized logging** in `uMEMORY/log/` with role separation
-4. **Enables enhanced backup** with encryption and retention policies
+4. **Enables backup system** with encryption and retention policies
 5. **Loads uCode script library** with consistent `get`/`role`/`log` terminology
 
 ### [ ] Role Management Commands
@@ -144,7 +144,7 @@ When you start uDOS v1.3.3, the system automatically:
 │                                                     │
 └─────────────────────────────────────────────────────┘
 
-┌─── ENHANCED BACKUP COMMANDS ───────────────────────┐
+┌─── BACKUP COMMANDS ───────────────────────┐
 │                                                     │
 │  BACKUP CREATE    * Create encrypted backup         │
 │  BACKUP LIST      [ ] List available backups        │
@@ -154,14 +154,14 @@ When you start uDOS v1.3.3, the system automatically:
 │                                                     │
 └─────────────────────────────────────────────────────┘
 
-### Enhanced Architecture v1.3.3
+### Architecture
 
-uDOS v1.3.3 features a comprehensive role-based design:
+uDOS features a comprehensive role-based design:
 
-#### uMEMORY Reorganization v1.4.0
+#### uMEMORY Reorganization
 - **Centralized logging** in `uMEMORY/log/` with role-specific subdirectories
 - **Role data separation** in `uMEMORY/role/` for clean organization
-- **Enhanced backup** with encryption and centralized storage
+- **Backup system** with encryption and centralized storage
 - **Terminology consistency** using get/role/log naming
 
 #### 8-Role Security Architecture
@@ -178,7 +178,7 @@ Located in `/uMEMORY/role/` with complete separation:
 | `tomb` | 2 | Archive operations | Long-term storage and archiving |
 | `crypt` | 1 | Encryption vault | Cryptographic operations only |
 
-#### Enhanced Backup System v1.4.0
+#### Backup System
 ```
 backup/
 ├── backup-metadata.json          # Centralized backup tracking
@@ -191,7 +191,7 @@ backup/
 
 ## System Architecture
 
-### (M) Enhanced Components v1.3.3
+### (M) Core Components
 
 #### uMEMORY - Centralized Data Management
 ```
@@ -244,7 +244,7 @@ sandbox/
 4. **Logging** → Log activity to `uMEMORY/log/{category}/{role}/`
 5. **Result Display** → Format output according to role permissions
 
-### [ ] Enhanced Backup Flow v1.4.0
+### [ ] Backup Flow
 
 1. **Backup Request** → System checks role permissions and encryption requirements
 2. **Data Collection** → Gather role-specific data from appropriate directories
@@ -254,7 +254,7 @@ sandbox/
 
 ---
 
-## Enhanced Security & Backup System
+## Security & Backup System
 
 ### * KNIGHT Role - Security Operations (Level 5)
 
@@ -298,12 +298,12 @@ CRYPT backup               # Backup vault (encrypted only)
 CRYPT verify               # Verify vault integrity
 ```
 
-### * Enhanced Backup System v1.4.0
+### * Backup System
 
 The backup system now includes role-aware features:
 
 ```bash
-# Enhanced Backup Operations
+# Backup Operations
 BACKUP create [role]       # Create role-specific backup
 BACKUP list [role]         # List backups for specific role
 BACKUP restore "backup"    # Restore with role validation
@@ -334,7 +334,7 @@ ASSIST "I need help organizing my development workflow"
 ```
 
 #### Task Management
-Tasks are stored in the sandbox with v1.3 naming:
+Tasks are stored in the sandbox with standard naming:
 ```
 sandbox/tasks/assist-mode/uTASK-20250816-1600-28-00AI01.md
 ```
@@ -342,24 +342,24 @@ sandbox/tasks/assist-mode/uTASK-20250816-1600-28-00AI01.md
 #### ASSIST Integration Points
 - **Development Sessions**: AI assists with coding workflows
 - **Documentation**: Automated documentation generation
-- **Code Review**: AI-enhanced code analysis
+- **Code Review**: AI code analysis
 - **Task Automation**: Intelligent task scheduling
 
 ---
 
-## Enhanced Dashboard
+## Dashboard
 
-### [ ] v1.3.3 Multi-Role Dashboard
+### [ ] Multi-Role Dashboard
 
-The dashboard now reflects the enhanced role-based architecture:
+The dashboard reflects the role-based architecture:
 
 ```ascii
-┌─── uDOS v1.3.3 MULTI-ROLE DASHBOARD ──────────────────┐
+┌─── uDOS MULTI-ROLE DASHBOARD ──────────────────┐
 │                                                        │
 │  *  Architecture: Multi-Role [ ] Date: 2025-08-22     │
 │  (M) Current: WIZARD         [ ] Uptime: 2h 34m       │
 │                                                        │
-│  [ ] Role System Status       * Enhanced Backup v1.4.0 │
+│  [ ] Role System Status       * Backup System │
 │  ══════════════════           ═══════════════════       │
 │  WIZARD   (10) [x]            Centralized    [x]      │
 │  SORCERER (8)  [x]            Encrypted      [x]      │
@@ -374,7 +374,7 @@ The dashboard now reflects the enhanced role-based architecture:
 │  ═══════════════════          Mission Logs   [x]      │
 │  uMEMORY: Reorganized [x]     Clean Structure [x]     │
 │  Logs: Centralized    [x]                             │
-│  Backup: Enhanced     [x]     * Terminology v1.3.3    │
+│  Backup: System       [x]     * Terminology    │
 │  Roles: 8 Levels      [x]     ═══════════════════      │
 │                               get (not datagets) [x]   │
 │                               role (not modes)   [x]   │
@@ -382,22 +382,22 @@ The dashboard now reflects the enhanced role-based architecture:
 └────────────────────────────────────────────────────────┘
 ```
 
-### * Dashboard Commands v1.3.3
+### * Dashboard Commands
 ```bash
 DASH                    # Main multi-role dashboard
 DASH ROLES              # Role hierarchy overview
-DASH BACKUP             # Enhanced backup status
+DASH BACKUP             # Backup status
 DASH LOGS              # Centralized logging status
 DASH SECURITY          # Knight and Crypt role status
 ```
 
 ---
 
-## Enhanced Data & Role Management
+## Data & Role Management
 
-### (M) Enhanced Data Management
+### (M) Data Management
 
-The enhanced data system provides role-based organization:
+The data system provides role-based organization:
 
 ```bash
 # Role-Based Data Access
@@ -418,7 +418,7 @@ LOG archive [role] [date]            # Archive old logs by role
 [DATA|SEARCH] "security" knight      # Quick security search in knight data
 ```
 
-### * Enhanced Role Management
+### * Role Management
 
 The role system handles 8 levels with security focus:
 
@@ -450,7 +450,7 @@ ROLE audit "role-name"               # Audit role permissions and access
 
 ## Command Reference
 
-### * Core System Commands v1.3.3
+### * Core System Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -460,14 +460,14 @@ ROLE audit "role-name"               # Audit role permissions and access
 | `RESTART` | Restart uDOS session | `RESTART` |
 | `ROLE` | Role management and switching | `ROLE switch knight` |
 
-### * Enhanced Role Commands
+### * Role Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
 | `ROLE` | Role management | `ROLE switch sorcerer` |
 | `DATA` | Role-based data access | `DATA list wizard` |
 | `LOG` | Centralized logging | `LOG view knight errors` |
-| `BACKUP` | Enhanced backup system | `BACKUP create knight` |
+| `BACKUP` | Backup system | `BACKUP create knight` |
 | `KNIGHT` | Security operations | `KNIGHT monitor threats` |
 | `CRYPT` | Encryption vault | `CRYPT encrypt secrets.txt` |
 | `GET` | Role configuration | `GET wizard` |
@@ -487,9 +487,9 @@ ROLE audit "role-name"               # Audit role permissions and access
 
 ---
 
-## Advanced Features v1.3.3
+## Advanced Features
 
-### * Enhanced Role Security System
+### * Role Security System
 
 #### Comprehensive Role Hierarchy
 ```bash
@@ -521,7 +521,7 @@ CRYPT keys list               # List available encryption keys
 CRYPT integrity check         # Verify vault integrity
 ```
 
-### (Secure) Enhanced Backup & Data Protection
+### (Secure) Backup & Data Protection
 
 #### Role-Aware Backup System
 ```bash
@@ -540,7 +540,7 @@ BACKUP export "backup" encrypted     # Export with additional encryption
 
 #### Centralized Data Organization
 ```bash
-# Enhanced Data Management
+# Data Management
 DATA organize by-role                # Organize all data by role hierarchy
 DATA migrate legacy                  # Migrate legacy data to new structure
 DATA clean orphaned                  # Remove orphaned data files
@@ -553,7 +553,7 @@ LOG security report                  # Generate security activity report
 LOG cleanup by-retention             # Clean logs per retention policies
 ```
 
-### [ ] Enhanced Monitoring & Analytics v1.3.3
+### [ ] Monitoring & Analytics
 
 #### Multi-Role System Health Monitoring
 - **Role-Based Performance**: Track performance by role level and permissions
@@ -561,7 +561,7 @@ LOG cleanup by-retention             # Clean logs per retention policies
 - **Security Analytics**: Dedicated monitoring for Knight and Crypt roles
 - **Backup Efficiency**: Track backup performance and encryption overhead
 
-#### Enhanced Security Analytics
+#### Security Analytics
 - **Role Switch Auditing**: Monitor role switching patterns and security
 - **Permission Tracking**: Track role permissions and access patterns
 - **Encryption Usage**: Monitor Crypt role encryption operations
@@ -577,7 +577,7 @@ LOG cleanup by-retention             # Clean logs per retention policies
 
 ## Troubleshooting
 
-### * Common Issues v1.3.3
+### * Common Issues
 
 #### Role Management Problems
 ```
@@ -595,7 +595,7 @@ LOG cleanup by-retention             # Clean logs per retention policies
 ✅ Solution: Use LOG centralize all to ensure proper logging setup
 ```
 
-#### Enhanced Backup Problems
+#### Backup Problems
 ```
 ❌ Backup creation fails with encryption
 ✅ Solution: Verify role encryption requirements in backup config
@@ -611,13 +611,13 @@ LOG cleanup by-retention             # Clean logs per retention policies
 ✅ Solution: Check role installation with GET knight/crypt commands
 ```
 
-### * Diagnostic Commands v1.3.3
+### * Diagnostic Commands
 
 ```bash
 STATUS                      # Core system and role overview
 ROLE status                 # Current role and permissions
 DASH ROLES                  # Role hierarchy status
-BACKUP status               # Enhanced backup system status
+BACKUP status               # Backup system status
 LOG centralize verify       # Verify centralized logging setup
 [DATA|STATUS]              # Quick data organization status
 [ROLE|HIERARCHY]           # Quick role hierarchy display
@@ -627,13 +627,13 @@ LOG centralize verify       # Verify centralized logging setup
 
 ## Best Practices
 
-### * Enhanced Architecture v1.3.3
+### * Architecture
 1. **Use role-based access** for proper data separation and security
 2. **Leverage centralized logging** for better system monitoring and debugging
 3. **Apply role-specific backups** with appropriate encryption for sensitive roles
 4. **Monitor role switching** to ensure proper security and access control
 
-### * Enhanced Data & Security Management
+### * Data & Security Management
 1. **Organize data by role** for cleaner separation and faster access
 2. **Use centralized logging** to consolidate all system activity tracking
 3. **Implement security roles** (Knight/Crypt) for sensitive operations
@@ -643,7 +643,7 @@ LOG centralize verify       # Verify centralized logging setup
 1. **Switch to Knight role** for security operations and threat monitoring
 2. **Use Crypt role** for encryption operations and sensitive data handling
 3. **Monitor role permissions** regularly with ROLE audit commands
-4. **Encrypt sensitive backups** using enhanced backup system with passwords
+4. **Encrypt sensitive backups** using backup system with passwords
 
 ### * Development & Operations Workflow
 1. **Start with ROLE status** to verify current permissions and access
@@ -653,13 +653,13 @@ LOG centralize verify       # Verify centralized logging setup
 
 ---
 
-## Enhanced Role & Data Architecture
+### * Role & Data Architecture
 
-### * Role-Based Data Organization v1.3.3
+### * Role-Based Data Organization
 
-uDOS v1.3.3 features a comprehensive role-based architecture:
+uDOS features a comprehensive role-based architecture:
 
-#### Enhanced Role System (8 Levels)
+#### Role System (8 Levels)
 - **WIZARD (10)**: Complete system administration with full access to all functions
 - **SORCERER (8)**: Advanced system configuration and scripting capabilities
 - **IMP (6)**: File system manipulation and comprehensive data management
@@ -688,7 +688,7 @@ role/{role}/
 └── cache/                   # Role-specific cache data
 ```
 
-### * Centralized Logging System v1.4.0
+### * Centralized Logging System
 
 All logging now centralized in `uMEMORY/log/` with role separation:
 
@@ -703,7 +703,7 @@ log/
 └── legacy/                  # Legacy data migration area
 ```
 
-### [ ] Enhanced Backup Integration
+### [ ] Backup Integration
 
 Role-aware backup system with security features:
 
@@ -725,31 +725,31 @@ Each role has specific backup policies:
 
 ## Support & Resources
 
-### [ ] Documentation v1.3.3
+### [ ] Documentation
 - **Architecture Guide**: `/docs/ARCHITECTURE.md` - Complete system architecture with role hierarchy
-- **uMEMORY Guide**: `/docs/uMEMORY-Reorganization-Complete-v1.4.0.md` - Comprehensive data reorganization
-- **Style Guide**: `/docs/Style-Guide.md` - Coding and documentation standards with v1.3.3 terminology
-- **Backup Guide**: Enhanced backup system documentation with encryption and role policies
+- **uMEMORY Guide**: `/docs/uMEMORY-Reorganization-Complete.md` - Comprehensive data reorganization
+- **Style Guide**: `/docs/Style-Guide.md` - Coding and documentation standards with terminology
+- **Backup Guide**: Backup system documentation with encryption and role policies
 
-### * Core System Tools v1.3.3
+### * Core System Tools
 - **Role Management**: Role switching, permissions, and hierarchy management
-- **Enhanced Backup**: `/backup/` centralized storage with encryption and metadata
+- **Backup System**: `/backup/` centralized storage with encryption and metadata
 - **Centralized Logging**: `/uMEMORY/log/` organization with role-specific subdirectories
 - **Data Organization**: `/uMEMORY/role/` structure for clean role-based separation
 
 ### * Security & Operations
 - **Knight Role**: Security operations, threat monitoring, and access control
 - **Crypt Role**: Encryption vault, cryptographic operations, and secure storage
-- **Enhanced Backup**: Password encryption with AES-256-CBC for sensitive data
+- **Backup**: Password encryption with AES-256-CBC for sensitive data
 - **Audit System**: Role-based activity tracking and security monitoring
 
 ### * Community & Support
-- **GitHub Repository**: uDOS project repository with v1.3.3 multi-role architecture
-- **Development Discussions**: Community development forum for enhanced role system
+- **GitHub Repository**: uDOS project repository with multi-role architecture
+- **Development Discussions**: Community development forum for role system
 - **Issue Tracking**: Bug reports and feature requests for role-based functionality
 - **Knowledge Base**: Community-contributed documentation for multi-role operations
 
-### * Quick Reference Commands v1.3.3
+### * Quick Reference Commands
 ```bash
 # System Overview
 STATUS                  # Complete system health and role status
@@ -759,8 +759,8 @@ ROLE status            # Current role and permissions overview
 ROLE hierarchy         # Complete 8-role hierarchy display
 ROLE switch knight     # Switch to Knight security role
 
-# Enhanced Features
-BACKUP status          # Enhanced backup system status
+# Features
+BACKUP status          # Backup system status
 LOG centralize verify  # Verify centralized logging setup
 KNIGHT monitor         # Security monitoring (Knight role)
 CRYPT vault status     # Encryption vault status (Crypt role)
@@ -775,12 +775,12 @@ This guide is designed to be read like the early home computer manuals — direc
 
 ---
 
-**Document Status**: Production Ready - Enhanced Multi-Role Architecture v1.3.3
-**Version**: v1.3.3 Enhanced
-**Last Updated**: August 22, 2025
-**Next Review**: September 22, 2025
+**Document Status**: Production Ready - Multi-Role Architecture v1.0.4.1
+**Version**: v1.0.4.1 Development
+**Last Updated**: August 26, 2025
+**Next Review**: September 26, 2025
 
 ---
 
-*uDOS v1.3.3 User Guide - Universal Data Operating System*
-*Enhanced Multi-Role Architecture • Centralized Logging • Enhanced Backup v1.4.0 • Security Roles*
+*uDOS v1.0.4.1 User Guide - Universal Device Operating System*
+*Multi-Role Architecture • Centralized Logging • Backup System • Security Roles*

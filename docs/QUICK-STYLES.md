@@ -1,17 +1,16 @@
-# uDOS Quick Style Reference v1.3.3
+# uDOS Quick Style Reference
 
-```ascii
-    ██╗   ██╗██████╗  ██████╗ ███████╗
-    ╚██████╔╝██████╔╝╚██████╔╝███████║
-     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
-
-    Quick Style Reference - Essential Rules
-    ══════════════════════════════════════════
+```
+███████ ██████  ███████ ███████ ███████ ████████ ██   ██ ██     ███████
+██      ██   ██ ██      ██      ██         ██     ██ ██  ██     ██
+█████   ██████  █████   █████   ███████    ██      ███   ██     █████
+██      ██   ██ ██      ██           ██    ██      ██    ██     ██
+██      ██   ██ ███████ ███████ ███████    ██      ██    ██████ ███████
 ```
 
-**Quick Reference**: Essential coding and formatting rules for uDOS v1.3.3
+*Universal Device Operating System***Quick Reference**: Essential coding and formatting rules for uDOS v1.0.4.1
 **Complete Guide**: See [STYLE-GUIDE.md](STYLE-GUIDE.md) for comprehensive specifications, advanced examples, and detailed standards
-**Version**: 1.3.3 | **Updated**: August 23, 2025 | **Status**: Production Ready
+**Version**: 1.0.4.1 | **Updated**: August 25, 2025 | **Status**: Foundational Development
 
 ---
 
@@ -113,31 +112,32 @@ GRID-WIDTH=80
 ~ Minimize quotes: "Press ENTER" → Press ENTER
 ```
 
-### 🌈 **Polaroid Colors Palette (System Default)**
+### 🌈 **Terminal Color Palettes (8 Available)**
 ```css
-/* Primary Colors */
---cyan:    #0094BA    /* Cyan Flash */
---cyan2:   #66C6DD    /* Cyan Tint */
---lime:    #ABBA2A    /* Lime Glow */
---lime2:   #D5E272    /* Lime Tint */
---yellow:  #F7E614    /* Yellow Burst */
---orange:  #F0793A    /* Orange Pop */
---magenta: #DE0388    /* Magenta Snap */
---mag2:    #F26BB6    /* Magenta Tint */
+/* Polaroid Colors (System Default) - High-contrast photo-inspired */
+--red:     #FF1744    /* tput 196 - Bold Red */
+--green:   #00E676    /* tput 46  - Bright Green */
+--yellow:  #FFEB3B    /* tput 226 - Yellow Burst */
+--blue:    #2196F3    /* tput 21  - Deep Blue */
+--purple:  #E91E63    /* tput 201 - Magenta Pink */
+--cyan:    #00E5FF    /* tput 51  - Cyan Flash */
+--white:   #FFFFFF    /* tput 15  - Pure White */
+--black:   #000000    /* tput 16  - Pure Black */
 
-/* Greyscale Colors */
---white:   #FFFFFF    /* White */
---light:   #F5F5F5    /* Light Grey */
---grey2:   #D9D9D9    /* Grey Light */
---grey:    #B3B3B3    /* Grey Mid */
---grey3:   #8C8C8C    /* Grey Strong */
---grey4:   #595959    /* Grey Dark */
---dark:    #262626    /* Dark Grey */
---black:   #000000    /* Black */
+/* 8 Complete Palettes Available */
+1. Polaroid (default)     - High-contrast photo-inspired colors
+2. Retro Unicorn         - Vivid nostalgic brights with playful twist
+3. Nostalgia             - Muted earthy colors with retro 80s/90s vibe
+4. Tropical Sunrise      - Warm vibrant sunrise beach palette
+5. Pastel Power          - Soft friendly pastels for gentle modern look
+6. Arcade Pastels        - Fun light pastels with retro arcade feel
+7. Grayscale             - Monochrome for minimal/accessibility modes
+8. Solar Punk            - Optimistic futuristic eco-technology colors
 ```
 
-**Usage**: Default uDOS v1.3.3 system interface palette with authentic retro aesthetics
-**All 8 Palettes**: See [STYLE-GUIDE.md](STYLE-GUIDE.md) for complete collection including Retro Unicorn, Nostalgia, Tropical Sunrise, Pastel Power, Arcade Pastels, Forest Sprite, and Solar Punk
+**Usage**: Default uDOS v1.0.4.1 terminal interface with 8 complete palettes (128 total colors)
+**Configuration**: Terminal color palettes stored in `/uMEMORY/system/uDATA-colours.json`
+**All Palettes**: See [STYLE-GUIDE.md](STYLE-GUIDE.md) for complete collection with tput indexes and ANSI fallbacks
 
 ### 📂 **Naming Conventions**
 ```bash
@@ -272,5 +272,5 @@ For detailed specifications including:
 
 ---
 
-*Quick Style Reference v1.3.3 - Essential rules for consistent uDOS development and content creation*
-*Production Ready | For complete specifications and advanced examples: [STYLE-GUIDE.md](STYLE-GUIDE.md)*
+*Quick Style Reference v1.0.4.1 - Essential rules for consistent uDOS development and content creation*
+*Foundational Development | For complete specifications and advanced examples: [STYLE-GUIDE.md](STYLE-GUIDE.md)*

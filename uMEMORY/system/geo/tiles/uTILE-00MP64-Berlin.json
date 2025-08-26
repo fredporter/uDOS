@@ -1,0 +1,6 @@
+{"metadata":{"tile_id":"00MP64-1m","map_id":"00","coordinates":{"latitude":52.52,"longitude":13.405,"depth":"1m"},"bounds":{"north":54.02,"south":51.02,"east":14.905,"west":11.905,"center":{"latitude":52.52,"longitude":13.405}},"type":"capital","description":"Berlin, Germany","created":"2025-08-20T12:27:13Z","version":"1.0.0","coordinate_system":"WGS84","projection":"mercator"}}
+{"name":"geography","hemispheres":{"north_south":"Northern","east_west":"Eastern"},"continent":"Europe","ocean_basin":"Atlantic","climate_zone":"Continental","timezone_estimate":"UTC+1","elevation_estimate":"sea_level","terrain_type":"unknown","population_density":"unknown","land_use":"unknown"}
+{"name":"layers","surface":{"enabled":true,"opacity":1.0,"data_sources":[],"features":[]},"subsurface":{"enabled":false,"depth_range":"1m-1m","data_sources":[],"features":[]}}
+{"name":"temporal","created":"2025-08-20T12:27:13Z","modified":"2025-08-20T12:27:13Z","accessed":"2025-08-20T12:27:13Z","version_history":[]}
+{"name":"access_control","read":["dev","wizard","sorcerer","ghost","imp"],"write":["dev","wizard"],"create_derived":["wizard","sorcerer"]}
+{"name":"extensions","custom_properties":{},"external_links":[],"related_tiles":[]}

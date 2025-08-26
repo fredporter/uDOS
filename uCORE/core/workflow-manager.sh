@@ -20,6 +20,7 @@ source "$SCRIPT_DIR/logging.sh" 2>/dev/null || {
 SANDBOX_DIR="$UDOS_ROOT/sandbox"
 WORKFLOW_DIR="$SANDBOX_DIR/workflow"
 MOVES_DIR="$WORKFLOW_DIR/moves"
+GOALS_DIR="$WORKFLOW_DIR/goals"
 MILESTONES_DIR="$WORKFLOW_DIR/milestones"
 MISSIONS_DIR="$WORKFLOW_DIR/missions"
 LEGACY_DIR="$WORKFLOW_DIR/legacy"
@@ -46,7 +47,7 @@ BOLD='\033[1m'
 
 # Initialize workflow structure
 init_workflow() {
-    mkdir -p "$MOVES_DIR" "$MILESTONES_DIR" "$MISSIONS_DIR" "$LEGACY_DIR" "$ASSIST_DIR"
+    mkdir -p "$MOVES_DIR" "$GOALS_DIR" "$MILESTONES_DIR" "$MISSIONS_DIR" "$LEGACY_DIR" "$ASSIST_DIR"
 
     # Initialize user journey if not exists
     if [ ! -f "$USER_JOURNEY" ]; then
@@ -56,6 +57,7 @@ init_workflow() {
     "journey_started": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
     "current_stage": "exploring",
     "total_moves": 0,
+    "goals_created": 0,
     "milestones_achieved": 0,
     "missions_completed": 0,
     "legacy_items": 0,
@@ -239,6 +241,182 @@ suggest_milestone() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
+# GOAL MANAGEMENT (Aspirations & Intentions)
+# ═══════════════════════════════════════════════════════════════════════
+
+# Create goal
+create_goal() {
+    local title="$1"
+    local description="$2"
+    local goal_type="${3:-exploration}"
+    local timeframe="${4:-1 month}"
+    local priority="${5:-medium}"
+
+    local goal_id="goal_$(date +%s)"
+    local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+    local goal_file="$GOALS_DIR/$goal_id.json"
+
+    cat > "$goal_file" << EOF
+{
+    "goal_id": "$goal_id",
+    "title": "$title",
+    "description": "$description",
+    "goal_type": "$goal_type",
+    "created": "$timestamp",
+    "status": "active",
+    "priority": "$priority",
+    "timeframe": "$timeframe",
+    "progress_percentage": 0,
+    "related_moves": [],
+    "milestones_created": [],
+    "session_id": "$(get_current_session_id)",
+    "motivation": "$(suggest_motivation "$goal_type" "$title")",
+    "success_indicators": [],
+    "potential_milestones": "$(suggest_goal_milestones "$goal_type" "$title")",
+    "estimated_completion": "$(calculate_goal_completion "$timeframe")"
+}
+EOF
+
+    # Update user journey
+    update_journey_stats "goals_created" 1
+
+    log_success "Goal created: $title"
+
+    # Suggest first moves toward goal
+    suggest_goal_moves "$goal_id"
+}
+
+# Update goal progress
+update_goal() {
+    local goal_id="$1"
+    local field="$2"
+    local value="$3"
+
+    local goal_file="$GOALS_DIR/$goal_id.json"
+    if [ ! -f "$goal_file" ]; then
+        log_error "Goal not found: $goal_id"
+        return 1
+    fi
+
+    local temp_file=$(mktemp)
+    jq --arg field "$field" --arg value "$value" --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+        .[$field] = $value |
+        .last_updated = $timestamp
+    ' "$goal_file" > "$temp_file" && mv "$temp_file" "$goal_file"
+
+    log_success "Goal updated: $field = $value"
+}
+
+# Convert goal to milestone
+convert_goal_to_milestone() {
+    local goal_id="$1"
+    local milestone_title="$2"
+    local milestone_description="$3"
+
+    local goal_file="$GOALS_DIR/$goal_id.json"
+    if [ ! -f "$goal_file" ]; then
+        log_error "Goal not found: $goal_id"
+        return 1
+    fi
+
+    # Create milestone from goal
+    create_milestone "$milestone_title" "$milestone_description" "[]"
+
+    # Update goal with milestone link
+    local milestone_id="milestone_$(date +%s)"
+    local temp_file=$(mktemp)
+    jq --arg milestone_id "$milestone_id" --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+        .milestones_created += [$milestone_id] |
+        .last_milestone_created = $timestamp |
+        .progress_percentage = (.progress_percentage + 25 | if . > 100 then 100 else . end)
+    ' "$goal_file" > "$temp_file" && mv "$temp_file" "$goal_file"
+
+    log_success "Goal converted to milestone: $milestone_title"
+}
+
+# Link goal to move
+link_goal_to_move() {
+    local goal_id="$1"
+    local move_id="$2"
+
+    local goal_file="$GOALS_DIR/$goal_id.json"
+    if [ ! -f "$goal_file" ]; then
+        log_error "Goal not found: $goal_id"
+        return 1
+    fi
+
+    local temp_file=$(mktemp)
+    jq --arg move_id "$move_id" --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+        .related_moves += [$move_id] |
+        .last_move_related = $timestamp
+    ' "$goal_file" > "$temp_file" && mv "$temp_file" "$goal_file"
+
+    log_info "Goal linked to move: $move_id"
+}
+
+# List active goals
+list_goals() {
+    echo -e "${BLUE}🎯 Active Goals:${NC}"
+    if [ -d "$GOALS_DIR" ]; then
+        find "$GOALS_DIR" -name "*.json" -exec jq -r 'select(.status=="active") | "  " + .title + " (" + .goal_type + ", " + (.progress_percentage|tostring) + "% complete)"' {} \; 2>/dev/null | sort
+    else
+        echo "  No goals found"
+    fi
+}
+
+# Suggest motivation for goal type
+suggest_motivation() {
+    local goal_type="$1"
+    local title="$2"
+
+    case "$goal_type" in
+        "learning") echo "Expand knowledge and capabilities" ;;
+        "creation") echo "Build something meaningful and useful" ;;
+        "improvement") echo "Enhance existing skills or processes" ;;
+        "exploration") echo "Discover new possibilities and approaches" ;;
+        "mastery") echo "Achieve deep expertise and proficiency" ;;
+        *) echo "Personal growth and development" ;;
+    esac
+}
+
+# Suggest potential milestones for goal
+suggest_goal_milestones() {
+    local goal_type="$1"
+    local title="$2"
+
+    case "$goal_type" in
+        "learning") echo "[\"First Understanding\", \"Practical Application\", \"Teaching Others\"]" ;;
+        "creation") echo "[\"Planning Complete\", \"Prototype Built\", \"Final Version\"]" ;;
+        "improvement") echo "[\"Current State Analyzed\", \"Solution Implemented\", \"Results Measured\"]" ;;
+        "exploration") echo "[\"Initial Research\", \"First Experiment\", \"Insights Documented\"]" ;;
+        "mastery") echo "[\"Foundation Solid\", \"Advanced Techniques\", \"Expert Level\"]" ;;
+        *) echo "[\"First Step\", \"Halfway Point\", \"Goal Achievement\"]" ;;
+    esac
+}
+
+# Calculate estimated completion date
+calculate_goal_completion() {
+    local timeframe="$1"
+    case "$timeframe" in
+        "1-2 weeks") date -d "+2 weeks" +%Y-%m-%d ;;
+        "1 month") date -d "+1 month" +%Y-%m-%d ;;
+        "2-3 months") date -d "+3 months" +%Y-%m-%d ;;
+        "6 months") date -d "+6 months" +%Y-%m-%d ;;
+        "1 year") date -d "+1 year" +%Y-%m-%d ;;
+        *) date -d "+1 month" +%Y-%m-%d ;;
+    esac
+}
+
+# Suggest first moves toward goal
+suggest_goal_moves() {
+    local goal_id="$1"
+    log_info "💡 Consider these first moves toward your goal:"
+    log_info "  - Research and planning"
+    log_info "  - Identify resources needed"
+    log_info "  - Take a small first step"
+}
+
+# ═══════════════════════════════════════════════════════════════════════
 # MILESTONE MANAGEMENT (Achievements)
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -309,10 +487,10 @@ suggest_next_milestone() {
 create_mission() {
     local title="$1"
     local description="$2"
-    local objectives="${3:-[]}"
-    local timeline="${4:-flexible}"
+    local quest_type="${3:-exploring}"
+    local move_budget="${4:-50}"
 
-    local mission_id="mission_$(date +%s)"
+    local mission_id="quest_$(date +%s)"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     local mission_file="$MISSIONS_DIR/$mission_id.json"
 
@@ -321,15 +499,21 @@ create_mission() {
     "mission_id": "$mission_id",
     "title": "$title",
     "description": "$description",
+    "quest_type": "$quest_type",
     "created": "$timestamp",
     "status": "active",
-    "timeline": "$timeline",
-    "objectives": $objectives,
-    "required_milestones": [],
+    "move_budget": $move_budget,
+    "moves_used": 0,
+    "moves_remaining": $move_budget,
+    "objectives": [],
     "completed_milestones": [],
     "progress_percentage": 0,
-    "estimated_completion": "$(calculate_estimated_completion "$timeline")",
-    "assist_recommendations": [],
+    "difficulty": "$(calculate_quest_difficulty "$quest_type" "$move_budget")",
+    "fun_factor": 8,
+    "experience_points": 0,
+    "quest_phase": "preparation",
+    "personal_rewards": [],
+    "skill_unlocks": [],
     "legacy_impact": "$(predict_legacy_impact "$title" "$description")"
 }
 EOF
@@ -339,10 +523,72 @@ EOF
         cp "$mission_file" "$CURRENT_MISSION"
     fi
 
-    log_success "Mission created: $title"
+    log_success "Quest created: $title (Budget: $move_budget moves)"
 
-    # Generate assist recommendations
-    generate_mission_assist "$mission_id"
+    # Generate quest recommendations
+    generate_quest_recommendations "$mission_id"
+}
+
+# Calculate quest difficulty based on type and move budget
+calculate_quest_difficulty() {
+    local quest_type="$1"
+    local move_budget="$2"
+
+    if (( move_budget <= 25 )); then
+        echo "easy"
+    elif (( move_budget <= 75 )); then
+        case "$quest_type" in
+            "learning"|"exploring") echo "moderate" ;;
+            "building"|"creating") echo "challenging" ;;
+            "mastering") echo "challenging" ;;
+            *) echo "moderate" ;;
+        esac
+    else
+        echo "legendary"
+    fi
+}
+
+# Generate quest recommendations
+generate_quest_recommendations() {
+    local quest_id="$1"
+    log_info "🎮 Quest recommendations generated for: $quest_id"
+    log_info "  - Break into smaller objectives"
+    log_info "  - Set up progress tracking"
+    log_info "  - Plan daily move allocations"
+}
+
+# Update quest with move tracking
+update_quest_moves() {
+    local quest_id="$1"
+    local moves_to_add="${2:-1}"
+
+    local mission_file="$MISSIONS_DIR/$quest_id.json"
+    if [ ! -f "$mission_file" ]; then
+        log_error "Quest not found: $quest_id"
+        return 1
+    fi
+
+    local temp_file=$(mktemp)
+    jq --arg moves "$moves_to_add" --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+        .moves_used = (.moves_used + ($moves | tonumber)) |
+        .moves_remaining = (.move_budget - .moves_used) |
+        .progress_percentage = ((.moves_used / .move_budget) * 100 | floor) |
+        .last_move_update = $timestamp
+    ' "$mission_file" > "$temp_file" && mv "$temp_file" "$mission_file"
+
+    # Update current mission if this is the active quest
+    if [ -f "$CURRENT_MISSION" ]; then
+        local current_id=$(jq -r '.mission_id' "$CURRENT_MISSION")
+        if [ "$current_id" = "$quest_id" ]; then
+            cp "$mission_file" "$CURRENT_MISSION"
+        fi
+    fi
+
+    local moves_used=$(jq -r '.moves_used' "$mission_file")
+    local moves_remaining=$(jq -r '.moves_remaining' "$mission_file")
+    local progress=$(jq -r '.progress_percentage' "$mission_file")
+
+    log_info "Quest updated: $moves_used moves used, $moves_remaining remaining ($progress% complete)"
 }
 
 # Calculate estimated completion
@@ -374,24 +620,61 @@ predict_legacy_impact() {
     fi
 }
 
-# Complete mission
+# Complete quest
 complete_mission() {
     local mission_id="$1"
-    local completion_notes="${2:-Mission completed successfully}"
+    local completion_notes="${2:-Quest completed successfully}"
 
     local mission_file="$MISSIONS_DIR/$mission_id.json"
     if [ ! -f "$mission_file" ]; then
-        log_error "Mission not found: $mission_id"
+        log_error "Quest not found: $mission_id"
         return 1
     fi
 
-    # Update mission status
+    # Calculate experience points and efficiency
+    local move_budget=$(jq -r '.move_budget' "$mission_file")
+    local moves_used=$(jq -r '.moves_used' "$mission_file")
+    local difficulty=$(jq -r '.difficulty' "$mission_file")
+
+    # Calculate completion efficiency
+    local efficiency=100
+    if (( moves_used > 0 )); then
+        efficiency=$(( (move_budget * 100) / moves_used ))
+        if (( efficiency > 100 )); then
+            efficiency=100
+        fi
+    fi
+
+    # Calculate experience points based on difficulty and efficiency
+    local base_xp=50
+    case "$difficulty" in
+        "easy") base_xp=30 ;;
+        "moderate") base_xp=50 ;;
+        "challenging") base_xp=80 ;;
+        "legendary") base_xp=150 ;;
+    esac
+
+    local bonus_xp=0
+    if (( efficiency >= 90 )); then
+        bonus_xp=25  # Efficient completion bonus
+    elif (( efficiency >= 75 )); then
+        bonus_xp=15
+    fi
+
+    local total_xp=$((base_xp + bonus_xp))
+
+    # Update quest status
     local temp_file=$(mktemp)
-    jq --arg notes "$completion_notes" --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+    jq --arg notes "$completion_notes" \
+       --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+       --arg total_xp "$total_xp" \
+       --arg efficiency "$efficiency" '
         .status = "completed" |
         .completed = $timestamp |
         .completion_notes = $notes |
-        .progress_percentage = 100
+        .progress_percentage = 100 |
+        .experience_points = ($total_xp | tonumber) |
+        .completion_efficiency = ($efficiency | tonumber)
     ' "$mission_file" > "$temp_file" && mv "$temp_file" "$mission_file"
 
     # Create legacy item
@@ -400,7 +683,8 @@ complete_mission() {
     # Update journey stats
     update_journey_stats "missions_completed" 1
 
-    log_success "Mission completed: $(jq -r '.title' "$mission_file")"
+    log_success "Quest completed: $(jq -r '.title' "$mission_file")"
+    log_info "Experience gained: $total_xp XP (Efficiency: $efficiency%)"
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -576,22 +860,26 @@ show_workflow_status() {
         local journey_data=$(cat "$USER_JOURNEY")
         local stage=$(echo "$journey_data" | jq -r '.current_stage')
         local moves=$(echo "$journey_data" | jq -r '.total_moves')
+        local goals=$(echo "$journey_data" | jq -r '.goals_created // 0')
         local milestones=$(echo "$journey_data" | jq -r '.milestones_achieved')
         local missions=$(echo "$journey_data" | jq -r '.missions_completed')
         local legacy=$(echo "$journey_data" | jq -r '.legacy_items')
 
         echo -e "${BLUE}Current Stage:${NC} $stage"
         echo -e "${BLUE}Total Moves:${NC} $moves"
+        echo -e "${BLUE}Goals Created:${NC} $goals"
         echo -e "${BLUE}Milestones:${NC} $milestones"
         echo -e "${BLUE}Missions Completed:${NC} $missions"
         echo -e "${BLUE}Legacy Items:${NC} $legacy"
     fi
 
-    # Show active mission
+    # Show active quest
     if [ -f "$CURRENT_MISSION" ]; then
         local mission_title=$(jq -r '.title' "$CURRENT_MISSION")
         local mission_progress=$(jq -r '.progress_percentage' "$CURRENT_MISSION")
-        echo -e "${BLUE}Active Mission:${NC} $mission_title ($mission_progress%)"
+        local moves_used=$(jq -r '.moves_used // 0' "$CURRENT_MISSION")
+        local move_budget=$(jq -r '.move_budget // 0' "$CURRENT_MISSION")
+        echo -e "${BLUE}Active Quest:${NC} $mission_title ($mission_progress% - $moves_used/$move_budget moves)"
     fi
 
     # Show assist mode status
@@ -607,13 +895,18 @@ show_workflow_status() {
 
 show_help() {
     echo -e "${BOLD}${CYAN}🗺️  Workflow Manager${NC}"
-    echo "User journey management: move→milestone→mission→legacy"
+    echo "User journey management: move→goal→milestone→quest→legacy"
     echo ""
     echo "Commands:"
     echo "  move <type> <description>           - Log current activity"
+    echo "  goal create <title> <description>   - Create aspirational goal"
+    echo "  goal update <id> <field> <value>    - Update goal progress"
+    echo "  goal convert <id> <milestone_title> - Convert goal to milestone"
+    echo "  goal list                           - List active goals"
     echo "  milestone <title> <description>     - Create achievement milestone"
-    echo "  mission create <title> <desc>       - Create new mission"
-    echo "  mission complete <id> [notes]       - Complete mission"
+    echo "  mission create <title> <desc>       - Create new quest"
+    echo "  mission update <id> [moves]         - Add moves to quest (default: 1)"
+    echo "  mission complete <id> [notes]       - Complete quest"
     echo "  legacy list                         - Show legacy achievements"
     echo "  assist enter [focus]                - Enter assist mode"
     echo "  assist exit                         - Exit assist mode"
@@ -621,6 +914,7 @@ show_help() {
     echo "  init                                - Initialize workflow system"
     echo ""
     echo "Journey Stages: exploring → planning → executing → achieving → legacy"
+    echo "Journey Flow: Move → Goal → Milestone → Quest → Legacy"
 }
 
 main() {
@@ -640,6 +934,51 @@ main() {
             fi
             log_move "$move_type" "$description"
             ;;
+        goal)
+            local action="$1"
+            shift || true
+            case "$action" in
+                create)
+                    local title="$1"
+                    local description="$2"
+                    local goal_type="${3:-exploration}"
+                    local timeframe="${4:-1 month}"
+                    local priority="${5:-medium}"
+                    if [ -z "$title" ] || [ -z "$description" ]; then
+                        log_error "Goal title and description required"
+                        exit 1
+                    fi
+                    create_goal "$title" "$description" "$goal_type" "$timeframe" "$priority"
+                    ;;
+                update)
+                    local goal_id="$1"
+                    local field="$2"
+                    local value="$3"
+                    if [ -z "$goal_id" ] || [ -z "$field" ] || [ -z "$value" ]; then
+                        log_error "Goal ID, field, and value required"
+                        exit 1
+                    fi
+                    update_goal "$goal_id" "$field" "$value"
+                    ;;
+                convert)
+                    local goal_id="$1"
+                    local milestone_title="$2"
+                    local milestone_description="${3:-Milestone from goal}"
+                    if [ -z "$goal_id" ] || [ -z "$milestone_title" ]; then
+                        log_error "Goal ID and milestone title required"
+                        exit 1
+                    fi
+                    convert_goal_to_milestone "$goal_id" "$milestone_title" "$milestone_description"
+                    ;;
+                list)
+                    list_goals
+                    ;;
+                *)
+                    log_error "Unknown goal action: $action"
+                    log_info "Available actions: create, update, convert, list"
+                    ;;
+            esac
+            ;;
         milestone)
             local title="$1"
             local description="$2"
@@ -657,16 +996,25 @@ main() {
                     local title="$1"
                     local description="$2"
                     if [ -z "$title" ] || [ -z "$description" ]; then
-                        log_error "Mission title and description required"
+                        log_error "Quest title and description required"
                         exit 1
                     fi
                     create_mission "$title" "$description"
                     ;;
+                update)
+                    local quest_id="$1"
+                    local moves="${2:-1}"
+                    if [ -z "$quest_id" ]; then
+                        log_error "Quest ID required"
+                        exit 1
+                    fi
+                    update_quest_moves "$quest_id" "$moves"
+                    ;;
                 complete)
                     local mission_id="$1"
-                    local notes="${2:-Mission completed successfully}"
+                    local notes="${2:-Quest completed successfully}"
                     if [ -z "$mission_id" ]; then
-                        log_error "Mission ID required"
+                        log_error "Quest ID required"
                         exit 1
                     fi
                     complete_mission "$mission_id" "$notes"

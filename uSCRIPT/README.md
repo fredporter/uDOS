@@ -1,19 +1,20 @@
-# uSCRIPT v1.3.3 - Production Script Library & Execution Engine
+# uSCRIPT - Production Script Library & Execution Engine
 
-uSCRIPT v1.3.3 is the modular home for advanced script features and execution engine for uDOS. This version has been cleaned and optimized for production use with organized libraries and proper package management.
+uSCRIPT is the modular home for script features and execution engine for uDOS v1.0.4.1. This foundational system provides clean organization and core functionality for script management.
 
-## Key Features
+*Universal Device Operating System*
+
+## Core Features
 - **Clean Organization**: Scripts organized by language and purpose
-- **Package Management**: Integrated package installation and management
-- **Security Levels**: Three-tier security model for safe script execution
+- **Security Foundation**: Basic security model for safe script execution
 - **Language Support**: Python, Shell, JavaScript, and uCODE formats
-- **Production Ready**: Thoroughly tested and documented scripts
+- **Foundational Design**: Simple, lean approach suitable for v1.0.4.1
 
 ## Usage
-- **Script Execution**: Use `./uscript.sh run <script-name>` for secure execution
-- **uCODE Modules**: Access native uDOS functionality through `library/ucode/`
+- **Script Execution**: Use `./uscript.sh run <script-name>` for execution
+- **uCODE Modules**: Access core uDOS functionality through `library/ucode/`
 - **System Scripts**: Core system operations in `library/shell/system/`
-- **Development Tools**: Testing modules available in `sandbox/experiments/`
+- **Development**: Testing modules available in `sandbox/experiments/`
 
 ## Directory Structure
 
@@ -39,14 +40,14 @@ uSCRIPT/
 │   └── python/              # Isolated Python environment
 ├── bin/                     # Utility scripts and tools
 ├── uscript.sh               # Main execution engine
-├── setup-environment.sh     # Environment setup script (v1.3.3)
+├── setup-environment.sh     # Environment setup script
 ├── activate-venv.sh         # Virtual environment activation helper
 └── venv-info.sh             # Environment information display
 ```
 
 ## Security Levels
 
-uSCRIPT v1.3 implements a three-tier security model:
+uSCRIPT implements a foundational security model:
 
 - **safe**: Read-only scripts, sandboxed execution, no network/file write access
 - **elevated**: File modification allowed, requires user confirmation
@@ -114,15 +115,12 @@ Scripts in uSCRIPT should be:
 
 ## Version History
 
-- **v1.3.3** (2025-08-23): Enhanced Python virtual environment support, environment status commands, improved venv integration
-- **v1.3.2** (2025-08-22): Cleaned and optimized structure, organized libraries
-- **v1.3.0** (2025-08-17): Complete redesign as production script library
-- **v1.2.x**: Development script manager (deprecated)
-- **v1.1.x**: Basic script execution (deprecated)
+- **v1.0.4.1** (2025-08-26): Foundational system design with clean organization
+- Previous versions deprecated in favor of foundational approach
 
-## New in v1.3.3
+## Current Features
 
-### Enhanced Virtual Environment Support
+### Virtual Environment Support
 - **Automatic venv detection**: Scripts automatically use Python virtual environment when available
 - **Fallback to system Python**: Graceful fallback if venv is not set up
 - **Environment setup script**: `./setup-environment.sh` for easy environment configuration
@@ -133,8 +131,8 @@ Scripts in uSCRIPT should be:
 - **Dependency verification**: Checks Python, venv, and installed packages
 - **Setup validation**: Ensures all required components are properly configured
 
-### Improved Integration
+### Core Integration
 - **Clean venv isolation**: Python scripts run in isolated virtual environment
-- **Dependency management**: Automated installation from requirements.txt
+- **Dependency management**: Installation from requirements.txt
 - **Configuration validation**: Built-in checks for proper setup
 

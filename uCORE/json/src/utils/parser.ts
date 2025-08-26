@@ -1,5 +1,5 @@
 /**
- * uDOS Template Parser Utilities v1.7.1
+ * uDOS Template Parser Utilities v1.0.4.1
  * TypeScript utilities for parsing and processing template files
  */
 

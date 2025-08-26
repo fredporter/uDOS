@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uDOS v1.4 - Dashboard</title>
+    <title>uDOS - Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -14,7 +14,7 @@
         <!-- Header -->
         <header class="udos-header">
             <div class="header-brand">
-                <h1>🎯 uDOS v1.4</h1>
+                <h1>🎯 uDOS</h1>
                 <span class="header-subtitle">Browser Dashboard</span>
             </div>
             <div class="header-status" id="connectionStatus">
@@ -75,7 +75,7 @@
                     <div class="status-content">
                         <div class="info-item">
                             <span class="info-label">Version</span>
-                            <span class="info-value" id="udosVersion">1.4.0-beta</span>
+                            <span class="info-value" id="udosVersion">1.0.4.1</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Active Sessions</span>
@@ -130,7 +130,7 @@
                         <button class="terminal-expand" onclick="openTerminal()">⛶</button>
                     </div>
                     <div class="terminal-content">
-                        <div class="terminal-line">🎯 uDOS v1.4 Browser Interface Ready</div>
+                        <div class="terminal-line">🎯 uDOS Browser Interface Ready</div>
                         <div class="terminal-line"> Click "Open Terminal" for interactive session</div>
                         <div class="terminal-line"> Or use quick actions above</div>
                     </div>
@@ -140,7 +140,7 @@
 
         <!-- Footer -->
         <footer class="udos-footer">
-            <span>uDOS v1.4.0-beta | Browser Interface | Connected to <span id="serverPath"></span></span>
+            <span>uDOS v1.0.4.1 | Browser Interface | Connected to <span id="serverPath"></span></span>
         </footer>
     </div>
 

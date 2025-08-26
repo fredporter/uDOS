@@ -44,7 +44,7 @@ setup_environment() {
     export UMEMORY="$UDOS_ROOT/uMEMORY"
     
     # Version
-    export UDOS_VERSION="v1.3.1"
+    export UDOS_VERSION="v1.0.4.1"
     
     # Mode
     export UDOS_MODE="${UDOS_MODE:-COMMAND}"

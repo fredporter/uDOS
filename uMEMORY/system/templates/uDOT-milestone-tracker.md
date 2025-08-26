@@ -1,15 +1,16 @@
 # Template: Milestone - {{milestone_name}}
 
-**Due Date:** {{due_date}}  
-{{#if start_date}}**Start Date:** {{start_date}}{{/if}}  
-{{#if assigned_to}}**Assigned To:** {{assigned_to}}{{/if}}  
-{{#if progress}}**Progress:** {{progress}}%{{/if}}  
-**Status:** {{status}}  
-**Priority:** {{priority}}  
+**Due Date:** {{due_date}}
+{{#if start_date}}**Start Date:** {{start_date}}{{/if}}
+{{#if assigned_to}}**Assigned To:** {{assigned_to}}{{/if}}
+{{#if progress}}**Progress:** {{progress}}%{{/if}}
+**Status:** {{status}}
+**Priority:** {{priority}}
 {{#if estimated_effort}}**Estimated Effort:** {{estimated_effort}}{{/if}}
+**Legacy Save:** {{save_as_legacy|boolean|default:false}}
 
-> **Milestone Type:** {{milestone_type}}  
-> **Complexity:** {{complexity}}  
+> **Milestone Type:** {{milestone_type}}
+> **Complexity:** {{complexity}}
 > **Parent Mission:** {{parent_mission}}
 
 ---
@@ -147,6 +148,28 @@
 
 ---
 
+## 🏆 Milestone Achievement & Legacy
+
+### ✅ Achievement Status
+{{#if status == "completed"}}
+- **Achievement Date:** {{achievement_date}}
+- **Final Outcome:** {{achievement_outcome}}
+- **Impact Level:** {{impact_level}}/10
+- **Key Learnings:** {{key_learnings}}
+
+{{#if save_as_legacy}}
+### 📚 Legacy Preservation
+This milestone will be saved as legacy content for future reference.
+
+- **Legacy Type:** {{legacy_type|enum:technique,process,innovation,knowledge|default:technique}}
+- **Legacy Impact:** {{legacy_impact|textarea}}
+- **Reusability:** {{reusability|textarea}}
+- **Archive Location:** uMEMORY/legacy/milestones/{{milestone_name|slugify}}/
+{{/if}}
+{{/if}}
+
+---
+
 ## 🔗 Milestone Integration
 
 **uDOS Context:**
@@ -171,7 +194,7 @@
 
 ---
 
-**Generated:** {{generated_date}}  
-**Template Version:** 2.0.0  
-**uDOS Version:** 1.0.0  
+**Generated:** {{generated_date}}
+**Template Version:** v1.0.4.1
+**uDOS Version:** v1.0.4.1
 **Last Updated:** {{last_updated}}

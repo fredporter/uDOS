@@ -5,50 +5,75 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2025-08-25
+## [1.0.4.1] - 2025-08-26
 
-### 🎯 **Major System Reorganization**
+### �️ **Foundational System Design**
 
 #### Added
-- **Centralized Logging**: All system logs consolidated in `/sandbox/logs/`
-- **Development Environment**: Structured `/dev` folder for wizard role development
-- **AI Assistant Integration**: GitHub Copilot instructions and development context
-- **VS Code Integration**: Development-specific configurations and tasks
-- **Role-Based Access Control**: Enhanced DEV mode for core development
-- **Build/Test Infrastructure**: Automated build and test scripts for core system
-- **Development Templates**: Standardized templates for extensions and commands
-- **Git Sync Strategy**: Selective synchronization for collaboration vs individual work
+- **Core Architecture**: Clean separation between system code (uCORE), workspace (sandbox), and archive (uMEMORY)
+- **Role-Based Access**: 8-tier hierarchy from Ghost (10) to Wizard (100) with appropriate permissions
+- **Three-Mode Display**: CLI Terminal, Desktop Application, Web Export based on role access
+- **Development Environment**: Protected `/dev` workspace for core development (Wizard + DEV mode only)
+- **Extension System**: Modular components organized by access level (core/platform/user)
+- **Documentation Standards**: Comprehensive style guide with ASCII art and naming conventions
+- **Data Management**: uDATA format with JSON-based configuration and structured templates
+- **VS Code Integration**: Complete task system and development environment setup
+- **AI Assistant Context**: GitHub Copilot instructions for maintaining consistency
 
-#### Changed
-- **Data Separation**: uCORE contains only system code, sandbox contains active work
-- **Logging Architecture**: All logging redirected from uMEMORY to sandbox
-- **Directory Philosophy**: uMEMORY = filing cabinet, sandbox = active workspace
-- **Development Workflow**: Core development in `/dev`, user experiments in `/sandbox`
-- **System Scripts**: Updated error handler, smart input, and deployment manager for new log locations
-- **Repository Structure**: Clean separation of system code vs user/development data
+#### Philosophy
+- **Simple, Lean, Fast**: Foundational approach without over-engineering
+- **Data Separation**: Clear boundaries between system, workspace, and archive
+- **Version Control**: Consistent v1.0.4.1 approach across all components
+- **Clean Distribution**: Proper separation of development tools vs user content
+- **Sustainable Growth**: Structured for expansion without complexity bloat
 
-#### Removed
-- **Development Bloat**: Cleaned up old development artifacts and empty directories
-- **Redundant Documentation**: Consolidated DEV-MODE-INSTRUCTIONS.md into dev structure
-- **Legacy Log Locations**: Migrated all logging from uMEMORY to sandbox
-- **Versioned Filenames**: Removed version numbers from all filenames for clean distribution
+#### Core Components
+- **uCORE**: System code and essential components
+- **sandbox**: Active workspace with session archiving
+- **uMEMORY**: Permanent archive with role isolation
+- **uNETWORK**: Display and networking services
+- **uSCRIPT**: Script execution engine with virtual environment support
+- **extensions**: Modular extension system with registry
 
-#### Fixed
-- **Git Repository Health**: Proper .gitignore patterns for development environments
-- **Log Path References**: Updated all system scripts to use new sandbox log locations
-- **Directory Structure**: Eliminated duplicate and empty directories
-- **Documentation Consistency**: Single source of truth for development instructions
+### 🔧 **Technical Foundation**
 
-### 🔧 **Technical Improvements**
-
-#### **Memory/Sandbox Reorganization**
-- **Workflow**: Work in sandbox → Process in sandbox → File in uMEMORY
-- **Logging**: All logs centralized in `sandbox/logs/` with organized categories
-- **Compatibility**: Symlink `uMEMORY/logs` → `../sandbox/logs` for legacy references
+#### **Data Organization**
+- **Workspace Flow**: Work in sandbox → Archive in uMEMORY → System in uCORE
+- **Logging**: Centralized logging in `sandbox/logs/` with organized categories
+- **Session Management**: Automatic archiving before sandbox flush
 
 #### **Development Framework**
-- **Structure**: Organized dev folder with active/, scripts/, templates/, docs/
 - **Access Control**: Wizard + DEV mode required for core development
+- **Template System**: Standardized templates for extensions and configurations
+- **Build System**: Automated build and test scripts for core system
+- **Documentation**: Single source of truth with cross-referenced guides
+
+#### **Security Model**
+- **Role Isolation**: Separate permissions and data spaces for each role
+- **Script Safety**: Controlled execution environment with virtual environments
+- **Extension Registry**: Centralized management of system extensions
+
+---
+
+## Future Roadmap
+
+### Planned Development (v1.0.x)
+- Enhanced role-based features
+- Extension ecosystem growth
+- Cross-platform compatibility improvements
+- Community template contributions
+
+### Long-term Vision (v1.1+)
+- Advanced networking capabilities
+- Mobile companion applications
+- Enterprise collaboration features
+- Community-driven extension marketplace
+
+---
+
+*For detailed technical information, see the documentation in `docs/`*
+
+*For support and contributions, visit: https://github.com/fredporter/uDOS*
 - **AI Integration**: Copilot context and examples for consistent development
 - **Build System**: Automated core system building and testing
 

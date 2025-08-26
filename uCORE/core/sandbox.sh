@@ -233,6 +233,51 @@ handle_workflow_command() {
             fi
             "$WORKFLOW_MANAGER" move "$move_type" "$description"
             ;;
+        GOAL)
+            local sub_action="$1"
+            shift || true
+            case "$sub_action" in
+                CREATE)
+                    local title="$1"
+                    local description="$2"
+                    local goal_type="${3:-exploration}"
+                    if [ -z "$title" ] || [ -z "$description" ]; then
+                        log_error "Goal title and description required"
+                        exit 1
+                    fi
+                    "$WORKFLOW_MANAGER" goal create "$title" "$description" "$goal_type"
+                    ;;
+                UPDATE)
+                    local goal_id="$1"
+                    local field="$2"
+                    local value="$3"
+                    if [ -z "$goal_id" ] || [ -z "$field" ] || [ -z "$value" ]; then
+                        log_error "Goal ID, field, and value required"
+                        exit 1
+                    fi
+                    "$WORKFLOW_MANAGER" goal update "$goal_id" "$field" "$value"
+                    ;;
+                CONVERT)
+                    local goal_id="$1"
+                    local milestone_title="$2"
+                    if [ -z "$goal_id" ] || [ -z "$milestone_title" ]; then
+                        log_error "Goal ID and milestone title required"
+                        exit 1
+                    fi
+                    "$WORKFLOW_MANAGER" goal convert "$goal_id" "$milestone_title"
+                    ;;
+                LIST)
+                    "$WORKFLOW_MANAGER" goal list
+                    ;;
+                *)
+                    echo -e "${BLUE}🎯 GOAL Command Help${NC}"
+                    echo "  GOAL CREATE <title> <description> [type] - Create new goal"
+                    echo "  GOAL UPDATE <id> <field> <value>         - Update goal"
+                    echo "  GOAL CONVERT <id> <milestone_title>      - Convert to milestone"
+                    echo "  GOAL LIST                                - List active goals"
+                    ;;
+            esac
+            ;;
         MILESTONE)
             local title="$1"
             local description="$2"
@@ -532,10 +577,14 @@ show_session_help() {
 
 show_workflow_help() {
     echo -e "${BLUE}🗺️  WORKFLOW Command Help${NC}"
-    echo "User journey management: move→milestone→mission→legacy"
+    echo "User journey management: move→goal→milestone→mission→legacy"
     echo ""
     echo "Actions:"
     echo "  MOVE <type> <description>          - Log current activity"
+    echo "  GOAL CREATE <title> <description>  - Create aspirational goal"
+    echo "  GOAL UPDATE <id> <field> <value>   - Update goal progress"
+    echo "  GOAL CONVERT <id> <milestone>      - Convert goal to milestone"
+    echo "  GOAL LIST                          - List active goals"
     echo "  MILESTONE <title> <description>    - Create achievement milestone"
     echo "  MISSION CREATE <title> <desc>      - Create new mission"
     echo "  MISSION COMPLETE <id> [notes]      - Complete mission"
@@ -548,6 +597,7 @@ show_workflow_help() {
     echo ""
     echo "Examples:"
     echo "  sandbox WORKFLOW MOVE development 'Created user login system'"
+    echo "  sandbox WORKFLOW GOAL CREATE 'Learn Python' 'Master automation scripting'"
     echo "  sandbox WORKFLOW MILESTONE 'First App' 'Completed first application'"
     echo "  sandbox WORKFLOW MISSION CREATE 'Learn Python' 'Master Python basics'"
     echo "  sandbox WORKFLOW ASSIST ENTER productivity"

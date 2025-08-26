@@ -1,24 +1,26 @@
-# uNETWORK v1.4 - Display Services & Network Infrastructure
+# uNETWORK - Display Services & Network Infrastructure
 
-**Three-mode display system and network services for uDOS with foundation for future P2P networking**
+**Three-mode display system and network services for uDOS with foundation for future networking capabilities**
+
+*Universal Device Operating System*
 
 ## Overview
 
-uNETWORK provides the display and network infrastructure for uDOS v1.4, featuring a clean three-mode display architecture and robust network services. This module is designed with extensibility in mind to support future peer-to-peer networking capabilities.
+uNETWORK provides the display and network infrastructure for uDOS v1.0.4.1, featuring a foundational three-mode display architecture and core network services. This module is designed with clean simplicity for the current development stage.
 
-## v1.4 Display System
+## Foundational Display System
 
-### Three Distinct Display Modes
+### Three Core Display Modes
 
-**1. CLI Terminal (Always Available)**
-- **Purpose**: Direct system control, automation, core uDOS tasks
-- **Users**: All roles (GHOST, TOMB, DRONE+)
-- **Access**: `udos terminal`, `udos` commands
-- **Features**: Full terminal interface, scriptable, headless-friendly
+**1. CLI Terminal (Core Interface)**
+- **Purpose**: Direct system control, automation, core uDOS operations
+- **Users**: All roles (Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard)
+- **Access**: `udos terminal`, core `ucode` commands
+- **Features**: Full terminal interface, scriptable, automation-friendly
 
-**2. Desktop Application (DRONE+ Roles)**
-- **Purpose**: Professional development interface with native window control
-- **Users**: DRONE+ roles (USER, DEV, WIZARD)
+**2. Desktop Application (Enhanced Roles)**
+- **Purpose**: Development interface with enhanced capabilities
+- **Users**: Enhanced roles with expanded permissions
 - **Access**: `udos app` (via `./udos-display.sh app`)
 - **Features**: Native desktop app, system tray, window management, professional UI
 
@@ -32,7 +34,7 @@ uNETWORK provides the display and network infrastructure for uDOS v1.4, featurin
 
 ```
 uNETWORK/
-├── display/                    # v1.4 Display System (NEW)
+├── display/                    # uDOS Display System
 │   ├── udos-display.sh        # Main display mode launcher
 │   ├── setup-display-system.sh # Setup script for all display modes
 │   ├── server/                # Backend server for desktop app and web export
@@ -57,7 +59,7 @@ uNETWORK/
 └── README.md                  # This file
 ```
 
-## Quick Start (v1.4)
+## Quick Start
 
 ### Check Display Mode Status
 ```bash
@@ -131,7 +133,7 @@ udos terminal           # Force CLI mode
 - **Share Results**: Web Export (present to others)
 - **No Overlap**: Each mode optimized for its specific use case
 
-## Technical Architecture (v1.4)
+## Technical Architecture
 
 ### Backend Server
 - **Flask + SocketIO**: Real-time web interface with WebSocket support
@@ -220,20 +222,19 @@ The current architecture provides the foundation for P2P development:
 
 ## Development Roadmap
 
-### Current (v1.3.3)
-- ✅ Enhanced web server with uSCRIPT venv integration
-- ✅ Improved error handling and process management
-- ✅ Foundation for display components
+### Current (v1.0.4.1)
+- Three-mode display system foundation
+- CLI terminal interface (all roles)
+- Basic web export functionality
+- Core network services infrastructure
 
-### Near Term (v1.4.x)
-- 🔄 Display component development in `uNETWORK/display/`
-- 🔄 Enhanced API endpoints for system integration
-- 🔄 WebSocket-based real-time communication improvements
+### Near Term (v1.1.x)
+- Desktop application implementation
+- Enhanced role-based display features
+- Improved web export capabilities
+- Network connectivity optimization
 
-### Medium Term (v1.5.x)
-- 📋 Local network discovery implementation
-- 📋 Basic peer-to-peer communication protocols
-- 📋 Security framework for network operations
+### Medium Term (v1.2.x)
 
 ### Long Term (v2.x)
 - 📋 Full peer-to-peer networking implementation
@@ -246,4 +247,4 @@ The current architecture provides the foundation for P2P development:
 
 ---
 
-*uNETWORK v1.3.3 - Building the foundation for distributed uDOS networking*
+*uNETWORK v1.0.4.1 - Building the foundation for uDOS networking*

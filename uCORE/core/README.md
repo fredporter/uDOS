@@ -1,10 +1,10 @@
-# uCORE Core System - Consolidated v1.4.0
+# uCORE Core System - Consolidated v1.0.4.1
 
-This directory contains the consolidated core system components for uDOS v1.4.0.
+This directory contains the consolidated core system components for uDOS v1.0.4.1.
 
 ## Consolidation Changes
 
-As of v1.4.0, the `uCORE/code/` directory has been merged into `uCORE/core/` for better organization:
+As of v1.0.4.1, the `uCORE/code/` directory has been merged into `uCORE/core/` for better organization:
 
 - **Previous Structure:** Separate `core/` and `code/` directories
 - **New Structure:** Unified `core/` with organized subdirectories

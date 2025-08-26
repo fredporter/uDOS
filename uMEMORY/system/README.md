@@ -1,11 +1,11 @@
-# uMEMORY System Configuration v1.3.3
+# uMEMORY System Configuration v1.0.4.1
 
 This directory contains system configuration files in uDATA format - minified JSON with one record per line, maintaining compatibility with standard JSON tools while optimizing for uDOS processing.
 
 ## Contents
 
 ### uDATA System Files (✅ CLEAN FILENAMES)
-- `uDATA-commands.json` - Core command definitions and metadata (v1.3.3)
+- `uDATA-commands.json` - Core command definitions and metadata (v1.0.4.1)
 - `uDATA-shortcodes.json` - Shortcode definitions and mappings
 - `uDATA-user-roles.json` - Role-based permission and access definitions
 - `uDATA-variable-system.json` - System variable definitions and configurations

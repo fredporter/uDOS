@@ -1,0 +1,230 @@
+#!/bin/bash
+# uCORE Template Utility - Simple Template Processing
+# Handles uDOT template rendering for uCORE compatibility
+
+set -euo pipefail
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+# Logging functions
+log_info() { echo -e "\033[0;36m[INFO]\033[0m $1"; }
+log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $1"; }
+log_warning() { echo -e "\033[0;33m[WARNING]\033[0m $1"; }
+log_error() { echo -e "\033[0;31m[ERROR]\033[0m $1"; }
+
+# Template directories
+TEMPLATE_DIR="$UDOS_ROOT/uMEMORY/system/templates"
+OUTPUT_DIR="$UDOS_ROOT/sandbox/generated"
+
+# Process template with simple variable substitution
+process_template() {
+    local template_name="$1"
+    local output_file="${2:-}"
+    local template_file="$TEMPLATE_DIR/$template_name"
+
+    if [ ! -f "$template_file" ]; then
+        log_error "Template not found: $template_name"
+        return 1
+    fi
+
+    # Set default output file if not provided
+    if [ -z "$output_file" ]; then
+        mkdir -p "$OUTPUT_DIR"
+        output_file="$OUTPUT_DIR/$(basename "$template_name" .md)-generated.md"
+    fi
+
+    log_info "Processing template: $template_name"
+
+    # Simple variable substitution
+    local processed_content=$(cat "$template_file")
+
+    # Replace common variables
+    processed_content=$(echo "$processed_content" | sed "s/\[timestamp\]/$(date -Iseconds)/g")
+    processed_content=$(echo "$processed_content" | sed "s/\[date:iso\]/$(date -Iseconds | cut -d'T' -f1)/g")
+    processed_content=$(echo "$processed_content" | sed "s/\[date:+7days\]/$(date -v+7d -Iseconds | cut -d'T' -f1 2>/dev/null || date -d '+7 days' -I 2>/dev/null || date -I)/g")
+
+    # Replace user variables if user file exists
+    local user_file="$UDOS_ROOT/sandbox/user.md"
+    if [ -f "$user_file" ]; then
+        while IFS=': ' read -r key value; do
+            if [ "${key#\#}" = "$key" ] && [ -n "$key" ] && [ -n "$value" ]; then
+                processed_content=$(echo "$processed_content" | sed "s/\[user:$key\]/$value/g")
+                processed_content=$(echo "$processed_content" | sed "s/\[get:$key\]/$value/g")
+            fi
+        done < "$user_file"
+    fi
+
+    # Write processed content
+    mkdir -p "$(dirname "$output_file")"
+    echo "$processed_content" > "$output_file"
+
+    log_success "Template processed: $output_file"
+    echo "$output_file"
+}
+
+# List available templates
+list_templates() {
+    log_info "Available templates in $TEMPLATE_DIR:"
+
+    if [ -d "$TEMPLATE_DIR" ]; then
+        for template in "$TEMPLATE_DIR"/*.md; do
+            if [ -f "$template" ]; then
+                local name=$(basename "$template")
+                local description=$(grep "^**Purpose**:" "$template" 2>/dev/null | sed 's/^..Purpose..: //' || echo "No description")
+                echo "  📄 $name - $description"
+            fi
+        done
+    else
+        log_warning "Template directory not found: $TEMPLATE_DIR"
+    fi
+}
+
+# Validate template format
+validate_template() {
+    local template_name="$1"
+    local template_file="$TEMPLATE_DIR/$template_name"
+
+    if [ ! -f "$template_file" ]; then
+        log_error "Template not found: $template_name"
+        return 1
+    fi
+
+    log_info "Validating template: $template_name"
+
+    # Check for required metadata
+    local has_type=$(grep -q "^**Type**:" "$template_file" && echo "✅" || echo "❌")
+    local has_purpose=$(grep -q "^**Purpose**:" "$template_file" && echo "✅" || echo "❌")
+    local has_version=$(grep -q "^**Version**:" "$template_file" && echo "✅" || echo "❌")
+
+    echo "Template validation results:"
+    echo "  Type field: $has_type"
+    echo "  Purpose field: $has_purpose"
+    echo "  Version field: $has_version"
+
+    # Check for variables
+    local var_count=$(grep -o '\[get:[^]]*\]' "$template_file" | wc -l | tr -d ' ')
+    echo "  Variables found: $var_count"
+
+    if grep -q '\[get:[^]]*\]' "$template_file"; then
+        echo "  Variables:"
+        grep -o '\[get:[^]]*\]' "$template_file" | sort | uniq | sed 's/^/    /'
+    fi
+}
+
+# Create new template
+create_template() {
+    local template_name="$1"
+    local template_type="${2:-Document Template}"
+    local template_purpose="${3:-Custom template}"
+
+    local template_file="$TEMPLATE_DIR/$template_name"
+
+    if [ -f "$template_file" ]; then
+        log_error "Template already exists: $template_name"
+        return 1
+    fi
+
+    cat > "$template_file" << EOF
+# ${template_name%.md}
+
+**Type**: $template_type
+**Version**: v1.0.0
+**Purpose**: $template_purpose
+**Generated**: [timestamp]
+
+> **Template ID**: $(echo "$template_name" | sed 's/\.md$//' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+> **Output Format**: Markdown documentation
+
+---
+
+# Project: [get:project_title]
+
+**Created**: [date:iso]
+**Author**: [get:author]
+**Status**: [get:status]
+
+---
+
+## Content
+
+[get:content]
+
+---
+
+**Generated**: [timestamp]
+**Template Version**: v1.0.0
+
+---
+
+*Generated by uDOS Template System*
+EOF
+
+    log_success "Template created: $template_file"
+}
+
+# Show usage
+show_usage() {
+    echo "Usage: template <command> [options]"
+    echo ""
+    echo "Commands:"
+    echo "  process <name> [output]    Process template to output file"
+    echo "  list                       List available templates"
+    echo "  validate <name>            Validate template format"
+    echo "  create <name> [type] [purpose]  Create new template"
+    echo ""
+    echo "Examples:"
+    echo "  template list"
+    echo "  template process uDOT-mission-brief.md"
+    echo "  template validate uDOT-project-management.md"
+    echo "  template create my-template.md 'Custom Template' 'My custom template'"
+}
+
+# Main execution
+main() {
+    if [ $# -eq 0 ]; then
+        show_usage
+        return 1
+    fi
+
+    case "$1" in
+        help|--help|-h)
+            show_usage
+            ;;
+        process)
+            if [ $# -lt 2 ]; then
+                log_error "process requires template name"
+                return 1
+            fi
+            process_template "$2" "${3:-}"
+            ;;
+        list)
+            list_templates
+            ;;
+        validate)
+            if [ $# -lt 2 ]; then
+                log_error "validate requires template name"
+                return 1
+            fi
+            validate_template "$2"
+            ;;
+        create)
+            if [ $# -lt 2 ]; then
+                log_error "create requires template name"
+                return 1
+            fi
+            create_template "$2" "${3:-Document Template}" "${4:-Custom template}"
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            show_usage
+            return 1
+            ;;
+    esac
+}
+
+# Run if executed directly
+if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
+    main "$@"
+fi

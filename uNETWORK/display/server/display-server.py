@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-uDOS v1.4 Display Server
+uDOS Display Server
 Modern web interface backend with WebSocket support for real-time terminal emulation
 """
 

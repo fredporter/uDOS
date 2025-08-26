@@ -1,4 +1,4 @@
-# uCORE Geographic System v1.4.0
+# uCORE Geographic System v1.0.4.1
 
 The **uCORE Geographic System** is a comprehensive geospatial framework for uDOS that integrates mapping, visualization, and geographic data processing capabilities.
 

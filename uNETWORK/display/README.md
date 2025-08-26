@@ -1,9 +1,9 @@
-# uDOS v1.4 Display System
+# uDOS Display System
 
 **Three-mode display architecture: CLI Terminal, Desktop Application, and Web Export**
 
 ## Overview
-The uDOS v1.4 Display System provides three distinct, purpose-driven interfaces for different use cases and user roles. Each mode is optimized for its specific purpose, with no complexity or fallback confusion.
+The uDOS Display System provides three distinct, purpose-driven interfaces for different use cases and user roles. Each mode is optimized for its specific purpose, with no complexity or fallback confusion.
 
 ## Three Display Modes
 
@@ -273,4 +273,4 @@ display/
 
 **Philosophy**: Three tools, three purposes. No complexity, no fallbacks - just the right interface for each job.
 
-*uDOS v1.4 Display System - Simple, powerful, role-appropriate interfaces*
+*uDOS Display System - Simple, powerful, role-appropriate interfaces*

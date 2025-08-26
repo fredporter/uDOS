@@ -1,0 +1,6 @@
+{"metadata":{"tile_id":"00FM26-1m","map_id":"00","coordinates":{"latitude":19.4326,"longitude":-99.1332,"depth":"1m"},"bounds":{"north":20.9326,"south":17.9326,"east":-97.6332,"west":-100.6332,"center":{"latitude":19.4326,"longitude":-99.1332}},"type":"capital","description":"Mexico City, Mexico","created":"2025-08-20T12:26:57Z","version":"1.0.0","coordinate_system":"WGS84","projection":"mercator"}}
+{"name":"geography","hemispheres":{"north_south":"Northern","east_west":"Western"},"continent":"North America","ocean_basin":"North Atlantic","climate_zone":"Equatorial","timezone_estimate":"UTC-6","elevation_estimate":"sea_level","terrain_type":"unknown","population_density":"unknown","land_use":"unknown"}
+{"name":"layers","surface":{"enabled":true,"opacity":1.0,"data_sources":[],"features":[]},"subsurface":{"enabled":false,"depth_range":"1m-1m","data_sources":[],"features":[]}}
+{"name":"temporal","created":"2025-08-20T12:26:57Z","modified":"2025-08-20T12:26:57Z","accessed":"2025-08-20T12:26:57Z","version_history":[]}
+{"name":"access_control","read":["dev","wizard","sorcerer","ghost","imp"],"write":["dev","wizard"],"create_derived":["wizard","sorcerer"]}
+{"name":"extensions","custom_properties":{},"external_links":[],"related_tiles":[]}

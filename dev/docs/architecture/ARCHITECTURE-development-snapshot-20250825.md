@@ -1,0 +1,303 @@
+# uDOS Architecture Guide
+
+---
+**Foreword**
+
+This Architecture Guide explains how uDOS is organized with its clean, modular design. Written in the style of early home computer manuals, it avoids jargon and gives you a clear picture of how the system fits together with its data separation architecture and multi-mode interface system.
+
+**Notes**
+
+This guide is presented in a clear and practical style, inspired by the Acorn 1981 User Manual. It is meant to be studied alongside the User Guide and uCODE Command Reference Manual, giving you both a quick start and a deeper understanding of the system's design.
+
+For detailed command syntax and examples, refer to the uCODE Command Reference Manual which documents the complete CAPITALS-DASH-NUMBER syntax and PIPE | option system. The system provides clean data separation between system code, active workspace, and permanent archives while maintaining compatibility across different machine capabilities.
+
+---
+
+## System Overview
+
+uDOS v1.4.0 introduces a major architectural reorganization with three core principles: clean data separation, three-mode display system, and role-based development access. The system now clearly separates system code (uCORE), active workspace (sandbox), and permanent archives (uMEMORY).
+
+### Three-Mode Display Architecture
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│  CLI Terminal   │    │ Desktop App      │    │  Web Export     │
+│  (All Roles)    │    │ (DRONE+ Roles)   │    │ (DRONE+ Roles)  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────────┐
+                    │ Role-Based Access   │
+                    │ Ghost → Wizard      │
+                    └─────────────────────┘
+```
+
+### Data Flow Architecture
+```
+Active Workspace (sandbox/)     System Code (uCORE/)     Permanent Archive (uMEMORY/)
+├── logs/ (All logging)         ├── core/ (Essential)     ├── user/ (User data)
+├── sessions/ (Current)    ←──→ ├── launcher/ (Platform) ←──→ ├── role/ (Configs)
+├── scripts/ (Temporary)        └── system/ (Utilities)   └── templates/ (Data)
+├── experiments/                          │
+└── tasks/                                ▼
+                                dev/ (Core Development)
+                                ├── active/ (Local only)
+                                ├── templates/ (Synced)
+                                └── docs/ (Synced)
+```
+
+---
+
+## Core Components
+
+### uCORE - System Foundation
+The heart of uDOS containing all system code and essential functionality:
+- **core/**: Essential components (sandbox.sh, workflow-manager.sh)
+- **launcher/**: Platform-specific launchers and startup scripts
+- **code/**: Core system scripts and utilities
+- **config/**: System-wide configuration management
+
+### sandbox - Active Workspace
+Dynamic workspace for all active development and logging:
+- **logs/**: Centralized logging for all system and user activities
+- **sessions/**: Current session data and temporary state
+- **scripts/**: User scripts and temporary automation
+- **experiments/**: Development workspace and testing
+- **tasks/**: Task management and workflow data
+
+### uMEMORY - Permanent Archive
+Persistent storage for user data and configurations:
+- **user/**: User-specific permanent data
+- **role/**: Role-based configurations and settings
+- **templates/**: Data templates and user configurations
+- **system/**: System logs archive and metadata
+
+### dev - Core Development Environment
+Wizard role + DEV mode exclusive development workspace:
+- **active/**: Local-only core development (not synced)
+- **templates/**: Development templates (synced for collaboration)
+- **docs/**: Architecture documentation (synced)
+- **copilot/**: AI assistant context and instructions (synced)
+- **vscode/**: VS Code development configurations (synced)
+
+### Extension System
+Modular components organized by access level:
+- **core/**: Essential system extensions
+- **platform/**: OS-specific implementations
+- **user/**: User-installed extensions and tools
+
+### uNETWORK - Communication Hub
+Cross-platform connectivity and display management:
+- **server/**: Flask/SocketIO server for web interface
+- **display/**: Three-mode display system coordination
+- **wizard/**: Network administration tools
+
+---
+
+## Role-Based Access System
+
+uDOS v1.4.0 implements a comprehensive five-tier role system with specific capabilities and access levels:
+
+### Role Hierarchy (Level 10-100)
+```
+Wizard (100)   → Full system access + Core development (/dev)
+Sorcerer (80)  → Advanced administration and platform management
+Imp (60)       → Development tools and script automation
+Knight (50)    → Security functions and enhanced operations
+Drone (40)     → Automation tasks and maintenance
+Crypt (30)     → Secure storage and standard operations
+Tomb (20)      → Basic storage and simple operations
+Ghost (10)     → Demo installation, read-only access
+```
+
+### Access Control Matrix
+| Feature                    | Ghost | Tomb | Crypt | Drone | Knight | Imp | Sorcerer | Wizard |
+|---------------------------|-------|------|-------|-------|--------|-----|----------|--------|
+| CLI Terminal Mode         | ✓     | ✓    | ✓     | ✓     | ✓      | ✓   | ✓        | ✓      |
+| Desktop/Web Display       | ✗     | ✗    | ✓     | ✓     | ✓      | ✓   | ✓        | ✓      |
+| Extension Installation    | ✗     | ✗    | ✗     | ✓     | ✓      | ✓   | ✓        | ✓      |
+| Script Development        | ✗     | ✗    | ✗     | ✗     | ✗      | ✓   | ✓        | ✓      |
+| System Administration     | ✗     | ✗    | ✗     | ✗     | ✗      | ✗   | ✓        | ✓      |
+| Core Development (/dev)   | ✗     | ✗    | ✗     | ✗     | ✗      | ✗   | ✗        | ✓      |
+
+### Development Environment Access
+- **Core Development**: Requires Wizard role + DEV mode activation
+- **User Development**: Available to Imp+ roles in /sandbox
+- **Extension Development**: Available to Drone+ roles with templates
+- **System Modification**: Wizard role exclusive for /uCORE changes
+
+---
+
+## Three-Mode Display System
+
+uDOS v1.4.0 introduces a unified interface that adapts to three distinct display modes based on user role and environment, while maintaining the clean uCORE → uSCRIPT → uNETWORK separation for older machine compatibility:
+
+### Mode Descriptions
+- **CLI Terminal Mode**: Universal access for all roles, optimized for command-line interaction and older machines
+- **Desktop Application Mode**: Enhanced GUI for Crypt+ roles with rich visual interface
+- **Web Export Mode**: Browser-based interface for Crypt+ roles with cross-platform compatibility
+
+### Compatibility Architecture
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    uDOS Interface Layer                     │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│ CLI Terminal    │ Desktop App     │ Web Export              │
+│ • All Roles     │ • Crypt+        │ • Crypt+                │
+│ • Older Machines│ • Modern GUI    │ • Cross-platform        │
+│ • uCORE Direct  │ • uSCRIPT Layer │ • uNETWORK Layer        │
+│ • Fast Response │ • Interactive   │ • Remote Access         │
+└─────────────────┴─────────────────┴─────────────────────────┘
+         │                 │                       │
+         ▼                 ▼                       ▼
+    uCORE Shell ────► uSCRIPT Engine ────► uNETWORK Server
+    (Essential)      (Enhanced Features)   (Network/Web)
+```
+
+### Implementation Components
+- **uCORE/**: Core system ensuring essential functionality on any machine
+- **uSCRIPT/**: Enhanced features that gracefully degrade on older systems
+- **uNETWORK/server/**: Modern server stack for capable machines
+- **Graceful Degradation**: System adapts based on available resources and role permissions
+
+---
+
+## uCODE Language (v1.4.0)
+
+The native programming language for uSCRIPT operations with enhanced v1.4.0 features:
+
+```ucode
+~ Modern uCODE syntax examples
+[SYS] <STATUS|BRIEF>                    ~ System status with pipe options
+[ROLE] <ACTIVATE|FORCE> {WIZARD}        ~ Force role activation
+[DATA] <SAVE|ENCRYPT> {KEY} {VALUE}     ~ Encrypted data storage
+[SANDBOX] <INIT|WORKSPACE> {PROJECT}    ~ Initialize sandbox workspace
+DEF {PROJECT-NAME} = {USER-INPUT}       ~ Variable definitions
+
+<FUNCTION> {DAILY-MAINTENANCE}
+    [LOG] <INFO|TIMESTAMP> {Starting maintenance...}
+    [WORKFLOW] <CLEANUP|FORCE> {ALL}
+    [SANDBOX] <BACKUP|AUTO> {SESSION}
+<END-FUNCTION>
+```
+
+**v1.4.0 Key Features:**
+- CAPITALS-DASH-NUMBER naming convention for all identifiers
+- PIPE | syntax for command options and modifiers
+- ~ comments (avoiding unnecessary quotes)
+- Enhanced data control with sandbox/uMEMORY separation
+- Three-mode display integration commands
+- Role-based access control enforcement
+- Integrated development environment commands
+
+---
+
+## uSCRIPT Modules (v1.4.0)
+
+Each uCODE module provides commands with enhanced v1.4.0 data separation:
+
+### Core System Modules
+- **SANDBOX.ucode** → Active workspace management, session control, temporary data
+- **MEMORY.ucode** → Permanent storage, user data archives, configuration management
+- **ROLE.ucode** → Role-based access control, permission management, user authentication
+- **DISPLAY.ucode** → Three-mode display coordination, interface switching
+
+### Development Modules
+- **DEV.ucode** → Core development environment, wizard-only operations
+- **EXTENSION.ucode** → Extension management, installation, configuration
+- **WORKFLOW.ucode** → Project management, briefings, roadmaps, assist mode
+
+### Utility Modules
+- **LOG.ucode** → Centralized logging to sandbox/logs/
+- **NETWORK.ucode** → Server operations, cross-platform connectivity
+- **BACKUP.ucode** → Data backup between sandbox and uMEMORY
+
+### Enhanced Command Examples:
+```ucode
+~ v1.4.0 module commands with data separation
+[SANDBOX] <INIT|WORKSPACE> {PROJECT-NAME}
+[MEMORY] <ARCHIVE|COMPRESS> {SANDBOX-DATA}
+[ROLE] <CHECK|PERMISSIONS> {DEV-ACCESS}
+[DISPLAY] <SWITCH|MODE> {WEB-EXPORT}
+[DEV] <BUILD|CORE> {EXTENSION-NAME}
+[LOG] <WRITE|SANDBOX> {MESSAGE} {TIMESTAMP}
+```
+
+---
+
+## Command Flow
+
+1. User enters a command in the shell.
+2. uCORE parses input using enhanced syntax recognition (CAPITALS-DASH-NUMBER format).
+3. uSCRIPT executes the requested `.ucode` file with modern uCODE interpreter.
+4. Workflow system handles briefings, roadmaps, and assist mode if needed.
+5. Extensions, role-modules, or data control operations are called as required.
+6. Results are processed through enhanced formatting and security filters.
+7. Output displayed in clear Markdown with timestamp and context information.
+
+### Enhanced Flow Example:
+```ucode
+~ Command flow with workflow integration
+[WORKFLOW] <ASSIST> {ENTER}              ~ Enter assist mode
+[ROLE] <ACTIVATE|FORCE> {DRONE}          ~ Activate role with force option
+[MEMORY] <SEARCH|FUZZY> {PROJECT-FILES}  ~ Fuzzy search with pipe option
+[WORKFLOW] <BRIEFINGS> {UPDATE}          ~ Update session briefings
+[WORKFLOW] <ASSIST> {EXIT}               ~ Exit assist mode
+```
+
+---
+
+## Command Flow (v1.4.0)
+
+1. User enters command through chosen display mode (CLI/Desktop/Web)
+2. uCORE validates user role and checks permissions
+3. Command routing based on data separation (sandbox vs uMEMORY operations)
+4. uSCRIPT processes commands with v1.4.0 syntax enhancements
+5. Extensions execute with role-based access control validation
+6. Logging written to centralized sandbox/logs/ directory
+7. Output formatted and delivered through appropriate display mode
+
+### Command Examples:
+```bash
+# Role-based development access
+./dev/workflow.sh assist enter                    # Wizard role + DEV mode
+./sandbox/scripts/user-script.sh                 # Imp+ roles sandbox development
+
+# Data separation commands
+./uCORE/core/sandbox.sh init project-name        # Initialize sandbox workspace
+./uCORE/core/workflow-manager.sh move "dev"      # Log move to sandbox/logs/
+
+# Display mode switching
+./uNETWORK/server/server.py --mode web          # Start web export mode
+./uCORE/launcher/universal/start.sh --cli       # Force CLI terminal mode
+```
+
+---
+
+## Version 1.4.0 Major Update
+
+**Architectural Reorganization:**
+- **Data Separation**: Clear boundaries between uCORE (system), sandbox (active), uMEMORY (archive)
+- **Three-Mode Display**: Unified interface supporting CLI Terminal, Desktop App, and Web Export
+- **Development Environment**: Dedicated /dev folder for wizard role + DEV mode core development
+- **Role-Based Access**: Enhanced five-tier role system with granular permissions
+- **AI Assistant Integration**: Comprehensive development context and instructions
+
+**New Components:**
+- **/dev folder**: Core development environment with templates, docs, and AI context
+- **sandbox/logs/**: Centralized logging system for all activities
+- **Three-mode display**: Adaptive interface based on user role and platform
+- **Enhanced extension system**: Role-aware extension installation and management
+- **Selective git sync**: Strategic synchronization for collaborative development
+
+**Development Improvements:**
+- **Wizard-only core development**: Secure /dev environment for system modifications
+- **AI-assisted development**: Integrated copilot instructions and development context
+- **Clean repository structure**: Organized data separation with proper .gitignore
+- **Enhanced VS Code integration**: Development tasks, settings, and workspace configuration
+
+---
+
+**Notes**
+
+This guide is presented in a clear and practical style, inspired by the Acorn 1981 User Manual. It is meant to be studied alongside the User Guide, giving you both a quick start and a deeper understanding of the system’s design.

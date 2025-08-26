@@ -1,7 +1,11 @@
 # uDOS AI Coding Agent Instructions
 
 ## Overview
-uDOS (Universal Device Operating System) v1.4.0 is a modular, role-based system providing a unified interface across CLI Terminal, Desktop Application, and Web Export modes. This document guides AI coding agents in understanding the architecture, conventions, and development patterns specific to this codebase.
+uDOS (Universal Device Operating System) is a modular, role-based system providing a unified interface across CLI Terminal, Desktop Application, and Web Export modes. This document guides AI coding agents in understanding the architecture, conventions, and development patterns specific to this codebase.
+
+**Current Development Stage**: v1.0.4.1 - Building toward first stable release
+**Philosophy**: Simple, lean, fast - foundational system design
+**Documentation**: Living documents without version numbers in filenames
 
 ## 🏗️ Architecture Overview
 
@@ -15,11 +19,15 @@ uDOS (Universal Device Operating System) v1.4.0 is a modular, role-based system 
 - **extensions**: Modular extension system with user/platform/core categories
 - **dev**: Core development environment (wizard role + DEV mode only)
 
-### Critical Architecture Principles (v1.4)
+### Critical Architecture Principles
 1. **Data Separation**: uCORE contains system code, sandbox contains active work and logging
 2. **Role-Based Development**: Core development (/dev) requires wizard role + DEV mode
 3. **Workspace Separation**: sandbox (active/flushable) vs uMEMORY (permanent archive)
 4. **Three-Mode Display**: CLI Terminal, Desktop Application, Web Export compatibility
+5. **Backward Compatibility**: uCORE→uSCRIPT→uNETWORK layer ensures older machine support
+6. **Tool Location Strategy**: System tools in uCORE, test/run scripts in sandbox, dev tools in /dev
+7. **Startup Experience**: Retro rainbow ASCII banner displays on help/status/startup commands
+8. **File Hygiene**: Always move .old files to /trash with timestamps - never leave orphaned files
 
 ## 🧙‍♂️ uCODE Programming Language
 
@@ -45,7 +53,77 @@ uDOS uses its own uCODE syntax for commands and templates:
 - `[DATA] <DELETE> {key}` - Delete data
 - `[GRID] <DISPLAY> {content}` - Grid system display
 
+## 🎨 Style Guidelines & Quick Reference
+
+### Quick Styles Reference
+For comprehensive style guidelines, refer to `/docs/QUICK-STYLES.md` and `/docs/STYLE-GUIDE.md`:
+
+**Essential Rules Summary:**
+- **Functions**: `lowercase_with_underscores`
+- **Variables**: `CAPS-DASH-NUMBERS` (shell/template)
+- **uCODE syntax**: `{VARIABLE}` `[COMMAND|ACTION*param]` `<FUNCTION>`
+- **Comments**: `#` or `~` (avoid `'"`&%$` in uCODE)
+- **Files**: `lowercase-with-hyphens.ext` or `CAPS-FOR-DOCS.md`
+
+### ASCII Art Guidelines
+uDOS uses ASCII art extensively for headers, diagrams, and visual elements:
+
+**ASCII Text Rules:**
+- Keep under 8 characters for headers when possible
+- Use consistent block font style
+- Include system branding: "Universal Device Operating System"
+- Standard characters: `█ ░ ▒ ▓ ┌ ┐ └ ┘ ─ │ ┬ ┴ ┤ ├ ┼`
+
+**Examples:**
+```
+██████╗  █████╗ ████████╗ █████╗
+██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+██║  ██║███████║   ██║   ███████║
+██║  ██║██╔══██║   ██║   ██╔══██║
+██████╔╝██║  ██║   ██║   ██║  ██║
+╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+```
+
+### uDOS Naming Rules
+- **System Components**: uCORE, uGRID, uMAP, uDATA, uCELL, uTILE, uHEX
+- **Commands**: CAPS with clear action words (STATUS, HELP, GRID, TEMPLATE)
+- **Roles**: Title Case (Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard)
+- **Files**: Clean naming without version numbers in filenames
+
+### Terminal Color Palettes
+uDOS includes 8 complete terminal color palettes (128 total colors):
+
+**Default: Polaroid** (High-contrast photo-inspired)
+```css
+--red: #FF1744     --green: #00E676    --yellow: #FFEB3B   --blue: #2196F3
+--purple: #E91E63  --cyan: #00E5FF     --white: #FFFFFF    --black: #000000
+```
+
+**All 8 Palettes Available:**
+1. Polaroid (default) - High-contrast photo-inspired
+2. Retro Unicorn - Vivid nostalgic brights
+3. Nostalgia - Muted earthy 80s/90s vibe
+4. Tropical Sunrise - Warm vibrant beach palette
+5. Pastel Power - Soft friendly pastels
+6. Arcade Pastels - Fun light retro arcade
+7. Grayscale - Monochrome accessibility
+8. Solar Punk - Optimistic eco-technology
+
+Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
+
 ## 🛠️ Development Workflows
+
+### Startup Banner System
+- Retro rainbow ASCII banner displays on first launch and key commands
+- Banner triggers: help, status, install, setup commands
+- Source: `/uCORE/core/retro-rainbow.sh`
+- Integration: Automatic display before installation/user setup checks
+
+### File Management Rules
+- **Always move .old files to /trash**: Never leave orphaned .old files in the system
+- **Timestamp trash directories**: Use format `trash/category-YYYYMMDD-HHMMSS/`
+- **Documentation migration**: uDOC files moved from system/get to /docs with integration
+- **Clean architecture**: Remove obsolete files to maintain system clarity
 
 ### VS Code Integration
 - Use `./uCORE/launcher/vscode/start-vscode-dev.sh` for development mode
@@ -168,14 +246,36 @@ All configuration files use consistent JSON structure:
 }
 ```
 
+### uDATA Processing
+- **System Tools**: JSON processing and uDATA conversion tools in `/uCORE/json/`
+- **Test Scripts**: User test and run scripts belong in `/sandbox/scripts/`
+- **Core Development**: Advanced tools and templates in `/dev/templates/`
+- **Data Processing**: Use uDATA minified JSON format (one record per line)
+- **File Extensions**: Keep .json extension for uDATA files (format is JSON-compatible)
+- **File Naming**: Remove "uDATA-" prefixes from processed files for clean organization
+
+### uDOS Naming Rules
+- **System Components**: uCORE, uGRID, uMAP, uDATA, uCELL, uTILE, uHEX
+- **Commands**: CAPS with clear action words (STATUS, HELP, GRID, TEMPLATE)
+- **Roles**: Title Case (Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard)
+- **Files**: Clean naming without version numbers in filenames
+- **Data Files**: camelCase.json for structured data (locationMap.json, timezoneMap.json)
+- **Geographic Maps**: uMAP-XXXXXX-Description.json format (uMAP-000000-Global-Geographic-Master.json)
+- **Geographic Tiles**: uTILE-XXXXXX-Description.json format (uTILE-00EN20-Los-Angeles-County.json)
+- **Scripts**: kebab-case.sh for executables (cleanup-filenames.sh, start-vscode-dev.sh)
+- **Documentation**: TITLE-Guide.md, ARCHITECTURE.md, README.md standards
+
 ## 🎯 Role-Based Development
 
 ### Role Hierarchy
-1. **User** (Level 20): Basic operations
-2. **Student** (Level 40): Learning and experimentation
-3. **Imp** (Level 60): Development tools and automation
-4. **Sorcerer** (Level 80): Advanced administration
-5. **Wizard** (Level 100): Full development access
+1. **Ghost** (Level 10): Demo installation, read-only access
+2. **Tomb** (Level 20): Basic storage and simple operations
+3. **Crypt** (Level 30): Secure storage and standard operations
+4. **Drone** (Level 40): Automation tasks and maintenance
+5. **Knight** (Level 50): Security functions and standard operations
+6. **Imp** (Level 60): Development tools and automation
+7. **Sorcerer** (Level 80): Advanced administration and debugging
+8. **Wizard** (Level 100): Full development access and core system control
 
 ### Permission Patterns
 - Check role permissions before executing privileged operations
@@ -189,6 +289,69 @@ All configuration files use consistent JSON structure:
 - **Documentation**: Architecture docs in `/dev/docs`
 - **AI Integration**: Development context in `/dev/copilot`
 - **VS Code**: Development configs in `/dev/vscode`
+
+---
+
+## 📚 Documentation Library Quick Reference
+
+### Core Documentation Structure
+```
+docs/                           # User documentation (distributed)
+├── ARCHITECTURE.md             # System architecture
+├── uCODE-MANUAL.md             # Complete uCODE command reference
+├── STYLE-GUIDE.md              # Comprehensive style standards
+├── QUICK-STYLES.md             # Quick style reference
+├── User-Role-Capabilities.md   # 8-role system detailed guide
+├── Smart-Input-System.md       # Interactive input system
+├── GET-SYSTEM.md               # Complete GET form documentation
+└── USER-GUIDE.md               # End user documentation
+
+dev/docs/                       # Development documentation (selective sync)
+├── SETUP-COMPLETE.md           # Development environment setup
+├── architecture/               # Technical architecture docs
+├── contributing/               # Contribution guidelines
+└── api/                        # API documentation
+```
+
+### Key References for Development
+- **Architecture**: `/docs/ARCHITECTURE.md` - System overview with uCORE→uSCRIPT→uNETWORK compatibility
+- **Commands**: `/docs/uCODE-MANUAL.md` - Complete command reference with 8-role system
+- **Roles**: `/docs/User-Role-Capabilities.md` - 8-role system (Ghost→Wizard) detailed capabilities
+- **Style**: `/docs/STYLE-GUIDE.md` - Code and documentation standards for consistency
+- **GET System**: `/docs/GET-SYSTEM.md` - Interactive data collection forms and uDATA integration
+- **Development**: `/dev/docs/SETUP-COMPLETE.md` - Development environment setup guide
+
+### Documentation Principles
+- **Dual Purpose**: Serves both development and distributed user documentation
+- **Living Documents**: No version numbers in filenames, evolving content
+- **Role-Aware**: Documentation respects 8-role hierarchy (Ghost→Wizard)
+- **Compatibility**: Maintains uCORE→uSCRIPT→uNETWORK separation for older machine support
+- **Clean Architecture**: Simple, lean, fast - foundational system design
+- **Language**: Use foundational, core, essential language - avoid "enhanced", "latest", "legacy" in dev context
+
+## 🎯 Development Philosophy
+
+### We Are Building v1.0
+- **Current Version**: 1.0.4.1 (building toward first stable release)
+- **Focus**: Foundational capabilities, not feature extensions
+- **Approach**: Simple, lean, fast design principles
+
+### Language Guidelines
+✅ **Use**: foundational, core, essential, clean, simple, lean, fast
+❌ **Avoid**: latest, updated, enhanced, extended, legacy (in dev context)
+
+### "Legacy" Term Clarification
+- **In uDOS workflow**: Move → Milestone → Mission → **Legacy** (positive endpoint)
+- **Legacy = Worth Keeping**: What installations strive to leave for next user
+- **Mission Achievement**: User missions become legacy content when accomplished
+- **Value Preservation**: Legacy content is sealed in crypt or tomb for future users
+- **Not for development**: Avoid "legacy code" or "legacy systems" language
+
+### Documentation Approach
+- Remove version numbers from filenames (living documents)
+- Create development snapshots in `/dev/docs/` when needed
+- Focus on current capabilities and core functionality
+- Emphasize foundational design principles
 
 ## 🚨 Important Guidelines
 

@@ -8,7 +8,7 @@ NC='\033[0m'
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 backup_file="${1:-}" # Path to backup file
 restore_dir="${2:-$UDOS_ROOT}"
-if [[ -z "$backup_file" || ! -f "$backup_file" ]]; then
+if [ -z "$backup_file" || ! -f "$backup_file" ]; then
     echo -e "${RED}❌ Backup file not found${NC}"
     exit 1
 fi

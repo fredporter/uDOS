@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS v1.4 Display System Setup
+# uDOS Display System Setup
 # Sets up desktop app and web export capabilities
 
 set -euo pipefail
@@ -175,7 +175,7 @@ build_desktop_app() {
 
 # Main function
 main() {
-    polaroid_echo "cyan" "🚀 uDOS v1.4 Display System Setup"
+    polaroid_echo "cyan" "🚀 uDOS Display System Setup"
     echo
 
     case "${1:-setup}" in
@@ -199,7 +199,7 @@ main() {
             ;;
         "quick"|"available")
             # Show what's currently available without full setup
-            polaroid_echo "cyan" "🚀 uDOS v1.4 Available Display Modes"
+            polaroid_echo "cyan" "🚀 uDOS Available Display Modes"
             echo
 
             # Check what's available now
@@ -329,7 +329,7 @@ main() {
             ;;
         "help"|"-h"|"--help")
             cat << EOF
-🎯 uDOS v1.4 Display System Setup
+🎯 uDOS Display System Setup
 
 Usage: $0 <command>
 

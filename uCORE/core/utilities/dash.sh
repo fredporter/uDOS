@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS Dashboard v1.3.2 - Unified System Status Viewer
+# uDOS Dashboard v1.0.4.1 - Unified System Status Viewer
 # Shows server status, UI, logs, and running components
 
 UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
@@ -36,7 +36,7 @@ function show_ui_status() {
 # Show recent logs
 function show_logs() {
     echo -e "${BOLD}${BLUE}Recent Server Logs${NC}"
-    if [[ -f "$LOG_FILE" ]]; then
+    if [ -f "$LOG_FILE" ]; then
         tail -20 "$LOG_FILE"
     else
         echo "No log file found."
@@ -54,7 +54,7 @@ function show_processes() {
 # Main dashboard
 clear
 cat <<EOF
-${BOLD}${CYAN}🌀 uDOS Dashboard v1.3.2${NC}
+${BOLD}${CYAN}🌀 uDOS Dashboard v1.0.4.1${NC}
 ========================================
 EOF
 show_server_status

@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS v1.4 Display Mode Launcher
+# uDOS Display Mode Launcher
 # Three distinct modes: CLI (always), Desktop App (Crypt and above), Web Export (sharing)
 
 set -euo pipefail
@@ -179,7 +179,7 @@ main() {
             show_cli_info
             ;;
         "status"|"info")
-            polaroid_echo "cyan" "🎯 uDOS v1.4 Display Modes Status"
+            polaroid_echo "cyan" "🎯 uDOS Display Modes Status"
             echo
 
             # Check CLI availability
@@ -215,7 +215,7 @@ main() {
             ;;
         "help"|"-h"|"--help")
             cat << EOF
-🎯 uDOS v1.4 Display Mode Launcher
+🎯 uDOS Display Mode Launcher
 
 Three distinct display modes for different purposes:
 

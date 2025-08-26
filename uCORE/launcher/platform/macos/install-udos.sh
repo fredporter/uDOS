@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS macOS Installer and Distribution Manager v1.3.1
+# uDOS macOS Installer and Distribution Manager v1.0.4.1
 # Complete macOS installation with role selection and terminal configuration
 
 set -euo pipefail

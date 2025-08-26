@@ -8,7 +8,7 @@ set -euo pipefail
 POST_DATA_DIR="${UDOS_ROOT:-$(pwd)}/uMEMORY/system/post"
 POST_CACHE_DIR="${UDOS_CACHE:-${HOME}/.udos/cache}/post"
 POST_HANDLER_VERSION="current"h
-# uDOS POST Data Handler v1.3.3
+# uDOS POST Data Handler v1.0.4.1
 # Handles POST data creation and submission operations
 
 set -euo pipefail

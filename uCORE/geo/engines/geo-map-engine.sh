@@ -8,7 +8,7 @@ set -euo pipefail
 # CORE CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════════
 
-# Paths - Updated for v1.4.0 geo system
+# Paths - Updated for v1.0.4.1 geo system
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 UMEMORY="$UDOS_ROOT/uMEMORY"

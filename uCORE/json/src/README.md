@@ -1,4 +1,4 @@
-# 🗺️ uDOS Template System - Source Code v1.7.1
+# 🗺️ uDOS Template System - Source Code v1.0.4.1
 
 This directory contains the TypeScript source code for the uDOS Template System with integrated map generation and dataset processing capabilities.
 
@@ -156,4 +156,4 @@ LOCATION <query>           # Search locations
 
 ---
 
-*Generated for uDOS Template System v1.7.1 with comprehensive dataset integration*
+*Generated for uDOS Template System v1.0.4.1 with comprehensive dataset integration*
