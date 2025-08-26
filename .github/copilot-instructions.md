@@ -149,7 +149,14 @@ Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
 - `[ASSIST|ENTER]` - Activate ASSIST mode for current session
 - `[ASSIST|FINALIZE]` - Generate session summary and auto-commit to git
 - `[ASSIST|NEXT]` - Analyze context and recommend next development task
+- `[ASSIST|ROADMAP]` - Update current roadmaps based on session progress
 - `[ASSIST|EXIT]` - Deactivate ASSIST mode and return to standard workflow
+
+**Roadmap Integration:**
+- **Live Updates**: Roadmaps updated during development sessions
+- **Feature Completion**: Move completed features from roadmaps to `/docs`
+- **Future Planning**: Generate new roadmap suggestions based on development patterns
+- **Priority Adjustment**: Reorder roadmap priorities based on session outcomes
 
 **Session Analysis Pattern:**
 ```markdown

@@ -22,12 +22,20 @@ Universal Device Operating System - Development Roadmaps
 ### 📝 Active Development
 Located in: `/docs/roadmaps/current/`
 
+- **[uDOS Command Router](current/uDOS-Command-Router-Roadmap.md)** - Core command processing system (High Priority)
+- **[uDOS Interface Layer](current/uDOS-Interface-Layer-Roadmap.md)** - Three-mode display system (Medium Priority)
+- **[uDOS Extension System](current/uDOS-Extension-System-Roadmap.md)** - User extensibility framework (Low Priority)
 - **[uDOS Font Roadmap](current/uDOS-Font-Roadmap.md)** - Font system development plan
 - **[uDOS Font Editor](current/uDOS-Font-Editor.md)** - Font editor implementation roadmap
 - **[uFONT Samples](current/)** - Font format specifications and examples
   - `uFONT-20250825-Sample.json`
   - `uFONT-20250825-Full.json`
   - `uFONT-20250825-FullBox.json`
+
+### 📚 Completed Features
+Located in: `/docs/`
+
+- **[Documentation Consolidation System](../Documentation-Consolidation-System.md)** - ASSIST mode and doc structure (Completed 26 Aug 2025)
 
 ### 📚 Archived Planning
 Located in: `/docs/roadmaps/archive/`
@@ -72,6 +80,15 @@ Located in: `/docs/roadmaps/archive/`
 ---
 
 ## 📋 Planning Process
+
+### ASSIST Mode Integration
+**Automated Roadmap Management**: ASSIST mode now provides intelligent roadmap updates during development sessions:
+
+- **`[ASSIST|ROADMAP]`**: Update roadmap progress based on session work
+- **Live Updates**: Roadmaps automatically updated as features are completed
+- **Feature Migration**: Completed roadmaps moved to `/docs/` as feature documentation
+- **Priority Adjustment**: Roadmap priorities reordered based on development patterns
+- **Future Planning**: New roadmap suggestions generated from session analysis
 
 ### Roadmap Lifecycle
 ```ascii
