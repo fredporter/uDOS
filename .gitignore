@@ -1,161 +1,86 @@
 # ══════════════════════════════════════════════════
 # uDOS v1.0.4.1 Clean Distribution .gitignore
-# Development/User/Memory Isolation System
+# Simple Directory-Based Exclusion Strategy
 # ══════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════
 # 🎯 uDOS DISTRIBUTION STRATEGY v1.0.4.1
 # ════════════════════════════════════════════════════════════════
-# ✅ Keep: Core system, dev framework, shared templates
-# 🚫 Exclude: User data, active development, personal content
-# 🔄 Sync: Only collaborative components
+# ✅ Include: Core system, shared templates, framework
+# 🚫 Exclude: User data, runtime files, personal content
 
 # ════════════════════════════════════════════════════════════════
-# � DEV FOLDER - Wizard Role + DEV Mode Development
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Templates, docs, copilot context, shared configs
-# 🚫 Local: Active development work, personal tools, temp files
-
-dev/active/                     # Core development work (LOCAL ONLY)
-dev/scripts/maintenance/temp-*  # Temporary maintenance scripts
-dev/tools/temp-*               # Temporary development tools
-dev/**/*.local.*               # Local development files
-dev/**/*.personal.*            # Personal development tools
-dev/**/*.working               # Work-in-progress files
-dev/**/*.tmp                   # Temporary dev files
-
-# Keep collaborative dev content
-!dev/templates/                 # Development templates (SYNCED)
-!dev/docs/                     # Architecture docs (SYNCED)
-!dev/roadmaps/                 # Project roadmaps (SYNCED)
-!dev/copilot/                  # AI assistant context (SYNCED)
-!dev/vscode/                   # VS Code configs (SYNCED)
-!dev/scripts/build/            # Build scripts (SYNCED)
-!dev/scripts/test/             # Test scripts (SYNCED)
-!dev/scripts/deploy/           # Deploy scripts (SYNCED)
-
-# ════════════════════════════════════════════════════════════════
-# 🚀 SANDBOX - All Roles User Workspace (FLUSHABLE)
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Framework structure only
-# 🚫 Local: ALL user content (designed to be flushable)
-
-sandbox/logs/                   # All logging (LOCAL ONLY)
-sandbox/sessions/               # Session data (LOCAL ONLY)
-sandbox/scripts/                # User scripts (LOCAL ONLY)
-sandbox/experiments/            # User experiments (LOCAL ONLY)
-sandbox/tasks/                  # Current tasks (LOCAL ONLY)
-sandbox/documents/              # Document processing (LOCAL ONLY)
-sandbox/data/                   # Data processing (LOCAL ONLY)
-sandbox/generated/              # Generated content (LOCAL ONLY)
-sandbox/workflow/               # Workflow data (LOCAL ONLY)
-sandbox/user.md                 # User profile (LOCAL ONLY)
-sandbox/test-*.json             # Test data (LOCAL ONLY)
-sandbox/**/*.user.*             # User-specific content
-sandbox/**/*.session.*          # Session-specific content
-sandbox/**/*.working            # Work-in-progress files
-sandbox/**/*.tmp                # Temporary files
-
-# Keep framework structure only
-!sandbox/README.md
-!sandbox/STRUCTURE.md
-
-# ════════════════════════════════════════════════════════════════
-# 🧠 uMEMORY - Memory Archive System
-# ════════════════════════════════════════════════════════════════
-# ✅ Sync: Framework structure and templates
-# 🚫 Local: User/role data archives
-
-uMEMORY/user/                   # User memory archives (LOCAL ONLY)
-uMEMORY/role/                   # Role memory archives (LOCAL ONLY)
-uMEMORY/system/environment-*.sh # User environment configs (LOCAL ONLY)
-uMEMORY/**/*.user.*             # User-specific data
-uMEMORY/**/*.personal.*         # Personal memory data
-uMEMORY/**/*-testuser.*         # Test user data
-uMEMORY/**/profile-*.md         # User profiles
-uMEMORY/**/welcome-*.md         # Welcome messages
-uMEMORY/**/*testuser*           # All test user content
-
-# Keep framework structure
-!uMEMORY/README.md
-!uMEMORY/templates/
-!uMEMORY/user/README.md
-!uMEMORY/role/README.md
-
-# ════════════════════════════════════════════════════════════════
-# � STANDARD DEVELOPMENT EXCLUSIONS
+# 📁 DIRECTORY-BASED EXCLUSIONS
 # ════════════════════════════════════════════════════════════════
 
-# Development environments
-**/venv/
-**/venv3/
-**/.venv/
-**/node_modules/
-**/__pycache__/
-*.pyc
-**/cache/
-**/Cache/
-**/dist/
-**/build/
-**/out/
+# Development workspace (exclude active development)
+dev/active/                     # Active development work (LOCAL ONLY)
+dev/scripts/maintenance/        # Maintenance scripts (LOCAL ONLY)
+dev/tools/temp/                 # Temporary tools (LOCAL ONLY)
 
-# Logs and temporary files
-**/*.log
-**/*.tmp
-**/*.working
-**/*.cache
-**/*.temp
-**/*.bak
-**/*.old
+# User workspace (exclude all user content)
+sandbox/logs/                   # All user logging
+sandbox/sessions/               # Session data
+sandbox/scripts/                # User scripts
+sandbox/experiments/            # User experiments
+sandbox/tasks/                  # User tasks
+sandbox/generated/              # Generated content
+sandbox/workflow/               # Workflow data
+sandbox/user/                   # User subdirectory
+
+# Memory system (exclude user/role data)
+uMEMORY/user/                   # User memory archives
+uMEMORY/role/                   # Role configurations
+
+# System directories (exclude runtime/cache)
+**/cache/                       # All cache directories
+**/logs/                        # All log directories
+**/temp/                        # All temp directories
+**/tmp/                         # All tmp directories
+backup/                         # Backup directory
+trash/                          # Trash directory
+
+# ════════════════════════════════════════════════════════════════
+# � FILE PATTERN EXCLUSIONS
+# ════════════════════════════════════════════════════════════════
+
+# User-specific files
+sandbox/user.md                 # User profile
+*.user.*                        # User-specific files
+*.personal.*                    # Personal files
+*testuser*                      # Test user content
+environment-*.sh                # User environment configs
+
+# Runtime files
+*.log                           # Log files
+*.tmp                           # Temporary files
+*.cache                         # Cache files
+*.session.*                     # Session files
+*.working                       # Work-in-progress files
+
+# Development files
+**/__pycache__/                 # Python cache
+**/node_modules/                # Node modules
+**/venv/                        # Python virtual environments
+**/.env                         # Environment files
 
 # System files
-.DS_Store
-**/.DS_Store
-
-# Personal configurations
-.env
-.env.local
-*.user.*
-*.personal.*
-personal-*
-user-*
-
-# IDE configurations (exclude personal, keep shared)
-.vscode/settings.json
-.vscode/launch.json
-.idea/
-
-# Build artifacts
-*.dmg
-*.zip
-*.tar.gz
+.DS_Store                       # macOS system files
+**/.DS_Store                    # macOS system files (recursive)
 
 # ════════════════════════════════════════════════════════════════
-# 🗑️ CLEANUP EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# Trash and backup directories
-trash/
-backup/
-BACKUP/
-
-# Legacy and cleanup files
-**/legacy/
-**/deprecated/
-**/*.legacy.*
-**/*.deprecated.*
-
-# ════════════════════════════════════════════════════════════════
-# ✅ DISTRIBUTION INCLUDES SUMMARY
+# ✅ CLEAN DISTRIBUTION INCLUDES
 # ════════════════════════════════════════════════════════════════
 # ✅ uCORE/ - Core system
-# ✅ dev/templates/ - Development templates
-# ✅ dev/docs/ - Architecture documentation
-# ✅ dev/copilot/ - AI assistant context
-# ✅ dev/vscode/ - Shared VS Code configs
-# ✅ docs/ - User documentation
-# ✅ extensions/ - Extension system
-# ✅ uNETWORK/ - Network components
+# ✅ uNETWORK/ - Network layer  
 # ✅ uSCRIPT/ - Script system
 # ✅ uKNOWLEDGE/ - Knowledge base
-# ✅ README.md, LICENSE, CHANGELOG.md
+# ✅ extensions/ - Extension framework
+# ✅ docs/ - Documentation
+# ✅ dev/templates/ - Development templates
+# ✅ dev/docs/ - Architecture docs
+# ✅ dev/copilot/ - AI context
+# ✅ dev/vscode/ - VS Code configs
+# ✅ sandbox/README.md - Framework docs
+# ✅ uMEMORY/system/ - System templates
+# ✅ uMEMORY/templates/ - Memory templates
