@@ -1,0 +1,73 @@
+{
+    "metadata": {
+        "name": "uDOS System Variables",
+        "version": "1.0.4.1",
+        "type": "system",
+        "created": "2025-08-26T00:00:00Z"
+    },
+    "variables": {
+        "USER-ROLE": {
+            "type": "string",
+            "default": "GHOST",
+            "values": ["GHOST", "TOMB", "CRYPT", "DRONE", "KNIGHT", "IMP", "SORCERER", "WIZARD"],
+            "description": "Current user role level (10-100)",
+            "scope": "system",
+            "required": true
+        },
+        "DISPLAY-MODE": {
+            "type": "string",
+            "default": "CLI",
+            "values": ["CLI", "DESKTOP", "WEB"],
+            "description": "Display system mode",
+            "scope": "system",
+            "required": true
+        },
+        "MAX-RESOLUTION": {
+            "type": "string",
+            "default": "1280x720",
+            "pattern": "^[0-9]+x[0-9]+$",
+            "description": "Maximum display resolution",
+            "scope": "display",
+            "required": false
+        },
+        "GRID-SIZE": {
+            "type": "string",
+            "default": "80x30",
+            "pattern": "^[0-9]+x[0-9]+$",
+            "description": "Grid dimensions for display",
+            "scope": "display",
+            "required": false
+        },
+        "DETAIL-LEVEL": {
+            "type": "string",
+            "default": "STANDARD",
+            "values": ["MINIMAL", "STANDARD", "DETAILED", "VERBOSE"],
+            "description": "Information detail level",
+            "scope": "display",
+            "required": false
+        },
+        "TILE-CODE": {
+            "type": "string",
+            "default": "00AA00",
+            "pattern": "^[0-9A-F]{6}$",
+            "description": "Geographic tile location code",
+            "scope": "geo",
+            "required": false
+        },
+        "PROJECT-NAME": {
+            "type": "string",
+            "default": "",
+            "description": "Current project identifier",
+            "scope": "project",
+            "required": false
+        },
+        "SESSION-ID": {
+            "type": "string",
+            "default": "",
+            "pattern": "^[A-F0-9]{8}$",
+            "description": "Current session identifier",
+            "scope": "session",
+            "required": false
+        }
+    }
+}

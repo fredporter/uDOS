@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "name": "project-setup",
+    "title": "New Project Setup",
+    "type": "story",
+    "created": "2025-08-26T03:46:55Z"
+  },
+  "story": {
+    "introduction": "",
+    "context": "",
+    "purpose": ""
+  },
+  "variables": [
+    {
+      "name": "PROJECT-TYPE",
+      "type": "string",
+      "description": "Type of project being created",
+      "required": false,
+      "values": [
+        "web-app",
+        "mobile-app",
+        "desktop-app",
+        "api-service"
+      ],
+      "pattern": "",
+      "prompt": "",
+      "help": ""
+    },
+    {
+      "name": "DEVELOPER-NAME",
+      "type": "string",
+      "description": "Name of the developer",
+      "required": false,
+      "values": [],
+      "pattern": "",
+      "prompt": "",
+      "help": ""
+    },
+    {
+      "name": "PROJECT-PRIORITY",
+      "type": "string",
+      "description": "Project priority level",
+      "required": false,
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "pattern": "",
+      "prompt": "",
+      "help": ""
+    }
+  ],
+  "flow": {
+    "sequential": true,
+    "allow_skip": false,
+    "validate_each": true
+  }
+}

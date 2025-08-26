@@ -220,6 +220,18 @@ route_command() {
             execute_setup_command "$args"
             return $?
             ;;
+        DEV|dev)
+            execute_dev_command "$args"
+            return $?
+            ;;
+        VAR|var|VARIABLE|variable)
+            execute_variable_command "$args"
+            return $?
+            ;;
+        STORY|story)
+            execute_story_command "$args"
+            return $?
+            ;;
     esac
 
     # Capture pre-state for undoable commands
@@ -1057,7 +1069,7 @@ execute_python_command() {
     execute_bash_command "$command" $args
 }
 
-# Execute command in isolated session
+# Execute isolated command in isolated session
 execute_isolated_command() {
     local command="$1"
     shift
@@ -1065,4 +1077,41 @@ execute_isolated_command() {
 
     # Use session manager for isolation
     "$USCRIPT/bin/session-manager.sh" execute "$command" $args
+}
+
+# Execute development mode commands
+execute_dev_command() {
+    local args="$1"
+    local current_role=$(get_current_role)
+
+    log_info "DEV command initiated by role: $current_role"
+    log_info "Arguments: $args"
+
+    # Route to dev command handler
+    "$UDOS_ROOT/uCORE/core/dev-command.sh" $args
+    return $?
+}
+
+# Execute variable management commands
+execute_variable_command() {
+    local args="$1"
+    local current_role=$(get_current_role)
+
+    log_info "VAR command initiated by role: $current_role"
+    log_info "Arguments: $args"
+
+    # Route to variable manager
+    "$UDOS_ROOT/uCORE/core/variable-manager.sh" $args
+    return $?
+}# Execute STORY commands for variable collection
+execute_story_command() {
+    local args="$1"
+    local current_role=$(get_current_role)
+
+    log_info "STORY command initiated by role: $current_role"
+    log_info "Arguments: $args"
+
+    # Route to variable manager STORY subcommands
+    "$UDOS_ROOT/uCORE/core/variable-manager.sh" STORY $args
+    return $?
 }
