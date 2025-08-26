@@ -1,0 +1,21 @@
+{
+  "session_id": "session_20250823_163457_57723",
+  "started": "2025-08-23T06:34:57Z",
+  "moves": [
+    {
+      "id": "move_1755931045_57908",
+      "type": "create_dev_file",
+      "description": "Created development file: hello-world.sh",
+      "timestamp": "2025-08-23T06:37:25Z",
+      "data": "{\"file\":\"hello-world.sh\",\"template\":\"script\"}}"
+    },
+    {
+      "id": "move_1755931060_57948",
+      "type": "create_dev_file",
+      "description": "Created development file: exp-backup-test.sh",
+      "timestamp": "2025-08-23T06:37:40Z",
+      "data": "{\"file\":\"exp-backup-test.sh\",\"template\":\"experiment\"}}"
+    }
+  ],
+  "current_position": 2
+}

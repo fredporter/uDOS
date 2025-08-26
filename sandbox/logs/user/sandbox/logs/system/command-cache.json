@@ -1,0 +1,33 @@
+{
+    "last_updated": "2025-08-23 15:46:34",
+    "current_role": "DRONE",
+    "source_format": "uDATA-v1",
+    "command_count": 25,
+    "commands": [
+{"command":"CHECK","category":"system","description":"Check system status and configuration","syntax":"[CHECK|ARG]","args":["TIME","LOCATION","USER","SETUP","HEALTH","ALL"],"examples":["[CHECK|HEALTH]","[CHECK|TIME]","[CHECK|ALL]"]},
+{"command":"DISPLAY","category":"system","description":"Display system information and modes","syntax":"[DISPLAY|ARG]","args":["INIT","MODE","TEST","SUMMARY","HELP"],"examples":["[DISPLAY|INIT]","[DISPLAY|MODE]","[DISPLAY|SUMMARY]"]},
+{"command":"MAP","category":"mapping","description":"Map generation and navigation commands","syntax":"[MAP|ARG]","args":["GENERATE","REGION","CITY","SHOW","INFO"],"examples":["[MAP|GENERATE]","[MAP|REGION*europe]","[MAP|CITY*london]"]},
+{"command":"DASH","category":"dashboard","description":"Dashboard creation and management","syntax":"[DASH|ARG]","args":["BUILD","LIVE","EXPORT","STATS"],"examples":["[DASH|LIVE]","[DASH|BUILD*my-dashboard]","[DASH|STATS]"]},
+{"command":"SETUP","category":"system","description":"System setup and configuration","syntax":"[SETUP|ARG]","args":["USER","SYSTEM","PACKAGES","TEMPLATES","ROLE","TEST"],"examples":["[SETUP|USER]","[SETUP|SYSTEM]","[SETUP|ROLE*wizard]"]},
+{"command":"LIST","category":"utility","description":"List system resources and components","syntax":"[LIST|ARG]","args":["COMMANDS","FILES","TEMPLATES","MISSIONS","ROLES","WIDGETS"],"examples":["[LIST|COMMANDS]","[LIST|FILES]","[LIST|ROLES]"]},
+{"command":"RUN","category":"utility","description":"Execute scripts and system operations","syntax":"[RUN|ARG]","args":["SCRIPT","TEST","VALIDATION","BACKUP"],"examples":["[RUN|SCRIPT*backup.sh]","[RUN|TEST]","[RUN|VALIDATION]"]},
+{"command":"HELP","category":"system","description":"Help system and documentation","syntax":"[HELP|ARG]","args":["COMMANDS","TEMPLATES","SYSTEM","UGRID","ROLES"],"examples":["[HELP|COMMANDS]","[HELP|UGRID]","[HELP|ROLES]"]},
+{"command":"GRID","category":"ugrid","description":"uGRID grid system management","syntax":"[GRID|ARG]","args":["INIT","SIZE","TILE","WIDGET","SCREEN","RENDER","CLEAR"],"examples":["[GRID|INIT*120x48]","[GRID|WIDGET*clock]","[GRID|RENDER]"]},
+{"command":"WIDGET","category":"ugrid","description":"Widget management for grid interface","syntax":"[WIDGET|ARG]","args":["CREATE","UPDATE","MOVE","RESIZE","DELETE","LIST","REFRESH"],"examples":["[WIDGET|CREATE*clock*A1]","[WIDGET|MOVE*clock*B2]","[WIDGET|LIST]"]},
+{"command":"ROLE","category":"security","description":"User role management and switching","syntax":"[ROLE|ARG]","args":["ACTIVATE","CURRENT","SWITCH","LIST","PERMISSIONS"],"examples":["[ROLE|CURRENT]","[ROLE|SWITCH*sorcerer]","[ROLE|LIST]"]},
+{"command":"WORKFLOW","category":"workflow","description":"Workflow and development assistance","syntax":"[WORKFLOW|ARG]","args":["MODE","ASSIST","BRIEFINGS","ROADMAPS","CLEANUP"],"examples":["[WORKFLOW|MODE]","[WORKFLOW|ASSIST*enter]","[WORKFLOW|BRIEFINGS]"]},
+{"command":"MEMORY","category":"data","description":"Memory system operations","syntax":"[MEMORY|ARG]","args":["STORE","RETRIEVE","LIST","CLEAR"],"examples":["[MEMORY|STORE*key*value]","[MEMORY|RETRIEVE*key]","[MEMORY|LIST]"]},
+{"command":"SESSION","category":"utility","description":"Session management and history","syntax":"[SESSION|ARG]","args":["SAVE","UNDO","REDO","HISTORY","CLEAR"],"examples":["[SESSION|SAVE]","[SESSION|HISTORY]","[SESSION|CLEAR]"]},
+{"command":"BACKUP","category":"system","description":"Backup and restore operations","syntax":"[BACKUP|ARG]","args":["CREATE","LIST","RESTORE"],"examples":["[BACKUP|CREATE]","[BACKUP|LIST]","[BACKUP|RESTORE*filename]"]},
+{"command":"TRASH","category":"utility","description":"Trash management operations","syntax":"[TRASH|ARG]","args":["LIST","EMPTY","RESTORE"],"examples":["[TRASH|LIST]","[TRASH|EMPTY]","[TRASH|RESTORE*filename]"]},
+{"command":"UDATA","category":"data","description":"uDATA format processing and validation","syntax":"[UDATA|ARG]","args":["PARSE","CONVERT","VALIDATE","MERGE","FILTER"],"examples":["[UDATA|PARSE*file.json]","[UDATA|CONVERT*input.json]","[UDATA|VALIDATE*data.json]"]},
+{"command":"GET","category":"data","description":"Retrieve system information and variables","syntax":"[GET|ARG]","args":["VARIABLE","CONFIG","DATA","STATUS"],"examples":["[GET|VARIABLE*USER-ROLE]","[GET|CONFIG*colors]","[GET|STATUS]"]},
+{"command":"SET","category":"data","description":"Set system variables and configuration","syntax":"[SET|ARG]","args":["VARIABLE","CONFIG","PALETTE","MODE"],"examples":["[SET|VARIABLE*key*value]","[SET|PALETTE*polaroid_colors]","[SET|MODE*dev]"]},
+{"command":"EXIT","category":"system","description":"Exit system with optional cleanup","syntax":"[EXIT|ARG]","args":["CLEAN","SAVE","FORCE"],"examples":["[EXIT|CLEAN]","[EXIT|SAVE]","[EXIT|FORCE]"]},
+{"command":"CLEAR","category":"utility","description":"Clear screen, cache, or temporary data","syntax":"[CLEAR|ARG]","args":["SCREEN","CACHE","TEMP","ALL"],"examples":["[CLEAR|SCREEN]","[CLEAR|CACHE]","[CLEAR|ALL]"]},
+{"command":"LOAD","category":"data","description":"Load configuration, palettes, or data","syntax":"[LOAD|ARG]","args":["CONFIG","PALETTE","TEMPLATE","DATA"],"examples":["[LOAD|CONFIG*system]","[LOAD|PALETTE*polaroid_colors]","[LOAD|TEMPLATE*base]"]},
+{"command":"SAVE","category":"data","description":"Save system state or user data","syntax":"[SAVE|ARG]","args":["CONFIG","SESSION","PROJECT","BACKUP"],"examples":["[SAVE|CONFIG]","[SAVE|SESSION]","[SAVE|PROJECT*mywork]"]},
+{"command":"TEST","category":"utility","description":"Run system tests and validations","syntax":"[TEST|ARG]","args":["SYSTEM","COMMANDS","UDATA","CONNECTIONS"],"examples":["[TEST|SYSTEM]","[TEST|COMMANDS]","[TEST|UDATA]"]},
+{"command":"REFRESH","category":"utility","description":"Refresh screen, widgets, or data","syntax":"[REFRESH|ARG]","args":["SCREEN","WIDGET","DATA","ALL"],"examples":["[REFRESH|SCREEN]","[REFRESH|WIDGET*clock]","[REFRESH|ALL]"]}
+    ]
+}

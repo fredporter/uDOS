@@ -1,0 +1,117 @@
+#!/bin/bash
+# uDOS v1.3.2 - Pure Command Interface
+# Routes commands to appropriate execution engines
+
+set -euo pipefail
+
+# Load core components
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../core/environment.sh"
+source "$SCRIPT_DIR/../core/command-router.sh"
+
+# Colors and logging
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+log_success() { echo -e "${GREEN}✅ $1${NC}"; }
+log_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+log_error() { echo -e "${RED}❌ $1${NC}"; }
+
+# Initialize environment
+setup_environment
+
+# Show retro rainbow banner on startup
+show_startup_banner() {
+    # Show banner for first command or help/status commands
+    local command="${1:-HELP}"
+    case "$command" in
+        "HELP"|"help"|"STATUS"|"status"|""|"install"|"INSTALL"|"setup"|"SETUP")
+            source "$SCRIPT_DIR/../core/retro-rainbow.sh"
+            show_retro_rainbow
+            ;;
+    esac
+}
+
+# Check if installation is configured
+check_installation() {
+    local install_file="$SCRIPT_DIR/../../uMEMORY/installation.md"
+    if [ ! -f "$install_file" ]; then
+        log_error "uDOS Installation not found"
+        echo ""
+        echo "uDOS is running in emergency GHOST mode (read-only)"
+        echo "To complete installation setup, run:"
+        echo ""
+        echo "  ./uCORE/core/utilities/installation-setup.sh"
+        echo ""
+        echo "Available commands in GHOST mode:"
+        echo "  help    - Show help information"
+        echo "  status  - Show system status"
+        echo "  get     - Read data (read-only)"
+        echo ""
+
+        # Force GHOST role
+        mkdir -p "$SCRIPT_DIR/../../uMEMORY/role"
+        echo "Ghost" > "$SCRIPT_DIR/../../uMEMORY/role/current.txt"
+
+        # Only allow safe commands in GHOST mode
+        case "${1:-}" in
+            "help"|"HELP"|"status"|"STATUS"|"get"|"GET")
+                return 0
+                ;;
+            "install"|"INSTALL"|"setup"|"SETUP")
+                log_info "Starting installation setup..."
+                exec "$SCRIPT_DIR/../core/utilities/installation-setup.sh"
+                ;;
+            *)
+                log_error "Command '$1' not available in GHOST mode"
+                log_info "Run 'install' or 'setup' to complete uDOS installation"
+                return 1
+                ;;
+        esac
+    fi
+    return 0
+}
+
+# Check if user setup is needed
+check_user_setup() {
+    local user_file="$SCRIPT_DIR/../../sandbox/user.md"
+    if [ ! -f "$user_file" ]; then
+        log_warning "First time user setup required"
+        "$SCRIPT_DIR/../core/utilities/setup.sh"
+        return $?
+    fi
+    return 0
+}
+
+# Main command processing
+main() {
+    # Show startup banner first
+    show_startup_banner "$@"
+
+    # Check installation first
+    check_installation "$@" || return $?
+
+    # Check user setup (except for setup command)
+    if [ "${1:-}" != "setup" ]; then
+        check_user_setup || return $?
+    fi
+
+    local command="${1:-HELP}"
+    shift || true
+    local args="$@"
+
+    # Show header for interactive commands
+    if [[ "$command" != "help" && "$command" != "HELP" ]]; then
+    log_info "uDOS v1.3.2 - $command"
+    fi
+
+    # Route command to appropriate handler
+    route_command "$command" $args
+}
+
+# Execute main function
+main "$@"

@@ -1,4 +1,4 @@
-# uCODE MODULAR COMMAND REFERENCE MANUAL
+# uCODE MODULAR SCRIPTING REFERENCE MANUAL
 
 ```ascii
     ██╗   ██╗ ██████╗ ██████╗ ██████╗ ███████╗
@@ -8,27 +8,80 @@
     ╚██████╔╝╚██████╗╚██████╔╝██████╔╝███████╗
      ╚═════╝  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
 
-    uCODE Command Reference
+    uCODE & uSCRIPT Technical Reference
     ═══════════════════════════════════════════════════
 ```
 
 **Version**: 1.0.4.1
 **Date**: August 26, 2025
-**Part Number**: uCODE-REF-001
-**Status**: Development
+**Part Number**: uCODE-REF-002
+**Status**: Production Ready
 
-The core command set for uCODE, the native programming language for uSCRIPT operations on devices running uDOS with three-mode display system, 8-role hierarchy, and clean data separation architecture.
+Complete technical reference for uCODE native programming language and uSCRIPT modular scripting system on uDOS. Features universal shortcode syntax `[COMMAND|OPTION]` structure, role-based container execution, and integrated template processing.
+
+---
 
 ## TABLE OF CONTENTS
 
-- [CORE COMMANDS](#core-commands)
-- [DIRECT COMMANDS](#direct-commands)
+- [SYSTEM OVERVIEW](#system-overview)
+- [uCODE CORE COMMANDS](#ucode-core-commands)
+- [uSCRIPT MODULAR SYSTEM](#uscript-modular-system)
+- [CONTAINER EXECUTION](#container-execution)
 - [ROLE MANAGEMENT](#role-management)
-- [MEMORY & DATA](#memory--data)
-- [DATA CONTROL](#data-control)
-- [uGRID DISPLAY SYSTEM](#ugrid-display-system)
-- [WORKFLOW SYSTEM](#workflow-system)
-- [ASSIST MODE MANAGEMENT](#assist-mode-management)
+- [TEMPLATE INTEGRATION](#template-integration)
+- [MEMORY & DATA SYSTEMS](#memory--data-systems)
+- [GRID DISPLAY SYSTEM](#grid-display-system)
+- [WORKFLOW AUTOMATION](#workflow-automation)
+- [ERROR HANDLING](#error-handling)
+- [ADVANCED SCRIPTING](#advanced-scripting)
+- [BEST PRACTICES](#best-practices)
+- [IMPLEMENTATION GUIDE](#implementation-guide)
+
+---
+
+## SYSTEM OVERVIEW
+
+### Architecture Hierarchy
+```
+uDOS v1.0.4.1 System Stack
+┌─────────────────────────────────────┐
+│ uCODE Native Language              │ ← Direct system commands
+├─────────────────────────────────────┤
+│ uSCRIPT Modular System             │ ← Container execution (Crypt+)
+├─────────────────────────────────────┤
+│ uSERVER Runtime Engine             │ ← Script execution environment
+├─────────────────────────────────────┤
+│ uMEMORY Template & Variable System │ ← System state management
+├─────────────────────────────────────┤
+│ uGRID Display & Navigation         │ ← Visual interface layer
+└─────────────────────────────────────┘
+```
+
+### Universal Shortcode Structure
+**Every command supports shortcode syntax:**
+```ucode
+DIRECT:     COMMAND PARAMETER
+SHORTCODE:  [COMMAND|OPTION]
+ADVANCED:   [COMMAND|OPTION*PARAMETER*VALUE]
+```
+
+### Role-Based Access Control
+```ucode
+👻 GHOST (10)     → Read-only, basic uCODE
+⚰️ TOMB (20)      → Storage access, simple scripts
+🔐 CRYPT (30)     → Container access, uSCRIPT execution ★
+🤖 DRONE (40)     → Automation scripts, scheduled execution
+⚔️ KNIGHT (50)    → Security scripts, system management
+😈 IMP (60)       → Advanced automation, multi-language containers
+🧙‍♂️ SORCERER (80) → Development tools, full scripting access
+🧙‍♀️ WIZARD (100)  → System administration, all features
+```
+
+**★ uSCRIPT Minimum**: CRYPT (30) role required for container execution
+
+---
+
+## uCODE CORE COMMANDS
 - [SETUP COMMANDS](#setup-commands)
 - [SCRIPT EXECUTION](#script-execution)
 - [UNDO/REDO OPERATIONS](#undoredo-operations)
@@ -92,6 +145,219 @@ ROLE check                  ~ Check current role setup and permissions
 ROLE install {EXTENSION}    ~ Install role-specific extensions
 ```
 
+---
+
+## uSCRIPT MODULAR SYSTEM
+
+### Overview
+**uSCRIPT** provides containerized execution of Python, Shell, and JavaScript scripts within uCODE. Requires **CRYPT (30+)** role and active **uSERVER** + **uMEMORY** systems.
+
+### Container Types
+```ucode
+<PYTHON>    ~ Python 3.8+ container
+<SHELL>     ~ Bash/Shell container
+<NODE>      ~ Node.js/JavaScript container
+<UNIVERSAL> ~ Multi-language container
+```
+
+### Basic uSCRIPT Commands
+```ucode
+[SCRIPT|CREATE*CONTAINER*NAME*LANGUAGE] ~ Create new script container
+[SCRIPT|RUN*NAME]                       ~ Execute script container
+[SCRIPT|LIST]                           ~ List available containers
+[SCRIPT|DELETE*NAME]                    ~ Delete script container
+[SCRIPT|EDIT*NAME]                      ~ Edit container content
+[SCRIPT|STATUS*NAME]                    ~ Check container status
+```
+
+### Advanced uSCRIPT Commands
+```ucode
+[SCRIPT|CREATE*PYTHON*ANALYZER*DATA-ANALYSIS]     ~ Create Python container
+[SCRIPT|CREATE*SHELL*BACKUP*SYSTEM-BACKUP]       ~ Create Shell container
+[SCRIPT|CREATE*NODE*API*WEB-SERVICE]             ~ Create Node.js container
+[SCRIPT|RUN*ANALYZER*INPUT-DATA*OUTPUT-PATH]     ~ Run with parameters
+[SCRIPT|SCHEDULE*BACKUP*DAILY*06:00]             ~ Schedule execution
+[SCRIPT|MONITOR*API*HEALTH-CHECK]                ~ Monitor execution
+```
+
+---
+
+## CONTAINER EXECUTION
+
+### Python Container Example
+```ucode
+[SCRIPT|CREATE*PYTHON*DATA-PROCESSOR*DATA-ANALYSIS]
+
+<PYTHON NAME="DATA-PROCESSOR" ROLE="CRYPT+">
+    # uDOS Python Container v1.0.4.1
+    import json, sys, os
+    from pathlib import Path
+
+    # Access uDOS variables through environment
+    udos_data = os.environ.get('UDOS_DATA_PATH', '/sandbox/data')
+    udos_role = os.environ.get('UDOS_CURRENT_ROLE', 'CRYPT')
+
+    def process_data(input_file, output_file):
+        """Process uDATA format files"""
+        with open(input_file, 'r') as f:
+            data = [json.loads(line) for line in f]
+
+        # Process data using uDOS standards
+        processed = []
+        for record in data:
+            if 'metadata' not in record:
+                record['processed_by'] = f"uSCRIPT-{udos_role}"
+                record['timestamp'] = "{{SYSTEM:TIMESTAMP}}"
+                processed.append(record)
+
+        # Write back in uDATA format
+        with open(output_file, 'w') as f:
+            for record in processed:
+                f.write(json.dumps(record, separators=(',', ':')) + '\n')
+
+    if __name__ == "__main__":
+        input_path = sys.argv[1] if len(sys.argv) > 1 else f"{udos_data}/input.json"
+        output_path = sys.argv[2] if len(sys.argv) > 2 else f"{udos_data}/processed.json"
+        process_data(input_path, output_path)
+        print(f"Data processed: {input_path} → {output_path}")
+</PYTHON>
+
+~ Execute the container
+[SCRIPT|RUN*DATA-PROCESSOR*/sandbox/data/raw.json*/sandbox/data/clean.json]
+```
+
+### Shell Container Example
+```ucode
+[SCRIPT|CREATE*SHELL*SYSTEM-MAINTENANCE*AUTOMATION]
+
+<SHELL NAME="SYSTEM-MAINTENANCE" ROLE="DRONE+">
+    #!/bin/bash
+    # uDOS Shell Container v1.0.4.1
+
+    # Access uDOS environment
+    UDOS_ROOT="${UDOS_ROOT:-/uDOS}"
+    UDOS_ROLE="${UDOS_CURRENT_ROLE:-DRONE}"
+    SANDBOX_PATH="${UDOS_ROOT}/sandbox"
+
+    # uDOS standard logging
+    log_info() {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${UDOS_ROLE}] INFO: $1"
+    }
+
+    log_error() {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${UDOS_ROLE}] ERROR: $1" >&2
+    }
+
+    # Main maintenance function
+    perform_maintenance() {
+        log_info "Starting system maintenance from uSCRIPT container"
+
+        # Clean sandbox temporary files
+        find "${SANDBOX_PATH}/temp" -type f -mtime +7 -delete 2>/dev/null || true
+        log_info "Cleaned temporary files older than 7 days"
+
+        # Archive old logs
+        find "${SANDBOX_PATH}/logs" -name "*.log" -mtime +30 -exec gzip {} \; 2>/dev/null || true
+        log_info "Compressed log files older than 30 days"
+
+        # Update system templates with current role
+        if [ -d "${UDOS_ROOT}/uMEMORY/templates" ]; then
+            echo "LAST_MAINTENANCE={{SYSTEM:TIMESTAMP}}" > "${UDOS_ROOT}/uMEMORY/templates/maintenance.status"
+            echo "MAINTENANCE_ROLE=${UDOS_ROLE}" >> "${UDOS_ROOT}/uMEMORY/templates/maintenance.status"
+        fi
+
+        log_info "System maintenance completed successfully"
+    }
+
+    # Execute maintenance
+    perform_maintenance
+</SHELL>
+
+~ Schedule for daily execution
+[SCRIPT|SCHEDULE*SYSTEM-MAINTENANCE*DAILY*03:00]
+```
+
+### Node.js Container Example
+```ucode
+[SCRIPT|CREATE*NODE*API-SERVICE*WEB-SERVICE]
+
+<NODE NAME="API-SERVICE" ROLE="IMP+">
+    // uDOS Node.js Container v1.0.4.1
+    const express = require('express');
+    const fs = require('fs').promises;
+    const path = require('path');
+
+    // uDOS environment integration
+    const UDOS_ROOT = process.env.UDOS_ROOT || '/uDOS';
+    const UDOS_ROLE = process.env.UDOS_CURRENT_ROLE || 'IMP';
+    const SANDBOX_PATH = path.join(UDOS_ROOT, 'sandbox');
+
+    const app = express();
+    app.use(express.json());
+
+    // uDOS standard logging
+    const log = {
+        info: (msg) => console.log(`[${new Date().toISOString()}] [${UDOS_ROLE}] INFO: ${msg}`),
+        error: (msg) => console.error(`[${new Date().toISOString()}] [${UDOS_ROLE}] ERROR: ${msg}`)
+    };
+
+    // API endpoints for uDOS integration
+    app.get('/api/status', (req, res) => {
+        res.json({
+            service: 'uDOS-API-Service',
+            version: '1.0.4.1',
+            role: UDOS_ROLE,
+            timestamp: new Date().toISOString(),
+            sandbox_path: SANDBOX_PATH
+        });
+    });
+
+    app.post('/api/data/process', async (req, res) => {
+        try {
+            const { input_file, output_file } = req.body;
+            const inputPath = path.join(SANDBOX_PATH, 'data', input_file);
+            const outputPath = path.join(SANDBOX_PATH, 'data', output_file);
+
+            // Read uDATA format
+            const data = await fs.readFile(inputPath, 'utf8');
+            const records = data.trim().split('\n').map(line => JSON.parse(line));
+
+            // Process with uDOS metadata
+            const processed = records.map(record => ({
+                ...record,
+                processed_by: `uSCRIPT-${UDOS_ROLE}`,
+                processed_at: new Date().toISOString(),
+                container: 'NODE-API-SERVICE'
+            }));
+
+            // Write back in uDATA format
+            const output = processed.map(record => JSON.stringify(record)).join('\n') + '\n';
+            await fs.writeFile(outputPath, output);
+
+            log.info(`Processed ${records.length} records: ${input_file} → ${output_file}`);
+            res.json({
+                success: true,
+                records_processed: records.length,
+                output_file: output_file
+            });
+
+        } catch (error) {
+            log.error(`Processing failed: ${error.message}`);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        log.info(`uDOS API Service running on port ${PORT}`);
+    });
+</NODE>
+
+~ Start the service
+[SCRIPT|RUN*API-SERVICE*BACKGROUND]
+[SCRIPT|MONITOR*API-SERVICE*HEALTH-CHECK]
+```
+
 ## ROLE MANAGEMENT
 
 ### [ROLE] <ACTION> {ROLE-NAME}
@@ -118,7 +384,81 @@ ROLE install {EXTENSION}    ~ Install role-specific extensions
 [ROLE] <DEV-MODE> {ENABLE}          ~ Enable development mode (Wizard only)
 ```
 
-## MEMORY & DATA
+### Role Access Control Matrix
+```ucode
+CONTAINER TYPE   │ GHOST │ TOMB │ CRYPT │ DRONE │ KNIGHT │ IMP │ SORCERER │ WIZARD
+═════════════════┼═══════┼══════┼═══════┼═══════┼════════┼═════┼══════════┼═══════
+uCODE Commands   │   ✓   │  ✓   │   ✓   │   ✓   │   ✓    │  ✓  │    ✓     │   ✓
+File Operations  │   R   │  R   │  R/W  │  R/W  │  R/W   │ R/W │   R/W    │  R/W
+uSCRIPT Containers│   ✗   │  ✗   │   ✓   │   ✓   │   ✓    │  ✓  │    ✓     │   ✓
+Python Containers│   ✗   │  ✗   │   ✓   │   ✓   │   ✓    │  ✓  │    ✓     │   ✓
+Shell Containers │   ✗   │  ✗   │   ✗   │   ✓   │   ✓    │  ✓  │    ✓     │   ✓
+Node.js Containers│   ✗   │  ✗   │   ✗   │   ✗   │   ✗    │  ✓  │    ✓     │   ✓
+Scheduled Execution│   ✗   │  ✗   │   ✗   │   ✓   │   ✓    │  ✓  │    ✓     │   ✓
+System Administration│   ✗   │  ✗   │   ✗   │   ✗   │   ✓    │  ✗  │    ✓     │   ✓
+```
+
+---
+
+## TEMPLATE INTEGRATION
+
+### uMEMORY Template System
+Templates stored in `uMEMORY/system/templates/` provide variable substitution and configuration management.
+
+### Template Variables
+```ucode
+{SYSTEM:TIMESTAMP}      ~ Current system timestamp
+{SYSTEM:ROLE}           ~ Current user role
+{SYSTEM:VERSION}        ~ uDOS version (1.0.4.1)
+{USER:NAME}             ~ Current username
+{USER:HOME}             ~ User home directory
+{SANDBOX:PATH}          ~ Sandbox working directory
+{MEMORY:PATH}           ~ uMEMORY storage path
+{CONTAINER:NAME}        ~ Current container name
+{CONTAINER:TYPE}        ~ Container language type
+```
+
+### Template Processing in Containers
+```ucode
+[TEMPLATE|PROCESS*INPUT-TEMPLATE*OUTPUT-FILE*VARIABLES]
+
+~ Example template file: data-processor.template
+<PYTHON NAME="{{CONTAINER:NAME}}" ROLE="{{SYSTEM:ROLE}}">
+    # Generated by uDOS Template System v{{SYSTEM:VERSION}}
+    # Created: {{SYSTEM:TIMESTAMP}}
+    # Role: {{SYSTEM:ROLE}}
+
+    import os, sys
+    from pathlib import Path
+
+    # uDOS environment
+    UDOS_ROOT = "{{SANDBOX:PATH}}"
+    USER_ROLE = "{{SYSTEM:ROLE}}"
+    CONTAINER_NAME = "{{CONTAINER:NAME}}"
+
+    def main():
+        print(f"Container {CONTAINER_NAME} running as {USER_ROLE}")
+        # Container logic here
+
+    if __name__ == "__main__":
+        main()
+</PYTHON>
+
+~ Process template with variables
+[TEMPLATE|PROCESS*data-processor.template*my-script.py*NAME:DATA-ANALYZER]
+```
+
+### System Templates
+```ucode
+[TEMPLATE|SYSTEM*LIST]              ~ List system templates
+[TEMPLATE|SYSTEM*CREATE*NAME*TYPE]  ~ Create system template
+[TEMPLATE|USER*LIST]                ~ List user templates
+[TEMPLATE|USER*CREATE*NAME*TYPE]    ~ Create user template
+```
+
+---
+
+## MEMORY & DATA SYSTEMS
 
 ### [SANDBOX] <ACTION> {PARAMETER}
 ```ucode
@@ -1043,6 +1383,201 @@ END                                 ~ Exit to command mode
 
 ---
 
+## ADVANCED SCRIPTING
+
+### Multi-Language Container
+```ucode
+[SCRIPT|CREATE*UNIVERSAL*DATA-PIPELINE*MULTI-LANGUAGE]
+
+<UNIVERSAL NAME="DATA-PIPELINE" ROLE="SORCERER+">
+    # uDOS Universal Container v1.0.4.1
+    # Multi-language data processing pipeline
+
+    # Phase 1: Python data extraction
+    <PYTHON>
+        import json, requests, os
+
+        def extract_data(api_url, output_file):
+            response = requests.get(api_url)
+            data = response.json()
+
+            # Convert to uDATA format
+            with open(output_file, 'w') as f:
+                for record in data:
+                    f.write(json.dumps(record, separators=(',', ':')) + '\n')
+
+            return len(data)
+
+        records = extract_data(
+            os.environ.get('API_URL', 'https://api.example.com/data'),
+            '/sandbox/data/extracted.json'
+        )
+        print(f"Extracted {records} records")
+    </PYTHON>
+
+    # Phase 2: Shell data validation
+    <SHELL>
+        #!/bin/bash
+        INPUT_FILE="/sandbox/data/extracted.json"
+        VALID_FILE="/sandbox/data/validated.json"
+        ERROR_FILE="/sandbox/data/errors.json"
+
+        # Validate JSON format
+        jq empty "$INPUT_FILE" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            cp "$INPUT_FILE" "$VALID_FILE"
+            echo "Data validation passed"
+        else
+            echo "Data validation failed" >&2
+            echo '{"error":"invalid_json","file":"'$INPUT_FILE'"}' > "$ERROR_FILE"
+            exit 1
+        fi
+    </SHELL>
+
+    # Phase 3: Node.js data transformation
+    <NODE>
+        const fs = require('fs');
+        const inputFile = '/sandbox/data/validated.json';
+        const outputFile = '/sandbox/data/transformed.json';
+
+        // Read uDATA format
+        const data = fs.readFileSync(inputFile, 'utf8')
+            .trim().split('\n')
+            .map(line => JSON.parse(line));
+
+        // Transform data
+        const transformed = data.map(record => ({
+            ...record,
+            transformed_at: new Date().toISOString(),
+            pipeline: 'UNIVERSAL-DATA-PIPELINE',
+            version: '1.0.4.1'
+        }));
+
+        // Write back as uDATA
+        const output = transformed
+            .map(record => JSON.stringify(record))
+            .join('\n') + '\n';
+
+        fs.writeFileSync(outputFile, output);
+        console.log(`Transformed ${transformed.length} records`);
+    </NODE>
+
+    # Phase 4: Final Python reporting
+    <PYTHON>
+        import json
+        from datetime import datetime
+
+        def generate_report():
+            with open('/sandbox/data/transformed.json', 'r') as f:
+                records = [json.loads(line) for line in f]
+
+            report = {
+                'pipeline': 'UNIVERSAL-DATA-PIPELINE',
+                'version': '1.0.4.1',
+                'processed_at': datetime.now().isoformat(),
+                'total_records': len(records),
+                'status': 'SUCCESS'
+            }
+
+            with open('/sandbox/data/pipeline_report.json', 'w') as f:
+                json.dump(report, f, indent=2)
+
+            print(f"Pipeline completed: {len(records)} records processed")
+
+        generate_report()
+    </PYTHON>
+</UNIVERSAL>
+
+~ Execute the complete pipeline
+[SCRIPT|RUN*DATA-PIPELINE]
+```
+
+---
+
+## IMPLEMENTATION GUIDE
+
+### System Requirements
+```
+┌─────────────────────────────────────────────┐
+│ uDOS v1.0.4.1 + uSCRIPT Implementation     │
+├─────────────────────────────────────────────┤
+│ ✓ uSERVER runtime engine (active)          │
+│ ✓ uMEMORY template system (configured)     │
+│ ✓ Role system CRYPT (30) minimum           │
+│ ✓ Python 3.8+ (for Python containers)     │
+│ ✓ Node.js 16+ (for Node containers)        │
+│ ✓ Bash 4+ (for Shell containers)           │
+│ ✓ Sandbox workspace (/sandbox/)            │
+└─────────────────────────────────────────────┘
+```
+
+### Directory Structure
+```
+/uDOS/
+├─ uSCRIPT/
+│  ├─ active/           ~ Active container instances
+│  ├─ registry/         ~ Container definitions
+│  ├─ library/          ~ Shared container modules
+│  └─ runtime/          ~ Execution environment
+├─ sandbox/
+│  ├─ scripts/          ~ User-created containers
+│  ├─ data/             ~ Container input/output
+│  ├─ logs/             ~ Container execution logs
+│  └─ temp/             ~ Temporary execution files
+└─ uMEMORY/
+   ├─ system/
+   │  └─ templates/     ~ Container templates
+   └─ user/
+      └─ containers/    ~ User container definitions
+```
+
+### Installation & Setup
+```ucode
+~ Check system readiness
+[SYS|VERSION]                              ~ Verify uDOS v1.0.4.1
+[ROLE|CURRENT]                             ~ Verify CRYPT+ role
+[SCRIPT|SYSTEM*CHECK]                      ~ Verify uSCRIPT availability
+
+~ Initialize uSCRIPT system
+[SCRIPT|SYSTEM*INIT]                       ~ Initialize container system
+[SCRIPT|TEMPLATE*INSTALL*STANDARD]         ~ Install standard templates
+[SCRIPT|RUNTIME*START]                     ~ Start container runtime
+
+~ Create first container
+[SCRIPT|CREATE*PYTHON*HELLO-WORLD*TUTORIAL]
+[SCRIPT|RUN*HELLO-WORLD]                   ~ Test execution
+```
+
+### Development Workflow
+```ucode
+<FUNCTION> {CONTAINER-DEVELOPMENT-CYCLE}
+    ~ 1. Design phase
+    [WORKFLOW|ASSIST*ENTER]
+    [SCRIPT|DESIGN*CONTAINER-SPEC]
+
+    ~ 2. Template selection
+    [TEMPLATE|LIST*{LANGUAGE}]
+    [TEMPLATE|SELECT*{TEMPLATE-NAME}]
+
+    ~ 3. Container creation
+    [SCRIPT|CREATE*{LANGUAGE}*{NAME}*{PURPOSE}]
+
+    ~ 4. Development iteration
+    [SCRIPT|EDIT*{NAME}]
+    [SCRIPT|TEST*{NAME}]
+    [SCRIPT|DEBUG*{NAME}]
+
+    ~ 5. Production deployment
+    [SCRIPT|VALIDATE*{NAME}]
+    [SCRIPT|SCHEDULE*{NAME}*{FREQUENCY}]
+    [SCRIPT|MONITOR*{NAME}*{METRICS}]
+
+    [WORKFLOW|ASSIST*EXIT]
+<END-FUNCTION>
+```
+
+---
+
 ## 📚 **Reference Guidelines**
 
 ### **Code Comments**
@@ -1073,6 +1608,10 @@ END                                 ~ Exit to command mode
 
 ---
 
-*uCODE Command Reference v1.0.4.1 - Complete guide for uDOS native programming with uGRID display system, 8-role hierarchy, and clean syntax standards*
+*uCODE & uSCRIPT Reference Manual v1.0.4.1*
+*Complete technical reference for modular scripting on uDOS*
+*Preserving the elegance of 1981 Acorn User Manual traditions*
 
-*Production Ready | For style guidelines: [STYLE-GUIDE.md](STYLE-GUIDE.md) | For quick reference: [QUICK-STYLES.md](QUICK-STYLES.md)*
+**For user-friendly introduction**: See [USER-GUIDE.md](USER-GUIDE.md)
+**For style standards**: See [STYLE-GUIDE.md](STYLE-GUIDE.md)
+**For quick reference**: See [QUICK-STYLES.md](QUICK-STYLES.md)

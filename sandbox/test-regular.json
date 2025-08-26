@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "name": "Test Dataset",
+        "version": "1.0.0",
+        "created": "2025-08-26"
+    },
+    "cities": [
+        {
+            "name": "Sydney",
+            "country": "Australia",
+            "population": 5360000
+        },
+        {
+            "name": "Melbourne",
+            "country": "Australia",
+            "population": 5160000
+        },
+        {
+            "name": "Brisbane",
+            "country": "Australia",
+            "population": 2560000
+        }
+    ],
+    "regions": {
+        "oceania": {
+            "description": "Australia and Pacific Islands",
+            "total_population": 45000000
+        }
+    }
+}

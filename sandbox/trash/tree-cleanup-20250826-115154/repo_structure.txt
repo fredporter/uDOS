@@ -1,5 +1,5 @@
 # uDOS Repository Structure
-*Generated from git contents: Tue Aug 26 12:25:16 AEST 2025*
+*Generated from git contents: Tue Aug 26 11:42:38 AEST 2025*
 
 ```
 uDOS/
@@ -21,7 +21,6 @@ Key files in root:
 ├── QUICKSTART.md
 ├── README.md
 ├── install.sh
-├── repo_structure.txt
 ```
 
 ---

@@ -1,0 +1,24 @@
+{
+  "date": "20250823",
+  "created": "2025-08-23T06:39:03Z",
+  "sessions": [
+    {
+      "session_id": "session_20250823_163457_57723",
+      "started": "2025-08-23T06:34:57Z",
+      "ended": "2025-08-23T06:39:03Z",
+      "duration_minutes": 4,
+      "moves_count": 2,
+      "user_role": "ghost",
+      "status": "completed"
+    }
+  ],
+  "total_moves": 2,
+  "total_duration_minutes": 4,
+  "dev_activity": {
+    "files_created": 0,
+    "files_modified": 0,
+    "experiments_run": 0,
+    "tests_executed": 0
+  },
+  "last_updated": "2025-08-23T06:39:03Z"
+}

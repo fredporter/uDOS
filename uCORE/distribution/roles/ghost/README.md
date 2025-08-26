@@ -1,7 +1,7 @@
 # 👻 Ghost Installation - Demo Environment
 
-**Role Level**: 10/100  
-**Purpose**: Demonstration and evaluation access  
+**Role Level**: 10/100
+**Purpose**: Demonstration and evaluation access
 **Access Type**: Limited demo and public resources
 
 ## 🎯 Overview

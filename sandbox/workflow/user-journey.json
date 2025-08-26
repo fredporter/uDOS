@@ -1,0 +1,34 @@
+{
+  "user_id": "agentdigital",
+  "journey_started": "2025-08-25T17:29:49Z",
+  "current_stage": "exploring",
+  "total_moves": 0,
+  "goals_created": 1,
+  "milestones_achieved": 0,
+  "missions_completed": 1,
+  "legacy_items": 1,
+  "assist_mode": "available",
+  "journey_map": {
+    "exploring": {
+      "description": "Learning and experimenting",
+      "next_stage": "planning"
+    },
+    "planning": {
+      "description": "Setting goals and missions",
+      "next_stage": "executing"
+    },
+    "executing": {
+      "description": "Working on missions",
+      "next_stage": "achieving"
+    },
+    "achieving": {
+      "description": "Completing milestones",
+      "next_stage": "legacy"
+    },
+    "legacy": {
+      "description": "Creating lasting impact",
+      "next_stage": "exploring"
+    }
+  },
+  "last_updated": "2025-08-25T17:51:53Z"
+}

@@ -527,4 +527,61 @@ EOF
 
 ---
 
-**uGRID Display System provides uDOS with a comprehensive, scalable, and high-performance tile-based display architecture supporting everything from wearable devices to wall-mounted dashboards with consistent 16×16 uCELL foundation and advanced 4× resolution capabilities.**
+## 9) uMAP Geographic Coordinate System
+
+### Overview
+The **uMAP** system provides hierarchical geographic mapping with TILE-based location coding and multi-level zoom navigation from global to street level, integrated with uGRID for spatial display.
+
+### Map Hierarchy
+```
+Level 0: Planet Earth (00) - uMAP-00MK60-Earth.json
+Level 1: Continents (01XX) - uMAP-01NA-North-America.json
+Level 2: Metropolitan (02XXX) - uMAP-02NYC-New-York-City.json
+Level 3: Cities/Boroughs (03XXXX) - uMAP-03MAN-Manhattan.json
+Level 4: Districts (04XXXXX) - uMAP-04TSQ-Times-Square.json
+Level 5: Landmarks (05XXXXXX) - uMAP-05BWY-Broadway.json
+```
+
+### TILE Code Examples
+```
+New York City: 00HO35-1m (40.7589°N, 73.9851°W)
+London: 00LP59-1m (51.5074°N, 0.1278°W)
+Tokyo: 00VN06-1m (35.6762°N, 139.6503°E)
+Sydney: 00WG10-1m (-33.8688°S, 151.2093°E)
+```
+
+### uMAP Commands in uCODE
+```ucode
+[UMAP] <GOTO> {X/Y}                 ~ Navigate to coordinates
+[UMAP] <REGION> {DEFINE*NAME*X/Y*W/H} ~ Define region
+[UMAP] <ZOOM> {LEVEL}               ~ Set zoom level
+[UMAP] <TILE> {CREATE*LAT*LON*DEPTH} ~ Create geographic tile
+[UMAP] <FIND> {LAT*LON}             ~ Find tile by coordinates
+```
+
+### Integration with uGRID
+- **Spatial Indexing**: Fast tile lookup and spatial queries
+- **Hierarchical Navigation**: Seamless zoom in/out capabilities
+- **WGS84 Coordinates**: Standard geographic coordinate system
+- **Mercator Projection**: Web mapping standard compatibility
+- **Real TILE Codes**: Generated from actual geographic coordinates
+
+### File Organization
+```
+uMEMORY/core/
+├── uMAP-00MK60-Earth.json              # Level 0: Planet
+├── uMAP-01NA-North-America.json        # Level 1: Continental
+├── uMAP-02NYC-New-York-City.json       # Level 2: Metropolitan
+└── tiles/                              # Individual TILE files
+    ├── uTILE-00HO35-New-York-City.json
+    └── uTILE-00GO34-Washington-DC.json
+
+uCORE/geo/
+├── umap-engine.sh                      # Core mapping engine
+├── utile-location.sh                   # Location utilities
+└── tile-index.json                     # Spatial index
+```
+
+---
+
+**uGRID Display System with integrated uMAP provides uDOS with comprehensive tile-based display architecture and geographic coordinate mapping, supporting everything from wearable devices to wall-mounted dashboards with consistent 16×16 uCELL foundation, 4× resolution capabilities, and global geographic coverage.**
