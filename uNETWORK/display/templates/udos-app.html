@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS - Universal Device Operating System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/udos-app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/udos-themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/udos-grid.css') }}">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body class="udos-app" data-theme="polaroid" data-grid-size="medium">
+    <!-- ASCII Loading Banner -->
+    <div class="udos-loading" id="loadingScreen">
+        <div class="ascii-banner">
+            <pre class="ascii-text">
+██╗   ██╗██████╗  ██████╗ ███████╗
+██║   ██║██╔══██╗██╔═══██╗██╔════╝
+██║   ██║██║  ██║██║   ██║███████╗
+██║   ██║██║  ██║██║   ██║╚════██║
+╚██████╔╝██████╔╝╚██████╔╝███████║
+ ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
+            </pre>
+            <div class="loading-text">Universal Device Operating System</div>
+            <div class="loading-version">v1.0.4.1</div>
+            <div class="loading-progress">
+                <div class="progress-bar" id="loadingProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="udos-container" id="mainApp" style="display: none;">
+
+        <!-- Top Header Bar -->
+        <header class="udos-header">
+            <div class="header-left">
+                <div class="udos-logo">
+                    <span class="logo-text">uDOS</span>
+                    <span class="logo-version">v1.0.4.1</span>
+                </div>
+                <nav class="header-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="terminal">
+                        <span class="nav-icon">💻</span>
+                        <span class="nav-label">Terminal</span>
+                    </button>
+                    <button class="nav-btn" data-tab="memory">
+                        <span class="nav-icon">🧠</span>
+                        <span class="nav-label">Memory</span>
+                    </button>
+                    <button class="nav-btn" data-tab="grid">
+                        <span class="nav-icon">⚡</span>
+                        <span class="nav-label">Grid</span>
+                    </button>
+                    <button class="nav-btn" data-tab="map">
+                        <span class="nav-icon">🗺️</span>
+                        <span class="nav-label">Map</span>
+                    </button>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="system-status" id="systemStatus">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Connected</span>
+                </div>
+                <div class="role-display" id="roleDisplay">
+                    <span class="role-icon">👻</span>
+                    <span class="role-name">Ghost</span>
+                </div>
+                <div class="settings-menu">
+                    <button class="settings-btn" id="settingsBtn">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Smart Command Bar -->
+        <div class="command-bar" id="commandBar">
+            <div class="command-input-container">
+                <span class="command-prompt role-wizard" id="commandPrompt">
+                    <span class="command-prompt-emoji" id="promptEmoji">🧙‍♂️</span>
+                    <span class="command-prompt-text" id="promptText">wizard$</span>
+                </span>
+                <input type="text" class="command-input" id="commandInput"
+                    placeholder="Enter uCODE command or press '/' for search..." autocomplete="off" spellcheck="false">
+                <div class="command-input-cursor" id="inputCursor"></div>
+                <div class="command-suggestions" id="commandSuggestions"></div>
+            </div>
+            <div class="command-actions">
+                <button class="cmd-btn" id="executeBtn" title="Execute (Enter)">⏎</button>
+                <button class="cmd-btn" id="clearBtn" title="Clear">🗑️</button>
+                <button class="cmd-btn" id="historyBtn" title="History">📜</button>
+                <button class="cmd-btn" id="helpBtn" title="Help">❓</button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="udos-main">
+
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboardTab">
+                <div class="dashboard-grid">
+                    <!-- System Stats Panel -->
+                    <div class="panel system-stats">
+                        <div class="panel-header">
+                            <h3>📊 System Status</h3>
+                            <button class="panel-toggle" data-panel="system-stats">−</button>
+                        </div>
+                        <div class="panel-content">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-label">CPU</div>
+                                    <div class="stat-value" id="cpuStat">--</div>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill" id="cpuBar"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Memory</div>
+                                    <div class="stat-value" id="memoryStat">--</div>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill" id="memoryBar"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Storage</div>
+                                    <div class="stat-value" id="storageStat">--</div>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill" id="storageBar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Panel -->
+                    <div class="panel quick-actions">
+                        <div class="panel-header">
+                            <h3>⚡ Quick Actions</h3>
+                            <button class="panel-toggle" data-panel="quick-actions">−</button>
+                        </div>
+                        <div class="panel-content">
+                            <div class="action-grid">
+                                <button class="action-btn" data-action="status">
+                                    <span class="action-icon">🔍</span>
+                                    <span class="action-label">Status</span>
+                                </button>
+                                <button class="action-btn" data-action="backup">
+                                    <span class="action-icon">💾</span>
+                                    <span class="action-label">Backup</span>
+                                </button>
+                                <button class="action-btn" data-action="logs">
+                                    <span class="action-icon">📝</span>
+                                    <span class="action-label">Logs</span>
+                                </button>
+                                <button class="action-btn" data-action="help">
+                                    <span class="action-icon">❓</span>
+                                    <span class="action-label">Help</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ASCII Art Display -->
+                    <div class="panel ascii-display">
+                        <div class="panel-header">
+                            <h3>🎨 ASCII Display</h3>
+                            <button class="panel-toggle" data-panel="ascii-display">−</button>
+                        </div>
+                        <div class="panel-content">
+                            <div class="ascii-container" id="asciiContainer">
+                                <pre class="ascii-art" id="asciiArt">
+┌─────────────────────────────────────┐
+│  uDOS Operating System Dashboard    │
+├─────────────────────────────────────┤
+│  ██ CORE    │ ██ MEMORY │ ██ NET   │
+│  ░░ STATUS  │ ░░ USAGE  │ ░░ CONN  │
+│                                     │
+│  [●] Active [●] Online [●] Ready    │
+└─────────────────────────────────────┘
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Log Panel -->
+                    <div class="panel activity-log">
+                        <div class="panel-header">
+                            <h3>📋 Activity Log</h3>
+                            <button class="panel-toggle" data-panel="activity-log">−</button>
+                        </div>
+                        <div class="panel-content">
+                            <div class="log-container" id="activityLog">
+                                <div class="log-entry">
+                                    <span class="log-time">12:34:56</span>
+                                    <span class="log-type">INFO</span>
+                                    <span class="log-message">uDOS Browser Interface Loaded</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Tab -->
+            <div class="tab-content" id="terminalTab">
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="terminal-controls">
+                            <button class="term-btn" id="termClear">Clear</button>
+                            <button class="term-btn" id="termFont">Font</button>
+                            <button class="term-btn" id="termTheme">Theme</button>
+                        </div>
+                        <div class="terminal-title">uDOS Interactive Terminal</div>
+                    </div>
+                    <div class="terminal-display" id="terminalDisplay">
+                        <div class="terminal-output" id="terminalOutput">
+                            <div class="terminal-line">
+                                <span class="term-prompt">uDOS$</span>
+                                <span class="term-command">Welcome to uDOS v1.0.4.1</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="term-info">Universal Device Operating System</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="term-info">Type 'help' for available commands</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="terminal-input-area">
+                        <div class="terminal-input-line">
+                            <span class="terminal-prompt-active" id="terminalPromptActive">uDOS$</span>
+                            <input type="text" class="terminal-input-field" id="terminalInputField"
+                                placeholder="Enter command..." autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Tab -->
+            <div class="tab-content" id="memoryTab">
+                <div class="memory-browser">
+                    <div class="memory-nav">
+                        <div class="memory-path" id="memoryPath">/uMEMORY/user/</div>
+                        <div class="memory-actions">
+                            <button class="mem-btn" id="memBack">←</button>
+                            <button class="mem-btn" id="memForward">→</button>
+                            <button class="mem-btn" id="memRefresh">↻</button>
+                        </div>
+                    </div>
+                    <div class="memory-content">
+                        <div class="memory-tree" id="memoryTree">
+                            <!-- Memory browser content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Tab -->
+            <div class="tab-content" id="gridTab">
+                <div class="grid-display">
+                    <div class="grid-controls">
+                        <select class="grid-selector" id="gridSize">
+                            <option value="small">Small Grid (8x8)</option>
+                            <option value="medium" selected>Medium Grid (16x16)</option>
+                            <option value="large">Large Grid (32x32)</option>
+                        </select>
+                        <button class="grid-btn" id="gridGenerate">Generate</button>
+                        <button class="grid-btn" id="gridClear">Clear</button>
+                    </div>
+                    <div class="grid-container" id="gridContainer">
+                        <!-- Dynamic grid will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Tab -->
+            <div class="tab-content" id="mapTab">
+                <div class="map-display">
+                    <div class="map-controls">
+                        <select class="map-selector" id="mapRegion">
+                            <option value="global">Global View</option>
+                            <option value="local">Local Region</option>
+                            <option value="custom">Custom Area</option>
+                        </select>
+                        <button class="map-btn" id="mapLoad">Load</button>
+                        <button class="map-btn" id="mapTiles">Tiles</button>
+                    </div>
+                    <div class="map-container" id="mapContainer">
+                        <!-- Map tiles will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>⚙️ Settings</h3>
+                <button class="settings-close" id="settingsClose">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label class="setting-label">Theme</label>
+                    <select class="setting-select" id="themeSelector">
+                        <option value="polaroid">Polaroid (Default)</option>
+                        <option value="retro-unicorn">Retro Unicorn</option>
+                        <option value="nostalgia">Nostalgia</option>
+                        <option value="tropical-sunrise">Tropical Sunrise</option>
+                        <option value="pastel-power">Pastel Power</option>
+                        <option value="arcade-pastels">Arcade Pastels</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="solar-punk">Solar Punk</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Grid Size</label>
+                    <select class="setting-select" id="gridSizeSelector">
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Font Family</label>
+                    <select class="setting-select" id="fontSelector">
+                        <option value="mono">IBM Plex Mono</option>
+                        <option value="roboto">Roboto Mono</option>
+                        <option value="space">Space Mono</option>
+                        <option value="courier">Courier New</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Panel Layout</label>
+                    <select class="setting-select" id="layoutSelector">
+                        <option value="grid">Grid Layout</option>
+                        <option value="list">List Layout</option>
+                        <option value="compact">Compact Layout</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/udos-app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/udos-terminal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/udos-grid.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/udos-smart-input.js') }}"></script>
+</body>
+
+</html>

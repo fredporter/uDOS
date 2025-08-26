@@ -1,0 +1,114 @@
+{
+    "metadata": {
+        "name": "micro-editor",
+        "version": "1.0.0",
+        "type": "essential",
+        "distribution": "core",
+        "platform": "universal",
+        "category": "editors",
+        "description": "Micro terminal-based text editor integration for markdown and code editing",
+        "author": "uDOS Core Team",
+        "license": "MIT",
+        "dependencies": [],
+        "uDOS_version_min": "1.0.4"
+    },
+    "installation": {
+        "auto_install": true,
+        "requires_download": true,
+        "binary_source": "https://github.com/zyedidia/micro/releases/latest",
+        "install_script": "install-micro.sh",
+        "verify_command": "micro --version",
+        "install_path": "bin/micro"
+    },
+    "commands": [
+        {
+            "command": "EDIT",
+            "syntax": "[EDIT] <filename>",
+            "description": "Open file in micro editor",
+            "example": "[EDIT] README.md",
+            "handler": "commands/edit.sh"
+        },
+        {
+            "command": "EDIT|NEW",
+            "syntax": "[EDIT|NEW] <filename>",
+            "description": "Create new file and open in micro editor",
+            "example": "[EDIT|NEW] notes.md",
+            "handler": "commands/edit-new.sh"
+        },
+        {
+            "command": "EDIT|BROWSER",
+            "syntax": "[EDIT|BROWSER]",
+            "description": "Open browser-based markdown editor",
+            "example": "[EDIT|BROWSER]",
+            "handler": "commands/edit-browser.sh"
+        },
+        {
+            "command": "EDIT|CONFIG",
+            "syntax": "[EDIT|CONFIG]",
+            "description": "Configure micro editor settings",
+            "example": "[EDIT|CONFIG]",
+            "handler": "commands/edit-config.sh"
+        },
+        {
+            "command": "SHOW",
+            "syntax": "[SHOW] <filename.md>",
+            "description": "View markdown files in browser",
+            "example": "[SHOW] README.md",
+            "handler": "commands/show.sh"
+        }
+    ],
+    "file_associations": [
+        {
+            "extensions": [
+                ".md",
+                ".markdown"
+            ],
+            "description": "Markdown files",
+            "default_action": "edit"
+        },
+        {
+            "extensions": [
+                ".txt",
+                ".log"
+            ],
+            "description": "Text files",
+            "default_action": "edit"
+        },
+        {
+            "extensions": [
+                ".sh",
+                ".bash"
+            ],
+            "description": "Shell scripts",
+            "default_action": "edit"
+        },
+        {
+            "extensions": [
+                ".json",
+                ".yaml",
+                ".yml"
+            ],
+            "description": "Configuration files",
+            "default_action": "edit"
+        }
+    ],
+    "configuration": {
+        "settings_file": "config/micro-settings.json",
+        "syntax_highlighting": true,
+        "line_numbers": true,
+        "auto_save": true,
+        "tab_size": 4,
+        "word_wrap": false
+    },
+    "browser_integration": {
+        "enabled": true,
+        "editor_tab": true,
+        "file_browser": true,
+        "live_preview": true,
+        "syntax_themes": [
+            "default",
+            "dark",
+            "light"
+        ]
+    }
+}

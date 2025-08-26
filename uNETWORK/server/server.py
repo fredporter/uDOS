@@ -36,6 +36,14 @@ except ImportError:
     UCORE_INTEGRATION_AVAILABLE = False
     print("Warning: uCORE integration not available")
 
+# Import task manager API
+try:
+    from task_manager_api import task_api
+    TASK_MANAGER_AVAILABLE = True
+except ImportError:
+    TASK_MANAGER_AVAILABLE = False
+    print("Warning: Task Manager API not available")
+
 # Ensure log directories exist
 ERROR_LOG_PATH.mkdir(parents=True, exist_ok=True)
 DEBUG_LOG_PATH.mkdir(parents=True, exist_ok=True)
@@ -73,6 +81,11 @@ app = Flask(__name__,
            template_folder=str(UI_PATH / "templates"))
 app.config['SECRET_KEY'] = 'udos-secure-key-v131'
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Register Task Manager API blueprint
+if TASK_MANAGER_AVAILABLE:
+    app.register_blueprint(task_api)
+    print("✅ Task Manager API registered")
 
 # Global state
 connected_clients = []
@@ -287,7 +300,7 @@ def emergency_shutdown(reason):
 
 @app.route('/')
 def index():
-    """Main uCODE interface with enhanced error handling"""
+    """Main uDOS interface - comprehensive browser UI"""
     try:
         global startup_complete
         if not startup_complete:
@@ -296,11 +309,30 @@ def index():
                 app._startup_in_progress = True
                 threading.Thread(target=run_startup_checks, daemon=True).start()
 
-        return render_template('dashboard.html',
+        return render_template('udos-app.html',
                              udos_mode=system_status['udos_mode'],
                              access_level=system_status['access_level'])
     except Exception as e:
         error_id = log_error('ROUTE_ERROR', f'Failed to load main interface: {str(e)}', e)
+        role_message = get_role_error_message('server_error')
+        return f"""
+        <html><body>
+        <h1>{role_message}</h1>
+        <p>Error ID: {error_id}</p>
+        <p>Details: {str(e)}</p>
+        <p><a href="javascript:location.reload()">Retry</a></p>
+        </body></html>
+        """, 500
+
+@app.route('/dashboard')
+def dashboard():
+    """Legacy dashboard interface for compatibility"""
+    try:
+        return render_template('dashboard.html',
+                             udos_mode=system_status['udos_mode'],
+                             access_level=system_status['access_level'])
+    except Exception as e:
+        error_id = log_error('ROUTE_ERROR', f'Failed to load dashboard interface: {str(e)}', e)
         role_message = get_role_error_message('server_error')
         return f"""
         <html><body>
@@ -578,8 +610,8 @@ def get_logs():
 def docs_browser():
     """uDOS Documentation Browser"""
     try:
-        ucode_ui_path = UDOS_ROOT / "uCORE" / "launcher" / "universal" / "ucode-ui"
-        return send_from_directory(ucode_ui_path, 'index.html')
+        docs_ui_path = UDOS_ROOT / "uNETWORK" / "display" / "static" / "docs"
+        return send_from_directory(docs_ui_path, 'index.html')
     except Exception as e:
         error_id = log_error('ROUTE_ERROR', f'Failed to load documentation browser: {str(e)}', e)
         return f"Documentation browser error: {error_id}", 500
@@ -588,8 +620,8 @@ def docs_browser():
 def docs_static(filename):
     """Serve static files for documentation browser"""
     try:
-        ucode_ui_path = UDOS_ROOT / "uCORE" / "launcher" / "universal" / "ucode-ui"
-        return send_from_directory(ucode_ui_path, filename)
+        docs_ui_path = UDOS_ROOT / "uNETWORK" / "display" / "static" / "docs"
+        return send_from_directory(docs_ui_path, filename)
     except Exception as e:
         error_id = log_error('ROUTE_ERROR', f'Failed to serve static file: {filename}', e)
         return f"Static file error: {error_id}", 404
@@ -1015,6 +1047,214 @@ def handle_palette_change(data):
         'timestamp': time.time()
     })
 
+# New WebSocket handlers for enhanced UI
+
+@socketio.on('terminal_command')
+def handle_terminal_command(data):
+    """Handle terminal command execution"""
+    try:
+        command = data.get('command', '').strip()
+        session_id = data.get('session_id', 'default')
+
+        log_message(f'Terminal command: {command}')
+
+        # Process command through existing system
+        result = process_udos_command(command)
+
+        # Emit response back to specific session
+        emit('terminal_response', {
+            'session_id': session_id,
+            'command': command,
+            'output': result.get('output', ''),
+            'success': result.get('success', True),
+            'timestamp': time.time()
+        })
+
+    except Exception as e:
+        emit('terminal_response', {
+            'session_id': data.get('session_id', 'default'),
+            'command': data.get('command', ''),
+            'output': f'Error: {str(e)}',
+            'success': False,
+            'timestamp': time.time()
+        })
+
+@socketio.on('grid_request')
+def handle_grid_request(data):
+    """Handle grid data requests"""
+    try:
+        grid_type = data.get('type', 'simple')
+        size = data.get('size', 16)
+
+        # Use the same logic as the REST API
+        if grid_type == 'memory':
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    cell_value = (i * size + j) % 256
+                    row.append({
+                        'id': f'{i}-{j}',
+                        'value': cell_value,
+                        'type': 'memory',
+                        'address': f'0x{(i * size + j):04X}'
+                    })
+                grid_data.append(row)
+        elif grid_type == 'map':
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    tile_id = f'tile_{i}_{j}'
+                    row.append({
+                        'id': tile_id,
+                        'value': f'{i},{j}',
+                        'type': 'map',
+                        'coordinates': {'lat': 40.7128 + (i * 0.01), 'lng': -74.0060 + (j * 0.01)}
+                    })
+                grid_data.append(row)
+        else:
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    pattern_value = (i + j) % 4
+                    row.append({
+                        'id': f'{i}-{j}',
+                        'value': pattern_value,
+                        'type': 'pattern'
+                    })
+                grid_data.append(row)
+
+        emit('grid_data', {
+            'data': grid_data,
+            'type': grid_type,
+            'size': size,
+            'timestamp': time.time()
+        })
+
+    except Exception as e:
+        emit('grid_error', {
+            'error': str(e),
+            'timestamp': time.time()
+        })
+
+@socketio.on('system_info_request')
+def handle_system_info_request():
+    """Handle system information requests"""
+    try:
+        import platform
+        import psutil
+
+        info = {
+            'platform': {
+                'system': platform.system(),
+                'release': platform.release(),
+                'machine': platform.machine()
+            },
+            'udos': {
+                'root': str(UDOS_ROOT),
+                'mode': system_status.get('udos_mode', 'unknown'),
+                'level': system_status.get('access_level', 0),
+                'clients': len(connected_clients),
+                'uptime': time.time() - server_start_time if 'server_start_time' in globals() else 0
+            },
+            'memory': {
+                'total': psutil.virtual_memory().total,
+                'available': psutil.virtual_memory().available,
+                'percent': psutil.virtual_memory().percent
+            },
+            'disk': {
+                'total': psutil.disk_usage('/').total,
+                'used': psutil.disk_usage('/').used,
+                'free': psutil.disk_usage('/').free
+            }
+        }
+
+        emit('system_info', info)
+
+    except Exception as e:
+        emit('system_error', {'error': str(e)})
+
+@socketio.on('theme_change')
+def handle_theme_change(data):
+    """Handle theme changes"""
+    try:
+        theme = data.get('theme', 'polaroid')
+        log_message(f'Theme changed to: {theme}')
+
+        # Broadcast theme change to all clients
+        socketio.emit('theme_update', {
+            'theme': theme,
+            'timestamp': time.time()
+        })
+
+    except Exception as e:
+        emit('theme_error', {'error': str(e)})
+
+@socketio.on('memory_browse')
+def handle_memory_browse(data):
+    """Handle memory browsing requests"""
+    try:
+        path = data.get('path', '')
+        memory_path = UDOS_ROOT / 'uMEMORY'
+
+        if path:
+            target_path = memory_path / path
+        else:
+            target_path = memory_path
+
+        result = {
+            'path': path,
+            'items': [],
+            'timestamp': time.time()
+        }
+
+        if target_path.exists() and target_path.is_dir():
+            for item in target_path.iterdir():
+                item_info = {
+                    'name': item.name,
+                    'type': 'directory' if item.is_dir() else 'file',
+                    'path': str(item.relative_to(memory_path))
+                }
+
+                if item.is_file():
+                    try:
+                        item_info['size'] = item.stat().st_size
+                        item_info['modified'] = item.stat().st_mtime
+                    except:
+                        item_info['size'] = 0
+                        item_info['modified'] = 0
+
+                result['items'].append(item_info)
+
+        emit('memory_data', result)
+
+    except Exception as e:
+        emit('memory_error', {'error': str(e), 'path': data.get('path', '')})
+
+@socketio.on('variable_request')
+def handle_variable_request():
+    """Handle system variable requests"""
+    try:
+        variables = {}
+
+        # System variables
+        variables['UDOS-ROOT'] = str(UDOS_ROOT)
+        variables['UDOS-MODE'] = system_status.get('udos_mode', 'unknown')
+        variables['ACCESS-LEVEL'] = str(system_status.get('access_level', 0))
+        variables['SERVER-STATUS'] = system_status.get('health_status', 'unknown')
+        variables['CLIENTS-CONNECTED'] = str(len(connected_clients))
+        variables['SERVER-UPTIME'] = str(int(time.time() - server_start_time)) if 'server_start_time' in globals() else '0'
+
+        emit('variable_data', {
+            'variables': variables,
+            'timestamp': time.time()
+        })
+
+    except Exception as e:
+        emit('variable_error', {'error': str(e)})
+
 def process_udos_command(command):
     """Process uDOS command with enhanced functionality and role permissions"""
 
@@ -1316,6 +1556,359 @@ def open_browser(url, delay=2):
     time.sleep(delay)
     print(f"\n🌐 Opening uDOS in browser: {url}")
     webbrowser.open(url)
+
+# New API Endpoints for Enhanced UI
+
+@app.route('/api/grid/data', methods=['GET'])
+def get_grid_data():
+    """Get grid visualization data"""
+    try:
+        grid_type = request.args.get('type', 'simple')
+        size = int(request.args.get('size', 16))
+
+        if grid_type == 'memory':
+            # Generate memory visualization grid
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    cell_value = (i * size + j) % 256
+                    row.append({
+                        'id': f'{i}-{j}',
+                        'value': cell_value,
+                        'type': 'memory',
+                        'address': f'0x{(i * size + j):04X}'
+                    })
+                grid_data.append(row)
+        elif grid_type == 'map':
+            # Generate map tile grid
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    tile_id = f'tile_{i}_{j}'
+                    row.append({
+                        'id': tile_id,
+                        'value': f'{i},{j}',
+                        'type': 'map',
+                        'coordinates': {'lat': 40.7128 + (i * 0.01), 'lng': -74.0060 + (j * 0.01)}
+                    })
+                grid_data.append(row)
+        else:
+            # Simple pattern grid
+            grid_data = []
+            for i in range(size):
+                row = []
+                for j in range(size):
+                    pattern_value = (i + j) % 4
+                    row.append({
+                        'id': f'{i}-{j}',
+                        'value': pattern_value,
+                        'type': 'pattern'
+                    })
+                grid_data.append(row)
+
+        return jsonify({
+            'success': True,
+            'data': grid_data,
+            'type': grid_type,
+            'size': size
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/memory/structure', methods=['GET'])
+def get_memory_structure():
+    """Get uMEMORY directory structure"""
+    try:
+        memory_path = UDOS_ROOT / 'uMEMORY'
+        structure = {}
+
+        if memory_path.exists():
+            for item in memory_path.iterdir():
+                if item.is_dir():
+                    structure[item.name] = {
+                        'type': 'directory',
+                        'path': str(item.relative_to(UDOS_ROOT)),
+                        'files': []
+                    }
+                    # Get files in directory
+                    try:
+                        for file_item in item.iterdir():
+                            if file_item.is_file():
+                                structure[item.name]['files'].append({
+                                    'name': file_item.name,
+                                    'size': file_item.stat().st_size,
+                                    'modified': file_item.stat().st_mtime
+                                })
+                    except PermissionError:
+                        structure[item.name]['files'] = ['Permission denied']
+
+        return jsonify({
+            'success': True,
+            'structure': structure
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/system/variables', methods=['GET'])
+def get_system_variables():
+    """Get system variables from uMEMORY"""
+    try:
+        variables = {}
+
+        # Read common system variables
+        variables['UDOS-ROOT'] = str(UDOS_ROOT)
+        variables['UDOS-MODE'] = system_status.get('udos_mode', 'unknown')
+        variables['ACCESS-LEVEL'] = str(system_status.get('access_level', 0))
+        variables['SERVER-STATUS'] = system_status.get('health_status', 'unknown')
+        variables['CLIENTS-CONNECTED'] = str(len(connected_clients))
+
+        # Try to read from system data files
+        system_data_path = UDOS_ROOT / 'uMEMORY' / 'system'
+        if system_data_path.exists():
+            # Look for uDATA files
+            for data_file in system_data_path.glob('*.json'):
+                try:
+                    with open(data_file, 'r') as f:
+                        data = json.load(f)
+                        if isinstance(data, dict):
+                            for key, value in data.items():
+                                variables[f'{data_file.stem.upper()}-{key.upper()}'] = str(value)
+                except Exception:
+                    continue
+
+        return jsonify({
+            'success': True,
+            'variables': variables
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/system/stats', methods=['GET'])
+def get_system_stats():
+    """Get system statistics for dashboard"""
+    try:
+        import platform
+        import psutil
+
+        stats = {
+            'platform': {
+                'system': platform.system(),
+                'release': platform.release(),
+                'machine': platform.machine()
+            },
+            'memory': {
+                'total': psutil.virtual_memory().total,
+                'available': psutil.virtual_memory().available,
+                'percent': psutil.virtual_memory().percent
+            },
+            'disk': {
+                'total': psutil.disk_usage('/').total,
+                'used': psutil.disk_usage('/').used,
+                'free': psutil.disk_usage('/').free
+            },
+            'udos': {
+                'root': str(UDOS_ROOT),
+                'mode': system_status.get('udos_mode', 'unknown'),
+                'level': system_status.get('access_level', 0),
+                'clients': len(connected_clients),
+                'uptime': time.time() - server_start_time if 'server_start_time' in globals() else 0
+            }
+        }
+
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/templates/list', methods=['GET'])
+def get_templates():
+    """Get available templates"""
+    try:
+        templates = []
+
+        # Check uMEMORY templates
+        memory_templates = UDOS_ROOT / 'uMEMORY' / 'templates'
+        if memory_templates.exists():
+            for template_file in memory_templates.glob('*.json'):
+                templates.append({
+                    'name': template_file.stem,
+                    'path': str(template_file.relative_to(UDOS_ROOT)),
+                    'type': 'memory',
+                    'size': template_file.stat().st_size
+                })
+
+        # Check sandbox templates
+        sandbox_templates = UDOS_ROOT / 'sandbox' / 'templates'
+        if sandbox_templates.exists():
+            for template_file in sandbox_templates.glob('*.json'):
+                templates.append({
+                    'name': template_file.stem,
+                    'path': str(template_file.relative_to(UDOS_ROOT)),
+                    'type': 'sandbox',
+                    'size': template_file.stat().st_size
+                })
+
+        return jsonify({
+            'success': True,
+            'templates': templates
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/command/execute', methods=['POST'])
+def execute_command():
+    """Execute uCODE commands"""
+    try:
+        data = request.get_json()
+        command = data.get('command', '').strip()
+
+        if not command:
+            return jsonify({'success': False, 'error': 'No command provided'}), 400
+
+        # Basic command processing
+        result = {
+            'success': True,
+            'command': command,
+            'output': '',
+            'timestamp': time.time()
+        }
+
+        # Simple command routing
+        if command.upper().startswith('[STATUS]'):
+            result['output'] = f"uDOS Status: {system_status['udos_mode']} mode, Level {system_status['access_level']}"
+        elif command.upper().startswith('[HELP]'):
+            result['output'] = "uDOS Help: Available commands include [STATUS], [GRID], [MEMORY], [CLEAR]"
+        elif command.upper().startswith('[GRID]'):
+            result['output'] = "Grid system activated. Use grid interface for visualization."
+        elif command.upper().startswith('[MEMORY]'):
+            result['output'] = "Memory browser activated. Check memory tab for details."
+        elif command.upper().startswith('[CLEAR]'):
+            result['output'] = "Terminal cleared."
+        elif command.upper().startswith('[SHOW]'):
+            # Handle markdown file viewing
+            parts = command.split(' ', 1)
+            if len(parts) > 1:
+                filename = parts[1].strip()
+                result['output'] = f"Opening markdown viewer for: {filename}"
+                result['action'] = 'show_markdown'
+                result['filename'] = filename
+            else:
+                result['output'] = "Usage: [SHOW] <filename.md>"
+        elif command.upper().startswith('[EDIT]'):
+            # Handle file editing
+            parts = command.split(' ', 1)
+            if len(parts) > 1:
+                filename = parts[1].strip()
+                result['output'] = f"Opening editor for: {filename}"
+                result['action'] = 'edit_file'
+                result['filename'] = filename
+            else:
+                result['output'] = "Usage: [EDIT] <filename>"
+        else:
+            result['output'] = f"Command processed: {command}"
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/markdown/content', methods=['GET'])
+def get_markdown_content():
+    """Get markdown file content for browser viewing"""
+    try:
+        file_path = request.args.get('file')
+        if not file_path:
+            return jsonify({'success': False, 'error': 'No file path provided'}), 400
+
+        # Resolve file path
+        possible_paths = [
+            Path(file_path),
+            UDOS_ROOT / "sandbox" / "documents" / file_path,
+            UDOS_ROOT / "uMEMORY" / "user" / file_path,
+            UDOS_ROOT / "docs" / file_path
+        ]
+
+        content_file = None
+        for path in possible_paths:
+            if path.exists() and path.is_file():
+                content_file = path
+                break
+
+        if not content_file:
+            return jsonify({'success': False, 'error': f'File not found: {file_path}'}), 404
+
+        # Read file content
+        try:
+            with open(content_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Try with different encoding
+            with open(content_file, 'r', encoding='latin-1') as f:
+                content = f.read()
+
+        # Get file info
+        file_stats = content_file.stat()
+
+        result = {
+            'success': True,
+            'content': content,
+            'filename': content_file.name,
+            'path': str(content_file),
+            'size': file_stats.st_size,
+            'modified': file_stats.st_mtime,
+            'is_markdown': content_file.suffix.lower() in ['.md', '.markdown']
+        }
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/markdown/list', methods=['GET'])
+def list_markdown_files():
+    """List available markdown files"""
+    try:
+        markdown_files = []
+
+        # Search common locations
+        search_paths = [
+            (UDOS_ROOT / "sandbox" / "documents", "Documents"),
+            (UDOS_ROOT / "uMEMORY" / "user", "User Memory"),
+            (UDOS_ROOT / "docs", "Documentation")
+        ]
+
+        for path, category in search_paths:
+            if path.exists():
+                for md_file in path.rglob("*.md"):
+                    if md_file.is_file():
+                        try:
+                            stats = md_file.stat()
+                            markdown_files.append({
+                                'name': md_file.name,
+                                'path': str(md_file),
+                                'relative_path': str(md_file.relative_to(UDOS_ROOT)),
+                                'category': category,
+                                'size': stats.st_size,
+                                'modified': stats.st_mtime
+                            })
+                        except Exception:
+                            continue
+
+        # Sort by modified time (newest first)
+        markdown_files.sort(key=lambda x: x['modified'], reverse=True)
+
+        return jsonify({
+            'success': True,
+            'files': markdown_files[:50],  # Limit to 50 files
+            'total': len(markdown_files)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Set server start time
+server_start_time = time.time()
 
 def show_rainbow_banner():
     """Display the uDOS rainbow ASCII banner"""
