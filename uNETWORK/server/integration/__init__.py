@@ -10,5 +10,5 @@ sys.path.append(os.path.dirname(__file__))
 
 from ucore_protocols import create_ucore_integration, uCOREProtocols
 
-__version__ = "1.3.3"
+__version__ = "1.0.4"
 __all__ = ["create_ucore_integration", "uCOREProtocols"]

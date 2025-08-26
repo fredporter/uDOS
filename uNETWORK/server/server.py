@@ -798,7 +798,7 @@ def process_udos_command(command):
     # Placeholder implementation for other commands
     if command.startswith('help'):
         return {
-            'output': '''uDOS Commands v1.3.3 (with uCORE Integration):
+            'output': '''uDOS Commands v1.0.4 (with uCORE Integration):
 - help: Show this help
 - status: System status
 - modules: List modules
@@ -877,13 +877,13 @@ Backup Access: {"✅" if ucore_protocols.check_permission("backup_create") else 
                 'success': False
             }
     elif command.startswith('status'):
-        status_info = f'''uDOS System Status v1.3.3:
+        status_info = f'''uDOS System Status v1.0.4:
 Mode: {system_status["udos_mode"]}
 Clients: {len(connected_clients)}
 Modules: uCORE, uNETWORK, uSCRIPT, uMEMORY
 Uptime: {time.time() - system_status["startup_time"]:.1f}s
 Memory: Available
-Version: 1.3.3'''
+Version: 1.0.4'''
 
         if ucore_protocols:
             integration_status = ucore_protocols.get_system_status()

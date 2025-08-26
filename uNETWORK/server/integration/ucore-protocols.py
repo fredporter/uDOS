@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-uNETWORK-uCORE Integration v1.3.3
-Provides compatibility layer for uCORE logging, error handling, backup protocols,
-and role-based permissions integration
+uNETWORK-uCORE Integration v1.0.4
+Integration protocols for uNETWORK server to communicate with uCORE system
 """
 
 import os
