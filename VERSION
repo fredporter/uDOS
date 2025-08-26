@@ -1,12 +1,12 @@
-# uDOS - Version 1.0.4.1
+# uDOS - Version 1.0.4.2
 # Universal Device Operating System
 # Build: 2025-08-26
 
-VERSION="1.0.4.1"
+VERSION="1.0.4.2"
 BUILD_DATE="2025-08-26"
-BUILD_NAME="Foundational System Design"
+BUILD_NAME="Development Workflow & Release Management"
 
-# Core Features in v1.0.4.1:
+# Core Features in v1.0.4.2:
 # - Three-Mode Display System: CLI Terminal, Desktop Application, Web Export
 # - CLI Terminal: Always available, all roles, foundational UTF-8 with Polaroid colors
 # - Desktop Application: Native app for DRONE+ roles with system tray

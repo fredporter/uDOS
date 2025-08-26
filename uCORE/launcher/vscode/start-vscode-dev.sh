@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 export UDOS_ROOT
 export UDOS_MODE="vscode-dev"
 
@@ -28,12 +28,15 @@ start_dev_server() {
     # Kill any existing server
     pkill -f "uNETWORK/server/server.py" 2>/dev/null || true
 
+    # Activate Python virtual environment
+    source "$UDOS_ROOT/uSCRIPT/activate-venv.sh"
+
     # Start server with development flags
     export UDOS_CURRENT_ROLE="wizard"
     export UDOS_ACCESS_LEVEL="100"
     export UDOS_DEV_MODE="true"
 
-    python3 uNETWORK/server/server.py &
+    python "$UDOS_ROOT/uNETWORK/server/server.py" &
     SERVER_PID=$!
     echo $SERVER_PID > /tmp/udos-dev-server.pid
 

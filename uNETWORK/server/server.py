@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-uDOS Server v1.3.3 - Enhanced with uSCRIPT venv Integration and uCORE Protocol Compatibility
+uDOS Server v1.0.4.2 - Enhanced with uSCRIPT venv Integration and uCORE Protocol Compatibility
 Serves the browser-based UI with comprehensive error management, role-based permissions,
 and full integration with uCORE logging, error handling, and backup protocols
 """
@@ -19,8 +19,8 @@ from flask import Flask, render_template, send_from_directory, jsonify, request
 from flask_socketio import SocketIO, emit
 
 # Add uCORE to path for imports
-UDOS_ROOT = Path(__file__).parent.parent
-UI_PATH = UDOS_ROOT / "uCORE" / "launcher" / "universal" / "ucode-ui"
+UDOS_ROOT = Path(__file__).parent.parent.parent
+UI_PATH = UDOS_ROOT / "uNETWORK" / "display"
 ERROR_LOG_PATH = UDOS_ROOT / "wizard" / "logs" / "errors"
 DEBUG_LOG_PATH = UDOS_ROOT / "wizard" / "logs" / "debug"
 CRASH_LOG_PATH = UDOS_ROOT / "wizard" / "logs" / "crashes"
@@ -70,8 +70,7 @@ MAX_RESTARTS = 3
 
 app = Flask(__name__,
            static_folder=str(UI_PATH / "static"),
-           template_folder=str(UI_PATH))
-
+           template_folder=str(UI_PATH / "templates"))
 app.config['SECRET_KEY'] = 'udos-secure-key-v131'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -297,7 +296,7 @@ def index():
                 app._startup_in_progress = True
                 threading.Thread(target=run_startup_checks, daemon=True).start()
 
-        return render_template('index.html',
+        return render_template('dashboard.html',
                              udos_mode=system_status['udos_mode'],
                              access_level=system_status['access_level'])
     except Exception as e:
@@ -311,6 +310,28 @@ def index():
         <p><a href="javascript:location.reload()">Retry</a></p>
         </body></html>
         """, 500
+
+@app.route('/terminal')
+def terminal():
+    """Terminal interface"""
+    try:
+        return render_template('terminal.html',
+                             udos_mode=system_status['udos_mode'],
+                             access_level=system_status['access_level'])
+    except Exception as e:
+        error_id = log_error('ROUTE_ERROR', f'Failed to load terminal interface: {str(e)}', e)
+        return f"Terminal interface error: {error_id}", 500
+
+@app.route('/memory')
+def memory():
+    """Memory browser interface"""
+    try:
+        return render_template('memory.html',
+                             udos_mode=system_status['udos_mode'],
+                             access_level=system_status['access_level'])
+    except Exception as e:
+        error_id = log_error('ROUTE_ERROR', f'Failed to load memory interface: {str(e)}', e)
+        return f"Memory interface error: {error_id}", 500
 
 @app.route('/api/status')
 def status():
@@ -459,9 +480,9 @@ def check_udos_installation():
     """Check if uDOS is properly installed"""
     required_paths = [
         UDOS_ROOT / "uCORE",
-        UDOS_ROOT / "uSERVER",
+        UDOS_ROOT / "uNETWORK",
         UDOS_ROOT / "uMEMORY",
-        UI_PATH / "index.html"
+        UI_PATH / "templates" / "dashboard.html"
     ]
 
     for path in required_paths:
@@ -552,12 +573,25 @@ def get_logs():
     """Get system logs"""
     return jsonify(system_logs[-100:])  # Last 100 logs
 
+def update_server_status():
+    """Update and display current server status"""
+    uptime = time.time() - system_status['startup_time']
+    uptime_str = f"{int(uptime//3600):02d}:{int((uptime%3600)//60):02d}:{int(uptime%60):02d}"
+
+    print(f"\033[2K\033[1A\033[2K\033[1A\033[2K\033[1A\033[2K", end="")  # Clear last 3 lines
+    print(f"\033[1;32m✅ Server Running\033[0m | \033[1;36m👥 {len(connected_clients)} clients\033[0m | \033[1;33m⏱️  {uptime_str}\033[0m | \033[1;35m❤️  {system_status['health_status']}\033[0m")
+    print(f"\033[1;37m🌐 Dashboard: http://localhost:8080 | 💻 Terminal: /terminal | 💾 Memory: /memory\033[0m")
+    print(f"\033[1;37m💡 Press Ctrl+C to stop the server\033[0m")
+
 @socketio.on('connect')
 def handle_connect():
     """Handle client connection with enhanced error handling"""
     try:
         client_id = request.sid
         connected_clients.append(client_id)
+
+        # Update live status display
+        update_server_status()
 
         # Send current system state to new client
         emit('status', {
@@ -590,6 +624,10 @@ def handle_disconnect():
         client_id = request.sid
         if client_id in connected_clients:
             connected_clients.remove(client_id)
+
+        # Update live status display
+        update_server_status()
+
         log_message(f'🔌 Client disconnected: {client_id}')
     except Exception as e:
         log_error('WEBSOCKET_ERROR', f'Client disconnect error: {str(e)}', e)
@@ -1032,17 +1070,55 @@ def open_browser(url, delay=2):
     print(f"\n🌐 Opening uDOS in browser: {url}")
     webbrowser.open(url)
 
+def show_rainbow_banner():
+    """Display the uDOS rainbow ASCII banner"""
+    print("")
+    print("\033[0;31m██╗   ██╗\033[0;33m██████╗ \033[0;32m ██████╗ \033[0;36m███████╗\033[0m")
+    print("\033[0;31m██║   ██║\033[0;33m██╔══██╗\033[0;32m██╔═══██╗\033[0;36m██╔════╝\033[0m")
+    print("\033[0;31m██║   ██║\033[0;33m██║  ██║\033[0;32m██║   ██║\033[0;36m███████╗\033[0m")
+    print("\033[0;31m██║   ██║\033[0;33m██║  ██║\033[0;32m██║   ██║\033[0;36m╚════██║\033[0m")
+    print("\033[0;31m╚██████╔╝\033[0;33m██████╔╝\033[0;32m╚██████╔╝\033[0;36m███████║\033[0m")
+    print("\033[0;31m ╚═════╝ \033[0;33m╚═════╝ \033[0;32m ╚═════╝ \033[0;36m╚══════╝\033[0m")
+    print("")
+    print("\033[0;35m▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\033[0m")
+    print("\033[0;35m█\033[1;31m███\033[1;33m███\033[1;32m███\033[1;36m███\033[1;34m███\033[1;35m███\033[0;31m███\033[0;33m███\033[0;32m███\033[0;36m███\033[0;34m███\033[0;35m███\033[1;31m███\033[1;33m███\033[1;32m███\033[1;36m███\033[1;34m███\033[1;35m███\033[0;31m███\033[0;35m█\033[0m")
+    print("\033[0;35m█\033[0;37m Universal Device Operating System v1.0.4.2             \033[0;35m█\033[0m")
+    print("\033[0;35m█\033[0;37m Simple • Lean • Fast • Foundational Architecture     \033[0;35m█\033[0m")
+    print("\033[0;35m█\033[1;31m███\033[1;33m███\033[1;32m███\033[1;36m███\033[1;34m███\033[1;35m███\033[0;31m███\033[0;33m███\033[0;32m███\033[0;36m███\033[0;34m███\033[0;35m███\033[1;31m███\033[1;33m███\033[1;32m███\033[1;36m███\033[1;34m███\033[1;35m███\033[0;31m███\033[0;35m█\033[0m")
+    print("\033[0;35m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\033[0m")
+    print("")
+
+def show_server_status():
+    """Display detailed server status with colors"""
+    print("\033[1;36m╔══════════════════════════════════════════════════════════════════╗\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;32m🚀 uDOS Server v1.0 - {system_status['udos_mode'].title()} Mode\033[0m" + " " * (40 - len(system_status['udos_mode'])) + "\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;33m📁 Root:\033[0m {str(UDOS_ROOT):<50}\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;35m🎭 Role:\033[0m {system_status['udos_mode']} (Level {system_status['access_level']})" + " " * (40 - len(f"{system_status['udos_mode']} (Level {system_status['access_level']})")) + "\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;34m🌐 Server:\033[0m http://127.0.0.1:8080" + " " * 39 + "\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;31m🖥️  UI Integration:\033[0m {str(UI_PATH):<42}\033[1;36m║\033[0m")
+    print("\033[1;36m╠══════════════════════════════════════════════════════════════════╣\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;37m⚡ Status:\033[0m \033[1;32mStarting up...\033[0m" + " " * 42 + "\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;37m🔄 Health:\033[0m \033[1;32m{system_status['health_status'].title()}\033[0m" + " " * (50 - len(system_status['health_status'])) + "\033[1;36m║\033[0m")
+    print(f"\033[1;36m║\033[0m \033[1;37m📊 Clients:\033[0m {len(connected_clients)} connected" + " " * (45 - len(f"{len(connected_clients)} connected")) + "\033[1;36m║\033[0m")
+    print("\033[1;36m╚══════════════════════════════════════════════════════════════════╝\033[0m")
+    print("")
+
 def main():
     """Main entry point - integrated with uDOS launcher"""
     host = os.environ.get('UDOS_SERVER_HOST', '127.0.0.1')
     port = int(os.environ.get('UDOS_SERVER_PORT', '8080'))
     debug_mode = os.environ.get('UDOS_DEBUG', 'false').lower() == 'true'
 
-    print(f"🚀 uDOS Server v1.3.1 - {system_status['udos_mode'].title()} Mode")
-    print(f"📁 uDOS Root: {UDOS_ROOT}")
-    print(f"� Role: {system_status['udos_mode']} (Level {system_status['access_level']})")
-    print(f"🌐 Server: http://{host}:{port}")
-    print(f"🖥️  UI Integration: {UI_PATH}")
+    # Show rainbow banner
+    show_rainbow_banner()
+
+    # Show detailed status
+    show_server_status()
+
+    print(f"\033[1;36m� uSERVER starting...\033[0m")
+    print(f"\033[1;35m🎭 Role: {system_status['udos_mode']}\033[0m")
+    print(f"\033[1;33m🔐 Access Level: {system_status['access_level']}\033[0m")
+    print("")
 
     # Don't auto-open browser - let launcher handle it
     log_message("🔧 uSERVER starting...")
@@ -1050,11 +1126,16 @@ def main():
     log_message(f"🔐 Access Level: {system_status['access_level']}")
 
     try:
+        print("\033[1;32m✅ Starting Flask-SocketIO server...\033[0m")
+        print("\033[1;37m💡 Press Ctrl+C to stop the server\033[0m")
+        print("")
         # Start the server
         socketio.run(app, host=host, port=port, debug=debug_mode, use_reloader=False)
     except KeyboardInterrupt:
+        print("\n\033[1;33m🛑 Server stopped by user\033[0m")
         log_message("🛑 Server stopped by user")
     except Exception as e:
+        print(f"\n\033[1;31m❌ Server failed to start: {e}\033[0m")
         log_message(f"❌ Server error: {e}")
         print(f"❌ Server failed to start: {e}")
         sys.exit(1)

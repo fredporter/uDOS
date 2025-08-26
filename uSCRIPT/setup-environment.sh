@@ -95,6 +95,39 @@ install_dependencies() {
     deactivate
 }
 
+# Setup Node.js environment
+setup_nodejs() {
+    log "Setting up Node.js environment..."
+
+    # Check if Node.js is already available
+    if command -v node >/dev/null 2>&1; then
+        local node_version=$(node --version 2>/dev/null)
+        success "Node.js found: $node_version"
+        return 0
+    fi
+
+    # Check if we're on macOS and have Homebrew
+    if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
+        log "Installing Node.js via Homebrew..."
+        if brew install node; then
+            success "Node.js installed via Homebrew"
+            local node_version=$(node --version 2>/dev/null)
+            local npm_version=$(npm --version 2>/dev/null)
+            success "Node.js: $node_version, npm: $npm_version"
+            return 0
+        else
+            warn "Failed to install Node.js via Homebrew"
+        fi
+    fi
+
+    # Check for system package manager or manual installation
+    warn "Node.js not found. Please install Node.js manually:"
+    warn "  macOS: brew install node"
+    warn "  Linux: apt install nodejs npm (or equivalent)"
+    warn "  Manual: https://nodejs.org/en/download/"
+    return 1
+}
+
 # Verify installation
 verify_installation() {
     log "Verifying installation..."
@@ -115,6 +148,14 @@ verify_installation() {
     done
 
     deactivate
+
+    # Check Node.js if available
+    if command -v node >/dev/null 2>&1; then
+        success "Node.js: $(node --version)"
+        success "npm: $(npm --version)"
+    else
+        warn "Node.js not available - install manually if needed for Tauri development"
+    fi
 
     if [[ $failed -eq 0 ]]; then
         success "All core packages verified successfully"
@@ -180,6 +221,9 @@ main() {
     echo
 
     install_dependencies || exit 1
+    echo
+
+    setup_nodejs
     echo
 
     verify_installation || exit 1
