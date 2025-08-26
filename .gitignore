@@ -15,6 +15,7 @@
 
 # Development workspace (exclude active development)
 dev/active/                     # Active development work (LOCAL ONLY)
+dev/roadmaps/archive/           # Roadmap archives (LOCAL ONLY)
 dev/scripts/maintenance/        # Maintenance scripts (LOCAL ONLY)
 dev/tools/temp/                 # Temporary tools (LOCAL ONLY)
 
