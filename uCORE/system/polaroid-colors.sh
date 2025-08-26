@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS v1.4 Polaroid Color System
+# uDOS v1.0.4.1 Polaroid Color System
 # Centralized color management using tput for maximum terminal compatibility
 # Based on classic Polaroid instant camera aesthetic
 

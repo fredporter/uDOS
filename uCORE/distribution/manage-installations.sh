@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# uDOS v1.3 Multi-Installation Management Script
+#!/bin/bash
+# uDOS v1.0.4.1 Multi-Installation Management Script
 # Manages role-specific installations and permissions
 
 # Colors for output

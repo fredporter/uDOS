@@ -1,6 +1,8 @@
 #!/bin/bash
 # uMAP Core Engine - Earth Tile Location Mapping System
-# uDOS v1.3 - Advanced Geospatial Framework
+#!/bin/bash
+# uCORE Geographic Map Engine v1.0.4.1
+# uDOS v1.0.4.1 - Advanced Geospatial Framework
 
 set -euo pipefail
 

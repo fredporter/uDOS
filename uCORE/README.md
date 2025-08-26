@@ -245,7 +245,7 @@ Enhanced integrations:
 ```ascii
     ╔══════════════════════════════════════════════════════════════════════════════╗
     ║                                                                              ║
-    ║     🌟 uCORE v1.3: Clean Architecture for Sustainable Growth 🌟            ║
+    ║     🌟 uCORE v1.0.4.1: Clean Architecture for Sustainable Growth 🌟       ║
     ║                                                                              ║
     ║   This streamlined core provides a solid foundation for uDOS while          ║
     ║   maintaining simplicity and enabling structured expansion through          ║

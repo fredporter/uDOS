@@ -134,4 +134,4 @@ ghost/
 
 **Security Notice**: This installation provides demonstration access only. All activities are monitored and logged. For full system access, please contact the system administrator for role upgrade.
 
-*Ghost Installation - uDOS v1.3 Multi-Installation Architecture*
+*Ghost Installation - uDOS v1.0.4.1 Multi-Installation Architecture*

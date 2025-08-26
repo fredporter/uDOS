@@ -1,4 +1,4 @@
-# 🏗️ uDOS v1.3 Multi-Installation Architecture
+# 🏗️ uDOS v1.0.4.1 Multi-Installation Architecture
 
 This directory contains role-specific installations for the uDOS system, supporting the 6-tier mystical role hierarchy. Each installation provides a tailored environment with appropriate capabilities and restrictions based on the user's role.
 
@@ -108,4 +108,4 @@ Each installation operates within strict permission boundaries:
 
 ---
 
-*uDOS v1.3 Multi-Installation Architecture - Supporting all mystical roles with appropriate capabilities and security*
+*uDOS v1.0.4.1 Multi-Installation Architecture - Supporting all mystical roles with appropriate capabilities and security*

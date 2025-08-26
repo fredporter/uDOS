@@ -135,7 +135,7 @@ update_specific_version "uCORE/json/src/udataParser.ts" "v1\.0\.0" "uDATA parser
 log_info "🧪 Phase 5: Testing and Color Systems"
 
 # 14. Test scripts
-update_specific_version "uCORE/system/test-terminal-foundation.sh" "v1\.4" "Terminal foundation test version"
+# update_specific_version "uCORE/system/test-terminal-foundation.sh" "v1\.4" "Terminal foundation test version" # MOVED TO TRASH
 
 # 15. Color system
 update_specific_version "uCORE/system/polaroid-colors.sh" "v1\.4" "Polaroid color system version"
