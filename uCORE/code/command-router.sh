@@ -1,7 +1,7 @@
 #!/bin/bash
 # uDOS Command Router v1.0.4.1
 # Central command processing system for uCODE syntax [COMMAND|ACTION*params]
-# Phase 1 Implementation - Core Router with Role-Based Access
+# Phase 2 Implementation - Enhanced Role-Based Access Control
 
 set -euo pipefail
 
@@ -65,12 +65,17 @@ parse_ucode_command() {
 
 # Load current user role
 get_current_role() {
-    local role_file="$UDOS_ROOT/sandbox/current-role.conf"
-
-    if [[ -f "$role_file" ]]; then
-        grep "^ROLE=" "$role_file" 2>/dev/null | cut -d'=' -f2 | tr -d '"' || echo "GHOST"
+    # Use role manager for consistent role handling
+    if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+        "$SCRIPT_DIR/role-manager.sh" get 2>/dev/null | grep "Role:" | cut -d' ' -f2 | tr -d ' \n\r' || echo "GHOST"
     else
-        echo "GHOST"
+        # Fallback to direct file reading
+        local role_file="$UDOS_ROOT/uMEMORY/role/current.txt"
+        if [[ -f "$role_file" ]]; then
+            cat "$role_file" 2>/dev/null | tr -d ' \n\r' | tr '[:lower:]' '[:upper:]' || echo "GHOST"
+        else
+            echo "GHOST"
+        fi
     fi
 }
 
@@ -91,36 +96,103 @@ get_role_level() {
     esac
 }
 
-# Check if role has permission for command
+# Enhanced permission checking with detailed feedback
 check_permission() {
     local command="$1"
     local action="$2"
     local current_role=$(get_current_role)
     local required_level=10  # Default minimum level
+    local required_role=""
 
-    # Command-specific permission requirements
+    # Command-specific permission requirements with enhanced granularity
     case "$command" in
         "ASSIST")
             case "$action" in
-                "ENTER"|"EXIT"|"NEXT") required_level=40 ;;  # DRONE+
-                "FINALIZE"|"ROADMAP") required_level=60 ;;   # IMP+
+                "ENTER"|"EXIT"|"NEXT")
+                    required_level=40
+                    required_role="DRONE"
+                    ;;
+                "FINALIZE"|"ROADMAP")
+                    required_level=60
+                    required_role="IMP"
+                    ;;
+                "STATUS"|"HELP")
+                    required_level=10
+                    required_role="GHOST"
+                    ;;
             esac
             ;;
         "SYSTEM")
             case "$action" in
-                "STATUS"|"HELP") required_level=10 ;;        # GHOST+
-                "CONFIGURE") required_level=80 ;;            # SORCERER+
-                "MODIFY") required_level=100 ;;              # WIZARD only
+                "STATUS"|"HELP"|"INFO")
+                    required_level=10
+                    required_role="GHOST"
+                    ;;
+                "CONFIGURE"|"SETTINGS")
+                    required_level=80
+                    required_role="SORCERER"
+                    ;;
+                "MODIFY"|"CORE")
+                    required_level=100
+                    required_role="WIZARD"
+                    ;;
+                "RESTART"|"MAINTENANCE")
+                    required_level=60
+                    required_role="IMP"
+                    ;;
             esac
             ;;
         "GET"|"SET")
-            required_level=20 ;;  # TOMB+ for variable operations
+            case "$action" in
+                "SYSTEM"|"CORE")
+                    required_level=80
+                    required_role="SORCERER"
+                    ;;
+                *)
+                    required_level=20
+                    required_role="TOMB"
+                    ;;
+            esac
             ;;
         "ROLE")
-            required_level=50 ;;  # KNIGHT+ for role management
+            case "$action" in
+                "GET"|"STATUS")
+                    required_level=10
+                    required_role="GHOST"
+                    ;;
+                "SET"|"CHANGE")
+                    required_level=50
+                    required_role="KNIGHT"
+                    ;;
+                "FORCE"|"ADMIN")
+                    required_level=80
+                    required_role="SORCERER"
+                    ;;
+            esac
+            ;;
+        "DEV"|"DEVELOPMENT")
+            required_level=100
+            required_role="WIZARD"
+            ;;
+        "BACKUP"|"RESTORE")
+            case "$action" in
+                "CREATE"|"LIST")
+                    required_level=30
+                    required_role="CRYPT"
+                    ;;
+                "RESTORE"|"MANAGE")
+                    required_level=50
+                    required_role="KNIGHT"
+                    ;;
+            esac
+            ;;
+        "HELP"|"STATUS"|"INFO")
+            required_level=10
+            required_role="GHOST"
             ;;
         *)
-            required_level=10 ;;  # Default access for most commands
+            required_level=10
+            required_role="GHOST"
             ;;
     esac
 
@@ -129,7 +201,14 @@ check_permission() {
     if (( current_level >= required_level )); then
         return 0
     else
-        log_error "Insufficient permissions. Required: level $required_level, Current: $current_role (level $current_level)"
+        # Enhanced error messaging
+        log_error "Access denied: Insufficient permissions"
+        echo "┌─ Permission Details ─────────────────────"
+        echo "│ Command: $command${action:+|$action}"
+        echo "│ Required: $required_role (Level $required_level+)"
+        echo "│ Current: $current_role (Level $current_level)"
+        echo "│ Action: Use [ROLE|SET*$required_role] to upgrade"
+        echo "└─────────────────────────────────────────"
         return 1
     fi
 }
@@ -252,29 +331,115 @@ handle_system_command() {
     esac
 }
 
-# Handle role commands
+# Handle role commands with enhanced validation
 handle_role_command() {
     local action="$1"
     local params="$2"
     local current_role=$(get_current_role)
 
     case "$action" in
-        "GET"|"")
-            echo "Current role: $current_role (Level $(get_role_level "$current_role"))"
-            ;;
-        "SET")
-            if [[ -n "$params" ]]; then
-                log_info "Role change requested: $current_role → $params"
-                log_warning "Role SET functionality coming in Phase 2"
+        "GET"|"STATUS"|"")
+            # Show comprehensive role status
+            if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                "$SCRIPT_DIR/role-manager.sh" status
             else
-                log_error "Role SET requires parameter"
-                echo "Usage: [ROLE|SET*WIZARD]"
+                echo "Current role: $current_role (Level $(get_role_level "$current_role"))"
+                log_warning "Role manager not found - limited information available"
+            fi
+            ;;
+        "SET"|"CHANGE")
+            if [[ -z "$params" ]]; then
+                log_error "Role SET requires target role parameter"
+                echo "Usage: [ROLE|SET*WIZARD] or [ROLE|SET*DRONE]"
+                if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                    "$SCRIPT_DIR/role-manager.sh" list
+                fi
                 return 1
+            fi
+
+            # Validate and set role using role manager
+            if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                log_info "Processing role change request: $current_role → $params"
+
+                # Check if this is a force operation
+                local force_flag=""
+                if [[ "$params" == *"|FORCE" ]]; then
+                    local target_role="${params%|FORCE}"
+                    force_flag="--force"
+                    log_warning "Force flag detected - bypassing normal role transition checks"
+                else
+                    local target_role="$params"
+                fi
+
+                if "$SCRIPT_DIR/role-manager.sh" set "$target_role" $force_flag; then
+                    log_success "Role successfully changed to $target_role"
+                    # Refresh role in current session
+                    export UDOS_CURRENT_ROLE="$target_role"
+                else
+                    log_error "Role change failed"
+                    return 1
+                fi
+            else
+                log_warning "Role manager not available - using legacy method"
+                log_info "Legacy role change: $current_role → $params"
+
+                # Create simple role file for backward compatibility
+                mkdir -p "$UDOS_ROOT/sandbox"
+                echo "ROLE=\"$params\"" > "$UDOS_ROOT/sandbox/current-role.conf"
+                echo "TIMESTAMP=\"$(date '+%Y-%m-%d %H:%M:%S %Z')\"" >> "$UDOS_ROOT/sandbox/current-role.conf"
+
+                log_success "Role set to $params (legacy mode)"
+            fi
+            ;;
+        "LIST"|"AVAILABLE")
+            # Show available roles
+            if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                "$SCRIPT_DIR/role-manager.sh" list
+            else
+                echo "📋 Available Roles:"
+                echo "  GHOST (10) - Demo installation, read-only access"
+                echo "  TOMB (20) - Basic storage and simple operations"
+                echo "  CRYPT (30) - Secure storage and standard operations"
+                echo "  DRONE (40) - Automation tasks and maintenance"
+                echo "  KNIGHT (50) - Security functions and standard operations"
+                echo "  IMP (60) - Development tools and automation"
+                echo "  SORCERER (80) - Advanced administration and debugging"
+                echo "  WIZARD (100) - Full development access and core system control"
+            fi
+            ;;
+        "CAPABILITIES"|"PERMS")
+            # Show role capabilities
+            local target_role="${params:-$current_role}"
+            if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                "$SCRIPT_DIR/role-manager.sh" capabilities "$target_role"
+            else
+                echo "Role capabilities for $target_role (Level $(get_role_level "$target_role")):"
+                log_warning "Role manager not found - limited capability information"
+            fi
+            ;;
+        "VALIDATE"|"CHECK")
+            # Validate role
+            local target_role="${params:-$current_role}"
+            if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
+                "$SCRIPT_DIR/role-manager.sh" validate "$target_role"
+            else
+                local level=$(get_role_level "$target_role")
+                if [[ $level -gt 0 ]]; then
+                    log_success "Role '$target_role' is valid (Level $level)"
+                else
+                    log_error "Role '$target_role' is invalid"
+                    return 1
+                fi
             fi
             ;;
         *)
             log_error "Unknown ROLE action: $action"
-            echo "Available: GET, SET"
+            echo "Available actions:"
+            echo "  GET/STATUS - Show current role information"
+            echo "  SET*ROLE - Change to specified role"
+            echo "  LIST - Show all available roles"
+            echo "  CAPABILITIES*ROLE - Show role capabilities"
+            echo "  VALIDATE*ROLE - Validate role name"
             return 1
             ;;
     esac
@@ -315,45 +480,198 @@ set_assist_mode() {
     echo "TIMESTAMP=\"$(date '+%Y-%m-%d %H:%M:%S %Z')\"" >> "$assist_file"
 }
 
-# Show system status
+# Show enhanced system status
 show_system_status() {
     local current_role=$(get_current_role)
     local assist_mode=$(get_assist_mode)
+    local role_level=$(get_role_level "$current_role")
 
     echo "═══════════════════════════════════════"
     echo "🎯 uDOS System Status"
     echo "═══════════════════════════════════════"
     echo "Version: 1.0.4.1"
-    echo "Role: $current_role (Level $(get_role_level "$current_role"))"
-    echo "ASSIST Mode: $assist_mode"
-    echo "Command Router: Phase 1 Active"
-    echo "uCODE Syntax: Operational"
+    echo "Command Router: Phase 2 Active"
+    echo "uCODE Syntax: Enhanced"
+    echo ""
+    echo "👤 Session Information:"
+    echo "  Role: $current_role (Level $role_level)"
+    echo "  ASSIST Mode: $assist_mode"
+    echo "  Role Manager: $([ -f "$SCRIPT_DIR/role-manager.sh" ] && echo "Available" || echo "Legacy Mode")"
+    echo ""
+    echo "🔑 Access Summary:"
+
+    # Show quick capability overview based on current role
+    case "$current_role" in
+        "GHOST")
+            echo "  ✅ Basic commands (HELP, STATUS)"
+            echo "  ❌ Variable operations (requires TOMB+)"
+            echo "  ❌ ASSIST mode (requires DRONE+)"
+            echo "  ❌ Role management (requires KNIGHT+)"
+            ;;
+        "TOMB")
+            echo "  ✅ Basic commands, Variable operations"
+            echo "  ❌ ASSIST mode (requires DRONE+)"
+            echo "  ❌ Role management (requires KNIGHT+)"
+            ;;
+        "CRYPT")
+            echo "  ✅ Basic commands, Variable operations"
+            echo "  ✅ Backup operations"
+            echo "  ❌ ASSIST mode (requires DRONE+)"
+            echo "  ❌ Role management (requires KNIGHT+)"
+            ;;
+        "DRONE")
+            echo "  ✅ Basic commands, Variable operations"
+            echo "  ✅ ASSIST basic (ENTER, EXIT, NEXT)"
+            echo "  ❌ Role management (requires KNIGHT+)"
+            echo "  ❌ ASSIST advanced (requires IMP+)"
+            ;;
+        "KNIGHT")
+            echo "  ✅ Basic commands, Variable operations"
+            echo "  ✅ ASSIST basic, Role management"
+            echo "  ❌ ASSIST advanced (requires IMP+)"
+            echo "  ❌ System configuration (requires SORCERER+)"
+            ;;
+        "IMP")
+            echo "  ✅ All basic operations"
+            echo "  ✅ ASSIST advanced (FINALIZE, ROADMAP)"
+            echo "  ❌ System configuration (requires SORCERER+)"
+            echo "  ❌ Core modification (requires WIZARD)"
+            ;;
+        "SORCERER")
+            echo "  ✅ All standard operations"
+            echo "  ✅ System configuration"
+            echo "  ❌ Core modification (requires WIZARD)"
+            ;;
+        "WIZARD")
+            echo "  ✅ Full system access"
+            echo "  ✅ All operations available"
+            echo "  ✅ Core system modification"
+            echo "  ✅ Development environment access"
+            ;;
+    esac
+
+    echo ""
+    echo "🚀 Phase 2 Features:"
+    echo "  ✅ Enhanced role validation"
+    echo "  ✅ Detailed permission feedback"
+    echo "  ✅ Role transition management"
+    echo "  ✅ Comprehensive help system"
+    echo "  ✅ Role capability analysis"
     echo "═══════════════════════════════════════"
 }
 
-# Show general help
+# Show general help with Phase 2 enhancements
 show_general_help() {
-    echo "🚀 uDOS Command Router - uCODE Syntax v1.0.4.1"
+    local current_role=$(get_current_role)
+    local current_level=$(get_role_level "$current_role")
+
+    echo "🚀 uDOS Command Router - uCODE Syntax v1.0.4.1 (Phase 2)"
     echo "Format: [COMMAND|ACTION*params]"
     echo ""
-    echo "📋 Available Commands:"
-    echo "  [ASSIST|ENTER]       - Activate ASSIST mode (DRONE+)"
-    echo "  [ASSIST|EXIT]        - Deactivate ASSIST mode (DRONE+)"
-    echo "  [ASSIST|FINALIZE]    - Auto-commit session (IMP+)"
-    echo "  [ASSIST|NEXT]        - Get next task recommendation (DRONE+)"
-    echo "  [ASSIST|ROADMAP]     - Update roadmap progress (IMP+)"
-    echo "  [SYSTEM|STATUS]      - Show system status (GHOST+)"
-    echo "  [SYSTEM|HELP]        - Show system help (GHOST+)"
-    echo "  [ROLE|GET]           - Show current role (KNIGHT+)"
-    echo "  [ROLE|SET*WIZARD]    - Set role (KNIGHT+)"
-    echo "  [GET|variable]       - Get variable value (TOMB+)"
-    echo "  [SET|variable*value] - Set variable value (TOMB+)"
-    echo "  [HELP]               - Show this help (GHOST+)"
+    echo "� Current Session: $current_role (Level $current_level)"
     echo ""
-    echo "📖 Examples:"
+    echo "�📋 Available Commands (Role Requirements):"
+
+    # Basic commands (all roles)
+    echo "┌─ Basic Commands (GHOST+) ─────────────────"
+    echo "│ [HELP]               - Show this help"
+    echo "│ [SYSTEM|STATUS]      - Show system status"
+    echo "│ [SYSTEM|HELP]        - Show system help"
+    echo "│ [ROLE|GET]           - Show current role"
+    echo "└─────────────────────────────────────────"
+
+    # Variable operations (TOMB+)
+    if [[ $current_level -ge 20 ]]; then
+        echo "┌─ Variable Operations (TOMB+) ─────────────"
+        echo "│ [GET|variable]       - Get variable value"
+        echo "│ [SET|variable*value] - Set variable value"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ Variable Operations (TOMB+ required) ────"
+        echo "│ [GET|variable]       - ❌ Requires TOMB+"
+        echo "│ [SET|variable*value] - ❌ Requires TOMB+"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    # ASSIST basic (DRONE+)
+    if [[ $current_level -ge 40 ]]; then
+        echo "┌─ ASSIST Basic (DRONE+) ───────────────────"
+        echo "│ [ASSIST|ENTER]       - Activate ASSIST mode"
+        echo "│ [ASSIST|EXIT]        - Deactivate ASSIST mode"
+        echo "│ [ASSIST|NEXT]        - Get next task recommendation"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ ASSIST Basic (DRONE+ required) ──────────"
+        echo "│ [ASSIST|ENTER]       - ❌ Requires DRONE+"
+        echo "│ [ASSIST|EXIT]        - ❌ Requires DRONE+"
+        echo "│ [ASSIST|NEXT]        - ❌ Requires DRONE+"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    # Role management (KNIGHT+)
+    if [[ $current_level -ge 50 ]]; then
+        echo "┌─ Role Management (KNIGHT+) ───────────────"
+        echo "│ [ROLE|SET*WIZARD]    - Change to specified role"
+        echo "│ [ROLE|LIST]          - List all available roles"
+        echo "│ [ROLE|CAPABILITIES]  - Show role capabilities"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ Role Management (KNIGHT+ required) ──────"
+        echo "│ [ROLE|SET*WIZARD]    - ❌ Requires KNIGHT+"
+        echo "│ [ROLE|LIST]          - ❌ Requires KNIGHT+"
+        echo "│ [ROLE|CAPABILITIES]  - ❌ Requires KNIGHT+"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    # ASSIST advanced (IMP+)
+    if [[ $current_level -ge 60 ]]; then
+        echo "┌─ ASSIST Advanced (IMP+) ──────────────────"
+        echo "│ [ASSIST|FINALIZE]    - Auto-commit session"
+        echo "│ [ASSIST|ROADMAP]     - Update roadmap progress"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ ASSIST Advanced (IMP+ required) ─────────"
+        echo "│ [ASSIST|FINALIZE]    - ❌ Requires IMP+"
+        echo "│ [ASSIST|ROADMAP]     - ❌ Requires IMP+"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    # System configuration (SORCERER+)
+    if [[ $current_level -ge 80 ]]; then
+        echo "┌─ System Configuration (SORCERER+) ────────"
+        echo "│ [SYSTEM|CONFIGURE]   - Configure system settings"
+        echo "│ [GET|SYSTEM*setting] - Get system variables"
+        echo "│ [SET|SYSTEM*value]   - Set system variables"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ System Configuration (SORCERER+ req'd) ──"
+        echo "│ [SYSTEM|CONFIGURE]   - ❌ Requires SORCERER+"
+        echo "│ [GET|SYSTEM*setting] - ❌ Requires SORCERER+"
+        echo "│ [SET|SYSTEM*value]   - ❌ Requires SORCERER+"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    # Core system modification (WIZARD only)
+    if [[ $current_level -ge 100 ]]; then
+        echo "┌─ Core System Modification (WIZARD) ───────"
+        echo "│ [SYSTEM|MODIFY]      - Modify core system"
+        echo "│ [DEV|ACCESS]         - Access dev environment"
+        echo "└─────────────────────────────────────────"
+    else
+        echo "┌─ Core System Modification (WIZARD req'd) ─"
+        echo "│ [SYSTEM|MODIFY]      - ❌ Requires WIZARD"
+        echo "│ [DEV|ACCESS]         - ❌ Requires WIZARD"
+        echo "└─────────────────────────────────────────"
+    fi
+
+    echo ""
+    echo "📖 Usage Examples:"
     echo "  ./command-router.sh \"[SYSTEM|STATUS]\""
+    echo "  ./command-router.sh \"[ROLE|SET*WIZARD]\""
     echo "  ./command-router.sh \"[ASSIST|ENTER]\""
     echo "  ./command-router.sh \"[SET|USER-NAME*John]\""
+    echo ""
+    echo "🔑 Role Upgrade: Use [ROLE|SET*HIGHER_ROLE] to access more commands"
 }
 
 # Show system help
