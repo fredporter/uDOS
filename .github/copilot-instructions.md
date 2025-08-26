@@ -1,11 +1,14 @@
-# uDOS AI Coding Agent Instructions
-
-## Overview
+# uDOS AI Coding Agent Instruct### uCORE Command Updates
+- **GET**: Seeking $variable data to complete STORY document/uDATA file (equivalent to BASIC INPUT)
+- **SET**: Setting $variable with absolute value using command with options
+  - Example: `[SET $TIME-LOCAL|CLOCK*AEST,HH=07,MM=22]`
+- **STORY**: Interactive data collection using GET commands
+- **Templates**: Use {VARIABLE} syntax for substitution in .template.md filesOverview
 uDOS (Universal Device Operating System) is a modular, role-based system providing a unified interface across CLI Terminal, Desktop Application, and Web Export modes. This document guides AI coding agents in understanding the architecture, conventions, and development patterns specific to this codebase.
 
-**Current Development Stage**: v1.0.4.1 - Building toward first stable release
-**Philosophy**: Simple, lean, fast - foundational system design
-**Documentation**: Living documents without version numbers in filenames
+**Current Development Stage**: v1.0.4 - Building foundational system capabilities
+**Philosophy**: Simple, lean, fast - basic system design
+**Versioning**: Minimal version inflation - prefer descriptive names over version numbers
 
 ## 🏗️ Architecture Overview
 
@@ -20,14 +23,14 @@ uDOS (Universal Device Operating System) is a modular, role-based system providi
 - **dev**: Core development environment (wizard role + DEV mode only)
 
 ### Critical Architecture Principles
-1. **Data Separation**: uCORE contains system code, sandbox contains active work and logging
+1. **Data Separation**: uCORE contains system code, sandbox contains active work, logging, trash, and backups
 2. **Role-Based Development**: Core development (/dev) requires wizard role + DEV mode
 3. **Workspace Separation**: sandbox (active/flushable) vs uMEMORY (permanent archive)
 4. **Three-Mode Display**: CLI Terminal, Desktop Application, Web Export compatibility
 5. **Backward Compatibility**: uCORE→uSCRIPT→uNETWORK layer ensures older machine support
 6. **Tool Location Strategy**: System tools in uCORE, test/run scripts in sandbox, dev tools in /dev
 7. **Startup Experience**: Retro rainbow ASCII banner displays on help/status/startup commands
-8. **File Hygiene**: Always move .old files to /trash with timestamps - never leave orphaned files
+8. **File Hygiene**: Always move .old files to sandbox/trash with timestamps - never leave orphaned files
 
 ## 🧙‍♂️ uCODE Programming Language
 
@@ -90,6 +93,17 @@ uDOS uses ASCII art extensively for headers, diagrams, and visual elements:
 - **Roles**: Title Case (Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard)
 - **Files**: Clean naming without version numbers in filenames
 
+### Date and Time Standards
+**Visual Display (Human-Readable):**
+- **Dates**: Day Month Year (e.g., "26 August 2025")
+- **Times**: HH:MM AM/PM Local TZ (e.g., "3:45 PM AEST")
+
+**Code/Filenames (Machine-Readable):**
+- **Dates**: YYYYMMDD (e.g., "20250826")
+- **Times**: HHMMSSTZCODE (e.g., "154500AEST")
+- **Combined**: category-YYYYMMDD-HHMMSSTZCODE/ (e.g., "backup-20250826-154500AEST/")
+- **Storage**: Always actual local time with full timezone code for reference
+
 ### Terminal Color Palettes
 uDOS includes 8 complete terminal color palettes (128 total colors):
 
@@ -120,8 +134,9 @@ Configuration: `/uMEMORY/system/uDATA-colours.json` with tput/ANSI support
 - Integration: Automatic display before installation/user setup checks
 
 ### File Management Rules
-- **Always move .old files to /trash**: Never leave orphaned .old files in the system
-- **Timestamp trash directories**: Use format `trash/category-YYYYMMDD-HHMMSS/`
+- **Always move .old files to sandbox/trash**: Never leave orphaned .old files in the system
+- **Timestamp trash directories**: Use format `sandbox/trash/category-YYYYMMDD-HHMMSSTZCODE/`
+- **Install script location**: `/install.sh` in repository root for GitHub distribution
 - **Documentation migration**: uDOC files moved from system/get to /docs with integration
 - **Clean architecture**: Remove obsolete files to maintain system clarity
 
@@ -182,6 +197,8 @@ uMEMORY/
 
 sandbox/
 ├── logs/           # All system and user logging
+├── trash/          # All deleted files with timestamps
+├── backup/         # System and user backups
 ├── sessions/       # Current session data
 ├── tasks/          # Task management
 ├── scripts/        # Temporary scripts
@@ -196,11 +213,12 @@ dev/                # Core development (wizard + DEV mode only)
 └── vscode/         # VS Code development configs
 ```
 
-### Naming Conventions
-- **Scripts**: kebab-case with descriptive names (`workflow-manager.sh`)
-- **Log Files**: uLOG format with timestamps (`uLOG-20250825-123456-Summary.md`)
-- **Configuration**: JSON format with .json extension
-- **Templates**: Descriptive names with purpose (`task-template.md`)
+### File Naming Standards
+- **Scripts**: `word.sh` or `word1_word2.sh` (underscores, not dashes)
+- **Python**: `word.py` or `word1_word2.py` (underscores, not dashes)
+- **Avoid**: Version numbers in filenames, "enhanced", "advanced", "clean" prefixes
+- **Prefer**: Simple, descriptive names (setup.sh, startup.sh, backup.sh)
+- **Keep**: 1-2 word descriptions where possible
 
 ## 🔧 Code Patterns and Conventions
 

@@ -7,7 +7,7 @@ set -euo pipefail
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-VARIABLE_MANAGER="$UDOS_ROOT/uCORE/core/variable-manager.sh"
+VARIABLE_MANAGER="$UDOS_ROOT/uCORE/code/variable-manager.sh"
 
 # Source the variable manager functions
 source "$VARIABLE_MANAGER"

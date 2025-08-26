@@ -1,219 +1,69 @@
-# uDOS Documentation Library
+# uDOS Documentation
+Comprehensive documentation for v1.0.4.1 system
 
-**Universal Device Operating System - Complete Documentation Suite**
+## Core Documentation
 
-```
-██████   ██████   ██████ ███████
-██   ██ ██    ██ ██      ██
-██   ██ ██    ██ ██      ███████
-██   ██ ██    ██ ██           ██
-██████   ██████   ██████ ███████
-```
+### System Architecture
+- **ARCHITECTURE.md** - Complete system design and role capabilities
+- **DATA-SYSTEM.md** - Variable management, GET forms, and uDATA configuration
+- **DISPLAY-SYSTEM.md** - Grid layout, input handling, and interface elements
 
-*Universal Device Operating System*
+### User Documentation
+- **USER-GUIDE.md** - End user instructions and workflows
+- **USER-COMMAND-MANUAL.md** - Complete command reference and syntax
+- **TEMPLATES.md** - Template system and file generation
 
-**Version**: 1.0.4.1
-**Updated**: August 26, 2025
-**Purpose**: Development reference + Distributed user documentation
-**Architecture**: Foundational system design with data separation
-**Roles**: 8-tier system (Ghost→Wizard) with clean access control
+### Development Reference
+- **STYLE-GUIDE.md** - Code and documentation standards
+- **QUICK-STYLES.md** - Quick reference for naming and formatting
 
-This documentation library serves dual purposes: development reference for the uDOS team and distributed user documentation. All docs respect the 8-role hierarchy and maintain foundational v1.0.4.1 approach.
+## Documentation Structure
 
----
+### Consolidated Design
+This documentation has been streamlined from 15+ overlapping files to 9 focused documents:
 
-## 📚 **Core Documentation**
+**System Design:**
+- ARCHITECTURE.md (includes role capabilities)
+- DATA-SYSTEM.md (combines variable, GET, and uDATA systems)
+- DISPLAY-SYSTEM.md (combines input and grid systems)
 
-### [ARCHITECTURE.md](ARCHITECTURE.md)
-Complete system architecture with foundational design principles:
-- Data separation philosophy (uCORE system code, sandbox active work, uMEMORY permanent storage)
-- Three-mode display system (CLI Terminal, Desktop Application, Web Export)
-- 8-role hierarchy with integrated user authentication system
-- Modular extension system and compatibility frameworks
+**User Reference:**
+- USER-GUIDE.md (workflows and getting started)
+- USER-COMMAND-MANUAL.md (complete command syntax)
+- TEMPLATES.md (file generation system)
 
-### [DATA-SYSTEM.md](DATA-SYSTEM.md)
-uDATA system configuration and management:
-- JSON-based configuration with enhanced parsing
-- User authentication data structures
-- System configuration patterns
-- Data templates and validation
+**Development:**
+- STYLE-GUIDE.md (comprehensive standards)
+- QUICK-STYLES.md (quick reference)
 
-### [GRID-DISPLAY.md](GRID-DISPLAY.md)
-uGRID display system specifications:
-- Grid-based layout framework
-- Responsive design patterns
-- Terminal and web compatibility
-- Display optimization guidelines
+### File Locations
+- **All trash**: `/sandbox/trash/category-YYYYMMDD-HHMMSSTZCODE/`
+- **All backups**: `/sandbox/backup/`
+- **All logs**: `/sandbox/logs/`
+- **Install script**: Root folder (`/install.sh`) for GitHub distribution
 
-### [INPUT-SYSTEM.md](INPUT-SYSTEM.md)
-Smart input system documentation:
-- Interactive command processing
-- Input validation and parsing
-- Context-aware suggestions
-- Multi-mode input handling
+## Date and Time Format
 
-### [QUICK-STYLES.md](QUICK-STYLES.md)
-Essential style reference for developers:
-- uCODE syntax quick reference
-- ASCII art guidelines (8-character limit)
-- Terminal color palettes (8 complete schemes)
-- Naming conventions and patterns
+### Visual Display (Human-Readable)
+- **Dates**: 26 August 2025
+- **Times**: 3:45 PM AEST
 
-### [STYLE-GUIDE.md](STYLE-GUIDE.md)
-Comprehensive development standards:
-- Code formatting and conventions
-- Documentation standards
-- File organization patterns
-- Role-based design guidelines
+### Code/Filenames (Machine-Readable)
+- **Dates**: 20250826
+- **Times**: 154500AEST
+- **Combined**: category-20250826-154500AEST/
 
-### [TEMPLATES.md](TEMPLATES.md)
-Template standards and examples:
-- Development template patterns
-- Configuration templates
-- Documentation templates
-- Extension development templates
+## Quick Navigation
 
-### [USER-COMMAND-MANUAL.md](USER-COMMAND-MANUAL.md)
-Complete uCODE command reference:
-- Command syntax and examples
-- Role-based command access
-- Data operation commands
-- System administration commands
+### For New Users
+1. Start with **USER-GUIDE.md** for basic workflows
+2. Reference **USER-COMMAND-MANUAL.md** for command syntax
+3. Use **TEMPLATES.md** for file generation
 
-### [USER-GUIDE.md](USER-GUIDE.md)
-End user documentation:
-- Getting started guide
-- Role system overview
-- Basic operations tutorial
-- Common workflows and examples
+### For Developers
+1. Begin with **ARCHITECTURE.md** for system design
+2. Follow **STYLE-GUIDE.md** for coding standards
+3. Reference **DATA-SYSTEM.md** and **DISPLAY-SYSTEM.md** for implementation
 
 ---
-
-## 🤖 **AI Development Assistant**
-
-### GitHub Copilot Instructions
-Complete AI assistant context available at:
-**`.github/copilot-instructions.md`**
-
-This comprehensive guide provides AI coding agents with:
-- **Architecture Overview**: Core modules, design principles, and development workflows
-- **uCODE Programming Language**: Command syntax, patterns, and data operations
-- **Style Guidelines**: Quick reference for naming, formatting, and conventions
-- **Development Workflows**: VS Code integration, task management, and testing
-- **Role-Based Development**: 8-tier system with permission patterns
-- **File Organization**: Directory structure and naming conventions
-- **Code Patterns**: Bash scripting standards, Python server patterns, JSON configuration
-- **Extension Development**: Structure, integration points, and best practices
-
-The copilot instructions serve as the definitive reference for maintaining consistency with established patterns and architectural principles throughout the uDOS codebase.
-
----
-
-## 🎯 **Quick Access**
-
-### Essential Commands
-```bash
-# View documentation
-./uCORE/code/ucode.sh [HELP]                    # General help
-./uCORE/code/ucode.sh [HELP] [MEMORY]           # Specific command help
-./uCORE/code/ucode.sh "[DASHBOARD] SHOW"        # Quick system overview
-
-# Documentation tools
-./uCORE/code/ucode.sh "[DOCS] SEARCH keyword"   # Search documentation
-./uCORE/code/ucode.sh "[DOCS] INDEX"            # Documentation index
-```
-
-### Learning Paths by Role
-
-**🧙‍♂️ Wizard (System Administrator)**
-```
-1. ARCHITECTURE.md → System design mastery
-2. USER-COMMAND-MANUAL.md → Complete command reference
-3. STYLE-GUIDE.md → Development standards
-4. DATA-SYSTEM.md → Configuration mastery
-```
-
-**🔮 Sorcerer (Extension Developer)**
-```
-1. USER-COMMAND-MANUAL.md → Command mastery
-2. TEMPLATES.md → Development standards
-3. GRID-DISPLAY.md → Display system
-4. INPUT-SYSTEM.md → Advanced features
-```
-
-**⚔️ Knight (Power User)**
-```
-1. USER-GUIDE.md → Foundation
-2. USER-COMMAND-MANUAL.md → Command practice
-3. QUICK-STYLES.md → Quick reference
-4. ARCHITECTURE.md → System understanding
-```
-
-**👤 Ghost-Tomb-Crypt-Drone (Standard Users)**
-```
-1. USER-GUIDE.md → Getting started
-2. USER-COMMAND-MANUAL.md → Basic commands
-3. QUICK-STYLES.md → Style reference
-```
-
----
-
-## � **Documentation Metrics**
-
-### Current Structure
-- **Total Documents**: 9 focused files (streamlined from previous 12-13)
-- **Core Architecture**: 4 technical documents (ARCHITECTURE, DATA-SYSTEM, GRID-DISPLAY, INPUT-SYSTEM)
-- **User Reference**: 2 command and guide documents (USER-COMMAND-MANUAL, USER-GUIDE)
-- **Development Standards**: 3 style and template documents (STYLE-GUIDE, QUICK-STYLES, TEMPLATES)
-
-### Quality Standards
-- **Version Control**: All documents aligned to foundational v1.0.4.1 approach
-- **ASCII Art**: Standardized headers across all major documents
-- **Cross-References**: Extensive linking between related documents
-- **Role-Based Access**: Clear content organization for 8-tier role system
-- **Foundational Approach**: Simple, lean, fast documentation principles
-
----
-
-## 🔧 **Development Tools**
-
-### VS Code Integration
-Available tasks for documentation workflows:
-- **🚀 Start uDOS Development**: Launch development environment
-- **📊 Generate Dashboard**: Create system overview
-- **� Check Installation**: Validate system status
-- **🧪 Run Quick Tests**: Execute system tests
-
-### Documentation Commands
-```bash
-# Create new documentation
-./uCORE/code/ucode.sh "[DOCS] CREATE template-name"
-
-# Edit existing documentation
-./uCORE/code/ucode.sh "[DOCS] EDIT document-name"
-
-# Validate documentation structure
-./uCORE/code/ucode.sh "[DOCS] VALIDATE"
-```
-
----
-
-```
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║     🌟 Complete uDOS v1.0.4.1 Documentation Library 🌟                     ║
-║                                                                              ║
-║   Foundational system design with clean, focused documentation              ║
-║   Role-based access • ASCII art standards • Development integration         ║
-║   Simple, lean, fast - everything needed for productive daily use           ║
-║                                                                              ║
-║          📚 Learn, Reference, Master - Documentation Done Right 📚          ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-```
-
----
-
-*uDOS Documentation Library v1.0.4.1*
-*Foundational System Design*
-*August 26, 2025*
+*uDOS v1.0.4.1 Documentation - Simple, lean, fast*

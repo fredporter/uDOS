@@ -1,12 +1,12 @@
 #!/bin/bash
-# uDOS v1.4 Universal Installer
+# uDOS v1.0.4.1 Universal Installer
 # Clean distribution with role-based installation system
 
 set -euo pipefail
 
 # Configuration
 readonly UDOS_GIT_URL="https://github.com/fredporter/uDOS.git"
-readonly UDOS_VERSION="1.4.0"
+readonly UDOS_VERSION="1.0.4.1"
 readonly INSTALL_DIR="$HOME/uDOS"
 
 # Polaroid Colors — Foreground + Background (xterm-256 with ANSI fallback)

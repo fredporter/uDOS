@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "name": "installation-setup",
+        "title": "uDOS Installation Configuration",
+        "type": "story",
+        "created": "2025-08-26T00:00:00Z"
+    },
+    "story": {
+        "introduction": "Let's configure your uDOS installation with the appropriate settings for your environment.",
+        "context": "This will set up your installation profile, security settings, and system configuration.",
+        "purpose": "Create installation.md with proper system variables"
+    },
+    "variables": [
+        {
+            "name": "INSTALLATION-TYPE",
+            "type": "string",
+            "description": "Type of installation",
+            "required": true,
+            "values": ["personal", "team", "enterprise", "development"],
+            "prompt": "What type of uDOS installation is this?",
+            "help": "Personal for individual use, Team for small groups, Enterprise for organizations"
+        },
+        {
+            "name": "SECURITY-LEVEL",
+            "type": "string",
+            "description": "Security configuration level",
+            "required": true,
+            "values": ["basic", "standard", "enhanced", "maximum"],
+            "prompt": "What security level do you need?",
+            "help": "Basic for learning, Standard for most users, Enhanced for sensitive work"
+        },
+        {
+            "name": "INSTALLATION-LIFESPAN",
+            "type": "string",
+            "description": "Expected installation duration",
+            "required": true,
+            "values": ["3 months", "6 months", "12 months", "24 months", "permanent"],
+            "prompt": "How long will you use this installation?",
+            "help": "This helps with backup retention and cleanup scheduling"
+        },
+        {
+            "name": "MULTI-USER",
+            "type": "string",
+            "description": "Multi-user support",
+            "required": true,
+            "values": ["true", "false"],
+            "prompt": "Will multiple users access this installation?",
+            "help": "Affects user management and security settings"
+        },
+        {
+            "name": "NETWORK-MODE",
+            "type": "string",
+            "description": "Network configuration",
+            "required": true,
+            "values": ["local", "shared", "remote", "isolated"],
+            "prompt": "What network access do you need?",
+            "help": "Local for single machine, Shared for network access, Remote for internet"
+        }
+    ],
+    "flow": {
+        "sequential": true,
+        "allow_skip": false,
+        "validate_each": true
+    }
+}

@@ -1,54 +1,196 @@
-# uDOS Architecture Guide
+# uDOS Architecture
+System design and role capabilities for v1.0.4
 
----
-**Foreword**
-
-This Architecture Guide explains how uDOS is organized with its clean, modular design. Written in the style of early home computer manuals, it avoids jargon and gives you a clear picture of how the system fits together with its data separation architecture and multi-mode interface system.
-
-**Notes**
-
-This guide is presented in a clear and practical style, inspired by the Acorn 1981 User Manual. It is meant to be studied alongside the User Guide and uCODE Command Reference Manual, giving you both a quick start and a deeper understanding of the system's design.
-
-For detailed command syntax and examples, refer to the uCODE Command Reference Manual which documents the complete CAPITALS-DASH-NUMBER syntax and PIPE | option system. The system provides clean data separation between system code, active workspace, and permanent archives while maintaining compatibility across different machine capabilities.
-
----
-
-## System Overview
-
-uDOS provides a clean, modular architecture with three core principles: data separation, multi-mode interface compatibility, and role-based access control. The system clearly separates system code (uCORE), active workspace (sandbox), and permanent archives (uMEMORY).
-
-### Three-Mode Display Architecture
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│  CLI Terminal   │    │ Desktop App      │    │  Web Export     │
-│  (All Roles)    │    │ (Crypt+ Roles)   │    │ (Crypt+ Roles)  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────────┐
-                    │ Role-Based Access   │
-                    │ Ghost → Wizard      │
-                    └─────────────────────┘
-```
-
-### Data Flow Architecture
-```
-Active Workspace (sandbox/)     System Code (uCORE/)     Permanent Archive (uMEMORY/)
-├── logs/ (All logging)         ├── core/ (Essential)     ├── user/ (User data)
-├── sessions/ (Current)    ←──→ ├── launcher/ (Platform) ←──→ ├── role/ (Configs)
-├── scripts/ (Temporary)        └── system/ (Utilities)   └── templates/ (Data)
-├── experiments/                          │
-└── tasks/                                ▼
-                                dev/ (Core Development)
-                                ├── active/ (Local only)
-                                ├── templates/ (Synced)
-                                └── docs/ (Synced)
-```
-
----
+## Overview
+uDOS provides a clean, modular architecture with data separation and role-based access:
+- **uCORE**: System code and core functionality
+- **sandbox**: Active workspace and temporary files
+- **uMEMORY**: Permanent user data and configuration
+- **8-Role System**: Progressive capabilities from GHOST to WIZARD
 
 ## Core Components
+
+### uCORE (System Code)
+```
+uCORE/
+├── code/          # Core scripts (setup.sh, startup.sh, variable-manager.sh)
+├── launcher/      # Platform-specific launchers
+├── templates/     # System templates
+└── system/        # System utilities
+```
+
+### sandbox (Active Workspace)
+```
+sandbox/
+├── user.md           # User profile
+├── current-role.conf # Role configuration
+├── logs/            # All system logging
+├── scripts/         # Temporary scripts
+└── sessions/        # Current session data
+```
+
+### uMEMORY (Permanent Storage)
+```
+uMEMORY/
+├── user/            # User data (installation.md)
+├── system/          # System configuration (uDATA files)
+└── templates/       # Data templates
+```
+
+## Role-Based System
+
+### 8-Role Hierarchy
+Progressive capability model from basic to advanced:
+
+1. **GHOST (Level 10)** - Demo installation, read-only access
+2. **TOMB (Level 20)** - Archive access, data archaeology
+3. **CRYPT (Level 30)** - Encryption, security protocols
+4. **DRONE (Level 40)** - Automation, maintenance tasks
+5. **KNIGHT (Level 50)** - Security functions, standard operations
+6. **IMP (Level 60)** - Development tools, automation
+7. **SORCERER (Level 80)** - Advanced administration, debugging
+8. **WIZARD (Level 100)** - Full system access, core development
+
+### Role Capabilities
+
+#### GHOST (Demo)
+- Read-only access
+- Basic tutorials
+- Sandbox experimentation
+- Demo interface
+
+**Commands**: `[SYS|STATUS]`, `[ROLE|CURRENT]`, `[ASSIST|ENTER]`
+
+#### DRONE (Automation)
+- Task automation
+- Maintenance operations
+- Script execution
+- Workflow management
+
+**Commands**: `[TASK|CREATE]`, `[SCRIPT|RUN]`, `[MAINTAIN|SYSTEM]`
+
+#### WIZARD (Full Access)
+- Complete system control
+- Core development access
+- All functionality available
+- `/dev` folder access
+
+**Commands**: All commands, `[DEV|ACCESS]`, `[SYSTEM|MODIFY]`
+
+### Access Matrix
+| Role | sandbox | uMEMORY | uCORE | /dev |
+|------|---------|---------|-------|------|
+| GHOST | demo | none | none | none |
+| DRONE | read/write | read | limited | none |
+| WIZARD | full | full | full | full |
+
+## Data Flow
+
+### System Startup
+1. Load role configuration (`sandbox/current-role.conf`)
+2. Check user profile (`sandbox/user.md`)
+3. Load system variables
+4. Initialize role-appropriate interface
+
+### Variable System
+- System variables: `$USER-ROLE`, `$DISPLAY-MODE`
+- User variables: Custom definitions with validation
+- STORY collection: Interactive data gathering
+- Template processing: `{VARIABLE}` substitution
+
+### Command Processing
+```
+[COMMAND|ACTION*PARAMETER] → Router → Role Check → Execute
+```
+
+## Development Environment
+
+### /dev Folder (Wizard + DEV Mode Only)
+```
+dev/
+├── active/       # Current development (local only)
+├── templates/    # Development templates (synced)
+├── docs/         # Architecture docs (synced)
+└── scripts/      # Development scripts
+```
+
+### Extension System
+```
+extensions/
+├── core/         # System extensions
+├── platform/     # Platform-specific
+└── user/         # User extensions
+```
+
+## Multi-Mode Display
+
+### Interface Modes
+- **CLI**: Terminal interface (all roles)
+- **DESKTOP**: Native application (Crypt+ roles)
+- **WEB**: Browser interface (Crypt+ roles)
+
+### Grid System (uGRID)
+- 16×16 pixel cells (uCELL)
+- Coordinate-based positioning (uMAP)
+- Scalable from wearable to wallboard
+- ASCII-based rendering
+
+## File Organization
+
+### Configuration
+- System config: `/uMEMORY/system/uDATA-*.json`
+- User settings: `/sandbox/user.md`
+- Role config: `/sandbox/current-role.conf`
+
+### Templates
+- System: `/uMEMORY/templates/*.template.md`
+- User: `/sandbox/templates/*.template.md`
+
+### Scripts
+- Core: `/uCORE/code/*.sh`
+- User: `/sandbox/scripts/*.sh`
+
+## Integration Points
+
+### Variable Integration
+- Command variables: `[SET $USER-ROLE|WIZARD]`
+- Template variables: `{DEVELOPER-NAME}`
+- System variables: Loaded on startup
+
+### Command Integration
+- Router: `/uCORE/code/command-router.sh`
+- Variables: `/uCORE/code/variable-manager.sh`
+- Setup: `/uCORE/code/setup.sh`
+
+### Platform Integration
+- Launchers: `/uCORE/launcher/`
+- Scripts: `/uSCRIPT/`
+- Network: `/uNETWORK/`
+
+## Design Principles
+
+### Simplicity
+- Clean file structure
+- Minimal dependencies
+- Basic functionality first
+
+### Modularity
+- Separate concerns
+- Clear interfaces
+- Independent components
+
+### Compatibility
+- Cross-platform support
+- Multiple interface modes
+- Backward compatibility
+
+### Security
+- Role-based access
+- Data separation
+- Secure defaults
+
+---
+*uDOS v1.0.4 - Simple, lean, fast*
 
 ### uCORE - System Foundation
 The heart of uDOS containing all system code and essential functionality:
