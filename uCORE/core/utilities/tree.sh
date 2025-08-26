@@ -1,92 +1,137 @@
 #!/bin/bash
-# uCODE: TREE - Generate repository structure and move old to trash
+# uCODE: TREE - Generate directory structure
+# Usage: TREE [DEV] - Standard mode saves to sandbox/logs, DEV mode creates repo_structure.txt
 set -euo pipefail
 
 # Colors
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Get uDOS root directory (go up 3 levels from utilities)
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-REPO_STRUCTURE_FILE="$UDOS_ROOT/repo_structure.txt"
 
-# Function to generate simple ASCII tree structure
-generate_simple_tree() {
-    local target="${1:-$UDOS_ROOT}"
+# Check if DEV mode (creates repo_structure.txt in root based on git contents)
+if [ "${1:-}" == "DEV" ]; then
+    echo -e "${CYAN}🌳 TREE DEV: Generating repository structure from git contents...${NC}"
 
-    if command -v tree >/dev/null 2>&1; then
-        # Use tree command with simple options
-        tree -a -L 4 --dirsfirst -I '.git|node_modules|*.log|*.tmp|.DS_Store|__pycache__|*.pyc|originals' "$target"
-    else
-        # Simple find-based fallback
-        (
-            cd "$target"
-            echo "$(basename "$target")/"
-
-            find . -type d -name '.git' -prune -o -name 'node_modules' -prune -o -name '*.log' -prune -o -name 'originals' -prune -o -type d -print |
-            grep -v '^\.$' |
-            sed 's|^\./||' |
-            sort |
-            while IFS= read -r dir; do
-                if [ -z "$dir" ]; then continue; fi
-
-                # Count directory depth and get directory name
-                depth=$(echo "$dir" | tr -cd '/' | wc -c)
-                dirname=$(basename "$dir")
-
-                # Simple indentation with spaces
-                printf '%*s├── %s/\n' $((depth * 4)) '' "$dirname"
-            done
-
-            echo ""
-            echo "Key files:"
-            find . -maxdepth 1 -type f \( -name "*.md" -o -name "*.txt" -o -name "*.json" -o -name "*.sh" \) |
-            grep -v '.git' |
-            sort |
-            while IFS= read -r file; do
-                filename=$(echo "$file" | sed 's|^\./||')
-                echo "├── $filename"
-            done
-        )
-    fi
-}
-
-# Check if we should generate repo_structure.txt
-if [ "${1:-}" == "generate" ] || [ "${1:-}" == "" && ! -t 1 ]; then
-    echo -e "${BLUE}🌳 Generating repository structure file...${NC}"
+    REPO_STRUCTURE_FILE="$UDOS_ROOT/repo_structure.txt"
 
     # Move existing file to trash if it exists
     if [ -f "$REPO_STRUCTURE_FILE" ]; then
-        TRASH_DIR="$UDOS_ROOT/trash"
-        if [ ! -d "$TRASH_DIR" ]; then
-            mkdir -p "$TRASH_DIR"
-        fi
-        timestamp=$(date +"%Y%m%d-%H%M%S")
-        trash_filename="repo_structure_${timestamp}.txt"
-        mv "$REPO_STRUCTURE_FILE" "$TRASH_DIR/$trash_filename"
-        echo -e "${YELLOW}📦 Moved existing repo_structure.txt to trash: $trash_filename${NC}"
+        TRASH_DIR="$UDOS_ROOT/trash/tree-cleanup-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$TRASH_DIR"
+        mv "$REPO_STRUCTURE_FILE" "$TRASH_DIR/"
+        echo -e "${YELLOW}📦 Moved existing repo_structure.txt to trash${NC}"
     fi
 
-    # Generate new structure file
+    # Generate git-based repository structure
     {
         echo "# uDOS Repository Structure"
-        echo "*Generated: $(date)*"
+        echo "*Generated from git contents: $(date)*"
         echo ""
         echo "\`\`\`"
-        generate_simple_tree "$UDOS_ROOT"
+
+        # Use git ls-tree to get actual repository structure
+        if git -C "$UDOS_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+            echo "uDOS/"
+            git -C "$UDOS_ROOT" ls-tree -r --name-only HEAD | \
+            grep -v '^\.git' | \
+            sort | \
+            while IFS= read -r file; do
+                # Only show directories and key files, limit depth for readability
+                dir=$(dirname "$file")
+                base=$(basename "$file")
+
+                # Show directory structure (limit depth to 3 levels)
+                if [ "$dir" != "." ]; then
+                    depth=$(echo "$dir" | tr -cd '/' | wc -c)
+                    if [ $depth -le 2 ]; then
+                        echo "$dir/" | sed 's|/[^/]*$|/|g' | sed 's|^|├── |' | sed 's|/|/\n    ├── |g' | head -1
+                    fi
+                fi
+            done | sort -u | head -50
+
+            echo ""
+            echo "Key files in root:"
+            git -C "$UDOS_ROOT" ls-tree --name-only HEAD | \
+            grep -E '\.(md|txt|json|sh|py)$' | \
+            head -20 | \
+            sed 's/^/├── /'
+        else
+            echo "Not a git repository, showing file system structure:"
+            if command -v tree >/dev/null 2>&1; then
+                tree -L 3 --dirsfirst -I '.git|node_modules|*.log|.DS_Store' "$UDOS_ROOT"
+            else
+                find "$UDOS_ROOT" -maxdepth 3 -type d | head -30 | sort | sed 's|^.*/||' | sed 's/^/├── /'
+            fi
+        fi
+
         echo "\`\`\`"
         echo ""
         echo "---"
-        echo "*Generated by uCORE TREE command*"
+        echo "*Generated by uCORE TREE DEV command - reflects git repository contents*"
     } > "$REPO_STRUCTURE_FILE"
 
     echo -e "${GREEN}✅ Repository structure generated: $REPO_STRUCTURE_FILE${NC}"
+    echo -e "${BLUE}💡 Use 'git add repo_structure.txt && git commit' to sync to repository${NC}"
 
 else
-    # Show tree for specified directory (default behavior)
-    target="${1:-$UDOS_ROOT}"
-    echo -e "${BLUE}📂 Directory Tree for: $target${NC}"
-    generate_simple_tree "$target"
+    # Standard TREE mode - show user file structure and save to sandbox/logs
+    echo -e "${BLUE}🌳 TREE: Generating user file structure...${NC}"
+
+    # Ensure sandbox/logs directory exists
+    SANDBOX_LOGS="$UDOS_ROOT/sandbox/logs"
+    mkdir -p "$SANDBOX_LOGS"
+
+    # Generate timestamped filename
+    TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+    USER_TREE_FILE="$SANDBOX_LOGS/user-file-structure-$TIMESTAMP.txt"
+
+    # Function to generate user-focused tree structure
+    generate_user_tree() {
+        echo "uDOS User File Structure"
+        echo "Generated: $(date)"
+        echo "========================"
+        echo ""
+
+        # Focus on user-relevant directories
+        echo "📁 User Workspace Areas:"
+        for dir in sandbox uMEMORY extensions; do
+            if [ -d "$UDOS_ROOT/$dir" ]; then
+                echo ""
+                echo "📂 $dir/"
+                if command -v tree >/dev/null 2>&1; then
+                    tree -L 3 --dirsfirst -I '.git|node_modules|*.log|.DS_Store|trash' "$UDOS_ROOT/$dir" 2>/dev/null | tail -n +2 || echo "    (directory structure not available)"
+                else
+                    find "$UDOS_ROOT/$dir" -maxdepth 3 -type d 2>/dev/null | sort | sed "s|$UDOS_ROOT/$dir/||" | sed 's/^/    ├── /' | head -20 || echo "    (directory listing not available)"
+                fi
+            fi
+        done
+
+        echo ""
+        echo "📄 Key Configuration Files:"
+        find "$UDOS_ROOT" -maxdepth 2 -name "*.json" -o -name "*.md" -o -name "*.sh" 2>/dev/null | \
+        grep -v '.git' | grep -v 'node_modules' | sort | \
+        sed "s|$UDOS_ROOT/||" | head -15 | sed 's/^/    ├── /' || echo "    (configuration files not accessible)"
+
+        echo ""
+        echo "---"
+        echo "Generated by uCORE TREE command"
+        echo "For repository structure, use: TREE DEV"
+    }
+
+    # Generate and save user tree structure
+    generate_user_tree > "$USER_TREE_FILE"
+
+    # Also display to terminal
+    echo ""
+    cat "$USER_TREE_FILE"
+    echo ""
+
+    echo -e "${GREEN}✅ User file structure saved: $USER_TREE_FILE${NC}"
+    echo -e "${CYAN}� Saved to sandbox/logs for your reference${NC}"
+    echo -e "${YELLOW}🔧 For git repository structure, use: TREE DEV${NC}"
 fi
