@@ -1,87 +1,97 @@
 # ══════════════════════════════════════════════════
-# uDOS v1.0.4.1 Clean Distribution .gitignore
-# Simple Directory-Based Exclusion Strategy
+# uDOS v1.0.4.1 Minimal Distribution .gitignore
+# Broad Exclusions with Selective Includes Strategy
 # ══════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════
-# 🎯 uDOS DISTRIBUTION STRATEGY v1.0.4.1
+# 🎯 MINIMAL DISTRIBUTION STRATEGY
 # ════════════════════════════════════════════════════════════════
-# ✅ Include: Core system, shared templates, framework
-# 🚫 Exclude: User data, runtime files, personal content
-
-# ════════════════════════════════════════════════════════════════
-# 📁 DIRECTORY-BASED EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# Development workspace (exclude active development)
-dev/active/                     # Active development work (LOCAL ONLY)
-dev/roadmaps/archive/           # Roadmap archives (LOCAL ONLY)
-dev/scripts/maintenance/        # Maintenance scripts (LOCAL ONLY)
-dev/tools/temp/                 # Temporary tools (LOCAL ONLY)
-
-# User workspace (exclude all user content)
-sandbox/logs/                   # All user logging
-sandbox/sessions/               # Session data
-sandbox/scripts/                # User scripts
-sandbox/experiments/            # User experiments
-sandbox/tasks/                  # User tasks
-sandbox/generated/              # Generated content
-sandbox/workflow/               # Workflow data
-sandbox/user/                   # User subdirectory
-
-# Memory system (exclude user/role data)
-uMEMORY/user/                   # User memory archives
-uMEMORY/role/                   # Role configurations
-
-# System directories (exclude runtime/cache)
-**/cache/                       # All cache directories
-**/logs/                        # All log directories
-**/temp/                        # All temp directories
-**/tmp/                         # All tmp directories
-backup/                         # Backup directory
-trash/                          # Trash directory
+# ✅ Include: Core system, essential docs, clean framework
+# 🚫 Exclude: User data, runtime, dev work, logs, configs
 
 # ════════════════════════════════════════════════════════════════
-# � FILE PATTERN EXCLUSIONS
+# 📁 BROAD DIRECTORY EXCLUSIONS (LOCAL ONLY)
 # ════════════════════════════════════════════════════════════════
 
-# User-specific files
-sandbox/user.md                 # User profile
-*.user.*                        # User-specific files
-*.personal.*                    # Personal files
-*testuser*                      # Test user content
-environment-*.sh                # User environment configs
+# Development workspace (exclude entirely except templates)
+dev/
+!dev/README.md
+!dev/templates/
+!dev/docs/SETUP-COMPLETE.md
+
+# User workspace (exclude entirely except structure docs)
+sandbox/
+!sandbox/README.md
+!sandbox/STRUCTURE.md
+
+# Memory system (exclude user/runtime data)
+uMEMORY/user/
+uMEMORY/role/
+uMEMORY/log/
+
+# System directories (exclude all runtime)
+backup/
+trash/
+**/cache/
+**/logs/
+**/temp/
+**/tmp/
+
+# ════════════════════════════════════════════════════════════════
+# 🚫 GITHUB-SPECIFIC EXCLUSIONS
+# ════════════════════════════════════════════════════════════════
+
+# GitHub workflow/actions (we don't need these)
+.github/
+
+# VS Code workspace (local development only)
+.vscode/
+
+# Development artifacts
+**/__pycache__/
+**/node_modules/
+**/venv/
+**/.env*
+
+# ════════════════════════════════════════════════════════════════
+# 📋 FILE PATTERN EXCLUSIONS
+# ════════════════════════════════════════════════════════════════
 
 # Runtime files
-*.log                           # Log files
-*.tmp                           # Temporary files
-*.cache                         # Cache files
-*.session.*                     # Session files
-*.working                       # Work-in-progress files
+*.log
+*.cache
+*.tmp
+*.session*
+*.conf
+*.working
 
-# Development files
-**/__pycache__/                 # Python cache
-**/node_modules/                # Node modules
-**/venv/                        # Python virtual environments
-**/.env                         # Environment files
+# User-specific files
+*.user.*
+*.personal.*
+environment-*.sh
 
 # System files
-.DS_Store                       # macOS system files
-**/.DS_Store                    # macOS system files (recursive)
+.DS_Store
+**/.DS_Store
+
+# Extension caches/downloads
+extensions/install/cache/
+extensions/install/downloads/
+extensions/install/temp/
 
 # ════════════════════════════════════════════════════════════════
-# ✅ CLEAN DISTRIBUTION INCLUDES
+# ✅ CLEAN DISTRIBUTION INCLUDES (Auto-included)
 # ════════════════════════════════════════════════════════════════
-# ✅ uCORE/ - Core system
+# ✅ Root files: README.md, LICENSE, install.sh, launchers
+# ✅ uCORE/ - Core system (essential only)
 # ✅ uNETWORK/ - Network layer
 # ✅ uSCRIPT/ - Script system
 # ✅ uKNOWLEDGE/ - Knowledge base
-# ✅ extensions/ - Extension framework
+# ✅ extensions/ - Extension framework (no caches)
 # ✅ docs/ - Documentation
-# ✅ dev/templates/ - Development templates
-# ✅ dev/docs/ - Architecture docs
-# ✅ dev/copilot/ - AI context
-# ✅ dev/vscode/ - VS Code configs
-# ✅ sandbox/README.md - Framework docs
-# ✅ uMEMORY/system/ - System templates
+# ✅ uMEMORY/system/ - System templates only
 # ✅ uMEMORY/templates/ - Memory templates
+# ✅ dev/templates/ - Development templates
+# ✅ dev/docs/SETUP-COMPLETE.md - Essential setup doc
+
+# Target: ~50-100 files (vs current 577)
