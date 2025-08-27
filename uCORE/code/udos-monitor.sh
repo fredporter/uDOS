@@ -104,7 +104,7 @@ show_status() {
         echo -e "   CPU: ${vscode_cpu}% | Memory: ${vscode_mem}%"
     else
         echo -e "   Status: ${YELLOW}●${NC} Not running"
-        echo -e "   Start: ${YELLOW}./uCORE/launcher/vscode/start-vscode-dev.sh${NC}"
+        echo -e "   Start: ${YELLOW}./dev/vscode/start-vscode-dev.sh${NC}"
     fi
     echo ""
 
@@ -128,7 +128,7 @@ start_component() {
         vscode)
             echo -e "${BLUE}[INFO]${NC} Starting VS Code..."
             cd "$UDOS_ROOT"
-            ./uCORE/launcher/vscode/start-vscode-dev.sh &
+            ./dev/vscode/start-vscode-dev.sh &
             ;;
         *)
             echo -e "${RED}[ERROR]${NC} Unknown component: $component"

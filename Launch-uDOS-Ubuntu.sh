@@ -159,9 +159,9 @@ case "$mode_choice" in
         else
             echo -e "\033[0;35m🧙‍♂️ Starting VS Code Development...\033[0m"
         fi
-        if [[ -f "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh" ]]; then
-            chmod +x "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh"
-            exec "$UDOS_ROOT/uCORE/launcher/vscode/start-vscode-dev.sh"
+        if [[ -f "$UDOS_ROOT/dev/vscode/start-vscode-dev.sh" ]]; then
+            chmod +x "$UDOS_ROOT/dev/vscode/start-vscode-dev.sh"
+            exec "$UDOS_ROOT/dev/vscode/start-vscode-dev.sh"
         else
             if command -v polaroid_echo >/dev/null 2>&1; then
                 polaroid_echo "orange" "❌ VS Code dev mode not available - falling back to CLI"

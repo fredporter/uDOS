@@ -160,6 +160,31 @@ check_prerequisites() {
         echo -e "${YELLOW}ℹ️  VS Code not detected (optional)${NC}"
     fi
 
+    # Desktop development dependencies (wizard role only)
+    echo ""
+    echo -e "${BLUE}🏗️ Checking desktop development dependencies...${NC}"
+    
+    if command -v node >/dev/null 2>&1; then
+        local node_version=$(node --version)
+        echo -e "${GREEN}✅ Node.js $node_version${NC}"
+    else
+        echo -e "${YELLOW}ℹ️  Node.js not detected (required for desktop apps)${NC}"
+    fi
+    
+    if command -v rustc >/dev/null 2>&1; then
+        local rust_version=$(rustc --version | cut -d' ' -f2)
+        echo -e "${GREEN}✅ Rust $rust_version${NC}"
+    else
+        echo -e "${YELLOW}ℹ️  Rust not detected (required for desktop apps)${NC}"
+    fi
+    
+    if command -v cargo >/dev/null 2>&1 && cargo tauri --version >/dev/null 2>&1; then
+        local tauri_version=$(cargo tauri --version 2>/dev/null | head -1 | cut -d' ' -f2 || echo "unknown")
+        echo -e "${GREEN}✅ Tauri CLI $tauri_version${NC}"
+    else
+        echo -e "${YELLOW}ℹ️  Tauri CLI not detected (required for desktop apps)${NC}"
+    fi
+
     # Handle missing dependencies
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
         echo ""
@@ -529,9 +554,9 @@ setup_vscode_development() {
         echo -e "${BLUE}🧙‍♂️ Setting up VS Code development environment...${NC}"
         
         # Run VS Code setup script
-        if [ -f "$INSTALL_DIR/uCORE/launcher/vscode/setup-vscode.sh" ]; then
+        if [ -f "$INSTALL_DIR/uSCRIPT/integration/vscode/setup-vscode.sh" ]; then
             cd "$INSTALL_DIR"
-            "$INSTALL_DIR/uCORE/launcher/vscode/setup-vscode.sh" > /dev/null 2>&1
+            "$INSTALL_DIR/uSCRIPT/integration/vscode/setup-vscode.sh" > /dev/null 2>&1
             
             echo -e "${GREEN}✅ VS Code workspace configured${NC}"
             echo -e "${GREEN}✅ Development extensions recommended${NC}"
@@ -539,6 +564,29 @@ setup_vscode_development() {
             echo -e "${GREEN}✅ uDOS code snippets installed${NC}"
         else
             echo -e "${YELLOW}⚠️ VS Code setup script not found${NC}"
+            echo "Expected location: uSCRIPT/integration/vscode/setup-vscode.sh"
+        fi
+        
+        # Optional desktop development setup
+        echo ""
+        echo -e "${BLUE}🏗️ Desktop Development Setup (Optional)${NC}"
+        echo "The three-mode display system includes a desktop application."
+        echo "This requires Node.js, Rust, and Tauri CLI for development."
+        echo ""
+        echo -e "${YELLOW}Install desktop development dependencies? (y/N)${NC}"
+        read -p "> " install_desktop
+        
+        if [[ "$install_desktop" =~ ^[Yy]$ ]]; then
+            if [ -f "$INSTALL_DIR/dev/scripts/setup-desktop-dev.sh" ]; then
+                echo -e "${BLUE}🚀 Running desktop development setup...${NC}"
+                "$INSTALL_DIR/dev/scripts/setup-desktop-dev.sh"
+            else
+                echo -e "${YELLOW}⚠️ Desktop setup script not found${NC}"
+                echo "You can run it later with: ./dev/scripts/setup-desktop-dev.sh"
+            fi
+        else
+            echo -e "${BLUE}ℹ️  Desktop development skipped${NC}"
+            echo "You can set it up later with: ./dev/scripts/setup-desktop-dev.sh"
         fi
     fi
 }
@@ -684,6 +732,8 @@ show_installation_summary() {
     if [[ "$VSCODE_DETECTED" == "true" ]] && [[ " ${SELECTED_ROLES[*]} " == *" wizard "* ]]; then
         echo -e "  ${GREEN}🧙‍♂️ VS Code Development:${NC}"
         echo "     └─ Launch udos → Choose VS Code mode"
+        echo "     └─ Three-mode display: CLI/Desktop/Web"
+        echo "     └─ Desktop dev setup: ./dev/scripts/setup-desktop-dev.sh"
     fi
 
     echo ""

@@ -84,7 +84,7 @@
         {
             "label": "🔌 Install VS Code Extensions",
             "type": "shell",
-            "command": "./uCORE/launcher/vscode/setup-vscode.sh",
+            "command": "./uSCRIPT/integration/vscode/setup-vscode.sh",
             "group": "build",
             "presentation": {
                 "echo": true,

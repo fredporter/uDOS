@@ -237,7 +237,7 @@ show_status() {
         echo -e "   Status: ${GREEN}●${NC} Running (PID: $vscode_pid)"
     else
         echo -e "   Status: ${YELLOW}●${NC} Not detected"
-        echo -e "   Start: ${YELLOW}./uCORE/launcher/vscode/start-vscode-dev.sh${NC}"
+        echo -e "   Start: ${YELLOW}./dev/vscode/start-vscode-dev.sh${NC}"
     fi
     echo ""
 
@@ -273,7 +273,7 @@ start_component() {
         vscode)
             log "${BLUE}[INFO]${NC} Starting VS Code Development Environment..."
             cd "$UDOS_ROOT"
-            ./uCORE/launcher/vscode/start-vscode-dev.sh &
+            ./dev/vscode/start-vscode-dev.sh &
             ;;
         all)
             start_component server

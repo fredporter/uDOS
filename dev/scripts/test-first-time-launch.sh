@@ -19,7 +19,7 @@ TEST_RESULTS=()
 FAILED_TESTS=0
 PASSED_TESTS=0
 
-# Test logging
+# Test logging functions
 log_test() {
     echo -e "${BLUE}[TEST]${NC} $1"
 }
@@ -34,6 +34,11 @@ log_fail() {
     echo -e "${RED}[FAIL]${NC} $1"
     FAILED_TESTS=$((FAILED_TESTS + 1))
     TEST_RESULTS+=("❌ $1")
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+    TEST_RESULTS+=("⚠️ $1")
 }
 
 log_warning() {
@@ -414,6 +419,49 @@ test_network_system() {
     fi
 }
 
+# Test 11: Desktop Development Environment (Optional)
+test_desktop_development() {
+    log_test "Testing desktop development environment (optional)"
+    
+    # Test desktop setup script exists
+    if [[ -f "$UDOS_ROOT/dev/scripts/setup-desktop-dev.sh" && -x "$UDOS_ROOT/dev/scripts/setup-desktop-dev.sh" ]]; then
+        log_pass "Desktop development setup script exists"
+    else
+        log_fail "Desktop development setup script missing"
+    fi
+    
+    # Test for desktop development dependencies (optional)
+    log_test "Checking desktop development dependencies"
+    
+    if command -v node >/dev/null 2>&1; then
+        local node_version=$(node --version)
+        log_pass "Node.js $node_version available"
+    else
+        log_warn "Node.js not installed (required for desktop apps)"
+    fi
+    
+    if command -v rustc >/dev/null 2>&1; then
+        local rust_version=$(rustc --version | cut -d' ' -f2)
+        log_pass "Rust $rust_version available"
+    else
+        log_warn "Rust not installed (required for desktop apps)"
+    fi
+    
+    if command -v cargo >/dev/null 2>&1; then
+        if cargo tauri --version >/dev/null 2>&1; then
+            local tauri_version=$(cargo tauri --version 2>/dev/null | head -1 | cut -d' ' -f2 || echo "unknown")
+            log_pass "Tauri CLI $tauri_version available"
+        else
+            log_warn "Tauri CLI not installed (required for desktop apps)"
+        fi
+    else
+        log_warn "Cargo not available (Rust package manager)"
+    fi
+    
+    # Note about desktop development being optional
+    echo "ℹ️  Desktop development is optional - run ./dev/scripts/setup-desktop-dev.sh to install"
+}
+
 # Generate test report
 generate_test_report() {
     echo ""
@@ -480,6 +528,9 @@ main() {
     echo ""
     
     test_network_system
+    echo ""
+    
+    test_desktop_development
     echo ""
     
     generate_test_report

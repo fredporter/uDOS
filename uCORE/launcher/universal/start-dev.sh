@@ -132,8 +132,8 @@ launch_vscode_development() {
     
     # Run enhanced VS Code setup
     echo -e "${BLUE}🔧 Configuring VS Code for uDOS development...${NC}"
-    if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh" ]; then
-        "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh"
+    if [ -f "$UDOS_ROOT/uSCRIPT/integration/vscode/setup-vscode.sh" ]; then
+        "$UDOS_ROOT/uSCRIPT/integration/vscode/setup-vscode.sh"
     else
         echo -e "${YELLOW}⚠️ VS Code setup script not found, using basic workspace${NC}"
         # Create basic workspace file as fallback

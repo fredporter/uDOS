@@ -1,0 +1,25 @@
+{
+  "name": "vscode-integration",
+  "version": "1.0.4.1",
+  "description": "Core VS Code integration for uDOS development",
+  "type": "core",
+  "dependencies": ["python-integration"],
+  "files": {
+    "setup": "setup-vscode.sh",
+    "workspace": "uDOS.code-workspace",
+    "snippets": "snippets/",
+    "tasks": "tasks.json",
+    "launch": "launch.json"
+  },
+  "install_hook": "install-vscode-extension.sh",
+  "capabilities": [
+    "development-environment",
+    "debugging-support", 
+    "code-snippets",
+    "task-automation"
+  ],
+  "role_requirements": {
+    "minimum": "wizard",
+    "recommended": "wizard"
+  }
+}

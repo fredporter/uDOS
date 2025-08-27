@@ -30,7 +30,7 @@
         {
             "label": "🔍 Check Installation",
             "type": "shell",
-            "command": "./uCORE/code/check.sh",
+            "command": "./uCORE/code/utilities/check.sh",
             "args": ["all"],
             "group": "test",
             "presentation": {
@@ -44,7 +44,7 @@
         {
             "label": "📊 Generate Dashboard",
             "type": "shell",
-            "command": "./uCORE/code/dash.sh",
+            "command": "./uCORE/code/utilities/dash.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -84,7 +84,7 @@
         {
             "label": "🔌 Install VS Code Extensions",
             "type": "shell",
-            "command": "./uCORE/launcher/vscode/setup-vscode.sh",
+            "command": "./uSCRIPT/integration/vscode/setup-vscode.sh",
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -92,6 +92,48 @@
                 "focus": false,
                 "panel": "shared"
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "🏗️ Setup Desktop Development",
+            "type": "shell",
+            "command": "./dev/scripts/setup-desktop-dev.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🖥️ Start Desktop App Dev",
+            "type": "shell",
+            "command": "./uNETWORK/desktop/dev-desktop.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": [],
+            "dependsOn": "🌐 Start Web Export"
+        },
+        {
+            "label": "🌐 Start Web Export",
+            "type": "shell",
+            "command": "./uNETWORK/display/udos-display.sh",
+            "args": ["export", "dashboard"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "isBackground": true,
             "problemMatcher": []
         }
     ]
