@@ -20,12 +20,16 @@
         "fullscreen": false,
         "decorations": true,
         "alwaysOnTop": false,
+        "visible": false,
         "url": "/"
       }
     ],
     "security": {
       "csp": null
     }
+  },
+  "plugins": {
+    "opener": {}
   },
   "bundle": {
     "active": true,
