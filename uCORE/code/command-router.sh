@@ -227,8 +227,11 @@ route_command() {
         "ASSIST")
             handle_assist_command "$action" "$params"
             ;;
-        "GET"|"SET")
+        "GET"|"SET"|"LIST")
             handle_variable_command "$command" "$action" "$params"
+            ;;
+        "STORY")
+            handle_story_command "$action" "$params"
             ;;
         "SYSTEM")
             handle_system_command "$action" "$params"
@@ -285,7 +288,7 @@ handle_assist_command() {
     esac
 }
 
-# Handle variable commands (GET/SET)
+# Handle variable commands (GET/SET) - Enhanced integration with optimized variable system
 handle_variable_command() {
     local command="$1"
     local action="$2"
@@ -295,16 +298,58 @@ handle_variable_command() {
         case "$command" in
             "GET")
                 log_info "Getting variable: $action"
-                "$SCRIPT_DIR/variable-manager.sh" get "$action" 2>/dev/null || echo "Variable $action not found"
+                local value
+                if value=$("$SCRIPT_DIR/variable-manager.sh" GET "$action" 2>/dev/null); then
+                    echo "Variable: $action = $value"
+
+                    # Show additional variable information for enhanced feedback
+                    if [[ -f "$SCRIPT_DIR/variable-manager.sh" ]]; then
+                        local var_def
+                        if var_def=$("$SCRIPT_DIR/variable-manager.sh" DEF "$action" 2>/dev/null); then
+                            local var_type=$(echo "$var_def" | jq -r '.type // "unknown"' 2>/dev/null)
+                            local var_scope=$(echo "$var_def" | jq -r '.scope // "unknown"' 2>/dev/null)
+                            echo "Type: $var_type | Scope: $var_scope"
+                        fi
+                    fi
+                else
+                    log_error "Variable '$action' not found or no value set"
+                    # Suggest available variables
+                    echo "Use [GET|LIST] to see available variables"
+                fi
                 ;;
             "SET")
+                if [[ -z "$params" ]]; then
+                    log_error "SET command requires a value parameter"
+                    echo "Usage: [SET|variable*value]"
+                    return 1
+                fi
                 log_info "Setting variable: $action = $params"
-                "$SCRIPT_DIR/variable-manager.sh" set "$action" "$params" 2>/dev/null || log_error "Failed to set variable"
+                if "$SCRIPT_DIR/variable-manager.sh" SET "$action" "$params" 2>/dev/null; then
+                    log_success "Variable '$action' set successfully"
+                    # Show updated value for confirmation
+                    local new_value
+                    if new_value=$("$SCRIPT_DIR/variable-manager.sh" GET "$action" 2>/dev/null); then
+                        echo "New value: $action = $new_value"
+                    fi
+                else
+                    log_error "Failed to set variable '$action'"
+                    return 1
+                fi
+                ;;
+            "LIST")
+                log_info "Listing all variables"
+                "$SCRIPT_DIR/variable-manager.sh" LIST 2>/dev/null || log_error "Failed to list variables"
+                ;;
+            *)
+                log_error "Unknown variable command: $command"
+                echo "Available variable commands: GET, SET, LIST"
+                return 1
                 ;;
         esac
     else
-        log_warning "Variable manager not found - feature will be available in Phase 4"
-        echo "Command would execute: $command $action $params"
+        log_warning "Variable manager not found - install variable system"
+        echo "Run: ./uCORE/code/variable-system-optimizer.sh"
+        return 1
     fi
 }
 
@@ -443,6 +488,82 @@ handle_role_command() {
             return 1
             ;;
     esac
+}
+
+# Handle story commands for interactive variable collection
+handle_story_command() {
+    local action="$1"
+    local params="$2"
+
+    if [[ -f "$SCRIPT_DIR/variable-manager.sh" ]]; then
+        case "$action" in
+            "CREATE")
+                if [[ -z "$params" ]]; then
+                    log_error "STORY CREATE requires parameters: name*title*variables"
+                    echo "Usage: [STORY|CREATE*story-name*Story Title*var1,var2,var3]"
+                    return 1
+                fi
+
+                # Parse parameters: name*title*variables
+                local story_name="${params%%\**}"
+                local remaining="${params#*\*}"
+                local story_title="${remaining%%\**}"
+                local variables="${remaining#*\*}"
+
+                log_info "Creating story: $story_name"
+                if "$SCRIPT_DIR/variable-manager.sh" STORY CREATE "$story_name" "$story_title" "$variables" 2>/dev/null; then
+                    log_success "Story '$story_name' created successfully"
+                else
+                    log_error "Failed to create story '$story_name'"
+                    return 1
+                fi
+                ;;
+            "EXECUTE"|"RUN")
+                if [[ -z "$params" ]]; then
+                    log_error "STORY EXECUTE requires story name parameter"
+                    echo "Usage: [STORY|EXECUTE*story-name] or [STORY|RUN*story-name]"
+                    return 1
+                fi
+
+                local story_name="$params"
+                local story_file="$UDOS_ROOT/uMEMORY/system/stories/${story_name}.json"
+
+                log_info "Executing story: $story_name"
+                if "$SCRIPT_DIR/variable-manager.sh" STORY EXECUTE "$story_file" 2>/dev/null; then
+                    log_success "Story '$story_name' executed successfully"
+                else
+                    log_error "Failed to execute story '$story_name'"
+                    echo "Available stories in uMEMORY/system/stories/"
+                    return 1
+                fi
+                ;;
+            "LIST")
+                log_info "Listing available stories"
+                local stories_dir="$UDOS_ROOT/uMEMORY/system/stories"
+                if [[ -d "$stories_dir" ]]; then
+                    echo "📖 Available Stories:"
+                    find "$stories_dir" -name "*.json" -type f | while read -r story_file; do
+                        local story_name=$(basename "$story_file" .json)
+                        local story_title=""
+                        if command -v jq >/dev/null 2>&1; then
+                            story_title=$(jq -r '.metadata.title // "No title"' "$story_file" 2>/dev/null)
+                        fi
+                        echo "  $story_name${story_title:+ - $story_title}"
+                    done
+                else
+                    log_warning "No stories directory found"
+                fi
+                ;;
+            *)
+                log_error "Unknown STORY action: $action"
+                echo "Available actions: CREATE, EXECUTE, RUN, LIST"
+                return 1
+                ;;
+        esac
+    else
+        log_warning "Variable manager not found - story system unavailable"
+        return 1
+    fi
 }
 
 # Handle help commands
@@ -585,11 +706,17 @@ show_general_help() {
         echo "┌─ Variable Operations (TOMB+) ─────────────"
         echo "│ [GET|variable]       - Get variable value"
         echo "│ [SET|variable*value] - Set variable value"
+        echo "│ [LIST]               - List all variables"
+        echo "│ [STORY|LIST]         - List available stories"
+        echo "│ [STORY|RUN*name]     - Execute story for data collection"
         echo "└─────────────────────────────────────────"
     else
         echo "┌─ Variable Operations (TOMB+ required) ────"
         echo "│ [GET|variable]       - ❌ Requires TOMB+"
         echo "│ [SET|variable*value] - ❌ Requires TOMB+"
+        echo "│ [LIST]               - ❌ Requires TOMB+"
+        echo "│ [STORY|LIST]         - ❌ Requires TOMB+"
+        echo "│ [STORY|RUN*name]     - ❌ Requires TOMB+"
         echo "└─────────────────────────────────────────"
     fi
 
@@ -702,6 +829,38 @@ show_command_help() {
             echo "👤 Role Management Commands"
             echo "  GET      - Show current role and level"
             echo "  SET*role - Change to specified role"
+            ;;
+        "GET"|"SET"|"LIST"|"VARIABLE"|"VAR")
+            echo "🔧 Variable System Commands"
+            echo "  [GET|variable]       - Get variable value with details"
+            echo "  [SET|variable*value] - Set variable value with confirmation"
+            echo "  [LIST]               - List all available variables by scope"
+            echo ""
+            echo "🎯 Enhanced Variable Features:"
+            echo "  • Centralized storage in uMEMORY/system"
+            echo "  • Cross-component sharing (commands, templates, uSCRIPTs)"
+            echo "  • Role-specific variable access"
+            echo "  • Environment export with UDOS_ prefix"
+            echo ""
+            echo "📋 Common Variables:"
+            echo "  USER-ROLE, USER-LEVEL, DISPLAY-MODE, PROJECT-NAME"
+            echo "  TILE-CODE, TIMEZONE, DEV-MODE, DEBUG-LEVEL"
+            ;;
+        "STORY")
+            echo "📖 Interactive Story System Commands"
+            echo "  [STORY|LIST]                     - List available stories"
+            echo "  [STORY|RUN*story-name]           - Execute story for variable collection"
+            echo "  [STORY|CREATE*name*title*vars]   - Create new story template"
+            echo ""
+            echo "🎯 Story Features:"
+            echo "  • Interactive variable collection"
+            echo "  • Role-based story execution"
+            echo "  • Multi-variable data gathering"
+            echo "  • Guided user input with validation"
+            echo ""
+            echo "📋 Available Role Stories:"
+            echo "  ghost-startup, tomb-startup, crypt-startup, drone-startup"
+            echo "  knight-startup, imp-startup, sorcerer-startup, wizard-startup"
             ;;
         *)
             log_warning "No specific help available for: $command"
