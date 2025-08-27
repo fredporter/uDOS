@@ -1,6 +1,6 @@
 {
   "name": "udos-template-system",
-  "version": "1.0.4",
+  "version": "1.0.4.1",
   "description": "uDOS Template System with Dataset Integration and Map Generation",
   "main": "dist/index.js",
   "scripts": {

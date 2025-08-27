@@ -7,7 +7,7 @@ set -euo pipefail
 # Configuration
 readonly UDOS_GIT_URL="https://github.com/fredporter/uDOS.git"
 readonly INSTALL_DIR="$HOME/uDOS"
-readonly UDOS_VERSION="1.3.1"
+readonly UDOS_VERSION="1.0.4.1"
 
 # Color definitions
 readonly RED='\033[0;31m'

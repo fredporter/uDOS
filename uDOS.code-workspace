@@ -1,0 +1,30 @@
+{
+    "folders": [
+        {
+            "name": "🏠 uDOS Root",
+            "path": "."
+        },
+        {
+            "name": "🧠 Core System",
+            "path": "./uCORE"
+        },
+        {
+            "name": "💾 User Memory",
+            "path": "./uMEMORY"
+        },
+        {
+            "name": "📚 Knowledge Base",
+            "path": "./uKNOWLEDGE"
+        },
+        {
+            "name": "🏗️ Sandbox",
+            "path": "./sandbox"
+        }
+    ],
+    "settings": {
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.defaultProfile.windows": "Git Bash",
+        "terminal.integrated.cwd": "${workspaceFolder}"
+    }
+}

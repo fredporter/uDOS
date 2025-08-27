@@ -93,23 +93,178 @@ check_prerequisites() {
             ;;
     esac
 
-    # Check for git
+    echo ""
+    echo -e "${BLUE}🔧 Checking required dependencies...${NC}"
+    
+    # Check critical dependencies
+    local missing_deps=()
+    local optional_deps=()
+
+    # Essential dependencies
     if command -v git >/dev/null 2>&1; then
         GIT_AVAILABLE=true
         local git_version=$(git --version | cut -d' ' -f3)
         echo -e "${GREEN}✅ Git $git_version${NC}"
     else
-        echo -e "${YELLOW}⚠️  Git not found - required for installation${NC}"
+        echo -e "${RED}❌ Git - REQUIRED for installation${NC}"
+        missing_deps+=("git")
     fi
 
-    # Check for VS Code
+    if command -v bash >/dev/null 2>&1; then
+        local bash_version="${BASH_VERSION%%.*}"
+        if [[ "$bash_version" -ge 4 ]]; then
+            echo -e "${GREEN}✅ Bash $BASH_VERSION${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Bash $BASH_VERSION (v4+ recommended)${NC}"
+        fi
+    fi
+
+    if command -v jq >/dev/null 2>&1; then
+        local jq_version=$(jq --version | cut -d'-' -f2)
+        echo -e "${GREEN}✅ jq $jq_version${NC}"
+    else
+        echo -e "${YELLOW}⚠️  jq - REQUIRED for session management${NC}"
+        missing_deps+=("jq")
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        local python_version=$(python3 --version | cut -d' ' -f2)
+        echo -e "${GREEN}✅ Python $python_version${NC}"
+        
+        # Check for python3-venv on Linux
+        if [[ "$(uname -s)" == "Linux" ]]; then
+            if python3 -c "import venv" 2>/dev/null; then
+                echo -e "${GREEN}✅ python3-venv available${NC}"
+            else
+                echo -e "${YELLOW}⚠️  python3-venv - REQUIRED for virtual environments${NC}"
+                missing_deps+=("python3-venv")
+            fi
+        fi
+    else
+        echo -e "${YELLOW}⚠️  Python 3 - REQUIRED for web features${NC}"
+        missing_deps+=("python3")
+    fi
+
+    if command -v curl >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ curl available${NC}"
+    else
+        echo -e "${YELLOW}⚠️  curl - recommended for network operations${NC}"
+        optional_deps+=("curl")
+    fi
+
+    # Optional but recommended
     if command -v code >/dev/null 2>&1; then
         VSCODE_DETECTED=true
         echo -e "${GREEN}✅ VS Code detected${NC}"
     else
-        echo -e "${YELLOW}ℹ️  VS Code not detected${NC}"
+        echo -e "${YELLOW}ℹ️  VS Code not detected (optional)${NC}"
     fi
 
+    # Handle missing dependencies
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        echo ""
+        echo -e "${RED}❌ Missing required dependencies: ${missing_deps[*]}${NC}"
+        echo -e "${YELLOW}🔧 Install commands for your system:${NC}"
+        
+        case "$(uname -s)" in
+            Darwin)
+                echo "  macOS: brew install ${missing_deps[*]}"
+                if [[ " ${missing_deps[*]} " =~ " git " ]]; then
+                    echo "         or: xcode-select --install"
+                fi
+                ;;
+            Linux)
+                if command -v apt >/dev/null 2>&1; then
+                    echo "  Ubuntu/Debian: sudo apt update && sudo apt install ${missing_deps[*]}"
+                    # Handle python3-venv specifically
+                    if [[ " ${missing_deps[*]} " =~ " python3-venv " ]]; then
+                        local python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2 | cut -d'.' -f1-2)
+                        echo "                 sudo apt install python${python_version}-venv"
+                    fi
+                elif command -v yum >/dev/null 2>&1; then
+                    echo "  CentOS/RHEL: sudo yum install ${missing_deps[*]}"
+                elif command -v dnf >/dev/null 2>&1; then
+                    echo "  Fedora: sudo dnf install ${missing_deps[*]}"
+                elif command -v pacman >/dev/null 2>&1; then
+                    echo "  Arch: sudo pacman -S ${missing_deps[*]}"
+                fi
+                ;;
+        esac
+        echo ""
+        echo -e "${BLUE}Would you like to install missing dependencies automatically? (y/N)${NC}"
+        read -p "> " auto_install
+        
+        if [[ "$auto_install" =~ ^[Yy]$ ]]; then
+            install_missing_dependencies "${missing_deps[@]}"
+        else
+            echo -e "${YELLOW}Please install missing dependencies and re-run the installer.${NC}"
+            exit 1
+        fi
+    fi
+
+    echo ""
+}
+
+install_missing_dependencies() {
+    local deps=("$@")
+    echo -e "${BLUE}📦 Installing missing dependencies: ${deps[*]}${NC}"
+    
+    case "$(uname -s)" in
+        Darwin)
+            if command -v brew >/dev/null 2>&1; then
+                echo -e "${BLUE}Using Homebrew...${NC}"
+                for dep in "${deps[@]}"; do
+                    echo -e "${BLUE}Installing $dep...${NC}"
+                    brew install "$dep" || echo -e "${YELLOW}Warning: Failed to install $dep${NC}"
+                done
+            else
+                echo -e "${RED}Homebrew not found. Please install manually:${NC}"
+                echo "  Install Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+                echo "  Then run: brew install ${deps[*]}"
+                exit 1
+            fi
+            ;;
+        Linux)
+            if command -v apt >/dev/null 2>&1; then
+                echo -e "${BLUE}Using apt (Ubuntu/Debian)...${NC}"
+                sudo apt update
+                for dep in "${deps[@]}"; do
+                    echo -e "${BLUE}Installing $dep...${NC}"
+                    # Handle python3-venv specifically  
+                    if [[ "$dep" == "python3-venv" ]]; then
+                        local python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2 | cut -d'.' -f1-2)
+                        sudo apt install -y "python${python_version}-venv" || echo -e "${YELLOW}Warning: Failed to install python${python_version}-venv${NC}"
+                    else
+                        sudo apt install -y "$dep" || echo -e "${YELLOW}Warning: Failed to install $dep${NC}"
+                    fi
+                done
+            elif command -v yum >/dev/null 2>&1; then
+                echo -e "${BLUE}Using yum (CentOS/RHEL)...${NC}"
+                for dep in "${deps[@]}"; do
+                    echo -e "${BLUE}Installing $dep...${NC}"
+                    sudo yum install -y "$dep" || echo -e "${YELLOW}Warning: Failed to install $dep${NC}"
+                done
+            elif command -v dnf >/dev/null 2>&1; then
+                echo -e "${BLUE}Using dnf (Fedora)...${NC}"
+                for dep in "${deps[@]}"; do
+                    echo -e "${BLUE}Installing $dep...${NC}"
+                    sudo dnf install -y "$dep" || echo -e "${YELLOW}Warning: Failed to install $dep${NC}"
+                done
+            elif command -v pacman >/dev/null 2>&1; then
+                echo -e "${BLUE}Using pacman (Arch)...${NC}"
+                for dep in "${deps[@]}"; do
+                    echo -e "${BLUE}Installing $dep...${NC}"
+                    sudo pacman -S --noconfirm "$dep" || echo -e "${YELLOW}Warning: Failed to install $dep${NC}"
+                done
+            else
+                echo -e "${RED}No supported package manager found.${NC}"
+                echo "Please install manually: ${deps[*]}"
+                exit 1
+            fi
+            ;;
+    esac
+    
+    echo -e "${GREEN}✅ Dependency installation completed${NC}"
     echo ""
 }
 
@@ -308,10 +463,8 @@ install_selected_roles() {
         # Run role-specific installer if it exists
         local role_installer="uCORE/distribution/$role/install.sh"
         if [[ -f "$role_installer" ]]; then
-            echo -e "${BLUE}  🔧 Running $role installer...${NC}"
             bash "$role_installer" "uMEMORY/role/$role"
         else
-            echo -e "${YELLOW}  ⚠️  No specific installer for $role role${NC}"
             echo -e "${BLUE}  📁 Created basic role structure${NC}"
         fi
 
@@ -334,11 +487,20 @@ EOF
         echo -e "${GREEN}  ✅ $role role installed${NC}"
     done
 
+    # Set up Python environment for web display system
+    echo ""
+    echo -e "${BLUE}🐍 Setting up Python environment for display system...${NC}"
+    if [[ -f "uSCRIPT/setup-environment.sh" ]]; then
+        cd uSCRIPT && ./setup-environment.sh
+        cd ..
+        echo -e "${GREEN}  ✅ Python environment configured${NC}"
+    else
+        echo -e "${YELLOW}  ⚠️ Python environment setup skipped${NC}"
+    fi
+
     echo ""
     echo -e "${GREEN}✅ All roles installed in uMEMORY/role/ directory${NC}"
-}
-
-setup_user_directories() {
+}setup_user_directories() {
     echo -e "${BLUE}👤 Setting up user directories...${NC}"
 
     # Create user directory structure
@@ -360,6 +522,25 @@ setup_user_directories() {
 EOF
 
     echo -e "${GREEN}✅ User directories created${NC}"
+}
+
+setup_vscode_development() {
+    if [[ "$VSCODE_DETECTED" == "true" ]] && [[ " ${SELECTED_ROLES[*]} " == *" wizard "* ]]; then
+        echo -e "${BLUE}🧙‍♂️ Setting up VS Code development environment...${NC}"
+        
+        # Run VS Code setup script
+        if [ -f "$INSTALL_DIR/uCORE/launcher/vscode/setup-vscode.sh" ]; then
+            cd "$INSTALL_DIR"
+            "$INSTALL_DIR/uCORE/launcher/vscode/setup-vscode.sh" > /dev/null 2>&1
+            
+            echo -e "${GREEN}✅ VS Code workspace configured${NC}"
+            echo -e "${GREEN}✅ Development extensions recommended${NC}"
+            echo -e "${GREEN}✅ Debugging configurations ready${NC}"
+            echo -e "${GREEN}✅ uDOS code snippets installed${NC}"
+        else
+            echo -e "${YELLOW}⚠️ VS Code setup script not found${NC}"
+        fi
+    fi
 }
 
 setup_backup_system() {
@@ -527,6 +708,7 @@ main() {
     download_clean_distribution
     install_selected_roles
     setup_user_directories
+    setup_vscode_development
     setup_backup_system
     create_launch_scripts
     setup_shell_integration

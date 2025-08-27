@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)}"
-export UDOS_VERSION="1.4.0-beta"
+export UDOS_VERSION="1.0.4.1"
 
 # Colors
 readonly RED='\033[0;31m'

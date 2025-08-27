@@ -34,6 +34,8 @@ echo -e "${BLUE}📂 uDOS Root: $UDOS_ROOT${NC}"
 
 # List of recommended extensions
 EXTENSIONS=(
+    "ms-python.python"                      # Python support and debugging
+    "ms-python.debugpy"                     # Python debugger
     "ms-vscode.vscode-typescript-next"      # TypeScript support
     "yzhang.markdown-all-in-one"            # Markdown support
     "rogalmic.bash-debug"                   # Bash debugging
@@ -44,6 +46,8 @@ EXTENSIONS=(
     "ms-vscode.vscode-json"                 # JSON support
     "redhat.vscode-yaml"                    # YAML support
     "ms-vscode.makefile-tools"              # Makefile support
+    "github.copilot"                        # GitHub Copilot
+    "github.copilot-chat"                   # GitHub Copilot Chat
 )
 
 # Optional extensions (ask user)
@@ -94,14 +98,34 @@ echo -e "${YELLOW}⚙️  Setting up workspace configuration...${NC}"
 VSCODE_DIR="$UDOS_ROOT/.vscode"
 mkdir -p "$VSCODE_DIR"
 
-# Copy configuration files
-cp "$SCRIPT_DIR/settings.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Settings copied${NC}"
-cp "$SCRIPT_DIR/tasks.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Tasks copied${NC}"
-cp "$SCRIPT_DIR/launch.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Launch config copied${NC}"
+# Copy configuration files from actual .vscode directory
+echo -e "${BLUE}📋 Copying VS Code configurations...${NC}"
+UDOS_VSCODE_DIR="$UDOS_ROOT/.vscode"
 
-# Create workspace file
+if [ -f "$UDOS_VSCODE_DIR/settings.json" ]; then
+    cp "$UDOS_VSCODE_DIR/settings.json" "$VSCODE_DIR/" && echo -e "${GREEN}✅ Enhanced settings copied${NC}"
+else
+    echo -e "${YELLOW}⚠️ Using fallback settings${NC}"
+    cp "$SCRIPT_DIR/settings.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Settings copied${NC}"
+fi
+
+if [ -f "$UDOS_VSCODE_DIR/tasks.json" ]; then
+    cp "$UDOS_VSCODE_DIR/tasks.json" "$VSCODE_DIR/" && echo -e "${GREEN}✅ Enhanced tasks copied${NC}"
+else
+    echo -e "${YELLOW}⚠️ Using fallback tasks${NC}"
+    cp "$SCRIPT_DIR/tasks.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Tasks copied${NC}"
+fi
+
+if [ -f "$UDOS_VSCODE_DIR/launch.json" ]; then
+    cp "$UDOS_VSCODE_DIR/launch.json" "$VSCODE_DIR/" && echo -e "${GREEN}✅ Enhanced launch config copied${NC}"
+else
+    echo -e "${YELLOW}⚠️ Using fallback launch config${NC}"
+    cp "$SCRIPT_DIR/launch.json" "$VSCODE_DIR/" 2>/dev/null && echo -e "${GREEN}✅ Launch config copied${NC}"
+fi
+
+# Create enhanced workspace file
 WORKSPACE_FILE="$UDOS_ROOT/uDOS.code-workspace"
-if [ ! -f "$WORKSPACE_FILE" ]; then
+if [ ! -f "$WORKSPACE_FILE" ] || [ "$1" = "--force" ]; then
     cat > "$WORKSPACE_FILE" << 'EOF'
 {
     "folders": [
@@ -124,17 +148,130 @@ if [ ! -f "$WORKSPACE_FILE" ]; then
         {
             "name": "🏗️ Sandbox",
             "path": "./sandbox"
+        },
+        {
+            "name": "🔧 Development",
+            "path": "./dev"
+        },
+        {
+            "name": "🌐 Network",
+            "path": "./uNETWORK"
+        },
+        {
+            "name": "🐍 Scripts",
+            "path": "./uSCRIPT"
         }
     ],
     "settings": {
         "terminal.integrated.defaultProfile.osx": "bash",
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.defaultProfile.windows": "Git Bash",
-        "terminal.integrated.cwd": "${workspaceFolder}"
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "files.associations": {
+            "*.us": "shellscript",
+            "*.utemplate": "markdown",
+            "*.umemory": "json"
+        },
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#2D3748",
+            "titleBar.activeForeground": "#FFFFFF",
+            "statusBar.background": "#2D3748",
+            "statusBar.foreground": "#FFFFFF"
+        },
+        "editor.rulers": [80, 120],
+        "editor.wordWrap": "on",
+        "markdown.preview.fontSize": 14,
+        "git.ignoreLimitWarning": true
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.debugpy",
+            "ms-vscode.vscode-typescript-next",
+            "yzhang.markdown-all-in-one",
+            "ms-vscode.powershell",
+            "rogalmic.bash-debug",
+            "mads-hartmann.bash-ide-vscode",
+            "jeff-hykin.better-shellscript-syntax",
+            "github.copilot",
+            "github.copilot-chat"
+        ]
     }
 }
 EOF
-    echo -e "${GREEN}✅ Workspace file created${NC}"
+    echo -e "${GREEN}✅ Enhanced workspace file created${NC}"
+fi
+
+# Create uDOS development snippets
+SNIPPETS_DIR="$VSCODE_DIR/snippets"
+mkdir -p "$SNIPPETS_DIR"
+
+cat > "$SNIPPETS_DIR/udos-bash.json" << 'EOF'
+{
+    "uDOS Script Header": {
+        "prefix": "udos-header",
+        "body": [
+            "#!/bin/bash",
+            "# ${1:Script Description}",
+            "# Part of uDOS - Universal Device Operating System",
+            "",
+            "# Get script directory and uDOS root",
+            "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"",
+            "UDOS_ROOT=\"$(cd \"$SCRIPT_DIR/../..\" && pwd)\"",
+            "",
+            "# Source common functions",
+            "source \"$UDOS_ROOT/uCORE/system/common.sh\"",
+            "",
+            "${0}"
+        ],
+        "description": "Standard uDOS bash script header"
+    },
+    "uDOS Function": {
+        "prefix": "udos-function",
+        "body": [
+            "# ${1:Function description}",
+            "${2:function_name}() {",
+            "    local ${3:param}=\"$1\"",
+            "    ",
+            "    ${0}",
+            "    ",
+            "    return 0",
+            "}"
+        ],
+        "description": "Standard uDOS function template"
+    },
+    "uDOS Error Handling": {
+        "prefix": "udos-error",
+        "body": [
+            "if ! ${1:command}; then",
+            "    echo \"❌ Error: ${2:description}\" >&2",
+            "    exit 1",
+            "fi"
+        ],
+        "description": "Standard uDOS error handling"
+    },
+    "uDOS JSON Check": {
+        "prefix": "udos-json",
+        "body": [
+            "if ! jq empty \"${1:file.json}\" 2>/dev/null; then",
+            "    echo \"❌ Invalid JSON in ${1:file.json}\" >&2",
+            "    return 1",
+            "fi"
+        ],
+        "description": "JSON validation check"
+    }
+}
+EOF
+
+echo -e "${GREEN}✅ uDOS development snippets created${NC}"
+
+# Create Python environment setup for debugging
+echo -e "${BLUE}🐍 Setting up Python debugging environment...${NC}"
+cd "$UDOS_ROOT"
+if [ -d "uSCRIPT/venv" ]; then
+    echo -e "${GREEN}✅ Python virtual environment ready for debugging${NC}"
+else
+    echo -e "${YELLOW}⚠️ Run './uSCRIPT/setup-environment.sh' to create Python environment${NC}"
 fi
 
 echo ""

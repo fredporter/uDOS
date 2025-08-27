@@ -24,11 +24,14 @@ UDOS_MEMORY = UDOS_ROOT / "uMEMORY"
 UDOS_SANDBOX = UDOS_ROOT / "sandbox"
 
 # Setup logging
+log_dir = UDOS_ROOT / "sandbox" / "session" / "logs"
+log_dir.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(UDOS_ROOT / "wizard" / "logs" / "display-server.log"),
+        logging.FileHandler(log_dir / "display-server.log"),
         logging.StreamHandler()
     ]
 )
@@ -178,7 +181,7 @@ def system_status():
                 "load_average": os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0]
             },
             "udos": {
-                "version": "1.4.0-beta",
+                "version": "1.0.4.1",
                 "active_sessions": active_sessions,
                 "memory_status": memory_status,
                 "root_path": str(UDOS_ROOT),

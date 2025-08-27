@@ -1,0 +1,93 @@
+{
+    "uDOS Bash Script Template": {
+        "prefix": "udos-script",
+        "body": [
+            "#!/bin/bash",
+            "# ${1:Script Description}",
+            "# Part of uDOS ${2:Component} System",
+            "",
+            "# Get script directory and uDOS root",
+            "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"",
+            "UDOS_ROOT=\"$(cd \"$SCRIPT_DIR/../..\" && pwd)\"",
+            "",
+            "# Source common functions",
+            "source \"$UDOS_ROOT/uCORE/core/common-functions.sh\"",
+            "",
+            "# Color codes",
+            "GREEN='\\033[0;32m'",
+            "YELLOW='\\033[1;33m'",
+            "RED='\\033[0;31m'",
+            "NC='\\033[0m'",
+            "",
+            "# Main function",
+            "main() {",
+            "    echo -e \"${GREEN}🚀 ${1:Script Description}${NC}\"",
+            "    ",
+            "    ${3:# Implementation here}",
+            "    ",
+            "    echo -e \"${GREEN}✅ Complete${NC}\"",
+            "}",
+            "",
+            "# Error handling",
+            "set -e",
+            "trap 'echo -e \"${RED}❌ Error on line $LINENO${NC}\"' ERR",
+            "",
+            "# Run main function",
+            "main \"$@\""
+        ],
+        "description": "uDOS bash script template with standard structure"
+    },
+    "uDOS Session Check": {
+        "prefix": "udos-session",
+        "body": [
+            "# Check if session is active",
+            "if [ ! -f \"$UDOS_ROOT/sandbox/session/current-session.json\" ]; then",
+            "    echo -e \"${YELLOW}⚠️  No active session found${NC}\"",
+            "    echo \"Starting new session...\"",
+            "    \"$UDOS_ROOT/uCORE/code/session-manager.sh\" start",
+            "fi"
+        ],
+        "description": "Check and start uDOS session if needed"
+    },
+    "uDOS JSON Parser": {
+        "prefix": "udos-json",
+        "body": [
+            "# Parse JSON using uDOS parser",
+            "parse_json() {",
+            "    local json_file=\"$1\"",
+            "    local key=\"$2\"",
+            "    ",
+            "    if [ -f \"$json_file\" ]; then",
+            "        jq -r \".${key}\" \"$json_file\" 2>/dev/null || echo \"\"",
+            "    fi",
+            "}"
+        ],
+        "description": "uDOS JSON parsing function"
+    },
+    "uDOS Role Check": {
+        "prefix": "udos-role",
+        "body": [
+            "# Check user role",
+            "check_role() {",
+            "    local required_role=\"$1\"",
+            "    local current_role=$(\"$UDOS_ROOT/uCORE/code/session-manager.sh\" role)",
+            "    ",
+            "    case \"$required_role\" in",
+            "        \"DEV\")",
+            "            if [[ \"$current_role\" != \"Wizard\" ]] && [[ \"$current_role\" != \"DEV\" ]]; then",
+            "                echo -e \"${RED}❌ Development mode requires Wizard or DEV role${NC}\"",
+            "                exit 1",
+            "            fi",
+            "            ;;",
+            "        \"Wizard\")",
+            "            if [[ \"$current_role\" != \"Wizard\" ]]; then",
+            "                echo -e \"${RED}❌ This operation requires Wizard role${NC}\"",
+            "                exit 1",
+            "            fi",
+            "            ;;",
+            "    esac",
+            "}"
+        ],
+        "description": "uDOS role-based access check"
+    }
+}

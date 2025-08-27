@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-export UDOS_VERSION="1.3.1"
+export UDOS_VERSION="1.0.4.1"
 
 # Color definitions
 readonly RED='\033[0;31m'
@@ -130,8 +130,14 @@ launch_vscode_development() {
     
     cd "$UDOS_ROOT"
     
-    # Create workspace file
-    cat > "$UDOS_ROOT/uDOS.code-workspace" << 'EOF'
+    # Run enhanced VS Code setup
+    echo -e "${BLUE}🔧 Configuring VS Code for uDOS development...${NC}"
+    if [ -f "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh" ]; then
+        "$UDOS_ROOT/uCORE/launcher/vscode/setup-vscode.sh"
+    else
+        echo -e "${YELLOW}⚠️ VS Code setup script not found, using basic workspace${NC}"
+        # Create basic workspace file as fallback
+        cat > "$UDOS_ROOT/uDOS.code-workspace" << 'EOF'
 {
     "folders": [
         {
@@ -140,19 +146,30 @@ launch_vscode_development() {
         }
     ],
     "settings": {
-        "terminal.integrated.defaultProfile.osx": "zsh"
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.defaultProfile.linux": "bash"
     }
 }
 EOF
+    fi
     
     # Open workspace
+    echo -e "${BLUE}📂 Opening uDOS workspace in VS Code...${NC}"
     code "$UDOS_ROOT/uDOS.code-workspace"
     
     echo -e "${GREEN}✅ VS Code development environment ready${NC}"
     echo ""
-    echo -e "${WHITE}Available VS Code tasks:${NC}"
-    echo -e "  ${GREEN}🧙‍♂️ Start uDOS Wizard${NC} - Full wizard mode with UI"
-    echo -e "  ${GREEN}🔧 Start uSERVER Only${NC} - Server-only mode"
+    echo -e "${WHITE}Available VS Code features:${NC}"
+    echo -e "  ${GREEN}🐛 Debugging${NC} - Press F5 to debug bash scripts"
+    echo -e "  ${GREEN}⚡ Tasks${NC} - Ctrl+Shift+P > Tasks: Run Task"
+    echo -e "  ${GREEN}🧙‍♂️ Copilot${NC} - AI-assisted development"
+    echo -e "  ${GREEN}📝 Snippets${NC} - Type 'udos-' for code templates"
+    echo ""
+    echo -e "${WHITE}Quick tasks:${NC}"
+    echo -e "  ${GREEN}🌀 Start uDOS${NC} - Launch full system"
+    echo -e "  ${GREEN}🧠 Development Mode${NC} - Enhanced dev environment"
+    echo -e "  ${GREEN}🔍 Check Installation${NC} - Validate system"
+    echo -e "  ${GREEN}📊 Generate Dashboard${NC} - Create status dashboard"
     echo ""
 }
 
