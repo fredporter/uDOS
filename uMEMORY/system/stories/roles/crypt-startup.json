@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "crypt-startup",
+        "title": "🔐 Welcome, Crypt Guardian - Secure Your Vault",
+        "type": "story",
+        "role": "CRYPT",
+        "level": 30,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "⚡ Hail, Guardian of the Crypt! Your role is to protect and secure sensitive information. Let's establish your security protocols.",
+        "context": "Crypt users have enhanced security features and protected storage areas for sensitive work.",
+        "purpose": "Configure security settings and protected storage areas",
+        "adventure_theme": "guardian_protection"
+    },
+    "variables": [
+        {
+            "name": "SECURITY-PROFILE",
+            "type": "string",
+            "description": "Security configuration level",
+            "required": true,
+            "values": ["standard", "enhanced", "maximum", "custom"],
+            "prompt": "What level of security do you require?",
+            "help": "Higher security means more protection but additional verification steps"
+        },
+        {
+            "name": "SENSITIVE-DATA-TYPES",
+            "type": "string",
+            "description": "Types of sensitive data to protect",
+            "required": true,
+            "values": ["personal", "business", "research", "development", "mixed"],
+            "prompt": "What type of sensitive data will you store?",
+            "help": "This helps us configure appropriate protection measures"
+        },
+        {
+            "name": "ACCESS-VERIFICATION",
+            "type": "string",
+            "description": "Preferred verification method",
+            "required": true,
+            "values": ["password", "key-file", "dual-factor", "biometric"],
+            "prompt": "How do you want to verify access to protected areas?",
+            "help": "More secure methods provide better protection for your crypt"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "secure_the_crypt",
+        "milestones": ["vault_established", "security_configured", "protection_active"],
+        "rewards": ["guardian_key", "crypt_seal", "security_mastery"]
+    }
+}

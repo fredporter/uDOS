@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "DRONE",
+        "level": 40,
+        "description": "Variables for Automation Drone operations"
+    },
+    "variables": {
+        "AUTOMATION-AGGRESSIVENESS": {
+            "type": "string",
+            "default": "moderate",
+            "values": ["conservative", "moderate", "aggressive", "maximum"],
+            "description": "How aggressively to automate processes",
+            "scope": "role"
+        },
+        "ERROR-HANDLING": {
+            "type": "string",
+            "default": "retry-then-notify",
+            "values": ["fail-fast", "retry-once", "retry-then-notify", "retry-indefinitely"],
+            "description": "How to handle automation errors",
+            "scope": "role"
+        },
+        "RESOURCE-LIMITS": {
+            "type": "string",
+            "default": "standard",
+            "values": ["conservative", "standard", "generous", "unlimited"],
+            "description": "Resource usage limits for automation",
+            "scope": "role"
+        }
+    }
+}

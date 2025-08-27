@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "sorcerer-startup",
+        "title": "🧙‍♂️ Welcome, Wise Sorcerer - Channel Your Power",
+        "type": "story",
+        "role": "SORCERER",
+        "level": 80,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "✨ Welcome, Master Sorcerer! Your deep knowledge and magical abilities grant you advanced powers over the system. Let's focus your arcane energies.",
+        "context": "Sorcerers have advanced administration capabilities, system configuration access, and powerful automation tools.",
+        "purpose": "Configure advanced system management and magical automation",
+        "adventure_theme": "arcane_mastery"
+    },
+    "variables": [
+        {
+            "name": "MAGICAL-SPECIALTY",
+            "type": "string",
+            "description": "Your primary magical focus",
+            "required": true,
+            "values": ["system-enchantment", "data-transmutation", "workflow-conjuring", "knowledge-divination"],
+            "prompt": "In which school of magic do you specialize?",
+            "help": "This determines your advanced tools and automation capabilities"
+        },
+        {
+            "name": "POWER-LEVEL",
+            "type": "string",
+            "description": "Preferred power utilization",
+            "required": true,
+            "values": ["conservative", "balanced", "aggressive", "maximum"],
+            "prompt": "How do you prefer to channel your magical power?",
+            "help": "Higher power levels enable more advanced features but require greater responsibility"
+        },
+        {
+            "name": "APPRENTICE-MENTORING",
+            "type": "string",
+            "description": "Willingness to mentor lower roles",
+            "required": true,
+            "values": ["eager", "selective", "occasional", "focused"],
+            "prompt": "Do you wish to mentor apprentices (lower roles)?",
+            "help": "This enables mentoring features and assistance capabilities"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "master_the_arcane",
+        "milestones": ["spells_learned", "power_channeled", "wisdom_shared"],
+        "rewards": ["arcane_mastery", "sorcerer_staff", "magical_achievement"]
+    }
+}

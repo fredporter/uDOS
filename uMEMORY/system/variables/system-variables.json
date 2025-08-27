@@ -1,9 +1,44 @@
 {
     "metadata": {
-        "name": "uDOS System Variables",
+        "name": "uDOS Enhanced System Variables",
         "version": "1.0.4.1",
         "type": "system",
-        "created": "2025-08-26T00:00:00Z"
+        "created": "2025-08-28T00:00:00Z",
+        "description": "Comprehensive system variable definitions for uDOS",
+        "scope": "global",
+        "usage": "Commands, functions, templates, and uSCRIPTs"
+    },
+    "variable_categories": {
+        "core_system": {
+            "description": "Essential system operation variables",
+            "scope": "global",
+            "persistence": "permanent"
+        },
+        "display_ui": {
+            "description": "Display and user interface variables",
+            "scope": "session",
+            "persistence": "session"
+        },
+        "geographic": {
+            "description": "Location and geographic data variables",
+            "scope": "user",
+            "persistence": "user"
+        },
+        "project_session": {
+            "description": "Project and session management variables",
+            "scope": "session",
+            "persistence": "session"
+        },
+        "development": {
+            "description": "Development and scripting variables",
+            "scope": "dev",
+            "persistence": "session"
+        },
+        "integration": {
+            "description": "Cross-system integration variables",
+            "scope": "global",
+            "persistence": "permanent"
+        }
     },
     "variables": {
         "USER-ROLE": {
@@ -11,63 +46,217 @@
             "default": "GHOST",
             "values": ["GHOST", "TOMB", "CRYPT", "DRONE", "KNIGHT", "IMP", "SORCERER", "WIZARD"],
             "description": "Current user role level (10-100)",
-            "scope": "system",
-            "required": true
+            "scope": "core_system",
+            "required": true,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_USER_ROLE"
+        },
+        "USER-LEVEL": {
+            "type": "number",
+            "default": 10,
+            "values": [10, 20, 30, 40, 50, 60, 80, 100],
+            "description": "Numeric user access level",
+            "scope": "core_system",
+            "required": true,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_USER_LEVEL"
         },
         "DISPLAY-MODE": {
             "type": "string",
             "default": "CLI",
             "values": ["CLI", "DESKTOP", "WEB"],
             "description": "Display system mode",
-            "scope": "system",
-            "required": true
+            "scope": "display_ui",
+            "required": true,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_DISPLAY_MODE"
+        },
+        "UI-THEME": {
+            "type": "string",
+            "default": "polaroid",
+            "values": ["polaroid", "retro-unicorn", "nostalgia", "tropical-sunrise", "pastel-power", "arcade-pastels", "grayscale", "solar-punk"],
+            "description": "User interface color theme",
+            "scope": "display_ui",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_UI_THEME"
         },
         "MAX-RESOLUTION": {
             "type": "string",
             "default": "1280x720",
             "pattern": "^[0-9]+x[0-9]+$",
             "description": "Maximum display resolution",
-            "scope": "display",
-            "required": false
+            "scope": "display_ui",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_MAX_RESOLUTION"
         },
         "GRID-SIZE": {
             "type": "string",
             "default": "80x30",
             "pattern": "^[0-9]+x[0-9]+$",
             "description": "Grid dimensions for display",
-            "scope": "display",
-            "required": false
+            "scope": "display_ui",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_GRID_SIZE"
         },
         "DETAIL-LEVEL": {
             "type": "string",
             "default": "STANDARD",
             "values": ["MINIMAL", "STANDARD", "DETAILED", "VERBOSE"],
             "description": "Information detail level",
-            "scope": "display",
-            "required": false
+            "scope": "display_ui",
+            "required": false,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_DETAIL_LEVEL"
         },
         "TILE-CODE": {
             "type": "string",
             "default": "00AA00",
             "pattern": "^[0-9A-F]{6}$",
             "description": "Geographic tile location code",
-            "scope": "geo",
-            "required": false
+            "scope": "geographic",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_TILE_CODE"
+        },
+        "TIMEZONE": {
+            "type": "string",
+            "default": "UTC",
+            "pattern": "^[A-Z]{3,4}$",
+            "description": "User timezone identifier",
+            "scope": "geographic",
+            "required": false,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_TIMEZONE"
+        },
+        "LOCATION-CODE": {
+            "type": "string",
+            "default": "GLOBAL",
+            "pattern": "^[A-Z0-9]{2,8}$",
+            "description": "Location identifier code",
+            "scope": "geographic",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_LOCATION_CODE"
         },
         "PROJECT-NAME": {
             "type": "string",
             "default": "",
             "description": "Current project identifier",
-            "scope": "project",
-            "required": false
+            "scope": "project_session",
+            "required": false,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_PROJECT_NAME"
+        },
+        "PROJECT-TYPE": {
+            "type": "string",
+            "default": "personal",
+            "values": ["personal", "development", "team", "enterprise"],
+            "description": "Type of current project",
+            "scope": "project_session",
+            "required": false,
+            "shared_with": ["templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_PROJECT_TYPE"
         },
         "SESSION-ID": {
             "type": "string",
             "default": "",
             "pattern": "^[A-F0-9]{8}$",
             "description": "Current session identifier",
-            "scope": "session",
-            "required": false
+            "scope": "project_session",
+            "required": false,
+            "shared_with": ["functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_SESSION_ID"
+        },
+        "WORKSPACE-PATH": {
+            "type": "string",
+            "default": "",
+            "description": "Current workspace directory path",
+            "scope": "project_session",
+            "required": false,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_WORKSPACE_PATH"
+        },
+        "DEV-MODE": {
+            "type": "boolean",
+            "default": false,
+            "description": "Development mode enabled",
+            "scope": "development",
+            "required": false,
+            "shared_with": ["commands", "functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_DEV_MODE"
+        },
+        "DEBUG-LEVEL": {
+            "type": "string",
+            "default": "INFO",
+            "values": ["DEBUG", "INFO", "WARNING", "ERROR"],
+            "description": "Debug logging level",
+            "scope": "development",
+            "required": false,
+            "shared_with": ["commands", "functions", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_DEBUG_LEVEL"
+        },
+        "SCRIPT-ENV": {
+            "type": "string",
+            "default": "production",
+            "values": ["development", "testing", "staging", "production"],
+            "description": "Script execution environment",
+            "scope": "development",
+            "required": false,
+            "shared_with": ["uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_SCRIPT_ENV"
+        },
+        "DATA-SOURCE": {
+            "type": "string",
+            "default": "local",
+            "values": ["local", "network", "cloud", "hybrid"],
+            "description": "Primary data source configuration",
+            "scope": "integration",
+            "required": false,
+            "shared_with": ["functions", "templates", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_DATA_SOURCE"
+        },
+        "BACKUP-ENABLED": {
+            "type": "boolean",
+            "default": true,
+            "description": "Automatic backup system enabled",
+            "scope": "integration",
+            "required": false,
+            "shared_with": ["commands", "functions", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_BACKUP_ENABLED"
+        },
+        "LOG-RETENTION": {
+            "type": "number",
+            "default": 30,
+            "min": 1,
+            "max": 365,
+            "description": "Log retention period in days",
+            "scope": "integration",
+            "required": false,
+            "shared_with": ["functions", "uscripts"],
+            "export_to_env": true,
+            "env_name": "UDOS_LOG_RETENTION"
         }
     }
 }

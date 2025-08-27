@@ -217,34 +217,7 @@ set_variable() {
         '.values[$name] = $value' "$values_file")
     echo "$updated_values" > "$values_file"
 
-    # Export to environment if variable is configured for export
-    export_variable_to_environment "$var_name" "$var_value"
-
     log_success "Variable \$$var_name set to: $var_value"
-}
-
-# Export variable to environment based on system configuration
-export_variable_to_environment() {
-    local var_name="$1"
-    local var_value="$2"
-
-    # Check if this variable should be exported
-    local var_def
-    var_def=$(get_variable "$var_name" 2>/dev/null)
-    if [[ $? -eq 0 ]]; then
-        local should_export
-        should_export=$(echo "$var_def" | jq -r '.export_to_env // false')
-
-        if [[ "$should_export" == "true" ]]; then
-            local env_name
-            env_name=$(echo "$var_def" | jq -r '.env_name // ""')
-
-            if [[ -n "$env_name" ]]; then
-                export "$env_name"="$var_value"
-                log_info "Exported to environment: $env_name=$var_value"
-            fi
-        fi
-    fi
 }
 
 # Get variable value
@@ -525,12 +498,6 @@ main() {
     # Initialize system
     init_system_variables
     init_user_variables
-
-    # Initialize environment exports if available
-    local export_script="$VARIABLE_DIR/export-variables.sh"
-    if [[ -f "$export_script" && -x "$export_script" ]]; then
-        source "$export_script"
-    fi
 
     case "${1:-LIST}" in
         "DEFINE")

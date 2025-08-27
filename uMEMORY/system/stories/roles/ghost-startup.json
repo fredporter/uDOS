@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "ghost-startup",
+        "title": "👻 Welcome, Ghost - Begin Your Journey",
+        "type": "story",
+        "role": "GHOST",
+        "level": 10,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "🌟 Welcome to uDOS, mysterious wanderer! As a Ghost, you have access to a safe demonstration environment where you can explore without affecting the main system.",
+        "context": "Ghost users experience uDOS through guided demos and tutorials. Your actions are sandboxed for learning.",
+        "purpose": "Introduce basic concepts and demonstrate core functionality",
+        "adventure_theme": "ethereal_exploration"
+    },
+    "variables": [
+        {
+            "name": "TUTORIAL-PREFERENCE",
+            "type": "string",
+            "description": "Preferred learning style",
+            "required": true,
+            "values": ["guided", "experimental", "reference"],
+            "prompt": "How do you prefer to learn new systems?",
+            "help": "Guided: Step-by-step tutorials, Experimental: Try things yourself, Reference: Documentation focus"
+        },
+        {
+            "name": "DEMO-DURATION",
+            "type": "string",
+            "description": "Expected demo session length",
+            "required": true,
+            "values": ["15 minutes", "30 minutes", "1 hour", "explore freely"],
+            "prompt": "How long do you plan to explore today?",
+            "help": "This helps us suggest appropriate activities for your session"
+        },
+        {
+            "name": "INTEREST-AREA",
+            "type": "string",
+            "description": "Primary area of interest",
+            "required": false,
+            "values": ["commands", "templates", "visualization", "automation", "general"],
+            "prompt": "What aspect of uDOS interests you most?",
+            "help": "We'll customize demonstrations based on your interests"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "first_steps",
+        "milestones": ["demo_complete", "tutorial_finished", "basics_mastered"],
+        "rewards": ["demo_certificate", "tutorial_completion", "ghost_badge"]
+    }
+}

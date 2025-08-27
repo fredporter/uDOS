@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "imp-startup",
+        "title": "😈 Welcome, Clever Imp - Unleash Your Creativity",
+        "type": "story",
+        "role": "IMP",
+        "level": 60,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "🔥 Greetings, mischievous Imp! Your creativity and cunning make you perfect for development and innovation. Let's set up your creative workspace.",
+        "context": "Imps have development access, script creation abilities, and creative tools for building custom solutions.",
+        "purpose": "Configure development environment and creative tools",
+        "adventure_theme": "creative_chaos"
+    },
+    "variables": [
+        {
+            "name": "CREATIVITY-FOCUS",
+            "type": "string",
+            "description": "Primary creative outlet",
+            "required": true,
+            "values": ["scripting", "templates", "automation", "experiments", "tools"],
+            "prompt": "Where does your mischievous creativity flow best?",
+            "help": "We'll set up development tools optimized for your creative focus"
+        },
+        {
+            "name": "DEVELOPMENT-STYLE",
+            "type": "string",
+            "description": "Preferred development approach",
+            "required": true,
+            "values": ["rapid-prototyping", "experimental", "methodical", "collaborative"],
+            "prompt": "How do you like to approach development projects?",
+            "help": "This configures your development environment and tool preferences"
+        },
+        {
+            "name": "SHARING-PREFERENCE",
+            "type": "string",
+            "description": "How to share your creations",
+            "required": true,
+            "values": ["open-sharing", "selective-sharing", "private-first", "collaborative"],
+            "prompt": "How do you want to share your creative works?",
+            "help": "Controls default permissions and sharing settings for your projects"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "spark_creativity",
+        "milestones": ["first_creation", "tool_mastery", "innovation_achieved"],
+        "rewards": ["creativity_spark", "innovation_badge", "imp_mastery"]
+    }
+}

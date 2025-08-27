@@ -1,0 +1,90 @@
+{
+    "metadata": {
+        "name": "uDOS Install System Variables",
+        "version": "1.0.4.1",
+        "type": "install",
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "variables": {
+        "INSTALL-MODE": {
+            "type": "string",
+            "default": "interactive",
+            "values": ["interactive", "guided", "automated", "custom"],
+            "description": "Installation interaction mode",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "How do you prefer to install uDOS?",
+            "story_help": "Interactive: Questions for each setting, Guided: Recommended defaults, Automated: Use all defaults"
+        },
+        "FIRST-RUN-ROLE": {
+            "type": "string",
+            "default": "GHOST",
+            "values": ["GHOST", "TOMB", "CRYPT", "DRONE", "KNIGHT", "IMP", "SORCERER", "WIZARD"],
+            "description": "Initial role assignment for first run",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "What role should be assigned for the first user?",
+            "story_help": "This determines initial capabilities and access levels"
+        },
+        "ADVENTURE-MODE": {
+            "type": "string",
+            "default": "enabled",
+            "values": ["enabled", "disabled", "optional"],
+            "description": "Adventure tracking system activation",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "Enable adventure tracking and gamification?",
+            "story_help": "Adventure mode adds quest tracking and achievement systems"
+        },
+        "STARTUP-STORY-AUTO": {
+            "type": "string",
+            "default": "first-run-only",
+            "values": ["always", "first-run-only", "role-change", "manual", "disabled"],
+            "description": "When to automatically run startup stories",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "When should startup stories automatically run?",
+            "story_help": "Controls automatic execution of role-specific startup configurations"
+        },
+        "VARIABLE-PERSISTENCE": {
+            "type": "string",
+            "default": "session-and-permanent",
+            "values": ["session-only", "permanent-only", "session-and-permanent", "role-based"],
+            "description": "Variable storage persistence strategy",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "How should variables be stored?",
+            "story_help": "Session-only: Reset each session, Permanent: Save across sessions, Role-based: Depends on role"
+        },
+        "DEV-MODE-DEFAULT": {
+            "type": "string",
+            "default": "role-based",
+            "values": ["always-off", "role-based", "user-choice", "always-on"],
+            "description": "Default development mode setting",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "How should development mode be configured by default?",
+            "story_help": "Role-based: Available for IMP+ roles, User-choice: Ask each user"
+        },
+        "TUTORIAL-SYSTEM": {
+            "type": "string",
+            "default": "adaptive",
+            "values": ["disabled", "basic", "standard", "adaptive", "comprehensive"],
+            "description": "Tutorial and help system level",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "What level of tutorial system do you want?",
+            "story_help": "Adaptive: Adjusts based on user role and experience level"
+        },
+        "THEME-SYSTEM": {
+            "type": "string",
+            "default": "role-themed",
+            "values": ["single-theme", "user-choice", "role-themed", "adaptive"],
+            "description": "Theme and visual configuration approach",
+            "scope": "install",
+            "required": true,
+            "story_prompt": "How should visual themes be managed?",
+            "story_help": "Role-themed: Different visual styles for each role level"
+        }
+    }
+}

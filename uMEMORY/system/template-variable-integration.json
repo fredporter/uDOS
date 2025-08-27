@@ -1,0 +1,59 @@
+{
+    "metadata": {
+        "name": "Template Variable Integration",
+        "version": "1.0.4.1",
+        "description": "Configuration for variable substitution in templates",
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "substitution_patterns": {
+        "basic": {
+            "pattern": "{VARIABLE}",
+            "description": "Basic variable substitution",
+            "example": "{USER-ROLE} -> WIZARD"
+        },
+        "with_default": {
+            "pattern": "{VARIABLE|default}",
+            "description": "Variable with fallback default",
+            "example": "{PROJECT-NAME|Untitled} -> My Project"
+        },
+        "conditional": {
+            "pattern": "{#if VARIABLE}content{/if}",
+            "description": "Conditional content based on variable",
+            "example": "{#if DEV-MODE}Debug info{/if}"
+        },
+        "formatted": {
+            "pattern": "{VARIABLE:format}",
+            "description": "Variable with formatting",
+            "example": "{USER-LEVEL:number} -> 100"
+        }
+    },
+    "template_contexts": {
+        "command_help": {
+            "variables": ["USER-ROLE", "USER-LEVEL", "DETAIL-LEVEL"],
+            "pattern": "basic",
+            "auto_substitute": true
+        },
+        "dashboard": {
+            "variables": ["USER-ROLE", "PROJECT-NAME", "SESSION-ID", "DISPLAY-MODE"],
+            "pattern": "with_default",
+            "auto_substitute": true
+        },
+        "project_templates": {
+            "variables": ["PROJECT-NAME", "PROJECT-TYPE", "USER-ROLE", "WORKSPACE-PATH"],
+            "pattern": "with_default",
+            "auto_substitute": true
+        },
+        "mission_brief": {
+            "variables": ["USER-ROLE", "USER-LEVEL", "PROJECT-NAME", "TILE-CODE", "LOCATION-CODE"],
+            "pattern": "conditional",
+            "auto_substitute": true
+        }
+    },
+    "processing_rules": {
+        "preserve_unknown": true,
+        "case_sensitive": true,
+        "recursive_substitution": false,
+        "max_depth": 3,
+        "error_handling": "log_and_skip"
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "SORCERER",
+        "level": 80,
+        "description": "Variables for Sorcerer magical operations"
+    },
+    "variables": {
+        "MAGICAL-POWER-LIMIT": {
+            "type": "string",
+            "default": "high",
+            "values": ["conservative", "moderate", "high", "maximum"],
+            "description": "Maximum magical power utilization",
+            "scope": "role"
+        },
+        "SPELL-COMPLEXITY": {
+            "type": "string",
+            "default": "advanced",
+            "values": ["basic", "intermediate", "advanced", "master"],
+            "description": "Complexity level of available spells",
+            "scope": "role"
+        },
+        "APPRENTICE-LIMIT": {
+            "type": "string",
+            "default": "5",
+            "values": ["1", "3", "5", "10", "unlimited"],
+            "description": "Maximum apprentices to mentor",
+            "scope": "role"
+        }
+    }
+}

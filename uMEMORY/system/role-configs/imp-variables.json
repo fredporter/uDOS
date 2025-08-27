@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "IMP",
+        "level": 60,
+        "description": "Variables for Clever Imp creative operations"
+    },
+    "variables": {
+        "CREATIVITY-CHAOS-LEVEL": {
+            "type": "string",
+            "default": "controlled",
+            "values": ["ordered", "controlled", "chaotic", "pure-chaos"],
+            "description": "Level of creative chaos allowed",
+            "scope": "role"
+        },
+        "EXPERIMENT-SAFETY": {
+            "type": "string",
+            "default": "safe-sandbox",
+            "values": ["production-safe", "safe-sandbox", "risky-sandbox", "danger-zone"],
+            "description": "Safety level for creative experiments",
+            "scope": "role"
+        },
+        "SHARING-DEFAULT": {
+            "type": "string",
+            "default": "selective",
+            "values": ["private", "selective", "open", "public"],
+            "description": "Default sharing level for creations",
+            "scope": "role"
+        }
+    }
+}
