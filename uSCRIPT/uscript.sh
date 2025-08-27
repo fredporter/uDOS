@@ -4,6 +4,12 @@
 # Author: uDOS Team
 # Version: 1.3.3
 
+# Enhanced debugging integration
+if [[ -f "$UDOS_ROOT/dev/scripts/enhanced-debug.sh" ]]; then
+    source "$UDOS_ROOT/dev/scripts/enhanced-debug.sh"
+fi
+
+
 # Configuration
 USCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$USCRIPT_ROOT/config"

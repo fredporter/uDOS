@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Enhanced debugging integration
+if [[ -f "$UDOS_ROOT/dev/scripts/enhanced-debug.sh" ]]; then
+    source "$UDOS_ROOT/dev/scripts/enhanced-debug.sh"
+fi
+
+
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)}"
 export UDOS_VERSION="1.0.4.1"
