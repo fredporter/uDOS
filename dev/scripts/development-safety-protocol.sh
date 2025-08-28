@@ -57,25 +57,15 @@ auto_commit_changes() {
 create_development_backup() {
     local backup_dir="$UDOS_ROOT/dev/backups/auto"
     local timestamp=$(date +%Y%m%d_%H%M%S)
-    local backup_file="dev-backup-$timestamp.tar.gz"
+    # Use session-based backup instead of mass backup
+    echo -e "${GREEN}📸 Creating session snapshot for safety...${NC}"
     
-    mkdir -p "$backup_dir"
-    
-    # Create comprehensive backup excluding .git and node_modules
-    tar -czf "$backup_dir/$backup_file" \
-        --exclude='.git' \
-        --exclude='node_modules' \
-        --exclude='*.pyc' \
-        --exclude='__pycache__' \
-        --exclude='*.log' \
-        -C "$UDOS_ROOT" \
-        uCORE uMEMORY uNETWORK uSCRIPT sandbox dev *.md *.sh *.json VERSION || true
-    
-    echo -e "${GREEN}📦 Development backup created: $backup_file${NC}"
-    
-    # Keep only last 10 backups
-    cd "$backup_dir"
-    ls -t dev-backup-*.tar.gz 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null || true
+    # Call the session backup system
+    if [ -f "$UDOS_ROOT/dev/scripts/session-backup-system.sh" ]; then
+        "$UDOS_ROOT/dev/scripts/session-backup-system.sh" snapshot "safety-$(date +%H%M%S)"
+    else
+        echo -e "${YELLOW}⚠️  Session backup system not found, skipping backup${NC}"
+    fi
 }
 
 # Setup development branch
@@ -193,8 +183,12 @@ while true; do
     tar -czf "\$backup_dir/safety-backup-\$timestamp.tar.gz" \\
         --exclude='.git' \\
         --exclude='node_modules' \\
+        --exclude='dev/backups' \\
+        --exclude='*.log' \\
+        --exclude='sandbox/temp' \\
+        --exclude='sandbox/trash' \\
         -C "\$UDOS_ROOT" \\
-        uCORE uMEMORY uNETWORK uSCRIPT sandbox dev 2>/dev/null || true
+        uCORE/code uCORE/config uMEMORY/schemas uKNOWLEDGE/schemas uNETWORK/config uSCRIPT/config dev/scripts 2>/dev/null || true
     
     # Keep only last 20 auto-backups
     cd "\$backup_dir"

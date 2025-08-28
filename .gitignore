@@ -79,8 +79,15 @@ backup-*
 **/backup-*
 **/*backup*
 
+# Hidden backup and trash patterns
+.*backup*
+.*trash*
+.Trash*
+.*bak*
+
 # Exception: Essential backup management scripts
 !dev/scripts/backup-manager.sh
+!dev/scripts/lean-backup-system.sh
 
 # ════════════════════════════════════════════════════════════════
 # 📊 ALL LOG FILES (COMPLETE EXCLUSION)

@@ -33,9 +33,17 @@ main() {
             shift
             "${UDOS_ROOT}/dev/scripts/build.sh" build "$@"
             ;;
-        "backup")
+        "backup"|"snapshot")
             shift
-            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" "$@"
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" "$@"
+            ;;
+        "destroy")
+            shift
+            "${UDOS_ROOT}/dev/scripts/destroy.sh" "$@"
+            ;;
+        "session")
+            shift
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" "$@"
             ;;
         "test")
             shift
@@ -80,9 +88,9 @@ main() {
             "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" status
             
             echo ""
-            echo "💾 Backup Status"
-            echo "==============="
-            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" stats
+            echo "� Session Backup Status"
+            echo "======================="
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" status
             ;;
         "init")
             show_header
@@ -94,8 +102,8 @@ main() {
             "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
             
             echo ""
-            # Initialize backup system
-            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" init
+            # Initialize session backup system
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" status
             
             echo ""
             echo "✅ uDOS development environment ready!"
@@ -110,7 +118,9 @@ main() {
             echo "  status                  - Show system status"
             echo "  foundation [cmd]        - Foundation operations (init|status|test|clean)"
             echo "  build [target]          - Build system (development|production|testing)"
-            echo "  backup [cmd]            - Backup management (init|create|list|restore|stats)"
+            echo "  backup [cmd]            - Session backup (snapshot|role|working|restore|clean|status)"
+            echo "  session [cmd]           - Same as backup (session-based operations)"
+            echo "  destroy [target]        - Controlled deletion (session|role|sandbox|eol)"
             echo "  test [type]             - Run tests (integration)"
             echo "  demo [type]             - Run demos (integration)"
             echo "  help                    - Show this help"
@@ -118,8 +128,10 @@ main() {
             echo "Examples:"
             echo "  ./udos init             - Initialize everything"
             echo "  ./udos build testing    - Build and test"
-            echo "  ./udos backup create manual my_backup  - Create manual backup"
-            echo "  ./udos test integration - Run integration tests"
+            echo "  ./udos backup snapshot mysave  - Create session snapshot"
+            echo "  ./udos session working         - Backup working files"
+            echo "  ./udos destroy session         - Destroy session data"
+            echo "  ./udos test integration        - Run integration tests"
             echo "  ./udos demo integration - Run integration demo"
             ;;
         *)
