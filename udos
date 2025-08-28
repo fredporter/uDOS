@@ -56,8 +56,11 @@ main() {
                 "integration")
                     "${UDOS_ROOT}/dev/demos/demo-integration.sh"
                     ;;
+                "network")
+                    "${UDOS_ROOT}/dev/demos/demo-network.sh"
+                    ;;
                 *)
-                    echo "Available demos: integration"
+                    echo "Available demos: integration, network"
                     ;;
             esac
             ;;

@@ -145,10 +145,14 @@ build_testing() {
     export UDOS_ENV="testing"
     export UDOS_LOG_LEVEL=0  # Debug level
     
-    "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
+    # Initialize v1.0.5.4 with network integration
+    "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" init
     
     # Run foundation tests
     "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" test
+    
+    # Test network integration
+    "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" test
     
     echo "✅ Testing build complete"
 }
