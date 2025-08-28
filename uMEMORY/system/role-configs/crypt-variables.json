@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "CRYPT",
+        "level": 30,
+        "description": "Variables for Crypt Guardian security operations"
+    },
+    "variables": {
+        "ENCRYPTION-LEVEL": {
+            "type": "string",
+            "default": "strong",
+            "values": ["basic", "standard", "strong", "military"],
+            "description": "Encryption strength for protected data",
+            "scope": "role"
+        },
+        "ACCESS-LOG-DETAIL": {
+            "type": "string",
+            "default": "detailed",
+            "values": ["minimal", "standard", "detailed", "forensic"],
+            "description": "Level of access logging detail",
+            "scope": "role"
+        },
+        "THREAT-RESPONSE": {
+            "type": "string",
+            "default": "proactive",
+            "values": ["passive", "reactive", "proactive", "aggressive"],
+            "description": "Security threat response mode",
+            "scope": "role"
+        }
+    }
+}

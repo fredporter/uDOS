@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "format": "uDATA",
+    "version": "1.0",
+    "generated": "2025-08-24T22:34:38.944842",
+    "records": 3,
+    "description": "uDOS Data Format - Minified JSON records, one per line",
+    "last_updated": "2025-08-28T16:31:02Z"
+  },
+  "modules": {
+    "uMEMORY": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uMEMORY",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    },
+    "uKNOWLEDGE": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    }
+  }
+}
+{
+  "metadata": {
+    "version": "1.0.0",
+    "total_components": 2,
+    "last_updated": "2025-08-28T16:31:02Z",
+    "location": "uCORE/code"
+  },
+  "modules": {
+    "uMEMORY": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uMEMORY",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    },
+    "uKNOWLEDGE": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    }
+  }
+}
+{
+  "category": "components",
+  "index": 0,
+  "name": "deployment-manager",
+  "version": "1.0.0",
+  "type": "essential",
+  "status": "active",
+  "location": "uCORE/code/deployment-manager",
+  "commands": 6,
+  "modules": {
+    "uMEMORY": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uMEMORY",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    },
+    "uKNOWLEDGE": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-08-28T16:31:02Z"
+  }
+}
+{
+  "category": "components",
+  "index": 1,
+  "name": "smart-input",
+  "version": "2.0.0",
+  "type": "essential",
+  "status": "active",
+  "location": "uCORE/code/smart-input",
+  "commands": 5,
+  "modules": {
+    "uMEMORY": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uMEMORY",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    },
+    "uKNOWLEDGE": {
+      "version": "1.0.5.3",
+      "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
+      "status": "registered",
+      "registered_at": "2025-08-28T16:31:02Z",
+      "health": "unknown"
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-08-28T16:31:02Z"
+  }
+}

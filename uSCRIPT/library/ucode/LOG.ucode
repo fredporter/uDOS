@@ -1,0 +1,503 @@
+```plaintext
+' uDOS Logging and Reporting System - Visual Basic Style uCode
+' Log management, analysis, and reporting
+' Usage: LOG [recent|search|stats|export|clean|help] [args]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "recent"
+    DIM argument AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        command = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            argument = parts(1)
+        END IF
+    END IF
+    
+    ' Execute log command
+    SELECT CASE LCASE(command)
+        CASE "recent", "latest"
+            RETURN ShowRecentLogs(argument)
+        CASE "search", "find"
+            RETURN SearchLogs(argument)
+        CASE "stats", "statistics"
+            RETURN ShowLogStats()
+        CASE "export"
+            RETURN ExportLogs(argument)
+        CASE "clean", "cleanup"
+            RETURN CleanupLogs(argument)
+        CASE "report"
+            RETURN GenerateReport(argument)
+        CASE "errors", "error"
+            RETURN ShowErrors()
+        CASE "warnings", "warning"
+            RETURN ShowWarnings()
+        CASE "help"
+            RETURN ShowLogHelp()
+        CASE ELSE
+            RETURN ShowRecentLogs("")
+    END SELECT
+END FUNCTION
+
+FUNCTION ShowRecentLogs(count AS STRING) AS INTEGER
+    DIM log_count AS INTEGER = 20
+    IF count <> "" AND IsNumeric(count) THEN
+        log_count = VAL(count)
+    END IF
+    
+    PRINT ""
+    PRINT "📊 LOG - Recent Entries (" + STR(log_count) + ")"
+    PRINT STRING(80, "━")
+    
+    DIM log_entries() AS Object = GetRecentLogEntries(log_count)
+    
+    ' Header
+    PRINT LEFT("Time", 20) + " | " + LEFT("Level", 8) + " | " + LEFT("Source", 15) + " | " + "Message"
+    PRINT STRING(80, "─")
+    
+    ' Display log entries
+    DIM entry AS Object
+    FOR EACH entry IN log_entries
+        DIM timestamp AS STRING = FORMAT(entry.timestamp, "MM/dd HH:mm:ss")
+        DIM level AS STRING = FormatLogLevel(entry.level)
+        DIM source AS STRING = LEFT(entry.source, 15)
+        DIM message AS STRING = LEFT(entry.message, 40)
+        
+        PRINT LEFT(timestamp, 20) + " | " + LEFT(level, 8) + " | " + LEFT(source, 15) + " | " + message
+    NEXT entry
+    
+    PRINT STRING(80, "━")
+    PRINT "📊 Showing " + STR(UBOUND(log_entries) + 1) + " recent log entries"
+    PRINT ""
+    PRINT "💡 Use 'LOG search <term>' to find specific entries"
+    PRINT "💡 Use 'LOG errors' to see only error messages"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION SearchLogs(searchTerm AS STRING) AS INTEGER
+    IF searchTerm = "" THEN
+        PRINT "❌ Search term required"
+        PRINT "Usage: LOG search <term>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🔍 LOG - Search Results for: " + searchTerm
+    PRINT STRING(80, "━")
+    
+    DIM search_results() AS Object = SearchLogEntries(searchTerm)
+    
+    IF UBOUND(search_results) < 0 THEN
+        PRINT "❌ No log entries found containing '" + searchTerm + "'"
+        PRINT ""
+        RETURN 0
+    END IF
+    
+    ' Header
+    PRINT LEFT("Time", 20) + " | " + LEFT("Level", 8) + " | " + LEFT("Source", 15) + " | " + "Message"
+    PRINT STRING(80, "─")
+    
+    ' Display search results
+    DIM entry AS Object
+    FOR EACH entry IN search_results
+        DIM timestamp AS STRING = FORMAT(entry.timestamp, "MM/dd HH:mm:ss")
+        DIM level AS STRING = FormatLogLevel(entry.level)
+        DIM source AS STRING = LEFT(entry.source, 15)
+        DIM message AS STRING = HighlightSearchTerm(entry.message, searchTerm, 40)
+        
+        PRINT LEFT(timestamp, 20) + " | " + LEFT(level, 8) + " | " + LEFT(source, 15) + " | " + message
+    NEXT entry
+    
+    PRINT STRING(80, "━")
+    PRINT "🎯 Found " + STR(UBOUND(search_results) + 1) + " entries containing '" + searchTerm + "'"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowLogStats() AS INTEGER
+    PRINT ""
+    PRINT "📊 LOG - Statistics"
+    PRINT STRING(60, "━")
+    
+    DIM stats AS Object = CalculateLogStatistics()
+    
+    ' Basic statistics
+    PRINT "Total Log Entries:   " + STR(stats.total_entries)
+    PRINT "Log Files:           " + STR(stats.log_files)
+    PRINT "Total Size:          " + FormatBytes(stats.total_size)
+    PRINT "Date Range:          " + stats.first_entry + " - " + stats.last_entry
+    PRINT ""
+    
+    ' Log level breakdown
+    PRINT "Entries by Level:"
+    PRINT "  INFO:              " + STR(stats.info_count) + " (" + FORMAT((stats.info_count / stats.total_entries) * 100, "0.1") + "%)"
+    PRINT "  WARNING:           " + STR(stats.warning_count) + " (" + FORMAT((stats.warning_count / stats.total_entries) * 100, "0.1") + "%)"
+    PRINT "  ERROR:             " + STR(stats.error_count) + " (" + FORMAT((stats.error_count / stats.total_entries) * 100, "0.1") + "%)"
+    PRINT "  DEBUG:             " + STR(stats.debug_count) + " (" + FORMAT((stats.debug_count / stats.total_entries) * 100, "0.1") + "%)"
+    PRINT ""
+    
+    ' Source breakdown
+    PRINT "Top Log Sources:"
+    DIM i AS INTEGER
+    FOR i = 0 TO 4
+        IF i <= UBOUND(stats.top_sources) THEN
+            DIM source_info AS Object = stats.top_sources(i)
+            PRINT "  " + LEFT(source_info.name, 20) + " " + STR(source_info.count) + " entries"
+        END IF
+    NEXT i
+    PRINT ""
+    
+    ' Recent activity
+    PRINT "Recent Activity (24h):"
+    PRINT "  New Entries:       " + STR(stats.entries_24h)
+    PRINT "  Errors (24h):      " + STR(stats.errors_24h)
+    PRINT "  Warnings (24h):    " + STR(stats.warnings_24h)
+    PRINT ""
+    
+    ' File statistics
+    PRINT "Log File Details:"
+    PRINT "  Active Log:        " + stats.active_log_file
+    PRINT "  Active Size:       " + FormatBytes(stats.active_log_size)
+    PRINT "  Archive Files:     " + STR(stats.archive_files)
+    PRINT "  Archive Size:      " + FormatBytes(stats.archive_size)
+    PRINT ""
+    
+    PRINT STRING(60, "━")
+    PRINT "💡 Use 'LOG clean' to cleanup old log files"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowErrors() AS INTEGER
+    PRINT ""
+    PRINT "❌ LOG - Error Messages"
+    PRINT STRING(80, "━")
+    
+    DIM error_entries() AS Object = GetLogEntriesByLevel("ERROR")
+    
+    IF UBOUND(error_entries) < 0 THEN
+        PRINT "✅ No error messages found!"
+        PRINT ""
+        RETURN 0
+    END IF
+    
+    ' Header
+    PRINT LEFT("Time", 20) + " | " + LEFT("Source", 20) + " | " + "Error Message"
+    PRINT STRING(80, "─")
+    
+    ' Display error entries
+    DIM entry AS Object
+    FOR EACH entry IN error_entries
+        DIM timestamp AS STRING = FORMAT(entry.timestamp, "MM/dd HH:mm:ss")
+        DIM source AS STRING = LEFT(entry.source, 20)
+        DIM message AS STRING = LEFT(entry.message, 35)
+        
+        PRINT LEFT(timestamp, 20) + " | " + LEFT(source, 20) + " | " + message
+    NEXT entry
+    
+    PRINT STRING(80, "━")
+    PRINT "❌ " + STR(UBOUND(error_entries) + 1) + " error entries found"
+    PRINT ""
+    
+    ' Show error summary
+    DIM error_summary AS Object = AnalyzeErrors(error_entries)
+    IF error_summary.common_errors.Count > 0 THEN
+        PRINT "Most Common Errors:"
+        DIM j AS INTEGER
+        FOR j = 0 TO MIN(error_summary.common_errors.Count - 1, 2)
+            DIM common_error AS Object = error_summary.common_errors(j)
+            PRINT "  • " + common_error.message + " (" + STR(common_error.count) + " times)"
+        NEXT j
+        PRINT ""
+    END IF
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowWarnings() AS INTEGER
+    PRINT ""
+    PRINT "⚠️ LOG - Warning Messages"
+    PRINT STRING(80, "━")
+    
+    DIM warning_entries() AS Object = GetLogEntriesByLevel("WARNING")
+    
+    IF UBOUND(warning_entries) < 0 THEN
+        PRINT "✅ No warning messages found!"
+        PRINT ""
+        RETURN 0
+    END IF
+    
+    ' Header
+    PRINT LEFT("Time", 20) + " | " + LEFT("Source", 20) + " | " + "Warning Message"
+    PRINT STRING(80, "─")
+    
+    ' Display warning entries
+    DIM entry AS Object
+    FOR EACH entry IN warning_entries
+        DIM timestamp AS STRING = FORMAT(entry.timestamp, "MM/dd HH:mm:ss")
+        DIM source AS STRING = LEFT(entry.source, 20)
+        DIM message AS STRING = LEFT(entry.message, 35)
+        
+        PRINT LEFT(timestamp, 20) + " | " + LEFT(source, 20) + " | " + message
+    NEXT entry
+    
+    PRINT STRING(80, "━")
+    PRINT "⚠️ " + STR(UBOUND(warning_entries) + 1) + " warning entries found"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ExportLogs(format AS STRING) AS INTEGER
+    IF format = "" THEN format = "csv"
+    
+    PRINT ""
+    PRINT "📤 LOG - Export to " + UCASE(format)
+    PRINT STRING(60, "━")
+    
+    ' Validate format
+    IF NOT IsValidExportFormat(format) THEN
+        PRINT "❌ Invalid export format: " + format
+        PRINT "💡 Supported formats: csv, json, txt, html"
+        RETURN 1
+    END IF
+    
+    ' Generate export filename
+    DIM export_filename AS STRING = "uLOG-Export-" + FORMAT(Now(), "yyyyMMdd-HHmmss") + "." + format
+    DIM export_path AS STRING = GetExportPath() + "/" + export_filename
+    
+    PRINT "📊 Collecting log data..."
+    DIM all_entries() AS Object = GetAllLogEntries()
+    PRINT "📄 Found " + STR(UBOUND(all_entries) + 1) + " log entries"
+    
+    PRINT "💾 Exporting to " + format + " format..."
+    
+    DIM export_result AS INTEGER
+    SELECT CASE LCASE(format)
+        CASE "csv"
+            export_result = ExportToCSV(all_entries, export_path)
+        CASE "json"
+            export_result = ExportToJSON(all_entries, export_path)
+        CASE "txt"
+            export_result = ExportToText(all_entries, export_path)
+        CASE "html"
+            export_result = ExportToHTML(all_entries, export_path)
+    END SELECT
+    
+    IF export_result = 0 THEN
+        DIM file_size AS LONG = GetFileSize(export_path)
+        PRINT "✅ Export completed successfully!"
+        PRINT "📁 File: " + export_filename
+        PRINT "📊 Size: " + FormatBytes(file_size)
+        PRINT "📂 Location: " + export_path
+    ELSE
+        PRINT "❌ Export failed"
+    END IF
+    
+    PRINT ""
+    RETURN export_result
+END FUNCTION
+
+FUNCTION CleanupLogs(days AS STRING) AS INTEGER
+    DIM cleanup_days AS INTEGER = 30
+    IF days <> "" AND IsNumeric(days) THEN
+        cleanup_days = VAL(days)
+    END IF
+    
+    PRINT ""
+    PRINT "🧹 LOG - Cleanup (older than " + STR(cleanup_days) + " days)"
+    PRINT STRING(60, "━")
+    
+    ' Find old log files
+    DIM old_files() AS String = FindOldLogFiles(cleanup_days)
+    
+    IF UBOUND(old_files) < 0 THEN
+        PRINT "✅ No old log files to cleanup"
+        PRINT ""
+        RETURN 0
+    END IF
+    
+    ' Calculate total size to be removed
+    DIM total_size AS LONG = 0
+    DIM file AS STRING
+    FOR EACH file IN old_files
+        total_size = total_size + GetFileSize(file)
+    NEXT file
+    
+    PRINT "📁 Found " + STR(UBOUND(old_files) + 1) + " old log files"
+    PRINT "💾 Total size: " + FormatBytes(total_size)
+    PRINT ""
+    
+    ' List files to be removed
+    PRINT "Files to be removed:"
+    FOR EACH file IN old_files
+        DIM file_info AS String = GetFileName(file) + " (" + FormatBytes(GetFileSize(file)) + ")"
+        PRINT "  • " + file_info
+    NEXT file
+    
+    ' Confirm cleanup
+    DIM confirm AS STRING
+    PRINT ""
+    PRINT "❓ Proceed with cleanup? (y/N): "
+    INPUT "", confirm
+    
+    IF LCASE(confirm) <> "y" AND LCASE(confirm) <> "yes" THEN
+        PRINT "❌ Cleanup cancelled"
+        RETURN 1
+    END IF
+    
+    ' Perform cleanup
+    DIM removed_count AS INTEGER = 0
+    DIM removed_size AS LONG = 0
+    
+    FOR EACH file IN old_files
+        DIM file_size AS LONG = GetFileSize(file)
+        IF DeleteFile(file) THEN
+            removed_count = removed_count + 1
+            removed_size = removed_size + file_size
+        END IF
+    NEXT file
+    
+    PRINT ""
+    PRINT "✅ Cleanup completed!"
+    PRINT "🗑️ Removed " + STR(removed_count) + " files"
+    PRINT "💾 Freed " + FormatBytes(removed_size) + " disk space"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION GenerateReport(reportType AS STRING) AS INTEGER
+    IF reportType = "" THEN reportType = "summary"
+    
+    PRINT ""
+    PRINT "📋 LOG - Generating " + UCASE(reportType) + " Report"
+    PRINT STRING(60, "━")
+    
+    SELECT CASE LCASE(reportType)
+        CASE "summary", "daily"
+            RETURN GenerateDailyReport()
+        CASE "weekly"
+            RETURN GenerateWeeklyReport()
+        CASE "error", "errors"
+            RETURN GenerateErrorReport()
+        CASE "performance", "perf"
+            RETURN GeneratePerformanceReport()
+        CASE ELSE
+            PRINT "❌ Invalid report type: " + reportType
+            PRINT "💡 Available types: summary, weekly, error, performance"
+            RETURN 1
+    END SELECT
+END FUNCTION
+
+FUNCTION GenerateDailyReport() AS INTEGER
+    PRINT "📊 Daily Activity Summary - " + FORMAT(Now(), "MMMM dd, yyyy")
+    PRINT STRING(60, "─")
+    
+    DIM daily_stats AS Object = GetDailyStatistics()
+    
+    PRINT "Activity Overview:"
+    PRINT "  Total Entries:     " + STR(daily_stats.total_entries)
+    PRINT "  New Entries:       " + STR(daily_stats.new_entries)
+    PRINT "  Errors:            " + STR(daily_stats.errors)
+    PRINT "  Warnings:          " + STR(daily_stats.warnings)
+    PRINT "  Peak Activity:     " + daily_stats.peak_hour
+    PRINT ""
+    
+    ' Top activities
+    IF daily_stats.top_activities.Count > 0 THEN
+        PRINT "Top Activities:"
+        DIM k AS INTEGER
+        FOR k = 0 TO MIN(daily_stats.top_activities.Count - 1, 4)
+            DIM activity AS Object = daily_stats.top_activities(k)
+            PRINT "  " + STR(k + 1) + ". " + activity.name + " (" + STR(activity.count) + " entries)"
+        NEXT k
+        PRINT ""
+    END IF
+    
+    ' System health
+    PRINT "System Health:"
+    DIM health_score AS INTEGER = CalculateSystemHealth(daily_stats)
+    PRINT "  Health Score:      " + STR(health_score) + "/100"
+    
+    IF health_score >= 90 THEN
+        PRINT "  Status:            ✅ Excellent"
+    ELSEIF health_score >= 75 THEN
+        PRINT "  Status:            ✅ Good"
+    ELSEIF health_score >= 60 THEN
+        PRINT "  Status:            ⚠️ Warning"
+    ELSE
+        PRINT "  Status:            ❌ Critical"
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowLogHelp() AS INTEGER
+    PRINT ""
+    PRINT "📊 LOG Command - Log Management System"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  LOG                  - Show recent log entries"
+    PRINT "  LOG recent [count]   - Show recent entries (default: 20)"
+    PRINT "  LOG search <term>    - Search log entries"
+    PRINT "  LOG stats            - Show log statistics"
+    PRINT "  LOG errors           - Show error messages only"
+    PRINT "  LOG warnings         - Show warning messages only"
+    PRINT "  LOG export [format]  - Export logs (csv|json|txt|html)"
+    PRINT "  LOG clean [days]     - Cleanup old logs (default: 30 days)"
+    PRINT "  LOG report [type]    - Generate reports (summary|weekly|error|performance)"
+    PRINT "  LOG help             - Show this help"
+    PRINT ""
+    PRINT "Log Levels:"
+    PRINT "  DEBUG    - Detailed debugging information"
+    PRINT "  INFO     - General information messages"
+    PRINT "  WARNING  - Warning conditions"
+    PRINT "  ERROR    - Error conditions"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  LOG recent 50        - Show last 50 log entries"
+    PRINT "  LOG search error     - Find entries containing 'error'"
+    PRINT "  LOG export json      - Export logs to JSON format"
+    PRINT "  LOG clean 7          - Remove logs older than 7 days"
+    PRINT ""
+    PRINT "Features:"
+    PRINT "  • Real-time log monitoring"
+    PRINT "  • Advanced search and filtering"
+    PRINT "  • Multiple export formats"
+    PRINT "  • Automated log rotation"
+    PRINT "  • Performance analytics"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION GetRecentLogEntries(count AS INTEGER) AS Object()
+FUNCTION SearchLogEntries(term AS STRING) AS Object()
+FUNCTION GetLogEntriesByLevel(level AS STRING) AS Object()
+FUNCTION GetAllLogEntries() AS Object()
+FUNCTION CalculateLogStatistics() AS Object
+FUNCTION GetDailyStatistics() AS Object
+FUNCTION FormatLogLevel(level AS STRING) AS STRING
+FUNCTION HighlightSearchTerm(text AS STRING, term AS STRING, maxLength AS INTEGER) AS STRING
+FUNCTION AnalyzeErrors(entries() AS Object) AS Object
+FUNCTION IsValidExportFormat(format AS STRING) AS BOOLEAN
+FUNCTION GetExportPath() AS STRING
+FUNCTION ExportToCSV(entries() AS Object, path AS STRING) AS INTEGER
+FUNCTION ExportToJSON(entries() AS Object, path AS STRING) AS INTEGER
+FUNCTION ExportToText(entries() AS Object, path AS STRING) AS INTEGER
+FUNCTION ExportToHTML(entries() AS Object, path AS STRING) AS INTEGER
+FUNCTION FindOldLogFiles(days AS INTEGER) AS STRING()
+FUNCTION DeleteFile(path AS STRING) AS BOOLEAN
+FUNCTION CalculateSystemHealth(stats AS Object) AS INTEGER
+FUNCTION GenerateWeeklyReport() AS INTEGER
+FUNCTION GenerateErrorReport() AS INTEGER
+FUNCTION GeneratePerformanceReport() AS INTEGER
+FUNCTION FormatBytes(bytes AS LONG) AS STRING
+FUNCTION GetFileSize(path AS STRING) AS LONG
+FUNCTION GetFileName(path AS STRING) AS STRING
+
+```

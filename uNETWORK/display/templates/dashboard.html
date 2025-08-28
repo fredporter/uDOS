@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="udos-container">
+        <!-- Header -->
+        <header class="udos-header">
+            <div class="header-brand">
+                <h1>🎯 uDOS</h1>
+                <span class="header-subtitle">Browser Dashboard</span>
+            </div>
+            <div class="header-status" id="connectionStatus">
+                <span class="status-indicator offline"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="udos-nav">
+            <a href="/" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="/terminal" class="nav-item">
+                <span class="nav-icon">💻</span>
+                Terminal
+            </a>
+            <a href="/memory" class="nav-item">
+                <span class="nav-icon">💾</span>
+                Memory Browser
+            </a>
+            <a href="/docs" class="nav-item">
+                <span class="nav-icon">📚</span>
+                Documentation
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="udos-main">
+            <!-- System Status Cards -->
+            <div class="status-grid">
+                <div class="status-card" id="systemCard">
+                    <h3>🖥️ System Status</h3>
+                    <div class="status-content">
+                        <div class="metric">
+                            <span class="metric-label">CPU</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="cpuBar"></div>
+                            </div>
+                            <span class="metric-value" id="cpuValue">0%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Memory</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="memoryBar"></div>
+                            </div>
+                            <span class="metric-value" id="memoryValue">0%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Disk</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="diskBar"></div>
+                            </div>
+                            <span class="metric-value" id="diskValue">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card" id="udosCard">
+                    <h3>🎯 uDOS Status</h3>
+                    <div class="status-content">
+                        <div class="info-item">
+                            <span class="info-label">Version</span>
+                            <span class="info-value" id="udosVersion">1.0.4.1</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Active Sessions</span>
+                            <span class="info-value" id="activeSessions">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Memory System</span>
+                            <span class="info-value" id="memoryStatus">Checking...</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime</span>
+                            <span class="info-value" id="systemUptime">Calculating...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card" id="quickActions">
+                    <h3>⚡ Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="openTerminal()">
+                            💻 Open Terminal
+                        </button>
+                        <button class="action-btn secondary" onclick="browseMemory()">
+                            💾 Browse Memory
+                        </button>
+                        <button class="action-btn secondary" onclick="viewLogs()">
+                            📝 View Logs
+                        </button>
+                        <button class="action-btn secondary" onclick="refreshStatus()">
+                            🔄 Refresh Status
+                        </button>
+                    </div>
+                </div>
+
+                <div class="status-card" id="recentActivity">
+                    <h3>📋 Recent Activity</h3>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <span class="activity-time">Just now</span>
+                            <span class="activity-text">Dashboard loaded</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Preview -->
+            <div class="terminal-preview">
+                <h3>💻 Terminal Preview</h3>
+                <div class="terminal-window" id="terminalPreview">
+                    <div class="terminal-header">
+                        <span class="terminal-title">uDOS Terminal</span>
+                        <button class="terminal-expand" onclick="openTerminal()">⛶</button>
+                    </div>
+                    <div class="terminal-content">
+                        <div class="terminal-line">🎯 uDOS Browser Interface Ready</div>
+                        <div class="terminal-line"> Click "Open Terminal" for interactive session</div>
+                        <div class="terminal-line"> Or use quick actions above</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="udos-footer">
+            <span>uDOS v1.0.4.1 | Browser Interface | Connected to <span id="serverPath"></span></span>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+
+</html>

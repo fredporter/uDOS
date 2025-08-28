@@ -1,0 +1,247 @@
+{
+    "metadata": {
+        "name": "uDOS Font Registry",
+        "version": "1.0.4.1",
+        "type": "system",
+        "platform": "universal",
+        "updated": "2025-08-26",
+        "source": "STYLE-GUIDE.md Typography Standards"
+    },
+    "description": "Safe-to-bundle fonts and system fallbacks for uDOS v1.0.4.1",
+    "font_categories": {
+        "primary_pack": {
+            "name": "Google Fonts Primary Pack",
+            "license_type": "Open Source (OFL/Apache)",
+            "fonts": [
+                {
+                    "name": "IBM Plex Mono",
+                    "license": "OFL",
+                    "usage": "Primary monospace, code display",
+                    "weight": "300,400,500,700",
+                    "cdn": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700",
+                    "local": "IBM Plex Mono"
+                },
+                {
+                    "name": "VT323",
+                    "license": "OFL",
+                    "usage": "Terminal, retro displays",
+                    "weight": "400",
+                    "cdn": "https://fonts.googleapis.com/css2?family=VT323",
+                    "local": "VT323"
+                },
+                {
+                    "name": "Space Mono",
+                    "license": "OFL",
+                    "usage": "Headers, scientific notation",
+                    "weight": "400,700",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700",
+                    "local": "Space Mono"
+                },
+                {
+                    "name": "Roboto Mono",
+                    "license": "Apache 2.0",
+                    "usage": "General purpose monospace",
+                    "weight": "300,400,500,700",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700",
+                    "local": "Roboto Mono"
+                },
+                {
+                    "name": "Press Start 2P",
+                    "license": "OFL",
+                    "usage": "Retro gaming, 8-bit style",
+                    "weight": "400",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Press+Start+2P",
+                    "local": "Press Start 2P"
+                },
+                {
+                    "name": "Silkscreen",
+                    "license": "OFL",
+                    "usage": "Pixel art, bitmap style",
+                    "weight": "400,700",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700",
+                    "local": "Silkscreen"
+                },
+                {
+                    "name": "Major Mono Display",
+                    "license": "OFL",
+                    "usage": "Large headers, display text",
+                    "weight": "400",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Major+Mono+Display",
+                    "local": "Major Mono Display"
+                },
+                {
+                    "name": "Share Tech Mono",
+                    "license": "OFL",
+                    "usage": "Alternative to Roboto Mono",
+                    "weight": "400",
+                    "cdn": "https://fonts.googleapis.com/css2?family=Share+Tech+Mono",
+                    "local": "Share Tech Mono"
+                }
+            ]
+        },
+        "extended_pack": {
+            "name": "Well-known Add-ons",
+            "license_type": "Open Source (Various)",
+            "fonts": [
+                {
+                    "name": "Fira Code",
+                    "license": "OFL",
+                    "usage": "Programming, ligature support",
+                    "weight": "300,400,500,600,700",
+                    "cdn": "https://cdn.jsdelivr.net/npm/@fontsource/fira-code@4.5.11/index.css",
+                    "local": "Fira Code"
+                },
+                {
+                    "name": "DejaVu Sans Mono",
+                    "license": "Bitstream/DejaVu",
+                    "usage": "Unicode support, fallback",
+                    "weight": "400,700",
+                    "local": "DejaVu Sans Mono"
+                },
+                {
+                    "name": "Hack",
+                    "license": "MIT/Bitstream",
+                    "usage": "Programming, code display",
+                    "weight": "400,700",
+                    "cdn": "https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css",
+                    "local": "Hack"
+                },
+                {
+                    "name": "Ubuntu Mono",
+                    "license": "Ubuntu Font Licence",
+                    "usage": "Ubuntu integration",
+                    "weight": "400,700",
+                    "local": "Ubuntu Mono"
+                },
+                {
+                    "name": "DSEG7 Classic",
+                    "license": "OFL",
+                    "usage": "7-segment LCD display",
+                    "weight": "400,700",
+                    "local": "DSEG7 Classic"
+                },
+                {
+                    "name": "Terminus",
+                    "license": "OFL/GPL",
+                    "usage": "ASCII art, block characters",
+                    "weight": "400",
+                    "local": "Terminus"
+                },
+                {
+                    "name": "C64 Pro Mono",
+                    "license": "OFL",
+                    "usage": "Commodore 64 style",
+                    "weight": "400",
+                    "local": "C64 Pro Mono"
+                }
+            ]
+        },
+        "system_fallbacks": {
+            "name": "System Monospace Fallbacks",
+            "license_type": "System Fonts",
+            "fonts": [
+                {
+                    "platform": "macOS",
+                    "fonts": [
+                        "Menlo",
+                        "SF Mono",
+                        "Monaco"
+                    ],
+                    "usage": "macOS system integration"
+                },
+                {
+                    "platform": "Windows",
+                    "fonts": [
+                        "Consolas",
+                        "Courier New",
+                        "Lucida Console"
+                    ],
+                    "usage": "Windows system integration"
+                },
+                {
+                    "platform": "Linux",
+                    "fonts": [
+                        "DejaVu Sans Mono",
+                        "Liberation Mono",
+                        "Ubuntu Mono"
+                    ],
+                    "usage": "Linux system integration"
+                }
+            ]
+        }
+    },
+    "font_stack": {
+        "primary": "IBM Plex Mono, Menlo, Consolas, DejaVu Sans Mono, monospace",
+        "retro": "VT323, Press Start 2P, Silkscreen, Courier New, monospace",
+        "display": "Major Mono Display, Space Mono, Impact, monospace",
+        "code": "Fira Code, IBM Plex Mono, Hack, Menlo, Consolas, monospace",
+        "terminal": "VT323, Ubuntu Mono, DejaVu Sans Mono, Courier New, monospace"
+    },
+    "css_variables": {
+        "--font-primary": "IBM Plex Mono, Menlo, Consolas, DejaVu Sans Mono, monospace",
+        "--font-retro": "VT323, Press Start 2P, Silkscreen, Courier New, monospace",
+        "--font-display": "Major Mono Display, Space Mono, Impact, monospace",
+        "--font-code": "Fira Code, IBM Plex Mono, Hack, Menlo, Consolas, monospace",
+        "--font-terminal": "VT323, Ubuntu Mono, DejaVu Sans Mono, Courier New, monospace",
+        "--font-pixel": "Silkscreen, Press Start 2P, Courier New, monospace",
+        "--font-lcd": "DSEG7 Classic, Major Mono Display, Courier New, monospace",
+        "--font-c64": "C64 Pro Mono, VT323, Courier New, monospace"
+    },
+    "font_loading": {
+        "preload": [
+            "IBM Plex Mono",
+            "VT323",
+            "Space Mono"
+        ],
+        "lazy_load": [
+            "Press Start 2P",
+            "Silkscreen",
+            "Major Mono Display"
+        ],
+        "optional": [
+            "Fira Code",
+            "Hack",
+            "C64 Pro Mono"
+        ]
+    },
+    "display_contexts": {
+        "terminal": {
+            "primary": "VT323",
+            "fallback": [
+                "Ubuntu Mono",
+                "DejaVu Sans Mono",
+                "Courier New"
+            ]
+        },
+        "web": {
+            "primary": "IBM Plex Mono",
+            "fallback": [
+                "Roboto Mono",
+                "Menlo",
+                "Consolas"
+            ]
+        },
+        "desktop": {
+            "primary": "IBM Plex Mono",
+            "fallback": [
+                "Menlo",
+                "SF Mono",
+                "Consolas"
+            ]
+        },
+        "retro": {
+            "primary": "VT323",
+            "fallback": [
+                "Press Start 2P",
+                "Courier New"
+            ]
+        },
+        "display": {
+            "primary": "Major Mono Display",
+            "fallback": [
+                "Space Mono",
+                "Impact"
+            ]
+        }
+    }
+}

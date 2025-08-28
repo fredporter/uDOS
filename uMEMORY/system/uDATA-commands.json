@@ -1,0 +1,396 @@
+{
+    "metadata": {
+        "version": "1.0.4.1",
+        "description": "Integrated uDOS Command System v1.0.4.1 - Commands with shortcode syntax support",
+        "last_updated": "2025-08-26",
+        "system": "uDOS-v1.0.4.1",
+        "format": "uDATA-v1",
+        "integration_note": "Merged commands and shortcodes systems",
+        "syntax_support": [
+            "COMMAND ARG",
+            "[COMMAND|ARG]",
+            "[COMMAND|ARG*param]"
+        ]
+    }
+}
+{
+    "command": "BACKUP",
+    "category": "backup",
+    "description": "Backup and restore operations",
+    "args": [
+        "CREATE",
+        "LIST",
+        "RESTORE"
+    ],
+    "examples": [
+        "[BACKUP|CREATE]",
+        "[BACKUP|LIST]",
+        "[BACKUP|RESTORE*filename]"
+    ],
+    "help": "Create and manage system backups"
+}
+{
+    "command": "CHECK",
+    "category": "system",
+    "description": "Check system status and configuration",
+    "args": [
+        "TIME",
+        "LOCATION",
+        "USER",
+        "SETUP",
+        "HEALTH",
+        "ALL"
+    ],
+    "examples": [
+        "[CHECK|HEALTH]",
+        "[CHECK|TIME]",
+        "[CHECK|ALL]"
+    ],
+    "help": "Perform system diagnostics and status checks"
+}
+{
+    "command": "DASH",
+    "category": "dashboard",
+    "description": "Dashboard creation and management",
+    "args": [
+        "BUILD",
+        "LIVE",
+        "EXPORT",
+        "STATS"
+    ],
+    "examples": [
+        "[DASH|LIVE]",
+        "[DASH|BUILD*my-dashboard]",
+        "[DASH|STATS]"
+    ],
+    "help": "Create and manage dashboards with live updates"
+}
+{
+    "command": "DISPLAY",
+    "category": "system",
+    "description": "Display system information and modes",
+    "args": [
+        "INIT",
+        "MODE",
+        "TEST",
+        "SUMMARY",
+        "HELP"
+    ],
+    "examples": [
+        "[DISPLAY|INIT]",
+        "[DISPLAY|MODE]",
+        "[DISPLAY|SUMMARY]"
+    ],
+    "help": "Show system status and information"
+}
+{
+    "command": "GRID",
+    "category": "ugrid",
+    "description": "uGRID grid system management",
+    "args": [
+        "INIT",
+        "SIZE",
+        "TILE",
+        "WIDGET",
+        "SCREEN",
+        "RENDER",
+        "CLEAR"
+    ],
+    "examples": [
+        "[GRID|INIT*120x48]",
+        "[GRID|WIDGET*clock]",
+        "[GRID|RENDER]"
+    ],
+    "help": "Manage uGRID layout system"
+}
+{
+    "command": "HELP",
+    "category": "system",
+    "description": "Help system and documentation",
+    "args": [
+        "COMMANDS",
+        "TEMPLATES",
+        "SHORTCODES",
+        "SYSTEM",
+        "UGRID",
+        "ROLES"
+    ],
+    "examples": [
+        "[HELP|COMMANDS]",
+        "[HELP|UGRID]",
+        "[HELP|ROLES]"
+    ],
+    "help": "Get help on system features and commands"
+}
+{
+    "command": "LIST",
+    "category": "utility",
+    "description": "List system resources and components",
+    "args": [
+        "COMMANDS",
+        "FILES",
+        "TEMPLATES",
+        "MISSIONS",
+        "ROLES",
+        "WIDGETS"
+    ],
+    "examples": [
+        "[LIST|COMMANDS]",
+        "[LIST|FILES]",
+        "[LIST|ROLES]"
+    ],
+    "help": "Display lists of system resources"
+}
+{
+    "command": "MAP",
+    "category": "navigation",
+    "description": "Map generation and navigation commands",
+    "args": [
+        "GENERATE",
+        "REGION",
+        "CITY",
+        "SHOW",
+        "INFO"
+    ],
+    "examples": [
+        "[MAP|GENERATE]",
+        "[MAP|REGION*europe]",
+        "[MAP|CITY*london]"
+    ],
+    "help": "Generate maps and navigate geographic data"
+}
+{
+    "command": "MEMORY",
+    "category": "system",
+    "description": "Memory system operations",
+    "args": [
+        "STORE",
+        "RETRIEVE",
+        "LIST",
+        "CLEAR"
+    ],
+    "examples": [
+        "[MEMORY|STORE*key*value]",
+        "[MEMORY|RETRIEVE*key]",
+        "[MEMORY|LIST]"
+    ],
+    "help": "Store and retrieve data in memory system"
+}
+{
+    "command": "ROLE",
+    "category": "system",
+    "description": "User role management and switching",
+    "args": [
+        "ACTIVATE",
+        "CURRENT",
+        "SWITCH",
+        "LIST",
+        "PERMISSIONS"
+    ],
+    "examples": [
+        "[ROLE|CURRENT]",
+        "[ROLE|SWITCH*sorcerer]",
+        "[ROLE|LIST]"
+    ],
+    "help": "Manage user roles and permissions"
+}
+{
+    "command": "RUN",
+    "category": "utility",
+    "description": "Execute scripts and system operations",
+    "args": [
+        "SCRIPT",
+        "TEST",
+        "VALIDATION",
+        "BACKUP"
+    ],
+    "examples": [
+        "[RUN|SCRIPT*backup.sh]",
+        "[RUN|TEST]",
+        "[RUN|VALIDATION]"
+    ],
+    "help": "Execute scripts and system operations"
+}
+{
+    "command": "SESSION",
+    "category": "utility",
+    "description": "Session management and history",
+    "args": [
+        "SAVE",
+        "UNDO",
+        "REDO",
+        "HISTORY",
+        "CLEAR"
+    ],
+    "examples": [
+        "[SESSION|SAVE]",
+        "[SESSION|HISTORY]",
+        "[SESSION|CLEAR]"
+    ],
+    "help": "Manage user sessions and history"
+}
+{
+    "command": "SETUP",
+    "category": "system",
+    "description": "System setup and configuration",
+    "args": [
+        "USER",
+        "SYSTEM",
+        "PACKAGES",
+        "TEMPLATES",
+        "ROLE",
+        "TEST"
+    ],
+    "examples": [
+        "[SETUP|USER]",
+        "[SETUP|SYSTEM]",
+        "[SETUP|ROLE*wizard]"
+    ],
+    "help": "Configure system components and user settings"
+}
+{
+    "command": "TEMPLATE",
+    "category": "template",
+    "description": "Template processing operations",
+    "args": [
+        "process",
+        "variables",
+        "compile",
+        "validate"
+    ],
+    "examples": [
+        "[TEMPLATE|PROCESS*file.md]",
+        "[TEMPLATE|VARIABLES]",
+        "[TEMPLATE|COMPILE]"
+    ],
+    "help": "Process templates with variable substitution"
+}
+{
+    "command": "TRASH",
+    "category": "utility",
+    "description": "Trash management operations",
+    "args": [
+        "LIST",
+        "EMPTY",
+        "RESTORE"
+    ],
+    "examples": [
+        "[TRASH|LIST]",
+        "[TRASH|EMPTY]",
+        "[TRASH|RESTORE*filename]"
+    ],
+    "help": "Manage deleted files and cleanup"
+}
+{
+    "command": "TREE",
+    "category": "utility",
+    "description": "Directory structure visualization",
+    "args": [
+        "DEV"
+    ],
+    "examples": [
+        "TREE",
+        "[TREE|DEV]"
+    ],
+    "help": "Show user file structure (saves to sandbox/logs) or git repository structure with DEV option (saves to repo root)"
+}
+{
+    "command": "UDATA",
+    "category": "data",
+    "description": "uDATA format processing and validation",
+    "args": [
+        "PARSE",
+        "CONVERT",
+        "VALIDATE",
+        "MERGE",
+        "FILTER"
+    ],
+    "examples": [
+        "[UDATA|PARSE*file.json]",
+        "[UDATA|CONVERT*input.json]",
+        "[UDATA|VALIDATE*data.json]"
+    ],
+    "help": "Process and validate uDATA format files"
+}
+{
+    "command": "UHEX",
+    "category": "data",
+    "description": "uHEX coordinate system operations",
+    "args": [
+        "GENERATE",
+        "PARSE",
+        "VALIDATE"
+    ],
+    "examples": [
+        "[UHEX|GENERATE*uWORK]",
+        "[UHEX|PARSE*filename]",
+        "[UHEX|VALIDATE*filename]"
+    ],
+    "help": "Generate and manage uHEX v7.0 filenames"
+}
+{
+    "command": "UMAP",
+    "category": "navigation",
+    "description": "Map navigation and interaction",
+    "args": [
+        "GOTO",
+        "REGION",
+        "ZOOM",
+        "PAN",
+        "OVERLAY"
+    ]
+}
+{
+    "command": "VERSION",
+    "category": "system",
+    "description": "Version information operations",
+    "args": [
+        "show",
+        "check",
+        "compare"
+    ],
+    "examples": [
+        "[VERSION|SHOW]",
+        "[VERSION|CHECK]",
+        "[VERSION|COMPARE*1.3.2]"
+    ],
+    "help": "Display and manage version information"
+}
+{
+    "command": "WIDGET",
+    "category": "ugrid",
+    "description": "Widget management for grid interface",
+    "args": [
+        "CREATE",
+        "UPDATE",
+        "MOVE",
+        "RESIZE",
+        "DELETE",
+        "LIST",
+        "REFRESH"
+    ],
+    "examples": [
+        "[WIDGET|CREATE*clock*A1]",
+        "[WIDGET|MOVE*clock*B2]",
+        "[WIDGET|LIST]"
+    ],
+    "help": "Create and manage grid widgets"
+}
+{
+    "command": "WORKFLOW",
+    "category": "workflow",
+    "description": "Workflow and development assistance",
+    "args": [
+        "MODE",
+        "ASSIST",
+        "BRIEFINGS",
+        "ROADMAPS",
+        "CLEANUP"
+    ],
+    "examples": [
+        "[WORKFLOW|MODE]",
+        "[WORKFLOW|ASSIST*enter]",
+        "[WORKFLOW|BRIEFINGS]"
+    ],
+    "help": "Manage development workflows and assistance"
+}

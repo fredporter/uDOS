@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "TOMB",
+        "level": 20,
+        "description": "Variables for Tomb Keeper archival operations"
+    },
+    "variables": {
+        "ARCHIVE-AUTO-ORGANIZATION": {
+            "type": "string",
+            "default": "chronological",
+            "values": ["none", "chronological", "categorical", "smart"],
+            "description": "Automatic file organization method",
+            "scope": "role"
+        },
+        "BACKUP-COMPRESSION": {
+            "type": "string",
+            "default": "standard",
+            "values": ["none", "light", "standard", "maximum"],
+            "description": "Archive compression level",
+            "scope": "role"
+        },
+        "RETENTION-POLICY": {
+            "type": "string",
+            "default": "permanent",
+            "values": ["1-year", "2-years", "5-years", "permanent"],
+            "description": "Data retention policy for archives",
+            "scope": "role"
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "display": {
+        "mode": "standard",
+        "column_width": 10,
+        "max_columns": 8,
+        "panel_width": 80,
+        "panel_height": 24,
+        "show_borders": true,
+        "show_help": true,
+        "animate_transitions": true
+    },
+    "input": {
+        "auto_complete": true,
+        "smart_suggestions": true,
+        "validation_strict": false,
+        "confirmation_required": false,
+        "timeout_seconds": 300
+    },
+    "teletext": {
+        "enabled": false,
+        "heavy_borders": true,
+        "block_cursor": true,
+        "uppercase_labels": true
+    }
+}

@@ -1,0 +1,99 @@
+{
+    "metadata": {
+        "registry_version": "2.0.0",
+        "last_updated": "2025-08-27",
+        "total_extensions": 6,
+        "core_extensions": 5,
+        "user_extensions": 1
+    },
+    "extensions": [
+        {
+            "name": "deployment-manager",
+            "version": "1.0.0",
+            "type": "essential",
+            "distribution": "core",
+            "status": "active",
+            "location": "core/essential/deployment-manager",
+            "commands": [
+                "DEPLOY"
+            ],
+            "platform": "universal"
+        },
+        {
+            "name": "viewport-manager",
+            "version": "1.0.0",
+            "type": "essential",
+            "distribution": "core",
+            "status": "active",
+            "location": "core/essential/viewport-manager",
+            "commands": [
+                "VIEWPORT",
+                "WINDOW"
+            ],
+            "platform": "universal"
+        },
+        {
+            "name": "smart-input",
+            "version": "2.0.0",
+            "type": "essential",
+            "distribution": "core",
+            "status": "active",
+            "location": "core/essential/smart-input",
+            "commands": [
+                "INPUT"
+            ],
+            "platform": "universal"
+        },
+        {
+            "name": "micro-editor",
+            "version": "1.0.0",
+            "type": "essential",
+            "distribution": "core",
+            "status": "active",
+            "location": "core/editors/micro-editor",
+            "commands": [
+                "EDIT",
+                "EDIT|NEW",
+                "EDIT|BROWSER",
+                "EDIT|CONFIG",
+                "SHOW"
+            ],
+            "platform": "universal"
+        },
+        {
+            "name": "vscode-integration",
+            "version": "1.0.4.1",
+            "type": "core",
+            "distribution": "core",
+            "status": "active",
+            "location": "core/vscode",
+            "commands": [
+                "VSCODE",
+                "DEV"
+            ],
+            "platform": "universal",
+            "capabilities": [
+                "development-environment",
+                "debugging-support",
+                "code-snippets",
+                "task-automation"
+            ],
+            "role_requirements": {
+                "minimum": "wizard"
+            }
+        },
+        {
+            "name": "gemini-cli",
+            "version": "1.0.0",
+            "type": "user",
+            "distribution": "user",
+            "status": "installed",
+            "location": "user/ai-tools/gemini-cli",
+            "commands": [
+                "ASSIST",
+                "COMMAND"
+            ],
+            "platform": "universal"
+        }
+    ]
+}

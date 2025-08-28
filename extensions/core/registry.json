@@ -1,0 +1,31 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "total_extensions": 3,
+        "last_updated": "2025-08-23"
+    }
+}
+{
+    "name": "deployment-manager",
+    "version": "1.0.0",
+    "type": "essential",
+    "status": "active",
+    "location": "core/essential/deployment-manager",
+    "commands": 6
+}
+{
+    "name": "viewport-manager",
+    "version": "1.0.0",
+    "type": "essential",
+    "status": "active",
+    "location": "core/essential/viewport-manager",
+    "commands": 4
+}
+{
+    "name": "smart-input",
+    "version": "2.0.0",
+    "type": "essential",
+    "status": "active",
+    "location": "core/essential/smart-input",
+    "commands": 5
+}

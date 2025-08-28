@@ -1,0 +1,133 @@
+#!/bin/bash
+# uDOS Development Launcher
+# Universal Device Operating System
+# Version: 1.0.5.3
+
+# This is the main entry point for uDOS development operations
+# It delegates to the appropriate scripts in the dev/ directory
+
+# Set up environment
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export UDOS_ROOT
+
+# Show uDOS header
+show_header() {
+    echo "    ██╗   ██╗██████╗  ██████╗ ███████╗"
+    echo "    ██║   ██║██╔══██╗██╔═══██╗██╔════╝"
+    echo "    ██║   ██║██║  ██║██║   ██║███████╗"
+    echo "    ██║   ██║██║  ██║██║   ██║╚════██║"
+    echo "    ╚██████╔╝██████╔╝╚██████╔╝███████║"
+    echo "     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
+    echo ""
+    echo "    Universal Device Operating System"
+    echo "    Version: $(grep VERSION VERSION | cut -d'=' -f2 | tr -d '"')"
+    echo "    ════════════════════════════════════════════"
+}
+
+# Main command handler
+main() {
+    local command="${1:-help}"
+    
+    case "$command" in
+        "build")
+            shift
+            "${UDOS_ROOT}/dev/scripts/build.sh" build "$@"
+            ;;
+        "backup")
+            shift
+            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" "$@"
+            ;;
+        "test")
+            shift
+            local test_type="${1:-integration}"
+            case "$test_type" in
+                "integration")
+                    "${UDOS_ROOT}/dev/integration-tests/test-integration.sh"
+                    ;;
+                *)
+                    echo "Available tests: integration"
+                    ;;
+            esac
+            ;;
+        "demo")
+            shift
+            local demo_type="${1:-integration}"
+            case "$demo_type" in
+                "integration")
+                    "${UDOS_ROOT}/dev/demos/demo-integration.sh"
+                    ;;
+                *)
+                    echo "Available demos: integration"
+                    ;;
+            esac
+            ;;
+        "foundation")
+            shift
+            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" "$@"
+            ;;
+        "status")
+            show_header
+            echo ""
+            echo "📊 System Status"
+            echo "==============="
+            echo "Root: $UDOS_ROOT"
+            echo ""
+            
+            # Show foundation status
+            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" status
+            
+            echo ""
+            echo "💾 Backup Status"
+            echo "==============="
+            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" stats
+            ;;
+        "init")
+            show_header
+            echo ""
+            echo "🚀 Initializing uDOS Development Environment"
+            echo "==========================================="
+            
+            # Initialize foundation
+            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
+            
+            echo ""
+            # Initialize backup system
+            "${UDOS_ROOT}/dev/scripts/backup-manager.sh" init
+            
+            echo ""
+            echo "✅ uDOS development environment ready!"
+            ;;
+        "help"|"--help"|"-h")
+            show_header
+            echo ""
+            echo "Usage: ./udos [command] [options]"
+            echo ""
+            echo "Commands:"
+            echo "  init                    - Initialize uDOS development environment"
+            echo "  status                  - Show system status"
+            echo "  foundation [cmd]        - Foundation operations (init|status|test|clean)"
+            echo "  build [target]          - Build system (development|production|testing)"
+            echo "  backup [cmd]            - Backup management (init|create|list|restore|stats)"
+            echo "  test [type]             - Run tests (integration)"
+            echo "  demo [type]             - Run demos (integration)"
+            echo "  help                    - Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  ./udos init             - Initialize everything"
+            echo "  ./udos build testing    - Build and test"
+            echo "  ./udos backup create manual my_backup  - Create manual backup"
+            echo "  ./udos test integration - Run integration tests"
+            echo "  ./udos demo integration - Run integration demo"
+            ;;
+        *)
+            echo "Unknown command: $command"
+            echo "Use './udos help' for usage information"
+            return 1
+            ;;
+    esac
+}
+
+# Run main function if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

@@ -1,0 +1,67 @@
+{
+    "commands": [
+        {
+            "command": "udos.startCLI",
+            "title": "🌀 Start uDOS CLI",
+            "category": "uDOS"
+        },
+        {
+            "command": "udos.openWebUI",
+            "title": "🌐 Open uDOS Web UI",
+            "category": "uDOS"
+        },
+        {
+            "command": "udos.startDesktopDev",
+            "title": "🖥️ Start Desktop Development",
+            "category": "uDOS"
+        },
+        {
+            "command": "udos.integration",
+            "title": "🔗 VS Code + uDOS Integration Mode",
+            "category": "uDOS"
+        },
+        {
+            "command": "udos.outputStream",
+            "title": "🎛️ Show uDOS Output Stream",
+            "category": "uDOS"
+        }
+    ],
+    "keybindings": [
+        {
+            "command": "udos.startCLI",
+            "key": "ctrl+shift+u"
+        },
+        {
+            "command": "udos.openWebUI",
+            "key": "ctrl+shift+w"
+        },
+        {
+            "command": "udos.integration",
+            "key": "ctrl+shift+i"
+        }
+    ],
+    "menus": {
+        "commandPalette": [
+            {
+                "command": "udos.startCLI",
+                "when": "true"
+            },
+            {
+                "command": "udos.openWebUI",
+                "when": "true"
+            },
+            {
+                "command": "udos.startDesktopDev",
+                "when": "true"
+            },
+            {
+                "command": "udos.integration",
+                "when": "true"
+            },
+            {
+                "command": "udos.outputStream",
+                "when": "true"
+            }
+        ]
+    }
+}

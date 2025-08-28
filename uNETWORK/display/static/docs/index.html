@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS - Documentation Browser</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Mermaid for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">📚 uDOS</div>
+                <div class="brand-subtitle">Documentation Browser</div>
+            </div>
+            <div class="header-controls">
+                <button class="control-btn" id="refreshBtn" title="Refresh">🔄</button>
+                <button class="control-btn" id="searchBtn" title="Search">🔍</button>
+                <button class="control-btn" id="settingsBtn" title="Settings">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="app-main">
+            <!-- Sidebar -->
+            <aside class="app-sidebar">
+                <div class="sidebar-section">
+                    <h3>📁 Documentation</h3>
+                    <div class="file-tree" id="fileTree">
+                        <div class="tree-loading">Loading files...</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>🔍 Search</h3>
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search docs...">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>🎨 Display</h3>
+                    <div class="display-controls">
+                        <label class="control-label">
+                            <input type="checkbox" id="darkModeToggle"> Dark Mode
+                        </label>
+                        <label class="control-label">
+                            <input type="range" id="fontSizeSlider" min="12" max="20" value="14"> Font Size
+                        </label>
+                        <label class="control-label">
+                            <input type="checkbox" id="tocToggle" checked> Table of Contents
+                        </label>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="app-content">
+                <!-- Table of Contents -->
+                <nav class="toc-panel" id="tocPanel">
+                    <h4>📋 Contents</h4>
+                    <div class="toc-content" id="tocContent">
+                        <div class="toc-empty">Select a document to view contents</div>
+                    </div>
+                </nav>
+
+                <!-- Document Viewer -->
+                <article class="document-viewer" id="documentViewer">
+                    <div class="document-header">
+                        <div class="document-path" id="documentPath">uDOS Documentation Browser</div>
+                        <div class="document-actions">
+                            <button class="doc-btn" id="copyMarkdownBtn" title="Copy Markdown">📋 Copy MD</button>
+                            <button class="doc-btn" id="copyHtmlBtn" title="Copy HTML">📄 Copy HTML</button>
+                            <button class="doc-btn" id="printBtn" title="Print">🖨️ Print</button>
+                        </div>
+                    </div>
+
+                    <div class="document-content" id="documentContent">
+                        <div class="welcome-message">
+                            <h1>🎯 Welcome to uDOS Documentation Browser</h1>
+                            <p>This browser renders uDOS markdown documents as HTML with GitHub-compatible styling.</p>
+
+                            <h2>✨ Features</h2>
+                            <ul>
+                                <li><strong>GitHub Markup Compatible</strong> - Supports all GitHub markdown features
+                                </li>
+                                <li><strong>Syntax Highlighting</strong> - Code blocks with language-specific
+                                    highlighting</li>
+                                <li><strong>Mermaid Diagrams</strong> - Render flowcharts, sequence diagrams, and more
+                                </li>
+                                <li><strong>Table of Contents</strong> - Auto-generated navigation</li>
+                                <li><strong>Search</strong> - Full-text search across all documents</li>
+                                <li><strong>Dark/Light Mode</strong> - Toggle between themes</li>
+                            </ul>
+
+                            <h2>📚 Getting Started</h2>
+                            <p>Select a document from the sidebar to begin browsing. All uDOS documentation files are
+                                available including:</p>
+                            <ul>
+                                <li>Architecture guides</li>
+                                <li>User manuals</li>
+                                <li>Development roadmaps</li>
+                                <li>API documentation</li>
+                            </ul>
+
+                            <div class="info-panel">
+                                <strong>💡 Tip:</strong> Use the search functionality to quickly find specific topics
+                                across all documentation.
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </main>
+        </div>
+
+        <!-- Status Bar -->
+        <footer class="app-footer">
+            <div class="footer-left">
+                <span id="connectionStatus">🌐 Connected to uDOS</span>
+            </div>
+            <div class="footer-right">
+                <span id="documentStats">Ready to browse</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

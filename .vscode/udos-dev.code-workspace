@@ -1,0 +1,53 @@
+{
+    "folders": [
+        {
+            "name": "🏠 uDOS Root",
+            "path": "."
+        },
+        {
+            "name": "🧠 uCORE",
+            "path": "./uCORE"
+        },
+        {
+            "name": "🖥️ uSERVER",
+            "path": "./uSERVER"
+        },
+        {
+            "name": "🌐 UI Components",
+            "path": "./uCORE/launcher/universal/ucode-ui"
+        }
+    ],
+    "settings": {
+        "workbench.colorTheme": "Default Dark+",
+        "terminal.integrated.defaultProfile.osx": "uDOS Development",
+        "terminal.integrated.profiles.osx": {
+            "uDOS Development": {
+                "path": "/bin/bash",
+                "args": ["-l"],
+                "env": {
+                    "UDOS_ROOT": "${workspaceFolder}",
+                    "UDOS_MODE": "vscode-dev",
+                    "PS1": "🧙‍♂️ uDOS-DEV \\w $ "
+                },
+                "icon": "terminal"
+            }
+        },
+        "livePreview.defaultPreviewPath": "/uCORE/launcher/universal/ucode-ui/index.html",
+        "files.associations": {
+            "*.udos": "javascript",
+            "*.ucode": "html"
+        },
+        "editor.minimap.enabled": false,
+        "workbench.editor.limit.enabled": true,
+        "workbench.editor.limit.value": 5
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.vscode-livepreview",
+            "bradlc.vscode-tailwindcss",
+            "formulahendry.auto-rename-tag",
+            "ms-python.python",
+            "ms-vscode.vscode-json"
+        ]
+    }
+}

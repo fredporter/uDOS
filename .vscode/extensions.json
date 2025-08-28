@@ -1,0 +1,17 @@
+{
+    "recommendations": [
+        "ms-vscode.vscode-typescript-next",
+        "yzhang.markdown-all-in-one",
+        "ms-vscode.powershell",
+        "rogalmic.bash-debug",
+        "mads-hartmann.bash-ide-vscode",
+        "jeff-hykin.better-shellscript-syntax",
+        "ms-vscode.live-server",
+        "bradlc.vscode-tailwindcss",
+        "ms-python.python",
+        "ms-vscode.vscode-json"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.vscode-typescript"
+    ]
+}

@@ -1,0 +1,6 @@
+{"metadata":{"tile_id":"00TO98-1m","map_id":"00","coordinates":{"latitude":39.9042,"longitude":116.4074,"depth":"1m"},"bounds":{"north":41.4042,"south":38.4042,"east":117.9074,"west":114.9074,"center":{"latitude":39.9042,"longitude":116.4074}},"type":"capital","description":"Beijing, China","created":"2025-08-20T12:27:37Z","version":"1.0.0","coordinate_system":"WGS84","projection":"mercator"}}
+{"name":"geography","hemispheres":{"north_south":"Northern","east_west":"Eastern"},"continent":"Asia","ocean_basin":"Indian Ocean","climate_zone":"Subtropical","timezone_estimate":"UTC+8","elevation_estimate":"sea_level","terrain_type":"unknown","population_density":"unknown","land_use":"unknown"}
+{"name":"layers","surface":{"enabled":true,"opacity":1.0,"data_sources":[],"features":[]},"subsurface":{"enabled":false,"depth_range":"1m-1m","data_sources":[],"features":[]}}
+{"name":"temporal","created":"2025-08-20T12:27:37Z","modified":"2025-08-20T12:27:37Z","accessed":"2025-08-20T12:27:37Z","version_history":[]}
+{"name":"access_control","read":["dev","wizard","sorcerer","ghost","imp"],"write":["dev","wizard"],"create_derived":["wizard","sorcerer"]}
+{"name":"extensions","custom_properties":{},"external_links":[],"related_tiles":[]}

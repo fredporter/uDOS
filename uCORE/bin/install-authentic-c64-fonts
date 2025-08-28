@@ -1,0 +1,89 @@
+#!/bin/bash
+# Install Authentic Commodore 64 Fonts from Kreative Korp
+# uDOS Font Enhancement Script
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+echo "🎮 Installing Authentic Commodore 64 Fonts"
+echo "═══════════════════════════════════════════"
+echo ""
+
+# Check if we're on macOS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    FONT_DIR="$HOME/Library/Fonts"
+    echo "📁 macOS detected - Font directory: $FONT_DIR"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    FONT_DIR="$HOME/.fonts"
+    mkdir -p "$FONT_DIR"
+    echo "🐧 Linux detected - Font directory: $FONT_DIR"
+else
+    echo "❌ Unsupported operating system: $OSTYPE"
+    echo "💡 Please manually download from: https://www.kreativekorp.com/software/fonts/c64/"
+    exit 1
+fi
+
+echo ""
+echo "🚀 Downloading Kreative Korp Commodore Font Package..."
+
+# Create temporary directory
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
+
+# Download the font package
+curl -L "https://www.kreativekorp.com/swdownload/fonts/retro/petme.zip" -o petme.zip
+
+if [[ ! -f "petme.zip" ]]; then
+    echo "❌ Failed to download font package"
+    echo "💡 Please manually download from: https://www.kreativekorp.com/software/fonts/c64/"
+    exit 1
+fi
+
+echo "📦 Extracting fonts..."
+unzip -q petme.zip
+
+# Install the main C64 fonts
+echo "📝 Installing Pet Me 64 (40-column C64 font)..."
+cp "Pet Me 64.ttf" "$FONT_DIR/" 2>/dev/null || echo "⚠️  Pet Me 64.ttf not found in package"
+
+echo "📝 Installing Pet Me 128 (C128 font)..."
+cp "Pet Me 128.ttf" "$FONT_DIR/" 2>/dev/null || echo "⚠️  Pet Me 128.ttf not found in package"
+
+# Install any other C64-related fonts found
+for font in *.ttf; do
+    if [[ "$font" =~ [Pp]et.*[Mm]e.*64 ]] || [[ "$font" =~ [Cc]64 ]] || [[ "$font" =~ [Cc]ommodore ]]; then
+        echo "📝 Installing $font..."
+        cp "$font" "$FONT_DIR/"
+    fi
+done
+
+# Clean up
+cd /
+rm -rf "$TEMP_DIR"
+
+echo ""
+echo "✅ Font installation complete!"
+echo ""
+echo "🔧 To use the authentic C64 font in uDOS:"
+echo "   1. Edit: $UDOS_ROOT/uCORE/launcher/universal/ucode-ui/static/fonts.css"
+echo "   2. Replace 'Nova Mono' with 'Pet Me 64' in the --font-c64 definition"
+echo "   3. Restart the uDOS interface"
+echo ""
+echo "📖 Font package includes:"
+echo "   • Pet Me 64 (40-column Commodore 64)"
+echo "   • Pet Me 128 (Commodore 128)"
+echo "   • Complete PETSCII character support"
+echo "   • Authentic pixel-perfect reproduction"
+echo ""
+echo "🌐 More info: https://www.kreativekorp.com/software/fonts/c64/"
+echo ""
+
+# Refresh font cache on Linux
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "🔄 Refreshing font cache..."
+    fc-cache -f -v "$FONT_DIR" 2>/dev/null || echo "⚠️  Font cache refresh may require manual fc-cache run"
+fi
+
+echo "🎮 Ready to experience authentic Commodore 64 typography!"

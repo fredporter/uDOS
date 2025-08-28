@@ -1,0 +1,96 @@
+#!/bin/bash
+# uDOS Minimal - Single-file bash-only installation
+# Compatible with Bash 3.2+ and basic UNIX tools
+
+set -euo pipefail
+
+# Configuration
+UDOS_VERSION="v1.0.4.1-minimal"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors (if supported)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    BLUE='\033[0;34m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m'
+else
+    RED=''
+    GREEN=''
+    BLUE=''
+    YELLOW=''
+    NC=''
+fi
+
+# Logging
+log_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+log_success() { echo -e "${GREEN}✅ $1${NC}"; }
+log_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+log_error() { echo -e "${RED}❌ $1${NC}"; }
+
+# Basic commands implemented in pure bash
+cmd_help() {
+    cat << 'HELP_EOF'
+uDOS Minimal v1.0.4.1 - Bash-Only Installation
+
+Available Commands:
+  help      Show this help
+  status    Show system status
+  version   Show version information
+  env       Show environment information
+
+This is a minimal installation with basic functionality only.
+For full features, install the standard uDOS distribution.
+HELP_EOF
+}
+
+cmd_status() {
+    log_info "uDOS Minimal Status"
+    echo "Version: $UDOS_VERSION"
+    echo "Platform: $(uname -s)/$(uname -m)"
+    echo "Bash: $BASH_VERSION"
+    echo "Directory: $SCRIPT_DIR"
+    echo "Uptime: $(uptime 2>/dev/null || echo "N/A")"
+}
+
+cmd_version() {
+    echo "$UDOS_VERSION"
+}
+
+cmd_env() {
+    log_info "Environment Information"
+    echo "SHELL: ${SHELL:-unknown}"
+    echo "PATH: $PATH"
+    echo "PWD: $PWD"
+    echo "USER: ${USER:-unknown}"
+    echo "HOME: ${HOME:-unknown}"
+}
+
+# Main command processing
+main() {
+    local command="${1:-help}"
+    
+    case "$command" in
+        help|HELP|--help|-h)
+            cmd_help
+            ;;
+        status|STATUS)
+            cmd_status
+            ;;
+        version|VERSION|--version|-v)
+            cmd_version
+            ;;
+        env|ENV|environment)
+            cmd_env
+            ;;
+        *)
+            log_error "Unknown command: $command"
+            echo "Use 'help' to see available commands."
+            exit 1
+            ;;
+    esac
+}
+
+# Execute
+main "$@"

@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "tomb-startup",
+        "title": "🗿 Welcome, Tomb Keeper - Establish Your Archive",
+        "type": "story",
+        "role": "TOMB",
+        "level": 20,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "🏛️ Greetings, Keeper of the Tomb! You have the sacred duty of maintaining and organizing information. Let's set up your archival system.",
+        "context": "Tomb users focus on data storage, organization, and basic information management with enhanced security.",
+        "purpose": "Configure storage preferences and organizational systems",
+        "adventure_theme": "archival_mastery"
+    },
+    "variables": [
+        {
+            "name": "STORAGE-PRIORITY",
+            "type": "string",
+            "description": "Primary storage focus",
+            "required": true,
+            "values": ["documents", "projects", "references", "templates"],
+            "prompt": "What type of information will you primarily store?",
+            "help": "This affects how we organize your uMEMORY structure"
+        },
+        {
+            "name": "BACKUP-FREQUENCY",
+            "type": "string",
+            "description": "Desired backup schedule",
+            "required": true,
+            "values": ["daily", "weekly", "monthly", "manual"],
+            "prompt": "How often should we backup your data?",
+            "help": "Automated backups protect your archived information"
+        },
+        {
+            "name": "ORGANIZATION-STYLE",
+            "type": "string",
+            "description": "Preferred organization method",
+            "required": true,
+            "values": ["chronological", "categorical", "project-based", "custom"],
+            "prompt": "How do you prefer to organize information?",
+            "help": "We'll set up templates that match your organizational style"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "establish_archive",
+        "milestones": ["first_storage", "backup_configured", "archive_organized"],
+        "rewards": ["tomb_seal", "keeper_badge", "storage_mastery"]
+    }
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS - Terminal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal.css') }}">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="terminal-container">
+        <!-- Terminal Header -->
+        <header class="terminal-header">
+            <div class="header-left">
+                <a href="/" class="back-btn">← Dashboard</a>
+                <h1>💻 uDOS Terminal</h1>
+            </div>
+            <div class="header-right">
+                <div class="terminal-status" id="terminalStatus">
+                    <span class="status-indicator offline"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+                <div class="terminal-controls">
+                    <button class="control-btn" id="clearBtn" title="Clear Terminal">🗑️</button>
+                    <button class="control-btn" id="copyBtn" title="Copy Output">📋</button>
+                    <button class="control-btn" id="settingsBtn" title="Settings">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Terminal Display -->
+        <div class="terminal-display" id="terminalDisplay">
+            <div class="terminal-output" id="terminalOutput">
+                <div class="system-message">
+                    🌐 Initializing uDOS Browser Terminal...
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Input -->
+        <div class="terminal-input-container">
+            <div class="input-line">
+                <span class="terminal-prompt" id="terminalPrompt">uDOS$</span>
+                <input type="text" class="terminal-input" id="terminalInput" placeholder="Type commands here..."
+                    autocomplete="off" spellcheck="false">
+                <button class="send-btn" id="sendBtn">⏎</button>
+            </div>
+        </div>
+
+        <!-- Terminal Sidebar -->
+        <aside class="terminal-sidebar" id="terminalSidebar">
+            <div class="sidebar-section">
+                <h3>📊 Session Info</h3>
+                <div class="session-info">
+                    <div class="info-item">
+                        <span class="info-label">Role:</span>
+                        <span class="info-value" id="userRole">user</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Location:</span>
+                        <span class="info-value" id="currentPath">/sandbox</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Session:</span>
+                        <span class="info-value" id="sessionId">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>⚡ Quick Commands</h3>
+                <div class="quick-commands">
+                    <button class="quick-cmd" onclick="sendQuickCommand('ls -la')">📁 List Files</button>
+                    <button class="quick-cmd" onclick="sendQuickCommand('pwd')">📍 Current Dir</button>
+                    <button class="quick-cmd" onclick="sendQuickCommand('ps aux')">🔄 Processes</button>
+                    <button class="quick-cmd" onclick="sendQuickCommand('df -h')">💾 Disk Usage</button>
+                    <button class="quick-cmd" onclick="sendQuickCommand('top -n1')">📊 System Info</button>
+                    <button class="quick-cmd" onclick="sendQuickCommand('clear')">🗑️ Clear</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🎨 Display Options</h3>
+                <div class="display-options">
+                    <label class="option-item">
+                        <input type="checkbox" id="colorOutput" checked>
+                        <span>Colored Output</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="timestampOutput">
+                        <span>Show Timestamps</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="autoScroll" checked>
+                        <span>Auto Scroll</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="compactMode">
+                        <span>Compact Mode</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📚 Command History</h3>
+                <div class="command-history" id="commandHistory">
+                    <div class="history-item">Terminal starting...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-content">
+                <h3>⚙️ Terminal Settings</h3>
+                <div class="settings-group">
+                    <label>Font Size:</label>
+                    <input type="range" id="fontSize" min="12" max="24" value="14">
+                    <span id="fontSizeValue">14px</span>
+                </div>
+                <div class="settings-group">
+                    <label>Color Theme:</label>
+                    <select id="colorTheme">
+                        <option value="polaroid">Polaroid (Default)</option>
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                        <option value="retro">Retro Green</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label>User Role:</label>
+                    <select id="userRoleSelect">
+                        <option value="user">User</option>
+                        <option value="dev">Developer</option>
+                        <option value="wizard">Wizard</option>
+                    </select>
+                </div>
+                <div class="settings-actions">
+                    <button class="settings-btn primary" onclick="applySettings()">Apply</button>
+                    <button class="settings-btn secondary" onclick="closeSettings()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
+</body>
+
+</html>

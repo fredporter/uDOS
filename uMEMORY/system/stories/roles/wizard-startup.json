@@ -1,0 +1,59 @@
+{
+    "metadata": {
+        "name": "wizard-startup",
+        "title": "🧙‍♂️ Welcome, Supreme Wizard - Master of All Realms",
+        "type": "story",
+        "role": "WIZARD",
+        "level": 100,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "🌟 All hail the Supreme Wizard! You have achieved mastery over all aspects of uDOS. With great power comes great responsibility - let's configure your omnipotent workspace.",
+        "context": "Wizards have complete system access, development capabilities, and the power to modify core systems and spawn new users.",
+        "purpose": "Configure master-level access and supreme administrative powers",
+        "adventure_theme": "supreme_mastery"
+    },
+    "variables": [
+        {
+            "name": "MASTERY-FOCUS",
+            "type": "string",
+            "description": "Primary area of wizardly focus",
+            "required": true,
+            "values": ["core-development", "system-administration", "user-creation", "realm-expansion", "all-aspects"],
+            "prompt": "Where will you direct your supreme powers?",
+            "help": "This configures your primary dashboard and available supreme tools"
+        },
+        {
+            "name": "DEV-MODE-PREFERENCE",
+            "type": "string",
+            "description": "Development mode activation preference",
+            "required": true,
+            "values": ["always-active", "on-demand", "project-based", "collaborative"],
+            "prompt": "How do you want to manage development mode access?",
+            "help": "Controls when you have write access to core system folders"
+        },
+        {
+            "name": "REALM-MANAGEMENT",
+            "type": "string",
+            "description": "Approach to realm oversight",
+            "required": true,
+            "values": ["hands-on", "delegated", "monitoring", "emergencies-only"],
+            "prompt": "How actively do you want to manage the entire realm?",
+            "help": "This configures system monitoring and automatic intervention levels"
+        },
+        {
+            "name": "LEGACY-CREATION",
+            "type": "string",
+            "description": "Focus for lasting contributions",
+            "required": true,
+            "values": ["tools-and-systems", "knowledge-documentation", "user-empowerment", "innovation-research"],
+            "prompt": "What legacy do you wish to create for future users?",
+            "help": "This guides suggestion systems and project recommendations"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "ascend_to_mastery",
+        "milestones": ["power_assumed", "realm_surveyed", "legacy_begun"],
+        "rewards": ["supreme_mastery", "wizard_crown", "ultimate_achievement"]
+    }
+}

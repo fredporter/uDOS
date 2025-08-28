@@ -1,0 +1,37 @@
+{
+    "metadata": {
+        "role": "WIZARD",
+        "level": 100,
+        "description": "Variables specific to Wizard role operations"
+    },
+    "variables": {
+        "SYSTEM-ACCESS-LEVEL": {
+            "type": "string",
+            "default": "unrestricted",
+            "values": ["restricted", "enhanced", "unrestricted", "omnipotent"],
+            "description": "Level of system access granted",
+            "scope": "role"
+        },
+        "AUTO-DEV-MODE": {
+            "type": "string",
+            "default": "project-based",
+            "values": ["never", "on-request", "project-based", "always"],
+            "description": "Automatic development mode activation",
+            "scope": "role"
+        },
+        "USER-SPAWN-LIMIT": {
+            "type": "string",
+            "default": "unlimited",
+            "values": ["5", "10", "25", "50", "unlimited"],
+            "description": "Maximum users that can be spawned",
+            "scope": "role"
+        },
+        "REALM-AUTHORITY": {
+            "type": "string",
+            "default": "full",
+            "values": ["monitoring", "advisory", "administrative", "full"],
+            "description": "Authority level over the entire uDOS realm",
+            "scope": "role"
+        }
+    }
+}

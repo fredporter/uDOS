@@ -1,0 +1,184 @@
+' uDOS Panel System - Visual Basic Style uCode
+' Generates ASCII panels and dashboard layouts
+' Usage: PANEL [dash|memory|mission|status|data] [style]
+
+DIM panel_width AS INTEGER = 60
+DIM panel_height AS INTEGER = 20
+DIM grid_cols AS INTEGER = 3
+DIM grid_rows AS INTEGER = 2
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse panel type and style
+    DIM panel_type AS STRING = "dash"
+    DIM style AS STRING = "standard"
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        panel_type = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            style = parts(1)
+        END IF
+    END IF
+    
+    ' Generate panel based on type
+    SELECT CASE LCASE(panel_type)
+        CASE "dash", "dashboard"
+            RETURN ShowPanelDashboard(style)
+        CASE "memory"
+            RETURN ShowMemoryPanel()
+        CASE "mission"
+            RETURN ShowMissionPanel()
+        CASE "status"
+            RETURN ShowStatusPanel()
+        CASE "data"
+            RETURN ShowDataPanel()
+        CASE "help"
+            RETURN ShowPanelHelp()
+        CASE ELSE
+            RETURN ShowPanelDashboard("standard")
+    END SELECT
+END FUNCTION
+
+FUNCTION ShowPanelDashboard(style AS STRING) AS INTEGER
+    ' Configure grid based on style
+    SELECT CASE LCASE(style)
+        CASE "compact"
+            grid_cols = 2
+            grid_rows = 2
+            panel_width = 35
+            panel_height = 12
+        CASE "wide"
+            grid_cols = 4
+            grid_rows = 2
+            panel_width = 35
+            panel_height = 15
+        CASE "tall"
+            grid_cols = 2
+            grid_rows = 3
+            panel_width = 50
+            panel_height = 18
+        CASE ELSE
+            grid_cols = 3
+            grid_rows = 2
+            panel_width = 40
+            panel_height = 15
+    END SELECT
+    
+    CALL ClearScreen()
+    PRINT "uDOS Panel Dashboard"
+    PRINT STRING(79, "━")
+    PRINT ""
+    
+    ' Create panel grid
+    DIM panel_types() AS STRING = {"memory", "mission", "status", "data", "input", "log"}
+    DIM panel_index AS INTEGER = 0
+    
+    DIM row AS INTEGER, col AS INTEGER
+    FOR row = 0 TO grid_rows - 1
+        FOR col = 0 TO grid_cols - 1
+            IF panel_index < UBOUND(panel_types) + 1 THEN
+                DIM x AS INTEGER = col * (panel_width + 2) + 2
+                DIM y AS INTEGER = row * (panel_height + 2) + 5
+                
+                CALL RenderPanel(panel_types(panel_index), x, y, panel_width, panel_height)
+                panel_index = panel_index + 1
+            END IF
+        NEXT col
+    NEXT row
+    
+    ' Footer
+    PRINT ""
+    PRINT STRING(79, "━")
+    PRINT "Press 'q' to exit panel view | Arrow keys to navigate"
+    
+    ' Interactive panel navigation
+    DIM key AS STRING
+    DO
+        INPUT "", key
+        SELECT CASE LCASE(key)
+            CASE "q"
+                EXIT DO
+            CASE "r"
+                RETURN ShowPanelDashboard(style)  ' Refresh
+        END SELECT
+    LOOP
+    
+    CALL ClearScreen()
+    PRINT "Exited panel dashboard"
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMemoryPanel() AS INTEGER
+    DIM title AS STRING = "🧠 MEMORY"
+    DIM content AS STRING = GenerateMemoryContent()
+    
+    CALL DrawPanelBorder(panel_width, panel_height, "double", title)
+    CALL DrawPanelContent(content, panel_width - 4, panel_height - 2)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowMissionPanel() AS INTEGER
+    DIM title AS STRING = "🎯 MISSIONS"
+    DIM content AS STRING = GenerateMissionContent()
+    
+    CALL DrawPanelBorder(panel_width, panel_height, "double", title)
+    CALL DrawPanelContent(content, panel_width - 4, panel_height - 2)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowStatusPanel() AS INTEGER
+    DIM title AS STRING = "⚙️ STATUS"
+    DIM content AS STRING = GenerateStatusContent()
+    
+    CALL DrawPanelBorder(panel_width, panel_height, "double", title)
+    CALL DrawPanelContent(content, panel_width - 4, panel_height - 2)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowDataPanel() AS INTEGER
+    DIM title AS STRING = "📊 DATA"
+    DIM content AS STRING = GenerateDataContent()
+    
+    CALL DrawPanelBorder(panel_width, panel_height, "double", title)
+    CALL DrawPanelContent(content, panel_width - 4, panel_height - 2)
+    
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowPanelHelp() AS INTEGER
+    PRINT ""
+    PRINT "🎛️ PANEL Command - ASCII Panel System"
+    PRINT STRING(79, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  PANEL              - Show standard dashboard"
+    PRINT "  PANEL dash [style] - Dashboard with style (compact|standard|wide|tall)"
+    PRINT "  PANEL memory       - Memory statistics panel"
+    PRINT "  PANEL mission      - Mission tracking panel"
+    PRINT "  PANEL status       - System status panel"
+    PRINT "  PANEL data         - Numerical data display"
+    PRINT "  PANEL help         - Show this help"
+    PRINT ""
+    PRINT "Panel Features:"
+    PRINT "  • ASCII border drawing with multiple styles"
+    PRINT "  • Real-time data display"
+    PRINT "  • Grid layout system"
+    PRINT "  • Interactive navigation"
+    PRINT "  • Responsive design"
+    PRINT ""
+    PRINT "💡 Tip: Use 'r' to refresh panels, 'q' to exit"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION GenerateMemoryContent() AS STRING
+FUNCTION GenerateMissionContent() AS STRING
+FUNCTION GenerateStatusContent() AS STRING
+FUNCTION GenerateDataContent() AS STRING
+FUNCTION RenderPanel(type AS STRING, x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)
+FUNCTION DrawPanelBorder(width AS INTEGER, height AS INTEGER, style AS STRING, title AS STRING)
+FUNCTION DrawPanelContent(content AS STRING, width AS INTEGER, height AS INTEGER)

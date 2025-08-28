@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "name": "Adventure Tracking Variables",
+        "version": "1.0.4.1",
+        "type": "adventure",
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "variables": {
+        "ADVENTURE-MODE": {
+            "type": "string",
+            "default": "enabled",
+            "values": ["enabled", "disabled", "stealth"],
+            "description": "Adventure tracking system status",
+            "scope": "adventure",
+            "required": false
+        },
+        "CURRENT-QUEST": {
+            "type": "string",
+            "default": "",
+            "description": "Currently active quest identifier",
+            "scope": "adventure",
+            "required": false
+        },
+        "QUEST-PROGRESS": {
+            "type": "string",
+            "default": "0",
+            "pattern": "^[0-9]+$",
+            "description": "Current quest progress percentage",
+            "scope": "adventure",
+            "required": false
+        },
+        "TOTAL-ACHIEVEMENTS": {
+            "type": "string",
+            "default": "0",
+            "pattern": "^[0-9]+$",
+            "description": "Total achievements unlocked",
+            "scope": "adventure",
+            "required": false
+        },
+        "ROLE-MASTERY-LEVEL": {
+            "type": "string",
+            "default": "novice",
+            "values": ["novice", "apprentice", "journeyman", "expert", "master"],
+            "description": "Mastery level in current role",
+            "scope": "adventure",
+            "required": false
+        },
+        "PREFERRED-QUEST-TYPE": {
+            "type": "string",
+            "default": "balanced",
+            "values": ["learning", "building", "protecting", "exploring", "balanced"],
+            "description": "Preferred type of quests and challenges",
+            "scope": "adventure",
+            "required": false
+        },
+        "ADVENTURE-THEME": {
+            "type": "string",
+            "default": "classic-fantasy",
+            "values": ["classic-fantasy", "sci-fi", "cyberpunk", "steampunk", "minimalist"],
+            "description": "Adventure narrative theme preference",
+            "scope": "adventure",
+            "required": false
+        }
+    }
+}

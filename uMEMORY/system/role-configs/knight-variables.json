@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "KNIGHT",
+        "level": 50,
+        "description": "Variables for Digital Knight service operations"
+    },
+    "variables": {
+        "SERVICE-DEDICATION": {
+            "type": "string",
+            "default": "balanced",
+            "values": ["minimal", "standard", "balanced", "dedicated", "zealous"],
+            "description": "Level of dedication to user service",
+            "scope": "role"
+        },
+        "PROTECTION-SCOPE": {
+            "type": "string",
+            "default": "system-wide",
+            "values": ["personal", "team", "system-wide", "realm-wide"],
+            "description": "Scope of protection responsibilities",
+            "scope": "role"
+        },
+        "HONOR-STRICTNESS": {
+            "type": "string",
+            "default": "high",
+            "values": ["flexible", "moderate", "high", "absolute"],
+            "description": "Adherence level to code of honor",
+            "scope": "role"
+        }
+    }
+}

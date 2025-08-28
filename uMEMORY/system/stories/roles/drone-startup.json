@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "drone-startup",
+        "title": "🤖 Welcome, Automation Drone - Configure Your Operations",
+        "type": "story",
+        "role": "DRONE",
+        "level": 40,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "⚙️ Systems online, Automation Drone! You excel at repetitive tasks and systematic operations. Let's configure your automation preferences.",
+        "context": "Drone users have access to automation tools, scripting capabilities, and systematic workflow management.",
+        "purpose": "Set up automation preferences and workflow configurations",
+        "adventure_theme": "systematic_efficiency"
+    },
+    "variables": [
+        {
+            "name": "AUTOMATION-FOCUS",
+            "type": "string",
+            "description": "Primary automation target",
+            "required": true,
+            "values": ["file-management", "data-processing", "system-monitoring", "workflow-automation"],
+            "prompt": "What do you want to automate first?",
+            "help": "We'll set up templates and scripts for your chosen automation area"
+        },
+        {
+            "name": "SCHEDULE-PREFERENCE",
+            "type": "string",
+            "description": "Preferred automation schedule",
+            "required": true,
+            "values": ["real-time", "hourly", "daily", "on-demand"],
+            "prompt": "When should automated tasks run?",
+            "help": "This configures the default timing for your automation scripts"
+        },
+        {
+            "name": "NOTIFICATION-LEVEL",
+            "type": "string",
+            "description": "Automation notification preferences",
+            "required": true,
+            "values": ["silent", "errors-only", "summary", "detailed"],
+            "prompt": "How much feedback do you want from automated processes?",
+            "help": "Controls how much information your automation systems provide"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "automate_workflows",
+        "milestones": ["first_automation", "schedule_active", "efficiency_gained"],
+        "rewards": ["efficiency_badge", "automation_mastery", "drone_achievement"]
+    }
+}

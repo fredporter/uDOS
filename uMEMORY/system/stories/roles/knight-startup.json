@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "name": "knight-startup",
+        "title": "⚔️ Welcome, Digital Knight - Establish Your Code of Honor",
+        "type": "story",
+        "role": "KNIGHT",
+        "level": 50,
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "story": {
+        "introduction": "🛡️ Hail and well met, Noble Knight! You stand as a protector of systems and guardian of proper procedures. Let's establish your code of honor.",
+        "context": "Knights have responsibility for system protection, user assistance, and maintaining operational standards.",
+        "purpose": "Configure protection protocols and service standards",
+        "adventure_theme": "noble_service"
+    },
+    "variables": [
+        {
+            "name": "SERVICE-FOCUS",
+            "type": "string",
+            "description": "Primary service area",
+            "required": true,
+            "values": ["system-protection", "user-support", "quality-assurance", "training-assistance"],
+            "prompt": "How do you wish to serve the realm?",
+            "help": "This determines your primary responsibilities and available tools"
+        },
+        {
+            "name": "VIGILANCE-LEVEL",
+            "type": "string",
+            "description": "System monitoring intensity",
+            "required": true,
+            "values": ["standard", "enhanced", "maximum", "custom"],
+            "prompt": "How vigilantly should you monitor system health?",
+            "help": "Higher vigilance provides better protection but requires more attention"
+        },
+        {
+            "name": "ASSISTANCE-STYLE",
+            "type": "string",
+            "description": "Preferred assistance approach",
+            "required": true,
+            "values": ["proactive", "responsive", "educational", "collaborative"],
+            "prompt": "How do you prefer to assist other users?",
+            "help": "This configures your interaction style and notification preferences"
+        }
+    ],
+    "adventure": {
+        "starting_quest": "take_the_oath",
+        "milestones": ["oath_sworn", "first_protection", "service_rendered"],
+        "rewards": ["honor_badge", "protector_seal", "knight_achievement"]
+    }
+}

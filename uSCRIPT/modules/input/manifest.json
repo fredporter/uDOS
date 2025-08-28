@@ -1,0 +1,36 @@
+{
+    "metadata": {
+        "name": "smart-input",
+        "version": "2.0.0",
+        "type": "essential",
+        "platform": "universal"
+    },
+    "description": "Core uDOS smart input system - unique intelligent input collection with dynamic forms",
+    "author": "uDOS Core Team",
+    "commands": [
+        "INPUT"
+    ],
+    "dependencies": {
+        "shell": [
+            "awk",
+            "sed"
+        ],
+        "python": []
+    },
+    "integration": {
+        "sandbox": true,
+        "workflow": true,
+        "backup": true
+    },
+    "distribution": "core",
+    "features": [
+        "Dynamic form generation",
+        "Context-aware suggestions",
+        "Multi-step wizards",
+        "Real-time validation",
+        "Template-based forms",
+        "uDOS-native input processing",
+        "Intelligent field detection",
+        "Cross-platform input handling"
+    ]
+}

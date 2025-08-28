@@ -1,0 +1,11 @@
+{
+    "type": "collection",
+    "version": "1.0",
+    "fields": {
+        "name": {"type": "string", "required": true, "unique": true},
+        "description": {"type": "string", "required": false},
+        "objects": {"type": "array", "required": true},
+        "created_at": {"type": "timestamp", "required": true},
+        "updated_at": {"type": "timestamp", "required": true}
+    }
+}

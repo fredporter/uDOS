@@ -1,0 +1,54 @@
+{
+    "uDOS Script Header": {
+        "prefix": "udos-header",
+        "body": [
+            "#!/bin/bash",
+            "# ${1:Script Description}",
+            "# Part of uDOS - Universal Device Operating System",
+            "",
+            "# Get script directory and uDOS root",
+            "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"",
+            "UDOS_ROOT=\"$(cd \"$SCRIPT_DIR/../..\" && pwd)\"",
+            "",
+            "# Source common functions",
+            "source \"$UDOS_ROOT/uCORE/system/common.sh\"",
+            "",
+            "${0}"
+        ],
+        "description": "Standard uDOS bash script header"
+    },
+    "uDOS Function": {
+        "prefix": "udos-function",
+        "body": [
+            "# ${1:Function description}",
+            "${2:function_name}() {",
+            "    local ${3:param}=\"$1\"",
+            "    ",
+            "    ${0}",
+            "    ",
+            "    return 0",
+            "}"
+        ],
+        "description": "Standard uDOS function template"
+    },
+    "uDOS Error Handling": {
+        "prefix": "udos-error",
+        "body": [
+            "if ! ${1:command}; then",
+            "    echo \"❌ Error: ${2:description}\" >&2",
+            "    exit 1",
+            "fi"
+        ],
+        "description": "Standard uDOS error handling"
+    },
+    "uDOS JSON Check": {
+        "prefix": "udos-json",
+        "body": [
+            "if ! jq empty \"${1:file.json}\" 2>/dev/null; then",
+            "    echo \"❌ Invalid JSON in ${1:file.json}\" >&2",
+            "    return 1",
+            "fi"
+        ],
+        "description": "JSON validation check"
+    }
+}

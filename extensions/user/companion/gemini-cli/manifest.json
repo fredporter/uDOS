@@ -1,0 +1,39 @@
+{
+    "metadata": {
+        "name": "gemini-cli",
+        "version": "1.0.0",
+        "type": "user",
+        "platform": "universal"
+    },
+    "description": "Google Gemini CLI integration with AI-powered command assistant",
+    "author": "uDOS Community",
+    "commands": [
+        "ASSIST",
+        "COMMAND"
+    ],
+    "dependencies": {
+        "shell": [
+            "node",
+            "npm"
+        ],
+        "python": []
+    },
+    "integration": {
+        "sandbox": true,
+        "workflow": true,
+        "backup": false
+    },
+    "distribution": "user",
+    "network_required": true,
+    "authentication": [
+        "oauth",
+        "api_key",
+        "vertex_ai"
+    ],
+    "features": [
+        "Natural language command interface",
+        "AI-powered development assistant",
+        "Context-aware suggestions",
+        "Multi-step conversations"
+    ]
+}

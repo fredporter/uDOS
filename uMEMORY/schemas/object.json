@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "version": "1.0",
+    "fields": {
+        "id": {"type": "string", "required": true, "unique": true},
+        "type": {"type": "string", "required": true},
+        "data": {"type": "object", "required": true},
+        "created_at": {"type": "timestamp", "required": true},
+        "updated_at": {"type": "timestamp", "required": true},
+        "metadata": {"type": "object", "required": false}
+    }
+}

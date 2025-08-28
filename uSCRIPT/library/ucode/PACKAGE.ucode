@@ -1,0 +1,531 @@
+```plaintext
+' uDOS Package Management System - Visual Basic Style uCode
+' Package installation, management, and dependency handling
+' Usage: PACKAGE [install|remove|list|search|update|help] [package-name]
+
+FUNCTION Main(args AS STRING) AS INTEGER
+    ' Parse command arguments
+    DIM command AS STRING = "list"
+    DIM package_name AS STRING = ""
+    
+    IF args <> "" THEN
+        DIM parts() AS STRING = Split(args, " ")
+        command = parts(0)
+        IF UBOUND(parts) > 0 THEN
+            package_name = parts(1)
+        END IF
+    END IF
+    
+    ' Execute package command
+    SELECT CASE LCASE(command)
+        CASE "install", "add"
+            RETURN InstallPackage(package_name)
+        CASE "remove", "uninstall", "delete"
+            RETURN RemovePackage(package_name)
+        CASE "list", "ls"
+            RETURN ListPackages(package_name)
+        CASE "search", "find"
+            RETURN SearchPackages(package_name)
+        CASE "update", "upgrade"
+            RETURN UpdatePackages(package_name)
+        CASE "info", "show"
+            RETURN ShowPackageInfo(package_name)
+        CASE "deps", "dependencies"
+            RETURN ShowDependencies(package_name)
+        CASE "help"
+            RETURN ShowPackageHelp()
+        CASE ELSE
+            RETURN ListPackages("")
+    END SELECT
+END FUNCTION
+
+FUNCTION InstallPackage(packageName AS STRING) AS INTEGER
+    IF packageName = "" THEN
+        PRINT "❌ Package name required"
+        PRINT "Usage: PACKAGE install <package-name>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "📦 PACKAGE - Installing " + packageName
+    PRINT STRING(60, "━")
+    
+    ' Check if package is already installed
+    IF IsPackageInstalled(packageName) THEN
+        PRINT "⚠️  Package already installed: " + packageName
+        PRINT "💡 Use 'PACKAGE update " + packageName + "' to upgrade"
+        RETURN 1
+    END IF
+    
+    ' Get package information
+    DIM package_info AS Object = GetPackageInfo(packageName)
+    IF package_info IS NOTHING THEN
+        PRINT "❌ Package not found: " + packageName
+        PRINT "💡 Use 'PACKAGE search " + packageName + "' to find similar packages"
+        RETURN 1
+    END IF
+    
+    ' Show package details
+    PRINT "📋 Package: " + package_info.name
+    PRINT "📝 Description: " + package_info.description
+    PRINT "🏷️ Version: " + package_info.version
+    PRINT "📁 Size: " + FormatBytes(package_info.size)
+    
+    ' Check dependencies
+    IF package_info.dependencies.Count > 0 THEN
+        PRINT "🔗 Dependencies:"
+        DIM i AS INTEGER
+        FOR i = 0 TO package_info.dependencies.Count - 1
+            DIM dep AS STRING = package_info.dependencies(i)
+            DIM dep_status AS STRING = IIF(IsPackageInstalled(dep), "✅", "❌")
+            PRINT "   " + dep_status + " " + dep
+        NEXT i
+    END IF
+    
+    ' Confirm installation
+    DIM confirm AS STRING
+    PRINT ""
+    PRINT "❓ Install " + packageName + "? (Y/n): "
+    INPUT "", confirm
+    
+    IF LCASE(confirm) = "n" OR LCASE(confirm) = "no" THEN
+        PRINT "❌ Installation cancelled"
+        RETURN 1
+    END IF
+    
+    ' Install dependencies first
+    PRINT ""
+    PRINT "🔄 Checking dependencies..."
+    DIM dep_failed AS BOOLEAN = FALSE
+    
+    FOR i = 0 TO package_info.dependencies.Count - 1
+        DIM dep AS STRING = package_info.dependencies(i)
+        IF NOT IsPackageInstalled(dep) THEN
+            PRINT "📦 Installing dependency: " + dep
+            IF InstallPackageInternal(dep) <> 0 THEN
+                dep_failed = TRUE
+                EXIT FOR
+            END IF
+        END IF
+    NEXT i
+    
+    IF dep_failed THEN
+        PRINT "❌ Failed to install dependencies"
+        RETURN 1
+    END IF
+    
+    ' Install main package
+    PRINT "📦 Installing " + packageName + "..."
+    
+    DIM install_result AS INTEGER = InstallPackageInternal(packageName)
+    IF install_result = 0 THEN
+        PRINT "✅ Successfully installed " + packageName
+        
+        ' Update package registry
+        CALL UpdatePackageRegistry(packageName, package_info)
+        
+        ' Show post-install information
+        IF package_info.post_install <> "" THEN
+            PRINT ""
+            PRINT "📢 Post-installation notes:"
+            PRINT package_info.post_install
+        END IF
+        
+    ELSE
+        PRINT "❌ Failed to install " + packageName
+    END IF
+    
+    PRINT ""
+    RETURN install_result
+END FUNCTION
+
+FUNCTION RemovePackage(packageName AS STRING) AS INTEGER
+    IF packageName = "" THEN
+        PRINT "❌ Package name required"
+        PRINT "Usage: PACKAGE remove <package-name>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "📦 PACKAGE - Removing " + packageName
+    PRINT STRING(60, "━")
+    
+    ' Check if package is installed
+    IF NOT IsPackageInstalled(packageName) THEN
+        PRINT "❌ Package not installed: " + packageName
+        RETURN 1
+    END IF
+    
+    ' Check for dependent packages
+    DIM dependents() AS STRING = GetDependentPackages(packageName)
+    IF UBOUND(dependents) >= 0 THEN
+        PRINT "⚠️  Warning: Other packages depend on " + packageName + ":"
+        DIM dependent AS STRING
+        FOR EACH dependent IN dependents
+            PRINT "   • " + dependent
+        NEXT dependent
+        PRINT ""
+    END IF
+    
+    ' Confirm removal
+    DIM confirm AS STRING
+    PRINT "❓ Remove " + packageName + "? (y/N): "
+    INPUT "", confirm
+    
+    IF LCASE(confirm) <> "y" AND LCASE(confirm) <> "yes" THEN
+        PRINT "❌ Removal cancelled"
+        RETURN 1
+    END IF
+    
+    ' Remove package
+    PRINT "🗑️ Removing " + packageName + "..."
+    
+    DIM remove_result AS INTEGER = RemovePackageInternal(packageName)
+    IF remove_result = 0 THEN
+        PRINT "✅ Successfully removed " + packageName
+        
+        ' Update package registry
+        CALL RemoveFromPackageRegistry(packageName)
+        
+    ELSE
+        PRINT "❌ Failed to remove " + packageName
+    END IF
+    
+    PRINT ""
+    RETURN remove_result
+END FUNCTION
+
+FUNCTION ListPackages(filter AS STRING) AS INTEGER
+    PRINT ""
+    PRINT "📦 PACKAGE - Installed Packages"
+    PRINT STRING(80, "━")
+    
+    DIM packages() AS Object = GetInstalledPackages()
+    DIM count AS INTEGER = 0
+    
+    ' Header
+    PRINT LEFT("Package", 25) + " | " + LEFT("Version", 12) + " | " + LEFT("Size", 10) + " | " + "Description"
+    PRINT STRING(80, "─")
+    
+    ' List packages
+    DIM package AS Object
+    FOR EACH package IN packages
+        DIM name AS STRING = package.name
+        
+        ' Apply filter if provided
+        IF filter = "" OR InStr(LCASE(name), LCASE(filter)) > 0 OR InStr(LCASE(package.description), LCASE(filter)) > 0 THEN
+            DIM version AS STRING = package.version
+            DIM size AS STRING = FormatBytes(package.size)
+            DIM description AS STRING = LEFT(package.description, 30)
+            
+            PRINT LEFT(name, 25) + " | " + LEFT(version, 12) + " | " + LEFT(size, 10) + " | " + description
+            count = count + 1
+        END IF
+    NEXT package
+    
+    PRINT STRING(80, "━")
+    PRINT "📊 " + STR(count) + " packages installed"
+    
+    IF filter <> "" THEN
+        PRINT "🔍 Filter: " + filter
+    END IF
+    
+    ' Show total disk usage
+    DIM total_size AS LONG = CalculateTotalPackageSize()
+    PRINT "💾 Total disk usage: " + FormatBytes(total_size)
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION SearchPackages(searchTerm AS STRING) AS INTEGER
+    IF searchTerm = "" THEN
+        PRINT "❌ Search term required"
+        PRINT "Usage: PACKAGE search <term>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🔍 PACKAGE - Search Results for: " + searchTerm
+    PRINT STRING(80, "━")
+    
+    DIM available_packages() AS Object = GetAvailablePackages(searchTerm)
+    DIM count AS INTEGER = 0
+    
+    ' Header
+    PRINT LEFT("Package", 25) + " | " + LEFT("Version", 12) + " | " + LEFT("Status", 10) + " | " + "Description"
+    PRINT STRING(80, "─")
+    
+    ' List search results
+    DIM package AS Object
+    FOR EACH package IN available_packages
+        DIM name AS STRING = package.name
+        DIM version AS STRING = package.version
+        DIM status AS STRING = IIF(IsPackageInstalled(name), "Installed", "Available")
+        DIM description AS STRING = LEFT(package.description, 30)
+        
+        PRINT LEFT(name, 25) + " | " + LEFT(version, 12) + " | " + LEFT(status, 10) + " | " + description
+        count = count + 1
+    NEXT package
+    
+    PRINT STRING(80, "━")
+    PRINT "📊 " + STR(count) + " packages found"
+    PRINT ""
+    PRINT "💡 Use 'PACKAGE info <name>' for detailed information"
+    PRINT "💡 Use 'PACKAGE install <name>' to install a package"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION UpdatePackages(packageName AS STRING) AS INTEGER
+    PRINT ""
+    IF packageName = "" THEN
+        PRINT "🔄 PACKAGE - Updating All Packages"
+        PRINT STRING(60, "━")
+        
+        DIM packages() AS Object = GetInstalledPackages()
+        DIM updated_count AS INTEGER = 0
+        DIM failed_count AS INTEGER = 0
+        
+        DIM package AS Object
+        FOR EACH package IN packages
+            PRINT "🔍 Checking " + package.name + "..."
+            
+            DIM latest_version AS STRING = GetLatestVersion(package.name)
+            IF latest_version <> package.version THEN
+                PRINT "📦 Updating " + package.name + " (" + package.version + " → " + latest_version + ")"
+                
+                IF UpdatePackageInternal(package.name) = 0 THEN
+                    updated_count = updated_count + 1
+                ELSE
+                    failed_count = failed_count + 1
+                END IF
+            END IF
+        NEXT package
+        
+        PRINT ""
+        PRINT "✅ Updated: " + STR(updated_count) + " packages"
+        IF failed_count > 0 THEN
+            PRINT "❌ Failed: " + STR(failed_count) + " packages"
+        END IF
+        
+    ELSE
+        PRINT "🔄 PACKAGE - Updating " + packageName
+        PRINT STRING(60, "━")
+        
+        IF NOT IsPackageInstalled(packageName) THEN
+            PRINT "❌ Package not installed: " + packageName
+            RETURN 1
+        END IF
+        
+        DIM current_version AS STRING = GetInstalledVersion(packageName)
+        DIM latest_version AS STRING = GetLatestVersion(packageName)
+        
+        IF current_version = latest_version THEN
+            PRINT "✅ " + packageName + " is already up to date (" + current_version + ")"
+            RETURN 0
+        END IF
+        
+        PRINT "📦 " + packageName + ": " + current_version + " → " + latest_version
+        PRINT ""
+        
+        DIM confirm AS STRING
+        PRINT "❓ Update " + packageName + "? (Y/n): "
+        INPUT "", confirm
+        
+        IF LCASE(confirm) = "n" OR LCASE(confirm) = "no" THEN
+            PRINT "❌ Update cancelled"
+            RETURN 1
+        END IF
+        
+        IF UpdatePackageInternal(packageName) = 0 THEN
+            PRINT "✅ Successfully updated " + packageName
+        ELSE
+            PRINT "❌ Failed to update " + packageName
+            RETURN 1
+        END IF
+    END IF
+    
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowPackageInfo(packageName AS STRING) AS INTEGER
+    IF packageName = "" THEN
+        PRINT "❌ Package name required"
+        PRINT "Usage: PACKAGE info <package-name>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "📋 PACKAGE - Information for " + packageName
+    PRINT STRING(60, "━")
+    
+    DIM package_info AS Object = GetPackageInfo(packageName)
+    IF package_info IS NOTHING THEN
+        PRINT "❌ Package not found: " + packageName
+        RETURN 1
+    END IF
+    
+    ' Basic information
+    PRINT "📦 Name: " + package_info.name
+    PRINT "📝 Description: " + package_info.description
+    PRINT "🏷️ Version: " + package_info.version
+    PRINT "👤 Author: " + package_info.author
+    PRINT "🌐 Homepage: " + package_info.homepage
+    PRINT "📄 License: " + package_info.license
+    PRINT "📁 Size: " + FormatBytes(package_info.size)
+    PRINT "📅 Released: " + package_info.release_date
+    
+    ' Installation status
+    IF IsPackageInstalled(packageName) THEN
+        DIM installed_version AS STRING = GetInstalledVersion(packageName)
+        PRINT "✅ Status: Installed (" + installed_version + ")"
+        
+        IF installed_version <> package_info.version THEN
+            PRINT "🔄 Update available: " + installed_version + " → " + package_info.version
+        END IF
+    ELSE
+        PRINT "❌ Status: Not installed"
+    END IF
+    
+    ' Dependencies
+    IF package_info.dependencies.Count > 0 THEN
+        PRINT ""
+        PRINT "🔗 Dependencies:"
+        DIM i AS INTEGER
+        FOR i = 0 TO package_info.dependencies.Count - 1
+            DIM dep AS STRING = package_info.dependencies(i)
+            DIM dep_status AS STRING = IIF(IsPackageInstalled(dep), "✅", "❌")
+            PRINT "   " + dep_status + " " + dep
+        NEXT i
+    END IF
+    
+    ' Dependents
+    DIM dependents() AS STRING = GetDependentPackages(packageName)
+    IF UBOUND(dependents) >= 0 THEN
+        PRINT ""
+        PRINT "📦 Required by:"
+        DIM dependent AS STRING
+        FOR EACH dependent IN dependents
+            PRINT "   • " + dependent
+        NEXT dependent
+    END IF
+    
+    ' Commands provided
+    IF package_info.commands.Count > 0 THEN
+        PRINT ""
+        PRINT "⚡ Commands provided:"
+        FOR i = 0 TO package_info.commands.Count - 1
+            PRINT "   • " + package_info.commands(i)
+        NEXT i
+    END IF
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    IF NOT IsPackageInstalled(packageName) THEN
+        PRINT "💡 Use 'PACKAGE install " + packageName + "' to install"
+    END IF
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowDependencies(packageName AS STRING) AS INTEGER
+    IF packageName = "" THEN
+        PRINT "❌ Package name required"
+        PRINT "Usage: PACKAGE deps <package-name>"
+        RETURN 1
+    END IF
+    
+    PRINT ""
+    PRINT "🔗 PACKAGE - Dependencies for " + packageName
+    PRINT STRING(60, "━")
+    
+    IF NOT IsPackageInstalled(packageName) THEN
+        PRINT "❌ Package not installed: " + packageName
+        RETURN 1
+    END IF
+    
+    DIM dependencies() AS String = GetPackageDependencies(packageName)
+    IF UBOUND(dependencies) < 0 THEN
+        PRINT "✅ No dependencies for " + packageName
+        PRINT ""
+        RETURN 0
+    END IF
+    
+    PRINT "Direct dependencies:"
+    DIM dep AS STRING
+    FOR EACH dep IN dependencies
+        DIM dep_status AS STRING = IIF(IsPackageInstalled(dep), "✅", "❌")
+        DIM dep_version AS STRING = IIF(IsPackageInstalled(dep), GetInstalledVersion(dep), "not installed")
+        PRINT "   " + dep_status + " " + dep + " (" + dep_version + ")"
+    NEXT dep
+    
+    ' Show dependency tree
+    PRINT ""
+    PRINT "Dependency tree:"
+    CALL ShowDependencyTree(packageName, 0)
+    
+    PRINT ""
+    PRINT STRING(60, "━")
+    PRINT "💡 Use 'PACKAGE info <name>' for package details"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+FUNCTION ShowPackageHelp() AS INTEGER
+    PRINT ""
+    PRINT "📦 PACKAGE Command - Package Management System"
+    PRINT STRING(60, "━")
+    PRINT ""
+    PRINT "Usage:"
+    PRINT "  PACKAGE              - List installed packages"
+    PRINT "  PACKAGE install <pkg> - Install a package"
+    PRINT "  PACKAGE remove <pkg>  - Remove a package"
+    PRINT "  PACKAGE list [filter] - List packages with filter"
+    PRINT "  PACKAGE search <term> - Search available packages"
+    PRINT "  PACKAGE update [pkg]  - Update package(s)"
+    PRINT "  PACKAGE info <pkg>    - Show package information"
+    PRINT "  PACKAGE deps <pkg>    - Show package dependencies"
+    PRINT "  PACKAGE help          - Show this help"
+    PRINT ""
+    PRINT "Examples:"
+    PRINT "  PACKAGE search editor - Find editor packages"
+    PRINT "  PACKAGE install fd    - Install fd file finder"
+    PRINT "  PACKAGE info ripgrep  - Show ripgrep details"
+    PRINT "  PACKAGE update        - Update all packages"
+    PRINT ""
+    PRINT "Package Sources:"
+    PRINT "  • Homebrew (macOS packages)"
+    PRINT "  • NPM (Node.js packages)"
+    PRINT "  • pip (Python packages)"
+    PRINT "  • uDOS native packages"
+    PRINT ""
+    PRINT "Features:"
+    PRINT "  • Automatic dependency resolution"
+    PRINT "  • Version conflict detection"
+    PRINT "  • Package verification and signing"
+    PRINT "  • Rollback and recovery"
+    PRINT ""
+    RETURN 0
+END FUNCTION
+
+' Helper function prototypes - to be implemented in uCode runtime
+FUNCTION IsPackageInstalled(name AS STRING) AS BOOLEAN
+FUNCTION GetPackageInfo(name AS STRING) AS Object
+FUNCTION InstallPackageInternal(name AS STRING) AS INTEGER
+FUNCTION RemovePackageInternal(name AS STRING) AS INTEGER
+FUNCTION UpdatePackageInternal(name AS STRING) AS INTEGER
+FUNCTION GetInstalledPackages() AS Object()
+FUNCTION GetAvailablePackages(searchTerm AS STRING) AS Object()
+FUNCTION GetDependentPackages(name AS STRING) AS STRING()
+FUNCTION GetPackageDependencies(name AS STRING) AS STRING()
+FUNCTION GetInstalledVersion(name AS STRING) AS STRING
+FUNCTION GetLatestVersion(name AS STRING) AS STRING
+FUNCTION CalculateTotalPackageSize() AS LONG
+FUNCTION UpdatePackageRegistry(name AS STRING, info AS Object)
+FUNCTION RemoveFromPackageRegistry(name AS STRING)
+FUNCTION ShowDependencyTree(packageName AS STRING, level AS INTEGER)
+FUNCTION FormatBytes(bytes AS LONG) AS STRING
+
+```

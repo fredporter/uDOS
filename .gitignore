@@ -1,0 +1,295 @@
+# ══════════════════════════════════════════════════
+# uDOS v1.0.5.3 Comprehensive Git Exclusions
+# Clean Repository Strategy - Local Files Only
+# ══════════════════════════════════════════════════
+
+# ═══════════════════════════════════════# ════════════════════════════════════════════════════════════════
+# 🎯 ADDITIONAL HEAVY EXCLUSIONS (KEEP REPO LIGHTWEIGHT)
+# ════════════════════════════════════════════════════════════════
+
+# Desktop app (heavy dependencies, can be regenerated)
+uNETWORK/display/udos-desktop/
+!uNETWORK/display/udos-desktop/README.md
+
+# Large assets and icons (can be regenerated/downloaded)
+**/assets/
+**/icons/
+**/*.icns
+**/*.ico
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+
+# Package locks and dependencies (can be regenerated)
+package-lock.json
+**/package-lock.json
+Cargo.lock
+**/Cargo.lock
+yarn.lock
+**/yarn.lock
+
+# Documentation snapshots (can be regenerated)
+docs/architecture/
+docs/*-snapshot-*
+docs/*-development-*
+
+# ✅ What gets included: Essential documentation only
+!docs/README.md
+!docs/USER-GUIDE.md
+!docs/USER-COMMAND-MANUAL.md
+
+# ════════════════════════════════════════════════════════════════
+# ✅ WHAT GETS INCLUDED (ESSENTIAL ONLY)
+# ════════════════════════════════════════════════════════════════
+# ✅ Core source code and essential scripts
+# ✅ Essential documentation (README.md, LICENSE, etc.)
+# ✅ Development infrastructure (dev/scripts/, .vscode/tasks.json)
+# ✅ Installation scripts (install.sh)
+# ✅ Template files
+# ✅ Schema definitions
+# ✅ Configuration templates (not user configs)═══════════════
+# 🎯 GIT EXCLUSION STRATEGY
+# ════════════════════════════════════════════════════════════════
+# ✅ Include: Core system, essential docs, development infrastructure
+# 🚫 Exclude: All backups, logs, user data, runtime files, local installations
+
+# ════════════════════════════════════════════════════════════════
+# �️ ALL BACKUP FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Backup directories (all patterns)
+backup/
+backups/
+**/backup/
+**/backups/
+dev/backups/
+**/dev/backups/
+
+# Backup files (all patterns)
+*.backup
+*.bak
+*-backup-*
+*backup*
+*.tar.gz
+*.tar.bz2
+*.zip
+*-backup.*
+backup-*
+**/backup-*
+**/*backup*
+
+# Exception: Essential backup management scripts
+!dev/scripts/backup-manager.sh
+
+# ════════════════════════════════════════════════════════════════
+# 📊 ALL LOG FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Log directories
+logs/
+**/logs/
+log/
+**/log/
+
+# Log files (all patterns)
+*.log
+*.out
+*.err
+*-log-*
+*log*
+debug.*
+error.*
+access.*
+audit.*
+security.*
+**/safety-monitor.log
+**/safety-monitor.pid
+**/*.log
+**/*.out
+**/*.err
+
+# ════════════════════════════════════════════════════════════════
+# 👤 ALL USER-GENERATED FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# User directories
+user/
+**/user/
+users/
+**/users/
+sandbox/
+**/sandbox/
+sessions/
+**/sessions/
+session/
+**/session/
+
+# User-specific files
+*.user.*
+*.personal.*
+*-user-*
+user-*
+*user*
+environment-*.sh
+identity.*
+installation.id
+installation.md
+user.md
+current-session.*
+*session*
+*.session*
+
+# Memory and data
+uMEMORY/data/
+uMEMORY/user/
+uMEMORY/role/
+uMEMORY/logs/
+uMEMORY/installation.id
+uKNOWLEDGE/data/
+
+# ════════════════════════════════════════════════════════════════
+# 🔧 ALL LOCAL INSTALLATIONS (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Python environments
+venv/
+**/venv/
+env/
+**/env/
+.venv/
+**/.venv/
+.env/
+**/.env/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node.js
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# Package managers
+.pip/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ════════════════════════════════════════════════════════════════
+# 🗂️ ALL CACHE AND TEMPORARY FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Cache directories
+cache/
+**/cache/
+.cache/
+**/.cache/
+temp/
+**/temp/
+tmp/
+**/tmp/
+trash/
+**/trash/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.working
+*~
+.#*
+#*#
+.*.swp
+.*.swo
+
+# System cache
+.DS_Store
+**/.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ════════════════════════════════════════════════════════════════
+# � DEVELOPMENT TOOLS (EXCLUDE CONFIGS, KEEP ESSENTIAL)
+# ════════════════════════════════════════════════════════════════
+
+# VS Code user settings (keep project settings)
+.vscode/settings.json
+.vscode/keybindings.json
+.vscode/launch.json
+
+# Git (exclude user configs)
+.git/config.local
+.git/hooks/
+
+# GitHub workflow/actions
+.github/
+
+# ════════════════════════════════════════════════════════════════
+# � SECURITY AND SENSITIVE FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Environment files
+.env*
+*.env
+env.*
+**/env.*
+
+# Keys and certificates
+*.key
+*.pem
+*.cert
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+*_rsa*
+*_dsa*
+
+# Configuration files with potential secrets
+*.conf
+*.config
+*config*
+auth.*
+*auth*
+credentials.*
+*credentials*
+
+# ════════════════════════════════════════════════════════════════
+# 🏗️ BUILD AND RUNTIME ARTIFACTS (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Build outputs
+build/output/
+build/dist/
+dist/
+**/dist/
+
+# Runtime files
+*.pid
+*.lock
+*.socket
+*.pipe
+
+# Process files
+**/safety-monitor.pid
+**/server.pid
+
+# ════════════════════════════════════════════════════════════════
+# ✅ WHAT GETS INCLUDED (ESSENTIAL ONLY)
+# ════════════════════════════════════════════════════════════════
+# ✅ Core source code and scripts
+# ✅ Essential documentation (README.md, LICENSE, etc.)
+# ✅ Development infrastructure (dev/scripts/, .vscode/tasks.json)
+# ✅ Installation scripts (install.sh)
+# ✅ Template files
+# ✅ Schema definitions
+# ✅ Configuration templates (not user configs)

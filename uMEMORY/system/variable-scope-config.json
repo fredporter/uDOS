@@ -1,0 +1,81 @@
+{
+    "metadata": {
+        "name": "uDOS Variable Scope Configuration",
+        "version": "1.0.4.1",
+        "description": "Defines how variables are shared across system components",
+        "created": "2025-08-28T00:00:00Z"
+    },
+    "scope_definitions": {
+        "core_system": {
+            "description": "System-wide variables affecting core operations",
+            "components": ["uCORE", "uMEMORY", "uNETWORK", "uSCRIPT"],
+            "persistence": "permanent",
+            "sync_required": true,
+            "export_to_env": true
+        },
+        "display_ui": {
+            "description": "Display and user interface related variables",
+            "components": ["uCORE", "uNETWORK", "templates"],
+            "persistence": "session",
+            "sync_required": false,
+            "export_to_env": true
+        },
+        "geographic": {
+            "description": "Location and geographic data variables",
+            "components": ["templates", "uSCRIPT"],
+            "persistence": "user",
+            "sync_required": false,
+            "export_to_env": true
+        },
+        "project_session": {
+            "description": "Project and session management variables",
+            "components": ["uCORE", "uSCRIPT", "templates"],
+            "persistence": "session",
+            "sync_required": true,
+            "export_to_env": true
+        },
+        "development": {
+            "description": "Development and debugging variables",
+            "components": ["uCORE", "uSCRIPT"],
+            "persistence": "session",
+            "sync_required": false,
+            "export_to_env": true
+        },
+        "integration": {
+            "description": "Cross-system integration variables",
+            "components": ["uCORE", "uMEMORY", "uNETWORK", "uSCRIPT"],
+            "persistence": "permanent",
+            "sync_required": true,
+            "export_to_env": true
+        }
+    },
+    "sharing_matrix": {
+        "commands": {
+            "access": ["core_system", "display_ui", "project_session", "development", "integration"],
+            "modify": ["project_session", "development"],
+            "export": true
+        },
+        "functions": {
+            "access": ["core_system", "display_ui", "project_session", "integration"],
+            "modify": ["project_session"],
+            "export": true
+        },
+        "templates": {
+            "access": ["core_system", "display_ui", "geographic", "project_session", "integration"],
+            "modify": [],
+            "export": false
+        },
+        "uscripts": {
+            "access": ["core_system", "display_ui", "geographic", "project_session", "development", "integration"],
+            "modify": ["project_session", "development"],
+            "export": true
+        }
+    },
+    "default_export_rules": {
+        "prefix": "UDOS_",
+        "format": "UPPER_SNAKE_CASE",
+        "validation": true,
+        "sync_on_change": true,
+        "log_changes": true
+    }
+}

@@ -1,0 +1,60 @@
+{
+  "engines": {
+    "python": {
+      "enabled": true,
+      "command": "python3",
+      "version_check": "python3 --version",
+      "virtual_env": true,
+      "requirements_file": "requirements.txt",
+      "sandbox_wrapper": "scripts/python-sandbox.sh",
+      "timeout": 300,
+      "memory_limit": "512MB"
+    },
+    "javascript": {
+      "enabled": true,
+      "command": "node",
+      "version_check": "node --version",
+      "package_manager": "npm",
+      "package_file": "package.json",
+      "sandbox_wrapper": "scripts/node-sandbox.sh", 
+      "timeout": 300,
+      "memory_limit": "512MB"
+    },
+    "shell": {
+      "enabled": true,
+      "command": "bash",
+      "version_check": "bash --version",
+      "shell_options": ["-euo", "pipefail"],
+      "sandbox_wrapper": "scripts/shell-sandbox.sh",
+      "timeout": 300,
+      "memory_limit": "256MB"
+    },
+    "ucode": {
+      "enabled": true,
+      "command": "uDOS-process",
+      "processor": "uCORE/code/ucode-processor.sh",
+      "template_engine": "uTemplate/",
+      "sandbox_wrapper": "scripts/ucode-sandbox.sh",
+      "timeout": 180,
+      "memory_limit": "256MB"
+    }
+  },
+  "execution": {
+    "default_timeout": 300,
+    "default_memory_limit": "512MB",
+    "parallel_limit": 3,
+    "retry_attempts": 2,
+    "retry_delay": 5,
+    "cleanup_after": true,
+    "preserve_logs": true
+  },
+  "paths": {
+    "library": "uSCRIPT/library/",
+    "registry": "uSCRIPT/registry/",
+    "runtime": "uSCRIPT/runtime/",
+    "templates": "uSCRIPT/templates/",
+    "config": "uSCRIPT/config/",
+    "sandbox": "uSCRIPT/runtime/sandbox/",
+    "logs": "uSCRIPT/runtime/logs/"
+  }
+}

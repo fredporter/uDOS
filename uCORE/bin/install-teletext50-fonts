@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# Teletext50 Font Installer for uDOS
+# Installs authentic BBC Micro Mode 7 (SAA5050) fonts from galax.xyz
+
+set -e
+
+echo "🚀 Teletext50 Font Installer"
+echo "=============================="
+echo "Installing authentic BBC Micro Mode 7 fonts..."
+echo
+
+# Create fonts directory
+FONTS_DIR="$HOME/.fonts"
+UDOS_FONTS_DIR="/Users/agentdigital/uDOS/uCORE/launcher/universal/ucode-ui/static/fonts"
+
+mkdir -p "$FONTS_DIR"
+mkdir -p "$UDOS_FONTS_DIR"
+
+echo "📁 Font directories created"
+
+# Download Teletext50 font variants
+echo "📥 Downloading Teletext50 fonts from galax.xyz..."
+
+FONT_URLS=(
+    "https://galax.xyz/Teletext50/Teletext50.otf"
+    "https://galax.xyz/Teletext50/Teletext50-condensed.otf"
+    "https://galax.xyz/Teletext50/Teletext50-semicondensed.otf"
+    "https://galax.xyz/Teletext50/Teletext50-ultracondensed.otf"
+    "https://galax.xyz/Teletext50/Teletext50-extended.otf"
+)
+
+FONT_NAMES=(
+    "Teletext50.otf"
+    "Teletext50-condensed.otf" 
+    "Teletext50-semicondensed.otf"
+    "Teletext50-ultracondensed.otf"
+    "Teletext50-extended.otf"
+)
+
+for i in "${!FONT_URLS[@]}"; do
+    url="${FONT_URLS[$i]}"
+    name="${FONT_NAMES[$i]}"
+    
+    echo "  📦 Downloading $name..."
+    
+    if curl -L -o "$FONTS_DIR/$name" "$url"; then
+        echo "  ✅ $name downloaded successfully"
+        # Also copy to uDOS static fonts directory
+        cp "$FONTS_DIR/$name" "$UDOS_FONTS_DIR/$name" 2>/dev/null || true
+    else
+        echo "  ❌ Failed to download $name"
+    fi
+done
+
+echo
+
+# Refresh font cache on Linux/macOS
+if command -v fc-cache >/dev/null 2>&1; then
+    echo "🔄 Refreshing font cache..."
+    fc-cache -f -v >/dev/null 2>&1
+    echo "✅ Font cache refreshed"
+else
+    echo "ℹ️  Font cache refresh not available (fc-cache not found)"
+fi
+
+echo
+echo "🎉 Teletext50 Installation Complete!"
+echo "======================================"
+echo "📺 Installed authentic BBC Micro Mode 7 fonts:"
+echo "   • Teletext50 (Default Width)"
+echo "   • Teletext50 Condensed"
+echo "   • Teletext50 Semi Condensed" 
+echo "   • Teletext50 Ultra Condensed"
+echo "   • Teletext50 Extended"
+echo
+echo "🖥️  These fonts recreate the exact SAA5050 character set"
+echo "    used in BBC Micro Mode 7 teletext displays"
+echo
+echo "🎨 uDOS will now use Teletext50 as the default font"
+echo "   for authentic BBC Micro teletext experience!"
+echo
+echo "🔧 To verify installation, restart your browser and"
+echo "   check the uDOS interface font settings"
+
+# Check if fonts are properly installed
+echo
+echo "🔍 Verifying installation..."
+if fc-list | grep -i teletext >/dev/null 2>&1; then
+    echo "✅ Teletext50 fonts found in system font list"
+else
+    echo "⚠️  Teletext50 fonts not found in system font list"
+    echo "   Try restarting your browser or system"
+fi

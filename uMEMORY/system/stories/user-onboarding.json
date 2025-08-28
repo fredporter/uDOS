@@ -1,0 +1,89 @@
+{
+    "metadata": {
+        "name": "user-onboarding",
+        "title": "Welcome to uDOS - User Setup",
+        "type": "story",
+        "created": "2025-08-26T00:00:00Z"
+    },
+    "story": {
+        "introduction": "Welcome to uDOS! Let's set up your profile and preferences to get you started.",
+        "context": "This story will collect your basic information and system preferences to personalize your uDOS experience.",
+        "purpose": "Configure your user environment and role-based access"
+    },
+    "variables": [
+        {
+            "name": "USER-ROLE",
+            "type": "string",
+            "description": "Your experience level and role",
+            "required": true,
+            "values": [
+                "GHOST",
+                "TOMB",
+                "CRYPT",
+                "DRONE",
+                "KNIGHT",
+                "IMP",
+                "SORCERER",
+                "WIZARD"
+            ],
+            "prompt": "What is your experience level with uDOS?",
+            "help": "Choose based on your technical experience: GHOST (new), WIZARD (expert)"
+        },
+        {
+            "name": "DEVELOPER-NAME",
+            "type": "string",
+            "description": "Your name or handle",
+            "required": true,
+            "prompt": "What should we call you?",
+            "help": "This will be used in logs and project attribution"
+        },
+        {
+            "name": "PROJECT-TYPE",
+            "type": "string",
+            "description": "Primary type of projects you work on",
+            "required": false,
+            "values": [
+                "web-app",
+                "mobile-app",
+                "desktop-app",
+                "api-service",
+                "research",
+                "learning"
+            ],
+            "prompt": "What type of projects do you primarily work on?",
+            "help": "This helps us suggest relevant templates and tools"
+        },
+        {
+            "name": "DISPLAY-MODE",
+            "type": "string",
+            "description": "Preferred interface mode",
+            "required": true,
+            "values": [
+                "CLI",
+                "DESKTOP",
+                "WEB"
+            ],
+            "prompt": "How do you prefer to interact with uDOS?",
+            "help": "CLI for terminal users, DESKTOP for GUI, WEB for browser-based"
+        },
+        {
+            "name": "DETAIL-LEVEL",
+            "type": "string",
+            "description": "Information verbosity preference",
+            "required": false,
+            "values": [
+                "MINIMAL",
+                "STANDARD",
+                "DETAILED",
+                "VERBOSE"
+            ],
+            "prompt": "How much detail do you want in system messages?",
+            "help": "MINIMAL for experts, VERBOSE for learning"
+        }
+    ],
+    "flow": {
+        "sequential": true,
+        "allow_skip": false,
+        "validate_each": true
+    }
+}

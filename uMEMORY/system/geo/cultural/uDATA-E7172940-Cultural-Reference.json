@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "name": "uDOS Cultural Reference Dataset",
+    "description": "Consolidated cultural reference data including currencies and languages",
+    "version": "3.0.0",
+    "created": "2025-08-20",
+    "format": "uDATA",
+    "hex_encoded": true,
+    "timezone_format": "4-alpha",
+    "tile_integrated": true,
+    "datasets": ["currencies", "languages"],
+    "total_records": {
+      "currencies": 54,
+      "languages": 56
+    }
+  },
+  "schema": {
+    "currencies": {
+      "code": {
+        "type": "string",
+        "description": "ISO 4217 currency code",
+        "pattern": "^[A-Z]{3}$",
+        "required": true
+      },
+      "name": {
+        "type": "string",
+        "description": "Full currency name",
+        "required": true
+      },
+      "symbol": {
+        "type": "string",
+        "description": "Currency symbol",
+        "required": true
+      },
+      "country": {
+        "type": "string",
+        "description": "Primary country/region",
+        "required": true
+      },
+      "numeric_code": {
+        "type": "integer",
+        "description": "ISO 4217 numeric code",
+        "required": true
+      }
+    },
+    "languages": {
+      "code": {
+        "type": "string",
+        "description": "ISO 639-1 language code",
+        "pattern": "^[a-z]{2}$",
+        "required": true
+      },
+      "name": {
+        "type": "string",
+        "description": "English language name",
+        "required": true
+      },
+      "native_name": {
+        "type": "string",
+        "description": "Native language name",
+        "required": true
+      },
+      "speakers": {
+        "type": "integer",
+        "description": "Total number of speakers worldwide"
+      }
+    }
+  },
+  "currencies": [
+    {"code": "USD", "name": "US Dollar", "symbol": "$", "country": "United States", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 840},
+    {"code": "EUR", "name": "Euro", "symbol": "€", "country": "European Union", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 978},
+    {"code": "JPY", "name": "Japanese Yen", "symbol": "¥", "country": "Japan", "minor_unit": "sen", "subunit_ratio": 100, "numeric_code": 392},
+    {"code": "GBP", "name": "British Pound Sterling", "symbol": "£", "country": "United Kingdom", "minor_unit": "penny", "subunit_ratio": 100, "numeric_code": 826},
+    {"code": "AUD", "name": "Australian Dollar", "symbol": "A$", "country": "Australia", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 36},
+    {"code": "CAD", "name": "Canadian Dollar", "symbol": "C$", "country": "Canada", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 124},
+    {"code": "CHF", "name": "Swiss Franc", "symbol": "Fr", "country": "Switzerland", "minor_unit": "rappen", "subunit_ratio": 100, "numeric_code": 756},
+    {"code": "CNY", "name": "Chinese Yuan", "symbol": "¥", "country": "China", "minor_unit": "fen", "subunit_ratio": 100, "numeric_code": 156},
+    {"code": "SEK", "name": "Swedish Krona", "symbol": "kr", "country": "Sweden", "minor_unit": "öre", "subunit_ratio": 100, "numeric_code": 752},
+    {"code": "NZD", "name": "New Zealand Dollar", "symbol": "NZ$", "country": "New Zealand", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 554},
+    {"code": "MXN", "name": "Mexican Peso", "symbol": "$", "country": "Mexico", "minor_unit": "centavo", "subunit_ratio": 100, "numeric_code": 484},
+    {"code": "SGD", "name": "Singapore Dollar", "symbol": "S$", "country": "Singapore", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 702},
+    {"code": "HKD", "name": "Hong Kong Dollar", "symbol": "HK$", "country": "Hong Kong", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 344},
+    {"code": "NOK", "name": "Norwegian Krone", "symbol": "kr", "country": "Norway", "minor_unit": "øre", "subunit_ratio": 100, "numeric_code": 578},
+    {"code": "INR", "name": "Indian Rupee", "symbol": "₹", "country": "India", "minor_unit": "paisa", "subunit_ratio": 100, "numeric_code": 356},
+    {"code": "KRW", "name": "South Korean Won", "symbol": "₩", "country": "South Korea", "minor_unit": "jeon", "subunit_ratio": 100, "numeric_code": 410},
+    {"code": "BRL", "name": "Brazilian Real", "symbol": "R$", "country": "Brazil", "minor_unit": "centavo", "subunit_ratio": 100, "numeric_code": 986},
+    {"code": "ZAR", "name": "South African Rand", "symbol": "R", "country": "South Africa", "minor_unit": "cent", "subunit_ratio": 100, "numeric_code": 710},
+    {"code": "PLN", "name": "Polish Złoty", "symbol": "zł", "country": "Poland", "minor_unit": "grosz", "subunit_ratio": 100, "numeric_code": 985},
+    {"code": "TRY", "name": "Turkish Lira", "symbol": "₺", "country": "Turkey", "minor_unit": "kuruş", "subunit_ratio": 100, "numeric_code": 949},
+    {"code": "RUB", "name": "Russian Ruble", "symbol": "₽", "country": "Russia", "minor_unit": "kopeck", "subunit_ratio": 100, "numeric_code": 643},
+    {"code": "THB", "name": "Thai Baht", "symbol": "฿", "country": "Thailand", "minor_unit": "satang", "subunit_ratio": 100, "numeric_code": 764},
+    {"code": "MYR", "name": "Malaysian Ringgit", "symbol": "RM", "country": "Malaysia", "minor_unit": "sen", "subunit_ratio": 100, "numeric_code": 458},
+    {"code": "IDR", "name": "Indonesian Rupiah", "symbol": "Rp", "country": "Indonesia", "minor_unit": "sen", "subunit_ratio": 100, "numeric_code": 360},
+    {"code": "PHP", "name": "Philippine Peso", "symbol": "₱", "country": "Philippines", "minor_unit": "sentimo", "subunit_ratio": 100, "numeric_code": 608},
+    {"code": "VND", "name": "Vietnamese Dong", "symbol": "₫", "country": "Vietnam", "minor_unit": "xu", "subunit_ratio": 10, "numeric_code": 704}
+  ],
+  "languages": [
+    {"code": "en", "name": "English", "native_name": "English", "family": "Germanic", "speakers": 1500000000, "countries": ["US", "GB", "AU", "CA", "NZ", "IE", "ZA"], "writing_system": "Latin", "rtl": false},
+    {"code": "zh", "name": "Chinese", "native_name": "中文", "family": "Sino-Tibetan", "speakers": 1100000000, "countries": ["CN", "TW", "HK", "SG"], "writing_system": "Chinese characters", "rtl": false},
+    {"code": "hi", "name": "Hindi", "native_name": "हिन्दी", "family": "Indo-European", "speakers": 600000000, "countries": ["IN"], "writing_system": "Devanagari", "rtl": false},
+    {"code": "es", "name": "Spanish", "native_name": "Español", "family": "Romance", "speakers": 500000000, "countries": ["ES", "MX", "AR", "CO", "PE", "VE", "CL", "EC", "GT", "CU", "BO", "DO", "HN", "PY", "SV", "NI", "CR", "PA", "UY", "PR"], "writing_system": "Latin", "rtl": false},
+    {"code": "fr", "name": "French", "native_name": "Français", "family": "Romance", "speakers": 280000000, "countries": ["FR", "CA", "BE", "CH", "CD", "MG", "CM", "CI", "BF", "ML", "SN", "TD", "GN", "RW", "BI", "TG", "CF", "GA"], "writing_system": "Latin", "rtl": false},
+    {"code": "ar", "name": "Arabic", "native_name": "العربية", "family": "Semitic", "speakers": 420000000, "countries": ["SA", "EG", "DZ", "SD", "IQ", "MA", "YE", "SY", "TN", "JO", "AE", "LB", "LY", "KW", "OM", "QA", "BH"], "writing_system": "Arabic", "rtl": true},
+    {"code": "bn", "name": "Bengali", "native_name": "বাংলা", "family": "Indo-European", "speakers": 265000000, "countries": ["BD", "IN"], "writing_system": "Bengali", "rtl": false},
+    {"code": "pt", "name": "Portuguese", "native_name": "Português", "family": "Romance", "speakers": 260000000, "countries": ["BR", "PT", "AO", "MZ", "GW", "TL", "GQ", "CV", "ST"], "writing_system": "Latin", "rtl": false},
+    {"code": "ru", "name": "Russian", "native_name": "Русский", "family": "Slavic", "speakers": 255000000, "countries": ["RU", "BY", "KZ", "KG"], "writing_system": "Cyrillic", "rtl": false},
+    {"code": "ja", "name": "Japanese", "native_name": "日本語", "family": "Japonic", "speakers": 125000000, "countries": ["JP"], "writing_system": "Hiragana, Katakana, Kanji", "rtl": false},
+    {"code": "pa", "name": "Punjabi", "native_name": "ਪੰਜਾਬੀ", "family": "Indo-European", "speakers": 113000000, "countries": ["IN", "PK"], "writing_system": "Gurmukhi, Shahmukhi", "rtl": false},
+    {"code": "de", "name": "German", "native_name": "Deutsch", "family": "Germanic", "speakers": 100000000, "countries": ["DE", "AT", "CH", "LU", "LI"], "writing_system": "Latin", "rtl": false},
+    {"code": "jv", "name": "Javanese", "native_name": "ꦧꦱꦗꦮ", "family": "Austronesian", "speakers": 98000000, "countries": ["ID"], "writing_system": "Javanese, Latin", "rtl": false},
+    {"code": "ko", "name": "Korean", "native_name": "한국어", "family": "Koreanic", "speakers": 77000000, "countries": ["KR", "KP"], "writing_system": "Hangul", "rtl": false},
+    {"code": "te", "name": "Telugu", "native_name": "తెలుగు", "family": "Dravidian", "speakers": 96000000, "countries": ["IN"], "writing_system": "Telugu", "rtl": false},
+    {"code": "vi", "name": "Vietnamese", "native_name": "Tiếng Việt", "family": "Austroasiatic", "speakers": 95000000, "countries": ["VN"], "writing_system": "Latin", "rtl": false},
+    {"code": "mr", "name": "Marathi", "native_name": "मराठी", "family": "Indo-European", "speakers": 83000000, "countries": ["IN"], "writing_system": "Devanagari", "rtl": false},
+    {"code": "ta", "name": "Tamil", "native_name": "தமிழ்", "family": "Dravidian", "speakers": 78000000, "countries": ["IN", "LK", "SG"], "writing_system": "Tamil", "rtl": false},
+    {"code": "ur", "name": "Urdu", "native_name": "اردو", "family": "Indo-European", "speakers": 70000000, "countries": ["PK", "IN"], "writing_system": "Arabic", "rtl": true},
+    {"code": "tr", "name": "Turkish", "native_name": "Türkçe", "family": "Turkic", "speakers": 80000000, "countries": ["TR"], "writing_system": "Latin", "rtl": false}
+  ]
+}

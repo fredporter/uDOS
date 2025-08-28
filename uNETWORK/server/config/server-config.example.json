@@ -1,0 +1,47 @@
+{
+    "server": {
+        "host": "127.0.0.1",
+        "port": 8080,
+        "debug": false,
+        "auto_reload": false,
+        "max_workers": 4
+    },
+    "security": {
+        "enable_cors": true,
+        "allowed_origins": [
+            "http://localhost:*",
+            "http://127.0.0.1:*"
+        ],
+        "max_content_length": "16MB",
+        "rate_limit": {
+            "enabled": false,
+            "requests_per_minute": 60
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "server.log",
+        "max_size": "10MB",
+        "backup_count": 3,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "paths": {
+        "udos_root": "../..",
+        "ui_path": "../../uCORE/launcher/universal/ucode-ui",
+        "static_path": "../../uCORE/launcher/universal/ucode-ui/static",
+        "templates_path": "../../uCORE/launcher/universal/ucode-ui/templates"
+    },
+    "features": {
+        "websockets": true,
+        "api_endpoints": true,
+        "file_serving": true,
+        "system_monitoring": true,
+        "script_execution": false
+    },
+    "development": {
+        "auto_restart": true,
+        "verbose_logging": false,
+        "profiling": false,
+        "mock_data": false
+    }
+}

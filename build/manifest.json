@@ -1,0 +1,37 @@
+{
+    "name": "uDOS",
+    "version": "1.0.5.2",
+    "build_date": "2025-08-28T15:55:54Z",
+    "components": {
+        "uCORE": {
+            "path": "uCORE",
+            "type": "core_system",
+            "dependencies": []
+        },
+        "uMEMORY": {
+            "path": "uMEMORY",
+            "type": "data_layer",
+            "dependencies": ["uCORE"]
+        },
+        "uKNOWLEDGE": {
+            "path": "uKNOWLEDGE",
+            "type": "knowledge_base",
+            "dependencies": ["uCORE", "uMEMORY"]
+        },
+        "uNETWORK": {
+            "path": "uNETWORK",
+            "type": "network_services",
+            "dependencies": ["uCORE", "uMEMORY"]
+        },
+        "uSCRIPT": {
+            "path": "uSCRIPT",
+            "type": "script_environment",
+            "dependencies": ["uCORE"]
+        }
+    },
+    "build_targets": [
+        "development",
+        "production",
+        "testing"
+    ]
+}

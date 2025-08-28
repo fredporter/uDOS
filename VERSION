@@ -1,0 +1,63 @@
+# uDOS - Version 1.0.5.3
+# Universal Device Operating System
+# Build: 2025-08-29
+
+VERSION="1.0.5.3"
+BUILD_DATE="2025-08-29"
+BUILD_NAME="Memory & Knowledge Integration"
+
+# Core Features in v1.0.5.3:
+# - uMEMORY persistence layer with CRUD operations
+# - uKNOWLEDGE basic knowledge graph structure  
+# - uCORE-uMEMORY integration for data operations
+# - Basic query and retrieval mechanisms
+# - Data validation and schema enforcement
+
+# Previous Features (v1.0.5.2):
+# - Standard module interface contracts (bash 3.x compatible)
+# - Basic uCORE service registry
+# - Foundation logging and error handling framework
+# - Build system with multiple targetsersion 1.0.5.2
+# Universal Device Operating System
+# Build: 2025-08-29
+
+VERSION="1.0.5.2"
+BUILD_DATE="2025-08-29"
+BUILD_NAME="Core Foundation - Module Interfaces & Service Registry"
+
+# Core Features in v1.0.5.1:
+# - Modular Architecture: Moved 6,431 lines to uSCRIPT modules
+# - uCORE Cleanup: 100% bash-only, removed Python dependencies
+# - Session Management: Enhanced persistent state tracking
+# - Workflow Management: User journey automation  
+# - Story Management: Interactive variable collection
+# - Backup System: Comprehensive backup/restore functionality
+# - Smart Input: Advanced input processing modules
+# - Free Tier Integrations: Notion API client, Slack webhook client
+# - Wizard Mode Extensions: Network service management, setup wizard
+# - Enhanced Command Router: [NETWORK|*] command support
+# - Role-Based Network Access: WIZARD mode only network services
+# - Advanced Variable Resolution: Dynamic computation with caching and scoping
+# - Variable Formatting: Uppercase, lowercase, boolean icons, truncation, padding
+# - Variable Scoping: GLOBAL -> SYSTEM -> USER -> SESSION -> LOCAL hierarchy
+# - Performance Optimization: Intelligent caching with TTL and invalidation
+# - Enhanced Template Engine: Integration with advanced variable resolver
+# - Native CLI Commands: Auto-completion for variable commands
+# - Dynamic Variables: Real-time computation (timestamps, status, dependencies)
+# - Command Auto-completion: TAB completion for all variable operations
+# - Error Handling: Graceful fallbacks and self-healing integration
+
+# Previous Features (maintained):
+# - Template System Integration: Dynamic content generation across all interfaces
+# - Enhanced Template Engine: Variable substitution, conditional blocks, inheritance
+# - CLI Template Rendering: Dynamic help, status displays, interactive forms
+# - Template Organization: Structured template library (commands, dashboards, forms)
+# - Variable-Driven UI: Real-time content updates based on system variables
+# - Role-Aware Templates: Content adaptation by user role and permission level
+# - Cross-Interface Templates: Unified template system for CLI, Web, Desktop
+# - Native CLI Commands: Natural command syntax without brackets
+# - Self-Healing System: Automatic dependency resolution and repair
+# - Authentication System: Role-based access with secure sandbox isolation
+
+COMPATIBILITY="macOS 10.15+, Python 3.8+, Node.js 16+, Rust"
+ARCHITECTURE="Universal (CLI/Desktop/Web) + Cross-Platform"

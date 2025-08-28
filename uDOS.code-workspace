@@ -1,0 +1,46 @@
+{
+    "folders": [
+        {
+            "name": "🏠 uDOS Root",
+            "path": "."
+        },
+        {
+            "name": "🧠 Core System",
+            "path": "./uCORE"
+        },
+        {
+            "name": "💾 User Memory",
+            "path": "./uMEMORY"
+        },
+        {
+            "name": "📚 Knowledge Base",
+            "path": "./uKNOWLEDGE"
+        },
+        {
+            "name": "� Network Services",
+            "path": "./uNETWORK"
+        },
+        {
+            "name": "📜 Script Environment",
+            "path": "./uSCRIPT"
+        },
+        {
+            "name": "�🏗️ Sandbox",
+            "path": "./sandbox"
+        }
+    ],
+    "settings": {
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.defaultProfile.windows": "Git Bash",
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "python.defaultInterpreterPath": "./uSCRIPT/venv/bin/python",
+        "files.exclude": {
+            "**/.git": true,
+            "**/uCORE/cache/**": true,
+            "**/uMEMORY/system/.session-*": true,
+            "**/__pycache__": true,
+            "**/*.pyc": true
+        }
+    }
+}

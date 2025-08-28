@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "role": "GHOST",
+        "level": 10,
+        "description": "Variables specific to Ghost role operations"
+    },
+    "variables": {
+        "DEMO-TIME-LIMIT": {
+            "type": "string",
+            "default": "30 minutes",
+            "values": ["15 minutes", "30 minutes", "1 hour", "unlimited"],
+            "description": "Maximum demo session duration",
+            "scope": "role"
+        },
+        "TUTORIAL-PACE": {
+            "type": "string",
+            "default": "guided",
+            "values": ["slow", "guided", "normal", "fast"],
+            "description": "Tutorial progression speed",
+            "scope": "role"
+        },
+        "SAFETY-LEVEL": {
+            "type": "string",
+            "default": "maximum",
+            "values": ["standard", "high", "maximum"],
+            "description": "System safety and sandboxing level",
+            "scope": "role"
+        }
+    }
+}
