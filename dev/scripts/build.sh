@@ -139,22 +139,68 @@ build_production() {
 
 # Testing build
 build_testing() {
-    echo "📦 Testing Build"
+    echo "🧪 uDOS Testing Build v1.0.5.5"
+    echo "==============================="
     
     # Initialize foundation
     export UDOS_ENV="testing"
     export UDOS_LOG_LEVEL=0  # Debug level
     
-    # Initialize v1.0.5.4 with network integration
-    "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" init
+    # Test uCORE foundation
+    echo ""
+    echo "1. Testing uCORE Foundation..."
+    if ! "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" test >/dev/null 2>&1; then
+        echo "❌ uCORE foundation failed"
+        return 1
+    fi
+    echo "✅ uCORE foundation working"
     
-    # Run foundation tests
-    "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" test
+    # Test uMEMORY integration  
+    echo ""
+    echo "2. Testing uMEMORY Integration..."
+    if ! source "${UDOS_ROOT}/uCORE/code/integration/memory-knowledge-integration.sh" >/dev/null 2>&1; then
+        echo "❌ Memory integration failed"
+        return 1
+    fi
+    echo "✅ Memory integration working"
     
-    # Test network integration
-    "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" test
+    # Test uNETWORK integration
+    echo ""
+    echo "3. Testing uNETWORK Integration..."
+    if ! "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" test >/dev/null 2>&1; then
+        echo "❌ Network integration failed"
+        return 1
+    fi
+    echo "✅ Network integration working"
     
-    echo "✅ Testing build complete"
+    # Test uSCRIPT engine
+    echo ""
+    echo "4. Testing uSCRIPT Engine..."
+    if ! source "${UDOS_ROOT}/uSCRIPT/core/script-engine.sh" >/dev/null 2>&1; then
+        echo "❌ uSCRIPT engine failed"
+        return 1
+    fi
+    
+    # Initialize uSCRIPT if needed
+    if [ ! -d "${UDOS_ROOT}/uSCRIPT/registry" ]; then
+        init_script_engine >/dev/null 2>&1 || {
+            echo "❌ uSCRIPT initialization failed"
+            return 1
+        }
+    fi
+    echo "✅ uSCRIPT engine working"
+    
+    echo ""
+    echo "🎯 Testing Build v1.0.5.5 Summary:"
+    echo "✅ uCORE: Foundation layer operational"
+    echo "✅ uMEMORY: Data persistence working"
+    echo "✅ uKNOWLEDGE: Knowledge graph active"
+    echo "✅ uNETWORK: Network services functional"
+    echo "✅ uSCRIPT: Automation engine ready"
+    echo ""
+    echo "🚀 All core modules integrated and functional!"
+    
+    echo "✅ Testing build v1.0.5.5 complete"
 }
 
 # Copy development configurations

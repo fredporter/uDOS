@@ -45,6 +45,10 @@ main() {
             shift
             "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" "$@"
             ;;
+        "script"|"uscript")
+            shift
+            "${UDOS_ROOT}/uSCRIPT/uscript" "$@"
+            ;;
         "test")
             shift
             local test_type="${1:-integration}"
@@ -120,6 +124,7 @@ main() {
             echo "  build [target]          - Build system (development|production|testing)"
             echo "  backup [cmd]            - Session backup (snapshot|role|working|restore|clean|status)"
             echo "  session [cmd]           - Same as backup (session-based operations)"
+            echo "  script|uscript [cmd]    - uSCRIPT automation engine"
             echo "  destroy [target]        - Controlled deletion (session|role|sandbox|eol)"
             echo "  test [type]             - Run tests (integration)"
             echo "  demo [type]             - Run demos (integration)"
