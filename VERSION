@@ -1,8 +1,8 @@
-# uDOS - Version 1.0.4.2
+# uDOS - Version 1.0.4.3
 # Universal Device Operating System
 # Build: 2025-08-28
 
-VERSION="1.0.4.2"
+VERSION="1.0.4.3"
 BUILD_DATE="2025-08-28"
 BUILD_NAME="Template System Integration"
 

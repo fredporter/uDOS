@@ -1,12 +1,15 @@
 #!/bin/bash
 # uDOS VS Code Development Mode Launcher (Wizard Only) v1.0.4.1
-# Enhanced development environment with full Git integration
+# Enhanced development environment with full Git integration and self-healing
 
 set -euo pipefail
 
 # Configuration
 export UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 export UDOS_VERSION="1.0.4.1"
+
+# Self-healing integration
+DEPENDENCY_HEALER="$UDOS_ROOT/uCORE/code/self-healing/dependency-healer.sh"
 
 # Color definitions
 readonly RED='\033[0;31m'
@@ -17,6 +20,28 @@ readonly PURPLE='\033[0;35m'
 readonly CYAN='\033[0;36m'
 readonly WHITE='\033[1;37m'
 readonly NC='\033[0m'
+
+# Self-healing check for development dependencies
+check_dev_dependencies() {
+    echo -e "${CYAN}🔧 Checking development dependencies...${NC}"
+    
+    # Check if self-healer is available
+    if [[ -f "$DEPENDENCY_HEALER" ]]; then
+        echo -e "${BLUE}🎲 Self-healing system available${NC}"
+        
+        # Run dependency check
+        if ! "$DEPENDENCY_HEALER" status >/dev/null 2>&1; then
+            echo -e "${YELLOW}⚠️  Dependencies need healing...${NC}"
+            if "$DEPENDENCY_HEALER" heal; then
+                echo -e "${GREEN}✨ Dependencies successfully healed!${NC}"
+            else
+                echo -e "${RED}💀 Self-healing failed. Manual intervention may be needed.${NC}"
+            fi
+        fi
+    else
+        echo -e "${YELLOW}⚠️  Self-healing system not available${NC}"
+    fi
+}
 
 # Check if wizard role is available
 check_wizard_permissions() {
@@ -183,6 +208,7 @@ main() {
     echo ""
     
     check_wizard_permissions
+    check_dev_dependencies
     check_vscode_availability
     setup_vscode_workspace
     launch_vscode_development

@@ -5,6 +5,57 @@ All notable changes to uDOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4.3] - 2025-08-28
+
+### 🎨 **Template System Integration & Self-Healing**
+
+#### Added
+- **Advanced Template Engine**: Complete template processing with conditionals and variable formatting
+  - `{#if USER-LEVEL:number >= X}` role-based content filtering
+  - `{#if DEV-MODE}` development-specific sections
+  - `{USER-ROLE:title}`, `{USER-LEVEL:number}` formatted variables
+  - Template inheritance support with `{#extend}` processing
+- **Comprehensive Self-Healing System**: NetHack-inspired automatic dependency resolution
+  - Platform-aware package management (Debian/Fedora/Arch/macOS/Windows)
+  - Python environment auto-recovery with venv validation
+  - Node.js/desktop dependency healing
+  - Retry mechanisms with attempt limiting and exponential backoff
+  - Humorous NetHack-style error messages for user engagement
+- **Enhanced Command Router v1.0.4.3**: Template rendering integration
+  - `[TEMPLATE|RENDER*name]` command for manual template processing
+  - `[STATUS|DASHBOARD]` with dynamic template-driven dashboards
+  - Template listing and management commands
+  - Error handling with graceful fallbacks
+
+#### Enhanced
+- **Dynamic Content Generation**: Real-time dashboards with live system status
+- **Role-Based Help System**: Context-aware command references showing appropriate commands
+- **Level-Gated Features**: Progressive feature disclosure (10, 20, 40, 60, 80, 100+ levels)
+- **Development Mode Integration**: Special template sections for development workflows
+- **Variable System**: Enhanced with template-aware variable formatting and substitution
+
+#### Technical Improvements
+- **Template Processing Pipeline**: Multi-stage rendering with conditional processing
+- **Self-Healing Integration**: All startup scripts include dependency health checks
+- **Platform Detection**: Enhanced cross-platform compatibility for self-healing
+- **Error Recovery**: Automatic retry logic with user-friendly failure messages
+- **Logging Enhancement**: Comprehensive self-healing activity tracking
+
+#### User Experience
+- **NetHack-Style Messages**: Entertaining error feedback ("You cast 'summon python'")
+- **Progressive Disclosure**: Users only see features appropriate to their level
+- **Context-Aware Help**: Help system adapts to user role and development mode
+- **Real-Time Updates**: Templates render with current system state
+
+## [1.0.4.2] - 2025-08-28
+
+### 🔄 **Self-Healing Foundation & Template Preparation**
+
+#### Added
+- **Dependency Healer**: Initial self-healing system implementation
+- **Template Engine Foundation**: Basic template rendering capabilities
+- **Enhanced Variable Management**: Improved variable system for template integration
+
 ## [1.0.4] - 2025-08-26
 
 ### 🔄 **Development Workflow Enhancement**

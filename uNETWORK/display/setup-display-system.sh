@@ -1,17 +1,23 @@
 #!/bin/bash
 # uDOS Display System Setup
-# Sets up desktop app and web export capabilities
+# Sets up desktop app and web export capabilities with self-healing
 
 set -euo pipefail
 
 UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DISPLAY_DIR="$UDOS_ROOT/uNETWORK/display"
 
-# Load core systems
-source "$UDOS_ROOT/uSCRIPT/library/shell/ensure-utf8.sh"
-source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
+# Self-healing integration
+DEPENDENCY_HEALER="$UDOS_ROOT/uCORE/code/self-healing/dependency-healer.sh"
 
-# Setup functions
+# Load core systems
+source "$UDOS_ROOT/uSCRIPT/library/shell/ensure-utf8.sh" 2>/dev/null || true
+source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh" 2>/dev/null || {
+    # Fallback color functions if polaroid not available
+    polaroid_echo() { echo -e "\033[0;36m$2\033[0m"; }
+}
+
+# Setup functions with self-healing
 setup_nodejs() {
     polaroid_echo "cyan" "📦 Setting up Node.js for desktop app..."
 
@@ -19,6 +25,18 @@ setup_nodejs() {
         polaroid_echo "lime" "✅ Node.js already installed: $(node --version)"
         return 0
     fi
+
+    # Try self-healing first
+    if [[ -f "$DEPENDENCY_HEALER" ]]; then
+        polaroid_echo "cyan" "🎲 Attempting Node.js self-healing..."
+        if "$DEPENDENCY_HEALER" desktop; then
+            polaroid_echo "lime" "✨ Node.js successfully healed!"
+            return 0
+        fi
+    fi
+
+    # Fallback to manual installation guidance
+    polaroid_echo "yellow" "⚠️  Node.js not found and self-healing unavailable."
 
     # Try to install via package managers
     if command -v brew >/dev/null 2>&1; then
@@ -98,8 +116,18 @@ setup_dependencies() {
         npm install
     fi
 
-    # Use uSCRIPT venv for Python dependencies
+    # Use uSCRIPT venv for Python dependencies with self-healing
     polaroid_echo "cyan" "🐍 Setting up Python dependencies in uSCRIPT venv..."
+
+    # Try self-healing first if uSCRIPT environment has issues
+    if [[ ! -f "$UDOS_ROOT/uSCRIPT/activate-venv.sh" ]]; then
+        polaroid_echo "yellow" "⚠️  uSCRIPT venv not found - attempting self-healing..."
+        if [[ -f "$DEPENDENCY_HEALER" ]]; then
+            if "$DEPENDENCY_HEALER" python; then
+                polaroid_echo "lime" "✨ uSCRIPT environment successfully healed!"
+            fi
+        fi
+    fi
 
     if [[ -f "$UDOS_ROOT/uSCRIPT/activate-venv.sh" ]]; then
         polaroid_echo "lime" "✅ Found uSCRIPT virtual environment"
@@ -125,7 +153,17 @@ setup_dependencies() {
 
             if [[ ${#missing_packages[@]} -gt 0 ]]; then
                 polaroid_echo "cyan" "   Installing missing packages: ${missing_packages[*]}"
-                pip install "${missing_packages[@]}"
+                
+                # Try pip install with self-healing retry
+                if ! pip install "${missing_packages[@]}"; then
+                    polaroid_echo "yellow" "⚠️  Package installation failed - attempting self-healing..."
+                    if [[ -f "$DEPENDENCY_HEALER" ]]; then
+                        if "$DEPENDENCY_HEALER" python; then
+                            polaroid_echo "cyan" "   Retrying package installation..."
+                            pip install "${missing_packages[@]}"
+                        fi
+                    fi
+                fi
             else
                 polaroid_echo "lime" "✅ All Python dependencies already installed"
             fi
@@ -144,11 +182,26 @@ for pkg in packages:
 "
         )
     else
-        polaroid_echo "yellow" "⚠️  uSCRIPT venv not found, falling back to global pip"
-        pip3 install flask flask-socketio psutil eventlet 2>/dev/null || {
-            polaroid_echo "yellow" "⚠️  Could not install Python dependencies globally"
-            polaroid_echo "cyan" "   They will be installed when needed"
-        }
+        polaroid_echo "yellow" "⚠️  uSCRIPT venv not found even after healing attempts"
+        
+        # Try self-healing one more time
+        if [[ -f "$DEPENDENCY_HEALER" ]]; then
+            polaroid_echo "cyan" "🎲 Final healing attempt..."
+            if "$DEPENDENCY_HEALER" heal python; then
+                polaroid_echo "lime" "✨ Environment successfully restored!"
+                # Retry the venv activation
+                if [[ -f "$UDOS_ROOT/uSCRIPT/activate-venv.sh" ]]; then
+                    source "$UDOS_ROOT/uSCRIPT/activate-venv.sh" >/dev/null 2>&1
+                    pip install flask flask-socketio psutil eventlet
+                fi
+            else
+                polaroid_echo "yellow" "⚠️  Falling back to global pip installation"
+                pip3 install flask flask-socketio psutil eventlet 2>/dev/null || {
+                    polaroid_echo "yellow" "⚠️  Could not install Python dependencies globally"
+                    polaroid_echo "cyan" "   They will be installed when needed"
+                }
+            fi
+        fi
     fi
 }
 

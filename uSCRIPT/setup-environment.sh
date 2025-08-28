@@ -1,16 +1,21 @@
 #!/bin/bash
 # uSCRIPT v1.3.3 Environment Setup
-# Sets up Python virtual environment and dependencies
+# Sets up Python virtual environment and dependencies with self-healing
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 VENV_DIR="$SCRIPT_DIR/venv/python"
 CONFIG_DIR="$SCRIPT_DIR/config"
+
+# Self-healing integration
+DEPENDENCY_HEALER="$UDOS_ROOT/uCORE/code/self-healing/dependency-healer.sh"
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 log() {
@@ -29,7 +34,7 @@ error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# Check Python availability
+# Check Python availability with self-healing
 check_python() {
     log "Checking Python installation..."
 
@@ -38,12 +43,27 @@ check_python() {
         success "Python 3 found: $python_version"
         return 0
     else
-        error "Python 3 not found. Please install Python 3.8+ first."
+        warn "Python 3 not found - attempting self-healing..."
+        
+        # Try self-healing if available
+        if [[ -f "$DEPENDENCY_HEALER" ]]; then
+            echo -e "${CYAN}🎲 Invoking self-healing magic...${NC}"
+            if "$DEPENDENCY_HEALER" heal python; then
+                success "Python successfully healed!"
+                return 0
+            fi
+        fi
+        
+        error "Python 3 not found and self-healing failed."
+        echo -e "${YELLOW}Please install Python 3.8+ manually:${NC}"
+        echo -e "  Ubuntu/Debian: sudo apt install python3 python3-venv python3-pip"
+        echo -e "  macOS: brew install python3"
+        echo -e "  Or download from: https://python.org/downloads/"
         return 1
     fi
 }
 
-# Setup virtual environment
+# Setup virtual environment with self-healing
 setup_venv() {
     log "Setting up Python virtual environment..."
 
@@ -51,21 +71,56 @@ setup_venv() {
         warn "Virtual environment already exists at $VENV_DIR"
         log "Checking if it's valid..."
 
-        if [[ -f "$VENV_DIR/bin/activate" ]]; then
+        # Test if venv is working
+        if [[ -f "$VENV_DIR/bin/python" ]] && "$VENV_DIR/bin/python" --version >/dev/null 2>&1; then
             success "Existing virtual environment is valid"
             return 0
         else
-            warn "Existing venv appears corrupted, recreating..."
+            warn "Existing venv appears corrupted, attempting self-healing..."
+            
+            # Try self-healing if available
+            if [[ -f "$DEPENDENCY_HEALER" ]]; then
+                echo -e "${CYAN}🎲 Invoking virtual environment healing magic...${NC}"
+                if "$DEPENDENCY_HEALER" python; then
+                    success "Virtual environment successfully healed!"
+                    return 0
+                fi
+            fi
+            
+            # Manual recreation as fallback
+            warn "Self-healing failed, manually recreating..."
             rm -rf "$VENV_DIR"
         fi
     fi
 
     # Create virtual environment
     mkdir -p "$(dirname "$VENV_DIR")"
+    
+    # Check for python3-venv on Debian/Ubuntu
+    if [[ "$(uname)" == "Linux" ]] && command -v apt >/dev/null 2>&1; then
+        if ! dpkg -l python3-venv >/dev/null 2>&1; then
+            log "Installing python3-venv package..."
+            if ! sudo apt install -y python3-venv; then
+                error "Failed to install python3-venv. Please run: sudo apt install python3-venv"
+                return 1
+            fi
+        fi
+    fi
+    
     if python3 -m venv "$VENV_DIR"; then
         success "Virtual environment created at $VENV_DIR"
     else
         error "Failed to create virtual environment"
+        
+        # Try self-healing as last resort
+        if [[ -f "$DEPENDENCY_HEALER" ]]; then
+            warn "Attempting final self-healing attempt..."
+            if "$DEPENDENCY_HEALER" python; then
+                success "Virtual environment healed successfully!"
+                return 0
+            fi
+        fi
+        
         return 1
     fi
 }

@@ -1,32 +1,58 @@
 {#extend base/role-header.md}
 
-# uDOS Command Help
+# 🧙‍♂️ uDOS Command Help - {USER-ROLE:title} Level {USER-LEVEL}
 
-## Available Commands for {USER-ROLE:title}
+*System Status: {SYSTEM-STATUS:title} | Last Updated: {TIMESTAMP}*
 
-### Core Commands
+## 🎯 Available Commands for {USER-ROLE:title}
+
+### 📋 Core Commands (Available to all roles)
 - **[STATUS]** - Display system status and current configuration
-- **[HELP]** - Show available commands (you are here!)
-- **[LIST]** - List all system variables
-- **[ROLE]** - Display current role information
+- **[HELP]** - Show available commands (you are here!)  
+- **[HELP|COMPLETE]** - Show complete command reference
+- **[LIST]** - List all system variables organized by scope
+- **[ROLE]** - Display current role information and capabilities
+
+### 🔧 Variable Management
+- **[GET|variable]** - Get variable value with details
+- **[SET|variable*value]** - Set variable value with confirmation  
+- **[LIST]** - Show all available variables by scope
+
+{#if USER-LEVEL:number >= 20}
+### 📖 Story System (Level 20+)
+- **[STORY|LIST]** - List available interactive stories
+- **[STORY|RUN*name]** - Execute interactive configuration stories
+{/if}
 
 {#if USER-LEVEL:number >= 40}
-### Automation Commands (Level 40+)
+### ⚡ Automation Commands (Level 40+)
 - **[WORKFLOW]** - Manage workflows and tasks
 - **[SCRIPT]** - Execute automation scripts
+- **[ASSIST|ENTER]** - Enter development ASSIST mode
+- **[ASSIST|EXIT]** - Exit ASSIST mode
 {/if}
 
 {#if USER-LEVEL:number >= 60}
-### Development Commands (Level 60+)
-- **[VARIABLE|GET*name]** - Get variable value
-- **[VARIABLE|SET*name*value]** - Set variable value
-- **[STORY|LIST]** - List available interactive stories
+### 🎨 Template System (Level 60+)
+- **[TEMPLATE|LIST]** - List available templates
+- **[TEMPLATE|RENDER*name]** - Render template with current variables
+- **[VARIABLE|EXPORT]** - Export variables to environment
 {/if}
 
 {#if USER-LEVEL:number >= 80}
-### Advanced Commands (Level 80+)
-- **[SYSTEM]** - System administration commands
+### 🛠️ Advanced Commands (Level 80+)
+- **[SYSTEM|STATUS]** - Detailed system diagnostics
+- **[SYSTEM|HEAL]** - Run self-healing dependency check
 - **[EXTENSION]** - Manage system extensions
+- **[DEV|MODE]** - Enter development mode
+{/if}
+
+{#if USER-LEVEL:number >= 100}
+### 🧙‍♂️ Wizard Commands (Level 100)
+- **[DEV|BUILD]** - Build and deploy system components
+- **[BACKUP|CREATE]** - Create system backups
+- **[RESTORE|FROM*backup]** - Restore from backup
+- **[ROLE|FORCE*role]** - Force role change (administrative)
 {/if}
 
 {#if USER-LEVEL:number >= 100}

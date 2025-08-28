@@ -1,13 +1,18 @@
 #!/bin/bash
-# uDOS Command Router v1.0.4.1
+# uDOS Command Router v1.0.4.3
 # Central command processing system for uCODE syntax [COMMAND|ACTION*params]
-# Phase 2 Implementation - Enhanced Role-Based Access Control
+# Enhanced with Advanced Template System Integration & Self-Healing
 
 set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Core integrations
+TEMPLATE_ENGINE="$SCRIPT_DIR/template-engine.sh"
+VARIABLE_MANAGER="$SCRIPT_DIR/variable-manager.sh"
+SELF_HEALING="$SCRIPT_DIR/self-healing/dependency-healer.sh"
 
 # Source dependencies
 source "$SCRIPT_DIR/logging.sh" 2>/dev/null || {
@@ -214,7 +219,198 @@ check_permission() {
 }
 
 # ════════════════════════════════════════════════════════════════
-# 🎯 COMMAND ROUTING
+# � TEMPLATE RENDERING INTEGRATION
+# ════════════════════════════════════════════════════════════════
+
+# Render template with current session variables
+render_template() {
+    local template_name="$1"
+    local output_type="${2:-text}"
+    local template_dir="$UDOS_ROOT/uMEMORY/system/templates"
+    local template_path="$template_dir/$template_name"
+    
+    if [[ ! -f "$template_path" ]]; then
+        log_error "Template not found: $template_name"
+        return 1
+    fi
+    
+    log_info "Rendering template: $(basename "$template_name")"
+    
+    # Create temporary file for processing
+    local temp_file=$(mktemp)
+    cp "$template_path" "$temp_file"
+    
+    # Get current system values
+    local user_role=$(get_current_role)
+    local user_level=$("$VARIABLE_MANAGER" GET "USER-LEVEL" 2>/dev/null || echo "10")
+    local session_id=$("$VARIABLE_MANAGER" GET "SESSION-ID" 2>/dev/null || echo "active-session")
+    local display_mode=$("$VARIABLE_MANAGER" GET "DISPLAY-MODE" 2>/dev/null || echo "standard")
+    local system_status=$("$VARIABLE_MANAGER" GET "SYSTEM-STATUS" 2>/dev/null || echo "healthy")
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local dev_mode=$("$VARIABLE_MANAGER" GET "DEV-MODE" 2>/dev/null || echo "false")
+    
+    # Process template conditionals
+    process_template_conditionals "$temp_file" "$user_level" "$dev_mode"
+    
+    # Perform variable substitution with type formatting
+    process_template_variables "$temp_file" "$user_role" "$user_level" "$session_id" "$display_mode" "$system_status" "$timestamp" "$dev_mode"
+    
+    # Output the processed template
+    cat "$temp_file"
+    rm -f "$temp_file"
+    
+    return 0
+}
+
+# Process template conditionals like {#if} and {#extend}
+process_template_conditionals() {
+    local temp_file="$1"
+    local user_level="$2"
+    local dev_mode="$3"
+    
+    # Process {#if USER-LEVEL:number >= X} blocks
+    while grep -q "{#if USER-LEVEL:number >=" "$temp_file"; do
+        local line_num=$(grep -n "{#if USER-LEVEL:number >=" "$temp_file" | head -1 | cut -d: -f1)
+        local condition=$(sed -n "${line_num}p" "$temp_file")
+        local required_level=$(echo "$condition" | sed 's/.*USER-LEVEL:number >= \([0-9]*\).*/\1/')
+        
+        # Find the end of this conditional block
+        local end_line=$(tail -n +$((line_num + 1)) "$temp_file" | grep -n "{/if" | head -1 | cut -d: -f1)
+        end_line=$((line_num + end_line))
+        
+        if [[ "$user_level" -ge "$required_level" ]]; then
+            # Keep the content, remove the conditional tags
+            sed -i "${line_num}d" "$temp_file"
+            sed -i "$((end_line - 1))d" "$temp_file"
+        else
+            # Remove the entire conditional block
+            sed -i "${line_num},${end_line}d" "$temp_file"
+        fi
+    done
+    
+    # Process {#if DEV-MODE} blocks
+    while grep -q "{#if DEV-MODE" "$temp_file"; do
+        local line_num=$(grep -n "{#if DEV-MODE" "$temp_file" | head -1 | cut -d: -f1)
+        local end_line=$(tail -n +$((line_num + 1)) "$temp_file" | grep -n "{/if" | head -1 | cut -d: -f1)
+        end_line=$((line_num + end_line))
+        
+        if [[ "$dev_mode" == "true" ]]; then
+            # Keep the content, remove the conditional tags
+            sed -i "${line_num}d" "$temp_file"
+            sed -i "$((end_line - 1))d" "$temp_file"
+        else
+            # Remove the entire conditional block
+            sed -i "${line_num},${end_line}d" "$temp_file"
+        fi
+    done
+    
+    # Remove {#extend} lines (for now, just strip them)
+    sed -i '/^{#extend/d' "$temp_file"
+}
+
+# Process template variables with type formatting
+process_template_variables() {
+    local temp_file="$1"
+    local user_role="$2"
+    local user_level="$3"
+    local session_id="$4"
+    local display_mode="$5"
+    local system_status="$6"
+    local timestamp="$7"
+    local dev_mode="$8"
+    
+    # Simple variable substitution
+    sed -i "s/{USER-ROLE}/$user_role/g" "$temp_file"
+    sed -i "s/{USER-LEVEL}/$user_level/g" "$temp_file"
+    sed -i "s/{SESSION-ID}/$session_id/g" "$temp_file"
+    sed -i "s/{DISPLAY-MODE}/$display_mode/g" "$temp_file"
+    sed -i "s/{SYSTEM-STATUS}/$system_status/g" "$temp_file"
+    sed -i "s/{TIMESTAMP}/$timestamp/g" "$temp_file"
+    sed -i "s/{DEV-MODE}/$dev_mode/g" "$temp_file"
+    
+    # Formatted variable substitution
+    local user_role_title=$(echo "$user_role" | sed 's/.*/\L&/' | sed 's/^./\U&/')
+    sed -i "s/{USER-ROLE:title}/$user_role_title/g" "$temp_file"
+    sed -i "s/{USER-LEVEL:number}/$user_level/g" "$temp_file"
+}
+
+# Simple variable substitution fallback (legacy - not used with new render_template)
+substitute_variables() {
+    local content="$1"
+    
+    if [[ -f "$VARIABLE_MANAGER" ]]; then
+        local user_role=$("$VARIABLE_MANAGER" GET "USER-ROLE" 2>/dev/null || echo "GHOST")
+        local user_level=$("$VARIABLE_MANAGER" GET "USER-LEVEL" 2>/dev/null || echo "10")
+        
+        content="${content//\{USER-ROLE\}/$user_role}"
+        content="${content//\{USER-LEVEL\}/$user_level}"
+    fi
+    
+    echo "$content"
+}
+
+# Render help with templates
+render_help_template() {
+    local help_type="${1:-basic}"
+    local current_role="${2:-GHOST}"
+    
+    # Set template variables for help context
+    export UDOS_CURRENT_ROLE="$current_role"
+    export UDOS_HELP_TYPE="$help_type"
+    
+    local template_file="help-${help_type}.md"
+    
+    # Try to render template, fallback to static help
+    if ! render_template "commands/$template_file" "help"; then
+        # Fallback to traditional help display
+        case "$help_type" in
+            "complete") show_complete_help ;;
+            "variable") show_variable_help ;;
+            *) show_basic_help ;;
+        esac
+    fi
+}
+
+# Render status with templates  
+render_status_template() {
+    local status_type="${1:-system}"
+    local context="${2:-status}"
+    
+    # Update system variables for status display
+    if [[ -f "$VARIABLE_MANAGER" ]]; then
+        "$VARIABLE_MANAGER" SET "SYSTEM-STATUS" "$(get_system_status)" >/dev/null 2>&1 || true
+        "$VARIABLE_MANAGER" SET "TIMESTAMP" "$(date '+%Y-%m-%d %H:%M:%S')" >/dev/null 2>&1 || true
+    fi
+    
+    local template_file="dashboards/${status_type}-dashboard.md"
+    
+    if ! render_template "$template_file" "$context"; then
+        # Fallback to traditional status display
+        show_traditional_status
+    fi
+}
+
+# Get current system status
+get_system_status() {
+    local status="healthy"
+    
+    # Check dependencies
+    if [[ -f "$SELF_HEALING" ]]; then
+        if ! "$SELF_HEALING" status >/dev/null 2>&1; then
+            status="needs-healing"
+        fi
+    fi
+    
+    # Check core services
+    if [[ ! -f "$VARIABLE_MANAGER" ]] || [[ ! -f "$TEMPLATE_ENGINE" ]]; then
+        status="degraded"
+    fi
+    
+    echo "$status"
+}
+
+# ════════════════════════════════════════════════════════════════
+# �🎯 COMMAND ROUTING
 # ════════════════════════════════════════════════════════════════
 
 # Route command to appropriate handler
@@ -238,6 +434,12 @@ route_command() {
             ;;
         "ROLE")
             handle_role_command "$action" "$params"
+            ;;
+        "TEMPLATE")
+            handle_template_command "$action" "$params"
+            ;;
+        "STATUS")
+            handle_status_command "$action" "$params"
             ;;
         "HELP")
             handle_help_command "$action" "$params"
@@ -490,6 +692,140 @@ handle_role_command() {
     esac
 }
 
+# Handle template commands for dynamic content generation
+handle_template_command() {
+    local action="$1"
+    local params="$2"
+    local current_role=$(get_current_role)
+    local session_id="$$"
+
+    case "$action" in
+        "LIST"|"")
+            echo "📋 Available Templates:"
+            echo ""
+            echo "🏠 Base Templates:"
+            find "$UDOS_ROOT/uMEMORY/system/templates/base" -name "*.md" 2>/dev/null | sed 's|.*/||; s|\.md$||' | sed 's/^/  • /' || echo "  (none found)"
+            
+            echo ""
+            echo "📖 Command Help Templates:"
+            find "$UDOS_ROOT/uMEMORY/system/templates/commands" -name "*.md" 2>/dev/null | sed 's|.*/||; s|\.md$||' | sed 's/^/  • /' || echo "  (none found)"
+            
+            echo ""
+            echo "📊 Dashboard Templates:"
+            find "$UDOS_ROOT/uMEMORY/system/templates/dashboards" -name "*.md" 2>/dev/null | sed 's|.*/||; s|\.md$||' | sed 's/^/  • /' || echo "  (none found)"
+            
+            echo ""
+            echo "📝 Form Templates:"
+            find "$UDOS_ROOT/uMEMORY/system/templates/forms" -name "*.md" 2>/dev/null | sed 's|.*/||; s|\.md$||' | sed 's/^/  • /' || echo "  (none found)"
+            ;;
+        "RENDER")
+            if [[ -z "$params" ]]; then
+                log_error "TEMPLATE RENDER requires template name"
+                echo "Usage: [TEMPLATE|RENDER*template-name]"
+                echo "Use [TEMPLATE|LIST] to see available templates"
+                return 1
+            fi
+            
+            log_info "Rendering template: $params"
+            
+            # Try different template locations
+            local template_found=false
+            for template_dir in "commands" "dashboards" "forms" "base"; do
+                local template_path="$UDOS_ROOT/uMEMORY/system/templates/$template_dir/$params.md"
+                if [[ -f "$template_path" ]]; then
+                    render_template "$template_dir/$params.md" "manual" "$session_id"
+                    template_found=true
+                    break
+                fi
+            done
+            
+            if [[ "$template_found" == "false" ]]; then
+                log_error "Template not found: $params"
+                echo "Use [TEMPLATE|LIST] to see available templates"
+                return 1
+            fi
+            ;;
+        "VARIABLES"|"VARS")
+            echo "🔧 Template Variables Available:"
+            echo ""
+            if [[ -f "$VARIABLE_MANAGER" ]]; then
+                "$VARIABLE_MANAGER" LIST "$session_id" | grep -E "^\s*[A-Z][A-Z0-9_-]*:" | sed 's/^/  {/' | sed 's/:.*$/}/'
+            else
+                echo "  (Variable manager not available)"
+            fi
+            ;;
+        "STATUS")
+            echo "🎨 Template System Status:"
+            echo ""
+            if [[ -f "$TEMPLATE_ENGINE" ]]; then
+                echo "  ✅ Template Engine: Available"
+            else
+                echo "  ❌ Template Engine: Not Found"
+            fi
+            
+            if [[ -f "$VARIABLE_MANAGER" ]]; then
+                echo "  ✅ Variable Manager: Available"
+            else
+                echo "  ❌ Variable Manager: Not Found"
+            fi
+            
+            local template_count=$(find "$UDOS_ROOT/uMEMORY/system/templates" -name "*.md" 2>/dev/null | wc -l)
+            echo "  📋 Available Templates: $template_count"
+            ;;
+        *)
+            log_error "Unknown TEMPLATE action: $action"
+            echo "Available actions:"
+            echo "  LIST - Show all available templates"
+            echo "  RENDER*name - Render specific template"
+            echo "  VARIABLES - Show available template variables"
+            echo "  STATUS - Show template system status"
+            return 1
+            ;;
+    esac
+}
+
+# Handle status commands with template integration
+handle_status_command() {
+    local action="$1"
+    local params="$2"
+    local current_role=$(get_current_role)
+
+    case "$action" in
+        "DASHBOARD"|"")
+            # Render simple dashboard template
+            if ! render_template "dashboards/simple-dashboard.md" "dashboard"; then
+                # Fallback to basic status
+                show_system_status
+            fi
+            ;;
+        "SYSTEM")
+            # System-specific status
+            if ! render_template "dashboards/simple-dashboard.md" "status"; then
+                show_system_status
+            fi
+            ;;
+        "PROJECT")
+            # Project-specific status
+            echo "📁 Project Status:"
+            if [[ -f "$VARIABLE_MANAGER" ]]; then
+                echo "  Project Name: $("$VARIABLE_MANAGER" GET "PROJECT-NAME" 2>/dev/null || echo "Not Set")"
+                echo "  Project Type: $("$VARIABLE_MANAGER" GET "PROJECT-TYPE" 2>/dev/null || echo "Not Set")"
+                echo "  Workspace: $("$VARIABLE_MANAGER" GET "WORKSPACE-PATH" 2>/dev/null || echo "Not Set")"
+            else
+                echo "  (Variable manager not available)"
+            fi
+            ;;
+        *)
+            log_error "Unknown STATUS action: $action"
+            echo "Available actions:"
+            echo "  DASHBOARD - Show main system dashboard"
+            echo "  SYSTEM - Show detailed system status"
+            echo "  PROJECT - Show project-specific status"
+            return 1
+            ;;
+    esac
+}
+
 # Handle story commands for interactive variable collection
 handle_story_command() {
     local action="$1"
@@ -570,11 +906,32 @@ handle_story_command() {
 handle_help_command() {
     local action="$1"
     local params="$2"
+    local current_role=$(get_current_role)
 
+    # Use template rendering for enhanced help
     if [[ -n "$action" ]]; then
-        show_command_help "$action"
+        case "$action" in
+            "COMPLETE"|"FULL")
+                render_help_template "complete" "$current_role"
+                ;;
+            "VARIABLE"|"VAR")
+                render_help_template "variable" "$current_role"
+                ;;
+            "BASIC"|"SIMPLE")
+                render_help_template "basic" "$current_role"
+                ;;
+            *)
+                # Command-specific help
+                if ! render_template "commands/help-$action.md" "help"; then
+                    show_command_help "$action"
+                fi
+                ;;
+        esac
     else
-        show_general_help
+        # General help with role-aware template
+        if ! render_help_template "help" "$current_role"; then
+            show_general_help
+        fi
     fi
 }
 
