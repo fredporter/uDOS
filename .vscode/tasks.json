@@ -1,6 +1,9 @@
 {
     "version": "2.0.0",
     "tasks": [
+        // ══════════════════════════════════════════════════════════════
+        // 🚀 uDOS Core Integration Tasks
+        // ══════════════════════════════════════════════════════════════
         {
             "label": "🌀 Start uDOS",
             "type": "shell",
@@ -52,6 +55,226 @@
             "isBackground": true,
             "problemMatcher": []
         },
+
+        // ══════════════════════════════════════════════════════════════
+        // ⚡ uDOS Express Commands (Direct Integration)
+        // ══════════════════════════════════════════════════════════════
+                {
+            "label": "📊 uDOS Dashboard",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["status"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "👤 Show Current Role",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["role"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🚀 Enter ASSIST Mode",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["assist", "enter"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🛠️ Self-Healing Check",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["heal"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📋 List Templates",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["template", "list"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📖 Show Development Help",
+            "type": "shell",
+            "command": "./dev/vscode/vscode-command-wrapper.sh",
+            "args": ["help"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "� Show Current Role",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[ROLE]"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "� Enter ASSIST Mode",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[ASSIST|ENTER]"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "�️ Self-Healing Check",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[SYSTEM|HEAL]"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📋 List Templates",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[TEMPLATE|LIST]"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📖 Show Development Help",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[TEMPLATE|RENDER*help]"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // 🎨 Template Development Tasks
+        // ══════════════════════════════════════════════════════════════
+        {
+            "label": "🏠 Render Base Template",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh",
+            "args": ["[TEMPLATE|RENDER*simple-dashboard]"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🎛️ Template Variables",
+            "type": "shell",
+            "command": "./uCORE/code/command-router.sh", 
+            "args": ["[TEMPLATE|VARIABLES]"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔧 Development Workflow Tasks  
+        // ══════════════════════════════════════════════════════════════
         {
             "label": "🧠 Development Mode",
             "type": "shell",
@@ -65,6 +288,90 @@
             },
             "problemMatcher": []
         },
+        {
+            "label": "� Development Status Overview",
+            "type": "shell",
+            "command": "bash",
+            "args": ["-c", "source ./dev/vscode/simple-terminal-test.sh && echo '🔧 Development Status Overview' && echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' && role && echo '' && dash"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "⚡ Express Development Setup",
+            "type": "shell",
+            "command": "bash",
+            "args": ["-c", "source ./dev/vscode/simple-terminal-test.sh && echo '⚡ Express Development Environment Ready!' && echo '' && show_help"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // 🌐 Web & Desktop Integration Tasks
+        // ══════════════════════════════════════════════════════════════
+        {
+            "label": "🌐 Start Web Export",
+            "type": "shell",
+            "command": "./uNETWORK/display/udos-display.sh",
+            "args": ["export", "dashboard"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "🌐 Open uDOS Web UI",
+            "type": "shell",
+            "command": "code",
+            "args": ["--command", "simpleBrowser.show", "http://localhost:8080"],
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "🌐 Start Web Export",
+            "problemMatcher": []
+        },
+        {
+            "label": "🖥️ Start Desktop App Dev",
+            "type": "shell",
+            "command": "./uNETWORK/desktop/dev-desktop.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": [],
+            "dependsOn": "🌐 Start Web Export"
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔍 System Management & Testing Tasks
+        // ══════════════════════════════════════════════════════════════
         {
             "label": "🔍 Check Installation",
             "type": "shell",
@@ -145,52 +452,10 @@
             },
             "problemMatcher": []
         },
-        {
-            "label": "🖥️ Start Desktop App Dev",
-            "type": "shell",
-            "command": "./uNETWORK/desktop/dev-desktop.sh",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "problemMatcher": [],
-            "dependsOn": "🌐 Start Web Export"
-        },
-        {
-            "label": "🌐 Start Web Export",
-            "type": "shell",
-            "command": "./uNETWORK/display/udos-display.sh",
-            "args": ["export", "dashboard"],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "isBackground": true,
-            "problemMatcher": []
-        },
-        {
-            "label": "🌐 Open uDOS Web UI",
-            "type": "shell",
-            "command": "code",
-            "args": ["--command", "simpleBrowser.show", "http://localhost:8080"],
-            "group": "build",
-            "presentation": {
-                "echo": false,
-                "reveal": "never",
-                "focus": false,
-                "panel": "shared"
-            },
-            "dependsOn": "🌐 Start Web Export",
-            "problemMatcher": []
-        }
-    ]
-        ,
+
+        // ══════════════════════════════════════════════════════════════
+        // 🧪 Testing & Debug Tasks
+        // ══════════════════════════════════════════════════════════════
         {
             "label": "🧪 Test Debug System",
             "type": "shell",
@@ -244,6 +509,44 @@
                 "focus": true,
                 "panel": "shared"
             },
+            "problemMatcher": []
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // 🚀 Quick Action Composite Tasks
+        // ══════════════════════════════════════════════════════════════
+        {
+            "label": "🚀 Full uDOS Development Environment",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "🔗 VS Code + uDOS Integration",
+                "📊 uDOS Dashboard",
+                "🚀 Enter ASSIST Mode"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "🌐 uDOS Web Development Stack",
+            "dependsOrder": "sequence", 
+            "dependsOn": [
+                "🌐 Start Web Export",
+                "🌐 Open uDOS Web UI",
+                "📊 uDOS Dashboard"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "🔧 Complete System Check",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "🔍 Check Installation",
+                "🛠️ Self-Healing Check",
+                "👤 Show Current Role",
+                "📊 uDOS Dashboard"
+            ],
+            "group": "test",
             "problemMatcher": []
         }
     ]

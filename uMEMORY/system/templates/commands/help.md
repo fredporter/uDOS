@@ -6,7 +6,18 @@
 
 ## 🎯 Available Commands for {USER-ROLE:title}
 
-### 📋 Core Commands (Available to all roles)
+### � Native CLI Commands (Simplified)
+Use these natural commands without brackets:
+- **status** - Display system dashboard  
+- **role** - Show current role information
+- **help** - Show this help reference
+- **list** - List all system variables
+- **heal** - Run self-healing system check
+- **assist enter** - Activate ASSIST mode
+- **template list** - Show available templates
+- **template render [name]** - Render specific template
+
+### 📋 Core Commands (Traditional uCODE syntax)
 - **[STATUS]** - Display system status and current configuration
 - **[HELP]** - Show available commands (you are here!)  
 - **[HELP|COMPLETE]** - Show complete command reference

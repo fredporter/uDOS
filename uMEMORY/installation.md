@@ -1,13 +1,15 @@
 # uDOS Installation Profile
 
 **Installation ID**: uDOS-20250826-418d
-**Version**: v1.0.4.1
-**Type**: enterprise
+**Version**: v1.0.4.3
+**Type**: enterprise-dev
 **Created**: 2025-08-26 22:25:59
-**Platform**: Darwin (arm64)
+**Updated**: 2025-08-28 (Express Development Mode)
+**Platform**: Linux (x86_64)
 
-> **Status**: Active
-> **Mode**: enterprise
+> **Status**: Active - Express Development Mode
+> **Mode**: enterprise-dev
+> **Development Features**: Advanced Template System + Self-Healing
 > **Roles Available**: Ghost, Tomb, Crypt, Drone, Knight, Imp, Sorcerer, Wizard
 
 ---
@@ -15,35 +17,63 @@
 ## 📋 Installation Configuration
 
 ### 🏗️ Installation Type
-**Type**: enterprise
-**Description**: Multi-user enterprise installation
+**Type**: enterprise-dev
+**Description**: Enterprise installation with advanced development features
 
 ### 🔐 Security Level
-**Security Mode**: enterprise
+**Security Mode**: enterprise-dev
 **Authentication**: local
 **Encryption**: enabled
+**Development Access**: Full (WIZARD level)
 
 ### 👥 User Management
 **Multi-User**: true
 **Max Users**: unlimited
 **Default Role**: Knight
+**Development Role**: Wizard (Active)
 
 ### 🌐 Network Configuration
 **Network Mode**: public
 **Sharing Enabled**: true
 **Remote Access**: true
+**Development Server**: Active
 
 ---
 
 ## 🎯 Available Roles
 
-### Enterprise Installation
-- **Role-Based Access Control** - Granular permissions
-- **Audit Logging** - Complete activity tracking
-- **Network Integration** - Enterprise network support
-- **Multi-User Management** - Team collaboration
+### Enterprise Development Installation
+- **Role-Based Access Control** - Granular permissions with development override
+- **Audit Logging** - Complete activity tracking + development logs
+- **Network Integration** - Enterprise network support + dev server
+- **Multi-User Management** - Team collaboration + development workflows
+- **Template System** - Advanced v1.0.4.3 with conditional processing
+- **Self-Healing** - NetHack-inspired automatic recovery system
 
 ---
+
+## 🚀 Development Features (v1.0.4.3)
+
+### 🎨 Advanced Template System
+- **Conditional Processing**: `{#if USER-LEVEL:number >= X}` role-based content
+- **Development Sections**: `{#if DEV-MODE}` development-specific content  
+- **Variable Formatting**: `{USER-ROLE:title}`, `{USER-LEVEL:number}`
+- **Template Inheritance**: `{#extend}` support for modular templates
+- **Real-Time Rendering**: Dynamic content generation with live updates
+
+### 🛠️ Self-Healing System
+- **Platform Detection**: Debian, Fedora, Arch, macOS, Windows support
+- **Auto-Recovery**: Python environment, Node.js, system dependencies
+- **NetHack Messages**: Entertaining error feedback ("You cast 'summon python'")
+- **Retry Logic**: Exponential backoff with attempt limiting
+- **Integration**: All startup scripts include self-healing checks
+
+### ⚡ Express Development Mode
+- **VS Code Integration**: uDOS as development OS within VS Code
+- **Template-Driven UI**: All interfaces generated from templates
+- **ASSIST Mode**: Enhanced development workflow assistance
+- **Real-Time Dashboard**: Live system status and project information
+- **Context-Aware Help**: Help system adapts to role and development context
 
 ## 📊 System Capabilities
 

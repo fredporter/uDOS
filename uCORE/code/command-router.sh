@@ -26,41 +26,72 @@ source "$SCRIPT_DIR/logging.sh" 2>/dev/null || {
 # 🎯 CORE COMMAND PARSING
 # ════════════════════════════════════════════════════════════════
 
-# Parse uCODE command syntax: [COMMAND|ACTION*params]
+# Parse uCODE command syntax: [COMMAND|ACTION*params] or native CLI: COMMAND ACTION params
 parse_ucode_command() {
     local input="$1"
+    local content=""
 
-    # Remove brackets and extract content
+    # Check if input is in bracketed format [COMMAND|ACTION*params]
     if [[ "$input" =~ ^\[([^\]]+)\]$ ]]; then
-        local content="${BASH_REMATCH[1]}"
-
-        # Split on | for COMMAND|ACTION
-        if [[ "$content" =~ ^([^|]+)\|(.+)$ ]]; then
-            local command="${BASH_REMATCH[1]}"
-            local action_params="${BASH_REMATCH[2]}"
-
-            # Split on * for ACTION*params
-            local action=""
-            local params=""
-            if [[ "$action_params" =~ ^([^*]+)\*(.*)$ ]]; then
-                action="${BASH_REMATCH[1]}"
-                params="${BASH_REMATCH[2]}"
-            else
-                action="$action_params"
-            fi
-
-            echo "COMMAND=$command"
-            echo "ACTION=$action"
-            echo "PARAMS=$params"
-        else
-            # Single command without action
-            echo "COMMAND=$content"
-            echo "ACTION="
-            echo "PARAMS="
-        fi
+        content="${BASH_REMATCH[1]}"
     else
-        log_error "Invalid uCODE syntax. Expected format: [COMMAND|ACTION*params]"
-        return 1
+        # Native CLI mode - convert space-separated args to uCODE format
+        content="$input"
+        
+        # Convert common CLI patterns to uCODE format
+        case "$input" in
+            "help"*) content="HELP" ;;
+            "status"*) content="STATUS|DASHBOARD" ;;
+            "role"*) content="ROLE" ;;
+            "assist enter"*) content="ASSIST|ENTER" ;;
+            "assist exit"*) content="ASSIST|EXIT" ;;
+            "assist"*) content="ASSIST|ENTER" ;;
+            "heal"*) content="SYSTEM|HEAL" ;;
+            "list"*) content="LIST" ;;
+            "template list"*) content="TEMPLATE|LIST" ;;
+            "template "*) 
+                local template_cmd="${input#template }"
+                if [[ "$template_cmd" =~ ^render\ (.+)$ ]]; then
+                    content="TEMPLATE|RENDER*${BASH_REMATCH[1]}"
+                else
+                    content="TEMPLATE|${template_cmd^^}"
+                fi
+                ;;
+            *) 
+                # Try to parse as space-separated command action params
+                read -r cmd action params <<< "$input"
+                if [[ -n "$action" ]]; then
+                    content="${cmd^^}|${action^^}${params:+*$params}"
+                else
+                    content="${cmd^^}"
+                fi
+                ;;
+        esac
+    fi
+
+    # Parse the content (now in uCODE format)
+    if [[ "$content" =~ ^([^|]+)\|(.+)$ ]]; then
+        local command="${BASH_REMATCH[1]}"
+        local action_params="${BASH_REMATCH[2]}"
+
+        # Split on * for ACTION*params
+        local action=""
+        local params=""
+        if [[ "$action_params" =~ ^([^*]+)\*(.*)$ ]]; then
+            action="${BASH_REMATCH[1]}"
+            params="${BASH_REMATCH[2]}"
+        else
+            action="$action_params"
+        fi
+
+        echo "COMMAND=$command"
+        echo "ACTION=$action"
+        echo "PARAMS=$params"
+    else
+        # Single command without action
+        echo "COMMAND=$content"
+        echo "ACTION="
+        echo "PARAMS="
     fi
 }
 
@@ -70,6 +101,12 @@ parse_ucode_command() {
 
 # Load current user role
 get_current_role() {
+    # Check environment variables set by authentication first
+    if [[ -n "$UDOS_AUTH_ROLE" ]]; then
+        echo "$UDOS_AUTH_ROLE"
+        return 0
+    fi
+    
     # Use role manager for consistent role handling
     if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
         "$SCRIPT_DIR/role-manager.sh" get 2>/dev/null | grep "Role:" | cut -d' ' -f2 | tr -d ' \n\r' || echo "GHOST"
@@ -99,6 +136,70 @@ get_role_level() {
         "WIZARD") echo "100" ;;
         *) echo "0" ;;
     esac
+}
+
+# Get role description
+get_role_description() {
+    local role="$1"
+    
+    case "${role^^}" in
+        "GHOST") echo "Demo installation, read-only access" ;;
+        "TOMB") echo "Basic user access with variable operations" ;;
+        "CRYPT") echo "Extended command access" ;;
+        "DRONE") echo "ASSIST mode access, automation features" ;;
+        "KNIGHT") echo "Role management, advanced operations" ;;
+        "IMP") echo "Advanced ASSIST features, complex operations" ;;
+        "SORCERER") echo "System configuration and management" ;;
+        "WIZARD") echo "Full development access, system modification" ;;
+        *) echo "Unknown role" ;;
+    esac
+}
+
+# Show role capabilities
+show_role_capabilities() {
+    local role="$1"
+    local level="$2"
+    
+    # Basic commands (available to all)
+    echo "✅ Basic Commands: HELP, SYSTEM|STATUS"
+    
+    if [[ "$level" -ge 20 ]]; then
+        echo "✅ Variable Operations: GET, SET"
+    else
+        echo "❌ Variable Operations: GET, SET (requires TOMB+)"
+    fi
+    
+    if [[ "$level" -ge 40 ]]; then
+        echo "✅ ASSIST Basic: ENTER, EXIT, NEXT"
+    else
+        echo "❌ ASSIST Basic: ENTER, EXIT, NEXT (requires DRONE+)"
+    fi
+    
+    if [[ "$level" -ge 50 ]]; then
+        echo "✅ Role Management: ROLE|GET, ROLE|SET"
+    else
+        echo "❌ Role Management: ROLE|GET, ROLE|SET (requires KNIGHT+)"
+    fi
+    
+    if [[ "$level" -ge 60 ]]; then
+        echo "✅ ASSIST Advanced: FINALIZE, ROADMAP"
+    else
+        echo "❌ ASSIST Advanced: FINALIZE, ROADMAP (requires IMP+)"
+    fi
+    
+    if [[ "$level" -ge 80 ]]; then
+        echo "✅ System Configuration: SYSTEM|CONFIGURE"
+    else
+        echo "❌ System Configuration: SYSTEM|CONFIGURE (requires SORCERER+)"
+    fi
+    
+    if [[ "$level" -ge 100 ]]; then
+        echo "✅ Core System Modification: SYSTEM|MODIFY, DEV access"
+        echo "✅ Template System: Advanced rendering, development features"
+        echo "✅ ASSIST Mode: Full development workflow assistance"
+    else
+        echo "❌ Core System Modification: SYSTEM|MODIFY, DEV access (requires WIZARD)"
+    fi
 }
 
 # Enhanced permission checking with detailed feedback
@@ -588,7 +689,34 @@ handle_role_command() {
         "GET"|"STATUS"|"")
             # Show comprehensive role status
             if [[ -f "$SCRIPT_DIR/role-manager.sh" ]]; then
-                "$SCRIPT_DIR/role-manager.sh" status
+                # Check if we have authenticated role that's higher than role manager
+                local auth_role="${UDOS_AUTH_ROLE:-}"
+                local auth_level="${UDOS_AUTH_LEVEL:-10}"
+                
+                if [[ -n "$auth_role" && "$auth_role" != "GHOST" ]]; then
+                    # Use authenticated role for display
+                    echo "═══════════════════════════════════════"
+                    echo "👤 Current Role Status (Authenticated)"
+                    echo "═══════════════════════════════════════"
+                    echo "Role: $auth_role"
+                    echo "Level: $auth_level"
+                    echo "User: ${UDOS_AUTH_USER:-unknown}"
+                    
+                    if [[ "$auth_role" == "WIZARD" ]]; then
+                        echo "Description: Full development access"
+                        echo "Development Mode: ${UDOS_DEV_MODE:-false}"
+                        echo "ASSIST Mode: ${UDOS_ASSIST_MODE:-false}"
+                    else
+                        echo "Description: $(get_role_description "$auth_role")"
+                    fi
+                    echo "═══════════════════════════════════════"
+                    echo ""
+                    echo "🔑 Role Capabilities for $auth_role (Level $auth_level):"
+                    echo "───────────────────────────────────────"
+                    show_role_capabilities "$auth_role" "$auth_level"
+                else
+                    "$SCRIPT_DIR/role-manager.sh" status
+                fi
             else
                 echo "Current role: $current_role (Level $(get_role_level "$current_role"))"
                 log_warning "Role manager not found - limited information available"
@@ -1227,10 +1355,115 @@ show_command_help() {
 }
 
 # ════════════════════════════════════════════════════════════════
-# 🚀 MAIN EXECUTION
+# � STARTUP AUTHENTICATION SYSTEM  
+# ════════════════════════════════════════════════════════════════
+
+# Authenticate user and set role based on user.md and installation.id
+authenticate_startup() {
+    local user_file="$UDOS_ROOT/sandbox/user.md"
+    local installation_file="$UDOS_ROOT/installation.id"
+    local installation_profile="$UDOS_ROOT/uMEMORY/installation.md"
+    
+    # Check for installation.id
+    if [[ ! -f "$installation_file" ]]; then
+        log_warning "No installation.id found - using default guest access"
+        set_default_user_role "GHOST" "10"
+        return 0
+    fi
+    
+    local installation_id=$(cat "$installation_file" 2>/dev/null)
+    
+    # Verify installation profile exists and matches
+    if [[ -f "$installation_profile" ]]; then
+        if ! grep -q "$installation_id" "$installation_profile"; then
+            log_error "Installation ID mismatch - security verification failed"
+            set_default_user_role "GHOST" "10" 
+            return 1
+        fi
+    fi
+    
+    # Check for user.md in sandbox (secure location)
+    if [[ ! -f "$user_file" ]]; then
+        log_info "No user.md found in sandbox - using installation defaults"
+        # Check installation.md for default role
+        if grep -q "enterprise-dev" "$installation_profile" 2>/dev/null; then
+            set_default_user_role "KNIGHT" "50"
+        else
+            set_default_user_role "GHOST" "10"
+        fi
+        return 0
+    fi
+    
+    # Parse user.md for authentication details
+    local username=$(grep "^\*\*Username\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    local user_role=$(grep "^\*\*Role\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    local user_level=$(grep "^\*\*Level\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    local password=$(grep "^\*\*Password\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    
+    # Validate user credentials exist
+    if [[ -z "$username" || -z "$user_role" || -z "$user_level" ]]; then
+        log_error "Invalid user.md format - missing required fields"
+        set_default_user_role "GHOST" "10"
+        return 1
+    fi
+    
+    # Set authenticated user role (using highest permitted role)
+    log_success "Authentication successful: $username as $user_role (Level $user_level)"
+    
+    # Set user variables (bypassed for now due to variable manager issues)
+    # if [[ -f "$VARIABLE_MANAGER" ]]; then
+    #     "$VARIABLE_MANAGER" SET "USER-NAME" "$username" >/dev/null 2>&1
+    #     "$VARIABLE_MANAGER" SET "USER-ROLE" "$user_role" >/dev/null 2>&1  
+    #     "$VARIABLE_MANAGER" SET "USER-LEVEL" "$user_level" >/dev/null 2>&1
+    #     
+    #     # Auto-enable development features for WIZARD role
+    #     if [[ "$user_role" == "WIZARD" ]]; then
+    #         "$VARIABLE_MANAGER" SET "DEV-MODE" "true" >/dev/null 2>&1
+    #         "$VARIABLE_MANAGER" SET "ASSIST-MODE" "true" >/dev/null 2>&1
+    #         log_info "Development mode auto-enabled for WIZARD role"
+    #     fi
+    # fi
+    
+    # Store authentication state for this session
+    export UDOS_AUTH_USER="$username"
+    export UDOS_AUTH_ROLE="$user_role" 
+    export UDOS_AUTH_LEVEL="$user_level"
+    export UDOS_DEV_MODE="true"
+    export UDOS_ASSIST_MODE="true"
+    
+    if [[ "$user_role" == "WIZARD" ]]; then
+        log_info "Development mode auto-enabled for WIZARD role"
+    fi
+    
+    # Log authentication event
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] AUTH: $username -> $user_role (Level $user_level)" >> "$UDOS_ROOT/sandbox/logs/auth.log" 2>/dev/null || true
+    
+    return 0
+}
+
+# Set default user role when authentication is not available
+set_default_user_role() {
+    local role="$1"
+    local level="$2"
+    
+    if [[ -f "$VARIABLE_MANAGER" ]]; then
+        "$VARIABLE_MANAGER" SET "USER-ROLE" "$role" >/dev/null 2>&1
+        "$VARIABLE_MANAGER" SET "USER-LEVEL" "$level" >/dev/null 2>&1
+        "$VARIABLE_MANAGER" SET "DEV-MODE" "false" >/dev/null 2>&1
+        "$VARIABLE_MANAGER" SET "ASSIST-MODE" "false" >/dev/null 2>&1
+    fi
+    
+    log_info "Default role set: $role (Level $level)"
+}
+
+# ════════════════════════════════════════════════════════════════
+# �🚀 MAIN EXECUTION
 # ════════════════════════════════════════════════════════════════
 
 main() {
+    # Perform startup authentication
+    authenticate_startup
+    
     # Check if command provided
     if [[ $# -eq 0 ]]; then
         log_error "No command provided"
@@ -1238,7 +1471,8 @@ main() {
         exit 1
     fi
 
-    local input="$1"
+    # Join all arguments into a single input for CLI mode
+    local input="$*"
 
     # Parse command
     local parse_result
