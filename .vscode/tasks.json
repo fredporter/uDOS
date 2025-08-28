@@ -60,6 +60,38 @@
         // ⚡ uDOS Express Commands (Direct Integration)
         // ══════════════════════════════════════════════════════════════
                 {
+            "label": "🎯 Install Auto-completion",
+            "type": "shell",
+            "command": "./uCORE/completion/install-completion.sh",
+            "args": ["--install"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🧪 Test Auto-completion",
+            "type": "shell",
+            "command": "./uCORE/completion/install-completion.sh",
+            "args": ["--test"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "📊 uDOS Dashboard",
             "type": "shell",
             "command": "./dev/vscode/vscode-command-wrapper.sh",

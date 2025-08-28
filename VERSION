@@ -1,12 +1,24 @@
-# uDOS - Version 1.0.4.3
+# uDOS - Version 1.0.5
 # Universal Device Operating System
 # Build: 2025-08-28
 
-VERSION="1.0.4.3"
+VERSION="1.0.5"
 BUILD_DATE="2025-08-28"
-BUILD_NAME="Template System Integration"
+BUILD_NAME="Advanced Variable System"
 
-# Core Features in v1.0.4.2:
+# Core Features in v1.0.5:
+# - Advanced Variable Resolution: Dynamic computation with caching and scoping
+# - Variable Formatting: Uppercase, lowercase, boolean icons, truncation, padding
+# - Variable Scoping: GLOBAL -> SYSTEM -> USER -> SESSION -> LOCAL hierarchy
+# - Performance Optimization: Intelligent caching with TTL and invalidation
+# - Enhanced Template Engine: Integration with advanced variable resolver
+# - Native CLI Commands: Auto-completion for variable commands
+# - Dynamic Variables: Real-time computation (timestamps, status, dependencies)
+# - Command Auto-completion: TAB completion for all variable operations
+# - Error Handling: Graceful fallbacks and self-healing integration
+# - Development Workflow: Express dev mode with comprehensive debugging
+
+# Previous Features (maintained):
 # - Template System Integration: Dynamic content generation across all interfaces
 # - Enhanced Template Engine: Variable substitution, conditional blocks, inheritance
 # - CLI Template Rendering: Dynamic help, status displays, interactive forms
@@ -14,8 +26,9 @@ BUILD_NAME="Template System Integration"
 # - Variable-Driven UI: Real-time content updates based on system variables
 # - Role-Aware Templates: Content adaptation by user role and permission level
 # - Cross-Interface Templates: Unified template system for CLI, Web, Desktop
-# - Bash 3.2 Compatible: Works with macOS default bash version
-# - Foundation Complete: Ready for CLI/Web/Desktop template integration
+# - Native CLI Commands: Natural command syntax without brackets
+# - Self-Healing System: Automatic dependency resolution and repair
+# - Authentication System: Role-based access with secure sandbox isolation
 
 COMPATIBILITY="macOS 10.15+, Python 3.8+, Node.js 16+, Rust"
 ARCHITECTURE="Universal (CLI/Desktop/Web) + Cross-Platform"

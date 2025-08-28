@@ -57,6 +57,19 @@ parse_ucode_command() {
                     content="TEMPLATE|${template_cmd^^}"
                 fi
                 ;;
+            "variable list"*) content="VARIABLE|LIST" ;;
+            "variable test"*) content="VARIABLE|TEST" ;;
+            "variable cache clear"*) content="VARIABLE|CACHE-CLEAR" ;;
+            "variable "*) 
+                local var_cmd="${input#variable }"
+                if [[ "$var_cmd" =~ ^resolve\ (.+)$ ]]; then
+                    content="VARIABLE|RESOLVE*${BASH_REMATCH[1]}"
+                elif [[ "$var_cmd" =~ ^set\ ([^\ ]+)\ (.+)$ ]]; then
+                    content="VARIABLE|SET*${BASH_REMATCH[1]}*${BASH_REMATCH[2]}"
+                else
+                    content="VARIABLE|${var_cmd^^}"
+                fi
+                ;;
             *) 
                 # Try to parse as space-separated command action params
                 read -r cmd action params <<< "$input"
@@ -539,6 +552,9 @@ route_command() {
         "TEMPLATE")
             handle_template_command "$action" "$params"
             ;;
+        "VARIABLE")
+            handle_variable_command "$action" "$params"
+            ;;
         "STATUS")
             handle_status_command "$action" "$params"
             ;;
@@ -668,12 +684,75 @@ handle_system_command() {
         "HELP")
             show_system_help
             ;;
+        "HEAL")
+            log_info "Running self-healing system check..."
+            if [[ -f "$SELF_HEALING" ]]; then
+                # First check status
+                log_info "Checking current dependency status..."
+                "$SELF_HEALING" status
+                
+                # Run healing
+                log_info "Performing dependency healing..."
+                if "$SELF_HEALING" heal; then
+                    log_success "Self-healing completed successfully"
+                    log_info "System dependencies verified and repaired"
+                else
+                    log_warning "Self-healing encountered issues - trying specific healers..."
+                    
+                    # Try specific healing approaches
+                    local healed=false
+                    for heal_type in python system desktop; do
+                        log_info "Attempting $heal_type dependency healing..."
+                        if "$SELF_HEALING" "$heal_type"; then
+                            log_success "$heal_type dependencies healed"
+                            healed=true
+                        fi
+                    done
+                    
+                    if [[ "$healed" == "true" ]]; then
+                        log_success "Partial healing successful"
+                    else
+                        log_error "Self-healing failed - manual intervention may be required"
+                        return 1
+                    fi
+                fi
+            else
+                log_warning "Self-healing system not found at: $SELF_HEALING"
+                log_info "Running basic system health check instead..."
+                
+                # Basic health check
+                local issues=0
+                
+                # Check core directories
+                for dir in "uCORE" "uMEMORY" "sandbox"; do
+                    if [[ ! -d "$UDOS_ROOT/$dir" ]]; then
+                        log_error "Missing core directory: $dir"
+                        ((issues++))
+                    fi
+                done
+                
+                # Check core scripts
+                for script in "uCORE/code/command-router.sh" "uCORE/code/template-engine.sh"; do
+                    if [[ ! -f "$UDOS_ROOT/$script" ]]; then
+                        log_error "Missing core script: $script"
+                        ((issues++))
+                    fi
+                done
+                
+                if [[ $issues -eq 0 ]]; then
+                    log_success "Basic system health check passed"
+                else
+                    log_error "Found $issues system issues"
+                    return 1
+                fi
+            fi
+            ;;
         "")
             show_system_status  # Default to status if no action
             ;;
         *)
             log_error "Unknown SYSTEM action: $action"
-            echo "Available: STATUS, HELP"
+            echo "Available: STATUS, HELP, HEAL"
             return 1
             ;;
     esac
@@ -907,6 +986,101 @@ handle_template_command() {
             echo "  RENDER*name - Render specific template"
             echo "  VARIABLES - Show available template variables"
             echo "  STATUS - Show template system status"
+            return 1
+            ;;
+    esac
+}
+
+# Handle advanced variable commands
+handle_variable_command() {
+    local action="$1"
+    local params="$2"
+    local advanced_resolver="$UDOS_ROOT/uCORE/code/advanced-variable-resolver.sh"
+
+    case "$action" in
+        "RESOLVE")
+            if [[ -n "$params" ]]; then
+                log_info "Resolving variable: $params"
+                if [[ -f "$advanced_resolver" ]]; then
+                    "$advanced_resolver" resolve "$params" "interactive" "SESSION"
+                else
+                    log_warning "Advanced resolver not available, using basic resolution"
+                    "$VARIABLE_MANAGER" GET "$params" 2>/dev/null || echo "Variable not found: $params"
+                fi
+            else
+                log_error "Variable name required for RESOLVE action"
+                return 1
+            fi
+            ;;
+        "SET")
+            if [[ "$params" =~ ^([^*]+)\*(.+)$ ]]; then
+                local var_name="${BASH_REMATCH[1]}"
+                local var_value="${BASH_REMATCH[2]}"
+                log_info "Setting variable: $var_name = $var_value"
+                
+                if [[ -f "$advanced_resolver" ]]; then
+                    "$advanced_resolver" set "$var_name" "$var_value" "SESSION"
+                    log_success "Variable set in SESSION scope: $var_name"
+                else
+                    "$VARIABLE_MANAGER" SET "$var_name" "$var_value"
+                    log_success "Variable set: $var_name"
+                fi
+            else
+                log_error "Variable SET requires format: VARIABLE|SET*name*value"
+                return 1
+            fi
+            ;;
+        "LIST"|"")
+            echo "📋 Variable System Status:"
+            echo ""
+            
+            # Show advanced resolver status
+            if [[ -f "$advanced_resolver" ]]; then
+                echo "  ✅ Advanced Resolver: Available"
+                "$advanced_resolver" cache-status
+                echo ""
+                "$advanced_resolver" scopes
+            else
+                echo "  ❌ Advanced Resolver: Not Available"
+            fi
+            
+            echo ""
+            echo "🔍 Dynamic Variables Available:"
+            echo "  TIMESTAMP, USER-ROLE, USER-LEVEL, SYSTEM-STATUS"
+            echo "  DEPENDENCY-STATUS, TEMPLATE-COUNT, SESSION-ID" 
+            echo "  WORKSPACE-PATH, UDOS-VERSION"
+            
+            echo ""
+            echo "🎨 Variable Formatting Options:"
+            echo "  :upper, :lower, :title, :truncate:N, :pad:N"
+            echo "  :number, :boolean"
+            ;;
+        "CACHE-CLEAR")
+            log_info "Clearing variable cache..."
+            if [[ -f "$advanced_resolver" ]]; then
+                "$advanced_resolver" cache-clear
+                log_success "Variable cache cleared"
+            else
+                log_warning "Advanced resolver not available"
+            fi
+            ;;
+        "TEST")
+            echo "🧪 Testing Variable Resolution:"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            if [[ -f "$advanced_resolver" ]]; then
+                "$advanced_resolver" test
+            else
+                log_error "Advanced resolver not available for testing"
+            fi
+            ;;
+        *)
+            log_error "Unknown VARIABLE action: $action"
+            echo "Available actions:"
+            echo "  RESOLVE*name - Resolve variable value with advanced features"
+            echo "  SET*name*value - Set variable value"
+            echo "  LIST - Show variable system status and available variables"
+            echo "  CACHE-CLEAR - Clear variable cache"
+            echo "  TEST - Test variable resolution system"
             return 1
             ;;
     esac

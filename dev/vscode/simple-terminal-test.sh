@@ -1,8 +1,14 @@
 #!/bin/bash
-# uDOS Simple Terminal Integration Test
-# Lightweight version to test terminal commands
+# uDOS Simple Terminal Integration Test v1.0.4.4
+# Enhanced with auto-completion support
 
 UDOS_ROOT="${UDOS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+
+# Load auto-completion if available
+if [[ -f "$UDOS_ROOT/uCORE/completion/udos-completion.bash" ]]; then
+    source "$UDOS_ROOT/uCORE/completion/udos-completion.bash"
+    echo "✅ uDOS auto-completion loaded"
+fi
 
 # Simple command aliases for testing
 udos() {
@@ -82,8 +88,21 @@ test_commands() {
     assist
     
     echo ""
+    echo "6. Testing auto-completion:"
+    echo "   Type 'udos ' and press TAB for command completion"
+    echo "   Type 'udos template ' and press TAB for template commands"
+    
+    echo ""
+    echo "🎯 Auto-completion features:"
+    echo "   • Native CLI command completion"
+    echo "   • Template name suggestions"  
+    echo "   • Context-aware completions"
+    echo "   • Role-based command filtering"
+    
+    echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "✅ Terminal integration test complete!"
+    echo "💡 Use TAB completion for enhanced workflow"
 }
 
 # Show available commands

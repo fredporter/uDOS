@@ -1,6 +1,6 @@
 #!/bin/bash
-# uDOS Template Engine v1.0.4.1
-# Enhanced template processing with variable substitution and role-aware rendering
+# uDOS Template Engine v1.0.5
+# Enhanced template processing with advanced variable resolution, caching, and performance optimization
 
 set -euo pipefail
 
@@ -10,6 +10,7 @@ UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Core components
 VARIABLE_MANAGER="$UDOS_ROOT/uCORE/code/variable-manager.sh"
+ADVANCED_RESOLVER="$UDOS_ROOT/uCORE/code/advanced-variable-resolver.sh"
 TEMPLATE_CONFIG="$UDOS_ROOT/uMEMORY/system/template-variable-integration.json"
 TEMPLATE_CACHE_DIR="$UDOS_ROOT/sandbox/cache/templates"
 SYSTEM_TEMPLATES_DIR="$UDOS_ROOT/uMEMORY/system/templates"
@@ -68,35 +69,42 @@ process_variable_substitutions() {
     local context="$2"
     local session_id="$3"
 
-    # Process basic variables: {VARIABLE}
-    content="$(process_basic_variables "$content" "$session_id")"
+    # Process basic variables: {VARIABLE} and formatted: {VARIABLE:format}
+    content="$(process_basic_variables "$content" "$session_id" "$context")"
 
     # Process variables with defaults: {VARIABLE|default}
-    content="$(process_default_variables "$content" "$session_id")"
+    content="$(process_default_variables "$content" "$session_id" "$context")"
 
-    # Process formatted variables: {VARIABLE:format}
-    content="$(process_formatted_variables "$content" "$session_id")"
+    # Process formatted variables: {VARIABLE:format} (additional pass for complex formatting)
+    content="$(process_formatted_variables "$content" "$session_id" "$context")"
 
     echo "$content"
 }
 
-# Process basic variable substitution: {VARIABLE}
+# Process basic variable substitution: {VARIABLE} using advanced resolver
 process_basic_variables() {
     local content="$1"
     local session_id="$2"
+    local context="${3:-default}"
 
-    # Find all {VARIABLE} patterns
+    # Find all {VARIABLE} patterns including formatted ones
     local variables
-    variables=$(echo "$content" | grep -oE '\{[A-Z][A-Z0-9_-]*\}' | sed 's/[{}]//g' | sort -u)
+    variables=$(echo "$content" | grep -oE '\{[A-Z][A-Z0-9_:-]*\}' | sed 's/[{}]//g' | sort -u)
 
     for var in $variables; do
         if [[ -n "$var" ]]; then
-            local value
-            value=$("$VARIABLE_MANAGER" GET "$var" "$session_id" 2>/dev/null || echo "")
-
-            if [[ -n "$value" ]]; then
+            local value=""
+            
+            # Try advanced resolver first
+            if [[ -f "$ADVANCED_RESOLVER" ]] && value=$("$ADVANCED_RESOLVER" resolve "$var" "$context" "SESSION" 2>/dev/null); then
                 content="${content//\{$var\}/$value}"
             else
+                # Fallback to traditional variable manager
+                value=$("$VARIABLE_MANAGER" GET "$var" "$session_id" 2>/dev/null || echo "")
+                
+                if [[ -n "$value" ]]; then
+                    content="${content//\{$var\}/$value}"
+                else
                 log_warning "Variable not found: $var"
                 content="${content//\{$var\}/[UNDEFINED:$var]}"
             fi
