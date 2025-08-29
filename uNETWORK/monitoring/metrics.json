@@ -1,54 +1,54 @@
 {
-  "timestamp": "2025-08-29T01:58:11Z",
+  "timestamp": "2025-08-29T02:33:34Z",
   "system": {
-    "cpu_usage": 47,
-    "memory_usage": 45,
-    "disk_usage": 45,
-    "network_connections": 47,
-    "uptime": "15:191"
+    "cpu_usage": 32,
+    "memory_usage": 37,
+    "disk_usage": 60,
+    "network_connections": 21,
+    "uptime": "15:541"
   },
   "modules": {
     "uCORE": {
       "status": "online",
-      "response_time": 32,
-      "requests_per_minute": 78,
-      "memory_usage": 28
+      "response_time": 27,
+      "requests_per_minute": 113,
+      "memory_usage": 66
     },
     "uMEMORY": {
       "status": "online", 
-      "response_time": 26,
-      "requests_per_minute": 34,
-      "objects_stored": 768
+      "response_time": 43,
+      "requests_per_minute": 56,
+      "objects_stored": 1435
     },
     "uKNOWLEDGE": {
       "status": "online",
-      "response_time": 95,
-      "requests_per_minute": 58,
-      "graph_nodes": 214
+      "response_time": 49,
+      "requests_per_minute": 26,
+      "graph_nodes": 226
     },
     "uNETWORK": {
       "status": "online",
-      "response_time": 45,
-      "requests_per_minute": 218,
-      "active_connections": 5
+      "response_time": 11,
+      "requests_per_minute": 78,
+      "active_connections": 24
     },
     "uSCRIPT": {
       "status": "online",
-      "response_time": 240,
-      "scripts_executed": 58,
-      "automation_jobs": 4
+      "response_time": 118,
+      "scripts_executed": 56,
+      "automation_jobs": 8
     }
   },
   "api_gateway": {
-    "requests_per_minute": 134,
-    "response_time_avg": 40,
-    "error_rate": 2,
-    "active_connections": 22
+    "requests_per_minute": 64,
+    "response_time_avg": 25,
+    "error_rate": 4,
+    "active_connections": 24
   },
   "service_mesh": {
-    "routing_requests": 67,
+    "routing_requests": 63,
     "load_balancer_active": true,
-    "health_checks_passed": 182,
+    "health_checks_passed": 113,
     "circuit_breaker_open": false
   }
 }

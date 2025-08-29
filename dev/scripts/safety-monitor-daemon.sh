@@ -27,10 +27,23 @@ while true; do
     fi
     
     # Create backup every 15 minutes
-    # Use session-based backup for safety monitoring
-    if [ -f "$UDOS_ROOT/dev/scripts/session-backup-system.sh" ]; then
-        "$UDOS_ROOT/dev/scripts/session-backup-system.sh" snapshot "auto-$(date +%H%M%S)"
-    fi
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    backup_dir="$UDOS_ROOT/dev/backups/auto"
+    mkdir -p "$backup_dir"
+    
+    tar -czf "$backup_dir/safety-backup-$timestamp.tar.gz" \
+        --exclude='.git' \
+        --exclude='node_modules' \
+        --exclude='dev/backups' \
+        --exclude='*.log' \
+        --exclude='sandbox/temp' \
+        --exclude='sandbox/trash' \
+        -C "$UDOS_ROOT" \
+        uCORE/code uCORE/config uMEMORY/schemas uKNOWLEDGE/schemas uNETWORK/config uSCRIPT/config dev/scripts 2>/dev/null || true
+    
+    # Keep only last 20 auto-backups
+    cd "$backup_dir"
+    ls -t safety-backup-*.tar.gz 2>/dev/null | tail -n +21 | xargs rm -f 2>/dev/null || true
     
     sleep 900
 done
