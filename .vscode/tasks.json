@@ -5,6 +5,51 @@
         // 🚀 uDOS Core Integration Tasks
         // ══════════════════════════════════════════════════════════════
         {
+            "label": "🚀 Start uDOS Development Session",
+            "type": "shell",
+            "command": "./dev/scripts/vscode-udos-integration.sh",
+            "args": ["start"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [],
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "🛡️ Emergency Development Safety",
+            "type": "shell", 
+            "command": "./dev/scripts/development-safety-protocol.sh",
+            "args": ["implement"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "📊 Integration Status",
+            "type": "shell",
+            "command": "./dev/scripts/vscode-udos-integration.sh", 
+            "args": ["status"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
             "label": "🌀 Start uDOS",
             "type": "shell",
             "command": "./dev/vscode/udos-terminal-integration.sh",
@@ -340,7 +385,7 @@
             "label": "⚡ Express Development Setup",
             "type": "shell",
             "command": "bash",
-            "args": ["-c", "source ./dev/vscode/simple-terminal-test.sh && echo '⚡ Express Development Environment Ready!' && echo '' && show_help"],
+            "args": ["-c", "echo '⚡ uDOS v1.0.5 Express Development Environment' && echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' && echo '🔧 Activating uSCRIPT Python environment...' && source ./uSCRIPT/activate-venv.sh && echo '🚀 Starting uDOS in development mode...' && source ./dev/vscode/simple-terminal-test.sh && echo '' && echo '✅ Development environment ready!' && echo '' && echo '📋 Available Commands:' && echo '  • status       - System dashboard' && echo '  • help         - Command reference' && echo '  • network help - Network services' && echo '' && show_help"],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -579,6 +624,82 @@
                 "📊 uDOS Dashboard"
             ],
             "group": "test",
+            "problemMatcher": []
+        },
+        // ══════════════════════════════════════════════════════════════
+        // 🎯 Phase 1: Enhanced User Experience
+        // ══════════════════════════════════════════════════════════════
+        {
+            "label": "🎛️ Enhanced Monitoring Control Panel",
+            "type": "shell",
+            "command": "./uNETWORK/monitoring/control-panel.sh",
+            "args": ["init"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🏥 Comprehensive Health Check",
+            "type": "shell",
+            "command": "./uNETWORK/monitoring/control-panel.sh",
+            "args": ["health"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📊 Live System Metrics",
+            "type": "shell",
+            "command": "./uNETWORK/display/metrics-api.sh",
+            "args": ["metrics"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔥 Start Metrics API Server",
+            "type": "shell",
+            "command": "./uNETWORK/display/metrics-api.sh",
+            "args": ["start"],
+            "group": "build",
+            "isBackground": true,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔧 Enhanced Interactive Shell",
+            "type": "shell",
+            "command": "./udos",
+            "args": ["shell"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always", 
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
+            },
             "problemMatcher": []
         }
     ]

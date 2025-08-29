@@ -1,133 +1,302 @@
 # ══════════════════════════════════════════════════
-# uDOS v1.0.4.1 Development-Ready Distribution
-# Essential Infrastructure + Clean Framework Strategy
+# uDOS v1.0.5.3 Comprehensive Git Exclusions
+# Clean Repository Strategy - Local Files Only
 # ══════════════════════════════════════════════════
 
-# ════════════════════════════════════════════════════════════════
-# 🎯 MINIMAL DISTRIBUTION STRATEGY
-# ════════════════════════════════════════════════════════════════
-# ✅ Include: Core system, essential docs, dev infrastructure
-# 🚫 Exclude: User data, runtime, dev work, logs, configs
-
-# ════════════════════════════════════════════════════════════════
-# 📁 BROAD DIRECTORY EXCLUSIONS (LOCAL ONLY)
+# ═══════════════════════════════════════# ════════════════════════════════════════════════════════════════
+# 🎯 ADDITIONAL HEAVY EXCLUSIONS (KEEP REPO LIGHTWEIGHT)
 # ════════════════════════════════════════════════════════════════
 
-# Development workspace (include infrastructure, exclude work)
-dev/active/
-dev/roadmaps/archive/
-dev/roadmaps/current/
-dev/copilot/.last-instruction-review
-dev/copilot/context/
-dev/copilot/examples/
-dev/docs/architecture/
-dev/docs/uCODE-MANUAL-development-snapshot-*
-dev/docs/DEVELOPMENT-PHILOSOPHY.md
-dev/docs/versioning-philosophy.md
-dev/docs/REORGANIZATION-MEMORY-SANDBOX.md
-dev/docs/DEV-MODE-IMPLEMENTATION.md
-dev/docs/GITHUB-BRANCH-STRATEGY.md
-dev/docs/VARIABLE-SYSTEM-IMPLEMENTATION.md
-dev/docs/BRANCH-STRATEGY-DETAILED.md
-dev/docs/ROLE-INSTALLATIONS.md
-dev/progress-tracking.json
-dev/scripts/build/
-dev/scripts/deploy/
-dev/scripts/maintenance/
-dev/scripts/test/
-dev/scripts/development/
-dev/scripts/copilot-workflow.sh
-dev/scripts/create-role-branches.sh
-dev/scripts/implement-role-branches.sh
-dev/scripts/simple-role-branches.sh
-dev/scripts/test-variable-system.sh
-dev/tools/
-dev/vscode-extension/
+# Desktop app (heavy dependencies, can be regenerated)
+uNETWORK/display/udos-desktop/
+!uNETWORK/display/udos-desktop/README.md
 
-# User workspace (exclude entirely except structure docs)
-sandbox/
-!sandbox/README.md
-!sandbox/STRUCTURE.md
+# Large assets and icons (can be regenerated/downloaded)
+**/assets/
+**/icons/
+**/*.icns
+**/*.ico
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
 
-# Memory system (exclude user/runtime data)
-uMEMORY/user/
-uMEMORY/role/
-uMEMORY/log/
+# Package locks and dependencies (can be regenerated)
+package-lock.json
+**/package-lock.json
+Cargo.lock
+**/Cargo.lock
+yarn.lock
+**/yarn.lock
 
-# System directories (exclude all runtime)
+# Documentation snapshots (can be regenerated)
+docs/architecture/
+docs/*-snapshot-*
+docs/*-development-*
+
+# ✅ What gets included: Essential documentation only
+!docs/README.md
+!docs/USER-GUIDE.md
+!docs/USER-COMMAND-MANUAL.md
+
+# ════════════════════════════════════════════════════════════════
+# ✅ WHAT GETS INCLUDED (ESSENTIAL ONLY)
+# ════════════════════════════════════════════════════════════════
+# ✅ Core source code and essential scripts
+# ✅ Essential documentation (README.md, LICENSE, etc.)
+# ✅ Development infrastructure (dev/scripts/, .vscode/tasks.json)
+# ✅ Installation scripts (install.sh)
+# ✅ Template files
+# ✅ Schema definitions
+# ✅ Configuration templates (not user configs)═══════════════
+# 🎯 GIT EXCLUSION STRATEGY
+# ════════════════════════════════════════════════════════════════
+# ✅ Include: Core system, essential docs, development infrastructure
+# 🚫 Exclude: All backups, logs, user data, runtime files, local installations
+
+# ════════════════════════════════════════════════════════════════
+# �️ ALL BACKUP FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Backup directories (all patterns)
 backup/
-trash/
-**/cache/
+backups/
+**/backup/
+**/backups/
+dev/backups/
+**/dev/backups/
+
+# Backup files (all patterns)
+*.backup
+*.bak
+*-backup-*
+*backup*
+*.tar.gz
+*.tar.bz2
+*.zip
+*-backup.*
+backup-*
+**/backup-*
+**/*backup*
+
+# Hidden backup and trash patterns
+.*backup*
+.*trash*
+.Trash*
+.*bak*
+
+# Exception: Essential backup management scripts
+!dev/scripts/backup-manager.sh
+!dev/scripts/lean-backup-system.sh
+
+# ════════════════════════════════════════════════════════════════
+# 📊 ALL LOG FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Log directories
+logs/
 **/logs/
-**/temp/
-**/tmp/
+log/
+**/log/
 
-# ════════════════════════════════════════════════════════════════
-# 🚫 GITHUB-SPECIFIC EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# GitHub workflow/actions (we don't need these)
-.github/
-
-# VS Code configuration (include dev setup, exclude user configs)
-.vscode/settings.json
-.vscode/keybindings.json
-.vscode/launch.json
-
-# Development artifacts
-**/__pycache__/
-**/node_modules/
-**/venv/
-**/.env*
-
-# ════════════════════════════════════════════════════════════════
-# 📋 FILE PATTERN EXCLUSIONS
-# ════════════════════════════════════════════════════════════════
-
-# Runtime files
+# Log files (all patterns)
 *.log
-*.cache
-*.tmp
-*.session*
-*.conf
-*.working
+*.out
+*.err
+*-log-*
+*log*
+debug.*
+error.*
+access.*
+audit.*
+security.*
+**/safety-monitor.log
+**/safety-monitor.pid
+**/*.log
+**/*.out
+**/*.err
+
+# ════════════════════════════════════════════════════════════════
+# 👤 ALL USER-GENERATED FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# User directories
+user/
+**/user/
+users/
+**/users/
+sandbox/
+**/sandbox/
+sessions/
+**/sessions/
+session/
+**/session/
 
 # User-specific files
 *.user.*
 *.personal.*
+*-user-*
+user-*
+*user*
 environment-*.sh
+identity.*
+installation.id
+installation.md
+user.md
+current-session.*
+*session*
+*.session*
 
-# System files
+# Memory and data
+uMEMORY/data/
+uMEMORY/user/
+uMEMORY/role/
+uMEMORY/logs/
+uMEMORY/installation.id
+uKNOWLEDGE/data/
+
+# ════════════════════════════════════════════════════════════════
+# 🔧 ALL LOCAL INSTALLATIONS (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Python environments
+venv/
+**/venv/
+env/
+**/env/
+.venv/
+**/.venv/
+.env/
+**/.env/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node.js
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# Package managers
+.pip/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ════════════════════════════════════════════════════════════════
+# 🗂️ ALL CACHE AND TEMPORARY FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Cache directories
+cache/
+**/cache/
+.cache/
+**/.cache/
+temp/
+**/temp/
+tmp/
+**/tmp/
+trash/
+**/trash/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.working
+*~
+.#*
+#*#
+.*.swp
+.*.swo
+
+# System cache
 .DS_Store
 **/.DS_Store
-
-# Extension caches/downloads
-extensions/install/cache/
-extensions/install/downloads/
-extensions/install/temp/
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # ════════════════════════════════════════════════════════════════
-# ✅ DEVELOPMENT DISTRIBUTION INCLUDES
+# � DEVELOPMENT TOOLS (EXCLUDE CONFIGS, KEEP ESSENTIAL)
 # ════════════════════════════════════════════════════════════════
-# ✅ Root files: README.md, LICENSE, install.sh, launchers
-# ✅ uCORE/ - Core system (essential only)
-# ✅ uNETWORK/ - Network layer
-# ✅ uSCRIPT/ - Script system
-# ✅ uKNOWLEDGE/ - Knowledge base
-# ✅ extensions/ - Extension framework (no caches)
-# ✅ docs/ - Documentation
-# ✅ uMEMORY/system/ - System templates only
-# ✅ uMEMORY/templates/ - Memory templates
-# ✅ dev/README.md - Development overview
-# ✅ dev/templates/ - Development templates
-# ✅ dev/copilot/ - AI assistant context (core files)
-# ✅ dev/docs/SETUP-COMPLETE.md - Essential setup guide
-# ✅ dev/vscode/ - VS Code development configs
-# ✅ dev/scripts/ - Core development scripts (selective)
-# ✅ .vscode/tasks.json - Task definitions
-# ✅ .vscode/settings.json - Development settings
-# ✅ .vscode/launch.json - Debugging configurations  
-# ✅ .vscode/snippets/ - Code snippets
-# ✅ .vscode/extensions.json - Required extensions
 
-# Target: Essential dev infrastructure + clean distribution
+# VS Code user settings (keep project settings)
+.vscode/settings.json
+.vscode/keybindings.json
+.vscode/launch.json
+
+# Git (exclude user configs)
+.git/config.local
+.git/hooks/
+
+# GitHub workflow/actions
+.github/
+
+# ════════════════════════════════════════════════════════════════
+# � SECURITY AND SENSITIVE FILES (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Environment files
+.env*
+*.env
+env.*
+**/env.*
+
+# Keys and certificates
+*.key
+*.pem
+*.cert
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+*_rsa*
+*_dsa*
+
+# Configuration files with potential secrets
+*.conf
+*.config
+*config*
+auth.*
+*auth*
+credentials.*
+*credentials*
+
+# ════════════════════════════════════════════════════════════════
+# 🏗️ BUILD AND RUNTIME ARTIFACTS (COMPLETE EXCLUSION)
+# ════════════════════════════════════════════════════════════════
+
+# Build outputs
+build/output/
+build/dist/
+dist/
+**/dist/
+
+# Runtime files
+*.pid
+*.lock
+*.socket
+*.pipe
+
+# Process files
+**/safety-monitor.pid
+**/server.pid
+
+# ════════════════════════════════════════════════════════════════
+# ✅ WHAT GETS INCLUDED (ESSENTIAL ONLY)
+# ════════════════════════════════════════════════════════════════
+# ✅ Core source code and scripts
+# ✅ Essential documentation (README.md, LICENSE, etc.)
+# ✅ Development infrastructure (dev/scripts/, .vscode/tasks.json)
+# ✅ Installation scripts (install.sh)
+# ✅ Template files
+# ✅ Schema definitions
+# ✅ Configuration templates (not user configs)

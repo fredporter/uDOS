@@ -1,0 +1,94 @@
+#!/bin/bash
+# uSCRIPT Command Interface v1.0.5.5
+# Main entry point for script management and execution
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+USCRIPT_ROOT="$SCRIPT_DIR"
+UDOS_ROOT="$(cd "$USCRIPT_ROOT/.." && pwd)"
+
+# Source the script engine
+source "$USCRIPT_ROOT/core/script-engine.sh"
+
+# Main command handler
+main() {
+    local command="${1:-help}"
+    shift
+    
+    case "$command" in
+        "init")
+            script_engine_command "init"
+            ;;
+        "register"|"reg")
+            script_engine_command "register" "$@"
+            ;;
+        "list"|"ls")
+            script_engine_command "list" "$@"
+            ;;
+        "run"|"execute"|"exec")
+            script_engine_command "run" "$@"
+            ;;
+        "create"|"new")
+            script_engine_command "create" "$@"
+            ;;
+        "status"|"info")
+            script_engine_command "status" "$@"
+            ;;
+        "demo")
+            demo_uscript
+            ;;
+        "help"|*)
+            echo "🚀 uSCRIPT v1.0.5.5 - Script Automation Engine"
+            echo "=============================================="
+            echo ""
+            echo "Usage: uscript <command> [options]"
+            echo ""
+            echo "Commands:"
+            echo "  init                    - Initialize uSCRIPT engine"
+            echo "  register <name> <path> <type> <desc> - Register script"
+            echo "  list                    - List registered scripts"
+            echo "  run <script_id> [args]  - Execute script"
+            echo "  create <name> [type]    - Create new script from template"
+            echo "  status                  - Show engine status"
+            echo "  demo                    - Run uSCRIPT demonstration"
+            echo "  help                    - Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  uscript init                           # Initialize engine"
+            echo "  uscript create \"My Script\" automation   # Create new script"
+            echo "  uscript list                           # List all scripts"
+            echo "  uscript run system_health_check        # Run health check"
+            echo "  uscript demo                           # See demonstration"
+            ;;
+    esac
+}
+
+# Demo function
+demo_uscript() {
+    echo "🎯 uSCRIPT Demo - Script Automation Engine"
+    echo "=========================================="
+    
+    # Initialize if needed
+    if [ ! -d "$SCRIPT_REGISTRY" ]; then
+        echo "🔧 Initializing uSCRIPT for demo..."
+        script_engine_command "init"
+    fi
+    
+    echo ""
+    echo "📋 Listing registered scripts:"
+    script_engine_command "list"
+    
+    echo ""
+    echo "🏥 Running system health check..."
+    script_engine_command "run" "system_health_check"
+    
+    echo ""
+    echo "📊 Engine status:"
+    script_engine_command "status"
+    
+    echo ""
+    echo "🎉 uSCRIPT demo complete!"
+}
+
+# Execute main function
+main "$@"

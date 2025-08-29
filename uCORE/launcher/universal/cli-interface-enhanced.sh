@@ -6,7 +6,8 @@ set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMAND_ROUTER="/home/wizard/uDOS/uCORE/code/command-router.sh"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+COMMAND_ROUTER="$UDOS_ROOT/uCORE/code/command-router.sh"
 
 # Source dependencies
 source "$SCRIPT_DIR/logging.sh" 2>/dev/null || {

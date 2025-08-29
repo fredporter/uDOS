@@ -1,0 +1,70 @@
+{
+  "routes": {
+    "v1": {
+      "prefix": "/api/v1",
+      "endpoints": {
+        "health": {
+          "path": "/health",
+          "methods": ["GET"],
+          "upstream": "/health",
+          "cache": false,
+          "auth_required": false
+        },
+        "status": {
+          "path": "/status",
+          "methods": ["GET"],
+          "upstream": "/core/status",
+          "cache": true,
+          "auth_required": false
+        },
+        "memory": {
+          "path": "/memory/*",
+          "methods": ["GET", "POST", "PUT", "DELETE"],
+          "upstream": "/memory/*",
+          "cache": false,
+          "auth_required": false
+        },
+        "knowledge": {
+          "path": "/knowledge/*", 
+          "methods": ["GET", "POST"],
+          "upstream": "/knowledge/*",
+          "cache": true,
+          "auth_required": false
+        },
+        "scripts": {
+          "path": "/scripts/*",
+          "methods": ["GET", "POST"],
+          "upstream": "/script/*",
+          "cache": false,
+          "auth_required": false
+        },
+        "network": {
+          "path": "/network/*",
+          "methods": ["GET"],
+          "upstream": "/network/*",
+          "cache": true,
+          "auth_required": false
+        }
+      }
+    },
+    "admin": {
+      "prefix": "/admin",
+      "endpoints": {
+        "gateway_status": {
+          "path": "/gateway/status",
+          "methods": ["GET"],
+          "upstream": "internal://gateway-status",
+          "cache": false,
+          "auth_required": true
+        },
+        "mesh_topology": {
+          "path": "/mesh/topology",
+          "methods": ["GET"],
+          "upstream": "internal://mesh-topology",
+          "cache": true,
+          "auth_required": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,173 @@
+#!/bin/bash
+# uDOS Development Launcher
+# Universal Device Operating System
+# Version: 1.0.5.3
+
+# This is the main entry point for uDOS development operations
+# It delegates to the appropriate scripts in the dev/ directory
+
+# Set up environment
+UDOS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export UDOS_ROOT
+
+# Show uDOS header
+show_header() {
+    echo "    ██╗   ██╗██████╗  ██████╗ ███████╗"
+    echo "    ██║   ██║██╔══██╗██╔═══██╗██╔════╝"
+    echo "    ██║   ██║██║  ██║██║   ██║███████╗"
+    echo "    ██║   ██║██║  ██║██║   ██║╚════██║"
+    echo "    ╚██████╔╝██████╔╝╚██████╔╝███████║"
+    echo "     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
+    echo ""
+    echo "    Universal Device Operating System"
+    echo "    Version: $(grep VERSION VERSION | cut -d'=' -f2 | tr -d '"')"
+    echo "    ════════════════════════════════════════════"
+}
+
+# Main command handler
+main() {
+    local command="${1:-help}"
+    
+    case "$command" in
+        "build")
+            shift
+            "${UDOS_ROOT}/dev/scripts/build.sh" build "$@"
+            ;;
+        "backup"|"snapshot")
+            shift
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" "$@"
+            ;;
+        "destroy")
+            shift
+            "${UDOS_ROOT}/dev/scripts/destroy.sh" "$@"
+            ;;
+        "session")
+            shift
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" "$@"
+            ;;
+        "script"|"uscript")
+            shift
+            "${UDOS_ROOT}/uSCRIPT/uscript" "$@"
+            ;;
+        "test")
+            shift
+            local test_type="${1:-integration}"
+            case "$test_type" in
+                "integration")
+                    "${UDOS_ROOT}/dev/integration-tests/test-integration.sh"
+                    ;;
+                *)
+                    echo "Available tests: integration"
+                    ;;
+            esac
+            ;;
+        "demo")
+            shift
+            # Demo integration testing system
+            "${UDOS_ROOT}/dev/scripts/demo-integration.sh" "$@"
+            ;;
+        "shell")
+            shift
+            # Launch uCORE-based interactive shell
+            echo "🌀 Launching uDOS Interactive Shell..."
+            echo "======================================"
+            "${UDOS_ROOT}/uCORE/bin/ushell" "$@"
+            ;;
+        "build")
+            shift
+            local build_target="${1:-development}"
+            case "$build_target" in
+                "development")
+                    echo "🔨 Building uDOS Development Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-development.sh"
+                    ;;
+                "production")
+                    echo "🏭 Building uDOS Production Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-production.sh"
+                    ;;
+                "testing")
+                    echo "🧪 Building uDOS Testing Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-testing.sh"
+                    ;;
+                *)
+                    echo "Available build targets: development, production, testing"
+                    ;;
+            esac
+            ;;
+        "foundation")
+            shift
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" "$@"
+            ;;
+        "status")
+            show_header
+            echo ""
+            echo "📊 System Status"
+            echo "==============="
+            echo "Root: $UDOS_ROOT"
+            echo ""
+            
+            # Show foundation status
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" status
+            
+            echo ""
+            echo "� Session Backup Status"
+            echo "======================="
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" status
+            ;;
+        "init")
+            show_header
+            echo ""
+            echo "🚀 Initializing uDOS Development Environment"
+            echo "==========================================="
+            
+            # Initialize foundation
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" init
+            
+            echo ""
+            # Initialize session backup system
+            "${UDOS_ROOT}/dev/scripts/session-backup-system.sh" status
+            
+            echo ""
+            echo "✅ uDOS development environment ready!"
+            ;;
+        "help"|"--help"|"-h")
+            show_header
+            echo ""
+            echo "Usage: ./udos [command] [options]"
+            echo ""
+            echo "Commands:"
+            echo "  init                    - Initialize uDOS development environment"
+            echo "  status                  - Show system status"
+            echo "  shell                   - Launch uCORE-based interactive shell"
+            echo "  foundation [cmd]        - Foundation operations (init|status|test|clean)"
+            echo "  build [target]          - Build system (development|production|testing)"
+            echo "  backup [cmd]            - Session backup (snapshot|role|working|restore|clean|status)"
+            echo "  session [cmd]           - Same as backup (session-based operations)"
+            echo "  script|uscript [cmd]    - uSCRIPT automation engine"
+            echo "  destroy [target]        - Controlled deletion (session|role|sandbox|eol)"
+            echo "  test [type]             - Run tests (integration)"
+            echo "  demo [type]             - Run demos (integration)"
+            echo "  help                    - Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  ./udos init             - Initialize everything"
+            echo "  ./udos shell            - Enter interactive shell"
+            echo "  ./udos build testing    - Build and test"
+            echo "  ./udos backup snapshot mysave  - Create session snapshot"
+            echo "  ./udos session working         - Backup working files"
+            echo "  ./udos destroy session         - Destroy session data"
+            echo "  ./udos test integration        - Run integration tests"
+            echo "  ./udos demo integration - Run integration demo"
+            ;;
+        *)
+            echo "Unknown command: $command"
+            echo "Use './udos help' for usage information"
+            return 1
+            ;;
+    esac
+}
+
+# Run main function if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

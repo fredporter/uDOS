@@ -1,33 +1,51 @@
 # uDOS Documentation
-Comprehensive documentation for v1.0.4.1 system
+Comprehensive documentation for v1.0.5.1 modular architecture
 
 ## Core Documentation
 
 ### System Architecture
-- **ARCHITECTURE.md** - Complete system design and role capabilities
+- **ARCHITECTURE.md** - Complete modular system design and role capabilities (UPDATED v1.0.5.1)
 - **DATA-SYSTEM.md** - Variable management, GET forms, and uDATA configuration
 - **DISPLAY-SYSTEM.md** - Grid layout, input handling, and interface elements
 
 ### User Documentation
 - **USER-GUIDE.md** - End user instructions and workflows
-- **USER-COMMAND-MANUAL.md** - Complete command reference and syntax
+- **USER-COMMAND-MANUAL.md** - Complete command reference including module commands
 - **TEMPLATES.md** - Template system and file generation
 
 ### Development Reference
 - **STYLE-GUIDE.md** - Code and documentation standards
 - **QUICK-STYLES.md** - Quick reference for naming and formatting
 
+## What's New in v1.0.5.1
+
+### Modular Architecture
+- **6,431 lines moved** from uCORE to uSCRIPT modules
+- **uCORE now 100% bash-only** (zero Python dependencies)
+- **Module loader system** for clean core-to-module interface
+- **File organization improvements** (installation.id → uMEMORY, trash → sandbox)
+
+### Enhanced Features
+- **Session Management**: Persistent state tracking via modules
+- **Workflow Management**: User journey automation 
+- **Story System**: Interactive variable collection
+- **Backup System**: Comprehensive backup/restore functionality
+- **Smart Input**: Advanced input processing modules
+
 ## Documentation Structure
 
-### Consolidated Design
-This documentation has been streamlined from 15+ overlapping files to 9 focused documents:
+### Updated for Modular Design
+This documentation reflects the new modular architecture with clear separation between:
 
-**System Design:**
-- ARCHITECTURE.md (includes role capabilities)
-- DATA-SYSTEM.md (combines variable, GET, and uDATA systems)
-- DISPLAY-SYSTEM.md (combines input and grid systems)
+**Core System (uCORE):**
+- Essential bash utilities and command routing
+- Module loader interface system
+- Role-based access control
 
-**User Reference:**
+**Feature Modules (uSCRIPT/modules):**
+- Session management and workflow automation
+- Story system and backup functionality  
+- Smart input processing and notifications
 - USER-GUIDE.md (workflows and getting started)
 - USER-COMMAND-MANUAL.md (complete command syntax)
 - TEMPLATES.md (file generation system)
@@ -66,4 +84,4 @@ This documentation has been streamlined from 15+ overlapping files to 9 focused 
 3. Reference **DATA-SYSTEM.md** and **DISPLAY-SYSTEM.md** for implementation
 
 ---
-*uDOS v1.0.4.1 Documentation - Simple, lean, fast*
+*uDOS v1.0.5.1 Documentation - Modular, efficient, future-ready*

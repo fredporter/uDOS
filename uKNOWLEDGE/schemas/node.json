@@ -1,0 +1,12 @@
+{
+    "type": "node",
+    "version": "1.0",
+    "fields": {
+        "id": {"type": "string", "required": true, "unique": true},
+        "label": {"type": "string", "required": true},
+        "properties": {"type": "object", "required": false},
+        "graph_id": {"type": "string", "required": true},
+        "created_at": {"type": "timestamp", "required": true},
+        "updated_at": {"type": "timestamp", "required": true}
+    }
+}

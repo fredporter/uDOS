@@ -1,0 +1,14 @@
+{
+    "type": "edge",
+    "version": "1.0",
+    "fields": {
+        "id": {"type": "string", "required": true, "unique": true},
+        "from_node": {"type": "string", "required": true},
+        "to_node": {"type": "string", "required": true},
+        "relationship": {"type": "string", "required": true},
+        "properties": {"type": "object", "required": false},
+        "graph_id": {"type": "string", "required": true},
+        "created_at": {"type": "timestamp", "required": true},
+        "updated_at": {"type": "timestamp", "required": true}
+    }
+}

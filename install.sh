@@ -1,12 +1,12 @@
 #!/bin/bash
-# uDOS v1.0.4.1 Universal Installer
-# Clean distribution with role-based installation system
+# uDOS v1.0.5.3 Universal Installer
+# Modular architecture with clean core distribution
 
 set -euo pipefail
 
 # Configuration
 readonly UDOS_GIT_URL="https://github.com/fredporter/uDOS.git"
-readonly UDOS_VERSION="1.0.4.1"
+readonly UDOS_VERSION="1.0.5.3"
 readonly INSTALL_DIR="$HOME/uDOS"
 
 # Polaroid Colors — Foreground + Background (xterm-256 with ANSI fallback)
@@ -357,19 +357,27 @@ show_role_selection() {
     echo "      └─ Archive browsing and backup tools"
     echo ""
 
-    echo -e "  ${GREEN}[3]${NC} 🤖 ${BLUE}Drone${NC} (Level 40) - Task Automation"
+    echo -e "  ${GREEN}[3]${NC} 🏛️  ${PURPLE}Crypt${NC} (Level 30) - Secure Storage & Network Access"
+    echo "      └─ Network features and secure storage access"
+    echo ""
+
+    echo -e "  ${GREEN}[4]${NC} 🤖 ${BLUE}Drone${NC} (Level 40) - Task Automation"
     echo "      └─ Automation and monitoring tools"
     echo ""
 
-    echo -e "  ${GREEN}[4]${NC} 👹 ${RED}Imp${NC} (Level 60) - Development Tools"
+    echo -e "  ${GREEN}[5]${NC} ⚔️  ${GREEN}Knight${NC} (Level 50) - Security & Network Management"
+    echo "      └─ Security tools and network administration"
+    echo ""
+
+    echo -e "  ${GREEN}[6]${NC} 👹 ${RED}Imp${NC} (Level 60) - Development Tools"
     echo "      └─ Script development and creative tools"
     echo ""
 
-    echo -e "  ${GREEN}[5]${NC} 🔮 ${PURPLE}Sorcerer${NC} (Level 80) - Advanced User"
+    echo -e "  ${GREEN}[7]${NC} 🔮 ${PURPLE}Sorcerer${NC} (Level 80) - Advanced User"
     echo "      └─ Project management and administration"
     echo ""
 
-    echo -e "  ${GREEN}[6]${NC} 🧙‍♂️ ${WHITE}Wizard${NC} (Level 100) - Full Development"
+    echo -e "  ${GREEN}[8]${NC} 🧙‍♂️ ${WHITE}Wizard${NC} (Level 100) - Full Development"
     echo "      └─ Complete development environment"
     if [[ "$VSCODE_DETECTED" == "true" ]]; then
         echo "      └─ ✨ VS Code development mode included"
@@ -381,10 +389,10 @@ show_role_selection() {
     echo ""
 
     echo -e "${YELLOW}💡 You can select multiple roles by entering numbers separated by spaces${NC}"
-    echo -e "${YELLOW}   Example: '1 3 6' installs Ghost, Drone, and Wizard roles${NC}"
+    echo -e "${YELLOW}   Example: '1 3 8' installs Ghost, Crypt, and Wizard roles${NC}"
     echo ""
 
-    read -p "👉 Select roles (1-6, A for all, Q to quit): " role_input
+    read -p "👉 Select roles (1-8, A for all, Q to quit): " role_input
 
     case "$role_input" in
         [Qq])
@@ -392,7 +400,7 @@ show_role_selection() {
             exit 0
             ;;
         [Aa])
-            SELECTED_ROLES=("ghost" "tomb" "drone" "imp" "sorcerer" "wizard")
+            SELECTED_ROLES=("ghost" "tomb" "crypt" "drone" "knight" "imp" "sorcerer" "wizard")
             echo -e "${GREEN}✅ All roles selected${NC}"
             ;;
         *)
@@ -401,10 +409,12 @@ show_role_selection() {
                 case "$role_num" in
                     1) SELECTED_ROLES+=("ghost") ;;
                     2) SELECTED_ROLES+=("tomb") ;;
-                    3) SELECTED_ROLES+=("drone") ;;
-                    4) SELECTED_ROLES+=("imp") ;;
-                    5) SELECTED_ROLES+=("sorcerer") ;;
-                    6) SELECTED_ROLES+=("wizard") ;;
+                    3) SELECTED_ROLES+=("crypt") ;;
+                    4) SELECTED_ROLES+=("drone") ;;
+                    5) SELECTED_ROLES+=("knight") ;;
+                    6) SELECTED_ROLES+=("imp") ;;
+                    7) SELECTED_ROLES+=("sorcerer") ;;
+                    8) SELECTED_ROLES+=("wizard") ;;
                     *)
                         echo -e "${YELLOW}⚠️  Invalid role: $role_num (skipped)${NC}"
                         ;;
@@ -493,18 +503,23 @@ install_selected_roles() {
             echo -e "${BLUE}  📁 Created basic role structure${NC}"
         fi
 
+        # Get role level
+        case "$role" in
+            ghost) ROLE_LEVEL="10" ;;
+            tomb) ROLE_LEVEL="20" ;;
+            crypt) ROLE_LEVEL="30" ;;
+            drone) ROLE_LEVEL="40" ;;
+            knight) ROLE_LEVEL="50" ;;
+            imp) ROLE_LEVEL="60" ;;
+            sorcerer) ROLE_LEVEL="80" ;;
+            wizard) ROLE_LEVEL="100" ;;
+        esac
+
         # Set up role configuration
         cat > "uMEMORY/role/$role/config/role.conf" << EOF
 # uDOS Role Configuration
 ROLE_NAME="$role"
-ROLE_LEVEL=$(case "$role" in
-    ghost) echo "10" ;;
-    tomb) echo "20" ;;
-    drone) echo "40" ;;
-    imp) echo "60" ;;
-    sorcerer) echo "80" ;;
-    wizard) echo "100" ;;
-esac)
+ROLE_LEVEL="$ROLE_LEVEL"
 INSTALL_DATE="$(date)"
 INSTALL_VERSION="$UDOS_VERSION"
 EOF
@@ -525,7 +540,9 @@ EOF
 
     echo ""
     echo -e "${GREEN}✅ All roles installed in uMEMORY/role/ directory${NC}"
-}setup_user_directories() {
+}
+
+setup_user_directories() {
     echo -e "${BLUE}👤 Setting up user directories...${NC}"
 
     # Create user directory structure

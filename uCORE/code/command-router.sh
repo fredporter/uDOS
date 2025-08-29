@@ -155,7 +155,7 @@ get_role_level() {
 get_role_description() {
     local role="$1"
     
-    case "${role^^}" in
+    case "$(echo "$role" | tr '[:lower:]' '[:upper:]')" in
         "GHOST") echo "Demo installation, read-only access" ;;
         "TOMB") echo "Basic user access with variable operations" ;;
         "CRYPT") echo "Extended command access" ;;
@@ -308,6 +308,50 @@ check_permission() {
         "HELP"|"STATUS"|"INFO")
             required_level=10
             required_role="GHOST"
+            ;;
+        "TOAST")
+            case "$action" in
+                "SEND"|"DISPLAY"|"SHOW")
+                    required_level=30
+                    required_role="CRYPT"
+                    ;;
+                "LIST"|"STATUS"|"HELP")
+                    required_level=10
+                    required_role="GHOST"
+                    ;;
+                "CLEAR"|"DISMISS")
+                    required_level=20
+                    required_role="TOMB"
+                    ;;
+                *)
+                    required_level=30
+                    required_role="CRYPT"
+                    ;;
+            esac
+            ;;
+        "SESSION")
+            case "$action" in
+                "CREATE")
+                    required_level=50
+                    required_role="KNIGHT"
+                    ;;
+                "SAVE"|"RESTORE")
+                    required_level=20
+                    required_role="TOMB"
+                    ;;
+                "LIST"|"INFO"|"STATUS"|"HELP")
+                    required_level=10
+                    required_role="GHOST"
+                    ;;
+                "AUTO-SAVE")
+                    required_level=100
+                    required_role="WIZARD"
+                    ;;
+                *)
+                    required_level=20
+                    required_role="TOMB"
+                    ;;
+            esac
             ;;
         *)
             required_level=10
@@ -560,6 +604,12 @@ route_command() {
             ;;
         "HELP")
             handle_help_command "$action" "$params"
+            ;;
+        "TOAST")
+            handle_toast_command "$action" "$params"
+            ;;
+        "SESSION")
+            handle_session_command "$action" "$params"
             ;;
         *)
             log_error "Unknown command: $command"
@@ -1237,6 +1287,58 @@ handle_help_command() {
     fi
 }
 
+# Handle toast commands
+handle_toast_command() {
+    local action="$1"
+    local params="$2"
+    
+    # Check if toast-commands.sh exists
+    local toast_handler="$UDOS_ROOT/uCORE/code/toast-commands.sh"
+    
+    if [[ ! -f "$toast_handler" ]]; then
+        log_error "Toast system not found: $toast_handler"
+        return 1
+    fi
+    
+    # Make executable if needed
+    if [[ ! -x "$toast_handler" ]]; then
+        chmod +x "$toast_handler" 2>/dev/null || {
+            log_error "Cannot make toast handler executable"
+            return 1
+        }
+    fi
+    
+    # Route to toast handler
+    log_info "Routing toast command: $action${params:+ with params: $params}"
+    "$toast_handler" "$action" "$params"
+}
+
+# Handle session commands
+handle_session_command() {
+    local action="$1"
+    local params="$2"
+    
+    # Check if session-commands.sh exists
+    local session_handler="$UDOS_ROOT/uCORE/code/session-commands.sh"
+    
+    if [[ ! -f "$session_handler" ]]; then
+        log_error "Session system not found: $session_handler"
+        return 1
+    fi
+    
+    # Make executable if needed
+    if [[ ! -x "$session_handler" ]]; then
+        chmod +x "$session_handler" 2>/dev/null || {
+            log_error "Cannot make session handler executable"
+            return 1
+        }
+    fi
+    
+    # Route to session handler
+    log_info "Routing session command: $action${params:+ with params: $params}"
+    "$session_handler" "$action" "$params"
+}
+
 # ════════════════════════════════════════════════════════════════
 # 🛠️ UTILITY FUNCTIONS
 # ════════════════════════════════════════════════════════════════
@@ -1535,7 +1637,7 @@ show_command_help() {
 # Authenticate user and set role based on user.md and installation.id
 authenticate_startup() {
     local user_file="$UDOS_ROOT/sandbox/user.md"
-    local installation_file="$UDOS_ROOT/installation.id"
+    local installation_file="$UDOS_ROOT/uMEMORY/installation.id"
     local installation_profile="$UDOS_ROOT/uMEMORY/installation.md"
     
     # Check for installation.id
@@ -1568,11 +1670,26 @@ authenticate_startup() {
         return 0
     fi
     
-    # Parse user.md for authentication details
-    local username=$(grep "^\*\*Username\*\*:" "$user_file" | cut -d':' -f2 | xargs)
-    local user_role=$(grep "^\*\*Role\*\*:" "$user_file" | cut -d':' -f2 | xargs)
-    local user_level=$(grep "^\*\*Level\*\*:" "$user_file" | cut -d':' -f2 | xargs)
-    local password=$(grep "^\*\*Password\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    # Parse user.md for authentication details - supports both old and new formats
+    local username=""
+    local user_role=""
+    local user_level=""
+    local password=""
+    
+    # Try new key=value format first
+    if grep -q "^USERNAME=" "$user_file" 2>/dev/null; then
+        username=$(grep "^USERNAME=" "$user_file" | cut -d'=' -f2 | xargs)
+        user_role=$(grep "^ROLE=" "$user_file" | cut -d'=' -f2 | xargs)
+        password=$(grep "^PASSWORD=" "$user_file" | cut -d'=' -f2 | xargs)
+        # Calculate level from role
+        user_level=$(get_role_level "$user_role")
+    else
+        # Fallback to old format
+        username=$(grep "^\*\*Username\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+        user_role=$(grep "^\*\*Role\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+        user_level=$(grep "^\*\*Level\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+        password=$(grep "^\*\*Password\*\*:" "$user_file" | cut -d':' -f2 | xargs)
+    fi
     
     # Validate user credentials exist
     if [[ -z "$username" || -z "$user_role" || -z "$user_level" ]]; then
@@ -1631,7 +1748,163 @@ set_default_user_role() {
 }
 
 # ════════════════════════════════════════════════════════════════
-# �🚀 MAIN EXECUTION
+# 🚦 COMMAND ROUTING
+# ════════════════════════════════════════════════════════════════
+
+# Route command to appropriate handler
+route_command() {
+    local command="$1"
+    local action="$2"
+    local params="$3"
+
+    case "$command" in
+        "HELP")
+            handle_help_command "$action" "$params"
+            ;;
+        "SYSTEM")
+            handle_system_command "$action" "$params"
+            ;;
+        "ROLE")
+            handle_role_command "$action" "$params"
+            ;;
+        "GET"|"SET"|"LIST")
+            handle_variable_command "$command" "$action" "$params"
+            ;;
+        "VARIABLE"|"VAR")
+            handle_variable_command "$action" "$params"
+            ;;
+        "TEMPLATE")
+            handle_template_command "$action" "$params"
+            ;;
+        "STATUS")
+            handle_status_command "$action" "$params"
+            ;;
+        "STORY")
+            handle_story_command "$action" "$params"
+            ;;
+        "TOAST")
+            # Use module loader for toast commands
+            if [[ -f "$SCRIPT_DIR/module-loader.sh" ]]; then
+                "$SCRIPT_DIR/module-loader.sh" exec notifications toast-manager "$action" "$params"
+            else
+                handle_toast_command "$action" "$params"
+            fi
+            ;;
+        "SESSION")
+            # Use module loader for session commands
+            if [[ -f "$SCRIPT_DIR/module-loader.sh" ]]; then
+                local session_action=$(echo "$action" | tr '[:upper:]' '[:lower:]')
+                "$SCRIPT_DIR/module-loader.sh" exec session session-manager "$session_action" "$params"
+            else
+                handle_session_command "$action" "$params"
+            fi
+            ;;
+        "WORKFLOW")
+            # Use module loader for workflow commands
+            if [[ -f "$SCRIPT_DIR/module-loader.sh" ]]; then
+                local workflow_action=$(echo "$action" | tr '[:upper:]' '[:lower:]')
+                "$SCRIPT_DIR/module-loader.sh" exec workflow workflow-manager "$workflow_action" "$params"
+            else
+                log_error "Workflow module not available"
+                return 1
+            fi
+            ;;
+        "BACKUP")
+            # Use module loader for backup commands
+            if [[ -f "$SCRIPT_DIR/module-loader.sh" ]]; then
+                local backup_action=$(echo "$action" | tr '[:upper:]' '[:lower:]')
+                "$SCRIPT_DIR/module-loader.sh" exec backup backup-restore "$backup_action" "$params"
+            else
+                log_error "Backup module not available"
+                return 1
+            fi
+            ;;
+        "ASSIST")
+            handle_assist_command "$action" "$params"
+            ;;
+        *)
+            log_error "Unknown command: $command"
+            echo "Use [HELP] to see available commands"
+            return 1
+            ;;
+    esac
+}
+
+# Handle role commands
+handle_role_command() {
+    local action="$1"
+    local params="$2"
+    
+    case "$action" in
+        "GET"|"")
+            local current_role=$(get_current_role)
+            local current_level=$(get_role_level "$current_role")
+            echo "Current Role: $current_role (Level $current_level)"
+            echo "Description: $(get_role_description "$current_role")"
+            ;;
+        "SET")
+            if [[ -n "$params" ]]; then
+                local new_role="${params^^}"
+                log_info "Setting role to: $new_role"
+                # Role setting would require role manager
+                echo "Role change to $new_role requested (requires role manager)"
+            else
+                log_error "Role SET requires parameter: [ROLE|SET*WIZARD]"
+                return 1
+            fi
+            ;;
+        "LIST")
+            echo "Available Roles:"
+            echo "  GHOST (10)    - Demo installation, read-only access"
+            echo "  TOMB (20)     - Basic user access with variable operations"
+            echo "  CRYPT (30)    - Extended command access"
+            echo "  DRONE (40)    - ASSIST mode access, automation features"
+            echo "  KNIGHT (50)   - Role management, advanced operations"
+            echo "  IMP (60)      - Advanced ASSIST features, complex operations"
+            echo "  SORCERER (80) - System configuration and management"
+            echo "  WIZARD (100)  - Full development access, system modification"
+            ;;
+        "CAPABILITIES")
+            local current_role=$(get_current_role)
+            local current_level=$(get_role_level "$current_role")
+            show_role_capabilities "$current_role" "$current_level"
+            ;;
+        *)
+            log_error "Unknown ROLE action: $action"
+            echo "Available actions: GET, SET, LIST, CAPABILITIES"
+            return 1
+            ;;
+    esac
+}
+
+# Handle assist commands
+handle_assist_command() {
+    local action="$1"
+    local params="$2"
+    
+    case "$action" in
+        "ENTER")
+            set_assist_mode "enabled"
+            log_success "ASSIST mode activated"
+            ;;
+        "EXIT")
+            set_assist_mode "disabled"
+            log_success "ASSIST mode deactivated"
+            ;;
+        "STATUS")
+            local assist_mode=$(get_assist_mode)
+            echo "ASSIST Mode: $assist_mode"
+            ;;
+        *)
+            log_error "Unknown ASSIST action: $action"
+            echo "Available actions: ENTER, EXIT, STATUS"
+            return 1
+            ;;
+    esac
+}
+
+# ════════════════════════════════════════════════════════════════
+# 🚀 MAIN EXECUTION
 # ════════════════════════════════════════════════════════════════
 
 main() {

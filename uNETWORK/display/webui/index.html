@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Control Center</title>
+    <link rel="stylesheet" href="static/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-microchip"></i> uDOS Control Center</h1>
+                <span class="version-badge">v1.0.5.7</span>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator" id="systemStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>System Online</span>
+                </div>
+                <div class="timestamp" id="currentTime"></div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- System Overview -->
+            <section class="card system-overview">
+                <div class="card-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> System Overview</h2>
+                    <button class="refresh-btn" onclick="refreshSystemData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="overview-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="systemUptime">--</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="moduleCount">5</div>
+                            <div class="stat-label">Modules</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="apiRequests">--</div>
+                            <div class="stat-label">API Requests</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="scriptCount">--</div>
+                            <div class="stat-label">Scripts</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Status -->
+            <section class="card module-status">
+                <div class="card-header">
+                    <h2><i class="fas fa-cubes"></i> Module Status</h2>
+                </div>
+                <div class="card-content">
+                    <div class="module-grid" id="moduleGrid">
+                        <!-- Modules will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Mesh -->
+            <section class="card service-mesh">
+                <div class="card-header">
+                    <h2><i class="fas fa-network-wired"></i> Service Mesh</h2>
+                </div>
+                <div class="card-content">
+                    <div class="mesh-topology" id="meshTopology">
+                        <!-- Mesh topology will be rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Gateway -->
+            <section class="card api-gateway">
+                <div class="card-header">
+                    <h2><i class="fas fa-gateway"></i> API Gateway</h2>
+                </div>
+                <div class="card-content">
+                    <div class="gateway-stats" id="gatewayStats">
+                        <!-- Gateway statistics -->
+                    </div>
+                    <div class="endpoint-list" id="endpointList">
+                        <!-- API endpoints -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="card recent-activity">
+                <div class="card-header">
+                    <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                </div>
+                <div class="card-content">
+                    <div class="activity-log" id="activityLog">
+                        <!-- Activity log entries -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="card quick-actions">
+                <div class="card-header">
+                    <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                </div>
+                <div class="card-content">
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="runSystemCheck()">
+                            <i class="fas fa-stethoscope"></i>
+                            System Health Check
+                        </button>
+                        <button class="action-btn secondary" onclick="showScriptManager()">
+                            <i class="fas fa-code"></i>
+                            Script Manager
+                        </button>
+                        <button class="action-btn secondary" onclick="showMemoryBrowser()">
+                            <i class="fas fa-database"></i>
+                            Memory Browser
+                        </button>
+                        <button class="action-btn secondary" onclick="showKnowledgeGraph()">
+                            <i class="fas fa-project-diagram"></i>
+                            Knowledge Graph
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-left">
+                <span>uDOS v1.0.5.7 | Universal Device Operating System</span>
+            </div>
+            <div class="footer-right">
+                <span>Built with ❤️ for universal computing</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for detailed views -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/dashboard.js"></script>
+</body>
+</html>

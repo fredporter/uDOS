@@ -12,17 +12,66 @@
     ═══════════════════════════════════════════════════
 ```
 
-**Version**: 1.0.4.1
-**Date**: August 26, 2025
-**Document Sequence**: [uCODE-20250826-122700-UTC-WIZARD-00HO35]
-**Status**: Production Ready
+**Version**: 1.0.5.1 (UPDATED FOR MODULAR ARCHITECTURE)
+**Date**: August 29, 2025
+**Document Sequence**: [uCODE-20250829-MODULAR-WIZARD-V1051]
+**Status**: Production Ready - Modular Architecture
 
-Complete technical reference for uCODE native programming language and uSCRIPT modular scripting system on uDOS. Features universal shortcode syntax `[COMMAND|OPTION]` structure, role-based container execution, and integrated template processing.
+> **🎉 NEW IN v1.0.5.1**: Major architectural refactoring complete!
+> - **6,431 lines moved** from uCORE to uSCRIPT modules
+> - **Module Commands**: SESSION, WORKFLOW, BACKUP, STORY management via modules
+> - **uCORE**: Now 100% bash-only core (1.4M, 77 scripts, 0 Python files)
+> - **Module Loader**: Clean interface between core and feature modules
+
+Complete technical reference for uCODE native programming language and uSCRIPT modular scripting system on uDOS. Features universal shortcode syntax `[COMMAND|OPTION]` structure, **modular feature architecture**, role-based container execution, and integrated template processing.
 
 ---
 
+## 🆕 v1.0.5.1 MODULE COMMANDS
+
+### Session Management (via uSCRIPT/modules/session/)
+```bash
+[SESSION|CREATE]                    # Create new session
+[SESSION|STATUS]                    # Show session status  
+[SESSION|LIST]                      # List all sessions
+[SESSION|SAVE]                      # Save current session
+[SESSION|RESTORE*session-id]        # Restore specific session
+```
+
+### Workflow Management (via uSCRIPT/modules/workflow/)
+```bash
+[WORKFLOW|START]                    # Start workflow automation
+[WORKFLOW|STATUS]                   # Show workflow status
+[WORKFLOW|PAUSE]                    # Pause current workflow
+[WORKFLOW|RESUME]                   # Resume paused workflow
+```
+
+### Backup System (via uSCRIPT/modules/backup/)
+```bash
+[BACKUP|CREATE*name]                # Create named backup
+[BACKUP|RESTORE*backup-id]          # Restore from backup
+[BACKUP|LIST]                       # List all backups
+[BACKUP|AUTO]                       # Enable auto-backup
+```
+
+### Story System (via uSCRIPT/modules/stories/)
+```bash
+[STORY|LIST]                        # List available stories
+[STORY|RUN*story-name]              # Execute interactive story
+[STORY|CREATE*name*title*vars]      # Create new story template
+```
+
+### Module Management
+```bash
+# Module loader commands (direct access)
+./uCORE/code/module-loader.sh status       # Check all modules
+./uCORE/code/module-loader.sh list         # List available modules  
+./uCORE/code/module-loader.sh exec <module> <script> <args>
+```
+
 ## TABLE OF CONTENTS
 
+- [🆕 v1.0.5.1 MODULE COMMANDS](#️-v1051-module-commands)
 - [SYSTEM OVERVIEW](#system-overview)
 - [uCODE CORE COMMANDS](#ucode-core-commands)
 - [uSCRIPT MODULAR SYSTEM](#uscript-modular-system)
@@ -41,13 +90,18 @@ Complete technical reference for uCODE native programming language and uSCRIPT m
 
 ## SYSTEM OVERVIEW
 
-### Architecture Hierarchy
+### Architecture Hierarchy (UPDATED v1.0.5.1)
 ```
-uDOS v1.0.4.1 System Stack
+uDOS v1.0.5.1 Modular System Stack
 ┌─────────────────────────────────────┐
-│ uCODE Native Language              │ ← Direct system commands
+│ uCODE Native Language              │ ← Direct core commands (bash-only)
 ├─────────────────────────────────────┤
-│ uSCRIPT Modular System             │ ← Container execution (Crypt+)
+│ Module Loader Interface            │ ← Clean core-to-module routing
+├─────────────────────────────────────┤
+│ uSCRIPT Modules                    │ ← Feature modules (6,431 lines)
+├─────────────────────────────────────┤
+│ uSCRIPT Container System           │ ← Container execution (Crypt+)
+```
 ├─────────────────────────────────────┤
 │ uSERVER Runtime Engine             │ ← Script execution environment
 ├─────────────────────────────────────┤
@@ -166,10 +220,88 @@ ROLE install *EXTENSION*    ~ Install role-specific extensions
 
 ## uSCRIPT MODULAR SYSTEM
 
-### Overview
-**uSCRIPT** provides containerized execution of Python, Shell, and JavaScript scripts within uCODE. Requires **CRYPT (30+)** role and active **uSERVER** + **uMEMORY** systems.
+### Overview (UPDATED v1.0.5.1)
 
-### Container Types
+uSCRIPT is now a **modular execution environment** featuring clean separation between:
+- **uCORE**: Pure bash core system (1.4M, 77 scripts, 0 Python files)
+- **uSCRIPT modules**: Organized feature modules (6,431 lines total)
+- **Module Loader**: Clean interface for core-to-module communication
+
+### Module Architecture
+
+```
+uSCRIPT/modules/
+├── session/          # Session management (1,245 lines)
+├── workflow/         # Workflow automation (1,389 lines) 
+├── backup/           # Backup systems (963 lines)
+├── stories/          # Interactive story system (1,856 lines)
+├── input/            # Input processing (978 lines)
+└── shared/           # Common utilities
+```
+
+### Module Loading Interface
+
+Direct module execution via module loader:
+```bash
+# Status check all modules
+./uCORE/code/module-loader.sh status
+
+# List available modules  
+./uCORE/code/module-loader.sh list
+
+# Execute specific module script
+./uCORE/code/module-loader.sh exec session create_session.py
+./uCORE/code/module-loader.sh exec workflow start_automation.py
+./uCORE/code/module-loader.sh exec backup create_backup.py "manual-backup"
+```
+
+### Module Commands via uCODE
+
+All module functionality accessible through uCODE syntax:
+
+#### Session Module Commands
+```ucode
+[SESSION|CREATE]                    ~ Create new session
+[SESSION|STATUS]                    ~ Show session status
+[SESSION|LIST]                      ~ List all sessions  
+[SESSION|SAVE]                      ~ Save current session
+[SESSION|RESTORE*session-id]        ~ Restore specific session
+[SESSION|DELETE*session-id]         ~ Delete session
+[SESSION|EXPORT*session-id]         ~ Export session data
+```
+
+#### Workflow Module Commands  
+```ucode
+[WORKFLOW|START]                    ~ Start workflow automation
+[WORKFLOW|STATUS]                   ~ Show workflow status
+[WORKFLOW|PAUSE]                    ~ Pause current workflow
+[WORKFLOW|RESUME]                   ~ Resume paused workflow
+[WORKFLOW|STOP]                     ~ Stop workflow
+[WORKFLOW|LIST]                     ~ List workflow templates
+[WORKFLOW|CREATE*name]              ~ Create new workflow
+```
+
+#### Backup Module Commands
+```ucode
+[BACKUP|CREATE*name]                ~ Create named backup
+[BACKUP|RESTORE*backup-id]          ~ Restore from backup  
+[BACKUP|LIST]                       ~ List all backups
+[BACKUP|AUTO]                       ~ Enable auto-backup
+[BACKUP|SCHEDULE*time]              ~ Schedule backup
+[BACKUP|VERIFY*backup-id]           ~ Verify backup integrity
+```
+
+#### Story Module Commands
+```ucode
+[STORY|LIST]                        ~ List available stories
+[STORY|RUN*story-name]              ~ Execute interactive story
+[STORY|CREATE*name*title*vars]      ~ Create new story template
+[STORY|STATUS]                      ~ Show story execution status
+[STORY|PAUSE]                       ~ Pause current story
+[STORY|RESUME]                      ~ Resume paused story
+```
+
+### Container Types (Legacy Support)
 ```ucode
 <PYTHON>    ~ Python 3.8+ container
 <SHELL>     ~ Bash/Shell container
@@ -177,7 +309,7 @@ ROLE install *EXTENSION*    ~ Install role-specific extensions
 <UNIVERSAL> ~ Multi-language container
 ```
 
-### Basic uSCRIPT Commands
+### Legacy uSCRIPT Commands (Still Supported)
 ```ucode
 [SCRIPT|CREATE*CONTAINER*NAME*LANGUAGE] ~ Create new script container
 [SCRIPT|RUN*NAME]                       ~ Execute script container
@@ -187,13 +319,21 @@ ROLE install *EXTENSION*    ~ Install role-specific extensions
 [SCRIPT|STATUS*NAME]                    ~ Check container status
 ```
 
-### Advanced uSCRIPT Commands
-```ucode
-[SCRIPT|CREATE*PYTHON*ANALYZER*DATA-ANALYSIS]     ~ Create Python container
-[SCRIPT|CREATE*SHELL*BACKUP*SYSTEM-BACKUP]       ~ Create Shell container
-[SCRIPT|CREATE*NODE*API*WEB-SERVICE]             ~ Create Node.js container
-[SCRIPT|RUN*ANALYZER*INPUT-DATA*OUTPUT-PATH]     ~ Run with parameters
-[SCRIPT|SCHEDULE*BACKUP*DAILY*06:00]             ~ Schedule execution
+### Module Development
+
+Create new modules using the module template system:
+```bash
+# Create new module structure
+[TEMPLATE|RENDER*module-template]
+
+# Module structure template
+uSCRIPT/modules/your-module/
+├── module.json           # Module metadata
+├── scripts/             # Module scripts
+├── templates/           # Module templates  
+├── config/              # Module configuration
+└── README.md           # Module documentation
+```
 [SCRIPT|MONITOR*API*HEALTH-CHECK]                ~ Monitor execution
 ```
 

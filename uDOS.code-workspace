@@ -17,7 +17,15 @@
             "path": "./uKNOWLEDGE"
         },
         {
-            "name": "🏗️ Sandbox",
+            "name": "� Network Services",
+            "path": "./uNETWORK"
+        },
+        {
+            "name": "📜 Script Environment",
+            "path": "./uSCRIPT"
+        },
+        {
+            "name": "�🏗️ Sandbox",
             "path": "./sandbox"
         }
     ],
@@ -25,6 +33,14 @@
         "terminal.integrated.defaultProfile.osx": "bash",
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.defaultProfile.windows": "Git Bash",
-        "terminal.integrated.cwd": "${workspaceFolder}"
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "python.defaultInterpreterPath": "./uSCRIPT/venv/bin/python",
+        "files.exclude": {
+            "**/.git": true,
+            "**/uCORE/cache/**": true,
+            "**/uMEMORY/system/.session-*": true,
+            "**/__pycache__": true,
+            "**/*.pyc": true
+        }
     }
 }
