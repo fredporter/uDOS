@@ -1,23 +1,9 @@
-@echo off
-REM 🌀 uDOS Windows Launcher v1.4.0
-REM Three-mode display launcher for Windows: CLI Terminal, Desktop App, Web Export
-
 echo 🌀 uDOS v1.4 - Windows Launcher
-
-REM Get the directory where this script is located
-set "UDOS_ROOT=%~dp0"
-set "UDOS_ROOT=%UDOS_ROOT:~0,-1%"
-
-REM Check if we're in the right place
-if not exist "%UDOS_ROOT%\uCORE\launcher\universal\start-udos.sh" (
-    echo ❌ uDOS not found in current directory
-    echo Please run this script from the uDOS root directory
-    pause
-    exit /b 1
-)
-
 echo.
-echo 🎯 uDOS v1.4 Display Modes:
+echo � uDOS v1.4 Display Modes:
+@echo off
+REM Windows launcher for uDOS
+bash "%~dp0\launch-udos.sh"
 echo   1^) 🖥️  CLI Terminal ^(all roles - uCORE^)
 echo   2^) 🪟 Desktop Application ^(Crypt and above: level 30+^)
 echo   3^) 🌐 Web Export ^(Crypt and above: level 30+^)

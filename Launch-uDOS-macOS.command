@@ -1,23 +1,6 @@
 #!/bin/bash
-# 🌀 uDOS macOS Launcher v1.0.4.1
-# Three-mode display launcher for macOS: CLI Terminal, Desktop App, Web Export
-
-set -euo pipefail
-
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export UDOS_ROOT="$SCRIPT_DIR"
-
-# Load core color system if available
-if [[ -f "$UDOS_ROOT/uCORE/system/polaroid-colors.sh" ]]; then
-    source "$UDOS_ROOT/uCORE/system/polaroid-colors.sh"
-    polaroid_echo "cyan" "🌀 uDOS v1.4 - macOS Launcher"
-else
-    echo -e "\033[0;36m🌀 uDOS v1.4 - macOS Launcher\033[0m"
-fi
-
-# Check if we're in the right place
-if [[ ! -f "$UDOS_ROOT/uCORE/launcher/universal/start-udos.sh" ]]; then
+# macOS launcher for uDOS
+bash "$(dirname "$0")/launch-udos.sh"
     if command -v polaroid_echo >/dev/null 2>&1; then
         polaroid_echo "orange" "❌ uDOS not found in current directory"
     else

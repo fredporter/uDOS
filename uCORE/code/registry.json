@@ -5,21 +5,21 @@
     "generated": "2025-08-24T22:34:38.944842",
     "records": 3,
     "description": "uDOS Data Format - Minified JSON records, one per line",
-    "last_updated": "2025-08-28T22:49:50Z"
+    "last_updated": "2025-08-29T10:18:56Z"
   },
   "modules": {
     "uMEMORY": {
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uMEMORY",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     },
     "uKNOWLEDGE": {
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     }
   }
@@ -28,7 +28,7 @@
   "metadata": {
     "version": "1.0.0",
     "total_components": 2,
-    "last_updated": "2025-08-28T22:49:50Z",
+    "last_updated": "2025-08-29T10:18:56Z",
     "location": "uCORE/code"
   },
   "modules": {
@@ -36,14 +36,14 @@
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uMEMORY",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     },
     "uKNOWLEDGE": {
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     }
   }
@@ -62,19 +62,19 @@
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uMEMORY",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     },
     "uKNOWLEDGE": {
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     }
   },
   "metadata": {
-    "last_updated": "2025-08-28T22:49:50Z"
+    "last_updated": "2025-08-29T10:18:56Z"
   }
 }
 {
@@ -91,18 +91,18 @@
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uMEMORY",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     },
     "uKNOWLEDGE": {
       "version": "1.0.5.3",
       "path": "/Users/fredbook/uDOS/uKNOWLEDGE",
       "status": "registered",
-      "registered_at": "2025-08-28T22:49:50Z",
+      "registered_at": "2025-08-29T10:18:56Z",
       "health": "unknown"
     }
   },
   "metadata": {
-    "last_updated": "2025-08-28T22:49:50Z"
+    "last_updated": "2025-08-29T10:18:56Z"
   }
 }
