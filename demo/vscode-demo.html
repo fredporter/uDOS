@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS v1.0.5.7 - VS Code Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 2px solid #00ff88;
+        }
+        
+        .ascii-art {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #00ff88;
+            white-space: pre;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.2);
+        }
+        
+        .demo-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .feature-list li {
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .feature-list li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        
+        .terminal-demo {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            overflow-x: auto;
+        }
+        
+        .terminal-header {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .command {
+            color: #ffa500;
+        }
+        
+        .output {
+            color: #ffffff;
+            margin-left: 1rem;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .live-status {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 0.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="ascii-art">    ██╗   ██╗██████╗  ██████╗ ███████╗
+    ██║   ██║██╔══██╗██╔═══██╗██╔════╝
+    ██║   ██║██║  ██║██║   ██║███████╗
+    ██║   ██║██║  ██║██║   ██║╚════██║
+    ╚██████╔╝██████╔╝╚██████╔╝███████║
+     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝</div>
+        <h1>Universal Device Operating System v1.0.5.7</h1>
+        <p>VS Code Development Environment Demo</p>
+        <div class="live-status">
+            🟢 Live Demo Running - <span id="timestamp"></span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    🔧 Interactive Shell
+                </div>
+                <p>uCORE-based interactive command line interface with context switching and auto-completion.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">[uDOS:CORE]🟢$</div>
+                    <div class="command">./udos shell</div>
+                    <div class="output">🌀 Launching uDOS Interactive Shell...</div>
+                    <div class="output">✅ uCORE-Shell v1.0.5.7 initialized</div>
+                </div>
+                <ul class="feature-list">
+                    <li>Clean exit (no Ctrl+C required)</li>
+                    <li>Context switching</li>
+                    <li>Auto-completion</li>
+                    <li>Foundation-based architecture</li>
+                </ul>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    📊 System Dashboard
+                </div>
+                <p>Real-time system monitoring and status dashboard integrated with VS Code tasks.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">uDOS Dashboard</div>
+                    <div class="output">👤 User: WIZARD (Level 100)</div>
+                    <div class="output">🎯 System Status: Active</div>
+                    <div class="output">🔧 Self-Healing: Available</div>
+                </div>
+                <ul class="feature-list">
+                    <li>User role management</li>
+                    <li>System health monitoring</li>
+                    <li>Template system integration</li>
+                    <li>Real-time status updates</li>
+                </ul>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    🎨 Template Engine
+                </div>
+                <p>Dynamic template rendering system with variable substitution and role-based access.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">Template System</div>
+                    <div class="output">📋 Available Templates:</div>
+                    <div class="output">  • help, simple-dashboard</div>
+                    <div class="output">  • project-setup, role-header</div>
+                </div>
+                <ul class="feature-list">
+                    <li>Dynamic template rendering</li>
+                    <li>Variable substitution</li>
+                    <li>Role-based templates</li>
+                    <li>Real-time generation</li>
+                </ul>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    🗂️ Clean Development
+                </div>
+                <p>Version number cleanup and proper backup system for clean development workflow.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">Script Cleanup</div>
+                    <div class="output">✅ foundation-init.sh (clean)</div>
+                    <div class="output">✅ network-foundation.sh (clean)</div>
+                    <div class="output">💾 Backups preserved safely</div>
+                </div>
+                <ul class="feature-list">
+                    <li>No version numbers in filenames</li>
+                    <li>Organized backup system</li>
+                    <li>Clean development workflow</li>
+                    <li>Easy maintenance</li>
+                </ul>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    🚀 VS Code Integration
+                </div>
+                <p>Seamless integration with VS Code through tasks, terminals, and commands.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">VS Code Tasks</div>
+                    <div class="output">🎯 Interactive Shell</div>
+                    <div class="output">📊 System Dashboard</div>
+                    <div class="output">🌐 Web Export</div>
+                </div>
+                <ul class="feature-list">
+                    <li>Integrated task system</li>
+                    <li>Terminal integration</li>
+                    <li>Simple Browser support</li>
+                    <li>Command palette access</li>
+                </ul>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-title">
+                    <span class="status-indicator"></span>
+                    🌐 Web Dashboard
+                </div>
+                <p>Modern web interface with real-time monitoring and responsive design.</p>
+                <div class="terminal-demo">
+                    <div class="terminal-header">Web Features</div>
+                    <div class="output">📊 Live metrics display</div>
+                    <div class="output">🎛️ Interactive controls</div>
+                    <div class="output">📱 Responsive design</div>
+                </div>
+                <ul class="feature-list">
+                    <li>Real-time monitoring</li>
+                    <li>Module status grid</li>
+                    <li>API gateway stats</li>
+                    <li>Quick action buttons</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>🎯 uDOS v1.0.5.7 - Universal Device Operating System</p>
+        <p>Demonstration running in VS Code environment</p>
+    </div>
+    
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = now.toLocaleTimeString();
+        }
+        
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+        
+        // Simulate live status updates
+        function updateStatus() {
+            const indicators = document.querySelectorAll('.status-indicator');
+            indicators.forEach(indicator => {
+                // Random status animation
+                if (Math.random() > 0.8) {
+                    indicator.style.background = '#ff6b6b';
+                    setTimeout(() => {
+                        indicator.style.background = '#00ff88';
+                    }, 500);
+                }
+            });
+        }
+        
+        setInterval(updateStatus, 3000);
+    </script>
+</body>
+</html>

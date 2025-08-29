@@ -1,0 +1,48 @@
+{
+  "routing": {
+    "version": "1.0.5.6",
+    "strategy": "priority-based",
+    "created": "2025-08-28T22:27:06Z"
+  },
+  "routes": [
+    {
+      "pattern": "/core/*",
+      "target": "core-foundation",
+      "priority": 1,
+      "backup": null,
+      "middleware": ["auth", "logging"]
+    },
+    {
+      "pattern": "/memory/*", 
+      "target": "memory-data",
+      "priority": 2,
+      "backup": null,
+      "middleware": ["auth", "logging", "caching"]
+    },
+    {
+      "pattern": "/knowledge/*",
+      "target": "knowledge-graph", 
+      "priority": 2,
+      "backup": null,
+      "middleware": ["auth", "logging"]
+    },
+    {
+      "pattern": "/network/*",
+      "target": "network-services",
+      "priority": 1,
+      "backup": null,
+      "middleware": ["logging"]
+    },
+    {
+      "pattern": "/script/*",
+      "target": "script-automation",
+      "priority": 3,
+      "backup": null,
+      "middleware": ["auth", "logging", "timeout"]
+    }
+  ],
+  "fallback": {
+    "route": "/health",
+    "response": {"status": "service_mesh_active", "version": "1.0.5.6"}
+  }
+}

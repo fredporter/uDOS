@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source integration layer
-source "$UDOS_ROOT/uCORE/code/integration/network-integration-v1054.sh"
+source "$UDOS_ROOT/uCORE/code/integration/network-integration.sh"
 
 echo "🌐 uNETWORK Services Demo - v1.0.5.4"
 echo "====================================="

@@ -625,6 +625,82 @@
             ],
             "group": "test",
             "problemMatcher": []
+        },
+        // ══════════════════════════════════════════════════════════════
+        // 🎯 Phase 1: Enhanced User Experience
+        // ══════════════════════════════════════════════════════════════
+        {
+            "label": "🎛️ Enhanced Monitoring Control Panel",
+            "type": "shell",
+            "command": "./uNETWORK/monitoring/control-panel.sh",
+            "args": ["init"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🏥 Comprehensive Health Check",
+            "type": "shell",
+            "command": "./uNETWORK/monitoring/control-panel.sh",
+            "args": ["health"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📊 Live System Metrics",
+            "type": "shell",
+            "command": "./uNETWORK/display/metrics-api.sh",
+            "args": ["metrics"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔥 Start Metrics API Server",
+            "type": "shell",
+            "command": "./uNETWORK/display/metrics-api.sh",
+            "args": ["start"],
+            "group": "build",
+            "isBackground": true,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔧 Enhanced Interactive Shell",
+            "type": "shell",
+            "command": "./udos",
+            "args": ["shell"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always", 
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": []
         }
     ]
 }

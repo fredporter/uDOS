@@ -15,8 +15,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Source uCORE foundation
-if [ -f "$UDOS_ROOT/uCORE/code/foundation-init-v1053.sh" ]; then
-    source "$UDOS_ROOT/uCORE/code/foundation-init-v1053.sh"
+if [ -f "$UDOS_ROOT/uCORE/code/foundation-init.sh" ]; then
+    source "$UDOS_ROOT/uCORE/code/foundation-init.sh"
 else
     echo "ERROR: uCORE foundation not found"
     exit 1

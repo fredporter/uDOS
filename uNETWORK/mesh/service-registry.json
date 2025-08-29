@@ -1,0 +1,76 @@
+{
+  "mesh": {
+    "name": "uDOS-ServiceMesh",
+    "version": "1.0.5.6",
+    "created": "2025-08-28T22:27:06Z",
+    "topology": "single-node"
+  },
+  "services": {
+    "core-foundation": {
+      "module": "uCORE",
+      "type": "foundation",
+      "endpoints": ["/core/status", "/core/health", "/core/init"],
+      "load_balancer": "round-robin",
+      "health_check": "/core/health",
+      "timeout": 30,
+      "retries": 3,
+      "active": true
+    },
+    "memory-data": {
+      "module": "uMEMORY", 
+      "type": "data",
+      "endpoints": ["/memory/create", "/memory/read", "/memory/update", "/memory/delete"],
+      "load_balancer": "least-connections",
+      "health_check": "/memory/health",
+      "timeout": 60,
+      "retries": 2,
+      "active": true
+    },
+    "knowledge-graph": {
+      "module": "uKNOWLEDGE",
+      "type": "graph",
+      "endpoints": ["/knowledge/query", "/knowledge/traverse", "/knowledge/add"],
+      "load_balancer": "weighted-round-robin",
+      "health_check": "/knowledge/health", 
+      "timeout": 45,
+      "retries": 2,
+      "active": true
+    },
+    "network-services": {
+      "module": "uNETWORK",
+      "type": "network",
+      "endpoints": ["/network/discovery", "/network/routing", "/network/monitoring"],
+      "load_balancer": "round-robin",
+      "health_check": "/network/health",
+      "timeout": 30,
+      "retries": 3,
+      "active": true
+    },
+    "script-automation": {
+      "module": "uSCRIPT",
+      "type": "automation", 
+      "endpoints": ["/script/execute", "/script/register", "/script/list"],
+      "load_balancer": "round-robin",
+      "health_check": "/script/health",
+      "timeout": 120,
+      "retries": 1,
+      "active": true
+    }
+  },
+  "policies": {
+    "circuit_breaker": {
+      "failure_threshold": 5,
+      "timeout": 60,
+      "half_open_timeout": 30
+    },
+    "rate_limiting": {
+      "requests_per_minute": 100,
+      "burst_size": 20
+    },
+    "security": {
+      "authentication_required": false,
+      "encryption": false,
+      "allowed_modules": ["uCORE", "uMEMORY", "uKNOWLEDGE", "uNETWORK", "uSCRIPT"]
+    }
+  }
+}

@@ -1,13 +1,17 @@
-# uDOS - Version 1.0.5.5
+# uDOS - Version 1.0.5.7
 # Universal Device Operating System
 # Build: 2025-08-29
 
-VERSION="1.0.5.5"
+VERSION="1.0.5.7"
 BUILD_DATE="2025-08-29"
-BUILD_NAME="Scripting Engine & Automation"
+BUILD_NAME="Web UI & Dashboard System"
 
-# Core Features in v1.0.5.5:
-# - uSCRIPT automation engine with template system
+# Core Features in v1.0.5.7:
+# - Web UI dashboard with real-time monitoring
+# - Interactive control center for all uDOS modules
+# - Live system metrics and performance tracking
+# - Real-time monitoring daemon with alerts
+# - Responsive design with modern CSS and JavaScript
 # - Script registry and execution sandboxing
 # - Built-in automation scripts (health check, backup)
 # - Session-based backup system (v1.0.5.5 safety fix)

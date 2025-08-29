@@ -1,0 +1,52 @@
+{
+  "api_version": "1.0.5.6",
+  "created": "2025-08-28T22:26:59Z",
+  "modules": {
+    "uCORE": {
+      "name": "uCORE Foundation",
+      "version": "1.0.5.6",
+      "endpoint": "/core",
+      "methods": ["status", "init", "test", "config"],
+      "health_check": "/core/health",
+      "active": true
+    },
+    "uMEMORY": {
+      "name": "uMEMORY Data Layer",
+      "version": "1.0.5.6", 
+      "endpoint": "/memory",
+      "methods": ["create", "read", "update", "delete", "query"],
+      "health_check": "/memory/health",
+      "active": true
+    },
+    "uKNOWLEDGE": {
+      "name": "uKNOWLEDGE Graph System",
+      "version": "1.0.5.6",
+      "endpoint": "/knowledge", 
+      "methods": ["add_node", "add_edge", "query_graph", "traverse"],
+      "health_check": "/knowledge/health",
+      "active": true
+    },
+    "uNETWORK": {
+      "name": "uNETWORK Services",
+      "version": "1.0.5.6",
+      "endpoint": "/network",
+      "methods": ["service_discovery", "routing", "monitoring"],
+      "health_check": "/network/health", 
+      "active": true
+    },
+    "uSCRIPT": {
+      "name": "uSCRIPT Automation",
+      "version": "1.0.5.6",
+      "endpoint": "/script",
+      "methods": ["execute", "register", "list", "status"],
+      "health_check": "/script/health",
+      "active": true
+    }
+  },
+  "communication": {
+    "protocol": "http",
+    "timeout": 30,
+    "retry_count": 3,
+    "base_url": "http://localhost:8081/api/v1"
+  }
+}

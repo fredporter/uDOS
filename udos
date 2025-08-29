@@ -63,22 +63,40 @@ main() {
             ;;
         "demo")
             shift
-            local demo_type="${1:-integration}"
-            case "$demo_type" in
-                "integration")
-                    "${UDOS_ROOT}/dev/demos/demo-integration.sh"
+            # Demo integration testing system
+            "${UDOS_ROOT}/dev/scripts/demo-integration.sh" "$@"
+            ;;
+        "shell")
+            shift
+            # Launch uCORE-based interactive shell
+            echo "🌀 Launching uDOS Interactive Shell..."
+            echo "======================================"
+            "${UDOS_ROOT}/uCORE/bin/ushell" "$@"
+            ;;
+        "build")
+            shift
+            local build_target="${1:-development}"
+            case "$build_target" in
+                "development")
+                    echo "🔨 Building uDOS Development Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-development.sh"
                     ;;
-                "network")
-                    "${UDOS_ROOT}/dev/demos/demo-network.sh"
+                "production")
+                    echo "🏭 Building uDOS Production Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-production.sh"
+                    ;;
+                "testing")
+                    echo "🧪 Building uDOS Testing Environment..."
+                    "${UDOS_ROOT}/dev/scripts/build-testing.sh"
                     ;;
                 *)
-                    echo "Available demos: integration, network"
+                    echo "Available build targets: development, production, testing"
                     ;;
             esac
             ;;
         "foundation")
             shift
-            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" "$@"
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" "$@"
             ;;
         "status")
             show_header
@@ -89,7 +107,7 @@ main() {
             echo ""
             
             # Show foundation status
-            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" status
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" status
             
             echo ""
             echo "� Session Backup Status"
@@ -103,7 +121,7 @@ main() {
             echo "==========================================="
             
             # Initialize foundation
-            "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
+            "${UDOS_ROOT}/uCORE/code/foundation-init.sh" init
             
             echo ""
             # Initialize session backup system
@@ -120,6 +138,7 @@ main() {
             echo "Commands:"
             echo "  init                    - Initialize uDOS development environment"
             echo "  status                  - Show system status"
+            echo "  shell                   - Launch uCORE-based interactive shell"
             echo "  foundation [cmd]        - Foundation operations (init|status|test|clean)"
             echo "  build [target]          - Build system (development|production|testing)"
             echo "  backup [cmd]            - Session backup (snapshot|role|working|restore|clean|status)"
@@ -132,6 +151,7 @@ main() {
             echo ""
             echo "Examples:"
             echo "  ./udos init             - Initialize everything"
+            echo "  ./udos shell            - Enter interactive shell"
             echo "  ./udos build testing    - Build and test"
             echo "  ./udos backup snapshot mysave  - Create session snapshot"
             echo "  ./udos session working         - Backup working files"

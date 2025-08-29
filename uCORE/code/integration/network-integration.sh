@@ -9,8 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Source required modules
-source "$UDOS_ROOT/uCORE/code/foundation-init-v1053.sh"
-source "$UDOS_ROOT/uNETWORK/network-foundation-v1054.sh"
+source "$UDOS_ROOT/uCORE/code/foundation-init.sh"
+source "$UDOS_ROOT/uNETWORK/network-foundation.sh"
 
 # Integration configuration
 INTEGRATION_VERSION="1.0.5.4"
@@ -341,7 +341,7 @@ register_network_with_core() {
     log_info "$INTEGRATION_LOG_PREFIX" "Registering network services with uCORE..."
     
     # Register network module with uCORE service registry
-    register_service "uNETWORK" "network" "$UNETWORK_ROOT/network-foundation-v1054.sh" "Network layer and services"
+    register_service "uNETWORK" "network" "$UNETWORK_ROOT/network-foundation.sh" "Network layer and services"
     
     # Register specific network services
     register_service "network-api" "api" "$UNETWORK_ROOT/api/network-api.sh" "Network REST API"

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>uDOS v1.0.5.7 - Simple Demo</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff88;
+            padding: 20px;
+            margin: 0;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #00ff88;
+            margin-bottom: 20px;
+        }
+        .demo-section {
+            background: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #00ff88;
+        }
+        .status {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        .terminal {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .prompt {
+            color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌀 uDOS v1.0.5.7</h1>
+        <p>Universal Device Operating System</p>
+        <p class="status">VS Code Integration Demo</p>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🔧 Interactive Shell Status</h2>
+        <div class="terminal">
+            <div class="prompt">[uDOS:CORE]🟢$ </div>
+            <div>✅ Shell initialized successfully</div>
+            <div>✅ No Ctrl+C required for clean exit</div>
+            <div>✅ uCORE foundation loaded</div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>📊 System Status</h2>
+        <div>🎯 Current Role: WIZARD (Level 100)</div>
+        <div>🔧 Development Mode: Active</div>
+        <div>📋 Templates: Available</div>
+        <div>💾 Scripts: Clean (no version numbers)</div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🚀 VS Code Integration</h2>
+        <div>✅ Tasks integrated</div>
+        <div>✅ Terminal commands working</div>
+        <div>✅ Simple Browser functional</div>
+        <div>✅ Development workflow streamlined</div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>⏰ Live System Metrics</h2>
+        <div>Time: <span id="time"></span></div>
+        <div>Status: <span class="status" id="system-status">Running</span></div>
+        <div>Active Modules: <span id="active-modules">5/5</span></div>
+        <div>Shell Sessions: <span id="shell-sessions">0</span></div>
+        <div>Monitoring: <span id="monitoring-status">Checking...</span></div>
+        <div class="terminal">
+            <div id="live-metrics">📊 Loading real-time data...</div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>🎮 Quick Actions</h2>
+        <div style="margin: 10px 0;">
+            <button onclick="refreshMetrics()" style="background: #00ff88; color: #000; padding: 5px 10px; border: none; border-radius: 3px; margin: 2px;">🔄 Refresh</button>
+            <button onclick="toggleAutoUpdate()" style="background: #ffa500; color: #000; padding: 5px 10px; border: none; border-radius: 3px; margin: 2px;" id="auto-toggle">⏸️ Pause</button>
+            <button onclick="openShell()" style="background: #0088ff; color: #fff; padding: 5px 10px; border: none; border-radius: 3px; margin: 2px;">🔧 Shell</button>
+        </div>
+    </div>
+    
+    <script>
+        let autoUpdate = true;
+        let updateInterval;
+        
+        function updateTime() {
+            document.getElementById('time').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function refreshMetrics() {
+            // Simulate real-time metrics (in real implementation, this would fetch from metrics API)
+            const metrics = {
+                activeModules: Math.floor(Math.random() * 5) + 5,
+                shellSessions: Math.floor(Math.random() * 3),
+                monitoringStatus: Math.random() > 0.3 ? 'Running' : 'Stopped',
+                cpuUsage: (Math.random() * 100).toFixed(1),
+                memoryUsage: (Math.random() * 100).toFixed(1)
+            };
+            
+            document.getElementById('active-modules').textContent = `${metrics.activeModules}/5`;
+            document.getElementById('shell-sessions').textContent = metrics.shellSessions;
+            document.getElementById('monitoring-status').textContent = metrics.monitoringStatus;
+            document.getElementById('system-status').textContent = metrics.monitoringStatus === 'Running' ? 'Active' : 'Warning';
+            
+            document.getElementById('live-metrics').innerHTML = `
+                📊 CPU: ${metrics.cpuUsage}% | Memory: ${metrics.memoryUsage}%<br>
+                🔧 Modules: ${metrics.activeModules} active | Sessions: ${metrics.shellSessions}<br>
+                🎯 Status: ${metrics.monitoringStatus} | Updated: ${new Date().toLocaleTimeString()}
+            `;
+        }
+        
+        function toggleAutoUpdate() {
+            autoUpdate = !autoUpdate;
+            const button = document.getElementById('auto-toggle');
+            
+            if (autoUpdate) {
+                button.textContent = '⏸️ Pause';
+                updateInterval = setInterval(refreshMetrics, 5000);
+            } else {
+                button.textContent = '▶️ Resume';
+                clearInterval(updateInterval);
+            }
+        }
+        
+        function openShell() {
+            alert('💡 To open shell: Open Terminal and run "./udos shell"');
+        }
+        
+        // Initialize
+        updateTime();
+        refreshMetrics();
+        setInterval(updateTime, 1000);
+        updateInterval = setInterval(refreshMetrics, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-08-29T01:58:11Z",
+  "system": {
+    "cpu_usage": 47,
+    "memory_usage": 45,
+    "disk_usage": 45,
+    "network_connections": 47,
+    "uptime": "15:191"
+  },
+  "modules": {
+    "uCORE": {
+      "status": "online",
+      "response_time": 32,
+      "requests_per_minute": 78,
+      "memory_usage": 28
+    },
+    "uMEMORY": {
+      "status": "online", 
+      "response_time": 26,
+      "requests_per_minute": 34,
+      "objects_stored": 768
+    },
+    "uKNOWLEDGE": {
+      "status": "online",
+      "response_time": 95,
+      "requests_per_minute": 58,
+      "graph_nodes": 214
+    },
+    "uNETWORK": {
+      "status": "online",
+      "response_time": 45,
+      "requests_per_minute": 218,
+      "active_connections": 5
+    },
+    "uSCRIPT": {
+      "status": "online",
+      "response_time": 240,
+      "scripts_executed": 58,
+      "automation_jobs": 4
+    }
+  },
+  "api_gateway": {
+    "requests_per_minute": 134,
+    "response_time_avg": 40,
+    "error_rate": 2,
+    "active_connections": 22
+  },
+  "service_mesh": {
+    "routing_requests": 67,
+    "load_balancer_active": true,
+    "health_checks_passed": 182,
+    "circuit_breaker_open": false
+  }
+}

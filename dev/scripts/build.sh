@@ -105,7 +105,7 @@ build_development() {
     echo "📦 Development Build"
     
     # Initialize foundation
-    "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
+    "${UDOS_ROOT}/uCORE/code/foundation-init.sh" init
     
     # Set development environment
     export UDOS_ENV="development"
@@ -126,7 +126,7 @@ build_production() {
     export UDOS_LOG_LEVEL=1  # Info level
     
     # Initialize foundation
-    "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" init
+    "${UDOS_ROOT}/uCORE/code/foundation-init.sh" init
     
     # Optimize for production
     optimize_for_production
@@ -149,7 +149,7 @@ build_testing() {
     # Test uCORE foundation
     echo ""
     echo "1. Testing uCORE Foundation..."
-    if ! "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" test >/dev/null 2>&1; then
+    if ! "${UDOS_ROOT}/uCORE/code/foundation-init.sh" test >/dev/null 2>&1; then
         echo "❌ uCORE foundation failed"
         return 1
     fi
@@ -167,7 +167,7 @@ build_testing() {
     # Test uNETWORK integration
     echo ""
     echo "3. Testing uNETWORK Integration..."
-    if ! "${UDOS_ROOT}/uCORE/code/integration/network-integration-v1054.sh" test >/dev/null 2>&1; then
+    if ! "${UDOS_ROOT}/uCORE/code/integration/network-integration.sh" test >/dev/null 2>&1; then
         echo "❌ Network integration failed"
         return 1
     fi
@@ -274,7 +274,7 @@ clean_build() {
     fi
     
     # Clean foundation
-    "${UDOS_ROOT}/uCORE/code/foundation-init-v1053.sh" clean
+    "${UDOS_ROOT}/uCORE/code/foundation-init.sh" clean
     
     echo "✅ Build cleanup complete"
 }

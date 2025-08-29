@@ -1,0 +1,724 @@
+#!/bin/bash
+# uCORE Interactive Shell v1.0.5.7
+# Foundation-based command line interface for uDOS
+
+# Get script directory and paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Shell Configuration
+SHELL_VERSION="1.0.5.7"
+SHELL_NAME="uCORE-Shell"
+PROMPT_PREFIX="uDOS"
+SHELL_PID="$$"
+HISTORY_FILE="$UDOS_ROOT/uCORE/cache/shell-history"
+
+# Load uCORE foundation
+source "$UDOS_ROOT/uCORE/code/foundation-init.sh" 2>/dev/null || {
+    echo "❌ uCORE foundation not found at $UDOS_ROOT/uCORE/code/foundation-init.sh"
+    exit 1
+}
+
+# Initialize shell
+init_shell() {
+    clear
+    show_banner
+    setup_shell_environment
+    setup_completion
+    echo "🚀 $SHELL_NAME v$SHELL_VERSION initialized"
+    echo "💡 Type 'help' for commands, 'exit' to quit"
+    echo ""
+}
+
+# Show uDOS banner
+show_banner() {
+    echo "    ██╗   ██╗██████╗  ██████╗ ███████╗"
+    echo "    ██║   ██║██╔══██╗██╔═══██╗██╔════╝"
+    echo "    ██║   ██║██║  ██║██║   ██║███████╗"
+    echo "    ██║   ██║██║  ██║██║   ██║╚════██║"
+    echo "    ╚██████╔╝██████╔╝╚██████╔╝███████║"
+    echo "     ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
+    echo ""
+    echo "    Universal Device Operating System"
+    echo "    $SHELL_NAME v$SHELL_VERSION - Interactive Mode"
+    echo "    ════════════════════════════════════════════"
+    echo ""
+}
+
+# Setup shell environment
+setup_shell_environment() {
+    # Create history file
+    mkdir -p "$(dirname "$HISTORY_FILE")"
+    touch "$HISTORY_FILE"
+    
+    # Set shell options for better interaction
+    set -o emacs      # Enable emacs-style editing
+    set +H            # Disable history expansion for safety
+    shopt -s histappend  # Append to history, don't overwrite
+    shopt -s checkwinsize # Check window size after each command
+    
+    # Set up command history
+    export HISTFILE="$HISTORY_FILE"
+    export HISTSIZE=1000
+    export HISTFILESIZE=2000
+    export HISTCONTROL=ignoreboth:erasedups
+    
+    # Export uDOS environment
+    export UDOS_SHELL_ACTIVE=1
+    export UDOS_SHELL_PID="$SHELL_PID"
+    export UDOS_INTERACTIVE=1
+    
+    # Set up aliases
+    setup_aliases
+}
+
+# Setup command aliases for convenience
+setup_aliases() {
+    # Standard Unix aliases
+    alias ll='ls -la'
+    alias la='ls -A'
+    alias l='ls -CF'
+    alias ..='cd ..'
+    alias ...='cd ../..'
+    alias c='clear'
+    alias q='exit'
+    alias h='history'
+    
+    # uDOS specific aliases
+    alias s='status'
+    alias m='modules'
+    alias hc='health'
+    alias mon='monitor status'
+    alias dash='dashboard'
+    alias logs='tail -f $UDOS_ROOT/uMEMORY/logs/*.log 2>/dev/null || echo "No active logs"'
+    alias reload='exec $0'
+    
+    # Context switching shortcuts
+    alias @core='core'
+    alias @mem='memory'
+    alias @net='network'
+    alias @script='script'
+    alias @know='knowledge'
+    
+    echo "✅ Shell aliases configured"
+}
+
+# Setup command completion
+setup_completion() {
+    # Enable bash completion if available
+    if [ -f /etc/bash_completion ]; then
+        source /etc/bash_completion 2>/dev/null
+    fi
+    
+    # Load uDOS completions if available
+    if [ -f "$UDOS_ROOT/uCORE/completion/udos-completion.bash" ]; then
+        source "$UDOS_ROOT/uCORE/completion/udos-completion.bash"
+    fi
+    
+    # Set up custom completions for uDOS commands
+    setup_custom_completions
+    
+    echo "✅ Command completion ready"
+}
+
+# Custom tab completions for uDOS commands
+setup_custom_completions() {
+    # Main uDOS commands
+    local udos_commands="status modules health core memory knowledge network script monitor dashboard metrics api mesh build test demo backup init exit quit help clear history env pwd ls cd reload"
+    
+    # Create completion function
+    _udos_complete() {
+        local cur="${COMP_WORDS[COMP_CWORD]}"
+        COMPREPLY=($(compgen -W "$udos_commands" -- "$cur"))
+    }
+    
+    # Register completion (if running in bash)
+    if [ -n "$BASH_VERSION" ]; then
+        complete -F _udos_complete uDOS_shell_commands 2>/dev/null || true
+    fi
+}
+
+# Get dynamic prompt
+get_prompt() {
+    local current_module="$(get_current_context)"
+    local status_indicator="$(get_status_indicator)"
+    
+    echo "[$PROMPT_PREFIX:$current_module]$status_indicator$ "
+}
+
+# Get current context (which module/area user is working in)
+get_current_context() {
+    if [ -n "$UDOS_CURRENT_MODULE" ]; then
+        echo "$UDOS_CURRENT_MODULE"
+    else
+        echo "CORE"
+    fi
+}
+
+# Get status indicator
+get_status_indicator() {
+    # Check if monitoring is running
+    if [ -f "$UDOS_ROOT/uNETWORK/monitoring/monitor.pid" ] && \
+       kill -0 "$(cat "$UDOS_ROOT/uNETWORK/monitoring/monitor.pid")" 2>/dev/null; then
+        echo "🟢"
+    else
+        echo "🟡"
+    fi
+}
+
+# Built-in shell commands
+cmd_help() {
+    cat << 'EOF'
+🔧 uCORE Interactive Shell Commands
+==================================
+
+Core System:
+  status              - Show system status
+  modules             - List all modules
+  health              - Run system health check
+  init                - Initialize/reinitialize system
+
+Module Navigation:
+  core                - Switch to uCORE context
+  memory              - Switch to uMEMORY context  
+  knowledge           - Switch to uKNOWLEDGE context
+  network             - Switch to uNETWORK context
+  script              - Switch to uSCRIPT context
+
+Monitoring & Dashboard:
+  monitor start       - Start monitoring daemon
+  monitor stop        - Stop monitoring daemon
+  monitor status      - Show monitoring status
+  dashboard           - Launch web dashboard
+  metrics             - Show current metrics
+
+API & Services:
+  api start           - Start API gateway
+  api status          - Show API gateway status
+  mesh status         - Show service mesh status
+  gateway test        - Test gateway endpoints
+
+Development:
+  build [target]      - Build system
+  test [type]         - Run tests
+  demo [type]         - Run demos
+  backup [cmd]        - Session management
+
+Utilities:
+  clear               - Clear screen
+  history             - Show command history
+  env                 - Show environment variables
+  pwd                 - Show current directory
+  ls [path]           - List files
+  cd [path]           - Change directory
+
+Shell Control:
+  exit, quit          - Exit shell
+  reload              - Reload shell configuration
+  help                - Show this help
+
+Examples:
+  modules             - List all uDOS modules
+  memory status       - Check uMEMORY status
+  monitor start       - Start real-time monitoring
+  dashboard           - Open web interface
+  api test            - Test API endpoints
+EOF
+}
+
+cmd_status() {
+    echo "📊 uDOS System Status"
+    echo "===================="
+    echo "Shell: $SHELL_NAME v$SHELL_VERSION (PID: $SHELL_PID)"
+    echo "Context: $(get_current_context)"
+    echo "Root: $UDOS_ROOT"
+    echo ""
+    
+    # Quick system check
+    echo "🧩 Module Status:"
+    local modules=("uCORE" "uMEMORY" "uKNOWLEDGE" "uNETWORK" "uSCRIPT")
+    for module in "${modules[@]}"; do
+        if [ -d "$UDOS_ROOT/$module" ]; then
+            echo "  ✅ $module"
+        else
+            echo "  ❌ $module"
+        fi
+    done
+    
+    echo ""
+    echo "🔧 Services:"
+    
+    # Check monitoring
+    if [ -f "$UDOS_ROOT/uNETWORK/monitoring/monitor.pid" ] && \
+       kill -0 "$(cat "$UDOS_ROOT/uNETWORK/monitoring/monitor.pid")" 2>/dev/null; then
+        echo "  🟢 Monitoring: Running"
+    else
+        echo "  🔴 Monitoring: Stopped"
+    fi
+    
+    # Check if web UI is configured
+    if [ -f "$UDOS_ROOT/uNETWORK/display/webui/index.html" ]; then
+        echo "  ✅ Web Dashboard: Ready"
+    else
+        echo "  ⚠️ Web Dashboard: Not configured"
+    fi
+}
+
+cmd_modules() {
+    echo "🧩 uDOS Modules"
+    echo "==============="
+    
+    local modules=(
+        "uCORE:Foundation system and core services"
+        "uMEMORY:Data layer and object storage"
+        "uKNOWLEDGE:Knowledge graph and reasoning"
+        "uNETWORK:Network services and communication"
+        "uSCRIPT:Automation and scripting engine"
+    )
+    
+    for module_info in "${modules[@]}"; do
+        local module="$(echo "$module_info" | cut -d':' -f1)"
+        local description="$(echo "$module_info" | cut -d':' -f2)"
+        
+        if [ -d "$UDOS_ROOT/$module" ]; then
+            echo "  ✅ $module - $description"
+        else
+            echo "  ❌ $module - $description (not found)"
+        fi
+    done
+    
+    echo ""
+    echo "💡 Use module name to switch context (e.g., 'memory', 'network')"
+}
+
+cmd_health() {
+    echo "🏥 System Health Check"
+    echo "====================="
+    
+    local health_score=0
+    local total_checks=5
+    
+    # Check core foundation
+    if [ -f "$UDOS_ROOT/uCORE/code/foundation.sh" ]; then
+        echo "  ✅ uCORE Foundation"
+        health_score=$((health_score + 1))
+    else
+        echo "  ❌ uCORE Foundation"
+    fi
+    
+    # Check data layer
+    if [ -d "$UDOS_ROOT/uMEMORY/data" ]; then
+        echo "  ✅ uMEMORY Data Layer"
+        health_score=$((health_score + 1))
+    else
+        echo "  ❌ uMEMORY Data Layer"
+    fi
+    
+    # Check network services
+    if [ -f "$UDOS_ROOT/uNETWORK/api/api-gateway.sh" ]; then
+        echo "  ✅ uNETWORK Services"
+        health_score=$((health_score + 1))
+    else
+        echo "  ❌ uNETWORK Services"
+    fi
+    
+    # Check scripting engine
+    if [ -f "$UDOS_ROOT/uSCRIPT/uscript" ]; then
+        echo "  ✅ uSCRIPT Engine"
+        health_score=$((health_score + 1))
+    else
+        echo "  ❌ uSCRIPT Engine"
+    fi
+    
+    # Check monitoring
+    if [ -f "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" ]; then
+        echo "  ✅ Monitoring System"
+        health_score=$((health_score + 1))
+    else
+        echo "  ❌ Monitoring System"
+    fi
+    
+    echo ""
+    local percentage=$((health_score * 100 / total_checks))
+    echo "🎯 Health Score: $health_score/$total_checks ($percentage%)"
+    
+    if [ $percentage -ge 80 ]; then
+        echo "💚 System is healthy"
+    elif [ $percentage -ge 60 ]; then
+        echo "💛 System has minor issues"
+    else
+        echo "❤️ System needs attention"
+    fi
+}
+
+# Context switching commands
+cmd_core() {
+    export UDOS_CURRENT_MODULE="CORE"
+    echo "🔧 Switched to uCORE context"
+    echo "Available: foundation, registry, system"
+}
+
+cmd_memory() {
+    export UDOS_CURRENT_MODULE="MEMORY"
+    echo "💾 Switched to uMEMORY context"
+    echo "Available: data, objects, cache"
+}
+
+cmd_knowledge() {
+    export UDOS_CURRENT_MODULE="KNOWLEDGE"
+    echo "🧠 Switched to uKNOWLEDGE context"
+    echo "Available: graph, nodes, edges"
+}
+
+cmd_network() {
+    export UDOS_CURRENT_MODULE="NETWORK"
+    echo "🌐 Switched to uNETWORK context"
+    echo "Available: api, mesh, gateway, monitoring"
+}
+
+cmd_script() {
+    export UDOS_CURRENT_MODULE="SCRIPT"
+    echo "📜 Switched to uSCRIPT context"
+    echo "Available: automation, templates, execution"
+}
+
+# Service management commands
+cmd_monitor() {
+    local action="$1"
+    
+    case "$action" in
+        "start")
+            "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" start
+            ;;
+        "stop")
+            "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" stop
+            ;;
+        "status")
+            "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" status
+            ;;
+        "")
+            echo "Usage: monitor {start|stop|status}"
+            ;;
+        *)
+            echo "Unknown monitor command: $action"
+            ;;
+    esac
+}
+
+cmd_dashboard() {
+    if [ -f "$UDOS_ROOT/uNETWORK/display/web-ui.sh" ]; then
+        echo "🌐 Launching uDOS Web Dashboard..."
+        "$UDOS_ROOT/uNETWORK/display/web-ui.sh" open 2>/dev/null || {
+            echo "📱 Dashboard available at: http://localhost:8080"
+            echo "💡 Run 'api start' first if needed"
+        }
+    else
+        echo "❌ Web dashboard not available"
+    fi
+}
+
+cmd_metrics() {
+    if [ -f "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" ]; then
+        "$UDOS_ROOT/uNETWORK/monitoring/monitor.sh" metrics
+    else
+        echo "❌ Monitoring system not available"
+    fi
+}
+
+cmd_api() {
+    local action="$1"
+    
+    case "$action" in
+        "start")
+            echo "🚀 Starting API Gateway..."
+            echo "💡 Gateway will be available at http://localhost:8081"
+            echo "📱 Dashboard at http://localhost:8080"
+            ;;
+        "status")
+            if [ -f "$UDOS_ROOT/uNETWORK/api/api-gateway.sh" ]; then
+                "$UDOS_ROOT/uNETWORK/api/api-gateway.sh" status
+            else
+                echo "❌ API Gateway not available"
+            fi
+            ;;
+        "test")
+            if [ -f "$UDOS_ROOT/uNETWORK/api/api-gateway.sh" ]; then
+                "$UDOS_ROOT/uNETWORK/api/api-gateway.sh" test
+            else
+                echo "❌ API Gateway not available"
+            fi
+            ;;
+        "")
+            echo "Usage: api {start|status|test}"
+            ;;
+        *)
+            echo "Unknown API command: $action"
+            ;;
+    esac
+}
+
+cmd_mesh() {
+    local action="$1"
+    
+    case "$action" in
+        "status")
+            if [ -f "$UDOS_ROOT/uNETWORK/mesh/service-mesh.sh" ]; then
+                "$UDOS_ROOT/uNETWORK/mesh/service-mesh.sh" status
+            else
+                echo "❌ Service mesh not available"
+            fi
+            ;;
+        "topology")
+            if [ -f "$UDOS_ROOT/uNETWORK/mesh/service-mesh.sh" ]; then
+                "$UDOS_ROOT/uNETWORK/mesh/service-mesh.sh" topology
+            else
+                echo "❌ Service mesh not available"
+            fi
+            ;;
+        "")
+            echo "Usage: mesh {status|topology}"
+            ;;
+        *)
+            echo "Unknown mesh command: $action"
+            ;;
+    esac
+}
+
+# Main command processor
+process_command() {
+    local cmd="$1"
+    shift
+    local args="$@"
+    
+    # Log command to history
+    echo "$(date +'%Y-%m-%d %H:%M:%S') $cmd $args" >> "$HISTORY_FILE"
+    
+    case "$cmd" in
+        # Built-in commands
+        "help"|"?")
+            cmd_help
+            ;;
+        "status")
+            cmd_status
+            ;;
+        "modules")
+            cmd_modules
+            ;;
+        "health")
+            cmd_health
+            ;;
+        
+        # Context switching
+        "core")
+            cmd_core
+            ;;
+        "memory")
+            cmd_memory
+            ;;
+        "knowledge")
+            cmd_knowledge
+            ;;
+        "network")
+            cmd_network
+            ;;
+        "script")
+            cmd_script
+            ;;
+        
+        # Service management
+        "monitor")
+            cmd_monitor "$@"
+            ;;
+        "dashboard")
+            cmd_dashboard
+            ;;
+        "metrics")
+            cmd_metrics
+            ;;
+        "api")
+            cmd_api "$@"
+            ;;
+        "mesh")
+            cmd_mesh "$@"
+            ;;
+        
+        # Standard Unix commands
+        "clear")
+            clear
+            ;;
+        "pwd")
+            pwd
+            ;;
+        "ls")
+            ls $args
+            ;;
+        "cd")
+            if [ -n "$1" ]; then
+                cd "$1" 2>/dev/null || echo "Directory not found: $1"
+            else
+                cd "$UDOS_ROOT"
+            fi
+            ;;
+        "env")
+            env | grep UDOS | sort
+            ;;
+        "history")
+            if [ -f "$HISTORY_FILE" ]; then
+                tail -20 "$HISTORY_FILE"
+            else
+                echo "No history available"
+            fi
+            ;;
+        
+        # uDOS system commands
+        "init")
+            "$UDOS_ROOT/udos" init
+            ;;
+        "build")
+            "$UDOS_ROOT/udos" build "$@"
+            ;;
+        "test")
+            "$UDOS_ROOT/udos" test "$@"
+            ;;
+        "demo")
+            "$UDOS_ROOT/udos" demo "$@"
+            ;;
+        "backup")
+            "$UDOS_ROOT/udos" backup "$@"
+            ;;
+        
+        # Shell control
+        "exit"|"quit")
+            echo "👋 Exiting uCORE Shell"
+            exit 0
+            ;;
+        "reload")
+            echo "🔄 Reloading shell configuration..."
+            exec "$0"
+            ;;
+        
+        # Empty command
+        "")
+            # Do nothing
+            ;;
+        
+        # Unknown command
+        *)
+            echo "Unknown command: $cmd"
+            echo "Type 'help' for available commands"
+            
+            # Suggest similar commands
+            suggest_command "$cmd"
+            ;;
+    esac
+}
+
+# Command suggestion system
+suggest_command() {
+    local input="$1"
+    local commands=(
+        "status" "modules" "health" "core" "memory" "knowledge" 
+        "network" "script" "monitor" "dashboard" "api" "mesh"
+        "help" "exit" "clear" "history" "init" "build" "test"
+    )
+    
+    echo ""
+    echo "💡 Did you mean:"
+    
+    local found=0
+    for cmd in "${commands[@]}"; do
+        # Simple substring matching
+        if [[ "$cmd" == *"$input"* ]] || [[ "$input" == *"$cmd"* ]]; then
+            echo "  • $cmd"
+            found=1
+        fi
+    done
+    
+    if [ $found -eq 0 ]; then
+        echo "  • help (show all commands)"
+        echo "  • status (system overview)"
+        echo "  • modules (list modules)"
+    fi
+}
+
+# Main shell loop
+main_loop() {
+    local multi_line_cmd=""
+    local in_multiline=false
+    
+    while true; do
+        # Get and display prompt
+        local prompt
+        if [ "$in_multiline" = true ]; then
+            prompt="... "
+        else
+            prompt="$(get_prompt)"
+        fi
+        
+        # Read command with history support
+        read -p "$prompt" -e input
+        
+        # Handle multi-line commands
+        if [[ "$input" == *"\\" ]]; then
+            # Continue multi-line
+            multi_line_cmd+="${input%\\} "
+            in_multiline=true
+            continue
+        elif [ "$in_multiline" = true ]; then
+            # Complete multi-line
+            input="$multi_line_cmd$input"
+            multi_line_cmd=""
+            in_multiline=false
+        fi
+        
+        # Skip empty input
+        [ -z "$input" ] && continue
+        
+        # Add to bash history
+        history -s "$input"
+        
+        # Handle special shell features
+        case "$input" in
+            "!!")
+                # Repeat last command
+                input="$(history -p '!!')"
+                echo "Executing: $input"
+                ;;
+            "history clear")
+                # Clear history
+                history -c
+                > "$HISTORY_FILE"
+                echo "✅ History cleared"
+                continue
+                ;;
+        esac
+        
+        # Process command
+        process_command $input
+        
+        echo  # Add blank line after command output
+    done
+}
+
+# Main execution
+main() {
+    case "${1:-interactive}" in
+        "interactive"|"")
+            init_shell
+            main_loop
+            ;;
+        "help")
+            echo "$SHELL_NAME v$SHELL_VERSION"
+            echo "Usage: $0 [interactive|help]"
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+}
+
+# Execute if called directly
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi
