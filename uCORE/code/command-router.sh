@@ -67,16 +67,16 @@ parse_ucode_command() {
                 elif [[ "$var_cmd" =~ ^set\ ([^\ ]+)\ (.+)$ ]]; then
                     content="VARIABLE|SET*${BASH_REMATCH[1]}*${BASH_REMATCH[2]}"
                 else
-                    content="VARIABLE|${var_cmd^^}"
+                    content="VARIABLE|$(echo "$var_cmd" | tr '[:lower:]' '[:upper:]')"
                 fi
                 ;;
             *) 
                 # Try to parse as space-separated command action params
                 read -r cmd action params <<< "$input"
                 if [[ -n "$action" ]]; then
-                    content="${cmd^^}|${action^^}${params:+*$params}"
+                    content="$(echo "$cmd" | tr '[:lower:]' '[:upper:]')|$(echo "$action" | tr '[:lower:]' '[:upper:]')${params:+*$params}"
                 else
-                    content="${cmd^^}"
+                    content="$(echo "$cmd" | tr '[:lower:]' '[:upper:]')"
                 fi
                 ;;
         esac

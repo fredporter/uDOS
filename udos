@@ -1,0 +1,36 @@
+#!/bin/bash
+# uDOS Main Executable v1.0.5.7
+# Universal entry point for all uDOS operations
+
+set -euo pipefail
+
+# Get uDOS root directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export UDOS_ROOT="$SCRIPT_DIR"
+
+# Source command router
+COMMAND_ROUTER="$UDOS_ROOT/uCORE/code/command-router.sh"
+INTERACTIVE_SHELL="$UDOS_ROOT/uCORE/shell/interactive-shell.sh"
+
+# Handle special commands
+case "${1:-}" in
+    "shell")
+        # Launch interactive shell
+        if [[ -f "$INTERACTIVE_SHELL" ]]; then
+            exec "$INTERACTIVE_SHELL"
+        else
+            echo "❌ Error: Interactive shell not found at $INTERACTIVE_SHELL"
+            exit 1
+        fi
+        ;;
+    *)
+        # Route to command router
+        if [[ -f "$COMMAND_ROUTER" ]]; then
+            exec "$COMMAND_ROUTER" "$@"
+        else
+            echo "❌ Error: Command router not found at $COMMAND_ROUTER"
+            echo "💡 Please ensure uCORE is properly installed"
+            exit 1
+        fi
+        ;;
+esac
