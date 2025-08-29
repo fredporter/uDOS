@@ -1,0 +1,6 @@
+ENDPOINT_NAME=test-api
+HTTP_METHOD=GET
+MODULE_NAME=uNETWORK
+TEMPLATE_NAME=component
+TEST_VAR=test-value
+COMPONENT_NAME=test-component
