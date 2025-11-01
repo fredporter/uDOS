@@ -637,11 +637,101 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_palette(self, params, grid, parser):
         """
-        Display color palette.
+        Display color palette with visual tests and reference.
 
-        TODO: Move this logic from uDOS_commands.py
+        Shows the Polaroid color system with:
+        - Color blocks visualization
+        - Hex codes and tput numbers
+        - Usage descriptions
+        - Grayscale gradient
         """
-        return "PALETTE command - to be refactored"
+        import json
+        from pathlib import Path
+
+        try:
+            # Load palette data
+            palette_path = Path('data/system/palette.json')
+            with open(palette_path, 'r') as f:
+                palette_data = json.load(f)
+
+            palette = palette_data['PALETTE']
+            colors = palette['COLORS']
+
+            # Build output
+            output = []
+            output.append("🎨 " + palette['NAME'].upper() + " COLOR PALETTE")
+            output.append("=" * 60)
+            output.append(f"Name: {palette['NAME']}")
+            output.append(f"Version: {palette['VERSION']}")
+            output.append(f"Description: {palette['DESCRIPTION']}")
+            output.append("")
+
+            # Primary colors section
+            output.append("📋 PRIMARY COLORS:")
+            output.append("-" * 60)
+            for color_id, color_data in colors['PRIMARY'].items():
+                # Color block (unicode filled block)
+                ansi_code = color_data['ansi'].replace('\\033', '\033')
+                reset = '\033[0m'
+                block = f"{ansi_code}███{reset}"
+
+                name = color_data['name'].ljust(20)
+                tput_hex = f"(tput:{color_data['tput']}) {color_data['hex']}".ljust(20)
+                usage = color_data['usage']
+
+                output.append(f"  {block} {name} {tput_hex} - {usage}")
+
+            output.append("")
+
+            # Monochrome section
+            output.append("📋 MONOCHROME:")
+            output.append("-" * 60)
+            for color_id, color_data in colors['MONOCHROME'].items():
+                ansi_code = color_data['ansi'].replace('\\033', '\033')
+                reset = '\033[0m'
+                block = f"{ansi_code}███{reset}"
+
+                name = color_data['name'].ljust(20)
+                tput_hex = f"(tput:{color_data['tput']}) {color_data['hex']}".ljust(20)
+                usage = color_data['usage']
+
+                output.append(f"  {block} {name} {tput_hex} - {usage}")
+
+            output.append("")
+
+            # Grayscale gradient
+            output.append("📋 GRAYSCALE GRADIENT:")
+            output.append("-" * 60)
+            gradient_line = "  "
+            for color_id, color_data in colors['GRAYSCALE'].items():
+                ansi_code = color_data['ansi'].replace('\\033', '\033')
+                reset = '\033[0m'
+                gradient_line += f"{ansi_code}████{reset}"
+            output.append(gradient_line)
+            output.append("  Black → Darkest → Dark → Medium → Light → Lightest → White")
+            output.append("")
+
+            # Visual test blocks
+            output.append("🎨 COLOR COMBINATION TESTS:")
+            output.append("-" * 60)
+            test_line = "  "
+            for color_id in ['red', 'green', 'yellow', 'blue', 'purple', 'cyan']:
+                color_data = colors['PRIMARY'][color_id]
+                ansi_code = color_data['ansi'].replace('\\033', '\033')
+                reset = '\033[0m'
+                test_line += f"{ansi_code}██{reset} "
+            output.append(test_line)
+            output.append("")
+
+            output.append("=" * 60)
+            output.append("💡 Use: VIEWPORT for terminal capabilities test")
+            output.append("💡 Use: REBOOT to see full splash screen with color tests")
+            output.append("=" * 60)
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Failed to load palette: {str(e)}"
 
     def handle_dashboard(self, params, grid, parser):
         """
@@ -656,9 +746,62 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         Generate repository tree structure.
 
-        TODO: Move this logic from uDOS_commands.py
+        Syntax:
+            TREE                 - Full repository tree
+            TREE <folder>        - Specific folder (sandbox, memory, knowledge, etc.)
+            TREE --depth=N       - Limit depth to N levels
+
+        Returns:
+            Tree structure string and saves to structure.txt
         """
-        return "TREE command - to be refactored"
+        from core.uDOS_tree import generate_repository_tree
+        import re
+
+        try:
+            # Parse parameters
+            target_folder = None
+            max_depth = 5
+
+            for param in params:
+                if param.startswith('--depth='):
+                    try:
+                        max_depth = int(param.split('=')[1])
+                    except (ValueError, IndexError):
+                        return "❌ Invalid depth value. Use: TREE --depth=3"
+                elif param.upper() in ['SANDBOX', 'MEMORY', 'KNOWLEDGE', 'HISTORY',
+                                       'CORE', 'WIKI', 'EXTENSIONS', 'EXAMPLES']:
+                    target_folder = param.lower()
+
+            # Generate tree
+            tree_string, tree_path = generate_repository_tree(
+                root_path=".",
+                output_file="structure.txt",
+                target_folder=target_folder,
+                max_depth=max_depth
+            )
+
+            # Build result message
+            output = []
+            output.append("🌳 REPOSITORY STRUCTURE")
+            output.append("=" * 60)
+            if target_folder:
+                output.append(f"📁 Folder: {target_folder}/")
+            else:
+                output.append("📁 Full Repository")
+            output.append(f"📏 Max Depth: {max_depth}")
+            output.append(f"💾 Saved: {tree_path}")
+            output.append("")
+            output.append(tree_string)
+            output.append("")
+            output.append("=" * 60)
+            output.append("💡 Use: TREE <folder> to show specific folder")
+            output.append("💡 Use: TREE --depth=2 to limit depth")
+            output.append("=" * 60)
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Failed to generate tree: {str(e)}"
 
     def handle_clean(self, params, grid, parser):
         """
