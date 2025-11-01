@@ -8,7 +8,42 @@
     <!-- classic.css - Mac OS 8.1 Interface -->
     <link rel="stylesheet" href="../shared/classic.css">
 
+    <!-- After Dark CSS for screensavers -->
+    <link rel="stylesheet" href="https://www.bryanbraun.com/after-dark-css/after-dark.css">
+
+    <!-- Chunky Retro Mac Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323:wght@400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
+        /* CSS Variables for Light/Dark Mode */
+        :root {
+            --bg-primary: #c0c0c0;
+            --bg-secondary: #fff;
+            --text-primary: #000;
+            --text-secondary: #666;
+            --border-color: #000;
+            --menu-bg: #fff;
+            --menu-hover: #316AC5;
+            --button-bg: #ddd;
+            --button-shadow: #808080;
+            --dot-pattern: #000;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #2a2a2a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #00ff00;
+            --text-secondary: #888;
+            --border-color: #00ff00;
+            --menu-bg: #1a1a1a;
+            --menu-hover: #003300;
+            --button-bg: #333;
+            --button-shadow: #555;
+            --dot-pattern: #00ff00;
+        }
+
         /* Base styling */
         * {
             margin: 0;
@@ -17,50 +52,87 @@
         }
 
         body {
-            font-family: 'ChicagoFLF', 'Chicago', 'Geneva', sans-serif;
-            background: #008080; /* Classic teal desktop */
+            font-family: 'VT323', 'Chicago', 'Geneva', monospace;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            background: var(--bg-primary);
             background-image:
-                repeating-linear-gradient(
-                    45deg,
-                    #008080,
-                    #008080 10px,
-                    #006666 10px,
-                    #006666 20px
-                );
+                radial-gradient(circle, var(--dot-pattern) 1px, transparent 1px);
+            background-size: 4px 4px;
             padding: 0;
             margin: 0;
             overflow-x: hidden;
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         /* Menu Bar */
         .menu-bar {
-            background: #fff;
-            border-bottom: 2px solid #000;
-            padding: 2px 8px;
+            background: var(--menu-bg);
+            border-bottom: 2px inset var(--bg-primary);
+            padding: 6px 12px;
             display: flex;
             gap: 20px;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: bold;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 0 #000;
+            box-shadow: 0 1px 0 var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .menu-logo {
+            font-size: 18px;
+            margin-right: 10px;
         }
 
         .menu-item {
             position: relative;
-            padding: 2px 12px;
+            padding: 4px 16px;
             cursor: pointer;
             user-select: none;
+            border-radius: 0;
+            transition: all 0.1s ease;
         }
 
         .menu-item:hover {
-            background: #000;
+            background: var(--menu-hover);
             color: #fff;
         }
 
         .menu-item.active {
-            background: #000;
+            background: var(--menu-hover);
+            color: #fff;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            margin-left: auto;
+            padding: 4px 8px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            border-radius: 0;
+        }
+
+        .theme-toggle:hover {
+            background: var(--menu-hover);
+            color: #fff;
+        }
+
+        .menu-item:hover {
+            background: var(--menu-hover);
+            color: #fff;
+        }
+
+        .menu-item.active {
+            background: var(--menu-hover);
             color: #fff;
         }
 
@@ -75,11 +147,12 @@
             position: absolute;
             top: 100%;
             left: 0;
-            background: #fff;
-            border: 2px solid #000;
+            background: var(--menu-bg);
+            border: 2px solid var(--border-color);
             box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
             min-width: 200px;
             z-index: 1001;
+            color: var(--text-primary);
         }
 
         .dropdown.active {
@@ -87,13 +160,14 @@
         }
 
         .dropdown-item {
-            padding: 4px 16px;
+            padding: 6px 16px;
             cursor: pointer;
-            font-size: 11px;
-            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+            border-bottom: 1px solid var(--text-secondary);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-family: 'VT323', monospace;
         }
 
         .dropdown-item:last-child {
@@ -101,18 +175,18 @@
         }
 
         .dropdown-item:hover {
-            background: #000;
+            background: var(--menu-hover);
             color: #fff;
         }
 
         .dropdown-item.disabled {
-            color: #888;
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
 
         .dropdown-item.disabled:hover {
             background: transparent;
-            color: #888;
+            color: var(--text-secondary);
         }
 
         .dropdown-separator {
@@ -134,7 +208,233 @@
         /* Desktop Container */
         .desktop {
             padding: 20px;
-            min-height: calc(100vh - 30px);
+            min-height: calc(100vh - 40px);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        /* Desktop Icons */
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .desktop-icon.selected {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-image {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border: 2px outset #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .icon-label {
+            font-size: 11px;
+            text-align: center;
+            color: #000;
+            text-shadow: 1px 1px 0 #fff;
+            font-weight: normal;
+            max-width: 80px;
+            word-wrap: break-word;
+        }
+
+        /* Status indicator for icons */
+        .icon-status {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid #000;
+        }
+
+        .icon-status.online {
+            background: #00ff00;
+        }
+
+        .icon-status.offline {
+            background: #888;
+        }
+
+        /* Dashboard Window Styles */
+        .dashboard-window {
+            position: fixed;
+            top: 50px;
+            right: 50px;
+            width: 400px;
+            z-index: 1000;
+        }
+
+        .window {
+            background: #fff;
+            border: 2px outset #c0c0c0;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .title-bar {
+            background: #c0c0c0;
+            border-bottom: 1px solid #808080;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            cursor: move;
+        }
+
+        .title {
+            font-weight: bold;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .close, .resize {
+            width: 16px;
+            height: 16px;
+            border: 1px outset #c0c0c0;
+            background: #c0c0c0;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close:active, .resize:active {
+            border: 1px inset #c0c0c0;
+        }
+
+        .separator {
+            height: 1px;
+            background: #808080;
+        }
+
+        .window-pane {
+            padding: 16px;
+            background: #fff;
+        }
+
+        .metrics-section, .actions-section, .log-section {
+            margin-bottom: 16px;
+        }
+
+        .metrics-section h3, .actions-section h3, .log-section h3 {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #000;
+            border-bottom: 1px solid #c0c0c0;
+            padding-bottom: 4px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px;
+            border: 1px inset #c0c0c0;
+            background: #f0f0f0;
+        }
+
+        .metric-label {
+            color: #666;
+        }
+
+        .metric-value {
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .btn {
+            background: #c0c0c0;
+            border: 1px outset #c0c0c0;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn:active {
+            border: 1px inset #c0c0c0;
+        }
+
+        .activity-log {
+            height: 100px;
+            border: 1px inset #c0c0c0;
+            background: #fff;
+            overflow-y: auto;
+            padding: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 9px;
+        }
+
+        .log-entry {
+            margin-bottom: 2px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-time {
+            color: #666;
+            min-width: 60px;
+        }
+
+        .log-message {
+            color: #000;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #c0c0c0;
+            border-top: 1px inset #c0c0c0;
+            padding: 4px 12px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 999;
+        }
+
+        .status-item {
+            display: flex;
+            gap: 4px;
+            align-items: center;
         }
 
         /* Main window */
@@ -437,53 +737,191 @@
             color: #fff;
         }
         .classic-btn {
-            background: #ddd;
-            border: 2px solid #000;
+            background: var(--button-bg);
+            border: 2px solid var(--border-color);
             box-shadow:
-                inset -1px -1px 0px #000,
-                inset 1px 1px 0px #fff,
-                inset -2px -2px 0px #808080,
-                inset 2px 2px 0px #ddd;
-            padding: 4px 8px;
-            font-family: 'ChicagoFLF', sans-serif;
-            font-size: 10px;
+                inset -1px -1px 0px var(--border-color),
+                inset 1px 1px 0px var(--bg-secondary),
+                inset -2px -2px 0px var(--button-shadow),
+                inset 2px 2px 0px var(--button-bg);
+            padding: 6px 12px;
+            font-family: 'VT323', monospace;
+            font-size: 14px;
             cursor: pointer;
             text-align: center;
             flex: 1;
+            color: var(--text-primary);
         }
 
         .classic-btn:active {
             box-shadow:
-                inset 1px 1px 0px #000,
-                inset -1px -1px 0px #fff;
-            background: #bbb;
+                inset 1px 1px 0px var(--border-color),
+                inset -1px -1px 0px var(--bg-secondary);
+            background: var(--button-shadow);
         }
 
         .classic-btn:disabled {
-            color: #888;
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
 
         .classic-btn-small {
-            font-size: 9px;
-            padding: 3px 6px;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        /* Screensaver Overlay */
+        .screensaver-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            cursor: none;
+        }
+
+        .screensaver-overlay.active {
+            display: block;
+        }
+
+        /* After Dark CSS Integration */
+        .screensaver-starfield {
+            background: #000;
+            overflow: hidden;
+        }
+
+        .screensaver-matrix {
+            background: #000;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+        }
+
+        .screensaver-pipes {
+            background: #000;
+            overflow: hidden;
+        }
+
+        .screensaver-dvd {
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screensaver-clock {
+            background: #000;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+            font-size: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* DVD Logo Animation */
+        .dvd-logo {
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            position: absolute;
+            animation: dvd-bounce 3s linear infinite;
+        }
+
+        @keyframes dvd-bounce {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(calc(100vw - 100px), 0); }
+            50% { transform: translate(calc(100vw - 100px), calc(100vh - 50px)); }
+            75% { transform: translate(0, calc(100vh - 50px)); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Matrix Rain */
+        .matrix-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 14px;
+            line-height: 14px;
+            animation: matrix-fall linear infinite;
+        }
+
+        @keyframes matrix-fall {
+            to { top: 100%; }
+        }
+
+        /* Starfield */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        .classic-btn:active {
+            box-shadow:
+                inset 1px 1px 0px var(--border-color),
+                inset -1px -1px 0px var(--bg-secondary);
+            background: var(--button-shadow);
+        }
+
+        .classic-btn:disabled {
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .classic-btn-small {
+            font-size: 12px;
+            padding: 4px 8px;
         }
 
         /* Status bar */
         .status-bar {
-            background: #ddd;
-            border-top: 2px solid #000;
-            padding: 6px 12px;
-            font-size: 10px;
+            background: var(--button-bg);
+            border-top: 2px solid var(--border-color);
+            padding: 8px 12px;
+            font-size: 14px;
+            font-family: 'VT323', monospace;
             display: flex;
             justify-content: space-between;
-            box-shadow: inset 0 1px 0 #fff;
+            box-shadow: inset 0 1px 0 var(--bg-secondary);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            color: var(--text-primary);
         }
 
         .status-item {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
+            font-size: 14px;
         }
 
         /* Activity log */
@@ -748,7 +1186,38 @@
             </div>
         </div>
 
-        <div class="menu-item" onclick="toggleMenu('settings-menu')">
+        <div class="menu-item" onclick="toggleMenu('view-menu')">
+            View
+            <div id="view-menu" class="dropdown">
+                <div class="dropdown-item" onclick="toggleTheme()">
+                    <span>🌓 Toggle Dark Mode</span>
+                    <span class="shortcut">⌘T</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="startScreensaver('starfield')">
+                    <span>⭐ Starfield Screensaver</span>
+                </div>
+                <div class="dropdown-item" onclick="startScreensaver('pipes')">
+                    <span>🔧 Pipes Screensaver</span>
+                </div>
+                <div class="dropdown-item" onclick="startScreensaver('dvd')">
+                    <span>📀 DVD Logo Screensaver</span>
+                </div>
+                <div class="dropdown-item" onclick="startScreensaver('matrix')">
+                    <span>🔋 Matrix Rain</span>
+                </div>
+                <div class="dropdown-item" onclick="startScreensaver('clock')">
+                    <span>🕐 Digital Clock</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="stopScreensaver()">
+                    <span>⏹️ Stop Screensaver</span>
+                    <span class="shortcut">ESC</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu('settings-menu')">>
             System
             <div id="settings-menu" class="dropdown">
                 <div class="dropdown-item" onclick="showSystemInfo()">
@@ -791,251 +1260,162 @@
                 </div>
             </div>
         </div>
+
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+            🌓
+        </button>
     </div>
 
     <!-- Desktop -->
     <div class="desktop">
-    <div class="content">
-        <!-- Title Bar -->
-        <div class="title">
-            <div class="title-stripes"></div>
-            <div class="title-text">🌀 uDOS Extension Manager v1.3</div>
-            <div class="window-controls">
-                <div class="window-btn"></div>
-            </div>
+        <!-- Extension Icons -->
+        <div class="desktop-icon" data-extension="cmd" data-port="8890" onclick="handleIconClick('cmd')">
+            <div class="icon-image">💻</div>
+            <div class="icon-label">Terminal</div>
+            <div class="icon-status offline" id="status-cmd"></div>
         </div>
 
-        <!-- Dashboard Content -->
-        <div class="dashboard-content">
-            <!-- Main Content Area -->
-            <div class="main-content">
-                <!-- Metrics -->
-                <div class="metrics-grid">
-                    <div class="metric-box">
-                        <span class="metric-icon">⚡</span>
-                        <div class="metric-label">Active Servers</div>
-                        <div class="metric-value" id="metric-servers">0/6</div>
-                        <div class="metric-change" id="metric-servers-change">Ready to start</div>
-                    </div>
-                    <div class="metric-box">
-                        <span class="metric-icon">📊</span>
-                        <div class="metric-label">Total Requests</div>
-                        <div class="metric-value" id="metric-requests">0</div>
-                        <div class="metric-change">Last updated: Never</div>
-                    </div>
-                    <div class="metric-box">
-                        <span class="metric-icon">⏱️</span>
-                        <div class="metric-label">Uptime</div>
-                        <div class="metric-value" id="metric-uptime">00:00:00</div>
-                        <div class="metric-change">Started: <span id="start-time">--</span></div>
-                    </div>
-                    <div class="metric-box">
-                        <span class="metric-icon">💾</span>
-                        <div class="metric-label">Memory Usage</div>
-                        <div class="metric-value" id="metric-memory">-- MB</div>
-                        <div class="metric-change">System resources</div>
-                    </div>
+        <div class="desktop-icon" data-extension="markdown-viewer" data-port="8889" onclick="handleIconClick('markdown-viewer')">
+            <div class="icon-image">📖</div>
+            <div class="icon-label">Markdown Viewer</div>
+            <div class="icon-status offline" id="status-markdown-viewer"></div>
+        </div>
+
+        <div class="desktop-icon" data-extension="font-editor" data-port="8888" onclick="handleIconClick('font-editor')">
+            <div class="icon-image">🎨</div>
+            <div class="icon-label">Font Editor</div>
+            <div class="icon-status offline" id="status-font-editor"></div>
+        </div>
+
+        <div class="desktop-icon" data-extension="typo" data-port="5173" onclick="handleIconClick('typo')">
+            <div class="icon-image">✏️</div>
+            <div class="icon-label">Typo Editor</div>
+            <div class="icon-status offline" id="status-typo"></div>
+        </div>
+
+        <div class="desktop-icon" data-extension="micro" data-port="8891" onclick="handleIconClick('micro')">
+            <div class="icon-image">📝</div>
+            <div class="icon-label">Micro Editor</div>
+            <div class="icon-status offline" id="status-micro"></div>
+        </div>
+
+        <!-- CSS Framework Showcase -->
+        <div class="desktop-icon" onclick="openURL('http://localhost:8885')">
+            <div class="icon-image" style="background: linear-gradient(45deg, #008080, #006666);">🖥️</div>
+            <div class="icon-label">Classic.css Demo</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openURL('http://localhost:8884')">
+            <div class="icon-image" style="background: linear-gradient(45deg, #ff6b6b, #ffd93d);">🎮</div>
+            <div class="icon-label">NES.css Demo</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openURL('http://localhost:8883')">
+            <div class="icon-image" style="background: #f0f0f0;">💾</div>
+            <div class="icon-label">System.css Demo</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openURL('http://localhost:8882')">
+            <div class="icon-image" style="background: linear-gradient(45deg, #000, #333);">✨</div>
+            <div class="icon-label">After Dark Demo</div>
+        </div>
+
+        <!-- Screensaver Control -->
+        <div class="desktop-icon" onclick="showScreensaverMenu()">
+            <div class="icon-image" style="background: linear-gradient(45deg, #1a1a1a, #333);">🌌</div>
+            <div class="icon-label">Screensavers</div>
+        </div>
+
+        <!-- Workspace Folders -->
+        <div class="desktop-icon" onclick="openWorkspace('sandbox')">
+            <div class="icon-image" style="background: #ffeb3b;">📦</div>
+            <div class="icon-label">Sandbox</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openWorkspace('memory')">
+            <div class="icon-image" style="background: #4caf50;">💾</div>
+            <div class="icon-label">Memory</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openWorkspace('data')">
+            <div class="icon-image" style="background: #2196f3;">🗄️</div>
+            <div class="icon-label">Data</div>
+        </div>
+
+        <div class="desktop-icon" onclick="openWorkspace('output')">
+            <div class="icon-image" style="background: #ff9800;">📤</div>
+            <div class="icon-label">Output</div>
+        </div>
+
+        <!-- System Tools -->
+        <div class="desktop-icon" onclick="showSystemInfo()">
+            <div class="icon-image">ℹ️</div>
+            <div class="icon-label">System Info</div>
+        </div>
+
+        <div class="desktop-icon" onclick="showSettings()">
+            <div class="icon-image">⚙️</div>
+            <div class="icon-label">Preferences</div>
+        </div>
+
+        <!-- Dashboard Window (Floating) -->
+        <div class="dashboard-window" id="dashboard-window" style="display: none;">
+            <div class="window">
+                <div class="title-bar">
+                    <button aria-label="Close" class="close" onclick="closeDashboard()"></button>
+                    <h1 class="title">🌀 uDOS System Dashboard</h1>
+                    <button aria-label="Resize" class="resize"></button>
                 </div>
-
-                <!-- Server Grid -->
-                <div class="server-grid">
-                <!-- Server Grid -->
-                <div class="server-grid">
-                    <!-- Terminal -->
-                    <div class="server-card" data-extension="cmd" data-port="8890">
-                        <div class="server-header">
-                            <span class="server-icon">💻</span>
-                            <div class="server-status offline" id="status-cmd"></div>
-                        </div>
-                        <div class="server-name">Web Terminal</div>
-                        <div class="server-port">Port 8890</div>
-                        <div class="server-url" onclick="openExtension('cmd')">http://localhost:8890</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'start')">Start</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'stop')">Stop</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'open')">Open</button>
-                        </div>
-                    </div>
-
-                    <!-- Markdown Viewer -->
-                    <div class="server-card" data-extension="markdown-viewer" data-port="8889">
-                        <div class="server-header">
-                            <span class="server-icon">📖</span>
-                            <div class="server-status offline" id="status-markdown-viewer"></div>
-                        </div>
-                        <div class="server-name">Markdown Viewer</div>
-                        <div class="server-port">Port 8889</div>
-                        <div class="server-url" onclick="openExtension('markdown-viewer')">http://localhost:8889</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'start')">Start</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'stop')">Stop</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'open')">Open</button>
+                <div class="separator"></div>
+                <div class="window-pane">
+                    <!-- System Metrics -->
+                    <div class="metrics-section">
+                        <h3>System Status</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Active Servers:</span>
+                                <span class="metric-value" id="metric-servers">0/6</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Uptime:</span>
+                                <span class="metric-value" id="metric-uptime">00:00:00</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Memory:</span>
+                                <span class="metric-value" id="metric-memory">-- MB</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Platform:</span>
+                                <span class="metric-value" id="platform-info">--</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Font Editor -->
-                    <div class="server-card" data-extension="font-editor" data-port="8888">
-                        <div class="server-header">
-                            <span class="server-icon">🎨</span>
-                            <div class="server-status offline" id="status-font-editor"></div>
-                        </div>
-                        <div class="server-name">Font Editor</div>
-                        <div class="server-port">Port 8888</div>
-                        <div class="server-url" onclick="openExtension('font-editor')">http://localhost:8888</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'start')">Start</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'stop')">Stop</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'open')">Open</button>
+                    <!-- Quick Actions -->
+                    <div class="actions-section">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="btn" onclick="startAll()">▶️ Start All</button>
+                            <button class="btn" onclick="stopAll()">⏹️ Stop All</button>
+                            <button class="btn" onclick="refreshDashboard()">🔄 Refresh</button>
+                            <button class="btn" onclick="clearLog()">🗑️ Clear Log</button>
                         </div>
                     </div>
 
-                    <!-- Dashboard (Self) -->
-                    <div class="server-card" data-extension="dashboard" data-port="8887">
-                        <div class="server-header">
-                            <span class="server-icon">🌀</span>
-                            <div class="server-status online"></div>
-                        </div>
-                        <div class="server-name">Dashboard</div>
-                        <div class="server-port">Port 8887</div>
-                        <div class="server-url" onclick="window.location.reload()">http://localhost:8887</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" disabled>Running</button>
-                        </div>
-                    </div>
-
-                    <!-- Typo Editor -->
-                    <div class="server-card" data-extension="typo" data-port="5173">
-                        <div class="server-header">
-                            <span class="server-icon">✏️</span>
-                            <div class="server-status offline" id="status-typo"></div>
-                        </div>
-                        <div class="server-name">Typo Editor</div>
-                        <div class="server-port">Port 5173</div>
-                        <div class="server-url" onclick="openExtension('typo')">http://localhost:5173</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'start')">Start</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'stop')">Stop</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'open')">Open</button>
-                        </div>
-                    </div>
-
-                    <!-- Micro Editor -->
-                    <div class="server-card" data-extension="micro" data-port="8891">
-                        <div class="server-header">
-                            <span class="server-icon">📝</span>
-                            <div class="server-status offline" id="status-micro"></div>
-                        </div>
-                        <div class="server-name">Micro Editor</div>
-                        <div class="server-port">Port 8891</div>
-                        <div class="server-url" onclick="openExtension('micro')">http://localhost:8891</div>
-                        <div class="server-actions">
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'start')">Start</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'stop')">Stop</button>
-                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'open')">Open</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Activity Log -->
-                <div class="activity-section">
-                    <div class="activity-header">
-                        <span>📋 Activity Log</span>
-                        <button class="classic-btn classic-btn-small" onclick="clearLog()">Clear</button>
-                    </div>
-                    <div class="activity-log" id="activity-log">
-                        <div class="log-entry info">
-                            <span class="log-time">--:--:--</span>
-                            <span class="log-message">Dashboard initialized</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- System Info -->
-                <div class="info-panel">
-                    <div class="panel-header">🖥️ System Info</div>
-                    <div class="panel-content">
-                        <div class="info-row">
-                            <span class="info-label">Version:</span>
-                            <span class="info-value">uDOS v1.3</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Platform:</span>
-                            <span class="info-value" id="platform-info">--</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Extensions:</span>
-                            <span class="info-value">6 installed</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Theme:</span>
-                            <span class="info-value">Classic Mac OS</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Workspaces -->
-                <div class="info-panel">
-                    <div class="panel-header">📁 Workspaces</div>
-                    <div class="panel-content" style="padding: 0;">
-                        <ul class="workspace-list">
-                            <li class="workspace-item" onclick="openWorkspace('sandbox')">
-                                <span class="workspace-icon">📦</span>
-                                <span class="workspace-name">Sandbox</span>
-                                <span class="workspace-count">~/sandbox</span>
-                            </li>
-                            <li class="workspace-item" onclick="openWorkspace('memory')">
-                                <span class="workspace-icon">💾</span>
-                                <span class="workspace-name">Memory</span>
-                                <span class="workspace-count">~/memory</span>
-                            </li>
-                            <li class="workspace-item" onclick="openWorkspace('data')">
-                                <span class="workspace-icon">🗄️</span>
-                                <span class="workspace-name">Data</span>
-                                <span class="workspace-count">~/data</span>
-                            </li>
-                            <li class="workspace-item" onclick="openWorkspace('output')">
-                                <span class="workspace-icon">📤</span>
-                                <span class="workspace-name">Output</span>
-                                <span class="workspace-count">~/output</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Quick Status -->
-                <div class="info-panel">
-                    <div class="panel-header">⚡ Quick Status</div>
-                    <div class="panel-content">
-                        <div class="code-box">
-                            <div class="code-box-header">$ system status</div>
-                            <div class="code-line code-output" id="quick-status">
-Loading...
+                    <!-- Activity Log -->
+                    <div class="log-section">
+                        <h3>Activity Log</h3>
+                        <div class="activity-log" id="activity-log">
+                            <div class="log-entry">
+                                <span class="log-time">--:--:--</span>
+                                <span class="log-message">Dashboard initialized</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <span>⚡</span>
-                <span id="server-count">0/6 servers online</span>
-            </div>
-            <div class="status-item">
-                <span>🕐</span>
-                <span id="current-time">--:--:--</span>
-            </div>
-            <div class="status-item">
-                <span>🌀</span>
-                <span>uDOS v1.3</span>
-            </div>
-        </div>
-    </div>
     </div>
     <!-- End Desktop -->
 
@@ -1128,6 +1508,179 @@ Loading...
                 activeMenu = null;
             }
         });
+
+        // ========================================
+        // Theme Management
+        // ========================================
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            body.setAttribute('data-theme', newTheme);
+
+            // Save preference
+            localStorage.setItem('udos-theme', newTheme);
+
+            addLog(`Switched to ${newTheme} mode`, 'info');
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('udos-theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        // ========================================
+        // Screensaver System
+        // ========================================
+        let screensaverActive = false;
+        let screensaverType = null;
+        let screensaverInterval = null;
+
+        function startScreensaver(type) {
+            if (screensaverActive) {
+                stopScreensaver();
+            }
+
+            screensaverActive = true;
+            screensaverType = type;
+
+            const overlay = document.getElementById('screensaver-overlay');
+            const content = document.getElementById('screensaver-content');
+
+            overlay.classList.add('active');
+            overlay.className = `screensaver-overlay active screensaver-${type}`;
+
+            content.innerHTML = '';
+
+            switch(type) {
+                case 'starfield':
+                    initStarfield(content);
+                    break;
+                case 'matrix':
+                    initMatrix(content);
+                    break;
+                case 'pipes':
+                    initPipes(content);
+                    break;
+                case 'dvd':
+                    initDVD(content);
+                    break;
+                case 'clock':
+                    initClock(content);
+                    break;
+            }
+
+            addLog(`Started ${type} screensaver`, 'info');
+        }
+
+        function stopScreensaver() {
+            if (!screensaverActive) return;
+
+            screensaverActive = false;
+            const overlay = document.getElementById('screensaver-overlay');
+            overlay.classList.remove('active');
+
+            if (screensaverInterval) {
+                clearInterval(screensaverInterval);
+                screensaverInterval = null;
+            }
+
+            addLog(`Stopped ${screensaverType} screensaver`, 'info');
+            screensaverType = null;
+        }
+
+        function showScreensaverMenu() {
+            const screensavers = [
+                { name: 'Starfield', type: 'starfield', icon: '⭐' },
+                { name: 'Matrix Rain', type: 'matrix', icon: '🔋' },
+                { name: 'DVD Logo', type: 'dvd', icon: '📀' },
+                { name: 'Digital Clock', type: 'clock', icon: '🕐' }
+            ];
+
+            let menu = screensavers.map(s =>
+                `${s.icon} ${s.name}`
+            ).join('\\n');
+
+            const choice = prompt(`Choose a screensaver:\\n\\n${menu}\\n\\nEnter 1-4:`);
+            const index = parseInt(choice) - 1;
+
+            if (index >= 0 && index < screensavers.length) {
+                startScreensaver(screensavers[index].type);
+            }
+        }
+
+        // Screensaver Implementations
+        function initStarfield(container) {
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 3 + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function initMatrix(container) {
+            container.classList.add('matrix-rain');
+            const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+
+            for (let i = 0; i < 20; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = (i * 5) + '%';
+                column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                column.style.animationDelay = Math.random() * 2 + 's';
+
+                let text = '';
+                for (let j = 0; j < 50; j++) {
+                    text += chars[Math.floor(Math.random() * chars.length)] + '\\n';
+                }
+                column.textContent = text;
+                container.appendChild(column);
+            }
+        }
+
+        function initDVD(container) {
+            const logo = document.createElement('div');
+            logo.className = 'dvd-logo';
+            logo.textContent = 'uDOS';
+            container.appendChild(logo);
+        }
+
+        function initClock(container) {
+            container.classList.add('screensaver-clock');
+            const timeDisplay = document.createElement('div');
+            const dateDisplay = document.createElement('div');
+            dateDisplay.style.fontSize = '24px';
+            dateDisplay.style.marginTop = '20px';
+
+            container.appendChild(timeDisplay);
+            container.appendChild(dateDisplay);
+
+            screensaverInterval = setInterval(() => {
+                const now = new Date();
+                timeDisplay.textContent = now.toLocaleTimeString();
+                dateDisplay.textContent = now.toLocaleDateString();
+            }, 1000);
+        }
+
+        function initPipes(container) {
+            // Simple pipe-like animation with CSS
+            for (let i = 0; i < 10; i++) {
+                const pipe = document.createElement('div');
+                pipe.style.position = 'absolute';
+                pipe.style.width = '20px';
+                pipe.style.height = '20px';
+                pipe.style.background = '#00ff00';
+                pipe.style.left = Math.random() * 100 + '%';
+                pipe.style.top = Math.random() * 100 + '%';
+                pipe.style.animation = `dvd-bounce ${Math.random() * 5 + 3}s linear infinite`;
+                container.appendChild(pipe);
+            }
+        }
 
         // ========================================
         // Workspace Functions
@@ -1252,16 +1805,264 @@ Loading...
             }
         }
 
-        // Update metrics every second
-        setInterval(updateMetrics, 1000);
+        // ========================================
+        // Desktop Icon Management
+        // ========================================
+        let selectedIcon = null;
 
-        // Initialize
+        function handleIconClick(extensionName) {
+            // Deselect previous icon
+            if (selectedIcon) {
+                selectedIcon.classList.remove('selected');
+            }
+
+            // Select current icon
+            const icon = document.querySelector(`[data-extension="${extensionName}"]`);
+            if (icon) {
+                icon.classList.add('selected');
+                selectedIcon = icon;
+
+                // Show dashboard window with extension details
+                showDashboard();
+                addLog(`Selected ${extensionName}`, 'info');
+            }
+        }
+
+        function showDashboard() {
+            const dashboard = document.getElementById('dashboard-window');
+            if (dashboard) {
+                dashboard.style.display = 'block';
+                updateMetrics();
+            }
+        }
+
+        function closeDashboard() {
+            const dashboard = document.getElementById('dashboard-window');
+            if (dashboard) {
+                dashboard.style.display = 'none';
+            }
+
+            // Deselect all icons
+            if (selectedIcon) {
+                selectedIcon.classList.remove('selected');
+                selectedIcon = null;
+            }
+        }
+
+        function openURL(url) {
+            window.open(url, '_blank');
+            addLog(`Opened ${url}`, 'info');
+        }
+
+        // ========================================
+        // Extension Management
+        // ========================================
+        function openExtension(extension) {
+            const port = document.querySelector(`[data-extension="${extension}"]`)?.dataset.port;
+            if (port) {
+                window.open(`http://localhost:${port}`, '_blank');
+                addLog(`Opened ${extension} in browser`, 'info');
+            }
+        }
+
+        function handleExtension(extension, action) {
+            addLog(`${action} ${extension}...`, 'info');
+
+            // Simulate server actions
+            setTimeout(() => {
+                const status = document.getElementById(`status-${extension}`);
+                if (status) {
+                    if (action === 'start') {
+                        status.classList.add('online');
+                        status.classList.remove('offline');
+                        addLog(`${extension} started successfully`, 'success');
+                    } else if (action === 'stop') {
+                        status.classList.remove('online');
+                        status.classList.add('offline');
+                        addLog(`${extension} stopped`, 'info');
+                    } else if (action === 'open') {
+                        const port = document.querySelector(`[data-extension="${extension}"]`)?.dataset.port;
+                        if (port) {
+                            window.open(`http://localhost:${port}`, '_blank');
+                            addLog(`Opened ${extension} in browser`, 'info');
+                        }
+                    }
+                }
+                updateServerCount();
+            }, 500);
+        }
+
+        function startAll() {
+            const extensions = ['cmd', 'markdown-viewer', 'font-editor', 'typo', 'micro'];
+            extensions.forEach((ext, index) => {
+                setTimeout(() => handleExtension(ext, 'start'), index * 200);
+            });
+        }
+
+        function stopAll() {
+            const extensions = ['cmd', 'markdown-viewer', 'font-editor', 'typo', 'micro'];
+            extensions.forEach((ext, index) => {
+                setTimeout(() => handleExtension(ext, 'stop'), index * 200);
+            });
+        }
+
+        function updateServerCount() {
+            const onlineCount = document.querySelectorAll('.icon-status.online').length;
+            const serverCountElement = document.getElementById('server-count');
+            const metricServerElement = document.getElementById('metric-servers');
+
+            if (serverCountElement) {
+                serverCountElement.textContent = `${onlineCount}/5 servers online`;
+            }
+            if (metricServerElement) {
+                metricServerElement.textContent = `${onlineCount}/5`;
+            }
+        }
+
+        // ========================================
+        // Activity Log Management
+        // ========================================
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('activity-log');
+            if (!log) return;
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+
+            const time = document.createElement('span');
+            time.className = 'log-time';
+            time.textContent = new Date().toLocaleTimeString();
+
+            const msg = document.createElement('span');
+            msg.className = 'log-message';
+            msg.textContent = message;
+
+            entry.appendChild(time);
+            entry.appendChild(msg);
+
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+
+            // Keep only last 50 entries
+            while (log.children.length > 50) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        function clearLog() {
+            const log = document.getElementById('activity-log');
+            if (log) {
+                log.innerHTML = '';
+                addLog('Activity log cleared', 'info');
+            }
+        }
+
+        // ========================================
+        // Time Updates
+        // ========================================
+        function updateTime() {
+            const timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                timeElement.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        // ========================================
+        // Initialization and Event Listeners
+        // ========================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme
+            initializeTheme();
+
             updateMetrics();
+            updateTime();
             showSystemInfo();
-            addLog('Dashboard loaded successfully', 'success');
+            addLog('Desktop loaded successfully', 'success');
+
+            // Update metrics every second
+            setInterval(() => {
+                updateMetrics();
+                updateTime();
+            }, 1000);
+
+            // Double-click to open dashboard
+            document.addEventListener('dblclick', (e) => {
+                if (e.target.closest('.desktop') && !e.target.closest('.desktop-icon')) {
+                    showDashboard();
+                }
+            });
+
+            // Screensaver click/key handlers
+            document.getElementById('screensaver-overlay').addEventListener('click', stopScreensaver);
+        });
+
+        // ========================================
+        // Keyboard Shortcuts
+        // ========================================
+        document.addEventListener('keydown', (e) => {
+            if (e.metaKey || e.ctrlKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        refreshDashboard();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        openWorkspace('sandbox');
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        openWorkspace('memory');
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        openWorkspace('data');
+                        break;
+                    case ',':
+                        e.preventDefault();
+                        showSystemInfo();
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        toggleTheme();
+                        break;
+                }
+            }
+
+            // Escape to close dashboard or screensaver
+            if (e.key === 'Escape') {
+                if (screensaverActive) {
+                    stopScreensaver();
+                } else {
+                    closeDashboard();
+                }
+            }
+            if (e.key === 'Escape') {
+                closeDashboard();
+            }
         });
     </script>
-    <script src="js/dashboard-v12.js"></script>
+
+    <!-- Screensaver Overlay -->
+    <div id="screensaver-overlay" class="screensaver-overlay">
+        <div id="screensaver-content"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <span>🌀</span>
+            <span>uDOS v1.3</span>
+        </div>
+        <div class="status-item">
+            <span>⚡</span>
+            <span id="server-count">0/6 servers online</span>
+        </div>
+        <div class="status-item">
+            <span>🕐</span>
+            <span id="current-time">--:--:--</span>
+        </div>
+    </div>
+
 </body>
 </html>

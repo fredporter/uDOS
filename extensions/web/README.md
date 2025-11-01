@@ -1,54 +1,328 @@
-# Typo Web Editor Integration
+# uDOS Web Extensions v1.0.1
 
-Web-based markdown editor for uDOS, powered by [rossrobino/typo](https://github.com/rossrobino/typo).
+**Universal Data Operating System - Web-Based Extensions Collection**
 
-## Features
+A comprehensive suite of web-based extensions providing a nostalgic yet modern interface for the uDOS ecosystem, featuring classic Mac styling, CSS framework showcases, and integrated screensaver systems.
 
-- **Web-Based Interface**: Edit files in your browser with live preview
-- **File System API**: Modern browser API for file handling (when supported)
-- **Auto-Save**: Automatically saves changes if supported by your browser
-- **Markdown Support**: Full markdown editing with formatting
-- **Slide Mode**: Create presentations using `---` separators
-- **Code Execution**: Run JavaScript/TypeScript code blocks in-browser
-- **Print Formatting**: Print formatted markdown documents
+## 🌟 What's New in v1.0.1
 
-## Installation
+### 🎨 CSS Framework Showcase
+- **4 Retro CSS Frameworks** with live interactive demos
+- **Unified launcher** for all framework servers
+- **Complete component galleries** showcasing each framework's capabilities
 
-### Automated Setup
+### 🖥️ Desktop Interface Revolution
+- **macOS-style desktop** with icon grid layout
+- **Light/Dark mode toggle** with authentic retro styling
+- **After Dark screensaver integration** with multiple modes
+- **Real-time server monitoring** and status indicators
+
+### 🔤 Enhanced Typography
+- **VT323 chunky retro fonts** throughout all interfaces
+- **Authentic terminal aesthetic** with proper spacing and sizing
+
+## 📦 Extension Collection
+
+### 🎯 Core Extensions
+
+#### Dashboard (Port 8001)
+Modern desktop interface with classic Mac styling
+- **Features**: Desktop icons, theme switching, screensavers, activity logging
+- **Styling**: Classic Mac System 6/8.1 aesthetic with modern functionality
+- **Screensavers**: Starfield, Matrix Rain, DVD Logo, Digital Clock
+
+#### CSS Framework Showcase (Ports 8882-8885)
+Live demos of 4 retro CSS frameworks:
+- **classic.css** (8885) - Mac OS 8.1 interface components
+- **NES.css** (8884) - 8-bit Nintendo-style elements
+- **system.css** (8883) - Classic Mac System 6 styling
+- **after-dark-css** (8882) - Screensaver collection
+
+### 🛠️ Development Tools
+
+#### Terminal (Port 8890)
+Web-based terminal interface
+- **Features**: Command execution, file system access, session persistence
+- **Integration**: Direct uDOS command system access
+
+#### Markdown Viewer (Port 8889)
+Document viewer and light editor
+- **Features**: Live preview, syntax highlighting, file browser integration
+- **Formats**: Markdown, text files, documentation
+
+#### Font Editor (Port 8888)
+Bitmap font creator and editor
+- **Features**: Character mapping, font preview, multiple export formats
+- **Use Case**: Create custom fonts for retro interfaces
+
+### 🎨 External Integrations
+
+#### Typo Editor (Port 5173)
+Modern markdown editor with live preview
+- **Repository**: [rossrobino/typo](https://github.com/rossrobino/typo)
+- **Features**: Slide mode, code execution, File System API, auto-save
+- **Requirements**: Node.js v16+
+
+## 🚀 Quick Start
+
+### Automated Launch (Recommended)
 
 ```bash
-cd extensions
-./setup_typo.sh
+# Launch all CSS framework demos
+cd /Users/fredbook/Code/uDOS/extensions/web/css-frameworks
+python3 launch_all.py
+
+# Launch individual extensions
+cd /Users/fredbook/Code/uDOS/extensions/web
+python3 launch_web.py dashboard 8001
 ```
 
-The setup script will:
-1. Check for Node.js and npm
-2. Clone the typo repository
-3. Install dependencies
-4. Verify installation
-
-### Manual Setup
-
-1. Ensure Node.js (v16+) and npm are installed
-2. Clone the repository:
-   ```bash
-   mkdir -p extensions/web
-   cd extensions/web
-   git clone https://github.com/rossrobino/typo.git
-   cd typo
-   npm install
-   ```
-
-## Usage
-
-### From uDOS
-
-#### Start the Server
+### Individual Extension Setup
 
 ```bash
-🔮 server start typo
-# Opens http://localhost:5173 in your browser
+# Dashboard (main interface)
+cd dashboard && python3 -m http.server 8001
+
+# CSS Framework demos
+cd css-frameworks && python3 launch_all.py
+
+# Terminal interface
+cd terminal && python3 -m http.server 8890
+
+# Markdown viewer
+cd markdown-viewer && python3 -m http.server 8889
+
+# Font editor
+cd font-editor && python3 -m http.server 8888
 ```
+
+### Typo Editor Setup (External)
+
+```bash
+# Install Node.js dependencies
+cd /path/to/typo  # External repository
+npm install
+npm run dev  # Runs on port 5173
+```
+
+## 🎨 CSS Framework Details
+
+### classic.css - Mac OS 8.1 Styling
+- **Demo**: http://localhost:8885
+- **Features**: Authentic Mac OS 8.1 window chrome, buttons, dialogs
+- **Components**: 50+ interface elements with period-accurate styling
+- **License**: MIT - https://github.com/NigelOToole/classic.css
+
+### NES.css - 8-bit Nintendo Interface
+- **Demo**: http://localhost:8884
+- **Features**: Pixel-perfect 8-bit styling, retro gaming aesthetic
+- **Components**: Buttons, containers, dialogs with authentic NES look
+- **License**: MIT - https://github.com/nostalgic-css/NES.css
+
+### system.css - Classic Mac System 6
+- **Demo**: http://localhost:8883
+- **Features**: Early Mac interface with file manager aesthetics
+- **Components**: Clean, minimal styling with authentic Mac feel
+- **License**: MIT - https://github.com/sakofchit/system.css
+
+### after-dark-css - Screensaver Collection
+- **Demo**: http://localhost:8882
+- **Features**: 8 different CSS-based screensaver modes
+- **Integration**: Full screensaver system in main dashboard
+- **License**: MIT - https://github.com/bryanbraun/after-dark-css
+
+## 🖥️ Dashboard Features
+
+### Desktop Interface
+- **Icon Grid Layout**: Clean 6-column desktop with proper spacing
+- **Status Indicators**: Real-time server status on each icon
+- **Color-Coded Folders**: Visual organization (Sandbox=yellow, Memory=green, etc.)
+- **Double-Click Actions**: Open applications or dashboard
+
+### Theme System
+- **Light Mode**: Classic Mac gray (#c0c0c0) with dot pattern background
+- **Dark Mode**: Terminal green (#00ff00) on black with retro aesthetics
+- **Toggle**: 🌓 button in menu bar or `⌘T` keyboard shortcut
+- **Persistence**: Theme preference saved across sessions
+
+### Screensaver Integration
+- **Starfield**: Animated twinkling stars across the screen
+- **Matrix Rain**: Falling green characters in authentic Matrix style
+- **DVD Logo**: Bouncing uDOS logo with color changes
+- **Digital Clock**: Retro terminal-style clock display
+- **Controls**: Launch from View menu or 🌌 desktop icon, exit with ESC
+
+### Activity System
+- **Real-Time Logging**: Timestamped activity entries
+- **Server Monitoring**: Live status updates for all extensions
+- **Performance Metrics**: Memory usage, uptime, request counts
+
+## ⌨️ Keyboard Shortcuts
+
+### Global Shortcuts
+- `⌘T` - Toggle Light/Dark Mode
+- `⌘R` - Refresh Dashboard
+- `⌘S` - Open Sandbox Workspace
+- `⌘M` - Open Memory Workspace
+- `⌘D` - Open Data Workspace
+- `⌘,` - System Preferences
+- `ESC` - Exit Screensaver or Close Dashboard
+
+### Screensaver Controls
+- `ESC` - Exit current screensaver
+- Click anywhere - Exit screensaver
+- View Menu - Access all screensaver modes
+
+## 🔧 Technical Architecture
+
+### Dependencies
+- **Python 3.8+** - HTTP servers and launch scripts
+- **Node.js 16+** - Typo editor (external)
+- **Modern Browser** - Chrome, Firefox, Safari (current versions)
+
+### Port Allocation
+- **8001** - Main Dashboard Interface
+- **8882** - After Dark CSS Demo
+- **8883** - System.css Demo
+- **8884** - NES.css Demo
+- **8885** - Classic.css Demo
+- **8888** - Font Editor
+- **8889** - Markdown Viewer
+- **8890** - Terminal Interface
+- **5173** - Typo Editor (external)
+
+### File Structure
+```
+extensions/web/
+├── version-manifest.json     # Version tracking and feature manifest
+├── CHANGELOG-v1.0.1.md      # Detailed release notes
+├── dashboard/               # Main desktop interface
+├── css-frameworks/          # CSS framework showcase
+│   ├── launch_all.py       # Unified launcher
+│   ├── classic-demo/       # Mac OS 8.1 demo
+│   ├── nes-demo/           # Nintendo 8-bit demo
+│   ├── system-demo/        # System 6 demo
+│   └── afterdark-demo/     # Screensaver demo
+├── terminal/               # Web terminal
+├── markdown-viewer/        # Document viewer
+├── font-editor/           # Bitmap font editor
+└── shared/                # Common resources
+    ├── classic.css        # Shared styling
+    ├── fonts/            # Font collection
+    └── icons/           # Desktop icons
+```
+
+## 🎯 Use Cases
+
+### Development Environment
+- **Live CSS Testing** - Preview framework styling in real-time
+- **Documentation Writing** - Markdown editing with live preview
+- **Font Creation** - Design bitmap fonts for retro projects
+- **Terminal Access** - Web-based command line interface
+
+### Nostalgic Computing Experience
+- **Authentic Retro Feel** - Period-accurate interface styling
+- **Screensaver Nostalgia** - Classic computer screensaver modes
+- **Typography** - Chunky bitmap fonts and authentic spacing
+- **Desktop Metaphor** - Familiar icon-based desktop interaction
+
+### Educational & Reference
+- **CSS Framework Gallery** - Learn from well-designed retro frameworks
+- **Interface Design History** - Experience different UI paradigms
+- **Web Technology Showcase** - Modern web tech with retro aesthetics
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Port Conflicts**
+```bash
+# Check for running servers
+lsof -i :8001  # Replace with specific port
+
+# Kill existing process
+kill -9 PID_NUMBER
+```
+
+**Missing Dependencies**
+```bash
+# Ensure Python 3.8+
+python3 --version
+
+# For Typo editor - ensure Node.js 16+
+node --version
+npm --version
+```
+
+**Theme Not Persisting**
+- Check browser localStorage permissions
+- Ensure JavaScript is enabled
+- Clear browser cache if needed
+
+**Screensavers Not Working**
+- Verify modern browser (Chrome/Firefox/Safari current)
+- Check JavaScript console for errors
+- Ensure CSS animations are enabled
+
+### Performance Optimization
+
+**Memory Usage**
+- Close unused browser tabs
+- Restart servers periodically for long sessions
+- Monitor system resources with Activity Monitor
+
+**Loading Speed**
+- Use local network (avoid VPN for localhost)
+- Clear browser cache periodically
+- Ensure adequate disk space
+
+## 📚 Documentation
+
+### Framework Documentation
+- [classic.css Documentation](https://github.com/NigelOToole/classic.css)
+- [NES.css Documentation](https://github.com/nostalgic-css/NES.css)
+- [system.css Documentation](https://github.com/sakofchit/system.css)
+- [after-dark-css Documentation](https://github.com/bryanbraun/after-dark-css)
+- [Typo Editor Documentation](https://github.com/rossrobino/typo)
+
+### uDOS Integration
+- See main uDOS documentation for server management
+- Extension commands available through uDOS command system
+- Workspace integration with main uDOS file structure
+
+## 🤝 Contributing
+
+### Adding New CSS Frameworks
+1. Create demo directory in `css-frameworks/`
+2. Add framework showcase HTML
+3. Update `launch_all.py` with new port
+4. Add framework to `version-manifest.json`
+5. Update documentation
+
+### Enhancing Existing Extensions
+1. Fork the repository
+2. Make changes in appropriate extension directory
+3. Test all functionality
+4. Update version numbers and changelog
+5. Submit pull request with detailed description
+
+## � License & Attribution
+
+**uDOS Web Extensions**: MIT License
+
+**Third-Party Frameworks**:
+- classic.css - MIT License
+- NES.css - MIT License
+- system.css - MIT License
+- after-dark-css - MIT License
+- Typo Editor - MIT License
+- VT323 Font - SIL Open Font License
+
+See `version-manifest.json` for complete attribution details.
+
+---
+
+**uDOS Web Extensions v1.0.1** - Bringing the golden age of computing to the modern web with authentic styling, rich functionality, and nostalgic charm. 🖥️✨
 
 **Options:**
 - `--port <number>`: Use a different port
