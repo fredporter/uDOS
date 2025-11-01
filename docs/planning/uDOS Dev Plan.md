@@ -8,24 +8,9 @@ health check
 viewport/status check on reboot/startup ascii block splash
 CLI file chooser
 smart input within cli constraints
-micro editor extenstion
 
-Updated sdirectory tructure
-/core
-/data
-/memory
-/knowledge
-/sandbox
-/wiki
-/extensions - instructions and scripts for github cloning extensions
-/extensions/clone folder - strictly for github repo cloning *keep seperate, add .gitignore
-/extensions/web - all new and modified code for extenstions, distributed with uDOS
-LIBRARY.UDO - a list of extensions, resources and credits
-CREDIT.UDO - list of legal ackowledgements and creidts 
+Rust Server HTTP port
 
-Server ports
-A universal way to serve web extensions
-Auto open/kill and error management
 Roadmap
 web extensions and uDOS installations could be shared by URL
 css styles

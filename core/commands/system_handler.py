@@ -1050,38 +1050,362 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         Review and clean sandbox files.
 
-        TODO: Move this logic from uDOS_commands.py
+        Scans sandbox directory for files and provides options to:
+        - Review files before cleanup
+        - Move files to memory/ for permanent storage
+        - Delete temporary files
+        - Generate cleanup summary
         """
-        return "CLEAN command - to be refactored"
+        from pathlib import Path
+        import shutil
+
+        try:
+            sandbox_path = Path('sandbox')
+            if not sandbox_path.exists():
+                return "📁 Sandbox directory not found"
+
+            # Scan sandbox files
+            files = list(sandbox_path.rglob('*'))
+            files = [f for f in files if f.is_file() and not f.name.startswith('.')]
+
+            if not files:
+                return ("✨ Sandbox is already clean!\n\n"
+                       "📂 Sandbox directory exists but contains no files to review.")
+
+            # Build output
+            output = []
+            output.append("🧹 SANDBOX CLEANUP REVIEW")
+            output.append("=" * 60)
+            output.append(f"📁 Location: {sandbox_path.absolute()}")
+            output.append(f"📊 Files found: {len(files)}")
+            output.append("")
+
+            # Categorize files
+            categories = {
+                "🗒️  Text Files": ['.txt', '.md', '.log'],
+                "⚙️  Config Files": ['.json', '.yaml', '.yml', '.ini', '.env'],
+                "📜 Scripts": ['.py', '.sh', '.uscript', '.udo'],
+                "📊 Data Files": ['.csv', '.xml', '.sql'],
+                "🎨 Media": ['.png', '.jpg', '.gif', '.svg'],
+                "📋 Other": []
+            }
+
+            # Categorize files
+            categorized = {cat: [] for cat in categories}
+            for file in files:
+                ext = file.suffix.lower()
+                placed = False
+                for category, extensions in categories.items():
+                    if ext in extensions:
+                        categorized[category].append(file)
+                        placed = True
+                        break
+                if not placed:
+                    categorized["📋 Other"].append(file)
+
+            # Show categorized files
+            total_size = 0
+            for category, file_list in categorized.items():
+                if file_list:
+                    output.append(f"{category}:")
+                    output.append("-" * 40)
+                    for file in file_list:
+                        size = file.stat().st_size
+                        total_size += size
+                        size_str = f"{size:,} bytes" if size < 1024 else f"{size//1024} KB"
+                        relative_path = file.relative_to(sandbox_path)
+                        output.append(f"  📄 {relative_path} ({size_str})")
+                    output.append("")
+
+            # Summary
+            output.append("📊 CLEANUP SUMMARY")
+            output.append("-" * 40)
+            output.append(f"Total files: {len(files)}")
+            output.append(f"Total size: {total_size:,} bytes ({total_size//1024} KB)")
+            output.append("")
+
+            # Recommendations
+            output.append("💡 CLEANUP OPTIONS")
+            output.append("-" * 40)
+            output.append("To clean up files:")
+            output.append("  1. Review files manually in sandbox/")
+            output.append("  2. Move important files to memory/ folder")
+            output.append("  3. Delete temporary/test files")
+            output.append("")
+            output.append("Quick commands:")
+            output.append("  mv sandbox/important.txt memory/")
+            output.append("  rm sandbox/temp_*.log")
+            output.append("  rm sandbox/*.tmp")
+            output.append("")
+            output.append("⚠️  Note: CLEAN command reviews only - no automatic deletion")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Failed to scan sandbox: {str(e)}"
 
     def handle_config(self, params, grid, parser):
         """
         Manage .env configuration.
 
-        TODO: Move this logic from uDOS_commands.py
+        Shows current environment variables and provides options to modify them.
         """
-        return "CONFIG command - to be refactored"
+        from pathlib import Path
+        import os
+
+        try:
+            env_file = Path('.env')
+            env_example = Path('.env.example')
+
+            output = []
+            output.append("⚙️  ENVIRONMENT CONFIGURATION")
+            output.append("=" * 60)
+
+            # Check if .env exists
+            if env_file.exists():
+                output.append("✅ Configuration file found: .env")
+                output.append("")
+
+                # Read and display .env (without sensitive values)
+                output.append("📋 CURRENT CONFIGURATION:")
+                output.append("-" * 40)
+
+                try:
+                    with open(env_file, 'r') as f:
+                        lines = f.readlines()
+
+                    for line in lines:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            if '=' in line:
+                                key, value = line.split('=', 1)
+                                # Hide sensitive values
+                                if any(sensitive in key.upper() for sensitive in ['KEY', 'SECRET', 'PASSWORD', 'TOKEN']):
+                                    value = '***HIDDEN***'
+                                output.append(f"  {key}={value}")
+                            else:
+                                output.append(f"  {line}")
+                        elif line.startswith('#'):
+                            output.append(f"  {line}")
+                except Exception as e:
+                    output.append(f"⚠️  Error reading .env: {str(e)}")
+
+            else:
+                output.append("⚠️  No .env file found")
+                if env_example.exists():
+                    output.append("💡 Found .env.example - you can copy it to .env")
+                    output.append("")
+                    output.append("To create .env:")
+                    output.append("  cp .env.example .env")
+                    output.append("  # Then edit .env with your values")
+                else:
+                    output.append("💡 No .env.example found either")
+
+            output.append("")
+            output.append("🔧 CONFIGURATION MANAGEMENT:")
+            output.append("-" * 40)
+            output.append("Edit configuration:")
+            output.append("  EDIT .env")
+            output.append("")
+            output.append("Common variables:")
+            output.append("  GEMINI_API_KEY=your_key_here")
+            output.append("  UDOS_THEME=dungeon")
+            output.append("  UDOS_DEBUG=false")
+            output.append("")
+            output.append("⚠️  Restart uDOS after changing configuration")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Failed to read configuration: {str(e)}"
 
     def handle_settings(self, params, grid, parser):
         """
         Manage user settings.
 
-        TODO: Move this logic from uDOS_commands.py
+        Shows current user settings from USER.UDO and provides management options.
         """
-        return "SETTINGS command - to be refactored"
+        from pathlib import Path
+        import json
+
+        try:
+            user_file = Path('sandbox/USER.UDO')
+            template_file = Path('data/templates/user.template.json')
+
+            output = []
+            output.append("👤 USER SETTINGS")
+            output.append("=" * 60)
+
+            if user_file.exists():
+                output.append("✅ User profile found: sandbox/USER.UDO")
+                output.append("")
+
+                try:
+                    with open(user_file, 'r') as f:
+                        user_data = json.load(f)
+
+                    output.append("📋 CURRENT SETTINGS:")
+                    output.append("-" * 40)
+
+                    # Display user info
+                    user_info = user_data.get('USER', {})
+                    output.append("Personal Information:")
+                    output.append(f"  Name: {user_info.get('NAME', 'Not set')}")
+                    output.append(f"  Location: {user_info.get('LOCATION', 'Not set')}")
+                    output.append(f"  Timezone: {user_info.get('TIMEZONE', 'Not set')}")
+                    output.append(f"  Project: {user_info.get('PROJECT', 'Not set')}")
+                    output.append("")
+
+                    # Display session settings
+                    session_info = user_data.get('SESSION', {})
+                    output.append("Session Settings:")
+                    output.append(f"  Mode: {session_info.get('MODE', 'STANDARD')}")
+                    output.append(f"  Theme: {session_info.get('THEME', 'dungeon')}")
+                    output.append(f"  Language: {session_info.get('LANGUAGE', 'EN')}")
+                    output.append("")
+
+                    # Display preferences
+                    prefs = user_data.get('PREFERENCES', {})
+                    output.append("Preferences:")
+                    output.append(f"  Auto-save: {prefs.get('AUTO_SAVE', True)}")
+                    output.append(f"  Confirmations: {prefs.get('CONFIRMATIONS', True)}")
+                    output.append(f"  Color mode: {prefs.get('COLOR_MODE', 'AUTO')}")
+
+                except json.JSONDecodeError:
+                    output.append("⚠️  Error: USER.UDO is not valid JSON")
+                except Exception as e:
+                    output.append(f"⚠️  Error reading settings: {str(e)}")
+
+            else:
+                output.append("⚠️  No user profile found")
+                if template_file.exists():
+                    output.append("💡 Template available - run SETUP to create profile")
+                else:
+                    output.append("⚠️  No template found either")
+
+            output.append("")
+            output.append("🔧 SETTINGS MANAGEMENT:")
+            output.append("-" * 40)
+            output.append("Create/update settings:")
+            output.append("  SETUP                    # Interactive setup wizard")
+            output.append("  EDIT sandbox/USER.UDO    # Direct editing")
+            output.append("")
+            output.append("Reset to defaults:")
+            output.append("  rm sandbox/USER.UDO && SETUP")
+            output.append("")
+            output.append("Backup settings:")
+            output.append("  cp sandbox/USER.UDO memory/USER_backup.json")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Failed to read settings: {str(e)}"
 
     def handle_setup(self, params, grid, parser):
         """
-        Run user setup script.
+        Run interactive user setup script.
 
-        TODO: Move this logic from uDOS_commands.py
+        Executes the setup script to configure user profile and preferences.
         """
-        return "SETUP command - to be refactored"
+        try:
+            setup_script = Path('examples/simple-setup.uscript')
+
+            if not setup_script.exists():
+                return ("⚠️  Setup script not found\n\n"
+                       "Expected: examples/simple-setup.uscript\n"
+                       "This should contain the interactive setup logic.\n\n"
+                       "For now, you can manually create sandbox/USER.UDO\n"
+                       "using data/templates/user.template.json as a guide.")
+
+            output = []
+            output.append("🚀 UDOS SETUP WIZARD")
+            output.append("=" * 60)
+            output.append("Starting interactive setup...")
+            output.append("")
+            output.append("💡 Setup will:")
+            output.append("  1. Create/update your user profile")
+            output.append("  2. Configure preferences")
+            output.append("  3. Set up workspace folders")
+            output.append("  4. Validate system requirements")
+            output.append("")
+            output.append("🎯 To run setup manually:")
+            output.append(f"  RUN {setup_script}")
+            output.append("")
+            output.append("Or run the full setup script now...")
+
+            # For now, just provide instructions
+            # TODO: Integrate with ucode parser to actually run the script
+            output.append("")
+            output.append("⚠️  Note: Full setup integration pending")
+            output.append("Use: RUN examples/simple-setup.uscript")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Setup failed: {str(e)}"
 
     def handle_workspace(self, params, grid, parser):
         """
-        Manage workspaces.
+        Manage workspace directories.
 
-        TODO: Move this logic from uDOS_commands.py
+        Shows current workspace status and provides management options.
         """
-        return "WORKSPACE command - to be refactored"
+        from pathlib import Path
+
+        try:
+            output = []
+            output.append("📁 WORKSPACE MANAGEMENT")
+            output.append("=" * 60)
+
+            # Define workspace directories
+            workspaces = {
+                'sandbox': 'Temporary work area (not tracked in git)',
+                'memory': 'Permanent storage for completed work',
+                'knowledge': 'Documentation and learning materials',
+                'output': 'Generated files and exports',
+                'examples': 'Sample scripts and templates'
+            }
+
+            output.append("📊 WORKSPACE STATUS:")
+            output.append("-" * 40)
+
+            for workspace, description in workspaces.items():
+                path = Path(workspace)
+                if path.exists():
+                    files = list(path.rglob('*'))
+                    file_count = len([f for f in files if f.is_file()])
+                    dir_count = len([f for f in files if f.is_dir()])
+                    status = f"✅ {file_count} files, {dir_count} dirs"
+                else:
+                    status = "❌ Not found"
+
+                output.append(f"  {workspace:12} {status}")
+                output.append(f"               {description}")
+                output.append("")
+
+            # Current working directory
+            output.append("📍 CURRENT LOCATION:")
+            output.append("-" * 40)
+            output.append(f"Working directory: {Path.cwd()}")
+            output.append("")
+
+            output.append("🔧 WORKSPACE COMMANDS:")
+            output.append("-" * 40)
+            output.append("Navigate workspaces:")
+            output.append("  SHOW sandbox      # List sandbox files")
+            output.append("  SHOW memory       # List memory files")
+            output.append("  TREE sandbox      # Show sandbox structure")
+            output.append("")
+            output.append("Manage files:")
+            output.append("  COPY sandbox/file.txt memory/")
+            output.append("  MOVE sandbox/temp.log output/")
+            output.append("  DELETE sandbox/old.txt")
+            output.append("")
+            output.append("Create directories:")
+            output.append("  mkdir memory/projects")
+            output.append("  mkdir sandbox/temp")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Workspace analysis failed: {str(e)}"
