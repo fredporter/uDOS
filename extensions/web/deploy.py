@@ -58,7 +58,8 @@ class WebExtensionManager:
                 "dashboard": {"port": 8001, "path": "dashboard"},
                 "terminal": {"port": 8890, "path": "terminal"},
                 "markdown-viewer": {"port": 8889, "path": "markdown-viewer"},
-                "font-editor": {"port": 8888, "path": "font-editor"}
+                "font-editor": {"port": 8888, "path": "font-editor"},
+                "classicy-desktop": {"port": 3000, "path": "classicy-desktop/dist", "framework": "node"}
             }
         }
 

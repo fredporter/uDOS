@@ -38,7 +38,7 @@ check_python() {
 main() {
     print_banner
     check_python
-    
+
     # Pass all arguments to the Python script
     cd "$SCRIPT_DIR"
     python3 deploy.py "$@"

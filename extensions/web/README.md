@@ -6,8 +6,15 @@ A comprehensive suite of web-based extensions providing a nostalgic yet modern i
 
 ## 🌟 What's New in v1.0.1
 
+### 🖥️ Classicy Desktop Integration (NEW!)
+- **Complete Mac OS 8 Environment** - Full React/TypeScript desktop interface
+- **Authentic Finder** - File manager with classic Mac OS navigation
+- **Window Management** - Resizable, movable windows with authentic controls
+- **React Component Library** - 20+ authentic Mac OS UI components
+- **Sound System** - Authentic Platinum audio with Howler.js integration
+
 ### 🎨 CSS Framework Showcase
-- **4 Retro CSS Frameworks** with live interactive demos
+- **5 Retro CSS Frameworks** with live interactive demos
 - **Unified launcher** for all framework servers
 - **Complete component galleries** showcasing each framework's capabilities
 
@@ -19,9 +26,7 @@ A comprehensive suite of web-based extensions providing a nostalgic yet modern i
 
 ### 🔤 Enhanced Typography
 - **VT323 chunky retro fonts** throughout all interfaces
-- **Authentic terminal aesthetic** with proper spacing and sizing
-
-## 📦 Extension Collection
+- **Authentic terminal aesthetic** with proper spacing and sizing## 📦 Extension Collection
 
 ### 🎯 Core Extensions
 
@@ -30,6 +35,13 @@ Modern desktop interface with classic Mac styling
 - **Features**: Desktop icons, theme switching, screensavers, activity logging
 - **Styling**: Classic Mac System 6/8.1 aesthetic with modern functionality
 - **Screensavers**: Starfield, Matrix Rain, DVD Logo, Digital Clock
+
+#### Classicy Desktop (Port 3000) ⭐ NEW!
+Complete Mac OS 8 desktop environment built with React/TypeScript
+- **Features**: Authentic Finder interface, window management, complete Mac OS UI
+- **Technology**: React 19, TypeScript, Webpack, SCSS/Sass, Howler.js audio
+- **Components**: 20+ authentic Mac OS UI components, drag-and-drop windows
+- **Experience**: Full classic Mac computing environment with modern performance
 
 #### CSS Framework Showcase (Ports 8882-8885)
 Live demos of 4 retro CSS frameworks:
@@ -71,6 +83,10 @@ Modern markdown editor with live preview
 # Launch all CSS framework demos
 cd /Users/fredbook/Code/uDOS/extensions/web/css-frameworks
 python3 launch_all.py
+
+# Launch Classicy Desktop (React-based Mac OS 8)
+cd /Users/fredbook/Code/uDOS/extensions/web
+python3 classicy-launcher.py
 
 # Launch individual extensions
 cd /Users/fredbook/Code/uDOS/extensions/web

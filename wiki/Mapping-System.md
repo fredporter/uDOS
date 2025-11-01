@@ -3,7 +3,17 @@
 
 ### Overview
 
-The uDOS Mapping System provides a multi-layered grid-based navigation framework inspired by NetHack dungeon levels, integrated with real-world geographic locations. It allows users to navigate through virtual layers (dungeons, cloud networks, satellite views) while maintaining a connection to actual physical locations.
+The uDOS Mapping System provides a multi-layered grid-based navigation framework with advanced visualization capabilities. Originally inspired by NetHack dungeon levels, it now integrates real-world geographic locations with modern features including:
+
+- **TIZO Cell Grid System** (A1-RL270 addressing)
+- **Teletext Mosaic Visualization** (64 block art characters)
+- **Web Extension Interface** (Interactive teletext maps)
+- **Real-World Geographic Integration** (20+ TIZO cities)
+- **Multi-Layer Navigation** (Surface, Cloud, Satellite, Dungeons)
+
+**Version History:**
+- v1.0.3: TIZO cell system, enhanced navigation commands
+- v1.0.4: Teletext rendering, web extension, mosaic block art
 
 ---
 
@@ -11,29 +21,61 @@ The uDOS Mapping System provides a multi-layered grid-based navigation framework
 
 ### Core Components
 
-1. **MapEngine** (`uDOS_map.py`)
-   - Multi-layer map management
-   - Position tracking
+1. **MapEngine** (`core/services/map_engine.py`)
+   - TIZO cell grid management (A1-RL270 system)
+   - Multi-layer map coordination
    - Real-world location integration
-   - NetHack-style layer transitions
+   - Position tracking and navigation
 
-2. **MapLayer** Class
+2. **TeletextMosaicRenderer** (`core/services/teletext_renderer.py`)
+   - 64 mosaic character generation (2×3 pixel patterns)
+   - World Space Television (WST) color palette
+   - ASCII-to-mosaic conversion algorithms
+   - HTML output with teletext styling
+
+3. **TeletextWebExtension** (`extensions/web/teletext_extension.py`)
+   - Standalone HTTP server (localhost:8080)
+   - Interactive web interface for teletext maps
+   - Mobile-responsive design with touch controls
+   - Export functionality (PNG, HTML)
+
+4. **MapLayer** Class
    - Individual layer representation
-   - Grid cell storage
-   - Metadata (connections, accessibility)
-   - Visit tracking
+   - Grid cell storage and metadata
+   - Layer connections and accessibility
+   - Visit tracking and state management
 
-3. **WorldLocation** Class
-   - Real-world geographic data
-   - Timezone information
-   - Coordinate mapping (lat/lon to grid)
+5. **WorldLocation** Class
+   - Real-world geographic data (TIZO cities)
+   - Coordinate mapping (lat/lon to cell references)
+   - Timezone and connection quality information
 
-4. **WORLDMAP.UDO** Dataset
-   - Timezones (15 major zones)
-   - Continents (7 regions)
-   - Countries (10+ nations)
-   - Cities (10 major metros with coordinates)
-   - Virtual layer definitions
+---
+
+## TIZO Cell Grid System
+
+### Cell Reference Format
+
+The TIZO system uses A1-RL270 format for global addressing:
+- **Columns**: A-RL (484 columns, ~74km each)
+- **Rows**: 1-270 (270 rows, ~74km each)
+- **Coverage**: Global grid covering entire Earth surface
+- **Cell Size**: Approximately 74km × 74km each
+
+### Examples
+```
+JN196    # Melbourne, Australia cell
+JV189    # Sydney, Australia cell
+CB54     # London, UK cell
+FD142    # New York, USA cell
+```
+
+### Coordinate Mapping
+
+Cell centers map to latitude/longitude:
+- **Latitude Range**: +85° to -85° (170° total)
+- **Longitude Range**: -180° to +180° (360° total)
+- **Cell Resolution**: ~0.63° per cell (~74km at equator)
 
 ---
 
@@ -42,8 +84,8 @@ The uDOS Mapping System provides a multi-layered grid-based navigation framework
 ### Default Layers (by depth)
 
 #### Sky/Virtual Layers (Positive Depth)
-- **SATELLITE** (depth: +100) - Satellite data network
-- **CLOUD** (depth: +10) - Cloud computing layer
+- **SATELLITE-OC** (depth: +100) - Oceania satellite network
+- **CLOUD-OC** (depth: +10) - Oceania cloud computing layer
 
 #### Surface Layer (Zero Depth)
 - **SURFACE** (depth: 0) - Physical world representation
@@ -61,7 +103,7 @@ Each layer has:
 - **Name**: Human-readable identifier
 - **Depth**: Vertical position (0=surface, -=underground, +=sky)
 - **Type**: PHYSICAL, VIRTUAL, or HYBRID
-- **Grid**: Dictionary of (x,y) coordinates → cell data
+- **Grid**: Dictionary of cell references → cell data
 - **Metadata**:
   - Created timestamp
   - Description
@@ -70,77 +112,194 @@ Each layer has:
 
 ---
 
+## Teletext Visualization System
+
+### Mosaic Character Set
+
+The teletext renderer implements 64 unique mosaic characters:
+- **Pattern**: 2×3 pixel grid per character
+- **Encoding**: 6-bit pattern (0-63 decimal)
+- **Style**: Classic teletext block art aesthetic
+
+### Character Examples
+```
+█  ▀  ▄  ▌  ▐  ▗  ▖  ▘  ▝  ▞  ▚  ▟  ▙  ▛  ▜
+```
+
+### WST Color Palette
+
+8-color World Space Television standard:
+- **Black** (#000000)
+- **Red** (#FF0000)
+- **Green** (#00FF00)
+- **Yellow** (#FFFF00)
+- **Blue** (#0000FF)
+- **Magenta** (#FF00FF)
+- **Cyan** (#00FFFF)
+- **White** (#FFFFFF)
+
+### HTML Output Features
+
+Generated teletext maps include:
+- **Pixel-perfect character rendering** (CSS with exact fonts)
+- **WST color palette styling** (background and foreground)
+- **Mobile-responsive design** (touch-optimized controls)
+- **Export functionality** (PNG image, HTML download)
+- **Interactive controls** (zoom, pan, layer switching)
+
+---
+
 ## Commands
 
-### Core Navigation Commands
+### Enhanced Navigation Commands (v1.0.3+)
 
-#### MAP [STATUS|VIEW|LAYER]
-Display current position, layer info, or ASCII map
-```
-MAP STATUS    # Show detailed position info
-MAP VIEW      # Display ASCII map of current area
-MAP           # Alias for MAP STATUS
+#### MAP STATUS
+Display current location and system status
+```bash
+MAP STATUS           # Show detailed position info with TIZO cell
 ```
 
-#### GOTO <x> <y>
-Teleport to specific coordinates on current layer
+**Output Example:**
 ```
-GOTO 100 50   # Jump to position (100, 50)
-GOTO -20 30   # Negative coordinates supported
-```
-
-#### MOVE <dx> <dy>
-Move relative to current position
-```
-MOVE 5 0      # Move 5 units east
-MOVE 0 -3     # Move 3 units south
-MOVE -2 2     # Move 2 west, 2 north
+🗺️  Map Status
+==============================
+Current Location: Melbourne, Australia
+TIZO Code: MEL
+Cell Reference: JN196
+Coordinates: -37.81°, 144.96°
+Timezone: AEST (+10:00)
+Accessible Layers: SURFACE, CLOUD-OC, SATELLITE-OC, DUNGEON-1
 ```
 
-#### LAYER [name]
-Switch to different layer or list available layers
-```
-LAYER              # List all accessible layers
-LAYER CLOUD        # Switch to cloud layer
-LAYER DUNGEON-1    # Enter first dungeon level
-```
-
-#### DESCEND
-Move down one layer (NetHack `>` command)
-```
-DESCEND            # Go to next lower connected layer
+#### MAP VIEW [width] [height]
+Generate ASCII map of current area
+```bash
+MAP VIEW             # Default 40×20 ASCII map
+MAP VIEW 60 30       # Custom size ASCII map
 ```
 
-#### ASCEND
-Move up one layer (NetHack `<` command)
-```
-ASCEND             # Return to next higher connected layer
-```
-
-#### LOCATE <city>
-Set real-world location to a major city
-```
-LOCATE Tokyo       # Set location to Tokyo, Japan
-LOCATE "New York"  # Use quotes for multi-word cities
+#### MAP CITIES [cell] [radius]
+List cities globally or in a region
+```bash
+MAP CITIES           # List all TIZO cities
+MAP CITIES JN196 5   # Cities within 5 cells of JN196
 ```
 
-#### WHERE
-Alias for MAP STATUS
-```
-WHERE              # Show current location
+#### MAP CELL <cell_reference>
+Get detailed information about a specific cell
+```bash
+MAP CELL JN196       # Information about Melbourne cell
+MAP CELL CB54        # Information about London cell
 ```
 
-### Themed Command Aliases (DUNGEON_CRAWLER)
+#### MAP NAVIGATE <from> <to>
+Calculate navigation between locations
+```bash
+MAP NAVIGATE MEL SYD # Navigate Melbourne to Sydney
+MAP NAVIGATE JN196 JV189  # Navigate by cell reference
+```
 
-From LEXICON.UDO:
-- `CHART` → MAP
-- `SURVEY` → WHERE
-- `REALM` → LAYER
-- `DELVE` → DESCEND
-- `CLIMB` → ASCEND
-- `TELEPORT` → GOTO
-- `WALK` → MOVE
-- `ANCHOR` → LOCATE
+#### MAP LOCATE <tizo_code>
+Set location to a TIZO city
+```bash
+MAP LOCATE MEL       # Move to Melbourne
+MAP LOCATE LON       # Move to London
+MAP LOCATE NYC       # Move to New York
+```
+
+#### MAP GOTO <cell_reference|lat lon>
+Move to specific coordinates or cell
+```bash
+MAP GOTO JN196       # Go to specific cell
+MAP GOTO -37.81 144.96  # Go to coordinates
+```
+
+#### MAP LAYERS
+Show accessible layers from current location
+```bash
+MAP LAYERS           # List available layers and connection quality
+```
+
+### Teletext Visualization Commands (v1.0.4+)
+
+#### MAP TELETEXT [width] [height]
+Generate teletext-style map with mosaic block art
+```bash
+MAP TELETEXT         # Default 40×20 teletext map
+MAP TELETEXT 60 30   # Custom size teletext map
+```
+
+**Output Example:**
+```
+🖥️  Teletext Map Generated
+===================================
+Location: Melbourne, Australia
+Cell: JN196
+Size: 40×20 characters
+Style: Mosaic block art
+
+📄 File saved: output/teletext/udos_teletext_map_20251102_032408.html
+🌐 Open in web browser to view
+💡 Use MAP WEB to start local server
+```
+
+#### MAP WEB [server]
+Open teletext maps in browser or start web server
+```bash
+MAP WEB              # Open latest teletext map in browser
+MAP WEB SERVER       # Start HTTP server at localhost:8080
+```
+
+**Server Mode Features:**
+- **Interactive Interface**: Zoom, pan, layer controls
+- **Mobile Support**: Touch-optimized responsive design
+- **Export Options**: PNG image, HTML download
+- **Real-time Updates**: Live map generation and display
+- **Multi-map Access**: All generated teletext maps available
+
+---
+
+## TIZO City Network
+
+### Supported Cities (20 Total)
+
+**Oceania:**
+- MEL: Melbourne, Australia (JN196)
+- SYD: Sydney, Australia (JV189)
+- AKL: Auckland, New Zealand (LB194)
+
+**Asia:**
+- TYO: Tokyo, Japan (IB172)
+- BJS: Beijing, China (IB72)
+- HKG: Hong Kong (HV105)
+- SIN: Singapore (GD89)
+- BOM: Mumbai, India (FV105)
+- DEL: Delhi, India (FE89)
+
+**Europe:**
+- LON: London, UK (CB54)
+- BER: Berlin, Germany (CT52)
+- FRA: Frankfurt, Germany (CS52)
+- MOS: Moscow, Russia (DK41)
+
+**Middle East/Africa:**
+- DXB: Dubai, UAE (EW78)
+- JNB: Johannesburg, South Africa (CD241)
+
+**Americas:**
+- NYC: New York, USA (FD142)
+- LA: Los Angeles, USA (BD158)
+- SFO: San Francisco, USA (BC149)
+- TOR: Toronto, Canada (FE123)
+- VAN: Vancouver, Canada (BD125)
+
+### Connection Quality
+
+Each city has region-specific connection speeds:
+- **NATIVE**: Local region (fastest)
+- **FAST**: Adjacent regions
+- **STANDARD**: Distant regions
+- **SLOW**: Antipodal regions
 
 ---
 

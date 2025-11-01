@@ -92,7 +92,7 @@
       "NAME": "SHOW",
       "SYNTAX": "SHOW [file_path]",
       "DESCRIPTION": "Display file contents in terminal or browser. Opens file picker if no path provided. Limited to sandbox/ and memory/ directories.",
-      "UCODE_TEMPLATE": "[SYSTEM|SHOW*$1]",
+      "UCODE_TEMPLATE": "[FILE|SHOW*$1]",
       "DEFAULT_PARAMS": {},
       "FLAGS": {
         "--web": "Open file in web browser (markdown viewer)",
@@ -103,14 +103,14 @@
       "NAME": "RUN",
       "SYNTAX": "RUN \"<script_file>\"",
       "DESCRIPTION": "Executes a script file containing uDOS commands.",
-      "UCODE_TEMPLATE": "[SYSTEM|RUN*$1]",
+      "UCODE_TEMPLATE": "[FILE|RUN*$1]",
       "DEFAULT_PARAMS": {}
     },
     {
       "NAME": "EDIT",
       "SYNTAX": "EDIT \"<file>\" [--cli|--web] [--editor <name>] [--config] [--install-micro]",
       "DESCRIPTION": "Opens a file in a text editor. Supports CLI editors (micro, nano, vim) and web editors (typo). Use --config to view available editors, --install-micro to install micro editor.",
-      "UCODE_TEMPLATE": "[SYSTEM|EDIT*$1]",
+      "UCODE_TEMPLATE": "[FILE|EDIT*$1]",
       "DEFAULT_PARAMS": {},
       "FLAGS": {
         "--cli": "Force CLI editor mode",
@@ -129,11 +129,20 @@
     },
     {
       "NAME": "REPAIR",
-      "SYNTAX": "REPAIR [--check|--auto|--report|--pull|--upgrade-pip]",
-      "DESCRIPTION": "System health check and repair. Validates Python environment, dependencies, file structure, and git repository. Can auto-fix issues, pull updates from GitHub, or upgrade pip.",
+      "SYNTAX": "REPAIR [--check|--auto|--report|--pull|--upgrade-pip|--install-extensions|--clone <extension>]",
+      "DESCRIPTION": "System health check and repair with extension management. Validates Python environment, dependencies, file structure, git repository, and extensions. Can auto-fix issues, pull updates from GitHub, upgrade pip, or clone recommended extensions (micro, typo, cmd, monaspace).",
       "UCODE_TEMPLATE": "[SYSTEM|REPAIR*$1]",
       "DEFAULT_PARAMS": {
         "$1": ""
+      },
+      "FLAGS": {
+        "--check": "Health check only (no repairs)",
+        "--auto": "Automatically fix detected issues",
+        "--report": "Detailed diagnostic report",
+        "--pull": "Pull latest updates from GitHub",
+        "--upgrade-pip": "Upgrade pip package manager",
+        "--install-extensions": "Clone all recommended extensions",
+        "--clone <name>": "Clone specific extension (micro, typo, cmd, monaspace)"
       },
       "EXAMPLES": [
         "REPAIR",
@@ -141,7 +150,11 @@
         "REPAIR --auto",
         "REPAIR --report",
         "REPAIR --pull",
-        "REPAIR --upgrade-pip"
+        "REPAIR --upgrade-pip",
+        "REPAIR --install-extensions",
+        "REPAIR --clone micro",
+        "REPAIR --clone typo",
+        "REPAIR --clone monaspace"
       ]
     },
     {

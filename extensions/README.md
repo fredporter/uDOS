@@ -10,26 +10,25 @@ This directory contains information about extensions that enhance uDOS with addi
 
 ## 🎯 Quick Start
 
-**Choose your approach:**
-
-### Option 1: Clone & Use (Recommended)
+### Clone & Use (Recommended)
 ```bash
-# Clone the tools you want:
+# Clone uDOS extensions directly:
 git clone https://github.com/fredporter/udos-micro
 git clone https://github.com/fredporter/udos-typo
 git clone https://github.com/fredporter/udos-cmd
 git clone https://github.com/fredporter/udos-fonts
 
-# Follow each tool's README for installation
+# Follow each extension's README for installation
 ```
 
-### Option 2: Fork & Customize
+### Using uDOS REPAIR System
 ```bash
-# Fork on GitHub UI first, then:
-git clone https://github.com/yourusername/udos-micro
-git clone https://github.com/yourusername/udos-typo
+# Let uDOS manage extensions automatically:
+REPAIR --install-extensions
 
-# Make your customizations and contribute back!
+# Or install specific extensions:
+REPAIR --clone micro
+REPAIR --clone typo
 ```
 
 ---

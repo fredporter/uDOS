@@ -611,94 +611,369 @@ RESTORE [<session_number>]
 
 ---
 
-## Navigation Commands
+## Navigation & Mapping Commands
 
-### MAP
+### MAP STATUS
 
-**Purpose**: Show current map position and layer
+**Purpose**: Show current location and system status
 
 **Syntax**:
 ```
-MAP [STATUS|VIEW|LAYER]
+MAP STATUS
 ```
 
 **Examples**:
 ```
-🔮 > MAP
 🔮 > MAP STATUS
-🔮 > MAP VIEW
 ```
 
 **Output**:
 ```
-🗺️  MAP STATUS
-============================================================
-Position: (0, 0)
-Layer: SURFACE (depth: 0)
-Location: New York, United States
-Coordinates: 40.71°N, 74.01°W
+🗺️  Map Status
+==============================
+Current Location: Melbourne, Australia
+TIZO Code: MEL
+Cell Reference: JN196
+Coordinates: -37.81°, 144.96°
+Timezone: AEST (+10:00)
+Accessible Layers: SURFACE, CLOUD-OC, SATELLITE-OC, DUNGEON-1
 
-[ASCII map visualization with @ marking your position...]
+Use 'MAP VIEW' to see the area around you.
 ```
 
 **uCODE**: `[MAP|STATUS]`
 
 ---
 
-### GOTO
+### MAP VIEW
 
-**Purpose**: Teleport to specific coordinates
+**Purpose**: Generate ASCII map of current area
 
 **Syntax**:
 ```
-GOTO <x> <y>
+MAP VIEW [width] [height]
 ```
 
 **Parameters**:
-- `x` (required) - X coordinate
-- `y` (required) - Y coordinate
+- `width` (optional) - Map width in characters (default: 40)
+- `height` (optional) - Map height in characters (default: 20)
 
 **Examples**:
 ```
-🔮 > GOTO 10 5
-🔮 > GOTO -3 7
+🔮 > MAP VIEW
+🔮 > MAP VIEW 60 30
+🔮 > MAP VIEW 25 12
 ```
 
 **Output**:
 ```
-🔮 Teleported to (10, 5)
-[Updated map display...]
+ASCII Map View - Center: JN196
+========================================
+~..~..~..~..~..~..~..~..~..~..~..~..~..~
+.                                       .
+~                                       ~
+.                                       .
+~                                       ~
+.                                       .
+~                     ◉                 ~
+.                                       .
+~                                       ~
+.                                       .
+~..~..~..~..~..~..~..~..~..~..~..~..~..~
+
+Legend: ◉ Your Position, ~ Water, . Land
 ```
 
-**uCODE**: `[MAP|GOTO*<x>*<y>]`
+**uCODE**: `[MAP|VIEW*<width>*<height>]`
 
 ---
 
-### MOVE
+### MAP CITIES
 
-**Purpose**: Move relative to current position
+**Purpose**: List cities globally or in a region
 
 **Syntax**:
 ```
-MOVE <dx> <dy>
+MAP CITIES [cell] [radius]
 ```
 
 **Parameters**:
-- `dx` (required) - X offset
-- `dy` (required) - Y offset
+- `cell` (optional) - Center cell for regional search
+- `radius` (optional) - Search radius in cells (default: global)
 
 **Examples**:
 ```
-🔮 > MOVE 1 0    # Move east
-🔮 > MOVE 0 -1   # Move north
-🔮 > MOVE 5 3    # Move 5 east, 3 south
+🔮 > MAP CITIES
+🔮 > MAP CITIES JN196 5
+🔮 > MAP CITIES LON 10
 ```
 
 **Output**:
 ```
-👣 Moved to (5, 3)
-[Updated map display...]
+🏙️  TIZO Cities (20 total):
+AKL: Auckland, New Zealand (LB194)
+BER: Berlin, Germany (CT52)
+BJS: Beijing, China (IB72)
+BOM: Mumbai, India (FV105)
+MEL: Melbourne, Australia (JN196)
+SYD: Sydney, Australia (JV189)
+...
 ```
+
+**uCODE**: `[MAP|CITIES*<cell>*<radius>]`
+
+---
+
+### MAP CELL
+
+**Purpose**: Get detailed information about a specific cell
+
+**Syntax**:
+```
+MAP CELL <cell_reference>
+```
+
+**Parameters**:
+- `cell_reference` (required) - Cell in A1-RL270 format
+
+**Examples**:
+```
+🔮 > MAP CELL JN196
+🔮 > MAP CELL CB54
+🔮 > MAP CELL PD68
+```
+
+**Output**:
+```
+📍 Cell Information: JN196
+==============================
+Center Coordinates: -38.09°, 145.12°
+Bounds: -38.41° to -37.78° (lat)
+        144.75° to 145.50° (lon)
+
+🏙️  City in this cell:
+Name: Melbourne, Australia
+TIZO Code: MEL
+Timezone: AEST (+10:00)
+Population: MAJOR
+Connection Quality: {'oceania': 'NATIVE', 'asia': 'FAST'}
+```
+
+**uCODE**: `[MAP|CELL*<cell>]`
+
+---
+
+### MAP NAVIGATE
+
+**Purpose**: Calculate navigation between locations
+
+**Syntax**:
+```
+MAP NAVIGATE <from> <to>
+```
+
+**Parameters**:
+- `from` (required) - Starting location (TIZO code or cell reference)
+- `to` (required) - Destination location (TIZO code or cell reference)
+
+**Examples**:
+```
+🔮 > MAP NAVIGATE MEL SYD
+🔮 > MAP NAVIGATE JN196 JV189
+🔮 > MAP NAVIGATE LON NYC
+```
+
+**Output**:
+```
+🧭 Navigation: Melbourne (MEL) → Sydney (SYD)
+========================================
+From Cell: JN196
+To Cell: JV189
+Distance: 729.3 km
+Cell Distance: 8 cells
+Bearing: 49.6° (NE)
+```
+
+**uCODE**: `[MAP|NAVIGATE*<from>*<to>]`
+
+---
+
+### MAP LOCATE
+
+**Purpose**: Set location to a TIZO city
+
+**Syntax**:
+```
+MAP LOCATE <tizo_code>
+```
+
+**Parameters**:
+- `tizo_code` (required) - 3-letter TIZO city code
+
+**Examples**:
+```
+🔮 > MAP LOCATE MEL
+🔮 > MAP LOCATE LON
+🔮 > MAP LOCATE NYC
+```
+
+**Output**:
+```
+📍 Location set to Melbourne, Australia (MEL)
+Cell: JN196
+```
+
+**Available TIZO Codes**: MEL, SYD, AKL, LON, BER, FRA, MOS, NYC, LA, SFO, TOR, VAN, TYO, BJS, HKG, SIN, BOM, DEL, DXB, JNB
+
+**uCODE**: `[MAP|LOCATE*<tizo>]`
+
+---
+
+### MAP GOTO
+
+**Purpose**: Move to specific coordinates or cell
+
+**Syntax**:
+```
+MAP GOTO <cell_reference>
+MAP GOTO <lat> <lon>
+```
+
+**Parameters**:
+- `cell_reference` (required) - Cell in A1-RL270 format
+- `lat` `lon` (required) - Latitude and longitude coordinates
+
+**Examples**:
+```
+🔮 > MAP GOTO JN196
+🔮 > MAP GOTO -37.81 144.96
+🔮 > MAP GOTO CB54
+```
+
+**Output**:
+```
+🎯 Moving to cell JN196
+Coordinates: -38.09°, 145.12°
+Location: Melbourne, Australia (MEL)
+```
+
+**uCODE**: `[MAP|GOTO*<location>]`
+
+---
+
+### MAP LAYERS
+
+**Purpose**: Show accessible layers from current location
+
+**Syntax**:
+```
+MAP LAYERS
+```
+
+**Examples**:
+```
+🔮 > MAP LAYERS
+```
+
+**Output**:
+```
+🌍 Accessible Layers from MEL:
+  SURFACE
+  CLOUD-OC
+  SATELLITE-OC
+  DUNGEON-1
+
+🌐 Connection Quality:
+  Oceania: NATIVE
+  Asia: FAST
+  Americas: STANDARD
+  Europe: SLOW
+```
+
+**uCODE**: `[MAP|LAYERS]`
+
+---
+
+### MAP TELETEXT
+
+**Purpose**: Generate teletext-style map with mosaic block art
+
+**Syntax**:
+```
+MAP TELETEXT [width] [height]
+```
+
+**Parameters**:
+- `width` (optional) - Map width in characters (default: 40)
+- `height` (optional) - Map height in characters (default: 20)
+
+**Examples**:
+```
+🔮 > MAP TELETEXT
+🔮 > MAP TELETEXT 60 30
+🔮 > MAP TELETEXT 25 12
+```
+
+**Output**:
+```
+🖥️  Teletext Map Generated
+===================================
+Location: Melbourne, Australia
+Cell: JN196
+Size: 40×20 characters
+Style: Mosaic block art
+
+� File saved: output/teletext/udos_teletext_map_20251102_032408.html
+🌐 Open in web browser to view
+💡 Use MAP WEB to start local server
+```
+
+**uCODE**: `[MAP|TELETEXT*<width>*<height>]`
+
+---
+
+### MAP WEB
+
+**Purpose**: Open teletext maps in browser or start web server
+
+**Syntax**:
+```
+MAP WEB [server]
+```
+
+**Parameters**:
+- `server` (optional) - Start HTTP server instead of opening file
+
+**Examples**:
+```
+🔮 > MAP WEB
+🔮 > MAP WEB SERVER
+```
+
+**Output**:
+```
+🌐 Teletext Map Opened
+=========================
+File: udos_teletext_map_20251102_032408.html
+URL: file:///path/to/map.html
+
+💡 Map should open in your default browser
+�️  Use MAP WEB SERVER for local HTTP server
+```
+
+**Server Mode**:
+```
+🚀 Teletext Web Server Started
+==============================
+Server URL: http://localhost:8080
+Port: 8080
+
+🌐 Browser should open automatically
+📁 All teletext maps available at server root
+🛑 Press Ctrl+C in terminal to stop server
+```
+
+**uCODE**: `[MAP|WEB*<mode>]`
 
 **uCODE**: `[MAP|MOVE*<dx>*<dy>]`
 

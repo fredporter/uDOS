@@ -38,14 +38,25 @@ pip-selfcheck.json
 *.swo
 *~
 
-# Extensions - Native Web Apps Only
+# Extensions - Clone Management
 # ----------------------
-# Only track uDOS-native web applications
-# Third-party tools should be cloned separately
+# Track uDOS-native web applications and setup scripts
+# Ignore all cloned third-party repositories
 !extensions/
 !extensions/web/
 !extensions/web/**
+!extensions/*.sh
 !extensions/**/*.md
+!extensions/**/README.md
+
+# Ignore all cloned repositories
+extensions/clone/
+extensions/native/
+# But track clone directories structure
+!extensions/clone/
+!extensions/native/
+!extensions/clone/.gitkeep
+!extensions/native/.gitkeep
 
 # Sandbox - Working Directory (User Workspace)
 # ----------------------

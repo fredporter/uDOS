@@ -1,2 +1,4 @@
-✅ 🎨 Font Editor started on http://localhost:8888 (PID: 21972)
+⚠️  Port 8888 in use, killing existing process...
+⚠️  Killed process 84417 on port 8888
+✅ 🎨 Font Editor started on http://localhost:8888 (PID: 86287)
 🌐 Access at: http://localhost:8888

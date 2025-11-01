@@ -1177,6 +1177,11 @@
                     <span class="shortcut">:8891</span>
                 </div>
                 <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="openExtension('classicy-desktop')">
+                    <span>🖥️ Classicy Desktop</span>
+                    <span class="shortcut">:3000</span>
+                </div>
+                <div class="dropdown-separator"></div>
                 <div class="dropdown-item" onclick="startAll()">
                     <span>▶️ Start All</span>
                 </div>
@@ -1325,6 +1330,12 @@
         <div class="desktop-icon" onclick="showScreensaverMenu()">
             <div class="icon-image" style="background: linear-gradient(45deg, #1a1a1a, #333);">🌌</div>
             <div class="icon-label">Screensavers</div>
+        </div>
+
+        <!-- Classicy Desktop -->
+        <div class="desktop-icon" onclick="openURL('http://localhost:3000')">
+            <div class="icon-image" style="background: linear-gradient(45deg, #e0e0e0, #f5f5f5); border: 2px solid #000;">🖥️</div>
+            <div class="icon-label">Classicy Desktop</div>
         </div>
 
         <!-- Workspace Folders -->
@@ -1858,6 +1869,13 @@
         // Extension Management
         // ========================================
         function openExtension(extension) {
+            // Special handling for classicy-desktop
+            if (extension === 'classicy-desktop') {
+                window.open('http://localhost:3000', '_blank');
+                addLog('Opened Classicy Desktop in browser', 'info');
+                return;
+            }
+
             const port = document.querySelector(`[data-extension="${extension}"]`)?.dataset.port;
             if (port) {
                 window.open(`http://localhost:${port}`, '_blank');

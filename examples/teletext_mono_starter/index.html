@@ -1,0 +1,46 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Teletext Mono Starter</title>
+    <link rel="stylesheet" href="./teletext.css"/>
+  </head>
+  <body class="tt-bg-blk tt-fg-wht" style="margin:16px">
+    <h1 style="font-family: var(--mono);">Teletext Mono Starter</h1>
+    <div class="teletext tt-bg-blk tt-fg-wht" id="page">
+      <!-- Row 1 -->
+      <span class="cell">P</span><span class="cell">A</span><span class="cell">G</span><span class="cell">E</span>
+      <!-- Contiguous mosaic example (PUA) -->
+      <span class="cell tt-con">&#xE200;</span>
+      <!-- Separated mosaic example (same shape) -->
+      <span class="cell tt-sep">&#xE300;</span>
+      <!-- Double-height headline (occupies two rows) -->
+      <div class="tt-dblh tt-fg-yel">
+        <span class="cell">H</span><span class="cell">E</span><span class="cell">A</span>
+        <span class="cell">D</span><span class="cell">L</span><span class="cell">I</span><span class="cell">N</span><span class="cell">E</span>
+      </div>
+    </div>
+
+    <section style="margin-top:24px; font-family: var(--mono);">
+      <button id="toggleSep">Toggle separated</button>
+      <button id="scale1">1×</button>
+      <button id="scale2">2×</button>
+      <button id="scale3">3×</button>
+      <p>CSV: <a href="./mosaic_codepoints_E200-E3FF.csv" download>mosaic_codepoints_E200-E3FF.csv</a></p>
+    </section>
+
+    <script src="./tt-parse.js"></script>
+    <script>
+      const root = document.querySelector('.teletext');
+      document.getElementById('toggleSep').onclick = () => {
+        root.classList.toggle('tt-sep');
+        root.classList.toggle('tt-con');
+      };
+      document.getElementById('scale1').onclick = () => root.classList.remove('scale-2','scale-3','scale-4');
+      document.getElementById('scale2').onclick = () => { root.classList.remove('scale-3','scale-4'); root.classList.add('scale-2'); };
+      document.getElementById('scale3').onclick = () => { root.classList.remove('scale-2','scale-4'); root.classList.add('scale-3'); };
+    </script>
+  </body>
+</html>

@@ -388,6 +388,47 @@ class ServerManager:
         # Use bulletproof launcher for reliability
         return self._use_bulletproof_launcher('dashboard', port, open_browser)
 
+    def start_server(self, name: str, port: Optional[int] = None, open_browser: bool = True) -> str:
+        """
+        Unified method to start any web server.
+
+        Args:
+            name (str): Server name (typo, cmd, font-editor, markdown-viewer, dashboard, terminal)
+            port (int, optional): Custom port number
+            open_browser (bool): Whether to open browser after starting
+
+        Returns:
+            str: Status message for OUTPUT command
+        """
+        # Map server names to their start methods
+        server_methods = {
+            'typo': self.start_typo_server,
+            'cmd': self.start_cmd_server,
+            'terminal': self.start_terminal_server,
+            'font-editor': self.start_font_editor,
+            'markdown-viewer': self.start_markdown_viewer,
+            'dashboard': self.start_dashboard
+        }
+
+        method = server_methods.get(name)
+        if not method:
+            available = ', '.join(server_methods.keys())
+            return f"❌ Unknown server: {name}\nAvailable: {available}"
+
+        # Use default port if none specified
+        if port is None:
+            port = self._get_default_port(name)
+
+        # Call the appropriate start method
+        try:
+            success, message = method(port=port, open_browser=open_browser)
+            if success:
+                return f"🌐 {message}"
+            else:
+                return f"⚠️  {message}"
+        except Exception as e:
+            return f"❌ Error starting {name}: {str(e)}"
+
     def stop_server(self, name: str) -> Tuple[bool, str]:
         """
         Stop a running server.

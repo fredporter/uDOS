@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.0** - A Human-Readable CLI Framework with AI Integration
+**uDOS v1.0.4** - A Human-Readable CLI Framework with AI Integration and Teletext Visualization
 
 > 🔮 *Building a better command-line experience, one spell at a time.*
 
@@ -23,6 +23,9 @@ uDOS is an **educational CLI framework** that demonstrates:
 
 - **Human-Readable Commands**: Natural language-style syntax (`LOAD "file.txt" TO "panel"`)
 - **AI Integration**: Gemini API for intelligent assistance with offline fallback
+- **Integrated Mapping System**: APAC-centered 480×270 cell grid with global navigation
+- **Teletext Visualization**: Retro mosaic block art with modern web interface
+- **TIZO Location Codes**: Global city positioning with 20 major locations
 - **Multi-Panel System**: Organize data in multiple named text buffers
 - **Connection Awareness**: Automatic online/offline mode detection
 - **Viewport Detection**: Adapts to terminal size and device type
@@ -30,7 +33,35 @@ uDOS is an **educational CLI framework** that demonstrates:
 - **Script Automation**: Execute batch operations with `.uscript` files
 - **Theming System**: Customizable lexicon (Dungeon Crawler, Cyberpunk, etc.)
 - **Color Palette**: Professional Polaroid color system with accessibility
-- **Map Navigation**: NetHack-inspired multi-layer grid system
+- **Web Extensions**: Interactive browser-based interfaces
+
+---
+
+## 🆕 What's New in v1.0.4
+
+### 🖥️ Teletext Web Extension
+- **Mosaic Block Art**: 64 2×3 pixel character combinations
+- **WST Color Palette**: Classic teletext colors (8 colors)
+- **Interactive Web Interface**: http://localhost:8080
+- **Mobile-Responsive Design**: Touch-optimized controls
+- **Export Functionality**: Save maps as standalone HTML
+
+### 🗺️ Enhanced Mapping System
+- **Global Cell Grid**: 480×270 APAC-centered reference system
+- **TIZO Location Codes**: 20 major cities worldwide (MEL, SYD, LON, NYC, etc.)
+- **Real-time Navigation**: Distance and bearing calculations
+- **ASCII Map Generation**: Visual maps with position markers
+- **Multi-layer Access**: Connection quality and layer systems
+
+### 📋 New Commands
+```bash
+MAP STATUS              # Current location and system status
+MAP VIEW [width height] # Generate ASCII map (40×20 default)
+MAP TELETEXT [w h]      # Generate teletext-style map
+MAP WEB [server]        # Open map in browser or start server
+MAP NAVIGATE <from to>  # Calculate routes between locations
+MAP CITIES [cell radius] # List cities globally or regionally
+```
 
 ---
 

@@ -32,15 +32,55 @@
         "classic.css - Mac OS 8.1 styling",
         "NES.css - 8-bit Nintendo interface",
         "system.css - Classic Mac System 6",
-        "after-dark-css - Screensaver collection"
+        "after-dark-css - Screensaver collection",
+        "classicy - Complete Mac OS 8 desktop environment"
       ],
       "ports": {
         "classic-demo": 8885,
         "nes-demo": 8884,
         "system-demo": 8883,
-        "afterdark-demo": 8882
+        "afterdark-demo": 8882,
+        "classicy-desktop": 3000
       },
       "launcher": "launch_all.py"
+    },
+    "classicy-desktop": {
+      "version": "0.5.2",
+      "description": "Complete Mac OS 8 desktop environment with React components",
+      "port": 3000,
+      "external": true,
+      "repository": "https://github.com/robbiebyrd/classicy",
+      "framework": "React/TypeScript",
+      "features": [
+        "Full Mac OS 8 Finder desktop",
+        "Authentic window management system",
+        "Complete UI component library",
+        "Sound system with Platinum audio",
+        "Theme management and appearance control",
+        "File system integration",
+        "App switcher and menubar",
+        "Desktop icons with cleanup/arrange",
+        "Modal and modeless dialogs",
+        "Progress bars, tabs, buttons, forms",
+        "Date/time picker components",
+        "Context menus and submenus"
+      ],
+      "components": [
+        "ClassicyDesktop - Full desktop environment",
+        "ClassicyWindow - Authentic Mac windows",
+        "ClassicyApp - Application framework",
+        "ClassicyMenuBar - System menubar",
+        "ClassicyFinder - File manager interface",
+        "ClassicySoundProvider - Audio system",
+        "ClassicyAppearanceManager - Theme control"
+      ],
+      "dependencies": [
+        "React 19+",
+        "TypeScript",
+        "Webpack",
+        "SCSS/Sass",
+        "Howler.js for audio"
+      ]
     },
     "terminal": {
       "version": "1.0.1",

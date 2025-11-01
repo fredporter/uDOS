@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>uDOS Teletext Maps</title>
+    <link rel="stylesheet" href="./teletext-web.css"/>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+</head>
+<body class="tt-bg-blk">
+    <header class="header">
+        <h1>🗺️ uDOS Teletext Maps</h1>
+        <div class="status" id="status">Ready</div>
+    </header>
+
+    <nav class="controls">
+        <div class="control-group">
+            <label>Location:</label>
+            <select id="location-select">
+                <option value="MEL">Melbourne (MEL)</option>
+                <option value="SYD">Sydney (SYD)</option>
+                <option value="LON">London (LON)</option>
+                <option value="NYC">New York (NYC)</option>
+                <option value="TYO">Tokyo (TYO)</option>
+            </select>
+            <button onclick="loadLocation()">Load</button>
+        </div>
+
+        <div class="control-group">
+            <label>Size:</label>
+            <select id="size-select">
+                <option value="40,20">Standard (40×20)</option>
+                <option value="60,30">Large (60×30)</option>
+                <option value="80,40">Extra Large (80×40)</option>
+                <option value="30,15">Compact (30×15)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Scale:</label>
+            <button onclick="setScale(1)">1×</button>
+            <button onclick="setScale(2)">2×</button>
+            <button onclick="setScale(3)">3×</button>
+            <button onclick="setScale(4)">4×</button>
+        </div>
+
+        <div class="control-group">
+            <button onclick="toggleMode()">Toggle Mosaic</button>
+            <button onclick="refreshMap()">Refresh</button>
+            <button onclick="exportMap()">Export</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="map-container">
+            <div class="teletext tt-bg-blk tt-fg-wht tt-con" id="teletext-map">
+                <div class="loading">Loading teletext map...</div>
+            </div>
+        </div>
+
+        <aside class="info-panel">
+            <h3>Map Information</h3>
+            <div id="map-info">
+                <p>Select a location to view map details</p>
+            </div>
+
+            <h3>Legend</h3>
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="symbol tt-fg-yel">◉</span>
+                    <span>Current Position</span>
+                </div>
+                <div class="legend-item">
+                    <span class="symbol tt-fg-red">■</span>
+                    <span>MEGA City</span>
+                </div>
+                <div class="legend-item">
+                    <span class="symbol tt-fg-grn">▄</span>
+                    <span>MAJOR City</span>
+                </div>
+                <div class="legend-item">
+                    <span class="symbol tt-fg-blu">~</span>
+                    <span>Water/Ocean</span>
+                </div>
+                <div class="legend-item">
+                    <span class="symbol tt-fg-grn">.</span>
+                    <span>Land/Terrain</span>
+                </div>
+            </div>
+
+            <h3>Navigation</h3>
+            <div class="navigation">
+                <div class="nav-grid">
+                    <button onclick="navigate('NW')">↖</button>
+                    <button onclick="navigate('N')">↑</button>
+                    <button onclick="navigate('NE')">↗</button>
+                    <button onclick="navigate('W')">←</button>
+                    <button onclick="navigate('CENTER')">●</button>
+                    <button onclick="navigate('E')">→</button>
+                    <button onclick="navigate('SW')">↙</button>
+                    <button onclick="navigate('S')">↓</button>
+                    <button onclick="navigate('SE')">↘</button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="footer">
+        <p>uDOS v1.0.4 - Teletext Mapping System |
+           <a href="/api/status">API Status</a> |
+           <a href="/docs">Documentation</a>
+        </p>
+    </footer>
+
+    <script src="./teletext-api.js"></script>
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTeletextMaps();
+            loadLocation(); // Load default location
+        });
+    </script>
+</body>
+</html>

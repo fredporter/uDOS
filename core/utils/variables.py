@@ -1,12 +1,16 @@
 """
-uDOS Variable Resolution System
+uDOS Variable Resolution System v1.0.2
 Provides dynamic variable replacement for templates, commands, and help text.
+Now includes Character and Object variable types for Stories integration.
 """
 
 import os
 import sys
+import json
 from datetime import datetime
-from typing import Dict, Any, Callable, Optional
+from pathlib import Path
+from dataclasses import dataclass, field
+from typing import Dict, Any, Callable, Optional, List, Union
 
 
 class VariableManager:
@@ -279,8 +283,238 @@ if __name__ == "__main__":
     print(f"Extra Vars Template: {doc_template}")
     print(f"Resolved: {vm.resolve(doc_template, extra)}\n")
 
+    # Test Character and Object types
+    char_mgr = CharacterObjectManager()
+    hero = char_mgr.create_character("Frodo", "Archaeologist")
+    ring = char_mgr.create_object("One Ring", "ring", rarity="artifact")
+
+    print(f"Character: {hero.get_status_string()}")
+    print(f"Object: {ring.get_status_string()}")
+    print(f"Timestamp: {generate_udos_timestamp()}")
+
     # Display all available variables
     print("📋 Available Variables:")
+
+
+# Character and Object Variable Types for Stories Integration
+# =========================================================
+
+@dataclass
+class CharacterStats:
+    """NetHack-style character statistics."""
+    strength: int = 10
+    intelligence: int = 10
+    dexterity: int = 10
+    constitution: int = 10
+    wisdom: int = 10
+    charisma: int = 10
+
+    def total_stats(self) -> int:
+        return self.strength + self.intelligence + self.dexterity + \
+               self.constitution + self.wisdom + self.charisma
+
+    def modifier(self, stat_value: int) -> int:
+        """Calculate D&D-style ability modifier."""
+        return (stat_value - 10) // 2
+
+
+@dataclass
+class CharacterVitals:
+    """Character health and experience tracking."""
+    level: int = 1
+    hp: int = 10
+    max_hp: int = 10
+    xp: int = 0
+    xp_to_next: int = 100
+    gold: int = 0
+    food: int = 5
+
+    def gain_xp(self, amount: int) -> bool:
+        """Gain experience, return True if leveled up."""
+        self.xp += amount
+        if self.xp >= self.xp_to_next:
+            return self.level_up()
+        return False
+
+    def level_up(self) -> bool:
+        """Level up character."""
+        if self.xp >= self.xp_to_next:
+            self.level += 1
+            self.xp -= self.xp_to_next
+            self.xp_to_next = int(self.xp_to_next * 1.5)
+            hp_gain = max(1, (self.level + 2) // 3)
+            self.max_hp += hp_gain
+            self.hp = self.max_hp
+            return True
+        return False
+
+
+@dataclass
+class Character:
+    """uDOS Character variable type with NetHack-inspired properties."""
+    name: str = "Unnamed"
+    char_class: str = "Adventurer"
+    race: str = "Human"
+    alignment: str = "Neutral"
+    background: str = "Wanderer"
+
+    stats: CharacterStats = field(default_factory=CharacterStats)
+    vitals: CharacterVitals = field(default_factory=CharacterVitals)
+
+    weapon: str = "bare hands"
+    armor: str = "clothes"
+    inventory: List[str] = field(default_factory=list)
+    status_effects: List[str] = field(default_factory=list)
+    location: str = "Unknown"
+    story_flags: Dict[str, Any] = field(default_factory=dict)
+
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    last_updated: str = field(default_factory=lambda: datetime.now().isoformat())
+
+    def get_armor_class(self) -> int:
+        """Calculate armor class."""
+        base_ac = 10
+        dex_mod = self.stats.modifier(self.stats.dexterity)
+        armor_bonuses = {"leather jacket": 1, "chain mail": 3, "plate mail": 6}
+        armor_bonus = armor_bonuses.get(self.armor.lower(), 0)
+        return base_ac + armor_bonus + dex_mod
+
+    def get_status_string(self) -> str:
+        """Get formatted status string."""
+        return f"{self.name} the {self.char_class}: Lvl {self.vitals.level}, " \
+               f"HP {self.vitals.hp}/{self.vitals.max_hp}, XP {self.vitals.xp}"
+
+
+@dataclass
+class ObjectProperties:
+    """Object properties and enchantments."""
+    enchantment: int = 0
+    durability: int = 100
+    max_durability: int = 100
+    magical: bool = False
+    cursed: bool = False
+    blessed: bool = False
+
+    def get_condition(self) -> str:
+        """Get condition based on durability."""
+        if self.durability <= 0:
+            return "broken"
+        elif self.durability < 20:
+            return "poor"
+        elif self.durability < 50:
+            return "fair"
+        elif self.durability < 80:
+            return "good"
+        else:
+            return "excellent"
+
+
+@dataclass
+class GameObject:
+    """uDOS Object variable type for items and artifacts."""
+    name: str = "Unknown Object"
+    object_type: str = "misc"
+    category: str = "item"
+    rarity: str = "common"
+    weight: float = 1.0
+    value: int = 1
+
+    properties: ObjectProperties = field(default_factory=ObjectProperties)
+    description: str = ""
+    location_found: str = "Unknown"
+
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    last_updated: str = field(default_factory=lambda: datetime.now().isoformat())
+
+    def get_full_name(self) -> str:
+        """Get full descriptive name including enchantment."""
+        base_name = self.name
+        if self.properties.enchantment > 0:
+            base_name = f"+{self.properties.enchantment} {base_name}"
+        elif self.properties.enchantment < 0:
+            base_name = f"{self.properties.enchantment} {base_name}"
+        if self.properties.cursed:
+            base_name = f"cursed {base_name}"
+        elif self.properties.blessed:
+            base_name = f"blessed {base_name}"
+        return base_name
+
+    def get_status_string(self) -> str:
+        """Get formatted status string."""
+        condition = self.properties.get_condition()
+        return f"{self.get_full_name()}: {condition}, Value {self.value}g"
+
+
+class CharacterObjectManager:
+    """Manager for Character and Object variables."""
+
+    def __init__(self, data_dir: str = "memory/variables"):
+        self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.characters: Dict[str, Character] = {}
+        self.objects: Dict[str, GameObject] = {}
+
+    def create_character(self, name: str, char_class: str = "Adventurer", **kwargs) -> Character:
+        """Create a new character."""
+        character = Character(name=name, char_class=char_class, **kwargs)
+        self.characters[name] = character
+        return character
+
+    def create_object(self, name: str, object_type: str = "misc", **kwargs) -> GameObject:
+        """Create a new object."""
+        obj = GameObject(name=name, object_type=object_type, **kwargs)
+        self.objects[name] = obj
+        return obj
+
+    def get_character(self, name: str) -> Optional[Character]:
+        """Get character by name."""
+        return self.characters.get(name)
+
+    def get_object(self, name: str) -> Optional[GameObject]:
+        """Get object by name."""
+        return self.objects.get(name)
+
+    def list_characters(self) -> List[str]:
+        """List all character names."""
+        return list(self.characters.keys())
+
+    def list_objects(self) -> List[str]:
+        """List all object names."""
+        return list(self.objects.keys())
+
+
+def generate_udos_timestamp(location_data: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Generate uDOS timestamp in format: udos-YYMMDD-HHSS-TMZO-MAPTILE-ZOOM
+
+    Args:
+        location_data: Optional dict with location information
+
+    Returns:
+        Formatted timestamp string
+    """
+    now = datetime.now()
+
+    # Date and time components
+    date_part = now.strftime("%y%m%d")
+    time_part = now.strftime("%H%M")
+
+    # Timezone offset (simplified)
+    tz_offset = now.strftime("%z")
+    if tz_offset:
+        tz_part = tz_offset[:3] if len(tz_offset) >= 3 else "+00"
+    else:
+        tz_part = "+00"
+
+    # Location components (default if not provided)
+    if location_data:
+        map_tile = location_data.get("map_tile", "000000")[:6].ljust(6, "0")
+        zoom = str(location_data.get("zoom_level", 1))[:2].ljust(2, "0")
+    else:
+        map_tile = "000000"
+        zoom = "01"
+
+    return f"udos-{date_part}-{time_part}-{tz_part}-{map_tile}-{zoom}"
     all_vars = vm.get_all_vars()
     for var, val in sorted(all_vars.items()):
         print(f"  {{{var}}}: {val}")

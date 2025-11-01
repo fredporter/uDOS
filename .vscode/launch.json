@@ -3,30 +3,61 @@
     "configurations": [
         {
             "name": "uDOS: Interactive Mode",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Check Virtual Environment"
         },
         {
             "name": "uDOS: Run Shakedown Script",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",
             "args": ["sandbox/tests/shakedown.uscript"],
             "console": "integratedTerminal",
             "justMyCode": true,
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Check Virtual Environment"
+        },
+        {
+            "name": "uDOS: Integration Tests v1.0.2",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sandbox/tests/test_v1_0_2_integration.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Check Virtual Environment"
+        },
+        {
+            "name": "uDOS: Standalone Tests v1.0.2",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sandbox/tests/test_v1_0_2_standalone.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Check Virtual Environment"
         },
         {
             "name": "Python: Debug Current File",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Check Virtual Environment"
         }
     ]
 }
