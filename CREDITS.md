@@ -49,14 +49,63 @@ All extensions are forked and maintained under the uDOS organization for stabili
 
 ---
 
-### typo - Markdown Editor
-- **Original**: https://github.com/rossrobino/typo
+### typo - Modern Typography Editor
+- **Original**: https://github.com/npeters/typo
 - **uDOS Fork**: https://github.com/fredporter/udos-typo
 - **License**: MIT
-- **Copyright**: © 2024 Ross Robino
-- **Purpose**: Web-based markdown editor with live preview and slide mode
+- **Copyright**: © 2023 Nathaniel Peters
+- **Purpose**: Modern web-based typography and text editor with live preview
 
 **License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
+
+### cmd - Web Terminal
+- **Original**: https://github.com/js-cli/js-cli
+- **uDOS Fork**: https://github.com/fredporter/udos-cmd
+- **License**: MIT
+- **Copyright**: © 2018 JS-CLI Contributors
+- **Purpose**: Web-based terminal interface with command execution
+
+**License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
+
+---
+
+## 🎨 CSS Frameworks
+
+### classic.css - Mac OS 8.1 Interface
+- **Original**: https://github.com/npjg/classic.css
+- **License**: MIT
+- **Author**: npjg
+- **Purpose**: Authentic Mac OS 8.1 interface components for web applications
+- **Acknowledgements**: Built upon after-dark-css, ChicagoFLF font (public domain)
+
+**License Summary**: Generate a Classic Mac interface in your browser with authentic window styling and controls.
+
+### NES.css - 8-bit Nintendo Style
+- **Original**: https://github.com/nostalgic-css/NES.css
+- **License**: MIT
+- **Copyright**: © 2018 B.C.Rikko
+- **Purpose**: NES-style (8bit-like) CSS Framework for retro gaming interfaces
+- **Font Recommendation**: Press Start 2P (Google Fonts)
+
+**License Summary**: Code released under MIT License. Documentation under Creative Commons.
+
+### system.css - Classic Mac System 6
+- **Original**: https://github.com/sakofchit/system.css
+- **License**: MIT
+- **Author**: Sakun Srivatsa (@sakofchit)
+- **Purpose**: Apple System OS interface (1984-1991) based on System 6
+- **Fonts**: Chicago 12pt and Geneva 9pt recreations by @blogmywiki
+
+**License Summary**: CSS library for building monochrome classic Mac interfaces without JavaScript.
+
+### after-dark-css - Screensaver Animations
+- **Original**: https://github.com/bryanbraun/after-dark-css
+- **License**: MIT (code), SIL OFL (fonts), Berkeley Systems (images)
+- **Author**: Bryan Braun
+- **Purpose**: After Dark™ screensaver recreations using pure CSS animations
+- **Font**: ChicagoFLF (public domain by Robin Casady)
+
+**License Summary**: HTML & CSS under MIT. Images copyright Berkeley Systems. Full reuse probably ok, use at own risk.
 
 ---
 

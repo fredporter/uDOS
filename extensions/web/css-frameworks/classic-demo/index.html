@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖥️ Classic.css - Mac OS 8.1 Demo</title>
+
+    <!-- Load classic.css from CDN -->
+    <style>
+        /* Embedded classic.css styles for demo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'ChicagoFLF', 'Chicago', 'Geneva', sans-serif;
+            background: #008080;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    #008080,
+                    #008080 10px,
+                    #006666 10px,
+                    #006666 20px
+                );
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .window {
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        .title-bar {
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .title-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .title-stripes {
+            width: 20px;
+            height: 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                #fff,
+                #fff 1px,
+                transparent 1px,
+                transparent 2px
+            );
+        }
+
+        .window-content {
+            padding: 16px;
+        }
+
+        .classic-btn {
+            background: #ddd;
+            border: 2px solid #000;
+            box-shadow:
+                inset -1px -1px 0px #000,
+                inset 1px 1px 0px #fff,
+                inset -2px -2px 0px #808080,
+                inset 2px 2px 0px #ddd;
+            padding: 6px 12px;
+            font-family: 'ChicagoFLF', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .classic-btn:active {
+            box-shadow:
+                inset 1px 1px 0px #000,
+                inset -1px -1px 0px #fff;
+            background: #bbb;
+        }
+
+        .menu-bar {
+            background: #fff;
+            border-bottom: 2px solid #000;
+            padding: 2px 8px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .menu-item {
+            padding: 2px 12px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .dialog-box {
+            border: 2px solid #000;
+            background: #ddd;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+            padding: 16px;
+            margin: 16px 0;
+            max-width: 400px;
+        }
+
+        .info-panel {
+            border: 2px solid #000;
+            background: #fff;
+            margin: 16px 0;
+        }
+
+        .panel-header {
+            background: #ddd;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #888;
+        }
+
+        .panel-content {
+            padding: 12px;
+            font-size: 11px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #000;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .desktop-icon {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            margin: 8px;
+            width: 80px;
+            font-size: 10px;
+        }
+
+        .desktop-icon:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            font-size: 14px;
+            margin: 12px 0 8px 0;
+        }
+
+        p {
+            font-size: 11px;
+            line-height: 1.4;
+            margin: 8px 0;
+        }
+
+        .scrollable {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px inset #ddd;
+            padding: 8px;
+            background: #fff;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #ddd;
+            border: 1px solid #888;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div class="window">
+        <div class="menu-bar">
+            <div>🖥️</div>
+            <div class="menu-item">File</div>
+            <div class="menu-item">Edit</div>
+            <div class="menu-item">View</div>
+            <div class="menu-item">Special</div>
+            <div class="menu-item">Help</div>
+        </div>
+    </div>
+
+    <!-- Main Demo Window -->
+    <div class="window">
+        <div class="title-bar">
+            <div class="title-stripes"></div>
+            <div class="title-text">🖥️ Classic.css - Mac OS 8.1 Component Gallery</div>
+            <div class="title-stripes"></div>
+        </div>
+        <div class="window-content">
+            <h1>Welcome to Mac OS 8.1 Interface</h1>
+            <p>This demo showcases the classic.css framework, recreating the authentic Mac OS 8.1 experience in your browser.</p>
+
+            <!-- Component Examples -->
+            <div class="component-grid">
+                <!-- Buttons -->
+                <div class="info-panel">
+                    <div class="panel-header">Buttons</div>
+                    <div class="panel-content">
+                        <button class="classic-btn">OK</button>
+                        <button class="classic-btn">Cancel</button>
+                        <button class="classic-btn">Save</button>
+                        <button class="classic-btn">Don't Save</button>
+                    </div>
+                </div>
+
+                <!-- Dialog Box -->
+                <div class="info-panel">
+                    <div class="panel-header">Dialog Example</div>
+                    <div class="panel-content">
+                        <div class="dialog-box">
+                            <h3>⚠️ Confirm Action</h3>
+                            <p>Are you sure you want to continue?</p>
+                            <div style="text-align: right; margin-top: 12px;">
+                                <button class="classic-btn">Yes</button>
+                                <button class="classic-btn">No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Palette -->
+            <div class="info-panel">
+                <div class="panel-header">Color Palette</div>
+                <div class="panel-content">
+                    <div class="color-swatch" style="background: #000;" title="Black"></div>
+                    <div class="color-swatch" style="background: #fff;" title="White"></div>
+                    <div class="color-swatch" style="background: #ddd;" title="Light Gray"></div>
+                    <div class="color-swatch" style="background: #888;" title="Dark Gray"></div>
+                    <div class="color-swatch" style="background: #008080;" title="Teal"></div>
+                    <div class="color-swatch" style="background: #006666;" title="Dark Teal"></div>
+                </div>
+            </div>
+
+            <!-- Desktop Icons -->
+            <div class="info-panel">
+                <div class="panel-header">Desktop Icons</div>
+                <div class="panel-content">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div class="desktop-icon">
+                            📁<br>Folder
+                        </div>
+                        <div class="desktop-icon">
+                            📄<br>Document
+                        </div>
+                        <div class="desktop-icon">
+                            🗑️<br>Trash
+                        </div>
+                        <div class="desktop-icon">
+                            💾<br>Disk
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="info-panel">
+                <div class="panel-header">Scrollable List</div>
+                <div class="panel-content">
+                    <div class="scrollable">
+                        <p>• System Folder</p>
+                        <p>• Desktop Folder</p>
+                        <p>• Applications</p>
+                        <p>• Control Panels</p>
+                        <p>• Extensions</p>
+                        <p>• Fonts</p>
+                        <p>• Preferences</p>
+                        <p>• Shutdown Items</p>
+                        <p>• Startup Items</p>
+                        <p>• Apple Menu Items</p>
+                        <p>• PrintMonitor Documents</p>
+                        <p>• Temporary Items</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Framework Info -->
+            <div class="info-panel">
+                <div class="panel-header">Framework Information</div>
+                <div class="panel-content">
+                    <p><strong>classic.css</strong> - A framework for presenting a Web interface using native CSS replications of the Mac OS 8.1 interface components.</p>
+                    <br>
+                    <p><strong>Features:</strong></p>
+                    <p>• Authentic window frames and title bars</p>
+                    <p>• Classic button and dialog styling</p>
+                    <p>• Teal desktop background patterns</p>
+                    <p>• ChicagoFLF font integration</p>
+                    <p>• Pure CSS, no JavaScript required</p>
+                    <br>
+                    <p><strong>License:</strong> MIT License</p>
+                    <p><strong>Author:</strong> npjg</p>
+                    <p><strong>Repository:</strong> github.com/npjg/classic.css</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usage Example Window -->
+    <div class="window">
+        <div class="title-bar">
+            <div class="title-stripes"></div>
+            <div class="title-text">💡 Usage Examples</div>
+            <div class="title-stripes"></div>
+        </div>
+        <div class="window-content">
+            <h2>How to Use classic.css</h2>
+
+            <div class="info-panel">
+                <div class="panel-header">CDN Installation</div>
+                <div class="panel-content">
+                    <div class="scrollable" style="font-family: monospace; font-size: 10px;">
+&lt;!-- Include classic.css --&gt;
+&lt;link rel="stylesheet" href="path/to/classic.css"&gt;
+
+&lt;!-- Add ChicagoFLF font --&gt;
+&lt;style&gt;
+  body {
+    font-family: 'ChicagoFLF', 'Chicago', 'Geneva', sans-serif;
+    background: #008080;
+  }
+&lt;/style&gt;
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-header">Basic Window Structure</div>
+                <div class="panel-content">
+                    <div class="scrollable" style="font-family: monospace; font-size: 10px;">
+&lt;div class="window"&gt;
+  &lt;div class="title-bar"&gt;
+    &lt;div class="title-stripes"&gt;&lt;/div&gt;
+    &lt;div class="title-text"&gt;Window Title&lt;/div&gt;
+    &lt;div class="title-stripes"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="window-content"&gt;
+    &lt;!-- Your content here --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make desktop icons selectable
+            const icons = document.querySelectorAll('.desktop-icon');
+            icons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    icons.forEach(i => i.style.background = '#fff');
+                    this.style.background = '#000';
+                    this.style.color = '#fff';
+                });
+            });
+
+            // Menu interactions
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    alert(`${this.textContent} menu clicked!`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

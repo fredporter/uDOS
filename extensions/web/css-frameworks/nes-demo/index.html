@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 NES.css - 8-bit Nintendo Demo</title>
+
+    <!-- NES.css from CDN -->
+    <link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+    <!-- Press Start 2P font -->
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+
+    <style>
+        html, body, pre, code, kbd, samp {
+            font-family: "Press Start 2P", monospace !important;
+        }
+
+        body {
+            background: #212529;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(255,255,255,.15) 1px, transparent 0);
+            background-size: 20px 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nes-container {
+            margin: 20px 0;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .component-showcase {
+            background: #fff;
+            padding: 20px;
+            border-radius: 0;
+        }
+
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .game-display {
+            background: #000;
+            border: 4px solid #fff;
+            padding: 20px;
+            text-align: center;
+            color: #00ff00;
+            font-family: monospace;
+            margin: 20px 0;
+        }
+
+        .score-display {
+            color: #ffff00;
+            margin-bottom: 10px;
+        }
+
+        .retro-text {
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .pixel-art {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .achievement-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border: 3px solid #000;
+        }
+
+        .sprite {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            border: 2px solid #000;
+            display: inline-block;
+        }
+
+        .level-indicator {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .level-block {
+            width: 20px;
+            height: 20px;
+            background: #28a745;
+            border: 2px solid #000;
+        }
+
+        .level-block.empty {
+            background: #6c757d;
+        }
+
+        .retro-form {
+            background: #fff;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="nes-container with-title is-centered">
+            <p class="title">🎮 NES.css Component Gallery</p>
+            <p>Experience the nostalgic 8-bit Nintendo Entertainment System interface!</p>
+        </div>
+
+        <!-- Game Display Mockup -->
+        <div class="nes-container is-dark">
+            <div class="game-display">
+                <div class="score-display">SCORE: 1337420</div>
+                <div>╔══════════════════════════════╗</div>
+                <div>║  ░░▓▓░░    GAME OVER    ░░▓▓░░ ║</div>
+                <div>║                              ║</div>
+                <div>║    👾     HIGH SCORE     👾    ║</div>
+                <div>║                              ║</div>
+                <div>║  ██████ ████████ ███████     ║</div>
+                <div>║  ██   █ ██    ██ ██    ██    ║</div>
+                <div>║  ██████ ████████ ███████     ║</div>
+                <div>║                              ║</div>
+                <div>║         <span class="retro-text">PRESS START</span>          ║</div>
+                <div>╚══════════════════════════════╝</div>
+            </div>
+        </div>
+
+        <!-- Component Showcase Grid -->
+        <div class="demo-grid">
+            <!-- Buttons -->
+            <div class="nes-container with-title">
+                <p class="title">Buttons</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="button" class="nes-btn">Normal</button>
+                    <button type="button" class="nes-btn is-primary">Primary</button>
+                    <button type="button" class="nes-btn is-success">Success</button>
+                    <button type="button" class="nes-btn is-warning">Warning</button>
+                    <button type="button" class="nes-btn is-error">Error</button>
+                    <button type="button" class="nes-btn is-disabled" disabled>Disabled</button>
+                </div>
+            </div>
+
+            <!-- Dialogs -->
+            <div class="nes-container with-title">
+                <p class="title">Dialogs</p>
+                <div class="nes-dialog" id="dialog-default">
+                    <form method="dialog">
+                        <p class="title">Quest Complete!</p>
+                        <p>You have successfully defeated the boss and gained 500 EXP!</p>
+                        <menu class="dialog-menu">
+                            <button class="nes-btn">Continue</button>
+                            <button class="nes-btn is-primary">Next Level</button>
+                        </menu>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Balloons -->
+            <div class="nes-container with-title">
+                <p class="title">Speech Balloons</p>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="nes-balloon from-left">
+                        <p>Hello! Welcome to the 8-bit world!</p>
+                    </div>
+                    <div class="nes-balloon from-right">
+                        <p>Press START to begin your adventure!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Fields -->
+            <div class="nes-container with-title">
+                <p class="title">Input Fields</p>
+                <div class="retro-form">
+                    <div class="nes-field">
+                        <label for="name_field">Player Name:</label>
+                        <input type="text" id="name_field" class="nes-input" placeholder="Enter your name">
+                    </div>
+                    <div class="nes-field">
+                        <label for="textarea_field">Message:</label>
+                        <textarea id="textarea_field" class="nes-textarea" placeholder="Type your message..."></textarea>
+                    </div>
+                    <div class="nes-field">
+                        <label>
+                            <input type="radio" class="nes-radio" name="difficulty" value="easy" checked />
+                            <span>Easy Mode</span>
+                        </label>
+                    </div>
+                    <div class="nes-field">
+                        <label>
+                            <input type="radio" class="nes-radio" name="difficulty" value="hard" />
+                            <span>Hard Mode</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="nes-container with-title">
+                <p class="title">Progress Bars</p>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <p>Health: 85%</p>
+                        <progress class="nes-progress is-success" value="85" max="100"></progress>
+                    </div>
+                    <div>
+                        <p>Magic: 45%</p>
+                        <progress class="nes-progress is-primary" value="45" max="100"></progress>
+                    </div>
+                    <div>
+                        <p>Experience: 70%</p>
+                        <progress class="nes-progress is-warning" value="70" max="100"></progress>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables -->
+            <div class="nes-container with-title">
+                <p class="title">Leaderboard</p>
+                <div class="nes-table-responsive">
+                    <table class="nes-table is-bordered is-centered">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1st</td>
+                                <td>MARIO</td>
+                                <td>999,999</td>
+                            </tr>
+                            <tr>
+                                <td>2nd</td>
+                                <td>LUIGI</td>
+                                <td>888,888</td>
+                            </tr>
+                            <tr>
+                                <td>3rd</td>
+                                <td>PEACH</td>
+                                <td>777,777</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="nes-container with-title">
+            <p class="title">8-bit Color Palette</p>
+            <div class="color-palette">
+                <div class="color-swatch" style="background: #000;">000</div>
+                <div class="color-swatch" style="background: #fff; color: #000;">FFF</div>
+                <div class="color-swatch" style="background: #212529;">DRK</div>
+                <div class="color-swatch" style="background: #92cc41;">GRN</div>
+                <div class="color-swatch" style="background: #0085dc;">BLU</div>
+                <div class="color-swatch" style="background: #f7d51d;">YEL</div>
+                <div class="color-swatch" style="background: #e76e55;">RED</div>
+                <div class="color-swatch" style="background: #a163c8;">PUR</div>
+            </div>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="nes-container with-title">
+            <p class="title">Player Statistics</p>
+            <div class="stats-grid">
+                <div class="nes-container is-rounded stat-box">
+                    <p>Level</p>
+                    <p style="font-size: 24px; color: #92cc41;">42</p>
+                </div>
+                <div class="nes-container is-rounded stat-box">
+                    <p>Lives</p>
+                    <p style="font-size: 24px; color: #e76e55;">♥ ♥ ♥</p>
+                </div>
+                <div class="nes-container is-rounded stat-box">
+                    <p>Coins</p>
+                    <p style="font-size: 24px; color: #f7d51d;">1337</p>
+                </div>
+                <div class="nes-container is-rounded stat-box">
+                    <p>Power</p>
+                    <p style="font-size: 24px; color: #0085dc;">★★★</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement System -->
+        <div class="nes-container with-title">
+            <p class="title">Achievements Unlocked</p>
+            <div class="achievement-list">
+                <div class="achievement-item">
+                    <div class="sprite"></div>
+                    <div>
+                        <strong>First Steps</strong><br>
+                        <small>Complete the tutorial level</small>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="sprite" style="background: linear-gradient(45deg, #28a745, #20c997);"></div>
+                    <div>
+                        <strong>Coin Collector</strong><br>
+                        <small>Collect 1000 coins</small>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="sprite" style="background: linear-gradient(45deg, #dc3545, #fd7e14);"></div>
+                    <div>
+                        <strong>Boss Slayer</strong><br>
+                        <small>Defeat 10 boss enemies</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Framework Information -->
+        <div class="nes-container with-title is-centered">
+            <p class="title">About NES.css</p>
+            <div style="text-align: left;">
+                <p>NES.css is a NES-style (8bit-like) CSS Framework that brings the nostalgic feel of the Nintendo Entertainment System to modern web interfaces.</p>
+                <br>
+                <p><strong>Features:</strong></p>
+                <ul class="nes-list is-disc">
+                    <li>Pixelated borders and authentic 8-bit styling</li>
+                    <li>Comprehensive component library</li>
+                    <li>Pure CSS with no JavaScript dependencies</li>
+                    <li>Responsive design support</li>
+                    <li>Custom animations and transitions</li>
+                </ul>
+                <br>
+                <p><strong>Installation:</strong></p>
+                <div class="nes-container is-dark" style="margin: 10px 0;">
+                    <pre style="color: #00ff00; font-size: 10px;">npm install nes.css</pre>
+                </div>
+                <p>or via CDN:</p>
+                <div class="nes-container is-dark" style="margin: 10px 0;">
+                    <pre style="color: #00ff00; font-size: 8px;">&lt;link href="https://unpkg.com/nes.css/css/nes.min.css" rel="stylesheet" /&gt;</pre>
+                </div>
+                <br>
+                <p><strong>License:</strong> MIT License</p>
+                <p><strong>Author:</strong> B.C.Rikko</p>
+                <p><strong>Repository:</strong> github.com/nostalgic-css/NES.css</p>
+            </div>
+        </div>
+
+        <!-- Controls Guide -->
+        <div class="nes-container with-title">
+            <p class="title">🎮 Classic Game Controls</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <p><strong>D-Pad:</strong></p>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 100px; margin: 10px 0;">
+                        <div></div>
+                        <button class="nes-btn is-primary" style="padding: 5px;">↑</button>
+                        <div></div>
+                        <button class="nes-btn is-primary" style="padding: 5px;">←</button>
+                        <div style="background: #000; width: 20px; height: 20px;"></div>
+                        <button class="nes-btn is-primary" style="padding: 5px;">→</button>
+                        <div></div>
+                        <button class="nes-btn is-primary" style="padding: 5px;">↓</button>
+                        <div></div>
+                    </div>
+                </div>
+                <div>
+                    <p><strong>Action Buttons:</strong></p>
+                    <div style="display: flex; gap: 10px; margin: 10px 0;">
+                        <button class="nes-btn is-error">B</button>
+                        <button class="nes-btn is-error">A</button>
+                    </div>
+                </div>
+                <div>
+                    <p><strong>System:</strong></p>
+                    <div style="display: flex; gap: 10px; margin: 10px 0;">
+                        <button class="nes-btn">SELECT</button>
+                        <button class="nes-btn">START</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some 8-bit sound effects simulation
+        function playBeep(frequency = 440, duration = 200) {
+            if (typeof(AudioContext) !== "undefined" || typeof(webkitAudioContext) !== "undefined") {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'square';
+
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration / 1000);
+
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + duration / 1000);
+            }
+        }
+
+        // Add sound effects to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.nes-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const isError = this.classList.contains('is-error');
+                    const isSuccess = this.classList.contains('is-success');
+                    const isPrimary = this.classList.contains('is-primary');
+
+                    if (isError) {
+                        playBeep(200, 150); // Low error sound
+                    } else if (isSuccess) {
+                        playBeep(800, 100); // High success sound
+                    } else if (isPrimary) {
+                        playBeep(600, 100); // Medium primary sound
+                    } else {
+                        playBeep(440, 80); // Standard beep
+                    }
+                });
+            });
+
+            // Simulate progress bar animation
+            setInterval(() => {
+                const progressBars = document.querySelectorAll('.nes-progress');
+                progressBars.forEach(bar => {
+                    const currentValue = parseInt(bar.value);
+                    const change = Math.random() > 0.5 ? 1 : -1;
+                    const newValue = Math.max(0, Math.min(100, currentValue + change));
+                    bar.value = newValue;
+                });
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

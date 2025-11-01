@@ -21,6 +21,12 @@
 - [Grid System](Grid-System)
 - [Session Logging](Session-Logging)
 - [Viewport Detection](Viewport-System)
+- [CSS Framework Integration](CSS-Framework-Integration)
+
+### 🎨 Styling & UI
+- [Style Guide](Style-Guide)
+- [CSS Frameworks](CSS-Framework-Integration)
+- [Themes & Layouts](Themes-Layouts)
 
 ### 🛠️ Development
 - [Contributing](Contributing)
