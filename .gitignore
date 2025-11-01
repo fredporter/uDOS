@@ -38,23 +38,19 @@ pip-selfcheck.json
 *.swo
 *~
 
-# Extensions - Third-Party Installations
+# Extensions - Native Web Apps Only
 # ----------------------
-# Track setup scripts and docs, ignore installed files
+# Only track uDOS-native web applications
+# Third-party tools should be cloned separately
 !extensions/
-!extensions/**/*.sh
+!extensions/web/
+!extensions/web/**
 !extensions/**/*.md
-!extensions/**/README.md
-extensions/web/typo/
-extensions/web/cmd/
-extensions/clone/*
-!extensions/clone/README.md
 
 # Sandbox - Working Directory (User Workspace)
 # ----------------------
 # This is NOT tracked - users work here temporarily
-sandbox/logs/
-sandbox/*.log
+sandbox/san
 sandbox/*.txt
 sandbox/*.md
 sandbox/*.json

@@ -1,8 +1,117 @@
 # uDOS Extensions
 
-This directory contains third-party extensions that enhance uDOS with additional editors, servers, fonts, and tools.
+This directory contains information about extensions that enhance uDOS with additional editors, servers, fonts, and tools. All extensions are **MIT or OFL licensed** and available as GitHub forks.
 
 > **For detailed contribution guidelines and development workflow, see the [Contributing Guide](https://github.com/fredporter/uDOS/wiki/Contributing) on the wiki.**
+
+> **For complete licensing information and attributions, see [CREDITS.md](../CREDITS.md) in the root directory.**
+
+---
+
+## 🎯 Quick Start
+
+**Choose your approach:**
+
+### Option 1: Clone & Use (Recommended)
+```bash
+# Clone the tools you want:
+git clone https://github.com/fredporter/udos-micro
+git clone https://github.com/fredporter/udos-typo
+git clone https://github.com/fredporter/udos-cmd
+git clone https://github.com/fredporter/udos-fonts
+
+# Follow each tool's README for installation
+```
+
+### Option 2: Fork & Customize
+```bash
+# Fork on GitHub UI first, then:
+git clone https://github.com/yourusername/udos-micro
+git clone https://github.com/yourusername/udos-typo
+
+# Make your customizations and contribute back!
+```
+
+---
+
+## 🔧 Available Extensions
+
+All extensions are maintained as forks for stability and uDOS-specific customizations.
+
+### 📝 Editors
+
+#### micro - Modern Terminal Editor
+- **uDOS Fork**: https://github.com/fredporter/udos-micro
+- **Original**: https://github.com/zyedidia/micro
+- **License**: MIT
+- **Features**: Mouse support, multiple cursors, syntax highlighting for 75+ languages
+- **Installation**: See [micro installation guide](https://github.com/fredporter/udos-micro#installation)
+- **uDOS Integration**: Use with `EDIT --cli filename.txt`
+
+#### typo - Web-Based Markdown Editor
+- **uDOS Fork**: https://github.com/fredporter/udos-typo
+- **Original**: https://github.com/rossrobino/typo
+- **License**: MIT
+- **Features**: Live preview, auto-save, slide mode, code execution blocks
+- **Requirements**: Node.js 18+ and npm
+- **Installation**: `git clone` → `npm install` → `npm run dev`
+- **uDOS Integration**: Use with `SERVER START typo` then `EDIT --web filename.md`
+
+#### cmd.js - Web Terminal Emulator
+- **uDOS Fork**: https://github.com/fredporter/udos-cmd
+- **Original**: https://github.com/mrchimp/cmd
+- **License**: MIT
+- **Features**: Full terminal in browser, command history, tab completion
+- **Requirements**: Node.js 14+ and npm
+- **Installation**: `git clone` → `npm install` → `npm start`
+- **uDOS Integration**: Use with `SERVER START cmd` for browser terminal
+
+---
+
+### 🎨 Fonts
+
+#### Monaspace - Coding Font Family
+- **uDOS Fork**: https://github.com/fredporter/udos-fonts
+- **Original**: https://github.com/githubnext/monaspace
+- **License**: SIL Open Font License (OFL) 1.1
+- **Variants**: Neon, Argon, Xenon, Radon, Krypton
+- **Installation**: Download WOFF2/OTF files from releases
+- **uDOS Integration**: Used in web terminal and font editor
+
+---
+
+## 🌐 Native Web Apps
+
+These are original uDOS applications (tracked in this repository):
+
+### 🎛️ Dashboard
+- **Path**: `extensions/web/dashboard/`
+- **Purpose**: System overview and control interface
+- **Features**: Real-time stats, server management, file browser
+- **Usage**: `DASHBOARD WEB` or `SERVER START dashboard`
+
+### ✏️ Font Editor
+- **Path**: `extensions/web/font-editor/`
+- **Purpose**: 16×16 bitmap font creation tool
+- **Features**: Pixel editor, preview, export to various formats
+- **Usage**: `SERVER START font-editor`
+
+### 📖 Markdown Viewer
+- **Path**: `extensions/web/markdown-viewer/`
+- **Purpose**: Enhanced markdown rendering with syntax highlighting
+- **Features**: GitHub Flavored Markdown, code highlighting, print styles
+- **Usage**: `SERVER START markdown-viewer`
+
+### 💻 Terminal Interface
+- **Path**: `extensions/web/terminal/`
+- **Purpose**: uDOS command interface in browser
+- **Features**: Command execution, history, file upload/download
+- **Usage**: `SERVER START terminal`
+
+### 🎨 Shared Components
+- **Path**: `extensions/web/shared/`
+- **Purpose**: Common CSS frameworks and JavaScript utilities
+- **Contents**: classic.css, NES.css, system.css, uDOS grid system
 
 ---
 
@@ -246,35 +355,92 @@ For native terminal use (outside browser), install system fonts manually:
 
 ```
 extensions/
-├── README.md              # This file
-├── setup_micro.sh         # micro editor installer
-├── setup_typo.sh          # typo editor installer
-├── setup_cmd.sh           # cmd.js terminal installer
-├── setup_monaspace.sh     # Monaspace fonts installer
-├── clone/                 # Downloaded/installed extensions (gitignored)
-│   ├── fonts/
-│   │   └── monaspace/     # Monaspace WOFF2/OTF fonts
-│   ├── web/
-│   │   ├── typo/          # typo repository
-│   │   └── cmd/           # cmd.js repository
-│   └── native/
-│       └── micro/         # micro binary
-├── web/                   # Web applications (tracked in git)
-│   ├── cmd/
-│   │   └── README.md      # cmd.js documentation
-│   └── font-editor/       # 16×16 bitmap font creator
-│       ├── index.html     # Main application
-│       ├── README.md      # Documentation
-│       ├── css/
-│       │   └── font-editor.css
-│       ├── js/
-│       │   ├── grid-editor.js
-│       │   ├── font-manager.js
-│       │   ├── preview.js
-│       │   └── app.js
-│       ├── lib/           # Future: WOFF2 libraries
-│       └── templates/     # Future: Template fonts
-└── native/                # Native applications (tracked in git)
+├── README.md              # This file - Extension documentation
+├── web/                   # Native uDOS web applications (tracked in git)
+│   ├── dashboard/         # System overview and control interface
+│   │   ├── index.html
+│   │   ├── server.py
+│   │   ├── css/
+│   │   └── js/
+│   ├── font-editor/       # 16×16 bitmap font creator
+│   │   ├── index.html
+│   │   ├── server.py
+│   │   ├── css/
+│   │   └── js/
+│   ├── markdown-viewer/   # Enhanced markdown rendering
+│   │   ├── index.html
+│   │   ├── server.py
+│   │   └── css/
+│   ├── terminal/          # Web terminal interface
+│   │   ├── index.html
+│   │   ├── server.py
+│   │   └── QUICKSTART.md
+│   └── shared/            # Common CSS/JS components
+│       ├── classic.css    # Mac OS 8.1 styling
+│       ├── nes.css        # Retro gaming styling
+│       ├── system.css     # Windows styling
+│       └── udos-*.js      # uDOS utilities
+└── (Third-party tools)    # Clone separately as needed
+    ├── micro/             # Clone: fredporter/udos-micro
+    ├── typo/              # Clone: fredporter/udos-typo
+    ├── cmd/               # Clone: fredporter/udos-cmd
+    └── monaspace/         # Clone: fredporter/udos-fonts
+```
+
+**Third-party tools are NOT included in uDOS repository.**
+Clone them separately as needed from the GitHub forks.
+
+---
+
+## 🚀 Installation Guide
+
+### For End Users (Recommended)
+
+**Just want to use the tools?** Clone them directly:
+
+```bash
+# Choose what you need:
+cd ~/tools  # or wherever you keep tools
+
+# Modern terminal editor
+git clone https://github.com/fredporter/udos-micro
+cd udos-micro && make install  # Follow their install guide
+
+# Web markdown editor
+git clone https://github.com/fredporter/udos-typo
+cd udos-typo && npm install && npm run dev
+
+# Browser terminal
+git clone https://github.com/fredporter/udos-cmd
+cd udos-cmd && npm install && npm start
+
+# Coding fonts
+git clone https://github.com/fredporter/udos-fonts
+# Download fonts from releases page
+```
+
+### For Developers & Customizers
+
+**Want to modify or contribute?** Fork first:
+
+1. **Fork on GitHub**: Go to each repo and click "Fork"
+2. **Clone your fork**:
+   ```bash
+   git clone https://github.com/yourusername/udos-micro
+   git clone https://github.com/yourusername/udos-typo
+   ```
+3. **Make changes** and submit pull requests back to `fredporter/udos-*`
+
+### For uDOS Integration
+
+**Want tight integration?** Use the OUTPUT command:
+
+```bash
+# In uDOS:
+OUTPUT START typo      # Starts typo server
+OUTPUT START cmd       # Starts cmd.js terminal
+OUTPUT STATUS          # Check all running servers
+OUTPUT STOP typo       # Stop specific server
 ```
 
 ---
