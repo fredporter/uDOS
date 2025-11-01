@@ -527,19 +527,106 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_reboot(self, params, grid, parser):
         """
-        Reboot the uDOS system.
+        Reboot the uDOS system with pre-flight checks.
 
-        TODO: Move this logic from uDOS_commands.py
+        Args:
+            params: List (unused)
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Reboot confirmation message
         """
-        return "REBOOT command - to be refactored"
+        # Run pre-flight health check
+        from core.uDOS_startup import quick_health_check
+
+        result = "╔" + "═"*58 + "╗\n"
+        result += "║" + "🔄 REBOOT PRE-FLIGHT CHECK".center(58) + "║\n"
+        result += "╚" + "═"*58 + "╝\n\n"
+
+        is_healthy, message = quick_health_check()
+
+        # Check user profile
+        if self.user_manager and self.user_manager.user_data:
+            user_profile = self.user_manager.user_data.get('USER_PROFILE', {})
+            name = user_profile.get('NAME', 'Unknown')
+            result += f"✅ User profile OK ({name})\n"
+        else:
+            result += "⚠️  User profile not loaded\n"
+
+        # Check system health
+        if is_healthy and "warning" not in message.lower():
+            result += "✅ System health OK\n"
+        elif is_healthy:
+            result += f"⚠️  {message}\n"
+        else:
+            result += f"❌ {message}\n"
+
+        # Check viewport
+        if self.viewport:
+            result += f"✅ Viewport detected ({self.viewport.width}×{self.viewport.height})\n"
+        else:
+            result += "⚠️  Viewport not detected\n"
+
+        result += "\n🔄 Restarting uDOS...\n"
+        result += "💡 All state will be reloaded from disk\n"
+
+        # Set reboot flag
+        self.reboot_requested = True
+
+        return result
 
     def handle_destroy(self, params, grid, parser):
         """
-        Destructive reset command.
+        Destructive reset command with safety confirmations.
+        Supports: --all, --env, --reset flags
 
-        TODO: Move this logic from uDOS_commands.py
+        Args:
+            params: List with optional flags (--all, --env, --reset)
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Destruction confirmation or cancellation message
         """
-        return "DESTROY command - to be refactored"
+        import shutil
+
+        # Parse flags
+        clear_all = '--all' in params if params else False
+        clear_env = '--env' in params if params else False
+        reset_git = '--reset' in params if params else False
+
+        # Safety confirmation
+        result = "╔" + "═"*58 + "╗\n"
+        result += "║" + "⚠️  DESTRUCTIVE OPERATION WARNING".center(58) + "║\n"
+        result += "╚" + "═"*58 + "╝\n\n"
+
+        result += "This will DELETE:\n"
+        result += "  • sandbox/* (all temporary files)\n"
+
+        if clear_all:
+            result += "  • memory/logs/* (all session logs)\n"
+            result += "  • output/* (all generated files)\n"
+
+        if clear_env:
+            result += "  • .env (API keys and secrets)\n"
+
+        if reset_git:
+            result += "  • Complete git reset + fresh clone\n"
+            result += "  • ALL uncommitted changes LOST\n"
+
+        result += "\n❌ THIS CANNOT BE UNDONE\n\n"
+        result += "To confirm, you must run this command interactively.\n"
+        result += "Non-interactive mode does not support DESTROY.\n"
+
+        # In production, this would prompt for confirmation
+        # For now, just show what would happen
+        result += "\n💡 To execute: Run interactively and confirm\n"
+
+        # Don't actually destroy in this implementation
+        # The actual destruction would happen after user confirmation
+
+        return result
 
     def handle_viewport(self, params, grid, parser):
         """Display viewport visualization."""

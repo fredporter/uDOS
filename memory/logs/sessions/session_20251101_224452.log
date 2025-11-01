@@ -1,0 +1,114 @@
+[2025-11-01 22:44:52] [SESSION START] 
+[2025-11-01 22:44:52] [uDOS> HELP] 
+[2025-11-01 22:44:52] [╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📚 uDOS COMMAND REFERENCE                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ 📊 System & Info                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  DASH               - Display comprehensive system dashboard. Use 'DASH WEB' t║
+║  HELP               - Provides help for a specific command.                   ║
+║  PALETTE            - Displays the Polaroid color palette with visual tests an║
+║  SETUP              - Run interactive USER.UDO configuration (editable with ED║
+║  STATUS             - Shows system status including connection mode, servers, ║
+║  TREE               - Generate repository structure tree (respects .gitignore ║
+║  VIEWPORT           - Displays current terminal viewport and grid layout.     ║
+║                                                                              ║
+║ 🤖 Assistant & Analysis                                                       ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASK                - Ask Gemini AI a question with optional panel context.   ║
+║  DEBUG              - Get help debugging an error from Gemini AI.             ║
+║  EXPLAIN            - Explain what a command does using Gemini AI.            ║
+║  GENERATE           - Generate a uDOS script from natural language description║
+║                                                                              ║
+║ 🔧 System Control                                                             ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  BLANK              - Clears the terminal screen.                             ║
+║  CLEAN              - Review sandbox files and prepare for commit to memory fo║
+║  DESTROY            - Destructive reset command - clears workspace and optiona║
+║  REBOOT             - Restarts uDOS, re-detecting system settings and viewport║
+║  REDO               - Redoes the last undone operation.                       ║
+║  REPAIR             - System health check and repair. Validates Python environ║
+║  RESTORE            - Restores state to a previous session (bulk undo). Use RE║
+║  UNDO               - Undoes the last reversible operation.                   ║
+║                                                                              ║
+║ 📝 File Operations                                                            ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  COPY               - Copy a file within current workspace or to another works║
+║  DELETE             - Delete a file from current workspace with confirmation d║
+║  EDIT               - Opens a file in a text editor. Supports CLI editors (mic║
+║  MOVE               - Move file between workspaces or rename within workspace.║
+║  MOVE               - Move file between workspaces or rename within workspace.║
+║  NEW                - Create a new file from template in the current workspace║
+║  RENAME             - Rename a file in current workspace. Keep same extension ║
+║  RUN                - Executes a script file containing uDOS commands.        ║
+║  SHOW               - Display file contents in terminal or browser. Opens file║
+║                                                                              ║
+║ 🗺️  Navigation & Mapping                                                     ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASCEND             - Ascend one layer (NetHack < command) - go higher.       ║
+║  DESCEND            - Descend one layer (NetHack > command) - go deeper.      ║
+║  GOTO               - Teleport to specific coordinates on current map layer.  ║
+║  LAYER              - Switch to a different map layer or list available layers║
+║  LOCATE             - Set your real-world location to a major city.           ║
+║  MAP                - Shows current map position and layer information.       ║
+║                                                                              ║
+║ 🌐 Web Output                                                                 ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  OUTPUT             - Manage web-based output interfaces (typo editor, cmd ter║
+║  WEB                - Launch full uDOS instance in web browser with xterm.js t║
+║                                                                              ║
+║ 🎨 Customization                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  CONFIG             - Manage .env configuration (API keys, username, installat║
+║  FONT               - Manage Monaspace fonts for web-based editors and termina║
+║  SETTINGS           - Manage user preferences and system configuration. Intera║
+║  THEME              - Manage uDOS personality themes. Switch between DUNGEON (║
+║                                                                              ║
+║ ⚡ Other                                                                      ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  AI CLEAR           - Clear Gemini AI conversation history.                   ║
+║  SPLASH             - Display full-screen ASCII art splash graphics. Use SPLAS║
+║  WORKSPACE          - Manage workspace isolation. Three workspaces: sandbox (e║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  💡 HELP <command_name> for detailed information                              ║
+║  📖 Full docs: https://github.com/fredporter/uDOS/wiki                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-01 22:44:52] [uDOS> HELP STATUS] 
+[2025-11-01 22:44:52] [╔══════════════════════════════════════════════════════════════════════════════╗
+║  📖 STATUS                                                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Description:                                                                ║
+║     Shows system status including connection mode, servers, and health. Use  ║
+║    --live for real-time monitoring.                                          ║
+║                                                                              ║
+║  Syntax:                                                                     ║
+║    STATUS [--live]                                                           ║
+║                                                                              ║
+║  uCODE Format:                                                               ║
+║    [SYSTEM|STATUS*$1]                                                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-01 22:44:52] [uDOS> STATUS] 
+[2025-11-01 22:44:52] [╔════════════════════════════════════════════════════════════════════╗
+║                        📊 uDOS SYSTEM STATUS                        ║
+╠════════════════════════════════════════════════════════════════════╣
+║ 🔴 Connectivity: OFFLINE                                                ║
+║ 📐 Display: 80×24 chars                                             ║
+║    Device Type: TERMINAL                                           ║
+║ 👤 User: fredbook                                                 ║
+╠════════════════════════════════════════════════════════════════════╣
+║ 🌐 WEB SERVERS                                                      ║
+║ ───────────────────────────────────────────────────────────────────║
+║  ⚠️  Server info unavailable                                       ║
+╠════════════════════════════════════════════════════════════════════╣
+║ 🏥 SYSTEM HEALTH                                                    ║
+║ ───────────────────────────────────────────────────────────────────║
+║  Health check: ⚠️  Unable to verify                                ║
+║  History: 0 undo / 0 redo available                                ║
+╚════════════════════════════════════════════════════════════════════╝
+
+💡 Tip: Use 'STATUS --live' for real-time monitoring
+] 
+[2025-11-01 22:44:52] [uDOS> REPAIR --check] 
