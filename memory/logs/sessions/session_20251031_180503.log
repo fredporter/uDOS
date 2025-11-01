@@ -1,0 +1,74 @@
+[2025-10-31 18:05:03] [SESSION START] 
+[2025-10-31 18:05:04] [uDOS> HELP] 
+[2025-10-31 18:05:04] [╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📚 uDOS COMMAND REFERENCE                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ 📊 System & Info                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  DASH               - Display comprehensive system dashboard. Use 'DASH WEB' t║
+║  HELP               - Provides help for a specific command.                   ║
+║  PALETTE            - Displays the Polaroid color palette with visual tests an║
+║  SETUP              - Run interactive USER.UDO configuration (editable with ED║
+║  STATUS             - Shows system status including connection mode, servers, ║
+║  TREE               - Generate repository structure tree (respects .gitignore ║
+║  VIEWPORT           - Displays current terminal viewport and grid layout.     ║
+║                                                                              ║
+║ 🤖 AI & Content                                                               ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASK                - Executes an online call to the Gemini Assistant.        ║
+║                                                                              ║
+║ 🔧 System Control                                                             ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  BLANK              - Clears the terminal screen.                             ║
+║  CLEAN              - Review sandbox files and prepare for commit to memory fo║
+║  DESTROY            - Destructive reset command - clears workspace and optiona║
+║  REBOOT             - Restarts uDOS, re-detecting system settings and viewport║
+║  REDO               - Redoes the last undone operation.                       ║
+║  REPAIR             - System health check and repair. Validates Python environ║
+║  RESTART            - Alias for REBOOT - restarts uDOS session.               ║
+║  RESTORE            - Restores state to a previous session (bulk undo). Use RE║
+║  UNDO               - Undoes the last reversible operation.                   ║
+║                                                                              ║
+║ 📝 File Operations                                                            ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  CATALOG            - Lists files. Outputs to 'main' panel by default.        ║
+║  EDIT               - Opens a file in a text editor. Supports CLI editors (mic║
+║  LOAD               - Loads a file's content into a panel.                    ║
+║  RUN                - Executes a script file containing uDOS commands.        ║
+║  SAVE               - Saves a panel's content to a file.                      ║
+║  SHOW               - Display file contents in terminal or browser. Opens file║
+║                                                                              ║
+║ 🗺️  Navigation                                                               ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASCEND             - Ascend one layer (NetHack < command) - go higher.       ║
+║  DESCEND            - Descend one layer (NetHack > command) - go deeper.      ║
+║  GOTO               - Teleport to specific coordinates on current map layer.  ║
+║  LAYER              - Switch to a different map layer or list available layers║
+║  LOCATE             - Set your real-world location to a major city.           ║
+║  MAP                - Shows current map position and layer information.       ║
+║  MOVE               - Move relative to current position (NetHack-style navigat║
+║  WHERE              - Alias for MAP STATUS - shows current location.          ║
+║                                                                              ║
+║ 🌐 Web Output                                                                 ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  OUTPUT             - Manage web-based output interfaces (typo editor, cmd ter║
+║  SERVER             - Alias for OUTPUT command. Manage web-based output interf║
+║  WEB                - Launch full uDOS instance in web browser with xterm.js t║
+║                                                                              ║
+║ 🎨 Customization                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  FONT               - Manage Monaspace fonts for web-based editors and termina║
+║  THEME              - Manage uDOS personality themes. Switch between DUNGEON (║
+║                                                                              ║
+║ ⚡ Other                                                                      ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ANALYZE            - Performs offline analysis on panel content (word count, ║
+║  GRID PANEL CREATE  - Creates a new panel.                                    ║
+║  GRID PANELS LIST   - Lists all available panels.                             ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  💡 HELP <command_name> for detailed information                              ║
+║  📖 Full docs: https://github.com/fredporter/uDOS/wiki                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-10-31 18:05:04] [SESSION END] 

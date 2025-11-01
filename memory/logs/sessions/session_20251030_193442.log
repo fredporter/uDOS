@@ -1,0 +1,49 @@
+./deploy_wiki.sh "Initial wiki setup"[2025-10-30 19:34:42] [SESSION START]
+[2025-10-30 19:34:42] [uDOS> CATALOG]
+[2025-10-30 19:34:42] [Contents of chamber './':
+uDOS_main.py
+shakedown.uscript
+.DS_Store
+requirements.txt
+uDOS_logger.py
+uDOS_commands.py
+QUICKSTART.MD
+legacy
+extensions
+README.MD
+ROADMAP.MD
+.gitignore
+knowledge
+sandbox
+.env
+CONTRIBUTING.md
+.venv
+concepts
+uDOS_parser.py
+uDOS_completer.py
+uDOS_splash.py
+.git
+uDOS_grid.py
+.vscode
+uDOS_setup.py
+data
+STYLE-GUIDE.MD
+start_udos.sh]
+[2025-10-30 19:34:42] [uDOS> GRID PANEL CREATE "test_panel"]
+[2025-10-30 19:34:42] [A new slate 'test_panel' materializes.]
+[2025-10-30 19:34:42] [uDOS> LOAD "README.MD" TO "test_panel"]
+[2025-10-30 19:34:42] [Parchment 'README.MD' inscribed onto slate 'test_panel'.]
+[2025-10-30 19:34:42] [uDOS> GRID PANELS LIST]
+[2025-10-30 19:34:42] [main
+test_panel]
+[2025-10-30 19:34:42] [uDOS> SHOW "test_panel"]
+[2025-10-30 19:34:42] []
+[2025-10-30 19:34:42] [uDOS> SAVE "test_panel" TO "sandbox/shakedown_save.txt"]
+[2025-10-30 19:34:42] [Slate 'test_panel' preserved in 'sandbox/shakedown_save.txt'.]
+[2025-10-30 19:34:42] [uDOS> ASK "Summarize the content of the test_panel" FROM "test_panel"]
+[2025-10-30 19:34:43] [?ORACLE SILENT: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.]
+[2025-10-30 19:34:43] [uDOS> SAVE "test_panel" TO "sandbox/mini_script.uscript"]
+[2025-10-30 19:34:43] [Slate 'test_panel' preserved in 'sandbox/mini_script.uscript'.]
+[2025-10-30 19:34:43] [uDOS> RUN "sandbox/mini_script.uscript"]
+[2025-10-30 19:34:43] [The ritual 'sandbox/mini_script.uscript' has been completed.]
+[2025-10-30 19:34:43] [SESSION END]

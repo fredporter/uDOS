@@ -1,0 +1,23 @@
+[2025-10-30 21:36:18] [SESSION START] 
+[2025-10-30 21:36:26] [INPUT] undo
+[2025-10-30 21:36:26] [OUTPUT] Nothing to undo.
+[2025-10-30 21:36:26] [MOVE] 1 (Total: 3)
+[2025-10-30 21:36:31] [INPUT] help
+[2025-10-30 21:36:31] [OUTPUT] Available incantations:\n\n  CATALOG         - Lists files. Outputs to 'main' panel by default.\n  LOAD            - Loads a file's content into a panel.\n  SAVE            - Saves a panel's content to a file.\n  ASK             - Executes an online call to the Gemini Assistant.\n  CLS             - Clears the terminal screen.\n  HELP            - Provides help for a specific command.\n  GRID PANEL CREATE - Creates a new panel.\n  GRID PANELS LIST - Lists all available panels.\n  SHOW            - Shows the content of a panel.\n  RUN             - Executes a script file containing uDOS commands.\n  EDIT            - Opens a file in the default editor.\n  REPAIR          - Repairs system issues, updates dependencies, fixes file structure.\n  UNDO            - Undoes the last reversible operation.\n  REDO            - Redoes the last undone operation.\n  RESTORE         - Restores state to a previous session (bulk undo). Use RESTORE LIST to see available sessions.\n  ANALYZE         - Performs offline analysis on panel content (word count, structure check).\n  REBOOT          - Restarts uDOS, re-detecting system settings and viewport size.\n  RESTART         - Alias for REBOOT - restarts uDOS session.\n  STATUS          - Shows system status including connection mode and viewport info.\n  VIEWPORT        - Displays current terminal viewport and grid layout.\n  MAP             - Shows current map position and layer information.\n  GOTO            - Teleport to specific coordinates on current map layer.\n  MOVE            - Move relative to current position (NetHack-style navigation).\n  LAYER           - Switch to a different map layer or list available layers.\n  DESCEND         - Descend one layer (NetHack > command) - go deeper.\n  ASCEND          - Ascend one layer (NetHack < command) - go higher.\n  LOCATE          - Set your real-world location to a major city.\n  WHERE           - Alias for MAP STATUS - shows current location.\n  SETUP           - Run interactive USER.UDO configuration (editable with EDIT data/setup.uscript).\n
+[2025-10-30 21:36:31] [MOVE] 2 (Total: 4)
+[2025-10-30 21:36:43] [INPUT] /* Polaroid Colors (System Default) - High-contrast photo-inspired */\n--red:     #FF1744    /* tput 196 - Bold Red */\n--green:   #00E676    /* tput 46  - Bright Green */\n--yellow:  #FFEB3B    /* tput 226 - Yellow Burst */\n--blue:    #2196F3    /* tput 21  - Deep Blue */\n--purple:  #E91E63    /* tput 201 - Magenta Pink */\n--cyan:    #00E5FF    /* tput 51  - Cyan Flash */\n--white:   #FFFFFF    /* tput 15  - Pure White */\n--black:   #000000    /* tput 16  - Pure Black */\n
+[2025-10-30 21:36:43] [OUTPUT] ?UNKNOWN INCANTATION: ERROR
+[2025-10-30 21:36:43] [MOVE] 3 (Total: 5)
+[2025-10-30 21:36:54] [INPUT] RUN examples/simple-setup.uscript
+[2025-10-30 21:36:54] [OUTPUT] ?CORRUPTED SPELL: [SYSTEM|RUN] (list index out of range)
+[2025-10-30 21:36:54] [MOVE] 4 (Total: 6)
+[2025-10-30 21:37:01] [INPUT] EDIT data/setup.uscript
+[2025-10-30 21:37:01] [OUTPUT] ?CORRUPTED SPELL: [SYSTEM|EDIT] (list index out of range)
+[2025-10-30 21:37:01] [MOVE] 5 (Total: 7)
+[2025-10-30 21:39:18] [INPUT] 
+[2025-10-30 21:39:18] [OUTPUT] ?UNKNOWN INCANTATION: ERROR
+[2025-10-30 21:39:18] [MOVE] 6 (Total: 8)
+[2025-10-30 21:39:20] [INPUT] reboot
+[2025-10-30 21:39:20] [OUTPUT] 🔄 REBOOT PRE-FLIGHT CHECK\n============================================================\n\n✅ User profile OK (fredbook)\n✅ Python version OK\n⚠️  Missing dependencies: google-generativeai, python-dotenv\n✅ Setup script available\n\n⚠️  Warnings:\n  ⚠️  Ensure all panels are saved before rebooting\n  ⚠️  File structure issues detected\n\nRebooting will:\n  • Re-validate user profile\n  • Re-detect terminal viewport and device type\n  • Re-check internet connectivity\n  • Reload world map position\n  • Clear action history\n  • Start fresh session log\n\n🔄 Restarting uDOS...\n
+[2025-10-30 21:39:20] [MOVE] 7 (Total: 9)
+[2025-10-30 21:39:20] [SESSION END] 

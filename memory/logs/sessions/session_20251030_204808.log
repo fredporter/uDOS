@@ -1,0 +1,8 @@
+[2025-10-30 20:48:08] [SESSION START] 
+[2025-10-30 20:48:30] [INPUT] edit sandbox/user.udo
+[2025-10-30 20:48:30] [OUTPUT] ?CORRUPTED SPELL: [SYSTEM|EDIT] (list index out of range)
+[2025-10-30 20:48:41] [INPUT] edit sandbox/USER.UDO
+[2025-10-30 20:48:41] [OUTPUT] ?CORRUPTED SPELL: [SYSTEM|EDIT] (list index out of range)
+[2025-10-30 21:37:06] [INPUT] reboot
+[2025-10-30 21:37:06] [OUTPUT] 🔄 REBOOT PRE-FLIGHT CHECK\n==================================================\n\n✅ Python version OK\n⚠️  Missing dependencies: google-generativeai, python-dotenv\n\n⚠️  Warnings:\n  ⚠️  Ensure all panels are saved before rebooting\n  ⚠️  File structure issues detected\n\nRebooting will:\n  • Re-detect terminal viewport and device type\n  • Re-check internet connectivity\n  • Reload user profile\n  • Clear action history\n  • Start fresh session log\n\n🔄 Restarting uDOS...\n
+[2025-10-30 21:37:06] [SESSION END] 

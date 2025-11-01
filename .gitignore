@@ -1,0 +1,110 @@
+# ============================================================
+# uDOS v1.2 - Git Ignore Configuration
+# ============================================================
+
+# Environment & Secrets
+# ----------------------
+.env
+.env.local
+*.key
+
+# Python Runtime
+# ----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+# ----------------------
+.venv/
+venv/
+env/
+ENV/
+pip-selfcheck.json
+
+# IDE & System Files
+# ----------------------
+.DS_Store
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Extensions - Third-Party Installations
+# ----------------------
+# Track setup scripts and docs, ignore installed files
+!extensions/
+!extensions/**/*.sh
+!extensions/**/*.md
+!extensions/**/README.md
+extensions/web/typo/
+extensions/web/cmd/
+extensions/clone/*
+!extensions/clone/README.md
+
+# Sandbox - Working Directory (User Workspace)
+# ----------------------
+# This is NOT tracked - users work here temporarily
+sandbox/logs/
+sandbox/*.log
+sandbox/*.txt
+sandbox/*.md
+sandbox/*.json
+sandbox/.server_state.json
+sandbox/tests/*.uscript
+sandbox/tests/*.udo
+sandbox/tests/*.py
+sandbox/tests/*.sh
+
+# User Customization Files (Track Templates Only)
+# ----------------------
+# .UDC = User Data Configuration (user-specific overrides)
+# .UDT = UDO Template (tracked templates, ignore user instances)
+*.UDC
+data/STORY.UDO
+data/USER.UDO
+
+# Keep templates tracked
+!data/*.UDT
+!knowledge/**/*.UDT
+!memory/templates/*.UDT
+
+# Session & Server State
+# ----------------------
+memory/logs/
+memory/logs/**/*
+*.pid
+*.state
+
+# Wiki Deployment
+# ----------------------
+# Keep source in /wiki, ignore deployed clone
+uDOS.wiki/
+
+# Backups & Archives
+# ----------------------
+backups/
+*.backup
+*.bak
+
+# Output Files
+# ----------------------
+output/
+*.output
+
+# Keep Important Directories Tracked (Even if Empty)
+# ----------------------
+!memory/
+!memory/**/*
+!knowledge/
+!knowledge/**/*
+!history/
+!history/**/*

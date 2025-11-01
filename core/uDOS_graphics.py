@@ -1,0 +1,394 @@
+"""
+uDOS Graphics Utilities
+=======================
+Provides terminal graphics utilities including spinners, progress bars,
+and status indicators using Unicode block characters.
+"""
+
+import sys
+import time
+import threading
+from typing import Optional, Callable
+
+
+class Spinner:
+    """
+    Animated spinner for long-running operations.
+
+    Usage:
+        with Spinner("Loading..."):
+            # do work
+            pass
+    """
+
+    FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']  # Braille dots
+    FRAMES_ALT = ['◐', '◓', '◑', '◒']  # Circle rotation
+    FRAMES_DOTS = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']  # Braille blocks
+    FRAMES_SIMPLE = ['|', '/', '-', '\\']  # Classic
+
+    def __init__(self, message: str = "Working", style: str = "braille"):
+        """
+        Initialize spinner.
+
+        Args:
+            message: Message to display next to spinner
+            style: Animation style ('braille', 'circle', 'dots', 'simple')
+        """
+        self.message = message
+        self.running = False
+        self.thread: Optional[threading.Thread] = None
+
+        # Select frame style
+        if style == "circle":
+            self.frames = self.FRAMES_ALT
+        elif style == "dots":
+            self.frames = self.FRAMES_DOTS
+        elif style == "simple":
+            self.frames = self.FRAMES_SIMPLE
+        else:
+            self.frames = self.FRAMES
+
+    def _spin(self):
+        """Internal spinner loop."""
+        idx = 0
+        while self.running:
+            frame = self.frames[idx % len(self.frames)]
+            sys.stdout.write(f'\r{frame} {self.message}')
+            sys.stdout.flush()
+            idx += 1
+            time.sleep(0.1)
+
+    def start(self):
+        """Start the spinner animation."""
+        self.running = True
+        self.thread = threading.Thread(target=self._spin, daemon=True)
+        self.thread.start()
+
+    def stop(self, final_message: Optional[str] = None):
+        """
+        Stop the spinner animation.
+
+        Args:
+            final_message: Optional message to display when done (e.g., "✅ Done")
+        """
+        self.running = False
+        if self.thread:
+            self.thread.join()
+
+        if final_message:
+            sys.stdout.write(f'\r{final_message}\n')
+        else:
+            sys.stdout.write('\r' + ' ' * (len(self.message) + 3) + '\r')
+        sys.stdout.flush()
+
+    def __enter__(self):
+        """Context manager entry."""
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        if exc_type is None:
+            self.stop("✅ Done")
+        else:
+            self.stop("❌ Failed")
+        return False
+
+
+class ProgressBar:
+    """
+    Text-based progress bar with block characters.
+
+    Usage:
+        bar = ProgressBar(total=100, width=20)
+        for i in range(100):
+            bar.update(i + 1)
+            time.sleep(0.01)
+        bar.finish()
+    """
+
+    def __init__(self, total: int, width: int = 40, title: str = "", show_percent: bool = True):
+        """
+        Initialize progress bar.
+
+        Args:
+            total: Total number of steps
+            width: Width of the progress bar in characters
+            title: Optional title to display
+            show_percent: Whether to show percentage
+        """
+        self.total = total
+        self.width = width
+        self.title = title
+        self.show_percent = show_percent
+        self.current = 0
+
+    def update(self, current: int, message: str = ""):
+        """
+        Update progress bar.
+
+        Args:
+            current: Current progress value
+            message: Optional status message
+        """
+        self.current = current
+        percent = (current / self.total) * 100 if self.total > 0 else 0
+        filled = int((current / self.total) * self.width) if self.total > 0 else 0
+
+        bar = "█" * filled + "░" * (self.width - filled)
+
+        output = f"\r{self.title} {bar}"
+        if self.show_percent:
+            output += f" {percent:>5.1f}%"
+        if message:
+            output += f" {message}"
+
+        sys.stdout.write(output)
+        sys.stdout.flush()
+
+    def finish(self, message: str = "✅ Complete"):
+        """
+        Finish the progress bar.
+
+        Args:
+            message: Final completion message
+        """
+        self.update(self.total, message)
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+
+
+def make_progress_bar(value: int, max_value: int, width: int = 10) -> str:
+    """
+    Create a static progress bar string.
+
+    Args:
+        value: Current value
+        max_value: Maximum value
+        width: Width in characters
+
+    Returns:
+        Progress bar string using block characters
+
+    Example:
+        >>> make_progress_bar(7, 10, 10)
+        '███████░░░'
+    """
+    if max_value == 0:
+        return "░" * width
+    filled = int((value / max_value) * width)
+    return "█" * filled + "░" * (width - filled)
+
+
+def make_percentage_bar(percent: float, width: int = 20) -> str:
+    """
+    Create a percentage bar (0-100).
+
+    Args:
+        percent: Percentage (0-100)
+        width: Width in characters
+
+    Returns:
+        Progress bar string
+
+    Example:
+        >>> make_percentage_bar(75.5, 20)
+        '███████████████░░░░░'
+    """
+    filled = int((percent / 100) * width)
+    return "█" * filled + "░" * (width - filled)
+
+
+class TaskProgress:
+    """
+    Multi-task progress tracker.
+
+    Usage:
+        tasks = TaskProgress(["Task 1", "Task 2", "Task 3"])
+        tasks.start_task(0)
+        # ... do work ...
+        tasks.complete_task(0)
+        tasks.start_task(1)
+        # ... do work ...
+        tasks.complete_task(1)
+    """
+
+    def __init__(self, task_names: list[str]):
+        """
+        Initialize task tracker.
+
+        Args:
+            task_names: List of task names
+        """
+        self.tasks = task_names
+        self.status = ["⚪" for _ in task_names]  # ⚪ = pending, 🔵 = active, ✅ = done, ❌ = failed
+
+    def start_task(self, idx: int):
+        """Mark task as started."""
+        self.status[idx] = "🔵"
+        self._display()
+
+    def complete_task(self, idx: int, success: bool = True):
+        """Mark task as completed."""
+        self.status[idx] = "✅" if success else "❌"
+        self._display()
+
+    def fail_task(self, idx: int):
+        """Mark task as failed."""
+        self.complete_task(idx, success=False)
+
+    def _display(self):
+        """Display current status."""
+        sys.stdout.write('\r')
+        for status, task in zip(self.status, self.tasks):
+            sys.stdout.write(f'{status} {task}  ')
+        sys.stdout.flush()
+
+    def finish(self):
+        """Finish and move to new line."""
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+
+
+# Color utilities (ANSI escape codes)
+class Colors:
+    """ANSI color codes for terminal output."""
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+
+    # Regular colors
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+
+    # Bright colors
+    BRIGHT_BLACK = '\033[90m'
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+
+    @staticmethod
+    def color(text: str, color: str) -> str:
+        """Wrap text in color codes."""
+        return f"{color}{text}{Colors.RESET}"
+
+
+# Box drawing utilities
+class BoxChars:
+    """Unicode box drawing characters."""
+    # Single line
+    H = '─'  # Horizontal
+    V = '│'  # Vertical
+    TL = '┌'  # Top-left
+    TR = '┐'  # Top-right
+    BL = '└'  # Bottom-left
+    BR = '┘'  # Bottom-right
+    VR = '├'  # Vertical-right
+    VL = '┤'  # Vertical-left
+    HU = '┴'  # Horizontal-up
+    HD = '┬'  # Horizontal-down
+    CROSS = '┼'  # Cross
+
+    # Double line
+    DH = '═'  # Double horizontal
+    DV = '║'  # Double vertical
+    DTL = '╔'  # Double top-left
+    DTR = '╗'  # Double top-right
+    DBL = '╚'  # Double bottom-left
+    DBR = '╝'  # Double bottom-right
+    DVR = '╠'  # Double vertical-right
+    DVL = '╣'  # Double vertical-left
+    DHU = '╩'  # Double horizontal-up
+    DHD = '╦'  # Double horizontal-down
+    DCROSS = '╬'  # Double cross
+
+    @staticmethod
+    def box(width: int, height: int, title: str = "", double: bool = True) -> str:
+        """
+        Create a box with optional title.
+
+        Args:
+            width: Box width
+            height: Box height
+            title: Optional title
+            double: Use double lines if True
+
+        Returns:
+            Multi-line box string
+        """
+        if double:
+            tl, tr, bl, br = BoxChars.DTL, BoxChars.DTR, BoxChars.DBL, BoxChars.DBR
+            h, v = BoxChars.DH, BoxChars.DV
+        else:
+            tl, tr, bl, br = BoxChars.TL, BoxChars.TR, BoxChars.BL, BoxChars.BR
+            h, v = BoxChars.H, BoxChars.V
+
+        lines = []
+
+        # Top line with title
+        if title:
+            title_padded = f" {title} "
+            padding = width - len(title_padded) - 2
+            left_pad = padding // 2
+            right_pad = padding - left_pad
+            lines.append(f"{tl}{h * left_pad}{title_padded}{h * right_pad}{tr}")
+        else:
+            lines.append(f"{tl}{h * (width - 2)}{tr}")
+
+        # Middle lines
+        for _ in range(height - 2):
+            lines.append(f"{v}{' ' * (width - 2)}{v}")
+
+        # Bottom line
+        lines.append(f"{bl}{h * (width - 2)}{br}")
+
+        return '\n'.join(lines)
+
+
+if __name__ == "__main__":
+    # Demo
+    print("🎨 uDOS Graphics Demo\n")
+
+    # Spinner demo
+    print("1. Spinner:")
+    with Spinner("Loading resources", style="braille"):
+        time.sleep(2)
+
+    # Progress bar demo
+    print("\n2. Progress Bar:")
+    bar = ProgressBar(total=50, width=30, title="Processing")
+    for i in range(50):
+        bar.update(i + 1)
+        time.sleep(0.05)
+    bar.finish()
+
+    # Static bars demo
+    print("\n3. Static Bars:")
+    print(f"  Disk:   {make_progress_bar(75, 100, 20)} 75%")
+    print(f"  Memory: {make_progress_bar(45, 100, 20)} 45%")
+    print(f"  CPU:    {make_progress_bar(90, 100, 20)} 90%")
+
+    # Task tracker demo
+    print("\n4. Task Tracker:")
+    tasks = TaskProgress(["Download", "Extract", "Install", "Configure"])
+    for i in range(4):
+        tasks.start_task(i)
+        time.sleep(0.5)
+        tasks.complete_task(i)
+    tasks.finish()
+
+    # Box demo
+    print("\n5. Box Drawing:")
+    print(BoxChars.box(40, 5, "Sample Box", double=True))
+
+    print("\n✅ Demo complete!")

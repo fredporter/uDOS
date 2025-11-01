@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 uDOS Terminal v1.3 - Enhanced NES Edition</title>
+
+    <!-- NES.css - Retro 8-bit Gaming Style -->
+    <link rel="stylesheet" href="../shared/nes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+        }
+
+        /* Theme Variables */
+        :root[data-theme="dark"] {
+            --bg-primary: #212529;
+            --bg-secondary: #1a1d20;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+        }
+
+        :root[data-theme="light"] {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #666666;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Viewport Wrapper */
+        .viewport-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .viewport-compact { max-width: 800px; max-height: 600px; }
+        .viewport-standard { max-width: 1024px; max-height: 768px; }
+        .viewport-large { max-width: 1280px; max-height: 900px; }
+        .viewport-wide { max-width: 1600px; max-height: 900px; }
+        .viewport-fullscreen { max-width: 100%; max-height: 100%; width: 100vw; }
+
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        .terminal-header {
+            margin-bottom: 15px;
+        }
+
+        .terminal-title {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .terminal-controls button {
+            font-size: 10px;
+            padding: 8px 12px;
+        }
+
+        .terminal-stats {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .terminal-stats .nes-badge {
+            white-space: nowrap;
+        }
+
+        #output-container {
+            flex: 1;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #output {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            font-size: 12px;
+            line-height: 2;
+            color: var(--text-primary);
+        }
+
+        /* Splash Mode */
+        #output.splash-mode {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .splash-art {
+            color: #209cee;
+            text-align: center;
+            animation: glow 2s ease-in-out infinite;
+            font-size: 10px;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px #209cee; }
+            50% { text-shadow: 0 0 20px #209cee, 0 0 30px #209cee; }
+        }
+
+        /* Block Graphics */
+        .block-art {
+            font-family: monospace;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .output-line {
+            margin: 4px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .prompt-line {
+            color: #92cc41;
+        }
+
+        .response-line {
+            color: #fff;
+        }
+
+        .error-line {
+            color: #e76e55;
+        }
+
+        .success-line {
+            color: #92cc41;
+        }
+
+        .info-line {
+            color: #209cee;
+        }
+
+        .warning-line {
+            color: #f7d51d;
+        }
+
+        .welcome {
+            color: #209cee;
+            margin-bottom: 8px;
+        }
+
+        .help-text {
+            color: #aaa;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .prompt-symbol {
+            color: #92cc41;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        #command-input {
+            flex: 1;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .toolbar button {
+            font-size: 12px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 10px;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.info {
+            background: #209cee;
+            color: white;
+            border: 4px solid #0c7ac9;
+        }
+
+        .toast.success {
+            background: #92cc41;
+            color: white;
+            border: 4px solid #76b82a;
+        }
+
+        .toast.warning {
+            background: #f7d51d;
+            color: #212529;
+            border: 4px solid #d4b000;
+        }
+
+        .toast.error {
+            background: #e76e55;
+            color: white;
+            border: 4px solid #c84c31;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 10px;
+        }
+
+        .settings-group select,
+        .settings-group input {
+            width: 100%;
+        }
+
+        /* Custom scrollbar */
+        #output::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #output::-webkit-scrollbar-track {
+            background: #212529;
+        }
+
+        #output::-webkit-scrollbar-thumb {
+            background: #92cc41;
+            border: 2px solid #212529;
+        }
+
+        #output::-webkit-scrollbar-thumb:hover {
+            background: #76c442;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .terminal-title {
+                font-size: 12px;
+            }
+
+            .toolbar {
+                gap: 5px;
+            }
+
+            #output {
+                font-size: 10px;
+                padding: 15px;
+            }
+
+            .toast-container {
+                right: 10px;
+                top: 10px;
+            }
+
+            .toast {
+                font-size: 8px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="nes-container is-dark with-title modal-content">
+            <p class="title">⚙️ TERMINAL SETTINGS</p>
+
+            <div class="settings-group">
+                <label>Theme Mode:</label>
+                <div class="nes-select is-dark">
+                    <select id="theme-select" onchange="setTheme(this.value)">
+                        <option value="dark">Dark Mode 🌙</option>
+                        <option value="light">Light Mode ☀️</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Viewport Size:</label>
+                <div class="nes-select is-dark">
+                    <select id="viewport-select" onchange="setViewportSize(this.value)">
+                        <option value="compact">Compact (800x600)</option>
+                        <option value="standard" selected>Standard (1024x768)</option>
+                        <option value="large">Large (1280x900)</option>
+                        <option value="wide">Wide (1600x900)</option>
+                        <option value="fullscreen">Fullscreen</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Font Size:</label>
+                <div class="nes-select is-dark">
+                    <select id="fontsize-select" onchange="setFontSize(this.value)">
+                        <option value="10">Small (10px)</option>
+                        <option value="12" selected>Medium (12px)</option>
+                        <option value="14">Large (14px)</option>
+                        <option value="16">Extra Large (16px)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="nes-btn is-success" onclick="saveSettings()">Save</button>
+                <button class="nes-btn" onclick="closeSettings()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Viewport Wrapper -->
+    <div class="viewport-wrapper viewport-standard" id="viewport">
+        <div class="terminal-container">
+            <!-- Header -->
+            <div class="terminal-header">
+                <div class="terminal-title">🎮 uDOS TERMINAL v1.3 • ENHANCED NES EDITION</div>
+
+                <!-- Control Buttons -->
+                <div class="terminal-controls">
+                    <button type="button" class="nes-btn is-primary" onclick="toggleTheme()" title="Toggle Theme">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                    <button type="button" class="nes-btn is-success" onclick="cycleViewport()" title="Cycle Viewport Size">
+                        <span id="viewport-icon">📺</span>
+                    </button>
+                    <button type="button" class="nes-btn is-warning" onclick="showSplash()" title="Show Splash Screen">
+                        <span>🎨</span>
+                    </button>
+                    <button type="button" class="nes-btn" onclick="refreshStatus()" title="Refresh Status">
+                        <span>🔄</span>
+                    </button>
+                </div>
+
+                <!-- Status Badges -->
+                <div class="terminal-stats">
+                <!-- Status Badges -->
+                <div class="terminal-stats">
+                    <span class="nes-badge">
+                        <span class="is-success">v1.3</span>
+                    </span>
+                    <span class="nes-badge">
+                        <span class="is-primary" id="status-badge">READY</span>
+                    </span>
+                    <span class="nes-badge">
+                        <span class="is-warning" id="viewport-badge">STD</span>
+                    </span>
+                    <span class="nes-badge">
+                        <span class="is-dark" id="cmd-count">0 CMD</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Output Container -->
+            <div id="output-container" class="nes-container is-dark with-title">
+                <p class="title">TERMINAL OUTPUT</p>
+                <div id="output"></div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-row">
+                    <span class="prompt-symbol">▶</span>
+                    <input type="text" class="nes-input is-dark" id="command-input" placeholder="Enter command..." autocomplete="off" autofocus>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button type="button" class="nes-btn is-primary" onclick="showHelp()">
+                    <span>❓ Help</span>
+                </button>
+                <button type="button" class="nes-btn is-success" onclick="clearTerminal()">
+                    <span>🗑️ Clear</span>
+                </button>
+                <button type="button" class="nes-btn is-warning" onclick="showBlocks()">
+                    <span>🔲 Blocks</span>
+                </button>
+                <button type="button" class="nes-btn" onclick="openSettings()">
+                    <span>⚙️ Settings</span>
+                </button>
+                <button type="button" class="nes-btn" onclick="openDashboard()">
+                    <span>🌀 Dashboard</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // GLOBAL STATE
+        // ========================================
+        const output = document.getElementById('output');
+        const input = document.getElementById('command-input');
+        const cmdCount = document.getElementById('cmd-count');
+        const statusBadge = document.getElementById('status-badge');
+        const viewportBadge = document.getElementById('viewport-badge');
+        const themeIcon = document.getElementById('theme-icon');
+
+        let commandHistory = [];
+        let historyIndex = -1;
+        let totalCommands = 0;
+        let currentTheme = 'dark';
+        let currentViewportSize = 'standard';
+        let currentFontSize = 12;
+
+        const viewportSizes = {
+            compact: { label: 'CMP', title: 'Compact (800x600)' },
+            standard: { label: 'STD', title: 'Standard (1024x768)' },
+            large: { label: 'LRG', title: 'Large (1280x900)' },
+            wide: { label: 'WDE', title: 'Wide (1600x900)' },
+            fullscreen: { label: 'FULL', title: 'Fullscreen' }
+        };
+
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        function init() {
+            loadSettings();
+            showWelcome();
+            input.focus();
+            refreshStatus();
+        }
+
+        function loadSettings() {
+            // Load from localStorage
+            currentTheme = localStorage.getItem('theme') || 'dark';
+            currentViewportSize = localStorage.getItem('viewportSize') || 'standard';
+            currentFontSize = parseInt(localStorage.getItem('fontSize') || '12');
+
+            // Apply settings
+            setTheme(currentTheme, false);
+            setViewportSize(currentViewportSize, false);
+            setFontSize(currentFontSize, false);
+        }
+
+        function saveSettings() {
+            localStorage.setItem('theme', currentTheme);
+            localStorage.setItem('viewportSize', currentViewportSize);
+            localStorage.setItem('fontSize', currentFontSize);
+            showToast('✓ Settings saved!', 'success');
+            closeSettings();
+        }
+
+        // ========================================
+        // THEME SYSTEM
+        // ========================================
+        function toggleTheme() {
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme, true);
+        }
+
+        function setTheme(theme, showNotification = true) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+
+            // Update containers
+            const isDark = theme === 'dark';
+            document.querySelectorAll('.nes-container').forEach(el => {
+                el.classList.toggle('is-dark', isDark);
+            });
+
+            // Update inputs
+            document.querySelectorAll('.nes-input').forEach(el => {
+                el.classList.toggle('is-dark', isDark);
+            });
+
+            // Update selects
+            document.querySelectorAll('.nes-select').forEach(el => {
+                el.classList.toggle('is-dark', isDark);
+            });
+
+            // Update icon
+            themeIcon.textContent = isDark ? '🌙' : '☀️';
+
+            // Update select
+            document.getElementById('theme-select').value = theme;
+
+            if (showNotification) {
+                showToast(`Theme: ${theme} mode`, 'info');
+            }
+        }
+
+        // ========================================
+        // VIEWPORT CONTROL
+        // ========================================
+        function cycleViewport() {
+            const sizes = Object.keys(viewportSizes);
+            const current = sizes.indexOf(currentViewportSize);
+            const next = (current + 1) % sizes.length;
+            setViewportSize(sizes[next], true);
+        }
+
+        function setViewportSize(size, showNotification = true) {
+            currentViewportSize = size;
+            const viewport = document.getElementById('viewport');
+            viewport.className = `viewport-wrapper viewport-${size}`;
+
+            updateViewportBadge(size);
+            document.getElementById('viewport-select').value = size;
+
+            if (showNotification) {
+                const info = viewportSizes[size];
+                showToast(`Viewport: ${info.title}`, 'info');
+            }
+        }
+
+        function updateViewportBadge(size) {
+            viewportBadge.textContent = viewportSizes[size].label;
+        }
+
+        // ========================================
+        // FONT SIZE CONTROL
+        // ========================================
+        function setFontSize(size, showNotification = true) {
+            currentFontSize = parseInt(size);
+            output.style.fontSize = `${size}px`;
+
+            document.getElementById('fontsize-select').value = size;
+
+            if (showNotification) {
+                showToast(`Font size: ${size}px`, 'info');
+            }
+        }
+
+        // ========================================
+        // TOAST NOTIFICATIONS
+        // ========================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========================================
+        // SETTINGS MODAL
+        // ========================================
+        function openSettings() {
+            document.getElementById('settings-modal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('settings-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'settings-modal') {
+                closeSettings();
+            }
+        });
+
+        // ========================================
+        // SPLASH SCREEN
+        // ========================================
+        async function showSplash() {
+            try {
+                const response = await fetch('/api/splash');
+                const data = await response.json();
+
+                if (data.success && data.splash) {
+                    output.innerHTML = '';
+                    output.classList.add('splash-mode');
+
+                    const splash = document.createElement('pre');
+                    splash.className = 'splash-art';
+                    splash.textContent = data.splash;
+                    output.appendChild(splash);
+
+                    // Add instruction
+                    const instruction = document.createElement('div');
+                    instruction.style.textAlign = 'center';
+                    instruction.style.marginTop = '20px';
+                    instruction.style.color = '#92cc41';
+                    instruction.style.fontSize = '10px';
+                    instruction.textContent = 'Press any key to continue...';
+                    output.appendChild(instruction);
+
+                    // Exit on keypress
+                    const exitSplash = (e) => {
+                        output.classList.remove('splash-mode');
+                        clearTerminal();
+                        document.removeEventListener('keydown', exitSplash);
+                    };
+                    document.addEventListener('keydown', exitSplash);
+                } else {
+                    addOutput('✗ Failed to load splash screen', 'error-line');
+                }
+            } catch (error) {
+                addOutput(`✗ Splash error: ${error.message}`, 'error-line');
+            }
+        }
+
+        // ========================================
+        // BLOCK GRAPHICS DEMO
+        // ========================================
+        function showBlocks() {
+            addOutput('', 'response-line');
+            addOutput('═══ BLOCK GRAPHICS DEMO ═══', 'info-line');
+            addOutput('', 'response-line');
+            addOutput('Block Shades: ░░░ ▒▒▒ ▓▓▓ ███', 'block-art');
+            addOutput('', 'response-line');
+            addOutput('Box Drawing:', 'success-line');
+            addOutput('┌─────────────┐', 'block-art');
+            addOutput('│ Hello uDOS! │', 'block-art');
+            addOutput('└─────────────┘', 'block-art');
+            addOutput('', 'response-line');
+            addOutput('Arrows: ← → ↑ ↓ ↖ ↗ ↘ ↙', 'block-art');
+            addOutput('Symbols: ✓ ✗ • ● ■ ◆ ★ ♥', 'block-art');
+            addOutput('', 'response-line');
+            addOutput('Progress Bar:', 'success-line');
+            addOutput('████████████░░░░░░░░ 60%', 'block-art');
+            addOutput('', 'response-line');
+            addOutput('═══════════════════════════', 'info-line');
+            addOutput('', 'response-line');
+        }
+
+        // ========================================
+        // STATUS & REFRESH
+        // ========================================
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                if (data.success) {
+                    statusBadge.textContent = 'ONLINE';
+                    statusBadge.className = 'is-success';
+                    showToast('✓ Status refreshed', 'success');
+                } else {
+                    statusBadge.textContent = 'ERROR';
+                    statusBadge.className = 'is-error';
+                }
+            } catch (error) {
+                statusBadge.textContent = 'OFFLINE';
+                statusBadge.className = 'is-error';
+                showToast('✗ Connection failed', 'error');
+            }
+        }
+            </div>
+        </div>
+
+        <!-- Output Container -->
+        <div id="output-container" class="nes-container is-dark with-title">
+            <p class="title">TERMINAL OUTPUT</p>
+            <div id="output"></div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-row">
+                <span class="prompt-symbol">▶</span>
+                <input type="text" class="nes-input is-dark" id="command-input" placeholder="Enter command..." autocomplete="off" autofocus>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button type="button" class="nes-btn is-primary" onclick="showHelp()">
+                <span>? Help</span>
+            </button>
+            <button type="button" class="nes-btn is-success" onclick="clearTerminal()">
+                <span>Clear</span>
+            </button>
+            <button type="button" class="nes-btn is-warning" onclick="openDashboard()">
+                <span>Dashboard</span>
+            </button>
+            <button type="button" class="nes-btn" onclick="openSettings()">
+                <span>Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('command-input');
+        const cmdCount = document.getElementById('cmd-count');
+        let commandHistory = [];
+        let historyIndex = -1;
+        let totalCommands = 0;
+
+        // ========================================
+        // OUTPUT FUNCTIONS
+        // ========================================
+        function showWelcome() {
+            addOutput('█████ uDOS TERMINAL v1.3 ENHANCED █████', 'welcome');
+            addOutput('═══════════════════════════════════════', 'info-line');
+            addOutput('', 'response-line');
+            addOutput('🎮 Welcome to the Enhanced NES Terminal!', 'success-line');
+            addOutput('', 'response-line');
+            addOutput('✨ NEW FEATURES:', 'info-line');
+            addOutput('  🌙 Theme toggle (dark/light)', 'response-line');
+            addOutput('  📺 Viewport size control', 'response-line');
+            addOutput('  🎨 Splash screen (SPLASH command)', 'response-line');
+            addOutput('  🔲 Block graphics support', 'response-line');
+            addOutput('  ⚙️ Settings modal', 'response-line');
+            addOutput('  🔄 Live status refresh', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('Type "help" for commands • Press ↑/↓ for history', 'help-text');
+            addOutput('', 'response-line');
+            addOutput('═══════════════════════════════════════', 'info-line');
+            addOutput('', 'response-line');
+        }
+
+        function addOutput(text, className = 'response-line') {
+            const line = document.createElement('div');
+            line.className = `output-line ${className}`;
+            line.textContent = text;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function addPromptLine(command) {
+            addOutput(`▶ ${command}`, 'prompt-line');
+        }
+
+        function updateCommandCount() {
+            cmdCount.textContent = `${totalCommands} CMD`;
+        }
+
+        // ========================================
+        // COMMAND EXECUTION
+        // ========================================
+
+        async function executeCommand(command) {
+            if (!command.trim()) return;
+
+            // Add to history
+            commandHistory.unshift(command);
+            if (commandHistory.length > 100) commandHistory.pop();
+            historyIndex = -1;
+            totalCommands++;
+            updateCommandCount();
+
+            // Show command
+            addPromptLine(command);
+
+            // Handle built-in commands
+            const cmd = command.trim().toLowerCase();
+
+            if (cmd === 'clear' || cmd === 'cls') {
+                clearTerminal();
+                return;
+            }
+
+            if (cmd === 'help') {
+                showHelp();
+                return;
+            }
+
+            if (cmd === 'exit' || cmd === 'quit') {
+                addOutput('Cannot exit web terminal.', 'warning-line');
+                addOutput('Close the browser tab to exit.', 'help-text');
+                return;
+            }
+
+            // Execute uDOS command via API
+            try {
+                const response = await fetch('/api/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.output) {
+                        data.output.split('\n').forEach(line => {
+                            addOutput(line, 'response-line');
+                        });
+                    } else {
+                        addOutput('✓ Command executed', 'success-line');
+                    }
+                } else {
+                    addOutput(`✗ Error: ${data.error || 'Unknown error'}`, 'error-line');
+                }
+            } catch (error) {
+                addOutput(`✗ Connection error: ${error.message}`, 'error-line');
+                addOutput('⚠ Make sure the uDOS backend is running', 'warning-line');
+            }
+        }
+
+        function clearTerminal() {
+            output.innerHTML = '';
+            output.classList.remove('splash-mode');
+            showWelcome();
+        }
+
+        function showHelp() {
+            addOutput('', 'response-line');
+            addOutput('═══ uDOS TERMINAL COMMANDS ═══', 'info-line');
+            addOutput('', 'response-line');
+            addOutput('▶ CORE COMMANDS:', 'success-line');
+            addOutput('  help          - Show this help', 'response-line');
+            addOutput('  clear / cls   - Clear terminal', 'response-line');
+            addOutput('  status        - System status', 'response-line');
+            addOutput('  version       - uDOS version', 'response-line');
+            addOutput('  splash        - Show splash screen', 'response-line');
+            addOutput('  blocks        - Block graphics demo', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('▶ DATA COMMANDS:', 'success-line');
+            addOutput('  list          - List files', 'response-line');
+            addOutput('  read <file>   - Read file', 'response-line');
+            addOutput('  edit <file>   - Edit file', 'response-line');
+            addOutput('  save <file>   - Save buffer', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('▶ NAVIGATION:', 'success-line');
+            addOutput('  map           - Show world map', 'response-line');
+            addOutput('  goto <loc>    - Go to location', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('▶ SYSTEM:', 'success-line');
+            addOutput('  settings      - Open settings modal', 'response-line');
+            addOutput('  dashboard     - Open dashboard', 'response-line');
+            addOutput('  servers       - List servers', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('▶ KEYBOARD SHORTCUTS:', 'success-line');
+            addOutput('  Ctrl+L        - Clear terminal', 'response-line');
+            addOutput('  ↑/↓           - Command history', 'response-line');
+            addOutput('  ESC           - Close modals', 'response-line');
+            addOutput('', 'response-line');
+            addOutput('═══════════════════════════════', 'info-line');
+            addOutput('', 'response-line');
+        }
+
+        function openDashboard() {
+            window.open('http://localhost:8887', '_blank');
+            addOutput('▶ Opening dashboard...', 'info-line');
+            showToast('Opening dashboard', 'info');
+        }
+
+        // ========================================
+        // INPUT HANDLING
+        // ========================================
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value;
+                input.value = '';
+                executeCommand(command);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[historyIndex];
+                } else if (historyIndex === 0) {
+                    historyIndex = -1;
+                    input.value = '';
+                }
+            } else if (e.key === 'l' && e.ctrlKey) {
+                e.preventDefault();
+                clearTerminal();
+            } else if (e.key === 'Escape') {
+                closeSettings();
+            }
+        });
+
+        // Refocus input when clicking anywhere
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.modal-overlay')) {
+                input.focus();
+            }
+        });
+
+        // ========================================
+        // INITIALIZE ON LOAD
+        // ========================================
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+# uDOS SETUP SCRIPT v1.0.0
+# User Profile Configuration with IF/THEN Logic
+# Editable with: EDIT data/templates/setup.uscript
+#
+# This script validates and configures memory/user.json
+# Variables with DEFAULT values auto-apply if empty
+# REQUIRED fields must be entered by user
+
+# ============================================================
+# SYSTEM METADATA CHECK
+# ============================================================
+
+# Check if user.json exists
+[SYSTEM|CHECK_FILE*memory/user.json]
+
+# IF user.json missing THEN create from template
+[IF|FILE_MISSING*memory/user.json]
+  [SYSTEM|LOG*Creating user.json from template]
+  [FILE|COPY*data/templates/user.template.json*memory/user.json]
+  [SYSTEM|SET_VAR*NEEDS_SETUP*TRUE]
+[ENDIF]
+
+# Load current user profile
+[SYSTEM|LOAD_JSON*memory/user.json*USER_PROFILE]
+
+# ============================================================
+# REQUIRED FIELD VALIDATION
+# ============================================================
+
+# USER_NAME - REQUIRED (no default)
+[SYSTEM|GET_FIELD*USER_PROFILE.NAME*USER_NAME]
+
+[IF|EMPTY*USER_NAME]
+  [SYSTEM|PROMPT*Enter your name or alias*USER_NAME*REQUIRED]
+  [IF|EMPTY*USER_NAME]
+    [SYSTEM|ERROR*User name is required for setup]
+    [SYSTEM|EXIT*1]
+  [ENDIF]
+  [SYSTEM|SET_FIELD*USER_PROFILE.NAME*{USER_NAME}]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# ============================================================
+# FIELDS WITH DEFAULTS
+# ============================================================
+
+# TIMEZONE - DEFAULT: Auto-detect or UTC
+[SYSTEM|GET_FIELD*USER_PROFILE.TIMEZONE*USER_TIMEZONE]
+
+[IF|EMPTY*USER_TIMEZONE]
+  [SYSTEM|DETECT_TIMEZONE*DETECTED_TZ]
+  [IF|EMPTY*DETECTED_TZ]
+    [SYSTEM|SET_VAR*DETECTED_TZ*UTC]
+  [ENDIF]
+  [SYSTEM|PROMPT*Timezone [{DETECTED_TZ}]*USER_TIMEZONE*OPTIONAL]
+  [IF|EMPTY*USER_TIMEZONE]
+    [SYSTEM|SET_VAR*USER_TIMEZONE*{DETECTED_TZ}]
+  [ENDIF]
+  [SYSTEM|SET_FIELD*USER_PROFILE.TIMEZONE*{USER_TIMEZONE}]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# LOCATION - DEFAULT: "Unknown"
+[SYSTEM|GET_FIELD*USER_PROFILE.LOCATION*USER_LOCATION]
+
+[IF|EMPTY*USER_LOCATION]
+  [SYSTEM|PROMPT*Your location (city/region)*USER_LOCATION*OPTIONAL]
+  [IF|EMPTY*USER_LOCATION]
+    [SYSTEM|SET_VAR*USER_LOCATION*Unknown]
+  [ENDIF]
+  [SYSTEM|SET_FIELD*USER_PROFILE.LOCATION*{USER_LOCATION}]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# ============================================================
+# WORLD LOCATION MAPPING (Optional but Recommended)
+# ============================================================
+
+[SYSTEM|GET_FIELD*WORLD_LOCATION.CITY*WORLD_CITY]
+
+[IF|EMPTY*WORLD_CITY]
+  [SYSTEM|LOG*World map location not configured]
+  [SYSTEM|PROMPT*Configure world map location? (y/n)*CONFIG_MAP*OPTIONAL]
+
+  [IF|EQUALS*CONFIG_MAP*y]
+    [SYSTEM|DISPLAY*Available cities: New York, London, Tokyo, Sydney, Paris, San Francisco, Mumbai, Berlin, Singapore, São Paulo]
+    [SYSTEM|PROMPT*Select city*WORLD_CITY*OPTIONAL]
+
+    [IF|NOT_EMPTY*WORLD_CITY]
+      # Load worldmap data
+      [SYSTEM|LOAD_JSON*data/WORLDMAP.UDO*WORLDMAP]
+      [SYSTEM|GET_FIELD*WORLDMAP.CITIES.{WORLD_CITY}*CITY_DATA]
+
+      [IF|NOT_EMPTY*CITY_DATA]
+        # Extract city details
+        [SYSTEM|GET_FIELD*CITY_DATA.country*WORLD_COUNTRY]
+        [SYSTEM|GET_FIELD*CITY_DATA.continent*WORLD_CONTINENT]
+        [SYSTEM|GET_FIELD*CITY_DATA.latitude*WORLD_LAT]
+        [SYSTEM|GET_FIELD*CITY_DATA.longitude*WORLD_LON]
+        [SYSTEM|GET_FIELD*CITY_DATA.region*WORLD_REGION]
+        [SYSTEM|GET_FIELD*CITY_DATA.timezone*WORLD_TZ]
+
+        # Update world location
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.CITY*{WORLD_CITY}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.COUNTRY*{WORLD_COUNTRY}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.CONTINENT*{WORLD_CONTINENT}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.LATITUDE*{WORLD_LAT}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.LONGITUDE*{WORLD_LON}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.REGION*{WORLD_REGION}]
+        [SYSTEM|SET_FIELD*WORLD_LOCATION.TIMEZONE*{WORLD_TZ}]
+
+        # Update user timezone to match
+        [SYSTEM|SET_FIELD*USER_PROFILE.TIMEZONE*{WORLD_TZ}]
+
+        # Calculate grid position
+        [SYSTEM|GET_FIELD*CITY_DATA.grid_mapping.x*GRID_X]
+        [SYSTEM|GET_FIELD*CITY_DATA.grid_mapping.y*GRID_Y]
+        [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.X*{GRID_X}]
+        [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.Y*{GRID_Y}]
+        [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.LAYER*SURFACE]
+
+        [SYSTEM|LOG*Location set to {WORLD_CITY}, {WORLD_COUNTRY}]
+        [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+      [ELSE]
+        [SYSTEM|WARNING*City '{WORLD_CITY}' not found in WORLDMAP.UDO]
+      [ENDIF]
+    [ENDIF]
+  [ENDIF]
+[ENDIF]
+
+# ============================================================
+# SYSTEM CONFIGURATION DEFAULTS
+# ============================================================
+
+# GEMINI_API_KEY - DEFAULT: Empty (optional)
+[SYSTEM|GET_FIELD*SYSTEM_CONFIG.GEMINI_API_KEY*API_KEY]
+
+[IF|EMPTY*API_KEY]
+  [SYSTEM|PROMPT*Gemini API key (optional, press Enter to skip)*API_KEY*OPTIONAL]
+  [IF|NOT_EMPTY*API_KEY]
+    [SYSTEM|SET_FIELD*SYSTEM_CONFIG.GEMINI_API_KEY*{API_KEY}]
+    [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+  [ENDIF]
+[ENDIF]
+
+# OFFLINE_MODE_ALLOWED - DEFAULT: true
+[SYSTEM|GET_FIELD*SYSTEM_CONFIG.OFFLINE_MODE_ALLOWED*OFFLINE_MODE]
+
+[IF|EMPTY*OFFLINE_MODE]
+  [SYSTEM|SET_FIELD*SYSTEM_CONFIG.OFFLINE_MODE_ALLOWED*true]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# LIFESPAN - DEFAULT: "Infinite"
+[SYSTEM|GET_FIELD*SYSTEM_CONFIG.LIFESPAN*LIFESPAN]
+
+[IF|EMPTY*LIFESPAN]
+  [SYSTEM|SET_FIELD*SYSTEM_CONFIG.LIFESPAN*Infinite]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# LIFESPAN_POLICY - DEFAULT: "WARN_AT_90_PERCENT"
+[SYSTEM|GET_FIELD*SYSTEM_CONFIG.LIFESPAN_POLICY*LIFESPAN_POLICY]
+
+[IF|EMPTY*LIFESPAN_POLICY]
+  [SYSTEM|SET_FIELD*SYSTEM_CONFIG.LIFESPAN_POLICY*WARN_AT_90_PERCENT]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# ============================================================
+# SESSION PREFERENCES DEFAULTS
+# ============================================================
+
+# ASSIST_MODE - DEFAULT: false
+[SYSTEM|GET_FIELD*SESSION_PREFERENCES.ASSIST_MODE*ASSIST_MODE]
+
+[IF|EMPTY*ASSIST_MODE]
+  [SYSTEM|PROMPT*Enable assist mode? (y/n) [n]*ASSIST_CHOICE*OPTIONAL]
+  [IF|EQUALS*ASSIST_CHOICE*y]
+    [SYSTEM|SET_FIELD*SESSION_PREFERENCES.ASSIST_MODE*true]
+  [ELSE]
+    [SYSTEM|SET_FIELD*SESSION_PREFERENCES.ASSIST_MODE*false]
+  [ENDIF]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# THEME - DEFAULT: "DUNGEON_CRAWLER"
+[SYSTEM|GET_FIELD*SESSION_PREFERENCES.THEME*THEME]
+
+[IF|EMPTY*THEME]
+  [SYSTEM|SET_FIELD*SESSION_PREFERENCES.THEME*DUNGEON_CRAWLER]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# AUTO_SAVE - DEFAULT: true
+[SYSTEM|GET_FIELD*SESSION_PREFERENCES.AUTO_SAVE*AUTO_SAVE]
+
+[IF|EMPTY*AUTO_SAVE]
+  [SYSTEM|SET_FIELD*SESSION_PREFERENCES.AUTO_SAVE*true]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# ============================================================
+# LOCATION DATA DEFAULTS
+# ============================================================
+
+# CURRENT_LAYER - DEFAULT: "SURFACE"
+[SYSTEM|GET_FIELD*LOCATION_DATA.CURRENT_LAYER*CURRENT_LAYER]
+
+[IF|EMPTY*CURRENT_LAYER]
+  [SYSTEM|SET_FIELD*LOCATION_DATA.CURRENT_LAYER*SURFACE]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# DUNGEON_LEVEL - DEFAULT: 0
+[SYSTEM|GET_FIELD*LOCATION_DATA.DUNGEON_LEVEL*DUNGEON_LEVEL]
+
+[IF|EMPTY*DUNGEON_LEVEL]
+  [SYSTEM|SET_FIELD*LOCATION_DATA.DUNGEON_LEVEL*0]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# MAP_POSITION defaults
+[SYSTEM|GET_FIELD*LOCATION_DATA.MAP_POSITION.X*MAP_X]
+[IF|EMPTY*MAP_X]
+  [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.X*0]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+[SYSTEM|GET_FIELD*LOCATION_DATA.MAP_POSITION.Y*MAP_Y]
+[IF|EMPTY*MAP_Y]
+  [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.Y*0]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+[SYSTEM|GET_FIELD*LOCATION_DATA.MAP_POSITION.LAYER*MAP_LAYER]
+[IF|EMPTY*MAP_LAYER]
+  [SYSTEM|SET_FIELD*LOCATION_DATA.MAP_POSITION.LAYER*SURFACE]
+  [SYSTEM|SET_VAR*PROFILE_UPDATED*TRUE]
+[ENDIF]
+
+# ============================================================
+# METADATA UPDATE
+# ============================================================
+
+[IF|EQUALS*PROFILE_UPDATED*TRUE]
+  # Update timestamp
+  [SYSTEM|TIMESTAMP*NOW]
+  [SYSTEM|SET_FIELD*USER_PROFILE.LAST_UPDATED*{NOW}]
+  [SYSTEM|SET_FIELD*METADATA.LAST_SESSION*session_{NOW}]
+
+  # Save updated profile
+  [SYSTEM|SAVE_JSON*USER_PROFILE*memory/user.json]
+  [SYSTEM|LOG*✅ User profile updated successfully]
+[ELSE]
+  [SYSTEM|LOG*✅ User profile validation complete - no updates needed]
+[ENDIF]
+
+# ============================================================
+# SETUP COMPLETE
+# ============================================================
+
+[SYSTEM|DISPLAY*]
+[SYSTEM|DISPLAY*============================================================]
+[SYSTEM|DISPLAY*✅ USER PROFILE SETUP COMPLETE]
+[SYSTEM|DISPLAY*============================================================]
+[SYSTEM|DISPLAY*]
+[SYSTEM|DISPLAY*📁 Profile: memory/user.json]
+[SYSTEM|DISPLAY*👤 User: {USER_NAME}]
+[SYSTEM|DISPLAY*🌍 Timezone: {USER_TIMEZONE}]
+[SYSTEM|DISPLAY*📍 Location: {USER_LOCATION}]
+
+[IF|NOT_EMPTY*WORLD_CITY]
+  [SYSTEM|DISPLAY*🗺️  World Map: {WORLD_CITY}, {WORLD_COUNTRY}]
+  [SYSTEM|DISPLAY*🌐 Coordinates: {WORLD_LAT}, {WORLD_LON}]
+[ENDIF]
+
+[SYSTEM|DISPLAY*]
+[SYSTEM|DISPLAY*To modify settings, edit: memory/user.json]
+[SYSTEM|DISPLAY*Or run: EDIT data/templates/setup.uscript]
+[SYSTEM|DISPLAY*============================================================]
+[SYSTEM|DISPLAY*]
+
+# Exit with success
+[SYSTEM|EXIT*0]

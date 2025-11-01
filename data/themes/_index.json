@@ -1,0 +1,13 @@
+{
+  "TITLE": "uDOS THEME SYSTEM",
+  "VERSION": "1.0.0",
+  "DEFAULT_THEME": "DUNGEON",
+  "DESCRIPTION": "Five distinct personality modes for uDOS interaction",
+  "AVAILABLE_THEMES": [
+    "DUNGEON",
+    "GALAXY",
+    "FOUNDATION",
+    "SCIENCE",
+    "PROJECT"
+  ]
+}

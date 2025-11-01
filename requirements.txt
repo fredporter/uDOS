@@ -1,0 +1,35 @@
+# uDOS v1.3 Requirements
+# Core dependencies for uDOS operation with flexible versioning
+
+# AI Integration (Gemini)
+google-generativeai>=0.3.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Interactive CLI with tab completion
+prompt_toolkit>=3.0.0
+
+# HTTP requests for web extensions
+requests>=2.31.0
+
+# System information (recommended for health checks)
+psutil>=5.9.0
+
+# Notes:
+# - All packages use minimum version constraints (>=) for flexibility
+# - Python 3.8+ required (3.10+ recommended)
+# - Python 3.9 will work but is EOL (October 2025)
+# - Node.js and npm required for typo editor (separate installation)
+# - Monaspace fonts are optional (see extensions/setup_monaspace.sh)
+# - Web extensions require modern browser (Chrome, Firefox, Safari)
+
+# Installation:
+#   pip install -r requirements.txt
+# Or with upgrade:
+#   pip install --upgrade -r requirements.txt
+
+# Health Check:
+#   python3 core/uDOS_health.py
+# Or from CLI:
+#   python3 -c "from core.uDOS_health import run_quick_check; run_quick_check()"

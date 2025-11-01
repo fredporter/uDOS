@@ -1,0 +1,157 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌐 uDOS Markdown Server
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Server running on: http://localhost:8889
+📁 Serving from: /Users/fredbook/uDOS
+
+Examples:
+  • README: http://localhost:8889/README.MD
+  • Commands: http://localhost:8889/commands/COMMANDS.UDO
+  • Viewer: http://localhost:8889/
+
+Features:
+  ✅ GitHub-style markdown rendering
+  ✅ Syntax highlighting for code blocks
+  ✅ Custom uCODE language support
+  ✅ JSON formatting for .UDO files
+
+Press Ctrl+C to stop
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /favicon.ico HTTP/1.1" 404 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "HEAD / HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -
+[uDOS Markdown Server] "GET / HTTP/1.1" 200 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-theme.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-syntax.css HTTP/1.1" 404 -
+[uDOS Markdown Server] code 404, message File not found
+[uDOS Markdown Server] "GET /shared/udos-panels.js HTTP/1.1" 404 -
+[uDOS Markdown Server] "GET /file/README.md HTTP/1.1" 200 -

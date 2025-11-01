@@ -1,0 +1,7 @@
+[2025-10-31 20:18:09] [SESSION START] 
+[2025-10-31 20:18:21] [INPUT] web dash
+[2025-10-31 20:18:22] [OUTPUT] \n✅ uDOS Web Terminal Launched!\n\n  🌐 URL: http://localhost:8888\n  💻 Terminal: xterm.js with full ASCII support\n  🌀 Features: Splash screen, dashboard, persistent prompt\n\n💡 Your browser should open automatically\n   If not, navigate to: http://localhost:8888\n\n⚡ The web terminal runs independently\n   You can continue using this CLI instance\n
+[2025-10-31 20:18:22] [MOVE] 1 (Total: 177)
+[2025-10-31 20:18:33] [INPUT] dash web
+[2025-10-31 20:18:37] [OUTPUT] ⚠️  Port 8887 in use, killing existing process...\n⚠️  Killed process 79065 on port 8887\n✅ 🌀 Dashboard started on http://localhost:8887 (PID: 79134)
+[2025-10-31 20:18:37] [MOVE] 2 (Total: 178)

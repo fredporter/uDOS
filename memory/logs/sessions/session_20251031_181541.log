@@ -1,0 +1,359 @@
+[2025-10-31 18:15:41] [SESSION START] 
+[2025-10-31 18:15:42] [uDOS> BLANK] 
+[2025-10-31 18:15:42] [The dungeon walls shimmer and clear.] 
+[2025-10-31 18:15:42] [uDOS> ECHO "═══════════════════════════════════════════════════════════"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "═══════════════════════════════════════════════════════════"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "  Testing uDOS File Management System"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "  Testing uDOS File Management System"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "═══════════════════════════════════════════════════════════"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "═══════════════════════════════════════════════════════════"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "📁 Test 1: Workspace Management"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "📁 Test 1: Workspace Management"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "--------------------------------"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "--------------------------------"]] 
+[2025-10-31 18:15:42] [uDOS> WORKSPACE LIST] 
+[2025-10-31 18:15:42] [
+📁 Workspaces
+============================================================
+
+  → 🧪 SANDBOX      9 files  Temporary workspace for experiments
+    💾 MEMORY       1 files  Long-term storage for completed work
+    ⚙️ DATA        12 files  System data and configurations
+
+💡 WORKSPACE SWITCH <name> to change workspaces
+] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [uDOS> WORKSPACE STATUS] 
+[2025-10-31 18:15:42] [
+📁 Current Workspace SANDBOX
+============================================================
+📊 9 files
+
+  📄 .server_state.json                  562 bytes
+  📄 USER.UDO                           1141 bytes
+  📄 mini_script.uscript                   0 bytes
+  📄 shakedown_save.txt                    0 bytes
+  📄 test_all_themes.uscript             449 bytes
+  📄 test_commands.uscript               329 bytes
+  📄 test_markdown.md                   2809 bytes
+  📄 test_output.md                     8703 bytes
+  📄 test_smart_theme.uscript             53 bytes
+
+💡 Use TREE to see full directory structure
+] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "⚙️  Test 2: Settings Display"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "⚙️  Test 2: Settings Display"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "----------------------------"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "----------------------------"]] 
+[2025-10-31 18:15:42] [uDOS> SETTINGS SHOW] 
+[2025-10-31 18:15:42] [
+⚙️  uDOS Settings
+============================================================
+
+👤 User
+  Username      {{USER_NAME}}
+  Display Name  {{USER_NAME}}
+  Email         Not set
+  Avatar        🌀
+  Location      {{USER_LOCATION}}
+
+🖥️  System
+  Theme         DUNGEON
+  Color Mode    DARK
+  Timezone      {{USER_TIMEZONE}}
+
+📁 Workspace
+  Default       sandbox
+  Auto-save     True
+  Backups       True
+
+💡 SETTINGS EDIT to change settings
+] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "📄 Test 3: Current Workspace Files"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "📄 Test 3: Current Workspace Files"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "-----------------------------------"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "-----------------------------------"]] 
+[2025-10-31 18:15:42] [uDOS> TREE] 
+[2025-10-31 18:15:42] [🌳 REPOSITORY STRUCTURE
+============================================================
+
+uDOS/
+├── core/
+│   ├── __init__.py
+│   ├── uDOS_commands.py
+│   ├── uDOS_completer.py
+│   ├── uDOS_connection.py
+│   ├── uDOS_editor.py
+│   ├── uDOS_env.py
+│   ├── uDOS_files.py
+│   ├── uDOS_graphics.py
+│   ├── uDOS_grid.py
+│   ├── uDOS_health.py
+│   ├── uDOS_history.py
+│   ├── uDOS_interactive.py
+│   ├── uDOS_logger.py
+│   ├── uDOS_main.py
+│   ├── uDOS_map.py
+│   ├── uDOS_offline.py
+│   ├── uDOS_parser.py
+│   ├── uDOS_picker.py
+│   ├── uDOS_prompt.py
+│   ├── uDOS_server.py
+│   ├── uDOS_settings.py
+│   ├── uDOS_setup.py
+│   ├── uDOS_splash.py
+│   ├── uDOS_startup.py
+│   ├── uDOS_theme.py
+│   ├── uDOS_tree.py
+│   ├── uDOS_ucode.py
+│   ├── uDOS_user.py
+│   ├── uDOS_variables.py
+│   ├── uDOS_viewport.py
+│   └── uDOS_viewport_viz.py
+├── data/
+│   ├── COMMANDS.UDO
+│   ├── FAQ.UDO
+│   ├── FONTS.UDO
+│   ├── LEXICON.UDO
+│   ├── PALETTE.UDO
+│   ├── PROMPTS.UDO
+│   ├── SETUP.USC
+│   ├── STORY.UDT
+│   ├── THEMES.UDO
+│   ├── USER.UDT
+│   └── WORLDMAP.UDO
+├── docs/
+│   ├── CHANGELOG.md
+│   ├── CUSTOMIZATION-GUIDE.md
+│   ├── IMPLEMENTATION-TRACKER.md
+│   ├── OUTPUT-COMMAND-REFERENCE.md
+│   ├── V1.2-DYNAMIC-COMMANDS-WEB-TERMINAL.md
+│   ├── V1.2-OPTIMIZATION-SUMMARY.md
+│   ├── V1.2-RELEASE.md
+│   ├── V1.2-SMART-COMMANDS.md
+│   ├── V1.2-UI-CLEANUP.md
+│   └── V1.2-VISUAL-IDENTITY-COMPLETE.md
+├── examples/
+│   ├── color_reference.py
+│   ├── dashboard_example.txt
+│   ├── help_detailed_example.txt
+│   ├── help_example.txt
+│   └── simple-setup.uscript
+├── extensions/
+│   ├── native/
+│   ├── web/
+│   │   ├── dashboard/
+│   │   │   ├── css/
+│   │   │   │   └── dashboard.css
+│   │   │   ├── js/
+│   │   │   │   └── dashboard.js
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── font-editor/
+│   │   │   ├── css/
+│   │   │   │   └── font-editor.css
+│   │   │   ├── js/
+│   │   │   │   ├── app.js
+│   │   │   │   ├── font-manager.js
+│   │   │   │   ├── grid-editor.js
+│   │   │   │   └── preview.js
+│   │   │   ├── lib/
+│   │   │   ├── templates/
+│   │   │   ├── README.md
+│   │   │   └── index.html
+│   │   ├── markdown-viewer/
+│   │   │   ├── examples/
+│   │   │   │   └── ucode-panels.md
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── shared/
+│   │   │   ├── README.md
+│   │   │   ├── udos-panels.js
+│   │   │   ├── udos-syntax.css
+│   │   │   └── udos-theme.css
+│   │   ├── terminal/
+│   │   │   ├── QUICKSTART.md
+│   │   │   ├── README.md
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   └── README.md
+│   ├── README.md
+│   ├── setup_cmd.sh
+│   ├── setup_micro.sh
+│   ├── setup_monaspace.sh
+│   └── setup_typo.sh
+├── history/
+│   ├── concepts/
+│   │   ├── Font-Editor-Analysis.md
+│   │   ├── Font-Editor-Implementation.md
+│   │   ├── Round-3-5-Summary.md
+│   │   └── uDOS-Font-Editor.md
+│   ├── data/
+│   │   └── COMMANDS_OLD.UDO
+│   ├── docs/
+│   │   ├── v1.2/
+│   │   │   ├── FIVE_THEME_UPDATE.md
+│   │   │   ├── ROUND_21_V12_PROGRESS.md
+│   │   │   ├── THEME_CHEATSHEET.txt
+│   │   │   ├── THEME_REFERENCE.md
+│   │   │   ├── V12_COMPLETE_SUMMARY.md
+│   │   │   ├── V12_ERROR_HANDLING_GUIDE.md
+│   │   │   └── V12_THEME_SYSTEM_COMPLETE.md
+│   │   ├── CLEANUP_COMPLETE.md
+│   │   ├── CORE_REORGANIZATION_20251030.md
+│   │   ├── Command-Rename-EXTENSIONS-to-OUTPUT.md
+│   │   ├── DOCUMENTATION_CONSOLIDATION_20251030.md
+│   │   ├── PHASE8_COMPLETE.md
+│   │   ├── PHASE9_IMPLEMENTATION_GUIDE.md
+│   │   ├── Parser-Bugfix-Round-14.md
+│   │   ├── REPOSITORY_REORGANIZATION_PHASE2_20241031.md
+│   │   ├── Repository-Reorganization-20251031.md
+│   │   ├── Round-10-Complete.md
+│   │   ├── Round-10-Visual-Demo.md
+│   │   ├── Round-11-Summary.md
+│   │   ├── Round-12-Summary.md
+│   │   ├── Round-13-Summary.md
+│   │   ├── Round-14-FINAL-Summary.md
+│   │   ├── Round-14-Summary.md
+│   │   ├── WIKI-PROVISIONING-COMPLETE.md
+│   │   └── WORKSPACE_CLEANUP_20251030.md
+│   ├── docs_active/
+│   │   ├── CHANGELOG.md
+│   │   ├── COMMANDS-QUICK-REFERENCE.md
+│   │   ├── DASH-COMMAND.md
+│   │   ├── IMPLEMENTATION-NON-BLOCKING-SERVERS.md
+│   │   ├── IMPLEMENTATION-STATUS-DASH.md
+│   │   ├── REPOSITORY_CLEANUP_20251031.md
+│   │   ├── WEB-EXTENSIONS-CLI-INTEGRATION.md
+│   │   ├── WEB-EXTENSIONS-GUIDE.md
+│   │   ├── WEB-IO-QUICK-START.md
+│   │   ├── WEB-IO-TESTING.md
+│   │   └── archive_ROADMAP.md
+│   ├── extensions/
+│   │   └── clone_backup/
+│   │       ├── fonts/
+│   │       ├── native/
+│   │       ├── web/
+│   │       │   └── typo/
+│   │       └── README.md
+│   ├── sandbox/
+│   │   ├── test_scripts/
+│   │   │   ├── demo_themes.sh
+│   │   │   ├── reset_theme.uscript
+│   │   │   ├── test_commands_handler.py
+│   │   │   ├── test_dashboard.py
+│   │   │   ├── test_destroy_command.py
+│   │   │   ├── test_file_picker.py
+│   │   │   ├── test_repair_enhancements.py
+│   │   │   ├── test_show_command.py
+│   │   │   ├── test_theme.uscript
+│   │   │   ├── test_theme_change.uscript
+│   │   │   ├── test_theme_complete.uscript
+│   │   │   ├── test_tree_folders.py
+│   │   │   └── verify_v12.sh
+│   │   ├── ROUND18_SUMMARY.md
+│   │   ├── ROUND18_TEST_PLAN.md
+│   │   ├── ROUND_20_GUIDE.md
+│   │   └── test-results-round-13.md
+│   ├── ALIASES.UDO
+│   └── uDOS.py
+├── knowledge/
+│   ├── commands/
+│   ├── concepts/
+│   ├── datasets/
+│   ├── faq/
+│   ├── maps/
+│   ├── personal/
+│   │   ├── cheatsheets/
+│   │   ├── notes/
+│   │   ├── projects/
+│   │   └── research/
+│   ├── KNOWLEDGE-SYSTEM.md
+│   └── README.md
+├── memory/
+│   ├── archive/
+│   ├── missions/
+│   ├── research/
+│   ├── scripts/
+│   │   ├── README.md
+│   │   └── deploy_wiki.sh
+│   └── README.md
+├── sandbox/
+│   ├── tests/
+│   │   ├── ai_summary_test.md
+│   │   ├── control_flow_test.udo
+│   │   ├── data_script.udo
+│   │   ├── file_io_test.udo
+│   │   ├── interactive_font_test.sh
+│   │   ├── player_sheet.udo
+│   │   ├── shakedown.uscript
+│   │   ├── test.udo
+│   │   ├── test_editors.uscript
+│   │   ├── test_file_commands.uscript
+│   │   ├── test_mapping.uscript
+│   │   ├── test_output_command.py
+│   │   ├── test_phase8.uscript
+│   │   ├── test_phase9.uscript
+│   │   ├── test_prompt.uscript
+│   │   ├── test_reboot.uscript
+│   │   ├── test_restore.uscript
+│   │   ├── test_v1.1.1.uscript
+│   │   ├── test_viewport_viz.py
+│   │   ├── test_web_io.sh
+│   │   ├── variables_test.udo
+│   │   └── workspace_test.udo
+│   ├── USER.UDO
+│   ├── mini_script.uscript
+│   ├── shakedown_save.txt
+│   ├── test_all_themes.uscript
+│   ├── test_commands.uscript
+│   ├── test_markdown.md
+│   ├── test_output.md
+│   └── test_smart_theme.uscript
+├── scripts/
+│   ├── migrate_to_round19.py
+│   ├── migrate_to_v1.2.py
+│   └── test_visual_system.sh
+├── wiki/
+│   ├── Architecture.md
+│   ├── Command-Reference.md
+│   ├── Contributing.md
+│   ├── FAQ.md
+│   ├── Home.md
+│   ├── Mapping-System.md
+│   ├── Quick-Start.md
+│   ├── README.md
+│   ├── Style-Guide.md
+│   ├── _Footer.md
+│   ├── _Sidebar.md
+│   └── uCODE-Language.md
+├── .env.example
+├── .gitignore
+├── CONTRIBUTING.md
+├── DEVELOPMENT.md
+├── LICENSE.txt
+├── README.MD
+├── ROADMAP.MD
+├── requirements.txt
+├── start_udos.sh
+├── structure.txt
+└── uDOS.py
+
+============================================================
+✅ Structure saved to: /Users/fredbook/uDOS/structure.txt
+   (Respects .gitignore and excludes hidden folders)
+] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [uDOS> ECHO "✅ All tests completed!"] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO "✅ All tests completed!"]] 
+[2025-10-31 18:15:42] [uDOS> ECHO ""] 
+[2025-10-31 18:15:42] [[SYSTEM|ERROR*Invalid command: ECHO ""]] 
+[2025-10-31 18:15:42] [SESSION END] 

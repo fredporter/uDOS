@@ -1,0 +1,209 @@
+{
+  "PALETTE": {
+    "NAME": "Polaroid",
+    "VERSION": "1.0.0",
+    "DESCRIPTION": "High-contrast photo-inspired color system for uDOS. Optimized for terminal visibility and aesthetic balance.",
+    "DEFAULT": true,
+
+    "COLORS": {
+      "PRIMARY": {
+        "red": {
+          "name": "Polaroid Red",
+          "tput": 196,
+          "ansi": "\\033[38;5;196m",
+          "hex": "#FF1744",
+          "rgb": [255, 23, 68],
+          "usage": "Errors, alerts, critical warnings, danger zones"
+        },
+        "green": {
+          "name": "Polaroid Green",
+          "tput": 46,
+          "ansi": "\\033[38;5;46m",
+          "hex": "#00E676",
+          "rgb": [0, 230, 118],
+          "usage": "Success, confirmations, growth, positive status"
+        },
+        "yellow": {
+          "name": "Polaroid Yellow",
+          "tput": 226,
+          "ansi": "\\033[38;5;226m",
+          "hex": "#FFEB3B",
+          "rgb": [255, 235, 59],
+          "usage": "Warnings, caution, highlights, notifications"
+        },
+        "blue": {
+          "name": "Polaroid Blue",
+          "tput": 21,
+          "ansi": "\\033[38;5;21m",
+          "hex": "#2196F3",
+          "rgb": [33, 150, 243],
+          "usage": "Information, links, system messages, cold tones"
+        },
+        "purple": {
+          "name": "Polaroid Purple",
+          "tput": 201,
+          "ansi": "\\033[38;5;201m",
+          "hex": "#E91E63",
+          "rgb": [233, 30, 99],
+          "usage": "Magic, spells, special events, fantasy elements"
+        },
+        "cyan": {
+          "name": "Polaroid Cyan",
+          "tput": 51,
+          "ansi": "\\033[38;5;51m",
+          "hex": "#00E5FF",
+          "rgb": [0, 229, 255],
+          "usage": "Technology, data, navigation, cool highlights"
+        }
+      },
+
+      "MONOCHROME": {
+        "white": {
+          "name": "Pure White",
+          "tput": 15,
+          "ansi": "\\033[38;5;15m",
+          "hex": "#FFFFFF",
+          "rgb": [255, 255, 255],
+          "usage": "Default text, headings, high emphasis"
+        },
+        "black": {
+          "name": "Pure Black",
+          "tput": 16,
+          "ansi": "\\033[38;5;16m",
+          "hex": "#000000",
+          "rgb": [0, 0, 0],
+          "usage": "Background (on light themes), dark accents"
+        }
+      },
+
+      "GRAYSCALE": {
+        "gray_0": {
+          "name": "Darkest Gray",
+          "tput": 232,
+          "ansi": "\\033[38;5;232m",
+          "hex": "#080808",
+          "rgb": [8, 8, 8],
+          "usage": "Deep shadows, near-black backgrounds"
+        },
+        "gray_1": {
+          "name": "Dark Gray",
+          "tput": 236,
+          "ansi": "\\033[38;5;236m",
+          "hex": "#303030",
+          "rgb": [48, 48, 48],
+          "usage": "Dark UI elements, secondary backgrounds"
+        },
+        "gray_2": {
+          "name": "Medium-Dark Gray",
+          "tput": 240,
+          "ansi": "\\033[38;5;240m",
+          "hex": "#585858",
+          "rgb": [88, 88, 88],
+          "usage": "Disabled text, inactive elements"
+        },
+        "gray_3": {
+          "name": "Medium Gray",
+          "tput": 244,
+          "ansi": "\\033[38;5;244m",
+          "hex": "#808080",
+          "rgb": [128, 128, 128],
+          "usage": "Secondary text, borders, dividers"
+        },
+        "gray_4": {
+          "name": "Light Gray",
+          "tput": 248,
+          "ansi": "\\033[38;5;248m",
+          "hex": "#A8A8A8",
+          "rgb": [168, 168, 168],
+          "usage": "Subtle accents, light borders"
+        },
+        "gray_5": {
+          "name": "Lightest Gray",
+          "tput": 252,
+          "ansi": "\\033[38;5;252m",
+          "hex": "#D0D0D0",
+          "rgb": [208, 208, 208],
+          "usage": "Very light backgrounds, near-white text"
+        }
+      }
+    },
+
+    "SHADING_BLOCKS": {
+      "unicode": {
+        "full": "█",
+        "dark": "▓",
+        "medium": "▒",
+        "light": "░",
+        "empty": " "
+      },
+      "ascii_fallback": {
+        "full": "#",
+        "dark": "@",
+        "medium": "+",
+        "light": ".",
+        "empty": " "
+      }
+    },
+
+    "THEMES": {
+      "DUNGEON_CRAWLER": {
+        "name": "Dungeon Crawler",
+        "description": "NetHack-inspired fantasy theme",
+        "mappings": {
+          "player": "white",
+          "enemy": "red",
+          "treasure": "yellow",
+          "magic": "purple",
+          "exit": "green",
+          "water": "cyan",
+          "wall": "gray_3"
+        }
+      },
+      "CYBERPUNK": {
+        "name": "Cyberpunk",
+        "description": "High-tech neon aesthetic",
+        "mappings": {
+          "system": "cyan",
+          "warning": "yellow",
+          "error": "red",
+          "success": "green",
+          "data": "blue",
+          "special": "purple",
+          "text": "white"
+        }
+      },
+      "TERMINAL_CLASSIC": {
+        "name": "Terminal Classic",
+        "description": "Retro green-on-black terminal",
+        "mappings": {
+          "primary": "green",
+          "secondary": "gray_4",
+          "background": "black",
+          "text": "green",
+          "highlight": "cyan"
+        }
+      }
+    },
+
+    "ACCESSIBILITY": {
+      "high_contrast_mode": false,
+      "colorblind_safe": true,
+      "colorblind_types": ["protanopia", "deuteranopia"],
+      "notes": "Polaroid palette tested for common color blindness types. Red/Green combinations avoided in critical UI. Purple/Blue distinction maintained."
+    },
+
+    "TERMINAL_SUPPORT": {
+      "256_color": true,
+      "truecolor": false,
+      "fallback": "ansi_16_color",
+      "test_string": "\\033[38;5;196m●\\033[38;5;46m●\\033[38;5;226m●\\033[38;5;21m●\\033[38;5;201m●\\033[38;5;51m●\\033[0m"
+    },
+
+    "METADATA": {
+      "author": "uDOS Team",
+      "created": "2025-01-24",
+      "inspiration": "Polaroid instant film colors, high-contrast photography, NetHack color schemes",
+      "license": "MIT"
+    }
+  }
+}

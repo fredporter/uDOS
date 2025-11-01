@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌀 uDOS Dashboard v1.3</title>
+
+    <!-- classic.css - Mac OS 8.1 Interface -->
+    <link rel="stylesheet" href="../shared/classic.css">
+
+    <style>
+        /* Base styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'ChicagoFLF', 'Chicago', 'Geneva', sans-serif;
+            background: #008080; /* Classic teal desktop */
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    #008080,
+                    #008080 10px,
+                    #006666 10px,
+                    #006666 20px
+                );
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            background: #fff;
+            border-bottom: 2px solid #000;
+            padding: 2px 8px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 0 #000;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 2px 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .menu-item:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .menu-item.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .menu-logo {
+            font-size: 16px;
+            padding: 0 8px;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+            min-width: 200px;
+            z-index: 1001;
+        }
+
+        .dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 4px 16px;
+            cursor: pointer;
+            font-size: 11px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .dropdown-item.disabled {
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .dropdown-item.disabled:hover {
+            background: transparent;
+            color: #888;
+        }
+
+        .dropdown-separator {
+            height: 1px;
+            background: #000;
+            margin: 2px 0;
+        }
+
+        .shortcut {
+            font-size: 9px;
+            color: #666;
+            margin-left: 20px;
+        }
+
+        .dropdown-item:hover .shortcut {
+            color: #fff;
+        }
+
+        /* Desktop Container */
+        .desktop {
+            padding: 20px;
+            min-height: calc(100vh - 30px);
+        }
+
+        /* Main window */
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .title {
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 12px;
+            text-align: center;
+            border-bottom: 2px solid #000;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .title-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .title-stripes {
+            width: 20px;
+            height: 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                #fff,
+                #fff 1px,
+                transparent 1px,
+                transparent 2px
+            );
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .window-btn {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #fff;
+            background: #000;
+            cursor: pointer;
+        }
+
+        .window-btn:hover {
+            background: #fff;
+        }
+
+        /* Dashboard content */
+        .dashboard-content {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-box {
+            border: 2px solid #000;
+            background: #ddd;
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #888;
+            padding: 12px;
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .metric-icon {
+            font-size: 20px;
+            float: right;
+        }
+
+        .metric-change {
+            font-size: 9px;
+            color: #006600;
+            margin-top: 4px;
+        }
+
+        .metric-change.negative {
+            color: #cc0000;
+        }
+
+        /* Server grid */
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .server-card {
+            border: 2px solid #000;
+            background: #fff;
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #888;
+            padding: 10px;
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #888;
+        }
+
+        .server-icon {
+            font-size: 20px;
+        }
+
+        .server-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #000;
+        }
+
+        .server-status.online {
+            background: #00ff00;
+            box-shadow: 0 0 4px #00ff00;
+        }
+
+        .server-status.offline {
+            background: #888;
+        }
+
+        .server-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .server-port {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .server-url {
+            font-size: 8px;
+            color: #0000ee;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .server-url:hover {
+            color: #ee0000;
+        }
+
+        .server-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .info-panel {
+            border: 2px solid #000;
+            background: #fff;
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #888;
+        }
+
+        .panel-header {
+            background: #ddd;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #888;
+        }
+
+        .panel-content {
+            padding: 10px;
+            font-size: 9px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: bold;
+        }
+
+        /* Code Box (Mac Classic Terminal Style) */
+        .code-box {
+            border: 2px solid #000;
+            background: #000;
+            color: #00ff00;
+            font-family: 'Monaco', 'Courier', monospace;
+            font-size: 10px;
+            padding: 10px;
+            margin: 8px 0;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .code-box-header {
+            color: #00ff00;
+            margin-bottom: 6px;
+            font-size: 9px;
+        }
+
+        .code-line {
+            margin: 2px 0;
+            white-space: pre;
+        }
+
+        .code-prompt {
+            color: #ffff00;
+        }
+
+        .code-output {
+            color: #00ff00;
+        }
+
+        .code-error {
+            color: #ff0000;
+        }
+
+        /* Workspace Browser */
+        .workspace-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .workspace-item {
+            padding: 6px 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workspace-item:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .workspace-icon {
+            font-size: 14px;
+        }
+
+        .workspace-name {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .workspace-count {
+            font-size: 8px;
+            color: #666;
+        }
+
+        .workspace-item:hover .workspace-count {
+            color: #fff;
+        }
+        .classic-btn {
+            background: #ddd;
+            border: 2px solid #000;
+            box-shadow:
+                inset -1px -1px 0px #000,
+                inset 1px 1px 0px #fff,
+                inset -2px -2px 0px #808080,
+                inset 2px 2px 0px #ddd;
+            padding: 4px 8px;
+            font-family: 'ChicagoFLF', sans-serif;
+            font-size: 10px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+        }
+
+        .classic-btn:active {
+            box-shadow:
+                inset 1px 1px 0px #000,
+                inset -1px -1px 0px #fff;
+            background: #bbb;
+        }
+
+        .classic-btn:disabled {
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .classic-btn-small {
+            font-size: 9px;
+            padding: 3px 6px;
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: #ddd;
+            border-top: 2px solid #000;
+            padding: 6px 12px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+
+        .status-item {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* Activity log */
+        .activity-section {
+            margin-top: 12px;
+            border: 2px solid #000;
+            background: #fff;
+        }
+
+        .activity-header {
+            background: #ddd;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .activity-log {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 8px;
+            font-size: 9px;
+            font-family: 'Monaco', 'Courier', monospace;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            padding: 2px 4px;
+        }
+
+        .log-entry.info {
+            color: #000;
+        }
+
+        .log-entry.success {
+            color: #006600;
+        }
+
+        .log-entry.error {
+            color: #cc0000;
+        }
+
+        .log-time {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            background: #ddd;
+            border: 2px solid #000;
+            box-shadow:
+                inset -1px -1px 0px #000,
+                inset 1px 1px 0px #fff,
+                inset -2px -2px 0px #808080,
+                inset 2px 2px 0px #ddd;
+            padding: 12px 8px;
+            font-family: 'ChicagoFLF', sans-serif;
+            font-size: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .action-btn:active {
+            box-shadow:
+                inset 1px 1px 0px #000,
+                inset -1px -1px 0px #fff;
+            background: #bbb;
+        }
+
+        .action-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-window {
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-title {
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .setting-group {
+            margin-bottom: 12px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 10px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 4px;
+            border: 2px solid #000;
+            background: #fff;
+            font-family: 'ChicagoFLF', sans-serif;
+            font-size: 10px;
+        }
+
+        .modal-footer {
+            padding: 12px 16px;
+            border-top: 1px solid #888;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #ddd;
+            border: 1px solid #888;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: inset 1px 1px 0 #ddd;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: #ddd;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .server-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-logo">🌀</div>
+
+        <div class="menu-item" onclick="toggleMenu('file-menu')">
+            File
+            <div id="file-menu" class="dropdown">
+                <div class="dropdown-item" onclick="openWorkspace('sandbox')">
+                    <span>📁 Open Sandbox</span>
+                    <span class="shortcut">⌘S</span>
+                </div>
+                <div class="dropdown-item" onclick="openWorkspace('memory')">
+                    <span>💾 Open Memory</span>
+                    <span class="shortcut">⌘M</span>
+                </div>
+                <div class="dropdown-item" onclick="openWorkspace('data')">
+                    <span>🗄️ Open Data</span>
+                    <span class="shortcut">⌘D</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="refreshDashboard()">
+                    <span>🔄 Refresh</span>
+                    <span class="shortcut">⌘R</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item disabled">
+                    <span>🚪 Quit</span>
+                    <span class="shortcut">⌘Q</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu('extensions-menu')">
+            Extensions
+            <div id="extensions-menu" class="dropdown">
+                <div class="dropdown-item" onclick="openExtension('cmd')">
+                    <span>💻 Terminal</span>
+                    <span class="shortcut">:8890</span>
+                </div>
+                <div class="dropdown-item" onclick="openExtension('markdown-viewer')">
+                    <span>📖 Markdown Viewer</span>
+                    <span class="shortcut">:8889</span>
+                </div>
+                <div class="dropdown-item" onclick="openExtension('font-editor')">
+                    <span>🎨 Font Editor</span>
+                    <span class="shortcut">:8888</span>
+                </div>
+                <div class="dropdown-item" onclick="openExtension('typo')">
+                    <span>✏️ Typo Editor</span>
+                    <span class="shortcut">:5173</span>
+                </div>
+                <div class="dropdown-item" onclick="openExtension('micro')">
+                    <span>📝 Micro Editor</span>
+                    <span class="shortcut">:8891</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="startAll()">
+                    <span>▶️ Start All</span>
+                </div>
+                <div class="dropdown-item" onclick="stopAll()">
+                    <span>⏹️ Stop All</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu('settings-menu')">
+            System
+            <div id="settings-menu" class="dropdown">
+                <div class="dropdown-item" onclick="showSystemInfo()">
+                    <span>ℹ️ System Information</span>
+                </div>
+                <div class="dropdown-item" onclick="showSettings()">
+                    <span>⚙️ Preferences...</span>
+                    <span class="shortcut">⌘,</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="checkAllStatus()">
+                    <span>🔍 Check Status</span>
+                </div>
+                <div class="dropdown-item" onclick="clearLog()">
+                    <span>🗑️ Clear Activity Log</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="showAbout()">
+                    <span>📋 About uDOS</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu('help-menu')">
+            Help
+            <div id="help-menu" class="dropdown">
+                <div class="dropdown-item" onclick="showHelp()">
+                    <span>❓ uDOS Help</span>
+                    <span class="shortcut">⌘?</span>
+                </div>
+                <div class="dropdown-item" onclick="showKeyboardShortcuts()">
+                    <span>⌨️ Keyboard Shortcuts</span>
+                </div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" onclick="window.open('https://github.com/fredporter/uDOS', '_blank')">
+                    <span>🔗 GitHub Repository</span>
+                </div>
+                <div class="dropdown-item" onclick="showDocs()">
+                    <span>📚 Documentation</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div class="desktop">
+    <div class="content">
+        <!-- Title Bar -->
+        <div class="title">
+            <div class="title-stripes"></div>
+            <div class="title-text">🌀 uDOS Extension Manager v1.3</div>
+            <div class="window-controls">
+                <div class="window-btn"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-icon">⚡</span>
+                        <div class="metric-label">Active Servers</div>
+                        <div class="metric-value" id="metric-servers">0/6</div>
+                        <div class="metric-change" id="metric-servers-change">Ready to start</div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-icon">📊</span>
+                        <div class="metric-label">Total Requests</div>
+                        <div class="metric-value" id="metric-requests">0</div>
+                        <div class="metric-change">Last updated: Never</div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-icon">⏱️</span>
+                        <div class="metric-label">Uptime</div>
+                        <div class="metric-value" id="metric-uptime">00:00:00</div>
+                        <div class="metric-change">Started: <span id="start-time">--</span></div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-icon">💾</span>
+                        <div class="metric-label">Memory Usage</div>
+                        <div class="metric-value" id="metric-memory">-- MB</div>
+                        <div class="metric-change">System resources</div>
+                    </div>
+                </div>
+
+                <!-- Server Grid -->
+                <div class="server-grid">
+                <!-- Server Grid -->
+                <div class="server-grid">
+                    <!-- Terminal -->
+                    <div class="server-card" data-extension="cmd" data-port="8890">
+                        <div class="server-header">
+                            <span class="server-icon">💻</span>
+                            <div class="server-status offline" id="status-cmd"></div>
+                        </div>
+                        <div class="server-name">Web Terminal</div>
+                        <div class="server-port">Port 8890</div>
+                        <div class="server-url" onclick="openExtension('cmd')">http://localhost:8890</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'start')">Start</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'stop')">Stop</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('cmd', 'open')">Open</button>
+                        </div>
+                    </div>
+
+                    <!-- Markdown Viewer -->
+                    <div class="server-card" data-extension="markdown-viewer" data-port="8889">
+                        <div class="server-header">
+                            <span class="server-icon">📖</span>
+                            <div class="server-status offline" id="status-markdown-viewer"></div>
+                        </div>
+                        <div class="server-name">Markdown Viewer</div>
+                        <div class="server-port">Port 8889</div>
+                        <div class="server-url" onclick="openExtension('markdown-viewer')">http://localhost:8889</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'start')">Start</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'stop')">Stop</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('markdown-viewer', 'open')">Open</button>
+                        </div>
+                    </div>
+
+                    <!-- Font Editor -->
+                    <div class="server-card" data-extension="font-editor" data-port="8888">
+                        <div class="server-header">
+                            <span class="server-icon">🎨</span>
+                            <div class="server-status offline" id="status-font-editor"></div>
+                        </div>
+                        <div class="server-name">Font Editor</div>
+                        <div class="server-port">Port 8888</div>
+                        <div class="server-url" onclick="openExtension('font-editor')">http://localhost:8888</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'start')">Start</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'stop')">Stop</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('font-editor', 'open')">Open</button>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard (Self) -->
+                    <div class="server-card" data-extension="dashboard" data-port="8887">
+                        <div class="server-header">
+                            <span class="server-icon">🌀</span>
+                            <div class="server-status online"></div>
+                        </div>
+                        <div class="server-name">Dashboard</div>
+                        <div class="server-port">Port 8887</div>
+                        <div class="server-url" onclick="window.location.reload()">http://localhost:8887</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" disabled>Running</button>
+                        </div>
+                    </div>
+
+                    <!-- Typo Editor -->
+                    <div class="server-card" data-extension="typo" data-port="5173">
+                        <div class="server-header">
+                            <span class="server-icon">✏️</span>
+                            <div class="server-status offline" id="status-typo"></div>
+                        </div>
+                        <div class="server-name">Typo Editor</div>
+                        <div class="server-port">Port 5173</div>
+                        <div class="server-url" onclick="openExtension('typo')">http://localhost:5173</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'start')">Start</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'stop')">Stop</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('typo', 'open')">Open</button>
+                        </div>
+                    </div>
+
+                    <!-- Micro Editor -->
+                    <div class="server-card" data-extension="micro" data-port="8891">
+                        <div class="server-header">
+                            <span class="server-icon">📝</span>
+                            <div class="server-status offline" id="status-micro"></div>
+                        </div>
+                        <div class="server-name">Micro Editor</div>
+                        <div class="server-port">Port 8891</div>
+                        <div class="server-url" onclick="openExtension('micro')">http://localhost:8891</div>
+                        <div class="server-actions">
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'start')">Start</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'stop')">Stop</button>
+                            <button class="classic-btn classic-btn-small" onclick="handleExtension('micro', 'open')">Open</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="activity-section">
+                    <div class="activity-header">
+                        <span>📋 Activity Log</span>
+                        <button class="classic-btn classic-btn-small" onclick="clearLog()">Clear</button>
+                    </div>
+                    <div class="activity-log" id="activity-log">
+                        <div class="log-entry info">
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-message">Dashboard initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- System Info -->
+                <div class="info-panel">
+                    <div class="panel-header">🖥️ System Info</div>
+                    <div class="panel-content">
+                        <div class="info-row">
+                            <span class="info-label">Version:</span>
+                            <span class="info-value">uDOS v1.3</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Platform:</span>
+                            <span class="info-value" id="platform-info">--</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Extensions:</span>
+                            <span class="info-value">6 installed</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Theme:</span>
+                            <span class="info-value">Classic Mac OS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workspaces -->
+                <div class="info-panel">
+                    <div class="panel-header">📁 Workspaces</div>
+                    <div class="panel-content" style="padding: 0;">
+                        <ul class="workspace-list">
+                            <li class="workspace-item" onclick="openWorkspace('sandbox')">
+                                <span class="workspace-icon">📦</span>
+                                <span class="workspace-name">Sandbox</span>
+                                <span class="workspace-count">~/sandbox</span>
+                            </li>
+                            <li class="workspace-item" onclick="openWorkspace('memory')">
+                                <span class="workspace-icon">💾</span>
+                                <span class="workspace-name">Memory</span>
+                                <span class="workspace-count">~/memory</span>
+                            </li>
+                            <li class="workspace-item" onclick="openWorkspace('data')">
+                                <span class="workspace-icon">🗄️</span>
+                                <span class="workspace-name">Data</span>
+                                <span class="workspace-count">~/data</span>
+                            </li>
+                            <li class="workspace-item" onclick="openWorkspace('output')">
+                                <span class="workspace-icon">📤</span>
+                                <span class="workspace-name">Output</span>
+                                <span class="workspace-count">~/output</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Quick Status -->
+                <div class="info-panel">
+                    <div class="panel-header">⚡ Quick Status</div>
+                    <div class="panel-content">
+                        <div class="code-box">
+                            <div class="code-box-header">$ system status</div>
+                            <div class="code-line code-output" id="quick-status">
+Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span>⚡</span>
+                <span id="server-count">0/6 servers online</span>
+            </div>
+            <div class="status-item">
+                <span>🕐</span>
+                <span id="current-time">--:--:--</span>
+            </div>
+            <div class="status-item">
+                <span>🌀</span>
+                <span>uDOS v1.3</span>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- End Desktop -->
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-window">
+            <div class="modal-title">
+                <span>⚙️ Settings</span>
+                <button class="modal-close" onclick="closeSettings()">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">Auto-Refresh Interval</label>
+                    <select id="auto-refresh" class="setting-input">
+                        <option value="0">Disabled</option>
+                        <option value="5">5 seconds</option>
+                        <option value="10" selected>10 seconds</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60">60 seconds</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Theme</label>
+                    <select id="color-theme" class="setting-input">
+                        <option value="classic" selected>Classic Mac OS 8.1</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="phosphor">Green Phosphor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="classic-btn" onclick="saveSettings()">Save</button>
+                <button class="classic-btn" onclick="closeSettings()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- World Map Modal -->
+    <div id="map-modal" class="modal">
+        <div class="modal-window" style="max-width: 700px;">
+            <div class="modal-title">
+                <span>🗺️ World Map</span>
+                <button class="modal-close" onclick="closeMap()">✖</button>
+            </div>
+            <div class="modal-body">
+                <div id="map-container" style="min-height: 300px; text-align: center; padding: 20px;">
+                    <p>Map data loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="classic-btn" onclick="closeMap()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // ========================================
+        // Menu System
+        // ========================================
+        let activeMenu = null;
+
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const menuItem = menu.parentElement;
+
+            // Close all other menus
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== menuId) {
+                    dropdown.classList.remove('active');
+                    dropdown.parentElement.classList.remove('active');
+                }
+            });
+
+            // Toggle this menu
+            const isActive = menu.classList.contains('active');
+            menu.classList.toggle('active');
+            menuItem.classList.toggle('active');
+
+            activeMenu = isActive ? null : menuId;
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.menu-item')) {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                    dropdown.parentElement.classList.remove('active');
+                });
+                activeMenu = null;
+            }
+        });
+
+        // ========================================
+        // Workspace Functions
+        // ========================================
+        function openWorkspace(workspace) {
+            addLog(`Opening ${workspace} workspace...`, 'info');
+            // In a real implementation, this would open a file browser or terminal
+            // For now, just show a notification
+            setTimeout(() => {
+                addLog(`${workspace} workspace: Ready`, 'success');
+            }, 500);
+            toggleMenu('file-menu');
+        }
+
+        function refreshDashboard() {
+            addLog('Refreshing dashboard...', 'info');
+            checkAllStatus();
+            toggleMenu('file-menu');
+        }
+
+        // ========================================
+        // System Functions
+        // ========================================
+        function showSystemInfo() {
+            addLog('System information displayed', 'info');
+            // Update platform info
+            document.getElementById('platform-info').textContent = navigator.platform;
+            updateQuickStatus();
+            toggleMenu('settings-menu');
+        }
+
+        function showAbout() {
+            addLog('About uDOS', 'info');
+            alert('uDOS v1.3\\n\\nUniversal Data Operating System\\nClassic Mac OS Style Dashboard\\n\\n© 2025');
+            toggleMenu('settings-menu');
+        }
+
+        function updateQuickStatus() {
+            const statusEl = document.getElementById('quick-status');
+            const serverCount = document.querySelectorAll('.server-status.online').length;
+            const uptime = document.getElementById('metric-uptime').textContent;
+
+            statusEl.innerHTML = `Servers: ${serverCount}/6 online\\nUptime: ${uptime}\\nPlatform: ${navigator.platform}\\nStatus: Ready`;
+        }
+
+        // ========================================
+        // Help Functions
+        // ========================================
+        function showHelp() {
+            const helpText = `uDOS Dashboard Help\\n\\n` +
+                `Menu Bar:\\n` +
+                `- File: Access workspaces and refresh\\n` +
+                `- Extensions: Manage web extensions\\n` +
+                `- System: Settings and system info\\n` +
+                `- Help: Documentation and support\\n\\n` +
+                `Click on server cards to manage extensions.`;
+
+            alert(helpText);
+            toggleMenu('help-menu');
+        }
+
+        function showKeyboardShortcuts() {
+            const shortcuts = `Keyboard Shortcuts:\\n\\n` +
+                `⌘R - Refresh Dashboard\\n` +
+                `⌘S - Open Sandbox\\n` +
+                `⌘M - Open Memory\\n` +
+                `⌘D - Open Data\\n` +
+                `⌘, - Preferences\\n` +
+                `⌘? - Help`;
+
+            alert(shortcuts);
+            toggleMenu('help-menu');
+        }
+
+        function showDocs() {
+            addLog('Opening documentation...', 'info');
+            toggleMenu('help-menu');
+        }
+
+        // ========================================
+        // Metrics Updates
+        // ========================================
+        let startTime = new Date();
+        let requestCount = 0;
+
+        function updateMetrics() {
+            // Update uptime
+            const now = new Date();
+            const uptimeMs = now - startTime;
+            const hours = Math.floor(uptimeMs / 3600000);
+            const minutes = Math.floor((uptimeMs % 3600000) / 60000);
+            const seconds = Math.floor((uptimeMs % 60000) / 1000);
+            document.getElementById('metric-uptime').textContent =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Update start time display
+            document.getElementById('start-time').textContent = startTime.toLocaleTimeString();
+
+            // Update requests (simulated)
+            if (Math.random() > 0.7) {
+                requestCount++;
+                document.getElementById('metric-requests').textContent = requestCount;
+            }
+
+            // Update memory (simulated)
+            if (performance && performance.memory) {
+                const memMB = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+                document.getElementById('metric-memory').textContent = `${memMB} MB`;
+            }
+
+            // Update server count
+            const onlineCount = document.querySelectorAll('.server-status.online').length;
+            document.getElementById('metric-servers').textContent = `${onlineCount}/6`;
+
+            const changeEl = document.getElementById('metric-servers-change');
+            if (onlineCount > 0) {
+                changeEl.textContent = `${onlineCount} active`;
+                changeEl.className = 'metric-change';
+            } else {
+                changeEl.textContent = 'Ready to start';
+                changeEl.className = 'metric-change';
+            }
+        }
+
+        // Update metrics every second
+        setInterval(updateMetrics, 1000);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMetrics();
+            showSystemInfo();
+            addLog('Dashboard loaded successfully', 'success');
+        });
+    </script>
+    <script src="js/dashboard-v12.js"></script>
+</body>
+</html>

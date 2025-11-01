@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Markdown Viewer v1.3</title>
+
+    <!-- system.css - Retro Mac System 6 Styling -->
+    <link rel="stylesheet" href="../shared/system.css">
+
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .window {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .window-pane {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1.5px solid #000;
+            background: #fff;
+        }
+
+        .controls h3 {
+            margin: 0 0 10px 0;
+            font-family: Chicago_12;
+            font-size: 14px;
+        }
+
+        .field-row button {
+            margin-right: 5px;
+        }
+
+        #content {
+            padding: 20px;
+            border: 1.5px solid #000;
+            background: #fff;
+            min-height: 300px;
+            font-family: Chicago_12;
+            font-size: 14px;
+        }
+
+        /* Markdown styling */
+        #content h1, #content h2 {
+            font-family: Chicago_12;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        #content h1 {
+            font-size: 20px;
+        }
+
+        #content h2 {
+            font-size: 16px;
+        }
+
+        #content h3 {
+            font-family: Chicago_12;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        #content p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        #content code {
+            font-family: Monaco;
+            background: #f5f5f5;
+            padding: 2px 4px;
+            border: 1px solid #000;
+        }
+
+        #content pre {
+            background: #f5f5f5;
+            border: 1.5px solid #000;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        #content pre code {
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        #content a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        #content ul, #content ol {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+
+        #content li {
+            margin: 5px 0;
+        }
+
+        #content blockquote {
+            border-left: 3px solid #000;
+            padding-left: 15px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        #content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        #content th, #content td {
+            border: 1.5px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #content th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            font-family: Chicago_12;
+        }
+
+        .error {
+            border: 1.5px solid #000;
+            background: #fff;
+            margin: 20px 0;
+        }
+
+        .file-info {
+            font-family: Chicago_12;
+            font-size: 12px;
+        }
+    </style>
+</head>
+            </head>
+<body>
+    <div class="window">
+        <div class="title-bar">
+            <button aria-label="Close" class="close"></button>
+            <h1 class="title">📄 uDOS Markdown Viewer</h1>
+            <button aria-label="Resize" class="resize"></button>
+        </div>
+        <div class="separator"></div>
+
+        <div class="details-bar">
+            <span class="file-info" id="current-file">No file loaded</span>
+            <span class="file-info">
+                <span id="file-size">0 bytes</span> •
+                <span id="word-count">0 words</span>
+            </span>
+        </div>
+        <div class="separator"></div>
+
+        <div class="window-pane">
+            <div class="controls">
+                <h3>CONTROLS</h3>
+                <div class="field-row">
+                    <button class="btn" onclick="loadFile()">📂 Load File</button>
+                    <button class="btn" onclick="toggleRaw()">🔍 Toggle Raw</button>
+                    <button class="btn" onclick="copyToClipboard()">📋 Copy</button>
+                    <button class="btn" onclick="printContent()">🖨 Print</button>
+                </div>
+            </div>
+
+            <div id="content">
+                <div class="loading">Loading markdown content...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFile = null;
+        let rawMode = false;
+        let currentText = '';
+
+        async function loadFile(filePath) {
+            const content = document.getElementById('content');
+
+            if (!filePath) {
+                const params = new URLSearchParams(window.location.search);
+                filePath = params.get('file') || params.get('path');
+            }
+
+            if (!filePath) {
+                content.innerHTML = '<div class="error">❌ No file specified. Add ?file=path/to/file.md to the URL</div>';
+                return;
+            }
+
+            content.innerHTML = '<div class="loading">Loading markdown content...</div>';
+            currentFile = filePath;
+
+            try {
+                const response = await fetch(`/api/file?path=${encodeURIComponent(filePath)}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const text = await response.text();
+                currentText = text;
+                renderMarkdown(text);
+                updateFileInfo(filePath, text);
+
+            } catch (error) {
+                content.innerHTML = `<div class="error">❌ Error loading file: ${error.message}</div>`;
+                console.error('Load error:', error);
+            }
+        }
+
+        function renderMarkdown(text) {
+            const content = document.getElementById('content');
+
+            if (rawMode) {
+                content.innerHTML = `<pre><code>${escapeHtml(text)}</code></pre>`;
+            } else {
+                marked.setOptions({
+                    highlight: function(code, lang) {
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (err) {
+                                console.error('Highlight error:', err);
+                            }
+                        }
+                        return hljs.highlightAuto(code).value;
+                    },
+                    breaks: true,
+                    gfm: true
+                });
+
+                const html = marked.parse(text);
+                content.innerHTML = html;
+            }
+        }
+
+        function updateFileInfo(filePath, text) {
+            document.getElementById('current-file').textContent = filePath.split('/').pop();
+            document.getElementById('file-size').textContent = formatBytes(text.length);
+            document.getElementById('word-count').textContent = text.split(/\s+/).length + ' words';
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function toggleRaw() {
+            rawMode = !rawMode;
+            if (currentText) {
+                renderMarkdown(currentText);
+            }
+        }
+
+        function copyToClipboard() {
+            if (currentText) {
+                navigator.clipboard.writeText(currentText).then(() => {
+                    alert('✅ Content copied to clipboard');
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('❌ Copy failed');
+                });
+            }
+        }
+
+        function printContent() {
+            window.print();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFile();
+        });
+    </script>
+</body>
+</html>

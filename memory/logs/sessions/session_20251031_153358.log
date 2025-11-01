@@ -1,0 +1,32 @@
+[2025-10-31 15:33:58] [SESSION START] 
+[2025-10-31 15:33:59] [uDOS> THEME STATUS] 
+[2025-10-31 15:33:59] [
+🎭 Current Theme
+============================================================
+
+  ⚔️ Dungeon Crawler (DUNGEON)
+  Style: NetHack-inspired fantasy adventure
+  Verbosity: HIGH
+
+  Explore the depths of data like a classic roguelike dungeon crawl
+
+  Use THEME LIST to see all available themes
+  Use THEME SET <name> to change theme
+] 
+[2025-10-31 15:33:59] [uDOS> THEME LIST] 
+[2025-10-31 15:33:59] [
+[1m🎭 Available Themes:[0m
+
+  1. ⚔️ [95mDungeon Crawler[0m (DUNGEON)
+     [90mNetHack-inspired fantasy adventure[0m
+     Verbosity: HIGH
+
+  2. 🚀 [95mGalactic Hitchhiker[0m (GALAXY)
+     [90mDouglas Adams-inspired sci-fi comedy[0m
+     Verbosity: VERY_HIGH
+
+  3. 📊 [95mFoundation Protocol[0m (FOUNDATION)
+     [90mIsaac Asimov / Apple TV Foundation series[0m
+     Verbosity: MEDIUM
+] 
+[2025-10-31 15:33:59] [SESSION END] 

@@ -1,0 +1,5 @@
+❌ Error: Failed to bind to port 8890. Log:
+usage: server.py [-h] [--port PORT] [--dir DIR]
+server.py: error: unrecognized arguments: --no-browser
+⚠️  Warning: uDOS core not available. Running in standalone mode.
+

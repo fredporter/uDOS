@@ -1,0 +1,6 @@
+[2025-10-31 19:45:57] [SESSION START] 
+[2025-10-31 19:45:59] [INPUT] OUTPUT START dashboard
+[2025-10-31 19:46:03] [OUTPUT] ⚠️  Port 8887 in use, killing existing process...\n⚠️  Killed process 72791 on port 8887\n✅ 🌀 Dashboard started on http://localhost:8887 (PID: 73236)
+[2025-10-31 19:46:03] [MOVE] 1 (Total: 166)
+[2025-10-31 19:46:04] [EVENT] EOFError
+[2025-10-31 19:46:04] [SESSION END] 

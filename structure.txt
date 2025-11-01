@@ -1,0 +1,202 @@
+uDOS/
+├── core/
+│   ├── commands/
+│   │   ├── assistant_handler.py
+│   │   ├── base_handler.py
+│   │   ├── file_handler.py
+│   │   ├── grid_handler.py
+│   │   ├── map_handler.py
+│   │   └── system_handler.py
+│   ├── services/
+│   │   ├── config_manager.py
+│   │   ├── connection_manager.py
+│   │   ├── editor_manager.py
+│   │   ├── extension_manager.py
+│   │   ├── gemini_service.py
+│   │   ├── history_manager.py
+│   │   ├── map_engine.py
+│   │   └── user_manager.py
+│   ├── utils/
+│   │   ├── completer.py
+│   │   ├── picker.py
+│   │   ├── setup.py
+│   │   ├── theme.py
+│   │   ├── ucode.py
+│   │   ├── variables.py
+│   │   ├── viewport.py
+│   │   └── viewport_viz.py
+│   ├── __init__.py
+│   ├── uDOS_commands.py
+│   ├── uDOS_env.py
+│   ├── uDOS_files.py
+│   ├── uDOS_graphics.py
+│   ├── uDOS_grid.py
+│   ├── uDOS_interactive.py
+│   ├── uDOS_logger.py
+│   ├── uDOS_main.py
+│   ├── uDOS_offline.py
+│   ├── uDOS_parser.py
+│   ├── uDOS_prompt.py
+│   ├── uDOS_server.py
+│   ├── uDOS_settings.py
+│   ├── uDOS_splash.py
+│   ├── uDOS_startup.py
+│   └── uDOS_tree.py
+├── data/
+│   ├── system/
+│   │   ├── commands.json
+│   │   ├── credits.json
+│   │   ├── extensions.json
+│   │   ├── fonts.json
+│   │   ├── palette.json
+│   │   └── worldmap.json
+│   ├── templates/
+│   │   ├── setup.uscript
+│   │   ├── story.template.json
+│   │   └── user.template.json
+│   └── themes/
+│       ├── _index.json
+│       ├── dungeon.json
+│       ├── foundation.json
+│       ├── galaxy.json
+│       ├── project.json
+│       └── science.json
+├── docs/
+│   ├── archive/
+│   │   └── REFACTORING-v1.0.0.md
+│   ├── guides/
+│   │   ├── CONTRIBUTING.md
+│   │   ├── DEVELOPMENT.md
+│   │   └── TESTING.md
+│   ├── planning/
+│   │   └── uDOS Dev Plan.md
+│   ├── CLEANUP-v1.0.0.md
+│   ├── DATA-REFACTORING-v1.0.0.md
+│   ├── QUICKREF-v1.0.x.md
+│   └── README.md
+├── examples/
+│   ├── color_reference.py
+│   ├── dashboard_example.txt
+│   ├── help_detailed_example.txt
+│   ├── help_example.txt
+│   └── simple-setup.uscript
+├── extensions/
+│   ├── clone/
+│   ├── native/
+│   ├── web/
+│   │   ├── dashboard/
+│   │   │   ├── css/
+│   │   │   │   └── dashboard-compact.css
+│   │   │   ├── js/
+│   │   │   │   ├── dashboard-v12.js
+│   │   │   │   └── dashboard.js
+│   │   │   ├── memory/
+│   │   │   │   └── logs/
+│   │   │   ├── sandbox/
+│   │   │   │   └── .server_state.json
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── font-editor/
+│   │   │   ├── css/
+│   │   │   │   ├── font-editor-v12.css
+│   │   │   │   └── font-editor-v13.css
+│   │   │   ├── js/
+│   │   │   │   ├── app.js
+│   │   │   │   ├── font-manager.js
+│   │   │   │   ├── grid-editor.js
+│   │   │   │   └── preview.js
+│   │   │   ├── lib/
+│   │   │   ├── templates/
+│   │   │   ├── README.md
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── markdown-viewer/
+│   │   │   ├── css/
+│   │   │   │   └── markdown-v13.css
+│   │   │   ├── examples/
+│   │   │   │   └── ucode-panels.md
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── shared/
+│   │   │   ├── CSS-FRAMEWORKS-GUIDE.md
+│   │   │   ├── GRID-SYSTEM.md
+│   │   │   ├── README.md
+│   │   │   ├── SYSTEM-CSS-REFERENCE.md
+│   │   │   ├── classic.css
+│   │   │   ├── nes.css
+│   │   │   ├── system.css
+│   │   │   ├── udos-controls.js
+│   │   │   ├── udos-filepicker.css
+│   │   │   ├── udos-filepicker.js
+│   │   │   ├── udos-grid.css
+│   │   │   ├── udos-panels.js
+│   │   │   ├── udos-syntax.css
+│   │   │   ├── udos-v13-theme.css
+│   │   │   └── ugrid-demo.html
+│   │   ├── terminal/
+│   │   │   ├── QUICKSTART.md
+│   │   │   ├── README.md
+│   │   │   ├── index.html
+│   │   │   └── server.py
+│   │   ├── README.md
+│   │   ├── launch_web.py
+│   │   └── launch_web.sh
+│   ├── README.md
+│   ├── setup_cmd.sh
+│   ├── setup_micro.sh
+│   ├── setup_monaspace.sh
+│   └── setup_typo.sh
+├── knowledge/
+│   ├── commands/
+│   ├── concepts/
+│   ├── datasets/
+│   ├── faq/
+│   ├── maps/
+│   ├── personal/
+│   │   ├── notes/
+│   │   ├── projects/
+│   │   ├── research/
+│   │   └── stories/
+│   ├── system/
+│   │   └── faq.json
+│   ├── user/
+│   │   └── notes/
+│   ├── KNOWLEDGE-SYSTEM.md
+│   └── README.md
+├── memory/
+│   ├── config/
+│   │   └── active-theme.json
+│   ├── missions/
+│   ├── research/
+│   ├── scripts/
+│   │   └── README.md
+│   └── README.md
+├── sandbox/
+│   ├── tests/
+│   │   └── shakedown.uscript
+│   └── USER.UDO
+├── wiki/
+│   ├── Architecture.md
+│   ├── Command-Reference.md
+│   ├── Contributing.md
+│   ├── FAQ.md
+│   ├── Home.md
+│   ├── Mapping-System.md
+│   ├── Quick-Start.md
+│   ├── README.md
+│   ├── Style-Guide.md
+│   ├── _Footer.md
+│   ├── _Sidebar.md
+│   └── uCODE-Language.md
+├── .env.example
+├── .gitignore
+├── CHANGELOG-v1.0.0.md
+├── LICENSE.txt
+├── README.MD
+├── ROADMAP.MD
+├── requirements.txt
+├── start_udos.sh
+├── structure.txt
+├── uDOS.code-workspace
+├── uDOS.py
+└── web.sh

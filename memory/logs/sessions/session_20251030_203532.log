@@ -1,0 +1,119 @@
+[2025-10-30 20:35:32] [SESSION START] 
+[2025-10-30 20:35:34] [uDOS> GRID PANEL CREATE "test1"] 
+[2025-10-30 20:35:34] [ACTION] {"timestamp":"2025-10-30 20:35:34","type":"PANEL_CREATE","data":{"panel_name":"test1"}}
+[2025-10-30 20:35:34] [A new slate 'test1' materializes.] 
+[2025-10-30 20:35:34] [uDOS> GRID PANEL CREATE "test2"] 
+[2025-10-30 20:35:34] [ACTION] {"timestamp":"2025-10-30 20:35:34","type":"PANEL_CREATE","data":{"panel_name":"test2"}}
+[2025-10-30 20:35:34] [A new slate 'test2' materializes.] 
+[2025-10-30 20:35:34] [uDOS> GRID PANEL CREATE "test3"] 
+[2025-10-30 20:35:34] [ACTION] {"timestamp":"2025-10-30 20:35:34","type":"PANEL_CREATE","data":{"panel_name":"test3"}}
+[2025-10-30 20:35:34] [A new slate 'test3' materializes.] 
+[2025-10-30 20:35:34] [uDOS> SHOW "test1"] 
+[2025-10-30 20:35:34] [] 
+[2025-10-30 20:35:34] [uDOS> RESTORE LIST] 
+[2025-10-30 20:35:34] [Available sessions for restore:
+
+→ Session #1: 2025-10-30 20:35:32
+   Started: 2025-10-30 20:35:32
+   Ended: In Progress
+   Actions: 3
+
+  Session #2: 2025-10-30 20:30:29
+   Started: 2025-10-30 20:30:29
+   Ended: 2025-10-30 20:30:31
+   Actions: 0
+
+  Session #3: 2025-10-30 20:14:47
+   Started: 2025-10-30 20:14:47
+   Ended: 2025-10-30 20:14:47
+   Actions: 0
+
+  Session #4: 2025-10-30 20:14:37
+   Started: 2025-10-30 20:14:37
+   Ended: 2025-10-30 20:14:41
+   Actions: 0
+
+  Session #5: 2025-10-30 20:03:33
+   Started: 2025-10-30 20:03:33
+   Ended: In Progress
+   Actions: 0
+
+  Session #6: 2025-10-30 19:56:54
+   Started: 2025-10-30 19:56:54
+   Ended: 2025-10-30 19:56:54
+   Actions: 0
+
+  Session #7: 2025-10-30 19:56:16
+   Started: 2025-10-30 19:56:16
+   Ended: 2025-10-30 19:56:16
+   Actions: 0
+
+  Session #8: 2025-10-30 19:54:47
+   Started: 2025-10-30 19:54:47
+   Ended: 2025-10-30 19:54:47
+   Actions: 0
+
+  Session #9: 2025-10-30 19:54:36
+   Started: 2025-10-30 19:54:36
+   Ended: 2025-10-30 19:54:36
+   Actions: 0
+
+  Session #10: 2025-10-30 19:54:31
+   Started: 2025-10-30 19:54:31
+   Ended: 2025-10-30 19:54:32
+   Actions: 0
+
+  Session #11: 2025-10-30 19:53:42
+   Started: 2025-10-30 19:53:42
+   Ended: 2025-10-30 19:53:43
+   Actions: 0
+
+  Session #12: 2025-10-30 19:37:59
+   Started: 2025-10-30 19:37:59
+   Ended: In Progress
+   Actions: 0
+
+  Session #13: 2025-10-30 19:34:42
+   Started: 2025-10-30 19:34:42
+   Ended: 2025-10-30 19:34:43
+   Actions: 0
+
+Use RESTORE <number> to restore to that session.
+Example: RESTORE 2 (restores to previous session)] 
+[2025-10-30 20:35:34] [uDOS> STATUS] 
+[2025-10-30 20:35:34] [============================================================
+📊 uDOS SYSTEM STATUS
+============================================================
+
+🌐 Connection Mode: LIMITED
+
+Capabilities:
+  ⚠️  AI Commands (Offline mode)
+  ✅ Git Operations
+  ✅ Web Browsing
+  ✅ Local File Operations
+  ✅ Offline Logic Engine
+
+
+📐 Display Configuration:
+  Terminal: 54×22 characters
+  Device: TERMINAL
+  Grid: 13×11 cells
+  Total cells: 143
+
+👤 User Profile:
+  Name: fredbook
+  Timezone: UTC
+  Location: Unknown
+  Mode: STANDARD
+
+🏥 System Health:
+  Python: ✅
+  Dependencies: ⚠️ Missing: google-generativeai, python-dotenv
+
+📜 Action History:
+  Undo stack: 3 actions
+  Redo stack: 0 actions
+
+============================================================] 
+[2025-10-30 20:35:34] [SESSION END] 

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Grid System Demo - 16×16 uCELL Layout</title>
+
+    <!-- Monaspace Font -->
+    <link href="https://api.fontshare.com/v2/css?f[]=monaspace@400,700&display=swap" rel="stylesheet">
+
+    <!-- uDOS Theme -->
+    <link rel="stylesheet" href="udos-theme.css">
+
+    <!-- uDOS Grid System -->
+    <link rel="stylesheet" href="udos-grid.css">
+
+    <style>
+        body {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin: 40px 0;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Monaspace', monospace;
+            margin-bottom: 20px;
+            color: var(--accent-green);
+        }
+
+        .demo-description {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-family: 'Monaspace', monospace;
+            font-size: 13px;
+        }
+
+        .code-example {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            margin: 10px 0;
+            font-family: 'Monaspace', monospace;
+            font-size: 12px;
+            color: var(--accent-cyan);
+            overflow-x: auto;
+        }
+
+        .demo-box {
+            display: inline-block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 uDOS Grid System v1.2</h1>
+    <p class="demo-description">
+        16×16 pixel uCELL layout with Monaspace text block characters and box drawing.
+        Based on the uDOS Display System specification.
+    </p>
+
+    <!-- Example 1: Header Bar -->
+    <section>
+        <h2>Header Bar Example</h2>
+        <p class="demo-description">Standard uDOS header using grid system</p>
+
+        <div class="ugrid-header">
+            🚀 uDOS v1.2 CMD Terminal
+        </div>
+
+        <div class="code-example">
+&lt;div class="ugrid-header"&gt;
+    🚀 uDOS v1.2 CMD Terminal
+&lt;/div&gt;
+        </div>
+    </section>
+
+    <!-- Example 2: Menu Grid -->
+    <section>
+        <h2>Menu Grid (2×3)</h2>
+        <p class="demo-description">Standard menu layout from Display System spec</p>
+
+        <div class="ugrid-menu">
+            <div class="ugrid-menu-item">FILE</div>
+            <div class="ugrid-menu-item">EDIT</div>
+            <div class="ugrid-menu-item">VIEW</div>
+            <div class="ugrid-menu-item">TOOLS</div>
+            <div class="ugrid-menu-item">HELP</div>
+            <div class="ugrid-menu-item">EXIT</div>
+        </div>
+
+        <div class="code-example">
+&lt;div class="ugrid-menu"&gt;
+    &lt;div class="ugrid-menu-item"&gt;FILE&lt;/div&gt;
+    &lt;div class="ugrid-menu-item"&gt;EDIT&lt;/div&gt;
+    &lt;div class="ugrid-menu-item"&gt;VIEW&lt;/div&gt;
+    ...
+&lt;/div&gt;
+        </div>
+    </section>
+
+    <!-- Example 3: Status Display -->
+    <section>
+        <h2>Status Display</h2>
+        <p class="demo-description">Single-row status bar with multiple fields</p>
+
+        <div class="ugrid-status">
+            <span>Status: <span class="color-green">✓ Active</span></span>
+            <span>User: <span class="color-cyan">Admin</span></span>
+            <span>Mode: <span class="color-yellow">Development</span></span>
+        </div>
+
+        <div class="code-example">
+&lt;div class="ugrid-status"&gt;
+    &lt;span&gt;Status: &lt;span class="color-green"&gt;✓ Active&lt;/span&gt;&lt;/span&gt;
+    &lt;span&gt;User: &lt;span class="color-cyan"&gt;Admin&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;
+        </div>
+    </section>
+
+    <!-- Example 4: Box Drawing Characters -->
+    <section>
+        <h2>Box Drawing Characters</h2>
+        <p class="demo-description">Monaspace line drawing and box characters</p>
+
+        <div class="ascii-box demo-box">
+┌─────────────────────────────────┐
+│     🔮 uDOS Terminal Box        │
+├─────────────────────────────────┤
+│ Line 1: Sample content here     │
+│ Line 2: More content             │
+│ Line 3: Box drawing example     │
+└─────────────────────────────────┘
+        </div>
+
+        <div class="code-example">
+┌─────────┬─────────┬─────────┐
+│  TL     │  TOP    │  TR     │
+├─────────┼─────────┼─────────┤
+│  LEFT   │ CENTER  │  RIGHT  │
+└─────────┴─────────┴─────────┘
+        </div>
+    </section>
+
+    <!-- Example 5: Block Characters -->
+    <section>
+        <h2>Block Fill Characters</h2>
+        <p class="demo-description">25%, 50%, 75%, and 100% block fills</p>
+
+        <div style="font-family: Monaspace, monospace; font-size: 24px; letter-spacing: 4px;">
+            <span class="color-green">░</span>
+            <span class="color-cyan">▒</span>
+            <span class="color-blue">▓</span>
+            <span class="color-red">█</span>
+        </div>
+
+        <div class="demo-description" style="margin-top: 10px;">
+            ░ = 25% fill &nbsp; ▒ = 50% fill &nbsp; ▓ = 75% fill &nbsp; █ = 100% fill
+        </div>
+
+        <div class="code-example">
+&lt;span class="block-25 color-green"&gt;&lt;/span&gt;
+&lt;span class="block-50 color-cyan"&gt;&lt;/span&gt;
+&lt;span class="block-75 color-blue"&gt;&lt;/span&gt;
+&lt;span class="block-full color-red"&gt;&lt;/span&gt;
+        </div>
+    </section>
+
+    <!-- Example 6: Arrow Characters -->
+    <section>
+        <h2>Arrow Characters</h2>
+        <p class="demo-description">8-directional arrows</p>
+
+        <div style="font-family: Monaspace, monospace; font-size: 20px; letter-spacing: 8px;">
+            <span class="color-yellow">↖</span>
+            <span class="color-yellow">↑</span>
+            <span class="color-yellow">↗</span>
+            <br>
+            <span class="color-yellow">←</span>
+            <span class="color-green">●</span>
+            <span class="color-yellow">→</span>
+            <br>
+            <span class="color-yellow">↙</span>
+            <span class="color-yellow">↓</span>
+            <span class="color-yellow">↘</span>
+        </div>
+
+        <div class="code-example">
+&lt;span class="arrow-up color-yellow"&gt;&lt;/span&gt;
+&lt;span class="arrow-down color-yellow"&gt;&lt;/span&gt;
+&lt;span class="arrow-left color-yellow"&gt;&lt;/span&gt;
+&lt;span class="arrow-right color-yellow"&gt;&lt;/span&gt;
+        </div>
+    </section>
+
+    <!-- Example 7: Symbol Characters -->
+    <section>
+        <h2>Symbol Characters</h2>
+        <p class="demo-description">Common symbols for UI elements</p>
+
+        <div style="font-family: Monaspace, monospace; font-size: 18px; line-height: 2;">
+            <span class="color-green">✓ Checkmark</span><br>
+            <span class="color-red">✗ Cross</span><br>
+            <span class="color-blue">● Circle</span><br>
+            <span class="color-cyan">■ Square</span><br>
+            <span class="color-purple">◆ Diamond</span><br>
+            <span class="color-yellow">• Bullet</span>
+        </div>
+
+        <div class="code-example">
+&lt;span class="check color-green"&gt;&lt;/span&gt; Success
+&lt;span class="cross-mark color-red"&gt;&lt;/span&gt; Error
+&lt;span class="bullet color-yellow"&gt;&lt;/span&gt; List item
+        </div>
+    </section>
+
+    <!-- Example 8: Color Palette -->
+    <section>
+        <h2>Polaroid Color Palette</h2>
+        <p class="demo-description">8-color palette from Display System spec</p>
+
+        <div style="display: flex; gap: 10px; margin: 20px 0;">
+            <div style="width: 60px; height: 60px; background: #FF1744; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #00E676; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #FFEB3B; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #2196F3; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #E91E63; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #00E5FF; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #FFFFFF; border: 2px solid var(--border-color);"></div>
+            <div style="width: 60px; height: 60px; background: #000000; border: 2px solid var(--border-color);"></div>
+        </div>
+
+        <div class="demo-description">
+            <span class="color-red">Red</span> •
+            <span class="color-green">Green</span> •
+            <span class="color-yellow">Yellow</span> •
+            <span class="color-blue">Blue</span> •
+            <span class="color-purple">Purple</span> •
+            <span class="color-cyan">Cyan</span> •
+            <span class="color-white">White</span> •
+            Black
+        </div>
+    </section>
+
+    <!-- Example 9: Grid Coordinate System -->
+    <section>
+        <h2>Grid Coordinate System</h2>
+        <p class="demo-description">Zero-indexed positioning (x, y)</p>
+
+        <div class="ugrid-custom" style="grid-template-columns: repeat(4, 60px); grid-template-rows: repeat(2, 40px); gap: 2px;">
+            <div class="upos-0-0 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">0,0</div>
+            <div class="upos-1-0 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">1,0</div>
+            <div class="upos-2-0 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">2,0</div>
+            <div class="upos-3-0 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">3,0</div>
+            <div class="upos-0-1 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">0,1</div>
+            <div class="upos-1-1 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">1,1</div>
+            <div class="upos-2-1 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">2,1</div>
+            <div class="upos-3-1 ugrid-center" style="background: var(--bg-tertiary); border: 1px solid var(--border-color);">3,1</div>
+        </div>
+
+        <div class="code-example">
+     0   1   2   3
+   ┌───┬───┬───┬───┐
+0  │0,0│1,0│2,0│3,0│
+   ├───┼───┼───┼───┤
+1  │0,1│1,1│2,1│3,1│
+   └───┴───┴───┴───┘
+        </div>
+    </section>
+
+    <!-- Example 10: Complete Interface -->
+    <section>
+        <h2>Complete Interface Example</h2>
+        <p class="demo-description">Combining all elements into a functional interface</p>
+
+        <div style="border: 2px solid var(--border-color); background: var(--bg-primary);">
+            <!-- Header -->
+            <div class="ugrid-header">
+                🌀 uDOS System Dashboard
+            </div>
+
+            <!-- Menu -->
+            <div class="ugrid-menu">
+                <div class="ugrid-menu-item">FILES</div>
+                <div class="ugrid-menu-item">TERMINAL</div>
+                <div class="ugrid-menu-item">SETTINGS</div>
+                <div class="ugrid-menu-item">MAP</div>
+                <div class="ugrid-menu-item">HELP</div>
+                <div class="ugrid-menu-item">EXIT</div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="ascii-box" style="padding: 20px;">
+┌─────────────────────────────────────────────────┐
+│  <span class="color-cyan">System Status</span>                              │
+├─────────────────────────────────────────────────┤
+│  <span class="color-green">✓</span> Core System:     <span class="color-green">Online</span>              │
+│  <span class="color-green">✓</span> Terminal:        <span class="color-green">Connected</span>           │
+│  <span class="color-yellow">●</span> Dashboard:       <span class="color-yellow">Loading...</span>          │
+│  <span class="color-green">✓</span> Font Editor:     <span class="color-green">Ready</span>               │
+├─────────────────────────────────────────────────┤
+│  <span class="color-blue">→</span> Type 'help' for command list               │
+└─────────────────────────────────────────────────┘
+            </div>
+
+            <!-- Status Bar -->
+            <div class="ugrid-status">
+                <span>User: <span class="color-cyan">Developer</span></span>
+                <span>Location: <span class="color-yellow">Dashboard</span></span>
+                <span>Time: <span class="color-green">20:15</span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation -->
+    <section>
+        <h2>uCELL Specification</h2>
+        <div class="demo-description">
+            <strong>uCELL</strong>: 16×16 pixel base unit<br>
+            <strong>Buffer</strong>: 2px border around content<br>
+            <strong>Content Area</strong>: 12×12 pixels (16 - 2×2)<br>
+            <strong>Font</strong>: Monaspace monospace at 12px<br>
+            <strong>Line Height</strong>: 16px (matches cell height)<br>
+            <strong>Alignment</strong>: Baseline at row 9 of 16
+        </div>
+
+        <div class="ascii-box demo-box">
+┌────────────────┐ 16px
+│ ░░░░░░░░░░░░░░ │
+│ ░████████████░ │ ← 2px buffer
+│ ░█  CONTENT █░ │ ← 12×12 content
+│ ░████████████░ │
+│ ░░░░░░░░░░░░░░ │
+└────────────────┘
+        </div>
+    </section>
+
+    <script>
+        // Theme toggle for demo
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 't' || e.key === 'T') {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            }
+        });
+
+        console.log('🔮 uDOS Grid System Demo');
+        console.log('Press T to toggle theme');
+    </script>
+</body>
+</html>

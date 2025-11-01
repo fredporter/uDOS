@@ -1,0 +1,104 @@
+[2025-10-31T22:48:23.678966] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T22:48:31.163615] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T22:48:31.164034] WARNING: Missing 3 packages: google-generativeai, python-dotenv, psutil
+[2025-10-31T22:48:31.164138] REPAIR: Auto-installing missing packages...
+[2025-10-31T22:48:31.164386] WARNING: Missing 3 packages: google-generativeai, python-dotenv, psutil
+[2025-10-31T22:48:31.164456] REPAIR: Installing missing dependencies...
+[2025-10-31T22:48:33.043706] OK: Successfully installed 3 packages
+[2025-10-31T22:48:33.043924] OK: Successfully installed 3 packages
+[2025-10-31T22:48:33.044277] OK: File structure OK
+[2025-10-31T22:48:33.046685] OK: Configuration OK
+[2025-10-31T22:48:33.046811] OK: 1 extensions: micro
+[2025-10-31T22:53:33.587239] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T22:53:41.221397] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T22:53:41.221805] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:53:41.221889] REPAIR: Auto-installing missing packages...
+[2025-10-31T22:53:41.222131] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:53:41.222189] REPAIR: Installing missing dependencies...
+[2025-10-31T22:53:41.671461] OK: Successfully installed 2 packages
+[2025-10-31T22:53:41.671610] OK: Successfully installed 2 packages
+[2025-10-31T22:53:41.671970] OK: File structure OK
+[2025-10-31T22:53:41.674209] OK: Configuration OK
+[2025-10-31T22:53:41.674308] OK: 1 extensions: micro
+[2025-10-31T22:53:41.709332] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T22:53:49.495861] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T22:53:49.496359] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:53:49.496529] OK: File structure OK
+[2025-10-31T22:53:49.498707] OK: Configuration OK
+[2025-10-31T22:53:49.498844] OK: 1 extensions: micro
+[2025-10-31T22:53:51.242777] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T22:53:58.862925] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T22:53:58.863364] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:53:58.863445] REPAIR: Auto-installing missing packages...
+[2025-10-31T22:53:58.863677] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:53:58.863737] REPAIR: Installing missing dependencies...
+[2025-10-31T22:53:59.303572] OK: Successfully installed 2 packages
+[2025-10-31T22:53:59.303733] OK: Successfully installed 2 packages
+[2025-10-31T22:53:59.304112] OK: File structure OK
+[2025-10-31T22:53:59.306360] OK: Configuration OK
+[2025-10-31T22:53:59.306454] OK: 1 extensions: micro
+[2025-10-31T22:53:59.341179] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T22:54:06.887926] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T22:54:06.888317] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:54:06.888394] REPAIR: Auto-installing missing packages...
+[2025-10-31T22:54:06.888625] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T22:54:06.888682] REPAIR: Installing missing dependencies...
+[2025-10-31T22:54:07.330665] OK: Successfully installed 2 packages
+[2025-10-31T22:54:07.330815] OK: Successfully installed 2 packages
+[2025-10-31T22:54:07.331168] OK: File structure OK
+[2025-10-31T22:54:07.333572] OK: Configuration OK
+[2025-10-31T22:54:07.333682] OK: 1 extensions: micro
+[2025-10-31T23:31:30.715065] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:31:30.715777] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:31:30.716192] OK: File structure OK
+[2025-10-31T23:44:18.241607] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:44:18.242222] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:44:18.242618] OK: File structure OK
+[2025-10-31T23:48:06.305627] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:48:06.306125] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:48:06.306415] OK: File structure OK
+[2025-10-31T23:49:57.456770] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:50:05.037127] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T23:50:05.037507] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:50:05.037632] REPAIR: Auto-installing missing packages...
+[2025-10-31T23:50:05.037811] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:50:05.037889] REPAIR: Installing missing dependencies...
+[2025-10-31T23:50:05.493891] OK: Successfully installed 2 packages
+[2025-10-31T23:50:05.494064] OK: Successfully installed 2 packages
+[2025-10-31T23:50:05.494413] OK: File structure OK
+[2025-10-31T23:50:05.495137] OK: Configuration OK
+[2025-10-31T23:50:05.495255] OK: 1 extensions: micro
+[2025-10-31T23:50:33.969653] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:50:33.970438] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:14.233112] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:52:17.461677] WARNING: Could not check pip version
+[2025-10-31T23:52:17.462072] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:17.462139] REPAIR: Auto-installing missing packages...
+[2025-10-31T23:52:17.462294] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:17.462347] REPAIR: Installing missing dependencies...
+[2025-10-31T23:52:17.911414] OK: Successfully installed 2 packages
+[2025-10-31T23:52:17.911779] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:17.911943] OK: File structure OK
+[2025-10-31T23:52:17.912311] OK: Configuration OK
+[2025-10-31T23:52:17.912391] OK: 1 extensions: micro
+[2025-10-31T23:52:18.291232] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:52:25.949511] WARNING: Pip upgrade available (non-critical) - Run: python3 -m pip install --upgrade pip
+[2025-10-31T23:52:25.949875] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:25.949960] REPAIR: Auto-installing missing packages...
+[2025-10-31T23:52:25.950108] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:25.950165] REPAIR: Installing missing dependencies...
+[2025-10-31T23:52:26.396741] OK: Successfully installed 2 packages
+[2025-10-31T23:52:26.397091] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:52:26.397242] OK: File structure OK
+[2025-10-31T23:52:26.397593] OK: Configuration OK
+[2025-10-31T23:52:26.397682] OK: 1 extensions: micro
+[2025-10-31T23:54:45.627627] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-10-31T23:54:45.628043] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-10-31T23:54:45.628283] OK: File structure OK
+[2025-10-31T23:57:53.894807] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-11-01T00:05:39.705007] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-11-01T00:05:39.705524] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-11-01T00:05:39.705829] OK: File structure OK
+[2025-11-01T20:12:25.381132] WARNING: Python 3.9.6 is end-of-life (EOL October 2025) - Consider upgrading to Python 3.10+
+[2025-11-01T20:12:25.381808] WARNING: Missing 2 packages: google-generativeai, python-dotenv
+[2025-11-01T20:12:25.389290] WARNING: Missing 2 packages: google-generativeai, python-dotenv

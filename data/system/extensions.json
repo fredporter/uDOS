@@ -1,0 +1,48 @@
+{
+  "LIBRARY_VERSION": "1.0.0",
+  "EXTENSIONS": [
+    {
+      "NAME": "uDOS Dashboard",
+      "TYPE": "web",
+      "PATH": "extensions/web/dashboard/",
+      "DESCRIPTION": "A retro-styled web dashboard for monitoring uDOS system status.",
+      "STYLE_GUIDE": "classic.css by npjg"
+    },
+    {
+      "NAME": "Web Terminal (cmd)",
+      "TYPE": "web",
+      "PATH": "extensions/web/terminal/",
+      "DESCRIPTION": "A web-based terminal emulator with an NES-style theme.",
+      "STYLE_GUIDE": "NES.css by nostalgic-css"
+    },
+    {
+      "NAME": "Markdown Viewer",
+      "TYPE": "web",
+      "PATH": "extensions/web/markdown-viewer/",
+      "DESCRIPTION": "A web-based markdown file viewer with a file manager sidebar.",
+      "STYLE_GUIDE": "system.css by sakofchit"
+    },
+    {
+      "NAME": "Typo Editor",
+      "TYPE": "web",
+      "PATH": "extensions/clone/web/typo/",
+      "DESCRIPTION": "A web-based markdown editor. Cloned from an external repository.",
+      "INSTALL_SCRIPT": "extensions/setup_typo.sh"
+    },
+    {
+      "NAME": "Micro Editor",
+      "TYPE": "native",
+      "PATH": "extensions/clone/native/micro/",
+      "DESCRIPTION": "A modern and intuitive terminal-based text editor. Cloned from an external repository.",
+      "INSTALL_SCRIPT": "extensions/setup_micro.sh"
+    }
+  ],
+  "RESOURCES": [
+    {
+      "NAME": "Monaspace Fonts",
+      "TYPE": "font",
+      "DESCRIPTION": "A monospaced font superfamily for developers.",
+      "INSTALL_SCRIPT": "extensions/setup_monaspace.sh"
+    }
+  ]
+}

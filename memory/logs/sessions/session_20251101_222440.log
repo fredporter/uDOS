@@ -1,0 +1,74 @@
+[2025-11-01 22:24:40] [SESSION START] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "--- STARTING SHAKEDOWN TEST ---"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: HELP"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> HELP] 
+[2025-11-01 22:24:40] [HELP command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> HELP STATUS] 
+[2025-11-01 22:24:40] [HELP command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: STATUS"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> STATUS] 
+[2025-11-01 22:24:40] [STATUS command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: VIEWPORT"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> VIEWPORT] 
+[2025-11-01 22:24:40] [┌───────────────────────────────────────────────────────────────┐
+│                uDOS Viewport: 65×22 (TERMINAL)                │
+├───────────────────────────────────────────────────────────────┤
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│                           ... more ...                           │
+├───────────────────────────────────────────────────────────────┤
+│                 Grid: 16×11 cells (176 total)                 │
+└───────────────────────────────────────────────────────────────┘] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: PALETTE"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> PALETTE] 
+[2025-11-01 22:24:40] [PALETTE command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: DASH"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> DASH] 
+[2025-11-01 22:24:40] [DASHBOARD command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: TREE"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> TREE core --depth=1] 
+[2025-11-01 22:24:40] [TREE command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: CONFIG"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> CONFIG list] 
+[2025-11-01 22:24:40] [CONFIG command - to be refactored] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: MAP"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> MAP] 
+[2025-11-01 22:24:40] [?CORRUPTED SPELL: [MAP|STATUS] (No module named 'core.uDOS_map')] 
+[2025-11-01 22:24:40] [uDOS> SPLASH "Testing: File Operations"] 
+[2025-11-01 22:24:40] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:24:40] [uDOS> NEW sandbox/test_file.txt] 
+[2025-11-01 22:31:04] [❌ Error creating file: 'WorkspaceManager' object has no attribute 'create_file'] 
+[2025-11-01 22:31:04] [uDOS> SHOW sandbox/test_file.txt] 
+[2025-11-01 22:31:04] [?UNKNOWN INCANTATION: SHOW] 
+[2025-11-01 22:31:04] [uDOS> COPY sandbox/test_file.txt sandbox/test_file_copy.txt] 
+[2025-11-01 22:31:05] [❌ Source file not found: sandbox/test_file.txt] 
+[2025-11-01 22:31:05] [uDOS> RENAME sandbox/test_file_copy.txt sandbox/test_file_renamed.txt] 
+[2025-11-01 22:31:05] [❌ File not found: sandbox/test_file_copy.txt] 
+[2025-11-01 22:31:05] [uDOS> MOVE sandbox/test_file_renamed.txt memory/test_file_moved.txt] 
+[2025-11-01 22:31:05] [❌ Error moving file: Unknown workspace: memory/test_file_moved.txt] 
+[2025-11-01 22:31:05] [uDOS> DELETE sandbox/test_file.txt] 
+[2025-11-01 22:31:06] [❌ Delete cancelled] 
+[2025-11-01 22:31:06] [uDOS> DELETE memory/test_file_moved.txt] 
+[2025-11-01 22:31:06] [❌ Delete cancelled] 
+[2025-11-01 22:31:06] [uDOS> SPLASH "Testing: AI Commands (may fail if API key is not set)"] 
+[2025-11-01 22:31:06] [?UNKNOWN INCANTATION: SPLASH] 
+[2025-11-01 22:31:06] [uDOS> ASK "What is the purpose of uDOS?"] 
+[2025-11-01 22:31:06] [An error occurred while running the script: replace() argument 2 must be str, not None] 
+[2025-11-01 22:31:06] [SESSION END] 

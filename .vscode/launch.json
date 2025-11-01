@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "uDOS: Interactive Mode",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/uDOS.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "uDOS: Run Shakedown Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/uDOS.py",
+            "args": ["sandbox/tests/shakedown.uscript"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Python: Debug Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}

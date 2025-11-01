@@ -1,0 +1,399 @@
+/**
+ * uDOS Grid System v1.2
+ * 16×16 uCELL Layout with Monaspace Text Block Characters
+ *
+ * Based on uDOS Display System specification:
+ * - uCELL: 16×16 pixel base unit
+ * - uTILE: Content element within uCELL
+ * - uMAP: Coordinate system for positioning
+ */
+
+/* ============================================
+   uCELL Core Variables
+   ============================================ */
+
+:root {
+    /* uCELL Dimensions */
+    --ucell-size: 16px;
+    --ucell-buffer: 2px;
+    --ucell-content: 12px; /* 16px - (2px buffer × 2) */
+
+    /* Grid Sizes (from Display System spec) */
+    --grid-wearable: 16;   /* 16×16 cells */
+    --grid-mobile: 40;     /* 40×16 cells */
+    --grid-terminal: 80;   /* 80×30 cells */
+    --grid-dashboard: 120; /* 120×48 cells */
+
+    /* Text Block Characters (Monaspace) */
+    --char-block-25: '░';  /* 25% fill */
+    --char-block-50: '▒';  /* 50% fill */
+    --char-block-75: '▓';  /* 75% fill */
+    --char-block-full: '█'; /* 100% fill */
+
+    /* Line Drawing Characters */
+    --char-h-line: '─';
+    --char-v-line: '│';
+    --char-tl-corner: '┌';
+    --char-tr-corner: '┐';
+    --char-bl-corner: '└';
+    --char-br-corner: '┘';
+    --char-t-join: '┬';
+    --char-b-join: '┴';
+    --char-l-join: '├';
+    --char-r-join: '┤';
+    --char-cross: '┼';
+
+    /* Arrow Characters */
+    --char-arrow-left: '←';
+    --char-arrow-right: '→';
+    --char-arrow-up: '↑';
+    --char-arrow-down: '↓';
+    --char-arrow-ul: '↖';
+    --char-arrow-ur: '↗';
+    --char-arrow-dl: '↘';
+    --char-arrow-dr: '↙';
+
+    /* Special Symbols */
+    --char-bullet: '•';
+    --char-checkmark: '✓';
+    --char-cross-mark: '✗';
+    --char-diamond: '◆';
+    --char-square: '■';
+    --char-circle: '●';
+
+    /* uCELL Colors (from DISPLAY-SYSTEM.md Polaroid palette) */
+    --ucell-red: #FF1744;
+    --ucell-green: #00E676;
+    --ucell-yellow: #FFEB3B;
+    --ucell-blue: #2196F3;
+    --ucell-purple: #E91E63;
+    --ucell-cyan: #00E5FF;
+    --ucell-white: #FFFFFF;
+    --ucell-black: #000000;
+}
+
+/* ============================================
+   uCELL Base Classes
+   ============================================ */
+
+.ucell {
+    width: var(--ucell-size);
+    height: var(--ucell-size);
+    display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+    font-family: 'Monaspace', 'Monaco', 'Menlo', monospace;
+    font-size: 12px;
+    line-height: var(--ucell-size);
+    text-align: center;
+    vertical-align: top;
+}
+
+.ucell-buffer {
+    padding: var(--ucell-buffer);
+}
+
+.ucell-content {
+    width: var(--ucell-content);
+    height: var(--ucell-content);
+    margin: var(--ucell-buffer);
+}
+
+/* ============================================
+   uGRID Layout System
+   ============================================ */
+
+.ugrid {
+    display: grid;
+    gap: 0;
+    font-family: 'Monaspace', monospace;
+    line-height: 1;
+}
+
+/* Grid Size Presets */
+.ugrid-wearable {
+    grid-template-columns: repeat(16, var(--ucell-size));
+    grid-template-rows: repeat(16, var(--ucell-size));
+}
+
+.ugrid-mobile {
+    grid-template-columns: repeat(40, var(--ucell-size));
+    grid-template-rows: repeat(16, var(--ucell-size));
+}
+
+.ugrid-terminal {
+    grid-template-columns: repeat(80, var(--ucell-size));
+    grid-template-rows: repeat(30, var(--ucell-size));
+}
+
+.ugrid-dashboard {
+    grid-template-columns: repeat(120, var(--ucell-size));
+    grid-template-rows: repeat(48, var(--ucell-size));
+}
+
+/* Custom Grid Sizes */
+.ugrid-custom {
+    display: grid;
+    gap: 0;
+}
+
+/* ============================================
+   Text Block Characters (Monaspace)
+   ============================================ */
+
+/* Block Fill Utilities */
+.block-25::before { content: var(--char-block-25); }
+.block-50::before { content: var(--char-block-50); }
+.block-75::before { content: var(--char-block-75); }
+.block-full::before { content: var(--char-block-full); }
+
+/* Line Drawing Utilities */
+.line-h::before { content: var(--char-h-line); }
+.line-v::before { content: var(--char-v-line); }
+.corner-tl::before { content: var(--char-tl-corner); }
+.corner-tr::before { content: var(--char-tr-corner); }
+.corner-bl::before { content: var(--char-bl-corner); }
+.corner-br::before { content: var(--char-br-corner); }
+.join-t::before { content: var(--char-t-join); }
+.join-b::before { content: var(--char-b-join); }
+.join-l::before { content: var(--char-l-join); }
+.join-r::before { content: var(--char-r-join); }
+.cross::before { content: var(--char-cross); }
+
+/* Arrow Utilities */
+.arrow-left::before { content: var(--char-arrow-left); }
+.arrow-right::before { content: var(--char-arrow-right); }
+.arrow-up::before { content: var(--char-arrow-up); }
+.arrow-down::before { content: var(--char-arrow-down); }
+.arrow-ul::before { content: var(--char-arrow-ul); }
+.arrow-ur::before { content: var(--char-arrow-ur); }
+.arrow-dl::before { content: var(--char-arrow-dl); }
+.arrow-dr::before { content: var(--char-arrow-dr); }
+
+/* Symbol Utilities */
+.bullet::before { content: var(--char-bullet); }
+.check::before { content: var(--char-checkmark); }
+.cross-mark::before { content: var(--char-cross-mark); }
+.diamond::before { content: var(--char-diamond); }
+.square::before { content: var(--char-square); }
+.circle::before { content: var(--char-circle); }
+
+/* ============================================
+   Color Utilities (Polaroid Palette)
+   ============================================ */
+
+.color-red { color: var(--ucell-red); }
+.color-green { color: var(--ucell-green); }
+.color-yellow { color: var(--ucell-yellow); }
+.color-blue { color: var(--ucell-blue); }
+.color-purple { color: var(--ucell-purple); }
+.color-cyan { color: var(--ucell-cyan); }
+.color-white { color: var(--ucell-white); }
+.color-black { color: var(--ucell-black); }
+
+.bg-red { background: var(--ucell-red); }
+.bg-green { background: var(--ucell-green); }
+.bg-yellow { background: var(--ucell-yellow); }
+.bg-blue { background: var(--ucell-blue); }
+.bg-purple { background: var(--ucell-purple); }
+.bg-cyan { background: var(--ucell-cyan); }
+.bg-white { background: var(--ucell-white); }
+.bg-black { background: var(--ucell-black); }
+
+/* ============================================
+   Pre-built Layout Components
+   ============================================ */
+
+/* Header Bar (from Display System example) */
+.ugrid-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-color, #2d3139);
+    padding: calc(var(--ucell-buffer) * 2);
+    height: calc(var(--ucell-size) * 2);
+    background: var(--bg-secondary, #16191f);
+    font-family: 'Monaspace', monospace;
+    font-weight: 700;
+}
+
+/* Menu Grid (2×3 example from spec) */
+.ugrid-menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, var(--ucell-size));
+    gap: 2px;
+}
+
+.ugrid-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color, #2d3139);
+    background: var(--bg-tertiary, #1f2329);
+    font-family: 'Monaspace', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.ugrid-menu-item:hover {
+    background: var(--bg-hover, #252a31);
+}
+
+/* Status Display (single row) */
+.ugrid-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid var(--border-color, #2d3139);
+    padding: calc(var(--ucell-buffer) * 2) calc(var(--ucell-size));
+    height: calc(var(--ucell-size) * 2);
+    background: var(--bg-secondary, #16191f);
+    font-family: 'Monaspace', monospace;
+    font-size: 12px;
+}
+
+/* ============================================
+   Box Drawing Templates
+   ============================================ */
+
+/* Simple Box */
+.ubox {
+    font-family: 'Monaspace', monospace;
+    line-height: 1.4;
+    white-space: pre;
+}
+
+.ubox-simple {
+    border: 2px solid var(--border-color, #2d3139);
+    padding: var(--ucell-buffer);
+}
+
+.ubox-double {
+    border: 4px double var(--border-color, #2d3139);
+    padding: var(--ucell-buffer);
+}
+
+/* ASCII Art Box Generator Classes */
+.ascii-box {
+    font-family: 'Monaspace', monospace;
+    font-size: 14px;
+    line-height: 1;
+    white-space: pre;
+    color: var(--text-primary, #e6e8ea);
+}
+
+.ascii-box-header {
+    font-weight: 700;
+    text-align: center;
+}
+
+.ascii-box-content {
+    padding: calc(var(--ucell-buffer) * 2);
+}
+
+/* ============================================
+   Coordinate System
+   ============================================ */
+
+/* Zero-indexed grid positioning (from spec) */
+.ucoord {
+    position: relative;
+    display: inline-block;
+}
+
+/* Position helpers (x, y coordinates) */
+.upos-0-0 { grid-column: 1; grid-row: 1; }
+.upos-1-0 { grid-column: 2; grid-row: 1; }
+.upos-2-0 { grid-column: 3; grid-row: 1; }
+.upos-3-0 { grid-column: 4; grid-row: 1; }
+.upos-0-1 { grid-column: 1; grid-row: 2; }
+.upos-1-1 { grid-column: 2; grid-row: 2; }
+.upos-2-1 { grid-column: 3; grid-row: 2; }
+.upos-3-1 { grid-column: 4; grid-row: 2; }
+
+/* ============================================
+   Responsive Grid Scaling
+   ============================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --ucell-size: 12px; /* Smaller cells on mobile */
+        --ucell-buffer: 1px;
+        --ucell-content: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --ucell-size: 10px; /* Even smaller for small screens */
+        --ucell-buffer: 1px;
+        --ucell-content: 8px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .ucell, .ugrid {
+        image-rendering: pixelated; /* Sharp pixel rendering */
+        image-rendering: crisp-edges;
+    }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.ugrid-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ugrid-baseline {
+    vertical-align: baseline;
+}
+
+.ugrid-nowrap {
+    white-space: nowrap;
+}
+
+.ugrid-monospace {
+    font-family: 'Monaspace', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-variant-ligatures: none; /* Disable ligatures for exact character spacing */
+}
+
+/* ============================================
+   Animation Support (Optional)
+   ============================================ */
+
+@keyframes ucell-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.ucell-blink {
+    animation: ucell-blink 1s infinite;
+}
+
+@keyframes ucell-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.ucell-pulse {
+    animation: ucell-pulse 2s infinite;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .ucell, .ugrid {
+        color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

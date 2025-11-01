@@ -1,0 +1,15 @@
+[2025-10-31 15:34:40] [SESSION START] 
+[2025-10-31 15:34:41] [uDOS> THEME SET DUNGEON] 
+[2025-10-31 15:34:41] [
+✅ Theme changed successfully!
+
+  Old: GALAXY
+  New: ⚔️ Dungeon Crawler (DUNGEON)
+  Style: NetHack-inspired fantasy adventure
+
+⚠️  Restart uDOS to apply changes:
+   ./start_udos.sh
+
+💡 After restart, use HELP to see new command vocabulary
+] 
+[2025-10-31 15:34:41] [SESSION END] 

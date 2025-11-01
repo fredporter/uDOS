@@ -1,0 +1,57 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📚 uDOS COMMAND REFERENCE                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ 📊 System & Info                                                             ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  STATUS             - Shows system status including connection mode, viewpo  ║
+║  DASH               - Displays ASCII-style dashboard with user info, system  ║
+║  DASHBOARD          - Alias for DASH - Displays comprehensive system dashbo  ║
+║  VIEWPORT           - Displays current terminal viewport and grid layout.    ║
+║  PALETTE            - Displays the Polaroid color palette with visual tests  ║
+║  HELP               - Provides help for a specific command, or lists all co  ║
+║  TREE               - Generate repository structure tree (respects .gitignor ║
+║  SETUP              - Run interactive USER.UDO configuration (editable with  ║
+║                                                                              ║
+║ 🤖 AI & Content                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASK                - Executes an online call to the Gemini Assistant. Opti  ║
+║                                                                              ║
+║ 🔧 System Control                                                            ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  CLEAR              - Clears the terminal screen.                            ║
+║  CLS                - Clears the terminal screen.                            ║
+║  REBOOT             - Restarts uDOS, re-detecting system settings and viewp  ║
+║  RESTART            - Alias for REBOOT - Restarts uDOS session.              ║
+║  REPAIR             - Repairs system issues, updates dependencies, fixes fi  ║
+║  UNDO               - Undoes the last reversible operation.                  ║
+║  REDO               - Redoes the last undone operation.                      ║
+║  RESTORE            - Restores state to a previous session (bulk undo). Use  ║
+║                                                                              ║
+║ 📝 File Operations                                                           ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  EDIT               - Opens a file in a text editor. Various options stored  ║
+║  SHOW               - Renders a markdown or UDO file into web browser outpu  ║
+║  RUN                - Executes a script file containing uDOS commands (.USC  ║
+║  EMPTY_SANDBOX      - Review sandbox files with AI summary, prepare for com  ║
+║                                                                              ║
+║ 🗺️  Navigation                                                               ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  MAP                - Shows current map position and layer information.      ║
+║  GOTO               - Teleport to specific coordinates on current map layer  ║
+║  MOVE               - Move relative to current position (NetHack-style navi  ║
+║  LAYER              - Switch to a different map layer or list available lay  ║
+║  DESCEND            - Descend one layer (NetHack > command) - go deeper.     ║
+║  ASCEND             - Ascend one layer (NetHack < command) - go higher.      ║
+║  LOCATE             - Set your real-world location to a major city.          ║
+║  WHERE              - Alias for MAP STATUS - shows current location.         ║
+║                                                                              ║
+║ 🌐 Web Extensions                                                            ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  EXTENSIONS         - Manage web-based extensions (typo editor, cmd.js term  ║
+║  SERVER             - Alias for EXTENSIONS - Manage web-based extensions.    ║
+║  FONT               - Manage Monaspace fonts for web-based editors and term  ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  💡 Usage: HELP <command_name> for detailed information                      ║
+║  📖 Full docs: https://github.com/fredporter/uDOS/wiki                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
