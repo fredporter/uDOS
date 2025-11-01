@@ -1,0 +1,17 @@
+# uDOS v1.0.1 Command Test Script
+# Tests HELP, STATUS, and REPAIR commands
+
+# Test 1: HELP command (full list)
+HELP
+
+# Test 2: HELP for specific command
+HELP STATUS
+
+# Test 3: STATUS command
+STATUS
+
+# Test 4: REPAIR check mode
+REPAIR --check
+
+# Test 5: VIEWPORT command
+VIEWPORT

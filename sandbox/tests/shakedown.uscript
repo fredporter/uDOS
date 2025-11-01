@@ -1,0 +1,49 @@
+# uDOS Shakedown Test Script
+# Version 1.0.0
+# This script runs a series of commands to test core functionality.
+
+SPLASH "--- STARTING SHAKEDOWN TEST ---"
+
+# --- System & Info Commands ---
+SPLASH "Testing: HELP"
+HELP
+HELP STATUS
+
+SPLASH "Testing: STATUS"
+STATUS
+
+SPLASH "Testing: VIEWPORT"
+VIEWPORT
+
+SPLASH "Testing: PALETTE"
+PALETTE
+
+SPLASH "Testing: DASH"
+DASH
+
+SPLASH "Testing: TREE"
+TREE core --depth=1
+
+SPLASH "Testing: CONFIG"
+CONFIG list
+
+# --- Map Commands ---
+SPLASH "Testing: MAP"
+MAP
+
+# --- File Commands ---
+SPLASH "Testing: File Operations"
+NEW sandbox/test_file.txt
+SHOW sandbox/test_file.txt
+COPY sandbox/test_file.txt sandbox/test_file_copy.txt
+RENAME sandbox/test_file_copy.txt sandbox/test_file_renamed.txt
+MOVE sandbox/test_file_renamed.txt memory/test_file_moved.txt
+DELETE sandbox/test_file.txt
+DELETE memory/test_file_moved.txt
+
+# --- AI Commands ---
+SPLASH "Testing: AI Commands (may fail if API key is not set)"
+ASK "What is the purpose of uDOS?"
+EXPLAIN "TREE"
+
+SPLASH "--- SHAKEDOWN TEST COMPLETE ---"
