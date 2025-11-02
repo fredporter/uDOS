@@ -468,11 +468,13 @@ class SystemCommandHandler(BaseCommandHandler):
         Enhanced implementation for v1.0.5 Web Server Infrastructure.
         """
         if not params:
-            return ("❌ Usage: OUTPUT <START|STOP|STATUS|LIST> [name] [options]\n\n"
+            return ("❌ Usage: OUTPUT <START|STOP|STATUS|LIST|HEALTH|RESTART> [name] [options]\n\n"
                    "Examples:\n"
                    "  OUTPUT LIST                    # List all available extensions\n"
                    "  OUTPUT START dashboard         # Start dashboard server\n"
                    "  OUTPUT STATUS                  # Show all server status\n"
+                   "  OUTPUT HEALTH                  # Check server health\n"
+                   "  OUTPUT RESTART dashboard       # Restart specific server\n"
                    "  OUTPUT STOP teletext          # Stop teletext server")
 
         subcommand = params[0].upper()
@@ -482,6 +484,8 @@ class SystemCommandHandler(BaseCommandHandler):
         elif subcommand == "STATUS":
             extension_name = params[1] if len(params) > 1 else None
             return self._handle_output_status(extension_name)
+        elif subcommand == "HEALTH":
+            return self._handle_output_health()
         elif subcommand == "START":
             if len(params) < 2:
                 return "❌ Usage: OUTPUT START <extension_name> [--port N] [--no-browser]"
@@ -493,8 +497,13 @@ class SystemCommandHandler(BaseCommandHandler):
                 return "❌ Usage: OUTPUT STOP <extension_name>"
             extension_name = params[1]
             return self._handle_output_stop(extension_name)
+        elif subcommand == "RESTART":
+            if len(params) < 2:
+                return "❌ Usage: OUTPUT RESTART <extension_name>"
+            extension_name = params[1]
+            return self._handle_output_restart(extension_name)
         else:
-            return f"❌ Unknown OUTPUT subcommand: {subcommand}\nUse: START, STOP, STATUS, or LIST"
+            return f"❌ Unknown OUTPUT subcommand: {subcommand}\nUse: START, STOP, STATUS, LIST, HEALTH, or RESTART"
 
     def _handle_output_list(self):
         """List all available web extensions."""
@@ -549,3 +558,69 @@ class SystemCommandHandler(BaseCommandHandler):
             return f"🛑 {message}" if success else f"⚠️  {message}"
         except Exception as e:
             return f"❌ Error stopping {extension_name}: {str(e)}"
+
+    def _handle_output_health(self):
+        """Perform health check on all running servers."""
+        try:
+            from core.uDOS_server import ServerManager
+            server_manager = ServerManager()
+
+            # Get current status
+            status_result = server_manager.get_status()
+
+            # Count running/stopped servers
+            running_count = status_result.count("✅")
+            stopped_count = status_result.count("❌")
+            total_count = running_count + stopped_count
+
+            health_report = f"🏥 Server Health Report\n"
+            health_report += f"{'='*40}\n"
+            health_report += f"📊 Summary:\n"
+            health_report += f"   ✅ Running: {running_count}\n"
+            health_report += f"   ❌ Stopped: {stopped_count}\n"
+            health_report += f"   📈 Total: {total_count}\n\n"
+
+            if running_count == 0:
+                health_report += "⚠️  No servers currently running\n"
+                health_report += "💡 Tip: Use 'OUTPUT START <name>' to start servers\n"
+            elif stopped_count == 0:
+                health_report += "✅ All servers are running healthy!\n"
+            else:
+                health_percentage = (running_count / total_count) * 100 if total_count > 0 else 0
+                health_report += f"📊 System Health: {health_percentage:.1f}%\n"
+
+                if health_percentage >= 80:
+                    health_report += "✅ System health is good\n"
+                elif health_percentage >= 50:
+                    health_report += "⚠️  System health is moderate\n"
+                else:
+                    health_report += "❌ System health needs attention\n"
+
+            return health_report
+
+        except Exception as e:
+            return f"❌ Error checking health: {str(e)}"
+
+    def _handle_output_restart(self, extension_name):
+        """Restart a web extension server."""
+        try:
+            from core.uDOS_server import ServerManager
+            server_manager = ServerManager()
+
+            # Stop the server first
+            stop_success, stop_message = server_manager.stop_server(extension_name)
+
+            # Wait a moment for cleanup
+            import time
+            time.sleep(1)
+
+            # Start the server again
+            start_result = server_manager.start_server(extension_name)
+
+            if stop_success or "not running" in stop_message:
+                return f"🔄 Restarted {extension_name}:\n🛑 Stop: {stop_message}\n{start_result}"
+            else:
+                return f"⚠️  Restart {extension_name} (stop failed, attempting start anyway):\n🛑 Stop: {stop_message}\n{start_result}"
+
+        except Exception as e:
+            return f"❌ Error restarting {extension_name}: {str(e)}"
