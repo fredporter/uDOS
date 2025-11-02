@@ -1,0 +1,23 @@
+{
+  "python.formatting.provider": "black",
+  "python.linting.ruffEnabled": true,
+  "python.linting.enabled": true,
+  "ruff.lint.args": [
+    "--select=E,F,I,B",
+    "--ignore=E501"
+  ],
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "files.associations": {
+    "*.UDO": "plaintext",
+    "*.UDT": "plaintext"
+  },
+  "files.insertFinalNewline": true,
+  "editor.wordWrap": "off",
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
+  "git.confirmSync": false,
+  "git.autofetch": true
+}

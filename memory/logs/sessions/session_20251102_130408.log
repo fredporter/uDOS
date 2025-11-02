@@ -1,0 +1,21 @@
+[2025-11-02 13:04:08] [SESSION START] 
+[2025-11-02 13:04:08] [uDOS> HELP HISTORY] 
+[2025-11-02 13:04:08] [╔══════════════════════════════════════════════════════════════════════════════╗
+║  📖 HISTORY                                                                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Description:                                                                ║
+║     Enhanced command history management with intelligent search,             ║
+║    statistics, and export capabilities.                                      ║
+║                                                                              ║
+║  Syntax:                                                                     ║
+║    HISTORY [SEARCH <query>|STATS|CLEAR [days]|EXPORT <file>|RECENT [count]]  ║
+║                                                                              ║
+║  uCODE Format:                                                               ║
+║    [SYSTEM|HISTORY*$1*$2*$3]                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-02 13:04:08] [uDOS> HISTORY] 
+[2025-11-02 13:04:08] [❌ Error accessing history system: Can't instantiate abstract class EnhancedHistory with abstract methods load_history_strings, store_string] 
+[2025-11-02 13:04:08] [uDOS> HISTORY STATS] 
+[2025-11-02 13:04:08] [❌ Error accessing history system: Can't instantiate abstract class EnhancedHistory with abstract methods load_history_strings, store_string] 
+[2025-11-02 13:04:08] [SESSION END] 

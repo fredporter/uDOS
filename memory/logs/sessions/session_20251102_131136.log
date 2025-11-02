@@ -1,0 +1,14 @@
+[2025-11-02 13:11:36] [SESSION START] 
+[2025-11-02 13:11:36] [uDOS> HISTORY STATS] 
+[2025-11-02 13:11:36] [📊 Command History Statistics:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Total Commands:     3          │ Unique Commands:   3          │
+│ Recent Activity:    3          │ Database Size:     ~300B      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Top Command Types:                                                          │
+│   TEST                 1          times                                          │
+│   HISTORY              1          times                                          │
+│   ANOTHER              1          times                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+📁 Database: memory/logs/command_history.db] 
+[2025-11-02 13:11:36] [SESSION END] 

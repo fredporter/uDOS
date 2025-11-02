@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "venv: create",
+      "type": "shell",
+      "command": "python3 -m venv .venv"
+    },
+    {
+      "label": "venv: deps",
+      "type": "shell",
+      "command": ". .venv/bin/activate && pip install -r requirements.txt"
+    },
+    {
+      "label": "round: quick build",
+      "group": "build",
+      "type": "shell",
+      "command": ". .venv/bin/activate && ruff check . && black --check . && isort --check-only ."
+    },
+    {
+      "label": "run: uDOS",
+      "type": "shell",
+      "command": ". .venv/bin/activate && ./start_udos.sh"
+    },
+    {
+      "label": "shakedown: terminal core",
+      "detail": "Status\u2192Repair\u2192Tree\u2192Dashboard\u2192Output status",
+      "type": "shell",
+      "command": "set -e && echo '>>> STATUS --live (3s)'; printf 'STATUS --live\\n' | python uDOS.py | head -n 50 && echo '>>> REPAIR auto'; printf 'REPAIR auto\\n' | python uDOS.py | head -n 100 && echo '>>> TREE'; printf 'TREE\\n' | python uDOS.py | head -n 60 && echo '>>> DASHBOARD CLI'; printf 'DASHBOARD CLI\\n' | python uDOS.py | head -n 80 && echo '>>> OUTPUT STATUS'; printf 'OUTPUT STATUS\\n' | python uDOS.py | head -n 40"
+    },
+    {
+      "label": "map: APAC center sanity",
+      "type": "shell",
+      "command": "printf 'MAP STATUS\\nMAP VIEW 480 270\\n' | python uDOS.py | head -n 120"
+    },
+    {
+      "label": "teletext: server smoke (8080)",
+      "type": "shell",
+      "command": "printf 'MAP TELETEXT 80 45\\nMAP WEB start\\n' | python uDOS.py"
+    },
+    {
+      "label": "logs: tail session",
+      "type": "shell",
+      "command": "ls -1t sandbox/logs/session-*.log | head -n 1 | xargs -I{} tail -n 200 {}"
+    },
+    {
+      "label": "logs: tail dev",
+      "type": "shell",
+      "command": "ls -1t sandbox/logs/dev-*.log | head -n 1 | xargs -I{} tail -n 200 {}"
+    },
+    {
+      "label": "round: v1.0.x checklist",
+      "type": "shell",
+      "command": "cat ROADMAP.MD | sed -n '1,220p'"
+    },
+    {
+      "label": "server: kill 8080/8887/8888/8889/8890",
+      "type": "shell",
+      "command": "for p in 8080 8887 8888 8889 8890; do lsof -ti :$p | xargs -r kill -9; done"
+    },
+    {
+      "label": "copilot: stamp summary line",
+      "type": "shell",
+      "command": "python -m core.copilot_summary"
+    }
+  ]
+}

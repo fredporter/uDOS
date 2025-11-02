@@ -89,6 +89,21 @@
       }
     },
     {
+      "NAME": "HISTORY",
+      "SYNTAX": "HISTORY [SEARCH <query>|STATS|CLEAR [days]|EXPORT <file>|RECENT [count]]",
+      "DESCRIPTION": "Enhanced command history management with intelligent search, statistics, and export capabilities.",
+      "UCODE_TEMPLATE": "[SYSTEM|HISTORY*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "HISTORY",
+        "HISTORY SEARCH map",
+        "HISTORY STATS",
+        "HISTORY RECENT 20",
+        "HISTORY EXPORT my_commands.txt",
+        "HISTORY CLEAR 30"
+      ]
+    },
+    {
       "NAME": "SHOW",
       "SYNTAX": "SHOW [file_path]",
       "DESCRIPTION": "Display file contents in terminal or browser. Opens file picker if no path provided. Limited to sandbox/ and memory/ directories.",

@@ -9,9 +9,10 @@ from .uDOS_parser import Parser
 from .uDOS_commands import CommandHandler
 from .uDOS_grid import Grid
 from .uDOS_logger import Logger
-from .utils.completer import uDOSCompleter
+from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
+from .services.enhanced_history import EnhancedHistory
 from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
@@ -19,14 +20,13 @@ from .services.user_manager import UserManager
 from .uDOS_prompt import SmartPrompt
 from .uDOS_tree import generate_repository_tree
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 import sys
 import os
 import time
 
-def run_script(script_path, parser, grid, command_handler, logger):
+def run_script(script_path, parser, grid, command_handler, logger, enhanced_history=None):
     """
     Executes a uDOS script file non-interactively.
     """
@@ -36,6 +36,10 @@ def run_script(script_path, parser, grid, command_handler, logger):
                 clean_line = line.strip()
                 if not clean_line or clean_line.startswith('#'):
                     continue
+
+                # Store command in enhanced history if available
+                if enhanced_history:
+                    enhanced_history.append_string(clean_line)
 
                 logger.log(f"uDOS> {clean_line}")
                 ucode = parser.parse(clean_line)
@@ -189,6 +193,9 @@ def main():
         logger = Logger()
         history = ActionHistory(logger=logger)
 
+        # Initialize enhanced history system with persistent storage
+        enhanced_history = EnhancedHistory()
+
         # Get session and move stats
         move_stats = logger.get_move_stats()
 
@@ -212,12 +219,13 @@ def main():
             history=history,
             connection=connection,
             viewport=viewport,
-            user_manager=user_manager
+            user_manager=user_manager,
+            enhanced_history=enhanced_history
         )
 
         if is_script_mode:
             script_path = sys.argv[1]
-            run_script(script_path, parser, grid, command_handler, logger)
+            run_script(script_path, parser, grid, command_handler, logger, enhanced_history)
             logger.close()
             return 0
 
@@ -226,19 +234,36 @@ def main():
         # Initialize smart prompt system
         smart_prompt = SmartPrompt()
 
-        completer = uDOSCompleter(parser, grid)
-        prompt_history = InMemoryHistory()
+        # Initialize advanced completer with enhanced history integration
+        completer = AdvancedCompleter(parser, grid, enhanced_history)
 
-        kb = KeyBindings()
+        # Enhanced history already initialized above        kb = KeyBindings()
 
         @kb.add('[')
         def _(event):
             event.current_buffer.insert_text('[')
             event.current_buffer.start_completion()
 
+        # Add history search keybinding (Ctrl+R)
+        @kb.add('c-r')
+        def _(event):
+            """Reverse history search with enhanced features."""
+            # Get current input
+            current_text = event.current_buffer.text
+
+            # Simple search implementation - show recent matching commands
+            if current_text.strip():
+                suggestions = enhanced_history.get_suggestions(current_text, limit=5)
+                if suggestions:
+                    # Show suggestions in a simple format
+                    print(f"\n📜 History matches for '{current_text}':")
+                    for i, suggestion in enumerate(suggestions, 1):
+                        print(f"  {i}. {suggestion}")
+                    print()
+
         session = PromptSession(
             completer=completer,
-            history=prompt_history,
+            history=enhanced_history,
             key_bindings=kb,
             auto_suggest=AutoSuggestFromHistory(),
             complete_while_typing=True,

@@ -1,0 +1,26 @@
+{
+  "uDOS: dev log": {
+    "prefix": "devlog",
+    "body": [
+      "dev_log(fp, \"${1:AUS-BNE}\", ${2:3}, \"${3:CMD}\", ${4:0}, ${5:123}, \"${6:msg}\")"
+    ]
+  },
+  "uDOS: test shell": {
+    "prefix": "shkdn",
+    "body": [
+      "printf \"${1:STATUS --live}\\n\" | python uDOS.py"
+    ]
+  },
+  "uDOS: Copilot Dev Summary Prompt": {
+    "prefix": "udos-summary",
+    "body": [
+      "Summarise the dev session in ONE line using the uDOS log format:",
+      "ISO8601Z | ${1:AUS-BNE} | Z${2:3} | DEV SUMMARY | 0 | ${3:ms} | ${4:short, precise change summary with module names}",
+      "",
+      "Constraints:",
+      "- Never include secrets or .env values; redact keys and tokens.",
+      "- You MAY include non-sensitive values from sandbox/user.json if they inform changes.",
+      "- Use exact module paths (e.g., core/maps/grid.py) where helpful."
+    ]
+  }
+}

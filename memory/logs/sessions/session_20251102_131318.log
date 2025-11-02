@@ -1,0 +1,92 @@
+[2025-11-02 13:13:18] [SESSION START] 
+[2025-11-02 13:13:18] [uDOS> STATUS] 
+[2025-11-02 13:13:18] [<ERROR_INVALID_UCODE_FORMAT>] 
+[2025-11-02 13:13:18] [uDOS> HELP MAP] 
+[2025-11-02 13:13:18] [╔══════════════════════════════════════════════════════════════════════════════╗
+║  📖 MAP                                                                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Description:                                                                ║
+║     Shows current map position and layer information.                        ║
+║                                                                              ║
+║  Syntax:                                                                     ║
+║    MAP [STATUS|VIEW|LAYER]                                                   ║
+║                                                                              ║
+║  uCODE Format:                                                               ║
+║    [MAP|STATUS]                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-02 13:13:18] [uDOS> MAP STATUS] 
+[2025-11-02 13:13:18] [🗺️  Map Status
+==============================
+Current Location: Melbourne, Australia
+TIZO Code: MEL
+Cell Reference: JN196
+Coordinates: -37.81°, 144.96°
+Timezone: AEST (+10:00)
+Accessible Layers: SURFACE, CLOUD-OC, SATELLITE-OC, DUNGEON-1
+
+Use 'MAP VIEW' to see the area around you.] 
+[2025-11-02 13:13:18] [uDOS> OUTPUT LIST] 
+[2025-11-02 13:13:18] [📋 Available Servers:
+━━━━━━━━━━━━━━━━━━
+typo            - Web markdown editor - ✅ Installed
+cmd             - Web terminal emulator - ❌ Not installed
+markdown-viewer - GitHub-style MD renderer - ✅ Installed
+font-editor     - Bitmap font editor - ✅ Installed
+dashboard       - Unified extension hub - ✅ Installed
+
+To install:
+  typo:      cd extensions && bash setup_typo.sh
+  cmd:       bash extensions/setup_cmd.sh
+  markdown-viewer, font-editor, and dashboard are pre-installed
+
+Usage:
+  OUTPUT START <name> [--port N] [--no-browser]
+  OUTPUT STOP <name>
+  OUTPUT STATUS [name]] 
+[2025-11-02 13:13:18] [uDOS> HISTORY] 
+[2025-11-02 13:13:18] [📜 Recent Commands (last 8):
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  1. HISTORY                                                                │
+│  2. OUTPUT LIST                                                            │
+│  3. MAP STATUS                                                             │
+│  4. HELP MAP                                                               │
+│  5. STATUS                                                                 │
+│  6. HISTORY STATS                                                          │
+│  7. ANOTHER TEST                                                           │
+│  8. TEST COMMAND                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+💡 Use 'HISTORY SEARCH <term>' to find specific commands] 
+[2025-11-02 13:13:18] [uDOS> HISTORY SEARCH map] 
+[2025-11-02 13:13:18] [🔍 Search results for 'map' (3 found):
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  1. MAP STATUS                                              │ 0.58 │ used 1x  │
+│  2. HELP MAP                                                │ 0.28 │ used 1x  │
+│  3. HISTORY SEARCH map                                      │ 0.21 │ used 1x  │
+└──────────────────────────────────────────────────────────────────────────────┘
+💡 Score: relevance (0.0-1.0), Frequency: usage count] 
+[2025-11-02 13:13:18] [uDOS> HISTORY RECENT 3] 
+[2025-11-02 13:13:18] [📜 Recent Commands (last 3):
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  1. HISTORY RECENT 3                                                       │
+│  2. HISTORY SEARCH map                                                     │
+│  3. HISTORY                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+💡 Use 'HISTORY SEARCH <term>' to find specific commands] 
+[2025-11-02 13:13:18] [uDOS> HISTORY STATS] 
+[2025-11-02 13:13:18] [📊 Command History Statistics:
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Total Commands:     10         │ Unique Commands:   10         │
+│ Recent Activity:    10         │ Database Size:     ~1000B     │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Top Command Types:                                                          │
+│   HISTORY              4          times                                          │
+│   TEST                 1          times                                          │
+│   STATUS               1          times                                          │
+│   OUTPUT LIST          1          times                                          │
+│   MAP                  1          times                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+📁 Database: memory/logs/command_history.db] 
+[2025-11-02 13:13:18] [uDOS> HISTORY EXPORT test_export.txt] 
+[2025-11-02 13:13:18] [📤 History exported to: memory/logs/test_export.txt] 
+[2025-11-02 13:13:18] [SESSION END] 

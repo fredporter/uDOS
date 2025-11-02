@@ -1,20 +1,23 @@
-# uDOS v1.0.0 - Smart Context-Aware Completer
+# uDOS v1.0.6 - Advanced Context-Aware Completer with Intelligent Suggestions
 
 from prompt_toolkit.completion import Completer, Completion, PathCompleter
 from prompt_toolkit.document import Document
 from pathlib import Path
 import os
+import difflib
+from typing import List, Optional, Tuple
 
-class uDOSCompleter(Completer):
+
+class AdvancedCompleter(Completer):
     """
-    Context-aware completer for uDOS commands.
-    Switches between command completion, file path completion, and panel name completion
-    based on the current input context.
+    Advanced context-aware completer for uDOS commands with intelligent suggestions,
+    fuzzy matching, and enhanced history integration.
     """
 
-    def __init__(self, parser, grid):
+    def __init__(self, parser, grid, enhanced_history=None):
         self.parser = parser
         self.grid = grid
+        self.enhanced_history = enhanced_history
         self.command_names = parser.get_command_names()
         self.path_completer = PathCompleter(expanduser=True)
         self.root = Path.cwd()
@@ -25,6 +28,17 @@ class uDOSCompleter(Completer):
         # Commands that expect panel names
         self.panel_commands = ['ANALYZE', 'GRID PANEL CREATE', 'GRID PANEL DELETE',
                                'GRID PANEL SELECT']
+
+        # Enhanced: Smart parameter completion definitions
+        self.output_subcommands = ['START', 'STOP', 'STATUS', 'LIST', 'HEALTH', 'RESTART']
+        self.output_servers = ['typo', 'cmd', 'markdown-viewer', 'font-editor', 'dashboard']
+
+        self.map_subcommands = ['STATUS', 'VIEW', 'LAYER', 'GOTO', 'LOCATE', 'MOVE']
+        self.map_layers = ['SURFACE', 'CLOUD-OC', 'SATELLITE-OC', 'DUNGEON-1']
+
+        self.file_subcommands = ['NEW', 'DELETE', 'COPY', 'MOVE', 'RENAME', 'SHOW', 'EDIT', 'RUN']
+
+        self.history_subcommands = ['SEARCH', 'STATS', 'CLEAR', 'EXPORT', 'RECENT']
 
         # Allowed directories for file operations
         self.allowed_dirs = ['sandbox', 'memory']
@@ -43,89 +57,314 @@ class uDOSCompleter(Completer):
             'default': '📄'
         }
 
+        # Fuzzy matching threshold
+        self.fuzzy_threshold = 0.6
+
     def get_completions(self, document, complete_event):
         """
-        Generate completions based on the current context.
+        Generate completions based on the current context with advanced intelligence.
         """
         text = document.text_before_cursor
         words = text.split()
 
-        # If empty, suggest nothing
+        # If empty, suggest recent commands from history
         if not words:
+            yield from self._get_recent_command_suggestions()
             return
 
-        # Single word without space = command completion
+        # Single word without space = command completion with fuzzy matching
         if len(words) == 1 and not text.endswith(' '):
             word = words[0].upper()
-            for cmd in self.command_names:
-                if cmd.upper().startswith(word):
+            yield from self._get_command_completions(word)
+            return
+
+        # Multi-word context - enhanced parameter completion
+        if len(words) >= 1:
+            command = words[0].upper()
+
+            # Enhanced OUTPUT command completion
+            if command == 'OUTPUT':
+                yield from self._complete_output_command(words, text)
+
+            # Enhanced MAP command completion
+            elif command == 'MAP':
+                yield from self._complete_map_command(words, text)
+
+            # Enhanced FILE command completion
+            elif command == 'FILE':
+                yield from self._complete_file_command(words, text)
+
+            # Enhanced HISTORY command completion
+            elif command == 'HISTORY':
+                yield from self._complete_history_command(words, text)
+
+            # File path commands
+            elif command in self.file_commands:
+                yield from self._complete_file_paths(words, text)
+
+            # Panel commands
+            elif any(' '.join(words).upper().startswith(cmd) for cmd in self.panel_commands):
+                yield from self._complete_panel_names(words, text)
+
+            # General multi-word command completion
+            else:
+                yield from self._complete_multiword_commands(words, text)
+
+    def _get_recent_command_suggestions(self):
+        """Get recent command suggestions from enhanced history."""
+        if not self.enhanced_history:
+            return
+
+        try:
+            recent_commands = self.enhanced_history.get_suggestions('', limit=8)
+            for i, cmd in enumerate(recent_commands):
+                yield Completion(
+                    cmd,
+                    start_position=0,
+                    display=f"📋 {cmd}",
+                    display_meta=f"recent #{i+1}"
+                )
+        except:
+            pass  # Graceful fallback if history unavailable
+
+    def _get_command_completions(self, partial_cmd: str):
+        """Enhanced command completion with fuzzy matching."""
+        exact_matches = []
+        fuzzy_matches = []
+
+        for cmd in self.command_names:
+            cmd_upper = cmd.upper()
+
+            # Exact prefix match (highest priority)
+            if cmd_upper.startswith(partial_cmd):
+                exact_matches.append((cmd, 1.0))
+            # Fuzzy match
+            else:
+                similarity = difflib.SequenceMatcher(None, partial_cmd, cmd_upper).ratio()
+                if similarity >= self.fuzzy_threshold:
+                    fuzzy_matches.append((cmd, similarity))
+
+        # Sort fuzzy matches by similarity
+        fuzzy_matches.sort(key=lambda x: x[1], reverse=True)
+
+        # Yield exact matches first
+        for cmd, score in exact_matches:
+            yield Completion(
+                cmd,
+                start_position=-len(partial_cmd),
+                display=cmd,
+                display_meta='command'
+            )
+
+        # Then fuzzy matches with similarity scores
+        for cmd, score in fuzzy_matches[:5]:  # Limit fuzzy results
+            yield Completion(
+                cmd,
+                start_position=-len(partial_cmd),
+                display=f"{cmd} ~{score:.0%}",
+                display_meta=f'fuzzy match'
+            )
+
+    def _complete_output_command(self, words: List[str], text: str):
+        """Smart completion for OUTPUT commands."""
+        if len(words) == 1 or (len(words) == 2 and not text.endswith(' ')):
+            # Suggest OUTPUT subcommands
+            partial = words[1] if len(words) == 2 else ''
+            for subcmd in self.output_subcommands:
+                if subcmd.startswith(partial.upper()):
+                    help_text = self._get_output_help(subcmd)
                     yield Completion(
-                        cmd,
-                        start_position=-len(word),
+                        subcmd,
+                        start_position=-len(partial),
+                        display=f"⚙️ OUTPUT {subcmd}",
+                        display_meta=help_text
+                    )
+
+        elif len(words) >= 2:
+            subcmd = words[1].upper()
+
+            # Server-specific completions
+            if subcmd in ['START', 'STOP', 'STATUS'] and (len(words) == 2 or not text.endswith(' ')):
+                partial = words[2] if len(words) == 3 else ''
+                for server in self.output_servers:
+                    if server.startswith(partial.lower()):
+                        yield Completion(
+                            server,
+                            start_position=-len(partial),
+                            display=f"🌐 {server}",
+                            display_meta='web server'
+                        )
+
+            # Port number suggestions for START command
+            elif subcmd == 'START' and len(words) >= 3 and '--port' in text:
+                common_ports = ['3000', '8000', '8080', '5000', '9000']
+                for port in common_ports:
+                    yield Completion(
+                        port,
+                        start_position=0,
+                        display=f":{port}",
+                        display_meta='common port'
+                    )
+
+    def _complete_map_command(self, words: List[str], text: str):
+        """Smart completion for MAP commands."""
+        if len(words) == 1 or (len(words) == 2 and not text.endswith(' ')):
+            partial = words[1] if len(words) == 2 else ''
+            for subcmd in self.map_subcommands:
+                if subcmd.startswith(partial.upper()):
+                    help_text = self._get_map_help(subcmd)
+                    yield Completion(
+                        subcmd,
+                        start_position=-len(partial),
+                        display=f"🗺️ MAP {subcmd}",
+                        display_meta=help_text
+                    )
+
+        elif len(words) >= 2:
+            subcmd = words[1].upper()
+
+            # Layer completions
+            if subcmd == 'LAYER' and (len(words) == 2 or not text.endswith(' ')):
+                partial = words[2] if len(words) == 3 else ''
+                for layer in self.map_layers:
+                    if layer.startswith(partial.upper()):
+                        yield Completion(
+                            layer,
+                            start_position=-len(partial),
+                            display=f"🌍 {layer}",
+                            display_meta='map layer'
+                        )
+
+    def _complete_file_command(self, words: List[str], text: str):
+        """Smart completion for FILE commands."""
+        if len(words) == 1 or (len(words) == 2 and not text.endswith(' ')):
+            partial = words[1] if len(words) == 2 else ''
+            for subcmd in self.file_subcommands:
+                if subcmd.startswith(partial.upper()):
+                    help_text = self._get_file_help(subcmd)
+                    yield Completion(
+                        subcmd,
+                        start_position=-len(partial),
+                        display=f"📁 FILE {subcmd}",
+                        display_meta=help_text
+                    )
+
+    def _complete_history_command(self, words: List[str], text: str):
+        """Smart completion for HISTORY commands."""
+        if len(words) == 1 or (len(words) == 2 and not text.endswith(' ')):
+            partial = words[1] if len(words) == 2 else ''
+            for subcmd in self.history_subcommands:
+                if subcmd.startswith(partial.upper()):
+                    help_text = self._get_history_help(subcmd)
+                    yield Completion(
+                        subcmd,
+                        start_position=-len(partial),
+                        display=f"📜 HISTORY {subcmd}",
+                        display_meta=help_text
+                    )
+
+    def _complete_file_paths(self, words: List[str], text: str):
+        """Enhanced file path completion."""
+        # Extract the partial path being typed
+        if '"' in text:
+            # Inside quotes
+            last_quote = text.rfind('"')
+            partial_path = text[last_quote + 1:]
+        elif len(words) > 1:
+            # After command, get the last word (partial path)
+            partial_path = words[-1]
+        else:
+            # Just the command with trailing space
+            partial_path = ''
+
+        # Use enhanced file completer
+        yield from self._get_file_completions(partial_path)
+
+    def _complete_panel_names(self, words: List[str], text: str):
+        """Smart completion for panel names."""
+        # Get current panels
+        panels = self.grid.get_panel_names()
+
+        # Extract partial panel name
+        if '"' in text:
+            last_quote = text.rfind('"')
+            partial_panel = text[last_quote + 1:]
+        else:
+            partial_panel = ''
+
+        for panel in panels:
+            if panel.startswith(partial_panel):
+                yield Completion(
+                    panel,
+                    start_position=-len(partial_panel),
+                    display=f'📋 "{panel}"',
+                    display_meta='panel'
+                )
+
+    def _complete_multiword_commands(self, words: List[str], text: str):
+        """Enhanced multi-word command completion."""
+        partial_cmd = ' '.join(words).upper()
+
+        for cmd in self.command_names:
+            if cmd.upper().startswith(partial_cmd) and cmd.upper() != partial_cmd:
+                # Suggest the rest of the command
+                remaining = cmd[len(partial_cmd):].lstrip()
+                if remaining:
+                    yield Completion(
+                        remaining,
+                        start_position=0,
                         display=cmd,
                         display_meta='command'
                     )
-            return
 
-        # Check if we're in a multi-word command like "GRID PANEL"
-        elif len(words) >= 1:
-            # Try to match multi-word commands
-            partial_cmd = ' '.join(words).upper()
+    def _get_output_help(self, subcmd: str) -> str:
+        """Get help text for OUTPUT subcommands."""
+        help_texts = {
+            'START': 'Start a web server',
+            'STOP': 'Stop a running server',
+            'STATUS': 'Show server status',
+            'LIST': 'List available servers',
+            'HEALTH': 'Check server health',
+            'RESTART': 'Restart a server'
+        }
+        return help_texts.get(subcmd, 'Server management')
 
-            # Check if this looks like a file path command
-            if any(text.upper().startswith(cmd) for cmd in self.file_commands):
-                # Extract the partial path being typed
-                if '"' in text:
-                    # Inside quotes
-                    last_quote = text.rfind('"')
-                    partial_path = text[last_quote + 1:]
-                elif len(words) > 1:
-                    # After command, get the last word (partial path)
-                    partial_path = words[-1]
-                else:
-                    # Just the command with trailing space
-                    partial_path = ''
+    def _get_map_help(self, subcmd: str) -> str:
+        """Get help text for MAP subcommands."""
+        help_texts = {
+            'STATUS': 'Show current location',
+            'VIEW': 'View area around you',
+            'LAYER': 'Switch map layer',
+            'GOTO': 'Navigate to location',
+            'LOCATE': 'Find coordinates',
+            'MOVE': 'Move to new position'
+        }
+        return help_texts.get(subcmd, 'Map navigation')
 
-                # Use custom file completer for sandbox/ and memory/
-                for completion in self._get_file_completions(partial_path):
-                    yield completion
+    def _get_file_help(self, subcmd: str) -> str:
+        """Get help text for FILE subcommands."""
+        help_texts = {
+            'NEW': 'Create new file',
+            'DELETE': 'Delete file',
+            'COPY': 'Copy file',
+            'MOVE': 'Move file',
+            'RENAME': 'Rename file',
+            'SHOW': 'Display file',
+            'EDIT': 'Edit file',
+            'RUN': 'Execute file'
+        }
+        return help_texts.get(subcmd, 'File operation')
 
-            # Check if this is a panel command
-            elif any(partial_cmd.startswith(cmd) for cmd in self.panel_commands):
-                # Suggest panel names
-                if '"' in text or text.endswith(' '):
-                    # Get current panels
-                    panels = self.grid.get_panel_names()
-
-                    # Extract partial panel name
-                    if '"' in text:
-                        last_quote = text.rfind('"')
-                        partial_panel = text[last_quote + 1:]
-                    else:
-                        partial_panel = ''
-
-                    for panel in panels:
-                        if panel.startswith(partial_panel):
-                            yield Completion(
-                                panel,
-                                start_position=-len(partial_panel),
-                                display=f'"{panel}"',
-                                display_meta='panel'
-                            )
-
-            # Continue suggesting multi-word commands
-            else:
-                for cmd in self.command_names:
-                    if cmd.upper().startswith(partial_cmd) and cmd.upper() != partial_cmd:
-                        # Suggest the rest of the command
-                        remaining = cmd[len(partial_cmd):].lstrip()
-                        if remaining:
-                            yield Completion(
-                                remaining,
-                                start_position=0,
-                                display=cmd,
-                                display_meta='command'
-                            )
+    def _get_history_help(self, subcmd: str) -> str:
+        """Get help text for HISTORY subcommands."""
+        help_texts = {
+            'SEARCH': 'Search command history',
+            'STATS': 'Show usage statistics',
+            'CLEAR': 'Clear old commands',
+            'EXPORT': 'Export to file',
+            'RECENT': 'Show recent commands'
+        }
+        return help_texts.get(subcmd, 'History management')
 
     def _get_file_completions(self, partial_path):
         """
@@ -268,3 +507,7 @@ class uDOSCompleter(Completer):
                 return f"{size:.1f} {unit}"
             size /= 1024.0
         return f"{size:.1f} TB"
+
+
+# Backward compatibility alias
+uDOSCompleter = AdvancedCompleter

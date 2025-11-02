@@ -94,7 +94,7 @@ class EnhancedFileCommandHandler(BaseCommandHandler):
             return self.get_message("ERROR_UNKNOWN_FILE_COMMAND", command=command)
 
     def _handle_search(self, params):
-        """Smart file search with fuzzy matching."""
+        """Smart file search with fuzzy matching and progress indicators."""
         if not params:
             return "❌ Usage: SEARCH <query> [workspace]"
 
@@ -104,7 +104,103 @@ class EnhancedFileCommandHandler(BaseCommandHandler):
         if workspace not in self.smart_picker.ALLOWED_DIRS:
             return f"❌ Invalid workspace: {workspace}. Use: {', '.join(self.smart_picker.ALLOWED_DIRS)}"
 
-        # Get files and search
+        # Import progress manager
+        try:
+            from core.services.progress_manager import progress_manager, ProgressConfig
+        except ImportError:
+            # Fallback to simple search without progress
+            return self._simple_search(query, workspace)
+
+        # Create progress indicator for multi-stage search
+        stages = ["Scanning directories", "Loading files", "Fuzzy matching", "Generating previews"]
+        search_progress = progress_manager.create_multi_stage_progress(
+            f"file_search_{query}",
+            stages,
+            ProgressConfig(show_time_estimate=True, show_percentage=True)
+        )
+
+        try:
+            # Stage 1: Scanning directories
+            search_progress.start_stage(0, f"Scanning {workspace}/ directory structure")
+            files = self.smart_picker.get_files_in_workspace(workspace)
+            search_progress.complete_stage(f"Found {len(files)} files")
+
+            # Stage 2: Loading file metadata
+            search_progress.start_stage(1, "Loading file metadata", len(files))
+            for i, file_path in enumerate(files):
+                # Simulate some work for file metadata loading
+                if i % 10 == 0:  # Update every 10 files
+                    search_progress.update_stage(i, f"Processing {os.path.basename(file_path)}")
+            search_progress.complete_stage("File metadata loaded")
+
+            # Stage 3: Fuzzy matching
+            search_progress.start_stage(2, f"Fuzzy matching against '{query}'", len(files))
+
+            # Use the existing fuzzy_search method which returns (path, score) tuples
+            matches = self.smart_picker.fuzzy_search(query, files)
+
+            # Update progress as we process results
+            for i in range(0, len(files), 50):  # Update every 50 files processed
+                search_progress.update_stage(
+                    min(i + 50, len(files)),
+                    f"Matched {len(matches)} files so far"
+                )
+
+            search_progress.complete_stage(f"Found {len(matches)} matches")
+
+            if not matches:
+                search_progress.complete("Search completed - no matches found")
+                return f"❌ No files found matching '{query}' in {workspace}/"
+
+            # Stage 4: Generating previews
+            preview_count = min(3, len(matches))
+            search_progress.start_stage(3, f"Generating previews for top {preview_count} results", preview_count)
+
+            # Format results with progress updates
+            result = [f"🔍 Search Results for '{query}' in {workspace}/"]
+            result.append("=" * 60)
+
+            for i, (file_path, score) in enumerate(matches[:10], 1):
+                file_info = self.smart_picker.format_file_info(file_path)
+                result.append(f"{i:2d}. {file_info} (score: {score:.2f})")
+
+                # Add preview for top 3 results with progress updates
+                if i <= 3 and self.smart_picker.settings.get('preview_enabled', True):
+                    search_progress.update_stage(i - 1, f"Generating preview for {os.path.basename(file_path)}")
+                    preview = self.smart_picker.get_file_preview(file_path, 1)
+                    if preview and "No preview" not in preview:
+                        result.append(f"     Preview: {preview[:80]}...")
+
+            search_progress.complete_stage("Previews generated")
+
+            if len(matches) > 10:
+                result.append(f"\n... and {len(matches) - 10} more matches")
+
+            result.append(f"\n💡 Use: SHOW <filename> or EDIT <filename>")
+
+            # Complete the search
+            search_progress.complete(f"Search completed - {len(matches)} matches found")
+
+            # Clean up progress after a short delay
+            import threading
+            def cleanup():
+                import time
+                time.sleep(2)  # Show completion for 2 seconds
+                progress_manager.remove_progress(f"file_search_{query}")
+
+            threading.Thread(target=cleanup, daemon=True).start()
+
+            return "\n".join(result)
+
+        except KeyboardInterrupt:
+            search_progress.current_indicator.cancel("Search cancelled by user")
+            return "🚫 Search operation cancelled"
+        except Exception as e:
+            search_progress.current_indicator.error(f"Search failed: {str(e)}")
+            return f"❌ Search error: {str(e)}"
+
+    def _simple_search(self, query, workspace):
+        """Fallback search without progress indicators."""
         files = self.smart_picker.get_files_in_workspace(workspace)
         matches = self.smart_picker.fuzzy_search(query, files)
 

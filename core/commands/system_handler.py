@@ -77,6 +77,11 @@ class SystemCommandHandler(BaseCommandHandler):
         handlers = {
             'BLANK': self.handle_blank,
             'HELP': self.handle_help,
+            'HISTORY': self.handle_history,
+            'THEME': self.handle_theme,
+            'PROGRESS': self.handle_progress,
+            'SESSION': self.handle_session,
+            'LAYOUT': self.handle_layout,
             'STATUS': self.handle_status,
             'REPAIR': self.handle_repair,
             'REBOOT': self.handle_reboot,
@@ -237,6 +242,1290 @@ class SystemCommandHandler(BaseCommandHandler):
                     help_text += "╚" + "═"*78 + "╝\n"
                     return help_text
             return self.get_message("ERROR_COMMAND_NOT_FOUND", command=cmd_name)
+
+    def handle_history(self, params, grid, parser):
+        """
+        Enhanced command history management with search and statistics.
+
+        Subcommands:
+        - HISTORY SEARCH <query>   # Search command history
+        - HISTORY STATS           # Show usage statistics
+        - HISTORY CLEAR [days]    # Clear history (optional: older than X days)
+        - HISTORY EXPORT <file>   # Export history to file
+        - HISTORY RECENT [count]  # Show recent commands
+
+        Args:
+            params: List of command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Formatted history information
+        """
+        # Use the enhanced history from the base class
+        if self.enhanced_history is None:
+            return "❌ Enhanced history system not available"
+
+        try:
+            history = self.enhanced_history
+            # Test if it's working by trying to access a method
+            _ = len(history)
+        except Exception as e:
+            return f"❌ Enhanced history system error: {e}"
+
+        if not params:
+            # Default: show recent commands
+            return self._show_recent_history(history, 10)
+
+        subcommand = params[0].upper()
+
+        if subcommand == "SEARCH":
+            if len(params) < 2:
+                return "❌ Usage: HISTORY SEARCH <query>"
+            query = " ".join(params[1:])
+            return self._search_history(history, query)
+
+        elif subcommand == "STATS":
+            return self._show_history_stats(history)
+
+        elif subcommand == "CLEAR":
+            days = None
+            if len(params) > 1:
+                try:
+                    days = int(params[1])
+                except ValueError:
+                    return "❌ Invalid days parameter. Use: HISTORY CLEAR [days]"
+            return self._clear_history(history, days)
+
+        elif subcommand == "EXPORT":
+            if len(params) < 2:
+                return "❌ Usage: HISTORY EXPORT <filename>"
+            filename = params[1]
+            return self._export_history(history, filename)
+
+        elif subcommand == "RECENT":
+            count = 10  # Default
+            if len(params) > 1:
+                try:
+                    count = int(params[1])
+                    count = max(1, min(count, 100))  # Limit between 1-100
+                except ValueError:
+                    return "❌ Invalid count parameter. Use: HISTORY RECENT [count]"
+            return self._show_recent_history(history, count)
+
+        else:
+            return f"❌ Unknown history subcommand: {subcommand}\n💡 Use: HELP HISTORY for usage information"
+
+    def _show_recent_history(self, history, count):
+        """Show recent command history."""
+        try:
+            # Get recent commands from cache
+            recent = list(history)[:count]
+            if not recent:
+                return "📜 No command history available"
+
+            result = f"📜 Recent Commands (last {len(recent)}):\n"
+            result += "┌" + "─" * 78 + "┐\n"
+
+            for i, cmd in enumerate(recent, 1):
+                # Truncate long commands
+                display_cmd = cmd if len(cmd) <= 70 else cmd[:67] + "..."
+                result += f"│ {i:2d}. {display_cmd:<70} │\n"
+
+            result += "└" + "─" * 78 + "┘\n"
+            result += f"💡 Use 'HISTORY SEARCH <term>' to find specific commands"
+            return result
+
+        except Exception as e:
+            return f"❌ Error retrieving history: {e}"
+
+    def _search_history(self, history, query):
+        """Search command history with relevance scoring."""
+        try:
+            results = history.search_history(query, limit=15)
+            if not results:
+                return f"🔍 No commands found matching '{query}'"
+
+            result = f"🔍 Search results for '{query}' ({len(results)} found):\n"
+            result += "┌" + "─" * 78 + "┐\n"
+
+            for i, (cmd, score, freq) in enumerate(results, 1):
+                # Truncate and show relevance info
+                display_cmd = cmd if len(cmd) <= 55 else cmd[:52] + "..."
+                score_str = f"{score:.2f}"
+                freq_str = f"used {freq}x"
+                result += f"│ {i:2d}. {display_cmd:<55} │ {score_str} │ {freq_str:<8} │\n"
+
+            result += "└" + "─" * 78 + "┘\n"
+            result += f"💡 Score: relevance (0.0-1.0), Frequency: usage count"
+            return result
+
+        except Exception as e:
+            return f"❌ Error searching history: {e}"
+
+    def _show_history_stats(self, history):
+        """Show command usage statistics."""
+        try:
+            stats = history.get_command_stats()
+
+            result = "📊 Command History Statistics:\n"
+            result += "┌" + "─" * 78 + "┐\n"
+            result += f"│ Total Commands:     {stats['total_commands']:<10} │ Unique Commands:   {stats['unique_commands']:<10} │\n"
+            result += f"│ Recent Activity:    {stats['recent_activity']:<10} │ Database Size:     {'~' + str(stats['total_commands'] * 100) + 'B':<10} │\n"
+            result += "├" + "─" * 78 + "┤\n"
+            result += "│ Top Command Types:" + " " * 58 + "│\n"
+
+            for cmd_type, count in stats['top_command_types']:
+                result += f"│   {cmd_type:<20} {count:<10} times" + " " * 42 + "│\n"
+
+            result += "└" + "─" * 78 + "┘\n"
+            result += f"📁 Database: {stats['database_path']}"
+            return result
+
+        except Exception as e:
+            return f"❌ Error retrieving statistics: {e}"
+
+    def _clear_history(self, history, days):
+        """Clear command history."""
+        try:
+            if days:
+                deleted = history.clear_history(older_than_days=days)
+                return f"🗑️  Cleared {deleted} commands older than {days} days"
+            else:
+                # Confirm total clear
+                deleted = history.clear_history()
+                return f"🗑️  Cleared all command history ({deleted} commands removed)"
+
+        except Exception as e:
+            return f"❌ Error clearing history: {e}"
+
+    def _export_history(self, history, filename):
+        """Export command history to file."""
+        try:
+            # Determine format from extension
+            if filename.endswith('.json'):
+                format_type = 'json'
+            elif filename.endswith('.txt'):
+                format_type = 'txt'
+            else:
+                format_type = 'txt'  # Default
+                filename += '.txt'
+
+            # Create export path in memory/logs/
+            export_path = Path("memory/logs") / filename
+            export_path.parent.mkdir(parents=True, exist_ok=True)
+
+            success = history.export_history(str(export_path), format_type)
+            if success:
+                return f"📤 History exported to: {export_path}"
+            else:
+                return f"❌ Failed to export history to {export_path}"
+
+        except Exception as e:
+            return f"❌ Error exporting history: {e}"
+
+    def handle_theme(self, params, grid, parser):
+        """
+        Advanced theme management with accessibility features.
+
+        Subcommands:
+        - THEME LIST              # List available themes
+        - THEME SET <name>        # Set active theme
+        - THEME INFO              # Show current theme info
+        - THEME ACCESSIBILITY ON|OFF  # Toggle accessibility mode
+        - THEME CONTRAST ON|OFF   # Toggle high contrast mode
+        - THEME COLORBLIND <type> # Set colorblind support
+        - THEME CREATE <name>     # Create custom theme (interactive)
+
+        Args:
+            params: List of command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Formatted theme information
+        """
+        # Initialize theme manager
+        try:
+            from core.services.theme_manager import ThemeManager, ThemeMode
+            theme_manager = ThemeManager()
+            theme_manager.load_settings()
+        except Exception as e:
+            return f"❌ Error accessing theme system: {e}"
+
+        if not params:
+            # Default: show current theme info
+            return self._show_theme_info(theme_manager)
+
+        subcommand = params[0].upper()
+
+        if subcommand == "LIST":
+            return self._list_themes(theme_manager)
+
+        elif subcommand == "SET":
+            if len(params) < 2:
+                return "❌ Usage: THEME SET <theme_name>"
+            theme_name = params[1].lower()
+            return self._set_theme(theme_manager, theme_name)
+
+        elif subcommand == "INFO":
+            return self._show_theme_info(theme_manager)
+
+        elif subcommand == "ACCESSIBILITY":
+            if len(params) < 2:
+                return "❌ Usage: THEME ACCESSIBILITY ON|OFF"
+            enable = params[1].upper() == "ON"
+            return self._toggle_accessibility(theme_manager, enable)
+
+        elif subcommand == "CONTRAST":
+            if len(params) < 2:
+                return "❌ Usage: THEME CONTRAST ON|OFF"
+            enable = params[1].upper() == "ON"
+            return self._toggle_contrast(theme_manager, enable)
+
+        elif subcommand == "COLORBLIND":
+            if len(params) < 2:
+                return "❌ Usage: THEME COLORBLIND <type|off>\n💡 Types: deuteranopia, protanopia, tritanopia"
+            cb_type = params[1].lower() if params[1].lower() != "off" else None
+            return self._set_colorblind_support(theme_manager, cb_type)
+
+        elif subcommand == "CREATE":
+            if len(params) < 2:
+                return "❌ Usage: THEME CREATE <name>"
+            name = params[1]
+            return self._create_custom_theme(theme_manager, name)
+
+        else:
+            return f"❌ Unknown theme subcommand: {subcommand}\n💡 Use: HELP THEME for usage information"
+
+    def _show_theme_info(self, theme_manager):
+        """Show current theme information."""
+        try:
+            info = theme_manager.get_theme_info()
+            scheme = theme_manager.get_current_scheme()
+
+            result = theme_manager.format_text("🎨 Current Theme Information", "accent") + "\n"
+            result += "┌" + "─" * 60 + "┐\n"
+            result += f"│ Active Theme:     {theme_manager.format_text(info['current_mode'], 'primary'):<45} │\n"
+            result += f"│ Accessibility:    {theme_manager.format_text('ON' if info['accessibility_mode'] else 'OFF', 'success' if info['accessibility_mode'] else 'text_muted'):<45} │\n"
+            result += f"│ High Contrast:    {theme_manager.format_text('ON' if info['high_contrast_mode'] else 'OFF', 'success' if info['high_contrast_mode'] else 'text_muted'):<45} │\n"
+            result += f"│ Colorblind Mode:  {theme_manager.format_text(info['colorblind_mode'] or 'OFF', 'info' if info['colorblind_mode'] else 'text_muted'):<45} │\n"
+            result += f"│ Custom Themes:    {theme_manager.format_text(str(info['custom_themes_count']), 'secondary'):<45} │\n"
+            result += "└" + "─" * 60 + "┘\n"
+
+            # Show color preview
+            result += "\n" + theme_manager.format_text("🌈 Color Preview", "accent") + "\n"
+            result += "┌" + "─" * 60 + "┐\n"
+            result += f"│ Primary:    {theme_manager.format_text('Sample Text', 'primary'):<45} │\n"
+            result += f"│ Secondary:  {theme_manager.format_text('Sample Text', 'secondary'):<45} │\n"
+            result += f"│ Success:    {theme_manager.format_text('Sample Text', 'success'):<45} │\n"
+            result += f"│ Warning:    {theme_manager.format_text('Sample Text', 'warning'):<45} │\n"
+            result += f"│ Error:      {theme_manager.format_text('Sample Text', 'error'):<45} │\n"
+            result += "└" + "─" * 60 + "┘"
+
+            return result
+
+        except Exception as e:
+            return f"❌ Error retrieving theme info: {e}"
+
+    def _list_themes(self, theme_manager):
+        """List all available themes."""
+        try:
+            themes = theme_manager.list_available_themes()
+            current_mode = theme_manager.current_mode.value
+
+            result = theme_manager.format_text("🎨 Available Themes", "accent") + "\n"
+            result += "┌" + "─" * 70 + "┐\n"
+
+            for theme_id, description in themes.items():
+                is_active = theme_id == current_mode or (current_mode == "custom" and theme_id.startswith("custom-"))
+                marker = "→" if is_active else " "
+                status = theme_manager.format_text("ACTIVE", "success") if is_active else ""
+
+                result += f"│ {marker} {theme_id:<20} │ {description:<30} │ {status:<8} │\n"
+
+            result += "└" + "─" * 70 + "┘\n"
+            result += theme_manager.format_text("💡 Use 'THEME SET <name>' to switch themes", "info")
+
+            return result
+
+        except Exception as e:
+            return f"❌ Error listing themes: {e}"
+
+    def _set_theme(self, theme_manager, theme_name):
+        """Set the active theme."""
+        try:
+            # Handle theme name mapping
+            theme_mapping = {
+                'classic': ThemeMode.CLASSIC,
+                'cyberpunk': ThemeMode.CYBERPUNK,
+                'accessibility': ThemeMode.ACCESSIBILITY,
+                'monochrome': ThemeMode.MONOCHROME
+            }
+
+            if theme_name in theme_mapping:
+                success = theme_manager.set_theme(theme_mapping[theme_name])
+                if success:
+                    return theme_manager.format_text(f"✅ Theme switched to: {theme_name}", "success")
+                else:
+                    return theme_manager.format_text(f"❌ Failed to set theme: {theme_name}", "error")
+            elif theme_name.startswith('custom-'):
+                custom_name = theme_name[7:]  # Remove 'custom-' prefix
+                if custom_name in theme_manager.custom_themes:
+                    theme_manager.current_mode = ThemeMode.CUSTOM
+                    return theme_manager.format_text(f"✅ Custom theme activated: {custom_name}", "success")
+                else:
+                    return theme_manager.format_text(f"❌ Custom theme not found: {custom_name}", "error")
+            else:
+                available = ", ".join(theme_manager.list_available_themes().keys())
+                return f"❌ Unknown theme: {theme_name}\n💡 Available: {available}"
+
+        except Exception as e:
+            return f"❌ Error setting theme: {e}"
+
+    def _toggle_accessibility(self, theme_manager, enable):
+        """Toggle accessibility mode."""
+        try:
+            theme_manager.enable_accessibility_mode(enable)
+            status = theme_manager.format_text("enabled", "success") if enable else theme_manager.format_text("disabled", "text_muted")
+            return f"♿ Accessibility mode {status}"
+        except Exception as e:
+            return f"❌ Error toggling accessibility: {e}"
+
+    def _toggle_contrast(self, theme_manager, enable):
+        """Toggle high contrast mode."""
+        try:
+            theme_manager.enable_high_contrast_mode(enable)
+            status = theme_manager.format_text("enabled", "success") if enable else theme_manager.format_text("disabled", "text_muted")
+            return f"🔆 High contrast mode {status}"
+        except Exception as e:
+            return f"❌ Error toggling contrast: {e}"
+
+    def _set_colorblind_support(self, theme_manager, cb_type):
+        """Set colorblind support mode."""
+        try:
+            success = theme_manager.set_colorblind_support(cb_type)
+            if success:
+                if cb_type:
+                    return theme_manager.format_text(f"👁️ Colorblind support enabled: {cb_type}", "success")
+                else:
+                    return theme_manager.format_text("👁️ Colorblind support disabled", "text_muted")
+            else:
+                return theme_manager.format_text("❌ Invalid colorblind type", "error") + "\n💡 Valid types: deuteranopia, protanopia, tritanopia"
+        except Exception as e:
+            return f"❌ Error setting colorblind support: {e}"
+
+    def _create_custom_theme(self, theme_manager, name):
+        """Create a custom theme (simplified for now)."""
+        try:
+            # For now, create a sample custom theme based on current theme
+            current_scheme = theme_manager.get_current_scheme()
+            success = theme_manager.create_custom_theme(name, current_scheme)
+
+            if success:
+                return theme_manager.format_text(f"🎨 Custom theme created: {name}", "success") + "\n💡 Use 'THEME SET custom-{name}' to activate"
+            else:
+                return theme_manager.format_text(f"❌ Failed to create theme: {name}", "error")
+        except Exception as e:
+            return f"❌ Error creating custom theme: {e}"
+
+    def handle_progress(self, params, grid, parser):
+        """
+        Progress indicator testing and management commands.
+
+        Subcommands:
+        - PROGRESS TEST               # Test basic progress indicator
+        - PROGRESS TEST MULTI         # Test multi-stage progress
+        - PROGRESS TEST SEARCH        # Test file search with progress
+        - PROGRESS LIST               # List active progress indicators
+        - PROGRESS CANCEL [id]        # Cancel active progress (or all)
+        - PROGRESS DEMO               # Full demo of all progress types
+
+        Args:
+            params: List of command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Formatted progress information or demo results
+        """
+        if not params:
+            # Default: show active progress indicators
+            return self._show_active_progress()
+
+        subcommand = params[0].upper()
+
+        if subcommand == "TEST":
+            if len(params) > 1 and params[1].upper() == "MULTI":
+                return self._test_multi_stage_progress()
+            elif len(params) > 1 and params[1].upper() == "SEARCH":
+                return self._test_search_progress()
+            else:
+                return self._test_basic_progress()
+
+        elif subcommand == "LIST":
+            return self._list_active_progress()
+
+        elif subcommand == "CANCEL":
+            progress_id = params[1] if len(params) > 1 else None
+            return self._cancel_progress(progress_id)
+
+        elif subcommand == "DEMO":
+            return self._run_progress_demo()
+
+        else:
+            return f"❌ Unknown progress subcommand: {subcommand}\n💡 Use: HELP PROGRESS for usage information"
+
+    def _show_active_progress(self):
+        """Show current active progress indicators."""
+        try:
+            from core.services.progress_manager import progress_manager
+
+            active_count = progress_manager.get_active_count()
+            if active_count == 0:
+                return "📊 No active progress indicators\n💡 Use: PROGRESS TEST to test progress features"
+
+            result = [f"📊 Active Progress Indicators ({active_count})"]
+            result.append("=" * 50)
+
+            for task_id, indicator in progress_manager.indicators.items():
+                if indicator.status == "running":
+                    elapsed = indicator.last_update - indicator.start_time
+                    result.append(f"• {task_id}: {indicator.description}")
+                    result.append(f"  Status: {indicator.status} | Elapsed: {elapsed}")
+                    if indicator.total:
+                        percentage = (indicator.current / indicator.total * 100) if indicator.total > 0 else 0
+                        result.append(f"  Progress: {indicator.current}/{indicator.total} ({percentage:.1f}%)")
+
+            result.append("\n💡 Use: PROGRESS CANCEL to stop all progress")
+            return "\n".join(result)
+
+        except Exception as e:
+            return f"❌ Error checking progress: {e}"
+
+    def _test_basic_progress(self):
+        """Test basic progress indicator."""
+        import threading
+        import time
+
+        try:
+            from core.services.progress_manager import progress_manager, ProgressConfig
+
+            # Create a simple progress test
+            config = ProgressConfig(show_time_estimate=True, show_percentage=True)
+            progress = progress_manager.create_progress(
+                "test_basic",
+                "Testing basic progress indicator",
+                100,
+                config
+            )
+
+            def test_work():
+                progress.start()
+                for i in range(101):
+                    time.sleep(0.05)  # Simulate work
+                    progress.update(i, f"Processing item {i}")
+                    if progress.cancelled:
+                        break
+                progress.complete("Basic test completed!")
+
+                # Clean up after a delay
+                time.sleep(3)
+                progress_manager.remove_progress("test_basic")
+
+            # Start test in background
+            threading.Thread(target=test_work, daemon=True).start()
+
+            return "🚀 Started basic progress test (100 items, 5 seconds)\n👀 Watch the progress indicator above\n💡 Use Ctrl+C to cancel"
+
+        except Exception as e:
+            return f"❌ Error starting progress test: {e}"
+
+    def _test_multi_stage_progress(self):
+        """Test multi-stage progress indicator."""
+        import threading
+        import time
+
+        try:
+            from core.services.progress_manager import progress_manager, ProgressConfig
+
+            stages = ["Initialization", "Data Processing", "Analysis", "Finalization"]
+            config = ProgressConfig(show_time_estimate=True, width=30)
+
+            multi_progress = progress_manager.create_multi_stage_progress(
+                "test_multi",
+                stages,
+                config
+            )
+
+            def test_multi_work():
+                for stage_idx, stage_name in enumerate(stages):
+                    items_in_stage = 50 + (stage_idx * 10)  # Variable stage lengths
+                    multi_progress.start_stage(stage_idx, stage_name, items_in_stage)
+
+                    for i in range(items_in_stage + 1):
+                        time.sleep(0.02)  # Simulate work
+                        multi_progress.update_stage(i, f"{stage_name}: item {i}")
+
+                        # Check for cancellation
+                        if multi_progress.current_indicator and multi_progress.current_indicator.cancelled:
+                            return
+
+                    multi_progress.complete_stage(f"{stage_name} completed")
+                    time.sleep(0.5)  # Brief pause between stages
+
+                multi_progress.complete("All stages completed successfully!")
+
+                # Clean up after delay
+                time.sleep(3)
+                progress_manager.remove_progress("test_multi")
+
+            # Start test in background
+            threading.Thread(target=test_multi_work, daemon=True).start()
+
+            return f"🚀 Started multi-stage progress test ({len(stages)} stages)\n👀 Watch the progress indicators above\n💡 Use Ctrl+C to cancel"
+
+        except Exception as e:
+            return f"❌ Error starting multi-stage test: {e}"
+
+    def _test_search_progress(self):
+        """Test search operation with progress."""
+        try:
+            # This will trigger the enhanced file search with progress
+            from core.commands.enhanced_file_handler import EnhancedFileCommandHandler
+
+            file_handler = EnhancedFileCommandHandler()
+
+            # Test search with progress indicators
+            return file_handler._handle_search(["test", "sandbox"])
+
+        except Exception as e:
+            return f"❌ Error testing search progress: {e}"
+
+    def _list_active_progress(self):
+        """List all active progress indicators with details."""
+        try:
+            from core.services.progress_manager import progress_manager
+
+            active_indicators = []
+
+            # Check regular indicators
+            for task_id, indicator in progress_manager.indicators.items():
+                if indicator.status == "running":
+                    active_indicators.append({
+                        'id': task_id,
+                        'type': 'simple',
+                        'description': indicator.description,
+                        'progress': f"{indicator.current}/{indicator.total}" if indicator.total else "N/A",
+                        'elapsed': str(indicator.last_update - indicator.start_time).split('.')[0]
+                    })
+
+            # Check multi-stage indicators
+            for task_id, indicator in progress_manager.multi_stage_indicators.items():
+                if indicator.status == "running":
+                    overall_progress = indicator.get_overall_progress()
+                    active_indicators.append({
+                        'id': task_id,
+                        'type': 'multi-stage',
+                        'description': f"Stage {indicator.current_stage + 1}/{len(indicator.stages)}",
+                        'progress': f"{overall_progress:.1f}%",
+                        'elapsed': str(indicator.start_time).split('.')[0]
+                    })
+
+            if not active_indicators:
+                return "📊 No active progress indicators\n💡 Use: PROGRESS TEST to start a test"
+
+            result = ["📊 Active Progress Indicators"]
+            result.append("=" * 80)
+            result.append(f"{'ID':<15} {'Type':<12} {'Description':<30} {'Progress':<15} {'Elapsed':<10}")
+            result.append("-" * 80)
+
+            for indicator in active_indicators:
+                result.append(
+                    f"{indicator['id']:<15} {indicator['type']:<12} "
+                    f"{indicator['description']:<30} {indicator['progress']:<15} {indicator['elapsed']:<10}"
+                )
+
+            result.append(f"\n💡 Use: PROGRESS CANCEL <id> to cancel specific progress")
+            return "\n".join(result)
+
+        except Exception as e:
+            return f"❌ Error listing progress: {e}"
+
+    def _cancel_progress(self, progress_id):
+        """Cancel progress indicator(s)."""
+        try:
+            from core.services.progress_manager import progress_manager
+
+            if progress_id:
+                # Cancel specific progress
+                if progress_id in progress_manager.indicators:
+                    progress_manager.indicators[progress_id].cancel("Cancelled by user")
+                    progress_manager.remove_progress(progress_id)
+                    return f"🚫 Cancelled progress: {progress_id}"
+                elif progress_id in progress_manager.multi_stage_indicators:
+                    indicator = progress_manager.multi_stage_indicators[progress_id]
+                    if indicator.current_indicator:
+                        indicator.current_indicator.cancel("Cancelled by user")
+                    progress_manager.remove_progress(progress_id)
+                    return f"🚫 Cancelled multi-stage progress: {progress_id}"
+                else:
+                    return f"❌ Progress indicator not found: {progress_id}"
+            else:
+                # Cancel all progress
+                progress_manager.cancel_all()
+                return "🚫 Cancelled all active progress indicators"
+
+        except Exception as e:
+            return f"❌ Error cancelling progress: {e}"
+
+    def _run_progress_demo(self):
+        """Run a comprehensive demo of all progress features."""
+        import threading
+        import time
+
+        try:
+            from core.services.progress_manager import progress_manager, ProgressConfig
+
+            def demo_sequence():
+                # Demo 1: Basic determinate progress
+                config1 = ProgressConfig(style="block", show_time_estimate=True)
+                p1 = progress_manager.create_progress("demo_basic", "Demo: Basic Progress", 50, config1)
+                p1.start()
+
+                for i in range(51):
+                    time.sleep(0.1)
+                    p1.update(i, f"Processing item {i}/50")
+                p1.complete("Basic demo completed")
+                time.sleep(1)
+
+                # Demo 2: Indeterminate progress
+                config2 = ProgressConfig(show_cancel_hint=True)
+                p2 = progress_manager.create_progress("demo_spinner", "Demo: Indeterminate Progress")
+                p2.start()
+
+                time.sleep(3)  # Spinner for 3 seconds
+                p2.complete("Indeterminate demo completed")
+                time.sleep(1)
+
+                # Demo 3: Multi-stage progress
+                stages = ["Setup", "Processing", "Cleanup"]
+                config3 = ProgressConfig(style="bar", width=25)
+                p3 = progress_manager.create_multi_stage_progress("demo_multi", stages, config3)
+
+                for i, stage in enumerate(stages):
+                    p3.start_stage(i, f"Demo: {stage}", 20)
+                    for j in range(21):
+                        time.sleep(0.05)
+                        p3.update_stage(j, f"{stage} item {j}")
+                    p3.complete_stage(f"{stage} completed")
+
+                p3.complete("Multi-stage demo completed")
+
+                # Cleanup
+                time.sleep(2)
+                progress_manager.cleanup_completed()
+
+            # Start demo in background
+            threading.Thread(target=demo_sequence, daemon=True).start()
+
+            return ("🎭 Starting comprehensive progress demo!\n"
+                   "👀 Watch for 3 different types of progress indicators:\n"
+                   "   1. Basic determinate progress (50 items)\n"
+                   "   2. Indeterminate spinner (3 seconds)\n"
+                   "   3. Multi-stage progress (3 stages)\n"
+                   "⏱️ Total demo time: ~15 seconds")
+
+        except Exception as e:
+            return f"❌ Error starting progress demo: {e}"
+
+    def handle_session(self, params, grid, parser):
+        """
+        Session management commands for workspace state persistence.
+
+        Subcommands:
+        - SESSION LIST                    # List all sessions
+        - SESSION SAVE [name] [desc]      # Save current session
+        - SESSION LOAD <id>               # Load/restore session
+        - SESSION DELETE <id>             # Delete session
+        - SESSION CURRENT                 # Show current session info
+        - SESSION AUTO ON|OFF             # Toggle auto-save
+        - SESSION CHECKPOINT [desc]       # Create checkpoint
+        - SESSION EXPORT <id> <file>      # Export session to file
+        - SESSION IMPORT <file> [name]    # Import session from file
+
+        Args:
+            params: List of command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Formatted session information or operation results
+        """
+        # Initialize session manager
+        try:
+            from core.services.session_manager import session_manager, SessionType
+        except Exception as e:
+            return f"❌ Error accessing session system: {e}"
+
+        if not params:
+            # Default: show current session info
+            return self._show_current_session(session_manager)
+
+        subcommand = params[0].upper()
+
+        if subcommand == "LIST":
+            session_type = None
+            if len(params) > 1:
+                type_map = {
+                    'MANUAL': SessionType.MANUAL,
+                    'AUTO': SessionType.AUTOMATIC,
+                    'CHECKPOINT': SessionType.CHECKPOINT,
+                    'BACKUP': SessionType.BACKUP
+                }
+                session_type = type_map.get(params[1].upper())
+            return self._list_sessions(session_manager, session_type)
+
+        elif subcommand == "SAVE":
+            name = params[1] if len(params) > 1 else None
+            description = " ".join(params[2:]) if len(params) > 2 else ""
+            return self._save_session(session_manager, name, description)
+
+        elif subcommand == "LOAD":
+            if len(params) < 2:
+                return "❌ Usage: SESSION LOAD <session_id>"
+            session_id = params[1]
+            return self._load_session(session_manager, session_id)
+
+        elif subcommand == "DELETE":
+            if len(params) < 2:
+                return "❌ Usage: SESSION DELETE <session_id>"
+            session_id = params[1]
+            return self._delete_session(session_manager, session_id)
+
+        elif subcommand == "CURRENT":
+            return self._show_current_session(session_manager)
+
+        elif subcommand == "AUTO":
+            if len(params) < 2:
+                return "❌ Usage: SESSION AUTO ON|OFF"
+            enable = params[1].upper() == "ON"
+            return self._toggle_auto_save(session_manager, enable)
+
+        elif subcommand == "CHECKPOINT":
+            description = " ".join(params[1:]) if len(params) > 1 else ""
+            return self._create_checkpoint(session_manager, description)
+
+        elif subcommand == "EXPORT":
+            if len(params) < 3:
+                return "❌ Usage: SESSION EXPORT <session_id> <file_path>"
+            session_id = params[1]
+            file_path = params[2]
+            return self._export_session(session_manager, session_id, file_path)
+
+        elif subcommand == "IMPORT":
+            if len(params) < 2:
+                return "❌ Usage: SESSION IMPORT <file_path> [new_name]"
+            file_path = params[1]
+            new_name = params[2] if len(params) > 2 else None
+            return self._import_session(session_manager, file_path, new_name)
+
+        else:
+            return f"❌ Unknown session subcommand: {subcommand}\n💡 Use: HELP SESSION for usage information"
+
+    def _show_current_session(self, session_manager):
+        """Show current session information."""
+        try:
+            current = session_manager.current_session
+
+            if not current:
+                result = "📋 No active session\n"
+                result += "💡 Use 'SESSION SAVE' to create a session or 'SESSION LOAD' to restore one"
+                return result
+
+            result = "📋 Current Session Information\n"
+            result += "┌" + "─" * 70 + "┐\n"
+            result += f"│ Session ID:    {current.session_id:<50} │\n"
+            result += f"│ Name:          {current.name:<50} │\n"
+            result += f"│ Type:          {current.session_type.value.title():<50} │\n"
+            result += f"│ Created:       {current.created_at.strftime('%Y-%m-%d %H:%M:%S'):<50} │\n"
+            result += f"│ Last Access:   {current.last_accessed.strftime('%Y-%m-%d %H:%M:%S'):<50} │\n"
+            result += f"│ Description:   {current.description[:48]:<50} │\n"
+            result += f"│ Directory:     {current.current_directory[-48:]:<50} │\n"
+            result += f"│ Active Files:  {len(current.active_files):<50} │\n"
+            result += f"│ Bookmarks:     {len(current.bookmarks):<50} │\n"
+            result += f"│ History Items: {len(current.command_history):<50} │\n"
+            result += "└" + "─" * 70 + "┘\n"
+
+            if session_manager.auto_save_enabled:
+                next_auto = session_manager.auto_save_interval
+                result += f"🔄 Auto-save enabled (every {next_auto // 60} minutes)"
+            else:
+                result += "⏸️ Auto-save disabled"
+
+            return result
+
+        except Exception as e:
+            return f"❌ Error showing current session: {e}"
+
+    def _list_sessions(self, session_manager, session_type=None):
+        """List available sessions."""
+        try:
+            sessions = session_manager.list_sessions(session_type)
+
+            if not sessions:
+                type_desc = f" ({session_type.value})" if session_type else ""
+                return f"📋 No sessions found{type_desc}\n💡 Use 'SESSION SAVE' to create your first session"
+
+            type_desc = f" ({session_type.value.title()})" if session_type else ""
+            result = [f"📋 Available Sessions{type_desc} ({len(sessions)})"]
+            result.append("=" * 80)
+            result.append(f"{'ID':<25} {'Name':<20} {'Type':<12} {'Created':<15} {'Description':<20}")
+            result.append("-" * 80)
+
+            current_id = session_manager.current_session.session_id if session_manager.current_session else None
+
+            for session in sessions[:20]:  # Show first 20 sessions
+                is_current = "→" if session.session_id == current_id else " "
+                created = session.created_at.strftime('%m/%d %H:%M')
+                description = session.description[:18] + "..." if len(session.description) > 18 else session.description
+
+                result.append(
+                    f"{is_current}{session.session_id[:24]:<24} {session.name[:19]:<20} "
+                    f"{session.session_type.value:<12} {created:<15} {description:<20}"
+                )
+
+            if len(sessions) > 20:
+                result.append(f"\n... and {len(sessions) - 20} more sessions")
+
+            result.append("\n💡 Use 'SESSION LOAD <id>' to restore a session")
+            return "\n".join(result)
+
+        except Exception as e:
+            return f"❌ Error listing sessions: {e}"
+
+    def _save_session(self, session_manager, name, description):
+        """Save current session."""
+        try:
+            if not name:
+                from datetime import datetime
+                name = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+            session_id = session_manager.create_session(name, description)
+            return f"💾 Session saved successfully!\n📋 Session ID: {session_id}\n📝 Name: {name}"
+
+        except Exception as e:
+            return f"❌ Error saving session: {e}"
+
+    def _load_session(self, session_manager, session_id):
+        """Load/restore a session."""
+        try:
+            success = session_manager.restore_session(session_id)
+            if success:
+                session = session_manager.load_session(session_id)
+                return (f"✅ Session restored successfully!\n"
+                       f"📋 Loaded: {session.name}\n"
+                       f"📁 Directory: {session.current_directory}\n"
+                       f"💡 Workspace state has been restored")
+            else:
+                return f"❌ Failed to restore session: {session_id}\n💡 Check session ID with 'SESSION LIST'"
+
+        except Exception as e:
+            return f"❌ Error loading session: {e}"
+
+    def _delete_session(self, session_manager, session_id):
+        """Delete a session."""
+        try:
+            # Load session info before deletion for confirmation
+            session = session_manager.load_session(session_id)
+            if not session:
+                return f"❌ Session not found: {session_id}"
+
+            success = session_manager.delete_session(session_id)
+            if success:
+                return f"🗑️ Session deleted successfully!\n📋 Deleted: {session.name} ({session_id})"
+            else:
+                return f"❌ Failed to delete session: {session_id}"
+
+        except Exception as e:
+            return f"❌ Error deleting session: {e}"
+
+    def _toggle_auto_save(self, session_manager, enable):
+        """Toggle auto-save functionality."""
+        try:
+            session_manager.auto_save_enabled = enable
+            session_manager._save_config()
+
+            if enable:
+                interval_min = session_manager.auto_save_interval // 60
+                return f"🔄 Auto-save enabled (every {interval_min} minutes)\n💾 Sessions will be automatically saved"
+            else:
+                return "⏸️ Auto-save disabled\n💡 Sessions will only be saved manually"
+
+        except Exception as e:
+            return f"❌ Error toggling auto-save: {e}"
+
+    def _create_checkpoint(self, session_manager, description):
+        """Create a checkpoint."""
+        try:
+            if not description:
+                from datetime import datetime
+                description = f"Manual checkpoint - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
+            checkpoint_id = session_manager.create_checkpoint(description)
+            return f"📍 Checkpoint created successfully!\n📋 Checkpoint ID: {checkpoint_id}\n📝 Description: {description}"
+
+        except Exception as e:
+            return f"❌ Error creating checkpoint: {e}"
+
+    def _export_session(self, session_manager, session_id, file_path):
+        """Export a session to file."""
+        try:
+            from pathlib import Path
+
+            export_path = Path(file_path)
+
+            # Ensure .json extension
+            if not export_path.suffix:
+                export_path = export_path.with_suffix('.json')
+
+            success = session_manager.export_session(session_id, export_path)
+            if success:
+                return f"📤 Session exported successfully!\n💾 Exported to: {export_path}\n📋 Session: {session_id}"
+            else:
+                return f"❌ Failed to export session: {session_id}\n💡 Check session ID and file path"
+
+        except Exception as e:
+            return f"❌ Error exporting session: {e}"
+
+    def _import_session(self, session_manager, file_path, new_name):
+        """Import a session from file."""
+        try:
+            from pathlib import Path
+
+            import_path = Path(file_path)
+            if not import_path.exists():
+                return f"❌ Import file not found: {file_path}"
+
+            session_id = session_manager.import_session(import_path, new_name)
+            if session_id:
+                return f"📥 Session imported successfully!\n📋 New Session ID: {session_id}\n💾 Imported from: {file_path}"
+            else:
+                return f"❌ Failed to import session from: {file_path}\n💡 Check file format and content"
+
+        except Exception as e:
+            return f"❌ Error importing session: {e}"
+
+    def handle_layout(self, params, grid, parser):
+        """
+        Adaptive layout management commands for responsive terminal interface.
+
+        Subcommands:
+        - LAYOUT INFO                     # Show current layout information
+        - LAYOUT MODE <mode>              # Set layout mode (compact/standard/expanded/split/dashboard)
+        - LAYOUT RESIZE                   # Force resize detection
+        - LAYOUT AUTO ON|OFF              # Toggle automatic resize detection
+        - LAYOUT CONFIG <setting> <value> # Update layout configuration
+        - LAYOUT TEST                     # Test adaptive formatting
+        - LAYOUT DEMO                     # Demo different layout modes
+        - LAYOUT SPLIT <content1> <content2> # Create split layout demo
+
+        Args:
+            params: List of command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Formatted layout information or demo results
+        """
+        # Initialize layout manager
+        try:
+            from core.services.layout_manager import layout_manager, LayoutMode, ContentType
+        except Exception as e:
+            return f"❌ Error accessing layout system: {e}"
+
+        if not params:
+            # Default: show layout info
+            return self._show_layout_info(layout_manager)
+
+        subcommand = params[0].upper()
+
+        if subcommand == "INFO":
+            return self._show_layout_info(layout_manager)
+
+        elif subcommand == "MODE":
+            if len(params) < 2:
+                return "❌ Usage: LAYOUT MODE <compact|standard|expanded|split|dashboard>"
+            mode_name = params[1].upper()
+            return self._set_layout_mode(layout_manager, mode_name)
+
+        elif subcommand == "RESIZE":
+            return self._force_resize_detection(layout_manager)
+
+        elif subcommand == "AUTO":
+            if len(params) < 2:
+                return "❌ Usage: LAYOUT AUTO ON|OFF"
+            enable = params[1].upper() == "ON"
+            return self._toggle_auto_resize(layout_manager, enable)
+
+        elif subcommand == "CONFIG":
+            if len(params) < 3:
+                return "❌ Usage: LAYOUT CONFIG <setting> <value>"
+            setting = params[1].lower()
+            value = params[2]
+            return self._update_layout_config(layout_manager, setting, value)
+
+        elif subcommand == "TEST":
+            return self._test_adaptive_formatting(layout_manager)
+
+        elif subcommand == "DEMO":
+            return self._layout_demo(layout_manager)
+
+        elif subcommand == "SPLIT":
+            content1 = params[1] if len(params) > 1 else "Sample content 1"
+            content2 = params[2] if len(params) > 2 else "Sample content 2"
+            return self._demo_split_layout(layout_manager, content1, content2)
+
+        else:
+            return f"❌ Unknown layout subcommand: {subcommand}\n💡 Use: HELP LAYOUT for usage information"
+
+    def _show_layout_info(self, layout_manager):
+        """Show current layout information."""
+        try:
+            info = layout_manager.get_layout_info()
+            dims = info['dimensions']
+            config = info['config']
+
+            # Use layout manager to format this response
+            content = f"""Terminal Dimensions: {dims['width']}x{dims['height']}
+Screen Type: {'📱 Mobile' if dims['is_mobile'] else '🖥️ Wide' if dims['is_wide'] else '💻 Standard'}
+Layout Mode: {info['layout_mode'].title()}
+Aspect Ratio: {dims['aspect_ratio']:.2f}
+
+Configuration:
+• Auto-adapt: {'✅' if config['auto_adapt'] else '❌'}
+• Responsive Tables: {'✅' if config['responsive_tables'] else '❌'}
+• Adaptive Columns: {'✅' if config['adaptive_columns'] else '❌'}
+• Compact Mode: {'✅' if config['compact_mode'] else '❌'}
+• Auto-resize: {'✅' if info['auto_resize_enabled'] else '❌'}
+
+Screen Features:
+• Wide Screen: {'✅' if dims['is_wide'] else '❌'} (>120 cols)
+• Tall Screen: {'✅' if dims['is_tall'] else '❌'} (>30 rows)
+• Ultra-wide: {'✅' if dims['is_ultra_wide'] else '❌'} (>200 cols)"""
+
+            from core.services.layout_manager import ContentType
+            return layout_manager.format_content(
+                content,
+                ContentType.STATUS,
+                "Layout Manager Status"
+            )
+
+        except Exception as e:
+            return f"❌ Error showing layout info: {e}"
+
+    def _set_layout_mode(self, layout_manager, mode_name):
+        """Set layout mode."""
+        try:
+            from core.services.layout_manager import LayoutMode
+
+            mode_mapping = {
+                'COMPACT': LayoutMode.COMPACT,
+                'STANDARD': LayoutMode.STANDARD,
+                'EXPANDED': LayoutMode.EXPANDED,
+                'SPLIT': LayoutMode.SPLIT,
+                'DASHBOARD': LayoutMode.DASHBOARD
+            }
+
+            if mode_name not in mode_mapping:
+                available = ", ".join(mode_mapping.keys())
+                return f"❌ Invalid layout mode: {mode_name}\n💡 Available modes: {available}"
+
+            layout_manager.set_layout_mode(mode_mapping[mode_name])
+            return f"🎨 Layout mode set to: {mode_name.lower()}\n✨ Interface will adapt to new layout"
+
+        except Exception as e:
+            return f"❌ Error setting layout mode: {e}"
+
+    def _force_resize_detection(self, layout_manager):
+        """Force resize detection."""
+        try:
+            old_dims = layout_manager.current_dimensions
+            new_dims = layout_manager._get_terminal_dimensions()
+
+            if (old_dims.width != new_dims.width or old_dims.height != new_dims.height):
+                layout_manager._handle_resize(new_dims)
+                return (f"🔄 Resize detected and applied!\n"
+                       f"📏 Changed from {old_dims.width}x{old_dims.height} to {new_dims.width}x{new_dims.height}\n"
+                       f"🎨 Layout mode: {layout_manager.current_mode.value}")
+            else:
+                return (f"📏 No resize detected\n"
+                       f"📊 Current dimensions: {new_dims.width}x{new_dims.height}\n"
+                       f"🎨 Layout mode: {layout_manager.current_mode.value}")
+
+        except Exception as e:
+            return f"❌ Error detecting resize: {e}"
+
+    def _toggle_auto_resize(self, layout_manager, enable):
+        """Toggle automatic resize detection."""
+        try:
+            layout_manager.auto_resize_enabled = enable
+
+            if enable:
+                if not layout_manager._resize_thread or not layout_manager._resize_thread.is_alive():
+                    layout_manager._start_resize_monitoring()
+                return "🔄 Auto-resize detection enabled\n📐 Terminal layout will automatically adapt to size changes"
+            else:
+                return "⏸️ Auto-resize detection disabled\n💡 Use 'LAYOUT RESIZE' to manually check for changes"
+
+        except Exception as e:
+            return f"❌ Error toggling auto-resize: {e}"
+
+    def _update_layout_config(self, layout_manager, setting, value):
+        """Update layout configuration."""
+        try:
+            # Convert value to appropriate type
+            if value.lower() in ['true', 'on', 'yes', '1']:
+                value = True
+            elif value.lower() in ['false', 'off', 'no', '0']:
+                value = False
+            elif value.isdigit():
+                value = int(value)
+
+            # Map setting names
+            setting_map = {
+                'auto_adapt': 'auto_adapt',
+                'responsive_tables': 'responsive_tables',
+                'adaptive_columns': 'adaptive_columns',
+                'compact_mode': 'compact_mode',
+                'show_borders': 'show_borders',
+                'use_unicode': 'use_unicode',
+                'content_margin': 'content_margin',
+                'min_width': 'min_width',
+                'max_width': 'max_width'
+            }
+
+            if setting not in setting_map:
+                available = ", ".join(setting_map.keys())
+                return f"❌ Unknown setting: {setting}\n💡 Available settings: {available}"
+
+            layout_manager.update_config(**{setting_map[setting]: value})
+            return f"⚙️ Layout setting updated: {setting} = {value}\n✨ Changes will apply to new content"
+
+        except Exception as e:
+            return f"❌ Error updating config: {e}"
+
+    def _test_adaptive_formatting(self, layout_manager):
+        """Test adaptive formatting with sample content."""
+        try:
+            from core.services.layout_manager import ContentType
+
+            # Test different content types
+            test_results = []
+
+            # Test table formatting
+            table_content = """Name|Type|Size|Date
+file1.py|Python|1.2KB|2024-01-15
+file2.txt|Text|856B|2024-01-14
+document.md|Markdown|3.4KB|2024-01-13"""
+
+            table_result = layout_manager.format_content(table_content, ContentType.TABLE, "File List")
+            test_results.append(("📊 Table Format Test", table_result))
+
+            # Test list formatting
+            list_content = """• Enhanced command history with SQLite persistence
+• Advanced tab completion with fuzzy matching
+• Dynamic color themes and accessibility features
+• Real-time progress indicators for operations
+• Session management with workspace persistence"""
+
+            list_result = layout_manager.format_content(list_content, ContentType.LIST, "Feature List")
+            test_results.append(("📋 List Format Test", list_result))
+
+            # Test status formatting
+            status_content = """System Status: Online
+CPU Usage: 23%
+Memory: 4.2GB / 8GB
+Active Sessions: 3
+Auto-save: Enabled"""
+
+            status_result = layout_manager.format_content(status_content, ContentType.STATUS, "System Status")
+            test_results.append(("📊 Status Format Test", status_result))
+
+            # Combine results
+            final_result = []
+            for title, content in test_results:
+                final_result.append(f"\n{title}")
+                final_result.append("─" * 50)
+                final_result.append(content)
+
+            return "\n".join(final_result)
+
+        except Exception as e:
+            return f"❌ Error testing adaptive formatting: {e}"
+
+    def _layout_demo(self, layout_manager):
+        """Demo different layout capabilities."""
+        try:
+            from core.services.layout_manager import ContentType
+
+            dims = layout_manager.current_dimensions
+
+            demo_content = f"""Layout Demo - Current Configuration
+
+Terminal Size: {dims.width}x{dims.height}
+Layout Mode: {layout_manager.current_mode.value}
+Screen Type: {'Mobile' if dims.is_mobile else 'Wide' if dims.is_wide else 'Standard'}
+
+Adaptive Features Demonstrated:
+✅ Responsive table formatting
+✅ Dynamic content wrapping
+✅ Context-aware layout selection
+✅ Mobile-optimized display
+✅ Wide-screen enhancements
+
+This content is automatically formatted based on your terminal size.
+Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"""
+
+            return layout_manager.format_content(
+                demo_content,
+                ContentType.HELP,
+                "uDOS Adaptive Layout Demo"
+            )
+
+        except Exception as e:
+            return f"❌ Error running layout demo: {e}"
+
+    def _demo_split_layout(self, layout_manager, content1, content2):
+        """Demo split layout functionality."""
+        try:
+            if not layout_manager.current_dimensions.is_wide:
+                return ("📱 Split layout not available on narrow screens\n"
+                       "💡 Try expanding your terminal width to >120 columns")
+
+            # Create split layout demo
+            pane_configs = [
+                {
+                    'title': 'Left Pane',
+                    'content': f"Content 1:\n{content1}\n\nThis is the left pane of the split layout.",
+                    'content_type': 'text'
+                },
+                {
+                    'title': 'Right Pane',
+                    'content': f"Content 2:\n{content2}\n\nThis is the right pane of the split layout.",
+                    'content_type': 'text'
+                }
+            ]
+
+            split_result = layout_manager.create_split_layout(pane_configs)
+
+            return (f"🪟 Split Layout Demo\n"
+                   f"{'═' * min(layout_manager.current_dimensions.width, 60)}\n\n"
+                   f"{split_result}\n\n"
+                   f"💡 Split layouts automatically adapt to terminal width")
+
+        except Exception as e:
+            return f"❌ Error creating split layout demo: {e}"
 
     # ======================================================================
     # DELEGATED HANDLERS - Route to specialized handlers

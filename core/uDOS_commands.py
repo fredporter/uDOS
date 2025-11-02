@@ -23,7 +23,7 @@ class CommandHandler:
     """Main command router - delegates to specialized handlers."""
 
     def __init__(self, theme='dungeon', commands_file='data/system/commands.json',
-                 history=None, connection=None, viewport=None, user_manager=None):
+                 history=None, connection=None, viewport=None, user_manager=None, enhanced_history=None):
         """
         Initialize command handler and load specialized handlers.
 
@@ -34,6 +34,7 @@ class CommandHandler:
             connection: ConnectionManager instance
             viewport: Viewport instance
             user_manager: UserManager instance
+            enhanced_history: EnhancedHistory instance
         """
         # Load theme and commands
         theme_file = f'data/themes/{theme.lower()}.json'
@@ -49,6 +50,7 @@ class CommandHandler:
         self.connection = connection
         self.viewport = viewport
         self.user_manager = user_manager
+        self.enhanced_history = enhanced_history
         self.reboot_requested = False
         self.current_theme = theme
 
@@ -58,7 +60,8 @@ class CommandHandler:
             'connection': connection,
             'viewport': viewport,
             'user_manager': user_manager,
-            'history': history
+            'history': history,
+            'enhanced_history': enhanced_history
         }
 
         # Initialize specialized handlers (lazy loading in handlers themselves)
