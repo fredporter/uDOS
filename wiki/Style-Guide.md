@@ -453,13 +453,62 @@ For borders and grid layouts:
 └─┴─┘  ╚═╩═╝  ┗━┻━┛
 ```
 
-### Viewport Testing and Capabilities
+### Viewport System & Screen Size Reference
+
+**Character Block System:**
+uDOS operates using a **16×16 character block grid system** where each cell represents 16×16 pixels. All dimensions are specified in both **cells** and **pixels** for precise viewport management.
+
+**Screen Size Tiers (14 standard sizes):**
+
+| Tier | Label          | Description        | Width (cells) | Height (cells) | Width (px) | Height (px) | Aspect |
+|------|----------------|--------------------|---------------|----------------|-------------|--------------|---------|
+| 0    | Watch          | Wearable display   | 13            | 13             | 208         | 208          | 1:1     |
+| 1    | Mini Phone     | Small smartphone   | 20            | 11             | 320         | 176          | 16:9    |
+| 2    | Phone          | Standard smartphone| 23            | 11             | 368         | 176          | 19:9    |
+| 3    | Big Phone      | Large smartphone   | 27            | 12             | 432         | 192          | 20:9    |
+| 4    | Compact Tab    | Small tablet       | 38            | 25             | 608         | 400          | 3:2     |
+| 5    | Wide Tab       | Full-size tablet   | 48            | 36             | 768         | 576          | 4:3     |
+| 6    | Small Notebook | Compact laptop     | 64            | 40             | 1024        | 640          | 16:10   |
+| 7    | Notebook       | Standard laptop    | 80            | 45             | 1280        | 720          | 16:9    |
+| 8    | HD Display     | Desktop monitor    | 120           | 68             | 1920        | 1088         | 16:9    |
+| 9    | Wide Display   | WQHD monitor       | 160           | 90             | 2560        | 1440         | 16:9    |
+| 10   | Ultra Display  | Ultrawide screen   | 215           | 92             | 3440        | 1472         | 21:9    |
+| 11   | 4K Screen      | UHD display        | 240           | 135            | 3840        | 2160         | 16:9    |
+| 12   | 5K Screen      | Retina display     | 320           | 180            | 5120        | 2880         | 16:9    |
+| 13   | 8K Wall        | Large LED panel    | 480           | 270            | 7680        | 4320         | 16:9    |
+| 14   | Cinema Scope   | Projection stage   | 360           | 150            | 5760        | 2400         | 2.39:1  |
+
+**Visual Size Comparison (relative width):**
+```
+Watch:          █
+Mini Phone:     ██
+Phone:          ███
+Big Phone:      ████
+Compact Tab:    ██████
+Wide Tab:       ███████
+Small Notebook: █████████
+Notebook:       ██████████
+HD Display:     ███████████████
+Wide Display:   ██████████████████
+Ultra Display:  ██████████████████████
+4K Screen:      ██████████████████████████
+5K Screen:      ███████████████████████████████
+8K Wall:        ██████████████████████████████████████
+Cinema Scope:   ████████████████████████████
+```
+
+**Viewport Configuration:**
+- **Automatic Detection**: System calculates nearest screen size tier at startup/reboot
+- **Manual Override**: Use `CONFIG VIEWPORT <width> <height>` or `SETUP VIEWPORT`
+- **Responsive Design**: Grid panels and layout adapt to viewport dimensions
+- **Cross-Platform**: Works consistently across CLI, web, and terminal environments
 
 **Terminal Detection:**
 - **Dimensions**: Automatically detected (e.g., 80×24, 120×40)
 - **Unicode Support**: Tests rendering of special characters
 - **Color Depth**: Detects 256-color, 16-color, or monochrome
 - **Font Type**: Verifies monospace font rendering
+- **Grid Calculation**: Maps terminal size to nearest screen size tier
 
 **ViewportVisualizer System:**
 
@@ -471,12 +520,15 @@ Features implemented in `core/uDOS_viewport_viz.py`:
 - Dimension and boundary testing
 - Font spacing verification
 - Capability detection and reporting
+- Screen size tier identification
 
 **Commands:**
 ```
 PALETTE                # Display full color palette
-REBOOT                 # Includes viewport splash screen
-VIEWPORT               # Show current viewport specs
+REBOOT                 # Includes viewport splash screen with tier detection
+VIEWPORT               # Show current viewport specs and screen size tier
+CONFIG VIEWPORT <w> <h># Set custom viewport dimensions (in cells)
+SETUP VIEWPORT         # Interactive viewport configuration
 ```
 
 ### Accessibility

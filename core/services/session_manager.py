@@ -552,8 +552,8 @@ class SessionManager:
     def _get_recent_command_history(self) -> List[str]:
         """Get recent command history."""
         try:
-            from core.services.enhanced_history import EnhancedHistory
-            history = EnhancedHistory()
+            from core.services.history import CommandHistory
+            history = CommandHistory()
             recent_commands = history.get_recent_commands(50)
             return [cmd.command for cmd in recent_commands]
         except:

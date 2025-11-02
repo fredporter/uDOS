@@ -16,6 +16,7 @@ Version: 1.0.0
 
 import os
 from pathlib import Path
+from datetime import datetime
 from .base_handler import BaseCommandHandler
 
 
@@ -26,6 +27,7 @@ class FileCommandHandler(BaseCommandHandler):
         super().__init__(**kwargs)
         self._workspace_manager = None
         self._editor_manager = None
+        self._file_picker = None
 
     @property
     def workspace_manager(self):
@@ -42,6 +44,14 @@ class FileCommandHandler(BaseCommandHandler):
             from core.uDOS_editor import EditorManager
             self._editor_manager = EditorManager()
         return self._editor_manager
+
+    @property
+    def file_picker(self):
+        """Lazy load file picker service."""
+        if self._file_picker is None:
+            from core.services.file_picker import FilePicker
+            self._file_picker = FilePicker(self.workspace_manager)
+        return self._file_picker
 
     def handle(self, command, params, grid, parser=None):
         """
@@ -72,6 +82,18 @@ class FileCommandHandler(BaseCommandHandler):
             return self._handle_edit(params)
         elif command == "RUN":
             return self._handle_run(params, parser)
+        elif command == "PICK":
+            return self._handle_pick(params)
+        elif command == "RECENT":
+            return self._handle_recent(params)
+        elif command == "BATCH":
+            return self._handle_batch(params)
+        elif command == "BOOKMARKS":
+            return self._handle_bookmarks(params)
+        elif command == "PREVIEW":
+            return self._handle_preview(params)
+        elif command == "INFO":
+            return self._handle_info(params)
         else:
             return self.get_message("ERROR_UNKNOWN_FILE_COMMAND", command=command)
 
@@ -444,3 +466,488 @@ class FileCommandHandler(BaseCommandHandler):
                 return f"📜 Executed: {script_file}\n\n{result.stdout}\n{result.stderr}"
             except Exception as e:
                 return f"❌ Execution error: {str(e)}"
+
+    def _handle_pick(self, params):
+        """Interactive file picker with fuzzy search."""
+        from core.uDOS_interactive import InteractivePrompt
+        prompt = InteractivePrompt()
+
+        # Get search pattern
+        pattern = params[0] if params else ''
+        if not pattern:
+            pattern = prompt.ask_text(
+                "🔍 Search pattern",
+                default=""
+            )
+            if not pattern:
+                pattern = ""
+
+        # Get workspace filter
+        workspaces = list(self.workspace_manager.WORKSPACES.keys())
+        workspace_choices = ["all"] + workspaces
+
+        workspace_choice = prompt.ask_choice(
+            "📁 Workspace",
+            choices=workspace_choices,
+            default="all"
+        )
+
+        workspace = None if workspace_choice == "all" else workspace_choice
+
+        # Perform search
+        results = self.file_picker.fuzzy_search_files(
+            pattern, workspace=workspace, max_results=20
+        )
+
+        if not results:
+            return f"❌ No files found matching '{pattern}'"
+
+        # Display results with selection
+        file_choices = []
+        for i, file_info in enumerate(results):
+            score_bar = "█" * int(file_info['score'] * 10)
+            git_status = f" [{file_info['git_status']}]" if file_info.get('git_status') else ""
+            size_kb = file_info['size'] // 1024 if file_info['size'] > 1024 else file_info['size']
+            size_unit = "KB" if file_info['size'] > 1024 else "B"
+
+            file_choices.append(
+                f"{file_info['workspace']}/{file_info['file_path']} "
+                f"({score_bar} {file_info['score']:.2f}) "
+                f"[{file_info['file_type']}] {size_kb}{size_unit}{git_status}"
+            )
+
+        selected = prompt.ask_choice(
+            "📄 Select file",
+            choices=file_choices,
+            default=file_choices[0]
+        )
+
+        if not selected:
+            return "❌ File selection cancelled"
+
+        # Extract file info from selection
+        selected_index = file_choices.index(selected)
+        selected_file = results[selected_index]
+
+        # Record file access
+        self.file_picker.record_file_access(
+            selected_file['file_path'],
+            selected_file['workspace'],
+            'pick'
+        )
+
+        return (f"✅ Selected: {selected_file['workspace']}/{selected_file['file_path']}\n"
+               f"📊 Score: {selected_file['score']:.2f}\n"
+               f"🏷️ Type: {selected_file['file_type']}\n"
+               f"📦 Size: {selected_file['size']} bytes\n"
+               f"💡 Use: EDIT {selected_file['file_path']} to open")
+
+    def _handle_recent(self, params):
+        """Show recently accessed files."""
+        count = 20
+        workspace = None
+
+        # Parse parameters
+        if params:
+            try:
+                count = int(params[0])
+            except ValueError:
+                workspace = params[0]
+                if len(params) > 1:
+                    try:
+                        count = int(params[1])
+                    except ValueError:
+                        pass
+
+        recent_files = self.file_picker.get_recent_files(
+            count=count, workspace=workspace
+        )
+
+        if not recent_files:
+            ws_msg = f" in {workspace}" if workspace else ""
+            return f"❌ No recent files found{ws_msg}"
+
+        # Format output
+        output = f"📁 Recent Files (last {count})\n\n"
+
+        for i, file_info in enumerate(recent_files, 1):
+            exists_icon = "✅" if file_info['exists'] else "❌"
+            access_time = file_info['last_access'][:19]  # Remove microseconds
+
+            output += (f"{i:2d}. {exists_icon} {file_info['workspace']}/{file_info['file_path']}\n"
+                      f"     🕒 {access_time} ({file_info['access_count']} times)\n"
+                      f"     🏷️ {file_info.get('file_type', 'unknown')}\n\n")
+
+        output += "💡 Use: FILE PICK <filename> to select a file"
+        return output
+
+    def _handle_batch(self, params):
+        """Handle batch file operations."""
+        from core.uDOS_interactive import InteractivePrompt
+        prompt = InteractivePrompt()
+
+        if not params:
+            return ("❌ Batch operation required\n"
+                   "Usage: FILE BATCH [DELETE|COPY|MOVE] <pattern> [destination]")
+
+        operation = params[0].upper()
+
+        if operation not in ['DELETE', 'COPY', 'MOVE']:
+            return f"❌ Unknown batch operation: {operation}"
+
+        if len(params) < 2:
+            return f"❌ Pattern required for batch {operation}"
+
+        pattern = params[1]
+        destination = params[2] if len(params) > 2 else None
+
+        # Find matching files
+        matches = self.file_picker.fuzzy_search_files(
+            pattern, max_results=100
+        )
+
+        if not matches:
+            return f"❌ No files found matching pattern '{pattern}'"
+
+        # Show matches and confirm
+        match_list = "\n".join([
+            f"  {m['workspace']}/{m['file_path']}" for m in matches[:10]
+        ])
+
+        if len(matches) > 10:
+            match_list += f"\n  ... and {len(matches) - 10} more files"
+
+        confirm_msg = (f"⚠️ {operation} {len(matches)} files:\n{match_list}\n\n"
+                      f"Continue? (y/N)")
+
+        if not prompt.ask_yes_no(confirm_msg, default=False):
+            return "❌ Batch operation cancelled"
+
+        # Perform operation
+        success_count = 0
+        error_count = 0
+        errors = []
+
+        for file_info in matches:
+            try:
+                source_path = (self.workspace_manager.get_workspace_path(file_info['workspace']) /
+                              file_info['file_path'])
+
+                if operation == "DELETE":
+                    source_path.unlink()
+                    success_count += 1
+
+                elif operation == "COPY":
+                    if not destination:
+                        errors.append(f"No destination for {file_info['file_path']}")
+                        error_count += 1
+                        continue
+
+                    dest_path = Path(destination) / source_path.name
+                    dest_path.parent.mkdir(parents=True, exist_ok=True)
+                    import shutil
+                    shutil.copy2(source_path, dest_path)
+                    success_count += 1
+
+                elif operation == "MOVE":
+                    if not destination:
+                        errors.append(f"No destination for {file_info['file_path']}")
+                        error_count += 1
+                        continue
+
+                    dest_path = Path(destination) / source_path.name
+                    dest_path.parent.mkdir(parents=True, exist_ok=True)
+                    source_path.rename(dest_path)
+                    success_count += 1
+
+            except Exception as e:
+                errors.append(f"{file_info['file_path']}: {str(e)}")
+                error_count += 1
+
+        # Record batch operation
+        for file_info in matches[:success_count]:
+            self.file_picker.record_file_access(
+                file_info['file_path'],
+                file_info['workspace'],
+                f'batch_{operation.lower()}'
+            )
+
+        result = f"✅ Batch {operation}: {success_count} successful"
+        if error_count > 0:
+            result += f", {error_count} errors"
+            if errors[:3]:  # Show first 3 errors
+                result += f"\n❌ Errors:\n" + "\n".join(f"  • {e}" for e in errors[:3])
+
+        return result
+
+    def _handle_bookmarks(self, params):
+        """Manage file bookmarks."""
+        from core.uDOS_interactive import InteractivePrompt
+        prompt = InteractivePrompt()
+
+        if not params:
+            # List bookmarks
+            bookmarks = self.file_picker.get_bookmarks()
+
+            if not bookmarks:
+                return "📚 No bookmarks found\n💡 Use: FILE BOOKMARKS ADD <filename> to add"
+
+            output = "📚 File Bookmarks\n\n"
+            for i, bookmark in enumerate(bookmarks, 1):
+                exists_icon = "✅" if bookmark['exists'] else "❌"
+                name = bookmark['bookmark_name'] or bookmark['file_path']
+                tags = f" 🏷️ {', '.join(bookmark['tags'])}" if bookmark['tags'] else ""
+
+                output += (f"{i:2d}. {exists_icon} {name}\n"
+                          f"     📁 {bookmark['workspace']}/{bookmark['file_path']}{tags}\n\n")
+
+            output += "💡 Use: FILE BOOKMARKS ADD/REMOVE <filename>"
+            return output
+
+        action = params[0].upper()
+
+        if action == "ADD":
+            if len(params) < 2:
+                # Show file picker
+                files = self.workspace_manager.list_files()
+                if not files:
+                    return "❌ No files to bookmark"
+
+                file_choice = prompt.ask_choice(
+                    "📄 File to bookmark",
+                    choices=files,
+                    default=files[0]
+                )
+
+                if not file_choice:
+                    return "❌ Bookmark cancelled"
+
+                filename = file_choice
+            else:
+                filename = params[1]
+
+            # Ask for bookmark name and tags
+            bookmark_name = prompt.ask_text(
+                "📝 Bookmark name (optional)",
+                default=filename
+            )
+
+            tags_input = prompt.ask_text(
+                "🏷️ Tags (comma-separated, optional)",
+                default=""
+            )
+
+            tags = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
+
+            success = self.file_picker.add_bookmark(
+                filename,
+                self.workspace_manager.current_workspace,
+                bookmark_name,
+                tags
+            )
+
+            if success:
+                return f"✅ Bookmarked: {filename}"
+            else:
+                return f"❌ Failed to bookmark: {filename}"
+
+        elif action == "REMOVE":
+            if len(params) < 2:
+                # Show bookmarks to remove
+                bookmarks = self.file_picker.get_bookmarks()
+                if not bookmarks:
+                    return "❌ No bookmarks to remove"
+
+                bookmark_choices = [
+                    f"{b['bookmark_name'] or b['file_path']} ({b['workspace']})"
+                    for b in bookmarks
+                ]
+
+                choice = prompt.ask_choice(
+                    "📚 Bookmark to remove",
+                    choices=bookmark_choices,
+                    default=bookmark_choices[0]
+                )
+
+                if not choice:
+                    return "❌ Remove cancelled"
+
+                # Extract bookmark info
+                selected_index = bookmark_choices.index(choice)
+                selected_bookmark = bookmarks[selected_index]
+                filename = selected_bookmark['file_path']
+                workspace = selected_bookmark['workspace']
+            else:
+                filename = params[1]
+                workspace = self.workspace_manager.current_workspace
+
+            success = self.file_picker.remove_bookmark(filename, workspace)
+
+            if success:
+                return f"✅ Removed bookmark: {filename}"
+            else:
+                return f"❌ Bookmark not found: {filename}"
+
+        else:
+            return f"❌ Unknown bookmark action: {action}\nUse: ADD or REMOVE"
+
+    def _handle_preview(self, params):
+        """Show file preview with metadata."""
+        if not params:
+            return "❌ Filename required for preview"
+
+        filename = params[0]
+        file_path = self.workspace_manager.get_workspace_path() / filename
+
+        if not file_path.exists():
+            return f"❌ File not found: {filename}"
+
+        try:
+            # Get file stats
+            stat = file_path.stat()
+            size = stat.st_size
+            mtime = datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+
+            # Determine file type
+            extension = file_path.suffix.lower()
+            file_type = self.file_picker._classify_file_type(extension)
+
+            # Get git status
+            git_status = self.file_picker._get_git_status(file_path)
+            git_info = f" (git: {git_status})" if git_status else ""
+
+            output = f"📄 File Preview: {filename}\n\n"
+            output += f"📦 Size: {size:,} bytes ({size/1024:.1f} KB)\n"
+            output += f"🕒 Modified: {mtime}\n"
+            output += f"🏷️ Type: {file_type} ({extension}){git_info}\n\n"
+
+            # Show content preview for text files
+            if file_type in ['text', 'code', 'config', 'script'] and size < 10000:
+                try:
+                    content = file_path.read_text(encoding='utf-8')
+                    lines = content.split('\n')
+
+                    output += "📝 Content Preview (first 20 lines):\n"
+                    output += "─" * 50 + "\n"
+
+                    for i, line in enumerate(lines[:20], 1):
+                        output += f"{i:3d}: {line}\n"
+
+                    if len(lines) > 20:
+                        output += f"... ({len(lines) - 20} more lines)\n"
+
+                    output += "─" * 50 + "\n"
+
+                except UnicodeDecodeError:
+                    output += "📝 Binary file - content preview unavailable\n"
+            else:
+                output += f"📝 File too large for preview ({size:,} bytes)\n"
+
+            # Record access
+            self.file_picker.record_file_access(filename, access_type='preview')
+
+            return output
+
+        except Exception as e:
+            return f"❌ Preview error: {str(e)}"
+
+    def _handle_info(self, params):
+        """Show detailed file information."""
+        if not params:
+            return "❌ Filename required for info"
+
+        filename = params[0]
+        file_path = self.workspace_manager.get_workspace_path() / filename
+
+        if not file_path.exists():
+            return f"❌ File not found: {filename}"
+
+        try:
+            # Get comprehensive file info
+            stat = file_path.stat()
+
+            # File size with multiple units
+            size_bytes = stat.st_size
+            size_kb = size_bytes / 1024
+            size_mb = size_kb / 1024
+
+            # Timestamps
+            mtime = datetime.fromtimestamp(stat.st_mtime)
+            ctime = datetime.fromtimestamp(stat.st_ctime)
+            atime = datetime.fromtimestamp(stat.st_atime)
+
+            # File type classification
+            extension = file_path.suffix.lower()
+            file_type = self.file_picker._classify_file_type(extension)
+
+            # Git information
+            git_status = self.file_picker._get_git_status(file_path)
+
+            # Check if file is in bookmarks
+            bookmarks = self.file_picker.get_bookmarks()
+            is_bookmarked = any(
+                b['file_path'] == filename and
+                b['workspace'] == self.workspace_manager.current_workspace
+                for b in bookmarks
+            )
+
+            # Get recent access info
+            recent_files = self.file_picker.get_recent_files(count=1000)
+            access_info = next(
+                (f for f in recent_files if f['file_path'] == filename),
+                None
+            )
+
+            output = f"ℹ️ File Information: {filename}\n\n"
+
+            # Basic info
+            output += "📊 Basic Information:\n"
+            output += f"  📦 Size: {size_bytes:,} bytes ({size_kb:.1f} KB, {size_mb:.2f} MB)\n"
+            output += f"  🏷️ Type: {file_type} ({extension or 'no extension'})\n"
+            output += f"  📁 Workspace: {self.workspace_manager.current_workspace}\n"
+            output += f"  📚 Bookmarked: {'Yes' if is_bookmarked else 'No'}\n\n"
+
+            # Timestamps
+            output += "🕒 Timestamps:\n"
+            output += f"  📝 Modified: {mtime.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            output += f"  📅 Created: {ctime.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            output += f"  👁️ Accessed: {atime.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+
+            # Git info
+            if git_status:
+                output += f"🔧 Git Status: {git_status}\n\n"
+
+            # Access history
+            if access_info:
+                output += "📈 Access History:\n"
+                output += f"  🔢 Times accessed: {access_info['access_count']}\n"
+                output += f"  🕒 Last access: {access_info['last_access'][:19]}\n\n"
+
+            # Line count for text files
+            if file_type in ['text', 'code', 'config', 'script'] and size_bytes < 100000:
+                try:
+                    content = file_path.read_text(encoding='utf-8')
+                    lines = len(content.split('\n'))
+                    chars = len(content)
+                    words = len(content.split())
+
+                    output += "📝 Text Statistics:\n"
+                    output += f"  📄 Lines: {lines:,}\n"
+                    output += f"  🔤 Characters: {chars:,}\n"
+                    output += f"  📝 Words: {words:,}\n\n"
+                except UnicodeDecodeError:
+                    output += "📝 Binary file - text statistics unavailable\n\n"
+
+            output += "💡 Commands:\n"
+            output += f"  EDIT {filename} - Edit file\n"
+            output += f"  FILE PREVIEW {filename} - Show content preview\n"
+            if not is_bookmarked:
+                output += f"  FILE BOOKMARKS ADD {filename} - Add to bookmarks\n"
+
+            # Record access
+            self.file_picker.record_file_access(filename, access_type='info')
+
+            return output
+
+        except Exception as e:
+            return f"❌ Info error: {str(e)}"

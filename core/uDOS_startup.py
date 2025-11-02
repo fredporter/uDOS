@@ -876,6 +876,85 @@ def check_web_extensions() -> HealthCheckResult:
     return result
 
 
+def check_viewport() -> HealthCheckResult:
+    """
+    Check viewport detection and screen size tier identification.
+
+    Returns:
+        HealthCheckResult with viewport status
+    """
+    result = HealthCheckResult("Viewport System")
+
+    try:
+        # Import viewport manager
+        from core.services.viewport_manager import ViewportManager
+
+        # Initialize viewport manager
+        viewport = ViewportManager()
+        viewport_info = viewport.get_viewport_info()
+
+        # Check terminal detection
+        char_width, char_height = viewport.get_terminal_size()
+        if char_width < 40 or char_height < 10:
+            result.add_warning(
+                f"Small terminal detected: {char_width}×{char_height} chars",
+                "Consider using a larger terminal for optimal experience"
+            )
+
+        # Check screen tier detection
+        tier = viewport_info["screen_tier"]
+        cell_width = tier["actual_width_cells"]
+        cell_height = tier["actual_height_cells"]
+
+        if cell_width < 20 or cell_height < 10:
+            result.add_warning(
+                f"Very small viewport: {cell_width}×{cell_height} cells (Tier {tier['tier']})",
+                "Some features may be limited on small screens"
+            )
+        elif tier["tier"] >= 8:  # HD Display or larger
+            result.add_warning(
+                f"Large viewport detected: {tier['label']} (Tier {tier['tier']})",
+                "Excellent display capabilities available"
+            )
+
+        # Validate screen tier data
+        if "label" not in tier or "tier" not in tier:
+            result.add_issue(
+                "Invalid screen tier data detected",
+                "Run REBOOT to refresh viewport detection"
+            )
+        else:
+            result.add_warning(
+                f"Viewport: {tier['label']} ({cell_width}×{cell_height} cells)",
+                f"Detection method: {viewport_info.get('detection_method', 'unknown')}"
+            )
+
+        # Check viewport settings file
+        if viewport.settings_file.exists():
+            result.add_warning(
+                "Viewport settings saved",
+                "Use CONFIG VIEWPORT to modify"
+            )
+        else:
+            result.add_warning(
+                "Using auto-detected viewport",
+                "Settings will be saved on first manual configuration"
+            )
+
+    except ImportError as e:
+        result.add_issue(
+            "Viewport manager not available",
+            "Check core/services/viewport_manager.py exists"
+        )
+    except Exception as e:
+        result.add_warning(
+            f"Viewport check error: {str(e)}",
+            "Viewport detection may not be optimal"
+        )
+
+    return result
+
+
 def repair_permissions() -> List[str]:
     """
     Fix permissions on critical directories.
@@ -927,6 +1006,7 @@ def check_system_health(verbose: bool = False) -> SystemHealth:
         ("JSON Configs", check_json_configs),
         ("Permissions", check_permissions),
         ("Dependencies", check_dependencies),
+        ("Viewport System", check_viewport),
         ("Web Extensions", check_web_extensions),
         ("Web Servers", check_web_servers),
     ]

@@ -23,7 +23,7 @@ class CommandHandler:
     """Main command router - delegates to specialized handlers."""
 
     def __init__(self, theme='dungeon', commands_file='data/system/commands.json',
-                 history=None, connection=None, viewport=None, user_manager=None, enhanced_history=None):
+                 history=None, connection=None, viewport=None, user_manager=None, command_history=None):
         """
         Initialize command handler and load specialized handlers.
 
@@ -34,7 +34,7 @@ class CommandHandler:
             connection: ConnectionManager instance
             viewport: Viewport instance
             user_manager: UserManager instance
-            enhanced_history: EnhancedHistory instance
+            command_history: CommandHistory instance
         """
         # Load theme and commands
         theme_file = f'data/themes/{theme.lower()}.json'
@@ -50,7 +50,7 @@ class CommandHandler:
         self.connection = connection
         self.viewport = viewport
         self.user_manager = user_manager
-        self.enhanced_history = enhanced_history
+        self.command_history = command_history
         self.reboot_requested = False
         self.current_theme = theme
 
@@ -61,7 +61,7 @@ class CommandHandler:
             'viewport': viewport,
             'user_manager': user_manager,
             'history': history,
-            'enhanced_history': enhanced_history
+            'command_history': command_history
         }
 
         # Initialize specialized handlers (lazy loading in handlers themselves)
@@ -70,12 +70,14 @@ class CommandHandler:
         from core.commands.grid_handler import GridCommandHandler
         from core.commands.map_handler import MapCommandHandler
         from core.commands.system_handler import SystemCommandHandler
+        from core.commands.knowledge_handler import KnowledgeCommandHandler
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.grid_handler = GridCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs)
         self.system_handler = SystemCommandHandler(**handler_kwargs)
+        self.knowledge_handler = KnowledgeCommandHandler(**handler_kwargs)
 
     def get_message(self, key, **kwargs):
         """
@@ -125,6 +127,9 @@ class CommandHandler:
 
             elif module == "MAP":
                 return self.map_handler.handle(command, params, grid)
+
+            elif module == "KNOWLEDGE":
+                return self.knowledge_handler.handle(command, params, grid)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

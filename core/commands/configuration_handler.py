@@ -80,10 +80,14 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("👤 USER SETTINGS:")
         output.append("-" * 40)
         if self.user_manager and self.user_manager.user_data:
-            user_profile = self.user_manager.user_data.get('USER_PROFILE', {})
-            output.append(f"  Name: {user_profile.get('NAME', 'Not set')}")
-            output.append(f"  Location: {user_profile.get('LOCATION', 'Not set')}")
-            output.append(f"  Timezone: {user_profile.get('TIMEZONE', 'UTC')}")
+            user_profile = self.user_manager.user_data.get('user_profile', {})
+            output.append(f"  Username: {user_profile.get('username', 'Not set')}")
+            output.append(f"  Project: {user_profile.get('project_name', 'Not set')}")
+
+            # Get theme from system settings
+            system_settings = self.user_manager.user_data.get('system_settings', {})
+            display = system_settings.get('display', {})
+            output.append(f"  Theme: {display.get('theme', 'Not set')}")
         else:
             output.append("  User profile: Not loaded")
 
@@ -372,7 +376,7 @@ class ConfigurationHandler(BaseCommandHandler):
 
     def handle_config(self, params, grid, parser):
         """
-        Manage configuration files.
+        Manage configuration files and system settings.
 
         Usage:
             CONFIG               - Show config status
@@ -380,6 +384,8 @@ class ConfigurationHandler(BaseCommandHandler):
             CONFIG RESTORE       - Restore from backup
             CONFIG RESET         - Reset to defaults
             CONFIG VALIDATE      - Validate all configs
+            CONFIG VIEWPORT      - Show viewport information
+            CONFIG VIEWPORT <w> <h> - Set custom viewport (in cells)
 
         Manages configuration files in data/system/ directory.
         """
@@ -396,13 +402,29 @@ class ConfigurationHandler(BaseCommandHandler):
             return self._reset_configs()
         elif command == 'VALIDATE':
             return self._validate_configs()
+        elif command == 'VIEWPORT':
+            if len(params) == 1:
+                return self._show_viewport_config()
+            elif len(params) == 3:
+                try:
+                    width = int(params[1])
+                    height = int(params[2])
+                    return self._set_viewport_config(width, height)
+                except ValueError:
+                    return "❌ Invalid viewport dimensions. Use: CONFIG VIEWPORT <width> <height>"
+            else:
+                return ("❌ Invalid viewport command\n\n"
+                       "Usage:\n"
+                       "  CONFIG VIEWPORT        - Show current viewport\n"
+                       "  CONFIG VIEWPORT <w> <h> - Set custom viewport in cells")
         else:
             return ("❌ Unknown config command\n\n"
                    "Available commands:\n"
                    "  CONFIG BACKUP    - Backup configurations\n"
                    "  CONFIG RESTORE   - Restore from backup\n"
                    "  CONFIG RESET     - Reset to defaults\n"
-                   "  CONFIG VALIDATE  - Validate configurations")
+                   "  CONFIG VALIDATE  - Validate configurations\n"
+                   "  CONFIG VIEWPORT  - Manage viewport settings")
 
     def _show_config_status(self):
         """Show current configuration status."""
@@ -550,3 +572,67 @@ class ConfigurationHandler(BaseCommandHandler):
             output.append("💡 Use: CONFIG RESTORE to restore from backup")
 
         return "\n".join(output)
+
+    def _show_viewport_config(self):
+        """Show current viewport configuration."""
+        try:
+            from core.services.viewport_manager import ViewportManager
+
+            viewport = ViewportManager()
+            summary = viewport.get_viewport_summary()
+            chart = viewport.get_size_comparison_chart()
+
+            output = [
+                "📐 Viewport Configuration",
+                "=" * 50,
+                summary,
+                "",
+                chart,
+                "",
+                "💡 Use: CONFIG VIEWPORT <width> <height> to set custom dimensions",
+                "💡 Use: REBOOT to refresh auto-detection"
+            ]
+
+            return "\n".join(output)
+
+        except ImportError:
+            return "❌ Viewport manager not available"
+        except Exception as e:
+            return f"❌ Error reading viewport config: {str(e)}"
+
+    def _set_viewport_config(self, width_cells: int, height_cells: int):
+        """Set custom viewport configuration."""
+        try:
+            from core.services.viewport_manager import ViewportManager
+
+            # Validate dimensions
+            if width_cells < 10 or height_cells < 5:
+                return "❌ Viewport too small. Minimum: 10×5 cells"
+
+            if width_cells > 1000 or height_cells > 1000:
+                return "❌ Viewport too large. Maximum: 1000×1000 cells"
+
+            viewport = ViewportManager()
+            viewport_info = viewport.set_custom_viewport(width_cells, height_cells)
+
+            tier = viewport_info["screen_tier"]
+
+            output = [
+                "✅ Viewport configuration updated",
+                "",
+                f"📐 Custom Viewport: {width_cells}×{height_cells} cells",
+                f"📏 Pixel Dimensions: {tier['width_pixels']}×{tier['height_pixels']}px",
+                f"📺 Nearest Tier: {tier['label']} (Tier {tier['tier']})",
+                f"📊 Aspect Ratio: {tier['aspect']}",
+                "",
+                "💾 Settings saved to data/system/viewport.json",
+                "💡 Use: REBOOT to apply changes fully",
+                "💡 Use: CONFIG VIEWPORT to view current settings"
+            ]
+
+            return "\n".join(output)
+
+        except ImportError:
+            return "❌ Viewport manager not available"
+        except Exception as e:
+            return f"❌ Error setting viewport config: {str(e)}"

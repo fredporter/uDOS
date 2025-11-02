@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teletext CSS Layout – Clone</title>
+  <link rel="stylesheet" href="teletext.css" />
+</head>
+<body>
+  <div class="bezel">
+    <div class="statusbar row fg-yellow">
+      <span>TELETEXT DEMO</span>
+      <span class="clock" id="clock"></span>
+    </div>
+
+    <pre class="teletext scanlines" id="screen" aria-label="Teletext screen" role="img">
+<span class="row fg-yellow">########################################</span>
+<span class="row fg-yellow">#  TELEtext CSS Layout · 40×25 surface #</span>
+<span class="row fg-yellow">#  Palette: R G Y B M C W on black     #</span>
+<span class="row fg-yellow">########################################</span>
+<span class="row">                                        </span>
+<span class="row">   <span class="fg-red">RED</span>  <span class="fg-green">GREEN</span>  <span class="fg-yellow">YELLOW</span>  <span class="fg-blue">BLUE</span>   <span class="fg-mag">MAG</span>   <span class="fg-cyan">CYAN</span>   <span class="fg-white">WHITE</span>   </span>
+<span class="row">                                        </span>
+<span class="row">  The screen is fixed at 40 columns by 25 rows.  </span>
+<span class="row">  Font has a horizontal stretch (~1.3×) applied.  </span>
+<span class="row">  Use .fg-* and .bg-* to colour runs of text.     </span>
+<span class="row">                                        </span>
+<span class="row">  Double-height sample:                       </span>
+<span class="row"><span class="double-height">  BIG TITLE TEXT  </span>                       </span>
+<span class="row"><span class="double-height lower">  BIG TITLE TEXT  </span>                       </span>
+<span class="row">                                        </span>
+<span class="row">  Links look like mode 7 cyan:                 </span>
+<span class="row">  <a href="https://galax.xyz/TELETEXT/" target="_blank" rel="noopener">Original Galax Teletext page</a>       </span>
+<span class="row">                                        </span>
+<span class="row">  Tips:                                       </span>
+<span class="row">   • Keep exactly 40 characters per line.      </span>
+<span class="row">   • Use non-breaking spaces for padding.      </span>
+<span class="row">   • For perfect authencity add a MODE7 font.   </span>
+<span class="row">                                        </span>
+
+<span class="row">                                        </span>
+<span class="row fg-yellow">############## MOSAIC BLOCKS ############</span>
+<span class="row fg-red">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-green">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-yellow">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-blue">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-mag">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-cyan">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-white">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-red">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-green">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-yellow">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-blue">█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜</span>
+<span class="row fg-mag">▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐▖▗▘▙▚▛▜▟▞█▀▄▌▐</span>
+<span class="row fg-yellow">##########################################</span>
+<span class="row">                                        </span>
+<span class="row">  Footer · © You · Demo layout clone           </span>
+    </pre>
+  </div>
+
+  <script src="teletext.js"></script>
+</body>
+</html>

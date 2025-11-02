@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 class UserConfigManager:
     """Manage structured user.json configuration."""
 
-    def __init__(self, config_path="sandbox/user.json"):
+    def __init__(self, config_path="memory/sandbox/user.json"):
         self.config_path = Path(config_path)
         self.config = self.load_config()
 
@@ -250,7 +250,7 @@ class UserConfigManager:
 def main():
     """Command-line interface for configuration management."""
     parser = argparse.ArgumentParser(description="uDOS Configuration Manager")
-    parser.add_argument("--config", default="sandbox/user.json", help="Path to user.json")
+    parser.add_argument("--config", default="memory/sandbox/user.json", help="Path to user.json")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 

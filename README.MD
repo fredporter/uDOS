@@ -24,7 +24,7 @@ core/commands/
 └── system_handler.py       # REPAIR, STATUS, DASHBOARD, etc.
 ```
 
-See [`docs/archive/REFACTORING-v1.0.0.md`](docs/archive/REFACTORING-v1.0.0.md) for details.
+See [`dev/docs/archive/REFACTORING-v1.0.0.md`](dev/docs/archive/REFACTORING-v1.0.0.md) for details.
 
 ---
 
@@ -37,9 +37,9 @@ See [`docs/archive/REFACTORING-v1.0.0.md`](docs/archive/REFACTORING-v1.0.0.md) f
 
 ### 📚 Development
 - [**ROADMAP.MD**](ROADMAP.MD) - **v1.0.x systematic development plan**
-- [Contributing Guide](docs/guides/CONTRIBUTING.md) - Development workflow
-- [Testing Guide](docs/guides/TESTING.md) - Testing procedures
-- [Development Setup](docs/guides/DEVELOPMENT.md) - Dev environment
+- [Contributing Guide](dev/docs/guides/CONTRIBUTING.md) - Development workflow
+- [Testing Guide](dev/docs/guides/TESTING.md) - Testing procedures
+- [Development Setup](dev/docs/guides/DEVELOPMENT.md) - Dev environment
 
 ### 🗺️ Development Rounds (v1.0.x)
 Each round focuses on ONE component with complete testing cycle:
@@ -73,10 +73,10 @@ Each round focuses on ONE component with complete testing cycle:
 - [Style Guide](wiki/Style-Guide.md) - Code conventions
 
 ### 📁 Documentation Hub
-All docs organized in [`/docs`](docs/):
-- [`docs/guides/`](docs/guides/) - User and developer guides
-- [`docs/planning/`](docs/planning/) - Development planning
-- [`docs/archive/`](docs/archive/) - Historical refactoring docs
+All docs organized in [`/dev/docs`](dev/docs/):
+- [`dev/docs/guides/`](dev/docs/guides/) - User and developer guides
+- [`dev/docs/planning/`](dev/docs/planning/) - Development planning
+- [`dev/docs/archive/`](dev/docs/archive/) - Historical refactoring docs
 
 ---
 
@@ -293,7 +293,7 @@ uDOS/
 ├── history/               # Historical files (organized by type)
 │   ├── concepts/         # Old design documents
 │   ├── data/             # Old configuration formats
-│   ├── docs/             # Dev round summaries and notes
+│   ├── dev/docs/         # Dev round summaries and notes
 │   ├── docs_active/      # Previous active documentation
 │   └── extensions/       # Extension backups
 ├── uDOS.py                # Entry point
@@ -397,7 +397,7 @@ This project demonstrates:
 - AI-assisted error debugging
 - Secure API key management
 
-See [V1.3-COMPLETE-RELEASE.md](docs/V1.3-COMPLETE-RELEASE.md) for full v1.3 documentation and [ROADMAP.MD](ROADMAP.MD) for future plans.
+See [V1.3-COMPLETE-RELEASE.md](dev/docs/V1.3-COMPLETE-RELEASE.md) for full v1.3 documentation and [ROADMAP.MD](ROADMAP.MD) for future plans.
 
 ---
 

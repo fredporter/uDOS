@@ -1,0 +1,111 @@
+/* Calculator Window Styling */
+.calculator-window {
+    position: fixed !important;
+    width: 200px !important;
+    height: 300px !important;
+    resize: none !important;
+}
+
+.calculator-window .window-content {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calculator-display {
+    background: #000;
+    color: #0f0;
+    font-family: 'Monaco', monospace;
+    font-size: 18px;
+    padding: 10px;
+    text-align: right;
+    border: 2px inset #dedede;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.calc-button {
+    background: #dedede;
+    border: 2px outset #dedede;
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'Geneva', sans-serif;
+    font-size: 12px;
+    text-align: center;
+    user-select: none;
+}
+
+.calc-button:active {
+    border: 2px inset #dedede;
+}
+
+.calc-button.operator {
+    background: #bcbcbc;
+    border: 2px outset #bcbcbc;
+}
+
+.calc-button.operator:active {
+    border: 2px inset #bcbcbc;
+}
+
+.calc-button.wide {
+    grid-column: span 2;
+}
+
+/* System 7 specific overrides */
+.system7 .calculator-window .window-titlebar {
+    background: #ffffff !important;
+    background-image: none !important;
+    --system7-titlebar-active: none !important;
+}
+
+.system7 .calculator-window .window-titlebar.inactive .window-title {
+    background: transparent !important;
+    color: #000000 !important;
+}
+
+.calculator-window .window-resizer {
+    display: none;
+}
+
+/* Remove scrollbars */
+.calculator-window::-webkit-scrollbar,
+.calculator-window .window-content::-webkit-scrollbar {
+    display: none;
+}
+
+.calculator-window {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Override the general mobile styles specifically for calculator */
+@media (max-width: 768px) {
+    .window:not(.calculator-window) {
+        width: calc(100% - 20px) !important;
+        height: calc(100% - 30px) !important;
+        top: 25px !important;
+        left: 10px !important;
+        resize: none;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .calculator-window {
+        width: 200px !important;
+        height: 300px !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        resize: none !important;
+    }
+}

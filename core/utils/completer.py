@@ -11,13 +11,13 @@ from typing import List, Optional, Tuple
 class AdvancedCompleter(Completer):
     """
     Advanced context-aware completer for uDOS commands with intelligent suggestions,
-    fuzzy matching, and enhanced history integration.
+    fuzzy matching, and command history integration.
     """
 
-    def __init__(self, parser, grid, enhanced_history=None):
+    def __init__(self, parser, grid, command_history=None):
         self.parser = parser
         self.grid = grid
-        self.enhanced_history = enhanced_history
+        self.command_history = command_history
         self.command_names = parser.get_command_names()
         self.path_completer = PathCompleter(expanduser=True)
         self.root = Path.cwd()
@@ -111,12 +111,12 @@ class AdvancedCompleter(Completer):
                 yield from self._complete_multiword_commands(words, text)
 
     def _get_recent_command_suggestions(self):
-        """Get recent command suggestions from enhanced history."""
-        if not self.enhanced_history:
-            return
+        """Get recent command suggestions from command history."""
+        if not self.command_history:
+            return []
 
         try:
-            recent_commands = self.enhanced_history.get_suggestions('', limit=8)
+            recent_commands = self.command_history.get_suggestions('', limit=8)
             for i, cmd in enumerate(recent_commands):
                 yield Completion(
                     cmd,

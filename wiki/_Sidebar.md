@@ -10,6 +10,8 @@
 
 ### 📖 Reference
 - [Commands](Command-Reference)
+- [CLI Features v1.0.6](CLI-Features-v1-0-6)
+- [Development History](Development-History)
 - [uCODE Manual](uCODE-Language)
 - [Mapping System](Mapping-System)
 - [Viewport & Colors](Viewport-Colors)
@@ -17,6 +19,7 @@
 - [API Documentation](API-Documentation)
 
 ### ✨ Features
+- [CLI Terminal Features](CLI-Features-v1-0-6)
 - [AI Integration](AI-Integration)
 - [Grid System](Grid-System)
 - [Session Logging](Session-Logging)

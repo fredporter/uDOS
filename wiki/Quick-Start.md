@@ -149,7 +149,60 @@ Execute a test script:
 
 Or from within uDOS:
 ```
-🔮 > RUN "shakedown.uscript"
+```
+🔮 > RUN "examples/simple-setup.uscript"
+```
+
+---
+
+## CLI Features v1.0.6+ ⚡
+
+### Enhanced Command History
+```bash
+🔮 > HISTORY LIST              # Show recent commands
+🔮 > HISTORY SEARCH file       # Search command history
+🔮 > HISTORY STATS             # Usage statistics
+```
+
+### Dynamic Themes
+```bash
+🔮 > THEME LIST                # Available themes
+🔮 > THEME SET cyberpunk       # Switch to cyberpunk theme
+🔮 > THEME ACCESSIBILITY ON    # Enable high contrast
+```
+
+### Session Management
+```bash
+🔮 > SESSION SAVE work         # Save current workspace
+🔮 > SESSION LIST              # Show all sessions
+🔮 > SESSION LOAD 1            # Restore previous session
+```
+
+### Progress Indicators
+Long operations now show real-time progress:
+```bash
+🔮 > FILE SEARCH *.py
+⏳ Searching files... ████████████████████ 100% (23/23) [1.2s]
+```
+
+### Responsive Layouts
+Automatically adapts to your terminal size:
+```bash
+🔮 > LAYOUT MODE compact       # Mobile-friendly
+🔮 > LAYOUT MODE expanded      # Wide screen
+🔮 > LAYOUT AUTO ON            # Auto-adapt
+```
+
+### Smart Tab Completion v2.0
+- **Fuzzy matching**: Type `THM<Tab>` → `THEME`
+- **Context-aware**: Smart parameter suggestions
+- **History integration**: Recent commands prioritized
+
+[Full CLI Features Documentation →](CLI-Features-v1-0-6)
+
+---
+
+## Troubleshooting
 ```
 
 ---

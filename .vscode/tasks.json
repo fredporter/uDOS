@@ -41,7 +41,7 @@
             "label": "Run Shakedown Test",
             "type": "shell",
             "command": "./start_udos.sh",
-            "args": ["sandbox/tests/shakedown.uscript"],
+            "args": ["memory/tests/shakedown.uscript"],
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -60,7 +60,7 @@
             "type": "shell",
             "command": "${workspaceFolder}/.venv/bin/python",
             "args": [
-                "${workspaceFolder}/sandbox/tests/test_v1_0_2_standalone.py"
+                "${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
             ],
             "group": "test",
             "presentation": {
@@ -79,7 +79,7 @@
             "type": "shell",
             "command": "${workspaceFolder}/.venv/bin/python",
             "args": [
-                "${workspaceFolder}/sandbox/tests/test_v1_0_2_integration.py"
+                "${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
             ],
             "group": "test",
             "presentation": {

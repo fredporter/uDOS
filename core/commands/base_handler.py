@@ -31,7 +31,7 @@ class BaseCommandHandler:
         self.viewport = kwargs.get('viewport')
         self.user_manager = kwargs.get('user_manager')
         self.history = kwargs.get('history')
-        self.enhanced_history = kwargs.get('enhanced_history')
+        self.command_history = kwargs.get('command_history')
 
     def get_message(self, key, **kwargs):
         """

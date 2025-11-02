@@ -1,0 +1,381 @@
+/* System.css inspired classic macOS styling for uDOS */
+@import url('../shared/typography-system.css');
+
+/* Classic Mac System Fonts */
+:root {
+  --system-font: 'ChicagoFLF', Chicago, serif;
+  --interface-font: 'Geneva9', Geneva, sans-serif;
+  --mono-font: 'Monaco', Monaco, 'Courier New', monospace;
+
+  /* Classic Mac Colors */
+  --mac-white: #ffffff;
+  --mac-black: #000000;
+  --mac-gray-light: #f5f5f5;
+  --mac-gray-medium: #d0d0d0;
+  --mac-gray-dark: #808080;
+
+  /* Classic Mac Patterns */
+  --mac-pattern-1: repeating-linear-gradient(45deg, transparent, transparent 2px, #000 2px, #000 4px);
+  --mac-pattern-2: repeating-linear-gradient(0deg, #fff 0px, #fff 1px, #000 1px, #000 2px);
+  --mac-dots: radial-gradient(circle at 50% 50%, #000 1px, transparent 1px);
+}
+
+/* System Font Application */
+body {
+  font-family: var(--system-font);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+/* Classic Mac Window Styling */
+.classic-window {
+  background: var(--mac-white);
+  border: 2px solid var(--mac-black);
+  box-shadow: 2px 2px 0px var(--mac-black);
+  font-family: var(--system-font);
+  position: absolute;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+.classic-titlebar {
+  background: var(--mac-white);
+  border-bottom: 1px solid var(--mac-black);
+  height: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  cursor: move;
+  font-family: var(--system-font);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.classic-titlebar.active {
+  background: var(--mac-pattern-2);
+  background-size: 100% 2px;
+}
+
+.classic-titlebar .window-controls {
+  display: flex;
+  gap: 2px;
+  margin-right: 8px;
+}
+
+.classic-titlebar .close-button {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--mac-black);
+  background: var(--mac-white);
+  font-family: var(--system-font);
+  font-size: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.classic-titlebar .close-button:hover {
+  background: var(--mac-gray-light);
+}
+
+.classic-titlebar .close-button:active {
+  background: var(--mac-gray-dark);
+  color: var(--mac-white);
+}
+
+/* Window Content Area */
+.window-content {
+  padding: 8px;
+  background: var(--mac-white);
+  font-family: var(--interface-font);
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+/* Classic Mac Buttons */
+.mac-button {
+  background: var(--mac-white);
+  border: 2px outset var(--mac-gray-medium);
+  font-family: var(--system-font);
+  font-size: 10px;
+  padding: 4px 12px;
+  cursor: pointer;
+  min-width: 60px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mac-button:hover {
+  background: var(--mac-gray-light);
+}
+
+.mac-button:active {
+  border: 2px inset var(--mac-gray-medium);
+  background: var(--mac-gray-medium);
+}
+
+.mac-button.default {
+  border: 3px solid var(--mac-black);
+  font-weight: bold;
+}
+
+/* Classic Mac Text Fields */
+.mac-text-field {
+  background: var(--mac-white);
+  border: 2px inset var(--mac-gray-medium);
+  font-family: var(--interface-font);
+  font-size: 9px;
+  padding: 2px 4px;
+  line-height: 1.2;
+}
+
+.mac-text-field:focus {
+  outline: none;
+  border-color: var(--mac-black);
+}
+
+/* Classic Mac Menus */
+.mac-menu-bar {
+  background: var(--mac-white);
+  border-bottom: 1px solid var(--mac-black);
+  height: 20px;
+  display: flex;
+  align-items: center;
+  font-family: var(--system-font);
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.mac-menu-item {
+  padding: 0 12px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.mac-menu-item:hover {
+  background: var(--mac-black);
+  color: var(--mac-white);
+  border: 1px solid var(--mac-black);
+}
+
+.mac-menu-item.active {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+
+/* Classic Mac Lists */
+.mac-list {
+  background: var(--mac-white);
+  border: 2px inset var(--mac-gray-medium);
+  font-family: var(--interface-font);
+  font-size: 9px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mac-list-item {
+  padding: 2px 8px;
+  border-bottom: 1px dotted var(--mac-gray-medium);
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.mac-list-item:hover {
+  background: var(--mac-gray-light);
+}
+
+.mac-list-item.selected {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+
+.mac-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Classic Mac Desktop Icons */
+.classic-desktop-icon {
+  width: 64px;
+  text-align: center;
+  font-family: var(--interface-font);
+  font-size: 9px;
+  cursor: pointer;
+  padding: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  position: absolute;
+}
+
+.classic-desktop-icon:hover {
+  background: var(--mac-gray-light);
+  border: 1px solid var(--mac-gray-dark);
+}
+
+.classic-desktop-icon.selected {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+
+.classic-desktop-icon img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 2px;
+  filter: contrast(1000%) brightness(0%);
+}
+
+.classic-desktop-icon.selected img {
+  filter: contrast(1000%) brightness(100%);
+}
+
+/* Classic Mac Dialogs */
+.mac-dialog {
+  background: var(--mac-white);
+  border: 2px solid var(--mac-black);
+  box-shadow: 4px 4px 0px var(--mac-gray-dark);
+  padding: 16px;
+  font-family: var(--interface-font);
+  font-size: 10px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  min-width: 280px;
+}
+
+.mac-dialog .dialog-title {
+  font-family: var(--system-font);
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.mac-dialog .dialog-content {
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.mac-dialog .dialog-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Classic Mac Progress Indicators */
+.mac-progress {
+  background: var(--mac-white);
+  border: 2px inset var(--mac-gray-medium);
+  height: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mac-progress-bar {
+  background: var(--mac-pattern-1);
+  background-size: 8px 8px;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Classic Mac Checkboxes and Radio Buttons */
+.mac-checkbox, .mac-radio {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--mac-black);
+  background: var(--mac-white);
+  margin-right: 6px;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.mac-radio {
+  border-radius: 50%;
+}
+
+.mac-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 1px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.mac-radio:checked::after {
+  content: '●';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  font-size: 8px;
+}
+
+/* Classic Mac Scrollbars */
+.mac-scrollbar::-webkit-scrollbar {
+  width: 16px;
+  background: var(--mac-gray-light);
+  border: 1px solid var(--mac-black);
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--mac-gray-light);
+}
+
+.mac-scrollbar::-webkit-scrollbar-track {
+  background: var(--mac-gray-medium);
+}
+
+/* Typography Classes */
+.text-system {
+  font-family: var(--system-font);
+}
+
+.text-interface {
+  font-family: var(--interface-font);
+}
+
+.text-mono {
+  font-family: var(--mono-font);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .classic-window {
+    min-width: 150px;
+    min-height: 100px;
+  }
+
+  .classic-titlebar {
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .window-content {
+    padding: 6px;
+    font-size: 8px;
+  }
+
+  .classic-desktop-icon {
+    width: 48px;
+    font-size: 8px;
+  }
+
+  .classic-desktop-icon img {
+    width: 24px;
+    height: 24px;
+  }
+}

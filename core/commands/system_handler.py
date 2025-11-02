@@ -245,7 +245,7 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_history(self, params, grid, parser):
         """
-        Enhanced command history management with search and statistics.
+        Command history management with search and statistics.
 
         Subcommands:
         - HISTORY SEARCH <query>   # Search command history
@@ -262,16 +262,16 @@ class SystemCommandHandler(BaseCommandHandler):
         Returns:
             Formatted history information
         """
-        # Use the enhanced history from the base class
-        if self.enhanced_history is None:
-            return "❌ Enhanced history system not available"
+        # Use the command history from the base class
+        if self.command_history is None:
+            return "❌ Command history system not available"
 
         try:
-            history = self.enhanced_history
+            history = self.command_history
             # Test if it's working by trying to access a method
             _ = len(history)
         except Exception as e:
-            return f"❌ Enhanced history system error: {e}"
+            return f"❌ Command history system error: {e}"
 
         if not params:
             # Default: show recent commands
@@ -791,10 +791,10 @@ class SystemCommandHandler(BaseCommandHandler):
     def _test_search_progress(self):
         """Test search operation with progress."""
         try:
-            # This will trigger the enhanced file search with progress
-            from core.commands.enhanced_file_handler import EnhancedFileCommandHandler
+            # This will trigger the file search with progress
+            # from core.commands.file_handler import FileCommandHandler
 
-            file_handler = EnhancedFileCommandHandler()
+            # file_handler = FileCommandHandler()
 
             # Test search with progress indicators
             return file_handler._handle_search(["test", "sandbox"])
@@ -1433,7 +1433,7 @@ document.md|Markdown|3.4KB|2024-01-13"""
             test_results.append(("📊 Table Format Test", table_result))
 
             # Test list formatting
-            list_content = """• Enhanced command history with SQLite persistence
+            list_content = """• Command history with SQLite persistence
 • Advanced tab completion with fuzzy matching
 • Dynamic color themes and accessibility features
 • Real-time progress indicators for operations
@@ -1676,9 +1676,20 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         output = "\n🔄 REBOOTING uDOS SYSTEM...\n\n"
         output += "✅ Saving current state...\n"
         output += "✅ Clearing memory buffers...\n"
+
+        # Refresh viewport detection
+        try:
+            from core.services.viewport_manager import ViewportManager
+            viewport = ViewportManager()
+            viewport_info = viewport.refresh_viewport()
+            tier = viewport_info["screen_tier"]
+            output += f"🖥️  Viewport refreshed: {tier['label']} ({tier['actual_width_cells']}×{tier['actual_height_cells']} cells)\n"
+        except Exception as e:
+            output += f"⚠️  Viewport refresh warning: {str(e)}\n"
+
         output += "✅ Reinitializing components...\n\n"
         output += "🚀 System restart complete!\n"
-        output += "Welcome back to uDOS v1.0.0\n\n"
+        output += "Welcome back to uDOS v1.0.8\n\n"
 
         # Signal for system restart
         if hasattr(self, '_signal_restart'):
@@ -1754,7 +1765,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def handle_output(self, params, grid, parser):
         """
         Manage web-based output interfaces (servers).
-        Enhanced implementation for v1.0.5 Web Server Infrastructure.
+        Implementation for v1.0.5 Web Server Infrastructure.
         """
         if not params:
             return ("❌ Usage: OUTPUT <START|STOP|STATUS|LIST|HEALTH|RESTART> [name] [options]\n\n"

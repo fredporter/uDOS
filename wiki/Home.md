@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.4** - A Human-Readable CLI Framework with AI Integration and Teletext Visualization
+**uDOS v1.0.6** - A Human-Readable CLI Framework with AI Integration and Modern Terminal Features
 
 > 🔮 *Building a better command-line experience, one spell at a time.*
 
@@ -12,8 +12,21 @@
 |:----------------|:----------|:---------|
 | [Quick Start](Quick-Start) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
 | [Installation](Installation) | [Architecture](Architecture) | [Mapping System](Mapping-System) |
-| [First Steps](First-Steps) | [API Documentation](API-Documentation) | [Script Automation](Script-Automation) |
-| [Tutorials](Tutorials) | [Configuration](Configuration) | [Extension Development](Extensions) |
+| [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Script Automation](Script-Automation) |
+| [Tutorials](Tutorials) | [Development History](Development-History) | [Extension Development](Extensions) |
+
+---
+
+## ⚡ NEW in v1.0.6 - CLI Terminal Features
+
+- **Enhanced Command History** - SQLite persistence with intelligent search
+- **Advanced Tab Completion** - Fuzzy matching with context-aware suggestions
+- **Dynamic Color Themes** - Accessibility support with colorblind options
+- **Real-time Progress Indicators** - Animated progress bars for long operations
+- **Session Management** - Workspace state persistence and restore
+- **Adaptive Layouts** - Responsive terminal formatting for all screen sizes
+
+[🔗 Explore CLI Features →](CLI-Features-v1-0-6)
 
 ---
 
@@ -37,31 +50,133 @@ uDOS is an **educational CLI framework** that demonstrates:
 
 ---
 
-## 🆕 What's New in v1.0.4
+## 🆕 What's New in v1.0.6
 
-### 🖥️ Teletext Web Extension
+### ⚡ CLI Terminal Features
+- **Enhanced Command History**: SQLite persistence with intelligent fuzzy search
+- **Advanced Tab Completion**: Context-aware suggestions with fuzzy matching
+- **Dynamic Color Themes**: Classic, Cyberpunk, Accessibility, and Monochrome modes
+- **Real-time Progress Indicators**: Animated progress bars for long operations
+- **Session Management**: Save/restore workspace state with auto-save
+- **Adaptive Layouts**: Responsive formatting for mobile and wide screens
+
+### 🎨 Accessibility Enhancements
+- **High Contrast Mode**: Enhanced visibility for low vision users
+- **Colorblind Support**: Deuteranopia, protanopia, and tritanopia accommodations
+- **Screen Reader Optimization**: Accessible formatting throughout
+- **Mobile Terminal Support**: Compact layouts for small screens
+
+### 🚀 Performance & UX
+- **SQLite Integration**: Persistent command history survives restarts
+- **Background Processing**: Non-blocking progress indicators
+- **Smart Deduplication**: No repeated commands in history
+- **Cross-platform Compatibility**: Universal terminal support
+
+### � New CLI Commands
+```bash
+HISTORY LIST [count]        # Show recent commands with search
+HISTORY SEARCH <term>       # Fuzzy search through command history
+HISTORY STATS               # Usage analytics and insights
+THEME SET <name>            # Switch themes dynamically
+THEME ACCESSIBILITY ON      # Enable accessibility features
+SESSION SAVE [name]         # Save current workspace state
+SESSION LOAD <id>           # Restore previous session
+PROGRESS TEST               # Demo progress indicators
+LAYOUT MODE <mode>          # Set responsive layout mode
+```
+
+[🔗 Full CLI Features Documentation →](CLI-Features-v1-0-6)
+
+### �🖥️ Teletext Web Extension (v1.0.4)
 - **Mosaic Block Art**: 64 2×3 pixel character combinations
 - **WST Color Palette**: Classic teletext colors (8 colors)
 - **Interactive Web Interface**: http://localhost:8080
 - **Mobile-Responsive Design**: Touch-optimized controls
 - **Export Functionality**: Save maps as standalone HTML
 
-### 🗺️ Enhanced Mapping System
+### 🗺️ Enhanced Mapping System (v1.0.4)
 - **Global Cell Grid**: 480×270 APAC-centered reference system
 - **TIZO Location Codes**: 20 major cities worldwide (MEL, SYD, LON, NYC, etc.)
 - **Real-time Navigation**: Distance and bearing calculations
 - **ASCII Map Generation**: Visual maps with position markers
 - **Multi-layer Access**: Connection quality and layer systems
 
-### 📋 New Commands
-```bash
-MAP STATUS              # Current location and system status
-MAP VIEW [width height] # Generate ASCII map (40×20 default)
-MAP TELETEXT [w h]      # Generate teletext-style map
-MAP WEB [server]        # Open map in browser or start server
-MAP NAVIGATE <from to>  # Calculate routes between locations
-MAP CITIES [cell radius] # List cities globally or regionally
-```
+---
+
+## 📈 Development History (v1.0.1 - v1.0.6)
+
+### 🧪 v1.0.1 - System Commands Foundation
+**Complete infrastructure and command framework**
+- **13 core SYSTEM commands** implemented with comprehensive testing
+- **Enhanced HELP system** with interactive command search and categorization
+- **DASHBOARD command** with CLI and WEB modes for system overview
+- **REPAIR system** with 5 diagnostic modes and auto-fix capabilities
+- **PALETTE command** with visual color tests and grayscale gradients
+- **TREE command** for repository structure visualization
+- **Comprehensive test suite** with 20+ test cases achieving 100% pass rate
+
+**Key Achievements**: Modular command handler architecture, 800+ lines of implementation
+
+### 📁 v1.0.2 - Configuration & Modular Foundation
+**Complete system overhaul with configuration management**
+- **User configuration refactoring** from USER.UDO to structured user.json + .env
+- **TIZO location system** with 20 global cities and timezone integration
+- **Extension system overhaul** with CLONE-only approach and auto-install
+- **Theme standardization** with v1.0.2 schema across 6 themes
+- **Character/Object system** with NetHack-style RPG mechanics
+- **Modular command handlers** reducing main handler by 70% (1700→500 lines)
+
+**Key Achievements**: 1200+ lines of new modular handlers, complete theme system
+
+### 🗺️ v1.0.3 - Integrated Mapping System
+**Complete navigation and spatial reference system**
+- **Global cell grid system** with 480×270 APAC-centered reference
+- **TIZO location integration** with 20 major cities worldwide
+- **8 MAP commands** for navigation, cell reference, and route calculation
+- **ASCII map generation** with position markers and visualization
+- **IntegratedMapEngine** with 400+ lines of core mapping functionality
+- **Cell reference conversion** using spreadsheet-style A1-RL270 notation
+- **Navigation calculations** with Haversine distance and bearing algorithms
+
+**Key Achievements**: Complete spatial navigation system, <100ms map rendering
+
+### 🖥️ v1.0.4 - Teletext Web Extension
+**Retro visualization with modern web interface**
+- **Teletext mosaic renderer** with 64 2×3 pixel block art combinations
+- **WST color palette** with authentic 8-color teletext styling
+- **Web extension interface** with standalone HTTP server (localhost:8080)
+- **Mobile-responsive design** with touch-optimized controls
+- **Pattern generation algorithms** for dynamic water, terrain, and cities
+- **MAP TELETEXT and MAP WEB commands** for seamless integration
+- **Export functionality** for standalone HTML map files
+
+**Key Achievements**: 450+ lines mosaic renderer, interactive web interface
+
+### 🌐 v1.0.5 - Web Server Infrastructure
+**Universal server management and coordination**
+- **OUTPUT command suite** with LIST, STATUS, START, STOP, HEALTH, RESTART
+- **Centralized server management** for all web extensions
+- **Port conflict resolution** with auto-detection and dynamic assignment
+- **Health monitoring system** with real-time status and percentages
+- **Server lifecycle management** with proper cleanup and error handling
+- **Integration with ServerManager** for unified web extension control
+- **Comprehensive logging** to memory/logs/servers/ for debugging
+
+**Key Achievements**: Production-ready web infrastructure, multi-server coordination
+
+### ⚡ v1.0.6 - CLI Terminal Features
+**Modern intelligent command-line enhancements**
+- **Enhanced command history** with SQLite persistence and fuzzy search
+- **Advanced tab completion** with context-aware suggestions and fuzzy matching
+- **Dynamic color themes** with accessibility and colorblind support
+- **Real-time progress indicators** for long-running operations
+- **Session management** with workspace state persistence and auto-save
+- **Adaptive layouts** responsive to screen size changes
+- **5 new core services** with 7,042 lines of modern CLI infrastructure
+
+**Key Achievements**: 100% integration test coverage, universal accessibility support
+
+[📖 View Complete Development History →](Development-History)
 
 ---
 
@@ -81,6 +196,40 @@ MAP CITIES [cell radius] # List cities globally or regionally
 - **Retro Computing Fans**: Enjoy the 8-bit aesthetic
 - **Terminal Lovers**: Appreciate a well-crafted CLI
 - **Game Developers**: Explore text-based navigation systems
+
+### 👨‍💻 Developers
+- **Contributors**: Follow structured [Dev Rounds Workflow](Dev-Rounds-Workflow)
+- **VS Code Users**: Integrated development environment with power dev mode
+- **Quality Assurance**: Operator checkpoints and automated testing
+
+---
+
+## 🔧 Developer Resources
+
+### Quick Development Setup
+```bash
+# Open the integrated workspace
+code uDOS.code-workspace
+
+# Check virtual environment
+# VS Code Task: "Check Virtual Environment"
+
+# Run core functionality tests
+# VS Code Task: "Shakedown Terminal Core"
+```
+
+### Development Workflow
+- **[Dev Rounds Workflow](Dev-Rounds-Workflow)** - Structured development process with operator checkpoints
+- **[Architecture](Architecture)** - Technical system design and patterns
+- **[Command Reference](Command-Reference)** - Complete API documentation
+- **Power Dev Mode** - Integrated logging, testing, and wiki updates
+
+### Quality Assurance
+Each development round includes:
+- ✅ Automated feature checklists
+- ✅ Operator review checkpoints
+- ✅ Wiki update requirements
+- ✅ Comprehensive testing coverage
 
 ---
 

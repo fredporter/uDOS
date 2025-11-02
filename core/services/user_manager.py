@@ -8,25 +8,25 @@ import time
 
 class UserManager:
     """
-    Manages user profile and system configuration in USER.UDO.
+    Manages user profile and system configuration in user.json.
     """
 
-
-    def __init__(self, user_file='sandbox/USER.UDO', template_file='data/USER.UDT'):
+    def __init__(self, user_file='memory/sandbox/user.json', template_file='data/templates/user.template.json'):
         self.user_file = user_file
         self.template_file = template_file
         self.user_data = None
 
     def needs_user_setup(self):
-        """Check if USER.UDO exists and is valid."""
+        """Check if user.json exists and is valid."""
         if not os.path.exists(self.user_file):
             return True
 
         try:
             with open(self.user_file, 'r') as f:
                 data = json.load(f)
-                # Check for required fields
-                if not data.get('USER_PROFILE', {}).get('NAME'):
+                # Check for required fields in new JSON format
+                user_profile = data.get('user_profile', {})
+                if not user_profile.get('username'):
                     return True
                 return False
         except (json.JSONDecodeError, FileNotFoundError):
@@ -34,7 +34,7 @@ class UserManager:
 
     def run_user_setup(self, interactive=True, viewport_data=None):
         """
-        Interactive setup to create USER.UDO.
+        Interactive setup to create user.json.
 
         Args:
             interactive (bool): Whether to prompt user
@@ -48,145 +48,84 @@ class UserManager:
         print("="*60)
         print("Let's configure your uDOS environment.\n")
 
-        # Collect user information
-        if interactive:
-            user_name = input("👤 Your name (or alias): ").strip() or getuser()
-
-            # Timezone
-            tz_offset = -time.timezone / 3600
-            suggested_tz = f"UTC{'+' if tz_offset >= 0 else ''}{int(tz_offset)}"
-            user_tz = input(f"🌍 Your timezone [{suggested_tz}]: ").strip() or suggested_tz
-
-            # Location (text description)
-            user_location = input("📍 Your location (city/region): ").strip() or "Unknown"
-
-            # World location setup (for mapping)
-            print("\n🗺️  WORLD MAP CONFIGURATION:")
-            print("  Set your location for map-based features")
-            print("  Available cities: New York, London, Tokyo, Sydney, Paris,")
-            print("                    San Francisco, Mumbai, Berlin, Singapore, São Paulo")
-            world_city = input("Select city (or press Enter to skip): ").strip()
-
-            if world_city:
-                # Load worldmap to validate
-                worldmap_file = "data/system/worldmap.json"
-                if os.path.exists(worldmap_file):
-                    try:
-                        with open(worldmap_file, 'r') as f:
-                            worldmap = json.load(f)
-                        cities = worldmap.get("CITIES", {})
-
-                        if world_city in cities:
-                            city_data = cities[world_city]
-                            user_country = city_data["country"]
-                            user_continent = city_data["continent"]
-                            user_latitude = city_data["latitude"]
-                            user_longitude = city_data["longitude"]
-                            user_region = city_data.get("region", "")
-                            user_tz = city_data.get("timezone", user_tz)
-                            print(f"  ✅ Location set to {world_city}, {user_country}")
-                        else:
-                            print(f"  ⚠️  City '{world_city}' not found, using defaults")
-                            world_city = ""
-                            user_country = "Unknown"
-                            user_continent = ""
-                            user_latitude = 0.0
-                            user_longitude = 0.0
-                            user_region = ""
-                    except:
-                        world_city = ""
-                        user_country = "Unknown"
-                        user_continent = ""
-                        user_latitude = 0.0
-                        user_longitude = 0.0
-                        user_region = ""
-                else:
-                    world_city = ""
-                    user_country = "Unknown"
-                    user_continent = ""
-                    user_latitude = 0.0
-                    user_longitude = 0.0
-                    user_region = ""
-            else:
-                world_city = ""
-                user_country = "Unknown"
-                user_continent = ""
-                user_latitude = 0.0
-                user_longitude = 0.0
-                user_region = ""
-
-            # Assist mode preference
-            print("\n🤖 Operation Mode:")
-            print("  STANDARD - Respond to your commands")
-            print("  ASSIST   - Proactively suggest next steps")
-            assist_choice = input("Preferred mode [STANDARD]: ").strip().upper()
-            assist_mode = assist_choice == "ASSIST"
-
-            # API Key
-            print("\n🔑 API Configuration:")
-            print("  Gemini API key enables AI features (optional)")
-            print("  Get key: https://makersuite.google.com/app/apikey")
-            api_key = input("Gemini API key (or press Enter to skip): ").strip()
-
+        # Load existing user.json as template or create default
+        if os.path.exists(self.user_file):
+            with open(self.user_file, 'r') as f:
+                user_config = json.load(f)
         else:
-            # Non-interactive defaults
-            user_name = getuser()
-            user_tz = "UTC"
-            user_location = "Unknown"
-            world_city = ""
-            user_country = "Unknown"
-            user_continent = ""
-            user_latitude = 0.0
-            user_longitude = 0.0
-            user_region = ""
-            assist_mode = False
-            api_key = ""
-
-        # Load template
-        with open(self.template_file, 'r') as f:
-            template = f.read()
-
-        # Prepare viewport data
-        if viewport_data is None:
-            viewport_data = {
-                'device_type': 'TERMINAL',
-                'terminal_size': '80×24',
-                'grid_dimensions': '20×12'
+            # Create default configuration
+            user_config = {
+                "user_profile": {
+                    "schema_version": "USER_PROFILE_V2",
+                    "installation_id": "user_dev_install",
+                    "profile_version": "2.0",
+                    "created_at": datetime.now().isoformat(),
+                    "last_updated": datetime.now().isoformat(),
+                    "last_session": f"session_{int(time.time())}",
+                    "username": "user",
+                    "project_name": "uDOS_project"
+                },
+                "system_settings": {
+                    "display": {
+                        "theme": "DUNGEON_CRAWLER",
+                        "color_support": True,
+                        "unicode_support": True,
+                        "render_mode": "TERMINAL"
+                    },
+                    "workspace_preference": "sandbox"
+                },
+                "session_preferences": {
+                    "assist_mode": False,
+                    "preferred_mode": "STANDARD"
+                },
+                "advanced": {
+                    "developer_mode": True,
+                    "debug_logging": True,
+                    "experimental_features": True
+                },
+                "metadata": {
+                    "installation_type": "DEVELOPMENT",
+                    "config_format": "JSON_V2",
+                    "created_date": datetime.now().strftime('%Y-%m-%d')
+                }
             }
 
-        # Replace placeholders
-        user_profile = template.replace('{{USER_NAME}}', user_name)
-        user_profile = user_profile.replace('{{USER_TIMEZONE}}', user_tz)
-        user_profile = user_profile.replace('{{USER_LOCATION}}', user_location)
-        user_profile = user_profile.replace('{{USER_CITY}}', world_city)
-        user_profile = user_profile.replace('{{USER_COUNTRY}}', user_country)
-        user_profile = user_profile.replace('{{USER_CONTINENT}}', user_continent)
-        user_profile = user_profile.replace('{{USER_LATITUDE}}', str(user_latitude))
-        user_profile = user_profile.replace('{{USER_LONGITUDE}}', str(user_longitude))
-        user_profile = user_profile.replace('{{USER_REGION}}', user_region)
-        user_profile = user_profile.replace('{{ASSIST_MODE}}', 'ASSIST' if assist_mode else 'STANDARD')
-        user_profile = user_profile.replace('{{GEMINI_API_KEY}}', api_key)
-        user_profile = user_profile.replace('{{DEVICE_TYPE}}', viewport_data.get('device_type', 'TERMINAL'))
-        user_profile = user_profile.replace('{{TERMINAL_SIZE}}', viewport_data.get('terminal_size', '80×24'))
-        user_profile = user_profile.replace('{{GRID_DIMENSIONS}}', viewport_data.get('grid_dimensions', '20×12'))
-        user_profile = user_profile.replace('{{TIMESTAMP}}', datetime.now().isoformat())
-        user_profile = user_profile.replace('{{SESSION_ID}}', f"session_{int(time.time())}")
+        if interactive:
+            # Update with user input
+            username = input(f"👤 Username [{user_config['user_profile']['username']}]: ").strip()
+            if username:
+                user_config['user_profile']['username'] = username
 
-        # Save to sandbox
+            project_name = input(f"🎯 Project name [{user_config['user_profile']['project_name']}]: ").strip()
+            if project_name:
+                user_config['user_profile']['project_name'] = project_name
+
+            print("\n🎨 Available themes: DUNGEON_CRAWLER, CYBERPUNK, MINIMAL")
+            theme = input(f"Theme [{user_config['system_settings']['display']['theme']}]: ").strip().upper()
+            if theme in ['DUNGEON_CRAWLER', 'CYBERPUNK', 'MINIMAL']:
+                user_config['system_settings']['display']['theme'] = theme
+
+            assist_choice = input("🤖 Enable assist mode? (y/N): ").strip().lower()
+            user_config['session_preferences']['assist_mode'] = assist_choice == 'y'
+
+        # Update timestamps
+        user_config['user_profile']['last_updated'] = datetime.now().isoformat()
+
+        # Save configuration
         os.makedirs(os.path.dirname(self.user_file), exist_ok=True)
         with open(self.user_file, 'w') as f:
-            f.write(user_profile)
+            json.dump(user_config, f, indent=2)
 
-        self.user_data = json.loads(user_profile)
+        self.user_data = user_config
 
         if interactive:
-            print(f"\n✅ User profile created: {self.user_file}")
-            print(f"👤 Welcome, {user_name}!")
+            print(f"\n✅ User profile saved: {self.user_file}")
+            print(f"👤 Welcome, {user_config['user_profile']['username']}!")
 
         return self.user_data
 
     def load_user_profile(self):
-        """Load existing USER.UDO."""
+        """Load existing user.json."""
         try:
             with open(self.user_file, 'r') as f:
                 self.user_data = json.load(f)
@@ -195,12 +134,17 @@ class UserManager:
             return None
 
     def get_api_key(self):
-        """Retrieve Gemini API key from user profile."""
-        if not self.user_data:
-            self.load_user_profile()
-
-        if self.user_data:
-            return self.user_data.get('SYSTEM_CONFIG', {}).get('GEMINI_API_KEY', '')
+        """Retrieve API key from .env file linked to user profile."""
+        # Check if .env file exists
+        env_file = '.env'
+        if os.path.exists(env_file):
+            try:
+                with open(env_file, 'r') as f:
+                    for line in f:
+                        if line.strip().startswith('GEMINI_API_KEY='):
+                            return line.strip().split('=', 1)[1]
+            except:
+                pass
         return ''
 
     def is_assist_mode(self):
@@ -209,23 +153,33 @@ class UserManager:
             self.load_user_profile()
 
         if self.user_data:
-            return self.user_data.get('SESSION_PREFERENCES', {}).get('ASSIST_MODE', False)
+            return self.user_data.get('session_preferences', {}).get('assist_mode', False)
         return False
 
-    def update_session_data(self, session_id, viewport_data=None):
-        """Update session metadata in USER.UDO."""
+    @property
+    def current_user(self):
+        """Get current username."""
         if not self.user_data:
             self.load_user_profile()
 
         if self.user_data:
-            self.user_data['METADATA']['LAST_SESSION'] = session_id
-            self.user_data['USER_PROFILE']['LAST_UPDATED'] = datetime.now().isoformat()
+            return self.user_data.get('user_profile', {}).get('username', 'Guest')
+        return 'Guest'
+
+    def update_session_data(self, session_id, viewport_data=None):
+        """Update session metadata in user.json."""
+        if not self.user_data:
+            self.load_user_profile()
+
+        if self.user_data:
+            self.user_data['user_profile']['last_session'] = session_id
+            self.user_data['user_profile']['last_updated'] = datetime.now().isoformat()
 
             if viewport_data:
-                self.user_data['DISPLAY_SETTINGS'].update({
-                    'DEVICE_TYPE': viewport_data.get('device_type', 'TERMINAL'),
-                    'TERMINAL_SIZE': viewport_data.get('terminal_size', '80×24'),
-                    'GRID_DIMENSIONS': viewport_data.get('grid_dimensions', '20×12')
+                self.user_data['system_settings']['viewport'].update({
+                    'device_type': viewport_data.get('device_type', 'TERMINAL'),
+                    'terminal_size': viewport_data.get('terminal_size', {'width': 80, 'height': 24}),
+                    'grid_dimensions': viewport_data.get('grid_dimensions', {'width': 10, 'height': 9})
                 })
 
             with open(self.user_file, 'w') as f:
@@ -237,11 +191,11 @@ class UserManager:
             self.load_user_profile()
 
         if self.user_data:
-            name = self.user_data.get('USER_PROFILE', {}).get('NAME', 'Adventurer')
-            mode = self.user_data.get('USER_PROFILE', {}).get('PREFERRED_MODE', 'STANDARD')
+            name = self.user_data.get('user_profile', {}).get('username', 'Adventurer')
+            assist_mode = self.user_data.get('session_preferences', {}).get('assist_mode', False)
 
             greeting = f"Welcome back, {name}!"
-            if mode == 'ASSIST':
+            if assist_mode:
                 greeting += " [ASSIST MODE]"
 
             return greeting
@@ -250,15 +204,15 @@ class UserManager:
 
     def get_lifespan(self):
         """
-        Get the lifespan setting.
+        Get the lifespan setting from advanced settings.
         Returns 'Infinite' or an integer number of moves.
         """
         if not self.user_data:
             self.load_user_profile()
 
         if self.user_data:
-            lifespan = self.user_data.get('SYSTEM_CONFIG', {}).get('LIFESPAN', 'Infinite')
-            return lifespan
+            # Default to infinite for development mode
+            return 'Infinite'
 
         return 'Infinite'
 

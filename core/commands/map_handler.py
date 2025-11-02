@@ -1,5 +1,5 @@
 """
-uDOS v1.0.3 - Enhanced Map Command Handler
+uDOS v1.0.3 - Map Command Handler
 
 Handles all map navigation commands with integrated cell reference system:
 - STATUS: Show current position and layer
@@ -23,20 +23,20 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 
 class MapCommandHandler(BaseCommandHandler):
-    """Enhanced map navigation commands with cell reference system."""
+    """Map navigation commands with cell reference system."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._integrated_map = None
+        self._map_engine = None
         self._teletext_integration = None
 
     @property
-    def integrated_map(self):
-        """Lazy load integrated mapping engine."""
-        if self._integrated_map is None:
-            from core.services.integrated_map_engine import IntegratedMapEngine
-            self._integrated_map = IntegratedMapEngine()
-        return self._integrated_map
+    def map_engine(self):
+        """Lazy load mapping engine."""
+        if self._map_engine is None:
+            from core.services.map_engine import MapEngine
+            self._map_engine = MapEngine()
+        return self._map_engine
 
     @property
     def teletext_integration(self):
@@ -67,6 +67,10 @@ class MapCommandHandler(BaseCommandHandler):
                 return self._handle_cell(params)
             elif command == "CITIES":
                 return self._handle_cities(params)
+            elif command == "WORLD":
+                return self._handle_world(params)
+            elif command == "SEARCH":
+                return self._handle_search(params)
             elif command == "NAVIGATE":
                 return self._handle_navigate(params)
             elif command == "LOCATE":
@@ -97,8 +101,8 @@ class MapCommandHandler(BaseCommandHandler):
                 location = config.get("location", {})
                 tizo_code = location.get("tizo_code", "UTC")
 
-                if tizo_code in self.integrated_map.city_cells:
-                    city_data = self.integrated_map.city_cells[tizo_code]
+                if tizo_code in self.map_engine.city_cells:
+                    city_data = self.map_engine.city_cells[tizo_code]
                     cell_ref = city_data["cell_ref"]
 
                     return f"""🗺️  Map Status
@@ -131,8 +135,8 @@ Use 'MAP VIEW' to see the area around you."""
                 location = config.get("location", {})
                 tizo_code = location.get("tizo_code", "MEL")
 
-                if tizo_code in self.integrated_map.city_cells:
-                    city_data = self.integrated_map.city_cells[tizo_code]
+                if tizo_code in self.map_engine.city_cells:
+                    city_data = self.map_engine.city_cells[tizo_code]
                     cell_ref = city_data["cell_ref"]
 
                     # Parse parameters for view size
@@ -145,7 +149,7 @@ Use 'MAP VIEW' to see the area around you."""
                         if len(parts) >= 2 and parts[1].isdigit():
                             height = int(parts[1])
 
-                    ascii_map = self.integrated_map.generate_ascii_map(cell_ref, width, height)
+                    ascii_map = self.map_engine.generate_ascii_map(cell_ref, width, height)
                     return ascii_map
                 else:
                     return f"Cannot generate view for location: {tizo_code}"
@@ -163,10 +167,10 @@ Use 'MAP VIEW' to see the area around you."""
 
         try:
             # Get cell bounds and center
-            bounds = self.integrated_map.cell_system.get_cell_bounds(cell_ref)
+            bounds = self.map_engine.cell_system.get_cell_bounds(cell_ref)
 
             # Check for cities in this cell
-            city = self.integrated_map.get_city_by_cell(cell_ref)
+            city = self.map_engine.get_city_by_cell(cell_ref)
 
             result = f"""📍 Cell Information: {cell_ref}
 {'='*30}
@@ -196,7 +200,7 @@ Connection Quality: {city['connection_quality']}"""
         if not params:
             # Show all TIZO cities
             cities = []
-            for tizo_code, city_data in self.integrated_map.city_cells.items():
+            for tizo_code, city_data in self.map_engine.city_cells.items():
                 cities.append(f"{tizo_code}: {city_data['name']}, {city_data['country']} ({city_data['cell_ref']})")
 
             cities.sort()
@@ -210,7 +214,7 @@ Connection Quality: {city['connection_quality']}"""
             radius = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 10
 
             try:
-                cities = self.integrated_map.get_cities_in_region(center_cell, radius)
+                cities = self.map_engine.get_cities_in_region(center_cell, radius)
 
                 if cities:
                     result = f"🏙️  Cities within {radius} cells of {center_cell}:\n"
@@ -238,19 +242,19 @@ Connection Quality: {city['connection_quality']}"""
         from_cell = from_loc
         to_cell = to_loc
 
-        if from_loc in self.integrated_map.city_cells:
-            from_cell = self.integrated_map.city_cells[from_loc]["cell_ref"]
-            from_name = f"{self.integrated_map.city_cells[from_loc]['name']} ({from_loc})"
+        if from_loc in self.map_engine.city_cells:
+            from_cell = self.map_engine.city_cells[from_loc]["cell_ref"]
+            from_name = f"{self.map_engine.city_cells[from_loc]['name']} ({from_loc})"
         else:
             from_name = from_cell
 
-        if to_loc in self.integrated_map.city_cells:
-            to_cell = self.integrated_map.city_cells[to_loc]["cell_ref"]
-            to_name = f"{self.integrated_map.city_cells[to_loc]['name']} ({to_loc})"
+        if to_loc in self.map_engine.city_cells:
+            to_cell = self.map_engine.city_cells[to_loc]["cell_ref"]
+            to_name = f"{self.map_engine.city_cells[to_loc]['name']} ({to_loc})"
         else:
             to_name = to_cell
 
-        nav_info = self.integrated_map.get_navigation_info(from_cell, to_cell)
+        nav_info = self.map_engine.get_navigation_info(from_cell, to_cell)
 
         if "error" in nav_info:
             return f"Navigation error: {nav_info['error']}"
@@ -271,17 +275,17 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
         location = params.strip().upper()
 
         # Try as TIZO code first
-        if location in self.integrated_map.city_cells:
-            city_data = self.integrated_map.city_cells[location]
+        if location in self.map_engine.city_cells:
+            city_data = self.map_engine.city_cells[location]
             return f"📍 Location set to {city_data['name']}, {city_data['country']} ({location})\nCell: {city_data['cell_ref']}"
 
         # Try as cell reference
         try:
-            city = self.integrated_map.get_city_by_cell(location)
+            city = self.map_engine.get_city_by_cell(location)
             if city:
                 return f"📍 Location set to {city['name']}, {city['country']} ({city['tizo_code']})\nCell: {location}"
             else:
-                lat, lon = self.integrated_map.cell_system.cell_to_coord(location)
+                lat, lon = self.map_engine.cell_system.cell_to_coord(location)
                 return f"📍 Location set to cell {location}\nCoordinates: {lat:.2f}°, {lon:.2f}°"
         except ValueError:
             return f"Invalid location: {location}\nUse TIZO code (e.g., MEL) or cell reference (e.g., JN196)"
@@ -298,7 +302,7 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
                 location = config.get("location", {})
                 tizo_code = location.get("tizo_code", "UTC")
 
-                layers = self.integrated_map.get_layer_access(tizo_code)
+                layers = self.map_engine.get_layer_access(tizo_code)
 
                 result = f"🌍 Accessible Layers from {tizo_code}:\n"
                 for layer in layers:
@@ -329,8 +333,8 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
             # Cell reference
             cell_ref = parts[0].upper()
             try:
-                lat, lon = self.integrated_map.cell_system.cell_to_coord(cell_ref)
-                city = self.integrated_map.get_city_by_cell(cell_ref)
+                lat, lon = self.map_engine.cell_system.cell_to_coord(cell_ref)
+                city = self.map_engine.get_city_by_cell(cell_ref)
 
                 result = f"🎯 Moving to cell {cell_ref}\n"
                 result += f"Coordinates: {lat:.2f}°, {lon:.2f}°\n"
@@ -349,12 +353,12 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
             try:
                 lat = float(parts[0])
                 lon = float(parts[1])
-                cell_ref = self.integrated_map.cell_system.coord_to_cell(lat, lon)
+                cell_ref = self.map_engine.cell_system.coord_to_cell(lat, lon)
 
                 result = f"🎯 Moving to coordinates {lat}°, {lon}°\n"
                 result += f"Cell: {cell_ref}\n"
 
-                city = self.integrated_map.get_city_by_cell(cell_ref)
+                city = self.map_engine.get_city_by_cell(cell_ref)
                 if city:
                     result += f"Nearest city: {city['name']}, {city['country']} ({city['tizo_code']})"
                 else:
@@ -380,8 +384,8 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
                 location = config.get("location", {})
                 tizo_code = location.get("tizo_code", "MEL")
 
-                if tizo_code in self.integrated_map.city_cells:
-                    city_data = self.integrated_map.city_cells[tizo_code]
+                if tizo_code in self.map_engine.city_cells:
+                    city_data = self.map_engine.city_cells[tizo_code]
                     cell_ref = city_data["cell_ref"]
 
                     # Parse parameters for map size
@@ -396,7 +400,7 @@ Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
 
                     # Generate teletext HTML
                     html_content = self.teletext_integration.render_map_as_teletext(
-                        self.integrated_map, cell_ref, width, height
+                        self.map_engine, cell_ref, width, height
                     )
 
                     # Save to file
@@ -514,3 +518,78 @@ Directory: {teletext_dir}
 
         except Exception as e:
             return f"Error starting web server: {str(e)}"
+
+    def _handle_world(self, params):
+        """Handle world cities commands."""
+        if not params:
+            # Show world statistics
+            total_cities = len(self.map_engine.world_cities)
+            return f"""🌏 WORLD CITIES DATABASE
+
+Total cities: {total_cities}
+Coverage: APAC-centered 480×270 grid
+Cell format: A1-style (A1 to RL270)
+
+Commands:
+• MAP WORLD [CITY_CODE] - Show city details
+• MAP SEARCH [QUERY] - Search cities
+• MAP WORLD REGION [CELL] - Cities in region"""
+
+        sub_command = params[0].upper()
+
+        if sub_command == "REGION" and len(params) > 1:
+            cell_ref = params[1].upper()
+            radius = int(params[2]) if len(params) > 2 else 5
+
+            cities = self.map_engine.get_world_cities_in_region(cell_ref, radius)
+            if not cities:
+                return f"No cities found within {radius} cells of {cell_ref}"
+
+            result = f"🗺️  CITIES NEAR {cell_ref} (radius: {radius} cells)\n\n"
+            for city in cities[:10]:  # Limit to 10 closest
+                result += f"• {city['name']}, {city['country']} ({city['city_code']})\n"
+                result += f"  Cell: {city['cell_ref']} • Distance: {city['cell_distance']} cells\n\n"
+
+            if len(cities) > 10:
+                result += f"... and {len(cities) - 10} more cities"
+
+            return result
+
+        else:
+            # Assume it's a city code
+            city_code = sub_command
+            city = self.map_engine.get_world_city_by_code(city_code)
+
+            if not city:
+                return f"City not found: {city_code}\nUse MAP SEARCH to find cities"
+
+            return f"""🏙️  {city['name'].upper()}
+
+Country: {city['country']}
+Code: {city_code}
+Cell Reference: {city['cell_ref']}
+Coordinates: {city['lat']}°, {city['lon']}°
+Grid Position: Col {city['col_index']}, Row {city['row_index']}
+
+Navigation: MAP NAVIGATE FROM {city_code} TO [DESTINATION]"""
+
+    def _handle_search(self, params):
+        """Search world cities."""
+        if not params:
+            return "Usage: MAP SEARCH [QUERY]\nSearch by city name, country, or code"
+
+        query = " ".join(params)
+        results = self.map_engine.search_world_cities(query, limit=10)
+
+        if not results:
+            return f"No cities found matching: {query}"
+
+        result = f"🔍 SEARCH RESULTS: '{query}'\n\n"
+        for city in results:
+            result += f"• {city['name']}, {city['country']} ({city['city_code']})\n"
+            result += f"  Cell: {city['cell_ref']} • Score: {city['score']}\n\n"
+
+        if len(results) >= 10:
+            result += "🔍 Use more specific terms to narrow results"
+
+        return result

@@ -8,14 +8,84 @@ Complete guide to all uDOS commands
 
 | Category | Commands |
 |:---------|:---------|
-| **File Operations** | [CATALOG](#catalog), [LOAD](#load), [SAVE](#save), [EDIT](#edit) |
+| **File Operations** | [CATALOG](#catalog), [LOAD](#load), [SAVE](#save), [EDIT](#edit), [FILE PICK](#file-pick), [FILE RECENT](#file-recent), [FILE BATCH](#file-batch), [FILE BOOKMARKS](#file-bookmarks), [FILE PREVIEW](#file-preview), [FILE INFO](#file-info) |
+| **Knowledge Base** | [KNOWLEDGE SEARCH](#knowledge-search), [KNOWLEDGE LIST](#knowledge-list), [KNOWLEDGE SHOW](#knowledge-show), [KNOWLEDGE INDEX](#knowledge-index), [KNOWLEDGE STATS](#knowledge-stats), [KNOWLEDGE CATEGORIES](#knowledge-categories) |
 | **Grid Management** | [GRID PANEL CREATE](#grid-panel-create), [GRID PANELS LIST](#grid-panels-list), [SHOW](#show) |
 | **AI & Analysis** | [ASK](#ask), [ANALYZE](#analyze) |
 | **Automation** | [RUN](#run) |
 | **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
 | **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |
+| **CLI Features** | [HISTORY](#history), [THEME](#theme), [SESSION](#session), [PROGRESS](#progress), [LAYOUT](#layout) |
 | **Navigation** | [MAP](#map), [GOTO](#goto), [MOVE](#move), [LAYER](#layer), [DESCEND](#descend), [ASCEND](#ascend) |
 | **Utilities** | [HELP](#help), [CLS](#cls), [SETUP](#setup) |
+
+---
+
+## Command Evolution by Version
+
+uDOS commands have been developed across six major releases, each adding core functionality:
+
+### 🧪 v1.0.1 - System Commands Foundation (13 commands)
+**SYSTEM category commands** - Core infrastructure and diagnostics
+- **HELP**: Interactive command search and categorization
+- **DASHBOARD**: CLI and WEB modes for system overview
+- **REPAIR**: 5 diagnostic modes with auto-fix capabilities
+- **PALETTE**: Visual color tests and grayscale gradients
+- **TREE**: Repository structure visualization
+- **STATUS, VIEWPORT, REBOOT**: System state management
+
+### 📁 v1.0.2 - Configuration & Modular Foundation
+**Enhanced system management** - Configuration and character systems
+- Refactored user configuration from USER.UDO to user.json + .env
+- TIZO location system with 20 global cities
+- Theme standardization with v1.0.2 schema
+- Character/Object system with NetHack-style RPG mechanics
+
+### 🗺️ v1.0.3 - Integrated Mapping System (8 MAP commands)
+**Spatial navigation and reference** - Complete mapping infrastructure
+- **MAP STATUS, MAP CELL, MAP ROUTE**: Navigation and cell reference
+- **MAP ASCII, MAP TIZO**: Visualization and location integration
+- **MAP TELETEXT, MAP WEB**: Rendering modes for different outputs
+- Global 480×270 cell grid with spreadsheet-style A1-RL270 notation
+
+### 🖥️ v1.0.4 - Teletext Web Extension
+**Retro visualization** - Mosaic art and web interface integration
+- Enhanced MAP commands with teletext mosaic rendering
+- WST color palette with authentic 8-color teletext styling
+- Web extension interface with mobile-responsive design
+
+### 🌐 v1.0.5 - Web Server Infrastructure (OUTPUT commands)
+**Server management** - Universal web extension coordination
+- **OUTPUT LIST, STATUS, START, STOP**: Server lifecycle management
+- **OUTPUT HEALTH, RESTART**: Monitoring and recovery systems
+- Centralized server management with port conflict resolution
+
+### ⚡ v1.0.6 - CLI Terminal Features (5 command categories)
+**Modern command-line** - Intelligent shell enhancements
+- **HISTORY**: SQLite persistence with fuzzy search capabilities
+- **THEME**: Dynamic color themes with accessibility support
+- **SESSION**: Workspace state persistence and auto-save
+- **PROGRESS**: Real-time indicators for long-running operations
+- **LAYOUT**: Adaptive layouts responsive to screen size changes
+
+### 📁 v1.0.7 - Advanced File Operations (6 FILE commands)
+**Professional file management** - Smart search, bookmarks, and batch operations
+- **FILE PICK**: Interactive file picker with fuzzy search and relevance scoring
+- **FILE RECENT**: Recently accessed files with SQLite-based access tracking
+- **FILE BATCH**: Batch operations (DELETE, COPY, MOVE) with pattern matching
+- **FILE BOOKMARKS**: Persistent bookmarks with tags and custom names
+- **FILE PREVIEW**: Content preview with metadata and git status integration
+- **FILE INFO**: Comprehensive file information with usage statistics
+
+### 📚 v1.0.8 - Knowledge System Integration (6 KNOWLEDGE commands)
+**Offline-first knowledge base** - AI integration with local documentation
+- **KNOWLEDGE SEARCH**: Full-text search with BM25 ranking using SQLite FTS5
+- **KNOWLEDGE LIST**: Browse by categories and topics with auto-organization
+- **KNOWLEDGE SHOW**: Display full content with grid panel integration
+- **KNOWLEDGE INDEX**: Manual reindexing with change detection and statistics
+- **KNOWLEDGE STATS**: Comprehensive knowledge base metrics and analytics
+- **KNOWLEDGE CATEGORIES**: Category management with word count breakdowns
+- **Enhanced ASK**: Local knowledge integration with context-aware AI responses
 
 ---
 
@@ -150,6 +220,513 @@ EDIT "<file>"
 - Returns to uDOS after closing
 
 **uCODE**: `[SYSTEM|EDIT*<file>]`
+
+---
+
+### FILE PICK
+
+**Purpose**: Interactive file picker with fuzzy search
+
+**Syntax**:
+```
+FILE PICK [pattern]
+```
+
+**Parameters**:
+- `pattern` (optional) - Search pattern for filtering files
+
+**Examples**:
+```
+🔮 > FILE PICK
+🔮 > FILE PICK readme
+🔮 > FILE PICK .py
+```
+
+**Output**:
+```
+📁 File Picker - Found 15 files (relevance 0.8+)
+1. README.MD (1.0) - 5.2KB, modified 2h ago ✓
+2. readme.txt (0.9) - 1.1KB, modified 1d ago
+3. READBOOK.md (0.8) - 3.4KB, modified 3d ago
+Select file (1-15): 1
+✅ Selected: README.MD
+```
+
+**Features**:
+- Fuzzy search with relevance scoring
+- Git status integration (✓ = tracked)
+- File type classification and size display
+- Automatic access tracking for recent files
+
+**uCODE**: `[FILE|PICK*<pattern>]`
+
+---
+
+### FILE RECENT
+
+**Purpose**: Display recently accessed files
+
+**Syntax**:
+```
+FILE RECENT [count] [workspace]
+```
+
+**Parameters**:
+- `count` (optional) - Number of files to show (default: 20)
+- `workspace` (optional) - Filter by workspace
+
+**Examples**:
+```
+🔮 > FILE RECENT
+🔮 > FILE RECENT 10
+🔮 > FILE RECENT sandbox 5
+```
+
+**Output**:
+```
+📊 Recent Files (last 20)
+1. README.MD (accessed 3 times, last: 15m ago)
+2. config.json (accessed 7 times, last: 1h ago)
+3. script.py (accessed 2 times, last: 3h ago)
+```
+
+**Features**:
+- SQLite persistence for access history
+- Access frequency counting
+- Workspace filtering available
+- File existence verification
+
+**uCODE**: `[FILE|RECENT*<count>*<workspace>]`
+
+---
+
+### FILE BATCH
+
+**Purpose**: Batch operations on multiple files
+
+**Syntax**:
+```
+FILE BATCH [DELETE|COPY|MOVE] <pattern> [destination]
+```
+
+**Parameters**:
+- `operation` (required) - DELETE, COPY, or MOVE
+- `pattern` (required) - File pattern or search term
+- `destination` (optional) - Target directory for COPY/MOVE
+
+**Examples**:
+```
+🔮 > FILE BATCH DELETE *.tmp
+🔮 > FILE BATCH COPY *.md backup/
+🔮 > FILE BATCH MOVE test* archive/
+```
+
+**Output**:
+```
+🔍 Found 5 files matching '*.tmp'
+⚠️  DELETE operation will permanently remove files
+Continue? (y/N): y
+✅ Deleted 5 files successfully
+```
+
+**Features**:
+- Pattern matching with fuzzy search
+- Safety confirmations for destructive operations
+- Progress tracking for large operations
+- Detailed error reporting
+
+**uCODE**: `[FILE|BATCH*<operation>*<pattern>*<destination>]`
+
+---
+
+### FILE BOOKMARKS
+
+**Purpose**: Manage persistent file bookmarks
+
+**Syntax**:
+```
+FILE BOOKMARKS [ADD|REMOVE] [filename]
+```
+
+**Parameters**:
+- `action` (optional) - ADD or REMOVE bookmark
+- `filename` (optional) - File to bookmark/unbookmark
+
+**Examples**:
+```
+🔮 > FILE BOOKMARKS
+🔮 > FILE BOOKMARKS ADD README.MD
+🔮 > FILE BOOKMARKS REMOVE config
+```
+
+**Output**:
+```
+📚 File Bookmarks (3 total)
+1. 🔖 README.MD - Project documentation
+2. 🔖 config.json - System configuration
+3. 🔖 startup.sh - Launch script
+```
+
+**Features**:
+- SQLite persistence for bookmarks
+- Custom bookmark names and tags
+- File existence verification
+- Interactive add/remove operations
+
+**uCODE**: `[FILE|BOOKMARKS*<action>*<filename>]`
+
+---
+
+### FILE PREVIEW
+
+**Purpose**: Preview file content with metadata
+
+**Syntax**:
+```
+FILE PREVIEW <filename>
+```
+
+**Parameters**:
+- `filename` (required) - File to preview
+
+**Examples**:
+```
+🔮 > FILE PREVIEW README.MD
+🔮 > FILE PREVIEW config.json
+```
+
+**Output**:
+```
+📄 README.MD (5.2KB, modified 2h ago) ✓
+─────────────────────────────────────
+# uDOS Project
+
+This is the main documentation for...
+[Content preview - first 20 lines]
+─────────────────────────────────────
+📊 361 lines, 15,432 chars, 2,847 words
+```
+
+**Features**:
+- Content preview for text files (first 20 lines)
+- File metadata and git status integration
+- Text statistics for text files
+- Binary file detection and safe handling
+
+**uCODE**: `[FILE|PREVIEW*<filename>]`
+
+---
+
+### FILE INFO
+
+**Purpose**: Comprehensive file information and statistics
+
+**Syntax**:
+```
+FILE INFO <filename>
+```
+
+**Parameters**:
+- `filename` (required) - File to analyze
+
+**Examples**:
+```
+🔮 > FILE INFO README.MD
+🔮 > FILE INFO script.py
+```
+
+**Output**:
+```
+📋 File Information: README.MD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 Location: /Users/user/project/README.MD
+📏 Size: 5.2KB (5,247 bytes)
+📅 Created: Nov 1, 2025 14:23:45
+📝 Modified: Nov 2, 2025 09:15:32
+👁️  Accessed: Nov 2, 2025 11:30:22
+📊 Content: 361 lines, 15,432 chars, 2,847 words
+🔖 Bookmarked: Yes (added 2d ago)
+📈 Access History: 8 times (last: 15m ago)
+💡 Suggested: EDIT, LOAD TO panel, BOOKMARKS
+```
+
+**Features**:
+- Complete file metadata and timestamps
+- Text analysis for readable files
+- Access history from tracking database
+- Bookmark status and git integration
+- Contextual command suggestions
+
+**uCODE**: `[FILE|INFO*<filename>]`
+
+---
+
+## Knowledge Base
+
+### KNOWLEDGE SEARCH
+
+**Purpose**: Full-text search of knowledge base
+
+**Syntax**:
+```
+KNOWLEDGE SEARCH <query> [category] [limit]
+```
+
+**Parameters**:
+- `query` (required) - Search terms
+- `category` (optional) - Limit to specific category
+- `limit` (optional) - Maximum results (default: 10)
+
+**Examples**:
+```
+🔮 > KNOWLEDGE SEARCH "ASK command"
+🔮 > KNOWLEDGE SEARCH mapping commands 5
+🔮 > KNOWLEDGE SEARCH python concepts
+```
+
+**Output**:
+```
+🔍 Knowledge Search: "ASK command" (3 results)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. ASK Command Reference (commands) - Score: 0.95
+   📄 Complete guide to ASK command with AI integration
+   🏷️  #command #AI #help #assistant
+
+2. Command Architecture (concepts) - Score: 0.82
+   📄 Handler patterns and command routing
+   🏷️  #architecture #development #patterns
+
+3. FAQ: Common Questions (faq) - Score: 0.71
+   📄 Frequently asked questions about commands
+   🏷️  #help #troubleshooting #guide
+```
+
+**Features**:
+- BM25 relevance scoring with SQLite FTS5
+- Category filtering for focused searches
+- Tag-based content organization
+- Fuzzy matching for typos and partial terms
+
+**uCODE**: `[KNOWLEDGE|SEARCH*<query>*<category>*<limit>]`
+
+---
+
+### KNOWLEDGE LIST
+
+**Purpose**: Browse knowledge by categories and topics
+
+**Syntax**:
+```
+KNOWLEDGE LIST [category]
+```
+
+**Parameters**:
+- `category` (optional) - Specific category to list
+
+**Examples**:
+```
+🔮 > KNOWLEDGE LIST
+🔮 > KNOWLEDGE LIST commands
+🔮 > KNOWLEDGE LIST concepts
+```
+
+**Output**:
+```
+📚 Knowledge Categories (3 total, 2,847 words)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 commands (3 items, 1,234 words)
+   • ASK Command Reference - AI assistance guide
+   • MAP Command Reference - Navigation and mapping
+   • SYSTEM Command Reference - System management
+
+📂 concepts (1 item, 987 words)
+   • Command Architecture - Handler patterns and design
+
+📂 faq (2 items, 626 words)
+   • Common Questions - Troubleshooting guide
+   • Getting Started - Quick start tutorial
+```
+
+**Features**:
+- Hierarchical category organization
+- Word count statistics per category
+- Auto-organization by folder structure
+- Quick navigation to content
+
+**uCODE**: `[KNOWLEDGE|LIST*<category>]`
+
+---
+
+### KNOWLEDGE SHOW
+
+**Purpose**: Display full knowledge content
+
+**Syntax**:
+```
+KNOWLEDGE SHOW <title|path>
+```
+
+**Parameters**:
+- `title|path` (required) - Knowledge item title or file path
+
+**Examples**:
+```
+🔮 > KNOWLEDGE SHOW "ASK Command Reference"
+🔮 > KNOWLEDGE SHOW commands/MAP.md
+```
+
+**Output**:
+```
+📖 ASK Command Reference (commands)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Full content displayed in panel]
+
+# ASK Command Reference
+
+The ASK command provides AI-powered assistance...
+[Complete document content]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 1,234 words | 🏷️  #command #AI #help #assistant
+💡 Try: KNOWLEDGE SEARCH related topics
+```
+
+**Features**:
+- Full content display with panel integration
+- Rich formatting preservation
+- Metadata and tag display
+- Related content suggestions
+
+**uCODE**: `[KNOWLEDGE|SHOW*<title>]`
+
+---
+
+### KNOWLEDGE INDEX
+
+**Purpose**: Reindex knowledge base with change detection
+
+**Syntax**:
+```
+KNOWLEDGE INDEX [--force]
+```
+
+**Parameters**:
+- `--force` (optional) - Force complete reindexing
+
+**Examples**:
+```
+🔮 > KNOWLEDGE INDEX
+🔮 > KNOWLEDGE INDEX --force
+```
+
+**Output**:
+```
+🔄 Indexing Knowledge Base...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 Scanning knowledge/ directory...
+✅ commands/ASK.md - Updated (checksum changed)
+✅ commands/MAP.md - No changes
+✅ concepts/command-architecture.md - New file
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Indexing complete: 6 files, 2,847 words total
+⚡ Full-text search ready (SQLite FTS5)
+```
+
+**Features**:
+- Automatic change detection with checksums
+- Incremental updates for efficiency
+- Force reindex option for complete refresh
+- Progress reporting with file status
+
+**uCODE**: `[KNOWLEDGE|INDEX*<force>]`
+
+---
+
+### KNOWLEDGE STATS
+
+**Purpose**: Knowledge base metrics and analytics
+
+**Syntax**:
+```
+KNOWLEDGE STATS
+```
+
+**Examples**:
+```
+🔮 > KNOWLEDGE STATS
+```
+
+**Output**:
+```
+📊 Knowledge Base Statistics
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 Content Overview
+   • Total Items: 6 files
+   • Total Words: 2,847 words
+   • Total Size: 47.3KB
+   • Last Updated: 2h ago
+
+📂 Category Breakdown
+   • commands: 3 items (43.4%) - 1,234 words
+   • concepts: 1 item (16.7%) - 987 words
+   • faq: 2 items (33.3%) - 626 words
+
+🔍 Search Performance
+   • Database Size: 234KB
+   • FTS Index: Optimized
+   • Average Query Time: <10ms
+   • Total Searches: 47 queries
+```
+
+**Features**:
+- Comprehensive content metrics
+- Category distribution analysis
+- Search performance statistics
+- Visual percentage breakdowns
+
+**uCODE**: `[KNOWLEDGE|STATS]`
+
+---
+
+### KNOWLEDGE CATEGORIES
+
+**Purpose**: Category management and overview
+
+**Syntax**:
+```
+KNOWLEDGE CATEGORIES
+```
+
+**Examples**:
+```
+🔮 > KNOWLEDGE CATEGORIES
+```
+
+**Output**:
+```
+📂 Knowledge Categories Overview
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. commands (3 items) ████████████░░░░ 43.4%
+   📖 Command references and usage guides
+   🔍 Most Recent: ASK Command Reference (updated 2h ago)
+
+2. concepts (1 item) ██████░░░░░░░░░░ 16.7%
+   📖 System architecture and design patterns
+   🔍 Most Recent: Command Architecture (updated 1d ago)
+
+3. faq (2 items) ████████░░░░░░░░ 33.3%
+   📖 Frequently asked questions and troubleshooting
+   🔍 Most Recent: Common Questions (updated 3d ago)
+
+💡 Try: KNOWLEDGE LIST <category> to browse content
+```
+
+**Features**:
+- Visual category distribution with progress bars
+- Recent activity tracking per category
+- Category descriptions and purposes
+- Navigation suggestions for browsing
+
+**uCODE**: `[KNOWLEDGE|CATEGORIES]`
 
 ---
 
@@ -1055,6 +1632,326 @@ ASCEND
 ```
 
 **uCODE**: `[MAP|ASCEND]`
+
+---
+
+## CLI Features (v1.0.6+)
+
+### HISTORY
+
+**Purpose**: Enhanced command history management with SQLite persistence and intelligent search
+
+**Syntax**:
+```
+HISTORY LIST [count]
+HISTORY SEARCH <term>
+HISTORY STATS
+HISTORY CLEAR
+HISTORY EXPORT <file>
+```
+
+**Parameters**:
+- `count` (optional) - Number of recent commands to show (default: 10)
+- `term` - Search term for fuzzy matching
+- `file` - Export filename (JSON format)
+
+**Examples**:
+```
+🔮 > HISTORY LIST
+🔮 > HISTORY LIST 20
+🔮 > HISTORY SEARCH file
+🔮 > HISTORY SEARCH map
+🔮 > HISTORY STATS
+🔮 > HISTORY CLEAR
+🔮 > HISTORY EXPORT backup.json
+```
+
+**Features**:
+- **SQLite persistence** - Commands survive restarts
+- **Fuzzy search** with relevance scoring
+- **Usage statistics** and frequency tracking
+- **Smart deduplication** - No repeated commands within 5 minutes
+- **JSON export** for backup and sharing
+
+**Output Examples**:
+```
+📜 Command History (Last 10):
+  1. MAP GOTO TOKYO
+  2. THEME SET cyberpunk
+  3. LOAD "data.txt"
+  4. HISTORY SEARCH file
+
+🔍 Search results for "file":
+  1. FILE SEARCH *.py
+  2. LOAD "myfile.txt"
+  3. SAVE "output.json"
+
+📊 Usage Statistics:
+  Total commands: 147
+  Unique commands: 89
+  Most used: MAP (23 times)
+```
+
+---
+
+### THEME
+
+**Purpose**: Dynamic color theme management with accessibility support
+
+**Syntax**:
+```
+THEME LIST
+THEME SET <name>
+THEME INFO
+THEME ACCESSIBILITY ON|OFF
+THEME CONTRAST ON|OFF
+THEME COLORBLIND <type>
+THEME CREATE <name>
+```
+
+**Parameters**:
+- `name` - Theme name (classic, cyberpunk, accessibility, monochrome)
+- `type` - Colorblind type (deuteranopia, protanopia, tritanopia)
+
+**Examples**:
+```
+🔮 > THEME LIST
+🔮 > THEME SET cyberpunk
+🔮 > THEME SET accessibility
+🔮 > THEME INFO
+🔮 > THEME ACCESSIBILITY ON
+🔮 > THEME CONTRAST ON
+🔮 > THEME COLORBLIND deuteranopia
+🔮 > THEME CREATE mytheme
+```
+
+**Available Themes**:
+- **classic** - Traditional terminal colors
+- **cyberpunk** - Neon-inspired futuristic theme
+- **accessibility** - High contrast, accessible colors
+- **monochrome** - Black and white for maximum compatibility
+
+**Accessibility Features**:
+- **High contrast mode** for enhanced visibility
+- **Colorblind support** for deuteranopia, protanopia, tritanopia
+- **Screen reader optimization** with accessible formatting
+- **Custom theme creation** for personal preferences
+
+**Output Examples**:
+```
+🎨 Available Themes:
+  • classic (active)
+  • cyberpunk
+  • accessibility
+  • monochrome
+
+🎨 Current Theme: cyberpunk
+  Primary: #00ff41
+  Secondary: #ff00ff
+  Accent: #ffff00
+  Background: #000000
+  Accessibility: OFF
+```
+
+---
+
+### SESSION
+
+**Purpose**: Workspace state persistence with save/restore functionality
+
+**Syntax**:
+```
+SESSION LIST
+SESSION SAVE [name] [description]
+SESSION LOAD <id>
+SESSION DELETE <id>
+SESSION CURRENT
+SESSION AUTO ON|OFF
+SESSION CHECKPOINT [description]
+SESSION EXPORT <id> <file>
+SESSION IMPORT <file> [name]
+```
+
+**Parameters**:
+- `name` - Session name (optional)
+- `description` - Session description (optional)
+- `id` - Session ID number
+- `file` - Import/export filename
+
+**Examples**:
+```
+🔮 > SESSION LIST
+🔮 > SESSION SAVE dev_work "Development session"
+🔮 > SESSION SAVE
+🔮 > SESSION LOAD 1
+🔮 > SESSION DELETE 2
+🔮 > SESSION CURRENT
+🔮 > SESSION AUTO ON
+🔮 > SESSION CHECKPOINT "Before refactor"
+🔮 > SESSION EXPORT 1 backup.json
+🔮 > SESSION IMPORT backup.json restored_session
+```
+
+**Session Types**:
+- **Manual** - User-created sessions
+- **Automatic** - Auto-saved at intervals
+- **Checkpoint** - Milestone markers
+- **Backup** - Safety snapshots
+
+**What's Saved**:
+- Command history
+- Current working directory
+- Active files and bookmarks
+- Theme and layout settings
+- Environment variables
+
+**Output Examples**:
+```
+💾 Available Sessions:
+  1. dev_work (2024-11-02 13:45) - Development session
+  2. auto_save_001 (2024-11-02 14:12) - Automatic save
+  3. checkpoint_001 (2024-11-02 14:30) - Before refactor
+
+💾 Current Session: dev_work
+  Created: 2024-11-02 13:45:23
+  Commands: 47
+  Files: 3 active
+  Auto-save: ON
+```
+
+---
+
+### PROGRESS
+
+**Purpose**: Real-time progress indicators for long-running operations
+
+**Syntax**:
+```
+PROGRESS TEST
+PROGRESS TEST MULTI
+PROGRESS TEST SEARCH
+PROGRESS LIST
+PROGRESS CANCEL [id]
+PROGRESS DEMO
+```
+
+**Parameters**:
+- `id` (optional) - Progress indicator ID to cancel
+
+**Examples**:
+```
+🔮 > PROGRESS TEST
+🔮 > PROGRESS TEST MULTI
+🔮 > PROGRESS TEST SEARCH
+🔮 > PROGRESS LIST
+🔮 > PROGRESS CANCEL 1
+🔮 > PROGRESS DEMO
+```
+
+**Progress Types**:
+- **Determinate** - Known progress (0-100%)
+- **Indeterminate** - Unknown duration spinner
+- **Multi-stage** - Multiple phases
+- **Parallel** - Multiple simultaneous operations
+
+**Features**:
+- **Real-time updates** with animated indicators
+- **Time estimation** and speed calculation
+- **Cancellation support** with Ctrl+C
+- **Background processing** with status updates
+- **Integration** with FILE SEARCH and other operations
+
+**Output Examples**:
+```
+⏳ Processing files... ████████████████████ 100% (47/47) [2.3s]
+
+⚙️  Multi-stage operation:
+  Stage 1: Scanning files    ████████████████████ 100%
+  Stage 2: Processing data   ██████████░░░░░░░░░░  50%
+  Stage 3: Generating output ░░░░░░░░░░░░░░░░░░░░   0%
+
+📊 Active Progress Indicators:
+  1. File search (87% complete, ~15s remaining)
+  2. Data export (45% complete, ~30s remaining)
+```
+
+---
+
+### LAYOUT
+
+**Purpose**: Responsive terminal layouts that adapt to screen size
+
+**Syntax**:
+```
+LAYOUT INFO
+LAYOUT MODE <mode>
+LAYOUT RESIZE
+LAYOUT AUTO ON|OFF
+LAYOUT CONFIG <setting> <value>
+LAYOUT TEST
+LAYOUT DEMO
+LAYOUT SPLIT <content1> <content2>
+```
+
+**Parameters**:
+- `mode` - Layout mode (compact, standard, expanded, split, dashboard)
+- `setting` - Configuration setting name
+- `value` - Configuration value
+- `content1`, `content2` - Content for split layout
+
+**Examples**:
+```
+🔮 > LAYOUT INFO
+🔮 > LAYOUT MODE compact
+🔮 > LAYOUT MODE expanded
+🔮 > LAYOUT RESIZE
+🔮 > LAYOUT AUTO ON
+🔮 > LAYOUT CONFIG margin 2
+🔮 > LAYOUT TEST
+🔮 > LAYOUT DEMO
+🔮 > LAYOUT SPLIT "File list" "Content view"
+```
+
+**Layout Modes**:
+- **compact** - Mobile/small screen optimized
+- **standard** - Default balanced layout
+- **expanded** - Wide screen with extra details
+- **split** - Two-panel layout for large screens
+- **dashboard** - Information-dense overview
+
+**Features**:
+- **Automatic resize detection** with background monitoring
+- **Mobile-friendly** responsive design for small screens
+- **Wide-screen enhancements** for large displays
+- **Split-pane support** for multi-tasking
+- **Configurable margins** and spacing
+
+**Output Examples**:
+```
+📐 Layout Information:
+  Current mode: standard
+  Screen size: 120×30
+  Auto-resize: ON
+  Margin: 2
+  Split mode: OFF
+
+📱 Compact Mode (Mobile Optimized):
+┌─────────────────────┐
+│ uDOS v1.0.6         │
+│ =================== │
+│ > COMMAND           │
+│ Result here...      │
+└─────────────────────┘
+
+🖥️  Expanded Mode (Wide Screen):
+┌─────────────────────────────────────────────────────────────┐
+│ uDOS v1.0.6                    Session: dev_work    14:30   │
+│ =========================================================== │
+│ > COMMAND                                Status: ✅ Ready   │
+│ Detailed result with extra information...                   │
+│ Additional context and metadata displayed here.             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 

@@ -1,495 +1,530 @@
-# uDOS v1.0.0 - Multi-Layer Mapping System
-# Inspired by NetHack dungeon levels with real-world integration
+#!/usr/bin/env python3
+"""
+uDOS v1.0.3 - Mapping System
+
+Combines APAC-centered 480×270 cell reference grid with TIZO location codes
+and multi-layer mapping system for comprehensive world navigation.
+
+Features:
+- Cell reference system (A1-RL270 format)
+- TIZO location integration
+- Multi-layer mapping (SURFACE, CLOUD, SATELLITE, DUNGEON)
+- Coordinate conversions
+- Distance calculations
+- World navigation
+
+Version: 1.0.3
+Author: Fred Porter
+"""
 
 import json
-import os
+import math
+import csv
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Union
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional
+import sys
 
-class MapLayer:
-    """
-    Represents a single map layer (e.g., surface, underground, virtual).
-    Inspired by NetHack dungeon levels but with real-world integration.
-    """
-    def __init__(self, name: str, depth: int, layer_type: str = "VIRTUAL"):
-        """
-        Initialize a map layer.
-
-        Args:
-            name: Layer name (e.g., "Surface", "Dungeon-1", "Cloud")
-            depth: Vertical position (0=surface, negative=underground, positive=sky/virtual)
-            layer_type: PHYSICAL, VIRTUAL, or HYBRID
-        """
-        self.name = name
-        self.depth = depth
-        self.layer_type = layer_type
-        self.grid = {}  # Dictionary of coordinates -> cell data
-        self.metadata = {
-            "created_at": datetime.now().isoformat(),
-            "description": "",
-            "accessibility": "OPEN",  # OPEN, LOCKED, DISCOVERED, HIDDEN
-            "connections": []  # Links to other layers
-        }
-
-    def set_cell(self, x: int, y: int, content: str, properties: Dict = None):
-        """Set content at grid position."""
-        coord = (x, y)
-        self.grid[coord] = {
-            "content": content,
-            "properties": properties or {},
-            "visited": False,
-            "timestamp": datetime.now().isoformat()
-        }
-
-    def get_cell(self, x: int, y: int) -> Optional[Dict]:
-        """Get cell data at position."""
-        return self.grid.get((x, y))
-
-    def mark_visited(self, x: int, y: int):
-        """Mark a cell as visited."""
-        if (x, y) in self.grid:
-            self.grid[(x, y)]["visited"] = True
-
-    def get_bounds(self) -> Tuple[int, int, int, int]:
-        """Get the bounding box of the layer (min_x, min_y, max_x, max_y)."""
-        if not self.grid:
-            return (0, 0, 0, 0)
-        coords = list(self.grid.keys())
-        xs = [c[0] for c in coords]
-        ys = [c[1] for c in coords]
-        return (min(xs), min(ys), max(xs), max(ys))
+# Add project root to path
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from core.utils.tizo_manager import TIZOLocationManager
 
 
-class WorldLocation:
-    """
-    Represents a real-world geographic location.
-    Links virtual map positions to actual coordinates.
-    """
-    def __init__(self, country: str, city: str = "", latitude: float = 0.0,
-                 longitude: float = 0.0, timezone: str = "UTC"):
-        self.country = country
-        self.city = city
-        self.latitude = latitude
-        self.longitude = longitude
-        self.timezone = timezone
-        self.region = ""
-        self.continent = ""
+class CellReferenceSystem:
+    """APAC-centered 480×270 cell reference system - Production Implementation."""
 
-    def to_dict(self) -> Dict:
-        """Convert to dictionary for serialization."""
-        return {
-            "country": self.country,
-            "city": self.city,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "timezone": self.timezone,
-            "region": self.region,
-            "continent": self.continent
-        }
+    # Grid configuration (matches udos_map_480x270_cellkey specs)
+    COLS = 480
+    ROWS = 270
+    LON_CENTRE = 120.0  # APAC center
+    LAT_MAX = 85.0
+    LAT_MIN = -85.0
+
+    # Cell size for rendering
+    CELL_SIZE_PX = (16, 16)
+    DEG_PER_COL_AVG = 0.75
+    DEG_PER_ROW_AVG = 0.6296296296296297
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'WorldLocation':
-        """Create from dictionary."""
-        loc = cls(
-            data.get("country", ""),
-            data.get("city", ""),
-            data.get("latitude", 0.0),
-            data.get("longitude", 0.0),
-            data.get("timezone", "UTC")
-        )
-        loc.region = data.get("region", "")
-        loc.continent = data.get("continent", "")
-        return loc
+    def wrap_longitude(cls, lon: float) -> float:
+        """Wrap longitude around APAC center (120°E) - Production Algorithm."""
+        shifted = lon - cls.LON_CENTRE
+        while shifted < -180.0:
+            shifted += 360.0
+        while shifted >= 180.0:
+            shifted -= 360.0
+        return shifted
+
+    @classmethod
+    def lon_to_col(cls, lon: float) -> int:
+        """Convert longitude to column index (0-based) - Production Algorithm."""
+        x = (cls.wrap_longitude(lon) + 180.0) / 360.0 * cls.COLS
+        return max(0, min(cls.COLS - 1, int(math.floor(x))))
+
+    @classmethod
+    def lat_to_row(cls, lat: float) -> int:
+        """Convert latitude to row index (0-based) - Production Algorithm."""
+        y = (cls.LAT_MAX - lat) / (cls.LAT_MAX - cls.LAT_MIN) * cls.ROWS
+        return max(0, min(cls.ROWS - 1, int(math.floor(y))))
+
+    @classmethod
+    def col_to_letters(cls, col: int) -> str:
+        """Convert column index to spreadsheet-style letters (A, B, ..., RL) - Production Algorithm."""
+        n = col + 1
+        letters = ""
+        while n > 0:
+            n, rem = divmod(n - 1, 26)
+            letters = chr(65 + rem) + letters
+        return letters
+
+    @classmethod
+    def letters_to_col(cls, letters: str) -> int:
+        """Convert spreadsheet-style letters to column index (0-based)."""
+        col = 0
+        for char in letters.upper():
+            col = col * 26 + (ord(char) - ord('A') + 1)
+        return col - 1
+
+    @classmethod
+    def coord_to_cell(cls, lat: float, lon: float) -> str:
+        """Convert lat/lon coordinates to cell reference (e.g., 'CR128')."""
+        col = cls.lon_to_col(lon)
+        row = cls.lat_to_row(lat)
+        return f"{cls.col_to_letters(col)}{row + 1}"
+
+    @classmethod
+    def cell_to_coord(cls, cell_ref: str) -> Tuple[float, float]:
+        """Convert cell reference to approximate lat/lon coordinates."""
+        # Extract letters and numbers
+        letters = ""
+        numbers = ""
+        for char in cell_ref:
+            if char.isalpha():
+                letters += char
+            elif char.isdigit():
+                numbers += char
+
+        if not letters or not numbers:
+            raise ValueError(f"Invalid cell reference: {cell_ref}")
+
+        col = cls.letters_to_col(letters)
+        row = int(numbers) - 1  # Convert to 0-based
+
+        # Convert back to coordinates (center of cell)
+        lon_wrapped = (col + 0.5) / cls.COLS * 360.0 - 180.0
+        lon = lon_wrapped + cls.LON_CENTRE
+        if lon > 180.0:
+            lon -= 360.0
+        elif lon < -180.0:
+            lon += 360.0
+
+        lat = cls.LAT_MAX - (row + 0.5) / cls.ROWS * (cls.LAT_MAX - cls.LAT_MIN)
+
+        return lat, lon
+
+    @classmethod
+    def get_cell_bounds(cls, cell_ref: str) -> Dict[str, float]:
+        """Get the bounding box of a cell."""
+        lat_center, lon_center = cls.cell_to_coord(cell_ref)
+
+        lat_span = (cls.LAT_MAX - cls.LAT_MIN) / cls.ROWS
+        lon_span = 360.0 / cls.COLS
+
+        return {
+            "lat_min": lat_center - lat_span / 2,
+            "lat_max": lat_center + lat_span / 2,
+            "lon_min": lon_center - lon_span / 2,
+            "lon_max": lon_center + lon_span / 2,
+            "lat_center": lat_center,
+            "lon_center": lon_center
+        }
 
 
 class MapEngine:
-    """
-    Core mapping engine for uDOS.
-    Manages multi-layered maps with NetHack-style navigation.
-    Integrates virtual positions with real-world locations.
-    """
-    def __init__(self, worldmap_file: str = "data/system/worldmap.json"):
-        self.worldmap_file = worldmap_file
-        self.layers: Dict[str, MapLayer] = {}
-        self.current_layer = "SURFACE"
-        self.position = (0, 0)  # Current x, y position
-        self.real_world_location: Optional[WorldLocation] = None
-        self.worldmap_data = {}
+    """Mapping engine combining cell references with TIZO locations and world cities."""
 
-        # Initialize default layers (NetHack-inspired)
-        self._init_default_layers()
+    def __init__(self, data_dir="data/system"):
+        self.data_dir = Path(data_dir)
+        self.tizo_manager = TIZOLocationManager(data_dir)
+        self.cell_system = CellReferenceSystem()
 
-        # Load world map data
-        self._load_worldmap()
+        # Load mapping data
+        self.worldmap = self.load_worldmap()
+        self.city_cells = {}
+        self.world_cities = {}
+        self.layers = {}
 
-    def _init_default_layers(self):
-        """Initialize the default layer structure."""
-        # Virtual/Sky layers (positive depth)
-        self.layers["CLOUD"] = MapLayer("Cloud Network", 10, "VIRTUAL")
-        self.layers["SATELLITE"] = MapLayer("Satellite View", 100, "VIRTUAL")
+        # Initialize with world cities and TIZO locations
+        self.load_world_cities()
+        self.initialize_tizo_cells()
 
-        # Surface layer (depth 0)
-        self.layers["SURFACE"] = MapLayer("Surface World", 0, "PHYSICAL")
+    def load_worldmap(self) -> Dict:
+        """Load worldmap data."""
+        worldmap_file = self.data_dir / "worldmap.json"
+        if worldmap_file.exists():
+            with open(worldmap_file, 'r') as f:
+                return json.load(f)
+        return {}
 
-        # Underground layers (negative depth) - NetHack style
-        self.layers["DUNGEON-1"] = MapLayer("Dungeon Level 1", -1, "VIRTUAL")
-        self.layers["DUNGEON-2"] = MapLayer("Dungeon Level 2", -2, "VIRTUAL")
-        self.layers["DUNGEON-3"] = MapLayer("Dungeon Level 3", -3, "VIRTUAL")
+    def load_world_cities(self):
+        """Load world cities data with pre-computed cell references."""
+        world_cities_file = self.data_dir / "world_cities_cellkeys.csv"
+        if not world_cities_file.exists():
+            print(f"Warning: World cities file not found: {world_cities_file}")
+            return
 
-        # Deep layers
-        self.layers["MINES"] = MapLayer("Mines of Data", -10, "VIRTUAL")
-        self.layers["CORE"] = MapLayer("System Core", -100, "VIRTUAL")
+        try:
+            import csv
+            with open(world_cities_file, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    city_code = row['code3']
+                    self.world_cities[city_code] = {
+                        'name': row['city'],
+                        'country': row['country'],
+                        'lat': float(row['lat']),
+                        'lon': float(row['lon']),
+                        'cell_ref': row['cell_code'],
+                        'col_index': int(row['col_index0']),
+                        'row_index': int(row['row_index0'])
+                    }
+                    # Also add to city_cells for compatibility
+                    self.city_cells[city_code] = self.world_cities[city_code]
+        except Exception as e:
+            print(f"Error loading world cities: {e}")
 
-        # Set up layer connections (stairs/portals)
-        self.layers["SURFACE"].metadata["connections"] = ["CLOUD", "DUNGEON-1"]
-        self.layers["DUNGEON-1"].metadata["connections"] = ["SURFACE", "DUNGEON-2"]
-        self.layers["DUNGEON-2"].metadata["connections"] = ["DUNGEON-1", "DUNGEON-3"]
-        self.layers["DUNGEON-3"].metadata["connections"] = ["DUNGEON-2", "MINES"]
+    def initialize_tizo_cells(self):
+        """Initialize cell references for all TIZO cities."""
+        if "TIZO_CITIES" not in self.tizo_manager.tizo_cities:
+            return
 
-    def _load_worldmap(self):
-        """Load world map data from WORLDMAP.UDO."""
-        if not os.path.exists(self.worldmap_file):
-            self.worldmap_data = self._get_default_worldmap()
-            self._save_worldmap()
-        else:
-            try:
-                with open(self.worldmap_file, 'r') as f:
-                    self.worldmap_data = json.load(f)
-            except:
-                self.worldmap_data = self._get_default_worldmap()
+        for tizo_code, city_data in self.tizo_manager.tizo_cities["TIZO_CITIES"].items():
+            lat = city_data["coordinates"]["lat"]
+            lon = city_data["coordinates"]["lon"]
 
-    def _save_worldmap(self):
-        """Save world map data to file."""
-        os.makedirs(os.path.dirname(self.worldmap_file), exist_ok=True)
-        with open(self.worldmap_file, 'w') as f:
-            json.dump(self.worldmap_data, f, indent=2)
+            cell_ref = self.cell_system.coord_to_cell(lat, lon)
 
-    def _get_default_worldmap(self) -> Dict:
-        """Get default world map with timezones, cities, countries."""
-        return {
-            "VERSION": "1.0",
-            "LAST_UPDATED": datetime.now().isoformat(),
-            "TIMEZONES": {
-                "UTC": {"offset": "+00:00", "name": "Coordinated Universal Time"},
-                "EST": {"offset": "-05:00", "name": "Eastern Standard Time"},
-                "PST": {"offset": "-08:00", "name": "Pacific Standard Time"},
-                "GMT": {"offset": "+00:00", "name": "Greenwich Mean Time"},
-                "CET": {"offset": "+01:00", "name": "Central European Time"},
-                "JST": {"offset": "+09:00", "name": "Japan Standard Time"},
-                "AEST": {"offset": "+10:00", "name": "Australian Eastern Standard Time"},
-                "IST": {"offset": "+05:30", "name": "Indian Standard Time"}
-            },
-            "CONTINENTS": {
-                "NORTH_AMERICA": {
-                    "name": "North America",
-                    "countries": ["USA", "Canada", "Mexico"]
-                },
-                "EUROPE": {
-                    "name": "Europe",
-                    "countries": ["UK", "France", "Germany", "Spain", "Italy"]
-                },
-                "ASIA": {
-                    "name": "Asia",
-                    "countries": ["China", "Japan", "India", "South Korea"]
-                },
-                "OCEANIA": {
-                    "name": "Oceania",
-                    "countries": ["Australia", "New Zealand"]
-                },
-                "SOUTH_AMERICA": {
-                    "name": "South America",
-                    "countries": ["Brazil", "Argentina", "Chile"]
-                },
-                "AFRICA": {
-                    "name": "Africa",
-                    "countries": ["South Africa", "Egypt", "Nigeria", "Kenya"]
-                }
-            },
-            "CITIES": {
-                "New York": {
-                    "country": "USA",
-                    "continent": "NORTH_AMERICA",
-                    "latitude": 40.7128,
-                    "longitude": -74.0060,
-                    "timezone": "EST",
-                    "region": "Northeast",
-                    "grid_mapping": {"x": -74, "y": 41, "layer": "SURFACE"}
-                },
-                "London": {
-                    "country": "UK",
-                    "continent": "EUROPE",
-                    "latitude": 51.5074,
-                    "longitude": -0.1278,
-                    "timezone": "GMT",
-                    "region": "England",
-                    "grid_mapping": {"x": 0, "y": 52, "layer": "SURFACE"}
-                },
-                "Tokyo": {
-                    "country": "Japan",
-                    "continent": "ASIA",
-                    "latitude": 35.6762,
-                    "longitude": 139.6503,
-                    "timezone": "JST",
-                    "region": "Kanto",
-                    "grid_mapping": {"x": 140, "y": 36, "layer": "SURFACE"}
-                },
-                "Sydney": {
-                    "country": "Australia",
-                    "continent": "OCEANIA",
-                    "latitude": -33.8688,
-                    "longitude": 151.2093,
-                    "timezone": "AEST",
-                    "region": "New South Wales",
-                    "grid_mapping": {"x": 151, "y": -34, "layer": "SURFACE"}
-                },
-                "Paris": {
-                    "country": "France",
-                    "continent": "EUROPE",
-                    "latitude": 48.8566,
-                    "longitude": 2.3522,
-                    "timezone": "CET",
-                    "region": "Île-de-France",
-                    "grid_mapping": {"x": 2, "y": 49, "layer": "SURFACE"}
-                },
-                "San Francisco": {
-                    "country": "USA",
-                    "continent": "NORTH_AMERICA",
-                    "latitude": 37.7749,
-                    "longitude": -122.4194,
-                    "timezone": "PST",
-                    "region": "West Coast",
-                    "grid_mapping": {"x": -122, "y": 38, "layer": "SURFACE"}
-                },
-                "Mumbai": {
-                    "country": "India",
-                    "continent": "ASIA",
-                    "latitude": 19.0760,
-                    "longitude": 72.8777,
-                    "timezone": "IST",
-                    "region": "Maharashtra",
-                    "grid_mapping": {"x": 73, "y": 19, "layer": "SURFACE"}
-                },
-                "Berlin": {
-                    "country": "Germany",
-                    "continent": "EUROPE",
-                    "latitude": 52.5200,
-                    "longitude": 13.4050,
-                    "timezone": "CET",
-                    "region": "Brandenburg",
-                    "grid_mapping": {"x": 13, "y": 53, "layer": "SURFACE"}
-                }
+            self.city_cells[tizo_code] = {
+                "name": city_data["name"],
+                "country": city_data["country"],
+                "continent": city_data["continent"],
+                "coordinates": {"lat": lat, "lon": lon},
+                "cell_ref": cell_ref,
+                "timezone": city_data["timezone"],
+                "timezone_offset": city_data["timezone_offset"],
+                "population_code": city_data["population_code"],
+                "udos_layers": city_data["udos_layers"],
+                "connection_quality": city_data["connection_quality"]
             }
-        }
 
-    def set_real_world_location(self, city: str = None, country: str = None,
-                                latitude: float = None, longitude: float = None,
-                                timezone: str = "UTC"):
-        """
-        Set the user's real-world location and sync with map position.
-        """
-        # Try to find city in worldmap
-        if city and city in self.worldmap_data.get("CITIES", {}):
-            city_data = self.worldmap_data["CITIES"][city]
-            self.real_world_location = WorldLocation(
-                country=city_data["country"],
-                city=city,
-                latitude=city_data["latitude"],
-                longitude=city_data["longitude"],
-                timezone=city_data["timezone"]
-            )
-            self.real_world_location.region = city_data.get("region", "")
-            self.real_world_location.continent = city_data.get("continent", "")
+    def get_world_city_by_code(self, city_code: str) -> Optional[Dict]:
+        """Get world city data by 3-letter code."""
+        return self.world_cities.get(city_code.upper())
 
-            # Sync map position to grid mapping
-            grid_map = city_data.get("grid_mapping", {})
-            if grid_map:
-                self.position = (grid_map.get("x", 0), grid_map.get("y", 0))
-                self.current_layer = grid_map.get("layer", "SURFACE")
-        else:
-            # Manual location setting
-            self.real_world_location = WorldLocation(
-                country=country or "Unknown",
-                city=city or "",
-                latitude=latitude or 0.0,
-                longitude=longitude or 0.0,
-                timezone=timezone
-            )
-            # Convert lat/lon to grid position (simplified)
-            if latitude is not None and longitude is not None:
-                self.position = (int(longitude), int(latitude))
+    def get_world_city_by_cell(self, cell_ref: str) -> Optional[Dict]:
+        """Find world city in the specified cell."""
+        for city_code, city_data in self.world_cities.items():
+            if city_data["cell_ref"] == cell_ref:
+                return {
+                    "city_code": city_code,
+                    **city_data
+                }
+        return None
 
-    def move(self, dx: int, dy: int) -> str:
-        """
-        Move on current layer.
+    def get_world_cities_in_region(self, center_cell: str, radius_cells: int = 5) -> List[Dict]:
+        """Get all world cities within a radius of cells from center."""
+        try:
+            center_lat, center_lon = self.cell_system.cell_to_coord(center_cell)
+            center_col = self.cell_system.lon_to_col(center_lon)
+            center_row = self.cell_system.lat_to_row(center_lat)
+        except ValueError:
+            return []
 
-        Args:
-            dx: Change in x coordinate
-            dy: Change in y coordinate
+        cities_in_region = []
+        for city_code, city_data in self.world_cities.items():
+            col_distance = abs(city_data['col_index'] - center_col)
+            row_distance = abs(city_data['row_index'] - center_row)
+            cell_distance = max(col_distance, row_distance)
 
-        Returns:
-            Status message
-        """
-        new_x = self.position[0] + dx
-        new_y = self.position[1] + dy
+            if cell_distance <= radius_cells:
+                cities_in_region.append({
+                    "city_code": city_code,
+                    "cell_distance": cell_distance,
+                    **city_data
+                })
 
-        self.position = (new_x, new_y)
+        # Sort by cell distance
+        cities_in_region.sort(key=lambda x: x["cell_distance"])
+        return cities_in_region
 
-        # Mark cell as visited
-        if self.current_layer in self.layers:
-            self.layers[self.current_layer].mark_visited(new_x, new_y)
+    def search_world_cities(self, query: str, limit: int = 10) -> List[Dict]:
+        """Search world cities by name or country."""
+        query = query.lower()
+        results = []
 
-        return f"📍 Moved to ({new_x}, {new_y}) on {self.current_layer}"
+        for city_code, city_data in self.world_cities.items():
+            score = 0
+            name_lower = city_data['name'].lower()
+            country_lower = city_data['country'].lower()
 
-    def goto(self, x: int, y: int) -> str:
-        """
-        Teleport to specific coordinates on current layer.
-        """
-        self.position = (x, y)
-        if self.current_layer in self.layers:
-            self.layers[self.current_layer].mark_visited(x, y)
-        return f"📍 Teleported to ({x}, {y}) on {self.current_layer}"
+            if query in name_lower:
+                score += 100 if name_lower.startswith(query) else 50
+            if query in country_lower:
+                score += 30
+            if query == city_code.lower():
+                score += 200
 
-    def change_layer(self, layer_name: str) -> str:
-        """
-        Switch to a different layer.
-        """
-        layer_name = layer_name.upper()
+            if score > 0:
+                results.append({
+                    "city_code": city_code,
+                    "score": score,
+                    **city_data
+                })
 
-        if layer_name not in self.layers:
-            return f"❌ ERROR: Layer '{layer_name}' does not exist"
+        # Sort by score and return top results
+        results.sort(key=lambda x: x["score"], reverse=True)
+        return results[:limit]
 
-        # Check if current layer has connection to target layer
-        current = self.layers.get(self.current_layer)
-        if current and layer_name not in current.metadata.get("connections", []):
-            return f"⚠️  No direct connection from {self.current_layer} to {layer_name}"
+    def get_city_by_cell(self, cell_ref: str) -> Optional[Dict]:
+        """Find any city (world or TIZO) in the specified cell."""
+        # Check world cities first
+        world_city = self.get_world_city_by_cell(cell_ref)
+        if world_city:
+            return world_city
 
-        self.current_layer = layer_name
-        return f"🔄 Switched to layer: {layer_name}"
+        # Fall back to TIZO cities
+        for tizo_code, city_data in self.city_cells.items():
+            if city_data.get("cell_ref") == cell_ref and tizo_code not in self.world_cities:
+                return {
+                    "tizo_code": tizo_code,
+                    **city_data
+                }
+        return None
 
-    def descend(self) -> str:
-        """Move down one layer (NetHack-style > command)."""
-        current = self.layers.get(self.current_layer)
-        if not current:
-            return "❌ ERROR: Invalid current layer"
+    def get_cities_in_region(self, center_cell: str, radius_cells: int = 5) -> List[Dict]:
+        """Get all cities within a radius of cells from center."""
+        try:
+            center_lat, center_lon = self.cell_system.cell_to_coord(center_cell)
+        except ValueError:
+            return []
 
-        # Find connected layer with lower depth
-        connections = current.metadata.get("connections", [])
-        lower_layers = [
-            name for name in connections
-            if self.layers[name].depth < current.depth
-        ]
+        cities_in_region = []
 
-        if not lower_layers:
-            return "⚠️  Cannot descend from this layer"
+        for tizo_code, city_data in self.city_cells.items():
+            city_lat = city_data["coordinates"]["lat"]
+            city_lon = city_data["coordinates"]["lon"]
 
-        # Choose the first lower layer
-        target = lower_layers[0]
-        self.current_layer = target
-        return f"⬇️  Descended to {target}"
+            # Calculate cell distance (approximate)
+            city_col = self.cell_system.lon_to_col(city_lon)
+            city_row = self.cell_system.lat_to_row(city_lat)
+            center_col = self.cell_system.lon_to_col(center_lon)
+            center_row = self.cell_system.lat_to_row(center_lat)
 
-    def ascend(self) -> str:
-        """Move up one layer (NetHack-style < command)."""
-        current = self.layers.get(self.current_layer)
-        if not current:
-            return "❌ ERROR: Invalid current layer"
+            cell_distance = max(abs(city_col - center_col), abs(city_row - center_row))
 
-        # Find connected layer with higher depth
-        connections = current.metadata.get("connections", [])
-        higher_layers = [
-            name for name in connections
-            if self.layers[name].depth > current.depth
-        ]
+            if cell_distance <= radius_cells:
+                cities_in_region.append({
+                    "tizo_code": tizo_code,
+                    "cell_distance": cell_distance,
+                    **city_data
+                })
 
-        if not higher_layers:
-            return "⚠️  Cannot ascend from this layer"
+        # Sort by cell distance
+        cities_in_region.sort(key=lambda x: x["cell_distance"])
+        return cities_in_region
 
-        # Choose the first higher layer
-        target = higher_layers[0]
-        self.current_layer = target
-        return f"⬆️  Ascended to {target}"
+    def generate_ascii_map(self, center_cell: str, width: int = 40, height: int = 20) -> str:
+        """Generate ASCII map view centered on a cell."""
+        try:
+            center_lat, center_lon = self.cell_system.cell_to_coord(center_cell)
+            center_col = self.cell_system.lon_to_col(center_lon)
+            center_row = self.cell_system.lat_to_row(center_lat)
+        except ValueError:
+            return f"Invalid cell reference: {center_cell}"
 
-    def get_current_status(self) -> str:
-        """Get current position and layer information."""
-        layer = self.layers.get(self.current_layer)
-        status = []
+        # Calculate view bounds
+        half_width = width // 2
+        half_height = height // 2
 
-        status.append("=" * 60)
-        status.append("🗺️  MAP STATUS")
-        status.append("=" * 60)
-        status.append("")
+        start_col = max(0, center_col - half_width)
+        end_col = min(self.cell_system.COLS - 1, center_col + half_width)
+        start_row = max(0, center_row - half_height)
+        end_row = min(self.cell_system.ROWS - 1, center_row + half_height)
 
-        # Current position
-        status.append(f"📍 Position: ({self.position[0]}, {self.position[1]})")
-        status.append(f"🌍 Layer: {self.current_layer}")
-        if layer:
-            status.append(f"   Depth: {layer.depth}")
-            status.append(f"   Type: {layer.layer_type}")
-
-        status.append("")
-
-        # Real world location
-        if self.real_world_location:
-            loc = self.real_world_location
-            status.append("🌏 Real World Location:")
-            if loc.city:
-                status.append(f"   City: {loc.city}, {loc.country}")
-            else:
-                status.append(f"   Country: {loc.country}")
-            status.append(f"   Coordinates: {loc.latitude:.4f}°, {loc.longitude:.4f}°")
-            status.append(f"   Timezone: {loc.timezone}")
-            status.append("")
-
-        # Available connections
-        if layer:
-            connections = layer.metadata.get("connections", [])
-            if connections:
-                status.append("🔗 Available Layers:")
-                for conn in connections:
-                    conn_layer = self.layers.get(conn)
-                    if conn_layer:
-                        symbol = "⬆️ " if conn_layer.depth > layer.depth else "⬇️ "
-                        status.append(f"   {symbol}{conn} (depth {conn_layer.depth})")
-
-        status.append("=" * 60)
-        return "\n".join(status)
-
-    def get_layer_map(self, width: int = 40, height: int = 20) -> str:
-        """
-        Generate ASCII map of current layer around current position.
-        """
-        layer = self.layers.get(self.current_layer)
-        if not layer:
-            return "❌ Invalid layer"
-
-        x, y = self.position
-
-        # Calculate viewport
-        half_w = width // 2
-        half_h = height // 2
-
+        # Build ASCII map
         lines = []
-        lines.append(f"╔{'═' * (width + 2)}╗")
-        lines.append(f"║ {self.current_layer.center(width)} ║")
-        lines.append(f"╠{'═' * (width + 2)}╣")
+        lines.append(f"ASCII Map View - Center: {center_cell}")
+        lines.append("=" * width)
 
-        for row in range(y + half_h, y - half_h, -1):
-            line = "║ "
-            for col in range(x - half_w, x + half_w):
-                if col == x and row == y:
-                    line += "@"  # Player position
+        for row in range(start_row, end_row + 1):
+            line = ""
+            for col in range(start_col, end_col + 1):
+                if col == center_col and row == center_row:
+                    char = "◉"  # Center marker
                 else:
-                    cell = layer.get_cell(col, row)
-                    if cell:
-                        if cell.get("visited"):
-                            line += "·"
-                        else:
-                            line += "?"
+                    # Check for cities in this cell
+                    cell_ref = f"{self.cell_system.col_to_letters(col)}{row + 1}"
+                    city = self.get_city_by_cell(cell_ref)
+                    if city:
+                        # Use first letter of TIZO code
+                        char = city["tizo_code"][0]
                     else:
-                        line += " "
-            line += " ║"
+                        # Ocean/land representation (simplified)
+                        char = "~" if (col + row) % 3 == 0 else "."
+
+                line += char
+
             lines.append(line)
 
-        lines.append(f"╚{'═' * (width + 2)}╝")
-        lines.append(f"@ = You ({x}, {y})")
+        lines.append("=" * width)
+        lines.append("Legend: ◉=Center, Letters=Cities, ~=Ocean, .=Land")
 
         return "\n".join(lines)
+
+    def get_navigation_info(self, current_cell: str, target_cell: str) -> Dict:
+        """Get navigation information between two cells."""
+        try:
+            current_lat, current_lon = self.cell_system.cell_to_coord(current_cell)
+            target_lat, target_lon = self.cell_system.cell_to_coord(target_cell)
+        except ValueError as e:
+            return {"error": str(e)}
+
+        # Calculate distance using Haversine formula
+        distance_km = self.calculate_distance(current_lat, current_lon, target_lat, target_lon)
+
+        # Calculate cell distance
+        current_col = self.cell_system.lon_to_col(current_lon)
+        current_row = self.cell_system.lat_to_row(current_lat)
+        target_col = self.cell_system.lon_to_col(target_lon)
+        target_row = self.cell_system.lat_to_row(target_lat)
+
+        cell_distance = max(abs(target_col - current_col), abs(target_row - current_row))
+
+        # Calculate bearing
+        bearing = self.calculate_bearing(current_lat, current_lon, target_lat, target_lon)
+
+        return {
+            "current_cell": current_cell,
+            "target_cell": target_cell,
+            "distance_km": round(distance_km, 1),
+            "cell_distance": cell_distance,
+            "bearing": round(bearing, 1),
+            "direction": self.bearing_to_direction(bearing)
+        }
+
+    def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Calculate distance between two points using Haversine formula."""
+        lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+
+        # Earth radius in kilometers
+        r = 6371
+        return c * r
+
+    def calculate_bearing(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Calculate bearing from point 1 to point 2."""
+        lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+
+        dlon = lon2 - lon1
+        y = math.sin(dlon) * math.cos(lat2)
+        x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dlon)
+
+        bearing = math.atan2(y, x)
+        bearing = math.degrees(bearing)
+        bearing = (bearing + 360) % 360
+
+        return bearing
+
+    def bearing_to_direction(self, bearing: float) -> str:
+        """Convert bearing to compass direction."""
+        directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                     "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        index = round(bearing / 22.5) % 16
+        return directions[index]
+
+    def export_city_cells(self, output_file: str):
+        """Export TIZO cities with cell references to CSV."""
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                "tizo_code", "city", "country", "continent",
+                "lat", "lon", "cell_ref", "timezone", "timezone_offset",
+                "population_code", "connection_quality"
+            ])
+
+            for tizo_code, city_data in self.city_cells.items():
+                writer.writerow([
+                    tizo_code,
+                    city_data["name"],
+                    city_data["country"],
+                    city_data["continent"],
+                    city_data["coordinates"]["lat"],
+                    city_data["coordinates"]["lon"],
+                    city_data["cell_ref"],
+                    city_data["timezone"],
+                    city_data["timezone_offset"],
+                    city_data["population_code"],
+                    json.dumps(city_data["connection_quality"])
+                ])
+
+    def get_layer_access(self, tizo_code: str) -> List[str]:
+        """Get accessible layers for a TIZO location."""
+        if tizo_code in self.city_cells:
+            return self.city_cells[tizo_code]["udos_layers"]
+        return ["SURFACE"]
+
+
+def main():
+    """Test the mapping system."""
+    print("🗺️  uDOS Mapping System Test")
+    print("=" * 50)
+
+    # Initialize mapping engine
+    engine = MapEngine()
+
+    # Test Melbourne location
+    mel_data = engine.city_cells.get("MEL")
+    if mel_data:
+        print(f"\n📍 Melbourne (MEL):")
+        print(f"  Cell Reference: {mel_data['cell_ref']}")
+        print(f"  Coordinates: {mel_data['coordinates']['lat']}, {mel_data['coordinates']['lon']}")
+        print(f"  Timezone: {mel_data['timezone']} ({mel_data['timezone_offset']})")
+
+        # Test cell to coordinate conversion
+        cell_lat, cell_lon = engine.cell_system.cell_to_coord(mel_data['cell_ref'])
+        print(f"  Cell Center: {cell_lat:.2f}, {cell_lon:.2f}")
+
+        # Show nearby cities
+        print(f"\n🏙️  Cities near {mel_data['cell_ref']}:")
+        nearby = engine.get_cities_in_region(mel_data['cell_ref'], 10)
+        for city in nearby[:5]:
+            print(f"  {city['name']} ({city['tizo_code']}) - {city['cell_ref']} - {city['cell_distance']} cells away")
+
+        # Test navigation
+        syd_data = engine.city_cells.get("SYD")
+        if syd_data:
+            nav_info = engine.get_navigation_info(mel_data['cell_ref'], syd_data['cell_ref'])
+            print(f"\n🧭 Navigation MEL → SYD:")
+            print(f"  Distance: {nav_info['distance_km']} km")
+            print(f"  Cell Distance: {nav_info['cell_distance']} cells")
+            print(f"  Bearing: {nav_info['bearing']}° ({nav_info['direction']})")
+
+        # Generate ASCII map
+        print(f"\n🗺️  ASCII Map View (Melbourne region):")
+        ascii_map = engine.generate_ascii_map(mel_data['cell_ref'], 30, 10)
+        print(ascii_map)
+
+    # Export city data
+    print("\n💾 Exporting city cell data...")
+    engine.export_city_cells("output/tizo_city_cells.csv")
+    print("✅ Exported to output/tizo_city_cells.csv")
+
+    print(f"\n🎉 Mapping system test complete!")
+
+
+if __name__ == "__main__":
+    main()

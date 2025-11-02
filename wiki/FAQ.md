@@ -152,6 +152,112 @@ Set in `data/STORY.UDO` or during setup.
 
 ---
 
+## CLI Features v1.0.6+
+
+### How do I use the new command history?
+
+The enhanced history system automatically saves all commands:
+
+```bash
+🔮 > HISTORY LIST              # Show recent commands
+🔮 > HISTORY SEARCH file       # Find commands containing "file"
+🔮 > HISTORY STATS             # See usage statistics
+```
+
+Features:
+- **Persistent**: Survives restarts (SQLite database)
+- **Searchable**: Fuzzy matching finds similar commands
+- **Smart**: No duplicate commands within 5 minutes
+
+### Can I change the color theme?
+
+Yes! uDOS v1.0.6 includes dynamic themes:
+
+```bash
+🔮 > THEME LIST                # See available themes
+🔮 > THEME SET cyberpunk       # Switch to neon theme
+🔮 > THEME SET accessibility   # High contrast mode
+```
+
+Available themes:
+- **classic** - Traditional terminal colors
+- **cyberpunk** - Neon green/purple theme
+- **accessibility** - High contrast for visibility
+- **monochrome** - Black and white
+
+### How do I save my workspace?
+
+Use the session management system:
+
+```bash
+🔮 > SESSION SAVE work         # Save current state
+🔮 > SESSION LIST              # Show all sessions
+🔮 > SESSION LOAD 1            # Restore previous session
+🔮 > SESSION AUTO ON           # Enable auto-save
+```
+
+Sessions save:
+- Command history
+- Current directory
+- Active files
+- Theme settings
+
+### Why are there progress bars now?
+
+Long operations now show real-time progress:
+
+```bash
+🔮 > FILE SEARCH *.py
+⏳ Searching files... ████████████████████ 100% (23/23) [1.2s]
+```
+
+Progress indicators:
+- **Show time estimates**
+- **Allow cancellation** (Ctrl+C)
+- **Work in background**
+- **Update in real-time**
+
+### How does the responsive layout work?
+
+uDOS automatically adapts to your terminal size:
+
+```bash
+🔮 > LAYOUT INFO               # Check current layout
+🔮 > LAYOUT MODE compact       # Force mobile mode
+🔮 > LAYOUT AUTO ON            # Auto-adapt to resizing
+```
+
+Layout modes:
+- **compact** - Small screens (mobile)
+- **standard** - Normal terminals
+- **expanded** - Wide screens with extra details
+
+### Is tab completion smarter now?
+
+Yes! The new completion system includes:
+- **Fuzzy matching**: Type `THM<Tab>` → `THEME`
+- **Context awareness**: Smart parameter suggestions
+- **History integration**: Recent commands prioritized
+- **File completion**: Workspace-aware path completion
+
+### Can I use this on my phone?
+
+Absolutely! uDOS v1.0.6 is mobile-friendly:
+- **Compact layouts** for small screens
+- **Touch-optimized** command patterns
+- **Responsive formatting** adapts automatically
+- **Accessibility features** for all users
+
+### Where is my command history stored?
+
+Command history is stored in `memory/logs/command_history.db` (SQLite database):
+- **Persistent**: Survives restarts and crashes
+- **Searchable**: Fast fuzzy search capabilities
+- **Exportable**: `HISTORY EXPORT backup.json`
+- **Privacy**: Stored locally, never uploaded
+
+---
+
 ## Scripting & Automation
 
 ### What is a .uscript file?

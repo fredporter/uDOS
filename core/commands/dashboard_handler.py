@@ -70,7 +70,7 @@ class DashboardHandler(BaseCommandHandler):
 
         # User info
         if self.user_manager and self.user_manager.user_data:
-            user_profile = self.user_manager.user_data.get('USER_PROFILE', {})
+            user_profile = self.user_manager.user_data.get('user_profile', {})
             name = user_profile.get('NAME', 'Unknown')
             status += f"║ 👤 User: {name[:50].ljust(56)} ║\n"
 
@@ -231,7 +231,7 @@ class DashboardHandler(BaseCommandHandler):
 
             user_name = self.user_manager.current_user if self.user_manager else "Guest"
             try:
-                user_file = Path('sandbox/USER.UDO')
+                user_file = Path('memory/sandbox/user.json')
                 if user_file.exists():
                     with open(user_file, 'r') as f:
                         user_data = json.load(f)

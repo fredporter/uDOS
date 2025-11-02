@@ -13,6 +13,7 @@ from .uDOS_logger import Logger
 
 # Services
 from .services.history_manager import ActionHistory
+from .services.history import CommandHistory
 from .services.connection_manager import ConnectionMonitor
 from .services.user_manager import UserManager
 from .services.map_engine import MapEngine
@@ -36,7 +37,7 @@ __all__ = [
     'Grid',
     'Logger',
     'ActionHistory',
-    'SystemHealth',
+    'CommandHistory',
     'ConnectionMonitor',
     'ViewportDetector',
     'ViewportVisualizer',

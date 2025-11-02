@@ -12,7 +12,7 @@ from .uDOS_logger import Logger
 from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
-from .services.enhanced_history import EnhancedHistory
+from .services.history import CommandHistory
 from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
@@ -26,7 +26,7 @@ import sys
 import os
 import time
 
-def run_script(script_path, parser, grid, command_handler, logger, enhanced_history=None):
+def run_script(script_path, parser, grid, command_handler, logger, command_history=None):
     """
     Executes a uDOS script file non-interactively.
     """
@@ -37,9 +37,9 @@ def run_script(script_path, parser, grid, command_handler, logger, enhanced_hist
                 if not clean_line or clean_line.startswith('#'):
                     continue
 
-                # Store command in enhanced history if available
-                if enhanced_history:
-                    enhanced_history.append_string(clean_line)
+                # Store command in command history if available
+                if command_history:
+                    command_history.append_string(clean_line)
 
                 logger.log(f"uDOS> {clean_line}")
                 ucode = parser.parse(clean_line)
@@ -193,8 +193,8 @@ def main():
         logger = Logger()
         history = ActionHistory(logger=logger)
 
-        # Initialize enhanced history system with persistent storage
-        enhanced_history = EnhancedHistory()
+        # Initialize command history system with persistent storage
+        command_history = CommandHistory()
 
         # Get session and move stats
         move_stats = logger.get_move_stats()
@@ -220,12 +220,12 @@ def main():
             connection=connection,
             viewport=viewport,
             user_manager=user_manager,
-            enhanced_history=enhanced_history
+            command_history=command_history
         )
 
         if is_script_mode:
             script_path = sys.argv[1]
-            run_script(script_path, parser, grid, command_handler, logger, enhanced_history)
+            run_script(script_path, parser, grid, command_handler, logger, command_history)
             logger.close()
             return 0
 
@@ -234,10 +234,10 @@ def main():
         # Initialize smart prompt system
         smart_prompt = SmartPrompt()
 
-        # Initialize advanced completer with enhanced history integration
-        completer = AdvancedCompleter(parser, grid, enhanced_history)
+        # Initialize advanced completer with command history integration
+        completer = AdvancedCompleter(parser, grid, command_history)
 
-        # Enhanced history already initialized above        kb = KeyBindings()
+        # Command history already initialized above        kb = KeyBindings()
 
         @kb.add('[')
         def _(event):
@@ -247,13 +247,13 @@ def main():
         # Add history search keybinding (Ctrl+R)
         @kb.add('c-r')
         def _(event):
-            """Reverse history search with enhanced features."""
+            """Reverse history search with intelligent features."""
             # Get current input
             current_text = event.current_buffer.text
 
             # Simple search implementation - show recent matching commands
             if current_text.strip():
-                suggestions = enhanced_history.get_suggestions(current_text, limit=5)
+                suggestions = command_history.get_suggestions(current_text, limit=5)
                 if suggestions:
                     # Show suggestions in a simple format
                     print(f"\n📜 History matches for '{current_text}':")
@@ -263,7 +263,7 @@ def main():
 
         session = PromptSession(
             completer=completer,
-            history=enhanced_history,
+            history=command_history,
             key_bindings=kb,
             auto_suggest=AutoSuggestFromHistory(),
             complete_while_typing=True,
