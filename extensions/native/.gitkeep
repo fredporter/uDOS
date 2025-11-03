@@ -1,5 +1,0 @@
-# This file ensures the native directory exists in git
-# Native binary extensions will be placed here
-# Examples:
-# - micro/micro (binary)
-# - other native tools

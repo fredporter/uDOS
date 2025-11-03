@@ -1,6 +1,0 @@
-# This file ensures the clone directory exists in git
-# All cloned extensions will be placed in subdirectories here
-# Examples:
-# - web/typo/
-# - web/cmd/
-# - native/micro/

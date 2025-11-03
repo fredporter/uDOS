@@ -49,14 +49,19 @@ pip-selfcheck.json
 !extensions/**/*.md
 !extensions/**/README.md
 
-# Ignore all cloned repositories
+# Ignore all cloned repositories and embedded git repos
 extensions/clone/
 extensions/native/
+extensions/cloned/
+extensions/web/c64css3/
+extensions/clone/monaspace-fonts/
 # But track clone directories structure
 !extensions/clone/
 !extensions/native/
+!extensions/cloned/
 !extensions/clone/.gitkeep
 !extensions/native/.gitkeep
+!extensions/cloned/.gitkeep
 
 # Sandbox - Working Directory (User Workspace)
 # ----------------------

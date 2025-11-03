@@ -12,12 +12,25 @@
 |:----------------|:----------|:---------|
 | [Quick Start](Quick-Start) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
 | [Installation](Installation) | [Architecture](Architecture) | [Mapping System](Mapping-System) |
-| [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Script Automation](Script-Automation) |
-| [Tutorials](Tutorials) | [Development History](Development-History) | [Extension Development](Extensions) |
+| [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Extensions System](Extensions-System) |
+| [Tutorials](Tutorials) | [Development History](Development-History) | [Latest Development](Latest-Development) |
 
 ---
 
-## ⚡ NEW in v1.0.6 - CLI Terminal Features
+## 🎨 NEW in v1.0.10 - Extensions & Retro Computing
+
+- **Bundled Web Extensions** - Native dashboard, System 7 desktop, teletext interface
+- **External Framework Integration** - Classicy (Mac OS 8), C64 CSS3, NES.css
+- **Typography System** - 15+ classic computing fonts with licensing compliance
+- **Setup Scripts** - Automated installation for external dependencies
+- **Legal Compliance** - Proper attribution and font licensing assessment
+- **Clean Architecture** - Separation between bundled and cloned content
+
+[🔗 Explore Extensions System →](Extensions-System) | [🔗 Latest Development →](Latest-Development)
+
+---
+
+## ⚡ CLI Terminal Features (v1.0.6)
 
 - **Enhanced Command History** - SQLite persistence with intelligent search
 - **Advanced Tab Completion** - Fuzzy matching with context-aware suggestions

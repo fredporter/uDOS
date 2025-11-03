@@ -1,523 +1,184 @@
-# uDOS Extensions
+# uDOS Extensions System
 
-This directory contains information about extensions that enhance uDOS with additional editors, servers, fonts, and tools. All extensions are **MIT or OFL licensed** and available as GitHub forks.
-
-> **For detailed contribution guidelines and development workflow, see the [Contributing Guide](https://github.com/fredporter/uDOS/wiki/Contributing) on the wiki.**
-
-> **For complete licensing information and attributions, see [CREDITS.md](../CREDITS.md) in the root directory.**
-
----
-
-## 🎯 Quick Start
-
-### Clone & Use (Recommended)
-```bash
-# Clone uDOS extensions directly:
-git clone https://github.com/fredporter/udos-micro
-git clone https://github.com/fredporter/udos-typo
-git clone https://github.com/fredporter/udos-cmd
-git clone https://github.com/fredporter/udos-fonts
-
-# Follow each extension's README for installation
-```
-
-### Using uDOS REPAIR System
-```bash
-# Let uDOS manage extensions automatically:
-REPAIR --install-extensions
-
-# Or install specific extensions:
-REPAIR --clone micro
-REPAIR --clone typo
-```
-
----
-
-## 🔧 Available Extensions
-
-All extensions are maintained as forks for stability and uDOS-specific customizations.
-
-### 📝 Editors
-
-#### micro - Modern Terminal Editor
-- **uDOS Fork**: https://github.com/fredporter/udos-micro
-- **Original**: https://github.com/zyedidia/micro
-- **License**: MIT
-- **Features**: Mouse support, multiple cursors, syntax highlighting for 75+ languages
-- **Installation**: See [micro installation guide](https://github.com/fredporter/udos-micro#installation)
-- **uDOS Integration**: Use with `EDIT --cli filename.txt`
-
-#### typo - Web-Based Markdown Editor
-- **uDOS Fork**: https://github.com/fredporter/udos-typo
-- **Original**: https://github.com/rossrobino/typo
-- **License**: MIT
-- **Features**: Live preview, auto-save, slide mode, code execution blocks
-- **Requirements**: Node.js 18+ and npm
-- **Installation**: `git clone` → `npm install` → `npm run dev`
-- **uDOS Integration**: Use with `SERVER START typo` then `EDIT --web filename.md`
-
-#### cmd.js - Web Terminal Emulator
-- **uDOS Fork**: https://github.com/fredporter/udos-cmd
-- **Original**: https://github.com/mrchimp/cmd
-- **License**: MIT
-- **Features**: Full terminal in browser, command history, tab completion
-- **Requirements**: Node.js 14+ and npm
-- **Installation**: `git clone` → `npm install` → `npm start`
-- **uDOS Integration**: Use with `SERVER START cmd` for browser terminal
-
----
-
-### 🎨 Fonts
-
-#### Monaspace - Coding Font Family
-- **uDOS Fork**: https://github.com/fredporter/udos-fonts
-- **Original**: https://github.com/githubnext/monaspace
-- **License**: SIL Open Font License (OFL) 1.1
-- **Variants**: Neon, Argon, Xenon, Radon, Krypton
-- **Installation**: Download WOFF2/OTF files from releases
-- **uDOS Integration**: Used in web terminal and font editor
-
----
-
-## 🌐 Native Web Apps
-
-These are original uDOS applications (tracked in this repository):
-
-### 🎛️ Dashboard
-- **Path**: `extensions/web/dashboard/`
-- **Purpose**: System overview and control interface
-- **Features**: Real-time stats, server management, file browser
-- **Usage**: `DASHBOARD WEB` or `SERVER START dashboard`
-
-### ✏️ Font Editor
-- **Path**: `extensions/web/font-editor/`
-- **Purpose**: 16×16 bitmap font creation tool
-- **Features**: Pixel editor, preview, export to various formats
-- **Usage**: `SERVER START font-editor`
-
-### 📖 Markdown Viewer
-- **Path**: `extensions/web/markdown-viewer/`
-- **Purpose**: Enhanced markdown rendering with syntax highlighting
-- **Features**: GitHub Flavored Markdown, code highlighting, print styles
-- **Usage**: `SERVER START markdown-viewer`
-
-### 💻 Terminal Interface
-- **Path**: `extensions/web/terminal/`
-- **Purpose**: uDOS command interface in browser
-- **Features**: Command execution, history, file upload/download
-- **Usage**: `SERVER START terminal`
-
-### 🎨 Shared Components
-- **Path**: `extensions/web/shared/`
-- **Purpose**: Common CSS frameworks and JavaScript utilities
-- **Contents**: classic.css, NES.css, system.css, uDOS grid system
-
----
-
-## 📝 Editors
-
-### micro - Modern Terminal Editor
-
-A modern, intuitive terminal-based text editor with mouse support, multiple cursors, and syntax highlighting.
-
-**Installation:**
-```bash
-# From uDOS command prompt:
-EDIT --install-micro
-
-# Or manually:
-cd extensions
-bash setup_micro.sh
-```
-
-**Features:**
-- Mouse support and clipboard integration
-- Multiple cursors and selections
-- Syntax highlighting for 75+ languages
-- Plugin system with 50+ plugins available
-- Cross-platform (macOS, Linux, Windows)
-
-**Usage:**
-```
-EDIT --cli myfile.txt        # Uses micro if installed
-EDIT --editor micro test.md  # Force micro
-```
-
-**Resources:**
-- [micro GitHub](https://github.com/zyedidia/micro)
-- [Documentation](https://github.com/zyedidia/micro/tree/master/runtime/help)
-
----
-
-### typo - Web-Based Markdown Editor
-
-A Svelte/Node.js web application for editing markdown with live preview, auto-save, and slide mode.
-
-**Installation:**
-```bash
-cd extensions
-bash setup_typo.sh
-```
-
-**Requirements:**
-- Node.js 18+ and npm
-
-**Features:**
-- Live markdown preview with GitHub Flavored Markdown
-- File System Access API for seamless file editing
-- Auto-save and slide presentation mode
-- Code execution blocks (JavaScript, Python, etc.)
-- Customizable themes
-
-**Usage:**
-```
-SERVER START typo            # Start on port 5173
-EDIT --web document.md       # Edit in browser
-SERVER STATUS                # Check if running
-SERVER STOP typo             # Stop server
-```
-
-**Resources:**
-- [typo GitHub](https://github.com/rossrobino/typo)
-- [Live Demo](https://typo.robino.dev/)
-- See [`web/README.md`](web/README.md) for detailed integration guide
-
----
-
-### cmd.js - Web Terminal Emulator
-
-An HTML5 command-line terminal running in the browser, with Monaspace font integration and command history.
-
-**Installation:**
-```bash
-cd extensions
-bash setup_cmd.sh
-```
-
-**Requirements:**
-- Node.js 14+ and npm
-- Grunt (installed automatically)
-
-**Features:**
-- Full-featured terminal interface in the browser
-- All 5 Monaspace font variants with real-time switching
-- Command history with localStorage persistence
-- Tab completion support
-- Light/dark theme toggle
-- Responsive design for desktop and mobile
-
-**Usage:**
-```
-SERVER START cmd             # Start on port 3000
-SERVER START cmd --port 8080 # Custom port
-SERVER STATUS cmd            # Check server status
-SERVER STOP cmd              # Stop server
-```
-
-**Terminal Commands:**
-```
-🔮 > help                    # Show available commands
-🔮 > font neon               # Switch to Monaspace Neon
-🔮 > fonts                   # List all font variants
-🔮 > status                  # Terminal configuration
-🔮 > clear                   # Clear screen
-🔮 > invert                  # Toggle theme
-```
-
-**Font Variants:**
-- **neon** - Default, clean and modern
-- **argon** - Warm and readable
-- **xenon** - Editorial slab serif
-- **radon** - Handwriting style
-- **krypton** - Technical and precise
-
-**Architecture:**
-- **Core**: mrchimp/cmd terminal library (MIT license)
-- **Server**: http-server (static file serving)
-- **Integration**: udos_cmd_bridge.html with Monaspace fonts
-- **State**: Font preferences saved to browser localStorage
-- **Future**: Backend API for uDOS command forwarding
-
-**Resources:**
-- [cmd.js GitHub](https://github.com/mrchimp/cmd)
-- See [`web/cmd/README.md`](web/cmd/README.md) for detailed documentation
-
----
-
-### font-editor - 16×16 Bitmap Font Creator
-
-A retro-inspired web-based pixel editor for creating custom 16×16 monospace bitmap fonts.
-
-**Installation:**
-No installation needed - pure HTML/CSS/JS application.
-
-**Usage:**
-```bash
-# Open directly in browser:
-open extensions/web/font-editor/index.html
-
-# Or with HTTP server:
-cd extensions/web/font-editor
-python3 -m http.server 8000
-# Visit http://localhost:8000
-```
-
-**Features:**
-- **16×16 Pixel Grid** - Standard uCELL format
-- **Real-time Preview** - See your font rendered instantly
-- **Auto-Save** - Changes saved to browser localStorage
-- **Export/Import** - JSON format for sharing
-- **120 Character Slots** - ASCII + Box Drawing + Block Elements
-- **Editing Tools** - Clear, Fill, Flip H/V, Rotate, Invert
-- **Copy/Paste** - Duplicate glyphs quickly
-- **Keyboard Shortcuts** - Fast workflow
-- **Retro Design** - Green-on-black terminal aesthetic
-
-**Workflow:**
-1. Open font-editor in browser
-2. Select character from dropdown
-3. Draw on 16×16 grid (click/drag)
-4. Use tools to transform pixels
-5. Export as JSON when complete
-6. (Future) Convert to WOFF2 for terminal use
-
-**File Format:**
-Fonts export as JSON with binary pixel data:
-```json
-{
-  "fontName": "uDOS Custom",
-  "author": "Your Name",
-  "glyphs": {
-    "U+0041": ["0000000000000000", "0000000110000000", ...]
-  }
-}
-```
-
-**Resources:**
-- See [`web/font-editor/README.md`](web/font-editor/README.md) for detailed documentation
-- Integration with Monaspace via CSS unicode-range
-- ~2KB per font vs 625KB for Monaspace (300× smaller)
-
----
-
-## 🔤 Fonts
-
-### Monaspace - Professional Coding Fonts
-
-A superfamily of five coding fonts from GitHub Next with advanced typography features.
-
-**Installation:**
-```bash
-cd extensions
-bash setup_monaspace.sh
-```
-
-**Variants:**
-- **Neon** - Neo-grotesque sans (clean and modern) - *Default*
-- **Argon** - Humanist sans (warm and readable)
-- **Xenon** - Slab serif (editorial and strong)
-- **Radon** - Handwriting (casual and personal)
-- **Krypton** - Mechanical sans (technical and precise)
-
-**Features:**
-- **Texture Healing™** - Advanced character spacing for readability
-- **Coding Ligatures** - Enhanced symbol combinations
-- **Powerline Symbols** - Terminal integration glyphs
-- **Variable Font Technology** - Flexible weight and width control
-
-**Usage:**
-```
-FONT LIST                    # View all variants with status
-FONT SET ARGON               # Switch to Argon variant
-FONT INFO                    # Current configuration
-```
-
-**Web Integration:**
-- Automatically available to typo editor and cmd.js terminal
-- WOFF2 format optimized for web performance
-- Configure via `data/FONTS.UDO`
-
-**CLI Terminal Use:**
-For native terminal use (outside browser), install system fonts manually:
-- **macOS**: Open Font Book → Add fonts from `extensions/clone/fonts/monaspace/`
-- **Linux**: Copy to `~/.local/share/fonts/` and run `fc-cache -fv`
-- **Windows**: Install OTF files to `C:\Windows\Fonts\`
-
-**Resources:**
-- [Monaspace GitHub](https://github.com/githubnext/monaspace)
-- [Official Site](https://monaspace.githubnext.com/)
-- [Configuration](../data/FONTS.UDO)
-
----
-
-## 📂 Directory Structure
+## 📁 **Directory Structure**
 
 ```
 extensions/
-├── README.md              # This file - Extension documentation
-├── web/                   # Native uDOS web applications (tracked in git)
-│   ├── dashboard/         # System overview and control interface
-│   │   ├── index.html
-│   │   ├── server.py
-│   │   ├── css/
-│   │   └── js/
-│   ├── font-editor/       # 16×16 bitmap font creator
-│   │   ├── index.html
-│   │   ├── server.py
-│   │   ├── css/
-│   │   └── js/
-│   ├── markdown-viewer/   # Enhanced markdown rendering
-│   │   ├── index.html
-│   │   ├── server.py
-│   │   └── css/
-│   ├── terminal/          # Web terminal interface
-│   │   ├── index.html
-│   │   ├── server.py
-│   │   └── QUICKSTART.md
-│   └── shared/            # Common CSS/JS components
-│       ├── classic.css    # Mac OS 8.1 styling
-│       ├── nes.css        # Retro gaming styling
-│       ├── system.css     # Windows styling
-│       └── udos-*.js      # uDOS utilities
-└── (Third-party tools)    # Clone separately as needed
-    ├── micro/             # Clone: fredporter/udos-micro
-    ├── typo/              # Clone: fredporter/udos-typo
-    ├── cmd/               # Clone: fredporter/udos-cmd
-    └── monaspace/         # Clone: fredporter/udos-fonts
+├── bundled/                    # uDOS-native extensions (git tracked)
+│   └── web/                   # Web-based UI extensions
+│       ├── dashboard/        # System dashboard interface
+│       ├── font-editor/      # Web-based font editing tools
+│       ├── shared/           # Shared CSS/JS libraries
+│       ├── system-desktop/   # System 7 desktop environment
+│       ├── system-style/     # OS styling frameworks
+│       └── teletext/         # Broadcast TV interface
+├── cloned/                    # External repositories (git ignored)
+│   ├── micro/                # Modern terminal editor
+│   ├── typo/                 # Web-based markdown editor
+│   ├── monaspace-fonts/      # GitHub Next monospace fonts
+│   ├── classicy-desktop/     # Mac OS 8 Platinum interface
+│   ├── c64css3/              # Commodore 64 CSS framework
+│   ├── nes-css/              # 8-bit Nintendo CSS framework
+│   └── cmd/                  # Web terminal (optional)
+├── fonts/                     # Font assets with licensing
+│   ├── LICENSE_ASSESSMENT.md # Legal compliance documentation
+│   ├── ChicagoFLF.ttf       # Classic Mac font (public domain)
+│   ├── chicago-12-1/        # Chicago variant (CC BY-SA)
+│   ├── mallard-*/           # Mallard font family (CC BY-SA)
+│   └── sysfont/             # System font (OFL)
+└── setup/                     # Installation scripts
+    ├── setup_all.sh          # Master installer
+    ├── setup_micro.sh        # Micro editor setup
+    ├── setup_typo.sh         # Typo editor setup
+    ├── setup_cmd.sh          # CMD terminal setup
+    └── setup_monaspace.sh    # Monaspace fonts setup
 ```
 
-**Third-party tools are NOT included in uDOS repository.**
-Clone them separately as needed from the GitHub forks.
+## 🚀 **Quick Start**
 
----
-
-## 🚀 Installation Guide
-
-### For End Users (Recommended)
-
-**Just want to use the tools?** Clone them directly:
-
+### **Install External Dependencies**
 ```bash
-# Choose what you need:
-cd ~/tools  # or wherever you keep tools
+# Install all essential external tools
+./extensions/setup/setup_all.sh
 
-# Modern terminal editor
-git clone https://github.com/fredporter/udos-micro
-cd udos-micro && make install  # Follow their install guide
-
-# Web markdown editor
-git clone https://github.com/fredporter/udos-typo
-cd udos-typo && npm install && npm run dev
-
-# Browser terminal
-git clone https://github.com/fredporter/udos-cmd
-cd udos-cmd && npm install && npm start
-
-# Coding fonts
-git clone https://github.com/fredporter/udos-fonts
-# Download fonts from releases page
+# Or install individually
+./extensions/setup/setup_micro.sh       # Modern terminal editor
+./extensions/setup/setup_typo.sh        # Web markdown editor
+./extensions/setup/setup_classicy.sh    # Mac OS 8 interface
+./extensions/setup/setup_c64css3.sh     # C64 styling framework
+./extensions/setup/setup_nes.sh         # NES styling framework
+./extensions/setup/setup_cmd.sh         # Web terminal (optional)
 ```
 
-### For Developers & Customizers
+### **Use Bundled Extensions**
+All bundled extensions are immediately available:
+- Launch web extensions via uDOS dashboard
+- Access styling frameworks in web development
+- Use shared libraries across projects
 
-**Want to modify or contribute?** Fork first:
+## 🎨 **Bundled Web Extensions**
 
-1. **Fork on GitHub**: Go to each repo and click "Fork"
-2. **Clone your fork**:
-   ```bash
-   git clone https://github.com/yourusername/udos-micro
-   git clone https://github.com/yourusername/udos-typo
-   ```
-3. **Make changes** and submit pull requests back to `fredporter/udos-*`
+### **Dashboard**
+- **Description**: Multi-theme system dashboard interface
+- **Technology**: HTML5 + CSS3 + JavaScript
+- **Features**: Real-time metrics, file browser integration, customizable widgets
+- **Usage**: Core uDOS system interface
 
-### For uDOS Integration
+### **System Desktop**
+- **Description**: System 7 desktop environment recreation
+- **Technology**: Pure CSS3 + JavaScript
+- **Features**: Authentic Mac window management, classic styling
+- **Integration**: Direct uDOS command integration
 
-**Want tight integration?** Use the OUTPUT command:
+### **Shared Libraries**
+- **Description**: Common CSS/JS frameworks for all extensions
+- **Technology**: Modular CSS + JavaScript utilities
+- **Features**: Typography system, UI components, grid system
+- **Usage**: Foundation for all uDOS web interfaces
 
-```bash
-# In uDOS:
-OUTPUT START typo      # Starts typo server
-OUTPUT START cmd       # Starts cmd.js terminal
-OUTPUT STATUS          # Check all running servers
-OUTPUT STOP typo       # Stop specific server
-```
+### **Teletext Interface**
+- **Description**: Broadcast television teletext recreation
+- **Technology**: CSS + JavaScript with block character support
+- **Features**: Mosaic mode, classic TV styling, authentic rendering
+- **Usage**: Retro information display system
+
+## 🛠️ **External Dependencies**
+
+### **Classicy Desktop**
+- **Repository**: https://github.com/robbiebyrd/classicy
+- **Description**: Authentic Mac OS 8 Platinum interface recreation
+- **Features**: React-based, window management, classic Mac styling
+- **Installation**: Automatic clone and npm build
+
+### **C64 CSS3**
+- **Repository**: https://github.com/RoelN/c64css3
+- **Description**: Commodore 64 styling framework
+- **Features**: Pixel-perfect C64 colors, fonts, and interface elements
+- **Usage**: Import CSS framework in retro projects
+
+### **NES.css**
+- **Repository**: https://github.com/nostalgic-css/NES.css
+- **Description**: 8-bit Nintendo Entertainment System CSS framework
+- **Features**: Authentic NES styling, 8-bit fonts, pixel art support
+- **Usage**: Retro gaming interfaces and 8-bit themed projects
+
+### **micro Editor**
+- **Repository**: https://github.com/zyedidia/micro
+- **Description**: Modern terminal-based text editor
+- **Features**: Syntax highlighting, plugin system, modern keybindings
+- **Installation**: Automatic binary download or source build
+
+### **typo Editor**
+- **Repository**: https://github.com/rossrobino/typo
+- **Description**: Minimalist web-based markdown editor
+- **Features**: Real-time preview, clean interface, export options
+- **Usage**: Web-based editing within uDOS interface
+
+### **CMD Terminal** (Optional)
+- **Repository**: https://github.com/mrchimp/cmd
+- **Description**: Web-based terminal emulator
+- **Features**: Command history, extensible command system
+- **Note**: Optional component for web terminal needs
+
+### **Monaspace Fonts**
+- **Repository**: https://github.com/githubnext/monaspace
+- **Description**: GitHub Next's coding font family
+- **Features**: Texture healing, multiple weights, coding ligatures
+- **Usage**: Enhanced typography for code editing
+
+## 🔧 **Development Guidelines**
+
+### **Adding Bundled Extensions**
+1. Create extension in `bundled/web/[extension-name]/`
+2. Include README.md with description and usage
+3. Add launch script if needed
+4. Update this README with extension details
+5. Commit to git repository
+
+### **Adding External Dependencies**
+1. Create setup script in `setup/setup_[name].sh`
+2. Configure to clone into `cloned/[name]/`
+3. Update `setup_all.sh` to include new dependency
+4. Test installation process
+5. Update documentation
+
+### **Font Management**
+1. Add fonts to `fonts/` directory
+2. Include license files for each font
+3. Update `LICENSE_ASSESSMENT.md` with legal status
+4. Reference in typography system CSS
+5. Test cross-platform compatibility
+
+## ⚖️ **Legal Compliance**
+
+All bundled fonts are legally distributable:
+- **ChicagoFLF**: Public domain
+- **Chicago 12.1**: CC BY-SA 3.0
+- **Mallard family**: CC BY-SA 3.0
+- **sysfont**: SIL Open Font License 1.1
+
+See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
+
+## 🎯 **Platform Support**
+
+### **Tested Platforms**
+- ✅ macOS (Intel & Apple Silicon)
+- ✅ Linux (Ubuntu, Debian, Arch)
+- ✅ Windows (WSL2 recommended)
+
+### **Browser Compatibility**
+- ✅ Chrome/Chromium 90+
+- ✅ Firefox 88+
+- ✅ Safari 14+
+- ✅ Edge 90+
+
+## 📚 **Additional Resources**
+
+- **uDOS Wiki**: Complete extension development guides
+- **Font Documentation**: Typography system usage
+- **API Reference**: Extension integration patterns
+- **Community**: GitHub discussions and issues
 
 ---
 
-## 🔧 Extension Management
-
-### CLI Editors
-
-The `EDIT` command auto-detects available editors:
-1. User preference (set via `EDIT --editor <name>`)
-2. micro (if installed)
-3. nano (system default)
-4. vim/vi (fallback)
-
-**Configuration:**
-- Preferences stored in `data/USER.UDT` under `EDITOR_PREFERENCES`
-- View current config: `EDIT --config`
-
-### Web Servers
-
-The `SERVER` command manages web-based extensions:
-- Process tracking with PID persistence
-- Port conflict detection
-- Browser auto-launch
-- Graceful shutdown
-
-**Available Servers:**
-- **typo** - Markdown editor (default port 5173)
-- **cmd** - Terminal emulator (default port 3000)
-
-**State File:** `sandbox/.server_state.json`
-
-### Font System
-
-The `FONT` command manages Monaspace variants:
-- Lists installed fonts and their status
-- Sets user preferences for web interfaces
-- Displays current configuration
-
-**Configuration Files:**
-- Font metadata: `data/FONTS.UDO`
-- User preferences: `data/USER.UDT`
-
----
-
-## 🚀 Coming Soon
-
-Future extensions planned:
-- **Backend API** - Flask/FastAPI for cmd.js command forwarding
-- **FontForge** - Font editing capabilities
-- **WebSocket Support** - Real-time terminal communication
-- Additional editors and tools
-
----
-
-## .gitignore
-
-All downloaded/installed extension files are in the `clone/` folder and ignored by git. This keeps the repository clean while allowing full local installations.
-
-**Tracked (synced with git):**
-- `README.md` files
-- `setup_*.sh` installer scripts
-- Documentation files
-
-**Ignored (local installations only):**
-- `clone/` - All downloaded/built extensions
-  - `clone/fonts/monaspace/` - Font files
-  - `clone/web/typo/` - typo Node.js app
-  - `clone/web/cmd/` - cmd.js repository
-  - `clone/native/micro/` - micro binary
-
-This structure ensures your git repository stays lightweight while supporting full local extension installations.
-
----
-
-## 📖 Documentation
-
-- **Main Wiki**: [uDOS Wiki](https://github.com/fredporter/uDOS/wiki)
-- **Contributing**: [Contributing Guide](https://github.com/fredporter/uDOS/wiki/Contributing)
-- **Command Reference**: [Command Reference](https://github.com/fredporter/uDOS/wiki/Command-Reference)
-- **Development Workflow**: See wiki for Development Round process
+**🎉 The uDOS Extensions system provides a clean separation between bundled content and external dependencies, ensuring legal compliance while maintaining development flexibility.**
