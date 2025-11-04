@@ -3,8 +3,8 @@
  * 16×16 Teletext Font Editor with Polaroid colors
  */
 
-@import '../../shared/udos-v13-theme.css';
-@import '../../shared/udos-grid.css';
+@import '../../../core/themes/udos-v13-theme.css';
+@import '../../../core/css/udos-grid.css';
 
 * {
     margin: 0;

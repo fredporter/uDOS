@@ -45,8 +45,8 @@
     },
     "typography": {
       "enabled": true,
-      "source": "../shared/typography-system.css",
-      "manager": "../shared/typography-manager.js",
+      "source": "../../core/css/typography-system.css",
+      "manager": "../../core/js/typography-manager.js",
       "themes": [
         "classic-mac",
         "system-mono",

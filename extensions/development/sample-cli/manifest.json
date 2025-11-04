@@ -1,0 +1,23 @@
+{
+  "name": "sample-cli",
+  "version": "1.0.0",
+  "description": "A uDOS CLI extension: sample-cli",
+  "author": "CLI Developer",
+  "type": "cli",
+  "created": "2025-11-03T23:47:42.778436",
+  "compatibility": {
+    "uDOS": ">=1.0.11"
+  },
+  "features": [
+    "Command-line interface",
+    "uDOS command integration",
+    "Terminal-based interaction"
+  ],
+  "dependencies": [],
+  "files": {
+    "main": "sample-cli.py"
+  },
+  "commands": [
+    "SAMPLE-CLI"
+  ]
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ extension_name|title }} - uDOS Extension</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>{{ extension_name|title }}</h1>
+            <p class="version">Version {{ version }}</p>
+        </header>
+        
+        <main class="main">
+            <div class="welcome">
+                <h2>Welcome to my-test-extension!</h2>
+                <p>This is a uDOS web extension template.</p>
+                <p>Start building your amazing extension here.</p>
+            </div>
+            
+            <div class="features">
+                <h3>Template Features:</h3>
+                <ul>
+                    <li>✅ Flask web server</li>
+                    <li>✅ HTML templates</li>
+                    <li>✅ CSS styling</li>
+                    <li>✅ JavaScript functionality</li>
+                    <li>✅ API endpoints</li>
+                    <li>✅ uDOS integration</li>
+                </ul>
+            </div>
+            
+            <div class="actions">
+                <button id="status-btn" class="btn">Check Status</button>
+                <button id="info-btn" class="btn">Extension Info</button>
+            </div>
+            
+            <div id="output" class="output"></div>
+        </main>
+        
+        <footer class="footer">
+            <p>Created with uDOS Extension Development Tools</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
