@@ -20,6 +20,13 @@
    - ✅ Dependencies checked
    - ✅ Backward compatibility maintained
 
+4. **v1.0.5 - Assisted Task** ✅ COMPLETE
+   - ✅ OK ASK implementation with Gemini integration
+   - ✅ OK DEV with context awareness (project, git, Python)
+   - ✅ Support for both new Copilot CLI and legacy gh extension
+   - ✅ READ command functional
+   - ✅ Enhanced error messages and installation guidance
+
 ## 🔄 Next Steps
 
 ### 1. Gemini API Setup (Optional)
@@ -43,13 +50,19 @@ gh extension remove github/gh-copilot
 ### 3. Command Implementation Roadmap
 Based on updated command structure:
 
-**v1.0.5 - Assisted Task** (OK ASK, OK DEV, READ)
-- [ ] Test OK ASK with real Gemini API key
-- [ ] Migrate to new GitHub Copilot CLI
-- [ ] Implement READ command enhancements
-- [ ] Add context awareness for OK DEV
+**v1.0.5 - Assisted Task** ✅ COMPLETE
+- ✅ OK ASK with Gemini API integration
+- ✅ OK DEV with context awareness (project, git, Python version)
+- ✅ Support for new standalone Copilot CLI and legacy gh extension
+- ✅ READ command functional
+- ✅ Enhanced error handling and installation guidance
 
-**v1.0.6 - Automation** (RUN)
+**v1.0.6 - Automation** (NEXT)
+- [ ] RUN command for script execution
+- [ ] .uscript file handling
+- [ ] Command chaining
+- [ ] Error handling in scripts
+- [ ] Background process management
 - [ ] Script execution framework
 - [ ] .uscript file handling
 - [ ] Command chaining
@@ -98,11 +111,11 @@ RUN tests/test_undo.py
 
 ## 📊 Current Status
 
-**Commands Implemented:** 8/8 core categories defined
+**Commands Implemented:** 3/8 core categories complete
 - File Operations: LIST, LOAD, SAVE, EDIT ⏳ (pending)
 - Grid Management: GRID, NEW GRID, GRID LIST, SHOW GRID ⏳ (pending)
-- Assisted Task: OK ASK, OK DEV, READ ✅ (implemented)
-- Automation: RUN ⏳ (pending)
+- **Assisted Task: OK ASK, OK DEV, READ ✅ COMPLETE**
+- Automation: RUN ⏳ (next - v1.0.6)
 - System: REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR ✅ (exists)
 - History: UNDO, REDO, RESTORE ⏳ (pending)
 - Navigation: MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP ✅ (exists)
@@ -110,10 +123,10 @@ RUN tests/test_undo.py
 
 ## 🎯 Immediate Priorities
 
-1. **Test with real API keys** - Verify end-to-end functionality
-2. **Migrate Copilot CLI** - Move to non-deprecated version
-3. **Begin v1.0.5 round** - Complete Assisted Task category
-4. **Start v1.0.6 round** - Implement RUN automation
+1. **Begin v1.0.6 - Automation** - Implement RUN command for script execution
+2. **Test OK ASK with real API key** - Verify end-to-end Gemini functionality (optional)
+3. **Install new Copilot CLI** - Replace deprecated gh extension (when ready)
+4. **Document v1.0.5 achievements** - Add examples and use cases
 
 ## 📝 Notes
 
