@@ -58,7 +58,7 @@
 				"command": "bash",
 				"args": [
 					"-c",
-					"printf \"STATUS --live\\nREPAIR auto\\nTREE\\nDASHBOARD CLI\\nOUTPUT STATUS\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+					"printf \"STATUS --live\\nREPAIR auto\\nTREE\\nDASHBOARD CLI\\nPOKE STATUS\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
 				],
 				"group": "test",
 				"dependsOn": "Check Virtual Environment"
@@ -156,7 +156,7 @@
 				"command": "bash",
 				"args": [
 					"-c",
-					"echo '🔄 v1.0.5 WEB INFRA Round Checklist:' && echo '✅ OUTPUT START command' && echo '✅ OUTPUT STOP command' && echo '✅ OUTPUT STATUS command' && echo '✅ Web server functionality' && echo '⚠️  Operator: Review and adjust as needed'"
+					"echo '🔄 v1.0.5 WEB INFRA Round Checklist:' && echo '✅ POKE START command' && echo '✅ POKE STOP command' && echo '✅ POKE STATUS command' && echo '✅ Web server functionality' && echo '⚠️  Operator: Review and adjust as needed'"
 				],
 				"group": "test"
 			},

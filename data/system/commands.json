@@ -3,40 +3,58 @@
   "COMMAND_SET_VERSION": "1.0.0",
   "COMMANDS": [
     {
-      "NAME": "ASK",
-      "SYNTAX": "ASK \"<question>\" [FROM \"<panel>\"]",
-      "DESCRIPTION": "Ask Gemini AI a question with optional panel context.",
-      "UCODE_TEMPLATE": "[AI|ASK*$1*$2]",
+      "NAME": "OK",
+      "SYNTAX": "OK ASK \"<question>\" | OK DEV \"<task>\"",
+      "DESCRIPTION": "AI assistance - ASK for Gemini help, DEV for GitHub Copilot CLI development tasks.",
+      "UCODE_TEMPLATE": "[ASSISTANT|OK*$1*$2*$3]",
       "DEFAULT_PARAMS": {
-        "$2": null
-      }
+        "$2": null,
+        "$3": null
+      },
+      "EXAMPLES": [
+        "OK ASK how do I implement UNDO?",
+        "OK DEV create a grid command handler",
+        "OK DEV explain this git error"
+      ]
     },
     {
       "NAME": "EXPLAIN",
       "SYNTAX": "EXPLAIN \"<command>\"",
-      "DESCRIPTION": "Explain what a command does using Gemini AI.",
-      "UCODE_TEMPLATE": "[AI|EXPLAIN*$1]",
+      "DESCRIPTION": "Get assisted explanation of what a command does.",
+      "UCODE_TEMPLATE": "[ASSIST|EXPLAIN*$1]",
       "DEFAULT_PARAMS": {}
     },
     {
       "NAME": "GENERATE",
       "SYNTAX": "GENERATE \"<description>\"",
-      "DESCRIPTION": "Generate a uDOS script from natural language description.",
-      "UCODE_TEMPLATE": "[AI|GENERATE*$1]",
+      "DESCRIPTION": "Generate a uDOS script from natural language description using assisted guidance.",
+      "UCODE_TEMPLATE": "[ASSIST|GENERATE*$1]",
       "DEFAULT_PARAMS": {}
     },
     {
       "NAME": "DEBUG",
       "SYNTAX": "DEBUG \"<error message>\"",
-      "DESCRIPTION": "Get help debugging an error from Gemini AI.",
-      "UCODE_TEMPLATE": "[AI|DEBUG*$1]",
+      "DESCRIPTION": "Get assisted help debugging an error.",
+      "UCODE_TEMPLATE": "[ASSIST|DEBUG*$1]",
       "DEFAULT_PARAMS": {}
     },
     {
-      "NAME": "AI CLEAR",
-      "SYNTAX": "AI CLEAR",
-      "DESCRIPTION": "Clear Gemini AI conversation history.",
-      "UCODE_TEMPLATE": "[AI|CLEAR]",
+      "NAME": "READ",
+      "SYNTAX": "READ <panel>",
+      "DESCRIPTION": "Read and analyze panel content for insights and suggestions.",
+      "UCODE_TEMPLATE": "[ASSIST|READ*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "READ docs",
+        "READ poke",
+        "READ logs"
+      ]
+    },
+    {
+      "NAME": "ASSIST CLEAR",
+      "SYNTAX": "ASSIST CLEAR",
+      "DESCRIPTION": "Clear assisted conversation history.",
+      "UCODE_TEMPLATE": "[ASSIST|CLEAR]",
       "DEFAULT_PARAMS": {}
     },
     {
@@ -141,6 +159,143 @@
         "EDIT --config",
         "EDIT --install-micro"
       ]
+    },
+    {
+      "NAME": "FILE PICK",
+      "SYNTAX": "FILE PICK [pattern]",
+      "DESCRIPTION": "Interactive file picker with fuzzy search capabilities. Use pattern to filter files.",
+      "UCODE_TEMPLATE": "[FILE|PICK*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE PICK",
+        "FILE PICK *.md",
+        "FILE PICK README"
+      ]
+    },
+    {
+      "NAME": "FILE RECENT",
+      "SYNTAX": "FILE RECENT [count] [workspace]",
+      "DESCRIPTION": "Show recently accessed files with access frequency and timestamps.",
+      "UCODE_TEMPLATE": "[FILE|RECENT*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "10",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "FILE RECENT",
+        "FILE RECENT 5",
+        "FILE RECENT 20 sandbox"
+      ]
+    },
+    {
+      "NAME": "FILE BATCH",
+      "SYNTAX": "FILE BATCH <DELETE|COPY|MOVE> <pattern> [destination]",
+      "DESCRIPTION": "Batch file operations with pattern matching. Delete, copy, or move multiple files at once.",
+      "UCODE_TEMPLATE": "[FILE|BATCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE BATCH DELETE *.tmp",
+        "FILE BATCH COPY *.md backup/",
+        "FILE BATCH MOVE logs/* archive/"
+      ]
+    },
+    {
+      "NAME": "FILE BOOKMARKS",
+      "SYNTAX": "FILE BOOKMARKS [ADD|REMOVE] [filename]",
+      "DESCRIPTION": "Manage persistent bookmark system with tags and custom names.",
+      "UCODE_TEMPLATE": "[FILE|BOOKMARKS*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "FILE BOOKMARKS",
+        "FILE BOOKMARKS ADD README.md",
+        "FILE BOOKMARKS REMOVE config.json"
+      ]
+    },
+    {
+      "NAME": "FILE PREVIEW",
+      "SYNTAX": "FILE PREVIEW <filename>",
+      "DESCRIPTION": "Preview file content with metadata and git status display.",
+      "UCODE_TEMPLATE": "[FILE|PREVIEW*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE PREVIEW README.md",
+        "FILE PREVIEW data.json"
+      ]
+    },
+    {
+      "NAME": "FILE INFO",
+      "SYNTAX": "FILE INFO <filename>",
+      "DESCRIPTION": "Show comprehensive file information and statistics.",
+      "UCODE_TEMPLATE": "[FILE|INFO*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE INFO README.md",
+        "FILE INFO script.py"
+      ]
+    },
+    {
+      "NAME": "BANK SEARCH",
+      "SYNTAX": "BANK SEARCH <query> [category] [limit]",
+      "DESCRIPTION": "Search the local data bank with full-text search and ranking.",
+      "UCODE_TEMPLATE": "[BANK|SEARCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$2": "",
+        "$3": "10"
+      },
+      "EXAMPLES": [
+        "BANK SEARCH \"OK command\"",
+        "BANK SEARCH mapping commands 5",
+        "BANK SEARCH python concepts"
+      ]
+    },
+    {
+      "NAME": "BANK LIST",
+      "SYNTAX": "BANK LIST [category]",
+      "DESCRIPTION": "Browse data bank by categories and topics.",
+      "UCODE_TEMPLATE": "[BANK|LIST*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "BANK LIST",
+        "BANK LIST commands",
+        "BANK LIST concepts"
+      ]
+    },
+    {
+      "NAME": "BANK SHOW",
+      "SYNTAX": "BANK SHOW <item>",
+      "DESCRIPTION": "Display data bank content with panel integration.",
+      "UCODE_TEMPLATE": "[BANK|SHOW*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "BANK SHOW \"OK command\"",
+        "BANK SHOW mapping"
+      ]
+    },
+    {
+      "NAME": "BANK INDEX",
+      "SYNTAX": "BANK INDEX",
+      "DESCRIPTION": "Manual reindexing of data bank with statistics.",
+      "UCODE_TEMPLATE": "[BANK|INDEX]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "BANK STATS",
+      "SYNTAX": "BANK STATS",
+      "DESCRIPTION": "Show comprehensive data bank metrics and statistics.",
+      "UCODE_TEMPLATE": "[BANK|STATS]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "BANK CATEGORIES",
+      "SYNTAX": "BANK CATEGORIES",
+      "DESCRIPTION": "List all data bank categories and their overview.",
+      "UCODE_TEMPLATE": "[BANK|CATEGORIES]",
+      "DEFAULT_PARAMS": {}
     },
     {
       "NAME": "REPAIR",
@@ -331,8 +486,8 @@
       }
     },
     {
-      "NAME": "OUTPUT",
-      "SYNTAX": "OUTPUT <START|STOP|STATUS|LIST> [output_name] [options]",
+      "NAME": "POKE",
+      "SYNTAX": "POKE <START|STOP|STATUS|LIST> [output_name] [options]",
       "DESCRIPTION": "Manage web-based output interfaces (typo editor, cmd terminal, dashboard, etc.). Start/stop servers, check status, and list available outputs. Alias: SERVER",
       "UCODE_TEMPLATE": "[SYSTEM|OUTPUT*$1*$2]",
       "DEFAULT_PARAMS": {},
@@ -344,7 +499,7 @@
         "dashboard": "Unified control panel for all web outputs - Default port: 8887"
       },
       "SUBCOMMANDS": {
-        "START": "Start an output interface (e.g., OUTPUT START dashboard)",
+        "START": "Start an output interface (e.g., POKE START dashboard)",
         "STOP": "Stop a running output server",
         "STATUS": "Check output server status (or all servers)",
         "LIST": "List all available output interfaces"
@@ -354,20 +509,20 @@
         "--no-browser": "Don't auto-open browser"
       },
       "EXAMPLES": [
-        "OUTPUT LIST",
-        "OUTPUT START dashboard",
-        "OUTPUT START typo",
-        "OUTPUT START cmd",
-        "OUTPUT START cmd --port 8080",
-        "OUTPUT STATUS",
-        "OUTPUT STOP typo",
+        "POKE LIST",
+        "POKE START dashboard",
+        "POKE START typo",
+        "POKE START cmd",
+        "POKE START cmd --port 8080",
+        "POKE STATUS",
+        "POKE STOP typo",
         "SERVER START dashboard"
       ],
       "NOTES": [
         "Dashboard provides unified control for all web outputs",
         "Access dashboard at http://localhost:8887 (default)",
         "Dashboard shows real-time status and logs for all outputs",
-        "SERVER is an alias for OUTPUT (legacy compatibility)"
+        "SERVER is an alias for POKE (legacy compatibility)"
       ]
     },
     {

@@ -82,7 +82,7 @@ class ConfigMigrator:
 UDOS_USERNAME='{username}'
 UDOS_PASSWORD=''
 
-# Gemini AI API Key
+# Gemini OK Assisted Task API Key
 GEMINI_API_KEY='{api_key}'
 
 # System Timezone (captured from system at installation)

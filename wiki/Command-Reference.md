@@ -10,7 +10,7 @@ Complete guide to all uDOS commands
 |:---------|:---------|
 | **File Operations** | [LIST](#list), [LOAD](#load), [SAVE](#save), [EDIT](#edit) |
 | **Grid Management** | [GRID](#grid), [NEW GRID](#new-grid), [GRID LIST](#grid-list), [SHOW GRID](#show-grid) |
-| **Assisted Task** | [OK](#ok), [READ](#read) |
+| **Assisted Task** | [OK ASK](#ok-ask), [OK DEV](#ok-dev), [READ](#read) |
 | **Automation** | [RUN](#run) |
 | **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
 | **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |

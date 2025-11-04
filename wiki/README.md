@@ -73,7 +73,7 @@ Reference
 
 Features
 ├── Mapping-System
-├── AI-Integration
+├── OK-Assisted-Task-Integration
 ├── Color-Palette
 ├── Grid-System
 └── Session-Logging

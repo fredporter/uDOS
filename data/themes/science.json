@@ -102,7 +102,7 @@
       "CMD_LOCATE": "MARK",
       "CMD_WHERE": "LOCATE",
       "CMD_TREE": "TREE",
-      "CMD_ASK": "QUERY",
+      "CMD_OK": "QUERY",
       "CMD_EDIT": "EDIT",
       "CMD_SHOW": "DISPLAY",
       "CMD_ANALYZE": "ANALYZE",

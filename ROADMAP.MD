@@ -29,7 +29,7 @@ The following commands form the core of uDOS:
 |----------|----------|
 | **File Operations** | LIST, LOAD, SAVE, EDIT |
 | **Grid Management** | GRID, NEW GRID, GRID LIST, SHOW GRID |
-| **Assisted Task** | OK, READ |
+| **Assisted Task** | OK ASK (Gemini), OK DEV (Copilot CLI), READ |
 | **Automation** | RUN |
 | **System** | REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR |
 | **History** | UNDO, REDO, RESTORE |

@@ -4,8 +4,8 @@
     "installation_id": "testuser_dev_install",
     "profile_version": "2.0",
     "created_at": "2025-11-02T00:00:00.000000+00:00",
-    "last_updated": "2025-11-02T00:00:00.000000+00:00",
-    "last_session": "session_dev_1102",
+    "last_updated": "2025-11-03T23:33:29.293062",
+    "last_session": "session_1762176809",
     "username": "testuser",
     "project_name": "uDOS_dev"
   },
@@ -35,15 +35,9 @@
   },
   "system_settings": {
     "viewport": {
-      "device_type": "DESKTOP",
-      "terminal_size": {
-        "width": 80,
-        "height": 24
-      },
-      "grid_dimensions": {
-        "width": 10,
-        "height": 9
-      },
+      "device_type": "TERMINAL",
+      "terminal_size": "52\u00d719",
+      "grid_dimensions": "13\u00d79",
       "precision_mode": "UCELL_16x16",
       "coordinate_system": "ZERO_INDEXED"
     },

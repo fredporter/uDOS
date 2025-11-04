@@ -29,6 +29,7 @@ class CommandHistory(History):
             max_entries: Maximum number of entries to keep
         """
         self.max_entries = max_entries
+        self._loaded = False  # Required by prompt_toolkit History interface
 
         # Default history location
         if history_file is None:
@@ -46,6 +47,7 @@ class CommandHistory(History):
         # Search and suggestion settings
         self.fuzzy_threshold = 0.6
         self.max_suggestions = 10
+        self._loaded = True  # Mark as loaded after initialization
 
     def _init_database(self):
         """Initialize SQLite database with proper schema."""
@@ -84,6 +86,17 @@ class CommandHistory(History):
             ''', (self.max_entries,))
 
             self._entries_cache = [row[0] for row in cursor.fetchall()]
+
+    async def load(self):
+        """
+        Async load method required by prompt_toolkit History interface.
+        Yields commands from the cache.
+        """
+        if not self._loaded:
+            return
+
+        for command in self._entries_cache:
+            yield command
 
     def append_string(self, string: str) -> None:
         """
@@ -145,8 +158,8 @@ class CommandHistory(History):
         # Handle multi-word commands
         if len(parts) >= 2:
             two_word = f"{parts[0]} {parts[1]}"
-            if two_word in ["GRID PANEL", "OUTPUT LIST", "OUTPUT START", "OUTPUT STOP",
-                           "OUTPUT STATUS", "OUTPUT HEALTH", "OUTPUT RESTART"]:
+            if two_word in ["GRID PANEL", "POKE LIST", "POKE START", "POKE STOP",
+                           "POKE STATUS", "POKE HEALTH", "POKE RESTART"]:
                 return two_word
 
         return parts[0]

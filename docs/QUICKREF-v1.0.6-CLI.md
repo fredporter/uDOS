@@ -128,7 +128,7 @@ FILE SEARCH *.p<TAB>  # Completes to *.py
 Commands organized by function:
 
 1. **File Operations** - LIST, LOAD, SAVE, EDIT
-2. **Grid Management** - GRID, NEW GRID, GRID LIST, SHOW GRID  
+2. **Grid Management** - GRID, NEW GRID, GRID LIST, SHOW GRID
 3. **Navigation** - MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP
 4. **System** - REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR
 5. **History** - UNDO, REDO, RESTORE

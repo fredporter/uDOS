@@ -91,7 +91,7 @@
         "CMD_LOCATE": "Find/bookmark command",
         "CMD_WHERE": "Current location command",
         "CMD_TREE": "Directory tree command",
-        "CMD_ASK": "AI assistant command",
+        "CMD_OK": "Quick OK System access command",
         "CMD_EDIT": "Edit/modify command",
         "CMD_SHOW": "Display/reveal command",
         "CMD_ANALYZE": "Analyze/examine command",

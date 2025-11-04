@@ -70,14 +70,14 @@ class CommandHandler:
         from core.commands.grid_handler import GridCommandHandler
         from core.commands.map_handler import MapCommandHandler
         from core.commands.system_handler import SystemCommandHandler
-        from core.commands.knowledge_handler import KnowledgeCommandHandler
+        from core.commands.bank_handler import BankCommandHandler
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.grid_handler = GridCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs)
         self.system_handler = SystemCommandHandler(**handler_kwargs)
-        self.knowledge_handler = KnowledgeCommandHandler(**handler_kwargs)
+        self.bank_handler = BankCommandHandler(**handler_kwargs)
 
     def get_message(self, key, **kwargs):
         """
@@ -116,7 +116,7 @@ class CommandHandler:
             params = command_parts[1:] if len(command_parts) > 1 else []
 
             # Route to appropriate handler
-            if module == "ASSISTANT":
+            if module == "ASSISTANT" or module == "ASSIST":
                 return self.assistant_handler.handle(command, params, grid)
 
             elif module == "FILE":
@@ -128,8 +128,8 @@ class CommandHandler:
             elif module == "MAP":
                 return self.map_handler.handle(command, params, grid)
 
-            elif module == "KNOWLEDGE":
-                return self.knowledge_handler.handle(command, params, grid)
+            elif module == "BANK":
+                return self.bank_handler.handle(command, params, grid)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

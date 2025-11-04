@@ -25,7 +25,7 @@
 core/commands/
 ├── file_handler.py       # LIST, LOAD, SAVE, EDIT
 ├── grid_handler.py       # GRID, NEW GRID, GRID LIST, SHOW GRID
-├── assist_handler.py     # OK, READ
+├── assistant_handler.py  # OK ASK (Gemini), OK DEV (Copilot CLI), READ
 ├── task_handler.py       # RUN
 ├── system_handler.py     # REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR
 ├── history_handler.py    # UNDO, REDO, RESTORE

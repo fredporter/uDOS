@@ -39,7 +39,7 @@ Handles core system operations and diagnostics.
 **Location**: `core/commands/assistant_handler.py`
 **Commands**: ASK, ANALYZE, EXPLAIN, GENERATE, DEBUG, CLEAR
 
-Manages AI integration and assistant features.
+Manages OK Assisted Task integration and assist features.
 
 #### FileCommandHandler
 **Location**: `core/commands/file_handler.py`

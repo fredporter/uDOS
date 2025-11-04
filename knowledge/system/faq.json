@@ -71,18 +71,18 @@
         "make panel"
       ]
     },
-    "USE_AI": {
-      "question": "How do I use AI features?",
-      "answer": "Requires internet connection. Use: ASK \"<question>\" or ASK \"<question>\" FROM \"<panel>\"\nExample: ASK \"Summarize this\" FROM \"main\"",
+    "USE_OK_ASSISTED_TASK": {
+      "question": "How do I use OK Assisted Task features?",
+      "answer": "Requires internet connection. Use: OK \"<question>\" or OK \"<question>\" FROM \"<panel>\"\nExample: OK \"Summarize this\" FROM \"main\" or OK \"What is uDOS?\"",
       "commands": [
-        "ASK"
+        "OK"
       ],
       "keywords": [
-        "ai",
+        "ok-assisted-task",
         "gemini",
         "ask question",
         "summarize",
-        "ai help"
+        "ok-assisted-task help"
       ]
     },
     "EDIT_FILE": {
@@ -162,7 +162,7 @@
     },
     "OFFLINE_MODE": {
       "question": "What works offline?",
-      "answer": "All commands work offline except ASK (AI). Offline mode provides pattern-based assistance and local analysis.",
+      "answer": "All commands work offline except OK (OK Assisted Task). Offline mode provides pattern-based assistance and local analysis.",
       "commands": [
         "HELP",
         "CATALOG",
@@ -187,7 +187,7 @@
     "memory": "memory/ is for permanent storage - commit important work here"
   },
   "OFFLINE_ASSISTANCE": {
-    "DESCRIPTION": "Local AI-style assistance using pattern matching and templates",
+    "DESCRIPTION": "Local OK Assisted Task-style assistance using pattern matching and templates",
     "PROMPTS": {
       "HELP_REQUEST": {
         "PATTERN": [
@@ -218,7 +218,7 @@
           "what does",
           "overview"
         ],
-        "RESPONSE_TEMPLATE": "To summarize content:\n1. Load the file: LOAD \"{file}\" TO \"summary\"\n2. Review: SHOW \"summary\"\n3. When online, ask AI: ASK \"Summarize this\" FROM \"summary\"",
+        "RESPONSE_TEMPLATE": "To summarize content:\n1. Load the file: LOAD \"{file}\" TO \"summary\"\n2. Review: SHOW \"summary\"\n3. When online, ask OK System: OK \"Summarize this\" FROM \"summary\"",
         "OFFLINE_ACTION": "local_summary"
       },
       "COMMAND_SUGGESTION": {
@@ -232,7 +232,7 @@
           "load file": "LOAD \"<file>\" TO \"<panel>\"",
           "save": "SAVE \"<panel>\" TO \"<file>\"",
           "create panel": "GRID PANEL CREATE \"<name>\"",
-          "ai help": "ASK \"<question>\" (requires internet)"
+          "ok-assisted-task help": "OK \"<question>\" (requires internet)"
         }
       },
       "ERROR_HELP": {
@@ -246,7 +246,7 @@
         "COMMON_FIXES": {
           "file not found": "Check the file path. Use CATALOG to list available files.",
           "panel not found": "Panel doesn't exist. Use GRID PANELS LIST to see all panels.",
-          "offline": "AI features require internet. Using offline mode.",
+          "offline": "OK Assisted Task features require internet. Using offline mode.",
           "permission": "Check file permissions or try a different location."
         }
       },
@@ -266,8 +266,8 @@
       }
     },
     "RESPONSES": {
-      "OFFLINE_MODE": "\ud83d\udd0c Working offline. AI features unavailable. Using local logic engine.",
-      "ONLINE_MODE": "\ud83c\udf10 Connected. AI features available.",
+      "OFFLINE_MODE": "🔌 Working offline. OK Assisted Task features unavailable. Using local logic engine.",
+      "ONLINE_MODE": "🌐 Connected. OK Assisted Task features available.",
       "PARTIAL_MATCH": "I think you're trying to: {suggestion}\nIs this correct? Type the full command to proceed.",
       "NO_MATCH": "I'm not sure what you mean. Try 'HELP' for available commands, or be more specific.",
       "REPAIR_NEEDED": "System issue detected. Run 'REPAIR' to attempt automatic fixes."

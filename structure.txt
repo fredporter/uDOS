@@ -2,12 +2,13 @@ uDOS/
 ├── core/
 │   ├── commands/
 │   │   ├── assistant_handler.py
+│   │   ├── bank_handler.py
 │   │   ├── base_handler.py
 │   │   ├── configuration_handler.py
 │   │   ├── dashboard_handler.py
-│   │   ├── enhanced_file_handler.py
 │   │   ├── file_handler.py
 │   │   ├── grid_handler.py
+│   │   ├── knowledge_handler.py
 │   │   ├── map_handler.py
 │   │   ├── repair_handler.py
 │   │   └── system_handler.py
@@ -15,19 +16,23 @@ uDOS/
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
 │   │   ├── editor_manager.py
-│   │   ├── enhanced_history.py
 │   │   ├── extension_manager.py
+│   │   ├── file_picker.py
 │   │   ├── gemini_service.py
+│   │   ├── history.py
 │   │   ├── history_manager.py
-│   │   ├── integrated_map_engine.py
+│   │   ├── knowledge_manager.py
+│   │   ├── layout_manager.py
 │   │   ├── map_engine.py
+│   │   ├── progress_manager.py
+│   │   ├── session_manager.py
 │   │   ├── teletext_renderer.py
-│   │   └── user_manager.py
+│   │   ├── theme_manager.py
+│   │   ├── user_manager.py
+│   │   └── viewport_manager.py
 │   ├── utils/
 │   │   ├── completer.py
-│   │   ├── picker.py
 │   │   ├── setup.py
-│   │   ├── smart_picker.py
 │   │   ├── theme.py
 │   │   ├── tizo_manager.py
 │   │   ├── ucode.py
@@ -59,6 +64,8 @@ uDOS/
 │   │   ├── fonts.json
 │   │   ├── palette.json
 │   │   ├── tizo_cities.json
+│   │   ├── world_cities.csv
+│   │   ├── world_cities_cellkeys.csv
 │   │   └── worldmap.json
 │   ├── templates/
 │   │   ├── setup.uscript
@@ -83,12 +90,16 @@ uDOS/
 │   │   ├── DEV-ROUND-1.0.2.md
 │   │   ├── DEV-ROUND-1.0.3.md
 │   │   ├── DEV-ROUND-v1.0.2-COMPLETE.md
-│   │   ├── test_v1_0_2_enhancements.py
-│   │   ├── test_v1_0_2_simple_integration.py
-│   │   ├── test_v1_0_2_standalone.py
+│   │   ├── NES-MAC-ENHANCEMENT-v1.0.10.md
+│   │   ├── ROADMAP_UPDATE_v1_0_6_COMPLETE.md
+│   │   ├── TYPOGRAPHY-COMPLETION-v1.0.10.md
+│   │   ├── WIKI_MIGRATION_v1_0_6_COMPLETE.md
 │   │   ├── v1_0_2_integration_results.json
 │   │   ├── v1_0_2_validation_results.json
-│   │   └── v1_0_6_cli_terminal_plan.md
+│   │   ├── v1_0_6_DEVELOPMENT_COMPLETE.md
+│   │   ├── v1_0_6_cli_terminal_plan.md
+│   │   ├── v1_0_7_DEVELOPMENT_COMPLETE.md
+│   │   └── v1_0_7_DEVELOPMENT_PLAN.md
 │   ├── guides/
 │   │   ├── CONTRIBUTING.md
 │   │   ├── DEVELOPMENT.md
@@ -101,35 +112,29 @@ uDOS/
 │   │   ├── CHANGELOG-v1.0.0.md
 │   │   ├── DEVELOPMENT-COMPLETE-v1.0.2.md
 │   │   ├── DEVELOPMENT-COMPLETE-v1.0.3.md
-│   │   └── TELETEXT-EXTENSION-COMPLETE-v1.0.4.md
+│   │   ├── TELETEXT-EXTENSION-COMPLETE-v1.0.4.md
+│   │   ├── v1.0.6-CLI-TERMINAL-FEATURES.md
+│   │   ├── v1_0_7_ADVANCED_FILE_OPERATIONS_COMPLETE.md
+│   │   └── v1_0_8_KNOWLEDGE_SYSTEM_COMPLETE.md
+│   ├── tools/
+│   │   ├── copilot_summary.py
+│   │   └── dev_logger.py
 │   ├── versions/
 │   │   ├── MAPPING-SYSTEM-v1.0.3.md
 │   │   ├── TELETEXT-WEB-EXTENSION-v1.0.4.md
 │   │   ├── VERSION-MANIFEST-1.0.2.py
 │   │   └── VERSION-MANIFEST-1.0.3.py
 │   ├── FILE-ORGANIZATION-COMPLETE.md
+│   ├── QUICKREF-v1.0.6-CLI.md
 │   ├── QUICKREF-v1.0.x.md
 │   ├── README.md
 │   └── TODO-COMPLETION-SUMMARY.md
 ├── examples/
-│   ├── teletext_mono_starter/
-│   │   ├── fonts/
-│   │   │   └── README.txt
+│   ├── teletext_clone_bundle_with_blocks/
+│   │   ├── README.md
 │   │   ├── index.html
-│   │   ├── mosaic_codepoints_E200-E3FF.csv
 │   │   ├── teletext.css
-│   │   └── tt-parse.js
-│   ├── uDOS_power_dev_mode/
-│   │   ├── core/
-│   │   │   ├── copilot_summary.py
-│   │   │   └── dev_logger.py
-│   │   ├── sandbox/
-│   │   │   ├── logs/
-│   │   │   └── tests/
-│   │   │       ├── test_map_surface.py
-│   │   │       └── test_session_minimal.py
-│   │   ├── DEV-MODE.MD
-│   │   └── uDOS.code-workspace
+│   │   └── teletext.js
 │   ├── udos_map_480x270_cellkey/
 │   │   ├── data/
 │   │   │   └── cities_sample.csv
@@ -144,778 +149,130 @@ uDOS/
 │   ├── screen_size_reference.md
 │   └── simple-setup.uscript
 ├── extensions/
-│   ├── web/
-│   │   ├── classicy-desktop/
-│   │   │   ├── assets/
-│   │   │   │   ├── img/
-│   │   │   │   └── sounds/
-│   │   │   ├── node_modules/
-│   │   │   │   ├── .bin/
-│   │   │   │   ├── @ampproject/
-│   │   │   │   ├── @babel/
-│   │   │   │   ├── @codemirror/
-│   │   │   │   ├── @codesandbox/
-│   │   │   │   ├── @cspotcode/
-│   │   │   │   ├── @discoveryjs/
-│   │   │   │   ├── @floating-ui/
-│   │   │   │   ├── @gar/
-│   │   │   │   ├── @jridgewell/
-│   │   │   │   ├── @jsonjoy.com/
-│   │   │   │   ├── @leichtgewicht/
-│   │   │   │   ├── @lexical/
-│   │   │   │   ├── @lezer/
-│   │   │   │   ├── @marijn/
-│   │   │   │   ├── @mdxeditor/
-│   │   │   │   ├── @mux/
-│   │   │   │   ├── @npmcli/
-│   │   │   │   ├── @open-draft/
-│   │   │   │   ├── @parcel/
-│   │   │   │   ├── @plussub/
-│   │   │   │   ├── @radix-ui/
-│   │   │   │   ├── @react-hook/
-│   │   │   │   ├── @stitches/
-│   │   │   │   ├── @svgr/
-│   │   │   │   ├── @svta/
-│   │   │   │   ├── @tanstack/
-│   │   │   │   ├── @tootallnate/
-│   │   │   │   ├── @trysound/
-│   │   │   │   ├── @tsconfig/
-│   │   │   │   ├── @types/
-│   │   │   │   ├── @vercel/
-│   │   │   │   ├── @vimeo/
-│   │   │   │   ├── @webassemblyjs/
-│   │   │   │   ├── @webpack-cli/
-│   │   │   │   ├── @xtuc/
-│   │   │   │   ├── abbrev/
-│   │   │   │   ├── accepts/
-│   │   │   │   ├── acorn/
-│   │   │   │   ├── acorn-import-phases/
-│   │   │   │   ├── acorn-jsx/
-│   │   │   │   ├── acorn-walk/
-│   │   │   │   ├── agent-base/
-│   │   │   │   ├── agentkeepalive/
-│   │   │   │   ├── aggregate-error/
-│   │   │   │   ├── ajv/
-│   │   │   │   ├── ajv-formats/
-│   │   │   │   ├── ajv-keywords/
-│   │   │   │   ├── anser/
-│   │   │   │   ├── ansi-html-community/
-│   │   │   │   ├── ansi-regex/
-│   │   │   │   ├── ansi-styles/
-│   │   │   │   ├── anymatch/
-│   │   │   │   ├── aproba/
-│   │   │   │   ├── are-we-there-yet/
-│   │   │   │   ├── arg/
-│   │   │   │   ├── argparse/
-│   │   │   │   ├── aria-hidden/
-│   │   │   │   ├── array-flatten/
-│   │   │   │   ├── arrify/
-│   │   │   │   ├── async-foreach/
-│   │   │   │   ├── babel-loader/
-│   │   │   │   ├── babel-plugin-polyfill-corejs2/
-│   │   │   │   ├── babel-plugin-polyfill-corejs3/
-│   │   │   │   ├── babel-plugin-polyfill-regenerator/
-│   │   │   │   ├── balanced-match/
-│   │   │   │   ├── base64-js/
-│   │   │   │   ├── batch/
-│   │   │   │   ├── bcp-47/
-│   │   │   │   ├── bcp-47-match/
-│   │   │   │   ├── bcp-47-normalize/
-│   │   │   │   ├── big.js/
-│   │   │   │   ├── binary-extensions/
-│   │   │   │   ├── body-parser/
-│   │   │   │   ├── bonjour-service/
-│   │   │   │   ├── boolbase/
-│   │   │   │   ├── brace-expansion/
-│   │   │   │   ├── braces/
-│   │   │   │   ├── browserslist/
-│   │   │   │   ├── buffer/
-│   │   │   │   ├── buffer-from/
-│   │   │   │   ├── bundle-name/
-│   │   │   │   ├── bytes/
-│   │   │   │   ├── cacache/
-│   │   │   │   ├── call-bind-apply-helpers/
-│   │   │   │   ├── call-bound/
-│   │   │   │   ├── callsites/
-│   │   │   │   ├── camel-case/
-│   │   │   │   ├── camelcase/
-│   │   │   │   ├── camelcase-keys/
-│   │   │   │   ├── caniuse-lite/
-│   │   │   │   ├── castable-video/
-│   │   │   │   ├── ccount/
-│   │   │   │   ├── ce-la-react/
-│   │   │   │   ├── chalk/
-│   │   │   │   ├── character-entities/
-│   │   │   │   ├── character-entities-html4/
-│   │   │   │   ├── character-entities-legacy/
-│   │   │   │   ├── character-reference-invalid/
-│   │   │   │   ├── chokidar/
-│   │   │   │   ├── chownr/
-│   │   │   │   ├── chrome-trace-event/
-│   │   │   │   ├── classnames/
-│   │   │   │   ├── clean-css/
-│   │   │   │   ├── clean-set/
-│   │   │   │   ├── clean-stack/
-│   │   │   │   ├── cliui/
-│   │   │   │   ├── clone-deep/
-│   │   │   │   ├── cloudflare-video-element/
-│   │   │   │   ├── cm6-theme-basic-light/
-│   │   │   │   ├── codem-isoboxer/
-│   │   │   │   ├── codemirror/
-│   │   │   │   ├── color/
-│   │   │   │   ├── color-convert/
-│   │   │   │   ├── color-name/
-│   │   │   │   ├── color-string/
-│   │   │   │   ├── color-support/
-│   │   │   │   ├── colorette/
-│   │   │   │   ├── commander/
-│   │   │   │   ├── compressible/
-│   │   │   │   ├── compression/
-│   │   │   │   ├── compute-scroll-into-view/
-│   │   │   │   ├── concat-map/
-│   │   │   │   ├── connect-history-api-fallback/
-│   │   │   │   ├── console-control-strings/
-│   │   │   │   ├── content-disposition/
-│   │   │   │   ├── content-type/
-│   │   │   │   ├── convert-source-map/
-│   │   │   │   ├── cookie/
-│   │   │   │   ├── cookie-signature/
-│   │   │   │   ├── core-js-compat/
-│   │   │   │   ├── core-util-is/
-│   │   │   │   ├── cosmiconfig/
-│   │   │   │   ├── create-require/
-│   │   │   │   ├── crelt/
-│   │   │   │   ├── cross-spawn/
-│   │   │   │   ├── css-loader/
-│   │   │   │   ├── css-select/
-│   │   │   │   ├── css-tree/
-│   │   │   │   ├── css-what/
-│   │   │   │   ├── cssesc/
-│   │   │   │   ├── csso/
-│   │   │   │   ├── csstype/
-│   │   │   │   ├── custom-media-element/
-│   │   │   │   ├── d/
-│   │   │   │   ├── dash-video-element/
-│   │   │   │   ├── dashjs/
-│   │   │   │   ├── debug/
-│   │   │   │   ├── decamelize/
-│   │   │   │   ├── decamelize-keys/
-│   │   │   │   ├── decode-named-character-reference/
-│   │   │   │   ├── deepmerge/
-│   │   │   │   ├── default-browser/
-│   │   │   │   ├── default-browser-id/
-│   │   │   │   ├── define-lazy-prop/
-│   │   │   │   ├── delegates/
-│   │   │   │   ├── depd/
-│   │   │   │   ├── dequal/
-│   │   │   │   ├── destroy/
-│   │   │   │   ├── detect-libc/
-│   │   │   │   ├── detect-node/
-│   │   │   │   ├── detect-node-es/
-│   │   │   │   ├── devlop/
-│   │   │   │   ├── diff/
-│   │   │   │   ├── dns-packet/
-│   │   │   │   ├── dom-converter/
-│   │   │   │   ├── dom-serializer/
-│   │   │   │   ├── domelementtype/
-│   │   │   │   ├── domhandler/
-│   │   │   │   ├── domutils/
-│   │   │   │   ├── dot-case/
-│   │   │   │   ├── dotenv/
-│   │   │   │   ├── downshift/
-│   │   │   │   ├── dunder-proto/
-│   │   │   │   ├── ee-first/
-│   │   │   │   ├── electron-to-chromium/
-│   │   │   │   ├── emoji-regex/
-│   │   │   │   ├── emojis-list/
-│   │   │   │   ├── encodeurl/
-│   │   │   │   ├── encoding/
-│   │   │   │   ├── enhanced-resolve/
-│   │   │   │   ├── entities/
-│   │   │   │   ├── env-paths/
-│   │   │   │   ├── envinfo/
-│   │   │   │   ├── err-code/
-│   │   │   │   ├── error-ex/
-│   │   │   │   ├── es-define-property/
-│   │   │   │   ├── es-errors/
-│   │   │   │   ├── es-module-lexer/
-│   │   │   │   ├── es-object-atoms/
-│   │   │   │   ├── es5-ext/
-│   │   │   │   ├── es6-iterator/
-│   │   │   │   ├── es6-symbol/
-│   │   │   │   ├── escalade/
-│   │   │   │   ├── escape-carriage/
-│   │   │   │   ├── escape-html/
-│   │   │   │   ├── escape-string-regexp/
-│   │   │   │   ├── eslint-scope/
-│   │   │   │   ├── esniff/
-│   │   │   │   ├── esrecurse/
-│   │   │   │   ├── estraverse/
-│   │   │   │   ├── estree-util-is-identifier-name/
-│   │   │   │   ├── estree-util-visit/
-│   │   │   │   ├── esutils/
-│   │   │   │   ├── etag/
-│   │   │   │   ├── event-emitter/
-│   │   │   │   ├── eventemitter3/
-│   │   │   │   ├── events/
-│   │   │   │   ├── express/
-│   │   │   │   ├── ext/
-│   │   │   │   ├── fast-deep-equal/
-│   │   │   │   ├── fast-json-stable-stringify/
-│   │   │   │   ├── fast-uri/
-│   │   │   │   ├── fastest-levenshtein/
-│   │   │   │   ├── fault/
-│   │   │   │   ├── faye-websocket/
-│   │   │   │   ├── file-loader/
-│   │   │   │   ├── fill-range/
-│   │   │   │   ├── finalhandler/
-│   │   │   │   ├── find-up/
-│   │   │   │   ├── flat/
-│   │   │   │   ├── follow-redirects/
-│   │   │   │   ├── format/
-│   │   │   │   ├── forwarded/
-│   │   │   │   ├── fresh/
-│   │   │   │   ├── fs-minipass/
-│   │   │   │   ├── fs.realpath/
-│   │   │   │   ├── fsevents/
-│   │   │   │   ├── function-bind/
-│   │   │   │   ├── gauge/
-│   │   │   │   ├── gaze/
-│   │   │   │   ├── gensync/
-│   │   │   │   ├── get-caller-file/
-│   │   │   │   ├── get-intrinsic/
-│   │   │   │   ├── get-nonce/
-│   │   │   │   ├── get-proto/
-│   │   │   │   ├── get-stdin/
-│   │   │   │   ├── glob/
-│   │   │   │   ├── glob-parent/
-│   │   │   │   ├── glob-to-regexp/
-│   │   │   │   ├── globule/
-│   │   │   │   ├── gopd/
-│   │   │   │   ├── graceful-fs/
-│   │   │   │   ├── handle-thing/
-│   │   │   │   ├── hard-rejection/
-│   │   │   │   ├── has-flag/
-│   │   │   │   ├── has-symbols/
-│   │   │   │   ├── has-unicode/
-│   │   │   │   ├── hasown/
-│   │   │   │   ├── he/
-│   │   │   │   ├── hls-video-element/
-│   │   │   │   ├── hls.js/
-│   │   │   │   ├── hosted-git-info/
-│   │   │   │   ├── howler/
-│   │   │   │   ├── hpack.js/
-│   │   │   │   ├── html-entities/
-│   │   │   │   ├── html-minifier-terser/
-│   │   │   │   ├── html-webpack-plugin/
-│   │   │   │   ├── htmlparser2/
-│   │   │   │   ├── http-cache-semantics/
-│   │   │   │   ├── http-deceiver/
-│   │   │   │   ├── http-errors/
-│   │   │   │   ├── http-parser-js/
-│   │   │   │   ├── http-proxy/
-│   │   │   │   ├── http-proxy-agent/
-│   │   │   │   ├── http-proxy-middleware/
-│   │   │   │   ├── https-proxy-agent/
-│   │   │   │   ├── humanize-ms/
-│   │   │   │   ├── hyperdyperid/
-│   │   │   │   ├── iconv-lite/
-│   │   │   │   ├── icss-utils/
-│   │   │   │   ├── ieee754/
-│   │   │   │   ├── immediate/
-│   │   │   │   ├── immutable/
-│   │   │   │   ├── import-fresh/
-│   │   │   │   ├── import-local/
-│   │   │   │   ├── imsc/
-│   │   │   │   ├── imurmurhash/
-│   │   │   │   ├── indent-string/
-│   │   │   │   ├── infer-owner/
-│   │   │   │   ├── inflight/
-│   │   │   │   ├── inherits/
-│   │   │   │   ├── interpret/
-│   │   │   │   ├── intersection-observer/
-│   │   │   │   ├── ip-address/
-│   │   │   │   ├── ipaddr.js/
-│   │   │   │   ├── is-alphabetical/
-│   │   │   │   ├── is-alphanumerical/
-│   │   │   │   ├── is-arrayish/
-│   │   │   │   ├── is-binary-path/
-│   │   │   │   ├── is-core-module/
-│   │   │   │   ├── is-decimal/
-│   │   │   │   ├── is-docker/
-│   │   │   │   ├── is-extglob/
-│   │   │   │   ├── is-fullwidth-code-point/
-│   │   │   │   ├── is-glob/
-│   │   │   │   ├── is-hexadecimal/
-│   │   │   │   ├── is-inside-container/
-│   │   │   │   ├── is-lambda/
-│   │   │   │   ├── is-network-error/
-│   │   │   │   ├── is-number/
-│   │   │   │   ├── is-plain-obj/
-│   │   │   │   ├── is-plain-object/
-│   │   │   │   ├── is-wsl/
-│   │   │   │   ├── isarray/
-│   │   │   │   ├── isexe/
-│   │   │   │   ├── isobject/
-│   │   │   │   ├── isomorphic.js/
-│   │   │   │   ├── jest-worker/
-│   │   │   │   ├── js-base64/
-│   │   │   │   ├── js-tokens/
-│   │   │   │   ├── js-yaml/
-│   │   │   │   ├── jsbn/
-│   │   │   │   ├── jsesc/
-│   │   │   │   ├── json-parse-even-better-errors/
-│   │   │   │   ├── json-schema-traverse/
-│   │   │   │   ├── json5/
-│   │   │   │   ├── kind-of/
-│   │   │   │   ├── launch-editor/
-│   │   │   │   ├── lexical/
-│   │   │   │   ├── lib0/
-│   │   │   │   ├── lie/
-│   │   │   │   ├── lines-and-columns/
-│   │   │   │   ├── loader-runner/
-│   │   │   │   ├── loader-utils/
-│   │   │   │   ├── localforage/
-│   │   │   │   ├── locate-path/
-│   │   │   │   ├── lodash/
-│   │   │   │   ├── lodash-es/
-│   │   │   │   ├── lodash.debounce/
-│   │   │   │   ├── longest-streak/
-│   │   │   │   ├── loose-envify/
-│   │   │   │   ├── lower-case/
-│   │   │   │   ├── lru-cache/
-│   │   │   │   ├── lz-string/
-│   │   │   │   ├── make-error/
-│   │   │   │   ├── make-fetch-happen/
-│   │   │   │   ├── map-obj/
-│   │   │   │   ├── markdown-table/
-│   │   │   │   ├── math-intrinsics/
-│   │   │   │   ├── mdast-util-directive/
-│   │   │   │   ├── mdast-util-from-markdown/
-│   │   │   │   ├── mdast-util-frontmatter/
-│   │   │   │   ├── mdast-util-gfm-strikethrough/
-│   │   │   │   ├── mdast-util-gfm-table/
-│   │   │   │   ├── mdast-util-gfm-task-list-item/
-│   │   │   │   ├── mdast-util-mdx/
-│   │   │   │   ├── mdast-util-mdx-expression/
-│   │   │   │   ├── mdast-util-mdx-jsx/
-│   │   │   │   ├── mdast-util-mdxjs-esm/
-│   │   │   │   ├── mdast-util-phrasing/
-│   │   │   │   ├── mdast-util-to-markdown/
-│   │   │   │   ├── mdast-util-to-string/
-│   │   │   │   ├── mdn-data/
-│   │   │   │   ├── media-chrome/
-│   │   │   │   ├── media-tracks/
-│   │   │   │   ├── media-typer/
-│   │   │   │   ├── memfs/
-│   │   │   │   ├── meow/
-│   │   │   │   ├── merge-descriptors/
-│   │   │   │   ├── merge-stream/
-│   │   │   │   ├── methods/
-│   │   │   │   ├── micromark/
-│   │   │   │   ├── micromark-core-commonmark/
-│   │   │   │   ├── micromark-extension-directive/
-│   │   │   │   ├── micromark-extension-frontmatter/
-│   │   │   │   ├── micromark-extension-gfm-strikethrough/
-│   │   │   │   ├── micromark-extension-gfm-table/
-│   │   │   │   ├── micromark-extension-gfm-task-list-item/
-│   │   │   │   ├── micromark-extension-mdx-expression/
-│   │   │   │   ├── micromark-extension-mdx-jsx/
-│   │   │   │   ├── micromark-extension-mdx-md/
-│   │   │   │   ├── micromark-extension-mdxjs/
-│   │   │   │   ├── micromark-extension-mdxjs-esm/
-│   │   │   │   ├── micromark-factory-destination/
-│   │   │   │   ├── micromark-factory-label/
-│   │   │   │   ├── micromark-factory-mdx-expression/
-│   │   │   │   ├── micromark-factory-space/
-│   │   │   │   ├── micromark-factory-title/
-│   │   │   │   ├── micromark-factory-whitespace/
-│   │   │   │   ├── micromark-util-character/
-│   │   │   │   ├── micromark-util-chunked/
-│   │   │   │   ├── micromark-util-classify-character/
-│   │   │   │   ├── micromark-util-combine-extensions/
-│   │   │   │   ├── micromark-util-decode-numeric-character-reference/
-│   │   │   │   ├── micromark-util-decode-string/
-│   │   │   │   ├── micromark-util-encode/
-│   │   │   │   ├── micromark-util-events-to-acorn/
-│   │   │   │   ├── micromark-util-html-tag-name/
-│   │   │   │   ├── micromark-util-normalize-identifier/
-│   │   │   │   ├── micromark-util-resolve-all/
-│   │   │   │   ├── micromark-util-sanitize-uri/
-│   │   │   │   ├── micromark-util-subtokenize/
-│   │   │   │   ├── micromark-util-symbol/
-│   │   │   │   ├── micromark-util-types/
-│   │   │   │   ├── micromatch/
-│   │   │   │   ├── mime/
-│   │   │   │   ├── mime-db/
-│   │   │   │   ├── mime-types/
-│   │   │   │   ├── min-indent/
-│   │   │   │   ├── minimalistic-assert/
-│   │   │   │   ├── minimatch/
-│   │   │   │   ├── minimist-options/
-│   │   │   │   ├── minipass/
-│   │   │   │   ├── minipass-collect/
-│   │   │   │   ├── minipass-fetch/
-│   │   │   │   ├── minipass-flush/
-│   │   │   │   ├── minipass-pipeline/
-│   │   │   │   ├── minipass-sized/
-│   │   │   │   ├── minizlib/
-│   │   │   │   ├── mkdirp/
-│   │   │   │   ├── ms/
-│   │   │   │   ├── multicast-dns/
-│   │   │   │   ├── mux-embed/
-│   │   │   │   ├── nan/
-│   │   │   │   ├── nanoid/
-│   │   │   │   ├── native-promise-only/
-│   │   │   │   ├── negotiator/
-│   │   │   │   ├── neo-async/
-│   │   │   │   ├── next-tick/
-│   │   │   │   ├── no-case/
-│   │   │   │   ├── node-addon-api/
-│   │   │   │   ├── node-forge/
-│   │   │   │   ├── node-gyp/
-│   │   │   │   ├── node-releases/
-│   │   │   │   ├── node-sass/
-│   │   │   │   ├── nopt/
-│   │   │   │   ├── normalize-package-data/
-│   │   │   │   ├── normalize-path/
-│   │   │   │   ├── npmlog/
-│   │   │   │   ├── nth-check/
-│   │   │   │   ├── object-assign/
-│   │   │   │   ├── object-inspect/
-│   │   │   │   ├── obuf/
-│   │   │   │   ├── on-finished/
-│   │   │   │   ├── on-headers/
-│   │   │   │   ├── once/
-│   │   │   │   ├── open/
-│   │   │   │   ├── outvariant/
-│   │   │   │   ├── p-limit/
-│   │   │   │   ├── p-locate/
-│   │   │   │   ├── p-map/
-│   │   │   │   ├── p-retry/
-│   │   │   │   ├── p-try/
-│   │   │   │   ├── param-case/
-│   │   │   │   ├── parent-module/
-│   │   │   │   ├── parse-entities/
-│   │   │   │   ├── parse-json/
-│   │   │   │   ├── parseurl/
-│   │   │   │   ├── pascal-case/
-│   │   │   │   ├── path-browserify/
-│   │   │   │   ├── path-exists/
-│   │   │   │   ├── path-is-absolute/
-│   │   │   │   ├── path-key/
-│   │   │   │   ├── path-parse/
-│   │   │   │   ├── path-to-regexp/
-│   │   │   │   ├── path-type/
-│   │   │   │   ├── picocolors/
-│   │   │   │   ├── picomatch/
-│   │   │   │   ├── pkg-dir/
-│   │   │   │   ├── player.style/
-│   │   │   │   ├── postcss/
-│   │   │   │   ├── postcss-modules-extract-imports/
-│   │   │   │   ├── postcss-modules-local-by-default/
-│   │   │   │   ├── postcss-modules-scope/
-│   │   │   │   ├── postcss-modules-values/
-│   │   │   │   ├── postcss-selector-parser/
-│   │   │   │   ├── postcss-value-parser/
-│   │   │   │   ├── pretty-error/
-│   │   │   │   ├── prismjs/
-│   │   │   │   ├── process-nextick-args/
-│   │   │   │   ├── promise-inflight/
-│   │   │   │   ├── promise-retry/
-│   │   │   │   ├── prop-types/
-│   │   │   │   ├── proxy-addr/
-│   │   │   │   ├── punycode/
-│   │   │   │   ├── qs/
-│   │   │   │   ├── quick-lru/
-│   │   │   │   ├── randombytes/
-│   │   │   │   ├── range-parser/
-│   │   │   │   ├── raw-body/
-│   │   │   │   ├── react/
-│   │   │   │   ├── react-base16-styling/
-│   │   │   │   ├── react-devtools-inline/
-│   │   │   │   ├── react-dom/
-│   │   │   │   ├── react-error-boundary/
-│   │   │   │   ├── react-hook-form/
-│   │   │   │   ├── react-is/
-│   │   │   │   ├── react-json-tree/
-│   │   │   │   ├── react-player/
-│   │   │   │   ├── react-remove-scroll/
-│   │   │   │   ├── react-remove-scroll-bar/
-│   │   │   │   ├── react-style-singleton/
-│   │   │   │   ├── read-pkg/
-│   │   │   │   ├── read-pkg-up/
-│   │   │   │   ├── readable-stream/
-│   │   │   │   ├── readdirp/
-│   │   │   │   ├── rechoir/
-│   │   │   │   ├── redent/
-│   │   │   │   ├── regenerate/
-│   │   │   │   ├── regenerate-unicode-properties/
-│   │   │   │   ├── regexpu-core/
-│   │   │   │   ├── regjsgen/
-│   │   │   │   ├── regjsparser/
-│   │   │   │   ├── relateurl/
-│   │   │   │   ├── renderkid/
-│   │   │   │   ├── require-directory/
-│   │   │   │   ├── require-from-string/
-│   │   │   │   ├── requires-port/
-│   │   │   │   ├── resolve/
-│   │   │   │   ├── resolve-cwd/
-│   │   │   │   ├── resolve-from/
-│   │   │   │   ├── retry/
-│   │   │   │   ├── rimraf/
-│   │   │   │   ├── run-applescript/
-│   │   │   │   ├── safe-buffer/
-│   │   │   │   ├── safer-buffer/
-│   │   │   │   ├── sass/
-│   │   │   │   ├── sass-graph/
-│   │   │   │   ├── sass-loader/
-│   │   │   │   ├── sax/
-│   │   │   │   ├── schema-utils/
-│   │   │   │   ├── screenfull/
-│   │   │   │   ├── scss-tokenizer/
-│   │   │   │   ├── select-hose/
-│   │   │   │   ├── selfsigned/
-│   │   │   │   ├── semver/
-│   │   │   │   ├── send/
-│   │   │   │   ├── serialize-javascript/
-│   │   │   │   ├── serve-index/
-│   │   │   │   ├── serve-static/
-│   │   │   │   ├── set-blocking/
-│   │   │   │   ├── setprototypeof/
-│   │   │   │   ├── sha512-crypt-ts/
-│   │   │   │   ├── shallow-clone/
-│   │   │   │   ├── shebang-command/
-│   │   │   │   ├── shebang-regex/
-│   │   │   │   ├── shell-quote/
-│   │   │   │   ├── side-channel/
-│   │   │   │   ├── side-channel-list/
-│   │   │   │   ├── side-channel-map/
-│   │   │   │   ├── side-channel-weakmap/
-│   │   │   │   ├── signal-exit/
-│   │   │   │   ├── simple-swizzle/
-│   │   │   │   ├── smart-buffer/
-│   │   │   │   ├── snake-case/
-│   │   │   │   ├── sockjs/
-│   │   │   │   ├── socks/
-│   │   │   │   ├── socks-proxy-agent/
-│   │   │   │   ├── source-map/
-│   │   │   │   ├── source-map-js/
-│   │   │   │   ├── source-map-support/
-│   │   │   │   ├── spdx-correct/
-│   │   │   │   ├── spdx-exceptions/
-│   │   │   │   ├── spdx-expression-parse/
-│   │   │   │   ├── spdx-license-ids/
-│   │   │   │   ├── spdy/
-│   │   │   │   ├── spdy-transport/
-│   │   │   │   ├── spotify-audio-element/
-│   │   │   │   ├── sprintf-js/
-│   │   │   │   ├── ssri/
-│   │   │   │   ├── static-browser-server/
-│   │   │   │   ├── statuses/
-│   │   │   │   ├── stdout-stream/
-│   │   │   │   ├── strict-event-emitter/
-│   │   │   │   ├── string-width/
-│   │   │   │   ├── string_decoder/
-│   │   │   │   ├── stringify-entities/
-│   │   │   │   ├── strip-ansi/
-│   │   │   │   ├── strip-indent/
-│   │   │   │   ├── style-loader/
-│   │   │   │   ├── style-mod/
-│   │   │   │   ├── super-media-element/
-│   │   │   │   ├── supports-color/
-│   │   │   │   ├── supports-preserve-symlinks-flag/
-│   │   │   │   ├── svg-parser/
-│   │   │   │   ├── svgo/
-│   │   │   │   ├── tabbable/
-│   │   │   │   ├── tapable/
-│   │   │   │   ├── tar/
-│   │   │   │   ├── terser/
-│   │   │   │   ├── terser-webpack-plugin/
-│   │   │   │   ├── thingies/
-│   │   │   │   ├── thunky/
-│   │   │   │   ├── tiktok-video-element/
-│   │   │   │   ├── to-regex-range/
-│   │   │   │   ├── toidentifier/
-│   │   │   │   ├── tree-dump/
-│   │   │   │   ├── trim-newlines/
-│   │   │   │   ├── true-case-path/
-│   │   │   │   ├── ts-loader/
-│   │   │   │   ├── ts-node/
-│   │   │   │   ├── tslib/
-│   │   │   │   ├── twitch-video-element/
-│   │   │   │   ├── type/
-│   │   │   │   ├── type-fest/
-│   │   │   │   ├── type-is/
-│   │   │   │   ├── typescript/
-│   │   │   │   ├── ua-parser-js/
-│   │   │   │   ├── undici-types/
-│   │   │   │   ├── unicode-canonical-property-names-ecmascript/
-│   │   │   │   ├── unicode-match-property-ecmascript/
-│   │   │   │   ├── unicode-match-property-value-ecmascript/
-│   │   │   │   ├── unicode-property-aliases-ecmascript/
-│   │   │   │   ├── unidiff/
-│   │   │   │   ├── unique-filename/
-│   │   │   │   ├── unique-slug/
-│   │   │   │   ├── unist-util-is/
-│   │   │   │   ├── unist-util-position-from-estree/
-│   │   │   │   ├── unist-util-stringify-position/
-│   │   │   │   ├── unist-util-visit/
-│   │   │   │   ├── unist-util-visit-parents/
-│   │   │   │   ├── unpipe/
-│   │   │   │   ├── update-browserslist-db/
-│   │   │   │   ├── uri-js/
-│   │   │   │   ├── url-loader/
-│   │   │   │   ├── use-callback-ref/
-│   │   │   │   ├── use-sidecar/
-│   │   │   │   ├── util-deprecate/
-│   │   │   │   ├── utila/
-│   │   │   │   ├── utils-merge/
-│   │   │   │   ├── uuid/
-│   │   │   │   ├── v8-compile-cache-lib/
-│   │   │   │   ├── validate-npm-package-license/
-│   │   │   │   ├── vary/
-│   │   │   │   ├── vfile-message/
-│   │   │   │   ├── vimeo-video-element/
-│   │   │   │   ├── w3c-keyname/
-│   │   │   │   ├── watchpack/
-│   │   │   │   ├── wbuf/
-│   │   │   │   ├── weakmap-polyfill/
-│   │   │   │   ├── webpack/
-│   │   │   │   ├── webpack-cli/
-│   │   │   │   ├── webpack-dev-middleware/
-│   │   │   │   ├── webpack-dev-server/
-│   │   │   │   ├── webpack-merge/
-│   │   │   │   ├── webpack-sources/
-│   │   │   │   ├── websocket-driver/
-│   │   │   │   ├── websocket-extensions/
-│   │   │   │   ├── which/
-│   │   │   │   ├── wide-align/
-│   │   │   │   ├── wildcard/
-│   │   │   │   ├── wistia-video-element/
-│   │   │   │   ├── wrap-ansi/
-│   │   │   │   ├── wrappy/
-│   │   │   │   ├── ws/
-│   │   │   │   ├── wsl-utils/
-│   │   │   │   ├── y18n/
-│   │   │   │   ├── yallist/
-│   │   │   │   ├── yargs/
-│   │   │   │   ├── yargs-parser/
-│   │   │   │   ├── yjs/
-│   │   │   │   ├── yn/
-│   │   │   │   ├── yocto-queue/
-│   │   │   │   ├── youtube-video-element/
-│   │   │   │   ├── zwitch/
-│   │   │   │   └── .package-lock.json
-│   │   │   ├── resources/
-│   │   │   │   └── sounds/
-│   │   │   ├── scripts/
-│   │   │   │   └── build_sprites.sh
-│   │   │   ├── src/
-│   │   │   │   ├── SystemFolder/
-│   │   │   │   ├── App.tsx
-│   │   │   │   ├── custom.d.ts
-│   │   │   │   ├── index.html
-│   │   │   │   ├── index.scss
-│   │   │   │   └── index.tsx
-│   │   │   ├── .babelrc
-│   │   │   ├── .gitignore
-│   │   │   ├── README.md
-│   │   │   ├── package-lock.json
-│   │   │   ├── package.json
-│   │   │   ├── platinum.json
-│   │   │   ├── tsconfig.json
-│   │   │   └── webpack.config.ts
-│   │   ├── css-frameworks/
-│   │   │   ├── afterdark-demo/
-│   │   │   │   └── index.html
-│   │   │   ├── classic-demo/
-│   │   │   │   └── index.html
-│   │   │   ├── nes-demo/
-│   │   │   │   └── index.html
-│   │   │   ├── system-demo/
-│   │   │   │   └── index.html
-│   │   │   ├── README.md
-│   │   │   └── launch_all.py
-│   │   ├── dashboard/
-│   │   │   ├── css/
-│   │   │   │   └── dashboard-compact.css
-│   │   │   ├── js/
-│   │   │   │   ├── dashboard-v12.js
-│   │   │   │   └── dashboard.js
-│   │   │   ├── memory/
-│   │   │   │   └── logs/
-│   │   │   ├── sandbox/
-│   │   │   │   └── .server_state.json
-│   │   │   ├── index.html
-│   │   │   └── server.py
-│   │   ├── font-editor/
-│   │   │   ├── css/
-│   │   │   │   ├── font-editor-v12.css
-│   │   │   │   └── font-editor-v13.css
-│   │   │   ├── js/
-│   │   │   │   ├── app.js
-│   │   │   │   ├── font-manager.js
-│   │   │   │   ├── grid-editor.js
-│   │   │   │   └── preview.js
-│   │   │   ├── lib/
-│   │   │   ├── templates/
-│   │   │   ├── README.md
-│   │   │   ├── index.html
-│   │   │   └── server.py
-│   │   ├── markdown-viewer/
-│   │   │   ├── css/
-│   │   │   │   └── markdown-v13.css
-│   │   │   ├── examples/
-│   │   │   │   └── ucode-panels.md
-│   │   │   ├── index.html
-│   │   │   └── server.py
-│   │   ├── shared/
-│   │   │   ├── CSS-FRAMEWORKS-GUIDE.md
-│   │   │   ├── GRID-SYSTEM.md
-│   │   │   ├── README.md
-│   │   │   ├── SYSTEM-CSS-REFERENCE.md
-│   │   │   ├── classic.css
-│   │   │   ├── nes.css
-│   │   │   ├── system.css
-│   │   │   ├── udos-controls.js
-│   │   │   ├── udos-filepicker.css
-│   │   │   ├── udos-filepicker.js
-│   │   │   ├── udos-grid.css
-│   │   │   ├── udos-panels.js
-│   │   │   ├── udos-syntax.css
-│   │   │   ├── udos-v13-theme.css
-│   │   │   └── ugrid-demo.html
-│   │   ├── teletext/
-│   │   │   ├── fonts/
-│   │   │   │   └── README.txt
-│   │   │   ├── index.html
-│   │   │   ├── mosaic_codepoints_E200-E3FF.csv
-│   │   │   ├── teletext-api.js
-│   │   │   └── teletext-web.css
-│   │   ├── terminal/
-│   │   │   ├── QUICKSTART.md
-│   │   │   ├── README.md
-│   │   │   ├── index.html
-│   │   │   └── server.py
-│   │   ├── CHANGELOG-v1.0.1.md
-│   │   ├── README.md
-│   │   ├── classicy-launcher.py
-│   │   ├── deploy.py
-│   │   ├── launch.sh
-│   │   ├── launch_web.py
-│   │   ├── launch_web.sh
-│   │   ├── teletext_extension.py
-│   │   └── version-manifest.json
-│   ├── README.md
-│   ├── setup_cmd.sh
-│   ├── setup_micro.sh
-│   ├── setup_micro_broken.sh
-│   ├── setup_monaspace.sh
-│   └── setup_typo.sh
+│   ├── bundled/
+│   │   └── web/
+│   │       ├── dashboard/
+│   │       │   ├── IMPLEMENTATION.md
+│   │       │   ├── README.md
+│   │       │   ├── config.json
+│   │       │   ├── dashboard-api.js
+│   │       │   ├── index.html
+│   │       │   └── launch.sh
+│   │       ├── font-editor/
+│   │       │   ├── css/
+│   │       │   ├── js/
+│   │       │   ├── lib/
+│   │       │   ├── templates/
+│   │       │   ├── README.md
+│   │       │   ├── index.html
+│   │       │   └── server.py
+│   │       ├── shared/
+│   │       │   ├── icons/
+│   │       │   ├── img/
+│   │       │   ├── CSS-FRAMEWORKS-GUIDE.md
+│   │       │   ├── GRID-SYSTEM.md
+│   │       │   ├── README-Typography.md
+│   │       │   ├── README.md
+│   │       │   ├── SYSTEM-CSS-REFERENCE.md
+│   │       │   ├── classic-mac-patterns.css
+│   │       │   ├── classic.css
+│   │       │   ├── nes.css
+│   │       │   ├── system-mac.css
+│   │       │   ├── system.css
+│   │       │   ├── typography-manager.js
+│   │       │   ├── typography-showcase.html
+│   │       │   ├── typography-system.css
+│   │       │   ├── udos-controls.js
+│   │       │   ├── udos-filepicker.css
+│   │       │   ├── udos-filepicker.js
+│   │       │   ├── udos-grid.css
+│   │       │   ├── udos-panels.js
+│   │       │   ├── udos-syntax.css
+│   │       │   ├── udos-v13-theme.css
+│   │       │   └── ugrid-demo.html
+│   │       ├── system-desktop/
+│   │       │   ├── fonts/
+│   │       │   ├── README.md
+│   │       │   ├── index.html
+│   │       │   ├── system7.css
+│   │       │   └── system7.js
+│   │       ├── system-style/
+│   │       │   └── index.html
+│   │       ├── teletext/
+│   │       │   ├── fonts/
+│   │       │   ├── index-enhanced.html
+│   │       │   ├── index.html
+│   │       │   ├── mosaic_codepoints_E200-E3FF.csv
+│   │       │   ├── teletext-api.js
+│   │       │   ├── teletext-enhanced.css
+│   │       │   ├── teletext-enhanced.js
+│   │       │   └── teletext-web.css
+│   │       ├── README.md
+│   │       ├── README_OLD.md
+│   │       ├── classicy-launcher.py
+│   │       ├── deploy.py
+│   │       ├── launch.sh
+│   │       ├── launch_web.py
+│   │       ├── launch_web.sh
+│   │       ├── teletext_extension.py
+│   │       └── version-manifest.json
+│   ├── fonts/
+│   │   ├── chicago-12-1/
+│   │   │   ├── chicago-12-1.otf
+│   │   │   ├── chicago-12-1.otf.woff2
+│   │   │   ├── license.txt
+│   │   │   └── readme.txt
+│   │   ├── mallard-blockier/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-blockier.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-blocky/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-blocky.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-neueue/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-neueue.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-smooth/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-smooth.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-smoother/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-smoother.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-tiny/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-tiny.otf
+│   │   │   └── readme.txt
+│   │   ├── sysfont/
+│   │   │   ├── webfonts/
+│   │   │   │   ├── sysfont.woff
+│   │   │   │   └── sysfont.woff2
+│   │   │   ├── OFL.txt
+│   │   │   ├── readme.txt
+│   │   │   └── sysfont.otf
+│   │   ├── ChicagoFLF.ttf
+│   │   └── LICENSE_ASSESSMENT.md
+│   ├── setup/
+│   │   ├── setup_all.sh
+│   │   ├── setup_c64css3.sh
+│   │   ├── setup_classicy.sh
+│   │   ├── setup_cmd.sh
+│   │   ├── setup_micro.sh
+│   │   ├── setup_monaspace.sh
+│   │   ├── setup_nes.sh
+│   │   └── setup_typo.sh
+│   ├── CLEANUP_SUMMARY.md
+│   └── README.md
 ├── knowledge/
 │   ├── commands/
+│   │   ├── MAP.md
+│   │   ├── OK.md
+│   │   └── SYSTEM.md
 │   ├── concepts/
+│   │   └── command-architecture.md
 │   ├── datasets/
 │   ├── faq/
 │   ├── maps/
@@ -934,43 +291,55 @@ uDOS/
 │   ├── config/
 │   │   └── active-theme.json
 │   ├── missions/
-│   ├── research/
+│   ├── sandbox/
+│   │   ├── .server_state.json
+│   │   └── user.json
 │   ├── scripts/
 │   │   └── README.md
-│   └── README.md
-├── sandbox/
 │   ├── tests/
-│   │   ├── simple_history_test.uscript
-│   │   ├── test_completion.uscript
-│   │   ├── test_history.uscript
-│   │   ├── test_history_complete.uscript
-│   │   └── test_history_comprehensive.uscript
-│   ├── USER.UDO
-│   ├── user.json
-│   └── user.md
+│   │   ├── integration/
+│   │   │   ├── test_cli_v1_0_6.py
+│   │   │   ├── test_file_integration_v1_0_2.py
+│   │   │   ├── test_map_integration.py
+│   │   │   ├── test_teletext_integration.py
+│   │   │   └── test_v1_0_2_integration.py
+│   │   ├── test_files/
+│   │   │   ├── config.conf
+│   │   │   ├── script.py
+│   │   │   ├── test1.md
+│   │   │   └── test2.txt
+│   │   ├── unit/
+│   │   │   ├── test_dashboard.py
+│   │   │   ├── test_file_operations_v1_0_2.py
+│   │   │   ├── test_palette_tree.py
+│   │   │   └── test_remaining_commands.py
+│   │   ├── README.md
+│   │   ├── shakedown.uscript
+│   │   ├── test_map_surface.py
+│   │   ├── test_session_minimal.py
+│   │   ├── test_v1_0_2_enhancements.py
+│   │   ├── test_v1_0_2_simple_integration.py
+│   │   ├── test_v1_0_2_standalone.py
+│   │   └── v1_0_7_file_operations_test.sh
+│   ├── README.md
+│   └── knowledge.db
+├── sandbox/
 ├── scripts/
 │   ├── config_manager.py
 │   ├── generate_user_config.py
 │   └── migrate_config.py
-├── tests/
-│   ├── integration/
-│   │   ├── test_file_integration_v1_0_2.py
-│   │   ├── test_map_integration.py
-│   │   ├── test_teletext_integration.py
-│   │   └── test_v1_0_2_integration.py
-│   ├── unit/
-│   │   ├── test_dashboard.py
-│   │   ├── test_file_operations_v1_0_2.py
-│   │   ├── test_palette_tree.py
-│   │   └── test_remaining_commands.py
-│   └── README.md
 ├── wiki/
 │   ├── Architecture.md
+│   ├── CLI-Features-v1-0-6.md
 │   ├── CSS-Framework-Integration.md
 │   ├── Command-Reference.md
 │   ├── Contributing.md
+│   ├── Dev-Rounds-Workflow.md
+│   ├── Development-History.md
+│   ├── Extensions-System.md
 │   ├── FAQ.md
 │   ├── Home.md
+│   ├── Latest-Development.md
 │   ├── Mapping-System.md
 │   ├── Quick-Start.md
 │   ├── README.md
@@ -987,6 +356,12 @@ uDOS/
 ├── requirements.txt
 ├── start_udos.sh
 ├── structure.txt
+├── test_available_commands.py
+├── test_commands.uscript
+├── test_commands_script.uscript
+├── test_core_functionality.py
+├── test_interactive.txt
+├── test_restored_commands.txt
 ├── uDOS.code-workspace
 ├── uDOS.py
 └── web.sh

@@ -73,9 +73,13 @@ def initialize_system(is_script_mode=False):
         components['viewport'] = viewport
         if not is_script_mode:
             print(f"✓ {viewport.device_type} ({viewport.width}×{viewport.height})")
-            # Show full-screen viewport measurement
-            from core.uDOS_splash import print_viewport_measurement
-            print_viewport_measurement(viewport, delay=1.0)
+            # Show full-screen viewport measurement (with error handling)
+            try:
+                from core.uDOS_splash import print_viewport_measurement
+                print_viewport_measurement(viewport, delay=1.0)
+            except (BrokenPipeError, IOError):
+                # Skip viewport display if output is piped or redirected
+                pass
 
         # 2. Check connection
         if not is_script_mode:
@@ -123,8 +127,8 @@ def initialize_system(is_script_mode=False):
                 print()
                 print(f"  {message}")
                 print()
-                response = input("  Attempt auto-repair? (y/n): ").strip().lower()
-                if response == 'y':
+                response = input("  Attempt auto-repair? (y/n/OK): ").strip().lower()
+                if response in ['y', 'yes', 'ok']:
                     print()
                     health = check_system_health(verbose=False)
                     health = repair_system(health, verbose=True)
@@ -237,7 +241,8 @@ def main():
         # Initialize advanced completer with command history integration
         completer = AdvancedCompleter(parser, grid, command_history)
 
-        # Command history already initialized above        kb = KeyBindings()
+        # Command history already initialized above
+        kb = KeyBindings()
 
         @kb.add('[')
         def _(event):

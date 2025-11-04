@@ -70,7 +70,7 @@ Distributed data sets that ship with uDOS for offline functionality.
 - Quest structures
 
 ### `/faq` - Frequently Asked Questions
-Organized Q&A loaded by the offline AI system (data/FAQ.UDO links here).
+Organized Q&A loaded by the offline OK Assisted Task system (data/FAQ.UDO links here).
 
 ---
 

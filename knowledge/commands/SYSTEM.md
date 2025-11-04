@@ -20,7 +20,7 @@ SYSTEM HELP [category]
 **Categories:**
 - `SYSTEM` - System management commands
 - `FILE` - File operations
-- `ASSISTANT` - AI assistant commands
+- `ASSIST` - OK Assisted Task commands
 - `MAP` - Navigation and mapping
 - `OUTPUT` - Web server management
 

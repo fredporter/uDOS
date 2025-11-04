@@ -1,46 +1,80 @@
-# ASK Command Reference
+# OK Command - AI Assistance
 
-The `ASK` command provides AI-powered assistance for questions about uDOS, programming, and general topics.
+The `OK` command provides access to two different AI assistance systems within uDOS.
 
-## Basic Usage
+## Syntax
 
 ```bash
-ASK <question>
+OK ASK <question>
+OK DEV <task>
 ```
+
+## Subcommands
+
+### OK ASK - Gemini AI Assistance
+
+Uses Google's Gemini AI for general questions, knowledge base queries, and contextual help.
+
+**Features:**
+- Natural language questions
+- Local knowledge base integration
+- Context-aware responses
+- Works with uDOS panels and workspace
 
 **Examples:**
 ```bash
-ASK What is uDOS?
-ASK How do I create a new file?
-ASK Explain Python decorators
+OK ASK how do I implement UNDO?
+OK ASK what files handle navigation?
+OK ASK explain the grid system
+OK ASK what is in the main panel?
 ```
 
-## Advanced Usage
+**Requirements:**
+- Gemini API key in `.env` file (optional - has offline fallback)
+- Internet connection (for live AI responses)
 
-### Ask with Panel Context
+**Fallback Mode:**
+- If no API key or offline, uses local knowledge base
+- Searches `/knowledge` directory for relevant content
+- Returns cached documentation and examples
+
+### OK DEV - GitHub Copilot CLI Development Tasks
+
+Uses GitHub Copilot CLI for development-specific tasks like code generation, git help, and terminal commands.
+
+**Features:**
+- Code suggestions and generation
+- Git command help
+- Terminal command explanations
+- Development workflow assistance
+
+**Examples:**
 ```bash
-ASK <question> <panel_name>
+OK DEV create a grid command handler
+OK DEV explain this git error
+OK DEV how do I fix merge conflicts
+OK DEV optimize this function
 ```
 
-The ASK command can reference content from grid panels for context-aware responses.
+**Requirements:**
+- GitHub CLI (`gh`) installed
+- GitHub Copilot CLI extension installed
+- Active GitHub Copilot subscription
 
-**Example:**
+**Installation:**
 ```bash
-# First display code in a panel
-VIEW code.py main
-# Then ask about it
-ASK Explain this function main
+# Install GitHub CLI
+brew install gh  # macOS
+
+# Install Copilot extension
+gh extension install github/gh-copilot
+
+# Authenticate
+gh auth login
 ```
 
-## Features
-
-### Knowledge Base Integration (v1.0.8+)
-- **Local Search**: ASK first searches local knowledge base for relevant content
-- **Context Enhancement**: Local knowledge provides additional context for AI responses
-- **Offline Capability**: Basic responses available even without internet connection
-
-### AI Integration
-- **Gemini AI**: Powered by Google's Gemini Pro for intelligent responses
+### OK Assisted Task Integration
+- **Gemini OK Assisted Task**: Powered by Google's Gemini Pro for intelligent responses
 - **Conversation History**: Maintains context across multiple questions
 - **Code Analysis**: Understands programming concepts and uDOS architecture
 
@@ -61,7 +95,7 @@ ASK Explain this function main
 ### API Key Setup
 The ASK command requires a Gemini API key:
 
-1. Get API key from [Google AI Studio](https://makersuite.google.com/)
+1. Get API key from [Google OK Assisted Task Studio](https://makersuite.google.com/)
 2. Set in environment: `export GEMINI_API_KEY=your_key_here`
 3. Or add to `.env` file in project root
 
@@ -112,7 +146,7 @@ ASK What does this error message mean?
 
 ### Implementation
 - **Handler**: `AssistantCommandHandler` in `core/commands/assistant_handler.py`
-- **Service**: Uses `GeminiService` for AI integration
+- **Service**: Uses `GeminiService` for OK Assisted Task integration
 - **Knowledge**: `KnowledgeManager` for local search
 - **Context**: Integrates with workspace and grid system
 
@@ -120,8 +154,8 @@ ASK What does this error message mean?
 1. **Parse Question**: Extract question and optional panel reference
 2. **Search Knowledge**: Query local knowledge base for relevant content
 3. **Build Context**: Combine local knowledge with workspace information
-4. **AI Query**: Send enhanced context to Gemini AI
-5. **Format Response**: Process and format the AI response
+4. **OK Assisted Task Query**: Send enhanced context to Gemini OK Assisted Task
+5. **Format Response**: Process and format the OK Assisted Task response
 
 ### Error Handling
 - **No API Key**: Clear instructions on setup
@@ -130,4 +164,4 @@ ASK What does this error message mean?
 - **Rate Limits**: Appropriate handling of API rate limits
 
 ## Tags
-#AI #assistant #help #questions #knowledge #documentation
+#OKAssistedTask #assist #help #questions #knowledge #documentation

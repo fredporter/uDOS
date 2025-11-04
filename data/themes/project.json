@@ -102,7 +102,7 @@
       "CMD_LOCATE": "PIN",
       "CMD_WHERE": "WHERE",
       "CMD_TREE": "TREE",
-      "CMD_ASK": "ASK",
+      "CMD_OK": "OK",
       "CMD_EDIT": "EDIT",
       "CMD_SHOW": "SHOW",
       "CMD_ANALYZE": "REVIEW",
