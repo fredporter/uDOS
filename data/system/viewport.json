@@ -1,0 +1,25 @@
+{
+  "detection_method": "auto",
+  "terminal_chars": {
+    "width": 36,
+    "height": 19
+  },
+  "calculated_cells": {
+    "width": 18,
+    "height": 19
+  },
+  "screen_tier": {
+    "tier": 0,
+    "label": "Watch",
+    "description": "Wearable display",
+    "width_cells": 13,
+    "height_cells": 13,
+    "aspect": "1:1",
+    "actual_width_cells": 18,
+    "actual_height_cells": 19,
+    "width_pixels": 288,
+    "height_pixels": 304,
+    "distance": 7.810249675906654
+  },
+  "last_updated": "auto-detect"
+}
