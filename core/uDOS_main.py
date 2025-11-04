@@ -42,7 +42,13 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
                     command_history.append_string(clean_line)
 
                 logger.log(f"uDOS> {clean_line}")
-                ucode = parser.parse(clean_line)
+
+                # Check if line is already in uCODE format
+                if clean_line.startswith('[') and clean_line.endswith(']'):
+                    ucode = clean_line  # Already uCODE, use as-is
+                else:
+                    ucode = parser.parse(clean_line)  # Parse plain text to uCODE
+
                 if ucode.startswith("[SYSTEM|ERROR"):
                     result = ucode
                 else:
@@ -224,7 +230,8 @@ def main():
             connection=connection,
             viewport=viewport,
             user_manager=user_manager,
-            command_history=command_history
+            command_history=command_history,
+            logger=logger
         )
 
         if is_script_mode:

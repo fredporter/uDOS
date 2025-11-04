@@ -112,6 +112,21 @@ backups/
 output/
 *.output
 
+# Test Files - Only in Proper Locations
+# ----------------------
+# Prevent test files from being created in root
+/test_*.py
+/test_*.uscript
+/test_*.sh
+/*.test.*
+/tmp_*
+/temp_*
+
+# Allow tests in proper directories
+!memory/tests/
+!memory/tests/**/*
+!sandbox/tests/
+
 # Keep Important Directories Tracked (Even if Empty)
 # ----------------------
 !memory/

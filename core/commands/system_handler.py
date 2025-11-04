@@ -78,6 +78,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'BLANK': self.handle_blank,
             'HELP': self.handle_help,
             'HISTORY': self.handle_history,
+            'UNDO': self.handle_undo,
+            'REDO': self.handle_redo,
+            'RESTORE': self.handle_restore,
             'THEME': self.handle_theme,
             'PROGRESS': self.handle_progress,
             'SESSION': self.handle_session,
@@ -2177,3 +2180,118 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
                 "Use 'POKE DISCOVER' to see available extensions\n"
                 "Use 'POKE INFO <name>' for detailed information\n\n"
                 "📧 Want to contribute? Contact the uDOS development team!")
+
+    def handle_undo(self, params, grid, parser):
+        """
+        Undo the last reversible operation.
+
+        Usage: UNDO
+
+        Reverses the last recorded action and adjusts the move counter.
+        Undone actions can be reapplied using REDO.
+        """
+        if not self.history:
+            return "❌ History system not initialized."
+
+        success, message = self.history.undo(grid)
+
+        if success:
+            return f"↩️  {message}"
+        else:
+            return f"⚠️  {message}"
+
+    def handle_redo(self, params, grid, parser):
+        """
+        Redo the last undone operation.
+
+        Usage: REDO
+
+        Re-applies the last action that was undone with UNDO.
+        Re-doing an action adjusts the move counter forward.
+        """
+        if not self.history:
+            return "❌ History system not initialized."
+
+        success, message = self.history.redo(grid)
+
+        if success:
+            return f"↪️  {message}"
+        else:
+            return f"⚠️  {message}"
+
+    def handle_restore(self, params, grid, parser):
+        """
+        Restore state to a previous session (bulk undo).
+
+        Usage:
+            RESTORE                - Show session list (default)
+            RESTORE LIST           - Show available sessions
+            RESTORE <session_num>  - Restore to specific session
+
+        Performs multiple UNDO operations to return to the specified session state.
+        """
+        if not self.history:
+            return "❌ History system not initialized."
+
+        # If no params or params is ['LIST'], show session list
+        if not params or (len(params) == 1 and params[0].upper() == "LIST"):
+            # Get session history from logger
+            if not self.logger:
+                return "❌ Logger not available for session history."
+
+            # Get move stats to show session info
+            move_stats = self.logger.get_move_stats()
+            current_session = move_stats.get('session_number', 0)
+
+            output = "╔" + "═"*78 + "╗\n"
+            output += "║  📜 SESSION HISTORY".ljust(79) + "║\n"
+            output += "╠" + "═"*78 + "╣\n"
+            output += f"║  Current Session: #{current_session}".ljust(79) + "║\n"
+            output += "║".ljust(79) + "║\n"
+            output += "║  Use RESTORE <session_num> to restore to a previous session.".ljust(79) + "║\n"
+            output += "║  All actions after that session will be undone.".ljust(79) + "║\n"
+            output += "║".ljust(79) + "║\n"
+            output += "║  💡 Tip: Use HISTORY command for detailed command history.".ljust(79) + "║\n"
+            output += "╚" + "═"*78 + "╝"
+            return output
+
+        # Attempt to restore to specific session
+        subcommand = params[0]
+        try:
+            target_session = int(subcommand)
+
+            # Get current session
+            if not self.logger:
+                return "❌ Logger not available."
+
+            move_stats = self.logger.get_move_stats()
+            current_session = move_stats.get('session_number', 0)
+
+            if target_session >= current_session:
+                return f"⚠️  Cannot restore to session #{target_session} (current: #{current_session})"
+
+            # Calculate how many undos needed
+            undo_count = current_session - target_session
+
+            # Perform bulk undo
+            output = f"🔄 Restoring to session #{target_session}...\n\n"
+            success_count = 0
+
+            for i in range(undo_count):
+                success, msg = self.history.undo(grid)
+                if success:
+                    success_count += 1
+                else:
+                    output += f"⚠️  Stopped at undo {i+1}/{undo_count}: {msg}\n"
+                    break
+
+            if success_count > 0:
+                output += f"✅ Restored {success_count} operations\n"
+                output += f"📍 Current position: Session #{target_session}"
+            else:
+                output += "❌ No operations could be restored"
+
+            return output
+
+        except ValueError:
+            return f"❌ Invalid session number: '{subcommand}'. Use RESTORE LIST to see available sessions."

@@ -452,11 +452,18 @@ class FileCommandHandler(BaseCommandHandler):
         if script_file.endswith('.uscript'):
             try:
                 from core.uDOS_ucode import UCodeInterpreter
-                interpreter = UCodeInterpreter(command_handler=self)
+                # Pass the main CommandHandler for executing nested commands
+                interpreter = UCodeInterpreter(
+                    command_handler=self.main_handler if hasattr(self, 'main_handler') else None,
+                    parser=parser,
+                    grid=None  # Grid will be passed when UCodeInterpreter calls handle_command
+                )
                 result = interpreter.execute_script(script_file)
-                return f"📜 Executed: {script_file}\n\n{result}"
+                return result  # UCodeInterpreter already formats output
             except Exception as e:
-                return f"❌ Script error: {str(e)}"
+                import traceback
+                error_detail = traceback.format_exc()
+                return f"❌ Script error: {str(e)}\n\n{error_detail}"
         else:
             # Regular shell script
             import subprocess

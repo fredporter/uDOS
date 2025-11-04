@@ -1,0 +1,23 @@
+# Test script for UNDO/REDO/RESTORE commands
+# v1.0.7 History System verification
+
+# Test 1: Show HELP for UNDO
+HELP UNDO
+
+# Test 2: Show HELP for REDO
+HELP REDO
+
+# Test 3: Show RESTORE usage
+RESTORE
+
+# Test 4: Show session list
+RESTORE LIST
+
+# Test 5: Check HISTORY
+HISTORY
+
+# Test 6: Test UNDO with no actions (should show "Nothing to undo")
+UNDO
+
+# Test 7: Test REDO with no actions (should show "Nothing to redo")
+REDO

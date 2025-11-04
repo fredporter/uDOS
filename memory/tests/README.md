@@ -1,5 +1,8 @@
 # uDOS Test Suite
 
+⚠️ **IMPORTANT: All test files MUST be in this directory or subdirectories!**
+Test files in the root directory will be ignored by git and should be moved here.
+
 This directory contains all tests for the uDOS system, organized by type and version.
 
 ## Structure
@@ -8,6 +11,11 @@ This directory contains all tests for the uDOS system, organized by type and ver
 memory/tests/
 ├── README.md                          # This file
 ├── shakedown.uscript                  # Quick system validation test
+├── test_run_command.py                # v1.0.6 RUN command tests
+├── test_ok_implementation.py          # v1.0.5 OK ASK/DEV tests
+├── test_ok_comprehensive.py           # v1.0.5 comprehensive OK tests
+├── test_commands.uscript              # Basic command test script
+├── test_ok_command.uscript            # OK command test script
 ├── v1_0_7_file_operations_test.sh     # v1.0.7 advanced file operations test
 ├── test_files/                       # Test data files for file operations
 │   ├── test1.md

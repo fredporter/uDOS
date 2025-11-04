@@ -23,7 +23,7 @@ class CommandHandler:
     """Main command router - delegates to specialized handlers."""
 
     def __init__(self, theme='dungeon', commands_file='data/system/commands.json',
-                 history=None, connection=None, viewport=None, user_manager=None, command_history=None):
+                 history=None, connection=None, viewport=None, user_manager=None, command_history=None, logger=None):
         """
         Initialize command handler and load specialized handlers.
 
@@ -35,6 +35,7 @@ class CommandHandler:
             viewport: Viewport instance
             user_manager: UserManager instance
             command_history: CommandHistory instance
+            logger: Logger instance
         """
         # Load theme and commands
         theme_file = f'data/themes/{theme.lower()}.json'
@@ -51,6 +52,7 @@ class CommandHandler:
         self.viewport = viewport
         self.user_manager = user_manager
         self.command_history = command_history
+        self.logger = logger
         self.reboot_requested = False
         self.current_theme = theme
 
@@ -61,7 +63,9 @@ class CommandHandler:
             'viewport': viewport,
             'user_manager': user_manager,
             'history': history,
-            'command_history': command_history
+            'command_history': command_history,
+            'logger': logger,
+            'main_handler': None  # Will be set after initialization
         }
 
         # Initialize specialized handlers (lazy loading in handlers themselves)
@@ -78,6 +82,11 @@ class CommandHandler:
         self.map_handler = MapCommandHandler(**handler_kwargs)
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
+
+        # Now set main_handler reference on all handlers
+        for handler in [self.assistant_handler, self.file_handler, self.grid_handler,
+                       self.map_handler, self.system_handler, self.bank_handler]:
+            handler.main_handler = self
 
     def get_message(self, key, **kwargs):
         """

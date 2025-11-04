@@ -1,6 +1,31 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.11 (Extension System Formalization Complete)
-**Last Updated**: 3 November 2025
+**Current Version**: v1.0.11 (Extension System Complete)
+**Last Updated**: 4 November 2025
+
+---
+
+## 📊 Version Completion Status
+
+### ✅ Completed Versions
+- **v1.0.0** - Foundation Release (Core system, command handlers)
+- **v1.0.1** - System Commands (HELP, STATUS, REPAIR, VIEWPORT)
+- **v1.0.2** - Configuration System (Modular handlers, user profiles)
+- **v1.0.3** - Mapping System (TIZO cells, navigation, MAP commands)
+- **v1.0.4** - Teletext Extension (Web interface, mosaic rendering)
+- **v1.0.5** - AI Assisted Tasks (ASK/DEV differentiation, Gemini/Copilot)
+- **v1.0.6** - Automation (RUN command, .uscript execution)
+- **v1.0.7** - History & File Operations (UNDO/REDO/RESTORE, advanced FILE commands)
+- **v1.0.8** - Knowledge System (SQLite FTS, KNOWLEDGE commands, AI integration)
+- **v1.0.9** - Viewport System (14 screen tiers, universal adaptation)
+- **v1.0.10** - Typography System (Classic Mac fonts, 8 themes, NES.css)
+- **v1.0.11** - Extension System (POKE commands, metadata validation, dev tools)
+
+### 📋 Planned Versions
+- **v1.0.12** - Advanced Utilities (Enhanced HELP, CLEAR, SETUP - originally planned as v1.0.8)
+- **v1.0.13** - Theme System Enhancement (Preview, creation tools, community gallery)
+- **v1.0.14** - uCODE Language Enhancement (Control flow, functions, debugging)
+- **v1.0.15** - Security & Permissions (Access control, encryption, auditing)
+- **v1.1.0** - Stable Release (Integration, polish, community launch)
 
 ---
 
@@ -245,95 +270,129 @@ The following commands form the core of uDOS:
 
 ---
 
-## 🖥️ v1.0.6 - CLI Terminal Features (Week 6)
-**Status**: ✅ Complete - November 2, 2025
-**Focus**: Enhanced terminal UI and interactive features
+## 🤖 v1.0.5 - Assisted Task Enhancement (Week 5)
+**Status**: ✅ Complete - November 4, 2025
+**Focus**: OK ASK/DEV differentiation and enhanced AI assistance
 
 ### ✅ Completed Features
-- [x] **Enhanced Command History**: SQLite persistence with intelligent fuzzy search
-- [x] **Advanced Tab Completion**: Context-aware suggestions with fuzzy matching
-- [x] **Dynamic Color Themes**: Classic, Cyberpunk, Accessibility, and Monochrome modes
-- [x] **Real-time Progress Indicators**: Animated progress bars for long operations
-- [x] **Session Management**: Workspace state persistence with save/restore functionality
-- [x] **Adaptive Layouts**: Responsive terminal formatting for all screen sizes
+- [x] **OK ASK Implementation**: Gemini AI assistance with local knowledge fallback
+- [x] **OK DEV Implementation**: GitHub Copilot CLI with context awareness
+- [x] **Dual CLI Support**: Both new standalone `copilot` CLI and legacy `gh copilot` extension
+- [x] **Context Gathering**: Automatic project, git branch, and Python version detection
+- [x] **Enhanced Error Messages**: Clear installation guidance and helpful feedback
+- [x] **READ Command**: Panel content analysis and insights
+- [x] **Backward Compatibility**: Legacy ASK command continues to work
 
 ### ✅ Key Deliverables
-- [x] **5 new core services** providing intelligent CLI capabilities
-- [x] **Enhanced completion system** with fuzzy matching and context awareness
-- [x] **Integrated command routing** through unified system handler
-- [x] **Comprehensive test suite** with 100% integration test pass rate (8/8 tests)
-- [x] **Complete documentation** including release notes and wiki integration
+- [x] **AssistantCommandHandler**: Enhanced with OK ASK/DEV routing
+- [x] **GeminiService**: Wrapper for Google Gemini API integration
+- [x] **Context Awareness**: Gathers project context for better DEV suggestions
+- [x] **Test Suite**: Comprehensive testing for both ASK and DEV flows
+- [x] **Complete Documentation**: Command reference and usage examples
 
-### ✅ CLI Command Set
-- [x] **HISTORY commands**: LIST, SEARCH, STATS, CLEAR, EXPORT
-- [x] **THEME commands**: LIST, SET, INFO, ACCESSIBILITY, CONTRAST, COLORBLIND
-- [x] **SESSION commands**: LIST, SAVE, LOAD, DELETE, CURRENT, AUTO, CHECKPOINT
-- [x] **PROGRESS commands**: TEST, LIST, CANCEL, DEMO
-- [x] **LAYOUT commands**: INFO, MODE, RESIZE, AUTO, CONFIG, TEST, DEMO
-
-### ✅ Technical Achievements
-- [x] **7,042 lines** of new code across 47 files
-- [x] **SQLite integration** for persistent command history
-- [x] **Cross-platform compatibility** with universal terminal support
-- [x] **Accessibility features** with colorblind and high contrast support
-- [x] **Mobile optimization** with responsive layouts
-- [x] **Zero breaking changes** - full backward compatibility maintained
+### ✅ Command Set
+- [x] **OK** - Show help for OK command options
+- [x] **OK ASK <question>** - Gemini AI assistance with knowledge base
+- [x] **OK DEV <task>** - GitHub Copilot CLI for development help
+- [x] **READ** - Analyze panel content for insights and suggestions
+- [x] **ASK** - Legacy backward-compatible command
 
 **Documentation**:
-- `docs/releases/v1.0.6-CLI-TERMINAL-FEATURES.md` - Complete release documentation
-- `docs/QUICKREF-v1.0.6-CLI.md` - User quick reference guide
-- `wiki/CLI-Features-v1-0-6.md` - Comprehensive wiki documentation
-- `docs/development/v1_0_6_DEVELOPMENT_COMPLETE.md` - Development summary
+- `knowledge/commands/OK.md` - Complete command reference
+- `NEXT-STEPS.md` - Implementation roadmap and setup guide
+- Test files in `memory/tests/`
 
-**Status**: Production-ready CLI enhancement suite with modern terminal features
+**Status**: AI assistance fully integrated with clear separation of concerns
 
-**Status**: Production-ready CLI enhancement suite with modern terminal features
+---
+
+## 🔄 v1.0.6 - Automation (Week 6)
+**Status**: ✅ Complete - November 4, 2025
+**Focus**: RUN command for script execution and automation
+
+### ✅ Completed Features
+- [x] **UCodeInterpreter**: Execute .uscript files with command sequencing
+- [x] **Format Auto-Detection**: Handles both uCODE `[MODULE|COMMAND]` and plain text
+- [x] **Comment Parsing**: Skip comments (#) and blank lines automatically
+- [x] **Error Resilience**: Continue execution after non-critical errors
+- [x] **Interactive File Picker**: Select scripts with fuzzy search
+- [x] **Command Line Execution**: Run scripts directly via `./start_udos.sh script.uscript`
+- [x] **Bash Script Support**: Execute both .uscript and .sh files
+
+### ✅ Key Deliverables
+- [x] **core/uDOS_ucode.py**: UCodeInterpreter class (148 lines)
+- [x] **Enhanced FileCommandHandler**: RUN command integration
+- [x] **Main Handler Reference**: All specialized handlers access main CommandHandler
+- [x] **Script Format Detection**: Auto-detect uCODE vs plain text in run_script()
+- [x] **Example Scripts**: hello-automation.uscript demonstrating automation
+- [x] **Test Suite**: Comprehensive testing in memory/tests/
+
+### ✅ RUN Command Features
+- [x] **RUN <script>** - Execute .uscript file with command sequences
+- [x] **RUN** - Interactive file picker for script selection
+- [x] **Line-by-line execution** with numbered output
+- [x] **Error reporting** with line numbers and tracebacks
+- [x] **Execution summary** with completion status
+
+### ✅ Testing Results
+- [x] **Standalone execution**: Works without full uDOS context
+- [x] **Comment parsing**: Properly skips # comments and blank lines
+- [x] **Error handling**: Continues after errors, shows detailed messages
+- [x] **Command line**: `./start_udos.sh examples/hello-automation.uscript` works
+- [x] **Integration**: Full access to all command handlers
+
+**Documentation**:
+- `knowledge/commands/RUN.md` - Complete command reference with examples
+- `docs/development/v1.0.6-AUTOMATION-SUMMARY.md` - Implementation summary
+- `examples/hello-automation.uscript` - Working demonstration script
+
+**Status**: Script execution framework complete, ready for advanced automation features
+
+### 🎯 Future Enhancements (v1.0.7+)
+- **Variables**: Variable assignment `VAR = VALUE` and substitution `${VAR}`
+- **Control Flow**: IF/THEN/ELSE conditional execution
+- **Loops**: FOR and WHILE loop constructs
+- **Functions**: Function definitions and script composition
+- **Parallel Execution**: Run independent commands concurrently
+- **Background Processes**: Long-running task support
 
 ---
 
 ## 🚀 Current Development Status Summary
 
-### ✅ Completed Rounds (v1.0.1 - v1.0.6)
+### ✅ Completed Rounds (v1.0.1 - v1.0.7)
 - **v1.0.1 System Commands**: Core infrastructure and command framework (13 commands)
 - **v1.0.2 Configuration System**: User profiles, TIZO locations, environment management
 - **v1.0.3 Mapping System**: Complete navigation with cell references and ASCII visualization
 - **v1.0.4 Teletext Extension**: Retro visualization with modern web interface
-- **v1.0.5 Web Server Infrastructure**: Universal server management and coordination
-- **v1.0.6 CLI Terminal Features**: Modern intelligent command-line enhancements
+- **v1.0.5 Assisted Task Enhancement**: OK ASK/DEV differentiation with AI integration
+- **v1.0.6 Automation**: RUN command for script execution and workflow automation
+- **v1.0.7 History System**: UNDO/REDO/RESTORE with ActionHistory integration
 
 ### ✅ Current Capabilities
-- **Command Architecture**: 40+ commands across modular handlers
-- **Assisted Task Integration**: Complete Gemini integration (OK, ANALYZE, EXPLAIN, GENERATE, DEBUG)
-- **Web Infrastructure**: 6 POKE commands managing multiple web extensions
-- **File Operations**: Enhanced FILE commands with workspace management
-- **Mapping & Navigation**: Complete cell grid system with ASCII/teletext visualization
-- **Server Management**: Production-ready web server coordination
-
-### 🎯 Next Focus: v1.0.6 CLI Terminal Features
-Building on the solid infrastructure foundation:
-- Enhanced terminal user experience
-- Improved interactive capabilities
-- Better accessibility and mobile support
-- Optimized performance for all environments
-
-### ✅ Current Capabilities (v1.0.11)
 - **Command Architecture**: 50+ commands across modular handlers
-- **OK Assisted Task Integration**: Complete Gemini integration (OK, READ, EXPLAIN, GENERATE, DEBUG)
+- **AI Assistance**: OK ASK (Gemini) and OK DEV (GitHub Copilot CLI) with context awareness
+- **Automation Framework**: Script execution with .uscript files and command chaining
+- **History Management**: UNDO/REDO for reversible operations, RESTORE for session recovery
 - **Web Infrastructure**: Universal server management with enhanced POKE commands
-- **Extension System**: Complete extension ecosystem with development tools and security assessment
 - **File Operations**: Advanced file management with smart search, bookmarks, and batch operations
 - **Mapping & Navigation**: Complete cell grid system with ASCII/teletext visualization
 - **Server Management**: Production-ready web server coordination with health monitoring
-- **CLI Terminal Features**: Intelligent history, themes, sessions, progress, layouts
-- **Extension Development**: Template generators, metadata validation, and development tools
-- **Security Framework**: Extension risk assessment, permission tracking, and verification
+- **Extension System**: Complete extension ecosystem with development tools and security assessment
 
-### 🎯 Next Focus: v1.0.12+
-Building on the comprehensive v1.0.11 extension system:
-- **Advanced integrations** leveraging the modern CLI infrastructure and extension ecosystem
-- **Performance optimizations** with potential Rust integration for core components
-- **Enhanced user experience** with OK Assisted Task-powered suggestions and extension marketplace
-- **Community ecosystem** enabling third-party extension development and distribution
+### 🎯 Next Development Priorities
+
+**Immediate Focus** (v1.0.8+):
+1. **Advanced Utilities**: Enhanced HELP, CLEAR, SETUP with interactive tutorials
+2. **History Enhancements**: Named checkpoints, state visualization, timeline view
+3. **Automation Variables**: Variable assignment and substitution in .uscript files
+4. **Performance**: Optimization and potential Rust integration for core components
+
+**Technical Debt**:
+- [ ] Python 3.9.6 EOL - upgrade to 3.10+ recommended
+- [ ] Handle `importlib.metadata` deprecation warnings
+- [ ] Migrate from deprecated `gh-copilot` to new standalone Copilot CLI
+- [ ] Update google-api-core for Python version compatibility
 
 ### 📊 Development Velocity
 - **Average Round Duration**: 1 week per major component
@@ -351,7 +410,62 @@ Based on the solid foundation and comprehensive CLI features now available:
 
 ---
 
-## 🔄 Current Development Rounds (v1.0.7+)
+## 🔄 Future Development Rounds (v1.0.7+)
+
+### 🔧 v1.0.7 - History System (Week 7)
+**Status**: ✅ Complete - November 4, 2025
+**Focus**: UNDO, REDO, RESTORE with state snapshots
+
+### ✅ Completed Features
+- [x] **ActionHistory Integration**: Existing ActionHistory class from history_manager.py
+- [x] **UNDO Command**: Reverse last reversible operation with state rollback
+- [x] **REDO Command**: Re-apply undone operation maintaining state consistency
+- [x] **RESTORE Command**: Session history display and bulk undo to previous sessions
+- [x] **Logger Integration**: Fixed missing logger in BaseCommandHandler
+- [x] **Handler Registration**: Added UNDO/REDO/RESTORE to SystemCommandHandler routing
+- [x] **HELP Integration**: Auto-documentation for all history commands
+
+### ✅ Command Set Delivered
+- [x] **UNDO** - Reverse last reversible operation (adjusts move counter -1)
+- [x] **REDO** - Re-apply last undone operation (adjusts move counter +1)
+- [x] **RESTORE** / **RESTORE LIST** - Display current session and history
+- [x] **RESTORE <session_num>** - Bulk undo to specific session (future enhancement)
+
+### ✅ Testing Results
+- [x] HELP UNDO/REDO/RESTORE display correctly with syntax and uCODE format
+- [x] UNDO/REDO correctly report "Nothing to undo/redo" when stacks are empty
+- [x] RESTORE displays session history with current session number
+- [x] Commands properly integrated into HISTORY tracking
+
+### 🔧 Architecture Delivered
+- **ActionHistory**: Pre-existing deque-based undo/redo stack with configurable depth
+- **Logger Integration**: Session tracking and move statistics via Logger class
+- **Command Routing**: SystemCommandHandler routes to handle_undo/redo/restore
+- **BaseCommandHandler Fix**: Added logger to base class for all handlers
+
+**Documentation**: This ROADMAP.MD, test scripts in memory/tests/
+**Status**: Core history commands operational, ready for enhanced state snapshot features
+
+### 🎯 Future Enhancements (v1.0.8+)
+- **Named Checkpoints**: HISTORY SNAPSHOT <name> for user-defined restore points
+- **State Visualization**: Timeline view showing undo/redo position
+- **Selective Undo**: Undo specific operations without affecting others
+- **Persistent History**: Save undo stacks across sessions
+
+---
+
+### 🔤 v1.0.8 - Advanced Utilities (Week 8)
+**Status**: 📋 Planned
+**Focus**: Enhanced HELP, CLEAR, and SETUP commands
+
+### Planned Features
+- [ ] **Interactive HELP**: Context-sensitive examples and tutorials
+- [ ] **CLEAR Enhancements**: Smart screen/state management
+- [ ] **SETUP Wizard**: Improved onboarding and configuration
+- [ ] **Command Examples**: Live demonstrations in HELP output
+- [ ] **Quick Start Guide**: Interactive tutorial for new users
+
+---
 
 ### 📁 v1.0.7 - Advanced File Operations (Week 7)
 **Status**: ✅ Complete - November 2, 2025
@@ -474,6 +588,77 @@ Based on the solid foundation and comprehensive CLI features now available:
 
 **Documentation**: `EXTENSION-SYSTEM-v1.0.11.md` (to be created)
 **Status**: Production-ready extension ecosystem with development tools
+
+---
+
+## 🔄 Future Development Rounds (v1.0.12+)
+
+### 🔤 v1.0.12 - Advanced Utilities
+**Status**: 📋 Planned (Originally v1.0.8)
+**Focus**: Enhanced HELP, CLEAR, and SETUP commands
+
+#### Planned Features
+- [ ] **Interactive HELP**: Context-sensitive examples with live demonstrations
+- [ ] **Enhanced Command Search**: Fuzzy search and filtering in HELP output
+- [ ] **CLEAR Enhancements**: Smart screen/state management with options
+- [ ] **SETUP Wizard**: Interactive onboarding and configuration
+- [ ] **Command Examples**: Copy-paste ready examples in HELP
+- [ ] **Quick Start Guide**: Step-by-step interactive tutorial for new users
+- [ ] **Command History in HELP**: Show recently used commands
+- [ ] **Usage Statistics**: Track and display most-used commands
+
+### 🎭 v1.0.13 - Theme System Enhancement
+**Status**: 📋 Planned
+**Focus**: Advanced theming and customization
+
+#### Planned Features
+- [ ] **Theme Preview**: Live preview before applying themes
+- [ ] **Custom Theme Creation**: Guided tools for creating themes
+- [ ] **Theme Sharing**: Export/import and community gallery
+- [ ] **Per-Command Themes**: Different themes for different contexts
+- [ ] **Theme Inheritance**: Component-based theme systems
+- [ ] **Dynamic Switching**: Context-aware theme changes
+
+### 🧬 v1.0.14 - uCODE Language Enhancement
+**Status**: 📋 Planned
+**Focus**: Advanced scripting capabilities
+
+#### Planned Features
+- [ ] **Control Flow**: Loops (FOR, WHILE), conditionals (IF/ELSE)
+- [ ] **Functions**: Define reusable command blocks
+- [ ] **Variables**: Assignment and substitution in scripts
+- [ ] **Modules**: Import/export script libraries
+- [ ] **Error Handling**: Try/catch for robust scripts
+- [ ] **Debugging Tools**: Step-through debugger for .uscript files
+- [ ] **Script Templates**: Pre-built automation workflows
+
+### 🔒 v1.0.15 - Security & Permissions
+**Status**: 📋 Planned
+**Focus**: Advanced security and access control
+
+#### Planned Features
+- [ ] **File Permissions**: Fine-grained access control
+- [ ] **Encrypted Storage**: Secure sensitive data
+- [ ] **User Authentication**: Multi-user support with roles
+- [ ] **Security Auditing**: Logging and monitoring
+- [ ] **Extension Sandboxing**: Isolated execution environments
+- [ ] **Compliance Tools**: Security scanning and reporting
+
+### 🦀 v1.0.16 - Performance Optimization
+**Status**: 📋 Planned
+**Focus**: Rust integration and performance improvements
+
+#### Planned Features
+- [ ] **Rust Core Components**: High-performance rewrites with PyO3
+- [ ] **ServerManager in Rust**: 10-100x speed improvements
+- [ ] **Concurrent Processing**: Python GIL-free parallel operations
+- [ ] **Memory Optimization**: Efficient resource management
+- [ ] **Cross-Platform Binaries**: Optimized compilation
+- [ ] **Performance Profiling**: Built-in benchmarking tools
+
+---
+
+## 🌟 v1.1.0 - Stable Release (Future)
 
 ---
 
@@ -711,59 +896,42 @@ Each development round is considered complete when:
 - **Total Lines of Code**: ~15,000+ (estimated across all modules)
 - **Command Handlers**: 6 specialized handlers (System, File, Assistant, Map, etc.)
 - **Commands Implemented**: 40+ across all categories
-- **Web Extensions**: 4+ production-ready extensions
+- **Web Extensions**: 6+ production-ready extensions
 - **Test Coverage**: Comprehensive integration test suites
+- **Automation Framework**: Script execution with .uscript files
 
 ### Development Velocity
 - **v1.0.1**: System Commands (Week 1) - 13 commands implemented
 - **v1.0.2**: Configuration System (Week 2) - User profiles, TIZO integration
 - **v1.0.3**: Mapping System (Week 3) - 8 MAP commands, cell grid system
 - **v1.0.4**: Teletext Extension (Week 4) - Web interface, mosaic rendering
-- **v1.0.5**: Web Infrastructure (Current) - Server management focus
+- **v1.0.5**: Assisted Task (Week 5) - OK ASK/DEV differentiation
+- **v1.0.6**: Automation (Week 6) - RUN command and script execution
 
 ### Quality Metrics
 - **Documentation Coverage**: 100% (wiki, guides, inline docs)
 - **Integration Testing**: Comprehensive test suites for each round
-- **OK Assisted Task Integration**: Full Gemini API with conversation history
+- **AI Integration**: Gemini API (OK ASK) + GitHub Copilot CLI (OK DEV)
 - **Cross-Platform**: macOS primary, Linux/Windows compatible
 - **Security**: Sandboxed file operations, secure API key handling
 
 ### Community & Adoption
 - **Open Source**: GPL v3.0 licensed
 - **Repository**: GitHub with complete development history
-- **Wiki**: 11 comprehensive documentation pages
+- **Wiki**: Comprehensive documentation pages
 - **Learning Resource**: Demonstrates modern CLI development patterns
 
 ---
 
-## 🎯 Current Focus: v1.0.5 Implementation
+## 🎯 Current Focus: v1.0.7 Development
 
-Based on the analysis, **v1.0.5 Web Server Infrastructure** is the logical next step to:
-
-1. **Consolidate Existing Web Extensions**: Unify teletext, dashboard, font-editor, and other web interfaces
-2. **Resolve Port Management**: Systematic allocation and conflict resolution
-3. **Improve Reliability**: Health monitoring and graceful shutdown
-4. **Enable Future Development**: Solid foundation for advanced web features
-
-The foundation built through v1.0.1-v1.0.4 provides a strong base for this infrastructure enhancement, setting up success for subsequent rounds focusing on UI, features, and community tools.
-
----
-
-## 🚀 Ready to Continue Development
-
-**Current Status**: Ready to begin v1.0.5 Web Server Infrastructure development
-**Foundation**: Solid with comprehensive command system, mapping, OK Assisted Task integration, and teletext visualization
-**Next Focus**: Consolidating web server management for reliable multi-extension operation
+**Current Status**: v1.0.6 Automation complete, ready for History System
+**Foundation**: Solid automation framework with AI assistance and script execution
+**Next Focus**: UNDO/REDO/RESTORE with state management
 **Timeline**: Following established 1-week development round methodology
 
-Let's build the web infrastructure that will support uDOS's expansion into advanced web-based tools and community features! 🌐
-
-### Round 3: v1.0.3 - Advanced File & Knowledge Management (Q3 2026)
--   **[To Do]** **Knowledge System Integration:** Begin integration of the `/knowledge` system with the `ASK` command to allow for context-aware answers from local data.
--   **[To Do]** **Improved `TREE` command:** Add more options for filtering and displaying the repository structure.
-
 ---
 
-## 🌟 v1.1.0 - Stable Release (Q4 2026)
+## 🌟 v1.1.0 - Stable Release (Future)
 
 The culmination of the incremental development rounds, v1.1.0 will be the next major stable release, incorporating all the features and refinements from the v1.0.x series.
