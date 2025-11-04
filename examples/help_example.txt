@@ -12,7 +12,7 @@
 ║  TREE               - Generate repository structure tree (respects .gitignor ║
 ║  SETUP              - Run interactive USER.UDO configuration (editable with  ║
 ║                                                                              ║
-║ 🤖 AI & Content                                                              ║
+║ 🤖 OK Assisted Task & Content                                               ║
 ║ ─────────────────────────────────────────────────────────────────────────────║
 ║  ASK                - Executes an online call to the Gemini Assistant. Opti  ║
 ║                                                                              ║
@@ -32,7 +32,7 @@
 ║  EDIT               - Opens a file in a text editor. Various options stored  ║
 ║  SHOW               - Renders a markdown or UDO file into web browser outpu  ║
 ║  RUN                - Executes a script file containing uDOS commands (.USC  ║
-║  EMPTY_SANDBOX      - Review sandbox files with AI summary, prepare for com  ║
+║  EMPTY_SANDBOX      - Review sandbox files with OK Assisted Task summary, pre ║
 ║                                                                              ║
 ║ 🗺️  Navigation                                                               ║
 ║ ─────────────────────────────────────────────────────────────────────────────║
