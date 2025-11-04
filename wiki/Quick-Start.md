@@ -84,20 +84,33 @@ This creates your `data/STORY.UDO` profile.
 
 ### List Files
 ```
-🔮 > CATALOG
+🔮 > LIST
 ```
 
 ### Load a File
 ```
-🔮 > LOAD "README.MD"
+🔮 > LOAD README.MD
 ```
 
-### Show Panel Contents
+### Show Grid
 ```
-🔮 > SHOW "main"
+🔮 > SHOW GRID main
 ```
 
-### Ask the AI (if online)
+### Check System Status
+```
+🔮 > STATUS
+```
+
+### View Current Map
+```
+🔮 > MAP
+```
+
+### Get Help
+```
+🔮 > HELP
+```
 ```
 🔮 > ASK "What is uDOS?"
 ```

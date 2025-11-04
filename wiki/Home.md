@@ -47,19 +47,56 @@
 
 uDOS is an **educational CLI framework** that demonstrates:
 
-- **Human-Readable Commands**: Natural language-style syntax (`LOAD "file.txt" TO "panel"`)
-- **AI Integration**: Gemini API for intelligent assistance with offline fallback
-- **Integrated Mapping System**: APAC-centered 480×270 cell grid with global navigation
-- **Teletext Visualization**: Retro mosaic block art with modern web interface
-- **TIZO Location Codes**: Global city positioning with 20 major locations
-- **Multi-Panel System**: Organize data in multiple named text buffers
+- **Human-Readable Commands**: Natural language-style syntax organized by category
+- **Grid System**: Flexible workspace organization for data visualization
+- **Spatial Navigation**: Intuitive movement through MAP, GOTO, and directional commands
+- **File Operations**: Streamlined LIST, LOAD, SAVE, EDIT workflow
+- **Assisted Task**: AI integration with OK and READ commands
 - **Connection Awareness**: Automatic online/offline mode detection
 - **Viewport Detection**: Adapts to terminal size and device type
-- **Session Logging**: Complete interaction history
-- **Script Automation**: Execute batch operations with `.uscript` files
-- **Theming System**: Customizable lexicon (Dungeon Crawler, Cyberpunk, etc.)
-- **Color Palette**: Professional Polaroid color system with accessibility
+- **Session History**: UNDO, REDO, RESTORE capabilities
+- **Script Automation**: Execute batch operations with RUN command
 - **Web Extensions**: Interactive browser-based interfaces
+- **System Diagnostics**: STATUS, REPAIR, VIEWPORT monitoring
+
+---
+
+## 🎯 Core Commands
+
+### File Operations
+```bash
+LIST                  # List directory contents
+LOAD <file>          # Load file into memory
+SAVE <file>          # Save current content
+EDIT <file>          # Edit file
+```
+
+### Grid Management
+```bash
+GRID                 # Show current grid
+NEW GRID             # Create new grid
+GRID LIST            # List all grids
+SHOW GRID <name>     # Display specific grid
+```
+
+### Navigation
+```bash
+MAP                  # Display current map
+GOTO <location>      # Jump to location
+MOVE <direction>     # Move in direction
+LEVEL                # Show current level
+GODOWN               # Descend one level
+GOUP                 # Ascend one level
+```
+
+### System
+```bash
+STATUS               # System status
+VIEWPORT             # Display info
+REPAIR               # Run diagnostics
+REBOOT               # Restart system
+PALETTE              # Show color palette
+```
 
 ---
 

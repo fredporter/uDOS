@@ -18,23 +18,14 @@ Each v1.0.x release focuses on a single component with complete development cycl
 
 | Week | Version | Component | Key Commands |
 |------|---------|-----------|--------------|
-| 1 | v1.0.1 | System Commands | HELP, STATUS, REPAIR, DASHBOARD |
-| 2 | v1.0.2 | File Operations | NEW, EDIT, COPY, MOVE, RUN |
-| 3 | v1.0.3 | Assistant | ASK, ANALYZE, EXPLAIN, GENERATE |
-| 4 | v1.0.4 | Map System | MOVE, GOTO, LAYER, VIEW |
-| 5 | v1.0.5 | Web Servers | OUTPUT START/STOP/STATUS |
-| 6 | v1.0.6 | CLI Terminal | Viewport, colors, prompts |
-| 7 | v1.0.7 | Web Dashboard | classic.css interface |
-| 8 | v1.0.8 | Web Terminal | NES.css terminal |
-| 9 | v1.0.9 | Markdown Viewer | system.css viewer |
-| 10 | v1.0.10 | Font Editor | Monaspace management |
-| 11 | v1.0.11 | Typo Editor | Advanced editing |
-| 12 | v1.0.12 | Knowledge System | Research & notes |
-| 13 | v1.0.13 | Theme System | Vocabulary themes |
-| 14 | v1.0.14 | Extensions | Plugin architecture |
-| 15 | v1.0.15 | uCODE Language | Scripting improvements |
-| 16 | v1.0.16 | Security | Permissions & audit |
-| 17+ | v1.1.0 | **Stable Release** | Integration & polish |
+| 1 | v1.0.1 | System Commands | HELP, STATUS, REPAIR, VIEWPORT |
+| 2 | v1.0.2 | File Operations | LIST, LOAD, SAVE, EDIT |
+| 3 | v1.0.3 | Grid System | GRID, NEW GRID, GRID LIST, SHOW GRID |
+| 4 | v1.0.4 | Navigation | MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP |
+| 5 | v1.0.5 | Assisted Task | OK, READ |
+| 6 | v1.0.6 | Automation | RUN (scripts and tasks) |
+| 7 | v1.0.7 | History | UNDO, REDO, RESTORE |
+| 8 | v1.0.8 | Utilities | HELP enhancements, CLEAR, SETUP |
 
 ---
 

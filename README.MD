@@ -23,11 +23,14 @@
 ### Clean Architecture
 ```
 core/commands/
-├── assistant_handler.py   # ASK, ANALYZE, EXPLAIN, GENERATE
-├── file_handler.py         # NEW, DELETE, COPY, MOVE, EDIT, RUN
-├── grid_handler.py         # Deprecated (migration messages)
-├── map_handler.py          # Navigation and positioning
-└── system_handler.py       # REPAIR, STATUS, DASHBOARD, etc.
+├── file_handler.py       # LIST, LOAD, SAVE, EDIT
+├── grid_handler.py       # GRID, NEW GRID, GRID LIST, SHOW GRID
+├── assist_handler.py     # OK, READ
+├── task_handler.py       # RUN
+├── system_handler.py     # REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR
+├── history_handler.py    # UNDO, REDO, RESTORE
+├── nav_handler.py        # MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP
+└── util_handler.py       # HELP, CLEAR, SETUP
 ```
 
 See [`dev/docs/archive/REFACTORING-v1.0.0.md`](dev/docs/archive/REFACTORING-v1.0.0.md) for details.
@@ -52,10 +55,10 @@ Each round focuses on ONE component with complete testing cycle:
 
 | Round | Component | Focus |
 |-------|-----------|-------|
-| v1.0.1 | System Commands | HELP, STATUS, REPAIR, DASHBOARD |
-| v1.0.2 | File Operations | NEW, EDIT, COPY, MOVE, RUN |
-| v1.0.3 | Assistant Integration | ASK, ANALYZE, EXPLAIN, GENERATE |
-| v1.0.4 | Map System | Navigation, layers, positioning |
+| v1.0.1 | System Commands | HELP, STATUS, REPAIR, VIEWPORT |
+| v1.0.2 | File Operations | LIST, LOAD, SAVE, EDIT |
+| v1.0.3 | Grid System | GRID, NEW GRID, SHOW GRID |
+| v1.0.4 | Navigation | MAP, GOTO, MOVE, LEVEL |
 | v1.0.5 | Web Servers | Port management, server lifecycle |
 | v1.0.6 | CLI Terminal | Viewport, colors, interactive prompts |
 | v1.0.7 | Web Dashboard | classic.css, system stats |
@@ -119,10 +122,10 @@ echo 'GEMINI_API_KEY=your_key_here' > .env
 
 ## Core Features
 
-- ✅ **Hybrid Parser** - User-friendly commands → structured `uCODE`
-- ✅ **Themed Lexicon** - Customizable terminology and messages
-- ✅ **Multi-Panel System** - Organized text buffer management
-- ✅ **Session Logging** - Complete interaction history
+- ✅ **Grid System** - Flexible workspace organization
+- ✅ **Command Parser** - Human-readable command structure
+- ✅ **File Operations** - Streamlined data management
+- ✅ **Navigation** - Intuitive spatial movement
 - ✅ **Script Execution** - Automation via `.uscript` files
 - ✅ **Connection Awareness** - Auto-detect online/offline mode
 - ✅ **Viewport Detection** - Adapts to terminal size and device type

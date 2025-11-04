@@ -36,36 +36,31 @@
 
 ## 🔧 Bundled Extensions
 
-All extensions are forked and maintained under the uDOS organization for stability and customization.
+All extensions are maintained as part of the uDOS project for stability and integration.
 
-### micro - Terminal Editor
-- **Original**: https://github.com/zyedidia/micro
-- **uDOS Fork**: https://github.com/fredporter/udos-micro
+### Dashboard - Web Interface
 - **License**: MIT
-- **Copyright**: © 2016-2024 Zachary Yedidia
-- **Purpose**: Modern terminal-based text editor with mouse support and syntax highlighting
+- **Copyright**: © 2024-2025 Fred Porter
+- **Purpose**: Modern web-based dashboard interface for uDOS
+- **Location**: extensions/bundled/web/dashboard
 
-**License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
-
----
-
-### typo - Modern Typography Editor
-- **Original**: https://github.com/npeters/typo
-- **uDOS Fork**: https://github.com/fredporter/udos-typo
+### Font Editor - Typography Tool
 - **License**: MIT
-- **Copyright**: © 2023 Nathaniel Peters
-- **Purpose**: Modern web-based typography and text editor with live preview
+- **Copyright**: © 2024-2025 Fred Porter
+- **Purpose**: Web-based font creation and editing tool
+- **Location**: extensions/bundled/web/font-editor
 
-**License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
-
-### cmd - Web Terminal
-- **Original**: https://github.com/js-cli/js-cli
-- **uDOS Fork**: https://github.com/fredporter/udos-cmd
+### System Desktop - Classic Interface
 - **License**: MIT
-- **Copyright**: © 2018 JS-CLI Contributors
-- **Purpose**: Web-based terminal interface with command execution
+- **Copyright**: © 2024-2025 Fred Porter
+- **Purpose**: Classic desktop-style interface for uDOS
+- **Location**: extensions/bundled/web/system-desktop
 
-**License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
+### Teletext - Retro Display
+- **License**: MIT
+- **Copyright**: © 2024-2025 Fred Porter
+- **Purpose**: Teletext-style display and content creation system
+- **Location**: extensions/bundled/web/teletext
 
 ---
 
@@ -109,12 +104,11 @@ All extensions are forked and maintained under the uDOS organization for stabili
 
 ---
 
-### cmd.js - Terminal Emulator
-- **Original**: https://github.com/mrchimp/cmd
-- **uDOS Fork**: https://github.com/fredporter/udos-cmd
+### System Style - Theme Framework
 - **License**: MIT
-- **Copyright**: © 2024 mrchimp
-- **Purpose**: HTML5 command-line terminal running in the browser
+- **Copyright**: © 2024-2025 Fred Porter
+- **Purpose**: Theme and style management system for web interfaces
+- **Location**: extensions/bundled/web/system-style
 
 **License Summary**: Permission granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
 

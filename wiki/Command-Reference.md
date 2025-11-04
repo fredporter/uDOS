@@ -8,84 +8,52 @@ Complete guide to all uDOS commands
 
 | Category | Commands |
 |:---------|:---------|
-| **File Operations** | [CATALOG](#catalog), [LOAD](#load), [SAVE](#save), [EDIT](#edit), [FILE PICK](#file-pick), [FILE RECENT](#file-recent), [FILE BATCH](#file-batch), [FILE BOOKMARKS](#file-bookmarks), [FILE PREVIEW](#file-preview), [FILE INFO](#file-info) |
-| **Knowledge Base** | [KNOWLEDGE SEARCH](#knowledge-search), [KNOWLEDGE LIST](#knowledge-list), [KNOWLEDGE SHOW](#knowledge-show), [KNOWLEDGE INDEX](#knowledge-index), [KNOWLEDGE STATS](#knowledge-stats), [KNOWLEDGE CATEGORIES](#knowledge-categories) |
-| **Grid Management** | [GRID PANEL CREATE](#grid-panel-create), [GRID PANELS LIST](#grid-panels-list), [SHOW](#show) |
-| **AI & Analysis** | [ASK](#ask), [ANALYZE](#analyze) |
+| **File Operations** | [LIST](#list), [LOAD](#load), [SAVE](#save), [EDIT](#edit) |
+| **Grid Management** | [GRID](#grid), [NEW GRID](#new-grid), [GRID LIST](#grid-list), [SHOW GRID](#show-grid) |
+| **Assisted Task** | [OK](#ok), [READ](#read) |
 | **Automation** | [RUN](#run) |
 | **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
 | **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |
-| **CLI Features** | [HISTORY](#history), [THEME](#theme), [SESSION](#session), [PROGRESS](#progress), [LAYOUT](#layout) |
-| **Navigation** | [MAP](#map), [GOTO](#goto), [MOVE](#move), [LAYER](#layer), [DESCEND](#descend), [ASCEND](#ascend) |
-| **Utilities** | [HELP](#help), [CLS](#cls), [SETUP](#setup) |
+| **Navigation** | [MAP](#map), [GOTO](#goto), [MOVE](#move), [LEVEL](#level), [GODOWN](#godown), [GOUP](#goup) |
+| **Utilities** | [HELP](#help), [CLEAR](#clear), [SETUP](#setup) |
 
 ---
 
 ## Command Evolution by Version
 
-uDOS commands have been developed across six major releases, each adding core functionality:
+uDOS commands have been developed systematically, focusing on core functionality:
 
-### 🧪 v1.0.1 - System Commands Foundation (13 commands)
+### 🧪 v1.0.1 - System Commands Foundation
 **SYSTEM category commands** - Core infrastructure and diagnostics
 - **HELP**: Interactive command search and categorization
-- **DASHBOARD**: CLI and WEB modes for system overview
-- **REPAIR**: 5 diagnostic modes with auto-fix capabilities
+- **STATUS**: System state and resource monitoring
+- **REPAIR**: Diagnostic modes with auto-fix capabilities
+- **VIEWPORT**: Terminal size and display management
 - **PALETTE**: Visual color tests and grayscale gradients
-- **TREE**: Repository structure visualization
-- **STATUS, VIEWPORT, REBOOT**: System state management
+- **REBOOT**: System restart and state reset
 
-### 📁 v1.0.2 - Configuration & Modular Foundation
-**Enhanced system management** - Configuration and character systems
-- Refactored user configuration from USER.UDO to user.json + .env
-- TIZO location system with 20 global cities
-- Theme standardization with v1.0.2 schema
-- Character/Object system with NetHack-style RPG mechanics
+### 📁 v1.0.2 - File Operations
+**File management** - Core data handling operations
+- **LIST**: Directory contents and file browsing
+- **LOAD**: File loading into memory/grids
+- **SAVE**: File persistence and export
+- **EDIT**: File editing and modification
 
-### 🗺️ v1.0.3 - Integrated Mapping System (8 MAP commands)
-**Spatial navigation and reference** - Complete mapping infrastructure
-- **MAP STATUS, MAP CELL, MAP ROUTE**: Navigation and cell reference
-- **MAP ASCII, MAP TIZO**: Visualization and location integration
-- **MAP TELETEXT, MAP WEB**: Rendering modes for different outputs
-- Global 480×270 cell grid with spreadsheet-style A1-RL270 notation
+### � v1.0.3 - Grid System
+**Workspace organization** - Flexible data visualization
+- **GRID**: Grid creation and management
+- **NEW GRID**: Initialize new grid workspaces
+- **GRID LIST**: List all active grids
+- **SHOW GRID**: Display grid contents
 
-### 🖥️ v1.0.4 - Teletext Web Extension
-**Retro visualization** - Mosaic art and web interface integration
-- Enhanced MAP commands with teletext mosaic rendering
-- WST color palette with authentic 8-color teletext styling
-- Web extension interface with mobile-responsive design
-
-### 🌐 v1.0.5 - Web Server Infrastructure (OUTPUT commands)
-**Server management** - Universal web extension coordination
-- **OUTPUT LIST, STATUS, START, STOP**: Server lifecycle management
-- **OUTPUT HEALTH, RESTART**: Monitoring and recovery systems
-- Centralized server management with port conflict resolution
-
-### ⚡ v1.0.6 - CLI Terminal Features (5 command categories)
-**Modern command-line** - Intelligent shell enhancements
-- **HISTORY**: SQLite persistence with fuzzy search capabilities
-- **THEME**: Dynamic color themes with accessibility support
-- **SESSION**: Workspace state persistence and auto-save
-- **PROGRESS**: Real-time indicators for long-running operations
-- **LAYOUT**: Adaptive layouts responsive to screen size changes
-
-### 📁 v1.0.7 - Advanced File Operations (6 FILE commands)
-**Professional file management** - Smart search, bookmarks, and batch operations
-- **FILE PICK**: Interactive file picker with fuzzy search and relevance scoring
-- **FILE RECENT**: Recently accessed files with SQLite-based access tracking
-- **FILE BATCH**: Batch operations (DELETE, COPY, MOVE) with pattern matching
-- **FILE BOOKMARKS**: Persistent bookmarks with tags and custom names
-- **FILE PREVIEW**: Content preview with metadata and git status integration
-- **FILE INFO**: Comprehensive file information with usage statistics
-
-### 📚 v1.0.8 - Knowledge System Integration (6 KNOWLEDGE commands)
-**Offline-first knowledge base** - AI integration with local documentation
-- **KNOWLEDGE SEARCH**: Full-text search with BM25 ranking using SQLite FTS5
-- **KNOWLEDGE LIST**: Browse by categories and topics with auto-organization
-- **KNOWLEDGE SHOW**: Display full content with grid panel integration
-- **KNOWLEDGE INDEX**: Manual reindexing with change detection and statistics
-- **KNOWLEDGE STATS**: Comprehensive knowledge base metrics and analytics
-- **KNOWLEDGE CATEGORIES**: Category management with word count breakdowns
-- **Enhanced ASK**: Local knowledge integration with context-aware AI responses
+### �️ v1.0.4 - Navigation System
+**Spatial movement** - Intuitive positioning and traversal
+- **MAP**: Display current location and surroundings
+- **GOTO**: Jump to specific coordinates or locations
+- **MOVE**: Relative position changes
+- **LEVEL**: Current level/depth display
+- **GODOWN**: Descend one level
+- **GOUP**: Ascend one level
 
 ---
 

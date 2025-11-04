@@ -46,23 +46,14 @@ dev/docs/
 
 ### Development Rounds (v1.0.x)
 Each round focuses on one component with complete cycle:
-1. **v1.0.1** - System Commands
-2. **v1.0.2** - File Operations
-3. **v1.0.3** - Assistant Integration
-4. **v1.0.4** - Map System
-5. **v1.0.5** - Web Server Infrastructure
-6. **v1.0.6** - CLI Terminal Features
-7. **v1.0.7** - Web Dashboard
-8. **v1.0.8** - Web Terminal
-9. **v1.0.9** - Markdown Viewer
-10. **v1.0.10** - Font Editor
-11. **v1.0.11** - Typo Editor
-12. **v1.0.12** - Knowledge System
-13. **v1.0.13** - Theme System
-14. **v1.0.14** - Extension System
-15. **v1.0.15** - uCODE Language
-16. **v1.0.16** - Security & Permissions
-17. **v1.1.0** - Stable Release
+1. **v1.0.1** - System Commands (HELP, STATUS, REPAIR, VIEWPORT, PALETTE, REBOOT)
+2. **v1.0.2** - File Operations (LIST, LOAD, SAVE, EDIT)
+3. **v1.0.3** - Grid System (GRID, NEW GRID, GRID LIST, SHOW GRID)
+4. **v1.0.4** - Navigation (MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP)
+5. **v1.0.5** - Assisted Task (OK, READ)
+6. **v1.0.6** - Automation (RUN)
+7. **v1.0.7** - History (UNDO, REDO, RESTORE)
+8. **v1.0.8** - Utilities (HELP enhancements, CLEAR, SETUP)
 
 See [ROADMAP.MD](../../ROADMAP.MD) for detailed breakdown of each round.
 
