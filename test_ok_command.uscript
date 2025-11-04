@@ -1,0 +1,14 @@
+# Test OK Command
+# Test both OK ASK and OK DEV subcommands
+
+# Test 1: OK without parameters (should show help)
+OK
+
+# Test 2: OK ASK with a question
+OK ASK what is the grid system?
+
+# Test 3: OK DEV with a task
+OK DEV how do I create a new command handler?
+
+# Test 4: Invalid subcommand
+OK INVALID test
