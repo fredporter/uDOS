@@ -3,7 +3,11 @@
 **Date**: November 2, 2025
 **Status**: ✅ **COMPLETE**
 
-## Organization Summary
+# uDOS Project Structure
+
+## Overview
+
+Current as of v1.0.12 - November 2025
 
 Successfully cleaned up and organized all development notes, tests, summaries, and version files from the root directory into appropriate subdirectories.
 
