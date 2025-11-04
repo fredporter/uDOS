@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>uDOS Advanced Dashboard - Retro Computing Interface</title>
 
-    <!-- C64 CSS3 Framework -->
-        <!-- C64 CSS3 Framework -->
+    <!-- Framework Dependencies -->
     <link rel="stylesheet" href="../c64css3/css/c64.css">
-
-    <!-- Teletext Framework -->
     <link rel="stylesheet" href="../teletext/teletext.css">
-
-    <!-- System 7 Framework -->
     <link rel="stylesheet" href="../system7-css/system7.css">
-
-    <!-- Typography System -->
     <link rel="stylesheet" href="../shared/typography-system.css">
+    <link rel="stylesheet" href="static/css/file_browser.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <!-- Dashboard Specific Styles -->
     <style>
@@ -170,6 +167,63 @@
             padding: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+        }
+
+        /* System Metrics Widget */
+        .system-metrics-widget .metric-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #6076c5;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .system-metrics-widget .metric-value {
+            font-size: 24px;
+            color: #00ff41;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .system-metrics-widget .metric-chart {
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #6076c5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .system-metrics-widget .metric-details {
+            font-size: 12px;
+            color: #6076c5;
+            margin-top: 5px;
+        }
+
+        /* Process Widget */
+        .process-widget .process-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .process-widget .process-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px solid rgba(96,118,197,0.3);
+        }
+
+        /* Network Widget */
+        .network-widget .network-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .network-widget .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
         }
 
         .widget:hover {
@@ -531,144 +585,70 @@
         </aside>
 
         <!-- Main Content -->
+                <!-- Main Content -->
         <main class="dashboard-main">
             <div class="widget-grid">
-                <!-- System Overview Widget -->
-                <div class="widget">
-                    <div class="widget-title">System Overview</div>
+                <!-- System Metrics Widget -->
+                <div class="widget system-metrics-widget">
+                    <div class="widget-title">System Metrics</div>
                     <div class="widget-content">
-                        <div class="monitor-item">
-                            <span class="monitor-label">CPU Usage:</span>
-                            <span class="monitor-value" id="cpu-usage">42%</span>
+                        <div class="metric-card" id="cpu-metrics">
+                            <h3>CPU Usage</h3>
+                            <div class="metric-value">0%</div>
+                            <div class="metric-chart"></div>
+                            <div class="metric-details"></div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 42%"></div>
+                        <div class="metric-card" id="memory-metrics">
+                            <h3>Memory Usage</h3>
+                            <div class="metric-value">0%</div>
+                            <div class="metric-chart"></div>
+                            <div class="metric-details"></div>
                         </div>
-
-                        <div class="monitor-item">
-                            <span class="monitor-label">Memory:</span>
-                            <span class="monitor-value" id="memory-usage">67%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 67%"></div>
-                        </div>
-
-                        <div class="monitor-item">
-                            <span class="monitor-label">Disk Space:</span>
-                            <span class="monitor-value" id="disk-usage">23%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 23%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Teletext Information Widget -->
-                <div class="widget teletext-widget">
-                    <div class="widget-title" style="color: #00ff41;">Teletext Data Stream</div>
-                    <div class="widget-content">
-                        <div class="teletext-line">█ uDOS SYSTEM STATUS █</div>
-                        <div class="teletext-line">■ ACTIVE PROCESSES: 42</div>
-                        <div class="teletext-line">■ NETWORK: ONLINE</div>
-                        <div class="teletext-line">■ LAST UPDATE: <span id="teletext-time">12:34:56</span></div>
-                        <div class="teletext-line data-stream">■ DATA FLOW: ACTIVE</div>
-                        <div class="teletext-line">█████████████████████</div>
-                    </div>
-                </div>
-
-                <!-- C64 Style Terminal Widget -->
-                <div class="widget">
-                    <div class="widget-title">C64 Terminal</div>
-                    <div class="widget-content">
-                        <div class="command-terminal" id="c64-terminal">
-                            <div class="terminal-line">READY.</div>
-                            <div class="terminal-line">> LOAD"UDOS",8,1</div>
-                            <div class="terminal-line">SEARCHING FOR UDOS</div>
-                            <div class="terminal-line">LOADING</div>
-                            <div class="terminal-line">READY.</div>
-                            <div class="terminal-line">> RUN</div>
-                            <div class="terminal-line">uDOS v1.0.10 INITIALIZED</div>
-                            <div class="terminal-line">> <input type="text" class="terminal-input" placeholder="Enter command..." onkeypress="handleCommand(event)"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- System 7 Interface Widget -->
-                <div class="widget system7-widget" style="background: #C6C6C6; color: #000000; border: 2px outset #C6C6C6;">
-                    <div class="widget-title" style="background: #DDDDDD; color: #000000; padding: 4px 8px; font-family: 'Chicago', 'Geneva', monospace; font-size: 12px; border-bottom: 1px solid #999999;">System 7.1 Interface</div>
-                    <div class="widget-content" style="padding: 8px; font-family: 'Geneva', 'Chicago', sans-serif; font-size: 11px;">
-                        <div style="margin-bottom: 8px;">
-                            <button class="sys7-button" onclick="createSystem7Demo()" style="background: #DDDDDD; border: 2px outset #DDDDDD; padding: 2px 8px; font-family: 'Geneva', sans-serif; font-size: 11px; cursor: pointer;">About This Mac...</button>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <button class="sys7-button" onclick="showSystem7Window()" style="background: #DDDDDD; border: 2px outset #DDDDDD; padding: 2px 8px; font-family: 'Geneva', sans-serif; font-size: 11px; cursor: pointer;">Open Finder</button>
-                        </div>
-                        <div style="border: 1px inset #C6C6C6; padding: 4px; margin-top: 8px; background: #FFFFFF;">
-                            <div style="font-weight: bold; font-size: 10px;">System Info:</div>
-                            <div style="font-size: 10px;">System 7.1</div>
-                            <div style="font-size: 10px;">Memory: 8 MB</div>
-                            <div style="font-size: 10px;">Finder 7.1.5</div>
-                        </div>
-                        <div id="system7-status" style="font-size: 10px; margin-top: 4px; color: #666666;">Ready</div>
-                    </div>
-                </div>
-
-                <!-- Network Status Widget -->
-                <div class="widget">
-                    <div class="widget-title">Network Activity</div>
-                    <div class="widget-content">
-                        <div class="monitor-item">
-                            <span class="monitor-label">Upload:</span>
-                            <span class="monitor-value" id="upload-speed">1.2 MB/s</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">Download:</span>
-                            <span class="monitor-value" id="download-speed">5.7 MB/s</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">Connections:</span>
-                            <span class="monitor-value" id="connections">18</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">Packets:</span>
-                            <span class="monitor-value" id="packets">2,847</span>
+                        <div class="metric-card" id="disk-metrics">
+                            <h3>Disk Usage</h3>
+                            <div class="metric-value">0%</div>
+                            <div class="metric-chart"></div>
+                            <div class="metric-details"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Process Monitor Widget -->
-                <div class="widget">
-                    <div class="widget-title">Running Processes</div>
+                <div class="widget process-widget">
+                    <div class="widget-title">Active Processes</div>
                     <div class="widget-content" id="process-list">
-                        <div class="monitor-item">
-                            <span class="monitor-label">uDOS-core:</span>
-                            <span class="monitor-value">12.4%</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">web-server:</span>
-                            <span class="monitor-value">8.1%</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">file-manager:</span>
-                            <span class="monitor-value">3.2%</span>
-                        </div>
-                        <div class="monitor-item">
-                            <span class="monitor-label">logger:</span>
-                            <span class="monitor-value">1.8%</span>
-                        </div>
+                        <!-- Process list will be populated by JavaScript -->
                     </div>
                 </div>
 
-                <!-- System Logs Widget -->
-                <div class="widget">
-                    <div class="widget-title">Recent System Events</div>
-                    <div class="widget-content" id="system-logs">
-                        <div style="font-size: 11px; line-height: 1.3;">
-                            <div>[12:34:56] System started successfully</div>
-                            <div>[12:35:12] Web server listening on port 8080</div>
-                            <div>[12:35:45] File manager initialized</div>
-                            <div>[12:36:23] Dashboard module loaded</div>
-                            <div>[12:37:01] Teletext service active</div>
+                <!-- Network Monitor Widget -->
+                <div class="widget network-widget">
+                    <div class="widget-title">Network Activity</div>
+                    <div class="widget-content" id="network-stats">
+                        <!-- Network stats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- File Browser Widget -->
+                <div class="widget file-browser-widget">
+                    <div class="widget-title">File Browser</div>
+                    <div class="widget-content">
+                        <div id="file-browser" class="file-browser">
+                            <div class="file-browser-header">
+                                <div class="breadcrumb"></div>
+                                <div class="file-actions">
+                                    <button class="action-btn" data-action="refresh">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    <button class="action-btn" data-action="upload">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="file-browser-split">
+                                <div class="file-list"></div>
+                                <div class="file-preview"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -730,8 +710,14 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="../teletext/teletext-api.js"></script>
     <script src="../shared/typography-manager.js"></script>
+    <link rel="stylesheet" href="static/css/command_palette.css">
+    <script src="static/js/command_palette.js"></script>
+    <script src="static/js/metrics_display.js"></script>
+    <script src="static/js/file_browser.js"></script>
     <script src="dashboard-api.js"></script>
     <script>
         // Dashboard functionality
@@ -763,8 +749,14 @@
 
         function initializeDashboard() {
             updateTime();
-            simulateSystemData();
+            initializeMetricsUpdates();
+            initializeFileBrowser();
             console.log('uDOS Advanced Dashboard initialized');
+
+            // Initialize file browser
+            const fileBrowser = new FileBrowser('file-browser');
+            fileBrowser.loadDirectory('');
+            window.dashboardAPI.fileBrowser = fileBrowser;
         }
 
         function startRealTimeUpdates() {

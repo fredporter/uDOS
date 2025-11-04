@@ -10,9 +10,15 @@
 
 ### Major Refactoring
 - **60% code reduction** - From 3,249 to 1,297 lines through modular handlers
-- **AI → Assistant** - Clearer terminology throughout
+- **OK Assisted Task → Assist** - Clearer terminology throughout
 - **Organized docs** - `/docs` structure with planning, guides, and archives
 - **Systematic roadmap** - 16 focused development rounds (v1.0.1 → v1.1.0)
+
+### Dashboard Enhancements
+- **Command Palette** - Quick access to all dashboard features (`Cmd/Ctrl + K`)
+- **Fuzzy Search** - Intelligent command discovery
+- **Theme Integration** - Consistent styling across all components
+- **Extensible Commands** - Easy integration for custom modules
 
 ### Clean Architecture
 ```
@@ -102,7 +108,7 @@ pip install -r requirements.txt
 - Theme selection (DUNGEON_CRAWLER, CYBERPUNK, MINIMAL)
 - Creates personalized `data/STORY.UDO`
 
-**For AI features (optional):**
+**For OK Assisted Task features (optional):**
 ```bash
 echo 'GEMINI_API_KEY=your_key_here' > .env
 ```
@@ -122,7 +128,7 @@ echo 'GEMINI_API_KEY=your_key_here' > .env
 - ✅ **Viewport Detection** - Adapts to terminal size and device type
 - ✅ **Smart Completion** - Context-aware tab completion with dropdown
 - ✅ **Error Recovery** - REPAIR, UNDO/REDO, RESTORE capabilities
-- ✅ **Offline Engine** - Pattern-matching AI for offline operation
+- ✅ **Offline Engine** - Pattern-matching OK Assisted Task for offline operation
 
 ---
 
@@ -132,12 +138,12 @@ echo 'GEMINI_API_KEY=your_key_here' > .env
 - ✅ **Intelligent health checks** - Python version, dependencies, configuration validation
 - ✅ **Auto-repair capabilities** - Missing directories, packages, config files
 - ✅ **User-friendly diagnostics** - Color-coded status, actionable recommendations
-- ✅ **AI-assisted debugging** - Diagnostic reports with DEBUG command
+- ✅ **OK Assisted Task-assisted debugging** - Diagnostic reports with DEBUG command
 - ✅ **Silent/report modes** - Automation-friendly operation
 
-**Gemini AI Integration:**
+**Gemini OK Assisted Task Integration:**
 - ✅ **Full CLI integration** - ASK, ANALYZE, EXPLAIN, GENERATE, DEBUG commands
-- ✅ **Gemini 2.5 Flash** - Latest Google AI model with conversation history
+- ✅ **Gemini 2.5 Flash** - Latest Google OK Assisted Task model with conversation history
 - ✅ **Context-aware** - Workspace and system information included
 - ✅ **Offline fallback** - Works without API key using pattern-matching
 - ✅ **Secure configuration** - CLI-only .env editing, API key masking
@@ -163,12 +169,13 @@ echo 'GEMINI_API_KEY=your_key_here' > .env
 
 **Quick start with v1.3:**
 ```
-ASK "explain uDOS features"    # AI assistance
+OK "explain uDOS features"     # OK Assisted Task assistance
+OK "what can you do?"          # Quick OK System access
 CONFIG list                     # View configuration
 DASH WEB                        # Open dashboard (Mac OS 8.1 style)
-OUTPUT START font-editor        # Mac System 6 font editor
-OUTPUT START terminal           # NES 8-bit terminal
-DEBUG "startup error"           # AI error diagnosis
+POKE START font-editor         # Mac System 6 font editor
+POKE START terminal            # NES 8-bit terminal
+DEBUG "startup error"           # OK Assisted Task error diagnosis
 ```
 
 ---
@@ -336,7 +343,7 @@ core/
 - `COMMANDS.UDO` (v1.1) - Command definitions with uCODE templates
 - `LEXICON.UDO` - Themed terminology
 - `PALETTE.UDO` - Color palette
-- `PROMPTS.UDO` - Offline AI prompts
+- `PROMPTS.UDO` - Offline OK Assisted Task prompts
 - `FONTS.UDO` - Font configurations
 - `*.UDT` - Templates
 
@@ -373,7 +380,7 @@ This project demonstrates:
 - **Modular Architecture** - Separation of concerns (parsing, execution, UI)
 - **Data-Driven Design** - Commands and terminology in JSON
 - **Hybrid Systems** - Human-readable layer over structured backend
-- **API Integration** - Gemini AI integration patterns
+- **API Integration** - Gemini OK Assisted Task integration patterns
 - **Testing Strategies** - Automated script-based testing
 - **Development Tooling** - VS Code workspace configuration
 
@@ -381,20 +388,20 @@ This project demonstrates:
 
 ## Current Status
 
-**Version 1.3.0** - Production-ready with AI integration and intelligent startup:
+**Version 1.3.0** - Production-ready with OK Assisted Task integration and intelligent startup:
 - ✅ Enhanced startup system with auto-repair
-- ✅ Gemini AI integration (ASK, ANALYZE, DEBUG commands)
+- ✅ Gemini OK Assisted Task integration (ASK, ANALYZE, DEBUG commands)
 - ✅ Configuration management with secure .env handling
 - ✅ File operations with UNDO/REDO
 - ✅ GitHub-style web dashboard
 - ✅ Four web extensions (dashboard, markdown-viewer, font-editor, typo, cmd)
-- ✅ Offline capabilities with pattern-matching AI
+- ✅ Offline capabilities with pattern-matching OK Assisted Task
 - ✅ Professional command reference and documentation
 
 **Latest Release (October 2025)**:
-- v1.3.0: Enhanced startup, Gemini AI, configuration management
+- v1.3.0: Enhanced startup, Gemini OK Assisted Task, configuration management
 - Complete health diagnostics with auto-repair
-- AI-assisted error debugging
+- OK Assisted Task-assisted error debugging
 - Secure API key management
 
 See [V1.3-COMPLETE-RELEASE.md](dev/docs/V1.3-COMPLETE-RELEASE.md) for full v1.3 documentation and [ROADMAP.MD](ROADMAP.MD) for future plans.

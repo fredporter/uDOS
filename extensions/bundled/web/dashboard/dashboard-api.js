@@ -1,13 +1,17 @@
 /**
  * uDOS Advanced Dashboard API
  * Combines C64 CSS3, Teletext, and modern web technologies
- * Version 1.0.10
+ * Version 1.0.12
  */
 
 class DashboardAPI {
     constructor() {
         this.modules = new Map();
         this.themes = ['retro', 'c64', 'teletext', 'system7', 'modern'];
+        this.commandPalette = null;
+        this.fileBrowser = null;
+        this.fileBrowser = null;
+        this.socket = io();
         this.currentTheme = 'retro';
         this.wsConnection = null;
         this.dataStreams = new Map();
@@ -27,6 +31,10 @@ class DashboardAPI {
         await this.loadModules();
         this.setupEventListeners();
         this.startDataStreams();
+
+        // Initialize Command Palette
+        this.commandPalette = new CommandPalette();
+        console.log('✨ Command Palette initialized');
 
         this.isInitialized = true;
         console.log('✅ Dashboard initialization complete');
