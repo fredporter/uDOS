@@ -253,7 +253,7 @@ Available:
 
     def _handle_dev(self, params):
         """
-        Handle development tasks using GitHub Copilot CLI.
+        Handle development tasks using GitHub Copilot CLI with context awareness.
 
         Args:
             params: [task_description]
@@ -267,59 +267,134 @@ Examples:
   OK DEV create a new command handler
   OK DEV optimize this function
 
-Note: Requires GitHub Copilot CLI (gh copilot)
-Install: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line
+Note: Requires GitHub Copilot CLI
+Install: https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli
 """
 
         task = " ".join(params)
 
-        # Check if gh copilot is available
+        # Check if copilot CLI is available
         import subprocess
         import shutil
+        import os
 
-        if not shutil.which('gh'):
-            return """❌ GitHub CLI not found
+        # Try new copilot CLI first, then fall back to gh copilot extension
+        copilot_cmd = shutil.which('copilot')
+        use_gh_extension = False
 
-GitHub Copilot CLI requires the GitHub CLI to be installed.
+        if not copilot_cmd:
+            # Fall back to gh copilot extension
+            gh_cmd = shutil.which('gh')
+            if gh_cmd:
+                use_gh_extension = True
+            else:
+                return """❌ GitHub Copilot CLI not found
 
-Install GitHub CLI:
-  macOS:   brew install gh
-  Linux:   See https://github.com/cli/cli#installation
-  Windows: See https://github.com/cli/cli#installation
+Install the new Copilot CLI:
+  See: https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli
 
-Then install Copilot extension:
+Or use the legacy gh extension:
+  brew install gh
   gh extension install github/gh-copilot
+  gh auth login
 """
 
+        # Gather context for better suggestions
+        context_info = self._gather_dev_context()
+
+        # Enhance task with context if relevant
+        enhanced_task = task
+        if context_info:
+            enhanced_task = f"{task}\n\nContext: {context_info}"
+
         try:
-            # Check if copilot extension is installed
-            result = subprocess.run(
-                ['gh', 'copilot', 'suggest', task],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
+            if use_gh_extension:
+                # Use legacy gh copilot extension
+                result = subprocess.run(
+                    ['gh', 'copilot', 'suggest', enhanced_task],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    cwd=os.getcwd()
+                )
+            else:
+                # Use new Copilot CLI (programmatic mode)
+                result = subprocess.run(
+                    ['copilot', '-p', enhanced_task, '--allow-tool', 'shell'],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    cwd=os.getcwd()
+                )
 
             if result.returncode != 0:
-                if 'not installed' in result.stderr.lower() or 'unknown command' in result.stderr.lower():
-                    return """❌ GitHub Copilot CLI extension not found
+                if use_gh_extension:
+                    if 'not installed' in result.stderr.lower() or 'unknown command' in result.stderr.lower():
+                        return """❌ GitHub Copilot CLI extension not found
 
-Install the extension:
+Install the new standalone Copilot CLI (recommended):
+  https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli
+
+Or install the legacy gh extension:
   gh extension install github/gh-copilot
-
-Then authenticate:
   gh auth login
+"""
+                else:
+                    if 'not authenticated' in result.stderr.lower():
+                        return """❌ Copilot CLI not authenticated
+
+Run: copilot auth login
 """
                 return f"❌ Copilot CLI error:\n{result.stderr}"
 
-            return f"🤖 GitHub Copilot DEV:\n\n{result.stdout}"
+            # Add context note if we provided extra info
+            context_note = ""
+            if context_info:
+                context_note = f"\n📍 Context: {context_info}\n"
+
+            cli_type = "legacy gh extension" if use_gh_extension else "CLI"
+            return f"🤖 GitHub Copilot DEV ({cli_type}):{context_note}\n{result.stdout}"
 
         except subprocess.TimeoutExpired:
             return "⚠️  Request timeout. Please try again."
         except FileNotFoundError:
-            return "❌ GitHub CLI (gh) not found in PATH"
+            return "❌ Copilot CLI not found in PATH"
         except Exception as e:
             return f"⚠️  Error calling Copilot CLI: {str(e)}"
+
+    def _gather_dev_context(self):
+        """Gather development context for Copilot CLI suggestions."""
+        import subprocess
+        import os
+
+        context_parts = []
+
+        # Get current directory
+        cwd = os.getcwd()
+        if '/uDOS' in cwd:
+            context_parts.append("Working in uDOS project")
+
+        # Try to get git branch
+        try:
+            result = subprocess.run(
+                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            if result.returncode == 0:
+                branch = result.stdout.strip()
+                context_parts.append(f"Git branch: {branch}")
+        except:
+            pass
+
+        # Get Python version if in Python project
+        if os.path.exists('requirements.txt') or os.path.exists('setup.py'):
+            import sys
+            py_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+            context_parts.append(f"Python {py_version}")
+
+        return ", ".join(context_parts) if context_parts else None
 
     def _search_local_knowledge(self, question):
         """Search local knowledge base for relevant content."""
