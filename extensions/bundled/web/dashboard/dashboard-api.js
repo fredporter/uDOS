@@ -10,7 +10,7 @@ class DashboardAPI {
         this.themes = ['retro', 'c64', 'teletext', 'system7', 'modern'];
         this.commandPalette = null;
         this.fileBrowser = null;
-        this.fileBrowser = null;
+        this.poke = null;
         this.socket = io();
         this.currentTheme = 'retro';
         this.wsConnection = null;
@@ -35,6 +35,18 @@ class DashboardAPI {
         // Initialize Command Palette
         this.commandPalette = new CommandPalette();
         console.log('✨ Command Palette initialized');
+
+        // Initialize POKE system
+        this.poke = new DashboardPOKE();
+        console.log('💾 POKE system initialized');
+
+        // Register POKE-related commands
+        this.commandPalette.registerCommand(
+            'memory',
+            'Show Memory Monitor',
+            'Open the POKE memory monitor interface',
+            () => this.showMemoryMonitor()
+        );
 
         this.isInitialized = true;
         console.log('✅ Dashboard initialization complete');
@@ -483,6 +495,27 @@ class DashboardAPI {
 
         this.isInitialized = false;
         console.log('✅ Dashboard shutdown complete');
+    }
+
+    /**
+     * Show the memory monitor interface
+     */
+    showMemoryMonitor() {
+        // Ensure container exists
+        let container = document.getElementById('memory-monitor');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'memory-monitor';
+            document.querySelector('.dashboard-main').appendChild(container);
+        }
+
+        // Initialize monitor if not already done
+        if (!this.memoryMonitor) {
+            this.memoryMonitor = new POKEMonitor('memory-monitor');
+        }
+
+        // Scroll monitor into view
+        container.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
