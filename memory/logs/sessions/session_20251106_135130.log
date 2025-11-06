@@ -1,0 +1,116 @@
+[2025-11-06 13:51:30] [SESSION START] 
+[2025-11-06 13:51:30] [uDOS> HELP] 
+[2025-11-06 13:51:30] [╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📚 uDOS COMMAND REFERENCE                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ 📊 System & Info                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  DASH               - Display comprehensive system dashboard. Use 'DASH WEB' t║
+║  HELP               - Provides help for a specific command.                   ║
+║  PALETTE            - Displays the Polaroid color palette with visual tests an║
+║  SETUP              - Run interactive USER.UDO configuration (editable with ED║
+║  STATUS             - Shows system status including connection mode, servers, ║
+║  TREE               - Generate repository structure tree (respects .gitignore ║
+║  VIEWPORT           - Displays current terminal viewport and grid layout.     ║
+║                                                                              ║
+║ 🤖 Assistant & Analysis                                                       ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  DEBUG              - Get assisted help debugging an error.                   ║
+║  EXPLAIN            - Get assisted explanation of what a command does.        ║
+║  GENERATE           - Generate a uDOS script from natural language description║
+║  OK                 - AI assistance - ASK for Gemini help, DEV for GitHub Copi║
+║                                                                              ║
+║ 🔧 System Control                                                             ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  BLANK              - Clears the terminal screen.                             ║
+║  CLEAN              - Review sandbox files and prepare for commit to memory fo║
+║  DESTROY            - Destructive reset command - clears workspace and optiona║
+║  REBOOT             - Restarts uDOS, re-detecting system settings and viewport║
+║  REDO               - Redoes the last undone operation.                       ║
+║  REPAIR             - System health check and repair with extension management║
+║  RESTORE            - Restores state to a previous session (bulk undo). Use RE║
+║  UNDO               - Undoes the last reversible operation.                   ║
+║                                                                              ║
+║ 📝 File Operations                                                            ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  COPY               - Copy a file within current workspace or to another works║
+║  DELETE             - Delete a file from current workspace with confirmation d║
+║  EDIT               - Opens a file in a text editor. Supports CLI editors (mic║
+║  FILE BATCH         - Batch file operations with pattern matching. Delete, cop║
+║  FILE BOOKMARKS     - Manage persistent bookmark system with tags and custom n║
+║  FILE INFO          - Show comprehensive file information and statistics.     ║
+║  FILE PICK          - Interactive file picker with fuzzy search capabilities. ║
+║  FILE PREVIEW       - Preview file content with metadata and git status displa║
+║  FILE RECENT        - Show recently accessed files with access frequency and t║
+║  MOVE               - Move relative to current position (NetHack-style navigat║
+║  MOVE               - Move relative to current position (NetHack-style navigat║
+║  NEW                - Create a new file from template in the current workspace║
+║  RENAME             - Rename a file in current workspace. Keep same extension ║
+║  RUN                - Executes a script file containing uDOS commands.        ║
+║  SHOW               - Display file contents in terminal or browser. Opens file║
+║                                                                              ║
+║ 🗺️  Navigation & Mapping                                                     ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASCEND             - Ascend one layer (NetHack < command) - go higher.       ║
+║  DESCEND            - Descend one layer (NetHack > command) - go deeper.      ║
+║  GOTO               - Teleport to specific coordinates on current map layer.  ║
+║  LAYER              - Switch to a different map layer or list available layers║
+║  LOCATE             - Set your real-world location to a major city.           ║
+║  MAP                - Shows current map position and layer information.       ║
+║                                                                              ║
+║ 🌐 Web Output                                                                 ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  WEB                - Launch full uDOS instance in web browser with xterm.js t║
+║                                                                              ║
+║ 🎨 Customization                                                              ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  CONFIG             - Manage .env configuration (API keys, username, installat║
+║  FONT               - Manage Monaspace fonts for web-based editors and termina║
+║  SETTINGS           - Manage user preferences and system configuration. Intera║
+║  THEME              - Manage uDOS personality themes. Switch between DUNGEON (║
+║                                                                              ║
+║ ⚡ Other                                                                      ║
+║ ─────────────────────────────────────────────────────────────────────────────║
+║  ASSIST CLEAR       - Clear assisted conversation history.                    ║
+║  BANK CATEGORIES    - List all data bank categories and their overview.       ║
+║  BANK INDEX         - Manual reindexing of data bank with statistics.         ║
+║  BANK LIST          - Browse data bank by categories and topics.              ║
+║  BANK SEARCH        - Search the local data bank with full-text search and ran║
+║  BANK SHOW          - Display data bank content with panel integration.       ║
+║  BANK STATS         - Show comprehensive data bank metrics and statistics.    ║
+║  HISTORY            - Enhanced command history management with intelligent sea║
+║  POKE               - Manage web-based output interfaces (typo editor, cmd ter║
+║  READ               - Read and analyze panel content for insights and suggesti║
+║  SPLASH             - Display full-screen ASCII art splash graphics. Use SPLAS║
+║  WORKSPACE          - Manage workspace isolation. Three workspaces: sandbox (e║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  💡 HELP <command>           - Detailed help for a command                    ║
+║  🔍 HELP SEARCH <query>      - Search commands                                ║
+║  📁 HELP CATEGORY <name>     - Filter by category                             ║
+║  📖 Full docs: https://github.com/fredporter/uDOS/wiki                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-06 13:51:30] [uDOS> HELP STATUS] 
+[2025-11-06 13:51:30] [╔══════════════════════════════════════════════════════════════════════════════╗
+║  📖 STATUS                                                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Description:                                                                ║
+║    Shows system status including connection mode, servers, and health. Use   ║
+║    --live for real-time monitoring.                                          ║
+║                                                                              ║
+║  Syntax:                                                                     ║
+║    STATUS [--live]                                                           ║
+║                                                                              ║
+║  uCODE Format:                                                               ║
+║    [SYSTEM|STATUS*$1]                                                        ║
+║                                                                              ║
+║  Related Commands:                                                           ║
+║    HELP, VIEWPORT, PALETTE, DASH, SETUP                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+] 
+[2025-11-06 13:51:30] [uDOS> HELP SEARCH file] 
+[2025-11-06 13:51:30] [❌ Command 'SEARCH' not found.] 
+[2025-11-06 13:51:30] [uDOS> HELP CATEGORY system] 
+[2025-11-06 13:51:30] [❌ Command 'CATEGORY' not found.] 
+[2025-11-06 13:51:30] [SESSION END] 

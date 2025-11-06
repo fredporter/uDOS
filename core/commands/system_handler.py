@@ -27,6 +27,7 @@ class SystemCommandHandler(BaseCommandHandler):
         self._settings_manager = None
         self._workspace_manager = None
         self._config_manager = None
+        self._help_manager = None
 
     @property
     def startup(self):
@@ -59,6 +60,14 @@ class SystemCommandHandler(BaseCommandHandler):
             from core.services.config_manager import ConfigManager
             self._config_manager = ConfigManager()
         return self._config_manager
+
+    @property
+    def help_manager(self):
+        """Lazy load help manager."""
+        if self._help_manager is None:
+            from core.services.help_manager import HelpManager
+            self._help_manager = HelpManager()
+        return self._help_manager
 
     def handle(self, command, params, grid, parser):
         """
@@ -116,72 +125,55 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_help(self, params, grid, parser):
         """
-        Display help information for all commands or a specific command.
+        Display help information with enhanced features.
+
+        Supports:
+        - HELP: List all commands by category
+        - HELP <command>: Detailed help for specific command
+        - HELP SEARCH <query>: Search help content
+        - HELP CATEGORY <category>: Filter by category
+        - HELP RECENT: Show recently used commands (if usage tracker available)
 
         Args:
-            params: List with optional command name to get help for
+            params: List with optional command/subcommand
             grid: Grid instance (unused)
             parser: Parser instance (unused)
 
         Returns:
             Formatted help text
         """
-        # Load commands data
-        commands_file = 'data/system/commands.json'
-        try:
-            with open(commands_file, 'r') as f:
-                commands_data = json.load(f)['COMMANDS']
-        except Exception as e:
-            return f"❌ Error loading commands: {e}"
+        # Handle subcommands
+        if params and len(params) >= 2:
+            subcommand = params[0].upper()
 
-        if not params or params[0] == 'ALL':
-            # Display organized command list dynamically from COMMANDS.UDO
+            # HELP SEARCH <query>
+            if subcommand == 'SEARCH':
+                query = ' '.join(params[1:])
+                return self.help_manager.format_search_results(query)
+
+            # HELP CATEGORY <category>
+            elif subcommand == 'CATEGORY':
+                category = ' '.join(params[1:])
+                return self.help_manager.format_help_category(category)
+
+            # HELP RECENT (placeholder for future usage tracker integration)
+            elif subcommand == 'RECENT':
+                return ("╔═══════════════════════════════════════════════════════════════════════════════╗\n"
+                       "║  📊 Recently Used Commands                                                    ║\n"
+                       "╠═══════════════════════════════════════════════════════════════════════════════╣\n"
+                       "║  ⚠️  Usage tracking not yet implemented                                        ║\n"
+                       "║                                                                               ║\n"
+                       "║  This feature will be available when UsageTracker service is integrated.     ║\n"
+                       "╚═══════════════════════════════════════════════════════════════════════════════╝\n")
+
+        # HELP ALL or no params: Show all commands by category
+        if not params or params[0].upper() == 'ALL':
             help_text = "╔" + "═"*78 + "╗\n"
             help_text += "║" + " "*26 + "📚 uDOS COMMAND REFERENCE" + " "*27 + "║\n"
             help_text += "╠" + "═"*78 + "╣\n"
 
-            # Auto-categorize commands based on their properties
-            categories = {
-                "📊 System & Info": [],
-                "🤖 Assistant & Analysis": [],
-                "🔧 System Control": [],
-                "📝 File Operations": [],
-                "🗺️  Navigation & Mapping": [],
-                "🌐 Web Output": [],
-                "🎨 Customization": [],
-                "⚡ Other": []
-            }
-
-            # Build command lookup and auto-categorize
-            cmd_lookup = {}
-            for cmd_data in commands_data:
-                cmd_name = cmd_data.get('NAME', '')
-                cmd_lookup[cmd_name] = {
-                    'syntax': cmd_data.get('SYNTAX', ''),
-                    'desc': cmd_data.get('DESCRIPTION', '')
-                }
-
-                # Auto-categorize based on name and uCODE template
-                ucode = cmd_data.get('UCODE_TEMPLATE', '')
-                if cmd_name in ['STATUS', 'DASH', 'DASHBOARD', 'VIEWPORT', 'PALETTE', 'HELP', 'TREE', 'SETUP']:
-                    categories["📊 System & Info"].append(cmd_name)
-                elif 'ASSISTANT|' in ucode or cmd_name in ['ASK', 'ANALYZE', 'EXPLAIN', 'GENERATE', 'DEBUG', 'CLEAR']:
-                    categories["🤖 Assistant & Analysis"].append(cmd_name)
-                elif cmd_name in ['BLANK', 'REBOOT', 'RESTART', 'REPAIR', 'DESTROY', 'UNDO', 'REDO', 'RESTORE', 'CLEAN']:
-                    categories["🔧 System Control"].append(cmd_name)
-                elif 'FILE|' in ucode or cmd_name in ['EDIT', 'SHOW', 'RUN', 'NEW', 'DELETE', 'COPY', 'MOVE', 'RENAME']:
-                    categories["📝 File Operations"].append(cmd_name)
-                elif 'MAP' in cmd_name or cmd_name in ['GOTO', 'MOVE', 'LAYER', 'DESCEND', 'ASCEND', 'LOCATE', 'WHERE']:
-                    categories["🗺️  Navigation & Mapping"].append(cmd_name)
-                elif cmd_name in ['OUTPUT', 'SERVER', 'WEB']:
-                    categories["🌐 Web Output"].append(cmd_name)
-                elif cmd_name in ['FONT', 'THEME', 'CONFIG', 'SETTINGS']:
-                    categories["🎨 Customization"].append(cmd_name)
-                else:
-                    categories["⚡ Other"].append(cmd_name)
-
-            # Display by category (only show categories with commands)
-            for category, commands in categories.items():
+            # Display commands by category
+            for category, commands in self.help_manager.categories.items():
                 if not commands:
                     continue
 
@@ -189,62 +181,27 @@ class SystemCommandHandler(BaseCommandHandler):
                 help_text += "║ " + "─"*77 + "║\n"
 
                 for cmd_name in sorted(commands):
-                    if cmd_name in cmd_lookup:
-                        cmd_info = cmd_lookup[cmd_name]
-                        # Truncate description to fit
-                        desc = cmd_info['desc'][:56]
+                    cmd_data = self.help_manager.get_command_details(cmd_name)
+                    if cmd_data:
+                        desc = cmd_data.get('DESCRIPTION', '')[:56]
                         help_text += f"║  {cmd_name:<18} - {desc.ljust(56)}║\n"
 
                 help_text += "║" + " "*78 + "║\n"
 
-            # Footer
+            # Footer with enhanced hints
             help_text += "╠" + "═"*78 + "╣\n"
-            help_text += "║  💡 HELP <command_name> for detailed information".ljust(79) + "║\n"
+            help_text += "║  💡 HELP <command>           - Detailed help for a command".ljust(79) + "║\n"
+            help_text += "║  🔍 HELP SEARCH <query>      - Search commands".ljust(79) + "║\n"
+            help_text += "║  📁 HELP CATEGORY <name>     - Filter by category".ljust(79) + "║\n"
             help_text += "║  📖 Full docs: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║\n"
             help_text += "╚" + "═"*78 + "╝\n"
 
             return help_text
+
+        # HELP <command>: Show detailed help for specific command
         else:
-            # Display help for a specific command
             cmd_name = params[0].upper()
-            for cmd_data in commands_data:
-                if cmd_data.get('NAME') == cmd_name:
-                    help_text = "╔" + "═"*78 + "╗\n"
-                    help_text += f"║  📖 {cmd_name}".ljust(79) + "║\n"
-                    help_text += "╠" + "═"*78 + "╣\n"
-
-                    # Description
-                    desc = cmd_data.get('DESCRIPTION', 'No description')
-                    help_text += "║  Description:".ljust(79) + "║\n"
-                    # Word wrap description
-                    words = desc.split()
-                    line = "║    "
-                    for word in words:
-                        if len(line) + len(word) + 1 > 77:
-                            help_text += line.ljust(79) + "║\n"
-                            line = "║    " + word
-                        else:
-                            line += (" " if len(line) > 4 else "") + word
-                    if len(line) > 4:
-                        help_text += line.ljust(79) + "║\n"
-
-                    help_text += "║".ljust(79) + "║\n"
-
-                    # Syntax
-                    syntax = cmd_data.get('SYNTAX', 'No syntax')
-                    help_text += "║  Syntax:".ljust(79) + "║\n"
-                    help_text += f"║    {syntax}".ljust(79) + "║\n"
-
-                    # uCODE template if available
-                    if 'UCODE_TEMPLATE' in cmd_data:
-                        help_text += "║".ljust(79) + "║\n"
-                        help_text += "║  uCODE Format:".ljust(79) + "║\n"
-                        template = cmd_data.get('UCODE_TEMPLATE', '')
-                        help_text += f"║    {template}".ljust(79) + "║\n"
-
-                    help_text += "╚" + "═"*78 + "╝\n"
-                    return help_text
-            return self.get_message("ERROR_COMMAND_NOT_FOUND", command=cmd_name)
+            return self.help_manager.format_help_detailed(cmd_name)
 
     def handle_history(self, params, grid, parser):
         """

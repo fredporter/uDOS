@@ -21,6 +21,7 @@ uDOS/
 │   │   ├── extension_metadata_manager.py
 │   │   ├── file_picker.py
 │   │   ├── gemini_service.py
+│   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
 │   │   ├── knowledge_manager.py
@@ -100,6 +101,7 @@ uDOS/
 │   │   ├── SESSION-SUMMARY-2025-11-04-EVENING.md
 │   │   ├── SESSION-SUMMARY-2025-11-04.md
 │   │   ├── TYPOGRAPHY-COMPLETION-v1.0.10.md
+│   │   ├── VALIDATION_REPORT_v1_0_7_to_v1_0_11.md
 │   │   ├── WIKI_MIGRATION_v1_0_6_COMPLETE.md
 │   │   ├── v1.0.6-AUTOMATION-SUMMARY.md
 │   │   ├── v1_0_12_ADVANCED_UTILITIES_PLAN.md
@@ -362,6 +364,7 @@ uDOS/
 │   │   ├── test_commands_script.uscript
 │   │   ├── test_core_functionality.py
 │   │   ├── test_file_commands.uscript
+│   │   ├── test_help_enhanced.uscript
 │   │   ├── test_interactive.txt
 │   │   ├── test_map_surface.py
 │   │   ├── test_ok_command.uscript
@@ -379,6 +382,7 @@ uDOS/
 │   │   ├── test_v1_0_2_simple_integration.py
 │   │   ├── test_v1_0_2_standalone.py
 │   │   └── v1_0_7_file_operations_test.sh
+│   ├── themes/
 │   ├── README.md
 │   └── knowledge.db
 ├── sandbox/

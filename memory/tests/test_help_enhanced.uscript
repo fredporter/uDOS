@@ -1,0 +1,13 @@
+# Test enhanced HELP command v1.0.12
+
+# Test basic HELP
+HELP
+
+# Test HELP with specific command
+HELP STATUS
+
+# Test HELP SEARCH
+HELP SEARCH file
+
+# Test HELP CATEGORY
+HELP CATEGORY system
