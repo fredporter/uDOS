@@ -30,6 +30,7 @@ uDOS/
 │   │   ├── progress_manager.py
 │   │   ├── screen_manager.py
 │   │   ├── session_manager.py
+│   │   ├── setup_wizard.py
 │   │   ├── teletext_renderer.py
 │   │   ├── theme_manager.py
 │   │   ├── user_manager.py
@@ -379,6 +380,7 @@ uDOS/
 │   │   ├── test_run_command.py
 │   │   ├── test_run_interactive.sh
 │   │   ├── test_session_minimal.py
+│   │   ├── test_setup_enhanced.uscript
 │   │   ├── test_undo_redo.uscript
 │   │   ├── test_v1_0_2_enhancements.py
 │   │   ├── test_v1_0_2_simple_integration.py

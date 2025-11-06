@@ -29,6 +29,7 @@ class SystemCommandHandler(BaseCommandHandler):
         self._config_manager = None
         self._help_manager = None
         self._screen_manager = None
+        self._setup_wizard = None
 
     @property
     def startup(self):
@@ -77,6 +78,14 @@ class SystemCommandHandler(BaseCommandHandler):
             from core.services.screen_manager import ScreenManager
             self._screen_manager = ScreenManager()
         return self._screen_manager
+
+    @property
+    def setup_wizard(self):
+        """Lazy load setup wizard."""
+        if self._setup_wizard is None:
+            from core.services.setup_wizard import SetupWizard
+            self._setup_wizard = SetupWizard()
+        return self._setup_wizard
 
     def handle(self, command, params, grid, parser):
         """
@@ -1779,8 +1788,51 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         return "🧹 CLEAN command - Implementation moved to file handler"
 
     def handle_setup(self, params, grid, parser):
-        """Setup wizard - to be implemented."""
-        return "⚙️ SETUP command - Implementation pending"
+        """
+        Enhanced setup wizard with multiple modes.
+
+        Modes:
+        - SETUP or SETUP WIZARD: Full interactive wizard
+        - SETUP QUICK: Quick setup with sensible defaults
+        - SETUP THEME: Theme selection only
+        - SETUP VIEWPORT: Viewport configuration only
+        - SETUP EXTENSIONS: Extension management only
+        - SETUP HELP: Show setup help information
+        """
+        if not params:
+            # Default to full wizard
+            return self.setup_wizard.run_full_wizard()
+
+        mode = params[0].upper()
+
+        if mode == "HELP":
+            return self.setup_wizard.format_help()
+
+        elif mode == "WIZARD":
+            return self.setup_wizard.run_full_wizard()
+
+        elif mode == "QUICK":
+            return self.setup_wizard.run_quick_setup()
+
+        elif mode == "THEME":
+            return self.setup_wizard.setup_theme_only()
+
+        elif mode == "VIEWPORT":
+            return self.setup_wizard.setup_viewport_only()
+
+        elif mode == "EXTENSIONS":
+            return self.setup_wizard.setup_extensions_only()
+
+        else:
+            return (f"❌ Unknown setup mode: {mode}\n\n"
+                   "📋 Available modes:\n"
+                   "  SETUP or SETUP WIZARD     # Full interactive setup\n"
+                   "  SETUP QUICK              # Quick setup with defaults\n"
+                   "  SETUP THEME              # Theme selection only\n"
+                   "  SETUP VIEWPORT           # Viewport configuration only\n"
+                   "  SETUP EXTENSIONS         # Extension management only\n"
+                   "  SETUP HELP               # Show detailed help\n\n"
+                   "💡 Tip: Use SETUP HELP for detailed information")
 
     def handle_workspace(self, params, grid, parser):
         """Workspace management - to be implemented."""
