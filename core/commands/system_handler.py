@@ -28,6 +28,7 @@ class SystemCommandHandler(BaseCommandHandler):
         self._workspace_manager = None
         self._config_manager = None
         self._help_manager = None
+        self._screen_manager = None
 
     @property
     def startup(self):
@@ -68,6 +69,14 @@ class SystemCommandHandler(BaseCommandHandler):
             from core.services.help_manager import HelpManager
             self._help_manager = HelpManager()
         return self._help_manager
+
+    @property
+    def screen_manager(self):
+        """Lazy load screen manager."""
+        if self._screen_manager is None:
+            from core.services.screen_manager import ScreenManager
+            self._screen_manager = ScreenManager()
+        return self._screen_manager
 
     def handle(self, command, params, grid, parser):
         """
@@ -119,9 +128,64 @@ class SystemCommandHandler(BaseCommandHandler):
             return self.get_message("ERROR_UNKNOWN_SYSTEM_COMMAND", command=command)
 
     def handle_blank(self, params, grid, parser):
-        """Clear the terminal screen."""
-        os.system('cls' if os.name == 'nt' else 'clear')
-        return self.get_message("ACTION_SUCCESS_SCREEN_CLEARED")
+        """
+        Enhanced screen clearing with multiple options.
+
+        Supports:
+        - CLEAR / BLANK: Smart clear (preserve status)
+        - CLEAR ALL: Full screen clear
+        - CLEAR BUFFER: Clear scrollback buffer
+        - CLEAR LAST <n>: Clear last N lines
+        - CLEAR GRID: Clear grid display
+        - CLEAR LOGS: Clear session logs (requires confirmation)
+        - CLEAR HISTORY: Clear command history (requires confirmation)
+
+        Args:
+            params: List with optional subcommand
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        # Show help if requested
+        if params and params[0].upper() == 'HELP':
+            return self.screen_manager.format_clear_help()
+
+        # No params or just CLEAR: Smart clear
+        if not params:
+            return self.screen_manager.clear_smart()
+
+        # Handle subcommands
+        subcommand = params[0].upper()
+
+        if subcommand == 'ALL':
+            # CLEAR ALL: Full clear
+            return self.screen_manager.clear_full()
+
+        elif subcommand == 'BUFFER':
+            # CLEAR BUFFER: Clear scrollback
+            return self.screen_manager.clear_buffer()
+
+        elif subcommand == 'LAST':
+            # CLEAR LAST <n>: Clear last N lines
+            if len(params) < 2:
+                return "⚠️  Usage: CLEAR LAST <number>"
+
+            try:
+                n = int(params[1])
+                return self.screen_manager.clear_last_n_lines(n)
+            except ValueError:
+                return f"❌ Invalid number: {params[1]}"
+
+        elif subcommand in ['GRID', 'LOGS', 'HISTORY']:
+            # Component-specific clearing
+            return self.screen_manager.clear_component(subcommand)
+
+        else:
+            # Unknown subcommand - show help
+            return (f"⚠️  Unknown CLEAR option: {subcommand}\n\n" +
+                   self.screen_manager.format_clear_help())
 
     def handle_help(self, params, grid, parser):
         """

@@ -28,6 +28,7 @@ uDOS/
 │   │   ├── layout_manager.py
 │   │   ├── map_engine.py
 │   │   ├── progress_manager.py
+│   │   ├── screen_manager.py
 │   │   ├── session_manager.py
 │   │   ├── teletext_renderer.py
 │   │   ├── theme_manager.py
@@ -360,6 +361,7 @@ uDOS/
 │   │   ├── README.md
 │   │   ├── shakedown.uscript
 │   │   ├── test_available_commands.py
+│   │   ├── test_clear_enhanced.uscript
 │   │   ├── test_commands.uscript
 │   │   ├── test_commands_script.uscript
 │   │   ├── test_core_functionality.py
