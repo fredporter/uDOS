@@ -1,14 +1,25 @@
 """
-uDOS v1.0.6 - Dynamic Theme Manager
-Provides dynamic color themes, accessibility support, and customizable color schemes
+uDOS v1.0.13 - Dynamic Theme Manager
+Provides dynamic color themes, accessibility support, customizable color schemes,
+and full JSON theme management with preview, import/export, and validation.
+
+Enhanced in v1.0.13 with:
+- Full JSON theme loading and management
+- Theme preview before applying
+- Import/export (.udostheme format)
+- Theme validation and safety checks
+- Theme comparison and statistics
+
+Version: 1.0.13 (Enhanced from v1.0.6)
 """
 
 import json
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple
-from dataclasses import dataclass
+from typing import Dict, Optional, Tuple, List
+from dataclasses import dataclass, asdict
 from enum import Enum
+from datetime import datetime
 
 
 class ThemeMode(Enum):
@@ -18,6 +29,20 @@ class ThemeMode(Enum):
     ACCESSIBILITY = "accessibility"
     MONOCHROME = "monochrome"
     CUSTOM = "custom"
+
+
+@dataclass
+class ThemeMetadata:
+    """Metadata for a full JSON theme."""
+    name: str
+    version: str
+    style: str
+    description: str
+    icon: str
+    author: Optional[str] = None
+    created: Optional[str] = None
+    modified: Optional[str] = None
+    tags: Optional[List[str]] = None
 
 
 @dataclass
@@ -70,6 +95,11 @@ class ThemeManager:
         # Theme storage
         self.themes_dir = Path("memory/themes")
         self.themes_dir.mkdir(parents=True, exist_ok=True)
+
+        # JSON theme storage (v1.0.13+)
+        self.json_themes_dir = Path("data/themes")
+        self.json_themes_cache = {}
+        self.available_json_themes = self._scan_json_themes()
 
         # Load custom themes
         self._load_custom_themes()
@@ -446,5 +476,351 @@ class ThemeManager:
             'high_contrast_mode': self.high_contrast_mode,
             'colorblind_mode': self.colorblind_mode,
             'available_themes': list(self.list_available_themes().keys()),
-            'custom_themes_count': len(self.custom_themes)
+            'custom_themes_count': len(self.custom_themes),
+            'json_themes_count': len(self.available_json_themes)
         }
+
+    # ==================== JSON Theme Management (v1.0.13+) ====================
+
+    def _scan_json_themes(self) -> List[str]:
+        """Scan data/themes directory for JSON theme files."""
+        themes = []
+        if not self.json_themes_dir.exists():
+            return themes
+
+        for file in self.json_themes_dir.glob("*.json"):
+            # Skip special files
+            if file.name.startswith('_'):
+                continue
+            theme_name = file.stem
+            themes.append(theme_name)
+
+        return sorted(themes)
+
+    def load_json_theme(self, theme_name: str) -> Optional[Dict]:
+        """
+        Load a full JSON theme by name.
+
+        Args:
+            theme_name: Name of theme (without .json extension)
+
+        Returns:
+            Theme data dict or None if not found
+        """
+        # Check cache first
+        if theme_name in self.json_themes_cache:
+            return self.json_themes_cache[theme_name]
+
+        theme_file = self.json_themes_dir / f"{theme_name}.json"
+        if not theme_file.exists():
+            return None
+
+        try:
+            with open(theme_file, 'r') as f:
+                theme_data = json.load(f)
+                # Cache the theme
+                self.json_themes_cache[theme_name] = theme_data
+                return theme_data
+        except Exception as e:
+            print(f"Error loading theme '{theme_name}': {e}")
+            return None
+
+    def validate_json_theme(self, theme_data: Dict) -> Tuple[bool, List[str]]:
+        """
+        Validate full JSON theme structure.
+
+        Args:
+            theme_data: Theme data dictionary
+
+        Returns:
+            Tuple of (is_valid, list_of_errors)
+        """
+        errors = []
+
+        # Check required top-level fields
+        required_fields = ["THEME_NAME", "VERSION", "NAME", "STYLE", "DESCRIPTION"]
+        for field in required_fields:
+            if field not in theme_data:
+                errors.append(f"Missing required field: {field}")
+
+        # Check required sections
+        required_sections = ["CORE_SYSTEM", "CORE_USER", "TERMINOLOGY"]
+        for section in required_sections:
+            if section not in theme_data:
+                errors.append(f"Missing required section: {section}")
+
+        # Validate TERMINOLOGY section
+        if "TERMINOLOGY" in theme_data:
+            term = theme_data["TERMINOLOGY"]
+            basic_commands = ["CMD_CATALOG", "CMD_LOAD", "CMD_SAVE", "CMD_HELP"]
+            for cmd in basic_commands:
+                if cmd not in term:
+                    errors.append(f"Missing terminology for: {cmd}")
+
+        return (len(errors) == 0, errors)
+
+    def get_json_theme_metadata(self, theme_name: str) -> Optional[ThemeMetadata]:
+        """
+        Extract metadata from a JSON theme.
+
+        Args:
+            theme_name: Name of theme
+
+        Returns:
+            ThemeMetadata object or None
+        """
+        theme_data = self.load_json_theme(theme_name)
+        if not theme_data:
+            return None
+
+        return ThemeMetadata(
+            name=theme_data.get("THEME_NAME", theme_name.upper()),
+            version=theme_data.get("VERSION", "1.0.0"),
+            style=theme_data.get("STYLE", "Unknown"),
+            description=theme_data.get("DESCRIPTION", "No description"),
+            icon=theme_data.get("ICON", "🎨"),
+            author=theme_data.get("AUTHOR"),
+            created=theme_data.get("CREATED"),
+            modified=theme_data.get("MODIFIED"),
+            tags=theme_data.get("TAGS", [])
+        )
+
+    def list_json_themes(self, detailed: bool = False) -> str:
+        """
+        List all available JSON themes.
+
+        Args:
+            detailed: Include detailed information
+
+        Returns:
+            Formatted string of themes
+        """
+        output = []
+        output.append("\n╔═══════════════════════════════════════════════════════════╗")
+        output.append("║              AVAILABLE JSON THEMES                        ║")
+        output.append("╚═══════════════════════════════════════════════════════════╝\n")
+
+        if not self.available_json_themes:
+            output.append("  No themes found.\n")
+            return "\n".join(output)
+
+        for theme_name in self.available_json_themes:
+            metadata = self.get_json_theme_metadata(theme_name)
+            if not metadata:
+                continue
+
+            if detailed:
+                output.append(f"  {metadata.icon} {metadata.name}")
+                output.append(f"     Style: {metadata.style}")
+                output.append(f"     Description: {metadata.description}")
+                output.append(f"     Version: {metadata.version}")
+                if metadata.author:
+                    output.append(f"     Author: {metadata.author}")
+                output.append("")
+            else:
+                output.append(f"  {metadata.icon} {theme_name:<15} - {metadata.description}")
+
+        return "\n".join(output)
+
+    def preview_json_theme(self, theme_name: str) -> str:
+        """
+        Generate a preview of a JSON theme without applying it.
+
+        Args:
+            theme_name: Name of theme to preview
+
+        Returns:
+            Formatted preview string
+        """
+        theme_data = self.load_json_theme(theme_name)
+        if not theme_data:
+            return f"Error: Theme '{theme_name}' not found"
+
+        metadata = self.get_json_theme_metadata(theme_name)
+        output = []
+
+        output.append("\n╔═══════════════════════════════════════════════════════════╗")
+        output.append(f"║  {metadata.icon} THEME PREVIEW: {metadata.name.upper().center(40)} ║")
+        output.append("╚═══════════════════════════════════════════════════════════╝\n")
+
+        # Preview system prompt
+        if "CORE_SYSTEM" in theme_data:
+            core = theme_data["CORE_SYSTEM"]
+            prompt = core.get("PROMPT_BASE", ">")
+            system_name = core.get("SYSTEM_NAME", "SYSTEM")
+            output.append(f"  System Prompt: {prompt}")
+            output.append(f"  System Name: {system_name}")
+            output.append("")
+
+        # Preview user settings
+        if "CORE_USER" in theme_data:
+            user = theme_data["CORE_USER"]
+            output.append("  User Configuration:")
+            output.append(f"    Name: {user.get('USER_NAME', 'User')}")
+            output.append(f"    Title: {user.get('USER_TITLE', 'N/A')}")
+            output.append(f"    Location: {user.get('USER_LOCATION', 'Unknown')}")
+            output.append(f"    Project: {user.get('USER_PROJECT', 'None')}")
+            output.append("")
+
+        # Preview terminology
+        if "TERMINOLOGY" in theme_data:
+            term = theme_data["TERMINOLOGY"]
+            output.append("  Command Terminology:")
+            term_examples = [
+                ("CMD_CATALOG", "List"),
+                ("CMD_LOAD", "Open"),
+                ("CMD_SAVE", "Save"),
+                ("CMD_HELP", "Help"),
+                ("CMD_CLS", "Clear")
+            ]
+            for cmd_key, default in term_examples:
+                cmd_value = term.get(cmd_key, default)
+                output.append(f"    {cmd_key}: {cmd_value}")
+            output.append("")
+
+        # Show character theme if present
+        if "CHARACTER_TYPES" in theme_data:
+            char = theme_data["CHARACTER_TYPES"]
+            output.append("  Character Theme:")
+            output.append(f"    Name: {char.get('CHARACTER_NAME', 'Character')}")
+            output.append(f"    Class: {char.get('CHARACTER_CLASS', 'User')}")
+            output.append("")
+
+        output.append("  " + "─" * 59)
+        output.append(f"  Validation: ", end="")
+        is_valid, errors = self.validate_json_theme(theme_data)
+        output.append("✅ VALID" if is_valid else "❌ INVALID")
+        output.append("")
+
+        return "\n".join(output)
+
+    def export_json_theme(self, theme_name: str, output_path: str) -> bool:
+        """
+        Export a JSON theme to a .udostheme file.
+
+        Args:
+            theme_name: Name of theme to export
+            output_path: Path to save exported theme
+
+        Returns:
+            True if successful, False otherwise
+        """
+        theme_data = self.load_json_theme(theme_name)
+        if not theme_data:
+            print(f"Error: Theme '{theme_name}' not found")
+            return False
+
+        # Add export metadata
+        export_data = theme_data.copy()
+        export_data["EXPORTED"] = datetime.now().isoformat()
+        export_data["UDOS_VERSION"] = "1.0.13"
+        export_data["FORMAT_VERSION"] = "1.0"
+
+        try:
+            output_file = Path(output_path)
+            # Ensure .udostheme extension
+            if output_file.suffix != '.udostheme':
+                output_file = output_file.with_suffix('.udostheme')
+
+            with open(output_file, 'w') as f:
+                json.dump(export_data, f, indent=2)
+
+            print(f"✅ Theme exported to: {output_file}")
+            return True
+
+        except Exception as e:
+            print(f"Error exporting theme: {e}")
+            return False
+
+    def import_json_theme(self, import_path: str, theme_name: Optional[str] = None) -> bool:
+        """
+        Import a theme from a .udostheme file.
+
+        Args:
+            import_path: Path to .udostheme file
+            theme_name: Optional custom name for imported theme
+
+        Returns:
+            True if successful, False otherwise
+        """
+        import_file = Path(import_path)
+        if not import_file.exists():
+            print(f"Error: File not found: {import_path}")
+            return False
+
+        try:
+            with open(import_file, 'r') as f:
+                theme_data = json.load(f)
+
+            # Validate imported theme
+            is_valid, errors = self.validate_json_theme(theme_data)
+            if not is_valid:
+                print(f"Error: Invalid theme file:")
+                for error in errors:
+                    print(f"  - {error}")
+                return False
+
+            # Determine theme name
+            if theme_name:
+                final_name = theme_name
+            else:
+                final_name = theme_data.get("THEME_NAME", import_file.stem).lower()
+
+            # Check for conflicts
+            target_file = self.json_themes_dir / f"{final_name}.json"
+            if target_file.exists():
+                print(f"Warning: Theme '{final_name}' already exists")
+                # In non-interactive mode, just skip
+                print("Import cancelled (theme already exists)")
+                return False
+
+            # Save imported theme
+            with open(target_file, 'w') as f:
+                json.dump(theme_data, f, indent=2)
+
+            # Update available themes list
+            if final_name not in self.available_json_themes:
+                self.available_json_themes.append(final_name)
+                self.available_json_themes.sort()
+
+            print(f"✅ Theme imported as: {final_name}")
+            return True
+
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in import file: {e}")
+            return False
+        except Exception as e:
+            print(f"Error importing theme: {e}")
+            return False
+
+    def get_json_theme_stats(self) -> str:
+        """
+        Get statistics about available JSON themes.
+
+        Returns:
+            Formatted statistics string
+        """
+        output = []
+        output.append("\n╔═══════════════════════════════════════════════════════════╗")
+        output.append("║                  JSON THEME STATISTICS                    ║")
+        output.append("╚═══════════════════════════════════════════════════════════╝\n")
+
+        output.append(f"  Total JSON Themes: {len(self.available_json_themes)}")
+        output.append(f"  Themes Cached: {len(self.json_themes_cache)}")
+        output.append(f"  Themes Directory: {self.json_themes_dir}")
+        output.append("")
+
+        # Count themes by style/type
+        styles = {}
+        for theme_name in self.available_json_themes:
+            metadata = self.get_json_theme_metadata(theme_name)
+            if metadata:
+                style = metadata.style.split('/')[0].strip() if '/' in metadata.style else metadata.style
+                styles[style] = styles.get(style, 0) + 1
+
+        if styles:
+            output.append("  Themes by Style:")
+            for style, count in sorted(styles.items()):
+                output.append(f"    {style}: {count}")
+
+        return "\n".join(output)
