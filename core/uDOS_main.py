@@ -319,6 +319,24 @@ def main():
                 ucode = parser.parse(user_input)
                 result = command_handler.handle_command(ucode, grid, parser)
 
+                # Track command usage
+                try:
+                    # Parse the ucode to extract command and params
+                    parts = ucode.strip('[]').split('|')
+                    if len(parts) >= 2:
+                        command_parts = parts[1].split('*')
+                        command = command_parts[0].upper()
+                        params = command_parts[1:] if len(command_parts) > 1 else []
+
+                        # Track the command (success if we got a result)
+                        command_handler.system_handler.usage_tracker.track_command(
+                            command=command,
+                            params=params,
+                            success=(result is not None and "ERROR" not in result.upper()[:50])
+                        )
+                except:
+                    pass  # Silently ignore tracking errors
+
                 if result:
                     logger.log("OUTPUT", result)
                     print(result)

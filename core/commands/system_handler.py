@@ -30,6 +30,7 @@ class SystemCommandHandler(BaseCommandHandler):
         self._help_manager = None
         self._screen_manager = None
         self._setup_wizard = None
+        self._usage_tracker = None
 
     @property
     def startup(self):
@@ -86,6 +87,14 @@ class SystemCommandHandler(BaseCommandHandler):
             from core.services.setup_wizard import SetupWizard
             self._setup_wizard = SetupWizard()
         return self._setup_wizard
+
+    @property
+    def usage_tracker(self):
+        """Lazy load usage tracker."""
+        if self._usage_tracker is None:
+            from core.services.usage_tracker import UsageTracker
+            self._usage_tracker = UsageTracker()
+        return self._usage_tracker
 
     def handle(self, command, params, grid, parser):
         """
@@ -229,15 +238,17 @@ class SystemCommandHandler(BaseCommandHandler):
                 category = ' '.join(params[1:])
                 return self.help_manager.format_help_category(category)
 
-            # HELP RECENT (placeholder for future usage tracker integration)
+            # HELP RECENT (show recently used commands from usage tracker)
             elif subcommand == 'RECENT':
-                return ("╔═══════════════════════════════════════════════════════════════════════════════╗\n"
-                       "║  📊 Recently Used Commands                                                    ║\n"
-                       "╠═══════════════════════════════════════════════════════════════════════════════╣\n"
-                       "║  ⚠️  Usage tracking not yet implemented                                        ║\n"
-                       "║                                                                               ║\n"
-                       "║  This feature will be available when UsageTracker service is integrated.     ║\n"
-                       "╚═══════════════════════════════════════════════════════════════════════════════╝\n")
+                return self.usage_tracker.format_recent_commands(limit=15)
+
+            # HELP STATS (show most used commands)
+            elif subcommand == 'STATS':
+                return self.usage_tracker.format_most_used(limit=15)
+
+            # HELP SESSION (show current session statistics)
+            elif subcommand == 'SESSION':
+                return self.usage_tracker.format_session_stats()
 
         # HELP ALL or no params: Show all commands by category
         if not params or params[0].upper() == 'ALL':
@@ -266,7 +277,10 @@ class SystemCommandHandler(BaseCommandHandler):
             help_text += "║  💡 HELP <command>           - Detailed help for a command".ljust(79) + "║\n"
             help_text += "║  🔍 HELP SEARCH <query>      - Search commands".ljust(79) + "║\n"
             help_text += "║  📁 HELP CATEGORY <name>     - Filter by category".ljust(79) + "║\n"
-            help_text += "║  📖 Full docs: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║\n"
+            help_text += "║  � HELP RECENT              - Show recently used commands".ljust(79) + "║\n"
+            help_text += "║  📈 HELP STATS               - Show most used commands".ljust(79) + "║\n"
+            help_text += "║  🎯 HELP SESSION             - Show current session statistics".ljust(79) + "║\n"
+            help_text += "║  �📖 Full docs: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║\n"
             help_text += "╚" + "═"*78 + "╝\n"
 
             return help_text
