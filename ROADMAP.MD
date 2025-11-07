@@ -1,6 +1,6 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.11 (Extension System Complete)
-**Last Updated**: 4 November 2025
+**Current Version**: v1.0.12 (Advanced Utilities Complete)
+**Last Updated**: 7 November 2025
 
 ---
 
@@ -19,9 +19,9 @@
 - **v1.0.9** - Viewport System (14 screen tiers, universal adaptation)
 - **v1.0.10** - Typography System (Classic Mac fonts, 8 themes, NES.css)
 - **v1.0.11** - Extension System (POKE commands, metadata validation, dev tools)
+- **v1.0.12** - Advanced Utilities (Enhanced HELP, BLANK, SETUP with smart features)
 
 ### 📋 Planned Versions
-- **v1.0.12** - Advanced Utilities (Enhanced HELP, CLEAR, SETUP - originally planned as v1.0.8)
 - **v1.0.13** - Theme System Enhancement (Preview, creation tools, community gallery)
 - **v1.0.14** - uCODE Language Enhancement (Control flow, functions, debugging)
 - **v1.0.15** - Security & Permissions (Access control, encryption, auditing)
@@ -594,18 +594,28 @@ Based on the solid foundation and comprehensive CLI features now available:
 ## 🔄 Future Development Rounds (v1.0.12+)
 
 ### 🔤 v1.0.12 - Advanced Utilities
-**Status**: 📋 Planned (Originally v1.0.8)
-**Focus**: Enhanced HELP, CLEAR, and SETUP commands
+**Status**: ✅ Complete - November 7, 2025
+**Focus**: Enhanced HELP, BLANK, and SETUP commands with smart features
 
-#### Planned Features
-- [ ] **Interactive HELP**: Context-sensitive examples with live demonstrations
-- [ ] **Enhanced Command Search**: Fuzzy search and filtering in HELP output
-- [ ] **CLEAR Enhancements**: Smart screen/state management with options
-- [ ] **SETUP Wizard**: Interactive onboarding and configuration
-- [ ] **Command Examples**: Copy-paste ready examples in HELP
-- [ ] **Quick Start Guide**: Step-by-step interactive tutorial for new users
-- [ ] **Command History in HELP**: Show recently used commands
-- [ ] **Usage Statistics**: Track and display most-used commands
+#### ✅ Completed Features
+- [x] **HelpManager Service**: Fuzzy search with SequenceMatcher (60%+ threshold)
+- [x] **Enhanced HELP Command**: SEARCH, CATEGORY, RECENT, STATS, SESSION
+- [x] **ScreenManager Service**: 7 clearing modes with ANSI escape sequences
+- [x] **Enhanced BLANK Command**: Smart clear, buffer control, component clearing
+- [x] **SetupWizard Service**: Interactive onboarding with 4-step wizard
+- [x] **Enhanced SETUP Command**: WIZARD, QUICK, THEME, VIEWPORT, EXTENSIONS
+- [x] **UsageTracker Service**: Command frequency tracking with persistent storage
+- [x] **Help Templates Directory**: Structured JSON documentation for 16 commands
+
+#### ✅ Key Deliverables
+- [x] **4 New Services**: HelpManager (400+ lines), ScreenManager (200+ lines), SetupWizard (337 lines), UsageTracker (400+ lines)
+- [x] **15+ New Command Variations**: Enhanced discovery and management
+- [x] **Help Templates System**: 4 categories, 16 commands documented
+- [x] **6 Test Scripts**: Comprehensive validation of all features
+- [x] **Complete Documentation**: Release notes, templates README, inline docs
+
+**Documentation**: `docs/releases/v1.0.12-RELEASE-NOTES.md`
+**Status**: Production-ready with comprehensive testing
 
 ### 🎭 v1.0.13 - Theme System Enhancement
 **Status**: 📋 Planned
