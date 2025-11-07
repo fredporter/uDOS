@@ -1,0 +1,140 @@
+{
+  "THEME_NAME": "LIGHT_PROFESSIONAL",
+  "VERSION": "1.0.0",
+  "NAME": "Light Professional",
+  "STYLE": "Professional Light Theme",
+  "DESCRIPTION": "A clean light theme for professional work environments",
+  "ICON": "☀️",
+  "VERBOSE_LEVEL": "MEDIUM",
+  "AUTHOR": "uDOS Theme Builder",
+  "TAGS": ["light", "professional", "business"],
+
+  "CORE_SYSTEM": {
+    "PROMPT_BASE": "CMD>",
+    "SYSTEM_NAME": "WORKSTATION",
+    "SYSTEM_STATUS": "READY",
+    "SYSTEM_VERSION": "1.0.0"
+  },
+
+  "CORE_USER": {
+    "USER_NAME": "Professional",
+    "USER_TITLE": "Business Analyst",
+    "USER_LOCATION": "Office",
+    "USER_TIMEZONE": "Business Hours",
+    "USER_PROJECT": "Business Project",
+    "USER_PROJECT_TYPE": "Enterprise",
+    "USER_MODE": "Professional",
+    "USER_LEVEL": "Manager",
+    "USER_EXPERIENCE": 0
+  },
+
+  "CHARACTER_TYPES": {
+    "CHARACTER_NAME": "Professional",
+    "CHARACTER_CLASS": "Analyst",
+    "CHARACTER_LEVEL": 1,
+    "CHARACTER_HP": 100,
+    "CHARACTER_MAX_HP": 100,
+    "CHARACTER_XP": 0,
+    "CHARACTER_STRENGTH": "Organization",
+    "CHARACTER_INTELLIGENCE": "Analysis",
+    "CHARACTER_DEXTERITY": "Efficiency",
+    "CHARACTER_CONSTITUTION": "Dedication",
+    "CHARACTER_WISDOM": "Business Acumen",
+    "CHARACTER_CHARISMA": "Leadership",
+    "CHARACTER_ALIGNMENT": "Lawful Professional",
+    "CHARACTER_RACE": "Human",
+    "CHARACTER_BACKGROUND": "Business Administration"
+  },
+
+  "OBJECT_TYPES": {
+    "OBJECT_CATEGORIES": {
+      "DOCUMENT": "Business document",
+      "REPORT": "Analysis report",
+      "SPREADSHEET": "Data workbook",
+      "PRESENTATION": "Slide deck",
+      "DATABASE": "Data repository"
+    },
+    "OBJECT_RARITIES": {
+      "COMMON": "Standard document",
+      "UNCOMMON": "Important file",
+      "RARE": "Strategic document",
+      "LEGENDARY": "Executive brief",
+      "ARTIFACT": "Company archive"
+    }
+  },
+
+  "LOCATION_TRACKING": {
+    "LOCATION_SYSTEM": "Organizational Structure",
+    "LOCATION_PRECISION": "Department-Level",
+    "TIMESTAMP_FORMAT": "udos-{YYMMDD}-{HHSS}-{TMZO}-{DEPT}-{TIER}",
+    "DEFAULT_ZONE": "CORPORATE",
+    "DEFAULT_REGION": "HEADQUARTERS",
+    "COORDINATE_SYSTEM": "ORGANIZATIONAL"
+  },
+
+  "TERMINOLOGY": {
+    "PROMPT_BASE": "CMD>",
+    "CMD_CATALOG": "INDEX",
+    "CMD_LOAD": "OPEN",
+    "CMD_SAVE": "SAVE",
+    "CMD_RUN": "EXECUTE",
+    "CMD_CLS": "CLEAR",
+    "CMD_COMMANDS": "MENU",
+    "CMD_HELP": "HELP",
+    "CMD_RESTART": "RESTART",
+    "CMD_MAP": "OVERVIEW",
+    "CMD_GOTO": "NAVIGATE",
+    "CMD_MOVE": "TRANSFER",
+    "CMD_LAYER": "LEVEL",
+    "CMD_DESCEND": "DRILL_DOWN",
+    "CMD_ASCEND": "ROLL_UP",
+    "CMD_LOCATE": "SEARCH",
+    "CMD_WHERE": "LOCATION",
+    "CMD_TREE": "STRUCTURE",
+    "CMD_OK": "ASSIST",
+    "CMD_EDIT": "MODIFY",
+    "CMD_SHOW": "DISPLAY",
+    "CMD_ANALYZE": "ANALYZE",
+    "CMD_REPAIR": "RESOLVE",
+    "CMD_THEME": "APPEARANCE",
+    "CMD_LEARN": "TRAINING"
+  },
+
+  "MESSAGE_STYLES": {
+    "ACTION_SUCCESS": {
+      "PREFIX": "✓",
+      "SUFFIX": "Complete",
+      "STYLE": "Success"
+    },
+    "ACTION_FAILURE": {
+      "PREFIX": "✗",
+      "SUFFIX": "Failed",
+      "STYLE": "Error"
+    },
+    "INFO": {
+      "PREFIX": "INFO:",
+      "SUFFIX": "",
+      "STYLE": "Information"
+    },
+    "ERROR": {
+      "PREFIX": "ERROR:",
+      "SUFFIX": "",
+      "STYLE": "Error"
+    },
+    "WARNING": {
+      "PREFIX": "WARNING:",
+      "SUFFIX": "",
+      "STYLE": "Warning"
+    },
+    "PROMPT": {
+      "PREFIX": "INPUT:",
+      "SUFFIX": "",
+      "STYLE": "Prompt"
+    },
+    "SYSTEM": {
+      "PREFIX": "SYSTEM:",
+      "SUFFIX": "",
+      "STYLE": "System"
+    }
+  }
+}

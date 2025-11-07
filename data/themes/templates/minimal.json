@@ -1,0 +1,94 @@
+{
+  "THEME_NAME": "MINIMAL",
+  "VERSION": "1.0.0",
+  "NAME": "Minimal Theme",
+  "STYLE": "Clean and Simple",
+  "DESCRIPTION": "A minimal theme template with only required fields",
+  "ICON": "🎨",
+  "VERBOSE_LEVEL": "MEDIUM",
+
+  "CORE_SYSTEM": {
+    "PROMPT_BASE": ">",
+    "SYSTEM_NAME": "SYSTEM",
+    "SYSTEM_STATUS": "OPERATIONAL",
+    "SYSTEM_VERSION": "1.0.0"
+  },
+
+  "CORE_USER": {
+    "USER_NAME": "User",
+    "USER_TITLE": "Operator",
+    "USER_LOCATION": "Terminal",
+    "USER_TIMEZONE": "UTC",
+    "USER_PROJECT": "Default Project",
+    "USER_PROJECT_TYPE": "General",
+    "USER_MODE": "Standard",
+    "USER_LEVEL": "User",
+    "USER_EXPERIENCE": 0
+  },
+
+  "TERMINOLOGY": {
+    "PROMPT_BASE": ">",
+    "CMD_CATALOG": "LIST",
+    "CMD_LOAD": "LOAD",
+    "CMD_SAVE": "SAVE",
+    "CMD_RUN": "RUN",
+    "CMD_CLS": "CLEAR",
+    "CMD_COMMANDS": "COMMANDS",
+    "CMD_HELP": "HELP",
+    "CMD_RESTART": "RESTART",
+    "CMD_MAP": "MAP",
+    "CMD_GOTO": "GOTO",
+    "CMD_MOVE": "MOVE",
+    "CMD_LAYER": "LAYER",
+    "CMD_DESCEND": "DOWN",
+    "CMD_ASCEND": "UP",
+    "CMD_LOCATE": "LOCATE",
+    "CMD_WHERE": "WHERE",
+    "CMD_TREE": "TREE",
+    "CMD_OK": "OK",
+    "CMD_EDIT": "EDIT",
+    "CMD_SHOW": "SHOW",
+    "CMD_ANALYZE": "ANALYZE",
+    "CMD_REPAIR": "REPAIR",
+    "CMD_THEME": "THEME",
+    "CMD_LEARN": "LEARN"
+  },
+
+  "MESSAGE_STYLES": {
+    "ACTION_SUCCESS": {
+      "PREFIX": "✓",
+      "SUFFIX": "",
+      "STYLE": "Success"
+    },
+    "ACTION_FAILURE": {
+      "PREFIX": "✗",
+      "SUFFIX": "",
+      "STYLE": "Error"
+    },
+    "INFO": {
+      "PREFIX": "ℹ",
+      "SUFFIX": "",
+      "STYLE": "Info"
+    },
+    "ERROR": {
+      "PREFIX": "❌",
+      "SUFFIX": "",
+      "STYLE": "Error"
+    },
+    "WARNING": {
+      "PREFIX": "⚠️",
+      "SUFFIX": "",
+      "STYLE": "Warning"
+    },
+    "PROMPT": {
+      "PREFIX": "›",
+      "SUFFIX": "",
+      "STYLE": "Prompt"
+    },
+    "SYSTEM": {
+      "PREFIX": "◆",
+      "SUFFIX": "",
+      "STYLE": "System"
+    }
+  }
+}
