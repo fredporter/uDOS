@@ -914,21 +914,81 @@ knowledge/
 ---
 
 ## 🧬 v1.0.16 - uCODE Language Enhancement Part 2
-**Status**: � In Progress (Started: 14 November 2025)
-**Focus**: Advanced scripting capabilities (functions, modules, debugging, templates)
+**Status**: 🔄 In Progress (Started: 14 November 2025) - **70% Complete**
+**Focus**: Advanced scripting capabilities (functions, modules, error handling, templates)
 
-### Planned Features
-- [ ] **Functions**: Define reusable command blocks with FUNCTION/RETURN/CALL
-- [ ] **Error Handling**: Try/catch for robust scripts (TRY/CATCH/FINALLY/THROW)
-- [ ] **Modules**: Import/export script libraries with standard library
-- [ ] **Debugging Tools**: Step-through debugger for .uscript files
-- [ ] **Script Templates**: Pre-built automation workflows
-- [ ] **Advanced Documentation**: Complete language specification
-- [ ] **Comprehensive Test Suite**: 50+ tests with 100% pass rate
+### ✅ Completed Features (7/10 tasks - 70%)
 
-**Dependencies**: v1.0.14 (Part 1 foundation), v1.0.15 (Documentation structure)
+#### 1. Functions System ✅
+- [x] **Function Definition**: FUNCTION name(params)...ENDFUNCTION
+- [x] **Function Calls**: CALL function_name(args)
+- [x] **Return Values**: RETURN statement with RETURN_VALUE capture
+- [x] **Parameter Binding**: Local scopes with parameter passing
+- [x] **Nested Calls**: Functions calling other functions
+- [x] **Test Suite**: test_functions.uscript (8 tests, 100% passing)
+
+#### 2. Error Handling ✅
+- [x] **TRY/CATCH/FINALLY**: Complete exception handling blocks
+- [x] **THROW**: Explicit error throwing
+- [x] **Error Variables**: ERROR and ERROR_TYPE special variables
+- [x] **Nested Blocks**: TRY blocks within TRY blocks
+- [x] **Test Suite**: test_errors.uscript (8 tests, 100% passing)
+
+#### 3. Module System ✅
+- [x] **IMPORT/EXPORT**: Module loading with export collection
+- [x] **Selective Import**: IMPORT module.item syntax
+- [x] **Module Resolution**: stdlib, examples, relative paths
+- [x] **Circular Import Prevention**: Module tracking system
+- [x] **Test Suite**: test_modules.uscript (module import tests)
+
+#### 4. Standard Library ✅
+- [x] **math_utils**: square, cube, abs, max, min, PI, E
+- [x] **string_utils**: split, join, upper, lower, trim, length, contains
+- [x] **list_utils**: first, last, count, reverse, append, remove, contains
+- [x] **validators**: is_empty, is_number, is_positive, is_in_range, validate_required
+
+#### 5. Script Templates ✅
+- [x] **crud_app.uscript**: Full CRUD operations (120 lines)
+- [x] **form_validation.uscript**: Complete validation (175 lines)
+- [x] **menu_system.uscript**: Interactive menu framework (116 lines)
+
+#### 6. Example Scripts ✅
+- [x] **advanced_features.uscript**: All v1.0.16 features (150+ lines)
+- [x] **library_example.uscript**: Datetime utilities (210+ lines)
+- [x] **task_manager.uscript**: Real-world app (230+ lines)
+
+#### 7. Documentation ✅
+- [x] **wiki/uCODE-Language.md**: Advanced Features section (+285 lines)
+
+### 📊 Progress Statistics
+- **Test Pass Rate**: 48/48 (100%)
+- **Code Growth**: +96 lines
+- **Standard Library**: 4 modules
+- **Templates**: 3 templates (411 lines)
+- **Examples**: 3 apps (588 lines)
+- **GitHub Commits**: 8
+
+### 🔄 Remaining Features (3/10 - 30%)
+
+#### 8. Interactive Debugger (Next Priority)
+- [ ] DEBUG command with breakpoints
+- [ ] Step commands (STEP, STEP INTO, STEP OUT)
+- [ ] Variable inspection (INSPECT, WATCH)
+- [ ] Call stack display
+
+#### 9. Comprehensive Test Suite
+- [ ] test_v1_0_16_standalone.py (50+ tests)
+- [ ] Integration tests
+- [ ] Edge case coverage
+
+#### 10. Release Documentation
+- [ ] v1.0.16-RELEASE-NOTES.md
+- [ ] CHANGELOG.md updates
+- [ ] Migration guide
+
+**Dependencies**: v1.0.14, v1.0.15
 **Timeline**: 2-3 weeks
-**Priority**: MEDIUM - Builds on solid foundation
+**Priority**: MEDIUM
 
 ---
 
