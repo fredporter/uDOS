@@ -1,4 +1,15 @@
-# uDOS Quick Reference Guide
+# ⚠️ Documentation Moved
+
+> **This file has been superseded by the wiki.**
+
+For current command reference and quick start guides, see:
+- **[Command Reference](../wiki/Command-Reference.md)** - Complete command documentation with quick reference
+- **[Quick Start](../wiki/Quick-Start.md)** - Getting started guide
+- **[CLI Features](../wiki/CLI-Features-v1-0-6.md)** - v1.0.6 CLI enhancements
+
+---
+
+# uDOS Quick Reference Guide (LEGACY - v1.0.6)
 
 ## 🚀 Quick Start
 

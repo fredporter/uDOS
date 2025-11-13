@@ -1,53 +1,54 @@
-# uDOS Development Documentation
+# uDOS Documentation
 
-**Version**: v1.0.7
-**Last Updated**: November 2, 2025
-
-Welcome to the uDOS development documentation hub. All development, planning, and guide documents are organized here.
+> **📚 The wiki is now the single source of truth for all uDOS documentation.**
 
 ---
 
-## 📁 Documentation Structure
+## 🎯 Quick Links
 
-```
-dev/docs/
-├── README.md (this file)
-├── guides/           # User and developer guides
-├── planning/         # Development planning documents
-└── archive/          # Historical refactoring documents
-```
+### For Users
+- **[Wiki Home](../wiki/Home.md)** - Start here
+- **[Quick Start](../wiki/Quick-Start.md)** - Get up and running
+- **[Command Reference](../wiki/Command-Reference.md)** - All commands
+- **[Philosophy](../wiki/Philosophy.md)** - Why uDOS exists
 
----
+### For Developers
+- **[Contributing](../wiki/Contributing.md)** - How to contribute
+- **[Dev Rounds Workflow](../wiki/Dev-Rounds-Workflow.md)** - Development process
+- **[Architecture](../wiki/Architecture.md)** - System design
+- **[Style Guide](../wiki/Style-Guide.md)** - Code standards
 
-## 📖 User Guides
-
-### Getting Started
-- [`CONTRIBUTING.md`](guides/CONTRIBUTING.md) - How to contribute to uDOS
-- [`TESTING.md`](guides/TESTING.md) - Testing procedures and standards
-- [Quick Start Guide](../../wiki/Quick-Start.md) - Get up and running quickly
-
-### Core Features
-- [`DEVELOPMENT.md`](guides/DEVELOPMENT.md) - Development setup and workflow
-- [Command Reference](../../wiki/Command-Reference.md) - Complete command documentation
-- [uCODE Language](../../wiki/uCODE-Language.md) - Scripting language guide
-
-### Advanced Topics
-- [Architecture](../../wiki/Architecture.md) - System architecture overview
-- [Mapping System](../../wiki/Mapping-System.md) - NetHack-style navigation
-- [Style Guide](../../wiki/Style-Guide.md) - Code and design standards
+### For Everyone
+- **[FAQ](../wiki/FAQ.md)** - Common questions
+- **[ROADMAP](../ROADMAP.MD)** - Development roadmap
+- **[Wiki README](../wiki/README.md)** - Complete documentation index
 
 ---
 
-## 🗺️ Planning Documents
+## 📁 This Directory (docs/)
 
-### Current Development
-- [`uDOS Dev Plan.md`](planning/uDOS%20Dev%20Plan.md) - Core v1.0.0 development plan
-- [`../../ROADMAP.MD`](../../ROADMAP.MD) - **v1.0.x systematic development roadmap**
+This directory now contains:
 
-### Development Rounds (v1.0.x)
-Each round focuses on one component with complete cycle:
-1. **v1.0.1** - System Commands (HELP, STATUS, REPAIR, VIEWPORT, PALETTE, REBOOT)
-2. **v1.0.2** - File Operations (LIST, LOAD, SAVE, EDIT)
+- **archive/** - Historical refactoring documents (v1.0.0-v1.0.3)
+- **development/** - Session summaries and development logs
+- **releases/** - Release notes and changelogs
+- **guides/** - Legacy guides (being migrated to wiki)
+- **planning/** - Internal planning documents
+
+**For current documentation, always use the wiki.**
+
+---
+
+## 🔄 Migration Status
+
+All active documentation has been migrated to the wiki:
+- ✅ User guides → wiki/
+- ✅ Command references → wiki/Command-Reference.md
+- ✅ Philosophy & rationale → wiki/Philosophy.md, wiki/Why-uDOS.md
+- ✅ Development workflow → wiki/Dev-Rounds-Workflow.md
+- ✅ Contributing guidelines → wiki/Contributing.md
+
+Historical documents remain in docs/ for reference only.
 3. **v1.0.3** - Grid System (GRID, NEW GRID, GRID LIST, SHOW GRID)
 4. **v1.0.4** - Navigation (MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP)
 5. **v1.0.5** - Assisted Task (OK, READ)

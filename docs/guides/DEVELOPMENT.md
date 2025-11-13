@@ -1,8 +1,17 @@
-# uDOS Development Guidelines
-**Last Updated**: October 2025
-**Version**: v1.3.0
+# ⚠️ Documentation Moved
+
+> **This file has been superseded by the wiki.**
+
+For current development documentation, see:
+- **[Contributing](../../wiki/Contributing.md)** - How to contribute
+- **[Dev Rounds Workflow](../../wiki/Dev-Rounds-Workflow.md)** - Development process
+- **[Architecture](../../wiki/Architecture.md)** - System architecture
+- **[Style Guide](../../wiki/Style-Guide.md)** - Code standards
+- **[ROADMAP](../../ROADMAP.MD)** - Development roadmap
 
 ---
+
+# uDOS Development Guidelines (LEGACY)
 
 ## 📁 Preferred File Locations
 

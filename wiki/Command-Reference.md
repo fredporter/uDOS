@@ -2,6 +2,42 @@
 
 Complete guide to all uDOS commands
 
+> **💡 Quick Tip**: Use `HELP` in uDOS for built-in command help, or `HELP DETAILED` for comprehensive documentation.
+
+---
+
+## 🚀 Quick Reference Card
+
+### Essential Commands (Most Common)
+```bash
+# Getting Help
+HELP                      # Show all commands
+HELP <command>            # Show specific command help
+HELP DETAILED             # Complete documentation
+
+# File Operations
+LIST [path]               # List directory contents
+LOAD <file>               # Load file into memory
+SAVE <file>               # Save current content
+EDIT <file>               # Edit file
+
+# System
+STATUS                    # System status
+CLEAR                     # Clear screen
+REBOOT                    # Restart uDOS
+```
+
+### By Category
+| Category | Common Commands |
+|----------|----------------|
+| **Files** | `LIST`, `LOAD`, `SAVE`, `EDIT` |
+| **Grid** | `GRID`, `NEW GRID`, `GRID LIST` |
+| **Navigation** | `MAP`, `GOTO`, `MOVE` |
+| **System** | `STATUS`, `VIEWPORT`, `REPAIR` |
+| **Automation** | `RUN <script>` |
+| **AI Assistant** | `OK <task>`, `READ <content>` |
+| **Utilities** | `HELP`, `CLEAR`, `SETUP` |
+
 ---
 
 ## Command Index

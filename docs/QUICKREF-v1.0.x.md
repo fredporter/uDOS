@@ -1,4 +1,16 @@
-# v1.0.x Development Quick Reference
+# ⚠️ Documentation Moved
+
+> **This file has been superseded by the wiki.**
+
+For current development documentation, see:
+- **[Dev Rounds Workflow](../wiki/Dev-Rounds-Workflow.md)** - Complete development process
+- **[Contributing](../wiki/Contributing.md)** - How to contribute
+- **[Development History](../wiki/Development-History.md)** - Version history
+- **[ROADMAP](../ROADMAP.MD)** - Current development roadmap
+
+---
+
+# v1.0.x Development Quick Reference (LEGACY)
 
 **uDOS Systematic Development Guide**
 **Version**: 1.0.0 → 1.1.0

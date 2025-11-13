@@ -1,4 +1,14 @@
-# uDOS v1.0.0 Command Testing Routine
+# ⚠️ Documentation Moved
+
+> **This file has been superseded by the wiki.**
+
+For current testing documentation, see:
+- **[Contributing](../../wiki/Contributing.md)** - Testing standards
+- **[Dev Rounds Workflow](../../wiki/Dev-Rounds-Workflow.md)** - Development cycle including testing
+
+---
+
+# uDOS v1.0.0 Command Testing Routine (LEGACY)
 
 This document outlines the manual testing procedure for each command in uDOS v1.0.0 to ensure stability and functionality for the deversioned release.
 
