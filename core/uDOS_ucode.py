@@ -387,6 +387,11 @@ class UCodeInterpreter:
                 i = self._handle_function_definition(lines, results, i, end_index)
                 continue
 
+            # Handle TRY/CATCH/FINALLY blocks
+            if line.upper() == 'TRY':
+                i = self._handle_try_block(lines, results, i, end_index)
+                continue
+
             # Handle IF statements
             if line.upper().startswith('IF '):
                 i = self._handle_if_block(lines, results, i, end_index)
@@ -420,10 +425,9 @@ class UCodeInterpreter:
                 # Let RETURN, BREAK, CONTINUE propagate up
                 raise
             except Exception as e:
-                error_msg = f"❌ Error on line {line_num}: {str(e)}\n   Command: {line}"
-                results.append(error_msg)
-                if "critical" in str(e).lower():
-                    break
+                # Let all exceptions propagate (TRY/CATCH will handle them)
+                # Only report and continue for non-critical errors at top level
+                raise
 
             i += 1
 
@@ -850,6 +854,102 @@ class UCodeInterpreter:
             self.global_scope.set('RETURN_VALUE', None)
             return f"✅ Function '{func_name}' executed"
 
+    def _handle_try_block(self, lines: List[str], results: List[str],
+                         start_index: int, end_index: int) -> int:
+        """
+        Handle TRY/CATCH/FINALLY block.
+
+        Syntax: TRY
+                  ...try body...
+                CATCH error_var
+                  ...catch body...
+                FINALLY
+                  ...finally body...
+                ENDTRY
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Index of TRY line
+            end_index: End boundary
+
+        Returns:
+            Index after ENDTRY
+        """
+        line_num = start_index + 1
+
+        # Find CATCH, FINALLY, and ENDTRY
+        catch_index = None
+        finally_index = None
+        endtry_index = None
+        nesting_level = 0
+        error_var = None
+
+        for i in range(start_index + 1, end_index):
+            line = lines[i].strip().upper()
+
+            if line == 'TRY':
+                nesting_level += 1
+            elif line.startswith('CATCH') and nesting_level == 0 and catch_index is None:
+                catch_index = i
+                # Extract error variable name if provided
+                catch_line = lines[i].strip()
+                if len(catch_line) > 5:  # "CATCH" is 5 characters
+                    error_var = catch_line[5:].strip()
+            elif line == 'FINALLY' and nesting_level == 0 and finally_index is None:
+                finally_index = i
+            elif line == 'ENDTRY':
+                if nesting_level == 0:
+                    endtry_index = i
+                    break
+                else:
+                    nesting_level -= 1
+
+        if endtry_index is None:
+            results.append(f"❌ Error on line {line_num}: TRY without matching ENDTRY")
+            return start_index + 1
+
+        # Execute TRY block
+        error_occurred = None
+        try:
+            try_end = catch_index if catch_index else (finally_index if finally_index else endtry_index)
+            self._execute_lines(lines, results, start_index + 1, try_end)
+        except StopIteration:
+            # Let RETURN, BREAK, CONTINUE propagate
+            raise
+        except Exception as e:
+            error_occurred = e
+            # Store error message in variable if specified
+            if error_var:
+                self.current_scope.set(error_var, str(e))
+            # Also store in special ERROR variable
+            self.global_scope.set('ERROR', str(e))
+            self.global_scope.set('ERROR_TYPE', type(e).__name__)
+
+            # Execute CATCH block if present
+            if catch_index is not None:
+                try:
+                    catch_end = finally_index if finally_index else endtry_index
+                    self._execute_lines(lines, results, catch_index + 1, catch_end)
+                except StopIteration:
+                    raise
+                except Exception as catch_error:
+                    results.append(f"⚠️  Error in CATCH block: {str(catch_error)}")
+            else:
+                # No CATCH block, report the error
+                results.append(f"❌ Uncaught error: {str(e)}")
+
+        # Execute FINALLY block if present (always runs)
+        if finally_index is not None:
+            try:
+                self._execute_lines(lines, results, finally_index + 1, endtry_index)
+            except StopIteration:
+                raise
+            except Exception as finally_error:
+                results.append(f"⚠️  Error in FINALLY block: {str(finally_error)}")
+
+        return endtry_index + 1
+
     def execute_line(self, line, line_num=0):
         """
         Execute a single line of uCODE/command.
@@ -871,6 +971,11 @@ class UCodeInterpreter:
         # Handle RETURN command (function returns)
         if line.upper().startswith('RETURN'):
             raise StopIteration(f"RETURN:{line[6:].strip() if len(line) > 6 else ''}")
+
+        # Handle THROW command (raise errors)
+        if line.upper().startswith('THROW '):
+            error_msg = line[6:].strip()
+            raise RuntimeError(error_msg)
 
         # Handle SET command (variable assignment)
         if line.upper().startswith('SET '):
