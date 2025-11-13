@@ -25,6 +25,7 @@
 - **[Workflows](Workflows)** ⭐ NEW - Common tasks & automation
 - **[uCODE Language](uCODE-Language)** - Scripting guide
 - **[Knowledge Architecture](Knowledge-Architecture)** ⭐ NEW - Organizing information
+- **[Content Curation](Content-Curation)** ⭐ NEW - Building knowledge commons
 - [Mapping System](Mapping-System) - Navigation
 - [Extensions System](Extensions-System) - Using extensions
 
