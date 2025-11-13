@@ -387,6 +387,24 @@ class UCodeInterpreter:
                 i = self._handle_if_block(lines, results, i, end_index)
                 continue
 
+            # Handle FOR loops
+            if line.upper().startswith('FOR '):
+                i = self._handle_for_loop(lines, results, i, end_index)
+                continue
+
+            # Handle WHILE loops
+            if line.upper().startswith('WHILE '):
+                i = self._handle_while_loop(lines, results, i, end_index)
+                continue
+
+            # Handle BREAK (should only be in loop context)
+            if line.upper() == 'BREAK':
+                raise StopIteration("BREAK")
+
+            # Handle CONTINUE (should only be in loop context)
+            if line.upper() == 'CONTINUE':
+                raise StopIteration("CONTINUE")
+
             # Execute regular command
             try:
                 result = self.execute_line(line, line_num)
@@ -466,6 +484,197 @@ class UCodeInterpreter:
 
         # Return index after ENDIF
         return endif_index + 1
+
+    def _handle_for_loop(self, lines: List[str], results: List[str],
+                        start_index: int, end_index: int) -> int:
+        """
+        Handle FOR loop.
+
+        Syntax:
+        - FOR var IN list ... ENDFOR
+        - FOR var FROM start TO end ... ENDFOR
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Index of FOR line
+            end_index: End boundary
+
+        Returns:
+            Index after ENDFOR
+        """
+        for_line = lines[start_index].strip()
+        line_num = start_index + 1
+
+        # Find ENDFOR
+        endfor_index = None
+        nesting_level = 0
+
+        for i in range(start_index + 1, end_index):
+            line = lines[i].strip().upper()
+            if line.startswith('FOR '):
+                nesting_level += 1
+            elif line.startswith('WHILE '):
+                nesting_level += 1
+            elif line == 'ENDFOR' or line == 'ENDWHILE':
+                if nesting_level == 0:
+                    endfor_index = i
+                    break
+                else:
+                    nesting_level -= 1
+
+        if endfor_index is None:
+            results.append(f"❌ Error on line {line_num}: FOR without matching ENDFOR")
+            return start_index + 1
+
+        # Parse FOR statement
+        for_text = for_line[4:].strip()  # Remove "FOR "
+
+        # Check for "FOR var IN list" syntax
+        if ' IN ' in for_text.upper():
+            parts = re.split(r'\s+IN\s+', for_text, maxsplit=1, flags=re.IGNORECASE)
+            var_name = parts[0].strip()
+            list_expr = parts[1].strip()
+
+            # Evaluate list expression
+            list_expr = self.substitute_variables(list_expr)
+
+            # Get the iterable
+            if list_expr.startswith('[') and list_expr.endswith(']'):
+                # Explicit list
+                items = self._convert_value(list_expr)
+            elif ',' in list_expr:
+                # Comma-separated
+                items = [item.strip() for item in list_expr.split(',')]
+            else:
+                # Try to get as variable
+                items = self.get_variable(list_expr)
+                if items is None:
+                    items = [list_expr]
+
+            # Ensure it's iterable
+            if not isinstance(items, (list, tuple)):
+                items = [items]
+
+            # Execute loop for each item
+            for item in items:
+                self.set_variable(var_name, item)
+                try:
+                    self._execute_lines(lines, results, start_index + 1, endfor_index)
+                except StopIteration as e:
+                    if str(e) == "BREAK":
+                        break
+                    elif str(e) == "CONTINUE":
+                        continue
+
+        # Check for "FOR var FROM start TO end" syntax
+        elif ' FROM ' in for_text.upper() and ' TO ' in for_text.upper():
+            match = re.match(r'(\w+)\s+FROM\s+(.+?)\s+TO\s+(.+)', for_text, re.IGNORECASE)
+            if match:
+                var_name = match.group(1)
+                start_expr = match.group(2).strip()
+                end_expr = match.group(3).strip()
+
+                # Substitute variables and convert
+                start_val = self.substitute_variables(start_expr)
+                end_val = self.substitute_variables(end_expr)
+
+                # Try to get as variable if it's an identifier
+                if start_val.isidentifier():
+                    start_val = self.get_variable(start_val, start_val)
+                if end_val.isidentifier():
+                    end_val = self.get_variable(end_val, end_val)
+
+                try:
+                    start_num = int(self._convert_value(str(start_val)))
+                    end_num = int(self._convert_value(str(end_val)))
+
+                    # Execute loop for range
+                    for i in range(start_num, end_num + 1):
+                        self.set_variable(var_name, i)
+                        try:
+                            self._execute_lines(lines, results, start_index + 1, endfor_index)
+                        except StopIteration as e:
+                            if str(e) == "BREAK":
+                                break
+                            elif str(e) == "CONTINUE":
+                                continue
+                except ValueError:
+                    results.append(f"❌ Error on line {line_num}: Invalid range in FOR loop")
+        else:
+            results.append(f"❌ Error on line {line_num}: Invalid FOR syntax")
+
+        return endfor_index + 1
+
+    def _handle_while_loop(self, lines: List[str], results: List[str],
+                          start_index: int, end_index: int) -> int:
+        """
+        Handle WHILE loop.
+
+        Syntax: WHILE condition ... ENDWHILE
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Index of WHILE line
+            end_index: End boundary
+
+        Returns:
+            Index after ENDWHILE
+        """
+        while_line = lines[start_index].strip()
+        line_num = start_index + 1
+
+        # Parse condition
+        condition_text = while_line[6:].strip()  # Remove "WHILE "
+
+        # Find ENDWHILE
+        endwhile_index = None
+        nesting_level = 0
+
+        for i in range(start_index + 1, end_index):
+            line = lines[i].strip().upper()
+            if line.startswith('WHILE ') or line.startswith('FOR '):
+                nesting_level += 1
+            elif line == 'ENDWHILE' or line == 'ENDFOR':
+                if nesting_level == 0:
+                    endwhile_index = i
+                    break
+                else:
+                    nesting_level -= 1
+
+        if endwhile_index is None:
+            results.append(f"❌ Error on line {line_num}: WHILE without matching ENDWHILE")
+            return start_index + 1
+
+        # Execute loop while condition is true
+        max_iterations = 10000  # Safety limit
+        iteration = 0
+
+        while iteration < max_iterations:
+            try:
+                condition_result = self.evaluate_condition(condition_text)
+            except Exception as e:
+                results.append(f"❌ Error evaluating WHILE condition on line {line_num}: {str(e)}")
+                break
+
+            if not condition_result:
+                break
+
+            try:
+                self._execute_lines(lines, results, start_index + 1, endwhile_index)
+            except StopIteration as e:
+                if str(e) == "BREAK":
+                    break
+                elif str(e) == "CONTINUE":
+                    pass  # Continue to next iteration
+
+            iteration += 1
+
+        if iteration >= max_iterations:
+            results.append(f"⚠️  Warning: WHILE loop exceeded maximum iterations ({max_iterations})")
+
+        return endwhile_index + 1
 
     def execute_line(self, line, line_num=0):
         """
