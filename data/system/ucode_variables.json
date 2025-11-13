@@ -1,0 +1,16 @@
+{
+  "name": "Alice",
+  "age": 25,
+  "height": 5.8,
+  "active": true,
+  "colors": [
+    "red",
+    "green",
+    "blue"
+  ],
+  "greeting": [
+    "Hello",
+    "Alice!"
+  ],
+  "favorite_color": "purple"
+}
