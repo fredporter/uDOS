@@ -687,9 +687,9 @@ class ThemeManager:
             output.append("")
 
         output.append("  " + "─" * 59)
-        output.append(f"  Validation: ", end="")
         is_valid, errors = self.validate_json_theme(theme_data)
-        output.append("✅ VALID" if is_valid else "❌ INVALID")
+        validation_status = "✅ VALID" if is_valid else "❌ INVALID"
+        output.append(f"  Validation: {validation_status}")
         output.append("")
 
         return "\n".join(output)
