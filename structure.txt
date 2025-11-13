@@ -1,0 +1,509 @@
+uDOS/
+├── core/
+│   ├── commands/
+│   │   ├── assistant_handler.py
+│   │   ├── bank_handler.py
+│   │   ├── base_handler.py
+│   │   ├── configuration_handler.py
+│   │   ├── dashboard_handler.py
+│   │   ├── file_handler.py
+│   │   ├── grid_handler.py
+│   │   ├── knowledge_handler.py
+│   │   ├── map_handler.py
+│   │   ├── repair_handler.py
+│   │   └── system_handler.py
+│   ├── services/
+│   │   ├── config_manager.py
+│   │   ├── connection_manager.py
+│   │   ├── editor_manager.py
+│   │   ├── extension_dev_tools.py
+│   │   ├── extension_manager.py
+│   │   ├── extension_metadata_manager.py
+│   │   ├── file_picker.py
+│   │   ├── gemini_service.py
+│   │   ├── help_manager.py
+│   │   ├── history.py
+│   │   ├── history_manager.py
+│   │   ├── knowledge_manager.py
+│   │   ├── layout_manager.py
+│   │   ├── map_engine.py
+│   │   ├── progress_manager.py
+│   │   ├── screen_manager.py
+│   │   ├── session_manager.py
+│   │   ├── setup_wizard.py
+│   │   ├── teletext_renderer.py
+│   │   ├── theme_builder.py
+│   │   ├── theme_manager.py
+│   │   ├── usage_tracker.py
+│   │   ├── user_manager.py
+│   │   └── viewport_manager.py
+│   ├── utils/
+│   │   ├── completer.py
+│   │   ├── setup.py
+│   │   ├── theme.py
+│   │   ├── tizo_manager.py
+│   │   ├── ucode.py
+│   │   ├── variables.py
+│   │   ├── viewport.py
+│   │   └── viewport_viz.py
+│   ├── __init__.py
+│   ├── uDOS_commands.py
+│   ├── uDOS_env.py
+│   ├── uDOS_files.py
+│   ├── uDOS_gemini.py
+│   ├── uDOS_graphics.py
+│   ├── uDOS_grid.py
+│   ├── uDOS_interactive.py
+│   ├── uDOS_logger.py
+│   ├── uDOS_main.py
+│   ├── uDOS_offline.py
+│   ├── uDOS_parser.py
+│   ├── uDOS_prompt.py
+│   ├── uDOS_server.py
+│   ├── uDOS_settings.py
+│   ├── uDOS_splash.py
+│   ├── uDOS_startup.py
+│   ├── uDOS_tree.py
+│   └── uDOS_ucode.py
+├── data/
+│   ├── system/
+│   │   ├── help_templates/
+│   │   │   ├── README.md
+│   │   │   ├── _index.json
+│   │   │   ├── assistant_commands.json
+│   │   │   ├── file_commands.json
+│   │   │   ├── grid_commands.json
+│   │   │   └── system_commands.json
+│   │   ├── commands.json
+│   │   ├── credits.json
+│   │   ├── extensions.json
+│   │   ├── fonts.json
+│   │   ├── palette.json
+│   │   ├── tizo_cities.json
+│   │   ├── ucode_variables.json
+│   │   ├── viewport.json
+│   │   ├── world_cities.csv
+│   │   ├── world_cities_cellkeys.csv
+│   │   └── worldmap.json
+│   ├── templates/
+│   │   ├── setup.uscript
+│   │   ├── story.template.json
+│   │   └── user.template.json
+│   ├── themes/
+│   │   ├── templates/
+│   │   │   ├── README.md
+│   │   │   ├── dark-modern.json
+│   │   │   ├── high-contrast.json
+│   │   │   ├── light-professional.json
+│   │   │   └── minimal.json
+│   │   ├── _index.json
+│   │   ├── _schema.json
+│   │   ├── dungeon.json
+│   │   ├── foundation.json
+│   │   ├── galaxy.json
+│   │   ├── imported_test_theme.json
+│   │   ├── project.json
+│   │   └── science.json
+│   └── USER.UDT
+├── docs/
+│   ├── archive/
+│   │   ├── CLEANUP-v1.0.0.md
+│   │   ├── CONFIG-REFACTORING-COMPLETE.md
+│   │   ├── DATA-REFACTORING-v1.0.0.md
+│   │   ├── REFACTORING-v1.0.0.md
+│   │   ├── TODO-COMPLETION-SUMMARY.md
+│   │   └── TODO-v1.0.12-COMPLETE.md
+│   ├── development/
+│   │   ├── DEV-ROUND-1.0.2.md
+│   │   ├── DEV-ROUND-1.0.3.md
+│   │   ├── DEV-ROUND-v1.0.2-COMPLETE.md
+│   │   ├── NES-MAC-ENHANCEMENT-v1.0.10.md
+│   │   ├── ROADMAP_UPDATE_v1_0_6_COMPLETE.md
+│   │   ├── SESSION-SUMMARY-2025-11-04-EVENING.md
+│   │   ├── SESSION-SUMMARY-2025-11-04.md
+│   │   ├── TYPOGRAPHY-COMPLETION-v1.0.10.md
+│   │   ├── VALIDATION_REPORT_v1_0_7_to_v1_0_11.md
+│   │   ├── WIKI_MIGRATION_v1_0_6_COMPLETE.md
+│   │   ├── v1.0.6-AUTOMATION-SUMMARY.md
+│   │   ├── v1_0_12_ADVANCED_UTILITIES_PLAN.md
+│   │   ├── v1_0_2_integration_results.json
+│   │   ├── v1_0_2_validation_results.json
+│   │   ├── v1_0_6_DEVELOPMENT_COMPLETE.md
+│   │   ├── v1_0_6_cli_terminal_plan.md
+│   │   ├── v1_0_7_DEVELOPMENT_COMPLETE.md
+│   │   └── v1_0_7_DEVELOPMENT_PLAN.md
+│   ├── guides/
+│   │   ├── CONTRIBUTING.md
+│   │   ├── DEVELOPMENT.md
+│   │   ├── TESTING.md
+│   │   ├── command-palette.md
+│   │   ├── poke-integration.md
+│   │   ├── v1.0.1-session-summary.md
+│   │   └── v1.0.1-test-results.md
+│   ├── planning/
+│   │   └── uDOS Dev Plan.md
+│   ├── releases/
+│   │   ├── CHANGELOG-v1.0.0.md
+│   │   ├── DEVELOPMENT-COMPLETE-v1.0.2.md
+│   │   ├── DEVELOPMENT-COMPLETE-v1.0.3.md
+│   │   ├── TELETEXT-EXTENSION-COMPLETE-v1.0.4.md
+│   │   ├── v1.0.12-RELEASE-NOTES.md
+│   │   ├── v1.0.6-CLI-TERMINAL-FEATURES.md
+│   │   ├── v1_0_7_ADVANCED_FILE_OPERATIONS_COMPLETE.md
+│   │   └── v1_0_8_KNOWLEDGE_SYSTEM_COMPLETE.md
+│   ├── tools/
+│   │   ├── copilot_summary.py
+│   │   └── dev_logger.py
+│   ├── versions/
+│   │   ├── MAPPING-SYSTEM-v1.0.3.md
+│   │   ├── TELETEXT-WEB-EXTENSION-v1.0.4.md
+│   │   ├── VERSION-MANIFEST-1.0.2.py
+│   │   └── VERSION-MANIFEST-1.0.3.py
+│   ├── FILE-ORGANIZATION-COMPLETE.md
+│   ├── QUICKREF-v1.0.6-CLI.md
+│   ├── QUICKREF-v1.0.x.md
+│   └── README.md
+├── examples/
+│   ├── extensions/
+│   │   ├── cli-extension-template/
+│   │   │   ├── README.md
+│   │   │   ├── manifest.json
+│   │   │   └── sample-cli.py
+│   │   ├── web-extension-template/
+│   │   │   ├── static/
+│   │   │   │   ├── css/
+│   │   │   │   └── js/
+│   │   │   ├── templates/
+│   │   │   │   └── index.html
+│   │   │   ├── README.md
+│   │   │   ├── app.py
+│   │   │   ├── manifest.json
+│   │   │   └── requirements.txt
+│   │   └── README.md
+│   ├── teletext_clone_bundle_with_blocks/
+│   │   ├── README.md
+│   │   ├── index.html
+│   │   ├── teletext.css
+│   │   └── teletext.js
+│   ├── udos_map_480x270_cellkey/
+│   │   ├── data/
+│   │   │   └── cities_sample.csv
+│   │   ├── tools/
+│   │   │   └── compute_keys.py
+│   │   ├── MANIFEST.json
+│   │   └── README.txt
+│   ├── color_reference.py
+│   ├── dashboard_example.txt
+│   ├── hello-automation.uscript
+│   ├── help_detailed_example.txt
+│   ├── help_example.txt
+│   ├── screen_size_reference.md
+│   └── simple-setup.uscript
+├── extensions/
+│   ├── bundled/
+│   │   └── web/
+│   │       ├── dashboard/
+│   │       │   ├── routes/
+│   │       │   ├── server/
+│   │       │   ├── services/
+│   │       │   ├── static/
+│   │       │   ├── IMPLEMENTATION.md
+│   │       │   ├── README.md
+│   │       │   ├── app.py
+│   │       │   ├── config.json
+│   │       │   ├── dashboard-api.js
+│   │       │   ├── index.html
+│   │       │   ├── launch.sh
+│   │       │   └── manifest.json
+│   │       ├── font-editor/
+│   │       │   ├── css/
+│   │       │   ├── js/
+│   │       │   ├── lib/
+│   │       │   ├── templates/
+│   │       │   ├── README.md
+│   │       │   ├── index.html
+│   │       │   └── server.py
+│   │       ├── system-desktop/
+│   │       │   ├── fonts/
+│   │       │   ├── README.md
+│   │       │   ├── index.html
+│   │       │   ├── system7.css
+│   │       │   └── system7.js
+│   │       ├── system-style/
+│   │       │   └── index.html
+│   │       ├── teletext/
+│   │       │   ├── fonts/
+│   │       │   ├── index.html
+│   │       │   ├── mosaic_codepoints_E200-E3FF.csv
+│   │       │   ├── teletext-api.js
+│   │       │   ├── teletext-enhanced.css
+│   │       │   ├── teletext-enhanced.js
+│   │       │   └── teletext-web.css
+│   │       ├── README.md
+│   │       ├── README_OLD.md
+│   │       ├── classicy-launcher.py
+│   │       ├── deploy.py
+│   │       ├── launch.sh
+│   │       ├── launch_web.py
+│   │       ├── launch_web.sh
+│   │       ├── teletext_extension.py
+│   │       └── version-manifest.json
+│   ├── core/
+│   │   ├── assets/
+│   │   │   └── mac-icons.css
+│   │   ├── css/
+│   │   │   ├── typography-system.css
+│   │   │   ├── udos-filepicker.css
+│   │   │   ├── udos-grid.css
+│   │   │   └── udos-syntax.css
+│   │   ├── docs/
+│   │   │   ├── CSS-FRAMEWORKS-GUIDE.md
+│   │   │   ├── GRID-SYSTEM.md
+│   │   │   ├── README-Typography.md
+│   │   │   ├── SYSTEM-CSS-REFERENCE.md
+│   │   │   ├── shared-components.md
+│   │   │   ├── typography-showcase.html
+│   │   │   └── ugrid-demo.html
+│   │   ├── js/
+│   │   │   ├── typography-manager.js
+│   │   │   ├── udos-controls.js
+│   │   │   ├── udos-filepicker.js
+│   │   │   └── udos-panels.js
+│   │   ├── themes/
+│   │   │   ├── classic-mac-patterns.css
+│   │   │   ├── classic.css
+│   │   │   ├── nes.css
+│   │   │   ├── system-mac.css
+│   │   │   ├── system.css
+│   │   │   └── udos-v13-theme.css
+│   │   └── README.md
+│   ├── fonts/
+│   │   ├── chicago-12-1/
+│   │   │   ├── chicago-12-1.otf
+│   │   │   ├── chicago-12-1.otf.woff2
+│   │   │   ├── license.txt
+│   │   │   └── readme.txt
+│   │   ├── mallard-blockier/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-blockier.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-blocky/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-blocky.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-neueue/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-neueue.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-smooth/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-smooth.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-smoother/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-smoother.otf
+│   │   │   └── readme.txt
+│   │   ├── mallard-tiny/
+│   │   │   ├── license.txt
+│   │   │   ├── mallard-tiny.otf
+│   │   │   └── readme.txt
+│   │   ├── sysfont/
+│   │   │   ├── webfonts/
+│   │   │   │   ├── sysfont.woff
+│   │   │   │   └── sysfont.woff2
+│   │   │   ├── OFL.txt
+│   │   │   ├── readme.txt
+│   │   │   └── sysfont.otf
+│   │   ├── ChicagoFLF.ttf
+│   │   └── LICENSE_ASSESSMENT.md
+│   ├── setup/
+│   │   ├── setup_all.sh
+│   │   ├── setup_c64css3.sh
+│   │   ├── setup_classicy.sh
+│   │   ├── setup_cmd.sh
+│   │   ├── setup_micro.sh
+│   │   ├── setup_monaspace.sh
+│   │   ├── setup_nes.sh
+│   │   └── setup_typo.sh
+│   └── README.md
+├── knowledge/
+│   ├── commands/
+│   │   ├── BLANK-ENHANCED.md
+│   │   ├── HELP-ENHANCED.md
+│   │   ├── MAP.md
+│   │   ├── OK.md
+│   │   ├── REDO.md
+│   │   ├── RESTORE.md
+│   │   ├── RUN.md
+│   │   ├── SETUP-ENHANCED.md
+│   │   ├── SYSTEM.md
+│   │   └── UNDO.md
+│   ├── community/
+│   │   ├── collaboration/
+│   │   ├── conflict-resolution/
+│   │   ├── local-resilience/
+│   │   ├── mutual-aid/
+│   │   └── README.md
+│   ├── concepts/
+│   │   └── command-architecture.md
+│   ├── datasets/
+│   ├── environment/
+│   │   ├── conservation/
+│   │   ├── gardening/
+│   │   ├── permaculture/
+│   │   ├── renewable-energy/
+│   │   └── README.md
+│   ├── faq/
+│   ├── maps/
+│   ├── personal/
+│   │   ├── notes/
+│   │   ├── projects/
+│   │   ├── research/
+│   │   └── stories/
+│   ├── productivity/
+│   │   ├── automation/
+│   │   ├── time-management/
+│   │   │   └── pomodoro-guide.md
+│   │   ├── tools/
+│   │   ├── workflows/
+│   │   └── README.md
+│   ├── skills/
+│   │   ├── art/
+│   │   ├── music/
+│   │   ├── programming/
+│   │   ├── writing/
+│   │   └── README.md
+│   ├── survival/
+│   │   ├── first-aid/
+│   │   │   └── basic-cpr.md
+│   │   ├── food-water/
+│   │   ├── shelter/
+│   │   ├── tools/
+│   │   └── README.md
+│   ├── system/
+│   │   └── faq.json
+│   ├── user/
+│   │   └── notes/
+│   ├── well-being/
+│   │   ├── mental-health/
+│   │   ├── mindfulness/
+│   │   ├── physical-health/
+│   │   ├── relationships/
+│   │   └── README.md
+│   ├── KNOWLEDGE-SYSTEM.md
+│   └── README.md
+├── memory/
+│   ├── config/
+│   │   └── active-theme.json
+│   ├── missions/
+│   ├── sandbox/
+│   │   ├── .server_state.json
+│   │   └── user.json
+│   ├── scripts/
+│   │   ├── README.md
+│   │   ├── test_conditionals.uscript
+│   │   ├── test_functions.uscript
+│   │   ├── test_loops.uscript
+│   │   └── test_variables.uscript
+│   ├── tests/
+│   │   ├── integration/
+│   │   │   ├── test_cli_v1_0_6.py
+│   │   │   ├── test_file_integration_v1_0_2.py
+│   │   │   ├── test_map_integration.py
+│   │   │   ├── test_teletext_integration.py
+│   │   │   └── test_v1_0_2_integration.py
+│   │   ├── test_files/
+│   │   │   ├── config.conf
+│   │   │   ├── script.py
+│   │   │   ├── test1.md
+│   │   │   └── test2.txt
+│   │   ├── unit/
+│   │   │   ├── test_dashboard.py
+│   │   │   ├── test_file_operations_v1_0_2.py
+│   │   │   ├── test_palette_tree.py
+│   │   │   └── test_remaining_commands.py
+│   │   ├── README.md
+│   │   ├── shakedown.uscript
+│   │   ├── test_available_commands.py
+│   │   ├── test_clear_enhanced.uscript
+│   │   ├── test_commands.uscript
+│   │   ├── test_commands_script.uscript
+│   │   ├── test_core_functionality.py
+│   │   ├── test_file_commands.uscript
+│   │   ├── test_help_enhanced.uscript
+│   │   ├── test_help_templates.py
+│   │   ├── test_interactive.txt
+│   │   ├── test_map_surface.py
+│   │   ├── test_ok_command.uscript
+│   │   ├── test_ok_comprehensive.py
+│   │   ├── test_ok_implementation.py
+│   │   ├── test_parser_restore.py
+│   │   ├── test_restore_direct.py
+│   │   ├── test_restore_only.uscript
+│   │   ├── test_restored_commands.txt
+│   │   ├── test_run_command.py
+│   │   ├── test_run_interactive.sh
+│   │   ├── test_session_minimal.py
+│   │   ├── test_setup_enhanced.uscript
+│   │   ├── test_undo_redo.uscript
+│   │   ├── test_usage_tracker.uscript
+│   │   ├── test_usage_tracker_direct.py
+│   │   ├── test_v1_0_12_utilities.py
+│   │   ├── test_v1_0_13_theming.py
+│   │   ├── test_v1_0_2_enhancements.py
+│   │   ├── test_v1_0_2_simple_integration.py
+│   │   ├── test_v1_0_2_standalone.py
+│   │   ├── usage_tracker.json
+│   │   └── v1_0_7_file_operations_test.sh
+│   ├── themes/
+│   ├── README.md
+│   └── knowledge.db
+├── sandbox/
+├── scripts/
+│   ├── README.md
+│   ├── config_manager.py
+│   ├── generate_user_config.py
+│   └── migrate_config.py
+├── wiki/
+│   ├── Architecture.md
+│   ├── CLI-Features-v1-0-6.md
+│   ├── CSS-Framework-Integration.md
+│   ├── Command-Palette.md
+│   ├── Command-Reference.md
+│   ├── Content-Curation.md
+│   ├── Contributing.md
+│   ├── Dev-Rounds-Workflow.md
+│   ├── Development-History.md
+│   ├── Extensions-System.md
+│   ├── FAQ.md
+│   ├── Getting-Started.md
+│   ├── Home.md
+│   ├── Human-Centric-Design.md
+│   ├── Knowledge-Architecture.md
+│   ├── Latest-Development.md
+│   ├── Mapping-System.md
+│   ├── Philosophy.md
+│   ├── Project-Organization.md
+│   ├── Quick-Start.md
+│   ├── README.md
+│   ├── Release-v1.0.13.md
+│   ├── Style-Guide.md
+│   ├── Text-First-Computing.md
+│   ├── Theme-System.md
+│   ├── Why-uDOS.md
+│   ├── Workflows.md
+│   ├── _Footer.md
+│   ├── _Sidebar.md
+│   └── uCODE-Language.md
+├── .env.example
+├── .gitignore
+├── CONTRIBUTING.md
+├── CREDITS.md
+├── LICENSE.txt
+├── README.MD
+├── ROADMAP.MD
+├── requirements.txt
+├── start_udos.sh
+├── uDOS.code-workspace
+├── uDOS.py
+└── web.sh

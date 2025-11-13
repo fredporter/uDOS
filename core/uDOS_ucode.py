@@ -382,6 +382,11 @@ class UCodeInterpreter:
                 i += 1
                 continue
 
+            # Handle FUNCTION definitions
+            if line.upper().startswith('FUNCTION '):
+                i = self._handle_function_definition(lines, results, i, end_index)
+                continue
+
             # Handle IF statements
             if line.upper().startswith('IF '):
                 i = self._handle_if_block(lines, results, i, end_index)
@@ -411,6 +416,9 @@ class UCodeInterpreter:
                 if result:
                     results.append(f"\n[Line {line_num}] {line}")
                     results.append(result)
+            except StopIteration:
+                # Let RETURN, BREAK, CONTINUE propagate up
+                raise
             except Exception as e:
                 error_msg = f"❌ Error on line {line_num}: {str(e)}\n   Command: {line}"
                 results.append(error_msg)
@@ -676,6 +684,172 @@ class UCodeInterpreter:
 
         return endwhile_index + 1
 
+    def _handle_function_definition(self, lines: List[str], results: List[str],
+                                   start_index: int, end_index: int) -> int:
+        """
+        Handle FUNCTION definition.
+
+        Syntax: FUNCTION name(param1, param2, ...)
+                  ...function body...
+                RETURN value
+                ENDFUNCTION
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Index of FUNCTION line
+            end_index: End boundary
+
+        Returns:
+            Index after ENDFUNCTION
+        """
+        func_line = lines[start_index].strip()
+        line_num = start_index + 1
+
+        # Parse function signature: FUNCTION name(params)
+        if '(' not in func_line or ')' not in func_line:
+            results.append(f"❌ Error on line {line_num}: Invalid FUNCTION syntax. Use: FUNCTION name(param1, param2)")
+            return start_index + 1
+
+        # Extract function name and parameters
+        func_header = func_line[9:].strip()  # Remove "FUNCTION "
+        paren_pos = func_header.index('(')
+        func_name = func_header[:paren_pos].strip()
+
+        params_str = func_header[paren_pos+1:func_header.rindex(')')].strip()
+        params = [p.strip() for p in params_str.split(',') if p.strip()] if params_str else []
+
+        # Validate function name
+        if not func_name.isidentifier():
+            results.append(f"❌ Error on line {line_num}: Invalid function name '{func_name}'")
+            return start_index + 1
+
+        # Find ENDFUNCTION
+        endfunction_index = None
+        nesting_level = 0
+
+        for i in range(start_index + 1, end_index):
+            line = lines[i].strip().upper()
+            if line.startswith('FUNCTION '):
+                nesting_level += 1
+            elif line == 'ENDFUNCTION':
+                if nesting_level == 0:
+                    endfunction_index = i
+                    break
+                else:
+                    nesting_level -= 1
+
+        if endfunction_index is None:
+            results.append(f"❌ Error on line {line_num}: FUNCTION without matching ENDFUNCTION")
+            return start_index + 1
+
+        # Store function definition
+        self.functions[func_name] = {
+            'params': params,
+            'body_start': start_index + 1,
+            'body_end': endfunction_index,
+            'lines': lines
+        }
+
+        results.append(f"✅ Function '{func_name}' defined with {len(params)} parameter(s)")
+
+        return endfunction_index + 1
+
+    def _handle_call(self, line: str) -> str:
+        """
+        Handle CALL command for function execution.
+
+        Syntax: CALL function_name(arg1, arg2, ...)
+
+        Args:
+            line: CALL command line
+
+        Returns:
+            Function return value or success message
+        """
+        # Remove 'CALL ' prefix
+        call_expr = line[5:].strip()
+
+        # Parse function name and arguments
+        if '(' not in call_expr or ')' not in call_expr:
+            return "❌ CALL syntax: CALL function_name(arg1, arg2, ...)"
+
+        paren_pos = call_expr.index('(')
+        func_name = call_expr[:paren_pos].strip()
+        args_str = call_expr[paren_pos+1:call_expr.rindex(')')].strip()
+
+        # Parse arguments (handle quoted strings, variables, etc.)
+        args = []
+        if args_str:
+            # Simple argument parsing (could be enhanced for complex expressions)
+            for arg in args_str.split(','):
+                arg = arg.strip()
+                # Evaluate the argument (could be variable, number, string)
+                if arg.startswith('"') and arg.endswith('"'):
+                    args.append(arg[1:-1])  # String literal
+                elif arg.startswith("'") and arg.endswith("'"):
+                    args.append(arg[1:-1])  # String literal
+                elif arg.isdigit() or (arg.startswith('-') and arg[1:].isdigit()):
+                    args.append(int(arg))  # Integer
+                elif arg.replace('.', '', 1).isdigit():
+                    args.append(float(arg))  # Float
+                else:
+                    # Try to get as variable
+                    try:
+                        args.append(self.get_variable(arg))
+                    except:
+                        args.append(arg)  # Use as-is
+
+        # Check if function exists
+        if func_name not in self.functions:
+            return f"❌ Function '{func_name}' not defined"
+
+        func_def = self.functions[func_name]
+        params = func_def['params']
+
+        # Check argument count
+        if len(args) != len(params):
+            return f"❌ Function '{func_name}' expects {len(params)} argument(s), got {len(args)}"
+
+        # Create new scope for function execution
+        func_scope = VariableScope(parent=self.global_scope)
+
+        # Bind parameters to arguments
+        for param, arg in zip(params, args):
+            func_scope.set(param, arg)
+
+        # Save current scope and switch to function scope
+        prev_scope = self.current_scope
+        self.current_scope = func_scope
+
+        # Execute function body
+        results = []
+        return_value = None
+
+        try:
+            body_lines = func_def['lines'][func_def['body_start']:func_def['body_end']]
+            self._execute_lines(body_lines, results, 0, len(body_lines))
+        except StopIteration as e:
+            # Handle RETURN statement
+            error_msg = str(e)
+            if error_msg.startswith("RETURN:"):
+                return_value = error_msg[7:]  # Extract return value
+        except Exception as e:
+            return_value = f"❌ Error in function '{func_name}': {str(e)}"
+        finally:
+            # Restore previous scope
+            self.current_scope = prev_scope
+
+        # Store return value in special variable (accessible in global scope)
+        if return_value:
+            self.global_scope.set('RETURN_VALUE', return_value)
+            # Perform variable substitution on return value
+            return_value = self.substitute_variables(str(return_value))
+            return f"✅ Function '{func_name}' returned: {return_value}"
+        else:
+            self.global_scope.set('RETURN_VALUE', None)
+            return f"✅ Function '{func_name}' executed"
+
     def execute_line(self, line, line_num=0):
         """
         Execute a single line of uCODE/command.
@@ -689,6 +863,14 @@ class UCodeInterpreter:
         """
         # Substitute variables first
         line = self.substitute_variables(line)
+
+        # Handle CALL command (function calls)
+        if line.upper().startswith('CALL '):
+            return self._handle_call(line)
+
+        # Handle RETURN command (function returns)
+        if line.upper().startswith('RETURN'):
+            raise StopIteration(f"RETURN:{line[6:].strip() if len(line) > 6 else ''}")
 
         # Handle SET command (variable assignment)
         if line.upper().startswith('SET '):
