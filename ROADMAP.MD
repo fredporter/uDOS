@@ -1,5 +1,5 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.14 (uCODE Language Enhancement - In Progress - 30% Complete)
+**Current Version**: v1.0.15 (Human-Centric Documentation & Philosophy - Complete ✅)
 **Last Updated**: 14 November 2025
 
 ---
@@ -21,9 +21,11 @@
 - **v1.0.11** - Extension System (POKE commands, metadata validation, dev tools)
 - **v1.0.12** - Advanced Utilities (Enhanced HELP, BLANK, SETUP with smart features)
 - **v1.0.13** - Theme System Enhancement (Preview, creation, import/export, 100% tests) - ✅ **COMPLETE**
+- **v1.0.14** - uCODE Language Enhancement Part 1 (Variables, conditionals, loops, 32/32 tests) - ✅ **COMPLETE**
+- **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, philosophy, knowledge library) - ✅ **COMPLETE**
 
 ### 📋 Planned Versions
-- **v1.0.14** - uCODE Language Enhancement Part 1 (Variables, conditionals, loops) - 🔄 **IN PROGRESS (30%)**
+- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules, debugger) - 🔄 **IN PROGRESS**
 - **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, uDOS ethos, knowledge architecture) - 📝 **PLANNED**
 - **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - � **DEFERRED**
 - **v1.0.17** - Security & Permissions (Access control, encryption, auditing) - 📝 **DEFERRED**
@@ -739,7 +741,7 @@ The following advanced features are deferred to **v1.0.16 - uCODE Language Enhan
 ---
 
 ## 📚 v1.0.15 - Human-Centric Documentation & Philosophy
-**Status**: 📋 Planned (Next - After v1.0.14)
+**Status**: ✅ Complete (14 November 2025)
 **Focus**: Wiki migration, uDOS ethos, knowledge architecture, human-readable documentation
 
 ### 🎯 Core Philosophy: The People's Operating System
@@ -912,8 +914,8 @@ knowledge/
 ---
 
 ## 🧬 v1.0.16 - uCODE Language Enhancement Part 2
-**Status**: 📋 Planned (Deferred from v1.0.14)
-**Focus**: Advanced scripting capabilities (functions, modules, debugging)
+**Status**: � In Progress (Started: 14 November 2025)
+**Focus**: Advanced scripting capabilities (functions, modules, debugging, templates)
 
 ### Planned Features
 - [ ] **Functions**: Define reusable command blocks with FUNCTION/RETURN/CALL
