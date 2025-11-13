@@ -1,5 +1,5 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.14 (uCODE Language Enhancement - In Progress)
+**Current Version**: v1.0.14 (uCODE Language Enhancement - In Progress - 30% Complete)
 **Last Updated**: 14 November 2025
 
 ---
@@ -23,9 +23,11 @@
 - **v1.0.13** - Theme System Enhancement (Preview, creation, import/export, 100% tests) - ✅ **COMPLETE**
 
 ### 📋 Planned Versions
-- **v1.0.14** - uCODE Language Enhancement (Control flow, functions, debugging) - 🔄 **IN PROGRESS**
-- **v1.0.15** - Security & Permissions (Access control, encryption, auditing)
-- **v1.1.0** - Stable Release (Integration, polish, community launch)
+- **v1.0.14** - uCODE Language Enhancement Part 1 (Variables, conditionals, loops) - 🔄 **IN PROGRESS (30%)**
+- **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, uDOS ethos, knowledge architecture) - 📝 **PLANNED**
+- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - � **DEFERRED**
+- **v1.0.17** - Security & Permissions (Access control, encryption, auditing) - 📝 **DEFERRED**
+- **v1.1.0** - Stable Release (Integration, polish, community launch) - 📝 **FUTURE**
 
 ---
 
@@ -617,33 +619,319 @@ Based on the solid foundation and comprehensive CLI features now available:
 **Documentation**: `docs/releases/v1.0.12-RELEASE-NOTES.md`
 **Status**: Production-ready with comprehensive testing
 
-### 🎭 v1.0.13 - Theme System Enhancement
-**Status**: � In Progress (Started: 8 November 2025)
+---
+
+## 🎭 v1.0.13 - Theme System Enhancement
+**Status**: ✅ Complete (8 November 2025)
 **Focus**: Advanced theming and customization
 
-#### Planned Features
-- [ ] **Theme Preview**: Live preview before applying themes
-- [ ] **Custom Theme Creation**: Guided tools for creating themes
-- [ ] **Theme Sharing**: Export/import and community gallery
-- [ ] **Per-Command Themes**: Different themes for different contexts
-- [ ] **Theme Inheritance**: Component-based theme systems
-- [ ] **Dynamic Switching**: Context-aware theme changes
+### ✅ Completed Features
+- [x] **Theme Preview**: Live preview before applying themes
+- [x] **Custom Theme Creation**: Interactive theme builder wizard
+- [x] **Theme Import/Export**: JSON-based sharing system
+- [x] **Theme Validation**: Comprehensive color and format validation
+- [x] **8 Built-in Themes**: Classic Mac, Cyberpunk, Terminal, Hacker, etc.
+- [x] **Complete Test Suite**: 52 tests with 100% pass rate
 
-### 🧬 v1.0.14 - uCODE Language Enhancement
-**Status**: 📋 Planned
-**Focus**: Advanced scripting capabilities
+### ✅ Key Deliverables
+- [x] **ThemeManager Service**: Complete theme lifecycle management (800+ lines)
+- [x] **THEME Command Suite**: LIST, PREVIEW, CREATE, APPLY, EXPORT, IMPORT
+- [x] **Theme Validator**: Color format and component validation
+- [x] **Interactive Builder**: Step-by-step theme creation wizard
+- [x] **Test Suite**: memory/tests/test_v1_0_13_theme.py (52 tests)
+- [x] **Documentation**: Comprehensive theme system docs
 
-#### Planned Features
-- [ ] **Control Flow**: Loops (FOR, WHILE), conditionals (IF/ELSE)
-- [ ] **Functions**: Define reusable command blocks
-- [ ] **Variables**: Assignment and substitution in scripts
-- [ ] **Modules**: Import/export script libraries
-- [ ] **Error Handling**: Try/catch for robust scripts
+**Documentation**: `docs/releases/v1.0.13-RELEASE-NOTES.md`
+**Status**: Production-ready with 100% test pass rate
+
+---
+
+## 🧬 v1.0.14 - uCODE Language Enhancement Part 1
+**Status**: 🔄 In Progress (Started: 14 November 2025) - **30% Complete**
+**Focus**: Core programming language constructs (variables, control flow)
+
+### ✅ Completed Features (3/10 tasks)
+- [x] **Variables System** (Todo #1):
+  - SET/GET/DELETE/VARS commands
+  - Persistent storage (JSON)
+  - Type conversion (int, float, bool, list, string)
+  - ${var} substitution in all commands
+  - VariableScope class for function scoping
+  - 11/11 tests passing ✅
+
+- [x] **Conditionals** (Todo #2):
+  - IF/ELSE/ENDIF control structures
+  - Comparison operators: ==, !=, <, >, <=, >=
+  - Logical operators: AND, OR, NOT
+  - Parentheses grouping
+  - Nested conditionals
+  - 9/9 tests passing ✅
+
+- [x] **Loops** (Todo #3):
+  - FOR var IN list (iterate collections)
+  - FOR i FROM start TO end (numeric ranges with variable support)
+  - WHILE condition (conditional loops)
+  - BREAK keyword (exit loop early)
+  - CONTINUE keyword (skip iteration)
+  - Nested loops (FOR/WHILE combinations)
+  - 12/12 tests passing ✅
+
+### 📊 Progress Statistics
+- **Test Pass Rate**: 32/32 (100%)
+- **Code Growth**: core/uDOS_ucode.py: 160 → 915 lines (+755 lines, 470% growth)
+- **New Classes**: VariableScope
+- **New Methods**: 25+
+- **Test Scripts**: 3 comprehensive .uscript test files
+- **GitHub Commits**: 4
+
+### 🔄 Deferred Features (7/10 tasks → v1.0.16)
+The following advanced features are deferred to **v1.0.16 - uCODE Language Enhancement Part 2**:
+
+- [ ] **Functions** (Todo #4):
+  - FUNCTION name(params)...RETURN value...ENDFUNCTION
+  - CALL function(args)
+  - Local scopes with parameter binding
+  - Return value handling
+  - Recursive function support
+
+- [ ] **Error Handling** (Todo #5):
+  - TRY...CATCH error...FINALLY...ENDTRY
+  - THROW message
+  - Error type detection
+  - Finally block execution
+  - Nested error handling
+
+- [ ] **Modules** (Todo #6):
+  - IMPORT module and EXPORT variable/function
+  - Standard library modules (string_utils, file_utils, system_utils)
+  - Relative and absolute imports
+  - Circular import detection
+
+- [ ] **Debugger** (Todo #7):
+  - DEBUG <script> command
+  - Breakpoint system (BREAK <line>)
+  - Step commands (STEP, STEP INTO, STEP OUT, CONTINUE)
+  - Variable inspection (INSPECT, WATCH)
+  - Call stack view
+  - Interactive REPL mode
+
+- [ ] **Script Templates** (Todo #8):
+  - Template categories (file ops, system tasks, data processing)
+  - Pre-built automation workflows
+  - Template generator wizard
+
+- [ ] **Advanced Documentation** (Todo #9):
+  - wiki/uCODE-Language-v1.0.14.md (language spec)
+  - wiki/uCODE-Tutorial.md (beginner guide)
+  - docs/releases/v1.0.14-RELEASE-NOTES.md
+
+- [ ] **Comprehensive Test Suite** (Todo #10):
+  - memory/tests/test_v1_0_14_ucode.py (50+ tests)
+  - Integration tests
+  - Edge case coverage
+  - Target: 100% pass rate
+
+**Rationale for Split**: Core control flow (variables, conditionals, loops) provides immediate value for script automation. Advanced features (functions, modules, debugging) require extensive design and will be better served in a dedicated round after documentation consolidation.
+
+**Documentation**: `memory/scripts/test_variables.uscript`, `test_conditionals.uscript`, `test_loops.uscript`
+**Status**: Foundation complete - ready for documentation consolidation phase
+
+---
+
+## 📚 v1.0.15 - Human-Centric Documentation & Philosophy
+**Status**: 📋 Planned (Next - After v1.0.14)
+**Focus**: Wiki migration, uDOS ethos, knowledge architecture, human-readable documentation
+
+### 🎯 Core Philosophy: The People's Operating System
+
+uDOS represents a fundamental shift in computing philosophy - away from bloated commercial systems dependent on proprietary technology, toward a lightweight, fast, human-centric operating system that gives new life to old devices while storing and organizing useful information.
+
+#### The uDOS Mission
+**"Back to Basics, Forward to Freedom"**
+
+uDOS is essentially a **text-only document library and knowledge repository** designed to:
+- ✅ Store vast amounts of useful documentation in Markdown format (minimal footprint)
+- ✅ Remove the "guff" that comes with HTML/modern web bloat
+- ✅ Provide Text/Markdown as the true format for data storage and retrieval
+- ✅ Help humans thrive, survive, be productive and happy
+- ✅ Avoid subjective/divisive topics (politics, corporate, government, history)
+- ✅ Focus on practical knowledge (survival handbook, productivity, well-being)
+- ✅ Teach and empower users rather than exploit them for engagement
+
+#### What uDOS IS
+- 🌱 **Lightweight**: Small memory footprint, runs on old hardware
+- ⚡ **Fast**: Text-only operations, no graphics overhead
+- 📚 **Knowledge-Centric**: Document library and repository
+- 🤝 **Human-Centric**: Designed for user empowerment, not engagement metrics
+- 🎯 **Practical**: Focused on useful, actionable information
+- 🔓 **Open**: GPL v3.0, transparent, community-driven
+- 🧘 **Peaceful**: No arguments, no politics, no corporate agendas
+
+#### What uDOS IS NOT
+- ❌ **Not a social media platform**: No engagement manipulation
+- ❌ **Not politically motivated**: No subjective topic promotion
+- ❌ **Not corporate-driven**: No proprietary lock-in
+- ❌ **Not bloated**: No unnecessary features or graphics
+- ❌ **Not about history**: Focus on present and future utility
+- ❌ **Not about business**: Focus on human well-being
+
+#### Graphics & Visualization Philosophy
+- Graphics/diagrams achieved through **text blocks and ASCII art**
+- **Teletext-style** mosaic rendering for retro visualization
+- **Terminal graphics** using Unicode box-drawing characters
+- **Minimalist approach**: Only what's needed for clarity
+- **Accessibility first**: Works on any terminal, any device
+
+### 📋 Planned Features
+
+#### 1. Wiki Migration & Consolidation
+- [ ] **Migrate all documentation to wiki/** as primary source
+- [ ] **Remove duplicate docs** from other directories
+- [ ] **Establish wiki/ as single source of truth**
+- [ ] **Create consistent structure** across all wiki pages
+- [ ] **Add navigation index** (wiki/README.md as master index)
+
+#### 2. Core Philosophy Documentation
+- [ ] **wiki/Philosophy.md**: Complete uDOS ethos and mission
+- [ ] **wiki/Why-uDOS.md**: Comprehensive explanation of purpose
+- [ ] **wiki/Text-First-Computing.md**: Philosophy of text-only systems
+- [ ] **wiki/Knowledge-Architecture.md**: How uDOS organizes information
+- [ ] **wiki/Human-Centric-Design.md**: Principles of empowerment over engagement
+
+#### 3. Knowledge System Architecture
+- [ ] **Define knowledge categories** (survival, productivity, well-being, skills)
+- [ ] **Establish content guidelines** (what to include/exclude)
+- [ ] **Create foraging strategy** (research/collecting/archiving useful docs)
+- [ ] **Memory library structure** (knowledge/, personal/, system/ organization)
+- [ ] **Content curation workflow** (review, validate, categorize, archive)
+
+#### 4. Content Guidelines & Boundaries
+**Topics uDOS Embraces**:
+- ✅ Survival skills and practical knowledge
+- ✅ Productivity techniques and workflows
+- ✅ Health, well-being, and happiness
+- ✅ Technical skills and learning resources
+- ✅ Creative expression and art
+- ✅ Community building and collaboration
+- ✅ Environmental stewardship
+- ✅ Personal growth and self-improvement
+
+**Topics uDOS Avoids**:
+- ❌ Politics and partisan issues
+- ❌ Corporate marketing and business promotion
+- ❌ Government policies and bureaucracy
+- ❌ Historical debates and revisionism
+- ❌ Divisive social issues
+- ❌ Engagement-driven content (clickbait, outrage)
+- ❌ Consumerism and materialism
+
+#### 5. Documentation Structure
+- [ ] **wiki/README.md**: Master index with category breakdown
+- [ ] **wiki/Getting-Started/**: Onboarding guides for new users
+- [ ] **wiki/Core-Concepts/**: uDOS fundamentals (TIZO, GRID, panels)
+- [ ] **wiki/Commands/**: Complete command reference (human-readable)
+- [ ] **wiki/Workflows/**: Common tasks and automation
+- [ ] **wiki/Knowledge-System/**: Using and contributing to knowledge base
+- [ ] **wiki/Philosophy/**: Why uDOS exists and what it stands for
+- [ ] **wiki/Contributing/**: How to participate in the project
+- [ ] **wiki/FAQ/**: Common questions and concerns
+
+#### 6. Human-Readable Documentation Standards
+- [ ] **Use plain language**: No jargon unless necessary
+- [ ] **Provide examples**: Every concept has working examples
+- [ ] **Include context**: Explain WHY, not just HOW
+- [ ] **Show workflows**: Complete task sequences
+- [ ] **Visual aids**: ASCII diagrams where helpful
+- [ ] **Progressive disclosure**: Start simple, add complexity gradually
+
+#### 7. Knowledge Library Organization
+```
+knowledge/
+├── survival/          # Practical survival skills
+│   ├── first-aid/
+│   ├── food-water/
+│   ├── shelter/
+│   └── tools/
+├── productivity/      # Getting things done
+│   ├── time-management/
+│   ├── workflows/
+│   ├── tools/
+│   └── automation/
+├── well-being/        # Health and happiness
+│   ├── mental-health/
+│   ├── physical-health/
+│   ├── relationships/
+│   └── mindfulness/
+├── skills/            # Technical and creative skills
+│   ├── programming/
+│   ├── writing/
+│   ├── art/
+│   └── music/
+├── environment/       # Environmental knowledge
+│   ├── gardening/
+│   ├── conservation/
+│   ├── renewable-energy/
+│   └── permaculture/
+└── community/         # Building better communities
+    ├── collaboration/
+    ├── conflict-resolution/
+    ├── mutual-aid/
+    └── local-resilience/
+```
+
+#### 8. Foraging & Curation Strategy
+- [ ] **Research protocols**: How to find useful information
+- [ ] **Quality criteria**: What makes documentation valuable
+- [ ] **Validation process**: Verify accuracy and usefulness
+- [ ] **Categorization system**: Tag and organize content
+- [ ] **Archival format**: Standardize Markdown structure
+- [ ] **Update workflow**: Keep knowledge current and relevant
+
+### 🎯 Success Criteria
+- ✅ Wiki is the single source of truth for all documentation
+- ✅ Philosophy and mission clearly articulated
+- ✅ Knowledge architecture defined and implemented
+- ✅ Content guidelines established and documented
+- ✅ Memory library structure organized and populated
+- ✅ All documentation is human-readable and accessible
+- ✅ Navigation is intuitive and comprehensive
+- ✅ Users understand WHY uDOS exists and what it offers
+
+### 📊 Deliverables
+- **10+ wiki pages** documenting philosophy, concepts, and workflows
+- **Knowledge library structure** with clear categories
+- **Content guidelines** for contribution and curation
+- **Foraging strategy** for gathering useful information
+- **Complete migration** of existing docs to wiki
+- **Master index** (wiki/README.md) with full navigation
+
+**Timeline**: 1-2 weeks
+**Priority**: HIGH - Foundation for all future development
+**Dependencies**: v1.0.14 completion
+
+---
+
+## 🧬 v1.0.16 - uCODE Language Enhancement Part 2
+**Status**: 📋 Planned (Deferred from v1.0.14)
+**Focus**: Advanced scripting capabilities (functions, modules, debugging)
+
+### Planned Features
+- [ ] **Functions**: Define reusable command blocks with FUNCTION/RETURN/CALL
+- [ ] **Error Handling**: Try/catch for robust scripts (TRY/CATCH/FINALLY/THROW)
+- [ ] **Modules**: Import/export script libraries with standard library
 - [ ] **Debugging Tools**: Step-through debugger for .uscript files
 - [ ] **Script Templates**: Pre-built automation workflows
+- [ ] **Advanced Documentation**: Complete language specification
+- [ ] **Comprehensive Test Suite**: 50+ tests with 100% pass rate
 
-### 🔒 v1.0.15 - Security & Permissions
-**Status**: 📋 Planned
+**Dependencies**: v1.0.14 (Part 1 foundation), v1.0.15 (Documentation structure)
+**Timeline**: 2-3 weeks
+**Priority**: MEDIUM - Builds on solid foundation
+
+---
+
+## 🔒 v1.0.17 - Security & Permissions
+**Status**: 📋 Planned (Deferred)
 **Focus**: Advanced security and access control
 
 #### Planned Features
