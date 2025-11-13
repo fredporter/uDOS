@@ -1,0 +1,167 @@
+# ====================================
+# Form Validation Template
+# Provides a complete form validation system
+# ====================================
+
+# Import validators module
+IMPORT validators
+
+# ====================================
+# FUNCTION: validate_username
+# ====================================
+FUNCTION validate_username(username)
+    TRY
+        # Check required
+        CALL validate_required(username, "username")
+
+        # Check length
+        CALL length(username)
+        GET RETURN_VALUE
+        SET len = RETURN_VALUE
+
+        CALL is_in_range(len, 3, 20)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Username must be 3-20 characters"
+        ENDIF
+
+        RETURN true
+    CATCH error
+        GET ERROR
+        RETURN ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: validate_email
+# ====================================
+FUNCTION validate_email(email)
+    TRY
+        # Check required
+        CALL validate_required(email, "email")
+
+        # Check contains @
+        CALL contains(email, "@")
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Email must contain @"
+        ENDIF
+
+        # Check contains .
+        CALL contains(email, ".")
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Email must contain domain"
+        ENDIF
+
+        RETURN true
+    CATCH error
+        GET ERROR
+        RETURN ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: validate_password
+# ====================================
+FUNCTION validate_password(password)
+    TRY
+        # Check required
+        CALL validate_required(password, "password")
+
+        # Check length
+        CALL length(password)
+        GET RETURN_VALUE
+        SET len = RETURN_VALUE
+
+        CALL is_in_range(len, 8, 50)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Password must be 8-50 characters"
+        ENDIF
+
+        RETURN true
+    CATCH error
+        GET ERROR
+        RETURN ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: validate_age
+# ====================================
+FUNCTION validate_age(age)
+    TRY
+        # Check required
+        CALL validate_required(age, "age")
+
+        # Check is number
+        CALL is_number(age)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Age must be a number"
+        ENDIF
+
+        # Check range
+        CALL is_in_range(age, 1, 150)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Age must be 1-150"
+        ENDIF
+
+        RETURN true
+    CATCH error
+        GET ERROR
+        RETURN ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: validate_form
+# ====================================
+FUNCTION validate_form(username, email, password, age)
+    SET errors = []
+
+    # Validate username
+    CALL validate_username(username)
+    GET RETURN_VALUE
+    IF RETURN_VALUE != "true"
+        SET errors = APPEND errors WITH RETURN_VALUE
+    ENDIF
+
+    # Validate email
+    CALL validate_email(email)
+    GET RETURN_VALUE
+    IF RETURN_VALUE != "true"
+        SET errors = APPEND errors WITH RETURN_VALUE
+    ENDIF
+
+    # Validate password
+    CALL validate_password(password)
+    GET RETURN_VALUE
+    IF RETURN_VALUE != "true"
+        SET errors = APPEND errors WITH RETURN_VALUE
+    ENDIF
+
+    # Validate age
+    CALL validate_age(age)
+    GET RETURN_VALUE
+    IF RETURN_VALUE != "true"
+        SET errors = APPEND errors WITH RETURN_VALUE
+    ENDIF
+
+    # Check if any errors
+    SET error_count = COUNT errors
+    IF error_count > 0
+        RETURN errors
+    ENDIF
+
+    RETURN "✅ Form is valid"
+ENDFUNCTION
+
+# Export all validation functions
+EXPORT validate_username
+EXPORT validate_email
+EXPORT validate_password
+EXPORT validate_age
+EXPORT validate_form

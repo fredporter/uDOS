@@ -1,0 +1,120 @@
+# ====================================
+# CRUD Application Template
+# Creates a basic CRUD (Create, Read, Update, Delete) application
+# ====================================
+
+# Import required modules
+IMPORT validators
+IMPORT string_utils
+
+# Initialize data storage
+SET items = []
+
+# ====================================
+# FUNCTION: create_item
+# ====================================
+FUNCTION create_item(name, value)
+    TRY
+        # Validate inputs
+        CALL validate_required(name, "name")
+        CALL validate_required(value, "value")
+
+        # Create item
+        SET item = CONCAT name WITH ":" WITH value
+        SET items = APPEND items WITH item
+
+        RETURN "✅ Created item: " + item
+    CATCH error
+        GET ERROR
+        RETURN "❌ Create failed: " + ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: read_item
+# ====================================
+FUNCTION read_item(index)
+    TRY
+        # Validate index
+        CALL is_number(index)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Index must be a number"
+        ENDIF
+
+        # Get item
+        SET item = GET items AT index
+        RETURN "📖 Item: " + item
+    CATCH error
+        GET ERROR
+        RETURN "❌ Read failed: " + ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: update_item
+# ====================================
+FUNCTION update_item(index, new_name, new_value)
+    TRY
+        # Validate index
+        CALL is_number(index)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Index must be a number"
+        ENDIF
+
+        # Validate inputs
+        CALL validate_required(new_name, "name")
+        CALL validate_required(new_value, "value")
+
+        # Update item
+        SET new_item = CONCAT new_name WITH ":" WITH new_value
+        SET items = UPDATE items AT index WITH new_item
+
+        RETURN "✅ Updated item: " + new_item
+    CATCH error
+        GET ERROR
+        RETURN "❌ Update failed: " + ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: delete_item
+# ====================================
+FUNCTION delete_item(index)
+    TRY
+        # Validate index
+        CALL is_number(index)
+        GET RETURN_VALUE
+        IF RETURN_VALUE == "false"
+            THROW "Index must be a number"
+        ENDIF
+
+        # Delete item
+        SET items = REMOVE items AT index
+
+        RETURN "✅ Deleted item at index " + index
+    CATCH error
+        GET ERROR
+        RETURN "❌ Delete failed: " + ERROR
+    ENDTRY
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: list_all
+# ====================================
+FUNCTION list_all()
+    SET count = COUNT items
+    IF count == 0
+        RETURN "📋 No items found"
+    ENDIF
+
+    RETURN "📋 Total items: " + count
+ENDFUNCTION
+
+# Export all CRUD functions
+EXPORT create_item
+EXPORT read_item
+EXPORT update_item
+EXPORT delete_item
+EXPORT list_all

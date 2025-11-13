@@ -1,0 +1,124 @@
+# ====================================
+# Menu System Template
+# Creates an interactive menu system
+# ====================================
+
+# Menu state
+SET current_menu = "main"
+SET running = true
+
+# ====================================
+# FUNCTION: show_main_menu
+# ====================================
+FUNCTION show_main_menu()
+    ECHO "======================================"
+    ECHO "           MAIN MENU"
+    ECHO "======================================"
+    ECHO "1. Option 1"
+    ECHO "2. Option 2"
+    ECHO "3. Settings"
+    ECHO "4. Help"
+    ECHO "0. Exit"
+    ECHO "======================================"
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: show_settings_menu
+# ====================================
+FUNCTION show_settings_menu()
+    ECHO "======================================"
+    ECHO "          SETTINGS"
+    ECHO "======================================"
+    ECHO "1. Change Theme"
+    ECHO "2. Configure Display"
+    ECHO "3. Reset Defaults"
+    ECHO "0. Back to Main Menu"
+    ECHO "======================================"
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: show_help
+# ====================================
+FUNCTION show_help()
+    ECHO "======================================"
+    ECHO "             HELP"
+    ECHO "======================================"
+    ECHO "Navigation:"
+    ECHO "  - Use number keys to select options"
+    ECHO "  - Press 0 to go back or exit"
+    ECHO ""
+    ECHO "Commands:"
+    ECHO "  - CALL show_main_menu() - Display main menu"
+    ECHO "  - CALL show_settings_menu() - Display settings"
+    ECHO "  - SET running = false - Exit program"
+    ECHO "======================================"
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: handle_main_choice
+# ====================================
+FUNCTION handle_main_choice(choice)
+    IF choice == "1"
+        ECHO "✅ Selected Option 1"
+        RETURN "main"
+    ENDIF
+
+    IF choice == "2"
+        ECHO "✅ Selected Option 2"
+        RETURN "main"
+    ENDIF
+
+    IF choice == "3"
+        RETURN "settings"
+    ENDIF
+
+    IF choice == "4"
+        CALL show_help()
+        RETURN "main"
+    ENDIF
+
+    IF choice == "0"
+        ECHO "👋 Goodbye!"
+        RETURN "exit"
+    ENDIF
+
+    ECHO "❌ Invalid choice"
+    RETURN "main"
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: handle_settings_choice
+# ====================================
+FUNCTION handle_settings_choice(choice)
+    IF choice == "1"
+        ECHO "🎨 Theme changed"
+        RETURN "settings"
+    ENDIF
+
+    IF choice == "2"
+        ECHO "📺 Display configured"
+        RETURN "settings"
+    ENDIF
+
+    IF choice == "3"
+        ECHO "🔄 Defaults reset"
+        RETURN "settings"
+    ENDIF
+
+    IF choice == "0"
+        RETURN "main"
+    ENDIF
+
+    ECHO "❌ Invalid choice"
+    RETURN "settings"
+ENDFUNCTION
+
+# Export all menu functions
+EXPORT show_main_menu
+EXPORT show_settings_menu
+EXPORT show_help
+EXPORT handle_main_choice
+EXPORT handle_settings_choice
