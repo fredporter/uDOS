@@ -964,6 +964,14 @@ class UCodeInterpreter:
         # Substitute variables first
         line = self.substitute_variables(line)
 
+        # Handle IMPORT command (module imports)
+        if line.upper().startswith('IMPORT '):
+            return self._handle_import(line)
+
+        # Handle EXPORT command (module exports)
+        if line.upper().startswith('EXPORT '):
+            return self._handle_export(line)
+
         # Handle CALL command (function calls)
         if line.upper().startswith('CALL '):
             return self._handle_call(line)
@@ -1128,6 +1136,116 @@ class UCodeInterpreter:
         lines.append(f"Total: {len(variables)} variable(s)")
 
         return "\n".join(lines)
+
+    def _handle_import(self, line: str) -> str:
+        """Handle IMPORT command for module loading."""
+        import_path = line[7:].strip()
+        if not import_path:
+            return "❌ IMPORT syntax: IMPORT module_name or IMPORT path/to/module.uscript"
+        
+        # Check if importing specific item
+        specific_item = None
+        if '.' in import_path and not import_path.startswith('.') and not import_path.endswith('.uscript'):
+            parts = import_path.rsplit('.', 1)
+            import_path = parts[0]
+            specific_item = parts[1]
+        
+        # Resolve module path
+        module_path = self._resolve_module_path(import_path)
+        if not module_path or not os.path.exists(module_path):
+            return f"❌ Module not found: {import_path}"
+        
+        # Check for circular imports
+        if module_path in self.imported_modules:
+            return f"⚠️  Module already imported: {import_path}"
+        
+        # Execute module
+        try:
+            with open(module_path, 'r') as f:
+                module_lines = [line.rstrip() for line in f.readlines()]
+            
+            module_exports = {'functions': {}, 'variables': {}}
+            results = []
+            module_interpreter = UCodeInterpreter(
+                command_handler=self.command_handler,
+                parser=self.parser,
+                grid=self.grid
+            )
+            module_interpreter._execute_lines(module_lines, results, 0, len(module_lines))
+            
+            if hasattr(module_interpreter, '_exports'):
+                module_exports = module_interpreter._exports
+            else:
+                module_exports['functions'] = module_interpreter.functions.copy()
+            
+            # Import items
+            if specific_item:
+                if specific_item in module_exports['functions']:
+                    self.functions[specific_item] = module_exports['functions'][specific_item]
+                    return f"✅ Imported function '{specific_item}' from {import_path}"
+                elif specific_item in module_exports['variables']:
+                    self.global_scope.set(specific_item, module_exports['variables'][specific_item])
+                    return f"✅ Imported variable '{specific_item}' from {import_path}"
+                else:
+                    return f"❌ Item '{specific_item}' not found in module {import_path}"
+            else:
+                func_count = 0
+                for name, func_def in module_exports['functions'].items():
+                    self.functions[name] = func_def
+                    func_count += 1
+                var_count = 0
+                for name, value in module_exports['variables'].items():
+                    self.global_scope.set(name, value)
+                    var_count += 1
+                self.imported_modules[module_path] = module_exports
+                return f"✅ Imported module {import_path} ({func_count} function(s), {var_count} variable(s))"
+        except Exception as e:
+            return f"❌ Error importing module {import_path}: {str(e)}"
+    
+    def _handle_export(self, line: str) -> str:
+        """Handle EXPORT command for marking items as exportable."""
+        item_name = line[7:].strip()
+        if not item_name:
+            return "❌ EXPORT syntax: EXPORT function_name or EXPORT variable_name"
+        
+        if not hasattr(self, '_exports'):
+            self._exports = {'functions': {}, 'variables': {}}
+        
+        if item_name in self.functions:
+            self._exports['functions'][item_name] = self.functions[item_name]
+            return f"✅ Exported function '{item_name}'"
+        
+        if self.global_scope.has(item_name):
+            self._exports['variables'][item_name] = self.global_scope.get(item_name)
+            return f"✅ Exported variable '{item_name}'"
+        
+        return f"⚠️  '{item_name}' not found (export will apply when defined)"
+    
+    def _resolve_module_path(self, import_path: str) -> Optional[str]:
+        """Resolve module import path to actual file path."""
+        if import_path.endswith('.uscript'):
+            if os.path.isabs(import_path):
+                return import_path
+            else:
+                return os.path.abspath(import_path)
+        
+        stdlib_paths = [
+            f"memory/modules/{import_path}.uscript",
+            f"memory/modules/stdlib/{import_path}.uscript",
+            f"examples/modules/{import_path}.uscript"
+        ]
+        
+        for path in stdlib_paths:
+            if os.path.exists(path):
+                return os.path.abspath(path)
+        
+        if import_path.startswith('./') or import_path.startswith('../'):
+            path = os.path.abspath(import_path + '.uscript')
+            if os.path.exists(path):
+                return path
+        
+        return None
+
 
     def _execute_ucode(self, ucode):
         """

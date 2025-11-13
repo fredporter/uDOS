@@ -1,0 +1,55 @@
+# Math Utils Library Module
+# Provides basic math utility functions
+
+# Square function
+FUNCTION square(n)
+  SET result = ${n} * ${n}
+  RETURN ${result}
+ENDFUNCTION
+
+# Cube function
+FUNCTION cube(n)
+  SET result = ${n} * ${n} * ${n}
+  RETURN ${result}
+ENDFUNCTION
+
+# Absolute value function
+FUNCTION abs(n)
+  IF ${n} < 0
+    SET result = 0 - ${n}
+    RETURN ${result}
+  ELSE
+    RETURN ${n}
+  ENDIF
+ENDFUNCTION
+
+# Maximum of two numbers
+FUNCTION max(a, b)
+  IF ${a} > ${b}
+    RETURN ${a}
+  ELSE
+    RETURN ${b}
+  ENDIF
+ENDFUNCTION
+
+# Minimum of two numbers
+FUNCTION min(a, b)
+  IF ${a} < ${b}
+    RETURN ${a}
+  ELSE
+    RETURN ${b}
+  ENDIF
+ENDFUNCTION
+
+# Constants
+SET PI = 3.14159
+SET E = 2.71828
+
+# Export all functions
+EXPORT square
+EXPORT cube
+EXPORT abs
+EXPORT max
+EXPORT min
+EXPORT PI
+EXPORT E
