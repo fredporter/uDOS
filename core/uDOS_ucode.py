@@ -232,9 +232,100 @@ class UCodeInterpreter:
 
         return re.sub(r'\$\{(\w+)\}', replacer, text)
 
+    def evaluate_condition(self, condition: str) -> bool:
+        """
+        Evaluate a conditional expression.
+
+        Supports:
+        - Comparison: ==, !=, <, >, <=, >=
+        - Logical: AND, OR, NOT
+        - Parentheses for grouping
+
+        Args:
+            condition: Conditional expression
+
+        Returns:
+            Boolean result
+        """
+        # Substitute variables first
+        condition = self.substitute_variables(condition)
+
+        # Handle NOT operator
+        if condition.strip().upper().startswith('NOT '):
+            inner = condition.strip()[4:]
+            return not self.evaluate_condition(inner)
+
+        # Handle OR operator (lowest precedence)
+        if ' OR ' in condition.upper():
+            parts = re.split(r'\s+OR\s+', condition, flags=re.IGNORECASE)
+            return any(self.evaluate_condition(part) for part in parts)
+
+        # Handle AND operator
+        if ' AND ' in condition.upper():
+            parts = re.split(r'\s+AND\s+', condition, flags=re.IGNORECASE)
+            return all(self.evaluate_condition(part) for part in parts)
+
+        # Handle parentheses
+        if '(' in condition:
+            # Simple parentheses handling (not full recursive)
+            condition = re.sub(r'\(([^)]+)\)',
+                             lambda m: str(self.evaluate_condition(m.group(1))),
+                             condition)
+
+        # Handle comparison operators
+        for op, func in [
+            ('==', lambda a, b: a == b),
+            ('!=', lambda a, b: a != b),
+            ('<=', lambda a, b: self._compare_values(a, b) <= 0),
+            ('>=', lambda a, b: self._compare_values(a, b) >= 0),
+            ('<', lambda a, b: self._compare_values(a, b) < 0),
+            ('>', lambda a, b: self._compare_values(a, b) > 0),
+        ]:
+            if op in condition:
+                parts = condition.split(op, 1)
+                if len(parts) == 2:
+                    left = self._parse_value(parts[0].strip())
+                    right = self._parse_value(parts[1].strip())
+                    return func(left, right)
+
+        # Single value (truthy check)
+        value = self._parse_value(condition.strip())
+        return bool(value)
+
+    def _parse_value(self, value_str: str) -> Any:
+        """Parse a value string to its actual type."""
+        # Try to get as variable
+        if value_str.isidentifier():
+            var_value = self.get_variable(value_str)
+            if var_value is not None:
+                return var_value
+
+        # Convert literal value
+        return self._convert_value(value_str)
+
+    def _compare_values(self, a: Any, b: Any) -> int:
+        """
+        Compare two values.
+
+        Returns:
+            -1 if a < b, 0 if a == b, 1 if a > b
+        """
+        # Convert to comparable types
+        if isinstance(a, str) and isinstance(b, str):
+            return -1 if a < b else (1 if a > b else 0)
+
+        # Try numeric comparison
+        try:
+            a_num = float(a) if not isinstance(a, (int, float)) else a
+            b_num = float(b) if not isinstance(b, (int, float)) else b
+            return -1 if a_num < b_num else (1 if a_num > b_num else 0)
+        except (ValueError, TypeError):
+            # Fallback to string comparison
+            return -1 if str(a) < str(b) else (1 if str(a) > str(b) else 0)
+
     def execute_script(self, script_path):
         """
-        Execute a .uscript file.
+        Execute a .uscript file with control flow support.
 
         Args:
             script_path: Path to .uscript file
@@ -247,22 +338,56 @@ class UCodeInterpreter:
 
         # Read script file
         with open(script_path, 'r') as f:
-            lines = f.readlines()
+            lines = [line.rstrip() for line in f.readlines()]
 
         results = []
         results.append(f"📜 Executing script: {script_path}")
         results.append("=" * 60)
 
-        line_num = 0
-        for line in lines:
-            line_num += 1
-            line = line.strip()
+        # Execute with control flow
+        try:
+            self._execute_lines(lines, results, start_index=0)
+        except Exception as e:
+            results.append(f"\n❌ Script execution error: {str(e)}")
+
+        results.append("\n" + "=" * 60)
+        results.append(f"✅ Script execution complete")
+
+        return "\n".join(results)
+
+    def _execute_lines(self, lines: List[str], results: List[str],
+                      start_index: int = 0, end_index: Optional[int] = None) -> int:
+        """
+        Execute a block of lines with control flow support.
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Starting line index
+            end_index: Ending line index (None = end of file)
+
+        Returns:
+            Index of last executed line
+        """
+        if end_index is None:
+            end_index = len(lines)
+
+        i = start_index
+        while i < end_index:
+            line = lines[i].strip()
+            line_num = i + 1
 
             # Skip empty lines and comments
             if not line or line.startswith('#'):
+                i += 1
                 continue
 
-            # Execute command
+            # Handle IF statements
+            if line.upper().startswith('IF '):
+                i = self._handle_if_block(lines, results, i, end_index)
+                continue
+
+            # Execute regular command
             try:
                 result = self.execute_line(line, line_num)
                 if result:
@@ -271,14 +396,76 @@ class UCodeInterpreter:
             except Exception as e:
                 error_msg = f"❌ Error on line {line_num}: {str(e)}\n   Command: {line}"
                 results.append(error_msg)
-                # Continue execution unless critical error
                 if "critical" in str(e).lower():
                     break
 
-        results.append("\n" + "=" * 60)
-        results.append(f"✅ Script execution complete")
+            i += 1
 
-        return "\n".join(results)
+        return i
+
+    def _handle_if_block(self, lines: List[str], results: List[str],
+                        start_index: int, end_index: int) -> int:
+        """
+        Handle IF/ELSE/ENDIF block.
+
+        Args:
+            lines: List of script lines
+            results: Results accumulator
+            start_index: Index of IF line
+            end_index: End boundary
+
+        Returns:
+            Index after ENDIF
+        """
+        if_line = lines[start_index].strip()
+        line_num = start_index + 1
+
+        # Parse condition from "IF condition THEN" or "IF condition"
+        condition_text = if_line[3:].strip()  # Remove "IF "
+        if condition_text.upper().endswith(' THEN'):
+            condition_text = condition_text[:-5].strip()
+
+        # Evaluate condition
+        try:
+            condition_result = self.evaluate_condition(condition_text)
+        except Exception as e:
+            results.append(f"❌ Error evaluating condition on line {line_num}: {str(e)}")
+            condition_result = False
+
+        # Find ELSE and ENDIF
+        else_index = None
+        endif_index = None
+        nesting_level = 0
+
+        for i in range(start_index + 1, end_index):
+            line = lines[i].strip().upper()
+
+            if line.startswith('IF '):
+                nesting_level += 1
+            elif line == 'ELSE' and nesting_level == 0 and else_index is None:
+                else_index = i
+            elif line == 'ENDIF':
+                if nesting_level == 0:
+                    endif_index = i
+                    break
+                else:
+                    nesting_level -= 1
+
+        if endif_index is None:
+            results.append(f"❌ Error on line {line_num}: IF without matching ENDIF")
+            return start_index + 1
+
+        # Execute appropriate block
+        if condition_result:
+            # Execute IF block
+            block_end = else_index if else_index else endif_index
+            self._execute_lines(lines, results, start_index + 1, block_end)
+        elif else_index is not None:
+            # Execute ELSE block
+            self._execute_lines(lines, results, else_index + 1, endif_index)
+
+        # Return index after ENDIF
+        return endif_index + 1
 
     def execute_line(self, line, line_num=0):
         """
