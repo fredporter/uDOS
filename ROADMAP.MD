@@ -1,6 +1,6 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.13 (Theme System Enhancement - In Progress)
-**Last Updated**: 8 November 2025
+**Current Version**: v1.0.14 (uCODE Language Enhancement - In Progress)
+**Last Updated**: 14 November 2025
 
 ---
 
@@ -20,10 +20,10 @@
 - **v1.0.10** - Typography System (Classic Mac fonts, 8 themes, NES.css)
 - **v1.0.11** - Extension System (POKE commands, metadata validation, dev tools)
 - **v1.0.12** - Advanced Utilities (Enhanced HELP, BLANK, SETUP with smart features)
+- **v1.0.13** - Theme System Enhancement (Preview, creation, import/export, 100% tests) - ✅ **COMPLETE**
 
 ### 📋 Planned Versions
-- **v1.0.13** - Theme System Enhancement (Preview, creation tools, community gallery) - 🔄 **IN PROGRESS**
-- **v1.0.14** - uCODE Language Enhancement (Control flow, functions, debugging)
+- **v1.0.14** - uCODE Language Enhancement (Control flow, functions, debugging) - 🔄 **IN PROGRESS**
 - **v1.0.15** - Security & Permissions (Access control, encryption, auditing)
 - **v1.1.0** - Stable Release (Integration, polish, community launch)
 
