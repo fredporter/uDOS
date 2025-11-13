@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.6** - A Human-Readable CLI Framework with AI Integration and Modern Terminal Features
+**uDOS v1.0.13** - A Human-Readable CLI Framework with AI Integration and Modern Terminal Features
 
-> 🔮 *Building a better command-line experience, one spell at a time.*
+> 🎨 *Building a better command-line experience, one theme at a time.*
 
 ---
 
@@ -13,11 +13,24 @@
 | [Quick Start](Quick-Start) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
 | [Installation](Installation) | [Architecture](Architecture) | [Mapping System](Mapping-System) |
 | [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Extensions System](Extensions-System) |
-| [Tutorials](Tutorials) | [Development History](Development-History) | [Latest Development](Latest-Development) |
+| [Tutorials](Tutorials) | [Development History](Development-History) | [Theme System](Theme-System) ⭐ NEW |
 
 ---
 
-## 🎨 NEW in v1.0.10 - Extensions & Retro Computing
+## 🎨 NEW in v1.0.13 - Theme System Enhancement
+
+- **Interactive Theme Creator** - Step-by-step wizard for custom themes
+- **4 Starter Templates** - Minimal, Dark Modern, Light Professional, High Contrast
+- **Theme Preview** - See themes before switching
+- **Import/Export** - Share themes with .udostheme format
+- **Validation & Safety** - Auto-fix and comprehensive checks
+- **10+ New Commands** - Complete theme management suite
+
+[🔗 Explore Theme System →](Theme-System) | [🔗 Release Notes v1.0.13 →](Release-v1.0.13)
+
+---
+
+## 🎨 Extensions & Retro Computing (v1.0.10)
 
 - **Bundled Web Extensions** - Native dashboard, System 7 desktop, teletext interface
 - **External Framework Integration** - Classicy (Mac OS 8), C64 CSS3, NES.css

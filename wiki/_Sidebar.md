@@ -29,6 +29,7 @@
 ### 🎨 Styling & UI
 - [Style Guide](Style-Guide)
 - [CSS Frameworks](CSS-Framework-Integration)
+- [Theme System](Theme-System) ⭐ NEW
 - [Themes & Layouts](Themes-Layouts)
 
 ### 🛠️ Development
@@ -49,7 +50,8 @@
 - [Troubleshooting](Troubleshooting)
 - [Changelog](Changelog)
 - [Roadmap](Roadmap)
+- [Release v1.0.13](Release-v1.0.13) ⭐ NEW
 
 ---
 
-**v1.0.0** 🔮
+**v1.0.13** 🎨
