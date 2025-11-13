@@ -798,6 +798,291 @@ SAVE "[Tab]                  → Shows panel names
 
 ---
 
+## Advanced Features (v1.0.16+)
+
+### Functions
+
+Define reusable code blocks with parameters and return values.
+
+**Syntax:**
+```ucode
+FUNCTION function_name(param1, param2)
+  # Function body
+  # Use parameters as variables
+  RETURN value
+ENDFUNCTION
+```
+
+**Examples:**
+```ucode
+# Simple function
+FUNCTION greet(name)
+  SET message = "Hello, " + name
+  RETURN message
+ENDFUNCTION
+
+# Call function
+CALL greet("Alice")
+GET RETURN_VALUE
+# RETURN_VALUE = "Hello, Alice"
+
+# Function with math
+FUNCTION calculate_total(price, quantity)
+  SET total = price * quantity
+  RETURN total
+ENDFUNCTION
+
+CALL calculate_total(10, 5)
+GET RETURN_VALUE
+# RETURN_VALUE = 50
+
+# Nested function calls
+FUNCTION double(n)
+  RETURN n * 2
+ENDFUNCTION
+
+FUNCTION quadruple(n)
+  CALL double(n)
+  GET RETURN_VALUE
+  SET doubled = RETURN_VALUE
+  CALL double(doubled)
+  RETURN RETURN_VALUE
+ENDFUNCTION
+```
+
+**Features:**
+- Local scope for variables
+- Parameter passing by value
+- Return values via `RETURN_VALUE` variable
+- Nested function calls supported
+- Functions stored in `self.functions` registry
+
+### Error Handling
+
+Structured exception handling with try/catch/finally blocks.
+
+**Syntax:**
+```ucode
+TRY
+  # Code that might fail
+CATCH error_variable
+  # Error handling code
+  # Access ERROR and ERROR_TYPE variables
+FINALLY
+  # Always executes (optional)
+ENDTRY
+```
+
+**Examples:**
+```ucode
+# Basic error handling
+TRY
+  SET result = dangerous_operation()
+CATCH err
+  GET ERROR
+  ECHO "Error occurred: " + ERROR
+ENDTRY
+
+# With FINALLY
+TRY
+  OPEN "file.txt"
+  READ content
+CATCH err
+  ECHO "Failed to read file"
+FINALLY
+  CLOSE "file.txt"
+ENDTRY
+
+# Throwing errors
+FUNCTION divide(a, b)
+  IF b == 0
+    THROW "Division by zero"
+  ENDIF
+  RETURN a / b
+ENDFUNCTION
+
+TRY
+  CALL divide(10, 0)
+CATCH err
+  GET ERROR
+  ECHO "Caught: " + ERROR
+  # ERROR = "Division by zero"
+ENDTRY
+
+# Nested try blocks
+TRY
+  TRY
+    THROW "Inner error"
+  CATCH inner
+    ECHO "Caught inner error"
+    THROW "Outer error"
+  ENDTRY
+CATCH outer
+  GET ERROR
+  ECHO "Caught outer: " + ERROR
+ENDTRY
+```
+
+**Special Variables:**
+- `ERROR` - Error message string
+- `ERROR_TYPE` - Exception class name
+
+### Module System
+
+Import and export code between scripts for code reuse.
+
+**Syntax:**
+```ucode
+# In module file (e.g., math_utils.uscript)
+FUNCTION square(n)
+  RETURN n * n
+ENDFUNCTION
+
+EXPORT square
+
+# In script file
+IMPORT math_utils
+CALL square(5)
+GET RETURN_VALUE
+# RETURN_VALUE = 25
+```
+
+**Import Variants:**
+```ucode
+# Import entire module
+IMPORT module_name
+# All exported functions and variables available
+
+# Selective import
+IMPORT module_name.function_name
+# Only specific function imported
+
+# From different paths
+IMPORT stdlib/math_utils
+IMPORT ./local_module
+IMPORT examples/modules/demo
+```
+
+**Module Resolution:**
+1. `memory/modules/module_name.uscript`
+2. `memory/modules/stdlib/module_name.uscript`
+3. `examples/modules/module_name.uscript`
+4. Relative paths: `./path/to/module.uscript`
+
+**Export Examples:**
+```ucode
+# Export functions
+FUNCTION add(a, b)
+  RETURN a + b
+ENDFUNCTION
+
+FUNCTION subtract(a, b)
+  RETURN a - b
+ENDFUNCTION
+
+EXPORT add
+EXPORT subtract
+
+# Export variables
+SET PI = 3.14159
+SET E = 2.71828
+
+EXPORT PI
+EXPORT E
+```
+
+**Standard Library Modules:**
+
+**math_utils** - Mathematical operations:
+```ucode
+IMPORT math_utils
+
+CALL square(5)      # Returns 25
+CALL cube(3)        # Returns 27
+CALL abs(-10)       # Returns 10
+CALL max(15, 7)     # Returns 15
+CALL min(15, 7)     # Returns 7
+GET PI              # 3.14159
+GET E               # 2.71828
+```
+
+**string_utils** - String manipulation:
+```ucode
+IMPORT string_utils
+
+CALL upper("hello")           # Returns "HELLO"
+CALL lower("WORLD")           # Returns "world"
+CALL trim("  text  ")         # Returns "text"
+CALL length("hello")          # Returns 5
+CALL contains("hello", "ell") # Returns true
+```
+
+**list_utils** - List operations:
+```ucode
+IMPORT list_utils
+
+CALL first([1,2,3])           # Returns 1
+CALL last([1,2,3])            # Returns 3
+CALL count([1,2,3])           # Returns 3
+CALL reverse([1,2,3])         # Returns [3,2,1]
+CALL contains([1,2,3], 2)     # Returns true
+```
+
+**validators** - Input validation:
+```ucode
+IMPORT validators
+
+CALL is_number("123")          # Returns true
+CALL is_positive("5")          # Returns true
+CALL is_in_range("10", 1, 20)  # Returns true
+CALL validate_required("", "name") # Throws error
+```
+
+**Circular Import Prevention:**
+- Modules are tracked in `self.imported_modules`
+- Re-importing returns cached version
+- Prevents infinite import loops
+
+### Templates
+
+Reusable script templates for common patterns.
+
+**Available Templates:**
+
+**crud_app.uscript** - CRUD operations:
+```ucode
+IMPORT data/templates/crud_app
+
+CALL create_item("Task 1", "Description")
+CALL read_item(0)
+CALL update_item(0, "Task 1", "Updated")
+CALL delete_item(0)
+CALL list_all()
+```
+
+**form_validation.uscript** - Form validation:
+```ucode
+IMPORT data/templates/form_validation
+
+CALL validate_username("alice123")
+CALL validate_email("alice@example.com")
+CALL validate_password("secure123")
+CALL validate_age("25")
+CALL validate_form("alice123", "alice@example.com", "secure123", "25")
+```
+
+**menu_system.uscript** - Interactive menus:
+```ucode
+IMPORT data/templates/menu_system
+
+CALL show_main_menu()
+CALL handle_main_choice("1")
+CALL show_settings_menu()
+CALL handle_settings_choice("2")
+```
+
+---
+
 ## Best Practices
 
 ### Script Organization
