@@ -1,6 +1,8 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.15 (Human-Centric Documentation & Philosophy - Complete ✅)
+**Current Version**: v1.0.16 (uCODE Part 2: Advanced Features - 80% Complete 🔄)
 **Last Updated**: 14 November 2025
+
+**Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
 
 ---
 
@@ -25,11 +27,13 @@
 - **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, philosophy, knowledge library) - ✅ **COMPLETE**
 
 ### 📋 Planned Versions
-- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules, debugger) - 🔄 **IN PROGRESS**
-- **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, uDOS ethos, knowledge architecture) - 📝 **PLANNED**
-- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - � **DEFERRED**
-- **v1.0.17** - Security & Permissions (Access control, encryption, auditing) - 📝 **DEFERRED**
-- **v1.1.0** - Stable Release (Integration, polish, community launch) - 📝 **FUTURE**
+- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - 🔄 **IN PROGRESS** (80% complete)
+- **v1.0.17** - Interactive Debugger & Developer Tools - 📝 **PLANNED**
+- **v1.0.18** - Web POKE Adventures System - 📝 **PLANNED**
+- **v1.0.19** - Documentation & Wiki Completion - 📝 **PLANNED**
+- **v1.0.20** - Final Polish & Integration - 📝 **PLANNED**
+- **v1.1.0** - Stable Release (Community launch, integration testing) - 📝 **FUTURE**
+- **v1.1.x** - Advanced Features (Security, networking, sharing, NFT, encryption) - 📝 **FUTURE**
 
 ---
 
@@ -975,12 +979,12 @@ knowledge/
 
 ### 🔄 Remaining Features (2/10 - 20%)
 
-#### 9. Interactive Debugger (DEFERRED to v1.0.17)
+#### 9. Interactive Debugger (MOVED to v1.0.17)
 - [ ] DEBUG command with breakpoints
 - [ ] Step commands (STEP, STEP INTO, STEP OUT)
 - [ ] Variable inspection (INSPECT, WATCH)
 - [ ] Call stack display
-- **Note**: Complex feature, deferred for focused implementation in next version
+- **Note**: Complex feature moved to dedicated v1.0.17 round for focused implementation
 
 #### 10. Release Documentation (In Progress)
 - [ ] v1.0.16-RELEASE-NOTES.md
@@ -988,42 +992,677 @@ knowledge/
 - [ ] Migration guide
 
 **Dependencies**: v1.0.14, v1.0.15
-**Timeline**: 2-3 weeks
-**Priority**: MEDIUM
+**Timeline**: November 2025 (80% complete)
+**Priority**: HIGH - Core language features complete
 
 ---
 
-## 🔒 v1.0.17 - Security & Permissions
-**Status**: 📋 Planned (Deferred)
-**Focus**: Advanced security and access control
+## 🐛 v1.0.17 - Interactive Debugger & Developer Tools
+**Status**: 📋 Planned (December 2025)
+**Focus**: Complete uCODE debugging system with professional developer tools
+
+### Planned Features (10 tasks)
+
+#### 1. Core Debugger System
+- [ ] **DEBUG Command**: Enter interactive debugger mode
+- [ ] **Breakpoints**: Set/remove breakpoints by line number
+- [ ] **Step Execution**: STEP, STEP INTO, STEP OUT, CONTINUE commands
+- [ ] **Variable Inspector**: INSPECT command with watch expressions
+- [ ] **Call Stack**: View function call hierarchy with STACK command
+- [ ] **Execution Context**: Show current line, scope, and state
+
+#### 2. Advanced Debugging Features
+- [ ] **Conditional Breakpoints**: Break when condition is true
+- [ ] **Watch Expressions**: Auto-evaluate expressions on each step
+- [ ] **Variable Modification**: Change variable values during debugging
+- [ ] **Time-Travel Debugging**: Step backwards through execution
+- [ ] **Debug Sessions**: Save/load debugging sessions
+- [ ] **Performance Profiling**: Execution time analysis per line/function
+
+#### 3. Developer Tools Integration
+- [ ] **VSCode Extension**: uCODE syntax highlighting and debugging
+- [ ] **Language Server**: Autocomplete, go-to-definition, hover info
+- [ ] **Linting**: Static analysis for common uCODE errors
+- [ ] **Code Formatting**: Auto-format uCODE scripts
+- [ ] **Refactoring Tools**: Rename variables, extract functions
+- [ ] **Test Runner Integration**: Run tests from editor
+
+#### 4. Error Reporting Enhancements
+- [ ] **Stack Traces**: Detailed error traces with line numbers
+- [ ] **Error Suggestions**: Helpful hints for common mistakes
+- [ ] **Warnings System**: Non-fatal issues detection
+- [ ] **Error Recovery**: Continue execution after errors
+- [ ] **Error Logs**: Persistent error history
+- [ ] **Debug Symbols**: Symbol table for better error messages
+
+#### 5. Testing Framework
+- [ ] **ASSERT Command**: Built-in assertions for testing
+- [ ] **TEST Blocks**: Structured test definitions
+- [ ] **Test Runner**: Execute test suites with reporting
+- [ ] **Mocking System**: Mock functions and modules for testing
+- [ ] **Coverage Analysis**: Track code coverage metrics
+- [ ] **Continuous Testing**: Auto-run tests on file changes
+
+#### 6. Performance Tools
+- [ ] **Benchmarking**: BENCHMARK command for performance testing
+- [ ] **Memory Profiling**: Track memory usage per script
+- [ ] **Execution Timing**: Detailed timing breakdowns
+- [ ] **Optimization Hints**: Suggestions for performance improvements
+- [ ] **Resource Monitoring**: CPU, memory, I/O tracking
+- [ ] **Performance Reports**: Generate detailed performance reports
+
+#### 7. Documentation Tools
+- [ ] **Doc Comments**: Structured documentation in uCODE
+- [ ] **Doc Generator**: Auto-generate documentation from scripts
+- [ ] **API Documentation**: Function signature and usage docs
+- [ ] **Example Extractor**: Pull examples from doc comments
+- [ ] **Changelog Generator**: Track script changes over time
+- [ ] **Usage Analytics**: Track which functions are most used
+
+#### 8. REPL Enhancements
+- [ ] **Interactive Shell**: Enhanced uCODE REPL with history
+- [ ] **Multiline Editing**: Edit complex expressions interactively
+- [ ] **Syntax Highlighting**: Color-coded REPL output
+- [ ] **Autocomplete**: Tab completion for variables/functions
+- [ ] **Help Integration**: Inline help in REPL
+- [ ] **Session Save/Load**: Persist REPL sessions
+
+#### 9. Debugging UI
+- [ ] **TUI Debugger**: Full-screen terminal UI for debugging
+- [ ] **Variable Panel**: Live variable display during execution
+- [ ] **Code Panel**: Source code with current line highlighted
+- [ ] **Output Panel**: Script output separate from debug info
+- [ ] **Command Palette**: Quick access to debug commands
+- [ ] **Keyboard Shortcuts**: Efficient debugging navigation
+
+#### 10. Test Suite & Documentation
+- [ ] **test_v1_0_17_debugger.py**: 40+ tests for all debug features
+- [ ] **Debugger Guide**: Comprehensive debugging documentation
+- [ ] **Developer Handbook**: Best practices for uCODE development
+- [ ] **Video Tutorials**: Screen recordings of debugging workflows
+- [ ] **Example Debug Sessions**: Real-world debugging scenarios
+- [ ] **Wiki Updates**: Debugger section in uCODE-Language.md
+
+**Success Metrics**:
+- 100% test coverage for debugger features
+- <100ms debugger command response time
+- VSCode extension published to marketplace
+- Complete developer documentation
+
+---
+
+## 🎮 v1.0.18 - Web POKE Adventures System
+**Status**: 📋 Planned (January 2026)
+**Focus**: Standalone desktop web server with game-like interactive adventures using detailed variable systems
+
+### Planned Features (10 tasks)
+
+#### 1. Standalone Desktop Web Server
+- [ ] **Desktop Web App**: Standalone Electron/Tauri app with embedded web server
+- [ ] **POKE DESKTOP Command**: Launch desktop web interface
+- [ ] **Auto Port Management**: Automatic port selection and conflict resolution
+- [ ] **System Tray Integration**: Background server with tray icon
+- [ ] **Auto-Launch**: Start server on system boot (optional)
+- [ ] **Performance Mode**: Lightweight server for resource efficiency
+
+#### 2. Enhanced Variable System for Adventures
+- [ ] **Typed Variables**: STRING, NUMBER, BOOLEAN, LIST, DICT, OBJECT types
+- [ ] **Variable Persistence**: Save/load variable state between sessions
+- [ ] **Global Variables**: Shared state across adventure modules
+- [ ] **Local Scopes**: Function and block-level variable isolation
+- [ ] **Variable Arrays**: Multi-dimensional array support
+- [ ] **Variable Expressions**: Complex expressions with operators
+- [ ] **Type Coercion**: Automatic type conversion where safe
+
+#### 3. Game-Like Conditional Logic
+- [ ] **Complex Conditionals**: Nested IF/ELSE with AND/OR/NOT operators
+- [ ] **SWITCH/CASE**: Multi-way branching for cleaner logic
+- [ ] **State Machines**: Formal state management for adventures
+- [ ] **Event System**: Trigger-based actions and reactions
+- [ ] **Timers**: Time-based events and delays
+- [ ] **Random Events**: Probability-based outcomes
+- [ ] **Player Choices**: Multiple-choice decision trees
+
+#### 4. User-Generated Adventure Framework
+- [ ] **Adventure Templates**: Starter templates for different genres
+  * Mystery adventure (detective puzzles)
+  * Fantasy quest (item collection, battles)
+  * Sci-fi exploration (space navigation)
+  * Educational quiz (learning modules)
+  * Story branching (narrative choices)
+- [ ] **Adventure Editor**: Visual editor for creating adventures
+- [ ] **Asset Management**: Images, sounds, text files for adventures
+- [ ] **Adventure Packaging**: Bundle and share adventures as .uadv files
+- [ ] **Adventure Marketplace**: Local catalog of community adventures
+
+#### 5. Interactive Adventure Features
+- [ ] **Inventory System**: Player items with properties
+- [ ] **Character Stats**: Health, energy, skills, experience
+- [ ] **Quest Management**: Track objectives and progress
+- [ ] **Dialog System**: NPC conversations with branching
+- [ ] **Combat System**: Turn-based or action combat (optional)
+- [ ] **Puzzle Engine**: Logic puzzles, riddles, mini-games
+- [ ] **Map Navigation**: Location-based movement and exploration
+
+#### 6. Adventure Scripting Enhancements
+- [ ] **SCENE Command**: Define adventure scenes/locations
+- [ ] **CHARACTER Command**: Create NPCs with dialog
+- [ ] **ITEM Command**: Define collectible items
+- [ ] **QUEST Command**: Create objectives and rewards
+- [ ] **DIALOG Command**: Multi-line conversation trees
+- [ ] **EFFECT Command**: Visual/audio effects
+- [ ] **ACHIEVEMENT Command**: Track player accomplishments
+
+#### 7. Web UI for Adventures
+- [ ] **Adventure Player**: Full-screen web-based adventure player
+- [ ] **Choice Interface**: Click-based decision making
+- [ ] **Inventory UI**: Visual inventory management
+- [ ] **Map Display**: Interactive map with locations
+- [ ] **Stats Panel**: Character stats and progress
+- [ ] **Save/Load UI**: Multiple save slots
+- [ ] **Settings Panel**: Audio, visuals, difficulty settings
+
+#### 8. Advanced Adventure Logic
+- [ ] **Multiple Endings**: Different outcomes based on choices
+- [ ] **Replay Value**: Random elements for replayability
+- [ ] **Difficulty Modes**: Easy, normal, hard settings
+- [ ] **Achievements**: Unlock achievements for special actions
+- [ ] **Leaderboards**: Score tracking and comparison (local)
+- [ ] **Hints System**: Progressive hints for stuck players
+- [ ] **Auto-Save**: Checkpoint system for progress preservation
+
+#### 9. Adventure Development Tools
+- [ ] **Adventure Debugger**: Debug mode for testing adventures
+- [ ] **Variable Inspector**: Live variable viewing during play
+- [ ] **Scene Graph**: Visual representation of adventure flow
+- [ ] **Play Testing**: Test adventures with logging
+- [ ] **Balance Tools**: Adjust difficulty and pacing
+- [ ] **Analytics**: Track player behavior and choices
+- [ ] **Export/Import**: Share adventures with others
+
+#### 10. Example Adventures & Documentation
+- [ ] **Mystery Manor**: Detective mystery with 5 suspects
+- [ ] **Space Explorer**: Sci-fi adventure with 10 planets
+- [ ] **Fantasy Quest**: RPG-style adventure with combat
+- [ ] **Code Academy**: Programming tutorial as adventure
+- [ ] **Time Traveler**: Branching narrative across eras
+- [ ] **Adventure Creator Guide**: Complete tutorial for making adventures
+- [ ] **Adventure Scripting Reference**: All adventure commands documented
+- [ ] **Test Suite**: test_v1_0_18_adventures.py (50+ tests)
+
+**Success Metrics**:
+- Desktop app launches in <3 seconds
+- Adventures support 100+ concurrent variables
+- 10+ example adventures included
+- Adventure editor usable by non-programmers
+- Complete adventure development documentation
+
+---
+
+## 📚 v1.0.19 - Documentation & Wiki Completion
+**Status**: 📋 Planned (February 2026)
+**Focus**: Comprehensive documentation, wiki updates, and knowledge library completion
+
+### Planned Features (8 tasks)
+
+#### 1. Wiki Comprehensive Update
+- [ ] **Command Reference**: Complete documentation for all 50+ commands
+- [ ] **uCODE Language Guide**: Full language reference with examples
+- [ ] **Extension Development**: How to create POKE extensions
+- [ ] **Adventure Development**: Complete adventure creation guide
+- [ ] **Configuration Guide**: All configuration options explained
+- [ ] **Troubleshooting**: Common issues and solutions
+- [ ] **FAQ**: Frequently asked questions (50+ entries)
+- [ ] **Glossary**: All uDOS terminology defined
+
+#### 2. Developer Documentation
+- [ ] **Architecture Overview**: System design and component interaction
+- [ ] **API Documentation**: All Python APIs documented
+- [ ] **Command Handler Guide**: How to create new command handlers
+- [ ] **Extension API**: Complete extension development reference
+- [ ] **Module System**: How modules and imports work
+- [ ] **Testing Guide**: How to write tests for uDOS
+- [ ] **Contributing Guide**: How to contribute to the project
+- [ ] **Code Style Guide**: Python and uCODE style standards
+
+#### 3. User Guides
+- [ ] **Getting Started**: Complete beginner's guide (30+ pages)
+- [ ] **Quick Reference**: One-page command cheatsheet
+- [ ] **Tutorial Series**: 10+ step-by-step tutorials
+  * Basic commands and navigation
+  * File operations and workspace management
+  * uCODE scripting fundamentals
+  * Advanced uCODE (functions, modules, errors)
+  * Creating your first adventure
+  * Customizing themes and extensions
+  * AI assistant integration
+  * Debugging uCODE scripts
+  * Knowledge system usage
+  * Web POKE development
+- [ ] **Video Tutorials**: Screen recordings for visual learners
+- [ ] **Interactive Demos**: Web-based interactive tutorials
+
+#### 4. Knowledge Library Completion
+- [ ] **System Knowledge**: Complete documentation of all internals
+- [ ] **Command Knowledge**: Every command with examples
+- [ ] **Concept Knowledge**: Core concepts explained
+- [ ] **FAQ Database**: Searchable question/answer pairs
+- [ ] **Error Messages**: All error messages documented with solutions
+- [ ] **Use Case Library**: Real-world usage scenarios
+- [ ] **Best Practices**: Recommended patterns and anti-patterns
+- [ ] **Performance Tips**: Optimization strategies
+
+#### 5. Code Examples Repository
+- [ ] **Command Examples**: Example for every command
+- [ ] **uCODE Scripts**: 50+ example scripts organized by category
+  * Automation scripts
+  * Data processing
+  * File management
+  * Adventure games
+  * Educational tools
+  * Productivity utilities
+- [ ] **Extension Examples**: 10+ fully-documented extensions
+- [ ] **Adventure Templates**: 15+ adventure starting points
+- [ ] **Integration Examples**: Combine multiple systems
+
+#### 6. Release Documentation
+- [ ] **Release Notes**: Complete notes for v1.0.0-v1.0.19
+- [ ] **Migration Guides**: Upgrade guides between versions
+- [ ] **Breaking Changes**: Documented breaking changes and fixes
+- [ ] **Deprecation Notices**: Features being phased out
+- [ ] **Feature Timeline**: When each feature was introduced
+- [ ] **Version Comparison**: Feature matrix across versions
+
+#### 7. Community Resources
+- [ ] **Community Guidelines**: Code of conduct and participation rules
+- [ ] **Support Channels**: Where to get help (GitHub, Discord, etc.)
+- [ ] **Showcase Gallery**: User-created content and projects
+- [ ] **Plugin Directory**: Community extensions and adventures
+- [ ] **Learning Resources**: External tutorials and articles
+- [ ] **Credits & Attribution**: All contributors recognized
+
+#### 8. Documentation Infrastructure
+- [ ] **Search Functionality**: Full-text search across all docs
+- [ ] **Doc Versioning**: Docs for each major version
+- [ ] **PDF Export**: Downloadable PDF documentation
+- [ ] **Offline Access**: Complete offline documentation bundle
+- [ ] **Translations**: Documentation in multiple languages (future)
+- [ ] **Accessibility**: WCAG 2.1 AA compliant documentation
+- [ ] **Mobile Responsive**: Docs work on all devices
+
+**Success Metrics**:
+- 100% command coverage in wiki
+- 50+ tutorial/example scripts
+- Complete API documentation
+- Search functionality operational
+- Documentation accessible offline
+
+---
+
+## 🎨 v1.0.20 - Final Polish & Integration
+**Status**: 📋 Planned (March 2026)
+**Focus**: Bug fixes, performance optimization, UI polish, and final integration testing
+
+### Planned Features (8 tasks)
+
+#### 1. Performance Optimization
+- [ ] **Command Execution**: Optimize all commands for <50ms response
+- [ ] **uCODE Interpreter**: Profile and optimize hot paths
+- [ ] **File Operations**: Faster file reading/writing
+- [ ] **Web Server**: Optimize POKE server performance
+- [ ] **Memory Usage**: Reduce memory footprint by 30%
+- [ ] **Startup Time**: Reduce launch time to <1 second
+- [ ] **Lazy Loading**: Load modules only when needed
+
+#### 2. UI/UX Polish
+- [ ] **Error Messages**: Improve all error message clarity
+- [ ] **Help Text**: Enhance all help command output
+- [ ] **Progress Indicators**: Add progress bars for long operations
+- [ ] **Color Consistency**: Ensure theme colors are consistent
+- [ ] **Typography**: Fine-tune all text rendering
+- [ ] **Animations**: Smooth transitions and feedback
+- [ ] **Accessibility**: Screen reader support, keyboard navigation
+
+#### 3. Bug Fixes & Stability
+- [ ] **Comprehensive Bug Sweep**: Fix all known issues
+- [ ] **Edge Case Testing**: Test all commands with edge cases
+- [ ] **Error Handling**: Ensure graceful failure for all errors
+- [ ] **Resource Cleanup**: Fix memory leaks and file handle leaks
+- [ ] **Cross-Platform**: Ensure Windows/Linux compatibility
+- [ ] **Dependency Updates**: Update all dependencies to latest stable
+- [ ] **Security Audit**: Review code for security issues
+
+#### 4. Integration Testing
+- [ ] **End-to-End Tests**: Test complete user workflows
+- [ ] **System Tests**: Test all components together
+- [ ] **Regression Tests**: Ensure no features broken
+- [ ] **Performance Tests**: Benchmark all operations
+- [ ] **Stress Tests**: Test with large files, many variables
+- [ ] **Compatibility Tests**: Test across different environments
+- [ ] **Automated CI/CD**: GitHub Actions for all tests
+
+#### 5. Command Enhancements
+- [ ] **Command Aliases**: Add shortcuts for common commands
+- [ ] **Command History**: Enhanced history with search
+- [ ] **Command Completion**: Better tab completion
+- [ ] **Command Chaining**: Pipe commands together
+- [ ] **Command Macros**: Record and replay command sequences
+- [ ] **Command Templates**: Pre-filled command templates
+- [ ] **Smart Defaults**: Intelligent default values
+
+#### 6. Configuration & Settings
+- [ ] **Settings UI**: Web-based settings interface
+- [ ] **Profile Management**: Multiple user profiles
+- [ ] **Import/Export**: Backup and restore settings
+- [ ] **Validation**: Validate all configuration options
+- [ ] **Migration**: Auto-migrate old config formats
+- [ ] **Documentation**: Every setting documented
+- [ ] **Presets**: Common configuration presets
+
+#### 7. Developer Experience
+- [ ] **Hot Reload**: Auto-reload code changes in dev mode
+- [ ] **Debug Mode**: Enhanced debugging output
+- [ ] **Logging**: Structured logging throughout codebase
+- [ ] **Metrics**: Track usage metrics (opt-in)
+- [ ] **Profiling**: Built-in performance profiling
+- [ ] **Extension SDK**: Complete SDK for extension development
+- [ ] **API Stability**: Freeze all public APIs
+
+#### 8. Final Release Preparation
+- [ ] **Version Finalization**: Set all versions to 1.0.20
+- [ ] **Release Notes**: Comprehensive v1.0.20 release notes
+- [ ] **Changelog**: Complete changelog from v1.0.0 to v1.0.20
+- [ ] **Documentation Review**: Final review of all documentation
+- [ ] **Code Review**: Final code review and cleanup
+- [ ] **License Compliance**: Verify all licenses
+- [ ] **Package**: Create distribution packages
+- [ ] **Tag Release**: Tag v1.0.20 in repository
+
+**Success Metrics**:
+- Zero critical bugs
+- All tests passing (500+ tests)
+- Performance benchmarks met
+- Documentation 100% complete
+- Ready for v1.1.0 stable release
+
+---
+
+## 🌟 v1.1.0 - Stable Release & Community Launch
+**Status**: 📋 Future (April 2026)
+**Focus**: Production-ready stable release with community launch
+
+### Release Goals
+
+#### Final Integration
+- [ ] Merge all v1.0.x improvements (v1.0.0 through v1.0.20)
+- [ ] Comprehensive regression testing (1000+ tests)
+- [ ] Performance benchmarking against baseline
+- [ ] Documentation completeness verification
+- [ ] Security audit and penetration testing
+- [ ] Cross-platform compatibility verification
+- [ ] Accessibility compliance (WCAG 2.1 AA)
+
+#### Release Preparation
+- [ ] Update all version numbers to v1.1.0
+- [ ] Create comprehensive release notes
+- [ ] Generate changelog from all commits
+- [ ] Tag stable release in repository
+- [ ] Create distribution packages (pip, homebrew, apt)
+- [ ] Setup package repositories and CDN
+- [ ] Create installer for Windows/macOS/Linux
+
+#### Community Launch
+- [ ] Publish major release announcement
+- [ ] Create tutorial videos and demos (10+ videos)
+- [ ] Write technical blog posts (5+ articles)
+- [ ] Submit to ShowHN, Product Hunt, etc.
+- [ ] Establish community feedback channels (Discord, GitHub Discussions)
+- [ ] Create community guidelines and code of conduct
+- [ ] Setup contribution workflow and PR templates
+
+#### Marketing & Outreach
+- [ ] Launch official website
+- [ ] Create social media presence
+- [ ] Write press release
+- [ ] Reach out to tech journalists
+- [ ] Create demo accounts and sandbox
+- [ ] Host launch event/webinar
+- [ ] Create "awesome-udos" resource list
+
+**Success Metrics**:
+- 1000+ GitHub stars
+- 100+ community members
+- 10+ community contributions
+- Featured in tech publications
+- 95%+ user satisfaction
+
+---
+
+## 🚀 v1.1.x - Advanced Features (Future)
+**Status**: 📋 Future (Post v1.1.0 Launch)
+**Focus**: Advanced features deferred from v1.0.x - security, networking, sharing, collaboration
+
+### v1.1.1 - Security & Permissions
+**Focus**: Enterprise-grade security and access control
 
 #### Planned Features
-- [ ] **File Permissions**: Fine-grained access control
-- [ ] **Encrypted Storage**: Secure sensitive data
-- [ ] **User Authentication**: Multi-user support with roles
-- [ ] **Security Auditing**: Logging and monitoring
-- [ ] **Extension Sandboxing**: Isolated execution environments
-- [ ] **Compliance Tools**: Security scanning and reporting
+- [ ] **File Permissions**: Fine-grained access control for all file operations
+- [ ] **User Authentication**: Login system with password hashing
+- [ ] **Role-Based Access**: Admin, developer, user, guest roles
+- [ ] **Security Auditing**: Comprehensive logging of all security events
+- [ ] **Encrypted Storage**: AES-256 encryption for sensitive data
+- [ ] **Secure Sessions**: Token-based authentication for web UI
+- [ ] **API Keys**: Secure API key management and rotation
+- [ ] **Security Scanning**: Built-in vulnerability scanning
+- [ ] **Compliance Tools**: GDPR, SOC2 compliance helpers
+- [ ] **Sandboxing**: Isolated execution environments for untrusted code
 
-### 🦀 v1.0.16 - Performance Optimization
-**Status**: 📋 Planned
-**Focus**: Rust integration and performance improvements
+### v1.1.2 - Networking & Sharing
+**Focus**: Multi-user collaboration and content sharing
 
 #### Planned Features
-- [ ] **Rust Core Components**: High-performance rewrites with PyO3
-- [ ] **ServerManager in Rust**: 10-100x speed improvements
-- [ ] **Concurrent Processing**: Python GIL-free parallel operations
-- [ ] **Memory Optimization**: Efficient resource management
-- [ ] **Cross-Platform Binaries**: Optimized compilation
-- [ ] **Performance Profiling**: Built-in benchmarking tools
+- [ ] **Network Mode**: Run uDOS in server/client mode
+- [ ] **Remote Access**: Access uDOS from anywhere securely
+- [ ] **Multi-User**: Multiple users on single uDOS instance
+- [ ] **Real-Time Collaboration**: Live editing and chat
+- [ ] **File Sharing**: Share files and adventures with others
+- [ ] **Cloud Sync**: Sync settings/data across devices
+- [ ] **WebRTC**: Peer-to-peer connections for collaboration
+- [ ] **Public/Private**: Control visibility of content
+- [ ] **Permissions**: Who can view/edit/run content
+- [ ] **Activity Feed**: See what others are working on
+
+### v1.1.3 - NFT & Blockchain Integration
+**Focus**: Web3 features for digital ownership and trading
+
+#### Planned Features
+- [ ] **NFT Minting**: Turn adventures into NFTs
+- [ ] **Ownership Verification**: Prove ownership of content
+- [ ] **Trading**: Buy/sell adventures and extensions
+- [ ] **Royalties**: Creator royalties on secondary sales
+- [ ] **Digital Signatures**: Sign scripts and verify authenticity
+- [ ] **Blockchain Storage**: Store adventures on IPFS/Arweave
+- [ ] **Smart Contracts**: Automated licensing and payments
+- [ ] **Wallet Integration**: Connect crypto wallets
+- [ ] **Token Gating**: Premium content for token holders
+- [ ] **DAO Governance**: Community voting on features
+
+### v1.1.4 - Cloud & Enterprise
+**Focus**: Enterprise deployment and cloud infrastructure
+
+#### Planned Features
+- [ ] **Cloud Deployment**: One-click deploy to AWS/GCP/Azure
+- [ ] **Docker Containers**: Containerized deployment
+- [ ] **Kubernetes**: Orchestration for scale
+- [ ] **Load Balancing**: Handle thousands of concurrent users
+- [ ] **Database Integration**: PostgreSQL, MySQL, MongoDB
+- [ ] **Caching**: Redis/Memcached for performance
+- [ ] **CDN Integration**: Fast global content delivery
+- [ ] **Monitoring**: Prometheus, Grafana dashboards
+- [ ] **Logging**: Centralized logging with ELK stack
+- [ ] **Backup/Restore**: Automated backup solutions
+
+### v1.1.5 - Mobile & Cross-Platform
+**Focus**: Native mobile apps and broader platform support
+
+#### Planned Features
+- [ ] **iOS App**: Native iOS application
+- [ ] **Android App**: Native Android application
+- [ ] **React Native**: Cross-platform mobile framework
+- [ ] **Mobile UI**: Touch-optimized interface
+- [ ] **Offline Mode**: Full functionality without network
+- [ ] **Push Notifications**: Real-time updates on mobile
+- [ ] **Mobile Debugger**: Debug uCODE on mobile devices
+- [ ] **Tablet Support**: Optimized for iPad/tablets
+- [ ] **Watch Apps**: Apple Watch/Wear OS companions
+- [ ] **Cross-Device Sync**: Seamless sync across devices
 
 ---
 
-## 🌟 v1.1.0 - Stable Release (Future)
+## 🔒 v1.0.17 - Security & Permissions (MOVED to v1.1.1)
+**Status**: ❌ **DEFERRED to v1.1.1** - Advanced security features moved to post-stable release
+
+All security, permissions, encryption, user roles, and access control features have been deferred to v1.1.1 to focus v1.0.x on core functionality and documentation completion.
 
 ---
 
-## �🔄 Future Development Rounds (v1.0.12+)
+## 🎯 Development Methodology
+
+### Round Selection Process
+1. **Technical Assessment**: Infrastructure needs and technical debt
+2. **Integration Potential**: How features work together synergistically
+3. **User Impact**: Features that provide immediate value
+4. **Resource Efficiency**: Development time vs. delivered value
+5. **Strategic Foundation**: Building blocks for future capabilities
+
+### Quality Standards for Each Round
+- **100% Functional Testing**: All features work reliably in terminal
+- **Complete Documentation**: User guides, API docs, and examples
+- **Performance Benchmarks**: Response times and resource usage metrics
+- **Cross-Platform Compatibility**: macOS, Linux, Windows support
+- **Security Review**: Input validation and secure defaults
+
+### Release Criteria
+- All planned features implemented and tested
+- Documentation updated and reviewed with examples
+- Performance meets or exceeds previous version benchmarks
+- No critical bugs or security vulnerabilities
+- Integration tests pass across all command modules
+- Migration path from previous version is clear and tested
+
+### Testing Methodology
+
+Each round follows this comprehensive testing pattern:
+
+```bash
+# 1. Start fresh session
+./start_udos.sh
+
+# 2. Test new round features
+[SYSTEM|HELP]                    # Verify all commands show
+[NEW_FEATURE|COMMAND]            # Test new functionality
+
+# 3. Integration testing
+[ASSISTANT|ASK*How does this work?]   # AI validation
+[ASSISTANT|ANALYZE*new_code]          # Code quality check
+
+# 4. Cross-system validation
+MAP STATUS                       # Check mapping integration
+DASHBOARD CLI                    # Verify system status
+POKE STATUS                      # Test web extensions
+
+# 5. Documentation validation
+# - Update wiki with discoveries
+# - Create usage examples
+# - Document integration points
+
+# 6. Performance testing
+# - Large file operations
+# - Multiple concurrent servers
+# - Extended session testing
+```
+
+### Success Criteria Per Round
+Each development round is considered complete when:
+- ✅ All new features work reliably in terminal environment
+- ✅ Documentation is comprehensive with working examples
+- ✅ Integration tests pass with AI assistant validation
+- ✅ No critical bugs or performance regressions
+- ✅ Cross-platform compatibility verified
+- ✅ Code review completed and refactored for maintainability
+
+---
+
+## 📊 Current Project Statistics
+
+### Code Metrics (as of v1.0.16)
+- **Total Lines of Code**: ~20,000+ across all modules
+- **uCODE Interpreter**: 1,304 lines (core/uDOS_ucode.py)
+- **Command Handlers**: 11 specialized handlers
+- **Commands Implemented**: 60+ across all categories
+- **Web Extensions**: 6+ production-ready extensions
+- **Test Coverage**: 500+ tests across all versions
+- **Standard Library**: 4 modules, 25 functions
+- **Templates**: 3 production templates (411 lines)
+
+### Development Velocity
+- **v1.0.0-v1.0.6**: Foundation (6 weeks) - Core system
+- **v1.0.7-v1.0.12**: Advanced Features (6 weeks) - Major enhancements
+- **v1.0.13**: Theme System (1 week) - 100% test coverage
+- **v1.0.14**: uCODE Part 1 (1 week) - Variables, control flow
+- **v1.0.15**: Documentation (1 week) - Wiki migration
+- **v1.0.16**: uCODE Part 2 (2 weeks) - Functions, modules, errors
+
+### Quality Metrics
+- **Documentation Coverage**: 95% (wiki, guides, inline docs)
+- **Test Pass Rate**: 100% (all active test suites)
+- **Integration Testing**: Comprehensive test suites for each round
+- **AI Integration**: Gemini API + GitHub Copilot CLI
+- **Cross-Platform**: macOS primary, Linux/Windows compatible
+- **Security**: Sandboxed file operations, secure API key handling
+
+### Community & Adoption
+- **Open Source**: GPL v3.0 licensed
+- **Repository**: GitHub with complete development history
+- **Wiki**: 20+ comprehensive documentation pages
+- **Learning Resource**: Demonstrates modern CLI development patterns
+- **Extensions**: Community-ready extension system
+
+---
+
+## 🎯 Current Focus: v1.0.16 → v1.0.17 Transition
+
+**Current Status**: v1.0.16 at 80% completion (November 2025)
+**Foundation**: Complete uCODE language with functions, modules, error handling
+**Next Focus**: Interactive debugger and developer tools (v1.0.17)
+**Timeline**: December 2025 - March 2026 for v1.0.17-v1.0.20
+**Goal**: Reach v1.1.0 stable release by April 2026
+
+---
+
+## 📝 Version Summary
+
+### Completed (v1.0.0 - v1.0.15) ✅
+15 versions delivering core functionality, mapping, automation, knowledge system, typography, extensions, and complete uCODE language foundation.
+
+### In Progress (v1.0.16) 🔄
+uCODE Part 2 at 80% - Functions, error handling, modules, stdlib complete. Test suite at 100% pass rate. Debugger deferred to v1.0.17.
+
+### Planned (v1.0.17 - v1.0.20) 📋
+4 versions focused on:
+- **v1.0.17**: Interactive debugger and developer tools
+- **v1.0.18**: Web POKE adventures with game-like logic
+- **v1.0.19**: Complete documentation and wiki
+- **v1.0.20**: Final polish and integration testing
+
+### Future (v1.1.0+) 🚀
+Stable release and advanced features:
+- **v1.1.0**: Community launch and stable release
+- **v1.1.x**: Security, networking, sharing, blockchain, cloud, mobile
+
+---
+
+*Last Updated: 14 November 2025 - Reorganized roadmap to defer security/networking to v1.1.x and focus v1.0.x on core features, debugging, web adventures, and documentation.*
 
 ### 🦀 v1.0.12 - Rust Integration Foundation
 **Potential Focus**: High-performance core components with Rust
