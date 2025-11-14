@@ -2,7 +2,16 @@
 **Current Version**: v1.0.16 (uCODE Part 2: Advanced Features - 80% Complete 🔄)
 **Last Updated**: 14 November 2025
 
+**Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection! A Survival Handbook for Armageddon - giving life and purpose to all our computer-type devices and helping us thrive as humans!"*
+
 **Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
+
+**Core Principles**:
+- 🌍 **Offline-First**: Full functionality without internet
+- 🤝 **Barter Over Currency**: Exchange knowledge/skills/resources, not wealth
+- 🧠 **4-Tier Memory**: Personal → Shared → Group → Public knowledge
+- 🎯 **Practical Over Political**: Real survival skills, not history debates
+- 👤 **Individual-Owned**: Serves the user, not companies/governments
 
 ---
 
@@ -29,11 +38,14 @@
 ### 📋 Planned Versions
 - **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - 🔄 **IN PROGRESS** (80% complete)
 - **v1.0.17** - Interactive Debugger & Developer Tools - 📝 **PLANNED**
-- **v1.0.18** - Web POKE Adventures System - 📝 **PLANNED**
-- **v1.0.19** - Documentation & Wiki Completion - 📝 **PLANNED**
-- **v1.0.20** - Final Polish & Integration - 📝 **PLANNED**
-- **v1.1.0** - Stable Release (Community launch, integration testing) - 📝 **FUTURE**
-- **v1.1.x** - Advanced Features (Security, networking, sharing, NFT, encryption) - 📝 **FUTURE**
+- **v1.0.18** - Apocalypse Adventures & Experience System - 📝 **PLANNED**
+- **v1.0.19** - Project/Workflow Management & Barter Economy - 📝 **PLANNED**
+- **v1.0.20** - 4-Tier Knowledge Bank & Memory System - 📝 **PLANNED**
+- **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **PLANNED**
+- **v1.0.22** - Documentation & Offline-First Handbook - 📝 **PLANNED**
+- **v1.0.23** - Final Polish & Integration - 📝 **PLANNED**
+- **v1.1.0** - Stable Release (Laptop-to-mobile spawning, device mesh) - 📝 **FUTURE**
+- **v1.1.x** - Advanced Features (P2P networking, mesh networks, device spawning) - 📝 **FUTURE**
 
 ---
 
@@ -1091,153 +1103,250 @@ knowledge/
 
 ---
 
-## 🎮 v1.0.18 - Web POKE Adventures System
+## 💀 v1.0.18 - Apocalypse Adventures & Experience System
 **Status**: 📋 Planned (January 2026)
-**Focus**: Standalone desktop web server with game-like interactive adventures using detailed variable systems
+**Focus**: Survival-themed adventures with experience points, offline-first desktop server, and practical knowledge integration
+
+**Theme**: Survivalist, Holocaust, Zombie Apocalypse scenarios teaching real-world skills through interactive adventures
 
 ### Planned Features (10 tasks)
 
-#### 1. Standalone Desktop Web Server
-- [ ] **Desktop Web App**: Standalone Electron/Tauri app with embedded web server
-- [ ] **POKE DESKTOP Command**: Launch desktop web interface
-- [ ] **Auto Port Management**: Automatic port selection and conflict resolution
-- [ ] **System Tray Integration**: Background server with tray icon
-- [ ] **Auto-Launch**: Start server on system boot (optional)
-- [ ] **Performance Mode**: Lightweight server for resource efficiency
+#### 1. Standalone Offline Desktop Server
+- [ ] **Desktop Survival Hub**: Standalone Electron/Tauri app - works WITHOUT internet
+- [ ] **SURVIVE DESKTOP Command**: Launch offline survival interface
+- [ ] **Zero External Dependencies**: All data local, no cloud services
+- [ ] **System Tray Integration**: Always-on survival companion
+- [ ] **Resource Efficiency**: Runs on minimal power for emergency scenarios
+- [ ] **Backup Systems**: Multiple redundant save systems for reliability
 
-#### 2. Enhanced Variable System for Adventures
-- [ ] **Typed Variables**: STRING, NUMBER, BOOLEAN, LIST, DICT, OBJECT types
-- [ ] **Variable Persistence**: Save/load variable state between sessions
-- [ ] **Global Variables**: Shared state across adventure modules
-- [ ] **Local Scopes**: Function and block-level variable isolation
-- [ ] **Variable Arrays**: Multi-dimensional array support
-- [ ] **Variable Expressions**: Complex expressions with operators
-- [ ] **Type Coercion**: Automatic type conversion where safe
+#### 2. Experience Point System (XP)
+- [ ] **Usage XP**: Earn points for time spent learning/using uDOS
+- [ ] **Information XP**: Gain XP for consuming survival knowledge
+- [ ] **Contribution XP**: Earn by adding knowledge/skills/resources
+- [ ] **Connection XP**: Build network of trusted contacts
+- [ ] **Skill Trees**: Level up in categories (shelter, food, water, medicine, defense)
+- [ ] **Achievement Unlocks**: New content unlocked by experience
+- [ ] **No Wealth Accumulation**: XP shows competence, not capital
+- [ ] **Practical Rewards**: Unlock survival guides, not virtual goods
 
-#### 3. Game-Like Conditional Logic
-- [ ] **Complex Conditionals**: Nested IF/ELSE with AND/OR/NOT operators
-- [ ] **SWITCH/CASE**: Multi-way branching for cleaner logic
-- [ ] **State Machines**: Formal state management for adventures
-- [ ] **Event System**: Trigger-based actions and reactions
-- [ ] **Timers**: Time-based events and delays
-- [ ] **Random Events**: Probability-based outcomes
-- [ ] **Player Choices**: Multiple-choice decision trees
+#### 3. Barter & Resource Management
+- [ ] **What I Have**: Track your skills, knowledge, resources, tools
+- [ ] **What I Need**: System finds paths to acquire needed items
+- [ ] **Barter Suggestions**: "You need X? Try offering Y to person Z"
+- [ ] **No Currency**: Exchange skills/knowledge/goods directly
+- [ ] **Value Calculator**: Assess fair trade value of items/skills
+- [ ] **Resource Inventory**: Track physical supplies
+- [ ] **Skill Registry**: List your abilities for trade
+- [ ] **Need-Based Economy**: Focus on survival needs, not profit
 
-#### 4. User-Generated Adventure Framework
-- [ ] **Adventure Templates**: Starter templates for different genres
-  * Mystery adventure (detective puzzles)
-  * Fantasy quest (item collection, battles)
-  * Sci-fi exploration (space navigation)
-  * Educational quiz (learning modules)
-  * Story branching (narrative choices)
-- [ ] **Adventure Editor**: Visual editor for creating adventures
-- [ ] **Asset Management**: Images, sounds, text files for adventures
-- [ ] **Adventure Packaging**: Bundle and share adventures as .uadv files
-- [ ] **Adventure Marketplace**: Local catalog of community adventures
+#### 4. Apocalypse-Themed Adventures
+- [ ] **Survival Templates**: Pre-built apocalypse scenarios
+  * Zombie outbreak (medical, defense, scavenging)
+  * Nuclear holocaust (radiation, shelter, supplies)
+  * Economic collapse (barter, community, resources)
+  * Natural disaster (evacuation, first aid, rebuilding)
+  * Grid-down scenario (off-grid living, self-sufficiency)
+- [ ] **Real-World Skills**: Each adventure teaches practical survival skills
+- [ ] **Choose Your Path**: Multiple solutions based on your resources
+- [ ] **Consequence System**: Decisions have lasting effects
+- [ ] **Resource Scarcity**: Manage limited supplies like real emergencies
 
-#### 5. Interactive Adventure Features
-- [ ] **Inventory System**: Player items with properties
-- [ ] **Character Stats**: Health, energy, skills, experience
-- [ ] **Quest Management**: Track objectives and progress
-- [ ] **Dialog System**: NPC conversations with branching
-- [ ] **Combat System**: Turn-based or action combat (optional)
-- [ ] **Puzzle Engine**: Logic puzzles, riddles, mini-games
-- [ ] **Map Navigation**: Location-based movement and exploration
+#### 5. Practical Knowledge Integration
+- [ ] **Survival Library**: Offline PDFs and guides embedded in adventures
+  * Building homes (rammed earth, cob, timber framing)
+  * Water purification and collection
+  * Food preservation and gardening
+  * First aid and natural medicine
+  * Tool making and repair
+  * Defense and security
+  * Communication and signaling
+- [ ] **Step-by-Step Instructions**: Click-through guides for complex tasks
+- [ ] **Visual Diagrams**: Embedded images for construction/medical procedures
+- [ ] **Checklists**: Interactive checklists for emergency preparation
+- [ ] **No Fluff**: Only practical, actionable information
 
-#### 6. Adventure Scripting Enhancements
-- [ ] **SCENE Command**: Define adventure scenes/locations
-- [ ] **CHARACTER Command**: Create NPCs with dialog
-- [ ] **ITEM Command**: Define collectible items
-- [ ] **QUEST Command**: Create objectives and rewards
-- [ ] **DIALOG Command**: Multi-line conversation trees
-- [ ] **EFFECT Command**: Visual/audio effects
-- [ ] **ACHIEVEMENT Command**: Track player accomplishments
+#### 6. Enhanced Variable System for Survival
+- [ ] **Resource Variables**: Food, water, medicine, fuel quantities
+- [ ] **Skill Variables**: Proficiency levels in survival skills
+- [ ] **Health Variables**: Injury, illness, energy, morale tracking
+- [ ] **Time Variables**: Day/night cycles, seasons, countdown timers
+- [ ] **Location Variables**: Safe zones, danger areas, resource locations
+- [ ] **Relationship Variables**: Trust levels with NPCs/groups
+- [ ] **Persistent State**: Save/load survival scenarios
 
-#### 7. Web UI for Adventures
-- [ ] **Adventure Player**: Full-screen web-based adventure player
-- [ ] **Choice Interface**: Click-based decision making
-- [ ] **Inventory UI**: Visual inventory management
-- [ ] **Map Display**: Interactive map with locations
-- [ ] **Stats Panel**: Character stats and progress
-- [ ] **Save/Load UI**: Multiple save slots
-- [ ] **Settings Panel**: Audio, visuals, difficulty settings
+#### 7. Survival Scripting Commands
+- [ ] **SCENARIO Command**: Load pre-built survival scenarios
+- [ ] **RESOURCE Command**: Manage inventory and supplies
+- [ ] **SKILL Command**: Track and level up survival skills
+- [ ] **TRADE Command**: Initiate barter transactions
+- [ ] **THREAT Command**: Handle dangers (zombies, raiders, weather)
+- [ ] **SHELTER Command**: Build/maintain safe locations
+- [ ] **FORAGE Command**: Search for resources
+- [ ] **CRAFT Command**: Make tools/items from materials
+- [ ] **MEDIC Command**: Treat injuries and illness
+- [ ] **XP Command**: View experience and progress
 
-#### 8. Advanced Adventure Logic
-- [ ] **Multiple Endings**: Different outcomes based on choices
-- [ ] **Replay Value**: Random elements for replayability
-- [ ] **Difficulty Modes**: Easy, normal, hard settings
-- [ ] **Achievements**: Unlock achievements for special actions
-- [ ] **Leaderboards**: Score tracking and comparison (local)
-- [ ] **Hints System**: Progressive hints for stuck players
-- [ ] **Auto-Save**: Checkpoint system for progress preservation
+#### 8. Offline-First Web UI
+- [ ] **Survival Dashboard**: Status overview (health, resources, threats)
+- [ ] **Map Interface**: Interactive offline maps with landmarks
+- [ ] **Inventory Manager**: Visual resource tracking
+- [ ] **Skill Tree Display**: See progression paths
+- [ ] **Journal System**: Log discoveries and decisions
+- [ ] **Quick Actions**: Common survival tasks easily accessible
+- [ ] **Apocalypse Themes**: Dark, gritty visual design (zombie, wasteland, bunker)
 
-#### 9. Adventure Development Tools
-- [ ] **Adventure Debugger**: Debug mode for testing adventures
-- [ ] **Variable Inspector**: Live variable viewing during play
-- [ ] **Scene Graph**: Visual representation of adventure flow
-- [ ] **Play Testing**: Test adventures with logging
-- [ ] **Balance Tools**: Adjust difficulty and pacing
-- [ ] **Analytics**: Track player behavior and choices
-- [ ] **Export/Import**: Share adventures with others
+#### 9. Example Apocalypse Adventures
+- [ ] **The Last Day**: Zombie outbreak - escape the city (30 min scenario)
+- [ ] **Nuclear Winter**: Post-blast survival - build shelter, find supplies (2 hour)
+- [ ] **Grid Down**: Power grid collapse - transition to off-grid (ongoing)
+- [ ] **The Collapse**: Economic meltdown - barter economy emerges (campaign)
+- [ ] **Pandemic Protocol**: Disease outbreak - medical knowledge required
+- [ ] **Rammed Earth Shelter**: Build emergency housing (based on real PDF guides)
+- [ ] **Water Purification Quest**: Find and purify water sources
+- [ ] **Herbal Medicine**: Identify and use natural remedies
 
-#### 10. Example Adventures & Documentation
-- [ ] **Mystery Manor**: Detective mystery with 5 suspects
-- [ ] **Space Explorer**: Sci-fi adventure with 10 planets
-- [ ] **Fantasy Quest**: RPG-style adventure with combat
-- [ ] **Code Academy**: Programming tutorial as adventure
-- [ ] **Time Traveler**: Branching narrative across eras
-- [ ] **Adventure Creator Guide**: Complete tutorial for making adventures
-- [ ] **Adventure Scripting Reference**: All adventure commands documented
-- [ ] **Test Suite**: test_v1_0_18_adventures.py (50+ tests)
+#### 10. Survival Knowledge Database
+- [ ] **Building & Shelter**: Rammed earth, cob, debris huts, sandbags
+- [ ] **Water Systems**: Collection, filtration, storage, purification
+- [ ] **Food Production**: Gardening, foraging, hunting, preservation
+- [ ] **Medical Skills**: First aid, herbal medicine, trauma care
+- [ ] **Self-Defense**: Awareness, avoidance, protection strategies
+- [ ] **Tool Crafting**: Make tools from scrap and natural materials
+- [ ] **Fire Making**: Multiple methods, fuel sources, safety
+- [ ] **Navigation**: Without GPS, map reading, celestial navigation
+- [ ] **Communication**: Radio, signals, message systems
+- [ ] **Test Suite**: test_v1_0_18_survival.py (50+ tests)
 
 **Success Metrics**:
-- Desktop app launches in <3 seconds
-- Adventures support 100+ concurrent variables
-- 10+ example adventures included
-- Adventure editor usable by non-programmers
-- Complete adventure development documentation
+- Works 100% offline without internet
+- 10+ survival scenarios with real-world skills
+- Experience system rewards learning and contribution
+- Barter system enables resource exchange
+- Adventure player teaches practical survival skills
+- Embedded survival guides (PDFs, images, checklists)
+
+**Philosophy**: *"Not a game - a survival handbook disguised as interactive adventures. Every scenario teaches real skills you can use when things go wrong."*
 
 ---
 
-## 📚 v1.0.19 - Documentation & Wiki Completion
+## 🔨 v1.0.19 - Project/Workflow Management & Barter Economy
 **Status**: 📋 Planned (February 2026)
-**Focus**: Comprehensive documentation, wiki updates, and knowledge library completion
+**Focus**: Essential project management tools and expanded barter/trade system for community self-sufficiency
+
+**Theme**: *"What can I do today?"* - Practical task management focused on survival, building, and thriving
 
 ### Planned Features (8 tasks)
 
-#### 1. Wiki Comprehensive Update
-- [ ] **Command Reference**: Complete documentation for all 50+ commands
-- [ ] **uCODE Language Guide**: Full language reference with examples
-- [ ] **Extension Development**: How to create POKE extensions
-- [ ] **Adventure Development**: Complete adventure creation guide
-- [ ] **Configuration Guide**: All configuration options explained
-- [ ] **Troubleshooting**: Common issues and solutions
-- [ ] **FAQ**: Frequently asked questions (50+ entries)
-- [ ] **Glossary**: All uDOS terminology defined
+#### 1. Project & Task Management
+- [ ] **PROJECT Command**: Create and manage projects
+- [ ] **TASK Command**: Add tasks with priorities, deadlines, dependencies
+- [ ] **WORKFLOW Command**: Define multi-step processes
+- [ ] **MILESTONE Command**: Set checkpoints and goals
+- [ ] **PROGRESS Command**: Track completion and time spent
+- [ ] **KANBAN View**: Visual task boards (To Do, Doing, Done)
+- [ ] **Timeline View**: Gantt-style project timelines
+- [ ] **Resource Allocation**: Track who's doing what
 
-#### 2. Developer Documentation
-- [ ] **Architecture Overview**: System design and component interaction
-- [ ] **API Documentation**: All Python APIs documented
-- [ ] **Command Handler Guide**: How to create new command handlers
-- [ ] **Extension API**: Complete extension development reference
-- [ ] **Module System**: How modules and imports work
-- [ ] **Testing Guide**: How to write tests for uDOS
-- [ ] **Contributing Guide**: How to contribute to the project
-- [ ] **Code Style Guide**: Python and uCODE style standards
+#### 2. Barter Economy System
+- [ ] **INVENTORY Command**: List your skills, knowledge, resources, tools
+- [ ] **OFFER Command**: Broadcast what you can provide
+- [ ] **REQUEST Command**: Ask for what you need
+- [ ] **MATCH Command**: Find barter opportunities
+- [ ] **TRADE Command**: Execute skill/resource exchanges
+- [ ] **VALUE Command**: Assess fair trade value (time, effort, rarity)
+- [ ] **REPUTATION Command**: Track trading history and reliability
+- [ ] **NO CURRENCY**: System prevents money/wealth accumulation
 
-#### 3. User Guides
-- [ ] **Getting Started**: Complete beginner's guide (30+ pages)
-- [ ] **Quick Reference**: One-page command cheatsheet
-- [ ] **Tutorial Series**: 10+ step-by-step tutorials
-  * Basic commands and navigation
-  * File operations and workspace management
-  * uCODE scripting fundamentals
-  * Advanced uCODE (functions, modules, errors)
-  * Creating your first adventure
-  * Customizing themes and extensions
-  * AI assistant integration
-  * Debugging uCODE scripts
-  * Knowledge system usage
+#### 3. What-I-Have vs What-I-Need Engine
+- [ ] **Gap Analysis**: Identify missing skills/resources for goals
+- [ ] **Path Finding**: "You need X? Here are 5 ways to get it"
+- [ ] **Skill Trees**: Show progression paths for learning
+- [ ] **Resource Maps**: Where to find materials/knowledge
+- [ ] **Trade Networks**: Connect with people who have what you need
+- [ ] **Alternative Solutions**: Multiple paths to same goal
+- [ ] **Dependency Chains**: "To build Y, you first need A, B, C"
+
+#### 4. Contribution & Earning System
+- [ ] **Track Contributions**: What you've added to the community
+- [ ] **Contribution Types**:
+  * Knowledge shared (guides, tutorials, experiences)
+  * Skills taught (mentoring, workshops)
+  * Resources provided (tools, materials, space)
+  * Products created (software, crafts, food)
+  * Problems solved (debugging, repair, advice)
+- [ ] **Contribution XP**: Earn experience by helping others
+- [ ] **Unlock Benefits**: More contributions = access to more resources
+- [ ] **Give-and-Take Balance**: System encourages fair exchange
+
+#### 5. Practical Workflow Templates
+- [ ] **Build Templates**: Step-by-step for construction projects
+  * Rammed earth building
+  * Rainwater collection system
+  * Solar power setup
+  * Garden beds and greenhouse
+  * Tool shed construction
+- [ ] **Learning Templates**: Skill acquisition workflows
+  * First aid certification
+  * Permaculture design
+  * Radio operation
+  * Mechanical repair
+- [ ] **Survival Templates**: Emergency preparation checklists
+  * Bug-out bag assembly
+  * Food storage setup
+  * Water purification system
+  * Medical kit preparation
+
+#### 6. Resource Management
+- [ ] **Physical Resources**: Track tools, materials, supplies
+- [ ] **Knowledge Resources**: Manuals, guides, expertise
+- [ ] **Human Resources**: Who knows what, who can help
+- [ ] **Time Resources**: How much time tasks actually take
+- [ ] **Energy Resources**: Physical and mental capacity
+- [ ] **Location Resources**: Spaces available for work/storage
+- [ ] **Maintenance Tracking**: When things need service/replacement
+
+#### 7. Collaborative Tools (Offline-First)
+- [ ] **Shared Projects**: Work with others on common goals
+- [ ] **Skill Sharing**: Teach what you know, learn what you need
+- [ ] **Resource Pooling**: Community tool libraries, shared spaces
+- [ ] **Local Sync**: Device-to-device sharing without internet
+- [ ] **Group Workflows**: Coordinate multi-person projects
+- [ ] **Decision Making**: Consensus tools for group choices
+- [ ] **Conflict Resolution**: Fair trade dispute handling
+
+#### 8. Real-World Integration
+- [ ] **Physical Task Tracking**: Not just digital work
+- [ ] **Time Estimates**: Based on actual completion times
+- [ ] **Weather Integration**: Outdoor tasks respect conditions
+- [ ] **Season Planning**: Plant/build at right times of year
+- [ ] **Energy Levels**: Account for human limitations
+- [ ] **Skill Prerequisites**: "Learn A before attempting B"
+- [ ] **Test Suite**: test_v1_0_19_workflow.py (40+ tests)
+
+**Success Metrics**:
+- Manage complex multi-step projects
+- Barter system enables zero-currency trades
+- Clear paths from "I need X" to "I got X"
+- Contribution tracking rewards community participation
+- Templates cover 20+ practical real-world projects
+
+---
+
+## 🧠 v1.0.20 - 4-Tier Knowledge Bank & Memory System
+**Status**: 📋 Planned (March 2026)
+**Focus**: Comprehensive knowledge management with privacy tiers and the Global Knowledge Bank
+
+**Philosophy**: *"Four kinds of memory for different kinds of knowledge - from deeply personal to universally shared"*
+
+### Planned Features (8 tasks)
+
+#### 1. Tier 1: Personal Private (Never Shared)
+- [ ] **PRIVATE Command**: Store deeply personal data
+- [ ] **Encrypted Storage**: AES-256 encryption, user-only access
+- [ ] **Private Types**:
+  * Personal journals and reflections
+  * Private medical records
+  * Financial data (if any)
   * Web POKE development
 - [ ] **Video Tutorials**: Screen recordings for visual learners
 - [ ] **Interactive Demos**: Web-based interactive tutorials
