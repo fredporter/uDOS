@@ -96,6 +96,13 @@ memory/logs/**/*
 *.pid
 *.state
 
+# Documentation (Development Working Files)
+# ----------------------
+# Ignore /docs working directory - only commit finalized docs to wiki/
+docs/
+docs/**/*
+!docs/.gitkeep
+
 # Wiki Deployment
 # ----------------------
 # Keep source in /wiki, ignore deployed clone
