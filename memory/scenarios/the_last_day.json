@@ -11,7 +11,7 @@
     "xp_reward": 150,
     "tags": ["zombie", "escape", "beginner", "urban"]
   },
-  
+
   "initial_variables": {
     "player_name": "Survivor",
     "location": "apartment",
@@ -19,7 +19,7 @@
     "civilians_saved": 0,
     "time_remaining": 60
   },
-  
+
   "quests": [
     {
       "quest_name": "escape_city",
@@ -37,26 +37,26 @@
       }
     }
   ],
-  
+
   "events": [
     {
       "type": "narrative",
       "text": "=== THE LAST DAY ===\n\nYou wake to the sound of sirens and screaming. Your phone buzzes with an emergency alert:\n\n'EMERGENCY BROADCAST: Stay indoors. Avoid contact with infected individuals. Evacuation zones opening in 60 minutes.'\n\nThrough your apartment window, you see chaos in the streets below. People running. Others stumbling with strange, jerking movements.\n\nThis is it. The outbreak everyone said would never happen."
     },
-    
+
     {
       "type": "narrative",
       "speaker": "You",
       "text": "I need to get out of the city. But first, supplies..."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 10,
       "category": "usage",
       "reason": "Started The Last Day scenario"
     },
-    
+
     {
       "type": "choice",
       "prompt": "What do you grab first?",
@@ -81,7 +81,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_choice} == water",
@@ -111,7 +111,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_choice} == medical",
@@ -136,7 +136,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_choice} == gear",
@@ -169,18 +169,18 @@
         }
       ]
     },
-    
+
     {
       "type": "narrative",
       "text": "You hear pounding on your apartment door. A voice calls out:"
     },
-    
+
     {
       "type": "narrative",
       "speaker": "Neighbor",
       "text": "Please! Let me in! They're coming up the stairs!"
     },
-    
+
     {
       "type": "choice",
       "prompt": "Your neighbor is outside. What do you do?",
@@ -205,7 +205,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{help_neighbor} == yes",
@@ -235,7 +235,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{help_neighbor} == redirect",
@@ -252,7 +252,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{help_neighbor} == no",
@@ -268,17 +268,17 @@
         }
       ]
     },
-    
+
     {
       "type": "time_pass",
       "hours": 1
     },
-    
+
     {
       "type": "narrative",
       "text": "You make your way down to the street. The scene is nightmarish. Abandoned cars block the roads. In the distance, you see the green smoke marking the evacuation zone.\n\nYou have a choice of routes:"
     },
-    
+
     {
       "type": "choice",
       "prompt": "Which route to the evacuation zone?",
@@ -303,7 +303,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{route} == main",
@@ -330,7 +330,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{route} == alleys",
@@ -360,7 +360,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{route} == subway",
@@ -387,41 +387,41 @@
         }
       ]
     },
-    
+
     {
       "type": "checkpoint",
       "name": "reached_evacuation_zone"
     },
-    
+
     {
       "type": "narrative",
       "text": "You reach the evacuation zone. Military vehicles form a perimeter. Soldiers are checking survivors and directing them to transport trucks."
     },
-    
+
     {
       "type": "narrative",
       "speaker": "Soldier",
       "text": "Are you bitten? Any symptoms? Fever? Nausea?"
     },
-    
+
     {
       "type": "narrative",
       "text": "You pass the health screening. As you board the truck, you look back at the city. Smoke rises from multiple districts. This was home. Now it's lost."
     },
-    
+
     {
       "type": "narrative",
       "speaker": "You",
       "text": "I survived the first day. But this is just the beginning..."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 50,
       "category": "usage",
       "reason": "Reached evacuation zone"
     },
-    
+
     {
       "type": "end",
       "outcome": "survived",
