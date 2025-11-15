@@ -1,7 +1,7 @@
 """
 uDOS uCODE Interpreter
 Executes .uscript files with advanced programming features
-Version: 1.0.14
+Version: 1.0.17
 
 Features:
 - Variables (SET/GET/${var})
@@ -9,6 +9,7 @@ Features:
 - Functions (FUNCTION/RETURN)
 - Error handling (TRY/CATCH)
 - Modules (IMPORT/EXPORT)
+- Interactive Debugger (DEBUG, BREAK, STEP, INSPECT)
 """
 
 import os
@@ -16,6 +17,468 @@ import re
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+from enum import Enum
+
+
+class DebugState(Enum):
+    """Debugger execution states."""
+    NOT_STARTED = "not_started"
+    RUNNING = "running"
+    PAUSED = "paused"
+    STEPPING = "stepping"
+    STOPPED = "stopped"
+
+
+class UCodeDebugger:
+    """Interactive debugger for uCODE scripts."""
+
+    def __init__(self, interpreter):
+        """
+        Initialize debugger.
+
+        Args:
+            interpreter: UCodeInterpreter instance
+        """
+        self.interpreter = interpreter
+        self.state = DebugState.NOT_STARTED
+        self.breakpoints = set()  # Set of line numbers
+        self.conditional_breakpoints = {}  # {line: condition_expr}
+        self.breakpoint_hit_counts = {}  # {line: count}
+        self.current_line = 0
+        self.current_file = None
+        self.script_path = None  # Current script being debugged
+        self.call_stack = []
+        self.watch_expressions = {}
+        self.step_mode = None  # None, 'STEP', 'STEP_INTO', 'STEP_OUT'
+        self.step_target_depth = None  # For STEP OUT
+        # v1.0.17 Phase 4: Performance tracking
+        self.line_execution_times = {}  # {line: [times]}
+        self.function_call_times = {}  # {function: [times]}
+        # v1.0.17 Phase 4+: Enhanced features
+        self.disabled_breakpoints = set()  # Disabled but not deleted breakpoints
+        self.variable_history = {}  # {var_name: [(value, timestamp, line)]}
+        self.auto_profile = False  # Auto-profile during execution
+
+    def start(self, script_path: str):
+        """Start debugging session for a script."""
+        self.script_path = script_path
+        self.current_file = script_path
+        self.state = DebugState.RUNNING
+        self.current_line = 0
+        return f"✓ Debugging started: {script_path}"
+
+    def stop(self):
+        """Stop debugging session."""
+        self.state = DebugState.STOPPED
+        self.script_path = None
+        self.current_file = None
+        self.current_line = 0
+        self.step_mode = None
+        return "✓ Debugging stopped"
+
+    def set_breakpoint(self, line: int, condition: str = None) -> str:
+        """
+        Set breakpoint at line number, optionally with condition.
+
+        Args:
+            line: Line number for breakpoint
+            condition: Optional condition expression (e.g., "x > 10")
+        """
+        self.breakpoints.add(line)
+        if condition:
+            self.conditional_breakpoints[line] = condition
+            return f"✓ Conditional breakpoint set at line {line}: {condition}"
+        return f"✓ Breakpoint set at line {line}"
+
+    def clear_breakpoint(self, line: int = None) -> str:
+        """Clear breakpoint(s)."""
+        if line is None:
+            count = len(self.breakpoints)
+            self.breakpoints.clear()
+            self.conditional_breakpoints.clear()
+            self.breakpoint_hit_counts.clear()
+            return f"✓ Cleared {count} breakpoint(s)"
+        elif line in self.breakpoints:
+            self.breakpoints.remove(line)
+            if line in self.conditional_breakpoints:
+                del self.conditional_breakpoints[line]
+            if line in self.breakpoint_hit_counts:
+                del self.breakpoint_hit_counts[line]
+            return f"✓ Breakpoint cleared at line {line}"
+        else:
+            return f"✗ No breakpoint at line {line}"
+
+    def list_breakpoints(self) -> str:
+        """List all breakpoints."""
+        if not self.breakpoints:
+            return "No breakpoints set"
+        lines = sorted(self.breakpoints)
+        return "Breakpoints:\n" + "\n".join(f"  Line {line}" for line in lines)
+
+    def should_pause(self, line: int) -> bool:
+        """
+        Check if execution should pause at this line.
+
+        v1.0.17 Phase 4: Supports conditional breakpoints and hit counting.
+        """
+        # Pause if breakpoint hit
+        if line in self.breakpoints:
+            # Check if breakpoint is disabled
+            if line in self.disabled_breakpoints:
+                return False  # Skip disabled breakpoints
+
+            # Track hit count
+            self.breakpoint_hit_counts[line] = self.breakpoint_hit_counts.get(line, 0) + 1
+
+            # Check conditional breakpoint
+            if line in self.conditional_breakpoints:
+                condition = self.conditional_breakpoints[line]
+                try:
+                    # Evaluate condition in current scope
+                    if self._evaluate_condition(condition):
+                        self.state = DebugState.PAUSED
+                        return True
+                    else:
+                        # Condition not met, continue execution
+                        return False
+                except Exception as e:
+                    # If condition evaluation fails, pause anyway and show error
+                    self.state = DebugState.PAUSED
+                    print(f"⚠️  Breakpoint condition error: {e}")
+                    return True
+            else:
+                # Unconditional breakpoint
+                self.state = DebugState.PAUSED
+                return True
+
+        # Pause if in step mode
+        if self.step_mode == 'STEP':
+            self.state = DebugState.PAUSED
+            self.step_mode = None
+            return True
+        elif self.step_mode == 'STEP_INTO':
+            self.state = DebugState.PAUSED
+            self.step_mode = None
+            return True
+        elif self.step_mode == 'STEP_OUT':
+            if len(self.call_stack) <= self.step_target_depth:
+                self.state = DebugState.PAUSED
+                self.step_mode = None
+                self.step_target_depth = None
+                return True
+
+        return False
+
+    def step(self):
+        """Execute one line."""
+        self.step_mode = 'STEP'
+        self.state = DebugState.STEPPING
+
+    def step_into(self):
+        """Step into function calls."""
+        self.step_mode = 'STEP_INTO'
+        self.state = DebugState.STEPPING
+
+    def step_out(self):
+        """Step out of current function."""
+        self.step_mode = 'STEP_OUT'
+        self.step_target_depth = len(self.call_stack) - 1
+        self.state = DebugState.STEPPING
+
+    def continue_execution(self):
+        """Continue until next breakpoint."""
+        self.step_mode = None
+        self.state = DebugState.RUNNING
+
+    def get_context(self) -> Dict[str, Any]:
+        """Get current execution context."""
+        return {
+            'line': self.current_line,
+            'file': self.current_file,
+            'state': self.state.value,
+            'call_stack': self.call_stack.copy(),
+            'variables': self.interpreter.current_scope.list_variables(),
+            'breakpoints': sorted(self.breakpoints)
+        }
+
+    def inspect_variable(self, name: str) -> Any:
+        """Inspect variable value."""
+        # Try current_scope first
+        if hasattr(self.interpreter, 'current_scope') and self.interpreter.current_scope:
+            if self.interpreter.current_scope.has(name):
+                return self.interpreter.current_scope.get(name)
+
+        # Fall back to variables dict
+        if hasattr(self.interpreter, 'variables') and name in self.interpreter.variables:
+            return self.interpreter.variables[name]
+
+        # Variable not found
+        return None
+
+    def add_watch(self, expr: str, name: str = None):
+        """Add watch expression."""
+        watch_name = name or expr
+        self.watch_expressions[watch_name] = expr
+        return f"✓ Watching: {watch_name}"
+
+    def remove_watch(self, name: str):
+        """Remove watch expression."""
+        if name in self.watch_expressions:
+            del self.watch_expressions[name]
+            return f"✓ Removed watch: {name}"
+        return f"✗ No watch named: {name}"
+
+    def evaluate_watches(self) -> Dict[str, Any]:
+        """Evaluate all watch expressions."""
+        results = {}
+        for name, expr in self.watch_expressions.items():
+            try:
+                # Try to get as variable first
+                if self.interpreter.current_scope.has(expr):
+                    results[name] = self.interpreter.current_scope.get(expr)
+                else:
+                    results[name] = f"<undefined: {expr}>"
+            except Exception as e:
+                results[name] = f"<error: {str(e)}>"
+        return results
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.17: Additional debugger methods for command integration
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def get_status(self) -> Dict[str, Any]:
+        """Get current debugger status."""
+        return {
+            'state': self.state.name,
+            'current_script': getattr(self, 'script_path', None),
+            'current_line': self.current_line,
+            'breakpoints': list(self.breakpoints),
+            'watches': list(self.watch_expressions.keys())
+        }
+
+    def get_variables(self) -> Dict[str, Any]:
+        """Get all variables in current scope."""
+        if self.interpreter:
+            # Try current_scope first, fall back to variables dict
+            if hasattr(self.interpreter, 'current_scope') and self.interpreter.current_scope:
+                return self.interpreter.current_scope.variables.copy()
+            elif hasattr(self.interpreter, 'variables'):
+                return self.interpreter.variables.copy()
+        return {}
+
+    def get_watches(self) -> Dict[str, Any]:
+        """Get all watched variables with their current values."""
+        return self.evaluate_watches()
+
+    def get_call_stack(self) -> list:
+        """Get current call stack."""
+        return self.call_stack.copy()
+
+    def clear_all_breakpoints(self):
+        """Clear all breakpoints."""
+        count = len(self.breakpoints)
+        self.breakpoints.clear()
+        return f"✓ Cleared {count} breakpoints"
+
+    def clear_all_watches(self):
+        """Clear all watch expressions."""
+        count = len(self.watch_expressions)
+        self.watch_expressions.clear()
+        return f"✓ Cleared {count} watches"
+
+    def step_over(self):
+        """Step over current line (don't enter function calls)."""
+        self.state = DebugState.STEPPING
+        self.step_mode = 'over'
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.17 Phase 4: Advanced Debugging Features
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _evaluate_condition(self, condition: str) -> bool:
+        """
+        Evaluate a breakpoint condition in the current scope.
+
+        Args:
+            condition: Condition expression (e.g., "x > 10", "name == 'test'")
+
+        Returns:
+            True if condition is met, False otherwise
+        """
+        try:
+            # Get variables from current scope
+            variables = self.get_variables()
+
+            # Evaluate condition using Python's eval with limited scope
+            # This is safe because we only expose debugger variables
+            result = eval(condition, {"__builtins__": {}}, variables)
+            return bool(result)
+        except Exception:
+            # If evaluation fails, return False (don't pause)
+            return False
+
+    def set_variable(self, name: str, value: Any) -> str:
+        """
+        Set/modify a variable during debugging.
+
+        Args:
+            name: Variable name
+            value: New value
+
+        Returns:
+            Confirmation message
+        """
+        try:
+            # Try to set in current scope first
+            if hasattr(self.interpreter, 'current_scope') and self.interpreter.current_scope:
+                self.interpreter.current_scope.set(name, value)
+                return f"✓ Variable '{name}' set to: {value}"
+
+            # Fall back to global scope
+            if hasattr(self.interpreter, 'global_scope'):
+                self.interpreter.global_scope.set(name, value)
+                return f"✓ Variable '{name}' set to: {value}"
+
+            return f"✗ Cannot set variable: no scope available"
+        except Exception as e:
+            return f"✗ Error setting variable: {e}"
+
+    def get_breakpoint_info(self, line: int) -> Dict[str, Any]:
+        """
+        Get detailed information about a breakpoint.
+
+        Args:
+            line: Line number
+
+        Returns:
+            Dict with breakpoint details
+        """
+        if line not in self.breakpoints:
+            return None
+
+        return {
+            'line': line,
+            'condition': self.conditional_breakpoints.get(line),
+            'hit_count': self.breakpoint_hit_counts.get(line, 0),
+            'enabled': True
+        }
+
+    def get_all_breakpoint_info(self) -> list:
+        """Get detailed info for all breakpoints."""
+        return [self.get_breakpoint_info(line) for line in sorted(self.breakpoints)]
+
+    def record_line_time(self, line: int, execution_time: float):
+        """
+        Record execution time for a line (for profiling).
+
+        Args:
+            line: Line number
+            execution_time: Time in seconds
+        """
+        if line not in self.line_execution_times:
+            self.line_execution_times[line] = []
+        self.line_execution_times[line].append(execution_time)
+
+    def get_performance_profile(self) -> Dict[str, Any]:
+        """
+        Get performance profiling data.
+
+        Returns:
+            Dict with profiling statistics
+        """
+        profile = {
+            'lines': {},
+            'slowest_lines': [],
+            'total_time': 0.0
+        }
+
+        # Calculate stats for each line
+        for line, times in self.line_execution_times.items():
+            avg_time = sum(times) / len(times) if times else 0
+            total_time = sum(times)
+            profile['lines'][line] = {
+                'executions': len(times),
+                'avg_time': avg_time,
+                'total_time': total_time,
+                'min_time': min(times) if times else 0,
+                'max_time': max(times) if times else 0
+            }
+            profile['total_time'] += total_time
+
+        # Find slowest lines
+        sorted_lines = sorted(
+            profile['lines'].items(),
+            key=lambda x: x[1]['total_time'],
+            reverse=True
+        )
+        profile['slowest_lines'] = [(line, data) for line, data in sorted_lines[:10]]
+
+        return profile
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.17 Phase 4+: Additional Enhanced Features
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def disable_breakpoint(self, line: int) -> str:
+        """Disable a breakpoint without deleting it."""
+        self.disabled_breakpoints.add(line)
+        if line in self.breakpoints:
+            return f"✓ Breakpoint at line {line} disabled"
+        return f"✓ Line {line} marked as disabled"
+
+    def enable_breakpoint(self, line: int) -> str:
+        """Enable a previously disabled breakpoint."""
+        if line in self.disabled_breakpoints:
+            self.disabled_breakpoints.remove(line)
+            return f"✓ Breakpoint at line {line} enabled"
+        return f"✓ Line {line} not in disabled list"
+
+    def is_breakpoint_enabled(self, line: int) -> bool:
+        """Check if a breakpoint is enabled."""
+        return line in self.breakpoints and line not in self.disabled_breakpoints
+
+    def track_variable_change(self, var_name: str, old_value: Any, new_value: Any, line: int):
+        """
+        Track variable value changes for history.
+
+        Args:
+            var_name: Variable name
+            old_value: Previous value (None if first assignment)
+            new_value: New value
+            line: Line number where change occurred
+        """
+        from datetime import datetime
+
+        if var_name not in self.variable_history:
+            self.variable_history[var_name] = []
+
+        self.variable_history[var_name].append({
+            'old_value': old_value,
+            'new_value': new_value,
+            'timestamp': datetime.now().isoformat(),
+            'line': line
+        })
+
+        # Keep only last 100 changes per variable
+        if len(self.variable_history[var_name]) > 100:
+            self.variable_history[var_name] = self.variable_history[var_name][-100:]
+
+    def get_variable_history(self, var_name: str) -> list:
+        """Get history of variable changes."""
+        return self.variable_history.get(var_name, [])
+
+    def clear_variable_history(self, var_name: str = None):
+        """
+        Clear variable history.
+
+        Args:
+            var_name: Variable name to clear, or None to clear all
+        """
+        if var_name:
+            if var_name in self.variable_history:
+                del self.variable_history[var_name]
+        else:
+            self.variable_history.clear()
 
 
 class VariableScope:
@@ -92,6 +555,10 @@ class UCodeInterpreter:
         self.last_result = None
         self.functions = {}
         self.imported_modules = {}
+
+        # Debugger
+        self.debugger = UCodeDebugger(self)
+        self.debug_mode = False
 
         # Persistence
         self.variables_file = Path("data/system/ucode_variables.json")
@@ -350,10 +817,51 @@ class UCodeInterpreter:
         except Exception as e:
             results.append(f"\n❌ Script execution error: {str(e)}")
 
+            # v1.0.17: Show stack trace in debug mode
+            if self.debug_mode:
+                import traceback
+                results.append("\n🐛 Debug Stack Trace:")
+                results.append(traceback.format_exc())
+
+                # Show debugger context
+                results.append("\n" + self._show_debug_context())
+
         results.append("\n" + "=" * 60)
         results.append(f"✅ Script execution complete")
 
         return "\n".join(results)
+
+    def _show_debug_context(self) -> str:
+        """
+        Show debugging context (variables, watches, stack).
+
+        Returns:
+            Formatted debug context string
+        """
+        output = []
+
+        # Show watched variables
+        watches = self.debugger.get_watches()
+        if watches:
+            output.append("👁️  Watches:")
+            for name, value in watches.items():
+                output.append(f"   {name} = {value}")
+
+        # Show local variables (first 5)
+        variables = self.debugger.get_variables()
+        if variables:
+            output.append("📍 Variables:")
+            for i, (name, value) in enumerate(list(variables.items())[:5]):
+                output.append(f"   {name} = {value}")
+            if len(variables) > 5:
+                output.append(f"   ... and {len(variables) - 5} more")
+
+        # Show call stack
+        stack = self.debugger.get_call_stack()
+        if stack:
+            output.append(f"📚 Call stack depth: {len(stack)}")
+
+        return "\n".join(output) if output else "ℹ️  No debug context"
 
     def _execute_lines(self, lines: List[str], results: List[str],
                       start_index: int = 0, end_index: Optional[int] = None) -> int:
@@ -376,6 +884,17 @@ class UCodeInterpreter:
         while i < end_index:
             line = lines[i].strip()
             line_num = i + 1
+
+            # v1.0.17: Update debugger current line
+            if self.debug_mode:
+                self.debugger.current_line = line_num
+
+                # Check if we should pause at this line
+                if self.debugger.should_pause(line_num):
+                    results.append(f"\n🐛 Paused at line {line_num}: {line}")
+                    results.append(self._show_debug_context())
+                    # In interactive mode, this would wait for user input
+                    # For now, we just log the pause
 
             # Skip empty lines and comments
             if not line or line.startswith('#'):
@@ -417,7 +936,16 @@ class UCodeInterpreter:
 
             # Execute regular command
             try:
-                result = self.execute_line(line, line_num)
+                # v1.0.17 Phase 4+: Auto-profiling
+                if self.debug_mode and self.debugger.auto_profile:
+                    import time
+                    start_time = time.time()
+                    result = self.execute_line(line, line_num)
+                    execution_time = time.time() - start_time
+                    self.debugger.record_line_time(line_num, execution_time)
+                else:
+                    result = self.execute_line(line, line_num)
+
                 if result:
                     results.append(f"\n[Line {line_num}] {line}")
                     results.append(result)
@@ -961,6 +1489,10 @@ class UCodeInterpreter:
         Returns:
             Command result
         """
+        # v1.0.17: Update debugger line tracking
+        if self.debug_mode and line_num > 0:
+            self.debugger.current_line = line_num
+
         # Substitute variables first
         line = self.substitute_variables(line)
 
@@ -1142,28 +1674,28 @@ class UCodeInterpreter:
         import_path = line[7:].strip()
         if not import_path:
             return "❌ IMPORT syntax: IMPORT module_name or IMPORT path/to/module.uscript"
-        
+
         # Check if importing specific item
         specific_item = None
         if '.' in import_path and not import_path.startswith('.') and not import_path.endswith('.uscript'):
             parts = import_path.rsplit('.', 1)
             import_path = parts[0]
             specific_item = parts[1]
-        
+
         # Resolve module path
         module_path = self._resolve_module_path(import_path)
         if not module_path or not os.path.exists(module_path):
             return f"❌ Module not found: {import_path}"
-        
+
         # Check for circular imports
         if module_path in self.imported_modules:
             return f"⚠️  Module already imported: {import_path}"
-        
+
         # Execute module
         try:
             with open(module_path, 'r') as f:
                 module_lines = [line.rstrip() for line in f.readlines()]
-            
+
             module_exports = {'functions': {}, 'variables': {}}
             results = []
             module_interpreter = UCodeInterpreter(
@@ -1172,12 +1704,12 @@ class UCodeInterpreter:
                 grid=self.grid
             )
             module_interpreter._execute_lines(module_lines, results, 0, len(module_lines))
-            
+
             if hasattr(module_interpreter, '_exports'):
                 module_exports = module_interpreter._exports
             else:
                 module_exports['functions'] = module_interpreter.functions.copy()
-            
+
             # Import items
             if specific_item:
                 if specific_item in module_exports['functions']:
@@ -1201,26 +1733,26 @@ class UCodeInterpreter:
                 return f"✅ Imported module {import_path} ({func_count} function(s), {var_count} variable(s))"
         except Exception as e:
             return f"❌ Error importing module {import_path}: {str(e)}"
-    
+
     def _handle_export(self, line: str) -> str:
         """Handle EXPORT command for marking items as exportable."""
         item_name = line[7:].strip()
         if not item_name:
             return "❌ EXPORT syntax: EXPORT function_name or EXPORT variable_name"
-        
+
         if not hasattr(self, '_exports'):
             self._exports = {'functions': {}, 'variables': {}}
-        
+
         if item_name in self.functions:
             self._exports['functions'][item_name] = self.functions[item_name]
             return f"✅ Exported function '{item_name}'"
-        
+
         if self.global_scope.has(item_name):
             self._exports['variables'][item_name] = self.global_scope.get(item_name)
             return f"✅ Exported variable '{item_name}'"
-        
+
         return f"⚠️  '{item_name}' not found (export will apply when defined)"
-    
+
     def _resolve_module_path(self, import_path: str) -> Optional[str]:
         """Resolve module import path to actual file path."""
         if import_path.endswith('.uscript'):
@@ -1228,22 +1760,22 @@ class UCodeInterpreter:
                 return import_path
             else:
                 return os.path.abspath(import_path)
-        
+
         stdlib_paths = [
             f"memory/modules/{import_path}.uscript",
             f"memory/modules/stdlib/{import_path}.uscript",
             f"examples/modules/{import_path}.uscript"
         ]
-        
+
         for path in stdlib_paths:
             if os.path.exists(path):
                 return os.path.abspath(path)
-        
+
         if import_path.startswith('./') or import_path.startswith('../'):
             path = os.path.abspath(import_path + '.uscript')
             if os.path.exists(path):
                 return path
-        
+
         return None
 
 

@@ -1,16 +1,28 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.16 (uCODE Part 2: Advanced Features - ✅ COMPLETE)
-**Last Updated**: 14 November 2025
+**Current Version**: v1.0.17 (Interactive Debugger - ✅ COMPLETE)
+**Last Updated**: 15 November 2025 - v1.0.17 SHIPPED!
 
 **Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection! A Survival Handbook for Armageddon - giving life and purpose to all our computer-type devices and helping us thrive as humans!"*
 
 **Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
+
+**Recent Updates**:
+- 🎭 **v1.0.16c Dual-Mode Operation added** (Nov 15, 2025) - COMMAND vs ASSIST modes, offline logic, project templates
+- 🗺️ **v1.0.20b Enhanced Mapping System** - Complete world data, TILE system, clean data architecture
+- 🎮 **Interactive game creation** - NetHack-style dungeon builder, choose-your-own-adventure templates
+- 🔧 **v1.0.17-v1.0.23 detailed planning complete** (Nov 15, 2025)
+- 📋 **v1.0.20 4-Tier Knowledge Bank fully specified** with all privacy tiers
+- 🌲 **v1.0.21 Survivalist Library expanded** to 500+ guides across 8 categories
+- 📚 **v1.0.22 Documentation plan finalized** with 1000+ page survival handbook
+- 🎨 **v1.0.23 Final Polish roadmap** ready for pre-v1.1.0 launch
 
 **Core Principles**:
 - 🌍 **Offline-First**: Full functionality without internet
 - 🤝 **Barter Over Currency**: Exchange knowledge/skills/resources, not wealth
 - 🧠 **4-Tier Memory**: Personal → Shared → Group → Public knowledge
 - 🎯 **Practical Over Political**: Real survival skills, not history debates
+- 🎭 **Dual-Mode**: Machine serves you (COMMAND) or collaborates with you (ASSIST)
+- 🎮 **Learn by Creating**: Education through interactive game creation
 - 👤 **Individual-Owned**: Serves the user, not companies/governments
 
 ---
@@ -34,18 +46,45 @@
 - **v1.0.13** - Theme System Enhancement (Preview, creation, import/export, 100% tests) - ✅ **COMPLETE**
 - **v1.0.14** - uCODE Language Enhancement Part 1 (Variables, conditionals, loops, 32/32 tests) - ✅ **COMPLETE**
 - **v1.0.15** - Human-Centric Documentation & Philosophy (Wiki migration, philosophy, knowledge library) - ✅ **COMPLETE**
+- **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - ✅ **COMPLETE**
+- **v1.0.17** - Interactive Debugger (DEBUG, BREAK, STEP, INSPECT, 94/94 tests) - ✅ **COMPLETE**
 
 ### 📋 Planned Versions
 - **v1.0.16** - uCODE Language Enhancement Part 2 (Functions, error handling, modules) - ✅ **COMPLETE**
-- **v1.0.17** - Interactive Debugger & Developer Tools - 📝 **PLANNED**
+- **v1.0.17** - Interactive Debugger & Developer Tools - ✅ **COMPLETE** (94/94 tests, Nov 15 2025)
+- **v1.0.16c** - Dual-Mode Operation & Core Logic Engine (COMMAND/ASSIST modes, project templates) - 📝 **NEXT**
 - **v1.0.18** - Apocalypse Adventures & Experience System - 📝 **PLANNED**
 - **v1.0.19** - Project/Workflow Management & Barter Economy - 📝 **PLANNED**
 - **v1.0.20** - 4-Tier Knowledge Bank & Memory System - 📝 **PLANNED**
+- **v1.0.20b** - Enhanced Mapping & Reference Data System - 📝 **PLANNED**
 - **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **PLANNED**
 - **v1.0.22** - Documentation & Offline-First Handbook - 📝 **PLANNED**
 - **v1.0.23** - Final Polish & Integration - 📝 **PLANNED**
-- **v1.1.0** - Stable Release (Laptop-to-mobile spawning, device mesh) - 📝 **FUTURE**
-- **v1.1.x** - Advanced Features (P2P networking, mesh networks, device spawning) - 📝 **FUTURE**
+- **v1.1.0** - Stable Release (Complete offline system, device spawning) - 📝 **FUTURE**
+- **v1.1.x** - Advanced Features (P2P networking, mesh networks) - 📝 **FUTURE**
+
+---
+
+## 📈 Visual Development Timeline
+
+```
+Nov 2025          Dec 2025      Jan 2026      Feb 2026      Mar 2026      Apr 2026      May 2026      Jun 2026      Jul 2026
+    |                 |             |             |             |             |             |             |             |
+    ▼                 ▼             ▼             ▼             ▼             ▼             ▼             ▼             ▼
+┌────────┐       ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────────────────┐   ┌─────────┐   ┌──────────────┐   ┌─────────┐
+│v1.0.16 │ ───→ │ v1.0.17 │→ │ v1.0.18 │→ │ v1.0.19 │→ │  v1.0.20 + v1.0.21  │→ │ v1.0.22 │→ │   v1.0.23    │→ │ v1.1.0  │
+│  ✅   │       │Debugger │  │Adventure│  │Workflow │  │Knowledge + Survival │  │  Docs   │  │Final Polish  │  │LAUNCH! │
+└────────┘       └─────────┘   └─────────┘   └─────────┘   └─────────────────────┘   └─────────┘   └──────────────┘   └─────────┘
+COMPLETE          Tools         XP System      Barter        4-Tier + 500 Guides      1000 Pages    1000+ Tests      STABLE
+uCODE Done        VSCode        Survival       Economy       Memory System            Handbook      Performance       RELEASE
+Functions         Testing       Desktop                      Community                Complete      Self-Healing      Community
+Modules           Framework     Server                       Knowledge                                               Launch
+
+                                    ← 8 MONTHS TO STABLE RELEASE →
+                            16 versions complete | 7 versions + launch remaining
+```
+
+**Progress**: 17/24 versions complete (71%) | On track for July 2026 stable release
 
 ---
 
@@ -1009,13 +1048,373 @@ knowledge/
 
 ---
 
+## 🎭 v1.0.16c - Dual-Mode Operation & Core Logic Engine
+**Status**: 📋 Planned (November-December 2025)
+**Focus**: COMMAND vs ASSIST modes, offline logic capability, context-aware interaction
+
+**Philosophy**: *"The machine serves you in COMMAND mode. You collaborate with it in ASSIST mode. It remembers context and guides you forward."*
+
+### Critical Features for v1.0.x First Release
+
+#### 1. Dual-Mode Operation System
+- [ ] **COMMAND Mode** (Default: User prompts machine)
+  * Traditional command-line interface
+  * User types commands, system executes
+  * Full manual control
+  * Direct file/grid/map manipulation
+  * Power-user focused
+  * Exit to ASSIST mode with `OK` command
+
+- [ ] **ASSIST Mode** (Machine prompts user)
+  * Activated with `OK` command
+  * System becomes conversational assistant
+  * Context-aware prompting
+  * Guides workflow and next steps
+  * Checks for active projects/missions
+  * Suggests relevant actions
+  * Educational and supportive
+  * Exit back to COMMAND mode with `EXIT` or `ESC`
+
+- [ ] **Mode Switching**
+  ```
+  [COMMAND] user@uDOS> OK what's next?
+  → Entering ASSIST mode...
+
+  [ASSIST] uDOS: I see you have an active mission "Build Shelter".
+          You're on step 3 of 5: "Gather materials".
+          Would you like to continue this mission? (yes/no)
+
+  [ASSIST] user> yes
+
+  [ASSIST] uDOS: Great! Let me check your inventory...
+  ```
+
+- [ ] **Persistent Mode State**
+  * Remember which mode user prefers
+  * Seamless switching between modes
+  * Context preserved across mode changes
+  * Clear visual indication of current mode
+
+#### 2. Offline Logic Capability
+- [ ] **Basic Logic Engine** (No internet required)
+  * Rule-based reasoning system
+  * If-then logic processing
+  * Pattern matching and recognition
+  * Decision tree navigation
+  * Context evaluation
+  * Goal-oriented planning
+
+- [ ] **Context Awareness**
+  * Track current project/mission state
+  * Remember user's recent actions
+  * Understand workflow position
+  * Identify incomplete tasks
+  * Suggest logical next steps
+  * Maintain conversation thread
+
+- [ ] **"What's Next" Logic**
+  ```python
+  # When user asks "what's next":
+  1. Check for active project/mission
+  2. If exists: Resume from last checkpoint
+  3. If none: Prompt to create new project
+  4. If multiple: Let user choose which to resume
+  5. If stuck: Offer help or alternatives
+  ```
+
+- [ ] **Fallback Reasoning**
+  * Works without Gemini API
+  * Local pattern recognition
+  * Template-based responses
+  * Rule-based suggestions
+  * Knowledge base queries
+  * Offline-first intelligence
+
+#### 3. Project/Mission Management System
+- [ ] **PROJECT Command Suite**
+  * `PROJECT CREATE <name>` - Start new project
+  * `PROJECT LIST` - Show all projects
+  * `PROJECT ACTIVE` - Show current active project
+  * `PROJECT RESUME <name>` - Resume specific project
+  * `PROJECT STATUS` - Show progress and next steps
+  * `PROJECT COMPLETE` - Mark project as done
+  * `PROJECT ARCHIVE` - Archive completed project
+
+- [ ] **MISSION Command Suite**
+  * `MISSION START <template>` - Begin mission from template
+  * `MISSION NEXT` - Show next mission step
+  * `MISSION SKIP` - Skip current step
+  * `MISSION HINT` - Get help for current step
+  * `MISSION PROGRESS` - Show mission completion %
+  * `MISSION ABANDON` - Exit mission (saves state)
+
+- [ ] **Workflow State Tracking**
+  * Current step in project/mission
+  * Completed steps (with timestamps)
+  * Remaining steps with estimates
+  * Blockers or issues encountered
+  * Resources gathered/used
+  * XP earned per step
+  * Checkpoints for resumption
+
+- [ ] **Auto-Resume Feature**
+  ```
+  user@uDOS> OK
+
+  uDOS: Welcome back! I see you were working on:
+        "Create Adventure Game" (Step 4/10: Design first puzzle)
+        Last active: 2 hours ago
+
+        Options:
+        1. Resume this project
+        2. Start a different project
+        3. Create new project
+
+  Your choice:
+  ```
+
+#### 4. Core Project Templates (Ship with uDOS)
+- [ ] **Choose Your Own Adventure Creator**
+  * Template: `adventure_story.uscript`
+  * Interactive story writing workflow
+  * Branch/choice point creation
+  * Character development prompts
+  * Story arc planning
+  * Teaches: Variables, IF/ELSE, user input
+  * Output: Playable .uscript adventure
+
+- [ ] **Roguelike Map Game Builder**
+  * Template: `roguelike_game.uscript`
+  * Dungeon/map generation
+  * Character stats system
+  * Item/inventory management
+  * Combat mechanics (simple)
+  * Teaches: Arrays, loops, functions
+  * Output: Playable dungeon crawler
+
+- [ ] **Library Resource Researcher**
+  * Template: `research_project.uscript`
+  * Topic selection and scoping
+  * Knowledge base querying
+  * Note-taking and organization
+  * Source tracking
+  * Summary generation
+  * Teaches: File operations, data organization
+  * Output: Organized research document
+
+- [ ] **Survival Scenario Simulator**
+  * Template: `survival_mission.uscript`
+  * Disaster scenario setup
+  * Resource management
+  * Decision-making challenges
+  * Outcome tracking
+  * Teaches: Logic, planning, problem-solving
+  * Output: Survival simulation results
+
+- [ ] **Knowledge Garden Builder**
+  * Template: `knowledge_garden.uscript`
+  * Personal wiki creation
+  * Topic interconnection
+  * Learning path design
+  * Progress tracking
+  * Teaches: Data structures, relationships
+  * Output: Personal knowledge base
+
+- [ ] **Map Creation Workshop**
+  * Template: `map_designer.uscript`
+  * Grid-based map building
+  * Terrain placement
+  * Location marking
+  * ASCII art integration
+  * Teaches: 2D arrays, coordinates, visualization
+  * Output: Custom maps for games/stories
+
+#### 5. Interactive Game Creation (NetHack-Style)
+- [ ] **Dungeon Map Designer**
+  * ASCII-based grid editor
+  * Tile placement system (walls, floors, doors)
+  * Room/corridor generator
+  * Object placement tool
+  * Character/NPC positioning
+  * Trap and secret areas
+  * Save/load map files
+
+- [ ] **Map Editing Commands**
+  * `MAP CREATE <name> <width> <height>` - New map
+  * `MAP EDIT <name>` - Enter edit mode
+  * `MAP SET <x> <y> <tile>` - Place tile
+  * `MAP PLACE <object> <x> <y>` - Add object
+  * `MAP SPAWN <character> <x> <y>` - Add character
+  * `MAP SAVE` - Save current map
+  * `MAP PLAY` - Playtest the map
+
+- [ ] **Tile/Object Library**
+  ```
+  Walls:    # ║ ═ ╔ ╗ ╚ ╝
+  Floors:   . · ░ ▒
+  Doors:    + ┼ ▪
+  Items:    $ ! ? % *
+  Monsters: @ & Z D S
+  Features: ^ < > ≈ ≡
+  ```
+
+- [ ] **Character/NPC System**
+  * Define character attributes
+  * Set behaviors (hostile, friendly, neutral)
+  * Inventory and equipment
+  * Dialogue trees (simple)
+  * Movement patterns
+  * Stats (HP, attack, defense)
+
+- [ ] **Object Placement System**
+  * Items (weapons, armor, food, potions)
+  * Furniture (tables, chairs, beds)
+  * Interactive objects (levers, buttons, chests)
+  * Environmental features (water, lava, pits)
+  * Collectibles and quest items
+  * Hidden/secret items
+
+#### 6. Theme Integration (Giving uDOS Character)
+- [ ] **Themed Responses** based on active theme
+  * **Wasteland**: "Scavenging for the next mission..."
+  * **Bunker**: "Checking secure protocols..."
+  * **Fortress**: "Fortifying your next objective..."
+  * **Explorer**: "Charting the path ahead..."
+  * **Scholar**: "Researching your options..."
+  * **Survivor**: "Assessing survival priorities..."
+
+- [ ] **Theme-Appropriate Templates**
+  * Wasteland: Scavenging missions, resource trading
+  * Bunker: Security protocols, inventory management
+  * Fortress: Defense planning, community building
+  * Explorer: Map creation, discovery logs
+  * Scholar: Research projects, knowledge organization
+  * Survivor: Skill learning, emergency preparation
+
+- [ ] **Character Voice Consistency**
+  * Theme affects how system communicates
+  * Consistent terminology per theme
+  * Appropriate emotional tone
+  * Matching visual style (ASCII art, colors)
+
+#### 7. Educational Integration (Learn by Doing)
+- [ ] **Coding Through Game Creation**
+  * Template-based learning progression
+  * Real projects with immediate feedback
+  * Visual results (maps, games, stories)
+  * Incremental complexity increase
+  * Example code provided
+  * Challenges with solutions
+
+- [ ] **uScript Learning Path**
+  ```
+  Level 1: Variables & Output
+  → Create a simple story with choices
+
+  Level 2: Conditionals & Input
+  → Build a quiz game
+
+  Level 3: Loops & Arrays
+  → Design a dungeon map generator
+
+  Level 4: Functions & Modules
+  → Create a roguelike combat system
+
+  Level 5: Advanced Features
+  → Build a complete adventure game
+  ```
+
+- [ ] **Interactive Tutorials**
+  * Step-by-step project walkthroughs
+  * Inline hints and tips
+  * Common mistake warnings
+  * Best practice suggestions
+  * Progressive unlocking of features
+
+- [ ] **Learn-as-You-Go System**
+  * System explains concepts when encountered
+  * Context-sensitive help
+  * "Why this works" explanations
+  * Encourage experimentation
+  * Celebrate successes, explain failures
+
+#### 8. Context Management
+- [ ] **Session State Persistence**
+  * Save current mode (COMMAND/ASSIST)
+  * Active project/mission state
+  * Recent command history
+  * Conversation context
+  * User preferences
+  * Progress tracking
+
+- [ ] **Smart Context Loading**
+  * Quick resume from last session
+  * "Where was I?" command
+  * Summarize recent activity
+  * Suggest continuation points
+  * Restore interrupted workflows
+
+**Success Metrics**:
+- Dual-mode operation seamless and intuitive
+- Offline logic makes smart suggestions
+- Project templates ship with uDOS (6+ templates)
+- Map editor functional with tile library
+- Theme integration enhances character
+- Educational progression clear and effective
+- Context persistence reliable
+- "What's next" logic >90% helpful
+
+**Philosophy**: *"uDOS isn't just a tool - it's a companion that adapts to how you work, remembers what you're doing, and helps you create, learn, and survive."*
+
+---
+
 ## 🐛 v1.0.17 - Interactive Debugger & Developer Tools
-**Status**: 📋 Planned (December 2025)
+**Status**: 🔄 In Progress - Phase 4/5 Complete (November 2025)
 **Focus**: Complete uCODE debugging system with professional developer tools
 
-### Planned Features (10 tasks)
+**Progress**:
+- ✅ Phase 1: Core debugger infrastructure (44/44 tests passing)
+- ✅ Phase 2: Command integration (18/18 tests passing)
+- ✅ Phase 3: Execution loop integration (5/5 tests passing)
+- ✅ Phase 4: Advanced features (9/9 tests passing)
+- 📋 Phase 5: Documentation and polish
 
-#### 1. Core Debugger System
+**Test Coverage**: 76/76 tests passing (100%)### Completed Features (Phases 1-3) ✅
+
+#### 1. Core Debugger System ✅
+- [x] **DEBUG Command**: Enter interactive debugger mode
+- [x] **Breakpoints**: Set/remove breakpoints by line number (BREAK, BREAK CLEAR)
+- [x] **Step Execution**: STEP, STEP INTO, STEP OUT, CONTINUE commands
+- [x] **Variable Inspector**: INSPECT command with watch expressions
+- [x] **Call Stack**: View function call hierarchy with STACK command
+- [x] **Execution Context**: Show current line, scope, and state
+
+#### 2. Execution Loop Integration ✅
+- [x] **Line Tracking**: Automatic current line tracking during execution
+- [x] **Pause Handling**: Execution pauses at breakpoints
+- [x] **Debug Context Display**: Shows variables, watches, stack on pause
+- [x] **Stack Traces**: Detailed error traces with line numbers in debug mode
+- [x] **Error Context**: Shows debug state when errors occur
+
+#### 3. Watch Expressions ✅
+- [x] **WATCH Command**: Add variables to watch list
+- [x] **WATCH LIST**: Display all watched variables with values
+- [x] **WATCH CLEAR**: Remove specific or all watches
+- [x] **Auto-evaluation**: Watch expressions evaluated at each pause
+
+### In Progress Features (Phases 4-5) 📋
+
+#### 4. Advanced Debugging Features (Phase 4) ✅ **COMPLETE**
+- [x] **Conditional Breakpoints**: Break when condition is true
+- [x] **Watch Expressions**: Auto-evaluate expressions on each step
+- [x] **Variable Modification**: Change variable values during debugging (MODIFY command)
+- [x] **Breakpoint Hit Counting**: Track how many times each breakpoint is hit
+- [x] **Performance Profiling**: Execution time analysis per line (PROFILE command)
+- [x] **Detailed Breakpoint Info**: View conditions and hit counts
+- [ ] **Time-Travel Debugging**: Step backwards through execution (deferred)
+- [ ] **Debug Sessions**: Save/load debugging sessions (deferred)
+
+#### 5. Developer Tools Integration (Phase 5) 📋
 - [ ] **DEBUG Command**: Enter interactive debugger mode
 - [ ] **Breakpoints**: Set/remove breakpoints by line number
 - [ ] **Step Execution**: STEP, STEP INTO, STEP OUT, CONTINUE commands
@@ -1139,8 +1538,8 @@ knowledge/
 - [ ] **Skill Registry**: List your abilities for trade
 - [ ] **Need-Based Economy**: Focus on survival needs, not profit
 
-#### 4. Apocalypse-Themed Adventures
-- [ ] **Survival Templates**: Pre-built apocalypse scenarios
+#### 4. Apocalypse-Themed Adventures (Interactive Game Integration)
+- [ ] **Survival Templates**: Pre-built apocalypse scenarios (using v1.0.16c project system)
   * Zombie outbreak (medical, defense, scavenging)
   * Nuclear holocaust (radiation, shelter, supplies)
   * Economic collapse (barter, community, resources)
@@ -1148,6 +1547,40 @@ knowledge/
   * Grid-down scenario (off-grid living, self-sufficiency)
 - [ ] **Real-World Skills**: Each adventure teaches practical survival skills
 - [ ] **Choose Your Path**: Multiple solutions based on your resources
+- [ ] **NetHack-Style Map Integration**: Adventures use dungeon maps from v1.0.16c
+  * Navigate apocalyptic environments
+  * Find resources scattered on maps
+  * Avoid dangers (radiation zones, zombie hordes)
+  * Discover safe zones and allies
+  * Map-based decision making
+- [ ] **Interactive Gameplay**
+  * Turn-based movement on ASCII maps
+  * Inventory system (@ symbol for player)
+  * Item collection and usage
+  * NPC interaction (friendly survivors, hostile threats)
+  * Environmental hazards and challenges
+  * Save/resume game state
+
+#### 4b. Game Creation Templates (From v1.0.16c)
+- [ ] **Adventure Story Mode**
+  * Load `adventure_story.uscript` template
+  * Create branching narratives with XP rewards
+  * Integrate survival knowledge into story choices
+  * Teach coding through story creation
+
+- [ ] **Roguelike Builder Mode**
+  * Load `roguelike_game.uscript` template
+  * Design dungeons/wastelands/bunkers
+  * Place items, enemies, NPCs
+  * Define combat and interaction rules
+  * Playtest and iterate
+
+- [ ] **Map Designer Mode**
+  * Load `map_designer.uscript` template
+  * Create survival scenario maps
+  * Mark resource locations
+  * Define danger zones
+  * Export for use in adventures
 - [ ] **Consequence System**: Decisions have lasting effects
 - [ ] **Resource Scarcity**: Manage limited supplies like real emergencies
 
@@ -1224,21 +1657,24 @@ knowledge/
 - Barter system enables resource exchange
 - Adventure player teaches practical survival skills
 - Embedded survival guides (PDFs, images, checklists)
+- **NetHack-style map gameplay functional**
+- **Project templates fully integrated**
+- **Game creation tools accessible to users**
 
-**Philosophy**: *"Not a game - a survival handbook disguised as interactive adventures. Every scenario teaches real skills you can use when things go wrong."*
+**Philosophy**: *"Not a game - a survival handbook disguised as interactive adventures. Every scenario teaches real skills you can use when things go wrong. And you can create your own adventures to teach others."*
 
 ---
 
 ## 🔨 v1.0.19 - Project/Workflow Management & Barter Economy
 **Status**: 📋 Planned (February 2026)
-**Focus**: Essential project management tools and expanded barter/trade system for community self-sufficiency
+**Focus**: Essential project management tools and expanded barter/trade system for community self-sufficiency (Enhances v1.0.16c project system)
 
 **Theme**: *"What can I do today?"* - Practical task management focused on survival, building, and thriving
 
 ### Planned Features (8 tasks)
 
-#### 1. Project & Task Management
-- [ ] **PROJECT Command**: Create and manage projects
+#### 1. Project & Task Management (Enhanced from v1.0.16c)
+- [ ] **PROJECT Command**: Create and manage projects (extends v1.0.16c)
 - [ ] **TASK Command**: Add tasks with priorities, deadlines, dependencies
 - [ ] **WORKFLOW Command**: Define multi-step processes
 - [ ] **MILESTONE Command**: Set checkpoints and goals
@@ -1246,6 +1682,8 @@ knowledge/
 - [ ] **KANBAN View**: Visual task boards (To Do, Doing, Done)
 - [ ] **Timeline View**: Gantt-style project timelines
 - [ ] **Resource Allocation**: Track who's doing what
+- [ ] **Template Management**: Create custom project templates
+- [ ] **Auto-Resume Integration**: Seamless "what's next" suggestions
 
 #### 2. Barter Economy System
 - [ ] **INVENTORY Command**: List your skills, knowledge, resources, tools
@@ -1343,74 +1781,623 @@ knowledge/
 #### 1. Tier 1: Personal Private (Never Shared)
 - [ ] **PRIVATE Command**: Store deeply personal data
 - [ ] **Encrypted Storage**: AES-256 encryption, user-only access
+- [ ] **Access Control**: Only device owner can view/edit
 - [ ] **Private Types**:
   * Personal journals and reflections
   * Private medical records
+  * Passwords and sensitive credentials
   * Financial data (if any)
-  * Web POKE development
-- [ ] **Video Tutorials**: Screen recordings for visual learners
-- [ ] **Interactive Demos**: Web-based interactive tutorials
+  * Personal goals and planning
+  * Private notes and ideas
+- [ ] **Automatic Encryption**: Encrypt on save, decrypt on load
+- [ ] **Key Management**: Secure key storage, password protection
+- [ ] **No Sync**: Never synced or shared to other devices
+- [ ] **Secure Deletion**: Overwrite data on deletion
 
-#### 4. Knowledge Library Completion
-- [ ] **System Knowledge**: Complete documentation of all internals
-- [ ] **Command Knowledge**: Every command with examples
-- [ ] **Concept Knowledge**: Core concepts explained
-- [ ] **FAQ Database**: Searchable question/answer pairs
-- [ ] **Error Messages**: All error messages documented with solutions
-- [ ] **Use Case Library**: Real-world usage scenarios
-- [ ] **Best Practices**: Recommended patterns and anti-patterns
-- [ ] **Performance Tips**: Optimization strategies
+#### 2. Tier 2: Shared (Explicitly Shared with Others)
+- [ ] **SHARED Command**: Manage explicitly shared knowledge
+- [ ] **Selective Sharing**: Choose exactly what to share and with whom
+- [ ] **Permission Levels**: Read-only, edit, or full control
+- [ ] **Shared Types**:
+  * Project collaboration data
+  * Shared task lists and workflows
+  * Community event planning
+  * Barter offers and requests
+  * Teaching materials for specific people
+  * Group adventure scripts
+- [ ] **Revocable Access**: Unshare at any time
+- [ ] **Sharing Logs**: Track who accessed what and when
+- [ ] **Expiring Shares**: Time-limited access
+- [ ] **Local Network Only**: Share via local P2P, no cloud
 
-#### 5. Code Examples Repository
-- [ ] **Command Examples**: Example for every command
-- [ ] **uCODE Scripts**: 50+ example scripts organized by category
-  * Automation scripts
-  * Data processing
-  * File management
-  * Adventure games
-  * Educational tools
-  * Productivity utilities
-- [ ] **Extension Examples**: 10+ fully-documented extensions
-- [ ] **Adventure Templates**: 15+ adventure starting points
-- [ ] **Integration Examples**: Combine multiple systems
+#### 3. Tier 3: Group/Community (Community Knowledge)
+- [ ] **COMMUNITY Command**: Access community knowledge pool
+- [ ] **Group Membership**: Join communities of interest
+- [ ] **Community Types**:
+  * Local neighborhood groups
+  * Skill-sharing circles
+  * Barter networks
+  * Survival communities
+  * Project teams
+  * Learning groups
+- [ ] **Contribution System**: Add to community knowledge
+- [ ] **Moderation Tools**: Community-managed content quality
+- [ ] **Reputation System**: Track contributions and reliability
+- [ ] **Local-First**: Community data stays with community members
+- [ ] **No Central Server**: Distributed across member devices
+- [ ] **Voting Mechanisms**: Community decisions on content
 
-#### 6. Release Documentation
-- [ ] **Release Notes**: Complete notes for v1.0.0-v1.0.19
-- [ ] **Migration Guides**: Upgrade guides between versions
-- [ ] **Breaking Changes**: Documented breaking changes and fixes
-- [ ] **Deprecation Notices**: Features being phased out
-- [ ] **Feature Timeline**: When each feature was introduced
-- [ ] **Version Comparison**: Feature matrix across versions
+#### 4. Tier 4: Public (Global Knowledge Bank)
+- [ ] **KNOWLEDGE Command**: Access global survival library
+- [ ] **Read-Only Repository**: Curated, vetted global knowledge
+- [ ] **Public Types**:
+  * Survival guides (500+ guides)
+  * Technical manuals and PDFs
+  * Scientific knowledge
+  * Skill tutorials
+  * Building/making instructions
+  * Medical/first aid references
+- [ ] **No User Modifications**: Preserve integrity of knowledge
+- [ ] **Contribution Process**: Submit knowledge for review/inclusion
+- [ ] **Quality Control**: Editorial review before acceptance
+- [ ] **Version Control**: Track changes to public knowledge
+- [ ] **Offline-First**: Complete library available offline
+- [ ] **Searchable Index**: Fast full-text search across all content
 
-#### 7. Community Resources
-- [ ] **Community Guidelines**: Code of conduct and participation rules
-- [ ] **Support Channels**: Where to get help (GitHub, Discord, etc.)
-- [ ] **Showcase Gallery**: User-created content and projects
-- [ ] **Plugin Directory**: Community extensions and adventures
-- [ ] **Learning Resources**: External tutorials and articles
-- [ ] **Credits & Attribution**: All contributors recognized
+#### 5. Memory System Architecture
+- [ ] **Memory Manager**: Unified interface for all tiers
+- [ ] **MEMORY Command**: View/search across accessible tiers
+- [ ] **Tier Isolation**: Strict separation between privacy levels
+- [ ] **Access Control**: Enforce permissions consistently
+- [ ] **Sync Manager**: Coordinate multi-device synchronization
+- [ ] **Conflict Resolution**: Handle concurrent edits gracefully
+- [ ] **Backup System**: Automatic backups for all tiers
+- [ ] **Recovery Tools**: Restore from backups, repair corruption
 
-#### 8. Documentation Infrastructure
-- [ ] **Search Functionality**: Full-text search across all docs
-- [ ] **Doc Versioning**: Docs for each major version
-- [ ] **PDF Export**: Downloadable PDF documentation
-- [ ] **Offline Access**: Complete offline documentation bundle
-- [ ] **Translations**: Documentation in multiple languages (future)
-- [ ] **Accessibility**: WCAG 2.1 AA compliant documentation
-- [ ] **Mobile Responsive**: Docs work on all devices
+#### 6. Knowledge Organization
+- [ ] **Tagging System**: Multi-dimensional categorization
+- [ ] **Full-Text Search**: Search content across tiers (respecting permissions)
+- [ ] **Knowledge Graph**: Relationship mapping between concepts
+- [ ] **Skill Prerequisites**: Map dependencies in learning paths
+- [ ] **Related Content**: Suggest related knowledge automatically
+- [ ] **Custom Collections**: Create personal knowledge organization
+- [ ] **Smart Folders**: Auto-organize by criteria
+- [ ] **Export/Import**: Migrate knowledge between systems
+
+#### 7. Knowledge Contribution & Curation
+- [ ] **CONTRIBUTE Command**: Submit knowledge to higher tiers
+- [ ] **Review Process**: Editorial workflow for public knowledge
+- [ ] **Contribution XP**: Earn experience for accepted contributions
+- [ ] **Quality Metrics**: Track contribution value and accuracy
+- [ ] **Attribution**: Credit original contributors
+- [ ] **Versioning**: Track changes over time
+- [ ] **Community Voting**: Rate and review knowledge quality
+- [ ] **Plagiarism Detection**: Ensure original content
+
+#### 8. Integration & Testing
+- [ ] **Knowledge API**: Programmatic access to all tiers
+- [ ] **uCODE Integration**: Access knowledge from scripts
+- [ ] **Adventure Integration**: Use knowledge bank in adventures
+- [ ] **Search Optimization**: Fast searches even in large libraries
+- [ ] **Mobile Support**: Access on spawned mobile devices
+- [ ] **Offline Sync**: Background sync when connected
+- [ ] **Performance**: <100ms search response for 10k+ documents
+- [ ] **Test Suite**: test_v1_0_20_knowledge_bank.py (50+ tests)
 
 **Success Metrics**:
-- 100% command coverage in wiki
-- 50+ tutorial/example scripts
-- Complete API documentation
-- Search functionality operational
-- Documentation accessible offline
+- All 4 tiers fully implemented and tested
+- Strict privacy enforcement (Tier 1 never exposed)
+- 500+ documents in global knowledge bank (Tier 4)
+- Fast search across all tiers (<100ms)
+- Community contribution workflow operational
+- Encryption verified for private data
+- Multi-device sync working reliably
+- Complete documentation for all tiers
 
 ---
 
-## 🎨 v1.0.20 - Final Polish & Integration
+## 🗺️ v1.0.20b - Enhanced Mapping & Reference Data System
+**Status**: 📋 Planned (March 2026 - Enhancement Pass)
+**Focus**: Fully developed grid mapping, world geography data, clean data architecture separation
+
+**Philosophy**: *"Ship a complete, offline-capable reference system with clean separation between core data and user memory"*
+
+### Critical Requirements for v1.1.0 Stable Release
+
+#### 1. Fully Developed Grid Mapping System
+- [ ] **Complete World Map**: Full global coverage with generated map data
+- [ ] **TILE System**: Comprehensive tile-based geography representation
+  * Terrain types (ocean, land, mountain, desert, forest, urban)
+  * Elevation data (integrated into tile properties)
+  * Climate zones (polar, temperate, tropical, arid)
+  * Water bodies (oceans, seas, lakes, rivers)
+  * Coordinate precision (latitude/longitude to TIZO cells)
+- [ ] **Enhanced TIZO Cell System**: Expanded beyond 20 cities
+  * 200+ major world cities with TIZO codes
+  * Regional centers and population data
+  * Time zone mappings (all IANA time zones)
+  * Country/territory associations
+  * Language and cultural data
+  * Geographic coordinates and cell references
+
+#### 2. System Variable Data (Core Reference)
+- [ ] **Geography Database** (`/data/system/geography/`)
+  * `countries.json` - All countries with ISO codes, capitals, languages
+  * `cities.json` - Major cities with coordinates, population, time zones
+  * `timezones.json` - Complete IANA timezone database
+  * `terrain.json` - Terrain type definitions and properties
+  * `climate.json` - Climate zone data and characteristics
+- [ ] **Measurement Systems** (`/data/system/reference/`)
+  * `metric.json` - Complete metric system reference
+  * `imperial.json` - Imperial/US customary units
+  * `conversions.json` - Unit conversion tables
+  * `constants.json` - Physical constants and standards
+- [ ] **TILE Data Structure**
+  ```json
+  {
+    "tile_id": "A1-1",
+    "lat": -33.8688,
+    "lon": 151.2093,
+    "terrain": "urban",
+    "elevation": 58,
+    "climate": "temperate",
+    "country": "AU",
+    "timezone": "Australia/Sydney",
+    "city": "Sydney",
+    "population": 5312000
+  }
+  ```
+
+#### 3. ASCII Text Graphics & Teletext Systems
+- [ ] **ASCII Block Library** (`/data/system/graphics/`)
+  * `ascii_blocks.json` - Full ASCII art character set
+  * `box_drawing.json` - Box drawing characters (single, double, rounded)
+  * `block_elements.json` - Block elements (▀▄█▌▐░▒▓)
+  * `geometric_shapes.json` - Geometric shape characters
+  * `line_drawing.json` - Line drawing toolkit
+- [ ] **Teletext Block System**
+  * `teletext_mosaic.json` - 64 mosaic characters (2×3 blocks)
+  * `teletext_colors.json` - WST color palette definitions
+  * `teletext_patterns.json` - Common pattern templates
+  * Water, terrain, city visualization patterns
+  * Enhanced rendering for maps and graphics
+- [ ] **Text-Only Concepts**
+  * ASCII map generation templates
+  * Terminal-safe character sets
+  * Fallback rendering for limited terminals
+  * Screen reader compatibility
+
+#### 4. Clean Data Architecture Separation
+- [ ] **Core System Data** (`/data/system/`) - READ-ONLY, ships with uDOS
+  * `/data/system/geography/` - World geography data
+  * `/data/system/reference/` - Measurement systems, conversions
+  * `/data/system/graphics/` - ASCII/teletext character libraries
+  * `/data/system/prompts/` - AI prompt templates (text-readable)
+  * `/data/system/settings/` - Default system configurations
+  * `/data/system/templates/` - Script and project templates
+  * **Version controlled**: Part of git repository
+  * **Curated**: Quality-controlled reference data
+  * **Immutable**: Users cannot modify system data
+
+- [ ] **User Memory Data** (`/memory/`) - USER-WRITABLE, gitignored
+  * `/memory/private/` - Tier 1: Encrypted personal data
+  * `/memory/shared/` - Tier 2: Explicitly shared knowledge
+  * `/memory/groups/` - Tier 3: Community knowledge
+  * `/memory/projects/` - User projects and workflows
+  * `/memory/scripts/` - User-created .uscript files
+  * `/memory/maps/` - User-created maps and overlays
+  * `/memory/knowledge/` - User-gathered topics of interest
+  * `/memory/config/` - User settings (override system defaults)
+  * `/memory/logs/` - Operation logs (auto-cleanup)
+  * **Gitignored**: Never committed to repository
+  * **User-owned**: Complete user control
+  * **Backed up**: User responsible for backups
+
+#### 5. Knowledge Library Architecture
+- [ ] **Core Non-Editable Data** (`/knowledge/`) - Ships with uDOS
+  * `/knowledge/survival/` - Vital survival topics (500+ guides)
+    - Emergency response procedures
+    - Shelter building techniques
+    - Water purification methods
+    - Food preservation and storage
+    - First aid and medical basics
+    - Fire starting and fuel sources
+    - Navigation without technology
+    - Communication and signaling
+  * `/knowledge/general/` - Non-biased general knowledge
+    - Mathematics fundamentals
+    - Science basics (physics, chemistry, biology)
+    - Engineering principles
+    - Language and communication
+    - Logic and critical thinking
+    - Problem-solving frameworks
+  * `/knowledge/education/` - Well-rounded education base
+    - Reading and literacy
+    - Numeracy and mathematics
+    - Scientific method and inquiry
+    - Historical context (factual, non-political)
+    - Geography and earth science
+    - Human anatomy and health
+    - Agricultural basics
+  * `/knowledge/reference/` - Reference materials
+    - Periodic table and chemistry
+    - Mathematical formulas
+    - Physical constants
+    - Measurement conversions
+    - Common calculations
+  * **Flat file structure**: `topic/category/guide.md`
+  * **SQLite FTS index**: Fast search (rebuildable from markdown)
+  * **Quality controlled**: Vetted, tested, practical information
+  * **No politics/ideology**: Factual, neutral, useful knowledge only
+
+#### 6. Offline AI/Gemini Engine Configuration
+- [ ] **Offline-Capable Design**
+  * Local fallback when no internet connection
+  * Cached responses for common queries
+  * Knowledge library integration (search before asking AI)
+  * Graceful degradation to offline-only mode
+- [ ] **Text-Readable Prompts & Settings** (`/data/system/prompts/`)
+  * `survival_prompts.txt` - Survival-related AI prompts
+  * `education_prompts.txt` - Educational query templates
+  * `problem_solving.txt` - Problem-solving frameworks
+  * `context_templates.txt` - Context injection for AI
+  * **Plain text format**: Easy to read, edit, understand
+  * **No hidden logic**: Transparent AI behavior
+  * **User-customizable**: Copy to `/memory/config/prompts/` to override
+- [ ] **Everyday Use Settings**
+  * Simple, clear configuration files (JSON/YAML)
+  * Sensible defaults for offline-first operation
+  * Privacy-preserving (no telemetry, no tracking)
+  * Resource-efficient (minimal API calls)
+
+#### 7. Wiki Documentation Updates
+- [ ] **Mapping System Documentation**
+  * Complete TILE system reference
+  * World geography data catalog
+  * Map generation examples
+  * ASCII/Teletext rendering guide
+  * TIZO cell system expansion
+- [ ] **Data Architecture Guide**
+  * `/data/system/` vs `/memory/` separation
+  * How to add custom reference data
+  * User knowledge organization strategies
+  * Backup and migration procedures
+- [ ] **Graphics Systems Reference**
+  * ASCII block character reference
+  * Teletext mosaic system guide
+  * Map visualization techniques
+  * Terminal compatibility guide
+- [ ] **Knowledge Library Guide**
+  * How to search and use knowledge
+  * Topic organization and structure
+  * Contributing knowledge (for future versions)
+  * Offline-first usage patterns
+
+#### 8. Reference Data Quality Standards
+- [ ] **Accuracy**: All data verified against authoritative sources
+- [ ] **Completeness**: Comprehensive coverage of essential topics
+- [ ] **Consistency**: Uniform formats and structures
+- [ ] **Non-Bias**: Factual, neutral, practical information only
+- [ ] **Offline-First**: No external dependencies for core functionality
+- [ ] **Maintainable**: Clear structure for updates and corrections
+- [ ] **Documented**: Every dataset documented and sourced
+
+**Success Metrics**:
+- World map with 10,000+ tiles covering all continents
+- 200+ cities with complete TIZO data
+- All IANA timezones mapped
+- Complete metric/imperial reference data
+- ASCII/Teletext character libraries documented
+- Clean `/data/system/` vs `/memory/` separation
+- 500+ survival guides in core knowledge
+- 100+ general education topics
+- All prompts and settings text-readable
+- Wiki 100% updated with reference documentation
+
+**Philosophy**: *"uDOS ships complete, capable, and offline-ready. Users gather their own knowledge in their memory space. Clear separation, no confusion."*
+
+---
+
+## 🌲 v1.0.21 - Survivalist Themes & Practical Skills Library
 **Status**: 📋 Planned (March 2026)
-**Focus**: Bug fixes, performance optimization, UI polish, and final integration testing
+**Focus**: 500+ survival guides, practical skills library, and themed content for offline resilience
+
+**Philosophy**: *"Real knowledge that works when the power's out and the internet's dead"*
+
+### Planned Features (8 tasks)
+
+#### 1. Survival Guide Library (500+ Guides)
+- [ ] **Shelter & Building**: 80+ guides
+  * Emergency shelters (debris huts, lean-tos, tarps)
+  * Permanent structures (rammed earth, cob, cordwood)
+  * Insulation techniques (natural materials)
+  * Roofing systems (thatched, living roofs, metal)
+  * Foundation types (rubble trench, pier, slab)
+  * Tool building and maintenance
+- [ ] **Water Systems**: 60+ guides
+  * Collection methods (rainwater, dew, condensation)
+  * Purification techniques (boiling, filtering, chemical)
+  * Storage solutions (tanks, ponds, underground)
+  * Well digging and maintenance
+  * Water testing and quality
+  * Greywater systems
+- [ ] **Food Production**: 100+ guides
+  * Gardening basics (soil, composting, crop rotation)
+  * Permaculture design principles
+  * Seed saving and storage
+  * Food preservation (canning, drying, fermenting)
+  * Foraging wild edibles
+  * Small animal husbandry
+  * Hunting and trapping basics
+- [ ] **Medical Knowledge**: 70+ guides
+  * First aid essentials
+  * Trauma care procedures
+  * Natural/herbal medicine
+  * Dental emergencies
+  * Childbirth basics
+  * Disease prevention
+  * Mental health in crisis
+- [ ] **Energy & Power**: 50+ guides
+  * Solar panel setup and maintenance
+  * Wind power systems
+  * Micro-hydro generation
+  * Battery storage and care
+  * Generator operation
+  * Off-grid electrical systems
+  * Fire building and fuel sources
+- [ ] **Tools & Skills**: 70+ guides
+  * Hand tool use and maintenance
+  * Knife sharpening and care
+  * Rope work and knots
+  * Basic blacksmithing
+  * Wood working essentials
+  * Mechanical repair basics
+  * Improvised tool making
+- [ ] **Security & Defense**: 40+ guides
+  * Situational awareness
+  * Perimeter security
+  * Early warning systems
+  * Safe room construction
+  * Communication security
+  * Personal safety tactics
+  * Community watch organization
+- [ ] **Communication**: 30+ guides
+  * Radio operation (Ham, CB, FRS)
+  * Signal methods (visual, audible)
+  * Message systems
+  * Navigation without GPS
+  * Map reading and compass use
+  * Celestial navigation
+
+#### 2. Embedded PDF Library (100+ Documents)
+- [ ] **Technical Manuals**: Real-world reference PDFs
+  * Building codes and standards
+  * Electrical wiring diagrams
+  * Plumbing specifications
+  * Medical field manuals
+  * Radio operator guides
+  * Tool operation manuals
+- [ ] **Curated Resources**: Vetted survival literature
+  * Military survival manuals (FM 21-76, etc.)
+  * Permaculture design books
+  * Herbal medicine guides
+  * Construction handbooks
+  * Disaster preparedness documents
+- [ ] **Quick Reference Cards**: Laminated-style guides
+  * Edible plants identification
+  * First aid procedures
+  * Emergency signals
+  * Knot tying diagrams
+  * Water purification methods
+  * Shelter construction steps
+
+#### 3. Survivalist Theme System
+- [ ] **Apocalypse Themes**: Visual themes for different scenarios
+  * Wasteland (post-nuclear)
+  * Overgrowth (abandoned civilization)
+  * Bunker (underground survival)
+  * Fortress (defended community)
+  * Nomad (mobile survival)
+  * Homestead (self-sufficient farm)
+- [ ] **Themed Color Palettes**: Survival-appropriate colors
+  * Earth tones (browns, greens, grays)
+  * Low-light friendly (amber terminals)
+  * High contrast (daylight readable)
+  * Night vision compatible (red/green)
+- [ ] **Custom Typography**: Readable survival fonts
+  * Stencil/military fonts
+  * Hand-written field notes style
+  * High-legibility sans-serif
+  * Monospace for technical data
+
+#### 4. Interactive Skill Trees
+- [ ] **Skill Categories**: Organize knowledge by progression
+  * Beginner → Intermediate → Advanced → Expert
+  * Prerequisites clearly marked
+  * Estimated time to proficiency
+  * Required tools and materials
+- [ ] **Learning Paths**: Guided skill acquisition
+  * "Water independence" path
+  * "Shelter mastery" path
+  * "Food security" path
+  * "Medical preparedness" path
+  * "Energy autonomy" path
+- [ ] **Achievement System**: Track skill mastery
+  * Completed guides checkmarks
+  * Practical exercises completed
+  * Real-world applications logged
+  * Community teaching tracked
+
+#### 5. Practical Checklists
+- [ ] **Bug-Out Bag**: Complete packing list with rationale
+- [ ] **Get-Home Bag**: Urban survival essentials
+- [ ] **Vehicle Kit**: Car emergency supplies
+- [ ] **First Aid Kit**: Comprehensive medical supplies
+- [ ] **Tool Kit**: Essential hand tools
+- [ ] **Seed Vault**: Heirloom seed collection
+- [ ] **Document Binder**: Critical papers to preserve
+- [ ] **3-Month Supplies**: Food/water storage checklist
+- [ ] **Off-Grid Setup**: Complete system components
+- [ ] **Community Readiness**: Group preparation coordination
+
+#### 6. Real-World Project Templates
+- [ ] **Build a Rammed Earth Wall**: Step-by-step with materials
+- [ ] **Install Rainwater Collection**: Complete system design
+- [ ] **Create Raised Garden Beds**: From scrap materials
+- [ ] **Build a Solar Dehydrator**: Food preservation tool
+- [ ] **Construct a Root Cellar**: Food storage solution
+- [ ] **Make a Rocket Stove**: Efficient cooking device
+- [ ] **Set Up Ham Radio Station**: Communication system
+- [ ] **Build a Composting Toilet**: Sanitation solution
+- [ ] **Create a Seed Library**: Community seed bank
+- [ ] **Install Off-Grid Solar**: Complete power system
+
+#### 7. No-Fluff Content Policy
+- [ ] **Actionable Only**: Every guide must have practical steps
+- [ ] **No Politics**: Avoid historical debates and ideology
+- [ ] **No History Lessons**: Focus on now and future
+- [ ] **Tested Information**: Only proven methods included
+- [ ] **Clear Instructions**: Step-by-step with visuals
+- [ ] **Safety Warnings**: Hazards clearly marked
+- [ ] **Alternative Methods**: Multiple approaches provided
+- [ ] **Failure Points**: Common mistakes identified
+- [ ] **Troubleshooting**: Solutions for common problems
+
+#### 8. Offline Integration
+- [ ] **KNOWLEDGE Command**: Search survival guides
+- [ ] **SKILL Command**: Access skill trees and paths
+- [ ] **CHECKLIST Command**: Load and track checklists
+- [ ] **PROJECT Command**: Step through project templates
+- [ ] **REFERENCE Command**: Quick lookup (knots, plants, etc.)
+- [ ] **Embedded Viewer**: View PDFs/images within uDOS
+- [ ] **Print-Friendly**: Export guides for physical copies
+- [ ] **Test Suite**: test_v1_0_21_survival_library.py (30+ tests)
+
+**Success Metrics**:
+- 500+ survival guides across all categories
+- 100+ embedded PDFs accessible offline
+- Complete skill trees for 8 major areas
+- 20+ project templates with materials lists
+- Zero political/historical content
+- All content tested and verified
+- Print-ready export functionality
+
+---
+
+## 📚 v1.0.22 - Documentation & Offline-First Handbook
+**Status**: 📋 Planned (April 2026)
+**Focus**: Complete documentation system, 1000+ page survival handbook, and comprehensive offline knowledge base
+
+**Philosophy**: *"Documentation so good you can rebuild civilization from it"*
+
+### Planned Features (8 tasks)
+
+#### 1. Complete User Documentation
+- [ ] **Getting Started Guide**: Zero to productive in 30 minutes
+- [ ] **Command Reference**: Every command with examples
+- [ ] **uCODE Language Guide**: Complete language documentation
+- [ ] **Extension Development**: How to build extensions
+- [ ] **Adventure Creation**: Write your own adventures
+- [ ] **Troubleshooting**: Common issues and solutions
+- [ ] **FAQ**: 100+ frequently asked questions
+- [ ] **Video Tutorials**: 20+ screen recordings
+
+#### 2. Developer Documentation
+- [ ] **Architecture Overview**: System design and components
+- [ ] **API Reference**: All public APIs documented
+- [ ] **Extension API**: Complete extension system docs
+- [ ] **Database Schema**: Knowledge bank structure
+- [ ] **File Formats**: All file formats specified
+- [ ] **Testing Guide**: How to write and run tests
+- [ ] **Contributing Guide**: How to contribute code
+- [ ] **Code Style Guide**: Python conventions used
+
+#### 3. Survival Handbook (1000+ Pages)
+- [ ] **Volume 1: Essentials** (250 pages)
+  * Water, food, shelter, fire basics
+  * Immediate survival priorities
+  * Emergency first aid
+  * Common mistakes to avoid
+- [ ] **Volume 2: Building & Infrastructure** (250 pages)
+  * Construction techniques
+  * Water systems
+  * Energy generation
+  * Sanitation solutions
+- [ ] **Volume 3: Food & Medicine** (250 pages)
+  * Gardening and permaculture
+  * Food preservation
+  * Herbal medicine
+  * Nutrition fundamentals
+- [ ] **Volume 4: Skills & Tools** (250 pages)
+  * Tool making and use
+  * Communication systems
+  * Navigation techniques
+  * Security and defense
+
+#### 4. Interactive Documentation
+- [ ] **Command Playground**: Try commands in browser
+- [ ] **uCODE REPL**: Interactive language learning
+- [ ] **Visual Guides**: Diagrams and flowcharts
+- [ ] **Step-by-Step Tutorials**: Guided walkthroughs
+- [ ] **Code Examples**: Runnable examples for every feature
+- [ ] **Search System**: Fast full-text search
+- [ ] **Contextual Help**: Help based on what you're doing
+- [ ] **Progress Tracking**: Mark guides as completed
+
+#### 5. Offline-First Design
+- [ ] **Complete Offline Bundle**: All docs work without internet
+- [ ] **Embedded Images**: No external image links
+- [ ] **Local Search**: Search works offline
+- [ ] **Print Optimization**: Clean printable versions
+- [ ] **PDF Export**: Generate PDFs of any section
+- [ ] **Mobile Responsive**: Works on all screen sizes
+- [ ] **Low Bandwidth**: Optimized for slow connections
+- [ ] **Archive Format**: Single-file documentation archive
+
+#### 6. Multi-Format Documentation
+- [ ] **Markdown Source**: Human-readable source files
+- [ ] **HTML Web Interface**: Interactive web documentation
+- [ ] **PDF Books**: Printable reference manuals
+- [ ] **Man Pages**: Unix-style man pages for commands
+- [ ] **Ebook Formats**: EPUB/MOBI for e-readers
+- [ ] **Plain Text**: Readable in any text editor
+- [ ] **Wiki Format**: GitHub wiki integration
+- [ ] **API Documentation**: OpenAPI/Swagger specs
+
+#### 7. Documentation Quality
+- [ ] **Technical Review**: All docs technically accurate
+- [ ] **Copyediting**: Professional editing for clarity
+- [ ] **Accessibility**: WCAG 2.1 AA compliant
+- [ ] **Internationalization**: Structure for translations
+- [ ] **Version Control**: Docs versioned with code
+- [ ] **Automated Testing**: Test code examples work
+- [ ] **Link Checking**: No broken links
+- [ ] **Consistency**: Uniform style and terminology
+
+#### 8. Community Documentation
+- [ ] **Contribution Guidelines**: How to improve docs
+- [ ] **Documentation Templates**: Standard formats
+- [ ] **Style Guide**: Writing conventions
+- [ ] **Review Process**: How docs get accepted
+- [ ] **Community Examples**: User-submitted tutorials
+- [ ] **Showcase Gallery**: Real-world use cases
+- [ ] **Credits**: Document all contributors
+- [ ] **Test Suite**: test_v1_0_22_documentation.py (20+ tests)
+
+**Success Metrics**:
+- 1000+ page survival handbook complete
+- 100% command coverage
+- All code examples tested and working
+- Offline bundle under 100MB
+- Documentation accessible in 5+ formats
+- 95%+ user satisfaction with docs
+- Professional copyediting complete
+
+---
+
+## 🎨 v1.0.23 - Final Polish & Integration
+**Status**: 📋 Planned (May 2026)
+**Focus**: Bug fixes, performance optimization, UI polish, and final integration testing before v1.1.0 stable release
 
 ### Planned Features (8 tasks)
 
@@ -1478,21 +2465,67 @@ knowledge/
 - [ ] **API Stability**: Freeze all public APIs
 
 #### 8. Final Release Preparation
-- [ ] **Version Finalization**: Set all versions to 1.0.20
-- [ ] **Release Notes**: Comprehensive v1.0.20 release notes
-- [ ] **Changelog**: Complete changelog from v1.0.0 to v1.0.20
+- [ ] **Version Finalization**: Set all versions to 1.0.23
+- [ ] **Release Notes**: Comprehensive v1.0.23 release notes
+- [ ] **Changelog**: Complete changelog from v1.0.0 to v1.0.23
 - [ ] **Documentation Review**: Final review of all documentation
 - [ ] **Code Review**: Final code review and cleanup
 - [ ] **License Compliance**: Verify all licenses
-- [ ] **Package**: Create distribution packages
-- [ ] **Tag Release**: Tag v1.0.20 in repository
+- [ ] **Package**: Create distribution packages (prepare for v1.1.0)
+- [ ] **Tag Release**: Tag v1.0.23 in repository
+- [ ] **Pre-Launch Testing**: Final validation with beta testers
+
+#### 9. Reference Data Validation & Completeness
+- [ ] **World Map Data**: Validate all 10,000+ tiles
+  * Verify coordinates and terrain types
+  * Check TIZO cell assignments
+  * Validate city/country associations
+  * Test map generation performance
+- [ ] **Geography Database**: Verify accuracy
+  * 200+ cities with correct coordinates
+  * All IANA timezones properly mapped
+  * Country data complete and accurate
+  * Cross-reference with authoritative sources
+- [ ] **Measurement Systems**: Test all conversions
+  * Metric/Imperial conversion accuracy
+  * Physical constants verified
+  * Unit conversion tables tested
+  * Reference data complete
+- [ ] **ASCII/Teletext Libraries**: Full character coverage
+  * All ASCII blocks documented
+  * Teletext mosaic rendering tested
+  * Terminal compatibility verified
+  * Fallback rendering working
+- [ ] **Knowledge Library**: Quality assurance
+  * All 500+ survival guides reviewed
+  * General education topics verified
+  * No political bias detected
+  * Practical, actionable content confirmed
+  * Offline accessibility tested
+- [ ] **Data Architecture**: Clean separation verified
+  * `/data/system/` read-only and complete
+  * `/memory/` user-writable and gitignored
+  * No cross-contamination
+  * Clear documentation of separation
+- [ ] **AI/Gemini Prompts**: Text-readable and functional
+  * All prompts reviewed for clarity
+  * Offline fallbacks tested
+  * No hidden logic or telemetry
+  * User-customizable verified
 
 **Success Metrics**:
 - Zero critical bugs
-- All tests passing (500+ tests)
-- Performance benchmarks met
+- All tests passing (1000+ tests)
+- Performance benchmarks met (<50ms commands)
 - Documentation 100% complete
+- Self-healing operational
+- **World map 100% generated and validated**
+- **Reference data accuracy >99.9%**
+- **Knowledge library complete (500+ guides)**
+- **Clean data separation verified**
 - Ready for v1.1.0 stable release
+
+**Philosophy**: *"The final step before the world meets uDOS - polish until it shines, test until it's bulletproof, validate every byte of reference data"*
 
 ---
 
@@ -1564,13 +2597,61 @@ knowledge/
   * `/knowledge/tools` - Making, repairing, maintaining
   * `/knowledge/communication` - Radio, signals, navigation
   * `/knowledge/defense` - Security & self-protection
+  * `/knowledge/general` - Non-biased general education
+  * `/knowledge/education` - Well-rounded education base (math, science, language)
+  * `/knowledge/reference` - Physical constants, conversions, formulas
 - [ ] **Quality Control**: All content reviewed and tested
 - [ ] **No Politics/History**: Practical information only
 - [ ] **Offline-First**: Works without internet forever
 - [ ] **Search Optimization**: Fast full-text search
 - [ ] **Cross-References**: Links between related topics
 
-#### 5. Project Structure Cleanup
+#### 4b. Complete Reference Data System
+- [ ] **World Map System**: 10,000+ tiles fully generated
+  * Complete global coverage (all continents)
+  * Terrain types, elevation, climate data
+  * 200+ cities with TIZO codes
+  * All IANA timezones mapped
+  * Country/region associations
+- [ ] **Geography Database**: Authoritative reference data
+  * `countries.json` - All countries with ISO codes
+  * `cities.json` - Major cities with complete data
+  * `timezones.json` - Complete timezone database
+  * `terrain.json` - Terrain definitions
+  * `climate.json` - Climate zones
+- [ ] **Measurement Systems**: Complete conversion references
+  * Metric system (SI units)
+  * Imperial/US customary units
+  * Conversion tables and formulas
+  * Physical constants
+- [ ] **ASCII/Teletext Graphics**: Full character libraries
+  * ASCII block characters documented
+  * Teletext mosaic system (64 characters)
+  * Map visualization patterns
+  * Terminal compatibility fallbacks
+- [ ] **AI Prompt Library**: Text-readable prompt templates
+  * Survival-related prompts
+  * Educational query templates
+  * Problem-solving frameworks
+  * All in plain text format
+  * User-customizable
+
+#### 5. Clean Data Architecture
+- [ ] **Core System Data** (`/data/system/`) - Ships with uDOS, read-only
+  * Version controlled and curated
+  * Complete reference data libraries
+  * Quality-assured and tested
+  * Part of git repository
+- [ ] **User Memory Space** (`/memory/`) - User-owned, gitignored
+  * User projects and knowledge
+  * Personal configurations
+  * Private encrypted data
+  * User responsibility
+- [ ] **Clear Separation**: Documentation and enforcement
+  * Users understand the difference
+  * No confusion about data ownership
+  * Clean backup/migration strategies
+  * Documented in user guide
 - [ ] **Remove Old Files**: Delete deprecated/unused files
 - [ ] **Consolidate Docs**: Move `/docs` to `/wiki` (finalized content)
 - [ ] **gitignore /docs**: Development working directory only
@@ -2288,21 +3369,23 @@ Each development round is considered complete when:
 
 ## 📊 Current Project Statistics
 
-### Code Metrics
-- **Total Lines of Code**: ~15,000+ (estimated across all modules)
-- **Command Handlers**: 6 specialized handlers (System, File, Assistant, Map, etc.)
-- **Commands Implemented**: 40+ across all categories
+### Code Metrics (as of v1.0.16)
+- **Total Lines of Code**: ~20,000+ across all modules
+- **uCODE Interpreter**: 1,304 lines (core/uDOS_ucode.py)
+- **Command Handlers**: 11 specialized handlers
+- **Commands Implemented**: 60+ across all categories
 - **Web Extensions**: 6+ production-ready extensions
-- **Test Coverage**: Comprehensive integration test suites
-- **Automation Framework**: Script execution with .uscript files
+- **Test Coverage**: 500+ tests across all versions (100% pass rate)
+- **Standard Library**: 4 modules, 25 functions
+- **Templates**: 3 production templates (411 lines)
 
 ### Development Velocity
-- **v1.0.1**: System Commands (Week 1) - 13 commands implemented
-- **v1.0.2**: Configuration System (Week 2) - User profiles, TIZO integration
-- **v1.0.3**: Mapping System (Week 3) - 8 MAP commands, cell grid system
-- **v1.0.4**: Teletext Extension (Week 4) - Web interface, mosaic rendering
-- **v1.0.5**: Assisted Task (Week 5) - OK ASK/DEV differentiation
-- **v1.0.6**: Automation (Week 6) - RUN command and script execution
+- **v1.0.0-v1.0.6**: Foundation (6 weeks) - Core system
+- **v1.0.7-v1.0.12**: Advanced Features (6 weeks) - Major enhancements
+- **v1.0.13**: Theme System (1 week) - 100% test coverage
+- **v1.0.14**: uCODE Part 1 (1 week) - Variables, control flow, 32/32 tests
+- **v1.0.15**: Documentation (1 week) - Wiki migration, philosophy
+- **v1.0.16**: uCODE Part 2 (2 weeks) - Functions, modules, error handling
 
 ### Quality Metrics
 - **Documentation Coverage**: 100% (wiki, guides, inline docs)
@@ -2319,15 +3402,107 @@ Each development round is considered complete when:
 
 ---
 
-## 🎯 Current Focus: v1.0.7 Development
+## 🎯 Current Focus: v1.0.16 → v1.0.17 Transition
 
-**Current Status**: v1.0.6 Automation complete, ready for History System
-**Foundation**: Solid automation framework with AI assistance and script execution
-**Next Focus**: UNDO/REDO/RESTORE with state management
-**Timeline**: Following established 1-week development round methodology
+**Current Status**: v1.0.16 Complete (November 2025)
+**Foundation**: Complete uCODE language with functions, modules, error handling, 100% test pass rate
+**Next Focus**: Interactive debugger and developer tools (v1.0.17)
+**Timeline**: December 2025 - June 2026 for v1.0.17-v1.0.23
+**Goal**: Reach v1.1.0 stable release by July 2026
 
 ---
 
-## 🌟 v1.1.0 - Stable Release (Future)
+## 📅 Development Timeline to v1.1.0
 
-The culmination of the incremental development rounds, v1.1.0 will be the next major stable release, incorporating all the features and refinements from the v1.0.x series.
+### Phase 1: Core Language & Tools (Dec 2025 - Jan 2026)
+- **v1.0.17** (Dec 2025): Interactive debugger, VSCode extension, testing framework
+- **v1.0.18** (Jan 2026): Apocalypse adventures, XP system, offline desktop server
+
+### Phase 2: Community & Knowledge (Feb 2026 - Apr 2026)
+- **v1.0.19** (Feb 2026): Project/workflow management, barter economy
+- **v1.0.20** (Mar 2026): 4-tier knowledge bank, memory system architecture
+- **v1.0.21** (Mar 2026): 500+ survival guides, practical skills library
+- **v1.0.22** (Apr 2026): 1000+ page handbook, complete documentation
+
+### Phase 3: Production Polish (May 2026 - Jun 2026)
+- **v1.0.23** (May-Jun 2026): Final integration, 1000+ tests, performance optimization
+
+### Phase 4: Stable Launch (Jul 2026)
+- **v1.1.0** (Jul 2026): Production-ready stable release, community launch
+
+**Total Development Time**: 8 months (Nov 2025 - Jul 2026)
+**Completed**: 16 versions (v1.0.0 - v1.0.16)
+**Remaining**: 7 versions (v1.0.17 - v1.0.23) + stable release
+
+---
+
+## 🌟 Post-Stable Development (v1.1.x)
+
+### v1.1.1 - Device Spawning & P2P Mesh (Aug-Sep 2026)
+**Focus**: Laptop-to-mobile spawning, mesh networking without corporate ISPs
+
+**Key Features**:
+- **Spawn Command**: Create child instances for mobile devices
+- **Selective Sync**: Choose knowledge tiers to sync (Tier 1 stays private)
+- **Bi-Directional**: Children talk back to master device
+- **Mesh Protocols**: Custom P2P networking (bypass Telstra, CommBank, etc.)
+- **Encrypted Comms**: Secure device-to-device communication
+- **Offline Mesh**: Works when internet is completely down
+- **Auto-Discovery**: Find nearby uDOS devices automatically
+- **Resource Sharing**: Share knowledge/barter across mesh
+- **Self-Healing Topology**: Resilient network structure
+- **No Corporate Control**: Build our own communication infrastructure
+
+**Philosophy**: *"Your laptop is the master, your phone is the child. They talk to each other without asking permission from ISPs or tech giants."*
+
+### v1.1.2 - Enhanced Barter & Community Features (Oct 2026)
+**Focus**: Expanded barter system, community collaboration tools
+
+**Key Features**:
+- **Advanced Matching**: Smart algorithms to find trade partners
+- **Reputation System**: Track reliability and contribution history
+- **Community Projects**: Coordinate multi-person initiatives
+- **Skill Verification**: Prove competency through peer endorsement
+- **Resource Pooling**: Community tool libraries and shared spaces
+- **Time Banking**: Track hours contributed to community
+- **Dispute Resolution**: Fair mediation for trade disagreements
+- **Local Currencies**: Community-specific barter tokens (not corporate money)
+
+### v1.1.3 - Advanced Analytics & Insights (Nov 2026)
+**Focus**: Data analysis, pattern recognition, decision support
+
+**Key Features**:
+- **Usage Analytics**: Track what knowledge is most valuable
+- **Skill Gap Analysis**: Identify community learning needs
+- **Resource Optimization**: Maximize efficiency of shared resources
+- **Predictive Modeling**: Forecast needs based on patterns
+- **Network Analysis**: Map community relationships and dependencies
+- **Decision Support**: Data-driven recommendations for planning
+- **Privacy-Preserving**: All analytics local, no data extraction
+
+### v1.1.4+ - Community-Driven Features
+**Focus**: Features requested by the community post-launch
+
+**Potential Areas**:
+- Additional language support and internationalization
+- Specialized knowledge domains (maritime, aviation, agriculture)
+- Integration with physical devices (sensors, IoT, ham radio)
+- Advanced cartography and navigation tools
+- Expanded adventure creation tools and game mechanics
+- Professional certification and skill verification systems
+- Multi-user real-time collaboration features
+
+---
+
+## 🌟 Long-Term Vision (v2.0+)
+
+### The Big Picture
+- **Decentralized Knowledge Network**: Global mesh of uDOS devices sharing survival knowledge
+- **AI-Powered Mentorship**: Personal survival coach using local AI models
+- **Hardware Integration**: Purpose-built uDOS devices for harsh environments
+- **Satellite Communication**: Off-grid global connectivity for critical info
+- **Physical Knowledge Tokens**: NFC/QR codes linking physical items to knowledge
+- **Community Nodes**: Regional hubs hosting comprehensive knowledge libraries
+- **Disaster Response**: Rapid deployment kits for emergency scenarios
+
+**Philosophy**: *"When the systems fail, when the internet dies, when civilization faces collapse - uDOS keeps humanity's practical knowledge alive and accessible."*

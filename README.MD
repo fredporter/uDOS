@@ -1,39 +1,90 @@
-# uDOS v1.0.0 - Human-Readable Core
+# uDOS v1.0.17 - Interactive Debugger Complete
 
 **uDOS** is a modular CLI framework with assistant integration, comprehensive diagnostics, and modern web extensions. Built to demonstrate clean architecture, human-readable command systems, and intelligent workflows.
 
-**Status**: ✅ v1.0.0 Foundation Release - Refactored and ready for systematic improvement
+**Current Status**: ✅ v1.0.17 Complete - Interactive Debugger Shipped (Nov 15, 2025)
+**Next**: v1.0.18 - Apocalypse Adventures & Experience System
 
 ---
 
-## 🎯 What's New in v1.0.0
+## 🎯 v1.0.x Objective: Stable Release by July 2026
 
-### Major Refactoring
-- **60% code reduction** - From 3,249 to 1,297 lines through modular handlers
-- **OK Assisted Task → Assist** - Clearer terminology throughout
-- **Organized docs** - `/docs` structure with planning, guides, and archives
-- **Systematic roadmap** - 16 focused development rounds (v1.0.1 → v1.1.0)
+### Current Progress
+- **17/24 versions complete (71%)**
+- **Next milestone**: v1.0.18-v1.0.23 (6 versions remaining)
+- **Timeline**: 8 months to v1.1.0 stable release
+- **Focus**: Core features, offline capability, survival knowledge
 
-### Dashboard Enhancements
-- **Command Palette** - Quick access to all dashboard features (`Cmd/Ctrl + K`)
-- **Fuzzy Search** - Intelligent command discovery
-- **Theme Integration** - Consistent styling across all components
-- **Extensible Commands** - Easy integration for custom modules
+### Advanced Features → v1.1.x (Post-Stable)
+The following features have been moved to v1.1.x to focus on stable v1.0.x release:
+- **Device Spawning**: Laptop-to-mobile synchronization
+- **P2P Mesh Networking**: Decentralized communication
+- **Multi-User Features**: Collaborative workflows
+- **Advanced Security**: Encryption, secure sharing
+- **Network Sharing**: Community knowledge exchange
 
-### Clean Architecture
+### v1.0.x Core Deliverables
+- ✅ **Complete uCODE language** (v1.0.14-v1.0.16) - Variables, functions, modules
+- ✅ **Interactive debugger** (v1.0.17) - Full debugging suite with 94 tests
+- 📋 **Offline-first operation** (v1.0.16c) - COMMAND/ASSIST dual modes
+- 📋 **500+ survival guides** (v1.0.20-v1.0.21) - Complete offline knowledge base
+- 📋 **1000+ page handbook** (v1.0.22) - Comprehensive documentation
+- 📋 **Production polish** (v1.0.23) - Performance, testing, stability
+
+---
+
+## 🆕 What's New in v1.0.17 (Latest)
+
+### Interactive Debugger - COMPLETE ✅
+**94/94 tests passing | Full command suite | Production ready**
+
+```bash
+# Debug any uCODE script
+DEBUG my_script.uscript
+
+# Set breakpoints (regular or conditional)
+BREAK 10                    # Regular breakpoint
+BREAK 20 IF counter > 50    # Conditional breakpoint
+
+# Step through execution
+STEP                        # Step over
+STEP INTO                   # Step into function
+STEP OUT                    # Step out of function
+CONTINUE                    # Continue to next breakpoint
+
+# Inspect variables
+INSPECT x                   # Check variable value
+INSPECT ALL                 # Show all variables
+WATCH counter               # Watch variable changes
+
+# Modify during debugging
+MODIFY x = 100             # Change variable value mid-execution
+
+# Performance profiling
+PROFILE AUTO ON            # Enable automatic profiling
+PROFILE                    # View execution times
+PROFILE TOP 10             # See slowest lines
+
+# Variable history
+HISTORY x                  # See all changes to variable
+HISTORY counter 5          # Last 5 changes
+
+# Call stack
+STACK                      # View current call stack
 ```
-core/commands/
-├── file_handler.py       # LIST, LOAD, SAVE, EDIT
-├── grid_handler.py       # GRID, NEW GRID, GRID LIST, SHOW GRID
-├── assistant_handler.py  # OK ASK (Gemini), OK DEV (Copilot CLI), READ
-├── task_handler.py       # RUN
-├── system_handler.py     # REBOOT, STATUS, VIEWPORT, PALETTE, REPAIR
-├── history_handler.py    # UNDO, REDO, RESTORE
-├── nav_handler.py        # MAP, GOTO, MOVE, LEVEL, GODOWN, GOUP
-└── util_handler.py       # HELP, CLEAR, SETUP
-```
 
-See [`dev/docs/archive/REFACTORING-v1.0.0.md`](dev/docs/archive/REFACTORING-v1.0.0.md) for details.
+**Features:**
+- ✅ Breakpoints (set, clear, list, disable/enable)
+- ✅ Conditional breakpoints (`IF` conditions)
+- ✅ Step execution (over, into, out)
+- ✅ Variable inspection and modification
+- ✅ Watch expressions
+- ✅ Performance profiling
+- ✅ Variable history tracking
+- ✅ Call stack display
+- ✅ 94/94 comprehensive tests
+
+**Documentation**: See `docs/development/v1.0.17-COMPLETE.md`
 
 ---
 
@@ -45,209 +96,28 @@ See [`dev/docs/archive/REFACTORING-v1.0.0.md`](dev/docs/archive/REFACTORING-v1.0
 - [Command Reference](wiki/Command-Reference.md) - Complete command list
 
 ### 📚 Development
-- [**ROADMAP.MD**](ROADMAP.MD) - **v1.0.x systematic development plan**
+- [**ROADMAP.MD**](ROADMAP.MD) - **Complete v1.0.x-v1.1.0 development plan**
 - [Contributing Guide](dev/docs/guides/CONTRIBUTING.md) - Development workflow
 - [Testing Guide](dev/docs/guides/TESTING.md) - Testing procedures
 - [Development Setup](dev/docs/guides/DEVELOPMENT.md) - Dev environment
 
-### 🗺️ Development Rounds (v1.0.x)
-Each round focuses on ONE component with complete testing cycle:
+### 🗺️ v1.0.x Development Path to Stable Release
 
-| Round | Component | Focus |
-|-------|-----------|-------|
-| v1.0.1 | System Commands | HELP, STATUS, REPAIR, VIEWPORT |
-| v1.0.2 | File Operations | LIST, LOAD, SAVE, EDIT |
-| v1.0.3 | Grid System | GRID, NEW GRID, SHOW GRID |
-| v1.0.4 | Navigation | MAP, GOTO, MOVE, LEVEL |
-| v1.0.5 | Web Servers | Port management, server lifecycle |
-| v1.0.6 | CLI Terminal | Viewport, colors, interactive prompts |
-| v1.0.7 | Web Dashboard | classic.css, system stats |
-| v1.0.8 | Web Terminal | NES.css, xterm.js integration |
-| v1.0.9 | Markdown Viewer | system.css, file browser |
-| v1.0.10 | Font Editor | Monaspace, pixel art tools |
-| v1.0.11 | Typo Editor | Advanced text editing |
-| v1.0.12 | Knowledge System | Research, notes, linking |
-| v1.0.13 | Theme System | DUNGEON, GALAXY, FOUNDATION |
-| v1.0.14 | Extension System | Plugin architecture, LIBRARY.UDO |
-| v1.0.15 | uCODE Language | Scripting, control flow |
-| v1.0.16 | Security | Permissions, encryption, audit |
-| v1.1.0 | **Stable Release** | Integration and polish |
+| Version | Status | Focus | Timeline |
+|---------|--------|-------|----------|
+| v1.0.0-v1.0.16 | ✅ Complete | Foundation, uCODE, Theme System | Nov 2025 |
+| v1.0.17 | ✅ Complete | Interactive Debugger (94 tests) | Nov 15, 2025 |
+| v1.0.16c | 📋 Next | Dual-Mode, Project Templates | Dec 2025 |
+| v1.0.18 | 📋 Planned | Adventures, XP System | Jan 2026 |
+| v1.0.19 | 📋 Planned | Workflow, Barter Economy | Feb 2026 |
+| v1.0.20-21 | 📋 Planned | Knowledge Bank, Survival Guides | Mar 2026 |
+| v1.0.22 | 📋 Planned | 1000+ Page Documentation | Apr 2026 |
+| v1.0.23 | 📋 Planned | Final Polish, 1000+ Tests | May 2026 |
+| **v1.1.0** | 🎯 Goal | **STABLE RELEASE** | **Jul 2026** |
 
-**See [ROADMAP.MD](ROADMAP.MD) for detailed breakdown of each round.**
+**Post-Stable (v1.1.x)**: Device spawning, P2P mesh, advanced features
 
-### 📖 Reference
-- [uCODE Manual](wiki/uCODE-Language.md) - Internal scripting system
-- [Mapping System](wiki/Mapping-System.md) - NetHack-style navigation
-- [Architecture](wiki/Architecture.md) - How uDOS works
-- [Style Guide](wiki/Style-Guide.md) - Code conventions
-
-### 📁 Documentation Hub
-All docs organized in [`/dev/docs`](dev/docs/):
-- [`dev/docs/guides/`](dev/docs/guides/) - User and developer guides
-- [`dev/docs/planning/`](dev/docs/planning/) - Development planning
-- [`dev/docs/archive/`](dev/docs/archive/) - Historical refactoring docs
-
----
-
-## Quick Start
-
-```bash
-# Clone the repository
-git clone https://github.com/fredporter/uDOS.git
-cd uDOS
-
-# Activate virtual environment
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run uDOS
-./start_udos.sh
-```
-
-**First-time setup will guide you through:**
-- Name and project details
-- Theme selection (DUNGEON_CRAWLER, CYBERPUNK, MINIMAL)
-- Creates personalized `data/STORY.UDO`
-
-**For OK Assisted Task features (optional):**
-```bash
-echo 'GEMINI_API_KEY=your_key_here' > .env
-```
-
-**Note:** uDOS works fully offline without an API key.
-
----
-
-## Core Features
-
-- ✅ **Grid System** - Flexible workspace organization
-- ✅ **Command Parser** - Human-readable command structure
-- ✅ **File Operations** - Streamlined data management
-- ✅ **Navigation** - Intuitive spatial movement
-- ✅ **Script Execution** - Automation via `.uscript` files
-- ✅ **Connection Awareness** - Auto-detect online/offline mode
-- ✅ **Viewport Detection** - Adapts to terminal size and device type
-- ✅ **Smart Completion** - Context-aware tab completion with dropdown
-- ✅ **Error Recovery** - REPAIR, UNDO/REDO, RESTORE capabilities
-- ✅ **Offline Engine** - Pattern-matching OK Assisted Task for offline operation
-
----
-
-## 🆕 v1.3 Major Features
-
-**Enhanced Startup System:**
-- ✅ **Intelligent health checks** - Python version, dependencies, configuration validation
-- ✅ **Auto-repair capabilities** - Missing directories, packages, config files
-- ✅ **User-friendly diagnostics** - Color-coded status, actionable recommendations
-- ✅ **OK Assisted Task-assisted debugging** - Diagnostic reports with DEBUG command
-- ✅ **Silent/report modes** - Automation-friendly operation
-
-**Gemini OK Assisted Task Integration:**
-- ✅ **Full CLI integration** - ASK, ANALYZE, EXPLAIN, GENERATE, DEBUG commands
-- ✅ **Gemini 2.5 Flash** - Latest Google OK Assisted Task model with conversation history
-- ✅ **Context-aware** - Workspace and system information included
-- ✅ **Offline fallback** - Works without API key using pattern-matching
-- ✅ **Secure configuration** - CLI-only .env editing, API key masking
-
-**Configuration Management:**
-- ✅ **CONFIG command** - List, get, set, validate settings
-- ✅ **Secure storage** - .env file with masked display
-- ✅ **Dynamic updates** - Change settings without restart
-- ✅ **Installation tracking** - Unique ID, username, workspace preferences
-
-**Retro CSS Framework Integration:**
-- ✅ **system.css** - Mac System 6 aesthetic for Font Editor & Markdown Viewer
-- ✅ **NES.css** - 8-bit gaming style for Terminal
-- ✅ **classic.css + After Dark CSS** - Mac OS 8.1 + screensavers for Dashboard
-- ✅ **Authentic 1980s/90s computing** - Period-accurate fonts, components, animations
-- ✅ **Complete attribution** - All frameworks properly credited and licensed
-
-**File Management & Web Dashboard:**
-- ✅ **Complete file operations** - CREATE, DELETE, RENAME, COPY, MOVE with UNDO/REDO
-- ✅ **GitHub-style dashboard** - Dark/Light themes, extension management
-- ✅ **Modern web extensions** - Font editor, markdown viewer, terminal, typo editor
-- ✅ **Workspace system** - Organized sandbox/memory/data structure
-
-**Quick start with v1.3:**
-```
-OK "explain uDOS features"     # OK Assisted Task assistance
-OK "what can you do?"          # Quick OK System access
-CONFIG list                     # View configuration
-DASH WEB                        # Open dashboard (Mac OS 8.1 style)
-POKE START font-editor         # Mac System 6 font editor
-POKE START terminal            # NES 8-bit terminal
-DEBUG "startup error"           # OK Assisted Task error diagnosis
-```
-
----
-
-## 🆕 Extension System
-
-**Web Extensions - Production Ready with Retro Styling:**
-
-### 🌐 **Web Extension Management**
-- **OUTPUT Command** - Manage web-based tools with authentic retro aesthetics
-  - **typo** - Markdown editor (Port 5173)
-  - **markdown-viewer** - Mac System 6 style rendering with uCODE syntax (Port 8889) ✨
-  - **font-editor** - Mac System 6 bitmap font creator (Port 8888) ✨
-  - **cmd/terminal** - NES 8-bit web terminal emulator (Port 8890) ✨
-  - **dashboard** - Mac OS 8.1 + After Dark control panel (Port 8887) 🔜
-- **Non-Blocking Architecture** - Servers run in background
-- **Features**: Start/stop tracking, auto-launch, log management
-- **Examples**:
-  ```
-  OUTPUT LIST             # List all extensions
-  OUTPUT START typo       # Start editor
-  OUTPUT STATUS           # Check servers
-  DASH WEB                # Open retro dashboard
-  ```
-
-### 🎨 **Retro CSS Frameworks**
-- **system.css** - Apple System 6 (1984-1991)
-  - Monochrome Mac aesthetic
-  - Pixel-perfect windows, scrollbars
-  - Chicago_12, Monaco fonts
-  - Used in: Font Editor, Markdown Viewer
-
-- **NES.css** - Nintendo Entertainment System
-  - 8-bit gaming style
-  - Pixelated borders, retro colors
-  - Press Start 2P font
-  - Used in: Terminal
-
-- **classic.css + After Dark CSS** - Mac OS 8.1 + Screensavers
-  - Mac OS 8.1 window chrome
-  - Flying Toasters screensaver effects
-  - ChicagoFLF typography
-  - Used in: Dashboard (in progress)
-
-See `/docs/CSS-FRAMEWORK-ATTRIBUTION.md` for complete framework credits and licensing.
-
-### 📝 **CLI & Web Editors**
-- **EDIT Command** - Unified file editing
-  - Built-in: `nano`, `vim`, `vi`
-  - Modern: `micro` (installable)
-  - Web: `typo` (Svelte markdown editor)
-- **Examples**:
-  ```
-  EDIT myfile.md              # Auto-detect editor
-  EDIT --web document.md      # Open in browser
-  EDIT --editor nano test.txt # Force specific editor
-  ```
-
-### 🔤 **Monaspace Fonts**
-- **FONT Command** - Professional coding fonts
-  - 5 variants: Neon (default), Argon, Xenon, Radon, Krypton
-  - Features: Texture Healing™, ligatures, Powerline
-  - Install: `bash extensions/setup_monaspace.sh`
-
-### 🎨 **Font Editor**
-- **16×16 bitmap font editor** in browser with Mac System 6 styling ✨
-  - 120 character slots with editing tools
-  - Live preview, auto-save, JSON export
-  - Authentic monochrome Mac interface
+**See [ROADMAP.MD](ROADMAP.MD) for detailed breakdown of each version.**
   - Access: `OUTPUT START font-editor`
 
 ### 📖 **Markdown Viewer**

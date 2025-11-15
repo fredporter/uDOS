@@ -137,6 +137,19 @@ class SystemCommandHandler(BaseCommandHandler):
             'WORKSPACE': self.handle_workspace,
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,  # Alias for OUTPUT
+            # v1.0.17: Debugger commands
+            'DEBUG': self.handle_debug,
+            'BREAK': self.handle_breakpoint,
+            'STEP': self.handle_step,
+            'CONTINUE': self.handle_continue,
+            'INSPECT': self.handle_inspect,
+            'WATCH': self.handle_watch,
+            'STACK': self.handle_stack,
+            # v1.0.17 Phase 4: Advanced debugging
+            'MODIFY': self.handle_modify,
+            'PROFILE': self.handle_profile,
+            # v1.0.17 Phase 4+: Variable history
+            'HISTORY': self.handle_history,
         }
 
         handler = handlers.get(command)
@@ -2382,3 +2395,657 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
 
         except ValueError:
             return f"❌ Invalid session number: '{subcommand}'. Use RESTORE LIST to see available sessions."
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.17: DEBUGGER COMMANDS
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_debug(self, params, grid, parser):
+        """
+        Start debugging session for a uCODE script.
+
+        Usage:
+            DEBUG <script_path>          - Start debugging session
+            DEBUG STATUS                 - Show debugger status
+            DEBUG STOP                   - Stop debugging session
+
+        Args:
+            params: Command parameters [script_path or subcommand]
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not params:
+            return """╔════════════════════════════════════════════════════════════════════════╗
+║                        uCODE DEBUGGER v1.0.17                          ║
+╠════════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  USAGE:                                                                ║
+║    DEBUG <script>        Start debugging a uCODE script               ║
+║    DEBUG STATUS          Show current debugger status                 ║
+║    DEBUG STOP            Stop debugging session                       ║
+║                                                                        ║
+║  DEBUGGING COMMANDS:                                                   ║
+║    BREAK <line>          Set breakpoint at line number                ║
+║    BREAK LIST            List all breakpoints                         ║
+║    BREAK CLEAR <line>    Clear breakpoint at line                     ║
+║    BREAK CLEAR ALL       Clear all breakpoints                        ║
+║                                                                        ║
+║    STEP                  Execute next line (step over)                ║
+║    STEP INTO             Step into function call                      ║
+║    STEP OUT              Step out of current function                 ║
+║    CONTINUE              Continue execution until breakpoint          ║
+║                                                                        ║
+║    INSPECT <var>         Inspect variable value                       ║
+║    INSPECT ALL           Show all variables in current scope          ║
+║                                                                        ║
+║    WATCH <var>           Add variable to watch list                   ║
+║    WATCH LIST            Show all watched variables                   ║
+║    WATCH CLEAR <var>     Remove variable from watch list              ║
+║    WATCH CLEAR ALL       Clear all watches                            ║
+║                                                                        ║
+║    STACK                 Show call stack                              ║
+║                                                                        ║
+╚════════════════════════════════════════════════════════════════════════╝"""
+
+        subcommand = params[0].upper()
+
+        if subcommand == 'STATUS':
+            # Get debugger from parser's ucode interpreter
+            if not hasattr(parser, 'ucode') or not parser.ucode:
+                return "❌ uCODE interpreter not available"
+
+            debugger = parser.ucode.debugger
+            status = debugger.get_status()
+
+            # Format values safely
+            script = status.get('current_script') or 'None'
+            line = status.get('current_line', 0)
+
+            output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+            output += "║                        DEBUGGER STATUS                                 ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            output += f"║  State:       {status['state']:<57} ║\n"
+            output += f"║  Script:      {script:<57} ║\n"
+            output += f"║  Line:        {line:<57} ║\n"
+            output += f"║  Breakpoints: {len(status.get('breakpoints', [])):<57} ║\n"
+            output += f"║  Watches:     {len(status.get('watches', [])):<57} ║\n"
+            output += "╚════════════════════════════════════════════════════════════════════════╝"
+
+            return output
+
+        elif subcommand == 'STOP':
+            # Stop debugging session
+            if not hasattr(parser, 'ucode') or not parser.ucode:
+                return "❌ uCODE interpreter not available"
+
+            parser.ucode.debugger.stop()
+            parser.ucode.debug_mode = False
+            return "✅ Debugging session stopped"
+
+        else:
+            # Start debugging a script
+            script_path = ' '.join(params)
+
+            # Get debugger from parser's ucode interpreter
+            if not hasattr(parser, 'ucode') or not parser.ucode:
+                return "❌ uCODE interpreter not available"
+
+            # Validate script exists
+            import os
+            if not os.path.isfile(script_path):
+                return f"❌ Script not found: {script_path}"
+
+            # Start debugging
+            parser.ucode.debug_mode = True
+            parser.ucode.debugger.start(script_path)
+
+            return f"🐛 Debugging session started: {script_path}\n💡 Use STEP, CONTINUE, or BREAK commands to control execution"
+
+    def handle_breakpoint(self, params, grid, parser):
+        """
+        Manage breakpoints in debugging session.
+
+        Usage:
+            BREAK <line>                 - Set breakpoint at line
+            BREAK LIST                   - List all breakpoints
+            BREAK CLEAR <line>           - Clear specific breakpoint
+            BREAK CLEAR ALL              - Clear all breakpoints
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            return """Usage:
+  BREAK <line>          Set breakpoint at line number
+  BREAK LIST            List all breakpoints
+  BREAK CLEAR <line>    Clear breakpoint at line
+  BREAK CLEAR ALL       Clear all breakpoints"""
+
+        subcommand = params[0].upper()
+
+        if subcommand == 'LIST':
+            # Get detailed breakpoint info (Phase 4)
+            breakpoint_info = debugger.get_all_breakpoint_info()
+
+            if not breakpoint_info:
+                return "ℹ️  No breakpoints set"
+
+            output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+            output += "║                          BREAKPOINTS                                   ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            for bp in breakpoint_info:
+                line = bp['line']
+                hit_count = bp['hit_count']
+                condition = bp['condition']
+                enabled = debugger.is_breakpoint_enabled(line)
+                status = "🔴" if enabled else "⚪"
+
+                if condition:
+                    output += f"║ {status} Line {line:<4} (hits: {hit_count:<3}) IF {condition:<45} ║\n"
+                else:
+                    output += f"║ {status} Line {line:<4} (hits: {hit_count:<3}){'':<51} ║\n"
+            output += "╚════════════════════════════════════════════════════════════════════════╝"
+            return output
+
+        elif subcommand == 'IF':
+            # BREAK <line> IF <condition>
+            if len(params) < 3:
+                return "❌ Usage: BREAK <line> IF <condition>"
+
+            try:
+                line = int(params[0])
+                # Everything after IF is the condition
+                condition = ' '.join(params[2:])
+                debugger.set_breakpoint(line, condition)
+                return f"🔴 Conditional breakpoint set at line {line}: {condition}"
+            except ValueError:
+                return f"❌ Invalid line number: {params[0]}"
+
+        elif subcommand == 'CLEAR':
+            if len(params) < 2:
+                return "❌ Usage: BREAK CLEAR <line> or BREAK CLEAR ALL"
+
+            if params[1].upper() == 'ALL':
+                debugger.clear_all_breakpoints()
+                return "✅ All breakpoints cleared"
+
+            try:
+                line = int(params[1])
+                debugger.clear_breakpoint(line)
+                return f"✅ Breakpoint cleared at line {line}"
+            except ValueError:
+                return f"❌ Invalid line number: {params[1]}"
+
+        elif subcommand == 'DISABLE':
+            if len(params) < 2:
+                return "❌ Usage: BREAK DISABLE <line>"
+
+            try:
+                line = int(params[1])
+                debugger.disable_breakpoint(line)
+                return f"⚪ Breakpoint disabled at line {line}"
+            except ValueError:
+                return f"❌ Invalid line number: {params[1]}"
+
+        elif subcommand == 'ENABLE':
+            if len(params) < 2:
+                return "❌ Usage: BREAK ENABLE <line>"
+
+            try:
+                line = int(params[1])
+                debugger.enable_breakpoint(line)
+                return f"🔴 Breakpoint enabled at line {line}"
+            except ValueError:
+                return f"❌ Invalid line number: {params[1]}"
+
+        else:
+            # Set breakpoint (regular or conditional)
+            try:
+                line = int(params[0])
+
+                # Check if this is a conditional breakpoint (BREAK <line> IF <condition>)
+                if len(params) > 1 and params[1].upper() == 'IF':
+                    condition = ' '.join(params[2:])
+                    debugger.set_breakpoint(line, condition)
+                    return f"🔴 Conditional breakpoint set at line {line}: {condition}"
+                else:
+                    debugger.set_breakpoint(line)
+                    return f"🔴 Breakpoint set at line {line}"
+            except ValueError:
+                return f"❌ Invalid line number: {params[0]}"
+
+    def handle_step(self, params, grid, parser):
+        """
+        Execute next line in debugger.
+
+        Usage:
+            STEP                         - Step over (execute next line)
+            STEP INTO                    - Step into function call
+            STEP OUT                     - Step out of current function
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            # Step over
+            debugger.step_over()
+            return "➡️  Stepped to next line"
+
+        subcommand = ' '.join(params).upper()
+
+        if subcommand == 'INTO':
+            debugger.step_into()
+            return "⬇️  Stepped into function"
+
+        elif subcommand == 'OUT':
+            debugger.step_out()
+            return "⬆️  Stepped out of function"
+
+        else:
+            return "❌ Unknown STEP command. Use: STEP, STEP INTO, or STEP OUT"
+
+    def handle_continue(self, params, grid, parser):
+        """
+        Continue execution until next breakpoint.
+
+        Args:
+            params: Command parameters (unused)
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+        debugger.continue_execution()
+        return "▶️  Continuing execution..."
+
+    def handle_inspect(self, params, grid, parser):
+        """
+        Inspect variables during debugging.
+
+        Usage:
+            INSPECT <variable>           - Inspect specific variable
+            INSPECT ALL                  - Show all variables in scope
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Variable information
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            return "Usage:\n  INSPECT <variable>    Inspect specific variable\n  INSPECT ALL           Show all variables"
+
+        var_name = ' '.join(params)
+
+        if var_name.upper() == 'ALL':
+            variables = debugger.get_variables()
+
+            if not variables:
+                return "ℹ️  No variables in current scope"
+
+            output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+            output += "║                          VARIABLES                                     ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            for name, value in variables.items():
+                value_str = str(value)[:50]  # Truncate long values
+                output += f"║  {name:<20} = {value_str:<47} ║\n"
+            output += "╚════════════════════════════════════════════════════════════════════════╝"
+            return output
+
+        else:
+            value = debugger.inspect_variable(var_name)
+
+            if value is None:
+                return f"⚠️  Variable '{var_name}' not found in current scope"
+
+            return f"📍 {var_name} = {value}"
+
+    def handle_watch(self, params, grid, parser):
+        """
+        Manage watch expressions in debugger.
+
+        Usage:
+            WATCH <variable>             - Add variable to watch list
+            WATCH LIST                   - Show all watched variables
+            WATCH CLEAR <variable>       - Remove variable from watch list
+            WATCH CLEAR ALL              - Clear all watches
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            return """Usage:
+  WATCH <variable>      Add variable to watch list
+  WATCH LIST            Show all watched variables
+  WATCH CLEAR <var>     Remove variable from watch list
+  WATCH CLEAR ALL       Clear all watches"""
+
+        subcommand = params[0].upper()
+
+        if subcommand == 'LIST':
+            watches = debugger.get_watches()
+
+            if not watches:
+                return "ℹ️  No variables being watched"
+
+            output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+            output += "║                          WATCH LIST                                    ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            for var_name, value in watches.items():
+                value_str = str(value)[:50]
+                output += f"║  👁️  {var_name:<18} = {value_str:<45} ║\n"
+            output += "╚════════════════════════════════════════════════════════════════════════╝"
+            return output
+
+        elif subcommand == 'CLEAR':
+            if len(params) < 2:
+                return "❌ Usage: WATCH CLEAR <variable> or WATCH CLEAR ALL"
+
+            if params[1].upper() == 'ALL':
+                debugger.clear_all_watches()
+                return "✅ All watches cleared"
+
+            var_name = ' '.join(params[1:])
+            debugger.remove_watch(var_name)
+            return f"✅ Watch removed: {var_name}"
+
+        else:
+            # Add watch
+            var_name = ' '.join(params)
+            debugger.add_watch(var_name)
+            return f"👁️  Watching: {var_name}"
+
+    def handle_stack(self, params, grid, parser):
+        """
+        Show call stack during debugging.
+
+        Args:
+            params: Command parameters (unused)
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Call stack information
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+        stack = debugger.get_call_stack()
+
+        if not stack:
+            return "ℹ️  Call stack is empty"
+
+        output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+        output += "║                          CALL STACK                                    ║\n"
+        output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+
+        for i, frame in enumerate(reversed(stack)):
+            prefix = "➤ " if i == len(stack) - 1 else "  "
+            func_name = frame.get('function', '<main>')
+            line = frame.get('line', '?')
+            output += f"║  {prefix}#{i} {func_name:<50} (line {line:<4}) ║\n"
+
+        output += "╚════════════════════════════════════════════════════════════════════════╝"
+        return output
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.17 Phase 4: ADVANCED DEBUGGING COMMANDS
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_modify(self, params, grid, parser):
+        """
+        Modify variable value during debugging.
+
+        Usage:
+            MODIFY <variable> = <value>     - Set variable to new value
+
+        Args:
+            params: Command parameters [variable, '=', value]
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Status message
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params or len(params) < 3:
+            return """Usage:
+  MODIFY <variable> = <value>    Set variable to new value
+
+Examples:
+  MODIFY x = 100
+  MODIFY name = "test"
+  MODIFY active = True"""
+
+        # Parse: variable = value
+        var_name = params[0]
+
+        if params[1] != '=':
+            return "❌ Usage: MODIFY <variable> = <value>"
+
+        # Join remaining params as value
+        value_str = ' '.join(params[2:])
+
+        # Try to evaluate the value
+        try:
+            # Try Python literal eval for safety
+            import ast
+            value = ast.literal_eval(value_str)
+        except (ValueError, SyntaxError):
+            # If that fails, treat as string
+            value = value_str
+
+        # Set the variable
+        result = debugger.set_variable(var_name, value)
+        return result
+
+    def handle_profile(self, params, grid, parser):
+        """
+        Show performance profiling information.
+
+        Usage:
+            PROFILE                         - Show full performance profile
+            PROFILE TOP <n>                 - Show top N slowest lines
+            PROFILE CLEAR                   - Clear profiling data
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Profiling information
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            # Show full profile
+            profile = debugger.get_performance_profile()
+
+            if not profile['lines']:
+                return "ℹ️  No profiling data available (enable debug mode and run a script)"
+
+            output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+            output += "║                      PERFORMANCE PROFILE                               ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            output += f"║  Total execution time: {profile['total_time']:.4f}s{'':<38} ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+            output += "║  Top 10 Slowest Lines                                                  ║\n"
+            output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+
+            for line, data in profile['slowest_lines']:
+                exec_count = data['executions']
+                total_time = data['total_time']
+                avg_time = data['avg_time']
+                output += f"║  Line {line:<4}  {exec_count:<4} runs  {total_time:>8.4f}s total  {avg_time:>8.6f}s avg  ║\n"
+
+            output += "╚════════════════════════════════════════════════════════════════════════╝"
+            return output
+
+        subcommand = params[0].upper()
+
+        if subcommand == 'TOP':
+            # Show top N slowest lines
+            n = 10  # default
+            if len(params) > 1:
+                try:
+                    n = int(params[1])
+                except ValueError:
+                    return f"❌ Invalid number: {params[1]}"
+
+            profile = debugger.get_performance_profile()
+
+            if not profile['lines']:
+                return "ℹ️  No profiling data available"
+
+            output = f"🐢 Top {n} Slowest Lines:\n"
+            for i, (line, data) in enumerate(profile['slowest_lines'][:n], 1):
+                output += f"  {i}. Line {line}: {data['total_time']:.4f}s ({data['executions']} runs)\n"
+
+            return output
+
+        elif subcommand == 'CLEAR':
+            debugger.line_execution_times.clear()
+            debugger.function_call_times.clear()
+            return "✅ Profiling data cleared"
+
+        elif subcommand == 'AUTO':
+            # Enable/disable automatic profiling
+            if len(params) < 2:
+                return f"ℹ️  Auto-profiling: {'ON' if debugger.auto_profile else 'OFF'}"
+
+            mode = params[1].upper()
+            if mode == 'ON':
+                debugger.auto_profile = True
+                return "✅ Auto-profiling enabled (will track all line executions)"
+            elif mode == 'OFF':
+                debugger.auto_profile = False
+                return "✅ Auto-profiling disabled"
+            else:
+                return f"❌ Unknown mode: {mode} (use ON or OFF)"
+
+        else:
+            return f"❌ Unknown PROFILE subcommand: {subcommand}"
+
+    def handle_history(self, params, grid, parser):
+        """
+        Show variable change history.
+
+        Usage:
+            HISTORY <variable>              - Show all changes to variable
+            HISTORY <variable> <n>          - Show last N changes
+            HISTORY CLEAR <variable>        - Clear history for variable
+            HISTORY CLEAR ALL               - Clear all history
+
+        Args:
+            params: Command parameters
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Variable history
+        """
+        if not hasattr(parser, 'ucode') or not parser.ucode:
+            return "❌ uCODE interpreter not available"
+
+        debugger = parser.ucode.debugger
+
+        if not params:
+            return "❌ Usage: HISTORY <variable> [n] or HISTORY CLEAR [variable|ALL]"
+
+        if params[0].upper() == 'CLEAR':
+            if len(params) < 2:
+                return "❌ Usage: HISTORY CLEAR <variable> or HISTORY CLEAR ALL"
+
+            if params[1].upper() == 'ALL':
+                debugger.clear_variable_history()
+                return "✅ All variable history cleared"
+            else:
+                var_name = params[1]
+                debugger.clear_variable_history(var_name)
+                return f"✅ History cleared for variable: {var_name}"
+
+        var_name = params[0]
+        history = debugger.get_variable_history(var_name)
+
+        if not history:
+            return f"ℹ️  No history for variable: {var_name}"
+
+        # Limit number of entries if specified
+        limit = None
+        if len(params) > 1:
+            try:
+                limit = int(params[1])
+            except ValueError:
+                return f"❌ Invalid number: {params[1]}"
+
+        entries = history[-limit:] if limit else history
+
+        output = "╔════════════════════════════════════════════════════════════════════════╗\n"
+        output += f"║                   VARIABLE HISTORY: {var_name:<44} ║\n"
+        output += "╠════════════════════════════════════════════════════════════════════════╣\n"
+
+        for entry in entries:
+            line = entry['line']
+            old_val = entry['old_value']
+            new_val = entry['new_value']
+            timestamp = entry['timestamp'][:19]  # Strip microseconds
+
+            output += f"║  Line {line:<4}  {old_val!r:<20} → {new_val!r:<20} {timestamp:<14} ║\n"
+
+        output += "╚════════════════════════════════════════════════════════════════════════╝"
+        return output
+
