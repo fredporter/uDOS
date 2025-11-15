@@ -1142,6 +1142,154 @@ ENDIF
 
 ---
 
+## Debugging uCODE Scripts
+
+> **💡 New in v1.0.17**: Full interactive debugger with breakpoints, stepping, variable inspection, and profiling!
+
+### Debug Commands
+
+uCODE scripts can be debugged interactively:
+
+```bash
+# Start debugging a script
+DEBUG "my_script.uscript"
+
+# Set breakpoints
+BREAK 10                     # Line 10
+BREAK 25 IF count > 100      # Conditional breakpoint
+
+# Run and step
+CONTINUE                     # Run until breakpoint
+STEP                         # Execute next line
+STEP INTO                    # Step into function
+STEP OUT                     # Step out of function
+
+# Inspect variables
+INSPECT count                # Specific variable
+INSPECT ALL                  # All variables
+WATCH count                  # Watch variable
+
+# View state
+STACK                        # Call stack
+HISTORY count                # Variable history
+PROFILE                      # Performance profile
+
+# Modify during debugging
+MODIFY count = 100           # Change variable value
+
+# Stop debugging
+DEBUG STOP
+```
+
+### Debug Module (SYSTEM)
+
+| CLI Command | uCODE | Description |
+|-------------|-------|-------------|
+| DEBUG "script" | [SYSTEM\|DEBUG*script] | Start debugging session |
+| DEBUG STATUS | [SYSTEM\|DEBUG*STATUS] | Show debugger status |
+| DEBUG STOP | [SYSTEM\|DEBUG*STOP] | Stop debugging |
+| BREAK <line> | [SYSTEM\|BREAK*line] | Set breakpoint |
+| BREAK <line> IF <cond> | [SYSTEM\|BREAK*line*cond] | Conditional breakpoint |
+| STEP | [SYSTEM\|STEP] | Step over |
+| STEP INTO | [SYSTEM\|STEP*INTO] | Step into function |
+| STEP OUT | [SYSTEM\|STEP*OUT] | Step out |
+| CONTINUE | [SYSTEM\|CONTINUE] | Resume execution |
+| INSPECT <var> | [SYSTEM\|INSPECT*var] | Inspect variable |
+| WATCH <var> | [SYSTEM\|WATCH*var] | Watch variable |
+| STACK | [SYSTEM\|STACK] | Show call stack |
+| MODIFY <var> = <val> | [SYSTEM\|MODIFY*var*val] | Modify variable |
+| PROFILE | [SYSTEM\|PROFILE] | Show performance |
+
+### Debugging Example
+
+```ucode
+# Script: test_debug.uscript
+[SYSTEM|DISPLAY*Starting test script]
+
+# Set counter
+[SYSTEM|SET_VAR*count*0]
+
+# Loop
+[SYSTEM|SET_VAR*i*0]
+WHILE {i} < 100 DO
+  # Increment counter
+  [SYSTEM|SET_VAR*count*{count}+1]
+  [SYSTEM|SET_VAR*i*{i}+1]
+
+  # Check condition (line 15)
+  IF {count} > 50 THEN
+    [SYSTEM|DISPLAY*Count exceeded 50]
+  ENDIF
+END_WHILE
+
+[SYSTEM|DISPLAY*Final count: {count}]
+```
+
+**Debugging session:**
+```bash
+# Start debugger
+🔮 > DEBUG "test_debug.uscript"
+
+# Set conditional breakpoint
+🔮 > BREAK 15 IF count > 50
+
+# Watch variable
+🔮 > WATCH count
+
+# Run
+🔮 > CONTINUE
+🐛 Breakpoint hit at line 15
+   count = 51
+
+# Inspect
+🔮 > INSPECT ALL
+🐛 Variables:
+   count = 51
+   i = 51
+
+# Check history
+🔮 > HISTORY count
+🐛 Change History: count
+   Line 5: undefined → 0
+   Line 11: 0 → 1
+   ...
+   Line 11: 50 → 51
+
+# Continue
+🔮 > CONTINUE
+✅ Script completed
+```
+
+### Performance Profiling
+
+```bash
+# Enable auto-profiling
+🔮 > PROFILE AUTO ON
+
+# Run script
+🔮 > DEBUG "slow_script.uscript"
+🔮 > CONTINUE
+
+# Check profile
+🔮 > PROFILE TOP 10
+🐛 Top 10 Slowest Lines:
+   1. Line 28: 0.0156s (1000 executions)
+   2. Line 15: 0.0023s (1000 executions)
+   ...
+
+# Set breakpoint at slow line
+🔮 > BREAK 28
+
+# Investigate
+🔮 > CONTINUE
+🔮 > STACK
+🔮 > INSPECT ALL
+```
+
+For complete debugging documentation, see [Debugging Guide](Debugging-Guide).
+
+---
+
 ## See Also
 
 - [Command Reference](Command-Reference) - All commands with examples

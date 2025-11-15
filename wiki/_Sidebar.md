@@ -22,6 +22,7 @@
 
 ## 📖 User Guides
 - **[Command Reference](Command-Reference)** - All commands
+- **[Debugging Guide](Debugging-Guide)** ⭐ NEW - Interactive debugger
 - **[Workflows](Workflows)** ⭐ NEW - Common tasks & automation
 - **[uCODE Language](uCODE-Language)** - Scripting guide
 - **[Knowledge Architecture](Knowledge-Architecture)** ⭐ NEW - Organizing information
@@ -84,7 +85,7 @@ The knowledge/ directory contains:
 
 ---
 
-**Current Version**: v1.0.15 (in development)
-**Last Wiki Update**: November 14, 2025
+**Current Version**: v1.0.17 (Interactive Debugger)
+**Last Wiki Update**: November 15, 2025
 
-⭐ = New in v1.0.15
+⭐ = New in v1.0.17

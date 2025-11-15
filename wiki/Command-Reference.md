@@ -48,6 +48,7 @@ REBOOT                    # Restart uDOS
 | **Grid Management** | [GRID](#grid), [NEW GRID](#new-grid), [GRID LIST](#grid-list), [SHOW GRID](#show-grid) |
 | **Assisted Task** | [OK ASK](#ok-ask), [OK DEV](#ok-dev), [READ](#read) |
 | **Automation** | [RUN](#run) |
+| **Debugging** | [DEBUG](#debug), [BREAK](#break), [STEP](#step), [CONTINUE](#continue), [INSPECT](#inspect), [WATCH](#watch), [STACK](#stack), [MODIFY](#modify), [PROFILE](#profile), [HISTORY](#history) |
 | **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
 | **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |
 | **Navigation** | [MAP](#map), [GOTO](#goto), [MOVE](#move), [LEVEL](#level), [GODOWN](#godown), [GOUP](#goup) |
@@ -90,6 +91,19 @@ uDOS commands have been developed systematically, focusing on core functionality
 - **LEVEL**: Current level/depth display
 - **GODOWN**: Descend one level
 - **GOUP**: Ascend one level
+
+### 🐛 v1.0.17 - Interactive Debugger
+**Developer tools** - Full debugging environment for uCODE scripts
+- **DEBUG**: Start/stop debugging sessions with breakpoints
+- **BREAK**: Breakpoint management (set, clear, enable, disable, conditional)
+- **STEP**: Step execution (over, into, out)
+- **CONTINUE**: Resume execution until next breakpoint
+- **INSPECT**: Variable inspection (specific or all variables)
+- **WATCH**: Watch expression management
+- **STACK**: Call stack display
+- **MODIFY**: Runtime variable modification
+- **PROFILE**: Performance profiling and analysis
+- **HISTORY**: Variable change history tracking
 
 ---
 
@@ -2042,6 +2056,400 @@ Running setup script: data/SETUP.USC
 ```
 
 **uCODE**: `[SYSTEM|SETUP]`
+
+---
+
+## Debugging Commands
+
+### DEBUG
+
+**Purpose**: Start, stop, or check status of debugging sessions
+
+**Syntax**:
+```
+DEBUG <script>          # Start debugging a script
+DEBUG STATUS            # Show debugger status
+DEBUG STOP              # Stop current debugging session
+```
+
+**Parameters**:
+- `script` - Path to .uscript file to debug
+- `STATUS` - Show current debugger state
+- `STOP` - Terminate active debugging
+
+**Examples**:
+```
+🔮 > DEBUG "memory/tests/debug_test.uscript"
+🐛 Debugger started for: memory/tests/debug_test.uscript
+💡 Use BREAK <line> to set breakpoints, CONTINUE to run
+
+🔮 > DEBUG STATUS
+🐛 Debugger Status:
+   State: PAUSED
+   Script: debug_test.uscript
+   Line: 15
+   Breakpoints: 3 active
+
+🔮 > DEBUG STOP
+✅ Debugging session stopped
+```
+
+**Output**:
+```
+🐛 Debugger started for: script.uscript
+💡 Use BREAK <line> to set breakpoints
+💡 Use CONTINUE to start execution
+```
+
+**uCODE**: `[SYSTEM|DEBUG*<script>]`
+
+---
+
+### BREAK
+
+**Purpose**: Manage breakpoints (set, clear, list, enable, disable, conditional)
+
+**Syntax**:
+```
+BREAK <line>                # Set breakpoint at line number
+BREAK <line> IF <condition> # Set conditional breakpoint
+BREAK LIST                  # List all breakpoints
+BREAK CLEAR <line>          # Clear specific breakpoint
+BREAK CLEAR ALL             # Clear all breakpoints
+BREAK DISABLE <line>        # Disable breakpoint (keep it)
+BREAK ENABLE <line>         # Re-enable disabled breakpoint
+```
+
+**Parameters**:
+- `line` - Line number (1-based)
+- `condition` - Boolean expression (e.g., `x > 10`, `name == "test"`)
+
+**Examples**:
+```
+🔮 > BREAK 15
+✅ Breakpoint set at line 15
+
+🔮 > BREAK 25 IF count > 100
+✅ Conditional breakpoint set at line 25: count > 100
+
+🔮 > BREAK LIST
+🐛 Active Breakpoints:
+   Line 15 (enabled)
+   Line 25 (enabled, condition: count > 100)
+   Line 42 (disabled)
+
+🔮 > BREAK DISABLE 15
+✅ Breakpoint at line 15 disabled
+
+🔮 > BREAK CLEAR ALL
+✅ All breakpoints cleared
+```
+
+**Notes**:
+- Conditional breakpoints evaluated at runtime
+- Disabled breakpoints kept but not triggered
+- Line numbers are 1-based (first line = 1)
+
+**uCODE**: `[SYSTEM|BREAK*<line>*<condition>]`
+
+---
+
+### STEP
+
+**Purpose**: Step through code execution (over, into, out)
+
+**Syntax**:
+```
+STEP                    # Step over (execute next line)
+STEP INTO               # Step into function call
+STEP OUT                # Step out of current function
+```
+
+**Examples**:
+```
+🔮 > STEP
+🐛 Stepped to line 16
+   x = 42
+
+🔮 > STEP INTO
+🐛 Stepped into function 'calculate' at line 8
+   params: [5, 10]
+
+🔮 > STEP OUT
+🐛 Stepped out to line 17
+   result = 50
+```
+
+**Output**:
+```
+🐛 Stepped to line 16
+   Current values:
+   x = 42
+   y = "test"
+```
+
+**uCODE**: `[SYSTEM|STEP*<mode>]`
+
+---
+
+### CONTINUE
+
+**Purpose**: Resume execution until next breakpoint or script end
+
+**Syntax**:
+```
+CONTINUE                # Continue execution
+```
+
+**Examples**:
+```
+🔮 > CONTINUE
+🐛 Execution paused at breakpoint (line 25)
+   count = 150
+
+🔮 > CONTINUE
+✅ Script execution completed
+```
+
+**Output**:
+```
+🐛 Running...
+🐛 Breakpoint hit at line 25
+```
+
+**uCODE**: `[SYSTEM|CONTINUE]`
+
+---
+
+### INSPECT
+
+**Purpose**: Inspect variable values during debugging
+
+**Syntax**:
+```
+INSPECT <variable>      # Inspect specific variable
+INSPECT ALL             # Show all variables in current scope
+```
+
+**Parameters**:
+- `variable` - Variable name to inspect
+- `ALL` - Show all variables
+
+**Examples**:
+```
+🔮 > INSPECT count
+🐛 Variable: count
+   Type: int
+   Value: 150
+   Last changed: line 23
+
+🔮 > INSPECT ALL
+🐛 Current Variables:
+   count = 150 (int)
+   name = "test" (str)
+   items = [1, 2, 3] (list)
+   active = true (bool)
+```
+
+**Output**:
+```
+🐛 Variable: x
+   Type: int
+   Value: 42
+   Last changed: line 15
+```
+
+**uCODE**: `[SYSTEM|INSPECT*<variable>]`
+
+---
+
+### WATCH
+
+**Purpose**: Watch variable values across execution
+
+**Syntax**:
+```
+WATCH <variable>        # Add variable to watch list
+WATCH LIST              # Show all watched variables
+WATCH CLEAR <variable>  # Remove from watch list
+WATCH CLEAR ALL         # Clear all watches
+```
+
+**Parameters**:
+- `variable` - Variable name to watch
+
+**Examples**:
+```
+🔮 > WATCH count
+✅ Watching variable: count
+
+🔮 > WATCH x
+✅ Watching variable: x
+
+🔮 > WATCH LIST
+🐛 Watched Variables:
+   count = 150
+   x = 42
+
+🔮 > WATCH CLEAR count
+✅ Stopped watching: count
+```
+
+**Notes**:
+- Watches persist across breakpoints
+- Shows current value at each step
+- Useful for tracking state changes
+
+**uCODE**: `[SYSTEM|WATCH*<variable>]`
+
+---
+
+### STACK
+
+**Purpose**: Display call stack during debugging
+
+**Syntax**:
+```
+STACK                   # Show full call stack
+```
+
+**Examples**:
+```
+🔮 > STACK
+🐛 Call Stack:
+   #0 calculate() at line 15
+   #1 process_data() at line 28
+   #2 main() at line 42
+   #3 <script> at line 1
+```
+
+**Output**:
+```
+🐛 Call Stack (3 frames):
+   #0 inner_function() at line 8
+   #1 outer_function() at line 15
+   #2 <main> at line 1
+```
+
+**uCODE**: `[SYSTEM|STACK]`
+
+---
+
+### MODIFY
+
+**Purpose**: Modify variable values during debugging
+
+**Syntax**:
+```
+MODIFY <variable> = <value>
+```
+
+**Parameters**:
+- `variable` - Variable name to modify
+- `value` - New value to assign
+
+**Examples**:
+```
+🔮 > MODIFY count = 200
+✅ Variable 'count' modified: 150 → 200
+
+🔮 > MODIFY name = "debug"
+✅ Variable 'name' modified: "test" → "debug"
+
+🔮 > MODIFY active = false
+✅ Variable 'active' modified: true → false
+```
+
+**Notes**:
+- Changes take effect immediately
+- Type coercion applied automatically
+- Useful for testing edge cases
+
+**uCODE**: `[SYSTEM|MODIFY*<variable>*<value>]`
+
+---
+
+### PROFILE
+
+**Purpose**: Performance profiling and analysis
+
+**Syntax**:
+```
+PROFILE                 # Show full performance profile
+PROFILE TOP <n>         # Show top N slowest lines
+PROFILE CLEAR           # Clear profiling data
+PROFILE AUTO ON         # Enable automatic profiling
+PROFILE AUTO OFF        # Disable automatic profiling
+```
+
+**Parameters**:
+- `n` - Number of top results to show (default: 10)
+
+**Examples**:
+```
+🔮 > PROFILE
+🐛 Performance Profile:
+   Line 15: 0.0023s (150 executions)
+   Line 28: 0.0156s (1 execution)
+   Line 42: 0.0001s (300 executions)
+   Total: 0.0180s
+
+🔮 > PROFILE TOP 3
+🐛 Top 3 Slowest Lines:
+   1. Line 28: 0.0156s
+   2. Line 15: 0.0023s
+   3. Line 42: 0.0001s
+
+🔮 > PROFILE AUTO ON
+✅ Auto-profiling enabled
+```
+
+**Notes**:
+- Tracks execution time per line
+- Shows execution count
+- Auto-profiling runs in background
+
+**uCODE**: `[SYSTEM|PROFILE*<mode>]`
+
+---
+
+### HISTORY
+
+**Purpose**: View variable change history
+
+**Syntax**:
+```
+HISTORY <variable>      # Show change history for variable
+HISTORY ALL             # Show all variable histories
+```
+
+**Parameters**:
+- `variable` - Variable name to track
+
+**Examples**:
+```
+🔮 > HISTORY count
+🐛 Change History: count
+   Line 5: undefined → 0
+   Line 12: 0 → 50
+   Line 23: 50 → 150
+   Line 35: 150 → 200
+
+🔮 > HISTORY ALL
+🐛 Variable Change History:
+   count: 4 changes
+   name: 2 changes
+   active: 1 change
+```
+
+**Output**:
+```
+🐛 History: count
+   Line 12: 0 → 50
+   Line 23: 50 → 150
+```
+
+**uCODE**: `[SYSTEM|HISTORY*<variable>]`
 
 ---
 
