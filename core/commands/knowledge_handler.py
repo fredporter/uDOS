@@ -1,339 +1,327 @@
 """
-uDOS v1.0.8 - Knowledge Command Handler
-
-Manages local knowledge base for offline-first learning and reference.
-Provides search, indexing, and content management for markdown knowledge files.
-
-Commands:
-- KNOWLEDGE SEARCH <query> - Search knowledge base
-- KNOWLEDGE LIST [category] - List knowledge items
-- KNOWLEDGE SHOW <item> - Display knowledge content
-- KNOWLEDGE INDEX - Reindex knowledge base
-- KNOWLEDGE STATS - Show knowledge statistics
-- KNOWLEDGE CATEGORIES - List all categories
-
-Version: 1.0.8
+Knowledge Command Handler for uDOS v1.0.18
+Handles knowledge management, reading, and contribution commands.
 """
 
-from .base_handler import BaseCommandHandler
-from pathlib import Path
-import sys
+import os
+from datetime import datetime
+from typing import Dict, Any, Optional
+from core.services.knowledge_service import KnowledgeService
+from core.services.xp_service import XPService, SkillTree
 
-# Add project root to path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
 
+class KnowledgeCommandHandler:
+    """Handles knowledge-related commands."""
 
-class KnowledgeCommandHandler(BaseCommandHandler):
-    """Knowledge base management commands."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._knowledge_manager = None
-
-    @property
-    def knowledge_manager(self):
-        """Lazy load knowledge manager."""
-        if self._knowledge_manager is None:
-            from core.services.knowledge_manager import get_knowledge_manager
-            self._knowledge_manager = get_knowledge_manager()
-        return self._knowledge_manager
-
-    def handle(self, command, params, grid):
+    def __init__(self, xp_service: XPService, knowledge_service: KnowledgeService):
         """
-        Handle KNOWLEDGE commands.
+        Initialize handler.
 
         Args:
-            command: The subcommand (SEARCH, LIST, SHOW, etc.)
-            params: Command parameters
-            grid: Grid system for panel management
+            xp_service: XP service instance
+            knowledge_service: Knowledge service instance
         """
-        if command == "SEARCH":
-            return self._handle_search(params, grid)
-        elif command == "LIST":
-            return self._handle_list(params, grid)
-        elif command == "SHOW":
-            return self._handle_show(params, grid)
-        elif command == "INDEX":
-            return self._handle_index(params)
-        elif command == "STATS":
-            return self._handle_stats()
-        elif command == "CATEGORIES":
-            return self._handle_categories()
-        elif command == "HELP":
-            return self._handle_help()
-        else:
-            return self.get_message("ERROR_UNKNOWN_KNOWLEDGE_COMMAND", command=command)
+        self.xp_service = xp_service
+        self.knowledge_service = knowledge_service
 
-    def _handle_search(self, params, grid):
-        """Search knowledge base."""
-        if not params:
-            return """❌ Usage: KNOWLEDGE SEARCH <query> [category] [limit]
+    def handle_command(self, command: str, args: list) -> Dict[str, Any]:
+        """
+        Handle knowledge command.
 
-Examples:
-  KNOWLEDGE SEARCH "ASK command"
-  KNOWLEDGE SEARCH mapping commands 5
-  KNOWLEDGE SEARCH python concepts"""
+        Args:
+            command: Command name (e.g., "INDEX", "SEARCH", "READ")
+            args: Command arguments
 
-        query = params[0]
-        category = params[1] if len(params) > 1 and not params[1].isdigit() else None
-        limit = 10
+        Returns:
+            Result dictionary with success status and data
+        """
+        command = command.upper()
 
-        # Parse limit if provided
-        for param in params[1:]:
-            if param.isdigit():
-                limit = int(param)
-                break
-
-        # Perform search
-        results = self.knowledge_manager.search(query, limit=limit, category=category)
-
-        if not results:
-            category_text = f" in category '{category}'" if category else ""
-            return f"🔍 No results found for '{query}'{category_text}"
-
-        # Format results
-        output = [f"🔍 Knowledge Search: '{query}' ({len(results)} results)\n"]
-
-        for i, result in enumerate(results, 1):
-            score_indicator = "🎯" if result['score'] < -5 else "📄"
-            output.append(f"{score_indicator} {i}. **{result['title']}** ({result['category']})")
-            output.append(f"   📝 {result['word_count']} words")
-
-            # Show snippet
-            snippet = result['snippet'].strip()
-            if len(snippet) > 150:
-                snippet = snippet[:150] + "..."
-            output.append(f"   💡 {snippet}")
-
-            # Show tags if available
-            if result['tags']:
-                tags = " ".join([f"#{tag}" for tag in result['tags'][:5]])
-                output.append(f"   🏷️  {tags}")
-
-            output.append("")
-
-        # Add search tips
-        output.append("💡 **Tips:**")
-        output.append("   • Use KNOWLEDGE SHOW <title> to view full content")
-        output.append("   • Add category filter: KNOWLEDGE SEARCH <query> <category>")
-        output.append("   • Use quotes for exact phrases")
-
-        return "\n".join(output)
-
-    def _handle_list(self, params, grid):
-        """List knowledge items."""
-        category = params[0] if params else None
-
-        if category:
-            # List items in specific category
-            items = self.knowledge_manager.get_by_category(category)
-            if not items:
-                return f"📂 No items found in category '{category}'"
-
-            output = [f"📂 Knowledge Items in '{category}' ({len(items)} items)\n"]
-
-            for item in items:
-                output.append(f"📄 **{item['title']}**")
-                output.append(f"   📝 {item['word_count']} words")
-
-                if item['tags']:
-                    tags = " ".join([f"#{tag}" for tag in item['tags'][:5]])
-                    output.append(f"   🏷️  {tags}")
-
-                output.append("")
-        else:
-            # List all categories
-            categories = self.knowledge_manager.get_categories()
-            if not categories:
-                return "📂 No knowledge categories found. Use KNOWLEDGE INDEX to scan for files."
-
-            output = ["📂 Knowledge Categories\n"]
-
-            for cat in categories:
-                output.append(f"📁 **{cat['category']}**")
-                output.append(f"   📄 {cat['count']} items")
-                output.append(f"   📝 {cat['total_words']} total words")
-                output.append("")
-
-            output.append("💡 Use KNOWLEDGE LIST <category> to see items in a category")
-
-        return "\n".join(output)
-
-    def _handle_show(self, params, grid):
-        """Show full content of a knowledge item."""
-        if not params:
-            return """❌ Usage: KNOWLEDGE SHOW <title|file_path>
-
-Examples:
-  KNOWLEDGE SHOW "ASK Command Reference"
-  KNOWLEDGE SHOW commands/ASK.md"""
-
-        identifier = params[0]
-
-        # Try to find by title first
-        results = self.knowledge_manager.search(identifier, limit=5)
-
-        # Look for exact title match
-        exact_match = None
-        for result in results:
-            if result['title'].lower() == identifier.lower():
-                exact_match = result
-                break
-
-        # If no exact match, try first result or file path
-        if exact_match:
-            content = self.knowledge_manager.get_content(exact_match['file_path'])
-            title = exact_match['title']
-            file_path = exact_match['file_path']
-        else:
-            # Try as file path
-            if identifier.endswith('.md'):
-                content = self.knowledge_manager.get_content(identifier)
-                title = identifier
-                file_path = identifier
-            elif results:
-                # Use first search result
-                content = self.knowledge_manager.get_content(results[0]['file_path'])
-                title = results[0]['title']
-                file_path = results[0]['file_path']
-            else:
-                content = None
-                title = identifier
-                file_path = None
-
-        if not content:
-            return f"❌ Knowledge item '{identifier}' not found"
-
-        # Format content for display
-        output = [f"📖 **{title}**"]
-        if file_path:
-            output.append(f"📁 {file_path}")
-        output.append("─" * 60)
-        output.append("")
-        output.append(content)
-
-        # Create panel if grid available
-        if grid:
-            panel_name = f"knowledge_{title.lower().replace(' ', '_')}"
-            grid.create_panel(panel_name, "\n".join(output), 0, 0, 80, 30)
-            return f"📖 Knowledge content displayed in panel '{panel_name}'"
-
-        return "\n".join(output)
-
-    def _handle_index(self, params):
-        """Reindex knowledge base."""
-        force_reindex = "--force" in params or "-f" in params
-
-        output = ["🔄 Indexing knowledge base..."]
-
-        stats = self.knowledge_manager.index_knowledge_base(force_reindex=force_reindex)
-
-        output.append("")
-        output.append("📊 **Indexing Results:**")
-        output.append(f"   📁 Total files scanned: {stats['total_files']}")
-        output.append(f"   ✅ New files indexed: {stats['new_files']}")
-        output.append(f"   🔄 Files updated: {stats['updated_files']}")
-        output.append(f"   🗑️  Files removed: {stats['deleted_files']}")
-        output.append(f"   ❌ Errors encountered: {stats['errors']}")
-
-        if stats['total_files'] == 0:
-            output.append("")
-            output.append("💡 **Tip:** Add .md files to the /knowledge folder to build your knowledge base")
-
-        return "\n".join(output)
-
-    def _handle_stats(self):
-        """Show knowledge base statistics."""
-        stats = self.knowledge_manager.get_statistics()
-
-        output = ["📊 **Knowledge Base Statistics**\n"]
-
-        output.append(f"📄 **Total Items:** {stats['total_items']}")
-        output.append(f"📝 **Total Words:** {stats['total_words']:,}")
-        output.append(f"📂 **Categories:** {stats['total_categories']}")
-
-        if stats['last_updated']:
-            output.append(f"🕒 **Last Updated:** {stats['last_updated']}")
-
-        # Database info
-        db_size_mb = stats['database_size'] / (1024 * 1024)
-        output.append(f"💾 **Database Size:** {db_size_mb:.2f} MB")
-
-        # Category breakdown
-        categories = self.knowledge_manager.get_categories()
-        if categories:
-            output.append("\n📂 **Category Breakdown:**")
-            for cat in categories:
-                percentage = (cat['total_words'] / stats['total_words'] * 100) if stats['total_words'] > 0 else 0
-                output.append(f"   {cat['category']}: {cat['count']} items ({percentage:.1f}%)")
-
-        return "\n".join(output)
-
-    def _handle_categories(self):
-        """List all categories with details."""
-        categories = self.knowledge_manager.get_categories()
-
-        if not categories:
-            return "📂 No categories found. Use KNOWLEDGE INDEX to scan for files."
-
-        output = ["📂 **Knowledge Categories**\n"]
-
-        for cat in categories:
-            output.append(f"📁 **{cat['category']}**")
-            output.append(f"   📄 {cat['count']} items")
-            output.append(f"   📝 {cat['total_words']:,} words")
-
-            # Get sample items
-            items = self.knowledge_manager.get_by_category(cat['category'])
-            if items:
-                sample_titles = [item['title'] for item in items[:3]]
-                output.append(f"   📋 Examples: {', '.join(sample_titles)}")
-                if len(items) > 3:
-                    output.append(f"   📋 ... and {len(items) - 3} more")
-
-            output.append("")
-
-        output.append("💡 Use KNOWLEDGE LIST <category> to see all items in a category")
-
-        return "\n".join(output)
-
-    def _handle_help(self):
-        """Show KNOWLEDGE command help."""
-        return """📚 **KNOWLEDGE Command Reference**
-
-**Search & Discovery:**
-  KNOWLEDGE SEARCH <query> [category] [limit]  - Search knowledge base
-  KNOWLEDGE LIST [category]                     - List knowledge items
-  KNOWLEDGE CATEGORIES                          - Show all categories
-  KNOWLEDGE STATS                              - Show knowledge statistics
-
-**Content Management:**
-  KNOWLEDGE SHOW <title|path>                  - Display full content
-  KNOWLEDGE INDEX [--force]                    - Reindex knowledge base
-
-**Examples:**
-  KNOWLEDGE SEARCH "command architecture"      - Search for content
-  KNOWLEDGE LIST commands                      - List command docs
-  KNOWLEDGE SHOW "ASK Command Reference"       - View full document
-  KNOWLEDGE INDEX --force                      - Force reindex all files
-
-**Tips:**
-• Knowledge files are stored in /knowledge folder
-• Files are automatically indexed when changed
-• Use categories to organize content (folders become categories)
-• Search supports full-text search with ranking
-• Content is displayed in panels when possible
-
-**Categories:**
-• commands/ - Command reference documentation
-• concepts/ - System architecture and design concepts
-• faq/ - Frequently asked questions
-• maps/ - Geographical and navigation data
-• personal/ - User-specific knowledge (git-ignored)"""
-
-    def get_message(self, template_key, **kwargs):
-        """Get formatted message from template."""
-        templates = {
-            'ERROR_UNKNOWN_KNOWLEDGE_COMMAND': "❌ Unknown KNOWLEDGE command: {command}\n\nUse KNOWLEDGE HELP for available commands.",
+        handlers = {
+            'INDEX': self._handle_index,
+            'SEARCH': self._handle_search,
+            'LIST': self._handle_list,
+            'READ': self._handle_read,
+            'CONTRIBUTE': self._handle_contribute,
+            'STATS': self._handle_stats,
+            'INFO': self._handle_info,
         }
-        return templates.get(template_key, f"Unknown template: {template_key}").format(**kwargs)
+
+        handler = handlers.get(command)
+        if not handler:
+            return {
+                'success': False,
+                'error': f"Unknown knowledge command: {command}",
+                'available_commands': list(handlers.keys())
+            }
+
+        return handler(args)
+
+    def _handle_index(self, args: list) -> Dict[str, Any]:
+        """
+        Index knowledge base.
+
+        Usage: KNOWLEDGE INDEX
+        """
+        try:
+            result = self.knowledge_service.index_knowledge_base()
+
+            if 'error' in result:
+                return {
+                    'success': False,
+                    'error': result['error']
+                }
+
+            return {
+                'success': True,
+                'indexed': result['indexed'],
+                'failed': len(result.get('errors', [])) if result.get('errors') else 0,
+                'total': result['total_items'],
+                'message': f"Indexed {result['indexed']} knowledge items"
+            }
+
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f"Indexing failed: {str(e)}"
+            }
+
+    def _handle_search(self, args: list) -> Dict[str, Any]:
+        """
+        Search knowledge items.
+
+        Usage: KNOWLEDGE SEARCH <query> [skill_tree]
+        """
+        if not args:
+            return {
+                'success': False,
+                'error': "Usage: KNOWLEDGE SEARCH <query> [skill_tree]"
+            }
+
+        query = args[0]
+        skill_tree = args[1] if len(args) > 1 else None
+
+        # Validate skill tree if provided
+        if skill_tree:
+            try:
+                skill_tree = SkillTree[skill_tree.upper()]
+            except KeyError:
+                return {
+                    'success': False,
+                    'error': f"Invalid skill tree: {skill_tree}",
+                    'valid_trees': [tree.name for tree in SkillTree]
+                }
+
+        results = self.knowledge_service.search_knowledge(
+            query=query,
+            skill_tree=skill_tree,
+            xp_service=self.xp_service
+        )
+
+        return {
+            'success': True,
+            'query': query,
+            'skill_tree': skill_tree.name if skill_tree else None,
+            'results': results,
+            'count': len(results)
+        }
+
+    def _handle_list(self, args: list) -> Dict[str, Any]:
+        """
+        List knowledge items.
+
+        Usage: KNOWLEDGE LIST [skill_tree]
+        """
+        skill_tree = None
+
+        if args:
+            try:
+                skill_tree = SkillTree[args[0].upper()]
+            except KeyError:
+                return {
+                    'success': False,
+                    'error': f"Invalid skill tree: {args[0]}",
+                    'valid_trees': [tree.name for tree in SkillTree]
+                }
+
+        if skill_tree:
+            items = self.knowledge_service.get_knowledge_by_skill(skill_tree)
+        else:
+            # Get all knowledge items
+            items = self.knowledge_service.search_knowledge(
+                query="",
+                xp_service=self.xp_service
+            )
+
+        return {
+            'success': True,
+            'skill_tree': skill_tree.name if skill_tree else 'ALL',
+            'items': items,
+            'count': len(items)
+        }
+
+    def _handle_read(self, args: list) -> Dict[str, Any]:
+        """
+        Read knowledge item.
+
+        Usage: KNOWLEDGE READ <id> [time_seconds]
+        """
+        if not args:
+            return {
+                'success': False,
+                'error': "Usage: KNOWLEDGE READ <id> [time_seconds]"
+            }
+
+        try:
+            knowledge_id = int(args[0])
+        except ValueError:
+            return {
+                'success': False,
+                'error': f"Invalid knowledge ID: {args[0]}"
+            }
+
+        time_spent = 60  # Default 1 minute
+        if len(args) > 1:
+            try:
+                time_spent = int(args[1])
+            except ValueError:
+                return {
+                    'success': False,
+                    'error': f"Invalid time value: {args[1]}"
+                }
+
+        result = self.knowledge_service.read_knowledge(
+            knowledge_id=knowledge_id,
+            xp_service=self.xp_service,
+            time_spent_seconds=time_spent
+        )
+
+        if 'error' in result:
+            return {
+                'success': False,
+                'error': result['error']
+            }
+
+        return {
+            'success': True,
+            'knowledge_id': knowledge_id,
+            'xp_awarded': result['xp_awarded'],
+            'skill_tree': result.get('skill_tree'),
+            'message': f"Read knowledge #{knowledge_id}, earned {result['xp_awarded']} XP in {result.get('skill_tree', 'INFORMATION')}"
+        }
+
+    def _handle_contribute(self, args: list) -> Dict[str, Any]:
+        """
+        Contribute to knowledge.
+
+        Usage: KNOWLEDGE CONTRIBUTE <id> <type> <description>
+
+        Types: correction, addition, example, resource, translation
+        """
+        if len(args) < 3:
+            return {
+                'success': False,
+                'error': "Usage: KNOWLEDGE CONTRIBUTE <id> <type> <description>",
+                'valid_types': ['correction', 'addition', 'example', 'resource', 'translation']
+            }
+
+        try:
+            knowledge_id = int(args[0])
+        except ValueError:
+            return {
+                'success': False,
+                'error': f"Invalid knowledge ID: {args[0]}"
+            }
+
+        contribution_type = args[1].lower()
+        valid_types = ['correction', 'addition', 'example', 'resource', 'translation']
+
+        if contribution_type not in valid_types:
+            return {
+                'success': False,
+                'error': f"Invalid contribution type: {contribution_type}",
+                'valid_types': valid_types
+            }
+
+        description = ' '.join(args[2:])
+
+        result = self.knowledge_service.contribute_knowledge(
+            knowledge_id=knowledge_id,
+            contribution_type=contribution_type,
+            description=description,
+            xp_service=self.xp_service
+        )
+
+        if 'error' in result:
+            return {
+                'success': False,
+                'error': result['error']
+            }
+
+        return {
+            'success': True,
+            'knowledge_id': knowledge_id,
+            'contribution_type': contribution_type,
+            'xp_awarded': result['xp_awarded'],
+            'message': f"Contribution recorded, earned {result['xp_awarded']} XP"
+        }
+
+    def _handle_stats(self, args: list) -> Dict[str, Any]:
+        """
+        Show reading statistics.
+
+        Usage: KNOWLEDGE STATS
+        """
+        stats = self.knowledge_service.get_reading_stats()
+
+        return {
+            'success': True,
+            'total_reads': stats['total_reads'],
+            'total_xp': stats['total_xp'],
+            'total_time_hours': stats['total_time_hours'],
+            'average_completion': stats.get('avg_completion', 0),
+            'message': f"Read {stats['total_reads']} items, earned {stats['total_xp']} XP, spent {stats['total_time_hours']} hours"
+        }
+
+    def _handle_info(self, args: list) -> Dict[str, Any]:
+        """
+        Show knowledge item details.
+
+        Usage: KNOWLEDGE INFO <id>
+        """
+        if not args:
+            return {
+                'success': False,
+                'error': "Usage: KNOWLEDGE INFO <id>"
+            }
+
+        try:
+            knowledge_id = int(args[0])
+        except ValueError:
+            return {
+                'success': False,
+                'error': f"Invalid knowledge ID: {args[0]}"
+            }
+
+        # Get knowledge item via search
+        results = self.knowledge_service.search_knowledge(
+            query="",
+            xp_service=self.xp_service
+        )
+
+        item = None
+        for result in results:
+            if result['id'] == knowledge_id:
+                item = result
+                break
+
+        if not item:
+            return {
+                'success': False,
+                'error': f"Knowledge item not found: {knowledge_id}"
+            }
+
+        return {
+            'success': True,
+            'item': item
+        }
