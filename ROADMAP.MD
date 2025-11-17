@@ -1,22 +1,21 @@
 # 🗺️ uDOS Roadmap
 **Current Version**: v1.0.20b (Enhanced Mapping & Reference Data System - ✅ COMPLETE)
-**Last Updated**: November 16, 2025 - v1.0.20b Completed
+**Last Updated**: November 17, 2025 - Documentation Cleanup & File Structure Reorganization
 
 **Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection! A Survival Handbook for Armageddon - giving life and purpose to all our computer-type devices and helping us thrive as humans!"*
 
 **Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
 
 **Recent Updates**:
+- ✅ **v1.0.20b Documentation Cleanup COMPLETE** (Nov 17, 2025) - Wiki-first strategy, 50+ knowledge guides, clean file structure
 - ✅ **v1.0.20b Enhanced Mapping COMPLETE** (Nov 16, 2025) - 250 cities, 50 countries, TILE system, 8 geographic databases
 - ✅ **v1.0.20 4-Tier Knowledge Bank COMPLETE** (Nov 15, 2025) - Personal → Shared → Group → Public memory tiers with encryption
 - ⚡ **v1.0.19 Enhanced CLI & Teletext GUI shipped** (Nov 2025) - 0.18ms autocomplete, arrow-key selectors, 62 REST endpoints
 - 🎮 **v1.0.18 Apocalypse Adventures complete** (Nov 2025) - XP system, barter economy, survival scenarios, 192/192 tests
 - 🐛 **v1.0.17 Interactive Debugger shipped** (Nov 2025) - Full debugging suite with 94/94 tests
 - 📝 **v1.0.16 uCODE Part 2 complete** (Nov 2025) - Functions, error handling, modules
-- 🔧 **v1.0.20-v1.0.23 detailed planning complete** (Nov 2025)
-- 🗺️ **v1.0.20b Enhanced Mapping System planned** - Complete world data, TILE system, clean data architecture
-- 🌲 **v1.0.21 Survivalist Library expanded** to 500+ guides across 8 categories
-- 📚 **v1.0.22 Documentation plan finalized** with 1000+ page survival handbook
+- 🌲 **v1.0.21 Survivalist Library** - Next up: Complete knowledge expansion, PANEL graphics, theme system
+- 📚 **v1.0.22 Documentation Handbook** - Following: 1000+ page survival handbook, offline-first
 
 **Core Principles**:
 - 🌍 **Offline-First**: Full functionality without internet
@@ -53,10 +52,15 @@
 - **v1.0.18** - Apocalypse Adventures & Experience System (XP, Barter, Survival, Scenarios, Knowledge, 192/192 tests) - ✅ **COMPLETE**
 - **v1.0.19** - Enhanced CLI & Teletext GUI (Smart autocomplete, arrow-key selectors, REST API, 0.18ms performance) - ✅ **COMPLETE**
 - **v1.0.20** - 4-Tier Knowledge Bank & Memory System (PRIVATE encryption, SHARED permissions, COMMUNITY groups, PUBLIC knowledge, 5 handlers, 15/15 validation tests) - ✅ **COMPLETE**
-- **v1.0.20b** - Enhanced Mapping & Reference Data System (25 major cities, 40 TZONE codes, uDOS grid coordinates, TILE commands) - ✅ **COMPLETE**
+- **v1.0.20b** - Enhanced Mapping & Reference Data System (250 cities, 50 countries, 120 timezones, TILE commands, geographic databases) - ✅ **COMPLETE**
+  * Documentation cleanup & file structure reorganization (Nov 17, 2025)
+  * Wiki-first strategy: PANEL, KNOWLEDGE, TILE command documentation
+  * Knowledge base expansion: 50+ survival guides (water, medical, food, skills, well-being)
+  * File reorganization: /examples removed, content redistributed to /knowledge/demos/, /extensions/templates/, /docs/references/
+  * Testing: 37/37 tests passing (mapping 22, knowledge 11, core 4, imports, paths)
 
 ### 🔨 Current Development
-- **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **NEXT**
+- **v1.0.21** - Survivalist Themes & Practical Skills Library - 🔨 **IN PROGRESS**
 
 ### 📋 Planned Versions
 - **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **PLANNED**
