@@ -14,79 +14,79 @@
 /* Classic Mac Fonts from /extensions/fonts */
 @font-face {
   font-family: 'ChicagoFLF';
-  src: url('../../fonts/ChicagoFLF.ttf') format('truetype');
+  src: url('../fonts/ChicagoFLF.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'pixChicago';
-  src: url('../../fonts/pixChicago.ttf') format('truetype');
+  src: url('../fonts/pixChicago.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Geneva9';
-  src: url('../../fonts/geneva_9.ttf') format('truetype');
+  src: url('../fonts/geneva_9.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Monaco';
-  src: url('../../fonts/monaco.ttf') format('truetype');
+  src: url('../fonts/monaco.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Athene';
-  src: url('../../fonts/Athene.ttf') format('truetype');
+  src: url('../fonts/Athene.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'LexingtonGothic';
-  src: url('../../fonts/Lexington-Gothic.ttf') format('truetype');
+  src: url('../fonts/Lexington-Gothic.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Liverpool';
-  src: url('../../fonts/Liverpool.ttf') format('truetype');
+  src: url('../fonts/Liverpool.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'LosAltos';
-  src: url('../../fonts/Los Altos.ttf') format('truetype');
+  src: url('../fonts/Los Altos.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'ParcPlace';
-  src: url('../../fonts/Parc Place.ttf') format('truetype');
+  src: url('../fonts/Parc Place.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'ParcPlaceLegacy';
-  src: url('../../fonts/Parc Place Legacy.ttf') format('truetype');
+  src: url('../fonts/Parc Place Legacy.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Sanfrisco';
-  src: url('../../fonts/Sanfrisco.ttf') format('truetype');
+  src: url('../fonts/Sanfrisco.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Torrance';
-  src: url('../../fonts/Torrance.ttf') format('truetype');
+  src: url('../fonts/Torrance.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Valencia';
-  src: url('../../fonts/Valencia.ttf') format('truetype');
+  src: url('../fonts/Valencia.ttf') format('truetype');
   font-display: swap;
 }
 

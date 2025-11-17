@@ -317,7 +317,7 @@ READY.
             'DARK-GRAY', 'GRAY', 'LIGHT-GREEN', 'LIGHT-BLUE', 'LIGHT-GRAY'
         ];
 
-        let output = '<span class="fg-cyan">C64 POLAROID COLOR PALETTE:</span>\n\n';
+        let output = '<span class="fg-cyan">C64 SYNTHWAVE DOS COLOR PALETTE:</span>\n\n';
 
         colors.forEach((color, i) => {
             const className = `fg-${color.toLowerCase().replace('_', '-')}`;

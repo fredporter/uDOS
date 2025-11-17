@@ -24,7 +24,7 @@ Five typeface variants with texture healing and ligatures:
 - **Monaspace Radon**: Neo-grotesque, balanced
 - **Monaspace Krypton**: Mechanical sans, technical
 
-### Polaroid Color Palette
+### Synthwave DOS Color Palette
 
 | Color  | Hex Code | Usage                          |
 |--------|----------|--------------------------------|

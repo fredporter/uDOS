@@ -1,0 +1,138 @@
+/**
+ * Synthwave DOS Color Palette
+ * Version: 1.0.24
+ *
+ * Standard 16-color VGA palette with transparency variants
+ * Optimized for retro terminal interfaces and CRT displays
+ *
+ * Color naming convention:
+ * - color-{hue}-{brightness} for standard colors
+ * - color-{hue}-{brightness}-{opacity} for transparency variants
+ */
+
+:root {
+  /* ============================================
+     BASE 16 COLORS (VGA Standard)
+     ============================================ */
+
+  /* Black & White */
+  --color-black: #000000;
+  --color-gray-dark: #555555;
+  --color-gray-light: #AAAAAA;
+  --color-white-bright: #FFFFFF;
+
+  /* Primary Colors - Dark */
+  --color-red-dark: #AA0000;
+  --color-green-dark: #00AA00;
+  --color-blue-dark: #0000AA;
+
+  /* Primary Colors - Bright */
+  --color-red-bright: #FF5555;
+  --color-green-bright: #55FF55;
+  --color-blue-bright: #5555FF;
+
+  /* Secondary Colors - Dark */
+  --color-cyan-dark: #00AAAA;
+  --color-magenta-dark: #AA00AA;
+  --color-orange-dark: #AA5500;
+
+  /* Secondary Colors - Bright */
+  --color-cyan-bright: #55FFFF;
+  --color-magenta-bright: #FF55FF;
+  --color-orange-bright: #FFFF55;
+
+  /* ============================================
+     TRANSPARENCY VARIANTS (10%, 25%, 50%, 75%)
+     ============================================ */
+
+  /* Black Transparency */
+  --color-black-10: rgba(0, 0, 0, 0.1);
+  --color-black-25: rgba(0, 0, 0, 0.25);
+  --color-black-50: rgba(0, 0, 0, 0.5);
+  --color-black-75: rgba(0, 0, 0, 0.75);
+
+  /* White Transparency */
+  --color-white-bright-10: rgba(255, 255, 255, 0.1);
+  --color-white-bright-25: rgba(255, 255, 255, 0.25);
+  --color-white-bright-50: rgba(255, 255, 255, 0.5);
+  --color-white-bright-75: rgba(255, 255, 255, 0.75);
+
+  /* Gray Transparency */
+  --color-gray-dark-25: rgba(85, 85, 85, 0.25);
+  --color-gray-dark-50: rgba(85, 85, 85, 0.5);
+  --color-gray-light-25: rgba(170, 170, 170, 0.25);
+  --color-gray-light-50: rgba(170, 170, 170, 0.5);
+
+  /* Red Transparency */
+  --color-red-bright-10: rgba(255, 85, 85, 0.1);
+  --color-red-bright-25: rgba(255, 85, 85, 0.25);
+  --color-red-bright-50: rgba(255, 85, 85, 0.5);
+  --color-red-bright-75: rgba(255, 85, 85, 0.75);
+
+  /* Green Transparency */
+  --color-green-bright-10: rgba(85, 255, 85, 0.1);
+  --color-green-bright-25: rgba(85, 255, 85, 0.25);
+  --color-green-bright-50: rgba(85, 255, 85, 0.5);
+  --color-green-bright-75: rgba(85, 255, 85, 0.75);
+
+  /* Blue Transparency */
+  --color-blue-bright-10: rgba(85, 85, 255, 0.1);
+  --color-blue-bright-25: rgba(85, 85, 255, 0.25);
+  --color-blue-bright-50: rgba(85, 85, 255, 0.5);
+  --color-blue-bright-75: rgba(85, 85, 255, 0.75);
+
+  /* Cyan Transparency */
+  --color-cyan-bright-10: rgba(85, 255, 255, 0.1);
+  --color-cyan-bright-25: rgba(85, 255, 255, 0.25);
+  --color-cyan-bright-50: rgba(85, 255, 255, 0.5);
+  --color-cyan-bright-75: rgba(85, 255, 255, 0.75);
+
+  /* Magenta Transparency */
+  --color-magenta-bright-10: rgba(255, 85, 255, 0.1);
+  --color-magenta-bright-25: rgba(255, 85, 255, 0.25);
+  --color-magenta-bright-50: rgba(255, 85, 255, 0.5);
+  --color-magenta-bright-75: rgba(255, 85, 255, 0.75);
+
+  /* Orange/Yellow Transparency */
+  --color-orange-bright-10: rgba(255, 255, 85, 0.1);
+  --color-orange-bright-25: rgba(255, 255, 85, 0.25);
+  --color-orange-bright-50: rgba(255, 255, 85, 0.5);
+  --color-orange-bright-75: rgba(255, 255, 85, 0.75);
+
+  /* ============================================
+     SEMANTIC COLOR ALIASES
+     ============================================ */
+
+  /* Terminal Colors */
+  --terminal-bg: var(--color-black);
+  --terminal-fg: var(--color-gray-light);
+  --terminal-cursor: var(--color-cyan-bright);
+  --terminal-selection: var(--color-blue-bright-25);
+
+  /* Status Colors */
+  --status-success: var(--color-green-bright);
+  --status-error: var(--color-red-bright);
+  --status-warning: var(--color-orange-bright);
+  --status-info: var(--color-cyan-bright);
+
+  /* UI Colors */
+  --ui-border: var(--color-gray-dark);
+  --ui-border-active: var(--color-cyan-bright);
+  --ui-highlight: var(--color-cyan-bright-25);
+  --ui-shadow: var(--color-black-50);
+}
+
+/**
+ * Usage Examples:
+ *
+ * background-color: var(--color-black);
+ * color: var(--color-cyan-bright);
+ * border: 1px solid var(--color-blue-bright);
+ * box-shadow: 0 2px 4px var(--color-black-50);
+ *
+ * For terminal/retro themes:
+ * body {
+ *   background: var(--terminal-bg);
+ *   color: var(--terminal-fg);
+ * }
+ */

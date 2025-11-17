@@ -137,4 +137,4 @@ This cascading stack ensures optimal aesthetics while maintaining universal comp
 - Original Font Manager implementation
 - 16×16 bitmap editor
 - Basic TTF viewer
-- Polaroid color palette
+- Synthwave DOS color palette

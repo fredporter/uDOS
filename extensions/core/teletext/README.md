@@ -18,7 +18,7 @@ Authentic BBC Teletext broadcast interface recreation for uDOS, featuring Mallar
 - **Block Graphics**: Sixel-style graphics blocks
 - **Timing**: Authentic page load simulation
 
-### **Polaroid Enhancement** (Phase 3)
+### **Synthwave DOS Enhancement** (Phase 3)
 - **Synthwave DOS Integration**: Color palette harmonization
 - **Improved Contrast**: Better readability on modern displays
 - **Authentic Colors**: Maintains BBC Teletext aesthetic
@@ -125,7 +125,7 @@ TeletextViewer.setService('CEEFAX'); // or 'ORACLE'
 ```
 teletext/
 ├── index.html                  # Main teletext viewer
-├── index-polaroid.html         # Polaroid color variant
+├── index-synthwave.html         # Synthwave DOS color variant
 ├── knowledge.html              # Knowledge page demo
 ├── teletext-enhanced.css       # Main stylesheet
 ├── teletext-web.css            # Legacy styles
@@ -136,13 +136,13 @@ teletext/
 ├── mosaic_codepoints_E200-E3FF.csv  # Character mappings
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
-├── README-POLAROID.md          # Polaroid enhancement docs
+├── README-POLAROID.md          # Synthwave DOS enhancement docs
 └── CREDITS.md                  # Attribution
 ```
 
-## 🎨 Synthwave DOS Colors (Polaroid Palette)
+## 🎨 Synthwave DOS Colors (Synthwave DOS Palette)
 
-The Polaroid enhancement integrates Synthwave DOS colors while maintaining BBC Teletext authenticity:
+The Synthwave DOS enhancement integrates Synthwave DOS colors while maintaining BBC Teletext authenticity:
 
 - **Background**: Deep black with slight warmth
 - **Text**: Crisp white with subtle glow
@@ -174,7 +174,7 @@ See `README-POLAROID.md` for technical details.
 ## 🔧 Development
 
 ### v1.0.24 Implementation
-- **Phase 3** (Commit 9afaf4b): Polaroid enhancement
+- **Phase 3** (Commit 9afaf4b): Synthwave DOS enhancement
 - **Mallard Fonts**: 6 variants consolidated in `/extensions/fonts/mallard/`
 - **Standards**: Full BBC Teletext Level 1 compliance
 - **Integration**: uDOS knowledge system, API backend
@@ -199,6 +199,6 @@ See main uDOS LICENSE and CREDITS.md for font attribution.
 ---
 
 **Version**: v1.0.24
-**Phase 3**: Polaroid Enhancement
+**Phase 3**: Synthwave DOS Enhancement
 **Commit**: 9afaf4b
 **Font License**: Mallard family - CC BY-SA 3.0 (gid, FontStruct.com)

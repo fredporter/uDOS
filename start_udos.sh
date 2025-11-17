@@ -61,6 +61,29 @@ else
     exit 1
 fi
 
+# Check Node.js version (for web extensions)
+print_status "Checking Node.js version..."
+if command -v node &> /dev/null; then
+    NODE_VERSION=$(node --version | cut -d'v' -f2)
+    NODE_MAJOR=$(echo $NODE_VERSION | cut -d'.' -f1)
+
+    if [ "$NODE_MAJOR" -lt 18 ]; then
+        print_warning "Node.js $NODE_VERSION found (minimum: 18 for typo editor)"
+        print_status "  Some web extensions may not work. Upgrade recommended."
+        echo -e "  ${BLUE}└─${NC} Download: ${CYAN}https://nodejs.org${NC}"
+    elif [ "$NODE_MAJOR" -eq 18 ]; then
+        print_warning "Node.js $NODE_VERSION (EOL: April 2025)"
+        print_status "  Consider upgrading to Node.js 20 LTS or 22 LTS"
+        print_success "Node.js ${NODE_VERSION} (compatible)"
+    else
+        print_success "Node.js ${NODE_VERSION} found"
+    fi
+else
+    print_warning "Node.js not found (optional for web extensions)"
+    print_status "  Install Node.js 18+ to enable typo editor"
+    echo -e "  ${BLUE}└─${NC} Download: ${CYAN}https://nodejs.org${NC}"
+fi
+
 # Check/Create virtual environment
 print_status "Checking virtual environment..."
 if [ ! -d ".venv" ]; then
@@ -124,63 +147,35 @@ fi
 # Check/Install web extensions
 print_status "Checking web extensions..."
 
-# Function to check and install extension with better feedback
-check_extension() {
-    local ext_name=$1
-    local setup_script=$2
-
-    if [ -f "extensions/${setup_script}" ]; then
-        # Check if extension is installed (look for specific files/dirs)
-        case $ext_name in
-            "typo")
-                if [ ! -d "extensions/clone/typo" ]; then
-                    print_warning "${ext_name} not installed. Installing..."
-                    UDOS_AUTO_INSTALL=1 bash "extensions/${setup_script}" 2>&1 | grep -E "(Cloning|Installing|Installed)" || true
-                    if [ -d "extensions/clone/typo" ]; then
-                        print_success "${ext_name} installed"
-                    else
-                        print_warning "${ext_name} installation may have failed"
-                    fi
-                else
-                    print_success "${ext_name} ready"
-                fi
-                ;;
-            "micro")
-                if [ ! -f "extensions/clone/native/micro/micro" ]; then
-                    print_warning "${ext_name} not installed. Installing..."
-                    UDOS_AUTO_INSTALL=1 bash "extensions/${setup_script}" 2>&1 | grep -E "(Downloading|Installing|Installed)" || true
-                    if [ -f "extensions/clone/native/micro/micro" ]; then
-                        print_success "${ext_name} installed"
-                    else
-                        print_warning "${ext_name} installation may have failed"
-                    fi
-                else
-                    print_success "${ext_name} ready"
-                fi
-                ;;
-            "monaspace")
-                if [ ! -d "extensions/clone/monaspace-fonts" ]; then
-                    print_warning "${ext_name} fonts not installed. Installing..."
-                    UDOS_AUTO_INSTALL=1 bash "extensions/${setup_script}" 2>&1 | grep -E "(Cloning|Installing|Installed)" || true
-                    if [ -d "extensions/clone/monaspace-fonts" ]; then
-                        print_success "${ext_name} fonts installed"
-                    else
-                        print_warning "${ext_name} fonts installation may have failed"
-                    fi
-                else
-                    print_success "${ext_name} fonts ready"
-                fi
-                ;;
-        esac
+# Check micro editor
+if [ -f "extensions/setup/setup_micro.sh" ]; then
+    if [ ! -f "extensions/cloned/micro/micro" ]; then
+        print_warning "micro editor not installed"
+        read -p "Install now? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            bash "extensions/setup/setup_micro.sh"
+        fi
     else
-        print_warning "${setup_script} not found - skipping ${ext_name}"
+        print_success "micro editor ready"
     fi
-}
+fi
 
-# Check core extensions
-check_extension "typo" "setup_typo.sh"
-check_extension "micro" "setup_micro.sh"
-check_extension "monaspace" "setup_monaspace.sh"
+# Check typo editor (requires Node.js)
+if command -v node &> /dev/null; then
+    if [ -f "extensions/setup/setup_typo.sh" ]; then
+        if [ ! -d "extensions/cloned/typo" ]; then
+            print_warning "typo editor not installed"
+            read -p "Install now? (y/N): " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                bash "extensions/setup/setup_typo.sh"
+            fi
+        else
+            print_success "typo editor ready"
+        fi
+    fi
+fi
 
 # Check data directories
 print_status "Checking data directories..."

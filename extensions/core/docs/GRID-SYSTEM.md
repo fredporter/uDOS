@@ -10,7 +10,7 @@ The uDOS Grid System provides a standardized layout framework based on the Displ
 - **uGRID**: Tile-based layout system with preset sizes
 - **Text Block Characters**: Monaspace font symbols for UI elements
 - **Box Drawing**: ASCII art borders and frames
-- **Polaroid Palette**: 8-color standard theme
+- **Synthwave DOS Palette**: 8-color standard theme
 
 ## Files
 
@@ -128,7 +128,7 @@ Characters:
 <span class="diamond">◆</span> Diamond
 ```
 
-## Color Palette (Polaroid)
+## Color Palette (Synthwave DOS)
 
 ```html
 <span class="color-red">Red text</span>
@@ -328,7 +328,7 @@ Both are loaded via CDN in the demo files.
 1. **Consistent Spacing**: Always use 16×16 cell multiples
 2. **Buffer Space**: Leave 2px buffer for readability
 3. **Monospace Font**: Use Monaspace for exact character spacing
-4. **Color Contrast**: Follow Polaroid palette for accessibility
+4. **Color Contrast**: Follow Synthwave DOS palette for accessibility
 5. **Grid Alignment**: Align elements to grid boundaries
 
 ## Performance

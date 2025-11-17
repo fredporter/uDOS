@@ -6,7 +6,7 @@ Core extensions and shared components for the uDOS system.
 
 ```
 extensions/core/
-├── c64-terminal/         # Commodore 64 Terminal (PetMe font, Polaroid palette)
+├── c64-terminal/         # Commodore 64 Terminal (PetMe font, Synthwave DOS palette)
 ├── character-editor/     # Multi-resolution character/font editor (8×8 to 128×128)
 ├── dashboard/            # NES Framework system dashboard
 ├── desktop/              # System 7 desktop environment
@@ -38,7 +38,7 @@ extensions/core/
 ## 🎨 Core Extensions
 
 ### **C64 Terminal** (`c64-terminal/`)
-Authentic Commodore 64 terminal interface with PetMe font and Polaroid palette.
+Authentic Commodore 64 terminal interface with PetMe font and Synthwave DOS palette.
 - **Phase 2** complete - Enhanced rendering
 
 ### **Character Editor** (`character-editor/`)
@@ -59,7 +59,7 @@ GitHub-flavored markdown renderer with uCODE commands and PANEL callouts.
 
 ### **Teletext** (`teletext/`)
 BBC Teletext broadcast interface with Mallard fonts and Mode 7 graphics.
-- **Phase 3** complete - Polaroid enhancement
+- **Phase 3** complete - Synthwave DOS enhancement
 
 ## 🧩 Shared Components
 
@@ -124,7 +124,7 @@ See `docs/` directory for detailed guides:
 All core extensions have been rebuilt and unified:
 - ✅ Phase 1: Consolidation
 - ✅ Phase 2: C64 Terminal Enhancement
-- ✅ Phase 3: Teletext Polaroid Enhancement
+- ✅ Phase 3: Teletext Synthwave DOS Enhancement
 - ✅ Phase 4-4.7: Character Editor (Font Tools rebuild)
 - ✅ Phase 5-5.1: Markdown Viewer + Typography
 - ✅ Phase 6: Dashboard NES Framework

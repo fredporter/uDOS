@@ -1,11 +1,11 @@
-# uDOS Teletext - Polaroid Edition
+# uDOS Teletext - Synthwave DOS Edition
 
-Enhanced teletext interface with Polaroid C64 color palette and Mallard fonts.
+Enhanced teletext interface with Synthwave DOS C64 color palette and Mallard fonts.
 
 ## Features
 
 ### Visual Design
-- **Polaroid Color Palette**: Full C64 color set (16 colors) with transparency variants
+- **Synthwave DOS Color Palette**: Full C64 color set (16 colors) with transparency variants
 - **Mallard Blocky Font**: Authentic blocky teletext rendering
 - **C64 Block Graphics**: PETSCII-style box drawing and mosaic characters
 - **Scanline Effect**: CRT-style scanlines for retro authenticity
@@ -132,8 +132,8 @@ window.uDOS.teletext.revealConcealed();
 
 ### Files
 
-- **index-polaroid.html** - Main teletext interface
-- **teletext-polaroid.css** - Polaroid palette styling
+- **index-synthwave.html** - Main teletext interface
+- **teletext-synthwave.css** - Synthwave DOS palette styling
 - **teletext-shell.js** - Command processor and logic
 - **teletext-enhanced.css** - Original enhanced styles
 - **teletext-enhanced.js** - Original teletext logic
@@ -141,7 +141,7 @@ window.uDOS.teletext.revealConcealed();
 
 ### Font Integration
 
-The Polaroid edition uses **Mallard Blocky** font for authentic teletext rendering:
+The Synthwave DOS edition uses **Mallard Blocky** font for authentic teletext rendering:
 
 ```css
 @font-face {
@@ -161,7 +161,7 @@ Font fallback chain: `Mallard → MODE7GX3 → Courier New → monospace`
 
 ### Usage
 
-1. Open `index-polaroid.html` in a modern browser
+1. Open `index-synthwave.html` in a modern browser
 2. The page loads with the index page (100)
 3. Type commands in the bottom command bar
 4. Press Enter to execute
@@ -186,8 +186,8 @@ REVEAL        Show hidden text
 - Mallard Blocky by "gid" via FontStruct
 - MODE7GX3 teletext font
 
-**uDOS Polaroid Enhancement** (v1.0.24):
-- Polaroid C64 color palette integration
+**uDOS Synthwave DOS Enhancement** (v1.0.24):
+- Synthwave DOS C64 color palette integration
 - Mallard font integration
 - C64 block graphics support
 - Command shell interface
@@ -199,7 +199,7 @@ MIT License - See `LICENSE.txt` for details
 
 ### Version
 
-**1.0.24** - Teletext Polaroid Edition (Phase 3)
+**1.0.24** - Teletext Synthwave DOS Edition (Phase 3)
 
 ---
 

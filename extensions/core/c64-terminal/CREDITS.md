@@ -41,7 +41,7 @@ CSS3 recreation of the iconic Commodore 64 computer interface, featuring:
    - Extended C64 character set
    - Full PETSCII range support
 
-3. **Polaroid Color Palette**
+3. **Synthwave DOS Color Palette**
    - Extended base C64 colors (16 total)
    - Foreground color support (16 colors)
    - Background color support (16 colors)
@@ -62,7 +62,7 @@ CSS3 recreation of the iconic Commodore 64 computer interface, featuring:
 
 ### Enhanced Files
 - `index.html` - Modified for uDOS integration
-- `c64-terminal.css` - Extended with Polaroid palette
+- `c64-terminal.css` - Extended with Synthwave DOS palette
 - `c64-terminal.js` - Terminal logic added
 - `splash.js` - uDOS startup sequence
 - `petme-embedded.woff2` - PetMe font inclusion
@@ -83,7 +83,7 @@ CSS3 recreation of the iconic Commodore 64 computer interface, featuring:
 
 ## uDOS Contributors
 
-- **Fred Porter** - uDOS integration, Polaroid palette, terminal functionality
+- **Fred Porter** - uDOS integration, Synthwave DOS palette, terminal functionality
 - [Additional contributors]
 
 ---

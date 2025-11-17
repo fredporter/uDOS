@@ -5,7 +5,7 @@ An authentic Commodore 64 terminal experience with modern web technologies.
 ## Features
 
 ### Visual Design
-- **Polaroid Color Palette**: Extended C64 color set with 16 base colors and transparency variants (10%, 25%, 50%, 75%)
+- **Synthwave DOS Color Palette**: Extended C64 color set with 16 base colors and transparency variants (10%, 25%, 50%, 75%)
 - **PetMe Font**: Authentic PETSCII character rendering using PetMe64 and PetMe128 fonts
 - **Scanline Effect**: CRT-style scanlines for retro authenticity
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
@@ -50,7 +50,7 @@ RUN
 ```
 
 #### COLORS
-Interactive demonstration of all 16 Polaroid palette colors with color codes.
+Interactive demonstration of all 16 Synthwave DOS palette colors with color codes.
 
 ```
 LOAD "COLORS"
@@ -215,7 +215,7 @@ window.uDOS.skipSplash();
 - https://pixelambacht.nl/2013/css3-c64/
 
 **uDOS Enhancements** (v1.0.24)
-- Polaroid color palette with transparency
+- Synthwave DOS color palette with transparency
 - PetMe font integration (PETSCII)
 - uDOS splash sequence
 - Terminal command processor

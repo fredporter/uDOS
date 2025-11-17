@@ -24,8 +24,8 @@
 
 ## Color Palette
 
-### Polaroid Enhancement
-- **Phase 3** (November 2024): Teletext Polaroid Enhancement
+### Synthwave DOS Enhancement
+- **Phase 3** (November 2024): Teletext Synthwave DOS Enhancement
 - **Purpose**: Synthwave DOS color integration with BBC Teletext standards
 - **Documentation**: See `README-POLAROID.md`
 
@@ -61,7 +61,7 @@
 ## Development
 
 ### v1.0.24 Reorganization
-- **Phase 3** (Commit 9afaf4b): Polaroid enhancement
+- **Phase 3** (Commit 9afaf4b): Synthwave DOS enhancement
 - **Features**: Synthwave DOS colors, improved rendering, BBC standards compliance
 - **Integration**: Mallard fonts, authentic character grid
 

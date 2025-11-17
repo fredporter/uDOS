@@ -1,6 +1,6 @@
 # uDOS Font Manager v1.0.24
 
-Comprehensive font creation and management suite with Polaroid C64 styling.
+Comprehensive font creation and management suite with Synthwave DOS C64 styling.
 
 ## Features
 
@@ -24,7 +24,7 @@ Comprehensive font creation and management suite with Polaroid C64 styling.
 
 ### Emoji Designer
 - **32×32 Canvas**: High-resolution emoji creation
-- **Color Palette**: 16 C64 Polaroid colors
+- **Color Palette**: 16 C64 Synthwave DOS colors
 - **Emoji Library**: Save and manage custom emoji
 - **Grid-aligned**: Perfect for terminal display
 
@@ -139,7 +139,7 @@ Comprehensive font creation and management suite with Polaroid C64 styling.
 
 ## Color Palette
 
-The Font Manager uses the **Polaroid C64 color palette**:
+The Font Manager uses the **Synthwave DOS C64 color palette**:
 
 - Black (`#000000`)
 - White (`#FFFFFF`)
@@ -168,7 +168,7 @@ The Font Manager uses the **Polaroid C64 color palette**:
 ## Files
 
 - **font-manager.html** - Main application interface
-- **font-manager.css** - Polaroid styling
+- **font-manager.css** - Synthwave DOS styling
 - **font-manager-app.js** - Application controller
 - **bitmap-editor.js** - 16×16 grid editor
 - **ttf-processor.js** - TTF to bitmap converter
@@ -202,7 +202,7 @@ The Font Manager supports standard uDOS character ranges:
 ## Credits
 
 **uDOS Font Manager** v1.0.24
-- Polaroid C64 color palette
+- Synthwave DOS C64 color palette
 - Chicago and PetMe font integration
 - TTF bitmap conversion
 - Sandbox export workflow
@@ -217,7 +217,7 @@ MIT License - See `LICENSE.txt` for details
 
 ## Version History
 
-- **v1.0.24** - Font Manager rebuild with Polaroid styling, TTF support
+- **v1.0.24** - Font Manager rebuild with Synthwave DOS styling, TTF support
 - **v1.3** - Original font editor with System 6 styling
 - **v1.0** - Initial bitmap font editor
 

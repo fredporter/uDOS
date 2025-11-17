@@ -50,25 +50,48 @@ All fonts are legally distributable. See `LICENSE_ASSESSMENT.md` for complete le
 
 ## 🎨 Usage in Extensions
 
+### Font Fallback Stacks
+
+uDOS uses proper fallback stacks to ensure text displays correctly even if custom fonts fail to load.
+
+**Recommended Fallback Patterns:**
+
+```css
+/* Chicago (System 7 Desktop) */
+font-family: 'Chicago', 'Chicago FLF', -apple-system, BlinkMacSystemFont, monospace;
+
+/* Mallard (Teletext) */
+font-family: 'Mallard', 'MODE7GX3', 'Courier New', monospace;
+
+/* PetMe (C64 Terminal) */
+font-family: 'PetMe64', 'PetMe', 'Courier New', monospace;
+
+/* Generic Monospace */
+font-family: 'Monaco', 'Courier New', 'Courier', monospace;
+```
+
 ### CSS @font-face Example
 
 ```css
 /* Chicago Font */
 @font-face {
     font-family: 'Chicago';
-    src: url('/extensions/fonts/chicago/ChicagoFLF.ttf') format('truetype');
+    src: url('fonts/chicago/ChicagoFLF.ttf') format('truetype');
+    font-display: swap;
 }
 
 /* Mallard Font */
 @font-face {
     font-family: 'Mallard';
-    src: url('/extensions/fonts/mallard/mallard-blocky.otf') format('opentype');
+    src: url('fonts/mallard/mallard-blocky.otf') format('opentype');
+    font-display: swap;
 }
 
 /* PetMe Font */
 @font-face {
     font-family: 'PetMe64';
-    src: url('/extensions/fonts/petme/PetMe64.ttf') format('truetype');
+    src: url('fonts/petme/PetMe64.ttf') format('truetype');
+    font-display: swap;
 }
 ```
 
@@ -76,20 +99,26 @@ All fonts are legally distributable. See `LICENSE_ASSESSMENT.md` for complete le
 
 ```html
 <!-- System 7 Desktop -->
-<div style="font-family: 'Chicago', monospace;">
+<div style="font-family: 'Chicago', -apple-system, monospace;">
     Classic Mac Interface
 </div>
 
 <!-- Teletext -->
-<div style="font-family: 'Mallard', monospace;">
+<div style="font-family: 'Mallard', 'Courier New', monospace;">
     BBC Teletext Page 100
 </div>
 
 <!-- C64 Terminal -->
-<div style="font-family: 'PetMe64', monospace;">
+<div style="font-family: 'PetMe64', 'Courier New', monospace;">
     READY.
 </div>
 ```
+
+**Best Practices:**
+- Always include `font-display: swap` to prevent invisible text
+- Use relative paths from extension root (e.g., `fonts/chicago/`)
+- Include generic fallbacks (`monospace`, `sans-serif`)
+- Test with fonts disabled to verify fallbacks work
 
 ## 🔧 Maintenance
 

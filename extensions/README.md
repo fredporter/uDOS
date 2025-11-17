@@ -5,7 +5,7 @@
 ```
 extensions/
 ├── core/                       # uDOS core extensions (v1.0.24 reorganization)
-│   ├── c64-terminal/         # C64 Terminal with PetMe font & Polaroid palette
+│   ├── c64-terminal/         # C64 Terminal with PetMe font & Synthwave DOS palette
 │   ├── character-editor/      # Multi-resolution character/font editor (8×8-128×128)
 │   ├── dashboard/            # NES Framework system dashboard
 │   ├── desktop/              # System 7 desktop environment
@@ -46,7 +46,7 @@ extensions/
 The v1.0.24 extensions branch consolidates all web-based extensions from `bundled/web/` into a unified `core/` structure:
 
 - **Phase 1**: Consolidated all extensions into `core/`
-- **Phase 2**: Rebuilt C64 Terminal with PetMe font and Polaroid palette
+- **Phase 2**: Rebuilt C64 Terminal with PetMe font and Synthwave DOS palette
 - **Phase 3**: Rebuilt Teletext with BBC standards and Mallard font
 - **Phase 4**: Created Character Editor with multi-resolution support
 - **Phase 4.5-4.7**: Synthwave DOS colors, migration tools, refinements
@@ -99,7 +99,7 @@ python uDOS.py --extension character-editor  # Character/font editor
 
 ### **C64 Terminal** (`/core/c64-terminal`)
 - **Description**: Authentic Commodore 64 terminal interface
-- **Technology**: PetMe font + Polaroid palette CSS
+- **Technology**: PetMe font + Synthwave DOS palette CSS
 - **Features**: 40×25 text mode, PETSCII graphics, authentic colors
 - **v1.0.24**: Complete rebuild with accurate font rendering
 

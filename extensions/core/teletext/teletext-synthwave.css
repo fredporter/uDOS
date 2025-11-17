@@ -10,7 +10,7 @@
  */
 
 /* Import Synthwave DOS Color Palette */
-@import url("../shared/synthwave-dos-colors.css");
+@import url("../css/synthwave-dos-colors.css");
 
 /* ============================================
    TELETEXT COLOR MAPPING
@@ -80,7 +80,7 @@
 
 @font-face {
   font-family: 'Mallard';
-  src: url('../fonts/mallard-blocky/mallard-blocky.otf') format('opentype');
+  src: url('../fonts/mallard/mallard-blocky.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

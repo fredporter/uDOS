@@ -26,8 +26,8 @@ echo "🚀 uDOS Extensions Master Setup"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 print_header "This will install external dependencies for uDOS extensions"
-print_status "Setup includes: micro editor, typo web editor, monaspace fonts"
-print_warning "CMD terminal is optional and can be installed separately"
+print_status "Setup includes: micro editor and typo web editor"
+print_status "All CSS frameworks are now bundled in /core"
 echo
 
 # Function to check internet connectivity
@@ -72,83 +72,49 @@ echo
 # Setup typo editor
 print_header "Setting up typo web editor..."
 if [ -f "$SCRIPT_DIR/setup_typo.sh" ]; then
+    export UDOS_AUTO_INSTALL=1  # Skip confirmation prompts
     if bash "$SCRIPT_DIR/setup_typo.sh"; then
         print_success "typo editor setup complete"
     else
         print_warning "typo editor setup failed (non-critical)"
+        print_status "You can run setup_typo.sh manually later"
     fi
+    unset UDOS_AUTO_INSTALL
 else
     print_warning "typo setup script not found"
 fi
 echo
 
-# Setup monaspace fonts
-print_header "Setting up monaspace fonts..."
-if [ -f "$SCRIPT_DIR/setup_monaspace.sh" ]; then
-    if bash "$SCRIPT_DIR/setup_monaspace.sh"; then
-        print_success "monaspace fonts setup complete"
-    else
-        print_warning "monaspace fonts setup failed (non-critical)"
-    fi
-else
-    print_warning "monaspace setup script not found"
-fi
-echo
-
-# Setup CSS frameworks
-print_header "Setting up CSS frameworks..."
-
-# Setup Classicy (Mac OS 8)
-if [ -f "$SCRIPT_DIR/setup_classicy.sh" ]; then
-    if bash "$SCRIPT_DIR/setup_classicy.sh"; then
-        print_success "Classicy (Mac OS 8) setup complete"
-    else
-        print_warning "Classicy setup failed (non-critical)"
-    fi
-fi
-
-# Setup C64 CSS3
-if [ -f "$SCRIPT_DIR/setup_c64css3.sh" ]; then
-    if bash "$SCRIPT_DIR/setup_c64css3.sh"; then
-        print_success "C64 CSS3 framework setup complete"
-    else
-        print_warning "C64 CSS3 setup failed (non-critical)"
-    fi
-fi
-
-# Setup NES.css
-if [ -f "$SCRIPT_DIR/setup_nes.sh" ]; then
-    if bash "$SCRIPT_DIR/setup_nes.sh"; then
-        print_success "NES.css framework setup complete"
-    else
-        print_warning "NES.css setup failed (non-critical)"
-    fi
-fi
-echo
-
-# Optional CMD setup
-print_header "Optional: CMD terminal setup"
-print_status "CMD terminal can be installed separately if needed"
-print_status "Run: bash $SCRIPT_DIR/setup_cmd.sh"
+# Optional: Archived setup scripts
+print_header "Additional Extensions"
+print_status "Archived setup scripts available in extensions/archive/old-setup-scripts/"
+print_status "  • setup_classicy.sh - Mac OS 8 framework (now bundled)"
+print_status "  • setup_c64css3.sh - C64 framework (now bundled)"
+print_status "  • setup_nes.sh - NES framework (now bundled)"
+print_status "  • setup_cmd.sh - CMD terminal (optional)"
+print_status "  • setup_monaspace.sh - Monaspace fonts (optional)"
 echo
 
 print_success "🎉 uDOS Extensions setup complete!"
 echo
-print_status "Bundled extensions (always available):"
+print_status "Core extensions (always bundled):"
+print_status "  • C64 Terminal - Commodore 64 interface"
+print_status "  • Character Editor - Font/sprite editor"
 print_status "  • Dashboard - Multi-theme system interface"
-print_status "  • Shared Libraries - Common CSS/JS frameworks"
-print_status "  • System Desktop - Desktop environment"
-print_status "  • Teletext - Broadcast TV interface"
+print_status "  • Desktop - System 7 desktop environment"
+print_status "  • Markdown - Web-based markdown viewer"
+print_status "  • Teletext - BBC Teletext broadcast interface"
 echo
-print_status "External dependencies (now installed):"
+print_status "External dependencies (installed):"
 print_status "  • micro - Modern terminal editor"
-print_status "  • typo - Web-based markdown editor"
-print_status "  • monaspace - Modern coding fonts"
-print_status "  • Classicy - Mac OS 8 Platinum interface"
-print_status "  • C64 CSS3 - Commodore 64 styling framework"
-print_status "  • NES.css - 8-bit Nintendo styling framework"
+print_status "  • typo - Web-based markdown editor (if Node.js available)"
 echo
-print_status "Location: $SCRIPT_DIR/../cloned/"
+print_status "Shared components:"
+print_status "  • CSS frameworks (Synthwave DOS, System 7, NES.css)"
+print_status "  • JavaScript utilities (window manager, typography)"
+print_status "  • Retro themes (C64, Teletext, Synthwave)"
+echo
+print_status "Location: $SCRIPT_DIR/../"
 print_status "Use 'EDIT <file>' in uDOS to access editors"
 echo
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

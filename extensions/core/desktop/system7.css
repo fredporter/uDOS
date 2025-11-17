@@ -14,21 +14,21 @@
 /* System 7 Font Faces */
 @font-face {
     font-family: 'Chicago';
-    src: url('../fonts/ChicagoFLF.ttf') format('truetype');
+    src: url('fonts/chicago/ChicagoFLF.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Geneva';
-    src: url('../fonts/geneva_9.ttf') format('truetype');
+    src: url('fonts/geneva_9.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Monaco';
-    src: url('../fonts/monaco.ttf') format('truetype');
+    src: url('fonts/monaco.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }

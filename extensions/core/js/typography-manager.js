@@ -30,7 +30,7 @@ class TypographyManager {
     // Classic Mac Fonts from /extensions/fonts
     this.availableFonts.set('chicago', {
       name: 'ChicagoFLF',
-      file: '../../fonts/ChicagoFLF.ttf',
+      file: '../fonts/ChicagoFLF.ttf',
       fallback: 'Geneva, Helvetica, sans-serif',
       type: 'classic',
       description: 'Classic Mac Chicago system font'
@@ -38,7 +38,7 @@ class TypographyManager {
 
     this.availableFonts.set('pixel-chicago', {
       name: 'pixChicago',
-      file: '../../fonts/pixChicago.ttf',
+      file: '../fonts/pixChicago.ttf',
       fallback: 'ChicagoFLF, monospace',
       type: 'pixel',
       description: 'Pixel-perfect Chicago font'
@@ -46,7 +46,7 @@ class TypographyManager {
 
     this.availableFonts.set('geneva', {
       name: 'Geneva9',
-      file: '../../fonts/geneva_9.ttf',
+      file: '../fonts/geneva_9.ttf',
       fallback: 'Geneva, sans-serif',
       type: 'classic',
       description: 'Classic Mac Geneva 9pt font'
@@ -54,7 +54,7 @@ class TypographyManager {
 
     this.availableFonts.set('monaco', {
       name: 'Monaco',
-      file: '../../fonts/monaco.ttf',
+      file: '../fonts/monaco.ttf',
       fallback: 'Courier New, monospace',
       type: 'classic',
       description: 'Classic Mac Monaco monospace font'
@@ -62,7 +62,7 @@ class TypographyManager {
 
     this.availableFonts.set('athene', {
       name: 'Athene',
-      file: '../../fonts/Athene.ttf',
+      file: '../fonts/Athene.ttf',
       fallback: 'serif',
       type: 'serif',
       description: 'Athene serif font'
@@ -70,7 +70,7 @@ class TypographyManager {
 
     this.availableFonts.set('lexington-gothic', {
       name: 'LexingtonGothic',
-      file: '../../fonts/Lexington-Gothic.ttf',
+      file: '../fonts/Lexington-Gothic.ttf',
       fallback: 'sans-serif',
       type: 'gothic',
       description: 'Lexington Gothic display font'
@@ -78,7 +78,7 @@ class TypographyManager {
 
     this.availableFonts.set('liverpool', {
       name: 'Liverpool',
-      file: '../../fonts/Liverpool.ttf',
+      file: '../fonts/Liverpool.ttf',
       fallback: 'serif',
       type: 'serif',
       description: 'Liverpool serif font'
@@ -86,7 +86,7 @@ class TypographyManager {
 
     this.availableFonts.set('los-altos', {
       name: 'LosAltos',
-      file: '../../fonts/Los Altos.ttf',
+      file: '../fonts/Los Altos.ttf',
       fallback: 'sans-serif',
       type: 'sans',
       description: 'Los Altos display font'
@@ -94,7 +94,7 @@ class TypographyManager {
 
     this.availableFonts.set('parc-place', {
       name: 'ParcPlace',
-      file: '../../fonts/Parc Place.ttf',
+      file: '../fonts/Parc Place.ttf',
       fallback: 'sans-serif',
       type: 'sans',
       description: 'Parc Place system font'
@@ -102,7 +102,7 @@ class TypographyManager {
 
     this.availableFonts.set('parc-place-legacy', {
       name: 'ParcPlaceLegacy',
-      file: '../../fonts/Parc Place Legacy.ttf',
+      file: '../fonts/Parc Place Legacy.ttf',
       fallback: 'sans-serif',
       type: 'sans',
       description: 'Parc Place Legacy system font'
@@ -110,7 +110,7 @@ class TypographyManager {
 
     this.availableFonts.set('sanfrisco', {
       name: 'Sanfrisco',
-      file: '../../fonts/Sanfrisco.ttf',
+      file: '../fonts/Sanfrisco.ttf',
       fallback: 'sans-serif',
       type: 'sans',
       description: 'Sanfrisco display font'
@@ -118,7 +118,7 @@ class TypographyManager {
 
     this.availableFonts.set('torrance', {
       name: 'Torrance',
-      file: '../../fonts/Torrance.ttf',
+      file: '../fonts/Torrance.ttf',
       fallback: 'serif',
       type: 'serif',
       description: 'Torrance serif font'
@@ -126,7 +126,7 @@ class TypographyManager {
 
     this.availableFonts.set('valencia', {
       name: 'Valencia',
-      file: '../../fonts/Valencia.ttf',
+      file: '../fonts/Valencia.ttf',
       fallback: 'serif',
       type: 'serif',
       description: 'Valencia serif font'
