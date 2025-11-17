@@ -2250,63 +2250,11 @@ knowledge/
 - [ ] **Productivity Guides**: 70+ guides with workflow diagrams
 - [ ] **Well-Being Guides**: 60+ guides with visual aids
 
-### Planned Features (8 tasks)
+### Planned Features (10 tasks)
 
-#### 1. Knowledge Category Expansion (500+ Markdown Guides)
-- [ ] **Survival** (existing, enhance to 80+ guides)
-  * Emergency preparedness, first aid, shelter, water, food
-  * ASCII diagrams for knots, shelters, purification methods
-  * TIZO-based locations for resources/hazards
-  * Integration with MAP for local resources
-- [ ] **Skills** (expand to 100+ guides)
-  * Programming (Python, web, CLI tools)
-  * Writing (technical docs, creative, communication)
-  * Art & Design (ASCII art, teletext graphics, layouts)
-  * Music & Audio (notation, theory, recording)
-  * Mathematics (practical math, statistics, geometry)
-  * Science (physics, chemistry, biology basics)
-- [ ] **Productivity** (expand to 70+ guides)
-  * Time management systems (Pomodoro, GTD, timeblocking)
-  * Project management (planning, tracking, completion)
-  * Note-taking methods (Zettelkasten, Cornell, mind maps)
-  * Goal setting and achievement
-  * Workflows and automation
-  * Focus and deep work techniques
-- [ ] **Well-Being** (expand to 60+ guides)
-  * Physical health (exercise, nutrition, sleep)
-  * Mental health (stress management, mindfulness, therapy)
-  * Relationships (communication, boundaries, conflict)
-  * Personal growth (habits, reflection, learning)
-  * Recreation and hobbies
-  * Work-life balance
-- [ ] **Environment** (expand to 50+ guides)
-  * Sustainable living practices
-  * Gardening and food production
-  * Renewable energy basics
-  * Waste reduction and recycling
-  * Water conservation
-  * Climate adaptation strategies
-- [ ] **Community** (expand to 50+ guides)
-  * Collaboration and teamwork
-  * Mutual aid networks
-  * Conflict resolution
-  * Group decision making
-  * Knowledge sharing systems
-  * Community organizing
-- [ ] **Tools & Resources** (expand to 50+ guides)
-  * Software tools (CLI, editors, version control)
-  * Hardware basics (computers, networks, repairs)
-  * References (measurement conversions, standards)
-  * Datasets (geographic, scientific, linguistic)
-  * Templates and checklists
-- [ ] **Building & Making** (expand to 40+ guides)
-  * Construction techniques (structures, foundations)
-  * Tool use and maintenance
-  * Material properties and selection
-  * Repair and maintenance
-  * DIY projects with ASCII blueprints
+**Note**: Knowledge base expansion (500+ guides) deferred to v1.1.x. v1.0.21 focuses on PANEL graphics, themes, skill trees, checklists, SVG/document processing pipeline, and project templates.
 
-#### 2. ASCII/Teletext Diagram Library (200+ Diagrams)
+#### 1. ASCII/Teletext Diagram Library (200+ Diagrams)
 - [ ] **ASCII Art References**: Text-based visual guides
   * Knot tying diagrams (bowline, clove hitch, square knot)
   * Shelter construction (lean-to, A-frame, debris hut)
@@ -2329,7 +2277,7 @@ knowledge/
   * Architectural drawings (floor plans, elevations)
   * Circuit diagrams (electrical, logical)
 
-#### 3. TZONE-Based Location Integrationgration
+#### 2. TZONE-Based Location Integration
 - [ ] **Location-Aware Knowledge**: Link guides to MAP system
   * Store locations as TZONE codes (AEST, PST, GMT, etc.) + grid cells
   * Timestamp format: YYYY-MM-DD-HH-MM-SS-TZONE
@@ -2346,7 +2294,7 @@ knowledge/
   * Distance calculations for foraging/travel
   * Climate zone overlays on world map
 
-#### 4. Enhanced Theme System
+#### 3. Enhanced Theme System
 - [ ] **Knowledge Themes**: Visual themes for learning contexts
   * Academic (clean, focused, high-contrast)
   * Field Notes (hand-drawn, informal)
@@ -2368,7 +2316,7 @@ knowledge/
   * Stencil (labels, titles)
   * Pixel/Retro (terminal aesthetic)
 
-#### 5. Interactive Skill Trees
+#### 4. Interactive Skill Trees
 - [ ] **ASCII Skill Tree Diagrams**: Text-based progression maps
   * Beginner → Intermediate → Advanced → Expert paths
   * Prerequisites shown with tree branches
@@ -2386,7 +2334,7 @@ knowledge/
   * Real-world applications logged with TZONE/grid locations
   * Teaching others tracked in COMMUNITY tier
 
-#### 6. Practical Checklists (Markdown Format)
+#### 5. Practical Checklists (Markdown Format)
 - [ ] **Emergency Preparedness**: Context-specific lists
   * Bug-out bag, get-home bag, vehicle kit
   * First aid kit (basic, advanced, wilderness)
@@ -2405,7 +2353,75 @@ knowledge/
   * Quality checkpoints
   * Troubleshooting steps
 
-#### 7. Markdown Project Templates
+#### 6. SVG Illustration Pipeline (Gemini API Integration)
+- [ ] **"Technical-Kinetic" Vector Aesthetic**: MCM + Rube Goldberg style
+  * Geometric Mid-Century Modern simplicity (circles, rectangles, triangles)
+  * Rube Goldberg kinetic flow (curved tubes, gears, levers, pulleys, balls)
+  * Swiss Style/Bauhaus typography (geometric sans-serif, clean hierarchy)
+  * Monochrome only (pure black/white, no gradients or shading)
+  * Vector textures only (no raster fills or patterns)
+- [ ] **Standardized Vector Texture Library**: 4 pattern types
+  * Hatching/cross-hatching (metal, mechanical parts, hard surfaces)
+  * Stipple/dot density gradients (soft shading, atmospheric effects)
+  * Vector wavy lines (organic materials, wood grain, water flow)
+  * Circular/undulating patterns (environmental fields, topography, radiation)
+  * Reusable SVG pattern definitions
+  * Consistent line weights and spacing rules
+- [ ] **SVG Technical Specifications**:
+  * Scalable vector format (width/height/viewBox defined)
+  * Monochrome output (black #000000, white #FFFFFF)
+  * Minified SVG (remove comments, collapse whitespace)
+  * Editable text elements (not converted to paths)
+  * Flowcharts, diagrams, technical renderings ONLY
+  * No portraits, landscapes, or photorealistic illustrations
+- [ ] **Gemini API Image-to-Vector Processing**:
+  * Convert raster illustrations to SVG paths
+  * Apply "Technical-Kinetic" style constraints
+  * Enforce monochrome palette
+  * Preserve semantic structure (grouped elements)
+  * Generate clean, minified output
+- [ ] **Illustration Library Integration**:
+  * DIAGRAM command SVG rendering support
+  * Export to panel/grid as vector graphics
+  * Search by topic, style, complexity
+  * Metadata tagging (category, skill level, tools required)
+
+#### 7. Document/Web Content Processing Pipeline
+- [ ] **Multi-Format Input Processing**:
+  * PDF extraction (text + embedded images)
+  * Microsoft Word/OpenDocument parsing (.docx, .odt)
+  * HTML/web page content ingestion
+  * Preserve structure (headings, lists, tables, diagrams)
+  * Extract embedded images for SVG conversion
+- [ ] **Web Crawler Enrichment**:
+  * Same-domain deep crawling (follow internal links)
+  * Authoritative external references only
+  * Content deduplication across pages
+  * Metadata extraction (publish date, author, source)
+  * Link validation and dead link detection
+- [ ] **Gemini API Text Processing**:
+  * Distill key concepts and actionable steps
+  * Generate markdown-formatted guides
+  * Create ASCII/SVG diagrams from descriptions
+  * Produce structured checklists and tutorials
+  * Extract definitions, formulas, procedures
+  * Maintain technical accuracy and clarity
+- [ ] **Citation Mandate System**:
+  * ALL generated content MUST cite sources
+  * Citation tags: cite:1, cite:2, cite_start/cite_end blocks
+  * Source ID mapping (URL, title, date accessed)
+  * Bibliography generation at document end
+  * Inline citations for specific claims/data
+  * NO content generation without attributable source
+- [ ] **Content Integration Pipeline**:
+  * Input: PDF/Word/HTML → Extract text/images
+  * Enrich: Web crawl same domain + external authorities
+  * Process: Gemini API text distillation + SVG generation
+  * Output: uDOS markdown guides + vector illustrations
+  * Validate: Citation coverage, technical accuracy, format compliance
+  * Index: Tag-based organization, full-text search, KB integration
+
+#### 8. Markdown Project Templates
 - [ ] **Building Projects**: Step-by-step guides with ASCII blueprints
   * Raised garden beds (dimensions, materials, assembly)
   * Water collection system (components, layout, maintenance)
@@ -2422,7 +2438,7 @@ knowledge/
   * "Design daily routine" (time blocks, priorities)
   * "Build habit tracker" (metrics, visualization)
 
-#### 8. Content Quality Standards
+#### 9. Content Quality Standards
 - [ ] **Markdown Standards**: Consistent formatting
   * Clear headers (# ## ### hierarchy)
   * Code blocks with language tags
@@ -2442,7 +2458,7 @@ knowledge/
   * Scale indicators where relevant
   * Compatible with all screen tiers (0-14)
 
-#### 9. Knowledge System Integration
+#### 10. Knowledge System Integration
 - [x] **Enhanced KB Commands**: Full-text search improvements ✅
   * Search across all 8 knowledge categories
   * Filter by category, skill level, project type
