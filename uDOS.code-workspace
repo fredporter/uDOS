@@ -7,13 +7,27 @@
 	"settings": {
 		"python.defaultInterpreterPath": "./.venv/bin/python",
 		"python.terminal.activateEnvironment": true,
+		"python.testing.pytestArgs": [
+			"memory/tests",
+			"--cache-dir=memory/sandbox/.pytest_cache"
+		],
+		"python.testing.unittestEnabled": false,
+		"python.testing.pytestEnabled": true,
 		"files.watcherExclude": {
 			"**/.venv/**": true,
-			"**/memory/logs/**": true
+			"**/memory/logs/**": true,
+			"**/memory/sandbox/.pytest_cache/**": true,
+			"**/__pycache__/**": true
 		},
 		"search.exclude": {
 			"**/.venv": true,
-			"**/memory/logs": true
+			"**/memory/logs": true,
+			"**/memory/sandbox/.pytest_cache": true,
+			"**/__pycache__": true
+		},
+		"files.exclude": {
+			"**/__pycache__": true,
+			"**/*.pyc": true
 		}
 	},
 	"tasks": {

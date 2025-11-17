@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.13** - A Human-Readable CLI Framework with AI Integration and Modern Terminal Features
+**uDOS v1.0.20b** - A Human-Readable CLI Framework with AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
 
-> 🎨 *Building a better command-line experience, one theme at a time.*
+> 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
 ---
 
@@ -17,7 +17,35 @@
 
 ---
 
-## 🎨 NEW in v1.0.13 - Theme System Enhancement
+## 🗺️ NEW in v1.0.20b - Enhanced Mapping & Reference Data (November 2025)
+
+- **250 World Cities** - Complete TIZO code system with coordinates
+- **50 Countries** - ISO codes, capitals, demographics, languages
+- **120 Timezones** - Full IANA database with DST rules
+- **24 Terrain Types** - Elevation, traversability, rendering symbols
+- **18 Climate Zones** - Köppen classification with temp/rainfall data
+- **8 TILE Commands** - INFO, SEARCH, NEARBY, WEATHER, TIMEZONE, TERRAIN, ROUTE, CONVERT
+- **Clean Data Architecture** - System data vs user memory separation
+
+[🔗 Explore TILE System →](TILE-Commands) | [🔗 Mapping System →](Mapping-System)
+
+---
+
+## 🧠 NEW in v1.0.20 - 4-Tier Knowledge Bank (November 2025)
+
+- **PRIVATE Tier** - AES-256 encrypted personal data
+- **SHARED Tier** - Explicit permission-based sharing
+- **COMMUNITY Tier** - Group collaboration with access control
+- **PUBLIC Tier** - Open knowledge base with SQLite FTS
+- **5 Command Handlers** - MEMORY, PRIVATE, SHARED, COMMUNITY, KB
+- **Cross-Tier Operations** - MEMORY SEARCH across all tiers
+- **Security Built-In** - Encryption, permissions, audit logging
+
+[🔗 4-Tier Knowledge Guide →](Knowledge-Architecture) | [🔗 User Guide →](/docs/guides/4-TIER-KNOWLEDGE-BANK-USER-GUIDE.md)
+
+---
+
+## 🎨 v1.0.13 - Theme System Enhancement
 
 - **Interactive Theme Creator** - Step-by-step wizard for custom themes
 - **4 Starter Templates** - Minimal, Dark Modern, Light Professional, High Contrast

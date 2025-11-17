@@ -13,10 +13,10 @@ class SystemSetup:
     """
 
     def __init__(self):
-        self.story_path = "data/templates/story.template.json"
+        self.story_path = "knowledge/system/templates/story.template.json"
         self.story_file = self.story_path  # Alias for compatibility
-        self.template_path = "data/templates/story.template.json"
-        self.theme_index_path = "data/themes/_index.json"
+        self.template_path = "knowledge/system/templates/story.template.json"
+        self.theme_index_path = "knowledge/system/themes/_index.json"
         self.session_log_file = "memory/logs/sessions/session.log"
         self.sandbox_path = "sandbox"
         self.logs_path = "memory/logs"

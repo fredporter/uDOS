@@ -11,7 +11,7 @@
     "xp_reward": 200,
     "tags": ["water", "tutorial", "beginner", "survival"]
   },
-  
+
   "initial_variables": {
     "player_name": "Survivor",
     "water_secured": 0,
@@ -19,7 +19,7 @@
     "sources_found": 0,
     "purification_methods": 0
   },
-  
+
   "quests": [
     {
       "quest_name": "secure_water",
@@ -37,25 +37,25 @@
       }
     }
   ],
-  
+
   "events": [
     {
       "type": "narrative",
       "text": "=== WATER PURIFICATION QUEST ===\n\nWater is life. In a survival scenario, securing clean water is your top priority. Contaminated water can kill you faster than lack of food.\n\nYour goal: Secure 21 liters of clean water (enough for 7 days at 3L/day)."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 10,
       "category": "information",
       "reason": "Started water purification tutorial"
     },
-    
+
     {
       "type": "narrative",
       "text": "The Rule of Threes:\n- 3 minutes without air\n- 3 hours without shelter (extreme conditions)\n- 3 DAYS without water\n- 3 weeks without food\n\nWater comes first. Let's find some sources."
     },
-    
+
     {
       "type": "choice",
       "prompt": "Where do you look for water first?",
@@ -77,7 +77,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_source} == stream",
@@ -94,7 +94,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_source} == rain",
@@ -119,7 +119,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{first_source} == spring",
@@ -136,17 +136,17 @@
         }
       ]
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== PURIFICATION METHODS ===\n\nNow you need to purify the water. There are several methods:"
     },
-    
+
     {
       "type": "narrative",
       "text": "1. BOILING - Most reliable. Brings water to rolling boil for 1 minute (3 minutes above 6,500 ft elevation). Kills all pathogens.\n\n2. CHEMICAL - Iodine or chlorine tablets. Wait 30 minutes. Effective but leaves taste.\n\n3. FILTRATION - Ceramic or carbon filters. Removes sediment and most bacteria. Doesn't kill viruses.\n\n4. UV TREATMENT - SteriPEN or similar. Kills microorganisms with UV light. Requires batteries."
     },
-    
+
     {
       "type": "choice",
       "prompt": "Which purification method do you use?",
@@ -168,7 +168,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{purification} == boil",
@@ -197,7 +197,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{purification} == chemical",
@@ -230,7 +230,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{purification} == filter",
@@ -263,23 +263,23 @@
         }
       ]
     },
-    
+
     {
       "type": "stat_change",
       "stat": "thirst",
       "change": -30
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STORAGE ===\n\nNow you need to store your water safely."
     },
-    
+
     {
       "type": "narrative",
       "text": "Water storage tips:\n- Use food-grade containers\n- Keep out of direct sunlight\n- Rotate stock regularly\n- Label purification date\n- Store in cool, dark place\n- Have backup containers"
     },
-    
+
     {
       "type": "item_give",
       "item": "5-Gallon Water Jug",
@@ -288,12 +288,12 @@
       "weight": 2.0,
       "volume": 3.0
     },
-    
+
     {
       "type": "narrative",
       "text": "You fill your 5-gallon jugs with purified water. That's 10 gallons (38 liters) - enough for 12+ days!"
     },
-    
+
     {
       "type": "item_give",
       "item": "Purified Water",
@@ -302,58 +302,58 @@
       "weight": 8.0,
       "volume": 8.0
     },
-    
+
     {
       "type": "xp_award",
       "amount": 30,
       "category": "contribution",
       "reason": "Established water storage system"
     },
-    
+
     {
       "type": "checkpoint",
       "name": "water_secured"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== TESTING WATER QUALITY ===\n\nHow can you tell if water is safe?"
     },
-    
+
     {
       "type": "narrative",
       "text": "Visual checks:\n- Clear (not cloudy)\n- No visible particles\n- No oil sheen\n- No unusual color\n- No dead animals nearby\n\nSmell test:\n- No chemical odor\n- No sewage smell\n- No sulfur (rotten egg) smell\n\nLocation matters:\n- Upstream from contamination\n- Away from agriculture\n- Moving vs stagnant\n- Protected from runoff"
     },
-    
+
     {
       "type": "xp_award",
       "amount": 25,
       "category": "information",
       "reason": "Learned water quality assessment"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== LONG-TERM SOLUTIONS ===\n\nFor permanent settlement, consider:"
     },
-    
+
     {
       "type": "narrative",
       "text": "1. WELL DRILLING - Reliable but labor-intensive\n2. RAINWATER HARVESTING - Large cistern with filtration\n3. SPRING DEVELOPMENT - Protect and contain natural springs\n4. SOLAR STILL - Emergency method, low yield\n5. CONDENSATION TRAPS - Limited but passive\n\nIn grid-down scenarios, these systems keep you independent."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 35,
       "category": "information",
       "reason": "Learned long-term water strategies"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== QUEST COMPLETE ===\n\nYou've secured {water_secured} liters of clean water and learned multiple purification methods. Water is life - and you now have the knowledge to secure it anywhere."
     },
-    
+
     {
       "type": "end",
       "outcome": "success",

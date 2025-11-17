@@ -22,7 +22,7 @@ from pathlib import Path
 class CommandHandler:
     """Main command router - delegates to specialized handlers."""
 
-    def __init__(self, theme='dungeon', commands_file='data/system/commands.json',
+    def __init__(self, theme='dungeon', commands_file='knowledge/system/commands.json',
                  history=None, connection=None, viewport=None, user_manager=None, command_history=None, logger=None):
         """
         Initialize command handler and load specialized handlers.
@@ -38,7 +38,7 @@ class CommandHandler:
             logger: Logger instance
         """
         # Load theme and commands
-        theme_file = f'data/themes/{theme.lower()}.json'
+        theme_file = f'knowledge/system/themes/{theme.lower()}.json'
         with open(theme_file, 'r') as f:
             theme_data = json.load(f)
             self.lexicon = theme_data.get('TERMINOLOGY', {})
@@ -75,6 +75,22 @@ class CommandHandler:
         from core.commands.map_handler import MapCommandHandler
         from core.commands.system_handler import SystemCommandHandler
         from core.commands.bank_handler import BankCommandHandler
+        from core.commands.cmd_knowledge import cmd_knowledge
+
+        # v1.0.20 - 4-Tier Knowledge Bank handlers
+        from core.commands.memory_commands import MemoryCommandHandler
+        from core.commands.private_commands import PrivateCommandHandler
+        from core.commands.shared_commands import SharedCommandHandler
+        from core.commands.community_commands import CommunityCommandHandler
+        from core.commands.knowledge_commands import KnowledgeCommandHandler
+
+        # v1.0.20b - Enhanced Mapping & Reference Data System
+        from core.commands.tile_handler import TILECommandHandler
+
+        # v1.0.21 - Teletext Display System
+        from core.commands.panel_handler import PanelCommandHandler
+        from core.commands.guide_handler import GuideHandler
+        from core.commands.diagram_handler import DiagramHandler
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
@@ -82,6 +98,24 @@ class CommandHandler:
         self.map_handler = MapCommandHandler(**handler_kwargs)
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
+        self.knowledge_command = cmd_knowledge
+
+        # v1.0.20 - 4-Tier Memory System handlers
+        self.memory_handler = MemoryCommandHandler()
+        self.private_handler = PrivateCommandHandler()
+        self.shared_handler = SharedCommandHandler()
+        self.community_handler = CommunityCommandHandler()
+        self.knowledge_v2_handler = KnowledgeCommandHandler()
+
+        # v1.0.20b - TILE Enhanced Mapping handler
+        self.tile_handler = TILECommandHandler(**handler_kwargs)
+
+        # v1.0.21 - PANEL Teletext Display handler
+        self.panel_handler = PanelCommandHandler(**handler_kwargs)
+
+        # v1.0.21 - GUIDE & DIAGRAM Interactive Knowledge handlers
+        self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
+        self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler, self.grid_handler,
@@ -139,6 +173,42 @@ class CommandHandler:
 
             elif module == "BANK":
                 return self.bank_handler.handle(command, params, grid)
+
+            elif module == "KNOWLEDGE":
+                # Legacy KNOWLEDGE commands (v1.0.8)
+                return self.knowledge_command(self.user_manager, [command] + params)
+
+            # v1.0.20 - 4-Tier Knowledge Bank & Memory System
+            elif module == "MEMORY":
+                return self.memory_handler.handle(command, params)
+
+            elif module == "PRIVATE":
+                return self.private_handler.handle(command, params)
+
+            elif module == "SHARED":
+                return self.shared_handler.handle(command, params)
+
+            elif module == "COMMUNITY":
+                return self.community_handler.handle(command, params)
+
+            elif module == "KB" or module == "KNOWLEDGEBANK":
+                # New v1.0.20 knowledge bank (use KB to distinguish from legacy)
+                return self.knowledge_v2_handler.handle(command, params)
+
+            # v1.0.20b - Enhanced Mapping & Reference Data System
+            elif module == "TILE":
+                return self.tile_handler.handle(command, ' '.join(params) if params else '', grid)
+
+            # v1.0.21 - Teletext Display System
+            elif module == "PANEL":
+                return self.panel_handler.handle(command, params, grid)
+
+            # v1.0.21 - Interactive Knowledge Viewers
+            elif module == "GUIDE":
+                return self.guide_handler.handle(command, params)
+
+            elif module == "DIAGRAM":
+                return self.diagram_handler.handle(command, params)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

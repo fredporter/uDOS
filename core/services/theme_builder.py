@@ -32,8 +32,8 @@ class ThemeBuilder:
             theme_manager: Optional ThemeManager instance for validation
         """
         self.theme_manager = theme_manager
-        self.templates_dir = Path("data/themes/templates")
-        self.output_dir = Path("data/themes")
+        self.templates_dir = Path("knowledge/system/themes/templates")
+        self.output_dir = Path("knowledge/system/themes")
 
         # Default templates
         self.templates = {

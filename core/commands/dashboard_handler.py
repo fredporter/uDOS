@@ -461,7 +461,7 @@ class DashboardHandler(BaseCommandHandler):
         """
         try:
             # Load palette data
-            palette_path = Path('data/system/palette.json')
+            palette_path = Path('knowledge/system/palette.json')
             with open(palette_path, 'r') as f:
                 palette_data = json.load(f)
 

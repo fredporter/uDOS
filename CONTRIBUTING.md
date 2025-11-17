@@ -10,7 +10,8 @@ uDOS/
 │   ├── bundled/   # Built-in extensions
 │   ├── cloned/    # Third-party extensions
 │   └── core/      # Shared components
-├── examples/       # Examples & templates
+├── knowledge/demos/ # Example scripts & demos
+├── extensions/templates/ # Extension scaffolding
 ├── docs/          # Documentation
 ├── memory/        # System memory & tests
 └── wiki/          # Project wiki
@@ -55,7 +56,7 @@ uDOS/
 ### Using Templates
 1. Choose appropriate template:
    ```bash
-   cp -r examples/extensions/web-extension-template extensions/my-extension
+   cp -r extensions/templates/web-extension-template extensions/bundled/web/my-extension
    ```
 
 2. Update manifest.json

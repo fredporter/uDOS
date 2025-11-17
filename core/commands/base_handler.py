@@ -21,7 +21,7 @@ class BaseCommandHandler:
             **kwargs: Additional dependencies passed from main CommandHandler
         """
         # Load theme lexicon for themed messages
-        theme_file = f'data/themes/{theme.lower()}.json'
+        theme_file = f'knowledge/system/themes/{theme.lower()}.json'
         with open(theme_file, 'r') as f:
             theme_data = json.load(f)
             self.lexicon = theme_data.get('TERMINOLOGY', {})

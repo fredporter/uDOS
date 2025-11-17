@@ -1,5 +1,5 @@
 # ============================================================
-# uDOS v1.2 - Git Ignore Configuration
+# uDOS - Git Ignore Configuration
 # ============================================================
 
 # Environment & Secrets
@@ -37,6 +37,7 @@ pip-selfcheck.json
 *.swp
 *.swo
 *~
+.pytest_cache/
 
 # Extensions - Clone Management
 # ----------------------
@@ -98,10 +99,10 @@ memory/logs/**/*
 
 # Documentation (Development Working Files)
 # ----------------------
-# Ignore /docs working directory - only commit finalized docs to wiki/
+# /docs/ = Development-only documentation (NOT distributed)
+# /wiki/ = User-facing documentation (distributed with uDOS)
 docs/
 docs/**/*
-!docs/.gitkeep
 
 # Wiki Deployment
 # ----------------------
@@ -134,11 +135,31 @@ output/
 !memory/tests/**/*
 !sandbox/tests/
 
-# Keep Important Directories Tracked (Even if Empty)
+# Data Architecture Separation (v1.0.20b)
 # ----------------------
-!memory/
-!memory/**/*
+# /knowledge/system/ - TRACKED (core reference data, ships with uDOS)
 !knowledge/
 !knowledge/**/*
+
+# /memory/ - USER DATA (gitignored, user-writable)
+memory/
+memory/**/*
+# Except templates and structure
+!memory/templates/
+!memory/templates/**/*
+!memory/.gitkeep
+!memory/*/.gitkeep
+!memory/*/README.md
+# 4-Tier Memory System (v1.0.20)
+!memory/private/.gitignore
+!memory/shared/.gitignore
+!memory/groups/.gitignore
+!memory/public/.gitignore
+
+# /knowledge/ - TRACKED (core knowledge library, ships with uDOS)
+!knowledge/
+!knowledge/**/*
+
+# /history/ - TRACKED (system history templates)
 !history/
 !history/**/*

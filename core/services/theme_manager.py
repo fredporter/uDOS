@@ -97,7 +97,7 @@ class ThemeManager:
         self.themes_dir.mkdir(parents=True, exist_ok=True)
 
         # JSON theme storage (v1.0.13+)
-        self.json_themes_dir = Path("data/themes")
+        self.json_themes_dir = Path("knowledge/system/themes")
         self.json_themes_cache = {}
         self.available_json_themes = self._scan_json_themes()
 

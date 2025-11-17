@@ -65,8 +65,9 @@
 <body>
   <div class="bezel">
     <div class="statusbar row fg-yellow">
-      <span>�️ uDOS TELETEXT INTERFACE</span>
+      <span>🌀 uDOS TELETEXT INTERFACE</span>
       <span class="clock" id="clock"></span>
+      <span id="connection-status">⚪ Connecting...</span>
     </div>
 
     <pre class="teletext scanlines" id="screen" aria-label="uDOS Teletext Interface" role="img">
@@ -80,6 +81,8 @@
 <span class="row">  Welcome to the uDOS Teletext Interface.     </span>
 <span class="row">  Use the command bar below for operations.   </span>
 <span class="row">  All uDOS commands available via web UI.     </span>
+<span class="row">                                        </span>
+<span class="row">  <span id="xp-progress">XP: 0 | Level: 1</span>  <span id="health">❤️ 100%</span> <span id="energy">⚡ 100%</span> <span id="hydration">💧 100%</span>  </span>
 <span class="row">                                        </span>
 <span class="row">  Enhanced Features:                          </span>
 <span class="row"><span class="double-height">  MOSAIC BLOCKS  </span>                        </span>
@@ -122,7 +125,148 @@
 
   <script src="teletext-enhanced.js"></script>
   <script src="teletext-api.js"></script>
+  <script src="../../core/js/udos-option-selector.js"></script>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
+    // WebSocket connection for real-time updates
+    let socket = null;
+    let connectionStatus = 'disconnected';
+
+    function connectWebSocket() {
+      try {
+        socket = io('http://localhost:5001', {
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 10
+        });
+
+        socket.on('connect', () => {
+          connectionStatus = 'connected';
+          console.log('✅ WebSocket connected');
+          updateConnectionStatus();
+
+          // Subscribe to real-time updates
+          socket.emit('subscribe_updates', { types: ['all'] });
+        });
+
+        socket.on('disconnect', () => {
+          connectionStatus = 'disconnected';
+          console.log('⚠️  WebSocket disconnected');
+          updateConnectionStatus();
+        });
+
+        socket.on('status', (data) => {
+          console.log('Server status:', data);
+        });
+
+        socket.on('subscribed', (data) => {
+          console.log('📡 Subscribed to updates:', data);
+          if (data.initial_state) {
+            updateDashboard(data.initial_state);
+          }
+        });
+
+        socket.on('system_update', (data) => {
+          console.log('📤 System update:', data);
+          handleSystemUpdate(data);
+        });
+
+        socket.on('command_result', (data) => {
+          console.log('Command result:', data);
+          if (data.output) {
+            updateTeletextOutput(data.output);
+          }
+        });
+
+      } catch (e) {
+        console.error('Failed to connect WebSocket:', e);
+        connectionStatus = 'error';
+        updateConnectionStatus();
+      }
+    }
+
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connection-status');
+      if (statusEl) {
+        const statusText = {
+          'connected': '🟢 Live',
+          'disconnected': '🔴 Offline',
+          'error': '⚠️  Error'
+        }[connectionStatus] || '⚪ Unknown';
+        statusEl.textContent = statusText;
+      }
+    }
+
+    function handleSystemUpdate(data) {
+      // Update dashboard with changes
+      if (data.changes) {
+        const changes = data.changes;
+
+        // XP changes
+        if (changes.xp) {
+          console.log(`XP: ${changes.xp.old} → ${changes.xp.new} (${changes.xp.delta > 0 ? '+' : ''}${changes.xp.delta})`);
+          showNotification(`XP ${changes.xp.delta > 0 ? '+' : ''}${changes.xp.delta}`, 'success');
+        }
+
+        // Level changes
+        if (changes.level) {
+          console.log(`Level up! ${changes.level.old} → ${changes.level.new}`);
+          showNotification(`🎉 Level ${changes.level.new}!`, 'success');
+        }
+
+        // Health/Energy/Hydration
+        ['health', 'energy', 'hydration'].forEach(stat => {
+          if (changes[stat]) {
+            const delta = changes[stat].delta;
+            const emoji = delta > 0 ? '📈' : '📉';
+            console.log(`${stat}: ${changes[stat].old} → ${changes[stat].new}`);
+          }
+        });
+
+        // File changes
+        if (changes.file_count) {
+          console.log(`Files: ${changes.file_count.old} → ${changes.file_count.new}`);
+          loadRecentFiles();
+        }
+
+        // Position changes
+        if (changes.position) {
+          console.log(`Position: ${changes.position.old.cell} → ${changes.position.new.cell}`);
+          loadCurrentLocation();
+        }
+      }
+
+      // Update full state
+      if (data.state) {
+        updateDashboard(data.state);
+      }
+    }
+
+    function updateDashboard(state) {
+      // Update XP progress if element exists
+      const xpEl = document.getElementById('xp-progress');
+      if (xpEl && state.xp !== undefined) {
+        xpEl.textContent = `XP: ${state.xp} | Level: ${state.level}`;
+      }
+
+      // Update survival stats if elements exist
+      const healthEl = document.getElementById('health');
+      const energyEl = document.getElementById('energy');
+      const hydrationEl = document.getElementById('hydration');
+
+      if (healthEl) healthEl.textContent = `❤️ ${state.health}%`;
+      if (energyEl) energyEl.textContent = `⚡ ${state.energy}%`;
+      if (hydrationEl) hydrationEl.textContent = `💧 ${state.hydration}%`;
+    }
+
+    function showNotification(message, type = 'info') {
+      // Simple console notification for now
+      const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+      console.log(`${emoji} ${message}`);
+
+      // Could add visual toast notification here
+    }
+
     // uDOS Integration
     async function loadRecentFiles() {
       try {
@@ -179,7 +323,10 @@
     }
 
     // Command input handling
-    document.getElementById('commandInput').addEventListener('keypress', function(e) {
+    const commandInput = document.getElementById('commandInput');
+    const optionSelector = new uDOSOptionSelector();
+
+    commandInput.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         const command = this.value.trim();
         if (command) {
@@ -187,14 +334,77 @@
           this.value = '';
         }
       }
+
+      // Ctrl+Space to show command selector
+      if (e.ctrlKey && e.key === ' ') {
+        e.preventDefault();
+        showCommandSelector();
+      }
+    });
+
+    // Show command selector (Ctrl+Space)
+    function showCommandSelector() {
+      const commands = [
+        'HELP', 'FILE LIST', 'FILE EDIT', 'FILE RUN',
+        'MAP SHOW', 'MAP ZOOM', 'MAP FIND',
+        'THEME SET', 'THEME LIST', 'THEME INFO',
+        'GRID VIEW', 'GRID SPLIT', 'GRID FOCUS',
+        'STATUS', 'CONFIG', 'REPAIR', 'REBOOT'
+      ];
+
+      const descriptions = [
+        'Show command reference',
+        'List workspace files',
+        'Edit a file',
+        'Run a script',
+        'Show current map',
+        'Zoom map in/out',
+        'Find location on map',
+        'Change theme',
+        'List available themes',
+        'Show theme details',
+        'View grid panels',
+        'Split screen',
+        'Focus on panel',
+        'System status',
+        'Configuration',
+        'Repair system',
+        'Restart uDOS'
+      ];
+
+      optionSelector.show({
+        prompt: 'Select a command (or type manually)',
+        options: commands,
+        descriptions: descriptions,
+        category: 'uDOS Commands',
+        onSelect: (selected) => {
+          commandInput.value = selected;
+          commandInput.focus();
+        },
+        onCancel: () => {
+          commandInput.focus();
+        }
+      });
+    }
+
+    // Global keyboard shortcut
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K to show command selector
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        showCommandSelector();
+      }
     });
 
     // Load initial data
     window.addEventListener('load', () => {
+      // Connect WebSocket for real-time updates
+      connectWebSocket();
+
       loadRecentFiles();
       loadCurrentLocation();
 
-      // Refresh data periodically
+      // Refresh data periodically (backup to WebSocket)
       setInterval(() => {
         loadRecentFiles();
         loadCurrentLocation();

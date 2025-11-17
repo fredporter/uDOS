@@ -1,12 +1,15 @@
 # Development History
 
-Complete evolution of uDOS from v1.0.1 through v1.0.6
+Complete evolution of uDOS from v1.0.1 through v1.0.20b
 
 ---
 
 ## Overview
 
-uDOS has undergone **six major development rounds**, each building upon the previous foundation to create a comprehensive retro-futuristic CLI environment. This page chronicles the detailed progression of features, architecture decisions, and technical achievements across each version.
+uDOS has undergone **21 major development rounds**, each building upon the previous foundation to create a comprehensive offline-first survival and knowledge platform. This page chronicles the detailed progression of features, architecture decisions, and technical achievements across each version.
+
+**Current Version**: v1.0.20b (Enhanced Mapping & Reference Data - ✅ Complete November 2025)
+**Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection!"*
 
 ---
 
@@ -430,9 +433,187 @@ Each dev round (v1.0.1 through v1.0.5) now includes:
 
 ---
 
-## �📈 Future Development Trajectory
+## 🧠 v1.0.20 - 4-Tier Knowledge Bank & Memory System
+**Released**: November 15, 2025
+**Focus**: Personal to public knowledge tiers with encryption and sharing
 
-Based on the established progression, future versions will likely focus on:
+### Major Features Delivered
+
+#### 🔐 4-Tier Memory Architecture
+- **PRIVATE Tier (Tier 1)**: AES-256 encrypted personal data
+  * Password-protected encryption
+  * Auto-lock after inactivity
+  * Complete privacy guarantees
+- **SHARED Tier (Tier 2)**: Explicit permission-based sharing
+  * Granular access control
+  * Share/revoke permissions per user
+  * Audit logging of access
+- **COMMUNITY Tier (Tier 3)**: Group collaboration
+  * Create and join groups
+  * Group-level access control
+  * Collaborative knowledge building
+- **PUBLIC Tier (Tier 4)**: Open knowledge base
+  * SQLite full-text search
+  * 500+ survival guides
+  * No authentication required
+
+#### 🎯 5 Command Handlers
+- **MEMORY**: Cross-tier search and operations
+- **PRIVATE**: Encrypted personal data management
+- **SHARED**: Permission-based sharing system
+- **COMMUNITY**: Group collaboration tools
+- **KB**: Public knowledge base with FTS
+
+#### 🔒 Security Features
+- AES-256 encryption for PRIVATE tier
+- Permission-based access control
+- Audit logging across all tiers
+- Secure key management
+- Auto-expiring sessions
+
+#### 📚 Knowledge Integration
+- Cross-tier MEMORY SEARCH
+- Unified query interface
+- Tag-based organization
+- Version tracking
+- Export/import capabilities
+
+### Technical Achievements
+- **Clean data separation**: `/memory/` (user) vs `/knowledge/` (system)
+- **5 specialized handlers** with consistent interface patterns
+- **15/15 validation tests** passed with 100% coverage
+- **Integration with v1.0.3 MAP** for location-aware knowledge
+- **Modular architecture** enabling future tier expansions
+
+### Architectural Innovations
+- Four-tier knowledge model from personal to public
+- Encryption at rest with user-controlled keys
+- Permission graph for sharing relationships
+- SQLite FTS for fast public knowledge search
+- Clean separation between user and system data
+
+---
+
+## 🗺️ v1.0.20b - Enhanced Mapping & Reference Data System
+**Released**: November 16, 2025
+**Focus**: Complete geographic reference system with clean data architecture
+
+### Major Features Delivered
+
+#### 🌍 Geographic Databases (9 files, 12,000+ lines)
+- **countries.json**: 50 major countries
+  * ISO 2/3 letter codes, capitals
+  * Coordinates, area, population
+  * Languages, currencies, timezones
+  * Regional groupings
+- **cities.json**: 250 major world cities
+  * TIZO codes, coordinates, elevation
+  * Population, climate zones
+  * Timezone mappings
+  * Complete global coverage
+- **timezones.json**: 120 IANA timezones
+  * UTC offsets (standard + DST)
+  * DST start/end rules
+  * Major cities per zone
+  * UTC-12 to UTC+14 range
+- **terrain.json**: 24 terrain types
+  * Elevation ranges, traversability
+  * ASCII/teletext rendering chars
+  * Water sources, color codes
+- **climate.json**: 18 Köppen climate zones
+  * Temperature/rainfall ranges
+  * Vegetation, seasons
+  * Example locations globally
+
+#### 🗺️ TILE Command System (8 commands)
+- **TILE INFO**: Comprehensive city/country data
+- **TILE SEARCH**: Location search engine
+- **TILE NEARBY**: Proximity finder with Haversine distance
+- **TILE WEATHER**: Climate zone information
+- **TILE TIMEZONE**: Detailed timezone data with DST
+- **TILE TERRAIN**: Terrain type characteristics
+- **TILE ROUTE**: Navigation planning with bearing
+- **TILE CONVERT**: Unit conversions (temp, distance, mass)
+
+#### 🏗️ Clean Data Architecture
+- **System Data** (`/data/system/`): Read-only, version controlled
+  * Geography databases
+  * Reference data (metric, imperial)
+  * Graphics libraries (ASCII, teletext)
+  * Ships with uDOS, offline-first
+- **User Memory** (`/memory/`): User-writable, gitignored
+  * Private encrypted data
+  * Shared knowledge
+  * Community groups
+  * User configuration
+
+#### 📏 Reference Systems
+- **metric.json**: Complete SI unit system
+  * Length, mass, volume, temperature
+  * SI prefixes (tera to pico)
+  * Common conversions
+- **imperial.json**: Imperial/US customary units
+  * Metric-imperial conversion tables
+
+#### 🎨 Graphics Libraries
+- **ascii_blocks.json**: ASCII art character sets
+- **teletext_mosaic.json**: 64 mosaic characters (2×3 blocks)
+  * WST color palette
+  * Pattern templates (░▒▓█)
+  * Terrain visualization
+
+### Technical Achievements
+- **12,000+ lines of JSON data** across 9 database files
+- **Haversine formula** for accurate distance calculations
+- **Bearing calculations** with 8-point compass
+- **250 cities** with TIZO codes across all continents
+- **120 timezones** covering UTC-12 to UTC+14
+- **Integration with v1.0.20** Knowledge Bank
+- **Integration with v1.0.3** MAP system
+
+### Architectural Innovations
+- Clean separation: system data vs user memory
+- Offline-first geographic reference
+- JSON format for human-readable data
+- Lazy-loading for performance
+- Extensible database architecture
+
+### Quality Assurance
+- All 8 TILE commands functional
+- JSON validation across all files
+- Coordinate range verification
+- Distance calculation accuracy
+- Integration testing complete
+
+---
+
+## 📈 Future Development Trajectory
+
+Based on the established progression, future versions will focus on:
+
+### v1.0.21 - Survivalist Themes & Practical Skills Library
+- 500+ survival guides across 8 categories
+- Knowledge library architecture expansion
+- Offline AI/Gemini configuration
+- Practical skills integration
+
+### v1.0.22 - Documentation & Offline-First Handbook
+- 1000+ page survival handbook
+- Complete user documentation
+- API documentation
+- Developer guides
+
+### v1.0.23 - Final Polish & Integration
+- Performance optimization
+- Self-healing systems
+- 1000+ tests
+- Production readiness
+
+### v1.1.0 - Stable Release (July 2026)
+- Native CLI + Teletext GUI
+- Smart input systems
+- Enhanced file selection
+- Community launch
 
 ### Potential v1.0.7+ Areas
 - **Advanced AI Integration**: Enhanced natural language processing

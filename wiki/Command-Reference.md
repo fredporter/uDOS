@@ -48,6 +48,9 @@ REBOOT                    # Restart uDOS
 | **Grid Management** | [GRID](#grid), [NEW GRID](#new-grid), [GRID LIST](#grid-list), [SHOW GRID](#show-grid) |
 | **Assisted Task** | [OK ASK](#ok-ask), [OK DEV](#ok-dev), [READ](#read) |
 | **Automation** | [RUN](#run) |
+| **Knowledge Bank (v1.0.20)** | [MEMORY](#memory), [PRIVATE](#private), [SHARED](#shared), [COMMUNITY](#community), [KB](#kb) |
+| **Geographic Data (v1.0.20b)** | [TILE](#tile-commands) |
+| **Display System (v1.0.21)** | [PANEL](#panel-commands) |
 | **Debugging** | [DEBUG](#debug), [BREAK](#break), [STEP](#step), [CONTINUE](#continue), [INSPECT](#inspect), [WATCH](#watch), [STACK](#stack), [MODIFY](#modify), [PROFILE](#profile), [HISTORY](#history) |
 | **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
 | **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |
@@ -930,7 +933,7 @@ RUN "<script>"
 ```
 🔮 > RUN "shakedown.uscript"
 🔮 > RUN "data/SETUP.USC"
-🔮 > RUN "examples/demo.uscript"
+🔮 > RUN "knowledge/demos/demo.uscript"
 ```
 
 **Output**:
@@ -2450,6 +2453,701 @@ HISTORY ALL             # Show all variable histories
 ```
 
 **uCODE**: `[SYSTEM|HISTORY*<variable>]`
+
+---
+
+## 🧠 Knowledge Bank Commands (v1.0.20)
+
+### MEMORY
+
+**Purpose**: Cross-tier memory search and operations
+
+**Syntax**:
+```
+MEMORY STATUS           # Show all tiers status
+MEMORY SEARCH <query>   # Search across all accessible tiers
+MEMORY STATS            # Statistics across tiers
+```
+
+**Examples**:
+```
+🔮 > MEMORY STATUS
+🧠 Memory System Status
+   PRIVATE: 12 items (encrypted)
+   SHARED: 8 items (3 shared with you)
+   COMMUNITY: 5 groups
+   PUBLIC: 245 knowledge items
+
+🔮 > MEMORY SEARCH "water purification"
+Found in PRIVATE: 2 results
+Found in SHARED: 1 result
+Found in PUBLIC: 8 results
+```
+
+**uCODE**: `[MEMORY|COMMAND*PARAMS]`
+
+---
+
+### PRIVATE
+
+**Purpose**: Encrypted personal data storage (Tier 1)
+
+**Syntax**:
+```
+PRIVATE ADD <key> <data>    # Store encrypted data
+PRIVATE GET <key>           # Retrieve data
+PRIVATE LIST                # List all keys
+PRIVATE DELETE <key>        # Remove entry
+PRIVATE SEARCH <query>      # Search private data
+```
+
+**Security**:
+- AES-256 encryption
+- Password-protected
+- Auto-lock after inactivity
+
+**Examples**:
+```
+🔮 > PRIVATE ADD password "mySecretPass123"
+🔒 Data encrypted and stored in PRIVATE tier
+
+🔮 > PRIVATE GET password
+🔓 Decrypted: mySecretPass123
+
+🔮 > PRIVATE SEARCH "password"
+Found 3 encrypted entries matching "password"
+```
+
+**uCODE**: `[PRIVATE|COMMAND*PARAMS]`
+
+---
+
+### SHARED
+
+**Purpose**: Explicit permission-based sharing (Tier 2)
+
+**Syntax**:
+```
+SHARED ADD <key> <data>         # Add shareable data
+SHARED SHARE <key> <user>       # Grant access
+SHARED REVOKE <key> <user>      # Remove access
+SHARED LIST                     # Show shared items
+SHARED PERMISSIONS <key>        # View who has access
+```
+
+**Examples**:
+```
+🔮 > SHARED ADD recipe "Family pasta recipe: ..."
+✅ Added to SHARED tier
+
+🔮 > SHARED SHARE recipe alice
+✅ Granted alice access to "recipe"
+
+🔮 > SHARED PERMISSIONS recipe
+👥 Shared with: alice, bob
+```
+
+**uCODE**: `[SHARED|COMMAND*PARAMS]`
+
+---
+
+### COMMUNITY
+
+**Purpose**: Group collaboration with access control (Tier 3)
+
+**Syntax**:
+```
+COMMUNITY CREATE <group>        # Create group
+COMMUNITY JOIN <group>          # Join existing group
+COMMUNITY POST <group> <data>   # Post to group
+COMMUNITY LIST                  # List your groups
+COMMUNITY MEMBERS <group>       # Show group members
+```
+
+**Examples**:
+```
+🔮 > COMMUNITY CREATE survivors
+✅ Created group: survivors
+
+🔮 > COMMUNITY POST survivors "Found clean water source at 34.5N, 118.2W"
+✅ Posted to survivors group
+
+🔮 > COMMUNITY MEMBERS survivors
+👥 Members (5): alice, bob, charlie, dana, eve
+```
+
+**uCODE**: `[COMMUNITY|COMMAND*PARAMS]`
+
+---
+
+### KB (Knowledge Bank)
+
+**Purpose**: Public knowledge base with full-text search (Tier 4)
+
+**Syntax**:
+```
+KB SEARCH <query>       # Full-text search
+KB ADD <topic> <data>   # Contribute knowledge
+KB GET <topic>          # Retrieve topic
+KB LIST <category>      # Browse by category
+KB STATS                # Database statistics
+```
+
+**Examples**:
+```
+🔮 > KB SEARCH "first aid"
+📚 Found 23 results:
+   1. Basic First Aid Kit Contents
+   2. CPR Procedure Steps
+   3. Treating Burns and Wounds
+   ...
+
+🔮 > KB GET "water purification"
+💧 Water Purification Methods:
+   1. Boiling (most reliable)
+   2. Chemical tablets (portable)
+   3. UV light (solar)
+   ...
+```
+
+**uCODE**: `[KB|COMMAND*PARAMS]`
+
+---
+
+## 🗺️ TILE Commands (v1.0.20b)
+
+### TILE INFO
+
+**Purpose**: Get comprehensive location information
+
+**Syntax**:
+```
+TILE INFO <location>    # City or country info
+```
+
+**Examples**:
+```
+🔮 > TILE INFO Tokyo
+🏙️  Tokyo, JP
+📍 Location:
+   Coordinates: 35.6762°, 139.6503°
+   TIZO Code: T001
+   Elevation: 40 meters
+
+🌍 Demographics:
+   Population: 37,400,000
+   Region: Asia-Pacific
+
+🌡️  Climate: subtropical
+🕐 Time: Asia/Tokyo
+```
+
+**uCODE**: `[TILE|INFO*<location>]`
+
+---
+
+### TILE SEARCH
+
+**Purpose**: Search cities and countries
+
+**Syntax**:
+```
+TILE SEARCH <query>     # Search by name
+```
+
+**Examples**:
+```
+🔮 > TILE SEARCH Paris
+🔍 Search Results (3):
+🏙️  Paris, FR (TIZO: T023)
+🏙️  Paris, US (TIZO: T145)
+🌏 Paraguay (PY)
+```
+
+**uCODE**: `[TILE|SEARCH*<query>]`
+
+---
+
+### TILE NEARBY
+
+**Purpose**: Find nearby cities within radius
+
+**Syntax**:
+```
+TILE NEARBY <location> [radius_km]
+```
+
+**Examples**:
+```
+🔮 > TILE NEARBY London 500
+🗺️  Cities near London (within 500km):
+  109.2km - Birmingham, GB
+  212.5km - Amsterdam, NL
+  344.0km - Paris, FR
+  491.3km - Brussels, BE
+```
+
+**uCODE**: `[TILE|NEARBY*<location>*<radius>]`
+
+---
+
+### TILE WEATHER
+
+**Purpose**: Get climate information
+
+**Syntax**:
+```
+TILE WEATHER <location>
+```
+
+**Examples**:
+```
+🔮 > TILE WEATHER Sydney
+🌡️  Climate: Sydney, AU
+🌍 Climate Type: Temperate (Cfb)
+
+🌡️  Temperature Range: 8°C to 26°C
+🌧️  Annual Rainfall: 1200-1500mm
+
+📝 Description: Mild temperatures year-round
+🌿 Vegetation: Temperate forests
+📅 Seasons: 4
+```
+
+**uCODE**: `[TILE|WEATHER*<location>]`
+
+---
+
+### TILE TIMEZONE
+
+**Purpose**: Detailed timezone information
+
+**Syntax**:
+```
+TILE TIMEZONE <location>
+```
+
+**Examples**:
+```
+🔮 > TILE TIMEZONE New_York
+🕐 America/New_York
+
+⏰ Time Offsets:
+   Standard: UTC-05:00
+   DST: UTC-04:00
+   Zone: EST/EDT
+
+🌍 DST Information:
+   Active: Yes
+   Starts: 2nd Sunday March 2:00 AM
+   Ends: 1st Sunday November 2:00 AM
+
+🏙️  Major Cities: New York, Washington DC, Miami
+```
+
+**uCODE**: `[TILE|TIMEZONE*<location>]`
+
+---
+
+### TILE TERRAIN
+
+**Purpose**: Terrain type information
+
+**Syntax**:
+```
+TILE TERRAIN [type]     # Show terrain info or list all
+```
+
+**Examples**:
+```
+🔮 > TILE TERRAIN ocean
+🗺️  Ocean Terrain
+
+🎨 Visuals:
+   ASCII: ≈
+   Symbol: ~
+   Color: blue
+
+📐 Elevation Range: -11000m to 0m
+🚶 Traversable: No
+💧 Water Source: Yes
+
+📝 Description: Deep ocean waters
+```
+
+**uCODE**: `[TILE|TERRAIN*<type>]`
+
+---
+
+### TILE ROUTE
+
+**Purpose**: Route planning between locations
+
+**Syntax**:
+```
+TILE ROUTE <from> <to>
+```
+
+**Examples**:
+```
+🔮 > TILE ROUTE Tokyo London
+🧭 Route: Tokyo → London
+
+📍 From: Tokyo, JP
+   TIZO: T001
+   Timezone: Asia/Tokyo
+   Climate: subtropical
+
+📍 To: London, GB
+   TIZO: T045
+   Timezone: Europe/London
+   Climate: temperate
+
+📏 Distance: 9584.5 km (5954.7 miles)
+🧭 Bearing: 312.4° (NW)
+```
+
+**uCODE**: `[TILE|ROUTE*<from>*<to>]`
+
+---
+
+### TILE CONVERT
+
+**Purpose**: Unit conversions
+
+**Syntax**:
+```
+TILE CONVERT <value> <from> <to>
+```
+
+**Supported Units**:
+- Temperature: C, F, K
+- Distance: km, mi, m, ft
+- Mass: kg, lb
+
+**Examples**:
+```
+🔮 > TILE CONVERT 100 km mi
+100 km = 62.14 miles
+
+🔮 > TILE CONVERT 32 C F
+32°C = 89.60°F
+
+🔮 > TILE CONVERT 5 kg lb
+5 kg = 11.02 lbs
+```
+
+**uCODE**: `[TILE|CONVERT*<value>*<from>*<to>]`
+
+---
+
+## 📺 PANEL Commands (v1.0.21)
+
+The PANEL command provides a teletext-style character display system inspired by C64 screen memory. Create character-based panels, manipulate individual characters with POKE, and embed displays in markdown files.
+
+### PANEL CREATE
+
+**Purpose**: Create a new character panel with specified dimensions
+
+**Syntax**:
+```
+PANEL CREATE <name> <width> <height> <tier>
+```
+
+**Parameters**:
+- `name`: Panel identifier (alphanumeric, no spaces)
+- `width`: Width in characters (1-320)
+- `height`: Height in characters (1-160)
+- `tier`: Screen tier 0-14 (validates max dimensions)
+
+**Examples**:
+```
+🔮 > PANEL CREATE main 80 45 7
+✅ Panel 'main' created: 80×45 chars (Tier 7: Notebook)
+
+🔮 > PANEL CREATE dashboard 120 67 9
+✅ Panel 'dashboard' created: 120×67 chars (Tier 9: Large Desktop)
+```
+
+**uCODE**: `[PANEL|CREATE*main*80*45*7]`
+
+---
+
+### PANEL SHOW
+
+**Purpose**: Display panel contents with optional C64-style border
+
+**Syntax**:
+```
+PANEL SHOW <name>         # Display without border
+PANEL SHOW <name> border  # Display with C64-style border
+```
+
+**Examples**:
+```
+🔮 > PANEL SHOW main
+[Panel contents displayed]
+
+🔮 > PANEL SHOW main border
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+▓                   ▓
+▓  Panel contents   ▓
+▓                   ▓
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+```
+
+**uCODE**: `[PANEL|SHOW*main]` or `[PANEL|SHOW*main*border]`
+
+---
+
+### PANEL POKE
+
+**Purpose**: Write a single character at x,y coordinates (C64-style)
+
+**Syntax**:
+```
+PANEL POKE <name> <x> <y> <char>
+```
+
+**Parameters**:
+- `x`: Column position (0-based, left to right)
+- `y`: Row position (0-based, top to bottom)
+- `char`: Single character (supports Unicode)
+
+**Examples**:
+```
+🔮 > PANEL POKE main 0 0 █
+✅ Character written at (0,0)
+
+🔮 > PANEL POKE main 10 5 ☀
+✅ Character written at (10,5)
+```
+
+**Origin**: Top-left is (0,0), x increases right, y increases down
+
+**uCODE**: `[PANEL|POKE*main*0*0*█]`
+
+---
+
+### PANEL WRITE
+
+**Purpose**: Write a text string at x,y position
+
+**Syntax**:
+```
+PANEL WRITE <name> <x> <y> <text>
+```
+
+**Examples**:
+```
+🔮 > PANEL WRITE main 10 5 Hello World!
+✅ Text written at (10,5)
+
+🔮 > PANEL WRITE main 10 6 Temperature: 24°C ☀
+✅ Text written at (10,6)
+```
+
+**uCODE**: `[PANEL|WRITE*main*10*5*Hello World!]`
+
+---
+
+### PANEL EMBED
+
+**Purpose**: Export panel to markdown file as code block
+
+**Syntax**:
+```
+PANEL EMBED <name> <filepath.md>
+```
+
+**Examples**:
+```
+🔮 > PANEL EMBED diagram knowledge/systems/memory.md
+✅ Panel embedded in knowledge/systems/memory.md
+```
+
+Embedded content appears as:
+````markdown
+## Diagram
+```
+[Panel content here as ASCII art]
+```
+````
+
+**uCODE**: `[PANEL|EMBED*diagram*knowledge/systems/memory.md]`
+
+---
+
+### PANEL SIZE
+
+**Purpose**: Display screen tier information
+
+**Syntax**:
+```
+PANEL SIZE
+```
+
+**Output**:
+```
+Screen Tiers:
+  0: Watch (20×10 chars) - Wearable displays
+  1: Phone Small (30×20 chars) - Compact smartphone
+  ...
+  7: Notebook (80×45 chars) - Standard laptop ⭐
+  ...
+  14: 8K (320×160 chars) - Maximum resolution
+```
+
+⭐ **Tier 7 (Notebook 80×45)** is the most common target.
+
+**uCODE**: `[PANEL|SIZE]`
+
+---
+
+### PANEL INFO
+
+**Purpose**: Display panel statistics and metadata
+
+**Syntax**:
+```
+PANEL INFO <name>
+```
+
+**Output**:
+```
+Panel: main
+Size: 80×45 characters (3600 total)
+Tier: 7 (Notebook - 80×45)
+Characters: 450 (12.5% filled)
+Created: 2025-01-16 14:30:00
+```
+
+**uCODE**: `[PANEL|INFO*main]`
+
+---
+
+### PANEL LIST
+
+**Purpose**: Display all active panels with statistics
+
+**Syntax**:
+```
+PANEL LIST
+```
+
+**Output**:
+```
+Active Panels:
+  main: 80×45 chars (Tier 7) - 450/3600 chars (12.5%)
+  dashboard: 120×67 chars (Tier 9) - 1200/8040 chars (15%)
+```
+
+**uCODE**: `[PANEL|LIST]`
+
+---
+
+### PANEL CLEAR
+
+**Purpose**: Reset panel buffer to spaces (blank panel)
+
+**Syntax**:
+```
+PANEL CLEAR <name>
+```
+
+**uCODE**: `[PANEL|CLEAR*main]`
+
+---
+
+### PANEL DELETE
+
+**Purpose**: Remove panel from memory
+
+**Syntax**:
+```
+PANEL DELETE <name>
+```
+
+**uCODE**: `[PANEL|DELETE*main]`
+
+---
+
+### Teletext Graphics Reference
+
+The PANEL system supports full Unicode characters:
+
+**Block Characters**:
+```
+█ ▓ ▒ ░  (Full, dark, medium, light blocks)
+▀ ▄ ▌ ▐  (Half blocks - top, bottom, left, right)
+```
+
+**Box Drawing**:
+```
+┌ ┬ ┐  (Top corners and T-junction)
+├ ┼ ┤  (Side T-junctions and cross)
+└ ┴ ┘  (Bottom corners and T-junction)
+─ │    (Horizontal and vertical lines)
+```
+
+**Double Lines**:
+```
+╔ ╦ ╗  (Double top)
+╠ ╬ ╣  (Double sides)
+╚ ╩ ╝  (Double bottom)
+═ ║    (Double horizontal and vertical)
+```
+
+**Emoji**:
+```
+☀ ☁ 🌧 ❄  (Weather)
+✓ ✗ ⚠ ℹ  (Status)
+← → ↑ ↓  (Arrows)
+```
+
+---
+
+### Example 1: Progress Bar
+
+```
+🔮 > PANEL CREATE progress 60 5 7
+🔮 > PANEL WRITE progress 5 2 [████████████████████░░░░░░░░] 75%
+🔮 > PANEL SHOW progress
+```
+
+Output:
+```
+[████████████████████░░░░░░░░] 75%
+```
+
+---
+
+### Example 2: Weather Display
+
+```
+🔮 > PANEL CREATE weather 50 10 7
+🔮 > PANEL POKE weather 5 2 ☀
+🔮 > PANEL WRITE weather 8 2 Sydney: 24°C Clear
+🔮 > PANEL POKE weather 5 4 ☁
+🔮 > PANEL WRITE weather 8 4 London: 12°C Cloudy
+🔮 > PANEL SHOW weather border
+🔮 > PANEL EMBED weather data/weather/current.md
+```
+
+---
+
+### Integration
+
+**With Markdown Viewer**:
+1. Create panel: `PANEL CREATE diagram 60 20 7`
+2. Draw content: `PANEL WRITE diagram 10 5 System Architecture`
+3. Embed: `PANEL EMBED diagram knowledge/systems/architecture.md`
+4. View: Start markdown viewer at `http://localhost:9000`
+
+**With uSCRIPT**:
+See `knowledge/demos/panel_demo.uscript` for comprehensive examples.
+
+**Full Documentation**: `docs/commands/PANEL.md`
 
 ---
 

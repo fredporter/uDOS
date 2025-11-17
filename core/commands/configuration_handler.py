@@ -193,7 +193,7 @@ class ConfigurationHandler(BaseCommandHandler):
         """Set the current theme."""
         try:
             # Load theme data
-            theme_file = Path(f'data/themes/{theme_name.lower()}.json')
+            theme_file = Path(f'knowledge/system/themes/{theme_name.lower()}.json')
             if not theme_file.exists():
                 return f"❌ Theme '{theme_name}' not found\n\nUse: THEME LIST to see available themes"
 
@@ -349,7 +349,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _switch_theme(self, theme_name):
         """Switch to a different theme."""
         try:
-            theme_file = Path(f'data/themes/{theme_name.lower()}.json')
+            theme_file = Path(f'knowledge/system/themes/{theme_name.lower()}.json')
             if not theme_file.exists():
                 return f"❌ Theme '{theme_name}' not found\n\nUse: THEME LIST to see available themes"
 
@@ -656,7 +656,7 @@ class ConfigurationHandler(BaseCommandHandler):
             CONFIG VIEWPORT      - Show viewport information
             CONFIG VIEWPORT <w> <h> - Set custom viewport (in cells)
 
-        Manages configuration files in data/system/ directory.
+        Manages configuration files in knowledge/system/ directory.
         """
         if not params:
             return self._show_config_status()
@@ -697,7 +697,7 @@ class ConfigurationHandler(BaseCommandHandler):
 
     def _show_config_status(self):
         """Show current configuration status."""
-        config_dir = Path('data/system')
+        config_dir = Path('knowledge/system')
         if not config_dir.exists():
             return "❌ Configuration directory not found"
 
@@ -748,7 +748,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _backup_configs(self):
         """Backup all configuration files."""
         try:
-            config_dir = Path('data/system')
+            config_dir = Path('knowledge/system')
             backup_dir = Path('memory/config/system_backup')
             backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -775,7 +775,7 @@ class ConfigurationHandler(BaseCommandHandler):
             if not backup_dir.exists():
                 return "❌ No backup directory found\n\nUse: CONFIG BACKUP first"
 
-            config_dir = Path('data/system')
+            config_dir = Path('knowledge/system')
             restored = []
 
             for backup_file in backup_dir.glob('*.json'):
@@ -799,12 +799,12 @@ class ConfigurationHandler(BaseCommandHandler):
         return ("⚠️  CONFIG RESET not implemented\n\n"
                "To reset configurations:\n"
                "1. Backup current configs: CONFIG BACKUP\n"
-               "2. Restore from templates in data/templates/\n"
+               "2. Restore from templates in knowledge/system/templates/\n"
                "3. Or reinstall uDOS")
 
     def _validate_configs(self):
         """Validate all configuration files."""
-        config_dir = Path('data/system')
+        config_dir = Path('knowledge/system')
         if not config_dir.exists():
             return "❌ Configuration directory not found"
 
@@ -894,7 +894,7 @@ class ConfigurationHandler(BaseCommandHandler):
                 f"📺 Nearest Tier: {tier['label']} (Tier {tier['tier']})",
                 f"📊 Aspect Ratio: {tier['aspect']}",
                 "",
-                "💾 Settings saved to data/system/viewport.json",
+                "💾 Settings saved to knowledge/system/viewport.json",
                 "💡 Use: REBOOT to apply changes fully",
                 "💡 Use: CONFIG VIEWPORT to view current settings"
             ]

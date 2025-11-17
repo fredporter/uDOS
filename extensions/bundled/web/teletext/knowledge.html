@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>uDOS Knowledge Bank - Teletext</title>
+  <link rel="stylesheet" href="teletext-enhanced.css" />
+  <style>
+    .knowledge-browser {
+      padding: 1ch;
+      font-family: monospace;
+    }
+
+    .tier-tabs {
+      display: flex;
+      gap: 1ch;
+      margin-bottom: 1ch;
+      border-bottom: 1px solid #444;
+    }
+
+    .tier-tab {
+      padding: 0.5ch 2ch;
+      cursor: pointer;
+      background: #222;
+      border: 1px solid #444;
+      border-bottom: none;
+    }
+
+    .tier-tab.active {
+      background: #000;
+      color: #0ff;
+    }
+
+    .tier-tab.tier-0 { color: #f0f; } /* Personal - magenta */
+    .tier-tab.tier-1 { color: #0ff; } /* Shared - cyan */
+    .tier-tab.tier-2 { color: #ff0; } /* Group - yellow */
+    .tier-tab.tier-3 { color: #0f0; } /* Public - green */
+
+    .knowledge-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      padding: 1ch;
+      background: #000;
+    }
+
+    .knowledge-item {
+      padding: 1ch;
+      margin-bottom: 1ch;
+      border: 1px solid #333;
+      cursor: pointer;
+    }
+
+    .knowledge-item:hover {
+      border-color: #0ff;
+      background: #111;
+    }
+
+    .knowledge-title {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .knowledge-meta {
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 0.5ch;
+    }
+
+    .knowledge-preview {
+      color: #aaa;
+      margin-top: 0.5ch;
+      font-size: 0.9em;
+    }
+
+    .search-box {
+      width: 100%;
+      background: #111;
+      border: 1px solid #444;
+      color: #0ff;
+      padding: 1ch;
+      font-family: monospace;
+      margin-bottom: 1ch;
+    }
+
+    .privacy-indicator {
+      display: inline-block;
+      padding: 0.2ch 1ch;
+      border-radius: 3px;
+      font-size: 0.8em;
+      margin-left: 1ch;
+    }
+
+    .privacy-personal { background: #f0f; color: #000; }
+    .privacy-shared { background: #0ff; color: #000; }
+    .privacy-group { background: #ff0; color: #000; }
+    .privacy-public { background: #0f0; color: #000; }
+
+    .knowledge-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1ch;
+      margin-bottom: 1ch;
+    }
+
+    .stat-box {
+      background: #111;
+      border: 1px solid #444;
+      padding: 1ch;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 0.8em;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="bezel">
+    <div class="statusbar row fg-yellow">
+      <span>🌀 uDOS KNOWLEDGE BANK</span>
+      <span class="clock" id="clock"></span>
+      <span id="connection-status">⚪ Connecting...</span>
+    </div>
+
+    <div class="knowledge-browser">
+      <!-- Tier Statistics -->
+      <div class="knowledge-stats" id="knowledge-stats">
+        <div class="stat-box tier-0">
+          <div class="stat-value fg-mag" id="stat-tier-0">0</div>
+          <div class="stat-label">🔒 Personal</div>
+        </div>
+        <div class="stat-box tier-1">
+          <div class="stat-value fg-cyan" id="stat-tier-1">0</div>
+          <div class="stat-label">🤝 Shared</div>
+        </div>
+        <div class="stat-box tier-2">
+          <div class="stat-value fg-yellow" id="stat-tier-2">0</div>
+          <div class="stat-label">👥 Group</div>
+        </div>
+        <div class="stat-box tier-3">
+          <div class="stat-value fg-green" id="stat-tier-3">0</div>
+          <div class="stat-label">🌍 Public</div>
+        </div>
+      </div>
+
+      <!-- Tier Tabs -->
+      <div class="tier-tabs">
+        <div class="tier-tab tier-0 active" data-tier="0">🔒 Personal</div>
+        <div class="tier-tab tier-1" data-tier="1">🤝 Shared</div>
+        <div class="tier-tab tier-2" data-tier="2">👥 Group</div>
+        <div class="tier-tab tier-3" data-tier="3">🌍 Public</div>
+      </div>
+
+      <!-- Search Box -->
+      <input type="text" class="search-box" id="search-box" placeholder="Search knowledge... (type to filter)">
+
+      <!-- Knowledge List -->
+      <div class="knowledge-list" id="knowledge-list">
+        <div class="fg-yellow">Loading knowledge...</div>
+      </div>
+    </div>
+
+    <!-- Command Bar -->
+    <div class="uDOS-command-bar">
+      <span class="fg-yellow">uDOS&gt;</span>
+      <input type="text" class="uDOS-command-input" id="commandInput" placeholder="KNOWLEDGE ADD | SEARCH | VIEW <id> | STATS" />
+    </div>
+  </div>
+
+  <!-- Socket.IO for real-time updates -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+  <script>
+    let currentTier = 0;
+    let knowledgeData = [];
+    let socket = null;
+
+    // Update clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.toLocaleTimeString('en-GB', { hour12: false });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Connect to WebSocket
+    function connectWebSocket() {
+      socket = io('http://localhost:5001', {
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('connection-status').innerHTML = '🟢 Live';
+        console.log('Connected to uDOS API server');
+        loadKnowledgeStats();
+        loadKnowledgeData();
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('connection-status').innerHTML = '🔴 Offline';
+      });
+
+      socket.on('connect_error', () => {
+        document.getElementById('connection-status').innerHTML = '🔴 Offline';
+      });
+    }
+
+    // Load knowledge statistics
+    async function loadKnowledgeStats() {
+      try {
+        const response = await fetch('http://localhost:5001/api/knowledge/stats');
+        const data = await response.json();
+
+        if (data.data && data.data.stats) {
+          const stats = data.data.stats;
+          document.getElementById('stat-tier-0').textContent = stats.PERSONAL?.total || 0;
+          document.getElementById('stat-tier-1').textContent = stats.SHARED?.total || 0;
+          document.getElementById('stat-tier-2').textContent = stats.GROUP?.total || 0;
+          document.getElementById('stat-tier-3').textContent = stats.PUBLIC?.total || 0;
+        }
+      } catch (error) {
+        console.error('Failed to load knowledge stats:', error);
+      }
+    }
+
+    // Load knowledge data for current tier
+    async function loadKnowledgeData() {
+      const query = document.getElementById('search-box').value || '*';
+
+      try {
+        const response = await fetch(
+          `http://localhost:5001/api/knowledge/search?query=${encodeURIComponent(query)}&tier=${currentTier}`
+        );
+        const data = await response.json();
+
+        if (data.success && data.data && data.data.results) {
+          knowledgeData = data.data.results;
+          renderKnowledgeList();
+        } else {
+          knowledgeData = [];
+          renderKnowledgeList();
+        }
+      } catch (error) {
+        console.error('Failed to load knowledge:', error);
+        document.getElementById('knowledge-list').innerHTML =
+          '<div class="fg-red">Failed to load knowledge. API server may be offline.</div>';
+      }
+    }
+
+    // Render knowledge list
+    function renderKnowledgeList() {
+      const listEl = document.getElementById('knowledge-list');
+
+      if (knowledgeData.length === 0) {
+        listEl.innerHTML = '<div class="fg-yellow">No knowledge items in this tier yet.</div>';
+        return;
+      }
+
+      listEl.innerHTML = knowledgeData.map(item => {
+        const tierIcons = ['🔒', '🤝', '👥', '🌍'];
+        const tierNames = ['PERSONAL', 'SHARED', 'GROUP', 'PUBLIC'];
+        const tierColors = ['privacy-personal', 'privacy-shared', 'privacy-group', 'privacy-public'];
+
+        const tierIdx = ['PERSONAL', 'SHARED', 'GROUP', 'PUBLIC'].indexOf(item.tier);
+
+        return `
+          <div class="knowledge-item" onclick="viewKnowledge('${item.id}')">
+            <div class="knowledge-title">
+              ${item.title}
+              <span class="privacy-indicator ${tierColors[tierIdx]}">
+                ${tierIcons[tierIdx]} ${item.tier}
+              </span>
+            </div>
+            <div class="knowledge-meta">
+              Type: ${item.type} | Tags: ${item.tags.join(', ')} | Views: ${item.views}
+            </div>
+            <div class="knowledge-preview">
+              ${item.preview}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // View knowledge item
+    async function viewKnowledge(id) {
+      try {
+        const response = await fetch(`http://localhost:5001/api/knowledge/view/${id}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const item = data.data;
+          alert(`${item.title}\n\nType: ${item.type}\nTier: ${item.tier}\nTags: ${item.tags.join(', ')}\n\n${item.content}\n\nViews: ${item.views} | Rating: ${item.rating}`);
+
+          // Reload to update view count
+          loadKnowledgeData();
+        }
+      } catch (error) {
+        console.error('Failed to view knowledge:', error);
+      }
+    }
+
+    // Tier tab switching
+    document.querySelectorAll('.tier-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs
+        document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+
+        // Add active class to clicked tab
+        tab.classList.add('active');
+
+        // Update current tier
+        currentTier = parseInt(tab.dataset.tier);
+
+        // Reload knowledge for new tier
+        loadKnowledgeData();
+      });
+    });
+
+    // Search box filtering
+    document.getElementById('search-box').addEventListener('input', (e) => {
+      // Debounce search
+      clearTimeout(window.searchTimeout);
+      window.searchTimeout = setTimeout(() => {
+        loadKnowledgeData();
+      }, 300);
+    });
+
+    // Command input handling
+    document.getElementById('commandInput').addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const command = e.target.value.trim();
+        e.target.value = '';
+
+        if (!command) return;
+
+        try {
+          const response = await fetch('http://localhost:5001/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command: `[KNOWLEDGE|${command}]` })
+          });
+
+          const data = await response.json();
+          alert(data.message || 'Command executed');
+
+          // Reload knowledge after command
+          loadKnowledgeStats();
+          loadKnowledgeData();
+        } catch (error) {
+          console.error('Command failed:', error);
+          alert('Command failed. API server may be offline.');
+        }
+      }
+    });
+
+    // Initialize
+    connectWebSocket();
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "version": "1.0.20b",
+  "system": "imperial",
+  "description": "Imperial and US customary units",
+  "base_units": {
+    "length": {
+      "inch": {"symbol": "in", "meters": 0.0254},
+      "foot": {"symbol": "ft", "meters": 0.3048},
+      "yard": {"symbol": "yd", "meters": 0.9144},
+      "mile": {"symbol": "mi", "meters": 1609.344}
+    },
+    "mass": {
+      "ounce": {"symbol": "oz", "kilograms": 0.028349523125},
+      "pound": {"symbol": "lb", "kilograms": 0.45359237},
+      "stone": {"symbol": "st", "kilograms": 6.35029318},
+      "ton": {"symbol": "ton", "kilograms": 907.18474}
+    },
+    "volume": {
+      "fluid_ounce": {"symbol": "fl oz", "liters": 0.0295735296},
+      "cup": {"symbol": "cup", "liters": 0.2365882365},
+      "pint": {"symbol": "pt", "liters": 0.473176473},
+      "quart": {"symbol": "qt", "liters": 0.946352946},
+      "gallon": {"symbol": "gal", "liters": 3.785411784}
+    },
+    "temperature": {
+      "fahrenheit": {"symbol": "°F", "formula": "(C × 9/5) + 32"}
+    },
+    "area": {
+      "square_inch": {"symbol": "in²", "square_meters": 0.00064516},
+      "square_foot": {"symbol": "ft²", "square_meters": 0.09290304},
+      "square_yard": {"symbol": "yd²", "square_meters": 0.83612736},
+      "acre": {"symbol": "ac", "square_meters": 4046.8564224},
+      "square_mile": {"symbol": "mi²", "square_meters": 2589988.110336}
+    }
+  },
+  "cooking_units": {
+    "teaspoon": {"symbol": "tsp", "milliliters": 4.92892159},
+    "tablespoon": {"symbol": "tbsp", "milliliters": 14.78676478},
+    "cup": {"symbol": "cup", "milliliters": 236.5882365},
+    "stick_butter": {"symbol": "stick", "grams": 113.4}
+  }
+}

@@ -98,16 +98,15 @@ def check_critical_files() -> HealthCheckResult:
         "core/uDOS_parser.py",
         "core/uDOS_grid.py",
         "core/uDOS_commands.py",
-        "data/system/commands.json",
-        "data/themes/dungeon.json",
+        "knowledge/system/commands.json",
+        "knowledge/system/themes/dungeon.json",
     ]
 
     # Critical directories
     critical_dirs = [
         "core",
-        "data",
-        "data/system",
-        "data/themes",
+        "knowledge/system",
+        "knowledge/system/themes",
         "sandbox",
         "memory",
     ]
@@ -202,9 +201,9 @@ def check_json_configs() -> HealthCheckResult:
 
     # JSON files to validate
     json_files = [
-        "data/system/commands.json",
-        "data/themes/dungeon.json",
-        "data/templates/story.template.json",
+        "knowledge/system/commands.json",
+        "knowledge/system/themes/dungeon.json",
+        "knowledge/system/templates/story.template.json",
     ]
 
     for json_path in json_files:

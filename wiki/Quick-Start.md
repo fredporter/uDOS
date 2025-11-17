@@ -163,7 +163,7 @@ Execute a test script:
 Or from within uDOS:
 ```
 ```
-🔮 > RUN "examples/simple-setup.uscript"
+🔮 > RUN "knowledge/demos/simple-setup.uscript"
 ```
 
 ---

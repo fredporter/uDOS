@@ -395,7 +395,7 @@ class SurvivalService:
                     started = datetime.fromisoformat(started_at.replace(' ', 'T'))
                 else:
                     started = datetime.fromisoformat(started_at)
-                
+
                 expires = started + timedelta(minutes=duration)
                 now = datetime.utcnow()  # Use UTC to match stored timestamps
                 remaining = (expires - now).total_seconds() / 60

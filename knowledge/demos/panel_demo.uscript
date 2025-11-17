@@ -1,0 +1,141 @@
+"""
+uDOS v1.0.21 - PANEL Command Demo Script
+==========================================
+
+This script demonstrates the new PANEL teletext-style display system
+with C64-inspired controls and markdown embedding capability.
+
+Features showcased:
+- CREATE: Character-based panels with tier validation
+- POKE: C64-style character manipulation at x,y coordinates
+- WRITE: Text string output at position
+- SHOW: Display with optional C64-style border
+- EMBED: Export to markdown for viewer integration
+- INFO: Panel statistics and tier information
+"""
+
+# Display welcome message
+[ASSISTANT|ASK*Display welcome message for PANEL demo]
+
+# Show screen tier information
+[PANEL|SIZE]
+
+# ============================================
+# DEMO 1: Create a small panel (Tier 6)
+# ============================================
+[PANEL|CREATE*demo1*40*20*6]
+[PANEL|INFO*demo1]
+
+# Draw a simple box using ASCII art
+[PANEL|POKE*demo1*0*0*┌]
+[PANEL|POKE*demo1*39*0*┐]
+[PANEL|POKE*demo1*0*19*└]
+[PANEL|POKE*demo1*39*19*┘]
+
+# Top and bottom borders
+[PANEL|WRITE*demo1*1*0*──────────────────────────────────────]
+[PANEL|WRITE*demo1*1*19*──────────────────────────────────────]
+
+# Title
+[PANEL|WRITE*demo1*10*2*TELETEXT PANEL DEMO]
+[PANEL|WRITE*demo1*12*3*═════════════════]
+
+# Content
+[PANEL|WRITE*demo1*5*5*Width: 40 chars]
+[PANEL|WRITE*demo1*5*6*Height: 20 chars]
+[PANEL|WRITE*demo1*5*7*Tier: 6 (Small Notebook)]
+
+# Teletext blocks
+[PANEL|POKE*demo1*5*9*█]
+[PANEL|POKE*demo1*6*9*▓]
+[PANEL|POKE*demo1*7*9*▒]
+[PANEL|POKE*demo1*8*9*░]
+[PANEL|WRITE*demo1*10*9*Teletext blocks]
+
+# Display with C64-style border
+[PANEL|SHOW*demo1*border]
+
+# ============================================
+# DEMO 2: Create progress bar panel
+# ============================================
+[PANEL|CREATE*progress*60*10*7]
+
+# Progress bar title
+[PANEL|WRITE*progress*5*2*DOWNLOAD PROGRESS]
+
+# Progress bar (80% complete)
+[PANEL|WRITE*progress*5*4*[████████████████████████████████░░░░░░░░] 80%]
+
+# Status text
+[PANEL|WRITE*progress*5*6*Estimated time: 2 minutes remaining]
+
+# Display without border
+[PANEL|SHOW*progress]
+
+# ============================================
+# DEMO 3: Teletext-style info panel
+# ============================================
+[PANEL|CREATE*teletext*50*15*7]
+
+# Header block
+[PANEL|WRITE*teletext*0*0*██████████████████████████████████████████████████]
+[PANEL|WRITE*teletext*15*0*   WEATHER UPDATE   ]
+
+# Weather icons using Unicode
+[PANEL|POKE*teletext*5*3*☀]
+[PANEL|WRITE*teletext*8*3*Sydney: 24°C Sunny]
+
+[PANEL|POKE*teletext*5*5*☁]
+[PANEL|WRITE*teletext*8*5*London: 12°C Cloudy]
+
+[PANEL|POKE*teletext*5*7*🌧]
+[PANEL|WRITE*teletext*8*7*Seattle: 8°C Rain]
+
+# Footer
+[PANEL|WRITE*teletext*0*14*──────────────────────────────────────────────────]
+
+# Display with border (C64-style)
+[PANEL|SHOW*teletext*border]
+
+# ============================================
+# DEMO 4: Embed panels in markdown
+# ============================================
+
+# Create a simple diagram panel
+[PANEL|CREATE*diagram*35*12*6]
+
+[PANEL|WRITE*diagram*5*1*MEMORY TIER STRUCTURE]
+[PANEL|WRITE*diagram*5*2*═══════════════════════]
+[PANEL|WRITE*diagram*0*4*┌─────────────────────────────┐]
+[PANEL|WRITE*diagram*0*5*│  Tier 1: MEMORY (Fast)     │]
+[PANEL|WRITE*diagram*0*6*├─────────────────────────────┤]
+[PANEL|WRITE*diagram*0*7*│  Tier 2: PRIVATE (Secure)  │]
+[PANEL|WRITE*diagram*0*8*├─────────────────────────────┤]
+[PANEL|WRITE*diagram*0*9*│  Tier 3: SHARED (Sync)     │]
+[PANEL|WRITE*diagram*0*10*├─────────────────────────────┤]
+[PANEL|WRITE*diagram*0*11*│  Tier 4: COMMUNITY (P2P)   │]
+[PANEL|WRITE*diagram*0*12*└─────────────────────────────┘]
+
+# Embed to markdown file
+[PANEL|EMBED*diagram*examples/panel_diagram.md]
+
+# ============================================
+# DEMO 5: List all panels
+# ============================================
+[PANEL|LIST]
+
+# ============================================
+# DEMO 6: Clean up
+# ============================================
+[PANEL|DELETE*demo1]
+[PANEL|DELETE*progress]
+[PANEL|DELETE*teletext]
+[PANEL|DELETE*diagram]
+
+# Final status
+[PANEL|LIST]
+
+# ============================================
+# Demo Complete
+# ============================================
+[ASSISTANT|ASK*Summarize PANEL command capabilities]

@@ -1,4 +1,4 @@
-# uDOS v1.3 Requirements
+# uDOS v1.0 Requirements
 # Core dependencies for uDOS operation with flexible versioning
 
 # AI Integration (Gemini)
@@ -15,6 +15,12 @@ requests>=2.31.0
 
 # System information (recommended for health checks)
 psutil>=5.9.0
+
+# Web Extensions (markdown-viewer, knowledge browser)
+flask>=2.0.0
+markdown2>=2.4.0
+pygments>=2.10.0
+thefuzz>=0.19.0
 
 # Notes:
 # - All packages use minimum version constraints (>=) for flexibility

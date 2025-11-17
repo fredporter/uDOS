@@ -143,7 +143,7 @@ class CellReferenceSystem:
 class MapEngine:
     """Mapping engine combining cell references with TIZO locations and world cities."""
 
-    def __init__(self, data_dir="data/system"):
+    def __init__(self, data_dir="knowledge/system"):
         self.data_dir = Path(data_dir)
         self.tizo_manager = TIZOLocationManager(data_dir)
         self.cell_system = CellReferenceSystem()

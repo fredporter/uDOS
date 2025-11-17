@@ -27,7 +27,7 @@ class EnvironmentManager:
 
         self.project_root = project_root
         self.env_file = project_root / '.env'
-        self.env_example = project_root / '.env.example'
+        self.env_example = project_root / 'knowledge' / 'system' / 'templates' / '.env.example'
         self._loaded = False
         self._env_vars: Dict[str, str] = {}
 

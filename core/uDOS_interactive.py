@@ -1,6 +1,7 @@
 """
-uDOS Interactive Command System v1.0.0
+uDOS Interactive Command System v1.0.19
 Provides smart prompts, file pickers, and option selectors for commands
+Now with arrow-key navigation for enhanced UX
 """
 
 import os
@@ -11,8 +12,15 @@ from pathlib import Path
 class InteractivePrompt:
     """Smart interactive prompts for command parameters"""
 
-    def __init__(self):
+    def __init__(self, use_arrow_keys: bool = True):
+        """
+        Initialize interactive prompt.
+
+        Args:
+            use_arrow_keys: Use arrow-key navigation (default: True)
+        """
         self.history = []
+        self.use_arrow_keys = use_arrow_keys
 
     def ask_choice(self, prompt: str, choices: List[str], default: Optional[str] = None) -> str:
         """
@@ -26,6 +34,24 @@ class InteractivePrompt:
         Returns:
             Selected choice
         """
+        # Use arrow-key selector if enabled and available
+        if self.use_arrow_keys:
+            try:
+                from core.services.option_selector import OptionSelector
+                selector = OptionSelector()
+                result = selector.select(
+                    prompt=prompt,
+                    options=choices,
+                    default=default
+                )
+                if result:  # If not cancelled
+                    return result
+                # Fall through to text mode if cancelled
+            except (ImportError, Exception):
+                # Fall back to text mode if selector fails
+                pass
+
+        # Text-based fallback mode
         print(f"\n{prompt}")
         for i, choice in enumerate(choices, 1):
             marker = "→" if default and choice == default else " "

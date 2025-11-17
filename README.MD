@@ -1,19 +1,19 @@
-# uDOS v1.0.17 - Interactive Debugger Complete
+# uDOS v1.0.20b - Enhanced Mapping & Reference Data System
 
 **uDOS** is a modular CLI framework with assistant integration, comprehensive diagnostics, and modern web extensions. Built to demonstrate clean architecture, human-readable command systems, and intelligent workflows.
 
-**Current Status**: ✅ v1.0.17 Complete - Interactive Debugger Shipped (Nov 15, 2025)
-**Next**: v1.0.18 - Apocalypse Adventures & Experience System
+**Current Status**: ✅ v1.0.20b Complete - Enhanced Mapping System (Nov 17, 2025)
+**Next**: v1.0.21 - Survivalist Themes & Practical Skills Library
 
 ---
 
 ## 🎯 v1.0.x Objective: Stable Release by July 2026
 
 ### Current Progress
-- **17/24 versions complete (71%)**
-- **Next milestone**: v1.0.18-v1.0.23 (6 versions remaining)
-- **Timeline**: 8 months to v1.1.0 stable release
-- **Focus**: Core features, offline capability, survival knowledge
+- **19/24 versions complete (79%)**
+- **Next milestone**: v1.0.21-v1.0.23 (3 versions + v1.1.0 launch)
+- **Timeline**: 8 months to v1.1.0 stable release (July 2026)
+- **Focus**: Core features, offline capability, survival knowledge, documentation
 
 ### Advanced Features → v1.1.x (Post-Stable)
 The following features have been moved to v1.1.x to focus on stable v1.0.x release:
@@ -155,93 +155,154 @@ See [Web Extensions Guide](docs/WEB-OUTPUT-GUIDE.md) and [CSS Integration Guide]
 
 ```
 uDOS/
-├── core/                  # Core Python modules (20 files)
-├── data/                  # System configuration (COMMANDS.UDO, LEXICON.UDO, etc.)
-├── wiki/                  # GitHub wiki source (11 pages)
+├── core/                  # Core Python modules (commands, services, utils)
+├── data/                  # System configuration (USER.UDT, themes, templates)
+├── docs/                  # Development documentation (gitignored)
+│   ├── development/      # Session summaries, dev round notes
+│   ├── guides/           # Development guides
+│   ├── planning/         # Project planning documents
+│   └── references/       # Dev references (colors, screen sizes)
+├── extensions/            # Extension system
+│   ├── bundled/          # Built-in extensions (web interfaces)
+│   ├── cloned/           # External dependencies (gitignored)
+│   ├── templates/        # Extension scaffolding (CLI & web)
+│   ├── fonts/            # Font assets with licenses
+│   └── setup/            # Installation scripts
+├── knowledge/             # Knowledge base system (tracked)
+│   ├── demos/            # Example scripts & interactive demos
+│   ├── survival/         # Survival guides
+│   ├── skills/           # Skill documentation
+│   ├── system/           # System knowledge files
+│   └── [categories]/     # Water, food, medical, tech, etc.
+├── memory/                # Runtime data & testing
+│   ├── tests/            # Test suite (pytest)
+│   ├── scripts/          # Maintainer scripts
+│   ├── missions/         # Mission definitions
+│   └── [runtime]/        # Config, logs, modules, scenarios
+├── wiki/                  # GitHub wiki source (tracked)
 ├── sandbox/               # Working directory (gitignored)
-│   ├── tests/            # Test scripts and files
-│   └── logs/             # Server logs
-├── memory/                # Permanent user data (tracked)
-├── knowledge/             # Reference library
-├── examples/              # Visual examples (HELP, DASH outputs)
-├── extensions/            # Web extension system
-│   ├── web/              # Web-based extensions
-│   │   ├── font-editor/  # 16×16 bitmap font editor
-│   │   ├── markdown-viewer/  # GitHub markdown renderer
-│   │   └── cmd/          # Web terminal (planned)
-│   └── setup_*.sh        # Installation scripts
-├── history/               # Historical files (organized by type)
-│   ├── concepts/         # Old design documents
-│   ├── data/             # Old configuration formats
-│   ├── dev/docs/         # Dev round summaries and notes
-│   ├── docs_active/      # Previous active documentation
-│   └── extensions/       # Extension backups
+├── scripts/               # Utility scripts (config management)
 ├── uDOS.py                # Entry point
 ├── start_udos.sh          # Launch script
-├── structure.txt          # Auto-generated tree (TREE command)
 └── README.MD              # This file
 ```
 
 ### Core System (`/core`)
 
-All Python modules organized in one place:
+Modular Python architecture with clean separation:
 
 ```
 core/
-├── uDOS_main.py          # Main application loop
-├── uDOS_commands.py      # Command handler
-├── uDOS_parser.py        # CLI to uCODE parser
-├── uDOS_ucode.py         # uCODE interpreter
-├── uDOS_grid.py          # Grid/panel system
-├── uDOS_map.py           # Mapping engine
-├── uDOS_viewport.py      # Display viewport
-├── uDOS_viewport_viz.py  # Visualization
-├── uDOS_tree.py          # Tree generator
-├── uDOS_history.py       # Action history
-├── uDOS_health.py        # System health
-├── uDOS_connection.py    # Online/offline modes
-├── uDOS_offline.py       # Offline engine
-├── uDOS_completer.py     # Tab completion
-├── uDOS_prompt.py        # Dynamic prompt
-├── uDOS_splash.py        # Splash screen
-├── uDOS_user.py          # User profile manager
+├── commands/              # Specialized command handlers
+│   ├── assist_handler.py
+│   ├── file_handler.py
+│   ├── knowledge_handler.py
+│   ├── map_handler.py
+│   ├── private_handler.py
+│   ├── scenario_play_handler.py
+│   ├── system_handler.py
+│   └── tile_handler.py
+├── services/              # Core services & utilities
+│   ├── knowledge_service.py
+│   ├── map_data_manager.py
+│   ├── option_selector.py
+│   ├── server_manager.py
+│   └── viewport_manager.py
+├── utils/                 # Shared utilities
+│   ├── teletext_mosaic_renderer.py
+│   └── tile_utils.py
+├── uDOS_commands.py      # Main command dispatcher
+├── uDOS_env.py           # Environment configuration
+├── uDOS_files.py         # File operations
+├── uDOS_gemini.py        # AI integration
+├── uDOS_graphics.py      # PANEL system (v1.0.21)
+├── uDOS_grid.py          # Grid/panel management
+├── uDOS_interactive.py   # Interactive mode
 ├── uDOS_logger.py        # Logging system
-├── uDOS_setup.py         # Setup wizard
+├── uDOS_main.py          # Main application loop
+├── uDOS_offline.py       # Offline mode
+├── uDOS_parser.py        # CLI to uCODE parser
+├── uDOS_prompt.py        # Dynamic prompt
+├── uDOS_server.py        # Web server management
+├── uDOS_settings.py      # Configuration
+├── uDOS_splash.py        # Splash screen
+├── uDOS_startup.py       # Startup sequence
+├── uDOS_tree.py          # Directory tree generation
+├── uDOS_ucode.py         # uCODE interpreter
 └── __init__.py           # Package initialization
 ```
 
 ### Key Directories
 
-**`/data`** - System configuration (tracked)
-- `COMMANDS.UDO` (v1.1) - Command definitions with uCODE templates
-- `LEXICON.UDO` - Themed terminology
-- `PALETTE.UDO` - Color palette
-- `PROMPTS.UDO` - Offline OK Assisted Task prompts
-- `FONTS.UDO` - Font configurations
-- `*.UDT` - Templates
+**`/core`** - Core system (tracked)
+- Command handlers, services, utilities
+- Main application loop and interpreter
+- Graphics, grid, and file systems
 
-**`/sandbox`** - Working directory (NOT tracked)
-- Temporary files and session logs
-- Test scripts and experiments in `/tests`
-- Server logs in `/logs`
-- Use `CLEAN` to review and commit to `/memory`
+**`/data`** - User configuration (tracked)
+- `USER.UDT` - User profile and settings
+- `system/` → Symbolic link to `/knowledge/system/`
+- `themes/` - Theme configurations
+- `templates/` - Command templates
 
-**`/memory`** - Permanent user data (tracked)
-- Research findings and knowledge
-- Completed missions and projects
-- Historical records
-- `/scripts` - Maintainer scripts (deploy_wiki.sh, etc.)
+**`/docs`** - Development documentation (gitignored)
+- Session summaries and dev round notes
+- Planning documents and roadmaps
+- Development guides and references
+- Color palettes, screen size specs
+
+**`/extensions`** - Extension system (mixed tracking)
+- `bundled/web/` - Built-in web extensions (tracked)
+  - `dashboard/`, `font-editor/`, `shared/`, `system-desktop/`, `system-style/`, `teletext/`
+- `cloned/` - External dependencies (gitignored)
+  - `c64css3/`, `classicy-desktop/`, `micro/`, `nes-style/`
+- `core/` - Shared extension components (tracked)
+  - `assets/`, `css/`, `js/`, `themes/`, `docs/`
+- `templates/` - Extension scaffolding (tracked)
+  - `cli-extension-template/`, `web-extension-template/`
+- `fonts/` - Licensed font assets (tracked)
+  - Chicago, Mallard family, sysfont
+- `setup/` - Installation scripts (tracked)
+
+**`/knowledge`** - Knowledge base (tracked)
+- `demos/` - Example scripts (`.uscript`), interactive demos, asset bundles
+- `system/` - Core system knowledge files
+  - `geography/`, `graphics/`, `help_templates/`, `reference/`, `templates/`, `themes/`
+- `community/` - Collaboration, conflict resolution, local resilience, mutual aid
+- `food/` - Food production and preservation
+- `making/` - Crafting and building
+- `medical/` - Health and first aid
+- `reference/` - General reference materials
+- `skills/` - Art, music, writing
+- `survival/` - Emergency preparedness
+- `tech/` - Technology guides
+- `water/` - Water sourcing and purification
+- `well-being/` - Mental health, mindfulness, physical health, relationships
+- 500+ curated survival and reference documents
+
+**`/memory`** - Runtime & testing (tracked)
+- `tests/` - Complete pytest test suite
+  - `e2e/`, `integration/`, `scripts/`, `test_files/`, `unit/`
+- `config/` - Runtime configuration
+- `logs/` - System logs (`servers/`, `sessions/`)
+- `modules/stdlib/` - Standard library modules
+- `missions/` - Mission definitions
+- `scenarios/` - Scenario files
+- `themes/` - Custom themes
+- `workflow/` - Workflow management (`active/`, `archived/`, `completed/`)
+- `workspace/` - User workspace (`drafts/`, `experiments/`, `tools/`)
+- `personal/`, `private/`, `shared/`, `groups/`, `public/` - 4-tier knowledge storage
+- `legacy/` - Legacy data (`learnings/`, `outcomes/`, `resources/`)
 
 **`/wiki`** - GitHub wiki source (tracked)
-- Markdown files deployed via `memory/scripts/deploy_wiki.sh`
-- Complete documentation and guides (11 pages)
+- Complete user-facing documentation
+- Command references (PANEL, KNOWLEDGE, TILE)
+- Getting started guides and tutorials
+- Architecture and design documentation
 
-**`/history`** - Historical files (tracked)
-- `/concepts` - Old design documents
-- `/data` - Outdated configuration formats
-- `/docs` - **Dev round summaries and completed notes** ⭐
-- `/docs_active` - Previous active documentation
-- `/extensions` - Extension backups
+**`/sandbox`** - Working directory (gitignored)
+- Temporary files and experiments
+- Not distributed with releases
 
 Run `TREE` command in uDOS to generate/update `structure.txt` with complete repository structure.
 

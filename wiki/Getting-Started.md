@@ -338,7 +338,7 @@ uDOS has a scripting language called **uCODE** for automation.
 🔮 > LIST examples
 
 # Run a simple script
-🔮 > RUN examples/hello-automation.uscript
+🔮 > RUN knowledge/demos/hello-automation.uscript
 ```
 
 **Create your own simple script**:

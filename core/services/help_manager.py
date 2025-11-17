@@ -25,7 +25,7 @@ from difflib import SequenceMatcher
 class HelpManager:
     """Manages help content and interactive help features."""
 
-    def __init__(self, commands_file: str = "data/system/commands.json"):
+    def __init__(self, commands_file: str = "knowledge/system/commands.json"):
         """
         Initialize Help Manager.
 

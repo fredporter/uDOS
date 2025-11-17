@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS TILE System Schema",
+  "description": "Enhanced TILE data structure for world geography representation",
+  "version": "1.0.20b",
+  "type": "object",
+  "required": ["tile_id", "lat", "lon", "terrain"],
+  "properties": {
+    "tile_id": {
+      "type": "string",
+      "description": "Unique tile identifier (format: GRID-ROW-COL, e.g., A1-23)",
+      "pattern": "^[A-Z][0-9]+-[0-9]+$"
+    },
+    "lat": {
+      "type": "number",
+      "description": "Latitude in decimal degrees (-90 to 90)",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "lon": {
+      "type": "number",
+      "description": "Longitude in decimal degrees (-180 to 180)",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "terrain": {
+      "type": "string",
+      "description": "Primary terrain type",
+      "enum": [
+        "ocean",
+        "sea",
+        "lake",
+        "river",
+        "coast",
+        "beach",
+        "plain",
+        "grassland",
+        "forest",
+        "jungle",
+        "desert",
+        "tundra",
+        "mountain",
+        "hill",
+        "valley",
+        "urban",
+        "suburban",
+        "rural",
+        "industrial",
+        "wetland",
+        "swamp",
+        "glacier",
+        "ice"
+      ]
+    },
+    "elevation": {
+      "type": "integer",
+      "description": "Elevation in meters above sea level (negative for underwater)",
+      "minimum": -11000,
+      "maximum": 9000
+    },
+    "climate": {
+      "type": "string",
+      "description": "Climate zone classification",
+      "enum": [
+        "polar",
+        "subpolar",
+        "boreal",
+        "temperate",
+        "subtropical",
+        "tropical",
+        "arid",
+        "semiarid",
+        "mediterranean",
+        "oceanic",
+        "continental"
+      ]
+    },
+    "country": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone identifier",
+      "examples": ["America/New_York", "Europe/London", "Asia/Tokyo"]
+    },
+    "city": {
+      "type": "string",
+      "description": "Nearest major city name (if applicable)"
+    },
+    "tizo": {
+      "type": "string",
+      "description": "TIZO cell code for major cities",
+      "pattern": "^T[0-9]{3}$"
+    },
+    "population": {
+      "type": "integer",
+      "description": "Population count (for urban areas)",
+      "minimum": 0
+    },
+    "biome": {
+      "type": "string",
+      "description": "Ecological biome classification",
+      "enum": [
+        "tropical_rainforest",
+        "tropical_seasonal_forest",
+        "temperate_rainforest",
+        "temperate_deciduous_forest",
+        "temperate_grassland",
+        "tropical_grassland",
+        "desert",
+        "tundra",
+        "taiga",
+        "chaparral",
+        "savanna",
+        "marine",
+        "freshwater",
+        "urban"
+      ]
+    },
+    "water_bodies": {
+      "type": "array",
+      "description": "Named water bodies in this tile",
+      "items": {
+        "type": "string"
+      }
+    },
+    "landmarks": {
+      "type": "array",
+      "description": "Notable geographic features",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "Natural resources available",
+      "items": {
+        "type": "string",
+        "enum": [
+          "freshwater",
+          "timber",
+          "minerals",
+          "oil",
+          "gas",
+          "coal",
+          "fish",
+          "agriculture",
+          "wildlife",
+          "geothermal",
+          "wind",
+          "solar"
+        ]
+      }
+    },
+    "ascii_char": {
+      "type": "string",
+      "description": "ASCII character for map rendering",
+      "maxLength": 1
+    },
+    "teletext_char": {
+      "type": "string",
+      "description": "Teletext mosaic pattern code",
+      "pattern": "^[0-9A-F]{2}$"
+    },
+    "color": {
+      "type": "string",
+      "description": "Terminal color for rendering",
+      "enum": [
+        "black",
+        "red",
+        "green",
+        "yellow",
+        "blue",
+        "magenta",
+        "cyan",
+        "white",
+        "bright_black",
+        "bright_red",
+        "bright_green",
+        "bright_yellow",
+        "bright_blue",
+        "bright_magenta",
+        "bright_cyan",
+        "bright_white"
+      ]
+    }
+  }
+}

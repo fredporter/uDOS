@@ -27,8 +27,8 @@ class SetupWizard:
 
     def __init__(self):
         """Initialize Setup Wizard."""
-        self.config_file = "data/USER.UDT"
-        self.themes_dir = Path("data/themes")
+        self.config_file = "knowledge/system/USER.UDT"
+        self.themes_dir = Path("knowledge/system/themes")
         self.user_config = {}
 
         # Available options

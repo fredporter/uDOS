@@ -11,14 +11,14 @@
     "xp_reward": 150,
     "tags": ["shelter", "construction", "tutorial", "building"]
   },
-  
+
   "initial_variables": {
     "player_name": "Builder",
     "walls_complete": 0,
     "roof_complete": false,
     "quality_score": 0
   },
-  
+
   "quests": [
     {
       "quest_name": "build_shelter",
@@ -37,25 +37,25 @@
       }
     }
   ],
-  
+
   "events": [
     {
       "type": "narrative",
       "text": "=== RAMMED EARTH SHELTER TUTORIAL ===\n\nShelter is your second priority after water. The 'Rule of Threes' says you can die in 3 hours without shelter in extreme conditions.\n\nToday you'll learn to build emergency housing using rammed earth - one of humanity's oldest building techniques."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 10,
       "category": "information",
       "reason": "Started shelter building tutorial"
     },
-    
+
     {
       "type": "narrative",
       "text": "RAMMED EARTH BASICS:\n\nRammed earth uses:\n- Soil (clay + sand + gravel mix)\n- Temporary wooden forms\n- Manual or pneumatic tamper\n- No cement (optional stabilizer)\n\nAdvantages:\n- Free materials from site\n- Excellent thermal mass\n- Fire resistant\n- Durable (lasts centuries)\n- No special tools needed"
     },
-    
+
     {
       "type": "choice",
       "prompt": "What type of shelter do you build?",
@@ -77,12 +77,12 @@
         }
       ]
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STEP 1: SITE PREPARATION ===\n\nChoose your location wisely:\n- Elevated ground (drainage)\n- Away from flood zones\n- Near water source\n- South-facing (northern hemisphere)\n- Protected from wind\n- Access to materials"
     },
-    
+
     {
       "type": "item_give",
       "item": "Shovel",
@@ -91,52 +91,52 @@
       "weight": 3.0,
       "volume": 2.0
     },
-    
+
     {
       "type": "narrative",
       "text": "You clear the site and level the ground. A proper foundation prevents water infiltration and structural issues."
     },
-    
+
     {
       "type": "time_pass",
       "hours": 2
     },
-    
+
     {
       "type": "stat_change",
       "stat": "fatigue",
       "change": 15
     },
-    
+
     {
       "type": "xp_award",
       "amount": 20,
       "category": "usage",
       "reason": "Prepared building site"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STEP 2: SOIL TESTING ===\n\nThe JAR TEST:\n1. Fill jar 1/3 with soil\n2. Add water to fill jar\n3. Shake vigorously\n4. Let settle for 24 hours\n5. Observe layers:\n   - Bottom: Gravel/sand\n   - Middle: Silt\n   - Top: Clay\n\nIdeal mix: 70% sand/gravel, 30% clay"
     },
-    
+
     {
       "type": "narrative",
       "text": "Your soil test results: Good balance of clay and sand. This will compact well and provide strength."
     },
-    
+
     {
       "type": "xp_award",
       "amount": 25,
       "category": "information",
       "reason": "Learned soil composition testing"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STEP 3: BUILD FORMS ===\n\nYou need temporary wooden forms to contain the earth while ramming."
     },
-    
+
     {
       "type": "item_give",
       "item": "Wooden Planks",
@@ -145,7 +145,7 @@
       "weight": 40.0,
       "volume": 30.0
     },
-    
+
     {
       "type": "item_give",
       "item": "Hammer",
@@ -154,7 +154,7 @@
       "weight": 2.0,
       "volume": 0.5
     },
-    
+
     {
       "type": "item_give",
       "item": "Nails",
@@ -163,40 +163,40 @@
       "weight": 1.0,
       "volume": 0.3
     },
-    
+
     {
       "type": "narrative",
       "text": "You construct simple wooden forms: two parallel boards held 12-18 inches apart. These will create walls 12-24 inches thick - excellent insulation and thermal mass."
     },
-    
+
     {
       "type": "time_pass",
       "hours": 3
     },
-    
+
     {
       "type": "stat_change",
       "stat": "fatigue",
       "change": 20
     },
-    
+
     {
       "type": "xp_award",
       "amount": 30,
       "category": "usage",
       "reason": "Built formwork"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STEP 4: RAMMING ===\n\nThis is the core technique:"
     },
-    
+
     {
       "type": "narrative",
       "text": "RAMMING PROCESS:\n1. Slightly moisten soil (squeeze test: holds shape, doesn't drip)\n2. Fill form with 4-6 inches of soil\n3. Tamp with wooden ram or pneumatic tamper\n4. Compact to 50% original height\n5. Repeat layers until wall height reached\n6. Move forms up, continue\n\nThe more you ram, the stronger the wall."
     },
-    
+
     {
       "type": "choice",
       "prompt": "How thoroughly do you ram the earth?",
@@ -218,7 +218,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{ramming_quality} == thorough",
@@ -244,7 +244,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{ramming_quality} == standard",
@@ -270,7 +270,7 @@
         }
       ]
     },
-    
+
     {
       "type": "condition",
       "condition": "{ramming_quality} == quick",
@@ -296,22 +296,22 @@
         }
       ]
     },
-    
+
     {
       "type": "checkpoint",
       "name": "walls_complete"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== STEP 5: ROOF ===\n\nRammed earth walls are strong but need protection from rain."
     },
-    
+
     {
       "type": "narrative",
       "text": "ROOFING OPTIONS:\n1. Thatched roof (traditional, renewable)\n2. Metal sheets (durable, waterproof)\n3. Living roof (insulated, beautiful)\n4. Tarp + earth (emergency, simple)\n\nKey: OVERHANG - extend roof 2+ feet past walls to protect from rain."
     },
-    
+
     {
       "type": "item_give",
       "item": "Corrugated Metal Sheets",
@@ -320,7 +320,7 @@
       "weight": 30.0,
       "volume": 20.0
     },
-    
+
     {
       "type": "item_give",
       "item": "Wooden Beams",
@@ -329,40 +329,40 @@
       "weight": 50.0,
       "volume": 40.0
     },
-    
+
     {
       "type": "narrative",
       "text": "You construct a simple sloped roof with metal sheeting. The wide overhang protects your walls from erosion."
     },
-    
+
     {
       "type": "time_pass",
       "hours": 4
     },
-    
+
     {
       "type": "stat_change",
       "stat": "fatigue",
       "change": 25
     },
-    
+
     {
       "type": "xp_award",
       "amount": 40,
       "category": "usage",
       "reason": "Completed weatherproof roof"
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== FINISHING TOUCHES ==="
     },
-    
+
     {
       "type": "narrative",
       "text": "You add:\n- Door frame and simple door\n- Small window for ventilation\n- Drainage around foundation\n- Interior earth floor (compacted)\n\nYour shelter is complete!"
     },
-    
+
     {
       "type": "item_give",
       "item": "Basic Shelter",
@@ -371,25 +371,25 @@
       "weight": 0,
       "volume": 0
     },
-    
+
     {
       "type": "xp_award",
       "amount": 30,
       "category": "contribution",
       "reason": "Built complete shelter structure"
     },
-    
+
     {
       "type": "effect_add",
       "effect": "healthy",
       "duration": 24
     },
-    
+
     {
       "type": "narrative",
       "text": "\n=== KNOWLEDGE SUMMARY ===\n\nYou've learned:\n- Site selection principles\n- Soil testing and composition\n- Form construction\n- Ramming technique\n- Roof weatherproofing\n- Foundation drainage\n\nThis shelter will protect you from elements, provides thermal mass for temperature regulation, and cost almost nothing to build.\n\nRammed earth shelters have stood for thousands of years. Now you can build one anywhere."
     },
-    
+
     {
       "type": "end",
       "outcome": "success",

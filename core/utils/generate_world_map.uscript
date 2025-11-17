@@ -1,0 +1,374 @@
+# World Map Generator (Layer 0)
+# Creates 480×270 character world map using teletext block graphics
+# Integrates with TZONE grid coordinate system
+
+# ============================================
+# WORLD MAP LAYER 0 - BASE TERRAIN
+# ============================================
+# Resolution: 480×270 characters (Tier 14: 8K Max)
+# Grid cells: AA-RR columns (480), 1-270 rows
+# Each character = 1 grid cell
+
+# Create base map panel
+[PANEL|CREATE*world_layer0*480*270*14]
+
+# ============================================
+# OCEAN BASINS - Deep Ocean (█)
+# ============================================
+# Pacific Ocean (largest)
+[PANEL|TERRAIN*world_layer0*0*0*200*270*ocean_deep]
+
+# Atlantic Ocean
+[PANEL|TERRAIN*world_layer0*280*0*200*270*ocean_deep]
+
+# Indian Ocean
+[PANEL|TERRAIN*world_layer0*320*140*160*130*ocean_deep]
+
+# Arctic Ocean
+[PANEL|TERRAIN*world_layer0*150*0*180*40*ocean_deep]
+
+# Southern Ocean
+[PANEL|TERRAIN*world_layer0*0*240*480*30*ocean_deep]
+
+# ============================================
+# CONTINENTAL SHELVES - Ocean (▓)
+# ============================================
+# North America shelf
+[PANEL|TERRAIN*world_layer0*195*30*15*100*ocean]
+
+# South America shelf
+[PANEL|TERRAIN*world_layer0*210*130*10*80*ocean]
+
+# Europe shelf
+[PANEL|TERRAIN*world_layer0*275*35*15*45*ocean]
+
+# Africa shelf
+[PANEL|TERRAIN*world_layer0*285*80*15*90*ocean]
+
+# Asia shelf (East)
+[PANEL|TERRAIN*world_layer0*380*50*20*120*ocean]
+
+# Australia shelf
+[PANEL|TERRAIN*world_layer0*395*180*15*40*ocean]
+
+# ============================================
+# SHALLOW WATERS - Ocean Shallow (▒)
+# ============================================
+# Caribbean Sea
+[PANEL|TERRAIN*world_layer0*220*90*30*20*ocean_shallow]
+
+# Mediterranean Sea
+[PANEL|TERRAIN*world_layer0*290*70*50*15*ocean_shallow]
+
+# Red Sea
+[PANEL|TERRAIN*world_layer0*310*95*10*25*ocean_shallow]
+
+# Persian Gulf
+[PANEL|TERRAIN*world_layer0*325*95*15*10*ocean_shallow]
+
+# South China Sea
+[PANEL|TERRAIN*world_layer0*390*115*30*25*ocean_shallow]
+
+# ============================================
+# COASTLINES - Coast (░)
+# ============================================
+# NOTE: Coastlines are 1-2 char wide transition zones
+# Applied as borders around continents
+
+# North America Pacific Coast
+[PANEL|FILL*world_layer0*210*30*2*100*░]
+
+# North America Atlantic Coast
+[PANEL|FILL*world_layer0*268*30*2*100*░]
+
+# South America Pacific Coast
+[PANEL|FILL*world_layer0*220*130*2*80*░]
+
+# South America Atlantic Coast
+[PANEL|FILL*world_layer0*258*130*2*80*░]
+
+# Europe Northern Coast
+[PANEL|FILL*world_layer0*290*35*60*2*░]
+
+# Europe Southern Coast
+[PANEL|FILL*world_layer0*290*80*60*2*░]
+
+# Africa Western Coast
+[PANEL|FILL*world_layer0*300*80*2*90*░]
+
+# Africa Eastern Coast
+[PANEL|FILL*world_layer0*348*80*2*90*░]
+
+# Asia Eastern Coast
+[PANEL|FILL*world_layer0*400*50*2*120*░]
+
+# Australia Coastline
+[PANEL|FILL*world_layer0*410*180*50*2*░]
+[PANEL|FILL*world_layer0*410*180*2*40*░]
+[PANEL|FILL*world_layer0*460*180*2*40*░]
+[PANEL|FILL*world_layer0*410*218*50*2*░]
+
+# ============================================
+# CONTINENTS - BASE LAND (Plains ·)
+# ============================================
+
+# NORTH AMERICA (columns 212-266, rows 30-130)
+[PANEL|TERRAIN*world_layer0*212*30*54*100*plains]
+
+# Canada shape
+[PANEL|TERRAIN*world_layer0*220*30*40*35*plains]
+
+# United States
+[PANEL|TERRAIN*world_layer0*215*65*45*40*plains]
+
+# Mexico/Central America
+[PANEL|TERRAIN*world_layer0*218*105*25*25*plains]
+
+# SOUTH AMERICA (columns 222-256, rows 130-210)
+[PANEL|TERRAIN*world_layer0*222*130*34*80*plains]
+
+# Brazil region
+[PANEL|TERRAIN*world_layer0*230*145*26*45*plains]
+
+# Andes region
+[PANEL|TERRAIN*world_layer0*222*135*8*70*plains]
+
+# EUROPE (columns 292-348, rows 37-78)
+[PANEL|TERRAIN*world_layer0*292*37*56*41*plains]
+
+# Scandinavia
+[PANEL|TERRAIN*world_layer0*300*37*20*25*plains]
+
+# Western Europe
+[PANEL|TERRAIN*world_layer0*290*62*20*16*plains]
+
+# Eastern Europe
+[PANEL|TERRAIN*world_layer0*320*45*28*33*plains]
+
+# AFRICA (columns 302-346, rows 82-168)
+[PANEL|TERRAIN*world_layer0*302*82*44*86*plains]
+
+# North Africa
+[PANEL|TERRAIN*world_layer0*302*82*44*35*plains]
+
+# Sub-Saharan Africa
+[PANEL|TERRAIN*world_layer0*302*117*44*51*plains]
+
+# ASIA (columns 310-398, rows 25-170)
+[PANEL|TERRAIN*world_layer0*310*25*88*145*plains]
+
+# Middle East
+[PANEL|TERRAIN*world_layer0*310*78*35*40*plains]
+
+# Central Asia
+[PANEL|TERRAIN*world_layer0*330*50*45*45*plains]
+
+# Indian Subcontinent
+[PANEL|TERRAIN*world_layer0*340*100*25*45*plains]
+
+# East Asia (China, Japan, Korea)
+[PANEL|TERRAIN*world_layer0*365*60*35*80*plains]
+
+# Southeast Asia
+[PANEL|TERRAIN*world_layer0*370*130*30*40*plains]
+
+# AUSTRALIA (columns 412-458, rows 182-216)
+[PANEL|TERRAIN*world_layer0*412*182*46*34*plains]
+
+# ============================================
+# MAJOR TERRAIN FEATURES
+# ============================================
+
+# MOUNTAINS (▲)
+
+# Rocky Mountains (North America)
+[PANEL|TERRAIN*world_layer0*225*45*5*55*mountains]
+
+# Andes Mountains (South America)
+[PANEL|TERRAIN*world_layer0*222*135*3*70*mountains]
+
+# Alps (Europe)
+[PANEL|TERRAIN*world_layer0*305*68*15*5*mountains]
+
+# Himalayas (Asia)
+[PANEL|TERRAIN*world_layer0*342*85*25*8*mountains]
+
+# Ural Mountains (Asia/Europe border)
+[PANEL|TERRAIN*world_layer0*335*35*3*45*mountains]
+
+# FORESTS (♠)
+
+# Amazon Rainforest
+[PANEL|TERRAIN*world_layer0*230*145*26*30*forest]
+
+# Congo Rainforest
+[PANEL|TERRAIN*world_layer0*312*122*18*20*forest]
+
+# Taiga (Siberia)
+[PANEL|TERRAIN*world_layer0*340*30*50*25*forest]
+
+# North American Forests
+[PANEL|TERRAIN*world_layer0*220*50*30*30*forest]
+
+# DESERTS (∴)
+
+# Sahara Desert
+[PANEL|TERRAIN*world_layer0*305*88*38*25*desert]
+
+# Arabian Desert
+[PANEL|TERRAIN*world_layer0*315*88*25*20*desert]
+
+# Gobi Desert
+[PANEL|TERRAIN*world_layer0*365*65*25*18*desert]
+
+# Australian Outback
+[PANEL|TERRAIN*world_layer0*420*190*35*20*desert]
+
+# ============================================
+# MAJOR CITIES - TZONE MARKERS
+# ============================================
+# Cities marked with (●) and TZONE codes
+
+# NORTH AMERICA
+[PANEL|POKE*world_layer0*238*85*●]  # New York (M240-EST)
+[PANEL|WRITE*world_layer0*239*85*NYC]
+
+[PANEL|POKE*world_layer0*218*95*●]  # Los Angeles (J220-PST)
+[PANEL|WRITE*world_layer0*219*95*LAX]
+
+[PANEL|POKE*world_layer0*235*98*●]  # Mexico City (L235-CST)
+[PANEL|WRITE*world_layer0*236*98*MEX]
+
+# SOUTH AMERICA
+[PANEL|POKE*world_layer0*243*165*●]  # São Paulo (N245-BRT)
+[PANEL|WRITE*world_layer0*244*165*SAO]
+
+[PANEL|POKE*world_layer0*238*155*●]  # Lima (M240-PET)
+[PANEL|WRITE*world_layer0*239*155*LIM]
+
+[PANEL|POKE*world_layer0*246*172*●]  # Buenos Aires (O248-ART)
+[PANEL|WRITE*world_layer0*247*172*BUE]
+
+# EUROPE
+[PANEL|POKE*world_layer0*298*62*●]   # London (K300-GMT)
+[PANEL|WRITE*world_layer0*299*62*LON]
+
+[PANEL|POKE*world_layer0*308*68*●]   # Paris (L310-CET)
+[PANEL|WRITE*world_layer0*309*68*PAR]
+
+[PANEL|POKE*world_layer0*318*58*●]   # Moscow (M320-MSK)
+[PANEL|WRITE*world_layer0*319*58*MOS]
+
+# AFRICA
+[PANEL|POKE*world_layer0*312*102*●]  # Cairo (L315-EET)
+[PANEL|WRITE*world_layer0*313*102*CAI]
+
+[PANEL|POKE*world_layer0*315*145*●]  # Johannesburg (M318-SAST)
+[PANEL|WRITE*world_layer0*316*145*JNB]
+
+# MIDDLE EAST
+[PANEL|POKE*world_layer0*325*92*●]   # Dubai (M328-GST)
+[PANEL|WRITE*world_layer0*326*92*DXB]
+
+# ASIA
+[PANEL|POKE*world_layer0*355*115*●]  # Mumbai (N358-IST)
+[PANEL|WRITE*world_layer0*356*115*BOM]
+
+[PANEL|POKE*world_layer0*380*80*●]   # Beijing (O382-CST)
+[PANEL|WRITE*world_layer0*381*80*PEK]
+
+[PANEL|POKE*world_layer0*385*75*●]   # Tokyo (P388-JST)
+[PANEL|WRITE*world_layer0*386*75*TYO]
+
+[PANEL|POKE*world_layer0*378*95*●]   # Shanghai (O380-CST)
+[PANEL|WRITE*world_layer0*379*95*SHA]
+
+[PANEL|POKE*world_layer0*385*120*●]  # Singapore (P388-SGT)
+[PANEL|WRITE*world_layer0*386*120*SIN]
+
+# AUSTRALIA
+[PANEL|POKE*world_layer0*430*195*●]  # Sydney (AA340-AEST)
+[PANEL|WRITE*world_layer0*431*195*SYD]
+
+[PANEL|POKE*world_layer0*425*200*●]  # Melbourne (Z428-AEST)
+[PANEL|WRITE*world_layer0*426*200*MEL]
+
+# ============================================
+# GRID REFERENCE MARKERS
+# ============================================
+# Mark column letters every 20 columns
+# Mark row numbers every 20 rows
+
+# Column markers (A, U, AO, BI, CW, DQ, EK, FE, FY, GS)
+[PANEL|WRITE*world_layer0*0*0*A]
+[PANEL|WRITE*world_layer0*20*0*U]
+[PANEL|WRITE*world_layer0*40*0*AO]
+[PANEL|WRITE*world_layer0*60*0*BI]
+[PANEL|WRITE*world_layer0*80*0*CW]
+[PANEL|WRITE*world_layer0*100*0*DQ]
+[PANEL|WRITE*world_layer0*120*0*EK]
+[PANEL|WRITE*world_layer0*140*0*FE]
+[PANEL|WRITE*world_layer0*160*0*FY]
+[PANEL|WRITE*world_layer0*180*0*GS]
+[PANEL|WRITE*world_layer0*200*0*HM]
+[PANEL|WRITE*world_layer0*220*0*IG]
+[PANEL|WRITE*world_layer0*240*0*JA]
+[PANEL|WRITE*world_layer0*260*0*KU]
+[PANEL|WRITE*world_layer0*280*0*LO]
+[PANEL|WRITE*world_layer0*300*0*MI]
+[PANEL|WRITE*world_layer0*320*0*NC]
+[PANEL|WRITE*world_layer0*340*0*OW]
+[PANEL|WRITE*world_layer0*360*0*PQ]
+[PANEL|WRITE*world_layer0*380*0*QK]
+[PANEL|WRITE*world_layer0*400*0*RE]
+[PANEL|WRITE*world_layer0*420*0*RY]
+[PANEL|WRITE*world_layer0*440*0*SS]
+[PANEL|WRITE*world_layer0*460*0*TM]
+
+# Row markers (every 30 rows)
+[PANEL|WRITE*world_layer0*0*30*30]
+[PANEL|WRITE*world_layer0*0*60*60]
+[PANEL|WRITE*world_layer0*0*90*90]
+[PANEL|WRITE*world_layer0*0*120*120]
+[PANEL|WRITE*world_layer0*0*150*150]
+[PANEL|WRITE*world_layer0*0*180*180]
+[PANEL|WRITE*world_layer0*0*210*210]
+[PANEL|WRITE*world_layer0*0*240*240]
+
+# ============================================
+# DISPLAY AND SAVE
+# ============================================
+
+# Display map
+[PANEL|SHOW*world_layer0]
+
+# Embed in markdown
+[PANEL|EMBED*world_layer0*data/maps/world_layer0.md]
+
+# Save panel info
+[PANEL|INFO*world_layer0]
+
+# ============================================
+# USAGE NOTES
+# ============================================
+# Grid Coordinate Format: AA-RR (columns) + 1-270 (rows)
+# Example: M240 = Column M (13th), Row 240
+#
+# TZONE Codes: See data/system/geography/tzone.json
+# EST, PST, CST, GMT, CET, AEST, JST, etc.
+#
+# Terrain Characters:
+#   █ ocean_deep    ▓ ocean         ▒ ocean_shallow  ░ coast
+#   · plains        ≈ grassland     ♠ forest         ∴ desert
+#   ▲ mountains     ∩ hills         ● city marker
+#
+# Map Scale: 1 character = ~80km (approximate)
+# Total coverage: ~38,400km × ~21,600km
+#
+# Layer System:
+#   Layer 0: Base terrain (this file)
+#   Layer 1: Political boundaries
+#   Layer 2: Transportation networks
+#   Layer 3: Climate zones
+#   Layer 4: Population density
+#   Layer 5: Resource locations

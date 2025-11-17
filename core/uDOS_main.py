@@ -17,7 +17,8 @@ from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
-from .uDOS_prompt import SmartPrompt
+from .uDOS_prompt import SmartPrompt as PromptDecorator  # Renamed to avoid conflict
+from .services.smart_prompt import SmartPrompt  # v1.0.19 autocomplete system
 from .uDOS_tree import generate_repository_tree
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
@@ -242,45 +243,35 @@ def main():
 
         project_name = story_data.get('STORY', {}).get('PROJECT_NAME', 'uDOS') if story_data else 'uDOS'
 
-        # Initialize smart prompt system
-        smart_prompt = SmartPrompt()
+        # Initialize prompt decorator (for visual effects)
+        prompt_decorator = PromptDecorator()
 
-        # Initialize advanced completer with command history integration
-        completer = AdvancedCompleter(parser, grid, command_history)
+        # Initialize v1.0.19 smart prompt with autocomplete (replaces old PromptSession)
+        smart_prompt = SmartPrompt(command_history=command_history, theme='dungeon')
 
-        # Command history already initialized above
-        kb = KeyBindings()
+        # Start API server if configured (v1.0.19 enhancement)
+        api_server_started = False
+        try:
+            from .services.api_server_manager import APIServerManager
 
-        @kb.add('[')
-        def _(event):
-            event.current_buffer.insert_text('[')
-            event.current_buffer.start_completion()
+            # Check if user wants API server (can be configured in settings)
+            user_data = user_manager.get_user_data()
+            start_api = user_data.get('settings', {}).get('api_server_enabled', True)
 
-        # Add history search keybinding (Ctrl+R)
-        @kb.add('c-r')
-        def _(event):
-            """Reverse history search with intelligent features."""
-            # Get current input
-            current_text = event.current_buffer.text
+            if start_api:
+                print("🌐 Starting API server...", end=" ", flush=True)
+                api_manager = APIServerManager(port=5001, auto_restart=True)
+                if api_manager.start_server():
+                    api_server_started = True
+                    print("✓")
+                else:
+                    print("⚠️  (continuing without API)")
+        except Exception as e:
+            # API server is optional, continue without it
+            if not is_script_mode:
+                print(f"⚠️  API server unavailable ({str(e)[:30]}...)")
 
-            # Simple search implementation - show recent matching commands
-            if current_text.strip():
-                suggestions = command_history.get_suggestions(current_text, limit=5)
-                if suggestions:
-                    # Show suggestions in a simple format
-                    print(f"\n📜 History matches for '{current_text}':")
-                    for i, suggestion in enumerate(suggestions, 1):
-                        print(f"  {i}. {suggestion}")
-                    print()
-
-        session = PromptSession(
-            completer=completer,
-            history=command_history,
-            key_bindings=kb,
-            auto_suggest=AutoSuggestFromHistory(),
-            complete_while_typing=True,
-            enable_history_search=True
-        )
+        print()  # Blank line before prompt
 
         last_command = None
 
@@ -291,23 +282,24 @@ def main():
                     logger.close()
                     os.execv(sys.executable, ['python'] + sys.argv)
 
-                # Generate smart prompt with flash effect
+                # Generate smart prompt string with flash effect
                 is_assist = user_manager.is_assist_mode()
-                prompt_string = smart_prompt.get_prompt(
+                prompt_string = prompt_decorator.get_prompt(
                     is_assist_mode=is_assist,
                     panel_name=grid.selected_panel,
                     flash=True
                 )
 
                 # Show context hints if available
-                hint = smart_prompt.get_context_hint(
+                hint = prompt_decorator.get_context_hint(
                     last_command=last_command,
                     panel_content_length=len(grid.get_panel(grid.selected_panel) or "")
                 )
                 if hint:
                     print(hint)
 
-                user_input = session.prompt(prompt_string)
+                # Use new SmartPrompt with autocomplete (v1.0.19)
+                user_input = smart_prompt.ask(prompt_text=prompt_string)
                 logger.log("INPUT", user_input)
 
                 if user_input.lower() == 'exit':

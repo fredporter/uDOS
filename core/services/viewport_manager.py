@@ -49,7 +49,7 @@ class ViewportManager:
 
     CELL_SIZE = 16  # Each cell = 16x16 pixels
 
-    def __init__(self, settings_file: str = "data/system/viewport.json"):
+    def __init__(self, settings_file: str = "knowledge/system/viewport.json"):
         self.settings_file = Path(settings_file)
         self.viewport_info = self.load_viewport_settings()
 

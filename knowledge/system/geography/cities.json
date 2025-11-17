@@ -1,0 +1,237 @@
+{
+  "metadata": {
+    "version": "1.0.20b",
+    "last_updated": "2025-11-16",
+    "total_cities": 25,
+    "coordinate_system": "uDOS MAP grid (480x270 cells, 16x16px each)",
+    "tzone_format": "Standard timezone abbreviations (AEST, PST, GMT, etc.)",
+    "grid_format": "Column-Row (e.g., Y320 = Column Y, Row 320)"
+  },
+  "cities": [
+    {
+      "name": "Tokyo",
+      "country": "JP",
+      "grid_cell": "Y320",
+      "tzone": "JST",
+      "climate": "subtropical",
+      "languages": ["ja"],
+      "region": "Asia-Pacific"
+    },
+    {
+      "name": "Delhi",
+      "country": "IN",
+      "grid_cell": "T275",
+      "tzone": "IST",
+      "climate": "subtropical",
+      "languages": ["hi", "en"],
+      "region": "South Asia"
+    },
+    {
+      "name": "Shanghai",
+      "country": "CN",
+      "grid_cell": "X301",
+      "tzone": "CST",
+      "climate": "subtropical",
+      "languages": ["zh"],
+      "region": "East Asia"
+    },
+    {
+      "name": "São Paulo",
+      "country": "BR",
+      "grid_cell": "H190",
+      "tzone": "BRT",
+      "climate": "subtropical",
+      "languages": ["pt"],
+      "region": "South America"
+    },
+    {
+      "name": "Mexico City",
+      "country": "MX",
+      "grid_cell": "E130",
+      "tzone": "CST",
+      "climate": "subtropical",
+      "languages": ["es"],
+      "region": "North America"
+    },
+    {
+      "name": "Cairo",
+      "country": "EG",
+      "grid_cell": "P251",
+      "tzone": "EET",
+      "climate": "arid",
+      "languages": ["ar"],
+      "region": "Africa"
+    },
+    {
+      "name": "Mumbai",
+      "country": "IN",
+      "grid_cell": "T276",
+      "tzone": "IST",
+      "climate": "tropical",
+      "languages": ["hi", "mr", "en"],
+      "region": "South Asia"
+    },
+    {
+      "name": "Beijing",
+      "country": "CN",
+      "grid_cell": "X300",
+      "tzone": "CST",
+      "climate": "continental",
+      "languages": ["zh"],
+      "region": "East Asia"
+    },
+    {
+      "name": "Dhaka",
+      "country": "BD",
+      "grid_cell": "U280",
+      "tzone": "BST",
+      "climate": "tropical",
+      "languages": ["bn"],
+      "region": "South Asia"
+    },
+    {
+      "name": "Osaka",
+      "country": "JP",
+      "grid_cell": "Y321",
+      "tzone": "JST",
+      "climate": "subtropical",
+      "languages": ["ja"],
+      "region": "Asia-Pacific"
+    },
+    {
+      "name": "New York",
+      "country": "US",
+      "grid_cell": "G136",
+      "tzone": "EST",
+      "climate": "temperate",
+      "languages": ["en"],
+      "region": "North America"
+    },
+    {
+      "name": "Karachi",
+      "country": "PK",
+      "grid_cell": "S270",
+      "tzone": "PKT",
+      "climate": "arid",
+      "languages": ["ur", "en"],
+      "region": "South Asia"
+    },
+    {
+      "name": "Buenos Aires",
+      "country": "AR",
+      "grid_cell": "I185",
+      "tzone": "ART",
+      "climate": "subtropical",
+      "languages": ["es"],
+      "region": "South America"
+    },
+    {
+      "name": "Chongqing",
+      "country": "CN",
+      "grid_cell": "W300",
+      "tzone": "CST",
+      "climate": "subtropical",
+      "languages": ["zh"],
+      "region": "East Asia"
+    },
+    {
+      "name": "Istanbul",
+      "country": "TR",
+      "grid_cell": "P250",
+      "tzone": "EET",
+      "climate": "temperate",
+      "languages": ["tr"],
+      "region": "Middle East"
+    },
+    {
+      "name": "Kolkata",
+      "country": "IN",
+      "grid_cell": "U277",
+      "tzone": "IST",
+      "climate": "tropical",
+      "languages": ["bn", "hi", "en"],
+      "region": "South Asia"
+    },
+    {
+      "name": "Manila",
+      "country": "PH",
+      "grid_cell": "X310",
+      "tzone": "PHT",
+      "climate": "tropical",
+      "languages": ["tl", "en"],
+      "region": "Southeast Asia"
+    },
+    {
+      "name": "Lagos",
+      "country": "NG",
+      "grid_cell": "M235",
+      "tzone": "WAT",
+      "climate": "tropical",
+      "languages": ["en", "yo"],
+      "region": "Africa"
+    },
+    {
+      "name": "Rio de Janeiro",
+      "country": "BR",
+      "grid_cell": "H191",
+      "tzone": "BRT",
+      "climate": "tropical",
+      "languages": ["pt"],
+      "region": "South America"
+    },
+    {
+      "name": "Tianjin",
+      "country": "CN",
+      "grid_cell": "X302",
+      "tzone": "CST",
+      "climate": "temperate",
+      "languages": ["zh"],
+      "region": "East Asia"
+    },
+    {
+      "name": "London",
+      "country": "GB",
+      "grid_cell": "M240",
+      "tzone": "GMT",
+      "climate": "temperate",
+      "languages": ["en"],
+      "region": "Europe"
+    },
+    {
+      "name": "Paris",
+      "country": "FR",
+      "grid_cell": "N245",
+      "tzone": "CET",
+      "climate": "temperate",
+      "languages": ["fr"],
+      "region": "Europe"
+    },
+    {
+      "name": "Los Angeles",
+      "country": "US",
+      "grid_cell": "A120",
+      "tzone": "PST",
+      "climate": "mediterranean",
+      "languages": ["en", "es"],
+      "region": "North America"
+    },
+    {
+      "name": "Moscow",
+      "country": "RU",
+      "grid_cell": "Q255",
+      "tzone": "MSK",
+      "climate": "continental",
+      "languages": ["ru"],
+      "region": "Europe"
+    },
+    {
+      "name": "Sydney",
+      "country": "AU",
+      "grid_cell": "AA340",
+      "tzone": "AEST",
+      "climate": "temperate",
+      "languages": ["en"],
+      "region": "Oceania"
+    }
+  ]
+}

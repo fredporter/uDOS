@@ -22,7 +22,8 @@ The uDOS project follows a structured organization that promotes modularity, cla
     - `docs/`: Extension documentation
 
 ### Examples & Templates
-- `examples/`: Reference implementations
+- `knowledge/demos/`: Example scripts, interactive demos, asset bundles
+- `extensions/templates/`: Extension scaffolding (CLI & web templates)
   - `extensions/`: Extension templates
     - CLI extension template
     - Web extension template

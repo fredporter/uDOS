@@ -20,6 +20,9 @@ extensions/
 │   ├── c64css3/              # Commodore 64 CSS framework
 │   ├── nes-css/              # 8-bit Nintendo CSS framework
 │   └── cmd/                  # Web terminal (optional)
+├── templates/                 # Extension scaffolding templates
+│   ├── cli-extension-template/   # CLI extension starter
+│   └── web-extension-template/   # Web extension starter
 ├── fonts/                     # Font assets with licensing
 │   ├── LICENSE_ASSESSMENT.md # Legal compliance documentation
 │   ├── ChicagoFLF.ttf       # Classic Mac font (public domain)
@@ -142,6 +145,30 @@ All bundled extensions are immediately available:
 4. Test installation process
 5. Update documentation
 
+### **Creating New Extensions**
+
+Use the templates in `templates/` to scaffold new extensions:
+
+#### **CLI Extension**
+```bash
+# Copy template
+cp -r extensions/templates/cli-extension-template extensions/my-cli-tool
+
+# Follow instructions in template README
+cd extensions/my-cli-tool
+```
+
+#### **Web Extension**
+```bash
+# Copy template
+cp -r extensions/templates/web-extension-template extensions/bundled/web/my-extension
+
+# Follow instructions in template README
+cd extensions/bundled/web/my-extension
+```
+
+See `templates/README.md` for complete scaffolding documentation.
+
 ### **Font Management**
 1. Add fonts to `fonts/` directory
 2. Include license files for each font
@@ -174,6 +201,8 @@ See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
 
 ## 📚 **Additional Resources**
 
+- **Extension Templates**: `extensions/templates/` - CLI & Web extension scaffolding
+- **Example Demos**: `knowledge/demos/` - Working examples and scripts
 - **uDOS Wiki**: Complete extension development guides
 - **Font Documentation**: Typography system usage
 - **API Reference**: Extension integration patterns
@@ -181,4 +210,4 @@ See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
 
 ---
 
-**🎉 The uDOS Extensions system provides a clean separation between bundled content and external dependencies, ensuring legal compliance while maintaining development flexibility.**
+**🎉 The uDOS Extensions system provides a clean separation between bundled content, external dependencies, and templates - ensuring legal compliance while maintaining development flexibility.**

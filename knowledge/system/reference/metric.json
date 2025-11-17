@@ -1,0 +1,76 @@
+{
+  "version": "1.0.20b",
+  "system": "metric",
+  "description": "International System of Units (SI)",
+  "base_units": {
+    "length": {
+      "unit": "meter",
+      "symbol": "m",
+      "definition": "Distance light travels in vacuum in 1/299,792,458 of a second"
+    },
+    "mass": {
+      "unit": "kilogram",
+      "symbol": "kg",
+      "definition": "Mass of International Prototype Kilogram"
+    },
+    "time": {
+      "unit": "second",
+      "symbol": "s",
+      "definition": "9,192,631,770 periods of radiation of cesium-133"
+    },
+    "temperature": {
+      "unit": "kelvin",
+      "symbol": "K",
+      "definition": "1/273.16 of thermodynamic temperature of triple point of water"
+    },
+    "current": {
+      "unit": "ampere",
+      "symbol": "A",
+      "definition": "Constant current producing force of 2×10⁻⁷ N/m between parallel conductors"
+    },
+    "luminosity": {
+      "unit": "candela",
+      "symbol": "cd",
+      "definition": "Luminous intensity of source emitting 1/683 watt/steradian at 540 THz"
+    },
+    "amount": {
+      "unit": "mole",
+      "symbol": "mol",
+      "definition": "Amount containing 6.02214076×10²³ elementary entities"
+    }
+  },
+  "derived_units": {
+    "area": {"unit": "square meter", "symbol": "m²"},
+    "volume": {"unit": "cubic meter", "symbol": "m³"},
+    "speed": {"unit": "meter per second", "symbol": "m/s"},
+    "acceleration": {"unit": "meter per second squared", "symbol": "m/s²"},
+    "force": {"unit": "newton", "symbol": "N", "definition": "kg⋅m/s²"},
+    "pressure": {"unit": "pascal", "symbol": "Pa", "definition": "N/m²"},
+    "energy": {"unit": "joule", "symbol": "J", "definition": "N⋅m"},
+    "power": {"unit": "watt", "symbol": "W", "definition": "J/s"},
+    "frequency": {"unit": "hertz", "symbol": "Hz", "definition": "1/s"}
+  },
+  "common_units": {
+    "distance": {
+      "millimeter": {"symbol": "mm", "meters": 0.001},
+      "centimeter": {"symbol": "cm", "meters": 0.01},
+      "meter": {"symbol": "m", "meters": 1.0},
+      "kilometer": {"symbol": "km", "meters": 1000.0}
+    },
+    "mass": {
+      "milligram": {"symbol": "mg", "kilograms": 0.000001},
+      "gram": {"symbol": "g", "kilograms": 0.001},
+      "kilogram": {"symbol": "kg", "kilograms": 1.0},
+      "tonne": {"symbol": "t", "kilograms": 1000.0}
+    },
+    "volume": {
+      "milliliter": {"symbol": "mL", "liters": 0.001},
+      "liter": {"symbol": "L", "liters": 1.0},
+      "cubic_meter": {"symbol": "m³", "liters": 1000.0}
+    },
+    "temperature": {
+      "celsius": {"symbol": "°C", "formula": "K - 273.15"},
+      "kelvin": {"symbol": "K", "formula": "C + 273.15"}
+    }
+  }
+}

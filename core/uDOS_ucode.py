@@ -561,7 +561,7 @@ class UCodeInterpreter:
         self.debug_mode = False
 
         # Persistence
-        self.variables_file = Path("data/system/ucode_variables.json")
+        self.variables_file = Path("knowledge/system/ucode_variables.json")
         self._load_persistent_variables()
 
     def _load_persistent_variables(self):

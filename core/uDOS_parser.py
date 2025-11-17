@@ -4,12 +4,12 @@ import json
 import re
 
 class Parser:
-    def __init__(self, commands_file='data/system/commands.json', theme='dungeon'):
+    def __init__(self, commands_file='knowledge/system/commands.json', theme='dungeon'):
         commands_list = self.load_json(commands_file)['COMMANDS']
         self.commands = {cmd['NAME']: cmd for cmd in commands_list}
 
         # Load theme lexicon
-        theme_file = f'data/themes/{theme.lower()}.json'
+        theme_file = f'knowledge/system/themes/{theme.lower()}.json'
         theme_data = self.load_json(theme_file)
         self.lexicon = theme_data.get('TERMINOLOGY', {})
         self.reverse_lexicon = {v: k.replace('CMD_', '') for k, v in self.lexicon.items() if k.startswith('CMD_')}

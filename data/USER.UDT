@@ -1,8 +1,0 @@
-# uDOS User Profile Template
-# This template is used to initialize new user profiles
-
-USERNAME={username}
-PROJECT_NAME={project_name}
-THEME={theme}
-CREATED_DATE={created_date}
-WORKSPACE_PREFERENCE=sandbox

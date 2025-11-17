@@ -37,7 +37,7 @@ class TestScenarioEngine:
         xp_service = XPService(db_path=os.path.join(temp_dir, "xp.db"))
         inventory_service = InventoryService(data_dir=temp_dir)
         survival_service = SurvivalService(data_dir=temp_dir)
-        
+
         return {
             'scenario': scenario_service,
             'xp': xp_service,
@@ -81,24 +81,24 @@ class TestScenarioEngine:
                 }
             ]
         }
-        
+
         path = os.path.join(temp_dir, "test_scenario.json")
         with open(path, 'w') as f:
             json.dump(script, f)
-            
+
         return path
 
     def test_load_scenario_script(self, engine, test_script_path):
         """Test loading scenario script from file"""
         script = engine.load_scenario_script(test_script_path)
-        
+
         assert "metadata" in script
         assert script["metadata"]["name"] == "test_scenario"
 
     def test_load_nonexistent_script(self, engine):
         """Test loading script that doesn't exist"""
         result = engine.load_scenario_script("/nonexistent/path.json")
-        
+
         assert "error" in result
 
     def test_start_scenario_from_script(self, engine, services, test_script_path):
@@ -107,9 +107,9 @@ class TestScenarioEngine:
         services['scenario'].register_scenario(
             "test_scenario", ScenarioType.TUTORIAL, "Test"
         )
-        
+
         result = engine.start_scenario_from_script(test_script_path)
-        
+
         assert "session_id" in result
         assert engine.current_session_id is not None
 
@@ -119,18 +119,18 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         # Set variable for substitution
         services['scenario'].set_variable(session['session_id'], "player_name", "Hero")
-        
+
         event = {
             "type": "narrative",
             "text": "Hello, {player_name}!",
             "speaker": "Guide"
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'narrative'
         assert result['text'] == "Hello, Hero!"
         assert result['speaker'] == "Guide"
@@ -140,7 +140,7 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         event = {
             "type": "choice",
             "prompt": "What do you choose?",
@@ -149,9 +149,9 @@ class TestScenarioEngine:
                 {"text": "Option B", "value": "b"}
             ]
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'choice'
         assert result['requires_input'] is True
         assert len(result['options']) == 2
@@ -161,7 +161,7 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         event = {
             "type": "item_give",
             "item": "Test Item",
@@ -170,12 +170,12 @@ class TestScenarioEngine:
             "weight": 1.0,
             "volume": 0.5
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'item_give'
         assert result['item'] == "Test Item"
-        
+
         # Verify item in inventory
         inventory = services['inventory'].get_inventory()
         assert len(inventory) == 1
@@ -186,20 +186,20 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         # Add item first
         services['inventory'].add_item("Test Item", category=ItemCategory.MISC, quantity=5)
-        
+
         event = {
             "type": "item_take",
             "item": "Test Item",
             "quantity": 2
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'item_take'
-        
+
         # Verify quantity reduced
         inventory = services['inventory'].get_inventory()
         assert inventory[0]['quantity'] == 3
@@ -209,18 +209,18 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         # Set initial stat
         services['survival'].set_stat(SurvivalStat.HEALTH, 100)
-        
+
         event = {
             "type": "stat_change",
             "stat": "health",
             "change": -20
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'stat_change'
         assert result['new_value'] == 80
 
@@ -229,17 +229,17 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         event = {
             "type": "effect_add",
             "effect": "tired",
             "duration": 2
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'effect_add'
-        
+
         # Verify effect added
         effects = services['survival'].get_active_effects()
         assert len(effects) > 0
@@ -249,19 +249,19 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         event = {
             "type": "xp_award",
             "amount": 100,
             "category": "usage",
             "reason": "Test XP"
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'xp_award'
         assert result['amount'] == 100
-        
+
         # Verify XP awarded
         total = services['xp'].get_total_xp()
         assert total == 100
@@ -271,20 +271,20 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         # Set initial stats
         services['survival'].set_stat(SurvivalStat.HUNGER, 0)
-        
+
         event = {
             "type": "time_pass",
             "hours": 2
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'time_pass'
         assert result['hours'] == 2
-        
+
         # Verify hunger increased (2 hours * 10 per hour = 20)
         hunger_dict = services['survival'].get_stat(SurvivalStat.HUNGER)
         assert hunger_dict['current'] == 20
@@ -295,14 +295,14 @@ class TestScenarioEngine:
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
         engine.event_index = 5
-        
+
         event = {
             "type": "checkpoint",
             "name": "test_checkpoint"
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'checkpoint'
         assert result['name'] == "test_checkpoint"
 
@@ -311,19 +311,19 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         event = {
             "type": "end",
             "outcome": "success",
             "message": "You win!",
             "xp": 200
         }
-        
+
         result = engine.process_event(event)
-        
+
         assert result['type'] == 'end'
         assert result['outcome'] == "success"
-        
+
         # Verify final XP awarded
         total = services['xp'].get_total_xp()
         assert total == 200
@@ -333,13 +333,13 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         services['scenario'].set_variable(session['session_id'], "name", "Alice")
         services['scenario'].set_variable(session['session_id'], "score", 100)
-        
+
         text = "Hello {name}, your score is {score}!"
         result = engine._substitute_variables(text)
-        
+
         assert result == "Hello Alice, your score is 100!"
 
     def test_evaluate_condition_equals(self, engine, services):
@@ -347,9 +347,9 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         services['scenario'].set_variable(session['session_id'], "choice", "yes")
-        
+
         assert engine._evaluate_condition("{choice} == yes") is True
         assert engine._evaluate_condition("{choice} == no") is False
 
@@ -358,9 +358,9 @@ class TestScenarioEngine:
         services['scenario'].register_scenario("test", ScenarioType.TUTORIAL, "Test")
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
-        
+
         services['scenario'].set_variable(session['session_id'], "score", 50)
-        
+
         assert engine._evaluate_condition("{score} > 25") is True
         assert engine._evaluate_condition("{score} > 100") is False
 
@@ -370,14 +370,14 @@ class TestScenarioEngine:
         session = services['scenario'].start_scenario("test")
         engine.current_session_id = session['session_id']
         engine.event_index = 10
-        
+
         # Save
         save_result = engine.save_progress()
         assert save_result['saved'] is True
-        
+
         # Reset
         engine.event_index = 0
-        
+
         # Restore
         restore_result = engine.restore_progress(session['session_id'])
         assert restore_result['restored'] is True

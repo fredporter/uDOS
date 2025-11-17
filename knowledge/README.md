@@ -2,109 +2,192 @@
 
 **Welcome to The People's Knowledge Commons**
 
-This directory contains two types of knowledge:
+A comprehensive collection of practical guides and information for self-sufficiency, survival, and sustainable living.
 
-1. **System Knowledge** - uDOS technical documentation (existing structure)
-2. **Human Knowledge** - General reference library organized by human needs (new 6-category structure)
+## Overview
+
+This knowledge library is designed to be accessible both online and offline, with a focus on practical, actionable information. The structure uses a **flat folder layout** for easy navigation and fast searching with the GUIDE and DIAGRAM commands.
+
+All measurements use **metric units** (ml, g, kg, cm, m, km) and content is relevant to **Australian conditions** while remaining generally applicable worldwide.
 
 ---
 
-## 📚 Human Knowledge (6 Categories)
+## 📚 Knowledge Structure (8 Categories)
 
-**Purpose**: Curated knowledge for living, learning, and thriving.
+### 1. [System](system/README.md) ⚙️
+**uDOS technical documentation and configuration files.**
 
-Based on Maslow's hierarchy reimagined for knowledge organization. Each category builds on the previous:
+Contents: Commands reference, concepts, FAQ, datasets, themes, templates, JSON configs
 
-### 1. [Survival](survival/README.md) 🆘
+**Key files**: `commands.json`, `uDOS-CONCEPTS.md`, `FAQ.md`
+
+---
+
+### 2. [Reference](reference/README.md) 📖
+**Maps, resources, and tool references.**
+
+Contents: Charts, tables, reference data, tool specifications
+
+**Use for**: Quick lookups, specifications, reference tables
+
+---
+
+### 3. [Survival](survival/README.md) 🆘
 **Essential skills and information for meeting basic needs and handling emergencies.**
 
-Subcategories: `first-aid/` | `food-water/` | `shelter/` | `tools/`
+Contents: 28 guides covering shelters, fire, navigation, first aid, emergency response
 
-**Start here if**: You need practical emergency knowledge, first aid, or basic survival skills.
+**Start here if**: You need practical emergency knowledge or basic survival skills
 
----
-
-### 2. [Productivity](productivity/README.md) ⚡
-**Systems, workflows, and tools for getting things done efficiently and effectively.**
-
-Subcategories: `time-management/` | `workflows/` | `tools/` | `automation/`
-
-**Start here if**: You want to be more organized, manage time better, or build effective systems.
+**Australian-specific**: Bushfire survival, snakebite treatment, water sources, bush navigation, bush tucker
 
 ---
 
-### 3. [Well-Being](well-being/README.md) 🧘
-**Physical, mental, and emotional health for a balanced, fulfilling life.**
+### 4. [Medical](medical/README.md) 🏥
+**First aid and medical treatment information.**
 
-Subcategories: `mental-health/` | `physical-health/` | `relationships/` | `mindfulness/`
+Contents: 4 guides covering CPR, wound care, emergency treatment
 
-**Start here if**: You're working on mental health, fitness, relationships, or stress management.
+**Start here if**: You need first aid procedures or medical emergency guidance
 
----
-
-### 4. [Skills](skills/README.md) 🎯
-**Practical abilities and crafts for personal growth, creation, and self-sufficiency.**
-
-Subcategories: `programming/` | `writing/` | `art/` | `music/`
-
-**Start here if**: You want to learn programming, writing, art, music, or other creative skills.
+**Note**: For emergencies call 000 (Australia). These guides supplement professional care.
 
 ---
 
-### 5. [Environment](environment/README.md) 🌱
-**Sustainable living, ecological awareness, and harmonious relationship with nature.**
+### 5. [Food](food/README.md) 🍽️
+**Foraging, preservation, recipes, and nutrition.**
 
-Subcategories: `gardening/` | `conservation/` | `renewable-energy/` | `permaculture/`
+Contents: 5 guides covering wild edibles, preservation methods, bushcraft recipes
 
-**Start here if**: You're interested in gardening, sustainability, renewable energy, or ecological living.
+**Start here if**: You want to learn foraging, food preservation, or wilderness cooking
 
----
-
-### 6. [Community](community/README.md) 🤝
-**Working together, mutual support, and building resilient local communities.**
-
-Subcategories: `collaboration/` | `conflict-resolution/` | `mutual-aid/` | `local-resilience/`
-
-**Start here if**: You want to build community, organize locally, or practice mutual aid.
+**All recipes**: Metric measurements only (g, ml, kg)
 
 ---
 
-## 🔧 System Knowledge (uDOS Technical)
+### 6. [Water](water/README.md) 💧
+**Purification, sources, and harvesting.**
 
-**Purpose**: uDOS system documentation and reference materials.
+Contents: 6 guides covering purification methods, rainwater harvesting, water sources
 
-Existing directories for technical knowledge:
+**Start here if**: You need to find, purify, or store water
 
-- **[commands/](commands/)** - Command syntax and usage guides
-- **[concepts/](concepts/)** - uDOS concepts and architecture
-- **[datasets/](datasets/)** - Reference data and lookup tables
-- **[faq/](faq/)** - Frequently asked questions
-- **[maps/](maps/)** - Map system documentation
-- **[system/](system/)** - System-level documentation
-- **[user/](user/)** - User-specific documentation
-- **[personal/](personal/)** - Personal notes and customizations
+**Australian context**: Seasonal water availability, climate-appropriate methods
 
 ---
 
-## 📖 How to Use This Library
+### 7. [Making](making/README.md) 🔨
+**Building, energy, and environment.**
 
-### Browse by Need
+Contents: 2 guides covering construction, solar power, composting
 
-1. **Emergency/Immediate**: → [Survival](survival/README.md)
-2. **Get Things Done**: → [Productivity](productivity/README.md)
-3. **Health & Balance**: → [Well-Being](well-being/README.md)
-4. **Learn & Create**: → [Skills](skills/README.md)
-5. **Sustainable Living**: → [Environment](environment/README.md)
-6. **Build Community**: → [Community](community/README.md)
+**Start here if**: You want to build shelters, generate power, or understand environmental systems
+
+---
+
+### 8. [Tech](tech/README.md) 💻
+**Programming, productivity, and communication.**
+
+Contents: 5 guides covering technical skills, workflows, digital tools
+
+**Start here if**: You want to learn programming or improve digital productivity
+
+---
+
+## 🚀 Accessing Knowledge in uDOS
+
+### Using the GUIDE Command
+
+Step-through interactive tutorials with progress tracking:
+
+```bash
+# List available guides in a category
+🔮 > GUIDE LIST survival
+
+# Start a guide (resumes from last position)
+🔮 > GUIDE START water-purification
+
+# Navigate steps
+🔮 > GUIDE NEXT    # Next step
+🔮 > GUIDE PREV    # Previous step
+
+# Track progress
+🔮 > GUIDE COMPLETE 3    # Mark step 3 done
+🔮 > GUIDE PROGRESS      # Show checklist
+```
+
+### Using the DIAGRAM Command
+
+Browse ASCII art diagrams and technical drawings:
+
+```bash
+# List diagrams by type
+🔮 > DIAGRAM LIST knot
+🔮 > DIAGRAM LIST shelter
+
+# Search for diagrams
+🔮 > DIAGRAM SEARCH "water filter"
+
+# Show a diagram
+🔮 > DIAGRAM SHOW bowline-knot
+
+# Export to file
+🔮 > DIAGRAM EXPORT bowline-knot output/knots.txt
+```
 
 ### Search Across Library
 
 ```bash
-# In uDOS
-🔮 > FIND "keyword" knowledge/
+# Search for keywords
+🔮 > FIND "bushfire" knowledge/
+🔮 > FIND "first aid" knowledge/medical/
 
-# Or use grep from command line
-grep -r "keyword" knowledge/
+# Or use grep from terminal
+grep -r "water purification" knowledge/
+```
+
+---
+
+## 📝 Content Guidelines
+
+### Measurements
+- **Always use metric**: ml, g, kg, cm, m, km
+- **Never use imperial**: oz, cups, inches, feet, miles
+
+### Regional Context
+- Content is relevant to **Australian conditions** (climate, seasons, wildlife)
+- Guidance is **generally applicable** worldwide
+- Avoid excessive location stamps (TZONE, Grid coordinates)
+- Focus on techniques and principles, not specific locations
+
+### Digital-First
+- No CTAs to print documents
+- Encourage searching and bookmarking within uDOS
+- Use GUIDE and DIAGRAM commands for step-by-step access
+
+---
+
+## 📂 Directory Structure
+
+```
+knowledge/
+├── system/          # uDOS technical docs, commands, configs (23 files)
+├── reference/       # Maps, charts, reference data (1 file)
+├── survival/        # Emergency skills, first response (28 files)
+├── medical/         # First aid, medical treatment (4 files)
+├── food/            # Foraging, recipes, preservation (5 files)
+├── water/           # Purification, sources, harvesting (6 files)
+├── making/          # Building, energy, environment (2 files)
+├── tech/            # Programming, productivity, communication (5 files)
+├── personal/        # User notes (preserved)
+├── well-being/      # Health, mindfulness (preserved)
+├── community/       # Collaboration, mutual aid (preserved)
+└── skills/          # Art, writing, music (preserved)
+```
+
+**Total**: 74+ guides organized in 8 flat categories
+
+---
 ```
 
 ### Add Your Own Knowledge
@@ -128,7 +211,8 @@ Each category has a README explaining:
 - **Timeless** principles that remain relevant
 - **Accessible** to beginners
 - **Well-organized** for easy discovery
-- **Properly cited** sources
+- **Metric measurements** only (ml, g, kg, cm, m, km)
+- **Australian conditions** considered but broadly applicable
 
 ### ❌ What We Exclude
 
@@ -138,66 +222,9 @@ Each category has a README explaining:
 - Divisive or exclusionary content
 - Temporary trends without lasting value
 - Proprietary or paywalled information
-
-**See**: [Content Guidelines](../wiki/Knowledge-Architecture.md#content-guidelines) for details
-
----
-
-## 📂 Directory Structure
-
-```
-knowledge/
-├── README.md (this file)
-├── KNOWLEDGE-SYSTEM.md (technical overview)
-│
-├── Human Knowledge (6 Categories)
-│   ├── survival/
-│   │   ├── README.md
-│   │   ├── first-aid/
-│   │   ├── food-water/
-│   │   ├── shelter/
-│   │   └── tools/
-│   ├── productivity/
-│   │   ├── README.md
-│   │   ├── time-management/
-│   │   ├── workflows/
-│   │   ├── tools/
-│   │   └── automation/
-│   ├── well-being/
-│   │   ├── README.md
-│   │   ├── mental-health/
-│   │   ├── physical-health/
-│   │   ├── relationships/
-│   │   └── mindfulness/
-│   ├── skills/
-│   │   ├── README.md
-│   │   ├── programming/
-│   │   ├── writing/
-│   │   ├── art/
-│   │   └── music/
-│   ├── environment/
-│   │   ├── README.md
-│   │   ├── gardening/
-│   │   ├── conservation/
-│   │   ├── renewable-energy/
-│   │   └── permaculture/
-│   └── community/
-│       ├── README.md
-│       ├── collaboration/
-│       ├── conflict-resolution/
-│       ├── mutual-aid/
-│       └── local-resilience/
-│
-└── System Knowledge (uDOS Technical)
-    ├── commands/
-    ├── concepts/
-    ├── datasets/
-    ├── faq/
-    ├── maps/
-    ├── personal/
-    ├── system/
-    └── user/
-```
+- Imperial measurements (oz, cups, inches, feet)
+- Excessive location stamps or grid coordinates
+- CTAs to print documents
 
 ---
 
@@ -205,11 +232,44 @@ knowledge/
 
 ### Adding New Knowledge
 
-1. **Choose the right category** - Use the category READMEs as guides
-2. **Follow content guidelines** - Check what to include/exclude
-3. **Use Markdown format** - Plain text, future-proof
+1. **Choose the right category** - survival, medical, food, water, making, tech, reference
+2. **Follow content guidelines** - Use metric, keep general, Australian-relevant
+3. **Use Markdown format** - Plain text, future-proof, works with GUIDE command
 4. **Include sources** - Cite where information came from
 5. **Test for clarity** - Can someone without expertise follow it?
+6. **Keep it flat** - No subdirectories within main categories
+
+### Adding Diagrams
+
+1. **Use ASCII art** - Works in any terminal
+2. **Wrap in code blocks** - ````ascii ... ````
+3. **Add context** - Paragraph before diagram explaining what it shows
+4. **Test rendering** - Use `DIAGRAM SHOW` to verify
+
+### Updating Guides
+
+When editing existing guides:
+- Remove excessive TZONE/location stamps
+- Convert measurements to metric
+- Remove print CTAs
+- Keep content general with Australian context
+- Test with `GUIDE START` command
+
+---
+
+## 📚 Related Documentation
+
+- **[KNOWLEDGE-SYSTEM.md](KNOWLEDGE-SYSTEM.md)** - Technical overview
+- **[Knowledge Architecture Wiki](../wiki/Knowledge-Architecture.md)** - Organization system
+- **[GUIDE Command](system/commands.json)** - Interactive guide viewer
+- **[DIAGRAM Command](system/commands.json)** - ASCII art browser
+- **[Content Curation](../wiki/Content-Curation.md)** - Quality guidelines
+
+---
+
+**Last Updated**: v1.0.21 (November 2024)
+**Structure**: 8 flat categories, 74+ guides
+**Focus**: Practical, metric, Australian-relevant, digitally accessible
 
 ### Suggesting Improvements
 

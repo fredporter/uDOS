@@ -22,6 +22,7 @@
 
 ## 📖 User Guides
 - **[Command Reference](Command-Reference)** - All commands
+- **[TILE Commands](TILE-Commands)** ⭐ NEW - Geographic reference system
 - **[Debugging Guide](Debugging-Guide)** ⭐ NEW - Interactive debugger
 - **[Workflows](Workflows)** ⭐ NEW - Common tasks & automation
 - **[uCODE Language](uCODE-Language)** - Scripting guide
@@ -72,7 +73,7 @@ The knowledge/ directory contains:
 ---
 
 ## 🚀 Releases
-- [Release v1.0.13](Release-v1.0.13) - Latest stable
+- [Release v1.0.20b](Release-v1.0.20b) - Latest stable
 - [Changelog](Changelog) - All versions
 - [ROADMAP](../ROADMAP.MD) - Future plans
 
@@ -85,7 +86,7 @@ The knowledge/ directory contains:
 
 ---
 
-**Current Version**: v1.0.17 (Interactive Debugger)
-**Last Wiki Update**: November 15, 2025
+**Current Version**: v1.0.20b (Enhanced Mapping & Reference Data)
+**Last Wiki Update**: November 16, 2025
 
-⭐ = New in v1.0.17
+⭐ = New in v1.0.20/v1.0.20b
