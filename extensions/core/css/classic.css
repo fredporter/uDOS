@@ -8,8 +8,8 @@
 }
 
 @font-face {
-    font-family: 'ChicagoFLF';
-    src: url('fonts/ChicagoFLF.ttf') format('truetype'); /* Safari, Android, iOS */
+    font-family: 'Chicago';
+    src: url('../fonts/chicago/ChicagoFLF.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
 :root {
