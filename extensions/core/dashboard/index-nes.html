@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Dashboard v1.0.24 - NES Retro Gaming Interface</title>
+
+    <!-- NES.css Framework -->
+    <link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+
+    <!-- Synthwave DOS Colors -->
+    <link rel="stylesheet" href="../shared/synthwave-dos-colors.css">
+
+    <!-- Press Start 2P Font (NES authentic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Synthwave DOS + NES color integration */
+            --nes-primary: var(--color-cyan-bright, #00ffff);
+            --nes-success: var(--color-green-bright, #00ff00);
+            --nes-warning: var(--color-orange-bright, #ff8000);
+            --nes-error: var(--color-red-bright, #ff0040);
+            --nes-bg: var(--color-black, #000000);
+            --nes-fg: var(--color-white-bright, #ffffff);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--nes-fg);
+            min-height: 100vh;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: var(--color-cyan-bright);
+            text-shadow:
+                2px 2px 0 var(--color-blue-dark),
+                0 0 20px var(--color-cyan-bright);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 0 var(--color-blue-dark), 0 0 10px var(--color-cyan-bright); }
+            to { text-shadow: 2px 2px 0 var(--color-blue-dark), 0 0 30px var(--color-cyan-bright); }
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: var(--color-blue-bright);
+            color: var(--color-black);
+            padding: 4px 12px;
+            font-size: 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        /* Main Content Grid */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        /* Widget Cards */
+        .widget {
+            background: rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--color-white-bright);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 0 var(--color-gray-dark);
+            transition: transform 0.1s;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--color-gray-dark);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-gray-bright);
+        }
+
+        .widget-title {
+            font-size: 14px;
+            color: var(--color-orange-bright);
+            text-transform: uppercase;
+        }
+
+        .widget-icon {
+            font-size: 20px;
+        }
+
+        .widget-body {
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        /* System Stats */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--color-cyan-bright);
+        }
+
+        .stat-label {
+            color: var(--color-gray-bright);
+        }
+
+        .stat-value {
+            color: var(--color-green-bright);
+            font-weight: bold;
+        }
+
+        .stat-value.warning {
+            color: var(--color-orange-bright);
+        }
+
+        .stat-value.danger {
+            color: var(--color-red-bright);
+        }
+
+        /* Progress Bars (NES style) */
+        .progress-container {
+            margin: 15px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 10px;
+        }
+
+        .progress {
+            background: var(--color-gray-dark);
+            height: 20px;
+            border: 2px solid var(--color-white-bright);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.5s ease;
+            image-rendering: pixelated;
+        }
+
+        .progress-bar.cpu {
+            background: repeating-linear-gradient(
+                90deg,
+                var(--color-blue-bright) 0px,
+                var(--color-blue-bright) 8px,
+                var(--color-cyan-bright) 8px,
+                var(--color-cyan-bright) 16px
+            );
+        }
+
+        .progress-bar.memory {
+            background: repeating-linear-gradient(
+                90deg,
+                var(--color-green-bright) 0px,
+                var(--color-green-bright) 8px,
+                var(--color-green-dark) 8px,
+                var(--color-green-dark) 16px
+            );
+        }
+
+        .progress-bar.disk {
+            background: repeating-linear-gradient(
+                90deg,
+                var(--color-orange-bright) 0px,
+                var(--color-orange-bright) 8px,
+                var(--color-orange-dark) 8px,
+                var(--color-orange-dark) 16px
+            );
+        }
+
+        /* Quick Actions Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: var(--color-blue-dark);
+            color: var(--color-cyan-bright);
+            border: 3px solid var(--color-cyan-bright);
+            padding: 15px 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            border-radius: 4px;
+            box-shadow: 0 4px 0 var(--color-blue-darker);
+        }
+
+        .action-btn:hover {
+            background: var(--color-cyan-bright);
+            color: var(--color-black);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--color-blue-darker);
+        }
+
+        .action-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--color-blue-darker);
+        }
+
+        .action-btn i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        /* Recent Activity List */
+        .activity-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 3px solid var(--color-cyan-bright);
+            font-size: 10px;
+        }
+
+        .activity-time {
+            color: var(--color-gray-bright);
+            font-size: 8px;
+        }
+
+        .activity-text {
+            margin-top: 5px;
+            color: var(--color-white-bright);
+        }
+
+        /* Extensions List */
+        .extension-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .extension-name {
+            color: var(--color-cyan-bright);
+            font-size: 10px;
+        }
+
+        .extension-status {
+            font-size: 8px;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+
+        .extension-status.active {
+            background: var(--color-green-bright);
+            color: var(--color-black);
+        }
+
+        .extension-status.inactive {
+            background: var(--color-gray-dark);
+            color: var(--color-gray-bright);
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 10px;
+            color: var(--color-gray-bright);
+            border-top: 2px solid var(--color-gray-dark);
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-stat i {
+            color: var(--color-cyan-bright);
+        }
+
+        /* Pixel Hearts for Health/Status */
+        .pixel-hearts {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .pixel-heart {
+            font-size: 16px;
+            color: var(--color-red-bright);
+        }
+
+        .pixel-heart.empty {
+            color: var(--color-gray-dark);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-gray-dark);
+            border: 2px solid var(--color-gray-darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-cyan-bright);
+            border: 2px solid var(--color-blue-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-cyan-dark);
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-main {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header h1 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>
+                🎮 uDOS DASHBOARD
+                <span class="version-badge">v1.0.24</span>
+            </h1>
+            <p style="font-size: 10px; color: var(--color-gray-bright); margin: 5px 0 0 0;">
+                RETRO COMPUTING INTERFACE • NES FRAMEWORK
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- System Monitor Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">⚡ System Monitor</h2>
+                    <span class="widget-icon">💻</span>
+                </div>
+                <div class="widget-body">
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>CPU Usage</span>
+                            <span id="cpu-value" class="stat-value">45%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar cpu" id="cpu-bar" style="width: 45%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Memory</span>
+                            <span id="memory-value" class="stat-value">6.2 / 16 GB</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar memory" id="memory-bar" style="width: 38%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Disk Space</span>
+                            <span id="disk-value" class="stat-value">127 / 500 GB</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar disk" id="disk-bar" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Uptime</span>
+                        <span class="stat-value" id="uptime">3d 14h 27m</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Processes</span>
+                        <span class="stat-value" id="processes">247</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">🕹️ Quick Actions</h2>
+                    <span class="widget-icon">⚡</span>
+                </div>
+                <div class="widget-body">
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="openExtension('terminal')">
+                            <i>💻</i>
+                            Terminal
+                        </button>
+                        <button class="action-btn" onclick="openExtension('markdown')">
+                            <i>📖</i>
+                            Knowledge
+                        </button>
+                        <button class="action-btn" onclick="openExtension('files')">
+                            <i>📁</i>
+                            Files
+                        </button>
+                        <button class="action-btn" onclick="openExtension('teletext')">
+                            <i>📺</i>
+                            Teletext
+                        </button>
+                        <button class="action-btn" onclick="openExtension('character')">
+                            <i>✏️</i>
+                            Editor
+                        </button>
+                        <button class="action-btn" onclick="openExtension('settings')">
+                            <i>⚙️</i>
+                            Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Extensions Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">🔌 Extensions</h2>
+                    <span class="widget-icon">📦</span>
+                </div>
+                <div class="widget-body">
+                    <div class="extension-item">
+                        <span class="extension-name">🎨 Character Editor</span>
+                        <span class="extension-status active">ACTIVE</span>
+                    </div>
+                    <div class="extension-item">
+                        <span class="extension-name">📖 Markdown Viewer</span>
+                        <span class="extension-status active">ACTIVE</span>
+                    </div>
+                    <div class="extension-item">
+                        <span class="extension-name">📺 Teletext</span>
+                        <span class="extension-status active">ACTIVE</span>
+                    </div>
+                    <div class="extension-item">
+                        <span class="extension-name">💻 C64 Terminal</span>
+                        <span class="extension-status active">ACTIVE</span>
+                    </div>
+                    <div class="extension-item">
+                        <span class="extension-name">🖥️ System Desktop</span>
+                        <span class="extension-status inactive">INACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">📜 Recent Activity</h2>
+                    <span class="widget-icon">⏰</span>
+                </div>
+                <div class="widget-body">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-time">2 minutes ago</div>
+                            <div class="activity-text">✅ Phase 5.1 committed: Markdown typography</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-time">15 minutes ago</div>
+                            <div class="activity-text">📝 Updated CREDITS.md documentation</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-time">32 minutes ago</div>
+                            <div class="activity-text">🎨 Phase 5 complete: Markdown Viewer v1.0.24</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-time">1 hour ago</div>
+                            <div class="activity-text">⚡ Created uCODE processor</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-time">2 hours ago</div>
+                            <div class="activity-text">📦 Created PANEL processor</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- uDOS Stats Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">🏆 uDOS Progress</h2>
+                    <span class="widget-icon">📊</span>
+                </div>
+                <div class="widget-body">
+                    <div class="pixel-hearts">
+                        <span class="pixel-heart">❤️</span>
+                        <span class="pixel-heart">❤️</span>
+                        <span class="pixel-heart">❤️</span>
+                        <span class="pixel-heart">❤️</span>
+                        <span class="pixel-heart empty">❤️</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value">24</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">XP</span>
+                        <span class="stat-value">15,847 / 20,000</span>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Next Level</span>
+                            <span class="stat-value">79%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar cpu" style="width: 79%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Commits</span>
+                        <span class="stat-value">9 / 11 phases</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Lines Written</span>
+                        <span class="stat-value">~29,000+</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Library Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h2 class="widget-title">📚 Knowledge Library</h2>
+                    <span class="widget-icon">🔍</span>
+                </div>
+                <div class="widget-body">
+                    <div class="stat-row">
+                        <span class="stat-label">Categories</span>
+                        <span class="stat-value">8</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Documents</span>
+                        <span class="stat-value">127</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Recently Viewed</span>
+                        <span class="stat-value">water-purification.md</span>
+                    </div>
+
+                    <button class="action-btn" style="width: 100%; margin-top: 15px;" onclick="openExtension('markdown')">
+                        <i>📖</i>
+                        Open Knowledge Base
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div>uDOS v1.0.24 • NES Framework Integration</div>
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <i>🕐</i>
+                    <span id="current-time">Loading...</span>
+                </div>
+                <div class="footer-stat">
+                    <i>🌡️</i>
+                    <span>CPU: <span id="cpu-temp">42°C</span></span>
+                </div>
+                <div class="footer-stat">
+                    <i>📶</i>
+                    <span>Network: <span id="network-status" class="blink">ONLINE</span></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Extension opener
+        function openExtension(name) {
+            const ports = {
+                'terminal': 8889,
+                'markdown': 9000,
+                'files': 8000,
+                'teletext': 8890,
+                'character': 8891,
+                'settings': 8888
+            };
+
+            const port = ports[name] || 8888;
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        // Real-time clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeStr;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Simulate system metrics updates
+        function updateMetrics() {
+            // Random CPU fluctuation
+            const cpu = 30 + Math.random() * 40;
+            document.getElementById('cpu-value').textContent = cpu.toFixed(1) + '%';
+            document.getElementById('cpu-bar').style.width = cpu + '%';
+
+            // Simulate temperature
+            const temp = 38 + Math.random() * 10;
+            document.getElementById('cpu-temp').textContent = temp.toFixed(1) + '°C';
+        }
+
+        setInterval(updateMetrics, 3000);
+
+        // Welcome message
+        console.log(`
+╔═══════════════════════════════════════════╗
+║  🎮 uDOS DASHBOARD v1.0.24               ║
+║  NES Framework Integration                ║
+║                                           ║
+║  Phase 6: Dashboard Redesign              ║
+║  Synthwave DOS + NES.css                  ║
+╚═══════════════════════════════════════════╝
+        `);
+    </script>
+</body>
+</html>
