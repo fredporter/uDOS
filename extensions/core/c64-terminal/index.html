@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS C64 Terminal</title>
+    <link href="c64-terminal.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen with Color Bars -->
+    <section class="bluescreen" id="loadingScreen">
+        <ul class="loading">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+        <div class="loading-text">
+            <p>*** uDOS UNIVERSAL DIGITAL OPERATIONS ***</p>
+            <p>64K RAM SYSTEM  38911 BASIC BYTES FREE</p>
+            <p></p>
+            <p>LOADING...</p>
+        </div>
+    </section>
+
+    <!-- uDOS Splash Screen -->
+    <section class="splash-screen hidden" id="splashScreen">
+        <div class="splash-content">
+            <pre class="ascii-logo">
+ ██╗   ██╗██████╗  ██████╗ ███████╗
+ ██║   ██║██╔══██╗██╔═══██╗██╔════╝
+ ██║   ██║██║  ██║██║   ██║███████╗
+ ██║   ██║██║  ██║██║   ██║╚════██║
+ ╚██████╔╝██████╔╝╚██████╔╝███████║
+  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
+            </pre>
+            <div class="splash-info">
+                <p>UNIVERSAL DIGITAL OPERATIONS SYSTEM</p>
+                <p>VERSION 1.0.24 - C64 TERMINAL</p>
+                <p></p>
+                <p>INITIALIZING SYSTEMS...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Terminal -->
+    <section class="terminal hidden" id="terminal">
+        <div class="terminal-header">
+            <span class="terminal-title">**** uDOS C64 TERMINAL ****</span>
+            <span class="terminal-status" id="status">READY.</span>
+        </div>
+
+        <div class="terminal-screen" id="screen">
+            <div class="boot-message">
+                <p>    **** COMMODORE 64 BASIC V2 ****</p>
+                <p> 64K RAM SYSTEM  38911 BASIC BYTES FREE</p>
+                <p></p>
+                <p>    **** uDOS UNIVERSAL DIGITAL OPERATIONS ****</p>
+                <p>         VERSION 1.0.24 - TERMINAL MODE</p>
+                <p></p>
+                <p>READY.</p>
+            </div>
+            <div class="terminal-output" id="output"></div>
+            <div class="terminal-input-line">
+                <span class="prompt">></span>
+                <input type="text" class="terminal-input" id="commandInput" autofocus spellcheck="false" autocomplete="off">
+                <span class="cursor">█</span>
+            </div>
+        </div>
+
+        <!-- Function Keys -->
+        <div class="function-keys">
+            <button class="f-key" data-key="F1">F1<br><small>HELP</small></button>
+            <button class="f-key" data-key="F3">F3<br><small>LIST</small></button>
+            <button class="f-key" data-key="F5">F5<br><small>RUN</small></button>
+            <button class="f-key" data-key="F7">F7<br><small>CLEAR</small></button>
+        </div>
+    </section>
+
+    <!-- Character Reference Panel (Toggle with F8) -->
+    <aside class="char-reference hidden" id="charReference">
+        <div class="char-panel">
+            <h3>PETSCII CHARACTER SET</h3>
+            <div class="char-grid" id="charGrid"></div>
+            <div class="emoji-grid">
+                <h4>MONOCOLOR EMOJI</h4>
+                <div id="emojiGrid"></div>
+            </div>
+        </div>
+    </aside>
+
+    <script src="splash.js"></script>
+    <script src="c64-terminal.js"></script>
+    <script src="block-graphics.js"></script>
+    <script src="emoji-support.js"></script>
+</body>
+</html>

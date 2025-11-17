@@ -1,0 +1,601 @@
+/**
+ * uDOS C64 Terminal Stylesheet
+ * Based on C64 CSS3 by Roel Nieskens (Pixelambacht)
+ * Enhanced with Polaroid Palette, PetMe Font, and uDOS Features
+ * Version: 1.0.24
+ */
+
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ========================================
+   FONT DECLARATIONS
+   ======================================== */
+
+/* PetMe Font - Authentic C64 PETSCII */
+@font-face {
+    font-family: "PetMe";
+    src: url("../fonts/petme/PetMe64.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "PetMe128";
+    src: url("../fonts/petme/PetMe128.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Fallback C64 Font */
+@font-face {
+    font-family: "C64 User Mono";
+    src: url("c64css3-original/C64_User_Mono_v1.0-STYLE.woff") format("woff"),
+         url("c64css3-original/C64_User_Mono_v1.0-STYLE.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ========================================
+   POLAROID COLOR PALETTE
+   Extended C64 Colors + Variations
+   ======================================== */
+:root {
+    /* Base C64 Colors (Authentic) */
+    --c64-black: #000000;
+    --c64-white: #ffffff;
+    --c64-red: #880000;
+    --c64-cyan: #aaffee;
+    --c64-purple: #cc44cc;
+    --c64-green: #00cc55;
+    --c64-blue: #0000aa;
+    --c64-yellow: #eeee77;
+    --c64-orange: #dd8855;
+    --c64-brown: #664400;
+    --c64-light-red: #ff7777;
+    --c64-dark-gray: #333333;
+    --c64-gray: #777777;
+    --c64-light-green: #aaff66;
+    --c64-light-blue: #0088ff;
+    --c64-light-gray: #bbbbbb;
+
+    /* Polaroid Extensions - Transparency Levels */
+    --polaroid-trans-10: 0.1;
+    --polaroid-trans-25: 0.25;
+    --polaroid-trans-50: 0.5;
+    --polaroid-trans-75: 0.75;
+
+    /* Polaroid Shades - Black */
+    --polaroid-black-10: rgba(0, 0, 0, 0.1);
+    --polaroid-black-25: rgba(0, 0, 0, 0.25);
+    --polaroid-black-50: rgba(0, 0, 0, 0.5);
+    --polaroid-black-75: rgba(0, 0, 0, 0.75);
+
+    /* Polaroid Shades - Blue (C64 Background) */
+    --polaroid-blue-10: rgba(64, 50, 133, 0.1);
+    --polaroid-blue-25: rgba(64, 50, 133, 0.25);
+    --polaroid-blue-50: rgba(64, 50, 133, 0.5);
+    --polaroid-blue-75: rgba(64, 50, 133, 0.75);
+    --polaroid-blue-full: #403285;
+
+    /* Polaroid Shades - Cyan */
+    --polaroid-cyan-10: rgba(170, 255, 238, 0.1);
+    --polaroid-cyan-25: rgba(170, 255, 238, 0.25);
+    --polaroid-cyan-50: rgba(170, 255, 238, 0.5);
+    --polaroid-cyan-75: rgba(170, 255, 238, 0.75);
+
+    /* Terminal Defaults */
+    --term-bg: var(--polaroid-blue-full);
+    --term-fg: var(--c64-light-blue);
+    --term-border: var(--c64-light-blue);
+    --term-cursor: var(--c64-cyan);
+}
+
+/* ========================================
+   LOADING SCREEN (Color Bars)
+   ======================================== */
+.bluescreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--polaroid-blue-full);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.bluescreen.hidden {
+    display: none;
+}
+
+/* Color Cycle Bars (Retained from Original) */
+.loading {
+    width: 80%;
+    max-width: 640px;
+    height: 50px;
+    list-style: none;
+    display: flex;
+    margin-bottom: 2em;
+}
+
+.loading li {
+    flex: 1;
+    animation: color-cycle 3s linear infinite;
+}
+
+.loading li:nth-child(1) {
+    background: var(--c64-red);
+    animation-delay: 0s;
+}
+
+.loading li:nth-child(2) {
+    background: var(--c64-yellow);
+    animation-delay: 0.6s;
+}
+
+.loading li:nth-child(3) {
+    background: var(--c64-green);
+    animation-delay: 1.2s;
+}
+
+.loading li:nth-child(4) {
+    background: var(--c64-cyan);
+    animation-delay: 1.8s;
+}
+
+.loading li:nth-child(5) {
+    background: var(--c64-purple);
+    animation-delay: 2.4s;
+}
+
+@keyframes color-cycle {
+    0%, 100% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+    50% {
+        opacity: 0.7;
+        filter: brightness(1.3);
+    }
+}
+
+.loading-text {
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 16px;
+    color: var(--c64-light-blue);
+    text-align: center;
+    line-height: 1.5;
+}
+
+.loading-text p {
+    margin: 0.5em 0;
+}
+
+/* ========================================
+   SPLASH SCREEN
+   ======================================== */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--polaroid-blue-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.splash-screen.hidden {
+    display: none;
+}
+
+.splash-content {
+    text-align: center;
+    color: var(--c64-light-blue);
+    font-family: "PetMe", "C64 User Mono", monospace;
+}
+
+.ascii-logo {
+    font-size: 14px;
+    line-height: 1.2;
+    margin-bottom: 2em;
+    color: var(--c64-cyan);
+    text-shadow: 0 0 10px var(--polaroid-cyan-50);
+}
+
+.splash-info p {
+    margin: 0.5em 0;
+    font-size: 16px;
+}
+
+.progress-bar {
+    width: 400px;
+    height: 20px;
+    border: 2px solid var(--c64-light-blue);
+    margin: 2em auto 0;
+    position: relative;
+    background: var(--polaroid-black-50);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--c64-cyan);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--polaroid-cyan-50);
+}
+
+/* ========================================
+   MAIN TERMINAL
+   ======================================== */
+.terminal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    height: 85%;
+    max-height: 600px;
+    background: var(--term-bg);
+    border: 4px solid var(--term-border);
+    border-radius: 8px;
+    box-shadow:
+        0 0 20px var(--polaroid-black-75),
+        inset 0 0 50px var(--polaroid-blue-25);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.terminal.hidden {
+    display: none;
+}
+
+/* Scanline Effect */
+.terminal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Terminal Header */
+.terminal-header {
+    background: var(--c64-light-blue);
+    color: var(--polaroid-blue-full);
+    padding: 0.5em 1em;
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--c64-cyan);
+}
+
+.terminal-title {
+    font-weight: bold;
+}
+
+.terminal-status {
+    color: var(--c64-green);
+}
+
+/* Terminal Screen */
+.terminal-screen {
+    flex: 1;
+    padding: 1em;
+    overflow-y: auto;
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--term-fg);
+    position: relative;
+}
+
+/* Custom Scrollbar */
+.terminal-screen::-webkit-scrollbar {
+    width: 12px;
+}
+
+.terminal-screen::-webkit-scrollbar-track {
+    background: var(--polaroid-black-50);
+}
+
+.terminal-screen::-webkit-scrollbar-thumb {
+    background: var(--c64-light-blue);
+    border: 2px solid var(--polaroid-blue-full);
+}
+
+.boot-message p {
+    margin: 0.3em 0;
+}
+
+.terminal-output {
+    margin: 1em 0;
+}
+
+.terminal-output p {
+    margin: 0.2em 0;
+}
+
+/* Terminal Input Line */
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 1em;
+}
+
+.prompt {
+    color: var(--c64-cyan);
+    margin-right: 0.5em;
+    font-weight: bold;
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--term-fg);
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 16px;
+    caret-color: transparent;
+}
+
+.cursor {
+    color: var(--term-cursor);
+    animation: blink 1s step-end infinite;
+    margin-left: -0.1em;
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   FUNCTION KEYS
+   ======================================== */
+.function-keys {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5em;
+    background: var(--polaroid-black-75);
+    border-top: 2px solid var(--c64-light-blue);
+}
+
+.f-key {
+    background: var(--c64-dark-gray);
+    color: var(--c64-white);
+    border: 2px solid var(--c64-gray);
+    border-radius: 4px;
+    padding: 0.5em 1em;
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.f-key:hover {
+    background: var(--c64-gray);
+    border-color: var(--c64-light-gray);
+    box-shadow: 0 0 10px var(--polaroid-cyan-25);
+}
+
+.f-key:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+.f-key small {
+    display: block;
+    font-size: 10px;
+    color: var(--c64-light-gray);
+    margin-top: 0.2em;
+}
+
+/* ========================================
+   CHARACTER REFERENCE PANEL
+   ======================================== */
+.char-reference {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background: var(--polaroid-blue-75);
+    backdrop-filter: blur(10px);
+    border-left: 4px solid var(--c64-light-blue);
+    overflow-y: auto;
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.char-reference.visible {
+    transform: translateX(0);
+}
+
+.char-reference.hidden {
+    transform: translateX(100%);
+}
+
+.char-panel {
+    padding: 1em;
+}
+
+.char-panel h3,
+.char-panel h4 {
+    color: var(--c64-cyan);
+    font-family: "PetMe", "C64 User Mono", monospace;
+    font-size: 14px;
+    margin-bottom: 1em;
+    border-bottom: 2px solid var(--c64-light-blue);
+    padding-bottom: 0.5em;
+}
+
+.char-grid,
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin-bottom: 2em;
+}
+
+.char-item,
+.emoji-item {
+    aspect-ratio: 1;
+    background: var(--polaroid-black-50);
+    border: 1px solid var(--c64-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "PetMe", monospace;
+    font-size: 16px;
+    color: var(--c64-light-blue);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.char-item:hover,
+.emoji-item:hover {
+    background: var(--c64-light-blue);
+    color: var(--polaroid-blue-full);
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* ========================================
+   COLOR UTILITY CLASSES
+   ======================================== */
+.fg-black { color: var(--c64-black); }
+.fg-white { color: var(--c64-white); }
+.fg-red { color: var(--c64-red); }
+.fg-cyan { color: var(--c64-cyan); }
+.fg-purple { color: var(--c64-purple); }
+.fg-green { color: var(--c64-green); }
+.fg-blue { color: var(--c64-blue); }
+.fg-yellow { color: var(--c64-yellow); }
+.fg-orange { color: var(--c64-orange); }
+.fg-brown { color: --c64-brown); }
+.fg-light-red { color: var(--c64-light-red); }
+.fg-dark-gray { color: var(--c64-dark-gray); }
+.fg-gray { color: var(--c64-gray); }
+.fg-light-green { color: var(--c64-light-green); }
+.fg-light-blue { color: var(--c64-light-blue); }
+.fg-light-gray { color: var(--c64-light-gray); }
+
+.bg-black { background-color: var(--c64-black); }
+.bg-white { background-color: var(--c64-white); }
+.bg-red { background-color: var(--c64-red); }
+.bg-cyan { background-color: var(--c64-cyan); }
+.bg-purple { background-color: var(--c64-purple); }
+.bg-green { background-color: var(--c64-green); }
+.bg-blue { background-color: var(--c64-blue); }
+.bg-yellow { background-color: var(--c64-yellow); }
+.bg-orange { background-color: var(--c64-orange); }
+.bg-brown { background-color: var(--c64-brown); }
+.bg-light-red { background-color: var(--c64-light-red); }
+.bg-dark-gray { background-color: var(--c64-dark-gray); }
+.bg-gray { background-color: var(--c64-gray); }
+.bg-light-green { background-color: var(--c64-light-green); }
+.bg-light-blue { background-color: var(--c64-light-blue); }
+.bg-light-gray { background-color: var(--c64-light-gray); }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 900px) {
+    .terminal {
+        width: 95%;
+        height: 90%;
+    }
+
+    .char-reference {
+        width: 250px;
+    }
+}
+
+@media (max-width: 600px) {
+    .terminal {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border: none;
+    }
+
+    .function-keys {
+        flex-wrap: wrap;
+    }
+
+    .f-key {
+        flex: 1 1 45%;
+        margin: 0.25em;
+    }
+
+    .char-reference {
+        width: 100%;
+    }
+
+    .ascii-logo {
+        font-size: 10px;
+    }
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.glow {
+    text-shadow: 0 0 10px currentColor;
+}
+
+.bold {
+    font-weight: bold;
+}

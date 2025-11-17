@@ -2,11 +2,11 @@
 
 ## Original Work
 
-**Project**: C64 CSS3  
-**Author**: Roel Nieskens (Pixelambacht)  
-**Repository**: https://github.com/RoelN/c64css3  
-**Website**: http://pixelambacht.nl/2013/css3-c64/  
-**License**: MIT License (verify)  
+**Project**: C64 CSS3
+**Author**: Roel Nieskens (Pixelambacht)
+**Repository**: https://github.com/RoelN/c64css3
+**Website**: http://pixelambacht.nl/2013/css3-c64/
+**License**: MIT License (verify)
 **Year**: 2013
 
 ### Description
@@ -74,9 +74,9 @@ CSS3 recreation of the iconic Commodore 64 computer interface, featuring:
 ## Font Credits
 
 ### PetMe Font
-**Author**: [PetMe Font Author]  
-**License**: [Verify License]  
-**Purpose**: Authentic C64 PETSCII character set  
+**Author**: [PetMe Font Author]
+**License**: [Verify License]
+**Purpose**: Authentic C64 PETSCII character set
 **Usage**: Embedded in C64 Terminal for authentic retro feel
 
 ---
@@ -91,13 +91,13 @@ CSS3 recreation of the iconic Commodore 64 computer interface, featuring:
 ## License Compliance
 
 ### Original Work (C64 CSS3)
-Copyright © 2013 Roel Nieskens (Pixelambacht)  
+Copyright © 2013 Roel Nieskens (Pixelambacht)
 Licensed under MIT License
 
 Permission granted for modification and distribution with attribution.
 
 ### uDOS Enhancements
-Copyright © 2025 uDOS Project  
+Copyright © 2025 uDOS Project
 Licensed under [uDOS License]
 
 All enhancements are clearly documented and attributed.
@@ -106,11 +106,11 @@ All enhancements are clearly documented and attributed.
 
 ## Attribution
 
-This extension is built upon **C64 CSS3** by Roel Nieskens.  
+This extension is built upon **C64 CSS3** by Roel Nieskens.
 The original work provided the foundation for uDOS's retro terminal interface.
 
-**Original inspiration**: Commodore 64 (1982)  
-**CSS3 recreation**: Roel Nieskens (2013)  
+**Original inspiration**: Commodore 64 (1982)
+**CSS3 recreation**: Roel Nieskens (2013)
 **uDOS integration**: Fred Porter (2025)
 
 We are grateful to Roel Nieskens for creating this exceptional C64 recreation and making it available to the community.
