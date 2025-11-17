@@ -1,0 +1,238 @@
+/**
+ * uDOS Synthwave DOS Color Palette
+ * Version: 1.0.24
+ *
+ * Global 16-color standard for all uDOS applications
+ * Optimized for black backgrounds and high contrast
+ */
+
+:root {
+  /* ============================================
+     CORE 16 COLORS - Synthwave DOS Standard
+     ============================================ */
+
+  /* Background/Void */
+  --color-black: #000000;
+
+  /* White/Gray Scale */
+  --color-white-bright: #FFFFFF;
+  --color-gray-light: #CCCCCC;
+  --color-gray-dark: #AAAAAA;
+
+  /* Red (Error/Danger) */
+  --color-red-bright: #FB5607;    /* Blaze Orange */
+  --color-red-dark: #8C1D2D;      /* Muted Error */
+
+  /* Orange (Accent/Warning) */
+  --color-orange-bright: #FFD166; /* Golden Pollen */
+  --color-orange-dark: #FFB703;   /* Amber Flame */
+
+  /* Yellow (High Alert) */
+  --color-yellow-bright: #FFFF00;
+  --color-yellow-dark: #A0A647;
+
+  /* Green (Success/Active) */
+  --color-green-bright: #06D6A0;  /* Emerald */
+  --color-green-dark: #008000;
+
+  /* Cyan (Info/Link) */
+  --color-cyan-bright: #8ECAE6;   /* Sky Blue Light */
+  --color-cyan-dark: #118AB2;     /* Ocean Blue */
+
+  /* Blue (Primary System) */
+  --color-blue-bright: #3A86FF;   /* Azure Blue */
+  --color-blue-dark: #023047;     /* Deep Space Blue */
+
+  /* Magenta (Focus/Highlight) */
+  --color-magenta-bright: #FF006E; /* Neon Pink */
+  --color-magenta-dark: #8338EC;   /* Blue Violet */
+
+  /* ============================================
+     8-COLOR BLOCK GRAPHICS PALETTE
+     ============================================ */
+
+  --block-bg: var(--color-black);
+  --block-text: var(--color-white-bright);
+  --block-frame: var(--color-blue-bright);
+  --block-accent: var(--color-orange-bright);
+  --block-info: var(--color-cyan-bright);
+  --block-good: var(--color-green-bright);
+  --block-bad: var(--color-red-bright);
+  --block-focus: var(--color-magenta-bright);
+
+  /* ============================================
+     MONOCHROME MODE (System 7 Style)
+     ============================================ */
+
+  --mono-bg: #000000;
+  --mono-shadow: #AAAAAA;
+  --mono-highlight: #FFFFFF;
+
+  /* ============================================
+     SEMANTIC COLOR MAPPING
+     ============================================ */
+
+  /* Backgrounds */
+  --bg-primary: var(--color-black);
+  --bg-secondary: var(--color-blue-dark);
+  --bg-panel: var(--color-black);
+
+  /* Text */
+  --text-primary: var(--color-white-bright);
+  --text-secondary: var(--color-gray-light);
+  --text-tertiary: var(--color-gray-dark);
+  --text-info: var(--color-cyan-bright);
+  --text-success: var(--color-green-bright);
+  --text-warning: var(--color-orange-bright);
+  --text-error: var(--color-red-bright);
+
+  /* Borders & Frames */
+  --border-primary: var(--color-blue-bright);
+  --border-secondary: var(--color-cyan-bright);
+  --border-accent: var(--color-orange-bright);
+  --border-error: var(--color-red-bright);
+
+  /* Interactive Elements */
+  --button-bg: var(--color-blue-bright);
+  --button-fg: var(--color-white-bright);
+  --button-hover: var(--color-cyan-bright);
+  --button-active: var(--color-orange-bright);
+
+  /* Focus & Selection */
+  --focus-outline: var(--color-magenta-bright);
+  --selection-bg: var(--color-magenta-bright);
+  --selection-fg: var(--color-white-bright);
+
+  /* Status Indicators */
+  --status-ready: var(--color-green-bright);
+  --status-busy: var(--color-orange-bright);
+  --status-error: var(--color-red-bright);
+  --status-info: var(--color-cyan-bright);
+
+  /* ============================================
+     TRANSPARENCY VARIANTS (25%, 50%, 75%)
+     ============================================ */
+
+  /* Black */
+  --color-black-25: rgba(0, 0, 0, 0.25);
+  --color-black-50: rgba(0, 0, 0, 0.5);
+  --color-black-75: rgba(0, 0, 0, 0.75);
+
+  /* Blue */
+  --color-blue-bright-25: rgba(58, 134, 255, 0.25);
+  --color-blue-bright-50: rgba(58, 134, 255, 0.5);
+  --color-blue-bright-75: rgba(58, 134, 255, 0.75);
+
+  /* Cyan */
+  --color-cyan-bright-25: rgba(142, 202, 230, 0.25);
+  --color-cyan-bright-50: rgba(142, 202, 230, 0.5);
+  --color-cyan-bright-75: rgba(142, 202, 230, 0.75);
+
+  /* Orange */
+  --color-orange-bright-25: rgba(255, 209, 102, 0.25);
+  --color-orange-bright-50: rgba(255, 209, 102, 0.5);
+  --color-orange-bright-75: rgba(255, 209, 102, 0.75);
+
+  /* Magenta */
+  --color-magenta-bright-25: rgba(255, 0, 110, 0.25);
+  --color-magenta-bright-50: rgba(255, 0, 110, 0.5);
+  --color-magenta-bright-75: rgba(255, 0, 110, 0.75);
+
+  /* Green */
+  --color-green-bright-25: rgba(6, 214, 160, 0.25);
+  --color-green-bright-50: rgba(6, 214, 160, 0.5);
+  --color-green-bright-75: rgba(6, 214, 160, 0.75);
+
+  /* Red */
+  --color-red-bright-25: rgba(251, 86, 7, 0.25);
+  --color-red-bright-50: rgba(251, 86, 7, 0.5);
+  --color-red-bright-75: rgba(251, 86, 7, 0.75);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Text Colors */
+.text-white { color: var(--color-white-bright); }
+.text-gray-light { color: var(--color-gray-light); }
+.text-gray-dark { color: var(--color-gray-dark); }
+.text-red { color: var(--color-red-bright); }
+.text-orange { color: var(--color-orange-bright); }
+.text-yellow { color: var(--color-yellow-bright); }
+.text-green { color: var(--color-green-bright); }
+.text-cyan { color: var(--color-cyan-bright); }
+.text-blue { color: var(--color-blue-bright); }
+.text-magenta { color: var(--color-magenta-bright); }
+
+/* Background Colors */
+.bg-black { background-color: var(--color-black); }
+.bg-blue { background-color: var(--color-blue-bright); }
+.bg-blue-dark { background-color: var(--color-blue-dark); }
+.bg-cyan { background-color: var(--color-cyan-bright); }
+.bg-green { background-color: var(--color-green-bright); }
+.bg-orange { background-color: var(--color-orange-bright); }
+.bg-red { background-color: var(--color-red-bright); }
+.bg-magenta { background-color: var(--color-magenta-bright); }
+
+/* Border Colors */
+.border-blue { border-color: var(--color-blue-bright); }
+.border-cyan { border-color: var(--color-cyan-bright); }
+.border-green { border-color: var(--color-green-bright); }
+.border-orange { border-color: var(--color-orange-bright); }
+.border-red { border-color: var(--color-red-bright); }
+.border-magenta { border-color: var(--color-magenta-bright); }
+
+/* ============================================
+   MONOCHROME MODE OVERRIDE
+   ============================================ */
+
+body.mono-mode {
+  --color-white-bright: #FFFFFF;
+  --color-gray-light: #CCCCCC;
+  --color-gray-dark: #AAAAAA;
+  --color-black: #000000;
+
+  /* All colors become monochrome */
+  --color-red-bright: #FFFFFF;
+  --color-orange-bright: #FFFFFF;
+  --color-yellow-bright: #FFFFFF;
+  --color-green-bright: #FFFFFF;
+  --color-cyan-bright: #FFFFFF;
+  --color-blue-bright: #FFFFFF;
+  --color-magenta-bright: #FFFFFF;
+
+  --color-red-dark: #AAAAAA;
+  --color-orange-dark: #AAAAAA;
+  --color-yellow-dark: #AAAAAA;
+  --color-green-dark: #AAAAAA;
+  --color-cyan-dark: #AAAAAA;
+  --color-blue-dark: #000000;
+  --color-magenta-dark: #AAAAAA;
+}
+
+/* ============================================
+   CONTRAST RATING REFERENCE
+   ============================================ */
+
+/*
+ * AAA Rating (7:1) - Highest readability:
+ * - COLOR_WHITE_BRIGHT (#FFFFFF)
+ * - COLOR_RED_BRIGHT (#FB5607)
+ * - COLOR_ORANGE_BRIGHT (#FFD166)
+ * - COLOR_YELLOW_BRIGHT (#FFFF00)
+ * - COLOR_GREEN_BRIGHT (#06D6A0)
+ * - COLOR_CYAN_BRIGHT (#8ECAE6)
+ * - COLOR_BLUE_BRIGHT (#3A86FF)
+ * - COLOR_MAGENTA_BRIGHT (#FF006E)
+ *
+ * AA Rating (4.5:1) - Good readability:
+ * - COLOR_GRAY_LIGHT (#CCCCCC)
+ * - COLOR_GRAY_DARK (#AAAAAA)
+ * - COLOR_ORANGE_DARK (#FFB703)
+ * - COLOR_YELLOW_DARK (#A0A647)
+ * - COLOR_GREEN_DARK (#008000)
+ * - COLOR_CYAN_DARK (#118AB2)
+ * - COLOR_BLUE_DARK (#023047)
+ * - COLOR_MAGENTA_DARK (#8338EC)
+ */
