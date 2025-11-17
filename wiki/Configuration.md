@@ -156,7 +156,8 @@ THEME APPLY classic_mac
 ```
 
 **Built-in themes**:
-- `classic_mac` - Retro Mac Plus aesthetic
+- `classic_mac` - Retro Mac Plus aesthetic (ChicagoFLF font)
+- `commodore` - Commodore PET/C64 style (PetMe fonts)
 - `terminal_green` - Classic green phosphor
 - `amber` - Amber monochrome
 - `cyberpunk` - Neon colors
@@ -165,7 +166,53 @@ THEME APPLY classic_mac
 - `dracula` - Dracula color scheme
 - `solarized` - Solarized light/dark
 
+**Available fonts**:
+- `ChicagoFLF` - Classic Macintosh System font
+- `chicago-12-1` - Enhanced Chicago variant
+- `PetMe` - Commodore PET/CBM authentic font
+- `PetMe64` - Commodore 64 character set
+- `PetMe128` - Commodore 128 character set
+- `PetMe2X` - Double-wide characters
+- `PetMe2Y` - Double-height characters
+- `mallard-blocky` - Modern monospace
+- `sysfont` - Clean system font
+
 See [Theme System](Theme-System.md) for creating custom themes.
+
+#### Font Configuration
+
+**Set font in theme**:
+```json
+{
+  "theme": {
+    "name": "custom_commodore",
+    "font": "PetMe64",
+    "font_size": 14,
+    "line_height": 1.2,
+    "anti_aliasing": false
+  }
+}
+```
+
+**Recommended font settings**:
+- **High DPI displays**: 14-16pt, anti-aliasing off for pixel-perfect
+- **Standard displays**: 12-14pt, anti-aliasing optional
+- **Low resolution**: 10-12pt, anti-aliasing off
+
+**Commodore PET/C64 variants**:
+- `PetMe` - Standard PET font
+- `PetMe64` - Authentic C64 character ROM
+- `PetMe128` - C128 variant
+- `PetMe642Y` - C64 with double-height
+- `PetMe1282Y` - C128 with double-height
+
+**Font credits**:
+- ChicagoFLF: Public Domain
+- PetMe family: Kreative Software (Free Use License)
+- chicago-12-1, mallard: CC BY-SA 3.0
+- sysfont: SIL Open Font License
+
+See `extensions/fonts/LICENSE_ASSESSMENT.md` for complete licensing.
 
 ### Command Behavior
 
@@ -538,6 +585,6 @@ ls -la data/themes/<theme_name>.theme.json
 
 ---
 
-**Last Updated**: November 17, 2025  
-**Version**: v1.0.22  
+**Last Updated**: November 17, 2025
+**Version**: v1.0.22
 **See Also**: [Documentation Handbook](Documentation-Handbook.md)
