@@ -255,7 +255,8 @@ ul[role=menu-bar] > [role=menu-item] {
 }
 
 ul[role=menu-bar] > [role=menu-item]:hover,
-ul[role=menu-bar] > [role=menu-item]:focus {
+ul[role=menu-bar] > [role=menu-item]:focus,
+ul[role=menu-bar] > [role=menu-item]:focus-within {
   background: #000;
   color: #fff;
   outline: none;
@@ -270,18 +271,49 @@ ul[role=menu] {
   padding: 4px 0;
   min-width: 200px;
   position: absolute;
+  top: 100%;
+  left: 0;
   z-index: 100;
   display: none;
+}
+
+[role=menu-item]:hover > ul[role=menu],
+[role=menu-item]:focus-within > ul[role=menu] {
+  display: block;
 }
 
 ul[role=menu] > [role=menu-item] {
   padding: 6px 24px;
   cursor: pointer;
+  position: relative;
 }
 
-ul[role=menu] > [role=menu-item]:hover {
+ul[role=menu] > [role=menu-item] > a {
+  color: #000;
+  text-decoration: none;
+  display: block;
+}
+
+ul[role=menu] > [role=menu-item]:hover,
+ul[role=menu] > [role=menu-item]:hover > a {
   background: #000;
   color: #fff;
+}
+
+ul[role=menu] > [role=menu-item].disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+ul[role=menu] > [role=menu-item].disabled:hover {
+  background: #fff;
+  color: #aaa;
+}
+
+ul[role=menu] hr {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 4px 0;
 }
 
 /* Dialog */
