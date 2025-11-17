@@ -558,21 +558,30 @@ ul [role="menu-item"].divider::after {
 }
 
 .desktop-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 .desktop-icon-image {
-  font-size: 48px;
-  margin-bottom: 4px;
-  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 4px;
+  display: block;
+  filter: invert(0);
+}
+
+.desktop-icon:hover .desktop-icon-image {
+  filter: invert(0.1);
 }
 
 .desktop-icon-label {
   background: rgba(255, 255, 255, 0.9);
-  padding: 2px 4px;
-  font-size: 11px;
-  font-family: Chicago, sans-serif;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-family: Chicago_12, Chicago, sans-serif;
   border: 1px solid #000;
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* ===== CUSTOM COMPONENTS ===== */
