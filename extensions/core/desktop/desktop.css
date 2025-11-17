@@ -1,40 +1,80 @@
 /*!
- * uDOS Desktop CSS v1.0
- * Based on system.css v0.1.11 by @sakofchit
+ * uDOS Desktop CSS v1.0.24
+ *
+ * Based on system.css v0.1.11 by Sakun Acharige (@sakofchit)
  * https://github.com/sakofchit/system.css
  *
- * A design system for building retro Apple-inspired interfaces
- * Classic monochrome System 6 styling
+ * CREDITS:
+ * - system.css is MIT licensed
+ * - Authentic fonts and icons from system.css
+ * - Chicago_12 and Geneva_9 fonts recreated by @blogmywiki
+ * - Additional desktop icons from Mono Icon Theme by Vitali Hirsch
+ *   https://github.com/witalihirsch/Mono-icon-theme
+ *
+ * DESIGN PHILOSOPHY:
+ * - True to Apple System 6 (1984-1991) - the final monochrome Mac OS
+ * - system.css assets used for primary UI chrome (buttons, forms, scrollbars)
+ * - Mono icons used for desktop application shortcuts
+ * - Pure monochrome aesthetic: black, white, and grey only
  */
 
-/* Classic Mac OS Colors */
+/* ===== COLOR SYSTEM ===== */
 :root {
+  /* Classic Mac System 6 monochrome palette */
   --mac-black: #000000;
   --mac-white: #ffffff;
   --mac-grey: #c0c0c0;
   --mac-dark-grey: #808080;
+
+  /* system.css compatibility */
+  --primary: var(--mac-black);
+  --secondary: var(--mac-grey);
+  --tertiary: var(--mac-white);
 }
 
-/* ===== FONTS ===== */
+/* ===== AUTHENTIC SYSTEM.CSS FONTS ===== */
+/* ChicagoFLF - Main display font */
 @font-face {
   font-family: Chicago;
-  src: url('../fonts/chicago/ChicagoFLF.ttf') format('truetype');
+  src: url('../system.css/fonts/ChicagoFLF.woff2') format('woff2'),
+       url('../system.css/fonts/ChicagoFLF.woff') format('woff');
   font-display: swap;
 }
 
+/* Chicago_12 (ChiKareGo2) - Primary UI font */
 @font-face {
   font-family: Chicago_12;
-  src: url('../fonts/chicago/chicago-12-1.otf') format('opentype');
+  src: url('../system.css/fonts/ChiKareGo2.woff2') format('woff2'),
+       url('../system.css/fonts/ChiKareGo2.woff') format('woff');
   font-display: swap;
 }
 
-/* ===== SCROLLBARS ===== */
+/* Geneva_9 (FindersKeepers) - Small system font */
+@font-face {
+  font-family: Geneva_9;
+  src: url('../system.css/fonts/FindersKeepers.woff2') format('woff2'),
+       url('../system.css/fonts/FindersKeepers.woff') format('woff');
+  font-display: swap;
+}
+
+/* Monaco - Monospace font for code/terminal */
+@font-face {
+  font-family: Monaco;
+  src: url('../system.css/fonts/monaco.woff2') format('woff2'),
+       url('../system.css/fonts/monaco.woff') format('woff');
+  font-display: swap;
+}
+
+/* ===== CUSTOM SCROLLBARS ===== */
+/* Authentic system.css scrollbar styling with Mac OS checkerboard pattern */
+
 ::-webkit-scrollbar {
   background-color: #fff;
   width: 22px;
 }
 
 ::-webkit-scrollbar-track {
+  /* Classic Mac OS checkerboard pattern */
   background: linear-gradient(45deg, #000 25%, transparent 0, transparent 75%, #000 0, #000),
     linear-gradient(45deg, #000 25%, transparent 0, transparent 75%, #000 0, #000);
   background-color: #fff;
@@ -52,13 +92,56 @@
   width: 20px;
 }
 
-/* ===== BASE STYLES ===== */
+::-webkit-scrollbar-button:single-button {
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 2px solid #000;
+  display: block;
+  height: 22px;
+  width: 22px;
+}
+
+/* Scrollbar arrows using authentic system.css icons */
+::-webkit-scrollbar-button:vertical:decrement {
+  background-image: url("../system.css/icon/scrollbar-up.svg");
+}
+
+::-webkit-scrollbar-button:vertical:decrement:active {
+  background-image: url("../system.css/icon/scrollbar-up-active.svg");
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background-image: url("../system.css/icon/scrollbar-down.svg");
+}
+
+::-webkit-scrollbar-button:vertical:increment:active {
+  background-image: url("../system.css/icon/scrollbar-down-active.svg");
+}
+
+::-webkit-scrollbar-button:horizontal:decrement {
+  background-image: url("../system.css/icon/scrollbar-left.svg");
+}
+
+::-webkit-scrollbar-button:horizontal:decrement:active {
+  background-image: url("../system.css/icon/scrollbar-left-active.svg");
+}
+
+::-webkit-scrollbar-button:horizontal:increment {
+  background-image: url("../system.css/icon/scrollbar-right.svg");
+}
+
+::-webkit-scrollbar-button:horizontal:increment:active {
+  background-image: url("../system.css/icon/scrollbar-right-active.svg");
+}
+
+/* ===== BASE TYPOGRAPHY & LAYOUT ===== */
 body {
   background: linear-gradient(90deg, #fff 21px, transparent 1%) 50%,
     linear-gradient(#fff 21px, transparent 1%) 50%, #000;
   background-attachment: fixed;
   background-size: 22px 22px;
-  font-family: Chicago_12, Chicago, Monaco, 'Courier New', monospace;
+  font-family: Chicago_12, Geneva_9, Chicago, Monaco, 'Courier New', monospace;
   font-size: 12px;
   margin: 0;
   padding: 0;
@@ -89,7 +172,7 @@ h2 { font-size: 2em; }
   border: 2px solid #000;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
   flex-direction: column;
-  font-family: Chicago_12, Chicago, Monaco, monospace;
+  font-family: Chicago_12, Geneva_9, Chicago, Monaco, monospace;
   margin: 1rem;
   min-width: 320px;
   overflow: hidden;
@@ -120,7 +203,7 @@ h2 { font-size: 2em; }
 .title-bar .title {
   background: #fff;
   cursor: default;
-  font-family: Chicago_12, Chicago, sans-serif;
+  font-family: Chicago_12, Geneva_9, Chicago, sans-serif;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -220,6 +303,7 @@ h2 { font-size: 2em; }
 }
 
 /* ===== BUTTONS ===== */
+/* ===== BUTTONS ===== */
 .btn,
 .btn-default {
   background: #fff;
@@ -227,7 +311,7 @@ h2 { font-size: 2em; }
   border-radius: 4px;
   color: #000;
   cursor: pointer;
-  font-family: Chicago_12, Chicago, sans-serif;
+  font-family: Chicago_12, Geneva_9, Chicago, sans-serif;
   font-size: 18px;
   min-height: 20px;
   min-width: 59px;
@@ -235,6 +319,12 @@ h2 { font-size: 2em; }
   text-align: center;
   text-decoration: none;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+
+  /* Authentic system.css button border */
+  border-image-source: url("../system.css/icon/button.svg");
+  border-image-width: 6;
+  border-image-repeat: stretch;
+  border-image-slice: 6;
 }
 
 .btn:active {
@@ -252,6 +342,12 @@ h2 { font-size: 2em; }
 .btn-default {
   border-width: 0.5em;
   font-weight: bold;
+
+  /* Authentic system.css default button border */
+  border-image-source: url("../system.css/icon/button-default.svg");
+  border-image-width: 8;
+  border-image-repeat: stretch;
+  border-image-slice: 8;
 }
 
 .btn-default:active {
@@ -262,7 +358,7 @@ h2 { font-size: 2em; }
 input,
 textarea {
   border: 1.5px solid #000;
-  font-family: Chicago_12, Chicago, monospace;
+  font-family: Chicago_12, Geneva_9, Monaco, monospace;
   font-size: 18px;
   padding-left: 5px;
 }
@@ -292,7 +388,9 @@ select {
   width: 10rem;
 }
 
-/* ===== CHECKBOXES & RADIO ===== */
+/* ===== CHECKBOXES & RADIO BUTTONS ===== */
+/* Using authentic system.css icons for form controls */
+
 input[type="checkbox"],
 input[type="radio"] {
   appearance: none;
@@ -311,13 +409,15 @@ input[type="radio"] + label {
   padding-left: 5px;
 }
 
+/* Radio Buttons - system.css authentic styling */
 input[type="radio"] + label {
   margin-left: 18px;
   position: relative;
 }
 
 input[type="radio"] + label::before {
-  background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 0h4v1H4zM0 4h1v4H0zM11 4h1v4h-1zM2 1h2v1H2zM8 1h2v1H8zM10 2h1v2h-1zM1 2h1v2H1zM4 11h4v1H4zM2 10h2v1H2zM8 10h2v1H8zM10 8h1v2h-1zM1 8h1v2H1z'/%3E%3C/svg%3E");
+  /* Authentic system.css radio border */
+  background: url("../system.css/icon/radio-border.svg");
   content: "";
   display: inline-block;
   height: 12px;
@@ -328,8 +428,14 @@ input[type="radio"] + label::before {
   width: 12px;
 }
 
+input[type="radio"]:focus + label::before {
+  /* Authentic system.css focused radio border */
+  background: url("../system.css/icon/radio-border-focused.svg");
+}
+
 input[type="radio"]:checked + label::after {
-  background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='7' height='7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 0h4v1H1zM1 5h4v1H1zM0 1h6v4H0z'/%3E%3C/svg%3E");
+  /* Authentic system.css radio dot */
+  background: url("../system.css/icon/radio-dot.svg");
   content: "";
   display: block;
   height: 6px;
@@ -339,6 +445,7 @@ input[type="radio"]:checked + label::after {
   width: 6px;
 }
 
+/* Checkboxes - system.css authentic styling */
 input[type="checkbox"] + label {
   margin-left: 19px;
   position: relative;
@@ -361,7 +468,8 @@ input[type="checkbox"]:hover + label::before {
 }
 
 input[type="checkbox"]:checked + label::after {
-  background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM4 4h1v1H4zM5 5h1v1H5zM6 6h1v1H6zM7 7h1v1H7zM8 8h1v1H8zM9 9h1v1H9zM10 10h1v1h-1zM11 11h1v1h-1zM11 0h1v1h-1zM10 1h1v1h-1zM9 2h1v1H9zM8 3h1v1H8zM7 4h1v1H7zM6 5h1v1H6zM5 6h1v1H5zM4 7h1v1H4zM3 8h1v1H3zM2 9h1v1H2zM1 10h1v1H1zM0 11h1v1H0z'/%3E%3C/svg%3E");
+  /* Authentic system.css checkmark */
+  background: url("../system.css/icon/checkmark.svg");
   background-repeat: no-repeat;
   content: "";
   display: block;
@@ -376,7 +484,7 @@ input[type="checkbox"]:checked + label::after {
 .field-row {
   align-items: center;
   display: flex;
-  font-family: Chicago_12, Chicago, sans-serif;
+  font-family: Chicago_12, Geneva_9, Chicago, sans-serif;
   font-size: 1em;
 }
 
