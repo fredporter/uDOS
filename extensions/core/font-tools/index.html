@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uDOS Font Editor v1.3</title>
-
-    <!-- system.css - Retro Mac System 6 Styling -->
-    <link rel="stylesheet" href="../../core/themes/system.css">
-
-    <meta name="description" content="Create custom 16×16 bitmap fonts for uDOS terminal">
-
+    <title>uDOS Character Editor v1.0.24</title>
+    <meta http-equiv="refresh" content="0; url=character-editor.html">
     <style>
-        /* Custom overrides for Font Editor */
         body {
-            padding: 20px;
+            font-family: Monaco, "Courier New", Courier, monospace;
+            background: #000;
+            color: #8ECAE6;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            height: 100vh;
+            margin: 0;
         }
-
-        .window {
-            max-width: 1200px;
-            width: 100%;
+        .redirect {
+            text-align: center;
+            padding: 40px;
+            background: #023E73;
+            border: 4px solid #3A86FF;
         }
-
-        .window-pane {
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: 80vh;
-        }
-
-        .editor-layout {
-            display: flex;
-            gap: 20px;
-        }
-
-        .sidebar {
-            min-width: 250px;
-            flex-shrink: 0;
-        }
-
-        .section {
+        h1 {
+            color: #FFD166;
             margin-bottom: 20px;
-            padding: 10px;
-            border: 1.5px solid #000;
-            background: #fff;
         }
+        a {
+            color: #8ECAE6;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        a:hover {
+            color: #06D6A0;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect">
+        <h1>uDOS CHARACTER EDITOR</h1>
+        <p>Redirecting to Character Editor...</p>
+        <p><a href="character-editor.html">Click here if not redirected automatically</a></p>
+    </div>
+</body>
+</html>
 
         .section h3 {
             margin: 0 0 10px 0;

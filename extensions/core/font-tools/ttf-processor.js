@@ -1,7 +1,7 @@
 /**
  * uDOS Font Manager - TTF Processor
  * Version: 1.0.24
- * 
+ *
  * Converts TTF/OTF fonts to bitmap format
  */
 
@@ -25,7 +25,7 @@ class TTFProcessor {
             // Create FontFace
             const fontName = file.name.replace(/\.[^/.]+$/, '');
             this.fontFace = new FontFace(fontName, `url(${url})`);
-            
+
             await this.fontFace.load();
             document.fonts.add(this.fontFace);
 
@@ -78,10 +78,10 @@ class TTFProcessor {
         this.ctx.font = `${size}px "${this.fontData.family}"`;
         this.ctx.fillStyle = '#AAFFEE';
         this.ctx.textBaseline = 'top';
-        
+
         const lines = text.split('\n');
         const lineHeight = size * 1.2;
-        
+
         lines.forEach((line, i) => {
             this.ctx.fillText(line, 10, 10 + i * lineHeight);
         });
@@ -111,11 +111,11 @@ class TTFProcessor {
                 item.textContent = char;
                 item.title = `U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
                 item.style.fontFamily = `"${this.fontData.family}"`;
-                
+
                 item.addEventListener('click', () => {
                     this.renderGlyphBitmap(char, code);
                 });
-                
+
                 glyphGrid.appendChild(item);
             }
         });
@@ -143,7 +143,7 @@ class TTFProcessor {
         const bitmap = this.imageDataToBitmap(imageData, size);
 
         console.log(`Glyph ${char} (U+${code.toString(16).toUpperCase()}):`, bitmap);
-        
+
         return bitmap;
     }
 
@@ -201,7 +201,7 @@ class TTFProcessor {
 
         console.log('Exported bitmap font:', bitmapFont);
         alert(`Exported ${Object.keys(bitmapFont.glyphs).length} glyphs to bitmap format`);
-        
+
         return bitmapFont;
     }
 

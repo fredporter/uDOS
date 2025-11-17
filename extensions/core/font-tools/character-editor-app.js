@@ -9,7 +9,7 @@ class FontManagerApp {
         this.ttfProcessor = null;
         this.currentTab = 'bitmap';
         this.fontLibrary = [];
-        
+
         this.init();
     }
 
@@ -125,7 +125,7 @@ class FontManagerApp {
                 try {
                     const text = await file.text();
                     const fontData = JSON.parse(text);
-                    
+
                     if (this.bitmapEditor) {
                         this.bitmapEditor.fontData = fontData;
                         this.bitmapEditor.saveToLocalStorage();
@@ -191,11 +191,11 @@ class FontManagerApp {
     exportBitmap() {
         if (this.ttfProcessor) {
             const bitmapFont = this.ttfProcessor.exportToBitmap();
-            
+
             if (bitmapFont) {
                 // Switch to bitmap editor and load the converted font
                 this.switchTab('bitmap');
-                
+
                 if (this.bitmapEditor) {
                     this.bitmapEditor.fontData = bitmapFont;
                     this.bitmapEditor.saveToLocalStorage();
@@ -220,7 +220,7 @@ class FontManagerApp {
         } catch (e) {
             this.fontLibrary = [];
         }
-        
+
         this.renderFontLibrary();
     }
 
@@ -245,7 +245,7 @@ class FontManagerApp {
                 <div class="font-item-name">${font.name}</div>
                 <div class="font-item-meta">${font.version || '1.0.0'} • ${Object.keys(font.glyphs || {}).length} chars</div>
             `;
-            
+
             item.addEventListener('click', () => this.loadFontFromLibrary(idx));
             listEl.appendChild(item);
         });

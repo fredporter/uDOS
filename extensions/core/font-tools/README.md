@@ -1,266 +1,140 @@
-# 🔮 uDOS Font Editor
+# uDOS Character Editor
 
-**Retro-inspired 16×16 bitmap font creator for uDOS terminal**
+**Version:** 1.0.24  
+**Status:** Active Development  
+**Location:** `/extensions/core/font-tools/`
 
-Create custom monospace fonts with pixel-perfect precision. Perfect for ASCII art, box-drawing characters, UI icons, and retro aesthetics.
+## Overview
 
----
+The uDOS Character Editor is a comprehensive pixel-art tool for creating, editing, and managing character sets and emoji for the uDOS terminal environment. Supports multiple resolutions, monochrome and multicolor modes, and seamless integration with uDOS fonts and block graphics.
 
-## 🎯 Features
+## Features
 
-- **16×16 Pixel Grid**: Standard uCELL format
-- **Real-time Preview**: See your font in action instantly
-- **Auto-Save**: All changes saved to browser localStorage
-- **Export/Import**: JSON format for sharing and backup
-- **120 Character Slots**: ASCII + Box Drawing + Block Elements
-- **Editing Tools**: Clear, Fill, Flip H/V, Rotate, Invert
-- **Copy/Paste**: Duplicate glyphs quickly
-- **Keyboard Shortcuts**: Fast pixel-perfect editing
-- **Retro Design**: Green-on-black terminal aesthetic
+### Multi-Resolution Support
+- **8×8 pixels** - Classic 8-bit character size
+- **16×16 pixels** - Standard uDOS character size (default)
+- **32×32 pixels** - Enhanced detail characters
+- **64×64 pixels** - High-resolution icons
+- **128×128 pixels** - Maximum detail graphics
 
----
+### Font Picker
+Comprehensive font library with instant preview and grid population:
 
-## 🚀 Quick Start
-
-### Local File
-1. Open `index.html` in your browser
-2. Start drawing on the 16×16 grid
-3. Click or drag to draw pixels
-4. Right-click or drag to erase
-
-### With HTTP Server
-```bash
-cd extensions/web/font-editor
-python3 -m http.server 8000
-# Open http://localhost:8000
+#### System Fonts (Monaco Priority Stack)
 ```
-
----
-
-## 🎨 How to Use
-
-### Drawing
-- **Left Click + Drag**: Draw pixels (green)
-- **Right Click + Drag**: Erase pixels (black)
-- Grid auto-saves to browser localStorage
-
-### Glyph Selection
-- Use dropdown to select character to edit
-- Navigate with **←/→** arrow keys or buttons
-- Currently editing character shown in sidebar
-
-### Tools
-| Tool | Button | Shortcut | Description |
-|------|--------|----------|-------------|
-| Clear | ⬜ Clear | `Space` | Erase entire grid |
-| Fill | ⬛ Fill | `F` | Fill entire grid |
-| Flip H | ↔️ Flip H | `H` | Mirror horizontally |
-| Flip V | ↕️ Flip V | `V` | Mirror vertically |
-| Rotate | 🔄 Rotate | `R` | Rotate 90° clockwise |
-| Invert | ◐ Invert | `I` | Swap on/off pixels |
-| Copy | 📋 Copy | `C` | Copy current glyph |
-| Paste | 📄 Paste | `P` | Paste copied glyph |
-
-### File Operations
-- **Export JSON**: Download font as `.json` file
-- **Import JSON**: Load previously saved font
-- **Reset All**: Clear all glyphs (requires confirmation)
-
-### Metadata
-- **Font Name**: Set custom font name (used in export filename)
-- **Author**: Add your name to the font metadata
-
-### Preview
-- **Live Preview**: See your font rendered in real-time
-- **Custom Text**: Edit preview text to test specific characters
-- Default: "THE QUICK BROWN FOX 0123456789"
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `Space` | Clear current glyph |
-| `F` | Fill current glyph |
-| `H` | Flip horizontally |
-| `V` | Flip vertically |
-| `R` | Rotate 90° clockwise |
-| `I` | Invert pixels |
-| `C` | Copy current glyph |
-| `←` / `→` | Navigate prev/next character |
-| `↑` / `↓` | Jump 16 characters |
-
----
-
-## 📁 File Format
-
-Fonts are saved as JSON with this structure:
-
-```json
-{
-  "fontName": "uDOS Custom",
-  "author": "Your Name",
-  "gridSize": "16x16",
-  "baseline": 12,
-  "created": "2025-10-31T12:00:00.000Z",
-  "modified": "2025-10-31T12:30:00.000Z",
-  "version": "1.0",
-  "glyphs": {
-    "U+0041": [
-      "0000000000000000",
-      "0000000110000000",
-      "0000001111000000",
-      "0000011001100000",
-      "0000110000110000",
-      "0001111111111000",
-      "0001100000011000",
-      "0011000000001100",
-      "0011000000001100",
-      "0000000000000000",
-      "0000000000000000",
-      "0000000000000000",
-      "0000000000000000",
-      "0000000000000000",
-      "0000000000000000",
-      "0000000000000000"
-    ]
-  }
-}
+Monaco → Courier New → Courier → monospace
 ```
+- **Monaco** - Classic Mac monospace (primary)
+- **Courier New** - Ubiquitous, retro-terminal style
+- **Courier** - PostScript core font (guaranteed)
+- **monospace** - Generic fallback
 
-Each glyph is a 16-element array of binary strings (`0` = off, `1` = on).
+#### uDOS Fonts
+- **PetMe64** - Authentic C64 PETSCII font
+- **PetMe128** - High-res C64 font variant
+- **Mallard Blocky** - Teletext-style block font
+- **Mallard Blockier** - Extra-bold blocks
+- **Mallard Smooth** - Anti-aliased variant
+- **Mallard Smoother** - Smoother anti-aliasing
+- **Mallard Tiny** - Compact teletext font
+- **Chicago** - Classic Mac system font
 
----
+#### Block Graphics Sets
+- **C64 PETSCII Blocks** - Commodore 64 graphics characters
+- **Unicode Box Drawing** - Standard box-drawing characters
+- **Teletext Graphics** - BBC Teletext block graphics
+- **ASCII Extended** - Extended ASCII character set
 
-## 🎯 Character Ranges
+#### Emoji Sets
+- **Noto Emoji Mono** - Google's monospaced emoji
+- **Twemoji** - Twitter's multicolor emoji set
+- **Custom Emoji** - User-created emoji library
 
-### ASCII Printable (95 chars)
-- U+0020 to U+007E
-- Letters, numbers, punctuation, symbols
+### Color Modes
 
-### Box Drawing (17 chars)
-- U+2500 to U+2555
-- Lines, corners, intersections
-- Single and double-line variants
+#### Monochrome Mode (Default)
+- Single-color pixel art (black/white or custom)
+- Optimized for terminal character sets
+- Clean, crisp bitmap output
 
-### Block Elements (8 chars)
-- U+2580 to U+2593
-- Half blocks, full blocks, shades
+#### Multicolor Mode
+- Full Synthwave DOS 16-color palette
+- Support for emoji and icons
+- Per-pixel color selection
+- Custom color addition
 
----
+### Editing Tools
 
-## 🔗 Integration with uDOS
+- **Draw** - Freehand pixel drawing (D)
+- **Erase** - Remove individual pixels (E)
+- **Fill** - Flood-fill regions (F)
+- **Line** - Draw straight lines (L)
+- **Rectangle** - Draw rectangles (R)
+- **Circle** - Draw circles (C)
 
-### Export for Terminal Use
-1. Create your font in the editor
-2. Click **💾 Export JSON**
-3. File saves as `uFONT-YYYYMMDD-FontName.json`
-4. Convert to WOFF2 (future feature)
-5. Load into `cmd.js` terminal
+### Transform Operations
 
-### Current Workflow
-```bash
-# 1. Create font in editor
-# 2. Export JSON
-# 3. (Future) Convert to WOFF2:
-#    python3 core/font_converter.py font.json font.woff2
-# 4. Load in terminal:
-#    FONT INSTALL custom.woff2
-```
+- **Flip Horizontal** - Mirror character left-right
+- **Flip Vertical** - Mirror character top-bottom
+- **Rotate CW** - Rotate 90° clockwise
+- **Rotate CCW** - Rotate 90° counter-clockwise
+- **Invert** - Swap black/white pixels
+- **Shift Up/Down/Left/Right** - Move pixels by 1px
 
----
+## System Font Stack Rationale
 
-## 💾 Storage
+The uDOS Character Editor uses a carefully designed font stack that prioritizes aesthetics while ensuring universal compatibility:
 
-- **Auto-Save**: All changes saved to `localStorage`
-- **Key**: `udos-font-editor`
-- **Clipboard**: Glyph copy/paste uses `udos-font-clipboard`
-- **Persistence**: Survives browser refresh
-- **Clearing**: Use "Reset All" or clear browser storage
+$$\\text{Font Stack} = \\text{Monaco}, \\text{Courier New}, \\text{Courier}, \\text{monospace}$$
 
----
+### Monaco (Priority 1)
+- **Why:** Recognizable and beloved classic Mac monospace font
+- **Aesthetic:** Clean, professional, nostalgic
+- **Availability:** macOS (built-in), some Linux distributions
 
-## 🎨 Example Fonts
+### Courier New (Priority 2)
+- **Why:** Balance of ubiquity and clear retro-terminal style
+- **Aesthetic:** Classic typewriter monospace
+- **Availability:** Universal (Windows, macOS, Linux)
 
-### Template Ideas
-- **Teletext**: BBC Micro style chunky text
-- **C64 PETSCII**: Commodore 64 character set
-- **LCD 7-Segment**: Calculator/digital clock style
-- **Pixel Art**: Custom game/demo fonts
-- **ASCII Art**: Box-drawing heavy designs
+### Courier (Priority 3)
+- **Why:** Guaranteed PostScript core font
+- **Aesthetic:** Original typewriter font
+- **Availability:** All platforms (PostScript standard)
 
----
+### monospace (Priority 4)
+- **Why:** Generic fallback ensures monospace rendering
+- **Aesthetic:** System-dependent
+- **Availability:** Universal (CSS generic family)
 
-## 🛠️ Technical Details
+This cascading stack ensures optimal aesthetics while maintaining universal compatibility across all platforms.
 
-### Architecture
-- **Pure Vanilla JS**: No frameworks required
-- **HTML5 Canvas**: Pixel-perfect rendering
-- **localStorage API**: Persistent storage
-- **CSS Grid/Flexbox**: Responsive layout
+## Credits
 
-### Browser Compatibility
-- Chrome/Edge: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Mobile: ⚠️ Touch support limited (use desktop)
+- **Original Concept:** uDOS Font Manager v1.0.23
+- **Redesign:** Character Editor v1.0.24
+- **Color Palette:** Synthwave DOS 16-color standard
+- **Fonts:** 
+  - PetMe by Style (C64 font)
+  - Mallard by Elias Steurer (Teletext font family)
+  - Chicago by Susan Kare (Classic Mac font)
 
-### File Size
-- **Application**: ~50KB total (HTML + CSS + JS)
-- **Font Data**: ~2KB per font (vs 625KB for Monaspace)
-- **300× smaller** than standard web fonts
+## Version History
 
----
+### v1.0.24 (Current)
+- Renamed from Font Manager to Character Editor
+- Added multi-resolution support (8×8 to 128×128)
+- Implemented Font Picker with System/uDOS/Block/Emoji categories
+- Added Synthwave DOS 16-color palette
+- Multicolor mode for emoji design
+- Monospaced emoji support (Noto Emoji Mono)
+- System font stack (Monaco priority)
+- Enhanced transform tools (shift operations)
+- Character Set grid view
+- /memory integration for saved sets
 
-## 🔮 Future Features
-
-- [ ] WOFF2 export (direct web font generation)
-- [ ] Template fonts (Teletext, C64, LCD)
-- [ ] Undo/Redo history
-- [ ] Multi-glyph select and batch operations
-- [ ] Import from existing fonts
-- [ ] Variable baseline setting
-- [ ] Grid size options (8×8, 32×32)
-- [ ] Color/grayscale support
-- [ ] Export to sprite sheet
-
----
-
-## 📚 Resources
-
-- **uDOS Font Documentation**: `../../docs/FONTS.md`
-- **uCELL Standard**: 16×16 pixel grid
-- **FontTools**: Python library for WOFF2 conversion
-- **Monaspace Integration**: CSS unicode-range fallback
-
----
-
-## 🐛 Troubleshooting
-
-### Glyphs not saving
-- Check browser localStorage is enabled
-- Clear cache and reload
-- Export JSON as backup before clearing storage
-
-### Preview not updating
-- Ensure glyph has at least one pixel drawn
-- Check browser console for errors
-- Try refresh (F5)
-
-### Keyboard shortcuts not working
-- Click outside of input fields
-- Ensure focus is on the page (click canvas)
-- Check browser doesn't override shortcuts
-
----
-
-## 📄 License
-
-Part of the uDOS project. See main repository for license.
-
----
-
-**Made with 💚 for retro computing enthusiasts**
-
-*uDOS Font Editor v1.0 - 16×16 Bitmap Font Creator*
+### v1.0.23 (Previous)
+- Original Font Manager implementation
+- 16×16 bitmap editor
+- Basic TTF viewer
+- Polaroid color palette

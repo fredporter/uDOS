@@ -1,13 +1,21 @@
 /**
- * uDOS Font Manager - Synthwave DOS Styling
+ * uDOS Character Editor - Synthwave DOS Styling
  * Version: 1.0.24
+ *
+ * Multi-resolution character/emoji editor supporting:
+ * - 8×8, 16×16, 32×32, 64×64, 128×128 pixel grids
+ * - Monochrome and multicolor modes
+ * - System font stack: Monaco, Courier New, Courier, monospace
+ * - uDOS fonts: PetMe, Mallard variants, Chicago
+ * - Block graphics: C64 PETSCII, Unicode, Teletext
+ * - Emoji: Noto Emoji Mono, Twemoji, custom designs
  */
 
 /* Import Synthwave DOS Color Palette */
 @import url("../shared/synthwave-dos-colors.css");
 
 /* ============================================
-   FONT MANAGER COLOR MAPPING
+   CHARACTER EDITOR COLOR MAPPING
    ============================================ */
 
 :root {
@@ -36,14 +44,21 @@
   --c64-blue-25: var(--color-blue-bright-25);
   --c64-cyan-50: var(--color-cyan-bright-50);
 
-  /* Manager theme */
-  --manager-bg: var(--c64-dark-gray);
-  --manager-fg: var(--c64-cyan);
-  --manager-accent: var(--c64-light-blue);
-  --manager-border: var(--c64-blue);
-  --manager-panel-bg: var(--c64-black);
-  --manager-header-bg: var(--c64-blue);
-  --manager-header-fg: var(--c64-yellow);
+  /* Editor theme */
+  --editor-bg: var(--c64-dark-gray);
+  --editor-fg: var(--c64-cyan);
+  --editor-accent: var(--c64-light-blue);
+  --editor-border: var(--c64-blue);
+  --editor-panel-bg: var(--c64-black);
+  --editor-header-bg: var(--c64-blue);
+  --editor-header-fg: var(--c64-yellow);
+  --editor-grid-line: var(--c64-gray);
+  --editor-grid-bg: var(--c64-white);
+  --editor-pixel-on: var(--c64-black);
+  --editor-pixel-off: var(--c64-white);
+
+  /* System font stack (uDOS standard) */
+  --font-system: Monaco, "Courier New", Courier, monospace;
 }
 
 /* ============================================
@@ -75,9 +90,9 @@
 }
 
 body {
-  font-family: 'Chicago', 'PetMe', 'Courier New', monospace;
-  background: var(--manager-bg);
-  color: var(--manager-fg);
+  font-family: var(--font-system);
+  background: var(--editor-bg);
+  color: var(--editor-fg);
   font-size: 14px;
   line-height: 1.4;
   overflow: hidden;
@@ -87,16 +102,16 @@ body {
    MAIN LAYOUT
    ============================================ */
 
-.font-manager {
+.character-editor {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
 /* Header */
-.manager-header {
-  background: var(--manager-header-bg);
-  color: var(--manager-header-fg);
+.editor-header {
+  background: var(--editor-header-bg);
+  color: var(--editor-header-fg);
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
@@ -105,7 +120,7 @@ body {
   box-shadow: 0 4px 8px var(--c64-black-50);
 }
 
-.manager-header h1 {
+.editor-header h1 {
   font-size: 20px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -117,20 +132,20 @@ body {
 }
 
 /* Content Area */
-.manager-content {
+.editor-content {
   flex: 1;
   display: grid;
-  grid-template-columns: 250px 1fr 300px;
+  grid-template-columns: 280px 1fr 320px;
   gap: 0;
   overflow: hidden;
-  background: var(--manager-bg);
+  background: var(--editor-bg);
 }
 
 /* Sidebar */
-.font-library,
-.font-properties {
-  background: var(--manager-panel-bg);
-  border-right: 2px solid var(--manager-border);
+.font-picker,
+.character-properties {
+  background: var(--editor-panel-bg);
+  border-right: 2px solid var(--editor-border);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -383,6 +398,415 @@ body {
   font-family: 'PetMe', monospace;
   font-size: 32px;
   min-width: 60px;
+  text-align: center;
+}
+
+/* ============================================
+   COLOR PALETTE (Multicolor Mode)
+   ============================================ */
+
+.color-palette {
+  padding: 15px;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--editor-border);
+  display: none; /* Hidden by default (monochrome mode) */
+}
+
+.color-palette.active {
+  display: block;
+}
+
+.palette-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--c64-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.color-swatch:hover {
+  transform: scale(1.1);
+  border-color: var(--c64-white);
+}
+
+.color-swatch.active {
+  border-color: var(--c64-cyan);
+  box-shadow: 0 0 10px var(--c64-cyan-50);
+}
+
+.color-custom {
+  width: 36px;
+  height: 36px;
+  border: 3px dashed var(--c64-gray);
+  background: var(--c64-black);
+  color: var(--c64-cyan);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-custom:hover {
+  border-color: var(--c64-cyan);
+}
+
+/* ============================================
+   GRID SIZE VARIATIONS
+   ============================================ */
+
+/* Grid canvas adapts to selected size */
+#gridCanvas {
+  background: var(--editor-grid-bg);
+  border: 3px solid var(--editor-border);
+  cursor: crosshair;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#gridCanvas.grid-8x8 {
+  width: 320px;
+  height: 320px;
+}
+
+#gridCanvas.grid-16x16 {
+  width: 512px;
+  height: 512px;
+}
+
+#gridCanvas.grid-32x32 {
+  width: 640px;
+  height: 640px;
+}
+
+#gridCanvas.grid-64x64 {
+  width: 640px;
+  height: 640px;
+}
+
+#gridCanvas.grid-128x128 {
+  width: 640px;
+  height: 640px;
+}
+
+/* ============================================
+   FONT PICKER ENHANCEMENTS
+   ============================================ */
+
+.picker-source {
+  padding: 10px;
+  border-bottom: 2px solid var(--c64-gray);
+}
+
+.picker-source select {
+  width: 100%;
+  background: var(--c64-black);
+  color: var(--c64-cyan);
+  border: 1px solid var(--c64-gray);
+  padding: 8px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.font-category {
+  padding: 10px;
+  border-bottom: 1px solid var(--c64-dark-gray);
+}
+
+.font-category h3 {
+  color: var(--c64-yellow);
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.font-category .font-item {
+  background: var(--c64-black);
+  color: var(--c64-light-blue);
+  border: 1px solid var(--c64-gray);
+  padding: 10px;
+  margin-bottom: 6px;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-system);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.font-category .font-item:hover {
+  background: var(--c64-blue);
+  color: var(--c64-yellow);
+  border-color: var(--c64-cyan);
+}
+
+.font-category .font-item.active {
+  background: var(--c64-green);
+  color: var(--c64-black);
+  border-color: var(--c64-light-green);
+  font-weight: bold;
+}
+
+.font-category.hidden {
+  display: none;
+}
+
+.picker-upload {
+  padding: 10px;
+  border-top: 2px solid var(--c64-gray);
+}
+
+/* ============================================
+   CHARACTER SET GRID
+   ============================================ */
+
+.charset-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.charset-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 15px;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--editor-border);
+}
+
+.charset-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+  padding: 20px;
+  background: var(--c64-black);
+  border: 3px solid var(--editor-border);
+}
+
+.charset-cell {
+  aspect-ratio: 1;
+  background: var(--c64-dark-gray);
+  border: 1px solid var(--c64-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.charset-cell:hover {
+  background: var(--c64-blue);
+  border-color: var(--c64-cyan);
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.charset-cell.active {
+  background: var(--c64-cyan);
+  border-color: var(--c64-yellow);
+}
+
+.charset-cell.empty {
+  background: var(--c64-black);
+}
+
+.charset-cell canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.charset-cell .char-code {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 8px;
+  color: var(--c64-light-gray);
+  background: var(--c64-black-75);
+  padding: 1px 3px;
+}
+
+.charset-stats {
+  display: flex;
+  gap: 30px;
+  padding: 15px;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--editor-border);
+  color: var(--c64-cyan);
+  font-size: 13px;
+}
+
+.charset-stats strong {
+  color: var(--c64-yellow);
+  font-size: 16px;
+}
+
+/* ============================================
+   EMOJI DESIGNER ENHANCEMENTS
+   ============================================ */
+
+.emoji-designer {
+  display: grid;
+  grid-template-columns: 250px 1fr 250px;
+  gap: 20px;
+}
+
+.emoji-controls {
+  padding: 15px;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--editor-border);
+}
+
+.emoji-controls h3 {
+  color: var(--c64-yellow);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.emoji-palette {
+  background: var(--c64-black);
+  padding: 15px;
+  border: 2px solid var(--editor-border);
+}
+
+.emoji-palette h4 {
+  color: var(--c64-cyan);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+#emojiPalette {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#emojiCanvas {
+  background: var(--editor-grid-bg);
+  border: 3px solid var(--editor-border);
+  cursor: crosshair;
+  image-rendering: pixelated;
+}
+
+.emoji-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 8px;
+  background: var(--c64-dark-gray);
+  color: var(--c64-cyan);
+  font-size: 12px;
+}
+
+.emoji-library {
+  background: var(--c64-black);
+  padding: 15px;
+  border: 2px solid var(--editor-border);
+}
+
+.emoji-library h4 {
+  color: var(--c64-yellow);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+#emojiLibrary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.emoji-item {
+  aspect-ratio: 1;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--c64-gray);
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emoji-item:hover {
+  border-color: var(--c64-cyan);
+  transform: scale(1.05);
+}
+
+.emoji-item canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* ============================================
+   SYSTEM FONT STACK INFO
+   ============================================ */
+
+.font-stack-info {
+  background: var(--c64-black);
+  padding: 12px;
+  border: 1px solid var(--c64-gray);
+}
+
+.font-stack-info code {
+  display: block;
+  background: var(--c64-dark-gray);
+  color: var(--c64-cyan);
+  padding: 8px;
+  margin-bottom: 10px;
+  font-family: var(--font-system);
+  font-size: 11px;
+  line-height: 1.4;
+  border: 1px solid var(--c64-gray);
+}
+
+.help-text {
+  color: var(--c64-light-gray);
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ============================================
+   MODE TOGGLES
+   ============================================ */
+
+.btn-mode {
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--c64-gray);
+  padding: 8px 16px;
+  font-size: 16px;
+  min-width: 50px;
+}
+
+.btn-mode.active {
+  background: var(--c64-purple);
+  border-color: var(--c64-light-blue);
+  color: var(--c64-yellow);
+}
+
+.grid-size-select {
+  background: var(--c64-black);
+  color: var(--c64-yellow);
+  border: 2px solid var(--c64-blue);
+  padding: 8px 12px;
+  font-family: var(--font-system);
+  font-size: 13px;
+  font-weight: bold;
+}
   text-align: center;
 }
 

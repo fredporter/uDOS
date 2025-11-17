@@ -1,7 +1,7 @@
 /**
  * uDOS Font Manager - Bitmap Editor
  * Version: 1.0.24
- * 
+ *
  * 16×16 grid bitmap font editor
  */
 
@@ -9,7 +9,7 @@ class BitmapEditor {
     constructor() {
         this.canvas = document.getElementById('gridCanvas');
         this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
-        
+
         this.gridSize = 16;
         this.cellSize = 32; // Canvas pixels per grid cell
         this.currentChar = 'A';
@@ -17,10 +17,10 @@ class BitmapEditor {
         this.isDrawing = false;
         this.clipboard = null;
         this.undoStack = [];
-        
+
         // Font data storage
         this.fontData = this.loadFromLocalStorage() || this.createEmptyFont();
-        
+
         this.init();
     }
 
@@ -61,7 +61,7 @@ class BitmapEditor {
      * Create empty grid
      */
     createEmptyGrid() {
-        return Array(this.gridSize).fill(null).map(() => 
+        return Array(this.gridSize).fill(null).map(() =>
             Array(this.gridSize).fill(0)
         );
     }
@@ -114,18 +114,18 @@ class BitmapEditor {
      */
     setTool(tool) {
         this.currentTool = tool;
-        
+
         // Update button states
         document.querySelectorAll('.btn-tool').forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         const toolMap = {
             draw: 'btnDraw',
             erase: 'btnErase',
             line: 'btnLine'
         };
-        
+
         if (toolMap[tool]) {
             document.getElementById(toolMap[tool])?.classList.add('active');
         }
@@ -152,7 +152,7 @@ class BitmapEditor {
 
         if (x >= 0 && x < this.gridSize && y >= 0 && y < this.gridSize) {
             const grid = this.getCharGrid();
-            
+
             if (this.currentTool === 'draw' || e.buttons === 1) {
                 grid[y][x] = 1;
             } else if (this.currentTool === 'erase' || e.buttons === 2) {
@@ -179,7 +179,7 @@ class BitmapEditor {
         if (!this.ctx) return;
 
         const grid = this.getCharGrid();
-        
+
         // Clear canvas
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -202,14 +202,14 @@ class BitmapEditor {
         // Draw grid lines
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 1;
-        
+
         for (let i = 0; i <= this.gridSize; i++) {
             // Vertical lines
             this.ctx.beginPath();
             this.ctx.moveTo(i * this.cellSize, 0);
             this.ctx.lineTo(i * this.cellSize, this.canvas.height);
             this.ctx.stroke();
-            
+
             // Horizontal lines
             this.ctx.beginPath();
             this.ctx.moveTo(0, i * this.cellSize);
@@ -266,18 +266,18 @@ class BitmapEditor {
             item.className = 'charset-item';
             item.textContent = char;
             item.title = char;
-            
+
             if (char === this.currentChar) {
                 item.classList.add('active');
             }
-            
+
             item.addEventListener('click', () => {
                 this.currentChar = char;
                 document.getElementById('charSelect').value = char;
                 this.renderGrid();
                 this.populateCharset();
             });
-            
+
             grid.appendChild(item);
         });
     }
@@ -314,7 +314,7 @@ class BitmapEditor {
         this.saveToUndo();
         const grid = this.getCharGrid();
         const newGrid = this.createEmptyGrid();
-        
+
         if (degrees === 90) {
             for (let y = 0; y < this.gridSize; y++) {
                 for (let x = 0; x < this.gridSize; x++) {
@@ -328,7 +328,7 @@ class BitmapEditor {
                 }
             }
         }
-        
+
         this.fontData.glyphs[this.currentChar] = newGrid;
         this.renderGrid();
         this.updateCharset();
@@ -384,7 +384,7 @@ class BitmapEditor {
             this.showStatus('Nothing to paste');
             return;
         }
-        
+
         this.saveToUndo();
         this.fontData.glyphs[this.currentChar] = JSON.parse(JSON.stringify(this.clipboard));
         this.renderGrid();
@@ -398,7 +398,7 @@ class BitmapEditor {
             this.showStatus('Nothing to undo');
             return;
         }
-        
+
         this.fontData.glyphs[this.currentChar] = this.undoStack.pop();
         this.renderGrid();
         this.updateCharset();
@@ -492,12 +492,12 @@ class BitmapEditor {
     updateStats() {
         const total = Object.keys(this.fontData.glyphs).length;
         let defined = 0;
-        
+
         Object.values(this.fontData.glyphs).forEach(grid => {
             const hasPixels = grid.some(row => row.some(cell => cell === 1));
             if (hasPixels) defined++;
         });
-        
+
         document.getElementById('statChars').textContent = total;
         document.getElementById('statDefined').textContent = defined;
         document.getElementById('statEmpty').textContent = total - defined;
@@ -544,12 +544,12 @@ class BitmapEditor {
         const json = JSON.stringify(this.fontData, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement('a');
         a.href = url;
         a.download = `${this.fontData.name.replace(/\s+/g, '-')}.json`;
         a.click();
-        
+
         URL.revokeObjectURL(url);
         this.showStatus('Font exported');
     }
@@ -565,7 +565,7 @@ class BitmapEditor {
             timestamp: new Date().toISOString(),
             ...this.fontData
         };
-        
+
         console.log('Saving to sandbox:', sandboxData);
         alert('Font saved to /memory/sandbox (console log)');
         this.showStatus('Saved to sandbox');

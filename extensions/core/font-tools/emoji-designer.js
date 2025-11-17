@@ -1,7 +1,7 @@
 /**
  * uDOS Font Manager - Emoji Designer (Stub)
  * Version: 1.0.24
- * 
+ *
  * Full-color emoji designer (32×32 grid)
  * To be expanded in future versions
  */
@@ -19,13 +19,13 @@ class EmojiDesigner {
             '#DD8855', '#664400', '#FF7777', '#333333',
             '#777777', '#AAFF66', '#0088FF', '#BBBBBB'
         ];
-        
+
         this.init();
     }
 
     init() {
         if (!this.canvas || !this.ctx) return;
-        
+
         this.setupPalette();
         this.renderCanvas();
     }
@@ -41,7 +41,7 @@ class EmojiDesigner {
             swatch.className = 'color-swatch';
             swatch.style.backgroundColor = color;
             swatch.title = color;
-            
+
             swatch.addEventListener('click', () => {
                 this.currentColor = color;
                 document.querySelectorAll('.color-swatch').forEach(s => {
@@ -49,7 +49,7 @@ class EmojiDesigner {
                 });
                 swatch.classList.add('active');
             });
-            
+
             paletteGrid.appendChild(swatch);
         });
 
