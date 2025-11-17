@@ -1,0 +1,53 @@
+{
+  "name": "@plussub/srt-vtt-parser",
+  "version": "2.0.5",
+  "description": "A dependency free SRT / Vtt subtitle parser, written in Typescript.\n",
+  "keywords": [
+    "vtt",
+    "srt",
+    "webvtt",
+    "subtitle",
+    "captions",
+    "parser"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "build": "vite build",
+    "ts-check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest run",
+    "publish-patch": "npm run clean && npm run build && npm version patch && git push && git push --tags && npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plussub/srt-vtt-parser.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plussub/srt-vtt-parser/issues"
+  },
+  "homepage": "https://github.com/plussub/srt-vtt-parser#readme",
+  "publishConfig": {
+    "plussub:registry": "https://registry.npmjs.org"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^2.0.3"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "prettier": {
+    "trailingComma": "none",
+    "printWidth": 200,
+    "singleQuote": true
+  }
+}

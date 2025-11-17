@@ -1,7 +1,7 @@
 # uDOS Character Editor
 
-**Version:** 1.0.24  
-**Status:** Active Development  
+**Version:** 1.0.24
+**Status:** Active Development
 **Location:** `/extensions/core/font-tools/`
 
 ## Overview
@@ -114,7 +114,7 @@ This cascading stack ensures optimal aesthetics while maintaining universal comp
 - **Original Concept:** uDOS Font Manager v1.0.23
 - **Redesign:** Character Editor v1.0.24
 - **Color Palette:** Synthwave DOS 16-color standard
-- **Fonts:** 
+- **Fonts:**
   - PetMe by Style (C64 font)
   - Mallard by Elias Steurer (Teletext font family)
   - Chicago by Susan Kare (Classic Mac font)

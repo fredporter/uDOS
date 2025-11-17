@@ -64,7 +64,7 @@ html, body {
     --term-cursor: var(--color-cyan-bright);
     --term-header: var(--color-cyan-bright);
     --term-status: var(--color-orange-bright);
-    
+
     /* C64 Color Aliases (mapped to Synthwave DOS) */
     --c64-black: var(--color-black);
     --c64-white: var(--color-white-bright);

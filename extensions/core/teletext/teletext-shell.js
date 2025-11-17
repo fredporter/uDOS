@@ -1,7 +1,7 @@
 /**
  * uDOS Teletext - Enhanced JavaScript
  * Version: 1.0.24
- * 
+ *
  * Features:
  * - Responsive scaling
  * - Clock updates
@@ -37,7 +37,7 @@
     function tickClock() {
         const clockElement = document.getElementById('clock');
         if (!clockElement) return;
-        
+
         const now = new Date();
         const pad = n => String(n).padStart(2, '0');
         clockElement.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -59,7 +59,7 @@
      */
     function processCommand(cmd) {
         const trimmed = cmd.trim().toUpperCase();
-        
+
         if (!trimmed) return;
 
         // Add to history
@@ -150,7 +150,7 @@
      */
     function loadPage(pageNum) {
         showStatus(`LOADING PAGE ${pageNum}...`);
-        
+
         // In a full implementation, this would load page content
         // For now, just update the display
         setTimeout(() => {
@@ -277,7 +277,7 @@
         pre.textContent = demo.join('\n');
         content.innerHTML = '';
         content.appendChild(pre);
-        
+
         showStatus('GRAPHICS DEMO LOADED');
     }
 

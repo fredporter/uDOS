@@ -111,7 +111,7 @@ This document tracks the migration from the Polaroid C64 palette to the standard
 - White Bright, Red Bright, Orange Bright, Yellow Bright
 - Green Bright, Cyan Bright, Blue Bright, Magenta Bright
 
-### AA (4.5:1+) - Good Readability  
+### AA (4.5:1+) - Good Readability
 - Gray Light, Gray Dark, all `-dark` variants
 
 ## Breaking Changes
@@ -126,7 +126,7 @@ All extensions using the old `--c64-*` or `--polaroid-*` prefixes must be update
 
 ### New Colors
 - `--color-magenta-dark` (#8338EC) - Blue Violet
-- `--color-blue-dark` (#023047) - Deep Space Blue  
+- `--color-blue-dark` (#023047) - Deep Space Blue
 - `--color-cyan-dark` (#118AB2) - Ocean Blue
 
 ## Implementation Checklist

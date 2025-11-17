@@ -1,190 +1,255 @@
-# uDOS Extensions System
+# uDOS Extensions System v1.0.24
 
 ## 📁 **Directory Structure**
 
 ```
 extensions/
-├── bundled/                    # uDOS-native extensions (git tracked)
-│   └── web/                   # Web-based UI extensions
-│       ├── dashboard/        # System dashboard interface
-│       ├── font-editor/      # Web-based font editing tools
-│       ├── shared/           # Shared CSS/JS libraries
-│       ├── system-desktop/   # System 7 desktop environment
-│       ├── system-style/     # OS styling frameworks
-│       └── teletext/         # Broadcast TV interface
-├── cloned/                    # External repositories (git ignored)
-│   ├── micro/                # Modern terminal editor
-│   ├── typo/                 # Web-based markdown editor
-│   ├── monaspace-fonts/      # GitHub Next monospace fonts
-│   ├── classicy-desktop/     # Mac OS 8 Platinum interface
-│   ├── c64css3/              # Commodore 64 CSS framework
-│   ├── nes-css/              # 8-bit Nintendo CSS framework
-│   └── cmd/                  # Web terminal (optional)
-├── templates/                 # Extension scaffolding templates
-│   ├── cli-extension-template/   # CLI extension starter
-│   └── web-extension-template/   # Web extension starter
-├── fonts/                     # Font assets with licensing
-│   ├── LICENSE_ASSESSMENT.md # Legal compliance documentation
-│   ├── ChicagoFLF.ttf       # Classic Mac font (public domain)
-│   ├── chicago-12-1/        # Chicago variant (CC BY-SA)
-│   ├── mallard-*/           # Mallard font family (CC BY-SA)
-│   └── sysfont/             # System font (OFL)
-└── setup/                     # Installation scripts
-    ├── setup_all.sh          # Master installer
-    ├── setup_micro.sh        # Micro editor setup
-    ├── setup_typo.sh         # Typo editor setup
-    ├── setup_cmd.sh          # CMD terminal setup
-    └── setup_monaspace.sh    # Monaspace fonts setup
+├── core/                       # uDOS core extensions (v1.0.24 reorganization)
+│   ├── c64-terminal/         # C64 Terminal with PetMe font & Polaroid palette
+│   ├── character-editor/      # Multi-resolution character/font editor (8×8-128×128)
+│   ├── dashboard/            # NES Framework system dashboard
+│   ├── desktop/              # System 7 desktop environment
+│   ├── markdown/             # GitHub-flavored markdown viewer (uCODE+PANEL)
+│   ├── teletext/             # BBC Teletext with Mallard fonts
+│   ├── shared/               # Synthwave DOS colors, themes, global CSS
+│   ├── themes/               # nes.css and other retro themes
+│   ├── assets/               # Shared images and media
+│   ├── css/                  # Global CSS utilities
+│   ├── js/                   # Global JavaScript libraries
+│   └── docs/                 # Extension documentation
+├── cloned/                    # External tools (git ignored)
+│   ├── micro/                # Modern terminal editor (Go-based, file picker)
+│   └── typo/                 # Web markdown editor (Svelte, file picker)
+├── fonts/                     # Retro system fonts
+│   ├── chicago/              # Apple System fonts
+│   ├── mallard/              # Teletext fonts (BBC)
+│   ├── monaco/               # Apple monospace fonts
+│   ├── sysfont/              # System 7 bitmaps
+│   └── README.md
+├── setup/                     # Installation scripts
+│   ├── setup_micro.sh        # Install micro editor binary
+│   ├── setup_typo.sh         # Install typo markdown editor
+│   └── README.md
+├── templates/                 # Extension scaffolding
+│   ├── extension-template/   # Base template for new extensions
+│   ├── command-template/     # uCODE command template
+│   └── README.md
+├── archive/                   # Obsolete/superseded extensions
+│   ├── old-bundled-web/      # Original bundled/web (pre-v1.0.24)
+│   ├── old-clones/           # External frameworks (now integrated)
+│   └── obsolete/             # Deprecated experiments
+└── README.md                  # This file
 ```
+
+## 🎯 **v1.0.24 Reorganization**
+
+The v1.0.24 extensions branch consolidates all web-based extensions from `bundled/web/` into a unified `core/` structure:
+
+- **Phase 1**: Consolidated all extensions into `core/`
+- **Phase 2**: Rebuilt C64 Terminal with PetMe font and Polaroid palette
+- **Phase 3**: Rebuilt Teletext with BBC standards and Mallard font
+- **Phase 4**: Created Character Editor with multi-resolution support
+- **Phase 4.5-4.7**: Synthwave DOS colors, migration tools, refinements
+- **Phase 5**: GitHub-flavored Markdown Viewer with uCODE and PANEL support
+- **Phase 5.1**: Typography stack (Adobe Source Family fonts)
+- **Phase 6**: Dashboard with NES.css framework
+- **Phase 7**: System Desktop with System 7 CSS
+- **Cleanup**: Archived redundant files, verified editors
+
+### What's in `/archive`
+
+The archive directory contains superseded implementations:
+
+- **old-bundled-web/**: Original `bundled/web/` folder with first-generation extensions (dashboard, font-editor, markdown-viewer, system-desktop, teletext, styling frameworks). Now superseded by integrated `/core` versions.
+
+- **old-clones/**: External CSS frameworks that have been integrated:
+  - `classicy-desktop` → System 7 CSS in `/core/desktop`
+  - `c64css3` → C64 Terminal in `/core/c64-terminal`
+  - `nes-style` → NES Dashboard in `/core/dashboard`
+
+- **obsolete/**: Future archival location for deprecated experiments
+
+These files are preserved for reference and git history but are not actively maintained.
 
 ## 🚀 **Quick Start**
 
-### **Install External Dependencies**
+### **Install External Tools**
 ```bash
-# Install all essential external tools
-./extensions/setup/setup_all.sh
+# Micro editor (CLI text editor with file picker)
+./extensions/setup/setup_micro.sh
 
-# Or install individually
-./extensions/setup/setup_micro.sh       # Modern terminal editor
-./extensions/setup/setup_typo.sh        # Web markdown editor
-./extensions/setup/setup_classicy.sh    # Mac OS 8 interface
-./extensions/setup/setup_c64css3.sh     # C64 styling framework
-./extensions/setup/setup_nes.sh         # NES styling framework
-./extensions/setup/setup_cmd.sh         # Web terminal (optional)
+# Typo editor (Web markdown editor - requires Node 18/20/22)
+./extensions/setup/setup_typo.sh
 ```
 
-### **Use Bundled Extensions**
-All bundled extensions are immediately available:
-- Launch web extensions via uDOS dashboard
-- Access styling frameworks in web development
-- Use shared libraries across projects
+### **Use Core Extensions**
+All core extensions are immediately available via uDOS:
 
-## 🎨 **Bundled Web Extensions**
+```bash
+# Launch extensions
+python uDOS.py --extension dashboard     # NES Framework dashboard
+python uDOS.py --extension desktop       # System 7 desktop
+python uDOS.py --extension markdown      # GitHub markdown viewer
+python uDOS.py --extension teletext      # BBC Teletext interface
+python uDOS.py --extension c64-terminal  # C64 Terminal
+python uDOS.py --extension character-editor  # Character/font editor
+```
 
-### **Dashboard**
-- **Description**: Multi-theme system dashboard interface
-- **Technology**: HTML5 + CSS3 + JavaScript
-- **Features**: Real-time metrics, file browser integration, customizable widgets
-- **Usage**: Core uDOS system interface
+## 🎨 **Core Extensions**
 
-### **System Desktop**
-- **Description**: System 7 desktop environment recreation
-- **Technology**: Pure CSS3 + JavaScript
-- **Features**: Authentic Mac window management, classic styling
-- **Integration**: Direct uDOS command integration
+### **C64 Terminal** (`/core/c64-terminal`)
+- **Description**: Authentic Commodore 64 terminal interface
+- **Technology**: PetMe font + Polaroid palette CSS
+- **Features**: 40×25 text mode, PETSCII graphics, authentic colors
+- **v1.0.24**: Complete rebuild with accurate font rendering
 
-### **Shared Libraries**
-- **Description**: Common CSS/JS frameworks for all extensions
-- **Technology**: Modular CSS + JavaScript utilities
-- **Features**: Typography system, UI components, grid system
-- **Usage**: Foundation for all uDOS web interfaces
+### **Character Editor** (`/core/character-editor`)
+- **Description**: Multi-resolution character and font editor
+- **Technology**: HTML5 Canvas + JavaScript
+- **Features**: 8×8 to 128×128 grids, import/export, preview modes
+- **v1.0.24**: New tool for custom font creation
 
-### **Teletext Interface**
-- **Description**: Broadcast television teletext recreation
-- **Technology**: CSS + JavaScript with block character support
-- **Features**: Mosaic mode, classic TV styling, authentic rendering
-- **Usage**: Retro information display system
+### **Dashboard** (`/core/dashboard`)
+- **Description**: NES.css framework system dashboard
+- **Technology**: NES.css + Press Start 2P font
+- **Features**: 6 widgets, real-time metrics, retro gaming aesthetic
+- **v1.0.24**: Complete redesign with NES framework
 
-## 🛠️ **External Dependencies**
+### **Desktop** (`/core/desktop`)
+- **Description**: System 7 desktop environment with uDOS integration
+- **Technology**: System 7 CSS + Chicago font + Synthwave DOS
+- **Features**: Window management, Command Palette (Cmd/Ctrl+K), desktop icons
+- **v1.0.24**: Full System 7 implementation with keyboard shortcuts
 
-### **Classicy Desktop**
-- **Repository**: https://github.com/robbiebyrd/classicy
-- **Description**: Authentic Mac OS 8 Platinum interface recreation
-- **Features**: React-based, window management, classic Mac styling
-- **Installation**: Automatic clone and npm build
+### **Markdown Viewer** (`/core/markdown`)
+- **Description**: GitHub-flavored markdown renderer
+- **Technology**: GitHub CSS (light/dark) + Adobe Source fonts
+- **Features**: uCODE commands, PANEL callouts, syntax highlighting
+- **Typography**: Source Sans Pro (body), Source Serif Pro (headings), Source Code Pro (code)
+- **v1.0.24**: Complete overhaul with GitHub CSS and typography stack
 
-### **C64 CSS3**
-- **Repository**: https://github.com/RoelN/c64css3
-- **Description**: Commodore 64 styling framework
-- **Features**: Pixel-perfect C64 colors, fonts, and interface elements
-- **Usage**: Import CSS framework in retro projects
+### **Teletext** (`/core/teletext`)
+- **Description**: BBC Teletext broadcast interface
+- **Technology**: Mallard font + Mode 7 graphics CSS
+- **Features**: 40×25 character grid, Teletext graphics, Level 1 standard
+- **v1.0.24**: Rebuild with authentic BBC Teletext rendering
 
-### **NES.css**
-- **Repository**: https://github.com/nostalgic-css/NES.css
-- **Description**: 8-bit Nintendo Entertainment System CSS framework
-- **Features**: Authentic NES styling, 8-bit fonts, pixel art support
-- **Usage**: Retro gaming interfaces and 8-bit themed projects
+### **Shared Libraries** (`/core/shared`)
+- **Description**: Synthwave DOS color system and global CSS
+- **Technology**: CSS custom properties + theme system
+- **Features**: Unified color palette, theme variables, responsive utilities
+- **v1.0.24**: Synthwave DOS integration across all extensions
 
-### **micro Editor**
+## 🛠️ **External Tools**
+
+### **micro Editor** (`/cloned/micro`)
 - **Repository**: https://github.com/zyedidia/micro
-- **Description**: Modern terminal-based text editor
-- **Features**: Syntax highlighting, plugin system, modern keybindings
-- **Installation**: Automatic binary download or source build
+- **Description**: Modern terminal-based text editor (Go)
+- **Version**: 2.0.14
+- **Features**: Syntax highlighting, plugin system, file picker, modern keybindings
+- **Installation**: Binary download via `setup_micro.sh`
+- **Status**: ✅ Installed and verified
 
-### **typo Editor**
+### **typo Editor** (`/cloned/typo`)
 - **Repository**: https://github.com/rossrobino/typo
-- **Description**: Minimalist web-based markdown editor
-- **Features**: Real-time preview, clean interface, export options
-- **Usage**: Web-based editing within uDOS interface
+- **Description**: Web-based markdown editor (Svelte)
+- **Features**: Real-time preview, file picker, clean interface
+- **Installation**: npm build via `setup_typo.sh`
+- **Requirements**: Node.js 18, 20, or 22 (⚠️ not compatible with Node v24)
+- **Status**: Dependencies installed, build requires Node version adjustment
 
-### **CMD Terminal** (Optional)
-- **Repository**: https://github.com/mrchimp/cmd
-- **Description**: Web-based terminal emulator
-- **Features**: Command history, extensible command system
-- **Note**: Optional component for web terminal needs
+## 🎨 **Retro Fonts**
 
-### **Monaspace Fonts**
-- **Repository**: https://github.com/githubnext/monaspace
-- **Description**: GitHub Next's coding font family
-- **Features**: Texture healing, multiple weights, coding ligatures
-- **Usage**: Enhanced typography for code editing
+All fonts are properly licensed for use in uDOS:
+
+- **Chicago**: Apple System font (public domain)
+- **Mallard**: BBC Teletext font (CC BY-SA 4.0)
+- **Monaco**: Apple monospace font (system font)
+- **sysfont**: System 7 bitmap fonts (OFL)
+- **PetMe**: Commodore 64 PETSCII font (embedded in C64 Terminal)
+- **Press Start 2P**: 8-bit gaming font (embedded in Dashboard)
+- **Adobe Source Family**: Sans/Serif/Code Pro (embedded in Markdown Viewer)
+
+See `/extensions/fonts/README.md` for detailed licensing information.
 
 ## 🔧 **Development Guidelines**
 
-### **Adding Bundled Extensions**
-1. Create extension in `bundled/web/[extension-name]/`
+### **Adding Core Extensions**
+1. Create extension in `core/[extension-name]/`
 2. Include README.md with description and usage
-3. Add launch script if needed
-4. Update this README with extension details
-5. Commit to git repository
+3. Follow Synthwave DOS color standards (`core/shared/`)
+4. Add CREDITS.md documenting dependencies
+5. Update this README with extension details
+6. Commit to v1.0.24-extensions branch
 
-### **Adding External Dependencies**
+### **Adding External Tools**
 1. Create setup script in `setup/setup_[name].sh`
-2. Configure to clone into `cloned/[name]/`
-3. Update `setup_all.sh` to include new dependency
-4. Test installation process
-5. Update documentation
+2. Configure to clone/download into `cloned/[name]/`
+3. Test installation process thoroughly
+4. Document requirements and status
+5. Update this README
 
 ### **Creating New Extensions**
 
 Use the templates in `templates/` to scaffold new extensions:
 
-#### **CLI Extension**
 ```bash
 # Copy template
-cp -r extensions/templates/cli-extension-template extensions/my-cli-tool
+cp -r extensions/templates/extension-template extensions/my-extension
 
-# Follow instructions in template README
-cd extensions/my-cli-tool
+# Follow template README
+cd extensions/my-extension
 ```
 
-#### **Web Extension**
-```bash
-# Copy template
-cp -r extensions/templates/web-extension-template extensions/bundled/web/my-extension
+### **Extension Structure**
 
-# Follow instructions in template README
-cd extensions/bundled/web/my-extension
+Each core extension follows this structure:
+
+```
+core/[extension-name]/
+├── index.html              # Main interface
+├── static/
+│   ├── [name].css         # Extension-specific styles
+│   └── [name].js          # Extension logic
+├── assets/                 # Images, icons, media
+├── README.md              # Extension documentation
+└── CREDITS.md             # Dependency attribution
 ```
 
-See `templates/README.md` for complete scaffolding documentation.
+### **Synthwave DOS Integration**
+
+All extensions use the unified color system from `/core/shared/`:
+
+```css
+/* Import in your extension CSS */
+@import url('../shared/synthwave-dos.css');
+
+/* Use theme variables */
+background-color: var(--dos-bg);
+color: var(--dos-text);
+border-color: var(--dos-border);
+```
 
 ### **Font Management**
-1. Add fonts to `fonts/` directory
-2. Include license files for each font
-3. Update `LICENSE_ASSESSMENT.md` with legal status
-4. Reference in typography system CSS
-5. Test cross-platform compatibility
+
+Fonts are centralized in `/fonts/` and referenced via CSS:
+
+```css
+@font-face {
+    font-family: 'Chicago';
+    src: url('/extensions/fonts/chicago/ChicagoFLF.ttf');
+}
+```
 
 ## ⚖️ **Legal Compliance**
 
 All bundled fonts are legally distributable:
 - **ChicagoFLF**: Public domain
 - **Chicago 12.1**: CC BY-SA 3.0
-- **Mallard family**: CC BY-SA 3.0
+- **Mallard family**: CC BY-SA 3.0  
 - **sysfont**: SIL Open Font License 1.1
 
-See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
+See `/extensions/fonts/README.md` for complete legal analysis.
 
 ## 🎯 **Platform Support**
 
@@ -193,7 +258,7 @@ See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
 - ✅ Linux (Ubuntu, Debian, Arch)
 - ✅ Windows (WSL2 recommended)
 
-### **Browser Compatibility**
+### **Browser Compatibility** (for web extensions)
 - ✅ Chrome/Chromium 90+
 - ✅ Firefox 88+
 - ✅ Safari 14+
@@ -201,13 +266,13 @@ See `fonts/LICENSE_ASSESSMENT.md` for complete legal analysis.
 
 ## 📚 **Additional Resources**
 
-- **Extension Templates**: `extensions/templates/` - CLI & Web extension scaffolding
-- **Example Demos**: `knowledge/demos/` - Working examples and scripts
+- **Extension Documentation**: Individual README.md files in each `/core` extension
+- **CREDITS**: Attribution in CREDITS.md files throughout `/core`
+- **Templates**: Extension scaffolding in `/templates`
+- **Archive**: Historical implementations in `/archive` (reference only)
 - **uDOS Wiki**: Complete extension development guides
-- **Font Documentation**: Typography system usage
-- **API Reference**: Extension integration patterns
-- **Community**: GitHub discussions and issues
+- **Git History**: Full development timeline on v1.0.24-extensions branch
 
 ---
 
-**🎉 The uDOS Extensions system provides a clean separation between bundled content, external dependencies, and templates - ensuring legal compliance while maintaining development flexibility.**
+**🎉 v1.0.24 Extensions: Unified core structure, retro aesthetics, modern functionality.**

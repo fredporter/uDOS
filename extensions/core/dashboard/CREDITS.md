@@ -2,11 +2,11 @@
 
 ## Original Work
 
-**Project**: NES.css  
-**Author**: B.C.Rikko  
-**Repository**: https://github.com/nostalgic-css/NES.css  
-**Website**: https://nostalgic-css.github.io/NES.css/  
-**License**: MIT License  
+**Project**: NES.css
+**Author**: B.C.Rikko
+**Repository**: https://github.com/nostalgic-css/NES.css
+**Website**: https://nostalgic-css.github.io/NES.css/
+**License**: MIT License
 **Year**: 2018
 
 ### Description
@@ -82,7 +82,7 @@ NES-style (8bit-like) CSS Framework inspired by the Nintendo Entertainment Syste
 ## License Compliance
 
 ### Original Work (NES.css)
-Copyright © 2018 B.C.Rikko  
+Copyright © 2018 B.C.Rikko
 Licensed under MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -96,7 +96,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 ### uDOS Enhancements
-Copyright © 2025 uDOS Project  
+Copyright © 2025 uDOS Project
 Licensed under [uDOS License]
 
 All enhancements clearly documented and attributed.
@@ -105,11 +105,11 @@ All enhancements clearly documented and attributed.
 
 ## Attribution
 
-This extension is built upon **NES.css** by B.C.Rikko.  
+This extension is built upon **NES.css** by B.C.Rikko.
 The original framework provided the perfect 8-bit aesthetic for uDOS's retro dashboard.
 
-**Original inspiration**: Nintendo Entertainment System (1983)  
-**CSS framework**: B.C.Rikko (2018)  
+**Original inspiration**: Nintendo Entertainment System (1983)
+**CSS framework**: B.C.Rikko (2018)
 **Dashboard integration**: Fred Porter (2025)
 
 We are grateful to B.C.Rikko and the NES.css community for creating this exceptional framework and making it available under the MIT License.
