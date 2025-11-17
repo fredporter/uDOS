@@ -1,0 +1,451 @@
+/**
+ * uDOS File Picker v1.3 Styles
+ * Polaroid colors + 16×16 teletext grid
+ */
+
+/* ============================================
+   PICKER OVERLAY
+   ============================================ */
+
+.udos-file-picker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.udos-file-picker.active {
+    display: flex;
+}
+
+.picker-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+/* ============================================
+   PICKER DIALOG
+   ============================================ */
+
+.picker-dialog {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-active);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-mono);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--teletext-cell) * 0.75);
+    background: var(--bg-tertiary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.picker-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.picker-icon {
+    font-size: 20px;
+}
+
+.picker-label {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--polaroid-cyan);
+}
+
+.picker-close {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 18px;
+    width: calc(var(--teletext-cell) * 2);
+    height: calc(var(--teletext-cell) * 2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.picker-close:hover {
+    background: var(--polaroid-red);
+    color: var(--bg-primary);
+    border-color: var(--polaroid-red);
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+
+.picker-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--teletext-cell) * 0.5);
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-color);
+    gap: 12px;
+}
+
+.picker-breadcrumb {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    overflow-x: auto;
+}
+
+.breadcrumb-item {
+    color: var(--polaroid-cyan);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.breadcrumb-item:hover {
+    color: var(--polaroid-green);
+}
+
+.breadcrumb-sep {
+    color: var(--text-secondary);
+}
+
+.picker-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.picker-btn {
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 16px;
+    width: calc(var(--teletext-cell) * 2);
+    height: calc(var(--teletext-cell) * 2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.picker-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-active);
+    color: var(--polaroid-cyan);
+}
+
+/* ============================================
+   BODY / FILE LIST
+   ============================================ */
+
+.picker-body {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    min-height: 400px;
+}
+
+.file-list {
+    padding: calc(var(--teletext-cell) * 0.5);
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: calc(var(--teletext-cell) * 0.75);
+    border: 2px solid var(--border-color);
+    margin-bottom: 4px;
+    cursor: pointer;
+    background: var(--bg-secondary);
+}
+
+.file-item:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-active);
+}
+
+.file-item.selected {
+    background: var(--polaroid-cyan);
+    border-color: var(--polaroid-cyan);
+    color: var(--bg-primary);
+}
+
+.file-item.selected .file-name,
+.file-item.selected .file-meta {
+    color: var(--bg-primary);
+}
+
+.file-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.picker-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+}
+
+.loading-spinner {
+    font-size: 48px;
+    color: var(--polaroid-cyan);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.picker-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    opacity: 0.3;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   ERROR STATE
+   ============================================ */
+
+.picker-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 12px;
+}
+
+.error-icon {
+    font-size: 48px;
+    color: var(--polaroid-yellow);
+}
+
+.error-text {
+    font-size: 16px;
+    color: var(--polaroid-red);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.error-detail {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.picker-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--teletext-cell) * 0.75);
+    background: var(--bg-tertiary);
+    border-top: 2px solid var(--border-color);
+    gap: 16px;
+}
+
+.picker-info {
+    flex: 1;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    margin-right: 8px;
+}
+
+.info-value {
+    color: var(--polaroid-cyan);
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.picker-footer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.picker-btn-primary,
+.picker-btn-secondary {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px 20px;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.picker-btn-primary {
+    background: var(--polaroid-green);
+    color: var(--bg-primary);
+    border-color: var(--polaroid-green);
+}
+
+.picker-btn-primary:hover:not(:disabled) {
+    background: var(--polaroid-cyan);
+    border-color: var(--polaroid-cyan);
+}
+
+.picker-btn-primary:disabled {
+    background: var(--bg-secondary);
+    color: var(--text-disabled);
+    border-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.picker-btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.picker-btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-active);
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+.picker-body::-webkit-scrollbar {
+    width: 12px;
+}
+
+.picker-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.picker-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+.picker-body::-webkit-scrollbar-thumb:hover {
+    background: var(--polaroid-cyan);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .picker-dialog {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .picker-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .picker-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+
+    .picker-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .picker-footer-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .picker-btn-primary,
+    .picker-btn-secondary {
+        flex: 1;
+    }
+}

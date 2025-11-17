@@ -1,0 +1,12 @@
+{
+  "port": 9000,
+  "knowledge_root": "../../../../knowledge",
+  "diagrams_root": "../../../../data/system/diagrams",
+  "fuzzy_threshold": 60,
+  "max_results": 50,
+  "enable_emoji": true,
+  "enable_syntax_highlight": true,
+  "theme": "github-dark",
+  "auto_toc": true,
+  "render_diagrams": true
+}

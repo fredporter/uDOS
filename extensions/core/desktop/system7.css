@@ -1,0 +1,690 @@
+/*
+ * System 7 CSS Framework
+ * Classic Macintosh System 7 interface styling for modern web
+ * Inspired by Apple System 7.0-7.6 (1991-1997)
+ */
+
+/* CSS Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* System 7 Font Faces */
+@font-face {
+    font-family: 'Chicago';
+    src: url('../fonts/ChicagoFLF.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Geneva';
+    src: url('../fonts/geneva_9.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Monaco';
+    src: url('../fonts/monaco.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* System 7 Color Palette */
+:root {
+    /* Classic System 7 Grays */
+    --sys7-white: #FFFFFF;
+    --sys7-light-gray: #DDDDDD;
+    --sys7-medium-gray: #AAAAAA;
+    --sys7-dark-gray: #777777;
+    --sys7-black: #000000;
+
+    /* Desktop and Window Colors */
+    --sys7-desktop-gray: #C6C6C6;
+    --sys7-window-gray: #DDDDDD;
+    --sys7-title-bar: #000000;
+    --sys7-title-text: #FFFFFF;
+
+    /* Control Colors */
+    --sys7-button-face: #DDDDDD;
+    --sys7-button-shadow: #888888;
+    --sys7-button-highlight: #FFFFFF;
+    --sys7-button-text: #000000;
+
+    /* Selection and Highlighting */
+    --sys7-highlight: #0000FF;
+    --sys7-highlight-text: #FFFFFF;
+    --sys7-selection: #316AC5;
+
+    /* System Fonts */
+    --sys7-system-font: 'Chicago', 'Geneva', monospace;
+    --sys7-dialog-font: 'Geneva', 'Chicago', sans-serif;
+    --sys7-mono-font: 'Monaco', 'Courier New', monospace;
+
+    /* Spacing and Sizing */
+    --sys7-unit: 8px;
+    --sys7-border-width: 1px;
+    --sys7-window-border: 2px;
+    --sys7-shadow-offset: 2px;
+}
+
+/* Body and Basic Layout */
+body {
+    font-family: var(--sys7-system-font);
+    font-size: 12px;
+    background: var(--sys7-desktop-gray);
+    color: var(--sys7-black);
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+/* Desktop Environment */
+.sys7-desktop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--sys7-desktop-gray);
+    background-image:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,.05) 2px,
+            rgba(0,0,0,.05) 4px
+        );
+}
+
+/* Menu Bar */
+.sys7-menubar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: var(--sys7-white);
+    border-bottom: var(--sys7-border-width) solid var(--sys7-black);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sys7-unit);
+    z-index: 1000;
+    font-size: 12px;
+}
+
+.sys7-menu-item {
+    padding: 2px var(--sys7-unit);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.sys7-menu-item:hover {
+    background: var(--sys7-highlight);
+    color: var(--sys7-highlight-text);
+}
+
+.sys7-apple-menu {
+    width: 16px;
+    height: 16px;
+    background: var(--sys7-black);
+    margin-right: var(--sys7-unit);
+    position: relative;
+}
+
+.sys7-apple-menu::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: linear-gradient(45deg,
+        #ff0000, #ff8800, #ffff00, #88ff00,
+        #00ff00, #00ff88, #00ffff, #0088ff,
+        #0000ff, #8800ff, #ff00ff, #ff0088);
+    -webkit-mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3e%3cpath d='M9 3c0-.5-.2-1-.6-1.4C8 1.2 7.5 1 7 1c-.3 0-.6.1-.8.2-.2-.4-.6-.7-1-.9C5 .1 4.8 0 4.5 0 3.7 0 3 .7 3 1.5c0 .3.1.6.3.8C2.6 2.6 2 3.3 2 4.2c0 1.2.8 2.2 1.9 2.6.3.8 1 1.4 1.8 1.6.4.5 1 .8 1.6.8.7 0 1.3-.3 1.7-.8.8-.2 1.5-.8 1.8-1.6C11.2 6.4 12 5.4 12 4.2c0-.9-.6-1.6-1.3-1.9.2-.2.3-.5.3-.8 0-.8-.7-1.5-1.5-1.5-.3 0-.5.1-.7.3-.4.2-.8.5-1 .9-.2-.1-.5-.2-.8-.2z'/%3e%3c/svg%3e") no-repeat center;
+    mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3e%3cpath d='M9 3c0-.5-.2-1-.6-1.4C8 1.2 7.5 1 7 1c-.3 0-.6.1-.8.2-.2-.4-.6-.7-1-.9C5 .1 4.8 0 4.5 0 3.7 0 3 .7 3 1.5c0 .3.1.6.3.8C2.6 2.6 2 3.3 2 4.2c0 1.2.8 2.2 1.9 2.6.3.8 1 1.4 1.8 1.6.4.5 1 .8 1.6.8.7 0 1.3-.3 1.7-.8.8-.2 1.5-.8 1.8-1.6C11.2 6.4 12 5.4 12 4.2c0-.9-.6-1.6-1.3-1.9.2-.2.3-.5.3-.8 0-.8-.7-1.5-1.5-1.5-.3 0-.5.1-.7.3-.4.2-.8.5-1 .9-.2-.1-.5-.2-.8-.2z'/%3e%3c/svg%3e") no-repeat center;
+}
+
+/* Windows */
+.sys7-window {
+    position: absolute;
+    background: var(--sys7-window-gray);
+    border: var(--sys7-window-border) solid var(--sys7-black);
+    box-shadow: var(--sys7-shadow-offset) var(--sys7-shadow-offset) 0 var(--sys7-dark-gray);
+    min-width: 200px;
+    min-height: 100px;
+}
+
+.sys7-window-title-bar {
+    height: 20px;
+    background: var(--sys7-title-bar);
+    color: var(--sys7-title-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--sys7-unit);
+    cursor: move;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.sys7-window-title {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sys7-close-box {
+    width: 12px;
+    height: 12px;
+    background: var(--sys7-white);
+    border: 1px solid var(--sys7-black);
+    cursor: pointer;
+    position: relative;
+    margin-right: 4px;
+}
+
+.sys7-close-box::before,
+.sys7-close-box::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 2px;
+    width: 8px;
+    height: 1px;
+    background: var(--sys7-black);
+    transform: rotate(45deg);
+}
+
+.sys7-close-box::after {
+    transform: rotate(-45deg);
+}
+
+.sys7-grow-box {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nw-resize;
+    background: linear-gradient(
+        -45deg,
+        var(--sys7-dark-gray) 1px,
+        transparent 1px,
+        transparent 3px,
+        var(--sys7-dark-gray) 3px,
+        var(--sys7-dark-gray) 4px,
+        transparent 4px,
+        transparent 6px,
+        var(--sys7-dark-gray) 6px
+    );
+}
+
+.sys7-window-content {
+    padding: var(--sys7-unit);
+    height: calc(100% - 20px);
+    overflow: auto;
+}
+
+/* Buttons */
+.sys7-button {
+    background: var(--sys7-button-face);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    color: var(--sys7-button-text);
+    font-family: var(--sys7-dialog-font);
+    font-size: 12px;
+    padding: 4px 16px;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    min-width: 60px;
+    text-align: center;
+}
+
+.sys7-button::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: 1px;
+    bottom: 1px;
+    border-top: 1px solid var(--sys7-button-highlight);
+    border-left: 1px solid var(--sys7-button-highlight);
+    border-right: 1px solid var(--sys7-button-shadow);
+    border-bottom: 1px solid var(--sys7-button-shadow);
+    pointer-events: none;
+}
+
+.sys7-button:active {
+    background: var(--sys7-medium-gray);
+}
+
+.sys7-button:active::before {
+    border-top: 1px solid var(--sys7-button-shadow);
+    border-left: 1px solid var(--sys7-button-shadow);
+    border-right: 1px solid var(--sys7-button-highlight);
+    border-bottom: 1px solid var(--sys7-button-highlight);
+}
+
+.sys7-button-default {
+    border: 3px solid var(--sys7-black);
+    font-weight: bold;
+}
+
+/* Text Input */
+.sys7-text-input {
+    background: var(--sys7-white);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    font-family: var(--sys7-dialog-font);
+    font-size: 12px;
+    padding: 4px 6px;
+    outline: none;
+}
+
+.sys7-text-input:focus {
+    border: 2px solid var(--sys7-selection);
+    padding: 3px 5px;
+}
+
+/* Checkboxes and Radio Buttons */
+.sys7-checkbox,
+.sys7-radio {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--sys7-dialog-font);
+    font-size: 12px;
+    cursor: pointer;
+    margin: 4px 0;
+}
+
+.sys7-checkbox input,
+.sys7-radio input {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    background: var(--sys7-white);
+    margin-right: 6px;
+    position: relative;
+}
+
+.sys7-radio input {
+    border-radius: 50%;
+}
+
+.sys7-checkbox input:checked::before {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 1px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.sys7-radio input:checked::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sys7-black);
+}
+
+/* Lists */
+.sys7-list {
+    background: var(--sys7-white);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    font-family: var(--sys7-dialog-font);
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sys7-list-item {
+    padding: 2px 6px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--sys7-light-gray);
+}
+
+.sys7-list-item:hover {
+    background: var(--sys7-light-gray);
+}
+
+.sys7-list-item.selected {
+    background: var(--sys7-selection);
+    color: var(--sys7-highlight-text);
+}
+
+/* Scrollbars */
+.sys7-scrollbar {
+    width: 16px;
+    background: var(--sys7-light-gray);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+}
+
+.sys7-scrollbar-thumb {
+    background: var(--sys7-medium-gray);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    min-height: 16px;
+    cursor: pointer;
+}
+
+.sys7-scrollbar-arrow {
+    width: 14px;
+    height: 14px;
+    background: var(--sys7-button-face);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+}
+
+/* Dialogs */
+.sys7-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--sys7-window-gray);
+    border: var(--sys7-window-border) solid var(--sys7-black);
+    box-shadow: 4px 4px 0 var(--sys7-dark-gray);
+    padding: 20px;
+    z-index: 2000;
+    font-family: var(--sys7-dialog-font);
+    min-width: 300px;
+}
+
+.sys7-dialog-title {
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.sys7-dialog-content {
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.sys7-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Icons */
+.sys7-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: var(--sys7-unit);
+}
+
+.sys7-icon-folder {
+    background: linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%);
+    border: 1px solid var(--sys7-dark-gray);
+    position: relative;
+}
+
+.sys7-icon-folder::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 4px;
+    width: 12px;
+    height: 4px;
+    background: inherit;
+    border: 1px solid var(--sys7-dark-gray);
+    border-bottom: none;
+}
+
+.sys7-icon-document {
+    background: var(--sys7-white);
+    border: 1px solid var(--sys7-dark-gray);
+    position: relative;
+}
+
+.sys7-icon-document::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: var(--sys7-black);
+    box-shadow:
+        0 4px 0 var(--sys7-black),
+        0 8px 0 var(--sys7-black),
+        0 12px 0 var(--sys7-black);
+}
+
+.sys7-icon-trash {
+    background: var(--sys7-medium-gray);
+    border: 1px solid var(--sys7-dark-gray);
+    position: relative;
+}
+
+.sys7-icon-trash::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    height: 16px;
+    background: var(--sys7-dark-gray);
+    border-radius: 0 0 4px 4px;
+}
+
+.sys7-icon-trash::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    right: 8px;
+    height: 4px;
+    background: var(--sys7-dark-gray);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Menus */
+.sys7-menu {
+    position: absolute;
+    background: var(--sys7-white);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    box-shadow: 2px 2px 0 var(--sys7-dark-gray);
+    min-width: 150px;
+    z-index: 1500;
+    font-family: var(--sys7-dialog-font);
+    font-size: 12px;
+}
+
+.sys7-menu-item-dropdown {
+    padding: 4px 20px 4px 16px;
+    cursor: pointer;
+    position: relative;
+}
+
+.sys7-menu-item-dropdown:hover {
+    background: var(--sys7-selection);
+    color: var(--sys7-highlight-text);
+}
+
+.sys7-menu-separator {
+    height: 1px;
+    background: var(--sys7-medium-gray);
+    margin: 2px 8px;
+}
+
+.sys7-menu-item-dropdown.disabled {
+    color: var(--sys7-medium-gray);
+    cursor: default;
+}
+
+.sys7-menu-item-dropdown.disabled:hover {
+    background: transparent;
+    color: var(--sys7-medium-gray);
+}
+
+/* Progress Bars */
+.sys7-progress {
+    width: 100%;
+    height: 16px;
+    background: var(--sys7-white);
+    border: var(--sys7-border-width) solid var(--sys7-black);
+    position: relative;
+    overflow: hidden;
+}
+
+.sys7-progress-bar {
+    height: 100%;
+    background: var(--sys7-black);
+    transition: width 0.3s ease;
+}
+
+.sys7-progress-striped .sys7-progress-bar {
+    background-image: repeating-linear-gradient(
+        45deg,
+        var(--sys7-black),
+        var(--sys7-black) 4px,
+        var(--sys7-white) 4px,
+        var(--sys7-white) 8px
+    );
+}
+
+/* Status Bar */
+.sys7-status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: var(--sys7-light-gray);
+    border-top: var(--sys7-border-width) solid var(--sys7-black);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sys7-unit);
+    font-size: 11px;
+    z-index: 1000;
+}
+
+/* Utility Classes */
+.sys7-hidden {
+    display: none !important;
+}
+
+.sys7-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.sys7-selected {
+    background: var(--sys7-selection);
+    color: var(--sys7-highlight-text);
+}
+
+.sys7-text-center {
+    text-align: center;
+}
+
+.sys7-text-bold {
+    font-weight: bold;
+}
+
+.sys7-margin-small {
+    margin: calc(var(--sys7-unit) / 2);
+}
+
+.sys7-margin {
+    margin: var(--sys7-unit);
+}
+
+.sys7-margin-large {
+    margin: calc(var(--sys7-unit) * 2);
+}
+
+.sys7-padding-small {
+    padding: calc(var(--sys7-unit) / 2);
+}
+
+.sys7-padding {
+    padding: var(--sys7-unit);
+}
+
+.sys7-padding-large {
+    padding: calc(var(--sys7-unit) * 2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sys7-window {
+        width: 100vw !important;
+        height: 100vh !important;
+        top: 20px !important;
+        left: 0 !important;
+        border: none;
+        box-shadow: none;
+    }
+
+    .sys7-dialog {
+        width: 90vw;
+        max-width: 400px;
+    }
+}
+
+/* Animation Classes */
+.sys7-fade-in {
+    animation: sys7FadeIn 0.3s ease-in-out;
+}
+
+.sys7-slide-down {
+    animation: sys7SlideDown 0.2s ease-out;
+}
+
+@keyframes sys7FadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes sys7SlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus Styles */
+.sys7-button:focus,
+.sys7-text-input:focus,
+.sys7-checkbox input:focus,
+.sys7-radio input:focus {
+    outline: 2px solid var(--sys7-selection);
+    outline-offset: 1px;
+}
+
+/* Print Styles */
+@media print {
+    .sys7-window {
+        position: static;
+        box-shadow: none;
+        border: 1px solid var(--sys7-black);
+        break-inside: avoid;
+    }
+
+    .sys7-menubar,
+    .sys7-status-bar {
+        display: none;
+    }
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 uDOS Knowledge Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📚 uDOS Knowledge Library</h1>
+            <p class="subtitle">Markdown Viewer with Fuzzy Search</p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input
+                type="text"
+                id="search-input"
+                placeholder="🔍 Search knowledge... (e.g., 'wter purif' finds 'water-purification')"
+                autocomplete="off"
+            />
+            <div id="search-results" class="search-results"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Sidebar: Category Browser -->
+            <aside class="sidebar">
+                <h2>📂 Categories</h2>
+                <div id="category-tree">
+                    <div class="loading">Loading categories...</div>
+                </div>
+            </aside>
+
+            <!-- Content Viewer -->
+            <main class="viewer">
+                <div id="content-area">
+                    <div class="welcome">
+                        <h2>Welcome to uDOS Knowledge Library</h2>
+                        <p>Choose a file from the sidebar or use fuzzy search above.</p>
+
+                        <h3>🔍 Search Features</h3>
+                        <ul>
+                            <li><strong>Typo Tolerant:</strong> "wter" finds "water"</li>
+                            <li><strong>Partial Match:</strong> "purif" finds "purification"</li>
+                            <li><strong>Fast:</strong> Results as you type</li>
+                        </ul>
+
+                        <h3>📚 Knowledge Categories</h3>
+                        <ul>
+                            <li>🔥 Survival - Water, fire, shelter, tools</li>
+                            <li>🛠️ Skills - Programming, building, crafts</li>
+                            <li>📊 Productivity - GTD, time management, organization</li>
+                            <li>🌱 Well-being - Health, mindfulness, relationships</li>
+                            <li>🌍 Environment - Gardening, sustainability, resources</li>
+                            <li>👥 Community - Communication, collaboration, leadership</li>
+                            <li>🔧 Tools - Equipment, software, techniques</li>
+                            <li>🏗️ Building - Construction, infrastructure, systems</li>
+                        </ul>
+
+                        <h3>📐 Diagrams</h3>
+                        <ul>
+                            <li>💻 Programming - Control flow, syntax trees, algorithms</li>
+                            <li>📊 Flowcharts - Decision trees, workflows, processes</li>
+                            <li>🗂️ Data Structures - Trees, graphs, arrays</li>
+                            <li>⚙️ Systems - Architecture, memory, commands</li>
+                            <li>🎒 Survival - Knots, shelters, tools</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Table of Contents (appears when file is loaded) -->
+                <aside id="toc-sidebar" class="toc-sidebar hidden">
+                    <h3>📑 Table of Contents</h3>
+                    <div id="toc-content"></div>
+                </aside>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>uDOS v1.0.21 | Markdown Viewer | Port: {{ config.port }} |
+               <a href="/api/browse" target="_blank">API</a> |
+               <a href="https://github.com/fredporter/uDOS" target="_blank">GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='viewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='search.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+/* File Browser Styles */
+.file-browser-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.file-browser-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item {
+    cursor: pointer;
+}
+
+.breadcrumb-item:hover {
+    color: var(--text-primary);
+}
+
+.file-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    background: var(--accent-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
+}
+
+.file-browser-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    height: calc(100% - 4rem);
+    padding: 1rem;
+}
+
+.file-list {
+    overflow-y: auto;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.file-item:hover {
+    background: var(--bg-secondary);
+}
+
+.file-item.selected {
+    background: var(--accent-color);
+    color: white;
+}
+
+.file-name {
+    flex: 1;
+}
+
+.file-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.git-status {
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.git-status.modified {
+    background: #f1c40f;
+    color: #000;
+}
+
+.git-status.untracked {
+    background: #2ecc71;
+    color: #000;
+}
+
+.git-status.deleted {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.file-preview {
+    background: var(--bg-primary);
+    border-radius: 4px;
+    padding: 1rem;
+    overflow: auto;
+}
+
+.file-preview img {
+    max-width: 100%;
+    height: auto;
+}
+
+.file-preview pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.no-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+}

@@ -1,0 +1,531 @@
+/**
+ * uDOS Font Editor v1.2 - Improved Typography & Buttons
+ * Clean, modern styling with readable fonts and large flat buttons
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--gh-canvas-default);
+    color: var(--gh-fg-default);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: all 0.3s ease;
+    padding: var(--space-lg);
+}
+
+.editor-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    border: 2px solid var(--gh-border-default);
+    background: var(--gh-canvas-default);
+    box-shadow: var(--shadow-lg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* ============================================
+   Header - Serif Typography
+   ============================================ */
+
+header {
+    padding: var(--space-xl);
+    border-bottom: 2px solid var(--gh-border-default);
+    text-align: center;
+    background: var(--gh-canvas-subtle);
+}
+
+header h1 {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xxl);
+    margin-bottom: var(--space-sm);
+    color: var(--gh-accent-fg);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.info {
+    color: var(--gh-fg-muted);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--space-md);
+    font-family: var(--font-sans);
+}
+
+.font-info {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border: 1px solid var(--gh-border-default);
+    background: var(--gh-canvas-inset);
+    display: inline-block;
+    border-radius: 8px;
+}
+
+.font-info label {
+    font-size: var(--font-size-sm);
+    color: var(--gh-fg-muted);
+    font-weight: 600;
+    font-family: var(--font-sans);
+}
+
+.font-info input {
+    background: var(--gh-canvas-default);
+    border: 2px solid var(--gh-border-default);
+    color: var(--gh-fg-default);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 6px;
+    margin: 0 var(--space-sm);
+    transition: all 0.2s ease;
+}
+
+.font-info input:focus {
+    outline: none;
+    border-color: var(--gh-accent-fg);
+    box-shadow: 0 0 0 3px var(--gh-accent-subtle);
+}
+
+/* ============================================
+   Main Layout
+   ============================================ */
+
+.main-area {
+    display: flex;
+    min-height: 600px;
+}
+
+.sidebar {
+    width: 380px;
+    border-right: 2px solid var(--gh-border-default);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    background: var(--gh-canvas-subtle);
+    overflow-y: auto;
+}
+
+.canvas-area {
+    flex: 1;
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    overflow-y: auto;
+}
+
+/* ============================================
+   Sidebar Sections - Improved Typography
+   ============================================ */
+
+.section {
+    border: 2px solid var(--gh-border-default);
+    padding: var(--space-md);
+    background: var(--gh-canvas-default);
+    border-radius: 8px;
+}
+
+.section h3 {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--space-md);
+    color: var(--gh-accent-fg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--gh-border-muted);
+    padding-bottom: var(--space-sm);
+}
+
+.section label {
+    display: block;
+    margin: var(--space-md) 0 var(--space-xs) 0;
+    font-size: var(--font-size-sm);
+    color: var(--gh-fg-muted);
+    font-weight: 600;
+    font-family: var(--font-sans);
+}
+
+.section select,
+.section input[type="number"] {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--gh-canvas-inset);
+    border: 2px solid var(--gh-border-default);
+    color: var(--gh-fg-default);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    min-height: 40px;
+}
+
+.section select:focus,
+.section input:focus {
+    outline: none;
+    border-color: var(--gh-accent-fg);
+    box-shadow: 0 0 0 3px var(--gh-accent-subtle);
+}
+
+.section select {
+    cursor: pointer;
+}
+
+.section select option {
+    background: var(--gh-canvas-default);
+    color: var(--gh-fg-default);
+    padding: var(--space-sm);
+}
+
+/* ============================================
+   Tool Grid - Large Flat Buttons
+   ============================================ */
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.tool-btn {
+    padding: var(--space-md);
+    background: var(--gh-canvas-inset);
+    border: 2px solid var(--gh-border-default);
+    color: var(--gh-fg-default);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    border-radius: var(--button-radius);
+    transition: all 0.2s ease;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    box-shadow: var(--shadow-sm);
+}
+
+.tool-btn:hover {
+    background: var(--gh-canvas-subtle);
+    border-color: var(--gh-accent-fg);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.tool-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.tool-btn.active {
+    background: var(--gh-accent-subtle);
+    border-color: var(--gh-accent-fg);
+    color: var(--gh-accent-fg);
+    font-weight: 700;
+}
+
+/* ============================================
+   Action Buttons - Large and Flat
+   ============================================ */
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.action-btn {
+    padding: var(--button-padding-y) var(--button-padding-x);
+    background: var(--gh-accent-fg);
+    color: #ffffff;
+    font-size: var(--button-font-size);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    border: 2px solid var(--gh-accent-emphasis);
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    box-shadow: var(--shadow-sm);
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.action-btn:hover {
+    background: var(--gh-accent-emphasis);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn.secondary {
+    background: var(--gh-canvas-inset);
+    color: var(--gh-fg-default);
+    border: 1px solid var(--gh-border-default);
+}
+
+.action-btn.secondary:hover {
+    background: var(--gh-canvas-subtle);
+    border-color: var(--gh-accent-fg);
+}
+
+.action-btn.danger {
+    background: var(--gh-danger-fg);
+}
+
+.action-btn.danger:hover {
+    background: var(--gh-danger-emphasis);
+}
+
+/* ============================================
+   Canvas Area
+   ============================================ */
+
+.canvas-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.pixel-grid-container {
+    text-align: center;
+}
+
+.pixel-grid-container h2 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: var(--gh-fg-default);
+}
+
+.pixel-grid {
+    display: inline-grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 1px;
+    background: var(--gh-border-default);
+    padding: 1px;
+    border: 2px solid var(--gh-accent-fg);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.pixel {
+    width: 20px;
+    height: 20px;
+    background: var(--gh-canvas-default);
+    cursor: crosshair;
+    transition: all 0.1s ease;
+}
+
+.pixel:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--gh-accent-fg);
+    z-index: 10;
+}
+
+.pixel.filled {
+    background: var(--gh-fg-default);
+}
+
+[data-theme="light"] .pixel.filled {
+    background: #000000;
+}
+
+[data-theme="dark"] .pixel.filled {
+    background: #ffffff;
+}
+
+/* ============================================
+   Preview Area
+   ============================================ */
+
+.preview-container {
+    text-align: center;
+}
+
+.preview-container h2 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: var(--gh-fg-default);
+}
+
+.preview-box {
+    background: var(--gh-canvas-inset);
+    border: 1px solid var(--gh-border-default);
+    border-radius: 8px;
+    padding: 30px;
+    min-width: 200px;
+}
+
+.preview-display {
+    font-size: 48px;
+    line-height: 1;
+    font-family: monospace;
+    color: var(--gh-fg-default);
+    margin: 20px 0;
+}
+
+.preview-sizes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.size-preview {
+    padding: 10px;
+    background: var(--gh-canvas-default);
+    border: 1px solid var(--gh-border-muted);
+    border-radius: 6px;
+}
+
+.size-label {
+    font-size: 0.75rem;
+    color: var(--gh-fg-muted);
+    margin-bottom: 5px;
+}
+
+/* ============================================
+   Character Gallery
+   ============================================ */
+
+.character-gallery {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--gh-canvas-subtle);
+    border: 1px solid var(--gh-border-default);
+    border-radius: 8px;
+}
+
+.character-gallery h2 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: var(--gh-accent-fg);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+}
+
+.gallery-item {
+    aspect-ratio: 1;
+    background: var(--gh-canvas-default);
+    border: 1px solid var(--gh-border-default);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 10px;
+}
+
+.gallery-item:hover {
+    border-color: var(--gh-accent-fg);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-sm);
+}
+
+.gallery-item.selected {
+    border-color: var(--gh-accent-fg);
+    background: var(--gh-accent-subtle);
+    box-shadow: var(--shadow-md);
+}
+
+.gallery-char {
+    font-size: 32px;
+    font-family: monospace;
+}
+
+/* ============================================
+   Status Bar
+   ============================================ */
+
+.status-bar {
+    padding: 15px 30px;
+    background: var(--gh-canvas-subtle);
+    border-top: 1px solid var(--gh-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--gh-fg-muted);
+}
+
+.status-left,
+.status-right {
+    display: flex;
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-value {
+    color: var(--gh-accent-fg);
+    font-weight: 600;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .canvas-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sidebar {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-area {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--gh-border-default);
+    }
+
+    .tool-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pixel {
+        width: 15px;
+        height: 15px;
+    }
+
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
