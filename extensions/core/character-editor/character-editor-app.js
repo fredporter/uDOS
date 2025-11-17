@@ -9,6 +9,7 @@ class FontManagerApp {
         this.ttfProcessor = null;
         this.currentTab = 'bitmap';
         this.fontLibrary = [];
+        this.userProfile = null;  // Font profile from template
 
         this.init();
     }
@@ -18,6 +19,7 @@ class FontManagerApp {
      */
     init() {
         this.loadFontLibrary();
+        this.loadFontSystemConfig();
         this.setupTabs();
         this.setupButtons();
         this.initializeEditors();
@@ -69,6 +71,8 @@ class FontManagerApp {
         // Header buttons
         document.getElementById('btnNewFont')?.addEventListener('click', () => this.newFont());
         document.getElementById('btnLoadFont')?.addEventListener('click', () => this.loadFont());
+        document.getElementById('btnLoadProfile')?.addEventListener('click', () => this.loadUserProfile());
+        document.getElementById('btnSaveProfile')?.addEventListener('click', () => this.saveUserProfile());
 
         // Export buttons
         document.getElementById('btnExportJSON')?.addEventListener('click', () => this.exportJSON());
@@ -281,6 +285,136 @@ class FontManagerApp {
             setTimeout(() => {
                 statusEl.textContent = 'Ready';
             }, 3000);
+        }
+    }
+
+    /**
+     * Load font system configuration
+     */
+    async loadFontSystemConfig() {
+        try {
+            const response = await fetch('../../knowledge/system/font-system.json');
+            if (response.ok) {
+                this.fontSystemConfig = await response.json();
+                console.log('✅ Loaded font system configuration');
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load font system config:', error);
+        }
+    }
+
+    /**
+     * Load user font profile template
+     */
+    async loadUserProfile() {
+        try {
+            // Try to load existing profile from memory/user/
+            let response = await fetch('../../memory/user/font-profile-template.json');
+
+            if (!response.ok) {
+                // Fall back to system template
+                response = await fetch('../../data/templates/font-profile-template.json');
+            }
+
+            if (response.ok) {
+                this.userProfile = await response.json();
+                this.applyUserProfile();
+                this.showStatus('Font profile loaded');
+            } else {
+                alert('Font profile not found. Please ensure template exists in data/templates/');
+            }
+        } catch (error) {
+            alert('Error loading profile: ' + error.message);
+        }
+    }
+
+    /**
+     * Apply user profile settings to editor
+     */
+    applyUserProfile() {
+        if (!this.userProfile) return;
+
+        console.log('Applying profile:', this.userProfile.metadata.name);
+
+        // Apply font settings to editor
+        if (this.userProfile.font_settings && this.bitmapEditor) {
+            // Could update editor defaults here
+        }
+
+        // Apply color scheme
+        if (this.userProfile.color_scheme) {
+            this.applyColorScheme(this.userProfile.color_scheme);
+        }
+
+        this.showStatus(`Profile: ${this.userProfile.metadata.name}`);
+    }
+
+    /**
+     * Apply color scheme from profile
+     */
+    applyColorScheme(colorScheme) {
+        if (!colorScheme.custom_colors) return;
+
+        // Update CSS variables
+        const root = document.documentElement;
+        Object.entries(colorScheme.custom_colors).forEach(([name, color]) => {
+            if (color.hex) {
+                root.style.setProperty(`--profile-${name}`, color.hex);
+            }
+        });
+    }
+
+    /**
+     * Save user profile
+     */
+    async saveUserProfile() {
+        if (!this.userProfile) {
+            alert('No profile loaded. Load a template first with "Load Profile"');
+            return;
+        }
+
+        // Update metadata
+        this.userProfile.metadata.modified_date = new Date().toISOString();
+
+        // Export as JSON file
+        const blob = new Blob([JSON.stringify(this.userProfile, null, 2)], {
+            type: 'application/json'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `font-profile-${this.userProfile.metadata.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        this.showStatus('Profile saved!');
+    }
+
+    /**
+     * Create new profile from template
+     */
+    async createProfileFromTemplate() {
+        try {
+            const response = await fetch('../../data/templates/font-profile-template.json');
+            if (response.ok) {
+                const template = await response.json();
+
+                // Prompt for profile name
+                const profileName = prompt('Enter profile name:', 'My Custom Profile');
+                if (!profileName) return;
+
+                // Duplicate template
+                this.userProfile = JSON.parse(JSON.stringify(template));
+                this.userProfile.metadata.name = profileName;
+                this.userProfile.metadata.created_date = new Date().toISOString();
+                this.userProfile.metadata.modified_date = new Date().toISOString();
+                this.userProfile.metadata.author = prompt('Author name (optional):', '') || '';
+
+                this.showStatus(`Created profile: ${profileName}`);
+                this.applyUserProfile();
+            }
+        } catch (error) {
+            alert('Error creating profile: ' + error.message);
         }
     }
 }

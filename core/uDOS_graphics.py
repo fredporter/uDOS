@@ -392,3 +392,115 @@ if __name__ == "__main__":
     print(BoxChars.box(40, 5, "Sample Box", double=True))
 
     print("\n✅ Demo complete!")
+
+
+class FontGraphicsHelper:
+    """
+    Helper class for font-based graphics using Synthwave DOS colors and retro fonts.
+    Integrates with knowledge/system/font-system.json
+    """
+
+    @staticmethod
+    def get_block_char(block_type: str = "full", charset: str = "unicode") -> str:
+        """
+        Get block graphics character from font system.
+
+        Args:
+            block_type: Type of block (full, top_half, bottom_half, left_half, etc.)
+            charset: Character set (unicode, petscii, teletext, ascii)
+
+        Returns:
+            Block character string
+        """
+        from core.uDOS_settings import FontSystemManager
+
+        font_sys = FontSystemManager.get_instance()
+        blocks = font_sys.get_block_graphics(charset)
+
+        # Map common block types
+        block_map = {
+            "full": blocks.get("full_block", "█"),
+            "top_half": blocks.get("upper_half_block", "▀"),
+            "bottom_half": blocks.get("lower_half_block", "▄"),
+            "left_half": blocks.get("left_half_block", "▌"),
+            "right_half": blocks.get("right_half_block", "▐"),
+            "light_shade": blocks.get("light_shade", "░"),
+            "medium_shade": blocks.get("medium_shade", "▒"),
+            "dark_shade": blocks.get("dark_shade", "▓"),
+        }
+
+        return block_map.get(block_type, "█")
+
+    @staticmethod
+    def get_ansi_color(color_name: str, brightness: str = "bright") -> str:
+        """
+        Get ANSI escape code for Synthwave DOS color.
+
+        Args:
+            color_name: Color name (black, red, green, blue, cyan, magenta, orange, gray, white)
+            brightness: bright or dark
+
+        Returns:
+            ANSI escape sequence
+        """
+        from core.uDOS_settings import FontSystemManager
+
+        font_sys = FontSystemManager.get_instance()
+        palette = font_sys.get_color_palette()
+
+        color_key = f"{color_name}_{brightness}" if brightness in ["bright", "dark"] else color_name
+        color_data = palette.get(color_key, palette.get("white_bright", {}))
+
+        return color_data.get("ansi", "\033[0m")
+
+    @staticmethod
+    def colorize(text: str, color: str, brightness: str = "bright") -> str:
+        """
+        Colorize text using Synthwave DOS colors.
+
+        Args:
+            text: Text to colorize
+            color: Color name
+            brightness: bright or dark
+
+        Returns:
+            ANSI-colored text string
+        """
+        ansi = FontGraphicsHelper.get_ansi_color(color, brightness)
+        reset = "\033[0m"
+        return f"{ansi}{text}{reset}"
+
+    @staticmethod
+    def make_retro_banner(text: str, width: int = 60, font: str = "chicago") -> str:
+        """
+        Create retro-styled banner using block characters.
+
+        Args:
+            text: Banner text
+            width: Total width
+            font: Font name (affects character selection)
+
+        Returns:
+            Multi-line banner string
+        """
+        border_char = FontGraphicsHelper.get_block_char("full")
+        top_half = FontGraphicsHelper.get_block_char("top_half")
+        bottom_half = FontGraphicsHelper.get_block_char("bottom_half")
+
+        lines = []
+        lines.append(border_char * width)
+        lines.append(f"{border_char}{top_half * (width - 2)}{border_char}")
+
+        # Center text
+        padding = (width - 4 - len(text)) // 2
+        text_line = f"{border_char}  {' ' * padding}{text}{' ' * padding}  {border_char}"
+        if len(text_line) < width:
+            text_line += " " * (width - len(text_line) - 1) + border_char
+        lines.append(text_line)
+
+        lines.append(f"{border_char}{bottom_half * (width - 2)}{border_char}")
+        lines.append(border_char * width)
+
+        return "\n".join(lines)
+
+
