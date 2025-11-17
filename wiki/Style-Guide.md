@@ -243,61 +243,52 @@ The `LEXICON.UDO` file in the `/data` directory defines the thematic "skin" of t
 
 ---
 
-## 6. Typography and Fonts
+## 7. Typography and Fonts
 
-### Monaspace Font System
+### uDOS Core Font System
 
-uDOS uses the **Monaspace** font superfamily for web-based interfaces (typo editor, cmd.js terminal, browser views). Monaspace provides five distinct variants optimized for coding, developed by GitHub Next.
+uDOS v1.0.24 uses a curated collection of retro fonts stored in `extensions/core/fonts/` with comprehensive fallback stacks for reliability. The font system is defined in `knowledge/system/font-system.json` and integrated across all extensions.
 
-**Official Site:** [monaspace.githubnext.com](https://monaspace.githubnext.com)
+**Font Configuration:** See `knowledge/system/font-system.json` for complete font system specification.
 
-**Font Variants:**
+**Retro Font Families:**
 
-| Variant | Style | Description | Use Case |
-|---------|-------|-------------|----------|
-| **Neon** | Neo-grotesque sans | Clean and modern | Default, general editing |
-| **Argon** | Humanist sans | Warm and readable | Long-form documentation |
-| **Xenon** | Slab serif | Editorial and strong | Headers, emphasis |
-| **Radon** | Handwriting | Casual and personal | Comments, notes |
-| **Krypton** | Mechanical sans | Technical and precise | Code, data tables |
+| Font Family | Variants | Description | Use Case |
+|-------------|----------|-------------|----------|
+| **Chicago** | 2 | Apple System font recreations | System 7 Desktop, classic Mac interfaces |
+| **Mallard** | 6 | BBC Teletext rendering fonts | Teletext extension, broadcast interfaces |
+| **PetMe** | 7 | Commodore PET/CBM fonts | C64 Terminal, Commodore-themed interfaces |
+| **MODE7GX3** | 1 | BBC Micro Mode 7 Teletext | Teletext fallback |
 
-**Font Features:**
-- **Texture Healing™**: Advanced character spacing for improved readability
-- **Coding Ligatures**: Enhanced symbol combinations (→, ===, !=, etc.)
-- **Powerline Symbols**: Terminal integration glyphs
-- **Variable Font Technology**: Flexible weight and width control
-
-**Web Typography System:**
+**Font Fallback Stacks:**
 
 ```css
-/* Font Families */
---font-neon: 'Monaspace Neon', 'Courier New', Consolas, Monaco, monospace;
---font-argon: 'Monaspace Argon', 'Courier New', Consolas, Monaco, monospace;
---font-xenon: 'Monaspace Xenon', 'Courier New', Consolas, Monaco, monospace;
---font-radon: 'Monaspace Radon', 'Courier New', Consolas, Monaco, monospace;
---font-krypton: 'Monaspace Krypton', 'Courier New', Consolas, Monaco, monospace;
+/* Chicago (System 7 Desktop) */
+font-family: 'Chicago', 'Chicago FLF', -apple-system, BlinkMacSystemFont, monospace;
 
-/* Serif headings for readability */
---font-serif: 'Georgia', 'Times New Roman', Times, serif;
+/* Mallard (Teletext) */
+font-family: 'Mallard', 'MODE7GX3', 'Courier New', monospace;
 
-/* Sans-serif for UI elements */
---font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+/* PetMe (C64 Terminal) */
+font-family: 'PetMe64', 'PetMe', 'Courier New', monospace;
 
-/* Font Sizes - Larger and more readable */
---font-size-xs: 12px;   /* Metadata, footnotes */
---font-size-sm: 14px;   /* Secondary text */
---font-size-md: 16px;   /* Body text (default) */
---font-size-lg: 20px;   /* Subheadings */
---font-size-xl: 28px;   /* Headings */
---font-size-xxl: 36px;  /* Page titles */
-
-/* Line Heights - Generous spacing */
---line-height-tight: 1.3;   /* Headers */
---line-height-normal: 1.6;  /* Body text */
---line-height-loose: 1.8;   /* Code blocks */
+/* Generic Monospace */
+font-family: 'Monaco', 'Courier New', 'Courier', monospace;
 ```
 
-**Button Styling:**
+**Font Loading Best Practices:**
+- All fonts use `font-display: swap` to prevent invisible text
+- Relative paths from extension root (e.g., `fonts/chicago/ChicagoFLF.ttf`)
+- Include generic fallbacks (`monospace`, `sans-serif`)
+- Test with fonts disabled to verify fallbacks work
+
+**Font Licensing:**
+- ✅ Chicago (ChicagoFLF): Public domain
+- ✅ Chicago (12-1): CC BY-SA 3.0
+- ✅ Mallard: CC BY-SA 3.0 (gid/FontStruct.com)
+- ✅ PetMe: Kreative Software Free Use License v1.2f
+
+**Font Documentation:** See `extensions/core/fonts/README.md` for complete usage guide and licensing information.
 
 Large, flat buttons with clear affordances:
 
@@ -380,9 +371,9 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sa
 ```
 
 **Installation:**
-- **Web fonts**: Installed via `bash extensions/setup_monaspace.sh`
+- **Web fonts**: Installed via `bash extensions/archive/old-setup-scripts/setup_monaspace.sh`
 - **Format**: WOFF2 (web), OTF (system)
-- **Location**: `extensions/fonts/monaspace/`
+- **Location**: `extensions/archive/old-clones/monaspace-fonts/`
 
 **CLI Terminal Use:**
 - macOS: Install via Font Book or system preferences
@@ -400,20 +391,20 @@ FONT INFO              # Current configuration
 
 ## 7. Color Palette & Viewport Visualization
 
-### Polaroid Color System
+### Synthwave DOS Color System
 
-uDOS v1.0.0 uses the **Polaroid** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
+uDOS v1.0.0 uses the **Synthwave DOS** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
 
 **Primary Color Reference:**
 
 | Color | Name | tput | Hex | RGB | Usage |
 |:------|:-----|:----:|:---:|:---:|:------|
-| 🔴 | Polaroid Red | 196 | #FF1744 | 255,23,68 | Errors, alerts, critical warnings, danger zones |
-| 🟢 | Polaroid Green | 46 | #00E676 | 0,230,118 | Success, confirmations, growth, positive status |
-| 🟡 | Polaroid Yellow | 226 | #FFEB3B | 255,235,59 | Warnings, caution, highlights, notifications |
-| 🔵 | Polaroid Blue | 21 | #2196F3 | 33,150,243 | Information, links, system messages, cold tones |
-| 🟣 | Polaroid Purple | 201 | #E91E63 | 233,30,99 | Magic, spells, special events, fantasy elements |
-| 🔷 | Polaroid Cyan | 51 | #00E5FF | 0,229,255 | Technology, data, navigation, cool highlights |
+| 🔴 | Synthwave DOS Red | 196 | #FF1744 | 255,23,68 | Errors, alerts, critical warnings, danger zones |
+| 🟢 | Synthwave DOS Green | 46 | #00E676 | 0,230,118 | Success, confirmations, growth, positive status |
+| 🟡 | Synthwave DOS Yellow | 226 | #FFEB3B | 255,235,59 | Warnings, caution, highlights, notifications |
+| 🔵 | Synthwave DOS Blue | 21 | #2196F3 | 33,150,243 | Information, links, system messages, cold tones |
+| 🟣 | Synthwave DOS Purple | 201 | #E91E63 | 233,30,99 | Magic, spells, special events, fantasy elements |
+| 🔷 | Synthwave DOS Cyan | 51 | #00E5FF | 0,229,255 | Technology, data, navigation, cool highlights |
 | ⚪ | Pure White | 15 | #FFFFFF | 255,255,255 | Default text, headings, high emphasis |
 | ⚫ | Pure Black | 16 | #000000 | 0,0,0 | Background (light themes), dark accents |
 
@@ -644,7 +635,7 @@ Cells use alphanumeric coordinates: `[Column][Row]`
 
 **Color Classes:**
 
-Apply Polaroid palette colors via CSS classes:
+Apply Synthwave DOS palette colors via CSS classes:
 
 ```css
 .color-red { color: #FF1744; }
@@ -1017,7 +1008,7 @@ Export log with timestamps:
 - User preferences: `data/USER.UDT`
 
 **Web Assets:**
-- Fonts: `extensions/fonts/monaspace/`
+- Fonts: `extensions/archive/old-clones/monaspace-fonts/`
 - CSS stylesheets: `extensions/web/styles/`
 - Grid templates: `extensions/web/templates/`
 
@@ -1183,7 +1174,7 @@ function adaptGrid() {
 - 1.1.4: Added map tile coordinates, timestamps with location, web grid styles
 - 1.1.3: Integrated Monaspace font system
 - 1.1.2: Consolidated viewport colors from separate document
-- 1.1.1: Added Polaroid palette and viewport visualization
+- 1.1.1: Added Synthwave DOS palette and viewport visualization
 - 1.1.0: Initial comprehensive style guide
 
 **Contributing:**

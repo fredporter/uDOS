@@ -130,7 +130,7 @@ Navigate with `MOVE`, `DESCEND`, `ASCEND`, `GOTO`.
 
 ### Can I customize the colors?
 
-Yes! The Polaroid color palette is defined in `data/PALETTE.UDO`.
+Yes! The Synthwave DOS color palette is defined in `data/PALETTE.UDO`.
 
 View with:
 ```

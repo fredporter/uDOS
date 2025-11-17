@@ -1,14 +1,14 @@
 {
   "PALETTE": {
-    "NAME": "Polaroid",
-    "VERSION": "1.0.0",
-    "DESCRIPTION": "High-contrast photo-inspired color system for uDOS. Optimized for terminal visibility and aesthetic balance.",
+    "NAME": "Synthwave DOS",
+    "VERSION": "1.0.24",
+    "DESCRIPTION": "Standard VGA 16-color palette optimized for retro terminal interfaces and CRT displays. See extensions/core/css/synthwave-dos-colors.css and knowledge/system/font-system.json",
     "DEFAULT": true,
 
     "COLORS": {
       "PRIMARY": {
         "red": {
-          "name": "Polaroid Red",
+          "name": "Synthwave Red Bright",
           "tput": 196,
           "ansi": "\\033[38;5;196m",
           "hex": "#FF1744",
@@ -16,7 +16,7 @@
           "usage": "Errors, alerts, critical warnings, danger zones"
         },
         "green": {
-          "name": "Polaroid Green",
+          "name": "Synthwave Green Bright",
           "tput": 46,
           "ansi": "\\033[38;5;46m",
           "hex": "#00E676",
@@ -24,7 +24,7 @@
           "usage": "Success, confirmations, growth, positive status"
         },
         "yellow": {
-          "name": "Polaroid Yellow",
+          "name": "Synthwave Yellow Bright",
           "tput": 226,
           "ansi": "\\033[38;5;226m",
           "hex": "#FFEB3B",
@@ -32,7 +32,7 @@
           "usage": "Warnings, caution, highlights, notifications"
         },
         "blue": {
-          "name": "Polaroid Blue",
+          "name": "Synthwave Blue Bright",
           "tput": 21,
           "ansi": "\\033[38;5;21m",
           "hex": "#2196F3",
@@ -40,7 +40,7 @@
           "usage": "Information, links, system messages, cold tones"
         },
         "purple": {
-          "name": "Polaroid Purple",
+          "name": "Synthwave Magenta Bright",
           "tput": 201,
           "ansi": "\\033[38;5;201m",
           "hex": "#E91E63",
@@ -48,7 +48,7 @@
           "usage": "Magic, spells, special events, fantasy elements"
         },
         "cyan": {
-          "name": "Polaroid Cyan",
+          "name": "Synthwave Cyan Bright",
           "tput": 51,
           "ansi": "\\033[38;5;51m",
           "hex": "#00E5FF",

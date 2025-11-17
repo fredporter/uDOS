@@ -61,7 +61,9 @@
 ## 🎨 Extensions & Retro Computing (v1.0.10)
 
 - **Bundled Web Extensions** - Native dashboard, System 7 desktop, teletext interface
-- **External Framework Integration** - Classicy (Mac OS 8), C64 CSS3, NES.css
+- **Core Extensions** - C64 Terminal, Teletext, System Desktop, Dashboard, Character Editor, Markdown Viewer
+- **Retro Font System** - Chicago, Mallard, PetMe (extensions/core/fonts/)
+- **Synthwave DOS Colors** - Standard VGA 16-color palette with transparency variants
 - **Typography System** - 15+ classic computing fonts with licensing compliance
 - **Setup Scripts** - Automated installation for external dependencies
 - **Legal Compliance** - Proper attribution and font licensing assessment
@@ -362,7 +364,7 @@ Each development round includes:
 - [Connection Awareness](Connection-Awareness) - Online/offline modes
 - [Viewport System](Viewport-System) - Terminal adaptation
 - [Mapping System](Mapping-System) - NetHack-style navigation
-- [Color Palette](Color-Palette) - Polaroid color system
+- [Color Palette](Color-Palette) - Synthwave DOS color system
 
 ### Development
 - [Contributing Guide](Contributing) - How to contribute
@@ -380,7 +382,7 @@ Each development round includes:
 
 ## 🎨 Visual Features
 
-### Polaroid Color Palette
+### Synthwave DOS Color Palette
 uDOS uses a professional 8-color system optimized for terminal visibility:
 
 🔴 **Red** (196) - Errors, alerts
