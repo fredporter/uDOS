@@ -811,13 +811,13 @@ cp -r memory/ memory_backup_$(date +%Y%m%d)
 ## Related Pages
 
 - [Configuration](Configuration.md) - Settings and customization
-- [Getting Started](Getting-Started.md) - Installation guide  
+- [Getting Started](Getting-Started.md) - Installation guide
 - [Command Reference](Command-Reference.md) - All commands
 - [Architecture](Architecture.md) - System design
 - [FAQ](FAQ.md) - Frequently asked questions
 
 ---
 
-**Last Updated**: November 17, 2025  
-**Version**: v1.0.22  
+**Last Updated**: November 17, 2025
+**Version**: v1.0.22
 **See Also**: [Documentation Handbook](Documentation-Handbook.md)

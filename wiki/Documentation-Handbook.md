@@ -2,8 +2,8 @@
 
 **The Complete Reference Manual - 1000+ Pages of Offline-First Documentation**
 
-> 📚 **Version**: 1.0.22  
-> 📅 **Last Updated**: November 17, 2025  
+> 📚 **Version**: 1.0.22
+> 📅 **Last Updated**: November 17, 2025
 > 🎯 **Goal**: Complete, offline-accessible documentation for rebuilding civilization
 
 ---
@@ -599,6 +599,6 @@ See [Contributing Guide](Contributing.md) for:
 
 ---
 
-**Last Updated**: November 17, 2025  
-**Version**: v1.0.22 (In Progress)  
+**Last Updated**: November 17, 2025
+**Version**: v1.0.22 (In Progress)
 **Maintainer**: uDOS Development Team
