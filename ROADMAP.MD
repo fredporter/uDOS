@@ -3164,9 +3164,215 @@ knowledge/
 
 ## 🚀 v1.1.x - Desktop Apps & Advanced Features (Future)
 **Status**: 📋 Future (Post v1.1.0 Launch)
-**Focus**: Desktop applications (Tauri, Classicy Desktop) and advanced features (P2P, mesh networking)
+**Focus**: Desktop applications (Tauri, Classicy Desktop), advanced features (P2P, mesh networking), security model, user roles, installation architecture
 
-**Philosophy**: *"After the core is stable, build native apps with system integration. Cross-platform with Tauri, retro with Classicy, powerful with P2P."*
+**Philosophy**: *"After the core is stable, build native apps with system integration. Cross-platform with Tauri, retro with Classicy, powerful with P2P. Security by design: strict command-based I/O, role-based access, controlled AI/web interactions."*
+
+---
+
+### v1.1.0 - Security Model & User Roles
+**Status**: 📋 Planned (Q2 2026)
+**Focus**: Command-based security, user roles, installation types, controlled AI/web access
+
+**Philosophy**: *"Development via VSCode/Copilot only. Production usage via strict command I/O. No accidental API calls, no unrestricted web access, no privilege escalation."*
+
+#### Planned Features (5 tasks)
+
+#### 1. Command-Based Security Model
+- [ ] **Explicit Command I/O Only**: No automatic/background operations
+  * API/OK/ASSIST commands required for all Gemini API calls
+  * WEB/FETCH/CRAWL commands required for all web access
+  * OFFLINE/PROMPT commands for local AI prompt development
+  * No implicit API calls from any uDOS function
+  * Audit log for all external I/O operations
+- [ ] **Web Access Restrictions**:
+  * WEB command: Single URL fetch (HTML/text extraction)
+  * FETCH command: Multi-page crawl with explicit URL list
+  * CRAWL command: Same-domain deep crawl with depth limit
+  * Domain whitelist/blacklist support
+  * Rate limiting (requests per minute)
+  * SSL/TLS verification enforced
+  * No JavaScript execution (static content only)
+  * User confirmation required for external domains
+- [ ] **Gemini API Security**:
+  * API command: Single text prompt → response
+  * OK command: Approve/execute Gemini-generated code
+  * ASSIST command: Interactive multi-turn conversation
+  * API key stored encrypted in USER.UDT
+  * Rate limiting (tokens per day/hour)
+  * Cost tracking and budget alerts
+  * Prompt injection detection
+  * Response validation (reject code execution attempts)
+  * Offline fallback when API unavailable
+- [ ] **File System Permissions**:
+  * READ/WRITE/EXECUTE permissions per directory
+  * uDOS core files (core/, extensions/core/) are read-only for all users
+  * MEMORY/ directory: user read/write, system read-only
+  * KNOWLEDGE/ directory: system read/write, user read-only
+  * Sandbox mode: restricted to /sandbox/ directory
+  * No access to system directories (/, /etc, /System, C:\Windows)
+- [ ] **Command Audit & Logging**:
+  * All commands logged to MEMORY/logs/audit.log
+  * Timestamp, user role, command, arguments, result
+  * Failed permission attempts logged
+  * API/web access logged with full request/response
+  * Exportable for security review
+
+#### 2. User Role System
+- [ ] **Role Definitions**:
+  * **User** (default): Standard uDOS operations
+    - Execute commands, run scripts, access knowledge
+    - No file system write outside MEMORY/PRIVATE
+    - No API/web access without explicit commands
+    - No extension installation
+  * **Power** (advanced): Extended capabilities
+    - Install verified extensions
+    - API/web access with rate limits
+    - Write to MEMORY/ and sandbox/
+    - Create/edit uCODE scripts
+  * **Wizard** (developer): Full development access
+    - Read-only access to core/ files
+    - Full VSCode integration
+    - Git push/pull operations
+    - Prompt engineering for offline AI
+    - Extension development
+    - NO direct core file editing (VSCode/Copilot only)
+  * **Root** (system): Emergency access only
+    - Full file system access
+    - Bypass all security restrictions
+    - Modify core files directly
+    - Requires password + 2FA
+    - All actions logged immutably
+- [ ] **Role-Based Access Control (RBAC)**:
+  * Command whitelist per role
+  * File path access matrix
+  * API/web access quotas per role
+  * Extension permissions per role
+  * Temporary privilege elevation (sudo-style)
+- [ ] **Role Assignment & Management**:
+  * Configured in USER.UDT (encrypted)
+  * ROLE command: Check current role
+  * SUDO command: Temporary privilege elevation
+  * GRANT/REVOKE commands (root only)
+  * Role inheritance (Power inherits User)
+
+#### 3. Installation Types (Cloning vs Spawning)
+- [ ] **Clone Installation** (Development):
+  * Full git repository clone
+  * All source code editable
+  * Git integration enabled
+  * Wizard role default
+  * Used for:
+    - Core development (new features)
+    - Extension development
+    - Documentation writing
+    - Testing/debugging
+  * Setup:
+    ```bash
+    git clone https://github.com/fredporter/uDOS.git
+    cd uDOS
+    ./setup.sh --type=clone --role=wizard
+    ```
+- [ ] **Spawn Installation** (Production):
+  * Packaged release (pip, brew, apt)
+  * Core files read-only
+  * No git integration
+  * User role default
+  * Used for:
+    - End-user installations
+    - Servers/automation
+    - Embedded systems
+    - Air-gapped environments
+  * Setup:
+    ```bash
+    pip install udos
+    udos init --type=spawn --role=user
+    ```
+- [ ] **Hybrid Installation** (Power Users):
+  * Git clone but production mode
+  * Core files read-only unless elevated
+  * Git pull for updates only
+  * Power role default
+  * Best of both: updatable, secure
+  * Setup:
+    ```bash
+    git clone https://github.com/fredporter/uDOS.git
+    cd uDOS
+    ./setup.sh --type=hybrid --role=power
+    ```
+- [ ] **Installation Detection**:
+  * Auto-detect installation type
+  * Warn if role/type mismatch
+  * Suggest appropriate role for type
+  * Display in STATUS command
+
+#### 4. Offline AI Prompt Development
+- [ ] **OFFLINE Command Suite**:
+  * OFFLINE/PROMPT: Create/edit AI prompts locally
+  * OFFLINE/TEST: Test prompts with mock responses
+  * OFFLINE/LIBRARY: Browse prompt templates
+  * OFFLINE/EXPORT: Package prompts for sharing
+  * All operations local, no API calls
+- [ ] **Prompt Engineering Workflow** (Wizard role):
+  * Edit prompts in VSCode with syntax highlighting
+  * Version control prompts in git
+  * Test with local LLM (Ollama integration)
+  * Validate against Gemini API schema
+  * Deploy to production after testing
+- [ ] **Prompt Library Management**:
+  * Categorized templates (knowledge, diagrams, automation)
+  * Variable substitution ({{user_input}}, {{context}})
+  * Metadata (author, version, cost estimate)
+  * Security review required for production
+- [ ] **Local LLM Integration** (Optional):
+  * Ollama support for offline testing
+  * Smaller models for development (llama3, mistral)
+  * No internet required
+  * Fallback when Gemini API unavailable
+
+#### 5. Development Workflow (Wizard Role)
+- [ ] **VSCode/Copilot Mandate**:
+  * All core development MUST use VSCode + Copilot
+  * Direct file editing via uDOS commands disabled
+  * EDIT command: Opens file in VSCode, does not modify
+  * GIT command suite: pull, status, diff (push requires Wizard)
+  * Benefits:
+    - AI-assisted coding
+    - Syntax validation
+    - Git integration
+    - Debugging tools
+    - Code review workflow
+- [ ] **Git Integration** (Wizard only):
+  * GIT/PULL: Update from remote
+  * GIT/STATUS: Check working tree
+  * GIT/DIFF: Review changes
+  * GIT/COMMIT: Commit with message
+  * GIT/PUSH: Push to remote (requires auth)
+  * GIT/BRANCH: Manage branches
+  * All operations logged to audit.log
+- [ ] **Read-Only Core Access**:
+  * Wizard can READ all core/ files
+  * Wizard CANNOT WRITE core/ files via uDOS
+  * Must use VSCode/git workflow
+  * Prevents accidental corruption
+  * Enforces code review process
+- [ ] **Development Commands** (Wizard only):
+  * DEV/TEST: Run test suites
+  * DEV/BUILD: Build extensions/bundles
+  * DEV/DEPLOY: Deploy to production
+  * DEV/DOCS: Generate documentation
+  * DEV/PROFILE: Performance profiling
+  * All dev commands logged
+
+**Success Metrics**:
+- Zero accidental API calls (all require explicit commands)
+- Zero unrestricted web access (all require explicit commands)
+- 100% audit log coverage for external I/O
+- 3 distinct installation types (clone/spawn/hybrid)
+- 4 user roles (User/Power/Wizard/Root)
+- All core development via VSCode/Copilot
+- Git operations restricted to Wizard role
+- Prompt development fully offline-capable
 
 ---
 
