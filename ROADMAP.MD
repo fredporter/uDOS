@@ -58,9 +58,10 @@
   * Knowledge base expansion: 50+ survival guides (water, medical, food, skills, well-being)
   * File reorganization: /examples removed, content redistributed to /knowledge/demos/, /extensions/templates/, /docs/references/
   * Testing: 37/37 tests passing (mapping 22, knowledge 11, core 4, imports, paths)
+- **v1.0.21** - Survivalist Themes & Practical Skills Library (GUIDE/DIAGRAM commands, teletext graphics, 40/40 tests) - ✅ **COMPLETE**
 
 ### 🔨 Current Development
-- **v1.0.21** - Survivalist Themes & Practical Skills Library - 🔨 **IN PROGRESS**
+- **v1.0.22** - Documentation & Offline-First Handbook - 🔨 **IN PROGRESS**
 
 ### 📋 Planned Versions
 - **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **PLANNED**
@@ -2165,7 +2166,7 @@ knowledge/
 ---
 
 ## 🌲 v1.0.21 - Survivalist Themes & Practical Skills Library
-**Status**: 🔨 In Progress (November 2025)
+**Status**: ✅ COMPLETE (November 17, 2025)
 **Focus**: Expand knowledge library with extensive teletext graphics, create survival-focused documentation
 
 **Philosophy**: *"Real knowledge that works when the power's out and the internet's dead"*
@@ -2176,11 +2177,11 @@ knowledge/
 - ✅ Phase 3: Enhanced diagrams with teletext graphics (memory-architecture-medium.md)
 - ✅ Phase 4: Built world map generation system (480×270, TZONE integration)
 - ✅ Phase 5: Created map generation tools (map_painter.uscript)
-- 🔄 Phase 6: Knowledge library expansion (control-flow.md, water-purification-methods.md, knot-tying.md created)
-- 📋 Phase 7: GUIDE and DIAGRAM command implementation
-- 📋 Phase 8: Complete documentation and testing
+- ✅ Phase 6: Knowledge library expansion (control-flow.md, water-purification-methods.md, knot-tying.md created)
+- ✅ Phase 7: GUIDE and DIAGRAM command implementation (634 lines, 590 lines respectively)
+- ✅ Phase 8: Complete documentation and testing (40/40 tests passing)
 
-**Test Coverage**: 0/40 tests (test_v1_0_21_knowledge.py not yet created)
+**Test Coverage**: 40/40 tests passing ✅ (test_v1_0_21_knowledge.py)
 
 ### Completed Features (Phases 1-5) ✅
 
