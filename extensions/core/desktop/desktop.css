@@ -4,22 +4,27 @@
  * https://github.com/sakofchit/system.css
  *
  * A design system for building retro Apple-inspired interfaces
- * Adapted for uDOS with Synthwave DOS color integration
+ * Classic monochrome System 6 styling
  */
 
-/* Import Synthwave DOS Colors */
-@import url('../css/synthwave-dos-colors.css');
+/* Classic Mac OS Colors */
+:root {
+  --mac-black: #000000;
+  --mac-white: #ffffff;
+  --mac-grey: #c0c0c0;
+  --mac-dark-grey: #808080;
+}
 
 /* ===== FONTS ===== */
 @font-face {
   font-family: Chicago;
-  src: url('../../fonts/chicago/ChicagoFLF.ttf') format('truetype');
+  src: url('../fonts/chicago/ChicagoFLF.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: Chicago_12;
-  src: url('../../fonts/chicago/chicago-12-1.otf') format('opentype');
+  src: url('../fonts/chicago/chicago-12-1.otf') format('opentype');
   font-display: swap;
 }
 
@@ -53,7 +58,8 @@ body {
     linear-gradient(#fff 21px, transparent 1%) 50%, #000;
   background-attachment: fixed;
   background-size: 22px 22px;
-  font-family: Chicago, Chicago_12, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Chicago_12, Chicago, Monaco, 'Courier New', monospace;
+  font-size: 12px;
   margin: 0;
   padding: 0;
 }
@@ -80,9 +86,10 @@ h2 { font-size: 2em; }
 /* ===== WINDOWS ===== */
 .window {
   background-color: #fff;
-  border: 0.1em solid #000;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
   flex-direction: column;
-  font-family: Chicago, Chicago_12, Monaco, monospace;
+  font-family: Chicago_12, Chicago, Monaco, monospace;
   margin: 1rem;
   min-width: 320px;
   overflow: hidden;
@@ -114,11 +121,11 @@ h2 { font-size: 2em; }
   background: #fff;
   cursor: default;
   font-family: Chicago_12, Chicago, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.1;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
   margin: 0 auto;
-  padding: 0 0.5em;
+  padding: 2px 8px;
   text-align: center;
 }
 
@@ -535,26 +542,6 @@ ul [role="menu-item"].divider::after {
   font-size: 12px;
 }
 
-.status-bar-field {
-  margin: 0;
-  padding: 0 8px;
-}
-
-/* ===== UDOS SYNTHWAVE INTEGRATION ===== */
-.window.synthwave {
-  border-color: var(--color-cyan-bright);
-  box-shadow: 0 0 20px var(--color-cyan-bright-25);
-}
-
-.window.synthwave .title-bar {
-  background: linear-gradient(180deg, var(--color-blue-bright) 0%, var(--color-blue-dark) 100%);
-}
-
-.window.synthwave .title-bar .title {
-  background: var(--color-cyan-bright);
-  color: var(--color-black);
-}
-
 /* ===== DESKTOP SPECIFIC ===== */
 #desktop-icons {
   position: relative;
@@ -606,7 +593,7 @@ ul [role="menu-item"].divider::after {
 
 .stat-value {
   font-family: Chicago, monospace;
-  color: var(--color-blue-dark);
+  color: #000;
 }
 
 .system-info h3 {
@@ -652,12 +639,12 @@ ul [role="menu-item"].divider::after {
 }
 
 .finder-item:hover {
-  background: var(--color-cyan-bright);
-  color: #fff;
+  background: #c0c0c0;
+  color: #000;
 }
 
 .finder-item.selected {
-  background: var(--color-blue-bright);
+  background: #000;
   color: #fff;
 }
 
@@ -675,7 +662,7 @@ ul [role="menu-item"].divider::after {
 
 .command-output {
   background: #000;
-  color: var(--color-green-bright);
+  color: #00ff00;
   font-family: Chicago, monospace;
   font-size: 11px;
   padding: 12px;
@@ -685,7 +672,7 @@ ul [role="menu-item"].divider::after {
 }
 
 .command-prompt {
-  color: var(--color-cyan-bright);
+  color: #00ff00;
 }
 
 .character-editor-container {
