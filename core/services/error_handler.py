@@ -306,14 +306,14 @@ class EnhancedErrorHandler:
 
         # Use lower cutoff for better fuzzy matching
         matches = difflib.get_close_matches(target, candidates, n=n, cutoff=0.5)
-        
+
         # If no matches, try case-insensitive matching
         if not matches:
             candidates_lower = [c.lower() for c in candidates]
             matches_lower = difflib.get_close_matches(target.lower(), candidates_lower, n=n, cutoff=0.5)
             # Map back to original case
             matches = [candidates[candidates_lower.index(m)] for m in matches_lower]
-        
+
         return matches
 
     def _find_similar_files(self, target: str, search_paths: List[str], n: int = 3) -> List[str]:
