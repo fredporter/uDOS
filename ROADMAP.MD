@@ -58,16 +58,14 @@
   * Knowledge base expansion: 50+ survival guides (water, medical, food, skills, well-being)
   * File reorganization: /examples removed, content redistributed to /knowledge/demos/, /extensions/templates/, /docs/references/
   * Testing: 37/37 tests passing (mapping 22, knowledge 11, core 4, imports, paths)
-- **v1.0.21** - Survivalist Themes & Practical Skills Library (GUIDE/DIAGRAM commands, teletext graphics, 40/40 tests) - ✅ **COMPLETE**
+- **v1.0.21** - Survivalist Themes & Practical Skills Library (GUIDE/DIAGRAM commands, teletext graphics, 40/40 tests) - ✅ **COMPLETE** (Nov 17, 2025)
+- **v1.0.22** - Documentation & Offline-First Handbook (DOC/MANUAL/HANDBOOK/EXAMPLE commands, 100 diagrams, 38/38 tests) - ✅ **COMPLETE** (Nov 17, 2025)
 
 ### 🔨 Current Development
-- **v1.0.22** - Documentation & Offline-First Handbook - 🔨 **IN PROGRESS**
+- **v1.0.23** - Command Consolidation & Smart Input - 🔨 **IN PROGRESS** (Nov 2025)
 
 ### 📋 Planned Versions
-- **v1.0.21** - Survivalist Themes & Practical Skills Library - 📝 **PLANNED**
-- **v1.0.22** - Documentation & Offline-First Handbook - 📝 **PLANNED**
-- **v1.0.23** - Final Polish & Integration - 📝 **PLANNED**
-- **v1.1.0** - Stable Release (Native CLI + Teletext GUI, smart input, enhanced file selection) - 📝 **FUTURE**
+- **v1.1.0** - Security Model & API Integration (v1.1.0 stable with user roles, command-based I/O, offline AI) - 📝 **FUTURE**
 - **v1.1.x** - Desktop Apps & Advanced Features (Tauri, Classicy Desktop, P2P networking) - 📝 **FUTURE**
 
 ---
@@ -2668,13 +2666,241 @@ knowledge/
 
 ---
 
-## 🎨 v1.0.23 - Final Polish & Integration
-**Status**: 📋 Planned (May 2026)
-**Focus**: Bug fixes, performance optimization, UI polish, and final integration testing before v1.1.0 stable release
+## 🎨 v1.0.23 - Command Consolidation & Smart Input
+**Status**: 🔨 In Progress (November 2025)
+**Focus**: Intelligent command consolidation, dynamic input pickers, smart defaults, and command aliasing for improved UX
 
-### Planned Features (8 tasks)
+### Planned Features (10 tasks)
 
-#### 1. Performance Optimization
+#### 0. Command Consolidation Analysis & Smart Input System
+**Goal**: Reduce command overlap while maintaining readability through smart input and dynamic selectors
+
+**Command Consolidation Strategy**:
+```
+Current Overlaps to Consolidate:
+├─ Documentation Access (4 commands → 1 smart command)
+│  • DOC, MANUAL, HANDBOOK, EXAMPLE → DOCS (with smart picker)
+│  • DOCS               # Show picker: [Documentation | Manual | Handbook | Examples]
+│  • DOCS <topic>       # Smart search across all sources
+│  • DOCS --type=manual # Direct access with flag
+│
+├─ Knowledge Viewers (2 commands → 1 unified)
+│  • GUIDE, DIAGRAM → LEARN (with content-type detection)
+│  • LEARN              # Show picker: [Guides | Diagrams | Tutorials]
+│  • LEARN <name>       # Auto-detect type (guide vs diagram)
+│  • LEARN --list       # List all learning content
+│
+├─ Memory Tiers (4 commands → 1 with picker)
+│  • PRIVATE, SHARED, COMMUNITY, KB → MEMORY (with tier selector)
+│  • MEMORY             # Show tier picker: [Private | Shared | Community | Public]
+│  • MEMORY <query>     # Smart search across accessible tiers
+│  • MEMORY --tier=private --action=list
+│
+├─ Map Navigation (TILE + MAP → unified MAP)
+│  • MAP                # Show mode picker: [Cities | Cells | Navigate]
+│  • MAP <location>     # Smart lookup (city name or cell ref)
+│  • MAP --navigate from:NYC to:LA
+│
+└─ File Operations (maintain but add smart defaults)
+   • LOAD <pattern>     # Fuzzy matching, recent files picker
+   • SAVE               # Auto-name based on context
+   • EDIT <partial>     # Fuzzy match with picker
+```
+
+**Smart Input Features**:
+- **Dynamic Selectors**: Arrow key navigation for options
+- **Fuzzy Matching**: Partial name completion
+- **Recent Items**: Quick access to recent files/commands
+- **Context Awareness**: Smart defaults based on current location
+- **Tab Completion**: Multi-level tab completion
+- **Command Hints**: Inline suggestions as you type
+
+**Backwards Compatibility**:
+- All old commands maintained as aliases
+- Graceful migration messages
+- Help text shows both old and new syntax
+
+### Planned Features (10 tasks)
+
+**Backwards Compatibility**:
+- All old commands maintained as aliases
+- Graceful migration messages
+- Help text shows both old and new syntax
+
+#### 1. DOCS Unified Command (Replaces DOC/MANUAL/HANDBOOK/EXAMPLE)
+- [ ] **Smart Command Router**: Intelligent content detection
+  * `DOCS` → Interactive picker (Documentation | Manual | Handbook | Examples)
+  * `DOCS <topic>` → Smart search across all sources with ranked results
+  * `DOCS --manual <cmd>` → Direct manual access
+  * `DOCS --handbook VOL1` → Direct handbook access
+  * `DOCS --example <name>` → Direct example access
+  * Full-text search with context preview
+
+- [ ] **Interactive Picker UI**:
+  ```
+  ┌─────────────────────────────────────────┐
+  │ DOCS - What would you like to access?   │
+  ├─────────────────────────────────────────┤
+  │ > 📚 Browse Documentation               │
+  │   📖 Command Manual (Quick Reference)   │
+  │   📕 Handbook (Structured Learning)     │
+  │   💡 Code Examples                      │
+  │   🔍 Search Everything                  │
+  └─────────────────────────────────────────┘
+  ```
+
+- [ ] **Smart Search Integration**:
+  * Unified index across all documentation
+  * Relevance ranking (manual > handbook > docs > examples)
+  * Context-aware results based on current command
+  * "Did you mean?" suggestions
+
+- [ ] **Backwards Compatibility**:
+  * `DOC` → Redirect to `DOCS` with deprecation notice
+  * `MANUAL` → Alias to `DOCS --manual`
+  * `HANDBOOK` → Alias to `DOCS --handbook`
+  * `EXAMPLE` → Alias to `DOCS --example`
+
+#### 2. LEARN Unified Command (Replaces GUIDE/DIAGRAM)
+- [ ] **Content-Type Detection**: Auto-detect guides vs diagrams
+  * `LEARN` → Interactive picker (Guides | Diagrams | Skills | Projects)
+  * `LEARN water` → Smart match (finds "water-purification" guide)
+  * `LEARN knots` → Smart match (finds "knot-types" diagram)
+  * `LEARN --list-guides` → List all guides
+  * `LEARN --list-diagrams` → List all diagrams
+
+- [ ] **Interactive Picker UI**:
+  ```
+  ┌─────────────────────────────────────────┐
+  │ LEARN - Choose learning content:        │
+  ├─────────────────────────────────────────┤
+  │ > 📖 Interactive Guides (12 available)  │
+  │   📊 ASCII Diagrams (100 available)     │
+  │   🎯 Skill Trees                        │
+  │   🚀 Project Tutorials                  │
+  │   🔍 Search All Content                 │
+  └─────────────────────────────────────────┘
+  ```
+
+- [ ] **Progress Tracking Integration**:
+  * Show completion status in picker
+  * Resume last guide automatically
+  * "Continue Learning" shortcut
+  * Achievement badges for completed content
+
+- [ ] **Smart Recommendations**:
+  * "Based on your progress, try..."
+  * Skill prerequisite detection
+  * Related content suggestions
+
+#### 3. MEMORY Unified Command (Replaces PRIVATE/SHARED/COMMUNITY/KB)
+- [ ] **Tier-Aware Smart Router**: Automatic tier selection
+  * `MEMORY` → Interactive tier picker (Private | Shared | Community | Public)
+  * `MEMORY <query>` → Smart search across accessible tiers
+  * `MEMORY --save <file>` → Auto-select appropriate tier based on content
+  * `MEMORY --tier=private --list` → Direct tier access
+  * Security-aware tier suggestions
+
+- [ ] **Interactive Tier Picker**:
+  ```
+  ┌─────────────────────────────────────────┐
+  │ MEMORY - Select tier:                   │
+  ├─────────────────────────────────────────┤
+  │ > 🔒 PRIVATE   (Encrypted, you only)    │
+  │   🔐 SHARED    (Selected team members)  │
+  │   👥 COMMUNITY (Group access)           │
+  │   🌍 PUBLIC    (Everyone, open)         │
+  └─────────────────────────────────────────┘
+  │ Search mode: Ctrl+F                     │
+  └─────────────────────────────────────────┘
+  ```
+
+- [ ] **Smart Tier Selection**:
+  * Content analysis (passwords → private, configs → shared)
+  * User role-based suggestions
+  * Security warnings for tier mismatches
+  * Auto-encryption for private tier
+
+- [ ] **Unified Search**:
+  * Cross-tier search with permissions
+  * Result grouping by tier
+  * Security indicators per result
+
+#### 4. Smart Input System & Fuzzy Matching
+- [ ] **Fuzzy File Matching**: Intelligent file selection
+  * `LOAD wat_pur` → Matches "water-purification-methods.md"
+  * `EDIT auto` → Shows picker of files matching "auto"
+  * `SAVE` (no args) → Smart name based on context
+  * Recent files quick access (Ctrl+R)
+
+- [ ] **File Picker UI**:
+  ```
+  ┌─────────────────────────────────────────┐
+  │ LOAD - Select file (type to filter):    │
+  ├─────────────────────────────────────────┤
+  │ > water-purification-methods.md         │
+  │   knot-tying-techniques.md              │
+  │   fire-starting-guide.md                │
+  │   emergency-shelter.md                  │
+  │                                         │
+  │ Recent: automation.uscript (2 min ago)  │
+  └─────────────────────────────────────────┘
+  │ ↑↓: Navigate | Enter: Select | Esc: Cancel
+  ```
+
+- [ ] **Command Completion Engine**:
+  * Tab completion for all commands
+  * Multi-level parameter completion
+  * Context-aware suggestions
+  * Command history search (Ctrl+R)
+
+- [ ] **Smart Defaults**:
+  * `SAVE` → Auto-name: {current-context}-{timestamp}
+  * `GRID` → Remember last position
+  * `THEME` → Preview before applying
+  * `MAP` → Default to current location
+
+#### 5. Command Aliasing & Shortcuts
+- [ ] **Built-in Aliases**: Common shortcuts
+  * `?` → `HELP`
+  * `!!` → Repeat last command
+  * `!<n>` → Run command from history
+  * `@` → `MEMORY --tier=private`
+  * `#` → `DOCS --manual`
+
+- [ ] **Custom Aliases**: User-defined shortcuts
+  * `ALIAS wp="LEARN water-purification"`
+  * `ALIAS mywork="MEMORY --tier=private --list"`
+  * `ALIAS q="QUIT"`
+  * Save aliases to USER.UDT
+
+- [ ] **Smart Alias Suggestions**:
+  * Detect repeated command patterns
+  * Suggest alias creation
+  * "You've typed 'GUIDE START water-purification' 5 times. Create alias?"
+
+#### 6. Option Picker System
+- [ ] **Universal Picker Component**: Reusable selection UI
+  * Arrow key navigation (↑↓)
+  * Type-to-filter
+  * Multi-select support (Space to toggle)
+  * Keyboard shortcuts (numbers 1-9)
+
+- [ ] **Picker Variants**:
+  * Single-select: Choose one option
+  * Multi-select: Choose multiple (checkboxes)
+  * Search picker: With fuzzy filtering
+  * Recent picker: Recent items prioritized
+
+- [ ] **Integration Points**:
+  * File selection (LOAD, EDIT, SAVE)
+  * Documentation access (DOCS)
+  * Learning content (LEARN)
+  * Memory tiers (MEMORY)
+  * Theme selection (THEME)
+  * Configuration options (CONFIG)
+
+#### 7. Performance Optimization
 - [ ] **Command Execution**: Optimize all commands for <50ms response
 - [ ] **uCODE Interpreter**: Profile and optimize hot paths
 - [ ] **File Operations**: Faster file reading/writing
@@ -2683,7 +2909,22 @@ knowledge/
 - [ ] **Startup Time**: Reduce launch time to <1 second
 - [ ] **Lazy Loading**: Load modules only when needed
 
-#### 2. UI/UX Polish
+#### 7. Performance Optimization
+- [ ] **Command Execution**: Optimize all commands for <50ms response
+- [ ] **Lazy Loading**: Load command handlers only when needed
+- [ ] **Caching Strategy**: Cache frequently accessed data
+  * Command history caching
+  * File content caching (LRU cache)
+  * Search index caching
+- [ ] **Startup Time**: Reduce launch time to <1 second
+  * Defer non-critical imports
+  * Parallel initialization where possible
+- [ ] **Memory Footprint**: Reduce memory usage by 30%
+  * Clear unused handler instances
+  * Optimize data structures
+  * Stream large files instead of loading entirely
+
+#### 8. UI/UX Polish
 - [ ] **Error Messages**: Improve all error message clarity
 - [ ] **Help Text**: Enhance all help command output
 - [ ] **Progress Indicators**: Add progress bars for long operations
@@ -2692,7 +2933,30 @@ knowledge/
 - [ ] **Animations**: Smooth transitions and feedback
 - [ ] **Accessibility**: Screen reader support, keyboard navigation
 
-#### 3. Bug Fixes & Stability
+#### 8. UI/UX Polish
+- [ ] **Error Messages**: Contextual, actionable error messages
+  * "File not found" → Show similar filenames
+  * "Command not found" → Suggest correct spelling
+  * "Permission denied" → Explain how to fix
+- [ ] **Help Text Enhancement**: Progressive disclosure
+  * `HELP` → Overview with categories
+  * `HELP <cmd>` → Full command documentation
+  * `HELP <cmd> --examples` → Just examples
+- [ ] **Progress Indicators**: Visual feedback for long operations
+  * Loading bars with ETA
+  * Spinner for indeterminate operations
+  * Multi-stage progress for complex tasks
+- [ ] **Color Consistency**: Theme-aware throughout
+  * Success messages: Green
+  * Warnings: Yellow
+  * Errors: Red
+  * Info: Cyan
+- [ ] **Typography Polish**: Better text rendering
+  * Proper box drawing character usage
+  * Viewport tier-aware formatting
+  * Consistent spacing and alignment
+
+#### 9. Testing & Quality Assurance
 - [ ] **Comprehensive Bug Sweep**: Fix all known issues
 - [ ] **Edge Case Testing**: Test all commands with edge cases
 - [ ] **Error Handling**: Ensure graceful failure for all errors
@@ -2701,7 +2965,28 @@ knowledge/
 - [ ] **Dependency Updates**: Update all dependencies to latest stable
 - [ ] **Security Audit**: Review code for security issues
 
-#### 4. Integration Testing
+#### 9. Testing & Quality Assurance
+- [ ] **Consolidated Command Tests**: Test all new unified commands
+  * DOCS command (50+ tests)
+  * LEARN command (30+ tests)
+  * MEMORY command (40+ tests)
+  * Fuzzy matching engine (20+ tests)
+  * Picker system (15+ tests)
+- [ ] **Integration Tests**: End-to-end workflows
+  * Complete learning workflow (LEARN → practice → completion)
+  * Documentation search workflow
+  * Memory tier workflow (save → search → retrieve)
+- [ ] **Backwards Compatibility Tests**: Ensure old commands work
+  * All v1.0.22 commands still functional
+  * Deprecation messages clear
+  * No breaking changes to scripts
+- [ ] **Performance Benchmarks**: Measure improvements
+  * Command execution time < 50ms
+  * Startup time < 1 second
+  * Memory usage reduced by 30%
+  * Search performance < 100ms
+
+#### 10. Migration & Documentation
 - [ ] **End-to-End Tests**: Test complete user workflows
 - [ ] **System Tests**: Test all components together
 - [ ] **Regression Tests**: Ensure no features broken
@@ -2710,45 +2995,41 @@ knowledge/
 - [ ] **Compatibility Tests**: Test across different environments
 - [ ] **Automated CI/CD**: GitHub Actions for all tests
 
-#### 5. Command Enhancements
-- [ ] **Command Aliases**: Add shortcuts for common commands
-- [ ] **Command History**: Enhanced history with search
-- [ ] **Command Completion**: Better tab completion
-- [ ] **Command Chaining**: Pipe commands together
-- [ ] **Command Macros**: Record and replay command sequences
-- [ ] **Command Templates**: Pre-filled command templates
-- [ ] **Smart Defaults**: Intelligent default values
+#### 10. Migration & Documentation
+- [ ] **Migration Guide**: Clear upgrade path from v1.0.22
+  * Command mapping table (old → new)
+  * Script migration examples
+  * Alias setup for old habits
+- [ ] **Updated Documentation**: Reflect all changes
+  * DOCS command documentation
+  * LEARN command documentation
+  * MEMORY command documentation
+  * Smart input guide
+  * Picker system guide
+- [ ] **Release Notes**: Comprehensive v1.0.23 notes
+  * Breaking changes (none - fully backwards compatible)
+  * New features summary
+  * Performance improvements
+  * Migration instructions
+- [ ] **Video Tutorials**: Screen recordings of new features
+  * Smart command picker demos
+  * Fuzzy matching in action
+  * Memory tier selection
+  * Custom alias creation
 
-#### 6. Configuration & Settings
-- [ ] **Settings UI**: Web-based settings interface
-- [ ] **Profile Management**: Multiple user profiles
-- [ ] **Import/Export**: Backup and restore settings
-- [ ] **Validation**: Validate all configuration options
-- [ ] **Migration**: Auto-migrate old config formats
-- [ ] **Documentation**: Every setting documented
-- [ ] **Presets**: Common configuration presets
+**Success Metrics**:
+- ✅ 4 documentation commands → 1 DOCS command (with backwards compat)
+- ✅ 2 learning commands → 1 LEARN command
+- ✅ 4 memory commands → 1 MEMORY command
+- ✅ Fuzzy matching on all file operations
+- ✅ Interactive pickers for all multi-option commands
+- ✅ Command execution < 50ms (90th percentile)
+- ✅ Startup time < 1 second
+- ✅ 100% backwards compatibility
+- ✅ Zero breaking changes to existing scripts
+- ✅ 150+ new tests, all passing
 
-#### 7. Developer Experience
-- [ ] **Hot Reload**: Auto-reload code changes in dev mode
-- [ ] **Debug Mode**: Enhanced debugging output
-- [ ] **Logging**: Structured logging throughout codebase
-- [ ] **Metrics**: Track usage metrics (opt-in)
-- [ ] **Profiling**: Built-in performance profiling
-- [ ] **Extension SDK**: Complete SDK for extension development
-- [ ] **API Stability**: Freeze all public APIs
-
-#### 8. Final Release Preparation
-- [ ] **Version Finalization**: Set all versions to 1.0.23
-- [ ] **Release Notes**: Comprehensive v1.0.23 release notes
-- [ ] **Changelog**: Complete changelog from v1.0.0 to v1.0.23
-- [ ] **Documentation Review**: Final review of all documentation
-- [ ] **Code Review**: Final code review and cleanup
-- [ ] **License Compliance**: Verify all licenses
-- [ ] **Package**: Create distribution packages (prepare for v1.1.0)
-- [ ] **Tag Release**: Tag v1.0.23 in repository
-- [ ] **Pre-Launch Testing**: Final validation with beta testers
-
-#### 9. Reference Data Validation & Completeness
+---#### 9. Reference Data Validation & Completeness
 - [ ] **World Map Data**: Validate all 10,000+ tiles
   * Verify coordinates and terrain types
   * Check TIZO cell assignments
