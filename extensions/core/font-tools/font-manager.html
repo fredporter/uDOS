@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Font Manager v1.0.24</title>
+    <link rel="stylesheet" href="font-manager.css">
+</head>
+<body>
+    <!-- Main Application -->
+    <div class="font-manager">
+        <!-- Header -->
+        <header class="manager-header">
+            <h1>uDOS FONT MANAGER</h1>
+            <div class="header-actions">
+                <button id="btnNewFont" class="btn btn-primary">New Font</button>
+                <button id="btnLoadFont" class="btn">Load Font</button>
+                <button id="btnSettings" class="btn">Settings</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="manager-content">
+            <!-- Sidebar - Font Library -->
+            <aside class="font-library">
+                <h2>FONT LIBRARY</h2>
+
+                <!-- Filter -->
+                <div class="library-filter">
+                    <input type="text" id="fontSearch" placeholder="Search fonts..." />
+                    <select id="fontCategory">
+                        <option value="all">All Fonts</option>
+                        <option value="system">System</option>
+                        <option value="custom">Custom</option>
+                        <option value="imported">Imported</option>
+                        <option value="emoji">Emoji</option>
+                    </select>
+                </div>
+
+                <!-- Font List -->
+                <div class="font-list" id="fontList">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Upload -->
+                <div class="library-upload">
+                    <label for="fontUpload" class="btn btn-block">
+                        Upload TTF/OTF
+                    </label>
+                    <input type="file" id="fontUpload" accept=".ttf,.otf,.woff,.woff2" hidden />
+                </div>
+            </aside>
+
+            <!-- Main Panel - Font Editor -->
+            <main class="font-editor">
+                <!-- Tabs -->
+                <div class="editor-tabs">
+                    <button class="tab-btn active" data-tab="bitmap">Bitmap Editor</button>
+                    <button class="tab-btn" data-tab="ttf">TTF Viewer</button>
+                    <button class="tab-btn" data-tab="emoji">Emoji Designer</button>
+                    <button class="tab-btn" data-tab="preview">Preview</button>
+                </div>
+
+                <!-- Tab Content: Bitmap Editor -->
+                <div class="tab-content active" id="tab-bitmap">
+                    <div class="bitmap-editor">
+                        <!-- Toolbar -->
+                        <div class="editor-toolbar">
+                            <div class="toolbar-group">
+                                <label>Character:</label>
+                                <select id="charSelect" class="char-select">
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <button id="btnPrevChar" class="btn-icon">◀</button>
+                                <button id="btnNextChar" class="btn-icon">▶</button>
+                                <div class="char-display" id="charDisplay">A</div>
+                            </div>
+
+                            <div class="toolbar-group">
+                                <label>Tools:</label>
+                                <button id="btnDraw" class="btn-tool active" title="Draw (D)">✏️</button>
+                                <button id="btnErase" class="btn-tool" title="Erase (E)">🧹</button>
+                                <button id="btnFill" class="btn-tool" title="Fill (F)">🪣</button>
+                                <button id="btnLine" class="btn-tool" title="Line (L)">📏</button>
+                            </div>
+
+                            <div class="toolbar-group">
+                                <label>Transform:</label>
+                                <button id="btnFlipH" class="btn-icon" title="Flip Horizontal">⇄</button>
+                                <button id="btnFlipV" class="btn-icon" title="Flip Vertical">⇅</button>
+                                <button id="btnRotateCW" class="btn-icon" title="Rotate CW">↻</button>
+                                <button id="btnRotateCCW" class="btn-icon" title="Rotate CCW">↺</button>
+                                <button id="btnInvert" class="btn-icon" title="Invert">◐</button>
+                            </div>
+
+                            <div class="toolbar-group">
+                                <label>Edit:</label>
+                                <button id="btnClear" class="btn-icon" title="Clear">🗑️</button>
+                                <button id="btnCopy" class="btn-icon" title="Copy (Ctrl+C)">📋</button>
+                                <button id="btnPaste" class="btn-icon" title="Paste (Ctrl+V)">📄</button>
+                                <button id="btnUndo" class="btn-icon" title="Undo (Ctrl+Z)">↶</button>
+                            </div>
+                        </div>
+
+                        <!-- Grid Canvas -->
+                        <div class="editor-workspace">
+                            <canvas id="gridCanvas" width="512" height="512"></canvas>
+                            <div class="grid-info">
+                                <span id="gridSize">16×16</span>
+                                <span id="pixelCoords">0, 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Character Set Preview -->
+                        <div class="charset-preview">
+                            <h3>CHARACTER SET</h3>
+                            <div class="charset-grid" id="charsetGrid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: TTF Viewer -->
+                <div class="tab-content" id="tab-ttf">
+                    <div class="ttf-viewer">
+                        <div class="ttf-info">
+                            <h3>FONT INFORMATION</h3>
+                            <dl id="fontInfo">
+                                <dt>Font Family:</dt><dd id="fontFamily">-</dd>
+                                <dt>Style:</dt><dd id="fontStyle">-</dd>
+                                <dt>Weight:</dt><dd id="fontWeight">-</dd>
+                                <dt>Format:</dt><dd id="fontFormat">-</dd>
+                                <dt>File Size:</dt><dd id="fontSize">-</dd>
+                            </dl>
+                        </div>
+
+                        <div class="ttf-preview">
+                            <h3>BITMAP PREVIEW</h3>
+                            <div class="preview-controls">
+                                <label>Size: <input type="range" id="ttfSize" min="8" max="64" value="16" /></label>
+                                <label>Text: <input type="text" id="ttfText" value="The quick brown fox" /></label>
+                            </div>
+                            <canvas id="ttfCanvas" width="800" height="400"></canvas>
+                        </div>
+
+                        <div class="ttf-glyphs">
+                            <h3>GLYPH CATALOG</h3>
+                            <div class="glyph-grid" id="glyphGrid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="ttf-export">
+                            <h3>EXPORT TO BITMAP</h3>
+                            <button id="btnExportBitmap" class="btn btn-primary">Generate 16×16 Bitmap Font</button>
+                            <p class="help-text">Converts TTF glyphs to uDOS bitmap format (16×16 grid)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Emoji Designer -->
+                <div class="tab-content" id="tab-emoji">
+                    <div class="emoji-designer">
+                        <div class="emoji-palette">
+                            <h3>EMOJI PALETTE</h3>
+                            <div class="palette-grid" id="emojiPalette">
+                                <!-- Color swatches -->
+                            </div>
+                            <button id="btnAddColor" class="btn">Add Color</button>
+                        </div>
+
+                        <div class="emoji-canvas-wrapper">
+                            <h3>EMOJI CANVAS (32×32)</h3>
+                            <canvas id="emojiCanvas" width="512" height="512"></canvas>
+                        </div>
+
+                        <div class="emoji-library">
+                            <h3>EMOJI LIBRARY</h3>
+                            <div class="emoji-grid" id="emojiLibrary">
+                                <!-- Custom emoji -->
+                            </div>
+                            <button id="btnSaveEmoji" class="btn btn-primary">Save Emoji</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Preview -->
+                <div class="tab-content" id="tab-preview">
+                    <div class="font-preview">
+                        <h3>LIVE PREVIEW</h3>
+
+                        <div class="preview-settings">
+                            <label>Background:
+                                <select id="previewBg">
+                                    <option value="black">Black</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="white">White</option>
+                                    <option value="gray">Gray</option>
+                                </select>
+                            </label>
+                            <label>Color:
+                                <select id="previewColor">
+                                    <option value="cyan">Cyan</option>
+                                    <option value="green">Green</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="white">White</option>
+                                </select>
+                            </label>
+                            <label>Scale:
+                                <input type="range" id="previewScale" min="1" max="4" value="2" />
+                            </label>
+                        </div>
+
+                        <div class="preview-output" id="previewOutput">
+                            <!-- Live preview -->
+                        </div>
+
+                        <div class="preview-text">
+                            <label>Sample Text:</label>
+                            <textarea id="previewText" rows="10">ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789 !@#$%^&*()
+┌─────────────────┐
+│ Box Drawing     │
+└─────────────────┘
+▀▄█▓▒░ Blocks</textarea>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Properties Panel -->
+            <aside class="font-properties">
+                <h2>PROPERTIES</h2>
+
+                <div class="property-group">
+                    <h3>Font Metadata</h3>
+                    <label>Name: <input type="text" id="fontName" placeholder="My Font" /></label>
+                    <label>Author: <input type="text" id="fontAuthor" placeholder="Author Name" /></label>
+                    <label>Version: <input type="text" id="fontVersion" value="1.0.0" /></label>
+                    <label>License:
+                        <select id="fontLicense">
+                            <option value="MIT">MIT</option>
+                            <option value="CC0">CC0 Public Domain</option>
+                            <option value="OFL">SIL Open Font License</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="property-group">
+                    <h3>Grid Settings</h3>
+                    <label>Grid Size:
+                        <select id="gridSizeSelect">
+                            <option value="8">8×8</option>
+                            <option value="16" selected>16×16</option>
+                            <option value="32">32×32</option>
+                        </select>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="showGrid" checked />
+                        Show Grid
+                    </label>
+                    <label>
+                        <input type="checkbox" id="showBaseline" checked />
+                        Show Baseline
+                    </label>
+                </div>
+
+                <div class="property-group">
+                    <h3>Export Options</h3>
+                    <button id="btnExportJSON" class="btn btn-block">Export JSON</button>
+                    <button id="btnExportPNG" class="btn btn-block">Export PNG</button>
+                    <button id="btnExportCSS" class="btn btn-block">Export CSS</button>
+                    <button id="btnSaveToSandbox" class="btn btn-block btn-primary">Save to Sandbox</button>
+                </div>
+
+                <div class="property-group">
+                    <h3>Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Characters:</span>
+                            <span class="stat-value" id="statChars">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Defined:</span>
+                            <span class="stat-value" id="statDefined">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Empty:</span>
+                            <span class="stat-value" id="statEmpty">0</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Status Bar -->
+        <footer class="manager-status">
+            <span id="statusMessage">Ready</span>
+            <span id="statusInfo">uDOS Font Manager v1.0.24</span>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="font-manager-core.js"></script>
+    <script src="bitmap-editor.js"></script>
+    <script src="ttf-processor.js"></script>
+    <script src="emoji-designer.js"></script>
+    <script src="font-manager-app.js"></script>
+</body>
+</html>
