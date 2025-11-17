@@ -13,7 +13,7 @@ archive/
 
 ## 🗄️ **old-bundled-web/**
 
-**Archived**: November 17, 2024  
+**Archived**: November 17, 2024
 **Reason**: Superseded by integrated `/core` extensions
 
 ### Contents
@@ -61,7 +61,7 @@ These original files are preserved for:
 
 ## 🎨 **old-clones/**
 
-**Archived**: November 17, 2024  
+**Archived**: November 17, 2024
 **Reason**: External frameworks now integrated into `/core`
 
 ### Contents
@@ -178,6 +178,6 @@ git diff HEAD~11 HEAD -- extensions/core/dashboard/
 
 ---
 
-**Last Updated**: November 17, 2024  
-**Archive Version**: v1.0.24-cleanup  
+**Last Updated**: November 17, 2024
+**Archive Version**: v1.0.24-cleanup
 **Total Files Archived**: ~30,000+ lines across 3 directories

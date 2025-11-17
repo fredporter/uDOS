@@ -246,7 +246,7 @@ Fonts are centralized in `/fonts/` and referenced via CSS:
 All bundled fonts are legally distributable:
 - **ChicagoFLF**: Public domain
 - **Chicago 12.1**: CC BY-SA 3.0
-- **Mallard family**: CC BY-SA 3.0  
+- **Mallard family**: CC BY-SA 3.0
 - **sysfont**: SIL Open Font License 1.1
 
 See `/extensions/fonts/README.md` for complete legal analysis.

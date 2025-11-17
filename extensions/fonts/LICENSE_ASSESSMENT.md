@@ -6,53 +6,62 @@
 
 ---
 
+## 📁 **Font Directory Structure**
+
+```
+fonts/
+├── chicago/              # Apple System font (2 variants)
+├── mallard/              # BBC Teletext font (6 variants)
+├── petme/                # Commodore PET/CBM font (7 variants)
+└── LICENSE_ASSESSMENT.md # This file
+```
+
+---
+
 ## 📄 **Font-by-Font License Analysis**
 
-### **ChicagoFLF.ttf**
+### **chicago/ - Apple System Font Recreations**
+
+#### ChicagoFLF.ttf
 - **License**: Public Domain
 - **Source**: Robin Casady recreation of Apple Chicago font
 - **Status**: ✅ **Distributable** - Released into public domain
 - **Notes**: Classic Mac font recreation, widely used in retro projects
+- **Requirements**: None (public domain)
 
-### **chicago-12-1/**
+#### chicago-12-1.otf
 - **License**: Creative Commons Attribution Share Alike 3.0
 - **Source**: FontStruct by kamekku14, based on Damien Guard's work
 - **Status**: ✅ **Distributable** - CC BY-SA allows commercial distribution
-- **Requirements**: Must maintain attribution and license
-- **Files**: `chicago-12-1.otf`, `chicago-12-1.otf.woff2`
+- **Requirements**: Must maintain attribution and license (see LICENSE-chicago-12-1.txt)
 
-### **mallard-* Font Family**
-All Mallard variants share the same licensing:
+### **mallard/ - BBC Teletext Font Family**
+
+All 6 Mallard variants consolidated in one folder:
 - **License**: Creative Commons Attribution Share Alike 3.0
 - **Source**: FontStruct by "gid"
 - **Status**: ✅ **Distributable** - CC BY-SA allows commercial distribution
 - **Variants**:
-  - `mallard-blockier/` - More angular variant
-  - `mallard-blocky/` - Base version
-  - `mallard-neueue/` - Modern interpretation
-  - `mallard-smooth/` - Smoothed variant
-  - `mallard-smoother/` - Extra smooth variant
-  - `mallard-tiny/` - Compact variant
+  - mallard-blocky.otf (base version)
+  - mallard-blockier.otf (more angular)
+  - mallard-smooth.otf (softened edges)
+  - mallard-smoother.otf (extra smoothing)
+  - mallard-neueue.otf (modern interpretation)
+  - mallard-tiny.otf (compact variant)
+- **Requirements**: Attribution to "gid" (FontStruct.com), maintain CC BY-SA 3.0 license
 
-### **sysfont/**
-- **License**: SIL Open Font License 1.1
-- **Source**: Unknown (placeholder copyright in OFL.txt)
-- **Status**: ✅ **Distributable** - OFL specifically allows bundling
-- **Files**: `sysfont.otf`, webfont variants (`sysfont.woff`, `sysfont.woff2`)
-- **Notes**: OFL is designed for font distribution and embedding
-
-### **petme/ Font Family**
+### **petme/ - Commodore PET/CBM Font Family**
 - **License**: Kreative Software Relay Fonts Free Use License v1.2f
 - **Source**: Kreative Software / Kreative Korporation
 - **Status**: ✅ **Distributable** - Free use license allows redistribution
 - **Variants**:
-  - `PetMe.ttf` - Standard resolution
-  - `PetMe64.ttf` - C64 variant
-  - `PetMe128.ttf` - C128 variant
-  - `PetMe2X.ttf` - 2X width variant
-  - `PetMe2Y.ttf` - 2Y height variant
-  - `PetMe642Y.ttf` - C64 2Y variant
-  - `PetMe1282Y.ttf` - C128 2Y variant
+  - PetMe.ttf (standard resolution)
+  - PetMe64.ttf (C64 variant)
+  - PetMe128.ttf (C128 variant)
+  - PetMe2X.ttf (2X width variant)
+  - PetMe2Y.ttf (2Y height variant)
+  - PetMe642Y.ttf (C64 2Y variant)
+  - PetMe1282Y.ttf (C128 2Y variant)
 - **Requirements**:
   - Include license verbatim
   - Give credit to Kreative Korporation/Kreative Software
@@ -66,47 +75,51 @@ All Mallard variants share the same licensing:
 ## 🎯 **Default Font Recommendations**
 
 ### **Mac/Unix Systems:**
-- **Primary**: `ChicagoFLF.ttf` - Authentic Mac experience
-- **Fallback**: `chicago-12-1.otf` - Enhanced Chicago variant
-- **Modern**: `sysfont.otf` - Clean system font
-- **Retro**: `PetMe.ttf` - Commodore PET/CBM experience
+- **Primary**: ChicagoFLF.ttf (chicago/) - Authentic Mac experience
+- **Fallback**: chicago-12-1.otf (chicago/) - Enhanced Chicago variant
+- **Teletext**: mallard-blocky.otf (mallard/) - BBC Teletext rendering
+- **Retro**: PetMe.ttf or PetMe64.ttf (petme/) - Commodore PET/CBM experience
 
 ### **Windows Systems:**
-- **Primary**: `sysfont.otf` - Cross-platform compatibility
-- **Retro**: `ChicagoFLF.ttf` - Classic computing feel
-- **Terminal**: `mallard-blocky.otf` - Monospace alternative
-- **Vintage**: `PetMe64.ttf` - C64 nostalgia
+- **Primary**: ChicagoFLF.ttf (chicago/) - Cross-platform retro
+- **Fallback**: chicago-12-1.otf (chicago/) - Enhanced variant
+- **Terminal**: mallard-blocky.otf (mallard/) - Monospace alternative
+- **Vintage**: PetMe64.ttf (petme/) - C64 nostalgia
 
 ### **Web Extensions:**
-- **Retro Theme**: `ChicagoFLF` via `@font-face`
-- **System Theme**: `sysfont` webfont variants
-- **Terminal**: `mallard-tiny` for compact interfaces
-- **Commodore Theme**: `PetMe` family for authentic 8-bit look
+- **Retro Theme**: ChicagoFLF via `@font-face`
+- **Teletext**: Mallard family for BBC Teletext interfaces
+- **Terminal**: mallard-tiny for compact interfaces
+- **Commodore Theme**: PetMe family for authentic 8-bit look
 
 ---
 
 ## ⚖️ **Legal Compliance Requirements**
 
 ### **Attribution Requirements (CC BY-SA fonts):**
+
+**Chicago 12.1:**
 ```
-Fonts: Chicago 12.1, Mallard family
-Authors: kamekku14, gid (FontStruct.com)
+Font: Chicago 12.1
+Author: kamekku14 (FontStruct.com), based on Chicago 12 by Damien Guard
+License: Creative Commons Attribution Share Alike 3.0
+```
+
+**Mallard Family:**
+```
+Fonts: Mallard family (6 variants)
+Author: gid (FontStruct.com)
 License: Creative Commons Attribution Share Alike 3.0
 ```
 
 ### **Kreative License Requirements (PetMe family):**
 ```
-Font: PetMe family (PetMe, PetMe64, PetMe128, variants)
+Font: PetMe family (7 variants: PetMe, PetMe64, PetMe128, PetMe2X, PetMe2Y, PetMe642Y, PetMe1282Y)
 Author: Kreative Software / Kreative Korporation
 License: Kreative Software Relay Fonts Free Use License v1.2f
 Credit: Must include license verbatim and credit Kreative Korporation
 Restrictions: No selling for fee, no modifications/derivatives
 ```
-
-### **OFL Requirements (sysfont):**
-- Include `OFL.txt` with distribution
-- Font name cannot be changed without permission
-- Can be bundled and embedded freely
 
 ### **Public Domain (ChicagoFLF):**
 - No attribution required
@@ -122,22 +135,52 @@ Restrictions: No selling for fee, no modifications/derivatives
 ✅ No additional fees or permissions required
 
 ### **License File Requirements:**
-- Maintain individual license files in each font directory
-- Include attribution in main uDOS documentation
-- Reference font sources in README files
+- ✅ Maintain individual license files in each font directory
+- ✅ Include attribution in main uDOS documentation
+- ✅ Reference font sources in README files
+
+### **Folder Structure:**
+```
+fonts/
+├── chicago/
+│   ├── ChicagoFLF.ttf (public domain)
+│   ├── chicago-12-1.otf (CC BY-SA)
+│   ├── LICENSE.txt
+│   ├── LICENSE-chicago-12-1.txt
+│   └── README-chicago-12-1.txt
+├── mallard/
+│   ├── mallard-blocky.otf
+│   ├── mallard-blockier.otf
+│   ├── mallard-smooth.otf
+│   ├── mallard-smoother.otf
+│   ├── mallard-neueue.otf
+│   ├── mallard-tiny.otf
+│   ├── LICENSE.txt
+│   └── README.txt
+└── petme/
+    ├── PetMe.ttf
+    ├── PetMe64.ttf
+    ├── PetMe128.ttf
+    ├── PetMe2X.ttf
+    ├── PetMe2Y.ttf
+    ├── PetMe642Y.ttf
+    ├── PetMe1282Y.ttf
+    └── LICENSE.txt
+```
 
 ---
 
 ## 🔄 **Maintenance Notes**
 
-- **Chicago variants**: Monitor FontStruct for updates
-- **Mallard family**: Complete collection of style variants
-- **sysfont**: Consider replacing with properly credited OFL font
-- **ChicagoFLF**: Stable public domain release
-- **PetMe family**: Authentic Commodore font collection, 7 variants covering PET/CBM/C64/C128
+- **Chicago**: ChicagoFLF (public domain) is stable; monitor FontStruct for chicago-12-1 updates
+- **Mallard**: Complete 6-variant collection consolidated for easier management
+- **PetMe**: Authentic Commodore font collection, 7 variants covering PET/CBM/C64/C128
 
 ---
 
 **✅ CONCLUSION: All fonts are legally safe for distribution with uDOS**
 
-The font collection provides excellent coverage for retro computing themes (Mac Classic, Commodore PET/C64/C128) while maintaining full legal compliance. All licensing requirements can be satisfied through proper attribution and included license files.
+The font collection provides excellent coverage for retro computing themes (Mac Classic, BBC Teletext, Commodore PET/C64/C128) while maintaining full legal compliance. All licensing requirements can be satisfied through proper attribution and included license files.
+
+**Removed:** sysfont (uncertain provenance, OFL license with placeholder copyright)
+**Consolidated:** Mallard (6 variants in one folder), Chicago (2 variants in one folder)

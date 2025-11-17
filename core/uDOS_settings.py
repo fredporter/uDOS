@@ -39,7 +39,7 @@ class SettingsManager:
         }
     }
 
-    def __init__(self, settings_file: str = "knowledge/system/USER.UDT"):
+    def __init__(self, settings_file: str = "memory/user/USER.UDT"):
         self.settings_file = Path(settings_file)
         self.settings = self.load_settings()
 
