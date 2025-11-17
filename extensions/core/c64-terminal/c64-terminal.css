@@ -31,14 +31,14 @@ html, body {
 /* PetMe Font - Authentic C64 PETSCII */
 @font-face {
     font-family: "PetMe64";
-    src: url("fonts/petme/PetMe64.ttf") format("truetype");
+    src: url("../fonts/petme/PetMe64.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: "PetMe128";
-    src: url("fonts/petme/PetMe128.ttf") format("truetype");
+    src: url("../fonts/petme/PetMe128.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
