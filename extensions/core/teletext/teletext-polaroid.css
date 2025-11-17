@@ -1,0 +1,400 @@
+/**
+ * uDOS Teletext - Polaroid Palette Enhancement
+ * Version: 1.0.24
+ *
+ * Features:
+ * - Polaroid C64 color palette (16 colors + transparency)
+ * - Mallard Blocky font integration
+ * - C64 PETSCII block graphics support
+ * - Enhanced teletext styling
+ */
+
+/* ============================================
+   POLAROID COLOR PALETTE
+   ============================================ */
+
+:root {
+  /* C64 Base Colors (Polaroid Palette) */
+  --c64-black: #000000;
+  --c64-white: #FFFFFF;
+  --c64-red: #880000;
+  --c64-cyan: #AAFFEE;
+  --c64-purple: #CC44CC;
+  --c64-green: #00CC55;
+  --c64-blue: #0000AA;
+  --c64-yellow: #EEEE77;
+  --c64-orange: #DD8855;
+  --c64-brown: #664400;
+  --c64-light-red: #FF7777;
+  --c64-dark-gray: #333333;
+  --c64-gray: #777777;
+  --c64-light-green: #AAFF66;
+  --c64-light-blue: #0088FF;
+  --c64-light-gray: #BBBBBB;
+
+  /* Transparency Variants (10%, 25%, 50%, 75%) */
+  --c64-black-10: rgba(0, 0, 0, 0.1);
+  --c64-black-25: rgba(0, 0, 0, 0.25);
+  --c64-black-50: rgba(0, 0, 0, 0.5);
+  --c64-black-75: rgba(0, 0, 0, 0.75);
+
+  --c64-white-10: rgba(255, 255, 255, 0.1);
+  --c64-white-25: rgba(255, 255, 255, 0.25);
+  --c64-white-50: rgba(255, 255, 255, 0.5);
+  --c64-white-75: rgba(255, 255, 255, 0.75);
+
+  --c64-cyan-10: rgba(170, 255, 238, 0.1);
+  --c64-cyan-25: rgba(170, 255, 238, 0.25);
+  --c64-cyan-50: rgba(170, 255, 238, 0.5);
+  --c64-cyan-75: rgba(170, 255, 238, 0.75);
+
+  --c64-purple-10: rgba(204, 68, 204, 0.1);
+  --c64-purple-25: rgba(204, 68, 204, 0.25);
+  --c64-purple-50: rgba(204, 68, 204, 0.5);
+  --c64-purple-75: rgba(204, 68, 204, 0.75);
+
+  --c64-yellow-10: rgba(238, 238, 119, 0.1);
+  --c64-yellow-25: rgba(238, 238, 119, 0.25);
+  --c64-yellow-50: rgba(238, 238, 119, 0.5);
+  --c64-yellow-75: rgba(238, 238, 119, 0.75);
+
+  /* Teletext Defaults */
+  --teletext-bg: var(--c64-black);
+  --teletext-fg: var(--c64-cyan);
+  --teletext-border: var(--c64-blue);
+  --teletext-header: var(--c64-yellow);
+  --teletext-status: var(--c64-light-blue);
+
+  /* Computed font size for responsive scaling */
+  --computed-font-size: 16px;
+}
+
+/* ============================================
+   FONT DECLARATIONS
+   ============================================ */
+
+@font-face {
+  font-family: 'Mallard';
+  src: url('../fonts/mallard-blocky/mallard-blocky.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MODE7GX3';
+  src: url('./fonts/MODE7GX3.TTF') format('truetype');
+  font-display: swap;
+}
+
+/* Fallback font stack: Mallard → MODE7 → Monospace */
+body {
+  font-family: 'Mallard', 'MODE7GX3', 'Courier New', monospace;
+}
+
+/* ============================================
+   BASE LAYOUT
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--c64-dark-gray);
+  color: var(--teletext-fg);
+  margin: 0;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  font-size: var(--computed-font-size);
+  overflow: hidden;
+}
+
+.bezel {
+  background: var(--c64-black);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 3px var(--c64-blue),
+    0 0 20px var(--c64-blue-25),
+    0 8px 24px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+.teletext {
+  width: calc(40ch + 39 * 0.02ch);
+  transform: scaleX(1.3);
+  line-height: 1;
+  background: var(--teletext-bg);
+  border: 3px solid var(--teletext-border);
+  position: relative;
+  padding: 0;
+}
+
+.row {
+  white-space: pre;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ============================================
+   TELETEXT HEADER
+   ============================================ */
+
+.header {
+  background: var(--c64-blue);
+  color: var(--c64-yellow);
+  padding: 0 1ch;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--c64-cyan);
+  font-weight: bold;
+}
+
+.header .title {
+  color: var(--c64-yellow);
+}
+
+.header .page {
+  color: var(--c64-white);
+}
+
+.header .clock {
+  color: var(--c64-cyan);
+}
+
+/* ============================================
+   STATUS BAR
+   ============================================ */
+
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1ch;
+  background: var(--c64-black);
+  border-bottom: 1px solid var(--c64-gray);
+  color: var(--teletext-status);
+  font-size: 0.9em;
+}
+
+/* ============================================
+   COLOR CLASSES (Standard Teletext)
+   ============================================ */
+
+.fg-black { color: var(--c64-black); }
+.fg-red { color: var(--c64-red); }
+.fg-green { color: var(--c64-green); }
+.fg-yellow { color: var(--c64-yellow); }
+.fg-blue { color: var(--c64-blue); }
+.fg-magenta { color: var(--c64-purple); }
+.fg-cyan { color: var(--c64-cyan); }
+.fg-white { color: var(--c64-white); }
+
+.bg-black { background-color: var(--c64-black); }
+.bg-red { background-color: var(--c64-red); }
+.bg-green { background-color: var(--c64-green); }
+.bg-yellow { background-color: var(--c64-yellow); }
+.bg-blue { background-color: var(--c64-blue); }
+.bg-magenta { background-color: var(--c64-purple); }
+.bg-cyan { background-color: var(--c64-cyan); }
+.bg-white { background-color: var(--c64-white); }
+
+/* ============================================
+   EXTENDED C64 COLORS
+   ============================================ */
+
+.fg-orange { color: var(--c64-orange); }
+.fg-brown { color: var(--c64-brown); }
+.fg-light-red { color: var(--c64-light-red); }
+.fg-dark-gray { color: var(--c64-dark-gray); }
+.fg-gray { color: var(--c64-gray); }
+.fg-light-green { color: var(--c64-light-green); }
+.fg-light-blue { color: var(--c64-light-blue); }
+.fg-light-gray { color: var(--c64-light-gray); }
+
+.bg-orange { background-color: var(--c64-orange); }
+.bg-brown { background-color: var(--c64-brown); }
+.bg-light-red { background-color: var(--c64-light-red); }
+.bg-dark-gray { background-color: var(--c64-dark-gray); }
+.bg-gray { background-color: var(--c64-gray); }
+.bg-light-green { background-color: var(--c64-light-green); }
+.bg-light-blue { background-color: var(--c64-light-blue); }
+.bg-light-gray { background-color: var(--c64-light-gray); }
+
+/* ============================================
+   TELETEXT EFFECTS
+   ============================================ */
+
+.double-height {
+  transform: scaleY(2);
+  display: inline-block;
+  transform-origin: top left;
+}
+
+.double-height.lower {
+  transform-origin: bottom left;
+}
+
+.flash {
+  animation: flash 1s steps(2, start) infinite;
+}
+
+@keyframes flash {
+  50% { opacity: 0; }
+}
+
+.conceal {
+  color: transparent;
+  background: transparent;
+}
+
+.conceal:hover {
+  color: inherit;
+}
+
+/* ============================================
+   MOSAIC/BLOCK GRAPHICS
+   ============================================ */
+
+.mosaic {
+  font-family: 'Mallard', monospace;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.mosaic-demo {
+  animation: rainbow-cycle 3s linear infinite;
+}
+
+@keyframes rainbow-cycle {
+  0%, 100% { color: var(--c64-red); }
+  14% { color: var(--c64-orange); }
+  28% { color: var(--c64-yellow); }
+  42% { color: var(--c64-green); }
+  57% { color: var(--c64-cyan); }
+  71% { color: var(--c64-blue); }
+  85% { color: var(--c64-purple); }
+}
+
+/* ============================================
+   COMMAND BAR (uDOS Integration)
+   ============================================ */
+
+.uDOS-command-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--c64-blue);
+  border-top: 2px solid var(--c64-cyan);
+  padding: 6px 12px;
+  font-family: 'Mallard', monospace;
+  color: var(--c64-yellow);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  box-shadow: 0 -4px 12px var(--c64-black-50);
+}
+
+.uDOS-command-bar::before {
+  content: '>';
+  color: var(--c64-cyan);
+  font-weight: bold;
+}
+
+.uDOS-command-input {
+  background: transparent;
+  border: none;
+  color: var(--c64-yellow);
+  font-family: inherit;
+  font-size: inherit;
+  flex: 1;
+  outline: none;
+  caret-color: var(--c64-cyan);
+}
+
+.uDOS-command-input::placeholder {
+  color: var(--c64-cyan-50);
+}
+
+/* ============================================
+   SCANLINE EFFECT (Optional)
+   ============================================ */
+
+.teletext::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    var(--c64-black-10) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 900px) {
+  .bezel {
+    padding: 8px;
+  }
+
+  .teletext {
+    transform: scaleX(1.2);
+  }
+}
+
+@media (max-width: 600px) {
+  .bezel {
+    padding: 4px;
+    border-radius: 6px;
+  }
+
+  .teletext {
+    transform: scaleX(1.1);
+    border-width: 2px;
+  }
+
+  .uDOS-command-bar {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles for keyboard navigation */
+button:focus,
+input:focus,
+a:focus {
+  outline: 2px solid var(--c64-cyan);
+  outline-offset: 2px;
+}
