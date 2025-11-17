@@ -2354,37 +2354,51 @@ knowledge/
   * Troubleshooting steps
 
 #### 6. SVG Illustration Pipeline (Gemini API Integration)
-- [ ] **"Technical-Kinetic" Vector Aesthetic**: MCM + Rube Goldberg style
-  * Geometric Mid-Century Modern simplicity (circles, rectangles, triangles)
-  * Rube Goldberg kinetic flow (curved tubes, gears, levers, pulleys, balls)
-  * Swiss Style/Bauhaus typography (geometric sans-serif, clean hierarchy)
-  * Monochrome only (pure black/white, no gradients or shading)
-  * Vector textures only (no raster fills or patterns)
-- [ ] **Standardized Vector Texture Library**: 4 pattern types
-  * Hatching/cross-hatching (metal, mechanical parts, hard surfaces)
-  * Stipple/dot density gradients (soft shading, atmospheric effects)
-  * Vector wavy lines (organic materials, wood grain, water flow)
-  * Circular/undulating patterns (environmental fields, topography, radiation)
-  * Reusable SVG pattern definitions
-  * Consistent line weights and spacing rules
+- [ ] **"Technical-Kinetic" Design Style** (Formal Specification):
+  * **Style Name**: Technical-Kinetic
+  * **Rationale**: Merge structural clarity with detailed, expressive flow for standardized, objective reference documents
+  * **Structure**: Clean geometric forms (circles, rectangles). Consistent primary line weight (1.5px)
+    - Design Reference: **Mid-Century Modern** graphic simplicity
+  * **Flow & Connection**: Exaggerated curved tubes/conduits, gears, levers implying kinetic chain reactions
+    - Design Reference: **Rube Goldberg Machine** aesthetic
+  * **Typography**: Clean geometric sans-serif (Arial/Helvetica), text treated as geometric shapes
+    - Design Reference: **Swiss Style / Bauhaus** typographic influence
+  * **General Aesthetic**: Monochrome (black/white), fully vector-based for infinite scalability
+    - Design Reference: **Historical Line-Art** (woodcut/engraving, topographical diagrams)
+  * **Purpose**: Instructive/illustrative only, NOT decorative
+- [ ] **Standardized Monochrome Texture Library** (4 Mandatory Patterns):
+  * **Hatching/Cross-Hatching**: Parallel/crossed lines at 45°, light line weight (0.3px)
+    - Use: **Metal/Mechanical** components (gears, pipes, Rube Goldberg elements)
+  * **Stipple/Dot Density**: Uniform dots, tone controlled by density
+    - Use: **Soft Shading/Atmospheric** fields (clouds, gas, subtle gradients)
+  * **Vector Wavy Lines**: Repeating abstract, concentric/wavy lines
+    - Use: **Organic/Natural Materials** (woodgrain, stone, fabric)
+  * **Circular/Undulating Lines**: Smoothly flowing concentric/parallel lines
+    - Use: **Environmental Fields** (water, terrain, data streams, topography)
+  * **Critical**: NEVER use solid gray fills; tone via pattern density only
+  * Reusable SVG `<pattern>` definitions
+  * Consistent line weights: primary 1.5px, texture 0.3px
 - [ ] **SVG Technical Specifications**:
-  * Scalable vector format (width/height/viewBox defined)
-  * Monochrome output (black #000000, white #FFFFFF)
-  * Minified SVG (remove comments, collapse whitespace)
-  * Editable text elements (not converted to paths)
-  * Flowcharts, diagrams, technical renderings ONLY
-  * No portraits, landscapes, or photorealistic illustrations
+  * **Format**: SVG (Scalable Vector Graphics)
+  * **Color Profile**: Strict monochrome (Black #000000, White #FFFFFF)
+  * **Optimization**: Minified (remove metadata, comments, editor data, whitespace)
+  * **Text**: Editable text elements (NOT converted to paths)
+  * **Scope**: Flowcharts, diagrams, technical renderings ONLY
+  * **Exclusions**: NO portraits, landscapes, photorealistic illustrations
+  * **Structure**: width/height/viewBox properly defined
 - [ ] **Gemini API Image-to-Vector Processing**:
-  * Convert raster illustrations to SVG paths
-  * Apply "Technical-Kinetic" style constraints
-  * Enforce monochrome palette
+  * Convert raster to SVG paths with Technical-Kinetic constraints
+  * Enforce monochrome palette (reject grays/colors)
+  * Apply standardized texture patterns (4 types)
   * Preserve semantic structure (grouped elements)
-  * Generate clean, minified output
+  * Generate minified, optimized output
+  * Validate against style guide compliance
 - [ ] **Illustration Library Integration**:
-  * DIAGRAM command SVG rendering support
-  * Export to panel/grid as vector graphics
-  * Search by topic, style, complexity
-  * Metadata tagging (category, skill level, tools required)
+  * DIAGRAM command: SVG rendering with viewport scaling
+  * Export: Panel/grid as editable vector graphics
+  * Search: Topic, style, complexity, material type
+  * Metadata: Category, skill level, tools required, texture patterns used
+  * Style validation on import/export
 
 #### 7. Document/Web Content Processing Pipeline
 - [ ] **Multi-Format Input Processing**:
