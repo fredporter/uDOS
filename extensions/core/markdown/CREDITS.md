@@ -44,6 +44,46 @@ This enhanced markdown viewer is built with and inspired by several excellent op
 
 ## Fonts
 
+### Typography Stack (GitHub-Style)
+
+This viewer uses a carefully selected font stack optimized for document readability:
+
+#### Sans-Serif (Body Text)
+- **Primary**: Source Sans Pro, Inter
+- **Purpose**: Main body text, paragraphs, lists
+- **Fallbacks**: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif
+- **Why**: Clean, modern sans-serif for high on-screen legibility in documentation
+
+#### Serif (Headings & Blockquotes)
+- **Primary**: Source Serif Pro, Merriweather
+- **Purpose**: Headings (h1-h6), blockquotes
+- **Fallbacks**: Georgia, "Times New Roman", serif
+- **Why**: Authoritative contrast for headings, elegant editorial feel for quotes
+
+#### Monospace (Code)
+- **Primary**: Source Code Pro, Monaspace, JetBrains Mono
+- **Purpose**: Code blocks, inline code, keyboard shortcuts, uCODE commands
+- **Fallbacks**: SF Mono, Monaco, Menlo, Consolas, "Courier New", monospace
+- **Why**: Optimal code readability with clear letter differentiation (l, 1, I, 0, O)
+
+#### System Monospace (UI Chrome)
+- **Primary**: Monaco
+- **Purpose**: uDOS UI elements (header, sidebar, panels, breadcrumbs)
+- **Fallbacks**: "Courier New", Courier, monospace
+- **Why**: Consistent retro aesthetic for uDOS interface elements
+
+**Font Philosophy**:
+- **Document Content**: Modern, readable typography (sans/serif)
+- **Code & Technical**: Monospace for clarity
+- **uDOS Interface**: Retro monospace for brand consistency
+
+### Adobe Source Family
+- **Fonts**: Source Sans Pro, Source Serif Pro, Source Code Pro
+- **License**: SIL Open Font License 1.1
+- **Creator**: Adobe Type (Paul D. Hunt and team)
+- **Website**: https://adobe-fonts.github.io/source-sans/
+- **Why Together**: Specifically designed as a cohesive superfamily for harmonious typography
+
 ### Monaco
 - **Type**: System monospace font
 - **Platform**: macOS default monospace font

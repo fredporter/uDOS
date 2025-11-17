@@ -70,9 +70,11 @@
   --md-danger: #cf222e;
 }
 
-/* System font stack (Monaco priority) */
---font-system: Monaco, "Courier New", Courier, monospace;
---font-code: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+/* Typography: GitHub-style font stacks */
+--font-sans: "Source Sans Pro", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+--font-serif: "Source Serif Pro", "Merriweather", Georgia, "Times New Roman", serif;
+--font-mono: "Source Code Pro", "Monaspace", "JetBrains Mono", "SF Mono", Monaco, Menlo, Consolas, "Courier New", monospace;
+--font-system: Monaco, "Courier New", Courier, monospace; /* For uDOS UI elements only */
 
 /* ============================================
    BASE LAYOUT
@@ -85,7 +87,7 @@
 }
 
 body {
-  font-family: var(--font-system);
+  font-family: var(--font-system); /* Monaco for uDOS UI chrome */
   background: var(--md-bg);
   color: var(--md-fg);
   line-height: 1.6;
@@ -410,6 +412,8 @@ body {
 
 .markdown-body {
   color: var(--md-fg);
+  font-family: var(--font-sans); /* Sans-serif for readable body text */
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -420,6 +424,7 @@ body {
 .markdown-body h5,
 .markdown-body h6 {
   color: var(--md-heading);
+  font-family: var(--font-serif); /* Serif for authoritative headings */
   margin-top: 24px;
   margin-bottom: 16px;
   font-weight: 600;
@@ -464,7 +469,7 @@ body {
   padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
-  font-family: var(--font-code);
+  font-family: var(--font-mono); /* Monospace for code */
   border-radius: 3px;
 }
 
@@ -477,6 +482,7 @@ body {
   line-height: 1.45;
   border-radius: 6px;
   margin-bottom: 16px;
+  font-family: var(--font-mono); /* Monospace for code blocks */
 }
 
 .markdown-body pre code {
@@ -491,6 +497,8 @@ body {
   padding: 0 1em;
   color: var(--md-fg-muted);
   border-left: 0.25em solid var(--md-border);
+  font-family: var(--font-serif); /* Serif for elegant blockquotes */
+  font-style: italic;
 }
 
 .markdown-body ul, .markdown-body ol {
@@ -551,7 +559,7 @@ body {
   border-bottom-color: var(--md-border);
   border-radius: 3px;
   box-shadow: inset 0 -1px 0 var(--md-border);
-  font-family: var(--font-code);
+  font-family: var(--font-mono);
 }
 
 /* ============================================
@@ -565,7 +573,7 @@ body {
   border: 2px solid var(--color-cyan-bright);
   padding: 4px 10px;
   margin: 2px;
-  font-family: var(--font-code);
+  font-family: var(--font-mono); /* Monospace for commands */
   font-size: 13px;
   font-weight: bold;
   border-radius: 4px;

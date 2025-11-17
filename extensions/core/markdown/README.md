@@ -1,8 +1,8 @@
 # uDOS Markdown Viewer
 
-**Version**: 1.0.24  
-**Type**: Core Extension  
-**Port**: 9000  
+**Version**: 1.0.24
+**Type**: Core Extension
+**Port**: 9000
 **Purpose**: GitHub-flavored markdown viewer with uCODE and PANEL support
 
 ---
@@ -12,7 +12,11 @@
 ### 🎨 **GitHub-Style Rendering**
 - Authentic GitHub markdown CSS (light & dark themes)
 - Syntax highlighting with Highlight.js (11.9.0)
-- Beautiful typography with Monaco/SF Mono fonts
+- Professional typography stack:
+  * **Body**: Source Sans Pro / Inter (readable sans-serif)
+  * **Headings**: Source Serif Pro / Merriweather (authoritative serif)
+  * **Code**: Source Code Pro / Monaspace (clear monospace)
+  * **UI**: Monaco (retro uDOS aesthetic)
 - Responsive layout for all screen sizes
 
 ### 🌗 **Theme System**
