@@ -1,42 +1,89 @@
-# Markdown Viewer Web Extension
+# uDOS Markdown Viewer
 
-**Port:** 9000
-**Purpose:** Browse and view uDOS knowledge library with markdown rendering
-**Features:** Fuzzy search, emoji support, syntax highlighting, knowledge browser
-
----
-
-## Features
-
-- 📚 **Knowledge Library Browser** - Navigate all 8 categories
-- 🔍 **Fuzzy Search** - Fast file/content search with typo tolerance
-- 📝 **Markdown Rendering** - Full GitHub-flavored markdown support
-- 🎨 **Syntax Highlighting** - Code blocks with language detection
-- 😀 **Emoji Support** - Native UTF-8 emoji rendering
-- 📊 **Teletext Graphics** - Preserved in code blocks
-- 🔗 **Smart Links** - Auto-link to related diagrams/guides
-- 📱 **Responsive** - Works on all screen tiers
+**Version**: 1.0.24  
+**Type**: Core Extension  
+**Port**: 9000  
+**Purpose**: GitHub-flavored markdown viewer with uCODE and PANEL support
 
 ---
 
-## Installation
+## ✨ Features
+
+### 🎨 **GitHub-Style Rendering**
+- Authentic GitHub markdown CSS (light & dark themes)
+- Syntax highlighting with Highlight.js (11.9.0)
+- Beautiful typography with Monaco/SF Mono fonts
+- Responsive layout for all screen sizes
+
+### 🌗 **Theme System**
+- **Dark Mode**: GitHub Dark + Synthwave DOS colors
+- **Light Mode**: GitHub Light theme
+- Instant theme switching with `Ctrl+/`
+- Theme persistence across sessions
+
+### ⌨️ **uCODE Command System**
+Interactive commands embedded in markdown:
+```
+[FILE|READ|/path/to/file.txt]
+[SYSTEM|INFO]
+[HELP|COMMAND|grep]
+[WEB|START|dashboard]
+```
+Commands are **clickable** and execute actions directly!
+
+### 📦 **PANEL Callouts**
+Enhanced callout blocks:
+```
+:::note / :::warning / :::danger / :::success
+Your content here
+:::
+```
+
+### 👁️ **View Modes**
+- **Rendered**: GitHub-style display
+- **Source**: Raw markdown editing
+- **Split**: Side-by-side view
+
+### 🔍 **Smart Features**
+- 📚 Knowledge Library Browser with 8 categories
+- 🔍 Fuzzy search with real-time results
+- 📊 Document statistics panel
+- 📑 Auto-generated table of contents
+- 😀 Full emoji support
+- 📱 Responsive design
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+/` | Toggle light/dark theme |
+| `Ctrl+U` | Toggle uCODE panel |
+| `Ctrl+P` | Toggle info panel |
+| `Ctrl+F` | Focus search |
+| `Ctrl+S` | Download file |
+
+---
+
+## 🚀 Installation
 
 ```bash
-# Add required packages
-pip install flask markdown2 pygments thefuzz
+# Install dependencies
+pip install flask marked highlight.js
 
-# Or use updated requirements.txt
+# Or use requirements.txt
 pip install -r requirements.txt
 ```
 
 ---
 
-## Usage
+## 📖 Usage
 
 ### Start Server
 
 ```bash
-cd extensions/bundled/web/markdown-viewer
+cd extensions/core/markdown
 python server.py
 ```
 
@@ -45,21 +92,50 @@ Or from uDOS CLI:
 [WEB|START|markdown-viewer]
 ```
 
-Then open: http://localhost:9000
+Then open: **http://localhost:9000**
 
-### Browse Knowledge
+### Navigation
 
-1. **Categories View** - Click category to expand
-2. **Fuzzy Search** - Type to filter (handles typos)
-3. **View Document** - Click file to render markdown
-4. **Navigate** - Follow internal links automatically
+1. **Browse Categories** - Click to expand/collapse categories
+2. **Search Files** - Type in search box (fuzzy matching)
+3. **View Document** - Click file to load
+4. **Switch Views** - Use view mode dropdown
+5. **Toggle Theme** - Click moon icon or `Ctrl+/`
 
-### Search Examples
+### uCODE Examples
 
+Embed interactive commands in your markdown:
+
+```markdown
+Read a file: [FILE|READ|/knowledge/survival/water.md]
+Get system info: [SYSTEM|INFO]
+Search knowledge: [SEARCH|water purification]
+Open dashboard: [WEB|START|dashboard]
+Copy text: [COPY|Hello World]
 ```
-🔍 "wter purif"  → Finds "water-purification"
-🔍 "if els"      → Finds "if-else"
-🔍 "sqare not"   → Finds "square-knot"
+
+Click any command to execute it!
+
+### PANEL Examples
+
+Create callout blocks:
+
+```markdown
+:::note
+This is a note with **markdown** support
+:::
+
+:::warning
+⚠️ Important warning message
+:::
+
+:::danger
+🛑 Critical safety information
+:::
+
+:::success
+✅ Task completed successfully
+:::
 ```
 
 ---
