@@ -1,37 +1,40 @@
 /**
- * uDOS Font Manager - Polaroid Styling
+ * uDOS Font Manager - Synthwave DOS Styling
  * Version: 1.0.24
  */
 
+/* Import Synthwave DOS Color Palette */
+@import url("../shared/synthwave-dos-colors.css");
+
 /* ============================================
-   POLAROID COLOR PALETTE
+   FONT MANAGER COLOR MAPPING
    ============================================ */
 
 :root {
-  /* C64 Colors */
-  --c64-black: #000000;
-  --c64-white: #FFFFFF;
-  --c64-red: #880000;
-  --c64-cyan: #AAFFEE;
-  --c64-purple: #CC44CC;
-  --c64-green: #00CC55;
-  --c64-blue: #0000AA;
-  --c64-yellow: #EEEE77;
-  --c64-orange: #DD8855;
-  --c64-brown: #664400;
-  --c64-light-red: #FF7777;
-  --c64-dark-gray: #333333;
-  --c64-gray: #777777;
-  --c64-light-green: #AAFF66;
-  --c64-light-blue: #0088FF;
-  --c64-light-gray: #BBBBBB;
+  /* C64 Color Aliases (mapped to Synthwave DOS) */
+  --c64-black: var(--color-black);
+  --c64-white: var(--color-white-bright);
+  --c64-red: var(--color-red-bright);
+  --c64-cyan: var(--color-cyan-bright);
+  --c64-purple: var(--color-magenta-bright);
+  --c64-green: var(--color-green-bright);
+  --c64-blue: var(--color-blue-bright);
+  --c64-yellow: var(--color-orange-bright);
+  --c64-orange: var(--color-orange-bright);
+  --c64-brown: var(--color-orange-dark);
+  --c64-light-red: var(--color-red-bright);
+  --c64-dark-gray: var(--color-gray-dark);
+  --c64-gray: var(--color-gray-light);
+  --c64-light-green: var(--color-green-bright);
+  --c64-light-blue: var(--color-cyan-bright);
+  --c64-light-gray: var(--color-gray-light);
 
   /* Transparency variants */
-  --c64-black-25: rgba(0, 0, 0, 0.25);
-  --c64-black-50: rgba(0, 0, 0, 0.5);
-  --c64-black-75: rgba(0, 0, 0, 0.75);
-  --c64-blue-25: rgba(0, 0, 170, 0.25);
-  --c64-cyan-50: rgba(170, 255, 238, 0.5);
+  --c64-black-25: var(--color-black-25);
+  --c64-black-50: var(--color-black-50);
+  --c64-black-75: var(--color-black-75);
+  --c64-blue-25: var(--color-blue-bright-25);
+  --c64-cyan-50: var(--color-cyan-bright-50);
 
   /* Manager theme */
   --manager-bg: var(--c64-dark-gray);

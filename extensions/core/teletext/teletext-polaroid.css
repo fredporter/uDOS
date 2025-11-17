@@ -1,62 +1,67 @@
 /**
- * uDOS Teletext - Polaroid Palette Enhancement
+ * uDOS Teletext - Synthwave DOS Palette
  * Version: 1.0.24
  *
  * Features:
- * - Polaroid C64 color palette (16 colors + transparency)
+ * - Synthwave DOS 16-color standard palette
  * - Mallard Blocky font integration
  * - C64 PETSCII block graphics support
  * - Enhanced teletext styling
  */
 
+/* Import Synthwave DOS Color Palette */
+@import url("../shared/synthwave-dos-colors.css");
+
 /* ============================================
-   POLAROID COLOR PALETTE
+   TELETEXT COLOR MAPPING
    ============================================ */
 
 :root {
-  /* C64 Base Colors (Polaroid Palette) */
-  --c64-black: #000000;
-  --c64-white: #FFFFFF;
-  --c64-red: #880000;
-  --c64-cyan: #AAFFEE;
-  --c64-purple: #CC44CC;
-  --c64-green: #00CC55;
-  --c64-blue: #0000AA;
-  --c64-yellow: #EEEE77;
-  --c64-orange: #DD8855;
-  --c64-brown: #664400;
-  --c64-light-red: #FF7777;
-  --c64-dark-gray: #333333;
-  --c64-gray: #777777;
-  --c64-light-green: #AAFF66;
-  --c64-light-blue: #0088FF;
-  --c64-light-gray: #BBBBBB;
+  /* C64 Color Aliases (mapped to Synthwave DOS) */
+  --c64-black: var(--color-black);
+  --c64-white: var(--color-white-bright);
+  --c64-red: var(--color-red-bright);
+  --c64-cyan: var(--color-cyan-bright);
+  --c64-purple: var(--color-magenta-bright);
+  --c64-green: var(--color-green-bright);
+  --c64-blue: var(--color-blue-bright);
+  --c64-yellow: var(--color-orange-bright);
+  --c64-orange: var(--color-orange-bright);
+  --c64-brown: var(--color-orange-dark);
+  --c64-light-red: var(--color-red-bright);
+  --c64-dark-gray: var(--color-gray-dark);
+  --c64-gray: var(--color-gray-light);
+  --c64-light-green: var(--color-green-bright);
+  --c64-light-blue: var(--color-cyan-bright);
+  --c64-light-gray: var(--color-gray-light);
 
-  /* Transparency Variants (10%, 25%, 50%, 75%) */
-  --c64-black-10: rgba(0, 0, 0, 0.1);
-  --c64-black-25: rgba(0, 0, 0, 0.25);
-  --c64-black-50: rgba(0, 0, 0, 0.5);
-  --c64-black-75: rgba(0, 0, 0, 0.75);
+  /* Transparency Variants (using Synthwave DOS) */
+  --c64-black-10: var(--color-black-10);
+  --c64-black-25: var(--color-black-25);
+  --c64-black-50: var(--color-black-50);
+  --c64-black-75: var(--color-black-75);
 
-  --c64-white-10: rgba(255, 255, 255, 0.1);
-  --c64-white-25: rgba(255, 255, 255, 0.25);
-  --c64-white-50: rgba(255, 255, 255, 0.5);
-  --c64-white-75: rgba(255, 255, 255, 0.75);
+  --c64-white-10: var(--color-white-bright-10);
+  --c64-white-25: var(--color-white-bright-25);
+  --c64-white-50: var(--color-white-bright-50);
+  --c64-white-75: var(--color-white-bright-75);
 
-  --c64-cyan-10: rgba(170, 255, 238, 0.1);
-  --c64-cyan-25: rgba(170, 255, 238, 0.25);
-  --c64-cyan-50: rgba(170, 255, 238, 0.5);
-  --c64-cyan-75: rgba(170, 255, 238, 0.75);
+  --c64-cyan-10: var(--color-cyan-bright-10);
+  --c64-cyan-25: var(--color-cyan-bright-25);
+  --c64-cyan-50: var(--color-cyan-bright-50);
+  --c64-cyan-75: var(--color-cyan-bright-75);
 
-  --c64-purple-10: rgba(204, 68, 204, 0.1);
-  --c64-purple-25: rgba(204, 68, 204, 0.25);
-  --c64-purple-50: rgba(204, 68, 204, 0.5);
-  --c64-purple-75: rgba(204, 68, 204, 0.75);
+  --c64-purple-10: var(--color-magenta-bright-10);
+  --c64-purple-25: var(--color-magenta-bright-25);
+  --c64-purple-50: var(--color-magenta-bright-50);
+  --c64-purple-75: var(--color-magenta-bright-75);
 
-  --c64-yellow-10: rgba(238, 238, 119, 0.1);
-  --c64-yellow-25: rgba(238, 238, 119, 0.25);
-  --c64-yellow-50: rgba(238, 238, 119, 0.5);
-  --c64-yellow-75: rgba(238, 238, 119, 0.75);
+  --c64-yellow-10: var(--color-orange-bright-10);
+  --c64-yellow-25: var(--color-orange-bright-25);
+  --c64-yellow-50: var(--color-orange-bright-50);
+  --c64-yellow-75: var(--color-orange-bright-75);
+
+  --c64-blue-25: var(--color-blue-bright-25);
 
   /* Teletext Defaults */
   --teletext-bg: var(--c64-black);
