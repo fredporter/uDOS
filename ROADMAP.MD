@@ -3236,29 +3236,107 @@ Current Overlaps to Consolidate:
 ---
 
 ## 🎯 v1.0.26 - Final Polish & Performance
-**Status**: 📋 Planned (December 2025)
+**Status**: 🚀 In Development (November 18 - December 22, 2025)
+**Branch**: v1.0.26-polish
 **Focus**: Final testing, performance optimization, and v1.1.0 preparation
 
-**Scope**:
-- Comprehensive testing (move toward 1000+ tests target)
-- Performance optimizations (<50ms average command)
-- Reference data validation (optional, non-blocking)
-  * World map data (10,000+ tiles)
-  * Geography database (200+ cities)
-  * Measurement systems
-- Knowledge library QA (ongoing, iterative)
-- Cross-platform testing (macOS, Linux, Windows)
-- Final documentation review
-- Community feedback integration
-- v1.1.0 preparation
+**Timeline**: 5 weeks (Nov 18 - Dec 22, 2025)
+- **Week 1 (Nov 18-24)**: Testing Infrastructure ✅ Phase 1 Complete
+- **Week 2 (Nov 25-Dec 1)**: Performance Optimization
+- **Week 3 (Dec 2-8)**: Cross-Platform Testing
+- **Week 4 (Dec 9-15)**: Documentation & QA
+- **Week 5 (Dec 16-22)**: Release Preparation
 
-**Success Metrics**:
-- All tests passing (100%)
-- Zero critical bugs
-- Performance benchmarks maintained (<50ms average)
-- Documentation complete and accurate
-- User workflows validated
-- Ready for v1.1.0 stable release
+### Phase 1: Testing Infrastructure (Week 1) - ✅ IN PROGRESS
+
+**Baseline Established** (Nov 18, 2025):
+- [x] **Test Environment Verified**: 627 working tests (99.4% functional)
+- [x] **Analysis Tools Created**: Coverage analyzer, baseline report, benchmarks
+- [x] **Metrics Documented**: 48.5% command coverage, 17 untested commands identified
+- [x] **Performance Targets Set**: <50ms avg command, <500ms startup
+- [x] **Git Infrastructure**: v1.0.26-polish branch, baseline documentation committed
+
+**Test Coverage Status**:
+- **Current**: 627 working tests across 55 files
+- **Target**: 1000+ tests
+- **Gap**: 373 tests needed
+- **Week 1 Goal**: 800+ tests (200+ new tests)
+
+**Untested Commands** (17 requiring coverage):
+- [ ] ASK - Assistant interaction
+- [ ] BLANK - Clear screen/reset
+- [ ] DEV - Development tools
+- [ ] EXPLORE - Interactive exploration
+- [ ] HISTORY - Command history
+- [ ] KB - Knowledge base shorthand
+- [ ] KNOWLEDGE - Knowledge system
+- [ ] MEMORY - Memory tier system
+- [ ] PANEL - Panel management
+- [ ] PLAY - Interactive mode
+- [ ] POKE - Quick data inspection
+- [ ] RESOURCE - Resource management
+- [ ] SHARED - Shared memory tier
+- [ ] STATUS - System status
+- [ ] TILE - Map tile operations
+- [ ] VERSION - Version information
+- [ ] XP - Experience/progression
+
+**Week 1 Deliverables**:
+- [ ] Test templates for untested commands
+- [ ] 200+ new tests written
+- [ ] Extension integration tests (dashboard, teletext, terminal, markdown, desktop)
+- [ ] Error handling and edge case tests
+- [ ] Performance regression test framework
+- [ ] Target: 800+ total tests passing
+
+### Phase 2: Performance Optimization (Week 2)
+
+**Scope**:
+- [ ] In-process performance profiling (resolve subprocess overhead)
+- [ ] Command response time measurement (<50ms target)
+- [ ] Startup time optimization (<500ms target)
+- [ ] File I/O optimization (<10ms target)
+- [ ] Extension server performance (HTTP response times)
+- [ ] Memory usage profiling and optimization
+
+### Phase 3: Cross-Platform Testing (Week 3)
+
+**Scope**:
+- [ ] macOS compatibility verification (primary platform)
+- [ ] Linux testing (Ubuntu, Fedora, Arch)
+- [ ] Windows testing (PowerShell, Windows Terminal)
+- [ ] Virtual environment testing across platforms
+- [ ] Path handling validation (cross-platform)
+- [ ] Terminal compatibility matrix
+
+### Phase 4: Documentation & QA (Week 4)
+
+**Scope**:
+- [ ] Final documentation review
+- [ ] Wiki completeness check
+- [ ] Command reference validation
+- [ ] Example code verification
+- [ ] User workflow testing
+- [ ] Bug triage and fixing
+
+### Phase 5: Release Preparation (Week 5)
+
+**Scope**:
+- [ ] Final test suite execution (100% passing)
+- [ ] Performance benchmarks validation
+- [ ] Release notes preparation
+- [ ] CHANGELOG finalization
+- [ ] Git tag and release artifacts
+- [ ] v1.1.0 preparation checklist
+
+**Success Metrics (Must Have)**:
+- [ ] 1000+ tests passing (100%)
+- [ ] <50ms average command response
+- [ ] <500ms startup time
+- [ ] Zero critical bugs
+- [ ] 100% cross-platform compatibility
+- [ ] All 33 commands have test coverage
+- [ ] Documentation complete and accurate
 
 **Optional Tasks** (Non-blocking for v1.0.26):
 - [ ] **World Map Data**: Validate all 10,000+ tiles
@@ -3268,6 +3346,8 @@ Current Overlaps to Consolidate:
 - [ ] **Reference Data**: Achieve >99.9% accuracy
 
 **Philosophy**: *"The final polish before the world meets uDOS - test until bulletproof, optimize for speed, prepare for launch"*
+
+**Target Release**: December 22, 2025
 
 ---
 
