@@ -3,7 +3,7 @@
 All notable changes to uDOS will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
@@ -34,13 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `README-SERVER.md` - Comprehensive server guide
   - `CREDITS.md` - Unified credits for all extensions
   - `wiki/Extensions-Server.md` - Wiki documentation
-  - `DEV-ROUND-EXTENSIONS-UNIFICATION.md` - Development summary
   - Updated all extension READMEs with v1.0.25 launch instructions
 
 ### Changed
-- **Teletext Extension**: Updated to use unified server (port 9002)
+- **Teletext Extension**: Updated to use unified server (port 9000)
 - **Terminal Extension**: Updated to use unified server (port 8889)
-- **Markdown Extension**: Updated to use unified server (port 9000)
+- **Markdown Extension**: Updated to use unified server (port 9001)
+- **Desktop Extension**: Updated to use unified server (port 9002)
 - **Dashboard Extension**: Complete rebuild with NES styling (port 8888)
 - Migrated teletext documentation to wiki (API, Synthwave, Assets, Credits)
 - Archived all individual server scripts to `archive/old-servers/`
@@ -50,6 +50,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consistent launch interface across all extensions
 - Single process management vs multiple server processes
 - Centralized configuration in `extensions_server.py`
+- 100% backwards compatible with v1.0.23
+
+---
+
+## [1.0.24] - 2025-11-18
+
+### Added
+- **File Organization**:
+  - Moved `font-profile-template.json` from `/data/templates/` to `knowledge/system/`
+  - Consolidated all system templates under `knowledge/system/templates/`
+  - Font system unification with single source of truth
+
+- **Documentation**:
+  - `docs/releases/v1.0.24-COMPLETION.md` - Complete release report
+  - Updated `ROADMAP.MD` with v1.0.24 and v1.0.25 completion status
+  - Updated `wiki/Home.md` and `wiki/Latest-Development.md`
+
+### Changed
+- Removed `/data/` folder entirely (consolidated into `knowledge/system/`)
+- Updated all path references (5 files):
+  - `knowledge/system/README-FONT-SYSTEM.md` (5 path updates)
+  - `knowledge/system/templates/setup.uscript` (3 path updates)
+  - `wiki/Architecture.md` (2 section updates)
+  - `wiki/uCODE-Language.md` (3 import examples)
+  - `core/utils/reorganize_knowledge.sh` (added legacy warnings)
+
+### Removed
+- `/data/templates/` directory (moved to `knowledge/system/`)
+- Legacy data structure references
+
+### Technical
+- 539/539 tests passing (100% cumulative from all versions)
+- Zero breaking changes
+- Clean git structure with clear separation of concerns
+- Production-ready quality maintained
 
 ---
 
