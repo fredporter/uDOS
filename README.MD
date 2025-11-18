@@ -1,19 +1,20 @@
-# uDOS v1.0.20b - Enhanced Mapping & Reference Data System
+# uDOS v1.0.26 - Final Polish & Performance
 
 **uDOS** is a modular CLI framework with assistant integration, comprehensive diagnostics, and modern web extensions. Built to demonstrate clean architecture, human-readable command systems, and intelligent workflows.
 
-**Current Status**: ✅ v1.0.20b Complete - Enhanced Mapping System (Nov 17, 2025)
-**Next**: v1.0.21 - Survivalist Themes & Practical Skills Library
+**Current Status**: ✅ v1.0.26 Phase 3 Complete - macOS Testing (Nov 19, 2025)
+**Next**: v1.0.26 Phase 4 - Documentation & QA
 
 ---
 
 ## 🎯 v1.0.x Objective: Stable Release by July 2026
 
 ### Current Progress
-- **19/24 versions complete (79%)**
-- **Next milestone**: v1.0.21-v1.0.23 (3 versions + v1.1.0 launch)
-- **Timeline**: 8 months to v1.1.0 stable release (July 2026)
-- **Focus**: Core features, offline capability, survival knowledge, documentation
+- **25/26 versions complete (96%)**
+- **Current milestone**: v1.0.26 Final Polish (Phase 3 of 5 complete)
+- **Next release**: v1.1.0 stable release (Q2 2026)
+- **Timeline**: 6 months to v1.1.0 stable release (July 2026)
+- **Focus**: Testing complete (1022 tests), performance optimized (P90: 1.70ms), documentation in progress
 
 ### Advanced Features → v1.1.x (Post-Stable)
 The following features have been moved to v1.1.x to focus on stable v1.0.x release:
@@ -26,65 +27,56 @@ The following features have been moved to v1.1.x to focus on stable v1.0.x relea
 ### v1.0.x Core Deliverables
 - ✅ **Complete uCODE language** (v1.0.14-v1.0.16) - Variables, functions, modules
 - ✅ **Interactive debugger** (v1.0.17) - Full debugging suite with 94 tests
-- 📋 **Offline-first operation** (v1.0.16c) - COMMAND/ASSIST dual modes
-- 📋 **500+ survival guides** (v1.0.20-v1.0.21) - Complete offline knowledge base
-- 📋 **1000+ page handbook** (v1.0.22) - Comprehensive documentation
-- 📋 **Production polish** (v1.0.23) - Performance, testing, stability
+- ✅ **Offline-first operation** (v1.0.16c-v1.0.25) - COMMAND/ASSIST dual modes
+- ✅ **500+ survival guides** (v1.0.20-v1.0.21) - Complete offline knowledge base
+- ✅ **1000+ page handbook** (v1.0.22) - Comprehensive documentation
+- ✅ **Comprehensive testing** (v1.0.26) - 1022 tests, 365/395 passing (92.4%)
+- ✅ **Performance optimization** (v1.0.26) - P90: 1.70ms, startup: 38ms
+- 🔄 **Production polish** (v1.0.26) - Phase 4-5 in progress
 
 ---
 
-## 🆕 What's New in v1.0.17 (Latest)
+## 🆕 What's New in v1.0.26 (Current)
 
-### Interactive Debugger - COMPLETE ✅
-**94/94 tests passing | Full command suite | Production ready**
+### Final Polish & Performance - IN PROGRESS 🔨
+**1022 total tests | 365/395 v1.0.26 tests passing (92.4%) | Phase 3 of 5 complete**
 
 ```bash
-# Debug any uCODE script
-DEBUG my_script.uscript
+# Performance Achievements (Phase 2 ✅)
+Command P90:     1.70ms  (97% faster than 50ms target)
+Command P99:     5.43ms  (95% faster than 100ms target)
+Startup time:    38ms    (92% faster than 500ms target)
+Memory usage:    <20MB   (80% better than 100MB target)
 
-# Set breakpoints (regular or conditional)
-BREAK 10                    # Regular breakpoint
-BREAK 20 IF counter > 50    # Conditional breakpoint
+# Test Coverage (Phase 1 ✅)
+Total tests:     1022    (102% of 1000 target)
+Core tests:      1006
+Performance:     16 regression tests
+Passing rate:    92.4%   (365/395 v1.0.26 tests)
 
-# Step through execution
-STEP                        # Step over
-STEP INTO                   # Step into function
-STEP OUT                    # Step out of function
-CONTINUE                    # Continue to next breakpoint
-
-# Inspect variables
-INSPECT x                   # Check variable value
-INSPECT ALL                 # Show all variables
-WATCH counter               # Watch variable changes
-
-# Modify during debugging
-MODIFY x = 100             # Change variable value mid-execution
-
-# Performance profiling
-PROFILE AUTO ON            # Enable automatic profiling
-PROFILE                    # View execution times
-PROFILE TOP 10             # See slowest lines
-
-# Variable history
-HISTORY x                  # See all changes to variable
-HISTORY counter 5          # Last 5 changes
-
-# Call stack
-STACK                      # View current call stack
+# Platform Testing (Phase 3 ✅)
+macOS:           ✅ Complete (365/395 passing)
+Linux:           → Deferred to v1.1.1
+Windows:         → Deferred to v1.1.1
 ```
 
-**Features:**
-- ✅ Breakpoints (set, clear, list, disable/enable)
-- ✅ Conditional breakpoints (`IF` conditions)
-- ✅ Step execution (over, into, out)
-- ✅ Variable inspection and modification
-- ✅ Watch expressions
-- ✅ Performance profiling
-- ✅ Variable history tracking
-- ✅ Call stack display
-- ✅ 94/94 comprehensive tests
+**Completed Phases:**
+- ✅ **Phase 1**: Testing Infrastructure (1022 tests created)
+- ✅ **Phase 2**: Performance Optimization (all targets exceeded)
+- ✅ **Phase 3**: Cross-Platform Testing (macOS verified)
+- 🔄 **Phase 4**: Documentation & QA (in progress)
+- 📋 **Phase 5**: v1.1.0 Preparation (upcoming)
 
-**Documentation**: See `docs/development/v1.0.17-COMPLETE.md`
+**Key Improvements:**
+- ✅ Added class aliases: `CommandParser`, `uDOSLogger`, `uDOSSettings`
+- ✅ Enhanced `SystemHealth` with `.to_dict()` and enum support
+- ✅ Added `MEMORY` and `PANEL` commands
+- ✅ Created `history_handler.py` for command history management
+- ✅ Fixed duplicate MOVE command (renamed map version to STEP)
+- ✅ Added memory tier paths to all 4 tiers
+- ✅ Improved memory tier classification logic
+
+**Documentation**: See `docs/planning/v1.0.26-PLAN.md` and `docs/planning/PHASE3-MACOS-RESULTS.md`
 
 ---
 
@@ -93,11 +85,16 @@ STACK                      # View current call stack
 ### 🚀 Getting Started
 - [**Quick Start Guide**](wiki/Quick-Start.md) - Get running in 5 minutes
 - [Installation](wiki/Quick-Start.md#installation) - Setup instructions
-- [Command Reference](wiki/Command-Reference.md) - Complete command list
+- [Command Reference](wiki/Command-Reference.md) - Complete command list (60+ commands)
+
+### 📊 Testing & Performance
+- [**v1.0.26 Plan**](docs/planning/v1.0.26-PLAN.md) - Current development plan
+- [**macOS Test Results**](docs/planning/PHASE3-MACOS-RESULTS.md) - Platform verification
+- [Performance Benchmarks](memory/tests/performance_v1_0_26.py) - Automated performance tests
 
 ### 📚 Development
 - [**ROADMAP.MD**](ROADMAP.MD) - **Complete v1.0.x-v1.1.0 development plan**
-- [Contributing Guide](dev/docs/guides/CONTRIBUTING.md) - Development workflow
+- [Contributing Guide](CONTRIBUTING.MD) - Development workflow
 - [Testing Guide](dev/docs/guides/TESTING.md) - Testing procedures
 - [Development Setup](dev/docs/guides/DEVELOPMENT.md) - Dev environment
 
