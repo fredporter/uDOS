@@ -266,3 +266,7 @@ class SettingsManager:
             print(f"⚠️  Font profile corrupted: {e}")
             return None
 
+
+# Alias for backward compatibility with tests
+uDOSSettings = SettingsManager
+

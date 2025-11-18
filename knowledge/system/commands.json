@@ -402,6 +402,25 @@
       "DEFAULT_PARAMS": {}
     },
     {
+      "NAME": "PANEL",
+      "SYNTAX": "PANEL [<content>]",
+      "DESCRIPTION": "Display content in a formatted panel with title and border. Can display memory content, status info, or custom text.",
+      "UCODE_TEMPLATE": "[UI|PANEL*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "PANEL",
+        "PANEL MEMORY",
+        "PANEL STATUS"
+      ],
+      "NOTES": [
+        "Integrates with memory system",
+        "Supports grid layout formatting",
+        "Can display various content types"
+      ]
+    },
+    {
       "NAME": "DASH",
       "SYNTAX": "DASH [WEB]",
       "DESCRIPTION": "Display comprehensive system dashboard. Use 'DASH WEB' to open interactive web dashboard in browser. Alias: DASHBOARD",
@@ -433,11 +452,16 @@
       "DEFAULT_PARAMS": {}
     },
     {
-      "NAME": "MOVE",
-      "SYNTAX": "MOVE <dx> <dy>",
+      "NAME": "STEP",
+      "SYNTAX": "STEP <dx> <dy>",
       "DESCRIPTION": "Move relative to current position (NetHack-style navigation).",
       "UCODE_TEMPLATE": "[MAP|MOVE*$1*$2]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "NOTES": [
+        "Alias for map movement command",
+        "Use MOVE for file operations",
+        "NetHack-style relative positioning"
+      ]
     },
     {
       "NAME": "LAYER",

@@ -17,6 +17,14 @@ import json
 import importlib
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
+from enum import Enum
+
+
+class HealthStatus(Enum):
+    """System health status levels."""
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    CRITICAL = "critical"
 
 
 class HealthCheckResult:
@@ -50,6 +58,11 @@ class HealthCheckResult:
 class SystemHealth:
     """Overall system health status."""
 
+    # Legacy enum access for backward compatibility
+    HEALTHY = HealthStatus.HEALTHY
+    DEGRADED = HealthStatus.DEGRADED
+    CRITICAL = HealthStatus.CRITICAL
+
     def __init__(self):
         self.checks: List[HealthCheckResult] = []
         self.repaired_issues = []
@@ -73,6 +86,53 @@ class SystemHealth:
     def get_warnings_count(self) -> int:
         """Count total warnings."""
         return sum(len(check.warnings) for check in self.checks)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert SystemHealth to a dictionary for API/test compatibility.
+
+        Returns:
+            dict with 'status', 'issues', 'warnings', and 'checks' keys
+        """
+        # Determine overall status
+        issues_count = self.get_issues_count()
+        warnings_count = self.get_warnings_count()
+
+        if issues_count > 5:
+            status = "critical"
+        elif issues_count > 0 or warnings_count > 5:
+            status = "degraded"
+        else:
+            status = "healthy"
+
+        # Collect all issues and warnings
+        all_issues = []
+        all_warnings = []
+
+        for check in self.checks:
+            for issue in check.issues:
+                all_issues.append(f"{check.name}: {issue}")
+            for warning in check.warnings:
+                all_warnings.append(f"{check.name}: {warning}")
+
+        return {
+            'status': status,
+            'issues': all_issues,
+            'warnings': all_warnings,
+            'issues_count': issues_count,
+            'warnings_count': warnings_count,
+            'is_healthy': self.is_healthy(),
+            'checks': [
+                {
+                    'name': check.name,
+                    'passed': check.passed,
+                    'issues': check.issues,
+                    'warnings': check.warnings,
+                    'recommendations': check.recommendations
+                }
+                for check in self.checks
+            ]
+        }
 
 
 def get_udos_root() -> Path:
@@ -978,15 +1038,16 @@ def repair_permissions() -> List[str]:
     return repaired
 
 
-def check_system_health(verbose: bool = False) -> SystemHealth:
+def check_system_health(verbose: bool = False, return_dict: bool = True):
     """
     Run all health checks on the uDOS system.
 
     Args:
         verbose: If True, print detailed progress
+        return_dict: If True, return dict instead of SystemHealth object (default: True for compatibility)
 
     Returns:
-        SystemHealth object with all check results
+        Dict or SystemHealth object with all check results
     """
     health = SystemHealth()
 
@@ -1028,6 +1089,9 @@ def check_system_health(verbose: bool = False) -> SystemHealth:
     if verbose:
         print()
 
+    # Return dict if requested (for API/test compatibility), otherwise return object
+    if return_dict:
+        return health.to_dict()
     return health
 
 

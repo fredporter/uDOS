@@ -219,3 +219,7 @@ class Logger:
         with open(self.log_file, 'a') as f:
             action = "REDO" if delta > 0 else "UNDO"
             f.write(f"[{timestamp}] [MOVE_ADJUST] {action} {delta:+d} (Session: {self.move_count}, Total: {self.total_moves})\n")
+
+
+# Alias for backward compatibility with tests
+uDOSLogger = Logger

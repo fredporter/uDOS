@@ -95,3 +95,7 @@ if __name__ == '__main__':
     print(parser.parse('ASK "What is uDOS?"'))
     print(parser.parse('EXTENSIONS LIST'))
     print(parser.parse('FONT LIST'))
+
+
+# Alias for backward compatibility with tests
+CommandParser = Parser

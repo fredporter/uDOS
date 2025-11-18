@@ -57,7 +57,8 @@ class MemoryUnifiedHandler:
                 'security': 'AES-256',
                 'access': 'User',
                 'handler': self.private_handler,
-                'priority': 4  # Highest priority for personal
+                'priority': 4,  # Highest priority for personal
+                'path': 'memory/private'
             },
             'shared': {
                 'name': 'SHARED',
@@ -67,7 +68,8 @@ class MemoryUnifiedHandler:
                 'security': 'AES-128',
                 'access': 'Team',
                 'handler': self.shared_handler,
-                'priority': 3
+                'priority': 3,
+                'path': 'memory/shared'
             },
             'community': {
                 'name': 'COMMUNITY',
@@ -77,7 +79,8 @@ class MemoryUnifiedHandler:
                 'security': 'None',
                 'access': 'Group',
                 'handler': self.community_handler,
-                'priority': 2
+                'priority': 2,
+                'path': 'memory/community'
             },
             'public': {
                 'name': 'PUBLIC',
@@ -87,7 +90,8 @@ class MemoryUnifiedHandler:
                 'security': 'None',
                 'access': 'All',
                 'handler': self.kb_handler,
-                'priority': 1
+                'priority': 1,
+                'path': 'memory/public'
             }
         }
 
