@@ -4,50 +4,90 @@
 
 ```
 extensions/
-├── core/                       # uDOS core extensions (v1.0.24 reorganization)
-│   ├── c64-terminal/         # C64 Terminal with PetMe font & Synthwave DOS palette
-│   ├── character-editor/      # Multi-resolution character/font editor (8×8-128×128)
-│   ├── dashboard/            # NES Framework system dashboard
-│   ├── desktop/              # System 7 desktop environment
-│   ├── markdown/             # GitHub-flavored markdown viewer (uCODE+PANEL)
-│   ├── teletext/             # BBC Teletext with Mallard fonts
-│   ├── shared/               # Synthwave DOS colors, themes, global CSS
-│   ├── themes/               # nes.css and other retro themes
-│   ├── assets/               # Shared images and media
-│   ├── css/                  # Global CSS utilities
-│   ├── js/                   # Global JavaScript libraries
-│   └── docs/                 # Extension documentation
-├── cloned/                    # External tools (git ignored)
-│   ├── micro/                # Modern terminal editor (Go-based, file picker)
-│   └── typo/                 # Web markdown editor (Svelte, file picker)
-├── fonts/                     # Retro system fonts
-│   ├── chicago/              # Apple System fonts
-│   ├── mallard/              # Teletext fonts (BBC)
-│   ├── monaco/               # Apple monospace fonts
-│   ├── sysfont/              # System 7 bitmaps
-│   └── README.md
-├── setup/                     # Installation scripts
-│   ├── setup_micro.sh        # Install micro editor binary
-│   ├── setup_typo.sh         # Install typo markdown editor
-│   └── README.md
-├── templates/                 # Extension scaffolding
-│   ├── extension-template/   # Base template for new extensions
-│   ├── command-template/     # uCODE command template
-│   └── README.md
-├── archive/                   # Obsolete/superseded extensions
-│   ├── old-bundled-web/      # Original bundled/web (pre-v1.0.24)
-│   ├── old-clones/           # External frameworks (now integrated)
-│   └── obsolete/             # Deprecated experiments
-└── README.md                  # This file
+├── assets/                     # ✅ SHARED ASSETS (central repository)
+│   ├── fonts/                 # PetMe, Chicago, Monaco, Mallard, etc.
+│   ├── icons/                 # CoreUI icons, system icons
+│   ├── css/                   # Shared stylesheets (Synthwave DOS, NES, etc.)
+│   └── js/                    # Shared JavaScript libraries
+│
+├── core/                       # ✅ CORE EXTENSIONS
+│   ├── terminal/              # New C64 terminal with PetMe font & Synthwave DOS
+│   │   ├── assets -> ../../assets  # Symlink to shared assets
+│   │   └── static/            # Terminal-specific JavaScript
+│   ├── markdown/              # GitHub-flavored markdown viewer
+│   │   └── static/            # Uses ../../assets/ paths
+│   ├── dashboard/             # NES Framework system dashboard
+│   │   └── static/            # Uses ../../assets/ paths
+│   ├── desktop/               # System 7 desktop environment
+│   │   └── static/            # Uses ../../assets/ paths
+│   └── teletext/              # BBC Teletext with Mallard fonts
+│       └── fonts/             # Placeholder (uses ../../assets/)
+│
+├── archive/                    # ✅ ARCHIVED/DEPRECATED EXTENSIONS
+│   ├── c64-terminal/          # Original C64 terminal (pre-rebuild)
+│   ├── character-editor-old/  # Superseded character editor
+│   ├── old-fonts/             # Historical font copies
+│   ├── old-icons/             # Historical icon copies
+│   ├── old-core-assets/       # Pre-consolidation assets
+│   └── old-bundled-web/       # Original bundled/web structure
+│
+├── cloned/                     # ✅ EXTERNAL TOOLS (git ignored)
+│   └── micro/                 # Modern terminal editor (Go-based)
+│
+├── setup/                      # ✅ INSTALLATION SCRIPTS
+│   └── (setup scripts for cloned tools)
+│
+├── templates/                  # ✅ EXTENSION SCAFFOLDING
+│   └── (templates for new extensions)
+│
+└── README.md                   # This file
 ```
+
+## 🎯 **Asset Access Patterns**
+
+### Static Extensions (Simple HTTP Server)
+Extensions served with `python3 -m http.server` use **symlinks**:
+
+```bash
+# Create symlink in extension directory
+cd extensions/core/your-extension/
+ln -s ../../assets assets
+
+# CSS references
+url("assets/fonts/petme/PetMe64.ttf")
+url("assets/icons/apple.svg")
+```
+
+**Examples**: terminal
+
+### Backend Extensions (Flask/Express)
+Extensions with backend servers use **relative paths**:
+
+```html
+<!-- HTML references -->
+<link rel="stylesheet" href="../../assets/css/typography-system.css">
+<script src="../../assets/js/typography-manager.js"></script>
+```
+
+```css
+/* CSS references */
+url('../../assets/fonts/ChicagoFLF.woff2')
+url('../../assets/icons/scrollbar-up.svg')
+```
+
+**Examples**: markdown, dashboard, desktop, teletext
+
+---
 
 ## 🎯 **v1.0.24 Reorganization**
 
-The v1.0.24 extensions branch consolidates all web-based extensions from `bundled/web/` into a unified `core/` structure:
+The v1.0.24 extensions branch consolidates all web-based extensions:
 
 - **Phase 1**: Consolidated all extensions into `core/`
 - **Phase 2**: Rebuilt C64 Terminal with PetMe font and Synthwave DOS palette
 - **Phase 3**: Rebuilt Teletext with BBC standards and Mallard font
+- **Phase 4**: Created central `/extensions/assets/` for shared resources
+- **Phase 5**: Archived old c64-terminal and historical assets
 - **Phase 4**: Created Character Editor with multi-resolution support
 - **Phase 4.5-4.7**: Synthwave DOS colors, migration tools, refinements
 - **Phase 5**: GitHub-flavored Markdown Viewer with uCODE and PANEL support

@@ -35,13 +35,15 @@ else:
     }
 
 # Resolve paths
-UDOS_ROOT = Path(__file__).parent.parent.parent.parent.parent
-KNOWLEDGE_ROOT = (UDOS_ROOT / config['knowledge_root']).resolve()
-DIAGRAMS_ROOT = (UDOS_ROOT / config['diagrams_root']).resolve()
+UDOS_ROOT = Path(__file__).parent.parent.parent.parent
+KNOWLEDGE_ROOT = (UDOS_ROOT / 'knowledge').resolve()
+MEMORY_ROOT = (UDOS_ROOT / 'memory').resolve()
+DIAGRAMS_ROOT = (UDOS_ROOT / 'data/system/diagrams').resolve()
+ASSETS_ROOT = (UDOS_ROOT / 'extensions/assets').resolve()
 
 
 def get_all_markdown_files():
-    """Get all .md files from knowledge and diagrams directories."""
+    """Get all .md files from knowledge, memory, and diagrams directories."""
     files = []
 
     # Knowledge files
@@ -52,8 +54,20 @@ def get_all_markdown_files():
                 'path': str(md_file),
                 'rel_path': str(rel_path),
                 'name': md_file.name,
-                'category': str(rel_path.parts[0]) if rel_path.parts else 'root',
+                'category': f"knowledge/{rel_path.parts[0]}" if rel_path.parts else 'knowledge',
                 'type': 'knowledge'
+            })
+
+    # Memory files
+    if MEMORY_ROOT.exists():
+        for md_file in MEMORY_ROOT.rglob('*.md'):
+            rel_path = md_file.relative_to(MEMORY_ROOT)
+            files.append({
+                'path': str(md_file),
+                'rel_path': str(rel_path),
+                'name': md_file.name,
+                'category': f"memory/{rel_path.parts[0]}" if rel_path.parts else 'memory',
+                'type': 'memory'
             })
 
     # Diagram files
@@ -64,7 +78,7 @@ def get_all_markdown_files():
                 'path': str(md_file),
                 'rel_path': str(rel_path),
                 'name': md_file.name,
-                'category': str(rel_path.parts[0]) if rel_path.parts else 'root',
+                'category': f"diagrams/{rel_path.parts[0]}" if rel_path.parts else 'diagrams',
                 'type': 'diagram'
             })
 
@@ -234,6 +248,7 @@ def api_render():
     # Security: ensure path is within allowed directories
     abs_path = Path(file_path).resolve()
     if not (str(abs_path).startswith(str(KNOWLEDGE_ROOT)) or
+            str(abs_path).startswith(str(MEMORY_ROOT)) or
             str(abs_path).startswith(str(DIAGRAMS_ROOT))):
         return jsonify({
             'success': False,
@@ -252,6 +267,67 @@ def api_render():
             'success': True,
             'path': file_path,
             **result
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/files')
+def api_files():
+    """List all knowledge library files (alias for /api/browse)."""
+    try:
+        files = get_all_markdown_files()
+        return jsonify({
+            'success': True,
+            'files': files,
+            'count': len(files)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/file')
+def api_file():
+    """Get raw file content."""
+    file_path = request.args.get('path', '')
+
+    if not file_path:
+        return jsonify({
+            'success': False,
+            'error': 'Path parameter required'
+        }), 400
+
+    # Security: ensure path is within allowed directories
+    abs_path = Path(file_path).resolve()
+    if not (str(abs_path).startswith(str(KNOWLEDGE_ROOT)) or
+            str(abs_path).startswith(str(MEMORY_ROOT)) or
+            str(abs_path).startswith(str(DIAGRAMS_ROOT))):
+        return jsonify({
+            'success': False,
+            'error': 'Access denied'
+        }), 403
+
+    if not abs_path.exists():
+        return jsonify({
+            'success': False,
+            'error': 'File not found'
+        }), 404
+
+    try:
+        with open(abs_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        return jsonify({
+            'success': True,
+            'path': file_path,
+            'content': content,
+            'size': len(content)
         })
     except Exception as e:
         return jsonify({
@@ -292,6 +368,12 @@ def api_diagrams():
             'success': False,
             'error': str(e)
         }), 500
+
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    """Serve shared assets (icons, fonts, css, js)."""
+    return send_from_directory(ASSETS_ROOT, filename)
 
 
 @app.route('/health')

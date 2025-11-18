@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System.css - uDOS Desktop Demo</title>
+    <link rel="stylesheet" href="desktop.css">
+    <style>
+        body {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            margin: 40px 0;
+        }
+        .demo-section h2 {
+            font-family: Chicago_12, Chicago, sans-serif;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .demo-section h3 {
+            font-family: Chicago_12, Chicago, sans-serif;
+            font-size: 14px;
+            margin: 20px 0 10px 0;
+        }
+        .demo-row {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border: 1px solid #000;
+            font-family: Monaco, monospace;
+            font-size: 11px;
+        }
+        .quote {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <h1 class="title">System.css - uDOS Desktop Demo</h1>
+    </div>
+
+    <div class="demo-section">
+        <h2>Introduction</h2>
+        <p>System.css is a CSS library for building interfaces that resemble Apple's System OS which ran from 1984-1991. This demo showcases all available components.</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Buttons</h2>
+        <div class="quote">
+            "A button is a rounded rectangle that is named with text. Clicking a button performs the action described by the button's name." — Apple HI Guidelines, p. 204
+        </div>
+
+        <h3>Standard Buttons</h3>
+        <div class="demo-row">
+            <button class="btn">Cancel</button>
+            <button class="btn">Submit</button>
+        </div>
+
+        <h3>Active State</h3>
+        <div class="demo-row">
+            <button class="btn" style="background: #000; color: #fff;">Active</button>
+        </div>
+
+        <h3>Dynamic Width Buttons</h3>
+        <div class="demo-row">
+            <button class="btn" style="min-width: auto; padding: 4px 30px;">Buttons can be long!!</button>
+        </div>
+
+        <h3>Default Button</h3>
+        <div class="demo-row">
+            <button class="btn">Cancel</button>
+            <button class="btn btn-default">Find</button>
+        </div>
+
+        <h3>Disabled Button</h3>
+        <div class="demo-row">
+            <button class="btn" disabled>Disabled</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Radio Buttons</h2>
+        <div class="quote">
+            "A radio button is a Macintosh control that displays a setting, either on or off, and is part of a group in which only one button can be on at a time." — Apple HI Guidelines, p. 210
+        </div>
+
+        <div class="demo-row">
+            <label>
+                <input type="radio" name="radio-demo" checked>
+                <span>Option 1</span>
+            </label>
+            <label>
+                <input type="radio" name="radio-demo">
+                <span>Option 2</span>
+            </label>
+            <label>
+                <input type="radio" name="radio-demo">
+                <span>Option 3</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Checkboxes</h2>
+        <div class="quote">
+            "Checkboxes, like radio buttons, provide alternative choices for users. A checkbox is a square with label text next to it" — Apple HI Guidelines, p. 211
+        </div>
+
+        <div class="demo-row">
+            <label>
+                <input type="checkbox" checked>
+                <span>Checkbox 1</span>
+            </label>
+            <label>
+                <input type="checkbox">
+                <span>Checkbox 2</span>
+            </label>
+            <label>
+                <input type="checkbox">
+                <span>Checkbox 3</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Menu Bar</h2>
+        <div class="quote">
+            "The menu bar extends across the top of the screen and contains words and icons that serve as the title of each menu" — Apple HI Guidelines, p. 52
+        </div>
+
+        <div class="menu-bar">
+            <div class="menu-item">
+                <img src="/extensions/assets/icons/apple.svg" alt="Apple" style="width: 16px; height: 16px;">
+            </div>
+            <div class="menu-item">File</div>
+            <div class="menu-item">Edit</div>
+            <div class="menu-item">View</div>
+            <div class="menu-item">Special</div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Select Menu</h2>
+        <div class="demo-row">
+            <select>
+                <option>Option 1</option>
+                <option>Option 2</option>
+                <option selected>Option 3</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Text Boxes</h2>
+        <div class="quote">
+            "The place or places in a dialog box where information can be typed. Also called text entry field." — Apple HI Guidelines, p. 372
+        </div>
+
+        <div class="demo-row">
+            <input type="text" placeholder="Text input">
+            <input type="email" placeholder="Email input">
+            <input type="password" placeholder="Password">
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Windows</h2>
+        <div class="quote">
+            "Standard document windows have standard structural components. These components include the title bar, size box, close box, zoom box, and scroll bars. Windows are designed for visual consistency across all monitors" — Apple HI Guidelines, p. 134, 159
+        </div>
+
+        <div class="demo-grid">
+            <!-- Basic Window -->
+            <div class="window">
+                <div class="title-bar">
+                    <button aria-label="Close"></button>
+                    <h1 class="title">Window Without Stuff</h1>
+                    <button aria-label="Resize" disabled></button>
+                </div>
+                <div class="separator"></div>
+            </div>
+
+            <!-- Window with Content -->
+            <div class="window">
+                <div class="title-bar">
+                    <button aria-label="Close"></button>
+                    <h1 class="title">Window With Stuff</h1>
+                    <button aria-label="Resize" disabled></button>
+                </div>
+                <div class="separator"></div>
+                <div class="window-pane">
+                    <p>Woo I got stuff in me!</p>
+                </div>
+            </div>
+
+            <!-- Window with Details Bar -->
+            <div class="window">
+                <div class="title-bar">
+                    <button aria-label="Close"></button>
+                    <h1 class="title">Window With Details</h1>
+                    <button aria-label="Resize" disabled></button>
+                </div>
+                <div class="separator"></div>
+                <div class="details-bar">
+                    <span>some</span>
+                    <span>more</span>
+                    <span>details</span>
+                </div>
+                <div class="window-pane">
+                    <p>Woo I got a details bar.</p>
+                </div>
+            </div>
+
+            <!-- Inactive Window -->
+            <div class="window">
+                <div class="title-bar inactive-title-bar">
+                    <button aria-label="Close"></button>
+                    <h1 class="title">Inactive Window</h1>
+                    <button aria-label="Resize" disabled></button>
+                </div>
+                <div class="separator"></div>
+                <div class="details-bar">
+                    <span>some</span>
+                    <span>more</span>
+                    <span>details</span>
+                </div>
+                <div class="window-pane">
+                    <p>not active :(</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Dialogs</h2>
+        <div class="quote">
+            "Dialog boxes are windows that provide a standard framework in which the computer can present alternatives from which the user can choose." — Apple HI Guidelines, p. 176
+        </div>
+
+        <div class="demo-grid">
+            <!-- Standard Dialog -->
+            <div class="standard-dialog">
+                <h1 class="dialog-title">The Macintosh Finder, Version 1.0 (18 Jan 84)</h1>
+                <p class="dialog-text">© 1984 Apple Computer</p>
+            </div>
+
+            <!-- Modeless Dialog -->
+            <div class="window">
+                <div class="title-bar">
+                    <button aria-label="Close"></button>
+                    <h1 class="title">Modeless Dialog</h1>
+                </div>
+                <div class="separator"></div>
+                <div class="window-pane">
+                    <label>Find: <input type="text"></label>
+                    <div style="margin-top: 10px;">
+                        <button class="btn">Cancel</button>
+                        <button class="btn btn-default">Find</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Dialog -->
+            <div class="outer-border">
+                <div class="inner-border">
+                    <div class="window">
+                        <div class="title-bar">
+                            <h1 class="title">Modal Dialog</h1>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="window-pane">
+                            <p>This is a modal dialog with double border.</p>
+                            <div style="margin-top: 10px; text-align: right;">
+                                <button class="btn">Cancel</button>
+                                <button class="btn btn-default">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Box -->
+            <div class="outer-border">
+                <div class="inner-border">
+                    <div class="window">
+                        <div class="title-bar">
+                            <h1 class="title">Alert</h1>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="window-pane" style="display: flex; gap: 15px;">
+                            <div style="width: 40px; height: 40px; border: 2px solid #000; flex-shrink: 0;"></div>
+                            <div>
+                                <p>This is a standard alert box. The text would be placed here. This is where more text appears</p>
+                                <div style="margin-top: 10px; text-align: right;">
+                                    <button class="btn">Cancel</button>
+                                    <button class="btn btn-default">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Form Example</h2>
+        <div class="window" style="max-width: 400px;">
+            <div class="title-bar">
+                <button aria-label="Close"></button>
+                <h1 class="title">Contact Form</h1>
+                <button aria-label="Resize" disabled></button>
+            </div>
+            <div class="separator"></div>
+            <div class="window-pane">
+                <form>
+                    <div style="margin-bottom: 10px;">
+                        <label>Name: <input type="text" style="width: 100%;"></label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Email: <input type="email" style="width: 100%;"></label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Category:
+                            <select style="width: 100%;">
+                                <option>General</option>
+                                <option>Support</option>
+                                <option>Bug Report</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>
+                            <input type="checkbox">
+                            <span>Subscribe to newsletter</span>
+                        </label>
+                    </div>
+                    <div style="text-align: right;">
+                        <button type="button" class="btn">Cancel</button>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer style="margin-top: 60px; padding-top: 20px; border-top: 2px solid #000; text-align: center;">
+        <p>System.css demo for uDOS Desktop</p>
+        <p>Based on <a href="https://sakofchit.github.io/system.css/">system.css by @sakofchit</a></p>
+    </footer>
+</body>
+</html>

@@ -9,8 +9,7 @@
  * - Enhanced teletext styling
  */
 
-/* Import Synthwave DOS Color Palette */
-@import url("../css/synthwave-dos-colors.css");
+/* Synthwave DOS colors loaded via HTML link tag */
 
 /* ============================================
    TELETEXT COLOR MAPPING
@@ -80,21 +79,23 @@
 
 @font-face {
   font-family: 'Mallard';
-  src: url('../fonts/mallard/mallard-blocky.otf') format('opentype');
+  src: url('../../assets/fonts/mallard/mallard-blocky.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
+/* MODE7GX3 font not currently available in assets
 @font-face {
   font-family: 'MODE7GX3';
   src: url('./fonts/MODE7GX3.TTF') format('truetype');
   font-display: swap;
 }
+*/
 
-/* Fallback font stack: Mallard → MODE7 → Monospace */
+/* Fallback font stack: Mallard → Monospace */
 body {
-  font-family: 'Mallard', 'MODE7GX3', 'Courier New', monospace;
+  font-family: 'Mallard', 'Courier New', monospace;
 }
 
 /* ============================================
@@ -108,35 +109,20 @@ body {
 }
 
 body {
-  background: var(--c64-dark-gray);
+  background: var(--c64-black);
   color: var(--teletext-fg);
   margin: 0;
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
+  padding: 0;
   font-size: var(--computed-font-size);
-  overflow: hidden;
-}
-
-.bezel {
-  background: var(--c64-black);
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow:
-    0 0 0 3px var(--c64-blue),
-    0 0 20px var(--c64-blue-25),
-    0 8px 24px rgba(0, 0, 0, 0.7);
-  position: relative;
+  overflow-x: hidden;
 }
 
 .teletext {
-  width: calc(40ch + 39 * 0.02ch);
-  transform: scaleX(1.3);
-  line-height: 1;
-  background: var(--teletext-bg);
-  border: 3px solid var(--teletext-border);
-  position: relative;
+  background: var(--c64-black);
+  line-height: 1.2;
   padding: 0;
+  margin: 0;
+  font-family: 'Mallard', 'Courier New', monospace;
 }
 
 .row {
@@ -179,9 +165,8 @@ body {
 .statusbar {
   display: flex;
   justify-content: space-between;
-  padding: 0 1ch;
-  background: var(--c64-black);
-  border-bottom: 1px solid var(--c64-gray);
+  padding: 0.5em 0;
+  background: transparent;
   color: var(--teletext-status);
   font-size: 0.9em;
 }
@@ -289,96 +274,34 @@ body {
    COMMAND BAR (uDOS Integration)
    ============================================ */
 
+/* Command Input (inline within screen) - no longer used as separate bar */
 .uDOS-command-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--c64-blue);
-  border-top: 2px solid var(--c64-cyan);
-  padding: 6px 12px;
-  font-family: 'Mallard', monospace;
-  color: var(--c64-yellow);
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 1000;
-  box-shadow: 0 -4px 12px var(--c64-black-50);
-}
-
-.uDOS-command-bar::before {
-  content: '>';
-  color: var(--c64-cyan);
-  font-weight: bold;
+  display: none; /* Command input now inline within the pre */
 }
 
 .uDOS-command-input {
   background: transparent;
   border: none;
-  color: var(--c64-yellow);
-  font-family: inherit;
+  color: var(--c64-cyan);
+  font-family: "Mallard Blockier", monospace;
   font-size: inherit;
-  flex: 1;
+  width: 36ch; /* Fits after "> " prompt */
   outline: none;
   caret-color: var(--c64-cyan);
+  padding: 0;
+  margin: 0;
 }
 
 .uDOS-command-input::placeholder {
   color: var(--c64-cyan-50);
+  opacity: 0.6;
 }
 
-/* ============================================
-   SCANLINE EFFECT (Optional)
-   ============================================ */
-
-.teletext::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 50%,
-    var(--c64-black-10) 50%
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
-  opacity: 0.3;
-}
+/* Scanline effect removed for clean display */
 
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
-
-@media (max-width: 900px) {
-  .bezel {
-    padding: 8px;
-  }
-
-  .teletext {
-    transform: scaleX(1.2);
-  }
-}
-
-@media (max-width: 600px) {
-  .bezel {
-    padding: 4px;
-    border-radius: 6px;
-  }
-
-  .teletext {
-    transform: scaleX(1.1);
-    border-width: 2px;
-  }
-
-  .uDOS-command-bar {
-    font-size: 12px;
-    padding: 4px 8px;
-  }
-}
 
 /* ============================================
    ACCESSIBILITY

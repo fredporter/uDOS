@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Terminal v1.0.24</title>
+    <link rel="stylesheet" href="terminal.css">
+</head>
+<body>
+    <!-- C64 Loading Screen with Rainbow Bars -->
+    <section class="splash-screen" id="splashScreen">
+        <ul class="loading-bars">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+        <div class="splash-content">
+            <pre class="ascii-logo">
+ ██╗   ██╗██████╗  ██████╗ ███████╗
+ ██║   ██║██╔══██╗██╔═══██╗██╔════╝
+ ██║   ██║██║  ██║██║   ██║███████╗
+ ██║   ██║██║  ██║██║   ██║╚════██║
+ ╚██████╔╝██████╔╝╚██████╔╝███████║
+  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
+            </pre>
+            <div class="splash-info">
+                <p class="splash-title">UNIVERSAL DEVICE OPERATING SYSTEM</p>
+                <p class="splash-version">VERSION 1.0.24 - WEB TERMINAL</p>
+                <p class="splash-status" id="splashStatus">INITIALIZING SYSTEMS...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div class="system-checks" id="systemChecks"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- C64 Terminal Window (80×30) -->
+    <section class="terminal-container hidden" id="terminalContainer">
+        <div class="terminal-window">
+            <!-- Scanline Effect -->
+            <div class="scanlines"></div>
+            <!-- Terminal Header -->
+            <div class="terminal-header">
+                <span class="terminal-title">█ uDOS TERMINAL v1.0.24 █</span>
+                <span class="terminal-status" id="status">READY.</span>
+            </div>
+
+            <!-- Terminal Screen (80×30 characters) -->
+            <div class="terminal-screen" id="screen">
+                <div class="terminal-viewport">
+                    <div class="boot-message" id="bootMessage">
+                        <p>**** COMMODORE 64 BASIC V2 ****</p>
+                        <p>64K RAM SYSTEM  38911 BASIC BYTES FREE</p>
+                        <p>**** uDOS UNIVERSAL DIGITAL OPERATIONS ****</p>
+                        <p>VERSION 1.0.24 - TERMINAL MODE</p>
+                        <p>READY.</p>
+                    </div>
+                    <div class="terminal-output" id="output"></div>
+                    <div class="terminal-input-line">
+                        <span class="prompt">></span>
+                        <input
+                            type="text"
+                            class="terminal-input"
+                            id="commandInput"
+                            autofocus
+                            spellcheck="false"
+                            autocomplete="off"
+                            maxlength="80">
+                        <span class="cursor">█</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Function Keys Bar -->
+            <div class="function-keys">
+                <button class="f-key" data-key="F1" title="Help System">
+                    <span class="f-key-label">F1</span>
+                    <span class="f-key-desc">HELP</span>
+                </button>
+                <button class="f-key" data-key="F2" title="Knowledge Base">
+                    <span class="f-key-label">F2</span>
+                    <span class="f-key-desc">KNOWLEDGE</span>
+                </button>
+                <button class="f-key" data-key="F3" title="List Directory">
+                    <span class="f-key-label">F3</span>
+                    <span class="f-key-desc">LIST</span>
+                </button>
+                <button class="f-key" data-key="F4" title="Edit File">
+                    <span class="f-key-label">F4</span>
+                    <span class="f-key-desc">EDIT</span>
+                </button>
+                <button class="f-key" data-key="F5" title="Run Script">
+                    <span class="f-key-label">F5</span>
+                    <span class="f-key-desc">RUN</span>
+                </button>
+                <button class="f-key" data-key="F6" title="System Status">
+                    <span class="f-key-label">F6</span>
+                    <span class="f-key-desc">STATUS</span>
+                </button>
+                <button class="f-key" data-key="F7" title="Clear Screen">
+                    <span class="f-key-label">F7</span>
+                    <span class="f-key-desc">CLEAR</span>
+                </button>
+                <button class="f-key" data-key="F8" title="PETSCII Reference">
+                    <span class="f-key-label">F8</span>
+                    <span class="f-key-desc">CHARS</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PETSCII Character Reference Panel -->
+    <aside class="char-reference hidden" id="charReference">
+        <div class="char-panel">
+            <div class="char-panel-header">
+                <h3>█ PETSCII & BLOCK GRAPHICS █</h3>
+                <button class="close-btn" id="closeCharRef">✕</button>
+            </div>
+            <div class="char-panel-content">
+                <div class="char-section">
+                    <h4>BLOCK GRAPHICS</h4>
+                    <div class="char-grid" id="blockGrid"></div>
+                </div>
+                <div class="char-section">
+                    <h4>PETSCII CHARACTERS</h4>
+                    <div class="char-grid" id="petsciiGrid"></div>
+                </div>
+                <div class="char-section">
+                    <h4>MONOSORT EMOJI</h4>
+                    <div class="emoji-grid" id="emojiGrid"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Core Scripts -->
+    <script>
+        // Inline Splash Script for immediate execution
+        console.log('[uDOS Splash] Starting...');
+
+        const SPLASH_DURATION = 5000;
+        const PROGRESS_STEPS = 25;
+
+        function initSplash() {
+            const splashScreen = document.getElementById('splashScreen');
+            const terminalContainer = document.getElementById('terminalContainer');
+            const progressBar = document.getElementById('progressBar');
+            const splashStatus = document.getElementById('splashStatus');
+
+            if (!splashScreen || !terminalContainer || !progressBar) {
+                console.error('[uDOS Splash] Missing elements!');
+                return;
+            }
+
+            // Animate progress
+            let progress = 0;
+            const step = 100 / PROGRESS_STEPS;
+            const interval = SPLASH_DURATION / PROGRESS_STEPS;
+
+            const progressInterval = setInterval(() => {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                    splashStatus.textContent = 'SYSTEMS READY - LAUNCHING TERMINAL...';
+                }
+                progressBar.style.width = progress + '%';
+            }, interval);
+
+            // Transition to terminal
+            setTimeout(() => {
+                splashScreen.classList.add('fade-out');
+
+                setTimeout(() => {
+                    splashScreen.classList.add('hidden');
+                    terminalContainer.classList.remove('hidden');
+                    terminalContainer.classList.add('fade-in');
+
+                    // Dispatch ready event for terminal.js
+                    document.dispatchEvent(new CustomEvent('udos:terminal:ready', {
+                        detail: { timestamp: Date.now(), version: '1.0.24' }
+                    }));
+
+                    // Focus input
+                    const input = document.getElementById('commandInput');
+                    if (input) input.focus();
+                }, 500);
+            }, SPLASH_DURATION);
+        }
+
+        // Start immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSplash);
+        } else {
+            initSplash();
+        }
+    </script>
+    <script src="static/terminal.js"></script>
+    <script src="static/commands.js"></script>
+    <script src="static/block-graphics.js"></script>
+    <script src="static/emoji-support.js"></script>
+</body>
+</html>

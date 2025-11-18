@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.20b** - A Human-Readable CLI Framework with AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
+**uDOS v1.0.24/v1.0.25** - A Human-Readable CLI Framework with Unified Extensions Server, AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -13,11 +13,26 @@
 | [Quick Start](Quick-Start) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
 | [Installation](Installation) | [Architecture](Architecture) | [Mapping System](Mapping-System) |
 | [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Extensions System](Extensions-System) |
-| [Tutorials](Tutorials) | [Development History](Development-History) | [Theme System](Theme-System) ⭐ NEW |
+| [Tutorials](Tutorials) | [Development History](Development-History) | [Theme System](Theme-System) ⭐ |
 
 ---
 
-## 🗺️ NEW in v1.0.20b - Enhanced Mapping & Reference Data (November 2025)
+## 🎮 NEW in v1.0.24/v1.0.25 - Extensions Unification (November 2025)
+
+- **Unified Extensions Server** - Single HTTP server for all extensions (ports 8888-9002)
+- **Dashboard Builder** - 12+ widgets, 4 themes, drag-and-drop interface
+- **5 Web Extensions** - Dashboard, Teletext, Terminal, Markdown, Character Editor
+- **Launch Scripts** - Standardized `start.sh` for each extension
+- **Complete Documentation** - README-SERVER.md with 250+ lines
+- **File Organization** - Removed `/data/` folder, consolidated to `knowledge/system/`
+- **Font System** - Unified font profiles and templates
+- **539 Tests Passing** - 100% pass rate maintained
+
+[🔗 Extensions Server Guide →](Extensions-System) | [🔗 Dashboard Builder →](Dashboard-Features)
+
+---
+
+## 🗺️ v1.0.20b - Enhanced Mapping & Reference Data (November 2025)
 
 - **250 World Cities** - Complete TIZO code system with coordinates
 - **50 Countries** - ISO codes, capitals, demographics, languages
@@ -31,7 +46,7 @@
 
 ---
 
-## 🧠 NEW in v1.0.20 - 4-Tier Knowledge Bank (November 2025)
+## 🧠 v1.0.20 - 4-Tier Knowledge Bank (November 2025)
 
 - **PRIVATE Tier** - AES-256 encrypted personal data
 - **SHARED Tier** - Explicit permission-based sharing

@@ -1051,7 +1051,7 @@ Reusable script templates for common patterns.
 
 **crud_app.uscript** - CRUD operations:
 ```ucode
-IMPORT data/templates/crud_app
+IMPORT knowledge/system/templates/crud_app
 
 CALL create_item("Task 1", "Description")
 CALL read_item(0)
@@ -1062,7 +1062,7 @@ CALL list_all()
 
 **form_validation.uscript** - Form validation:
 ```ucode
-IMPORT data/templates/form_validation
+IMPORT knowledge/system/templates/form_validation
 
 CALL validate_username("alice123")
 CALL validate_email("alice@example.com")
@@ -1073,7 +1073,7 @@ CALL validate_form("alice123", "alice@example.com", "secure123", "25")
 
 **menu_system.uscript** - Interactive menus:
 ```ucode
-IMPORT data/templates/menu_system
+IMPORT knowledge/system/templates/menu_system
 
 CALL show_main_menu()
 CALL handle_main_choice("1")

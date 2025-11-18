@@ -1,95 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📚 uDOS Knowledge Library</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>📚 uDOS Markdown Viewer v1.0.24</title>
+
+    <!-- CoreUI Icons -->
+    <link rel="stylesheet" href="/assets/icons/coreui/css/free.min.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='markdown-viewer-clean.css') }}">
+
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="highlight-theme">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>📚 uDOS Knowledge Library</h1>
-            <p class="subtitle">Markdown Viewer with Fuzzy Search</p>
+    <div class="markdown-viewer">
+        <!-- Header with Theme Toggle -->
+        <header class="viewer-header">
+            <div class="header-left">
+                <button id="toggleSidebar" class="btn-icon" title="Toggle Sidebar">
+                    <i class="cil-menu"></i>
+                </button>
+                <h1>.md</h1>
+                <span class="version">v1.0.24</span>
+            </div>
+            <div class="header-controls">
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="btn-icon" title="Toggle Light/Dark Mode">
+                    <i class="cil-moon"></i>
+                </button>
+
+                <!-- View Mode -->
+                <select id="viewMode" class="view-select">
+                    <option value="render">Rendered View</option>
+                    <option value="split">Split View</option>
+                    <option value="source">Source View</option>
+                </select>
+            </div>
         </header>
 
-        <!-- Search Bar -->
-        <div class="search-container">
-            <input
-                type="text"
-                id="search-input"
-                placeholder="🔍 Search knowledge... (e.g., 'wter purif' finds 'water-purification')"
-                autocomplete="off"
-            />
-            <div id="search-results" class="search-results"></div>
-        </div>
-
         <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Sidebar: Category Browser -->
-            <aside class="sidebar">
-                <h2>📂 Categories</h2>
-                <div id="category-tree">
-                    <div class="loading">Loading categories...</div>
+        <div class="viewer-content">
+            <!-- Sidebar: File Browser -->
+            <aside class="file-browser">
+                <div class="browser-header">
+                    <h2>Knowledge Library</h2>
+                    <button id="refreshFiles" class="btn-sm">
+                        <i class="cil-reload"></i>
+                    </button>
+                </div>
+
+                <!-- Folder Selector -->
+                <div class="folder-selector">
+                    <button class="folder-btn active" data-folder="all" title="All Files">
+                        <i class="cil-apps"></i> All
+                    </button>
+                    <button class="folder-btn" data-folder="knowledge" title="Knowledge Base">
+                        <i class="cil-library"></i> Knowledge
+                    </button>
+                    <button class="folder-btn" data-folder="memory" title="Memory">
+                        <i class="cil-brain"></i> Memory
+                    </button>
+                    <button class="folder-btn" data-folder="diagrams" title="Diagrams">
+                        <i class="cil-chart"></i> Diagrams
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <div class="search-container">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="🔍 Search files..."
+                        autocomplete="off"
+                    />
+                    <div id="searchResults" class="search-results hidden"></div>
+                </div>
+
+                <!-- Category Tree -->
+                <div class="category-tree" id="categoryTree">
+                    <div class="loading">Loading files...</div>
                 </div>
             </aside>
 
-            <!-- Content Viewer -->
-            <main class="viewer">
-                <div id="content-area">
-                    <div class="welcome">
-                        <h2>Welcome to uDOS Knowledge Library</h2>
-                        <p>Choose a file from the sidebar or use fuzzy search above.</p>
-
-                        <h3>🔍 Search Features</h3>
-                        <ul>
-                            <li><strong>Typo Tolerant:</strong> "wter" finds "water"</li>
-                            <li><strong>Partial Match:</strong> "purif" finds "purification"</li>
-                            <li><strong>Fast:</strong> Results as you type</li>
-                        </ul>
-
-                        <h3>📚 Knowledge Categories</h3>
-                        <ul>
-                            <li>🔥 Survival - Water, fire, shelter, tools</li>
-                            <li>🛠️ Skills - Programming, building, crafts</li>
-                            <li>📊 Productivity - GTD, time management, organization</li>
-                            <li>🌱 Well-being - Health, mindfulness, relationships</li>
-                            <li>🌍 Environment - Gardening, sustainability, resources</li>
-                            <li>👥 Community - Communication, collaboration, leadership</li>
-                            <li>🔧 Tools - Equipment, software, techniques</li>
-                            <li>🏗️ Building - Construction, infrastructure, systems</li>
-                        </ul>
-
-                        <h3>📐 Diagrams</h3>
-                        <ul>
-                            <li>💻 Programming - Control flow, syntax trees, algorithms</li>
-                            <li>📊 Flowcharts - Decision trees, workflows, processes</li>
-                            <li>🗂️ Data Structures - Trees, graphs, arrays</li>
-                            <li>⚙️ Systems - Architecture, memory, commands</li>
-                            <li>🎒 Survival - Knots, shelters, tools</li>
-                        </ul>
+            <!-- Main Viewer -->
+            <main class="markdown-content">
+                <!-- Toolbar -->
+                <div class="content-toolbar">
+                    <div class="breadcrumb" id="breadcrumb">
+                        <span>Home</span>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button id="editBtn" class="btn-sm" title="Edit in Typo" style="display: none;">
+                            <i class="cil-pencil"></i> Edit
+                        </button>
+                        <button id="copyBtn" class="btn-sm" title="Copy Markdown">
+                            <i class="cil-copy"></i>
+                        </button>
+                        <button id="downloadBtn" class="btn-sm" title="Download File">
+                            <i class="cil-cloud-download"></i>
+                        </button>
+                        <button id="printBtn" class="btn-sm" title="Print">
+                            <i class="cil-print"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Table of Contents (appears when file is loaded) -->
-                <aside id="toc-sidebar" class="toc-sidebar hidden">
-                    <h3>📑 Table of Contents</h3>
-                    <div id="toc-content"></div>
-                </aside>
+                <!-- Rendered View -->
+                <div id="renderedView" class="markdown-body">
+                    <div class="welcome-screen">
+                        <h1>Welcome to uDOS Markdown Viewer</h1>
+                        <p class="lead">Select a file from the sidebar to begin reading</p>
+
+                        <h2>Features</h2>
+                        <ul>
+                            <li><strong>Clean Reading Experience</strong> - Minimal, distraction-free interface</li>
+                            <li><strong>Light/Dark Themes</strong> - Easy on the eyes, day or night</li>
+                            <li><strong>Fuzzy Search</strong> - Find files quickly with typo-tolerant search</li>
+                            <li><strong>Live Edit</strong> - Open files directly in Typo editor</li>
+                            <li><strong>Syntax Highlighting</strong> - Beautiful code blocks</li>
+                        </ul>
+
+                        <h2>Keyboard Shortcuts</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><kbd>Ctrl+/</kbd></td><td>Toggle Light/Dark</td></tr>
+                                <tr><td><kbd>Ctrl+B</kbd></td><td>Toggle Sidebar</td></tr>
+                                <tr><td><kbd>Ctrl+F</kbd></td><td>Focus Search</td></tr>
+                                <tr><td><kbd>Ctrl+E</kbd></td><td>Edit in Typo</td></tr>
+                                <tr><td><kbd>Ctrl+S</kbd></td><td>Download File</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Split View (Source) -->
+                <div id="sourceView" class="source-view hidden">
+                    <textarea id="sourceEditor" spellcheck="false"></textarea>
+                </div>
             </main>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>uDOS v1.0.21 | Markdown Viewer | Port: {{ config.port }} |
-               <a href="/api/browse" target="_blank">API</a> |
-               <a href="https://github.com/fredporter/uDOS" target="_blank">GitHub</a>
-            </p>
+        <!-- Status Bar -->
+        <footer class="viewer-status">
+            <span id="statusMessage">Ready</span>
+            <span id="statusInfo">Theme: <span id="currentTheme">DARK</span></span>
         </footer>
     </div>
 
-    <script src="{{ url_for('static', filename='viewer.js') }}"></script>
-    <script src="{{ url_for('static', filename='search.js') }}"></script>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.0/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='ucode-processor.js') }}"></script>
+    <script src="{{ url_for('static', filename='panel-processor.js') }}"></script>
+    <script src="{{ url_for('static', filename='markdown-viewer.js') }}"></script>
+    <script>
+        // Typo integration - port configuration
+        const TYPO_PORT = 5173; // Default Vite dev server port
+        const TYPO_URL = `http://localhost:${TYPO_PORT}`;
+
+        // Add edit button handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const editBtn = document.getElementById('editBtn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    if (window.markdownViewer && window.markdownViewer.currentFile) {
+                        const filePath = window.markdownViewer.currentFile.path;
+                        // Open in new tab
+                        window.open(TYPO_URL, '_blank');
+                        // Note: File would need to be loaded via File System Access API in typo
+                        console.log('Opening typo for file:', filePath);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

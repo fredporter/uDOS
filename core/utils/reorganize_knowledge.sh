@@ -35,15 +35,18 @@ if [ -d "knowledge/datasets" ]; then
   cp -r knowledge/datasets/* knowledge_new/system/ 2>/dev/null || true
 fi
 
-# Merge data/ folder into knowledge/system
-echo "Merging data/ folder into knowledge/system..."
+# Merge data/ folder into knowledge/system (DEPRECATED - data/ removed in v1.0.24)
+echo "Checking for legacy data/ folder..."
 if [ -d "data/system" ]; then
+  echo "⚠️  Found legacy data/system - migrating to knowledge/system..."
   cp -r data/system/* knowledge_new/system/ 2>/dev/null || true
 fi
 if [ -d "data/templates" ]; then
+  echo "⚠️  Found legacy data/templates - migrating to knowledge/system/templates..."
   cp -r data/templates knowledge_new/system/ 2>/dev/null || true
 fi
 if [ -d "data/themes" ]; then
+  echo "⚠️  Found legacy data/themes - migrating to knowledge/system/themes..."
   cp -r data/themes knowledge_new/system/ 2>/dev/null || true
 fi
 

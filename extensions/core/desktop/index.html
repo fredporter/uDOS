@@ -43,7 +43,7 @@
             <ul role="menu">
                 <li role="menu-item"><a href="#" onclick="openCharacterEditor()">Character Editor</a></li>
                 <li role="menu-item"><a href="#" onclick="openExtension('terminal', 8889)">Terminal</a></li>
-                <li role="menu-item"><a href="#" onclick="openExtension('markdown', 9000)">Knowledge Base</a></li>
+                <li role="menu-item"><a href="#" onclick="openMarkedViewer()">Knowledge Base</a></li>
                 <li role="menu-item"><a href="#" onclick="openExtension('teletext', 8890)">Teletext</a></li>
                 <li role="menu-item"><a href="#" onclick="openExtension('dashboard', 8888)">Dashboard</a></li>
             </ul>
@@ -55,13 +55,21 @@
                 <li role="menu-item"><a href="#" onclick="toggleWindow('about-window')">About uDOS</a></li>
             </ul>
         </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            Test
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="toggleWindow('test-window')">Design System Test</a></li>
+                <li role="menu-item"><a href="#" onclick="testIcons()">Test Icons</a></li>
+                <li role="menu-item"><a href="#" onclick="testFonts()">Test Fonts</a></li>
+            </ul>
+        </li>
     </ul>
 
     <!-- Desktop Icons -->
     <div id="desktop-icons"></div>
 
     <!-- About uDOS Window -->
-    <div class="window" id="about-window" style="position: absolute; left: 120px; top: 60px; width: 400px;">
+    <div class="window" id="about-window" style="position: absolute; left: 50px; top: 50px; width: 400px;">
         <div class="title-bar">
             <button aria-label="Close" onclick="closeWindow('about-window')"></button>
             <h1 class="title">About uDOS</h1>
@@ -94,7 +102,7 @@
     </div>
 
     <!-- System Information Window -->
-    <div class="window" id="system-window" style="position: absolute; left: 560px; top: 60px; width: 420px; display: none;">
+    <div class="window" id="system-window" style="position: absolute; left: 80px; top: 70px; width: 420px; display: none;">
         <div class="title-bar">
             <button aria-label="Close" onclick="closeWindow('system-window')"></button>
             <h1 class="title">System Information</h1>
@@ -153,7 +161,7 @@
     </div>
 
     <!-- Finder/Extensions Window -->
-    <div class="window" id="finder-window" style="position: absolute; left: 220px; top: 200px; width: 500px; display: none;">
+    <div class="window" id="finder-window" style="position: absolute; left: 120px; top: 100px; width: 500px; display: none;">
         <div class="title-bar">
             <button aria-label="Close" onclick="closeWindow('finder-window')"></button>
             <h1 class="title">uDOS Extensions</h1>
@@ -205,7 +213,7 @@
     </div>
 
     <!-- Command Palette Window -->
-    <div class="window" id="command-window" style="position: absolute; left: 120px; top: 520px; width: 600px; display: none;">
+    <div class="window" id="command-window" style="position: absolute; left: 180px; top: 120px; width: 600px; display: none;">
         <div class="title-bar">
             <button aria-label="Close" onclick="closeWindow('command-window')"></button>
             <h1 class="title">Command Palette</h1>
@@ -228,29 +236,236 @@
     </div>
 
     <!-- Character Editor Window -->
-    <div class="window" id="character-editor-window" style="position: absolute; left: 140px; top: 80px; width: 900px; height: 700px; display: none;">
+    <div class="window" id="character-editor-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('character-editor-window')"></button>
+            <button aria-label="Close" onclick="closeCharacterEditor()"></button>
             <h1 class="title">Character Editor</h1>
+            <button aria-label="Resize" onclick="maximizeWindow('character-editor-window')"></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; overflow: hidden; height: calc(100% - 38px);">
+            <iframe id="character-editor-iframe" src="" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+        </div>
+    </div>
+
+    <!-- File Picker Window -->
+    <div class="window" id="file-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
+        <div class="title-bar">
+            <button aria-label="Close" onclick="closeFilePicker()"></button>
+            <h1 class="title">Memory Browser</h1>
+            <button aria-label="Resize" onclick="maximizeWindow('file-picker-window')"></button>
+        </div>
+        <div class="separator"></div>
+        <div class="details-bar">
+            <span id="current-path">/memory</span>
+            <span id="file-count">0 items</span>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; height: calc(100% - 90px); display: flex; flex-direction: column;">
+            <!-- File List -->
+            <div id="file-list" style="flex: 1; overflow-y: auto; background: #fff;">
+                <div style="padding: 20px; text-align: center; color: #808080;">
+                    Select a folder to browse files
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div style="padding: 8px; border-top: 2px solid #000; background: #f0f0f0; font-family: Geneva_9, Chicago, sans-serif; font-size: 11px; display: flex; justify-content: space-between;">
+                <span id="status-text">Ready</span>
+                <span id="selected-file"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Library Picker Window -->
+    <div class="window" id="knowledge-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
+        <div class="title-bar">
+            <button aria-label="Close" onclick="closeKnowledgePicker()"></button>
+            <h1 class="title">Knowledge Library</h1>
+            <button aria-label="Resize" onclick="maximizeWindow('knowledge-picker-window')"></button>
+        </div>
+        <div class="separator"></div>
+        <div class="details-bar">
+            <span id="knowledge-path">/knowledge</span>
+            <span id="knowledge-count">0 items</span>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; height: calc(100% - 90px); display: flex; flex-direction: column;">
+            <!-- File List -->
+            <div id="knowledge-list" style="flex: 1; overflow-y: auto; background: #fff;">
+                <div style="padding: 20px; text-align: center; color: #808080;">
+                    Loading knowledge library...
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div style="padding: 8px; border-top: 2px solid #000; background: #f0f0f0; font-family: Geneva_9, Chicago, sans-serif; font-size: 11px; display: flex; justify-content: space-between;">
+                <span id="knowledge-status">Ready</span>
+                <span id="knowledge-selected"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Design System Test Window -->
+    <div class="window" id="test-window" style="position: absolute; left: 160px; top: 100px; width: 700px; max-height: 600px; overflow-y: auto; display: none;">
+        <div class="title-bar">
+            <button aria-label="Close" onclick="closeWindow('test-window')"></button>
+            <h1 class="title">system.css Design System Test</h1>
             <button aria-label="Resize" disabled></button>
         </div>
         <div class="separator"></div>
-        <div class="window-pane" style="padding: 0; height: calc(100% - 38px);">
-            <div class="character-editor-container">
-                <iframe id="character-editor-iframe" src="" style="display: none;"></iframe>
+        <div class="window-pane">
+            <h2 style="font-family: Chicago; font-size: 24px; margin-bottom: 16px;">Typography Test</h2>
+
+            <div style="margin-bottom: 20px;">
+                <h3>Font Families:</h3>
+                <p style="font-family: Chicago_12; font-size: 12px;">Chicago_12 - Primary UI font (12px)</p>
+                <p style="font-family: Geneva_9; font-size: 9px;">Geneva_9 - Small text font (9px)</p>
+                <p style="font-family: Chicago; font-size: 18px;">Chicago - Display font (18px)</p>
+                <p style="font-family: Monaco; font-size: 12px;">Monaco - Monospace font (12px)</p>
             </div>
+
+            <h3>Buttons</h3>
+            <div class="field-row" style="margin-bottom: 16px;">
+                <button class="btn">Standard Button</button>
+                <button class="btn-default">Default Button</button>
+                <button class="btn" disabled>Disabled Button</button>
+            </div>
+
+            <h3>Form Controls</h3>
+            <div style="margin-bottom: 20px;">
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-1">
+                    <label for="test-check-1">Checkbox Option 1</label>
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-2" checked>
+                    <label for="test-check-2">Checkbox Option 2 (checked)</label>
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-3">
+                    <label for="test-check-3">Checkbox Option 3</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div class="field-row">
+                    <input type="radio" id="test-radio-1" name="test-radio">
+                    <label for="test-radio-1">Radio Option 1</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="test-radio-2" name="test-radio" checked>
+                    <label for="test-radio-2">Radio Option 2 (selected)</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="test-radio-3" name="test-radio">
+                    <label for="test-radio-3">Radio Option 3</label>
+                </div>
+            </div>
+
+            <h3>Text Inputs</h3>
+            <div style="margin-bottom: 20px;">
+                <div class="field-row" style="margin-bottom: 8px;">
+                    <label style="width: 100px;">Name:</label>
+                    <input type="text" placeholder="Enter text..." style="flex: 1;">
+                </div>
+                <div class="field-row" style="margin-bottom: 8px;">
+                    <label style="width: 100px;">Password:</label>
+                    <input type="password" placeholder="Password" style="flex: 1;">
+                </div>
+                <div class="field-row">
+                    <label style="width: 100px;">Comments:</label>
+                    <textarea rows="3" style="flex: 1; font-family: Monaco, monospace;">Multi-line text area</textarea>
+                </div>
+            </div>
+
+            <h3>Icon Test</h3>
+            <div style="background: white; border: 2px solid #000; padding: 16px; margin-bottom: 20px;">
+                <p style="margin-bottom: 12px;"><strong>system.css Icons:</strong></p>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <img src="../../assets/icons/apple.svg" alt="Apple" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">apple.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="../../assets/icons/checkmark.svg" alt="Checkmark" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">checkmark.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="../../assets/icons/radio-dot.svg" alt="Radio Dot" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">radio-dot.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="../../assets/icons/scrollbar-up.svg" alt="Scroll Up" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">scrollbar-up.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="../../assets/icons/scrollbar-down.svg" alt="Scroll Down" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">scrollbar-down.svg</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Scrollbar Test</h3>
+            <div style="background: white; border: 2px solid #000; height: 150px; overflow-y: scroll; padding: 12px; margin-bottom: 20px;">
+                <p>This scrollable area tests the custom scrollbar styling with authentic system.css icons.</p>
+                <p>Line 1 - Scroll to see more content</p>
+                <p>Line 2 - Authentic Mac OS scrollbar arrows</p>
+                <p>Line 3 - Checkerboard track pattern</p>
+                <p>Line 4 - White thumb with black border</p>
+                <p>Line 5 - system.css scrollbar icons</p>
+                <p>Line 6 - scrollbar-up.svg on top</p>
+                <p>Line 7 - scrollbar-down.svg on bottom</p>
+                <p>Line 8 - Active states work too</p>
+                <p>Line 9 - Classic System 6 look</p>
+                <p>Line 10 - End of test content</p>
+            </div>
+
+            <h3>Color Test</h3>
+            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #000; border: 2px solid #000;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Black<br>#000</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #fff; border: 2px solid #000;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">White<br>#fff</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #c0c0c0; border: 2px solid #000;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Grey<br>#c0c0c0</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #808080; border: 2px solid #000;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Dark Grey<br>#808080</div>
+                </div>
+            </div>
+
+            <h3>System Info</h3>
+            <div style="background: white; border: 2px solid #000; padding: 12px; font-family: Monaco, monospace; font-size: 11px;">
+                <div style="margin: 4px 0;">system.css version: v0.1.11</div>
+                <div style="margin: 4px 0;">Author: Sakun Acharige (@sakofchit)</div>
+                <div style="margin: 4px 0;">License: MIT</div>
+                <div style="margin: 4px 0;">Fonts: Chicago_12, Geneva_9, Monaco</div>
+                <div style="margin: 4px 0;">Icons: 17 SVG files loaded</div>
+                <div style="margin: 4px 0;">Format: WOFF2 (optimized)</div>
+            </div>
+        </div>
+        <div class="status-bar">
+            <p class="status-bar-field">All features loaded</p>
+            <p class="status-bar-field">system.css v0.1.11</p>
         </div>
     </div>
 
     <script>
         // Desktop icon positions
         const desktopIcons = [
-            { id: 'terminal', icon: '/icons/mono/devices/computer-symbolic.svg', label: 'Terminal', x: 20, y: 40, port: 8889 },
-            { id: 'markdown', icon: '/icons/mono/mimetypes/x-office-document-symbolic.svg', label: 'Knowledge', x: 20, y: 140, port: 9000 },
-            { id: 'teletext', icon: '/icons/mono/devices/video-display-symbolic.svg', label: 'Teletext', x: 20, y: 240, port: 8890 },
-            { id: 'character', icon: '/icons/mono/legacy/preferences-desktop-font-symbolic.svg', label: 'Character', x: 20, y: 340, action: 'openCharacterEditor' },
-            { id: 'dashboard', icon: '/icons/mono/categories/applications-games-symbolic.svg', label: 'Dashboard', x: 20, y: 440, port: 8888 },
-            { id: 'files', icon: '/icons/mono/places/folder-symbolic.svg', label: 'Files', x: 20, y: 540, port: 8000 }
+            { id: 'terminal', icon: '/extensions/icons/coreui/cil-terminal.svg', label: 'Terminal', x: 20, y: 40, port: 8889 },
+            { id: 'markdown', icon: '/extensions/icons/coreui/cil-book.svg', label: 'Knowledge', x: 20, y: 140, action: 'openMarkedViewer' },
+            { id: 'teletext', icon: '/extensions/icons/coreui/cil-tv.svg', label: 'Teletext', x: 20, y: 240, port: 8890 },
+            { id: 'character', icon: '/extensions/icons/coreui/cil-text.svg', label: 'Character', x: 20, y: 340, action: 'openCharacterEditor' },
+            { id: 'dashboard', icon: '/extensions/icons/coreui/cil-apps.svg', label: 'Dashboard', x: 20, y: 440, port: 8888 },
+            { id: 'files', icon: '/extensions/icons/coreui/cil-folder.svg', label: 'Files', x: 20, y: 540, action: 'openFilePicker' }
         ];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -400,8 +615,210 @@ Type 'help' for available commands`;
             }
         }
 
+        function closeCharacterEditor() {
+            closeWindow('character-editor-window');
+            // Show about window and desktop icons
+            document.getElementById('about-window').style.display = 'block';
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                icon.style.display = 'flex';
+            });
+        }
+
+        function closeFilePicker() {
+            closeWindow('file-picker-window');
+            // Show about window and desktop icons
+            document.getElementById('about-window').style.display = 'block';
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                icon.style.display = 'flex';
+            });
+        }
+
+        function closeKnowledgePicker() {
+            closeWindow('knowledge-picker-window');
+            // Show about window and desktop icons
+            document.getElementById('about-window').style.display = 'block';
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                icon.style.display = 'flex';
+            });
+        }
+
+        async function loadKnowledgeLibrary() {
+            const knowledgeList = document.getElementById('knowledge-list');
+            const statusText = document.getElementById('knowledge-status');
+
+            statusText.textContent = 'Loading...';
+            knowledgeList.innerHTML = '<div style="padding: 20px; text-align: center;">Loading knowledge library...</div>';
+
+            try {
+                const response = await fetch('/knowledge/');
+                if (!response.ok) throw new Error('Cannot access knowledge directory');
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Get all links (directories and files)
+                const links = Array.from(doc.querySelectorAll('a')).filter(a => {
+                    const href = a.getAttribute('href');
+                    return href && href !== '../' && !href.startsWith('/');
+                });
+
+                // Recursively scan for .md files
+                const mdFiles = [];
+                await scanForMdFiles('knowledge', mdFiles);
+
+                if (mdFiles.length === 0) {
+                    knowledgeList.innerHTML = '<div style="padding: 20px; text-align: center; color: #808080;">No markdown files found</div>';
+                    document.getElementById('knowledge-count').textContent = '0 items';
+                    statusText.textContent = 'Empty';
+                    return;
+                }
+
+                renderKnowledgeList(mdFiles);
+                statusText.textContent = 'Ready';
+            } catch (error) {
+                console.error('Error loading knowledge library:', error);
+                knowledgeList.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #ff0000;">
+                        <p>Cannot load knowledge library</p>
+                        <p style="font-size: 11px; margin-top: 8px;">Error: ${error.message}</p>
+                    </div>
+                `;
+                statusText.textContent = 'Error';
+            }
+        }
+
+        async function scanForMdFiles(basePath, results) {
+            try {
+                const response = await fetch(`/${basePath}/`);
+                if (!response.ok) return;
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const links = Array.from(doc.querySelectorAll('a')).filter(a => {
+                    const href = a.getAttribute('href');
+                    return href && href !== '../' && !href.startsWith('/');
+                });
+
+                for (const link of links) {
+                    const href = link.getAttribute('href');
+                    const name = decodeURIComponent(href.replace(/\/$/, ''));
+                    const isFolder = href.endsWith('/');
+                    const fullPath = `${basePath}/${name}`;
+
+                    if (isFolder) {
+                        await scanForMdFiles(fullPath, results);
+                    } else if (name.endsWith('.md')) {
+                        results.push(fullPath);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error scanning ${basePath}:`, error);
+            }
+        }
+
+        function renderKnowledgeList(files) {
+            const knowledgeList = document.getElementById('knowledge-list');
+            knowledgeList.innerHTML = '';
+
+            files.forEach(filePath => {
+                const filename = filePath.split('/').pop();
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    border-bottom: 1px solid #e0e0e0;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-family: Geneva_9, Chicago, sans-serif;
+                    font-size: 12px;
+                `;
+
+                item.innerHTML = `
+                    <span style="font-size: 16px;">\ud83d\udcdd</span>
+                    <span style="flex: 1;">${filePath.replace('knowledge/', '')}</span>
+                    <span style="color: #808080; font-size: 10px;">MD</span>
+                `;
+
+                item.addEventListener('mouseenter', () => {
+                    item.style.background = '#f0f0f0';
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    item.style.background = 'transparent';
+                });
+
+                item.addEventListener('click', () => {
+                    // Deselect all
+                    document.querySelectorAll('#knowledge-list .file-item').forEach(el => {
+                        el.style.background = 'transparent';
+                        el.style.color = '#000';
+                    });
+                    // Select current
+                    item.style.background = '#000';
+                    item.style.color = '#fff';
+                    document.getElementById('knowledge-selected').textContent = filename;
+                });
+
+                item.addEventListener('dblclick', () => {
+                    const markedUrl = `/extensions/core/desktop/marked-loader.html?file=${encodeURIComponent('/' + filePath)}`;
+                    window.open(markedUrl, '_blank');
+                    document.getElementById('knowledge-status').textContent = `Opened: ${filename}`;
+                });
+
+                knowledgeList.appendChild(item);
+            });
+
+            document.getElementById('knowledge-count').textContent = `${files.length} files`;
+        }
+
+        function maximizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (!win) return;
+
+            // Check if already maximized
+            const isMaximized = win.dataset.maximized === 'true';
+
+            if (isMaximized) {
+                // Restore to original size
+                win.style.left = win.dataset.origLeft || '140px';
+                win.style.top = win.dataset.origTop || '80px';
+                win.style.width = win.dataset.origWidth || '900px';
+                win.style.height = win.dataset.origHeight || '700px';
+                win.dataset.maximized = 'false';
+            } else {
+                // Save original position and size
+                win.dataset.origLeft = win.style.left;
+                win.dataset.origTop = win.style.top;
+                win.dataset.origWidth = win.style.width;
+                win.dataset.origHeight = win.style.height;
+
+                // Maximize
+                win.style.left = '10px';
+                win.style.top = '30px';
+                win.style.width = 'calc(100% - 20px)';
+                win.style.height = 'calc(100% - 40px)';
+                win.dataset.maximized = 'true';
+            }
+
+            bringToFront(win);
+        }
+
         function openExtension(name, port) {
             window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        function openMarkedViewer() {
+            const win = document.getElementById('knowledge-picker-window');
+            if (win) {
+                win.style.display = 'block';
+                bringToFront(win);
+                loadKnowledgeLibrary();
+            }
         }
 
         function openCharacterEditor() {
@@ -410,10 +827,9 @@ Type 'help' for available commands`;
 
             if (win && iframe) {
                 // Load character editor in iframe
-                if (!iframe.src) {
-                    iframe.src = '../character-editor/character-editor.html';
+                if (!iframe.src || iframe.src === '' || iframe.src === window.location.href) {
+                    iframe.src = 'character-editor.html';
                 }
-                iframe.style.display = 'block';
                 win.style.display = 'block';
                 bringToFront(win);
             }
@@ -429,6 +845,78 @@ Type 'help' for available commands`;
 
         function showHelp() {
             alert('uDOS Desktop Help:\n\n• Use menu bar for navigation\n• Double-click icons to open extensions\n• Cmd/Ctrl+K for command palette\n• Drag windows to move them');
+        }
+
+        function testIcons() {
+            console.log('%c🎨 Testing system.css Icons', 'font-weight: bold; color: #00ff00;');
+            const icons = [
+                'apple.svg',
+                'button.svg',
+                'button-default.svg',
+                'checkmark.svg',
+                'radio-border.svg',
+                'radio-border-focused.svg',
+                'radio-dot.svg',
+                'scrollbar-up.svg',
+                'scrollbar-up-active.svg',
+                'scrollbar-down.svg',
+                'scrollbar-down-active.svg',
+                'scrollbar-left.svg',
+                'scrollbar-left-active.svg',
+                'scrollbar-right.svg',
+                'scrollbar-right-active.svg',
+                'select-button.svg'
+            ];
+
+            icons.forEach(icon => {
+                const img = new Image();
+                img.src = `/core/icons/${icon}`;
+                img.onload = () => console.log(`✅ ${icon} - OK`);
+                img.onerror = () => console.error(`❌ ${icon} - FAILED`);
+            });
+
+            alert('Icon test running - check browser console (F12) for results');
+        }
+
+        function testFonts() {
+            console.log('%c🔤 Testing system.css Fonts', 'font-weight: bold; color: #00ff00;');
+
+            const fonts = [
+                { family: 'Chicago_12', file: 'ChiKareGo2.woff2' },
+                { family: 'Geneva_9', file: 'FindersKeepers.woff2' },
+                { family: 'Chicago', file: 'ChicagoFLF.woff2' },
+                { family: 'Monaco', file: 'monaco.woff2' }
+            ];
+
+            fonts.forEach(font => {
+                if (document.fonts.check(`12px ${font.family}`)) {
+                    console.log(`✅ ${font.family} (${font.file}) - LOADED`);
+                } else {
+                    console.warn(`⚠️  ${font.family} (${font.file}) - NOT LOADED`);
+                }
+            });
+
+            // Test font rendering
+            const testDiv = document.createElement('div');
+            testDiv.style.position = 'fixed';
+            testDiv.style.top = '50%';
+            testDiv.style.left = '50%';
+            testDiv.style.transform = 'translate(-50%, -50%)';
+            testDiv.style.background = 'white';
+            testDiv.style.border = '2px solid black';
+            testDiv.style.padding = '20px';
+            testDiv.style.zIndex = '10000';
+            testDiv.innerHTML = `
+                <h3 style="font-family: Chicago; margin-bottom: 12px;">Font Test</h3>
+                <p style="font-family: Chicago_12; font-size: 12px; margin: 8px 0;">Chicago_12 (Primary UI)</p>
+                <p style="font-family: Geneva_9; font-size: 9px; margin: 8px 0;">Geneva_9 (Small text)</p>
+                <p style="font-family: Chicago; font-size: 16px; margin: 8px 0;">Chicago (Display)</p>
+                <p style="font-family: Monaco; font-size: 12px; margin: 8px 0;">Monaco (Monospace)</p>
+                <button onclick="this.parentElement.remove()" style="margin-top: 12px;">Close</button>
+            `;
+            document.body.appendChild(testDiv);
+
+            console.log('Font test overlay displayed - check console for detailed results');
         }
 
         // Window dragging functionality
@@ -488,6 +976,112 @@ Type 'help' for available commands`;
             if (!win) return;
             highestZIndex++;
             win.style.zIndex = highestZIndex;
+        }
+
+        // File Picker Functions
+        let currentPath = '/memory';
+        let currentFolder = '';
+
+        function openFilePicker() {
+            const win = document.getElementById('file-picker-window');
+            if (win) {
+                win.style.display = 'block';
+                bringToFront(win);
+                loadMemoryLibrary();
+            }
+        }
+
+        async function loadMemoryLibrary() {
+            const fileList = document.getElementById('file-list');
+            const statusText = document.getElementById('status-text');
+
+            statusText.textContent = 'Loading...';
+            fileList.innerHTML = '<div style="padding: 20px; text-align: center;">Loading memory library...</div>';
+
+            try {
+                const response = await fetch('/memory/');
+                if (!response.ok) throw new Error('Cannot access memory directory');
+
+                // Recursively scan for .md files
+                const mdFiles = [];
+                await scanForMdFiles('memory', mdFiles);
+
+                if (mdFiles.length === 0) {
+                    fileList.innerHTML = '<div style="padding: 20px; text-align: center; color: #808080;">No markdown files found</div>';
+                    document.getElementById('file-count').textContent = '0 items';
+                    statusText.textContent = 'Empty';
+                    return;
+                }
+
+                renderMemoryList(mdFiles);
+                statusText.textContent = 'Ready';
+            } catch (error) {
+                console.error('Error loading memory library:', error);
+                fileList.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #ff0000;">
+                        <p>Cannot load memory library</p>
+                        <p style="font-size: 11px; margin-top: 8px;">Error: ${error.message}</p>
+                    </div>
+                `;
+                statusText.textContent = 'Error';
+            }
+        }
+
+        function renderMemoryList(files) {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+
+            files.forEach(filePath => {
+                const filename = filePath.split('/').pop();
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    border-bottom: 1px solid #e0e0e0;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-family: Geneva_9, Chicago, sans-serif;
+                    font-size: 12px;
+                `;
+
+                item.innerHTML = `
+                    <span style="font-size: 16px;">📝</span>
+                    <span style="flex: 1;">${filePath.replace('memory/', '')}</span>
+                    <span style="color: #808080; font-size: 10px;">MD</span>
+                `;
+
+                item.addEventListener('mouseenter', () => {
+                    item.style.background = '#f0f0f0';
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    item.style.background = 'transparent';
+                });
+
+                item.addEventListener('click', () => {
+                    // Deselect all
+                    document.querySelectorAll('#file-list .file-item').forEach(el => {
+                        el.style.background = 'transparent';
+                        el.style.color = '#000';
+                    });
+                    // Select current
+                    item.style.background = '#000';
+                    item.style.color = '#fff';
+                    document.getElementById('selected-file').textContent = filename;
+                });
+
+                item.addEventListener('dblclick', () => {
+                    const markedUrl = `/extensions/core/desktop/marked-loader.html?file=${encodeURIComponent('/' + filePath)}`;
+                    window.open(markedUrl, '_blank');
+                    document.getElementById('status-text').textContent = `Opened: ${filename}`;
+                });
+
+                fileList.appendChild(item);
+            });
+
+            document.getElementById('file-count').textContent = `${files.length} files`;
         }
     </script>
 </body>

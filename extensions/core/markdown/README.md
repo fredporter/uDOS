@@ -1,29 +1,56 @@
-# uDOS Markdown Viewer
+# 📚 uDOS Markdown Viewer
 
-**Version**: 1.0.24
+**Version**: 1.0.25
 **Type**: Core Extension
 **Port**: 9000
-**Purpose**: GitHub-flavored markdown viewer with uCODE and PANEL support
+**Purpose**: Minimal markdown viewer with typography-first design and Typo editor integration
+
+---
+
+## 🚀 Quick Start
+
+### Launch Server (v1.0.25 Unified Server)
+```bash
+# From markdown directory
+./start.sh
+
+# Or from extensions/core directory
+./launch.sh markdown
+
+# Or directly with Python
+python3 extensions_server.py markdown
+```
+
+Opens at: `http://localhost:9000`
 
 ---
 
 ## ✨ Features
 
-### 🎨 **GitHub-Style Rendering**
-- Authentic GitHub markdown CSS (light & dark themes)
-- Syntax highlighting with Highlight.js (11.9.0)
-- Professional typography stack:
-  * **Body**: Source Sans Pro / Inter (readable sans-serif)
-  * **Headings**: Source Serif Pro / Merriweather (authoritative serif)
-  * **Code**: Source Code Pro / Monaspace (clear monospace)
-  * **UI**: Monaco (retro uDOS aesthetic)
-- Responsive layout for all screen sizes
+### 🎨 **Clean Reading Experience**
+- **Minimal Design**: Distraction-free interface inspired by [Typo](https://github.com/ivanreese/typo)
+- **Dark/Light Themes**: Professional color schemes optimized for reading
+- **Typography-First**: Humanist fonts, optimal line length (65ch), 1.6 line height
+- **Smooth Interactions**: Polished 250ms transitions throughout
+- **Collapsible Sidebar**: Hide file browser for focused reading (`Ctrl+B`)
 
-### 🌗 **Theme System**
-- **Dark Mode**: GitHub Dark + Synthwave DOS colors
-- **Light Mode**: GitHub Light theme
-- Instant theme switching with `Ctrl+/`
-- Theme persistence across sessions
+### 🎨 **Syntax Highlighting**
+- Highlight.js (11.9.0) with GitHub themes
+- Theme-aware: GitHub Dark (dark mode) / GitHub Light (light mode)
+- Support for 190+ languages
+- Automatic language detection
+
+### 📂 **File Management**
+- **Category Tree**: Organized navigation by folder structure
+- **Fuzzy Search**: Fast, typo-tolerant file finder
+- **Active Highlighting**: Visual indicator of current file
+- **Refresh Button**: Reload file list without page refresh
+
+### ✏️ **Editor Integration**
+- **Typo Link**: One-click launch to edit files in Typo editor
+- **Edit Button**: Opens Typo in new tab (http://localhost:5173)
+- **Keyboard Shortcut**: `Ctrl+E` for quick access
+- **Smart Visibility**: Edit button appears only when file is loaded
 
 ### ⌨️ **uCODE Command System**
 Interactive commands embedded in markdown:
@@ -44,17 +71,17 @@ Your content here
 ```
 
 ### 👁️ **View Modes**
-- **Rendered**: GitHub-style display
-- **Source**: Raw markdown editing
-- **Split**: Side-by-side view
+- **Rendered**: Clean markdown display
+- **Source**: Raw markdown viewing
+- **Split**: Side-by-side view (future)
 
 ### 🔍 **Smart Features**
-- 📚 Knowledge Library Browser with 8 categories
-- 🔍 Fuzzy search with real-time results
-- 📊 Document statistics panel
-- 📑 Auto-generated table of contents
+- 📚 Knowledge Library Browser with category organization
+- 🔍 Fuzzy search with typo tolerance
+- 📊 File metadata (size, modified date)
+- 📑 Clean breadcrumb navigation
 - 😀 Full emoji support
-- 📱 Responsive design
+- 🖥️ Desktop-optimized responsive design
 
 ---
 
@@ -62,23 +89,28 @@ Your content here
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl+/` | Toggle light/dark theme |
-| `Ctrl+U` | Toggle uCODE panel |
-| `Ctrl+P` | Toggle info panel |
-| `Ctrl+F` | Focus search |
-| `Ctrl+S` | Download file |
+| `Ctrl+/` | Toggle Light/Dark Theme |
+| `Ctrl+B` | Toggle Sidebar |
+| `Ctrl+F` | Focus Search |
+| `Ctrl+E` | Edit in Typo |
+| `Ctrl+S` | Download File |
 
 ---
 
 ## 🚀 Installation
 
 ```bash
-# Install dependencies
-pip install flask marked highlight.js
+# Install Python dependencies
+pip install flask markdown2 thefuzz pygments
 
 # Or use requirements.txt
 pip install -r requirements.txt
 ```
+
+### CoreUI Icons
+Icons are automatically loaded from `/extensions/assets/icons/coreui/`
+
+No additional installation needed - included in uDOS asset consolidation.
 
 ---
 
@@ -87,8 +119,16 @@ pip install -r requirements.txt
 ### Start Server
 
 ```bash
+# From uDOS root
 cd extensions/core/markdown
+/path/to/venv/bin/python server.py
+
+# Or if Python is in PATH
 python server.py
+```
+
+### Access Viewer
+Open http://localhost:9000 in your browser
 ```
 
 Or from uDOS CLI:

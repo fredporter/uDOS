@@ -1,6 +1,6 @@
 # uDOS SETUP SCRIPT v1.0.0
 # User Profile Configuration with IF/THEN Logic
-# Editable with: EDIT data/templates/setup.uscript
+# Editable with: EDIT knowledge/system/templates/setup.uscript
 #
 # This script validates and configures memory/user.json
 # Variables with DEFAULT values auto-apply if empty
@@ -16,7 +16,7 @@
 # IF user.json missing THEN create from template
 [IF|FILE_MISSING*memory/user.json]
   [SYSTEM|LOG*Creating user.json from template]
-  [FILE|COPY*data/templates/user.template.json*memory/user.json]
+  [FILE|COPY*knowledge/system/templates/user.template.json*memory/user.json]
   [SYSTEM|SET_VAR*NEEDS_SETUP*TRUE]
 [ENDIF]
 
@@ -277,7 +277,7 @@
 
 [SYSTEM|DISPLAY*]
 [SYSTEM|DISPLAY*To modify settings, edit: memory/user.json]
-[SYSTEM|DISPLAY*Or run: EDIT data/templates/setup.uscript]
+[SYSTEM|DISPLAY*Or run: EDIT knowledge/system/templates/setup.uscript]
 [SYSTEM|DISPLAY*============================================================]
 [SYSTEM|DISPLAY*]
 

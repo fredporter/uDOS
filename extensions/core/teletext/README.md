@@ -26,6 +26,20 @@ Authentic BBC Teletext broadcast interface recreation for uDOS, featuring Mallar
 
 ## 🚀 Quick Start
 
+### Launch Server (v1.0.25 Unified Server)
+```bash
+# From teletext directory
+./start.sh
+
+# Or from extensions/core directory
+./launch.sh teletext
+
+# Or directly with Python
+python3 extensions_server.py teletext
+```
+
+Opens at: `http://localhost:9002`
+
 ### Basic HTML Structure
 ```html
 <!DOCTYPE html>

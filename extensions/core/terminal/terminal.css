@@ -1,0 +1,696 @@
+/**
+ * uDOS Terminal Stylesheet
+ * Version: 1.0.24
+ * Features: C64 fonts, Synthwave DOS palette, 80×30 character grid, PETSCII support
+ */
+
+/* ========================================
+   FONT DECLARATIONS
+   ======================================== */
+
+/* PetMe Font - Authentic C64 PETSCII */
+@font-face {
+    font-family: "PetMe64";
+    src: url("assets/fonts/petme/PetMe64.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "PetMe128";
+    src: url("assets/fonts/petme/PetMe128.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Monosort for Emoji Support */
+@font-face {
+    font-family: "Monosort";
+    src: local("Monosort"), local("Noto Color Emoji");
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ========================================
+   SYNTHWAVE DOS COLOR PALETTE
+   ======================================== */
+:root {
+    /* Base Colors */
+    --color-black: #000000;
+    --color-white: #FFFFFF;
+
+    /* Synthwave DOS Primary */
+    --color-blue-dark: #0a1628;      /* Deep space blue */
+    --color-blue-bright: #2196F3;    /* Bright blue */
+    --color-cyan-bright: #00E5FF;    /* Neon cyan */
+    --color-magenta-bright: #E91E63; /* Hot magenta */
+    --color-purple: #2A1E5C;         /* Purple */
+    --color-pink: #EE4266;           /* Pink */
+    --color-orange-bright: #FFEB3B;  /* Bright yellow-orange */
+    --color-orange-dark: #FF6F00;    /* Deep orange */
+    --color-green-bright: #00E676;   /* Neon green */
+    --color-red-bright: #FF1744;     /* Bright red */
+
+    /* Grays */
+    --color-gray-dark: #1a1a1a;
+    --color-gray-medium: #4a4a4a;
+    --color-gray-light: #a0a0a0;
+    --color-white-bright: #f5f5f5;
+
+    /* Terminal-Specific Mappings */
+    --term-bg: var(--color-blue-dark);
+    --term-fg: var(--color-cyan-bright);
+    --term-border: var(--color-cyan-bright);
+    --term-cursor: var(--color-cyan-bright);
+    --term-header: var(--color-magenta-bright);
+    --term-prompt: var(--color-orange-bright);
+    --term-success: var(--color-green-bright);
+    --term-error: var(--color-red-bright);
+    --term-warning: var(--color-orange-bright);
+    --term-info: var(--color-cyan-bright);
+
+    /* 80×30 Grid Dimensions */
+    --char-width: 12px;
+    --char-height: 20px;
+    --term-cols: 80;
+    --term-rows: 30;
+    --term-width: calc(var(--char-width) * var(--term-cols));
+    --term-height: calc(var(--char-height) * var(--term-rows));
+}
+
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--color-black);
+    font-family: "PetMe64", "C64 User Mono", "Courier New", monospace;
+    color: var(--term-fg);
+}
+
+/* ========================================
+   C64 LOADING SCREEN (Rainbow Bars)
+   ======================================== */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-blue-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Chunky Rainbow Loading Bars */
+.loading-bars {
+    width: 80%;
+    max-width: 640px;
+    height: 60px;
+    list-style: none;
+    display: flex;
+    margin-bottom: 3rem;
+    padding: 0;
+}
+
+.loading-bars li {
+    flex: 1;
+    animation: color-pulse 2s ease-in-out infinite, bar-wave 4s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.loading-bars li:nth-child(1) {
+    background: var(--color-red-bright);
+    animation-delay: 0s, 0s;
+}
+
+.loading-bars li:nth-child(2) {
+    background: var(--color-orange-bright);
+    animation-delay: 0.3s, 0.5s;
+}
+
+.loading-bars li:nth-child(3) {
+    background: var(--color-green-bright);
+    animation-delay: 0.6s, 1s;
+}
+
+.loading-bars li:nth-child(4) {
+    background: var(--color-cyan-bright);
+    animation-delay: 0.9s, 1.5s;
+}
+
+.loading-bars li:nth-child(5) {
+    background: var(--color-blue-bright);
+    animation-delay: 1.2s, 2s;
+}
+
+.loading-bars li:nth-child(6) {
+    background: #EE4266;
+    animation-delay: 1.5s, 2.5s;
+}
+
+.loading-bars li:nth-child(7) {
+    background: #2A1E5C;
+    animation-delay: 1.8s, 3s;
+}
+
+/* Horizontal color cycle animation (from original c64-terminal) */
+@keyframes color-pulse {
+    0%, 100% {
+        opacity: 1;
+        filter: brightness(1);
+        transform: scaleY(1);
+    }
+    25% {
+        opacity: 0.8;
+        filter: brightness(1.2);
+        transform: scaleY(0.95);
+    }
+    50% {
+        opacity: 0.7;
+        filter: brightness(1.5);
+        transform: scaleY(0.9);
+    }
+    75% {
+        opacity: 0.8;
+        filter: brightness(1.2);
+        transform: scaleY(0.95);
+    }
+}
+
+/* Horizontal wave effect for bars */
+@keyframes bar-wave {
+    0%, 100% {
+        height: 60px;
+    }
+    50% {
+        height: 70px;
+    }
+}
+
+.splash-content {
+    text-align: center;
+    color: var(--color-cyan-bright);
+    font-family: "PetMe64", "C64 User Mono", monospace;
+}
+
+.ascii-logo {
+    font-family: "PetMe64", monospace;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: var(--color-cyan-bright);
+    margin-bottom: 1.5rem;
+}
+
+.splash-info {
+    margin-top: 1rem;
+}
+
+.splash-title {
+    font-size: 1rem;
+    color: var(--color-cyan-bright);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.splash-version {
+    font-size: 0.9rem;
+    color: var(--color-cyan-bright);
+    margin-bottom: 1rem;
+}
+
+.splash-status {
+    font-size: 0.85rem;
+    color: var(--color-cyan-bright);
+    margin-bottom: 1rem;
+    min-height: 1.5em;
+}
+
+/* Progress Bar - Hard Edges C64 Style */
+.progress-bar {
+    width: 100%;
+    max-width: 400px;
+    height: 20px;
+    background: var(--color-black);
+    overflow: hidden;
+    margin: 0 auto 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--color-cyan-bright);
+    transition: width 0.3s ease-out;
+}
+
+.system-checks {
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--color-green-bright);
+    line-height: 1.6;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.system-checks p {
+    margin: 0.25rem 0;
+}
+
+/* ========================================
+   TERMINAL CONTAINER (Centered)
+   ======================================== */
+.terminal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-black);
+    padding: 2rem;
+}
+
+.terminal-window {
+    width: var(--term-width);
+    max-width: 95vw;
+    background: var(--term-bg);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   TERMINAL HEADER
+   ======================================== */
+.terminal-header {
+    background: var(--color-blue-bright);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.terminal-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--color-white);
+    letter-spacing: 2px;
+}
+
+.terminal-status {
+    font-size: 0.9rem;
+    color: var(--color-orange-bright);
+}
+
+/* ========================================
+   TERMINAL SCREEN (80×30)
+   ======================================== */
+.terminal-screen {
+    height: var(--term-height);
+    overflow: hidden;
+    position: relative;
+    background: var(--term-bg);
+    padding: 1rem;
+}
+
+.terminal-viewport {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: "PetMe64", monospace;
+    font-size: var(--char-height);
+    line-height: 1.3;
+    color: var(--term-fg);
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+    scrollbar-color: var(--term-border) var(--term-bg);
+    scroll-behavior: smooth;
+    text-align: left;
+}
+
+/* Custom Scrollbar */
+.terminal-viewport::-webkit-scrollbar {
+    width: 12px;
+}
+
+.terminal-viewport::-webkit-scrollbar-track {
+    background: var(--term-bg);
+    border-left: 2px solid var(--term-border);
+}
+
+.terminal-viewport::-webkit-scrollbar-thumb {
+    background: var(--term-border);
+}
+
+.terminal-viewport::-webkit-scrollbar-thumb:hover {
+    background: var(--color-magenta-bright);
+}
+
+/* Boot Message */
+.boot-message {
+    margin-bottom: 1rem;
+    color: var(--color-cyan-bright);
+}
+
+.boot-message p {
+    margin: 0;
+    white-space: pre;
+}
+
+/* Terminal Output */
+.terminal-output {
+    margin-bottom: 0.5rem;
+}
+
+.terminal-output p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.3;
+    opacity: 0;
+    animation: textRollOut 0.3s ease-out forwards;
+}
+
+@keyframes textRollOut {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Command Output Colors */
+.output-success { color: var(--term-success); font-weight: bold; }
+.output-error { color: var(--term-error); font-weight: bold; }
+.output-warning { color: var(--term-warning); }
+.output-info { color: var(--term-info); font-weight: bold; }
+.output-dim { color: var(--color-gray-light); opacity: 0.8; }
+
+/* Output formatting */
+.command-line {
+    margin-top: 0.5rem;
+    color: var(--term-fg);
+}
+
+.command-line .prompt {
+    color: var(--term-prompt);
+    margin-right: 0.5rem;
+}
+
+.boot-message {
+    color: var(--color-cyan-bright);
+    margin-bottom: 0.3rem;
+}
+
+.boot-message p {
+    margin: 0;
+    padding: 0;
+    line-height: 1.0;
+}
+
+/* ========================================
+   INPUT LINE
+   ======================================== */
+.terminal-input-line {
+    display: flex;
+    align-items: baseline;
+    margin-top: 0.3rem;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.prompt {
+    color: var(--term-prompt);
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--term-fg);
+    font-family: "PetMe64", monospace;
+    font-size: var(--char-height);
+    line-height: 1.4;
+    caret-color: transparent;
+    padding: 0;
+    min-width: 0;
+    position: relative;
+}
+
+.cursor {
+    color: var(--term-cursor);
+    position: absolute;
+    pointer-events: none;
+    animation: cursorBlink 1s step-end infinite;
+}
+
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* ========================================
+   FUNCTION KEYS BAR
+   ======================================== */
+.function-keys {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0;
+    border-top: 2px solid var(--term-border);
+    background: var(--color-gray-dark);
+}
+
+.f-key {
+    background: var(--color-gray-medium);
+    border: none;
+    border-right: 1px solid var(--color-black);
+    color: var(--color-cyan-bright);
+    padding: 0.5rem 0.25rem;
+    font-family: "PetMe64", monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.f-key:last-child {
+    border-right: none;
+}
+
+.f-key:hover {
+    background: var(--color-blue-bright);
+    color: var(--color-white);
+}
+
+.f-key:active {
+    transform: translateY(2px);
+}
+
+.f-key-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.f-key-desc {
+    font-size: 0.7rem;
+    color: var(--color-orange-bright);
+}
+
+.f-key:hover .f-key-desc {
+    color: var(--color-white);
+}
+
+/* ========================================
+   CHARACTER REFERENCE PANEL
+   ======================================== */
+.char-reference {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    background: var(--term-bg);
+    border-left: 4px solid var(--term-border);
+    z-index: 2000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.char-reference:not(.hidden) {
+    transform: translateX(0);
+}
+
+.char-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.char-panel-header {
+    background: var(--color-blue-bright);
+    padding: 1rem;
+    border-bottom: 2px solid var(--term-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.char-panel-header h3 {
+    margin: 0;
+    color: var(--color-white);
+    font-size: 1rem;
+}
+
+.close-btn {
+    background: var(--color-red-bright);
+    border: 2px solid var(--color-white);
+    color: var(--color-white);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: var(--color-magenta-bright);
+}
+
+.char-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.char-section {
+    margin-bottom: 2rem;
+}
+
+.char-section h4 {
+    color: var(--color-magenta-bright);
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--term-border);
+    padding-bottom: 0.5rem;
+}
+
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.char-item {
+    background: var(--color-gray-dark);
+    border: 1px solid var(--term-border);
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+}
+
+.char-item:hover {
+    background: var(--color-blue-bright);
+    border-color: var(--color-cyan-bright);
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+}
+
+.emoji-item {
+    background: var(--color-gray-dark);
+    border: 1px solid var(--term-border);
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    font-family: "Monosort", "Noto Color Emoji", sans-serif;
+    font-size: 1.5rem;
+}
+
+.emoji-item:hover {
+    background: var(--color-purple);
+    border-color: var(--color-magenta-bright);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+.hidden {
+    display: none !important;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 1200px) {
+    :root {
+        --char-width: 10px;
+        --char-height: 16px;
+    }
+
+    .terminal-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 900px) {
+    :root {
+        --char-width: 8px;
+        --char-height: 14px;
+    }
+
+    .function-keys {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .char-reference {
+        width: 100%;
+    }
+}

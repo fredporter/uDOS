@@ -73,7 +73,7 @@ The uDOS Font System provides comprehensive font and color management through ce
 
 ### User Templates
 
-**`data/templates/font-profile-template.json`** (200+ lines)
+**`knowledge/system/font-profile-template.json`** (200+ lines)
 ```json
 {
   "metadata": {
@@ -188,10 +188,10 @@ async loadFontSystemConfig() {
 
 // Load user profile template
 async loadUserProfile() {
-    // Try memory/user/ first, fall back to data/templates/
+    // Try memory/user/ first, fall back to knowledge/system/
     let response = await fetch('../../memory/user/font-profile-template.json');
     if (!response.ok) {
-        response = await fetch('../../data/templates/font-profile-template.json');
+        response = await fetch('../../knowledge/system/font-profile-template.json');
     }
     this.userProfile = await response.json();
     this.applyUserProfile();
@@ -246,7 +246,7 @@ font_stack = font_sys.get_fallback_stack('petme')
 1. **Open Character Editor**: `http://localhost:8888/extensions/core/character-editor/`
 
 2. **Load Template**: Click "Load Profile" button
-   - Loads `data/templates/font-profile-template.json`
+   - Loads `knowledge/system/font-profile-template.json`
 
 3. **Customize Settings**:
    - Edit `metadata.name` (e.g., "My Retro Setup")
@@ -330,7 +330,7 @@ print_status("❌ Invalid JSON", "error")
 ### System Files (Version Controlled)
 - `knowledge/system/font-system.json` - Master configuration
 - `knowledge/system/palette.json` - Legacy color palette (deprecated in favor of font-system.json)
-- `data/templates/font-profile-template.json` - User profile template
+- `knowledge/system/font-profile-template.json` - User profile template
 - `extensions/core/fonts/` - Bundled retro fonts (Chicago, Mallard, PetMe, MODE7GX3)
 - `extensions/core/css/synthwave-dos-colors.css` - CSS color variables
 
@@ -402,11 +402,11 @@ git checkout knowledge/system/font-system.json
 
 ### Profile Template Missing
 
-**Error:** `Font profile not found. Please ensure template exists in data/templates/`
+**Error:** `Font profile not found. Please ensure template exists in knowledge/system/`
 
 **Solution:** Create template from git:
 ```bash
-git checkout data/templates/font-profile-template.json
+git checkout knowledge/system/font-profile-template.json
 ```
 
 ### CSS Variables Not Applied

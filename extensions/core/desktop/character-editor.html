@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Editor - uDOS Desktop</title>
+    <link rel="stylesheet" href="desktop.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .editor-container {
+            display: flex;
+            gap: 15px;
+            height: calc(100vh - 20px);
+        }
+
+        .sidebar {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .editor-section {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 10px;
+        }
+
+        .editor-section h3 {
+            font-family: Chicago_12, Chicago, sans-serif;
+            font-size: 12px;
+            margin: 0 0 8px 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 4px;
+        }
+
+        /* Pixel Grid */
+        .grid-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #fff;
+        }
+
+        #pixel-grid {
+            display: grid;
+            gap: 1px;
+            background: #000;
+            border: 2px solid #000;
+            cursor: crosshair;
+        }
+
+        .pixel {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pixel.active {
+            background: #000;
+        }
+
+        .pixel:hover {
+            background: #c0c0c0;
+        }
+
+        /* Tools */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+
+        .tool-btn {
+            font-size: 11px;
+            padding: 5px;
+            min-width: auto;
+        }
+
+        /* Character Selector */
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .char-btn {
+            background: #fff;
+            border: 1px solid #000;
+            font-family: Monaco, monospace;
+            font-size: 14px;
+            padding: 4px;
+            cursor: pointer;
+            min-width: auto;
+        }
+
+        .char-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .char-btn.selected {
+            background: #000;
+            color: #fff;
+        }
+
+        /* Preview */
+        .preview-area {
+            padding: 10px;
+            background: #000;
+            color: #fff;
+            font-family: Monaco, monospace;
+            min-height: 60px;
+            border: 2px solid #000;
+        }
+
+        .preview-text {
+            font-size: 24px;
+            line-height: 1.2;
+        }
+
+        /* Metadata */
+        .metadata input {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .file-ops {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Stats */
+        .stats {
+            font-family: Geneva_9, Chicago, sans-serif;
+            font-size: 11px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* Keyboard Pads */
+        .keypad-container {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .keypad {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 10px;
+            flex: 1;
+        }
+
+        .keypad h3 {
+            font-family: Chicago_12, Chicago, sans-serif;
+            font-size: 12px;
+            margin: 0 0 8px 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 4px;
+        }
+
+        .keypad-grid {
+            display: grid;
+            gap: 2px;
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .keypad-lh {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .keypad-rh {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .key-btn {
+            background: #fff;
+            border: 1px solid #000;
+            font-family: Monaco, monospace;
+            font-size: 16px;
+            padding: 8px 4px;
+            cursor: pointer;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .key-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .key-btn:active {
+            background: #000;
+            color: #fff;
+        }
+
+        .key-label {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 8px;
+            color: #666;
+        }
+
+        .charset-selector {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .charset-btn {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .charset-btn.active {
+            background: #000;
+            color: #fff;
+        }
+
+        /* Emoji grid */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 2px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .emoji-btn {
+            font-size: 18px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+
+        .emoji-btn:hover {
+            background: #f0f0f0;
+        }
+
+        /* Scrollbar styling for keypad and char grids */
+        .keypad-grid::-webkit-scrollbar,
+        .char-grid::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        .keypad-grid::-webkit-scrollbar-track,
+        .char-grid::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        .keypad-grid::-webkit-scrollbar-thumb,
+        .char-grid::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+        }
+
+        .keypad-grid::-webkit-scrollbar-thumb:hover,
+        .char-grid::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Metadata -->
+            <div class="editor-section">
+                <h3>Font Info</h3>
+                <div class="metadata">
+                    <label>Name:</label>
+                    <input type="text" id="font-name" value="Custom Font">
+                    <label>Author:</label>
+                    <input type="text" id="font-author" placeholder="Your name">
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="editor-section">
+                <h3>Tools</h3>
+                <div class="tool-grid">
+                    <button class="btn tool-btn" onclick="clearGrid()">⬜ Clear</button>
+                    <button class="btn tool-btn" onclick="fillGrid()">⬛ Fill</button>
+                    <button class="btn tool-btn" onclick="flipH()">↔️ Flip H</button>
+                    <button class="btn tool-btn" onclick="flipV()">↕️ Flip V</button>
+                    <button class="btn tool-btn" onclick="rotate90()">🔄 Rotate</button>
+                    <button class="btn tool-btn" onclick="invert()">◐ Invert</button>
+                    <button class="btn tool-btn" onclick="copyGlyph()">📋 Copy</button>
+                    <button class="btn tool-btn" onclick="pasteGlyph()">📄 Paste</button>
+                </div>
+            </div>
+
+            <!-- File Operations -->
+            <div class="editor-section">
+                <h3>File</h3>
+                <div class="file-ops">
+                    <button class="btn" onclick="exportFont()">Export JSON</button>
+                    <button class="btn" onclick="importFont()">Import JSON</button>
+                    <button class="btn" onclick="saveToMemory()">Save to /memory</button>
+                    <button class="btn" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="editor-section">
+                <h3>Statistics</h3>
+                <div class="stats">
+                    <div class="stats-row">
+                        <span>Grid Size:</span>
+                        <span id="stat-size">16×16</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Current:</span>
+                        <span id="stat-char">A</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Glyphs:</span>
+                        <span id="stat-glyphs">0/95</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Pixels:</span>
+                        <span id="stat-pixels">0/256</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="main-area">
+            <!-- Pixel Editor -->
+            <div class="editor-section" style="flex: 1;">
+                <h3>Pixel Editor - 16×16 Grid</h3>
+                <div class="grid-container">
+                    <div id="pixel-grid"></div>
+                </div>
+            </div>
+
+            <!-- Character Selector -->
+            <div class="editor-section">
+                <h3>Character Selector (ASCII 32-126)</h3>
+                <div class="char-grid" id="char-grid"></div>
+            </div>
+
+            <!-- Preview -->
+            <div class="editor-section">
+                <h3>Preview</h3>
+                <div class="preview-area">
+                    <div class="preview-text" id="preview-text">THE QUICK BROWN FOX 0123456789</div>
+                </div>
+                <div style="margin-top: 5px;">
+                    <input type="text" id="preview-input" value="THE QUICK BROWN FOX 0123456789"
+                           onchange="updatePreview()" placeholder="Edit preview text" style="width: 100%;">
+                </div>
+            </div>
+
+            <!-- Character Set Keypads -->
+            <div class="editor-section">
+                <h3>Character Set Keyboards</h3>
+
+                <!-- Character Set Selector -->
+                <div class="charset-selector">
+                    <button class="btn charset-btn active" onclick="setCharset('ascii')" data-charset="ascii">ASCII</button>
+                    <button class="btn charset-btn" onclick="setCharset('blocks')" data-charset="blocks">Blocks</button>
+                    <button class="btn charset-btn" onclick="setCharset('c64')" data-charset="c64">C64</button>
+                    <button class="btn charset-btn" onclick="setCharset('teletext')" data-charset="teletext">Teletext</button>
+                    <button class="btn charset-btn" onclick="setCharset('markdown')" data-charset="markdown">Markdown</button>
+                    <button class="btn charset-btn" onclick="setCharset('emoji')" data-charset="emoji">Emoji</button>
+                    <button class="btn charset-btn" onclick="setCharset('coreui')" data-charset="coreui">Icons</button>
+                </div>
+
+                <!-- Dual Keypads -->
+                <div class="keypad-container">
+                    <!-- Left Hand Keypad -->
+                    <div class="keypad">
+                        <h3>LH Keys (1-5, Q-Y, A-G, Z-B)</h3>
+                        <div class="keypad-grid keypad-lh" id="keypad-lh"></div>
+                    </div>
+
+                    <!-- Right Hand Keypad -->
+                    <div class="keypad">
+                        <h3>RH Keys (6-0, U-P, H-L, N-M)</h3>
+                        <div class="keypad-grid keypad-rh" id="keypad-rh"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <input type="file" id="file-input" accept=".json" style="display:none">
+
+    <script>
+        // Global state
+        let gridSize = 16;
+        let currentChar = 65; // 'A'
+        let fontData = {};
+        let clipboard = null;
+        let isDrawing = false;
+        let drawMode = true; // true = draw, false = erase
+        let currentCharset = 'ascii';
+
+        // Character Set Definitions
+        const CHARSETS = {
+            ascii: {
+                lh: ['1', '2', '3', '4', '5', 'Q', 'W', 'E', 'R', 'T', 'Y', 'A', 'S', 'D', 'F', 'G', 'Z', 'X', 'C', 'V', 'B'],
+                rh: ['6', '7', '8', '9', '0', '-', 'U', 'I', 'O', 'P', '[', ']', 'H', 'J', 'K', 'L', ';', "'", 'N', 'M', ',', '.', '/', '\\']
+            },
+            blocks: {
+                lh: ['▀', '▄', '█', '▌', '▐', '░', '▒', '▓', '▖', '▗', '▘', '▙', '▚', '▛', '▜', '▝', '▞', '▟', '■', '□', '▪'],
+                rh: ['▫', '▬', '▭', '▮', '▯', '▰', '▱', '◆', '◇', '◈', '◉', '◊', '○', '◌', '◍', '◎', '●', '◐', '◑', '◒', '◓', '◔', '◕', '◖']
+            },
+            c64: {
+                lh: ['♠', '♥', '♦', '♣', '●', '○', '▌', '▐', '▀', '▄', '█', '├', '┤', '┬', '┴', '┼', '╭', '╮', '╰', '╯', '╱'],
+                rh: ['╲', '╳', '▒', '░', '▓', '■', '□', '◆', '◇', '▪', '▫', '★', '☆', '◗', '◖', '◄', '►', '▲', '▼', '←', '→', '↑', '↓', '↔']
+            },
+            teletext: {
+                lh: ['█', '▌', '▐', '▀', '▄', '▖', '▗', '▘', '▙', '▚', '▛', '▜', '▝', '▞', '▟', '■', '□', '▪', '▫', '▬', '▭'],
+                rh: ['▮', '▯', '▰', '▱', '░', '▒', '▓', '◣', '◤', '◥', '◢', '◆', '◇', '◈', '○', '●', '◉', '◎', '◐', '◑', '◒', '◓', '◔', '◕']
+            },
+            markdown: {
+                lh: ['─', '│', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼', '═', '║', '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩'],
+                rh: ['╬', '╭', '╮', '╯', '╰', '╱', '╲', '╳', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '▉']
+            },
+            emoji: {
+                lh: ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛'],
+                rh: ['😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭']
+            },
+            coreui: {
+                lh: ['📁', '📄', '💾', '🖼️', '📊', '⚙️', '🔧', '🔨', '✏️', '📝', '📋', '📌', '🔍', '🔎', '🏠', '🌐', '📧', '📞', '⏰', '📅', '🎨'],
+                rh: ['🖥️', '💻', '⌨️', '🖱️', '🖨️', '📱', '📲', '🔋', '🔌', '💡', '🔦', '📡', '🛰️', '🎮', '🎯', '🎲', '🎭', '🎪', '🎬', '🎤', '🎧', '📻', '📺', '📷']
+            }
+        };
+
+        // Popular GitHub Emojis (subset - full list available from gist)
+        const GITHUB_EMOJIS = {
+            ':smile:': '😄', ':laughing:': '😆', ':blush:': '😊', ':heart:': '❤️',
+            ':heart_eyes:': '😍', ':kissing_heart:': '😘', ':relaxed:': '☺️', ':grin:': '😁',
+            ':wink:': '😉', ':stuck_out_tongue:': '😛', ':sleeping:': '😴', ':worried:': '😟',
+            ':frowning:': '😦', ':anguished:': '😧', ':open_mouth:': '😮', ':grimacing:': '😬',
+            ':confused:': '😕', ':hushed:': '😯', ':expressionless:': '😑', ':unamused:': '😒',
+            ':sweat:': '😓', ':pensive:': '😔', ':disappointed:': '😞', ':confounded:': '😖',
+            ':fearful:': '😨', ':weary:': '😩', ':tired_face:': '😫', ':triumph:': '😤',
+            ':rage:': '😡', ':angry:': '😠', ':fire:': '🔥', ':star:': '⭐',
+            ':sparkles:': '✨', ':tada:': '🎉', ':rocket:': '🚀', ':boom:': '💥',
+            ':zap:': '⚡', ':bulb:': '💡', ':+1:': '👍', ':-1:': '👎',
+            ':clap:': '👏', ':pray:': '🙏', ':muscle:': '💪', ':ok_hand:': '👌'
+        };
+
+        // CoreUI Icon mappings (common ones)
+        const COREUI_ICONS = [
+            'terminal', 'folder', 'file', 'home', 'settings', 'book', 'search', 'user',
+            'heart', 'star', 'check', 'x', 'plus', 'minus', 'save', 'trash',
+            'edit', 'copy', 'clipboard', 'download', 'upload', 'share', 'lock', 'unlock'
+        ];
+
+        // Initialize
+        function init() {
+            createGrid();
+            createCharSelector();
+            initKeypads();
+            loadFromStorage();
+            selectChar(currentChar);
+            updateStats();
+        }
+
+        // Initialize keypads
+        function initKeypads() {
+            setCharset('ascii');
+        }
+
+        // Set character set
+        function setCharset(charset) {
+            currentCharset = charset;
+
+            // Update UI
+            document.querySelectorAll('.charset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.charset === charset);
+            });
+
+            // Update keypads
+            updateKeypad('keypad-lh', CHARSETS[charset].lh);
+            updateKeypad('keypad-rh', CHARSETS[charset].rh);
+        }
+
+        // Update keypad display
+        function updateKeypad(padId, chars) {
+            const pad = document.getElementById(padId);
+            pad.innerHTML = '';
+
+            chars.forEach((char, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn btn';
+                btn.textContent = char;
+                btn.title = `Insert: ${char}`;
+                btn.onclick = () => insertCharacter(char);
+
+                // Add keyboard label
+                if (currentCharset === 'ascii') {
+                    const label = document.createElement('span');
+                    label.className = 'key-label';
+                    label.textContent = char;
+                    btn.appendChild(label);
+                }
+
+                pad.appendChild(btn);
+            });
+        }
+
+        // Insert character into grid
+        function insertCharacter(char) {
+            // For now, this loads the character if it's in ASCII range
+            const code = char.charCodeAt(0);
+            if (code >= 32 && code <= 126) {
+                selectChar(code);
+            } else {
+                // For non-ASCII characters, you could create a custom glyph
+                // or show a preview - this is a placeholder
+                console.log('Character:', char, 'Code:', code);
+                alert(`Character "${char}" selected. You can now draw its glyph in the pixel editor.`);
+            }
+        }
+
+        // Create pixel grid
+        function createGrid() {
+            const grid = document.getElementById('pixel-grid');
+            grid.style.gridTemplateColumns = `repeat(${gridSize}, 20px)`;
+            grid.style.gridTemplateRows = `repeat(${gridSize}, 20px)`;
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'pixel';
+                    pixel.dataset.x = x;
+                    pixel.dataset.y = y;
+
+                    pixel.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        isDrawing = true;
+                        drawMode = e.button === 0; // left = draw, right = erase
+                        togglePixel(x, y, drawMode);
+                    });
+
+                    pixel.addEventListener('mouseenter', () => {
+                        if (isDrawing) {
+                            togglePixel(x, y, drawMode);
+                        }
+                    });
+
+                    pixel.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                    grid.appendChild(pixel);
+                }
+            }
+
+            document.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+        }
+
+        // Create character selector
+        function createCharSelector() {
+            const grid = document.getElementById('char-grid');
+
+            // ASCII printable characters (32-126)
+            for (let code = 32; code <= 126; code++) {
+                const btn = document.createElement('button');
+                btn.className = 'char-btn btn';
+                btn.textContent = String.fromCharCode(code);
+                btn.dataset.code = code;
+                btn.onclick = () => selectChar(code);
+                grid.appendChild(btn);
+            }
+        }
+
+        // Select character
+        function selectChar(code) {
+            currentChar = code;
+
+            // Update UI
+            document.querySelectorAll('.char-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseInt(btn.dataset.code) === code);
+            });
+
+            // Load glyph
+            loadGlyph(code);
+            updateStats();
+        }
+
+        // Toggle pixel
+        function togglePixel(x, y, state) {
+            const pixels = document.querySelectorAll('.pixel');
+            const index = y * gridSize + x;
+            const pixel = pixels[index];
+
+            if (state) {
+                pixel.classList.add('active');
+            } else {
+                pixel.classList.remove('active');
+            }
+
+            saveGlyph();
+            updateStats();
+        }
+
+        // Save current glyph
+        function saveGlyph() {
+            const pixels = document.querySelectorAll('.pixel');
+            const data = [];
+
+            for (let y = 0; y < gridSize; y++) {
+                const row = [];
+                for (let x = 0; x < gridSize; x++) {
+                    const index = y * gridSize + x;
+                    row.push(pixels[index].classList.contains('active') ? '1' : '0');
+                }
+                data.push(row.join(''));
+            }
+
+            fontData[currentChar] = data;
+            saveToStorage();
+        }
+
+        // Load glyph
+        function loadGlyph(code) {
+            const pixels = document.querySelectorAll('.pixel');
+            const data = fontData[code] || [];
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const index = y * gridSize + x;
+                    const value = data[y] ? data[y][x] === '1' : false;
+                    pixels[index].classList.toggle('active', value);
+                }
+            }
+        }
+
+        // Clear grid
+        function clearGrid() {
+            document.querySelectorAll('.pixel').forEach(p => p.classList.remove('active'));
+            saveGlyph();
+        }
+
+        // Fill grid
+        function fillGrid() {
+            document.querySelectorAll('.pixel').forEach(p => p.classList.add('active'));
+            saveGlyph();
+        }
+
+        // Flip horizontal
+        function flipH() {
+            const pixels = document.querySelectorAll('.pixel');
+            const grid = [];
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const index = y * gridSize + x;
+                    grid.push(pixels[index].classList.contains('active'));
+                }
+            }
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const oldIndex = y * gridSize + x;
+                    const newIndex = y * gridSize + (gridSize - 1 - x);
+                    pixels[newIndex].classList.toggle('active', grid[oldIndex]);
+                }
+            }
+
+            saveGlyph();
+        }
+
+        // Flip vertical
+        function flipV() {
+            const pixels = document.querySelectorAll('.pixel');
+            const grid = [];
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const index = y * gridSize + x;
+                    grid.push(pixels[index].classList.contains('active'));
+                }
+            }
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const oldIndex = y * gridSize + x;
+                    const newIndex = (gridSize - 1 - y) * gridSize + x;
+                    pixels[newIndex].classList.toggle('active', grid[oldIndex]);
+                }
+            }
+
+            saveGlyph();
+        }
+
+        // Rotate 90 degrees clockwise
+        function rotate90() {
+            const pixels = document.querySelectorAll('.pixel');
+            const grid = [];
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const index = y * gridSize + x;
+                    grid.push(pixels[index].classList.contains('active'));
+                }
+            }
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const oldIndex = y * gridSize + x;
+                    const newIndex = x * gridSize + (gridSize - 1 - y);
+                    pixels[newIndex].classList.toggle('active', grid[oldIndex]);
+                }
+            }
+
+            saveGlyph();
+        }
+
+        // Invert pixels
+        function invert() {
+            document.querySelectorAll('.pixel').forEach(p => p.classList.toggle('active'));
+            saveGlyph();
+        }
+
+        // Copy glyph
+        function copyGlyph() {
+            clipboard = fontData[currentChar] ? [...fontData[currentChar]] : null;
+        }
+
+        // Paste glyph
+        function pasteGlyph() {
+            if (!clipboard) return;
+
+            fontData[currentChar] = [...clipboard];
+            loadGlyph(currentChar);
+            saveGlyph();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const pixels = document.querySelectorAll('.pixel.active').length;
+            const glyphs = Object.keys(fontData).filter(k => fontData[k] && fontData[k].some(r => r.includes('1'))).length;
+
+            document.getElementById('stat-char').textContent = String.fromCharCode(currentChar);
+            document.getElementById('stat-glyphs').textContent = `${glyphs}/95`;
+            document.getElementById('stat-pixels').textContent = `${pixels}/256`;
+        }
+
+        // Update preview
+        function updatePreview() {
+            const text = document.getElementById('preview-input').value;
+            document.getElementById('preview-text').textContent = text;
+        }
+
+        // Export font
+        function exportFont() {
+            const fontName = document.getElementById('font-name').value || 'Custom Font';
+            const author = document.getElementById('font-author').value || 'Unknown';
+
+            const data = {
+                name: fontName,
+                author: author,
+                version: '1.0',
+                gridSize: gridSize,
+                charset: currentCharset,
+                timestamp: new Date().toISOString(),
+                glyphs: fontData
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fontName.replace(/\s+/g, '-').toLowerCase()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Save to /memory folder
+        async function saveToMemory() {
+            const fontName = document.getElementById('font-name').value || 'Custom Font';
+            const author = document.getElementById('font-author').value || 'Unknown';
+
+            const data = {
+                name: fontName,
+                author: author,
+                version: '1.0',
+                gridSize: gridSize,
+                charset: currentCharset,
+                timestamp: new Date().toISOString(),
+                glyphs: fontData
+            };
+
+            const filename = `${fontName.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.json`;
+
+            // Note: This requires server-side support to write files
+            // For now, we'll show instructions to the user
+            const instructions = `
+To save to /memory/fonts/:
+
+1. Export the font using "Export JSON"
+2. Save the file to: /memory/fonts/${filename}
+
+Or use the file picker to upload to /memory/fonts/
+
+Server-side file writing requires additional backend support.
+            `.trim();
+
+            alert(instructions);
+
+            // Alternative: Use the file picker if available
+            // window.parent.postMessage({ type: 'save-font', data, filename }, '*');
+        }
+
+        // Import font
+        function importFont() {
+            const input = document.getElementById('file-input');
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        fontData = data.glyphs || {};
+                        document.getElementById('font-name').value = data.name || 'Imported Font';
+                        document.getElementById('font-author').value = data.author || '';
+                        loadGlyph(currentChar);
+                        updateStats();
+                        saveToStorage();
+                    } catch (err) {
+                        alert('Error loading font file: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Reset all
+        function resetAll() {
+            if (!confirm('Reset all glyphs? This cannot be undone.')) return;
+            fontData = {};
+            loadGlyph(currentChar);
+            updateStats();
+            saveToStorage();
+        }
+
+        // Local storage
+        function saveToStorage() {
+            localStorage.setItem('udos-font-data', JSON.stringify(fontData));
+        }
+
+        function loadFromStorage() {
+            const data = localStorage.getItem('udos-font-data');
+            if (data) {
+                try {
+                    fontData = JSON.parse(data);
+                } catch (e) {
+                    console.error('Error loading from storage:', e);
+                }
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+
+            switch(e.key.toLowerCase()) {
+                case ' ': clearGrid(); break;
+                case 'f': fillGrid(); break;
+                case 'h': flipH(); break;
+                case 'v': flipV(); break;
+                case 'r': rotate90(); break;
+                case 'i': invert(); break;
+                case 'c': copyGlyph(); break;
+                case 'p': pasteGlyph(); break;
+                case 'arrowleft': selectChar(Math.max(32, currentChar - 1)); break;
+                case 'arrowright': selectChar(Math.min(126, currentChar + 1)); break;
+            }
+        });
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

@@ -128,7 +128,7 @@ Each theme includes:
 }
 ```
 
-### Template Files (`data/templates/`)
+### Template Files (`knowledge/system/templates/`)
 
 **Purpose**: Default structures for user data initialization
 
@@ -202,8 +202,8 @@ data/
 ├── THEMES.UDO      → data/themes/*.json (split into 5 files)
 ├── FAQ.UDO         → knowledge/system/faq.json
 ├── PROMPTS.UDO     → (merged into faq.json)
-├── USER.UDT        → data/templates/user.template.json
-└── SETUP.USC       → data/templates/setup.uscript
+├── USER.UDT        → knowledge/system/templates/user.template.json
+└── SETUP.USC       → knowledge/system/templates/setup.uscript
 
 sandbox/
 └── USER.UDO        → memory/user.json

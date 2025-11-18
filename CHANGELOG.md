@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.25] - 2025-11-18
+
+### Added
+- **Unified Extensions Server**:
+  - Centralized Python HTTP server for all web extensions
+  - Single entry point with `extensions_server.py` and `launch.sh`
+  - CORS support built-in for all extensions
+  - API endpoints: `/api/extensions`, `/api/health`, `/api/status`
+  - Colored ANSI logging with extension identification
+  - Flexible port configuration via command line
+  - Status monitoring HTML dashboard
+  - Per-extension launch scripts (`start.sh`)
+
+- **Dashboard Builder Extension**:
+  - NES.css framework integration
+  - 12+ customizable widgets (System Monitor, Quick Actions, Extensions, Activity, Stats, Knowledge, Clock, Weather, Tasks, Notes, Terminal, Music Player)
+  - 4 retro themes (Synthwave DOS, Classic NES, Game Boy, C64)
+  - 1-4 column grid layouts
+  - Widget management (add, remove, reorder)
+  - Import/export dashboard layouts
+  - Persistent storage via localStorage
+  - Real-time system metrics updates
+
+- **Documentation**:
+  - `README-SERVER.md` - Comprehensive server guide
+  - `CREDITS.md` - Unified credits for all extensions
+  - `wiki/Extensions-Server.md` - Wiki documentation
+  - `DEV-ROUND-EXTENSIONS-UNIFICATION.md` - Development summary
+  - Updated all extension READMEs with v1.0.25 launch instructions
+
+### Changed
+- **Teletext Extension**: Updated to use unified server (port 9002)
+- **Terminal Extension**: Updated to use unified server (port 8889)
+- **Markdown Extension**: Updated to use unified server (port 9000)
+- **Dashboard Extension**: Complete rebuild with NES styling (port 8888)
+- Migrated teletext documentation to wiki (API, Synthwave, Assets, Credits)
+- Archived all individual server scripts to `archive/old-servers/`
+
+### Technical
+- Python 3 standard library only (no external dependencies for server)
+- Consistent launch interface across all extensions
+- Single process management vs multiple server processes
+- Centralized configuration in `extensions_server.py`
+
+---
+
 ## [1.0.21] - 2026-01-XX
 
 ### Added
