@@ -294,17 +294,18 @@ Proceed? (y/n) or specify tier (private/shared/community/public):
         if any(keyword in file_lower or keyword in content_str for keyword in sensitive_keywords):
             return 'private'
 
+        # Documentation/guides → PUBLIC (check before config to catch README)
+        doc_files = ['readme', 'license', 'contributing', 'changelog', 'authors']
+        doc_extensions = ['.md', '.txt', '.html', '.rst']
+        if any(doc in file_lower for doc in doc_files) or any(file_path.endswith(ext) for ext in doc_extensions):
+            if any(doc in file_lower for doc in doc_files) or 'guide' in file_lower or 'tutorial' in file_lower or 'documentation' in file_lower:
+                return 'public'
+
         # Config files → SHARED (unless personal)
         if 'config' in file_lower or 'settings' in file_lower:
             if 'personal' in file_lower or 'my' in file_lower:
                 return 'private'
             return 'shared'
-
-        # Documentation/guides → PUBLIC
-        doc_extensions = ['.md', '.txt', '.doc']
-        if any(file_path.endswith(ext) for ext in doc_extensions):
-            if 'readme' in file_lower or 'guide' in file_lower or 'tutorial' in file_lower:
-                return 'public'
 
         # Scripts → COMMUNITY (shareable)
         script_extensions = ['.py', '.uscript', '.sh', '.js']

@@ -13,7 +13,7 @@ class HistoryCommandHandler:
     def __init__(self, logger=None):
         """
         Initialize history handler.
-        
+
         Args:
             logger: Optional logger instance for accessing session history
         """
@@ -23,11 +23,11 @@ class HistoryCommandHandler:
     def handle(self, command: str, args: List[str]) -> str:
         """
         Handle HISTORY command.
-        
+
         Args:
             command: The subcommand (if any)
             args: Additional arguments
-            
+
         Returns:
             String output to display
         """
@@ -47,11 +47,11 @@ class HistoryCommandHandler:
         """Display command history."""
         if not self.history:
             return "📜 No command history yet"
-        
+
         output = ["📜 COMMAND HISTORY", "=" * 50]
         for i, cmd in enumerate(self.history[-20:], 1):  # Last 20 commands
             output.append(f"{i:3d}. {cmd}")
-        
+
         return "\n".join(output)
 
     def _clear_history(self) -> str:
@@ -64,35 +64,35 @@ class HistoryCommandHandler:
         """Search command history."""
         if not query:
             return "⚠️  Please provide a search query"
-        
+
         matches = [cmd for cmd in self.history if query.lower() in cmd.lower()]
-        
+
         if not matches:
             return f"🔍 No matches found for '{query}'"
-        
+
         output = [f"🔍 SEARCH RESULTS: '{query}'", "=" * 50]
         for i, cmd in enumerate(matches, 1):
             output.append(f"{i:3d}. {cmd}")
-        
+
         return "\n".join(output)
 
     def _show_stats(self) -> str:
         """Show history statistics."""
         if not self.history:
             return "📊 No history data"
-        
+
         total = len(self.history)
         unique = len(set(self.history))
-        
+
         # Count command frequency
         freq = {}
         for cmd in self.history:
             first_word = cmd.split()[0] if cmd else ""
             freq[first_word] = freq.get(first_word, 0) + 1
-        
+
         # Top 5 commands
         top_cmds = sorted(freq.items(), key=lambda x: x[1], reverse=True)[:5]
-        
+
         output = [
             "📊 HISTORY STATISTICS",
             "=" * 50,
@@ -102,10 +102,10 @@ class HistoryCommandHandler:
             "",
             "Top 5 commands:"
         ]
-        
+
         for cmd, count in top_cmds:
             output.append(f"  {cmd}: {count}x")
-        
+
         return "\n".join(output)
 
     def add_to_history(self, command: str):
