@@ -1202,16 +1202,23 @@ def quick_health_check() -> Tuple[bool, str]:
     """
     health = check_system_health(verbose=False)
 
-    if health.is_healthy():
+    # Handle both dict and SystemHealth object returns
+    if isinstance(health, dict):
+        is_healthy = health.get('status') == 'healthy'
+        issues_count = len(health.get('issues', []))
+        warnings_count = len(health.get('warnings', []))
+    else:
+        is_healthy = health.is_healthy()
+        issues_count = health.get_issues_count()
+        warnings_count = health.get_warnings_count()
+
+    if is_healthy:
         return True, "✅ System healthy"
 
-    issues = health.get_issues_count()
-    warnings = health.get_warnings_count()
-
-    if issues > 0:
-        return False, f"❌ {issues} critical issue(s) detected - run REPAIR for details"
+    if issues_count > 0:
+        return False, f"❌ {issues_count} critical issue(s) detected - run REPAIR for details"
     else:
-        return True, f"⚠️  {warnings} warning(s) - run REPAIR --check for details"
+        return True, f"⚠️  {warnings_count} warning(s) - run REPAIR --check for details"
 
 
 if __name__ == "__main__":

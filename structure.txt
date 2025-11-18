@@ -16,6 +16,7 @@ uDOS/
 │   │   ├── grid_handler.py
 │   │   ├── guide_handler.py
 │   │   ├── handbook_handler.py
+│   │   ├── history_handler.py
 │   │   ├── knowledge_commands.py
 │   │   ├── knowledge_handler.py
 │   │   ├── learn_unified_handler.py
@@ -124,6 +125,9 @@ uDOS/
 │   ├── uDOS_startup.py
 │   ├── uDOS_tree.py
 │   └── uDOS_ucode.py
+├── data/
+│   └── templates/
+│       └── README.md
 ├── extensions/
 │   ├── assets/
 │   │   ├── css/
@@ -1069,6 +1073,7 @@ uDOS/
 │   │   ├── palette.json
 │   │   ├── tizo_cities.json
 │   │   ├── ucode_variables.json
+│   │   ├── usage_tracker.json
 │   │   ├── viewport.json
 │   │   ├── world_cities.csv
 │   │   ├── world_cities_cellkeys.csv
@@ -1096,6 +1101,7 @@ uDOS/
 │   │   └── stress-management-resilience.md
 │   ├── KNOWLEDGE-SYSTEM.md
 │   └── README.md
+├── sandbox/
 ├── wiki/
 │   ├── diagrams/
 │   │   ├── concepts/

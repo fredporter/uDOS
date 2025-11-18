@@ -50,7 +50,7 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Completed macOS testing: 365/395 tests passing (92.4%)
   - Fixed 23/28 original test failures
   - Deferred Linux/Windows testing to v1.1.1 (requires actual hardware)
-  
+
 - **Command Updates**:
   - Renamed map `MOVE` command to `STEP` (eliminated duplicate)
   - Enhanced `MEMORY` command with tier-specific paths

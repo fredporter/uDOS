@@ -1,0 +1,57 @@
+{
+  "command_counts": {
+    "ERROR": 5
+  },
+  "success_counts": {},
+  "failure_counts": {
+    "ERROR": 5
+  },
+  "recent_commands": [
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-19T10:25:10.151589",
+      "params": [
+        "Invalid command: "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-19T10:25:10.551177",
+      "params": [
+        "Invalid command: "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-19T10:25:10.976742",
+      "params": [
+        "Invalid command: "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-19T10:25:11.377240",
+      "params": [
+        "Invalid command: "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-19T10:25:11.777093",
+      "params": [
+        "Invalid command: "
+      ],
+      "success": false,
+      "context": {}
+    }
+  ],
+  "last_updated": "2025-11-19T10:25:11.888603"
+}
