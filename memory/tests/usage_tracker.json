@@ -1,251 +1,20 @@
 {
   "command_counts": {
-    "HELP": 40,
-    "STATUS": 20,
-    "LIST": 20,
-    "GRID": 10,
-    "MAP": 10
+    "HELP": 52,
+    "STATUS": 26,
+    "LIST": 26,
+    "GRID": 13,
+    "MAP": 13
   },
   "success_counts": {
-    "HELP": 40,
-    "STATUS": 20,
-    "LIST": 20,
-    "GRID": 10,
-    "MAP": 10
+    "HELP": 52,
+    "STATUS": 26,
+    "LIST": 26,
+    "GRID": 13,
+    "MAP": 13
   },
   "failure_counts": {},
   "recent_commands": [
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T20:52:37.945493",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T20:52:37.945530",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T20:52:37.945533",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T20:52:37.945535",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "GRID",
-      "timestamp": "2025-11-18T20:52:37.945536",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T20:52:37.945538",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T20:52:37.945539",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "MAP",
-      "timestamp": "2025-11-18T20:52:37.945541",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T20:52:37.945542",
-      "params": [
-        "SEARCH",
-        "file"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T20:52:37.945544",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:01:08.643560",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T21:01:08.643570",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T21:01:08.643572",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:01:08.643574",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "GRID",
-      "timestamp": "2025-11-18T21:01:08.643576",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:01:08.643577",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T21:01:08.643579",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "MAP",
-      "timestamp": "2025-11-18T21:01:08.643580",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:01:08.643582",
-      "params": [
-        "SEARCH",
-        "file"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T21:01:08.643583",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:04:32.375883",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T21:04:32.375893",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T21:04:32.375895",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:04:32.375897",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "GRID",
-      "timestamp": "2025-11-18T21:04:32.375898",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:04:32.375900",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-18T21:04:32.375901",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "MAP",
-      "timestamp": "2025-11-18T21:04:32.375903",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-18T21:04:32.375904",
-      "params": [
-        "SEARCH",
-        "file"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "LIST",
-      "timestamp": "2025-11-18T21:04:32.375906",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "HELP",
       "timestamp": "2025-11-18T21:07:36.147235",
@@ -399,7 +168,238 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:15:22.718216",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:15:22.718227",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:15:22.718229",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:15:22.718231",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "GRID",
+      "timestamp": "2025-11-18T21:15:22.718232",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:15:22.718234",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:15:22.718235",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MAP",
+      "timestamp": "2025-11-18T21:15:22.718237",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:15:22.718238",
+      "params": [
+        "SEARCH",
+        "file"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:15:22.718239",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:16:43.014905",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:16:43.014918",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:16:43.014920",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:16:43.014922",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "GRID",
+      "timestamp": "2025-11-18T21:16:43.014924",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:16:43.014925",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:16:43.014926",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MAP",
+      "timestamp": "2025-11-18T21:16:43.014928",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:16:43.014929",
+      "params": [
+        "SEARCH",
+        "file"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:16:43.014931",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:17:38.463563",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:17:38.463573",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:17:38.463575",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:17:38.463577",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "GRID",
+      "timestamp": "2025-11-18T21:17:38.463580",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:17:38.463582",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-18T21:17:38.463583",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MAP",
+      "timestamp": "2025-11-18T21:17:38.463585",
+      "params": [
+        "STATUS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-18T21:17:38.463587",
+      "params": [
+        "SEARCH",
+        "file"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-18T21:17:38.463589",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-18T21:12:01.158432"
+  "last_updated": "2025-11-18T21:17:38.463593"
 }
