@@ -774,6 +774,37 @@
       ]
     },
     {
+      "NAME": "MEMORY",
+      "SYNTAX": "MEMORY [<tier>] [<action>]",
+      "DESCRIPTION": "Access memory system with 4 tiers (PRIVATE, SHARED, COMMUNITY, PUBLIC). Manage personal and shared knowledge.",
+      "UCODE_TEMPLATE": "[MEMORY|ACCESS*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--tier": "Specify tier (private/shared/community/public)",
+        "--analyze": "Analyze content for appropriate tier"
+      },
+      "SUBCOMMANDS": {
+        "STATUS": "Show memory tier status",
+        "LIST": "List memory content",
+        "SEARCH": "Search across tiers",
+        "ANALYZE": "Analyze content classification"
+      },
+      "EXAMPLES": [
+        "MEMORY",
+        "MEMORY PRIVATE",
+        "MEMORY --tier=shared LIST",
+        "MEMORY STATUS"
+      ],
+      "NOTES": [
+        "4 tiers: PRIVATE (encrypted), SHARED (team), COMMUNITY (group), PUBLIC (open)",
+        "Each tier has different security and speed",
+        "Supports intelligent content classification"
+      ]
+    },
+    {
       "NAME": "WORKSPACE",
       "ALIASES": [],
       "SYNTAX": "WORKSPACE <LIST|SWITCH|STATUS>",
