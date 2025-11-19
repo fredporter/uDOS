@@ -1,11 +1,11 @@
 # uDOS Installation Guide
-**Version**: v1.0.26  
+**Version**: v1.0.26
 **Updated**: November 19, 2025
 
 ## Quick Install (pip)
 
 ### Prerequisites
-- Python 3.9+ 
+- Python 3.9+
 - pip
 - Git (for development)
 
