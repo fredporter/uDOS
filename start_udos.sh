@@ -115,12 +115,16 @@ for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests"
         module_name="$package"
     fi
 
-    if ! python3 -c "import $module_name" 2>/dev/null; then
-        MISSING_DEPS=1
-        if [ -z "$MISSING_LIST" ]; then
-            MISSING_LIST="$package"
-        else
-            MISSING_LIST="$MISSING_LIST, $package"
+    # Suppress Python 3.9 EOL warnings - check if import succeeds
+    if ! python3 -W ignore::DeprecationWarning -c "import $module_name" 2>&1 | grep -v "packages_distributions" > /dev/null; then
+        # Import failed
+        if python3 -c "import $module_name" 2>&1 | grep -q "ModuleNotFoundError\|ImportError"; then
+            MISSING_DEPS=1
+            if [ -z "$MISSING_LIST" ]; then
+                MISSING_LIST="$package"
+            else
+                MISSING_LIST="$MISSING_LIST, $package"
+            fi
         fi
     fi
 done
@@ -190,9 +194,9 @@ print_success "Data directories verified"
 # Check critical data files
 print_status "Checking critical data files..."
 DATA_FILES_OK=1
-for file in "system/commands.json" "themes/dungeon.json" "themes/_index.json" "templates/story.template.json"; do
-    if [ ! -f "data/$file" ]; then
-        print_warning "data/$file not found"
+for file in "system/commands.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
+    if [ ! -f "knowledge/$file" ]; then
+        print_warning "knowledge/$file not found"
         DATA_FILES_OK=0
     fi
 done
@@ -206,10 +210,10 @@ fi
 # Validate JSON in critical files
 print_status "Validating configuration files..."
 JSON_OK=1
-for file in "system/commands.json" "system/palette.json" "themes/dungeon.json" "themes/_index.json"; do
-    if [ -f "data/$file" ]; then
-        if ! python3 -c "import json; json.load(open('data/$file'))" 2>/dev/null; then
-            print_error "data/$file has invalid JSON"
+for file in "system/commands.json" "system/palette.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
+    if [ -f "knowledge/$file" ]; then
+        if ! python3 -c "import json; json.load(open('knowledge/$file'))" 2>/dev/null; then
+            print_error "knowledge/$file has invalid JSON"
             JSON_OK=0
         fi
     fi

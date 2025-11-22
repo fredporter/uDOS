@@ -556,7 +556,7 @@ class SessionManager:
             history = CommandHistory()
             recent_commands = history.get_recent_commands(50)
             return [cmd.command for cmd in recent_commands]
-        except:
+        except (ImportError, AttributeError, IOError):
             return []
 
     def _get_current_bookmarks(self) -> Dict[str, str]:
@@ -565,7 +565,7 @@ class SessionManager:
             from core.utils.smart_picker import SmartFilePicker
             picker = SmartFilePicker()
             return picker.bookmarks.copy()
-        except:
+        except (ImportError, AttributeError):
             return {}
 
     def _get_active_files(self) -> List[str]:

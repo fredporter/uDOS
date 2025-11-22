@@ -25,35 +25,42 @@ class SmartPrompt:
         """
         Flash the prompt emoji to indicate ready state.
 
+        IMPROVED: Uses a scrollback-friendly approach that doesn't
+        interfere with terminal history navigation.
+
         Args:
             emoji (str): The emoji to flash
             times (int): Number of flashes
             delay (float): Delay between flashes in seconds
         """
         try:
-            # Hide cursor during flash
+            # Save cursor position and hide cursor
+            sys.stdout.write('\033[s')  # Save cursor position
             sys.stdout.write(self.HIDE_CURSOR)
             sys.stdout.flush()
 
             for _ in range(times):
-                # Show emoji
-                sys.stdout.write(f"\r{emoji} ")
+                # Show emoji (without carriage return - just write in place)
+                sys.stdout.write(emoji + ' ')
                 sys.stdout.flush()
                 time.sleep(delay)
 
-                # Clear
-                sys.stdout.write(self.CLEAR_LINE)
+                # Move back and clear just the emoji + space (2 chars)
+                sys.stdout.write('\033[2D')  # Move cursor back 2 positions
+                sys.stdout.write('  ')       # Overwrite with spaces
+                sys.stdout.write('\033[2D')  # Move cursor back again
                 sys.stdout.flush()
                 time.sleep(delay * 0.5)
 
-            # Show cursor again
+            # Restore cursor position and show cursor
+            sys.stdout.write('\033[u')  # Restore cursor position
             sys.stdout.write(self.SHOW_CURSOR)
             sys.stdout.flush()
-        except:
-            # If flash fails, just continue
+        except (OSError, IOError):
+            # If flash fails (terminal doesn't support ANSI codes), just continue
             pass
 
-    def get_prompt(self, is_assist_mode=False, panel_name="main", flash=True):
+    def get_prompt(self, is_assist_mode=False, panel_name="main", flash=False):
         """
         Get the formatted prompt string.
 
@@ -61,6 +68,7 @@ class SmartPrompt:
             is_assist_mode (bool): Whether assist mode is active
             panel_name (str): Current active panel
             flash (bool): Whether to flash before showing prompt
+                         DISABLED BY DEFAULT in v1.0.30 to preserve scrollback
 
         Returns:
             str: Formatted prompt string
@@ -68,9 +76,10 @@ class SmartPrompt:
         # Choose emoji based on mode
         emoji = self.assist_emoji if is_assist_mode else self.ready_emoji
 
-        # Flash if enabled
+        # Flash DISABLED by default in v1.0.30 for better scrollback/copy-paste
+        # Re-enable by setting flash=True if desired
         if flash:
-            self.flash_prompt(emoji, times=3, delay=0.08)
+            self.flash_prompt(emoji, times=1, delay=0.08)
 
         # Simple emoji prompt with minimal context
         return f"{emoji} "

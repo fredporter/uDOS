@@ -4,6 +4,74 @@ Recent development milestones and completed features in uDOS.
 
 ---
 
+## 🧹 v1.0.26 - Startup Polish & Architecture Cleanup (✅ COMPLETE)
+
+**Release Date**: November 22, 2025
+**Status**: ✅ Complete (100%)
+**Focus**: Clean startup, core/extensions separation, bug fixes
+
+### ✅ Major Changes Implemented
+
+#### Core/Extensions Architecture
+- **API Server Relocated**: Moved from `core/services/` to `extensions/core/teletext/`
+- **Default Disabled**: API server now opt-in via `api_server_enabled` setting
+- **Silent Import**: Missing extensions don't show errors - CLI continues normally
+- **Clean Separation**: Core CLI fully functional without extension dependencies
+- **Minimal Dependencies**: Core requires only prompt_toolkit, python-dotenv, psutil, requests
+- **Extension Dependencies**: Teletext web GUI requires Flask, Flask-CORS, Flask-SocketIO (separate)
+
+#### Startup Fixes (12 Issues Resolved)
+1. **Health Check Import**: Fixed `core.uDOS_viewport` → `core.utils.viewport`
+2. **EOF Handling**: Auto-repair prompt no longer crashes on piped input
+3. **SmartPrompt**: Added missing `format_command_chain_hint()` method
+4. **File Paths**: Updated `data/` → `knowledge/` throughout startup scripts
+5. **Dependency Check**: Fixed Python module validation in `start_udos.sh`
+6. **Theme Files**: Added `default.json` to critical files check
+7. **API Messages**: Removed "API server failed to start" error on clean CLI startup
+8. **Health Status**: Now reports correctly (0 issues, 6 warnings)
+9. **Test Coverage**: All system tests passing
+10. **Documentation**: Development docs moved to `/dev/notes/`
+11. **Root Cleanup**: Core documentation retained, dev notes organized
+12. **Wiki Updates**: Architecture and development docs synchronized
+
+### 📊 Implementation Metrics
+- **Files Modified**: 7 core files updated
+- **Files Relocated**: 3 docs moved to `/dev/notes/`
+- **Test Status**: ✅ ALL TESTS PASSED
+- **Health Check**: True (0 issues, 6 warnings expected)
+- **Startup Time**: Clean, no error messages
+- **Architecture Docs**: Complete core vs extensions guide
+
+### 🏗️ Architecture Philosophy
+**Core CLI**: Minimal, stable, fully-functional command-line interface
+**Extensions**: Optional features that enhance but are not required
+
+```
+Startup Flow:
+1. Load core modules (/core) - Always
+2. Initialize user environment (/memory) - Always
+3. Load knowledge (/knowledge) - Always
+4. [Optional] Load extensions - Only if enabled
+5. Start CLI prompt - Fully functional regardless
+```
+
+### 📖 Documentation Updates
+- **wiki/Architecture.md**: Updated with v1.0.26 core/extensions model
+- **wiki/Latest-Development.md**: This page - v1.0.26 release notes added
+- **dev/notes/STARTUP_FIXES.md**: Complete fix documentation
+- **dev/notes/ARCHITECTURE.md**: Detailed architectural guide
+- **extensions/core/teletext/README.md**: Extension documentation
+
+### 🚀 Impact
+- ✅ Clean first-run experience (no error messages)
+- ✅ CLI works immediately after clone
+- ✅ Extensions are opt-in, not opt-out
+- ✅ Clear separation of required vs optional components
+- ✅ Easier testing (core without extensions)
+- ✅ Extension failures don't affect core
+
+---
+
 ## 🎮 v1.0.24/v1.0.25 - Extensions Unification & Dashboard (✅ COMPLETE)
 
 **Release Date**: November 18, 2025

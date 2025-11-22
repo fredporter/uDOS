@@ -72,10 +72,17 @@ class CommandHandler:
         from core.commands.assistant_handler import AssistantCommandHandler
         from core.commands.file_handler import FileCommandHandler
         from core.commands.grid_handler import GridCommandHandler
-        from core.commands.map_handler import MapCommandHandler
         from core.commands.system_handler import SystemCommandHandler
         from core.commands.bank_handler import BankCommandHandler
         from core.commands.cmd_knowledge import cmd_knowledge
+
+        # Game Mode extension (optional) - load if available
+        try:
+            from extensions.game_mode.commands.map_handler import MapCommandHandler
+            self._game_mode_available = True
+        except ImportError:
+            MapCommandHandler = None
+            self._game_mode_available = False
 
         # v1.0.20 - 4-Tier Knowledge Bank handlers
         from core.commands.memory_commands import MemoryCommandHandler
@@ -95,7 +102,7 @@ class CommandHandler:
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.grid_handler = GridCommandHandler(**handler_kwargs)
-        self.map_handler = MapCommandHandler(**handler_kwargs)
+        self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
         self.knowledge_command = cmd_knowledge
@@ -119,8 +126,12 @@ class CommandHandler:
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler, self.grid_handler,
-                       self.map_handler, self.system_handler, self.bank_handler]:
+                       self.system_handler, self.bank_handler]:
             handler.main_handler = self
+
+        # Set main_handler on map_handler if available
+        if self.map_handler:
+            self.map_handler.main_handler = self
 
     def get_message(self, key, **kwargs):
         """
@@ -179,7 +190,11 @@ class CommandHandler:
                 return self.grid_handler.handle(command, params, grid)
 
             elif module == "MAP":
-                return self.map_handler.handle(command, params, grid)
+                if self.map_handler:
+                    return self.map_handler.handle(command, params, grid)
+                else:
+                    return ("❌ MAP commands require Game Mode extension\n"
+                           "💡 Install: POKE START game-mode")
 
             elif module == "BANK":
                 return self.bank_handler.handle(command, params, grid)

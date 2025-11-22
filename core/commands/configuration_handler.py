@@ -98,17 +98,25 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("")
         output.append("👤 USER SETTINGS:")
         output.append("-" * 40)
-        if self.user_manager and self.user_manager.user_data:
-            user_profile = self.user_manager.user_data.get('user_profile', {})
-            output.append(f"  Username: {user_profile.get('username', 'Not set')}")
-            output.append(f"  Project: {user_profile.get('project_name', 'Not set')}")
 
-            # Get theme from system settings
-            system_settings = self.user_manager.user_data.get('system_settings', {})
-            display = system_settings.get('display', {})
-            output.append(f"  Theme: {display.get('theme', 'Not set')}")
-        else:
-            output.append("  User profile: Not loaded")
+        # Get user data from story_manager (STORY section)
+        user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+        location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+        timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+        password = self.story_manager.get_field('STORY.PASSWORD', '')
+        project_name = self.story_manager.get_field('STORY.PROJECT_NAME', 'Not set')
+
+        password_display = '●●●●●●' if password else 'Not set'
+
+        output.append(f"  Username: {user_name}")
+        output.append(f"  Password: {password_display}")
+        output.append(f"  Project: {project_name}")
+        output.append(f"  Location: {location}")
+        output.append(f"  Timezone: {timezone}")
+
+        # Get theme from story manager
+        theme_name = self.story_manager.get_field('STORY.THEME', 'Not set')
+        output.append(f"  Theme: {theme_name}")
 
         # System settings
         output.append("")
@@ -146,14 +154,19 @@ class ConfigurationHandler(BaseCommandHandler):
                 return "Grid not initialized"
 
         elif key_upper == 'USER':
-            if self.user_manager and self.user_manager.user_data:
-                user_profile = self.user_manager.user_data.get('USER_PROFILE', {})
-                return (f"User settings:\n"
-                       f"  Name: {user_profile.get('NAME', 'Not set')}\n"
-                       f"  Location: {user_profile.get('LOCATION', 'Not set')}\n"
-                       f"  Timezone: {user_profile.get('TIMEZONE', 'UTC')}")
-            else:
-                return "User profile not loaded"
+            # Get user data from story_manager (STORY section)
+            user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+            location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+            timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+            password = self.story_manager.get_field('STORY.PASSWORD', '')
+
+            password_display = '●●●●●●' if password else 'Not set'
+
+            return (f"User settings:\n"
+                   f"  Username: {user_name}\n"
+                   f"  Password: {password_display}\n"
+                   f"  Location: {location}\n"
+                   f"  Timezone: {timezone}")
 
         elif key_upper == 'DEBUG':
             debug_enabled = getattr(self.logger, 'debug_enabled', False) if self.logger else False
@@ -1062,28 +1075,39 @@ class ConfigurationHandler(BaseCommandHandler):
     def _manage_user_profile_interactive(self):
         """Interactive user profile management."""
         try:
+            # Auto-detect system timezone and location
+            from core.utils.system_info import get_system_timezone
+            detected_timezone, detected_city = get_system_timezone()
+
             # Get current profile
             user_name = self.story_manager.get_field('STORY.USER_NAME', '')
-            project_name = self.story_manager.get_field('STORY.PROJECT_NAME', '')
+            password = self.story_manager.get_field('STORY.PASSWORD', '')
             location = self.story_manager.get_field('STORY.LOCATION', '')
-            timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+            timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+
+            # Use detected values as defaults if not set
+            if not timezone:
+                timezone = detected_timezone
+            if not location:
+                location = detected_city
 
             # Show current profile
             output = []
             output.append(self.output_formatter.format_panel(
                 "User Profile",
-                f"Name: {user_name or 'Not set'}\n"
-                f"Project: {project_name or 'Not set'}\n"
+                f"Username: {user_name or 'Not set'}\n"
+                f"Password: {'●●●●●●' if password else 'Not set (optional)'}\n"
                 f"Location: {location or 'Not set'}\n"
-                f"Timezone: {timezone}"
+                f"Timezone: {timezone}\n"
+                f"\nℹ️  Detected: {detected_timezone} ({detected_city})"
             ))
 
             # Ask what to update
             action = self.input_manager.prompt_choice(
                 message="What would you like to update?",
                 choices=[
-                    "User Name",
-                    "Project Name",
+                    "Username",
+                    "Password",
                     "Location",
                     "Timezone",
                     "Update All Fields",
@@ -1092,28 +1116,31 @@ class ConfigurationHandler(BaseCommandHandler):
                 default="Back to Main Menu"
             )
 
-            if action == "User Name":
+            if action == "Username":
                 new_name = self.input_manager.prompt_user(
-                    message="Enter your name:",
+                    message="Enter username:",
                     default=user_name,
                     required=True
                 )
                 self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=True)
-                output.append(f"\n✅ User name updated to: {new_name}")
+                output.append(f"\n✅ Username updated to: {new_name}")
 
-            elif action == "Project Name":
-                new_project = self.input_manager.prompt_user(
-                    message="Enter project name:",
-                    default=project_name,
-                    required=True
+            elif action == "Password":
+                new_password = self.input_manager.prompt_user(
+                    message="Enter password (leave blank for none):",
+                    default="",
+                    required=False
                 )
-                self.story_manager.set_field('STORY.PROJECT_NAME', new_project, auto_save=True)
-                output.append(f"\n✅ Project name updated to: {new_project}")
+                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=True)
+                if new_password:
+                    output.append("\n✅ Password updated")
+                else:
+                    output.append("\n✅ Password cleared")
 
             elif action == "Location":
                 new_location = self.input_manager.prompt_user(
-                    message="Enter your location (city, country):",
-                    default=location,
+                    message=f"Enter location (detected: {detected_city}):",
+                    default=location or detected_city,
                     required=False
                 )
                 self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
@@ -1121,23 +1148,44 @@ class ConfigurationHandler(BaseCommandHandler):
 
             elif action == "Timezone":
                 new_timezone = self.input_manager.prompt_user(
-                    message="Enter timezone (e.g., America/New_York, Europe/London):",
-                    default=timezone,
+                    message=f"Enter timezone (detected: {detected_timezone}):",
+                    default=timezone or detected_timezone,
                     required=False
                 )
                 self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=True)
                 output.append(f"\n✅ Timezone updated to: {new_timezone}")
 
             elif action == "Update All Fields":
-                new_name = self.input_manager.prompt_user("Name:", default=user_name, required=True)
-                new_project = self.input_manager.prompt_user("Project:", default=project_name, required=True)
-                new_location = self.input_manager.prompt_user("Location:", default=location, required=False)
-                new_timezone = self.input_manager.prompt_user("Timezone:", default=timezone, required=False)
+                # Prompt for all fields with auto-detected defaults
+                new_name = self.input_manager.prompt_user(
+                    message="Username:",
+                    default=user_name,
+                    required=True
+                )
 
+                new_password = self.input_manager.prompt_user(
+                    message="Password (leave blank for none):",
+                    default="",
+                    required=False
+                )
+
+                new_timezone = self.input_manager.prompt_user(
+                    message=f"Timezone (detected: {detected_timezone}):",
+                    default=timezone or detected_timezone,
+                    required=False
+                )
+
+                new_location = self.input_manager.prompt_user(
+                    message=f"Location (defaults to timezone city):",
+                    default=location or detected_city,
+                    required=False
+                )
+
+                # Save all fields
                 self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=False)
-                self.story_manager.set_field('STORY.PROJECT_NAME', new_project, auto_save=False)
-                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=False)
-                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=True)
+                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=False)
+                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=False)
+                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
 
                 output.append("\n✅ User profile updated")
 

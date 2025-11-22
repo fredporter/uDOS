@@ -325,7 +325,8 @@ class FilePicker:
                     '??': 'untracked'
                 }
                 return status_map.get(status, 'unknown')
-        except:
+        except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+            # Git not available or not a git repo
             pass
 
         return None

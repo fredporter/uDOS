@@ -134,17 +134,28 @@ def initialize_system(is_script_mode=False):
                 print()
                 print(f"  {message}")
                 print()
-                response = input("  Attempt auto-repair? (y/n/OK): ").strip().lower()
-                if response in ['y', 'yes', 'ok']:
-                    print()
-                    health = check_system_health(verbose=False)
-                    health = repair_system(health, verbose=True)
-                    print()
-                    if health.is_healthy():
-                        print("  ✅ System repaired successfully!")
-                    else:
-                        print(f"  ⚠️  Some issues remain - run 'REPAIR --report' for details")
-                    print()
+
+                # Only prompt if we have an interactive terminal
+                import sys
+                if sys.stdin.isatty():
+                    try:
+                        response = input("  Attempt auto-repair? (y/n/OK): ").strip().lower()
+                        if response in ['y', 'yes', 'ok']:
+                            print()
+                            health = check_system_health(verbose=False, return_dict=False)
+                            health = repair_system(health, verbose=True)
+                            print()
+                            if health.is_healthy():
+                                print("  ✅ System repaired successfully!")
+                            else:
+                                print("  ⚠️  Some issues remain - run 'REPAIR --report' for details")
+                    except (EOFError, KeyboardInterrupt):
+                        print("\n  ⚠️  Skipping auto-repair")
+                        print("  💡 Run 'REPAIR' command later to fix issues")
+                else:
+                    print("  ⚠️  Non-interactive mode - skipping auto-repair")
+                    print("  💡 Run 'REPAIR' command to fix issues")
+                print()
 
         # Store health check results (if available)
         if health:
@@ -224,6 +235,29 @@ def main():
             lifespan_status = user_manager.check_lifespan_status(move_stats['total_moves'])
             if lifespan_status['status'] != 'OK':
                 print(f"⏳ {lifespan_status['message']}")
+
+            # v1.0.30: Show welcome and offer demo
+            try:
+                from core.utils.startup_welcome import startup_sequence
+                # Check if this is a first run or fresh session
+                import os
+                demo_shown_file = os.path.join(os.path.dirname(__file__), '..', 'memory', '.demo_shown_v1_0_30')
+                show_demo = not os.path.exists(demo_shown_file)
+
+                startup_sequence(viewport_width=viewport.width, auto_skip_demo=not show_demo)
+
+                # Mark demo as shown
+                if show_demo:
+                    try:
+                        os.makedirs(os.path.dirname(demo_shown_file), exist_ok=True)
+                        with open(demo_shown_file, 'w') as f:
+                            f.write('Demo shown on first run of v1.0.30')
+                    except:
+                        pass  # Non-critical
+            except Exception as e:
+                # Don't fail startup if welcome fails
+                pass
+
             print()  # Blank line
 
         command_handler = CommandHandler(
@@ -249,27 +283,29 @@ def main():
         # Initialize v1.0.19 smart prompt with autocomplete (replaces old PromptSession)
         smart_prompt = SmartPrompt(command_history=command_history, theme='dungeon')
 
-        # Start API server if configured (v1.0.19 enhancement)
+        # OPTIONAL: Web GUI Extension - API Server
+        # Only loads if explicitly enabled in user settings
+        # CLI functionality is complete without this
         api_server_started = False
         try:
-            from .services.api_server_manager import APIServerManager
-
-            # Check if user wants API server (can be configured in settings)
             user_data = user_manager.get_user_data()
-            start_api = user_data.get('settings', {}).get('api_server_enabled', True)
+            if user_data.get('settings', {}).get('api_server_enabled', False):
+                # Try to load API server extension (not in core)
+                from extensions.core.teletext.api_server_manager import APIServerManager
 
-            if start_api:
-                print("🌐 Starting API server...", end=" ", flush=True)
+                print("🌐 Starting Web GUI API server...", end=" ", flush=True)
                 api_manager = APIServerManager(port=5001, auto_restart=True)
                 if api_manager.start_server():
                     api_server_started = True
-                    print("✓")
+                    print("✓ http://localhost:5001")
                 else:
-                    print("⚠️  (continuing without API)")
+                    print("❌ Failed (continuing in CLI mode)")
+        except ImportError:
+            # Extension not installed - CLI works fine without it
+            pass
         except Exception as e:
-            # API server is optional, continue without it
-            if not is_script_mode:
-                print(f"⚠️  API server unavailable ({str(e)[:30]}...)")
+            # Extension failed to load - not critical for CLI
+            pass
 
         print()  # Blank line before prompt
 
@@ -283,11 +319,13 @@ def main():
                     os.execv(sys.executable, ['python'] + sys.argv)
 
                 # Generate smart prompt string with flash effect
+                # Note: Flash disabled by default to preserve terminal scrollback
+                # Set flash=True below if you want the animated prompt
                 is_assist = user_manager.is_assist_mode()
                 prompt_string = prompt_decorator.get_prompt(
                     is_assist_mode=is_assist,
                     panel_name=grid.selected_panel,
-                    flash=True
+                    flash=False  # Changed from True - preserves scrollback
                 )
 
                 # Show context hints if available
@@ -300,6 +338,11 @@ def main():
 
                 # Use new SmartPrompt with autocomplete (v1.0.19)
                 user_input = smart_prompt.ask(prompt_text=prompt_string)
+
+                # Skip empty input (happens with piped input at EOF)
+                if not user_input or not user_input.strip():
+                    continue
+
                 logger.log("INPUT", user_input)
 
                 if user_input.lower() == 'exit':
@@ -370,11 +413,19 @@ def main():
                     logger.log("ERROR", f"IOError: {e}")
                     print(command_handler.get_message("ERROR_GENERIC", error=str(e)))
             except Exception as e:
+                # Check if this is a normal termination condition
+                error_str = str(e).lower()
+                if any(term in error_str for term in ['eof', 'closed', 'input', 'terminal']):
+                    # Likely end of piped input or terminal closed - exit gracefully
+                    logger.log("EVENT", f"Terminal condition: {e}")
+                    break
+
+                # Otherwise log and display error
                 logger.log("ERROR", str(e))
                 print(command_handler.get_message("ERROR_CRASH", error=str(e)))
 
                 # Self-healing attempt for recoverable errors
-                if "connection" in str(e).lower() or "timeout" in str(e).lower():
+                if "connection" in error_str or "timeout" in error_str:
                     print("🔧 Attempting self-heal...")
                     try:
                         connection = ConnectionMonitor()

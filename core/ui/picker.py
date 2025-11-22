@@ -48,6 +48,7 @@ class PickerConfig:
     allow_cancel: bool = True
     allow_search: bool = True
     compact_mode: bool = False  # For small viewports
+    teletext_mode: bool = True  # Use teletext block styling (v1.0.30)
 
 
 class UniversalPicker:
@@ -60,6 +61,15 @@ class UniversalPicker:
         self.items: List[PickerItem] = []
         self.filtered_items: List[PickerItem] = []
         self.search_query: str = ""
+
+        # Import teletext styling if enabled (v1.0.30)
+        if config.teletext_mode:
+            try:
+                from core.ui.teletext_prompt import TeletextPromptStyle, TeletextBlocks
+                self.teletext_style = TeletextPromptStyle()
+                self.teletext_blocks = TeletextBlocks()
+            except ImportError:
+                self.config.teletext_mode = False  # Fallback to classic mode
 
     def set_items(self, items: List[PickerItem]):
         """Set picker items"""
@@ -84,10 +94,42 @@ class UniversalPicker:
 
     def render(self) -> str:
         """Render picker UI"""
+        # v1.0.30: Use teletext styling if enabled
+        if self.config.teletext_mode:
+            return self._render_teletext()
+
         if self.config.compact_mode:
             return self._render_compact()
         else:
             return self._render_full()
+
+    def _render_teletext(self) -> str:
+        """Render using teletext block styling (v1.0.30)"""
+        items_to_show = self.filtered_items[:self.config.max_items_display]
+
+        # Convert items to simple strings for teletext renderer
+        item_labels = [
+            f"{item.icon} {item.label}" if item.icon else item.label
+            for item in items_to_show
+        ]
+
+        # Determine which teletext renderer to use based on picker type
+        if self.config.picker_type == PickerType.MULTI:
+            selected_indices = [
+                i for i, item in enumerate(items_to_show) if item.selected
+            ]
+            return self.teletext_style.create_multi_select_box(
+                self.config.title,
+                item_labels,
+                selected_indices,
+                current_index=0
+            )
+        else:
+            return self.teletext_style.create_selection_box(
+                self.config.title,
+                item_labels,
+                selected_index=0
+            )
 
     def _render_full(self) -> str:
         """Render full picker UI"""

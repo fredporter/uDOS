@@ -27,7 +27,8 @@ from .utils.ucode import UCodeInterpreter
 
 # Display
 from .uDOS_splash import print_splash_screen
-from .uDOS_prompt import SmartPrompt
+from .uDOS_prompt import SmartPrompt as PromptDecorator  # Legacy prompt decorator (visual effects)
+from .services.smart_prompt import SmartPrompt  # v1.0.19+ autocomplete system
 from .uDOS_offline import OfflineEngine
 
 __all__ = [

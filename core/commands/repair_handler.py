@@ -99,7 +99,7 @@ class RepairHandler(BaseCommandHandler):
             return f"{'✨' if success else '❌'} {message}"
 
         # Run full health check
-        health = check_system_health(verbose=False)
+        health = check_system_health(verbose=False, return_dict=False)
 
         # Check-only mode
         if check_only:

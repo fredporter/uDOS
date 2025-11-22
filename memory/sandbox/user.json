@@ -4,8 +4,8 @@
     "installation_id": "testuser_dev_install",
     "profile_version": "2.0",
     "created_at": "2025-11-02T00:00:00.000000+00:00",
-    "last_updated": "2025-11-19T10:26:48.625370",
-    "last_session": "session_1763508408",
+    "last_updated": "2025-11-22T20:56:03.236472",
+    "last_session": "session_1763805363",
     "username": "testuser",
     "project_name": "uDOS_dev"
   },
@@ -36,8 +36,8 @@
   "system_settings": {
     "viewport": {
       "device_type": "TERMINAL",
-      "terminal_size": "80\u00d724",
-      "grid_dimensions": "20\u00d712",
+      "terminal_size": "97\u00d730",
+      "grid_dimensions": "24\u00d715",
       "precision_mode": "UCELL_16x16",
       "coordinate_system": "ZERO_INDEXED"
     },
@@ -115,5 +115,15 @@
     "config_format": "JSON_V2",
     "migration_source": "USER_UDO_MIGRATION",
     "created_date": "2025-11-02"
+  },
+  "STORY": {
+    "USER_NAME": "Fred",
+    "LAST_UPDATED": "2025-11-22T20:46:43.474956",
+    "PROJECT_NAME": "Wizard",
+    "LOCATION": "Sydney",
+    "TIMEZONE": "AEDT",
+    "PASSWORD": "",
+    "THEME": "dungeon",
+    "": ""
   }
 }

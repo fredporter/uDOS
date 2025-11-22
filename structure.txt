@@ -21,23 +21,18 @@ uDOS/
 │   │   ├── knowledge_handler.py
 │   │   ├── learn_unified_handler.py
 │   │   ├── manual_handler.py
-│   │   ├── map_handler.py
 │   │   ├── memory_commands.py
 │   │   ├── memory_unified_handler.py
 │   │   ├── panel_handler.py
 │   │   ├── private_commands.py
 │   │   ├── repair_handler.py
-│   │   ├── resource_handler.py
-│   │   ├── scenario_handler.py
-│   │   ├── scenario_play_handler.py
 │   │   ├── shared_commands.py
-│   │   ├── survival_handler.py
 │   │   ├── system_handler.py
-│   │   ├── tile_handler.py
-│   │   └── xp_handler.py
+│   │   └── tile_handler.py
+│   ├── output/
+│   │   └── api_server.log
 │   ├── services/
 │   │   ├── alias_manager.py
-│   │   ├── api_server_manager.py
 │   │   ├── autocomplete.py
 │   │   ├── barter_service.py
 │   │   ├── community_service.py
@@ -55,7 +50,9 @@ uDOS/
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
+│   │   ├── input_manager.py
 │   │   ├── inventory_service.py
+│   │   ├── knowledge_file_picker.py
 │   │   ├── knowledge_manager.py
 │   │   ├── knowledge_service.py
 │   │   ├── knowledge_types.py
@@ -65,16 +62,15 @@ uDOS/
 │   │   ├── map_engine.py
 │   │   ├── memory_manager.py
 │   │   ├── option_selector.py
+│   │   ├── output_formatter.py
 │   │   ├── performance_profiler.py
 │   │   ├── progress_manager.py
-│   │   ├── scenario_engine.py
-│   │   ├── scenario_service.py
 │   │   ├── screen_manager.py
 │   │   ├── session_manager.py
 │   │   ├── setup_wizard.py
 │   │   ├── sharing_service.py
 │   │   ├── smart_prompt.py
-│   │   ├── survival_service.py
+│   │   ├── story_manager.py
 │   │   ├── teletext_renderer.py
 │   │   ├── theme_builder.py
 │   │   ├── theme_manager.py
@@ -84,13 +80,17 @@ uDOS/
 │   │   ├── viewport_manager.py
 │   │   └── xp_service.py
 │   ├── tests/
+│   │   ├── test_config_profile.py
+│   │   ├── test_themes.py
 │   │   ├── test_v1_0_23_consolidation.py
 │   │   ├── test_v1_0_23_integration.py
 │   │   ├── test_v1_0_23_performance.py
 │   │   └── test_v1_0_23_ui.py
 │   ├── ui/
+│   │   ├── micro_editor.py
 │   │   ├── picker.py
-│   │   └── progress_indicators.py
+│   │   ├── progress_indicators.py
+│   │   └── teletext_prompt.py
 │   ├── utils/
 │   │   ├── completer.py
 │   │   ├── config_manager.py
@@ -100,7 +100,11 @@ uDOS/
 │   │   ├── migrate_config.py
 │   │   ├── reorganize_knowledge.sh
 │   │   ├── setup.py
+│   │   ├── startup_welcome.py
+│   │   ├── system_info.py
 │   │   ├── theme.py
+│   │   ├── theme_loader.py
+│   │   ├── theme_validator.py
 │   │   ├── tizo_manager.py
 │   │   ├── ucode.py
 │   │   ├── variables.py
@@ -126,8 +130,67 @@ uDOS/
 │   ├── uDOS_tree.py
 │   └── uDOS_ucode.py
 ├── data/
-│   └── templates/
-│       └── README.md
+├── dev/
+│   ├── archive/
+│   │   └── v1.0.x/
+│   │       ├── baselines/
+│   │       │   └── BASELINE-v1.0.26.md
+│   │       ├── docs-original/
+│   │       │   ├── archive/
+│   │       │   ├── commands/
+│   │       │   ├── development/
+│   │       │   ├── guides/
+│   │       │   ├── planning/
+│   │       │   ├── references/
+│   │       │   ├── releases/
+│   │       │   ├── tools/
+│   │       │   ├── versions/
+│   │       │   ├── CLEANUP.md
+│   │       │   ├── FILE-ORGANIZATION-COMPLETE.md
+│   │       │   ├── PANEL-QUICKREF.md
+│   │       │   ├── QUICKREF-v1.0.20-KNOWLEDGE.md
+│   │       │   ├── QUICKREF-v1.0.6-CLI.md
+│   │       │   ├── QUICKREF-v1.0.x.md
+│   │       │   ├── README.md
+│   │       │   ├── ROADMAP-v1.0.20-23-ADDITIONS.md
+│   │       │   ├── knowledge-reorganization-v1.0.21.md
+│   │       │   ├── memory-reorganization-v1.0.21.md
+│   │       │   ├── quickref-memory-workflow.md
+│   │       │   └── structure.txt
+│   │       ├── phases/
+│   │       ├── sessions/
+│   │       ├── summaries/
+│   │       └── V1.0.27-COMPLETION-SUMMARY.md
+│   ├── notes/
+│   │   ├── ideas/
+│   │   ├── scratch/
+│   │   ├── ARCHITECTURE.md
+│   │   ├── README.md
+│   │   ├── STARTUP_FIXES.md
+│   │   ├── V1.0.27-RESTRUCTURE-PLAN.md
+│   │   ├── v1.0.26-dev-summary.md
+│   │   ├── v1.0.27-command-audit.md
+│   │   ├── v1.0.27-dev-summary.md
+│   │   ├── v1.0.27-feature-plan.md
+│   │   ├── v1.0.27-final-summary.md
+│   │   ├── v1.0.27-testing-results.md
+│   │   ├── v1.0.29-completion-report.md
+│   │   └── v1.0.29-smart-input-plan.md
+│   ├── planning/
+│   │   ├── features/
+│   │   ├── releases/
+│   │   │   └── V1.1-STABLE-RELEASE-PLAN.md
+│   │   ├── roadmap/
+│   │   │   ├── V1.1.0-PLUS-ROADMAP.md
+│   │   │   └── v1.1.0-FEATURE-PRIORITIES.md
+│   │   ├── STORY_ARCHITECTURE.md
+│   │   ├── v1_0_30_complete_summary.md
+│   │   └── v1_0_30_summary.md
+│   ├── tools/
+│   │   └── scripts/
+│   ├── README.md
+│   ├── THEME_GUIDE.md
+│   └── demo_v1_0_30.py
 ├── extensions/
 │   ├── assets/
 │   │   ├── css/
@@ -843,6 +906,7 @@ uDOS/
 │   │   │   │   └── teletext-core.js
 │   │   │   ├── README.md
 │   │   │   ├── api_server.py
+│   │   │   ├── api_server_manager.py
 │   │   │   ├── index.html
 │   │   │   ├── requirements.txt
 │   │   │   ├── start.sh
@@ -873,6 +937,22 @@ uDOS/
 │   │   ├── README.md
 │   │   ├── extensions_server.py
 │   │   └── launch.sh
+│   ├── game-mode/
+│   │   ├── commands/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_handler.py
+│   │   │   ├── resource_handler.py
+│   │   │   ├── scenario_handler.py
+│   │   │   ├── scenario_play_handler.py
+│   │   │   ├── survival_handler.py
+│   │   │   └── xp_handler.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── scenario_engine.py
+│   │   │   ├── scenario_service.py
+│   │   │   └── survival_service.py
+│   │   ├── README.md
+│   │   └── __init__.py
 │   ├── setup/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
@@ -910,6 +990,9 @@ uDOS/
 │   │   ├── udos_map_480x270_cellkey/
 │   │   │   ├── data/
 │   │   │   │   └── cities_sample.csv
+│   │   │   ├── output/
+│   │   │   │   ├── key_example.csv
+│   │   │   │   └── test_keys.csv
 │   │   │   ├── tools/
 │   │   │   │   └── compute_keys.py
 │   │   │   ├── MANIFEST.json
@@ -1036,6 +1119,9 @@ uDOS/
 │   │   │   ├── setup.uscript
 │   │   │   ├── story.template.json
 │   │   │   └── user.template.json
+│   │   ├── tests/
+│   │   │   ├── test_startup.py
+│   │   │   └── test_system.py
 │   │   ├── themes/
 │   │   │   ├── templates/
 │   │   │   │   ├── README.md
@@ -1045,12 +1131,14 @@ uDOS/
 │   │   │   │   └── minimal.json
 │   │   │   ├── _index.json
 │   │   │   ├── _schema.json
+│   │   │   ├── default.json
 │   │   │   ├── dungeon.json
 │   │   │   ├── foundation.json
 │   │   │   ├── galaxy.json
 │   │   │   ├── imported_test_theme.json
 │   │   │   ├── project.json
-│   │   │   └── science.json
+│   │   │   ├── science.json
+│   │   │   └── teletext.json
 │   │   ├── BLANK-ENHANCED.md
 │   │   ├── HELP-ENHANCED.md
 │   │   ├── MAP.md
@@ -1101,6 +1189,7 @@ uDOS/
 │   │   └── stress-management-resilience.md
 │   ├── KNOWLEDGE-SYSTEM.md
 │   └── README.md
+├── output/
 ├── sandbox/
 ├── wiki/
 │   ├── diagrams/
@@ -1145,6 +1234,7 @@ uDOS/
 │   ├── README-Typography.md
 │   ├── README.md
 │   ├── Release-v1.0.13.md
+│   ├── Release-v1.0.30.md
 │   ├── SYSTEM-CSS-REFERENCE.md
 │   ├── Style-Guide.md
 │   ├── TILE-Commands.md
@@ -1162,18 +1252,22 @@ uDOS/
 │   ├── shared-components.md
 │   └── uCODE-Language.md
 ├── .gitignore
-├── BASELINE-v1.0.26.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── CREDITS.md
+├── INSTALL.md
 ├── LICENSE.txt
+├── MANIFEST.in
 ├── QUICK-REFERENCE.md
+├── QUICK_START.md
 ├── README.MD
 ├── ROADMAP.MD
 ├── pytest.ini
 ├── requirements.txt
+├── setup.py
 ├── start_udos.sh
 ├── structure.txt
+├── test_cli.sh
 ├── uDOS.code-workspace
 ├── uDOS.py
 └── web.sh

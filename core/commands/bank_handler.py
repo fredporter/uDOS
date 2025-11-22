@@ -260,7 +260,7 @@ Examples:
         output.append(f"💾 **Database Size:** {db_size_mb:.2f} MB")
 
         # Category breakdown
-        categories = self.knowledge_manager.get_categories()
+        categories = self.bank_manager.get_categories()
         if categories:
             output.append("\n📂 **Category Breakdown:**")
             for cat in categories:

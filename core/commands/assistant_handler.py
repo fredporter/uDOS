@@ -97,8 +97,30 @@ class AssistantCommandHandler(BaseCommandHandler):
             return self._handle_debug(params)
         elif command == "CLEAR":
             return self._handle_clear()
+        elif command == "STATUS":
+            return self._handle_status()
         else:
             return self.get_message("ERROR_UNKNOWN_ASSISTANT_COMMAND", command=command)
+
+    def _handle_status(self):
+        """Display assistant status and available features."""
+        return """🤖 Assistant Status
+
+Available Commands:
+  • ASSIST CLEAR - Clear conversation history
+
+Deferred Features (v1.1+):
+  • OK ASK - Gemini-powered assistance
+  • OK DEV - GitHub Copilot CLI integration
+  • EXPLAIN - Command explanations
+  • GENERATE - Script generation
+  • DEBUG - Error debugging
+  • READ - Panel content analysis
+
+Status: ⚠️ Core assistant features deferred to v1.1+
+        Active commands available via HELP SEARCH assist
+
+💡 Tip: Use HELP to see all currently active commands"""
 
     def _handle_ok_help(self):
         """Display OK command help."""

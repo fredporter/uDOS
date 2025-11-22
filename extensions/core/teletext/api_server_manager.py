@@ -12,11 +12,11 @@ import subprocess
 from pathlib import Path
 
 # Paths
-UDOS_ROOT = Path(__file__).parent.parent
-API_SERVER_PATH = UDOS_ROOT / "extensions/bundled/web/teletext/api_server.py"
+UDOS_ROOT = Path(__file__).parent.parent.parent.parent
+API_SERVER_PATH = UDOS_ROOT / "extensions/core/teletext/api_server.py"
 VENV_PYTHON = UDOS_ROOT / ".venv/bin/python"
-PID_FILE = UDOS_ROOT / "output/.api_server.pid"
-LOG_FILE = UDOS_ROOT / "output/api_server.log"
+PID_FILE = UDOS_ROOT / "memory/logs/.api_server.pid"
+LOG_FILE = UDOS_ROOT / "memory/logs/api_server.log"
 
 # Default configuration
 DEFAULT_PORT = 5001
@@ -62,6 +62,12 @@ class APIServerManager:
 
     def start_server(self):
         """Start the API server."""
+        # Check if API server file exists
+        if not API_SERVER_PATH.exists():
+            print(f"❌ API server not found: {API_SERVER_PATH}")
+            print("   Install web extensions or disable api_server_enabled in settings")
+            return False
+
         # Check if already running
         if self.is_running():
             print(f"⚠️  API server already running (PID: {self.get_pid()})")

@@ -11,7 +11,7 @@ def print_splash_screen():
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
     print(splash_text)
-    print("uDOS v1.0.0 - Smart Commands & Interactive System")
+    print("uDOS v1.0.30 - Enhanced CLI with Teletext UI")
     print("="*50)
 
 

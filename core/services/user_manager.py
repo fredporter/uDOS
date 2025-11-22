@@ -43,10 +43,15 @@ class UserManager:
         Returns:
             dict: User profile data
         """
+        # Auto-detect system timezone and location
+        from core.utils.system_info import get_system_timezone
+        detected_timezone, detected_city = get_system_timezone()
+
         print("\n" + "="*60)
         print("🧙 USER PROFILE SETUP")
         print("="*60)
         print("Let's configure your uDOS environment.\n")
+        print(f"ℹ️  Detected timezone: {detected_timezone} ({detected_city})\n")
 
         # Load existing user.json as template or create default
         if os.path.exists(self.user_file):
@@ -63,6 +68,9 @@ class UserManager:
                     "last_updated": datetime.now().isoformat(),
                     "last_session": f"session_{int(time.time())}",
                     "username": "user",
+                    "password": "",
+                    "timezone": detected_timezone,
+                    "location": detected_city,
                     "project_name": "uDOS_project"
                 },
                 "system_settings": {
@@ -91,20 +99,43 @@ class UserManager:
             }
 
         if interactive:
-            # Update with user input
-            username = input(f"👤 Username [{user_config['user_profile']['username']}]: ").strip()
+            # Required field: Username
+            username = input(f"👤 Username [{user_config['user_profile'].get('username', 'user')}]: ").strip()
             if username:
                 user_config['user_profile']['username'] = username
 
-            project_name = input(f"🎯 Project name [{user_config['user_profile']['project_name']}]: ").strip()
+            # Optional field: Password
+            password = input("🔐 Password (leave blank for none): ").strip()
+            user_config['user_profile']['password'] = password
+
+            # Auto-detected timezone (modifiable)
+            current_tz = user_config['user_profile'].get('timezone', detected_timezone)
+            timezone = input(f"🌍 Timezone [{current_tz}]: ").strip()
+            if timezone:
+                user_config['user_profile']['timezone'] = timezone
+            else:
+                user_config['user_profile']['timezone'] = current_tz
+
+            # Location defaults to timezone city (modifiable)
+            current_loc = user_config['user_profile'].get('location', detected_city)
+            location = input(f"📍 Location [{current_loc}]: ").strip()
+            if location:
+                user_config['user_profile']['location'] = location
+            else:
+                user_config['user_profile']['location'] = current_loc
+
+            # Project name
+            project_name = input(f"🎯 Project name [{user_config['user_profile'].get('project_name', 'uDOS_project')}]: ").strip()
             if project_name:
                 user_config['user_profile']['project_name'] = project_name
 
+            # Theme selection
             print("\n🎨 Available themes: DUNGEON_CRAWLER, CYBERPUNK, MINIMAL")
             theme = input(f"Theme [{user_config['system_settings']['display']['theme']}]: ").strip().upper()
             if theme in ['DUNGEON_CRAWLER', 'CYBERPUNK', 'MINIMAL']:
                 user_config['system_settings']['display']['theme'] = theme
 
+            # Assist mode
             assist_choice = input("🤖 Enable assist mode? (y/N): ").strip().lower()
             user_config['session_preferences']['assist_mode'] = assist_choice == 'y'
 
@@ -146,6 +177,15 @@ class UserManager:
             except:
                 pass
         return ''
+
+    def get_user_data(self):
+        """
+        Get the current user data dictionary.
+        Returns the loaded user profile data or None if not loaded.
+        """
+        if not self.user_data:
+            self.load_user_profile()
+        return self.user_data
 
     def is_assist_mode(self):
         """Check if assist mode is enabled."""

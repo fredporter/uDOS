@@ -38,25 +38,31 @@ class HelpManager:
         self.usage_tracker = None  # Will be injected if available
 
     def _load_commands(self) -> List[Dict]:
-        """Load commands from JSON file."""
+        """Load commands from JSON file, excluding deferred commands."""
         try:
             with open(self.commands_file, 'r') as f:
                 data = json.load(f)
-                return data.get('COMMANDS', [])
+                all_commands = data.get('COMMANDS', [])
+                # Filter out deferred commands (v1.1+)
+                active_commands = [
+                    cmd for cmd in all_commands
+                    if not cmd.get('DEFERRED')
+                ]
+                return active_commands
         except Exception as e:
             print(f"Error loading commands: {e}")
             return []
 
     def _categorize_commands(self) -> Dict[str, List[str]]:
-        """Auto-categorize all commands."""
+        """Auto-categorize active commands (excludes deferred and extensions)."""
         categories = {
             "📊 System & Info": [],
-            "🤖 Assistant & Analysis": [],
             "🔧 System Control": [],
             "📝 File Operations": [],
-            "🗺️  Navigation & Mapping": [],
-            "🌐 Web Output": [],
-            "🎨 Customization": [],
+            "💾 Knowledge & Memory": [],
+            "🎨 Display & Themes": [],
+            "🔍 Search & Navigation": [],
+            "⚙️  Configuration": [],
             "⚡ Other": []
         }
 
@@ -64,21 +70,25 @@ class HelpManager:
             cmd_name = cmd_data.get('NAME', '')
             ucode = cmd_data.get('UCODE_TEMPLATE', '')
 
+            # Skip deferred and extension commands
+            if cmd_data.get('DEFERRED') or cmd_data.get('EXTENSION'):
+                continue
+
             # Auto-categorize based on name and uCODE template
-            if cmd_name in ['STATUS', 'DASH', 'DASHBOARD', 'VIEWPORT', 'PALETTE', 'HELP', 'TREE', 'SETUP']:
+            if cmd_name in ['STATUS', 'DASH', 'DASHBOARD', 'HELP', 'HISTORY']:
                 categories["📊 System & Info"].append(cmd_name)
-            elif 'ASSISTANT|' in ucode or cmd_name in ['ASK', 'ANALYZE', 'EXPLAIN', 'GENERATE', 'DEBUG', 'CLEAR']:
-                categories["🤖 Assistant & Analysis"].append(cmd_name)
-            elif cmd_name in ['BLANK', 'REBOOT', 'RESTART', 'REPAIR', 'DESTROY', 'UNDO', 'REDO', 'RESTORE', 'CLEAN']:
+            elif cmd_name in ['BLANK', 'SPLASH', 'REBOOT', 'REPAIR', 'DESTROY', 'UNDO', 'REDO', 'RESTORE']:
                 categories["🔧 System Control"].append(cmd_name)
-            elif 'FILE|' in ucode or cmd_name in ['EDIT', 'SHOW', 'RUN', 'NEW', 'DELETE', 'COPY', 'MOVE', 'RENAME']:
+            elif 'FILE|' in ucode or cmd_name in ['EDIT', 'SHOW', 'RUN', 'NEW', 'DELETE', 'COPY', 'MOVE', 'RENAME', 'FILE']:
                 categories["📝 File Operations"].append(cmd_name)
-            elif 'MAP' in cmd_name or cmd_name in ['GOTO', 'MOVE', 'LAYER', 'DESCEND', 'ASCEND', 'LOCATE', 'WHERE']:
-                categories["🗺️  Navigation & Mapping"].append(cmd_name)
-            elif cmd_name in ['OUTPUT', 'SERVER', 'WEB']:
-                categories["🌐 Web Output"].append(cmd_name)
-            elif cmd_name in ['FONT', 'THEME', 'CONFIG', 'SETTINGS']:
-                categories["🎨 Customization"].append(cmd_name)
+            elif cmd_name in ['BANK', 'MEMORY', 'KNOWLEDGE']:
+                categories["💾 Knowledge & Memory"].append(cmd_name)
+            elif cmd_name in ['PANEL', 'GUIDE', 'DIAGRAM', 'TILE', 'VIEWPORT', 'PALETTE', 'THEME']:
+                categories["🎨 Display & Themes"].append(cmd_name)
+            elif cmd_name in ['SEARCH', 'FIND', 'LOCATE', 'WHERE']:
+                categories["🔍 Search & Navigation"].append(cmd_name)
+            elif cmd_name in ['CONFIG', 'SETTINGS', 'SETUP', 'GET', 'SET', 'WORKSPACE']:
+                categories["⚙️  Configuration"].append(cmd_name)
             else:
                 categories["⚡ Other"].append(cmd_name)
 

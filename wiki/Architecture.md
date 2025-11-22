@@ -1,16 +1,113 @@
 # uDOS Architecture
 
-Understanding the internal structure of uDOS v1.0.0
+Understanding the internal structure of uDOS v1.0.26+
 
 ---
 
 ## System Design Philosophy
 
-uDOS is built on three core principles:
+uDOS is built on four core principles:
 
 1. **Separation of Concerns**: User interface, parsing, and execution are distinct
 2. **Human-Readable First**: Commands read like natural language
 3. **Educational Transparency**: Code is clear and well-documented
+4. **Core vs Extensions** *(v1.0.26+)*: Minimal core, optional extensions
+
+---
+
+## Core vs Extensions Architecture *(v1.0.26+)*
+
+### Design Principle
+
+**Core CLI**: Minimal, stable, fully-functional command-line interface
+**Extensions**: Optional features that enhance but are not required
+
+### Directory Structure
+
+```
+uDOS/
+├── core/                    # Core CLI - Required
+│   ├── uDOS_main.py         # Main loop
+│   ├── uDOS_parser.py       # Command parsing
+│   ├── uDOS_commands.py     # Command execution
+│   ├── uDOS_grid.py         # Panel/viewport system
+│   ├── commands/            # Command handlers
+│   ├── services/            # Core services (user, history, etc)
+│   └── utils/               # Core utilities
+│
+├── extensions/              # Optional Extensions
+│   ├── core/                # Bundled extensions (disabled by default)
+│   │   └── teletext/        # Web GUI (optional)
+│   │       ├── api_server.py
+│   │       ├── api_server_manager.py
+│   │       └── README.md
+│   ├── bundled/             # Pre-installed tools
+│   └── setup/               # Extension installers
+│
+├── knowledge/               # Read-only system content
+│   ├── system/              # Commands, themes, configs
+│   └── demos/               # Examples
+│
+└── memory/                  # User workspace
+    ├── user/                # User settings/data
+    ├── logs/                # Session logs
+    └── ...                  # User content
+```
+
+### Core Requirements (Minimal)
+
+- Python 3.8+
+- prompt_toolkit (interactive prompts)
+- python-dotenv (environment config)
+- psutil (system monitoring)
+- requests (HTTP client)
+
+### Extension Requirements (Optional)
+
+- **Teletext Web GUI**: Flask, Flask-CORS, Flask-SocketIO
+- **Dashboard**: No additional requirements (uses base server)
+- **Future Extensions**: Per-extension dependencies
+
+### Startup Flow
+
+```
+1. Load core modules (/core)
+   ├─ Parser
+   ├─ Grid
+   ├─ Commands
+   └─ Services
+
+2. Initialize user environment (/memory)
+   ├─ Load user profile
+   ├─ Check settings
+   └─ Restore session
+
+3. Load knowledge (/knowledge)
+   ├─ System commands
+   ├─ Themes
+   └─ Configurations
+
+4. [Optional] Load extensions (if enabled)
+   └─ Check user settings
+       └─ Import only if api_server_enabled = true
+
+5. Start CLI prompt
+   └─ Fully functional regardless of extensions
+```
+
+### Extension Loading Pattern
+
+```python
+# In core/uDOS_main.py
+try:
+    if user_settings.get('api_server_enabled', False):
+        from extensions.core.teletext.api_server_manager import APIServerManager
+        # Start if available
+except ImportError:
+    pass  # Extension not installed - CLI still works
+```
+
+**Philosophy**: CLI should be simple, fast, and fully functional. Extensions add power for those who want it, but never at the expense of core simplicity.
 
 ---
 

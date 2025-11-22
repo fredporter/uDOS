@@ -27,7 +27,8 @@ class BaseCommandHandler:
         self.theme = theme
 
         # Load merged theme (bundled + memory overrides)
-        theme_data = load_theme(theme, root_path=Path(__file__).parent.parent)
+        # root_path should be the uDOS root directory (parent.parent.parent from this file)
+        theme_data = load_theme(theme, root_path=Path(__file__).parent.parent.parent)
         self.lexicon = theme_data.get('TERMINOLOGY', {})
         self.messages = theme_data.get('MESSAGES', {})
 
@@ -62,11 +63,19 @@ class BaseCommandHandler:
         elif key in self.lexicon:
             template = self.lexicon.get(key)
         else:
-            template = f"<{key}>"
+            # Fallback: create a readable error message
+            if kwargs:
+                # Try to create a simple error with provided context
+                context_str = ', '.join(f"{k}={v}" for k, v in kwargs.items())
+                return f"⚠️ {key}: {context_str}"
+            else:
+                return f"⚠️ {key}"
+
         try:
             return template.format(**kwargs)
-        except Exception:
-            return template
+        except (KeyError, AttributeError, ValueError) as e:
+            # If formatting fails, return template with error note
+            return f"{template} (format error: {e})"
 
     def get_root_path(self):
         """Get the root path of the uDOS installation."""

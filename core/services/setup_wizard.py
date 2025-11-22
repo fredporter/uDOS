@@ -201,41 +201,39 @@ class SetupWizard:
     def run_quick_setup(self) -> str:
         """
         Run quick setup with sensible defaults (v1.0.29).
-        
+
         Returns:
             Success message
         """
         try:
             # Check if profile exists
             needs_setup = self.story_manager.needs_setup()
-            
+
             if needs_setup:
-                # Must get user name and project at minimum
+                # Auto-detect timezone and location
+                from core.utils.system_info import get_system_timezone
+                detected_timezone, detected_city = get_system_timezone()
+
+                # Must get user name at minimum
                 user_name = self.input_manager.prompt_user(
                     message="Your name:",
                     required=True
                 )
-                project_name = self.input_manager.prompt_user(
-                    message="Project name:",
-                    default=f"{user_name}'s Project",
-                    required=True
-                )
-                
+
                 self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
-                self.story_manager.set_field('STORY.PROJECT_NAME', project_name, auto_save=False)
-                
-                # Auto-detect timezone
-                timezone = self.story_manager.detect_timezone()
-                self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
-            
+
+                # Auto-set timezone and location from detection
+                self.story_manager.set_field('STORY.TIMEZONE', detected_timezone, auto_save=False)
+                self.story_manager.set_field('STORY.LOCATION', detected_city, auto_save=False)
+
             # Apply default theme if not set
             current_theme = self.story_manager.get_field('STORY.THEME', '')
             if not current_theme:
                 self.story_manager.set_field('STORY.THEME', 'dungeon', auto_save=False)
-            
+
             # Save all changes
             self.story_manager.save()
-            
+
             output = []
             output.append(self.output_formatter.format_success(
                 "Quick setup complete!",
@@ -246,9 +244,9 @@ class SetupWizard:
                 }
             ))
             output.append("\n💡 Run SETUP for full configuration wizard")
-            
+
             return "\n".join(output)
-            
+
         except Exception as e:
             return self.output_formatter.format_error(
                 "Quick setup failed",
@@ -288,7 +286,7 @@ class SetupWizard:
         try:
             extensions = self._wizard_step_extensions()
             enabled = [name.replace('enable_', '') for name, value in extensions.items() if value]
-            
+
             return self.output_formatter.format_success(
                 f"Extensions configured: {len(enabled)} enabled",
                 details=f"Enabled: {', '.join(enabled) if enabled else 'none'}"
@@ -300,12 +298,25 @@ class SetupWizard:
             )
 
     def _wizard_step_user_profile(self) -> None:
-        """User profile configuration step (v1.0.29 Smart Mode)."""
+        """
+        User profile configuration step (v1.0.29 Smart Mode).
+        Matches CONFIG command variables: username, password, timezone, location.
+        """
+        # Auto-detect timezone and location from system
+        from core.utils.system_info import get_system_timezone
+        detected_timezone, detected_city = get_system_timezone()
+
         # Get current values
         current_name = self.story_manager.get_field('STORY.USER_NAME', '')
-        current_project = self.story_manager.get_field('STORY.PROJECT_NAME', '')
+        current_password = self.story_manager.get_field('STORY.PASSWORD', '')
         current_location = self.story_manager.get_field('STORY.LOCATION', '')
-        current_timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+        current_timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+
+        # Use detected values as defaults if not set
+        if not current_timezone:
+            current_timezone = detected_timezone
+        if not current_location:
+            current_location = detected_city
 
         # Prompt for user name (required)
         user_name = self.input_manager.prompt_user(
@@ -315,40 +326,36 @@ class SetupWizard:
         )
         self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
 
-        # Prompt for project name (required)
-        project_name = self.input_manager.prompt_user(
-            message="What's your project name? (e.g., 'Survival Prep', 'Homestead Plan')",
-            default=current_project or f"{user_name}'s Project",
-            required=True
+        # Prompt for password (optional)
+        password = self.input_manager.prompt_user(
+            message="Enter password (leave blank for none):",
+            default="",
+            required=False
         )
-        self.story_manager.set_field('STORY.PROJECT_NAME', project_name, auto_save=False)
+        self.story_manager.set_field('STORY.PASSWORD', password, auto_save=False)
 
-        # Prompt for location (optional)
+        # Prompt for timezone (auto-detected, modifiable)
+        print(f"\nℹ️  Detected timezone: {detected_timezone}")
+        timezone = self.input_manager.prompt_user(
+            message=f"Timezone:",
+            default=current_timezone,
+            required=False
+        )
+        if timezone:
+            self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
+        else:
+            self.story_manager.set_field('STORY.TIMEZONE', current_timezone, auto_save=False)
+
+        # Prompt for location (defaults to timezone city, modifiable)
         location = self.input_manager.prompt_user(
-            message="Where are you located? (city, country - optional)",
+            message=f"Location (city):",
             default=current_location,
             required=False
         )
         if location:
             self.story_manager.set_field('STORY.LOCATION', location, auto_save=False)
-
-        # Prompt for timezone (optional, with auto-detect option)
-        use_auto_tz = self.input_manager.prompt_confirm(
-            message="Auto-detect timezone?",
-            default=True
-        )
-
-        if use_auto_tz:
-            timezone = self.story_manager.detect_timezone()
-            self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
         else:
-            timezone = self.input_manager.prompt_user(
-                message="Enter timezone (e.g., America/New_York, Europe/London):",
-                default=current_timezone,
-                required=False
-            )
-            if timezone:
-                self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
+            self.story_manager.set_field('STORY.LOCATION', current_location, auto_save=False)
 
         # Save all profile changes
         self.story_manager.save()
@@ -436,26 +443,28 @@ class SetupWizard:
     def _format_completion_summary(self) -> str:
         """Format completion summary with current config (v1.0.29)."""
         user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
-        project_name = self.story_manager.get_field('STORY.PROJECT_NAME', 'Not set')
+        password = self.story_manager.get_field('STORY.PASSWORD', '')
         theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
         location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
         timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
-        
+
+        password_display = '●●●●●●' if password else 'Not set'
+
         summary_data = {
-            'User Name': user_name,
-            'Project': project_name,
+            'Username': user_name,
+            'Password': password_display,
             'Location': location,
             'Timezone': timezone,
             'Theme': theme
         }
-        
+
         return self.output_formatter.format_panel(
             "✅ Setup Complete!",
             self.output_formatter.format_key_value(summary_data) +
             "\n\n💡 You can reconfigure anytime with: SETUP\n" +
             "💡 Change individual settings with: CONFIG"
         )
-    
+
     def _show_summary(self, config: Dict[str, Any]) -> None:
         """Display configuration summary."""
         print(self._format_summary(config))
