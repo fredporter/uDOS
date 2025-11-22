@@ -1,18 +1,18 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.29 ✅ **COMPLETE** (Smart Input & I/O System + Command Structure Refinement)
-**Last Updated**: November 22, 2025 - v1.0.29 All Phases Complete
+**Current Version**: v1.0.30 ✅ **PRE-RELEASE** (Enhanced CLI with Teletext UI, Micro Editor, Knowledge Picker)
+**Last Updated**: November 22, 2025 - v1.0.30 Pre-Release Complete
 
 **Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection! A Survival Handbook for Armageddon - giving life and purpose to all our computer-type devices and helping us thrive as humans!"*
 
 **Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
 
 **Recent Updates**:
+- ✅ **v1.0.30 PRE-RELEASE** (Nov 22, 2025) - Enhanced CLI: Teletext UI (465 lines), Micro Editor (434 lines), Knowledge Picker (343 lines), Smart Prompt Fallback, Error Handling, 19/19 tests passing
 - ✅ **v1.0.29 COMPLETE** (Nov 22, 2025) - Smart Input + Command Structure: InputManager, StoryManager, OutputFormatter, 47 core + 16 deferred commands
 - ✅ **v1.0.28 PATCH RELEASE** (Nov 22, 2025) - Critical bug fixes: PANEL routing, SPLASH implementation, parser null handling, 24 commands tested
 - ✅ **v1.0.27 RELEASE** (Nov 19, 2025) - Memory structure updates, test improvements, 370 tests passing
 - ✅ **v1.0.24/v1.0.25 UNIFIED RELEASE** (Nov 18, 2025) - Extensions server, dashboard builder, file reorganization, 539/539 tests passing
-- ✅ **v1.0.23 STABLE RELEASE** (Nov 17, 2025) - Command consolidation, smart input, 108/108 tests passing
-- 🚀 **v1.0.30 Next** - Retro CLI Graphics & UX Polish (block graphics, rainbow colors, animated prompts)
+- 🚀 **v1.1.0 Next** - Cross-Platform Expansion & Performance Optimization
 
 **Core Principles**:
 - 🌍 **Offline-First**: Full functionality without internet
@@ -48,6 +48,8 @@
 - **v1.0.17** - Interactive Debugger (DEBUG, BREAK, STEP, INSPECT, 94/94 tests) - ✅ **COMPLETE**
 - **v1.0.18** - Apocalypse Adventures & Experience System (XP, Barter, Survival, Scenarios, Knowledge, 192/192 tests) - ✅ **COMPLETE**
 - **v1.0.19** - Enhanced CLI & Teletext GUI (Smart autocomplete, arrow-key selectors, REST API, 0.18ms performance) - ✅ **COMPLETE**
+- **v1.0.29** - Smart Input & I/O System (InputManager, StoryManager, OutputFormatter, 47 core commands) - ✅ **COMPLETE**
+- **v1.0.30** - Enhanced CLI with Teletext UI (Block graphics, Micro Editor, Knowledge Picker, Smart Prompt) - ✅ **PRE-RELEASE**
 - **v1.0.20** - 4-Tier Knowledge Bank & Memory System (PRIVATE encryption, SHARED permissions, COMMUNITY groups, PUBLIC knowledge, 5 handlers, 15/15 validation tests) - ✅ **COMPLETE**
 - **v1.0.20b** - Enhanced Mapping & Reference Data System (250 cities, 50 countries, 120 timezones, TILE commands, geographic databases) - ✅ **COMPLETE**
   * Documentation cleanup & file structure reorganization (Nov 17, 2025)

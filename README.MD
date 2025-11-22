@@ -1,19 +1,20 @@
-# uDOS v1.0.27 - Stable Release
+# uDOS v1.0.30 - Enhanced CLI Pre-Release
 
 **uDOS** is a modular CLI framework with assistant integration, comprehensive diagnostics, and modern web extensions. Built to demonstrate clean architecture, human-readable command systems, and intelligent workflows.
 
-**Current Status**: ✅ v1.0.27 Stable Release (Nov 19, 2025)
-**Next**: v1.1.0 Cross-Platform Expansion (Q2 2026)
+**Current Status**: ✅ v1.0.30 Enhanced CLI Pre-Release (Nov 22, 2025)
+**Next**: v1.1.0 Cross-Platform Expansion (Q1 2026)
 
 ---
 
-## 🎯 v1.0.x Objective: Stable Release ✅ COMPLETE
+## 🎯 v1.0.30 Pre-Release: Enhanced CLI with Teletext UI
 
 ### Current Status
-- **v1.0.27 stable release** - Production ready (Nov 19, 2025)
-- **26/26 versions complete (100%)**
-- **Next milestone**: v1.1.0 cross-platform expansion (Q2 2026)
-- **Quality**: 370/395 tests passing (93.7%), performance optimized
+- **v1.0.30 pre-release** - Enhanced CLI features (Nov 22, 2025)
+- **New Features**: Teletext UI, Micro Editor, Knowledge Picker, Smart Prompt Fallback
+- **Testing**: 19/19 tests passing (100%), production ready
+- **Next milestone**: v1.1.0 cross-platform expansion (Q1 2026)
+- **Quality**: All integration, UI, and error handling tests passing
 - **Distribution**: pip installable, offline-first, clean repository
 
 ### Advanced Features → v1.1.x (Post-Stable)

@@ -4,6 +4,63 @@ Recent development milestones and completed features in uDOS.
 
 ---
 
+## 🎨 v1.0.30 - Enhanced CLI with Teletext UI (✅ PRE-RELEASE)
+
+**Release Date**: November 22, 2025
+**Status**: ✅ Pre-Release Complete (100%)
+**Focus**: Retro UI, built-in editor, knowledge picker, error handling
+
+### ✅ Major Features Implemented
+
+#### Teletext Block Character UI System (465 lines)
+- **TeletextBlocks**: Unicode block characters for retro graphics
+- **TeletextPromptStyle**: UI pattern rendering for selection boxes
+- **EnhancedPromptRenderer**: Interactive component rendering
+- **Features**: Single/multi-select, file trees, autocomplete panels, checkboxes
+- **Testing**: 6/6 UI tests passing
+
+#### Built-in Micro Editor (434 lines)
+- **Syntax Highlighting**: Support for .md and .uscript files
+- **Line-based Editing**: Navigation, insert, delete, save/cancel
+- **Modes**: Read-only view and full edit mode
+- **Integration**: FILE EDIT/VIEW commands use micro editor by default
+- **Testing**: Full integration tests passing
+
+#### Knowledge File Picker (343 lines)
+- **Specialized Scanner**: Finds .md and .uscript from /knowledge and /memory
+- **Smart Filtering**: Search, type filtering, keyboard navigation
+- **Discovery**: Found 106 knowledge + 36 memory files
+- **Teletext UI**: Uses block character UI for selection
+- **Testing**: Integration tests passing
+
+#### Smart Prompt Fallback (318 lines)
+- **Terminal Detection**: Automatically detects prompt_toolkit compatibility
+- **Graceful Degradation**: Falls back to basic input() when needed
+- **Scrollback Fix**: Disabled flash prompt to preserve terminal history
+- **Copy-Paste**: Works correctly in all terminal modes
+- **Testing**: Fallback mode verified
+
+#### Error Handling Improvements
+- **Parser Fix**: Fixed 'str' has no attribute 'items' error
+- **Theme Loading**: Fixed root_path calculation (parent.parent.parent)
+- **Message Display**: Unknown commands now show themed error messages
+- **Exception Types**: Fixed 5 critical bare except: clauses
+- **Testing**: 7/7 error handling tests passing
+
+### 📊 Testing Results
+- **Integration Tests**: 6/6 passing (100%)
+- **UI Tests**: 6/6 passing (100%)
+- **Error Handling Tests**: 7/7 passing (100%)
+- **Overall**: 19/19 tests passing ✅
+
+### 📚 Documentation
+- Production readiness assessment complete
+- Session summary documented
+- Release notes created
+- All changes tracked and tested
+
+---
+
 ## 🧹 v1.0.26 - Startup Polish & Architecture Cleanup (✅ COMPLETE)
 
 **Release Date**: November 22, 2025
