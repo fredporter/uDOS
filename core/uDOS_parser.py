@@ -68,7 +68,7 @@ class Parser:
                 ucode = ucode.replace(placeholder, param)
 
             for placeholder, value in default_params.items():
-                if placeholder in ucode:
+                if placeholder in ucode and value is not None:
                     ucode = ucode.replace(placeholder, value)
 
             ucode = re.sub(r'\*\$[0-9]+', '', ucode)

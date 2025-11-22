@@ -112,6 +112,7 @@ class SystemCommandHandler(BaseCommandHandler):
         # Map commands to handler methods
         handlers = {
             'BLANK': self.handle_blank,
+            'SPLASH': self.handle_splash,
             'HELP': self.handle_help,
             'HISTORY': self.handle_history,
             'UNDO': self.handle_undo,
@@ -1748,12 +1749,11 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             output += f"⚠️  Viewport refresh warning: {str(e)}\n"
 
         output += "✅ Reinitializing components...\n\n"
-        output += "🚀 System restart complete!\n"
-        output += "Welcome back to uDOS v1.0.8\n\n"
+        output += "🚀 System restart initiated!\n"
+        output += "Welcome back to uDOS v1.0.0\n\n"
 
-        # Signal for system restart
-        if hasattr(self, '_signal_restart'):
-            self._signal_restart()
+        # Set the reboot flag to trigger restart in main loop
+        self.reboot_requested = True
 
         return output
 
@@ -1805,6 +1805,51 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     # ======================================================================
     # STUB METHODS - To be implemented or moved to other handlers
     # ======================================================================
+
+    def handle_splash(self, params, grid, parser):
+        """
+        Display ASCII art splash screen.
+
+        Modes:
+        - SPLASH or SPLASH LOGO: Display uDOS logo
+        - SPLASH <text>: Display custom text as ASCII art
+        - SPLASH FILE <path>: Load ASCII art from file
+        """
+        # Import splash module
+        from core import uDOS_splash
+
+        if not params or (params and params[0].upper() == 'LOGO'):
+            # Default: show uDOS logo
+            uDOS_splash.print_splash_screen()
+            return ""  # Splash already printed
+
+        elif params[0].upper() == 'FILE' and len(params) > 1:
+            # Load from file
+            from pathlib import Path
+            filepath = Path(params[1])
+
+            if not filepath.exists():
+                return f"❌ File not found: {filepath}"
+
+            try:
+                with open(filepath, 'r') as f:
+                    content = f.read()
+                print(content)
+                return ""
+            except Exception as e:
+                return f"❌ Error reading file: {e}"
+
+        else:
+            # Custom text - could use ASCII art generation library
+            # For now, just display the text in a box
+            text = ' '.join(params)
+            width = max(len(text) + 4, 40)
+
+            print("╔" + "═" * (width - 2) + "╗")
+            padding = (width - len(text) - 2) // 2
+            print("║" + " " * padding + text + " " * (width - len(text) - padding - 2) + "║")
+            print("╚" + "═" * (width - 2) + "╝")
+            return ""
 
     def handle_tree(self, params, grid, parser):
         """File tree display - to be implemented or moved to file handler."""

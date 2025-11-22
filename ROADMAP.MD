@@ -3241,126 +3241,185 @@ Current Overlaps to Consolidate:
 ---
 
 ## 🎯 v1.0.26 - Final Polish & Performance
-**Status**: 🚀 In Development (November 18 - December 22, 2025)
+**Status**: ✅ Complete (November 18 - 22, 2025)
 **Branch**: v1.0.26-polish
-**Focus**: Final testing, performance optimization, and v1.1.0 preparation
+**Focus**: Final testing, performance optimization, and bug fixes
 
-**Timeline**: 5 weeks (Nov 18 - Dec 22, 2025)
-- **Week 1 (Nov 18-24)**: Testing Infrastructure ✅ Phase 1 Complete
-- **Week 2 (Nov 25-Dec 1)**: Performance Optimization
-- **Week 3 (Dec 2-8)**: Cross-Platform Testing
-- **Week 4 (Dec 9-15)**: Documentation & QA
-- **Week 5 (Dec 16-22)**: Release Preparation
+**Achievements**:
+- ✅ Command implementation audit complete
+- ✅ Critical bugs fixed: PANEL (UI module route), SPLASH (handler implemented)
+- ✅ Documentation reorganized: /dev/notes/ structure established
+- ✅ Folder structure cleanup: No unwanted root folders (output/, data/, sandbox/)
+- ✅ Session logs working: memory/logs/sessions/ for debugging
+- ✅ Core vs Extensions philosophy documented
 
-### Phase 1: Testing Infrastructure (Week 1) - ✅ IN PROGRESS
+**Key Fixes**:
+- ✅ PANEL command now routes via UI module (no more "UNKNOWN CHAMBER" error)
+- ✅ SPLASH command implemented with LOGO/FILE/TEXT modes
+- ✅ SystemCommandHandler theme attribute bug fixed
+- ✅ API server outputs relocated to memory/logs/
+- ✅ Test scripts organized in knowledge/system/tests/
 
-**Baseline Established** (Nov 18, 2025):
-- [x] **Test Environment Verified**: 627 working tests (99.4% functional)
-- [x] **Analysis Tools Created**: Coverage analyzer, baseline report, benchmarks
-- [x] **Metrics Documented**: 48.5% command coverage, 17 untested commands identified
-- [x] **Performance Targets Set**: <50ms avg command, <500ms startup
-- [x] **Git Infrastructure**: v1.0.26-polish branch, baseline documentation committed
+---
 
-**Test Coverage Status**:
-- **Current**: 627 working tests across 55 files
-- **Target**: 1000+ tests
-- **Gap**: 373 tests needed
-- **Week 1 Goal**: 800+ tests (200+ new tests)
+## 🎯 v1.0.27 - Core Feature Stabilization
+**Status**: 🚀 In Development (November 22 - December 15, 2025)
+**Branch**: v1.0.27-pre-release
+**Focus**: Separate stable core from experimental extensions, complete command testing
 
-**Untested Commands** (17 requiring coverage):
-- [ ] ASK - Assistant interaction
-- [ ] BLANK - Clear screen/reset
-- [ ] DEV - Development tools
-- [ ] EXPLORE - Interactive exploration
-- [ ] HISTORY - Command history
-- [ ] KB - Knowledge base shorthand
-- [ ] KNOWLEDGE - Knowledge system
-- [ ] MEMORY - Memory tier system
-- [ ] PANEL - Panel management
-- [ ] PLAY - Interactive mode
-- [ ] POKE - Quick data inspection
-- [ ] RESOURCE - Resource management
-- [ ] SHARED - Shared memory tier
-- [ ] STATUS - System status
-- [ ] TILE - Map tile operations
-- [ ] VERSION - Version information
-- [ ] XP - Experience/progression
+**Philosophy**: *"Deliver a rock-solid text-first computing CLI with ~45-50 battle-tested commands. Defer game mechanics and experimental features to v1.1.0+ extensions."*
 
-**Week 1 Deliverables**:
-- [ ] Test templates for untested commands
-- [ ] 200+ new tests written
-- [ ] Extension integration tests (dashboard, teletext, terminal, markdown, desktop)
-- [ ] Error handling and edge case tests
-- [ ] Performance regression test framework
-- [ ] Target: 800+ total tests passing
+### Core vs Extensions Strategy
 
-### Phase 2: Performance Optimization (Week 2)
+**v1.0.27 Core Features** (~45-50 commands):
+1. **System Administration** (19 commands): HELP, CONFIG, STATUS, DASHBOARD, REPAIR, THEME, PALETTE, VIEWPORT, BLANK, SPLASH, REBOOT, DESTROY, SETTINGS, SETUP, POKE, HISTORY, UNDO, REDO, RESTORE
+2. **File Operations** (14 commands): SHOW, EDIT, RUN, NEW, DELETE, COPY, MOVE, RENAME, FILE PICK, FILE RECENT, FILE INFO, FILE PREVIEW, FILE BATCH, FILE BOOKMARKS
+3. **AI Assistant** (7 commands): OK, EXPLAIN, GENERATE, DEBUG, READ, ASSIST CLEAR
+4. **Knowledge & Documentation** (9 commands): PANEL, GUIDE, DIAGRAM, BANK LIST/SEARCH/SHOW/CATEGORIES/INDEX/STATS, MEMORY
+5. **Debugging Tools** (9 commands): DEBUG, BREAK, STEP, CONTINUE, INSPECT, WATCH, STACK, MODIFY, PROFILE
 
-**Scope**:
-- [ ] In-process performance profiling (resolve subprocess overhead)
-- [ ] Command response time measurement (<50ms target)
-- [ ] Startup time optimization (<500ms target)
-- [ ] File I/O optimization (<10ms target)
-- [ ] Extension server performance (HTTP response times)
-- [ ] Memory usage profiling and optimization
+**Deferred to v1.1.0+ Extensions** (~10 commands):
+1. **Map Navigation System**: MAP, STEP, ASCEND, DESCEND, GOTO, LAYER, LOCATE → `/extensions/game-mode/`
+2. **Game Features**: Scenario system, survival mode, resource management, XP system → `/extensions/game-mode/`
+3. **Incomplete Features**: WORKSPACE (stub), TREE (stub), CLEAN (stub), WEB, FONT
+4. **Experimental**: Advanced knowledge bank features if incomplete
 
-### Phase 3: Cross-Platform Testing (Week 3)
+### Testing Priorities
 
-**Scope**:
-- [ ] macOS compatibility verification (primary platform)
-- [ ] Linux testing (Ubuntu, Fedora, Arch)
-- [ ] Windows testing (PowerShell, Windows Terminal)
-- [ ] Virtual environment testing across platforms
-- [ ] Path handling validation (cross-platform)
-- [ ] Terminal compatibility matrix
+**High Priority** (Must Test Before v1.0.27):
+- [ ] PANEL - Verify UI module route works ✅ **TESTED - WORKING**
+- [ ] SPLASH - Test LOGO, FILE, TEXT modes ✅ **TESTED - WORKING**
+- [ ] BANK LIST/SEARCH/SHOW - Verify knowledge bank functionality
+- [ ] MEMORY - Test 4-tier memory access
+- [ ] HISTORY - Test search/stats/export
+- [ ] UNDO/REDO - Verify operation tracking
+- [ ] FILE BATCH/BOOKMARKS/INFO/PREVIEW - Test advanced file features
+- [ ] POKE START/STOP - Test extension servers
 
-### Phase 4: Documentation & QA (Week 4)
+**Stub Decisions Required**:
+- [ ] TREE - Implement simple version OR remove
+- [ ] CLEAN - Define clear purpose OR remove
+- [ ] WORKSPACE - Complete basic implementation OR defer to v1.1.0+
 
-**Scope**:
-- [ ] Final documentation review
-- [ ] Wiki completeness check
-- [ ] Command reference validation
-- [ ] Example code verification
-- [ ] User workflow testing
-- [ ] Bug triage and fixing
+**Medium Priority**:
+- [ ] OK ASK - Gemini integration (requires API key)
+- [ ] GUIDE - Interactive viewer
+- [ ] DIAGRAM - ASCII library
+- [ ] REPAIR - Diagnostics
+- [ ] EDIT - All editor modes (micro/nano/vim/typo)
 
-### Phase 5: Release Preparation (Week 5)
+**Low Priority** (Power User Features):
+- [ ] Debug commands (BREAK/STEP/INSPECT/etc.)
+- [ ] PROFILE - Performance profiling
+- [ ] RESTORE - Bulk undo
 
-**Scope**:
-- [ ] Final test suite execution (100% passing)
-- [ ] Performance benchmarks validation
-- [ ] Release notes preparation
-- [ ] CHANGELOG finalization
-- [ ] Git tag and release artifacts
-- [ ] v1.1.0 preparation checklist
+### File Organization
 
-**Success Metrics (Must Have)**:
-- [ ] 1000+ tests passing (100%)
-- [ ] <50ms average command response
-- [ ] <500ms startup time
-- [ ] Zero critical bugs
-- [ ] 100% cross-platform compatibility
-- [ ] All 33 commands have test coverage
-- [ ] Documentation complete and accurate
+**Commands to Move**:
+```
+core/commands/map_handler.py → extensions/game-mode/map_handler.py
+core/commands/scenario_handler.py → extensions/game-mode/scenario_handler.py
+core/commands/scenario_play_handler.py → extensions/game-mode/scenario_play_handler.py
+core/commands/survival_handler.py → extensions/game-mode/survival_handler.py
+core/commands/resource_handler.py → extensions/game-mode/resource_handler.py
+core/commands/xp_handler.py → extensions/game-mode/xp_handler.py
+```
 
-**Optional Tasks** (Non-blocking for v1.0.26):
-- [ ] **World Map Data**: Validate all 10,000+ tiles
-- [ ] **Geography Database**: Verify 200+ cities accuracy
-- [ ] **Measurement Systems**: Test all conversions
-- [ ] **Knowledge Library**: QA 500+ survival guides
-- [ ] **Reference Data**: Achieve >99.9% accuracy
+**Keep in Core** (production-ready):
+```
+core/commands/system_handler.py - System administration ✅
+core/commands/file_handler.py - File operations ✅
+core/commands/assistant_handler.py - AI assistance ✅
+core/commands/panel_handler.py - Display system ✅
+core/commands/guide_handler.py - Interactive guides ✅
+core/commands/diagram_handler.py - ASCII diagrams ✅
+core/commands/bank_handler.py - Knowledge bank (if tested)
+core/commands/knowledge_handler.py - Knowledge system
+```
 
-**Philosophy**: *"The final polish before the world meets uDOS - test until bulletproof, optimize for speed, prepare for launch"*
+### Success Criteria
 
-**Target Release**: December 22, 2025
+- ✅ Zero `ERROR_UNKNOWN` messages for core commands
+- ✅ PANEL working (UI route fixed)
+- ✅ SPLASH working (handler implemented)
+- ⏳ All core commands tested and documented
+- ⏳ Clear separation: /core/ (production) vs /extensions/ (experimental)
+- ⏳ Updated commands.json with deferred command markers
+- ⏳ Extension README files created
+- ⏳ Wiki updated with v1.0.27 feature list
+
+**Timeline**:
+- **Week 1** (Nov 22-29): Command testing, stub decisions
+- **Week 2** (Nov 30-Dec 6): File organization, extension setup
+- **Week 3** (Dec 7-13): Documentation, final testing
+- **Release**: December 15, 2025 (v1.0.27-pre-release)
+
+**Target Release**: December 15, 2025
 
 ---
 
 ## 🌟 v1.1.0 - Stable Release & Community Launch
-**Status**: 📋 Future (July 2026)
-**Focus**: Production-ready stable release with community launch
+**Status**: 📋 Future (Q2 2026)
+**Focus**: Production-ready stable release with community launch, game mode extension, experimental features
 
 **Philosophy**: *"A fully-tested, self-healing, offline-first survival companion ready for the world"*
+
+### New in v1.1.0 (Deferred from v1.0.x)
+
+#### 1. Game Mode Extension 🎮
+**Location**: `/extensions/game-mode/`
+
+**Map Navigation System**:
+- [ ] MAP - Current map position and layer info
+- [ ] STEP - NetHack-style movement (n/s/e/w/ne/nw/se/sw)
+- [ ] ASCEND - Go up one layer (<)
+- [ ] DESCEND - Go down one layer (>)
+- [ ] GOTO - Teleport to coordinates
+- [ ] LAYER - Switch/list map layers
+- [ ] LOCATE - Set real-world location
+
+**Scenario & Survival Features**:
+- [ ] Scenario management system
+- [ ] Interactive scenario playback
+- [ ] Resource tracking and management
+- [ ] Survival mode mechanics
+- [ ] XP and progression system
+- [ ] Barter economy integration
+
+**Rationale**: Game mechanics are awesome but not essential for core text-first computing workflow. Users can opt-in via `POKE START game-mode`.
+
+#### 2. Workspace Isolation System 📁
+- [ ] WORKSPACE - Manage sandbox/memory/data isolation
+- [ ] Workspace switching with state persistence
+- [ ] Per-workspace history and settings
+- [ ] Cross-workspace file operations
+- [ ] Workspace templates
+
+**Rationale**: Needs clearer UX design. Core file operations work fine with direct paths (sandbox/, memory/).
+
+#### 3. Advanced File Features 🗂️
+- [ ] TREE - Repository structure visualization (if not in v1.0.27)
+- [ ] CLEAN - Sandbox cleanup and commit to memory (if not in v1.0.27)
+- [ ] Advanced file metadata and tagging
+- [ ] File version history and rollback
+- [ ] Smart file organization suggestions
+
+#### 4. Web-Based Features 🌐
+- [ ] WEB - Launch full uDOS in browser with xterm.js
+- [ ] FONT - Manage Monaspace fonts for web editors
+- [ ] Web dashboard builder
+- [ ] Browser-based file editing
+- [ ] Multi-tab workspace views
+
+**Rationale**: Complex server setup, not essential for CLI workflow. Better as optional extension.
+
+#### 5. Advanced Knowledge Features 📚
+**If incomplete in v1.0.27**:
+- [ ] TILE system enhancements
+- [ ] Knowledge bank advanced features
+- [ ] Community knowledge sharing
+- [ ] Knowledge graph visualization
+- [ ] AI-powered knowledge curation
 
 ### Dual Interface Architecture (Foundation of v1.1.0)
 

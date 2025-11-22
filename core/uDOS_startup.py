@@ -160,6 +160,7 @@ def check_critical_files() -> HealthCheckResult:
         "core/uDOS_commands.py",
         "knowledge/system/commands.json",
         "knowledge/system/themes/dungeon.json",
+        "knowledge/system/themes/default.json",
     ]
 
     # Critical directories
@@ -167,7 +168,7 @@ def check_critical_files() -> HealthCheckResult:
         "core",
         "knowledge/system",
         "knowledge/system/themes",
-        "sandbox",
+        "memory/sandbox",
         "memory",
     ]
 
@@ -225,7 +226,7 @@ def check_module_imports() -> HealthCheckResult:
         "core.uDOS_commands",
         "core.uDOS_splash",
         "core.uDOS_graphics",
-        "core.uDOS_viewport",
+        "core.utils.viewport",
     ]
 
     for module_name in core_modules:
@@ -324,10 +325,9 @@ def check_permissions() -> HealthCheckResult:
 
     # Directories that need write permission
     writable_dirs = [
-        "sandbox",
+        "memory/sandbox",
         "memory",
-        "data",
-        "output",
+        "memory/logs",
     ]
 
     for dir_path in writable_dirs:
@@ -754,7 +754,7 @@ def repair_missing_directories() -> List[str]:
     created = []
     root = get_udos_root()
 
-    critical_dirs = ["core", "data", "sandbox", "memory", "output"]
+    critical_dirs = ["core", "memory", "knowledge", "extensions"]
 
     for dir_path in critical_dirs:
         full_path = root / dir_path
@@ -1024,7 +1024,7 @@ def repair_permissions() -> List[str]:
     repaired = []
     root = get_udos_root()
 
-    writable_dirs = ["sandbox", "memory", "data", "output"]
+    writable_dirs = ["memory/sandbox", "memory", "memory/logs"]
 
     for dir_path in writable_dirs:
         full_path = root / dir_path
@@ -1130,7 +1130,7 @@ def repair_system(health: SystemHealth, verbose: bool = False) -> SystemHealth:
         print()
 
     # Re-run health checks to see if repairs worked
-    return check_system_health(verbose=False)
+    return check_system_health(verbose=False, return_dict=False)
 
 
 def get_health_report(health: SystemHealth, include_warnings: bool = True) -> str:
@@ -1227,7 +1227,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print()
 
-    health = check_system_health(verbose=True)
+    health = check_system_health(verbose=True, return_dict=False)
 
     print()
     print(get_health_report(health))

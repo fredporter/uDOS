@@ -17,6 +17,7 @@ Author: Fred Porter
 
 import json
 from pathlib import Path
+from core.utils.theme_loader import load_theme
 
 
 class CommandHandler:
@@ -37,11 +38,10 @@ class CommandHandler:
             command_history: CommandHistory instance
             logger: Logger instance
         """
-        # Load theme and commands
-        theme_file = f'knowledge/system/themes/{theme.lower()}.json'
-        with open(theme_file, 'r') as f:
-            theme_data = json.load(f)
-            self.lexicon = theme_data.get('TERMINOLOGY', {})
+        # Load theme and commands (merged with any user overrides)
+        theme_data = load_theme(theme, root_path=Path(__file__).parent.parent)
+        self.lexicon = theme_data.get('TERMINOLOGY', {})
+        self.messages = theme_data.get('MESSAGES', {})
 
         with open(commands_file, 'r') as f:
             self.commands_data = json.load(f)['COMMANDS']
@@ -133,8 +133,18 @@ class CommandHandler:
         Returns:
             Formatted message string
         """
-        message = self.lexicon.get(key, f"<{key}>")
-        return message.format(**kwargs)
+        # Prefer full message templates, then terminology tokens, then fallback
+        template = None
+        if hasattr(self, 'messages') and key in self.messages:
+            template = self.messages.get(key)
+        elif key in self.lexicon:
+            template = self.lexicon.get(key)
+        else:
+            template = f"<{key}>"
+        try:
+            return template.format(**kwargs)
+        except Exception:
+            return template
 
     def handle_command(self, ucode, grid, parser):
         """
@@ -200,7 +210,7 @@ class CommandHandler:
                 return self.tile_handler.handle(command, ' '.join(params) if params else '', grid)
 
             # v1.0.21 - Teletext Display System
-            elif module == "PANEL":
+            elif module == "PANEL" or module == "UI":
                 return self.panel_handler.handle(command, params, grid)
 
             # v1.0.21 - Interactive Knowledge Viewers
