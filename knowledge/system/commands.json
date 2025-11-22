@@ -58,6 +58,47 @@
       "DEFAULT_PARAMS": {}
     },
     {
+      "NAME": "GET",
+      "SYNTAX": "GET [field.path]",
+      "DESCRIPTION": "Get configuration field value interactively or explicitly from STORY, SYSTEM, or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|GET*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "GET",
+        "GET STORY.USER_NAME",
+        "GET SYSTEM.THEME",
+        "GET CONFIG.GEMINI_API_KEY"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - shows field picker",
+        "EXPLICIT": "Provide field path using dot notation",
+        "SOURCES": "STORY (user data), SYSTEM (settings), CONFIG (.env)"
+      }
+    },
+    {
+      "NAME": "SET",
+      "SYNTAX": "SET [field.path] [value]",
+      "DESCRIPTION": "Set configuration field value interactively or explicitly in STORY or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|SET*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "SET",
+        "SET STORY.USER_NAME Fred",
+        "SET STORY.THEME hacker",
+        "SET CONFIG.OFFLINE_MODE true"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - prompts for field and value",
+        "EXPLICIT": "Provide field path and value",
+        "NOTE": "SYSTEM fields are read-only"
+      }
+    },
+    {
       "NAME": "CONFIG",
       "SYNTAX": "CONFIG <list|get|set|validate> [key] [value]",
       "DESCRIPTION": "Manage .env configuration (API keys, username, installation ID).",

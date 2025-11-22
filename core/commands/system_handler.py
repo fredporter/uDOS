@@ -138,6 +138,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'WORKSPACE': self.handle_workspace,
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,  # Alias for OUTPUT
+            # v1.0.29: GET/SET system
+            'GET': self.handle_get,
+            'SET': self.handle_set,
             # v1.0.17: Debugger commands
             'DEBUG': self.handle_debug,
             'BREAK': self.handle_breakpoint,
@@ -3094,3 +3097,188 @@ Examples:
         output += "╚════════════════════════════════════════════════════════════════════════╝"
         return output
 
+
+    # ======================================================================
+    # v1.0.29: GET/SET SYSTEM - Smart field access
+    # ======================================================================
+    
+    def handle_get(self, params, grid, parser):
+        """
+        GET field value from story/config/system interactively or explicitly.
+        
+        Usage:
+            GET                          → Interactive field picker
+            GET STORY.USER_NAME          → Get story field
+            GET CONFIG.GEMINI_API_KEY    → Get config field  
+            GET SYSTEM.THEME             → Get system setting
+            
+        Returns:
+            Field value or interactive picker result
+        """
+        if not params:
+            # Interactive mode - show field picker
+            field_sources = [
+                "Story Fields (user profile, project info)",
+                "System Settings (theme, viewport, options)",
+                "Configuration (.env values)",
+                "Browse All Fields"
+            ]
+            
+            choice = self.input_manager.prompt_choice(
+                "What would you like to view?",
+                choices=field_sources
+            )
+            
+            if "Story" in choice:
+                # Show story fields
+                profile = self.story_manager.get_user_profile()
+                return self.output_formatter.format_panel(
+                    "Story Fields",
+                    self.output_formatter.format_key_value(profile)
+                )
+            elif "System" in choice:
+                # Show system settings
+                settings = {
+                    'Theme': self.theme,
+                    'Viewport': f"{self.viewport.width}×{self.viewport.height}" if self.viewport else "Unknown",
+                    'Connection': self.connection.get_mode() if self.connection else "Unknown"
+                }
+                return self.output_formatter.format_panel(
+                    "System Settings",
+                    self.output_formatter.format_key_value(settings)
+                )
+            elif "Configuration" in choice:
+                # Delegate to CONFIG command
+                return self.handle_config(['list'], grid, parser)
+            else:
+                # Browse all fields
+                all_fields = {
+                    **self.story_manager.get_user_profile(),
+                    'theme': self.theme
+                }
+                return self.output_formatter.format_panel(
+                    "All Fields",
+                    self.output_formatter.format_key_value(all_fields)
+                )
+        
+        # Explicit mode - get specific field
+        field_path = params[0]
+        
+        # Parse field source (STORY.*, CONFIG.*, SYSTEM.*)
+        if '.' not in field_path:
+            return self.output_formatter.format_error(
+                "Invalid field path",
+                f"Use dot notation: SOURCE.FIELD (e.g., STORY.USER_NAME)"
+            )
+        
+        source, *path_parts = field_path.split('.')
+        remaining_path = '.'.join(path_parts)
+        
+        if source.upper() == 'STORY':
+            value = self.story_manager.get_field(field_path, default="<not set>")
+            return self.output_formatter.format_success(
+                f"{field_path} = {value}"
+            )
+        elif source.upper() == 'SYSTEM':
+            # System settings
+            system_fields = {
+                'THEME': self.theme,
+                'VIEWPORT.WIDTH': self.viewport.width if self.viewport else None,
+                'VIEWPORT.HEIGHT': self.viewport.height if self.viewport else None,
+            }
+            value = system_fields.get(remaining_path, "<unknown field>")
+            return self.output_formatter.format_success(
+                f"{field_path} = {value}"
+            )
+        elif source.upper() == 'CONFIG':
+            # Delegate to CONFIG GET
+            return self.handle_config(['get', remaining_path], grid, parser)
+        else:
+            return self.output_formatter.format_error(
+                f"Unknown field source: {source}",
+                "Valid sources: STORY, SYSTEM, CONFIG"
+            )
+    
+    def handle_set(self, params, grid, parser):
+        """
+        SET field value in story/config/system interactively or explicitly.
+        
+        Usage:
+            SET                                    → Interactive setter
+            SET STORY.USER_NAME "Fred"             → Set story field
+            SET STORY.THEME dungeon                → Set story field
+            SET CONFIG.OFFLINE_MODE true           → Set config
+            
+        Returns:
+            Success message or error
+        """
+        if not params:
+            # Interactive mode
+            field_path = self.input_manager.prompt_user(
+                "Field path (e.g., STORY.USER_NAME)",
+                required=True
+            )
+            
+            if not field_path:
+                return self.output_formatter.format_warning("Operation cancelled")
+            
+            value = self.input_manager.prompt_user(
+                f"New value for {field_path}",
+                required=True
+            )
+            
+            if not value:
+                return self.output_formatter.format_warning("Operation cancelled")
+            
+            params = [field_path, value]
+        
+        if len(params) < 2:
+            return self.output_formatter.format_error(
+                "Missing value",
+                "Usage: SET FIELD.PATH value"
+            )
+        
+        field_path = params[0]
+        value = ' '.join(params[1:])  # Join remaining params as value
+        
+        # Remove quotes if present
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        elif value.startswith("'") and value.endswith("'"):
+            value = value[1:-1]
+        
+        # Parse field source
+        if '.' not in field_path:
+            return self.output_formatter.format_error(
+                "Invalid field path",
+                "Use dot notation: SOURCE.FIELD (e.g., STORY.USER_NAME)"
+            )
+        
+        source, *path_parts = field_path.split('.')
+        remaining_path = '.'.join(path_parts)
+        
+        if source.upper() == 'STORY':
+            # Set story field
+            success = self.story_manager.set_field(field_path, value, auto_save=True)
+            
+            if success:
+                return self.output_formatter.format_success(
+                    f"Story field updated: {field_path} = {value}",
+                    details={"Saved to": str(self.story_manager.story_path)}
+                )
+            else:
+                return self.output_formatter.format_error(
+                    "Failed to update story field"
+                )
+        elif source.upper() == 'CONFIG':
+            # Delegate to CONFIG SET
+            return self.handle_config(['set', remaining_path, value], grid, parser)
+        elif source.upper() == 'SYSTEM':
+            return self.output_formatter.format_warning(
+                "System fields are read-only"
+            )
+        else:
+            return self.output_formatter.format_error(
+                f"Unknown field source: {source}",
+                "Valid sources: STORY, CONFIG"
+            )
