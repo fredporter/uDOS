@@ -1,4 +1,4 @@
-# uDOS v1.0.0 - Session Logger
+# uDOS v1.0.31 - Session Logger
 
 import os
 import datetime

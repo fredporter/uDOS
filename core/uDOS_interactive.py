@@ -1,5 +1,5 @@
 """
-uDOS Interactive Command System v1.0.19
+uDOS Interactive Command System v1.0.31
 Provides smart prompts, file pickers, and option selectors for commands
 Now with arrow-key navigation for enhanced UX
 """

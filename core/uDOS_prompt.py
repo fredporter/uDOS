@@ -1,4 +1,4 @@
-# uDOS v1.0.0 - Enhanced Prompt System
+# uDOS v1.0.31 - Enhanced Prompt System (Legacy)
 
 import time
 import sys
