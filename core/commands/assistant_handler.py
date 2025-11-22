@@ -36,7 +36,7 @@ class AssistantCommandHandler(BaseCommandHandler):
     def knowledge_manager(self):
         """Lazy load knowledge manager."""
         if self._knowledge_manager is None:
-            from core.services.knowledge_manager import get_knowledge_manager
+            from core.knowledge import get_knowledge_manager
             self._knowledge_manager = get_knowledge_manager()
         return self._knowledge_manager
 
@@ -44,7 +44,7 @@ class AssistantCommandHandler(BaseCommandHandler):
         """Initialize Gemini service for OK Assisted Task on first use."""
         if self.gemini is None:
             try:
-                from core.uDOS_gemini import get_gemini
+                from core.network import get_gemini
                 self.gemini = get_gemini()
             except Exception as e:
                 return f"⚠️  Failed to initialize assist system: {str(e)}"
@@ -81,19 +81,7 @@ class AssistantCommandHandler(BaseCommandHandler):
             else:
                 return f"❌ Unknown OK subcommand: {subcommand}\n\nUse: OK ASK or OK DEV"
 
-        # Legacy direct commands (for backward compatibility)
-        elif command == "ASK":
-            init_error = self._initialize_gemini()
-            if init_error:
-                return init_error
-            return self._handle_ask(params, grid)
-        elif command == "READ":
-            return self._handle_read(params, grid)
-        elif command == "EXPLAIN":
-            return self._handle_explain(params)
-        elif command == "GENERATE":
-            return self._handle_generate(params)
-        elif command == "DEBUG":
+        elif command == "ANALYZE":
             return self._handle_debug(params)
         elif command == "CLEAR":
             return self._handle_clear()

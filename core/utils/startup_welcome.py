@@ -9,6 +9,7 @@ Version: 1.0.30
 
 import os
 import sys
+from core.services.standardized_input import StandardizedInput
 
 
 def show_v1_0_30_welcome(viewport_width: int = 70):
@@ -57,8 +58,13 @@ def offer_demo(skip_prompt: bool = False) -> bool:
     print()
 
     try:
-        response = input("  Run v1.0.30 demo? (y/n): ").strip().lower()
-        return response in ['y', 'yes']
+        input_service = StandardizedInput()
+        response = input_service.select_option(
+            title="Run v1.0.30 demo?",
+            options=["Yes", "No"],
+            default_index=1
+        )
+        return response == "Yes"
     except (KeyboardInterrupt, EOFError):
         print()
         return False
@@ -107,7 +113,9 @@ def startup_sequence(viewport_width: int = 70, auto_skip_demo: bool = False):
             print()
             print("  🎬 Starting demo...")
             print()
-            input("  Press ENTER to begin...")
+
+            input_service = StandardizedInput()
+            input_service.text_input("Press ENTER to begin", default="")
             print()
 
             if run_demo():
@@ -118,7 +126,7 @@ def startup_sequence(viewport_width: int = 70, auto_skip_demo: bool = False):
                 print("  Demo ended.")
 
             print()
-            input("  Press ENTER to continue to uDOS prompt...")
+            input_service.text_input("Press ENTER to continue to uDOS prompt", default="")
             print()
 
 

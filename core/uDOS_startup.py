@@ -58,11 +58,6 @@ class HealthCheckResult:
 class SystemHealth:
     """Overall system health status."""
 
-    # Legacy enum access for backward compatibility
-    HEALTHY = HealthStatus.HEALTHY
-    DEGRADED = HealthStatus.DEGRADED
-    CRITICAL = HealthStatus.CRITICAL
-
     def __init__(self):
         self.checks: List[HealthCheckResult] = []
         self.repaired_issues = []
@@ -374,6 +369,29 @@ def check_python_version() -> HealthCheckResult:
             f"Python {version_str} detected (recommended 3.9+)",
             "Consider upgrading for best compatibility"
         )
+    # Check for EOL Python versions
+    elif version.minor == 9 and version.micro <= 6:
+        # Python 3.9.6 is EOL as of October 2025
+        result.add_warning(
+            f"Python {version_str} is end-of-life (EOL October 2025)",
+            "Upgrade to Python 3.10+ for security updates"
+        )
+        # Prompt user to upgrade if in interactive mode
+        if sys.stdin.isatty():
+            try:
+                print("\n⚠️  Python 3.9.6 is end-of-life (EOL October 2025)")
+                print("⚠️  Security updates are no longer available")
+                response = input("\n   Would you like to UPDATE PYTHON? (y/n): ").strip().lower()
+                if response in ['y', 'yes']:
+                    print("\n🔧 Python Upgrade Instructions:")
+                    print("   1. Check available Python versions: brew list | grep python")
+                    print("   2. Install Python 3.11: brew install python@3.11")
+                    print("   3. Create new venv: python3.11 -m venv .venv")
+                    print("   4. Activate: source .venv/bin/activate")
+                    print("   5. Install dependencies: pip install -r requirements.txt")
+                    print("\n   For more info: https://www.python.org/downloads/\n")
+            except (EOFError, KeyboardInterrupt):
+                print("\n")
 
     return result
 

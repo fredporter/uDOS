@@ -20,8 +20,8 @@ import json
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from core.commands.memory_unified_handler import MemoryUnifiedHandler
-from core.services.fuzzy_matcher import FuzzyMatcher, SmartFilePicker
-from core.services.alias_manager import AliasManager, AliasCommandHandler
+from core.utils.fuzzy_matcher import FuzzyMatcher, SmartFilePicker
+from core.utils.alias_manager import AliasManager, AliasCommandHandler
 from core.ui.picker import (
     UniversalPicker, PickerBuilder, PickerConfig, PickerItem, PickerType
 )

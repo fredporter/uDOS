@@ -4,7 +4,7 @@ Handles XP, SKILL, and ACHIEVEMENT commands
 """
 
 from typing import Dict, List, Optional
-from core.services.xp_service import XPService, XPCategory, SkillTree
+from extensions.game_mode.services.xp_service import XPService, XPCategory, SkillTree
 
 
 class XPCommandHandler:

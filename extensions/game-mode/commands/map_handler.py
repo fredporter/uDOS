@@ -34,7 +34,7 @@ class MapCommandHandler(BaseCommandHandler):
     def map_engine(self):
         """Lazy load mapping engine."""
         if self._map_engine is None:
-            from core.services.map_engine import MapEngine
+            from extensions.game_mode.services.map_engine import MapEngine
             self._map_engine = MapEngine()
         return self._map_engine
 
@@ -42,7 +42,7 @@ class MapCommandHandler(BaseCommandHandler):
     def teletext_integration(self):
         """Lazy load teletext integration."""
         if self._teletext_integration is None:
-            from core.services.teletext_renderer import TeletextMapIntegration
+            from core.output.renderers.teletext_renderer import TeletextMapIntegration
             self._teletext_integration = TeletextMapIntegration()
         return self._teletext_integration
 
@@ -90,8 +90,62 @@ class MapCommandHandler(BaseCommandHandler):
 
     def _handle_status(self, params):
         """Show current map position and status."""
-        # Get current location from user config
+        # Get current planet from planet manager
         try:
+            from core.services.planet_manager import PlanetManager
+            pm = PlanetManager()
+            current_planet = pm.get_current()
+
+            if not current_planet:
+                return "⚠️  No planet selected. Use CONFIG PLANET to set up your workspace."
+
+            # Build status header with planet info
+            result = f"""🗺️  Map Status
+{'='*40}
+Planet: {current_planet.icon} {current_planet.name}
+Solar System: {current_planet.solar_system}
+Type: {current_planet.planet_type}"""
+
+            # Add location info if available
+            location = pm.get_location(current_planet.name)
+            if location:
+                result += f"""
+📍 Current Location: {location.name or 'Custom location'}"""
+                if location.region:
+                    result += f"""
+   Region: {location.region}"""
+                if location.country:
+                    result += f"""
+   Country: {location.country}"""
+                result += f"""
+   Coordinates: {location.latitude:.2f}°, {location.longitude:.2f}°"""
+
+                # Try to find nearest city from map engine
+                try:
+                    nearest_city = self._find_nearest_city(location.latitude, location.longitude)
+                    if nearest_city:
+                        result += f"""
+   Nearest City: {nearest_city['name']} ({nearest_city['tizo_code']})
+   Cell Reference: {nearest_city['cell_ref']}"""
+                except:
+                    pass
+            else:
+                result += f"""
+📍 Location: Not set (use LOCATE to set your position)"""
+
+            # Add map commands help
+            result += f"""
+
+Available Commands:
+  MAP VIEW - Show ASCII map around your location
+  LOCATE CITY <name> - Set location to a major city
+  LOCATE SET <lat> <lon> - Set custom coordinates
+  CONFIG PLANET LIST - View all your planets"""
+
+            return result
+
+        except Exception as e:
+            # Fallback to legacy behavior if planet system not available
             import json
             config_file = Path("sandbox/user.json")
             if config_file.exists():
@@ -118,14 +172,73 @@ Use 'MAP VIEW' to see the area around you."""
                 else:
                     return f"Current location: {tizo_code} (location data not found)"
             else:
-                return "No user configuration found. Run setup first."
-        except Exception as e:
-            return f"Error reading location: {str(e)}"
+                return f"Error reading planet data: {str(e)}"
 
     def _handle_view(self, params):
         """Show ASCII map view."""
-        # Get current location
+        # Get current location from planet system
         try:
+            from core.services.planet_manager import PlanetManager
+            pm = PlanetManager()
+            current_planet = pm.get_current()
+
+            if not current_planet:
+                return "⚠️  No planet selected. Use CONFIG PLANET to set up your workspace."
+
+            # Only show map for Earth
+            if current_planet.planet_type != "Earth":
+                return f"""🗺️  Map View Not Available
+{'='*40}
+Planet: {current_planet.icon} {current_planet.name}
+Type: {current_planet.planet_type}
+
+📍 World maps are only available for Earth-type planets.
+   Use LOCATE to set your position on Earth."""
+
+            location = pm.get_location(current_planet.name)
+            if not location:
+                return f"""🗺️  Map View
+{'='*40}
+Planet: {current_planet.icon} {current_planet.name}
+
+⚠️  No location set. Use LOCATE to set your position:
+   • LOCATE CITY <name> - Select from major cities
+   • LOCATE SET <lat> <lon> - Set custom coordinates"""
+
+            # Parse parameters for view size
+            width = 40
+            height = 20
+            if params:
+                parts = params.strip().split()
+                if len(parts) >= 1 and parts[0].isdigit():
+                    width = int(parts[0])
+                if len(parts) >= 2 and parts[1].isdigit():
+                    height = int(parts[1])
+
+            # Find nearest cell reference
+            nearest_city = self._find_nearest_city(location.latitude, location.longitude)
+            if nearest_city:
+                cell_ref = nearest_city.get('cell_ref', 'JN196')  # Default to Melbourne
+            else:
+                # Calculate cell ref from coordinates
+                # For now, use a default - full cell calculation would go here
+                cell_ref = 'JN196'
+
+            # Generate ASCII map centered on location
+            ascii_map = self.map_engine.generate_ascii_map(cell_ref, width, height)
+
+            # Add header with planet and location context
+            header = f"""🗺️  Map View - {current_planet.icon} {current_planet.name}
+{'='*40}
+Location: {location.name or 'Custom'}
+Coordinates: {location.latitude:.2f}°, {location.longitude:.2f}°
+Cell: {cell_ref}
+
+"""
+            return header + ascii_map
+
+        except Exception as e:
+            # Fallback to legacy behavior
             import json
             config_file = Path("sandbox/user.json")
             if config_file.exists():
@@ -154,9 +267,7 @@ Use 'MAP VIEW' to see the area around you."""
                 else:
                     return f"Cannot generate view for location: {tizo_code}"
             else:
-                return "No user configuration found."
-        except Exception as e:
-            return f"Error generating view: {str(e)}"
+                return f"Error generating view: {str(e)}"
 
     def _handle_cell(self, params):
         """Get information about a specific cell."""
@@ -593,3 +704,48 @@ Navigation: MAP NAVIGATE FROM {city_code} TO [DESTINATION]"""
             result += "🔍 Use more specific terms to narrow results"
 
         return result
+
+    def _find_nearest_city(self, lat: float, lon: float, max_distance: float = 500.0):
+        """
+        Find the nearest city to given coordinates.
+
+        Args:
+            lat: Latitude
+            lon: Longitude
+            max_distance: Maximum distance in km
+
+        Returns:
+            City data dict or None
+        """
+        import math
+
+        def haversine_distance(lat1, lon1, lat2, lon2):
+            """Calculate distance between two points using Haversine formula."""
+            R = 6371  # Earth radius in km
+
+            lat1_rad = math.radians(lat1)
+            lat2_rad = math.radians(lat2)
+            delta_lat = math.radians(lat2 - lat1)
+            delta_lon = math.radians(lon2 - lon1)
+
+            a = math.sin(delta_lat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon/2)**2
+            c = 2 * math.asin(math.sqrt(a))
+
+            return R * c
+
+        nearest_city = None
+        min_distance = max_distance
+
+        # Search through all cities in map engine
+        for tizo_code, city_data in self.map_engine.city_cells.items():
+            coords = city_data.get('coordinates', {})
+            city_lat = coords.get('lat')
+            city_lon = coords.get('lon')
+
+            if city_lat is not None and city_lon is not None:
+                distance = haversine_distance(lat, lon, city_lat, city_lon)
+                if distance < min_distance:
+                    min_distance = distance
+                    nearest_city = city_data
+
+        return nearest_city

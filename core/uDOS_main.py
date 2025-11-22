@@ -4,7 +4,7 @@
 import warnings
 warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL 1.1.1+')
 
-from .uDOS_splash import print_splash_screen
+from .output.splash import print_splash_screen
 from .uDOS_parser import Parser
 from .uDOS_commands import CommandHandler
 from .uDOS_grid import Grid
@@ -17,9 +17,11 @@ from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
-from .uDOS_prompt import SmartPrompt as PromptDecorator  # Renamed to avoid conflict
-from .services.smart_prompt import SmartPrompt  # v1.0.19 autocomplete system
-from .uDOS_tree import generate_repository_tree
+from .input.prompts.smart_prompt import SmartPrompt
+from .input.prompts.prompt_decorator import get_prompt_decorator
+from .utils.tree import generate_repository_tree
+from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
+from .services.standardized_input import StandardizedInput
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -66,8 +68,46 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
         logger.log(error_msg)
         print(error_msg)
 
-def initialize_system(is_script_mode=False, run_health_check=False):
-    """Initialize all system components."""
+def initialize_system(is_script_mode=False, run_health_check=False, use_fast_startup=True):
+    """
+    Initialize all system components.
+
+    Args:
+        is_script_mode: True if running a script (non-interactive)
+        run_health_check: True to run full health check (slower)
+        use_fast_startup: True to use optimized FastStartup (v1.0.31)
+    """
+
+    # v1.0.31: Use FastStartup for optimized initialization
+    if use_fast_startup:
+        try:
+            components = fast_initialize(
+                verbose=not is_script_mode,
+                run_health_check=run_health_check,
+                is_script_mode=is_script_mode
+            )
+
+            # Generate repository tree (not in fast_startup)
+            if not is_script_mode:
+                print("🌳 Generating repository tree...", end=" ", flush=True)
+            try:
+                tree_string, tree_path = generate_repository_tree()
+                components['tree_generated'] = True
+                if not is_script_mode:
+                    print(f"✓ structure.txt")
+            except Exception as e:
+                components['tree_generated'] = False
+                if not is_script_mode:
+                    print(f"⚠️  ({str(e)})")
+
+            return components
+
+        except Exception as e:
+            # Fall back to legacy initialization on error
+            print(f"⚠️  FastStartup failed ({e}), using standard init...")
+            use_fast_startup = False
+
+    # Standard initialization (fallback)
     components = {}
 
     try:
@@ -139,8 +179,13 @@ def initialize_system(is_script_mode=False, run_health_check=False):
                 import sys
                 if sys.stdin.isatty():
                     try:
-                        response = input("  Attempt auto-repair? (y/n/OK): ").strip().lower()
-                        if response in ['y', 'yes', 'ok']:
+                        input_service = StandardizedInput()
+                        response = input_service.select_option(
+                            title="Attempt auto-repair?",
+                            options=["Yes", "No", "OK"],
+                            default_index=0
+                        )
+                        if response in ['Yes', 'OK']:
                             print()
                             health = check_system_health(verbose=False, return_dict=False)
                             health = repair_system(health, verbose=True)
@@ -264,6 +309,39 @@ def main():
                 # Don't fail startup if welcome fails
                 pass
 
+            # v1.0.32: Planet selection on first run
+            try:
+                from core.services.planet_manager import PlanetManager
+                pm = PlanetManager()
+
+                # Check if this is first time using planet system
+                current_planet = pm.get_current()
+                if not current_planet:
+                    # Offer planet setup
+                    print()
+                    print("="*viewport.width)
+                    print("🪐 PLANET SYSTEM INITIALIZATION")
+                    print("="*viewport.width)
+                    print()
+                    print("uDOS v1.0.32 introduces the Planet System - your workspaces")
+                    print("are now visualized as planets in solar systems!")
+                    print()
+                    print("The default planet 'Earth' has been created for you.")
+                    print("You can create additional planets anytime with: CONFIG PLANET NEW")
+                    print()
+
+                    # Set Earth as default
+                    earth = pm.list_planets()[0] if pm.list_planets() else None
+                    if earth:
+                        print(f"✅ Active Planet: {earth.icon} {earth.name} ({earth.solar_system})")
+                        print()
+                        print("💡 Tip: Use LOCATE CITY to set your Earth location for")
+                        print("   location-aware survival knowledge and world maps!")
+                        print()
+            except Exception as e:
+                # Don't fail startup if planet setup fails
+                pass
+
             print()  # Blank line
 
         command_handler = CommandHandler(
@@ -283,11 +361,11 @@ def main():
 
         project_name = story_data.get('STORY', {}).get('PROJECT_NAME', 'uDOS') if story_data else 'uDOS'
 
-        # Initialize prompt decorator (for visual effects)
-        prompt_decorator = PromptDecorator()
-
-        # Initialize v1.0.19 smart prompt with autocomplete (replaces old PromptSession)
+        # Initialize smart prompt with autocomplete
         smart_prompt = SmartPrompt(command_history=command_history, theme='dungeon')
+
+        # Initialize prompt decorator for themed prompts
+        prompt_decorator = get_prompt_decorator(theme='dungeon')
 
         # OPTIONAL: Web GUI Extension - API Server
         # Only loads if explicitly enabled in user settings

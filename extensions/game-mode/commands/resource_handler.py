@@ -4,8 +4,8 @@ Handles INVENTORY, TRADE, and BARTER commands.
 """
 
 from typing import Dict, List, Optional
-from core.services.inventory_service import InventoryService, ItemCategory, ItemRarity
-from core.services.barter_service import BarterService
+from extensions.game_mode.services.inventory_service import InventoryService, ItemCategory, ItemRarity
+from extensions.game_mode.services.barter_service import BarterService
 
 
 class ResourceCommandHandler:

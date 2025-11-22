@@ -148,7 +148,7 @@ class TestCLIIntegration(unittest.TestCase):
     def test_progress_indicators(self):
         """Test progress indicator system."""
         try:
-            from core.services.progress_manager import ProgressManager, ProgressConfig
+            from core.utils.progress_manager import ProgressManager, ProgressConfig
 
             # Initialize progress manager
             progress_manager = ProgressManager()
@@ -298,7 +298,7 @@ class TestCLIIntegration(unittest.TestCase):
 
             # Test that we can import all the command modules
             from core.services.history import CommandHistory
-            from core.services.progress_manager import ProgressManager
+            from core.utils.progress_manager import ProgressManager
             from core.services.session_manager import SessionManager
             from core.services.layout_manager import LayoutManager
 
@@ -344,7 +344,7 @@ class TestCLIIntegration(unittest.TestCase):
                 self.assertIsInstance(formatted_command, str)
 
             # Test progress -> session integration
-            from core.services.progress_manager import ProgressManager
+            from core.utils.progress_manager import ProgressManager
             from core.services.session_manager import SessionManager
 
             progress_manager = ProgressManager()

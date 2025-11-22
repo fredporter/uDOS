@@ -19,6 +19,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
+from core.services.standardized_input import StandardizedInput
 
 
 class ThemeBuilder:
@@ -34,6 +35,7 @@ class ThemeBuilder:
         self.theme_manager = theme_manager
         self.templates_dir = Path("knowledge/system/themes/templates")
         self.output_dir = Path("knowledge/system/themes")
+        self.input_service = StandardizedInput()
 
         # Default templates
         self.templates = {
@@ -209,19 +211,20 @@ class ThemeBuilder:
         print("╚═══════════════════════════════════════════════════════════╝\n")
 
         # Step 1: Choose template
-        print("Step 1: Choose a starting template")
-        print("  1. Minimal - Start from scratch")
-        print("  2. Sci-Fi - Space/technology theme")
-        print("  3. Fantasy - RPG/adventure theme")
-        print("  4. Corporate - Professional/business theme")
-
-        template_choice = input("\nSelect template (1-4): ").strip()
+        template_choice = self.input_service.select_option(
+            title="Step 1: Choose a starting template",
+            options=["Minimal - Start from scratch",
+                    "Sci-Fi - Space/technology theme",
+                    "Fantasy - RPG/adventure theme",
+                    "Corporate - Professional/business theme"],
+            show_numbers=True
+        )
 
         template_map = {
-            "1": "minimal",
-            "2": "sci-fi",
-            "3": "fantasy",
-            "4": "corporate"
+            "Minimal - Start from scratch": "minimal",
+            "Sci-Fi - Space/technology theme": "sci-fi",
+            "Fantasy - RPG/adventure theme": "fantasy",
+            "Corporate - Professional/business theme": "corporate"
         }
 
         template_name = template_map.get(template_choice, "minimal")
@@ -232,67 +235,102 @@ class ThemeBuilder:
         # Step 2: Basic information
         print("Step 2: Basic Information")
 
-        theme_name = input("Theme Name (e.g., CYBERPUNK): ").strip().upper()
-        if not theme_name:
-            print("Error: Theme name is required")
-            return None
+        theme_name = self.input_service.text_input(
+            "Theme Name (e.g., CYBERPUNK)",
+            required=True
+        ).strip().upper()
+
         theme_data["THEME_NAME"] = theme_name
 
-        display_name = input("Display Name (e.g., Cyberpunk 2077): ").strip()
+        display_name = self.input_service.text_input(
+            "Display Name (e.g., Cyberpunk 2077)"
+        ).strip()
         if display_name:
             theme_data["NAME"] = display_name
 
-        style = input("Style (e.g., Cyberpunk/Sci-Fi): ").strip()
+        style = self.input_service.text_input(
+            "Style (e.g., Cyberpunk/Sci-Fi)"
+        ).strip()
         if style:
             theme_data["STYLE"] = style
 
-        description = input("Description: ").strip()
+        description = self.input_service.text_input(
+            "Description"
+        ).strip()
         if description:
             theme_data["DESCRIPTION"] = description
 
         # Step 3: Icon
         print("\nStep 3: Theme Icon")
         print("  Suggested icons: 🎨 🚀 ⚔️ 💼 🌟 🔮 🎯 🌈 🎭 🔥")
-        icon = input("Choose an icon (or press Enter for 🎨): ").strip()
+        icon = self.input_service.text_input(
+            "Choose an icon",
+            default="🎨"
+        ).strip()
         if icon:
             theme_data["ICON"] = icon
 
         # Step 4: System configuration
         print("\nStep 4: System Configuration")
 
-        customize_system = input("Customize system settings? (y/n): ").strip().lower()
-        if customize_system == 'y':
-            prompt = input(f"  Command prompt (current: {theme_data['CORE_SYSTEM']['PROMPT_BASE']}): ").strip()
+        customize_system = self.input_service.select_option(
+            title="Customize system settings?",
+            options=["Yes", "No"],
+            default_index=1
+        )
+
+        if customize_system == "Yes":
+            prompt = self.input_service.text_input(
+                f"Command prompt (current: {theme_data['CORE_SYSTEM']['PROMPT_BASE']})"
+            ).strip()
             if prompt:
                 theme_data["CORE_SYSTEM"]["PROMPT_BASE"] = prompt
                 theme_data["TERMINOLOGY"]["PROMPT_BASE"] = prompt
 
-            system_name = input(f"  System name (current: {theme_data['CORE_SYSTEM']['SYSTEM_NAME']}): ").strip()
+            system_name = self.input_service.text_input(
+                f"System name (current: {theme_data['CORE_SYSTEM']['SYSTEM_NAME']})"
+            ).strip()
             if system_name:
                 theme_data["CORE_SYSTEM"]["SYSTEM_NAME"] = system_name
 
         # Step 5: User configuration
         print("\nStep 5: User Configuration")
 
-        customize_user = input("Customize user settings? (y/n): ").strip().lower()
-        if customize_user == 'y':
-            user_name = input(f"  User name (current: {theme_data['CORE_USER']['USER_NAME']}): ").strip()
+        customize_user = self.input_service.select_option(
+            title="Customize user settings?",
+            options=["Yes", "No"],
+            default_index=1
+        )
+
+        if customize_user == "Yes":
+            user_name = self.input_service.text_input(
+                f"User name (current: {theme_data['CORE_USER']['USER_NAME']})"
+            ).strip()
             if user_name:
                 theme_data["CORE_USER"]["USER_NAME"] = user_name
 
-            user_title = input(f"  User title (current: {theme_data['CORE_USER']['USER_TITLE']}): ").strip()
+            user_title = self.input_service.text_input(
+                f"User title (current: {theme_data['CORE_USER']['USER_TITLE']})"
+            ).strip()
             if user_title:
                 theme_data["CORE_USER"]["USER_TITLE"] = user_title
 
-            location = input(f"  Location (current: {theme_data['CORE_USER']['USER_LOCATION']}): ").strip()
+            location = self.input_service.text_input(
+                f"Location (current: {theme_data['CORE_USER']['USER_LOCATION']})"
+            ).strip()
             if location:
                 theme_data["CORE_USER"]["USER_LOCATION"] = location
 
         # Step 6: Terminology
         print("\nStep 6: Command Terminology")
 
-        customize_terms = input("Customize command names? (y/n): ").strip().lower()
-        if customize_terms == 'y':
+        customize_terms = self.input_service.select_option(
+            title="Customize command names?",
+            options=["Yes", "No"],
+            default_index=1
+        )
+
+        if customize_terms == "Yes":
             print("\n  Customize key commands (press Enter to keep current):")
 
             commands = [
@@ -305,7 +343,9 @@ class ThemeBuilder:
 
             for cmd_key, description in commands:
                 current = theme_data["TERMINOLOGY"][cmd_key]
-                new_value = input(f"  {description} (current: {current}): ").strip()
+                new_value = self.input_service.text_input(
+                    f"{description} (current: {current})"
+                ).strip()
                 if new_value:
                     theme_data["TERMINOLOGY"][cmd_key] = new_value
 

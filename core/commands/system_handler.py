@@ -60,8 +60,8 @@ class SystemCommandHandler(BaseCommandHandler):
     def config_manager(self):
         """Lazy load config manager."""
         if self._config_manager is None:
-            from core.services.config_manager import ConfigManager
-            self._config_manager = ConfigManager()
+            from core.config import get_config
+            self._config_manager = get_config()
         return self._config_manager
 
     @property
@@ -76,7 +76,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def screen_manager(self):
         """Lazy load screen manager."""
         if self._screen_manager is None:
-            from core.services.screen_manager import ScreenManager
+            from core.output.screen_manager import ScreenManager
             self._screen_manager = ScreenManager()
         return self._screen_manager
 
@@ -92,7 +92,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def usage_tracker(self):
         """Lazy load usage tracker."""
         if self._usage_tracker is None:
-            from core.services.usage_tracker import UsageTracker
+            from core.utils.usage_tracker import UsageTracker
             self._usage_tracker = UsageTracker()
         return self._usage_tracker
 
@@ -154,6 +154,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'PROFILE': self.handle_profile,
             # v1.0.17 Phase 4+: Variable history
             'HISTORY': self.handle_history,
+            # v1.0.32: Planet system
+            'CONFIG_PLANET': self.handle_config_planet,
+            'LOCATE': self.handle_locate,
         }
 
         handler = handlers.get(command)
@@ -511,7 +514,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize theme manager
         try:
-            from core.services.theme_manager import ThemeManager, ThemeMode
+            from core.theme.manager import ThemeManager, ThemeMode
             theme_manager = ThemeManager()
             theme_manager.load_settings()
         except Exception as e:
@@ -743,7 +746,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _show_active_progress(self):
         """Show current active progress indicators."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             active_count = progress_manager.get_active_count()
             if active_count == 0:
@@ -773,7 +776,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             # Create a simple progress test
             config = ProgressConfig(show_time_estimate=True, show_percentage=True)
@@ -811,7 +814,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             stages = ["Initialization", "Data Processing", "Analysis", "Finalization"]
             config = ProgressConfig(show_time_estimate=True, width=30)
@@ -869,7 +872,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _list_active_progress(self):
         """List all active progress indicators with details."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             active_indicators = []
 
@@ -919,7 +922,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _cancel_progress(self, progress_id):
         """Cancel progress indicator(s)."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             if progress_id:
                 # Cancel specific progress
@@ -949,7 +952,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             def demo_sequence():
                 # Demo 1: Basic determinate progress
@@ -1304,7 +1307,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize layout manager
         try:
-            from core.services.layout_manager import layout_manager, LayoutMode, ContentType
+            from core.output.renderers.layout_manager import layout_manager, LayoutMode, ContentType
         except Exception as e:
             return f"❌ Error accessing layout system: {e}"
 
@@ -1378,7 +1381,7 @@ Screen Features:
 • Tall Screen: {'✅' if dims['is_tall'] else '❌'} (>30 rows)
 • Ultra-wide: {'✅' if dims['is_ultra_wide'] else '❌'} (>200 cols)"""
 
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
             return layout_manager.format_content(
                 content,
                 ContentType.STATUS,
@@ -1391,7 +1394,7 @@ Screen Features:
     def _set_layout_mode(self, layout_manager, mode_name):
         """Set layout mode."""
         try:
-            from core.services.layout_manager import LayoutMode
+            from core.output.renderers.layout_manager import LayoutMode
 
             mode_mapping = {
                 'COMPACT': LayoutMode.COMPACT,
@@ -1482,7 +1485,7 @@ Screen Features:
     def _test_adaptive_formatting(self, layout_manager):
         """Test adaptive formatting with sample content."""
         try:
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
 
             # Test different content types
             test_results = []
@@ -1531,7 +1534,7 @@ Auto-save: Enabled"""
     def _layout_demo(self, layout_manager):
         """Demo different layout capabilities."""
         try:
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
 
             dims = layout_manager.current_dimensions
 
@@ -1867,7 +1870,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             Tree structure and save confirmation
         """
         try:
-            from core.uDOS_tree import generate_repository_tree
+            from core.utils.tree import generate_repository_tree
 
             # Parse parameters
             target_folder = None
@@ -2263,7 +2266,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
                         discovered.append(ext_dir.name)
 
             # Check extension manager status
-            from core.services.extension_manager import ExtensionManager
+            from extensions.core.extension_manager import ExtensionManager
             ext_mgr = ExtensionManager()
             status = ext_mgr.get_extension_status()
 
@@ -2282,7 +2285,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         """Get detailed information about a specific extension using enhanced metadata."""
         try:
             # Use the enhanced metadata manager for comprehensive information
-            from core.services.extension_metadata_manager import ExtensionMetadataManager
+            from extensions.core.extension_metadata_manager import ExtensionMetadataManager
             metadata_mgr = ExtensionMetadataManager()
 
             # Generate comprehensive report
@@ -2356,7 +2359,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
 
             # Check extension manager
             try:
-                from core.services.extension_manager import ExtensionManager
+                from extensions.core.extension_manager import ExtensionManager
                 ext_mgr = ExtensionManager()
                 ext_details = ext_mgr.get_extension_info(extension_name)
 
@@ -2390,7 +2393,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_extension_install(self, extension_name):
         """Install an extension."""
         try:
-            from core.services.extension_manager import ExtensionManager
+            from extensions.core.extension_manager import ExtensionManager
             ext_mgr = ExtensionManager()
 
             install_report = f"📦 INSTALLING EXTENSION: {extension_name}\n" + "="*50 + "\n\n"
@@ -3423,3 +3426,59 @@ Examples:
                 "Valid sources: STORY, CONFIG\n" +
                 "💡 Tip: Just use field name for STORY fields (e.g., SET USER_NAME Fred)"
             )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.32: PLANET SYSTEM COMMANDS
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_config_planet(self, params, grid, parser):
+        """
+        Handle CONFIG PLANET commands.
+        Delegates to cmd_config_planet for all planet management.
+
+        Args:
+            params: Command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Command result message
+        """
+        from core.commands.cmd_config_planet import cmd_config_planet
+
+        user_data = {
+            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
+        }
+
+        result = cmd_config_planet(user_data, params)
+
+        if result['success']:
+            return result['message']
+        else:
+            return f"❌ {result['message']}"
+
+    def handle_locate(self, params, grid, parser):
+        """
+        Handle LOCATE command.
+        Delegates to cmd_locate for location management.
+
+        Args:
+            params: Command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Command result message
+        """
+        from core.commands.cmd_locate import cmd_locate
+
+        user_data = {
+            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
+        }
+
+        result = cmd_locate(user_data, params)
+
+        if result['success']:
+            return result['message']
+        else:
+            return f"❌ {result['message']}"

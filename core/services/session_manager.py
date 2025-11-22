@@ -581,7 +581,7 @@ class SessionManager:
     def _capture_theme_settings(self) -> Optional[Dict[str, Any]]:
         """Capture current theme settings."""
         try:
-            from core.services.theme_manager import ThemeManager
+            from core.theme.manager import ThemeManager
             theme_manager = ThemeManager()
             return {
                 'current_mode': theme_manager.current_mode.value,

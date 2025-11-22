@@ -34,7 +34,7 @@ class BankCommandHandler(BaseCommandHandler):
     def bank_manager(self):
         """Lazy load bank manager."""
         if self._bank_manager is None:
-            from core.services.knowledge_manager import get_knowledge_manager
+            from core.knowledge import get_knowledge_manager
             self._bank_manager = get_knowledge_manager()
         return self._bank_manager
 

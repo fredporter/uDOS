@@ -1,5 +1,5 @@
 """
-uDOS v1.0.30 - Micro Editor Integration
+uDOS v1.0.31 - Micro Editor Integration
 
 Provides a lightweight text editor component for FILE EDIT and FILE VIEW commands.
 Uses a simple terminal-based editor with syntax highlighting for .md and .uscript files.
@@ -10,14 +10,16 @@ Features:
 - Read-only mode for VIEW
 - Save/Cancel options
 - Works within uDOS terminal session
+- Standardized input interface (v1.0.31)
 
-Version: 1.0.30
+Version: 1.0.31
 """
 
 import os
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
+from core.services.standardized_input import StandardizedInput
 
 
 class MicroEditor:
@@ -39,6 +41,7 @@ class MicroEditor:
         self.lines: List[str] = []
         self.modified = False
         self.current_line = 0
+        self.si = StandardizedInput()  # Standardized input v1.0.31
 
     def load_file(self) -> bool:
         """
@@ -245,87 +248,92 @@ class MicroEditor:
             os.system('clear' if os.name != 'nt' else 'cls')
             self.display(start_line, lines_per_page)
 
-            # Show commands
+            # Build command options based on mode
             if self.readonly:
-                print("Commands: [n]ext page, [p]rev page, [g]oto line, [q]uit")
+                commands = ["Next page", "Previous page", "Go to line", "Quit"]
+                command_keys = ['n', 'p', 'g', 'q']
             else:
-                print("Commands: [e]dit line, [i]nsert, [d]elete, [n]ext, [p]rev, [s]ave, [q]uit")
+                commands = ["Edit line", "Insert line", "Delete line", "Next page",
+                           "Previous page", "Save", "Quit"]
+                command_keys = ['e', 'i', 'd', 'n', 'p', 's', 'q']
 
             try:
-                cmd = input("\n> ").strip().lower()
+                # Use standardized input for command selection
+                cmd_idx, cmd_text = self.si.select_option(
+                    "Editor Command",
+                    commands,
+                    show_numbers=True
+                )
 
-                if not cmd:
-                    continue
-
-                if cmd in ['q', 'quit', 'exit']:
+                if cmd_idx == -1:  # Cancelled
                     if self.modified and not self.readonly:
-                        confirm = input("File modified. Save changes? (y/n): ").strip().lower()
-                        if confirm in ['y', 'yes']:
+                        if self.si.confirm("File modified. Save changes?", default=False):
                             return self.save_file()
                     return False
 
-                elif cmd in ['s', 'save']:
-                    if self.save_file():
-                        print("✓ File saved successfully")
-                        input("Press ENTER to continue...")
+                cmd = command_keys[cmd_idx]
 
-                elif cmd in ['n', 'next']:
+                if cmd == 'q':
+                    if self.modified and not self.readonly:
+                        if self.si.confirm("File modified. Save changes?", default=False):
+                            return self.save_file()
+                    return False
+
+                elif cmd == 's' and not self.readonly:
+                    if self.save_file():
+                        self.si.show_status("File saved successfully", "success")
+                        self.si.input_text("Press ENTER to continue", default="")
+
+                elif cmd == 'n':
                     if start_line + lines_per_page < len(self.lines):
                         start_line += lines_per_page
 
-                elif cmd in ['p', 'prev', 'previous']:
+                elif cmd == 'p':
                     start_line = max(0, start_line - lines_per_page)
 
-                elif cmd in ['g', 'goto']:
-                    try:
-                        line_num = int(input("Go to line: ").strip())
-                        start_line = max(0, min(line_num - 1, len(self.lines) - 1))
-                    except ValueError:
-                        print("Invalid line number")
-                        input("Press ENTER to continue...")
+                elif cmd == 'g':
+                    line_num = self.si.input_text(
+                        "Go to line",
+                        validate=lambda x: x.isdigit() and 1 <= int(x) <= len(self.lines)
+                    )
+                    if line_num:
+                        start_line = max(0, min(int(line_num) - 1, len(self.lines) - 1))
 
-                elif cmd in ['e', 'edit'] and not self.readonly:
-                    try:
-                        line_num = int(input("Edit line number: ").strip())
-                        if 1 <= line_num <= len(self.lines):
-                            print(f"Current: {self.lines[line_num - 1]}")
-                            new_content = input("New content: ")
-                            self.edit_line(line_num, new_content)
-                        else:
-                            print(f"Invalid line number (1-{len(self.lines)})")
-                            input("Press ENTER to continue...")
-                    except ValueError:
-                        print("Invalid line number")
-                        input("Press ENTER to continue...")
+                elif cmd == 'e' and not self.readonly:
+                    line_num = self.si.input_text(
+                        "Edit line number",
+                        validate=lambda x: x.isdigit() and 1 <= int(x) <= len(self.lines)
+                    )
+                    if line_num:
+                        ln = int(line_num)
+                        print(f"Current: {self.lines[ln - 1]}")
+                        new_content = self.si.input_text("New content")
+                        if new_content is not None:
+                            self.edit_line(ln, new_content)
 
-                elif cmd in ['i', 'insert'] and not self.readonly:
-                    try:
-                        line_num = int(input("Insert at line: ").strip())
-                        content = input("Content: ")
-                        self.insert_line(line_num, content)
-                    except ValueError:
-                        print("Invalid line number")
-                        input("Press ENTER to continue...")
+                elif cmd == 'i' and not self.readonly:
+                    line_num = self.si.input_text(
+                        "Insert at line",
+                        validate=lambda x: x.isdigit() and 1 <= int(x) <= len(self.lines) + 1
+                    )
+                    if line_num:
+                        content = self.si.input_text("Content")
+                        if content:
+                            self.insert_line(int(line_num), content)
 
-                elif cmd in ['d', 'delete'] and not self.readonly:
-                    try:
-                        line_num = int(input("Delete line number: ").strip())
-                        confirm = input(f"Delete line {line_num}? (y/n): ").strip().lower()
-                        if confirm in ['y', 'yes']:
-                            self.delete_line(line_num)
-                    except ValueError:
-                        print("Invalid line number")
-                        input("Press ENTER to continue...")
+                elif cmd == 'd' and not self.readonly:
+                    line_num = self.si.input_text(
+                        "Delete line number",
+                        validate=lambda x: x.isdigit() and 1 <= int(x) <= len(self.lines)
+                    )
+                    if line_num:
+                        if self.si.confirm(f"Delete line {line_num}?", default=False):
+                            self.delete_line(int(line_num))
 
             except (KeyboardInterrupt, EOFError):
                 if self.modified and not self.readonly:
-                    try:
-                        confirm = input("\nFile modified. Save changes? (y/n): ").strip().lower()
-                        if confirm in ['y', 'yes']:
-                            return self.save_file()
-                    except (KeyboardInterrupt, EOFError):
-                        # User cancelled the save prompt
-                        pass
+                    if self.si.confirm("File modified. Save changes?", default=False):
+                        return self.save_file()
                 return False
 
         return False

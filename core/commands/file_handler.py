@@ -55,7 +55,7 @@ class FileCommandHandler(BaseCommandHandler):
     def file_picker(self):
         """Lazy load file picker service."""
         if self._file_picker is None:
-            from core.services.file_picker import FilePicker
+            from core.ui.pickers.file_picker import FilePicker
             self._file_picker = FilePicker(self.workspace_manager)
         return self._file_picker
 

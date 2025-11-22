@@ -29,21 +29,36 @@ uDOS/
 │   │   ├── shared_commands.py
 │   │   ├── system_handler.py
 │   │   └── tile_handler.py
+│   ├── input/
+│   │   ├── __init__.py
+│   │   └── interactive.py
+│   ├── interpreters/
+│   │   ├── __init__.py
+│   │   ├── offline.py
+│   │   └── ucode.py
+│   ├── knowledge/
+│   │   ├── __init__.py
+│   │   ├── bank.py
+│   │   ├── file_picker.py
+│   │   └── memory.py
+│   ├── network/
+│   │   ├── __init__.py
+│   │   ├── gemini.py
+│   │   └── server.py
 │   ├── output/
-│   │   └── api_server.log
+│   │   ├── __init__.py
+│   │   ├── api_server.log
+│   │   ├── graphics.py
+│   │   └── splash.py
 │   ├── services/
 │   │   ├── alias_manager.py
 │   │   ├── autocomplete.py
-│   │   ├── barter_service.py
 │   │   ├── community_service.py
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
-│   │   ├── extension_dev_tools.py
-│   │   ├── extension_manager.py
-│   │   ├── extension_metadata_manager.py
 │   │   ├── file_picker.py
 │   │   ├── fuzzy_matcher.py
 │   │   ├── gemini_service.py
@@ -51,20 +66,18 @@ uDOS/
 │   │   ├── history.py
 │   │   ├── history_manager.py
 │   │   ├── input_manager.py
-│   │   ├── inventory_service.py
 │   │   ├── knowledge_file_picker.py
 │   │   ├── knowledge_manager.py
 │   │   ├── knowledge_service.py
 │   │   ├── knowledge_types.py
 │   │   ├── layout_manager.py
 │   │   ├── lazy_loader.py
-│   │   ├── map_data_manager.py
-│   │   ├── map_engine.py
 │   │   ├── memory_manager.py
 │   │   ├── option_selector.py
 │   │   ├── output_formatter.py
 │   │   ├── performance_profiler.py
 │   │   ├── progress_manager.py
+│   │   ├── prompt_decorator.py
 │   │   ├── screen_manager.py
 │   │   ├── session_manager.py
 │   │   ├── setup_wizard.py
@@ -78,8 +91,7 @@ uDOS/
 │   │   ├── tier_knowledge_manager.py
 │   │   ├── usage_tracker.py
 │   │   ├── user_manager.py
-│   │   ├── viewport_manager.py
-│   │   └── xp_service.py
+│   │   └── viewport_manager.py
 │   ├── tests/
 │   │   ├── test_config_profile.py
 │   │   ├── test_themes.py
@@ -87,6 +99,11 @@ uDOS/
 │   │   ├── test_v1_0_23_integration.py
 │   │   ├── test_v1_0_23_performance.py
 │   │   └── test_v1_0_23_ui.py
+│   ├── theme/
+│   │   ├── __init__.py
+│   │   ├── builder.py
+│   │   ├── loader.py
+│   │   └── manager.py
 │   ├── ui/
 │   │   ├── micro_editor.py
 │   │   ├── picker.py
@@ -97,11 +114,13 @@ uDOS/
 │   │   ├── completer.py
 │   │   ├── config_manager.py
 │   │   ├── fast_startup.py
+│   │   ├── files.py
 │   │   ├── generate_user_config.py
 │   │   ├── generate_world_map.uscript
 │   │   ├── map_painter.uscript
 │   │   ├── migrate_config.py
 │   │   ├── reorganize_knowledge.sh
+│   │   ├── settings.py
 │   │   ├── setup.py
 │   │   ├── startup_welcome.py
 │   │   ├── system_info.py
@@ -109,29 +128,19 @@ uDOS/
 │   │   ├── theme_loader.py
 │   │   ├── theme_validator.py
 │   │   ├── tizo_manager.py
+│   │   ├── tree.py
 │   │   ├── ucode.py
 │   │   ├── variables.py
 │   │   ├── viewport.py
 │   │   └── viewport_viz.py
 │   ├── __init__.py
+│   ├── config.py
 │   ├── uDOS_commands.py
-│   ├── uDOS_env.py
-│   ├── uDOS_files.py
-│   ├── uDOS_gemini.py
-│   ├── uDOS_graphics.py
 │   ├── uDOS_grid.py
-│   ├── uDOS_interactive.py
 │   ├── uDOS_logger.py
 │   ├── uDOS_main.py
-│   ├── uDOS_offline.py
 │   ├── uDOS_parser.py
-│   ├── uDOS_prompt.py
-│   ├── uDOS_server.py
-│   ├── uDOS_settings.py
-│   ├── uDOS_splash.py
-│   ├── uDOS_startup.py
-│   ├── uDOS_tree.py
-│   └── uDOS_ucode.py
+│   └── uDOS_startup.py
 ├── data/
 ├── dev/
 │   ├── archive/
@@ -168,7 +177,9 @@ uDOS/
 │   │   ├── ideas/
 │   │   ├── scratch/
 │   │   ├── ARCHITECTURE.md
+│   │   ├── MICRO_EDITOR_USAGE.md
 │   │   ├── README.md
+│   │   ├── STANDARDIZED-INPUT-MIGRATION-GUIDE.md
 │   │   ├── STARTUP_FIXES.md
 │   │   ├── V1.0.27-RESTRUCTURE-PLAN.md
 │   │   ├── v1.0.26-dev-summary.md
@@ -178,7 +189,8 @@ uDOS/
 │   │   ├── v1.0.27-final-summary.md
 │   │   ├── v1.0.27-testing-results.md
 │   │   ├── v1.0.29-completion-report.md
-│   │   └── v1.0.29-smart-input-plan.md
+│   │   ├── v1.0.29-smart-input-plan.md
+│   │   └── v1.0.31-implementation-summary.md
 │   ├── planning/
 │   │   ├── features/
 │   │   ├── releases/
@@ -187,9 +199,12 @@ uDOS/
 │   │   │   ├── V1.1.0-PLUS-ROADMAP.md
 │   │   │   └── v1.1.0-FEATURE-PRIORITIES.md
 │   │   ├── STORY_ARCHITECTURE.md
+│   │   ├── core-cleanup-plan.md
+│   │   ├── core-consolidation-analysis.md
 │   │   ├── v1.0.30-COMPLETION-ASSESSMENT.md
 │   │   ├── v1.0.30-SESSION-SUMMARY.md
 │   │   ├── v1.0.31-STANDARDIZED-INPUT-PLAN.md
+│   │   ├── v1.1.0-code-consolidation-analysis.md
 │   │   ├── v1_0_30_complete_summary.md
 │   │   └── v1_0_30_summary.md
 │   ├── tools/
@@ -941,6 +956,9 @@ uDOS/
 │   │   ├── CREDITS.md
 │   │   ├── README-SERVER.md
 │   │   ├── README.md
+│   │   ├── extension_dev_tools.py
+│   │   ├── extension_manager.py
+│   │   ├── extension_metadata_manager.py
 │   │   ├── extensions_server.py
 │   │   └── launch.sh
 │   ├── game-mode/
@@ -954,9 +972,14 @@ uDOS/
 │   │   │   └── xp_handler.py
 │   │   ├── services/
 │   │   │   ├── __init__.py
+│   │   │   ├── barter_service.py
+│   │   │   ├── inventory_service.py
+│   │   │   ├── map_data_manager.py
+│   │   │   ├── map_engine.py
 │   │   │   ├── scenario_engine.py
 │   │   │   ├── scenario_service.py
-│   │   │   └── survival_service.py
+│   │   │   ├── survival_service.py
+│   │   │   └── xp_service.py
 │   │   ├── README.md
 │   │   └── __init__.py
 │   ├── setup/

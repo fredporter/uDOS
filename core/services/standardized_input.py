@@ -181,9 +181,76 @@ class StandardizedInput:
         icons: Optional[List[str]]
     ) -> Tuple[int, str]:
         """Advanced selection with arrow keys (when supported)."""
-        # TODO: Implement arrow key navigation using prompt_toolkit
-        # For now, fall back to numbered selection
-        return self._select_with_numbers(title, options, descriptions, default_index, icons)
+        try:
+            from prompt_toolkit import prompt
+            from prompt_toolkit.key_binding import KeyBindings
+            from prompt_toolkit.keys import Keys
+            from prompt_toolkit.formatted_text import ANSI
+            from core.ui.visual_selector import VisualSelector
+
+            renderer = VisualSelector()
+            current_index = default_index
+
+            bindings = KeyBindings()
+
+            @bindings.add(Keys.Up)
+            def _(event):
+                nonlocal current_index
+                current_index = (current_index - 1) % len(options)
+                event.app.exit(result='update')
+
+            @bindings.add(Keys.Down)
+            def _(event):
+                nonlocal current_index
+                current_index = (current_index + 1) % len(options)
+                event.app.exit(result='update')
+
+            @bindings.add(Keys.Enter)
+            def _(event):
+                event.app.exit(result='select')
+
+            @bindings.add('q')
+            def _(event):
+                event.app.exit(result='quit')
+
+            @bindings.add(Keys.ControlC)
+            def _(event):
+                event.app.exit(result='quit')
+
+            # Allow number keys 1-9
+            for i in range(min(9, len(options))):
+                num_key = str(i + 1)
+                @bindings.add(num_key)
+                def _(event, idx=i):
+                    nonlocal current_index
+                    current_index = idx
+                    event.app.exit(result='select')
+
+            while True:
+                # Render menu with current selection
+                menu = renderer.render_numbered_menu(
+                    title, options, current_index, descriptions, icons
+                )
+                print("\033[2J\033[H" + menu)  # Clear screen and show menu
+                print("\nUse ↑↓ arrows, numbers 1-9, or 'q' to quit")
+
+                try:
+                    result = prompt("", key_bindings=bindings)
+
+                    if result == 'select':
+                        return current_index, options[current_index]
+                    elif result == 'quit':
+                        print("\n⚠️  Selection cancelled")
+                        return -1, ""
+                    # 'update' continues loop with new index
+
+                except (KeyboardInterrupt, EOFError):
+                    print("\n⚠️  Selection cancelled")
+                    return -1, ""
+
+        except Exception as e:
+            # Fallback to numbered selection on any error
+            return self._select_with_numbers(title, options, descriptions, default_index, icons)
 
     def select_multiple(
         self,
@@ -271,7 +338,7 @@ class StandardizedInput:
         Returns:
             Selected file path or None if cancelled
         """
-        from core.services.file_picker import FilePicker
+        from core.ui.pickers.file_picker import FilePicker
 
         picker = FilePicker()
         return picker.pick_file(
@@ -412,3 +479,71 @@ class StandardizedInput:
         renderer = VisualSelector()
         status_msg = renderer.render_status(message, status, details)
         print(status_msg)
+
+    def text_input(
+        self,
+        prompt: str,
+        default: str = "",
+        required: bool = False,
+        validator: Optional[callable] = None
+    ) -> str:
+        """
+        Get text input from user with optional validation.
+
+        Args:
+            prompt: Prompt message
+            default: Default value (shown in prompt)
+            required: Whether input is required (can't be empty)
+            validator: Optional validation function (str) -> bool
+
+        Returns:
+            User input string
+        """
+        try:
+            from prompt_toolkit import prompt as pt_prompt
+            from prompt_toolkit.styles import Style
+
+            # Build prompt text
+            prompt_text = f"{prompt}"
+            if default:
+                prompt_text += f" [{default}]"
+            prompt_text += ": "
+
+            # Visual style matching teletext theme
+            style = Style.from_dict({
+                'prompt': '#00ffff bold',
+            })
+
+            while True:
+                try:
+                    result = pt_prompt(
+                        prompt_text,
+                        style=style,
+                        default=default if default else ""
+                    )
+                except KeyboardInterrupt:
+                    raise
+                except Exception:
+                    # Fallback to basic input
+                    result = input(prompt_text)
+
+                # Use default if empty and default provided
+                if not result and default:
+                    result = default
+
+                # Check required constraint
+                if required and not result:
+                    self.show_status("Input is required", "error")
+                    continue
+
+                # Run validator if provided
+                if validator and result:
+                    if not validator(result):
+                        self.show_status("Invalid input", "error")
+                        continue
+
+                return result
+
+        except KeyboardInterrupt:
+            self.show_status("\nInput cancelled", "warning")
+            return ""

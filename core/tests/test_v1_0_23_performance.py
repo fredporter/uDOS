@@ -19,8 +19,8 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from core.services.lazy_loader import LazyLoader, ModuleCache, StartupOptimizer
-from core.services.performance_profiler import PerformanceProfiler, ExecutionMetric
+from core.utils.lazy_loader import LazyLoader, ModuleCache, StartupOptimizer
+from core.utils.profiling.performance_profiler import PerformanceProfiler, ExecutionMetric
 
 
 class TestLazyLoader(unittest.TestCase):

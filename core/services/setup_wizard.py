@@ -60,7 +60,7 @@ class SetupWizard:
     def story_manager(self):
         """Lazy-load StoryManager if not provided."""
         if self._story_manager is None:
-            from core.services.story_manager import StoryManager
+            from core.output.story_manager import StoryManager
             self._story_manager = StoryManager()
         return self._story_manager
 
@@ -68,7 +68,7 @@ class SetupWizard:
     def output_formatter(self):
         """Lazy-load OutputFormatter if not provided."""
         if self._output_formatter is None:
-            from core.services.output_formatter import OutputFormatter
+            from core.output.output_formatter import OutputFormatter
             self._output_formatter = OutputFormatter()
         return self._output_formatter
 

@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from .knowledge_types import (
+from .types import (
     KnowledgeTier, KnowledgeType, KnowledgeItem,
     PrivacySettings, KnowledgeTransaction, TIER_DESCRIPTIONS
 )

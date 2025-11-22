@@ -22,7 +22,7 @@ class InteractivePrompt:
         self.history = []
         self.use_arrow_keys = use_arrow_keys
 
-    def ask_choice(self, prompt: str, choices: List[str], default: Optional[str] = None) -> str:
+    def ask_choice(self, prompt: str = "", choices: List[str] = None, default: Optional[str] = None, message: Optional[str] = None) -> str:
         """
         Present a list of choices and get user selection
 
@@ -37,7 +37,7 @@ class InteractivePrompt:
         # Use arrow-key selector if enabled and available
         if self.use_arrow_keys:
             try:
-                from core.services.option_selector import OptionSelector
+                from core.ui.pickers.option_selector import OptionSelector
                 selector = OptionSelector()
                 result = selector.select(
                     prompt=prompt,

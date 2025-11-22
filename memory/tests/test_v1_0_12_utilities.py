@@ -15,9 +15,9 @@ sys.path.insert(0, '/Users/fredbook/Code/uDOS')
 
 # Import services
 from core.services.help_manager import HelpManager
-from core.services.screen_manager import ScreenManager
+from core.output.screen_manager import ScreenManager
 from core.services.setup_wizard import SetupWizard
-from core.services.usage_tracker import UsageTracker
+from core.utils.usage_tracker import UsageTracker
 
 
 class TestResults:

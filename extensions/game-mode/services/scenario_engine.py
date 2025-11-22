@@ -9,8 +9,8 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 
-from core.services.xp_service import XPCategory
-from core.services.inventory_service import ItemCategory
+from extensions.game_mode.services.xp_service import XPCategory
+from extensions.game_mode.services.inventory_service import ItemCategory
 from core.services.survival_service import SurvivalStat, StatusEffect
 
 

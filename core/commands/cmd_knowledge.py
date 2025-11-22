@@ -3,8 +3,7 @@ uDOS v1.0.20 - KNOWLEDGE Command Implementation
 CLI commands for 4-tier knowledge management
 """
 
-from core.services.tier_knowledge_manager import TierKnowledgeManager
-from core.services.knowledge_types import KnowledgeTier, KnowledgeType
+from core.knowledge import TierKnowledgeManager, KnowledgeTier, KnowledgeType
 
 
 def cmd_knowledge(user_data, args):
@@ -222,7 +221,7 @@ def _knowledge_stats(manager):
 
 def _knowledge_tiers():
     """List tier descriptions."""
-    from core.services.knowledge_types import TIER_DESCRIPTIONS
+    from core.knowledge import TIER_DESCRIPTIONS
 
     result_lines = ['4-Tier Knowledge System:\n']
 

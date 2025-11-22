@@ -55,20 +55,39 @@ class FastStartup:
         viewport = self._init_viewport(is_script_mode)
         self.components['viewport'] = viewport
 
-        # Step 2: Story/User data (quick load)
+        # Step 2: User profile (required by main)
+        from core.services.user_manager import UserManager
+        user_manager = UserManager()
+        viewport_data = viewport.get_status_summary()
+
+        if user_manager.needs_user_setup():
+            user_manager.run_user_setup(interactive=not is_script_mode, viewport_data=viewport_data)
+        else:
+            user_manager.load_user_profile()
+            import time
+            session_id = f"session_{int(time.time())}"
+            user_manager.update_session_data(session_id, viewport_data)
+
+        self.components['user_manager'] = user_manager
+
+        # Step 3: Story/User data (quick load)
         story_data = self._init_story(is_script_mode)
         self.components['story_data'] = story_data
 
-        # Step 3: Connection (lazy, can be None)
-        # Don't initialize connection unless needed
-        self.components['connection'] = None
+        # Step 4: Connection (initialize, but don't check unless needed)
+        from core.services.connection_manager import ConnectionMonitor
+        connection = ConnectionMonitor()
+        # Don't check internet unless explicitly requested (saves time)
+        if self.run_health_check:
+            connection.check_internet_connection()
+        self.components['connection'] = connection
 
-        # Step 4: Optional health check
+        # Step 5: Optional health check
         if self.run_health_check and not is_script_mode:
             health = self._run_health_check()
             self.components['health'] = health
 
-        # Step 5: History (lazy load)
+        # Step 6: History (lazy load)
         # Initialize on first use, not at startup
         self.components['history_manager'] = None
         self.components['command_history'] = None

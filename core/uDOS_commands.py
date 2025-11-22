@@ -17,7 +17,7 @@ Author: Fred Porter
 
 import json
 from pathlib import Path
-from core.utils.theme_loader import load_theme
+from core.theme import load_theme
 
 
 class CommandHandler:
@@ -89,7 +89,7 @@ class CommandHandler:
         from core.commands.private_commands import PrivateCommandHandler
         from core.commands.shared_commands import SharedCommandHandler
         from core.commands.community_commands import CommunityCommandHandler
-        from core.commands.knowledge_commands import KnowledgeCommandHandler
+        from core.commands.knowledge_commands import KnowledgeCommandHandler  # KB command (Tier 4)
 
         # v1.0.20b - Enhanced Mapping & Reference Data System
         from core.commands.tile_handler import TILECommandHandler
@@ -105,7 +105,6 @@ class CommandHandler:
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
-        self.knowledge_command = cmd_knowledge
 
         # v1.0.20 - 4-Tier Memory System handlers
         self.memory_handler = MemoryCommandHandler()
@@ -198,10 +197,6 @@ class CommandHandler:
 
             elif module == "BANK":
                 return self.bank_handler.handle(command, params, grid)
-
-            elif module == "KNOWLEDGE":
-                # Legacy KNOWLEDGE commands (v1.0.8)
-                return self.knowledge_command(self.user_manager, [command] + params)
 
             # v1.0.20 - 4-Tier Knowledge Bank & Memory System
             elif module == "MEMORY":

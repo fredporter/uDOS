@@ -17,7 +17,7 @@ import sys
 # Add core to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from core.utils.theme_loader import load_theme
+from core.theme import load_theme
 from core.utils.theme_validator import ThemeValidator
 
 

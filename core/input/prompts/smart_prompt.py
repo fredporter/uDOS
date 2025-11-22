@@ -21,7 +21,7 @@ from typing import List, Iterable, Optional
 import sys
 import os
 
-from core.services.autocomplete import AutocompleteService
+from core.utils.autocomplete import AutocompleteService
 
 
 # Teletext block characters for enhanced visual feedback (v1.0.30)

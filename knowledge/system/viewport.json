@@ -1,11 +1,11 @@
 {
   "detection_method": "auto",
   "terminal_chars": {
-    "width": 97,
+    "width": 90,
     "height": 30
   },
   "calculated_cells": {
-    "width": 48,
+    "width": 45,
     "height": 30
   },
   "screen_tier": {
@@ -15,11 +15,11 @@
     "width_cells": 48,
     "height_cells": 36,
     "aspect": "4:3",
-    "actual_width_cells": 48,
+    "actual_width_cells": 45,
     "actual_height_cells": 30,
-    "width_pixels": 768,
+    "width_pixels": 720,
     "height_pixels": 480,
-    "distance": 6.0
+    "distance": 6.708203932499369
   },
   "last_updated": "auto-detect"
 }

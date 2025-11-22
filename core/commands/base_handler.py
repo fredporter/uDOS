@@ -9,7 +9,7 @@ v1.0.29 adds smart input and output services for all commands.
 
 import json
 from pathlib import Path
-from core.utils.theme_loader import load_theme
+from core.theme import load_theme
 
 
 class BaseCommandHandler:
@@ -95,7 +95,7 @@ class BaseCommandHandler:
     def story_manager(self):
         """Get or create StoryManager instance"""
         if self._story_manager is None:
-            from core.services.story_manager import create_story_manager
+            from core.output.story_manager import create_story_manager
             self._story_manager = create_story_manager()
         return self._story_manager
 
@@ -103,7 +103,7 @@ class BaseCommandHandler:
     def output_formatter(self):
         """Get or create OutputFormatter instance"""
         if self._output_formatter is None:
-            from core.services.output_formatter import create_output_formatter
+            from core.output.output_formatter import create_output_formatter
             # Use viewport width if available
             width = self.viewport.width if self.viewport else 80
             self._output_formatter = create_output_formatter(

@@ -13,8 +13,8 @@ import json
 import shutil
 from pathlib import Path
 from .base_handler import BaseCommandHandler
-from core.services.theme_manager import ThemeManager
-from core.services.theme_builder import ThemeBuilder
+from core.theme.manager import ThemeManager
+from core.theme.builder import ThemeBuilder
 
 
 class ConfigurationHandler(BaseCommandHandler):

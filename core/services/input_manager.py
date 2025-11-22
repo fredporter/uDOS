@@ -260,7 +260,7 @@ class InputManager:
             return default
 
     def prompt_file(self,
-                   message: str,
+                   message: str = "Select a file",
                    starting_path: str = ".",
                    must_exist: bool = True,
                    file_type: Optional[str] = None) -> str:
@@ -268,7 +268,7 @@ class InputManager:
         Prompt user for file path with validation.
 
         Args:
-            message: Prompt message
+            message: Prompt message (default: "Select a file")
             starting_path: Initial directory to search
             must_exist: Whether file must exist
             file_type: Filter by file extension (e.g., ".md", ".py")

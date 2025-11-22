@@ -6,8 +6,8 @@ Handles knowledge management, reading, and contribution commands.
 import os
 from datetime import datetime
 from typing import Dict, Any, Optional
-from core.services.knowledge_service import KnowledgeService
-from core.services.xp_service import XPService, SkillTree
+from core.knowledge import KnowledgeService
+from extensions.game_mode.services.xp_service import XPService, SkillTree
 
 
 class KnowledgeCommandHandler:

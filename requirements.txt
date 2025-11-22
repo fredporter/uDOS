@@ -10,6 +10,9 @@ python-dotenv>=1.0.0
 # Interactive CLI with tab completion
 prompt_toolkit>=3.0.0
 
+# Encryption for private commands
+cryptography>=41.0.0
+
 # HTTP requests for web extensions
 requests>=2.31.0
 

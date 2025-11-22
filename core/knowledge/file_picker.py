@@ -1,5 +1,5 @@
 """
-uDOS v1.0.30 - Enhanced File Picker
+uDOS v1.0.31 - Enhanced File Picker
 
 File picker specifically for knowledge and memory workspaces.
 Shows .md and .uscript files with teletext UI.
@@ -10,14 +10,16 @@ Features:
 - Teletext-style visual interface
 - Keyboard navigation (1-9, arrows)
 - Search/filter support
+- Standardized input interface (v1.0.31)
 
-Version: 1.0.30
+Version: 1.0.31
 """
 
 import os
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from core.ui.teletext_prompt import TeletextPromptStyle, TeletextBlocks
+from core.services.standardized_input import StandardizedInput
 
 
 class KnowledgeFilePicker:
@@ -49,6 +51,7 @@ class KnowledgeFilePicker:
         self.memory_path = self.base_path / 'memory'
         self.style = TeletextPromptStyle()
         self.blocks = TeletextBlocks()
+        self.si = StandardizedInput()  # Standardized input v1.0.31
 
     def get_workspace_files(
         self,
@@ -254,76 +257,32 @@ class KnowledgeFilePicker:
 
         if not files:
             print(self._create_empty_message(workspace_display))
-            input("\nPress ENTER to continue...")
+            self.si.input_text("Press ENTER to continue", default="")
             return None
 
-        # Interactive selection
-        selected_index = 0
-        search_query = ""
-        filtered_files = files
+        # Convert files to simple list of names for StandardizedInput
+        file_options = []
+        file_descriptions = []
+        for f in files:
+            name = f['name']
+            rel_path = f['relative_path']
+            workspace_tag = f'[{f["workspace"]}]'
+            file_options.append(f"{name}")
+            file_descriptions.append(f"{workspace_tag} {rel_path}")
 
-        while True:
-            # Clear screen
-            os.system('clear' if os.name != 'nt' else 'cls')
+        # Use standardized input for file selection
+        idx, selected_name = self.si.select_option(
+            prompt,
+            file_options[:9],  # Limit to 9 for numbered selection
+            descriptions=file_descriptions[:9] if file_descriptions else None,
+            show_numbers=True,
+            allow_filter=False
+        )
 
-            # Apply filter if search query exists
-            if search_query:
-                filtered_files = self.filter_files(files, search_query)
-                if not filtered_files:
-                    print(f"\nNo files match '{search_query}'")
-                    search_query = ""
-                    filtered_files = files
-                    continue
-            else:
-                filtered_files = files
+        if idx == -1 or idx >= len(files):
+            return None
 
-            # Display files
-            print(f"\n{prompt}")
-            print(self.display_files(filtered_files, workspace_display, selected_index))
-
-            if search_query:
-                print(f"\nFilter: '{search_query}' ({len(filtered_files)} matches)")
-
-            print("\nCommands: [1-9] Select | [/] Search | [n]ext | [p]rev | [q]uit")
-
-            try:
-                choice = input("\n> ").strip().lower()
-
-                if not choice:
-                    continue
-
-                # Number selection
-                if choice.isdigit():
-                    num = int(choice)
-                    if 1 <= num <= min(9, len(filtered_files)):
-                        selected_file = filtered_files[num - 1]
-                        return selected_file['path']
-                    else:
-                        print(f"Invalid selection: {num}")
-                        input("Press ENTER to continue...")
-
-                # Commands
-                elif choice in ['q', 'quit', 'exit']:
-                    return None
-
-                elif choice in ['/', 'search', 's']:
-                    search_query = input("Search: ").strip()
-
-                elif choice in ['n', 'next']:
-                    if selected_index + 9 < len(filtered_files):
-                        selected_index += 9
-
-                elif choice in ['p', 'prev', 'previous']:
-                    selected_index = max(0, selected_index - 9)
-
-                elif choice in ['c', 'clear']:
-                    search_query = ""
-                    selected_index = 0
-
-            except (KeyboardInterrupt, EOFError):
-                return None
-
-        return None
+        return files[idx]['path']
 
 
 # Quick test

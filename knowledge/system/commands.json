@@ -148,6 +148,48 @@
       ]
     },
     {
+      "NAME": "CONFIG PLANET",
+      "SYNTAX": "CONFIG PLANET [LIST|SET|NEW|DELETE|SOLAR|INFO] [args...]",
+      "DESCRIPTION": "Manage planets (workspace metaphor). Create, switch, and list planets in your solar system.",
+      "UCODE_TEMPLATE": "[SYSTEM|CONFIG_PLANET*$1*$2*$3*$4*$5]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "CONFIG PLANET",
+        "CONFIG PLANET LIST",
+        "CONFIG PLANET SET Earth",
+        "CONFIG PLANET NEW Mars Sol Mars 🔴 \"Red planet workspace\"",
+        "CONFIG PLANET INFO Earth",
+        "CONFIG PLANET SOLAR"
+      ],
+      "DETAILS": {
+        "LIST": "Show all planets",
+        "SET": "Switch to planet",
+        "NEW": "Create new planet",
+        "DELETE": "Remove planet",
+        "SOLAR": "List solar systems",
+        "INFO": "Show planet details"
+      }
+    },
+    {
+      "NAME": "LOCATE",
+      "SYNTAX": "LOCATE [SET <lat> <lon>|CITY <name>|CLEAR]",
+      "DESCRIPTION": "Set or view current real-world location on active planet. Enables location-aware survival knowledge.",
+      "UCODE_TEMPLATE": "[SYSTEM|LOCATE*$1*$2*$3*$4*$5]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "LOCATE",
+        "LOCATE SET 51.5074 -0.1278 London UK England",
+        "LOCATE CITY Tokyo",
+        "LOCATE CITY \"New York\"",
+        "LOCATE CLEAR"
+      ],
+      "DETAILS": {
+        "SET": "Set coordinates manually",
+        "CITY": "Select from city database",
+        "CLEAR": "Remove location"
+      }
+    },
+    {
       "NAME": "BLANK",
       "SYNTAX": "BLANK",
       "DESCRIPTION": "Clears the terminal screen.",
