@@ -1,18 +1,18 @@
 # 🗺️ uDOS Roadmap
-**Current Version**: v1.0.24/v1.0.25 (Web Extensions Unification - ✅ COMPLETE)
-**Last Updated**: November 18, 2025 - v1.0.24 Extensions Complete
+**Current Version**: v1.0.28 (Command Testing & Critical Fixes - ✅ COMPLETE)
+**Last Updated**: November 22, 2025 - v1.0.28 Bug Fixes Complete
 
 **Philosophy**: *"The Hitchhiker's Guide to the Galaxy on a small computer containing all the useful info you need that works with no internet connection! A Survival Handbook for Armageddon - giving life and purpose to all our computer-type devices and helping us thrive as humans!"*
 
 **Roadmap Focus**: v1.0.x completes core features, debugging, web adventures, and documentation. Security, networking, sharing, encryption, NFT, and multi-user features deferred to v1.1.x for post-stable release.
 
 **Recent Updates**:
+- ✅ **v1.0.28 PATCH RELEASE** (Nov 22, 2025) - Critical bug fixes: PANEL routing, SPLASH implementation, parser null handling, 24 commands tested
+- ✅ **v1.0.27 RELEASE** (Nov 19, 2025) - Memory structure updates, test improvements, 370 tests passing
 - ✅ **v1.0.24/v1.0.25 UNIFIED RELEASE** (Nov 18, 2025) - Extensions server, dashboard builder, file reorganization, 539/539 tests passing
 - ✅ **v1.0.23 STABLE RELEASE** (Nov 17, 2025) - Command consolidation, smart input, 108/108 tests passing
 - ✅ **v1.0.22 Documentation Handbook COMPLETE** (Nov 17, 2025) - 1000+ page handbook, 100 diagrams, offline-first
-- ✅ **v1.0.21 Survivalist Library COMPLETE** (Nov 17, 2025) - GUIDE/DIAGRAM commands, teletext graphics, 40/40 tests
-- ✅ **v1.0.20b Enhanced Mapping COMPLETE** (Nov 16, 2025) - 250 cities, 50 countries, TILE system, 8 geographic databases
-- 🚀 **v1.0.26 Final Polish** - Next up: Final testing, performance optimization, v1.1.0 preparation
+- 🚀 **v1.0.29 Next** - Fix remaining broken commands, move game features to extensions, prepare v1.1.0
 
 **Core Principles**:
 - 🌍 **Offline-First**: Full functionality without internet
@@ -71,13 +71,23 @@
   * Dashboard builder with 12+ widgets, 4 themes
   * Complete documentation (README-SERVER.md)
   * Zero breaking changes
+- **v1.0.26** - Polish Branch & Cleanup (Theme fixes, folder structure) - ✅ **COMPLETE** (Nov 2025)
+- **v1.0.27** - Memory Structure & Tests (Workflow system, test updates, 370 tests) - ✅ **COMPLETE** (Nov 19, 2025)
+- **v1.0.28** - Command Testing & Critical Fixes (PANEL routing, SPLASH implementation, parser null handling) - ✅ **COMPLETE** (Nov 22, 2025)
+  * Fixed: PANEL UI module routing
+  * Implemented: SPLASH command (LOGO/FILE/TEXT modes)
+  * Fixed: Parser null value handling (GUIDE/DIAGRAM now working)
+  * Fixed: Root folder cleanup (no more unwanted /output, /data, /sandbox)
+  * Tested: 24 commands (15 working, 2 broken, 3 stubs, 4 partial)
+  * Documented: v1.0.29 scope and v1.1.0 deferrals
 
 ### 🔨 Current Development
-- **v1.0.26** - Final Polish & Performance - 🔨 **IN PROGRESS** (Dec 2025)
-  * Phase 1: Testing Infrastructure ✅ (1022 tests)
-  * Phase 2: Performance Optimization ✅ (P90: 1.70ms)
-  * Phase 3: Cross-Platform Testing ✅ (macOS: 365/395 passing)
-  * Phase 4-5: Documentation & v1.1.0 prep (in progress)
+- **v1.0.29** - Final Core Stabilization - 🔨 **NEXT** (Dec 2025)
+  * Fix BANK STATS/SHOW or defer to v1.1.0
+  * Test FILE BATCH/BOOKMARKS/PREVIEW with proper syntax
+  * Move MAP/game handlers to /extensions/game-mode/
+  * Mark deferred commands in commands.json
+  * Final command testing (42 core commands validated)
 
 ### 📋 Planned Versions
 - **v1.1.0** - Security Model & Stable Release (User roles, API integration, offline AI) - 📋 **Q2 2026**
