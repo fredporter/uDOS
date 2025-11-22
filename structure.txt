@@ -70,6 +70,7 @@ uDOS/
 │   │   ├── setup_wizard.py
 │   │   ├── sharing_service.py
 │   │   ├── smart_prompt.py
+│   │   ├── standardized_input.py
 │   │   ├── story_manager.py
 │   │   ├── teletext_renderer.py
 │   │   ├── theme_builder.py
@@ -90,10 +91,12 @@ uDOS/
 │   │   ├── micro_editor.py
 │   │   ├── picker.py
 │   │   ├── progress_indicators.py
-│   │   └── teletext_prompt.py
+│   │   ├── teletext_prompt.py
+│   │   └── visual_selector.py
 │   ├── utils/
 │   │   ├── completer.py
 │   │   ├── config_manager.py
+│   │   ├── fast_startup.py
 │   │   ├── generate_user_config.py
 │   │   ├── generate_world_map.uscript
 │   │   ├── map_painter.uscript
@@ -184,6 +187,9 @@ uDOS/
 │   │   │   ├── V1.1.0-PLUS-ROADMAP.md
 │   │   │   └── v1.1.0-FEATURE-PRIORITIES.md
 │   │   ├── STORY_ARCHITECTURE.md
+│   │   ├── v1.0.30-COMPLETION-ASSESSMENT.md
+│   │   ├── v1.0.30-SESSION-SUMMARY.md
+│   │   ├── v1.0.31-STANDARDIZED-INPUT-PLAN.md
 │   │   ├── v1_0_30_complete_summary.md
 │   │   └── v1_0_30_summary.md
 │   ├── tools/

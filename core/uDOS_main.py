@@ -1,4 +1,4 @@
-# uDOS v1.0.0 - Main Application
+# uDOS v1.0.31 - Main Application
 
 # Suppress urllib3 OpenSSL warnings gracefully
 import warnings
@@ -66,7 +66,7 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
         logger.log(error_msg)
         print(error_msg)
 
-def initialize_system(is_script_mode=False):
+def initialize_system(is_script_mode=False, run_health_check=False):
     """Initialize all system components."""
     components = {}
 
@@ -112,7 +112,7 @@ def initialize_system(is_script_mode=False):
             user_manager.update_session_data(session_id, viewport_data)
 
         # 4. System health check
-        if not is_script_mode:
+        if not is_script_mode and run_health_check:
             print("🏥 System health...", end=" ", flush=True)
 
         from core.uDOS_startup import quick_health_check, check_system_health, repair_system
@@ -120,7 +120,7 @@ def initialize_system(is_script_mode=False):
         is_healthy, message = quick_health_check()
         health = None  # Initialize health variable
 
-        if not is_script_mode:
+        if not is_script_mode and run_health_check:
             # Show brief status
             if is_healthy and "warning" not in message.lower():
                 print("✓ Healthy")
@@ -156,6 +156,9 @@ def initialize_system(is_script_mode=False):
                     print("  ⚠️  Non-interactive mode - skipping auto-repair")
                     print("  💡 Run 'REPAIR' command to fix issues")
                 print()
+        elif not is_script_mode and not run_health_check:
+            # Fast mode: skip health check silently
+            pass
 
         # Store health check results (if available)
         if health:
@@ -196,9 +199,12 @@ def initialize_system(is_script_mode=False):
 def main():
     """Main function with full system initialization."""
     try:
-        is_script_mode = len(sys.argv) > 1
+        # Check for flags
+        is_script_mode = len(sys.argv) > 1 and not sys.argv[1].startswith('--')
+        run_health_check = '--check' in sys.argv
+        fast_mode = not run_health_check  # Skip health by default unless --check is passed
 
-        components = initialize_system(is_script_mode)
+        components = initialize_system(is_script_mode, run_health_check)
         if not components:
             return 1
 

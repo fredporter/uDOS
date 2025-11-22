@@ -1,6 +1,6 @@
 {
   "command_counts": {
-    "ERROR": 159,
+    "ERROR": 160,
     "HELP": 29,
     "STATUS": 11,
     "BLANK": 2,
@@ -52,20 +52,11 @@
     "MENU": 1
   },
   "failure_counts": {
-    "ERROR": 159,
+    "ERROR": 160,
     "STATUS": 2,
     "SPLASH": 1
   },
   "recent_commands": [
-    {
-      "command": "ERROR",
-      "timestamp": "2025-11-22T15:51:45.589519",
-      "params": [
-        "Invalid command: except Exception as e:"
-      ],
-      "success": false,
-      "context": {}
-    },
     {
       "command": "ERROR",
       "timestamp": "2025-11-22T15:51:46.010805",
@@ -886,7 +877,16 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-22T21:26:06.984201",
+      "params": [
+        "Invalid command: QUIT"
+      ],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-22T20:55:47.847527"
+  "last_updated": "2025-11-22T21:26:48.575852"
 }
