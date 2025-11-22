@@ -83,13 +83,24 @@
 
 ### 🔨 Current Development
 - **v1.0.29** - Smart Input & I/O System - 🔨 **IN PROGRESS** (Nov 22, 2025)
-  * Phase 1 ✅: InputManager, StoryManager, OutputFormatter services
-  * Phase 2 ✅: GET/SET commands for field access (STORY, SYSTEM, CONFIG)
-  * Phase 3 ⏳: Convert CONFIG, SETUP, FILE, BANK to smart single-word mode
+  * Phase 1 ✅: InputManager, StoryManager, OutputFormatter services (commit c09816fe)
+  * Phase 2 ✅: GET/SET commands for field access (STORY, SYSTEM, CONFIG) (commit c09816fe)
+  * Phase 3 🔨: Convert CONFIG ✅, SETUP, FILE, BANK to smart single-word mode (commit 174040b3)
   * Phase 4 ⏳: Testing and documentation
   * Goal: All commands work with zero arguments (smart prompts)
 
 ### 📋 Planned Versions
+- **v1.0.30** - Retro CLI Graphics & UX Polish - 📋 **NEXT** (Dec 2025)
+  * Block Graphics: Compatible Unicode block characters (█▓▒░▀▄▌▐│─┌┐└┘├┤┬┴┼) for retro computing aesthetic
+  * Rainbow Colors: Retro color palette with ANSI 256-color support (C64, ZX Spectrum, Apple II vibes)
+  * SPLASH Redesign: Block graphics logo, animated loader bars, retro boot sequence with CONFIG checks
+  * Startup Graphics: Block-based meters (CPU, memory, config validation), retro progress indicators
+  * Animated Prompt: Claude-style animated block cursor with breathing animation (▊ → ▋ → █)
+  * Smart Input Polish: Enhanced terminal-based file picker with block graphics navigation
+  * CLI UX: Loader-style meters for all operations (saving, loading, processing)
+  * Testing: File picker terminal constraints, animation performance, color compatibility
+  * Goal: Modern UX meets 1980s retro computing aesthetic
+
 - **v1.1.0** - Security Model & Stable Release (User roles, API integration, offline AI) - 📋 **Q2 2026**
 - **v1.1.1** - Cross-Platform Validation (Linux Ubuntu/Debian/Fedora, Windows Terminal/WSL/PowerShell testing) - 📋 **FUTURE**
 - **v1.1.x** - Desktop Apps & Advanced Features (Tauri, Classicy Desktop, P2P networking) - 📝 **FUTURE**
