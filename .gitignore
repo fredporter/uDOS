@@ -129,7 +129,13 @@ backups/
 
 # Output Files
 # ----------------------
-output/
+# Prevent root-level working directories from being created/tracked
+/output/
+/output
+/data/
+/data
+/sandbox/
+/sandbox
 *.output
 
 # Test Files - Only in Proper Locations
