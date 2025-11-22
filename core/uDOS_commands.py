@@ -71,7 +71,6 @@ class CommandHandler:
         # Initialize specialized handlers (lazy loading in handlers themselves)
         from core.commands.assistant_handler import AssistantCommandHandler
         from core.commands.file_handler import FileCommandHandler
-        from core.commands.grid_handler import GridCommandHandler
         from core.commands.system_handler import SystemCommandHandler
         from core.commands.bank_handler import BankCommandHandler
         from core.commands.cmd_knowledge import cmd_knowledge
@@ -101,7 +100,6 @@ class CommandHandler:
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
-        self.grid_handler = GridCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
@@ -124,7 +122,7 @@ class CommandHandler:
         self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
 
         # Now set main_handler reference on all handlers
-        for handler in [self.assistant_handler, self.file_handler, self.grid_handler,
+        for handler in [self.assistant_handler, self.file_handler,
                        self.system_handler, self.bank_handler]:
             handler.main_handler = self
 
@@ -186,7 +184,14 @@ class CommandHandler:
                 return self.file_handler.handle(command, params, grid, parser)
 
             elif module == "GRID":
-                return self.grid_handler.handle(command, params, grid)
+                return ("❌ GRID commands have been removed in uDOS v1.0.32\n\n"
+                       "The panel system has been simplified. Commands now work\n"
+                       "directly with files and the terminal output.\n\n"
+                       "💡 Alternatives:\n"
+                       "   • Use TREE to view repository structure\n"
+                       "   • Use EDIT to edit files\n"
+                       "   • Use SHOW to view files\n"
+                       "   • Use PANEL for teletext UI")
 
             elif module == "MAP":
                 if self.map_handler:
