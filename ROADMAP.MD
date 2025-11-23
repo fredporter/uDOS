@@ -60,7 +60,7 @@ This phase enforces the **security model around external AI access** and connect
 | ID | Feature | Rationale / Success Criteria |
 | :--- | :--- | :--- |
 | **1.1.0.8** | **TUI Selector Refactor (CRITICAL)** ✅ **COMPLETE (2025-11-24)** | **Rebuilt unified selector using `prompt_toolkit` Application API** with automatic fallback to numbered menus. Consolidates 3 fragmented implementations (`option_selector.py`, `standardized_input.py`, `visual_selector.py`) into single robust system (`core/ui/unified_selector.py`). Supports: single-select, multi-select, file picker, search/filter. Works on **macOS Terminal, Linux terminals, and Windows Terminal/PowerShell** with graceful degradation for SSH/tmux/minimal TTY. **24/24 tests passing**. Session analytics integrated. Cross-platform demo included. |
-| **1.1.0.9** | **Fallback I/O (Degraded Terminals)** | Implement a simple **numbered menu fallback** for all interactive prompts (`ask_choice()` and similar). Behaviour must be fully functional over minimal TTYs (no colours, no cursor movement), preserving all workflows. Test with SSH sessions, screen readers, and constrained environments. |
+| **1.1.0.9** | **Fallback I/O (Degraded Terminals)** ✅ **IN PROGRESS (2025-11-24)** | **Unified selector integration into existing command infrastructure.** Updated `InteractivePrompt.ask_choice()` and `InputManager.prompt_choice()` to use unified selector with automatic fallback to text mode. All interactive prompts now benefit from cross-platform arrow-key navigation while maintaining full functionality in degraded terminals (SSH, screen readers, minimal TTY). Legacy imports maintained for backward compatibility. |
 | **1.1.0.10** | **Retro Graphics & Compatibility (v1.0.30)** | Finalise Unicode/ANSI block character sets and colour schemes to deliver a stable retro aesthetic (C64/ZX/Apple II vibes) without breaking compatibility on constrained or remote terminals. Includes splash screen, loaders, and progress bars. Compatibility matrix testing across terminal emulators. |
 | **1.1.0.11** | **Unified Commands Testing** | Fully test and finalise **DOCS**, **LEARN**, and **MEMORY** unified handlers so that zero-argument usage behaves intuitively and allows smart prompts rather than failure. Confirm compatibility with v1.0.x smart input work. Live user sessions validate UX flow. |
 | **1.1.0.12** | **Session Replay & Analysis** | Implement session replay tools for developers: replay command sequences from session logs, step through user interactions, and identify pain points. Gemini API analyzes session patterns to suggest UX improvements and detect common error paths. |
@@ -75,7 +75,7 @@ This phase enforces the **security model around external AI access** and connect
   - Advanced mode using prompt_toolkit Application API
   - Fallback mode using numbered menus (works everywhere)
   - Session analytics integration for usage tracking
-  
+
 **Convenience Functions**:
 - `select_single()` - Quick single-selection interface
 - `select_multiple()` - Multi-selection with checkboxes

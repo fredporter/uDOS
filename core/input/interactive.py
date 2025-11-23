@@ -1,7 +1,7 @@
 """
-uDOS Interactive Command System v1.0.31
+uDOS Interactive Command System v1.1.0
 Provides smart prompts, file pickers, and option selectors for commands
-Now with arrow-key navigation for enhanced UX
+Now using unified selector with cross-platform compatibility
 """
 
 import os
@@ -30,25 +30,33 @@ class InteractivePrompt:
             prompt: Question to ask
             choices: List of valid options
             default: Default choice if user presses enter
+            message: Optional additional message (ignored, kept for compatibility)
 
         Returns:
             Selected choice
         """
-        # Use arrow-key selector if enabled and available
+        # Use unified selector (v1.1.0) if enabled
         if self.use_arrow_keys:
             try:
-                from core.ui.pickers.option_selector import OptionSelector
-                selector = OptionSelector()
-                result = selector.select(
-                    prompt=prompt,
-                    options=choices,
-                    default=default
+                from core.ui.unified_selector import select_single
+
+                # Find default index
+                default_index = 0
+                if default and default in choices:
+                    default_index = choices.index(default)
+
+                result = select_single(
+                    title=prompt or "Select Option",
+                    items=choices,
+                    default_index=default_index
                 )
+
                 if result:  # If not cancelled
                     return result
                 # Fall through to text mode if cancelled
-            except (ImportError, Exception):
+            except (ImportError, Exception) as e:
                 # Fall back to text mode if selector fails
+                print(f"⚠️  Selector unavailable ({e}), using text mode")
                 pass
 
         # Text-based fallback mode

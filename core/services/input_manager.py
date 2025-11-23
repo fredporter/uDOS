@@ -145,6 +145,7 @@ class InputManager:
                      allow_custom: bool = False) -> str:
         """
         Prompt user to select from a list of choices with autocomplete.
+        Now uses unified selector (v1.1.0) for enhanced cross-platform UX.
 
         Args:
             message: Prompt message
@@ -162,6 +163,33 @@ class InputManager:
                 default="dungeon"
             )
         """
+        # Try unified selector first (v1.1.0)
+        try:
+            from core.ui.unified_selector import select_single
+
+            # Find default index
+            default_index = 0
+            if default and default in choices:
+                default_index = choices.index(default)
+
+            result = select_single(
+                title=message,
+                items=choices,
+                default_index=default_index
+            )
+
+            if result:
+                return result
+
+            # If cancelled and allow_custom, fall through to text input
+            if not allow_custom:
+                return default or choices[0]
+
+        except (ImportError, Exception) as e:
+            # Fallback to legacy mode if unified selector unavailable
+            print(f"⚠️  Using legacy input mode")
+
+        # Legacy text-based mode (fallback)
         # Display choices
         print(f"\n{message}")
         for i, choice in enumerate(choices, 1):
