@@ -115,10 +115,11 @@ class LearnUnifiedHandler:
         diagrams_count = len(self.content_index['diagrams'])
 
         # Get progress from guide handler
-        progress = self.guide_handler.progress
-        completed = len(progress.get('completed', []))
+        progress_data = getattr(self.guide_handler, 'progress_data', {})
+        completed = len([g for g in progress_data.values() if g.get('completed', False)])
         total_guides = guides_count
         percent = int((completed / total_guides) * 100) if total_guides > 0 else 0
+        current_guide = next((gid for gid, gdata in progress_data.items() if not gdata.get('completed', False)), 'None')
 
         return f"""
 ┌─────────────────────────────────────────────────────────────────┐
@@ -135,7 +136,7 @@ class LearnUnifiedHandler:
 │                                                                 │
 │  Your Progress:                                                 │
 │    Guides completed: {completed}/{total_guides} ({percent}%)                        │
-│    Last session: {progress.get('current_guide', 'None')}                    │
+│    Last session: {current_guide}                    │
 │                                                                 │
 │  Quick Actions:                                                 │
 │    LEARN --continue         Resume last guide                   │
@@ -278,8 +279,9 @@ See also: DOCS (for documentation), HANDBOOK (for structured reading)
 
     def _continue_learning(self) -> str:
         """Continue last learning session"""
-        progress = self.guide_handler.progress
-        current = progress.get('current_guide')
+        progress_data = getattr(self.guide_handler, 'progress_data', {})
+        # Find first non-completed guide
+        current = next((gid for gid, gdata in progress_data.items() if not gdata.get('completed', False)), None)
 
         if not current:
             return "\n❌ No active learning session\n\nStart a guide: LEARN <name>\n"
@@ -288,8 +290,8 @@ See also: DOCS (for documentation), HANDBOOK (for structured reading)
 
     def _show_progress(self) -> str:
         """Show detailed learning progress"""
-        progress = self.guide_handler.progress
-        completed = progress.get('completed', [])
+        progress_data = getattr(self.guide_handler, 'progress_data', {})
+        completed = [g for g in progress_data.values() if g.get('completed', False)]
         total = len(self.content_index['guides'])
         percent = int((len(completed) / total) * 100) if total > 0 else 0
 
@@ -307,17 +309,20 @@ See also: DOCS (for documentation), HANDBOOK (for structured reading)
         output.append("")
 
         # Current session
-        if progress.get('current_guide'):
-            output.append(f"Current: {progress['current_guide']}")
-            current_step = progress.get('current_step', 0)
+        current_guide = next((gid for gid, gdata in progress_data.items() if not gdata.get('completed', False)), None)
+        if current_guide:
+            output.append(f"Current: {current_guide}")
+            current_step = progress_data.get(current_guide, {}).get('current_step', 0)
             output.append(f"Progress: Step {current_step}")
             output.append("")
 
         # Completed guides
         if completed:
             output.append("✅ Completed guides:")
-            for guide in completed[:5]:  # Show first 5
-                output.append(f"  • {guide}")
+            completed_ids = list(progress_data.keys())[:5]
+            for guide_id in completed_ids:
+                if progress_data.get(guide_id, {}).get('completed', False):
+                    output.append(f"  • {guide_id}")
             if len(completed) > 5:
                 output.append(f"  ... and {len(completed) - 5} more")
             output.append("")
