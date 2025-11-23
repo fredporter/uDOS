@@ -226,6 +226,46 @@
       }
     },
     {
+      "NAME": "FEEDBACK",
+      "SYNTAX": "FEEDBACK \"<message>\" [TYPE <category>]",
+      "DESCRIPTION": "Submit feedback, confusion points, or feature requests to improve uDOS. Captures session context automatically.",
+      "UCODE_TEMPLATE": "[USER|FEEDBACK*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$2": "general"
+      },
+      "EXAMPLES": [
+        "FEEDBACK \"Love the new PANEL system!\"",
+        "FEEDBACK \"MAP CREATE is confusing\" TYPE confusion",
+        "FEEDBACK \"Add keyboard shortcuts\" TYPE request"
+      ],
+      "NOTES": [
+        "Categories: general, confusion, request, praise",
+        "Saved to memory/logs/feedback/",
+        "Integrates with session analytics"
+      ]
+    },
+    {
+      "NAME": "REPORT",
+      "SYNTAX": "REPORT TITLE=\"<title>\" DESC=\"<description>\" [SEVERITY <level>] [CATEGORY <type>]",
+      "DESCRIPTION": "Submit a detailed bug report or issue with reproduction steps and session context.",
+      "UCODE_TEMPLATE": "[USER|REPORT*$1*$2*$3*$4]",
+      "DEFAULT_PARAMS": {
+        "$3": "medium",
+        "$4": "bug"
+      },
+      "EXAMPLES": [
+        "REPORT TITLE=\"Menu overlap\" DESC=\"Text overlaps in narrow terminals\"",
+        "REPORT TITLE=\"MAP fails\" DESC=\"KeyError on CREATE\" SEVERITY high",
+        "REPORT TITLE=\"Add feature\" DESC=\"Dark mode support\" CATEGORY feature_request"
+      ],
+      "NOTES": [
+        "Severity: critical, high, medium, low, info",
+        "Category: bug, feature_request, confusion, question",
+        "Saved to memory/logs/feedback/bug_reports.jsonl",
+        "Auto-captures session context"
+      ]
+    },
+    {
       "NAME": "HISTORY",
       "SYNTAX": "HISTORY [SEARCH <query>|STATS|CLEAR [days]|EXPORT <file>|RECENT [count]]",
       "DESCRIPTION": "Enhanced command history management with intelligent search, statistics, and export capabilities.",

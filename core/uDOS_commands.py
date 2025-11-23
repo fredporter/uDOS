@@ -98,6 +98,9 @@ class CommandHandler:
         from core.commands.guide_handler import GuideHandler
         from core.commands.diagram_handler import DiagramHandler
 
+        # v1.1.0 - User Feedback System
+        from core.commands.user_handler import UserCommandHandler
+
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
@@ -120,6 +123,9 @@ class CommandHandler:
         # v1.0.21 - GUIDE & DIAGRAM Interactive Knowledge handlers
         self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
         self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
+
+        # v1.1.0 - User Feedback handler
+        self.user_handler = UserCommandHandler(**handler_kwargs)
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
@@ -234,6 +240,10 @@ class CommandHandler:
 
             elif module == "DIAGRAM":
                 return self.diagram_handler.handle(command, params)
+
+            # v1.1.0 - User Feedback System
+            elif module == "USER":
+                return self.user_handler.handle(command, params, grid)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

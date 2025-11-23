@@ -4,7 +4,9 @@ uDOS/
 │   │   ├── assistant_handler.py
 │   │   ├── bank_handler.py
 │   │   ├── base_handler.py
+│   │   ├── cmd_config_planet.py
 │   │   ├── cmd_knowledge.py
+│   │   ├── cmd_locate.py
 │   │   ├── community_commands.py
 │   │   ├── configuration_handler.py
 │   │   ├── dashboard_handler.py
@@ -12,13 +14,11 @@ uDOS/
 │   │   ├── doc_handler.py
 │   │   ├── docs_unified_handler.py
 │   │   ├── example_handler.py
+│   │   ├── feedback_handler.py
 │   │   ├── file_handler.py
-│   │   ├── grid_handler.py
 │   │   ├── guide_handler.py
 │   │   ├── handbook_handler.py
-│   │   ├── history_handler.py
 │   │   ├── knowledge_commands.py
-│   │   ├── knowledge_handler.py
 │   │   ├── learn_unified_handler.py
 │   │   ├── manual_handler.py
 │   │   ├── memory_commands.py
@@ -28,8 +28,12 @@ uDOS/
 │   │   ├── repair_handler.py
 │   │   ├── shared_commands.py
 │   │   ├── system_handler.py
-│   │   └── tile_handler.py
+│   │   ├── tile_handler.py
+│   │   └── user_handler.py
 │   ├── input/
+│   │   ├── prompts/
+│   │   │   ├── prompt_decorator.py
+│   │   │   └── smart_prompt.py
 │   │   ├── __init__.py
 │   │   └── interactive.py
 │   ├── interpreters/
@@ -39,57 +43,48 @@ uDOS/
 │   ├── knowledge/
 │   │   ├── __init__.py
 │   │   ├── bank.py
+│   │   ├── base_manager.py
 │   │   ├── file_picker.py
-│   │   └── memory.py
+│   │   ├── memory.py
+│   │   ├── service.py
+│   │   ├── tier_manager.py
+│   │   └── types.py
 │   ├── network/
 │   │   ├── __init__.py
 │   │   ├── gemini.py
 │   │   └── server.py
 │   ├── output/
+│   │   ├── renderers/
+│   │   │   ├── __init__.py
+│   │   │   ├── layout_manager.py
+│   │   │   └── teletext_renderer.py
 │   │   ├── __init__.py
 │   │   ├── api_server.log
 │   │   ├── graphics.py
-│   │   └── splash.py
+│   │   ├── output_formatter.py
+│   │   ├── screen_manager.py
+│   │   ├── splash.py
+│   │   └── story_manager.py
 │   ├── services/
-│   │   ├── alias_manager.py
-│   │   ├── autocomplete.py
+│   │   ├── api_audit.py
 │   │   ├── community_service.py
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
-│   │   ├── error_handler.py
-│   │   ├── file_picker.py
-│   │   ├── fuzzy_matcher.py
 │   │   ├── gemini_service.py
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
 │   │   ├── input_manager.py
-│   │   ├── knowledge_file_picker.py
-│   │   ├── knowledge_manager.py
-│   │   ├── knowledge_service.py
-│   │   ├── knowledge_types.py
-│   │   ├── layout_manager.py
-│   │   ├── lazy_loader.py
+│   │   ├── intelligent_error_handler.py
 │   │   ├── memory_manager.py
-│   │   ├── option_selector.py
-│   │   ├── output_formatter.py
-│   │   ├── performance_profiler.py
-│   │   ├── progress_manager.py
-│   │   ├── prompt_decorator.py
-│   │   ├── screen_manager.py
+│   │   ├── planet_manager.py
+│   │   ├── session_analytics.py
 │   │   ├── session_manager.py
 │   │   ├── setup_wizard.py
 │   │   ├── sharing_service.py
-│   │   ├── smart_prompt.py
 │   │   ├── standardized_input.py
-│   │   ├── story_manager.py
-│   │   ├── teletext_renderer.py
-│   │   ├── theme_builder.py
-│   │   ├── theme_manager.py
-│   │   ├── tier_knowledge_manager.py
-│   │   ├── usage_tracker.py
 │   │   ├── user_manager.py
 │   │   └── viewport_manager.py
 │   ├── tests/
@@ -105,20 +100,34 @@ uDOS/
 │   │   ├── loader.py
 │   │   └── manager.py
 │   ├── ui/
+│   │   ├── pickers/
+│   │   │   ├── __init__.py
+│   │   │   ├── file_picker.py
+│   │   │   ├── knowledge_file_picker.py
+│   │   │   └── option_selector.py
 │   │   ├── micro_editor.py
 │   │   ├── picker.py
 │   │   ├── progress_indicators.py
 │   │   ├── teletext_prompt.py
 │   │   └── visual_selector.py
 │   ├── utils/
+│   │   ├── helpers/
+│   │   ├── profiling/
+│   │   │   └── performance_profiler.py
+│   │   ├── alias_manager.py
+│   │   ├── autocomplete.py
 │   │   ├── completer.py
 │   │   ├── config_manager.py
+│   │   ├── error_handler.py
 │   │   ├── fast_startup.py
 │   │   ├── files.py
+│   │   ├── fuzzy_matcher.py
 │   │   ├── generate_user_config.py
 │   │   ├── generate_world_map.uscript
+│   │   ├── lazy_loader.py
 │   │   ├── map_painter.uscript
 │   │   ├── migrate_config.py
+│   │   ├── progress_manager.py
 │   │   ├── reorganize_knowledge.sh
 │   │   ├── settings.py
 │   │   ├── setup.py
@@ -130,6 +139,7 @@ uDOS/
 │   │   ├── tizo_manager.py
 │   │   ├── tree.py
 │   │   ├── ucode.py
+│   │   ├── usage_tracker.py
 │   │   ├── variables.py
 │   │   ├── viewport.py
 │   │   └── viewport_viz.py
@@ -141,9 +151,14 @@ uDOS/
 │   ├── uDOS_main.py
 │   ├── uDOS_parser.py
 │   └── uDOS_startup.py
-├── data/
 ├── dev/
 │   ├── archive/
+│   │   ├── core-legacy/
+│   │   │   ├── commands/
+│   │   │   ├── services/
+│   │   │   │   ├── theme_builder.py
+│   │   │   │   └── theme_manager.py
+│   │   │   └── ARCHIVE_PLAN.md
 │   │   └── v1.0.x/
 │   │       ├── baselines/
 │   │       │   └── BASELINE-v1.0.26.md
@@ -199,8 +214,10 @@ uDOS/
 │   │   │   ├── V1.1.0-PLUS-ROADMAP.md
 │   │   │   └── v1.1.0-FEATURE-PRIORITIES.md
 │   │   ├── STORY_ARCHITECTURE.md
+│   │   ├── commands-architecture.md
 │   │   ├── core-cleanup-plan.md
 │   │   ├── core-consolidation-analysis.md
+│   │   ├── core-reorganization-summary.md
 │   │   ├── v1.0.30-COMPLETION-ASSESSMENT.md
 │   │   ├── v1.0.30-SESSION-SUMMARY.md
 │   │   ├── v1.0.31-STANDARDIZED-INPUT-PLAN.md
@@ -1218,8 +1235,6 @@ uDOS/
 │   │   └── stress-management-resilience.md
 │   ├── KNOWLEDGE-SYSTEM.md
 │   └── README.md
-├── output/
-├── sandbox/
 ├── wiki/
 │   ├── diagrams/
 │   │   ├── concepts/
@@ -1282,6 +1297,7 @@ uDOS/
 │   └── uCODE-Language.md
 ├── .gitignore
 ├── CHANGELOG.md
+├── CHANGELOG_v1.0.32.md
 ├── CONTRIBUTING.md
 ├── CREDITS.md
 ├── INSTALL.md
@@ -1290,7 +1306,7 @@ uDOS/
 ├── QUICK-REFERENCE.md
 ├── QUICK_START.md
 ├── README.MD
-├── ROADMAP.MD
+├── ROADMAP.md
 ├── pytest.ini
 ├── requirements.txt
 ├── setup.py

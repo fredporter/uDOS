@@ -1,17 +1,25 @@
 """
-uDOS v1.0.0 - Assist Command Handler
+uDOS v1.1.0 - Assist Command Handler
 
-Handles all assist-related commands:
-- ASK: Ask the assist system a question
+Handles all assist-related commands with role-based access control:
+- ASK: Ask the assist system a question (offline-first for User role)
 - READ: Read panel content
 - EXPLAIN: Explain a command
 - GENERATE: Generate script from description
 - DEBUG: Help debug an error
 - CLEAR: Clear conversation history
+- DEV: Wizard-only development mode with system context
 
-Version: 1.0.0
+Features (v1.1.0):
+- Role-based API access (Wizard: unrestricted, User: restricted offline-first)
+- API usage audit logging
+- Offline-first knowledge bank search
+- Session analytics integration
+
+Version: 1.1.0
 """
 
+from typing import Optional
 from .base_handler import BaseCommandHandler
 
 
@@ -23,6 +31,12 @@ class AssistantCommandHandler(BaseCommandHandler):
         self.gemini = None  # Lazy initialization
         self._workspace_manager = None
         self._knowledge_manager = None
+        self._audit_logger = None  # Lazy load
+        self._session_analytics = None  # Lazy load
+
+        # Role-based access control (v1.1.0)
+        # Will be fully implemented in v1.1.1 RBAC system
+        self.user_role = "user"  # Default: user, wizard, power, root
 
     @property
     def workspace_manager(self):
@@ -40,6 +54,22 @@ class AssistantCommandHandler(BaseCommandHandler):
             self._knowledge_manager = get_knowledge_manager()
         return self._knowledge_manager
 
+    @property
+    def audit_logger(self):
+        """Lazy load API audit logger."""
+        if self._audit_logger is None:
+            from core.services.api_audit import get_audit_logger
+            self._audit_logger = get_audit_logger()
+        return self._audit_logger
+
+    @property
+    def session_analytics(self):
+        """Lazy load session analytics."""
+        if self._session_analytics is None:
+            from core.services.session_analytics import get_session_analytics
+            self._session_analytics = get_session_analytics()
+        return self._session_analytics
+
     def _initialize_gemini(self):
         """Initialize Gemini service for OK Assisted Task on first use."""
         if self.gemini is None:
@@ -49,6 +79,66 @@ class AssistantCommandHandler(BaseCommandHandler):
             except Exception as e:
                 return f"⚠️  Failed to initialize assist system: {str(e)}"
         return None
+
+    def _check_api_access(self, operation: str) -> tuple[bool, Optional[str]]:
+        """
+        Check if user role has permission for Gemini API operation.
+
+        Args:
+            operation: Operation type ('ASK', 'DEV', 'ANALYZE')
+
+        Returns:
+            (allowed: bool, error_message: Optional[str])
+
+        Role Permissions (v1.1.0):
+        - wizard: Full unrestricted access to all operations
+        - user: Restricted access, offline-first with limited API calls
+        - (power, root: Future RBAC implementation in v1.1.1)
+        """
+        if self.user_role == "wizard":
+            # Wizard role: unrestricted access
+            return True, None
+
+        elif self.user_role == "user":
+            # User role: restricted access
+            if operation == "DEV":
+                return False, "❌ OK DEV requires Wizard role\n💡 This command provides system-level development access"
+            elif operation == "ASK":
+                # ASK is allowed but should use offline-first approach
+                return True, None
+            else:
+                # Other operations allowed with offline fallback
+                return True, None
+
+        # Default: allow but log
+        return True, None
+
+    def _log_api_usage(self, operation: str, query: str, tokens: int = None,
+                      cost: float = None, duration_ms: float = None,
+                      success: bool = True, error: str = None):
+        """
+        Log API usage to audit log.
+
+        Args:
+            operation: Command operation (e.g., 'OK ASK')
+            query: Query text
+            tokens: Tokens consumed
+            cost: Estimated cost in USD
+            duration_ms: Duration in milliseconds
+            success: Whether call succeeded
+            error: Error message if failed
+        """
+        self.audit_logger.log_api_call(
+            user_role=self.user_role,
+            operation=operation,
+            api_type="gemini",
+            query=query,
+            tokens_used=tokens,
+            cost_estimate=cost,
+            duration_ms=duration_ms,
+            success=success,
+            error_msg=error
+        )
 
     def handle(self, command, params, grid):
         """
@@ -71,12 +161,22 @@ class AssistantCommandHandler(BaseCommandHandler):
             sub_params = params[1:] if len(params) > 1 else []
 
             if subcommand == "ASK":
+                # Check role-based access
+                allowed, error_msg = self._check_api_access("ASK")
+                if not allowed:
+                    return error_msg
+
                 # Initialize Gemini for ASK
                 init_error = self._initialize_gemini()
                 if init_error:
                     return init_error
                 return self._handle_ask(sub_params, grid)
             elif subcommand == "DEV":
+                # Check role-based access (Wizard only)
+                allowed, error_msg = self._check_api_access("DEV")
+                if not allowed:
+                    return error_msg
+
                 return self._handle_dev(sub_params)
             else:
                 return f"❌ Unknown OK subcommand: {subcommand}\n\nUse: OK ASK or OK DEV"
@@ -131,25 +231,49 @@ Available:
 
     def _handle_ask(self, params, grid):
         """
-        Ask the assist system a question with local knowledge integration.
+        Ask the assist system a question with offline-first knowledge integration.
+
+        v1.1.0 Behavior:
+        - User role: Searches local 4-Tier Knowledge Bank first
+        - Only calls Gemini API if no local answer found
+        - Wizard role: Can access API directly but still benefits from local context
+        - All API calls logged to audit.log
 
         Args:
             params: [question, optional_panel]
         """
+        import time
+
         if not params:
-            return "❌ Usage: ASK <question> [panel]\n\nExample: ASK What is uDOS?"
+            return "❌ Usage: OK ASK <question> [panel]\n\nExample: OK ASK What is uDOS?"
 
-        question = params[0]
-        panel_name = params[1] if len(params) > 1 else None
+        question = " ".join(params) if isinstance(params, list) else params
+        panel_name = None  # Could be enhanced to extract panel from params
 
-        # Search local knowledge base first
+        start_time = time.time()
+
+        # Step 1: Search local knowledge base FIRST (offline-first approach)
         knowledge_context = self._search_local_knowledge(question)
+        has_local_answer = knowledge_context.get('results') and len(knowledge_context['results']) > 0
 
+        # Step 2: For User role, try to answer from local knowledge first
+        if self.user_role == "user" and has_local_answer:
+            # Try to provide answer from local knowledge without API call
+            local_response = self._generate_fallback_response(question, knowledge_context)
+
+            # If local answer seems comprehensive, return it
+            # (In future versions, we could use heuristics to determine quality)
+            if len(local_response) > 100:  # Simple heuristic
+                duration_ms = (time.time() - start_time) * 1000
+                return f"📚 Local Knowledge (Offline):\n\n{local_response}\n\n💡 Answered from local knowledge bank (no API call)"
+
+        # Step 3: If we need API (Wizard or no local answer), proceed with Gemini
         # Build context
         context = {
             'workspace': self.workspace_manager.current_workspace if self.workspace_manager else 'sandbox',
             'files': [],
-            'local_knowledge': knowledge_context
+            'local_knowledge': knowledge_context,
+            'user_role': self.user_role
         }
 
         # Add panel content if specified
@@ -163,22 +287,44 @@ Available:
             }
 
         try:
-            # If we have local knowledge, provide enhanced context
-            if knowledge_context['results']:
-                context_note = f"\n\n📚 **Local Knowledge Found** ({len(knowledge_context['results'])} items):\n"
-                for result in knowledge_context['results'][:3]:
-                    context_note += f"• {result['title']} ({result['category']})\n"
+            # Call Gemini API
+            response = self.gemini.ask(question, context=context)
+            duration_ms = (time.time() - start_time) * 1000
 
-                response = self.gemini.ask(question, context=context)
-                return f"✅ OK System{context_note}\n{response}"
-            else:
-                response = self.gemini.ask(question, context=context)
-                return f"✅ OK System:\n\n{response}"
+            # Log API usage
+            # Note: Token counting would come from gemini response metadata
+            self._log_api_usage(
+                operation="OK ASK",
+                query=question,
+                tokens=None,  # TODO: Extract from gemini response
+                cost=None,    # TODO: Calculate based on tokens
+                duration_ms=duration_ms,
+                success=True
+            )
+
+            # Build response with context note
+            context_note = ""
+            if has_local_answer:
+                context_note = f"\n\n📚 Enhanced with local knowledge ({len(knowledge_context['results'])} items)"
+
+            return f"✅ OK System (Gemini){context_note}:\n\n{response}"
+
         except Exception as e:
-            # Fallback to local knowledge if assist fails
-            if knowledge_context['results']:
+            duration_ms = (time.time() - start_time) * 1000
+
+            # Log failed API call
+            self._log_api_usage(
+                operation="OK ASK",
+                query=question,
+                duration_ms=duration_ms,
+                success=False,
+                error=str(e)
+            )
+
+            # Fallback to local knowledge if API fails
+            if has_local_answer:
                 fallback_response = self._generate_fallback_response(question, knowledge_context)
-                return f"📚 Local Knowledge (OK System unavailable):\n\n{fallback_response}"
+                return f"📚 Local Knowledge (API unavailable):\n\n{fallback_response}\n\n⚠️ Gemini API error: {str(e)}"
             return f"⚠️  OK System error: {str(e)}\n\nPlease check your connection and API key."
 
     def _handle_read(self, params, grid):
