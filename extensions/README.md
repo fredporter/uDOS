@@ -1,35 +1,56 @@
-# uDOS Extensions System v1.0.24
+# uDOS Extensions System v1.1.2
+
+**Web GUI, Browser Extension, Mobile PWA, and Extension Framework**
+
+## Overview
+
+The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure introduced in v1.1.1-v1.1.2.
+
+**v1.1.1 Features** (327 tests):
+- Production web server with health monitoring
+- Teletext display with WebSocket streaming
+- CLI→Web delegation API
+- State synchronization engine
+- Reusable web component library
+- Browser extension (Chrome/Firefox/Edge)
+- Mobile PWA with offline support
+
+**v1.1.2 Features** (467 tests):
+- RBAC integration for web access
+- Encrypted memory tier access via web
+- Knowledge library web interface
+- AI prompt testing interface
 
 ## 📁 **Directory Structure**
 
 ```
 extensions/
-├── assets/                     # ✅ SHARED ASSETS (central repository)
+├── core/                       # ✅ CORE WEB EXTENSIONS (v1.1.1+)
+│   ├── terminal/              # C64 terminal with PetMe font & Synthwave DOS
+│   │   ├── assets/            # Shared assets (fonts, icons, CSS)
+│   │   └── static/            # Terminal-specific JavaScript
+│   ├── markdown/              # GitHub-flavored markdown viewer
+│   │   └── static/            # Markdown rendering with uCODE support
+│   ├── dashboard/             # NES Framework system dashboard
+│   │   └── static/            # Extension management interface
+│   ├── desktop/               # System 7 desktop environment
+│   │   └── static/            # Classic Mac interface
+│   ├── teletext/              # BBC Teletext with WebSocket streaming (v1.1.1)
+│   │   ├── server.py          # Production Flask server
+│   │   └── static/            # Teletext display and fonts
+│   └── browser-extension/     # Knowledge capture extension (v1.1.1)
+│       ├── manifest.json      # Extension manifest (Chrome/Firefox/Edge)
+│       └── src/               # Extension source code
+│
+├── game-mode/                  # ✅ GAME MODE EXTENSION
+│   ├── commands/              # Game-specific commands (MAP, TILE, etc.)
+│   └── services/              # Game services (planet manager, etc.)
+│
+├── assets/                     # ✅ SHARED ASSETS
 │   ├── fonts/                 # PetMe, Chicago, Monaco, Mallard, etc.
 │   ├── icons/                 # CoreUI icons, system icons
 │   ├── css/                   # Shared stylesheets (Synthwave DOS, NES, etc.)
 │   └── js/                    # Shared JavaScript libraries
-│
-├── core/                       # ✅ CORE EXTENSIONS
-│   ├── terminal/              # New C64 terminal with PetMe font & Synthwave DOS
-│   │   ├── assets -> ../../assets  # Symlink to shared assets
-│   │   └── static/            # Terminal-specific JavaScript
-│   ├── markdown/              # GitHub-flavored markdown viewer
-│   │   └── static/            # Uses ../../assets/ paths
-│   ├── dashboard/             # NES Framework system dashboard
-│   │   └── static/            # Uses ../../assets/ paths
-│   ├── desktop/               # System 7 desktop environment
-│   │   └── static/            # Uses ../../assets/ paths
-│   └── teletext/              # BBC Teletext with Mallard fonts
-│       └── fonts/             # Placeholder (uses ../../assets/)
-│
-├── archive/                    # ✅ ARCHIVED/DEPRECATED EXTENSIONS
-│   ├── c64-terminal/          # Original C64 terminal (pre-rebuild)
-│   ├── character-editor-old/  # Superseded character editor
-│   ├── old-fonts/             # Historical font copies
-│   ├── old-icons/             # Historical icon copies
-│   ├── old-core-assets/       # Pre-consolidation assets
-│   └── old-bundled-web/       # Original bundled/web structure
 │
 ├── cloned/                     # ✅ EXTERNAL TOOLS (git ignored)
 │   └── micro/                 # Modern terminal editor (Go-based)
@@ -38,24 +59,10 @@ extensions/
 │   └── (setup scripts for cloned tools)
 │
 ├── templates/                  # ✅ EXTENSION SCAFFOLDING
-│   └── (templates for new extensions)
+│   ├── cli-extension-template/
+│   └── web-extension-template/
 │
 └── README.md                   # This file
-```
-
-## 🎯 **Asset Access Patterns**
-
-### Static Extensions (Simple HTTP Server)
-Extensions served with `python3 -m http.server` use **symlinks**:
-
-```bash
-# Create symlink in extension directory
-cd extensions/core/your-extension/
-ln -s ../../assets assets
-
-# CSS references
-url("assets/fonts/petme/PetMe64.ttf")
-url("assets/icons/apple.svg")
 ```
 
 **Examples**: terminal

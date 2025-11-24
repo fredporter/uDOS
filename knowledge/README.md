@@ -1,12 +1,18 @@
 # uDOS Knowledge Library
 
-**Welcome to The People's Knowledge Commons**
+**Welcome to The People's Knowledge Commons - v1.1.2 Offline Knowledge System**
 
-A comprehensive collection of practical guides and information for self-sufficiency, survival, and sustainable living.
+A comprehensive collection of practical guides for self-sufficiency, survival, and sustainable living. The v1.1.2 offline knowledge system includes validation, versioning, and AI prompt development.
 
 ## Overview
 
-This knowledge library is designed to be accessible both online and offline, with a focus on practical, actionable information. The structure uses a **flat folder layout** for easy navigation and fast searching with the GUIDE and DIAGRAM commands.
+This knowledge library is designed to be accessible both online and offline, with a focus on practical, actionable information. The structure uses a **flat folder layout** for easy navigation and fast searching with the GUIDE and LEARN commands.
+
+**v1.1.2 Features**:
+- **Offline Knowledge Library** (60 tests): Full-text search, versioning, category filtering
+- **Knowledge Validation** (53 tests): Content quality scoring, freshness checking, contradiction detection
+- **SVG/Citation Pipeline** (59 tests): Diagram generation with APA/MLA/Chicago/IEEE bibliography
+- **AI Prompt Development** (61 tests): Template system for offline prompt testing (no API calls)
 
 All measurements use **metric units** (ml, g, kg, cm, m, km) and content is relevant to **Australian conditions** while remaining generally applicable worldwide.
 
