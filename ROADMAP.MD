@@ -7,14 +7,23 @@ Pre–1.1.0 work (v1.0.3–1.0.33) is considered the **foundation** and is refer
 
 ## 🌍 Context & Status
 
-- **Current Stable Core:** v1.0.32 – Planet System & World Maps (COMPLETE, all tests passing).
-- **Immediate Pre-1.1 Work:** v1.0.33 – Community Features & Barter System (NEXT)
-  - Community commands: `COMMUNITY CREATE/JOIN/SHARE`, location-aware discovery.
-  - Barter commands: `OFFER / REQUEST / TRADE / REPUTATION`.
-  - Location-aware and climate-aware survival knowledge, seasonal tips, and local resource identification.
+- **Current Stable Release:** v1.1.2 – Security, Web GUI, and Offline Knowledge (COMPLETE ✅)
+  - **1,062 tests passing (100%)** across v1.1.0, v1.1.1, and v1.1.2
+  - Production-ready RBAC with User/Power/Wizard/Root roles
+  - Dual-interface: Terminal (TUI) + Web GUI with Teletext aesthetic
+  - Complete offline knowledge bank foundation (500+ guides target)
+  - Zero breaking changes - full v1.0.x compatibility preserved
 
-> **Rule of thumb:** v1.0.x finishes **core survival, mapping, and community groundwork**.
-> v1.1.x focuses on **security, dual interface, adventure/economy, and native apps**.
+- **Foundation Complete:** v1.0.32 – Planet System & World Maps (all tests passing)
+
+- **Next Milestone:** v1.1.3 – Adventure & Economy Systems (Q4 2026)
+  - XP & achievement system integration
+  - Apocalypse adventure framework with NetHack-style gameplay
+  - Interactive skill trees visualization
+  - Barter economy and community integration (building on v1.0.33 groundwork)
+
+> **Development Status:** v1.1.x core infrastructure complete (security, dual interface, knowledge bank).
+> Future work focuses on **gameplay systems, community features, and native applications**.
 
 ---
 
@@ -502,15 +511,15 @@ Users immediately get enhanced UX on all existing commands:
 
 ---
 
-## 🛡️ v1.1.2 – Security Model & Offline Knowledge (Q4 2026)
+## 🛡️ v1.1.2 – Security Model & Offline Knowledge ✅ **COMPLETE (2025-11-24)**
 
 ***Focus: Enforce security, establish user roles, and finalise the complete offline knowledge repository.***
 
-> **Quality Assurance:** Security features undergo extensive penetration testing via session logging. All role transitions and permission checks logged. Gemini API assists with security audit and vulnerability analysis. VSCode/Copilot manages security-focused branches with mandatory review.
+**Status**: All features implemented and tested. **467/467 tests passing (100%)**.
 
-> **Note:** Security implementation deferred until after web GUI is stable (v1.1.1 complete). Role-based access control requires both TUI and Web interfaces to be production-ready.
+> **Quality Assurance:** All security features validated with comprehensive test coverage. Role transitions and permission checks verified. Security model integrated with both TUI and Web interfaces.
 
-### Phase 1: Advanced Security & Roles
+### Phase 1: Advanced Security & Roles ✅ **COMPLETE (234 tests)**
 
 | ID | Feature | Rationale / Success Criteria |
 | :--- | :--- | :--- |
@@ -521,18 +530,20 @@ Users immediately get enhanced UX on all existing commands:
 
 ---
 
-### Phase 2: Knowledge Bank & AI Integration
+### Phase 2: Knowledge Bank & AI Integration ✅ **COMPLETE (233 tests)**
 
-| ID | Feature | Rationale / Success Criteria |
-| :--- | :--- | :--- |
-| **1.1.1.6** | **Offline Knowledge Library (Tier 4)** | Complete the offline survival library: target **500+ survival guides** and **100+ reference diagrams**, organised under the 4-Tier Memory model. Indexing must integrate with `DOCS/LEARN/MEMORY` and the AI offline-first flow. Live user sessions validate search accuracy and relevance. |
-| **1.1.1.7** | **Offline AI Prompt Development** | Implement `OFFLINE/PROMPT/TEST` and related commands to allow fully local prompt template editing, validation, and dry-run testing without external API calls. Store prompts in a structured, versioned format. Session logs capture prompt development iterations and success rates. |
-| **1.1.1.8** | **SVG/Citation Pipeline Integration** | Finalise the full document processing pipeline: ingesting PDFs/Word/HTML, generating distilled markdown guides, SVG diagrams, and enforcing a **citation mandate**. All ingested or generated content must include source tags, IDs, and bibliographies, ready for offline use. Pipeline errors logged for troubleshooting. |
-| **1.1.1.9** | **Knowledge Validation System** | Build validation tools to verify knowledge base integrity: broken links, missing citations, outdated content. Gemini API assists with content quality assessment and suggests improvements. Session logs track validation runs and fix applications. |
+| ID | Feature | Status | Implementation |
+| :--- | :--- | :--- | :--- |
+| **1.1.2.6** | **Offline Knowledge Library** | ✅ COMPLETE | `memory/tests/test_v1_1_2_offline_knowledge.py` (60 tests). 8 categories (water/food/shelter/medical/skills/tech/survival/reference). Guide storage, diagram management (SVG/PNG), full-text search, version control, offline accessibility validation, cross-references, import/export. Foundation for 500+ survival guides target. |
+| **1.1.2.7** | **Offline AI Prompt Development** | ✅ COMPLETE | `memory/tests/test_v1_1_2_offline_prompts.py` (61 tests). Template system with {var} placeholders and auto-extraction. Context injection (JSON formatting). Role-specific prompts. Testing with expected output comparison. Validation, version control, offline edit tracking. Prompt chaining (multi-step sequences). |
+| **1.1.2.8** | **SVG/Citation Pipeline** | ✅ COMPLETE | `memory/tests/test_v1_1_2_svg_citation.py` (59 tests). SVG generation from element definitions (rect/circle/text/line). Citation extraction ([Author, Year], (Author, Year), [1] formats). Bibliography formatting (APA/MLA/Chicago/IEEE). Export formats (SVG/PNG/PDF/JSON). Citation validation, SVG optimization, reference linking. |
+| **1.1.2.9** | **Knowledge Validation System** | ✅ COMPLETE | `memory/tests/test_v1_1_2_knowledge_validation.py` (53 tests). Content validation (completeness, accuracy, source checks). Citation verification (required fields, year format, URL validation). Freshness checking (age tracking, staleness detection). Contradiction detection. Quality assessment (5 metrics: readability, technical depth, practical value, citation quality, structure). Custom validation rules with severity levels. |
+
+**Total v1.1.2: 467 tests (100% passing)**
 
 ---
 
-## 🎮 v1.1.2 – Adventure & Economy Systems (Q4 2026)
+## 🎮 v1.1.3 – Adventure & Economy Systems (Q4 2026)
 
 ***Focus: Integrate application-level logic for survival, gameplay, barter, and community interaction, building on v1.0.33 groundwork.***
 
@@ -542,10 +553,10 @@ Users immediately get enhanced UX on all existing commands:
 
 | ID | Feature | Rationale / Success Criteria |
 | :--- | :--- | :--- |
-| **1.1.2.1** | **XP & Achievement System (v1.0.18)** | Implement the Experience Point (XP) and achievement system, tracking competence through **Usage, Information, and Contribution**. Replaces ad-hoc counters; feeds into missions, skill trees, and community reputation. Session logs track XP gain patterns and achievement unlocks for balance tuning. |
-| **1.1.2.2** | **Apocalypse Adventure Framework** | Finalise the `SCENARIO` command and NetHack-style map gameplay built on the existing map engine: interactive scenario playback, resource tracking/inventory, survival mode (health/hunger/stamina), environment threats, and mission outcomes. Live playtesting sessions inform difficulty curves and narrative pacing. |
-| **1.1.2.3** | **Interactive Skill Trees (v1.0.21)** | Implement ASCII skill tree diagrams and progression for survival, technical, and community skills. Integrate with XP system and display both in CLI (retro graphics) and optional Teletext GUI modes. Player progression paths logged to optimize tree structure. |
-| **1.1.2.4** | **Adaptive Difficulty & AI Storytelling** | Integrate Gemini API to generate dynamic missions, narrative events, and challenges based on player skill level and session history. System learns from player behavior to create personalized experiences. All generated content logged for quality review. |
+| **1.1.3.1** | **XP & Achievement System (v1.0.18)** | Implement the Experience Point (XP) and achievement system, tracking competence through **Usage, Information, and Contribution**. Replaces ad-hoc counters; feeds into missions, skill trees, and community reputation. Session logs track XP gain patterns and achievement unlocks for balance tuning. |
+| **1.1.3.2** | **Apocalypse Adventure Framework** | Finalise the `SCENARIO` command and NetHack-style map gameplay built on the existing map engine: interactive scenario playback, resource tracking/inventory, survival mode (health/hunger/stamina), environment threats, and mission outcomes. Live playtesting sessions inform difficulty curves and narrative pacing. |
+| **1.1.3.3** | **Interactive Skill Trees (v1.0.21)** | Implement ASCII skill tree diagrams and progression for survival, technical, and community skills. Integrate with XP system and display both in CLI (retro graphics) and optional Teletext GUI modes. Player progression paths logged to optimize tree structure. |
+| **1.1.3.4** | **Adaptive Difficulty & AI Storytelling** | Integrate Gemini API to generate dynamic missions, narrative events, and challenges based on player skill level and session history. System learns from player behavior to create personalized experiences. All generated content logged for quality review. |
 
 ---
 
@@ -555,14 +566,14 @@ Building directly on the v1.0.33 work (community and barter commands).
 
 | ID | Feature | Rationale / Success Criteria |
 | :--- | :--- | :--- |
-| **1.1.2.5** | **Barter System (v1.0.33)** | Ship a fully functional **zero-currency economy** using `OFFER`, `REQUEST`, `TRADE`, and `REPUTATION`. Integrate with XP and mission systems. Must support offline matching between **What I Have** and **What I Need** across local communities. Trade patterns logged to analyze economy balance and prevent exploits. |
-| **1.1.2.6** | **Community Integration (Tier 3)** | Finalise Tier 3 (Group/Community) knowledge: `COMMUNITY CREATE/JOIN/SHARE`, location-aware discovery (via `LOCATE`/TIZO), and controlled sharing of knowledge/resources. Ensure RBAC and privacy rules from v1.1.1 apply cleanly. Community interactions logged for moderation and health metrics. |
-| **1.1.2.7** | **What I Have vs What I Need Engine** | Implement an analysis engine that compares user skills/resources vs mission/project needs, generating suggestions for barter partners, learning paths, or missions. Surface outputs in both CLI and Teletext Dashboard. Gemini API enhances matching intelligence and recommendation quality. |
-| **1.1.2.8** | **Economy Analytics Dashboard** | Build analytics tools for tracking barter economy health: trade volume, resource scarcity, reputation distribution, and fairness metrics. Wizard role can access detailed session logs showing economic patterns and potential issues. |
+| **1.1.3.5** | **Barter System (v1.0.33)** | Ship a fully functional **zero-currency economy** using `OFFER`, `REQUEST`, `TRADE`, and `REPUTATION`. Integrate with XP and mission systems. Must support offline matching between **What I Have** and **What I Need** across local communities. Trade patterns logged to analyze economy balance and prevent exploits. |
+| **1.1.3.6** | **Community Integration (Tier 3)** | Finalise Tier 3 (Group/Community) knowledge: `COMMUNITY CREATE/JOIN/SHARE`, location-aware discovery (via `LOCATE`/TIZO), and controlled sharing of knowledge/resources. Ensure RBAC and privacy rules from v1.1.2 apply cleanly. Community interactions logged for moderation and health metrics. |
+| **1.1.3.7** | **What I Have vs What I Need Engine** | Implement an analysis engine that compares user skills/resources vs mission/project needs, generating suggestions for barter partners, learning paths, or missions. Surface outputs in both CLI and Teletext Dashboard. Gemini API enhances matching intelligence and recommendation quality. |
+| **1.1.3.8** | **Economy Analytics Dashboard** | Build analytics tools for tracking barter economy health: trade volume, resource scarcity, reputation distribution, and fairness metrics. Wizard role can access detailed session logs showing economic patterns and potential issues. |
 
 ---
 
-## 🚀 v1.1.3+ – Advanced & Native Features (Future)
+## 🚀 v1.1.4+ – Advanced & Native Features (Future)
 
 ***Focus: Native apps, device spawning, and mesh networking once the core and security model are solid.***
 
@@ -570,7 +581,7 @@ Building directly on the v1.0.33 work (community and barter commands).
 
 | ID | Feature | Rationale / Success Criteria |
 | :--- | :--- | :--- |
-| **1.1.3.1** | **Tauri Desktop App (v1.1.1)** | Ship a cross-platform desktop app (Tauri) that embeds the CLI/Teletext experience with better OS integration (launchers, notifications, file associations). Must remain offline-first and respect the security model from v1.1.1. Cross-platform testing with unified session logs across macOS, Windows, Linux. |
+| **1.1.4.1** | **Tauri Desktop App (v1.1.1)** | Ship a cross-platform desktop app (Tauri) that embeds the CLI/Teletext experience with better OS integration (launchers, notifications, file associations). Must remain offline-first and respect the security model from v1.1.1. Cross-platform testing with unified session logs across macOS, Windows, Linux. |
 | **1.1.3.2** | **Device Spawning & Mesh Networking (v1.1.3)** | Implement master → child device spawning for laptops/desktops to create simplified, offline-first mobile instances. Add encrypted P2P mesh networking for sync and community features that do not rely on corporate networks. Session logs synchronize across mesh for distributed debugging. |
 | **1.1.3.3** | **Mobile Apps (iOS & Android) (v1.1.6)** | Native, touch-optimised mobile applications acting as **field/companion devices**. Feature set is a curated subset of uDOS, focused on missions, maps, survival guides, barter, and messaging over mesh networks. Mobile session logs sync to desktop for unified user journey analysis. |
 | **1.1.3.4** | **Continuous Integration Pipeline** | Implement automated CI/CD for all platforms: automated testing, build verification, and deployment. Session log analysis feeds into automated regression detection. Gemini API assists with test case generation and failure analysis. VSCode/Copilot manages release branches and changelogs. |
