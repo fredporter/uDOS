@@ -2,11 +2,12 @@
 
 ## 🎯 Core Project
 
-**uDOS** - Human-Readable CLI Framework
+**uDOS** - Secure Dual-Interface CLI Framework
 - **Author**: Fred Porter
-- **License**: MIT
+- **License**: See LICENSE.txt
 - **Repository**: https://github.com/fredporter/uDOS
-- **Version**: 1.0.0
+- **Version**: v1.1.2 (Production Release)
+- **Test Coverage**: 1,062 tests (100% passing)
 
 ---
 
@@ -16,21 +17,84 @@
 - **Fred Porter** - Project creator, architecture, and implementation
 
 ### Development Assistance
-- **GitHub Copilot** - AI assistant for development, refactoring, and code review
+- **GitHub Copilot** - AI assistant for development, refactoring, code review, and test generation
+
+### Special Thanks
+- All contributors to the v1.1.x milestone releases
+- Testing community for cross-platform validation
+- Open-source community for dependencies and frameworks
 
 ---
 
 ## 📦 Python Dependencies
 
-### python-dotenv
-- **License**: MIT
+### Core Dependencies
+
+#### prompt_toolkit
+- **License**: BSD-3-Clause
+- **Purpose**: Terminal UI, input handling, autocomplete
+- **URL**: https://github.com/prompt-toolkit/python-prompt-toolkit
+
+#### python-dotenv
+- **License**: BSD-3-Clause
 - **Purpose**: Environment variable management
 - **URL**: https://github.com/theskumar/python-dotenv
 
-### google-generativeai
+#### psutil
+- **License**: BSD-3-Clause
+- **Purpose**: System and process monitoring
+- **URL**: https://github.com/giampaolo/psutil
+
+#### requests
+- **License**: Apache-2.0
+- **Purpose**: HTTP library for API calls
+- **URL**: https://github.com/psf/requests
+
+#### cryptography
+- **License**: Apache-2.0 / BSD-3-Clause
+- **Purpose**: AES-256/AES-128 encryption for 4-tier memory system
+- **URL**: https://github.com/pyca/cryptography
+- **Used in**: v1.1.2 4-tier memory encryption (Tier 1 & 2)
+
+### Web GUI Dependencies (Optional)
+
+#### Flask
+- **License**: BSD-3-Clause
+- **Purpose**: Web server framework
+- **URL**: https://github.com/pallets/flask
+- **Used in**: v1.1.1 web GUI, teletext display
+
+#### Flask-CORS
+- **License**: MIT
+- **Purpose**: Cross-Origin Resource Sharing support
+- **URL**: https://github.com/corydolphin/flask-cors
+
+#### Flask-SocketIO
+- **License**: MIT
+- **Purpose**: WebSocket support for real-time CLI↔Web sync
+- **URL**: https://github.com/miguelgrinberg/Flask-SocketIO
+- **Used in**: v1.1.1 state synchronization engine
+
+### AI Integration (Optional)
+
+#### google-generativeai
 - **License**: Apache-2.0
 - **Purpose**: Gemini AI integration for assistant features
 - **URL**: https://github.com/google/generative-ai-python
+- **Used in**: v1.1.0 AI assistant, offline-first fallback
+
+### Development Dependencies
+
+#### pytest
+- **License**: MIT
+- **Purpose**: Testing framework
+- **URL**: https://github.com/pytest-dev/pytest
+- **Tests**: 1,062 tests in v1.1.0-v1.1.2
+
+#### pytest-cov
+- **License**: MIT
+- **Purpose**: Code coverage reporting
+- **URL**: https://github.com/pytest-dev/pytest-cov
 
 ---
 

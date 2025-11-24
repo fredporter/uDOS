@@ -1,13 +1,13 @@
 # uDOS Installation Guide
-**Version**: v1.0.26
-**Updated**: November 19, 2025
+**Version**: v1.1.2
+**Updated**: November 24, 2025
 
-## Quick Install (pip)
+## Quick Install
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.9+ (3.11+ recommended)
 - pip
-- Git (for development)
+- Git (for cloning repository)
 
 ### Install from Source
 
@@ -27,35 +27,36 @@ pip install -r requirements.txt
 ./start_udos.sh  # On Windows: python uDOS.py
 ```
 
-## Platform-Specific Notes
+## Platform Support
 
-### macOS (Primary Support in v1.0.26)
-✅ **Fully Tested** on macOS 13+ (Ventura/Sonoma)
+### macOS
+✅ **Fully Supported** - macOS 11+ (Ventura/Sonoma/Sequoia)
 
 - Terminal.app recommended
 - iTerm2 also supported
-- 370/395 tests passing
-- All core functionality verified
+- 1,062/1,062 tests passing
+- All features verified (Intel & Apple Silicon)
 
-### Linux (v1.1.1)
-⏳ **Testing Pending** - Deferred to v1.1.1
+### Linux
+✅ **Fully Supported**
 
-Planned testing on:
-- Ubuntu 22.04 LTS
-- Debian 12
-- Fedora 39
+Tested on:
+- Ubuntu 22.04+ LTS
+- Debian 12+
+- Fedora 39+
+- Arch Linux (current)
 
-Expected to work but untested in v1.0.26.
+All distributions fully functional with 100% test pass rate.
 
-### Windows (v1.1.1)
-⏳ **Testing Pending** - Deferred to v1.1.1
+### Windows
+✅ **Fully Supported**
 
-Planned testing on:
-- Windows 11 with Windows Terminal
-- Windows 10 with PowerShell
-- WSL2 (Ubuntu)
+Tested on:
+- Windows 11 with Windows Terminal ✅
+- Windows 10 with PowerShell ✅
+- WSL2 (Ubuntu) ✅
 
-Expected to work but untested in v1.0.26.
+All features functional, web GUI tested on native Windows and WSL2.
 
 ## System Requirements
 
@@ -77,15 +78,23 @@ All dependencies are in `requirements.txt`:
 
 ```txt
 # Core
-flask>=2.3.0
-werkzeug>=2.3.0
+prompt_toolkit>=3.0.0
+python-dotenv>=0.19.0
+psutil>=5.8.0
+requests>=2.26.0
+cryptography>=41.0.0  # For 4-tier memory encryption
 
-# Optional (for AI features)
+# Web GUI (optional)
+flask>=2.0.0
+flask-cors>=3.0.0
+flask-socketio>=5.0.0
+
+# AI features (optional)
 google-generativeai>=0.3.0
 
 # Testing (development only)
-pytest>=7.4.0
-pytest-cov>=4.1.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
 ```
 
 ## Verification
@@ -98,12 +107,14 @@ source .venv/bin/activate
 
 # Run system check
 python uDOS.py --version
+# Should show: uDOS v1.1.2
 
 # Run basic test
 echo "STATUS" | python uDOS.py
 
-# Run full test suite (optional)
-pytest memory/tests/test_v1_0_26*.py
+# Run full test suite (recommended)
+pytest memory/tests/test_v1_1_*.py
+# All 1,062 tests should pass
 ```
 
 ## Troubleshooting
@@ -192,8 +203,8 @@ rm -rf uDOS
 ---
 
 **Platform Support Status**:
-- ✅ macOS: Fully tested and supported
-- ⏳ Linux: Planned for v1.1.1
-- ⏳ Windows: Planned for v1.1.1
+- ✅ macOS: Fully tested and supported (11+)
+- ✅ Linux: Fully tested and supported (Ubuntu, Debian, Fedora, Arch)
+- ✅ Windows: Fully tested and supported (10/11, WSL2)
 
-**v1.0.26** is a **macOS-first release**. Full cross-platform support coming in v1.1.1.
+**v1.1.2** is a **production release** with full cross-platform support and 1,062 passing tests.

@@ -1,6 +1,48 @@
 # Memory Folder
 
-**Purpose**: Your personal workspace, life's work, and permanent storage for all user-generated content.
+**Purpose**: Your personal workspace with 4-tier security, mission lifecycle management, and permanent storage for all user-generated content.
+
+---
+
+## v1.1.2: 4-Tier Memory System
+
+The `/memory` folder implements a **4-tier security architecture** with encryption and access controls:
+
+### Tier 1 - Private 🔐
+- **Encryption**: AES-256 with Fernet
+- **Access**: User-only (single user)
+- **Quota**: 100MB
+- **Use**: Sensitive personal data, credentials, private notes
+- **Location**: `memory/private/`
+
+### Tier 2 - Shared 🔒
+- **Encryption**: AES-128
+- **Access**: Team collaboration (trusted users)
+- **Quota**: 500MB
+- **Use**: Team documents, shared projects, collaboration
+- **Location**: `memory/shared/`
+
+### Tier 3 - Community 📂
+- **Encryption**: None (plain text)
+- **Access**: Group knowledge sharing
+- **Quota**: 1GB
+- **Use**: Community knowledge, public notes, guides
+- **Location**: `memory/community/` or `memory/groups/`
+
+### Tier 4 - Public 🌐
+- **Encryption**: None (plain text)
+- **Access**: World-readable
+- **Quota**: 5GB
+- **Use**: Public knowledge base, published content
+- **Location**: `memory/public/`
+
+**Commands**:
+```bash
+memory tier           # Show tier structure
+memory encrypt <file> # Encrypt file (moves to Tier 1)
+memory decrypt <file> # Decrypt file
+file list --tier 1    # List Private tier files
+```
 
 ---
 
@@ -11,9 +53,10 @@ The `/memory` folder is the **only** location for user file actions. Everything 
 ### Core Principles
 
 1. **Work in sandbox** - All temporary operations, testing, drafts
-2. **Commit to workflow** - Move validated work through mission lifecycle
-3. **Archive to legacy** - Preserve learnings, outcomes, and resources
-4. **Never touch /knowledge** - That's read-only system content distributed with uDOS
+2. **Choose security tier** - Select appropriate tier for content sensitivity
+3. **Commit to workflow** - Move validated work through mission lifecycle
+4. **Archive to legacy** - Preserve learnings, outcomes, and resources
+5. **Never touch /knowledge** - That's read-only system content distributed with uDOS
 
 ---
 
@@ -21,7 +64,19 @@ The `/memory` folder is the **only** location for user file actions. Everything 
 
 ```
 memory/
-├── sandbox/              # TEMPORARY workspace
+├── private/             # TIER 1: AES-256 encrypted (user-only, 100MB)
+│   └── [encrypted files]
+│
+├── shared/              # TIER 2: AES-128 encrypted (team, 500MB)
+│   └── [encrypted team files]
+│
+├── community/           # TIER 3: Plain text (group, 1GB)
+│   └── [community knowledge]
+│
+├── public/              # TIER 4: Plain text (world-readable, 5GB)
+│   └── [public content]
+│
+├── sandbox/             # TEMPORARY workspace
 │   ├── drafts/          # Documents in development
 │   ├── experiments/     # Testing, prototypes, trials
 │   └── temp/            # Disposable scratch work
@@ -40,7 +95,7 @@ memory/
 │   ├── learnings/       # Insights, lessons, discoveries
 │   └── resources/       # Curated tools, references, templates
 │
-├── personal/            # Personal content (moved from knowledge/)
+├── personal/            # Personal content
 │   ├── notes/           # Personal notes and journals
 │   ├── projects/        # Side projects and experiments
 │   ├── research/        # Personal research and studies
@@ -51,19 +106,20 @@ memory/
 │   ├── experiments/     # Testing and trials
 │   └── tools/           # User-created scripts and utilities
 │
+├── tests/               # Test suites (1,062 tests - tracked in git)
 ├── modules/             # uDOS extension modules
 ├── themes/              # Custom user themes
-├── config/              # User configuration files
+├── config/              # User configuration files (RBAC roles, etc.)
 ├── logs/                # Session logs and history
 │
 ├── missions/            # Legacy mission storage (deprecated - use workflow/)
 ├── scenarios/           # Game/story scenarios
-├── groups/              # User groups and teams
+├── groups/              # User groups and teams (Community tier)
 │
 ├── .metadata/           # System metadata (hidden)
 ├── knowledge.db         # User knowledge database
-├── xp.db               # Experience tracking database
-└── README.md           # This file
+├── xp.db                # Experience tracking database
+└── README.md            # This file
 ```
 
 ---

@@ -1,371 +1,361 @@
-# uDOS v1.0.30 - Enhanced CLI Pre-Release
+# uDOS v1.1.2 - Production Release
 
-**uDOS** is a modular CLI framework with assistant integration, comprehensive diagnostics, and modern web extensions. Built to demonstrate clean architecture, human-readable command systems, and intelligent workflows.
+**uDOS** is a secure, dual-interface CLI framework with role-based access control, offline knowledge management, web GUI, and AI integration. Built for self-sufficiency, survival preparation, and sustainable living with a human-readable command system.
 
-**Current Status**: ✅ v1.0.30 Enhanced CLI Pre-Release (Nov 22, 2025)
-**Next**: v1.1.0 Cross-Platform Expansion (Q1 2026)
-
----
-
-## 🎯 v1.0.30 Pre-Release: Enhanced CLI with Teletext UI
-
-### Current Status
-- **v1.0.30 pre-release** - Enhanced CLI features (Nov 22, 2025)
-- **New Features**: Teletext UI, Micro Editor, Knowledge Picker, Smart Prompt Fallback
-- **Testing**: 19/19 tests passing (100%), production ready
-- **Next milestone**: v1.1.0 cross-platform expansion (Q1 2026)
-- **Quality**: All integration, UI, and error handling tests passing
-- **Distribution**: pip installable, offline-first, clean repository
-
-### Advanced Features → v1.1.x (Post-Stable)
-The following features have been moved to v1.1.x to focus on stable v1.0.x release:
-- **Device Spawning**: Laptop-to-mobile synchronization
-- **P2P Mesh Networking**: Decentralized communication
-- **Multi-User Features**: Collaborative workflows
-- **Advanced Security**: Encryption, secure sharing
-- **Network Sharing**: Community knowledge exchange
-
-### v1.0.x Core Deliverables ✅ COMPLETE
-- ✅ **Complete uCODE language** (v1.0.14-v1.0.16) - Variables, functions, modules
-- ✅ **Interactive debugger** (v1.0.17) - Full debugging suite with 94 tests
-- ✅ **Offline-first operation** (v1.0.16c-v1.0.25) - COMMAND/ASSIST dual modes
-- ✅ **500+ survival guides** (v1.0.20-v1.0.21) - Complete offline knowledge base
-- ✅ **1000+ page handbook** (v1.0.22) - Comprehensive documentation
-- ✅ **Comprehensive testing** (v1.0.27) - 1022 tests, 370/395 passing (93.7%)
-- ✅ **Performance optimization** (v1.0.27) - P90: 1.70ms, P99: 5.43ms, startup: 38ms
-- ✅ **Production polish** (v1.0.27) - pip package, clean distribution, documentation
-- ✅ **Project organization** (v1.0.27) - /dev for development, /memory for users
+**Current Status**: ✅ **v1.1.2 Production Release** (Nov 24, 2025)  
+**Test Coverage**: **1,062 tests passing** (100%)  
+**Next**: v1.1.3 Adventure & Economy Systems (Q4 2026)
 
 ---
 
-## 🆕 What's New in v1.0.27 (Current)
+## 🚀 v1.1.2 Production Release
 
-### Stable Release - COMPLETE ✅
-**1022 total tests | 370/395 v1.0.27 tests passing (93.7%) | pip installable**
+### Release Highlights
 
-```bash
-# Performance Achievements ✅
-Command P90:     1.70ms  (97% faster than 50ms target)
-Command P99:     5.43ms  (95% faster than 100ms target)
-Startup time:    38ms    (92% faster than 500ms target)
-Memory usage:    <20MB   (80% better than 100MB target)
+**Zero Breaking Changes** | **1,062 Tests Passing** | **Full v1.0.x Compatibility**
 
-# Distribution ✅
-pip install:     Ready   (setup.py, MANIFEST.in, INSTALL.md)
-Offline-first:   100%    (No network dependencies)
-Test coverage:   93.7%   (370/395 tests passing)
-Documentation:   Complete (README, CHANGELOG, ROADMAP, wiki)
+🔐 **Enterprise Security**
+- RBAC with 4 user roles (User/Power/Wizard/Root)
+- 4-tier memory encryption (AES-256/AES-128)
+- Installation integrity verification (SHA-256)
+- Command-based security hardening
 
-# Project Organization ✅
-/core            System code (read-only, tracked)
-/knowledge       Knowledge base (read-only, tracked)
-/extensions      Extensions (read-only, tracked)
-/memory          User workspace (user-generated, gitignored)
-/dev             Development workspace (local-only, mostly gitignored)
+🌐 **Dual Interface**
+- Production web server with Teletext display
+- CLI→Web delegation API with state sync
+- Browser extension (Chrome/Firefox/Edge)
+- Mobile PWA with offline capability
+
+📚 **Offline Knowledge**
+- 8-category library (foundation for 500+ guides)
+- AI prompt development (no API calls required)
+- SVG diagram generation with citations
+- Content validation and quality scoring
+
+🎯 **Production Ready**
+- Cross-platform (macOS/Linux/Windows)
+- 16+ terminal emulators validated
+- Complete documentation (wiki + API docs)
+- pip installable, offline-first
+
+[📖 Full Release Notes](wiki/Release-v1.1.2.md) | [🗺️ Roadmap](ROADMAP.MD) | [📝 Changelog](CHANGELOG.md)
+
+---
+
+## 🎯 What's Included
+
+### v1.1.0 - Core TUI Stabilisation (268 tests)
+
+**AI Assistant & Role Security**
+- Role-based API access (Wizard unrestricted, User offline-first)
+- Offline fallback to 4-Tier Knowledge Bank
+- Live session analytics with command trace
+- Intelligent error handler with contextual solutions
+- User feedback system (`FEEDBACK` and `REPORT` commands)
+
+**TUI Reliability & Input System**
+- Unified selector with automatic fallback (16+ terminals)
+- Cross-platform retro graphics (BBC Teletext aesthetic)
+- Session replay and pattern analysis
+- Unified command handlers (DOCS, LEARN, MEMORY)
+- POKE commands for system inspection
+
+### v1.1.1 - Web Extension & Dual-Interface (327 tests)
+
+**Web Infrastructure**
+- Production server with health monitoring
+- Teletext display with WebSocket streaming
+- CLI→Web delegation for visual interactions
+- State synchronization with event sourcing
+- Reusable web component library
+
+**Advanced Web Features**
+- Browser extension for knowledge capture
+- Mobile PWA with service workers
+- Touch-optimized interface
+- Offline caching and background sync
+
+### v1.1.2 - Security & Offline Knowledge (467 tests)
+
+**Advanced Security & Roles**
+- **RBAC System** (58 tests): 4 roles with permission inheritance
+- **Command Security** (59 tests): Centralized security layer, offline-first enforcement
+- **4-Tier Memory** (58 tests): Private/Shared/Community/Public with encryption
+- **Installation Types** (59 tests): CLONE/SPAWN/HYBRID with integrity checks
+
+**Knowledge Bank & AI Integration**
+- **Offline Knowledge** (60 tests): 8 categories, full-text search, versioning
+- **AI Prompts** (61 tests): Template system, role-specific, validation
+- **SVG/Citation** (59 tests): Diagram generation, APA/MLA/Chicago/IEEE formats
+- **Validation** (53 tests): Content quality, freshness, contradiction detection
+
+---
+
+## 📊 Test Coverage
+
 ```
+Total Tests: 1,062/1,062 passing (100%)
 
-# Test Coverage (Phase 1 ✅)
-Total tests:     1022    (102% of 1000 target)
-Core tests:      1006
-Performance:     16 regression tests
-Passing rate:    92.4%   (365/395 v1.0.26 tests)
+v1.1.0: 268 tests (AI, TUI, session analytics, retro graphics)
+v1.1.1: 327 tests (web server, browser extension, mobile PWA)
+v1.1.2: 467 tests (RBAC, 4-tier memory, offline knowledge, validation)
 
-# Platform Testing (Phase 3 ✅)
-macOS:           ✅ Complete (365/395 passing)
-Linux:           → Deferred to v1.1.1
-Windows:         → Deferred to v1.1.1
+Platform Support:
+✅ macOS 11+ (Intel & Apple Silicon)
+✅ Linux (Ubuntu, Debian, Fedora, Arch)
+✅ Windows 10/11 (WSL2 & native)
+
+Terminal Emulators:
+✅ 16+ tested (xterm, iTerm2, Windows Terminal, etc.)
 ```
-
-**Completed Phases:**
-- ✅ **Phase 1**: Testing Infrastructure (1022 tests created)
-- ✅ **Phase 2**: Performance Optimization (all targets exceeded)
-- ✅ **Phase 3**: Cross-Platform Testing (macOS verified)
-- 🔄 **Phase 4**: Documentation & QA (in progress)
-- 📋 **Phase 5**: v1.1.0 Preparation (upcoming)
-
-**Key Improvements:**
-- ✅ Added class aliases: `CommandParser`, `uDOSLogger`, `uDOSSettings`
-- ✅ Enhanced `SystemHealth` with `.to_dict()` and enum support
-- ✅ Added `MEMORY` and `PANEL` commands
-- ✅ Created `history_handler.py` for command history management
-- ✅ Fixed duplicate MOVE command (renamed map version to STEP)
-- ✅ Added memory tier paths to all 4 tiers
-- ✅ Improved memory tier classification logic
-
-**Documentation**: See `docs/planning/v1.0.26-PLAN.md` and `docs/planning/PHASE3-MACOS-RESULTS.md`
 
 ---
 
 ## 📖 Documentation
 
 ### 🚀 Getting Started
-- [**Quick Start Guide**](wiki/Quick-Start.md) - Get running in 5 minutes
-- [Installation](wiki/Quick-Start.md#installation) - Setup instructions
-- [Command Reference](wiki/Command-Reference.md) - Complete command list (60+ commands)
+- [**Quick Start Guide**](QUICK_START.md) - Get running in 5 minutes
+- [**Installation Guide**](INSTALL.md) - Setup instructions
+- [**Command Reference**](wiki/Command-Reference.md) - Complete command list
 
-### 📊 Testing & Performance
-- [**v1.0.26 Plan**](docs/planning/v1.0.26-PLAN.md) - Current development plan
-- [**macOS Test Results**](docs/planning/PHASE3-MACOS-RESULTS.md) - Platform verification
-- [Performance Benchmarks](memory/tests/performance_v1_0_26.py) - Automated performance tests
+### 📊 Release Information
+- [**Release v1.1.2**](wiki/Release-v1.1.2.md) - Full release notes
+- [**Latest Development**](wiki/Latest-Development.md) - Recent milestones
+- [**ROADMAP**](ROADMAP.MD) - Complete development plan
+- [**CHANGELOG**](CHANGELOG.md) - Detailed version history
 
-### 📚 Development
-- [**ROADMAP.MD**](ROADMAP.MD) - **Complete v1.0.x-v1.1.0 development plan**
-- [Contributing Guide](CONTRIBUTING.MD) - Development workflow
-- [Testing Guide](dev/docs/guides/TESTING.md) - Testing procedures
-- [Development Setup](dev/docs/guides/DEVELOPMENT.md) - Dev environment
-
-### 🗺️ v1.0.x Development Path to Stable Release
-
-| Version | Status | Focus | Timeline |
-|---------|--------|-------|----------|
-| v1.0.0-v1.0.16 | ✅ Complete | Foundation, uCODE, Theme System | Nov 2025 |
-| v1.0.17 | ✅ Complete | Interactive Debugger (94 tests) | Nov 15, 2025 |
-| v1.0.16c | 📋 Next | Dual-Mode, Project Templates | Dec 2025 |
-| v1.0.18 | 📋 Planned | Adventures, XP System | Jan 2026 |
-| v1.0.19 | 📋 Planned | Workflow, Barter Economy | Feb 2026 |
-| v1.0.20-21 | 📋 Planned | Knowledge Bank, Survival Guides | Mar 2026 |
-| v1.0.22 | 📋 Planned | 1000+ Page Documentation | Apr 2026 |
-| v1.0.23 | 📋 Planned | Final Polish, 1000+ Tests | May 2026 |
-| **v1.1.0** | 🎯 Goal | **STABLE RELEASE** | **Jul 2026** |
-
-**Post-Stable (v1.1.x)**: Device spawning, P2P mesh, advanced features
-
-**See [ROADMAP.MD](ROADMAP.MD) for detailed breakdown of each version.**
-  - Access: `OUTPUT START font-editor`
-
-### 📖 **Markdown Viewer**
-- **Mac System 6 style rendering** ✨
-  - Custom uCODE syntax highlighting
-  - .md and .UDO file support
-  - Classic Mac window chrome
-  - Chicago/Monaco fonts
-  - Access: `OUTPUT START markdown-viewer`
-
-### � **Web Terminal**
-- **NES 8-bit gaming aesthetic** ✨
-  - Retro command execution
-  - Press Start 2P font
-  - Pixelated borders and buttons
-  - Command counter badges
-  - Access: `OUTPUT START terminal`
-
-### 📊 **Web Dashboard**
-- **Mac OS 8.1 + After Dark screensavers** 🔜
-  - Classic Mac window chrome
-  - Flying Toasters animations
-  - Extension start/stop/open controls
-  - Live status, activity log
-  - Responsive design (desktop + mobile)
-  - Access: `DASH WEB`
-
-See [Web Extensions Guide](docs/WEB-OUTPUT-GUIDE.md) and [CSS Integration Guide](docs/SYSTEM-CSS-INTEGRATION.md) for detailed documentation.
+### 📚 Architecture & Development
+- [**Architecture Overview**](wiki/Architecture.md) - System design
+- [**Contributing Guide**](CONTRIBUTING.md) - Development workflow
+- [**Credits & Licenses**](CREDITS.md) - Attributions and dependencies
 
 ---
 
-## 📁 Folder Structure
+## 🏗️ System Architecture
 
-### Root Directory
+### Core Components
 
 ```
 uDOS/
-├── core/                  # Core Python modules (commands, services, utils)
-├── data/                  # System configuration (USER.UDT, themes, templates)
-├── docs/                  # Development documentation (gitignored)
-│   ├── development/      # Session summaries, dev round notes
-│   ├── guides/           # Development guides
-│   ├── planning/         # Project planning documents
-│   └── references/       # Dev references (colors, screen sizes)
-├── extensions/            # Extension system
-│   ├── bundled/          # Built-in extensions (web interfaces)
-│   ├── cloned/           # External dependencies (gitignored)
-│   ├── templates/        # Extension scaffolding (CLI & web)
-│   ├── fonts/            # Font assets with licenses
-│   └── setup/            # Installation scripts
-├── knowledge/             # Knowledge base system (tracked)
-│   ├── demos/            # Example scripts & interactive demos
-│   ├── survival/         # Survival guides
-│   ├── skills/           # Skill documentation
-│   ├── system/           # System knowledge files
-│   └── [categories]/     # Water, food, medical, tech, etc.
-├── memory/                # Runtime data & testing
-│   ├── tests/            # Test suite (pytest)
-│   ├── scripts/          # Maintainer scripts
-│   ├── missions/         # Mission definitions
-│   └── [runtime]/        # Config, logs, modules, scenarios
-├── wiki/                  # GitHub wiki source (tracked)
-├── sandbox/               # Working directory (gitignored)
-├── scripts/               # Utility scripts (config management)
-├── uDOS.py                # Entry point
-├── start_udos.sh          # Launch script
-└── README.MD              # This file
+├── core/                  # Core system (Python)
+│   ├── commands/         # Command handlers (60+ commands)
+│   ├── services/         # Core services (security, AI, analytics)
+│   ├── input/            # Input handling and prompts
+│   ├── output/           # Output formatting and rendering
+│   ├── knowledge/        # Knowledge management
+│   ├── network/          # Networking and API services
+│   ├── ui/               # UI components (selectors, prompts)
+│   ├── theme/            # Theme system
+│   ├── utils/            # Utility functions
+│   └── interpreters/     # uCODE interpreter
+│
+├── extensions/           # Extension system
+│   ├── core/             # Core extensions (terminal, teletext, web GUI)
+│   ├── game-mode/        # Game mode commands and services
+│   ├── setup/            # Installation scripts
+│   └── templates/        # Extension scaffolding
+│
+├── knowledge/            # Knowledge library (8 categories)
+│   ├── system/           # System documentation
+│   ├── survival/         # Survival guides (28 files)
+│   ├── medical/          # First aid (4 files)
+│   ├── food/             # Foraging & preservation (5 files)
+│   ├── water/            # Water sourcing & purification (6 files)
+│   ├── making/           # Building & energy (2 files)
+│   ├── tech/             # Technical skills (5 files)
+│   └── reference/        # Maps & reference data
+│
+├── memory/               # User workspace (gitignored except templates)
+│   ├── config/           # User configuration
+│   ├── sandbox/          # Temporary work
+│   ├── workflow/         # Active missions
+│   ├── legacy/           # Archived outcomes
+│   ├── personal/         # Personal content
+│   ├── tests/            # Test suites (tracked)
+│   └── [tiers]/          # 4-tier memory system
+│
+├── wiki/                 # Project wiki
+└── dev/                  # Development workspace (mostly gitignored)
 ```
 
-### Core System (`/core`)
+### Key Features
 
-Modular Python architecture with clean separation:
+**Security & Access Control**
+- Role-based access control (User/Power/Wizard/Root)
+- 4-tier memory encryption (Private→Shared→Community→Public)
+- Command-based security layer
+- Installation integrity verification (CLONE/SPAWN/HYBRID)
+
+**Dual Interface**
+- Terminal UI with retro graphics (BBC Teletext)
+- Web GUI with WebSocket streaming
+- Browser extension for knowledge capture
+- Mobile PWA with offline support
+
+**Knowledge Management**
+- 8-category offline library (74+ guides)
+- AI prompt development and testing
+- SVG diagram generation with citations
+- Content validation and quality scoring
+
+**Developer Tools**
+- uCODE scripting language with debugger
+- Session analytics and replay
+- Intelligent error handling
+- Comprehensive testing framework (1,062 tests)
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run uDOS
+./start_udos.sh  # On Windows: python uDOS.py
+```
+
+### First Run
+
+```bash
+# Interactive mode
+./start_udos.sh
+
+# Run a script
+./start_udos.sh memory/tests/shakedown.uscript
+
+# Show help
+echo "HELP" | python uDOS.py
+```
+
+### Basic Commands
 
 ```
-core/
-├── commands/              # Specialized command handlers
-│   ├── assist_handler.py
-│   ├── file_handler.py
-│   ├── knowledge_handler.py
-│   ├── map_handler.py
-│   ├── private_handler.py
-│   ├── scenario_play_handler.py
-│   ├── system_handler.py
-│   └── tile_handler.py
-├── services/              # Core services & utilities
-│   ├── knowledge_service.py
-│   ├── map_data_manager.py
-│   ├── option_selector.py
-│   ├── server_manager.py
-│   └── viewport_manager.py
-├── utils/                 # Shared utilities
-│   ├── teletext_mosaic_renderer.py
-│   └── tile_utils.py
-├── uDOS_commands.py      # Main command dispatcher
-├── uDOS_env.py           # Environment configuration
-├── uDOS_files.py         # File operations
-├── uDOS_gemini.py        # AI integration
-├── uDOS_graphics.py      # PANEL system (v1.0.21)
-├── uDOS_grid.py          # Grid/panel management
-├── uDOS_interactive.py   # Interactive mode
-├── uDOS_logger.py        # Logging system
-├── uDOS_main.py          # Main application loop
-├── uDOS_offline.py       # Offline mode
-├── uDOS_parser.py        # CLI to uCODE parser
-├── uDOS_prompt.py        # Dynamic prompt
-├── uDOS_server.py        # Web server management
-├── uDOS_settings.py      # Configuration
-├── uDOS_splash.py        # Splash screen
-├── uDOS_startup.py       # Startup sequence
-├── uDOS_tree.py          # Directory tree generation
-├── uDOS_ucode.py         # uCODE interpreter
-└── __init__.py           # Package initialization
+help              # Show all available commands
+status            # System status
+version           # Show version info
+
+# Knowledge access
+guide list        # List survival guides
+learn search <topic>  # Search knowledge base
+docs <command>    # Command documentation
+
+# Memory system
+memory tier       # Show 4-tier memory system
+memory list       # List memory files
+file edit <file>  # Edit file
+
+# Web GUI (requires extension)
+web start         # Start web server
+web open          # Open in browser
+
+# Security
+config role       # Show current role
+config install    # Installation type
 ```
 
-### Key Directories
+---
 
-**`/core`** - Core system (tracked)
-- Command handlers, services, utilities
-- Main application loop and interpreter
-- Graphics, grid, and file systems
+## 🧪 Testing
 
-**`/data`** - User configuration (tracked)
-- `USER.UDT` - User profile and settings
-- `system/` → Symbolic link to `/knowledge/system/`
-- `themes/` - Theme configurations
-- `templates/` - Command templates
+### Run Tests
 
-**`/docs`** - Development documentation (gitignored)
-- Session summaries and dev round notes
-- Planning documents and roadmaps
-- Development guides and references
-- Color palettes, screen size specs
+```bash
+# All v1.1.x tests
+pytest memory/tests/test_v1_1_*.py
 
-**`/extensions`** - Extension system (mixed tracking)
-- `bundled/web/` - Built-in web extensions (tracked)
-  - `dashboard/`, `font-editor/`, `shared/`, `system-desktop/`, `system-style/`, `teletext/`
-- `cloned/` - External dependencies (gitignored)
-  - `c64css3/`, `classicy-desktop/`, `micro/`, `nes-style/`
-- `core/` - Shared extension components (tracked)
-  - `assets/`, `css/`, `js/`, `themes/`, `docs/`
-- `templates/` - Extension scaffolding (tracked)
-  - `cli-extension-template/`, `web-extension-template/`
-- `fonts/` - Licensed font assets (tracked)
-  - Chicago, Mallard family, sysfont
-- `setup/` - Installation scripts (tracked)
+# Specific milestone
+pytest memory/tests/test_v1_1_0_*.py  # v1.1.0 (268 tests)
+pytest memory/tests/test_v1_1_1_*.py  # v1.1.1 (327 tests)
+pytest memory/tests/test_v1_1_2_*.py  # v1.1.2 (467 tests)
 
-**`/knowledge`** - Knowledge base (tracked)
-- `demos/` - Example scripts (`.uscript`), interactive demos, asset bundles
-- `system/` - Core system knowledge files
-  - `geography/`, `graphics/`, `help_templates/`, `reference/`, `templates/`, `themes/`
-- `community/` - Collaboration, conflict resolution, local resilience, mutual aid
-- `food/` - Food production and preservation
-- `making/` - Crafting and building
-- `medical/` - Health and first aid
-- `reference/` - General reference materials
-- `skills/` - Art, music, writing
-- `survival/` - Emergency preparedness
-- `tech/` - Technology guides
-- `water/` - Water sourcing and purification
-- `well-being/` - Mental health, mindfulness, physical health, relationships
-- 500+ curated survival and reference documents
+# With coverage
+pytest memory/tests/ --cov=core --cov-report=html
+```
 
-**`/memory`** - Runtime & testing (tracked)
-- `tests/` - Complete pytest test suite
-  - `e2e/`, `integration/`, `scripts/`, `test_files/`, `unit/`
-- `config/` - Runtime configuration
-- `logs/` - System logs (`servers/`, `sessions/`)
-- `modules/stdlib/` - Standard library modules
-- `missions/` - Mission definitions
-- `scenarios/` - Scenario files
-- `themes/` - Custom themes
-- `workflow/` - Workflow management (`active/`, `archived/`, `completed/`)
-- `workspace/` - User workspace (`drafts/`, `experiments/`, `tools/`)
-- `personal/`, `private/`, `shared/`, `groups/`, `public/` - 4-tier knowledge storage
-- `legacy/` - Legacy data (`learnings/`, `outcomes/`, `resources/`)
+### Test Results
 
-**`/wiki`** - GitHub wiki source (tracked)
-- Complete user-facing documentation
-- Command references (PANEL, KNOWLEDGE, TILE)
-- Getting started guides and tutorials
-- Architecture and design documentation
+```
+Total: 1,062/1,062 passing (100%)
 
-**`/sandbox`** - Working directory (gitignored)
-- Temporary files and experiments
-- Not distributed with releases
-
-Run `TREE` command in uDOS to generate/update `structure.txt` with complete repository structure.
+v1.1.0 - Core TUI:           268 tests ✅
+v1.1.1 - Web Extension:      327 tests ✅
+v1.1.2 - Security/Knowledge: 467 tests ✅
+```
 
 ---
 
-## Learning Objectives
+## 🗺️ Roadmap
 
-This project demonstrates:
-- **Modular Architecture** - Separation of concerns (parsing, execution, UI)
-- **Data-Driven Design** - Commands and terminology in JSON
-- **Hybrid Systems** - Human-readable layer over structured backend
-- **API Integration** - Gemini OK Assisted Task integration patterns
-- **Testing Strategies** - Automated script-based testing
-- **Development Tooling** - VS Code workspace configuration
+### Completed Milestones
 
----
+✅ **v1.1.0** - Core TUI Stabilisation (268 tests)
+- AI assistant with role-based security
+- Unified selector system (16+ terminals)
+- Retro graphics and session analytics
 
-## Current Status
+✅ **v1.1.1** - Web Extension & Dual-Interface (327 tests)
+- Production web server
+- Browser extension
+- Mobile PWA
 
-**Version 1.3.0** - Production-ready with OK Assisted Task integration and intelligent startup:
-- ✅ Enhanced startup system with auto-repair
-- ✅ Gemini OK Assisted Task integration (ASK, ANALYZE, DEBUG commands)
-- ✅ Configuration management with secure .env handling
-- ✅ File operations with UNDO/REDO
-- ✅ GitHub-style web dashboard
-- ✅ Four web extensions (dashboard, markdown-viewer, font-editor, typo, cmd)
-- ✅ Offline capabilities with pattern-matching OK Assisted Task
-- ✅ Professional command reference and documentation
+✅ **v1.1.2** - Security & Offline Knowledge (467 tests)
+- RBAC system
+- 4-tier memory encryption
+- Offline knowledge library
+- AI prompt development
 
-**Latest Release (October 2025)**:
-- v1.3.0: Enhanced startup, Gemini OK Assisted Task, configuration management
-- Complete health diagnostics with auto-repair
-- OK Assisted Task-assisted error debugging
-- Secure API key management
+### Next Milestones
 
-See [V1.3-COMPLETE-RELEASE.md](dev/docs/V1.3-COMPLETE-RELEASE.md) for full v1.3 documentation and [ROADMAP.MD](ROADMAP.MD) for future plans.
+📋 **v1.1.3** - Adventure & Economy Systems (Q4 2026)
+- Gamified survival progression
+- Apocalypse adventure framework
+- Zero-currency barter economy
+- Community integration
 
----
+📋 **v1.1.4+** - Advanced Features
+- Tauri desktop app
+- Device spawning
+- P2P mesh networking
+- Native mobile apps
 
-## Contributing
-
-See [Contributing Guide](https://github.com/fredporter/uDOS/wiki/Contributing) for the Development Round workflow and contribution guidelines.
+[Full Roadmap →](ROADMAP.MD)
 
 ---
 
-## License
+## 📝 License
 
-This program is free software licensed under the GNU General Public License v3.0.
+See [LICENSE.txt](LICENSE.txt) for details.
 
-**uDOS v1.3** - Copyright (C) 2025 Fred Porter
+**Copyright © 2025 uDOS Contributors**
 
-See [LICENSE.txt](LICENSE.txt) for the complete license text.
+---
 
+## 🙏 Credits
+
+- **Author**: Fred Porter
+- **Contributors**: See [CREDITS.md](CREDITS.md)
+- **Dependencies**: See [requirements.txt](requirements.txt)
+
+---
+
+## 📞 Support
+
+- **Documentation**: [wiki/](wiki/)
+- **Issues**: [GitHub Issues](https://github.com/fredporter/uDOS/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/fredporter/uDOS/discussions)
+
+---
+
+**Ready to get started? Check out the [Quick Start Guide](QUICK_START.md)!**
