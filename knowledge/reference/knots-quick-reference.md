@@ -1,9 +1,9 @@
 # Knots Quick Reference Guide
 
-**Category:** Reference  
-**Type:** Essential Skills  
-**Difficulty:** All Levels  
-**Last Updated:** 2025-11-24  
+**Category:** Reference
+**Type:** Essential Skills
+**Difficulty:** All Levels
+**Last Updated:** 2025-11-24
 **OK Assist Generated:** ✅
 
 ---
@@ -47,8 +47,8 @@ Practical knot reference for survival, camping, and emergency situations. Each k
 Memory: "Rabbit comes out of hole, around tree, back in hole"
 ```
 
-**Strength:** 60% of rope strength  
-**Pros:** Easy to untie after load, secure  
+**Strength:** 60% of rope strength
+**Pros:** Easy to untie after load, secure
 **Cons:** Can work loose with repeated loading (use backup knot)
 
 ---
@@ -67,8 +67,8 @@ Memory: "Rabbit comes out of hole, around tree, back in hole"
 5. Tighten
 ```
 
-**Strength:** 75-80% of rope strength  
-**Pros:** Very strong, easy to check, won't jam  
+**Strength:** 75-80% of rope strength
+**Pros:** Very strong, easy to check, won't jam
 **Cons:** Harder to untie after heavy load than bowline
 
 ---
@@ -86,8 +86,8 @@ Memory: "Rabbit comes out of hole, around tree, back in hole"
 4. Slide off hand, tighten
 ```
 
-**Strength:** 70-75%  
-**Pros:** Load from any direction, isolates damage  
+**Strength:** 70-75%
+**Pros:** Load from any direction, isolates damage
 **Cons:** More complex to tie
 
 ---
@@ -110,8 +110,8 @@ Memory: "Rabbit comes out of hole, around tree, back in hole"
 Forms two loops that cross
 ```
 
-**Strength:** 60-70%  
-**Pros:** Quick, adjustable, two-direction pull  
+**Strength:** 60-70%
+**Pros:** Quick, adjustable, two-direction pull
 **Cons:** Can slip under variable loads (needs backup)
 
 ---
@@ -130,8 +130,8 @@ Forms two loops that cross
 5. Slide to adjust tension, holds when loaded
 ```
 
-**Strength:** 60%  
-**Pros:** Adjustable tension, grips under load  
+**Strength:** 60%
+**Pros:** Adjustable tension, grips under load
 **Cons:** Can slip on smooth modern ropes (use 3 wraps)
 
 ---
@@ -152,8 +152,8 @@ Forms two loops that cross
 Creates pulley effect
 ```
 
-**Strength:** 50% (but provides 3:1 advantage)  
-**Pros:** Very tight tension, adjustable, quick release  
+**Strength:** 50% (but provides 3:1 advantage)
+**Pros:** Very tight tension, adjustable, quick release
 **Cons:** Complex, takes practice
 
 ---
@@ -174,8 +174,8 @@ Creates pulley effect
 5. Slides when unloaded, grips when loaded
 ```
 
-**Strength:** Depends on cord (typically 60%)  
-**Pros:** Bidirectional grip, easy to release  
+**Strength:** Depends on cord (typically 60%)
+**Pros:** Bidirectional grip, easy to release
 **Cons:** Needs different diameter rope
 
 ---
@@ -194,8 +194,8 @@ Creates pulley effect
 5. Grips tighter under load
 ```
 
-**Strength:** 50%  
-**Pros:** Very quick, releases instantly when unloaded  
+**Strength:** 50%
+**Pros:** Very quick, releases instantly when unloaded
 **Cons:** Not for constant loads (works loose)
 
 ---
@@ -220,8 +220,8 @@ Working ends on same side
 
 **Double Sheet Bend:** Add second wrap for security
 
-**Strength:** 55%  
-**Pros:** Works with different diameters, quick  
+**Strength:** 55%
+**Pros:** Works with different diameters, quick
 **Cons:** Can slip with slippery rope (use double version)
 
 ---
@@ -243,8 +243,8 @@ Forms two interlinked loops
 
 **WARNING:** NOT for critical loads - can capsize and fail
 
-**Strength:** 43%  
-**Pros:** Quick, easy to untie  
+**Strength:** 43%
+**Pros:** Quick, easy to untie
 **Cons:** Dangerous under heavy/shock loads, NEVER for climbing
 
 ---
@@ -265,8 +265,8 @@ Forms two interlinked loops
 Creates two barrel knots that jam together
 ```
 
-**Strength:** 65-70%  
-**Pros:** Very secure, inspectable  
+**Strength:** 65-70%
+**Pros:** Very secure, inspectable
 **Cons:** Difficult to untie after loading
 
 ---
@@ -289,8 +289,8 @@ Creates two barrel knots that jam together
 Forms square wrapping pattern
 ```
 
-**Strength:** Very strong for compression loads  
-**Pros:** Quick, strong, traditional  
+**Strength:** Very strong for compression loads
+**Pros:** Quick, strong, traditional
 **Cons:** Needs practice for tight lashing
 
 ---
@@ -327,8 +327,8 @@ Forms square wrapping pattern
 Almost impossible to untie - cut to remove
 ```
 
-**Strength:** 70% (in binding use)  
-**Pros:** Very secure, won't slip  
+**Strength:** 70% (in binding use)
+**Pros:** Very secure, won't slip
 **Cons:** Permanent (must cut), damages rope if overtightened
 
 ---
@@ -350,8 +350,8 @@ Almost impossible to untie - cut to remove
 Larger than overhand knot
 ```
 
-**Strength:** 75-80%  
-**Pros:** Easy to untie, inspect, larger than overhand  
+**Strength:** 75-80%
+**Pros:** Easy to untie, inspect, larger than overhand
 **Cons:** Slightly bulkier
 
 ---
@@ -369,8 +369,8 @@ Larger than overhand knot
 4. More secure than single overhand
 ```
 
-**Strength:** 65%  
-**Pros:** Compact, secure  
+**Strength:** 65%
+**Pros:** Compact, secure
 **Cons:** Harder to untie than figure-8
 
 ---
@@ -390,8 +390,8 @@ Larger than overhand knot
 4. Check regularly (can work loose)
 ```
 
-**Strength:** 60-70%  
-**Pros:** Only reliable webbing bend  
+**Strength:** 60-70%
+**Pros:** Only reliable webbing bend
 **Cons:** Can work loose (check often, leave long tails)
 
 ---
@@ -413,8 +413,8 @@ Larger than overhand knot
 Flips when rope direction changes
 ```
 
-**Strength:** N/A (friction device)  
-**Pros:** Emergency rappel, reversible  
+**Strength:** N/A (friction device)
+**Pros:** Emergency rappel, reversible
 **Cons:** Twists rope, needs carabiner
 
 ---
@@ -537,7 +537,7 @@ Flips when rope direction changes
 ## Cross-References
 
 - [[rope_selection_survival]] - Choosing right rope for job
-- [[shelter_construction_techniques]] - Using knots in shelter building  
+- [[shelter_construction_techniques]] - Using knots in shelter building
 - [[rescue_techniques_improvised]] - Knots for emergency rescue
 - [[fishing_survival_methods]] - Fishing knots
 - [[climbing_safety_basics]] - Climbing-specific knots
@@ -546,18 +546,18 @@ Flips when rope direction changes
 
 ## Safety Notes
 
-⚠️ **Practice before emergency** - Stress makes simple tasks hard  
-⚠️ **Inspect knots before loading** - One mistake can be fatal  
-⚠️ **Never use square knot for critical loads** - Will capsize  
-⚠️ **Leave adequate tail** - Minimum 10× rope diameter  
-⚠️ **Test under light load first** - Verify knot correct before full load  
-⚠️ **Climbing knots require training** - Take certified course  
-⚠️ **Backup critical knots** - Stopper knot on working end  
+⚠️ **Practice before emergency** - Stress makes simple tasks hard
+⚠️ **Inspect knots before loading** - One mistake can be fatal
+⚠️ **Never use square knot for critical loads** - Will capsize
+⚠️ **Leave adequate tail** - Minimum 10× rope diameter
+⚠️ **Test under light load first** - Verify knot correct before full load
+⚠️ **Climbing knots require training** - Take certified course
+⚠️ **Backup critical knots** - Stopper knot on working end
 
 ---
 
-**Version:** 1.0  
-**Part of:** uDOS Knowledge Bank v1.4.0  
-**Validated:** Field-tested techniques  
-**Practice Required:** Hands-on skill development essential  
+**Version:** 1.0
+**Part of:** uDOS Knowledge Bank v1.4.0
+**Validated:** Field-tested techniques
+**Practice Required:** Hands-on skill development essential
 **Certification:** Take climbing course for climbing knots

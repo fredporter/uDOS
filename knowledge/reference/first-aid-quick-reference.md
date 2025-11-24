@@ -1,9 +1,9 @@
 # First Aid Quick Reference
 
-**Category:** Reference  
-**Type:** Emergency Medical Guide  
-**Difficulty:** Essential (All Levels)  
-**Last Updated:** 2025-11-24  
+**Category:** Reference
+**Type:** Emergency Medical Guide
+**Difficulty:** Essential (All Levels)
+**Last Updated:** 2025-11-24
 **OK Assist Generated:** ✅
 
 ---
@@ -130,13 +130,13 @@ Rapid-access medical reference for common emergencies and injuries. Designed for
 
 ### Adult CPR (DRSABCD)
 
-**D - Danger:** Ensure area safe  
-**R - Response:** Check responsiveness  
-**S - Send for help:** Call 000  
-**A - Airway:** Open airway (head tilt, chin lift)  
-**B - Breathing:** Check for breathing (10 seconds max)  
-**C - CPR:** If not breathing normally  
-**D - Defibrillation:** Use AED if available  
+**D - Danger:** Ensure area safe
+**R - Response:** Check responsiveness
+**S - Send for help:** Call 000
+**A - Airway:** Open airway (head tilt, chin lift)
+**B - Breathing:** Check for breathing (10 seconds max)
+**C - CPR:** If not breathing normally
+**D - Defibrillation:** Use AED if available
 
 ### Compression Technique
 
@@ -347,8 +347,8 @@ Rapid-access medical reference for common emergencies and injuries. Designed for
 
 ### Spider Bites
 
-**Funnel-Web / Mouse Spider:** PIT (same as snake)  
-**Redback Spider:** Ice pack, pain relief, get medical help (no PIT)  
+**Funnel-Web / Mouse Spider:** PIT (same as snake)
+**Redback Spider:** Ice pack, pain relief, get medical help (no PIT)
 **Other Spiders:** Ice, monitor, seek medical advice
 
 ---
@@ -515,17 +515,17 @@ Rapid-access medical reference for common emergencies and injuries. Designed for
 
 ## Safety Notes
 
-⚠️ **Call 000** for all life-threatening emergencies  
-⚠️ **Universal Precautions:** Treat all blood/body fluids as infectious  
-⚠️ **Gloves:** Use if available (plastic bags as improvised barrier)  
-⚠️ **Hand washing:** Critical infection prevention measure  
-⚠️ **Update training:** Take certified first aid course every 3 years  
-⚠️ **Carry kit:** Basic first aid kit in all vehicles and packs  
+⚠️ **Call 000** for all life-threatening emergencies
+⚠️ **Universal Precautions:** Treat all blood/body fluids as infectious
+⚠️ **Gloves:** Use if available (plastic bags as improvised barrier)
+⚠️ **Hand washing:** Critical infection prevention measure
+⚠️ **Update training:** Take certified first aid course every 3 years
+⚠️ **Carry kit:** Basic first aid kit in all vehicles and packs
 
 ---
 
-**Version:** 1.0  
-**Part of:** uDOS Knowledge Bank v1.4.0  
-**Validated:** Current Australian first aid guidelines  
-**Certification:** Not a substitute for professional training  
+**Version:** 1.0
+**Part of:** uDOS Knowledge Bank v1.4.0
+**Validated:** Current Australian first aid guidelines
+**Certification:** Not a substitute for professional training
 **Update Cycle:** Review annually with latest protocols

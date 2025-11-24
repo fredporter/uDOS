@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Title -->
+  <text x="400" y="30" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">
+    Multi-Barrier Water Purification System
+  </text>
+  <text x="400" y="55" font-size="14" text-anchor="middle" fill="#666">
+    Layered defense against biological, chemical, and physical contaminants
+  </text>
+
+  <!-- Water Source -->
+  <rect x="50" y="100" width="120" height="80" fill="#0066CC" opacity="0.3" stroke="#000" stroke-width="2"/>
+  <text x="110" y="135" font-size="14" font-weight="bold" text-anchor="middle">WATER</text>
+  <text x="110" y="155" font-size="12" text-anchor="middle">SOURCE</text>
+  <text x="110" y="170" font-size="10" text-anchor="middle" fill="#CC0000">(Contaminated)</text>
+
+  <!-- Arrow 1 -->
+  <line x1="170" y1="140" x2="220" y2="140" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Barrier 1: Sedimentation -->
+  <rect x="220" y="100" width="140" height="80" fill="#FFCC00" opacity="0.2" stroke="#000" stroke-width="2"/>
+  <text x="290" y="125" font-size="14" font-weight="bold" text-anchor="middle">BARRIER 1</text>
+  <text x="290" y="145" font-size="12" text-anchor="middle">Sedimentation</text>
+  <text x="290" y="165" font-size="10" text-anchor="middle">Settle 30+ min</text>
+  <circle cx="245" cy="160" r="3" fill="#666"/>
+  <circle cx="255" cy="167" r="3" fill="#666"/>
+  <circle cx="265" cy="170" r="3" fill="#666"/>
+  <text x="290" y="175" font-size="9" fill="#666">(Particles settle)</text>
+
+  <!-- Arrow 2 -->
+  <line x1="360" y1="140" x2="390" y2="140" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Barrier 2: Filtration -->
+  <rect x="390" y="100" width="140" height="80" fill="#FFCC00" opacity="0.2" stroke="#000" stroke-width="2"/>
+  <text x="460" y="125" font-size="14" font-weight="bold" text-anchor="middle">BARRIER 2</text>
+  <text x="460" y="145" font-size="12" text-anchor="middle">Filtration</text>
+  <text x="460" y="165" font-size="10" text-anchor="middle">Coffee filter,</text>
+  <text x="460" y="175" font-size="10" text-anchor="middle">bandana, sand</text>
+
+  <!-- Filter illustration -->
+  <line x1="415" y1="155" x2="505" y2="155" stroke="#333" stroke-width="1"/>
+  <line x1="415" y1="158" x2="505" y2="158" stroke="#333" stroke-width="1"/>
+  <line x1="415" y1="161" x2="505" y2="161" stroke="#333" stroke-width="1"/>
+
+  <!-- Arrow 3 -->
+  <line x1="530" y1="140" x2="560" y2="140" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Barrier 3: Purification -->
+  <rect x="560" y="100" width="140" height="80" fill="#FFCC00" opacity="0.2" stroke="#000" stroke-width="2"/>
+  <text x="630" y="125" font-size="14" font-weight="bold" text-anchor="middle">BARRIER 3</text>
+  <text x="630" y="145" font-size="12" text-anchor="middle">Purification</text>
+  <text x="630" y="165" font-size="10" text-anchor="middle">Boil, chemical,</text>
+  <text x="630" y="175" font-size="10" text-anchor="middle">or UV treatment</text>
+
+  <!-- Fire icon for boiling -->
+  <path d="M 620 155 Q 625 145 630 155 Q 635 145 640 155" fill="none" stroke="#CC3300" stroke-width="2"/>
+
+  <!-- Arrow 4 to safe water -->
+  <line x1="700" y1="140" x2="730" y2="140" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Safe Water -->
+  <circle cx="760" cy="140" r="25" fill="#0066CC" opacity="0.5" stroke="#000" stroke-width="2"/>
+  <text x="760" y="145" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFF">SAFE</text>
+  <text x="760" y="200" font-size="10" text-anchor="middle">(99.9%+ pathogens removed)</text>
+
+  <!-- Contaminant Removal Chart -->
+  <text x="50" y="240" font-size="16" font-weight="bold">Contaminant Removal by Barrier:</text>
+
+  <!-- Table Header -->
+  <rect x="50" y="250" width="700" height="30" fill="#333" stroke="#000" stroke-width="1"/>
+  <text x="60" y="270" font-size="12" font-weight="bold" fill="#FFF">Contaminant Type</text>
+  <text x="250" y="270" font-size="12" font-weight="bold" fill="#FFF">Sedimentation</text>
+  <text x="400" y="270" font-size="12" font-weight="bold" fill="#FFF">Filtration</text>
+  <text x="550" y="270" font-size="12" font-weight="bold" fill="#FFF">Purification</text>
+  <text x="690" y="270" font-size="12" font-weight="bold" fill="#FFF">Total</text>
+
+  <!-- Row 1: Sediment -->
+  <rect x="50" y="280" width="700" height="25" fill="#F5F5F5" stroke="#000" stroke-width="1"/>
+  <text x="60" y="297" font-size="11">Sediment (dirt, sand)</text>
+  <text x="280" y="297" font-size="11" fill="#339933">80%</text>
+  <text x="430" y="297" font-size="11" fill="#339933">19%</text>
+  <text x="580" y="297" font-size="11" fill="#666">1%</text>
+  <text x="700" y="297" font-size="11" font-weight="bold" fill="#339933">100%</text>
+
+  <!-- Row 2: Protozoa -->
+  <rect x="50" y="305" width="700" height="25" fill="#FFF" stroke="#000" stroke-width="1"/>
+  <text x="60" y="322" font-size="11">Protozoa (Giardia, Crypto)</text>
+  <text x="280" y="322" font-size="11" fill="#FFCC00">30%</text>
+  <text x="430" y="322" font-size="11" fill="#339933">60%</text>
+  <text x="580" y="322" font-size="11" fill="#339933">9.9%</text>
+  <text x="700" y="322" font-size="11" font-weight="bold" fill="#339933">99.9%</text>
+
+  <!-- Row 3: Bacteria -->
+  <rect x="50" y="330" width="700" height="25" fill="#F5F5F5" stroke="#000" stroke-width="1"/>
+  <text x="60" y="347" font-size="11">Bacteria (E. coli, Salmonella)</text>
+  <text x="280" y="347" font-size="11" fill="#CC0000">5%</text>
+  <text x="430" y="347" font-size="11" fill="#FFCC00">40%</text>
+  <text x="580" y="347" font-size="11" fill="#339933">54.9%</text>
+  <text x="700" y="347" font-size="11" font-weight="bold" fill="#339933">99.9%</text>
+
+  <!-- Row 4: Viruses -->
+  <rect x="50" y="355" width="700" height="25" fill="#FFF" stroke="#000" stroke-width="1"/>
+  <text x="60" y="372" font-size="11">Viruses (Hepatitis, Norovirus)</text>
+  <text x="280" y="372" font-size="11" fill="#CC0000">0%</text>
+  <text x="430" y="372" font-size="11" fill="#CC0000">10%</text>
+  <text x="580" y="372" font-size="11" fill="#339933">89.9%</text>
+  <text x="700" y="372" font-size="11" font-weight="bold" fill="#339933">99.9%</text>
+
+  <!-- Row 5: Chemicals -->
+  <rect x="50" y="380" width="700" height="25" fill="#F5F5F5" stroke="#000" stroke-width="1"/>
+  <text x="60" y="397" font-size="11">Chemicals (pesticides, heavy metals)</text>
+  <text x="280" y="397" font-size="11" fill="#CC0000">0%</text>
+  <text x="430" y="397" font-size="11" fill="#FFCC00">30%</text>
+  <text x="580" y="397" font-size="11" fill="#CC0000">20%</text>
+  <text x="700" y="397" font-size="11" font-weight="bold" fill="#FFCC00">50%*</text>
+
+  <!-- Legend -->
+  <text x="50" y="425" font-size="10" fill="#666">*Chemicals require activated carbon filter or distillation</text>
+
+  <!-- Purification Methods Detail -->
+  <text x="50" y="455" font-size="14" font-weight="bold">Barrier 3 Purification Methods:</text>
+
+  <!-- Boiling -->
+  <rect x="50" y="470" width="210" height="80" fill="#CC3300" opacity="0.1" stroke="#CC3300" stroke-width="2"/>
+  <text x="155" y="490" font-size="12" font-weight="bold" text-anchor="middle">BOILING</text>
+  <text x="155" y="508" font-size="10" text-anchor="middle">Rolling boil 1 minute</text>
+  <text x="155" y="523" font-size="10" text-anchor="middle">(3 min above 6,500 ft)</text>
+  <text x="155" y="538" font-size="9" text-anchor="middle" fill="#339933">Kills: 99.999% pathogens</text>
+
+  <!-- Chemical -->
+  <rect x="280" y="470" width="210" height="80" fill="#9933CC" opacity="0.1" stroke="#9933CC" stroke-width="2"/>
+  <text x="385" y="490" font-size="12" font-weight="bold" text-anchor="middle">CHEMICAL</text>
+  <text x="385" y="508" font-size="10" text-anchor="middle">Iodine or chlorine</text>
+  <text x="385" y="523" font-size="10" text-anchor="middle">Wait 30+ minutes</text>
+  <text x="385" y="538" font-size="9" text-anchor="middle" fill="#339933">Kills: 99.9% bacteria/viruses</text>
+
+  <!-- UV -->
+  <rect x="510" y="470" width="210" height="80" fill="#FFCC00" opacity="0.2" stroke="#FFCC00" stroke-width="2"/>
+  <text x="615" y="490" font-size="12" font-weight="bold" text-anchor="middle">UV LIGHT</text>
+  <text x="615" y="508" font-size="10" text-anchor="middle">SteriPEN or sunlight</text>
+  <text x="615" y="523" font-size="10" text-anchor="middle">90 sec per liter</text>
+  <text x="615" y="538" font-size="9" text-anchor="middle" fill="#339933">Kills: 99.99% pathogens</text>
+
+  <!-- Safety Warning -->
+  <rect x="50" y="560" width="700" height="30" fill="#CC0000" opacity="0.2" stroke="#CC0000" stroke-width="2"/>
+  <text x="400" y="580" font-size="12" font-weight="bold" text-anchor="middle" fill="#CC0000">
+    ⚠ WARNING: No single method is 100% effective. Multi-barrier approach recommended.
+  </text>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#000"/>
+    </marker>
+  </defs>
+</svg>

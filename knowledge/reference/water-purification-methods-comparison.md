@@ -1,9 +1,9 @@
 # Water Purification Methods - Comparison Guide
 
-**Category:** Reference  
-**Type:** Quick Comparison Guide  
-**Difficulty:** Essential (All Levels)  
-**Last Updated:** 2025-11-24  
+**Category:** Reference
+**Type:** Quick Comparison Guide
+**Difficulty:** Essential (All Levels)
+**Last Updated:** 2025-11-24
 **OK Assist Generated:** ✅
 
 ---
@@ -124,7 +124,7 @@ Comparison of water purification methods for survival and emergency situations. 
 
 **Contact Time:**
 - Clear water, warm (>15°C): 30 minutes
-- Clear water, cold (<10°C): 60 minutes  
+- Clear water, cold (<10°C): 60 minutes
 - Murky water or very cold: 60 minutes + pre-filter
 
 **Effectiveness:**
@@ -642,19 +642,19 @@ Comparison of water purification methods for survival and emergency situations. 
 
 ## Safety Notes
 
-⚠️ **When in doubt, boil** - Most reliable method  
-⚠️ **Multi-barrier recommended** - Use 2+ methods for questionable water  
-⚠️ **Pre-filter murky water** - Extends filter life, improves chemical effectiveness  
-⚠️ **Iodine limits** - Not for pregnant women, max 6 weeks use  
-⚠️ **Crypto resistance** - Iodine/chlorine don't kill Cryptosporidium well  
-⚠️ **Chemical + UV** - Great combination (chemical backup, UV speed)  
-⚠️ **Never skip purification** - Giardia/Crypto infection is debilitating  
-⚠️ **Seawater** - NEVER drink untreated (accelerates dehydration)  
+⚠️ **When in doubt, boil** - Most reliable method
+⚠️ **Multi-barrier recommended** - Use 2+ methods for questionable water
+⚠️ **Pre-filter murky water** - Extends filter life, improves chemical effectiveness
+⚠️ **Iodine limits** - Not for pregnant women, max 6 weeks use
+⚠️ **Crypto resistance** - Iodine/chlorine don't kill Cryptosporidium well
+⚠️ **Chemical + UV** - Great combination (chemical backup, UV speed)
+⚠️ **Never skip purification** - Giardia/Crypto infection is debilitating
+⚠️ **Seawater** - NEVER drink untreated (accelerates dehydration)
 
 ---
 
-**Version:** 1.0  
-**Part of:** uDOS Knowledge Bank v1.4.0  
-**Validated:** WHO, CDC, EPA guidelines  
-**Update:** Methods and effectiveness regularly reviewed  
+**Version:** 1.0
+**Part of:** uDOS Knowledge Bank v1.4.0
+**Validated:** WHO, CDC, EPA guidelines
+**Update:** Methods and effectiveness regularly reviewed
 **Emergency:** When in doubt, boil for 1-3 minutes
