@@ -386,6 +386,78 @@ Duration: {self._get_session_duration()}
         with open(summary_file, 'w') as f:
             f.write(self.get_session_summary())
 
+    def log_event(self, event_type: str, data: Dict[str, Any]):
+        """
+        Log a general event to the session.
+
+        Args:
+            event_type: Type of event (e.g., 'boundary_violation', 'file_operation')
+            data: Event data
+
+        Feature: 1.1.0.14 - Data Architecture Enforcement
+        """
+        # Add to context of last command if exists
+        if self.commands:
+            if not self.commands[-1].context:
+                self.commands[-1].context = {}
+            if 'events' not in self.commands[-1].context:
+                self.commands[-1].context['events'] = []
+            self.commands[-1].context['events'].append({
+                'type': event_type,
+                'data': data
+            })
+
+        # Save session
+        self._save_session()
+
+    def log_boundary_violation(self, source: str, dest: str, command: str, violation_type: str = None):
+        """
+        Log data boundary violation attempt.
+
+        Args:
+            source: Source path
+            dest: Destination path
+            command: Command that attempted the violation
+            violation_type: Type of violation (optional)
+
+        Feature: 1.1.0.14 - Data Architecture Enforcement
+        """
+        self.log_event('boundary_violation', {
+            'command': command,
+            'source': source,
+            'dest': dest,
+            'violation_type': violation_type or 'unauthorized_write',
+            'timestamp': datetime.now().isoformat()
+        })
+
+    def log_file_operation(self, operation: str, path: str, success: bool, error: str = None):
+        """
+        Log file operation for boundary tracking.
+
+        Args:
+            operation: Operation type ('read', 'write', 'delete', etc.)
+            path: File path
+            success: Whether operation succeeded
+            error: Error message if failed
+
+        Feature: 1.1.0.14 - Data Architecture Enforcement
+        """
+        self.log_event('file_operation', {
+            'operation': operation,
+            'path': path,
+            'success': success,
+            'error': error,
+            'timestamp': datetime.now().isoformat()
+        })
+
+        self.log_event('file_operation', {
+            'operation': operation,
+            'path': path,
+            'success': success,
+            'error': error,
+            'timestamp': datetime.now().isoformat()
+        })
+
 
 # Global session analytics instance
 _session_analytics: Optional[SessionAnalytics] = None
