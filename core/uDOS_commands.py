@@ -75,13 +75,13 @@ class CommandHandler:
         from core.commands.bank_handler import BankCommandHandler
         from core.commands.cmd_knowledge import cmd_knowledge
 
-        # Game Mode extension (optional) - load if available
+        # Play extension (optional) - load if available
         try:
-            from extensions.game_mode.commands.map_handler import MapCommandHandler
-            self._game_mode_available = True
+            from extensions.play.commands.map_handler import MapCommandHandler
+            self._play_available = True
         except ImportError:
             MapCommandHandler = None
-            self._game_mode_available = False
+            self._play_available = False
 
         # v1.0.20 - 4-Tier Knowledge Bank handlers
         from core.commands.memory_commands import MemoryCommandHandler
@@ -97,6 +97,9 @@ class CommandHandler:
         from core.commands.panel_handler import PanelCommandHandler
         from core.commands.guide_handler import GuideHandler
         from core.commands.diagram_handler import DiagramHandler
+
+        # v1.0.33 - Barter Economy System
+        from core.commands.barter_commands import BarterCommandHandler
 
         # v1.1.0 - User Feedback System
         from core.commands.user_handler import UserCommandHandler
@@ -123,6 +126,9 @@ class CommandHandler:
         # v1.0.21 - GUIDE & DIAGRAM Interactive Knowledge handlers
         self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
         self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
+
+        # v1.0.33 - BARTER Economy handler
+        self.barter_handler = BarterCommandHandler()
 
         # v1.1.0 - User Feedback handler
         self.user_handler = UserCommandHandler(**handler_kwargs)
@@ -203,8 +209,8 @@ class CommandHandler:
                 if self.map_handler:
                     return self.map_handler.handle(command, params, grid)
                 else:
-                    return ("❌ MAP commands require Game Mode extension\n"
-                           "💡 Install: POKE START game-mode")
+                    return ("❌ MAP commands require Play extension\n"
+                           "💡 Install: POKE START play")
 
             elif module == "BANK":
                 return self.bank_handler.handle(command, params, grid)
@@ -229,6 +235,14 @@ class CommandHandler:
             # v1.0.20b - Enhanced Mapping & Reference Data System
             elif module == "TILE":
                 return self.tile_handler.handle(command, ' '.join(params) if params else '', grid)
+
+            # v1.0.33 - Barter Economy System
+            elif module == "BARTER" or module == "OFFER" or module == "REQUEST" or module == "TRADE":
+                # Route OFFER, REQUEST, TRADE directly to barter handler
+                if module in ["OFFER", "REQUEST", "TRADE"]:
+                    return self.barter_handler.handle(module, params)
+                else:
+                    return self.barter_handler.handle(command, params)
 
             # v1.0.21 - Teletext Display System
             elif module == "PANEL" or module == "UI":

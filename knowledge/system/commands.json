@@ -632,10 +632,10 @@
       "DESCRIPTION": "Shows current map position and layer information.",
       "UCODE_TEMPLATE": "[MAP|STATUS]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -644,10 +644,10 @@
       "DESCRIPTION": "Teleport to specific coordinates on current map layer.",
       "UCODE_TEMPLATE": "[MAP|GOTO*$1*$2]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -656,13 +656,13 @@
       "DESCRIPTION": "Move relative to current position (NetHack-style navigation).",
       "UCODE_TEMPLATE": "[MAP|MOVE*$1*$2]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
         "Alias for map movement command",
         "Use MOVE for file operations",
         "NetHack-style relative positioning",
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -673,10 +673,10 @@
       "DEFAULT_PARAMS": {
         "$1": ""
       },
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -685,10 +685,10 @@
       "DESCRIPTION": "Descend one layer (NetHack > command) - go deeper.",
       "UCODE_TEMPLATE": "[MAP|DESCEND]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -697,10 +697,10 @@
       "DESCRIPTION": "Ascend one layer (NetHack < command) - go higher.",
       "UCODE_TEMPLATE": "[MAP|ASCEND]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {
@@ -709,10 +709,10 @@
       "DESCRIPTION": "Set your real-world location to a major city.",
       "UCODE_TEMPLATE": "[MAP|LOCATE*$1]",
       "DEFAULT_PARAMS": {},
-      "EXTENSION": "game-mode",
+      "EXTENSION": "play",
       "NOTES": [
-        "Requires Game Mode extension",
-        "Enable with: POKE START game-mode"
+        "Requires Play extension",
+        "Enable with: POKE START play"
       ]
     },
     {

@@ -1,4 +1,4 @@
-# uDOS Game Mode Extension
+# uDOS Play Extension
 
 Game mechanics and exploration features for uDOS - opt-in extension for users who want interactive gaming elements.
 
@@ -32,12 +32,12 @@ Game mode is included with uDOS but disabled by default.
 
 **Enable:**
 ```
-POKE START game-mode
+POKE START play
 ```
 
 **Disable:**
 ```
-POKE STOP game-mode
+POKE STOP play
 ```
 
 ## Philosophy

@@ -241,7 +241,7 @@ class BarterService:
         received_items = []
         for item_details in items_received:
             # Add to inventory
-            from extensions.game_mode.services.inventory_service import ItemCategory, ItemRarity
+            from extensions.play.services.inventory_service import ItemCategory, ItemRarity
             category = ItemCategory[item_details.get('category', 'MISC').upper()]
             rarity = ItemRarity[item_details.get('rarity', 'COMMON').upper()]
 

@@ -34,7 +34,7 @@ class MapCommandHandler(BaseCommandHandler):
     def map_engine(self):
         """Lazy load mapping engine."""
         if self._map_engine is None:
-            from extensions.game_mode.services.map_engine import MapEngine
+            from extensions.play.services.map_engine import MapEngine
             self._map_engine = MapEngine()
         return self._map_engine
 

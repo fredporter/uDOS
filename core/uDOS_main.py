@@ -375,7 +375,7 @@ def main():
             user_data = user_manager.get_user_data()
             if user_data.get('settings', {}).get('api_server_enabled', False):
                 # Try to load API server extension (not in core)
-                from extensions.core.teletext.api_server_manager import APIServerManager
+                from extensions.api.manager import APIServerManager
 
                 print("🌐 Starting Web GUI API server...", end=" ", flush=True)
                 api_manager = APIServerManager(port=5001, auto_restart=True)

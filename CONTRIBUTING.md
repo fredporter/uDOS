@@ -27,7 +27,7 @@ uDOS/
 │   └── utils/      # Utilities
 ├── extensions/     # Extension system
 │   ├── core/       # Core extensions (terminal, web GUI)
-│   ├── game-mode/  # Game mode extension
+│   ├── play/       # Play extension (game mechanics)
 │   └── templates/  # Extension scaffolding
 ├── knowledge/      # Knowledge library (8 categories, 74+ guides)
 ├── memory/         # User workspace

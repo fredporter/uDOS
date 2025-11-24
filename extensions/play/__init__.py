@@ -1,6 +1,6 @@
 """
-uDOS Game Mode Extension
-========================
+uDOS Play Extension
+===================
 
 Game mechanics and exploration features for uDOS.
 
@@ -10,8 +10,8 @@ This extension adds:
 - Resource Management (INVENTORY, TRADE, BARTER)
 - XP and progression system
 
-To enable: POKE START game-mode
-To disable: POKE STOP game-mode
+To enable: POKE START play
+To disable: POKE STOP play
 
 Version: 1.0.29
 """

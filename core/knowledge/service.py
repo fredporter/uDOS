@@ -11,9 +11,9 @@ from typing import Dict, List, Any, Optional, Set
 from pathlib import Path
 
 try:
-    from extensions.game_mode.services.xp_service import XPService, SkillTree
+    from extensions.play.services.xp_service import XPService, SkillTree
 except ImportError:
-    # Fallback if game mode extension not installed
+    # Fallback if play extension not installed
     XPService = None
     SkillTree = None
 
@@ -366,7 +366,7 @@ class KnowledgeService:
         xp_value = xp_awards.get(contribution_type, 20)
 
         # Award XP
-        from extensions.game_mode.services.xp_service import XPCategory
+        from extensions.play.services.xp_service import XPCategory
         xp_result = xp_service.award_xp(
             category=XPCategory.CONTRIBUTION,
             amount=xp_value,

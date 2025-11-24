@@ -42,7 +42,7 @@ extensions/
 │       ├── manifest.json      # Extension manifest (Chrome/Firefox/Edge)
 │       └── src/               # Extension source code
 │
-├── game-mode/                  # ✅ GAME MODE EXTENSION
+├── play/                       # ✅ PLAY EXTENSION
 │   ├── commands/              # Game-specific commands (MAP, TILE, etc.)
 │   └── services/              # Game services (planet manager, etc.)
 │

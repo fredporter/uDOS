@@ -12,8 +12,8 @@ import subprocess
 from pathlib import Path
 
 # Paths
-UDOS_ROOT = Path(__file__).parent.parent.parent.parent
-API_SERVER_PATH = UDOS_ROOT / "extensions/core/teletext/api_server.py"
+UDOS_ROOT = Path(__file__).parent.parent.parent
+API_SERVER_PATH = UDOS_ROOT / "extensions/api/server.py"
 VENV_PYTHON = UDOS_ROOT / ".venv/bin/python"
 PID_FILE = UDOS_ROOT / "memory/logs/.api_server.pid"
 LOG_FILE = UDOS_ROOT / "memory/logs/api_server.log"

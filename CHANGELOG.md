@@ -7,6 +7,141 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2025-11-24
+
+### Summary
+Production release with comprehensive testing, security enhancements, and offline knowledge validation. This release represents the completion of the v1.1.x series with 1,062 passing tests, enterprise-grade security, and full cross-platform support.
+
+### Added
+- **Comprehensive Testing Suite** (467 new tests):
+  - Knowledge validation tests (53 tests) - Content accuracy, format compliance, cross-references
+  - SVG graphics and citation tests (59 tests) - SVG rendering, attribution tracking
+  - AI prompt development tests (61 tests) - Template validation, context management
+  - Offline knowledge library tests (60 tests) - Full offline functionality verification
+  - Web GUI integration tests (67 tests) - Browser extension, mobile PWA, state synchronization
+  - RBAC enforcement tests (89 tests) - Role-based access control, tier permissions
+  - Memory encryption tests (78 tests) - AES-256/128 validation, key management
+
+- **Documentation**:
+  - Complete rewrite of README.md for v1.1.2
+  - Updated INSTALL.md with full cross-platform support
+  - Enhanced QUICK_START.md with v1.1.2 features
+  - Comprehensive CONTRIBUTING.md with 100% test coverage requirements
+  - Updated CREDITS.md with v1.1.x dependencies
+  - Created core/README.md documenting system architecture
+  - Updated memory/README.md with 4-tier system details
+  - Enhanced knowledge/README.md with offline knowledge features
+  - Updated extensions/README.md with web GUI capabilities
+
+### Changed
+- **Test Coverage**: Increased from 595 (v1.1.1) to 1,062 tests (100% passing)
+- **Platform Support**: All platforms now production-ready (macOS 11+, Linux, Windows 10/11)
+- **Performance**: Command P90 1.70ms, P99 5.43ms, startup 38ms, memory <20MB
+- **Security**: Full RBAC integration with 4-tier encrypted memory system
+
+### Technical
+- **Version**: v1.1.2 Production Release
+- **Release Date**: November 24, 2025
+- **Git Tag**: v1.1.2
+- **Test Status**: 1,062/1,062 passing (100%)
+- **Breaking Changes**: None (100% backward compatible)
+
+---
+
+## [1.1.1] - 2025-11-23
+
+### Summary
+Web GUI and browser extension release with mobile PWA support and real-time CLI↔Web synchronization.
+
+### Added
+- **Web GUI Infrastructure** (327 new tests):
+  - Production Flask server with WebSocket support
+  - Browser extension for Chrome/Firefox/Edge
+  - Mobile Progressive Web App (PWA)
+  - Real-time state synchronization between CLI and Web
+  - Teletext-style web interface
+  - RESTful API with 62 endpoints
+
+- **Web Features**:
+  - CLI command delegation from web interface
+  - Session management and authentication
+  - Mobile-responsive design
+  - Offline PWA functionality
+  - WebSocket real-time updates
+
+### Technical
+- **Dependencies**: flask>=2.0.0, flask-cors>=3.0.0, flask-socketio>=5.0.0
+- **Test Coverage**: 595 tests total (327 new web tests)
+- **Performance**: API response <10ms (local)
+
+---
+
+## [1.1.0] - 2025-11-22
+
+### Summary
+Enterprise security release with RBAC and 4-tier encrypted memory system.
+
+### Added
+- **Role-Based Access Control** (268 new tests):
+  - 4 roles: User (read-only), Power (create/modify), Wizard (admin), Root (system)
+  - Granular permissions per command
+  - Role inheritance and escalation
+  - Audit logging for all operations
+
+- **4-Tier Memory System**:
+  - Tier 1 (Private): AES-256 encryption, 100MB quota
+  - Tier 2 (Shared): AES-128 encryption, 500MB quota
+  - Tier 3 (Community): Plain text, 1GB quota
+  - Tier 4 (Public): Plain text, 5GB quota
+  - Automatic tier classification based on content
+  - MEMORY command with tier management
+
+- **Security Features**:
+  - AES-256/128 encryption for sensitive tiers
+  - Key management and rotation
+  - Installation integrity verification
+  - Security audit trail
+
+### Technical
+- **Dependencies**: cryptography>=41.0.0
+- **Test Coverage**: 268 tests (RBAC + encryption)
+- **Performance**: Encryption overhead <5ms
+
+---
+
+## [1.0.32] - 2025-11-22
+
+### Summary
+Planet System and world maps - workspaces reimagined as planets in solar systems with real-world location tracking.
+
+### Added
+- **Planet System**:
+  - PlanetManager service for workspace-as-planet management
+  - CONFIG PLANET commands (LIST, SET, NEW, DELETE, SOLAR, INFO)
+  - Solar system organization (Sol, Alpha Centauri, Custom)
+  - Planet types (Earth, Mars, Exoplanet, Space Station, Custom)
+  - Planet icons and descriptions
+  - JSON persistence for planet data
+
+- **Location System**:
+  - LOCATE command for real-world coordinates
+  - LOCATE SET/CITY/CLEAR subcommands
+  - 10 major cities database (London, New York, Tokyo, Paris, Sydney, Dubai, Singapore, Moscow, Beijing, Mumbai)
+  - Latitude/longitude tracking
+  - Region and country metadata
+
+- **Map Integration**:
+  - Enhanced MAP STATUS with planet context
+  - MAP VIEW centered on location
+  - Planet-aware map rendering
+  - Nearest city detection (Haversine distance)
+
+### Testing
+- 20/20 tests passing (100% pass rate)
+- test_planet_system.py with comprehensive coverage
+
+---
+
 ## [1.0.30] - 2025-11-22
 
 ### Summary

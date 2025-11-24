@@ -9,8 +9,8 @@ from typing import Dict, List, Any, Optional
 
 from core.services.scenario_service import ScenarioService, ScenarioType
 from core.services.scenario_engine import ScenarioEngine, EventType
-from extensions.game_mode.services.xp_service import XPService
-from extensions.game_mode.services.inventory_service import InventoryService
+from extensions.play.services.xp_service import XPService
+from extensions.play.services.inventory_service import InventoryService
 from core.services.survival_service import SurvivalService
 
 
