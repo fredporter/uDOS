@@ -448,40 +448,58 @@ Users immediately get enhanced UX on all existing commands:
 
 ---
 
-### Phase 2: Web Extension Activation & Delegation (Smart I/O) 🌐
+### Phase 2: Core System & Documentation Readiness 🗺️
 
-This phase brings the **Teletext Web GUI** up to parity with the native CLI for complex visual tasks, but keeps everything offline-first.
-
-> **Integration Testing:** Dual-interface testing with synchronized session logs across CLI and Web GUI. Gemini API assists with cross-platform compatibility checks and automated regression testing.
-
-| ID | Feature | Rationale / Success Criteria |
-| :--- | :--- | :--- |
-| **1.1.0.9** | **Teletext Display System (GUI)** | Implement the Web GUI **Dashboard View** and enhanced command output as the **primary target for highly visual I/O** (maps, grids, inventories, dashboards). Backed by the embedded offline web server and existing `/api/command` endpoints. |
-| **1.1.0.10** | **Delegate Complex Selectors to Web** | For complex or highly visual inputs (`select_map_cell()`, multi-file picker, skill trees, inventories), allow the CLI to open a Web GUI modal and wait for a result via WebSocket/REST. CLIs stay authoritative; GUI is an optional enhancement layer. |
-| **1.1.0.11** | **POKE Command Stabilisation (v1.0.5/v1.0.11)** | Finalise and test `POKE LIST/STATUS/START/STOP` to reliably manage the embedded Teletext Web Server (start, stop, status check, and error handling). Confirm robustness on macOS, Linux, and Windows. |
-| **1.1.0.12** | **TUI/GUI State Synchronisation** | Ensure state such as **command history, current mission/scenario, active planet/tile, memory tier, current project** is consistent between CLI and Teletext Web GUI. Includes conflict resolution rules and “last writer wins” semantics where required. |
-
----
-
-### Phase 3: Core System & Documentation Readiness 🗺️
+**Status:** 🔄 IN PROGRESS - Building on Phase 0 & 1 TUI foundation (12/12 features complete, 222+ tests passing)
 
 > **Development Methodology:** Local-first iterative development. All changes tested in live TUI sessions before commit. Session logs and error patterns inform documentation. VSCode/Copilot manages git workflow (branching, commits, PRs). Gemini API validates documentation accuracy and completeness.
 
-| ID | Feature | Rationale / Success Criteria |
-| :--- | :--- | :--- |
-| **1.1.0.18** | **Data Architecture Finalisation (v1.0.20b)** | Enforce strict separation between `/data/system/` (immutable reference) and `/memory/` (user-writable). All scripts, commands, and AI tooling must respect this boundary. Session logs validate boundary enforcement during live testing. |
-| **1.1.0.19** | **TIZO & Map Core Integration (v1.0.20b/v1.0.33)** | Ensure all essential map commands (`MAP`, `GOTO`, `LOCATE`, `MAP VIEW`, `MAP STATUS`) use the alphanumeric TILE/TZONE system. Confirm compatibility with Planet/Workspace concepts from v1.0.32+. Live user testing confirms intuitive navigation. |
-| **1.1.0.20** | **RUN Automation & Templates (v1.0.6)** | Validate and finalise the `.uscript` `RUN` command and core project templates so that changes to TUI/CLI behaviour do not break scripting. Include test coverage for adventure/story templates, research workflows, and survival scenarios. Session replay validates script reliability. |
-| **1.1.0.21** | **Core Documentation Handbook (v1.0.22)** | Complete the **offline handbook** (target 1000+ pages) with ASCII/Teletext diagrams that reflect the **stabilised TUI and dual-interface architecture**, including RBAC/AI usage, map system, survival missions, and barter workflows. Documentation generated from live session examples and AI-validated for accuracy. |
-| **1.1.0.22** | **Git Workflow Integration** | Standardize development workflow using VSCode/Copilot for all git operations: feature branches, commit messages, PR creation, and merge management. Session logs and error reports automatically tagged to relevant commits for traceability. |
+| ID | Feature | Status | Rationale / Success Criteria |
+| :--- | :--- | :--- | :--- |
+| **1.1.0.13** | **POKE Command Test Suite** | ✅ COMPLETE | ✅ 26/26 tests passing (17s runtime). Test coverage: ServerManager basics (state, ports), lifecycle (start/stop/restart), POKE validation (LIST/STATUS/START/STOP), error handling (corrupt state, exceptions), process mgmt (cleanup, tracking), cross-platform (macOS/Linux/Windows), analytics integration. Created `memory/tests/test_v1_1_0_poke_commands.py` (460+ lines) + `core/uDOS_server.py` compatibility module. All server management operations validated before GUI integration. |
+| **1.1.0.14** | **Data Architecture Enforcement** | ⏳ PLANNED | Enforce strict separation between `/data/system/` (immutable reference) and `/memory/` (user-writable). Create boundary validation tests, audit all commands for compliance. Session logs validate boundary enforcement. Error handler detects unauthorized cross-boundary access. |
+| **1.1.0.15** | **TIZO & Map Core Integration** | ⏳ PLANNED | Ensure all map commands (`MAP`, `GOTO`, `LOCATE`, `MAP VIEW`, `MAP STATUS`) use alphanumeric TILE/TZONE system. Confirm compatibility with Planet/Workspace (v1.0.32+). Create integration tests, validate navigation UX. Session replay confirms intuitive workflows. |
+| **1.1.0.16** | **RUN Automation & Templates** | ⏳ PLANNED | Validate `.uscript` RUN command and project templates. Test adventure/story templates, research workflows, survival scenarios. Ensure TUI changes don't break scripting. Session replay validates script reliability. Create template test suite. |
+| **1.1.0.17** | **Core Documentation Handbook** | ⏳ PLANNED | Complete offline handbook (target 1000+ pages) with ASCII diagrams. Document stabilised TUI architecture, RBAC/AI usage, map system, survival missions, barter workflows. Generate from live session examples. AI-validated for accuracy and completeness. |
+| **1.1.0.18** | **Git Workflow Standardization** | ⏳ PLANNED | Standardize VSCode/Copilot workflow for git operations: feature branches, commit messages, PR creation, merge management. Tag session logs and error reports to commits for traceability. Create workflow documentation and automation scripts. |
 
 ---
 
-## 🛡️ v1.1.1 – Security Model & Offline Knowledge (Q3 2026)
+## 🌐 v1.1.1 – Web Extension Activation & Dual-Interface (Q3 2026)
+
+**Scope:** This major milestone focuses on **web GUI development** and **TUI/GUI integration**. Requires frontend development expertise (HTML/CSS/JS, WebSockets, REST APIs) and is tracked separately from core TUI work.
+
+> **Prerequisites:** Phase 2 (Core System & Documentation) must be complete before web GUI work begins. TUI must be rock-solid before adding GUI complexity.
+
+### Phase 1: Web Infrastructure & Server Management
+
+> **Integration Testing:** Dual-interface testing with synchronized session logs across CLI and Web GUI. Gemini API assists with cross-platform compatibility checks and automated regression testing.
+
+| ID | Feature | Technologies | Success Criteria |
+| :--- | :--- | :--- | :--- |
+| **1.1.1.1** | **Extension Server Hardening** | Python, subprocess, process management | Production-ready ServerManager with comprehensive error handling, graceful degradation, automatic recovery, health monitoring, and cross-platform support (macOS/Linux/Windows). |
+| **1.1.1.2** | **Teletext Display System** | HTML/CSS/JS, WebSockets, REST | Implement Web GUI Dashboard View as primary target for visual I/O (maps, grids, inventories). Backed by embedded offline server and `/api/command` endpoints. Real-time command output streaming. |
+| **1.1.1.3** | **CLI→Web Delegation API** | WebSockets, REST, IPC | For complex visual inputs (map cell selection, multi-file picker, skill trees), CLI opens Web GUI modal and waits for result. CLI stays authoritative; GUI is enhancement layer. |
+| **1.1.1.4** | **State Synchronization Engine** | Redis/SQLite, event sourcing | Ensure command history, mission/scenario, planet/tile, memory tier, project state consistent between CLI and Web GUI. "Last writer wins" conflict resolution. Real-time sync. |
+| **1.1.1.5** | **Web GUI Component Library** | React/Vue, Teletext CSS | Reusable components for panels, selectors, maps, inventories. BBC Teletext aesthetic with Synthwave DOS styling. Responsive design for desktop/tablet. |
+
+### Phase 2: Advanced Web Features
+
+| ID | Feature | Technologies | Success Criteria |
+| :--- | :--- | :--- | :--- |
+| **1.1.1.6** | **Browser Extension** | Chrome/Firefox WebExtension API | Browser integration for knowledge capture, quick access, offline sync. Works with existing Teletext interface. |
+| **1.1.1.7** | **Mobile-Responsive Views** | Progressive Web App (PWA) | Touch-optimized interface for tablets/phones. Offline-first architecture. Service workers for caching. |
+| **1.1.1.8** | **Collaborative Features** | WebRTC, operational transforms | Real-time collaboration on shared projects, barter negotiations, mission planning. Conflict-free replicated data types (CRDTs). |
+
+---
+
+## 🛡️ v1.1.2 – Security Model & Offline Knowledge (Q4 2026)
 
 ***Focus: Enforce security, establish user roles, and finalise the complete offline knowledge repository.***
 
 > **Quality Assurance:** Security features undergo extensive penetration testing via session logging. All role transitions and permission checks logged. Gemini API assists with security audit and vulnerability analysis. VSCode/Copilot manages security-focused branches with mandatory review.
+
+> **Note:** Security implementation deferred until after web GUI is stable (v1.1.1 complete). Role-based access control requires both TUI and Web interfaces to be production-ready.
 
 ### Phase 1: Advanced Security & Roles
 
