@@ -49,7 +49,7 @@ class TestComponentArchitecture(unittest.TestCase):
             'state': {},
             'methods': ['render', 'update', 'destroy']
         }
-        
+
         self.assertIn('name', component)
         self.assertIn('render', component['methods'])
 
@@ -60,11 +60,11 @@ class TestComponentArchitecture(unittest.TestCase):
             'width': 800,
             'visible': True
         }
-        
+
         # Validate required props
         required = ['title', 'width']
         has_required = all(prop in props for prop in required)
-        
+
         self.assertTrue(has_required)
 
     def test_component_lifecycle_methods(self):
@@ -74,7 +74,7 @@ class TestComponentArchitecture(unittest.TestCase):
             'componentDidUpdate',
             'componentWillUnmount'
         ]
-        
+
         # All lifecycle methods should be available
         self.assertEqual(len(lifecycle), 3)
 
@@ -85,10 +85,10 @@ class TestComponentArchitecture(unittest.TestCase):
             'onKeyPress': Mock(),
             'onChange': Mock()
         }
-        
+
         # Trigger event
         events['onClick']('button_clicked')
-        
+
         events['onClick'].assert_called_once_with('button_clicked')
 
     def test_component_composition(self):
@@ -100,7 +100,7 @@ class TestComponentArchitecture(unittest.TestCase):
                 {'name': 'ChildComponent2'}
             ]
         }
-        
+
         self.assertEqual(len(parent['children']), 2)
 
 
@@ -119,7 +119,7 @@ class TestTeletextStyling(unittest.TestCase):
             'cyan': '#00FFFF',
             'white': '#FFFFFF'
         }
-        
+
         self.assertEqual(len(colors), 8)
         self.assertEqual(colors['green'], '#00FF00')
 
@@ -131,7 +131,7 @@ class TestTeletextStyling(unittest.TestCase):
             'Px437 IBM VGA8',
             'monospace'
         ]
-        
+
         self.assertIn('Teletext', font_stack)
         self.assertIn('monospace', font_stack)
 
@@ -142,7 +142,7 @@ class TestTeletextStyling(unittest.TestCase):
             'unicode': '\\u2588',
             'type': 'full_block'
         }
-        
+
         self.assertEqual(mosaic['character'], '█')
 
     def test_teletext_grid_system(self):
@@ -153,7 +153,7 @@ class TestTeletextStyling(unittest.TestCase):
             'cell_width': '1ch',
             'cell_height': '2ch'
         }
-        
+
         self.assertEqual(grid['columns'], 40)
         self.assertEqual(grid['rows'], 24)
 
@@ -164,7 +164,7 @@ class TestTeletextStyling(unittest.TestCase):
             'neon_blue': '#00D9FF',
             'neon_green': '#39FF14'
         }
-        
+
         self.assertIn('neon_pink', accent)
 
 
@@ -180,7 +180,7 @@ class TestPanelComponents(unittest.TestCase):
             'border_style': 'double',
             'width': 600
         }
-        
+
         self.assertEqual(panel['type'], 'info_panel')
         self.assertIn('title', panel)
 
@@ -190,10 +190,10 @@ class TestPanelComponents(unittest.TestCase):
             'type': 'status_panel',
             'status': 'idle'
         }
-        
+
         # Update status
         panel['status'] = 'running'
-        
+
         self.assertEqual(panel['status'], 'running')
 
     def test_command_panel_input(self):
@@ -204,17 +204,17 @@ class TestPanelComponents(unittest.TestCase):
             'input': '',
             'history': []
         }
-        
+
         # Add command
         panel['input'] = 'MAP'
         panel['history'].append('MAP')
-        
+
         self.assertEqual(len(panel['history']), 1)
 
     def test_panel_borders(self):
         """Test panel border styles"""
         border_styles = ['none', 'single', 'double', 'rounded', 'block']
-        
+
         for style in border_styles:
             panel = {'border_style': style}
             self.assertIn(panel['border_style'], border_styles)
@@ -222,11 +222,11 @@ class TestPanelComponents(unittest.TestCase):
     def test_panel_resize(self):
         """Test panel can be resized"""
         panel = {'width': 800, 'height': 600}
-        
+
         # Resize
         panel['width'] = 1024
         panel['height'] = 768
-        
+
         self.assertEqual(panel['width'], 1024)
 
 
@@ -241,10 +241,10 @@ class TestSelectorComponents(unittest.TestCase):
             'selected': None,
             'allow_search': True
         }
-        
+
         # Select option
         selector['selected'] = 'Option 2'
-        
+
         self.assertEqual(selector['selected'], 'Option 2')
 
     def test_multi_select_component(self):
@@ -255,10 +255,10 @@ class TestSelectorComponents(unittest.TestCase):
             'selected': [],
             'max_selections': 3
         }
-        
+
         # Select multiple
         selector['selected'] = ['A', 'C']
-        
+
         self.assertEqual(len(selector['selected']), 2)
         self.assertLessEqual(len(selector['selected']), selector['max_selections'])
 
@@ -270,10 +270,10 @@ class TestSelectorComponents(unittest.TestCase):
             'file_types': ['.md', '.txt'],
             'selected_files': []
         }
-        
+
         # Select file
         picker['selected_files'].append('/knowledge/survival/water.md')
-        
+
         self.assertEqual(len(picker['selected_files']), 1)
 
     def test_selector_keyboard_navigation(self):
@@ -282,19 +282,19 @@ class TestSelectorComponents(unittest.TestCase):
             'options': ['A', 'B', 'C'],
             'focused_index': 0
         }
-        
+
         # Arrow down
         selector['focused_index'] = (selector['focused_index'] + 1) % len(selector['options'])
-        
+
         self.assertEqual(selector['focused_index'], 1)
 
     def test_selector_search_filter(self):
         """Test search filtering in selectors"""
         options = ['apple', 'apricot', 'banana', 'berry', 'cherry']
         search = 'ap'
-        
+
         filtered = [opt for opt in options if search.lower() in opt.lower()]
-        
+
         self.assertEqual(len(filtered), 2)
         self.assertIn('apple', filtered)
 
@@ -311,7 +311,7 @@ class TestMapComponents(unittest.TestCase):
             'cells': [[0 for _ in range(40)] for _ in range(20)],
             'viewport': {'x': 0, 'y': 0, 'width': 40, 'height': 20}
         }
-        
+
         self.assertEqual(len(map_grid['cells']), 20)
         self.assertEqual(len(map_grid['cells'][0]), 40)
 
@@ -325,7 +325,7 @@ class TestMapComponents(unittest.TestCase):
             'color': 'green',
             'explored': True
         }
-        
+
         self.assertEqual(cell['terrain'], 'forest')
         self.assertTrue(cell['explored'])
 
@@ -337,26 +337,26 @@ class TestMapComponents(unittest.TestCase):
             'character': '@',
             'color': 'yellow'
         }
-        
+
         self.assertEqual(player['character'], '@')
 
     def test_map_zoom_levels(self):
         """Test map zoom functionality"""
         zoom_levels = [0.5, 1.0, 1.5, 2.0]
         current_zoom = 1.0
-        
+
         # Zoom in
         current_zoom = min(current_zoom * 1.5, max(zoom_levels))
-        
+
         self.assertEqual(current_zoom, 1.5)
 
     def test_map_viewport_panning(self):
         """Test map viewport panning"""
         viewport = {'x': 0, 'y': 0, 'width': 40, 'height': 20}
-        
+
         # Pan right
         viewport['x'] += 5
-        
+
         self.assertEqual(viewport['x'], 5)
 
 
@@ -371,7 +371,7 @@ class TestInventoryComponents(unittest.TestCase):
             'items': [],
             'capacity': 20
         }
-        
+
         self.assertEqual(inventory['slots'], 20)
         self.assertEqual(len(inventory['items']), 0)
 
@@ -384,18 +384,18 @@ class TestInventoryComponents(unittest.TestCase):
             'quantity': 3,
             'stackable': True
         }
-        
+
         self.assertTrue(item['stackable'])
         self.assertEqual(item['quantity'], 3)
 
     def test_inventory_drag_drop(self):
         """Test inventory drag and drop"""
         inventory = {'items': [{'id': 1, 'slot': 0}, {'id': 2, 'slot': 1}]}
-        
+
         # Move item from slot 0 to slot 5
         item = inventory['items'][0]
         item['slot'] = 5
-        
+
         self.assertEqual(item['slot'], 5)
 
     def test_inventory_capacity(self):
@@ -404,10 +404,10 @@ class TestInventoryComponents(unittest.TestCase):
             'capacity': 10,
             'items': [{'id': i} for i in range(8)]
         }
-        
+
         # Check if can add more
         can_add = len(inventory['items']) < inventory['capacity']
-        
+
         self.assertTrue(can_add)
 
     def test_item_tooltip(self):
@@ -418,7 +418,7 @@ class TestInventoryComponents(unittest.TestCase):
             'weight': 0.5,
             'value': 50
         }
-        
+
         self.assertIn('description', tooltip)
 
 
@@ -434,10 +434,10 @@ class TestFormComponents(unittest.TestCase):
             'placeholder': 'Enter mission name',
             'required': True
         }
-        
+
         # Set value
         input_field['value'] = 'Water Collection'
-        
+
         self.assertEqual(input_field['value'], 'Water Collection')
 
     def test_textarea_component(self):
@@ -449,7 +449,7 @@ class TestFormComponents(unittest.TestCase):
             'rows': 5,
             'max_length': 500
         }
-        
+
         self.assertEqual(textarea['rows'], 5)
 
     def test_select_dropdown_component(self):
@@ -460,7 +460,7 @@ class TestFormComponents(unittest.TestCase):
             'options': ['Low', 'Medium', 'High'],
             'selected': 'Medium'
         }
-        
+
         self.assertEqual(dropdown['selected'], 'Medium')
 
     def test_checkbox_component(self):
@@ -470,10 +470,10 @@ class TestFormComponents(unittest.TestCase):
             'label': 'Mark as complete',
             'checked': False
         }
-        
+
         # Toggle
         checkbox['checked'] = True
-        
+
         self.assertTrue(checkbox['checked'])
 
     def test_form_validation(self):
@@ -484,14 +484,14 @@ class TestFormComponents(unittest.TestCase):
                 {'name': 'email', 'value': 'test@example.com', 'required': True}
             ]
         }
-        
+
         # Check if all required fields filled
         is_valid = all(
-            field['value'] != '' 
-            for field in form['fields'] 
+            field['value'] != ''
+            for field in form['fields']
             if field.get('required')
         )
-        
+
         self.assertFalse(is_valid)  # Title is empty
 
 
@@ -506,19 +506,19 @@ class TestResponsiveDesign(unittest.TestCase):
             'desktop': 1024,
             'wide': 1280
         }
-        
+
         viewport_width = 1200
         is_desktop = viewport_width >= breakpoints['desktop']
-        
+
         self.assertTrue(is_desktop)
 
     def test_tablet_breakpoint(self):
         """Test tablet breakpoint"""
         breakpoints = {'tablet': 768, 'desktop': 1024}
         viewport_width = 800
-        
+
         is_tablet = breakpoints['tablet'] <= viewport_width < breakpoints['desktop']
-        
+
         self.assertTrue(is_tablet)
 
     def test_responsive_grid_columns(self):
@@ -528,10 +528,10 @@ class TestResponsiveDesign(unittest.TestCase):
             'tablet_columns': 2,
             'mobile_columns': 1
         }
-        
+
         viewport_width = 800  # Tablet
         columns = grid['tablet_columns']
-        
+
         self.assertEqual(columns, 2)
 
     def test_touch_target_size(self):
@@ -541,10 +541,10 @@ class TestResponsiveDesign(unittest.TestCase):
             'height': 44,
             'padding': 8
         }
-        
+
         # Minimum touch target: 44x44px
         is_valid_touch_target = button['width'] >= 44 and button['height'] >= 44
-        
+
         self.assertTrue(is_valid_touch_target)
 
     def test_viewport_meta_tag(self):
@@ -554,7 +554,7 @@ class TestResponsiveDesign(unittest.TestCase):
             'initial_scale': 1.0,
             'user_scalable': True
         }
-        
+
         self.assertEqual(viewport['width'], 'device-width')
 
 
@@ -568,7 +568,7 @@ class TestAccessibility(unittest.TestCase):
             'aria_label': 'Submit form',
             'aria_describedby': 'submit_help_text'
         }
-        
+
         self.assertIn('aria_label', button)
 
     def test_keyboard_navigation(self):
@@ -581,7 +581,7 @@ class TestAccessibility(unittest.TestCase):
             'ArrowUp': 'move_up',
             'ArrowDown': 'move_down'
         }
-        
+
         self.assertIn('Tab', shortcuts)
         self.assertEqual(shortcuts['Enter'], 'activate')
 
@@ -591,7 +591,7 @@ class TestAccessibility(unittest.TestCase):
             'has_focus': True,
             'focus_style': 'outline: 2px solid #00FF00'
         }
-        
+
         self.assertTrue(element['has_focus'])
 
     def test_screen_reader_support(self):
@@ -601,7 +601,7 @@ class TestAccessibility(unittest.TestCase):
             'aria_live': 'polite',
             'message': 'Command executed successfully'
         }
-        
+
         self.assertEqual(announcement['aria_live'], 'polite')
 
     def test_color_contrast_ratio(self):
@@ -609,10 +609,10 @@ class TestAccessibility(unittest.TestCase):
         # Green on black: high contrast
         foreground = (0, 255, 0)  # Green
         background = (0, 0, 0)    # Black
-        
+
         # Simple contrast check (green vs black is high contrast)
         has_good_contrast = foreground != background
-        
+
         self.assertTrue(has_good_contrast)
 
 
@@ -633,17 +633,17 @@ class TestThemeIntegration(unittest.TestCase):
                 'fallback': 'monospace'
             }
         }
-        
+
         self.assertEqual(theme['name'], 'Teletext Dark')
 
     def test_theme_switching(self):
         """Test theme can be switched"""
         themes = ['teletext_dark', 'teletext_light', 'synthwave']
         current_theme = 'teletext_dark'
-        
+
         # Switch theme
         current_theme = 'synthwave'
-        
+
         self.assertEqual(current_theme, 'synthwave')
 
     def test_custom_css_variables(self):
@@ -654,7 +654,7 @@ class TestThemeIntegration(unittest.TestCase):
             '--font-family': 'Teletext, monospace',
             '--border-width': '2px'
         }
-        
+
         self.assertIn('--color-primary', css_vars)
 
     def test_theme_persistence(self):
@@ -663,11 +663,11 @@ class TestThemeIntegration(unittest.TestCase):
             'theme': 'synthwave',
             'saved_at': time.time()
         }
-        
+
         # Save to localStorage (simulated)
         saved = json.dumps(preferences)
         loaded = json.loads(saved)
-        
+
         self.assertEqual(loaded['theme'], 'synthwave')
 
 
@@ -679,35 +679,35 @@ class TestStateManagement(unittest.TestCase):
         component = {
             'state': {'count': 0}
         }
-        
+
         # Update state
         component['state']['count'] += 1
-        
+
         self.assertEqual(component['state']['count'], 1)
 
     def test_state_synchronization(self):
         """Test state syncs with CLI"""
         cli_state = {'position': [10, 10]}
         web_state = {'position': [10, 10]}
-        
+
         # CLI updates position
         cli_state['position'] = [11, 10]
-        
+
         # Sync to web
         web_state['position'] = cli_state['position']
-        
+
         self.assertEqual(web_state['position'], [11, 10])
 
     def test_state_observers(self):
         """Test state change observers"""
         observers = []
-        
+
         def on_state_change(new_state):
             observers.append(new_state)
-        
+
         # Trigger state change
         on_state_change({'position': [5, 5]})
-        
+
         self.assertEqual(len(observers), 1)
 
 
@@ -719,10 +719,10 @@ class TestPerformanceOptimization(unittest.TestCase):
         items = list(range(10000))
         viewport_height = 600
         item_height = 30
-        
+
         # Only render visible items
         visible_count = viewport_height // item_height
-        
+
         self.assertLess(visible_count, len(items))
 
     def test_lazy_loading(self):
@@ -731,39 +731,39 @@ class TestPerformanceOptimization(unittest.TestCase):
             'loaded': False,
             'visible': False
         }
-        
+
         # Load when visible
         component['visible'] = True
         component['loaded'] = True
-        
+
         self.assertTrue(component['loaded'])
 
     def test_debounced_input(self):
         """Test input debouncing"""
         debounce_delay = 300  # ms
         last_update = time.time() * 1000
-        
+
         current_time = time.time() * 1000
         should_update = (current_time - last_update) >= debounce_delay
-        
+
         # Initially false (not enough time passed)
         self.assertFalse(should_update)
 
     def test_memoization(self):
         """Test component memoization"""
         cache = {}
-        
+
         def expensive_render(props):
             key = json.dumps(props, sort_keys=True)
             if key not in cache:
                 cache[key] = f"rendered_{props['id']}"
             return cache[key]
-        
+
         # First call caches
         result1 = expensive_render({'id': 1})
         # Second call uses cache
         result2 = expensive_render({'id': 1})
-        
+
         self.assertEqual(result1, result2)
 
 
@@ -773,7 +773,7 @@ if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
-    
+
     # Print summary
     print("\n" + "="*70)
     print("Test Summary:")
@@ -782,6 +782,6 @@ if __name__ == '__main__':
     print(f"  Failures: {len(result.failures)}")
     print(f"  Errors: {len(result.errors)}")
     print("="*70)
-    
+
     # Exit with appropriate code
     sys.exit(0 if result.wasSuccessful() else 1)

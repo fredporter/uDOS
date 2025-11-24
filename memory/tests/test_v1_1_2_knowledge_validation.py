@@ -62,7 +62,7 @@ class KnowledgeValidator:
     def validate_content(self, content_id, content, metadata=None):
         """Validate content against all rules."""
         metadata = metadata or {}
-        
+
         validation_result = {
             "content_id": content_id,
             "timestamp": datetime.now().isoformat(),
@@ -84,11 +84,11 @@ class KnowledgeValidator:
         validation_result["issues"].extend(source_issues)
 
         # Calculate overall pass/fail
-        critical_issues = [i for i in validation_result["issues"] 
+        critical_issues = [i for i in validation_result["issues"]
                           if i["severity"] == ValidationSeverity.CRITICAL.value]
         error_issues = [i for i in validation_result["issues"]
                        if i["severity"] == ValidationSeverity.ERROR.value]
-        
+
         if critical_issues or len(error_issues) > 3:
             validation_result["passed"] = False
 
@@ -103,13 +103,13 @@ class KnowledgeValidator:
                 score -= 5
             elif issue["severity"] == ValidationSeverity.INFO.value:
                 score -= 1
-        
+
         validation_result["score"] = max(0, score)
 
         # Store validation history
         if content_id not in self.validation_history:
             self.validation_history[content_id] = []
-        
+
         self.validation_history[content_id].append(validation_result)
 
         return validation_result
@@ -117,7 +117,7 @@ class KnowledgeValidator:
     def _check_completeness(self, content, metadata):
         """Check content completeness."""
         issues = []
-        
+
         # Check minimum content length
         if len(content) < 100:
             issues.append({
@@ -145,7 +145,7 @@ class KnowledgeValidator:
     def _check_accuracy(self, content, metadata):
         """Check content accuracy."""
         issues = []
-        
+
         # Check for contradictions
         for pattern in self.contradiction_patterns:
             if pattern["phrase1"] in content.lower() and pattern["phrase2"] in content.lower():
@@ -164,7 +164,7 @@ class KnowledgeValidator:
     def _check_sources(self, content, metadata):
         """Check source citations."""
         issues = []
-        
+
         # Extract citations from content
         citation_patterns = [
             r'\[([^\]]+),\s*(\d{4})\]',  # [Author, 2024]
@@ -179,7 +179,7 @@ class KnowledgeValidator:
                 break
 
         # If content makes factual claims, it should have citations
-        factual_indicators = ["study shows", "research indicates", "according to", 
+        factual_indicators = ["study shows", "research indicates", "according to",
                             "proven", "evidence", "data shows"]
         has_factual_claims = any(indicator in content.lower() for indicator in factual_indicators)
 
@@ -197,7 +197,7 @@ class KnowledgeValidator:
         """Add custom validation rule."""
         if not isinstance(category, ValidationCategory):
             raise ValueError(f"Invalid category: {category}")
-        
+
         if not isinstance(severity, ValidationSeverity):
             raise ValueError(f"Invalid severity: {severity}")
 
@@ -311,13 +311,13 @@ class KnowledgeValidator:
     def assess_quality(self, content_id, content, metadata=None):
         """Assess content quality using metrics."""
         metadata = metadata or {}
-        
+
         quality_scores = {}
 
         # Readability: Based on sentence length and word complexity
         sentences = content.split('.')
         avg_sentence_length = len(content.split()) / max(len(sentences), 1)
-        
+
         if avg_sentence_length < 15:
             quality_scores[QualityMetric.READABILITY.value] = 90
         elif avg_sentence_length < 25:
@@ -382,7 +382,7 @@ class KnowledgeValidator:
             "phrase2": phrase2.lower(),
             "added_at": datetime.now().isoformat()
         }
-        
+
         self.contradiction_patterns.append(pattern)
         return len(self.contradiction_patterns) - 1
 
@@ -432,7 +432,7 @@ class KnowledgeValidator:
                 if history:
                     latest = history[-1]
                     report["content_results"].append(latest)
-                    
+
                     if latest["passed"]:
                         report["summary"]["passed"] += 1
                     else:
@@ -441,7 +441,7 @@ class KnowledgeValidator:
                     for issue in latest["issues"]:
                         if issue["severity"] == ValidationSeverity.WARNING.value:
                             report["summary"]["warnings"] += 1
-                        elif issue["severity"] in [ValidationSeverity.ERROR.value, 
+                        elif issue["severity"] in [ValidationSeverity.ERROR.value,
                                                    ValidationSeverity.CRITICAL.value]:
                             report["summary"]["errors"] += 1
 
@@ -458,7 +458,7 @@ class KnowledgeValidator:
         # Calculate simple similarity
         words_v1 = set(content_v1.lower().split())
         words_v2 = set(content_v2.lower().split())
-        
+
         if words_v1 or words_v2:
             common_words = words_v1.intersection(words_v2)
             total_words = words_v1.union(words_v2)
@@ -478,7 +478,7 @@ class KnowledgeValidator:
     def get_validator_stats(self):
         """Get validator statistics."""
         total_validations = sum(len(history) for history in self.validation_history.values())
-        
+
         return {
             "total_validations": total_validations,
             "content_items_validated": len(self.validation_history),
@@ -509,17 +509,17 @@ class TestContentValidation(unittest.TestCase):
         result = self.validator.validate_content("guide2", content)
 
         # Should have warning about short content
-        warnings = [i for i in result["issues"] 
+        warnings = [i for i in result["issues"]
                    if i["severity"] == ValidationSeverity.WARNING.value]
         self.assertGreater(len(warnings), 0)
 
     def test_validate_missing_required_sections(self):
         """Test detecting missing required sections."""
         self.validator.set_required_sections("water", ["Introduction", "Methods"])
-        
+
         content = "This is about water purification."
         result = self.validator.validate_content(
-            "guide3", 
+            "guide3",
             content,
             {"category": "water"}
         )
@@ -541,7 +541,7 @@ class TestContentValidation(unittest.TestCase):
     def test_validation_history(self):
         """Test validation history tracking."""
         content = "Content for history test."
-        
+
         self.validator.validate_content("guide5", content)
         self.validator.validate_content("guide5", content + " Updated.")
 
@@ -592,7 +592,7 @@ class TestCitationVerification(unittest.TestCase):
     def test_verify_invalid_url(self):
         """Test detecting invalid URLs."""
         citations = [
-            {"id": "c1", "author": "Smith", "year": "2024", 
+            {"id": "c1", "author": "Smith", "year": "2024",
              "title": "Guide", "url": "invalid-url"}
         ]
 
@@ -846,7 +846,7 @@ class TestExternalReferences(unittest.TestCase):
     def test_verify_accessible_reference(self):
         """Test verifying accessible reference."""
         self.validator.track_external_reference("ref1", "https://example.com")
-        
+
         result = self.validator.verify_external_reference("ref1", True)
 
         self.assertEqual(result["status"], "accessible")
@@ -855,7 +855,7 @@ class TestExternalReferences(unittest.TestCase):
     def test_verify_broken_reference(self):
         """Test verifying broken reference."""
         self.validator.track_external_reference("ref1", "https://example.com")
-        
+
         result = self.validator.verify_external_reference("ref1", False)
 
         self.assertEqual(result["status"], "broken")
@@ -868,7 +868,7 @@ class TestExternalReferences(unittest.TestCase):
     def test_reference_initial_status(self):
         """Test reference initial status is unverified."""
         self.validator.track_external_reference("ref1", "https://example.com")
-        
+
         ref = self.validator.external_refs["ref1"]
         self.assertEqual(ref["status"], "unverified")
         self.assertIsNone(ref["last_checked"])
@@ -986,17 +986,17 @@ class TestIntegrationScenarios(unittest.TestCase):
         """Test complete validation workflow."""
         # Set up validation rules
         self.validator.set_required_sections("water", ["Introduction", "Methods"])
-        
+
         # Validate content
         content = """
         # Introduction
         Water purification is essential for survival.
         According to research [Smith, 2024], boiling is effective.
-        
+
         # Methods
         Follow these step-by-step instructions for purification.
         """
-        
+
         result = self.validator.validate_content(
             "guide1",
             content,
@@ -1008,7 +1008,7 @@ class TestIntegrationScenarios(unittest.TestCase):
 
         # Check freshness
         freshness = self.validator.check_freshness(
-            "guide1", 
+            "guide1",
             datetime.now()
         )
 
@@ -1019,13 +1019,13 @@ class TestIntegrationScenarios(unittest.TestCase):
     def test_citation_and_source_validation(self):
         """Test citation and source validation together."""
         content = "Research [Smith, 2024] shows this is effective."
-        
+
         # Validate content
         result = self.validator.validate_content("guide1", content)
 
         # Verify citations
         citations = [
-            {"id": "c1", "author": "Smith", "year": "2024", 
+            {"id": "c1", "author": "Smith", "year": "2024",
              "title": "Water Guide", "url": "https://example.com"}
         ]
         citation_result = self.validator.verify_citations("guide1", citations)
@@ -1096,7 +1096,7 @@ class TestValidatorStatistics(unittest.TestCase):
     def test_stats_track_patterns(self):
         """Test stats track contradiction patterns."""
         self.validator.add_contradiction_pattern("safe", "dangerous")
-        
+
         stats = self.validator.get_validator_stats()
 
         self.assertEqual(stats["contradiction_patterns"], 1)
@@ -1104,7 +1104,7 @@ class TestValidatorStatistics(unittest.TestCase):
     def test_stats_track_references(self):
         """Test stats track external references."""
         self.validator.track_external_reference("ref1", "https://example.com")
-        
+
         stats = self.validator.get_validator_stats()
 
         self.assertEqual(stats["external_references"], 1)

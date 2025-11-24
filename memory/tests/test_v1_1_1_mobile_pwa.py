@@ -290,7 +290,7 @@ class PWAManager:
             self.offline_mode = False
             return {"synced": True, "timestamp": datetime.now().isoformat()}
         return {"synced": False}
-    
+
     def create_responsive_component(self, component_type, viewport):
         """Create responsive component for viewport."""
         sizes = {

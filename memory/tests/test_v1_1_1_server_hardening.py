@@ -206,7 +206,7 @@ class TestGracefulDegradation(unittest.TestCase):
     def test_unknown_server_graceful_failure(self):
         """Test graceful failure for unknown server"""
         success, message = self.manager._use_bulletproof_launcher('unknown-server')
-        
+
         self.assertFalse(success)
         # Accepts either "Unknown server" or "Launcher not found"
         self.assertTrue('unknown' in message.lower() or 'not found' in message.lower())
@@ -239,10 +239,10 @@ class TestComprehensiveErrorHandling(unittest.TestCase):
             'pid': 1,  # Init process - can't kill
             'port': 8887
         }
-        
+
         with patch('core.network.server.os.kill', side_effect=PermissionError('Permission denied')):
             success, message = self.manager.stop_server('dashboard')
-            
+
             # Server removes dead servers from state, so might succeed
             # The important thing is it doesn't crash
             self.assertIsInstance(message, str)
@@ -254,10 +254,10 @@ class TestComprehensiveErrorHandling(unittest.TestCase):
             'pid': 999999,
             'port': 8887
         }
-        
+
         # stop_server should handle ProcessLookupError
         success, message = self.manager.stop_server('dashboard')
-        
+
         # Server cleans up dead servers, so success=False but doesn't crash
         self.assertIsInstance(success, bool)
         self.assertIn('not running', message.lower())
@@ -294,11 +294,11 @@ class TestProcessLifecycle(unittest.TestCase):
             'pid': 12345,
             'port': 8887
         }
-        
+
         # Mock process as running initially, then dead
         with patch.object(self.manager, '_is_process_running', side_effect=[True, True, False]):
             success, message = self.manager.stop_server('dashboard')
-            
+
             # Should have attempted to kill the process
             # Check that os.kill was called (either SIGTERM 15 or SIGKILL 9)
             self.assertTrue(mock_kill.called)

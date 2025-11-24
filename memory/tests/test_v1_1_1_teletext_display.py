@@ -47,7 +47,7 @@ class TestTeletextServerConfiguration(unittest.TestCase):
             'buffer_size': 10000,
             'max_clients': 50
         }
-        
+
         self.assertEqual(config['host'], 'localhost')
         self.assertEqual(config['port'], 9002)
         self.assertTrue(config['websocket_enabled'])
@@ -77,28 +77,28 @@ class TestWebSocketStreaming(unittest.TestCase):
         # Mock WebSocket connection
         mock_ws = Mock()
         mock_ws.connected = True
-        
+
         self.assertTrue(mock_ws.connected)
 
     def test_cli_output_streamed_to_websocket(self):
         """Test CLI output is streamed to connected clients"""
         mock_ws = Mock()
         test_output = "uDOS> Hello World\n"
-        
+
         # Simulate streaming
         mock_ws.send(test_output)
-        
+
         mock_ws.send.assert_called_once_with(test_output)
 
     def test_multiple_clients_receive_output(self):
         """Test multiple WebSocket clients receive same output"""
         clients = [Mock() for _ in range(3)]
         test_output = "uDOS> Command executed\n"
-        
+
         # Broadcast to all clients
         for client in clients:
             client.send(test_output)
-        
+
         for client in clients:
             client.send.assert_called_once_with(test_output)
 
@@ -106,10 +106,10 @@ class TestWebSocketStreaming(unittest.TestCase):
         """Test disconnected clients are removed from broadcast list"""
         active_clients = [Mock(connected=True), Mock(connected=True)]
         dead_client = Mock(connected=False)
-        
+
         all_clients = active_clients + [dead_client]
         connected = [c for c in all_clients if c.connected]
-        
+
         self.assertEqual(len(connected), 2)
         self.assertNotIn(dead_client, connected)
 
@@ -120,7 +120,7 @@ class TestWebSocketStreaming(unittest.TestCase):
             'content': 'Test output',
             'timestamp': time.time()
         }
-        
+
         self.assertIn('type', message)
         self.assertIn('content', message)
         self.assertIn('timestamp', message)
@@ -129,13 +129,13 @@ class TestWebSocketStreaming(unittest.TestCase):
         """Test WebSocket connection errors are handled"""
         mock_ws = Mock()
         mock_ws.send.side_effect = Exception('Connection broken')
-        
+
         try:
             mock_ws.send('test')
             handled = False
         except Exception:
             handled = True
-        
+
         self.assertTrue(handled or mock_ws.send.called)
 
 
@@ -150,7 +150,7 @@ class TestRESTAPI(unittest.TestCase):
             'clients': 5,
             'buffer_usage': 0.45
         }
-        
+
         self.assertEqual(status['status'], 'running')
         self.assertIn('uptime', status)
         self.assertIn('clients', status)
@@ -162,7 +162,7 @@ class TestRESTAPI(unittest.TestCase):
             'total': 4,
             'buffer_size': 10000
         }
-        
+
         self.assertIn('lines', history)
         self.assertIsInstance(history['lines'], list)
         self.assertGreater(history['total'], 0)
@@ -175,7 +175,7 @@ class TestRESTAPI(unittest.TestCase):
             'output': 'file1.txt\nfile2.txt',
             'exit_code': 0
         }
-        
+
         self.assertEqual(request['command'], 'ls')
         self.assertTrue(response['success'])
         self.assertEqual(response['exit_code'], 0)
@@ -183,7 +183,7 @@ class TestRESTAPI(unittest.TestCase):
     def test_clear_endpoint(self):
         """Test /api/clear clears output buffer"""
         response = {'success': True, 'cleared': 150}
-        
+
         self.assertTrue(response['success'])
         self.assertGreater(response['cleared'], 0)
 
@@ -194,14 +194,14 @@ class TestRESTAPI(unittest.TestCase):
             'font_size': 16,
             'colors': {'foreground': '#0F0', 'background': '#000'}
         }
-        
+
         self.assertIn('theme', config)
         self.assertIn('colors', config)
 
     def test_invalid_endpoint_returns_404(self):
         """Test invalid endpoints return 404"""
         response = {'status': 404, 'error': 'Not Found'}
-        
+
         self.assertEqual(response['status'], 404)
 
 
@@ -215,14 +215,14 @@ class TestTeletextRendering(unittest.TestCase):
             <div class="teletext-line">uDOS> help</div>
         </div>
         """
-        
+
         self.assertIn('teletext-display', html)
         self.assertIn('teletext-line', html)
 
     def test_teletext_css_classes(self):
         """Test CSS classes for teletext styling"""
         classes = ['teletext-display', 'teletext-line', 'teletext-cursor', 'mosaic-block']
-        
+
         for cls in classes:
             self.assertIsInstance(cls, str)
             self.assertTrue(len(cls) > 0)
@@ -239,21 +239,21 @@ class TestTeletextRendering(unittest.TestCase):
             'CYAN': '#0FF',
             'WHITE': '#FFF'
         }
-        
+
         self.assertEqual(len(colors), 8)
         self.assertEqual(colors['GREEN'], '#0F0')
 
     def test_mosaic_character_rendering(self):
         """Test mosaic characters can be rendered"""
         mosaic = {'char': '&#xE23F;', 'color': 'grn'}
-        
+
         self.assertIn('char', mosaic)
         self.assertIn('color', mosaic)
 
     def test_ansi_escape_sequence_parsing(self):
         """Test ANSI escape sequences are parsed correctly"""
         text = "\x1b[32mGreen text\x1b[0m"
-        
+
         # Should detect ANSI sequences
         has_ansi = '\x1b[' in text
         self.assertTrue(has_ansi)
@@ -262,7 +262,7 @@ class TestTeletextRendering(unittest.TestCase):
         """Test HTML special characters are escaped"""
         text = "<script>alert('xss')</script>"
         sanitized = text.replace('<', '&lt;').replace('>', '&gt;')
-        
+
         self.assertNotIn('<script>', sanitized)
         self.assertIn('&lt;script&gt;', sanitized)
 
@@ -273,20 +273,20 @@ class TestCLIOutputCapture(unittest.TestCase):
     def test_stdout_capture(self):
         """Test stdout can be captured"""
         import io
-        
+
         buffer = io.StringIO()
         print("Test output", file=buffer)
-        
+
         output = buffer.getvalue()
         self.assertIn("Test output", output)
 
     def test_stderr_capture(self):
         """Test stderr can be captured"""
         import io
-        
+
         buffer = io.StringIO()
         print("Error output", file=buffer)
-        
+
         output = buffer.getvalue()
         self.assertIn("Error output", output)
 
@@ -294,12 +294,12 @@ class TestCLIOutputCapture(unittest.TestCase):
         """Test circular buffer for output history"""
         max_size = 5
         buffer = []
-        
+
         for i in range(10):
             buffer.append(f"Line {i}")
             if len(buffer) > max_size:
                 buffer.pop(0)
-        
+
         self.assertEqual(len(buffer), max_size)
         self.assertEqual(buffer[0], "Line 5")
         self.assertEqual(buffer[-1], "Line 9")
@@ -308,19 +308,19 @@ class TestCLIOutputCapture(unittest.TestCase):
         """Test buffer overflow is handled gracefully"""
         max_size = 100
         buffer = []
-        
+
         # Add more items than max
         for i in range(200):
             buffer.append(i)
             if len(buffer) > max_size:
                 buffer.pop(0)
-        
+
         self.assertLessEqual(len(buffer), max_size)
 
     def test_line_buffering(self):
         """Test output is buffered by lines"""
         lines = ["Line 1\n", "Line 2\n", "Line 3\n"]
-        
+
         for line in lines:
             self.assertTrue(line.endswith('\n'))
 
@@ -331,7 +331,7 @@ class TestCLIOutputCapture(unittest.TestCase):
             'content': 'Test output',
             'type': 'stdout'
         }
-        
+
         self.assertIn('timestamp', entry)
         self.assertGreater(entry['timestamp'], 0)
 
@@ -344,9 +344,9 @@ class TestBrowserIntegration(unittest.TestCase):
         """Test browser opens automatically on server start"""
         url = 'http://localhost:9002'
         mock_browser.return_value = True
-        
+
         result = mock_browser(url)
-        
+
         mock_browser.assert_called_once_with(url)
 
     def test_browser_url_generation(self):
@@ -354,17 +354,17 @@ class TestBrowserIntegration(unittest.TestCase):
         host = 'localhost'
         port = 9002
         url = f'http://{host}:{port}'
-        
+
         self.assertEqual(url, 'http://localhost:9002')
 
     @patch('webbrowser.open')
     def test_no_browser_flag_respected(self, mock_browser):
         """Test --no-browser flag prevents auto-launch"""
         no_browser = True
-        
+
         if not no_browser:
             mock_browser('http://localhost:9002')
-        
+
         mock_browser.assert_not_called()
 
     def test_browser_open_failure_handled(self):
@@ -376,7 +376,7 @@ class TestBrowserIntegration(unittest.TestCase):
                 failed = False
             except Exception:
                 failed = True
-        
+
         self.assertTrue(failed)
 
 
@@ -391,20 +391,20 @@ class TestSessionManagement(unittest.TestCase):
             'last_active': time.time(),
             'commands': []
         }
-        
+
         self.assertIn('id', session)
         self.assertIn('created_at', session)
 
     def test_session_persistence(self):
         """Test sessions can be saved and loaded"""
         session_data = {'id': 'test', 'data': 'value'}
-        
+
         # Simulate save
         json_data = json.dumps(session_data)
-        
+
         # Simulate load
         loaded = json.loads(json_data)
-        
+
         self.assertEqual(loaded['id'], 'test')
 
     def test_session_expiry(self):
@@ -413,10 +413,10 @@ class TestSessionManagement(unittest.TestCase):
             'last_active': time.time() - 7200,  # 2 hours ago
             'timeout': 3600  # 1 hour timeout
         }
-        
+
         age = time.time() - session['last_active']
         expired = age > session['timeout']
-        
+
         self.assertTrue(expired)
 
     def test_command_history_tracked(self):
@@ -424,7 +424,7 @@ class TestSessionManagement(unittest.TestCase):
         session = {
             'commands': ['ls', 'cd /tmp', 'pwd']
         }
-        
+
         self.assertEqual(len(session['commands']), 3)
         self.assertEqual(session['commands'][0], 'ls')
 
@@ -435,14 +435,14 @@ class TestErrorHandling(unittest.TestCase):
     def test_port_already_in_use(self):
         """Test graceful handling of port conflicts"""
         error = {'type': 'port_conflict', 'port': 9002, 'message': 'Port already in use'}
-        
+
         self.assertEqual(error['type'], 'port_conflict')
         self.assertIn('message', error)
 
     def test_websocket_connection_error(self):
         """Test WebSocket connection errors are logged"""
         error = {'type': 'websocket_error', 'client_id': 'client_123', 'error': 'Connection reset'}
-        
+
         self.assertEqual(error['type'], 'websocket_error')
         self.assertIn('error', error)
 
@@ -453,7 +453,7 @@ class TestErrorHandling(unittest.TestCase):
             'error': 'Command not found',
             'exit_code': 127
         }
-        
+
         self.assertFalse(response['success'])
         self.assertIn('error', response)
 
@@ -461,7 +461,7 @@ class TestErrorHandling(unittest.TestCase):
         """Test server recovers from buffer overflow"""
         buffer = []
         max_size = 100
-        
+
         # Overflow scenario
         try:
             for i in range(1000):
@@ -471,17 +471,17 @@ class TestErrorHandling(unittest.TestCase):
             recovered = True
         except Exception:
             recovered = False
-        
+
         self.assertTrue(recovered)
         self.assertLessEqual(len(buffer), max_size)
 
     def test_client_disconnect_handled(self):
         """Test client disconnections are handled gracefully"""
         clients = [Mock(connected=True) for _ in range(3)]
-        
+
         # Simulate disconnect
         clients[1].connected = False
-        
+
         active = [c for c in clients if c.connected]
         self.assertEqual(len(active), 2)
 
@@ -493,30 +493,30 @@ class TestPerformanceScalability(unittest.TestCase):
         """Test buffer doesn't consume excessive memory"""
         max_size = 10000
         buffer = []
-        
+
         # Fill buffer
         for i in range(max_size):
             buffer.append(f"Line {i}")
-        
+
         self.assertEqual(len(buffer), max_size)
 
     def test_concurrent_client_support(self):
         """Test multiple clients can connect simultaneously"""
         max_clients = 50
         clients = [Mock() for _ in range(max_clients)]
-        
+
         self.assertEqual(len(clients), max_clients)
 
     def test_message_broadcast_efficiency(self):
         """Test messages broadcast efficiently to all clients"""
         clients = [Mock() for _ in range(10)]
         message = "Test message"
-        
+
         start = time.time()
         for client in clients:
             client.send(message)
         duration = time.time() - start
-        
+
         # Should be very fast (< 0.1 seconds for 10 clients)
         self.assertLess(duration, 0.1)
 
@@ -524,12 +524,12 @@ class TestPerformanceScalability(unittest.TestCase):
         """Test old buffer entries are cleaned up"""
         buffer = []
         max_size = 5
-        
+
         for i in range(20):
             buffer.append(i)
             if len(buffer) > max_size:
                 buffer.pop(0)
-        
+
         # Only recent entries remain
         self.assertEqual(len(buffer), max_size)
         self.assertEqual(buffer[0], 15)
@@ -543,21 +543,21 @@ class TestIntegrationScenarios(unittest.TestCase):
         # Server starts
         server_state = {'running': False, 'clients': []}
         server_state['running'] = True
-        
+
         # Client connects
         client = Mock()
         server_state['clients'].append(client)
-        
+
         # Output streamed
         output = "Test output"
         client.send(output)
-        
+
         # Client disconnects
         server_state['clients'].remove(client)
-        
+
         # Server stops
         server_state['running'] = False
-        
+
         self.assertFalse(server_state['running'])
         self.assertEqual(len(server_state['clients']), 0)
 
@@ -565,18 +565,18 @@ class TestIntegrationScenarios(unittest.TestCase):
         """Test command execution flows to web display"""
         # Command submitted via API
         command = 'ls -la'
-        
+
         # Command executed
         output = "total 42\ndrwxr-xr-x 5 user\n"
-        
+
         # Output captured
         buffer = [output]
-        
+
         # Output streamed to clients
         clients = [Mock(), Mock()]
         for client in clients:
             client.send(output)
-        
+
         # Verify all clients received output
         for client in clients:
             client.send.assert_called_once_with(output)
@@ -585,7 +585,7 @@ class TestIntegrationScenarios(unittest.TestCase):
         """Test multiple sessions are isolated"""
         session1 = {'id': 'sess1', 'buffer': ['output1']}
         session2 = {'id': 'sess2', 'buffer': ['output2']}
-        
+
         self.assertNotEqual(session1['buffer'], session2['buffer'])
 
 
@@ -595,7 +595,7 @@ if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
-    
+
     # Print summary
     print("\n" + "="*70)
     print("Test Summary:")
@@ -604,6 +604,6 @@ if __name__ == '__main__':
     print(f"  Failures: {len(result.failures)}")
     print(f"  Errors: {len(result.errors)}")
     print("="*70)
-    
+
     # Exit with appropriate code
     sys.exit(0 if result.wasSuccessful() else 1)
