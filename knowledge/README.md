@@ -1,53 +1,357 @@
-# uDOS Knowledge Library
+# uDOS Knowledge Bank
 
-**Welcome to The People's Knowledge Commons - v1.1.2 Offline Knowledge System**
+**The People's Knowledge Commons - v1.4.0 Comprehensive Survival Library**
 
-A comprehensive collection of practical guides for self-sufficiency, survival, and sustainable living. The v1.1.2 offline knowledge system includes validation, versioning, and AI prompt development.
-
-## Overview
-
-This knowledge library is designed to be accessible both online and offline, with a focus on practical, actionable information. The structure uses a **flat folder layout** for easy navigation and fast searching with the GUIDE and LEARN commands.
-
-**v1.1.2 Features**:
-- **Offline Knowledge Library** (60 tests): Full-text search, versioning, category filtering
-- **Knowledge Validation** (53 tests): Content quality scoring, freshness checking, contradiction detection
-- **SVG/Citation Pipeline** (59 tests): Diagram generation with APA/MLA/Chicago/IEEE bibliography
-- **AI Prompt Development** (61 tests): Template system for offline prompt testing (no API calls)
-
-All measurements use **metric units** (ml, g, kg, cm, m, km) and content is relevant to **Australian conditions** while remaining generally applicable worldwide.
+A comprehensive offline collection of 166+ survival guides and technical diagrams for self-sufficiency, emergency preparedness, and sustainable living. Powered by OK Assist integration for continuous expansion.
 
 ---
 
-## 📚 Knowledge Structure (8 Categories)
+## 📊 Current Status (v1.4.0 Phase 1)
 
-### 1. [System](system/README.md) ⚙️
-**uDOS technical documentation and configuration files.**
+```
+Total Guides:     166 / 1,000 (16.6%)
+Total Diagrams:    80 /   500 (16.0%)
+OK Assist Gen:     86 guides (51.8%)
+Categories:         8 core areas
+Avg Length:     1,500 words/guide
+Last Updated:  2025-11-24
+```
 
-Contents: Commands reference, concepts, FAQ, datasets, themes, templates, JSON configs
-
-**Key files**: `commands.json`, `uDOS-CONCEPTS.md`, `FAQ.md`
-
----
-
-### 2. [Reference](reference/README.md) 📖
-**Maps, resources, and tool references.**
-
-Contents: Charts, tables, reference data, tool specifications
-
-**Use for**: Quick lookups, specifications, reference tables
+**Week 2 Progress**: On track for 273 guides by Dec 1
 
 ---
 
-### 3. [Survival](survival/README.md) 🆘
-**Essential skills and information for meeting basic needs and handling emergencies.**
+## 🗂️ Knowledge Categories
 
-Contents: 28 guides covering shelters, fire, navigation, first aid, emergency response
+### 1. 💧 [Water](water/README.md) - Procurement & Purification
+**26 / 150 guides (17.3%)**
 
-**Start here if**: You need practical emergency knowledge or basic survival skills
+Finding, purifying, and storing water in all environments.
 
-**Australian-specific**: Bushfire survival, snakebite treatment, water sources, bush navigation, bush tucker
+**Topics**: Water sources, purification methods, filtration systems, desalination, quality testing, storage, conservation
+
+**Start with**: `finding_water_sources.md`, `water_purification_methods.md`
 
 ---
+
+### 2. 🔥 [Fire](fire/README.md) - Starting & Maintenance
+**20 / 100 guides (20.0%)**
+
+Fire starting techniques, maintenance, and safety protocols.
+
+**Topics**: Friction methods, bow drill, hand drill, flint & steel, char cloth, fire maintenance, safety zones, signal fires
+
+**Start with**: `fire_starting_techniques.md`, `bow_drill_technique.md`
+
+---
+
+### 3. 🏠 [Shelter](shelter/README.md) - Construction & Protection
+**20 / 120 guides (16.7%)**
+
+Building shelters for protection from elements.
+
+**Topics**: Site selection, emergency shelters, debris huts, lean-tos, weatherproofing, insulation, knot tying, camouflage
+
+**Start with**: `shelter_site_selection.md`, `emergency_shelters.md`
+
+---
+
+### 4. 🍖 [Food](food/README.md) - Foraging & Preservation
+**23 / 180 guides (12.8%)**
+
+Finding, preparing, and preserving food.
+
+**Topics**: Edible plants, foraging, preservation, smoking, drying, fishing, trapping, cooking methods, nutrition
+
+**Start with**: `edible_plants.md`, `foraging_basics.md`
+
+---
+
+### 5. 🧭 [Navigation](navigation/README.md) - Wayfinding & Signaling
+**20 / 100 guides (20.0%)**
+
+Navigation techniques and emergency signaling.
+
+**Topics**: Map reading, compass use, natural navigation, star/sun navigation, signaling, rescue signals, route planning
+
+**Start with**: `map_reading.md`, `compass_use.md`
+
+---
+
+### 6. ⚕️ [Medical](medical/README.md) - First Aid & Wilderness Medicine
+**27 / 150 guides (18.0%)**
+
+Emergency medical care and wilderness medicine.
+
+**Topics**: First aid, wound care, fractures, burns, hypothermia, heat exhaustion, snake bites, CPR, wilderness medicine
+
+**Start with**: `first_aid_basics.md`, `wound_care.md`
+
+---
+
+### 7. 🔨 [Tools](tools/README.md) - Use & Maintenance
+**15 / 100 guides (15.0%)**
+
+Tool use, maintenance, and crafting.
+
+**Topics**: Knife maintenance, axe safety, sharpening, makeshift tools, rope making, cordage, tool repairs
+
+**Start with**: `knife_maintenance.md`, `tool_sharpening.md`
+
+---
+
+### 8. 📡 [Communication](communication/README.md) - Coordination & Security
+**15 / 100 guides (15.0%)**
+
+Communication systems and community coordination.
+
+**Topics**: Radio basics, Morse code, hand signals, whistle codes, mirror signals, smoke signals, emergency communication
+
+**Start with**: `radio_basics.md`, `morse_code.md`
+
+---
+
+## 📖 Additional Resources
+
+### [System](system/README.md) ⚙️
+uDOS technical documentation, commands, and configuration.
+
+**Key Files**:
+- `KNOWLEDGE-REFERENCE.md` - Complete system guide
+- `commands.json` - Command specifications
+- `OK.md` - OK Assistant documentation
+
+### [Reference](reference/README.md) 📖
+Maps, charts, diagrams, and quick-reference materials.
+
+**Contents**: SVG diagrams, reference charts, technical specifications
+
+### [Demos](demos/README.md) 🎮
+Interactive demonstrations and example scripts.
+
+**Contents**: Selector demos, UI examples, workflow samples
+
+---
+
+## 🎯 Quick Start
+
+### For Learners
+```bash
+# Browse a category
+LIST knowledge/water/
+
+# Search for beginner guides
+SEARCH --tags level:beginner
+
+# Read a guide
+READ knowledge/water/finding_water_sources.md
+
+# Start interactive tutorial
+PLAY workflow/knowledge_learning.story
+```
+
+### For Contributors
+```bash
+# Start the mission
+MISSION START complete_knowledge_bank
+
+# Generate content
+RUN workflow/knowledge_generation.uscript
+
+# Or create manually
+GENERATE GUIDE water/new_topic --mode ok-assist
+
+# Check progress
+MISSION STATUS complete_knowledge_bank
+```
+
+---
+
+## 🏷️ Tag System
+
+**Difficulty Levels**
+- `level:beginner` - Basic skills, minimal tools
+- `level:intermediate` - Some experience needed
+- `level:advanced` - Specialized knowledge required
+- `level:expert` - Mastery of related skills
+
+**Environments**
+- `env:desert`, `env:forest`, `env:mountain`, `env:coastal`
+- `env:urban`, `env:tropical`, `env:arctic`
+
+**Skill Types**
+- `skill:procurement`, `skill:construction`, `skill:crafting`
+- `skill:medical`, `skill:navigation`, `skill:preservation`
+
+**Time Sensitivity**
+- `time:emergency` - Critical/life-threatening
+- `time:routine` - Regular practice
+- `time:preparation` - Advance planning
+- `time:long-term` - Sustained operations
+
+---
+
+## 🔗 Cross-Referencing
+
+Guides use `[[topic]]` syntax for linking:
+
+```markdown
+See [[water_purification]] for next steps.
+Also review [[fire/bow_drill_technique]].
+Refer to [[diagram:water_filtration]].
+```
+
+This creates an interconnected knowledge network for comprehensive learning.
+
+---
+
+## 📏 Content Standards
+
+All guides meet these quality standards:
+
+✓ **800-1200 words minimum** (avg 1,500 words)
+✓ **Complete structure** (overview, materials, steps, safety)
+✓ **Safety warnings** highlighted
+✓ **Cross-references** to 3-5 related topics
+✓ **Proper tagging** (5-10 tags)
+✓ **Visual aids** where applicable
+✓ **OK Assist reviewed** for accuracy
+
+---
+
+## 🌍 Metric Units & Australian Context
+
+- **All measurements**: Metric (ml, g, kg, cm, m, km)
+- **Primary context**: Australian conditions
+- **Universal application**: Techniques work globally with local adaptation
+
+**Australian-specific content**: Bushfire survival, snakebite treatment, water sources, bush navigation, native plants
+
+---
+
+## 🚀 v1.4.0 Features
+
+**Offline Knowledge Library** (60 tests)
+- Full-text search across all guides
+- Version control and change tracking
+- Category filtering and organization
+
+**Knowledge Validation** (53 tests)
+- Content quality scoring
+- Freshness checking
+- Contradiction detection
+
+**OK Assist Integration** (New)
+- Automated guide generation
+- Quality content at scale
+- Interactive learning workflows
+
+**SVG/Citation Pipeline** (59 tests)
+- Technical diagram generation
+- APA/MLA/Chicago/IEEE citations
+- 500+ diagram target
+
+---
+
+## 📚 Learning Paths
+
+### Beginner Path (4-6 weeks)
+1. Water basics (5 guides)
+2. Fire fundamentals (5 guides)
+3. Basic shelter (5 guides)
+4. Food identification (5 guides)
+
+### Intermediate Path (2-3 months)
+1. Advanced water (10 guides)
+2. Navigation skills (10 guides)
+3. First aid (10 guides)
+4. Tool crafting (10 guides)
+
+### Advanced Path (6+ months)
+1. All categories comprehensive
+2. Cross-category integration
+3. Community coordination
+4. Long-term sustainability
+
+---
+
+## 🤝 Contributing
+
+See `system/KNOWLEDGE-REFERENCE.md` for:
+- Content generation workflows
+- Quality standards
+- Template usage
+- Cross-referencing guidelines
+- OK Assist integration
+
+**Quick Commands**:
+```bash
+GENERATE GUIDE category/topic --mode ok-assist
+TAG file.md --add tags
+LINK file.md --to related_topics
+VALIDATE knowledge/ --metrics all
+```
+
+---
+
+## 📂 File Structure
+
+```
+knowledge/
+├── README.md (this file)
+├── water/ (26 guides)
+├── fire/ (20 guides)
+├── shelter/ (20 guides)
+├── food/ (23 guides)
+├── navigation/ (20 guides)
+├── medical/ (27 guides)
+├── tools/ (15 guides)
+├── communication/ (15 guides)
+├── system/ (documentation)
+├── reference/ (charts, diagrams)
+└── demos/ (examples)
+```
+
+Each category has:
+- `README.md` - Category overview and guide index
+- `*.md` - Individual guides with OK Assist generation
+- Cross-references to related topics
+
+---
+
+## 🔍 Search Tips
+
+```bash
+# By keyword
+SEARCH "water purification"
+
+# By tag
+SEARCH --tags level:beginner,env:desert
+
+# By category
+SEARCH --category water
+
+# Full-text
+SEARCH "emergency" --all
+```
+
+---
+
+## 📞 Support
+
+- **System Reference**: `system/KNOWLEDGE-REFERENCE.md`
+- **OK Assist Guide**: `../dev/tools/OK-ASSIST-INTEGRATION-GUIDE.md`
+- **Mission Tracking**: `../memory/missions/complete_knowledge_bank.mission`
+- **Workflows**: `../memory/workflow/`
+
+---
+
+**Version**: v1.4.0 Phase 1
+**License**: Public Domain (Tier 4)
+**Maintainer**: uDOS Knowledge Team
+**Last Updated**: 2025-11-24
+
+*Building a comprehensive knowledge commons for human resilience and self-sufficiency.*
 
 ### 4. [Medical](medical/README.md) 🏥
 **First aid and medical treatment information.**
