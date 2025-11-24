@@ -4,6 +4,258 @@ Recent development milestones and completed features in uDOS.
 
 ---
 
+## 🔐 v1.1.2 - Security Model & Offline Knowledge (✅ COMPLETE)
+
+**Release Date**: November 24, 2025
+**Status**: ✅ **PRODUCTION READY** (100%)
+**Focus**: RBAC, 4-tier memory encryption, offline knowledge bank, AI prompt development
+**Test Coverage**: **467 tests passing** (234 Phase 1, 233 Phase 2)
+
+### ✅ Phase 1: Advanced Security & Roles (234 tests)
+
+#### 1. User Role System (RBAC) - 58 tests
+- **Four Roles**: User (restricted), Power (trusted), Wizard (dev), Root (admin)
+- **Permission Inheritance**: Role hierarchy with privilege escalation validation
+- **Access Control**: Command execution, file access, AI/web features route through RBAC
+- **Role Transitions**: Validation of role boundaries and security enforcement
+
+#### 2. Command-Based Security Hardening - 59 tests
+- **Centralized Security**: Unified security layer with role-based restrictions
+- **Explicit Controls**: API/web access requires explicit permissions (no implicit calls)
+- **Offline-First**: User role enforces offline-first operation mode
+- **Command Management**: Role-based whitelist/blacklist for command access
+
+#### 3. 4-Tier Memory System - 58 tests
+- **Tier 1 (Private)**: AES-256 encryption with Fernet, user-only access
+- **Tier 2 (Shared)**: AES-128 encryption for team collaboration
+- **Tier 3 (Community)**: Plain text for group knowledge sharing
+- **Tier 4 (Public)**: Open knowledge base, world-readable
+- **Security**: Key rotation, tier boundaries, AI visibility controls
+- **Quotas**: 100MB/500MB/1GB/5GB per tier with enforcement
+
+#### 4. Installation Types & Integrity - 59 tests
+- **CLONE**: Full git repository with source code access
+- **SPAWN**: Marker-based lightweight installation
+- **HYBRID**: Source only (no git tracking)
+- **Protection**: Core/extensions read-only in production mode
+- **Verification**: SHA-256 integrity checks for installed files
+- **Sandbox**: Isolated testing mode with safety controls
+
+### ✅ Phase 2: Knowledge Bank & AI Integration (233 tests)
+
+#### 5. Offline Knowledge Library - 60 tests
+- **8 Categories**: water, food, shelter, medical, skills, tech, survival, reference
+- **Guide Management**: Storage, versioning, full-text search
+- **Diagram Support**: SVG/PNG storage and rendering
+- **Search**: Category filtering, full-text indexing
+- **Offline Access**: 100% offline capability validation
+- **Cross-References**: Tagging and related content linking
+- **Import/Export**: Bulk operations with error handling
+- **Goal**: Foundation for 500+ survival guides target
+
+#### 6. Offline AI Prompt Development - 61 tests
+- **Template System**: `{var}` placeholders with auto-extraction
+- **Context Injection**: JSON formatting for structured data
+- **Role Prompts**: user/power/wizard/root/general specific prompts
+- **Prompt Testing**: Expected output comparison without API calls
+- **Validation**: Required fields, length warnings (>8000 chars)
+- **Version Control**: Offline edit tracking and history
+- **Prompt Chaining**: Multi-step sequence execution
+
+#### 7. SVG/Citation Pipeline - 59 tests
+- **SVG Generation**: From element definitions (rect/circle/text/line)
+- **Citation Extraction**: `[Author, Year]`, `(Author, Year)`, `[1]` formats
+- **Reference Management**: Citation library with cross-referencing
+- **Bibliography Formats**: APA, MLA, Chicago, IEEE styles
+- **Diagram Versioning**: History tracking and rollback
+- **Export Formats**: SVG, PNG, PDF, JSON with proper MIME types
+- **Validation**: Required fields, year format, URL checks
+- **Optimization**: SVG whitespace removal, precision reduction
+
+#### 8. Knowledge Validation System - 53 tests
+- **Content Validation**: Completeness, accuracy, source verification
+- **Citation Verification**: Required fields, year format, URL validation
+- **Freshness Checking**: Age tracking, staleness detection
+- **Contradiction Detection**: Opposing terms, consistency analysis
+- **Quality Metrics**: 5-point assessment (readability, depth, practical value, citation quality, structure)
+- **Custom Rules**: Configurable validation with severity levels
+- **External References**: URL tracking and verification
+- **Version Comparison**: Similarity analysis between versions
+
+### 📊 Testing Results
+
+```
+Total Tests: 467/467 passing (100%)
+Phase 1: 234 tests (RBAC, Security, Memory, Installation)
+Phase 2: 233 tests (Knowledge, AI Prompts, SVG, Validation)
+Coverage: Complete feature coverage with edge case testing
+```
+
+### 📚 Documentation
+
+- **Release Notes**: [Release-v1.1.2.md](Release-v1.1.2.md) - Comprehensive release documentation
+- **ROADMAP**: Updated with v1.1.2 completion status
+- **Test Suites**: 8 test files in `/memory/tests/test_v1_1_2_*.py`
+
+---
+
+## 🌐 v1.1.1 - Web Extension & Dual-Interface (✅ COMPLETE)
+
+**Release Date**: November 24, 2025
+**Status**: ✅ Complete (100%)
+**Focus**: Production web server, browser extension, mobile PWA
+**Test Coverage**: **327 tests passing** (213 Phase 1, 114 Phase 2)
+
+### ✅ Phase 1: Web Infrastructure (213 tests)
+
+#### 1. Production Server Hardening - 26 tests
+- **Health Monitoring**: `/health` endpoint with system diagnostics
+- **Graceful Shutdown**: Signal handling and cleanup
+- **Error Handling**: Global error handlers with proper HTTP codes
+- **Security**: CORS configuration, request validation
+- **Logging**: Structured logging with rotation
+
+#### 2. Teletext Display System - 48 tests
+- **WebSocket Streaming**: Real-time CLI output to browser
+- **Teletext Rendering**: BBC Micro aesthetic in web interface
+- **Color Mapping**: ANSI → HTML color translation
+- **Block Graphics**: Unicode block characters for retro UI
+- **Performance**: Optimized rendering for large outputs
+
+#### 3. CLI→Web Delegation API - 42 tests
+- **Visual Interactions**: File pickers, selectors delegated to web
+- **Bidirectional Communication**: CLI sends requests, web responds
+- **Session Management**: Multi-user session tracking
+- **Event System**: WebSocket-based event delegation
+- **Fallback**: Automatic fallback to TUI if web unavailable
+
+#### 4. State Synchronization Engine - 41 tests
+- **Event Sourcing**: Command history tracking and replay
+- **State Reconstruction**: Rebuild session state from events
+- **Conflict Resolution**: Multi-client state management
+- **Persistence**: Session state saved to disk
+- **Real-time Sync**: Sub-100ms latency for state updates
+
+#### 5. Web Component Library - 56 tests
+- **Reusable Components**: File picker, selector, prompt, terminal
+- **Teletext Aesthetic**: Consistent retro styling
+- **Keyboard Navigation**: Full keyboard support with shortcuts
+- **Responsive Design**: Mobile-first approach
+- **Accessibility**: ARIA labels, screen reader support
+
+### ✅ Phase 2: Advanced Web Features (114 tests)
+
+#### 6. Browser Extension - 55 tests
+- **Knowledge Capture**: Select text → save to uDOS knowledge bank
+- **Cross-Browser**: Chrome, Firefox, Edge support
+- **Manifest V3**: Modern extension API
+- **Offline Storage**: Local IndexedDB for captured content
+- **Tag Management**: Auto-tagging and category assignment
+
+#### 7. Mobile PWA - 59 tests
+- **Service Workers**: Offline caching and background sync
+- **Install Prompt**: Add to home screen functionality
+- **Touch Optimized**: Mobile-friendly UI with touch gestures
+- **Responsive Layout**: Adapts to screen size and orientation
+- **Offline Mode**: Full functionality without internet
+
+### 📊 Testing Results
+
+```
+Total Tests: 327/327 passing (100%)
+Phase 1: 213 tests (Server, Display, API, State, Components)
+Phase 2: 114 tests (Browser Extension, Mobile PWA)
+Browsers Tested: Chrome, Firefox, Edge, Safari
+Platforms: Desktop + Mobile (iOS/Android)
+```
+
+### 📚 Documentation
+
+- **Test Suites**: 7 test files in `/memory/tests/test_v1_1_1_*.py`
+- **Dev Notes**: `/dev/notes/v1_1_1_Feature_1_Complete.md`
+
+---
+
+## 🎯 v1.1.0 - Core TUI Stabilisation (✅ COMPLETE)
+
+**Release Date**: November 24, 2025
+**Status**: ✅ Complete (100%)
+**Focus**: AI assistant logic, unified selector, retro graphics, session analytics
+**Test Coverage**: **268 tests passing** (79 Phase 0, 189 Phase 1)
+
+### ✅ Phase 0: AI Assistant Logic & Role Security (79 tests)
+
+#### AI Assistant & Security Framework
+- **Role-Based API Access**: Wizard unrestricted, User offline-first mode
+- **Offline Fallback**: Query routing to 4-Tier Knowledge Bank when API unavailable
+- **Dev Mode**: Wizard role enablement with full system context
+- **API Audit Logging**: Comprehensive API usage tracking and reporting
+- **Session Analytics**: Live command trace, error capture, session summaries
+- **Intelligent Error Handler**: Contextual solutions with error classification
+- **User Feedback**: `FEEDBACK` and `REPORT` commands for session feedback
+
+### ✅ Phase 1: TUI Reliability & Input System (189 tests)
+
+#### 1. Unified Selector System - 24 tests
+- **Auto-Fallback**: Detects terminal capabilities and falls back gracefully
+- **Cross-Platform**: Works in 16+ terminal emulators (xterm, iTerm2, Windows Terminal, etc.)
+- **Input Modes**: Arrow-key navigation or numbered selection
+- **Multi-Select**: Support for multiple item selection
+- **Search**: Built-in filtering and search functionality
+
+#### 2. Selector Integration - 14 tests
+- **Command Integration**: FILE, DOCS, LEARN, MEMORY commands use unified selector
+- **Consistent UX**: Same interaction pattern across all features
+- **Fallback Handling**: Automatic detection and fallback to simple menus
+
+#### 3. Retro Graphics System - 32 tests
+- **BBC Teletext Aesthetic**: Block characters, vibrant colors, scanline effects
+- **Cross-Platform**: Validated in 16+ terminals (macOS, Linux, Windows)
+- **Graphics Library**: Reusable components for borders, boxes, headers
+- **Color Themes**: Multiple retro color schemes (synthwave, amber, green)
+- **Performance**: Optimized rendering for large displays
+
+#### 4. Unified Command Handlers - 55 tests
+- **DOCS Command**: Documentation browser with category navigation
+- **LEARN Command**: Knowledge bank access with search
+- **MEMORY Command**: Session memory and note management
+- **Consistent Interface**: Shared selector and display logic
+
+#### 5. Session Replay & Analysis - 32 tests
+- **Command Tracing**: Full session command history
+- **Pattern Analysis**: Detect command sequences and workflows
+- **Session Summaries**: Auto-generated session reports
+- **Replay Capability**: Re-execute previous command sequences
+- **Error Analysis**: Track and categorize errors across sessions
+
+#### 6. POKE Commands - 26 tests
+- **Developer Tools**: Low-level system inspection and modification
+- **Memory Access**: Direct access to internal state
+- **Debug Utilities**: Runtime diagnostics and debugging
+
+#### 7. Data Architecture - 20 tests
+- **Persistent Storage**: Session data saved to `/memory/sessions/`
+- **JSON Format**: Human-readable session logs
+- **Migration Support**: Version-compatible data formats
+
+### 📊 Testing Results
+
+```
+Total Tests: 268/268 passing (100%)
+Phase 0: 79 tests (AI Assistant, Security, Analytics)
+Phase 1: 189 tests (Selector, Graphics, Commands, Replay, POKE, Data)
+Terminal Emulators: 16+ tested (100% compatibility)
+Platforms: macOS, Linux, Windows (WSL2 + native)
+```
+
+### 📚 Documentation
+
+- **Test Suites**: 12 test files in `/memory/tests/test_v1_1_0_*.py`
+- **Dev Notes**: `/dev/notes/v1.1.0_DEVELOPMENT_ROUND_COMPLETE.md`
+- **Feature Notes**: `/dev/notes/feature_1_1_0_10_retro_graphics.md`
+
+---
+
 ## 🎨 v1.0.30 - Enhanced CLI with Teletext UI (✅ PRE-RELEASE)
 
 **Release Date**: November 22, 2025

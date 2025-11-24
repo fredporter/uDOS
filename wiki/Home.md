@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.30** - A Human-Readable CLI Framework with Enhanced Teletext UI, Built-in Editor, AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
+**uDOS v1.1.2** - A Human-Readable CLI Framework with Security, Web GUI, Offline Knowledge Bank, AI Integration, 4-Tier Memory, and Complete Geographic Reference System
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -17,7 +17,38 @@
 
 ---
 
-## 🎮 NEW in v1.0.30 - Enhanced CLI with Teletext UI (November 2025)
+## 🔐 NEW in v1.1.2 - Security, Web GUI, and Offline Knowledge (November 2025)
+
+**Production Ready**: **1,062 tests passing** (100%) | Zero Breaking Changes | Full v1.0.x Compatibility
+
+### Major Milestones
+
+**v1.1.0 - Core TUI Stabilisation** (268 tests)
+- AI assistant with role-based security (Wizard/User offline-first)
+- Unified selector with automatic fallback (16+ terminals)
+- Retro graphics system (BBC Teletext aesthetic)
+- Session analytics, replay, and intelligent error handling
+
+**v1.1.1 - Web Extension & Dual-Interface** (327 tests)
+- Production web server with Teletext display
+- CLI→Web delegation API with state sync
+- Browser extension for knowledge capture (Chrome/Firefox/Edge)
+- Mobile PWA with offline capability
+
+**v1.1.2 - Security & Offline Knowledge** (467 tests)
+- **RBAC**: 4 user roles (User/Power/Wizard/Root) with permission inheritance
+- **4-Tier Memory**: AES-256/AES-128 encryption (Private/Shared/Community/Public)
+- **Installation Types**: CLONE/SPAWN/HYBRID with SHA-256 integrity checks
+- **Offline Knowledge**: 8-category library (foundation for 500+ guides)
+- **AI Prompts**: Offline template development with validation (no API calls)
+- **SVG/Citation**: Diagram generation with APA/MLA/Chicago/IEEE bibliography
+- **Validation**: Content quality, freshness, contradiction detection
+
+[🔗 Full Release Notes →](Release-v1.1.2) | [🔗 Latest Development →](Latest-Development) | [🔗 ROADMAP →](../ROADMAP.md)
+
+---
+
+## 🎨 v1.0.30 - Enhanced CLI with Teletext UI (November 2025)
 
 - **Teletext Block Character UI** - Retro-inspired selection boxes, file trees, autocomplete panels
 - **Built-in Micro Editor** - Syntax-highlighted editor for .md and .uscript files (434 lines)
