@@ -11,10 +11,14 @@
         "$2": null,
         "$3": null
       },
+      "DEFERRED": "v1.1+",
       "EXAMPLES": [
         "OK ASK how do I implement UNDO?",
         "OK DEV create a grid command handler",
         "OK DEV explain this git error"
+      ],
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -22,21 +26,33 @@
       "SYNTAX": "EXPLAIN \"<command>\"",
       "DESCRIPTION": "Get assisted explanation of what a command does.",
       "UCODE_TEMPLATE": "[ASSIST|EXPLAIN*$1]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+      ]
     },
     {
       "NAME": "GENERATE",
       "SYNTAX": "GENERATE \"<description>\"",
       "DESCRIPTION": "Generate a uDOS script from natural language description using assisted guidance.",
       "UCODE_TEMPLATE": "[ASSIST|GENERATE*$1]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+      ]
     },
     {
       "NAME": "DEBUG",
       "SYNTAX": "DEBUG \"<error message>\"",
       "DESCRIPTION": "Get assisted help debugging an error.",
       "UCODE_TEMPLATE": "[ASSIST|DEBUG*$1]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+      ]
     },
     {
       "NAME": "READ",
@@ -44,10 +60,26 @@
       "DESCRIPTION": "Read and analyze panel content for insights and suggestions.",
       "UCODE_TEMPLATE": "[ASSIST|READ*$1]",
       "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
       "EXAMPLES": [
         "READ docs",
         "READ poke",
         "READ logs"
+      ],
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "ASSIST",
+      "SYNTAX": "ASSIST [CLEAR]",
+      "DESCRIPTION": "Access AI assistant features. Without subcommand, shows assistant status. Use ASSIST CLEAR to clear conversation history.",
+      "UCODE_TEMPLATE": "[ASSIST|STATUS]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension",
+        "Defaults to showing assistant status when called without subcommand"
       ]
     },
     {
@@ -55,7 +87,52 @@
       "SYNTAX": "ASSIST CLEAR",
       "DESCRIPTION": "Clear assisted conversation history.",
       "UCODE_TEMPLATE": "[ASSIST|CLEAR]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "GET",
+      "SYNTAX": "GET [field.path]",
+      "DESCRIPTION": "Get configuration field value interactively or explicitly from STORY, SYSTEM, or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|GET*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "GET",
+        "GET STORY.USER_NAME",
+        "GET SYSTEM.THEME",
+        "GET CONFIG.GEMINI_API_KEY"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - shows field picker",
+        "EXPLICIT": "Provide field path using dot notation",
+        "SOURCES": "STORY (user data), SYSTEM (settings), CONFIG (.env)"
+      }
+    },
+    {
+      "NAME": "SET",
+      "SYNTAX": "SET [field.path] [value]",
+      "DESCRIPTION": "Set configuration field value interactively or explicitly in STORY or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|SET*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "SET",
+        "SET STORY.USER_NAME Fred",
+        "SET STORY.THEME hacker",
+        "SET CONFIG.OFFLINE_MODE true"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - prompts for field and value",
+        "EXPLICIT": "Provide field path and value",
+        "NOTE": "SYSTEM fields are read-only"
+      }
     },
     {
       "NAME": "CONFIG",
@@ -69,6 +146,48 @@
         "CONFIG set UDOS_USERNAME myname",
         "CONFIG validate"
       ]
+    },
+    {
+      "NAME": "CONFIG PLANET",
+      "SYNTAX": "CONFIG PLANET [LIST|SET|NEW|DELETE|SOLAR|INFO] [args...]",
+      "DESCRIPTION": "Manage planets (workspace metaphor). Create, switch, and list planets in your solar system.",
+      "UCODE_TEMPLATE": "[SYSTEM|CONFIG_PLANET*$1*$2*$3*$4*$5]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "CONFIG PLANET",
+        "CONFIG PLANET LIST",
+        "CONFIG PLANET SET Earth",
+        "CONFIG PLANET NEW Mars Sol Mars 🔴 \"Red planet workspace\"",
+        "CONFIG PLANET INFO Earth",
+        "CONFIG PLANET SOLAR"
+      ],
+      "DETAILS": {
+        "LIST": "Show all planets",
+        "SET": "Switch to planet",
+        "NEW": "Create new planet",
+        "DELETE": "Remove planet",
+        "SOLAR": "List solar systems",
+        "INFO": "Show planet details"
+      }
+    },
+    {
+      "NAME": "LOCATE",
+      "SYNTAX": "LOCATE [SET <lat> <lon>|CITY <name>|CLEAR]",
+      "DESCRIPTION": "Set or view current real-world location on active planet. Enables location-aware survival knowledge.",
+      "UCODE_TEMPLATE": "[SYSTEM|LOCATE*$1*$2*$3*$4*$5]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "LOCATE",
+        "LOCATE SET 51.5074 -0.1278 London UK England",
+        "LOCATE CITY Tokyo",
+        "LOCATE CITY \"New York\"",
+        "LOCATE CLEAR"
+      ],
+      "DETAILS": {
+        "SET": "Set coordinates manually",
+        "CITY": "Select from city database",
+        "CLEAR": "Remove location"
+      }
     },
     {
       "NAME": "BLANK",
@@ -105,6 +224,46 @@
       "DEFAULT_PARAMS": {
         "$1": "ALL"
       }
+    },
+    {
+      "NAME": "FEEDBACK",
+      "SYNTAX": "FEEDBACK \"<message>\" [TYPE <category>]",
+      "DESCRIPTION": "Submit feedback, confusion points, or feature requests to improve uDOS. Captures session context automatically.",
+      "UCODE_TEMPLATE": "[USER|FEEDBACK*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$2": "general"
+      },
+      "EXAMPLES": [
+        "FEEDBACK \"Love the new PANEL system!\"",
+        "FEEDBACK \"MAP CREATE is confusing\" TYPE confusion",
+        "FEEDBACK \"Add keyboard shortcuts\" TYPE request"
+      ],
+      "NOTES": [
+        "Categories: general, confusion, request, praise",
+        "Saved to memory/logs/feedback/",
+        "Integrates with session analytics"
+      ]
+    },
+    {
+      "NAME": "REPORT",
+      "SYNTAX": "REPORT TITLE=\"<title>\" DESC=\"<description>\" [SEVERITY <level>] [CATEGORY <type>]",
+      "DESCRIPTION": "Submit a detailed bug report or issue with reproduction steps and session context.",
+      "UCODE_TEMPLATE": "[USER|REPORT*$1*$2*$3*$4]",
+      "DEFAULT_PARAMS": {
+        "$3": "medium",
+        "$4": "bug"
+      },
+      "EXAMPLES": [
+        "REPORT TITLE=\"Menu overlap\" DESC=\"Text overlaps in narrow terminals\"",
+        "REPORT TITLE=\"MAP fails\" DESC=\"KeyError on CREATE\" SEVERITY high",
+        "REPORT TITLE=\"Add feature\" DESC=\"Dark mode support\" CATEGORY feature_request"
+      ],
+      "NOTES": [
+        "Severity: critical, high, medium, low, info",
+        "Category: bug, feature_request, confusion, question",
+        "Saved to memory/logs/feedback/bug_reports.jsonl",
+        "Auto-captures session context"
+      ]
     },
     {
       "NAME": "HISTORY",
@@ -188,6 +347,22 @@
       ]
     },
     {
+      "NAME": "FILE",
+      "SYNTAX": "FILE [operation] [params]",
+      "DESCRIPTION": "Interactive file operations menu. Without subcommand, shows interactive picker for common file operations. Supports: BATCH, BOOKMARKS, INFO, PICK, PREVIEW, RECENT.",
+      "UCODE_TEMPLATE": "[FILE|MENU]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE",
+        "FILE INFO",
+        "FILE RECENT"
+      ],
+      "NOTES": [
+        "Interactive menu when called without parameters",
+        "Smart file operation picker with context detection"
+      ]
+    },
+    {
       "NAME": "FILE BATCH",
       "SYNTAX": "FILE BATCH <DELETE|COPY|MOVE> <pattern> [destination]",
       "DESCRIPTION": "Batch file operations with pattern matching. Delete, copy, or move multiple files at once.",
@@ -234,6 +409,18 @@
       "EXAMPLES": [
         "FILE INFO README.md",
         "FILE INFO script.py"
+      ]
+    },
+    {
+      "NAME": "BANK",
+      "SYNTAX": "BANK [SEARCH|LIST|SHOW|INDEX|STATS|CATEGORIES] [params]",
+      "DESCRIPTION": "Access the local data bank. Without subcommand, defaults to LIST. Use BANK SEARCH to search, BANK SHOW to display content, etc.",
+      "UCODE_TEMPLATE": "[BANK|LIST]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "BANK",
+        "BANK SEARCH python",
+        "BANK LIST commands"
       ]
     },
     {
@@ -402,6 +589,27 @@
       "DEFAULT_PARAMS": {}
     },
     {
+      "NAME": "PANEL",
+      "SYNTAX": "PANEL [<content>]",
+      "DESCRIPTION": "Display content in a formatted panel with title and border. Can display memory content, status info, or custom text.",
+      "UCODE_TEMPLATE": "[UI|PANEL*$1]",
+      "DEFERRED": "v1.1+",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "PANEL",
+        "PANEL MEMORY",
+        "PANEL STATUS"
+      ],
+      "NOTES": [
+        "Integrates with memory system",
+        "Supports grid layout formatting",
+        "Can display various content types",
+        "⚠️ DEFERRED to v1.1+ - Display UI extension"
+      ]
+    },
+    {
       "NAME": "DASH",
       "SYNTAX": "DASH [WEB]",
       "DESCRIPTION": "Display comprehensive system dashboard. Use 'DASH WEB' to open interactive web dashboard in browser. Alias: DASHBOARD",
@@ -423,21 +631,39 @@
       "SYNTAX": "MAP [STATUS|VIEW|LAYER]",
       "DESCRIPTION": "Shows current map position and layer information.",
       "UCODE_TEMPLATE": "[MAP|STATUS]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "GOTO",
       "SYNTAX": "GOTO <x> <y>",
       "DESCRIPTION": "Teleport to specific coordinates on current map layer.",
       "UCODE_TEMPLATE": "[MAP|GOTO*$1*$2]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
-      "NAME": "MOVE",
-      "SYNTAX": "MOVE <dx> <dy>",
+      "NAME": "STEP",
+      "SYNTAX": "STEP <dx> <dy>",
       "DESCRIPTION": "Move relative to current position (NetHack-style navigation).",
       "UCODE_TEMPLATE": "[MAP|MOVE*$1*$2]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Alias for map movement command",
+        "Use MOVE for file operations",
+        "NetHack-style relative positioning",
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "LAYER",
@@ -446,28 +672,48 @@
       "UCODE_TEMPLATE": "[MAP|LAYER*$1]",
       "DEFAULT_PARAMS": {
         "$1": ""
-      }
+      },
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "DESCEND",
       "SYNTAX": "DESCEND",
       "DESCRIPTION": "Descend one layer (NetHack > command) - go deeper.",
       "UCODE_TEMPLATE": "[MAP|DESCEND]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "ASCEND",
       "SYNTAX": "ASCEND",
       "DESCRIPTION": "Ascend one layer (NetHack < command) - go higher.",
       "UCODE_TEMPLATE": "[MAP|ASCEND]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "LOCATE",
       "SYNTAX": "LOCATE <city_name>",
       "DESCRIPTION": "Set your real-world location to a major city.",
       "UCODE_TEMPLATE": "[MAP|LOCATE*$1]",
-      "DEFAULT_PARAMS": {}
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "game-mode",
+      "NOTES": [
+        "Requires Game Mode extension",
+        "Enable with: POKE START game-mode"
+      ]
     },
     {
       "NAME": "SETUP",
@@ -491,6 +737,7 @@
       "DESCRIPTION": "Manage web-based output interfaces (typo editor, cmd terminal, dashboard, etc.). Start/stop servers, check status, and list available outputs. Alias: SERVER",
       "UCODE_TEMPLATE": "[SYSTEM|OUTPUT*$1*$2]",
       "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
       "OUTPUTS": {
         "typo": "Web markdown editor (Svelte/Node.js) - Default port: 5173",
         "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000",
@@ -522,7 +769,8 @@
         "Dashboard provides unified control for all web outputs",
         "Access dashboard at http://localhost:8887 (default)",
         "Dashboard shows real-time status and logs for all outputs",
-        "SERVER is an alias for POKE (legacy compatibility)"
+        "SERVER is an alias for POKE (legacy compatibility)",
+        "⚠️ DEFERRED to v1.1+ - Web interface extension"
       ]
     },
     {
@@ -531,6 +779,7 @@
       "DESCRIPTION": "Manage Monaspace fonts for web-based editors and terminals. View available font variants, set preferences, and check current configuration.",
       "UCODE_TEMPLATE": "[SYSTEM|FONT*$1*$2]",
       "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
       "SUBCOMMANDS": {
         "LIST": "List all Monaspace font variants with descriptions and installation status",
         "SET": "Set preferred font variant (NEON, ARGON, XENON, RADON, KRYPTON)",
@@ -558,7 +807,8 @@
       "NOTES": [
         "Install fonts first: bash extensions/setup_monaspace.sh",
         "Fonts apply to web-based editors (typo) and web terminals (cmd.js)",
-        "For CLI terminals, install system fonts manually (see FONT INFO)"
+        "For CLI terminals, install system fonts manually (see FONT INFO)",
+        "⚠️ DEFERRED to v1.1+ - Typography extension"
       ]
     },
     {
@@ -630,6 +880,7 @@
       "DESCRIPTION": "Launch full uDOS instance in web browser with xterm.js terminal emulator. Opens browser with splash screen, ASCII dashboard, and persistent command prompt. The web terminal runs independently from the CLI instance.",
       "UCODE_TEMPLATE": "[SYSTEM|WEB]",
       "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
       "FLAGS": {},
       "SUBCOMMANDS": {},
       "EXAMPLES": [
@@ -641,7 +892,8 @@
         "Supports ASCII art, colors, and cursor control",
         "Independent web instance - CLI continues running",
         "Web terminal includes: splash screen, dashboard, help system",
-        "Theme switching available in web interface"
+        "Theme switching available in web interface",
+        "⚠️ DEFERRED to v1.1+ - Web interface extension"
       ]
     },
     {
@@ -747,6 +999,37 @@
         "File stays in current workspace",
         "Cannot overwrite existing file",
         "Interactive mode shows file list"
+      ]
+    },
+    {
+      "NAME": "MEMORY",
+      "SYNTAX": "MEMORY [<tier>] [<action>]",
+      "DESCRIPTION": "Access memory system with 4 tiers (PRIVATE, SHARED, COMMUNITY, PUBLIC). Manage personal and shared knowledge.",
+      "UCODE_TEMPLATE": "[MEMORY|ACCESS*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--tier": "Specify tier (private/shared/community/public)",
+        "--analyze": "Analyze content for appropriate tier"
+      },
+      "SUBCOMMANDS": {
+        "STATUS": "Show memory tier status",
+        "LIST": "List memory content",
+        "SEARCH": "Search across tiers",
+        "ANALYZE": "Analyze content classification"
+      },
+      "EXAMPLES": [
+        "MEMORY",
+        "MEMORY PRIVATE",
+        "MEMORY --tier=shared LIST",
+        "MEMORY STATUS"
+      ],
+      "NOTES": [
+        "4 tiers: PRIVATE (encrypted), SHARED (team), COMMUNITY (group), PUBLIC (open)",
+        "Each tier has different security and speed",
+        "Supports intelligent content classification"
       ]
     },
     {

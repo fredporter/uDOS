@@ -60,8 +60,8 @@ class SystemCommandHandler(BaseCommandHandler):
     def config_manager(self):
         """Lazy load config manager."""
         if self._config_manager is None:
-            from core.services.config_manager import ConfigManager
-            self._config_manager = ConfigManager()
+            from core.config import get_config
+            self._config_manager = get_config()
         return self._config_manager
 
     @property
@@ -76,7 +76,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def screen_manager(self):
         """Lazy load screen manager."""
         if self._screen_manager is None:
-            from core.services.screen_manager import ScreenManager
+            from core.output.screen_manager import ScreenManager
             self._screen_manager = ScreenManager()
         return self._screen_manager
 
@@ -92,7 +92,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def usage_tracker(self):
         """Lazy load usage tracker."""
         if self._usage_tracker is None:
-            from core.services.usage_tracker import UsageTracker
+            from core.utils.usage_tracker import UsageTracker
             self._usage_tracker = UsageTracker()
         return self._usage_tracker
 
@@ -112,6 +112,7 @@ class SystemCommandHandler(BaseCommandHandler):
         # Map commands to handler methods
         handlers = {
             'BLANK': self.handle_blank,
+            'SPLASH': self.handle_splash,
             'HELP': self.handle_help,
             'HISTORY': self.handle_history,
             'UNDO': self.handle_undo,
@@ -137,6 +138,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'WORKSPACE': self.handle_workspace,
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,  # Alias for OUTPUT
+            # v1.0.29: GET/SET system
+            'GET': self.handle_get,
+            'SET': self.handle_set,
             # v1.0.17: Debugger commands
             'DEBUG': self.handle_debug,
             'BREAK': self.handle_breakpoint,
@@ -150,6 +154,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'PROFILE': self.handle_profile,
             # v1.0.17 Phase 4+: Variable history
             'HISTORY': self.handle_history,
+            # v1.0.32: Planet system
+            'CONFIG_PLANET': self.handle_config_planet,
+            'LOCATE': self.handle_locate,
         }
 
         handler = handlers.get(command)
@@ -507,7 +514,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize theme manager
         try:
-            from core.services.theme_manager import ThemeManager, ThemeMode
+            from core.theme.manager import ThemeManager, ThemeMode
             theme_manager = ThemeManager()
             theme_manager.load_settings()
         except Exception as e:
@@ -739,7 +746,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _show_active_progress(self):
         """Show current active progress indicators."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             active_count = progress_manager.get_active_count()
             if active_count == 0:
@@ -769,7 +776,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             # Create a simple progress test
             config = ProgressConfig(show_time_estimate=True, show_percentage=True)
@@ -807,7 +814,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             stages = ["Initialization", "Data Processing", "Analysis", "Finalization"]
             config = ProgressConfig(show_time_estimate=True, width=30)
@@ -865,7 +872,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _list_active_progress(self):
         """List all active progress indicators with details."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             active_indicators = []
 
@@ -915,7 +922,7 @@ class SystemCommandHandler(BaseCommandHandler):
     def _cancel_progress(self, progress_id):
         """Cancel progress indicator(s)."""
         try:
-            from core.services.progress_manager import progress_manager
+            from core.utils.progress_manager import progress_manager
 
             if progress_id:
                 # Cancel specific progress
@@ -945,7 +952,7 @@ class SystemCommandHandler(BaseCommandHandler):
         import time
 
         try:
-            from core.services.progress_manager import progress_manager, ProgressConfig
+            from core.utils.progress_manager import progress_manager, ProgressConfig
 
             def demo_sequence():
                 # Demo 1: Basic determinate progress
@@ -1300,7 +1307,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize layout manager
         try:
-            from core.services.layout_manager import layout_manager, LayoutMode, ContentType
+            from core.output.renderers.layout_manager import layout_manager, LayoutMode, ContentType
         except Exception as e:
             return f"❌ Error accessing layout system: {e}"
 
@@ -1374,7 +1381,7 @@ Screen Features:
 • Tall Screen: {'✅' if dims['is_tall'] else '❌'} (>30 rows)
 • Ultra-wide: {'✅' if dims['is_ultra_wide'] else '❌'} (>200 cols)"""
 
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
             return layout_manager.format_content(
                 content,
                 ContentType.STATUS,
@@ -1387,7 +1394,7 @@ Screen Features:
     def _set_layout_mode(self, layout_manager, mode_name):
         """Set layout mode."""
         try:
-            from core.services.layout_manager import LayoutMode
+            from core.output.renderers.layout_manager import LayoutMode
 
             mode_mapping = {
                 'COMPACT': LayoutMode.COMPACT,
@@ -1478,7 +1485,7 @@ Screen Features:
     def _test_adaptive_formatting(self, layout_manager):
         """Test adaptive formatting with sample content."""
         try:
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
 
             # Test different content types
             test_results = []
@@ -1527,7 +1534,7 @@ Auto-save: Enabled"""
     def _layout_demo(self, layout_manager):
         """Demo different layout capabilities."""
         try:
-            from core.services.layout_manager import ContentType
+            from core.output.renderers.layout_manager import ContentType
 
             dims = layout_manager.current_dimensions
 
@@ -1748,12 +1755,11 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             output += f"⚠️  Viewport refresh warning: {str(e)}\n"
 
         output += "✅ Reinitializing components...\n\n"
-        output += "🚀 System restart complete!\n"
-        output += "Welcome back to uDOS v1.0.8\n\n"
+        output += "🚀 System restart initiated!\n"
+        output += "Welcome back to uDOS v1.0.0\n\n"
 
-        # Signal for system restart
-        if hasattr(self, '_signal_restart'):
-            self._signal_restart()
+        # Set the reboot flag to trigger restart in main loop
+        self.reboot_requested = True
 
         return output
 
@@ -1806,13 +1812,171 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     # STUB METHODS - To be implemented or moved to other handlers
     # ======================================================================
 
+    def handle_splash(self, params, grid, parser):
+        """
+        Display ASCII art splash screen.
+
+        Modes:
+        - SPLASH or SPLASH LOGO: Display uDOS logo
+        - SPLASH <text>: Display custom text as ASCII art
+        - SPLASH FILE <path>: Load ASCII art from file
+        """
+        # Import splash module
+        from core import uDOS_splash
+
+        if not params or (params and params[0].upper() == 'LOGO'):
+            # Default: show uDOS logo
+            uDOS_splash.print_splash_screen()
+            return ""  # Splash already printed
+
+        elif params[0].upper() == 'FILE' and len(params) > 1:
+            # Load from file
+            from pathlib import Path
+            filepath = Path(params[1])
+
+            if not filepath.exists():
+                return f"❌ File not found: {filepath}"
+
+            try:
+                with open(filepath, 'r') as f:
+                    content = f.read()
+                print(content)
+                return ""
+            except Exception as e:
+                return f"❌ Error reading file: {e}"
+
+        else:
+            # Custom text - could use ASCII art generation library
+            # For now, just display the text in a box
+            text = ' '.join(params)
+            width = max(len(text) + 4, 40)
+
+            print("╔" + "═" * (width - 2) + "╗")
+            padding = (width - len(text) - 2) // 2
+            print("║" + " " * padding + text + " " * (width - len(text) - padding - 2) + "║")
+            print("╚" + "═" * (width - 2) + "╝")
+            return ""
+
     def handle_tree(self, params, grid, parser):
-        """File tree display - to be implemented or moved to file handler."""
-        return "🌳 TREE command - Implementation moved to file handler"
+        """
+        Generate repository structure tree.
+
+        Usage:
+            TREE                    - Generate full tree
+            TREE <folder>           - Show specific folder (sandbox, memory, knowledge, etc.)
+            TREE --depth=N          - Limit depth to N levels
+
+        Returns:
+            Tree structure and save confirmation
+        """
+        try:
+            from core.utils.tree import generate_repository_tree
+
+            # Parse parameters
+            target_folder = None
+            max_depth = 5
+
+            for param in params:
+                if param.startswith('--depth='):
+                    try:
+                        max_depth = int(param.split('=')[1])
+                    except (ValueError, IndexError):
+                        return self.output_formatter.format_warning(
+                            "Invalid depth parameter",
+                            details={"Usage": "TREE --depth=N where N is a number"}
+                        )
+                elif param.upper() in ['SANDBOX', 'MEMORY', 'KNOWLEDGE', 'HISTORY', 'CORE', 'WIKI', 'EXTENSIONS', 'EXAMPLES']:
+                    target_folder = param.lower()
+
+            # Generate tree
+            tree_string, tree_path = generate_repository_tree(
+                root_path=".",
+                output_file="structure.txt",
+                target_folder=target_folder,
+                max_depth=max_depth
+            )
+
+            # Show preview
+            lines = tree_string.strip().split('\n')
+            preview = '\n'.join(lines[:30])
+            if len(lines) > 30:
+                preview += f"\n\n... ({len(lines) - 30} more lines)\n"
+
+            return self.output_formatter.format_success(
+                "Tree generated successfully",
+                details={
+                    "Saved to": tree_path,
+                    "Total lines": len(lines),
+                    "Preview": f"\n{preview}"
+                }
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Tree generation failed",
+                details={"Error": str(e)}
+            )
 
     def handle_clean(self, params, grid, parser):
-        """Clean sandbox - to be implemented or moved to file handler."""
-        return "🧹 CLEAN command - Implementation moved to file handler"
+        """
+        Review sandbox files and prepare for commit to memory.
+
+        Lists all files in sandbox workspace and provides options to:
+        - Move to memory/shared
+        - Move to memory/private
+        - Delete
+        - Keep in sandbox
+
+        Returns:
+            Interactive review interface
+        """
+        try:
+            from pathlib import Path
+
+            sandbox_path = Path("memory/sandbox")
+            if not sandbox_path.exists():
+                return self.output_formatter.format_warning(
+                    "Sandbox is empty",
+                    details={"Path": str(sandbox_path)}
+                )
+
+            # Get all files in sandbox (excluding subdirectories that are part of memory structure)
+            files = []
+            for item in sandbox_path.iterdir():
+                if item.is_file() and not item.name.startswith('.'):
+                    files.append(item)
+
+            if not files:
+                return self.output_formatter.format_info(
+                    "Sandbox is clean",
+                    details={"Message": "No files to review"}
+                )
+
+            # Format file list
+            file_list = []
+            for f in files:
+                size = f.stat().st_size
+                modified = f.stat().st_mtime
+                from datetime import datetime
+                mod_time = datetime.fromtimestamp(modified).strftime('%Y-%m-%d %H:%M')
+                file_list.append(f"  • {f.name} ({size} bytes, modified {mod_time})")
+
+            files_text = '\n'.join(file_list)
+
+            return self.output_formatter.format_panel(
+                "Sandbox Review",
+                f"Found {len(files)} file(s) in sandbox:\n\n{files_text}\n\n" +
+                "💡 Use FILE BATCH or WORKSPACE commands to manage these files\n" +
+                "   - WORKSPACE MOVE <file> TO shared\n" +
+                "   - WORKSPACE MOVE <file> TO private\n" +
+                "   - DELETE <file>"
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Clean operation failed",
+                details={"Error": str(e)}
+            )
 
     def handle_setup(self, params, grid, parser):
         """
@@ -2102,7 +2266,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
                         discovered.append(ext_dir.name)
 
             # Check extension manager status
-            from core.services.extension_manager import ExtensionManager
+            from extensions.core.extension_manager import ExtensionManager
             ext_mgr = ExtensionManager()
             status = ext_mgr.get_extension_status()
 
@@ -2121,7 +2285,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         """Get detailed information about a specific extension using enhanced metadata."""
         try:
             # Use the enhanced metadata manager for comprehensive information
-            from core.services.extension_metadata_manager import ExtensionMetadataManager
+            from extensions.core.extension_metadata_manager import ExtensionMetadataManager
             metadata_mgr = ExtensionMetadataManager()
 
             # Generate comprehensive report
@@ -2195,7 +2359,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
 
             # Check extension manager
             try:
-                from core.services.extension_manager import ExtensionManager
+                from extensions.core.extension_manager import ExtensionManager
                 ext_mgr = ExtensionManager()
                 ext_details = ext_mgr.get_extension_info(extension_name)
 
@@ -2229,7 +2393,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_extension_install(self, extension_name):
         """Install an extension."""
         try:
-            from core.services.extension_manager import ExtensionManager
+            from extensions.core.extension_manager import ExtensionManager
             ext_mgr = ExtensionManager()
 
             install_report = f"📦 INSTALLING EXTENSION: {extension_name}\n" + "="*50 + "\n\n"
@@ -3049,3 +3213,272 @@ Examples:
         output += "╚════════════════════════════════════════════════════════════════════════╝"
         return output
 
+
+    # ======================================================================
+    # v1.0.29: GET/SET SYSTEM - Smart field access
+    # ======================================================================
+
+    def handle_get(self, params, grid, parser):
+        """
+        GET field value from story/config/system interactively or explicitly.
+
+        Usage:
+            GET                          → Interactive field browser
+            GET USER_NAME                → Get STORY.USER_NAME (shorthand)
+            GET STORY.USER_NAME          → Get story field (explicit)
+            GET CONFIG.GEMINI_API_KEY    → Get config field
+            GET SYSTEM.THEME             → Get system setting
+
+        Returns:
+            Field value or interactive picker result
+        """
+        if not params:
+            # Interactive mode - show field browser
+            field_categories = [
+                "User Profile (name, location, timezone)",
+                "System Settings (theme, viewport)",
+                "All Fields"
+            ]
+
+            choice = self.input_manager.prompt_choice(
+                "What would you like to view?",
+                choices=field_categories
+            )
+
+            if "User" in choice:
+                # Show user profile fields
+                user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+                password = self.story_manager.get_field('STORY.PASSWORD', '')
+                location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+                timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+
+                password_display = '●●●●●●' if password else 'Not set'
+
+                profile = {
+                    'Username': user_name,
+                    'Password': password_display,
+                    'Location': location,
+                    'Timezone': timezone
+                }
+                return self.output_formatter.format_panel(
+                    "User Profile",
+                    self.output_formatter.format_key_value(profile)
+                )
+            elif "System" in choice:
+                # Show system settings
+                theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+                settings = {
+                    'Theme': theme,
+                    'Viewport': f"{self.viewport.width}×{self.viewport.height}" if self.viewport else "Unknown",
+                    'Connection': self.connection.get_mode() if self.connection else "Unknown"
+                }
+                return self.output_formatter.format_panel(
+                    "System Settings",
+                    self.output_formatter.format_key_value(settings)
+                )
+            else:
+                # Browse all fields
+                user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+                password = self.story_manager.get_field('STORY.PASSWORD', '')
+                location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+                timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+                theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+
+                password_display = '●●●●●●' if password else 'Not set'
+
+                all_fields = {
+                    'Username': user_name,
+                    'Password': password_display,
+                    'Location': location,
+                    'Timezone': timezone,
+                    'Theme': theme,
+                    'Viewport': f"{self.viewport.width}×{self.viewport.height}" if self.viewport else "Unknown"
+                }
+                return self.output_formatter.format_panel(
+                    "All Fields",
+                    self.output_formatter.format_key_value(all_fields)
+                )
+
+        # Explicit mode - get specific field
+        field_path = params[0].upper()
+
+        # Smart shorthand: if no dot, assume STORY prefix
+        if '.' not in field_path:
+            field_path = f"STORY.{field_path}"
+
+        # Parse field source (STORY.*, CONFIG.*, SYSTEM.*)
+        source, *path_parts = field_path.split('.')
+        remaining_path = '.'.join(path_parts)
+
+        if source == 'STORY':
+            value = self.story_manager.get_field(field_path, default="<not set>")
+            # Mask password display
+            if 'PASSWORD' in field_path.upper() and value != "<not set>":
+                value = '●●●●●●' if value else '<not set>'
+            return f"{field_path} = {value}"
+        elif source == 'SYSTEM':
+            # System settings
+            system_fields = {
+                'THEME': self.story_manager.get_field('STORY.THEME', 'dungeon'),
+                'VIEWPORT.WIDTH': self.viewport.width if self.viewport else None,
+                'VIEWPORT.HEIGHT': self.viewport.height if self.viewport else None,
+            }
+            value = system_fields.get(remaining_path, "<unknown field>")
+            return f"{field_path} = {value}"
+        elif source == 'CONFIG':
+            # Delegate to CONFIG GET
+            return self.handle_config(['get', remaining_path], grid, parser)
+        else:
+            return self.output_formatter.format_error(
+                f"Unknown field source: {source}",
+                "Valid sources: STORY, SYSTEM, CONFIG\n" +
+                "💡 Tip: Just use field name for STORY fields (e.g., GET USER_NAME)"
+            )
+
+    def handle_set(self, params, grid, parser):
+        """
+        SET field value in story/config/system interactively or explicitly.
+
+        Usage:
+            SET                                    → Interactive setter
+            SET USER_NAME Fred                     → Set STORY.USER_NAME (shorthand)
+            SET STORY.USER_NAME "Fred"             → Set story field (explicit)
+            SET STORY.THEME dungeon                → Set story field
+            SET CONFIG.OFFLINE_MODE true           → Set config
+
+        Returns:
+            Success message or error
+        """
+        if not params:
+            # Interactive mode
+            field_path = self.input_manager.prompt_user(
+                "Field to set (e.g., USER_NAME or STORY.USER_NAME)",
+                required=True
+            )
+
+            if not field_path:
+                return self.output_formatter.format_warning("Operation cancelled")
+
+            # Smart shorthand: if no dot, assume STORY prefix
+            if '.' not in field_path.upper():
+                field_path = f"STORY.{field_path.upper()}"
+
+            value = self.input_manager.prompt_user(
+                f"New value for {field_path}",
+                required=True
+            )
+
+            if not value:
+                return self.output_formatter.format_warning("Operation cancelled")
+
+            params = [field_path, value]
+
+        if len(params) < 2:
+            return self.output_formatter.format_error(
+                "Missing value",
+                "Usage: SET FIELD value\n" +
+                "💡 Tip: Just use field name for STORY fields (e.g., SET USER_NAME Fred)"
+            )
+
+        field_path = params[0].upper()
+        value = ' '.join(params[1:])  # Join remaining params as value
+
+        # Remove quotes if present
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        elif value.startswith("'") and value.endswith("'"):
+            value = value[1:-1]
+
+        # Smart shorthand: if no dot, assume STORY prefix
+        if '.' not in field_path:
+            field_path = f"STORY.{field_path}"
+
+        # Parse field source
+        source, *path_parts = field_path.split('.')
+        remaining_path = '.'.join(path_parts)
+
+        if source == 'STORY':
+            # Set story field
+            success = self.story_manager.set_field(field_path, value, auto_save=True)
+
+            if success:
+                # Don't show password in output
+                display_value = '●●●●●●' if 'PASSWORD' in field_path else value
+                return self.output_formatter.format_success(
+                    f"Story field updated: {field_path} = {display_value}",
+                    details=f"Saved to: {self.story_manager.story_path}"
+                )
+            else:
+                return self.output_formatter.format_error(
+                    "Failed to update story field"
+                )
+        elif source == 'CONFIG':
+            # Delegate to CONFIG SET
+            return self.handle_config(['set', remaining_path, value], grid, parser)
+        elif source == 'SYSTEM':
+            return self.output_formatter.format_warning(
+                "System fields are read-only",
+                "Use CONFIG or SETTINGS to modify system settings"
+            )
+        else:
+            return self.output_formatter.format_error(
+                f"Unknown field source: {source}",
+                "Valid sources: STORY, CONFIG\n" +
+                "💡 Tip: Just use field name for STORY fields (e.g., SET USER_NAME Fred)"
+            )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.0.32: PLANET SYSTEM COMMANDS
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_config_planet(self, params, grid, parser):
+        """
+        Handle CONFIG PLANET commands.
+        Delegates to cmd_config_planet for all planet management.
+
+        Args:
+            params: Command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Command result message
+        """
+        from core.commands.cmd_config_planet import cmd_config_planet
+
+        user_data = {
+            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
+        }
+
+        result = cmd_config_planet(user_data, params)
+
+        if result['success']:
+            return result['message']
+        else:
+            return f"❌ {result['message']}"
+
+    def handle_locate(self, params, grid, parser):
+        """
+        Handle LOCATE command.
+        Delegates to cmd_locate for location management.
+
+        Args:
+            params: Command parameters
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Command result message
+        """
+        from core.commands.cmd_locate import cmd_locate
+
+        user_data = {
+            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
+        }
+
+        result = cmd_locate(user_data, params)
+
+        if result['success']:
+            return result['message']
+        else:
+            return f"❌ {result['message']}"

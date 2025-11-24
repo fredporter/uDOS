@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# uDOS Launcher Script v1.0.0
+# uDOS Launcher Script v1.0.31
 # Enhanced startup with health checks, auto-repair, and user-friendly error handling
 
 set -e  # Exit on error
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Startup banner
 echo -e "${CYAN}╔═══════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.0.0 Startup System${NC}     ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.0.31 Startup${NC}           ${CYAN}║${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════╝${NC}"
 echo ""
 
@@ -50,7 +50,98 @@ if command -v python3 &> /dev/null; then
         exit 1
     elif [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -eq 9 ]; then
         print_warning "Python $PYTHON_VERSION is end-of-life (EOL October 2025)"
-        print_warning "Consider upgrading to Python 3.10+ for security updates"
+        print_warning "Security updates are no longer available for this version"
+        echo ""
+        echo -e "${YELLOW}Would you like to upgrade Python now?${NC}"
+        echo -e "  ${CYAN}1)${NC} Yes - Auto-install Python 3.12 (Homebrew required)"
+        echo -e "  ${CYAN}2)${NC} Show manual upgrade instructions"
+        echo -e "  ${CYAN}3)${NC} Continue with Python 3.9.6 (not recommended)"
+        echo -e "  ${CYAN}4)${NC} Remind me later"
+        read -p "> " choice
+
+        case $choice in
+            1)
+                # Auto-install using Homebrew
+                echo ""
+                if command -v brew &> /dev/null; then
+                    print_status "Homebrew detected - installing Python 3.12..."
+                    echo ""
+
+                    if brew install python@3.12; then
+                        print_success "Python 3.12 installed successfully!"
+
+                        # Link the new Python
+                        print_status "Linking Python 3.12..."
+                        brew link python@3.12 --overwrite
+
+                        # Verify new version
+                        NEW_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
+                        print_success "Python upgraded to $NEW_VERSION"
+
+                        # Recreate virtual environment
+                        echo ""
+                        print_status "Recreating virtual environment with new Python..."
+                        rm -rf .venv
+                        python3 -m venv .venv
+                        source .venv/bin/activate
+
+                        print_status "Installing dependencies..."
+                        pip install --upgrade pip -q
+                        pip install -r requirements.txt -q
+
+                        print_success "Setup complete! Python upgraded successfully."
+                        echo ""
+                        echo -e "${GREEN}✓ Ready to continue startup${NC}"
+                        echo ""
+                    else
+                        print_error "Installation failed. Try manual installation instead."
+                        exit 1
+                    fi
+                else
+                    print_error "Homebrew not found!"
+                    echo ""
+                    echo -e "${YELLOW}Install Homebrew first:${NC}"
+                    echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+                    echo ""
+                    echo -e "${YELLOW}Or use manual installation (option 2)${NC}"
+                    exit 1
+                fi
+                ;;
+            2)
+                # Manual instructions
+                echo ""
+                echo -e "${GREEN}Python Upgrade Instructions:${NC}"
+                echo ""
+                echo -e "${CYAN}Option 1: Using Homebrew (recommended for macOS)${NC}"
+                echo "  brew install python@3.12"
+                echo "  brew link python@3.12"
+                echo ""
+                echo -e "${CYAN}Option 2: Using pyenv (cross-platform)${NC}"
+                echo "  brew install pyenv  # macOS"
+                echo "  pyenv install 3.12.0"
+                echo "  pyenv global 3.12.0"
+                echo ""
+                echo -e "${CYAN}Option 3: Official installer${NC}"
+                echo "  Download from: https://www.python.org/downloads/"
+                echo ""
+                echo -e "${YELLOW}After upgrading, recreate the virtual environment:${NC}"
+                echo "  rm -rf .venv"
+                echo "  python3 -m venv .venv"
+                echo "  source .venv/bin/activate"
+                echo "  pip install -r requirements.txt"
+                echo ""
+                exit 0
+                ;;
+            3)
+                print_warning "Continuing with Python $PYTHON_VERSION (security risks apply)"
+                ;;
+            4)
+                print_status "Reminder set - continuing with Python $PYTHON_VERSION"
+                ;;
+            *)
+                print_warning "Invalid choice - continuing with Python $PYTHON_VERSION"
+                ;;
+        esac
         print_success "Python $PYTHON_VERSION (will work with warnings)"
     else
         print_success "Python ${PYTHON_VERSION} found"
@@ -115,12 +206,16 @@ for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests"
         module_name="$package"
     fi
 
-    if ! python3 -c "import $module_name" 2>/dev/null; then
-        MISSING_DEPS=1
-        if [ -z "$MISSING_LIST" ]; then
-            MISSING_LIST="$package"
-        else
-            MISSING_LIST="$MISSING_LIST, $package"
+    # Suppress Python 3.9 EOL warnings - check if import succeeds
+    if ! python3 -W ignore::DeprecationWarning -c "import $module_name" 2>&1 | grep -v "packages_distributions" > /dev/null; then
+        # Import failed
+        if python3 -c "import $module_name" 2>&1 | grep -q "ModuleNotFoundError\|ImportError"; then
+            MISSING_DEPS=1
+            if [ -z "$MISSING_LIST" ]; then
+                MISSING_LIST="$package"
+            else
+                MISSING_LIST="$MISSING_LIST, $package"
+            fi
         fi
     fi
 done
@@ -190,9 +285,9 @@ print_success "Data directories verified"
 # Check critical data files
 print_status "Checking critical data files..."
 DATA_FILES_OK=1
-for file in "system/commands.json" "themes/dungeon.json" "themes/_index.json" "templates/story.template.json"; do
-    if [ ! -f "data/$file" ]; then
-        print_warning "data/$file not found"
+for file in "system/commands.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
+    if [ ! -f "knowledge/$file" ]; then
+        print_warning "knowledge/$file not found"
         DATA_FILES_OK=0
     fi
 done
@@ -206,10 +301,10 @@ fi
 # Validate JSON in critical files
 print_status "Validating configuration files..."
 JSON_OK=1
-for file in "system/commands.json" "system/palette.json" "themes/dungeon.json" "themes/_index.json"; do
-    if [ -f "data/$file" ]; then
-        if ! python3 -c "import json; json.load(open('data/$file'))" 2>/dev/null; then
-            print_error "data/$file has invalid JSON"
+for file in "system/commands.json" "system/palette.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
+    if [ -f "knowledge/$file" ]; then
+        if ! python3 -c "import json; json.load(open('knowledge/$file'))" 2>/dev/null; then
+            print_error "knowledge/$file has invalid JSON"
             JSON_OK=0
         fi
     fi

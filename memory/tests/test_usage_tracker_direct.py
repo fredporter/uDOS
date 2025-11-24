@@ -6,7 +6,7 @@ Test UsageTracker service directly
 import sys
 sys.path.insert(0, '/Users/fredbook/Code/uDOS')
 
-from core.services.usage_tracker import UsageTracker
+from core.utils.usage_tracker import UsageTracker
 
 # Create tracker
 tracker = UsageTracker(data_dir="memory/tests", max_recent=50)

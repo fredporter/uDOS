@@ -1,6 +1,59 @@
-# BBC Teletext Extension v1.0.24
+# BBC Teletext Extension v1.0.26
 
-Authentic BBC Teletext broadcast interface recreation for uDOS, featuring Mallard fonts, Mode 7 graphics, and BBC standards compliance.
+Authentic BBC Teletext broadcast interface recreation for uDOS, featuring Mallard fonts, Mode 7 graphics, BBC standards compliance, and optional web GUI with REST API.
+
+## 🎯 Status: Optional Extension
+
+⚠️ **This extension is NOT required for CLI operation**
+
+The Teletext web GUI is completely optional. uDOS CLI is fully functional without it. This extension adds browser-based access via REST API.
+
+## Components
+
+### 1. **Teletext Rendering** (Visual)
+- Authentic BBC Teletext display system
+- 40×25 character grid
+- Mallard fonts, Mode 7 graphics
+- 8-color palette
+
+### 2. **API Server** (Web Interface)
+- **File**: `api_server.py`
+- **Purpose**: Flask REST API for web GUI
+- **Endpoints**: 68 HTTP routes + WebSocket
+- **Port**: 5001 (default)
+- **Status**: Disabled by default
+
+### 3. **API Server Manager** (Lifecycle)
+- **File**: `api_server_manager.py`
+- **Purpose**: Auto-start, health monitoring, restart
+- **Status**: Only loads if API enabled
+
+## 🚀 Quick Start (CLI Only)
+
+No setup needed! uDOS CLI works out of the box without this extension.
+
+## 🌐 Enabling Web GUI
+
+### Method 1: User Settings
+Edit `memory/user/profile.json`:
+```json
+{
+  "settings": {
+    "api_server_enabled": true
+  }
+}
+```
+
+### Method 2: CLI Command
+```bash
+uDOS> SETTINGS SET api_server_enabled true
+uDOS> REBOOT
+```
+
+Once enabled:
+```
+🌐 Starting Web GUI API server... ✓ http://localhost:5001
+```
 
 ## 🎯 Features
 

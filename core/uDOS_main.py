@@ -1,10 +1,10 @@
-# uDOS v1.0.0 - Main Application
+# uDOS v1.0.31 - Main Application
 
 # Suppress urllib3 OpenSSL warnings gracefully
 import warnings
 warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL 1.1.1+')
 
-from .uDOS_splash import print_splash_screen
+from .output.splash import print_splash_screen
 from .uDOS_parser import Parser
 from .uDOS_commands import CommandHandler
 from .uDOS_grid import Grid
@@ -17,9 +17,11 @@ from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
-from .uDOS_prompt import SmartPrompt as PromptDecorator  # Renamed to avoid conflict
-from .services.smart_prompt import SmartPrompt  # v1.0.19 autocomplete system
-from .uDOS_tree import generate_repository_tree
+from .input.prompts.smart_prompt import SmartPrompt
+from .input.prompts.prompt_decorator import get_prompt_decorator
+from .utils.tree import generate_repository_tree
+from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
+from .services.standardized_input import StandardizedInput
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -66,8 +68,46 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
         logger.log(error_msg)
         print(error_msg)
 
-def initialize_system(is_script_mode=False):
-    """Initialize all system components."""
+def initialize_system(is_script_mode=False, run_health_check=False, use_fast_startup=True):
+    """
+    Initialize all system components.
+
+    Args:
+        is_script_mode: True if running a script (non-interactive)
+        run_health_check: True to run full health check (slower)
+        use_fast_startup: True to use optimized FastStartup (v1.0.31)
+    """
+
+    # v1.0.31: Use FastStartup for optimized initialization
+    if use_fast_startup:
+        try:
+            components = fast_initialize(
+                verbose=not is_script_mode,
+                run_health_check=run_health_check,
+                is_script_mode=is_script_mode
+            )
+
+            # Generate repository tree (not in fast_startup)
+            if not is_script_mode:
+                print("🌳 Generating repository tree...", end=" ", flush=True)
+            try:
+                tree_string, tree_path = generate_repository_tree()
+                components['tree_generated'] = True
+                if not is_script_mode:
+                    print(f"✓ structure.txt")
+            except Exception as e:
+                components['tree_generated'] = False
+                if not is_script_mode:
+                    print(f"⚠️  ({str(e)})")
+
+            return components
+
+        except Exception as e:
+            # Fall back to legacy initialization on error
+            print(f"⚠️  FastStartup failed ({e}), using standard init...")
+            use_fast_startup = False
+
+    # Standard initialization (fallback)
     components = {}
 
     try:
@@ -112,7 +152,7 @@ def initialize_system(is_script_mode=False):
             user_manager.update_session_data(session_id, viewport_data)
 
         # 4. System health check
-        if not is_script_mode:
+        if not is_script_mode and run_health_check:
             print("🏥 System health...", end=" ", flush=True)
 
         from core.uDOS_startup import quick_health_check, check_system_health, repair_system
@@ -120,7 +160,7 @@ def initialize_system(is_script_mode=False):
         is_healthy, message = quick_health_check()
         health = None  # Initialize health variable
 
-        if not is_script_mode:
+        if not is_script_mode and run_health_check:
             # Show brief status
             if is_healthy and "warning" not in message.lower():
                 print("✓ Healthy")
@@ -134,17 +174,36 @@ def initialize_system(is_script_mode=False):
                 print()
                 print(f"  {message}")
                 print()
-                response = input("  Attempt auto-repair? (y/n/OK): ").strip().lower()
-                if response in ['y', 'yes', 'ok']:
-                    print()
-                    health = check_system_health(verbose=False)
-                    health = repair_system(health, verbose=True)
-                    print()
-                    if health.is_healthy():
-                        print("  ✅ System repaired successfully!")
-                    else:
-                        print(f"  ⚠️  Some issues remain - run 'REPAIR --report' for details")
-                    print()
+
+                # Only prompt if we have an interactive terminal
+                import sys
+                if sys.stdin.isatty():
+                    try:
+                        input_service = StandardizedInput()
+                        response = input_service.select_option(
+                            title="Attempt auto-repair?",
+                            options=["Yes", "No", "OK"],
+                            default_index=0
+                        )
+                        if response in ['Yes', 'OK']:
+                            print()
+                            health = check_system_health(verbose=False, return_dict=False)
+                            health = repair_system(health, verbose=True)
+                            print()
+                            if health.is_healthy():
+                                print("  ✅ System repaired successfully!")
+                            else:
+                                print("  ⚠️  Some issues remain - run 'REPAIR --report' for details")
+                    except (EOFError, KeyboardInterrupt):
+                        print("\n  ⚠️  Skipping auto-repair")
+                        print("  💡 Run 'REPAIR' command later to fix issues")
+                else:
+                    print("  ⚠️  Non-interactive mode - skipping auto-repair")
+                    print("  💡 Run 'REPAIR' command to fix issues")
+                print()
+        elif not is_script_mode and not run_health_check:
+            # Fast mode: skip health check silently
+            pass
 
         # Store health check results (if available)
         if health:
@@ -185,9 +244,12 @@ def initialize_system(is_script_mode=False):
 def main():
     """Main function with full system initialization."""
     try:
-        is_script_mode = len(sys.argv) > 1
+        # Check for flags
+        is_script_mode = len(sys.argv) > 1 and not sys.argv[1].startswith('--')
+        run_health_check = '--check' in sys.argv
+        fast_mode = not run_health_check  # Skip health by default unless --check is passed
 
-        components = initialize_system(is_script_mode)
+        components = initialize_system(is_script_mode, run_health_check)
         if not components:
             return 1
 
@@ -224,6 +286,62 @@ def main():
             lifespan_status = user_manager.check_lifespan_status(move_stats['total_moves'])
             if lifespan_status['status'] != 'OK':
                 print(f"⏳ {lifespan_status['message']}")
+
+            # v1.0.30: Show welcome and offer demo
+            try:
+                from core.utils.startup_welcome import startup_sequence
+                # Check if this is a first run or fresh session
+                import os
+                demo_shown_file = os.path.join(os.path.dirname(__file__), '..', 'memory', '.demo_shown_v1_0_30')
+                show_demo = not os.path.exists(demo_shown_file)
+
+                startup_sequence(viewport_width=viewport.width, auto_skip_demo=not show_demo)
+
+                # Mark demo as shown
+                if show_demo:
+                    try:
+                        os.makedirs(os.path.dirname(demo_shown_file), exist_ok=True)
+                        with open(demo_shown_file, 'w') as f:
+                            f.write('Demo shown on first run of v1.0.30')
+                    except:
+                        pass  # Non-critical
+            except Exception as e:
+                # Don't fail startup if welcome fails
+                pass
+
+            # v1.0.32: Planet selection on first run
+            try:
+                from core.services.planet_manager import PlanetManager
+                pm = PlanetManager()
+
+                # Check if this is first time using planet system
+                current_planet = pm.get_current()
+                if not current_planet:
+                    # Offer planet setup
+                    print()
+                    print("="*viewport.width)
+                    print("🪐 PLANET SYSTEM INITIALIZATION")
+                    print("="*viewport.width)
+                    print()
+                    print("uDOS v1.0.32 introduces the Planet System - your workspaces")
+                    print("are now visualized as planets in solar systems!")
+                    print()
+                    print("The default planet 'Earth' has been created for you.")
+                    print("You can create additional planets anytime with: CONFIG PLANET NEW")
+                    print()
+
+                    # Set Earth as default
+                    earth = pm.list_planets()[0] if pm.list_planets() else None
+                    if earth:
+                        print(f"✅ Active Planet: {earth.icon} {earth.name} ({earth.solar_system})")
+                        print()
+                        print("💡 Tip: Use LOCATE CITY to set your Earth location for")
+                        print("   location-aware survival knowledge and world maps!")
+                        print()
+            except Exception as e:
+                # Don't fail startup if planet setup fails
+                pass
+
             print()  # Blank line
 
         command_handler = CommandHandler(
@@ -243,33 +361,35 @@ def main():
 
         project_name = story_data.get('STORY', {}).get('PROJECT_NAME', 'uDOS') if story_data else 'uDOS'
 
-        # Initialize prompt decorator (for visual effects)
-        prompt_decorator = PromptDecorator()
-
-        # Initialize v1.0.19 smart prompt with autocomplete (replaces old PromptSession)
+        # Initialize smart prompt with autocomplete
         smart_prompt = SmartPrompt(command_history=command_history, theme='dungeon')
 
-        # Start API server if configured (v1.0.19 enhancement)
+        # Initialize prompt decorator for themed prompts
+        prompt_decorator = get_prompt_decorator(theme='dungeon')
+
+        # OPTIONAL: Web GUI Extension - API Server
+        # Only loads if explicitly enabled in user settings
+        # CLI functionality is complete without this
         api_server_started = False
         try:
-            from .services.api_server_manager import APIServerManager
-
-            # Check if user wants API server (can be configured in settings)
             user_data = user_manager.get_user_data()
-            start_api = user_data.get('settings', {}).get('api_server_enabled', True)
+            if user_data.get('settings', {}).get('api_server_enabled', False):
+                # Try to load API server extension (not in core)
+                from extensions.core.teletext.api_server_manager import APIServerManager
 
-            if start_api:
-                print("🌐 Starting API server...", end=" ", flush=True)
+                print("🌐 Starting Web GUI API server...", end=" ", flush=True)
                 api_manager = APIServerManager(port=5001, auto_restart=True)
                 if api_manager.start_server():
                     api_server_started = True
-                    print("✓")
+                    print("✓ http://localhost:5001")
                 else:
-                    print("⚠️  (continuing without API)")
+                    print("❌ Failed (continuing in CLI mode)")
+        except ImportError:
+            # Extension not installed - CLI works fine without it
+            pass
         except Exception as e:
-            # API server is optional, continue without it
-            if not is_script_mode:
-                print(f"⚠️  API server unavailable ({str(e)[:30]}...)")
+            # Extension failed to load - not critical for CLI
+            pass
 
         print()  # Blank line before prompt
 
@@ -283,11 +403,13 @@ def main():
                     os.execv(sys.executable, ['python'] + sys.argv)
 
                 # Generate smart prompt string with flash effect
+                # Note: Flash disabled by default to preserve terminal scrollback
+                # Set flash=True below if you want the animated prompt
                 is_assist = user_manager.is_assist_mode()
                 prompt_string = prompt_decorator.get_prompt(
                     is_assist_mode=is_assist,
                     panel_name=grid.selected_panel,
-                    flash=True
+                    flash=False  # Changed from True - preserves scrollback
                 )
 
                 # Show context hints if available
@@ -300,6 +422,11 @@ def main():
 
                 # Use new SmartPrompt with autocomplete (v1.0.19)
                 user_input = smart_prompt.ask(prompt_text=prompt_string)
+
+                # Skip empty input (happens with piped input at EOF)
+                if not user_input or not user_input.strip():
+                    continue
+
                 logger.log("INPUT", user_input)
 
                 if user_input.lower() == 'exit':
@@ -370,11 +497,19 @@ def main():
                     logger.log("ERROR", f"IOError: {e}")
                     print(command_handler.get_message("ERROR_GENERIC", error=str(e)))
             except Exception as e:
+                # Check if this is a normal termination condition
+                error_str = str(e).lower()
+                if any(term in error_str for term in ['eof', 'closed', 'input', 'terminal']):
+                    # Likely end of piped input or terminal closed - exit gracefully
+                    logger.log("EVENT", f"Terminal condition: {e}")
+                    break
+
+                # Otherwise log and display error
                 logger.log("ERROR", str(e))
                 print(command_handler.get_message("ERROR_CRASH", error=str(e)))
 
                 # Self-healing attempt for recoverable errors
-                if "connection" in str(e).lower() or "timeout" in str(e).lower():
+                if "connection" in error_str or "timeout" in error_str:
                     print("🔧 Attempting self-heal...")
                     try:
                         connection = ConnectionMonitor()

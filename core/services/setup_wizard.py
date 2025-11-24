@@ -1,11 +1,12 @@
 """
-uDOS v1.0.12 - Setup Wizard Service
+uDOS v1.0.29 - Setup Wizard Service (Smart Mode)
 
 Interactive onboarding and configuration wizard for new users.
 Guides users through initial setup with step-by-step prompts.
 
 Features:
-- Interactive step-by-step wizard
+- Interactive step-by-step wizard with InputManager
+- Complete story.json user profile setup
 - Theme selection with previews
 - Viewport configuration
 - Extension discovery and installation
@@ -13,7 +14,7 @@ Features:
 - Configuration validation
 - Settings export/import
 
-Version: 1.0.12
+Version: 1.0.29 (Smart Input Integration)
 """
 
 import json
@@ -25,15 +26,51 @@ from typing import Dict, List, Optional, Tuple, Any
 class SetupWizard:
     """Interactive setup wizard for uDOS configuration."""
 
-    def __init__(self):
-        """Initialize Setup Wizard."""
+    def __init__(self, input_manager=None, story_manager=None, output_formatter=None):
+        """
+        Initialize Setup Wizard.
+
+        Args:
+            input_manager: InputManager instance for smart prompts
+            story_manager: StoryManager instance for story.json access
+            output_formatter: OutputFormatter instance for consistent output
+        """
         self.config_file = "memory/user/USER.UDT"
         self.themes_dir = Path("knowledge/system/themes")
         self.user_config = {}
 
+        # v1.0.29: Smart input services
+        self._input_manager = input_manager
+        self._story_manager = story_manager
+        self._output_formatter = output_formatter
+
         # Available options
         self.available_themes = self._load_available_themes()
         self.available_viewports = self._get_viewport_presets()
+
+    @property
+    def input_manager(self):
+        """Lazy-load InputManager if not provided."""
+        if self._input_manager is None:
+            from core.services.input_manager import InputManager
+            self._input_manager = InputManager()
+        return self._input_manager
+
+    @property
+    def story_manager(self):
+        """Lazy-load StoryManager if not provided."""
+        if self._story_manager is None:
+            from core.output.story_manager import StoryManager
+            self._story_manager = StoryManager()
+        return self._story_manager
+
+    @property
+    def output_formatter(self):
+        """Lazy-load OutputFormatter if not provided."""
+        if self._output_formatter is None:
+            from core.output.output_formatter import OutputFormatter
+            self._output_formatter = OutputFormatter()
+        return self._output_formatter
 
     def _load_available_themes(self) -> List[str]:
         """Load list of available themes."""
@@ -74,93 +111,359 @@ class SetupWizard:
             {"name": "Cinema", "size": "360×150", "tier": 14}
         ]
 
-    def run_full_wizard(self) -> Dict[str, Any]:
+    def run_full_wizard(self) -> str:
         """
-        Run the complete interactive setup wizard.
+        Run the complete interactive setup wizard (v1.0.29 Smart Mode).
 
         Returns:
-            Configuration dictionary
+            Success message with summary
         """
-        config = {}
+        try:
+            output = []
 
-        # Welcome screen
-        print(self._format_welcome())
+            # Welcome screen
+            output.append(self._format_welcome())
+            output.append("\n")
 
-        # Step 1: Theme selection
-        config['theme'] = self._wizard_step_theme()
+            # Check if user needs setup
+            needs_setup = self.story_manager.needs_setup()
 
-        # Step 2: Viewport configuration
-        config['viewport'] = self._wizard_step_viewport()
+            if needs_setup:
+                output.append(self.output_formatter.format_info(
+                    "First-time setup required. Let's configure your profile!"
+                ))
+            else:
+                # Ask if user wants to reconfigure
+                reconfigure = self.input_manager.prompt_confirm(
+                    message="Your profile is already configured. Reconfigure?",
+                    default=False
+                )
+                if not reconfigure:
+                    return "Setup cancelled. Your current configuration is unchanged."
 
-        # Step 3: Extensions
-        config['extensions'] = self._wizard_step_extensions()
+            output.append("\n")
 
-        # Step 4: Advanced settings
-        config['advanced'] = self._wizard_step_advanced()
+            # Step 1: User Profile (required for first-time setup)
+            output.append(self.output_formatter.format_panel(
+                "Step 1/4: User Profile",
+                "Let's set up your personal information"
+            ))
+            self._wizard_step_user_profile()
+            output.append("✅ User profile configured\n")
 
-        # Summary and confirmation
-        self._show_summary(config)
+            # Step 2: Theme selection
+            output.append(self.output_formatter.format_panel(
+                "Step 2/4: Theme Selection",
+                "Choose your visual theme"
+            ))
+            theme = self._wizard_step_theme()
+            output.append(f"✅ Theme set to: {theme}\n")
 
-        return config
+            # Step 3: Viewport configuration
+            output.append(self.output_formatter.format_panel(
+                "Step 3/4: Viewport Configuration",
+                "Configure your display settings"
+            ))
+            viewport = self._wizard_step_viewport()
+            output.append(f"✅ Viewport configured: {viewport}\n")
 
-    def run_quick_setup(self) -> Dict[str, Any]:
+            # Step 4: Extensions (optional)
+            skip_extensions = self.input_manager.prompt_confirm(
+                message="Skip extension setup? (You can configure later with POKE)",
+                default=True
+            )
+
+            if not skip_extensions:
+                output.append(self.output_formatter.format_panel(
+                    "Step 4/4: Extensions",
+                    "Configure web extensions"
+                ))
+                extensions = self._wizard_step_extensions()
+                ext_count = sum(1 for v in extensions.values() if v)
+                output.append(f"✅ {ext_count} extensions enabled\n")
+            else:
+                output.append("⏭️  Extensions skipped\n")
+
+            # Summary
+            output.append("\n")
+            output.append(self._format_completion_summary())
+
+            return "\n".join(output)
+
+        except KeyboardInterrupt:
+            return "\n⚠️ Setup cancelled by user. Run SETUP again to complete configuration."
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Setup wizard failed",
+                error_details=str(e)
+            )
+
+    def run_quick_setup(self) -> str:
         """
-        Run quick setup with sensible defaults.
+        Run quick setup with sensible defaults (v1.0.29).
 
         Returns:
-            Configuration dictionary with defaults
+            Success message
         """
-        return {
-            'theme': 'dungeon',
-            'viewport': 'auto',
-            'extensions': {
-                'enable_web': True,
-                'enable_teletext': True
-            },
-            'advanced': {
-                'developer_mode': False,
-                'debug_logging': False,
-                'experimental_features': False
-            }
-        }
+        try:
+            # Check if profile exists
+            needs_setup = self.story_manager.needs_setup()
+
+            if needs_setup:
+                # Auto-detect timezone and location
+                from core.utils.system_info import get_system_timezone
+                detected_timezone, detected_city = get_system_timezone()
+
+                # Must get user name at minimum
+                user_name = self.input_manager.prompt_user(
+                    message="Your name:",
+                    required=True
+                )
+
+                self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
+
+                # Auto-set timezone and location from detection
+                self.story_manager.set_field('STORY.TIMEZONE', detected_timezone, auto_save=False)
+                self.story_manager.set_field('STORY.LOCATION', detected_city, auto_save=False)
+
+            # Apply default theme if not set
+            current_theme = self.story_manager.get_field('STORY.THEME', '')
+            if not current_theme:
+                self.story_manager.set_field('STORY.THEME', 'dungeon', auto_save=False)
+
+            # Save all changes
+            self.story_manager.save()
+
+            output = []
+            output.append(self.output_formatter.format_success(
+                "Quick setup complete!",
+                details={
+                    'Theme': self.story_manager.get_field('STORY.THEME', 'dungeon'),
+                    'Viewport': 'Auto-detect',
+                    'Extensions': 'Enabled (web, teletext, dashboard)'
+                }
+            ))
+            output.append("\n💡 Run SETUP for full configuration wizard")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Quick setup failed",
+                error_details=str(e)
+            )
 
     def setup_theme_only(self) -> str:
-        """Run theme selection wizard only."""
-        return self._wizard_step_theme()
+        """Run theme selection wizard only (v1.0.29)."""
+        try:
+            theme = self._wizard_step_theme()
+            return self.output_formatter.format_success(
+                f"Theme changed to: {theme}",
+                details="Restart uDOS to apply theme changes"
+            )
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Theme setup failed",
+                error_details=str(e)
+            )
 
     def setup_viewport_only(self) -> str:
-        """Run viewport configuration wizard only."""
-        return self._wizard_step_viewport()
+        """Run viewport configuration wizard only (v1.0.29)."""
+        try:
+            viewport = self._wizard_step_viewport()
+            return self.output_formatter.format_success(
+                f"Viewport configured: {viewport}",
+                details="Changes will take effect on next restart"
+            )
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Viewport setup failed",
+                error_details=str(e)
+            )
 
-    def setup_extensions_only(self) -> Dict[str, bool]:
-        """Run extensions configuration wizard only."""
-        return self._wizard_step_extensions()
+    def setup_extensions_only(self) -> str:
+        """Run extensions configuration wizard only (v1.0.29)."""
+        try:
+            extensions = self._wizard_step_extensions()
+            enabled = [name.replace('enable_', '') for name, value in extensions.items() if value]
+
+            return self.output_formatter.format_success(
+                f"Extensions configured: {len(enabled)} enabled",
+                details=f"Enabled: {', '.join(enabled) if enabled else 'none'}"
+            )
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Extensions setup failed",
+                error_details=str(e)
+            )
+
+    def _wizard_step_user_profile(self) -> None:
+        """
+        User profile configuration step (v1.0.29 Smart Mode).
+        Matches CONFIG command variables: username, password, timezone, location.
+        """
+        # Auto-detect timezone and location from system
+        from core.utils.system_info import get_system_timezone
+        detected_timezone, detected_city = get_system_timezone()
+
+        # Get current values
+        current_name = self.story_manager.get_field('STORY.USER_NAME', '')
+        current_password = self.story_manager.get_field('STORY.PASSWORD', '')
+        current_location = self.story_manager.get_field('STORY.LOCATION', '')
+        current_timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+
+        # Use detected values as defaults if not set
+        if not current_timezone:
+            current_timezone = detected_timezone
+        if not current_location:
+            current_location = detected_city
+
+        # Prompt for user name (required)
+        user_name = self.input_manager.prompt_user(
+            message="What's your name?",
+            default=current_name,
+            required=True
+        )
+        self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
+
+        # Prompt for password (optional)
+        password = self.input_manager.prompt_user(
+            message="Enter password (leave blank for none):",
+            default="",
+            required=False
+        )
+        self.story_manager.set_field('STORY.PASSWORD', password, auto_save=False)
+
+        # Prompt for timezone (auto-detected, modifiable)
+        print(f"\nℹ️  Detected timezone: {detected_timezone}")
+        timezone = self.input_manager.prompt_user(
+            message=f"Timezone:",
+            default=current_timezone,
+            required=False
+        )
+        if timezone:
+            self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
+        else:
+            self.story_manager.set_field('STORY.TIMEZONE', current_timezone, auto_save=False)
+
+        # Prompt for location (defaults to timezone city, modifiable)
+        location = self.input_manager.prompt_user(
+            message=f"Location (city):",
+            default=current_location,
+            required=False
+        )
+        if location:
+            self.story_manager.set_field('STORY.LOCATION', location, auto_save=False)
+        else:
+            self.story_manager.set_field('STORY.LOCATION', current_location, auto_save=False)
+
+        # Save all profile changes
+        self.story_manager.save()
 
     def _wizard_step_theme(self) -> str:
-        """Theme selection step (simulated for now)."""
-        # In real implementation, this would be interactive
-        # For now, return a selection
-        return "dungeon"  # Default theme
+        """Theme selection step (v1.0.29 Smart Mode)."""
+        current_theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+
+        # Show available themes
+        if not self.available_themes:
+            return current_theme
+
+        theme = self.input_manager.prompt_choice(
+            message="Select a theme:",
+            choices=self.available_themes,
+            default=current_theme if current_theme in self.available_themes else self.available_themes[0]
+        )
+
+        self.story_manager.set_field('STORY.THEME', theme, auto_save=True)
+        return theme
 
     def _wizard_step_viewport(self) -> str:
-        """Viewport configuration step (simulated)."""
-        return "auto"  # Auto-detect
+        """Viewport configuration step (v1.0.29 Smart Mode)."""
+        # Offer preset choices
+        choices = ["Auto-detect (recommended)"]
+        for preset in self.available_viewports:
+            choices.append(f"{preset['name']} - {preset['size']}")
+        choices.append("Custom size")
+
+        choice = self.input_manager.prompt_choice(
+            message="Select viewport configuration:",
+            choices=choices,
+            default="Auto-detect (recommended)"
+        )
+
+        if choice == "Auto-detect (recommended)":
+            return "auto"
+        elif choice == "Custom size":
+            width = self.input_manager.prompt_user(
+                message="Enter width (cells, 10-1000):",
+                default="80",
+                required=True
+            )
+            height = self.input_manager.prompt_user(
+                message="Enter height (cells, 5-1000):",
+                default="24",
+                required=True
+            )
+            return f"{width}×{height}"
+        else:
+            # Parse preset choice
+            preset_name = choice.split(" - ")[0]
+            for preset in self.available_viewports:
+                if preset['name'] == preset_name:
+                    return preset['size']
+            return "auto"
 
     def _wizard_step_extensions(self) -> Dict[str, bool]:
-        """Extensions configuration step (simulated)."""
-        return {
-            'enable_web': True,
-            'enable_teletext': True,
-            'enable_dashboard': True
+        """Extensions configuration step (v1.0.29 Smart Mode)."""
+        extensions = {}
+
+        # Web Interface
+        enable_web = self.input_manager.prompt_confirm(
+            message="Enable Web Dashboard extension?",
+            default=True
+        )
+        extensions['enable_web'] = enable_web
+
+        # Teletext
+        enable_teletext = self.input_manager.prompt_confirm(
+            message="Enable Teletext Renderer extension?",
+            default=True
+        )
+        extensions['enable_teletext'] = enable_teletext
+
+        # Dashboard Builder
+        enable_dashboard = self.input_manager.prompt_confirm(
+            message="Enable Dashboard Builder extension?",
+            default=True
+        )
+        extensions['enable_dashboard'] = enable_dashboard
+
+        return extensions
+
+    def _format_completion_summary(self) -> str:
+        """Format completion summary with current config (v1.0.29)."""
+        user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+        password = self.story_manager.get_field('STORY.PASSWORD', '')
+        theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+        location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+        timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+
+        password_display = '●●●●●●' if password else 'Not set'
+
+        summary_data = {
+            'Username': user_name,
+            'Password': password_display,
+            'Location': location,
+            'Timezone': timezone,
+            'Theme': theme
         }
 
-    def _wizard_step_advanced(self) -> Dict[str, bool]:
-        """Advanced settings step (simulated)."""
-        return {
-            'developer_mode': False,
-            'debug_logging': False,
-            'experimental_features': False
-        }
+        return self.output_formatter.format_panel(
+            "✅ Setup Complete!",
+            self.output_formatter.format_key_value(summary_data) +
+            "\n\n💡 You can reconfigure anytime with: SETUP\n" +
+            "💡 Change individual settings with: CONFIG"
+        )
 
     def _show_summary(self, config: Dict[str, Any]) -> None:
         """Display configuration summary."""

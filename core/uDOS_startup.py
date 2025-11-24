@@ -17,6 +17,14 @@ import json
 import importlib
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
+from enum import Enum
+
+
+class HealthStatus(Enum):
+    """System health status levels."""
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    CRITICAL = "critical"
 
 
 class HealthCheckResult:
@@ -74,6 +82,53 @@ class SystemHealth:
         """Count total warnings."""
         return sum(len(check.warnings) for check in self.checks)
 
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert SystemHealth to a dictionary for API/test compatibility.
+
+        Returns:
+            dict with 'status', 'issues', 'warnings', and 'checks' keys
+        """
+        # Determine overall status
+        issues_count = self.get_issues_count()
+        warnings_count = self.get_warnings_count()
+
+        if issues_count > 5:
+            status = "critical"
+        elif issues_count > 0 or warnings_count > 5:
+            status = "degraded"
+        else:
+            status = "healthy"
+
+        # Collect all issues and warnings
+        all_issues = []
+        all_warnings = []
+
+        for check in self.checks:
+            for issue in check.issues:
+                all_issues.append(f"{check.name}: {issue}")
+            for warning in check.warnings:
+                all_warnings.append(f"{check.name}: {warning}")
+
+        return {
+            'status': status,
+            'issues': all_issues,
+            'warnings': all_warnings,
+            'issues_count': issues_count,
+            'warnings_count': warnings_count,
+            'is_healthy': self.is_healthy(),
+            'checks': [
+                {
+                    'name': check.name,
+                    'passed': check.passed,
+                    'issues': check.issues,
+                    'warnings': check.warnings,
+                    'recommendations': check.recommendations
+                }
+                for check in self.checks
+            ]
+        }
+
 
 def get_udos_root() -> Path:
     """Get the root directory of the uDOS installation."""
@@ -100,6 +155,7 @@ def check_critical_files() -> HealthCheckResult:
         "core/uDOS_commands.py",
         "knowledge/system/commands.json",
         "knowledge/system/themes/dungeon.json",
+        "knowledge/system/themes/default.json",
     ]
 
     # Critical directories
@@ -107,7 +163,7 @@ def check_critical_files() -> HealthCheckResult:
         "core",
         "knowledge/system",
         "knowledge/system/themes",
-        "sandbox",
+        "memory/sandbox",
         "memory",
     ]
 
@@ -165,7 +221,7 @@ def check_module_imports() -> HealthCheckResult:
         "core.uDOS_commands",
         "core.uDOS_splash",
         "core.uDOS_graphics",
-        "core.uDOS_viewport",
+        "core.utils.viewport",
     ]
 
     for module_name in core_modules:
@@ -264,10 +320,9 @@ def check_permissions() -> HealthCheckResult:
 
     # Directories that need write permission
     writable_dirs = [
-        "sandbox",
+        "memory/sandbox",
         "memory",
-        "data",
-        "output",
+        "memory/logs",
     ]
 
     for dir_path in writable_dirs:
@@ -314,6 +369,29 @@ def check_python_version() -> HealthCheckResult:
             f"Python {version_str} detected (recommended 3.9+)",
             "Consider upgrading for best compatibility"
         )
+    # Check for EOL Python versions
+    elif version.minor == 9 and version.micro <= 6:
+        # Python 3.9.6 is EOL as of October 2025
+        result.add_warning(
+            f"Python {version_str} is end-of-life (EOL October 2025)",
+            "Upgrade to Python 3.10+ for security updates"
+        )
+        # Prompt user to upgrade if in interactive mode
+        if sys.stdin.isatty():
+            try:
+                print("\n⚠️  Python 3.9.6 is end-of-life (EOL October 2025)")
+                print("⚠️  Security updates are no longer available")
+                response = input("\n   Would you like to UPDATE PYTHON? (y/n): ").strip().lower()
+                if response in ['y', 'yes']:
+                    print("\n🔧 Python Upgrade Instructions:")
+                    print("   1. Check available Python versions: brew list | grep python")
+                    print("   2. Install Python 3.11: brew install python@3.11")
+                    print("   3. Create new venv: python3.11 -m venv .venv")
+                    print("   4. Activate: source .venv/bin/activate")
+                    print("   5. Install dependencies: pip install -r requirements.txt")
+                    print("\n   For more info: https://www.python.org/downloads/\n")
+            except (EOFError, KeyboardInterrupt):
+                print("\n")
 
     return result
 
@@ -694,7 +772,7 @@ def repair_missing_directories() -> List[str]:
     created = []
     root = get_udos_root()
 
-    critical_dirs = ["core", "data", "sandbox", "memory", "output"]
+    critical_dirs = ["core", "memory", "knowledge", "extensions"]
 
     for dir_path in critical_dirs:
         full_path = root / dir_path
@@ -964,7 +1042,7 @@ def repair_permissions() -> List[str]:
     repaired = []
     root = get_udos_root()
 
-    writable_dirs = ["sandbox", "memory", "data", "output"]
+    writable_dirs = ["memory/sandbox", "memory", "memory/logs"]
 
     for dir_path in writable_dirs:
         full_path = root / dir_path
@@ -978,15 +1056,16 @@ def repair_permissions() -> List[str]:
     return repaired
 
 
-def check_system_health(verbose: bool = False) -> SystemHealth:
+def check_system_health(verbose: bool = False, return_dict: bool = True):
     """
     Run all health checks on the uDOS system.
 
     Args:
         verbose: If True, print detailed progress
+        return_dict: If True, return dict instead of SystemHealth object (default: True for compatibility)
 
     Returns:
-        SystemHealth object with all check results
+        Dict or SystemHealth object with all check results
     """
     health = SystemHealth()
 
@@ -1028,6 +1107,9 @@ def check_system_health(verbose: bool = False) -> SystemHealth:
     if verbose:
         print()
 
+    # Return dict if requested (for API/test compatibility), otherwise return object
+    if return_dict:
+        return health.to_dict()
     return health
 
 
@@ -1066,7 +1148,7 @@ def repair_system(health: SystemHealth, verbose: bool = False) -> SystemHealth:
         print()
 
     # Re-run health checks to see if repairs worked
-    return check_system_health(verbose=False)
+    return check_system_health(verbose=False, return_dict=False)
 
 
 def get_health_report(health: SystemHealth, include_warnings: bool = True) -> str:
@@ -1138,16 +1220,23 @@ def quick_health_check() -> Tuple[bool, str]:
     """
     health = check_system_health(verbose=False)
 
-    if health.is_healthy():
+    # Handle both dict and SystemHealth object returns
+    if isinstance(health, dict):
+        is_healthy = health.get('status') == 'healthy'
+        issues_count = len(health.get('issues', []))
+        warnings_count = len(health.get('warnings', []))
+    else:
+        is_healthy = health.is_healthy()
+        issues_count = health.get_issues_count()
+        warnings_count = health.get_warnings_count()
+
+    if is_healthy:
         return True, "✅ System healthy"
 
-    issues = health.get_issues_count()
-    warnings = health.get_warnings_count()
-
-    if issues > 0:
-        return False, f"❌ {issues} critical issue(s) detected - run REPAIR for details"
+    if issues_count > 0:
+        return False, f"❌ {issues_count} critical issue(s) detected - run REPAIR for details"
     else:
-        return True, f"⚠️  {warnings} warning(s) - run REPAIR --check for details"
+        return True, f"⚠️  {warnings_count} warning(s) - run REPAIR --check for details"
 
 
 if __name__ == "__main__":
@@ -1156,7 +1245,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print()
 
-    health = check_system_health(verbose=True)
+    health = check_system_health(verbose=True, return_dict=False)
 
     print()
     print(get_health_report(health))

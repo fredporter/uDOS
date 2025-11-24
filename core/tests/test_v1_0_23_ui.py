@@ -17,7 +17,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from core.services.error_handler import EnhancedErrorHandler, ErrorContext
+from core.utils.error_handler import EnhancedErrorHandler, ErrorContext
 from core.ui.progress_indicators import (
     ProgressBar, Spinner, MultiStageProgress, ProgressIndicators
 )

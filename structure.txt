@@ -1,0 +1,1318 @@
+uDOS/
+├── core/
+│   ├── commands/
+│   │   ├── assistant_handler.py
+│   │   ├── bank_handler.py
+│   │   ├── base_handler.py
+│   │   ├── cmd_config_planet.py
+│   │   ├── cmd_knowledge.py
+│   │   ├── cmd_locate.py
+│   │   ├── community_commands.py
+│   │   ├── configuration_handler.py
+│   │   ├── dashboard_handler.py
+│   │   ├── diagram_handler.py
+│   │   ├── doc_handler.py
+│   │   ├── docs_unified_handler.py
+│   │   ├── example_handler.py
+│   │   ├── feedback_handler.py
+│   │   ├── file_handler.py
+│   │   ├── guide_handler.py
+│   │   ├── handbook_handler.py
+│   │   ├── knowledge_commands.py
+│   │   ├── learn_unified_handler.py
+│   │   ├── manual_handler.py
+│   │   ├── memory_commands.py
+│   │   ├── memory_unified_handler.py
+│   │   ├── panel_handler.py
+│   │   ├── private_commands.py
+│   │   ├── repair_handler.py
+│   │   ├── shared_commands.py
+│   │   ├── system_handler.py
+│   │   ├── tile_handler.py
+│   │   └── user_handler.py
+│   ├── input/
+│   │   ├── prompts/
+│   │   │   ├── prompt_decorator.py
+│   │   │   └── smart_prompt.py
+│   │   ├── __init__.py
+│   │   └── interactive.py
+│   ├── interpreters/
+│   │   ├── __init__.py
+│   │   ├── offline.py
+│   │   └── ucode.py
+│   ├── knowledge/
+│   │   ├── __init__.py
+│   │   ├── bank.py
+│   │   ├── base_manager.py
+│   │   ├── file_picker.py
+│   │   ├── memory.py
+│   │   ├── service.py
+│   │   ├── tier_manager.py
+│   │   └── types.py
+│   ├── network/
+│   │   ├── __init__.py
+│   │   ├── gemini.py
+│   │   └── server.py
+│   ├── output/
+│   │   ├── renderers/
+│   │   │   ├── __init__.py
+│   │   │   ├── layout_manager.py
+│   │   │   └── teletext_renderer.py
+│   │   ├── __init__.py
+│   │   ├── api_server.log
+│   │   ├── graphics.py
+│   │   ├── output_formatter.py
+│   │   ├── screen_manager.py
+│   │   ├── splash.py
+│   │   └── story_manager.py
+│   ├── services/
+│   │   ├── api_audit.py
+│   │   ├── community_service.py
+│   │   ├── config_manager.py
+│   │   ├── connection_manager.py
+│   │   ├── editor_manager.py
+│   │   ├── encryption_service.py
+│   │   ├── gemini_service.py
+│   │   ├── help_manager.py
+│   │   ├── history.py
+│   │   ├── history_manager.py
+│   │   ├── input_manager.py
+│   │   ├── intelligent_error_handler.py
+│   │   ├── memory_manager.py
+│   │   ├── planet_manager.py
+│   │   ├── session_analytics.py
+│   │   ├── session_manager.py
+│   │   ├── setup_wizard.py
+│   │   ├── sharing_service.py
+│   │   ├── standardized_input.py
+│   │   ├── user_manager.py
+│   │   └── viewport_manager.py
+│   ├── tests/
+│   │   ├── test_config_profile.py
+│   │   ├── test_themes.py
+│   │   ├── test_v1_0_23_consolidation.py
+│   │   ├── test_v1_0_23_integration.py
+│   │   ├── test_v1_0_23_performance.py
+│   │   └── test_v1_0_23_ui.py
+│   ├── theme/
+│   │   ├── __init__.py
+│   │   ├── builder.py
+│   │   ├── loader.py
+│   │   └── manager.py
+│   ├── ui/
+│   │   ├── pickers/
+│   │   │   ├── __init__.py
+│   │   │   ├── file_picker.py
+│   │   │   ├── knowledge_file_picker.py
+│   │   │   └── option_selector.py
+│   │   ├── micro_editor.py
+│   │   ├── picker.py
+│   │   ├── progress_indicators.py
+│   │   ├── teletext_prompt.py
+│   │   └── visual_selector.py
+│   ├── utils/
+│   │   ├── helpers/
+│   │   ├── profiling/
+│   │   │   └── performance_profiler.py
+│   │   ├── alias_manager.py
+│   │   ├── autocomplete.py
+│   │   ├── completer.py
+│   │   ├── config_manager.py
+│   │   ├── error_handler.py
+│   │   ├── fast_startup.py
+│   │   ├── files.py
+│   │   ├── fuzzy_matcher.py
+│   │   ├── generate_user_config.py
+│   │   ├── generate_world_map.uscript
+│   │   ├── lazy_loader.py
+│   │   ├── map_painter.uscript
+│   │   ├── migrate_config.py
+│   │   ├── progress_manager.py
+│   │   ├── reorganize_knowledge.sh
+│   │   ├── settings.py
+│   │   ├── setup.py
+│   │   ├── startup_welcome.py
+│   │   ├── system_info.py
+│   │   ├── theme.py
+│   │   ├── theme_loader.py
+│   │   ├── theme_validator.py
+│   │   ├── tizo_manager.py
+│   │   ├── tree.py
+│   │   ├── ucode.py
+│   │   ├── usage_tracker.py
+│   │   ├── variables.py
+│   │   ├── viewport.py
+│   │   └── viewport_viz.py
+│   ├── __init__.py
+│   ├── config.py
+│   ├── uDOS_commands.py
+│   ├── uDOS_grid.py
+│   ├── uDOS_logger.py
+│   ├── uDOS_main.py
+│   ├── uDOS_parser.py
+│   └── uDOS_startup.py
+├── dev/
+│   ├── archive/
+│   │   ├── core-legacy/
+│   │   │   ├── commands/
+│   │   │   ├── services/
+│   │   │   │   ├── theme_builder.py
+│   │   │   │   └── theme_manager.py
+│   │   │   └── ARCHIVE_PLAN.md
+│   │   └── v1.0.x/
+│   │       ├── baselines/
+│   │       │   └── BASELINE-v1.0.26.md
+│   │       ├── docs-original/
+│   │       │   ├── archive/
+│   │       │   ├── commands/
+│   │       │   ├── development/
+│   │       │   ├── guides/
+│   │       │   ├── planning/
+│   │       │   ├── references/
+│   │       │   ├── releases/
+│   │       │   ├── tools/
+│   │       │   ├── versions/
+│   │       │   ├── CLEANUP.md
+│   │       │   ├── FILE-ORGANIZATION-COMPLETE.md
+│   │       │   ├── PANEL-QUICKREF.md
+│   │       │   ├── QUICKREF-v1.0.20-KNOWLEDGE.md
+│   │       │   ├── QUICKREF-v1.0.6-CLI.md
+│   │       │   ├── QUICKREF-v1.0.x.md
+│   │       │   ├── README.md
+│   │       │   ├── ROADMAP-v1.0.20-23-ADDITIONS.md
+│   │       │   ├── knowledge-reorganization-v1.0.21.md
+│   │       │   ├── memory-reorganization-v1.0.21.md
+│   │       │   ├── quickref-memory-workflow.md
+│   │       │   └── structure.txt
+│   │       ├── phases/
+│   │       ├── sessions/
+│   │       ├── summaries/
+│   │       └── V1.0.27-COMPLETION-SUMMARY.md
+│   ├── notes/
+│   │   ├── ideas/
+│   │   ├── scratch/
+│   │   ├── ARCHITECTURE.md
+│   │   ├── MICRO_EDITOR_USAGE.md
+│   │   ├── README.md
+│   │   ├── STANDARDIZED-INPUT-MIGRATION-GUIDE.md
+│   │   ├── STARTUP_FIXES.md
+│   │   ├── V1.0.27-RESTRUCTURE-PLAN.md
+│   │   ├── v1.0.26-dev-summary.md
+│   │   ├── v1.0.27-command-audit.md
+│   │   ├── v1.0.27-dev-summary.md
+│   │   ├── v1.0.27-feature-plan.md
+│   │   ├── v1.0.27-final-summary.md
+│   │   ├── v1.0.27-testing-results.md
+│   │   ├── v1.0.29-completion-report.md
+│   │   ├── v1.0.29-smart-input-plan.md
+│   │   └── v1.0.31-implementation-summary.md
+│   ├── planning/
+│   │   ├── features/
+│   │   ├── releases/
+│   │   │   └── V1.1-STABLE-RELEASE-PLAN.md
+│   │   ├── roadmap/
+│   │   │   ├── V1.1.0-PLUS-ROADMAP.md
+│   │   │   └── v1.1.0-FEATURE-PRIORITIES.md
+│   │   ├── STORY_ARCHITECTURE.md
+│   │   ├── commands-architecture.md
+│   │   ├── core-cleanup-plan.md
+│   │   ├── core-consolidation-analysis.md
+│   │   ├── core-reorganization-summary.md
+│   │   ├── v1.0.30-COMPLETION-ASSESSMENT.md
+│   │   ├── v1.0.30-SESSION-SUMMARY.md
+│   │   ├── v1.0.31-STANDARDIZED-INPUT-PLAN.md
+│   │   ├── v1.1.0-code-consolidation-analysis.md
+│   │   ├── v1_0_30_complete_summary.md
+│   │   └── v1_0_30_summary.md
+│   ├── tools/
+│   │   └── scripts/
+│   ├── README.md
+│   ├── THEME_GUIDE.md
+│   └── demo_v1_0_30.py
+├── extensions/
+│   ├── assets/
+│   │   ├── css/
+│   │   │   ├── classic-mac-patterns.css
+│   │   │   ├── classic.css
+│   │   │   ├── mac-icons.css
+│   │   │   ├── nes.css
+│   │   │   ├── synthwave-dos-colors.css
+│   │   │   ├── system-mac.css
+│   │   │   ├── system-old.css
+│   │   │   ├── system.css
+│   │   │   ├── typography-system.css
+│   │   │   ├── udos-filepicker.css
+│   │   │   ├── udos-grid.css
+│   │   │   ├── udos-syntax.css
+│   │   │   └── udos-v13-theme.css
+│   │   ├── fonts/
+│   │   │   ├── chicago/
+│   │   │   │   ├── ChicagoFLF.ttf
+│   │   │   │   ├── LICENSE-chicago-12-1.txt
+│   │   │   │   ├── LICENSE.txt
+│   │   │   │   ├── README-chicago-12-1.txt
+│   │   │   │   └── chicago-12-1.otf
+│   │   │   ├── mallard/
+│   │   │   │   ├── LICENSE.txt
+│   │   │   │   ├── README.txt
+│   │   │   │   ├── mallard-blockier.otf
+│   │   │   │   ├── mallard-blocky.otf
+│   │   │   │   ├── mallard-neueue.otf
+│   │   │   │   ├── mallard-smooth.otf
+│   │   │   │   ├── mallard-smoother.otf
+│   │   │   │   └── mallard-tiny.otf
+│   │   │   ├── petme/
+│   │   │   │   ├── FreeLicense.txt
+│   │   │   │   ├── PetMe.ttf
+│   │   │   │   ├── PetMe128.ttf
+│   │   │   │   ├── PetMe1282Y.ttf
+│   │   │   │   ├── PetMe2X.ttf
+│   │   │   │   ├── PetMe2Y.ttf
+│   │   │   │   ├── PetMe64.ttf
+│   │   │   │   ├── PetMe642Y.ttf
+│   │   │   │   └── README.md
+│   │   │   ├── C64_User_Mono_v1.0-STYLE.woff
+│   │   │   ├── ChiKareGo2.woff
+│   │   │   ├── ChiKareGo2.woff2
+│   │   │   ├── ChicagoFLF.woff
+│   │   │   ├── ChicagoFLF.woff2
+│   │   │   ├── FindersKeepers.woff
+│   │   │   ├── FindersKeepers.woff2
+│   │   │   ├── LICENSE_ASSESSMENT.md
+│   │   │   ├── README.md
+│   │   │   ├── giana.woff
+│   │   │   ├── monaco.woff
+│   │   │   └── monaco.woff2
+│   │   ├── icons/
+│   │   │   ├── coreui/
+│   │   │   │   ├── css/
+│   │   │   │   ├── fonts/
+│   │   │   │   ├── README.md
+│   │   │   │   ├── cil-3d.svg
+│   │   │   │   ├── cil-4k.svg
+│   │   │   │   ├── cil-account-logout.svg
+│   │   │   │   ├── cil-action-redo.svg
+│   │   │   │   ├── cil-action-undo.svg
+│   │   │   │   ├── cil-address-book.svg
+│   │   │   │   ├── cil-airplane-mode-off.svg
+│   │   │   │   ├── cil-airplane-mode.svg
+│   │   │   │   ├── cil-airplay.svg
+│   │   │   │   ├── cil-alarm.svg
+│   │   │   │   ├── cil-album.svg
+│   │   │   │   ├── cil-align-center.svg
+│   │   │   │   ├── cil-align-left.svg
+│   │   │   │   ├── cil-align-right.svg
+│   │   │   │   ├── cil-american-football.svg
+│   │   │   │   ├── cil-animal.svg
+│   │   │   │   ├── cil-aperture.svg
+│   │   │   │   ├── cil-apple.svg
+│   │   │   │   ├── cil-applications-settings.svg
+│   │   │   │   ├── cil-applications.svg
+│   │   │   │   ├── cil-apps-settings.svg
+│   │   │   │   ├── cil-apps.svg
+│   │   │   │   ├── cil-arrow-bottom.svg
+│   │   │   │   ├── cil-arrow-circle-bottom.svg
+│   │   │   │   ├── cil-arrow-circle-left.svg
+│   │   │   │   ├── cil-arrow-circle-right.svg
+│   │   │   │   ├── cil-arrow-circle-top.svg
+│   │   │   │   ├── cil-arrow-left.svg
+│   │   │   │   ├── cil-arrow-right.svg
+│   │   │   │   ├── cil-arrow-thick-bottom.svg
+│   │   │   │   ├── cil-arrow-thick-from-bottom.svg
+│   │   │   │   ├── cil-arrow-thick-from-left.svg
+│   │   │   │   ├── cil-arrow-thick-from-right.svg
+│   │   │   │   ├── cil-arrow-thick-from-top.svg
+│   │   │   │   ├── cil-arrow-thick-left.svg
+│   │   │   │   ├── cil-arrow-thick-right.svg
+│   │   │   │   ├── cil-arrow-thick-to-bottom.svg
+│   │   │   │   ├── cil-arrow-thick-to-left.svg
+│   │   │   │   ├── cil-arrow-thick-to-right.svg
+│   │   │   │   ├── cil-arrow-thick-to-top.svg
+│   │   │   │   ├── cil-arrow-thick-top.svg
+│   │   │   │   ├── cil-arrow-top.svg
+│   │   │   │   ├── cil-assistive-listening-system.svg
+│   │   │   │   ├── cil-asterisk-circle.svg
+│   │   │   │   ├── cil-asterisk.svg
+│   │   │   │   ├── cil-at.svg
+│   │   │   │   ├── cil-audio-description.svg
+│   │   │   │   ├── cil-audio-spectrum.svg
+│   │   │   │   ├── cil-audio.svg
+│   │   │   │   ├── cil-av-timer.svg
+│   │   │   │   ├── cil-baby-carriage.svg
+│   │   │   │   ├── cil-baby.svg
+│   │   │   │   ├── cil-backspace.svg
+│   │   │   │   ├── cil-badge.svg
+│   │   │   │   ├── cil-balance-scale.svg
+│   │   │   │   ├── cil-ban.svg
+│   │   │   │   ├── cil-bank.svg
+│   │   │   │   ├── cil-bar-chart.svg
+│   │   │   │   ├── cil-barcode.svg
+│   │   │   │   ├── cil-baseball.svg
+│   │   │   │   ├── cil-basket.svg
+│   │   │   │   ├── cil-basketball.svg
+│   │   │   │   ├── cil-bath.svg
+│   │   │   │   ├── cil-bathroom.svg
+│   │   │   │   ├── cil-battery-0.svg
+│   │   │   │   ├── cil-battery-3.svg
+│   │   │   │   ├── cil-battery-5.svg
+│   │   │   │   ├── cil-battery-alert.svg
+│   │   │   │   ├── cil-battery-empty.svg
+│   │   │   │   ├── cil-battery-full.svg
+│   │   │   │   ├── cil-battery-slash.svg
+│   │   │   │   ├── cil-beach-access.svg
+│   │   │   │   ├── cil-beaker.svg
+│   │   │   │   ├── cil-bed.svg
+│   │   │   │   ├── cil-bell-exclamation.svg
+│   │   │   │   ├── cil-bell.svg
+│   │   │   │   ├── cil-bike.svg
+│   │   │   │   ├── cil-birthday-cake.svg
+│   │   │   │   ├── cil-blind.svg
+│   │   │   │   ├── cil-bluetooth.svg
+│   │   │   │   ├── cil-blur-circular.svg
+│   │   │   │   ├── cil-blur-linear.svg
+│   │   │   │   ├── cil-blur.svg
+│   │   │   │   ├── cil-boat-alt.svg
+│   │   │   │   ├── cil-bold.svg
+│   │   │   │   ├── cil-bolt-circle.svg
+│   │   │   │   ├── cil-bolt.svg
+│   │   │   │   ├── cil-book.svg
+│   │   │   │   ├── cil-bookmark.svg
+│   │   │   │   ├── cil-border-all.svg
+│   │   │   │   ├── cil-border-bottom.svg
+│   │   │   │   ├── cil-border-clear.svg
+│   │   │   │   ├── cil-border-horizontal.svg
+│   │   │   │   ├── cil-border-inner.svg
+│   │   │   │   ├── cil-border-left.svg
+│   │   │   │   ├── cil-border-outer.svg
+│   │   │   │   ├── cil-border-right.svg
+│   │   │   │   ├── cil-border-style.svg
+│   │   │   │   ├── cil-border-top.svg
+│   │   │   │   ├── cil-border-vertical.svg
+│   │   │   │   ├── cil-bowling.svg
+│   │   │   │   ├── cil-braille.svg
+│   │   │   │   ├── cil-briefcase.svg
+│   │   │   │   ├── cil-brightness.svg
+│   │   │   │   ├── cil-british-pound.svg
+│   │   │   │   ├── cil-browser.svg
+│   │   │   │   ├── cil-brush-alt.svg
+│   │   │   │   ├── cil-brush.svg
+│   │   │   │   ├── cil-bug.svg
+│   │   │   │   ├── cil-building.svg
+│   │   │   │   ├── cil-bullhorn.svg
+│   │   │   │   ├── cil-burger.svg
+│   │   │   │   ├── cil-burn.svg
+│   │   │   │   ├── cil-bus-alt.svg
+│   │   │   │   ├── cil-calculator.svg
+│   │   │   │   ├── cil-calendar-check.svg
+│   │   │   │   ├── cil-calendar.svg
+│   │   │   │   ├── cil-camera-control.svg
+│   │   │   │   ├── cil-camera-roll.svg
+│   │   │   │   ├── cil-camera.svg
+│   │   │   │   ├── cil-car-alt.svg
+│   │   │   │   ├── cil-caret-bottom.svg
+│   │   │   │   ├── cil-caret-left.svg
+│   │   │   │   ├── cil-caret-right.svg
+│   │   │   │   ├── cil-caret-top.svg
+│   │   │   │   ├── cil-cart.svg
+│   │   │   │   ├── cil-cash.svg
+│   │   │   │   ├── cil-casino.svg
+│   │   │   │   ├── cil-cast.svg
+│   │   │   │   ├── cil-cat.svg
+│   │   │   │   ├── cil-cc.svg
+│   │   │   │   ├── cil-center-focus.svg
+│   │   │   │   ├── cil-chart-line.svg
+│   │   │   │   ├── cil-chart-pie.svg
+│   │   │   │   ├── cil-chart.svg
+│   │   │   │   ├── cil-chat-bubble.svg
+│   │   │   │   ├── cil-check-alt.svg
+│   │   │   │   ├── cil-check-circle.svg
+│   │   │   │   ├── cil-check.svg
+│   │   │   │   ├── cil-chevron-bottom.svg
+│   │   │   │   ├── cil-chevron-circle-down-alt.svg
+│   │   │   │   ├── cil-chevron-circle-left-alt.svg
+│   │   │   │   ├── cil-chevron-circle-right-alt.svg
+│   │   │   │   ├── cil-chevron-circle-up-alt.svg
+│   │   │   │   ├── cil-chevron-double-down.svg
+│   │   │   │   ├── cil-chevron-double-left.svg
+│   │   │   │   ├── cil-chevron-double-right.svg
+│   │   │   │   ├── cil-chevron-double-up.svg
+│   │   │   │   ├── cil-chevron-left.svg
+│   │   │   │   ├── cil-chevron-right.svg
+│   │   │   │   ├── cil-chevron-top.svg
+│   │   │   │   ├── cil-child-friendly.svg
+│   │   │   │   ├── cil-child.svg
+│   │   │   │   ├── cil-circle.svg
+│   │   │   │   ├── cil-clear-all.svg
+│   │   │   │   ├── cil-clipboard.svg
+│   │   │   │   ├── cil-clock.svg
+│   │   │   │   ├── cil-clone.svg
+│   │   │   │   ├── cil-closed-captioning.svg
+│   │   │   │   ├── cil-cloud-download.svg
+│   │   │   │   ├── cil-cloud-upload.svg
+│   │   │   │   ├── cil-cloud.svg
+│   │   │   │   ├── cil-cloudy.svg
+│   │   │   │   ├── cil-code.svg
+│   │   │   │   ├── cil-coffee.svg
+│   │   │   │   ├── cil-cog.svg
+│   │   │   │   ├── cil-color-border.svg
+│   │   │   │   ├── cil-color-fill.svg
+│   │   │   │   ├── cil-color-palette.svg
+│   │   │   │   ├── cil-columns.svg
+│   │   │   │   ├── cil-command.svg
+│   │   │   │   ├── cil-comment-bubble.svg
+│   │   │   │   ├── cil-comment-square.svg
+│   │   │   │   ├── cil-compass.svg
+│   │   │   │   ├── cil-compress.svg
+│   │   │   │   ├── cil-contact.svg
+│   │   │   │   ├── cil-contrast.svg
+│   │   │   │   ├── cil-control.svg
+│   │   │   │   ├── cil-copy.svg
+│   │   │   │   ├── cil-couch.svg
+│   │   │   │   ├── cil-credit-card.svg
+│   │   │   │   ├── cil-crop-rotate.svg
+│   │   │   │   ├── cil-crop.svg
+│   │   │   │   ├── cil-cursor-move.svg
+│   │   │   │   ├── cil-cursor.svg
+│   │   │   │   ├── cil-cut.svg
+│   │   │   │   ├── cil-data-transfer-down.svg
+│   │   │   │   ├── cil-data-transfer-up.svg
+│   │   │   │   ├── cil-deaf.svg
+│   │   │   │   ├── cil-delete.svg
+│   │   │   │   ├── cil-description.svg
+│   │   │   │   ├── cil-devices.svg
+│   │   │   │   ├── cil-dialpad.svg
+│   │   │   │   ├── cil-diamond.svg
+│   │   │   │   ├── cil-dinner.svg
+│   │   │   │   ├── cil-disabled.svg
+│   │   │   │   ├── cil-dog.svg
+│   │   │   │   ├── cil-dollar.svg
+│   │   │   │   ├── cil-door.svg
+│   │   │   │   ├── cil-double-quote-sans-left.svg
+│   │   │   │   ├── cil-double-quote-sans-right.svg
+│   │   │   │   ├── cil-drink-alcohol.svg
+│   │   │   │   ├── cil-drink.svg
+│   │   │   │   ├── cil-drop.svg
+│   │   │   │   ├── cil-eco.svg
+│   │   │   │   ├── cil-education.svg
+│   │   │   │   ├── cil-elevator.svg
+│   │   │   │   ├── cil-envelope-closed.svg
+│   │   │   │   ├── cil-envelope-letter.svg
+│   │   │   │   ├── cil-envelope-open.svg
+│   │   │   │   ├── cil-equalizer.svg
+│   │   │   │   ├── cil-ethernet.svg
+│   │   │   │   ├── cil-euro.svg
+│   │   │   │   ├── cil-excerpt.svg
+│   │   │   │   ├── cil-exit-to-app.svg
+│   │   │   │   ├── cil-expand-down.svg
+│   │   │   │   ├── cil-expand-left.svg
+│   │   │   │   ├── cil-expand-right.svg
+│   │   │   │   ├── cil-expand-up.svg
+│   │   │   │   ├── cil-exposure.svg
+│   │   │   │   ├── cil-external-link.svg
+│   │   │   │   ├── cil-eyedropper.svg
+│   │   │   │   ├── cil-face-dead.svg
+│   │   │   │   ├── cil-face.svg
+│   │   │   │   ├── cil-factory-slash.svg
+│   │   │   │   ├── cil-factory.svg
+│   │   │   │   ├── cil-fastfood.svg
+│   │   │   │   ├── cil-fax.svg
+│   │   │   │   ├── cil-featured-playlist.svg
+│   │   │   │   ├── cil-file.svg
+│   │   │   │   ├── cil-filter-frames.svg
+│   │   │   │   ├── cil-filter-photo.svg
+│   │   │   │   ├── cil-filter-square.svg
+│   │   │   │   ├── cil-filter-x.svg
+│   │   │   │   ├── cil-filter.svg
+│   │   │   │   ├── cil-find-in-page.svg
+│   │   │   │   ├── cil-fingerprint.svg
+│   │   │   │   ├── cil-fire.svg
+│   │   │   │   ├── cil-flag-alt.svg
+│   │   │   │   ├── cil-flight-takeoff.svg
+│   │   │   │   ├── cil-flip-to-back.svg
+│   │   │   │   ├── cil-flip-to-front.svg
+│   │   │   │   ├── cil-flip.svg
+│   │   │   │   ├── cil-flower.svg
+│   │   │   │   ├── cil-folder-open.svg
+│   │   │   │   ├── cil-folder.svg
+│   │   │   │   ├── cil-font.svg
+│   │   │   │   ├── cil-football.svg
+│   │   │   │   ├── cil-fork.svg
+│   │   │   │   ├── cil-fridge.svg
+│   │   │   │   ├── cil-frown.svg
+│   │   │   │   ├── cil-fullscreen-exit.svg
+│   │   │   │   ├── cil-fullscreen.svg
+│   │   │   │   ├── cil-functions-alt.svg
+│   │   │   │   ├── cil-functions.svg
+│   │   │   │   ├── cil-gamepad.svg
+│   │   │   │   ├── cil-garage.svg
+│   │   │   │   ├── cil-gem.svg
+│   │   │   │   ├── cil-gif.svg
+│   │   │   │   ├── cil-gift.svg
+│   │   │   │   ├── cil-globe-alt.svg
+│   │   │   │   ├── cil-golf-alt.svg
+│   │   │   │   ├── cil-golf.svg
+│   │   │   │   ├── cil-gradient.svg
+│   │   │   │   ├── cil-grain.svg
+│   │   │   │   ├── cil-graph.svg
+│   │   │   │   ├── cil-grid-slash.svg
+│   │   │   │   ├── cil-grid.svg
+│   │   │   │   ├── cil-group.svg
+│   │   │   │   ├── cil-hamburger-menu.svg
+│   │   │   │   ├── cil-hand-point-down.svg
+│   │   │   │   ├── cil-hand-point-left.svg
+│   │   │   │   ├── cil-hand-point-right.svg
+│   │   │   │   ├── cil-hand-point-up.svg
+│   │   │   │   ├── cil-handshake.svg
+│   │   │   │   ├── cil-happy.svg
+│   │   │   │   ├── cil-hd.svg
+│   │   │   │   ├── cil-hdr.svg
+│   │   │   │   ├── cil-header.svg
+│   │   │   │   ├── cil-headphones.svg
+│   │   │   │   ├── cil-healing.svg
+│   │   │   │   ├── cil-heart.svg
+│   │   │   │   ├── cil-highlighter.svg
+│   │   │   │   ├── cil-highligt.svg
+│   │   │   │   ├── cil-history.svg
+│   │   │   │   ├── cil-home.svg
+│   │   │   │   ├── cil-hospital.svg
+│   │   │   │   ├── cil-hot-tub.svg
+│   │   │   │   ├── cil-house.svg
+│   │   │   │   ├── cil-https.svg
+│   │   │   │   ├── cil-image-broken.svg
+│   │   │   │   ├── cil-image-plus.svg
+│   │   │   │   ├── cil-image.svg
+│   │   │   │   ├── cil-inbox.svg
+│   │   │   │   ├── cil-indent-decrease.svg
+│   │   │   │   ├── cil-indent-increase.svg
+│   │   │   │   ├── cil-industry-slash.svg
+│   │   │   │   ├── cil-industry.svg
+│   │   │   │   ├── cil-infinity.svg
+│   │   │   │   ├── cil-info.svg
+│   │   │   │   ├── cil-input-hdmi.svg
+│   │   │   │   ├── cil-input-power.svg
+│   │   │   │   ├── cil-input.svg
+│   │   │   │   ├── cil-institution.svg
+│   │   │   │   ├── cil-italic.svg
+│   │   │   │   ├── cil-justify-center.svg
+│   │   │   │   ├── cil-justify-left.svg
+│   │   │   │   ├── cil-justify-right.svg
+│   │   │   │   ├── cil-keyboard.svg
+│   │   │   │   ├── cil-lan.svg
+│   │   │   │   ├── cil-language.svg
+│   │   │   │   ├── cil-laptop.svg
+│   │   │   │   ├── cil-layers.svg
+│   │   │   │   ├── cil-leaf.svg
+│   │   │   │   ├── cil-lemon.svg
+│   │   │   │   ├── cil-level-down.svg
+│   │   │   │   ├── cil-level-up.svg
+│   │   │   │   ├── cil-library-add.svg
+│   │   │   │   ├── cil-library-building.svg
+│   │   │   │   ├── cil-library.svg
+│   │   │   │   ├── cil-life-ring.svg
+│   │   │   │   ├── cil-lightbulb.svg
+│   │   │   │   ├── cil-line-spacing.svg
+│   │   │   │   ├── cil-line-style.svg
+│   │   │   │   ├── cil-line-weight.svg
+│   │   │   │   ├── cil-link-alt.svg
+│   │   │   │   ├── cil-link-broken.svg
+│   │   │   │   ├── cil-link.svg
+│   │   │   │   ├── cil-list-filter.svg
+│   │   │   │   ├── cil-list-high-priority.svg
+│   │   │   │   ├── cil-list-low-priority.svg
+│   │   │   │   ├── cil-list-numbered-rtl.svg
+│   │   │   │   ├── cil-list-numbered.svg
+│   │   │   │   ├── cil-list-rich.svg
+│   │   │   │   ├── cil-list.svg
+│   │   │   │   ├── cil-location-pin.svg
+│   │   │   │   ├── cil-lock-locked.svg
+│   │   │   │   ├── cil-lock-unlocked.svg
+│   │   │   │   ├── cil-locomotive.svg
+│   │   │   │   ├── cil-loop-1.svg
+│   │   │   │   ├── cil-loop-circular.svg
+│   │   │   │   ├── cil-loop.svg
+│   │   │   │   ├── cil-low-vision.svg
+│   │   │   │   ├── cil-magnifying-glass.svg
+│   │   │   │   ├── cil-map.svg
+│   │   │   │   ├── cil-media-eject.svg
+│   │   │   │   ├── cil-media-pause.svg
+│   │   │   │   ├── cil-media-play.svg
+│   │   │   │   ├── cil-media-record.svg
+│   │   │   │   ├── cil-media-skip-backward.svg
+│   │   │   │   ├── cil-media-skip-forward.svg
+│   │   │   │   ├── cil-media-step-backward.svg
+│   │   │   │   ├── cil-media-step-forward.svg
+│   │   │   │   ├── cil-media-stop.svg
+│   │   │   │   ├── cil-medical-cross.svg
+│   │   │   │   ├── cil-meh.svg
+│   │   │   │   ├── cil-memory.svg
+│   │   │   │   ├── cil-menu.svg
+│   │   │   │   ├── cil-mic.svg
+│   │   │   │   ├── cil-microphone.svg
+│   │   │   │   ├── cil-minus.svg
+│   │   │   │   ├── cil-mobile-landscape.svg
+│   │   │   │   ├── cil-mobile.svg
+│   │   │   │   ├── cil-money.svg
+│   │   │   │   ├── cil-monitor.svg
+│   │   │   │   ├── cil-mood-bad.svg
+│   │   │   │   ├── cil-mood-good.svg
+│   │   │   │   ├── cil-mood-very-bad.svg
+│   │   │   │   ├── cil-mood-very-good.svg
+│   │   │   │   ├── cil-moon.svg
+│   │   │   │   ├── cil-mouse.svg
+│   │   │   │   ├── cil-mouth-slash.svg
+│   │   │   │   ├── cil-move.svg
+│   │   │   │   ├── cil-movie.svg
+│   │   │   │   ├── cil-mug-tea.svg
+│   │   │   │   ├── cil-mug.svg
+│   │   │   │   ├── cil-music-note.svg
+│   │   │   │   ├── cil-newspaper.svg
+│   │   │   │   ├── cil-note-add.svg
+│   │   │   │   ├── cil-notes.svg
+│   │   │   │   ├── cil-object-group.svg
+│   │   │   │   ├── cil-object-ungroup.svg
+│   │   │   │   ├── cil-opacity.svg
+│   │   │   │   ├── cil-opentype.svg
+│   │   │   │   ├── cil-options.svg
+│   │   │   │   ├── cil-paint-bucket.svg
+│   │   │   │   ├── cil-paint.svg
+│   │   │   │   ├── cil-paper-plane.svg
+│   │   │   │   ├── cil-paperclip.svg
+│   │   │   │   ├── cil-paragraph.svg
+│   │   │   │   ├── cil-paw.svg
+│   │   │   │   ├── cil-pen-alt.svg
+│   │   │   │   ├── cil-pen-nib.svg
+│   │   │   │   ├── cil-pen.svg
+│   │   │   │   ├── cil-pencil.svg
+│   │   │   │   ├── cil-people.svg
+│   │   │   │   ├── cil-phone.svg
+│   │   │   │   ├── cil-pin.svg
+│   │   │   │   ├── cil-pizza.svg
+│   │   │   │   ├── cil-plant.svg
+│   │   │   │   ├── cil-playlist-add.svg
+│   │   │   │   ├── cil-plus.svg
+│   │   │   │   ├── cil-pool.svg
+│   │   │   │   ├── cil-power-standby.svg
+│   │   │   │   ├── cil-pregnant.svg
+│   │   │   │   ├── cil-print.svg
+│   │   │   │   ├── cil-pushchair.svg
+│   │   │   │   ├── cil-puzzle.svg
+│   │   │   │   ├── cil-qr-code.svg
+│   │   │   │   ├── cil-rain.svg
+│   │   │   │   ├── cil-rectangle.svg
+│   │   │   │   ├── cil-recycle.svg
+│   │   │   │   ├── cil-reload.svg
+│   │   │   │   ├── cil-report-slash.svg
+│   │   │   │   ├── cil-resize-both.svg
+│   │   │   │   ├── cil-resize-height.svg
+│   │   │   │   ├── cil-resize-width.svg
+│   │   │   │   ├── cil-restaurant.svg
+│   │   │   │   ├── cil-room.svg
+│   │   │   │   ├── cil-router.svg
+│   │   │   │   ├── cil-rowing.svg
+│   │   │   │   ├── cil-rss.svg
+│   │   │   │   ├── cil-ruble.svg
+│   │   │   │   ├── cil-running.svg
+│   │   │   │   ├── cil-sad.svg
+│   │   │   │   ├── cil-satelite.svg
+│   │   │   │   ├── cil-save.svg
+│   │   │   │   ├── cil-school.svg
+│   │   │   │   ├── cil-screen-desktop.svg
+│   │   │   │   ├── cil-screen-smartphone.svg
+│   │   │   │   ├── cil-scrubber.svg
+│   │   │   │   ├── cil-search.svg
+│   │   │   │   ├── cil-send.svg
+│   │   │   │   ├── cil-settings.svg
+│   │   │   │   ├── cil-share-all.svg
+│   │   │   │   ├── cil-share-alt.svg
+│   │   │   │   ├── cil-share-boxed.svg
+│   │   │   │   ├── cil-share.svg
+│   │   │   │   ├── cil-shield-alt.svg
+│   │   │   │   ├── cil-short-text.svg
+│   │   │   │   ├── cil-shower.svg
+│   │   │   │   ├── cil-sign-language.svg
+│   │   │   │   ├── cil-signal-cellular-0.svg
+│   │   │   │   ├── cil-signal-cellular-3.svg
+│   │   │   │   ├── cil-signal-cellular-4.svg
+│   │   │   │   ├── cil-sim.svg
+│   │   │   │   ├── cil-sitemap.svg
+│   │   │   │   ├── cil-smile-plus.svg
+│   │   │   │   ├── cil-smile.svg
+│   │   │   │   ├── cil-smoke-free.svg
+│   │   │   │   ├── cil-smoke-slash.svg
+│   │   │   │   ├── cil-smoke.svg
+│   │   │   │   ├── cil-smoking-room.svg
+│   │   │   │   ├── cil-snowflake.svg
+│   │   │   │   ├── cil-soccer.svg
+│   │   │   │   ├── cil-sofa.svg
+│   │   │   │   ├── cil-sort-alpha-down.svg
+│   │   │   │   ├── cil-sort-alpha-up.svg
+│   │   │   │   ├── cil-sort-ascending.svg
+│   │   │   │   ├── cil-sort-descending.svg
+│   │   │   │   ├── cil-sort-numeric-down.svg
+│   │   │   │   ├── cil-sort-numeric-up.svg
+│   │   │   │   ├── cil-spa.svg
+│   │   │   │   ├── cil-space-bar.svg
+│   │   │   │   ├── cil-speak.svg
+│   │   │   │   ├── cil-speaker.svg
+│   │   │   │   ├── cil-speech.svg
+│   │   │   │   ├── cil-speedometer.svg
+│   │   │   │   ├── cil-spreadsheet.svg
+│   │   │   │   ├── cil-square.svg
+│   │   │   │   ├── cil-star-half.svg
+│   │   │   │   ├── cil-star.svg
+│   │   │   │   ├── cil-storage.svg
+│   │   │   │   ├── cil-stream.svg
+│   │   │   │   ├── cil-strikethrough.svg
+│   │   │   │   ├── cil-sun.svg
+│   │   │   │   ├── cil-swap-horizontal.svg
+│   │   │   │   ├── cil-swap-vertical.svg
+│   │   │   │   ├── cil-swimming.svg
+│   │   │   │   ├── cil-sync.svg
+│   │   │   │   ├── cil-tablet.svg
+│   │   │   │   ├── cil-tag.svg
+│   │   │   │   ├── cil-tags.svg
+│   │   │   │   ├── cil-task.svg
+│   │   │   │   ├── cil-taxi.svg
+│   │   │   │   ├── cil-tennis-ball.svg
+│   │   │   │   ├── cil-tennis.svg
+│   │   │   │   ├── cil-terminal.svg
+│   │   │   │   ├── cil-terrain.svg
+│   │   │   │   ├── cil-text-direction-ltr.svg
+│   │   │   │   ├── cil-text-direction-rtl.svg
+│   │   │   │   ├── cil-text-shapes.svg
+│   │   │   │   ├── cil-text-size.svg
+│   │   │   │   ├── cil-text-square.svg
+│   │   │   │   ├── cil-text-strike.svg
+│   │   │   │   ├── cil-text.svg
+│   │   │   │   ├── cil-thumb-down.svg
+│   │   │   │   ├── cil-thumb-up.svg
+│   │   │   │   ├── cil-toggle-off.svg
+│   │   │   │   ├── cil-toggle-on.svg
+│   │   │   │   ├── cil-toilet.svg
+│   │   │   │   ├── cil-touch-app.svg
+│   │   │   │   ├── cil-transfer.svg
+│   │   │   │   ├── cil-translate.svg
+│   │   │   │   ├── cil-trash.svg
+│   │   │   │   ├── cil-triangle.svg
+│   │   │   │   ├── cil-truck.svg
+│   │   │   │   ├── cil-tv.svg
+│   │   │   │   ├── cil-underline.svg
+│   │   │   │   ├── cil-usb.svg
+│   │   │   │   ├── cil-user-female.svg
+│   │   │   │   ├── cil-user-follow.svg
+│   │   │   │   ├── cil-user-plus.svg
+│   │   │   │   ├── cil-user-unfollow.svg
+│   │   │   │   ├── cil-user-x.svg
+│   │   │   │   ├── cil-user.svg
+│   │   │   │   ├── cil-vector.svg
+│   │   │   │   ├── cil-vertical-align-bottom.svg
+│   │   │   │   ├── cil-vertical-align-center.svg
+│   │   │   │   ├── cil-vertical-align-top.svg
+│   │   │   │   ├── cil-video.svg
+│   │   │   │   ├── cil-videogame.svg
+│   │   │   │   ├── cil-view-column.svg
+│   │   │   │   ├── cil-view-module.svg
+│   │   │   │   ├── cil-view-quilt.svg
+│   │   │   │   ├── cil-view-stream.svg
+│   │   │   │   ├── cil-voice-over-record.svg
+│   │   │   │   ├── cil-voice.svg
+│   │   │   │   ├── cil-volume-high.svg
+│   │   │   │   ├── cil-volume-low.svg
+│   │   │   │   ├── cil-volume-off.svg
+│   │   │   │   ├── cil-walk.svg
+│   │   │   │   ├── cil-wallet.svg
+│   │   │   │   ├── cil-wallpaper.svg
+│   │   │   │   ├── cil-warning.svg
+│   │   │   │   ├── cil-watch.svg
+│   │   │   │   ├── cil-wc.svg
+│   │   │   │   ├── cil-weightlifitng.svg
+│   │   │   │   ├── cil-wheelchair.svg
+│   │   │   │   ├── cil-wifi-signal-0.svg
+│   │   │   │   ├── cil-wifi-signal-1.svg
+│   │   │   │   ├── cil-wifi-signal-2.svg
+│   │   │   │   ├── cil-wifi-signal-3.svg
+│   │   │   │   ├── cil-wifi-signal-4.svg
+│   │   │   │   ├── cil-wifi-signal-off.svg
+│   │   │   │   ├── cil-window-maximize.svg
+│   │   │   │   ├── cil-window-minimize.svg
+│   │   │   │   ├── cil-window-restore.svg
+│   │   │   │   ├── cil-window.svg
+│   │   │   │   ├── cil-wrap-text.svg
+│   │   │   │   ├── cil-x-circle.svg
+│   │   │   │   ├── cil-x.svg
+│   │   │   │   ├── cil-yen.svg
+│   │   │   │   ├── cil-zoom-in.svg
+│   │   │   │   ├── cil-zoom-out.svg
+│   │   │   │   └── cil-zoom.svg
+│   │   │   ├── README.md
+│   │   │   ├── apple.svg
+│   │   │   ├── button-default.svg
+│   │   │   ├── button.png
+│   │   │   ├── button.svg
+│   │   │   ├── checkmark.svg
+│   │   │   ├── radio-border-focused.svg
+│   │   │   ├── radio-border.svg
+│   │   │   ├── radio-dot.svg
+│   │   │   ├── scrollbar-down-active.svg
+│   │   │   ├── scrollbar-down.svg
+│   │   │   ├── scrollbar-left-active.svg
+│   │   │   ├── scrollbar-left.svg
+│   │   │   ├── scrollbar-right-active.svg
+│   │   │   ├── scrollbar-right.svg
+│   │   │   ├── scrollbar-up-active.svg
+│   │   │   ├── scrollbar-up.svg
+│   │   │   └── select-button.svg
+│   │   ├── js/
+│   │   │   ├── typography-manager.js
+│   │   │   ├── udos-controls.js
+│   │   │   ├── udos-filepicker.js
+│   │   │   ├── udos-option-selector.js
+│   │   │   └── udos-panels.js
+│   │   ├── CREDITS.md
+│   │   └── README.md
+│   ├── core/
+│   │   ├── dashboard/
+│   │   │   ├── routes/
+│   │   │   │   └── file_routes.py
+│   │   │   ├── server/
+│   │   │   │   └── poke_handler.py
+│   │   │   ├── services/
+│   │   │   │   ├── file_browser_service.py
+│   │   │   │   └── metrics_service.py
+│   │   │   ├── static/
+│   │   │   │   ├── css/
+│   │   │   │   └── js/
+│   │   │   ├── CREDITS.md
+│   │   │   ├── IMPLEMENTATION.md
+│   │   │   ├── README-BUILDER.md
+│   │   │   ├── README.md
+│   │   │   ├── app.py
+│   │   │   ├── config.json
+│   │   │   ├── dashboard-api.js
+│   │   │   ├── dashboard-builder.js
+│   │   │   ├── dashboard-styles.css
+│   │   │   ├── index-builder.html
+│   │   │   ├── index-old.html
+│   │   │   ├── index.html
+│   │   │   ├── manifest.json
+│   │   │   └── start.sh
+│   │   ├── desktop/
+│   │   │   ├── CHARACTER-EDITOR-INTEGRATION.md
+│   │   │   ├── CHARACTER-EDITOR-KEYBOARDS.md
+│   │   │   ├── CREDITS.md
+│   │   │   ├── FILE-PICKER-IMPLEMENTATION.md
+│   │   │   ├── IMPLEMENTATION-SUMMARY.md
+│   │   │   ├── KEYBOARD-LAYOUT-REFERENCE.md
+│   │   │   ├── README.md
+│   │   │   ├── TEST-RESULTS.md
+│   │   │   ├── character-editor.html
+│   │   │   ├── demo.html
+│   │   │   ├── desktop.css
+│   │   │   ├── index.html
+│   │   │   └── marked-loader.html
+│   │   ├── markdown/
+│   │   │   ├── static/
+│   │   │   │   ├── markdown-viewer-clean.css
+│   │   │   │   ├── markdown-viewer.css
+│   │   │   │   ├── markdown-viewer.js
+│   │   │   │   ├── panel-processor.js
+│   │   │   │   ├── style.css
+│   │   │   │   ├── synthwave-dos-colors.css
+│   │   │   │   └── ucode-processor.js
+│   │   │   ├── templates/
+│   │   │   │   └── index.html
+│   │   │   ├── CHANGELOG.md
+│   │   │   ├── CREDITS.md
+│   │   │   ├── IMPLEMENTATION.md
+│   │   │   ├── README.md
+│   │   │   ├── config.json
+│   │   │   ├── index.html
+│   │   │   ├── manifest.json
+│   │   │   ├── server.py
+│   │   │   └── start.sh
+│   │   ├── teletext/
+│   │   │   ├── assets/
+│   │   │   │   ├── css/
+│   │   │   │   ├── fonts/
+│   │   │   │   ├── icons/
+│   │   │   │   ├── js/
+│   │   │   │   ├── CREDITS.md
+│   │   │   │   └── README.md
+│   │   │   ├── data/
+│   │   │   │   └── mosaic_codepoints_E200-E3FF.csv
+│   │   │   ├── static/
+│   │   │   │   └── teletext-core.js
+│   │   │   ├── README.md
+│   │   │   ├── api_server.py
+│   │   │   ├── api_server_manager.py
+│   │   │   ├── index.html
+│   │   │   ├── requirements.txt
+│   │   │   ├── start.sh
+│   │   │   └── teletext-synthwave.css
+│   │   ├── terminal/
+│   │   │   ├── assets/
+│   │   │   │   ├── css/
+│   │   │   │   ├── fonts/
+│   │   │   │   ├── icons/
+│   │   │   │   ├── js/
+│   │   │   │   ├── CREDITS.md
+│   │   │   │   └── README.md
+│   │   │   ├── static/
+│   │   │   │   ├── block-graphics.js
+│   │   │   │   ├── commands.js
+│   │   │   │   ├── emoji-support.js
+│   │   │   │   ├── splash.js
+│   │   │   │   └── terminal.js
+│   │   │   ├── BUILD-SUMMARY.md
+│   │   │   ├── QUICK-START.md
+│   │   │   ├── README.md
+│   │   │   ├── index.html
+│   │   │   ├── start.sh
+│   │   │   ├── terminal.css
+│   │   │   └── test.html
+│   │   ├── CREDITS.md
+│   │   ├── README-SERVER.md
+│   │   ├── README.md
+│   │   ├── extension_dev_tools.py
+│   │   ├── extension_manager.py
+│   │   ├── extension_metadata_manager.py
+│   │   ├── extensions_server.py
+│   │   └── launch.sh
+│   ├── game-mode/
+│   │   ├── commands/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_handler.py
+│   │   │   ├── resource_handler.py
+│   │   │   ├── scenario_handler.py
+│   │   │   ├── scenario_play_handler.py
+│   │   │   ├── survival_handler.py
+│   │   │   └── xp_handler.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── barter_service.py
+│   │   │   ├── inventory_service.py
+│   │   │   ├── map_data_manager.py
+│   │   │   ├── map_engine.py
+│   │   │   ├── scenario_engine.py
+│   │   │   ├── scenario_service.py
+│   │   │   ├── survival_service.py
+│   │   │   └── xp_service.py
+│   │   ├── README.md
+│   │   └── __init__.py
+│   ├── setup/
+│   │   ├── setup_all.sh
+│   │   ├── setup_micro.sh
+│   │   └── setup_typo.sh
+│   ├── templates/
+│   │   ├── cli-extension-template/
+│   │   │   ├── README.md
+│   │   │   ├── manifest.json
+│   │   │   └── sample-cli.py
+│   │   ├── web-extension-template/
+│   │   │   ├── static/
+│   │   │   │   ├── css/
+│   │   │   │   └── js/
+│   │   │   ├── templates/
+│   │   │   │   └── index.html
+│   │   │   ├── README.md
+│   │   │   ├── app.py
+│   │   │   ├── manifest.json
+│   │   │   └── requirements.txt
+│   │   └── README.md
+│   └── README.md
+├── knowledge/
+│   ├── community/
+│   │   ├── collaboration/
+│   │   ├── conflict-resolution/
+│   │   ├── local-resilience/
+│   │   ├── mutual-aid/
+│   │   └── README.md
+│   ├── demos/
+│   │   ├── teletext_clone_bundle_with_blocks/
+│   │   │   ├── README.md
+│   │   │   ├── index.html
+│   │   │   ├── teletext.css
+│   │   │   └── teletext.js
+│   │   ├── udos_map_480x270_cellkey/
+│   │   │   ├── data/
+│   │   │   │   └── cities_sample.csv
+│   │   │   ├── output/
+│   │   │   │   ├── key_example.csv
+│   │   │   │   └── test_keys.csv
+│   │   │   ├── tools/
+│   │   │   │   └── compute_keys.py
+│   │   │   ├── MANIFEST.json
+│   │   │   └── README.txt
+│   │   ├── README.md
+│   │   ├── advanced_features.uscript
+│   │   ├── hello-automation.uscript
+│   │   ├── library_example.uscript
+│   │   ├── option_selector_demo.py
+│   │   ├── panel_demo.uscript
+│   │   ├── simple-setup.uscript
+│   │   └── task_manager.uscript
+│   ├── food/
+│   │   ├── README.md
+│   │   ├── bush-tucker.md
+│   │   ├── bushcraft-recipes.md
+│   │   ├── composting-basics.md
+│   │   ├── drying-dehydration.md
+│   │   ├── preservation-recipes.md
+│   │   ├── traditional-cooking-guide.md
+│   │   └── wild-edible-basics.md
+│   ├── making/
+│   │   ├── README.md
+│   │   ├── basic-woodworking.md
+│   │   ├── rope-making-cordage.md
+│   │   ├── solar-power-basics.md
+│   │   └── water-collection-systems.md
+│   ├── medical/
+│   │   ├── README.md
+│   │   ├── basic-cpr.md
+│   │   ├── burns-treatment.md
+│   │   ├── choking-heimlich.md
+│   │   ├── dehydration-treatment.md
+│   │   ├── first-aid-kit.md
+│   │   ├── fractures-sprains.md
+│   │   ├── heat-illness.md
+│   │   ├── hypothermia.md
+│   │   ├── shock-treatment.md
+│   │   ├── snakebite-treatment.md
+│   │   └── wound-care-bleeding.md
+│   ├── reference/
+│   │   ├── README.md
+│   │   ├── essential-knots.md
+│   │   └── seasonal-calendar-australia.md
+│   ├── skills/
+│   │   ├── art/
+│   │   ├── music/
+│   │   ├── writing/
+│   │   ├── basic-budgeting-guide.md
+│   │   ├── sewing-mending-basics.md
+│   │   └── tool-skills-maintenance.md
+│   ├── survival/
+│   │   ├── INDEX.md
+│   │   ├── README.md
+│   │   ├── boiling-purification.md
+│   │   ├── bush-navigation.md
+│   │   ├── bush-tucker-foraging.md
+│   │   ├── bushfire-survival.md
+│   │   ├── chemical-purification.md
+│   │   ├── composting-basics.md
+│   │   ├── drying-dehydration.md
+│   │   ├── emergency-debris-hut.md
+│   │   ├── essential-knots.md
+│   │   ├── fire-building-basics.md
+│   │   ├── knife-sharpening.md
+│   │   ├── knot-tying.md
+│   │   ├── lean-to-shelter.md
+│   │   ├── map-compass-basics.md
+│   │   ├── rainwater-harvesting.md
+│   │   ├── shelter-construction.md
+│   │   ├── situational-awareness.md
+│   │   ├── snakebite-treatment.md
+│   │   ├── snow-shelters.md
+│   │   ├── solar-power-basics.md
+│   │   ├── tarp-shelter-configurations.md
+│   │   ├── water-purification-methods.md
+│   │   ├── water-sources-wilderness.md
+│   │   ├── wild-edible-basics.md
+│   │   └── wound-care-bleeding.md
+│   ├── system/
+│   │   ├── diagrams/
+│   │   │   ├── data-structures/
+│   │   │   ├── flowcharts/
+│   │   │   ├── programming/
+│   │   │   │   ├── control-flow/
+│   │   │   │   └── syntax-trees/
+│   │   │   ├── survival/
+│   │   │   │   ├── knots/
+│   │   │   │   └── water/
+│   │   │   ├── systems/
+│   │   │   │   ├── memory-architecture-medium.md
+│   │   │   │   └── memory-tiers-medium.md
+│   │   │   └── README.md
+│   │   ├── geography/
+│   │   │   ├── cities.json
+│   │   │   ├── climate.json
+│   │   │   ├── countries.json
+│   │   │   ├── terrain.json
+│   │   │   ├── terrain_types.json
+│   │   │   ├── tile_schema.json
+│   │   │   ├── timezones.json
+│   │   │   └── tzone.json
+│   │   ├── graphics/
+│   │   │   ├── teletext/
+│   │   │   │   ├── README.md
+│   │   │   │   └── patterns.md
+│   │   │   ├── ascii_blocks.json
+│   │   │   └── teletext_mosaic.json
+│   │   ├── help_templates/
+│   │   │   ├── README.md
+│   │   │   ├── _index.json
+│   │   │   ├── assistant_commands.json
+│   │   │   ├── file_commands.json
+│   │   │   ├── grid_commands.json
+│   │   │   └── system_commands.json
+│   │   ├── reference/
+│   │   │   ├── imperial.json
+│   │   │   └── metric.json
+│   │   ├── templates/
+│   │   │   ├── .env.example
+│   │   │   ├── crud_app.uscript
+│   │   │   ├── form_validation.uscript
+│   │   │   ├── menu_system.uscript
+│   │   │   ├── setup.uscript
+│   │   │   ├── story.template.json
+│   │   │   └── user.template.json
+│   │   ├── tests/
+│   │   │   ├── test_startup.py
+│   │   │   └── test_system.py
+│   │   ├── themes/
+│   │   │   ├── templates/
+│   │   │   │   ├── README.md
+│   │   │   │   ├── dark-modern.json
+│   │   │   │   ├── high-contrast.json
+│   │   │   │   ├── light-professional.json
+│   │   │   │   └── minimal.json
+│   │   │   ├── _index.json
+│   │   │   ├── _schema.json
+│   │   │   ├── default.json
+│   │   │   ├── dungeon.json
+│   │   │   ├── foundation.json
+│   │   │   ├── galaxy.json
+│   │   │   ├── imported_test_theme.json
+│   │   │   ├── project.json
+│   │   │   ├── science.json
+│   │   │   └── teletext.json
+│   │   ├── BLANK-ENHANCED.md
+│   │   ├── HELP-ENHANCED.md
+│   │   ├── MAP.md
+│   │   ├── OK.md
+│   │   ├── README-FONT-SYSTEM.md
+│   │   ├── REDO.md
+│   │   ├── RESTORE.md
+│   │   ├── RUN.md
+│   │   ├── SETUP-ENHANCED.md
+│   │   ├── SYSTEM.md
+│   │   ├── UNDO.md
+│   │   ├── command-architecture.md
+│   │   ├── commands.json
+│   │   ├── credits.json
+│   │   ├── extensions.json
+│   │   ├── faq.json
+│   │   ├── font-profile-template.json
+│   │   ├── font-system.json
+│   │   ├── fonts.json
+│   │   ├── palette.json
+│   │   ├── tizo_cities.json
+│   │   ├── ucode_variables.json
+│   │   ├── usage_tracker.json
+│   │   ├── viewport.json
+│   │   ├── world_cities.csv
+│   │   ├── world_cities_cellkeys.csv
+│   │   └── worldmap.json
+│   ├── tech/
+│   │   ├── README.md
+│   │   ├── control-flow.md
+│   │   ├── daily-automation.md
+│   │   ├── pomodoro-guide.md
+│   │   └── variables.md
+│   ├── water/
+│   │   ├── README.md
+│   │   ├── boiling-purification.md
+│   │   ├── chemical-purification.md
+│   │   ├── rainwater-harvesting.md
+│   │   ├── water-purification-methods.md
+│   │   └── water-sources.md
+│   ├── well-being/
+│   │   ├── mental-health/
+│   │   ├── mindfulness/
+│   │   ├── physical-health/
+│   │   ├── relationships/
+│   │   ├── README.md
+│   │   ├── sleep-hygiene-optimization.md
+│   │   └── stress-management-resilience.md
+│   ├── KNOWLEDGE-SYSTEM.md
+│   └── README.md
+├── wiki/
+│   ├── diagrams/
+│   │   ├── concepts/
+│   │   │   └── README.md
+│   │   ├── dataflow/
+│   │   │   └── README.md
+│   │   ├── system/
+│   │   │   └── README.md
+│   │   └── ui/
+│   │       └── README.md
+│   ├── releases/
+│   │   └── v1.0.23-PROGRESS.md
+│   ├── Architecture.md
+│   ├── CLI-Features-v1-0-6.md
+│   ├── CSS-FRAMEWORKS-GUIDE.md
+│   ├── CSS-Framework-Integration.md
+│   ├── Command-Palette.md
+│   ├── Command-Reference.md
+│   ├── Configuration.md
+│   ├── Content-Curation.md
+│   ├── Contributing.md
+│   ├── Debugging-Guide.md
+│   ├── Dev-Rounds-Workflow.md
+│   ├── Development-History.md
+│   ├── Documentation-Handbook.md
+│   ├── Extensions-Server.md
+│   ├── Extensions-System.md
+│   ├── FAQ.md
+│   ├── GRID-SYSTEM.md
+│   ├── Getting-Started.md
+│   ├── Home.md
+│   ├── Human-Centric-Design.md
+│   ├── KNOWLEDGE-Commands.md
+│   ├── Knowledge-Architecture.md
+│   ├── Latest-Development.md
+│   ├── Mapping-System.md
+│   ├── PANEL-Commands.md
+│   ├── Philosophy.md
+│   ├── Project-Organization.md
+│   ├── Quick-Start.md
+│   ├── README-Typography.md
+│   ├── README.md
+│   ├── Release-v1.0.13.md
+│   ├── Release-v1.0.30.md
+│   ├── SYSTEM-CSS-REFERENCE.md
+│   ├── Style-Guide.md
+│   ├── TILE-Commands.md
+│   ├── Teletext-API.md
+│   ├── Teletext-Assets.md
+│   ├── Teletext-Credits.md
+│   ├── Teletext-Synthwave.md
+│   ├── Text-First-Computing.md
+│   ├── Theme-System.md
+│   ├── Troubleshooting.md
+│   ├── Why-uDOS.md
+│   ├── Workflows.md
+│   ├── _Footer.md
+│   ├── _Sidebar.md
+│   ├── shared-components.md
+│   └── uCODE-Language.md
+├── .gitignore
+├── CHANGELOG.md
+├── CHANGELOG_v1.0.32.md
+├── CONTRIBUTING.md
+├── CREDITS.md
+├── INSTALL.md
+├── LICENSE.txt
+├── MANIFEST.in
+├── QUICK-REFERENCE.md
+├── QUICK_START.md
+├── README.MD
+├── ROADMAP.md
+├── pytest.ini
+├── requirements.txt
+├── setup.py
+├── start_udos.sh
+├── structure.txt
+├── test_cli.sh
+├── uDOS.code-workspace
+├── uDOS.py
+└── web.sh

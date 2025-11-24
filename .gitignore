@@ -97,12 +97,24 @@ memory/logs/**/*
 *.pid
 *.state
 
-# Documentation (Development Working Files)
+# Development Workspace (v1.0.27+)
 # ----------------------
-# /docs/ = Development-only documentation (NOT distributed)
+# /dev/ = Development workspace (mostly NOT distributed)
+# /dev/planning/ = Roadmaps and specs (TRACKED for contributors)
+# /dev/archive/ = Development history (NOT tracked, local only)
+# /dev/notes/ = Personal notes (NOT tracked, local only)
 # /wiki/ = User-facing documentation (distributed with uDOS)
-docs/
-docs/**/*
+
+# Ignore most of /dev except planning and tools
+/dev/archive/
+/dev/notes/
+# Track these for contributors:
+!/dev/
+!/dev/README.md
+!/dev/planning/
+!/dev/planning/**/*
+!/dev/tools/
+!/dev/tools/**/*
 
 # Wiki Deployment
 # ----------------------
@@ -117,7 +129,13 @@ backups/
 
 # Output Files
 # ----------------------
-output/
+# Prevent root-level working directories from being created/tracked
+/output/
+/output
+/data/
+/data
+/sandbox/
+/sandbox
 *.output
 
 # Test Files - Only in Proper Locations
@@ -141,20 +159,40 @@ output/
 !knowledge/
 !knowledge/**/*
 
-# /memory/ - USER DATA (gitignored, user-writable)
+# /memory/ - USER DATA (gitignored, user-writable workspace)
+# v1.0.27: Track templates and tests for distribution, ignore user content
 memory/
 memory/**/*
-# Except templates and structure
-!memory/templates/
-!memory/templates/**/*
-!memory/.gitkeep
-!memory/*/.gitkeep
-!memory/*/README.md
-# 4-Tier Memory System (v1.0.20)
-!memory/private/.gitignore
-!memory/shared/.gitignore
-!memory/groups/.gitignore
-!memory/public/.gitignore
+
+# Track structure, templates, and tests
+!memory/README.md
+!memory/.gitignore
+!memory/config/
+!memory/config/.gitkeep
+!memory/sandbox/
+!memory/sandbox/.gitkeep
+!memory/workflow/
+!memory/workflow/README.md
+!memory/workflow/.gitkeep
+!memory/tests/
+!memory/tests/**/*
+
+# User databases and logs (always ignore)
+*.db
+*.sqlite
+*.sqlite3
+memory/logs/
+
+# 4-Tier Memory System (user content ignored)
+memory/private/
+memory/shared/
+memory/groups/
+memory/public/
+memory/personal/
+memory/workspace/
+memory/legacy/
+memory/missions/
+memory/scenarios/
 
 # /knowledge/ - TRACKED (core knowledge library, ships with uDOS)
 !knowledge/

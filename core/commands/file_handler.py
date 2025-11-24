@@ -1,7 +1,8 @@
 """
-uDOS v1.0.0 - File Command Handler
+uDOS v1.0.29 - File Command Handler (Smart Mode)
 
-Handles all file-related commands:
+Handles all file-related commands with smart input:
+- FILE: Interactive operation menu (v1.0.29)
 - NEW: Create new file with template
 - DELETE/DEL: Delete file with confirmation
 - COPY/DUPLICATE: Copy file within or between workspaces
@@ -11,7 +12,12 @@ Handles all file-related commands:
 - EDIT: Edit file with nano/micro/typo
 - RUN: Execute script file
 
-Version: 1.0.0
+Smart Mode (v1.0.29):
+- Zero arguments triggers interactive operation picker
+- File picker integration with InputManager
+- Smart context detection
+
+Version: 1.0.29
 """
 
 import os
@@ -49,16 +55,16 @@ class FileCommandHandler(BaseCommandHandler):
     def file_picker(self):
         """Lazy load file picker service."""
         if self._file_picker is None:
-            from core.services.file_picker import FilePicker
+            from core.ui.pickers.file_picker import FilePicker
             self._file_picker = FilePicker(self.workspace_manager)
         return self._file_picker
 
     def handle(self, command, params, grid, parser=None):
         """
-        Route file commands to appropriate handlers.
+        Route file commands to appropriate handlers (v1.0.29 Smart Mode).
 
         Args:
-            command: Command name
+            command: Command name (FILE, NEW, DELETE, etc.)
             params: Command parameters
             grid: Grid instance
             parser: Parser instance (optional)
@@ -66,6 +72,15 @@ class FileCommandHandler(BaseCommandHandler):
         Returns:
             Command result message
         """
+        # SMART MODE: FILE with no params → Interactive menu
+        if command == "FILE" and not params:
+            return self._file_interactive_menu()
+
+        # Handle MENU command (from [FILE|MENU] uCODE)
+        if command == "MENU":
+            return self._file_interactive_menu()
+
+        # EXPLICIT MODE: Traditional command routing
         if command == "NEW":
             return self._handle_new(params)
         elif command in ["DELETE", "DEL"]:
@@ -330,23 +345,20 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ Error renaming file: {str(e)}"
 
     def _handle_show(self, params):
-        """Display file in browser or terminal."""
+        """Display file in browser or terminal (v1.0.30 with micro editor)."""
         if not params:
-            # Interactive file picker
-            from core.uDOS_interactive import InteractivePrompt
-            prompt = InteractivePrompt()
+            # v1.0.30: Use knowledge file picker for .md and .uscript files
+            from core.services.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
 
-            files = self.workspace_manager.list_files()
-            if not files:
-                return "❌ No files to show"
-
-            file_path = prompt.ask_choice(
-                "📄 Show file",
-                choices=files,
-                default=files[0]
+            file_path = picker.pick_file(
+                workspace='both',
+                prompt="📄 Select file to view",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
+
             if not file_path:
-                return "❌ Show cancelled"
+                return "❌ View cancelled"
         else:
             file_path = params[0]
 
@@ -357,9 +369,13 @@ class FileCommandHandler(BaseCommandHandler):
 
         # Security check
         abs_path = os.path.abspath(file_path)
-        allowed_dirs = [os.path.abspath('sandbox'), os.path.abspath('memory')]
+        allowed_dirs = [
+            os.path.abspath('sandbox'),
+            os.path.abspath('memory'),
+            os.path.abspath('knowledge')  # v1.0.30: Allow knowledge access
+        ]
         if not any(abs_path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
-            return f"❌ Access denied: {file_path}\n\nOnly sandbox/ and memory/ are accessible"
+            return f"❌ Access denied: {file_path}\n\nOnly sandbox/, memory/, and knowledge/ are accessible"
 
         if not os.path.exists(file_path):
             return f"❌ File not found: {file_path}"
@@ -370,56 +386,75 @@ class FileCommandHandler(BaseCommandHandler):
             webbrowser.open(f"file://{abs_path}")
             return f"✅ Opened in browser: {file_path}"
         else:
-            # Display in terminal
+            # v1.0.30: Use micro editor in read-only mode
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                return f"📄 {file_path}\n{'═'*60}\n\n{content}\n\n{'═'*60}"
+                from core.ui.micro_editor import view_file
+                view_file(file_path)
+                return f"✅ Viewed: {file_path}"
             except Exception as e:
-                return f"❌ Error reading file: {str(e)}"
+                # Fallback to simple display
+                try:
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                    return f"📄 {file_path}\n{'═'*60}\n\n{content}\n\n{'═'*60}"
+                except Exception as e2:
+                    return f"❌ Error reading file: {str(e2)}"
 
     def _handle_edit(self, params):
-        """Edit file with nano/micro/typo."""
+        """Edit file with micro editor (v1.0.30)."""
         if not params:
-            # Interactive file picker
-            from core.uDOS_interactive import InteractivePrompt
-            prompt = InteractivePrompt()
+            # v1.0.30: Use knowledge file picker for .md and .uscript files
+            from core.services.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
 
-            files = self.workspace_manager.list_files()
-            if not files:
-                return "❌ No files to edit"
-
-            file_path = prompt.ask_choice(
-                "📝 Edit file",
-                choices=files,
-                default=files[0]
+            file_path = picker.pick_file(
+                workspace='both',
+                prompt="📝 Select file to edit",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
+
             if not file_path:
                 return "❌ Edit cancelled"
         else:
             file_path = params[0]
 
-        mode = None
-        specific_editor = None
+        # Check if --external flag for system editor
+        use_external = '--external' in params or '--nano' in params or '--vim' in params
 
-        # Parse options
-        for i, param in enumerate(params[1:], 1):
-            if param in ['--cli', '--terminal']:
-                mode = 'cli'
-            elif param in ['--web', '--browser']:
-                mode = 'web'
-            elif param in ['--nano', '--micro', '--typo']:
-                specific_editor = param[2:]  # Remove --
+        if use_external:
+            # Use external editor (original behavior)
+            mode = None
+            specific_editor = None
 
-        try:
-            result = self.editor_manager.edit_file(
-                file_path,
-                mode=mode,
-                editor=specific_editor
-            )
-            return result
-        except Exception as e:
-            return f"❌ Error opening editor: {str(e)}"
+            # Parse options
+            for i, param in enumerate(params[1:], 1):
+                if param in ['--cli', '--terminal']:
+                    mode = 'cli'
+                elif param in ['--web', '--browser']:
+                    mode = 'web'
+                elif param in ['--nano', '--micro', '--typo']:
+                    specific_editor = param[2:]  # Remove --
+
+            try:
+                result = self.editor_manager.edit_file(
+                    file_path,
+                    mode=mode,
+                    editor=specific_editor
+                )
+                return result
+            except Exception as e:
+                return f"❌ Error opening editor: {str(e)}"
+        else:
+            # v1.0.30: Use built-in micro editor (default)
+            try:
+                from core.ui.micro_editor import edit_file
+                success = edit_file(file_path)
+                if success:
+                    return f"✅ Saved: {file_path}"
+                else:
+                    return f"📝 Edit cancelled: {file_path}"
+            except Exception as e:
+                return f"❌ Error in micro editor: {str(e)}\n\n💡 Try: FILE EDIT {file_path} --external"
 
     def _handle_run(self, params, parser):
         """Execute script file."""
@@ -958,3 +993,1034 @@ class FileCommandHandler(BaseCommandHandler):
 
         except Exception as e:
             return f"❌ Info error: {str(e)}"
+
+    # ======================================================================
+    # SMART MODE (v1.0.29) - Interactive File Operations
+    # ======================================================================
+
+    def _file_interactive_menu(self):
+        """
+        Smart mode: Interactive file operations menu.
+        Prompts user for operation and file selection.
+        """
+        try:
+            # Present operation choices
+            operations = [
+                "Create New File",
+                "Edit Existing File",
+                "View/Show File",
+                "Copy File",
+                "Move File",
+                "Rename File",
+                "Delete File",
+                "File Info",
+                "Recent Files",
+                "Bookmarks",
+                "Cancel"
+            ]
+
+            operation = self.input_manager.prompt_choice(
+                message="What would you like to do?",
+                choices=operations,
+                default="Edit Existing File"
+            )
+
+            if operation == "Cancel":
+                return "File operation cancelled."
+
+            # Route to appropriate handler based on choice
+            if operation == "Create New File":
+                return self._smart_create_file()
+
+            elif operation == "Edit Existing File":
+                return self._smart_edit_file()
+
+            elif operation == "View/Show File":
+                return self._smart_show_file()
+
+            elif operation == "Copy File":
+                return self._smart_copy_file()
+
+            elif operation == "Move File":
+                return self._smart_move_file()
+
+            elif operation == "Rename File":
+                return self._smart_rename_file()
+
+            elif operation == "Delete File":
+                return self._smart_delete_file()
+
+            elif operation == "File Info":
+                return self._smart_file_info()
+
+            elif operation == "Recent Files":
+                return self._handle_recent([])
+
+            elif operation == "Bookmarks":
+                return self._handle_bookmarks([])
+
+            else:
+                return "Unknown operation."
+
+        except KeyboardInterrupt:
+            return "\n⚠️ File operation cancelled."
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File operation failed",
+                error_details=str(e)
+            )
+
+    def _smart_create_file(self):
+        """Smart mode: Create new file with prompts."""
+        try:
+            # Ask for filename
+            filename = self.input_manager.prompt_user(
+                message="Enter filename:",
+                required=True
+            )
+
+            # Get workspace choices
+            workspaces = self.workspace_manager.list_workspaces()
+            ws_choices = [f"{name} - {ws['description']}"
+                         for name, ws in workspaces.items()]
+
+            ws_choice = self.input_manager.prompt_choice(
+                message="Select workspace:",
+                choices=ws_choices,
+                default=ws_choices[0] if ws_choices else None
+            )
+
+            if not ws_choice:
+                return "❌ File creation cancelled"
+
+            workspace = ws_choice.split()[0]  # Extract name
+
+            # Template selection
+            templates = self.workspace_manager.TEMPLATES
+            template_choices = [f"{key} - {tpl['name']}"
+                               for key, tpl in templates.items()]
+
+            template_choice = self.input_manager.prompt_choice(
+                message="Select template:",
+                choices=template_choices,
+                default=template_choices[0] if template_choices else None
+            )
+
+            if not template_choice:
+                return "❌ File creation cancelled"
+
+            template = template_choice.split()[0]  # Extract key
+
+            # Create file
+            file_path = self.workspace_manager.create_file(
+                workspace, filename, template
+            )
+
+            return self.output_formatter.format_success(
+                f"File created: {filename}",
+                details=f"Workspace: {workspace}\nTemplate: {template}\nPath: {file_path}"
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File creation failed",
+                error_details=str(e)
+            )
+
+    def _smart_edit_file(self):
+        """Smart mode: Edit file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Edit the file
+            return self._handle_edit([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File edit failed",
+                error_details=str(e)
+            )
+
+    def _smart_show_file(self):
+        """Smart mode: Show/view file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Show the file
+            return self._handle_show([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File show failed",
+                error_details=str(e)
+            )
+
+    def _smart_copy_file(self):
+        """Smart mode: Copy file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination filename
+            dest = self.input_manager.prompt_user(
+                message=f"Copy '{source}' to:",
+                default=f"{source}.copy",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Copy '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Copy cancelled"
+
+            # Perform copy
+            return self._handle_copy([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File copy failed",
+                error_details=str(e)
+            )
+
+    def _smart_move_file(self):
+        """Smart mode: Move file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination
+            dest = self.input_manager.prompt_user(
+                message=f"Move '{source}' to:",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Move '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Move cancelled"
+
+            # Perform move
+            return self._handle_move([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File move failed",
+                error_details=str(e)
+            )
+
+    def _smart_rename_file(self):
+        """Smart mode: Rename file with prompts."""
+        try:
+            # Select file to rename
+            old_name = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not old_name:
+                return "❌ No file selected"
+
+            # Ask for new name
+            new_name = self.input_manager.prompt_user(
+                message=f"Rename '{old_name}' to:",
+                default=old_name,
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Rename '{old_name}' to '{new_name}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Rename cancelled"
+
+            # Perform rename
+            return self._handle_rename([old_name, new_name])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File rename failed",
+                error_details=str(e)
+            )
+
+    def _smart_delete_file(self):
+        """Smart mode: Delete file with prompts."""
+        try:
+            # Select file to delete
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Confirm deletion
+            confirm = self.input_manager.prompt_confirm(
+                message=f"⚠️ Delete '{filename}'? This cannot be undone!",
+                default=False
+            )
+
+            if not confirm:
+                return "❌ Delete cancelled"
+
+            # Perform deletion
+            return self._handle_delete([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File delete failed",
+                error_details=str(e)
+            )
+
+    def _smart_file_info(self):
+        """Smart mode: Show file info with file picker."""
+        try:
+            # Select file
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Show info
+            return self._handle_info([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File info failed",
+                error_details=str(e)
+            )
+
+    # ======================================================================
+    # SMART MODE (v1.0.29) - Interactive File Operations
+    # ======================================================================
+
+    def _file_interactive_menu(self):
+        """
+        Smart mode: Interactive file operations menu.
+        Prompts user for operation and file selection.
+        """
+        try:
+            # Present operation choices
+            operations = [
+                "Create New File",
+                "Edit Existing File",
+                "View/Show File",
+                "Copy File",
+                "Move File",
+                "Rename File",
+                "Delete File",
+                "File Info",
+                "Recent Files",
+                "Bookmarks",
+                "Cancel"
+            ]
+
+            operation = self.input_manager.prompt_choice(
+                message="What would you like to do?",
+                choices=operations,
+                default="Edit Existing File"
+            )
+
+            if operation == "Cancel":
+                return "File operation cancelled."
+
+            # Route to appropriate handler based on choice
+            if operation == "Create New File":
+                return self._smart_create_file()
+
+            elif operation == "Edit Existing File":
+                return self._smart_edit_file()
+
+            elif operation == "View/Show File":
+                return self._smart_show_file()
+
+            elif operation == "Copy File":
+                return self._smart_copy_file()
+
+            elif operation == "Move File":
+                return self._smart_move_file()
+
+            elif operation == "Rename File":
+                return self._smart_rename_file()
+
+            elif operation == "Delete File":
+                return self._smart_delete_file()
+
+            elif operation == "File Info":
+                return self._smart_file_info()
+
+            elif operation == "Recent Files":
+                return self._handle_recent([])
+
+            elif operation == "Bookmarks":
+                return self._handle_bookmarks([])
+
+            else:
+                return "Unknown operation."
+
+        except KeyboardInterrupt:
+            return "\n⚠️ File operation cancelled."
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File operation failed",
+                error_details=str(e)
+            )
+
+    def _smart_create_file(self):
+        """Smart mode: Create new file with prompts."""
+        try:
+            # Ask for filename
+            filename = self.input_manager.prompt_user(
+                message="Enter filename:",
+                required=True
+            )
+
+            # Get workspace choices
+            workspaces = self.workspace_manager.list_workspaces()
+            ws_choices = [f"{name} - {ws['description']}"
+                         for name, ws in workspaces.items()]
+
+            ws_choice = self.input_manager.prompt_choice(
+                message="Select workspace:",
+                choices=ws_choices,
+                default=ws_choices[0] if ws_choices else None
+            )
+
+            if not ws_choice:
+                return "❌ File creation cancelled"
+
+            workspace = ws_choice.split()[0]  # Extract name
+
+            # Template selection
+            templates = self.workspace_manager.TEMPLATES
+            template_choices = [f"{key} - {tpl['name']}"
+                               for key, tpl in templates.items()]
+
+            template_choice = self.input_manager.prompt_choice(
+                message="Select template:",
+                choices=template_choices,
+                default=template_choices[0] if template_choices else None
+            )
+
+            if not template_choice:
+                return "❌ File creation cancelled"
+
+            template = template_choice.split()[0]  # Extract key
+
+            # Create file
+            file_path = self.workspace_manager.create_file(
+                workspace, filename, template
+            )
+
+            return self.output_formatter.format_success(
+                f"File created: {filename}",
+                details=f"Workspace: {workspace}\nTemplate: {template}\nPath: {file_path}"
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File creation failed",
+                error_details=str(e)
+            )
+
+    def _smart_edit_file(self):
+        """Smart mode: Edit file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Edit the file
+            return self._handle_edit([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File edit failed",
+                error_details=str(e)
+            )
+
+    def _smart_show_file(self):
+        """Smart mode: Show/view file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Show the file
+            return self._handle_show([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File show failed",
+                error_details=str(e)
+            )
+
+    def _smart_copy_file(self):
+        """Smart mode: Copy file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination filename
+            dest = self.input_manager.prompt_user(
+                message=f"Copy '{source}' to:",
+                default=f"{source}.copy",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Copy '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Copy cancelled"
+
+            # Perform copy
+            return self._handle_copy([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File copy failed",
+                error_details=str(e)
+            )
+
+    def _smart_move_file(self):
+        """Smart mode: Move file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination
+            dest = self.input_manager.prompt_user(
+                message=f"Move '{source}' to:",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Move '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Move cancelled"
+
+            # Perform move
+            return self._handle_move([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File move failed",
+                error_details=str(e)
+            )
+
+    def _smart_rename_file(self):
+        """Smart mode: Rename file with prompts."""
+        try:
+            # Select file to rename
+            old_name = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not old_name:
+
+                return "❌ No file selected"
+
+            # Ask for new name
+            new_name = self.input_manager.prompt_user(
+                message=f"Rename '{old_name}' to:",
+                default=old_name,
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Rename '{old_name}' to '{new_name}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Rename cancelled"
+
+            # Perform rename
+            return self._handle_rename([old_name, new_name])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File rename failed",
+                error_details=str(e)
+            )
+
+    def _smart_delete_file(self):
+        """Smart mode: Delete file with prompts."""
+        try:
+            # Select file to delete
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Confirm deletion
+            confirm = self.input_manager.prompt_confirm(
+                message=f"⚠️ Delete '{filename}'? This cannot be undone!",
+                default=False
+            )
+
+            if not confirm:
+                return "❌ Delete cancelled"
+
+            # Perform deletion
+            return self._handle_delete([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File delete failed",
+                error_details=str(e)
+            )
+
+    def _smart_file_info(self):
+        """Smart mode: Show file info with file picker."""
+        try:
+            # Select file
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Show info
+            return self._handle_info([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File info failed",
+                error_details=str(e)
+            )
+
+    # ======================================================================
+    # SMART MODE (v1.0.29) - Interactive File Operations
+    # ======================================================================
+
+    def _file_interactive_menu(self):
+        """
+        Smart mode: Interactive file operations menu.
+        Prompts user for operation and file selection.
+        """
+        try:
+            # Present operation choices
+            operations = [
+                "Create New File",
+                "Edit Existing File",
+                "View/Show File",
+                "Copy File",
+                "Move File",
+                "Rename File",
+                "Delete File",
+                "File Info",
+                "Recent Files",
+                "Bookmarks",
+                "Cancel"
+            ]
+
+            operation = self.input_manager.prompt_choice(
+                message="What would you like to do?",
+                choices=operations,
+                default="Edit Existing File"
+            )
+
+            if operation == "Cancel":
+                return "File operation cancelled."
+
+            # Route to appropriate handler based on choice
+            if operation == "Create New File":
+                return self._smart_create_file()
+
+            elif operation == "Edit Existing File":
+                return self._smart_edit_file()
+
+            elif operation == "View/Show File":
+                return self._smart_show_file()
+
+            elif operation == "Copy File":
+                return self._smart_copy_file()
+
+            elif operation == "Move File":
+                return self._smart_move_file()
+
+            elif operation == "Rename File":
+                return self._smart_rename_file()
+
+            elif operation == "Delete File":
+                return self._smart_delete_file()
+
+            elif operation == "File Info":
+                return self._smart_file_info()
+
+            elif operation == "Recent Files":
+                return self._handle_recent([])
+
+            elif operation == "Bookmarks":
+                return self._handle_bookmarks([])
+
+            else:
+                return "Unknown operation."
+
+        except KeyboardInterrupt:
+            return "\n⚠️ File operation cancelled."
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File operation failed",
+                error_details=str(e)
+            )
+
+    def _smart_create_file(self):
+        """Smart mode: Create new file with prompts."""
+        try:
+            # Ask for filename
+            filename = self.input_manager.prompt_user(
+                message="Enter filename:",
+                required=True
+            )
+
+            # Get workspace choices
+            workspaces = self.workspace_manager.list_workspaces()
+            ws_choices = [f"{name} - {ws['description']}"
+                         for name, ws in workspaces.items()]
+
+            ws_choice = self.input_manager.prompt_choice(
+                message="Select workspace:",
+                choices=ws_choices,
+                default=ws_choices[0] if ws_choices else None
+            )
+
+            if not ws_choice:
+                return "❌ File creation cancelled"
+
+            workspace = ws_choice.split()[0]  # Extract name
+
+            # Template selection
+            templates = self.workspace_manager.TEMPLATES
+            template_choices = [f"{key} - {tpl['name']}"
+                               for key, tpl in templates.items()]
+
+            template_choice = self.input_manager.prompt_choice(
+                message="Select template:",
+                choices=template_choices,
+                default=template_choices[0] if template_choices else None
+            )
+
+            if not template_choice:
+                return "❌ File creation cancelled"
+
+            template = template_choice.split()[0]  # Extract key
+
+            # Create file
+            file_path = self.workspace_manager.create_file(
+                workspace, filename, template
+            )
+
+            return self.output_formatter.format_success(
+                f"File created: {filename}",
+                details=f"Workspace: {workspace}\nTemplate: {template}\nPath: {file_path}"
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File creation failed",
+                error_details=str(e)
+            )
+
+    def _smart_edit_file(self):
+        """Smart mode: Edit file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Edit the file
+            return self._handle_edit([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File edit failed",
+                error_details=str(e)
+            )
+
+    def _smart_show_file(self):
+        """Smart mode: Show/view file with file picker."""
+        try:
+            # Use file picker to select file
+            file_path = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not file_path:
+                return "❌ No file selected"
+
+            # Show the file
+            return self._handle_show([file_path])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File show failed",
+                error_details=str(e)
+            )
+
+    def _smart_copy_file(self):
+        """Smart mode: Copy file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination filename
+            dest = self.input_manager.prompt_user(
+                message=f"Copy '{source}' to:",
+                default=f"{source}.copy",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Copy '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Copy cancelled"
+
+            # Perform copy
+            return self._handle_copy([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File copy failed",
+                error_details=str(e)
+            )
+
+    def _smart_move_file(self):
+        """Smart mode: Move file with prompts."""
+        try:
+            # Select source file
+            source = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not source:
+                return "❌ No source file selected"
+
+            # Ask for destination
+            dest = self.input_manager.prompt_user(
+                message=f"Move '{source}' to:",
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Move '{source}' to '{dest}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Move cancelled"
+
+            # Perform move
+            return self._handle_move([source, dest])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File move failed",
+                error_details=str(e)
+            )
+
+    def _smart_rename_file(self):
+        """Smart mode: Rename file with prompts."""
+        try:
+            # Select file to rename
+            old_name = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not old_name:
+
+                return "❌ No file selected"
+
+            # Ask for new name
+            new_name = self.input_manager.prompt_user(
+                message=f"Rename '{old_name}' to:",
+                default=old_name,
+                required=True
+            )
+
+            # Confirm operation
+            confirm = self.input_manager.prompt_confirm(
+                message=f"Rename '{old_name}' to '{new_name}'?",
+                default=True
+            )
+
+            if not confirm:
+                return "❌ Rename cancelled"
+
+            # Perform rename
+            return self._handle_rename([old_name, new_name])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File rename failed",
+                error_details=str(e)
+            )
+
+    def _smart_delete_file(self):
+        """Smart mode: Delete file with prompts."""
+        try:
+            # Select file to delete
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Confirm deletion
+            confirm = self.input_manager.prompt_confirm(
+                message=f"⚠️ Delete '{filename}'? This cannot be undone!",
+                default=False
+            )
+
+            if not confirm:
+                return "❌ Delete cancelled"
+
+            # Perform deletion
+            return self._handle_delete([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File delete failed",
+                error_details=str(e)
+            )
+
+    def _smart_file_info(self):
+        """Smart mode: Show file info with file picker."""
+        try:
+            # Select file
+            filename = self.input_manager.prompt_file(
+                starting_path=".",
+                must_exist=True,
+                file_type="all"
+            )
+
+            if not filename:
+                return "❌ No file selected"
+
+            # Show info
+            return self._handle_info([filename])
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "File info failed",
+                error_details=str(e)
+            )

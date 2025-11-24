@@ -83,7 +83,7 @@ class UserConfigGenerator:
                     settings["tizo_code"] = config_data["location"].get("tizo_code", "MEL")
                 return settings
 
-            # Legacy USER.UDO format
+            # Extract from USER.UDO format
             user_profile = config_data.get("USER_PROFILE", {})
             system_config = config_data.get("SYSTEM_CONFIG", {})
             display_settings = config_data.get("DISPLAY_SETTINGS", {})

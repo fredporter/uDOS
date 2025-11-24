@@ -343,7 +343,7 @@ class DashboardHandler(BaseCommandHandler):
             output.append("║ 📁 SANDBOX".ljust(width + 1) + "║")
             output.append("║ " + "─" * (width - 2) + " ║")
 
-            sandbox_path = Path('sandbox')
+            sandbox_path = Path('memory/sandbox')
             if sandbox_path.exists():
                 files = [f for f in sandbox_path.rglob('*') if f.is_file() and not f.name.startswith('.')]
                 dirs = [d for d in sandbox_path.rglob('*') if d.is_dir() and not d.name.startswith('.')]

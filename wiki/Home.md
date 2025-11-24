@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.24/v1.0.25** - A Human-Readable CLI Framework with Unified Extensions Server, AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
+**uDOS v1.0.30** - A Human-Readable CLI Framework with Enhanced Teletext UI, Built-in Editor, AI Integration, 4-Tier Knowledge Bank, and Complete Geographic Reference System
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -17,16 +17,16 @@
 
 ---
 
-## 🎮 NEW in v1.0.24/v1.0.25 - Extensions Unification (November 2025)
+## 🎮 NEW in v1.0.30 - Enhanced CLI with Teletext UI (November 2025)
 
-- **Unified Extensions Server** - Single HTTP server for all extensions (ports 8888-9002)
-- **Dashboard Builder** - 12+ widgets, 4 themes, drag-and-drop interface
-- **5 Web Extensions** - Dashboard, Teletext, Terminal, Markdown, Character Editor
-- **Launch Scripts** - Standardized `start.sh` for each extension
-- **Complete Documentation** - README-SERVER.md with 250+ lines
-- **File Organization** - Removed `/data/` folder, consolidated to `knowledge/system/`
-- **Font System** - Unified font profiles and templates
-- **539 Tests Passing** - 100% pass rate maintained
+- **Teletext Block Character UI** - Retro-inspired selection boxes, file trees, autocomplete panels
+- **Built-in Micro Editor** - Syntax-highlighted editor for .md and .uscript files (434 lines)
+- **Knowledge File Picker** - Specialized picker for /knowledge and /memory content (343 lines)
+- **Smart Prompt Fallback** - Terminal compatibility detection with graceful degradation
+- **Startup Welcome** - v1.0.30 feature showcase with demo launcher
+- **Error Handling** - Fixed critical bugs, improved exception handling throughout
+- **Testing** - 19/19 tests passing (100%): integration, UI, and error handling
+- **Production Ready** - All features tested and documented
 
 [🔗 Extensions Server Guide →](Extensions-System) | [🔗 Dashboard Builder →](Dashboard-Features)
 

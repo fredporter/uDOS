@@ -13,8 +13,8 @@ import json
 import shutil
 from pathlib import Path
 from .base_handler import BaseCommandHandler
-from core.services.theme_manager import ThemeManager
-from core.services.theme_builder import ThemeBuilder
+from core.theme.manager import ThemeManager
+from core.theme.builder import ThemeBuilder
 
 
 class ConfigurationHandler(BaseCommandHandler):
@@ -98,17 +98,25 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("")
         output.append("👤 USER SETTINGS:")
         output.append("-" * 40)
-        if self.user_manager and self.user_manager.user_data:
-            user_profile = self.user_manager.user_data.get('user_profile', {})
-            output.append(f"  Username: {user_profile.get('username', 'Not set')}")
-            output.append(f"  Project: {user_profile.get('project_name', 'Not set')}")
 
-            # Get theme from system settings
-            system_settings = self.user_manager.user_data.get('system_settings', {})
-            display = system_settings.get('display', {})
-            output.append(f"  Theme: {display.get('theme', 'Not set')}")
-        else:
-            output.append("  User profile: Not loaded")
+        # Get user data from story_manager (STORY section)
+        user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+        location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+        timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+        password = self.story_manager.get_field('STORY.PASSWORD', '')
+        project_name = self.story_manager.get_field('STORY.PROJECT_NAME', 'Not set')
+
+        password_display = '●●●●●●' if password else 'Not set'
+
+        output.append(f"  Username: {user_name}")
+        output.append(f"  Password: {password_display}")
+        output.append(f"  Project: {project_name}")
+        output.append(f"  Location: {location}")
+        output.append(f"  Timezone: {timezone}")
+
+        # Get theme from story manager
+        theme_name = self.story_manager.get_field('STORY.THEME', 'Not set')
+        output.append(f"  Theme: {theme_name}")
 
         # System settings
         output.append("")
@@ -146,14 +154,19 @@ class ConfigurationHandler(BaseCommandHandler):
                 return "Grid not initialized"
 
         elif key_upper == 'USER':
-            if self.user_manager and self.user_manager.user_data:
-                user_profile = self.user_manager.user_data.get('USER_PROFILE', {})
-                return (f"User settings:\n"
-                       f"  Name: {user_profile.get('NAME', 'Not set')}\n"
-                       f"  Location: {user_profile.get('LOCATION', 'Not set')}\n"
-                       f"  Timezone: {user_profile.get('TIMEZONE', 'UTC')}")
-            else:
-                return "User profile not loaded"
+            # Get user data from story_manager (STORY section)
+            user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
+            location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
+            timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+            password = self.story_manager.get_field('STORY.PASSWORD', '')
+
+            password_display = '●●●●●●' if password else 'Not set'
+
+            return (f"User settings:\n"
+                   f"  Username: {user_name}\n"
+                   f"  Password: {password_display}\n"
+                   f"  Location: {location}\n"
+                   f"  Timezone: {timezone}")
 
         elif key_upper == 'DEBUG':
             debug_enabled = getattr(self.logger, 'debug_enabled', False) if self.logger else False
@@ -645,22 +658,28 @@ class ConfigurationHandler(BaseCommandHandler):
 
     def handle_config(self, params, grid, parser):
         """
-        Manage configuration files and system settings.
+        Manage configuration files and system settings (Smart Mode v1.0.29).
 
-        Usage:
-            CONFIG               - Show config status
+        Smart Mode (no arguments):
+            CONFIG               - Interactive menu for all config operations
+
+        Explicit Mode (backward compatible):
             CONFIG BACKUP        - Backup all configs
             CONFIG RESTORE       - Restore from backup
             CONFIG RESET         - Reset to defaults
             CONFIG VALIDATE      - Validate all configs
             CONFIG VIEWPORT      - Show viewport information
             CONFIG VIEWPORT <w> <h> - Set custom viewport (in cells)
+            CONFIG GET <key>     - Get configuration value
+            CONFIG SET <key> <value> - Set configuration value
 
         Manages configuration files in knowledge/system/ directory.
         """
+        # SMART MODE: No params → Interactive menu
         if not params:
-            return self._show_config_status()
+            return self._config_interactive_menu()
 
+        # EXPLICIT MODE: Backward compatible command routing
         command = params[0].upper()
 
         if command == 'BACKUP':
@@ -686,14 +705,25 @@ class ConfigurationHandler(BaseCommandHandler):
                        "Usage:\n"
                        "  CONFIG VIEWPORT        - Show current viewport\n"
                        "  CONFIG VIEWPORT <w> <h> - Set custom viewport in cells")
+        elif command == 'GET':
+            if len(params) < 2:
+                return "❌ Usage: CONFIG GET <key>"
+            return self._get_config_value(params[1])
+        elif command == 'SET':
+            if len(params) < 3:
+                return "❌ Usage: CONFIG SET <key> <value>"
+            return self._set_config_value(params[1], ' '.join(params[2:]))
         else:
             return ("❌ Unknown config command\n\n"
                    "Available commands:\n"
+                   "  CONFIG           - Interactive menu (smart mode)\n"
                    "  CONFIG BACKUP    - Backup configurations\n"
                    "  CONFIG RESTORE   - Restore from backup\n"
                    "  CONFIG RESET     - Reset to defaults\n"
                    "  CONFIG VALIDATE  - Validate configurations\n"
-                   "  CONFIG VIEWPORT  - Manage viewport settings")
+                   "  CONFIG VIEWPORT  - Manage viewport settings\n"
+                   "  CONFIG GET <key> - Get configuration value\n"
+                   "  CONFIG SET <key> <value> - Set configuration value")
 
     def _show_config_status(self):
         """Show current configuration status."""
@@ -905,3 +935,435 @@ class ConfigurationHandler(BaseCommandHandler):
             return "❌ Viewport manager not available"
         except Exception as e:
             return f"❌ Error setting viewport config: {str(e)}"
+
+    # ======================================================================
+    # SMART MODE (v1.0.29) - Interactive Configuration
+    # ======================================================================
+
+    def _config_interactive_menu(self):
+        """
+        Smart mode: Interactive configuration menu.
+        Shows all config options and prompts user for action.
+        """
+        try:
+            # Present menu choices
+            choices = [
+                "View Configuration Status",
+                "API Keys & Credentials",
+                "User Profile Settings",
+                "System Settings (Theme, Viewport, Debug)",
+                "Backup/Restore Configuration",
+                "Validate All Configurations",
+                "View All Settings (Detailed)",
+                "Cancel"
+            ]
+
+            choice = self.input_manager.prompt_choice(
+                message="What would you like to configure?",
+                choices=choices,
+                default="View Configuration Status"
+            )
+
+            if choice == "View Configuration Status":
+                return self._show_config_status()
+
+            elif choice == "API Keys & Credentials":
+                return self._manage_api_keys_interactive()
+
+            elif choice == "User Profile Settings":
+                return self._manage_user_profile_interactive()
+
+            elif choice == "System Settings (Theme, Viewport, Debug)":
+                return self._manage_system_settings_interactive()
+
+            elif choice == "Backup/Restore Configuration":
+                return self._manage_backup_restore_interactive()
+
+            elif choice == "Validate All Configurations":
+                return self._validate_configs()
+
+            elif choice == "View All Settings (Detailed)":
+                return self._show_all_settings()
+
+            else:  # Cancel
+                return "Configuration menu cancelled."
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Configuration menu failed",
+                error_details=str(e)
+            )
+
+    def _manage_api_keys_interactive(self):
+        """Interactive API key management."""
+        try:
+            # Get current API keys
+            gemini_key = self.story_manager.get_field('CONFIG.API_KEY', '')
+            github_token = self.story_manager.get_field('CONFIG.GITHUB_TOKEN', '')
+
+            # Show current status
+            output = []
+            output.append(self.output_formatter.format_panel(
+                "API Keys & Credentials",
+                f"Gemini API Key: {'✅ Set' if gemini_key else '❌ Not set'}\n"
+                f"GitHub Token: {'✅ Set' if github_token else '❌ Not set'}"
+            ))
+
+            # Ask what to do
+            action = self.input_manager.prompt_choice(
+                message="Choose an action:",
+                choices=[
+                    "Set Gemini API Key",
+                    "Set GitHub Token",
+                    "View Current Keys (masked)",
+                    "Clear API Keys",
+                    "Back to Main Menu"
+                ],
+                default="Back to Main Menu"
+            )
+
+            if action == "Set Gemini API Key":
+                new_key = self.input_manager.prompt_user(
+                    message="Enter Gemini API Key (or leave blank to skip):",
+                    default=gemini_key,
+                    required=False
+                )
+                if new_key:
+                    self.story_manager.set_field('CONFIG.API_KEY', new_key, auto_save=True)
+                    output.append("\n✅ Gemini API Key updated")
+                else:
+                    output.append("\n⚠️ Gemini API Key unchanged")
+
+            elif action == "Set GitHub Token":
+                new_token = self.input_manager.prompt_user(
+                    message="Enter GitHub Personal Access Token:",
+                    default=github_token,
+                    required=False
+                )
+                if new_token:
+                    self.story_manager.set_field('CONFIG.GITHUB_TOKEN', new_token, auto_save=True)
+                    output.append("\n✅ GitHub Token updated")
+                else:
+                    output.append("\n⚠️ GitHub Token unchanged")
+
+            elif action == "View Current Keys (masked)":
+                masked_gemini = f"{gemini_key[:8]}...{gemini_key[-4:]}" if len(gemini_key) > 12 else "Not set"
+                masked_github = f"{github_token[:8]}...{github_token[-4:]}" if len(github_token) > 12 else "Not set"
+                output.append(f"\nGemini API Key: {masked_gemini}")
+                output.append(f"GitHub Token: {masked_github}")
+
+            elif action == "Clear API Keys":
+                confirm = self.input_manager.prompt_confirm(
+                    message="Are you sure you want to clear all API keys?",
+                    default=False
+                )
+                if confirm:
+                    self.story_manager.set_field('CONFIG.API_KEY', '', auto_save=True)
+                    self.story_manager.set_field('CONFIG.GITHUB_TOKEN', '', auto_save=True)
+                    output.append("\n✅ API Keys cleared")
+                else:
+                    output.append("\n⚠️ Operation cancelled")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "API key management failed",
+                error_details=str(e)
+            )
+
+    def _manage_user_profile_interactive(self):
+        """Interactive user profile management."""
+        try:
+            # Auto-detect system timezone and location
+            from core.utils.system_info import get_system_timezone
+            detected_timezone, detected_city = get_system_timezone()
+
+            # Get current profile
+            user_name = self.story_manager.get_field('STORY.USER_NAME', '')
+            password = self.story_manager.get_field('STORY.PASSWORD', '')
+            location = self.story_manager.get_field('STORY.LOCATION', '')
+            timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+
+            # Use detected values as defaults if not set
+            if not timezone:
+                timezone = detected_timezone
+            if not location:
+                location = detected_city
+
+            # Show current profile
+            output = []
+            output.append(self.output_formatter.format_panel(
+                "User Profile",
+                f"Username: {user_name or 'Not set'}\n"
+                f"Password: {'●●●●●●' if password else 'Not set (optional)'}\n"
+                f"Location: {location or 'Not set'}\n"
+                f"Timezone: {timezone}\n"
+                f"\nℹ️  Detected: {detected_timezone} ({detected_city})"
+            ))
+
+            # Ask what to update
+            action = self.input_manager.prompt_choice(
+                message="What would you like to update?",
+                choices=[
+                    "Username",
+                    "Password",
+                    "Location",
+                    "Timezone",
+                    "Update All Fields",
+                    "Back to Main Menu"
+                ],
+                default="Back to Main Menu"
+            )
+
+            if action == "Username":
+                new_name = self.input_manager.prompt_user(
+                    message="Enter username:",
+                    default=user_name,
+                    required=True
+                )
+                self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=True)
+                output.append(f"\n✅ Username updated to: {new_name}")
+
+            elif action == "Password":
+                new_password = self.input_manager.prompt_user(
+                    message="Enter password (leave blank for none):",
+                    default="",
+                    required=False
+                )
+                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=True)
+                if new_password:
+                    output.append("\n✅ Password updated")
+                else:
+                    output.append("\n✅ Password cleared")
+
+            elif action == "Location":
+                new_location = self.input_manager.prompt_user(
+                    message=f"Enter location (detected: {detected_city}):",
+                    default=location or detected_city,
+                    required=False
+                )
+                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
+                output.append(f"\n✅ Location updated to: {new_location}")
+
+            elif action == "Timezone":
+                new_timezone = self.input_manager.prompt_user(
+                    message=f"Enter timezone (detected: {detected_timezone}):",
+                    default=timezone or detected_timezone,
+                    required=False
+                )
+                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=True)
+                output.append(f"\n✅ Timezone updated to: {new_timezone}")
+
+            elif action == "Update All Fields":
+                # Prompt for all fields with auto-detected defaults
+                new_name = self.input_manager.prompt_user(
+                    message="Username:",
+                    default=user_name,
+                    required=True
+                )
+
+                new_password = self.input_manager.prompt_user(
+                    message="Password (leave blank for none):",
+                    default="",
+                    required=False
+                )
+
+                new_timezone = self.input_manager.prompt_user(
+                    message=f"Timezone (detected: {detected_timezone}):",
+                    default=timezone or detected_timezone,
+                    required=False
+                )
+
+                new_location = self.input_manager.prompt_user(
+                    message=f"Location (defaults to timezone city):",
+                    default=location or detected_city,
+                    required=False
+                )
+
+                # Save all fields
+                self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=False)
+                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=False)
+                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=False)
+                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
+
+                output.append("\n✅ User profile updated")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "User profile management failed",
+                error_details=str(e)
+            )
+
+    def _manage_system_settings_interactive(self):
+        """Interactive system settings management."""
+        try:
+            # Get current settings
+            current_theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+            debug_mode = getattr(self.logger, 'debug_enabled', False) if self.logger else False
+            offline_mode = self.story_manager.get_field('SYSTEM.OFFLINE_MODE', False)
+
+            # Show current settings
+            output = []
+            output.append(self.output_formatter.format_panel(
+                "System Settings",
+                f"Theme: {current_theme}\n"
+                f"Debug Mode: {'Enabled' if debug_mode else 'Disabled'}\n"
+                f"Offline Mode: {'Enabled' if offline_mode else 'Disabled'}"
+            ))
+
+            # Ask what to update
+            action = self.input_manager.prompt_choice(
+                message="What would you like to change?",
+                choices=[
+                    "Change Theme",
+                    "Toggle Debug Mode",
+                    "Configure Viewport",
+                    "View Viewport Info",
+                    "Back to Main Menu"
+                ],
+                default="Back to Main Menu"
+            )
+
+            if action == "Change Theme":
+                # Get available themes
+                themes_dir = Path('knowledge/system/themes')
+                available_themes = []
+                if themes_dir.exists():
+                    available_themes = [f.stem for f in themes_dir.glob('*.json')]
+
+                if not available_themes:
+                    output.append("\n❌ No themes found in knowledge/system/themes/")
+                else:
+                    new_theme = self.input_manager.prompt_choice(
+                        message="Select a theme:",
+                        choices=available_themes,
+                        default=current_theme if current_theme in available_themes else available_themes[0]
+                    )
+                    self.story_manager.set_field('STORY.THEME', new_theme, auto_save=True)
+                    output.append(f"\n✅ Theme changed to: {new_theme}")
+                    output.append("⚠️ Restart uDOS to apply theme changes")
+
+            elif action == "Toggle Debug Mode":
+                if self.logger:
+                    self.logger.debug_enabled = not debug_mode
+                    new_state = "enabled" if self.logger.debug_enabled else "disabled"
+                    output.append(f"\n✅ Debug mode {new_state}")
+                else:
+                    output.append("\n❌ Logger not available")
+
+            elif action == "Configure Viewport":
+                width = self.input_manager.prompt_user(
+                    message="Enter viewport width (cells, 10-1000):",
+                    default="80",
+                    required=True
+                )
+                height = self.input_manager.prompt_user(
+                    message="Enter viewport height (cells, 5-1000):",
+                    default="24",
+                    required=True
+                )
+                try:
+                    return self._set_viewport_config(int(width), int(height))
+                except ValueError:
+                    output.append("\n❌ Invalid dimensions")
+
+            elif action == "View Viewport Info":
+                return self._show_viewport_config()
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "System settings management failed",
+                error_details=str(e)
+            )
+
+    def _manage_backup_restore_interactive(self):
+        """Interactive backup/restore management."""
+        try:
+            action = self.input_manager.prompt_choice(
+                message="Backup/Restore Options:",
+                choices=[
+                    "Backup All Configurations",
+                    "Restore from Backup",
+                    "Reset to Defaults",
+                    "Back to Main Menu"
+                ],
+                default="Back to Main Menu"
+            )
+
+            if action == "Backup All Configurations":
+                return self._backup_configs()
+
+            elif action == "Restore from Backup":
+                confirm = self.input_manager.prompt_confirm(
+                    message="Restore configurations from backup? Current configs will be overwritten.",
+                    default=False
+                )
+                if confirm:
+                    return self._restore_configs()
+                else:
+                    return "⚠️ Restore cancelled"
+
+            elif action == "Reset to Defaults":
+                confirm = self.input_manager.prompt_confirm(
+                    message="Reset all configurations to defaults? This cannot be undone.",
+                    default=False
+                )
+                if confirm:
+                    return self._reset_configs()
+                else:
+                    return "⚠️ Reset cancelled"
+
+            else:
+                return "Backup/restore menu cancelled."
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                "Backup/restore failed",
+                error_details=str(e)
+            )
+
+    def _get_config_value(self, key: str):
+        """Get a configuration value by key (dot notation)."""
+        try:
+            # Parse key path
+            if '.' in key:
+                value = self.story_manager.get_field(key, default='Not found')
+            else:
+                # Backward compatibility: simple keys
+                value = self.story_manager.get_field(f'CONFIG.{key}', default='Not found')
+
+            return self.output_formatter.format_panel(
+                f"Configuration: {key}",
+                str(value)
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                f"Failed to get config: {key}",
+                error_details=str(e)
+            )
+
+    def _set_config_value(self, key: str, value: str):
+        """Set a configuration value by key (dot notation)."""
+        try:
+            # Parse key path
+            if '.' in key:
+                self.story_manager.set_field(key, value, auto_save=True)
+            else:
+                # Backward compatibility: simple keys go to CONFIG
+                self.story_manager.set_field(f'CONFIG.{key}', value, auto_save=True)
+
+            return self.output_formatter.format_success(
+                f"Configuration updated: {key} = {value}"
+            )
+
+        except Exception as e:
+            return self.output_formatter.format_error(
+                f"Failed to set config: {key}",
+                error_details=str(e)
+            )

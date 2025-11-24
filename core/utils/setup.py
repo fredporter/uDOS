@@ -18,7 +18,7 @@ class SystemSetup:
         self.template_path = "knowledge/system/templates/story.template.json"
         self.theme_index_path = "knowledge/system/themes/_index.json"
         self.session_log_file = "memory/logs/sessions/session.log"
-        self.sandbox_path = "sandbox"
+        self.sandbox_path = "memory/sandbox"
         self.logs_path = "memory/logs"
         self.available_themes = self._load_available_themes()
 
@@ -58,7 +58,6 @@ class SystemSetup:
         """
         os.makedirs(self.sandbox_path, exist_ok=True)
         os.makedirs(self.logs_path, exist_ok=True)
-        os.makedirs("data", exist_ok=True)
 
     def run_setup(self):
         """

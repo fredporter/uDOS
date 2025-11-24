@@ -18,10 +18,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from core.commands.docs_unified_handler import DocsUnifiedHandler
 from core.commands.learn_unified_handler import LearnUnifiedHandler
 from core.commands.memory_unified_handler import MemoryUnifiedHandler
-from core.services.fuzzy_matcher import FuzzyMatcher
-from core.services.alias_manager import AliasManager
+from core.utils.fuzzy_matcher import FuzzyMatcher
+from core.utils.alias_manager import AliasManager
 from core.ui.picker import UniversalPicker
-from core.services.error_handler import EnhancedErrorHandler
+from core.utils.error_handler import EnhancedErrorHandler
 from core.ui.progress_indicators import ProgressIndicators
 
 

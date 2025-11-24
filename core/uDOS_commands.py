@@ -17,6 +17,7 @@ Author: Fred Porter
 
 import json
 from pathlib import Path
+from core.theme import load_theme
 
 
 class CommandHandler:
@@ -37,11 +38,10 @@ class CommandHandler:
             command_history: CommandHistory instance
             logger: Logger instance
         """
-        # Load theme and commands
-        theme_file = f'knowledge/system/themes/{theme.lower()}.json'
-        with open(theme_file, 'r') as f:
-            theme_data = json.load(f)
-            self.lexicon = theme_data.get('TERMINOLOGY', {})
+        # Load theme and commands (merged with any user overrides)
+        theme_data = load_theme(theme, root_path=Path(__file__).parent.parent)
+        self.lexicon = theme_data.get('TERMINOLOGY', {})
+        self.messages = theme_data.get('MESSAGES', {})
 
         with open(commands_file, 'r') as f:
             self.commands_data = json.load(f)['COMMANDS']
@@ -71,18 +71,24 @@ class CommandHandler:
         # Initialize specialized handlers (lazy loading in handlers themselves)
         from core.commands.assistant_handler import AssistantCommandHandler
         from core.commands.file_handler import FileCommandHandler
-        from core.commands.grid_handler import GridCommandHandler
-        from core.commands.map_handler import MapCommandHandler
         from core.commands.system_handler import SystemCommandHandler
         from core.commands.bank_handler import BankCommandHandler
         from core.commands.cmd_knowledge import cmd_knowledge
+
+        # Game Mode extension (optional) - load if available
+        try:
+            from extensions.game_mode.commands.map_handler import MapCommandHandler
+            self._game_mode_available = True
+        except ImportError:
+            MapCommandHandler = None
+            self._game_mode_available = False
 
         # v1.0.20 - 4-Tier Knowledge Bank handlers
         from core.commands.memory_commands import MemoryCommandHandler
         from core.commands.private_commands import PrivateCommandHandler
         from core.commands.shared_commands import SharedCommandHandler
         from core.commands.community_commands import CommunityCommandHandler
-        from core.commands.knowledge_commands import KnowledgeCommandHandler
+        from core.commands.knowledge_commands import KnowledgeCommandHandler  # KB command (Tier 4)
 
         # v1.0.20b - Enhanced Mapping & Reference Data System
         from core.commands.tile_handler import TILECommandHandler
@@ -92,13 +98,14 @@ class CommandHandler:
         from core.commands.guide_handler import GuideHandler
         from core.commands.diagram_handler import DiagramHandler
 
+        # v1.1.0 - User Feedback System
+        from core.commands.user_handler import UserCommandHandler
+
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
-        self.grid_handler = GridCommandHandler(**handler_kwargs)
-        self.map_handler = MapCommandHandler(**handler_kwargs)
+        self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
         self.bank_handler = BankCommandHandler(**handler_kwargs)
-        self.knowledge_command = cmd_knowledge
 
         # v1.0.20 - 4-Tier Memory System handlers
         self.memory_handler = MemoryCommandHandler()
@@ -117,10 +124,17 @@ class CommandHandler:
         self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
         self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
 
+        # v1.1.0 - User Feedback handler
+        self.user_handler = UserCommandHandler(**handler_kwargs)
+
         # Now set main_handler reference on all handlers
-        for handler in [self.assistant_handler, self.file_handler, self.grid_handler,
-                       self.map_handler, self.system_handler, self.bank_handler]:
+        for handler in [self.assistant_handler, self.file_handler,
+                       self.system_handler, self.bank_handler]:
             handler.main_handler = self
+
+        # Set main_handler on map_handler if available
+        if self.map_handler:
+            self.map_handler.main_handler = self
 
     def get_message(self, key, **kwargs):
         """
@@ -133,8 +147,18 @@ class CommandHandler:
         Returns:
             Formatted message string
         """
-        message = self.lexicon.get(key, f"<{key}>")
-        return message.format(**kwargs)
+        # Prefer full message templates, then terminology tokens, then fallback
+        template = None
+        if hasattr(self, 'messages') and key in self.messages:
+            template = self.messages.get(key)
+        elif key in self.lexicon:
+            template = self.lexicon.get(key)
+        else:
+            template = f"<{key}>"
+        try:
+            return template.format(**kwargs)
+        except Exception:
+            return template
 
     def handle_command(self, ucode, grid, parser):
         """
@@ -166,17 +190,24 @@ class CommandHandler:
                 return self.file_handler.handle(command, params, grid, parser)
 
             elif module == "GRID":
-                return self.grid_handler.handle(command, params, grid)
+                return ("❌ GRID commands have been removed in uDOS v1.0.32\n\n"
+                       "The panel system has been simplified. Commands now work\n"
+                       "directly with files and the terminal output.\n\n"
+                       "💡 Alternatives:\n"
+                       "   • Use TREE to view repository structure\n"
+                       "   • Use EDIT to edit files\n"
+                       "   • Use SHOW to view files\n"
+                       "   • Use PANEL for teletext UI")
 
             elif module == "MAP":
-                return self.map_handler.handle(command, params, grid)
+                if self.map_handler:
+                    return self.map_handler.handle(command, params, grid)
+                else:
+                    return ("❌ MAP commands require Game Mode extension\n"
+                           "💡 Install: POKE START game-mode")
 
             elif module == "BANK":
                 return self.bank_handler.handle(command, params, grid)
-
-            elif module == "KNOWLEDGE":
-                # Legacy KNOWLEDGE commands (v1.0.8)
-                return self.knowledge_command(self.user_manager, [command] + params)
 
             # v1.0.20 - 4-Tier Knowledge Bank & Memory System
             elif module == "MEMORY":
@@ -200,7 +231,7 @@ class CommandHandler:
                 return self.tile_handler.handle(command, ' '.join(params) if params else '', grid)
 
             # v1.0.21 - Teletext Display System
-            elif module == "PANEL":
+            elif module == "PANEL" or module == "UI":
                 return self.panel_handler.handle(command, params, grid)
 
             # v1.0.21 - Interactive Knowledge Viewers
@@ -209,6 +240,10 @@ class CommandHandler:
 
             elif module == "DIAGRAM":
                 return self.diagram_handler.handle(command, params)
+
+            # v1.1.0 - User Feedback System
+            elif module == "USER":
+                return self.user_handler.handle(command, params, grid)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

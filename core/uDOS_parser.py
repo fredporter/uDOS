@@ -1,4 +1,4 @@
-# uDOS v1.0.0 - Parser
+# uDOS v1.0.31 - Parser
 
 import json
 import re
@@ -67,9 +67,11 @@ class Parser:
                 placeholder = f"${i}"
                 ucode = ucode.replace(placeholder, param)
 
-            for placeholder, value in default_params.items():
-                if placeholder in ucode:
-                    ucode = ucode.replace(placeholder, value)
+            # Handle DEFAULT_PARAMS - ensure it's a dict
+            if isinstance(default_params, dict):
+                for placeholder, value in default_params.items():
+                    if placeholder in ucode and value is not None:
+                        ucode = ucode.replace(placeholder, value)
 
             ucode = re.sub(r'\*\$[0-9]+', '', ucode)
 
@@ -95,3 +97,7 @@ if __name__ == '__main__':
     print(parser.parse('ASK "What is uDOS?"'))
     print(parser.parse('EXTENSIONS LIST'))
     print(parser.parse('FONT LIST'))
+
+
+# Alias for backward compatibility with tests
+CommandParser = Parser

@@ -70,8 +70,10 @@ class PanelCommandHandler(BaseCommandHandler):
         'water': '≈', 'river': '~', 'lake': '○'
     }
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        """Initialize PanelCommandHandler, accepting kwargs for consistency with other handlers"""
         super().__init__()
+        # Accept but ignore kwargs that other handlers use (theme, connection, etc.)
         self.panels = {}  # Store active panels
         self.default_tier = 7  # Desktop 80×40
 
