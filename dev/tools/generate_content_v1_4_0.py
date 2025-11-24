@@ -55,7 +55,17 @@ CONTENT_TARGETS = {
             "water quality testing",
             "emergency water sources",
             "water conservation",
-            "well digging basics"
+            "well digging basics",
+            "desert water procurement",
+            "coastal water desalination",
+            "underground water detection",
+            "spring water identification",
+            "ice and snow water extraction",
+            "plant water sources",
+            "transpiration bag technique",
+            "water contamination signs",
+            "long-term water storage",
+            "water rationing strategies"
         ]
     },
     "fire": {
@@ -71,7 +81,17 @@ CONTENT_TARGETS = {
             "cooking fires",
             "fire in wet conditions",
             "friction fire methods",
-            "fire starter materials"
+            "fire starter materials",
+            "bow drill technique",
+            "hand drill fire making",
+            "flint and steel methods",
+            "char cloth preparation",
+            "fire plough method",
+            "fire reflector construction",
+            "emergency fire lighting",
+            "coal bed preservation",
+            "fire banking overnight",
+            "improvised fire starters"
         ]
     },
     "shelter": {
@@ -87,7 +107,17 @@ CONTENT_TARGETS = {
             "weatherproofing",
             "knot tying",
             "lashing techniques",
-            "shelter ventilation"
+            "shelter ventilation",
+            "snow cave construction",
+            "tarp shelter configurations",
+            "underground shelters",
+            "natural shelter modifications",
+            "tropical shelter building",
+            "desert shade structures",
+            "elevated platform shelters",
+            "group shelter construction",
+            "shelter drainage systems",
+            "camouflage techniques"
         ]
     },
     "food": {
@@ -103,7 +133,17 @@ CONTENT_TARGETS = {
             "fishing techniques",
             "trapping basics",
             "cooking methods",
-            "nutrition planning"
+            "nutrition planning",
+            "emergency food rationing",
+            "wild edible roots and tubers",
+            "insect protein sources",
+            "fish trap construction",
+            "bird snaring techniques",
+            "food caching methods",
+            "primitive cooking without utensils",
+            "edible tree bark identification",
+            "poisonous plant recognition",
+            "field dressing wild game"
         ]
     },
     "navigation": {
