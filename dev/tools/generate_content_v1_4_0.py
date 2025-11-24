@@ -158,8 +158,18 @@ CONTENT_TARGETS = {
             "terrain features",
             "signaling techniques",
             "rescue signals",
-            "SOS procedures",
-            "route planning"
+            "sos procedures",
+            "route planning",
+            "dead reckoning navigation",
+            "landmark identification",
+            "topographic map interpretation",
+            "GPS basics and backup methods",
+            "shadow stick method",
+            "watch navigation technique",
+            "trail marking systems",
+            "weather pattern navigation",
+            "ocean current navigation",
+            "emergency location markers"
         ]
     },
     "medical": {
@@ -175,7 +185,17 @@ CONTENT_TARGETS = {
             "snake bites",
             "plant poisons",
             "emergency CPR",
-            "wilderness medicine"
+            "wilderness medicine",
+            "shock management",
+            "splinting techniques",
+            "infection prevention",
+            "natural antibiotics",
+            "pain management without medication",
+            "dental emergencies",
+            "childbirth emergency procedures",
+            "altitude sickness treatment",
+            "dehydration recognition",
+            "improvised medical supplies"
         ]
     },
     "tools": {
@@ -191,7 +211,17 @@ CONTENT_TARGETS = {
             "cordage techniques",
             "tool repairs",
             "equipment care",
-            "multi-tool uses"
+            "multi-tool uses",
+            "stone tool crafting",
+            "bow and arrow construction",
+            "fishing gear fabrication",
+            "basket weaving techniques",
+            "leather working basics",
+            "metal working without forge",
+            "wood carving skills",
+            "bone tool creation",
+            "primitive drilling methods",
+            "improvised cutting tools"
         ]
     },
     "communication": {
@@ -207,7 +237,17 @@ CONTENT_TARGETS = {
             "community coordination",
             "emergency communication",
             "message systems",
-            "security protocols"
+            "security protocols",
+            "semaphore flag system",
+            "ground-to-air signals",
+            "encrypted messaging basics",
+            "dead drop techniques",
+            "visual distress signals",
+            "sound-based communication",
+            "runner relay systems",
+            "coded language development",
+            "long-distance signaling",
+            "group communication protocols"
         ]
     }
 }
