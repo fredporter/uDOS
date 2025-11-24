@@ -35,7 +35,7 @@ REBOOT                    # Restart uDOS
 | **Navigation** | `MAP`, `GOTO`, `MOVE` |
 | **System** | `STATUS`, `VIEWPORT`, `REPAIR` |
 | **Automation** | `RUN <script>` |
-| **AI Assistant** | `OK <task>`, `READ <content>` |
+| **OK Assistant** | `OK <task>`, `READ <content>` |
 | **Utilities** | `HELP`, `CLEAR`, `SETUP` |
 
 ---
@@ -604,7 +604,7 @@ KNOWLEDGE SHOW <title|path>
 
 # ASK Command Reference
 
-The ASK command provides AI-powered assistance...
+The ASK command provides OK assisted assistance...
 [Complete document content]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 1,234 words | 🏷️  #command #AI #help #assistant
@@ -847,7 +847,7 @@ Panel: main (361 lines)
 
 ### ASK
 
-**Purpose**: Query Gemini AI (or offline engine)
+**Purpose**: Query OK Assistant (or offline engine)
 
 **Syntax**:
 ```
@@ -867,7 +867,7 @@ ASK "<question>" [FROM "<panel>"]
 
 **Online Output**:
 ```
-🤖 Gemini AI:
+🤖 OK Assistant:
 uDOS is a human-readable CLI framework that combines natural
 language commands with AI integration. It features...
 ```

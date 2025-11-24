@@ -1,0 +1,221 @@
+# Knowledge Bank Generation Workflow
+# uScript for v1.4.0 Content Population
+# =====================================
+# This script automates the generation of 1,000+ survival guides
+# using OK Assist integration and GENERATE commands.
+#
+# Usage:
+#   RUN workflow/knowledge_generation.uscript
+#   PLAY workflow/knowledge_generation.uscript --interactive
+
+## Configuration
+CONFIG LOAD memory/config/knowledge_targets.json
+VAR $BATCH_SIZE = 20
+VAR $CURRENT_CATEGORY = ""
+VAR $GUIDES_GENERATED = 0
+VAR $TARGET_TOTAL = 1000
+
+## Welcome Message
+PANEL CREATE generation_status
+PANEL WRITE generation_status "🔮 uDOS Knowledge Generation Workflow"
+PANEL WRITE generation_status "======================================"
+PANEL WRITE generation_status ""
+PANEL WRITE generation_status "Target: 1,000 survival guides"
+PANEL WRITE generation_status "Mode: OK Assist integration"
+PANEL WRITE generation_status ""
+
+## Progress Check
+GENERATE STATS knowledge/
+PANEL WRITE generation_status "Current Progress: $GUIDES_GENERATED / $TARGET_TOTAL"
+PANEL WRITE generation_status ""
+
+## Category: Water (Target: 150 guides)
+PANEL WRITE generation_status "📦 Category: WATER"
+PANEL WRITE generation_status "Generating water procurement guides..."
+
+GENERATE GUIDE water/finding_water_sources --mode ok-assist
+GENERATE GUIDE water/water_purification_methods --mode ok-assist
+GENERATE GUIDE water/rainwater_collection --mode ok-assist
+GENERATE GUIDE water/solar_still_construction --mode ok-assist
+GENERATE GUIDE water/water_filtration_systems --mode ok-assist
+GENERATE GUIDE water/emergency_water_sources --mode ok-assist
+GENERATE GUIDE water/water_quality_testing --mode ok-assist
+GENERATE GUIDE water/water_conservation --mode ok-assist
+GENERATE GUIDE water/well_digging_basics --mode ok-assist
+GENERATE GUIDE water/water_storage_techniques --mode ok-assist
+
+## Generate diagrams for water category
+GENERATE DIAGRAM water/water_filtration_diagram --style technical-kinetic
+GENERATE DIAGRAM water/solar_still_diagram --style technical-kinetic
+GENERATE DIAGRAM water/well_construction_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Water guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Fire (Target: 100 guides)
+PANEL WRITE generation_status "🔥 Category: FIRE"
+PANEL WRITE generation_status "Generating fire starting guides..."
+
+GENERATE GUIDE fire/fire_starting_techniques --mode ok-assist
+GENERATE GUIDE fire/tinder_preparation --mode ok-assist
+GENERATE GUIDE fire/friction_fire_methods --mode ok-assist
+GENERATE GUIDE fire/bow_drill_technique --mode ok-assist
+GENERATE GUIDE fire/hand_drill_fire_making --mode ok-assist
+GENERATE GUIDE fire/flint_and_steel_methods --mode ok-assist
+GENERATE GUIDE fire/fire_maintenance --mode ok-assist
+GENERATE GUIDE fire/fire_safety_zones --mode ok-assist
+GENERATE GUIDE fire/smokeless_fires --mode ok-assist
+GENERATE GUIDE fire/signal_fires --mode ok-assist
+
+GENERATE DIAGRAM fire/bow_drill_diagram --style technical-kinetic
+GENERATE DIAGRAM fire/fire_lay_types_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Fire guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Shelter (Target: 120 guides)
+PANEL WRITE generation_status "🏠 Category: SHELTER"
+PANEL WRITE generation_status "Generating shelter construction guides..."
+
+GENERATE GUIDE shelter/shelter_site_selection --mode ok-assist
+GENERATE GUIDE shelter/emergency_shelters --mode ok-assist
+GENERATE GUIDE shelter/debris_huts --mode ok-assist
+GENERATE GUIDE shelter/lean-to_construction --mode ok-assist
+GENERATE GUIDE shelter/a-frame_shelters --mode ok-assist
+GENERATE GUIDE shelter/insulation_techniques --mode ok-assist
+GENERATE GUIDE shelter/weatherproofing --mode ok-assist
+GENERATE GUIDE shelter/knot_tying --mode ok-assist
+GENERATE GUIDE shelter/lashing_techniques --mode ok-assist
+GENERATE GUIDE shelter/shelter_ventilation --mode ok-assist
+
+GENERATE DIAGRAM shelter/debris_hut_diagram --style technical-kinetic
+GENERATE DIAGRAM shelter/shelter_types_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Shelter guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Food (Target: 180 guides)
+PANEL WRITE generation_status "🍖 Category: FOOD"
+PANEL WRITE generation_status "Generating food procurement guides..."
+
+GENERATE GUIDE food/edible_plants --mode ok-assist
+GENERATE GUIDE food/plant_identification --mode ok-assist
+GENERATE GUIDE food/foraging_basics --mode ok-assist
+GENERATE GUIDE food/food_preservation --mode ok-assist
+GENERATE GUIDE food/smoking_meat --mode ok-assist
+GENERATE GUIDE food/drying_foods --mode ok-assist
+GENERATE GUIDE food/wild_game_preparation --mode ok-assist
+GENERATE GUIDE food/fishing_techniques --mode ok-assist
+GENERATE GUIDE food/trapping_basics --mode ok-assist
+GENERATE GUIDE food/cooking_methods --mode ok-assist
+
+GENERATE DIAGRAM food/edible_plants_diagram --style technical-kinetic
+GENERATE DIAGRAM food/trap_types_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Food guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Navigation (Target: 100 guides)
+PANEL WRITE generation_status "🧭 Category: NAVIGATION"
+PANEL WRITE generation_status "Generating navigation guides..."
+
+GENERATE GUIDE navigation/map_reading --mode ok-assist
+GENERATE GUIDE navigation/compass_use --mode ok-assist
+GENERATE GUIDE navigation/natural_navigation --mode ok-assist
+GENERATE GUIDE navigation/star_navigation --mode ok-assist
+GENERATE GUIDE navigation/sun_navigation --mode ok-assist
+GENERATE GUIDE navigation/terrain_features --mode ok-assist
+GENERATE GUIDE navigation/signaling_techniques --mode ok-assist
+GENERATE GUIDE navigation/rescue_signals --mode ok-assist
+GENERATE GUIDE navigation/sos_procedures --mode ok-assist
+GENERATE GUIDE navigation/route_planning --mode ok-assist
+
+GENERATE DIAGRAM navigation/compass_diagram --style technical-kinetic
+GENERATE DIAGRAM navigation/star_patterns_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Navigation guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Medical (Target: 150 guides)
+PANEL WRITE generation_status "⚕️ Category: MEDICAL"
+PANEL WRITE generation_status "Generating medical guides..."
+
+GENERATE GUIDE medical/first_aid_basics --mode ok-assist
+GENERATE GUIDE medical/wound_care --mode ok-assist
+GENERATE GUIDE medical/fracture_treatment --mode ok-assist
+GENERATE GUIDE medical/burns_treatment --mode ok-assist
+GENERATE GUIDE medical/hypothermia_prevention --mode ok-assist
+GENERATE GUIDE medical/heat_exhaustion --mode ok-assist
+GENERATE GUIDE medical/snake_bites --mode ok-assist
+GENERATE GUIDE medical/plant_poisons --mode ok-assist
+GENERATE GUIDE medical/emergency_cpr --mode ok-assist
+GENERATE GUIDE medical/wilderness_medicine --mode ok-assist
+
+GENERATE DIAGRAM medical/bandaging_techniques_diagram --style technical-kinetic
+GENERATE DIAGRAM medical/pressure_points_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Medical guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Tools (Target: 100 guides)
+PANEL WRITE generation_status "🔨 Category: TOOLS"
+PANEL WRITE generation_status "Generating tool guides..."
+
+GENERATE GUIDE tools/knife_maintenance --mode ok-assist
+GENERATE GUIDE tools/axe_use_and_safety --mode ok-assist
+GENERATE GUIDE tools/saw_techniques --mode ok-assist
+GENERATE GUIDE tools/tool_sharpening --mode ok-assist
+GENERATE GUIDE tools/makeshift_tools --mode ok-assist
+GENERATE GUIDE tools/rope_making --mode ok-assist
+GENERATE GUIDE tools/cordage_techniques --mode ok-assist
+GENERATE GUIDE tools/tool_repairs --mode ok-assist
+GENERATE GUIDE tools/equipment_care --mode ok-assist
+GENERATE GUIDE tools/multi-tool_uses --mode ok-assist
+
+GENERATE DIAGRAM tools/knife_grips_diagram --style technical-kinetic
+GENERATE DIAGRAM tools/knot_types_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Tools guides: Complete"
+PANEL WRITE generation_status ""
+
+## Category: Communication (Target: 100 guides)
+PANEL WRITE generation_status "📡 Category: COMMUNICATION"
+PANEL WRITE generation_status "Generating communication guides..."
+
+GENERATE GUIDE communication/radio_basics --mode ok-assist
+GENERATE GUIDE communication/morse_code --mode ok-assist
+GENERATE GUIDE communication/hand_signals --mode ok-assist
+GENERATE GUIDE communication/whistle_codes --mode ok-assist
+GENERATE GUIDE communication/mirror_signals --mode ok-assist
+GENERATE GUIDE communication/smoke_signals --mode ok-assist
+GENERATE GUIDE communication/community_coordination --mode ok-assist
+GENERATE GUIDE communication/emergency_communication --mode ok-assist
+GENERATE GUIDE communication/message_systems --mode ok-assist
+GENERATE GUIDE communication/security_protocols --mode ok-assist
+
+GENERATE DIAGRAM communication/morse_code_chart_diagram --style technical-kinetic
+GENERATE DIAGRAM communication/signal_types_diagram --style technical-kinetic
+
+PANEL WRITE generation_status "✅ Communication guides: Complete"
+PANEL WRITE generation_status ""
+
+## Final Statistics
+PANEL WRITE generation_status "======================================"
+PANEL WRITE generation_status "🎉 Generation Complete!"
+PANEL WRITE generation_status ""
+GENERATE STATS knowledge/ --detailed
+PANEL WRITE generation_status ""
+PANEL WRITE generation_status "Next steps:"
+PANEL WRITE generation_status "1. Review generated content quality"
+PANEL WRITE generation_status "2. Cross-reference related topics"
+PANEL WRITE generation_status "3. Add community feedback"
+PANEL WRITE generation_status "4. Deploy to knowledge system"
+
+## Save progress
+MISSION UPDATE complete_knowledge_bank --progress $GUIDES_GENERATED
+CONFIG SAVE memory/workflow/last_generation_run.json
+
+## End
+PANEL DISPLAY generation_status
+PRINT "Knowledge generation workflow complete!"
+PRINT "Use STORY knowledge/learning for interactive tutorial mode."

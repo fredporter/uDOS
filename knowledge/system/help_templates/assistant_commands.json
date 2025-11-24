@@ -10,7 +10,7 @@
         "OK DEV <task>"
       ],
       "description": "AI assistant command router and help",
-      "detailed": "OK provides access to AI-powered assistance through Gemini (ASK) and GitHub Copilot (DEV). Without parameters, shows available options.",
+      "detailed": "OK provides access to AI-powered assistance through OK Assistant (ASK) and GitHub Copilot (DEV). Without parameters, shows available options.",
       "parameters": [],
       "examples": [
         {
@@ -19,7 +19,7 @@
         },
         {
           "command": "OK ASK What is uDOS?",
-          "description": "Ask Gemini a question"
+          "description": "Ask OK Assistant a question"
         },
         {
           "command": "OK DEV How do I create a service?",
@@ -29,7 +29,7 @@
       "related": ["ASK", "READ", "KNOWLEDGE"],
       "notes": [
         "Requires API keys for full functionality",
-        "ASK uses Gemini AI with knowledge base integration",
+        "ASK uses OK Assistant AI with knowledge base integration",
         "DEV uses GitHub Copilot CLI with project context"
       ],
       "version_added": "1.0.5"
@@ -40,8 +40,8 @@
         "ASK <question>",
         "OK ASK <question>"
       ],
-      "description": "Query Gemini AI with knowledge base integration",
-      "detailed": "ASK sends questions to Google's Gemini AI, enriched with local knowledge base content for more relevant responses.",
+      "description": "Query OK Assistant AI with knowledge base integration",
+      "detailed": "ASK sends questions to Google's OK Assistant AI, enriched with local knowledge base content for more relevant responses.",
       "parameters": [
         {
           "name": "question",

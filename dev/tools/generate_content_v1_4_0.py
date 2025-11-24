@@ -32,13 +32,13 @@ import time
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Import Gemini service for AI generation
+# Import OK Assistant service for assisted generation
 try:
     from core.services.gemini_service import GeminiCLI
-    GEMINI_AVAILABLE = True
+    OK_ASSIST_AVAILABLE = True
 except ImportError:
-    GEMINI_AVAILABLE = False
-    print("⚠️  Gemini service not available - will use placeholders only")
+    OK_ASSIST_AVAILABLE = False
+    print("⚠️  OK Assistant service not available - will use placeholders only")
 
 # Content generation targets for v1.4.0
 CONTENT_TARGETS = {
@@ -256,9 +256,9 @@ CONTENT_TARGETS = {
 class ContentGenerator:
     """Generates knowledge bank content using v1.3.0 GENERATE commands"""
 
-    def __init__(self, dry_run=False, use_ai=True):
+    def __init__(self, dry_run=False, use_ok_assist=True):
         self.dry_run = dry_run
-        self.use_ai = use_ai and GEMINI_AVAILABLE
+        self.use_ok_assist = use_ok_assist and OK_ASSIST_AVAILABLE
         self.gemini = None
         self.stats = {
             "guides_generated": 0,
@@ -268,19 +268,19 @@ class ContentGenerator:
             "api_calls": 0
         }
 
-        # Initialize Gemini if AI mode enabled
-        if self.use_ai:
+        # Initialize OK Assistant if enabled
+        if self.use_ok_assist:
             try:
                 # Get project root (.env location)
                 project_root = Path(__file__).parent.parent.parent
                 env_path = project_root / '.env'
 
                 self.gemini = GeminiCLI(env_path=env_path)
-                print("✅ Gemini AI initialized for content generation")
+                print("✅ OK Assistant initialized for content generation")
             except Exception as e:
-                print(f"⚠️  Gemini initialization failed: {e}")
+                print(f"⚠️  OK Assistant initialization failed: {e}")
                 print("⚠️  Falling back to placeholder mode")
-                self.use_ai = False
+                self.use_ok_assist = False
 
     def generate_guides(self, category: str, count: int):
         """Generate guides for a category"""
@@ -339,7 +339,7 @@ class ContentGenerator:
                     self.stats["errors"] += 1
 
     def _generate_guide_placeholder(self, category: str, topic: str) -> Path:
-        """Generate guide using Gemini AI or placeholder"""
+        """Generate guide using OK Assistant or placeholder"""
         # Create knowledge directory structure
         output_dir = Path("knowledge") / category
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -353,15 +353,15 @@ class ContentGenerator:
             self.stats["skipped"] += 1
             return None
 
-        # Generate content with AI if available
-        if self.use_ai and self.gemini:
+        # Generate content with OK Assist if available
+        if self.use_ok_assist and self.gemini:
             try:
-                content = self._generate_guide_with_ai(category, topic)
+                content = self._generate_guide_with_ok_assist(category, topic)
                 self.stats["api_calls"] += 1
                 # Small delay to respect rate limits
                 time.sleep(0.5)
             except Exception as e:
-                print(f"    ⚠️  AI generation failed: {e}, using placeholder")
+                print(f"    ⚠️  OK Assist generation failed: {e}, using placeholder")
                 content = self._create_placeholder_guide(category, topic)
         else:
             content = self._create_placeholder_guide(category, topic)
@@ -370,8 +370,8 @@ class ContentGenerator:
         output_path.write_text(content)
         return output_path
 
-    def _generate_guide_with_ai(self, category: str, topic: str) -> str:
-        """Use Gemini AI to generate comprehensive survival guide"""
+    def _generate_guide_with_ok_assist(self, category: str, topic: str) -> str:
+        """Use OK Assistant to generate comprehensive survival guide"""
         prompt = f"""Generate a comprehensive survival guide about {topic} for the {category} category.
 
 Requirements:
@@ -404,7 +404,7 @@ Make it practical, detailed, and focused on real survival scenarios."""
 **Category:** {category}
 **Difficulty:** beginner
 **Generated:** {datetime.now().strftime('%Y-%m-%d')}
-**AI-Generated:** ✅
+**OK Assist Generated:** ✅
 
 {response}
 """
@@ -462,7 +462,7 @@ Make it practical, detailed, and focused on real survival scenarios."""
 """
 
     def _generate_diagram_placeholder(self, category: str, topic: str) -> Path:
-        """Generate SVG diagram using Gemini AI or placeholder"""
+        """Generate SVG diagram using OK Assistant or placeholder"""
         output_dir = Path("knowledge") / "reference" / "diagrams" / category
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -473,15 +473,15 @@ Make it practical, detailed, and focused on real survival scenarios."""
             self.stats["skipped"] += 1
             return None
 
-        # Generate SVG with AI if available
-        if self.use_ai and self.gemini:
+        # Generate SVG with OK Assist if available
+        if self.use_ok_assist and self.gemini:
             try:
-                svg_content = self._generate_diagram_with_ai(category, topic)
+                svg_content = self._generate_diagram_with_ok_assist(category, topic)
                 self.stats["api_calls"] += 1
                 # Small delay to respect rate limits
                 time.sleep(0.5)
             except Exception as e:
-                print(f"    ⚠️  AI diagram generation failed: {e}, using placeholder")
+                print(f"    ⚠️  OK Assist diagram generation failed: {e}, using placeholder")
                 svg_content = self._create_placeholder_diagram(category, topic)
         else:
             svg_content = self._create_placeholder_diagram(category, topic)
@@ -489,8 +489,8 @@ Make it practical, detailed, and focused on real survival scenarios."""
         output_path.write_text(svg_content)
         return output_path
 
-    def _generate_diagram_with_ai(self, category: str, topic: str) -> str:
-        """Use Gemini AI to generate SVG diagram"""
+    def _generate_diagram_with_ok_assist(self, category: str, topic: str) -> str:
+        """Use OK Assistant to generate SVG diagram"""
         prompt = f"""Generate a technical SVG diagram illustrating {topic} for the {category} category.
 
 Requirements:
@@ -574,13 +574,13 @@ The diagram should be informative and help someone understand the practical aspe
         print(f"Errors:             {self.stats['errors']}")
         print(f"Skipped (exists):   {self.stats['skipped']}")
         print(f"Total:              {self.stats['guides_generated'] + self.stats['diagrams_generated']}")
-        print(f"Mode:               {'AI-Powered' if self.use_ai else 'Placeholder'}")
+        print(f"Mode:               {'OK Assist' if self.use_ok_assist else 'Placeholder'}")
         print("="*60)
 
 
-def generate_all_content(dry_run=False, use_ai=True):
+def generate_all_content(dry_run=False, use_ok_assist=True):
     """Generate all content for v1.4.0"""
-    generator = ContentGenerator(dry_run=dry_run, use_ai=use_ai)
+    generator = ContentGenerator(dry_run=dry_run, use_ok_assist=use_ok_assist)
 
     print("🚀 v1.4.0 Content Population - Full Generation")
     print(f"Mode: {'DRY RUN' if dry_run else 'PRODUCTION'}")
@@ -623,17 +623,17 @@ def main():
                        help="Generate only diagrams")
     parser.add_argument("--guides-only", action="store_true",
                        help="Generate only guides")
-    parser.add_argument("--no-ai", action="store_true",
-                       help="Use placeholders instead of AI generation")
+    parser.add_argument("--no-ok-assist", action="store_true",
+                       help="Use placeholders instead of OK Assist generation")
 
     args = parser.parse_args()
 
-    use_ai = not args.no_ai
+    use_ok_assist = not args.no_ok_assist
 
     if args.all:
-        generate_all_content(dry_run=args.dry_run, use_ai=use_ai)
+        generate_all_content(dry_run=args.dry_run, use_ok_assist=use_ok_assist)
     elif args.category:
-        generator = ContentGenerator(dry_run=args.dry_run, use_ai=use_ai)
+        generator = ContentGenerator(dry_run=args.dry_run, use_ok_assist=use_ok_assist)
 
         if not args.diagrams_only:
             generator.generate_guides(args.category, args.count)
@@ -645,7 +645,7 @@ def main():
         parser.print_help()
         print("\n💡 Examples:")
         print("  python3 dev/tools/generate_content_v1_4_0.py --category water --count 10")
-        print("  python3 dev/tools/generate_content_v1_4_0.py --category fire --count 5 --no-ai")
+        print("  python3 dev/tools/generate_content_v1_4_0.py --category fire --count 5 --no-ok-assist")
         print("  python3 dev/tools/generate_content_v1_4_0.py --all --dry-run")
         print("  python3 dev/tools/generate_content_v1_4_0.py --category fire --diagrams-only")
 

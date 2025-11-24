@@ -94,7 +94,7 @@
 - [ ] Generate category-specific indices
 
 **2.3 Citation & Attribution**
-- [ ] Track all content sources (AI-generated vs. curated)
+- [ ] Track all content sources (OK Assist generated vs. curated)
 - [ ] Add citations for external sources
 - [ ] License compliance verification
 - [ ] Attribution metadata in all files
@@ -161,12 +161,12 @@
 - [ ] Plugin dependency management
 - [ ] Hot-reload plugin system
 
-**Advanced AI Features**
+**Advanced OK Assist Features**
 - [ ] Local LLM integration (Llama, Mistral)
-- [ ] Multi-modal AI (text, image, audio)
+- [ ] Multi-modal assistance (text, image, audio)
 - [ ] Conversational guide walkthroughs
 - [ ] Personalized learning paths
-- [ ] AI-powered troubleshooting assistant
+- [ ] OK assisted troubleshooting
 
 **Enhanced Collaboration**
 - [ ] Real-time collaborative editing

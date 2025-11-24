@@ -143,7 +143,7 @@ Arrow keys or numbers 1-9 for selection.
         "Browse documentation",
         "Learn new skill",
         "Search memory banks",
-        "Ask AI assistant",
+        "Ask OK assistant",
         "Submit user feedback",
         "Start adventure scenario"
     ]

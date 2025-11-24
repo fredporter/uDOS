@@ -339,7 +339,7 @@ uDOS has undergone **21 major development rounds**, each building upon the previ
 - **Universal compatibility**: Cross-platform and cross-device support
 
 ### v1.0.6: Experience Optimization
-- **Intelligent interaction**: AI-powered assistance and suggestions
+- **Intelligent interaction**: OK assisted assistance and suggestions
 - **Accessibility first**: Universal usability across all users
 - **Performance focus**: Responsive and efficient operation
 
@@ -616,7 +616,7 @@ Based on the established progression, future versions will focus on:
 - Community launch
 
 ### Potential v1.0.7+ Areas
-- **Advanced AI Integration**: Enhanced natural language processing
+- **Advanced OK Assist Integration**: Enhanced natural language processing
 - **Collaborative Features**: Multi-user workspace sharing
 - **Extended Mapping**: 3D visualization and advanced navigation
 - **Plugin Ecosystem**: Third-party extension framework

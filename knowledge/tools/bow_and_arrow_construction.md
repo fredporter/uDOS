@@ -3,7 +3,7 @@
 **Category:** tools
 **Difficulty:** beginner
 **Generated:** 2025-11-24
-**AI-Generated:** ✅
+**OK Assist Generated:** ✅
 
 ```markdown
 # Bow And Arrow Construction

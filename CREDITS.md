@@ -79,7 +79,7 @@
 
 #### google-generativeai
 - **License**: Apache-2.0
-- **Purpose**: Gemini AI integration for assistant features
+- **Purpose**: OK Assistant integration for assistant features
 - **URL**: https://github.com/google/generative-ai-python
 - **Used in**: v1.1.0 AI assistant, offline-first fallback
 

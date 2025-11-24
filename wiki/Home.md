@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.1.2** - A Human-Readable CLI Framework with Security, Web GUI, Offline Knowledge Bank, AI Integration, 4-Tier Memory, and Complete Geographic Reference System
+**uDOS v1.1.2** - A Human-Readable CLI Framework with Security, Web GUI, Offline Knowledge Bank, OK Assist Integration, 4-Tier Memory, and Complete Geographic Reference System
 
-**v1.4.0 Phase 1**: 🚀 **123+ AI-Powered Survival Guides** | **80+ SVG Diagrams** | Gemini Integration Active
+**v1.4.0 Phase 1**: 🚀 **123+ OK Assist Survival Guides** | **80+ SVG Diagrams** | OK Assistant Integration Active
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -26,7 +26,7 @@
 ### Major Milestones
 
 **v1.1.0 - Core TUI Stabilisation** (268 tests)
-- AI assistant with role-based security (Wizard/User offline-first)
+- OK assistant with role-based security (Wizard/User offline-first)
 - Unified selector with automatic fallback (16+ terminals)
 - Retro graphics system (BBC Teletext aesthetic)
 - Session analytics, replay, and intelligent error handling
@@ -42,24 +42,24 @@
 - **4-Tier Memory**: AES-256/AES-128 encryption (Private/Shared/Community/Public)
 - **Installation Types**: CLONE/SPAWN/HYBRID with SHA-256 integrity checks
 - **Offline Knowledge**: 8-category library (foundation for 500+ guides)
-- **AI Prompts**: Offline template development with validation (no API calls)
+- **OK Assist Prompts**: Offline template development with validation (no API calls)
 - **SVG/Citation**: Diagram generation with APA/MLA/Chicago/IEEE bibliography
 - **Validation**: Content quality, freshness, contradiction detection
 
-### 🚀 v1.4.0 Phase 1 - AI-Powered Knowledge Expansion (ACTIVE - Nov 2025)
+### 🚀 v1.4.0 Phase 1 - OK Assist Knowledge Expansion (ACTIVE - Nov 2025)
 
 **Week 1 Complete**: 123% of target achieved! 🎉
 
-- ✅ **123 AI-generated guides** (12.3% of 1,000 goal) - Exceeded 100-guide target
+- ✅ **123 OK Assist generated guides** (12.3% of 1,000 goal) - Exceeded 100-guide target
 - ✅ **80 SVG diagrams** (16% of 500 goal)
-- ✅ **Gemini 2.5 Flash integration** with smart fallback to placeholders
+- ✅ **OK Assistant 2.5 Flash integration** with smart fallback to placeholders
 - ✅ **~30,000 words** of comprehensive survival content
 - ✅ **8 categories expanded**: Water (20), Fire (15), Shelter (15), Food (22), Navigation (10), Medical (21), Tools (10), Communication (10)
 
-**AI Content Quality**:
+**OK Assist Content Quality**:
 - Average guide length: 1,500 words (target: 800-1200)
 - Structure: Overview, materials, step-by-step instructions, safety, common mistakes, related topics
-- Generation: 0% API cost (within Gemini free tier)
+- Generation: 0% API cost (within OK Assistant free tier)
 
 **Next**: Week 2 targets 273 total guides (150 more) + 50 additional diagrams
 
@@ -159,7 +159,7 @@ uDOS is an **educational CLI framework** that demonstrates:
 - **Grid System**: Flexible workspace organization for data visualization
 - **Spatial Navigation**: Intuitive movement through MAP, GOTO, and directional commands
 - **File Operations**: Streamlined LIST, LOAD, SAVE, EDIT workflow
-- **Assisted Task**: AI integration with OK and READ commands
+- **Assisted Task**: OK Assist integration with OK and READ commands
 - **Connection Awareness**: Automatic online/offline mode detection
 - **Viewport Detection**: Adapts to terminal size and device type
 - **Session History**: UNDO, REDO, RESTORE capabilities
@@ -341,14 +341,14 @@ LAYOUT MODE <mode>          # Set responsive layout mode
 ## 🎯 Who Is This For?
 
 ### 🎓 Learners
-- **New Developers**: Learn CLI development, parsing, and AI integration
+- **New Developers**: Learn CLI development, parsing, and OK Assist integration
 - **Python Students**: Study modular architecture and design patterns
 - **DevOps Trainees**: Understand automation and scripting
 
 ### 🛠️ Builders
 - **Tool Creators**: Use uDOS as a framework for custom CLIs
 - **Educators**: Teaching material for systems programming
-- **Researchers**: Experiment with AI-powered interfaces
+- **Researchers**: Experiment with OK assisted interfaces
 
 ### 🎮 Enthusiasts
 - **Retro Computing Fans**: Enjoy the 8-bit aesthetic
@@ -425,7 +425,7 @@ Each development round includes:
 - [Session Logging](Session-Logging) - History and recovery
 
 ### Features
-- [AI Integration](AI-Integration) - Gemini API and offline fallback
+- [OK Assist Integration](AI-Integration) - OK Assistant API and offline fallback
 - [Connection Awareness](Connection-Awareness) - Online/offline modes
 - [Viewport System](Viewport-System) - Terminal adaptation
 - [Mapping System](Mapping-System) - NetHack-style navigation
@@ -495,7 +495,7 @@ uDOS uses a professional 8-color system optimized for terminal visibility:
 **Key Features**:
 - ✅ Modular command handler architecture
 - ✅ JSON-based data structure
-- ✅ Assistant integration (Gemini 2.5 Flash)
+- ✅ Assistant integration (OK Assistant 2.5 Flash)
 - ✅ Offline fallback engine
 - ✅ Connection awareness
 - ✅ Viewport detection
@@ -510,7 +510,7 @@ uDOS uses a professional 8-color system optimized for terminal visibility:
 - 🔜 Plugin system
 - 🔜 Advanced theming
 - 🔜 Network integration
-- 🔜 Enhanced AI features
+- 🔜 Enhanced OK Assist features
 
 [View full roadmap →](Roadmap)
 

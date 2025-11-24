@@ -5,7 +5,7 @@
     {
       "NAME": "OK",
       "SYNTAX": "OK ASK \"<question>\" | OK DEV \"<task>\"",
-      "DESCRIPTION": "AI assistance - ASK for Gemini help, DEV for GitHub Copilot CLI development tasks.",
+      "DESCRIPTION": "OK assistance - ASK for OK Assistant help, DEV for GitHub Copilot CLI development tasks.",
       "UCODE_TEMPLATE": "[ASSISTANT|OK*$1*$2*$3]",
       "DEFAULT_PARAMS": {
         "$2": null,

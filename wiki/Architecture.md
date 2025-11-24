@@ -245,7 +245,7 @@ Each theme includes:
 
 - **`faq.json`** - Merged FAQ entries and AI prompt templates
   - Structured Q&A for HELP command
-  - Context prompts for Gemini AI integration
+  - Context prompts for OK Assistant integration
   - Troubleshooting guides
 
 **Structure**:
@@ -413,7 +413,7 @@ def handle_command(ucode, grid, parser):
 
 ---
 
-### 5. AI Integration (`uDOS_commands.py`)
+### 5. OK Assist Integration (`uDOS_commands.py`)
 
 **Purpose**: Gemini API interaction with offline fallback
 

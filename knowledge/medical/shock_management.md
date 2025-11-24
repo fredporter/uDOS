@@ -3,7 +3,7 @@
 **Category:** medical
 **Difficulty:** beginner
 **Generated:** 2025-11-24
-**AI-Generated:** ✅
+**OK Assist Generated:** ✅
 
 Here is a comprehensive survival guide on shock management, formatted for uDOS:
 

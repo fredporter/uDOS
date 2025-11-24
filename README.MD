@@ -1,10 +1,10 @@
 # uDOS v1.1.2 - Production Release
 
-**uDOS** is a secure, dual-interface CLI framework with role-based access control, offline knowledge management, web GUI, and AI integration. Built for self-sufficiency, survival preparation, and sustainable living with a human-readable command system.
+**uDOS** is a secure, dual-interface CLI framework with role-based access control, offline knowledge management, web GUI, and OK Assist integration. Built for self-sufficiency, survival preparation, and sustainable living with a human-readable command system.
 
-**Current Status**: ✅ **v1.1.2 Production** | 🚀 **v1.4.0 Phase 1 Active** (Nov 24, 2025)  
-**Test Coverage**: **1,062 tests passing** (100%)  
-**Knowledge Bank**: **123+ AI-powered survival guides** (12.3% of v1.4.0 target)  
+**Current Status**: ✅ **v1.1.2 Production** | 🚀 **v1.4.0 Phase 1 Active** (Nov 24, 2025)
+**Test Coverage**: **1,062 tests passing** (100%)
+**Knowledge Bank**: **123+ OK assisted survival guides** (12.3% of v1.4.0 target)
 **Next**: v1.4.0 Content Population (1,000+ guides by Q1 2026)
 
 ---
@@ -29,7 +29,7 @@
 
 📚 **Offline Knowledge**
 - **123+ survival guides** across 8 categories (v1.4.0 active)
-- AI-powered content generation (Gemini 2.5 Flash)
+- OK assisted content generation (Gemini 2.5 Flash)
 - SVG diagram generation with citations
 - Content validation and quality scoring
 
@@ -39,15 +39,15 @@
 - Complete documentation (wiki + API docs)
 - pip installable, offline-first
 
-### 🚀 v1.4.0 Phase 1 - AI-Powered Knowledge Expansion (Active)
+### 🚀 v1.4.0 Phase 1 - OK Assist Knowledge Expansion (Active)
 
 **Week 1 Complete**: 123% of target achieved!
 
-- ✅ **123 AI-generated guides** (target: 100) - 12.3% of 1,000 goal
-- ✅ **80 SVG diagrams** - 16% of 500 goal  
-- ✅ **Gemini API integration** with smart fallback
+- ✅ **123 OK Assist generated guides** (target: 100) - 12.3% of 1,000 goal
+- ✅ **80 SVG diagrams** - 16% of 500 goal
+- ✅ **OK Assistant API integration** with smart fallback
 - ✅ **20 new categories** of survival topics
-- 📝 **~30,000 words** of AI-generated content (1,500 words/guide avg)
+- 📝 **~30,000 words** of OK Assist generated content (1,500 words/guide avg)
 
 **Categories**: Water (20), Fire (15), Shelter (15), Food (22), Navigation (10), Medical (21), Tools (10), Communication (10)
 
@@ -59,7 +59,7 @@
 
 ### v1.1.0 - Core TUI Stabilisation (268 tests)
 
-**AI Assistant & Role Security**
+**OK Assistant & Role Security**
 - Role-based API access (Wizard unrestricted, User offline-first)
 - Offline fallback to 4-Tier Knowledge Bank
 - Live session analytics with command trace
@@ -96,7 +96,7 @@
 - **4-Tier Memory** (58 tests): Private/Shared/Community/Public with encryption
 - **Installation Types** (59 tests): CLONE/SPAWN/HYBRID with integrity checks
 
-**Knowledge Bank & AI Integration**
+**Knowledge Bank & OK Assist Integration**
 - **Offline Knowledge** (60 tests): 8 categories, full-text search, versioning
 - **AI Prompts** (61 tests): Template system, role-specific, validation
 - **SVG/Citation** (59 tests): Diagram generation, APA/MLA/Chicago/IEEE formats
@@ -208,8 +208,8 @@ uDOS/
 - Mobile PWA with offline support
 
 **Knowledge Management**
-- 8-category offline library (123+ AI-generated guides)
-- Gemini-powered content generation (1,500 words/guide)
+- 8-category offline library (123+ OK Assist generated guides)
+- OK Assistant content generation (1,500 words/guide)
 - SVG diagram generation with citations (80+ diagrams)
 - Content validation and quality scoring
 - Cross-referenced survival knowledge base
@@ -317,7 +317,7 @@ v1.1.2 - Security/Knowledge: 467 tests ✅
 ### Completed Milestones
 
 ✅ **v1.1.0** - Core TUI Stabilisation (268 tests)
-- AI assistant with role-based security
+- OK assistant with role-based security
 - Unified selector system (16+ terminals)
 - Retro graphics and session analytics
 
@@ -330,7 +330,7 @@ v1.1.2 - Security/Knowledge: 467 tests ✅
 - RBAC system
 - 4-tier memory encryption
 - Offline knowledge library
-- AI prompt development
+- OK Assist prompt development
 
 ### Next Milestones
 

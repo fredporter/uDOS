@@ -274,7 +274,7 @@ Navigate the multi-layer grid:
 1. ✅ Quick Start (you are here!)
 2. 📝 [Command Reference](Command-Reference) - Learn all commands
 3. 📋 [Panels Tutorial](Panels-Tutorial) - Multi-buffer workflows
-4. 🤖 [AI Integration](AI-Integration) - Work with Gemini
+4. 🤖 [OK Assist Integration](AI-Integration) - Work with Gemini
 5. 📜 [Your First Script](Your-First-Script) - Automation basics
 
 ### Learn Core Concepts

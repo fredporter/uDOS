@@ -101,7 +101,7 @@ knowledge/
 - **Automation**: .uscript files for repetitive tasks
 - **Knowledge Management**: Organize and retrieve information instantly
 - **Command-Line Efficiency**: Fast, keyboard-driven workflows
-- **AI Integration**: Optional AI assistance (local-first, privacy-respecting)
+- **OK Assist Integration**: Optional AI assistance (local-first, privacy-respecting)
 
 ### A Learning Environment
 - **Documentation-First**: Every feature is documented

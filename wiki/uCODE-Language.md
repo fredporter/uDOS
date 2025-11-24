@@ -145,7 +145,7 @@ GRID PANEL DELETE "temp"     ~ Delete temp panel
 [GRID|PANEL*DELETE*temp]     ~ Delete temp panel
 ```
 
-### AI Integration (AI Module)
+### OK Assist Integration (AI Module)
 | CLI Command | uCODE | Description | Parameters |
 |-------------|-------|-------------|------------|
 | ASK "question" | [AI\|ASK*question*null] | Query AI/offline engine | question, panel |

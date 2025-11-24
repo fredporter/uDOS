@@ -242,7 +242,7 @@ curl -X POST http://localhost:5000/api/grid/split \
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/assist/ask` | Ask AI assistant |
+| POST | `/api/assist/ask` | Ask OK assistant |
 | POST | `/api/assist/explain` | Get explanation |
 | POST | `/api/assist/debug` | Debug assistance |
 | GET | `/api/assist/suggest?context=<ctx>` | Get suggestions |

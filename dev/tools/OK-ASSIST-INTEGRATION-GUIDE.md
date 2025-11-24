@@ -1,14 +1,14 @@
-# AI Integration Guide for v1.4.0 Content Generation
+# OK Assist Integration Guide for v1.4.0 Content Generation
 
 ## Overview
 
-The v1.4.0 content generation tool (`generate_content_v1_4_0.py`) now integrates with Gemini AI to create high-quality survival guides and technical diagrams.
+The v1.4.0 content generation tool (`generate_content_v1_4_0.py`) now integrates with OK Assistant to create high-quality survival guides and technical diagrams using assisted content generation.
 
 ## Setup
 
-### 1. Get Gemini API Key
+### 1. Get OK Assistant API Key
 
-Visit [Google AI Studio](https://makersuite.google.com/app/apikey) to get a free API key.
+Visit [Google AI Studio](https://makersuite.google.com/app/apikey) to get a free API key for OK Assistant (powered by Gemini).
 
 ### 2. Configure API Key
 
@@ -28,17 +28,17 @@ python3 dev/tools/generate_content_v1_4_0.py --category water --count 1 --guides
 
 You should see:
 ```
-✅ Gemini AI initialized for content generation
+✅ OK Assistant initialized for content generation
 ```
 
 ## Usage Modes
 
-### AI-Powered Mode (Default)
+### OK Assist Mode (Default)
 
-Generates content using Gemini AI:
+Generates content using OK Assistant:
 
 ```bash
-# Generate 5 AI-powered water guides
+# Generate 5 OK assisted water guides
 python3 dev/tools/generate_content_v1_4_0.py --category water --count 5
 
 # Generate only diagrams with AI
@@ -66,9 +66,9 @@ python3 dev/tools/generate_content_v1_4_0.py --all --dry-run
 
 ## Content Quality
 
-### AI-Generated Guides
+### OK Assist Generated Guides
 
-Gemini creates guides with:
+OK Assistant creates guides with:
 - Detailed step-by-step instructions
 - Safety warnings and considerations
 - Materials lists
@@ -76,7 +76,7 @@ Gemini creates guides with:
 - Related topics for cross-referencing
 - 800-1200 word target length
 
-### AI-Generated Diagrams
+### OK Assist Generated Diagrams
 
 SVG diagrams following:
 - Technical-Kinetic style
@@ -93,7 +93,7 @@ The tool tracks:
 - API calls made
 - Errors encountered
 - Skipped (already exist)
-- Mode (AI-Powered vs Placeholder)
+- Mode (OK Assist vs Placeholder)
 
 Example output:
 ```
@@ -106,13 +106,13 @@ API calls:          10
 Errors:             0
 Skipped (exists):   0
 Total:              10
-Mode:               AI-Powered
+Mode:               OK Assist
 ============================================================
 ```
 
 ## Rate Limits & Costs
 
-### Gemini 2.5 Flash (Default Model)
+### OK Assistant (Gemini 2.5 Flash)
 
 - **Free tier**: 15 requests/minute, 1 million tokens/minute
 - **Cost**: Free for development
@@ -132,7 +132,7 @@ Full v1.4.0: 1000 guides + 500 diagrams
 
 ## Troubleshooting
 
-### "Gemini initialization failed"
+### "OK Assistant initialization failed"
 
 **Problem**: API key not found
 
@@ -150,7 +150,7 @@ GEMINI_API_KEY='your_key_here'
 
 ### "Response not valid SVG"
 
-**Problem**: Gemini returned text instead of SVG
+**Problem**: OK Assistant returned text instead of SVG
 
 **Solution**: Automatic fallback to placeholder. Retry generation:
 ```bash
@@ -171,8 +171,8 @@ python3 dev/tools/generate_content_v1_4_0.py --category water --count 10
 
 ## Integration with v1.3.0 GENERATE Commands
 
-The tool uses the same Gemini service as:
-- `OK ASK` - AI questions
+The tool uses the same OK Assistant service as:
+- `OK ASK` - Assisted questions
 - `GENERATE` - Script generation
 - `READ` - Panel analysis
 
@@ -190,11 +190,11 @@ All share the same API key configuration and rate limits.
 ### Generate Complete Category
 
 ```bash
-# Water category: 10 guides + 10 diagrams with AI
+# Water category: 10 guides + 10 diagrams with OK Assist
 python3 dev/tools/generate_content_v1_4_0.py --category water --count 10
 
 # Output:
-# ✅ Gemini AI initialized
+# ✅ OK Assistant initialized
 # 📚 Generating 10 guides...
 #   ✅ Generated: finding_water_sources.md (1,042 words)
 #   ✅ Generated: water_purification_methods.md (967 words)
@@ -213,7 +213,7 @@ done
 ### Quality Check
 
 ```bash
-# Check word count of AI-generated guide
+# Check word count of OK Assist generated guide
 wc -w knowledge/water/finding_water_sources.md
 
 # Should show: ~800-1200 words
@@ -223,4 +223,5 @@ wc -w knowledge/water/finding_water_sources.md
 
 **Version**: v1.4.0 Phase 1
 **Last Updated**: 2025-11-24
-**AI Model**: Gemini 2.5 Flash
+**OK Assistant**: Gemini 2.5 Flash
+**Mode**: OK Assist Integration

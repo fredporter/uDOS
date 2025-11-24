@@ -8,7 +8,7 @@ Recent development milestones and completed features in uDOS.
 
 **Release Date**: November 24, 2025
 **Status**: ✅ **PRODUCTION READY** (100%)
-**Focus**: RBAC, 4-tier memory encryption, offline knowledge bank, AI prompt development
+**Focus**: RBAC, 4-tier memory encryption, offline knowledge bank, OK Assist prompt development
 **Test Coverage**: **467 tests passing** (234 Phase 1, 233 Phase 2)
 
 ### ✅ Phase 1: Advanced Security & Roles (234 tests)
@@ -16,7 +16,7 @@ Recent development milestones and completed features in uDOS.
 #### 1. User Role System (RBAC) - 58 tests
 - **Four Roles**: User (restricted), Power (trusted), Wizard (dev), Root (admin)
 - **Permission Inheritance**: Role hierarchy with privilege escalation validation
-- **Access Control**: Command execution, file access, AI/web features route through RBAC
+- **Access Control**: Command execution, file access, OK Assist/web features route through RBAC
 - **Role Transitions**: Validation of role boundaries and security enforcement
 
 #### 2. Command-Based Security Hardening - 59 tests
@@ -30,7 +30,7 @@ Recent development milestones and completed features in uDOS.
 - **Tier 2 (Shared)**: AES-128 encryption for team collaboration
 - **Tier 3 (Community)**: Plain text for group knowledge sharing
 - **Tier 4 (Public)**: Open knowledge base, world-readable
-- **Security**: Key rotation, tier boundaries, AI visibility controls
+- **Security**: Key rotation, tier boundaries, OK Assist visibility controls
 - **Quotas**: 100MB/500MB/1GB/5GB per tier with enforcement
 
 #### 4. Installation Types & Integrity - 59 tests
@@ -41,7 +41,7 @@ Recent development milestones and completed features in uDOS.
 - **Verification**: SHA-256 integrity checks for installed files
 - **Sandbox**: Isolated testing mode with safety controls
 
-### ✅ Phase 2: Knowledge Bank & AI Integration (233 tests)
+### ✅ Phase 2: Knowledge Bank & OK Assist Integration (233 tests)
 
 #### 5. Offline Knowledge Library - 60 tests
 - **8 Categories**: water, food, shelter, medical, skills, tech, survival, reference
@@ -53,7 +53,7 @@ Recent development milestones and completed features in uDOS.
 - **Import/Export**: Bulk operations with error handling
 - **Goal**: Foundation for 500+ survival guides target
 
-#### 6. Offline AI Prompt Development - 61 tests
+#### 6. Offline OK Assist Prompt Development - 61 tests
 - **Template System**: `{var}` placeholders with auto-extraction
 - **Context Injection**: JSON formatting for structured data
 - **Role Prompts**: user/power/wizard/root/general specific prompts
@@ -87,7 +87,7 @@ Recent development milestones and completed features in uDOS.
 ```
 Total Tests: 467/467 passing (100%)
 Phase 1: 234 tests (RBAC, Security, Memory, Installation)
-Phase 2: 233 tests (Knowledge, AI Prompts, SVG, Validation)
+Phase 2: 233 tests (Knowledge, OK Assist Prompts, SVG, Validation)
 Coverage: Complete feature coverage with edge case testing
 ```
 
@@ -180,12 +180,12 @@ Platforms: Desktop + Mobile (iOS/Android)
 
 **Release Date**: November 24, 2025
 **Status**: ✅ Complete (100%)
-**Focus**: AI assistant logic, unified selector, retro graphics, session analytics
+**Focus**: OK assistant logic, unified selector, retro graphics, session analytics
 **Test Coverage**: **268 tests passing** (79 Phase 0, 189 Phase 1)
 
-### ✅ Phase 0: AI Assistant Logic & Role Security (79 tests)
+### ✅ Phase 0: OK Assistant Logic & Role Security (79 tests)
 
-#### AI Assistant & Security Framework
+#### OK Assistant & Security Framework
 - **Role-Based API Access**: Wizard unrestricted, User offline-first mode
 - **Offline Fallback**: Query routing to 4-Tier Knowledge Bank when API unavailable
 - **Dev Mode**: Wizard role enablement with full system context
@@ -242,7 +242,7 @@ Platforms: Desktop + Mobile (iOS/Android)
 
 ```
 Total Tests: 268/268 passing (100%)
-Phase 0: 79 tests (AI Assistant, Security, Analytics)
+Phase 0: 79 tests (OK Assistant, Security, Analytics)
 Phase 1: 189 tests (Selector, Graphics, Commands, Replay, POKE, Data)
 Terminal Emulators: 16+ tested (100% compatibility)
 Platforms: macOS, Linux, Windows (WSL2 + native)

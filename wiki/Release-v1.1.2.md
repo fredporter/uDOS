@@ -25,7 +25,7 @@ uDOS v1.1.2 represents a major milestone, transforming uDOS from a terminal-only
 
 ### v1.1.0 - Core TUI Stabilisation (268 tests)
 
-**Phase 0: AI Assistant Logic & Role Security** (79 tests)
+**Phase 0: OK Assistant Logic & Role Security** (79 tests)
 - ✅ Role-based API access control (Wizard unrestricted, User offline-first)
 - ✅ Offline-first query fallback to 4-Tier Knowledge Bank
 - ✅ Wizard dev-mode enablement with full system context
@@ -87,7 +87,7 @@ uDOS v1.1.2 represents a major milestone, transforming uDOS from a terminal-only
    - SHA-256 integrity verification
    - Sandbox mode for isolated testing
 
-**Phase 2: Knowledge Bank & AI Integration** (233 tests)
+**Phase 2: Knowledge Bank & OK Assist Integration** (233 tests)
 
 5. **Offline Knowledge Library** - 60 tests
    - 8 categories: water, food, shelter, medical, skills, tech, survival, reference
@@ -184,7 +184,7 @@ git describe --tags  # Should show v1.1.2
 ### Test Coverage Breakdown
 
 **v1.1.0 - Core TUI Stabilisation: 268 tests**
-- AI Assistant & Role Security: 79 tests
+- OK Assistant & Role Security: 79 tests
 - Unified Selector: 24 tests
 - Selector Integration: 14 tests
 - Retro Graphics: 32 tests

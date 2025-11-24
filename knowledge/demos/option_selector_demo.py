@@ -117,7 +117,7 @@ def run_custom_single_demo():
 
     descriptions = [
         "Work without internet",
-        "AI-powered assistance",
+        "OK assisted",
         "Detailed error messages",
         "Save work automatically",
         "Desktop notifications",

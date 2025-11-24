@@ -152,7 +152,7 @@ uDOS may ask a few questions:
 
 Choice: 1
 
-2. Enable AI assistant? (requires API key)
+2. Enable OK assistant? (requires API key)
    [Y/n]: n
 
 Setup complete! Type HELP to see available commands.
@@ -593,7 +593,7 @@ Once comfortable with basics:
 - **Grid System**: Organize data in 2D grids
 - **Map/Navigation**: NetHack-style spatial navigation
 - **Extensions**: Web extensions, teletext graphics
-- **AI Assistant**: If you have an API key
+- **OK Assistant**: If you have an API key
 
 ### 5. Contribute
 

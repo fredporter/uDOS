@@ -3,7 +3,7 @@
 **Category:** fire
 **Difficulty:** beginner
 **Generated:** 2025-11-24
-**AI-Generated:** ✅
+**OK Assist Generated:** ✅
 
 ```markdown
 # Bow Drill Technique

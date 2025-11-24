@@ -1,6 +1,6 @@
-# OK Command - AI Assistance
+# OK Command - OK Assist
 
-The `OK` command provides access to two different AI assistance systems within uDOS.
+The `OK` command provides access to two different assistance systems within uDOS.
 
 ## Syntax
 
@@ -11,9 +11,9 @@ OK DEV <task>
 
 ## Subcommands
 
-### OK ASK - Gemini AI Assistance
+### OK ASK - OK Assistant
 
-Uses Google's Gemini AI for general questions, knowledge base queries, and contextual help.
+Uses OK Assistant (powered by Google Gemini) for general questions, knowledge base queries, and contextual help.
 
 **Features:**
 - Natural language questions
@@ -30,7 +30,7 @@ OK ASK what is in the main panel?
 ```
 
 **Requirements:**
-- Gemini API key in `.env` file (optional - has offline fallback)
+- OK Assistant API key in `.env` file (optional - has offline fallback)
 - Internet connection (for live AI responses)
 
 **Fallback Mode:**
@@ -74,7 +74,7 @@ gh auth login
 ```
 
 ### OK Assisted Task Integration
-- **Gemini OK Assisted Task**: Powered by Google's Gemini Pro for intelligent responses
+- **Gemini OK Assisted Task**: Powered by OK Assistant for intelligent responses
 - **Conversation History**: Maintains context across multiple questions
 - **Code Analysis**: Understands programming concepts and uDOS architecture
 
@@ -93,7 +93,7 @@ gh auth login
 ## Configuration
 
 ### API Key Setup
-The ASK command requires a Gemini API key:
+The ASK command requires a OK Assistant API key:
 
 1. Get API key from [Google OK Assisted Task Studio](https://makersuite.google.com/)
 2. Set in environment: `export GEMINI_API_KEY=your_key_here`
