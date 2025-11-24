@@ -27,9 +27,18 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+import time
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+# Import Gemini service for AI generation
+try:
+    from core.services.gemini_service import GeminiCLI
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    print("⚠️  Gemini service not available - will use placeholders only")
 
 # Content generation targets for v1.4.0
 CONTENT_TARGETS = {
@@ -167,14 +176,31 @@ CONTENT_TARGETS = {
 class ContentGenerator:
     """Generates knowledge bank content using v1.3.0 GENERATE commands"""
 
-    def __init__(self, dry_run=False):
+    def __init__(self, dry_run=False, use_ai=True):
         self.dry_run = dry_run
+        self.use_ai = use_ai and GEMINI_AVAILABLE
+        self.gemini = None
         self.stats = {
             "guides_generated": 0,
             "diagrams_generated": 0,
             "errors": 0,
-            "skipped": 0
+            "skipped": 0,
+            "api_calls": 0
         }
+
+        # Initialize Gemini if AI mode enabled
+        if self.use_ai:
+            try:
+                # Get project root (.env location)
+                project_root = Path(__file__).parent.parent.parent
+                env_path = project_root / '.env'
+
+                self.gemini = GeminiCLI(env_path=env_path)
+                print("✅ Gemini AI initialized for content generation")
+            except Exception as e:
+                print(f"⚠️  Gemini initialization failed: {e}")
+                print("⚠️  Falling back to placeholder mode")
+                self.use_ai = False
 
     def generate_guides(self, category: str, count: int):
         """Generate guides for a category"""
@@ -233,7 +259,7 @@ class ContentGenerator:
                     self.stats["errors"] += 1
 
     def _generate_guide_placeholder(self, category: str, topic: str) -> Path:
-        """Generate placeholder guide (replace with actual GENERATE command)"""
+        """Generate guide using Gemini AI or placeholder"""
         # Create knowledge directory structure
         output_dir = Path("knowledge") / category
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -247,8 +273,67 @@ class ContentGenerator:
             self.stats["skipped"] += 1
             return None
 
-        # Create placeholder
-        content = f"""# {topic.title()}
+        # Generate content with AI if available
+        if self.use_ai and self.gemini:
+            try:
+                content = self._generate_guide_with_ai(category, topic)
+                self.stats["api_calls"] += 1
+                # Small delay to respect rate limits
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"    ⚠️  AI generation failed: {e}, using placeholder")
+                content = self._create_placeholder_guide(category, topic)
+        else:
+            content = self._create_placeholder_guide(category, topic)
+
+        # Write to file
+        output_path.write_text(content)
+        return output_path
+
+    def _generate_guide_with_ai(self, category: str, topic: str) -> str:
+        """Use Gemini AI to generate comprehensive survival guide"""
+        prompt = f"""Generate a comprehensive survival guide about {topic} for the {category} category.
+
+Requirements:
+- Write 800-1200 words
+- Use clear, practical language
+- Include specific step-by-step instructions
+- Add safety warnings where appropriate
+- List materials needed
+- Mention common mistakes to avoid
+- Suggest related topics
+
+Format as markdown with these sections:
+1. Title: # {topic.title()}
+2. Metadata: Category, Difficulty, Generated date
+3. Overview (2-3 paragraphs)
+4. Materials Needed (bulleted list)
+5. Step-by-Step Instructions (numbered, with subsections)
+6. Safety Considerations (bulleted list)
+7. Common Mistakes (bulleted list)
+8. Related Topics (bulleted list)
+
+Make it practical, detailed, and focused on real survival scenarios."""
+
+        response = self.gemini.ask(prompt)
+
+        # Add metadata header if not included
+        if not response.startswith("#"):
+            response = f"""# {topic.title()}
+
+**Category:** {category}
+**Difficulty:** beginner
+**Generated:** {datetime.now().strftime('%Y-%m-%d')}
+**AI-Generated:** ✅
+
+{response}
+"""
+
+        return response
+
+    def _create_placeholder_guide(self, category: str, topic: str) -> str:
+        """Create placeholder guide content"""
+        return f"""# {topic.title()}
 
 **Category:** {category}
 **Difficulty:** beginner
@@ -296,11 +381,8 @@ class ContentGenerator:
 *Generated as part of v1.4.0 content expansion*
 """
 
-        output_path.write_text(content)
-        return output_path
-
     def _generate_diagram_placeholder(self, category: str, topic: str) -> Path:
-        """Generate placeholder SVG (replace with actual GENERATE SVG command)"""
+        """Generate SVG diagram using Gemini AI or placeholder"""
         output_dir = Path("knowledge") / "reference" / "diagrams" / category
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -311,8 +393,69 @@ class ContentGenerator:
             self.stats["skipped"] += 1
             return None
 
-        # Create placeholder SVG
-        svg_content = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+        # Generate SVG with AI if available
+        if self.use_ai and self.gemini:
+            try:
+                svg_content = self._generate_diagram_with_ai(category, topic)
+                self.stats["api_calls"] += 1
+                # Small delay to respect rate limits
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"    ⚠️  AI diagram generation failed: {e}, using placeholder")
+                svg_content = self._create_placeholder_diagram(category, topic)
+        else:
+            svg_content = self._create_placeholder_diagram(category, topic)
+
+        output_path.write_text(svg_content)
+        return output_path
+
+    def _generate_diagram_with_ai(self, category: str, topic: str) -> str:
+        """Use Gemini AI to generate SVG diagram"""
+        prompt = f"""Generate a technical SVG diagram illustrating {topic} for the {category} category.
+
+Requirements:
+- SVG format (800x600 viewBox)
+- Technical-Kinetic style (clean, geometric, instructional)
+- Use Polaroid 8-color palette ONLY:
+  * Red: #FF0000
+  * Green: #00FF00
+  * Yellow: #FFFF00
+  * Blue: #0000FF
+  * Purple: #FF00FF
+  * Cyan: #00FFFF
+  * White: #FFFFFF
+  * Black: #000000
+- Flat design (no gradients, shadows, or curves unless essential)
+- Include labels and annotations
+- Show step-by-step process or key components
+- Use arrows and callouts
+- Monospace font for all text
+- Clear, educational focus
+
+The diagram should be informative and help someone understand the practical aspects of {topic}."""
+
+        response = self.gemini.ask(prompt)
+
+        # Extract SVG from response if wrapped in markdown
+        if "```svg" in response:
+            svg_start = response.find("```svg") + 6
+            svg_end = response.find("```", svg_start)
+            response = response[svg_start:svg_end].strip()
+        elif "```" in response:
+            svg_start = response.find("```") + 3
+            svg_end = response.find("```", svg_start)
+            response = response[svg_start:svg_end].strip()
+
+        # Validate it starts with <svg
+        if not response.strip().startswith("<svg"):
+            print(f"    ⚠️  Response not valid SVG, using placeholder")
+            return self._create_placeholder_diagram(category, topic)
+
+        return response
+
+    def _create_placeholder_diagram(self, category: str, topic: str) -> str:
+        """Create placeholder SVG content"""
+        return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
   <defs>
     <style>
       .title {{ font-family: monospace; font-size: 24px; fill: #00FF00; }}
@@ -347,15 +490,17 @@ class ContentGenerator:
         print("="*60)
         print(f"Guides generated:   {self.stats['guides_generated']}")
         print(f"Diagrams generated: {self.stats['diagrams_generated']}")
+        print(f"API calls:          {self.stats['api_calls']}")
         print(f"Errors:             {self.stats['errors']}")
         print(f"Skipped (exists):   {self.stats['skipped']}")
         print(f"Total:              {self.stats['guides_generated'] + self.stats['diagrams_generated']}")
+        print(f"Mode:               {'AI-Powered' if self.use_ai else 'Placeholder'}")
         print("="*60)
 
 
-def generate_all_content(dry_run=False):
+def generate_all_content(dry_run=False, use_ai=True):
     """Generate all content for v1.4.0"""
-    generator = ContentGenerator(dry_run=dry_run)
+    generator = ContentGenerator(dry_run=dry_run, use_ai=use_ai)
 
     print("🚀 v1.4.0 Content Population - Full Generation")
     print(f"Mode: {'DRY RUN' if dry_run else 'PRODUCTION'}")
@@ -398,13 +543,17 @@ def main():
                        help="Generate only diagrams")
     parser.add_argument("--guides-only", action="store_true",
                        help="Generate only guides")
+    parser.add_argument("--no-ai", action="store_true",
+                       help="Use placeholders instead of AI generation")
 
     args = parser.parse_args()
 
+    use_ai = not args.no_ai
+
     if args.all:
-        generate_all_content(dry_run=args.dry_run)
+        generate_all_content(dry_run=args.dry_run, use_ai=use_ai)
     elif args.category:
-        generator = ContentGenerator(dry_run=args.dry_run)
+        generator = ContentGenerator(dry_run=args.dry_run, use_ai=use_ai)
 
         if not args.diagrams_only:
             generator.generate_guides(args.category, args.count)
@@ -416,6 +565,7 @@ def main():
         parser.print_help()
         print("\n💡 Examples:")
         print("  python3 dev/tools/generate_content_v1_4_0.py --category water --count 10")
+        print("  python3 dev/tools/generate_content_v1_4_0.py --category fire --count 5 --no-ai")
         print("  python3 dev/tools/generate_content_v1_4_0.py --all --dry-run")
         print("  python3 dev/tools/generate_content_v1_4_0.py --category fire --diagrams-only")
 
