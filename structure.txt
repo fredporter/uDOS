@@ -1,0 +1,384 @@
+uDOS/
+├── .github/
+│   ├── DISCUSSION_TEMPLATES/
+│   │   ├── ideas.yml
+│   │   ├── q-and-a.yml
+│   │   └── show-and-tell.yml
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── documentation.md
+│   │   ├── extension_submission.md
+│   │   └── feature_request.md
+│   └── PULL_REQUEST_TEMPLATE.md
+├── core/
+│   ├── commands/
+│   │   ├── assets_handler.py
+│   │   ├── assistant_handler.py
+│   │   ├── bank_handler.py
+│   │   ├── barter_commands.py
+│   │   ├── base_handler.py
+│   │   ├── cmd_config_planet.py
+│   │   ├── cmd_knowledge.py
+│   │   ├── cmd_locate.py
+│   │   ├── community_commands.py
+│   │   ├── configuration_handler.py
+│   │   ├── dashboard_handler.py
+│   │   ├── diagram_handler.py
+│   │   ├── doc_handler.py
+│   │   ├── docs_unified_handler.py
+│   │   ├── example_handler.py
+│   │   ├── feedback_handler.py
+│   │   ├── file_handler.py
+│   │   ├── guide_handler.py
+│   │   ├── handbook_handler.py
+│   │   ├── knowledge_commands.py
+│   │   ├── learn_unified_handler.py
+│   │   ├── manual_handler.py
+│   │   ├── memory_commands.py
+│   │   ├── memory_unified_handler.py
+│   │   ├── panel_handler.py
+│   │   ├── private_commands.py
+│   │   ├── refresh_command.py
+│   │   ├── repair_handler.py
+│   │   ├── shakedown_handler.py
+│   │   ├── shared_commands.py
+│   │   ├── system_handler.py
+│   │   ├── tile_handler.py
+│   │   ├── tree_handler.py
+│   │   └── user_handler.py
+│   ├── input/
+│   │   ├── __init__.py
+│   │   ├── interactive.py
+│   │   ├── prompt_decorator.py
+│   │   └── smart_prompt.py
+│   ├── interpreters/
+│   │   ├── __init__.py
+│   │   ├── offline.py
+│   │   ├── ucode.py
+│   │   └── validator.py
+│   ├── knowledge/
+│   │   ├── __init__.py
+│   │   ├── bank.py
+│   │   ├── base_manager.py
+│   │   ├── file_picker.py
+│   │   ├── memory.py
+│   │   ├── service.py
+│   │   ├── tier_manager.py
+│   │   └── types.py
+│   ├── output/
+│   │   ├── __init__.py
+│   │   ├── graphics.py
+│   │   ├── layout_manager.py
+│   │   ├── output_formatter.py
+│   │   ├── screen_manager.py
+│   │   ├── splash.py
+│   │   ├── story_manager.py
+│   │   └── teletext_renderer.py
+│   ├── services/
+│   │   ├── api_audit.py
+│   │   ├── asset_manager.py
+│   │   ├── barter_service.py
+│   │   ├── community_service.py
+│   │   ├── config_manager.py
+│   │   ├── connection_manager.py
+│   │   ├── dev_mode_manager.py
+│   │   ├── editor_manager.py
+│   │   ├── encryption_service.py
+│   │   ├── error_handler.py
+│   │   ├── help_manager.py
+│   │   ├── history.py
+│   │   ├── history_manager.py
+│   │   ├── input_manager.py
+│   │   ├── intelligent_error_handler.py
+│   │   ├── memory_manager.py
+│   │   ├── planet_manager.py
+│   │   ├── session_analytics.py
+│   │   ├── session_manager.py
+│   │   ├── session_replay.py
+│   │   ├── setup_wizard.py
+│   │   ├── sharing_service.py
+│   │   ├── standardized_input.py
+│   │   ├── user_manager.py
+│   │   └── viewport_manager.py
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── file_picker.py
+│   │   ├── knowledge_file_picker.py
+│   │   ├── option_selector.py
+│   │   ├── picker.py
+│   │   ├── progress_indicators.py
+│   │   ├── teletext_prompt.py
+│   │   ├── unified_selector.py
+│   │   └── visual_selector.py
+│   ├── utils/
+│   │   ├── alias_manager.py
+│   │   ├── autocomplete.py
+│   │   ├── completer.py
+│   │   ├── error_handler.py
+│   │   ├── fast_startup.py
+│   │   ├── files.py
+│   │   ├── fuzzy_matcher.py
+│   │   ├── generate_world_map.uscript
+│   │   ├── lazy_loader.py
+│   │   ├── map_painter.uscript
+│   │   ├── path_validator.py
+│   │   ├── performance_profiler.py
+│   │   ├── progress_manager.py
+│   │   ├── reorganize_knowledge.sh
+│   │   ├── settings.py
+│   │   ├── setup.py
+│   │   ├── startup_welcome.py
+│   │   ├── system_info.py
+│   │   ├── tizo_manager.py
+│   │   ├── usage_tracker.py
+│   │   ├── variables.py
+│   │   ├── viewport.py
+│   │   └── viewport_viz.py
+│   ├── __init__.py
+│   ├── config.py
+│   ├── config_manager.py
+│   ├── README.md
+│   ├── theme_builder.py
+│   ├── theme_loader.py
+│   ├── theme_manager.py
+│   ├── uDOS_commands.py
+│   ├── uDOS_grid.py
+│   ├── uDOS_logger.py
+│   ├── uDOS_main.py
+│   ├── uDOS_parser.py
+│   └── uDOS_startup.py
+├── data/
+├── extensions/
+│   ├── api/
+│   │   ├── manager.py
+│   │   ├── README.md
+│   │   └── server.py
+│   ├── assets/
+│   │   ├── css/
+│   │   │   ├── classic-mac-patterns.css
+│   │   │   ├── classic.css
+│   │   │   ├── mac-icons.css
+│   │   │   ├── nes.css
+│   │   │   ├── synthwave-dos-colors.css
+│   │   │   ├── system-mac.css
+│   │   │   ├── system.css
+│   │   │   ├── typography-system.css
+│   │   │   ├── udos-filepicker.css
+│   │   │   ├── udos-grid.css
+│   │   │   ├── udos-syntax.css
+│   │   │   └── udos-v13-theme.css
+│   │   ├── fonts/
+│   │   │   ├── chicago/
+│   │   │   ├── mallard/
+│   │   │   ├── petme/
+│   │   │   ├── C64_User_Mono_v1.0-STYLE.woff
+│   │   │   ├── ChicagoFLF.woff
+│   │   │   ├── ChicagoFLF.woff2
+│   │   │   ├── ChiKareGo2.woff
+│   │   │   ├── ChiKareGo2.woff2
+│   │   │   ├── FindersKeepers.woff
+│   │   │   ├── FindersKeepers.woff2
+│   │   │   ├── giana.woff
+│   │   │   ├── LICENSE_ASSESSMENT.md
+│   │   │   ├── monaco.woff
+│   │   │   ├── monaco.woff2
+│   │   │   └── README.md
+│   │   ├── icons/
+│   │   │   ├── coreui/
+│   │   │   ├── apple.svg
+│   │   │   ├── button-default.svg
+│   │   │   ├── button.png
+│   │   │   ├── button.svg
+│   │   │   ├── checkmark.svg
+│   │   │   ├── radio-border-focused.svg
+│   │   │   ├── radio-border.svg
+│   │   │   ├── radio-dot.svg
+│   │   │   ├── README.md
+│   │   │   ├── scrollbar-down-active.svg
+│   │   │   ├── scrollbar-down.svg
+│   │   │   ├── scrollbar-left-active.svg
+│   │   │   ├── scrollbar-left.svg
+│   │   │   ├── scrollbar-right-active.svg
+│   │   │   ├── scrollbar-right.svg
+│   │   │   ├── scrollbar-up-active.svg
+│   │   │   ├── scrollbar-up.svg
+│   │   │   └── select-button.svg
+│   │   ├── js/
+│   │   │   ├── typography-manager.js
+│   │   │   ├── udos-controls.js
+│   │   │   ├── udos-filepicker.js
+│   │   │   ├── udos-option-selector.js
+│   │   │   └── udos-panels.js
+│   │   ├── patterns/
+│   │   │   ├── ascii-double.json
+│   │   │   ├── ascii-simple.json
+│   │   │   ├── ascii-stars.json
+│   │   │   ├── block-thick.json
+│   │   │   ├── block-thin.json
+│   │   │   ├── brick.json
+│   │   │   ├── crosshatch.json
+│   │   │   ├── dos-gradient.json
+│   │   │   ├── dots-dense.json
+│   │   │   ├── dots-sparse.json
+│   │   │   ├── fabric.json
+│   │   │   ├── grid-large.json
+│   │   │   ├── grid-medium.json
+│   │   │   ├── grid-small.json
+│   │   │   ├── mac-checkerboard.json
+│   │   │   ├── metal-mesh.json
+│   │   │   ├── README.md
+│   │   │   ├── stone.json
+│   │   │   ├── teletext-double.json
+│   │   │   ├── teletext-rounded.json
+│   │   │   ├── teletext-single.json
+│   │   │   ├── waves.json
+│   │   │   └── wood-grain.json
+│   │   ├── CREDITS.md
+│   │   └── README.md
+│   ├── core/
+│   │   ├── dashboard/
+│   │   │   ├── routes/
+│   │   │   ├── server/
+│   │   │   ├── services/
+│   │   │   ├── static/
+│   │   │   ├── app.py
+│   │   │   ├── config.json
+│   │   │   ├── CREDITS.md
+│   │   │   ├── dashboard-api.js
+│   │   │   ├── dashboard-builder.js
+│   │   │   ├── dashboard-styles.css
+│   │   │   ├── IMPLEMENTATION.md
+│   │   │   ├── index-builder.html
+│   │   │   ├── index.html
+│   │   │   ├── manifest.json
+│   │   │   ├── README.md
+│   │   │   └── start.sh
+│   │   ├── desktop/
+│   │   │   ├── CHARACTER-EDITOR-INTEGRATION.md
+│   │   │   ├── CHARACTER-EDITOR-KEYBOARDS.md
+│   │   │   ├── character-editor.html
+│   │   │   ├── CREDITS.md
+│   │   │   ├── demo.html
+│   │   │   ├── desktop.css
+│   │   │   ├── FILE-PICKER-IMPLEMENTATION.md
+│   │   │   ├── IMPLEMENTATION-SUMMARY.md
+│   │   │   ├── index.html
+│   │   │   ├── KEYBOARD-LAYOUT-REFERENCE.md
+│   │   │   ├── marked-loader.html
+│   │   │   ├── README.md
+│   │   │   └── TEST-RESULTS.md
+│   │   ├── markdown/
+│   │   │   ├── static/
+│   │   │   ├── templates/
+│   │   │   ├── CHANGELOG.md
+│   │   │   ├── config.json
+│   │   │   ├── CREDITS.md
+│   │   │   ├── IMPLEMENTATION.md
+│   │   │   ├── index.html
+│   │   │   ├── manifest.json
+│   │   │   ├── README.md
+│   │   │   └── start.sh
+│   │   ├── ok_assistant/
+│   │   │   ├── __init__.py
+│   │   │   └── gemini_service.py
+│   │   ├── server_manager/
+│   │   │   ├── __init__.py
+│   │   │   └── server.py
+│   │   ├── teletext/
+│   │   │   ├── data/
+│   │   │   ├── static/
+│   │   │   ├── index.html
+│   │   │   ├── README.md
+│   │   │   ├── requirements.txt
+│   │   │   ├── start.sh
+│   │   │   └── teletext-synthwave.css
+│   │   ├── terminal/
+│   │   │   ├── static/
+│   │   │   ├── BUILD-SUMMARY.md
+│   │   │   ├── index.html
+│   │   │   ├── QUICK-START.md
+│   │   │   ├── README.md
+│   │   │   ├── start.sh
+│   │   │   ├── terminal.css
+│   │   │   └── test.html
+│   │   ├── CREDITS.md
+│   │   ├── extension_dev_tools.py
+│   │   ├── extension_manager.py
+│   │   ├── extension_metadata_manager.py
+│   │   ├── extensions_server.py
+│   │   ├── launch.sh
+│   │   └── README.md
+│   ├── play/
+│   │   ├── commands/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_handler.py
+│   │   │   ├── resource_handler.py
+│   │   │   ├── scenario_handler.py
+│   │   │   ├── scenario_play_handler.py
+│   │   │   ├── survival_handler.py
+│   │   │   └── xp_handler.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── barter_service.py
+│   │   │   ├── inventory_service.py
+│   │   │   ├── map_data_manager.py
+│   │   │   ├── map_engine.py
+│   │   │   ├── scenario_engine.py
+│   │   │   ├── scenario_service.py
+│   │   │   ├── survival_service.py
+│   │   │   └── xp_service.py
+│   │   ├── __init__.py
+│   │   └── README.md
+│   ├── setup/
+│   │   ├── setup_all.sh
+│   │   ├── setup_micro.sh
+│   │   └── setup_typo.sh
+│   ├── web/
+│   └── README.md
+├── knowledge/
+│   ├── checklists/
+│   ├── communication/
+│   ├── community/
+│   ├── demos/
+│   ├── diagrams/
+│   ├── external/
+│   ├── fire/
+│   ├── food/
+│   ├── making/
+│   ├── medical/
+│   ├── navigation/
+│   ├── reference/
+│   ├── shelter/
+│   ├── skills/
+│   ├── survival/
+│   ├── system/
+│   ├── tech/
+│   ├── tools/
+│   ├── water/
+│   ├── well-being/
+│   ├── KNOWLEDGE-SYSTEM.md
+│   ├── README.md
+│   └── structure.txt
+├── sandbox/
+├── .env.example
+├── .gitignore
+├── ASSETS-GUIDE.md
+├── CHANGELOG.md
+├── CODE-OF-CONDUCT.md
+├── CONTRIBUTING.md
+├── CREDITS.md
+├── INSTALL.md
+├── LICENSE.txt
+├── MANIFEST.in
+├── QUICK-START.md
+├── README.MD
+├── requirements.txt
+├── ROADMAP.MD
+├── setup.py
+├── start_udos.sh
+├── structure.txt
+├── test_extensions.py
+├── test_poke.uscript
+├── test_startup.uscript
+├── uDOS.code-workspace
+└── uDOS.py

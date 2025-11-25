@@ -18,7 +18,7 @@ Version: 1.0.0
 
 import os
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Dict
 import fnmatch
 
 
@@ -95,7 +95,9 @@ class TreeHandler:
         is_last: bool = True,
         exclude_folders: Set[str] = None,
         max_depth: int = 10,
-        current_depth: int = 0
+        current_depth: int = 0,
+        depth_limits: Dict[str, int] = None,
+        respect_gitignore: bool = True
     ) -> List[str]:
         """
         Generate tree structure recursively.
@@ -107,12 +109,17 @@ class TreeHandler:
             exclude_folders: Folder names to exclude
             max_depth: Maximum recursion depth
             current_depth: Current recursion depth
+            depth_limits: Dict of folder names to depth limits (relative to that folder)
+            respect_gitignore: Whether to respect .gitignore patterns
 
         Returns:
             List of formatted tree lines
         """
         if exclude_folders is None:
             exclude_folders = set()
+
+        if depth_limits is None:
+            depth_limits = {}
 
         if current_depth >= max_depth:
             return []
@@ -124,10 +131,17 @@ class TreeHandler:
             items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
 
             # Filter out ignored items
-            items = [
-                item for item in items
-                if not self._should_ignore(item, directory.parent if current_depth == 0 else self.base_path, exclude_folders)
-            ]
+            if respect_gitignore:
+                items = [
+                    item for item in items
+                    if not self._should_ignore(item, directory.parent if current_depth == 0 else self.base_path, exclude_folders)
+                ]
+            else:
+                # Only filter by exclude_folders, not gitignore
+                items = [
+                    item for item in items
+                    if not (item.is_dir() and item.name in (exclude_folders or set()))
+                ]
 
             for i, item in enumerate(items):
                 is_last_item = (i == len(items) - 1)
@@ -142,13 +156,26 @@ class TreeHandler:
 
                 # Recurse into directories
                 if item.is_dir():
+                    # Check if this folder has a specific depth limit
+                    folder_depth_limit = max_depth
+                    next_depth = current_depth + 1
+
+                    for limit_folder, limit_depth in depth_limits.items():
+                        if item.name == limit_folder:
+                            # This folder has a depth limit - reset depth counter for this branch
+                            folder_depth_limit = limit_depth
+                            next_depth = 0
+                            break
+
                     sub_lines = self._generate_tree(
                         item,
                         prefix + extension,
                         is_last_item,
                         exclude_folders,
-                        max_depth,
-                        current_depth + 1
+                        folder_depth_limit,
+                        next_depth,
+                        depth_limits,
+                        respect_gitignore
                     )
                     lines.extend(sub_lines)
 
@@ -158,15 +185,23 @@ class TreeHandler:
         return lines
 
     def generate_root_tree(self) -> str:
-        """Generate root directory tree (excludes /knowledge, respects .gitignore)."""
-        exclude_folders = {'knowledge', '__pycache__', '.git', 'node_modules'}
+        """
+        Generate root directory tree.
+        Excludes: /dev, /wiki, __pycache__, .git, .vscode, node_modules
+        Applies depth limit of 3 for /extensions folder.
+        Applies depth limit of 1 for /knowledge folder (subfolders only).
+        Respects .gitignore patterns.
+        """
+        exclude_folders = {'__pycache__', '.git', '.vscode', 'node_modules', 'dev', 'wiki'}
+        depth_limits = {'extensions': 3, 'knowledge': 1}
 
         lines = [f"{self.base_path.name}/"]
         lines.extend(self._generate_tree(
             self.base_path,
             prefix="",
             exclude_folders=exclude_folders,
-            max_depth=8
+            max_depth=8,
+            depth_limits=depth_limits
         ))
 
         return "\n".join(lines)
@@ -185,7 +220,8 @@ class TreeHandler:
             memory_path,
             prefix="",
             exclude_folders=exclude_folders,
-            max_depth=8
+            max_depth=8,
+            respect_gitignore=False
         ))
 
         return "\n".join(lines)
@@ -204,7 +240,8 @@ class TreeHandler:
             knowledge_path,
             prefix="",
             exclude_folders=exclude_folders,
-            max_depth=8
+            max_depth=8,
+            respect_gitignore=False
         ))
 
         return "\n".join(lines)

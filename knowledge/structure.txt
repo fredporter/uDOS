@@ -1,0 +1,571 @@
+knowledge/
+├── checklists/
+│   ├── daily/
+│   ├── emergency/
+│   │   ├── 72-hour-bug-out-bag.md
+│   │   └── first-aid-kit-inventory.md
+│   ├── learning/
+│   ├── projects/
+│   │   └── build-debris-hut.md
+│   ├── seasonal/
+│   └── README.md
+├── communication/
+│   ├── community_coordination.md
+│   ├── dead_drop_techniques.md
+│   ├── emergency_communication.md
+│   ├── encrypted_messaging_basics.md
+│   ├── ground-to-air_signals.md
+│   ├── hand_signals.md
+│   ├── message_systems.md
+│   ├── mirror_signals.md
+│   ├── morse_code.md
+│   ├── radio_basics.md
+│   ├── README.md
+│   ├── security_protocols.md
+│   ├── semaphore_flag_system.md
+│   ├── smoke_signals.md
+│   ├── visual_distress_signals.md
+│   └── whistle_codes.md
+├── community/
+│   ├── collaboration/
+│   ├── conflict-resolution/
+│   ├── local-resilience/
+│   ├── mutual-aid/
+│   └── README.md
+├── demos/
+│   ├── teletext_clone_bundle_with_blocks/
+│   │   ├── index.html
+│   │   ├── README.md
+│   │   ├── teletext.css
+│   │   └── teletext.js
+│   ├── udos_map_480x270_cellkey/
+│   │   ├── data/
+│   │   │   └── cities_sample.csv
+│   │   ├── output/
+│   │   │   ├── key_example.csv
+│   │   │   └── test_keys.csv
+│   │   ├── tools/
+│   │   │   └── compute_keys.py
+│   │   ├── MANIFEST.json
+│   │   └── README.txt
+│   ├── advanced_features.uscript
+│   ├── hello-automation.uscript
+│   ├── library_example.uscript
+│   ├── option_selector_demo.py
+│   ├── panel_demo.uscript
+│   ├── README.md
+│   ├── selector_validation.py
+│   ├── simple-setup.uscript
+│   ├── task_manager.uscript
+│   ├── terminal_compatibility.py
+│   └── unified_selector_demo.py
+├── diagrams/
+│   ├── ascii/
+│   │   ├── bow-drill-components.txt
+│   │   ├── debris-hut-construction.txt
+│   │   ├── edible-vs-poisonous-plants.txt
+│   │   ├── fire-lay-configurations.txt
+│   │   ├── fire-triangle.txt
+│   │   ├── fish-trap-construction.txt
+│   │   ├── food-preservation-methods.txt
+│   │   ├── heart-anatomy.txt
+│   │   ├── lean-to-shelter.txt
+│   │   ├── shadow-stick-method.txt
+│   │   ├── star-navigation-basics.txt
+│   │   ├── tarp-shelter-configurations.txt
+│   │   └── water-filter.txt
+│   ├── communication/
+│   │   ├── ground-to-air-signals.svg
+│   │   ├── nato-phonetic-alphabet.svg
+│   │   ├── signal-mirror-technique.svg
+│   │   ├── three-fire-triangle.svg
+│   │   └── whistle-signal-codes.svg
+│   ├── fire/
+│   │   ├── bow-drill-components.svg
+│   │   ├── fire-triangle-mac-os.svg
+│   │   ├── fire-triangle-organic.svg
+│   │   ├── fire-triangle-technical.svg
+│   │   ├── grayscale-techniques-demo.svg
+│   │   ├── pattern-library-test-creative.svg
+│   │   └── simple-fire-triangle-diagram.svg
+│   ├── food/
+│   │   ├── edible-vs-poisonous-plants.svg
+│   │   ├── fish-trap-construction.svg
+│   │   └── plant-test-mac-os.svg
+│   ├── medical/
+│   │   ├── arterial-pressure-points.svg
+│   │   ├── burn-classification.svg
+│   │   ├── cpr-steps-mac-os.svg
+│   │   ├── heart-anatomy-detailed.svg
+│   │   ├── march-protocol.svg
+│   │   ├── recovery-position.svg
+│   │   ├── shock-treatment.svg
+│   │   └── tourniquet-application-mac-os.svg
+│   ├── navigation/
+│   │   ├── compass-basics.svg
+│   │   ├── handrail-navigation.svg
+│   │   ├── north-star-polaris.svg
+│   │   ├── shadow-stick-method.svg
+│   │   └── terrain-association.svg
+│   ├── shelter/
+│   │   ├── debris-hut-construction.svg
+│   │   ├── lean-to-shelter.svg
+│   │   ├── setup-checklist-ui.svg
+│   │   └── shelter-priorities-mac-os.svg
+│   ├── system/
+│   │   └── ui-components-demo.svg
+│   ├── teletext/
+│   │   ├── fire-triangle.html
+│   │   ├── heart-anatomy.html
+│   │   ├── star-navigation-basics.html
+│   │   └── water-filter.html
+│   ├── tools/
+│   │   ├── axe-techniques.svg
+│   │   ├── bow-saw-construction.svg
+│   │   ├── essential-knots.svg
+│   │   ├── improvised-tools.svg
+│   │   ├── knife-safety-mac-os.svg
+│   │   ├── saw-technique.svg
+│   │   ├── sharpening-technique.svg
+│   │   └── tool-maintenance.svg
+│   ├── water/
+│   │   ├── boiling-requirements.svg
+│   │   ├── chemical-purification.svg
+│   │   ├── collection-methods.svg
+│   │   ├── dehydration-signs.svg
+│   │   ├── diy-water-filter.svg
+│   │   ├── purification-decision-ui.svg
+│   │   ├── sodis-uv-purification.svg
+│   │   ├── solar-still-mac-os.svg
+│   │   ├── water-filter-technical.svg
+│   │   ├── water-purification-multi-barrier-monochrome.svg
+│   │   └── water-storage.svg
+│   ├── .DS_Store
+│   ├── fire_triangle_technical.svg
+│   ├── heart_teletext.html
+│   ├── README.md
+│   ├── tree_organic.svg
+│   └── water_filter_ascii.txt
+├── external/
+│   └── README.md
+├── fire/
+│   ├── bow_drill_technique.md
+│   ├── char_cloth_preparation.md
+│   ├── coal_bed_preservation.md
+│   ├── cooking_fires.md
+│   ├── emergency_fire_lighting.md
+│   ├── fire_banking_overnight.md
+│   ├── fire_in_wet_conditions.md
+│   ├── fire_maintenance.md
+│   ├── fire_plough_method.md
+│   ├── fire_reflector_construction.md
+│   ├── fire_safety_zones.md
+│   ├── fire_starter_materials.md
+│   ├── fire_starting_techniques.md
+│   ├── flint_and_steel_methods.md
+│   ├── friction_fire_methods.md
+│   ├── hand_drill_fire_making.md
+│   ├── improvised_fire_starters.md
+│   ├── README.md
+│   ├── signal_fires.md
+│   ├── smokeless_fires.md
+│   └── tinder_preparation.md
+├── food/
+│   ├── bird_snaring_techniques.md
+│   ├── bush-tucker.md
+│   ├── bushcraft-recipes.md
+│   ├── composting-basics.md
+│   ├── cooking_methods.md
+│   ├── drying-dehydration.md
+│   ├── drying_foods.md
+│   ├── edible_plants_identification.md
+│   ├── emergency_food_rationing.md
+│   ├── fish_trap_construction.md
+│   ├── fishing_techniques.md
+│   ├── food_preservation.md
+│   ├── foraging_safety.md
+│   ├── insect_protein_sources.md
+│   ├── nutrition_planning.md
+│   ├── preservation-recipes.md
+│   ├── README.md
+│   ├── smoking_meat.md
+│   ├── traditional-cooking-guide.md
+│   ├── trapping_basics.md
+│   ├── wild-edible-basics.md
+│   ├── wild_edible_roots_and_tubers.md
+│   └── wild_game_preparation.md
+├── making/
+│   ├── basic-woodworking.md
+│   ├── README.md
+│   ├── rope-making-cordage.md
+│   ├── solar-power-basics.md
+│   └── water-collection-systems.md
+├── medical/
+│   ├── basic-cpr.md
+│   ├── burns-treatment.md
+│   ├── burns_treatment.md
+│   ├── choking-heimlich.md
+│   ├── dehydration-treatment.md
+│   ├── emergency_cpr.md
+│   ├── first-aid-kit.md
+│   ├── first_aid_basics.md
+│   ├── fracture_treatment.md
+│   ├── fractures-sprains.md
+│   ├── heat-illness.md
+│   ├── heat_exhaustion.md
+│   ├── hypothermia.md
+│   ├── hypothermia_prevention.md
+│   ├── infection_prevention.md
+│   ├── natural_antibiotics.md
+│   ├── pain_management_without_medication.md
+│   ├── plant_poisons.md
+│   ├── README.md
+│   ├── shock-treatment.md
+│   ├── shock_management.md
+│   ├── snake_bites.md
+│   ├── snakebite-treatment.md
+│   ├── splinting_techniques.md
+│   ├── wilderness_medicine.md
+│   ├── wound-care-bleeding.md
+│   └── wound_care.md
+├── navigation/
+│   ├── compass_use.md
+│   ├── dead_reckoning_navigation.md
+│   ├── emergency_location_markers.md
+│   ├── gps_basics_and_backup_methods.md
+│   ├── landmark_identification.md
+│   ├── map_reading.md
+│   ├── natural_navigation.md
+│   ├── ocean_current_navigation.md
+│   ├── README.md
+│   ├── rescue_signals.md
+│   ├── route_planning.md
+│   ├── shadow_stick_method.md
+│   ├── signaling_techniques.md
+│   ├── sos_procedures.md
+│   ├── star_navigation.md
+│   ├── sun_navigation.md
+│   ├── terrain_features.md
+│   ├── topographic_map_interpretation.md
+│   ├── trail_marking_systems.md
+│   ├── watch_navigation_technique.md
+│   └── weather_pattern_navigation.md
+├── reference/
+│   ├── diagrams/
+│   │   ├── communication/
+│   │   │   ├── community_coordination.svg
+│   │   │   ├── emergency_communication.svg
+│   │   │   ├── hand_signals.svg
+│   │   │   ├── message_systems.svg
+│   │   │   ├── mirror_signals.svg
+│   │   │   ├── morse_code.svg
+│   │   │   ├── radio_basics.svg
+│   │   │   ├── security_protocols.svg
+│   │   │   ├── smoke_signals.svg
+│   │   │   └── whistle_codes.svg
+│   │   ├── fire/
+│   │   │   ├── cooking_fires.svg
+│   │   │   ├── fire_in_wet_conditions.svg
+│   │   │   ├── fire_maintenance.svg
+│   │   │   ├── fire_safety_zones.svg
+│   │   │   ├── fire_starter_materials.svg
+│   │   │   ├── fire_starting_techniques.svg
+│   │   │   ├── friction_fire_methods.svg
+│   │   │   ├── signal_fires.svg
+│   │   │   ├── smokeless_fires.svg
+│   │   │   └── tinder_preparation.svg
+│   │   ├── food/
+│   │   │   ├── cooking_methods.svg
+│   │   │   ├── drying_foods.svg
+│   │   │   ├── edible_plants_identification.svg
+│   │   │   ├── fishing_techniques.svg
+│   │   │   ├── food_preservation.svg
+│   │   │   ├── foraging_safety.svg
+│   │   │   ├── nutrition_planning.svg
+│   │   │   ├── smoking_meat.svg
+│   │   │   ├── trapping_basics.svg
+│   │   │   └── wild_game_preparation.svg
+│   │   ├── medical/
+│   │   │   ├── burns_treatment.svg
+│   │   │   ├── emergency_cpr.svg
+│   │   │   ├── first_aid_basics.svg
+│   │   │   ├── fracture_treatment.svg
+│   │   │   ├── heat_exhaustion.svg
+│   │   │   ├── hypothermia_prevention.svg
+│   │   │   ├── plant_poisons.svg
+│   │   │   ├── snake_bites.svg
+│   │   │   ├── wilderness_medicine.svg
+│   │   │   └── wound_care.svg
+│   │   ├── navigation/
+│   │   │   ├── compass_use.svg
+│   │   │   ├── map_reading.svg
+│   │   │   ├── natural_navigation.svg
+│   │   │   ├── rescue_signals.svg
+│   │   │   ├── route_planning.svg
+│   │   │   ├── signaling_techniques.svg
+│   │   │   ├── sos_procedures.svg
+│   │   │   ├── star_navigation.svg
+│   │   │   ├── sun_navigation.svg
+│   │   │   └── terrain_features.svg
+│   │   ├── shelter/
+│   │   │   ├── a-frame_shelters.svg
+│   │   │   ├── debris_huts.svg
+│   │   │   ├── emergency_shelters.svg
+│   │   │   ├── insulation_techniques.svg
+│   │   │   ├── knot_tying.svg
+│   │   │   ├── lashing_techniques.svg
+│   │   │   ├── lean-to_construction.svg
+│   │   │   ├── shelter_site_selection.svg
+│   │   │   ├── shelter_ventilation.svg
+│   │   │   └── weatherproofing.svg
+│   │   ├── tools/
+│   │   │   ├── axe_use_and_safety.svg
+│   │   │   ├── cordage_techniques.svg
+│   │   │   ├── equipment_care.svg
+│   │   │   ├── knife_maintenance.svg
+│   │   │   ├── makeshift_tools.svg
+│   │   │   ├── multi-tool_uses.svg
+│   │   │   ├── rope_making.svg
+│   │   │   ├── saw_techniques.svg
+│   │   │   ├── tool_repairs.svg
+│   │   │   └── tool_sharpening.svg
+│   │   └── water/
+│   │       ├── emergency_water_sources.svg
+│   │       ├── finding_water_sources.svg
+│   │       ├── rainwater_collection.svg
+│   │       ├── solar_still_construction.svg
+│   │       ├── water_conservation.svg
+│   │       ├── water_filtration_systems.svg
+│   │       ├── water_purification_methods.svg
+│   │       ├── water_quality_testing.svg
+│   │       ├── water_storage_techniques.svg
+│   │       └── well_digging_basics.svg
+│   ├── edible-plants-australia.md
+│   ├── essential-knots.md
+│   ├── fire-starting-methods-comparison.md
+│   ├── first-aid-quick-reference.md
+│   ├── knots-quick-reference.md
+│   ├── navigation-techniques-field-guide.md
+│   ├── README.md
+│   ├── seasonal-calendar-australia.md
+│   ├── survival-priorities-chart.md
+│   └── water-purification-methods-comparison.md
+├── shelter/
+│   ├── a-frame_shelters.md
+│   ├── camouflage_techniques.md
+│   ├── debris_huts.md
+│   ├── desert_shade_structures.md
+│   ├── elevated_platform_shelters.md
+│   ├── emergency_shelters.md
+│   ├── group_shelter_construction.md
+│   ├── insulation_techniques.md
+│   ├── knot_tying.md
+│   ├── lashing_techniques.md
+│   ├── lean-to_construction.md
+│   ├── natural_shelter_modifications.md
+│   ├── README.md
+│   ├── shelter_drainage_systems.md
+│   ├── shelter_site_selection.md
+│   ├── shelter_ventilation.md
+│   ├── snow_cave_construction.md
+│   ├── tarp_shelter_configurations.md
+│   ├── tropical_shelter_building.md
+│   ├── underground_shelters.md
+│   └── weatherproofing.md
+├── skills/
+│   ├── art/
+│   ├── music/
+│   ├── writing/
+│   ├── basic-budgeting-guide.md
+│   ├── sewing-mending-basics.md
+│   └── tool-skills-maintenance.md
+├── survival/
+│   ├── boiling-purification.md
+│   ├── bush-navigation.md
+│   ├── bush-tucker-foraging.md
+│   ├── bushfire-survival.md
+│   ├── chemical-purification.md
+│   ├── composting-basics.md
+│   ├── drying-dehydration.md
+│   ├── emergency-debris-hut.md
+│   ├── essential-knots.md
+│   ├── fire-building-basics.md
+│   ├── INDEX.md
+│   ├── knife-sharpening.md
+│   ├── knot-tying.md
+│   ├── lean-to-shelter.md
+│   ├── map-compass-basics.md
+│   ├── rainwater-harvesting.md
+│   ├── README.md
+│   ├── shelter-construction.md
+│   ├── situational-awareness.md
+│   ├── snakebite-treatment.md
+│   ├── snow-shelters.md
+│   ├── solar-power-basics.md
+│   ├── tarp-shelter-configurations.md
+│   ├── water-purification-methods.md
+│   ├── water-sources-wilderness.md
+│   ├── wild-edible-basics.md
+│   └── wound-care-bleeding.md
+├── system/
+│   ├── diagrams/
+│   │   ├── data-structures/
+│   │   ├── flowcharts/
+│   │   ├── programming/
+│   │   │   ├── control-flow/
+│   │   │   │   ├── if-else-medium.md
+│   │   │   │   └── while-loop-medium.md
+│   │   │   └── syntax-trees/
+│   │   │       └── variable-scope-medium.md
+│   │   ├── survival/
+│   │   │   ├── knots/
+│   │   │   │   └── square-knot-medium.md
+│   │   │   └── water/
+│   │   │       └── purification-methods-medium.md
+│   │   ├── systems/
+│   │   │   ├── memory-architecture-medium.md
+│   │   │   └── memory-tiers-medium.md
+│   │   └── README.md
+│   ├── geography/
+│   │   ├── cities.json
+│   │   ├── climate.json
+│   │   ├── countries.json
+│   │   ├── terrain.json
+│   │   ├── terrain_types.json
+│   │   ├── tile_schema.json
+│   │   ├── timezones.json
+│   │   └── tzone.json
+│   ├── graphics/
+│   │   ├── teletext/
+│   │   │   ├── patterns.md
+│   │   │   └── README.md
+│   │   ├── ascii_blocks.json
+│   │   └── teletext_mosaic.json
+│   ├── help_templates/
+│   │   ├── _index.json
+│   │   ├── assistant_commands.json
+│   │   ├── file_commands.json
+│   │   ├── grid_commands.json
+│   │   ├── README.md
+│   │   └── system_commands.json
+│   ├── reference/
+│   │   ├── imperial.json
+│   │   └── metric.json
+│   ├── templates/
+│   │   ├── .env.example
+│   │   ├── crud_app.uscript
+│   │   ├── form_validation.uscript
+│   │   ├── menu_system.uscript
+│   │   ├── setup.uscript
+│   │   ├── story.template.json
+│   │   └── user.template.json
+│   ├── tests/
+│   │   ├── test_startup.py
+│   │   └── test_system.py
+│   ├── themes/
+│   │   ├── templates/
+│   │   │   ├── dark-modern.json
+│   │   │   ├── high-contrast.json
+│   │   │   ├── light-professional.json
+│   │   │   ├── minimal.json
+│   │   │   └── README.md
+│   │   ├── _index.json
+│   │   ├── _schema.json
+│   │   ├── default.json
+│   │   ├── dungeon.json
+│   │   ├── foundation.json
+│   │   ├── galaxy.json
+│   │   ├── imported_test_theme.json
+│   │   ├── project.json
+│   │   ├── science.json
+│   │   └── teletext.json
+│   ├── BLANK-ENHANCED.md
+│   ├── command-architecture.md
+│   ├── commands.json
+│   ├── credits.json
+│   ├── extensions.json
+│   ├── faq.json
+│   ├── font-profile-template.json
+│   ├── font-system.json
+│   ├── fonts.json
+│   ├── HELP-ENHANCED.md
+│   ├── KNOWLEDGE-REFERENCE.md
+│   ├── MAP.md
+│   ├── OK.md
+│   ├── palette.json
+│   ├── README-FONT-SYSTEM.md
+│   ├── REDO.md
+│   ├── RESTORE.md
+│   ├── RUN.md
+│   ├── SETUP-ENHANCED.md
+│   ├── SYSTEM.md
+│   ├── tizo_cities.json
+│   ├── ucode_variables.json
+│   ├── UNDO.md
+│   ├── universe.json
+│   ├── usage_tracker.json
+│   ├── viewport.json
+│   ├── world_cities.csv
+│   ├── world_cities_cellkeys.csv
+│   └── worldmap.json
+├── tech/
+│   ├── control-flow.md
+│   ├── daily-automation.md
+│   ├── pomodoro-guide.md
+│   ├── README.md
+│   └── variables.md
+├── tools/
+│   ├── axe_use_and_safety.md
+│   ├── basket_weaving_techniques.md
+│   ├── bow_and_arrow_construction.md
+│   ├── cordage_techniques.md
+│   ├── equipment_care.md
+│   ├── fishing_gear_fabrication.md
+│   ├── knife_maintenance.md
+│   ├── leather_working_basics.md
+│   ├── makeshift_tools.md
+│   ├── multi-tool_uses.md
+│   ├── README.md
+│   ├── rope_making.md
+│   ├── saw_techniques.md
+│   ├── stone_tool_crafting.md
+│   ├── tool_repairs.md
+│   └── tool_sharpening.md
+├── water/
+│   ├── boiling-purification.md
+│   ├── chemical-purification.md
+│   ├── coastal_water_desalination.md
+│   ├── desert_water_procurement.md
+│   ├── emergency_water_sources.md
+│   ├── finding_water_sources.md
+│   ├── ice_and_snow_water_extraction.md
+│   ├── long-term_water_storage.md
+│   ├── plant_water_sources.md
+│   ├── rainwater-harvesting.md
+│   ├── rainwater_collection.md
+│   ├── README.md
+│   ├── solar_still_construction.md
+│   ├── spring_water_identification.md
+│   ├── transpiration_bag_technique.md
+│   ├── underground_water_detection.md
+│   ├── water-purification-methods.md
+│   ├── water-sources.md
+│   ├── water_conservation.md
+│   ├── water_contamination_signs.md
+│   ├── water_filtration_systems.md
+│   ├── water_purification_methods.md
+│   ├── water_quality_testing.md
+│   ├── water_rationing_strategies.md
+│   ├── water_storage_techniques.md
+│   └── well_digging_basics.md
+├── well-being/
+│   ├── mental-health/
+│   ├── mindfulness/
+│   ├── physical-health/
+│   ├── relationships/
+│   ├── README.md
+│   ├── sleep-hygiene-optimization.md
+│   └── stress-management-resilience.md
+├── KNOWLEDGE-SYSTEM.md
+├── README.md
+└── structure.txt
