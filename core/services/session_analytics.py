@@ -94,10 +94,10 @@ class SessionAnalytics:
 
         Args:
             session_dir: Directory for structured session logs
-            log_dir: Directory for traditional text logs (compatibility)
+            log_dir: Directory for traditional text logs (v1.5.0 flat structure)
         """
         self.session_dir = Path(session_dir) / "auto"
-        self.log_dir = Path(log_dir) / "sessions"
+        self.log_dir = Path(log_dir)  # v1.5.0: flat structure, no subdirectories
 
         # Ensure directories exist
         self.session_dir.mkdir(parents=True, exist_ok=True)

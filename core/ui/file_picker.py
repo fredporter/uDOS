@@ -26,13 +26,26 @@ class FilePicker:
         Args:
             workspace_manager: WorkspaceManager instance for workspace integration
         """
-        from core.uDOS_files import WorkspaceManager
+        from core.utils.files import WorkspaceManager
         self.workspace_manager = workspace_manager or WorkspaceManager()
 
         # Initialize file access tracking database
         self.db_path = Path("memory/logs/file_access.db")
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
+
+        # Folder shortcuts for quick navigation
+        self.folder_shortcuts = {
+            'sandbox': Path('memory/sandbox'),
+            'memory': Path('memory'),
+            'knowledge': Path('knowledge'),
+            'public': Path('memory/public'),
+            'private': Path('memory/private'),
+            'groups': Path('memory/groups'),
+            'shared': Path('memory/shared'),
+            'planet': Path('memory/planet'),
+            'user': Path('memory/user')
+        }
 
         # Search and filtering settings
         self.fuzzy_threshold = 0.6

@@ -272,9 +272,9 @@ if command -v node &> /dev/null; then
     fi
 fi
 
-# Check data directories
+# Check data directories (v1.5.0: flat log structure)
 print_status "Checking data directories..."
-for dir in memory/logs memory/logs/sessions memory/logs/servers memory/sandbox; do
+for dir in memory/logs memory/sandbox memory/user memory/planet; do
     if [ ! -d "$dir" ]; then
         print_warning "Creating directory: $dir"
         mkdir -p "$dir"

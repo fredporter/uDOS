@@ -336,14 +336,12 @@ class EditorManager:
             # Check if typo is installed
             web_dir = Path('extensions/web/typo')
             if not (web_dir / 'package.json').exists():
-                print("❌ typo web editor not installed")
-                print("📦 Run: cd extensions && ./setup_typo.sh")
-                print("")
-                print("📝 Falling back to CLI editor...")
-                editor_name, editor_path = self.get_best_editor('CLI')
-                if editor_path:
-                    return subprocess.run([editor_path, filepath]).returncode
-                return 1
+                return self._handle_typo_not_installed(filepath)
+
+            # Alternative check: extensions/cloned/typo
+            alt_dir = Path('extensions/cloned/typo')
+            if not web_dir.exists() and alt_dir.exists():
+                web_dir = alt_dir
 
             # Start typo server if not running
             success, message = server_mgr.start_typo_server(port=5173, open_browser=True)

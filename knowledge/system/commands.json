@@ -18,7 +18,7 @@
         "OK DEV explain this git error"
       ],
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -29,7 +29,7 @@
       "DEFAULT_PARAMS": {},
       "DEFERRED": "v1.1+",
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -40,7 +40,7 @@
       "DEFAULT_PARAMS": {},
       "DEFERRED": "v1.1+",
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -51,7 +51,7 @@
       "DEFAULT_PARAMS": {},
       "DEFERRED": "v1.1+",
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -67,7 +67,7 @@
         "READ logs"
       ],
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -78,7 +78,7 @@
       "DEFAULT_PARAMS": {},
       "DEFERRED": "v1.1+",
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension",
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension",
         "Defaults to showing assistant status when called without subcommand"
       ]
     },
@@ -90,7 +90,7 @@
       "DEFAULT_PARAMS": {},
       "DEFERRED": "v1.1+",
       "NOTES": [
-        "⚠️ DEFERRED to v1.1+ - OK Assistant extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -157,7 +157,7 @@
         "CONFIG PLANET",
         "CONFIG PLANET LIST",
         "CONFIG PLANET SET Earth",
-        "CONFIG PLANET NEW Mars Sol Mars 🔴 \"Red planet workspace\"",
+        "CONFIG PLANET NEW Mars Sol Mars \ud83d\udd34 \"Red planet workspace\"",
         "CONFIG PLANET INFO Earth",
         "CONFIG PLANET SOLAR"
       ],
@@ -263,6 +263,23 @@
         "Category: bug, feature_request, confusion, question",
         "Saved to memory/logs/feedback/bug_reports.jsonl",
         "Auto-captures session context"
+      ]
+    },
+    {
+      "NAME": "ROLE",
+      "SYNTAX": "ROLE",
+      "DESCRIPTION": "Display current user role. Use CONFIG ROLE to change between user and wizard roles. Wizard role enables OK DEV and advanced system features.",
+      "UCODE_TEMPLATE": "[SYSTEM|CONFIG*ROLE]",
+      "CATEGORY": "CONFIGURATION",
+      "EXAMPLES": [
+        "ROLE",
+        "CONFIG ROLE wizard",
+        "CONFIG ROLE user"
+      ],
+      "NOTES": [
+        "Wizard role enables OK DEV command for GitHub Copilot CLI",
+        "Wizard role grants access to advanced system features",
+        "Use CONFIG ROLE <role> to change: user | wizard"
       ]
     },
     {
@@ -538,6 +555,24 @@
       }
     },
     {
+      "NAME": "SHAKEDOWN",
+      "SYNTAX": "SHAKEDOWN [--verbose] [--quick] [--report]",
+      "DESCRIPTION": "Comprehensive v1.5.0 system validation test suite. Tests architecture cleanup (17\u219211 core dirs), planet system integration, asset management, DEV MODE security, memory structure (28\u219216 dirs), database locations, startup health, and core module imports. Options: --verbose (detailed output), --quick (core tests only), --report (generate JSON report).",
+      "UCODE_TEMPLATE": "[SYSTEM|SHAKEDOWN*$1]",
+      "DEFAULT_PARAMS": {},
+      "OPTIONS": {
+        "--verbose": "Show detailed test output",
+        "--quick": "Run core tests only (skip integration)",
+        "--report": "Generate JSON report in memory/logs/"
+      },
+      "EXAMPLES": [
+        "SHAKEDOWN",
+        "SHAKEDOWN --verbose",
+        "SHAKEDOWN --quick",
+        "SHAKEDOWN --report"
+      ]
+    },
+    {
       "NAME": "REBOOT",
       "SYNTAX": "REBOOT",
       "DESCRIPTION": "Restarts uDOS, re-detecting system settings and viewport size.",
@@ -606,7 +641,7 @@
         "Integrates with memory system",
         "Supports grid layout formatting",
         "Can display various content types",
-        "⚠️ DEFERRED to v1.1+ - Display UI extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Display UI extension"
       ]
     },
     {
@@ -770,7 +805,7 @@
         "Access dashboard at http://localhost:8887 (default)",
         "Dashboard shows real-time status and logs for all outputs",
         "SERVER is an alias for POKE (legacy compatibility)",
-        "⚠️ DEFERRED to v1.1+ - Web interface extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
       ]
     },
     {
@@ -808,7 +843,7 @@
         "Install fonts first: bash extensions/setup_monaspace.sh",
         "Fonts apply to web-based editors (typo) and web terminals (cmd.js)",
         "For CLI terminals, install system fonts manually (see FONT INFO)",
-        "⚠️ DEFERRED to v1.1+ - Typography extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Typography extension"
       ]
     },
     {
@@ -893,7 +928,7 @@
         "Independent web instance - CLI continues running",
         "Web terminal includes: splash screen, dashboard, help system",
         "Theme switching available in web interface",
-        "⚠️ DEFERRED to v1.1+ - Web interface extension"
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
       ]
     },
     {

@@ -132,6 +132,7 @@ class SystemCommandHandler(BaseCommandHandler):
             'LAYOUT': self.handle_layout,
             'STATUS': self.handle_status,
             'REPAIR': self.handle_repair,
+            'SHAKEDOWN': self.handle_shakedown,
             'REBOOT': self.handle_reboot,
             'DESTROY': self.handle_destroy,
             'VIEWPORT': self.handle_viewport,
@@ -1629,6 +1630,25 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
 
         return repair_handler.handle_repair(params, grid, parser)
 
+    def handle_shakedown(self, params, grid, parser):
+        """
+        Comprehensive v1.5.0 system validation test suite.
+        Delegates to specialized ShakedownHandler for test execution.
+        """
+        from .shakedown_handler import ShakedownHandler
+
+        # Create shakedown handler with same context
+        shakedown_handler = ShakedownHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
+        return shakedown_handler.handle(params)
+
     def handle_status(self, params, grid, parser):
         """
         Display comprehensive system status.
@@ -1727,8 +1747,13 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def handle_config(self, params, grid, parser):
         """
         Manage configuration files.
+        Supports CONFIG ROLE to assign wizard/dev roles.
         Delegates to specialized ConfigurationHandler for functionality.
         """
+        # Handle CONFIG ROLE subcommand
+        if params and params[0].upper() == 'ROLE':
+            return self._handle_config_role(params[1:] if len(params) > 1 else [])
+
         from .configuration_handler import ConfigurationHandler
 
         # Create configuration handler with same context
@@ -1742,6 +1767,31 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         )
 
         return config_handler.handle_config(params, grid, parser)
+
+    def _handle_config_role(self, params):
+        """Handle CONFIG ROLE subcommand for wizard/dev role assignment."""
+        if not params:
+            # Show current role
+            current_role = self.config_manager.get('USER_ROLE', 'user')
+            return (f"📋 Current Role: {current_role}\n\n"
+                   f"Available roles:\n"
+                   f"  • user    - Standard user (default)\n"
+                   f"  • wizard  - Developer access (OK DEV, advanced features)\n\n"
+                   f"Usage: CONFIG ROLE <role>\n"
+                   f"Example: CONFIG ROLE wizard")
+
+        role = params[0].lower()
+        if role not in ['user', 'wizard']:
+            return f"❌ Invalid role: {role}\n💡 Available: user, wizard"
+
+        # Set role in config
+        self.config_manager.set('USER_ROLE', role)
+        self.config_manager.save()
+
+        emoji = "🧙" if role == "wizard" else "👤"
+        features = "\n✅ OK DEV enabled\n✅ Advanced system access" if role == "wizard" else ""
+
+        return f"{emoji} Role set to: {role}{features}"
 
     # ======================================================================
     # CORE SYSTEM COMMANDS - Handled directly

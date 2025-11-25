@@ -23,7 +23,7 @@ from .input.prompt_decorator import get_prompt_decorator
 from .utils.tree import generate_repository_tree
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput
-from .config import get_config_manager  # v1.5.0 Unified Configuration
+from .config_manager import get_config_manager  # v1.5.0 Unified Configuration
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory

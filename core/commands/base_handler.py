@@ -9,7 +9,7 @@ v1.0.29 adds smart input and output services for all commands.
 
 import json
 from pathlib import Path
-from core.theme import load_theme
+from core.theme_loader import load_theme
 
 
 class BaseCommandHandler:

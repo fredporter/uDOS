@@ -35,8 +35,8 @@ class AssistantCommandHandler(BaseCommandHandler):
         self._session_analytics = None  # Lazy load
 
         # Role-based access control (v1.1.0)
-        # Will be fully implemented in v1.1.1 RBAC system
-        self.user_role = "user"  # Default: user, wizard, power, root
+        # Get role from config_manager (set via CONFIG ROLE wizard)
+        self.user_role = self.config_manager.get('USER_ROLE', 'user') if hasattr(self, 'config_manager') and self.config_manager else "user"
 
     @property
     def workspace_manager(self):

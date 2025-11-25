@@ -431,8 +431,9 @@ Type 'DIAGRAM LIST' to browse all diagrams
                         'source': str(md_file.relative_to(Path.cwd())),
                     })
             except Exception as e:
-                if self.logger:
+                if self.logger and hasattr(self.logger, 'error'):
                     self.logger.error(f"Error extracting diagrams from {md_file}: {e}")
+                # Silently skip errored files
 
         return diagrams
 
@@ -470,8 +471,9 @@ Type 'DIAGRAM LIST' to browse all diagrams
                     'source': str(diagram_file.relative_to(Path.cwd())),
                 })
             except Exception as e:
-                if self.logger:
+                if self.logger and hasattr(self.logger, 'error'):
                     self.logger.error(f"Error loading diagram {diagram_file}: {e}")
+                # Silently skip errored files
 
         return diagrams
 

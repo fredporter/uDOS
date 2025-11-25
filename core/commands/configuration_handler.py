@@ -730,10 +730,10 @@ class ConfigurationHandler(BaseCommandHandler):
                    "  CONFIG SET <key> <value> - Set configuration value")
 
     def _show_config_status(self):
-        """Show current configuration status."""
+        """Show current configuration status with v1.5.0 features."""
         config_dir = Path('knowledge/system')
         if not config_dir.exists():
-            return "❌ Configuration directory not found"
+            return self.get_message('ERROR_CONFIG_DIR_NOT_FOUND', path=config_dir)
 
         config_files = [
             'commands.json',
@@ -741,12 +741,28 @@ class ConfigurationHandler(BaseCommandHandler):
             'palette.json',
             'fonts.json',
             'worldmap.json',
+            'universe.json',  # v1.5.0: Planet system
             'credits.json'
         ]
 
+        # Get current settings
+        user_role = self.config_manager.get('USER_ROLE', 'user') if hasattr(self, 'config_manager') else 'user'
+        theme = self.config_manager.get('THEME', 'dungeon') if hasattr(self, 'config_manager') else 'dungeon'
+        auto_save = self.config_manager.get('AUTO_SAVE', 'true') if hasattr(self, 'config_manager') else 'true'
+
         output = []
-        output.append("⚙️ CONFIGURATION STATUS")
-        output.append("=" * 50)
+        output.append("╔══════════════════════════════════════════════════════════╗")
+        output.append("║           ⚙️  uDOS CONFIGURATION STATUS                 ║")
+        output.append("╚══════════════════════════════════════════════════════════╝")
+        output.append("")
+        output.append("📊 SYSTEM SETTINGS")
+        output.append("─" * 60)
+        output.append(f"  User Role:        {user_role}")
+        output.append(f"  Theme:            {theme}")
+        output.append(f"  Auto-save:        {auto_save}")
+        output.append("")
+        output.append("📁 CONFIGURATION FILES")
+        output.append("─" * 60)
 
         total_size = 0
         valid_count = 0

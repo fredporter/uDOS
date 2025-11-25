@@ -37,6 +37,7 @@ pip-selfcheck.json
 *.swp
 *.swo
 *~
+.cache/
 .pytest_cache/
 
 # Extensions - Clone Management
@@ -103,11 +104,16 @@ memory/logs/**/*
 # /dev/planning/ = Roadmaps and specs (TRACKED for contributors)
 # /dev/archive/ = Development history (NOT tracked, local only)
 # /dev/notes/ = Personal notes (NOT tracked, local only)
+# /dev/tests/ = Local test scripts (NOT tracked, local only)
+# /dev/docs/ = Generated docs (NOT tracked, built from source)
 # /wiki/ = User-facing documentation (distributed with uDOS)
 
 # Ignore most of /dev except planning and tools
 /dev/archive/
 /dev/notes/
+/dev/tests/
+/dev/docs/
+/dev/demo_*.py
 # Track these for contributors:
 !/dev/
 !/dev/README.md
@@ -115,6 +121,8 @@ memory/logs/**/*
 !/dev/planning/**/*
 !/dev/tools/
 !/dev/tools/**/*
+!/dev/EXTENSION-FIXES-v1.5.0.md
+!/dev/THEME_GUIDE.md
 
 # Wiki Deployment
 # ----------------------
@@ -160,7 +168,7 @@ backups/
 !knowledge/**/*
 
 # /memory/ - USER DATA (gitignored, user-writable workspace)
-# v1.0.27: Track templates and tests for distribution, ignore user content
+# v1.5.0: Track templates and tests for distribution, ignore user content
 memory/
 memory/**/*
 
@@ -171,11 +179,18 @@ memory/**/*
 !memory/config/.gitkeep
 !memory/sandbox/
 !memory/sandbox/.gitkeep
+!memory/sandbox/README.md
 !memory/workflow/
 !memory/workflow/README.md
 !memory/workflow/.gitkeep
 !memory/tests/
 !memory/tests/**/*
+!memory/planet/
+!memory/planet/.gitkeep
+!memory/user/
+!memory/user/.gitkeep
+!memory/logs/
+!memory/logs/.gitkeep
 
 # User databases and logs (always ignore)
 *.db

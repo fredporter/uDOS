@@ -537,7 +537,27 @@ def check_pip_version() -> HealthCheckResult:
         HealthCheckResult with pip version status
     """
     import subprocess
+    from dotenv import dotenv_values
     result = HealthCheckResult("pip Version")
+
+    # Check if auto-update checks are enabled
+    try:
+        env_path = Path(__file__).parent.parent / ".env"
+        env_vars = dotenv_values(env_path)
+        auto_update = env_vars.get('AUTO_UPDATE_CHECK', 'true').lower() == 'true'
+
+        if not auto_update:
+            # User has disabled update checks
+            return result
+    except Exception:
+        # If we can't read .env, proceed with default behavior
+        pass
+
+    # Check for a suppression marker file
+    suppress_file = Path(__file__).parent.parent / "memory" / "user" / ".pip_update_suppressed"
+    if suppress_file.exists():
+        # User has already been notified and chose to suppress
+        return result
 
     try:
         # Get current pip version
@@ -573,7 +593,8 @@ def check_pip_version() -> HealthCheckResult:
                                 available_version = parts[2]
                                 result.add_warning(
                                     f"pip {current_version} is outdated (latest: {available_version})",
-                                    f"Upgrade with: {sys.executable} -m pip install --upgrade pip"
+                                    f"Upgrade with: {sys.executable} -m pip install --upgrade pip\n"
+                                    f"To suppress this warning: touch memory/user/.pip_update_suppressed"
                                 )
                                 break
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
@@ -847,6 +868,14 @@ def repair_pip_upgrade(verbose: bool = False) -> Tuple[bool, str]:
         )
 
         if result.returncode == 0:
+            # Clear the suppression marker since pip was successfully upgraded
+            suppress_file = Path(__file__).parent.parent / "memory" / "user" / ".pip_update_suppressed"
+            if suppress_file.exists():
+                try:
+                    suppress_file.unlink()
+                except Exception:
+                    pass  # Ignore errors removing suppression file
+
             if verbose:
                 print("  ✅ pip upgraded successfully")
             return True, "pip upgraded successfully"

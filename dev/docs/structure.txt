@@ -40,23 +40,21 @@ uDOS/
 │   │   ├── private_commands.py
 │   │   ├── refresh_command.py
 │   │   ├── repair_handler.py
+│   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
 │   │   └── user_handler.py
-│   ├── config/
-│   │   ├── __init__.py
-│   │   └── config_manager.py
 │   ├── input/
-│   │   ├── prompts/
-│   │   │   ├── prompt_decorator.py
-│   │   │   └── smart_prompt.py
 │   │   ├── __init__.py
-│   │   └── interactive.py
+│   │   ├── interactive.py
+│   │   ├── prompt_decorator.py
+│   │   └── smart_prompt.py
 │   ├── interpreters/
 │   │   ├── __init__.py
 │   │   ├── offline.py
-│   │   └── ucode.py
+│   │   ├── ucode.py
+│   │   └── validator.py
 │   ├── knowledge/
 │   │   ├── __init__.py
 │   │   ├── bank.py
@@ -66,25 +64,15 @@ uDOS/
 │   │   ├── service.py
 │   │   ├── tier_manager.py
 │   │   └── types.py
-│   ├── network/
-│   │   ├── __init__.py
-│   │   └── gemini.py
 │   ├── output/
-│   │   ├── renderers/
-│   │   │   ├── __init__.py
-│   │   │   ├── layout_manager.py
-│   │   │   └── teletext_renderer.py
 │   │   ├── __init__.py
-│   │   ├── api_server.log
 │   │   ├── graphics.py
+│   │   ├── layout_manager.py
 │   │   ├── output_formatter.py
 │   │   ├── screen_manager.py
 │   │   ├── splash.py
-│   │   └── story_manager.py
-│   ├── scripts/
-│   │   ├── README.md
-│   │   ├── test_cli.sh
-│   │   └── web.sh
+│   │   ├── story_manager.py
+│   │   └── teletext_renderer.py
 │   ├── services/
 │   │   ├── api_audit.py
 │   │   ├── asset_manager.py
@@ -111,63 +99,36 @@ uDOS/
 │   │   ├── standardized_input.py
 │   │   ├── user_manager.py
 │   │   └── viewport_manager.py
-│   ├── setup/
-│   │   └── README.md
-│   ├── tests/
-│   │   ├── pytest.ini
-│   │   ├── test_config_profile.py
-│   │   ├── test_themes.py
-│   │   ├── test_v1_0_23_consolidation.py
-│   │   ├── test_v1_0_23_integration.py
-│   │   ├── test_v1_0_23_performance.py
-│   │   └── test_v1_0_23_ui.py
-│   ├── theme/
-│   │   ├── __init__.py
-│   │   ├── builder.py
-│   │   ├── loader.py
-│   │   └── manager.py
-│   ├── ucode/
-│   │   ├── __init__.py
-│   │   └── validator.py
 │   ├── ui/
-│   │   ├── pickers/
-│   │   │   ├── __init__.py
-│   │   │   ├── file_picker.py
-│   │   │   ├── knowledge_file_picker.py
-│   │   │   └── option_selector.py
+│   │   ├── __init__.py
+│   │   ├── file_picker.py
+│   │   ├── knowledge_file_picker.py
 │   │   ├── micro_editor.py
+│   │   ├── option_selector.py
 │   │   ├── picker.py
 │   │   ├── progress_indicators.py
 │   │   ├── teletext_prompt.py
 │   │   ├── unified_selector.py
 │   │   └── visual_selector.py
 │   ├── utils/
-│   │   ├── helpers/
-│   │   ├── profiling/
-│   │   │   └── performance_profiler.py
 │   │   ├── alias_manager.py
 │   │   ├── autocomplete.py
 │   │   ├── completer.py
-│   │   ├── config_manager.py
 │   │   ├── error_handler.py
 │   │   ├── fast_startup.py
 │   │   ├── files.py
 │   │   ├── fuzzy_matcher.py
-│   │   ├── generate_user_config.py
 │   │   ├── generate_world_map.uscript
 │   │   ├── lazy_loader.py
 │   │   ├── map_painter.uscript
-│   │   ├── migrate_config.py
 │   │   ├── path_validator.py
+│   │   ├── performance_profiler.py
 │   │   ├── progress_manager.py
 │   │   ├── reorganize_knowledge.sh
 │   │   ├── settings.py
 │   │   ├── setup.py
 │   │   ├── startup_welcome.py
 │   │   ├── system_info.py
-│   │   ├── theme.py
-│   │   ├── theme_loader.py
-│   │   ├── theme_validator.py
 │   │   ├── tizo_manager.py
 │   │   ├── tree.py
 │   │   ├── usage_tracker.py
@@ -177,14 +138,16 @@ uDOS/
 │   ├── README.md
 │   ├── __init__.py
 │   ├── config.py
+│   ├── config_manager.py
+│   ├── theme_builder.py
+│   ├── theme_loader.py
+│   ├── theme_manager.py
 │   ├── uDOS_commands.py
 │   ├── uDOS_grid.py
 │   ├── uDOS_logger.py
 │   ├── uDOS_main.py
 │   ├── uDOS_parser.py
-│   ├── uDOS_server.py
 │   └── uDOS_startup.py
-├── data/
 ├── dev/
 │   ├── archive/
 │   │   ├── core-legacy/
@@ -193,6 +156,35 @@ uDOS/
 │   │   │   │   ├── theme_builder.py
 │   │   │   │   └── theme_manager.py
 │   │   │   └── ARCHIVE_PLAN.md
+│   │   ├── core_cleanup_2025-11-25/
+│   │   │   ├── core/
+│   │   │   │   ├── network/
+│   │   │   │   ├── scripts/
+│   │   │   │   ├── setup/
+│   │   │   │   ├── tests/
+│   │   │   │   └── utils/
+│   │   │   └── README.md
+│   │   ├── extensions_core_cleanup_2025-11-25/
+│   │   │   ├── ok-assist/
+│   │   │   │   ├── api/
+│   │   │   │   ├── assets/
+│   │   │   │   ├── css/
+│   │   │   │   ├── docs/
+│   │   │   │   ├── examples/
+│   │   │   │   ├── prompts/
+│   │   │   │   ├── ARCHITECTURE.md
+│   │   │   │   ├── COMPLETION.md
+│   │   │   │   ├── EXAMPLES.md
+│   │   │   │   ├── INDEX.md
+│   │   │   │   ├── INTEGRATION_GUIDE.md
+│   │   │   │   ├── QUICK_REFERENCE.md
+│   │   │   │   ├── README-NEW.md
+│   │   │   │   ├── README.md
+│   │   │   │   ├── SUCCESS_REPORT.md
+│   │   │   │   └── UNIFIED_SYSTEM_SUMMARY.md
+│   │   │   ├── CLEANUP_NOTES.md
+│   │   │   ├── README-BUILDER.md
+│   │   │   └── README-SERVER.md
 │   │   ├── old-files-20251124/
 │   │   │   ├── index-old.html
 │   │   │   └── system-old.css
@@ -295,6 +287,185 @@ uDOS/
 │   │   ├── v1.4.0-SUMMARY.md
 │   │   ├── v1_0_30_complete_summary.md
 │   │   └── v1_0_30_summary.md
+│   ├── tests/
+│   │   ├── e2e/
+│   │   ├── integration/
+│   │   │   ├── test_cli_v1_0_6.py
+│   │   │   ├── test_file_integration_v1_0_2.py
+│   │   │   ├── test_map_integration.py
+│   │   │   ├── test_teletext_integration.py
+│   │   │   └── test_v1_0_2_integration.py
+│   │   ├── manual/
+│   │   │   └── test_input_manager_basic.py
+│   │   ├── scripts/
+│   │   │   └── README.md
+│   │   ├── test_files/
+│   │   │   ├── config.conf
+│   │   │   ├── script.py
+│   │   │   ├── test1.md
+│   │   │   └── test2.txt
+│   │   ├── unit/
+│   │   │   ├── test_conditionals.py
+│   │   │   ├── test_dashboard.py
+│   │   │   ├── test_file_operations_v1_0_2.py
+│   │   │   ├── test_functions.py
+│   │   │   ├── test_loops.py
+│   │   │   ├── test_palette_tree.py
+│   │   │   ├── test_remaining_commands.py
+│   │   │   └── test_variables.py
+│   │   ├── README.md
+│   │   ├── analyze_coverage_v1_0_26.py
+│   │   ├── baseline_report_v1_0_26.py
+│   │   ├── baseline_v1_0_26.json
+│   │   ├── benchmark_v1_0_26.py
+│   │   ├── debug_test.uscript
+│   │   ├── performance_v1_0_26.py
+│   │   ├── quick_benchmark_v1_0_26.py
+│   │   ├── shakedown.uscript
+│   │   ├── startup_profiler_v1_0_26.py
+│   │   ├── test_asset_manager.py
+│   │   ├── test_autocomplete.py
+│   │   ├── test_available_commands.py
+│   │   ├── test_bank_stats_show.py
+│   │   ├── test_clear_enhanced.uscript
+│   │   ├── test_commands.uscript
+│   │   ├── test_commands_script.uscript
+│   │   ├── test_conditionals.uscript
+│   │   ├── test_config_manager.py
+│   │   ├── test_config_profile.py
+│   │   ├── test_core_functionality.py
+│   │   ├── test_dev_mode.py
+│   │   ├── test_error_handling.py
+│   │   ├── test_errors.uscript
+│   │   ├── test_feedback_direct.py
+│   │   ├── test_feedback_integration.py
+│   │   ├── test_file_commands.uscript
+│   │   ├── test_file_phase3_commands.py
+│   │   ├── test_functions.uscript
+│   │   ├── test_help.uscript
+│   │   ├── test_help_enhanced.uscript
+│   │   ├── test_help_templates.py
+│   │   ├── test_integration_autocomplete.py
+│   │   ├── test_interactive.txt
+│   │   ├── test_loops.uscript
+│   │   ├── test_map_surface.py
+│   │   ├── test_modules.uscript
+│   │   ├── test_ok_command.uscript
+│   │   ├── test_ok_comprehensive.py
+│   │   ├── test_ok_implementation.py
+│   │   ├── test_option_selector.py
+│   │   ├── test_parser_restore.py
+│   │   ├── test_planet_system.py
+│   │   ├── test_private_commands.py
+│   │   ├── test_realtime_updates.py
+│   │   ├── test_restore_direct.py
+│   │   ├── test_restore_only.uscript
+│   │   ├── test_restored_commands.txt
+│   │   ├── test_return_simple.uscript
+│   │   ├── test_run_command.py
+│   │   ├── test_run_interactive.sh
+│   │   ├── test_scenario_play_handler.py
+│   │   ├── test_session_minimal.py
+│   │   ├── test_setup_enhanced.uscript
+│   │   ├── test_smart_prompt.py
+│   │   ├── test_standardized_input.py
+│   │   ├── test_stdlib.uscript
+│   │   ├── test_themes.py
+│   │   ├── test_tier_knowledge.py
+│   │   ├── test_undo_redo.uscript
+│   │   ├── test_usage_tracker.uscript
+│   │   ├── test_usage_tracker_direct.py
+│   │   ├── test_v1_0_12_utilities.py
+│   │   ├── test_v1_0_13_theming.py
+│   │   ├── test_v1_0_16_standalone.py
+│   │   ├── test_v1_0_17_commands.py
+│   │   ├── test_v1_0_17_debugger.py
+│   │   ├── test_v1_0_17_execution.py
+│   │   ├── test_v1_0_17_phase4.py
+│   │   ├── test_v1_0_17_phase4plus.py
+│   │   ├── test_v1_0_17_ucode.py
+│   │   ├── test_v1_0_18_engine.py
+│   │   ├── test_v1_0_18_knowledge.py
+│   │   ├── test_v1_0_18_resources.py
+│   │   ├── test_v1_0_18_scenarios.py
+│   │   ├── test_v1_0_18_survival.py
+│   │   ├── test_v1_0_18_xp.py
+│   │   ├── test_v1_0_20_knowledge_bank.py
+│   │   ├── test_v1_0_20b_mapping.py
+│   │   ├── test_v1_0_21_knowledge.py
+│   │   ├── test_v1_0_22_documentation.py
+│   │   ├── test_v1_0_23_consolidation.py
+│   │   ├── test_v1_0_23_integration.py
+│   │   ├── test_v1_0_23_performance.py
+│   │   ├── test_v1_0_23_ui.py
+│   │   ├── test_v1_0_26_architecture.py
+│   │   ├── test_v1_0_26_commands.py
+│   │   ├── test_v1_0_26_dashboard_integration.py
+│   │   ├── test_v1_0_26_data_validation.py
+│   │   ├── test_v1_0_26_error_handling.py
+│   │   ├── test_v1_0_26_extensions.py
+│   │   ├── test_v1_0_26_file_operations.py
+│   │   ├── test_v1_0_26_integration_workflows.py
+│   │   ├── test_v1_0_26_map_navigation.py
+│   │   ├── test_v1_0_26_performance_baseline.py
+│   │   ├── test_v1_0_26_performance_regression.py
+│   │   ├── test_v1_0_26_real_execution.py
+│   │   ├── test_v1_0_26_status_version.py
+│   │   ├── test_v1_0_26_ucode.py
+│   │   ├── test_v1_0_26_ui_components.py
+│   │   ├── test_v1_0_2_enhancements.py
+│   │   ├── test_v1_0_2_simple_integration.py
+│   │   ├── test_v1_0_2_standalone.py
+│   │   ├── test_v1_0_30_integration.py
+│   │   ├── test_v1_0_30_teletext_ui.py
+│   │   ├── test_v1_0_33_barter.py
+│   │   ├── test_v1_1_0_api_audit.py
+│   │   ├── test_v1_1_0_data_architecture.py
+│   │   ├── test_v1_1_0_error_handler.py
+│   │   ├── test_v1_1_0_feedback_handler.py
+│   │   ├── test_v1_1_0_poke_commands.py
+│   │   ├── test_v1_1_0_retro_graphics.py
+│   │   ├── test_v1_1_0_selector_integration.py
+│   │   ├── test_v1_1_0_session_analytics.py
+│   │   ├── test_v1_1_0_session_replay.py
+│   │   ├── test_v1_1_0_unified_commands.py
+│   │   ├── test_v1_1_0_unified_selector.py
+│   │   ├── test_v1_1_1_browser_extension.py
+│   │   ├── test_v1_1_1_collaborative.py
+│   │   ├── test_v1_1_1_component_library.py
+│   │   ├── test_v1_1_1_delegation_api.py
+│   │   ├── test_v1_1_1_mobile_pwa.py
+│   │   ├── test_v1_1_1_server_hardening.py
+│   │   ├── test_v1_1_1_state_sync.py
+│   │   ├── test_v1_1_1_teletext_display.py
+│   │   ├── test_v1_1_2_command_security.py
+│   │   ├── test_v1_1_2_installation_types.py
+│   │   ├── test_v1_1_2_knowledge_validation.py
+│   │   ├── test_v1_1_2_offline_knowledge.py
+│   │   ├── test_v1_1_2_offline_prompts.py
+│   │   ├── test_v1_1_2_rbac.py
+│   │   ├── test_v1_1_2_svg_citation.py
+│   │   ├── test_v1_1_2_tier_memory.py
+│   │   ├── test_v1_1_3_adaptive_ai.py
+│   │   ├── test_v1_1_3_adventure_framework.py
+│   │   ├── test_v1_1_3_barter_system.py
+│   │   ├── test_v1_1_3_community_economy.py
+│   │   ├── test_v1_1_3_skill_trees.py
+│   │   ├── test_v1_1_3_xp_achievements.py
+│   │   ├── test_v1_1_4_ci_pipeline.py
+│   │   ├── test_v1_1_4_mesh_network.py
+│   │   ├── test_v1_1_4_mobile_apps.py
+│   │   ├── test_v1_1_4_tauri_app.py
+│   │   ├── test_v1_2_0_ai_memory.py
+│   │   ├── test_v1_2_0_gameplay.py
+│   │   ├── test_v1_2_0_knowledge_extensions.py
+│   │   ├── test_v1_3_0_ai_content_generation.py
+│   │   ├── test_v1_3_0_content_conversion.py
+│   │   ├── test_v1_3_0_self_healing.py
+│   │   ├── test_variables.uscript
+│   │   ├── usage_tracker.json
+│   │   ├── v1_0_7_file_operations_test.sh
+│   │   └── validate_v1_0_20.py
 │   ├── tools/
 │   │   ├── scripts/
 │   │   │   ├── generate_diagrams_batch.sh
@@ -995,9 +1166,6 @@ uDOS/
 │   │   ├── CREDITS.md
 │   │   └── README.md
 │   ├── core/
-│   │   ├── ai_assistant/
-│   │   │   ├── __init__.py
-│   │   │   └── gemini_service.py
 │   │   ├── dashboard/
 │   │   │   ├── routes/
 │   │   │   │   └── file_routes.py
@@ -1011,7 +1179,6 @@ uDOS/
 │   │   │   │   └── js/
 │   │   │   ├── CREDITS.md
 │   │   │   ├── IMPLEMENTATION.md
-│   │   │   ├── README-BUILDER.md
 │   │   │   ├── README.md
 │   │   │   ├── app.py
 │   │   │   ├── config.json
@@ -1055,61 +1222,13 @@ uDOS/
 │   │   │   ├── index.html
 │   │   │   ├── manifest.json
 │   │   │   └── start.sh
-│   │   ├── ok-assist/
-│   │   │   ├── api/
-│   │   │   │   ├── prompts/
-│   │   │   │   └── gemini.py
-│   │   │   ├── assets/
-│   │   │   │   ├── DESIGN_SYSTEM.md
-│   │   │   │   └── design_assets.py
-│   │   │   ├── css/
-│   │   │   │   ├── hand-illustrative.css
-│   │   │   │   ├── svg-common.css
-│   │   │   │   └── technical-kinetic.css
-│   │   │   ├── docs/
-│   │   │   │   ├── DIAGRAM_CONTROLS.md
-│   │   │   │   ├── INTEGRATION.md
-│   │   │   │   ├── REFRESH_COMMAND.md
-│   │   │   │   ├── STYLE_GUIDE.md
-│   │   │   │   └── TELETEXT_COLORS.md
-│   │   │   ├── examples/
-│   │   │   │   ├── prompts/
-│   │   │   │   ├── batch_generate_cycle2.py
-│   │   │   │   ├── batch_generate_diagrams.py
-│   │   │   │   ├── check_progress.py
-│   │   │   │   ├── demo_enhanced_controls.py
-│   │   │   │   ├── demo_simple.py
-│   │   │   │   ├── generate_examples.py
-│   │   │   │   ├── generate_multi_format.py
-│   │   │   │   ├── test_gemini.py
-│   │   │   │   ├── test_quick.py
-│   │   │   │   ├── test_refresh_command.py
-│   │   │   │   └── test_ucode_validator.py
-│   │   │   ├── prompts/
-│   │   │   │   ├── __init__.py
-│   │   │   │   └── enhanced_prompts.py
-│   │   │   ├── ARCHITECTURE.md
-│   │   │   ├── COMPLETION.md
-│   │   │   ├── EXAMPLES.md
-│   │   │   ├── INDEX.md
-│   │   │   ├── INTEGRATION_GUIDE.md
-│   │   │   ├── QUICK_REFERENCE.md
-│   │   │   ├── README-NEW.md
-│   │   │   ├── README.md
-│   │   │   ├── SUCCESS_REPORT.md
-│   │   │   └── UNIFIED_SYSTEM_SUMMARY.md
+│   │   ├── ok_assistant/
+│   │   │   ├── __init__.py
+│   │   │   └── gemini_service.py
 │   │   ├── server_manager/
 │   │   │   ├── __init__.py
 │   │   │   └── server.py
 │   │   ├── teletext/
-│   │   │   ├── assets/
-│   │   │   │   ├── css/
-│   │   │   │   ├── fonts/
-│   │   │   │   ├── icons/
-│   │   │   │   ├── js/
-│   │   │   │   ├── patterns/
-│   │   │   │   ├── CREDITS.md
-│   │   │   │   └── README.md
 │   │   │   ├── data/
 │   │   │   │   └── mosaic_codepoints_E200-E3FF.csv
 │   │   │   ├── static/
@@ -1120,14 +1239,6 @@ uDOS/
 │   │   │   ├── start.sh
 │   │   │   └── teletext-synthwave.css
 │   │   ├── terminal/
-│   │   │   ├── assets/
-│   │   │   │   ├── css/
-│   │   │   │   ├── fonts/
-│   │   │   │   ├── icons/
-│   │   │   │   ├── js/
-│   │   │   │   ├── patterns/
-│   │   │   │   ├── CREDITS.md
-│   │   │   │   └── README.md
 │   │   │   ├── static/
 │   │   │   │   ├── block-graphics.js
 │   │   │   │   ├── commands.js
@@ -1142,7 +1253,6 @@ uDOS/
 │   │   │   ├── terminal.css
 │   │   │   └── test.html
 │   │   ├── CREDITS.md
-│   │   ├── README-SERVER.md
 │   │   ├── README.md
 │   │   ├── extension_dev_tools.py
 │   │   ├── extension_manager.py
@@ -1673,6 +1783,7 @@ uDOS/
 │   │   ├── palette.json
 │   │   ├── tizo_cities.json
 │   │   ├── ucode_variables.json
+│   │   ├── universe.json
 │   │   ├── usage_tracker.json
 │   │   ├── viewport.json
 │   │   ├── world_cities.csv
@@ -1738,8 +1849,6 @@ uDOS/
 │   │   └── stress-management-resilience.md
 │   ├── KNOWLEDGE-SYSTEM.md
 │   └── README.md
-├── output/
-├── sandbox/
 ├── wiki/
 │   ├── diagrams/
 │   │   ├── concepts/

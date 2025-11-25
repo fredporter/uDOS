@@ -17,7 +17,7 @@ Author: Fred Porter
 
 import json
 from pathlib import Path
-from core.theme import load_theme
+from core.theme_loader import load_theme
 
 
 class CommandHandler:
@@ -195,6 +195,10 @@ class CommandHandler:
             elif module == "FILE":
                 return self.file_handler.handle(command, params, grid, parser)
 
+            # ROLE shortcut to CONFIG ROLE
+            elif module == "ROLE":
+                return self.system_handler._handle_config_role([])
+
             elif module == "GRID":
                 return ("❌ GRID commands have been removed in uDOS v1.0.32\n\n"
                        "The panel system has been simplified. Commands now work\n"
@@ -254,6 +258,15 @@ class CommandHandler:
 
             elif module == "DIAGRAM":
                 return self.diagram_handler.handle(command, params)
+
+            # v1.0.32 - POKE/OUTPUT/SERVER Extension Management
+            elif module == "POKE" or module == "OUTPUT" or module == "SERVER":
+                # Delegate to system handler for extension management
+                return self.system_handler.handle_output(params, self.grid, self.parser)
+
+            # v1.0.29 - GENERATE AI-assisted script creation
+            elif module == "GENERATE":
+                return "⚠️ GENERATE command requires AI assist integration\n💡 Use: OK ASK to get help with script generation"
 
             # v1.1.0 - User Feedback System
             elif module == "USER":
