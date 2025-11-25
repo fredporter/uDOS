@@ -53,6 +53,19 @@ class KnowledgeFilePicker:
         self.blocks = TeletextBlocks()
         self.si = StandardizedInput()  # Standardized input v1.0.31
 
+        # Folder shortcuts for quick navigation
+        self.folder_shortcuts = {
+            'sandbox': self.base_path / 'memory' / 'sandbox',
+            'knowledge': self.base_path / 'knowledge',
+            'public': self.base_path / 'memory' / 'public',
+            'private': self.base_path / 'memory' / 'private',
+            'groups': self.base_path / 'memory' / 'groups',
+            'shared': self.base_path / 'memory' / 'shared',
+            'planet': self.base_path / 'memory' / 'planet',
+            'user': self.base_path / 'memory' / 'user',
+            'memory': self.base_path / 'memory'
+        }
+
     def get_workspace_files(
         self,
         workspace: str = 'knowledge',
@@ -275,6 +288,129 @@ class KnowledgeFilePicker:
             prompt,
             file_options[:9],  # Limit to 9 for numbered selection
             descriptions=file_descriptions[:9] if file_descriptions else None,
+            show_numbers=True,
+            allow_filter=False
+        )
+
+        if idx == -1 or idx >= len(files):
+            return None
+
+        return files[idx]['path']
+
+    def pick_folder(
+        self,
+        prompt: str = "Select a folder",
+        include_custom: bool = True
+    ) -> Optional[Path]:
+        """
+        Interactive folder picker using shortcuts.
+
+        Args:
+            prompt: Prompt message
+            include_custom: Allow custom folder path input
+
+        Returns:
+            Selected folder path or None if cancelled
+        """
+        # Create folder options
+        folder_options = []
+        folder_paths = []
+
+        for name, path in sorted(self.folder_shortcuts.items()):
+            # Check if folder exists
+            exists_marker = "✓" if path.exists() else "✗"
+            rel_path = path.relative_to(self.base_path) if path.is_relative_to(self.base_path) else path
+
+            folder_options.append(f"{name}")
+            folder_paths.append(path)
+
+        if include_custom:
+            folder_options.append("Custom path...")
+
+        # Use standardized input for folder selection
+        idx, selected_name = self.si.select_option(
+            prompt,
+            folder_options,
+            descriptions=[str(p.relative_to(self.base_path)) if p.is_relative_to(self.base_path) else str(p)
+                         for p in folder_paths] + (["Enter custom folder path"] if include_custom else []),
+            show_numbers=True,
+            allow_filter=False
+        )
+
+        if idx == -1:
+            return None
+
+        # Handle custom path
+        if include_custom and idx == len(folder_paths):
+            custom_path = self.si.input_text("Enter folder path", default="")
+            if custom_path:
+                path = Path(custom_path)
+                if not path.is_absolute():
+                    path = self.base_path / path
+                return path
+            return None
+
+        return folder_paths[idx]
+
+    def pick_file_from_folder(
+        self,
+        folder: Optional[Path] = None,
+        prompt: str = "Select a file",
+        file_types: List[str] = None
+    ) -> Optional[str]:
+        """
+        Pick a file from a specific folder.
+
+        Args:
+            folder: Folder to browse (None to pick folder first)
+            prompt: Prompt message
+            file_types: File types to show
+
+        Returns:
+            Selected file path or None if cancelled
+        """
+        # Pick folder if not provided
+        if folder is None:
+            folder = self.pick_folder("Select folder to browse")
+            if folder is None:
+                return None
+
+        if file_types is None:
+            file_types = ['.md', '.uscript']
+
+        if not folder.exists():
+            print(f"⚠️  Folder does not exist: {folder}")
+            return None
+
+        # Get files from folder
+        files = []
+        try:
+            for item in sorted(folder.iterdir()):
+                if item.is_file() and item.suffix in file_types:
+                    files.append({
+                        'name': item.name,
+                        'path': str(item),
+                        'relative_path': item.name,
+                        'size': item.stat().st_size,
+                        'type': item.suffix,
+                        'is_dir': False
+                    })
+        except PermissionError:
+            print(f"⚠️  Permission denied: {folder}")
+            return None
+
+        if not files:
+            print(f"⚠️  No files found in {folder}")
+            return None
+
+        # Use standardized input for file selection
+        file_options = [f['name'] for f in files]
+        file_descriptions = [f"{f['type']} - {f['size']} bytes" for f in files]
+
+        idx, selected_name = self.si.select_option(
+            f"{prompt} ({folder.name})",
+            file_options[:20],  # Limit to 20 files
+            descriptions=file_descriptions[:20] if file_descriptions else None,
             show_numbers=True,
             allow_filter=False
         )
