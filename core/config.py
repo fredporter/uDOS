@@ -41,6 +41,8 @@ class Config:
         'THEME': 'Color theme',
         'MAX_SESSION_HISTORY': 'Max session history',
         'AUTO_SAVE_SESSION': 'Auto-save session',
+        'CLI_EDITOR': 'CLI text editor (nano, micro, vim, vi)',
+        'WEB_EDITOR': 'Web-based editor (typo)',
     }
 
     def __init__(self, project_root: Optional[Path] = None):

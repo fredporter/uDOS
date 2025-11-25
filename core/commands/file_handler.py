@@ -47,7 +47,7 @@ class FileCommandHandler(BaseCommandHandler):
     def editor_manager(self):
         """Lazy load editor manager."""
         if self._editor_manager is None:
-            from core.uDOS_editor import EditorManager
+            from core.services.editor_manager import EditorManager
             self._editor_manager = EditorManager()
         return self._editor_manager
 
@@ -430,7 +430,7 @@ class FileCommandHandler(BaseCommandHandler):
                 specific_editor = param[2:]  # Remove --
 
         try:
-            result = self.editor_manager.edit_file(
+            result = self.editor_manager.open_file(
                 file_path,
                 mode=mode,
                 editor=specific_editor

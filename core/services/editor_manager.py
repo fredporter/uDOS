@@ -76,6 +76,7 @@ class EditorManager:
     def get_preferred_editor(self, mode='CLI'):
         """
         Get user's preferred editor for specified mode.
+        Checks both .env file and user.json preferences.
 
         Args:
             mode (str): 'CLI' or 'WEB'
@@ -83,6 +84,17 @@ class EditorManager:
         Returns:
             str: Editor name or None
         """
+        # First check .env file (new method)
+        if mode == 'CLI':
+            env_editor = os.environ.get('CLI_EDITOR')
+            if env_editor:
+                return env_editor.lower()
+        elif mode == 'WEB':
+            env_editor = os.environ.get('WEB_EDITOR')
+            if env_editor:
+                return env_editor.lower()
+
+        # Fallback to user.json (legacy method)
         try:
             with open(self.user_data_path, 'r') as f:
                 user_data = json.load(f)

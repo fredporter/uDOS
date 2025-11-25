@@ -103,7 +103,6 @@ uDOS/
 │   │   ├── __init__.py
 │   │   ├── file_picker.py
 │   │   ├── knowledge_file_picker.py
-│   │   ├── micro_editor.py
 │   │   ├── option_selector.py
 │   │   ├── picker.py
 │   │   ├── progress_indicators.py
@@ -1285,6 +1284,7 @@ uDOS/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
+│   ├── web/
 │   └── README.md
 ├── knowledge/
 │   ├── checklists/
