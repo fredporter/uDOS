@@ -1103,6 +1103,11 @@ class FileCommandHandler(BaseCommandHandler):
 
             template = template_choice.split()[0]  # Extract key
 
+            # Debug logging
+            print(f"DEBUG: workspace={workspace}, filename={filename}, template={template}")
+            print(f"DEBUG: template type={type(template)}")
+            print(f"DEBUG: workspace_manager.TEMPLATES type={type(self.workspace_manager.TEMPLATES)}")
+
             # Create file
             file_path = self.workspace_manager.create_file(
                 workspace, filename, template
