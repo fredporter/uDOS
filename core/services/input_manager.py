@@ -326,6 +326,29 @@ class InputManager:
 
         if not files and must_exist:
             print(f"⚠️  No files found in {starting_path}")
+
+            # Offer to browse other folders
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            # Check if folder shortcuts are available
+            if hasattr(picker, 'folder_shortcuts') and picker.folder_shortcuts:
+                browse = self.prompt_confirm(
+                    "Would you like to browse other folders?",
+                    default=True
+                )
+
+                if browse:
+                    folder = picker.pick_folder("Select folder to browse")
+                    if folder and folder.exists():
+                        # Recursively call with new folder
+                        return self.prompt_file(
+                            message=message,
+                            starting_path=str(folder),
+                            must_exist=must_exist,
+                            file_type=file_type
+                        )
+
             return ""
 
         # Create file completer
