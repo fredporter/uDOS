@@ -257,13 +257,16 @@ class InputManager:
 
     def prompt_confirm(self,
                       message: str,
-                      default: bool = True) -> bool:
+                      default: bool = True,
+                      use_selector: bool = True) -> bool:
         """
         Prompt user for yes/no confirmation.
+        Uses unified selector by default for TUI consistency.
 
         Args:
             message: Confirmation message
             default: Default value (True = yes, False = no)
+            use_selector: Use unified selector (True) or text input (False)
 
         Returns:
             True for yes, False for no
@@ -272,17 +275,46 @@ class InputManager:
             if input_mgr.prompt_confirm("Continue?", default=True):
                 # User said yes
         """
-        default_text = "Y/n" if default else "y/N"
-        prompt_text = f"{message} [{default_text}]: "
+        # Use unified selector for better UX
+        if use_selector:
+            try:
+                from core.ui.unified_selector import select_single
+
+                # Determine default based on common patterns
+                if default:
+                    options = ["Yes", "No"]
+                    default_index = 0
+                else:
+                    options = ["No", "Yes"]
+                    default_index = 0
+
+                result = select_single(
+                    title=message,
+                    items=options,
+                    default_index=default_index
+                )
+
+                if result:
+                    return result.lower() in ['yes', 'y', 'ok', 'proceed', '']
+                return default
+
+            except (ImportError, Exception):
+                # Fallback to text input
+                pass
+
+        # Text-based fallback with smart input handling
+        # Accept: y, yes, n, no, ok (blank = proceed/yes)
+        default_text = "[YES|no|ok]" if default else "[yes|NO|ok]"
+        prompt_text = f"{message} {default_text}: "
 
         try:
             result = prompt(prompt_text, style=self.style)
             result = result.strip().lower()
 
-            if not result:
+            if not result or result == 'ok':
                 return default
 
-            return result in ['y', 'yes', 'true', '1']
+            return result in ['y', 'yes', 'true', '1', 'ok']
 
         except (KeyboardInterrupt, EOFError):
             return default
