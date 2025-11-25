@@ -375,6 +375,33 @@ class InputManager:
             file_display_map = {f: f for f in files}
             file_choices = files
 
+        # For many files (>20), use interactive selector
+        if len(file_choices) > 20:
+            print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
+
+            idx, selected = self.select_option(
+                message,
+                file_choices,
+                show_numbers=True,
+                allow_filter=True
+            )
+
+            if idx == -1 or not selected:
+                return ""
+
+            # Map back to absolute path
+            if selected in file_display_map:
+                return file_display_map[selected]
+            return selected
+
+        # For fewer files, show numbered list with prompt
+        if file_choices:
+            print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
+            for i, file_choice in enumerate(file_choices, 1):
+                print(f"  {i}. {file_choice}")
+            print(f"\n💡 Type a number (1-{len(file_choices)}) or filename")
+            print()
+
         # Create file completer with relative paths for display
         completer = WordCompleter(
             file_choices,
@@ -382,30 +409,27 @@ class InputManager:
             sentence=True
         )
 
-        # Validator
-        validator = PathValidator(must_exist=must_exist) if must_exist else None
-
         prompt_text = f"{message}: "
-
-        # Show available files if there are any
-        if file_choices:
-            print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
-            # Show first few files as preview
-            preview_count = min(10, len(file_choices))
-            for i, file_choice in enumerate(file_choices[:preview_count], 1):
-                print(f"  {i}. {file_choice}")
-            if len(file_choices) > preview_count:
-                print(f"  ... and {len(file_choices) - preview_count} more")
-            print()
 
         result = prompt(
             prompt_text,
             completer=completer,
-            validator=validator,
             validate_while_typing=False
         ).strip()
 
-        # Map the selected relative path back to absolute path
+        # Handle numeric selection
+        if result.isdigit():
+            idx = int(result) - 1
+            if 0 <= idx < len(file_choices):
+                selected_file = file_choices[idx]
+                if selected_file in file_display_map:
+                    return file_display_map[selected_file]
+                return selected_file
+            else:
+                print(f"❌ Invalid number. Please choose 1-{len(file_choices)}")
+                return ""
+
+        # Handle filename selection
         if result in file_display_map:
             return file_display_map[result]
 
