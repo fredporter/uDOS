@@ -809,6 +809,40 @@
       ]
     },
     {
+      "NAME": "PEEK",
+      "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
+      "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",
+      "UCODE_TEMPLATE": "[PEEK|FETCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "PEEK <url>": "Fetch content from URL",
+        "PEEK FILE <path>": "Parse local file"
+      },
+      "FLAGS": {
+        "--format <type>": "Output format (json, text)",
+        "--save <filename>": "Save to memory/sandbox/<filename>",
+        "--extract": "Extract structured data from content"
+      },
+      "EXAMPLES": [
+        "PEEK https://example.com/data.json",
+        "PEEK https://github.com/user/repo/README.md --save readme.md",
+        "PEEK FILE knowledge/guide.md --extract",
+        "PEEK https://api.github.com/repos/user/repo --format json"
+      ],
+      "SUPPORTED_FORMATS": {
+        "markdown": "Displays first 100 lines of .md content",
+        "json": "Pretty-prints JSON with 2-space indent",
+        "svg": "Shows SVG metadata and first 20 lines",
+        "html": "Strips tags and shows text content"
+      },
+      "NOTES": [
+        "Content is saved to memory/sandbox/ by default",
+        "Large content is truncated for display (not storage)",
+        "Uses User-Agent: uDOS-PEEK/1.0",
+        "10 second timeout on URL fetches"
+      ]
+    },
+    {
       "NAME": "FONT",
       "SYNTAX": "FONT <LIST|SET|INFO> [variant]",
       "DESCRIPTION": "Manage Monaspace fonts for web-based editors and terminals. View available font variants, set preferences, and check current configuration.",

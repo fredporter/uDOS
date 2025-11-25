@@ -107,6 +107,9 @@ class CommandHandler:
         # v1.0.32 - Tree Structure Generator
         from core.commands.tree_handler import TreeHandler
 
+        # v1.5.0 - PEEK Data Collection System
+        from core.commands.peek_handler import PeekHandler
+
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
@@ -138,6 +141,9 @@ class CommandHandler:
 
         # v1.0.32 - TREE Structure handler
         self.tree_handler = TreeHandler()
+
+        # v1.5.0 - PEEK Data Collection handler
+        self.peek_handler = PeekHandler(**handler_kwargs)
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
@@ -281,6 +287,10 @@ class CommandHandler:
             # v1.0.32 - TREE Directory Structure Generator
             elif module == "TREE":
                 return self.tree_handler.handle(params)
+
+            # v1.5.0 - PEEK Data Collection System
+            elif module == "PEEK":
+                return self.peek_handler.handle(command, params, grid, parser)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag
