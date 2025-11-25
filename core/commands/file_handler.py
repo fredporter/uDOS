@@ -1113,11 +1113,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_edit_file(self):
         """Smart mode: Edit file with file picker."""
         try:
-            # Use file picker to select file
-            file_path = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            file_path = picker.pick_file(
+                workspace='both',
+                prompt="📝 Select file to edit",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not file_path:
@@ -1135,11 +1138,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_show_file(self):
         """Smart mode: Show/view file with file picker."""
         try:
-            # Use file picker to select file
-            file_path = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            file_path = picker.pick_file(
+                workspace='both',
+                prompt="📄 Select file to view",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not file_path:
@@ -1157,11 +1163,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_copy_file(self):
         """Smart mode: Copy file with prompts."""
         try:
-            # Select source file
-            source = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            source = picker.pick_file(
+                workspace='both',
+                prompt="📎 Select file to copy",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not source:
@@ -1195,11 +1204,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_move_file(self):
         """Smart mode: Move file with prompts."""
         try:
-            # Select source file
-            source = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            source = picker.pick_file(
+                workspace='both',
+                prompt="📦 Select file to move",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not source:
@@ -1232,11 +1244,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_rename_file(self):
         """Smart mode: Rename file with prompts."""
         try:
-            # Select file to rename
-            old_name = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            old_name = picker.pick_file(
+                workspace='both',
+                prompt="✏️  Select file to rename",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not old_name:
@@ -1270,11 +1285,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_delete_file(self):
         """Smart mode: Delete file with prompts."""
         try:
-            # Select file to delete
-            filename = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            filename = picker.pick_file(
+                workspace='both',
+                prompt="🗑️  Select file to delete",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not filename:
@@ -1301,11 +1319,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _smart_file_info(self):
         """Smart mode: Show file info with file picker."""
         try:
-            # Select file
-            filename = self.input_manager.prompt_file(
-                 starting_path="knowledge",
-                must_exist=True,
-                file_type="all"
+            # Use knowledge file picker (same as EDIT command)
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
+            picker = KnowledgeFilePicker()
+
+            filename = picker.pick_file(
+                workspace='both',
+                prompt="ℹ️  Select file for info",
+                file_types=['.md', '.uscript', '.txt', '.json']
             )
 
             if not filename:
