@@ -375,17 +375,16 @@ class InputManager:
             file_display_map = {f: f for f in files}
             file_choices = files
 
-        # For many files (>20), use unified selector
-        if len(file_choices) > 20:
+        # For many files, use prompt_choice which handles large lists better
+        if len(file_choices) > 10:
             print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
 
-            from core.ui.unified_selector import select_single
-
-            selected = select_single(
-                title=f"📝 {message}",
-                items=file_choices,
-                descriptions=[f"[{Path(starting_path).name}] {f}" for f in file_choices],
-                default_index=0
+            # Use prompt_choice with autocomplete for large file lists
+            selected = self.prompt_choice(
+                message=message,
+                choices=file_choices,
+                default=file_choices[0] if file_choices else None,
+                allow_custom=False
             )
 
             if not selected:
