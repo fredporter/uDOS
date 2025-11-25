@@ -20,7 +20,7 @@ from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
 from .input.smart_prompt import SmartPrompt
 from .input.prompt_decorator import get_prompt_decorator
-from .utils.tree import generate_repository_tree
+# Old tree utility removed - now using TreeHandler
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput
 from .config_manager import get_config_manager  # v1.5.0 Unified Configuration
@@ -105,18 +105,8 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
                 is_script_mode=is_script_mode
             )
 
-            # Generate repository tree (not in fast_startup)
-            if not is_script_mode:
-                print("🌳 Generating repository tree...", end=" ", flush=True)
-            try:
-                tree_string, tree_path = generate_repository_tree()
-                components['tree_generated'] = True
-                if not is_script_mode:
-                    print(f"✓ dev/docs/structure.txt")
-            except Exception as e:
-                components['tree_generated'] = False
-                if not is_script_mode:
-                    print(f"⚠️  ({str(e)})")
+            # Tree generation removed from startup - use TREE command instead
+            components['tree_generated'] = False
 
             return components
 
@@ -247,18 +237,8 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
         components['setup'] = setup
         components['story_data'] = story_data
 
-        # 6. Generate repository tree structure
-        if not is_script_mode:
-            print("🌳 Generating repository tree...", end=" ", flush=True)
-        try:
-            tree_string, tree_path = generate_repository_tree()
-            components['tree_generated'] = True
-            if not is_script_mode:
-                print(f"✓ dev/docs/structure.txt")
-        except Exception as e:
-            components['tree_generated'] = False
-            if not is_script_mode:
-                print(f"⚠️  ({str(e)})")
+        # Tree generation removed from startup - use TREE command instead
+        components['tree_generated'] = False
 
         return components
 

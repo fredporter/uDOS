@@ -139,7 +139,7 @@ class SystemCommandHandler(BaseCommandHandler):
             'PALETTE': self.handle_palette,
             'DASH': self.handle_dashboard,
             'DASHBOARD': self.handle_dashboard,
-            'TREE': self.handle_tree,
+            # TREE removed - now handled by TreeHandler module
             'CLEAN': self.handle_clean,
             'CONFIG': self.handle_config,
             'SETTINGS': self.handle_settings,
@@ -1919,65 +1919,8 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             print("╚" + "═" * (width - 2) + "╝")
             return ""
 
-    def handle_tree(self, params, grid, parser):
-        """
-        Generate repository structure tree.
-
-        Usage:
-            TREE                    - Generate full tree
-            TREE <folder>           - Show specific folder (sandbox, memory, knowledge, etc.)
-            TREE --depth=N          - Limit depth to N levels
-
-        Returns:
-            Tree structure and save confirmation
-        """
-        try:
-            from core.utils.tree import generate_repository_tree
-
-            # Parse parameters
-            target_folder = None
-            max_depth = 5
-
-            for param in params:
-                if param.startswith('--depth='):
-                    try:
-                        max_depth = int(param.split('=')[1])
-                    except (ValueError, IndexError):
-                        return self.output_formatter.format_warning(
-                            "Invalid depth parameter",
-                            details={"Usage": "TREE --depth=N where N is a number"}
-                        )
-                elif param.upper() in ['SANDBOX', 'MEMORY', 'KNOWLEDGE', 'HISTORY', 'CORE', 'WIKI', 'EXTENSIONS', 'EXAMPLES']:
-                    target_folder = param.lower()
-
-            # Generate tree
-            tree_string, tree_path = generate_repository_tree(
-                root_path=".",
-                output_file="dev/docs/structure.txt",
-                target_folder=target_folder,
-                max_depth=max_depth
-            )
-
-            # Show preview
-            lines = tree_string.strip().split('\n')
-            preview = '\n'.join(lines[:30])
-            if len(lines) > 30:
-                preview += f"\n\n... ({len(lines) - 30} more lines)\n"
-
-            return self.output_formatter.format_success(
-                "Tree generated successfully",
-                details={
-                    "Saved to": tree_path,
-                    "Total lines": len(lines),
-                    "Preview": f"\n{preview}"
-                }
-            )
-
-        except Exception as e:
-            return self.output_formatter.format_error(
-                "Tree generation failed",
-                details={"Error": str(e)}
-            )
+    # handle_tree removed - now handled by TreeHandler module
+    # Use: TREE, MEMORY TREE, or KNOWLEDGE TREE commands
 
     def handle_clean(self, params, grid, parser):
         """
