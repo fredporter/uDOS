@@ -309,7 +309,7 @@ uDOS/
 │   ├── sandbox/          # Drafts & development
 │   ├── workflow/         # uCODE scripts & missions
 │   ├── logs/             # All system logs (flat structure)
-│   ├── sessions/         # Session history
+│   ├── logs/             # System and session logs
 │   ├── private/          # Tier 1: Encrypted (user-only)
 │   ├── shared/           # Tier 2: Encrypted (team)
 │   ├── groups/           # Tier 3: Community

@@ -22,7 +22,7 @@
     "GET": 2,
     "SET": 3,
     "SETUP": 7,
-    "SHOW": 2,
+    "SHOW": 3,
     "EDIT": 1,
     "MENU": 8,
     "HISTORY": 2,
@@ -57,7 +57,7 @@
     "GET": 2,
     "SET": 3,
     "SETUP": 7,
-    "SHOW": 2,
+    "SHOW": 3,
     "EDIT": 1,
     "MENU": 8,
     "HISTORY": 2,
@@ -79,13 +79,6 @@
     "GENERATE": 1
   },
   "recent_commands": [
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-22T21:59:19.462992",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "HELP",
       "timestamp": "2025-11-22T21:59:21.997184",
@@ -900,7 +893,16 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-11-26T01:22:55.406824",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-26T00:44:53.516481"
+  "last_updated": "2025-11-26T01:24:55.116873"
 }

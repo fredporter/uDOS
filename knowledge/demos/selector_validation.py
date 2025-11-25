@@ -178,7 +178,7 @@ The unified selector automatically logs all interactions.
         if selector.analytics:
             print("✅ Session analytics enabled")
             print("   All selector interactions will be logged to:")
-            print("   - memory/sessions/auto/")
+            print("   - memory/logs/sessions/auto/")
             print("   - Command traces, timing, success/failure rates")
         else:
             print("⚠️  Session analytics not initialized")

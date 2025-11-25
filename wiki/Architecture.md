@@ -188,7 +188,7 @@ memory/
 ├── config/
 │   └── active-theme.json   # Current theme selection
 └── logs/
-    └── sessions/           # Session logs
+    └── logs/               # System and session logs
 ```
 
 ### System Files (`data/system/`)

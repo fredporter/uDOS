@@ -68,7 +68,7 @@ class SessionReplayer:
     - Pattern detection
     """
 
-    def __init__(self, session_dir: str = "memory/sessions/auto"):
+    def __init__(self, session_dir: str = "memory/logs/sessions/auto"):
         """
         Initialize session replayer.
 
