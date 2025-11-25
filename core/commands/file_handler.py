@@ -386,10 +386,10 @@ class FileCommandHandler(BaseCommandHandler):
             webbrowser.open(f"file://{abs_path}")
             return f"✅ Opened in browser: {file_path}"
         else:
-            # v1.0.30: Use micro editor in read-only mode
+            # Use nano/less for viewing (better than custom editor)
             try:
-                from core.ui.micro_editor import view_file
-                view_file(file_path)
+                # Try less first (better for viewing)
+                result = subprocess.run(['less', file_path], check=False)
                 return f"✅ Viewed: {file_path}"
             except Exception as e:
                 # Fallback to simple display
@@ -401,9 +401,9 @@ class FileCommandHandler(BaseCommandHandler):
                     return f"❌ Error reading file: {str(e2)}"
 
     def _handle_edit(self, params):
-        """Edit file with micro editor (v1.0.30)."""
+        """Edit file with nano/micro/vim editor."""
         if not params:
-            # v1.0.30: Use knowledge file picker for .md and .uscript files
+            # Use knowledge file picker for .md and .uscript files
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
@@ -418,43 +418,26 @@ class FileCommandHandler(BaseCommandHandler):
         else:
             file_path = params[0]
 
-        # Check if --external flag for system editor
-        use_external = '--external' in params or '--nano' in params or '--vim' in params
+        # Use nano/micro/vim via EditorManager
+        mode = 'CLI'  # Force CLI mode
+        specific_editor = None
 
-        if use_external:
-            # Use external editor (original behavior)
-            mode = None
-            specific_editor = None
+        # Parse options
+        for i, param in enumerate(params[1:], 1):
+            if param in ['--web', '--browser']:
+                mode = 'WEB'
+            elif param in ['--nano', '--vim', '--micro']:
+                specific_editor = param[2:]  # Remove --
 
-            # Parse options
-            for i, param in enumerate(params[1:], 1):
-                if param in ['--cli', '--terminal']:
-                    mode = 'cli'
-                elif param in ['--web', '--browser']:
-                    mode = 'web'
-                elif param in ['--nano', '--micro', '--typo']:
-                    specific_editor = param[2:]  # Remove --
-
-            try:
-                result = self.editor_manager.edit_file(
-                    file_path,
-                    mode=mode,
-                    editor=specific_editor
-                )
-                return result
-            except Exception as e:
-                return f"❌ Error opening editor: {str(e)}"
-        else:
-            # v1.0.30: Use built-in micro editor (default)
-            try:
-                from core.ui.micro_editor import edit_file
-                success = edit_file(file_path)
-                if success:
-                    return f"✅ Saved: {file_path}"
-                else:
-                    return f"📝 Edit cancelled: {file_path}"
-            except Exception as e:
-                return f"❌ Error in micro editor: {str(e)}\n\n💡 Try: FILE EDIT {file_path} --external"
+        try:
+            result = self.editor_manager.edit_file(
+                file_path,
+                mode=mode,
+                editor=specific_editor
+            )
+            return result
+        except Exception as e:
+            return f"❌ Error opening editor: {str(e)}"
 
     def _handle_run(self, params, parser):
         """Execute script file."""

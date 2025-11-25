@@ -147,8 +147,9 @@ class EditorManager:
             if preferred and preferred in available['CLI']:
                 return (preferred, self._get_editor_path(preferred))
 
-            # Fallback priority: micro > nano > vim > vi
-            priority = ['micro', 'nano', 'vim', 'vi']
+            # Fallback priority: nano > micro > vim > vi
+            # nano is preferred - more user-friendly and always available
+            priority = ['nano', 'micro', 'vim', 'vi']
             for editor in priority:
                 if editor in available['CLI']:
                     return (editor, self._get_editor_path(editor))
