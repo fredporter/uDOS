@@ -117,18 +117,27 @@ COMMANDS:
 
 GENERATE (v1.6.0):
   DIAGRAM GENERATE <source_file> [options]
-    Generate Markdown guides and Technical-Kinetic SVG diagrams
+    Generate Markdown guides and diagrams in multiple formats
     with mandatory citation tracking using Gemini API.
 
     Options:
-      --crawl              Use PEEK for web enrichment
-      --style technical    SVG style (technical/kinetic/hybrid)
-      --output <dir>       Output directory
-      --citations-strict   Require 100% citation coverage
-      --batch             Process entire directory
+      --crawl                  Use PEEK for web enrichment
+      --style technical        SVG style (technical/kinetic/hybrid)
+      --format md,svg,ascii,teletext  Output formats (comma-separated)
+      --output <dir>           Output directory
+      --citations-strict       Require 100% citation coverage
+      --batch                  Process entire directory
 
-    Example:
-      DIAGRAM GENERATE knowledge/water/filtration.md --crawl
+    Formats:
+      md        Markdown guide with citations
+      svg       Technical-Kinetic vector diagrams
+      ascii     C64 PETSCII terminal art (80x24)
+      teletext  WST mosaic block graphics (40x25)
+
+    Examples:
+      DIAGRAM GENERATE guide.md --crawl
+      DIAGRAM GENERATE guide.md --format md,svg,ascii
+      DIAGRAM GENERATE knowledge/water/ --batch
 
 WORKFLOW:
   1. DIAGRAM TYPES              # See categories
@@ -453,6 +462,9 @@ Type 'DIAGRAM GENERATE' for detailed generation help.
 
             # Stage D: Asset Generation
             svg_content = None
+            ascii_content = None
+            teletext_content = None
+            
             if 'svg' in options['format']:
                 output.append("🎨 Stage D: Generating SVG diagrams...")
                 svg_content, svg_meta = gen.generate_svg(
@@ -469,6 +481,23 @@ Type 'DIAGRAM GENERATE' for detailed generation help.
                 output.append(f"   Valid: {svg_meta['svg_valid']}")
                 if not svg_meta['svg_valid']:
                     output.append(f"   Issues: {svg_meta['validation_issues']}")
+                output.append("")
+
+            if 'ascii' in options['format']:
+                output.append("🖥️  Stage D: Generating ASCII art (PETSCII)...")
+                ascii_content, ascii_meta = gen.generate_ascii(
+                    subject=topic,
+                    max_width=80,
+                    max_height=24
+                )
+                output.append(f"   Generated: {ascii_meta['width']}x{ascii_meta['height']} chars")
+                output.append(f"   Within limits: {ascii_meta['within_limits']}")
+                output.append("")
+
+            if 'teletext' in options['format']:
+                output.append("📺 Stage D: Generating Teletext graphics (WST)...")
+                teletext_content, teletext_meta = gen.generate_teletext(subject=topic)
+                output.append(f"   Generated: {teletext_meta['size_bytes']} bytes")
                 output.append("")
 
             # Stage E: Final Assembly
@@ -504,6 +533,18 @@ Type 'DIAGRAM GENERATE' for detailed generation help.
                 svg_path = output_dir / f"{source_path.stem}.svg"
                 svg_path.write_text(svg_content, encoding='utf-8')
                 output.append(f"   ✅ SVG: {svg_path}")
+
+            # Save ASCII
+            if 'ascii' in options['format'] and ascii_content:
+                ascii_path = output_dir / f"{source_path.stem}.ascii"
+                ascii_path.write_text(ascii_content, encoding='utf-8')
+                output.append(f"   ✅ ASCII: {ascii_path}")
+
+            # Save Teletext
+            if 'teletext' in options['format'] and teletext_content:
+                teletext_path = output_dir / f"{source_path.stem}.html"
+                teletext_path.write_text(teletext_content, encoding='utf-8')
+                output.append(f"   ✅ Teletext: {teletext_path}")
 
             output.append("")
             output.append("═" * 70)

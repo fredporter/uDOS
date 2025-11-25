@@ -1,0 +1,103 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teletext: Water Purification Safety Checklist</title>
+    <style>
+        /* Basic Teletext-like font styles */
+        @font-face {
+            font-family: 'Teletext';
+            src: url('https://raw.githubusercontent.com/chris-morgan/teletext-font/master/Teletext.ttf') format('truetype');
+            /* Fallback to a common monospace font if Teletext font is not loaded */
+            /* Note: In a real scenario, you'd host this font or use a widely available one. */
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #333; /* Dark background for the page itself */
+        }
+
+        pre {
+            font-family: 'Teletext', 'monospace';
+            background-color: #000000; /* Black background */
+            color: #FFFFFF; /* Default white text */
+            width: 40ch; /* 40 characters wide */
+            height: 25em; /* Approximately 25 lines high, adjust font-size as needed */
+            line-height: 1; /* Essential for block alignment */
+            font-size: 1.2em; /* Adjust font size to fit 25 lines comfortably */
+            margin: 0;
+            white-space: pre; /* Preserve whitespace */
+            overflow: hidden; /* Hide any overflow if content exceeds grid */
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Optional: CRT screen glow effect */
+            border: 2px solid #00FFFF; /* Optional: Screen border */
+        }
+
+        /* WST 8-color palette */
+        .c_black { color: #000000; }
+        .c_red { color: #FF0000; }
+        .c_green { color: #00FF00; }
+        .c_yellow { color: #FFFF00; }
+        .c_blue { color: #0000FF; }
+        .c_magenta { color: #FF00FF; }
+        .c_cyan { color: #00FFFF; }
+        .c_white { color: #FFFFFF; }
+
+        .bg_black { background-color: #000000; }
+        .bg_red { background-color: #FF0000; }
+        .bg_green { background-color: #00FF00; }
+        .bg_yellow { background-color: #FFFF00; }
+        .bg_blue { background-color: #0000FF; }
+        .bg_magenta { background-color: #FF00FF; }
+        .bg_cyan { background-color: #00FFFF; }
+        .bg_white { background-color: #FFFFFF; }
+
+        /* Mosaic block character (full block) */
+        .block {
+            display: inline-block;
+            width: 1ch;
+            height: 1em; /* Ensure it takes up full character height */
+            vertical-align: top; /* Align to top to prevent extra spacing */
+            line-height: 1;
+        }
+
+        /* Specific styles for Teletext rendering using unicode block characters */
+        /* &#9608; is a full block character */
+    </style>
+</head>
+<body>
+<pre>
+<span class="c_yellow">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span>
+<span class="c_yellow">&#9608;</span>      <span class="c_cyan">WATER PURIFICATION SAFETY</span>      <span class="c_yellow">&#9608;</span>
+<span class="c_yellow">&#9608;</span>              <span class="c_cyan">CHECKLIST</span>              <span class="c_yellow">&#9608;</span>
+<span class="c_yellow">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span>
+                                        
+<span class="c_green">1. CLEAN HANDS &amp; EQUIPMENT:</span>            
+   <span class="c_white">Wash hands thoroughly before handling</span>  
+   <span class="c_white">water or purification gear. Use clean,</span> 
+   <span class="c_white">sanitized containers only.</span>             
+                                        
+<span class="c_green">2. CORRECT DOSAGE/METHOD:</span>              
+   <span class="c_white">Follow instructions precisely for any</span>  
+   <span class="c_white">chemicals (e.g., bleach, iodine) or</span>    
+   <span class="c_white">purification devices. Do NOT guess.</span>    
+                                        
+<span class="c_green">3. SUFFICIENT CONTACT TIME:</span>            
+   <span class="c_white">Allow required contact time for chemicals</span>
+   <span class="c_white">or boiling. Rushing can compromise safety.</span>
+                                        
+<span class="c_green">4. SOURCE WATER QUALITY:</span>               
+   <span class="c_white">Filter heavily turbid water first.</span>     
+   <span class="c_white">Purification methods have limits.</span>      
+                                        
+<span class="c_yellow">PAGE 1/1</span>                                
+<span class="c_red">WARNING: IMPROPER PURIFICATION IS DANGEROUS</span>
+</pre>
+</body>
+</html>
+```

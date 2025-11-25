@@ -1267,7 +1267,8 @@
         "DIAGRAM EXPORT shelter-diagram shelter.txt",
         "DIAGRAM TYPES",
         "DIAGRAM GENERATE knowledge/water/filtration.md",
-        "DIAGRAM GENERATE guide.pdf --crawl --style kinetic",
+        "DIAGRAM GENERATE guide.md --format md,svg,ascii,teletext",
+        "DIAGRAM GENERATE guide.md --crawl --style kinetic",
         "DIAGRAM GENERATE knowledge/fire/ --batch --citations-strict"
       ],
       "NOTES": [
@@ -1278,6 +1279,8 @@
         "Categorized library with search",
         "✨ v1.6.0: GENERATE creates content with mandatory citations",
         "GENERATE uses Gemini API (requires GEMINI_API_KEY)",
+        "Multi-format: MD (text), SVG (vector), ASCII (terminal), Teletext (retro web)",
+        "ASCII: C64 PETSCII 80x24, Teletext: WST 40x25 8-color mosaic",
         "Technical-Kinetic SVG style: monochrome MCM + kinetic flow",
         "Citation coverage target: ≥95% (strict mode: 100%)",
         "Multi-stage: Analysis → Crawl → Text → SVG → Assembly"
