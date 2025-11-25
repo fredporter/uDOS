@@ -179,7 +179,13 @@ class EditorManager:
 
     def _get_editor_path(self, editor_name):
         """Get the full path to an editor."""
-        # Check custom installation first
+        # Check cloned micro first
+        cloned_dir = self.extensions_dir / 'cloned'
+        cloned_path = cloned_dir / editor_name / editor_name
+        if cloned_path.exists():
+            return str(cloned_path)
+        
+        # Check custom installation in native
         custom_path = self.native_dir / editor_name / editor_name
         if custom_path.exists():
             return str(custom_path)
