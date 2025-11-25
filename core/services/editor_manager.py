@@ -41,12 +41,10 @@ class EditorManager:
         }
 
         # Check for CLI editors
+        cloned_dir = self.extensions_dir / 'cloned'
         cli_editors = [
-            ('micro', self.native_dir / 'micro' / 'micro'),  # Custom install
-            ('nano', 'nano'),  # System
-            ('vim', 'vim'),    # System
-            ('vi', 'vi'),      # System
-            ('emacs', 'emacs') # System
+            ('micro', cloned_dir / 'micro' / 'micro'),  # Cloned from GitHub
+            ('nano', 'nano'),  # System (always available)
         ]
 
         for name, path in cli_editors:
@@ -159,9 +157,9 @@ class EditorManager:
             if preferred and preferred in available['CLI']:
                 return (preferred, self._get_editor_path(preferred))
 
-            # Fallback priority: nano > micro > vim > vi
+            # Fallback priority: nano > micro (vim/vi removed)
             # nano is preferred - more user-friendly and always available
-            priority = ['nano', 'micro', 'vim', 'vi']
+            priority = ['nano', 'micro']
             for editor in priority:
                 if editor in available['CLI']:
                     return (editor, self._get_editor_path(editor))
@@ -191,7 +189,7 @@ class EditorManager:
 
     def install_micro(self, force=False):
         """
-        Install micro editor from GitHub releases.
+        Install micro editor from cloned repository.
 
         Args:
             force (bool): Force reinstallation
@@ -199,54 +197,32 @@ class EditorManager:
         Returns:
             bool: Success status
         """
-        micro_dir = self.native_dir / 'micro'
+        cloned_dir = self.extensions_dir / 'cloned'
+        micro_dir = cloned_dir / 'micro'
         micro_bin = micro_dir / 'micro'
 
-        # Check if already installed
+        # Check if already built
         if micro_bin.exists() and not force:
             print("✅ micro is already installed")
             return True
 
-        print("📥 Installing micro editor...")
-
-        # Detect platform
-        system = platform.system().lower()
-        machine = platform.machine().lower()
-
-        # Map to micro's release naming
-        if system == 'darwin':
-            os_name = 'osx'
-        elif system == 'linux':
-            os_name = 'linux'
-        elif system == 'windows':
-            os_name = 'win'
-        else:
-            print(f"❌ Unsupported platform: {system}")
+        # Check if cloned directory exists
+        if not micro_dir.exists():
+            print("❌ Micro source not found in extensions/cloned/micro")
+            print("💡 Clone it with: git clone https://github.com/zyedidia/micro extensions/cloned/micro")
             return False
 
-        # Map architecture
-        if machine in ['x86_64', 'amd64']:
-            arch = 'amd64'
-        elif machine in ['arm64', 'aarch64']:
-            arch = 'arm64'
-        elif machine in ['armv7l', 'armv6l']:
-            arch = 'arm'
-        else:
-            arch = 'amd64'  # Default
-
-        # Construct download URL
-        version = 'v2.0.14'  # Latest stable as of implementation
-        if os_name == 'win':
-            filename = f'micro-{version}-{os_name}{arch}.zip'
-        else:
-            filename = f'micro-{version}-{os_name}-{arch}.tar.gz'
-
-        url = f'https://github.com/zyedidia/micro/releases/download/{version}/{filename}'
+        print("🔨 Building micro editor from source...")
 
         try:
-            # Download
-            print(f"📦 Downloading from {url}")
-            download_path = self.native_dir / filename
+            # Use make to build micro
+            build_result = subprocess.run(
+                ['make', 'build'],
+                cwd=str(micro_dir),
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
 
             urllib.request.urlretrieve(url, download_path)
             print("✅ Download complete")
@@ -271,35 +247,34 @@ class EditorManager:
                     # Clean up
                     shutil.rmtree(extracted_dir)
 
-            elif filename.endswith('.zip'):
-                with zipfile.ZipFile(download_path, 'r') as zip_ref:
-                    zip_ref.extractall(self.native_dir)
 
-                extracted_dir = self.native_dir / f'micro-{version}'
-                if extracted_dir.exists():
-                    src_bin = extracted_dir / 'micro.exe'
-                    if src_bin.exists():
-                        shutil.move(str(src_bin), str(micro_dir / 'micro.exe'))
-                    shutil.rmtree(extracted_dir)
-
-            # Clean up download
-            download_path.unlink()
-
-            # Verify installation
-            if micro_bin.exists():
-                print("✅ micro installed successfully!")
+            if build_result.returncode == 0:
+                print("✅ Micro built successfully!")
                 print(f"📍 Location: {micro_bin}")
 
-                # Set as preferred editor
-                self.set_preferred_editor('micro', 'CLI')
+                # Verify binary exists
+                if micro_bin.exists():
+                    # Make executable
+                    os.chmod(micro_bin, 0o755)
 
-                return True
+                    # Set as preferred editor
+                    self.set_preferred_editor('micro', 'CLI')
+                    return True
+                else:
+                    print("❌ Build succeeded but binary not found")
+                    return False
             else:
-                print("❌ Installation failed - binary not found")
+                print(f"❌ Build failed: {build_result.stderr}")
                 return False
 
+        except subprocess.TimeoutExpired:
+            print("❌ Build timed out after 120 seconds")
+            return False
+        except FileNotFoundError:
+            print("❌ 'make' command not found. Install build tools first.")
+            return False
         except Exception as e:
-            print(f"❌ Installation failed: {e}")
+            print(f"❌ Build failed: {e}")
             return False
 
     def open_file(self, filepath, mode=None, editor=None):

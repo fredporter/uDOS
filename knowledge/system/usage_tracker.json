@@ -6,7 +6,7 @@
     "BLANK": 2,
     "THEME": 2,
     "SETTINGS": 4,
-    "CONFIG": 7,
+    "CONFIG": 10,
     "SPLASH": 2,
     "MOVE": 1,
     "WORKSPACE": 3,
@@ -42,7 +42,7 @@
     "STATUS": 11,
     "THEME": 2,
     "SETTINGS": 4,
-    "CONFIG": 7,
+    "CONFIG": 10,
     "MOVE": 1,
     "WORKSPACE": 3,
     "PANEL": 7,
@@ -79,31 +79,6 @@
     "GENERATE": 1
   },
   "recent_commands": [
-    {
-      "command": "ERROR",
-      "timestamp": "2025-11-22T20:49:05.893376",
-      "params": [
-        "Invalid command: q"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T20:49:09.640102",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "MENU",
-      "timestamp": "2025-11-22T20:49:30.124587",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "ERROR",
       "timestamp": "2025-11-22T21:26:06.984201",
@@ -908,7 +883,28 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-26T00:35:21.249958",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-26T00:36:33.007910",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-26T00:37:06.052551",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-26T00:06:08.977437"
+  "last_updated": "2025-11-26T00:37:10.529729"
 }
