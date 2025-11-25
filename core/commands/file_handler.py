@@ -1081,14 +1081,14 @@ class FileCommandHandler(BaseCommandHandler):
 
             # Template selection
             templates = self.workspace_manager.TEMPLATES
-            
+
             # Ensure templates is a dict
             if not isinstance(templates, dict):
                 return self.output_formatter.format_error(
                     "Template system error",
                     error_details=f"Invalid templates type: {type(templates)}"
                 )
-            
+
             template_choices = [f"{key} - {tpl['name']}"
                                for key, tpl in templates.items()]
 
@@ -1114,9 +1114,11 @@ class FileCommandHandler(BaseCommandHandler):
             )
 
         except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
             return self.output_formatter.format_error(
                 "File creation failed",
-                error_details=str(e)
+                error_details=f"{str(e)}\n\nTraceback:\n{tb}"
             )
 
     def _smart_edit_file(self):
