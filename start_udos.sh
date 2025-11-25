@@ -39,7 +39,23 @@ print_error() {
 
 # Check Python version
 print_status "Checking Python version..."
-if command -v python3 &> /dev/null; then
+
+# If venv exists, check its Python version instead of system Python
+if [ -d ".venv" ]; then
+    VENV_PYTHON_VERSION=$(.venv/bin/python3 --version 2>&1 | cut -d' ' -f2)
+    VENV_PYTHON_MAJOR=$(echo $VENV_PYTHON_VERSION | cut -d'.' -f1)
+    VENV_PYTHON_MINOR=$(echo $VENV_PYTHON_VERSION | cut -d'.' -f2)
+
+    if [ "$VENV_PYTHON_MAJOR" -eq 3 ] && [ "$VENV_PYTHON_MINOR" -ge 12 ]; then
+        print_success "Python ${VENV_PYTHON_VERSION} (from virtual environment)"
+        PYTHON_VERSION=$VENV_PYTHON_VERSION
+        PYTHON_MAJOR=$VENV_PYTHON_MAJOR
+        PYTHON_MINOR=$VENV_PYTHON_MINOR
+        SKIP_PYTHON_CHECK=true
+    fi
+fi
+
+if [ "$SKIP_PYTHON_CHECK" != "true" ] && command -v python3 &> /dev/null; then
     PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
     PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
     PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
@@ -109,6 +125,10 @@ if command -v python3 &> /dev/null; then
                         echo -e "${GREEN}✓ Ready to continue startup${NC}"
                         echo -e "${CYAN}💡 Restart your terminal for PATH changes to take effect${NC}"
                         echo ""
+
+                        # Update PYTHON_VERSION to reflect the upgrade
+                        PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
+                        print_success "Python ${PYTHON_VERSION} now active in virtual environment"
                     else
                         print_error "Installation failed. Try manual installation instead."
                         exit 1
@@ -150,19 +170,21 @@ if command -v python3 &> /dev/null; then
                 ;;
             3)
                 print_warning "Continuing with Python $PYTHON_VERSION (security risks apply)"
+                print_success "Python $PYTHON_VERSION (will work with warnings)"
                 ;;
             4)
                 print_status "Reminder set - continuing with Python $PYTHON_VERSION"
+                print_success "Python $PYTHON_VERSION (will work with warnings)"
                 ;;
             *)
                 print_warning "Invalid choice - continuing with Python $PYTHON_VERSION"
+                print_success "Python $PYTHON_VERSION (will work with warnings)"
                 ;;
         esac
-        print_success "Python $PYTHON_VERSION (will work with warnings)"
     else
         print_success "Python ${PYTHON_VERSION} found"
     fi
-else
+elif [ "$SKIP_PYTHON_CHECK" != "true" ]; then
     print_error "Python 3 not found!"
     print_error "Install Python 3.8+ and try again"
     exit 1
