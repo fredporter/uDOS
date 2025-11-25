@@ -53,7 +53,7 @@ class GeminiGenerator:
         self.request_times: List[float] = []
 
         # Model configuration
-        self.model_name = "gemini-2.0-flash-exp"
+        self.model_name = "gemini-2.5-flash"
         self.generation_config = {
             "temperature": 0.7,
             "top_p": 0.95,
