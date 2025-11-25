@@ -52,7 +52,7 @@ class KnowledgeManager:
             knowledge_path = project_root / "knowledge"
 
         self.knowledge_path = Path(knowledge_path)
-        self.db_path = self.knowledge_path.parent / "memory" / "knowledge.db"
+        self.db_path = self.knowledge_path.parent / "memory" / "user" / "knowledge.db"
 
         # Ensure directories exist
         self.knowledge_path.mkdir(exist_ok=True)

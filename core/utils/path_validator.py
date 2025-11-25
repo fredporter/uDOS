@@ -206,7 +206,7 @@ def get_writable_alternatives(path: str, root: str = None) -> list:
 
     Example:
         >>> get_writable_alternatives('knowledge/system/themes/custom.json')
-        ['memory/config/themes/custom.json', 'memory/workspace/themes/custom.json']
+        ['memory/themes/custom.json', 'memory/planet/themes/custom.json']
     """
     path_obj = Path(path)
 
@@ -233,8 +233,8 @@ def get_writable_alternatives(path: str, root: str = None) -> list:
     if 'themes' in str(path) or 'config' in str(path):
         alternatives.append(str(Path('memory/config') / Path(*parts)))
 
-    # Secondary: memory/workspace/ for general work
-    alternatives.append(str(Path('memory/workspace') / Path(*parts)))
+    # Secondary: memory/planet/ for general work
+    alternatives.append(str(Path('memory/planet') / Path(*parts)))
 
     # Tertiary: sandbox/ for temporary work
     alternatives.append(str(Path('sandbox') / Path(*parts)))
@@ -258,8 +258,8 @@ def validate_directory_structure(root: str) -> list:
         /memory/shared/ - Shared knowledge
         /memory/groups/ - Community groups
         /memory/sandbox/ - Temporary workspace
-        /memory/workspace/ - Organized workspace
-        /memory/config/ - User configuration
+        /memory/planet/ - User planet workspace
+        /memory/ - User configuration
         /sandbox/ - General scratch space
         /output/ - Generated output
     """
@@ -271,7 +271,7 @@ def validate_directory_structure(root: str) -> list:
         'memory/shared',
         'memory/groups',
         'memory/sandbox',
-        'memory/workspace',
+        'memory/planet',
         'memory/config',
         'sandbox',
         'output'

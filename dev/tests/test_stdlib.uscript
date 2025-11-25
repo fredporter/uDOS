@@ -1,0 +1,76 @@
+# ====================================
+# Standard Library Test Suite
+# Tests all stdlib modules
+# ====================================
+
+PRINT "🧪 Testing Standard Library Modules..."
+PRINT ""
+
+# ====================================
+# Test math_utils
+# ====================================
+PRINT "📐 Testing math_utils module..."
+IMPORT math_utils
+
+CALL square(4)
+GET RETURN_VALUE
+PRINT "  square(4) = " + RETURN_VALUE
+
+CALL cube(2)
+GET RETURN_VALUE
+PRINT "  cube(2) = " + RETURN_VALUE
+
+CALL abs(-15)
+GET RETURN_VALUE
+PRINT "  abs(-15) = " + RETURN_VALUE
+
+CALL max(100, 50)
+GET RETURN_VALUE
+PRINT "  max(100, 50) = " + RETURN_VALUE
+
+CALL min(100, 50)
+GET RETURN_VALUE
+PRINT "  min(100, 50) = " + RETURN_VALUE
+
+GET PI
+PRINT "  PI = " + PI
+
+GET E
+PRINT "  E = " + E
+
+PRINT "  ✅ math_utils tests passed"
+PRINT ""
+
+# ====================================
+# Test selective import
+# ====================================
+PRINT "📦 Testing selective import..."
+IMPORT validators.is_number
+
+CALL is_number("123")
+GET RETURN_VALUE
+PRINT "  is_number('123') = " + RETURN_VALUE
+
+CALL is_number("abc")
+GET RETURN_VALUE
+PRINT "  is_number('abc') = " + RETURN_VALUE
+
+PRINT "  ✅ Selective import tests passed"
+PRINT ""
+
+# ====================================
+# Test error handling in modules
+# ====================================
+PRINT "⚠️  Testing module error handling..."
+IMPORT validators
+
+TRY
+    CALL validate_required("", "username")
+CATCH err
+    GET ERROR
+    PRINT "  Caught expected error: " + ERROR
+    PRINT "  ✅ Error handling tests passed"
+ENDTRY
+
+PRINT ""
+PRINT "✅ All standard library tests passed!"

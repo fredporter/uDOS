@@ -1,8 +1,9 @@
 # uDOS v1.5.0 - Main Application
 
-# Suppress urllib3 OpenSSL warnings gracefully
+# Suppress dependency warnings gracefully
 import warnings
 warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL 1.1.1+')
+warnings.filterwarnings('ignore', category=FutureWarning, module='google.api_core')
 
 from .output.splash import print_splash_screen
 from .uDOS_parser import Parser
@@ -17,8 +18,8 @@ from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
-from .input.prompts.smart_prompt import SmartPrompt
-from .input.prompts.prompt_decorator import get_prompt_decorator
+from .input.smart_prompt import SmartPrompt
+from .input.prompt_decorator import get_prompt_decorator
 from .utils.tree import generate_repository_tree
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput

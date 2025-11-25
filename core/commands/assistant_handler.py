@@ -74,7 +74,7 @@ class AssistantCommandHandler(BaseCommandHandler):
         """Initialize Gemini service for OK Assisted Task on first use."""
         if self.gemini is None:
             try:
-                from core.network import get_gemini
+                from extensions.core.ok_assistant import get_gemini
                 self.gemini = get_gemini()
             except Exception as e:
                 return f"⚠️  Failed to initialize assist system: {str(e)}"

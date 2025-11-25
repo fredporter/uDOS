@@ -1,8 +1,0 @@
-[2025-10-31 17:33:14] [SESSION START] 
-[2025-10-31 17:33:15] [uDOS> DASH] 
-[2025-10-31 17:33:15] [?CORRUPTED SPELL: [SYSTEM|DASH*] ('MapEngine' object has no attribute 'get_position')] 
-[2025-10-31 17:33:15] [uDOS> DASH WEB] 
-[2025-10-31 17:33:15] [⚠️  Dashboard already running on http://localhost:8887] 
-[2025-10-31 17:33:15] [uDOS> EXIT] 
-[2025-10-31 17:33:15] [[SYSTEM|ERROR*Invalid command: EXIT]] 
-[2025-10-31 17:33:15] [SESSION END] 

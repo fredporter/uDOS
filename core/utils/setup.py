@@ -17,7 +17,7 @@ class SystemSetup:
         self.story_file = self.story_path  # Alias for compatibility
         self.template_path = "knowledge/system/templates/story.template.json"
         self.theme_index_path = "knowledge/system/themes/_index.json"
-        self.session_log_file = "memory/logs/sessions/session.log"
+        self.session_log_file = "memory/logs/session.log"
         self.sandbox_path = "memory/sandbox"
         self.logs_path = "memory/logs"
         self.available_themes = self._load_available_themes()

@@ -526,7 +526,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize theme manager
         try:
-            from core.theme.manager import ThemeManager, ThemeMode
+            from core.theme_manager import ThemeManager, ThemeMode
             theme_manager = ThemeManager()
             theme_manager.load_settings()
         except Exception as e:
@@ -1319,7 +1319,7 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         # Initialize layout manager
         try:
-            from core.output.renderers.layout_manager import layout_manager, LayoutMode, ContentType
+            from core.output.layout_manager import layout_manager, LayoutMode, ContentType
         except Exception as e:
             return f"❌ Error accessing layout system: {e}"
 
@@ -1393,7 +1393,7 @@ Screen Features:
 • Tall Screen: {'✅' if dims['is_tall'] else '❌'} (>30 rows)
 • Ultra-wide: {'✅' if dims['is_ultra_wide'] else '❌'} (>200 cols)"""
 
-            from core.output.renderers.layout_manager import ContentType
+            from core.output.layout_manager import ContentType
             return layout_manager.format_content(
                 content,
                 ContentType.STATUS,
@@ -1406,7 +1406,7 @@ Screen Features:
     def _set_layout_mode(self, layout_manager, mode_name):
         """Set layout mode."""
         try:
-            from core.output.renderers.layout_manager import LayoutMode
+            from core.output.layout_manager import LayoutMode
 
             mode_mapping = {
                 'COMPACT': LayoutMode.COMPACT,
@@ -1497,7 +1497,7 @@ Screen Features:
     def _test_adaptive_formatting(self, layout_manager):
         """Test adaptive formatting with sample content."""
         try:
-            from core.output.renderers.layout_manager import ContentType
+            from core.output.layout_manager import ContentType
 
             # Test different content types
             test_results = []
@@ -1546,7 +1546,7 @@ Auto-save: Enabled"""
     def _layout_demo(self, layout_manager):
         """Demo different layout capabilities."""
         try:
-            from core.output.renderers.layout_manager import ContentType
+            from core.output.layout_manager import ContentType
 
             dims = layout_manager.current_dimensions
 
@@ -2113,7 +2113,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_list(self):
         """List all available web extensions."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
             return server_manager.list_servers()
         except Exception as e:
@@ -2122,7 +2122,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_status(self, extension_name=None):
         """Show status of web extensions."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
             return server_manager.get_status(extension_name)
         except Exception as e:
@@ -2131,7 +2131,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_start(self, extension_name, options):
         """Start a web extension server."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Parse options
@@ -2157,7 +2157,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_stop(self, extension_name):
         """Stop a web extension server."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
             success, message = server_manager.stop_server(extension_name)
             return f"🛑 {message}" if success else f"⚠️  {message}"
@@ -2167,7 +2167,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_health(self):
         """Perform health check on all running servers."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Get current status
@@ -2209,7 +2209,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_restart(self, extension_name):
         """Restart a web extension server."""
         try:
-            from core.uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Stop the server first

@@ -22,7 +22,7 @@ from datetime import datetime
 from collections import defaultdict, Counter
 
 from core.services.session_analytics import CommandTrace, ErrorEntry, FeedbackEntry
-from core.services.gemini_service import GeminiCLI
+from extensions.core.ok_assistant import GeminiCLI
 
 
 @dataclass

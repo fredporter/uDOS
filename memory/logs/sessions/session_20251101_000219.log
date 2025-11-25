@@ -1,6 +1,0 @@
-[2025-11-01 00:02:19] [SESSION START] 
-[2025-11-01 00:02:20] [INPUT] DASH WEB
-[2025-11-01 00:02:23] [OUTPUT] ⚠️  Port 8887 in use, killing existing process...\n⚠️  Killed process 18803 on port 8887\n✅ 🌀 Dashboard started on http://localhost:8887 (PID: 19095)
-[2025-11-01 00:02:23] [MOVE] 1 (Total: 243)
-[2025-11-01 00:02:24] [INPUT] EXIT
-[2025-11-01 00:02:24] [SESSION END] 

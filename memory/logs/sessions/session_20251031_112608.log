@@ -1,6 +1,0 @@
-[2025-10-31 11:26:08] [SESSION START] 
-[2025-10-31 11:26:11] [INPUT] STATUS
-[2025-10-31 11:26:11] [OUTPUT] ============================================================\n📊 uDOS SYSTEM STATUS\n============================================================\n\n🌐 Connection Mode: LIMITED\n\nCapabilities:\n  ⚠️  AI Commands (Offline mode)\n  ✅ Git Operations\n  ✅ Web Browsing\n  ✅ Local File Operations\n  ✅ Offline Logic Engine\n\n\n📐 Display Configuration:\n  Terminal: 55×22 characters\n  Device: TERMINAL\n  Grid: 13×11 cells\n  Total cells: 143\n\n👤 User Profile:\n  Name: fredbook\n  Timezone: UTC\n  Location: Unknown\n  Mode: STANDARD\n\n🌐 Web Extension Servers:\n  No servers running\n  Use: EXTENSIONS START <name> to start servers\n\n🏥 System Health:\n  Python: ✅\n  Dependencies: ⚠️ Missing: google-generativeai, python-dotenv\n\n📜 Action History:\n  Undo stack: 0 actions\n  Redo stack: 0 actions\n\n============================================================
-[2025-10-31 11:26:11] [MOVE] 1 (Total: 34)
-[2025-10-31 11:26:12] [EVENT] EOFError
-[2025-10-31 11:26:12] [SESSION END] 

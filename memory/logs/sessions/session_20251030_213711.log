@@ -1,8 +1,0 @@
-[2025-10-30 21:37:11] [SESSION START] 
-[2025-10-30 21:37:17] [INPUT] EDIT data/setup.uscript
-[2025-10-30 21:37:17] [OUTPUT] ?CORRUPTED SPELL: [SYSTEM|EDIT] (list index out of range)
-[2025-10-30 21:37:17] [MOVE] 1 (Total: 8)
-[2025-10-30 21:46:06] [INPUT] reboot
-[2025-10-30 21:46:06] [OUTPUT] 🔄 REBOOT PRE-FLIGHT CHECK\n============================================================\n\n✅ User profile OK (fredbook)\n✅ Python version OK\n⚠️  Missing dependencies: google-generativeai, python-dotenv\n✅ Setup script available\n\n⚠️  Warnings:\n  ⚠️  Ensure all panels are saved before rebooting\n  ⚠️  File structure issues detected\n\nRebooting will:\n  • Re-validate user profile\n  • Re-detect terminal viewport and device type\n  • Re-check internet connectivity\n  • Reload world map position\n  • Clear action history\n  • Start fresh session log\n\n🔄 Restarting uDOS...\n
-[2025-10-30 21:46:06] [MOVE] 2 (Total: 9)
-[2025-10-30 21:46:06] [SESSION END] 

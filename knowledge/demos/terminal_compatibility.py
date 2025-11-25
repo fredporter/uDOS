@@ -27,7 +27,7 @@ from typing import Dict, List, Tuple
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from core.ui.visual_selector import VisualSelector, TeletextChars
-from core.theme.manager import ThemeManager, ThemeMode
+from core.theme_manager import ThemeManager, ThemeMode
 from core.output.splash import print_splash_screen
 
 

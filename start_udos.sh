@@ -274,7 +274,7 @@ fi
 
 # Check data directories
 print_status "Checking data directories..."
-for dir in data memory/logs memory/logs/sessions memory/logs/servers output sandbox; do
+for dir in memory/logs memory/logs/sessions memory/logs/servers memory/sandbox; do
     if [ ! -d "$dir" ]; then
         print_warning "Creating directory: $dir"
         mkdir -p "$dir"

@@ -338,7 +338,7 @@ class StandardizedInput:
         Returns:
             Selected file path or None if cancelled
         """
-        from core.ui.pickers.file_picker import FilePicker
+        from core.ui.file_picker import FilePicker
 
         picker = FilePicker()
         return picker.pick_file(

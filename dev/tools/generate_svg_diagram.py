@@ -19,7 +19,7 @@ from typing import Optional, Tuple
 # Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from core.services.gemini_service import GeminiCLI
+from extensions.core.ok_assistant import GeminiCLI
 
 # SVG Pattern Library Template (Mac OS System 1 style)
 SVG_PATTERN_DEFS = """

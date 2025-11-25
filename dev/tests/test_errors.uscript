@@ -1,0 +1,96 @@
+# Test script for uCODE error handling (v1.0.16)
+# Tests: TRY/CATCH/FINALLY blocks, THROW, error propagation
+
+# Test 1: Basic TRY/CATCH
+TRY
+  SET x = 10
+  SET y = 20
+  GET x
+CATCH err
+  SET error_caught = "Error occurred: ${err}"
+ENDTRY
+
+# Test 2: TRY with error and CATCH
+TRY
+  SET value = "test"
+  THROW "This is a custom error!"
+  SET never_executed = "This should not run"
+CATCH error_msg
+  GET error_msg
+  GET ERROR_TYPE
+ENDTRY
+
+# Test 3: FINALLY block (always executes)
+SET cleanup_ran = "no"
+
+TRY
+  SET data = "important"
+  GET data
+FINALLY
+  SET cleanup_ran = "yes"
+  GET cleanup_ran
+ENDTRY
+
+# Test 4: Error in CATCH block (should still run FINALLY)
+TRY
+  THROW "Original error"
+CATCH e
+  GET e
+FINALLY
+  SET finally_executed = "true"
+  GET finally_executed
+ENDTRY
+
+# Test 5: TRY/CATCH with function call
+FUNCTION risky_operation(x)
+  IF ${x} < 0
+    THROW "Negative numbers not allowed!"
+  ENDIF
+  RETURN ${x} * 2
+ENDFUNCTION
+
+TRY
+  CALL risky_operation(5)
+  GET RETURN_VALUE
+CATCH err
+  SET caught_in_main = ${err}
+ENDTRY
+
+TRY
+  CALL risky_operation(-3)
+  SET should_not_execute = "bad"
+CATCH err
+  GET err
+ENDTRY
+
+# Test 6: Nested TRY blocks
+TRY
+  SET outer = "outer try"
+  TRY
+    SET inner = "inner try"
+    THROW "Inner error!"
+  CATCH inner_err
+    GET inner_err
+  ENDTRY
+  SET after_inner = "Back in outer"
+CATCH outer_err
+  SET outer_error = ${outer_err}
+ENDTRY
+
+# Test 7: TRY with successful execution (no error)
+TRY
+  SET success_value = "All good!"
+  GET success_value
+CATCH e
+  SET this_should_not_run = "Error path"
+ENDTRY
+
+# Test 8: Multiple operations in CATCH
+TRY
+  THROW "Test error for multiple catch operations"
+CATCH e
+  SET error_handled = "yes"
+  SET error_message = ${e}
+  GET error_handled
+  GET error_message
+ENDTRY

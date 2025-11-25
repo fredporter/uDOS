@@ -183,7 +183,7 @@ Look for your theme in the report:
 Or check specific theme programmatically:
 
 ```python
-from core.utils.theme_validator import ThemeValidator
+from core.theme_loader import ThemeValidator
 from pathlib import Path
 
 validator = ThemeValidator()
@@ -364,7 +364,7 @@ Keep all original placeholders:
 Verify messages work with real values:
 
 ```python
-from core.utils.theme_loader import load_theme
+from core.theme import load_theme
 
 theme = load_theme('mytheme')
 msg = theme['MESSAGES']['ERROR_CRASH']

@@ -68,8 +68,7 @@ uDOS/
 │   │   └── types.py
 │   ├── network/
 │   │   ├── __init__.py
-│   │   ├── gemini.py
-│   │   └── server.py
+│   │   └── gemini.py
 │   ├── output/
 │   │   ├── renderers/
 │   │   │   ├── __init__.py
@@ -97,7 +96,6 @@ uDOS/
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
-│   │   ├── gemini_service.py
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
@@ -263,9 +261,16 @@ uDOS/
 │   │   ├── v1_1_1_Feature_1_Complete.md
 │   │   └── v1_1_1_Phase_1_COMPLETE.md
 │   ├── planning/
+│   │   ├── archive/
+│   │   │   └── v1.4.0-PROGRESS-ARCHIVED-20251125.md
 │   │   ├── features/
 │   │   ├── releases/
-│   │   │   └── V1.1-STABLE-RELEASE-PLAN.md
+│   │   │   ├── DEV-ROUND-v1.4.0-COMPLETE.md
+│   │   │   ├── DEV-ROUND-v1.5.0-COMPLETE.md
+│   │   │   ├── RELEASE-NOTES-v1.5.0.md
+│   │   │   ├── V1.1-STABLE-RELEASE-PLAN.md
+│   │   │   ├── v1.5.3-VERIFICATION-REPORT.md
+│   │   │   └── v1.5.4-COMPLETION-SUMMARY.md
 │   │   ├── roadmap/
 │   │   │   ├── ROADMAP-v1.0-v1.3-ARCHIVED-20251124.md
 │   │   │   ├── V1.1.0-PLUS-ROADMAP.md
@@ -287,7 +292,7 @@ uDOS/
 │   │   ├── v1.0.30-SESSION-SUMMARY.md
 │   │   ├── v1.0.31-STANDARDIZED-INPUT-PLAN.md
 │   │   ├── v1.1.0-code-consolidation-analysis.md
-│   │   ├── v1.4.0-PROGRESS.md
+│   │   ├── v1.4.0-SUMMARY.md
 │   │   ├── v1_0_30_complete_summary.md
 │   │   └── v1_0_30_summary.md
 │   ├── tools/
@@ -317,6 +322,7 @@ uDOS/
 │   │   ├── generate_water_diagrams.py
 │   │   ├── macos_ui_components.py
 │   │   └── test_creative_patterns.py
+│   ├── EXTENSION-FIXES-v1.5.0.md
 │   ├── README.md
 │   ├── THEME_GUIDE.md
 │   └── demo_v1_0_30.py
@@ -989,6 +995,9 @@ uDOS/
 │   │   ├── CREDITS.md
 │   │   └── README.md
 │   ├── core/
+│   │   ├── ai_assistant/
+│   │   │   ├── __init__.py
+│   │   │   └── gemini_service.py
 │   │   ├── dashboard/
 │   │   │   ├── routes/
 │   │   │   │   └── file_routes.py
@@ -1089,6 +1098,9 @@ uDOS/
 │   │   │   ├── README.md
 │   │   │   ├── SUCCESS_REPORT.md
 │   │   │   └── UNIFIED_SYSTEM_SUMMARY.md
+│   │   ├── server_manager/
+│   │   │   ├── __init__.py
+│   │   │   └── server.py
 │   │   ├── teletext/
 │   │   │   ├── assets/
 │   │   │   │   ├── css/
@@ -1753,6 +1765,7 @@ uDOS/
 │   ├── Configuration.md
 │   ├── Content-Curation.md
 │   ├── Contributing.md
+│   ├── DEV-MODE-GUIDE.md
 │   ├── Debugging-Guide.md
 │   ├── Dev-Rounds-Workflow.md
 │   ├── Development-History.md
@@ -1818,5 +1831,8 @@ uDOS/
 ├── requirements.txt
 ├── setup.py
 ├── start_udos.sh
+├── test_extensions.py
+├── test_poke.uscript
+├── test_startup.uscript
 ├── uDOS.code-workspace
 └── uDOS.py

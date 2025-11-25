@@ -1,6 +1,62 @@
 # Memory Folder
 
-**Purpose**: Your personal workspace with 4-tier security, mission lifecycle management, and permanent storage for all user-generated content.
+**Purpose**: Your personal planet workspace with 4-tier security, mission lifecycle management, and permanent storage for all user-generated content.
+
+---
+
+## v1.5.0: Flattened Structure & Planet System
+
+The `/memory` folder has been reorganized with a **flatter, clearer structure** and renamed "workspace" to "planet":
+
+### Key Changes (v1.5.0)
+- ✅ **Flattened hierarchy**: Removed nested `/config`, `/user`, `/templates` folders
+- ✅ **Workspace → Planet**: Renamed to align with universe/galaxy/solar system metaphor
+- ✅ **Configuration in .env**: User settings moved from user.json to .env
+- ✅ **Default role: admin**: All users have write access to /memory by default
+- ✅ **Sandbox for drafts**: `/sandbox` is your workspace for development and experiments
+- ✅ **Universe data**: Planet system linked to knowledge/system/universe.json (Sol system)
+
+### Current Structure (15 folders)
+```
+memory/
+├── user/                       # 👤 USER DATA FILES
+│   ├── USER.UDT                # Command aliases & preferences
+│   ├── planets.json            # Multi-planet configurations
+│   ├── knowledge.db            # Knowledge search index (SQLite)
+│   └── xp.db                   # XP/progression database (SQLite)
+│
+├── sandbox/                    # 🔧 DRAFTS & DEVELOPMENT
+│   ├── drafts/                 # Documents in progress
+│   ├── experiments/            # Testing, prototypes, trials
+│   ├── tools/                  # Custom scripts
+│   └── templates/              # User templates (moved from /templates)
+│
+├── planet/                     # 🌍 PLANET WORKSPACE (was /workspace)
+│   └── [planet-specific files] # Earth, Mars, etc.
+│
+├── workflow/                   # 📋 MISSION LIFECYCLE
+│   ├── active/                 # Current missions
+│   ├── completed/              # Finished missions
+│   └── archived/               # Historical missions
+│
+├── private/                    # 🔐 TIER 1: AES-256 encrypted (user-only, 100MB)
+├── shared/                     # 🔒 TIER 2: AES-128 encrypted (team, 500MB)
+├── groups/                     # 📂 TIER 3: Community knowledge (1GB)
+├── public/                     # 🌐 TIER 4: World-readable (5GB)
+│
+├── logs/                       # All system logs (flat structure - no subdirectories)
+│   ├── session_*.log          # Session activity logs
+│   ├── *_server.log           # API/extension server logs
+│   ├── audit.log, audit.json  # Audit trail
+│   ├── bug_reports.jsonl      # User feedback
+│   └── *.db                   # Command/file access history
+├── sessions/                   # Session history and replays
+├── modules/                    # User uCode modules and stdlib
+├── barter/                     # Trading system data
+├── scenarios/                  # Survival scenarios
+├── missions/                   # Mission templates
+└── themes/                     # User theme customizations
+```
 
 ---
 
@@ -52,15 +108,38 @@ The `/memory` folder is the **only** location for user file actions. Everything 
 
 ### Core Principles
 
-1. **Work in sandbox** - All temporary operations, testing, drafts
-2. **Choose security tier** - Select appropriate tier for content sensitivity
-3. **Commit to workflow** - Move validated work through mission lifecycle
-4. **Archive to legacy** - Preserve learnings, outcomes, and resources
+1. **Work in sandbox** - All temporary operations, testing, drafts (sandbox/drafts/, sandbox/experiments/)
+2. **Choose your planet** - Switch between Earth, Mars, or other solar system planets (see knowledge/system/universe.json)
+3. **Choose security tier** - Select appropriate tier for content sensitivity (private/shared/groups/public)
+4. **Commit to workflow** - Move validated work through mission lifecycle (workflow/active → completed → archived)
 5. **Never touch /knowledge** - That's read-only system content distributed with uDOS
+6. **Default permissions** - All users have admin role with full write access to /memory
+
+### Planet System
+
+Your workspace is organized by **planet** - defaulting to Earth in the Sol system:
+- **Current planet**: Stored in `current_planet.json` and `.env` (UDOS_CURRENT_PLANET)
+- **Planet data**: `planets.json` for multi-planet configurations
+- **Universe reference**: `knowledge/system/universe.json` contains Sol system with all 8 planets
+- **Switch planets**: Use planet commands to change your active workspace context
 
 ---
 
-## Structure
+## Removed Folders (v1.5.0 Cleanup)
+
+These folders have been **removed or consolidated**:
+- ❌ `/config` → Files moved to memory root
+- ❌ `/user` → USER.UDT and templates moved to root
+- ❌ `/templates` → Moved to `/sandbox/templates`
+- ❌ `/workspace` → Renamed to `/planet`
+- ❌ `/personal` → Empty, removed (use /sandbox or /private)
+- ❌ `/legacy` → Empty, removed (use /workflow/archived)
+- ❌ `/system` → Empty, removed
+- ❌ `/tests` → Empty, removed (dev tests are in /dev/tests)
+
+---
+
+## Structure (Legacy v1.1.2 - Deprecated)
 
 ```
 memory/

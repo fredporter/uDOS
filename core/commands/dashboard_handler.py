@@ -84,7 +84,7 @@ class DashboardHandler(BaseCommandHandler):
 
         # Import ServerManager if available
         try:
-            from core.services.connection_manager import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_manager = ServerManager()
 
             any_running = False
@@ -171,7 +171,7 @@ class DashboardHandler(BaseCommandHandler):
         }
 
         try:
-            from core.services.connection_manager import ServerManager
+            from core.uDOS_server import ServerManager
             server_manager = ServerManager()
 
             for srv_id, srv_config in servers.items():

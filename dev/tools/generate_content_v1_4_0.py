@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 # Import OK Assistant service for assisted generation
 try:
-    from core.services.gemini_service import GeminiCLI
+    from extensions.core.ok_assistant import GeminiCLI
     OK_ASSIST_AVAILABLE = True
 except ImportError:
     OK_ASSIST_AVAILABLE = False

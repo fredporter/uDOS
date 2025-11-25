@@ -269,24 +269,47 @@ Each theme includes:
 
 **Purpose**: Active user data and session state
 
-- **`user.json`** - Current user profile (name, location, preferences)
-- **`story.json`** - Active story data (if in narrative mode)
-- **`config/active-theme.json`** - Selected theme ID
-- **`logs/sessions/`** - Timestamped session logs
+**Structure** (v1.5.0):
+```
+memory/
+├── user/                    # User data files
+│   ├── USER.UDT             # User aliases
+│   ├── planets.json         # Planet configurations
+│   ├── knowledge.db         # Search index (SQLite)
+│   └── xp.db                # XP/progression (SQLite)
+├── planet/                  # Planet workspaces
+│   ├── earth/               # Earth workspace
+│   └── mars/                # Mars workspace
+├── sandbox/                 # Drafts & development
+├── workflow/                # uCODE scripts & missions
+├── logs/                    # All system logs (flat)
+├── sessions/                # Session history
+├── private/                 # Tier 1: Encrypted (user-only)
+├── shared/                  # Tier 2: Encrypted (team)
+├── groups/                  # Tier 3: Community
+└── public/                  # Tier 4: Public knowledge
+```
 
-**User Profile Structure**:
+**User Profile** (.env + memory/user/):
+- Simple values in `.env` (current planet, theme, role)
+- Complex data in `memory/user/planets.json`
+- Current planet synced between both sources
+
+**Planet Structure** (memory/user/planets.json):
 ```json
 {
-  "USER_PROFILE": {
-    "NAME": "fredbook",
-    "TIMEZONE": "America/New_York",
-    "THEME": "DUNGEON_CRAWLER"
+  "current_planet": "Earth",
+  "user_planets": {
+    "Earth": {
+      "workspace_path": "memory/planet/earth",
+      "location": { "city": "New York", "lat": 40.7128, "lon": -74.0060 }
+    },
+    "Mars": {
+      "workspace_path": "memory/planet/mars",
+      "location": { "settlement": "Olympus Base", "lat": 18.65, "lon": -133.8 }
+    }
   },
-  "WORLD_LOCATION": {
-    "CITY": "New York",
-    "LATITUDE": 40.7128,
-    "LONGITUDE": -74.0060
-  }
+  "reference_universe": "knowledge/system/universe.json"
 }
 ```
 

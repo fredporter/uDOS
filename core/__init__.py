@@ -1,67 +1,17 @@
 """
-uDOS Core Modules
+uDOS Core Package
+Main entry point for uDOS core functionality
 
-This package contains all the core Python modules that power uDOS.
+Version: 1.5.0
 """
 
-# Core components
-from .uDOS_main import main
-from .uDOS_commands import CommandHandler
-from .uDOS_parser import Parser
-from .uDOS_grid import Grid
-from .uDOS_logger import Logger
-# Note: Legacy config.py still exists, new config/ package is preferred
-# from .config import get_config, Config  # DEPRECATED: Use core.config.config_manager instead
-
-# Theme system
-from .theme import load_theme, ThemeManager
-
-# Knowledge system
-from .knowledge import get_knowledge_manager, MemoryManager
-
-# Input/Output
-from .output import print_splash_screen
-from .interpreters import UCodeInterpreter, OfflineEngine
-
-# Services
-from .services.history_manager import ActionHistory
-from .services.history import CommandHistory
-from .services.connection_manager import ConnectionMonitor
-from .services.user_manager import UserManager
-# Map engine moved to extensions - import only when needed
-
-# Utils
-from .utils.viewport import ViewportDetector
-from .utils.viewport_viz import ViewportVisualizer
-from .utils.completer import uDOSCompleter
-from .utils.setup import SystemSetup
-
-# Display (moved to input/prompts)
-from .input.prompts.smart_prompt import SmartPrompt
+from .theme_loader import load_theme, ThemeLoader
+from .theme_manager import ThemeManager
+from .theme_builder import ThemeBuilder
 
 __all__ = [
-    'main',
-    'CommandHandler',
-    'Parser',
-    'Grid',
-    'Logger',
-    'get_config',
-    'Config',
     'load_theme',
+    'ThemeLoader',
     'ThemeManager',
-    'get_knowledge_manager',
-    'MemoryManager',
-    'ActionHistory',
-    'CommandHistory',
-    'ConnectionMonitor',
-    'ViewportDetector',
-    'ViewportVisualizer',
-    'UserManager',
-    'SmartPrompt',
-    'uDOSCompleter',
-    'SystemSetup',
-    'print_splash_screen',
-    'UCodeInterpreter',
-    'OfflineEngine',
-    'MapEngine',
+    'ThemeBuilder',
 ]

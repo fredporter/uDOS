@@ -42,7 +42,7 @@ class MapCommandHandler(BaseCommandHandler):
     def teletext_integration(self):
         """Lazy load teletext integration."""
         if self._teletext_integration is None:
-            from core.output.renderers.teletext_renderer import TeletextMapIntegration
+            from core.output.teletext_renderer import TeletextMapIntegration
             self._teletext_integration = TeletextMapIntegration()
         return self._teletext_integration
 

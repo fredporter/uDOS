@@ -1,0 +1,92 @@
+{
+  "universe": "Milky Way",
+  "galaxy": {
+    "name": "Milky Way",
+    "type": "Spiral",
+    "diameter_light_years": 105700,
+    "star_count": 100000000000,
+    "age_billion_years": 13.6
+  },
+  "solar_systems": {
+    "Sol": {
+      "name": "Sol",
+      "star_type": "G-type main-sequence star (G2V)",
+      "age_billion_years": 4.6,
+      "planets": {
+        "Mercury": {
+          "type": "Terrestrial",
+          "distance_au": 0.39,
+          "radius_km": 2439.7,
+          "gravity_g": 0.38,
+          "atmosphere": "None",
+          "icon": "☿️"
+        },
+        "Venus": {
+          "type": "Terrestrial",
+          "distance_au": 0.72,
+          "radius_km": 6051.8,
+          "gravity_g": 0.91,
+          "atmosphere": "CO2 (96.5%)",
+          "icon": "♀️"
+        },
+        "Earth": {
+          "type": "Terrestrial",
+          "distance_au": 1.0,
+          "radius_km": 6371.0,
+          "gravity_g": 1.0,
+          "atmosphere": "N2 (78%), O2 (21%)",
+          "icon": "🌍",
+          "habitable": true,
+          "moons": ["Moon"],
+          "description": "Our home planet with comprehensive survival knowledge"
+        },
+        "Mars": {
+          "type": "Terrestrial",
+          "distance_au": 1.52,
+          "radius_km": 3389.5,
+          "gravity_g": 0.38,
+          "atmosphere": "CO2 (95.3%)",
+          "icon": "🔴",
+          "moons": ["Phobos", "Deimos"],
+          "description": "Red planet workspace for future colonization scenarios"
+        },
+        "Jupiter": {
+          "type": "Gas Giant",
+          "distance_au": 5.20,
+          "radius_km": 69911,
+          "gravity_g": 2.53,
+          "atmosphere": "H2 (89%), He (10%)",
+          "icon": "🪐",
+          "moons": ["Io", "Europa", "Ganymede", "Callisto"]
+        },
+        "Saturn": {
+          "type": "Gas Giant",
+          "distance_au": 9.54,
+          "radius_km": 58232,
+          "gravity_g": 1.07,
+          "atmosphere": "H2 (96%), He (3%)",
+          "icon": "🪐",
+          "moons": ["Titan", "Rhea", "Iapetus", "Dione", "Tethys", "Enceladus"]
+        },
+        "Uranus": {
+          "type": "Ice Giant",
+          "distance_au": 19.19,
+          "radius_km": 25362,
+          "gravity_g": 0.89,
+          "atmosphere": "H2 (83%), He (15%), CH4 (2%)",
+          "icon": "🔵",
+          "moons": ["Titania", "Oberon", "Umbriel", "Ariel", "Miranda"]
+        },
+        "Neptune": {
+          "type": "Ice Giant",
+          "distance_au": 30.07,
+          "radius_km": 24622,
+          "gravity_g": 1.14,
+          "atmosphere": "H2 (80%), He (19%), CH4 (1%)",
+          "icon": "🔵",
+          "moons": ["Triton", "Proteus", "Nereid"]
+        }
+      }
+    }
+  }
+}

@@ -330,7 +330,7 @@ class EditorManager:
 
         elif mode == 'WEB':
             # Web mode - use ServerManager to start typo
-            from .uDOS_server import ServerManager
+            from extensions.core.server_manager import ServerManager
             server_mgr = ServerManager()
 
             # Check if typo is installed

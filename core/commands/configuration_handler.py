@@ -14,8 +14,8 @@ import json
 import shutil
 from pathlib import Path
 from .base_handler import BaseCommandHandler
-from core.theme.manager import ThemeManager
-from core.theme.builder import ThemeBuilder
+from core.theme_manager import ThemeManager
+from core.theme_builder import ThemeBuilder
 from core.uDOS_main import get_config  # v1.5.0 Unified configuration
 
 
@@ -783,7 +783,7 @@ class ConfigurationHandler(BaseCommandHandler):
         """Backup all configuration files."""
         try:
             config_dir = Path('knowledge/system')
-            backup_dir = Path('memory/config/system_backup')
+            backup_dir = Path('memory/system_backup')
             backup_dir.mkdir(parents=True, exist_ok=True)
 
             backed_up = []
@@ -805,7 +805,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _restore_configs(self):
         """Restore configuration files from backup."""
         try:
-            backup_dir = Path('memory/config/system_backup')
+            backup_dir = Path('memory/system_backup')
             if not backup_dir.exists():
                 return "❌ No backup directory found\n\nUse: CONFIG BACKUP first"
 

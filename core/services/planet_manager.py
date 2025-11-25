@@ -19,6 +19,7 @@ Author: uDOS Development Team
 """
 
 import json
+import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
@@ -105,16 +106,17 @@ class PlanetManager:
         Initialize Planet Manager.
 
         Args:
-            config_dir: Configuration directory (default: memory/config)
+            config_dir: Configuration directory (default: memory/)
         """
         if config_dir is None:
-            config_dir = Path("memory/config")
+            config_dir = Path("memory/user")
 
         self.config_dir = Path(config_dir)
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
         self.planets_file = self.config_dir / "planets.json"
-        self.current_file = self.config_dir / "current_planet.json"
+        self.universe_file = Path("knowledge/system/universe.json")
+        # Current planet now stored in planets.json under "current_planet" key
 
         # Initialize if needed
         if not self.planets_file.exists():
@@ -138,36 +140,70 @@ class PlanetManager:
         self._set_current("Earth")
 
     def _save_planets(self, planets: Dict):
-        """Save planets to JSON file."""
+        """Save planets to JSON file with new structure."""
+        # Get current planet
+        current_planet = os.getenv('UDOS_CURRENT_PLANET', 'Earth')
+
+        data = {
+            "current_planet": current_planet,
+            "user_planets": {name: asdict(planet) for name, planet in planets.items()},
+            "reference_universe": "knowledge/system/universe.json"
+        }
+
         with open(self.planets_file, 'w') as f:
-            json.dump(planets, f, indent=2)
+            json.dump(data, f, indent=2)
 
     def _load_planets(self) -> Dict:
-        """Load planets from JSON file."""
+        """Load planets from JSON file with new structure."""
         if not self.planets_file.exists():
             return {}
 
         with open(self.planets_file, 'r') as f:
             data = json.load(f)
 
+        # Handle new structure
+        if "user_planets" in data:
+            return {name: Planet.from_dict(planet_data)
+                    for name, planet_data in data["user_planets"].items()}
+
+        # Handle old structure (backward compatibility)
         return {name: Planet.from_dict(planet_data)
                 for name, planet_data in data.items()}
 
     def _set_current(self, planet_name: str):
-        """Set current active planet."""
-        with open(self.current_file, 'w') as f:
-            json.dump({"current": planet_name,
-                      "updated": datetime.now().isoformat()}, f)
+        """Set current active planet in .env and planets.json."""
+        # Update .env file
+        env_path = Path(".env")
+        if env_path.exists():
+            lines = env_path.read_text().split('\n')
+            updated = False
+            for i, line in enumerate(lines):
+                if line.startswith('UDOS_CURRENT_PLANET='):
+                    lines[i] = f"UDOS_CURRENT_PLANET='{planet_name}'"
+                    updated = True
+                    break
+            if updated:
+                env_path.write_text('\n'.join(lines))
+
+        # Update planets.json
+        if self.planets_file.exists():
+            with open(self.planets_file, 'r') as f:
+                data = json.load(f)
+            data["current_planet"] = planet_name
+            with open(self.planets_file, 'w') as f:
+                json.dump(data, f, indent=2)
 
     def get_current(self) -> Optional[Planet]:
-        """Get current active planet."""
-        if not self.current_file.exists():
-            return None
+        """Get current active planet from .env or planets.json."""
+        # Try .env first
+        current_name = os.getenv('UDOS_CURRENT_PLANET')
 
-        with open(self.current_file, 'r') as f:
-            data = json.load(f)
+        # Fall back to planets.json
+        if not current_name and self.planets_file.exists():
+            with open(self.planets_file, 'r') as f:
+                data = json.load(f)
+            current_name = data.get("current_planet")
 
-        current_name = data.get("current")
         if not current_name:
             return None
 

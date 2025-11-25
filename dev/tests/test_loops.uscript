@@ -1,0 +1,121 @@
+# uCODE Loop Tests - v1.0.14
+# Testing FOR and WHILE loops with BREAK and CONTINUE
+
+# Test 1: FOR var IN list - Simple iteration
+ECHO === Test 1: FOR var IN list ===
+SET colors = red, green, blue
+FOR color IN colors
+  ECHO Color: ${color}
+ENDFOR
+ECHO
+
+# Test 2: FOR var IN explicit list
+ECHO === Test 2: FOR with explicit list ===
+FOR fruit IN [apple, banana, orange]
+  ECHO Fruit: ${fruit}
+ENDFOR
+ECHO
+
+# Test 3: FOR i FROM start TO end - Numeric range
+ECHO === Test 3: FOR i FROM 1 TO 5 ===
+FOR i FROM 1 TO 5
+  ECHO Number: ${i}
+ENDFOR
+ECHO
+
+# Test 4: FOR with variable range
+ECHO === Test 4: FOR with variable range ===
+SET start = 10
+SET end = 15
+FOR num FROM start TO end
+  ECHO Count: ${num}
+ENDFOR
+ECHO
+
+# Test 5: WHILE loop with toggle
+ECHO === Test 5: WHILE loop ===
+SET keep_going = true
+WHILE keep_going == true
+  ECHO Still looping
+  SET keep_going = false
+ENDWHILE
+ECHO Loop finished
+ECHO
+
+# Test 6: WHILE with condition check
+ECHO === Test 6: WHILE with toggle ===
+SET active = true
+WHILE active == true
+  ECHO Status: active
+  SET active = false
+ENDWHILE
+ECHO Status after loop: ${active}
+ECHO
+
+# Test 7: FOR with BREAK
+ECHO === Test 7: FOR with BREAK ===
+FOR i FROM 1 TO 10
+  ECHO Number: ${i}
+  IF i == 5
+    ECHO Breaking at 5
+    BREAK
+  ENDIF
+ENDFOR
+ECHO After break loop
+ECHO
+
+# Test 8: FOR with CONTINUE
+ECHO === Test 8: FOR with CONTINUE ===
+FOR i FROM 1 TO 5
+  IF i == 3
+    ECHO Skipping 3
+    CONTINUE
+  ENDIF
+  ECHO Number: ${i}
+ENDFOR
+ECHO
+
+# Test 9: Nested loops
+ECHO === Test 9: Nested FOR loops ===
+FOR x FROM 1 TO 3
+  FOR y FROM 1 TO 3
+    SET product = ${x} * ${y}
+    ECHO ${x} x ${y} = (calculation would be ${product})
+  ENDFOR
+ENDFOR
+ECHO
+
+# Test 10: WHILE with BREAK
+ECHO === Test 10: WHILE with BREAK ===
+SET ready = true
+WHILE ready == true
+  ECHO Still running
+  ECHO Breaking now
+  BREAK
+ENDWHILE
+ECHO
+
+# Test 11: Loop with conditional inside
+ECHO === Test 11: FOR with IF inside ===
+FOR i FROM 1 TO 10
+  IF i > 5
+    SET status = high
+  ELSE
+    SET status = low
+  ENDIF
+  ECHO Number ${i} is ${status}
+ENDFOR
+ECHO
+
+# Test 12: FOR IN with variables in list
+ECHO === Test 12: FOR IN with variable substitution ===
+SET first = Alice
+SET second = Bob
+SET third = Charlie
+FOR name IN [first, second, third]
+  ECHO Name: ${name}
+ENDFOR
+ECHO
+
+ECHO === All loop tests completed! ===
+VARS

@@ -7,6 +7,98 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2025-11-25 (Architecture & Infrastructure)
+
+### Summary
+Major architecture cleanup and infrastructure improvements. Delivered DEV MODE security system, configuration synchronization, asset management, and comprehensive folder restructuring. Flattened memory structure by 43%, centralized extension assets, and introduced planet system linked to universe data.
+
+### Added
+
+**DEV MODE Security System**
+- Password-based authentication (SHA256 hashing)
+- Permission system protecting 10 dangerous commands
+- Session management (auto-save, 1-hour timeout)
+- Activity logging (text + JSON audit trail)
+- 29 comprehensive tests
+
+**Configuration Synchronization**
+- Bidirectional .env ↔ user.json sync
+- Priority system (user.json overrides .env)
+- Auto-migration from legacy formats
+- Backup/restore functionality
+- 21 configuration fields with schema validation
+- 26 comprehensive tests
+
+**Asset Management System**
+- Auto-discovery from extensions/assets/
+- Type-specific loaders (font, icon, pattern, CSS, JS)
+- Smart caching with hot-reload support
+- Search and filtering (regex support)
+- 22 patterns library (borders, backgrounds, textures)
+- 656 assets cataloged
+- 22 comprehensive tests
+
+**Planet System**
+- Renamed "workspace" to "planet" throughout codebase
+- Links to knowledge/system/universe.json (Sol system reference)
+- Each planet has isolated workspace path (memory/planet/earth, etc.)
+- Current planet synchronized between .env and planets.json
+- Scientific data: gravity, atmosphere, moons, distance, radius
+
+### Changed
+
+**Architecture Cleanup**
+- **Core**: Flattened from 17 to 11 directories (35% reduction)
+  - Removed: config/, data/, sandbox/, legacy/, backup/, cache/
+  - TUI-only focus, read-only system content
+- **Extensions/Core**: Centralized asset management
+  - Removed: ok-assist/ (archived to dev/archive/)
+  - Removed duplicate assets in terminal/ and teletext/
+  - All extensions use central extensions/assets/ library
+- **Memory**: Flattened from 28 to 16 directories (43% reduction)
+  - Consolidated user data in memory/user/
+  - Flattened logs (sessions/, servers/, feedback/, test/ → logs/)
+  - Moved databases to memory/user/ (knowledge.db, xp.db)
+  - Removed: config/, user/, templates/, workspace/, personal/, legacy/, system/, tests/
+- **Configuration**: Simplified organization
+  - Simple values: .env (current planet, theme, role)
+  - Complex data: memory/user/*.json (planets, aliases)
+  - Database files: memory/user/*.db
+
+**File Relocations**
+- knowledge.db: memory/ → memory/user/
+- xp.db: memory/ → memory/user/
+- USER.UDT: memory/ → memory/user/
+- planets.json: memory/ → memory/user/ (restructured)
+- All logs: memory/logs/sessions/ → memory/logs/ (flat)
+
+**Updated Import Paths** (25+ files)
+- core/knowledge/base_manager.py - knowledge.db path
+- core/knowledge/bank.py - knowledge.db path
+- extensions/play/services/xp_service.py - xp.db path
+- core/utils/alias_manager.py - USER.UDT path
+- core/utils/settings.py - USER.UDT path
+- core/services/setup_wizard.py - USER.UDT path
+- core/uDOS_logger.py - session log path
+- core/utils/setup.py - session log path
+- extensions/core/server_manager/server.py - server log paths (3×)
+
+### Fixed
+- Duplicate font assets in extension folders
+- Nested folder structures reducing navigation efficiency
+- Scattered user data across multiple locations
+- Inconsistent logging directory structure
+- Workspace/Planet terminology mismatch with universe metaphor
+
+### Documentation
+- Updated README.md with v1.5.0 features
+- Updated wiki/Architecture.md with new memory structure
+- Added ASSETS-GUIDE.md (asset management documentation)
+- Added DEV-MODE-GUIDE.md (security system documentation)
+- Updated dev/EXTENSION-FIXES-v1.5.0.md with planet integration
+
+---
+
 ## [1.4.0] - 2025-11-25 (Infrastructure Complete)
 
 ### Summary

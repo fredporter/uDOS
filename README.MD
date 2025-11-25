@@ -13,7 +13,7 @@
 
 ## 🚀 v1.5.0 - Infrastructure Complete!
 
-**Latest Release:** v1.5.0 delivers foundational systems for secure development and shared resources.
+**Latest Release:** v1.5.0 delivers foundational systems for secure development, shared resources, and clean architecture.
 
 ### What's New in v1.5.0
 
@@ -38,6 +38,21 @@
 - 22 patterns library (borders, backgrounds, textures)
 - 656 assets cataloged
 - 22 comprehensive tests
+
+🏗️ **Architecture Cleanup** - Cleaner, flatter structure
+- **Core**: Flattened from 17 to 11 directories (TUI only, read-only)
+- **Extensions/Core**: Removed duplicates, centralized assets library
+- **Memory**: Flattened from 28 to 16 directories (43% reduction)
+- **Logs**: All logs in flat memory/logs/ (no subdirectories)
+- **User Data**: Consolidated in memory/user/ (databases, configs, planets)
+- **Planet System**: Workspace renamed to Planet, linked to universe.json
+
+🌍 **Planet System** - Workspace metaphor upgrade
+- Renamed "workspace" to "planet" (Earth, Mars, etc.)
+- Links to knowledge/system/universe.json (Sol system data)
+- Each planet has isolated workspace path
+- Current planet in .env + planets.json sync
+- Scientific data: gravity, atmosphere, moons
 
 ### What's in v1.4.0
 
@@ -197,6 +212,13 @@ Total Tests: 1,810/1,810 passing (100%)
   - v1.3.0 base: 1,733 tests
   - v1.5.0 new:  77 tests (Config 26 + DEV MODE 29 + Assets 22)
 
+Architecture Improvements:
+✅ Core: 17 → 11 directories (35% reduction)
+✅ Memory: 28 → 16 directories (43% reduction)
+✅ Extensions/Core: Removed duplicates, centralized assets
+✅ All logs: Flat memory/logs/ structure
+✅ User data: Consolidated in memory/user/
+
 Platform Support:
 ✅ macOS 11+ (Intel & Apple Silicon)
 ✅ Linux (Ubuntu, Debian, Fedora, Arch)
@@ -282,12 +304,16 @@ uDOS/
 │   └── diagrams/         # Diagrams (68+ in ASCII/Teletext/SVG)
 │
 ├── memory/               # User workspace (gitignored)
-│   ├── personal/         # Private notes
-│   ├── shared/           # Shared knowledge
-│   ├── workflow/         # uCODE scripts
-│   ├── missions/         # Task tracking
-│   ├── tests/            # Test suites (tracked)
-│   └── config/           # User configuration
+│   ├── user/             # User data files (USER.UDT, planets.json, *.db)
+│   ├── planet/           # Planet workspaces (earth, mars, etc.)
+│   ├── sandbox/          # Drafts & development
+│   ├── workflow/         # uCODE scripts & missions
+│   ├── logs/             # All system logs (flat structure)
+│   ├── sessions/         # Session history
+│   ├── private/          # Tier 1: Encrypted (user-only)
+│   ├── shared/           # Tier 2: Encrypted (team)
+│   ├── groups/           # Tier 3: Community
+│   └── public/           # Tier 4: Public knowledge
 │
 ├── wiki/                 # Documentation (60 pages)
 │
