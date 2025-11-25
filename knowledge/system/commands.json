@@ -759,9 +759,9 @@
     },
     {
       "NAME": "TREE",
-      "SYNTAX": "TREE [<folder>|--depth=N]",
-      "DESCRIPTION": "Generate repository structure tree (respects .gitignore and hidden folders). Options: SANDBOX, MEMORY, KNOWLEDGE, HISTORY, CORE, WIKI, EXTENSIONS, EXAMPLES to show specific folder. Use --depth=N to limit recursion depth. Saves to dev/docs/structure.txt.",
-      "UCODE_TEMPLATE": "[SYSTEM|TREE*$1]",
+      "SYNTAX": "TREE [MEMORY|KNOWLEDGE]",
+      "DESCRIPTION": "Generate directory structure files and display tree. TREE updates all 3 structure.txt files (root, memory, knowledge) and shows root tree. MEMORY TREE shows memory tree. KNOWLEDGE TREE shows knowledge tree.",
+      "UCODE_TEMPLATE": "[TREE|SHOW*$1]",
       "DEFAULT_PARAMS": {
         "$1": ""
       }

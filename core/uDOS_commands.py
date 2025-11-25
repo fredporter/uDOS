@@ -103,7 +103,7 @@ class CommandHandler:
 
         # v1.1.0 - User Feedback System
         from core.commands.user_handler import UserCommandHandler
-        
+
         # v1.0.32 - Tree Structure Generator
         from core.commands.tree_handler import TreeHandler
 
@@ -135,7 +135,7 @@ class CommandHandler:
 
         # v1.1.0 - User Feedback handler
         self.user_handler = UserCommandHandler(**handler_kwargs)
-        
+
         # v1.0.32 - TREE Structure handler
         self.tree_handler = TreeHandler()
 
@@ -277,7 +277,7 @@ class CommandHandler:
             # v1.1.0 - User Feedback System
             elif module == "USER":
                 return self.user_handler.handle(command, params, grid)
-            
+
             # v1.0.32 - TREE Directory Structure Generator
             elif module == "TREE":
                 return self.tree_handler.handle(params)

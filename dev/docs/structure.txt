@@ -44,6 +44,7 @@ uDOS/
 │   │   ├── shared_commands.py
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
+│   │   ├── tree_handler.py
 │   │   └── user_handler.py
 │   ├── input/
 │   │   ├── __init__.py

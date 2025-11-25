@@ -273,25 +273,26 @@ class TreeHandler:
                 tree = self.generate_knowledge_tree()
                 return f"\n{tree}\n\n💡 Saved to: knowledge/structure.txt"
 
-        # TREE - update all files and show root tree
+        # TREE - update all files and show root tree (FULL, not truncated)
         results = self.save_structure_files()
         root_tree = self.generate_root_tree()
 
         output = []
-        output.append("📁 Directory Structure Updated\n")
-        output.append("=" * 60)
+        output.append("📁 Directory Structure Updated\\n")
+        output.append("=" * 70)
         output.append("")
 
         for name, result in results.items():
             output.append(result)
 
         output.append("")
-        output.append("=" * 60)
-        output.append("Root Structure:")
-        output.append("=" * 60)
+        output.append("=" * 70)
+        output.append("Root Structure (Full Tree):")
+        output.append("=" * 70)
         output.append("")
-        output.append(root_tree)
+        output.append(root_tree)  # Show FULL tree, no truncation
         output.append("")
+        output.append("=" * 70)
         output.append("💡 Use: MEMORY TREE or KNOWLEDGE TREE to view those trees")
 
-        return "\n".join(output)
+        return "\\n".join(output)
