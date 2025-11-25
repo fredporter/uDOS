@@ -128,6 +128,7 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append(f"  Debug Mode: {getattr(self.logger, 'debug_enabled', False) if self.logger else False}")
         output.append(f"  Auto-save: Enabled")
         output.append(f"  Connection Mode: {self.connection.get_mode() if self.connection else 'OFFLINE'}")
+        output.append(f"  CLI Editor: {config.get('CLI_EDITOR', 'nano')}")
 
         output.append("")
         output.append("=" * 60)
@@ -1256,6 +1257,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     "Change Theme",
                     "Toggle Debug Mode",
                     "Configure Viewport",
+                    "Set CLI Editor (nano/micro/vim)",
                     "View Viewport Info",
                     "Back to Main Menu"
                 ],
@@ -1305,6 +1307,30 @@ class ConfigurationHandler(BaseCommandHandler):
                     return self._set_viewport_config(int(width), int(height))
                 except ValueError:
                     output.append("\n❌ Invalid dimensions")
+
+            elif action == "Set CLI Editor (nano/micro/vim)":
+                # Get current editor
+                current_editor = config.get('CLI_EDITOR', 'nano')
+                
+                # Detect available editors
+                from core.services.editor_manager import EditorManager
+                editor_mgr = EditorManager()
+                available = editor_mgr.detect_available_editors()
+                
+                if not available['CLI']:
+                    output.append("\n❌ No CLI editors found!")
+                else:
+                    new_editor = self.input_manager.prompt_choice(
+                        message="Select default CLI editor:",
+                        choices=available['CLI'] + ["Back"],
+                        default=current_editor if current_editor in available['CLI'] else available['CLI'][0]
+                    )
+                    
+                    if new_editor != "Back":
+                        config.set('CLI_EDITOR', new_editor, persist=True)
+                        output.append(f"\n✅ CLI editor set to: {new_editor}")
+                        output.append("📝 Changes saved to .env")
+                        output.append(f"💡 Use 'edit filename' to open files in {new_editor}")
 
             elif action == "View Viewport Info":
                 return self._show_viewport_config()
