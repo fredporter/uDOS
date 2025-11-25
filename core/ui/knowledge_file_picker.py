@@ -126,6 +126,62 @@ class KnowledgeFilePicker:
         scan_directory(workspace_path)
         return files
 
+    def _get_files_in_folder(
+        self,
+        folder: Path,
+        file_types: List[str] = None,
+        recursive: bool = True
+    ) -> List[Dict]:
+        """
+        Get files from a specific folder.
+
+        Args:
+            folder: Folder path
+            file_types: List of extensions to include
+            recursive: Search subdirectories
+
+        Returns:
+            List of file info dictionaries
+        """
+        if file_types is None:
+            file_types = ['.md', '.uscript']
+
+        if not folder.exists():
+            return []
+
+        files = []
+
+        try:
+            # Use glob for recursive search
+            if recursive:
+                for ext in file_types:
+                    for file_path in folder.rglob(f'*{ext}'):
+                        if file_path.is_file():
+                            files.append({
+                                'name': file_path.name,
+                                'path': str(file_path),
+                                'relative_path': str(file_path.relative_to(folder)),
+                                'size': file_path.stat().st_size,
+                                'type': file_path.suffix,
+                                'is_dir': False
+                            })
+            else:
+                for ext in file_types:
+                    for file_path in folder.glob(f'*{ext}'):
+                        if file_path.is_file():
+                            files.append({
+                                'name': file_path.name,
+                                'path': str(file_path),
+                                'relative_path': file_path.name,
+                                'size': file_path.stat().st_size,
+                                'type': file_path.suffix,
+                                'is_dir': False
+                            })
+        except PermissionError:
+            pass
+
+        return sorted(files, key=lambda x: x['name'])
+
     def get_all_content_files(self) -> Tuple[List[Dict], List[Dict]]:
         """
         Get all content files from both workspaces.
@@ -233,15 +289,17 @@ class KnowledgeFilePicker:
         self,
         workspace: str = 'knowledge',
         prompt: str = "Select a file",
-        file_types: List[str] = None
+        file_types: List[str] = None,
+        show_workspace_selector: bool = True
     ) -> Optional[str]:
         """
         Interactive file picker.
 
         Args:
-            workspace: 'knowledge', 'memory', or 'both'
+            workspace: 'knowledge', 'memory', 'both', or 'folder' (prompts for folder selection)
             prompt: Prompt message
             file_types: File types to show
+            show_workspace_selector: Show folder/workspace selector first
 
         Returns:
             Selected file path or None if cancelled
@@ -249,24 +307,41 @@ class KnowledgeFilePicker:
         if file_types is None:
             file_types = ['.md', '.uscript']
 
-        # Get files
-        if workspace == 'both':
-            k_files = self.get_workspace_files('knowledge', file_types)
-            m_files = self.get_workspace_files('memory', file_types)
+        # Show workspace/folder selector if requested
+        if show_workspace_selector and workspace in ['both', 'folder']:
+            folder = self.pick_folder(
+                prompt="📁 Select workspace folder",
+                include_custom=False
+            )
 
-            # Tag files with workspace
-            for f in k_files:
-                f['workspace'] = 'knowledge'
-            for f in m_files:
-                f['workspace'] = 'memory'
+            if not folder:
+                return None
 
-            files = k_files + m_files
-            workspace_display = 'Knowledge & Memory'
-        else:
-            files = self.get_workspace_files(workspace, file_types)
+            # Search files in selected folder
+            files = self._get_files_in_folder(folder, file_types)
+            workspace_display = folder.name.title()
+
             for f in files:
-                f['workspace'] = workspace
-            workspace_display = workspace.title()
+                f['workspace'] = str(folder.relative_to(self.base_path))
+        else:
+            # Original behavior - get files from workspace
+            if workspace == 'both':
+                k_files = self.get_workspace_files('knowledge', file_types)
+                m_files = self.get_workspace_files('memory', file_types)
+
+                # Tag files with workspace
+                for f in k_files:
+                    f['workspace'] = 'knowledge'
+                for f in m_files:
+                    f['workspace'] = 'memory'
+
+                files = k_files + m_files
+                workspace_display = 'Knowledge & Memory'
+            else:
+                files = self.get_workspace_files(workspace, file_types)
+                for f in files:
+                    f['workspace'] = workspace
+                workspace_display = workspace.title()
 
         if not files:
             print(self._create_empty_message(workspace_display))

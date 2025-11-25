@@ -408,9 +408,10 @@ class FileCommandHandler(BaseCommandHandler):
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(
-                workspace='both',
+                workspace='folder',  # Shows workspace folder selector
                 prompt="📝 Select file to edit",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.uscript', '.txt', '.json'],
+                show_workspace_selector=True
             )
 
             if not file_path:
