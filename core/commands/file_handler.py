@@ -39,7 +39,7 @@ class FileCommandHandler(BaseCommandHandler):
     def workspace_manager(self):
         """Lazy load workspace manager."""
         if self._workspace_manager is None:
-            from core.uDOS_files import WorkspaceManager
+            from core.utils.files import WorkspaceManager
             self._workspace_manager = WorkspaceManager()
         return self._workspace_manager
 
@@ -348,7 +348,7 @@ class FileCommandHandler(BaseCommandHandler):
         """Display file in browser or terminal (v1.0.30 with micro editor)."""
         if not params:
             # v1.0.30: Use knowledge file picker for .md and .uscript files
-            from core.services.knowledge_file_picker import KnowledgeFilePicker
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(
@@ -404,7 +404,7 @@ class FileCommandHandler(BaseCommandHandler):
         """Edit file with micro editor (v1.0.30)."""
         if not params:
             # v1.0.30: Use knowledge file picker for .md and .uscript files
-            from core.services.knowledge_file_picker import KnowledgeFilePicker
+            from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(

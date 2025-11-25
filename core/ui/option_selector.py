@@ -263,7 +263,7 @@ class EnhancedFilePicker(OptionSelector):
             workspace_manager: WorkspaceManager instance
         """
         super().__init__()
-        from core.uDOS_files import WorkspaceManager
+        from core.utils.files import WorkspaceManager
         self.workspace_manager = workspace_manager or WorkspaceManager()
         self.preview_enabled = True
         self.preview_lines = 5

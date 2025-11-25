@@ -42,7 +42,7 @@ class AssistantCommandHandler(BaseCommandHandler):
     def workspace_manager(self):
         """Lazy load workspace manager."""
         if self._workspace_manager is None:
-            from core.uDOS_files import WorkspaceManager
+            from core.utils.files import WorkspaceManager
             self._workspace_manager = WorkspaceManager()
         return self._workspace_manager
 

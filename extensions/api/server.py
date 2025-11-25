@@ -25,7 +25,7 @@ try:
     from core.uDOS_commands import CommandHandler
     from core.uDOS_grid import Grid
     from core.uDOS_logger import Logger
-    from core.uDOS_files import WorkspaceManager
+    from core.utils.files import WorkspaceManager
     from core.services.history import CommandHistory
     from core.services.user_manager import UserManager
     UDOS_AVAILABLE = True
