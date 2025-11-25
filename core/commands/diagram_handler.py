@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import re
 import json
+from core.services.gemini_generator import get_gemini_generator
+from core.services.citation_manager import get_citation_manager
 
 
 class DiagramHandler:
@@ -80,6 +82,8 @@ class DiagramHandler:
             'SAVE': self._export,
             'TYPES': self._types,
             'CATEGORIES': self._types,
+            'GENERATE': self._generate,  # v1.6.0: Content generation
+            'GEN': self._generate,
         }
 
         handler = handlers.get(command)
@@ -91,7 +95,7 @@ class DiagramHandler:
     def _help(self) -> str:
         """Display DIAGRAM command help"""
         return """
-📐 DIAGRAM - ASCII Art Library Browser
+📐 DIAGRAM - ASCII Art Library Browser & Content Generator
 
 DIAGRAM SYSTEM:
   • Search and browse ASCII diagrams
@@ -99,6 +103,7 @@ DIAGRAM SYSTEM:
   • Copy to grid for customization
   • Export to file or panel
   • Extract from knowledge base
+  • ✨ GENERATE content with Gemini API (v1.6.0)
 
 COMMANDS:
   DIAGRAM LIST [type]           List diagrams by type
@@ -108,6 +113,22 @@ COMMANDS:
   DIAGRAM COPY <name> <panel>    Copy to grid panel
   DIAGRAM EXPORT <name> <file>   Export to file
   DIAGRAM TYPES                  Show diagram categories
+  DIAGRAM GENERATE <source> ...  Generate content + diagrams (v1.6.0)
+
+GENERATE (v1.6.0):
+  DIAGRAM GENERATE <source_file> [options]
+    Generate Markdown guides and Technical-Kinetic SVG diagrams
+    with mandatory citation tracking using Gemini API.
+    
+    Options:
+      --crawl              Use PEEK for web enrichment
+      --style technical    SVG style (technical/kinetic/hybrid)
+      --output <dir>       Output directory
+      --citations-strict   Require 100% citation coverage
+      --batch             Process entire directory
+    
+    Example:
+      DIAGRAM GENERATE knowledge/water/filtration.md --crawl
 
 WORKFLOW:
   1. DIAGRAM TYPES              # See categories
@@ -115,38 +136,9 @@ WORKFLOW:
   3. DIAGRAM SHOW bowline       # View diagram
   4. DIAGRAM RENDER bowline 60  # Custom width
   5. DIAGRAM EXPORT bowline knots.txt
+  6. DIAGRAM GENERATE guide.md  # Generate new content
 
-EXAMPLES:
-  DIAGRAM LIST shelter          # Shelter blueprints
-  DIAGRAM SEARCH "fire starting" # Find diagrams
-  DIAGRAM SHOW debris-hut       # View shelter diagram
-  DIAGRAM RENDER compass 40     # Render at 40 chars wide
-  DIAGRAM COPY flowchart main   # Copy to grid panel
-
-DIAGRAM TYPES:
-  • knot       - Knot tying instructions
-  • shelter    - Shelter construction
-  • chart      - Comparison charts/matrices
-  • map        - Navigation and maps
-  • flow       - Flowcharts and decision trees
-  • circuit    - Wiring and circuits
-  • anatomy    - Medical and anatomical
-  • plant      - Plant identification
-  • tool       - Tool usage diagrams
-  • symbol     - Symbol references
-  • timeline   - Progress and timelines
-  • table      - Data tables
-  • ascii      - General ASCII art
-
-FEATURES:
-  ✓ Extract diagrams from knowledge guides
-  ✓ Viewport-aware rendering
-  ✓ Scale to fit terminal
-  ✓ Export in multiple formats
-  ✓ Categorized library
-  ✓ Search by content
-
-Type 'DIAGRAM LIST' to browse all diagrams
+Type 'DIAGRAM GENERATE' for detailed generation help.
 """
 
     def _list(self, args: List[str]) -> str:
@@ -342,6 +334,261 @@ Type 'DIAGRAM LIST' to browse all diagrams
             return f"✓ Diagram exported to: {output_file}\n"
         except Exception as e:
             return f"❌ Export failed: {e}\n"
+
+    def _generate(self, args: List[str]) -> str:
+        """
+        Generate content and diagrams using Gemini API (v1.6.0)
+        
+        Usage: DIAGRAM GENERATE <source_file> [--crawl] [--style technical|kinetic] [--output dir]
+        """
+        if not args:
+            return self._generate_help()
+        
+        # Parse arguments
+        source_file = None
+        options = {
+            'crawl': False,
+            'style': 'technical',
+            'output': None,
+            'citations_strict': False,
+            'validate': True,
+            'format': ['md', 'svg'],
+            'batch': False
+        }
+        
+        i = 0
+        while i < len(args):
+            arg = args[i]
+            
+            if arg.startswith('--'):
+                # Handle options
+                if arg == '--crawl':
+                    options['crawl'] = True
+                    i += 1
+                elif arg == '--style' and i + 1 < len(args):
+                    options['style'] = args[i + 1]
+                    i += 2
+                elif arg == '--output' and i + 1 < len(args):
+                    options['output'] = args[i + 1]
+                    i += 2
+                elif arg == '--citations-strict':
+                    options['citations_strict'] = True
+                    i += 1
+                elif arg == '--validate':
+                    options['validate'] = True
+                    i += 1
+                elif arg == '--format' and i + 1 < len(args):
+                    options['format'] = args[i + 1].split(',')
+                    i += 2
+                elif arg == '--batch':
+                    options['batch'] = True
+                    i += 1
+                else:
+                    i += 1
+            else:
+                # First non-option argument is source file
+                if source_file is None:
+                    source_file = arg
+                i += 1
+        
+        if not source_file:
+            return "❌ No source file specified\n\nUsage: DIAGRAM GENERATE <source_file> [options]"
+        
+        # Check if source exists
+        source_path = Path(source_file)
+        if not source_path.exists():
+            return f"❌ Source file not found: {source_file}"
+        
+        # Process based on batch mode
+        if options['batch'] or source_path.is_dir():
+            return self._generate_batch(source_path, options)
+        else:
+            return self._generate_single(source_path, options)
+    
+    def _generate_single(self, source_path: Path, options: Dict) -> str:
+        """Generate content from single source file"""
+        try:
+            # Initialize services
+            gen = get_gemini_generator()
+            cm = get_citation_manager()
+            
+            # Read source content
+            source_content = source_path.read_text(encoding='utf-8')
+            
+            # Stage A: Source Analysis
+            output = ["\n🔍 DIAGRAM GENERATE - Processing"]
+            output.append("═" * 70)
+            output.append(f"Source: {source_path}")
+            output.append(f"Size: {len(source_content)} chars")
+            output.append("")
+            
+            # Stage B: Web Crawl (optional)
+            crawled_content = ""
+            if options['crawl']:
+                output.append("🌐 Stage B: Web Crawl...")
+                gaps = gen.identify_knowledge_gaps(source_content)
+                output.append(f"   Found {len(gaps.get('gaps', []))} knowledge gaps")
+                output.append(f"   Suggested queries: {len(gaps.get('search_queries', []))}")
+                output.append("")
+            
+            # Stage C: Text Processing
+            output.append("📝 Stage C: Generating Markdown content...")
+            topic = source_path.stem.replace('_', ' ').replace('-', ' ').title()
+            
+            # Add source to citation manager
+            doc_id = cm.add_source('document', str(source_path))
+            
+            content, meta = gen.generate_text(source_content, crawled_content, topic)
+            output.append(f"   Generated: {meta['word_count']} words")
+            output.append(f"   Citations: {meta['citation_coverage']:.1%} coverage")
+            
+            # Check citation requirements
+            if options['citations_strict'] and meta['citation_coverage'] < 1.0:
+                return "\n".join(output) + f"\n\n❌ FAILED: Citation coverage {meta['citation_coverage']:.1%} < 100% (--citations-strict)"
+            
+            if meta['citation_coverage'] < 0.95:
+                output.append(f"   ⚠️  WARNING: Citation coverage below target (95%)")
+            
+            output.append("")
+            
+            # Stage D: Asset Generation
+            svg_content = None
+            if 'svg' in options['format']:
+                output.append("🎨 Stage D: Generating SVG diagrams...")
+                svg_content, svg_meta = gen.generate_svg(
+                    subject=topic,
+                    diagram_type=options['style'],
+                    requirements=[
+                        "Technical-Kinetic style",
+                        "Monochrome (black & white only)",
+                        "MCM geometry",
+                        "Kinetic flow elements"
+                    ]
+                )
+                output.append(f"   Generated: {svg_meta['size_bytes']} bytes")
+                output.append(f"   Valid: {svg_meta['svg_valid']}")
+                if not svg_meta['svg_valid']:
+                    output.append(f"   Issues: {svg_meta['validation_issues']}")
+                output.append("")
+            
+            # Stage E: Final Assembly
+            output.append("📦 Stage E: Final assembly...")
+            
+            # Determine output directory
+            if options['output']:
+                output_dir = Path(options['output'])
+            else:
+                output_dir = Path("knowledge/generated")
+            
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save Markdown
+            if 'md' in options['format']:
+                md_path = output_dir / f"{source_path.stem}.md"
+                
+                # Add bibliography
+                bibliography = cm.generate_bibliography()
+                full_content = content + "\n\n" + bibliography
+                
+                md_path.write_text(full_content, encoding='utf-8')
+                output.append(f"   ✅ Saved: {md_path}")
+                
+                # Save metadata
+                meta_path = output_dir / f"{source_path.stem}.meta.json"
+                with open(meta_path, 'w') as f:
+                    json.dump(meta, f, indent=2)
+                output.append(f"   ✅ Metadata: {meta_path}")
+            
+            # Save SVG
+            if 'svg' in options['format'] and svg_content:
+                svg_path = output_dir / f"{source_path.stem}.svg"
+                svg_path.write_text(svg_content, encoding='utf-8')
+                output.append(f"   ✅ SVG: {svg_path}")
+            
+            output.append("")
+            output.append("═" * 70)
+            output.append("✅ Generation complete!")
+            output.append(f"📊 Citation coverage: {meta['citation_coverage']:.1%}")
+            output.append(f"📏 Word count: {meta['word_count']}")
+            output.append(f"📁 Output: {output_dir}")
+            output.append("")
+            
+            return "\n".join(output)
+            
+        except Exception as e:
+            import traceback
+            return f"❌ Generation failed: {str(e)}\n\n{traceback.format_exc()}"
+    
+    def _generate_batch(self, source_dir: Path, options: Dict) -> str:
+        """Batch generate from directory"""
+        supported = ['.md', '.txt', '.html']
+        files = []
+        
+        for ext in supported:
+            files.extend(source_dir.glob(f'*{ext}'))
+        
+        if not files:
+            return f"❌ No supported files found in: {source_dir}"
+        
+        output = ["\n🔄 BATCH GENERATE"]
+        output.append("═" * 70)
+        output.append(f"Directory: {source_dir}")
+        output.append(f"Files found: {len(files)}")
+        output.append("")
+        
+        success_count = 0
+        fail_count = 0
+        
+        for i, file_path in enumerate(files, 1):
+            output.append(f"[{i}/{len(files)}] Processing: {file_path.name}")
+            
+            try:
+                result = self._generate_single(file_path, options)
+                if "✅ Generation complete!" in result:
+                    success_count += 1
+                    output.append(f"   ✅ Success")
+                else:
+                    fail_count += 1
+                    output.append(f"   ❌ Failed")
+            except Exception as e:
+                fail_count += 1
+                output.append(f"   ❌ Error: {str(e)}")
+            
+            output.append("")
+        
+        output.append("═" * 70)
+        output.append(f"✅ Batch complete: {success_count} success, {fail_count} failed")
+        output.append("")
+        
+        return "\n".join(output)
+    
+    def _generate_help(self) -> str:
+        """Show GENERATE subcommand help"""
+        return """
+🎨 DIAGRAM GENERATE - Content & Diagram Generation (v1.6.0)
+
+Generate high-quality Markdown guides and Technical-Kinetic SVG diagrams
+from source documents using Gemini API with mandatory citation tracking.
+
+SYNTAX:
+  DIAGRAM GENERATE <source_file> [options]
+
+OPTIONS:
+  --crawl              Enable web crawler (via PEEK) for supplementary content
+  --style <type>       SVG style: technical|kinetic|hybrid (default: technical)
+  --output <dir>       Output directory (default: knowledge/generated/)
+  --citations-strict   Require 100% citation coverage (fail if < 100%)
+  --validate          Run full quality validation before saving
+  --format <types>     Output formats: md,svg,ascii,teletext (default: md,svg)
+  --batch             Batch process all files in directory
+
+EXAMPLES:
+  DIAGRAM GENERATE knowledge/water/filtration.md
+  DIAGRAM GENERATE guide.pdf --crawl --style kinetic
+  DIAGRAM GENERATE knowledge/fire/ --batch --citations-strict
+
+Type 'DIAGRAM HELP' for general DIAGRAM command info.
+"""
 
     def _types(self, args: List[str]) -> str:
         """Show diagram type categories"""
