@@ -316,13 +316,28 @@ class InputManager:
         if path.is_file():
             files = [str(path)]
         else:
-            if file_type:
-                pattern = f"**/*{file_type}"
+            # Handle multiple file types for content files
+            if file_type == "all" or file_type is None:
+                # Search for common content file types
+                patterns = ["**/*.md", "**/*.uscript", "**/*.txt", "**/*.json"]
+            elif isinstance(file_type, list):
+                patterns = [f"**/*{ext}" for ext in file_type]
             else:
-                pattern = "**/*"
+                patterns = [f"**/*{file_type}"]
 
-            files = [str(f) for f in path.glob(pattern) if f.is_file()]
-            files = sorted(files)[:50]  # Limit to 50 files
+            files = []
+            for pattern in patterns:
+                for f in path.glob(pattern):
+                    if f.is_file() and not any(part.startswith('.') for part in f.parts):
+                        # Create relative path for display
+                        try:
+                            rel_path = f.relative_to(path)
+                            files.append((str(f), str(rel_path)))
+                        except ValueError:
+                            files.append((str(f), f.name))
+
+            # Sort by relative path and limit
+            files = sorted(files, key=lambda x: x[1])[:100]  # Increased limit to 100
 
         if not files and must_exist:
             print(f"⚠️  No files found in {starting_path}")
@@ -351,9 +366,18 @@ class InputManager:
 
             return ""
 
-        # Create file completer
+        # If files is a list of tuples, extract for display
+        if files and isinstance(files[0], tuple):
+            file_display_map = {rel: abs_path for abs_path, rel in files}
+            file_choices = [rel for _, rel in files]
+        else:
+            # Legacy format - single strings
+            file_display_map = {f: f for f in files}
+            file_choices = files
+
+        # Create file completer with relative paths for display
         completer = WordCompleter(
-            files,
+            file_choices,
             ignore_case=True,
             sentence=True
         )
@@ -363,20 +387,29 @@ class InputManager:
 
         prompt_text = f"{message}: "
 
-        try:
-            result = prompt(
-                prompt_text,
-                completer=completer,
-                complete_while_typing=True,
-                validator=validator,
-                validate_while_typing=False,
-                style=self.style
-            )
+        # Show available files if there are any
+        if file_choices:
+            print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
+            # Show first few files as preview
+            preview_count = min(10, len(file_choices))
+            for i, file_choice in enumerate(file_choices[:preview_count], 1):
+                print(f"  {i}. {file_choice}")
+            if len(file_choices) > preview_count:
+                print(f"  ... and {len(file_choices) - preview_count} more")
+            print()
 
-            return result.strip()
+        result = prompt(
+            prompt_text,
+            completer=completer,
+            validator=validator,
+            validate_while_typing=False
+        ).strip()
 
-        except (KeyboardInterrupt, EOFError):
-            return ""
+        # Map the selected relative path back to absolute path
+        if result in file_display_map:
+            return file_display_map[result]
+
+        return result
 
     def prompt_text(self,
                    message: str,
