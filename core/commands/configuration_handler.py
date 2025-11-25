@@ -1343,11 +1343,11 @@ class ConfigurationHandler(BaseCommandHandler):
                             output.append("❌ Failed to install micro editor")
                     elif new_editor != "Back":
                         config.set('CLI_EDITOR', new_editor, persist=True)
-                        
+
                         # Reload environment variable immediately
                         import os
                         os.environ['CLI_EDITOR'] = new_editor
-                        
+
                         output.append(f"\n✅ CLI editor set to: {new_editor}")
                         output.append("📝 Changes saved to .env")
                         output.append(f"💡 Use 'edit filename' to open files in {new_editor}")
