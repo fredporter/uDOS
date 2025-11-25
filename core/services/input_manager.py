@@ -294,6 +294,7 @@ class InputManager:
                    file_type: Optional[str] = None) -> str:
         """
         Prompt user for file path with validation.
+        Uses viewport-aware display and subdirectory breakdown for large lists.
 
         Args:
             message: Prompt message (default: "Select a file")
@@ -311,6 +312,19 @@ class InputManager:
                 file_type=".md"
             )
         """
+        # Get viewport dimensions
+        try:
+            from core.config_manager import ConfigManager
+            config = ConfigManager()
+            viewport_height = config.get('VIEWPORT_HEIGHT', 30)
+            viewport_width = config.get('VIEWPORT_WIDTH', 90)
+        except:
+            viewport_height = 30
+            viewport_width = 90
+
+        # Calculate safe display limit based on viewport
+        max_items_per_page = max(10, viewport_height - 10)  # Leave room for UI chrome
+
         # Get list of matching files
         path = Path(starting_path)
         if path.is_file():
@@ -326,6 +340,8 @@ class InputManager:
                 patterns = [f"**/*{file_type}"]
 
             files = []
+            subdirs = {}  # Track files by subdirectory
+
             for pattern in patterns:
                 for f in path.glob(pattern):
                     if f.is_file() and not any(part.startswith('.') for part in f.parts):
@@ -333,11 +349,24 @@ class InputManager:
                         try:
                             rel_path = f.relative_to(path)
                             files.append((str(f), str(rel_path)))
+
+                            # Track subdirectory
+                            if len(rel_path.parts) > 1:
+                                subdir = rel_path.parts[0]
+                                if subdir not in subdirs:
+                                    subdirs[subdir] = []
+                                subdirs[subdir].append((str(f), str(rel_path)))
                         except ValueError:
                             files.append((str(f), f.name))
 
-            # Sort by relative path and limit
-            files = sorted(files, key=lambda x: x[1])[:100]  # Increased limit to 100
+            # Sort by relative path
+            files = sorted(files, key=lambda x: x[1])
+
+            # If too many files, offer subdirectory navigation
+            if len(files) > max_items_per_page and len(subdirs) > 1:
+                return self._prompt_file_by_subdirectory(
+                    path, subdirs, files, message, max_items_per_page
+                )
 
         if not files and must_exist:
             print(f"⚠️  No files found in {starting_path}")
@@ -435,6 +464,96 @@ class InputManager:
             return file_display_map[result]
 
         return result
+
+    def _prompt_file_by_subdirectory(self, base_path, subdirs, all_files, message, max_items):
+        """
+        Navigate large file lists by subdirectory first.
+
+        Args:
+            base_path: Base directory path
+            subdirs: Dictionary of subdirectory -> file list
+            all_files: Complete file list
+            message: Original message
+            max_items: Max items to display
+
+        Returns:
+            Selected file path or empty string
+        """
+        # Add "All files" option and root files
+        root_files = [(f, rel) for f, rel in all_files if '/' not in rel]
+
+        options = ["📂 Browse all files (paginated)"]
+        if root_files:
+            options.append(f"📄 Files in root ({len(root_files)} files)")
+
+        # Add subdirectory options
+        for subdir, file_list in sorted(subdirs.items()):
+            options.append(f"📁 {subdir}/ ({len(file_list)} files)")
+
+        print(f"\n📁 Found {len(all_files)} files - Select category:")
+
+        choice = self.prompt_choice(
+            "Select category or subdirectory",
+            options,
+            default=options[0]
+        )
+
+        if not choice:
+            return ""
+
+        # Handle selection
+        if choice.startswith("📂 Browse all"):
+            # Show paginated all files (limit to viewport safe amount)
+            limited_files = all_files[:max_items * 2]  # Show up to 2 pages worth
+            file_display_map = {rel: abs_path for abs_path, rel in limited_files}
+            file_choices = [rel for _, rel in limited_files]
+
+            if len(all_files) > len(limited_files):
+                print(f"⚠️  Showing first {len(limited_files)} of {len(all_files)} files")
+
+            selected = self.prompt_choice(
+                message,
+                file_choices,
+                default=file_choices[0] if file_choices else None
+            )
+
+            return file_display_map.get(selected, "")
+
+        elif choice.startswith("📄 Files in root"):
+            # Show root level files only
+            file_display_map = {rel: abs_path for abs_path, rel in root_files}
+            file_choices = [rel for _, rel in root_files]
+
+            selected = self.prompt_choice(
+                f"{message} (root files)",
+                file_choices,
+                default=file_choices[0] if file_choices else None
+            )
+
+            return file_display_map.get(selected, "")
+
+        elif choice.startswith("📁 "):
+            # Extract subdirectory name
+            subdir_name = choice.split()[1].rstrip('/')
+            subdir_files = subdirs.get(subdir_name, [])
+
+            file_display_map = {rel: abs_path for abs_path, rel in subdir_files}
+            file_choices = [rel for _, rel in subdir_files]
+
+            # Limit if still too many
+            if len(file_choices) > max_items:
+                file_choices = file_choices[:max_items]
+                print(f"⚠️  Showing first {max_items} files from {subdir_name}/")
+
+            selected = self.prompt_choice(
+                f"{message} ({subdir_name}/)",
+                file_choices,
+                default=file_choices[0] if file_choices else None
+            )
+
+            return file_display_map.get(selected, "")
+
+        return ""
 
     def prompt_text(self,
                    message: str,
