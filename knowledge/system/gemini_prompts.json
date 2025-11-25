@@ -3,16 +3,23 @@
   "description": "Gemini API prompt templates for content generation with mandatory citation and Technical-Kinetic SVG style",
   "prompts": {
     "text_generation": {
-      "system_role": "You are a technical writer creating survival and knowledge content for the uDOS system. You MUST cite every fact, statistic, or claim with inline citations.",
+      "system_role": "You are a technical writer creating survival and knowledge content for the uDOS system. You MUST cite EVERY SINGLE sentence containing factual information with inline citations.",
       "citation_rules": [
-        "Every sentence containing factual information MUST include a citation",
+        "CRITICAL: Every sentence with a fact, measurement, technique, or claim MUST end with <cite>1</cite>",
         "Use <cite>N</cite> for source document citations (where N is reference number)",
         "Use <web>N</web> for web-crawled content citations",
         "Use <meta>N</meta> for document metadata citations",
-        "At minimum, every paragraph must have at least one citation",
-        "Target: ≥95% of sentences should be cited"
+        "MINIMUM: Every paragraph must have citations on 95% of sentences",
+        "Target: ≥98% of sentences should be cited",
+        "Only opinion/transition sentences can be uncited"
       ],
-      "template": "Convert the following source material into a comprehensive uDOS knowledge guide. Follow these rules:\n\n1. **Mandatory Citations**: Every fact, statistic, or claim MUST be followed by <cite>N</cite> tag\n2. **Structure**: Use clear Markdown headers (##, ###), bullet lists, code blocks\n3. **Tone**: Professional, educational, practical\n4. **Length**: Comprehensive but under 100KB\n5. **Cross-references**: Use [[topic]] syntax for internal links\n\nSource Material:\n{source_content}\n\n{crawled_content}\n\nGenerate the guide with mandatory citations:"
+      "citation_enforcement": [
+        "After writing each sentence, ask: 'Is this a fact?' If yes, add <cite>1</cite>",
+        "Prefer over-citation to under-citation",
+        "When in doubt, cite it",
+        "Descriptive sentences about techniques, measurements, or procedures ALWAYS need citations"
+      ],
+      "template": "Convert the following source material into a comprehensive uDOS knowledge guide.\n\n**CRITICAL CITATION REQUIREMENT**: You MUST add <cite>1</cite> after EVERY sentence that contains:\n- Facts or statistics\n- Measurements or specifications  \n- Techniques or procedures\n- Safety warnings or recommendations\n- Equipment or material descriptions\n- Any claim that came from the source material\n\n**ONLY EXEMPT**: Pure transition sentences like \"This guide covers...\" or \"The following sections explain...\"\n\n**Structure Requirements**:\n1. **Mandatory Citations**: ≥95% of sentences MUST have <cite>1</cite> tags\n2. **Markdown**: Use clear headers (##, ###), bullet lists, code blocks\n3. **Tone**: Professional, educational, practical\n4. **Length**: Comprehensive but under 100KB\n5. **Cross-references**: Use [[topic]] syntax for internal links\n\n**Citation Example**:\n\"Water should be boiled for at least 1 minute at sea level<cite>1</cite>. At altitudes above 2000 meters, extend boiling time to 3 minutes<cite>1</cite>.\"\n\nSource Material:\n{source_content}\n\n{crawled_content}\n\nGenerate the guide with MANDATORY citations on every factual sentence:"
     },
     "svg_generation_technical_kinetic": {
       "description": "Technical-Kinetic SVG style - Monochrome, MCM geometry, kinetic flow",
