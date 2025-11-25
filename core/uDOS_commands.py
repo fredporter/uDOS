@@ -103,6 +103,9 @@ class CommandHandler:
 
         # v1.1.0 - User Feedback System
         from core.commands.user_handler import UserCommandHandler
+        
+        # v1.0.32 - Tree Structure Generator
+        from core.commands.tree_handler import TreeHandler
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
@@ -132,6 +135,9 @@ class CommandHandler:
 
         # v1.1.0 - User Feedback handler
         self.user_handler = UserCommandHandler(**handler_kwargs)
+        
+        # v1.0.32 - TREE Structure handler
+        self.tree_handler = TreeHandler()
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
@@ -271,6 +277,10 @@ class CommandHandler:
             # v1.1.0 - User Feedback System
             elif module == "USER":
                 return self.user_handler.handle(command, params, grid)
+            
+            # v1.0.32 - TREE Directory Structure Generator
+            elif module == "TREE":
+                return self.tree_handler.handle(params)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag
