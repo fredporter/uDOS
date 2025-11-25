@@ -1081,6 +1081,14 @@ class FileCommandHandler(BaseCommandHandler):
 
             # Template selection
             templates = self.workspace_manager.TEMPLATES
+            
+            # Ensure templates is a dict
+            if not isinstance(templates, dict):
+                return self.output_formatter.format_error(
+                    "Template system error",
+                    error_details=f"Invalid templates type: {type(templates)}"
+                )
+            
             template_choices = [f"{key} - {tpl['name']}"
                                for key, tpl in templates.items()]
 
