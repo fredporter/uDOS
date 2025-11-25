@@ -1,7 +1,7 @@
 {
   "command_counts": {
     "ERROR": 169,
-    "HELP": 44,
+    "HELP": 45,
     "STATUS": 13,
     "BLANK": 2,
     "THEME": 2,
@@ -24,10 +24,10 @@
     "SETUP": 7,
     "SHOW": 3,
     "EDIT": 1,
-    "MENU": 8,
+    "MENU": 10,
     "HISTORY": 2,
     "OK": 6,
-    "OUTPUT": 16,
+    "OUTPUT": 23,
     "CATEGORIES": 1,
     "SHAKEDOWN": 5,
     "UNDO": 1,
@@ -37,7 +37,7 @@
     "GENERATE": 1
   },
   "success_counts": {
-    "HELP": 44,
+    "HELP": 45,
     "BLANK": 2,
     "STATUS": 11,
     "THEME": 2,
@@ -59,10 +59,10 @@
     "SETUP": 7,
     "SHOW": 3,
     "EDIT": 1,
-    "MENU": 8,
+    "MENU": 10,
     "HISTORY": 2,
     "OK": 6,
-    "OUTPUT": 14,
+    "OUTPUT": 20,
     "CATEGORIES": 1,
     "SHAKEDOWN": 5,
     "SPLASH": 1,
@@ -75,96 +75,10 @@
     "ERROR": 169,
     "STATUS": 2,
     "SPLASH": 1,
-    "OUTPUT": 2,
+    "OUTPUT": 3,
     "GENERATE": 1
   },
   "recent_commands": [
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T21:59:21.997184",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "MENU",
-      "timestamp": "2025-11-22T21:59:33.283677",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T22:46:34.879059",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-25T18:39:00.777477",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "SETTINGS",
-      "timestamp": "2025-11-25T18:39:05.707193",
-      "params": [
-        "SHOW"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-25T18:39:27.624799",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "DASH",
-      "timestamp": "2025-11-25T18:39:34.594528",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-25T18:39:54.621909",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "TREE",
-      "timestamp": "2025-11-25T18:39:57.743735",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-25T18:40:02.913238",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "HISTORY",
       "timestamp": "2025-11-25T18:40:25.990870",
@@ -902,7 +816,96 @@
       ],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "MENU",
+      "timestamp": "2025-11-26T01:50:55.472005",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MENU",
+      "timestamp": "2025-11-26T01:51:14.294532",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-26T01:52:07.850515",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:52:34.667833",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:52:37.488686",
+      "params": [
+        "list"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:52:43.999026",
+      "params": [
+        "start",
+        "typo"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:52:51.589373",
+      "params": [
+        "start",
+        "dashboard"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:53:09.233142",
+      "params": [
+        "start",
+        "teletext"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:53:16.914979",
+      "params": [
+        "start",
+        "terminal"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T01:53:27.985738",
+      "params": [
+        "start",
+        "desktop"
+      ],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-26T01:24:55.116873"
+  "last_updated": "2025-11-26T01:53:27.985764"
 }

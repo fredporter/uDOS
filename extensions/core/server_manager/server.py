@@ -19,14 +19,13 @@ class ServerManager:
 
     def __init__(self, state_file='sandbox/.server_state.json'):
         self.state_file = state_file
-        self.extensions_dir = Path('extensions')
+        # Get absolute path to uDOS root (where extensions/ folder is)
+        self.udos_root = Path(__file__).parent.parent.parent.parent
+        self.extensions_dir = self.udos_root / 'extensions'
         self.cloned_dir = self.extensions_dir / 'cloned'  # External cloned extensions
         self.core_dir = self.extensions_dir / 'core'      # Built-in core extensions
+        self.web_dir = self.cloned_dir  # Web extensions are in cloned/
         self.servers = self._load_state()
-        # Use absolute path to launcher script
-        udos_root = Path(__file__).parent.parent
-        self.launcher_path = udos_root / 'extensions' / 'core' / 'launch_web.py'
-        self.udos_root = udos_root
 
     def _get_python_executable(self) -> str:
         """Get Python executable, preferring venv."""
@@ -38,35 +37,39 @@ class ServerManager:
     def _use_bulletproof_launcher(self, server_name: str, port: Optional[int] = None,
                                    open_browser: bool = True) -> Tuple[bool, str]:
         """
-        Use the bulletproof Python launcher for web extensions.
-
-        This is more reliable than individual server management methods.
+        Use the unified extensions server to launch web extensions.
         """
-        if not self.launcher_path.exists():
-            return False, f"❌ Launcher not found: {self.launcher_path}"
+        # Path to unified extensions server
+        server_script = self.core_dir / 'extensions_server.py'
 
-        # Map server names to launcher names
+        if not server_script.exists():
+            return False, f"❌ Extensions server not found: {server_script}"
+
+        # Map server names to extension names in extensions_server.py
         server_map = {
             'dashboard': 'dashboard',
-            'font-editor': 'font-editor',
-            'markdown-viewer': 'markdown-viewer',
-            'cmd': 'terminal',
-            'terminal': 'terminal'
+            'teletext': 'teletext',
+            'terminal': 'terminal',
+            'markdown-viewer': 'markdown',
+            'markdown': 'markdown',
+            'typo': 'typo',  # If typo is added to extensions_server.py
+            'font-editor': 'character',
+            'character': 'character'
         }
 
-        launcher_name = server_map.get(server_name)
-        if not launcher_name:
-            return False, f"❌ Unknown server: {server_name}"
+        extension_name = server_map.get(server_name)
+        if not extension_name:
+            available = ', '.join(server_map.keys())
+            return False, f"❌ Unknown server: {server_name}\nAvailable: {available}"
 
         # Get Python executable (prefer venv)
         python_exe = self._get_python_executable()
 
         # Build command
-        cmd = [python_exe, str(self.launcher_path), launcher_name]
+        cmd = [python_exe, str(server_script), extension_name]
         if port:
             cmd.extend(['--port', str(port)])
-        if not open_browser:
-            cmd.append('--no-browser')
+        # Note: extensions_server doesn't have --no-browser flag, it doesn't auto-open by default
 
         try:
             # Start server in background using Popen (don't wait for it)
@@ -80,7 +83,7 @@ class ServerManager:
                     stdout=log,
                     stderr=subprocess.STDOUT,
                     start_new_session=True,  # Detach from parent
-                    cwd=str(Path(__file__).parent.parent)  # Run from uDOS root
+                    cwd=str(self.udos_root)  # Run from uDOS root
                 )
 
             # Wait briefly to check if it started successfully
