@@ -1103,11 +1103,6 @@ class FileCommandHandler(BaseCommandHandler):
 
             template = template_choice.split()[0]  # Extract key
 
-            # Debug logging
-            print(f"DEBUG: workspace={workspace}, filename={filename}, template={template}")
-            print(f"DEBUG: template type={type(template)}")
-            print(f"DEBUG: workspace_manager.TEMPLATES type={type(self.workspace_manager.TEMPLATES)}")
-
             # Create file
             file_path = self.workspace_manager.create_file(
                 workspace, filename, template
@@ -1115,15 +1110,17 @@ class FileCommandHandler(BaseCommandHandler):
 
             return self.output_formatter.format_success(
                 f"File created: {filename}",
-                details=f"Workspace: {workspace}\nTemplate: {template}\nPath: {file_path}"
+                details={
+                    "Workspace": workspace,
+                    "Template": template,
+                    "Path": str(file_path)
+                }
             )
 
         except Exception as e:
-            import traceback
-            tb = traceback.format_exc()
             return self.output_formatter.format_error(
                 "File creation failed",
-                error_details=f"{str(e)}\n\nTraceback:\n{tb}"
+                error_details=str(e)
             )
 
     def _smart_edit_file(self):
