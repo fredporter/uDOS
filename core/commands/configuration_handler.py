@@ -1311,22 +1311,37 @@ class ConfigurationHandler(BaseCommandHandler):
             elif action == "Set CLI Editor (nano/micro/vim)":
                 # Get current editor
                 current_editor = config.get('CLI_EDITOR', 'nano')
-                
+
                 # Detect available editors
                 from core.services.editor_manager import EditorManager
                 editor_mgr = EditorManager()
                 available = editor_mgr.detect_available_editors()
-                
+
                 if not available['CLI']:
                     output.append("\n❌ No CLI editors found!")
                 else:
+                    # Add "Install micro editor" option if not already installed
+                    choices = available['CLI'].copy()
+                    if 'micro' not in available['CLI']:
+                        choices.append("📥 Install micro editor")
+                    choices.append("Back")
+
                     new_editor = self.input_manager.prompt_choice(
                         message="Select default CLI editor:",
-                        choices=available['CLI'] + ["Back"],
+                        choices=choices,
                         default=current_editor if current_editor in available['CLI'] else available['CLI'][0]
                     )
-                    
-                    if new_editor != "Back":
+
+                    if new_editor == "📥 Install micro editor":
+                        output.append("\n📦 Installing micro editor...")
+                        if editor_mgr.install_micro():
+                            output.append("✅ Micro editor installed successfully!")
+                            config.set('CLI_EDITOR', 'micro', persist=True)
+                            output.append("📝 Set as default CLI editor")
+                            output.append("💡 Use 'edit filename' to open files in micro")
+                        else:
+                            output.append("❌ Failed to install micro editor")
+                    elif new_editor != "Back":
                         config.set('CLI_EDITOR', new_editor, persist=True)
                         output.append(f"\n✅ CLI editor set to: {new_editor}")
                         output.append("📝 Changes saved to .env")
