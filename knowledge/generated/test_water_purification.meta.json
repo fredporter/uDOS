@@ -1,0 +1,9 @@
+{
+  "topic": "Test Water Purification",
+  "generated_at": "2025-11-26 02:40:21",
+  "model": "gemini-2.5-flash",
+  "citation_valid": false,
+  "citation_coverage": 0.828,
+  "word_count": 404,
+  "size_bytes": 3167
+}

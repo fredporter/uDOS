@@ -1,0 +1,92 @@
+<svg width="1000" height="600" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" style="background-color:#FFFFFF;">
+  <defs>
+    <!-- Pattern 1: Hatching (diagonal lines) -->
+    <pattern id="hatchPattern" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="10" stroke="#000000" stroke-width="1.5"/>
+    </pattern>
+
+    <!-- Pattern 2: Stipple (dots) -->
+    <pattern id="stipplePattern" patternUnits="userSpaceOnUse" width="4" height="4">
+      <circle cx="1" cy="1" r="0.5" fill="#000000"/>
+    </pattern>
+
+    <!-- Pattern 3: Wavy lines -->
+    <pattern id="wavyPattern" patternUnits="userSpaceOnUse" width="10" height="10">
+      <path d="M0,5 C2.5,2.5 7.5,7.5 10,5" stroke="#000000" stroke-width="1.5" fill="none"/>
+    </pattern>
+
+    <!-- Pattern 4: Fine Stipple (for treated water, less dense) -->
+    <pattern id="fineStipplePattern" patternUnits="userSpaceOnUse" width="8" height="8">
+      <circle cx="1" cy="1" r="0.4" fill="#000000"/>
+    </pattern>
+  </defs>
+
+  <!-- Global Stroke Width -->
+  <g stroke="#000000" stroke-width="2.5">
+
+    <!-- Header -->
+    <text x="500" y="50" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16pt" fill="#000000">Test Water Purification System</text>
+
+    <!-- 1. Untreated Water Reservoir -->
+    <rect x="50" y="150" width="150" height="100" fill="url(#wavyPattern)" stroke="#000000"/>
+    <text x="125" y="225" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9pt" fill="#000000">Untreated Water</text>
+
+    <!-- 2. Intake Pump (Lever & Gear) -->
+    <rect x="220" y="170" width="20" height="60" fill="#FFFFFF" stroke="#000000"/> <!-- Pump Body -->
+    <circle cx="230" cy="170" r="10" fill="#000000"/> <!-- Pivot -->
+    <rect x="230" y="160" width="60" height="10" transform="rotate(-45 230 170)" fill="#FFFFFF" stroke="#000000"/> <!-- Lever Arm -->
+    <rect x="280" y="140" width="10" height="10" fill="#000000" stroke="#000000"/> <!-- Lever Handle -->
+    <text x="255" y="245" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9pt" fill="#000000">Intake Pump</text>
+
+    <!-- Conduit 1: Untreated Water to Pre-Filter -->
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 180 250 180 H280 Q290 180 300 200 C320 220 340 220 360 220 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q210 190 230 190 H260 Q270 190 280 200 C300 210 320 210 340 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q205 195 210 195 H240 Q250 195 260 200 C280 205 300 205 320 205 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 L220 200 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 180 250 180 H280 Q290 180 300 200 C320 220 340 220 360 220 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 C200 200 200 200 200 200 L220 200 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 L220 200 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 180 250 180 H280 Q290 180 300 200 C320 220 340 220 360 220 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 Q215 170 240 170 H270 Q290 170 300 200 C320 230 340 230 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 L220 200 A30 30 0 0 1 270 200 C300 200 300 200 330 200 L330 200 C330 200 330 200 330 200 C330 200 330 200 330 200 A30 30 0 0 1 360 230 V250" fill="none" stroke="#000000"/>
+    <path d="M200 200 H220 Q230 190 250 190 H280 Q290 190 300 200 C320 210 340 210 360 210 V250" fill="
