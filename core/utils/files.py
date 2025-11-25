@@ -172,6 +172,11 @@ HELP
         filepath.write_text(content)
         return filepath
 
+    def create_file(self, workspace: Optional[str], filename: str,
+                   template: str = 'blank', variables: Optional[Dict] = None) -> Path:
+        """Create new file from template (alternative signature for compatibility)"""
+        return self.new_file(filename, template, workspace, variables)
+
     def delete_file(self, filename: str, workspace: Optional[str] = None) -> bool:
         """Delete file from workspace"""
         ws_path = self.get_workspace_path(workspace)
