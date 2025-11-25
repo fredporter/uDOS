@@ -375,18 +375,20 @@ class InputManager:
             file_display_map = {f: f for f in files}
             file_choices = files
 
-        # For many files (>20), use interactive selector
+        # For many files (>20), use unified selector
         if len(file_choices) > 20:
             print(f"\n📁 Found {len(file_choices)} file(s) in {starting_path}")
 
-            idx, selected = self.select_option(
-                message,
-                file_choices,
-                show_numbers=True,
-                allow_filter=True
+            from core.ui.unified_selector import select_single
+
+            selected = select_single(
+                title=f"📝 {message}",
+                items=file_choices,
+                descriptions=[f"[{Path(starting_path).name}] {f}" for f in file_choices],
+                default_index=0
             )
 
-            if idx == -1 or not selected:
+            if not selected:
                 return ""
 
             # Map back to absolute path
