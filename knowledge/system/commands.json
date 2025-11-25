@@ -1216,15 +1216,23 @@
     {
       "NAME": "DIAGRAM",
       "ALIASES": [],
-      "SYNTAX": "DIAGRAM <LIST|SEARCH|SHOW|RENDER|EXPORT> [params]",
-      "DESCRIPTION": "ASCII art library browser - search, view, and export diagrams from knowledge base.",
+      "SYNTAX": "DIAGRAM <LIST|SEARCH|SHOW|RENDER|EXPORT|GENERATE> [params]",
+      "DESCRIPTION": "ASCII art library browser and content generator - search, view, export diagrams, and generate new content with Gemini API (v1.6.0).",
       "UCODE_TEMPLATE": "[DIAGRAM|$1*$2*$3]",
       "DEFAULT_PARAMS": {
         "$1": "LIST",
         "$2": null,
         "$3": null
       },
-      "FLAGS": {},
+      "FLAGS": {
+        "--crawl": "Enable web crawler for supplementary content (GENERATE)",
+        "--style": "SVG style: technical|kinetic|hybrid (GENERATE)",
+        "--output": "Output directory path (GENERATE)",
+        "--citations-strict": "Require 100% citation coverage (GENERATE)",
+        "--validate": "Run full quality validation (GENERATE)",
+        "--format": "Output formats: md,svg,ascii,teletext (GENERATE)",
+        "--batch": "Batch process directory (GENERATE)"
+      },
       "SUBCOMMANDS": {
         "LIST": "List diagrams by type category",
         "SEARCH": "Search diagram library by keywords",
@@ -1232,7 +1240,8 @@
         "RENDER": "Render with custom width",
         "COPY": "Copy to grid panel",
         "EXPORT": "Save diagram to file",
-        "TYPES": "Show diagram categories"
+        "TYPES": "Show diagram categories",
+        "GENERATE": "Generate content + Technical-Kinetic SVGs with Gemini API (v1.6.0)"
       },
       "TYPES": {
         "knot": "Knot tying instructions",
@@ -1256,14 +1265,22 @@
         "DIAGRAM SHOW bowline",
         "DIAGRAM RENDER compass 40",
         "DIAGRAM EXPORT shelter-diagram shelter.txt",
-        "DIAGRAM TYPES"
+        "DIAGRAM TYPES",
+        "DIAGRAM GENERATE knowledge/water/filtration.md",
+        "DIAGRAM GENERATE guide.pdf --crawl --style kinetic",
+        "DIAGRAM GENERATE knowledge/fire/ --batch --citations-strict"
       ],
       "NOTES": [
         "Extracts diagrams from knowledge guides",
         "Viewport-aware rendering",
         "Scale to fit terminal width",
         "Export in multiple formats",
-        "Categorized library with search"
+        "Categorized library with search",
+        "✨ v1.6.0: GENERATE creates content with mandatory citations",
+        "GENERATE uses Gemini API (requires GEMINI_API_KEY)",
+        "Technical-Kinetic SVG style: monochrome MCM + kinetic flow",
+        "Citation coverage target: ≥95% (strict mode: 100%)",
+        "Multi-stage: Analysis → Crawl → Text → SVG → Assembly"
       ]
     }
   ]
