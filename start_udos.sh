@@ -70,19 +70,34 @@ if command -v python3 &> /dev/null; then
                     if brew install python@3.12; then
                         print_success "Python 3.12 installed successfully!"
 
+                        # Add Python 3.12 to shell PATH permanently
+                        print_status "Updating shell configuration..."
+                        PYTHON_PATH='export PATH="/opt/homebrew/opt/python@3.12/bin:$PATH"'
+
+                        # Add to .zshrc if not already present
+                        if ! grep -q "python@3.12" ~/.zshrc 2>/dev/null; then
+                            echo "" >> ~/.zshrc
+                            echo "# Python 3.12 from Homebrew (added by uDOS)" >> ~/.zshrc
+                            echo "$PYTHON_PATH" >> ~/.zshrc
+                            print_success "Added Python 3.12 to ~/.zshrc"
+                        fi
+
                         # Link the new Python
                         print_status "Linking Python 3.12..."
-                        brew link python@3.12 --overwrite
+                        brew link python@3.12 --overwrite --force
+
+                        # Use explicit path for new Python
+                        PYTHON_BIN="/opt/homebrew/bin/python3.12"
 
                         # Verify new version
-                        NEW_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
-                        print_success "Python upgraded to $NEW_VERSION"
+                        NEW_VERSION=$($PYTHON_BIN --version 2>&1 | cut -d' ' -f2)
+                        print_success "Python available at version $NEW_VERSION"
 
-                        # Recreate virtual environment
+                        # Recreate virtual environment with Python 3.12
                         echo ""
-                        print_status "Recreating virtual environment with new Python..."
+                        print_status "Recreating virtual environment with Python 3.12..."
                         rm -rf .venv
-                        python3 -m venv .venv
+                        $PYTHON_BIN -m venv .venv
                         source .venv/bin/activate
 
                         print_status "Installing dependencies..."
@@ -92,6 +107,7 @@ if command -v python3 &> /dev/null; then
                         print_success "Setup complete! Python upgraded successfully."
                         echo ""
                         echo -e "${GREEN}✓ Ready to continue startup${NC}"
+                        echo -e "${CYAN}💡 Restart your terminal for PATH changes to take effect${NC}"
                         echo ""
                     else
                         print_error "Installation failed. Try manual installation instead."
