@@ -9,7 +9,6 @@ include CONTRIBUTING.md
 include CREDITS.md
 include requirements.txt
 include start_udos.sh
-include pytest.ini
 
 # Core source code
 recursive-include core *.py

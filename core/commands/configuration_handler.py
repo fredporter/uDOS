@@ -1,5 +1,5 @@
 """
-uDOS v1.0.13 - Configuration Handler
+uDOS v1.5.0 - Configuration Handler
 
 Handles configuration management operations:
 - Settings display and modification
@@ -7,6 +7,7 @@ Handles configuration management operations:
 - Configuration file management
 - User preferences
 - Advanced theme management (v1.0.13+)
+- Unified configuration via ConfigManager (v1.5.0+)
 """
 
 import json
@@ -15,6 +16,7 @@ from pathlib import Path
 from .base_handler import BaseCommandHandler
 from core.theme.manager import ThemeManager
 from core.theme.builder import ThemeBuilder
+from core.uDOS_main import get_config  # v1.5.0 Unified configuration
 
 
 class ConfigurationHandler(BaseCommandHandler):
@@ -99,12 +101,13 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("👤 USER SETTINGS:")
         output.append("-" * 40)
 
-        # Get user data from story_manager (STORY section)
-        user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
-        location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
-        timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
-        password = self.story_manager.get_field('STORY.PASSWORD', '')
-        project_name = self.story_manager.get_field('STORY.PROJECT_NAME', 'Not set')
+        # Get user data from ConfigManager (v1.5.0)
+        config = get_config()
+        user_name = config.get('username', 'Not set')
+        location = config.get('location', 'Not set')
+        timezone = config.get('timezone', 'UTC')
+        password = config.get('password', '')
+        project_name = 'uDOS_project'  # TODO: Add to ConfigManager schema if needed
 
         password_display = '●●●●●●' if password else 'Not set'
 
@@ -114,8 +117,8 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append(f"  Location: {location}")
         output.append(f"  Timezone: {timezone}")
 
-        # Get theme from story manager
-        theme_name = self.story_manager.get_field('STORY.THEME', 'Not set')
+        # Get theme from ConfigManager
+        theme_name = config.get('theme', 'Not set')
         output.append(f"  Theme: {theme_name}")
 
         # System settings
@@ -154,11 +157,12 @@ class ConfigurationHandler(BaseCommandHandler):
                 return "Grid not initialized"
 
         elif key_upper == 'USER':
-            # Get user data from story_manager (STORY section)
-            user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
-            location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
-            timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
-            password = self.story_manager.get_field('STORY.PASSWORD', '')
+            # Get user data from ConfigManager (v1.5.0)
+            config = get_config()
+            user_name = config.get('username', 'Not set')
+            location = config.get('location', 'Not set')
+            timezone = config.get('timezone', 'UTC')
+            password = config.get('password', '')
 
             password_display = '●●●●●●' if password else 'Not set'
 
@@ -995,11 +999,14 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _manage_api_keys_interactive(self):
-        """Interactive API key management."""
+        """Interactive API key management (v1.5.0: Uses ConfigManager)."""
         try:
-            # Get current API keys
-            gemini_key = self.story_manager.get_field('CONFIG.API_KEY', '')
-            github_token = self.story_manager.get_field('CONFIG.GITHUB_TOKEN', '')
+            # Get ConfigManager instance
+            config = get_config()
+
+            # Get current API keys from ConfigManager
+            gemini_key = config.get('GEMINI_API_KEY', '')
+            github_token = config.get('GITHUB_TOKEN', '')
 
             # Show current status
             output = []
@@ -1029,8 +1036,9 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
                 if new_key:
-                    self.story_manager.set_field('CONFIG.API_KEY', new_key, auto_save=True)
+                    config.set('GEMINI_API_KEY', new_key, persist=True)
                     output.append("\n✅ Gemini API Key updated")
+                    output.append("📝 Changes saved to .env")
                 else:
                     output.append("\n⚠️ Gemini API Key unchanged")
 
@@ -1041,8 +1049,9 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
                 if new_token:
-                    self.story_manager.set_field('CONFIG.GITHUB_TOKEN', new_token, auto_save=True)
+                    config.set('GITHUB_TOKEN', new_token, persist=True)
                     output.append("\n✅ GitHub Token updated")
+                    output.append("📝 Changes saved to .env")
                 else:
                     output.append("\n⚠️ GitHub Token unchanged")
 
@@ -1058,9 +1067,10 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=False
                 )
                 if confirm:
-                    self.story_manager.set_field('CONFIG.API_KEY', '', auto_save=True)
-                    self.story_manager.set_field('CONFIG.GITHUB_TOKEN', '', auto_save=True)
+                    config.set('GEMINI_API_KEY', '', persist=True)
+                    config.set('GITHUB_TOKEN', '', persist=True)
                     output.append("\n✅ API Keys cleared")
+                    output.append("📝 Changes saved to .env")
                 else:
                     output.append("\n⚠️ Operation cancelled")
 
@@ -1073,22 +1083,25 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _manage_user_profile_interactive(self):
-        """Interactive user profile management."""
+        """Interactive user profile management (v1.5.0: Uses ConfigManager)."""
         try:
+            # Get ConfigManager instance
+            config = get_config()
+
             # Auto-detect system timezone and location
             from core.utils.system_info import get_system_timezone
             detected_timezone, detected_city = get_system_timezone()
 
-            # Get current profile
-            user_name = self.story_manager.get_field('STORY.USER_NAME', '')
-            password = self.story_manager.get_field('STORY.PASSWORD', '')
-            location = self.story_manager.get_field('STORY.LOCATION', '')
-            timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+            # Get current profile from ConfigManager
+            user_name = config.get('username', '')
+            password = config.get('password', '')
+            location = config.get('location', '')
+            timezone = config.get('timezone', '')
 
             # Use detected values as defaults if not set
-            if not timezone:
+            if not timezone or timezone == 'UTC':
                 timezone = detected_timezone
-            if not location:
+            if not location or location == 'Unknown':
                 location = detected_city
 
             # Show current profile
@@ -1122,7 +1135,8 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=user_name,
                     required=True
                 )
-                self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=True)
+                # Update via ConfigManager (auto-persists to both .env and user.json)
+                config.set('username', new_name, persist=True)
                 output.append(f"\n✅ Username updated to: {new_name}")
 
             elif action == "Password":
@@ -1131,7 +1145,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default="",
                     required=False
                 )
-                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=True)
+                config.set('password', new_password, persist=True)
                 if new_password:
                     output.append("\n✅ Password updated")
                 else:
@@ -1143,7 +1157,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=location or detected_city,
                     required=False
                 )
-                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
+                config.set('location', new_location, persist=True)
                 output.append(f"\n✅ Location updated to: {new_location}")
 
             elif action == "Timezone":
@@ -1152,7 +1166,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=timezone or detected_timezone,
                     required=False
                 )
-                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=True)
+                config.set('timezone', new_timezone, persist=True)
                 output.append(f"\n✅ Timezone updated to: {new_timezone}")
 
             elif action == "Update All Fields":
@@ -1181,13 +1195,15 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
 
-                # Save all fields
-                self.story_manager.set_field('STORY.USER_NAME', new_name, auto_save=False)
-                self.story_manager.set_field('STORY.PASSWORD', new_password, auto_save=False)
-                self.story_manager.set_field('STORY.TIMEZONE', new_timezone, auto_save=False)
-                self.story_manager.set_field('STORY.LOCATION', new_location, auto_save=True)
+                # Save all fields via ConfigManager (auto-persists)
+                config.set('username', new_name, persist=False)
+                config.set('password', new_password, persist=False)
+                config.set('timezone', new_timezone, persist=False)
+                config.set('location', new_location, persist=False)
+                config.save()  # Save all changes at once
 
                 output.append("\n✅ User profile updated")
+                output.append("📝 Changes saved to .env and user.json")
 
             return "\n".join(output)
 
@@ -1198,12 +1214,15 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _manage_system_settings_interactive(self):
-        """Interactive system settings management."""
+        """Interactive system settings management (v1.5.0: Uses ConfigManager)."""
         try:
+            # Get ConfigManager instance
+            config = get_config()
+
             # Get current settings
-            current_theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+            current_theme = config.get('theme', 'dungeon')
             debug_mode = getattr(self.logger, 'debug_enabled', False) if self.logger else False
-            offline_mode = self.story_manager.get_field('SYSTEM.OFFLINE_MODE', False)
+            offline_mode = False  # TODO: Add to ConfigManager schema in future
 
             # Show current settings
             output = []
@@ -1242,8 +1261,9 @@ class ConfigurationHandler(BaseCommandHandler):
                         choices=available_themes,
                         default=current_theme if current_theme in available_themes else available_themes[0]
                     )
-                    self.story_manager.set_field('STORY.THEME', new_theme, auto_save=True)
+                    config.set('theme', new_theme, persist=True)
                     output.append(f"\n✅ Theme changed to: {new_theme}")
+                    output.append("📝 Changes saved to .env and user.json")
                     output.append("⚠️ Restart uDOS to apply theme changes")
 
             elif action == "Toggle Debug Mode":
@@ -1328,13 +1348,22 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _get_config_value(self, key: str):
-        """Get a configuration value by key (dot notation)."""
+        """Get a configuration value by key (v1.5.0: Uses ConfigManager)."""
         try:
-            # Parse key path
+            config = get_config()
+
+            # Try ConfigManager first for known keys
+            value = config.get(key)
+            if value is not None:
+                return self.output_formatter.format_panel(
+                    f"Configuration: {key}",
+                    str(value)
+                )
+
+            # Fallback to story_manager for legacy/unknown keys
             if '.' in key:
                 value = self.story_manager.get_field(key, default='Not found')
             else:
-                # Backward compatibility: simple keys
                 value = self.story_manager.get_field(f'CONFIG.{key}', default='Not found')
 
             return self.output_formatter.format_panel(
@@ -1349,14 +1378,23 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _set_config_value(self, key: str, value: str):
-        """Set a configuration value by key (dot notation)."""
+        """Set a configuration value by key (v1.5.0: Uses ConfigManager)."""
         try:
-            # Parse key path
-            if '.' in key:
-                self.story_manager.set_field(key, value, auto_save=True)
-            else:
-                # Backward compatibility: simple keys go to CONFIG
-                self.story_manager.set_field(f'CONFIG.{key}', value, auto_save=True)
+            config = get_config()
+
+            # Try ConfigManager first for known keys
+            try:
+                config.set(key, value, persist=True)
+                return self.output_formatter.format_panel(
+                    f"Configuration Updated: {key}",
+                    f"New value: {value}\n📝 Changes saved to .env and user.json"
+                )
+            except KeyError:
+                # Fallback to story_manager for legacy/unknown keys
+                if '.' in key:
+                    self.story_manager.set_field(key, value, auto_save=True)
+                else:
+                    self.story_manager.set_field(f'CONFIG.{key}', value, auto_save=True)
 
             return self.output_formatter.format_success(
                 f"Configuration updated: {key} = {value}"

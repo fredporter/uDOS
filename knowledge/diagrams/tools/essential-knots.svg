@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  
+  <title>Essential Survival Knots</title>
+  <desc>Six critical knots for wilderness situations</desc>
+  
+  <text x="400" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">ESSENTIAL KNOTS</text>
+  <text x="400" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#666">Six critical knots for survival situations</text>
+  
+  <!-- Bowline -->
+  <rect x="40" y="80" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="105" font-family="monospace" font-size="12" font-weight="bold" fill="#000">BOWLINE</text>
+  
+  <circle cx="120" cy="150" r="20" fill="none" stroke="#000" stroke-width="3"/>
+  <path d="M 120 130 L 120 100 M 120 170 L 120 200" stroke="#000" stroke-width="3"/>
+  <path d="M 100 150 Q 90 150, 90 160 L 90 190" stroke="#000" stroke-width="3" fill="none"/>
+  
+  <text x="160" y="135" font-family="monospace" font-size="8" fill="#000">Fixed loop, won't slip</text>
+  <text x="160" y="148" font-family="monospace" font-size="8" fill="#666">Use: Rescue, securing</text>
+  <text x="160" y="161" font-family="monospace" font-size="8" fill="#666">to tree, lifting</text>
+  
+  <rect x="50" y="195" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="55" y="207" font-family="monospace" font-size="7" fill="#000">"Rabbit out of hole, round tree, back in"</text>
+  
+  <!-- Clove hitch -->
+  <rect x="285" y="80" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="295" y="105" font-family="monospace" font-size="12" font-weight="bold" fill="#000">CLOVE HITCH</text>
+  
+  <rect x="340" y="130" width="20" height="60" fill="url(#horizontal)" stroke="#000" stroke-width="2"/>
+  <path d="M 330 140 Q 340 135, 350 140 Q 360 145, 350 150" stroke="#000" stroke-width="3" fill="none"/>
+  <path d="M 330 160 Q 340 155, 350 160 Q 360 165, 350 170" stroke="#000" stroke-width="3" fill="none"/>
+  
+  <text x="375" y="145" font-family="monospace" font-size="8" fill="#000">Quick attach to pole</text>
+  <text x="375" y="158" font-family="monospace" font-size="8" fill="#666">Use: Start lashing,</text>
+  <text x="375" y="171" font-family="monospace" font-size="8" fill="#666">temporary tie</text>
+  
+  <rect x="295" y="195" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="300" y="207" font-family="monospace" font-size="7" fill="#000">Two loops, second under first</text>
+  
+  <!-- Taut-line hitch -->
+  <rect x="530" y="80" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="540" y="105" font-family="monospace" font-size="12" font-weight="bold" fill="#000">TAUT-LINE HITCH</text>
+  
+  <line x1="590" y1="130" x2="590" y2="190" stroke="#000" stroke-width="3"/>
+  <ellipse cx="620" cy="150" rx="15" ry="20" fill="none" stroke="#000" stroke-width="2"/>
+  <ellipse cx="620" cy="170" rx="12" ry="15" fill="none" stroke="#000" stroke-width="2"/>
+  <line x1="635" y1="170" x2="680" y2="170" stroke="#000" stroke-width="3"/>
+  
+  <text x="605" y="135" font-family="monospace" font-size="8" fill="#000">Adjustable tension</text>
+  <text x="605" y="148" font-family="monospace" font-size="8" fill="#666">Use: Tent guy lines,</text>
+  <text x="605" y="161" font-family="monospace" font-size="8" fill="#666">tarps, adjustable</text>
+  
+  <rect x="540" y="195" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="545" y="207" font-family="monospace" font-size="7" fill="#000">Slides when loose, grips under load</text>
+  
+  <!-- Square knot -->
+  <rect x="40" y="235" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="260" font-family="monospace" font-size="12" font-weight="bold" fill="#000">SQUARE KNOT</text>
+  
+  <path d="M 80 300 Q 90 295, 100 300 Q 110 305, 120 300" stroke="#000" stroke-width="3" fill="none"/>
+  <path d="M 120 300 Q 130 295, 140 300 Q 150 305, 160 300" stroke="#000" stroke-width="3" fill="none"/>
+  <path d="M 100 300 Q 100 310, 110 315 Q 120 310, 120 300" stroke="#000" stroke-width="3" fill="none"/>
+  
+  <text x="175" y="295" font-family="monospace" font-size="8" fill="#000">Join two ropes</text>
+  <text x="175" y="308" font-family="monospace" font-size="8" fill="#666">Use: Bandages,</text>
+  <text x="175" y="321" font-family="monospace" font-size="8" fill="#666">packages, bundles</text>
+  
+  <rect x="50" y="350" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="55" y="362" font-family="monospace" font-size="7" fill="#000">"Right over left, left over right"</text>
+  
+  <!-- Sheet bend -->
+  <rect x="285" y="235" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="295" y="260" font-family="monospace" font-size="12" font-weight="bold" fill="#000">SHEET BEND</text>
+  
+  <path d="M 340 300 Q 360 300, 360 320 Q 360 340, 340 340" stroke="#000" stroke-width="3" fill="none"/>
+  <path d="M 380 310 L 350 310 L 350 330 L 380 330" stroke="#000" stroke-width="3" fill="none"/>
+  
+  <text x="405" y="295" font-family="monospace" font-size="8" fill="#000">Different thickness</text>
+  <text x="405" y="308" font-family="monospace" font-size="8" fill="#666">Use: Joining unlike</text>
+  <text x="405" y="321" font-family="monospace" font-size="8" fill="#666">ropes, extending</text>
+  
+  <rect x="295" y="350" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="300" y="362" font-family="monospace" font-size="7" fill="#000">Better than square for unequal sizes</text>
+  
+  <!-- Trucker's hitch -->
+  <rect x="530" y="235" width="230" height="140" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="540" y="260" font-family="monospace" font-size="12" font-weight="bold" fill="#000">TRUCKER'S HITCH</text>
+  
+  <circle cx="610" cy="300" r="15" fill="none" stroke="#000" stroke-width="2"/>
+  <line x1="610" y1="285" x2="610" y2="260" stroke="#000" stroke-width="3"/>
+  <line x1="610" y1="315" x2="610" y2="340" stroke="#000" stroke-width="3"/>
+  <path d="M 625 300 L 660 320" stroke="#000" stroke-width="3"/>
+  
+  <text x="605" y="280" font-family="monospace" font-size="8" fill="#000">Mechanical advantage</text>
+  <text x="605" y="293" font-family="monospace" font-size="8" fill="#666">Use: Securing loads,</text>
+  <text x="605" y="306" font-family="monospace" font-size="8" fill="#666">tight lashing</text>
+  
+  <rect x="540" y="350" width="210" height="15" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="545" y="362" font-family="monospace" font-size="7" fill="#000">3:1 mechanical advantage with pulley</text>
+  
+  <!-- Practice tips -->
+  <rect x="40" y="390" width="720" height="130" fill="#E6E6E6" stroke="#000" stroke-width="2"/>
+  <text x="50" y="415" font-family="monospace" font-size="14" font-weight="bold" fill="#000">KNOT PRACTICE TIPS:</text>
+  
+  <text x="60" y="435" font-family="monospace" font-size="10" fill="#000">• Practice with different rope types (paracord, natural fiber, rope)</text>
+  <text x="60" y="453" font-family="monospace" font-size="10" fill="#000">• Learn these 6 before expanding to specialized knots</text>
+  <text x="60" y="471" font-family="monospace" font-size="10" fill="#000">• Practice in the dark or with gloves (real conditions)</text>
+  <text x="60" y="489" font-family="monospace" font-size="10" fill="#000">• Test each knot under load before trusting it</text>
+  <text x="60" y="507" font-family="monospace" font-size="10" fill="#000">• Leave 6-12 inch tail on all knots (prevents slipping)</text>
+  
+  <!-- Quick reference -->
+  <rect x="40" y="535" width="720" height="145" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="560" font-family="monospace" font-size="12" font-weight="bold" fill="#000">QUICK SELECTION GUIDE:</text>
+  
+  <text x="60" y="580" font-family="monospace" font-size="9" fill="#000">Fixed loop needed → Bowline</text>
+  <text x="60" y="595" font-family="monospace" font-size="9" fill="#000">Attach to pole/tree → Clove hitch (start) or Timber hitch (pulling)</text>
+  <text x="60" y="610" font-family="monospace" font-size="9" fill="#000">Adjustable tension → Taut-line hitch</text>
+  <text x="60" y="625" font-family="monospace" font-size="9" fill="#000">Join same-size ropes → Square knot</text>
+  <text x="60" y="640" font-family="monospace" font-size="9" fill="#000">Join different-size ropes → Sheet bend</text>
+  <text x="60" y="655" font-family="monospace" font-size="9" fill="#000">Maximum tension needed → Trucker's hitch</text>
+  <text x="60" y="670" font-family="monospace" font-size="9" font-weight="bold" fill="#E00">Emergency: Can't remember? → Two half hitches works for most situations</text>
+  
+</svg>

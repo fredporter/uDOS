@@ -1,57 +1,92 @@
-# uDOS v1.1.2 - Production Release
+# uDOS v1.5.0 - DEV MODE & Asset Management
 
-**uDOS** is a secure, dual-interface CLI framework with role-based access control, offline knowledge management, web GUI, and OK Assist integration. Built for self-sufficiency, survival preparation, and sustainable living with a human-readable command system.
+**uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.1.2 Production** | 🚀 **v1.4.0 Phase 1 Active** (Nov 24, 2025)
-**Test Coverage**: **1,062 tests passing** (100%)
-**Knowledge Bank**: **123+ OK assisted survival guides** (12.3% of v1.4.0 target)
-**Next**: v1.4.0 Content Population (1,000+ guides by Q1 2026)
+**Current Status**: ✅ **v1.5.0 Complete** (November 2025)
+**Test Coverage**: **1,810 tests passing** (100%) - 77 new v1.5.0 tests
+**Knowledge Bank**: **166+ comprehensive survival guides** across 8 categories
+**Documentation**: **62 wiki pages** (20,000+ lines, 100% coverage)
+**Community**: Ready for public beta with GitHub templates, discussions, and marketplace
+**Beta Launch**: 📋 Scheduled post-v1.5.0 (Q1 2026)
 
 ---
 
-## 🚀 v1.1.2 Production Release
+## 🚀 v1.5.0 - Infrastructure Complete!
 
-### Release Highlights
+**Latest Release:** v1.5.0 delivers foundational systems for secure development and shared resources.
 
-**Zero Breaking Changes** | **1,062 Tests Passing** | **Full v1.0.x Compatibility**
+### What's New in v1.5.0
 
-🔐 **Enterprise Security**
-- RBAC with 4 user roles (User/Power/Wizard/Root)
-- 4-tier memory encryption (AES-256/AES-128)
-- Installation integrity verification (SHA-256)
-- Command-based security hardening
+🔧 **DEV MODE** - Secure development environment (master user only)
+- Password-based authentication (SHA256)
+- Permission system (10 dangerous commands protected)
+- Session management (auto-save, 1-hour timeout)
+- Activity logging (text + JSON audit trail)
+- 29 comprehensive tests
 
-🌐 **Dual Interface**
-- Production web server with Teletext display
-- CLI→Web delegation API with state sync
-- Browser extension (Chrome/Firefox/Edge)
-- Mobile PWA with offline capability
+⚙️ **Configuration Sync** - Unified .env ↔ user.json management
+- Bidirectional synchronization with priority system
+- Auto-migration and backup/restore
+- 21 configuration fields with schema validation
+- 26 comprehensive tests
 
-📚 **Offline Knowledge**
-- **123+ survival guides** across 8 categories (v1.4.0 active)
-- OK assisted content generation (Gemini 2.5 Flash)
-- SVG diagram generation with citations
-- Content validation and quality scoring
+🎨 **Asset Management** - Shared resources for extensions
+- Auto-discovery from extensions/assets/
+- Type-specific loaders (font, icon, pattern, CSS, JS)
+- Smart caching with hot-reload
+- Search and filtering (regex support)
+- 22 patterns library (borders, backgrounds, textures)
+- 656 assets cataloged
+- 22 comprehensive tests
 
-🎯 **Production Ready**
-- Cross-platform (macOS/Linux/Windows)
-- 16+ terminal emulators validated
-- Complete documentation (wiki + API docs)
-- pip installable, offline-first
+### What's in v1.4.0
 
-### 🚀 v1.4.0 Phase 1 - OK Assist Knowledge Expansion (Active)
+📚 **Knowledge Infrastructure**
+- **166+ comprehensive survival guides** (water, fire, shelter, food, navigation, medical, tools, communication)
+- **9 quick reference materials** (charts, field guides, seasonal calendars)
+- **68+ multi-format diagrams** (ASCII, Teletext, SVG)
+- **Mac OS System 1 aesthetic** with consistent design standards
 
-**Week 1 Complete**: 123% of target achieved!
+🖥️ **Dual Interface**
+- Terminal CLI with retro Teletext graphics
+- Web GUI with responsive design
+- Seamless switching between interfaces
+- Works completely offline
 
-- ✅ **123 OK Assist generated guides** (target: 100) - 12.3% of 1,000 goal
-- ✅ **80 SVG diagrams** - 16% of 500 goal
-- ✅ **OK Assistant API integration** with smart fallback
-- ✅ **20 new categories** of survival topics
-- 📝 **~30,000 words** of OK Assist generated content (1,500 words/guide avg)
+📝 **uCODE Scripting v2.0**
+- Human-readable bracket syntax
+- Markdown-compatible (.uscript files)
+- Variables, conditionals, loops, error handling
+- 650+ line comprehensive specification
 
-**Categories**: Water (20), Fire (15), Shelter (15), Food (22), Navigation (10), Medical (21), Tools (10), Communication (10)
+📖 **Complete Documentation**
+- **60 wiki pages** (17,000+ lines total)
+- Getting Started tutorials with ASCII diagrams
+- API reference for developers (800+ lines)
+- Troubleshooting guide (800+ lines)
+- Extension marketplace structure
 
-[📖 Full Release Notes](wiki/Release-v1.1.2.md) | [🗺️ Roadmap](ROADMAP.MD) | [📝 Changelog](CHANGELOG.md)
+🤝 **Community Ready**
+- GitHub issue templates (4 types)
+- Discussion templates (Ideas, Show & Tell, Q&A)
+- Code of Conduct and contribution guidelines
+- Community onboarding guide (1,200+ lines)
+- Extension marketplace infrastructure
+
+### Beta Testing
+
+**What We Need:**
+- Install and test on your OS (macOS/Linux/Windows)
+- Explore survival guides and knowledge features
+- Report bugs or confusing parts
+- Suggest improvements
+- Optional: Contribute guides or extensions
+
+**Timeline:** 8-12 weeks (Q1 2026)
+**Commitment:** Flexible - as much or little as you want
+**Requirements:** Python 3.9+, terminal familiarity helpful
+
+👉 **[Join the Beta](https://github.com/fredporter/uDOS/discussions)** | **[Read Release Notes](wiki/Release-v1.4.0.md)**
 
 ---
 
@@ -67,51 +102,100 @@
 - User feedback system (`FEEDBACK` and `REPORT` commands)
 
 **TUI Reliability & Input System**
-- Unified selector with automatic fallback (16+ terminals)
-- Cross-platform retro graphics (BBC Teletext aesthetic)
-- Session replay and pattern analysis
-- Unified command handlers (DOCS, LEARN, MEMORY)
-- POKE commands for system inspection
+---
 
-### v1.1.1 - Web Extension & Dual-Interface (327 tests)
+## 🎯 Core Features
 
-**Web Infrastructure**
-- Production server with health monitoring
-- Teletext display with WebSocket streaming
-- CLI→Web delegation for visual interactions
-- State synchronization with event sourcing
-- Reusable web component library
+### 📚 Offline Knowledge System
 
-**Advanced Web Features**
-- Browser extension for knowledge capture
-- Mobile PWA with service workers
-- Touch-optimized interface
-- Offline caching and background sync
+**166+ Survival Guides:**
+- 🌊 **Water** (26 guides) - Procurement, purification, storage
+- 🔥 **Fire** (20 guides) - Starting methods, maintenance, safety
+- 🏠 **Shelter** (20 guides) - Building, insulation, weatherproofing
+- 🍎 **Food** (23 guides) - Foraging, preservation, cooking
+- 🧭 **Navigation** (20 guides) - Methods, signaling, rescue
+- ⚕️ **Medical** (27 guides) - First aid, emergency care, wellness
+- 🔧 **Tools** (15 guides) - Equipment, maintenance, improvisation
+- 📡 **Communication** (15 guides) - Signaling, community, security
 
-### v1.1.2 - Security & Offline Knowledge (467 tests)
+**Quick Reference Library:**
+- Survival priorities chart (Rule of 3s, STOP protocol)
+- Edible plants guide (regional focus)
+- Navigation techniques field guide
+- First aid quick reference
+- Essential knots guide
+- Fire starting methods comparison
+- Water purification methods comparison
+- Seasonal calendar
 
-**Advanced Security & Roles**
-- **RBAC System** (58 tests): 4 roles with permission inheritance
-- **Command Security** (59 tests): Centralized security layer, offline-first enforcement
-- **4-Tier Memory** (58 tests): Private/Shared/Community/Public with encryption
-- **Installation Types** (59 tests): CLONE/SPAWN/HYBRID with integrity checks
+### 🎨 Multi-Format Diagrams
 
-**Knowledge Bank & OK Assist Integration**
-- **Offline Knowledge** (60 tests): 8 categories, full-text search, versioning
-- **AI Prompts** (61 tests): Template system, role-specific, validation
-- **SVG/Citation** (59 tests): Diagram generation, APA/MLA/Chicago/IEEE formats
-- **Validation** (53 tests): Content quality, freshness, contradiction detection
+**Three Output Formats:**
+- **ASCII Art** - Terminal display with box-drawing characters
+- **Teletext Graphics** - Retro BBC Micro aesthetic for web
+- **SVG Diagrams** - Modern scalable graphics (Technical-Kinetic style)
+
+**Design Standards:**
+- Mac OS System 1 (1984) aesthetic
+- Monochrome palette: Black, white, 9 grays
+- 17 bitmap patterns (grayscale + texture)
+- 8 UI components (buttons, windows, dialogs)
+- Consistent across all formats
+
+### 📝 uCODE Scripting v2.0
+
+**Human-Readable Automation:**
+```ucode
+# Morning routine script
+[SYSTEM|BLANK]
+[SYSTEM|ECHO*Good morning! Starting daily routine...]
+
+# Check priorities and weather
+[KNOWLEDGE|SEASONAL*today]
+[SYSTEM|STATUS]
+
+# Review tasks
+[MEMORY|RECALL*tasks]
+```
+
+**Features:**
+- Markdown-compatible syntax
+- Variables, conditionals, loops
+- Error handling and debugging
+- 650+ line specification
+- Extensive examples
+
+### 🖥️ Dual Interface
+
+**Terminal CLI:**
+- 60+ commands with intuitive syntax
+- Retro Teletext graphics
+- Works on 16+ terminal emulators
+- Full offline capability
+
+**Web GUI:**
+- Modern responsive design
+- Mac OS System 1 aesthetic
+- Teletext display option
+- Seamless CLI-to-web delegation
+
+### 🛠️ Extension System
+
+**Build & Share Extensions:**
+- Custom commands and features
+- Web applications and GUIs
+- Knowledge domain expansions
+- Theme customization
+- Community marketplace ready
 
 ---
 
 ## 📊 Test Coverage
 
 ```
-Total Tests: 1,062/1,062 passing (100%)
-
-v1.1.0: 268 tests (AI, TUI, session analytics, retro graphics)
-v1.1.1: 327 tests (web server, browser extension, mobile PWA)
-v1.1.2: 467 tests (RBAC, 4-tier memory, offline knowledge, validation)
+Total Tests: 1,810/1,810 passing (100%)
+  - v1.3.0 base: 1,733 tests
+  - v1.5.0 new:  77 tests (Config 26 + DEV MODE 29 + Assets 22)
 
 Platform Support:
 ✅ macOS 11+ (Intel & Apple Silicon)
@@ -127,20 +211,34 @@ Terminal Emulators:
 ## 📖 Documentation
 
 ### 🚀 Getting Started
-- [**Quick Start Guide**](QUICK_START.md) - Get running in 5 minutes
-- [**Installation Guide**](INSTALL.md) - Setup instructions
+- [**Quick Start**](QUICK-START.md) - Get running in 5 minutes
+- [**Getting Started Tutorial**](wiki/Tutorial-Getting-Started.md) - Interactive learning
+- [**DEV MODE Guide**](wiki/DEV-MODE-GUIDE.md) - 🆕 v1.5.0 Master user development
+- [**Community Onboarding**](wiki/Community-Onboarding.md) - Join the community
+- [**Installation Guide**](INSTALL.md) - Detailed setup
+
+### 📚 User Guides
+- [**Quick Reference**](wiki/Quick-Reference.md) - Essential commands
 - [**Command Reference**](wiki/Command-Reference.md) - Complete command list
+- [**uCODE Language**](wiki/uCODE-Language.md) - Scripting guide v2.0
+- [**Troubleshooting**](wiki/Troubleshooting-Complete.md) - Fix common issues
+- [**FAQ**](wiki/FAQ.md) - Frequently asked questions
 
-### 📊 Release Information
-- [**Release v1.1.2**](wiki/Release-v1.1.2.md) - Full release notes
-- [**Latest Development**](wiki/Latest-Development.md) - Recent milestones
-- [**ROADMAP**](ROADMAP.MD) - Complete development plan
-- [**CHANGELOG**](CHANGELOG.md) - Detailed version history
+### 🔧 Developer Resources
+- [**API Reference**](wiki/API-Reference.md) - Developer API (800+ lines)
+- [**Architecture Guide**](wiki/Architecture-Contributor-Guide.md) - Codebase overview
+- [**Extension Marketplace**](wiki/Extension-Marketplace.md) - Build & share extensions
+- [**ASSETS Guide**](ASSETS-GUIDE.md) - 🆕 v1.5.0 Shared resources system
+- [**DEV MODE Guide**](wiki/DEV-MODE-GUIDE.md) - 🆕 v1.5.0 Development environment
+- [**Contributing**](CONTRIBUTING.md) - How to contribute
+- [**SVG Generator**](wiki/SVG-Generator-Guide.md) - Diagram creation
 
-### 📚 Architecture & Development
-- [**Architecture Overview**](wiki/Architecture.md) - System design
-- [**Contributing Guide**](CONTRIBUTING.md) - Development workflow
-- [**Credits & Licenses**](CREDITS.md) - Attributions and dependencies
+### 📊 Project Information
+- [**Release v1.5.0**](dev/planning/releases/RELEASE-NOTES-v1.5.0.md) - 🆕 Latest release notes
+- [**Release v1.4.0**](wiki/Release-v1.4.0.md) - Infrastructure release notes
+- [**ROADMAP**](ROADMAP.MD) - Development plan
+- [**CHANGELOG**](CHANGELOG.md) - Version history
+- [**Documentation Index**](wiki/Documentation-Index.md) - Complete docs map
 
 ---
 
@@ -152,7 +250,7 @@ Terminal Emulators:
 uDOS/
 ├── core/                  # Core system (Python)
 │   ├── commands/         # Command handlers (60+ commands)
-│   ├── services/         # Core services (security, AI, analytics)
+│   ├── services/         # Core services (AI, analytics, session mgmt)
 │   ├── input/            # Input handling and prompts
 │   ├── output/           # Output formatting and rendering
 │   ├── knowledge/        # Knowledge management
@@ -160,65 +258,48 @@ uDOS/
 │   ├── ui/               # UI components (selectors, prompts)
 │   ├── theme/            # Theme system
 │   ├── utils/            # Utility functions
-│   └── interpreters/     # uCODE interpreter
+│   ├── interpreters/     # uCODE interpreter
+│   ├── tests/            # Test configuration
+│   ├── scripts/          # Utility scripts
+│   └── setup/            # Setup utilities
 │
 ├── extensions/           # Extension system
-│   ├── core/             # Core extensions (terminal, teletext, web GUI)
-│   ├── game-mode/        # Game mode commands and services
-│   ├── setup/            # Installation scripts
-│   └── templates/        # Extension scaffolding
+│   ├── core/             # Core extensions (terminal, web GUI)
+│   ├── web/              # Web interface
+│   ├── templates/        # Extension scaffolding
+│   └── community/        # Community extensions
 │
-├── knowledge/            # Knowledge library (8 categories, 123+ guides)
-│   ├── system/           # System documentation
-│   ├── water/            # Water sourcing & purification (20 guides)
-│   ├── fire/             # Fire starting & maintenance (15 guides)
-│   ├── shelter/          # Shelter construction (15 guides)
-│   ├── food/             # Foraging & preservation (22 guides)
-│   ├── navigation/       # Navigation & signaling (10 guides)
-│   ├── medical/          # First aid & medical (21 guides)
-│   ├── tools/            # Tool skills (10 guides)
-│   ├── communication/    # Communication methods (10 guides)
-│   └── reference/        # Maps, diagrams & reference data (80+ SVGs)
+├── knowledge/            # Knowledge library (166+ guides)
+│   ├── water/            # Water (26 guides)
+│   ├── fire/             # Fire (20 guides)
+│   ├── shelter/          # Shelter (20 guides)
+│   ├── food/             # Food (23 guides)
+│   ├── navigation/       # Navigation (20 guides)
+│   ├── medical/          # Medical (27 guides)
+│   ├── tools/            # Tools (15 guides)
+│   ├── communication/    # Communication (15 guides)
+│   ├── reference/        # Quick reference materials (9 guides)
+│   └── diagrams/         # Diagrams (68+ in ASCII/Teletext/SVG)
 │
-├── memory/               # User workspace (gitignored except templates)
-│   ├── config/           # User configuration
-│   ├── sandbox/          # Temporary work
-│   ├── workflow/         # Active missions
-│   ├── legacy/           # Archived outcomes
-│   ├── personal/         # Personal content
+├── memory/               # User workspace (gitignored)
+│   ├── personal/         # Private notes
+│   ├── shared/           # Shared knowledge
+│   ├── workflow/         # uCODE scripts
+│   ├── missions/         # Task tracking
 │   ├── tests/            # Test suites (tracked)
-│   └── [tiers]/          # 4-tier memory system
+│   └── config/           # User configuration
 │
-├── wiki/                 # Project wiki
-└── dev/                  # Development workspace (mostly gitignored)
+├── wiki/                 # Documentation (60 pages)
+│
+├── dev/                  # Developer resources
+│   ├── planning/         # Roadmaps, beta materials
+│   ├── docs/             # Generated documentation
+│   └── tools/            # Development utilities
+│
+└── .github/              # Community infrastructure
+    ├── ISSUE_TEMPLATE/   # Bug reports, features, extensions
+    └── DISCUSSION_TEMPLATES/  # Ideas, Q&A, showcase
 ```
-
-### Key Features
-
-**Security & Access Control**
-- Role-based access control (User/Power/Wizard/Root)
-- 4-tier memory encryption (Private→Shared→Community→Public)
-- Command-based security layer
-- Installation integrity verification (CLONE/SPAWN/HYBRID)
-
-**Dual Interface**
-- Terminal UI with retro graphics (BBC Teletext)
-- Web GUI with WebSocket streaming
-- Browser extension for knowledge capture
-- Mobile PWA with offline support
-
-**Knowledge Management**
-- 8-category offline library (123+ OK Assist generated guides)
-- OK Assistant content generation (1,500 words/guide)
-- SVG diagram generation with citations (80+ diagrams)
-- Content validation and quality scoring
-- Cross-referenced survival knowledge base
-
-**Developer Tools**
-- uCODE scripting language with debugger
-- Session analytics and replay
-- Intelligent error handling
-- Comprehensive testing framework (1,062 tests)
 
 ---
 
@@ -242,136 +323,118 @@ pip install -r requirements.txt
 ./start_udos.sh  # On Windows: python uDOS.py
 ```
 
-### First Run
+### First Commands
 
-```bash
+```
 # Interactive mode
 ./start_udos.sh
 
-# Run a script
-./start_udos.sh memory/tests/shakedown.uscript
-
-# Show help
-echo "HELP" | python uDOS.py
-```
-
-### Basic Commands
-
-```
-help              # Show all available commands
+# Basic commands
+help              # Show all commands
 status            # System status
-version           # Show version info
+knowledge         # Browse knowledge bank
+guide             # Interactive tutorial
 
-# Knowledge access
-guide list        # List survival guides
-learn search <topic>  # Search knowledge base
-docs <command>    # Command documentation
+# Explore survival guides
+knowledge water   # Water guides
+READ knowledge/water/guides/solar-water-disinfection.md
 
-# Memory system
-memory tier       # Show 4-tier memory system
-memory list       # List memory files
-file edit <file>  # Edit file
-
-# Web GUI (requires extension)
-web start         # Start web server
-web open          # Open in browser
-
-# Security
-config role       # Show current role
-config install    # Installation type
+# Try uCODE scripting
+RUN memory/workflow/knowledge_generation.uscript
 ```
 
 ---
 
-## 🧪 Testing
+## 🌍 Project Philosophy
 
-### Run Tests
+uDOS is built on six core principles:
 
-```bash
-# All v1.1.x tests
-pytest memory/tests/test_v1_1_*.py
+🌍 **Offline-First** - Full functionality without internet
+🤝 **Barter Over Currency** - Exchange knowledge, not wealth
+🧠 **4-Tier Memory** - Personal → Shared → Group → Public
+🎯 **Practical Over Political** - Real survival skills that matter
+🎮 **Learn by Creating** - Education through game creation
+👤 **Individual-User-Owned** - You control your data, not corporations
 
-# Specific milestone
-pytest memory/tests/test_v1_1_0_*.py  # v1.1.0 (268 tests)
-pytest memory/tests/test_v1_1_1_*.py  # v1.1.1 (327 tests)
-pytest memory/tests/test_v1_1_2_*.py  # v1.1.2 (467 tests)
-
-# With coverage
-pytest memory/tests/ --cov=core --cov-report=html
-```
-
-### Test Results
-
-```
-Total: 1,062/1,062 passing (100%)
-
-v1.1.0 - Core TUI:           268 tests ✅
-v1.1.1 - Web Extension:      327 tests ✅
-v1.1.2 - Security/Knowledge: 467 tests ✅
-```
+[Read More →](wiki/Philosophy.md) | [Why uDOS?](wiki/Why-uDOS.md)
 
 ---
 
-## 🗺️ Roadmap
+## 🤝 Contributing
 
-### Completed Milestones
+We welcome contributions from everyone! Here's how you can help:
 
-✅ **v1.1.0** - Core TUI Stabilisation (268 tests)
-- OK assistant with role-based security
-- Unified selector system (16+ terminals)
-- Retro graphics and session analytics
+**For Everyone:**
+- 📚 Write survival guides using our templates
+- 🐛 Report bugs or suggest features
+- 💬 Help answer questions in Discussions
+- ⭐ Star the repo to show support
 
-✅ **v1.1.1** - Web Extension & Dual-Interface (327 tests)
-- Production web server
-- Browser extension
-- Mobile PWA
+**For Developers:**
+- 🔧 Fix bugs or implement features
+- 🎨 Build extensions
+- 📖 Improve documentation
+- ✅ Write tests
 
-✅ **v1.1.2** - Security & Offline Knowledge (467 tests)
-- RBAC system
-- 4-tier memory encryption
-- Offline knowledge library
-- OK Assist prompt development
+**For Beta Testers:**
+- 🧪 Test v1.4.0 beta
+- 📝 Complete feedback survey
+- 💡 Share improvement ideas
 
-### Next Milestones
-
-📋 **v1.1.3** - Adventure & Economy Systems (Q4 2026)
-- Gamified survival progression
-- Apocalypse adventure framework
-- Zero-currency barter economy
-- Community integration
-
-📋 **v1.1.4+** - Advanced Features
-- Tauri desktop app
-- Device spawning
-- P2P mesh networking
-- Native mobile apps
-
-[Full Roadmap →](ROADMAP.MD)
+**Get Started:**
+- Read [Contributing Guide](CONTRIBUTING.md)
+- Check [Good First Issues](https://github.com/fredporter/uDOS/labels/good%20first%20issue)
+- Join [GitHub Discussions](https://github.com/fredporter/uDOS/discussions)
+- Review [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---
 
 ## 📝 License
 
-See [LICENSE.txt](LICENSE.txt) for details.
+**MIT License** - See [LICENSE.txt](LICENSE.txt) for details.
 
-**Copyright © 2025 uDOS Contributors**
+uDOS is free and open source software. You're free to use, modify, and distribute it.
 
 ---
 
 ## 🙏 Credits
 
-- **Author**: Fred Porter
-- **Contributors**: See [CREDITS.md](CREDITS.md)
-- **Dependencies**: See [requirements.txt](requirements.txt)
+**Core Team:**
+- Fred Porter (@fredporter) - Project Lead
+- OK Assist (Gemini 2.5 Flash) - AI Content Generation
+- Community Contributors - Beta testers, knowledge curators
+
+**Technologies:**
+- Python, pytest, click, rich - Core framework
+- Mac OS System 1 - Design inspiration
+- Teletext - Retro graphics format
+- SVG - Modern vector graphics
+
+[Full Credits →](CREDITS.md)
 
 ---
 
-## 📞 Support
+## 📞 Support & Community
 
-- **Documentation**: [wiki/](wiki/)
-- **Issues**: [GitHub Issues](https://github.com/fredporter/uDOS/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/fredporter/uDOS/discussions)
+**Get Help:**
+- 📖 [Documentation](wiki/) - 60 pages covering everything
+- 💬 [GitHub Discussions](https://github.com/fredporter/uDOS/discussions) - Q&A and community
+- 🐛 [Issue Tracker](https://github.com/fredporter/uDOS/issues) - Report bugs
+- 🎓 [Community Onboarding](wiki/Community-Onboarding.md) - Get started
+
+**Stay Updated:**
+- ⭐ Star the repo for updates
+- 👀 Watch releases
+- 💬 Join Discussions
+- 📊 Follow [ROADMAP](ROADMAP.MD)
 
 ---
 
-**Ready to get started? Check out the [Quick Start Guide](QUICK_START.md)!**
+**🚀 Ready to dive in?**
+
+1. [Install uDOS](INSTALL.md) - Get set up in 5 minutes
+2. [Quick Start](QUICK-START.md) - Learn the basics
+3. [Join Beta](https://github.com/fredporter/uDOS/discussions) - Help shape v1.4.0
+4. [Browse Guides](knowledge/) - Explore survival knowledge
+
+**Together, we're building the future of offline knowledge.** 🌍🤝

@@ -1,0 +1,30 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+    </marker>
+  </defs>
+
+  <!-- Ground line -->
+  <line x1="50" y1="300" x2="350" y2="300" stroke="black" stroke-width="2" />
+
+  <!-- Stick -->
+  <line x1="200" y1="100" x2="200" y2="300" stroke="black" stroke-width="2" />
+  <text x="205" y="150" font-family="Arial" font-size="16" fill="black">Stick</text>
+
+  <!-- Shadow 1 (Time 1) -->
+  <line x1="200" y1="300" x2="80" y2="300" stroke="black" stroke-width="2" />
+  <circle cx="80" cy="300" r="4" fill="black" />
+  <text x="80" y="280" font-family="Arial" font-size="16" text-anchor="middle" fill="black">T1</text>
+
+  <!-- Shadow 2 (Time 2) -->
+  <line x1="200" y1="300" x2="220" y2="300" stroke="black" stroke-width="2" />
+  <circle cx="220" cy="300" r="4" fill="black" />
+  <text x="220" y="280" font-family="Arial" font-size="16" text-anchor="middle" fill="black">T2</text>
+
+  <!-- East-West line connecting T1 and T2 tips, with arrow pointing East -->
+  <line x1="80" y1="320" x2="220" y2="320" stroke="black" stroke-width="2" marker-end="url(#arrowhead)" />
+  <text x="50" y="325" font-family="Arial" font-size="16" text-anchor="middle" fill="black">W</text>
+  <text x="250" y="325" font-family="Arial" font-size="16" text-anchor="middle" fill="black">E</text>
+
+</svg>

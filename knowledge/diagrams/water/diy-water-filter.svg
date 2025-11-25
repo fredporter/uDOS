@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>DIY Water Filter</title>
+  <desc>Multi-layer filtration system using natural materials</desc>
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="40" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">
+    DIY WATER FILTER
+  </text>
+
+  <!-- Step 1 -->
+  <g id="step1">
+    <rect x="50" y="80" width="150" height="200" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="125" y="100" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">1. CONTAINER</text>
+    <!-- Add step content here -->
+  </g>
+
+  <!-- Step 2 -->
+  <g id="step2">
+    <rect x="230" y="80" width="150" height="200" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="305" y="100" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">2. GRAVEL</text>
+    <!-- Add step content here -->
+  </g>
+
+  <!-- Step 3 -->
+  <g id="step3">
+    <rect x="410" y="80" width="150" height="200" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="485" y="100" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">3. SAND</text>
+    <!-- Add step content here -->
+  </g>
+
+  <!-- Step 4 -->
+  <g id="step4">
+    <rect x="590" y="80" width="150" height="200" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="665" y="100" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">4. CHARCOAL</text>
+    <!-- Add step content here -->
+  </g>
+
+  <!-- Footer -->
+  <text x="400" y="580" font-family="monospace" font-size="9" text-anchor="middle" fill="#000">
+    Mac OS System 1 Patterns | Technical-Kinetic Design
+  </text>
+</svg>

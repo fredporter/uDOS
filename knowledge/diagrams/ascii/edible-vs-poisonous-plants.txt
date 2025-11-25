@@ -1,0 +1,34 @@
+┌────────────────────────────────────────────────────────────────────┐
+│                 EDIBLE vs. POISONOUS PLANTS                      │
+├─────────────────────────────┬────────────────────────────────────┤
+│          EDIBLE             │           POISONOUS              │
+├─────────────────────────────┼────────────────────────────────────┤
+│  Leaf: Oval, Smooth Edge    │  Leaf: Lobed, Serrated Edge        │
+│                             │                                    │
+│          /\                 │           /\                       │
+│         /  \                │          /▓▓\                      │
+│        | ░░ |  ←Leaf        │         |▓▓▓▓| ←Leaf             │
+│         \  /                │          \▓▓/                      │
+│          \/                 │           \/                       │
+│           |                 │            |                       │
+│           |                 │            |                       │
+│           |───● Berries     │            |────◆ Berry           │
+│           |   ●             │            |    ┌┴┐                │
+│           |───●  (Cluster)  │            |    └┬┘ Calyx          │
+│           |                 │            |                       │
+│           |                 │            |                       │
+│           |                 │            |                       │
+│           |                 │            |                       │
+│           |                 │            |                       │
+│           | Smooth Stem     │            | Hairy Stem            │
+│           | ▒               │            | ▓▓ Milky Sap ≈≈       │
+├─────────────────────────────┼────────────────────────────────────┤
+│  • Leaves: Even coloration  │  • Leaves: Often mottled/spotted   │
+│  • Berries: Uniform, glossy │  • Berries: Uneven, dull, sometimes │
+│             Small calyx     │             warty, prominent calyx │
+│  • Stem: Green, no hairs    │  • Stem: Reddish, often hairy/spiny│
+│             No sap          │             Sap may be present     │
+├─────────────────────────────┴────────────────────────────────────┤
+│  WARNING: Consult experts. Misidentification can be FATAL.       │
+│           This diagram is for illustrative purposes only.        │
+└────────────────────────────────────────────────────────────────────┘

@@ -1,4 +1,4 @@
-# uDOS v1.0.31 - Main Application
+# uDOS v1.5.0 - Main Application
 
 # Suppress urllib3 OpenSSL warnings gracefully
 import warnings
@@ -22,12 +22,29 @@ from .input.prompts.prompt_decorator import get_prompt_decorator
 from .utils.tree import generate_repository_tree
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput
+from .config import get_config_manager  # v1.5.0 Unified Configuration
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 import sys
 import os
 import time
+
+# Global configuration manager (v1.5.0+)
+_config_manager = None
+
+
+def get_config():
+    """
+    Get global ConfigManager instance.
+
+    Returns:
+        ConfigManager instance
+    """
+    global _config_manager
+    if _config_manager is None:
+        _config_manager = get_config_manager()
+    return _config_manager
 
 def run_script(script_path, parser, grid, command_handler, logger, command_history=None):
     """
@@ -94,7 +111,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
                 tree_string, tree_path = generate_repository_tree()
                 components['tree_generated'] = True
                 if not is_script_mode:
-                    print(f"✓ structure.txt")
+                    print(f"✓ dev/docs/structure.txt")
             except Exception as e:
                 components['tree_generated'] = False
                 if not is_script_mode:
@@ -111,7 +128,16 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
     components = {}
 
     try:
-        # 1. Detect viewport
+        # 1. Initialize configuration (v1.5.0+)
+        if not is_script_mode:
+            print("⚙️  Loading configuration...", end=" ", flush=True)
+        config = get_config()
+        components['config'] = config
+        if not is_script_mode:
+            username = config.get('username', 'user')
+            print(f"✓ {username}")
+
+        # 2. Detect viewport
         if not is_script_mode:
             print("🔍 Detecting viewport...", end=" ", flush=True)
         viewport = ViewportDetector()
@@ -128,7 +154,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
                 # Skip viewport display if output is piped or redirected
                 pass
 
-        # 2. Check connection
+        # 3. Check connection
         if not is_script_mode:
             print("🌐 Checking connectivity...", end=" ", flush=True)
         connection = ConnectionMonitor()
@@ -138,7 +164,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
         if not is_script_mode:
             print(f"✓ {mode}")
 
-        # 3. User profile
+        # 4. User profile
         user_manager = UserManager()
         components['user_manager'] = user_manager
 
@@ -151,7 +177,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
             session_id = f"session_{int(time.time())}"
             user_manager.update_session_data(session_id, viewport_data)
 
-        # 4. System health check
+        # 5. System health check
         if not is_script_mode and run_health_check:
             print("🏥 System health...", end=" ", flush=True)
 
@@ -227,7 +253,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
             tree_string, tree_path = generate_repository_tree()
             components['tree_generated'] = True
             if not is_script_mode:
-                print(f"✓ structure.txt")
+                print(f"✓ dev/docs/structure.txt")
         except Exception as e:
             components['tree_generated'] = False
             if not is_script_mode:
@@ -406,10 +432,21 @@ def main():
                 # Note: Flash disabled by default to preserve terminal scrollback
                 # Set flash=True below if you want the animated prompt
                 is_assist = user_manager.is_assist_mode()
+
+                # Check DEV MODE status (v1.5.0)
+                dev_mode_active = False
+                try:
+                    from core.services.dev_mode_manager import get_dev_mode_manager
+                    dev_mode_mgr = get_dev_mode_manager()
+                    dev_mode_active = dev_mode_mgr.is_active
+                except Exception:
+                    pass  # DEV MODE not available, continue normally
+
                 prompt_string = prompt_decorator.get_prompt(
                     is_assist_mode=is_assist,
                     panel_name=grid.selected_panel,
-                    flash=False  # Changed from True - preserves scrollback
+                    flash=False,  # Changed from True - preserves scrollback
+                    dev_mode=dev_mode_active  # v1.5.0: Show 🔧 DEV indicator
                 )
 
                 # Show context hints if available
@@ -436,6 +473,29 @@ def main():
                 last_command = user_input
 
                 ucode = parser.parse(user_input)
+
+                # Check DEV MODE permissions for dangerous commands (v1.5.0)
+                try:
+                    from core.services.dev_mode_manager import get_dev_mode_manager
+                    dev_mode_mgr = get_dev_mode_manager()
+
+                    # Extract command from ucode
+                    parts = ucode.strip('[]').split('|')
+                    if len(parts) >= 2:
+                        command_parts = parts[1].split('*')
+                        command = command_parts[0].upper()
+
+                        # Check permission
+                        allowed, message = dev_mode_mgr.check_permission(command)
+                        if not allowed:
+                            print(message)
+                            continue  # Skip execution
+                        elif message:
+                            # Show warning but allow execution
+                            print(message)
+                except Exception:
+                    pass  # DEV MODE not available, continue normally
+
                 result = command_handler.handle_command(ucode, grid, parser)
 
                 # Track command usage

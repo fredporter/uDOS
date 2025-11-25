@@ -199,7 +199,7 @@ class TreeGenerator:
         tree_dict = self._build_tree_dict(starting_path)
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + dict_to_xml(tree_dict)
 
-    def save_to_file(self, output_file: str = "structure.txt") -> str:
+    def save_to_file(self, output_file: str = "dev/docs/structure.txt") -> str:
         """Generate tree and save to file."""
         tree_lines = self.generate_tree()
         output_path = self.root_path / output_file
@@ -217,7 +217,7 @@ class TreeGenerator:
 
 
 
-def generate_repository_tree(root_path: str = ".", output_file: str = "structure.txt", target_folder: str = None, max_depth: int = 5, output_format: str = "text") -> Tuple[str, str]:
+def generate_repository_tree(root_path: str = ".", output_file: str = "dev/docs/structure.txt", target_folder: str = None, max_depth: int = 5, output_format: str = "text") -> Tuple[str, str]:
     """
     Generate repository tree structure.
 

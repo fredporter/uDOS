@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+  
+  <title>Water Purification Decision System</title>
+  <desc>Interactive-style water purification flowchart using Mac OS UI elements</desc>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">WATER PURIFICATION - DECISION SYSTEM</text>
+  <text x="400" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#000">Mac OS System interface for survival procedures</text>
+  
+
+  <!-- Window: Water Source Assessment -->
+  <g class="window">
+    <!-- Window border -->
+    <rect x="50" y="80" width="700" height="180" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <!-- Title bar -->
+    <rect x="51" y="81" width="698" height="18" fill="#FFF" stroke="none"/>
+    <line x1="51" y1="99" x2="749" y2="99" stroke="#000" stroke-width="1"/>
+    
+    <!-- Racing stripes -->
+    <line x1="54" y1="83" x2="54" y2="96" stroke="#000" stroke-width="1"/>
+    <line x1="56" y1="83" x2="56" y2="96" stroke="#000" stroke-width="1"/>
+    <line x1="58" y1="83" x2="58" y2="96" stroke="#000" stroke-width="1"/>
+    <line x1="60" y1="83" x2="60" y2="96" stroke="#000" stroke-width="1"/>
+    <line x1="62" y1="83" x2="62" y2="96" stroke="#000" stroke-width="1"/>
+    
+    
+    <rect x="57" y="85" width="9" height="9" fill="#FFF" stroke="#000" stroke-width="1"/>
+    <rect x="59" y="87" width="5" height="5" fill="#000"/>
+    
+    <!-- Title text -->
+    <text x="400" y="94" 
+          font-family="monospace" font-size="12" font-weight="bold"
+          text-anchor="middle" fill="#000">Water Source Assessment</text>
+    
+    <rect x="51" y="99" width="698" height="14" fill="#FFF" stroke="none"/>
+    <line x1="51" y1="99" x2="749" y2="99" stroke="#000" stroke-width="1"/>
+    <text x="56" y="109" font-family="monospace" font-size="9" fill="#000">Step 1 of 4 • Source Evaluation</text>
+    
+    <rect x="51" y="113" width="698" height="146" fill="#FFF" stroke="none"/>
+    <g transform="translate(56, 119)">
+      
+      <text x="0" y="15" font-family="monospace" font-size="11" font-weight="bold" fill="#000">What type of water source?</text>
+      
+  <!-- Checkbox: Clear running stream -->
+  <g class="checkbox">
+    <rect x="0" y="30" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="39" font-family="monospace" font-size="9" fill="#000">Clear running stream</text>
+  </g>
+  <!-- Checkbox: Standing water (pond/lake) -->
+  <g class="checkbox">
+    <rect x="0" y="50" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="59" font-family="monospace" font-size="9" fill="#000">Standing water (pond/lake)</text>
+  </g>
+  <!-- Checkbox: Questionable source (muddy/stagnant) -->
+  <g class="checkbox">
+    <rect x="0" y="70" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="79" font-family="monospace" font-size="9" fill="#000">Questionable source (muddy/stagnant)</text>
+  </g>
+  <!-- Checkbox: Potentially contaminated -->
+  <g class="checkbox">
+    <rect x="0" y="90" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="99" font-family="monospace" font-size="9" fill="#000">Potentially contaminated</text>
+  </g>
+  <!-- Button: Cancel -->
+  <g class="button">
+    <rect x="450" y="90" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="1"/>
+    <text x="479" y="104" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Cancel</text>
+  </g>
+  <!-- Button: Next -->
+  <g class="button">
+    <rect x="520" y="90" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="3"/>
+    <text x="549" y="104" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Next</text>
+  </g>
+    </g>
+  </g>
+
+
+  <!-- Window: Filtration Methods -->
+  <g class="window">
+    <!-- Window border -->
+    <rect x="50" y="280" width="340" height="200" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <!-- Title bar -->
+    <rect x="51" y="281" width="338" height="18" fill="#FFF" stroke="none"/>
+    <line x1="51" y1="299" x2="389" y2="299" stroke="#000" stroke-width="1"/>
+    
+    <!-- Racing stripes -->
+    <line x1="54" y1="283" x2="54" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="56" y1="283" x2="56" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="58" y1="283" x2="58" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="60" y1="283" x2="60" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="62" y1="283" x2="62" y2="296" stroke="#000" stroke-width="1"/>
+    
+    
+    <rect x="57" y="285" width="9" height="9" fill="#FFF" stroke="#000" stroke-width="1"/>
+    <rect x="59" y="287" width="5" height="5" fill="#000"/>
+    
+    <!-- Title text -->
+    <text x="220" y="294" 
+          font-family="monospace" font-size="12" font-weight="bold"
+          text-anchor="middle" fill="#000">Filtration Methods</text>
+    
+    <rect x="51" y="299" width="338" height="14" fill="#FFF" stroke="none"/>
+    <line x1="51" y1="299" x2="389" y2="299" stroke="#000" stroke-width="1"/>
+    <text x="56" y="309" font-family="monospace" font-size="9" fill="#000">Step 2 • Physical Filtration</text>
+    
+    <rect x="51" y="313" width="338" height="166" fill="#FFF" stroke="none"/>
+    <g transform="translate(56, 319)">
+      
+      <text x="0" y="15" font-family="monospace" font-size="10" fill="#000">Select filtration layers:</text>
+      
+  <!-- Checkbox: Cloth (remove debris) -->
+  <g class="checkbox">
+    <rect x="0" y="35" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <line x1="2" y1="41" x2="5" y2="44" stroke="#000" stroke-width="2"/>
+    <line x1="5" y1="44" x2="10" y2="37" stroke="#000" stroke-width="2"/>
+    <text x="16" y="44" font-family="monospace" font-size="9" fill="#000">Cloth (remove debris)</text>
+  </g>
+  <!-- Checkbox: Sand (fine particles) -->
+  <g class="checkbox">
+    <rect x="0" y="55" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <line x1="2" y1="61" x2="5" y2="64" stroke="#000" stroke-width="2"/>
+    <line x1="5" y1="64" x2="10" y2="57" stroke="#000" stroke-width="2"/>
+    <text x="16" y="64" font-family="monospace" font-size="9" fill="#000">Sand (fine particles)</text>
+  </g>
+  <!-- Checkbox: Charcoal (chemicals) -->
+  <g class="checkbox">
+    <rect x="0" y="75" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <line x1="2" y1="81" x2="5" y2="84" stroke="#000" stroke-width="2"/>
+    <line x1="5" y1="84" x2="10" y2="77" stroke="#000" stroke-width="2"/>
+    <text x="16" y="84" font-family="monospace" font-size="9" fill="#000">Charcoal (chemicals)</text>
+  </g>
+  <!-- Checkbox: Gravel (coarse filter) -->
+  <g class="checkbox">
+    <rect x="0" y="95" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="104" font-family="monospace" font-size="9" fill="#000">Gravel (coarse filter)</text>
+  </g>
+  <!-- Button: Back -->
+  <g class="button">
+    <rect x="130" y="125" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="1"/>
+    <text x="159" y="139" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Back</text>
+  </g>
+  <!-- Button: Next -->
+  <g class="button">
+    <rect x="200" y="125" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="3"/>
+    <text x="229" y="139" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Next</text>
+  </g>
+    </g>
+  </g>
+  <!-- Window: Purification Methods -->
+  <g class="window">
+    <!-- Window border -->
+    <rect x="410" y="280" width="340" height="200" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <!-- Title bar -->
+    <rect x="411" y="281" width="338" height="18" fill="#FFF" stroke="none"/>
+    <line x1="411" y1="299" x2="749" y2="299" stroke="#000" stroke-width="1"/>
+    
+    <!-- Racing stripes -->
+    <line x1="414" y1="283" x2="414" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="416" y1="283" x2="416" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="418" y1="283" x2="418" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="420" y1="283" x2="420" y2="296" stroke="#000" stroke-width="1"/>
+    <line x1="422" y1="283" x2="422" y2="296" stroke="#000" stroke-width="1"/>
+    
+    
+    <rect x="417" y="285" width="9" height="9" fill="#FFF" stroke="#000" stroke-width="1"/>
+    <rect x="419" y="287" width="5" height="5" fill="#000"/>
+    
+    <!-- Title text -->
+    <text x="580" y="294" 
+          font-family="monospace" font-size="12" font-weight="bold"
+          text-anchor="middle" fill="#000">Purification Methods</text>
+    
+    <rect x="411" y="299" width="338" height="14" fill="#FFF" stroke="none"/>
+    <line x1="411" y1="299" x2="749" y2="299" stroke="#000" stroke-width="1"/>
+    <text x="416" y="309" font-family="monospace" font-size="9" fill="#000">Step 3 • Kill Pathogens</text>
+    
+    <rect x="411" y="313" width="338" height="166" fill="#FFF" stroke="none"/>
+    <g transform="translate(416, 319)">
+      
+      <text x="0" y="15" font-family="monospace" font-size="10" fill="#000">Select treatment method:</text>
+      
+  <!-- Checkbox: Boil 1 min (most reliable) -->
+  <g class="checkbox">
+    <rect x="0" y="35" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <line x1="2" y1="41" x2="5" y2="44" stroke="#000" stroke-width="2"/>
+    <line x1="5" y1="44" x2="10" y2="37" stroke="#000" stroke-width="2"/>
+    <text x="16" y="44" font-family="monospace" font-size="9" fill="#000">Boil 1 min (most reliable)</text>
+  </g>
+  <!-- Checkbox: Iodine tablets (chemical) -->
+  <g class="checkbox">
+    <rect x="0" y="55" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="64" font-family="monospace" font-size="9" fill="#000">Iodine tablets (chemical)</text>
+  </g>
+  <!-- Checkbox: UV light (if available) -->
+  <g class="checkbox">
+    <rect x="0" y="75" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="84" font-family="monospace" font-size="9" fill="#000">UV light (if available)</text>
+  </g>
+  <!-- Checkbox: Solar disinfection (6hrs) -->
+  <g class="checkbox">
+    <rect x="0" y="95" width="12" height="12" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <text x="16" y="104" font-family="monospace" font-size="9" fill="#000">Solar disinfection (6hrs)</text>
+  </g>
+  <!-- Button: Back -->
+  <g class="button">
+    <rect x="130" y="125" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="1"/>
+    <text x="159" y="139" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Back</text>
+  </g>
+  <!-- Button: Next -->
+  <g class="button">
+    <rect x="200" y="125" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="3"/>
+    <text x="229" y="139" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Next</text>
+  </g>
+    </g>
+  </g>
+
+
+  <!-- Modal Dialog: Alert -->
+  <g class="modal-dialog">
+    <!-- Outer border -->
+    <rect x="50" y="500" width="700" height="112" fill="none" stroke="#000" stroke-width="1"/>
+    
+    <!-- Inner border and content -->
+    <rect x="52" y="502" width="696" height="108" fill="#FFF" stroke="#000" stroke-width="1"/>
+    
+    <!-- Title bar (simplified for dialog) -->
+    <text x="400" y="516" 
+          font-family="monospace" font-size="12" font-weight="bold"
+          text-anchor="middle" fill="#000">Alert</text>
+    
+    <line x1="53" y1="522" x2="747" y2="522" stroke="#000" stroke-width="1"/>
+    
+    <!-- Content -->
+    <g transform="translate(60, 530)">
+      
+      <rect x="10" y="0" width="32" height="32" fill="none" stroke="#000" stroke-width="1"/>
+      <text x="50" y="10" font-family="monospace" font-size="9" fill="#000">WARNING: Boiling is recommended for 1 minute at low\naltitudes, 3 minutes above 6,500 feet (2,000m).\nAlways filter visible debris first.</text>
+      
+      
+  <!-- Button: Skip -->
+  <g class="button">
+    <rect x="522" y="22" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="1"/>
+    <text x="551" y="36" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Skip</text>
+  </g>
+  <!-- Button: Understood -->
+  <g class="button">
+    <rect x="591" y="22" width="59" height="20" rx="8" ry="8" 
+          fill="#FFF" stroke="#000" stroke-width="3"/>
+    <text x="620" y="36" 
+          font-family="monospace" font-size="11" 
+          text-anchor="middle" fill="#000">Understood</text>
+  </g>
+    
+    </g>
+  </g>
+
+  <!-- Footer instructions -->
+  <rect x="50" y="650" width="700" height="40" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="60" y="670" font-family="monospace" font-size="9" fill="#000">💡 TIP: Combine methods for maximum safety. Filter first, then purify.</text>
+  <text x="60" y="682" font-family="monospace" font-size="9" fill="#000">🎯 GOAL: Remove particles (filter) + kill pathogens (purify) = safe drinking water</text>
+  
+</svg>

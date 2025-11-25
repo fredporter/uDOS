@@ -251,19 +251,19 @@
 ```markdown
 # [Original Document Title]
 
-**Source:** [Author/Organization]  
-**Original Publication:** [Year]  
-**License:** [Public Domain / CC-BY / Open Access]  
-**Original URL:** [Archive.org link or official source]  
-**Converted:** [Date] using OK Assist CONVERT  
-**uDOS Category:** [[category/subcategory]]  
+**Source:** [Author/Organization]
+**Original Publication:** [Year]
+**License:** [Public Domain / CC-BY / Open Access]
+**Original URL:** [Archive.org link or official source]
+**Converted:** [Date] using OK Assist CONVERT
+**uDOS Category:** [[category/subcategory]]
 
 ---
 
 ## Attribution Notice
 
-This content is derived from: "[Original Title]" by [Author/Organization],  
-originally published [Year]. The source material is in the [public domain / licensed under CC-BY].  
+This content is derived from: "[Original Title]" by [Author/Organization],
+originally published [Year]. The source material is in the [public domain / licensed under CC-BY].
 Original document: [URL]
 
 This conversion has been adapted for the uDOS knowledge bank with:

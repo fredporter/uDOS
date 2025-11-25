@@ -165,18 +165,28 @@ class UserManager:
             return None
 
     def get_api_key(self):
-        """Retrieve API key from .env file linked to user profile."""
-        # Check if .env file exists
-        env_file = '.env'
-        if os.path.exists(env_file):
-            try:
-                with open(env_file, 'r') as f:
-                    for line in f:
-                        if line.strip().startswith('GEMINI_API_KEY='):
-                            return line.strip().split('=', 1)[1]
-            except:
-                pass
-        return ''
+        """
+        Retrieve API key from ConfigManager (v1.5.0).
+
+        Returns:
+            str: Gemini API key or empty string if not set
+        """
+        try:
+            from core.uDOS_main import get_config
+            config = get_config()
+            return config.get('GEMINI_API_KEY', '')
+        except Exception:
+            # Fallback to direct .env reading if ConfigManager fails
+            env_file = '.env'
+            if os.path.exists(env_file):
+                try:
+                    with open(env_file, 'r') as f:
+                        for line in f:
+                            if line.strip().startswith('GEMINI_API_KEY='):
+                                return line.strip().split('=', 1)[1]
+                except:
+                    pass
+            return ''
 
     def get_user_data(self):
         """

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  
+  <title>Safe Axe Techniques</title>
+  <desc>Proper axe use for chopping and splitting wood</desc>
+  
+  <text x="400" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">SAFE AXE TECHNIQUES</text>
+  <text x="400" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#666">Efficient and injury-free wood processing</text>
+  
+  <!-- Chopping stance -->
+  <rect x="40" y="80" width="340" height="280" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="105" font-family="monospace" font-size="14" font-weight="bold" fill="#000">CHOPPING STANCE:</text>
+  
+  <!-- Simple person diagram -->
+  <circle cx="210" cy="150" r="15" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <line x1="210" y1="165" x2="210" y2="230" stroke="#000" stroke-width="3"/>
+  <line x1="210" y1="230" x2="190" y2="270" stroke="#000" stroke-width="3"/>
+  <line x1="210" y1="230" x2="230" y2="270" stroke="#000" stroke-width="3"/>
+  <line x1="210" y1="185" x2="170" y2="210" stroke="#000" stroke-width="3"/>
+  <line x1="170" y1="210" x2="165" y2="235" stroke="#000" stroke-width="3"/>
+  
+  <!-- Axe -->
+  <line x1="165" y1="235" x2="140" y2="290" stroke="#000" stroke-width="4"/>
+  <path d="M 135 285 L 125 295 L 145 305 L 155 295 Z" fill="url(#gray-50)" stroke="#000" stroke-width="2"/>
+  
+  <!-- Log -->
+  <rect x="100" y="300" width="80" height="30" fill="url(#horizontal)" stroke="#000" stroke-width="2"/>
+  
+  <text x="60" y="185" font-family="monospace" font-size="9" fill="#000">✓ Feet shoulder-width</text>
+  <text x="60" y="198" font-family="monospace" font-size="9" fill="#000">✓ Dominant foot back</text>
+  <text x="60" y="211" font-family="monospace" font-size="9" fill="#000">✓ Bend at knees</text>
+  <text x="230" y="190" font-family="monospace" font-size="9" fill="#000">✓ Both hands on handle</text>
+  <text x="230" y="203" font-family="monospace" font-size="9" fill="#000">✓ Slide top hand on swing</text>
+  <text x="230" y="216" font-family="monospace" font-size="9" fill="#000">✓ Aim for same spot</text>
+  
+  <rect x="50" y="320" width="320" height="30" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="60" y="338" font-family="monospace" font-size="9" font-weight="bold" fill="#E00">⚠ Clear 2× axe length radius before swinging!</text>
+  
+  <!-- Splitting technique -->
+  <rect x="420" y="80" width="340" height="280" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="430" y="105" font-family="monospace" font-size="14" font-weight="bold" fill="#000">SPLITTING WOOD:</text>
+  
+  <!-- Splitting diagram -->
+  <circle cx="590" cy="190" r="50" fill="url(#horizontal)" stroke="#000" stroke-width="2"/>
+  <line x1="540" y1="190" x2="640" y2="190" stroke="#000" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="545" y="185" font-family="monospace" font-size="8" fill="#E00">Aim for edge</text>
+  <text x="580" y="210" font-family="monospace" font-size="8" fill="#000">Not center</text>
+  
+  <!-- Grain lines -->
+  <line x1="570" y1="150" x2="570" y2="230" stroke="#666" stroke-width="1"/>
+  <line x1="580" y1="145" x2="580" y2="235" stroke="#666" stroke-width="1"/>
+  <line x1="590" y1="143" x2="590" y2="237" stroke="#666" stroke-width="1"/>
+  <line x1="600" y1="145" x2="600" y2="235" stroke="#666" stroke-width="1"/>
+  <line x1="610" y1="150" x2="610" y2="230" stroke="#666" stroke-width="1"/>
+  
+  <text x="430" y="260" font-family="monospace" font-size="9" fill="#000">1. Place log on chopping block</text>
+  <text x="430" y="273" font-family="monospace" font-size="9" fill="#000">2. Look for existing cracks</text>
+  <text x="430" y="286" font-family="monospace" font-size="9" fill="#000">3. Aim for outer edge, not center</text>
+  <text x="430" y="299" font-family="monospace" font-size="9" fill="#000">4. Follow the grain lines</text>
+  <text x="430" y="312" font-family="monospace" font-size="9" fill="#000">5. Use chopping block to save axe</text>
+  
+  <rect x="430" y="325" width="320" height="25" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="440" y="343" font-family="monospace" font-size="9" font-weight="bold" fill="#000">Tip: Split green wood easier than dried</text>
+  
+  <!-- Safety rules -->
+  <rect x="40" y="375" width="720" height="145" fill="#FFCCCC" stroke="#000" stroke-width="3"/>
+  <text x="50" y="400" font-family="monospace" font-size="14" font-weight="bold" fill="#E00">⚠ SAFETY RULES:</text>
+  
+  <text x="60" y="420" font-family="monospace" font-size="10" fill="#000">• Never chop toward your body or feet</text>
+  <text x="60" y="438" font-family="monospace" font-size="10" fill="#000">• Keep blade sharp (dull axes slip and glance off)</text>
+  <text x="60" y="456" font-family="monospace" font-size="10" fill="#000">• Check overhead for branches before swinging</text>
+  <text x="60" y="474" font-family="monospace" font-size="10" fill="#000">• Clear audience: minimum 6 feet (2 axe lengths)</text>
+  <text x="60" y="492" font-family="monospace" font-size="10" fill="#000">• Use chopping block (stump/log) to protect blade and prevent ground strikes</text>
+  <text x="60" y="510" font-family="monospace" font-size="10" fill="#000">• Wear boots, never barefoot or in sandals</text>
+  
+  <!-- Maintenance -->
+  <rect x="40" y="535" width="720" height="145" fill="#E6E6E6" stroke="#000" stroke-width="2"/>
+  <text x="50" y="560" font-family="monospace" font-size="14" font-weight="bold" fill="#000">MAINTENANCE:</text>
+  
+  <text x="60" y="580" font-family="monospace" font-size="10" fill="#000">Sharpening:</text>
+  <text x="70" y="595" font-family="monospace" font-size="9" fill="#666">• File from shoulder to edge, consistent angle (25-30°)</text>
+  <text x="70" y="608" font-family="monospace" font-size="9" fill="#666">• Equal strokes on both sides</text>
+  <text x="70" y="621" font-family="monospace" font-size="9" fill="#666">• Finish with sharpening stone if available</text>
+  
+  <text x="60" y="641" font-family="monospace" font-size="10" fill="#000">Storage:</text>
+  <text x="70" y="656" font-family="monospace" font-size="9" fill="#666">• Always sheathed or blade covered</text>
+  <text x="70" y="669" font-family="monospace" font-size="9" fill="#666">• Oil blade to prevent rust (cooking oil works)</text>
+  
+</svg>

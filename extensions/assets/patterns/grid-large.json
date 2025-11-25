@@ -1,0 +1,31 @@
+{
+  "name": "grid-large",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "unicode",
+  "dimensions": {
+    "width": 16,
+    "height": 8
+  },
+  "pattern": [
+    "\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+    "\u2502       \u2502       ",
+    "\u2502       \u2502       ",
+    "\u2502       \u2502       ",
+    "\u2502       \u2502       ",
+    "\u2502       \u2502       ",
+    "\u2502       \u2502       ",
+    "\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "background",
+      "grid",
+      "large",
+      "spacious"
+    ],
+    "description": "Large 8x8 grid for spacious layouts"
+  }
+}

@@ -39,7 +39,8 @@ class PromptDecorator:
         self,
         is_assist_mode: bool = False,
         panel_name: Optional[str] = None,
-        flash: bool = False
+        flash: bool = False,
+        dev_mode: bool = False
     ) -> str:
         """
         Generate prompt string.
@@ -48,6 +49,7 @@ class PromptDecorator:
             is_assist_mode: Whether in assist mode
             panel_name: Currently selected panel (if any)
             flash: Whether to add flash effect (deprecated, kept for compatibility)
+            dev_mode: Whether DEV MODE is active (v1.5.0)
 
         Returns:
             Formatted prompt string
@@ -61,8 +63,11 @@ class PromptDecorator:
         if panel_name:
             parts.append(theme_config['panel_prefix'].format(panel=panel_name))
 
+        # Add DEV MODE indicator if active (v1.5.0)
+        if dev_mode:
+            parts.append('🔧 DEV> ')
         # Add main prompt
-        if is_assist_mode:
+        elif is_assist_mode:
             parts.append(theme_config['assist_prompt'])
         else:
             parts.append(theme_config['normal_prompt'])

@@ -1,0 +1,36 @@
+{
+  "name": "block-thin",
+  "version": "1.0.0",
+  "type": "border",
+  "charset": "unicode",
+  "dimensions": {
+    "width": 80,
+    "height": 24
+  },
+  "components": {
+    "top_left": "\u2584",
+    "top_right": "\u2584",
+    "bottom_left": "\u2580",
+    "bottom_right": "\u2580",
+    "horizontal": "\u2580",
+    "vertical": "\u2590"
+  },
+  "example": [
+    "\u2584\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2584",
+    "\u2590                 \u2590",
+    "\u2590     Content     \u2590",
+    "\u2590                 \u2590",
+    "\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "border",
+      "block",
+      "thin",
+      "minimal"
+    ],
+    "description": "Thin block border for subtle framing"
+  }
+}

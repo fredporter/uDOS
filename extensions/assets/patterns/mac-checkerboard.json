@@ -1,0 +1,26 @@
+{
+  "name": "mac-checkerboard",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "ascii",
+  "dimensions": {
+    "width": 8,
+    "height": 8
+  },
+  "pattern": [
+    "░▒░▒░▒░▒",
+    "▒░▒░▒░▒░",
+    "░▒░▒░▒░▒",
+    "▒░▒░▒░▒░",
+    "░▒░▒░▒░▒",
+    "▒░▒░▒░▒░",
+    "░▒░▒░▒░▒",
+    "▒░▒░▒░▒░"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": ["background", "mac", "classic", "checkerboard", "pattern"],
+    "description": "Classic Macintosh checkerboard background pattern"
+  }
+}

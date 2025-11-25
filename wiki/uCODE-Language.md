@@ -1,1303 +1,633 @@
-# uCODE User Manual
-## uDOS v1.0.0 Command Language Reference
+# uCODE Language Specification
 
-### Overview
-uCODE is the internal command language for uDOS. It provides a structured syntax for file operations, AI integration, multi-panel management, system control, and map navigation.
+**Version:** 2.0.0
+**Status:** Draft - Phase 4 Development
+**Last Updated:** November 25, 2025
 
-### Command Contexts
+---
 
-#### **CLI Context (Terminal/Interactive)**
-Direct commands - case insensitive input, themed output:
-```
-HELP                          ~ Show general help
-CATALOG                       ~ List files in current directory
-LOAD "README.MD"              ~ Load file into main panel
-ASK "What is uDOS?"           ~ Query AI (online) or offline engine
-MAP STATUS                    ~ Show current map position
-```
+## Overview
 
-#### **Script Context (uSCRIPT Files)**
-uCODE format with brackets for automation:
-```
-[FILE|LIST*.*main]            ~ List files to main panel
-[FILE|LOAD*README.MD*docs]    ~ Load file to docs panel
-[AI|ASK*Explain this*main]    ~ Ask AI with context from panel
-[MAP|MOVE*5*3]                ~ Move on map grid
-[SYSTEM|REBOOT]               ~ Restart system
-```
+uCODE is a human-readable, markdown-compatible scripting language for uDOS automation. It combines the simplicity of shortcodes with the power of full scripting, enabling both quick one-liners and complex workflows.
 
-#### **Conditional Context (Setup Scripts)**
-uCODE with IF/THEN/ELSE logic:
-```
-IF USER.NAME IS_EMPTY THEN
-  PROMPT "Enter your name" INTO USER.NAME
-ENDIF
+### Design Principles
 
-IF FILE_EXISTS "config.json" THEN
-  LOAD_JSON "config.json" INTO CONFIG
-ELSE
-  ERROR "Configuration file not found"
-ENDIF
-```
+1. **Human-Readable**: Natural language-like syntax
+2. **Markdown-Compatible**: Works in .md and .uscript files
+3. **Progressive Complexity**: Simple commands → complex scripts
+4. **CLI Integration**: Every uCODE command maps to CLI
+5. **Self-Documenting**: Inline help and examples
 
-### Command Syntax Rules
+---
 
-**CLI Format (Terminal):**
-```
-COMMAND [PARAMETER] [OPTION] [VALUE]
-```
+## Basic Syntax
 
-**uCODE Format (Scripts):**
-```
-[MODULE|COMMAND*PARAMETER_1*PARAMETER_2*...]
-```
+### Command Structure
 
-**Conditional Format (Setup Scripts):**
 ```
-IF CONDITION THEN
-  COMMANDS
-ELSE
-  COMMANDS
-ENDIF
+[COMMAND|option|$variable]
 ```
 
 **Components:**
-- MODULE : System module (FILE, AI, GRID, SYSTEM, MAP)
-- COMMAND : Primary operation (required)
-- PARAMETER : Command arguments (separated by *)
-- OPTION : Modifiers (TO, FROM, etc.)
+- `COMMAND`: Action to perform (uppercase by convention)
+- `option`: Optional parameters (lowercase)
+- `$variable`: Dynamic values (prefixed with $)
 
 **Examples:**
 ```
-# CLI Context
-CATALOG "data"                ~ List data directory
-LOAD "file.txt" TO "notes"    ~ Load to specific panel
-ASK "Summarize" FROM "main"   ~ AI query with context
-MOVE 5 3                      ~ Move on map
+[HELP]                          # Show help
+[HELP|commands]                 # List all commands
+[HELP|GENERATE]                 # Help for specific command
+[VERSION]                       # Show version
+[STATUS]                        # System status
+```
 
-# uCODE Context
-[FILE|LIST*data*main]         ~ List data to main panel
-[FILE|LOAD*file.txt*notes]    ~ Load to notes panel
-[AI|ASK*Summarize*main]       ~ AI query from main panel
-[MAP|MOVE*5*3]                ~ Move on map grid
+### Variables
+
+```
+$USER           # Current username
+$HOME           # Home directory
+$CATEGORY       # Current category context
+$DATE           # Current date (YYYY-MM-DD)
+$TIME           # Current time (HH:MM:SS)
+$WORKSPACE      # Workspace root path
+```
+
+**Custom Variables:**
+```
+$topic = "water purification"
+$format = "svg"
+$complexity = "detailed"
+```
+
+### Comments
+
+```
+# This is a comment
+// Also a comment
+[COMMENT|This is an inline comment]
 ```
 
 ---
 
-## Core Commands
+## Command Categories
 
-### File Operations (FILE Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| CATALOG | [FILE\|LIST*./*main] | List directory contents | path, panel |
-| CATALOG "path" | [FILE\|LIST*path*main] | List specific directory | path, panel |
-| CATALOG "path" TO "panel" | [FILE\|LIST*path*panel] | List to specific panel | path, panel |
-| LOAD "file" | [FILE\|LOAD*file*main] | Load file to main panel | file, panel |
-| LOAD "file" TO "panel" | [FILE\|LOAD*file*panel] | Load file to panel | file, panel |
-| SAVE "panel" TO "file" | [FILE\|SAVE*panel*file] | Save panel to file | panel, file |
-| EDIT "file" | [SYSTEM\|EDIT*file] | Open file in editor | file |
+### 1. GENERATE Commands
 
-**File Operation Examples:**
-```bash
-# CLI Context
-CATALOG                       ~ List current directory
-CATALOG "data"                ~ List data directory
-CATALOG "." TO "files"        ~ List to files panel
-LOAD "README.MD"              ~ Load to main panel
-LOAD "config.json" TO "cfg"   ~ Load to cfg panel
-SAVE "notes" TO "output.txt"  ~ Save notes panel
-EDIT "script.uscript"         ~ Edit script file
+Create content (guides, diagrams, checklists).
 
-# uCODE Context
-[FILE|LIST*.*main]            ~ List current to main
-[FILE|LIST*data*main]         ~ List data to main
-[FILE|LIST*.*files]           ~ List to files panel
-[FILE|LOAD*README.MD*main]    ~ Load to main
-[FILE|LOAD*config.json*cfg]   ~ Load to cfg panel
-[FILE|SAVE*notes*output.txt]  ~ Save notes
-[SYSTEM|EDIT*script.uscript]  ~ Edit script
+```
+[GENERATE|guide|water/purification]
+[GENERATE|diagram|fire/triangle|format=svg]
+[GENERATE|checklist|emergency/evacuation]
+[GENERATE|batch|category=water|type=guide|count=10]
 ```
 
-### Grid Management (GRID Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| GRID PANEL CREATE "name" | [GRID\|PANEL*CREATE*name] | Create new panel | name |
-| GRID PANELS LIST | [GRID\|PANELS*LIST] | List all panels | none |
-| SHOW "panel" | [GRID\|SHOW*panel] | Display panel contents | panel |
-| GRID PANEL DELETE "name" | [GRID\|PANEL*DELETE*name] | Delete panel | name |
+**Parameters:**
+- `type`: guide, diagram, checklist, reference
+- `category`: water, fire, shelter, food, medical, navigation, tools, communication
+- `format`: ascii, teletext, svg, markdown
+- `complexity`: simple, detailed, technical
+- `style`: technical, hand-drawn, hybrid
+- `perspective`: isometric, top-down, side, 3d
 
-**Grid Examples:**
-```bash
-# CLI Context
-GRID PANEL CREATE "notes"    ~ Create notes panel
-GRID PANEL CREATE "temp"     ~ Create temp panel
-GRID PANELS LIST             ~ List all panels
-SHOW "main"                  ~ Show main panel
-SHOW "notes"                 ~ Show notes panel
-GRID PANEL DELETE "temp"     ~ Delete temp panel
+### 2. CONVERT Commands
 
-# uCODE Context
-[GRID|PANEL*CREATE*notes]    ~ Create notes panel
-[GRID|PANEL*CREATE*temp]     ~ Create temp panel
-[GRID|PANELS*LIST]           ~ List all panels
-[GRID|SHOW*main]             ~ Show main panel
-[GRID|SHOW*notes]            ~ Show notes panel
-[GRID|PANEL*DELETE*temp]     ~ Delete temp panel
+Transform content between formats.
+
+```
+[CONVERT|pdf-to-md|manual.pdf]
+[CONVERT|html-to-teletext|page.html]
+[CONVERT|svg-to-ascii|diagram.svg]
+[CONVERT|batch|source=pdfs/|target=knowledge/]
 ```
 
-### OK Assist Integration (AI Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| ASK "question" | [AI\|ASK*question*null] | Query AI/offline engine | question, panel |
-| ASK "question" FROM "panel" | [AI\|ASK*question*panel] | Query with context | question, panel |
-| ANALYZE "panel" | [AI\|ANALYZE*panel] | Offline content analysis | panel |
+### 3. REFRESH Commands
 
-**AI Examples:**
-```bash
-# CLI Context
-ASK "What is uDOS?"          ~ Simple AI query
-ASK "Explain this code" FROM "main" ~ Query with context
-ASK "Summarize the file"     ~ File summary
-ANALYZE "main"               ~ Offline analysis
+Update content to new standards.
 
-# uCODE Context
-[AI|ASK*What is uDOS?*null]  ~ Simple AI query
-[AI|ASK*Explain this code*main] ~ Query with context
-[AI|ASK*Summarize the file*null] ~ File summary
-[AI|ANALYZE*main]            ~ Offline analysis
+```
+[REFRESH|--check|all]
+[REFRESH|water]
+[REFRESH|--force|knowledge/water/purification.md]
+[REFRESH|category=$CATEGORY|--report]
 ```
 
-**Online vs Offline:**
-- **ONLINE**: Uses Gemini API (requires API key)
-- **OFFLINE**: Uses pattern-matching engine (no API needed)
-- **LIMITED**: Partial connectivity (some features available)
+### 4. MANAGE Commands
 
-### System Commands (SYSTEM Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| REBOOT | [SYSTEM\|REBOOT] | Restart uDOS with checks | none |
-| RESTART | [SYSTEM\|REBOOT] | Alias for REBOOT | none |
-| STATUS | [SYSTEM\|STATUS] | System status report | none |
-| VIEWPORT | [SYSTEM\|VIEWPORT] | Display viewport info | none |
-| PALETTE | [SYSTEM\|PALETTE] | Show color palette | none |
-| REPAIR | [SYSTEM\|REPAIR*ALL] | Auto-repair system | component |
-| REPAIR DEPENDENCIES | [SYSTEM\|REPAIR*DEPENDENCIES] | Fix dependencies | component |
-| REPAIR FILES | [SYSTEM\|REPAIR*FILES] | Fix file structure | component |
-| SETUP | [SYSTEM\|SETUP] | Run setup wizard | none |
-| RUN "script" | [SYSTEM\|RUN*script] | Execute script file | script |
-| HELP | [SYSTEM\|HELP*ALL] | Show help | command |
-| HELP "command" | [SYSTEM\|HELP*command] | Command-specific help | command |
-| CLS | [SYSTEM\|CLS] | Clear screen | none |
-| CLEAR | [SYSTEM\|CLS] | Alias for CLS | none |
+Organize and maintain content.
 
-**System Examples:**
-```bash
-# CLI Context
-REBOOT                       ~ Restart with pre-flight checks
-STATUS                       ~ Show system status
-VIEWPORT                     ~ Display terminal specs
-PALETTE                      ~ Show color palette
-REPAIR                       ~ Auto-repair system
-REPAIR DEPENDENCIES          ~ Fix missing packages
-SETUP                        ~ Run setup wizard
-RUN "shakedown.uscript"      ~ Execute script
-HELP                         ~ General help
-HELP LOAD                    ~ Help for LOAD command
-CLS                          ~ Clear screen
-
-# uCODE Context
-[SYSTEM|REBOOT]              ~ Restart system
-[SYSTEM|STATUS]              ~ System status
-[SYSTEM|VIEWPORT]            ~ Viewport info
-[SYSTEM|PALETTE]             ~ Color palette
-[SYSTEM|REPAIR*ALL]          ~ Auto-repair
-[SYSTEM|REPAIR*DEPENDENCIES] ~ Fix deps
-[SYSTEM|SETUP]               ~ Setup wizard
-[SYSTEM|RUN*shakedown.uscript] ~ Run script
-[SYSTEM|HELP*ALL]            ~ General help
-[SYSTEM|HELP*LOAD]           ~ LOAD help
-[SYSTEM|CLS]                 ~ Clear screen
+```
+[MANAGE|index|rebuild]
+[MANAGE|tags|update]
+[MANAGE|links|validate]
+[MANAGE|cleanup|temp-files]
+[MANAGE|backup|knowledge/]
 ```
 
-### History & Recovery (SYSTEM Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| UNDO | [SYSTEM\|UNDO] | Undo last action | none |
-| REDO | [SYSTEM\|REDO] | Redo last undo | none |
-| RESTORE | [SYSTEM\|RESTORE*null] | Restore previous session | session |
-| RESTORE session_num | [SYSTEM\|RESTORE*session_num] | Restore specific session | session |
+### 5. SEARCH Commands
 
-**History Examples:**
-```bash
-# CLI Context
-UNDO                         ~ Undo last operation
-REDO                         ~ Redo last undo
-RESTORE                      ~ Restore previous session
-RESTORE 25                   ~ Restore session #25
+Find and filter content.
 
-# uCODE Context
-[SYSTEM|UNDO]                ~ Undo last operation
-[SYSTEM|REDO]                ~ Redo last undo
-[SYSTEM|RESTORE*null]        ~ Restore previous
-[SYSTEM|RESTORE*25]          ~ Restore session 25
+```
+[SEARCH|water purification]
+[SEARCH|category=medical|tag=emergency]
+[SEARCH|type=diagram|format=svg]
+[SEARCH|quality<0.8]
 ```
 
-### Map Navigation (MAP Module)
-| CLI Command | uCODE | Description | Parameters |
-|-------------|-------|-------------|------------|
-| MAP | [MAP\|STATUS] | Show map status | none |
-| MAP STATUS | [MAP\|STATUS] | Show position/layer | none |
-| MAP VIEW | [MAP\|VIEW] | Show ASCII map | none |
-| GOTO x y | [MAP\|GOTO*x*y] | Teleport to coordinates | x, y |
-| MOVE dx dy | [MAP\|MOVE*dx*dy] | Move relative | dx, dy |
-| LAYER | [MAP\|LAYER] | List available layers | none |
-| DESCEND | [MAP\|DESCEND] | Go down one layer | none |
-| ASCEND | [MAP\|ASCEND] | Go up one layer | none |
-| LOCATE | [MAP\|LOCATE] | Show real-world location | none |
-| WHERE | [MAP\|WHERE] | Alias for LOCATE | none |
+### 6. MISSION Commands
 
-**Map Examples:**
-```bash
-# CLI Context
-MAP                          ~ Show map status
-MAP STATUS                   ~ Position and layer info
-MAP VIEW                     ~ Display ASCII map
-GOTO 10 5                    ~ Teleport to (10, 5)
-MOVE 1 0                     ~ Move east
-MOVE 0 -1                    ~ Move north
-MOVE 5 3                     ~ Move 5 east, 3 south
-LAYER                        ~ List layers
-DESCEND                      ~ Go down (SURFACE → DUNGEON-1)
-ASCEND                       ~ Go up (DUNGEON-1 → SURFACE)
-LOCATE                       ~ Show real-world location
-WHERE                        ~ Alias for LOCATE
+Execute complex workflows.
 
-# uCODE Context
-[MAP|STATUS]                 ~ Map status
-[MAP|STATUS]                 ~ Position/layer
-[MAP|VIEW]                   ~ ASCII map
-[MAP|GOTO*10*5]              ~ Teleport
-[MAP|MOVE*1*0]               ~ Move east
-[MAP|MOVE*0*-1]              ~ Move north
-[MAP|MOVE*5*3]               ~ Move diagonal
-[MAP|LAYER]                  ~ List layers
-[MAP|DESCEND]                ~ Go down
-[MAP|ASCEND]                 ~ Go up
-[MAP|LOCATE]                 ~ Location
-[MAP|WHERE]                  ~ Location alias
+```
+[MISSION|start|complete_knowledge_bank]
+[MISSION|status|current]
+[MISSION|complete|task-1]
+[MISSION|abort|current]
 ```
 
-**Map Layers (8 levels):**
+### 7. CONFIG Commands
+
+Manage settings and preferences.
+
 ```
-SATELLITE  (+100)  ~ Space view
-CLOUD      (+50)   ~ Aerial view
-SURFACE    (0)     ~ Ground level (default)
-DUNGEON-1  (-10)   ~ First underground
-DUNGEON-2  (-20)   ~ Deeper underground
-DUNGEON-3  (-30)   ~ Even deeper
-MINES      (-50)   ~ Mining level
-CORE       (-100)  ~ Bottom level
+[CONFIG|theme|teletext-green]
+[CONFIG|ai-model|gemini-2.5-flash]
+[CONFIG|output-dir|knowledge/custom/]
+[CONFIG|get|theme]
+[CONFIG|list]
+```
+
+### 8. SYSTEM Commands
+
+System operations and monitoring.
+
+```
+[SYSTEM|status]
+[SYSTEM|logs|tail]
+[SYSTEM|clear-cache]
+[SYSTEM|version]
+[SYSTEM|diagnostics]
 ```
 
 ---
 
-## uCODE Scripting (Advanced)
+## Advanced Syntax
 
-### Conditional Logic
-| Statement | Syntax | Description |
-|-----------|--------|-------------|
-| IF | IF condition THEN | Start conditional block |
-| ELSE | ELSE | Alternative block |
-| ENDIF | ENDIF | End conditional block |
+### Command Chaining
 
-**Conditional Operators:**
+Use `|>` to pipe output between commands:
+
 ```
-EMPTY              ~ Field is empty
-NOT_EMPTY          ~ Field has value
-EQUALS             ~ Field equals value
-NOT_EQUALS         ~ Field not equal to value
-FILE_EXISTS        ~ File exists
-FILE_MISSING       ~ File doesn't exist
+[SEARCH|category=water] |> [REFRESH|--check] |> [REPORT]
 ```
 
-**Conditional Examples:**
-```ucode
-# Check if user name is set
-IF USER.NAME IS_EMPTY THEN
-  PROMPT "Enter your name" INTO USER.NAME
-ENDIF
+### Conditional Execution
 
-# Check file existence
-IF FILE_EXISTS "config.json" THEN
-  LOAD_JSON "config.json" INTO CONFIG
-ELSE
-  ERROR "Configuration missing"
-  COPY "config.template" TO "config.json"
-ENDIF
-
-# Nested conditions
-IF USER.THEME EQUALS "DUNGEON_CRAWLER" THEN
-  IF USER.LOCATION IS_EMPTY THEN
-    SET_VAR "LOCATION" "Unknown Realm"
-  ENDIF
-ELSE
-  SET_VAR "LOCATION" "Digital Space"
-ENDIF
+```
+if [SEARCH|quality<0.7] then
+  [REFRESH|--force|all]
+  [NOTIFY|Quality improved]
+fi
 ```
 
-### Variable Operations
-| Command | Syntax | Description |
-|---------|--------|-------------|
-| SET_VAR | SET_VAR "name" "value" | Set variable |
-| PROMPT | PROMPT "question" INTO VAR | Get user input |
-| GET_FIELD | GET_FIELD "path" FROM JSON | Get JSON field |
-| SET_FIELD | SET_FIELD "path" TO "value" IN JSON | Set JSON field |
-
-**Variable Examples:**
-```ucode
-# Set variables
-SET_VAR "THEME" "DUNGEON_CRAWLER"
-SET_VAR "USERNAME" "adventurer"
-
-# Get user input
-PROMPT "Enter project name" INTO PROJECT_NAME
-PROMPT "Choose theme" INTO THEME
-
-# JSON operations
-LOAD_JSON "USER.UDO" INTO USER
-GET_FIELD "USER_PROFILE.NAME" FROM USER
-SET_FIELD "USER_PROFILE.THEME" TO "CYBERPUNK" IN USER
-SAVE_JSON USER TO "USER.UDO"
-
-# Variable substitution
-DISPLAY "Welcome {USERNAME}!"
-DISPLAY "Theme: {THEME}"
-LOG "User {USERNAME} logged in at {TIMESTAMP}"
+**Compact syntax:**
+```
+[IF|quality<0.7|REFRESH|--force]
 ```
 
-### System Functions
-| Function | Syntax | Description |
-|----------|--------|-------------|
-| DISPLAY | DISPLAY "message" | Show message to user |
-| LOG | LOG "message" | Write to log |
-| ERROR | ERROR "message" | Show error |
-| WARNING | WARNING "message" | Show warning |
-| TIMESTAMP | {TIMESTAMP} | Current timestamp |
-| DETECT_TIMEZONE | DETECT_TIMEZONE | Get system timezone |
-| CHECK_FILE | CHECK_FILE "path" | Check if file exists |
-| EXIT | EXIT | Exit script |
+### Loops
 
-**System Function Examples:**
-```ucode
-# Display messages
-DISPLAY "Setup starting..."
-LOG "Configuration initialized"
-ERROR "Missing required field"
-WARNING "Using default value"
-
-# Timestamps
-DISPLAY "Started at {TIMESTAMP}"
-LOG "Session created: {TIMESTAMP}"
-
-# Timezone detection
-DETECT_TIMEZONE
-SET_FIELD "USER_PROFILE.TIMEZONE" TO "{DETECTED_TIMEZONE}" IN USER
-
-# File operations
-CHECK_FILE "data/config.json"
-IF FILE_EXISTS THEN
-  DISPLAY "Configuration found"
-ELSE
-  DISPLAY "Creating default configuration"
-  COPY "templates/config.json" TO "data/config.json"
-ENDIF
+```
+for category in water fire shelter food
+  [GENERATE|guide|$category/basics]
+  [GENERATE|diagram|$category/overview|format=svg]
+done
 ```
 
-### JSON Manipulation
-| Command | Description | Example |
-|---------|-------------|---------|
-| LOAD_JSON | Load JSON file | LOAD_JSON "USER.UDO" INTO USER |
-| SAVE_JSON | Save JSON file | SAVE_JSON USER TO "USER.UDO" |
-| GET_FIELD | Get field value | GET_FIELD "PROFILE.NAME" FROM USER |
-| SET_FIELD | Set field value | SET_FIELD "PROFILE.NAME" TO "Fred" IN USER |
-
-**Dot Notation:**
+**Compact syntax:**
 ```
-USER_PROFILE.NAME              ~ Access nested field
-USER_PROFILE.WORLD_LOCATION.CITY ~ Deep nesting
-LOCATION_DATA.MAP_POSITION.X   ~ Multi-level access
+[FOR|category|water,fire,shelter|GENERATE|guide|$category/basics]
 ```
 
-**JSON Examples:**
-```ucode
-# Load user profile
-LOAD_JSON "sandbox/USER.UDO" INTO USER
+### Variables and Substitution
 
-# Get fields
-GET_FIELD "USER_PROFILE.NAME" FROM USER
-GET_FIELD "USER_PROFILE.TIMEZONE" FROM USER
-GET_FIELD "WORLD_LOCATION.CITY" FROM USER
+```
+$categories = "water,fire,shelter,food,medical,navigation,tools,communication"
+$formats = "ascii,teletext,svg"
 
-# Set fields
-SET_FIELD "USER_PROFILE.NAME" TO "fredbook" IN USER
-SET_FIELD "USER_PROFILE.THEME" TO "CYBERPUNK" IN USER
-SET_FIELD "WORLD_LOCATION.CITY" TO "New York" IN USER
-
-# Save changes
-SAVE_JSON USER TO "sandbox/USER.UDO"
-
-# Nested operations
-GET_FIELD "LOCATION_DATA.MAP_POSITION.X" FROM USER
-SET_FIELD "LOCATION_DATA.MAP_POSITION.LAYER" TO "SURFACE" IN USER
+[FOR|cat|$categories|GENERATE|guide|$cat/overview]
 ```
 
-### Field Validation Patterns
-| Pattern | Description | Example |
-|---------|-------------|---------|
-| REQUIRED | Must be filled | USER_NAME is REQUIRED |
-| DEFAULT | Auto-fill if empty | TIMEZONE default: UTC |
-| OPTIONAL | Can be empty | DESCRIPTION is OPTIONAL |
+### Multi-line Scripts
 
-**Validation Examples:**
-```ucode
-# REQUIRED field (must be entered)
-IF USER.NAME IS_EMPTY THEN
-  PROMPT "Enter your name (required)" INTO USER.NAME
-  IF USER.NAME IS_EMPTY THEN
-    ERROR "Name is required"
-    EXIT
-  ENDIF
-ENDIF
+```uscript
+# Daily content maintenance workflow
 
-# DEFAULT field (auto-fill)
-IF USER.TIMEZONE IS_EMPTY THEN
-  DETECT_TIMEZONE
-  SET_FIELD "USER_PROFILE.TIMEZONE" TO "{DETECTED_TIMEZONE}" IN USER
-  DISPLAY "Using detected timezone: {DETECTED_TIMEZONE}"
-ENDIF
+# 1. Check quality
+[REFRESH|--check|all] |> [REPORT|save=logs/quality_$DATE.txt]
 
-# OPTIONAL field (can skip)
-IF USER.DESCRIPTION IS_EMPTY THEN
-  PROMPT "Enter description (optional, press Enter to skip)" INTO DESCRIPTION
-  IF DESCRIPTION NOT_EMPTY THEN
-    SET_FIELD "PROJECT.DESCRIPTION" TO "{DESCRIPTION}" IN USER
-  ENDIF
-ENDIF
+# 2. Update low-quality content
+if [SEARCH|quality<0.8|count] > 10 then
+  [REFRESH|all]
+  [NOTIFY|Updated low-quality content]
+fi
+
+# 3. Rebuild indexes
+[MANAGE|index|rebuild]
+[MANAGE|tags|update]
+
+# 4. Backup
+[MANAGE|backup|knowledge/|target=backups/knowledge_$DATE/]
+
+# 5. Generate report
+[REPORT|daily|email=$USER@localhost]
 ```
 
 ---
 
-## Character Usage Rules
+## Script Files (.uscript)
 
-### uCODE Special Characters
-```
-~ Operators:
-|  ~ Module separator: [MODULE|COMMAND]
-*  ~ Parameter separator: [MODULE|COMMAND*PARAM1*PARAM2]
-"  ~ String delimiter: LOAD "file.txt"
-{} ~ Variable substitution: {USERNAME}
+### File Structure
 
-~ Comments:
-# This is a comment                    ~ Full line comment
-LOAD "file.txt"                        ~ End-of-line comment supported in docs
+```uscript
+---
+title: Startup Options
+description: Configure environment on startup
+version: 1.0.0
+author: uDOS
+---
 
-~ Paths and Strings:
-"path/to/file"                         ~ Use quotes for paths
-"text with spaces"                     ~ Use quotes for strings with spaces
-```
+# Startup Configuration
 
-### Character Avoidance Rules
-```
-~ Avoid in regular operations:
-[]  ~ Reserved for uCODE brackets
-<>  ~ Reserved for future use
-$   ~ Reserved for shell variables
-&   ~ Reserved for future operators
-%   ~ Reserved for future operators
+## Environment Setup
+[CONFIG|theme|teletext-green]
+[CONFIG|output-dir|knowledge/]
+[CONFIG|ai-model|gemini-2.5-flash]
 
-~ Preferred formats:
-"Press ENTER to continue"              ~ Not: "Press [Enter]"
-LOAD "README.MD"                       ~ Not: LOAD README.MD (without quotes)
-{USERNAME}                             ~ Not: $USERNAME
+## Load Extensions
+[EXTENSION|load|ok-assist]
+[EXTENSION|load|teletext-renderer]
+
+## Verify System
+[SYSTEM|diagnostics]
+[SYSTEM|status]
+
+## Welcome Message
+[NOTIFY|uDOS ready - Type HELP for commands]
 ```
 
-### Formatting Rules
+### Metadata Block
+
+YAML frontmatter (optional):
+```yaml
+---
+title: Script Name
+description: What this script does
+version: 1.0.0
+author: Username
+tags: [automation, maintenance, content]
+schedule: "0 0 * * *"  # cron format
+---
 ```
-# Commands: UPPERCASE (case-insensitive input)
-LOAD SAVE CATALOG ASK MAP REBOOT      ~ Commands in UPPERCASE
-GRID PANEL CREATE                      ~ Multi-word commands
-MOVE GOTO DESCEND ASCEND              ~ Map navigation commands
 
-# Parameters: Quoted strings or bare words
-LOAD "README.MD"                       ~ File paths in quotes
-CATALOG "data"                         ~ Directory paths in quotes
-GOTO 10 5                              ~ Numeric parameters bare
-MOVE 5 3                               ~ Movement offsets bare
+### Sections
 
-# Variables: {CAPS_WITH_UNDERSCORES}
-{USERNAME}                             ~ Variable reference
-{PROJECT_NAME}                         ~ Multi-word variable
-{DETECTED_TIMEZONE}                    ~ System variable
-{TIMESTAMP}                            ~ Built-in function
+Use markdown headers to organize:
+```uscript
+# Main Script Title
 
-# Themed output: Varies by lexicon
-✅ SUCCESS: File loaded                ~ Dungeon Crawler theme
-📝 Scroll unfurled into 'main'        ~ Fantasy-themed success
+## Section 1: Setup
+[commands here]
+
+## Section 2: Processing
+[commands here]
+
+## Section 3: Cleanup
+[commands here]
 ```
 
 ---
 
-## Quick Reference
+## Command Reference Format
 
-### Most Common Commands
-```bash
-# CLI Context (Terminal)
-HELP                         ~ Get help
-CATALOG                      ~ List files
-LOAD "file"                  ~ Load file
-SHOW "panel"                 ~ Show panel
-ASK "question"               ~ Query AI
-MAP STATUS                   ~ Map position
-STATUS                       ~ System status
-REBOOT                       ~ Restart system
+### Template
 
-# uCODE Context (Scripts)
-[SYSTEM|HELP*ALL]            ~ Get help
-[FILE|LIST*.*main]           ~ List files
-[FILE|LOAD*file*main]        ~ Load file
-[GRID|SHOW*panel]            ~ Show panel
-[AI|ASK*question*null]       ~ Query AI
-[MAP|STATUS]                 ~ Map position
-[SYSTEM|STATUS]              ~ System status
-[SYSTEM|REBOOT]              ~ Restart system
 ```
+COMMAND_NAME [options] [arguments]
 
-### Module-Specific Commands
-```bash
-# FILE Module - CLI
-CATALOG "data"               ~ List directory
-LOAD "file.txt" TO "notes"   ~ Load to panel
-SAVE "notes" TO "output.txt" ~ Save panel
-EDIT "script.uscript"        ~ Edit file
+Description:
+  Brief description of what the command does.
 
-# FILE Module - uCODE
-[FILE|LIST*data*main]        ~ List directory
-[FILE|LOAD*file.txt*notes]   ~ Load to panel
-[FILE|SAVE*notes*output.txt] ~ Save panel
-[SYSTEM|EDIT*script.uscript] ~ Edit file
+Options:
+  --option1       Description of option 1
+  --option2=VAL   Description of option 2 (with value)
 
-# GRID Module - CLI
-GRID PANEL CREATE "temp"     ~ Create panel
-GRID PANELS LIST             ~ List panels
-SHOW "main"                  ~ Display panel
-GRID PANEL DELETE "temp"     ~ Delete panel
+Arguments:
+  arg1            Description of argument 1
+  arg2            Description of argument 2 (optional)
 
-# GRID Module - uCODE
-[GRID|PANEL*CREATE*temp]     ~ Create panel
-[GRID|PANELS*LIST]           ~ List panels
-[GRID|SHOW*main]             ~ Display panel
-[GRID|PANEL*DELETE*temp]     ~ Delete panel
+Examples:
+  [COMMAND|arg1]
+  [COMMAND|arg1|--option1]
+  [COMMAND|arg1|--option2=value]
 
-# AI Module - CLI
-ASK "What is uDOS?"          ~ Simple query
-ASK "Explain" FROM "main"    ~ Query with context
-ANALYZE "main"               ~ Offline analysis
-
-# AI Module - uCODE
-[AI|ASK*What is uDOS?*null]  ~ Simple query
-[AI|ASK*Explain*main]        ~ Query with context
-[AI|ANALYZE*main]            ~ Offline analysis
-
-# MAP Module - CLI
-MAP STATUS                   ~ Position/layer
-GOTO 10 5                    ~ Teleport
-MOVE 5 3                     ~ Move relative
-DESCEND                      ~ Go down layer
-ASCEND                       ~ Go up layer
-
-# MAP Module - uCODE
-[MAP|STATUS]                 ~ Position/layer
-[MAP|GOTO*10*5]              ~ Teleport
-[MAP|MOVE*5*3]               ~ Move relative
-[MAP|DESCEND]                ~ Go down
-[MAP|ASCEND]                 ~ Go up
-```
-
-### Scripting Commands
-```ucode
-# Conditional Logic
-IF USER.NAME IS_EMPTY THEN
-  PROMPT "Enter name" INTO USER.NAME
-ENDIF
-
-IF FILE_EXISTS "config.json" THEN
-  LOAD_JSON "config.json" INTO CONFIG
-ELSE
-  ERROR "Config missing"
-ENDIF
-
-# Variables
-SET_VAR "THEME" "DUNGEON_CRAWLER"
-PROMPT "Enter value" INTO MYVAR
-DISPLAY "Hello {USERNAME}!"
-
-# JSON Operations
-LOAD_JSON "USER.UDO" INTO USER
-GET_FIELD "PROFILE.NAME" FROM USER
-SET_FIELD "PROFILE.THEME" TO "CYBERPUNK" IN USER
-SAVE_JSON USER TO "USER.UDO"
-
-# System Functions
-DISPLAY "Message to user"
-LOG "Log entry"
-ERROR "Error message"
-WARNING "Warning message"
-DETECT_TIMEZONE
-CHECK_FILE "path"
-EXIT
-```
-
-### Emergency Commands
-```bash
-# CLI Context
-REPAIR                       ~ Auto-fix problems
-REPAIR DEPENDENCIES          ~ Fix packages
-REPAIR FILES                 ~ Fix file structure
-RESTORE                      ~ Restore session
-UNDO                         ~ Undo last action
-REBOOT                       ~ Restart with checks
-
-# uCODE Context
-[SYSTEM|REPAIR*ALL]          ~ Auto-fix
-[SYSTEM|REPAIR*DEPENDENCIES] ~ Fix packages
-[SYSTEM|REPAIR*FILES]        ~ Fix files
-[SYSTEM|RESTORE*null]        ~ Restore session
-[SYSTEM|UNDO]                ~ Undo action
-[SYSTEM|REBOOT]              ~ Restart
+Related:
+  - RELATED_COMMAND1
+  - RELATED_COMMAND2
 ```
 
 ---
 
-## Connection Modes
+## Integration with CLI
 
-### ONLINE Mode
-- ✅ Full Gemini API access
-- ✅ Advanced AI queries
-- ✅ Internet connectivity
-- ✅ Real-time responses
+Every uCODE command maps to a CLI command:
 
-**Commands Available:**
 ```bash
-ASK "Complex question"       ~ Full AI power
-ASK "Analyze code" FROM "main" ~ Context-aware
-```
+# uCODE
+[GENERATE|guide|water/purification]
 
-### OFFLINE Mode
-- ✅ Pattern-matching engine
-- ✅ Local content analysis
-- ✅ No internet required
-- ✅ Instant responses
+# CLI equivalent
+udos generate guide water/purification
 
-**Commands Available:**
-```bash
-ANALYZE "panel"              ~ Content analysis
-ASK "Basic question"         ~ Pattern matching
-```
-
-### LIMITED Mode
-- ⚠️ Partial connectivity
-- ⚠️ Some features available
-- ⚠️ Fallback to offline
-- ⚠️ Reduced functionality
-
-**Commands Available:**
-```bash
-STATUS                       ~ Check mode
-CATALOG                      ~ File operations
-LOAD/SAVE                    ~ Panel operations
+# Python API
+from core.commands import generate
+generate.create_guide("water/purification")
 ```
 
 ---
 
-## Themed Commands (Lexicon)
+## Validation Rules
 
-### Dungeon Crawler Theme
-| Standard | Themed | Description |
-|----------|--------|-------------|
-| LOAD | CAST | Cast scroll spell |
-| SAVE | SCRIBE | Scribe to scroll |
-| CATALOG | ZAP | Zap to reveal |
-| ASK | CONSULT | Consult oracle |
-| MOVE | WALK | Walk in dungeon |
+### Syntax Rules
 
-**Theme Examples:**
-```bash
-# Standard commands (always work)
-LOAD "file.txt"
-SAVE "panel" TO "output.txt"
-CATALOG "data"
+1. Commands must be in square brackets
+2. Command names must be uppercase
+3. Parameters separated by pipes (|)
+4. Variables prefixed with $
+5. Strings can be quoted: "value with spaces"
+6. Comments start with # or //
 
-# Themed equivalents (Dungeon Crawler)
-CAST "file.txt"              ~ Same as LOAD
-SCRIBE "panel" TO "output.txt" ~ Same as SAVE
-ZAP "data"                   ~ Same as CATALOG
-```
+### Parameter Rules
 
-### Cyberpunk Theme
-| Standard | Themed | Description |
-|----------|--------|-------------|
-| LOAD | JACK | Jack into file |
-| CATALOG | SCAN | Scan directory |
-| MAP | TRACE | Trace grid |
+1. Options start with -- (double dash)
+2. Flags: --flag (boolean)
+3. Values: --option=value
+4. Short forms: -f (single dash)
 
-**Theme Examples:**
-```bash
-JACK "data.txt"              ~ Load file (cyberpunk)
-SCAN "directory"             ~ List directory
-TRACE STATUS                 ~ Map status
-```
+### Variable Rules
+
+1. Must start with letter or underscore
+2. Can contain letters, numbers, underscores
+3. Case-sensitive
+4. Reserved: USER, HOME, DATE, TIME, WORKSPACE, CATEGORY
+
+### Naming Conventions
+
+- **Commands**: UPPERCASE_WITH_UNDERSCORES
+- **Options**: lowercase-with-hyphens
+- **Variables**: $lowercase_with_underscores
+- **Files**: lowercase_with_underscores.uscript
 
 ---
 
-## Tab Completion
+## Error Handling
 
-### Smart Completion System
-```bash
-# Command completion
-LO[Tab]                      → LOAD
-CA[Tab]                      → CATALOG
-MA[Tab]                      → MAP
+### Try-Catch Blocks
 
-# File path completion
-LOAD "[Tab]                  → Shows available files
-EDIT "[Tab]                  → Shows .uscript files
-RUN "[Tab]                   → Shows script files
-
-# Panel completion
-SHOW "[Tab]                  → Shows panel names
-SAVE "[Tab]                  → Shows panel names
-
-# Trigger character
-[                            → Opens command menu instantly
+```
+try
+  [GENERATE|guide|water/purification]
+catch error
+  [LOG|ERROR|Failed to generate: $error]
+  [NOTIFY|Generation failed]
+finally
+  [CLEANUP]
+done
 ```
 
-### Context-Aware Hints
-```bash
-# After LOAD
-✅ File loaded into 'main'
-💡 Try: SHOW "main"
-
-# After MAP
-👣 Moved to (5, 3)
-💡 Try: MAP VIEW
-
-# After panel create
-✅ Panel 'notes' created
-💡 Try: LOAD "file.txt" TO "notes"
+**Compact syntax:**
+```
+[TRY|GENERATE|guide|water/purification|CATCH|LOG|ERROR]
 ```
 
----
+### Error Codes
 
-## Advanced Features (v1.0.16+)
-
-### Functions
-
-Define reusable code blocks with parameters and return values.
-
-**Syntax:**
-```ucode
-FUNCTION function_name(param1, param2)
-  # Function body
-  # Use parameters as variables
-  RETURN value
-ENDFUNCTION
-```
-
-**Examples:**
-```ucode
-# Simple function
-FUNCTION greet(name)
-  SET message = "Hello, " + name
-  RETURN message
-ENDFUNCTION
-
-# Call function
-CALL greet("Alice")
-GET RETURN_VALUE
-# RETURN_VALUE = "Hello, Alice"
-
-# Function with math
-FUNCTION calculate_total(price, quantity)
-  SET total = price * quantity
-  RETURN total
-ENDFUNCTION
-
-CALL calculate_total(10, 5)
-GET RETURN_VALUE
-# RETURN_VALUE = 50
-
-# Nested function calls
-FUNCTION double(n)
-  RETURN n * 2
-ENDFUNCTION
-
-FUNCTION quadruple(n)
-  CALL double(n)
-  GET RETURN_VALUE
-  SET doubled = RETURN_VALUE
-  CALL double(doubled)
-  RETURN RETURN_VALUE
-ENDFUNCTION
-```
-
-**Features:**
-- Local scope for variables
-- Parameter passing by value
-- Return values via `RETURN_VALUE` variable
-- Nested function calls supported
-- Functions stored in `self.functions` registry
-
-### Error Handling
-
-Structured exception handling with try/catch/finally blocks.
-
-**Syntax:**
-```ucode
-TRY
-  # Code that might fail
-CATCH error_variable
-  # Error handling code
-  # Access ERROR and ERROR_TYPE variables
-FINALLY
-  # Always executes (optional)
-ENDTRY
-```
-
-**Examples:**
-```ucode
-# Basic error handling
-TRY
-  SET result = dangerous_operation()
-CATCH err
-  GET ERROR
-  ECHO "Error occurred: " + ERROR
-ENDTRY
-
-# With FINALLY
-TRY
-  OPEN "file.txt"
-  READ content
-CATCH err
-  ECHO "Failed to read file"
-FINALLY
-  CLOSE "file.txt"
-ENDTRY
-
-# Throwing errors
-FUNCTION divide(a, b)
-  IF b == 0
-    THROW "Division by zero"
-  ENDIF
-  RETURN a / b
-ENDFUNCTION
-
-TRY
-  CALL divide(10, 0)
-CATCH err
-  GET ERROR
-  ECHO "Caught: " + ERROR
-  # ERROR = "Division by zero"
-ENDTRY
-
-# Nested try blocks
-TRY
-  TRY
-    THROW "Inner error"
-  CATCH inner
-    ECHO "Caught inner error"
-    THROW "Outer error"
-  ENDTRY
-CATCH outer
-  GET ERROR
-  ECHO "Caught outer: " + ERROR
-ENDTRY
-```
-
-**Special Variables:**
-- `ERROR` - Error message string
-- `ERROR_TYPE` - Exception class name
-
-### Module System
-
-Import and export code between scripts for code reuse.
-
-**Syntax:**
-```ucode
-# In module file (e.g., math_utils.uscript)
-FUNCTION square(n)
-  RETURN n * n
-ENDFUNCTION
-
-EXPORT square
-
-# In script file
-IMPORT math_utils
-CALL square(5)
-GET RETURN_VALUE
-# RETURN_VALUE = 25
-```
-
-**Import Variants:**
-```ucode
-# Import entire module
-IMPORT module_name
-# All exported functions and variables available
-
-# Selective import
-IMPORT module_name.function_name
-# Only specific function imported
-
-# From different paths
-IMPORT stdlib/math_utils
-IMPORT ./local_module
-IMPORT examples/modules/demo
-```
-
-**Module Resolution:**
-1. `memory/modules/module_name.uscript`
-2. `memory/modules/stdlib/module_name.uscript`
-3. `examples/modules/module_name.uscript`
-4. Relative paths: `./path/to/module.uscript`
-
-**Export Examples:**
-```ucode
-# Export functions
-FUNCTION add(a, b)
-  RETURN a + b
-ENDFUNCTION
-
-FUNCTION subtract(a, b)
-  RETURN a - b
-ENDFUNCTION
-
-EXPORT add
-EXPORT subtract
-
-# Export variables
-SET PI = 3.14159
-SET E = 2.71828
-
-EXPORT PI
-EXPORT E
-```
-
-**Standard Library Modules:**
-
-**math_utils** - Mathematical operations:
-```ucode
-IMPORT math_utils
-
-CALL square(5)      # Returns 25
-CALL cube(3)        # Returns 27
-CALL abs(-10)       # Returns 10
-CALL max(15, 7)     # Returns 15
-CALL min(15, 7)     # Returns 7
-GET PI              # 3.14159
-GET E               # 2.71828
-```
-
-**string_utils** - String manipulation:
-```ucode
-IMPORT string_utils
-
-CALL upper("hello")           # Returns "HELLO"
-CALL lower("WORLD")           # Returns "world"
-CALL trim("  text  ")         # Returns "text"
-CALL length("hello")          # Returns 5
-CALL contains("hello", "ell") # Returns true
-```
-
-**list_utils** - List operations:
-```ucode
-IMPORT list_utils
-
-CALL first([1,2,3])           # Returns 1
-CALL last([1,2,3])            # Returns 3
-CALL count([1,2,3])           # Returns 3
-CALL reverse([1,2,3])         # Returns [3,2,1]
-CALL contains([1,2,3], 2)     # Returns true
-```
-
-**validators** - Input validation:
-```ucode
-IMPORT validators
-
-CALL is_number("123")          # Returns true
-CALL is_positive("5")          # Returns true
-CALL is_in_range("10", 1, 20)  # Returns true
-CALL validate_required("", "name") # Throws error
-```
-
-**Circular Import Prevention:**
-- Modules are tracked in `self.imported_modules`
-- Re-importing returns cached version
-- Prevents infinite import loops
-
-### Templates
-
-Reusable script templates for common patterns.
-
-**Available Templates:**
-
-**crud_app.uscript** - CRUD operations:
-```ucode
-IMPORT knowledge/system/templates/crud_app
-
-CALL create_item("Task 1", "Description")
-CALL read_item(0)
-CALL update_item(0, "Task 1", "Updated")
-CALL delete_item(0)
-CALL list_all()
-```
-
-**form_validation.uscript** - Form validation:
-```ucode
-IMPORT knowledge/system/templates/form_validation
-
-CALL validate_username("alice123")
-CALL validate_email("alice@example.com")
-CALL validate_password("secure123")
-CALL validate_age("25")
-CALL validate_form("alice123", "alice@example.com", "secure123", "25")
-```
-
-**menu_system.uscript** - Interactive menus:
-```ucode
-IMPORT knowledge/system/templates/menu_system
-
-CALL show_main_menu()
-CALL handle_main_choice("1")
-CALL show_settings_menu()
-CALL handle_settings_choice("2")
-```
+- `0`: Success
+- `1`: General error
+- `2`: Invalid syntax
+- `3`: Missing parameter
+- `4`: File not found
+- `5`: Permission denied
+- `10-99`: Command-specific errors
 
 ---
 
 ## Best Practices
 
-### Script Organization
-```ucode
-# Header with description
-# Script: SETUP.USC
-# Purpose: Initialize user profile
-# Author: uDOS Team
+### 1. Use Descriptive Variable Names
 
-# Validate required fields
-IF USER.NAME IS_EMPTY THEN
-  PROMPT "Enter your name" INTO USER.NAME
-ENDIF
+```
+# Good
+$water_guide_count = 26
+$target_quality = 0.8
 
-# Set defaults
-IF USER.TIMEZONE IS_EMPTY THEN
-  DETECT_TIMEZONE
-  SET_FIELD "PROFILE.TIMEZONE" TO "{DETECTED_TIMEZONE}" IN USER
-ENDIF
-
-# Save configuration
-SAVE_JSON USER TO "USER.UDO"
-DISPLAY "Setup complete!"
+# Bad
+$x = 26
+$t = 0.8
 ```
 
-### Error Handling
-```ucode
-# Check file existence
-IF FILE_MISSING "config.json" THEN
-  ERROR "Configuration file not found"
-  DISPLAY "Creating default configuration..."
-  COPY "templates/config.json" TO "config.json"
-ENDIF
+### 2. Add Comments
 
-# Validate user input
-PROMPT "Enter value" INTO VALUE
-IF VALUE IS_EMPTY THEN
-  WARNING "No value entered, using default"
-  SET_VAR "VALUE" "default"
-ENDIF
+```
+# Check quality before refreshing
+[REFRESH|--check|all]
+
+# Only refresh if quality is low
+if quality < 0.8 then
+  [REFRESH|all]
+fi
 ```
 
-### Variable Naming
-```ucode
-# Good variable names (descriptive, CAPS)
-{USERNAME}
-{PROJECT_NAME}
-{THEME_SELECTION}
-{MAP_POSITION_X}
+### 3. Group Related Commands
 
-# Avoid (ambiguous, lowercase)
-{user}
-{name}
-{x}
-{temp}
+```
+# Quality Maintenance
+[REFRESH|--check|all]
+[MANAGE|links|validate]
+[MANAGE|tags|update]
+
+# Backup
+[MANAGE|backup|knowledge/]
+```
+
+### 4. Use Constants
+
+```
+$QUALITY_THRESHOLD = 0.8
+$BACKUP_DIR = "backups/"
+$CATEGORIES = "water,fire,shelter,food,medical,navigation,tools,communication"
+```
+
+### 5. Handle Errors
+
+```
+try
+  [GENERATE|guide|$category/$topic]
+catch
+  [LOG|ERROR|Failed: $category/$topic]
+  [NOTIFY|Generation failed - check logs]
+done
 ```
 
 ---
 
-## Debugging uCODE Scripts
+## Examples
 
-> **💡 New in v1.0.17**: Full interactive debugger with breakpoints, stepping, variable inspection, and profiling!
+### Simple One-Liners
 
-### Debug Commands
-
-uCODE scripts can be debugged interactively:
-
-```bash
-# Start debugging a script
-DEBUG "my_script.uscript"
-
-# Set breakpoints
-BREAK 10                     # Line 10
-BREAK 25 IF count > 100      # Conditional breakpoint
-
-# Run and step
-CONTINUE                     # Run until breakpoint
-STEP                         # Execute next line
-STEP INTO                    # Step into function
-STEP OUT                     # Step out of function
-
-# Inspect variables
-INSPECT count                # Specific variable
-INSPECT ALL                  # All variables
-WATCH count                  # Watch variable
-
-# View state
-STACK                        # Call stack
-HISTORY count                # Variable history
-PROFILE                      # Performance profile
-
-# Modify during debugging
-MODIFY count = 100           # Change variable value
-
-# Stop debugging
-DEBUG STOP
+```
+[HELP]
+[GENERATE|guide|water/purification]
+[REFRESH|--check|all]
+[SEARCH|emergency medical]
+[CONFIG|theme|teletext-green]
 ```
 
-### Debug Module (SYSTEM)
+### Medium Complexity
 
-| CLI Command | uCODE | Description |
-|-------------|-------|-------------|
-| DEBUG "script" | [SYSTEM\|DEBUG*script] | Start debugging session |
-| DEBUG STATUS | [SYSTEM\|DEBUG*STATUS] | Show debugger status |
-| DEBUG STOP | [SYSTEM\|DEBUG*STOP] | Stop debugging |
-| BREAK <line> | [SYSTEM\|BREAK*line] | Set breakpoint |
-| BREAK <line> IF <cond> | [SYSTEM\|BREAK*line*cond] | Conditional breakpoint |
-| STEP | [SYSTEM\|STEP] | Step over |
-| STEP INTO | [SYSTEM\|STEP*INTO] | Step into function |
-| STEP OUT | [SYSTEM\|STEP*OUT] | Step out |
-| CONTINUE | [SYSTEM\|CONTINUE] | Resume execution |
-| INSPECT <var> | [SYSTEM\|INSPECT*var] | Inspect variable |
-| WATCH <var> | [SYSTEM\|WATCH*var] | Watch variable |
-| STACK | [SYSTEM\|STACK] | Show call stack |
-| MODIFY <var> = <val> | [SYSTEM\|MODIFY*var*val] | Modify variable |
-| PROFILE | [SYSTEM\|PROFILE] | Show performance |
-
-### Debugging Example
-
-```ucode
-# Script: test_debug.uscript
-[SYSTEM|DISPLAY*Starting test script]
-
-# Set counter
-[SYSTEM|SET_VAR*count*0]
-
-# Loop
-[SYSTEM|SET_VAR*i*0]
-WHILE {i} < 100 DO
-  # Increment counter
-  [SYSTEM|SET_VAR*count*{count}+1]
-  [SYSTEM|SET_VAR*i*{i}+1]
-
-  # Check condition (line 15)
-  IF {count} > 50 THEN
-    [SYSTEM|DISPLAY*Count exceeded 50]
-  ENDIF
-END_WHILE
-
-[SYSTEM|DISPLAY*Final count: {count}]
+```
+# Generate water category diagrams
+$category = "water"
+[GENERATE|diagram|$category/purification|format=svg|complexity=detailed]
+[GENERATE|diagram|$category/collection|format=ascii|complexity=simple]
+[GENERATE|diagram|$category/storage|format=teletext|complexity=technical]
 ```
 
-**Debugging session:**
-```bash
-# Start debugger
-🔮 > DEBUG "test_debug.uscript"
+### Complex Workflow
 
-# Set conditional breakpoint
-🔮 > BREAK 15 IF count > 50
+```uscript
+---
+title: Weekly Content Maintenance
+description: Check quality, update content, generate reports
+version: 1.0.0
+---
 
-# Watch variable
-🔮 > WATCH count
+# Weekly Maintenance Workflow
 
-# Run
-🔮 > CONTINUE
-🐛 Breakpoint hit at line 15
-   count = 51
+## 1. Quality Audit
+[REFRESH|--check|all] |> [REPORT|save=logs/quality_weekly.txt]
 
-# Inspect
-🔮 > INSPECT ALL
-🐛 Variables:
-   count = 51
-   i = 51
+## 2. Identify Low Quality
+$low_quality = [SEARCH|quality<0.7|--list]
 
-# Check history
-🔮 > HISTORY count
-🐛 Change History: count
-   Line 5: undefined → 0
-   Line 11: 0 → 1
-   ...
-   Line 11: 50 → 51
+## 3. Update Content
+if $low_quality.count > 0 then
+  [LOG|INFO|Found $low_quality.count low-quality files]
+  [REFRESH|--force|all]
+  [NOTIFY|Updated $low_quality.count files]
+else
+  [LOG|INFO|All content meets quality standards]
+fi
 
-# Continue
-🔮 > CONTINUE
-✅ Script completed
+## 4. Rebuild Indexes
+[MANAGE|index|rebuild]
+[MANAGE|tags|update]
+[MANAGE|links|validate]
+
+## 5. Generate New Content
+for category in water fire shelter food
+  [GENERATE|guide|$category/weekly_tip_$DATE]
+done
+
+## 6. Backup
+[MANAGE|backup|knowledge/|target=backups/weekly_$DATE/]
+
+## 7. Summary Report
+[REPORT|weekly|email=admin@localhost]
+[LOG|INFO|Weekly maintenance complete]
 ```
-
-### Performance Profiling
-
-```bash
-# Enable auto-profiling
-🔮 > PROFILE AUTO ON
-
-# Run script
-🔮 > DEBUG "slow_script.uscript"
-🔮 > CONTINUE
-
-# Check profile
-🔮 > PROFILE TOP 10
-🐛 Top 10 Slowest Lines:
-   1. Line 28: 0.0156s (1000 executions)
-   2. Line 15: 0.0023s (1000 executions)
-   ...
-
-# Set breakpoint at slow line
-🔮 > BREAK 28
-
-# Investigate
-🔮 > CONTINUE
-🔮 > STACK
-🔮 > INSPECT ALL
-```
-
-For complete debugging documentation, see [Debugging Guide](Debugging-Guide).
 
 ---
 
-## See Also
+## Future Enhancements
 
-- [Command Reference](Command-Reference) - All commands with examples
-- [Architecture](Architecture) - System design
-- [Script Automation](Script-Automation) - Writing scripts
-- [Tutorials](Tutorials) - Step-by-step guides
-- [FAQ](FAQ) - Common questions
+### Planned Features (v1.5.0)
+
+1. **Parallel Execution**
+   ```
+   [PARALLEL|
+     [GENERATE|guide|water/purification]
+     [GENERATE|guide|fire/starting]
+     [GENERATE|guide|shelter/basics]
+   ]
+   ```
+
+2. **Remote Execution**
+   ```
+   [REMOTE|peer-node-1|GENERATE|guide|water/purification]
+   ```
+
+3. **Event Triggers**
+   ```
+   on [FILE_CREATED|knowledge/*.md] then
+     [REFRESH|--check|$FILE]
+   done
+   ```
+
+4. **Macros**
+   ```
+   macro QUALITY_CHECK
+     [REFRESH|--check|all]
+     [REPORT|save=logs/quality_$DATE.txt]
+   end
+
+   [QUALITY_CHECK]  # Expands to macro content
+   ```
+
+5. **Interactive Prompts**
+   ```
+   $category = [PROMPT|Select category|water,fire,shelter]
+   [GENERATE|guide|$category/overview]
+   ```
 
 ---
 
-*uCODE Manual v1.0.0 | Last updated: November 2025* 🔮
+## Migration from v1.x
+
+### Old Syntax (v1.x)
+
+```
+GENERATE guide water/purification
+REFRESH --check all
+```
+
+### New Syntax (v2.0)
+
+```
+[GENERATE|guide|water/purification]
+[REFRESH|--check|all]
+```
+
+**Both supported** - v2.0 maintains backward compatibility.
+
+---
+
+## Appendix A: Complete Command List
+
+See [UCODE_REFERENCE.md](UCODE_REFERENCE.md) for complete command reference.
+
+## Appendix B: Grammar Specification
+
+See [UCODE_GRAMMAR.md](UCODE_GRAMMAR.md) for formal BNF grammar.
+
+## Appendix C: Migration Guide
+
+See [UCODE_MIGRATION.md](UCODE_MIGRATION.md) for v1.x → v2.0 migration.
+
+---
+
+**Maintainer:** @fredporter
+**License:** See LICENSE.txt
+**Feedback:** GitHub Issues or community forum

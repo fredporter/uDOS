@@ -126,11 +126,16 @@ class BarterService:
     """Service for managing the barter economy"""
 
     def __init__(self, base_path: Optional[Path] = None):
-        """Initialize barter service"""
+        """Initialize barter service (v1.5.0: Uses new ConfigManager)"""
         if base_path is None:
-            from core.config import Config
-            config = Config()
-            base_path = Path(config.project_root) / "memory" / "barter"
+            try:
+                from core.uDOS_main import get_config
+                config = get_config()
+                project_root = config.get('UDOS_INSTALL_PATH', str(Path.cwd()))
+                base_path = Path(project_root) / "memory" / "barter"
+            except Exception:
+                # Fallback to current working directory
+                base_path = Path.cwd() / "memory" / "barter"
 
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)

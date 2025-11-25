@@ -1,0 +1,63 @@
+Create a detailed TELETEXT diagram for medical: CPR Chest Compressions
+
+Description: Proper hand position and compression technique for adult CPR
+
+
+FORMAT CONSTRAINTS:
+- Dimensions: 40×25 characters (teletext standard)
+- Blocks: WST mosaic blocks (2×3 pixel cells)
+- Palette: 8-color (Level 1: red, green, yellow, blue, magenta, cyan, white, black)
+- File_Size: <15KB target (HTML output)
+- Structure: Control codes, separated/contiguous graphics, double-height
+
+
+COMPLEXITY LEVEL: DETAILED
+- Detail Level: Comprehensive coverage
+- Elements: 6-12 components with relationships
+- Labels: Descriptive labels with context
+- Instructions: Include all important steps/elements
+
+
+STYLE: HYBRID
+- Lines: Mix of precise and organic elements
+- Shapes: Technical structure with hand-drawn details
+- Aesthetic: Professional but approachable
+- Fonts: Clean sans-serif with hand-drawn accents
+
+
+PERSPECTIVE: TOP-DOWN
+- Plan view from directly above
+- Show spatial relationships
+
+
+ANNOTATIONS REQUIRED:
+- Labels
+- Warnings
+
+
+QUALITY REQUIREMENTS:
+- File size: <15KB target (HTML output)
+- Production-ready quality
+- Clear, unambiguous visual communication
+- Accessible to beginners and experts
+
+SURVIVAL-SPECIFIC REQUIREMENTS:
+
+Key Elements to Include:
+- Assessment protocol
+- Treatment steps
+- Required materials
+- Evacuation criteria
+
+Safety Warnings to Highlight:
+⚠️  Life-threatening conditions
+⚠️  Contraindications
+⚠️  Infection prevention
+⚠️  When to get help
+
+Survival Context:
+- Assume wilderness/emergency scenario
+- Emphasize practical, field-applicable techniques
+- Highlight critical safety considerations
+- Show real-world materials and tools
+- Include alternative methods when possible

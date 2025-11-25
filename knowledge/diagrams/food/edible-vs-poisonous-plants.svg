@@ -1,0 +1,72 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    path, line, circle {
+      stroke: black;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    text {
+      font-family: sans-serif; /* A clean, simple font */
+      font-size: 16px;
+      fill: black;
+    }
+  </style>
+
+  <!-- Central dividing line, slightly wavy -->
+  <path d="M 200 20 C 198 120, 202 220, 198 320 L 200 380" stroke-width="2.8"/>
+
+  <!-- Ground line for edible plant, slightly wavy -->
+  <path d="M 40 370 C 80 365, 120 375, 160 370 C 170 368, 180 372, 190 370" stroke-width="2.8"/>
+  <!-- Ground line for poisonous plant, slightly wavy -->
+  <path d="M 210 370 C 220 372, 230 368, 240 370 C 280 375, 320 365, 360 370" stroke-width="2.8"/>
+
+  <!-- Section Labels -->
+  <text x="70" y="45" font-size="20px" font-weight="bold">Edible</text>
+  <text x="250" y="45" font-size="20px" font-weight="bold">Poisonous</text>
+
+  <!-- EDIBLE PLANT (Left Side) -->
+  <!-- Main Stem -->
+  <path d="M 150 355 C 148 290, 153 220, 149 150 C 147 110, 151 70, 150 80" stroke-width="2.7"/>
+
+  <!-- Leaves (rounded, smooth edges) -->
+  <path d="M 150 280 C 130 275, 120 250, 130 230 C 140 210, 160 225, 170 245 C 180 265, 165 285, 150 280 Z" stroke-width="2.3"/>
+  <path d="M 155 240 C 175 235, 185 210, 175 190 C 165 170, 145 185, 135 205 C 125 225, 140 245, 155 240 Z" stroke-width="2.3"/>
+  <path d="M 150 170 C 130 165, 120 140, 130 120 C 140 100, 160 115, 170 135 C 180 155, 165 175, 150 170 Z" stroke-width="2.3"/>
+
+  <!-- Berries (simple, familiar cluster) -->
+  <path d="M 150 80 C 155 75, 160 85, 155 95 C 150 105, 140 100, 135 90 C 130 80, 140 70, 150 80 Z" stroke-width="2"/>
+  <path d="M 158 85 C 163 80, 168 90, 163 100 C 158 110, 148 105, 143 95 C 138 85, 148 75, 158 85 Z" stroke-width="2"/>
+  <path d="M 142 85 C 147 80, 152 90, 147 100 C 142 110, 132 105, 127 95 C 122 85, 132 75, 142 85 Z" stroke-width="2"/>
+
+  <!-- EDIBLE FEATURES LABELS -->
+  <text x="35" y="260" font-size="14px">Smooth Leaves</text>
+  <path d="M 75 250 C 90 240, 110 240, 130 245" stroke-width="1.8"/>
+
+  <text x="40" y="130" font-size="14px">Familiar Berries</text>
+  <path d="M 80 120 C 95 110, 115 100, 140 90" stroke-width="1.8"/>
+
+  <!-- POISONOUS PLANT (Right Side) -->
+  <!-- Main Stem -->
+  <path d="M 250 355 C 252 290, 247 220, 251 150 C 253 110, 249 70, 250 80" stroke-width="2.7"/>
+
+  <!-- Leaves (jagged, irregular edges) -->
+  <path d="M 250 280 L 235 270 L 240 255 L 225 245 L 235 230 L 250 220 C 265 225, 275 240, 260 255 L 265 270 L 250 280 Z" stroke-width="2.3"/>
+  <path d="M 255 240 L 240 230 L 245 215 L 230 205 L 240 190 L 255 180 C 270 185, 280 200, 265 215 L 270 230 L 255 240 Z" stroke-width="2.3"/>
+  <path d="M 250 170 L 235 160 L 240 145 L 225 135 L 235 120 L 250 110 C 265 115, 275 130, 260 145 L 265 160 L 250 170 Z" stroke-width="2.3"/>
+
+  <!-- Berries (unusual, irregular cluster with texture) -->
+  <path d="M 250 80 L 260 70 L 265 80 L 270 75 L 265 90 L 260 85 L 255 100 L 245 95 L 240 80 L 245 70 L 250 80 Z" stroke-width="2"/>
+  <!-- Small circles to add detail/texture to berries -->
+  <circle cx="255" cy="85" r="1.2" stroke-width="1.2"/>
+  <circle cx="262" cy="80" r="1.2" stroke-width="1.2"/>
+  <circle cx="248" cy="78" r="1.2" stroke-width="1.2"/>
+  <circle cx="250" cy="95" r="1.2" stroke-width="1.2"/>
+
+  <!-- POISONOUS FEATURES LABELS -->
+  <text x="290" y="260" font-size="14px">Jagged Leaves</text>
+  <path d="M 330 250 C 315 240, 295 240, 275 245" stroke-width="1.8"/>
+
+  <text x="290" y="130" font-size="14px">Unfamiliar Berries</text>
+  <path d="M 335 120 C 320 110, 300 100, 270 90" stroke-width="1.8"/>
+</svg>

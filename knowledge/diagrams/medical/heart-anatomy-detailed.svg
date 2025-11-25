@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 800 600"
+     width="800"
+     height="600">
+
+  <title>Human Heart Cross-Section</title>
+  <desc>Detailed hand-illustrative line-art of a human heart cross-section, showing four chambers, valves, major vessels, and internal structures with labels, rendered in a monochrome engraving aesthetic.</desc>
+
+  <!-- Base style for all strokes to ensure round caps/joins. Fill is set to none for paths by default. -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#000">
+
+  <g id="background" opacity="0.4">
+    <!-- Minimal background elements; the heart cross-section is primarily foreground. -->
+  </g>
+
+  <g id="midground" opacity="0.7">
+    <!-- Middle depth elements; most heart anatomy is prominent. -->
+  </g>
+
+  <g id="foreground">
+    <!-- Boldest contours, detailed internal structures, and dense shading. -->
+
+    <!-- Outer contour of the heart (2.5px) -->
+    <path d="M400,100 C200,180 150,350 250,550 C400,600 600,500 650,300 C700,150 500,80 400,100 Z"
+          stroke-width="2.5"/>
+
+    <!-- Left Ventricle wall (1.5px) - thicker and more muscular -->
+    <path d="M370,480 C280,510 200,450 200,380 C200,300 300,250 370,250"
+          stroke-width="1.5"/>
+    <!-- Right Ventricle wall (1.5px) - thinner -->
+    <path d="M380,480 C450,510 500,480 500,380 C500,300 450,250 380,250"
+          stroke-width="1.5"/>
+
+    <!-- Interventricular Septum (1.5px) -->
+    <path d="M375,250 C370,300 370,400 375,480"
+          stroke-width="1.5"/>
+
+    <!-- Left Atrium (1.5px) -->
+    <path d="M370,250 Q290,200 250,150 Q280,120 330,120 C360,130 370,180 370,250 Z"
+          stroke-width="1.5"/>
+    <!-- Right Atrium (1.5px) -->
+    <path d="M380,250 Q460,200 500,150 Q470,120 420,120 C390,130 380,180 380,250 Z"
+          stroke-width="1.5"/>
+
+    <!-- Aorta exit from Left Ventricle (2.5px for outer, 1.5px for internal separation) -->
+    <path d="M360,240 C350,200 320,150 330,120 Q340,100 360,110 C380,120 380,180 370,230"
+          stroke-width="2.5"/>
+    <path d="M350,230 C340,190 310,140 320,110" stroke-width="1.5"/>
+
+    <!-- Pulmonary Artery exit from Right Ventricle (2.5px for outer, 1.5px for internal separation) -->
+    <path d="M390,240 C400,200 430,150 420,120 Q410,100 390,110 C370,120 370,180 380,230"
+          stroke-width="2.5"/>
+    <path d="M400,230 C410,190 440,140 430,110" stroke-width="1.5"/>
+
+    <!-- Valves - Mitral (bicuspid) (1.5px) -->
+    <path d="M370,260 Q340,280 300,280 Q270,270 280,300" stroke-width="1.5"/>
+    <path d="M370,260 Q340,290 300,300 Q270,300 280,330" stroke-width="1.5"/>
+    <!-- Chordae tendineae for mitral valve (0.8px) -->
+    <path d="M280,300 C270,320 250,340 230,360" stroke-width="0.8"/>
+    <path d="M280,330 C270,350 250,370 230,390" stroke-width="0.8"/>
+    <!-- Papillary muscles (representation, 1.5px) -->
+    <path d="M220,390 Q230,410 240,400" stroke-width="1.5"/>
+
+    <!-- Valves - Tricuspid (1.5px) -->
+    <path d="M380,260 Q410,280 450,280 Q480,270 470,300" stroke-width="1.5"/>
+    <path d="M380,260 Q410,290 450,300 Q480,300 470,330" stroke-width="1.5"/>
+    <path d="M380,260 Q410,270 430,290 Q440,280 430,260" stroke-width="1.5"/>
+    <!-- Chordae tendineae for tricuspid valve (0.8px) -->
+    <path d="M470,300 C480,320 500,340 520,360" stroke-width="0.8"/>
+    <path d="M470,330 C480,350 500,370 520,390" stroke-width="0.8"/>
+    <!-- Papillary muscles (representation, 1.5px) -->
+    <path d="M520,390 Q510,410 500,400" stroke-width="1.5"/>
+
+    <!-- Aortic Valve - semi-lunar cusps (1.5px) -->
+    <path d="M355,235 Q345,225 335,220" stroke-width="1.5"/>
+    <path d="M355,235 Q365,225 375,220" stroke-width="1.5"/>
+
+    <!-- Pulmonary Valve - semi-lunar cusps (1.5px) -->
+    <path d="M395,235 Q385,225 375,220" stroke-width="1.5"/>
+    <path d="M395,235 Q405,225 415,220" stroke-width="1.5"/>
+
+    <!-- Major Vessels entering atria (1.5px) -->
+    <!-- Superior Vena Cava -->
+    <path d="M500,100 C520,120 520,180 500,220" stroke-width="1.5"/>
+    <path d="M480,100 C500,120 500,180 480,220" stroke-width="1.5"/>
+    <path d="M490,220 Q490,230 480,240" stroke-width="1.5"/>
+
+    <!-- Inferior Vena Cava -->
+    <path d="M500,500 C520,480 520,420 500,380" stroke-width="1.5"/>
+    <path d="M480,500 C500,480 500,420 480,380" stroke-width="1.5"/>
+    <path d="M490,380 Q490,370 480,360" stroke-width="1.5"/>
+
+    <!-- Pulmonary Veins (entering left atrium) -->
+    <path d="M250,100 C230,120 230,180 250,220" stroke-width="1.5"/>
+    <path d="M230,100 C210,120 210,180 230,220" stroke-width="1.5"/>
+    <path d="M240,220 Q240,230 230,240" stroke-width="1.5"/>
+
+    <!-- Shading - Cross-contour for muscle thickness (0.4px) -->
+    <!-- Left Ventricle wall -->
+    <path d="M360,400 Q310,410 240,400 Q190,390 190,340" stroke-width="0.4"/>
+    <path d="M360,420 Q310,430 240,420 Q190,410 190,360" stroke-width="0.4"/>
+    <path d="M360,440 Q310,450 240,440 Q190,430 190,380" stroke-width="0.4"/>
+    <path d="M360,460 Q310,470 240,460 Q190,450 190,400" stroke-width="0.4"/>
+
+    <!-- Right Ventricle wall -->
+    <path d="M390,400 Q440,410 510,400 Q560,390 560,340" stroke-width="0.4"/>
+    <path d="M390,420 Q440,430 510,420 Q560,410 560,360" stroke-width="0.4"/>
+    <path d="M390,440 Q440,450 510,440 Q560,430 560,380" stroke-width="0.4"/>
+    <path d="M390,460 Q440,470 510,460 Q560,450 560,400" stroke-width="0.4"/>
+
+    <!-- Septum shading -->
+    <path d="M375,300 Q370,350 375,400" stroke-width="0.4"/>
+    <path d="M372,305 Q368,355 372,405" stroke-width="0.4"/>
+    <path d="M378,305 Q382,355 378,405" stroke-width="0.4"/>
+
+    <!-- Atrial walls shading -->
+    <path d="M370,180 Q320,170 280,180" stroke-width="0.4"/>
+    <path d="M380,180 Q430,170 470,180" stroke-width="0.4"/>
+
+    <!-- Fine details: Trabeculae carneae (inner muscle ridges, 0.8px) -->
+    <path d="M220,380 Q230,390 240,385 M230,400 Q240,410 250,405" stroke-width="0.8"/>
+    <path d="M480,380 Q470,390 460,385 M470,400 Q460,410 450,405" stroke-width="0.8"/>
+
+    <!-- Stipple for muscle texture in deeper areas (fill="#000") -->
+    <g fill="#000" stroke="none">
+        <circle cx="280" cy="360" r="0.6"/> <circle cx="270" cy="370" r="0.6"/> <circle cx="290" cy="380" r="0.6"/>
+        <circle cx="285" cy="390" r="0.6"/> <circle cx="275" cy="400" r="0.6"/> <circle cx="265" cy="350" r="0.6"/>
+        <circle cx="295" cy="340" r="0.6"/> <circle cx="270" cy="385" r="0.6"/> <circle cx="280" cy="350" r="0.6"/>
+
+        <circle cx="470" cy="360" r="0.6"/> <circle cx="480" cy="370" r="0.6"/> <circle cx="460" cy="380" r="0.6"/>
+        <circle cx="465" cy="390" r="0.6"/> <circle cx="475" cy="400" r="0.6"/> <circle cx="485" cy="350" r="0.6"/>
+        <circle cx="455" cy="340" r="0.6"/> <circle cx="480" cy="385" r="0.6"/> <circle cx="470" cy="350" r="0.6"/>
+
+        <circle cx="370" cy="320" r="0.6"/> <circle cx="375" cy="330" r="0.6"/> <circle cx="380" cy="340" r="0.6"/>
+        <circle cx="373" cy="360" r="0.6"/> <circle cx="377" cy="370" r="0.6"/> <circle cx="372" cy="380" r="0.6"/>
+    </g>
+
+  </g> <!-- End foreground group -->
+
+  </g> <!-- End base style group -->
+
+  <g id="labels">
+    <!-- Title text -->
+    <text x="400" y="50" text-anchor="middle"
+          font-size="18" font-weight="bold" font-style="italic" font-family="serif">
+      Human Heart Cross-Section
+    </text>
+
+    <!-- Labels with curved leader lines (0.8px stroke-width) -->
+    <!-- Left Atrium -->
+    <text x="240" y="160" font-size="11" font-family="serif">Left <tspan font-style="italic">Atrium</tspan></text>
+    <path d="M280,155 Q260,180 290,200" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right Atrium -->
+    <text x="490" y="160" font-size="11" font-family="serif">Right <tspan font-style="italic">Atrium</tspan></text>
+    <path d="M470,155 Q490,180 460,200" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Left Ventricle -->
+    <text x="200" y="440" font-size="11" font-family="serif">Left <tspan font-style="italic">Ventricle</tspan></text>
+    <path d="M250,435 Q230,420 220,380" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right Ventricle -->
+    <text x="500" y="440" font-size="11" font-family="serif">Right <tspan font-style="italic">Ventricle</tspan></text>
+    <path d="M490,435 Q510,420 520,380" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Interventricular Septum -->
+    <text x="375" y="520" text-anchor="middle" font-size="11" font-family="serif">Interventricular <tspan font-style="italic">Septum</tspan></text>
+    <path d="M375,510 L375,460" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Mitral Valve -->
+    <text x="200" y="320" font-size="11" font-family="serif">Mitral <tspan font-style="italic">Valve</tspan></text>
+    <path d="M260,315 Q270,300 290,290" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Tricuspid Valve -->
+    <text x="500" y="320" font-size="11" font-family="serif">Tricuspid <tspan font-style="italic">Valve</tspan></text>
+    <path d="M490,315 Q480,300 460,290" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Aorta -->
+    <text x="240" y="90" font-size="11" font-family="serif">Aorta</text>
+    <path d="M280,95 Q290,120 310,140" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Pulmonary Artery -->
+    <text x="490" y="90" font-size="11" font-family="serif">Pulmonary <tspan font-style="italic">Artery</tspan></text>
+    <path d="M470,95 Q460,120 440,140" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Superior Vena Cava -->
+    <text x="520" y="70" font-size="10" font-style="italic" font-family="serif">Superior Vena Cava</text>
+    <path d="M510,75 Q500,100 490,140" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Inferior Vena Cava -->
+    <text x="520" y="530" font-size="10" font-style="italic" font-family="serif">Inferior Vena Cava</text>
+    <path d="M510,520 Q500,480 490,440" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Pulmonary Veins -->
+    <text x="180" y="70" font-size="10" font-style="italic" font-family="serif">Pulmonary Veins</text>
+    <path d="M200,75 Q210,100 220,140" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Chordae Tendineae (label) -->
+    <text x="180" y="380" font-size="10" font-style="italic" font-family="serif">Chordae Tendineae</text>
+    <path d="M220,380 L250,340" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Papillary Muscles (label) -->
+    <text x="200" y="480" font-size="10" font-style="italic" font-family="serif">Papillary Muscles</text>
+    <path d="M230,470 L230,420" stroke="#000" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  </g> <!-- End labels group -->
+
+</svg>

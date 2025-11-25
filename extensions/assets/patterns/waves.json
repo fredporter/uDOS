@@ -1,0 +1,27 @@
+{
+  "name": "waves",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "unicode",
+  "dimensions": {
+    "width": 16,
+    "height": 4
+  },
+  "pattern": [
+    "\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e",
+    "  \uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e",
+    "\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e",
+    "  \uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e\uff5e"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "background",
+      "waves",
+      "flowing",
+      "water"
+    ],
+    "description": "Wave pattern for water or flowing themes"
+  }
+}

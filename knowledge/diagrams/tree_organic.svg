@@ -1,0 +1,41 @@
+<svg width="300" height="400" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css">
+      .hand-drawn {
+        fill: none;
+        stroke: black;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+
+  <!-- Trunk - Left side with hand-drawn wobble -->
+  <path class="hand-drawn" stroke-width="2.8" d="M 145 320 C 140 295, 148 270, 142 245 C 137 220, 146 195, 139 170 C 134 145, 143 120, 137 95 C 132 70, 140 50, 135 30"/>
+  <!-- Trunk - Right side with hand-drawn wobble -->
+  <path class="hand-drawn" stroke-width="2.8" d="M 155 320 C 160 295, 152 270, 158 245 C 163 220, 154 195, 161 170 C 166 145, 157 120, 163 95 C 168 70, 160 50, 165 30"/>
+
+  <!-- Main Branches - top of the trunk -->
+  <path class="hand-drawn" stroke-width="2.5" d="M 135 30 C 115 20, 90 15, 70 10"/>
+  <path class="hand-drawn" stroke-width="2.5" d="M 165 30 C 185 20, 210 15, 230 10"/>
+  <path class="hand-drawn" stroke-width="2.5" d="M 150 25 C 145 10, 155 5, 150 0"/>
+
+  <!-- Secondary Branches - off the main trunk -->
+  <path class="hand-drawn" stroke-width="2.2" d="M 140 100 C 120 80, 100 60, 85 50"/>
+  <path class="hand-drawn" stroke-width="2.2" d="M 160 100 C 180 80, 200 60, 215 50"/>
+  <path class="hand-drawn" stroke-width="2.0" d="M 145 70 C 135 60, 125 55, 115 50"/>
+  <path class="hand-drawn" stroke-width="2.0" d="M 155 70 C 165 60, 175 55, 185 50"/>
+
+  <!-- Roots - Main large roots -->
+  <path class="hand-drawn" stroke-width="2.8" d="M 148 325 C 135 345, 115 365, 95 380"/>
+  <path class="hand-drawn" stroke-width="2.8" d="M 152 325 C 165 345, 185 365, 205 380"/>
+
+  <!-- Roots - Secondary roots -->
+  <path class="hand-drawn" stroke-width="2.5" d="M 140 330 C 125 350, 110 360, 95 365"/>
+  <path class="hand-drawn" stroke-width="2.5" d="M 160 330 C 175 350, 190 360, 205 365"/>
+  <path class="hand-drawn" stroke-width="2.2" d="M 150 335 C 145 350, 155 360, 150 370"/>
+
+  <!-- Roots - Fine tendrils -->
+  <path class="hand-drawn" stroke-width="2.0" d="M 95 380 C 85 385, 75 388, 65 390"/>
+  <path class="hand-drawn" stroke-width="2.0" d="M 205 380 C 215 385, 225 388, 235 390"/>
+</svg>

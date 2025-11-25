@@ -1,0 +1,27 @@
+{
+  "name": "dots-sparse",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "ascii",
+  "dimensions": {
+    "width": 16,
+    "height": 4
+  },
+  "pattern": [
+    "\u00b7   \u00b7   \u00b7   \u00b7   ",
+    "   \u00b7   \u00b7   \u00b7   \u00b7",
+    "\u00b7   \u00b7   \u00b7   \u00b7   ",
+    "   \u00b7   \u00b7   \u00b7   \u00b7"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "background",
+      "dots",
+      "sparse",
+      "subtle"
+    ],
+    "description": "Sparse dot pattern for subtle backgrounds"
+  }
+}

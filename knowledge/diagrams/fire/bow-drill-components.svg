@@ -1,0 +1,43 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .component {
+      stroke: black;
+      stroke-width: 2;
+      fill: none;
+    }
+    .label {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      fill: black;
+    }
+  </style>
+
+  <!-- Hearth Board -->
+  <rect x="70" y="280" width="260" height="30" class="component" />
+  <line x1="70" y1="310" x2="70" y2="330" class="component" />
+  <line x1="330" y1="310" x2="330" y2="330" class="component" />
+  <line x1="70" y1="330" x2="330" y2="330" class="component" />
+  <circle cx="180" cy="295" r="6" class="component" />
+  <text x="200" y="350" class="label" text-anchor="middle">Hearth Board</text>
+
+  <!-- Spindle -->
+  <rect x="175" y="70" width="10" height="210" class="component" />
+  <path d="M 175 280 L 180 290 L 185 280 Z" class="component" /> <!-- Bottom tip -->
+  <path d="M 175 70 L 180 60 L 185 70 Z" class="component" /> <!-- Top tip -->
+  <text x="180" y="240" class="label" text-anchor="middle">Spindle</text>
+
+  <!-- Bearing Block -->
+  <path d="M 150 20 L 200 20 L 205 35 L 155 35 Z" class="component" /> <!-- Top face -->
+  <path d="M 155 35 L 205 35 L 205 50 L 155 50 Z" class="component" /> <!-- Front face -->
+  <circle cx="177" cy="28" r="5" class="component" /> <!-- Hole -->
+  <text x="180" y="15" class="label" text-anchor="middle">Bearing Block</text>
+
+  <!-- Bow -->
+  <path d="M 40 180 C 60 100, 280 100, 360 180" class="component" /> <!-- Upper curve -->
+  <path d="M 45 190 C 65 110, 285 110, 365 190" class="component" /> <!-- Lower curve -->
+  <line x1="40" y1="180" x2="45" y2="190" class="component" /> <!-- Left end -->
+  <line x1="360" y1="180" x2="365" y2="190" class="component" /> <!-- Right end -->
+  <path d="M 45 190 L 175 180 M 185 180 L 360 180" class="component" /> <!-- String wrapped around spindle -->
+  <text x="375" y="185" class="label" text-anchor="start">Bow</text>
+
+</svg>

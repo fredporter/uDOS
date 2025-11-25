@@ -15,8 +15,8 @@ class GeminiCLI:
     """Gemini AI integration for uDOS CLI"""
 
     def __init__(self, env_path: Optional[Path] = None):
-        """Initialize Gemini CLI with API key from .env"""
-        self.env_path = env_path or Path(__file__).parent.parent / '.env'
+        """Initialize Gemini CLI with API key from ConfigManager (v1.5.0)"""
+        self.env_path = env_path or Path(__file__).parent.parent.parent / '.env'
         self.api_key = None
         self.username = None
         self.installation_id = None
@@ -29,30 +29,44 @@ class GeminiCLI:
         self._initialize_client()
 
     def _load_env(self) -> None:
-        """Load environment variables from .env file"""
-        if not self.env_path.exists():
-            raise FileNotFoundError(
-                f".env file not found at {self.env_path}\n"
-                f"Please create it with: GEMINI_API_KEY=your_key_here"
-            )
+        """Load environment variables from ConfigManager (v1.5.0) with fallback"""
+        try:
+            # Try ConfigManager first (v1.5.0)
+            from core.uDOS_main import get_config
+            config = get_config()
 
-        env_vars = {}
-        with open(self.env_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    if '=' in line:
-                        key, value = line.split('=', 1)
-                        # Remove quotes if present
-                        value = value.strip().strip('"\'')
-                        env_vars[key.strip()] = value
+            self.api_key = config.get('GEMINI_API_KEY')
+            self.username = config.get('UDOS_USERNAME', 'user')
+            self.installation_id = config.get('UDOS_INSTALLATION_ID', 'default')
 
-        self.api_key = env_vars.get('GEMINI_API_KEY')
-        self.username = env_vars.get('UDOS_USERNAME', 'user')
-        self.installation_id = env_vars.get('UDOS_INSTALLATION_ID', 'default')
+            if not self.api_key:
+                raise ValueError("GEMINI_API_KEY not found in configuration")
 
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY not found in .env file")
+        except Exception as e:
+            # Fallback to direct .env reading
+            if not self.env_path.exists():
+                raise FileNotFoundError(
+                    f".env file not found at {self.env_path}\n"
+                    f"Please create it with: GEMINI_API_KEY=your_key_here"
+                )
+
+            env_vars = {}
+            with open(self.env_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        if '=' in line:
+                            key, value = line.split('=', 1)
+                            # Remove quotes if present
+                            value = value.strip().strip('"\'')
+                            env_vars[key.strip()] = value
+
+            self.api_key = env_vars.get('GEMINI_API_KEY')
+            self.username = env_vars.get('UDOS_USERNAME', 'user')
+            self.installation_id = env_vars.get('UDOS_INSTALLATION_ID', 'default')
+
+            if not self.api_key:
+                raise ValueError("GEMINI_API_KEY not found in .env file")
 
     def _initialize_client(self) -> None:
         """Initialize Gemini API client"""

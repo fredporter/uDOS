@@ -1,0 +1,120 @@
+{
+  "technical_kinetic": {
+    "style_name": "Technical-Kinetic",
+    "description": "Clean, geometric, precise technical diagrams",
+    "base_prompt": "Create a monochrome SVG technical diagram of {subject} in Technical-Kinetic style:\n\nSTYLE REQUIREMENTS:\n- Clean vector lines: 1.5px primary, 0.5px detail, 2.5px bold\n- CoreUI icon style for UI elements and controls\n- Mac OS System 1 bitmap patterns (8×8 grid) for fills\n- Crosshatch or stipple shading for depth\n- Geometric precision and measurement clarity\n- Monospace labels (Chicago 12pt titles, Geneva 9pt body)\n\nTECHNICAL CONSTRAINTS:\n- SVG viewBox and dimensions properly defined\n- Pattern definitions in <defs> section\n- Grouped elements by function\n- Text elements NOT converted to paths\n- File size target: <50KB\n- Minified output (remove whitespace, comments)\n\nCONTENT:\n{description}\n\nOUTPUT FORMAT:\nPure SVG code starting with <?xml version=\"1.0\"?>\nNo explanations, just valid SVG markup.",
+    "line_weights": {
+      "primary": "1.5px",
+      "secondary": "0.5px",
+      "bold": "2.5px",
+      "texture": "0.3px"
+    },
+    "fonts": {
+      "title": "Chicago 12pt",
+      "body": "Geneva 9pt",
+      "measurement": "Geneva 8pt italic"
+    },
+    "patterns": [
+      "gray-12", "gray-25", "gray-37", "gray-50", "gray-62", "gray-75", "gray-87",
+      "crosshatch", "diagonal", "horizontal", "vertical", "dots", "brick", "scales"
+    ],
+    "shading_techniques": [
+      "crosshatch", "stipple", "parallel-lines", "gradient-simulation"
+    ],
+    "icon_set": "CoreUI Free (cil-*)",
+    "use_cases": [
+      "tools", "machinery", "systems", "ui-diagrams", "structures",
+      "knots", "navigation-instruments", "circuits", "measurements"
+    ]
+  },
+
+  "hand_illustrative": {
+    "style_name": "Hand-Illustrative Line-Art",
+    "description": "Traditional engraving/woodcut aesthetic for organic subjects",
+    "base_prompt": "Create a monochrome SVG illustration of {subject} in Hand-Illustrative line-art style:\n\nSTYLE REQUIREMENTS:\n- Variable line weight: 0.8px fine, 1.5px medium, 2.5px bold\n- Organic flowing curves with rounded line caps/joins\n- Wavy parallel lines for shading fields\n- Circular/concentric patterns for atmospheric effects\n- Topographical contour detail\n- Traditional engraving/woodcut aesthetic\n- Hand-drawn precision (not sketchy)\n\nSHADING TECHNIQUES:\n- Form-following wavy lines (0.4px texture weight)\n- Stipple density variations (0.6px dots)\n- Cross-contour wrapping around forms\n- Natural textures: woodgrain, water ripples, stone cracks\n\nTECHNICAL CONSTRAINTS:\n- SVG viewBox and dimensions properly defined\n- Pattern definitions for organic textures\n- Layered by depth (foreground/mid/background)\n- Text elements NOT converted to paths\n- File size target: <50KB\n- Minified output\n\nCONTENT:\n{description}\n\nOUTPUT FORMAT:\nPure SVG code starting with <?xml version=\"1.0\"?>\nNo explanations, just valid SVG markup.",
+    "line_weights": {
+      "fine": "0.8px",
+      "medium": "1.5px",
+      "bold": "2.5px",
+      "texture": "0.4px"
+    },
+    "fonts": {
+      "title": "Geneva 14pt italic bold",
+      "body": "Geneva 10pt",
+      "caption": "Geneva 8pt italic",
+      "scientific": "Geneva 9pt italic"
+    },
+    "patterns": [
+      "wavy-lines", "circular-fields", "topographical-contours",
+      "woodgrain", "water-ripple", "stone-texture", "cloud-field",
+      "fabric-weave", "stipple-variable"
+    ],
+    "shading_techniques": [
+      "wavy-parallel", "circular-concentric", "cross-contour",
+      "stipple-density", "form-following"
+    ],
+    "depth_layers": ["foreground", "midground", "background"],
+    "use_cases": [
+      "anatomy", "plants", "animals", "landscapes", "food",
+      "natural-materials", "weather", "water", "geology", "rope"
+    ]
+  },
+
+  "common_parameters": {
+    "color_palette": ["#000000", "#FFFFFF"],
+    "grayscale_levels": [
+      "#000000", "#1A1A1A", "#333333", "#4D4D4D", "#666666",
+      "#808080", "#999999", "#B3B3B3", "#CCCCCC", "#E6E6E6", "#FFFFFF"
+    ],
+    "file_size_target": "50KB",
+    "output_format": "SVG",
+    "optimization": "minified",
+    "text_handling": "editable (not paths)",
+    "viewbox_required": true,
+    "accessibility": {
+      "title_required": true,
+      "desc_required": true,
+      "aria_labels": "recommended"
+    }
+  },
+
+  "complexity_levels": {
+    "simple": {
+      "elements": "20-50",
+      "detail": "low",
+      "file_size": "5-10KB"
+    },
+    "moderate": {
+      "elements": "50-150",
+      "detail": "medium",
+      "file_size": "10-25KB"
+    },
+    "detailed": {
+      "elements": "150-300",
+      "detail": "high",
+      "file_size": "25-40KB"
+    },
+    "complex": {
+      "elements": "300+",
+      "detail": "very high",
+      "file_size": "40-50KB"
+    }
+  },
+
+  "subject_style_mapping": {
+    "technical_kinetic": [
+      "axe", "saw", "knife", "tools", "machinery", "engine", "pump",
+      "filter-system", "shelter-frame", "knot-diagram", "compass",
+      "circuit", "flowchart", "ui-mockup", "blueprint", "structure"
+    ],
+    "hand_illustrative": [
+      "human-anatomy", "organs", "circulatory-system", "skeleton",
+      "plant", "leaf", "flower", "tree", "root-system",
+      "animal", "bird", "fish", "insect",
+      "landscape", "mountain", "river", "forest", "terrain",
+      "food", "vegetable", "fruit", "prepared-meal",
+      "wood", "rope", "fabric", "stone", "natural-material",
+      "clouds", "weather", "water-flow", "fire-organic"
+    ]
+  }
+}

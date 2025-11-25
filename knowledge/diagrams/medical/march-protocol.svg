@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  
+  <title>MARCH Protocol - Tactical Casualty Care</title>
+  <desc>Priority order for treating trauma casualties in hostile environments</desc>
+  
+  <text x="400" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">MARCH PROTOCOL</text>
+  <text x="400" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#666">Tactical Casualty Care Priority Order</text>
+  
+  <!-- M - Massive Hemorrhage -->
+  <rect x="50" y="80" width="700" height="100" fill="#E6E6E6" stroke="#000" stroke-width="3"/>
+  <text x="70" y="110" font-family="monospace" font-size="24" font-weight="bold" fill="#000">M</text>
+  <text x="110" y="110" font-family="monospace" font-size="16" font-weight="bold" fill="#000">MASSIVE HEMORRHAGE</text>
+  <text x="110" y="130" font-family="monospace" font-size="10" fill="#000">Priority 1: Control life-threatening bleeding immediately</text>
+  <text x="110" y="145" font-family="monospace" font-size="9" fill="#666">• Tourniquet for extremity arterial bleeding</text>
+  <text x="110" y="158" font-family="monospace" font-size="9" fill="#666">• Hemostatic gauze + direct pressure for junctional wounds</text>
+  <text x="110" y="171" font-family="monospace" font-size="9" fill="#666">• Death from blood loss occurs in 3-5 minutes</text>
+  
+  <!-- A - Airway -->
+  <rect x="50" y="200" width="700" height="100" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="70" y="230" font-family="monospace" font-size="24" font-weight="bold" fill="#000">A</text>
+  <text x="110" y="230" font-family="monospace" font-size="16" font-weight="bold" fill="#000">AIRWAY</text>
+  <text x="110" y="250" font-family="monospace" font-size="10" fill="#000">Priority 2: Establish and maintain patent airway</text>
+  <text x="110" y="265" font-family="monospace" font-size="9" fill="#666">• Chin lift/jaw thrust (unconscious patients)</text>
+  <text x="110" y="278" font-family="monospace" font-size="9" fill="#666">• Recovery position if breathing and no spinal injury</text>
+  <text x="110" y="291" font-family="monospace" font-size="9" fill="#666">• Nasopharyngeal airway if needed and available</text>
+  
+  <!-- R - Respiration -->
+  <rect x="50" y="320" width="700" height="100" fill="#E6E6E6" stroke="#000" stroke-width="2"/>
+  <text x="70" y="350" font-family="monospace" font-size="24" font-weight="bold" fill="#000">R</text>
+  <text x="110" y="350" font-family="monospace" font-size="16" font-weight="bold" fill="#000">RESPIRATION</text>
+  <text x="110" y="370" font-family="monospace" font-size="10" fill="#000">Priority 3: Treat breathing problems</text>
+  <text x="110" y="385" font-family="monospace" font-size="9" fill="#666">• Tension pneumothorax → Needle decompression (trained personnel)</text>
+  <text x="110" y="398" font-family="monospace" font-size="9" fill="#666">• Open chest wound → Occlusive dressing (tape 3 sides)</text>
+  <text x="110" y="411" font-family="monospace" font-size="9" fill="#666">• Monitor breathing rate and depth</text>
+  
+  <!-- C - Circulation -->
+  <rect x="50" y="440" width="700" height="100" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="70" y="470" font-family="monospace" font-size="24" font-weight="bold" fill="#000">C</text>
+  <text x="110" y="470" font-family="monospace" font-size="16" font-weight="bold" fill="#000">CIRCULATION</text>
+  <text x="110" y="490" font-family="monospace" font-size="10" fill="#000">Priority 4: Maintain blood circulation and treat shock</text>
+  <text x="110" y="505" font-family="monospace" font-size="9" fill="#666">• IV fluids if trained and available</text>
+  <text x="110" y="518" font-family="monospace" font-size="9" fill="#666">• Treat shock: elevate legs, keep warm, prevent heat loss</text>
+  <text x="110" y="531" font-family="monospace" font-size="9" fill="#666">• Monitor pulse and skin color</text>
+  
+  <!-- H - Hypothermia/Head injury -->
+  <rect x="50" y="560" width="700" height="100" fill="#E6E6E6" stroke="#000" stroke-width="2"/>
+  <text x="70" y="590" font-family="monospace" font-size="24" font-weight="bold" fill="#000">H</text>
+  <text x="110" y="590" font-family="monospace" font-size="16" font-weight="bold" fill="#000">HYPOTHERMIA / HEAD INJURY</text>
+  <text x="110" y="610" font-family="monospace" font-size="10" fill="#000">Priority 5: Prevent hypothermia and manage head injuries</text>
+  <text x="110" y="625" font-family="monospace" font-size="9" fill="#666">• Remove wet clothing, insulate from ground, cover patient</text>
+  <text x="110" y="638" font-family="monospace" font-size="9" fill="#666">• Head injury: Monitor consciousness, prevent further trauma</text>
+  <text x="110" y="651" font-family="monospace" font-size="9" fill="#666">• Body loses heat 25x faster when wet</text>
+  
+</svg>

@@ -58,9 +58,9 @@ class SystemCommandHandler(BaseCommandHandler):
 
     @property
     def config_manager(self):
-        """Lazy load config manager."""
+        """Lazy load config manager (v1.5.0: Uses new ConfigManager)."""
         if self._config_manager is None:
-            from core.config import get_config
+            from core.uDOS_main import get_config
             self._config_manager = get_config()
         return self._config_manager
 
@@ -95,6 +95,14 @@ class SystemCommandHandler(BaseCommandHandler):
             from core.utils.usage_tracker import UsageTracker
             self._usage_tracker = UsageTracker()
         return self._usage_tracker
+
+    @property
+    def dev_mode_manager(self):
+        """Lazy load DEV MODE manager (v1.5.0)."""
+        if not hasattr(self, '_dev_mode_manager') or self._dev_mode_manager is None:
+            from core.services.dev_mode_manager import get_dev_mode_manager
+            self._dev_mode_manager = get_dev_mode_manager(config_manager=self.config_manager)
+        return self._dev_mode_manager
 
     def handle(self, command, params, grid, parser):
         """
@@ -157,6 +165,10 @@ class SystemCommandHandler(BaseCommandHandler):
             # v1.0.32: Planet system
             'CONFIG_PLANET': self.handle_config_planet,
             'LOCATE': self.handle_locate,
+            # v1.5.0: DEV MODE (master user only)
+            'DEV': self.handle_dev_mode,
+            # v1.5.3: Asset management system
+            'ASSETS': self.handle_assets,
         }
 
         handler = handlers.get(command)
@@ -1891,7 +1903,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             # Generate tree
             tree_string, tree_path = generate_repository_tree(
                 root_path=".",
-                output_file="structure.txt",
+                output_file="dev/docs/structure.txt",
                 target_folder=target_folder,
                 max_depth=max_depth
             )
@@ -3482,3 +3494,158 @@ Examples:
             return result['message']
         else:
             return f"❌ {result['message']}"
+
+    def handle_dev_mode(self, params, grid, parser):
+        """
+        Handle DEV MODE commands (v1.5.0 - Master User Only).
+
+        Commands:
+        - DEV MODE ON: Enable DEV MODE (requires master password)
+        - DEV MODE OFF: Disable DEV MODE
+        - DEV MODE STATUS: Show current DEV MODE status
+        - DEV MODE HELP: Show DEV MODE help
+
+        Args:
+            params: Command parameters ['MODE', 'ON'/'OFF'/'STATUS'/'HELP']
+            grid: Grid instance
+            parser: Parser instance
+
+        Returns:
+            Command result message
+        """
+        # Validate params
+        if not params or len(params) < 2:
+            return (
+                "❌ Invalid DEV MODE command\n\n"
+                "Usage:\n"
+                "  DEV MODE ON      - Enable DEV MODE (master user only)\n"
+                "  DEV MODE OFF     - Disable DEV MODE\n"
+                "  DEV MODE STATUS  - Show current status\n"
+                "  DEV MODE HELP    - Show detailed help"
+            )
+
+        # Parse subcommand
+        if params[0].upper() != 'MODE':
+            return "❌ Invalid DEV command - did you mean 'DEV MODE'?"
+
+        subcommand = params[1].upper()
+
+        # Route to appropriate handler
+        if subcommand == 'ON':
+            return self._dev_mode_enable()
+        elif subcommand == 'OFF':
+            return self._dev_mode_disable()
+        elif subcommand == 'STATUS':
+            return self._dev_mode_status()
+        elif subcommand == 'HELP':
+            return self._dev_mode_help()
+        else:
+            return f"❌ Unknown DEV MODE command: {subcommand}"
+
+    def _dev_mode_enable(self) -> str:
+        """Enable DEV MODE with password authentication."""
+        success, message = self.dev_mode_manager.enable(interactive=True)
+        return message
+
+    def _dev_mode_disable(self) -> str:
+        """Disable DEV MODE."""
+        success, message = self.dev_mode_manager.disable()
+        return message
+
+    def _dev_mode_status(self) -> str:
+        """Show current DEV MODE status."""
+        status = self.dev_mode_manager.get_status()
+
+        if not status['active']:
+            return (
+                "╔═══════════════════════════════════════╗\n"
+                "║       DEV MODE Status                 ║\n"
+                "╠═══════════════════════════════════════╣\n"
+                f"║  Status: ❌ INACTIVE                  ║\n"
+                f"║  Master User: {status['master_user']:<20} ║\n"
+                "╚═══════════════════════════════════════╝\n\n"
+                "💡 Enable with: DEV MODE ON"
+            )
+
+        return (
+            "╔═══════════════════════════════════════╗\n"
+            "║       DEV MODE Status                 ║\n"
+            "╠═══════════════════════════════════════╣\n"
+            f"║  Status: ✅ ACTIVE                    ║\n"
+            f"║  User: {status['user']:<27} ║\n"
+            f"║  Duration: {status['duration']:<23} ║\n"
+            f"║  Commands: {status['commands_executed']:<23} ║\n"
+            "╠═══════════════════════════════════════╣\n"
+            "║  ⚠️  Unrestricted System Access       ║\n"
+            "║  📝 All actions logged                ║\n"
+            "╚═══════════════════════════════════════╝\n\n"
+            f"📄 Log: {status['log_file']}"
+        )
+
+    def _dev_mode_help(self) -> str:
+        """Show DEV MODE help information."""
+        return (
+            "╔═══════════════════════════════════════════════════════════╗\n"
+            "║              DEV MODE - Master User Only                  ║\n"
+            "╠═══════════════════════════════════════════════════════════╣\n"
+            "║                                                           ║\n"
+            "║  DEV MODE provides unrestricted access to:               ║\n"
+            "║  • Dangerous system operations (DELETE, DESTROY, etc.)    ║\n"
+            "║  • Development tools (debugger, profiler, test runner)    ║\n"
+            "║  • Live Gemini AI coding assistance                      ║\n"
+            "║  • Hot code reloading and system modification            ║\n"
+            "║                                                           ║\n"
+            "╠═══════════════════════════════════════════════════════════╣\n"
+            "║  Commands:                                                ║\n"
+            "║                                                           ║\n"
+            "║  DEV MODE ON      Enable DEV MODE (password required)     ║\n"
+            "║  DEV MODE OFF     Disable DEV MODE                        ║\n"
+            "║  DEV MODE STATUS  Show current status                     ║\n"
+            "║  DEV MODE HELP    Show this help                          ║\n"
+            "║                                                           ║\n"
+            "╠═══════════════════════════════════════════════════════════╣\n"
+            "║  Security:                                                ║\n"
+            "║                                                           ║\n"
+            "║  • Requires master user credentials (.env)                ║\n"
+            "║  • All operations logged to memory/logs/dev_mode.log      ║\n"
+            "║  • Session auto-expires after 1 hour of inactivity        ║\n"
+            "║  • Never enable on production systems                     ║\n"
+            "║                                                           ║\n"
+            "╠═══════════════════════════════════════════════════════════╣\n"
+            "║  Setup:                                                   ║\n"
+            "║                                                           ║\n"
+            "║  1. Set UDOS_MASTER_PASSWORD in .env                      ║\n"
+            "║  2. Set UDOS_MASTER_USER in .env (must match username)    ║\n"
+            "║  3. Run: DEV MODE ON                                      ║\n"
+            "║                                                           ║\n"
+            "╚═══════════════════════════════════════════════════════════╝\n\n"
+            "📖 Full documentation: dev/planning/DEV_MODE_GUIDE.md"
+        )
+
+    def handle_assets(self, params, grid, parser):
+        """
+        Handle ASSETS commands (v1.5.3+).
+
+        Delegates to AssetsHandler for asset management operations.
+
+        Commands:
+        - ASSETS LIST [type] - List available assets
+        - ASSETS SEARCH <query> - Search for assets
+        - ASSETS INFO <name> - Show asset details
+        - ASSETS PREVIEW <name> - Preview asset contents
+        - ASSETS LOAD <name> - Load asset into memory
+        - ASSETS STATS - Show asset statistics
+        - ASSETS RELOAD <name> - Hot-reload asset
+        - ASSETS HELP - Show help
+
+        Args:
+            params: Command parameters
+            grid: Grid object
+            parser: Parser object
+
+        Returns:
+            Command response
+        """
+        from core.commands.assets_handler import handle_assets_command
+        return handle_assets_command(params, grid, parser)
+

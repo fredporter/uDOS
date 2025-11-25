@@ -1,0 +1,36 @@
+{
+  "name": "teletext-double",
+  "version": "1.0.0",
+  "type": "border",
+  "charset": "teletext",
+  "dimensions": {
+    "width": 80,
+    "height": 24
+  },
+  "components": {
+    "top_left": "╔",
+    "top_right": "╗",
+    "bottom_left": "╚",
+    "bottom_right": "╝",
+    "horizontal": "═",
+    "vertical": "║",
+    "t_down": "╦",
+    "t_up": "╩",
+    "t_right": "╠",
+    "t_left": "╣",
+    "cross": "╬"
+  },
+  "example": [
+    "╔═════════════════╗",
+    "║                 ║",
+    "║     Content     ║",
+    "║                 ║",
+    "╚═════════════════╝"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": ["border", "teletext", "box", "frame", "double"],
+    "description": "Double-line box drawing characters for prominent borders"
+  }
+}

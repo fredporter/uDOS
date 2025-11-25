@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <title>Treating Shock</title>
+  <desc>Three critical actions to manage traumatic shock</desc>
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  <!-- Title -->
+  <text x="300" y="40" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">
+    TREATING SHOCK
+  </text>
+
+  <!-- Triangle -->
+  <polygon points="300,100 150,350 450,350" fill="none" stroke="#000" stroke-width="3"/>
+
+  <!-- Element 1 (Top) -->
+  <circle cx="300" cy="100" r="60" fill="url(#gray-25)" stroke="#000" stroke-width="3"/>
+  <text x="300" y="110" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    POSITION
+  </text>
+
+  <!-- Element 2 (Bottom Left) -->
+  <circle cx="150" cy="350" r="60" fill="url(#horizontal)" stroke="#000" stroke-width="3"/>
+  <text x="150" y="360" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    WARMTH
+  </text>
+
+  <!-- Element 3 (Bottom Right) -->
+  <circle cx="450" cy="350" r="60" fill="url(#dots)" stroke="#000" stroke-width="3"/>
+  <text x="450" y="360" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    FLUIDS
+  </text>
+
+  <!-- Center label -->
+  <text x="300" y="240" font-family="monospace" font-size="18" font-weight="bold" text-anchor="middle" fill="#000">
+    PREVENT
+SHOCK
+  </text>
+
+  <!-- Footer -->
+  <text x="300" y="480" font-family="monospace" font-size="9" text-anchor="middle" fill="#000">
+    Mac OS System 1 Patterns | Technical-Kinetic Design
+  </text>
+</svg>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <title>Fire Triangle - Essential Elements</title>
+  <desc>Three requirements for fire: heat, fuel, and oxygen</desc>
+
+  <defs>
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  <!-- Title -->
+  <text x="300" y="40" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">
+    THE FIRE TRIANGLE
+  </text>
+
+  <!-- Triangle -->
+  <polygon points="300,100 150,350 450,350" fill="none" stroke="#000" stroke-width="3"/>
+
+  <!-- Heat (top) -->
+  <circle cx="300" cy="100" r="60" fill="url(#diagonal)" stroke="#000" stroke-width="3"/>
+  <text x="300" y="110" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    HEAT
+  </text>
+  <text x="300" y="50" font-family="monospace" font-size="11" text-anchor="middle" fill="#000">
+    Spark, friction, sun
+  </text>
+
+  <!-- Fuel (bottom left) -->
+  <circle cx="150" cy="350" r="60" fill="url(#horizontal)" stroke="#000" stroke-width="3"/>
+  <text x="150" y="355" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    FUEL
+  </text>
+  <text x="150" y="430" font-family="monospace" font-size="11" text-anchor="middle" fill="#000">
+    Wood, tinder, kindling
+  </text>
+
+  <!-- Oxygen (bottom right) -->
+  <circle cx="450" cy="350" r="60" fill="url(#dots)" stroke="#000" stroke-width="3"/>
+  <text x="450" y="355" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">
+    OXYGEN
+  </text>
+  <text x="450" y="430" font-family="monospace" font-size="11" text-anchor="middle" fill="#000">
+    Air flow, ventilation
+  </text>
+
+  <!-- Center - Fire symbol -->
+  <text x="300" y="240" font-family="monospace" font-size="36" font-weight="bold" text-anchor="middle" fill="#000">
+    🔥
+  </text>
+  <text x="300" y="265" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">
+    FIRE
+  </text>
+
+  <!-- Key principle -->
+  <rect x="50" y="460" width="500" height="30" fill="url(#gray-50)" stroke="#000" stroke-width="2"/>
+  <text x="300" y="482" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#000">
+    Remove ANY element → Fire extinguishes
+  </text>
+</svg>

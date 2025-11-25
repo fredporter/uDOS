@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  
+  <title>Water Storage Best Practices</title>
+  <desc>Safe water storage and preservation techniques</desc>
+  
+  <text x="400" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">WATER STORAGE</text>
+  <text x="400" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#666">Keeping water safe after purification</text>
+  
+  <!-- Container types -->
+  <rect x="40" y="80" width="350" height="230" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="105" font-family="monospace" font-size="14" font-weight="bold" fill="#000">CONTAINER CHOICES:</text>
+  
+  <text x="60" y="130" font-family="monospace" font-size="11" font-weight="bold" fill="#0A0">✓ GOOD:</text>
+  <text x="70" y="147" font-family="monospace" font-size="9" fill="#000">• Food-grade plastic bottles (HDPE #2, PETE #1)</text>
+  <text x="70" y="160" font-family="monospace" font-size="9" fill="#000">• Stainless steel bottles (unlined)</text>
+  <text x="70" y="173" font-family="monospace" font-size="9" fill="#000">• Glass bottles (heavy but inert)</text>
+  <text x="70" y="186" font-family="monospace" font-size="9" fill="#000">• Commercial water bags/bladders</text>
+  
+  <text x="60" y="210" font-family="monospace" font-size="11" font-weight="bold" fill="#E00">✗ AVOID:</text>
+  <text x="70" y="227" font-family="monospace" font-size="9" fill="#000">• Milk jugs (degrade, hard to clean)</text>
+  <text x="70" y="240" font-family="monospace" font-size="9" fill="#000">• Containers with non-food chemicals</text>
+  <text x="70" y="253" font-family="monospace" font-size="9" fill="#000">• Permeable containers (canvas, untreated leather)</text>
+  <text x="70" y="266" font-family="monospace" font-size="9" fill="#000">• Metal containers that rust/corrode</text>
+  
+  <rect x="60" y="280" width="320" height="20" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="70" y="294" font-family="monospace" font-size="9" font-weight="bold" fill="#000">Capacity: Store minimum 1 gallon (4L) per person per day</text>
+  
+  <!-- Storage conditions -->
+  <rect x="410" y="80" width="350" height="230" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="420" y="105" font-family="monospace" font-size="14" font-weight="bold" fill="#000">STORAGE CONDITIONS:</text>
+  
+  <text x="430" y="130" font-family="monospace" font-size="11" font-weight="bold" fill="#000">Temperature:</text>
+  <text x="440" y="147" font-family="monospace" font-size="9" fill="#000">• Cool location (50-70°F / 10-21°C optimal)</text>
+  <text x="440" y="160" font-family="monospace" font-size="9" fill="#000">• Avoid freezing (can crack containers)</text>
+  <text x="440" y="173" font-family="monospace" font-size="9" fill="#000">• Keep away from heat sources</text>
+  
+  <text x="430" y="195" font-family="monospace" font-size="11" font-weight="bold" fill="#000">Light:</text>
+  <text x="440" y="212" font-family="monospace" font-size="9" fill="#000">• Store in dark place (prevents algae growth)</text>
+  <text x="440" y="225" font-family="monospace" font-size="9" fill="#000">• Opaque containers better than clear</text>
+  
+  <text x="430" y="247" font-family="monospace" font-size="11" font-weight="bold" fill="#000">Air:</text>
+  <text x="440" y="264" font-family="monospace" font-size="9" fill="#000">• Keep containers sealed/capped</text>
+  <text x="440" y="277" font-family="monospace" font-size="9" fill="#000">• Small air gap okay (allows expansion)</text>
+  <text x="440" y="290" font-family="monospace" font-size="9" fill="#000">• Prevents contamination and evaporation</text>
+  
+  <!-- Shelf life -->
+  <rect x="40" y="330" width="720" height="120" fill="#E6E6E6" stroke="#000" stroke-width="2"/>
+  <text x="50" y="355" font-family="monospace" font-size="14" font-weight="bold" fill="#000">SHELF LIFE:</text>
+  
+  <text x="60" y="378" font-family="monospace" font-size="10" fill="#000">Properly stored treated water:</text>
+  <text x="70" y="395" font-family="monospace" font-size="9" fill="#666">• Commercially bottled: 1-2 years (check expiration)</text>
+  <text x="70" y="408" font-family="monospace" font-size="9" fill="#666">• Home treated/stored: 6 months recommended</text>
+  <text x="70" y="421" font-family="monospace" font-size="9" fill="#666">• Rotate stock every 6 months for freshness</text>
+  <text x="70" y="434" font-family="monospace" font-size="9" fill="#E00">• If container compromised or smells/tastes odd → re-purify</text>
+  
+  <!-- Best practices -->
+  <rect x="40" y="465" width="720" height="115" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="50" y="490" font-family="monospace" font-size="14" font-weight="bold" fill="#000">BEST PRACTICES:</text>
+  
+  <text x="60" y="510" font-family="monospace" font-size="10" fill="#000">• Label containers with purification date</text>
+  <text x="60" y="528" font-family="monospace" font-size="10" fill="#000">• Clean containers before refilling (bleach solution rinse)</text>
+  <text x="60" y="546" font-family="monospace" font-size="10" fill="#000">• Keep dedicated water containers (never use for other liquids)</text>
+  <text x="60" y="564" font-family="monospace" font-size="10" fill="#000">• Use clean cup to pour (don't drink directly for shared water)</text>
+  
+</svg>

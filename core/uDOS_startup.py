@@ -346,6 +346,101 @@ def check_permissions() -> HealthCheckResult:
     return result
 
 
+def check_configuration() -> HealthCheckResult:
+    """
+    Check .env configuration file exists and has required fields.
+    Auto-creates .env from template if missing.
+
+    Returns:
+        HealthCheckResult with status of configuration
+    """
+    result = HealthCheckResult("Configuration")
+    root = get_udos_root()
+    env_path = root / '.env'
+    env_example_path = root / '.env.example'
+
+    # Check if .env exists
+    if not env_path.exists():
+        # Try to create from .env.example
+        if env_example_path.exists():
+            try:
+                import shutil
+                shutil.copy(env_example_path, env_path)
+                result.add_warning(
+                    ".env file created from template",
+                    "Edit .env and add your GEMINI_API_KEY"
+                )
+            except Exception as e:
+                result.add_issue(
+                    f".env file missing and could not be created: {e}",
+                    "Copy .env.example to .env and configure it"
+                )
+        else:
+            # Create minimal .env
+            try:
+                env_content = f"""# uDOS Environment Configuration
+# Get your API key from: https://makersuite.google.com/app/apikey
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# User Configuration
+UDOS_USERNAME=user
+UDOS_LOCATION=Unknown
+UDOS_TIMEZONE=UTC
+
+# Installation Settings
+UDOS_INSTALL_PATH={root}
+UDOS_INSTALLATION_ID=default
+UDOS_VERSION=1.5.0
+"""
+                env_path.write_text(env_content)
+                result.add_warning(
+                    ".env file auto-created with defaults",
+                    "Edit .env and add your GEMINI_API_KEY"
+                )
+            except Exception as e:
+                result.add_issue(
+                    f"Could not create .env file: {e}",
+                    "Manually create .env with GEMINI_API_KEY=your_key"
+                )
+        return result
+
+    # .env exists, validate contents
+    try:
+        env_vars = {}
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    env_vars[key.strip()] = value.strip().strip('"\'')
+
+        # Check for required fields
+        if not env_vars.get('GEMINI_API_KEY'):
+            result.add_warning(
+                "GEMINI_API_KEY not set in .env",
+                "Add your Gemini API key to enable AI features"
+            )
+        elif env_vars.get('GEMINI_API_KEY') == 'your_gemini_api_key_here':
+            result.add_warning(
+                "GEMINI_API_KEY still has placeholder value",
+                "Replace with your actual API key from https://makersuite.google.com/app/apikey"
+            )
+
+        if not env_vars.get('UDOS_USERNAME'):
+            result.add_warning(
+                "UDOS_USERNAME not set in .env",
+                "Add your username to personalize uDOS"
+            )
+
+    except Exception as e:
+        result.add_warning(
+            f"Error reading .env file: {e}",
+            "Check file format and permissions"
+        )
+
+    return result
+
+
 def check_python_version() -> HealthCheckResult:
     """
     Check Python version compatibility.
@@ -1079,6 +1174,7 @@ def check_system_health(verbose: bool = False, return_dict: bool = True):
         ("Virtual Environment", check_virtual_environment),
         ("pip Version", check_pip_version),
         ("Git Repository", check_git_repository),
+        ("Configuration", check_configuration),
         ("Critical Files", check_critical_files),
         ("Module Imports", check_module_imports),
         ("JSON Configs", check_json_configs),

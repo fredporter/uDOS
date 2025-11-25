@@ -1,11 +1,12 @@
 """
-uDOS v1.0.0 - Dashboard Handler
+uDOS v1.5.0 - Dashboard Handler
 
 Handles dashboard, status, and system information display:
 - System status monitoring
 - Dashboard creation (CLI and web)
 - Viewport and palette information
 - Live status monitoring
+- Unified configuration via ConfigManager (v1.5.0+)
 """
 
 import os
@@ -16,6 +17,7 @@ import webbrowser
 from pathlib import Path
 from datetime import datetime
 from .base_handler import BaseCommandHandler
+from core.uDOS_main import get_config  # v1.5.0 Unified configuration
 
 
 class DashboardHandler(BaseCommandHandler):
@@ -225,29 +227,21 @@ class DashboardHandler(BaseCommandHandler):
             output.append("║" + "🔮 uDOS DASHBOARD".center(width) + "║")
             output.append("╠" + "═" * width + "╣")
 
-            # User Profile Section
+            # User Profile Section (v1.5.0: Uses ConfigManager)
             output.append("║ 👤 USER PROFILE".ljust(width + 1) + "║")
             output.append("║ " + "─" * (width - 2) + " ║")
 
-            user_name = self.user_manager.current_user if self.user_manager else "Guest"
+            # Get user info from ConfigManager
             try:
-                user_file = Path('memory/sandbox/user.json')
-                if user_file.exists():
-                    with open(user_file, 'r') as f:
-                        user_data = json.load(f)
-                        user_name = user_data.get('USER', {}).get('NAME', user_name)
-                        location = user_data.get('USER', {}).get('LOCATION', 'Unknown')
-                        timezone = user_data.get('USER', {}).get('TIMEZONE', 'UTC')
-                        project = user_data.get('USER', {}).get('PROJECT', 'uDOS')
-                        project_type = user_data.get('USER', {}).get('PROJECT_TYPE', 'CLI Framework')
-                        mode = user_data.get('SESSION', {}).get('MODE', 'STANDARD')
-                else:
-                    location = "Unknown"
-                    timezone = "UTC"
-                    project = "uDOS"
-                    project_type = "CLI Framework"
-                    mode = "STANDARD"
+                config = get_config()
+                user_name = config.get('username', 'user')
+                location = config.get('location', 'Unknown')
+                timezone = config.get('timezone', 'UTC')
+                project = "uDOS"
+                project_type = "CLI Framework"
+                mode = "STANDARD"
             except:
+                user_name = "user"
                 location = "Unknown"
                 timezone = "UTC"
                 project = "uDOS"

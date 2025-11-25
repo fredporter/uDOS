@@ -1,0 +1,71 @@
+Create a detailed SVG diagram for shelter: Debris Hut Construction
+
+Description: Emergency shelter built from natural materials
+
+
+FORMAT CONSTRAINTS:
+- Dimensions: 800×600px default (scalable)
+- Palette: Mac OS System 1 (9 grays + black/white, 17 bitmap patterns)
+- File_Size: <50KB target
+- Structure: Clean paths, semantic grouping, reusable patterns
+
+
+COMPLEXITY LEVEL: DETAILED
+- Detail Level: Comprehensive coverage
+- Elements: 6-12 components with relationships
+- Labels: Descriptive labels with context
+- Instructions: Include all important steps/elements
+
+
+STYLE: HYBRID
+- Lines: Mix of precise and organic elements
+- Shapes: Technical structure with hand-drawn details
+- Aesthetic: Professional but approachable
+- Fonts: Clean sans-serif with hand-drawn accents
+
+
+PERSPECTIVE: ISOMETRIC
+- Use 30° isometric projection
+- Show three visible faces
+
+
+ANNOTATIONS REQUIRED:
+- Labels
+- Callouts
+- Warnings
+
+
+MAC OS SYSTEM 1 DESIGN REQUIREMENTS:
+- Monochrome palette: #000 (black), #FFF (white), 9 grays (#1A1A1A to #E6E6E6)
+- Use bitmap patterns from 17-pattern library (grayscale + textures)
+- Bold 2-3px stroke weights
+- Generic monospace fonts (no copyrighted Chicago/Geneva)
+- Clean, pixel-perfect alignment
+
+
+QUALITY REQUIREMENTS:
+- File size: <50KB target
+- Production-ready quality
+- Clear, unambiguous visual communication
+- Accessible to beginners and experts
+
+SURVIVAL-SPECIFIC REQUIREMENTS:
+
+Key Elements to Include:
+- Site selection
+- Construction methods
+- Insulation techniques
+- Weather protection
+
+Safety Warnings to Highlight:
+⚠️  Widow makers
+⚠️  Flash flood zones
+⚠️  Wind exposure
+⚠️  Animal hazards
+
+Survival Context:
+- Assume wilderness/emergency scenario
+- Emphasize practical, field-applicable techniques
+- Highlight critical safety considerations
+- Show real-world materials and tools
+- Include alternative methods when possible

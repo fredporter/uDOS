@@ -10,7 +10,8 @@ from .uDOS_commands import CommandHandler
 from .uDOS_parser import Parser
 from .uDOS_grid import Grid
 from .uDOS_logger import Logger
-from .config import get_config, Config
+# Note: Legacy config.py still exists, new config/ package is preferred
+# from .config import get_config, Config  # DEPRECATED: Use core.config.config_manager instead
 
 # Theme system
 from .theme import load_theme, ThemeManager

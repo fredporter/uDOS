@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>Fire Triangle Diagram</title>
+  <desc>A technical diagram illustrating the three essential elements required for fire: Fuel, Heat, and Oxygen, forming a triangle with arrows pointing towards the central concept of fire, emphasizing their interdependent relationship.</desc>
+
+  <defs>
+    <!-- Font embedding: Mallard font family -->
+    <style type="text/css">
+      @font-face {
+        font-family: 'Mallard';
+        src: url('../../extensions/assets/fonts/mallard/mallard-neueue.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Mallard';
+        src: url('../../extensions/assets/fonts/mallard/mallard-blocky.otf') format('opentype');
+        font-weight: bold;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Mallard Smooth';
+        src: url('../../extensions/assets/fonts/mallard/mallard-smooth.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+
+    <!-- Solid black fill -->
+    <pattern id="solid-black" patternUnits="userSpaceOnUse" width="1" height="1">
+      <rect width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <!-- Grayscale patterns (via density, NOT opacity) -->
+    <pattern id="gray-10" patternUnits="userSpaceOnUse" width="10" height="10">
+      <rect width="10" height="10" fill="#FFF"/>
+      <circle cx="5" cy="5" r="0.4" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <circle cx="2" cy="2" r="0.5" fill="#000"/>
+      <circle cx="6" cy="6" r="0.5" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-40" patternUnits="userSpaceOnUse" width="6" height="6">
+      <rect width="6" height="6" fill="#FFF"/>
+      <circle cx="1.5" cy="1.5" r="0.6" fill="#000"/>
+      <circle cx="4.5" cy="4.5" r="0.6" fill="#000"/>
+      <circle cx="1.5" cy="4.5" r="0.5" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <path d="M0,0 L4,4 M0,4 L4,0" stroke="#000" stroke-width="0.4"/>
+    </pattern>
+
+    <pattern id="gray-60" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <circle cx="1" cy="1" r="0.7" fill="#000"/>
+      <circle cx="3" cy="3" r="0.7" fill="#000"/>
+      <circle cx="1" cy="3" r="0.6" fill="#000"/>
+      <circle cx="3" cy="1" r="0.6" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="3" height="3">
+      <rect width="3" height="3" fill="#FFF"/>
+      <path d="M0,0 L3,3 M0,3 L3,0 M0,1.5 L3,1.5 M1.5,0 L1.5,3" stroke="#000" stroke-width="0.5"/>
+    </pattern>
+
+    <pattern id="gray-90" patternUnits="userSpaceOnUse" width="3" height="3">
+      <rect width="3" height="3" fill="#000"/>
+      <circle cx="1.5" cy="1.5" r="0.3" fill="#FFF"/>
+    </pattern>
+
+    <!-- Hatching pattern for mechanical/structural elements -->
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke="#000" stroke-width="0.3"/>
+    </pattern>
+
+    <!-- Cross-hatching for dense materials -->
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke="#000" stroke-width="0.3"/>
+      <path d="M-1,3 l2,2 M0,0 l4,4 M3,-1 l2,2" stroke="#000" stroke-width="0.3"/>
+    </pattern>
+
+    <!-- Stipple pattern for soft/atmospheric -->
+    <pattern id="stipple" patternUnits="userSpaceOnUse" width="6" height="6">
+      <rect width="6" height="6" fill="#FFF"/>
+      <circle cx="1" cy="1" r="0.5" fill="#000"/>
+      <circle cx="4" cy="4" r="0.5" fill="#000"/>
+    </pattern>
+
+    <!-- Vector wavy lines for organic materials -->
+    <pattern id="waves" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <path d="M0,4 Q2,2 4,4 T8,4" stroke="#000" stroke-width="0.3" fill="none"/>
+      <path d="M0,6 Q2,4 4,6 T8,6" stroke="#000" stroke-width="0.3" fill="none"/>
+    </pattern>
+
+    <!-- Topographic/wavy pattern for water/environmental -->
+    <pattern id="topo" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <path d="M0,4 Q2,2 4,4 T8,4" stroke="#000" stroke-width="0.3" fill="none"/>
+      <path d="M0,6 Q2,4 4,6 T8,6" stroke="#000" stroke-width="0.3" fill="none"/>
+    </pattern>
+  </defs>
+
+  <!-- Main diagram content -->
+  <g id="fire-triangle-diagram-elements">
+    <!-- Defines the main conceptual triangle for the fire elements -->
+    <polygon points="400,150 150,450 650,450" fill="url(#gray-25)" stroke="#000" stroke-width="1.5"/>
+
+    <!-- Labels for the three elements -->
+    <g id="element-labels">
+      <text x="400" y="115" font-family="Mallard, Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#000">HEAT</text>
+      <text x="110" y="470" font-family="Mallard, Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="end" fill="#000">FUEL</text>
+      <text x="690" y="470" font-family="Mallard, Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="start" fill="#000">OXYGEN</text>
+    </g>
+
+    <!-- Arrows indicating interaction towards the center -->
+    <g id="interaction-arrows">
+      <!-- Arrow from HEAT -->
+      <line x1="400" y1="165" x2="400" y2="310" stroke="#000" stroke-width="1.0"/>
+      <polygon points="400,325 395,315 405,315" fill="#000"/>
+
+      <!-- Arrow from FUEL -->
+      <line x1="180" y1="435" x2="330" y2="360" stroke="#000" stroke-width="1.0"/>
+      <polygon points="340,355 330,365 330,345" fill="#000"/>
+
+      <!-- Arrow from OXYGEN -->
+      <line x1="620" y1="435" x2="470" y2="360" stroke="#000" stroke-width="1.0"/>
+      <polygon points="460,355 470,365 470,345" fill="#000"/>
+    </g>
+
+    <!-- Central 'FIRE' concept -->
+    <g id="central-fire-concept">
+      <text x="400" y="360" font-family="Mallard, Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#000">FIRE</text>
+    </g>
+
+  </g>
+
+  <!-- Attribution footer -->
+  <text x="400" y="580" font-family="Mallard, Arial, sans-serif" font-size="8" text-anchor="middle" fill="#000">
+    Technical-Kinetic Design | uDOS Knowledge Bank | Mallard Font | Pattern-based monochrome
+  </text>
+</svg>

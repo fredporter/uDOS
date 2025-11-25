@@ -1,325 +1,70 @@
 {
   "command_counts": {
-    "ERROR": 160,
-    "HELP": 32,
+    "ERROR": 162,
+    "HELP": 38,
     "STATUS": 11,
     "BLANK": 2,
     "THEME": 2,
-    "SETTINGS": 2,
-    "CONFIG": 3,
+    "SETTINGS": 3,
+    "CONFIG": 4,
     "SPLASH": 1,
     "MOVE": 1,
-    "WORKSPACE": 2,
-    "PANEL": 3,
-    "DASH": 3,
-    "TREE": 5,
-    "ACCESS": 1,
+    "WORKSPACE": 3,
+    "PANEL": 7,
+    "DASH": 4,
+    "TREE": 6,
+    "ACCESS": 3,
     "INDEX": 1,
-    "LIST": 8,
+    "LIST": 9,
     "PALETTE": 1,
-    "VIEWPORT": 1,
+    "VIEWPORT": 2,
     "CLEAN": 4,
     "GET": 2,
     "SET": 3,
     "SETUP": 4,
-    "SHOW": 1,
+    "SHOW": 2,
     "EDIT": 1,
-    "MENU": 2
+    "MENU": 3,
+    "HISTORY": 1,
+    "OK": 3,
+    "OUTPUT": 4,
+    "CATEGORIES": 1
   },
   "success_counts": {
-    "HELP": 32,
+    "HELP": 38,
     "BLANK": 2,
     "STATUS": 9,
     "THEME": 2,
-    "SETTINGS": 2,
-    "CONFIG": 3,
+    "SETTINGS": 3,
+    "CONFIG": 4,
     "MOVE": 1,
-    "WORKSPACE": 2,
-    "PANEL": 3,
-    "DASH": 3,
-    "TREE": 5,
-    "ACCESS": 1,
+    "WORKSPACE": 3,
+    "PANEL": 7,
+    "DASH": 4,
+    "TREE": 6,
+    "ACCESS": 3,
     "INDEX": 1,
-    "LIST": 8,
+    "LIST": 9,
     "PALETTE": 1,
-    "VIEWPORT": 1,
+    "VIEWPORT": 2,
     "CLEAN": 4,
     "GET": 2,
     "SET": 3,
     "SETUP": 4,
-    "SHOW": 1,
+    "SHOW": 2,
     "EDIT": 1,
-    "MENU": 2
+    "MENU": 3,
+    "HISTORY": 1,
+    "OK": 3,
+    "OUTPUT": 4,
+    "CATEGORIES": 1
   },
   "failure_counts": {
-    "ERROR": 160,
+    "ERROR": 162,
     "STATUS": 2,
     "SPLASH": 1
   },
   "recent_commands": [
-    {
-      "command": "BLANK",
-      "timestamp": "2025-11-22T15:56:45.997091",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T15:57:28.855698",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T15:57:29.279690",
-      "params": [],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "BLANK",
-      "timestamp": "2025-11-22T15:57:29.693061",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T16:30:32.154812",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T16:37:23.291208",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T16:39:50.715032",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T17:01:01.302774",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T17:01:01.727197",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "THEME",
-      "timestamp": "2025-11-22T17:02:19.672166",
-      "params": [
-        "STATUS"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T17:03:43.129490",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "SETTINGS",
-      "timestamp": "2025-11-22T17:03:43.561909",
-      "params": [
-        "SHOW"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T17:03:43.964649",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T17:06:48.584156",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T17:08:50.984504",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-22T17:08:55.613343",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "SPLASH",
-      "timestamp": "2025-11-22T17:09:03.326682",
-      "params": [
-        "LOGO"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "MOVE",
-      "timestamp": "2025-11-22T17:09:07.030038",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "WORKSPACE",
-      "timestamp": "2025-11-22T17:09:13.327394",
-      "params": [
-        "LIST"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "PANEL",
-      "timestamp": "2025-11-22T17:09:19.297778",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "DASH",
-      "timestamp": "2025-11-22T17:09:28.567052",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "STATUS",
-      "timestamp": "2025-11-22T17:12:33.423447",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "TREE",
-      "timestamp": "2025-11-22T17:12:46.838035",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "ERROR",
-      "timestamp": "2025-11-22T17:12:51.617418",
-      "params": [
-        "Invalid command: file"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T17:53:33.822240",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-22T17:53:38.560881",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "SETTINGS",
-      "timestamp": "2025-11-22T17:53:41.775616",
-      "params": [
-        "SHOW"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "ACCESS",
-      "timestamp": "2025-11-22T17:53:48.261927",
-      "params": [
-        "",
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "PANEL",
-      "timestamp": "2025-11-22T17:53:50.386615",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-22T17:54:00.023390",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "ERROR",
-      "timestamp": "2025-11-22T17:54:02.645789",
-      "params": [
-        "Invalid command: bank"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "INDEX",
-      "timestamp": "2025-11-22T17:54:07.683381",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "LIST",
       "timestamp": "2025-11-22T17:54:15.423706",
@@ -884,7 +629,284 @@
       ],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:39:00.777477",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SETTINGS",
+      "timestamp": "2025-11-25T18:39:05.707193",
+      "params": [
+        "SHOW"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-25T18:39:27.624799",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-11-25T18:39:34.594528",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:39:54.621909",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "TREE",
+      "timestamp": "2025-11-25T18:39:57.743735",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:40:02.913238",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HISTORY",
+      "timestamp": "2025-11-25T18:40:25.990870",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OK",
+      "timestamp": "2025-11-25T18:40:32.987860",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OK",
+      "timestamp": "2025-11-25T18:40:51.715662",
+      "params": [
+        "ask",
+        "what",
+        "is"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "WORKSPACE",
+      "timestamp": "2025-11-25T18:41:10.200325",
+      "params": [
+        "LIST"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "PANEL",
+      "timestamp": "2025-11-25T18:41:25.615072",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "PANEL",
+      "timestamp": "2025-11-25T18:41:31.255816",
+      "params": [
+        "fill"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "PANEL",
+      "timestamp": "2025-11-25T18:41:40.974000",
+      "params": [
+        "FILL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "PANEL",
+      "timestamp": "2025-11-25T18:41:42.851647",
+      "params": [
+        "FILL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OK",
+      "timestamp": "2025-11-25T18:41:53.488624",
+      "params": [
+        "ask",
+        "what",
+        "is"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-25T18:42:02.557117",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-25T18:42:06.404587",
+      "params": [
+        "list"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-25T18:42:10.699663",
+      "params": [
+        "typo"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-25T18:42:16.553945",
+      "params": [
+        "start",
+        "typo"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-25T18:48:38.275334",
+      "params": [
+        "Invalid command: knowledge"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:48:40.404966",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CATEGORIES",
+      "timestamp": "2025-11-25T18:48:45.064414",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-25T18:48:49.303375",
+      "params": [
+        "Invalid command: knowledge list"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:48:54.905025",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "VIEWPORT",
+      "timestamp": "2025-11-25T18:49:21.354737",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-11-25T18:49:29.486984",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ACCESS",
+      "timestamp": "2025-11-25T18:49:31.487379",
+      "params": [
+        "",
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ACCESS",
+      "timestamp": "2025-11-25T18:49:34.442583",
+      "params": [
+        "help",
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-25T18:49:37.398159",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-11-25T18:49:41.632350",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MENU",
+      "timestamp": "2025-11-25T19:59:41.827784",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-22T22:46:34.883976"
+  "last_updated": "2025-11-25T20:08:22.176448"
 }

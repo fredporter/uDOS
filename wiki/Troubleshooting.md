@@ -1,5 +1,19 @@
 # Troubleshooting & Repair
 
+> **⚠️ DEPRECATED**: This page is deprecated. Please use **[Troubleshooting-Complete.md](Troubleshooting-Complete.md)** for the comprehensive, up-to-date troubleshooting guide.
+>
+> **Why?** Troubleshooting-Complete.md includes:
+> - 10 major troubleshooting categories
+> - ASCII diagnostic flow diagrams
+> - Complete error message decoder
+> - Performance optimization guide
+> - Prevention & maintenance tips
+> - Updated for v1.4.0
+>
+> **Quick Link**: [Go to Troubleshooting-Complete.md →](Troubleshooting-Complete.md)
+
+---
+
 Complete guide to diagnosing and fixing common uDOS issues
 
 ---

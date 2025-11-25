@@ -1,0 +1,27 @@
+{
+  "name": "dots-dense",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "ascii",
+  "dimensions": {
+    "width": 16,
+    "height": 4
+  },
+  "pattern": [
+    "\u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 ",
+    " \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7",
+    "\u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 ",
+    " \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "background",
+      "dots",
+      "dense",
+      "textured"
+    ],
+    "description": "Dense dot pattern for textured backgrounds"
+  }
+}

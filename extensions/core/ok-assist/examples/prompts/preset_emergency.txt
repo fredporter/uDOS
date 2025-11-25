@@ -1,0 +1,57 @@
+Create a simple ASCII diagram for navigation: Lost Person STOP Protocol
+
+Description: Stop, Think, Observe, Plan - emergency procedure when lost
+
+
+FORMAT CONSTRAINTS:
+- Dimensions: 80×24 characters (terminal standard)
+- Characters: C64 PetMe/PETSCII character set
+- Palette: Monochrome (black/white/gray)
+- File_Size: <10KB target
+- Structure: Box-drawing characters, ASCII art techniques
+
+
+COMPLEXITY LEVEL: SIMPLE
+- Detail Level: Essential information only
+- Elements: 3-5 key components maximum
+- Labels: Brief, clear labels (1-3 words)
+- Instructions: Focus on critical steps/elements only
+
+
+STYLE: TECHNICAL-KINETIC
+- Lines: Precise, uniform stroke weights (2-3px)
+- Shapes: Clean geometric forms, perfect alignment
+- Aesthetic: Engineering blueprint, technical manual
+- Fonts: Monospace, sans-serif (Chicago/Geneva style)
+
+
+ANNOTATIONS REQUIRED:
+- Labels
+
+
+QUALITY REQUIREMENTS:
+- File size: <10KB target
+- Production-ready quality
+- Clear, unambiguous visual communication
+- Accessible to beginners and experts
+
+SURVIVAL-SPECIFIC REQUIREMENTS:
+
+Key Elements to Include:
+- Direction finding
+- Reference points
+- Distance estimation
+- Route planning
+
+Safety Warnings to Highlight:
+⚠️  Weather changes
+⚠️  Terrain hazards
+⚠️  Energy conservation
+⚠️  Signaling location
+
+Survival Context:
+- Assume wilderness/emergency scenario
+- Emphasize practical, field-applicable techniques
+- Highlight critical safety considerations
+- Show real-world materials and tools
+- Include alternative methods when possible

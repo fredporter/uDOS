@@ -1,0 +1,27 @@
+{
+  "name": "crosshatch",
+  "version": "1.0.0",
+  "type": "background",
+  "charset": "ascii",
+  "dimensions": {
+    "width": 16,
+    "height": 4
+  },
+  "pattern": [
+    "\\\\\\\\////\\\\\\\\////",
+    "\\\\//\\\\//\\\\//\\\\//",
+    "//\\\\//\\\\//\\\\//\\\\",
+    "////\\\\\\\\////\\\\\\\\"
+  ],
+  "metadata": {
+    "author": "uDOS Team",
+    "license": "MIT",
+    "tags": [
+      "background",
+      "crosshatch",
+      "diagonal",
+      "textured"
+    ],
+    "description": "Crosshatch pattern for textured backgrounds"
+  }
+}

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 800" width="700" height="800">
+
+  <defs>
+    <!-- Grayscale Patterns -->
+    <pattern id="gray-12" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-25" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="2" fill="#000"/>
+      <rect x="2" y="2" width="2" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-37" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-50" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="2" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="gray-62" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#000"/>
+      <rect x="1" y="0" width="1" height="1" fill="#FFF"/>
+      <rect x="3" y="2" width="1" height="1" fill="#FFF"/>
+      <rect x="5" y="4" width="1" height="1" fill="#FFF"/>
+      <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+      <rect x="0" y="1" width="1" height="1" fill="#FFF"/>
+      <rect x="2" y="3" width="1" height="1" fill="#FFF"/>
+      <rect x="4" y="5" width="1" height="1" fill="#FFF"/>
+      <rect x="6" y="7" width="1" height="1" fill="#FFF"/>
+    </pattern>
+
+    <pattern id="gray-75" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#000"/>
+      <rect x="0" y="0" width="2" height="2" fill="#FFF"/>
+      <rect x="2" y="2" width="2" height="2" fill="#FFF"/>
+    </pattern>
+
+    <!-- Texture Patterns -->
+    <pattern id="brick" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="4" height="1" fill="#000"/>
+      <rect x="4" y="1" width="1" height="3" fill="#000"/>
+      <rect x="0" y="4" width="4" height="1" fill="#000"/>
+      <rect x="0" y="5" width="1" height="3" fill="#000"/>
+    </pattern>
+
+    <pattern id="diagonal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="cross-hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="0" width="8" height="1" fill="#000"/>
+      <rect x="4" y="0" width="1" height="8" fill="#000"/>
+      <rect x="0" y="4" width="8" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+    </pattern>
+
+    <pattern id="horizontal" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="8" height="2" fill="#000"/>
+      <rect x="0" y="4" width="8" height="2" fill="#000"/>
+    </pattern>
+
+    <pattern id="vertical" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="2" height="8" fill="#000"/>
+      <rect x="4" y="0" width="2" height="8" fill="#000"/>
+    </pattern>
+
+    <pattern id="herringbone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="#FFF"/>
+      <rect x="0" y="0" width="1" height="1" fill="#000"/>
+      <rect x="1" y="1" width="1" height="1" fill="#000"/>
+      <rect x="2" y="2" width="1" height="1" fill="#000"/>
+      <rect x="3" y="3" width="1" height="1" fill="#000"/>
+      <rect x="7" y="0" width="1" height="1" fill="#000"/>
+      <rect x="6" y="1" width="1" height="1" fill="#000"/>
+      <rect x="5" y="2" width="1" height="1" fill="#000"/>
+      <rect x="4" y="3" width="1" height="1" fill="#000"/>
+      <rect x="0" y="7" width="1" height="1" fill="#000"/>
+      <rect x="1" y="6" width="1" height="1" fill="#000"/>
+      <rect x="2" y="5" width="1" height="1" fill="#000"/>
+      <rect x="3" y="4" width="1" height="1" fill="#000"/>
+      <rect x="7" y="7" width="1" height="1" fill="#000"/>
+      <rect x="6" y="6" width="1" height="1" fill="#000"/>
+      <rect x="5" y="5" width="1" height="1" fill="#000"/>
+      <rect x="4" y="4" width="1" height="1" fill="#000"/>
+    </pattern>
+  </defs>
+
+  
+  <title>Arterial Pressure Points</title>
+  <desc>Major pressure points to control severe bleeding</desc>
+  
+  <text x="350" y="30" font-family="monospace" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#000">ARTERIAL PRESSURE POINTS</text>
+  <text x="350" y="50" font-family="monospace" font-size="11" 
+        text-anchor="middle" fill="#666">Apply pressure between wound and heart</text>
+  
+  <!-- Body outline (simplified) -->
+  <ellipse cx="350" cy="150" rx="60" ry="80" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <rect x="320" y="220" width="60" height="100" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  
+  <!-- Arms -->
+  <rect x="220" y="240" width="100" height="30" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <rect x="380" y="240" width="100" height="30" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <rect x="200" y="270" width="30" height="120" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <rect x="470" y="270" width="30" height="120" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  
+  <!-- Legs -->
+  <rect x="330" y="320" width="20" height="140" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  <rect x="350" y="320" width="20" height="140" fill="url(#gray-25)" stroke="#000" stroke-width="2"/>
+  
+  <!-- Pressure points marked -->
+  <!-- Temporal -->
+  <circle cx="320" cy="130" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="260" y="135" font-family="monospace" font-size="9" font-weight="bold" fill="#000">TEMPORAL</text>
+  <text x="245" y="147" font-family="monospace" font-size="8" fill="#666">Head wounds</text>
+  
+  <!-- Carotid -->
+  <circle cx="330" cy="160" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="240" y="165" font-family="monospace" font-size="9" font-weight="bold" fill="#000">CAROTID</text>
+  <text x="230" y="177" font-family="monospace" font-size="8" fill="#E00">DO NOT use</text>
+  
+  <!-- Subclavian -->
+  <circle cx="320" cy="230" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <circle cx="380" cy="230" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="230" y="220" font-family="monospace" font-size="9" font-weight="bold" fill="#000">SUBCLAVIAN</text>
+  <text x="225" y="232" font-family="monospace" font-size="8" fill="#666">Shoulder/armpit</text>
+  
+  <!-- Brachial -->
+  <circle cx="215" cy="310" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <circle cx="485" cy="310" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="120" y="315" font-family="monospace" font-size="9" font-weight="bold" fill="#000">BRACHIAL</text>
+  <text x="120" y="327" font-family="monospace" font-size="8" fill="#666">Upper arm</text>
+  
+  <!-- Radial -->
+  <circle cx="210" cy="380" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <circle cx="490" cy="380" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="120" y="385" font-family="monospace" font-size="9" font-weight="bold" fill="#000">RADIAL</text>
+  <text x="120" y="397" font-family="monospace" font-size="8" fill="#666">Wrist/forearm</text>
+  
+  <!-- Femoral -->
+  <circle cx="330" cy="340" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <circle cx="370" cy="340" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="240" y="365" font-family="monospace" font-size="9" font-weight="bold" fill="#000">FEMORAL</text>
+  <text x="245" y="377" font-family="monospace" font-size="8" fill="#666">Groin/thigh</text>
+  
+  <!-- Popliteal -->
+  <circle cx="335" cy="430" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <circle cx="365" cy="430" r="10" fill="#000" stroke="#FFF" stroke-width="2"/>
+  <text x="400" y="435" font-family="monospace" font-size="9" font-weight="bold" fill="#000">POPLITEAL</text>
+  <text x="405" y="447" font-family="monospace" font-size="8" fill="#666">Behind knee</text>
+  
+  <!-- Instructions -->
+  <rect x="50" y="500" width="600" height="280" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <text x="60" y="525" font-family="monospace" font-size="12" font-weight="bold" fill="#000">TECHNIQUE:</text>
+  
+  <text x="70" y="545" font-family="monospace" font-size="10" fill="#000">1. Apply direct pressure to wound FIRST (preferred method)</text>
+  <text x="70" y="565" font-family="monospace" font-size="10" fill="#000">2. If bleeding doesn't stop, apply pressure point:</text>
+  <text x="80" y="580" font-family="monospace" font-size="9" fill="#666">• Press artery against bone with fingers/thumb</text>
+  <text x="80" y="593" font-family="monospace" font-size="9" fill="#666">• Use firm, steady pressure (not pulsing)</text>
+  <text x="80" y="606" font-family="monospace" font-size="9" fill="#666">• Point must be between wound and heart</text>
+  <text x="80" y="619" font-family="monospace" font-size="9" fill="#666">• Maintain direct pressure on wound simultaneously</text>
+  
+  <text x="70" y="640" font-family="monospace" font-size="10" fill="#000">3. For extremity arterial bleeding:</text>
+  <text x="80" y="655" font-family="monospace" font-size="9" fill="#666">• Apply tourniquet if direct pressure fails</text>
+  <text x="80" y="668" font-family="monospace" font-size="9" fill="#666">• 2-3 inches above wound, never on joint</text>
+  <text x="80" y="681" font-family="monospace" font-size="9" fill="#666">• Tighten until bleeding stops completely</text>
+  <text x="80" y="694" font-family="monospace" font-size="9" fill="#666">• Note time applied, do not remove</text>
+  
+  <rect x="60" y="710" width="580" height="60" fill="#E6E6E6" stroke="#000" stroke-width="1"/>
+  <text x="70" y="730" font-family="monospace" font-size="10" font-weight="bold" fill="#E00">⚠ WARNING:</text>
+  <text x="70" y="745" font-family="monospace" font-size="9" fill="#000">• Never use pressure on carotid artery (can cause stroke)</text>
+  <text x="70" y="758" font-family="monospace" font-size="9" fill="#000">• Pressure points are temporary measure only (max 10 minutes)</text>
+  
+</svg>
