@@ -605,6 +605,304 @@ The following originally planned v1.5.1-v1.5.2 features have been deferred to al
 
 ---
 
+## 🚀 v1.6.0 - Content Population & Gemini Integration ⚡ **ACTIVE**
+
+**Target:** Q1 2026 (12 weeks)
+**Status:** ⚡ **WEEK 1 IN PROGRESS**
+**Objective:** Mass content generation with enhanced GENERATE command, citation tracking, Technical-Kinetic SVG style, and quality validation
+
+### Overview
+v1.6.0 focuses on populating the knowledge bank with high-quality, properly cited content using the Gemini API. This version introduces a completely overhauled GENERATE command with mandatory citation tracking, multi-format asset generation, and strict adherence to the Technical-Kinetic SVG style guide.
+
+### Core Objectives
+1. **Enhanced GENERATE Command** - Multi-stage processing (text + assets) with citation tracking
+2. **Technical-Kinetic SVG Style** - Monochrome, MCM geometry, kinetic flow patterns
+3. **Mass Content Generation** - 1,000+ guides, 500+ diagrams using automated workflows
+4. **Quality Validation** - Automated testing, citation compliance, style adherence
+5. **Web Crawler Integration** - Supplementary information enrichment from external sources
+
+---
+
+### Phase 1: DIAGRAM Command Enhancement (Weeks 1-3)
+
+**1.1 Core Command Architecture** ✨ **ENHANCED**
+- [ ] Extend `core/commands/diagram_handler.py` with generation capabilities
+- [ ] Add DIAGRAM GENERATE subcommand with multi-stage processing:
+  - **Stage A:** Source Analysis (PDF, DOCX, HTML, Markdown)
+  - **Stage B:** Web Crawl (optional supplementary enrichment via PEEK)
+  - **Stage C:** Text Processing (Gemini API → clean Markdown)
+  - **Stage D:** Asset Generation (Gemini API → Technical-Kinetic SVG)
+  - **Stage E:** Final Assembly (embed assets, validate citations)
+- [ ] New syntax: `DIAGRAM GENERATE <source_file> [--crawl] [--style technical|kinetic] [--output dir]`
+- [ ] Integrate with existing DIAGRAM LIST/SHOW/EXPORT commands
+
+**1.2 Citation Tracking System** ✨ **CRITICAL**
+- [ ] Create `core/services/citation_manager.py` for citation tracking
+- [ ] Implement source tracking:
+  - `<cite>1</cite>` for original document sentences
+  - `<web>1</web>` for web crawler content
+  - `<meta>1</meta>` for document metadata
+- [ ] Build citation validator (ensure every paragraph has attribution)
+- [ ] Create citation index generator (bibliography at end of document)
+- [ ] Add citation quality scoring (0.0-1.0 based on coverage)
+
+**1.3 Technical-Kinetic Style Guide** ✨ **NEW**
+- [ ] Create `knowledge/system/gemini_prompts.json` with style constraints
+- [ ] Define mandatory style rules:
+  - **Monochrome:** Strictly black and white line art (no gray fills, no raster)
+  - **Structure:** Mid-Century Modern geometry, clean sans-serif type
+  - **Kinetic Flow:** Exaggerated curved conduits, gears, levers for processes
+  - **Shading:** Vector patterns only (hatching, stipple, wavy lines, undulating)
+- [ ] Build prompt template system with modular style injection
+- [ ] Create style validation tool (check SVG compliance)
+- [ ] Document style guide in `dev/docs/TECHNICAL-KINETIC-GUIDE.md`
+
+**1.4 Source Analysis & Processing**
+- [ ] Build PDF parser (extract text, images, metadata)
+- [ ] Build DOCX parser (extract formatted text, embedded images)
+- [ ] Build HTML parser (extract content, preserve links)
+- [ ] Build Markdown parser (existing content upgrade)
+- [ ] Implement image extraction and raster-to-SVG conversion queue
+
+---
+
+### Phase 2: Asset Generation Pipeline (Weeks 4-6)
+
+**2.1 Gemini API Integration**
+- [ ] Create `core/services/gemini_generator.py` for API management
+- [ ] Implement text generation endpoint (clean Markdown with citations)
+- [ ] Implement SVG generation endpoint (Technical-Kinetic style)
+- [ ] Add rate limiting and retry logic (handle API quotas)
+- [ ] Build prompt builder (inject style guide, context, requirements)
+- [ ] Add response validation (check output quality before saving)
+
+**2.2 SVG Asset Generator**
+- [ ] Build SVG prompt templates for diagram types:
+  - Flowcharts (kinetic flow with gears/conduits)
+  - Architecture diagrams (MCM geometry, clean lines)
+  - Organic sketches (hatching/stipple shading)
+  - Technical schematics (precise measurements, annotations)
+- [ ] Implement asset naming convention (category_topic_001.svg)
+- [ ] Add SVG optimization (compress, clean up Gemini output)
+- [ ] Build asset catalog (track generated SVGs, link to source docs)
+- [ ] Integrate with existing `extensions/assets/` system
+
+**2.3 Multi-Format Support**
+- [ ] ASCII Art generation (C64 PETSCII for terminal)
+- [ ] Teletext generation (WST mosaic blocks for retro web)
+- [ ] SVG Technical-Kinetic (primary high-quality format)
+- [ ] Format selector based on content type and target use
+- [ ] Cross-format consistency validation
+
+---
+
+### Phase 3: Content Generation Workflows (Weeks 7-9)
+
+**3.1 Batch Generation System**
+- [ ] Create `memory/workflow/v1_6_0_generation.uscript` for automation
+- [ ] Build category-based generation loops:
+  ```
+  DIAGRAM GENERATE BATCH knowledge/water/ --style technical --validate
+  DIAGRAM GENERATE BATCH knowledge/fire/ --crawl --style kinetic
+  DIAGRAM GENERATE BATCH knowledge/medical/ --citations-strict
+  ```
+- [ ] Add progress tracking (X of Y guides complete)
+- [ ] Implement quality gates (must pass citation + style checks)
+- [ ] Build resume capability (continue from last successful generation)
+
+**3.2 Content Upgrade Pipeline**
+- [ ] Identify all existing knowledge docs needing regeneration
+- [ ] Create upgrade plan (166 guides → v1.6.0 standards)
+- [ ] Build comparison tool (old vs new, show improvements)
+- [ ] Implement approval workflow (review before replacing)
+- [ ] Add rollback capability (restore previous version if needed)
+
+**3.3 Quality Validation**
+- [ ] Create `core/services/content_validator.py` for quality checks
+- [ ] Implement validation rules:
+  - Citation coverage ≥ 95% (every paragraph cited)
+  - SVG style compliance (monochrome, MCM, kinetic flow)
+  - File size limits (guides < 100KB, SVGs < 50KB)
+  - Markdown formatting (headers, lists, code blocks)
+  - Link integrity (all cross-references valid)
+- [ ] Build validation reports (pass/fail with specific issues)
+- [ ] Add auto-fix for common issues (formatting, broken links)
+
+---
+
+### Phase 4: Web Crawler Integration (Weeks 8-10)
+
+**4.1 Web Crawler Component**
+- [ ] Create `core/services/web_crawler.py` for supplementary research
+- [ ] Implement URL extraction from source documents
+- [ ] Build topic-based search (find relevant external content)
+- [ ] Add content extraction (clean HTML → text)
+- [ ] Implement respectful crawling (rate limits, robots.txt)
+- [ ] Store crawled content with source URLs for citations
+
+**4.2 Content Enrichment**
+- [ ] Merge source document + crawled content intelligently
+- [ ] Identify knowledge gaps (missing topics in source)
+- [ ] Fill gaps with crawled content (properly cited)
+- [ ] Build conflict resolution (prefer authoritative sources)
+- [ ] Add fact-checking hints (flag potentially outdated info)
+
+**4.3 Legal & Ethical Compliance**
+- [ ] Implement copyright detection (don't copy verbatim)
+- [ ] Add license tracking (respect CC, fair use, public domain)
+- [ ] Build attribution validator (all sources properly credited)
+- [ ] Create legal report (sources used, licenses, compliance)
+- [ ] Document ethical guidelines in `dev/docs/CONTENT-ETHICS.md`
+
+---
+
+### Phase 5: Mass Generation & Testing (Weeks 11-12)
+
+**5.1 Knowledge Bank Population**
+- [ ] Generate 1,000+ survival guides:
+  - Water (150 guides) - collection, purification, storage
+  - Fire (100 guides) - starting, maintenance, safety
+  - Shelter (120 guides) - construction, insulation, weatherproofing
+  - Food (180 guides) - foraging, preservation, cooking
+  - Navigation (100 guides) - solar, celestial, magnetic, terrain
+  - Medical (150 guides) - first aid, emergency care, wellness
+  - Tools (100 guides) - primitive crafts, improvised equipment
+  - Communication (100 guides) - signals, codes, radio
+- [ ] Generate 500+ Technical-Kinetic SVG diagrams
+- [ ] Validate all content (citations, style, quality)
+- [ ] Build content catalog (searchable index)
+
+**5.2 Integration Testing**
+- [ ] Test DIAGRAM GENERATE command with all source formats
+- [ ] Test integration with DIAGRAM LIST/SHOW/EXPORT (generated content)
+- [ ] Test PEEK command integration (web crawling)
+- [ ] Validate citation tracking (100% coverage check)
+- [ ] Test SVG style compliance (automated validation)
+- [ ] Test web crawler (respectful, accurate, legal)
+- [ ] Run full quality validation suite
+- [ ] Performance benchmarks (generation speed, API usage)
+
+**5.3 Documentation & Release**
+- [ ] Update DIAGRAM command guide with GENERATE subcommand (`wiki/DIAGRAM-Command-Guide.md`)
+- [ ] Document Technical-Kinetic style (`dev/docs/TECHNICAL-KINETIC-GUIDE.md`)
+- [ ] Document PEEK + DIAGRAM integration patterns
+- [ ] Build content creation tutorial (step-by-step workflows)
+- [ ] Create v1.6.0 release notes
+- [ ] Update CHANGELOG with all new features
+- [ ] Prepare demo video (DIAGRAM GENERATE in action)
+
+---
+
+### Technical Specifications
+
+**DIAGRAM GENERATE Command Syntax:**
+```bash
+DIAGRAM GENERATE <source_file> [options]
+
+Options:
+  --crawl              Enable web crawler (via PEEK) for supplementary content
+  --style <type>       SVG style: technical|kinetic|hybrid (default: technical)
+  --output <dir>       Output directory (default: knowledge/<category>/)
+  --citations-strict   Require 100% citation coverage (fail if < 100%)
+  --validate          Run full quality validation before saving
+  --format <types>     Output formats: md,svg,ascii,teletext (default: md,svg)
+  --batch <dir>        Batch process all files in directory
+```
+
+**Citation Format:**
+- Inline: `This is a fact.<cite>1</cite> More information.<web>2</web>`
+- Bibliography: Auto-generated at end of document
+- Source tracking: JSON metadata file alongside each .md
+
+**Technical-Kinetic SVG Rules:**
+| Element | Constraint | Examples |
+|---------|-----------|----------|
+| Color | Black (#000) and White (#FFF) ONLY | No grays, no gradients |
+| Lines | 2-3px stroke weight | Clean, consistent |
+| Typography | Sans-serif (Helvetica, Arial) | 12-16pt headers, 8-10pt labels |
+| Geometry | MCM: circles, rectangles, clean angles | 45°, 90° preferred |
+| Flow | Curved conduits, gears, levers | Exaggerated kinetic motion |
+| Shading | Vector patterns: hatch, stipple, wavy | No raster effects |
+
+**Quality Gates:**
+- ✅ Citation coverage ≥ 95%
+- ✅ SVG monochrome validation (no gray fills)
+- ✅ File size: guides < 100KB, SVGs < 50KB
+- ✅ Markdown structure (valid headers, lists, links)
+- ✅ Cross-reference integrity (all links valid)
+- ✅ Style compliance score ≥ 0.90
+
+---
+
+### Testing Strategy
+
+**New Test Categories (200+ tests):**
+- **DIAGRAM GENERATE Tests** (50 tests)
+  - Source analysis (PDF, DOCX, HTML, Markdown)
+  - Multi-stage processing pipeline
+  - Citation tracking and validation
+  - SVG generation and style compliance
+  - Batch processing and resume capability
+  - Integration with existing DIAGRAM commands
+
+- **Citation Manager Tests** (30 tests)
+  - Source tracking accuracy
+  - Citation embedding (inline + bibliography)
+  - Coverage calculation (95%+ threshold)
+  - Validation and error reporting
+
+- **Gemini Integration Tests** (40 tests)
+  - API connectivity and authentication
+  - Text generation quality
+  - SVG generation (Technical-Kinetic compliance)
+  - Rate limiting and retry logic
+  - Prompt template injection
+
+- **Web Crawler Tests** (30 tests)
+  - URL extraction from documents
+  - Respectful crawling (rate limits, robots.txt)
+  - Content extraction and cleaning
+  - Copyright and license detection
+  - Citation integration
+
+- **Content Validation Tests** (50 tests)
+  - Citation coverage checks
+  - SVG style validation (monochrome, MCM, kinetic)
+  - File size limits
+  - Markdown structure
+  - Link integrity
+
+**Performance Benchmarks:**
+- < 30s to generate guide + SVGs (per source document)
+- < 5s for citation validation
+- < 10s for SVG style compliance check
+- < 60s for batch processing 10 documents
+- API usage: < 100 requests/hour (respect quotas)
+
+---
+
+### Success Metrics
+
+**Content Quantity:**
+- 1,000+ guides generated (v1.4.0: 166)
+- 500+ Technical-Kinetic SVGs (v1.4.0: 68)
+- 100% citation coverage across all new content
+- 200+ web-crawled enrichments
+
+**Quality Metrics:**
+- Citation coverage: ≥ 95% average
+- SVG style compliance: ≥ 90% average
+- File sizes: 100% within limits
+- Validation pass rate: ≥ 98%
+
+**System Performance:**
+- 1,000 guides generated in < 10 hours
+- Zero API quota violations
+- Zero copyright/license violations
+- 100% backward compatibility with v1.5.0
+
+---
+
 ## 🔧 v1.5.3 - Configuration Sync & Asset Management (Weeks 9-12) ✅ **COMPLETE**
 
 **Target:** Week 12 milestone
