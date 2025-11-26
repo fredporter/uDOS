@@ -86,33 +86,44 @@ class ServerManager:
                     cwd=str(self.udos_root)  # Run from uDOS root
                 )
 
-            # Wait briefly to check if it started successfully
-            time.sleep(2)
+            # Don't wait - return immediately to keep TUI responsive
+            # Server status will be validated asynchronously via POKE STATUS
+            actual_port = port or self._get_default_port(server_name)
+            self.servers[server_name] = {
+                'pid': process.pid,
+                'port': actual_port,
+                'started_at': time.time(),
+                'url': f'http://localhost:{actual_port}',
+                'log_file': str(log_file),
+                'status': 'starting'  # Will be checked async
+            }
+            self._save_state()
 
-            # Check if process is still running
-            if process.poll() is None:
-                # Process is running - save state
-                actual_port = port or self._get_default_port(server_name)
-                self.servers[server_name] = {
-                    'pid': process.pid,
-                    'port': actual_port,
-                    'started_at': time.time(),
-                    'url': f'http://localhost:{actual_port}',
-                    'log_file': str(log_file)
-                }
-                self._save_state()
+            # Return success immediately
+            msg = f"✅ {server_name} server starting in background (PID: {process.pid})\n"
+            msg += f"📍 🌐 Opening http://localhost:{actual_port} in browser...\n"
+            msg += f"📋 Logs: {log_file}\n"
+            msg += f"⏹️  Stop with: POKE STOP {server_name}\n"
+            msg += f"💡 Server will be ready in ~3 seconds"
 
-                url = f'http://localhost:{actual_port}'
-                browser_msg = " (opening in browser...)" if open_browser else ""
-                return True, f"✅ {server_name} started on {url} (PID: {process.pid}){browser_msg}\n📋 Logs: {log_file}"
-            else:
-                # Process exited - check log for errors
-                with open(log_file, 'r') as f:
-                    error_log = f.read()
-                return False, f"❌ {server_name} failed to start. Log:\n{error_log[-500:]}"
+            # Open browser if requested (non-blocking)
+            if open_browser:
+                try:
+                    import webbrowser
+                    import threading
+                    # Open in background thread to avoid blocking
+                    threading.Thread(
+                        target=webbrowser.open,
+                        args=(f'http://localhost:{actual_port}',),
+                        daemon=True
+                    ).start()
+                except Exception:
+                    pass  # Ignore browser errors
+
+            return True, msg
 
         except Exception as e:
-            return False, f"❌ Error starting {server_name}: {e}"
+            return False, f"Failed to start {server_name}: {str(e)}"
 
     def _get_default_port(self, server_name: str) -> int:
         """Get default port for a server."""
@@ -509,19 +520,35 @@ class ServerManager:
             url = server_info.get('url')
             started_at = server_info.get('started_at', 0)
             log_file = server_info.get('log_file', 'Unknown')
+            status_flag = server_info.get('status', 'unknown')
 
+            # Check if process is actually running
             if self._is_process_running(pid):
+                # Check if port is responding (non-blocking check)
+                port_active = self._is_port_open(port)
+
+                if port_active and status_flag == 'starting':
+                    # Update status to running
+                    self.servers[name]['status'] = 'running'
+                    self._save_state()
+                    status_flag = 'running'
+
                 uptime = time.time() - started_at
                 uptime_str = self._format_uptime(uptime)
-                return (f"✅ {name} is running\n"
+
+                # Show status with health indicator
+                health_icon = "🟢" if port_active else "🟡"
+                status_text = "running" if port_active else status_flag
+
+                return (f"{health_icon} {name} is {status_text}\n"
                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                        f"📍 PID: {pid}\n"
                        f"🔗 URL: {url}\n"
-                       f"🔌 Port: {port}\n"
+                       f"🔌 Port: {port} {'✅' if port_active else '⏳ (starting...)'}\n"
                        f"⏱️  Uptime: {uptime_str}\n"
                        f"📋 Logs: {log_file}\n"
                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                       f"⏹️  Stop: OUTPUT STOP {name}")
+                       f"⏹️  Stop: POKE STOP {name}")
             else:
                 # Clean up dead process
                 del self.servers[name]
@@ -644,6 +671,17 @@ class ServerManager:
                 return False
             except OSError:
                 return True
+
+    def _is_port_open(self, port: int) -> bool:
+        """Check if a port is open and responding (non-blocking)."""
+        import socket
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(0.5)  # 500ms timeout
+                s.connect(('localhost', port))
+                return True
+        except (ConnectionRefusedError, OSError, socket.timeout):
+            return False
 
     def _check_node(self) -> bool:
         """Check if Node.js is available."""

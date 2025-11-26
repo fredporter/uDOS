@@ -464,7 +464,7 @@ Type 'DIAGRAM GENERATE' for detailed generation help.
             svg_content = None
             ascii_content = None
             teletext_content = None
-            
+
             if 'svg' in options['format']:
                 output.append("🎨 Stage D: Generating SVG diagrams...")
                 svg_content, svg_meta = gen.generate_svg(
