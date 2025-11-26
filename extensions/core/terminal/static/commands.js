@@ -11,7 +11,7 @@
      * Command API client for uDOS core
      */
     class CommandAPI {
-        constructor(baseUrl = 'http://localhost:8890') {
+        constructor(baseUrl = 'http://localhost:5001') {
             this.baseUrl = baseUrl;
             this.sessionId = null;
         }

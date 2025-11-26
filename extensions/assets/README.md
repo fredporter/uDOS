@@ -58,7 +58,7 @@ Classic Mac System 6 UI elements:
 - **system.css** - Complete system.css v0.1.11 framework
 - **system-mac.css** - Mac System 6 UI components
 - **classic.css** - Classic computing aesthetics
-- **nes.css** - NES-style UI framework
+- **arcade.css** - Arcade-style UI framework
 
 ### Typography
 - **typography-system.css** - System font definitions
@@ -165,7 +165,7 @@ From different extension locations:
 
 ### CSS Frameworks
 - **system.css v0.1.11** - Sakun Acharige (@sakofchit), MIT License
-- **NES.css** - Various contributors
+- **Arcade.css** - Various contributors
 - **uDOS frameworks** - Fred Porter, MIT License
 
 ### JavaScript

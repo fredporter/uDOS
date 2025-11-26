@@ -11,7 +11,7 @@
 ```
 fonts/
 ├── chicago/              # Apple System font (2 variants)
-├── mallard/              # BBC Teletext font (6 variants)
+├── mallard/              # Teletext font (6 variants)
 ├── petme/                # Commodore PET/CBM font (7 variants)
 └── LICENSE_ASSESSMENT.md # This file
 ```
@@ -26,7 +26,7 @@ fonts/
 - **License**: Public Domain
 - **Source**: Robin Casady recreation of Apple Chicago font
 - **Status**: ✅ **Distributable** - Released into public domain
-- **Notes**: Classic Mac font recreation, widely used in retro projects
+- **Notes**: Classic font recreation, widely used in retro projects
 - **Requirements**: None (public domain)
 
 #### chicago-12-1.otf
@@ -35,7 +35,7 @@ fonts/
 - **Status**: ✅ **Distributable** - CC BY-SA allows commercial distribution
 - **Requirements**: Must maintain attribution and license (see LICENSE-chicago-12-1.txt)
 
-### **mallard/ - BBC Teletext Font Family**
+### **mallard/ - Teletext Font Family**
 
 All 6 Mallard variants consolidated in one folder:
 - **License**: Creative Commons Attribution Share Alike 3.0
@@ -74,10 +74,10 @@ All 6 Mallard variants consolidated in one folder:
 
 ## 🎯 **Default Font Recommendations**
 
-### **Mac/Unix Systems:**
-- **Primary**: ChicagoFLF.ttf (chicago/) - Authentic Mac experience
+### **Classic/Unix Systems:**
+- **Primary**: ChicagoFLF.ttf (chicago/) - Authentic Classic experience
 - **Fallback**: chicago-12-1.otf (chicago/) - Enhanced Chicago variant
-- **Teletext**: mallard-blocky.otf (mallard/) - BBC Teletext rendering
+- **Teletext**: mallard-blocky.otf (mallard/) - Teletext rendering
 - **Retro**: PetMe.ttf or PetMe64.ttf (petme/) - Commodore PET/CBM experience
 
 ### **Windows Systems:**
@@ -88,7 +88,7 @@ All 6 Mallard variants consolidated in one folder:
 
 ### **Web Extensions:**
 - **Retro Theme**: ChicagoFLF via `@font-face`
-- **Teletext**: Mallard family for BBC Teletext interfaces
+- **Teletext**: Mallard family for Teletext interfaces
 - **Terminal**: mallard-tiny for compact interfaces
 - **Commodore Theme**: PetMe family for authentic 8-bit look
 
@@ -180,7 +180,7 @@ fonts/
 
 **✅ CONCLUSION: All fonts are legally safe for distribution with uDOS**
 
-The font collection provides excellent coverage for retro computing themes (Mac Classic, BBC Teletext, Commodore PET/C64/C128) while maintaining full legal compliance. All licensing requirements can be satisfied through proper attribution and included license files.
+The font collection provides excellent coverage for retro computing themes (Classic, Teletext, Retro PET/128) while maintaining full legal compliance. All licensing requirements can be satisfied through proper attribution and included license files.
 
 **Removed:** sysfont (uncertain provenance, OFL license with placeholder copyright)
 **Consolidated:** Mallard (6 variants in one folder), Chicago (2 variants in one folder)

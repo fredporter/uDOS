@@ -640,7 +640,7 @@ class ServerManager:
                 status += f" (Running on port {self.servers['teletext'].get('port', 8891)})"
         else:
             status = "❌ Not installed"
-        lines.append(f"teletext        - BBC Teletext interface - {status}")
+        lines.append(f"teletext        - Teletext interface - {status}")
 
         lines.append("")
         lines.append("To install:")

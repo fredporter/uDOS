@@ -1,14 +1,14 @@
-# System 7 CSS Framework
+# Classic Desktop CSS Framework
 
-A faithful recreation of Apple's classic Macintosh System 7 interface for modern web browsers. This framework provides authentic System 7 styling and functionality using pure CSS and JavaScript.
+A faithful recreation of classic desktop interfaces (inspired by Apple's Macintosh System 6/7) for modern web browsers. This framework provides authentic retro desktop styling and functionality using pure CSS and JavaScript.
 
 ## 🎯 Features
 
 ### **Visual Authenticity**
-- **Pixel-perfect System 7 styling** with authentic colors and typography
+- **Pixel-perfect Classic styling** with authentic colors and typography
 - **Classic Chicago, Geneva, and Monaco fonts** integration
 - **Authentic window chrome** with title bars, close boxes, and grow boxes
-- **System 7 color palette** with proper grays and selection colors
+- **Classic color palette** with proper grays and selection colors
 - **Classic UI controls** (buttons, checkboxes, radio buttons, lists)
 
 ### **Interactive Functionality**

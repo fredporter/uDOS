@@ -20,7 +20,7 @@
         "git_integration"
     ],
     "frameworks": [
-        "c64css3",
+        "retrocss3",
         "teletext",
         "system7-css"
     ]

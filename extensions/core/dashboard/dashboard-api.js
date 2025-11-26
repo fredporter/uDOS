@@ -1,13 +1,13 @@
 /**
  * uDOS Advanced Dashboard API
- * Combines C64 CSS3, Teletext, and modern web technologies
+ * Combines Retro CSS3, Teletext, and modern web technologies
  * Version 1.0.12
  */
 
 class DashboardAPI {
     constructor() {
         this.modules = new Map();
-        this.themes = ['retro', 'c64', 'teletext', 'system7', 'modern'];
+        this.themes = ['retro', 'retro', 'teletext', 'system7', 'modern'];
         this.commandPalette = null;
         this.fileBrowser = null;
         this.poke = null;
@@ -85,7 +85,7 @@ class DashboardAPI {
             'network-analyzer',
             'file-browser',
             'terminal-emulator',
-            'c64-simulator',
+            'retro-simulator',
             'teletext-decoder',
             'system7-interface',
             'performance-tracker'
@@ -132,9 +132,9 @@ class DashboardAPI {
                 getConnectionCount: () => Math.floor(Math.random() * 100),
                 getPacketCount: () => Math.floor(Math.random() * 10000)
             },
-            'c64-simulator': {
-                executeCommand: (cmd) => this.processC64Command(cmd),
-                getMemoryMap: () => this.generateC64MemoryMap(),
+            'retro-simulator': {
+                executeCommand: (cmd) => this.processRetroCommand(cmd),
+                getMemoryMap: () => this.generateRetroMemoryMap(),
                 loadProgram: (program) => `LOADING "${program}"...`
             },
             'teletext-decoder': {
@@ -185,7 +185,7 @@ class DashboardAPI {
                     '2': 'process-manager',
                     '3': 'network-analyzer',
                     '4': 'terminal-emulator',
-                    '5': 'c64-simulator',
+                    '5': 'retro-simulator',
                     '6': 'teletext-decoder',
                     '7': 'system7-interface',
                     '8': 'file-browser',
@@ -304,7 +304,7 @@ class DashboardAPI {
         const root = document.documentElement;
 
         switch(themeName) {
-            case 'c64':
+            case 'retro':
                 root.style.setProperty('--primary-color', '#6076c5');
                 root.style.setProperty('--secondary-color', '#20398d');
                 root.style.setProperty('--accent-color', '#00ff41');
@@ -369,9 +369,9 @@ class DashboardAPI {
     }
 
     /**
-     * Process C64-style commands
+     * Process retro-style commands
      */
-    processC64Command(command) {
+    processRetroCommand(command) {
         const cmd = command.toUpperCase().trim();
 
         const commands = {
@@ -389,9 +389,9 @@ class DashboardAPI {
     }
 
     /**
-     * Generate C64 memory map
+     * Generate retro memory map
      */
-    generateC64MemoryMap() {
+    generateRetroMemoryMap() {
         const map = [];
         for (let i = 0; i < 65536; i += 256) {
             const address = i.toString(16).toUpperCase().padStart(4, '0');
@@ -430,7 +430,7 @@ class DashboardAPI {
                 '█ NEWS & UPDATES        █',
                 '■ uDOS v1.0.10 Released!',
                 '■ New Dashboard Features',
-                '■ C64 CSS3 Integration  ',
+                '■ Retro CSS3 Integration  ',
                 '■ Teletext Web Framework',
                 '■ Enhanced Typography   ',
                 '■ Performance Improvements',

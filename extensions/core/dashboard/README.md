@@ -1,11 +1,11 @@
 # uDOS Advanced Dashboard
 
-A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commodore 64, BBC Teletext, and classic Mac interfaces with modern web technologies.
+A retro-futuristic web dashboard that combines the nostalgic aesthetics of Retro, Teletext, and classic interfaces with modern web technologies.
 
 ## 🎮 Features
 
 ### **Multi-Framework Integration**
-- **C64 CSS3**: Authentic Commodore 64 styling with pixel-perfect fonts and color schemes
+- **Retro CSS3**: Authentic retro styling with pixel-perfect fonts and color schemes
 - **Teletext Framework**: BBC Teletext-inspired data presentation with mosaic graphics
 - **Typography System**: 15+ classic computer fonts with 8 themed configurations
 - **Responsive Design**: Adapts from desktop to mobile while maintaining retro authenticity
@@ -22,8 +22,8 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
 2. **Process Manager** - Active process monitoring and management
 3. **Network Analyzer** - Upload/download speeds, connections, packet analysis
 4. **File Browser** - Integrated file system navigation and management
-5. **Terminal Emulator** - C64-style command line interface with authentic commands
-6. **C64 Simulator** - Authentic Commodore 64 BASIC command processing
+5. **Terminal Emulator** - Retro-style command line interface with authentic commands
+6. **Retro Simulator** - Authentic retro BASIC command processing
 7. **Teletext Decoder** - BBC Teletext page decoding and data stream visualization
 8. **System7 Interface** - Classic Macintosh window management and file operations
 
@@ -36,10 +36,11 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
 
 ## 🚀 Installation
 
-1. **Clone C64 CSS3 Framework** (already done):
+1. **Framework Setup** (optional - uses shared assets by default):
    ```bash
-   cd /Users/fredbook/Code/uDOS/extensions/web
-   git clone https://github.com/RoelN/c64css3.git
+   # Retro CSS3 framework (based on C64 CSS3 by RoelN)
+   cd /Users/fredbook/Code/uDOS/extensions/cloned
+   git clone https://github.com/RoelN/c64css3.git retrocss3
    ```
 
 2. **Verify File Structure**:
@@ -50,12 +51,12 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
    ├── config.json            # Configuration settings
    └── README.md              # This file
 
-   extensions/web/c64css3/     # C64 CSS3 framework
-   ├── css.css                # C64 styling
-   ├── C64_User_Mono_v1.0-STYLE.*  # C64 fonts
-   └── giana.*                # Additional C64 fonts
+   extensions/cloned/retrocss3/  # Retro CSS3 framework (C64-inspired)
+   ├── css.css                # Retro styling
+   ├── Retro_User_Mono_v1.0-STYLE.*  # Retro fonts
+   └── giana.*                # Additional retro fonts
 
-   extensions/web/teletext/    # Teletext framework
+   extensions/core/teletext/   # Teletext framework
    ├── teletext-enhanced.css   # Teletext styling
    ├── teletext-api.js        # Teletext API
    └── fonts/MODE7GX3.TTF     # Teletext font
@@ -78,7 +79,7 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
 
 ### **Theme Support**
 - **Retro Classic** - Classic uDOS green-on-dark aesthetic
-- **Commodore 64** - Authentic C64 blue color scheme with pixel fonts
+- **Retro** - Authentic retro blue color scheme with pixel fonts
 - **Teletext** - BBC Teletext-inspired data visualization with MODE7 fonts
 - **System 7** - Classic Macintosh interface with authentic window chrome and Geneva/Chicago fonts
 - **Modern Dark** - Contemporary dark theme for modern sensibilities
@@ -98,7 +99,7 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
 | `Alt+2` | Process Manager |
 | `Alt+3` | Network Analyzer |
 | `Alt+4` | Terminal |
-| `Alt+5` | C64 Simulator |
+| `Alt+5` | Retro Simulator |
 | `Alt+6` | Teletext Decoder |
 | `Alt+7` | System 7 Interface |
 | `Alt+8` | File Browser |
@@ -110,8 +111,8 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Commo
 ### **System Monitor**
 Real-time system performance with animated progress bars and live metrics.
 
-### **C64 Simulator**
-Working Commodore 64 BASIC interpreter supporting:
+### **Retro Simulator**
+Working retro BASIC interpreter supporting:
 - `LIST` - Show program listing
 - `RUN` - Execute program
 - `LOAD` - Load programs
@@ -142,7 +143,7 @@ Edit `config.json` to customize:
 ```json
 {
   "frameworks": {
-    "c64css3": { "enabled": true },
+    "retrocss3": { "enabled": true },
     "teletext": { "enabled": true },
     "typography": { "enabled": true }
   }
@@ -222,7 +223,7 @@ The dashboard automatically adapts to different screen sizes:
 - Pixel-perfect bitmap fonts
 
 ### **Sound Effects** (Future Enhancement)
-- C64 SID chip sound emulation
+- Retro SID chip sound emulation
 - Teletext page loading sounds
 - Terminal beep sounds
 - Authentic system startup sounds
@@ -264,7 +265,7 @@ The dashboard integrates with the main uDOS system:
 ### **v1.1 Planned Features**
 - Sound effects and audio feedback
 - More teletext pages and data sources
-- Advanced C64 program support
+- Advanced retro program support
 - Plugin system for custom modules
 - WebSocket real-time updates
 - Mobile app companion
@@ -279,7 +280,8 @@ The dashboard integrates with the main uDOS system:
 ## 📄 License
 
 Part of the uDOS project. Integrates:
-- C64 CSS3 by Roel Nieskens (MIT License)
+- Retro CSS3 (based on C64 CSS3 by Roel Nieskens - MIT License)
+- Arcade styling (based on NES.css by B.C.Rikko - MIT License)
 - MODE7 fonts (Various licenses)
 - Custom uDOS components (uDOS License)
 
@@ -295,7 +297,7 @@ Part of the uDOS project. Integrates:
 
 ### **Common Issues**
 
-**Fonts not loading**: Check that font files exist in `../c64css3/` and `../teletext/fonts/`
+**Fonts not loading**: Check that font files exist in `../retrocss3/` and `../teletext/fonts/`
 
 **Modules not working**: Verify `dashboard-api.js` is loaded and no console errors
 

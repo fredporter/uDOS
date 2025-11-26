@@ -103,7 +103,7 @@ print_status "  • Character Editor - Font/sprite editor"
 print_status "  • Dashboard - Multi-theme system interface"
 print_status "  • Desktop - System 7 desktop environment"
 print_status "  • Markdown - Web-based markdown viewer"
-print_status "  • Teletext - BBC Teletext broadcast interface"
+print_status "  • Teletext - Teletext broadcast interface"
 echo
 print_status "External dependencies (installed):"
 print_status "  • micro - Modern terminal editor"

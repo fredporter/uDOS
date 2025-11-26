@@ -26,7 +26,7 @@ The uDOS extensions system provides dual-interface capabilities (Terminal + Web)
 ```
 extensions/
 ├── core/                       # ✅ CORE WEB EXTENSIONS (v1.1.1+)
-│   ├── terminal/              # C64 terminal with PetMe font & Synthwave DOS
+│   ├── terminal/              # Retro terminal with PetMe font & Synthwave DOS
 │   │   ├── assets/            # Shared assets (fonts, icons, CSS)
 │   │   └── static/            # Terminal-specific JavaScript
 │   ├── markdown/              # GitHub-flavored markdown viewer
@@ -91,7 +91,7 @@ url('../../assets/icons/scrollbar-up.svg')
 The v1.0.24 extensions branch consolidates all web-based extensions:
 
 - **Phase 1**: Consolidated all extensions into `core/`
-- **Phase 2**: Rebuilt C64 Terminal with PetMe font and Synthwave DOS palette
+- **Phase 2**: Rebuilt Retro Terminal with PetMe font and Synthwave DOS palette
 - **Phase 3**: Rebuilt Teletext with BBC standards and Mallard font
 - **Phase 4**: Created central `/extensions/assets/` for shared resources
 - **Phase 5**: Archived old c64-terminal and historical assets
@@ -138,14 +138,14 @@ python uDOS.py --extension dashboard     # NES Framework dashboard
 python uDOS.py --extension desktop       # System 7 desktop
 python uDOS.py --extension markdown      # GitHub markdown viewer
 python uDOS.py --extension teletext      # BBC Teletext interface
-python uDOS.py --extension c64-terminal  # C64 Terminal
+python uDOS.py --extension retro-terminal  # Retro Terminal
 python uDOS.py --extension character-editor  # Character/font editor
 ```
 
 ## 🎨 **Core Extensions**
 
-### **C64 Terminal** (`/core/c64-terminal`)
-- **Description**: Authentic Commodore 64 terminal interface
+### **Retro Terminal** (`/core/retro-terminal`)
+- **Description**: Authentic retro terminal interface
 - **Technology**: PetMe font + Synthwave DOS palette CSS
 - **Features**: 40×25 text mode, PETSCII graphics, authentic colors
 - **v1.0.24**: Complete rebuild with accurate font rendering

@@ -1,6 +1,6 @@
 /**
  * uDOS Dashboard Builder v1.0.24
- * NES-Style Customizable Dashboard System
+ * Arcade-Style Customizable Dashboard System
  */
 
 class DashboardBuilder {
@@ -148,8 +148,8 @@ class DashboardBuilder {
                 secondary: '#306230',
                 background: 'linear-gradient(135deg, #9bbc0f 0%, #8bac0f 100%)'
             },
-            'c64': {
-                name: 'Commodore 64',
+            'retro': {
+                name: 'Retro',
                 primary: '#7869c4',
                 secondary: '#5c4ca8',
                 background: 'linear-gradient(135deg, #3e31a2 0%, #2e2192 100%)'
@@ -284,7 +284,7 @@ class DashboardBuilder {
             { name: 'Character Editor', icon: '🎨', active: true },
             { name: 'Markdown Viewer', icon: '📖', active: true },
             { name: 'Teletext', icon: '📺', active: true },
-            { name: 'C64 Terminal', icon: '💻', active: true },
+            { name: 'Retro Terminal', icon: '💻', active: true },
             { name: 'System Desktop', icon: '🖥️', active: false }
         ];
 

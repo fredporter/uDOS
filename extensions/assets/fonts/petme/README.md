@@ -111,7 +111,7 @@ See `FreeLicense.txt` for complete license terms.
 
 The PetMe fonts recreate the iconic character sets from:
 - **Commodore PET** (1977) - First personal computer from Commodore
-- **Commodore CBM** (1980s) - Business-oriented Commodore systems
+- **Retro CBM** (1980s) - Business-oriented retro systems
 - **Commodore 64** (1982) - Best-selling single computer model of all time
 - **Commodore 128** (1985) - Advanced 8-bit computer
 

@@ -12,7 +12,7 @@ Complete attribution for all fonts, icons, CSS frameworks, and JavaScript librar
 - **Font Recreation**: @blogmywiki
 - **License**: MIT License
 - **URL**: https://github.com/sakofchit/system.css
-- **Usage**: Classic Mac System 6 UI fonts
+- **Usage**: Classic System 6 UI fonts
 
 ### Specialty Fonts
 
@@ -88,18 +88,18 @@ Complete attribution for all fonts, icons, CSS frameworks, and JavaScript librar
 ## CSS Frameworks
 
 ### System.css v0.1.11 (MIT License)
-**Complete Mac System 6 UI framework**
+**Complete Classic System 6 UI framework**
 
 - **Author**: Sakun Acharige (@sakofchit)
 - **License**: MIT License
 - **URL**: https://github.com/sakofchit/system.css
 - **Files**:
   - `system.css` - Main framework
-  - `system-mac.css` - Mac-specific components
+  - `system-classic.css` - Classic-specific components
   - `typography-system.css` - Font definitions
-  - `classic-mac-patterns.css` - Background patterns
+  - `classic-patterns.css` - Background patterns
 
-### NES.css
+### Arcade.css
 **Nintendo Entertainment System UI framework**
 
 - **License**: MIT License
@@ -118,7 +118,7 @@ Complete attribution for all fonts, icons, CSS frameworks, and JavaScript librar
   - `udos-filepicker.css` - File picker component
   - `udos-v13-theme.css` - Version 1.3 theme
   - `classic.css` - Classic computing aesthetics
-  - `mac-icons.css` - Mac icon integration
+  - `classic-icons.css` - Classic icon integration
 
 ## JavaScript Libraries
 

@@ -11,6 +11,22 @@ import os
 import sys
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
+import logging
+from logging.handlers import RotatingFileHandler
+from datetime import datetime
+
+# Setup logging to memory/logs
+LOG_DIR = Path(__file__).parent.parent.parent / 'memory' / 'logs'
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+ext_logger = logging.getLogger('uDOS.Extensions')
 
 # Extension Configuration
 EXTENSIONS = {
@@ -18,21 +34,21 @@ EXTENSIONS = {
         'port': 8888,
         'path': 'dashboard',
         'name': 'Dashboard Builder',
-        'description': 'NES-style customizable dashboard',
+        'description': 'Arcade-style customizable dashboard',
         'enabled': True
     },
     'teletext': {
         'port': 9002,
         'path': 'teletext',
         'name': 'Teletext Interface',
-        'description': 'BBC Teletext with Synthwave DOS styling',
+        'description': 'Teletext with Synthwave DOS styling',
         'enabled': True
     },
     'terminal': {
         'port': 8889,
         'path': 'terminal',
-        'name': 'C64 Terminal',
-        'description': 'Commodore 64 style terminal',
+        'name': 'Retro Terminal',
+        'description': 'Retro style terminal',
         'enabled': True
     },
     'markdown': {
@@ -78,6 +94,9 @@ class ExtensionHandler(http.server.SimpleHTTPRequestHandler):
         """Handle GET requests with extension routing"""
         parsed_path = urlparse(self.path)
         path = parsed_path.path
+
+        # Log request
+        ext_logger.debug(f'GET {path} from {self.client_address[0]}')
 
         # API endpoint for extension info
         if path == '/api/extensions':
@@ -227,6 +246,30 @@ def run_server(extension_name=None, port=None):
     server_root = Path(__file__).parent
     os.chdir(server_root)
 
+    # Setup file logging for this server instance
+    if extension_name and extension_name in EXTENSIONS:
+        log_file = LOG_DIR / f'{extension_name}_server.log'
+    else:
+        log_file = LOG_DIR / 'extensions_server.log'
+
+    file_handler = RotatingFileHandler(
+        log_file,
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+    ))
+    ext_logger.addHandler(file_handler)
+
+    ext_logger.info('='*70)
+    ext_logger.info(f'uDOS Extensions Server Starting')
+    ext_logger.info(f'Log file: {log_file}')
+    ext_logger.info(f'Extension: {extension_name or "all"}')
+    ext_logger.info(f'Port: {port or "default"}')
+    ext_logger.info('='*70)
+
     # If specific extension requested, serve only that
     if extension_name and extension_name in EXTENSIONS:
         ext = EXTENSIONS[extension_name]
@@ -242,10 +285,14 @@ def run_server(extension_name=None, port=None):
             print(f"\033[1;33m📂 Path:\033[0m {ext['path']}")
             print(f"\033[1;33m🔌 Port:\033[0m {port}")
             print(f"\033[1;32m🌐 URL:\033[0m http://localhost:{port}")
+            print(f"\033[1;33m📝 Log:\033[0m {log_file}")
             print(f"\n\033[1;36m{'='*60}\033[0m")
             print(f"\033[1;37mPress Ctrl+C to stop\033[0m\n")
+            ext_logger.info(f'Starting {ext["name"]} on port {port}')
         else:
-            print(f"\033[1;31m❌ Error: Extension path not found: {ext_path}\033[0m")
+            error_msg = f'Extension path not found: {ext_path}'
+            ext_logger.error(error_msg)
+            print(f"\033[1;31m❌ Error: {error_msg}\033[0m")
             sys.exit(1)
     else:
         # Run main server (serves all extensions from their ports)
@@ -256,7 +303,9 @@ def run_server(extension_name=None, port=None):
         print(f"\n\033[1;33m🏠 Serving from:\033[0m {server_root}")
         print(f"\033[1;33m🔌 Main Port:\033[0m {port}")
         print(f"\033[1;32m🌐 Status Page:\033[0m http://localhost:{port}/api/status")
+        print(f"\033[1;33m📝 Log:\033[0m {log_file}")
         print(f"\n\033[1;36mActive Extensions:\033[0m")
+        ext_logger.info(f'Starting main server on port {port}')
 
         for ext_id, ext in EXTENSIONS.items():
             if ext['enabled']:
@@ -277,6 +326,7 @@ def run_server(extension_name=None, port=None):
             print(f"\n\033[1;31m❌ Error: Port {port} already in use\033[0m")
             print(f"\033[1;33m💡 Try: pkill -f 'python.*{port}' or use a different port\033[0m\n")
         else:
+            ext_logger.error(f'Server error: {e}', exc_info=True)
             print(f"\n\033[1;31m❌ Error: {e}\033[0m\n")
         sys.exit(1)
 

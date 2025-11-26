@@ -296,7 +296,7 @@ POST /api/file/rename
 
 ## Summary
 
-The File Picker provides a Mac OS System 6-style file browser for the `/memory` folder with:
+The File Picker provides a Classic desktop-style file browser (inspired by Mac OS System 6) for the `/memory` folder with:
 - ✅ Clean system.css styling
 - ✅ Folder navigation with dropdown
 - ✅ File listing with icons and metadata

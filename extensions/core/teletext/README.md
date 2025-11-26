@@ -1,6 +1,6 @@
-# BBC Teletext Extension v1.0.26
+# Teletext Extension v1.0.26
 
-Authentic BBC Teletext broadcast interface recreation for uDOS, featuring Mallard fonts, Mode 7 graphics, BBC standards compliance, and optional web GUI with REST API.
+Authentic Teletext broadcast interface recreation for uDOS (inspired by BBC Teletext), featuring Mallard fonts, Mode 7 graphics, standards compliance, and optional web GUI with REST API.
 
 ## 🎯 Status: Optional Extension
 
@@ -11,7 +11,7 @@ The Teletext web GUI is completely optional. uDOS CLI is fully functional withou
 ## Components
 
 ### 1. **Teletext Rendering** (Visual)
-- Authentic BBC Teletext display system
+- Authentic Teletext display system (BBC standard)
 - 40×25 character grid
 - Mallard fonts, Mode 7 graphics
 - 8-color palette
@@ -58,7 +58,7 @@ Once enabled:
 ## 🎯 Features
 
 ### **Authentic Teletext Rendering**
-- **40×25 Character Grid**: Standard BBC Teletext layout
+- **40×25 Character Grid**: Standard Teletext layout (BBC specification)
 - **Mallard Fonts**: 6 variants for pixel-perfect rendering
 - **Mode 7 Graphics**: Block characters and mosaic support
 - **8-Color Palette**: Black, red, green, yellow, blue, magenta, cyan, white
@@ -74,7 +74,7 @@ Once enabled:
 ### **Synthwave DOS Enhancement** (Phase 3)
 - **Synthwave DOS Integration**: Color palette harmonization
 - **Improved Contrast**: Better readability on modern displays
-- **Authentic Colors**: Maintains BBC Teletext aesthetic
+- **Authentic Colors**: Maintains Teletext aesthetic (BBC standard)
 - **Documentation**: See `README-POLAROID.md`
 
 ## 🚀 Quick Start
@@ -209,7 +209,7 @@ teletext/
 
 ## 🎨 Synthwave DOS Colors (Synthwave DOS Palette)
 
-The Synthwave DOS enhancement integrates Synthwave DOS colors while maintaining BBC Teletext authenticity:
+The Synthwave DOS enhancement integrates Synthwave DOS colors while maintaining Teletext authenticity (BBC standard):
 
 - **Background**: Deep black with slight warmth
 - **Text**: Crisp white with subtle glow
@@ -243,7 +243,7 @@ See `README-POLAROID.md` for technical details.
 ### v1.0.24 Implementation
 - **Phase 3** (Commit 9afaf4b): Synthwave DOS enhancement
 - **Mallard Fonts**: 6 variants consolidated in `/extensions/fonts/mallard/`
-- **Standards**: Full BBC Teletext Level 1 compliance
+- **Standards**: Full Teletext Level 1 compliance (BBC specification)
 - **Integration**: uDOS knowledge system, API backend
 
 ### Future Enhancements
@@ -254,7 +254,7 @@ See `README-POLAROID.md` for technical details.
 
 ## 📖 References
 
-- **BBC Teletext Specification**: Level 1 (1976)
+- **Teletext Specification**: Level 1 (BBC, 1976)
 - **Fonts**: Mallard family by gid (FontStruct.com), CC BY-SA 3.0
 - **Colors**: Synthwave DOS palette integration
 - **Historical**: CEEFAX and Oracle UK broadcast services

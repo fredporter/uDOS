@@ -14,7 +14,7 @@
         currentDirectory: '/',
         sessionId: null,
         ready: false,
-        udosApiUrl: 'http://localhost:8890/api'  // uDOS core API endpoint
+        udosApiUrl: 'http://localhost:5001/api'  // uDOS core API endpoint
     };
 
     // DOM Elements
@@ -103,6 +103,12 @@
      * Initialize session with uDOS core
      */
     async function initializeSession() {
+        // Hide boot message after initialization
+        setTimeout(() => {
+            const bootMsg = document.getElementById('bootMessage');
+            if (bootMsg) bootMsg.style.display = 'none';
+        }, 1500);
+
         try {
             // Create a new terminal session
             state.sessionId = 'web-terminal-' + Date.now();

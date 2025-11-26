@@ -3,12 +3,13 @@
 ## Primary Framework: system.css
 
 ### Core UI Library
-- **system.css**: Authentic Apple System 6 CSS framework (final monochrome Mac OS)
+- **system.css**: Authentic Classic desktop CSS framework (based on Apple System 6 - final monochrome Mac OS)
 - **Version**: v0.1.11
 - **Author**: Sakun Acharige (@sakofchit)
 - **Source**: https://github.com/sakofchit/system.css
 - **License**: MIT License
-- **Usage**: Authentic fonts, icons, and UI styling for classic Mac OS aesthetic
+- **Internal reference**: **Classic styling**
+- **Usage**: Authentic fonts, icons, and UI styling for classic desktop aesthetic
 
 ### Fonts (by @blogmywiki)
 All fonts meticulously recreated to match original Mac OS System 6:
@@ -21,7 +22,7 @@ All fonts meticulously recreated to match original Mac OS System 6:
 - **Credits**: See `/extensions/core/system.css/CREDITS.md`
 
 ### Icons (system.css)
-Authentic Mac OS System 6 UI icons:
+Authentic Classic desktop UI icons (Mac OS System 6 style):
 - Form controls: checkboxes, radio buttons, checkmarks
 - Buttons: standard and default button borders
 - Scrollbars: arrow icons for all directions (active/inactive states)
@@ -57,12 +58,13 @@ Authentic Mac OS System 6 UI icons:
 
 ## Design Philosophy
 
-### Apple System 6 (1984-1991)
+### Apple System 6 (1984-1991) - Original Inspiration
 - **Interface**: Final monochrome Mac OS version
 - **Color Palette**: Pure black (#000), white (#fff), grey (#c0c0c0)
 - **Typography**: Chicago_12 primary, Geneva_9 secondary, Monaco monospace
 - **Patterns**: Checkerboard scrollbar tracks, pixel-perfect borders
-- **Window Chrome**: Classic Mac window shadows (4px offset)
+- **Window Chrome**: Classic window shadows (4px offset)
+- **Internal reference**: **Classic styling** (brand-neutral)
 
 ### uDOS Integration
 - **system.css assets**: Primary UI chrome (buttons, forms, scrollbars, fonts)
@@ -74,7 +76,7 @@ Authentic Mac OS System 6 UI icons:
 ### Window Management
 - **Custom Implementation**: uDOS Desktop window manager
 - **Features**:
-  * Draggable windows with classic Mac shadows
+  * Draggable windows with classic shadows
   * Command Palette (Cmd/Ctrl+K)
   * Keyboard shortcuts (Cmd/Ctrl+W to close)
   * Desktop icon grid system
@@ -89,8 +91,9 @@ Authentic Mac OS System 6 UI icons:
 ### GPL-3.0 Licensed Components
 - Mono Icon Theme (desktop icons) - Vitali Hirsch
 
-### Public Domain
-- Mac OS System 6 interface design (expired copyright, 1984-1991)
+### Public Domain / Fair Use
+- Classic desktop interface design (inspired by Mac OS System 6, 1984-1991)
+- Trademark: Mac OS and System 6 are trademarks of Apple Inc.
 
 All fonts properly licensed - see `/extensions/core/system.css/CREDITS.md` for detailed attribution.
 

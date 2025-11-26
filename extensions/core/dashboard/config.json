@@ -2,17 +2,17 @@
   "dashboard": {
     "name": "uDOS Advanced Dashboard",
     "version": "1.0.10",
-    "description": "Retro-futuristic dashboard combining C64 CSS3, Teletext, and modern web technologies",
+    "description": "Retro-futuristic dashboard combining Retro CSS3, Teletext, and modern web technologies",
     "author": "uDOS Development Team",
     "created": "2025-11-03"
   },
   "frameworks": {
-    "c64css3": {
+    "retrocss3": {
       "enabled": true,
-      "source": "../c64css3/",
+      "source": "../retrocss3/",
       "fonts": [
-        "C64_User_Mono_v1.0-STYLE.woff",
-        "C64_User_Mono_v1.0-STYLE.ttf",
+        "Retro_User_Mono_v1.0-STYLE.woff",
+        "Retro_User_Mono_v1.0-STYLE.ttf",
         "giana.woff",
         "giana.ttf"
       ],
@@ -88,9 +88,9 @@
       "icon": "💻",
       "hotkey": "Alt+4"
     },
-    "c64-simulator": {
+    "retro-simulator": {
       "enabled": true,
-      "name": "C64 Simulator",
+      "name": "Retro Simulator",
       "description": "Commodore 64 BASIC emulator",
       "icon": "🎮",
       "hotkey": "Alt+5"

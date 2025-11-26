@@ -16,6 +16,8 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import threading
 import time
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Add parent directory to path for uDOS imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -39,6 +41,43 @@ app.config['SECRET_KEY'] = 'udos-teletext-api-v1.0.19'
 CORS(app)  # Enable CORS for web interface
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+# Setup logging to memory/logs
+LOG_DIR = Path(__file__).parent.parent.parent / 'memory' / 'logs'
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / 'api_server.log'
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+# File handler with rotation
+file_handler = RotatingFileHandler(
+    LOG_FILE,
+    maxBytes=10*1024*1024,  # 10MB
+    backupCount=5
+)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+))
+
+# Add handlers to Flask app logger
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.DEBUG)
+
+# Create API logger
+api_logger = logging.getLogger('uDOS.API')
+api_logger.addHandler(file_handler)
+api_logger.setLevel(logging.DEBUG)
+
+api_logger.info('='*70)
+api_logger.info('uDOS API Server Starting')
+api_logger.info(f'Log file: {LOG_FILE}')
+api_logger.info('='*70)
+
 # Global uDOS instances (initialized on first request)
 parser = None
 command_handler = None
@@ -55,15 +94,55 @@ update_thread = None
 update_thread_running = False
 
 
+# ============================================================================
+# REQUEST/RESPONSE LOGGING MIDDLEWARE
+# ============================================================================
+
+@app.before_request
+def log_request():
+    """Log all incoming requests with details"""
+    api_logger.debug(f'Request: {request.method} {request.path}')
+    api_logger.debug(f'Client: {request.remote_addr}')
+    if request.method in ['POST', 'PUT', 'PATCH']:
+        try:
+            data = request.get_json()
+            if data:
+                api_logger.debug(f'Request data: {json.dumps(data, indent=2)}')
+        except:
+            pass
+
+@app.after_request
+def log_response(response):
+    """Log all responses with status"""
+    api_logger.debug(f'Response: {request.path} - Status {response.status_code}')
+    return response
+
+@app.errorhandler(Exception)
+def handle_error(error):
+    """Log all errors"""
+    api_logger.error(f'Error on {request.path}: {error}', exc_info=True)
+    return jsonify({
+        'status': 'error',
+        'message': str(error),
+        'path': request.path
+    }), 500
+
+
+# ============================================================================
+# UDOS SYSTEM INITIALIZATION
+# ============================================================================
+
 def init_udos_systems():
     """Initialize uDOS systems on first API call."""
     global parser, command_handler, grid, logger, workspace_manager, command_history, user_manager
 
     if not UDOS_AVAILABLE:
+        api_logger.warning('uDOS core modules not available - running in standalone mode')
         return False
 
     if parser is None:
         try:
+            api_logger.info('Initializing uDOS systems...')
             parser = Parser()
             grid = Grid()
             logger = Logger()
@@ -76,8 +155,10 @@ def init_udos_systems():
                 user_manager=user_manager,
                 logger=logger
             )
+            api_logger.info('uDOS systems initialized successfully')
             return True
         except Exception as e:
+            api_logger.error(f'Failed to initialize uDOS: {e}', exc_info=True)
             print(f"❌ Failed to initialize uDOS: {e}")
             return False
 
@@ -94,7 +175,10 @@ def execute_command(command_str: str) -> Dict:
     Returns:
         Dict with status, output, and metadata
     """
+    api_logger.info(f'Executing command: {command_str}')
+
     if not init_udos_systems():
+        api_logger.warning(f'Command execution failed - uDOS systems not available: {command_str}')
         return {
             "status": "error",
             "message": "uDOS systems not available",
@@ -110,6 +194,9 @@ def execute_command(command_str: str) -> Dict:
         logger.log("API_COMMAND", command_str)
         command_history.append_string(command_str)
 
+        api_logger.info(f'Command executed successfully: {command_str}')
+        api_logger.debug(f'Command result: {result}')
+
         return {
             "status": "success",
             "command": command_str,
@@ -119,6 +206,7 @@ def execute_command(command_str: str) -> Dict:
 
     except Exception as e:
         logger.log("API_ERROR", f"{command_str}: {e}")
+        api_logger.error(f'Command execution error: {command_str} - {e}', exc_info=True)
         return {
             "status": "error",
             "command": command_str,
@@ -139,6 +227,7 @@ def index():
 
 
 @app.route('/api/health')
+@app.route('/api/status')  # Alias for compatibility with terminal extension
 def health():
     """Health check endpoint."""
     return jsonify({
@@ -865,28 +954,45 @@ def main():
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-    print("\n" + "="*70)
-    print("🌀 uDOS v1.0.20 - Teletext API Server")
-    print("="*70)
-    print(f"\n🌐 Server: http://localhost:{port}")
-    print(f"📡 API Endpoints: {len([rule for rule in app.url_map.iter_rules()])} routes")
-    print(f"🔌 WebSocket: Enabled")
-    print(f"🎨 CORS: Enabled")
-    print(f"🔧 Debug: {debug}")
-    print("\n" + "="*70)
-    print("API Documentation:")
-    print("  System:    /api/system/*    (10 endpoints)")
-    print("  Files:     /api/files/*     (15 endpoints)")
-    print("  Map:       /api/map/*       (12 endpoints)")
-    print("  Theme:     /api/theme/*     (8 endpoints)")
-    print("  Grid:      /api/grid/*      (8 endpoints)")
-    print("  Assist:    /api/assist/*    (6 endpoints)")
-    print("  Knowledge: /api/knowledge/* (5 endpoints) [NEW]")
-    print("  Core:      /api/command, /api/health")
-    print("="*70)
-    print("\n✨ Press Ctrl+C to stop\n")
+    startup_msg = f"""\n{"="*70}
+🌀 uDOS v1.0.20 - Teletext API Server
+{"="*70}
 
-    socketio.run(app, host='0.0.0.0', port=port, debug=debug)
+🌐 Server: http://localhost:{port}
+📡 API Endpoints: {len([rule for rule in app.url_map.iter_rules()])} routes
+🔌 WebSocket: Enabled
+🎨 CORS: Enabled
+🔧 Debug: {debug}
+📝 Logging: {LOG_FILE}
+
+{"="*70}
+API Documentation:
+  System:    /api/system/*    (10 endpoints)
+  Files:     /api/files/*     (15 endpoints)
+  Map:       /api/map/*       (12 endpoints)
+  Theme:     /api/theme/*     (8 endpoints)
+  Grid:      /api/grid/*      (8 endpoints)
+  Assist:    /api/assist/*    (6 endpoints)
+  Knowledge: /api/knowledge/* (5 endpoints) [NEW]
+  Core:      /api/command, /api/health
+{"="*70}
+
+✨ Press Ctrl+C to stop\n"""
+
+    print(startup_msg)
+    api_logger.info(f'Starting server on port {port}')
+    api_logger.info(f'Debug mode: {debug}')
+    api_logger.info(f'uDOS core available: {UDOS_AVAILABLE}')
+
+    try:
+        socketio.run(app, host='0.0.0.0', port=port, debug=debug)
+    except KeyboardInterrupt:
+        api_logger.info('Server stopped by user')
+        print('\n👋 Server stopped')
+    except Exception as e:
+        api_logger.error(f'Server error: {e}', exc_info=True)
+        print(f'\n❌ Server error: {e}')
+        raise
 
 
 if __name__ == '__main__':

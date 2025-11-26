@@ -6,7 +6,7 @@ This folder contains two Chicago font variants:
 - **License**: Public Domain
 - **Author**: Robin Casady (recreation of Apple Chicago font)
 - **Status**: ✅ Free to distribute and modify
-- **Notes**: Classic Mac System font recreation, widely used in retro projects
+- **Notes**: Classic System font recreation, widely used in retro projects
 - **No attribution required**
 
 ## chicago-12-1.otf

@@ -14,7 +14,7 @@ The Mallard font family includes 6 style variants, all sharing the same licensin
 
 - **License**: Creative Commons Attribution Share Alike 3.0
 - **Author**: "gid" (FontStruct.com)
-- **Purpose**: BBC Teletext font recreation
+- **Purpose**: Teletext font recreation
 - **Source**: https://fontstruct.com
 - **Status**: ✅ Free to distribute with attribution
 
@@ -26,7 +26,7 @@ The Mallard font family includes 6 style variants, all sharing the same licensin
 
 ## Distribution Rights
 
-All Mallard variants are legally distributable with uDOS extensions. They provide authentic BBC Teletext rendering for retro computing applications.
+All Mallard variants are legally distributable with uDOS extensions. They provide authentic Teletext rendering for retro computing applications.
 
 ## Attribution
 

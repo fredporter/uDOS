@@ -307,7 +307,7 @@
      */
     function runStartupTest() {
         appendOutput('════════════════════════════════════════', 'fg-yellow');
-        appendOutput('  BBC TELETEXT SYSTEM TEST v1.0.24     ', 'fg-yellow');
+        appendOutput('  TELETEXT SYSTEM TEST v1.0.24     ', 'fg-yellow');
         appendOutput('════════════════════════════════════════', 'fg-yellow');
         appendOutput('');
 

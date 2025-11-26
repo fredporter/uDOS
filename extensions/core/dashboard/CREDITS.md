@@ -2,15 +2,15 @@
 
 ## Original Work
 
-**Project**: NES.css
+**Project**: Arcade.css
 **Author**: B.C.Rikko
-**Repository**: https://github.com/nostalgic-css/NES.css
-**Website**: https://nostalgic-css.github.io/NES.css/
+**Repository**: https://github.com/nostalgic-css/NES.css (Arcade.css)
+**Website**: https://nostalgic-css.github.io/NES.css/ (Arcade.css)
 **License**: MIT License
 **Year**: 2018
 
 ### Description
-NES-style (8bit-like) CSS Framework inspired by the Nintendo Entertainment System, featuring:
+Arcade-style (8bit-like) CSS Framework inspired by the Nintendo Entertainment System, featuring:
 - Authentic NES color palette
 - 8-bit pixel art aesthetic
 - Retro gaming UI components
@@ -41,7 +41,7 @@ NES-style (8bit-like) CSS Framework inspired by the Nintendo Entertainment Syste
    - uDOS-specific metrics (XP, level, stats)
 
 2. **uDOS Integration**
-   - File browser (NES-styled)
+   - File browser (Arcade-styled)
    - Command history viewer
    - Quick action buttons
    - Recent documents list
@@ -81,7 +81,7 @@ NES-style (8bit-like) CSS Framework inspired by the Nintendo Entertainment Syste
 
 ## License Compliance
 
-### Original Work (NES.css)
+### Original Work (Arcade.css)
 Copyright © 2018 B.C.Rikko
 Licensed under MIT License
 
@@ -105,21 +105,21 @@ All enhancements clearly documented and attributed.
 
 ## Attribution
 
-This extension is built upon **NES.css** by B.C.Rikko.
+This extension is built upon **Arcade.css** by B.C.Rikko.
 The original framework provided the perfect 8-bit aesthetic for uDOS's retro dashboard.
 
 **Original inspiration**: Nintendo Entertainment System (1983)
 **CSS framework**: B.C.Rikko (2018)
 **Dashboard integration**: Fred Porter (2025)
 
-We are grateful to B.C.Rikko and the NES.css community for creating this exceptional framework and making it available under the MIT License.
+We are grateful to B.C.Rikko and the Arcade.css community for creating this exceptional framework and making it available under the MIT License.
 
 ---
 
 ## References
 
-- **NES.css Website**: https://nostalgic-css.github.io/NES.css/
-- **GitHub**: https://github.com/nostalgic-css/NES.css
+- **Arcade.css Website**: https://nostalgic-css.github.io/NES.css/
+- **GitHub**: https://github.com/nostalgic-css/NES.css (Arcade.css)
 - **Twitter**: @bc_rikko
 - **Nintendo Entertainment System**: https://en.wikipedia.org/wiki/Nintendo_Entertainment_System
 - **uDOS Project**: https://github.com/fredporter/uDOS
@@ -128,14 +128,14 @@ We are grateful to B.C.Rikko and the NES.css community for creating this excepti
 
 ## Community
 
-NES.css is maintained by a vibrant community:
+Arcade.css is maintained by a vibrant community:
 - Core team members
 - Contributors from around the world
 - Active issue tracker
 - Welcoming community
 
-We honor their work by using NES.css responsibly and contributing improvements back to the community.
+We honor their work by using Arcade.css responsibly and contributing improvements back to the community.
 
 ---
 
-**Thank you to B.C.Rikko and the NES.css community for this amazing framework!**
+**Thank you to B.C.Rikko and the Arcade.css community for this amazing framework!**

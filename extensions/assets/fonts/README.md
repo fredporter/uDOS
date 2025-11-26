@@ -4,11 +4,11 @@ This directory contains fonts used in the uDOS desktop environment and character
 
 ## Fonts Included
 
-### Mac Classic Fonts
+### Classic Fonts
 - **ChicagoFLF** - Classic Macintosh system font
-- **ChiKareGo2** - Mac OS 9-style font
-- **FindersKeepers** - Mac Finder-style font
-- **Monaco** - Mac monospace font
+- **ChiKareGo2** - Classic OS 9-style font
+- **FindersKeepers** - Classic Finder-style font
+- **Monaco** - Classic monospace font
 
 ### Retro/Gaming Fonts
 - **C64_User_Mono_v1.0-STYLE** - Commodore 64 style font
@@ -16,7 +16,7 @@ This directory contains fonts used in the uDOS desktop environment and character
 
 ## License Information
 
-### Mac Classic Fonts (ChicagoFLF, ChiKareGo2, FindersKeepers, Monaco)
+### Classic Fonts (ChicagoFLF, ChiKareGo2, FindersKeepers, Monaco)
 These fonts are recreations/tributes to classic Macintosh system fonts.
 
 - **ChicagoFLF**: Created by Robin Casady (fLf Fonts)
@@ -26,7 +26,7 @@ These fonts are recreations/tributes to classic Macintosh system fonts.
 - **ChiKareGo2**: Custom bitmap font
   - License: Free for use in open source projects
 
-- **FindersKeepers**: Mac Finder tribute font
+- **FindersKeepers**: Classic Finder tribute font
   - License: Free for personal use
 
 - **Monaco**: Monospace font (tribute to Apple's Monaco)
@@ -71,7 +71,7 @@ The character editor supports multiple character sets:
 - **ASCII**: Standard printable characters (32-126)
 - **Block Graphics**: Unicode box drawing (▀▄█▌▐░▒▓)
 - **C64 PETSCII**: Commodore 64 graphics characters (♠♥♦♣●○)
-- **Teletext**: BBC Teletext block graphics
+- **Teletext**: Teletext block graphics
 - **Markdown**: Box drawing for tables and diagrams (─│┌┐└┘├┤┬┴┼)
 - **Emoji**: GitHub emoji support (:smile: :fire: :heart:)
 - **CoreUI Icons**: Icon font references
