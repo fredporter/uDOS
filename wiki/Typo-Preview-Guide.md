@@ -258,22 +258,22 @@ Most commands work automatically:
 
 ## FAQ
 
-**Q: Can I still use the old markdown-viewer?**  
+**Q: Can I still use the old markdown-viewer?**
 A: It's archived but not deleted. You can restore from `extensions/archive/markdown-viewer-legacy/` if absolutely necessary. Not recommended.
 
-**Q: Does Typo save changes automatically?**  
+**Q: Does Typo save changes automatically?**
 A: Yes! Edits are saved to disk immediately.
 
-**Q: Can I use Typo without uDOS?**  
+**Q: Can I use Typo without uDOS?**
 A: Yes! Typo is a standalone app. Navigate to `extensions/cloned/typo/` and run `npm run dev`.
 
-**Q: What about performance?**  
+**Q: What about performance?**
 A: Typo uses ~120MB RAM vs old viewer's ~50MB. Worth it for the features!
 
-**Q: Can I customize Typo's appearance?**  
+**Q: Can I customize Typo's appearance?**
 A: Typo has built-in themes. Check its settings menu.
 
-**Q: Will my markdown files work in Typo?**  
+**Q: Will my markdown files work in Typo?**
 A: Yes! Typo supports standard markdown + common extensions (tables, code blocks, etc.)
 
 ---
