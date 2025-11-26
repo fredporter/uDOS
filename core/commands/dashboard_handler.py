@@ -163,11 +163,13 @@ class DashboardHandler(BaseCommandHandler):
         display += "║ " + "─"*77 + "║\n"
 
         servers = {
-            'dashboard': {'name': 'Dashboard', 'port': 8887},
-            'font-editor': {'name': 'Font Editor', 'port': 8888},
-            'markdown': {'name': 'Markdown Viewer (Typo)', 'port': 5173},
             'typo': {'name': 'Typo Editor', 'port': 5173},
-            'terminal': {'name': 'Web Terminal', 'port': 8890}
+            'dashboard': {'name': 'Dashboard', 'port': 8888},
+            'terminal': {'name': 'Web Terminal', 'port': 8889},
+            'teletext': {'name': 'Teletext Interface', 'port': 9002},
+            'desktop': {'name': 'System Desktop', 'port': 8892},
+            'font-editor': {'name': 'Character Editor', 'port': 8891},
+            'markdown': {'name': 'Markdown Viewer (Typo)', 'port': 5173}
         }
 
         try:

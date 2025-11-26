@@ -775,10 +775,13 @@
       "DEFERRED": "v1.1+",
       "OUTPUTS": {
         "typo": "Web markdown editor (Svelte/Node.js) - Default port: 5173",
-        "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000",
+        "dashboard": "Unified control panel for all web outputs - Default port: 8888",
+        "terminal": "C64-style web terminal - Default port: 8889",
+        "teletext": "BBC Teletext interface - Default port: 9002",
+        "desktop": "Retro desktop environment - Default port: 8892",
+        "font-editor": "16x16 bitmap font/character editor - Default port: 8891",
         "markdown": "Markdown viewer using Typo preview mode - Default port: 5173",
-        "font-editor": "16x16 bitmap font editor - Default port: 8888",
-        "dashboard": "Unified control panel for all web outputs - Default port: 8887"
+        "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000"
       },
       "SUBCOMMANDS": {
         "START": "Start an output interface (e.g., POKE START dashboard)",
@@ -802,7 +805,7 @@
       ],
       "NOTES": [
         "Dashboard provides unified control for all web outputs",
-        "Access dashboard at http://localhost:8887 (default)",
+        "Access dashboard at http://localhost:8888 (default)",
         "Dashboard shows real-time status and logs for all outputs",
         "SERVER is an alias for POKE (legacy compatibility)",
         "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"

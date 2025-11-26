@@ -48,6 +48,13 @@ EXTENSIONS = {
         'name': 'Character Editor',
         'description': 'Pixel art and character editor',
         'enabled': True
+    },
+    'desktop': {
+        'port': 8892,
+        'path': 'desktop',
+        'name': 'System Desktop',
+        'description': 'Retro desktop environment with window manager',
+        'enabled': True
     }
 }
 

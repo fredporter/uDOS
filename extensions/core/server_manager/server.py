@@ -50,6 +50,7 @@ class ServerManager:
             'dashboard': 'dashboard',
             'teletext': 'teletext',
             'terminal': 'terminal',
+            'desktop': 'desktop',
             'typo': 'typo',
             'font-editor': 'character',
             'character': 'character'
@@ -126,9 +127,12 @@ class ServerManager:
     def _get_default_port(self, server_name: str) -> int:
         """Get default port for a server."""
         default_ports = {
-            'dashboard': 8887,
-            'font-editor': 8888,
-            'terminal': 8890,
+            'dashboard': 8888,
+            'teletext': 9002,
+            'terminal': 8889,
+            'desktop': 8892,
+            'font-editor': 8891,
+            'character': 8891,
             'cmd': 8890,
             'typo': 5173
         }

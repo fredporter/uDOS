@@ -279,7 +279,7 @@ class SmartCommandHandler:
 
             # No interface specified? Ask for it
             if not interface:
-                available = ['typo', 'dashboard', 'terminal', 'font-editor', 'cmd']
+                available = ['typo', 'dashboard', 'terminal', 'teletext', 'desktop', 'font-editor', 'cmd']
                 interface = self.prompt.ask_choice(
                     "Which output interface would you like to start?",
                     choices=available,
