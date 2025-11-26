@@ -381,10 +381,29 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ File not found: {file_path}"
 
         if mode == '--web':
-            # Open in browser
-            import webbrowser
-            webbrowser.open(f"file://{abs_path}")
-            return f"✅ Opened in browser: {file_path}"
+            # Open in Typo preview mode for markdown files
+            if file_path.endswith('.md'):
+                try:
+                    from extensions.core.server_manager.server import ServerManager
+                    mgr = ServerManager()
+                    success, msg = mgr.start_markdown_viewer(open_browser=True, file_path=abs_path)
+                    if success:
+                        return f"✅ Opening in Typo preview: {file_path}\n{msg}"
+                    else:
+                        # Fallback to browser
+                        import webbrowser
+                        webbrowser.open(f"file://{abs_path}")
+                        return f"✅ Opened in browser: {file_path}"
+                except Exception:
+                    # Fallback to browser
+                    import webbrowser
+                    webbrowser.open(f"file://{abs_path}")
+                    return f"✅ Opened in browser: {file_path}"
+            else:
+                # Non-markdown files: use browser
+                import webbrowser
+                webbrowser.open(f"file://{abs_path}")
+                return f"✅ Opened in browser: {file_path}"
         else:
             # Use nano/less for viewing (better than custom editor)
             try:

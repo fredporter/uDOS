@@ -31,7 +31,7 @@ class AdvancedCompleter(Completer):
 
         # Enhanced: Smart parameter completion definitions
         self.output_subcommands = ['START', 'STOP', 'STATUS', 'LIST', 'HEALTH', 'RESTART']
-        self.output_servers = ['typo', 'cmd', 'markdown-viewer', 'font-editor', 'dashboard']
+        self.output_servers = ['typo', 'cmd', 'font-editor', 'dashboard', 'terminal']
 
         self.map_subcommands = ['STATUS', 'VIEW', 'LAYER', 'GOTO', 'LOCATE', 'MOVE']
         self.map_layers = ['SURFACE', 'CLOUD-OC', 'SATELLITE-OC', 'DUNGEON-1']

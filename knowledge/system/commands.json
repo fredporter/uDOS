@@ -776,7 +776,7 @@
       "OUTPUTS": {
         "typo": "Web markdown editor (Svelte/Node.js) - Default port: 5173",
         "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000",
-        "markdown-viewer": "Markdown viewer with live preview - Default port: 8889",
+        "markdown": "Markdown viewer using Typo preview mode - Default port: 5173",
         "font-editor": "16x16 bitmap font editor - Default port: 8888",
         "dashboard": "Unified control panel for all web outputs - Default port: 8887"
       },

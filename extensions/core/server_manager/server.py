@@ -50,9 +50,7 @@ class ServerManager:
             'dashboard': 'dashboard',
             'teletext': 'teletext',
             'terminal': 'terminal',
-            'markdown-viewer': 'markdown',
-            'markdown': 'markdown',
-            'typo': 'typo',  # If typo is added to extensions_server.py
+            'typo': 'typo',
             'font-editor': 'character',
             'character': 'character'
         }
@@ -130,7 +128,6 @@ class ServerManager:
         default_ports = {
             'dashboard': 8887,
             'font-editor': 8888,
-            'markdown-viewer': 8889,
             'terminal': 8890,
             'cmd': 8890,
             'typo': 5173
@@ -421,7 +418,7 @@ class ServerManager:
             'cmd': self.start_cmd_server,
             'terminal': self.start_terminal_server,
             'font-editor': self.start_font_editor,
-            'markdown-viewer': self.start_markdown_viewer,
+            'markdown': self.start_markdown_viewer,  # Uses Typo in preview mode
             'dashboard': self.start_dashboard
         }
 

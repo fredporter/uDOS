@@ -165,7 +165,7 @@ class DashboardHandler(BaseCommandHandler):
         servers = {
             'dashboard': {'name': 'Dashboard', 'port': 8887},
             'font-editor': {'name': 'Font Editor', 'port': 8888},
-            'markdown-viewer': {'name': 'Markdown Viewer', 'port': 8889},
+            'markdown': {'name': 'Markdown Viewer (Typo)', 'port': 5173},
             'typo': {'name': 'Typo Editor', 'port': 5173},
             'terminal': {'name': 'Web Terminal', 'port': 8890}
         }
