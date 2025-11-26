@@ -60,9 +60,6 @@
             });
         }
 
-        // Setup cursor positioning
-        setupCursor();
-
         // Initialize session
         initializeSession();
 
@@ -80,37 +77,6 @@
     }
 
     /**
-     * Setup cursor to follow input
-     */
-    function setupCursor() {
-        const cursor = document.querySelector('.cursor');
-        const input = commandInput;
-
-        if (!cursor || !input) return;
-
-        function updateCursorPosition() {
-            // Create temporary span to measure text width
-            const span = document.createElement('span');
-            span.style.font = window.getComputedStyle(input).font;
-            span.style.visibility = 'hidden';
-            span.style.position = 'absolute';
-            span.textContent = input.value || '';
-            document.body.appendChild(span);
-
-            const textWidth = span.offsetWidth;
-            document.body.removeChild(span);
-
-            // Position cursor after text
-            cursor.style.left = textWidth + 'px';
-        }
-
-        // Update on input
-        input.addEventListener('input', updateCursorPosition);
-        input.addEventListener('keydown', () => setTimeout(updateCursorPosition, 0));
-
-        // Initial position
-        updateCursorPosition();
-    }    /**
      * Initialize session with uDOS core
      */
     async function initializeSession() {
@@ -312,7 +278,9 @@
         const args = command.split(/\s+/).slice(1);
 
         // Try to send to uDOS core first
+        console.log(`[uDOS Terminal] Executing command: ${command}`);
         try {
+            console.log(`[uDOS Terminal] Sending to API: ${state.udosApiUrl}/command`);
             const response = await fetch(`${state.udosApiUrl}/command`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -323,13 +291,17 @@
                 })
             });
 
+            console.log(`[uDOS Terminal] API response status: ${response.status}`);
             if (response.ok) {
                 const result = await response.json();
+                console.log('[uDOS Terminal] API response:', result);
                 displayCommandResult(result);
                 return;
+            } else {
+                console.warn(`[uDOS Terminal] API returned ${response.status}, using local handlers`);
             }
         } catch (error) {
-            console.log('[uDOS Terminal] Core not available, using local handlers');
+            console.log(`[uDOS Terminal] API error: ${error.message}, using local handlers`);
         }
 
         // Local command handlers (fallback)
