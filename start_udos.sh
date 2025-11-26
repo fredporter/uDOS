@@ -310,9 +310,9 @@ if command -v node &> /dev/null; then
     fi
 fi
 
-# Check data directories (v1.5.0: flat log structure)
+# Check data directories (v2.0: sandbox-based structure)
 print_status "Checking data directories..."
-for dir in memory/logs memory/sandbox memory/user memory/planet; do
+for dir in sandbox/logs sandbox/drafts sandbox/workflow sandbox/scripts sandbox/ucode sandbox/tests memory/user memory/planet memory/community memory/shared memory/groups; do
     if [ ! -d "$dir" ]; then
         print_warning "Creating directory: $dir"
         mkdir -p "$dir"

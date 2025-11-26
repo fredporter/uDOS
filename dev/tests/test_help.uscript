@@ -1,5 +1,0 @@
-# Test critical commands that should work
-STATUS
-MEMORY --list
-PANEL LIST
-HISTORY LIST 5

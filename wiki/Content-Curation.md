@@ -537,7 +537,7 @@ Open issues for:
 
 **Before contributing**:
 - Read [Philosophy](Philosophy.md) - Understand what uDOS values
-- Read [Knowledge Architecture](Knowledge-Architecture.md) - Organization system
+- Read [Knowledge System](Knowledge-System.md) - Organization system
 - Check existing content - Avoid duplicates
 - Verify information - Cite sources
 
@@ -704,7 +704,7 @@ Contributors are credited in:
 
 ## Related Documentation
 
-- **[Knowledge Architecture](Knowledge-Architecture.md)** - Organization system
+- **[Knowledge System](Knowledge-System.md)** - Organization system
 - **[Philosophy](Philosophy.md)** - What uDOS values
 - **[Contributing](Contributing.md)** - How to contribute code/docs
 - **[Workflows](Workflows.md)** - Common uDOS workflows

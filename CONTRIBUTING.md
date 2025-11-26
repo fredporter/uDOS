@@ -4,9 +4,10 @@ Thank you for your interest in contributing to uDOS! This document provides guid
 
 ## Project Overview
 
-uDOS v1.1.2 is a secure, dual-interface CLI framework with:
-- **1,062 passing tests** (100% coverage)
-- Enterprise security (RBAC, 4-tier encryption)
+uDOS v1.1.0 is a secure, dual-interface CLI framework with:
+- **1,810 passing tests** (100% coverage)
+- Sandbox architecture with 5-tier knowledge system
+- DEV MODE with authentication and permissions
 - Dual interface (Terminal + Web GUI)
 - Offline knowledge management
 - Cross-platform support (macOS/Linux/Windows)
@@ -118,7 +119,7 @@ Examples:
 ```
 feat(security): Add RBAC permission validation
 fix(web): Correct WebSocket reconnection logic
-docs(wiki): Update installation guide for v1.1.2
+docs(wiki): Update installation guide for v1.1.0
 test(memory): Add 4-tier encryption test suite
 ```
 
@@ -186,7 +187,7 @@ pytest memory/tests/
 # Specific milestone
 pytest memory/tests/test_v1_1_0_*.py  # v1.1.0 (268 tests)
 pytest memory/tests/test_v1_1_1_*.py  # v1.1.1 (327 tests)
-pytest memory/tests/test_v1_1_2_*.py  # v1.1.2 (467 tests)
+pytest sandbox/tests/  # All tests (1,810 tests)
 
 # With coverage
 pytest memory/tests/ --cov=core --cov-report=html
@@ -255,7 +256,7 @@ All submissions require code review:
 
 ### Documentation
 - [Architecture Overview](wiki/Architecture.md)
-- [Release v1.1.2](wiki/Release-v1.1.2.md)
+- [Release v1.1.0](wiki/Release-v1.1.0.md)
 - [Latest Development](wiki/Latest-Development.md)
 - [ROADMAP](ROADMAP.MD)
 

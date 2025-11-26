@@ -211,7 +211,7 @@ class ConfigurationHandler(BaseCommandHandler):
         """Set the current theme."""
         try:
             # Load theme data
-            theme_file = Path(f'knowledge/system/themes/{theme_name.lower()}.json')
+            theme_file = Path(f'core/data/themes/{theme_name.lower()}.json')
             if not theme_file.exists():
                 return f"❌ Theme '{theme_name}' not found\n\nUse: THEME LIST to see available themes"
 
@@ -367,7 +367,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _switch_theme(self, theme_name):
         """Switch to a different theme."""
         try:
-            theme_file = Path(f'knowledge/system/themes/{theme_name.lower()}.json')
+            theme_file = Path(f'core/data/themes/{theme_name.lower()}.json')
             if not theme_file.exists():
                 return f"❌ Theme '{theme_name}' not found\n\nUse: THEME LIST to see available themes"
 
@@ -678,7 +678,7 @@ class ConfigurationHandler(BaseCommandHandler):
             CONFIG GET <key>     - Get configuration value
             CONFIG SET <key> <value> - Set configuration value
 
-        Manages configuration files in knowledge/system/ directory.
+        Manages configuration files in core/data/ directory.
         """
         # SMART MODE: No params → Interactive menu
         if not params:
@@ -732,18 +732,16 @@ class ConfigurationHandler(BaseCommandHandler):
 
     def _show_config_status(self):
         """Show current configuration status with v1.5.0 features."""
-        config_dir = Path('knowledge/system')
+        config_dir = Path('core/data')
         if not config_dir.exists():
             return self.get_message('ERROR_CONFIG_DIR_NOT_FOUND', path=config_dir)
 
         config_files = [
             'commands.json',
             'extensions.json',
-            'palette.json',
+            'font-system.json',  # v2.0.0: Includes color palette
             'fonts.json',
-            'worldmap.json',
-            'universe.json',  # v1.5.0: Planet system
-            'credits.json'
+            'locations.json'  # v2.0.0: TILE code system
         ]
 
         # Get current settings
@@ -799,7 +797,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _backup_configs(self):
         """Backup all configuration files."""
         try:
-            config_dir = Path('knowledge/system')
+            config_dir = Path('core/data')
             backup_dir = Path('memory/system_backup')
             backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -826,7 +824,7 @@ class ConfigurationHandler(BaseCommandHandler):
             if not backup_dir.exists():
                 return "❌ No backup directory found\n\nUse: CONFIG BACKUP first"
 
-            config_dir = Path('knowledge/system')
+            config_dir = Path('core/data')
             restored = []
 
             for backup_file in backup_dir.glob('*.json'):
@@ -850,12 +848,12 @@ class ConfigurationHandler(BaseCommandHandler):
         return ("⚠️  CONFIG RESET not implemented\n\n"
                "To reset configurations:\n"
                "1. Backup current configs: CONFIG BACKUP\n"
-               "2. Restore from templates in knowledge/system/templates/\n"
+               "2. Restore from templates in core/data/templates/\n"
                "3. Or reinstall uDOS")
 
     def _validate_configs(self):
         """Validate all configuration files."""
-        config_dir = Path('knowledge/system')
+        config_dir = Path('core/data')
         if not config_dir.exists():
             return "❌ Configuration directory not found"
 
@@ -945,7 +943,7 @@ class ConfigurationHandler(BaseCommandHandler):
                 f"📺 Nearest Tier: {tier['label']} (Tier {tier['tier']})",
                 f"📊 Aspect Ratio: {tier['aspect']}",
                 "",
-                "💾 Settings saved to knowledge/system/viewport.json",
+                "💾 Settings saved to core/data/viewport.json",
                 "💡 Use: REBOOT to apply changes fully",
                 "💡 Use: CONFIG VIEWPORT to view current settings"
             ]
@@ -1266,13 +1264,13 @@ class ConfigurationHandler(BaseCommandHandler):
 
             if action == "Change Theme":
                 # Get available themes
-                themes_dir = Path('knowledge/system/themes')
+                themes_dir = Path('core/data/themes')
                 available_themes = []
                 if themes_dir.exists():
                     available_themes = [f.stem for f in themes_dir.glob('*.json')]
 
                 if not available_themes:
-                    output.append("\n❌ No themes found in knowledge/system/themes/")
+                    output.append("\n❌ No themes found in core/data/themes/")
                 else:
                     new_theme = self.input_manager.prompt_choice(
                         message="Select a theme:",

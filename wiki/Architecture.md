@@ -225,28 +225,54 @@ Each theme includes:
 }
 ```
 
-### Template Files (`knowledge/system/templates/`)
+### Template Files (`core/data/templates/`)
 
 **Purpose**: Default structures for user data initialization
 
-- **`user.template.json`** - Default user profile structure (copied to `memory/user.json` on first run)
+- **`user.template.json`** - Default user profile structure (copied to `sandbox/user.json` on first run)
 - **`story.template.json`** - Default story structure for narrative mode
 - **`setup.uscript`** - Interactive uCODE script for profile configuration
 
 **First-Time Setup Flow**:
-1. Health check detects missing `memory/user.json`
-2. Copy `user.template.json` → `memory/user.json`
+1. Health check detects missing `sandbox/user/USER.UDT`
+2. Copy `user.template.json` → `sandbox/user/USER.UDT`
 3. Optionally run `setup.uscript` for interactive configuration
-4. Save personalized data to `memory/` directory
+4. Save personalized data to `sandbox/user/` directory
 
-### Knowledge Base (`knowledge/system/`)
+### Core System Data (`core/data/`)
 
-**Purpose**: Context for AI and help systems
+**Purpose**: Essential configuration for minimal TUI operation
 
-- **`faq.json`** - Merged FAQ entries and AI prompt templates
-  - Structured Q&A for HELP command
-  - Context prompts for OK Assistant integration
-  - Troubleshooting guides
+**Essential Files:**
+- `commands.json` - Command registry and syntax
+- `viewport.json` - TUI dimensions and grid settings
+- `font-system.json` - Typography and color palette
+- `locations.json` - Timezone→City + TILE code mappings
+- `extensions.json` - Extension registry
+- `faq.json` - FAQ content for HELP command
+- `ucode_variables.json` - uCODE interpreter config
+- `font-profile-template.json` - User font templates
+
+**Directories:**
+- `help_templates/` - Command help templates
+- `themes/` - UI color schemes
+- `templates/` - Setup and user templates (setup.uscript, user.template.json, usage_tracker.json)
+- `graphics/` - ASCII art assets
+
+**Design**: Minimal file set for core functionality. Educational/reference content moved to `/knowledge`.
+
+### Knowledge Base (`knowledge/`)
+
+**Purpose**: Curated reference library and educational content
+
+**Contents:**
+- `survival/`, `tech/`, `skills/` - Skill documentation
+- `universe.json` - Solar system reference
+- `credits.json` - Attribution data
+- `geography/`, `reference/` - Geographic and reference data
+- Community-contributed knowledge articles
+
+**Usage**: Content for HELP system, educational lookups, reference materials
 
 **Structure**:
 ```json
@@ -269,7 +295,7 @@ Each theme includes:
 
 **Purpose**: Active user data and session state
 
-**Structure** (v1.5.0):
+**Structure**:
 ```
 memory/
 ├── user/                    # User data files
@@ -290,12 +316,12 @@ memory/
 └── public/                  # Tier 4: Public knowledge
 ```
 
-**User Profile** (.env + memory/user/):
+**User Profile** (.env + sandbox/user/):
 - Simple values in `.env` (current planet, theme, role)
-- Complex data in `memory/user/planets.json`
+- Complex data in `sandbox/user/planets.json`
 - Current planet synced between both sources
 
-**Planet Structure** (memory/user/planets.json):
+**Planet Structure** (sandbox/user/planets.json):
 ```json
 {
   "current_planet": "Earth",
@@ -309,7 +335,7 @@ memory/
       "location": { "settlement": "Olympus Base", "lat": 18.65, "lon": -133.8 }
     }
   },
-  "reference_universe": "knowledge/system/universe.json"
+  "reference_universe": "knowledge/universe.json"
 }
 ```
 
@@ -320,13 +346,13 @@ memory/
 data/
 ├── COMMANDS.UDO    → data/system/commands.json
 ├── THEMES.UDO      → data/themes/*.json (split into 5 files)
-├── FAQ.UDO         → knowledge/system/faq.json
+├── FAQ.UDO         → core/data/faq.json
 ├── PROMPTS.UDO     → (merged into faq.json)
-├── USER.UDT        → knowledge/system/templates/user.template.json
-└── SETUP.USC       → knowledge/system/templates/setup.uscript
+├── USER.UDT        → core/data/templates/user.template.json
+└── SETUP.USC       → core/data/templates/setup.uscript
 
 sandbox/
-└── USER.UDO        → memory/user.json
+└── USER.UDO        → sandbox/user.json
 ```
 
 **Benefits of JSON Migration**:

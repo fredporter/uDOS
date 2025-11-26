@@ -38,7 +38,7 @@ class TILECommandHandler(BaseCommandHandler):
     def geography_data(self):
         """Lazy load geography databases."""
         if self._geography_data is None:
-            geo_path = Path("knowledge/system/geography")
+            geo_path = Path("core/data/geography")
             self._geography_data = {
                 "countries": self._load_json(geo_path / "countries.json"),
                 "cities": self._load_json(geo_path / "cities.json"),
@@ -52,7 +52,7 @@ class TILECommandHandler(BaseCommandHandler):
     def reference_data(self):
         """Lazy load reference databases."""
         if self._reference_data is None:
-            ref_path = Path("knowledge/system/reference")
+            ref_path = Path("core/data/reference")
             self._reference_data = {
                 "metric": self._load_json(ref_path / "metric.json"),
                 "imperial": self._load_json(ref_path / "imperial.json")

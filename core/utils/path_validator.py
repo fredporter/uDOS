@@ -2,7 +2,7 @@
 uDOS Path Validator - Data Architecture Enforcement
 
 Validates file operations respect the boundary between:
-- /knowledge/system/ - Immutable reference data (read-only)
+- /core/data/ - Immutable reference data (read-only)
 - /memory/ - User workspace (read-write)
 
 Author: uDOS Development Team
@@ -35,7 +35,7 @@ def is_writable_path(path: str, root: str = None) -> bool:
     Examples:
         >>> is_writable_path('/root/memory/test.json', '/root')
         True
-        >>> is_writable_path('/root/knowledge/system/data.json', '/root')
+        >>> is_writable_path('/root/core/data/data.json', '/root')
         False
     """
     path_obj = Path(path).resolve()
@@ -111,12 +111,12 @@ def detect_boundary_violation(source: str, dest: str, root: str = None) -> Optio
         Error message if violation detected, None if valid
 
     Violations:
-        - Writing from memory/ to knowledge/system/
-        - Writing from core/ to knowledge/system/
+        - Writing from memory/ to core/data/
+        - Writing from core/ to core/data/
         - Any user data writes to system directories
 
     Examples:
-        >>> detect_boundary_violation('memory/test.json', 'knowledge/system/data.json', '/root')
+        >>> detect_boundary_violation('memory/test.json', 'core/data/data.json', '/root')
         'User-to-system write: memory -> knowledge'
     """
     source_path = Path(source).resolve()
@@ -170,7 +170,7 @@ def validate_write_operation(path: str, command: str = None, root: str = None) -
     Examples:
         >>> validate_write_operation('memory/test.json')
         (True, None)
-        >>> validate_write_operation('knowledge/system/data.json')
+        >>> validate_write_operation('core/data/data.json')
         (False, 'Cannot write to read-only system directory: knowledge')
     """
     if not is_writable_path(path, root):
@@ -205,7 +205,7 @@ def get_writable_alternatives(path: str, root: str = None) -> list:
         List of suggested writable paths
 
     Example:
-        >>> get_writable_alternatives('knowledge/system/themes/custom.json')
+        >>> get_writable_alternatives('core/data/themes/custom.json')
         ['memory/themes/custom.json', 'memory/planet/themes/custom.json']
     """
     path_obj = Path(path)
@@ -253,7 +253,7 @@ def validate_directory_structure(root: str) -> list:
         List of missing directories
 
     Creates standard uDOS directory structure:
-        /knowledge/system/ - System reference data
+        /core/data/ - System reference data
         /memory/private/ - Encrypted personal data
         /memory/shared/ - Shared knowledge
         /memory/groups/ - Community groups
@@ -266,7 +266,7 @@ def validate_directory_structure(root: str) -> list:
     root_path = Path(root)
 
     required_dirs = [
-        'knowledge/system',
+        'core/data',
         'memory/private',
         'memory/shared',
         'memory/groups',

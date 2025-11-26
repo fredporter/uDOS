@@ -8,7 +8,7 @@ Comprehensive system validation testing for v1.5.0 features:
 - DEV MODE (security system)
 - Configuration sync (.env ↔ user.json)
 - Memory structure (43% reduction)
-- Database locations (memory/user/)
+- Database locations (sandbox/user/)
 
 Usage:
     SHAKEDOWN           - Run all tests with summary
@@ -173,10 +173,10 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("─" * 63)
 
         # Check universe.json exists
-        universe_path = self.root / "knowledge" / "system" / "universe.json"
+        universe_path = self.root / "extensions" / "assets" / "data" / "universe.json"
         exists = universe_path.exists()
-        symbol = "✅" if exists else "❌"
-        output.append(f"  {symbol} knowledge/system/universe.json")
+        symbol = '\u2713' if exists else '\u2717'
+        output.append(f"  {symbol} extensions/assets/data/universe.json")
         self._add_test("Planet: universe.json exists", exists)
 
         if exists:
@@ -203,7 +203,7 @@ class ShakedownHandler(BaseCommandHandler):
         planets_path = self.root / "memory" / "user" / "planets.json"
         exists = planets_path.exists()
         symbol = "✅" if exists else "❌"
-        output.append(f"  {symbol} memory/user/planets.json")
+        output.append(f"  {symbol} sandbox/user/planets.json")
         self._add_test("Planet: planets.json exists", exists)
 
         if exists:
@@ -322,7 +322,7 @@ class ShakedownHandler(BaseCommandHandler):
         exists = log_dir.exists()
         symbol = "✅" if exists else "⚠️"
         if verbose or not exists:
-            output.append(f"  {symbol} memory/logs/dev_mode/ {'exists' if exists else 'will be created on first use'}")
+            output.append(f"  {symbol} sandbox/logs/dev_mode/ {'exists' if exists else 'will be created on first use'}")
         self._add_test("DEV MODE: log directory", True)  # OK if not exists yet
 
         output.append("")
@@ -366,26 +366,26 @@ class ShakedownHandler(BaseCommandHandler):
                 removed = not (logs_path / subdir).exists()
                 symbol = "✅" if removed else "❌"
                 if verbose or not removed:
-                    output.append(f"  {symbol} memory/logs/{subdir}/ removed (flat structure)")
+                    output.append(f"  {symbol} sandbox/logs/{subdir}/ removed (flat structure)")
                 self._add_test(f"Memory: logs/{subdir} removed", removed)
 
         output.append("")
 
     def _test_database_locations(self, output: List[str], verbose: bool):
-        """Test databases relocated to memory/user/."""
+        """Test databases relocated to sandbox/user/."""
         output.append("🗄️  Database Location Tests")
         output.append("─" * 63)
 
         user_path = self.root / "memory" / "user"
 
-        # Databases in memory/user/
+        # Databases in sandbox/user/
         databases = ["knowledge.db", "xp.db"]
         for db_name in databases:
             db_path = user_path / db_name
             exists = db_path.exists()
             symbol = "✅" if exists else "⚠️"
-            output.append(f"  {symbol} memory/user/{db_name}")
-            self._add_test(f"Database: {db_name} in memory/user", True)  # OK if not exists yet
+            output.append(f"  {symbol} sandbox/user/{db_name}")
+            self._add_test(f"Database: {db_name} in sandbox/user", True)  # OK if not exists yet
 
             # Check NOT in old location
             old_path = self.root / "memory" / db_name
@@ -399,14 +399,14 @@ class ShakedownHandler(BaseCommandHandler):
         udt_path = user_path / "USER.UDT"
         exists = udt_path.exists()
         symbol = "✅" if exists else "⚠️"
-        output.append(f"  {symbol} memory/user/USER.UDT")
-        self._add_test("Database: USER.UDT in memory/user", True)
+        output.append(f"  {symbol} sandbox/user/USER.UDT")
+        self._add_test("Database: USER.UDT in sandbox/user", True)
 
         old_udt = self.root / "memory" / "USER.UDT"
         removed = not old_udt.exists()
         symbol = "✅" if removed else "❌"
         if verbose or not removed:
-            output.append(f"  {symbol} memory/USER.UDT removed")
+            output.append(f"  {symbol} sandbox/USER.UDT removed")
         self._add_test("Database: USER.UDT removed from memory root", removed)
 
         output.append("")

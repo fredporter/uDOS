@@ -11,7 +11,7 @@ class UserManager:
     Manages user profile and system configuration in user.json.
     """
 
-    def __init__(self, user_file='memory/sandbox/user.json', template_file='knowledge/system/templates/user.template.json'):
+    def __init__(self, user_file='sandbox/user.json', template_file='core/data/templates/user.template.json'):
         self.user_file = user_file
         self.template_file = template_file
         self.user_data = None

@@ -158,7 +158,7 @@ class ServerManager:
 
         # Start server
         print(f"🚀 Starting {server['name']} on port {port}...")
-        command = f"cd {self.root} && source .venv/bin/activate && {server['command']} > memory/logs/{server_key}_server.log 2>&1 &"
+        command = f"cd {self.root} && source .venv/bin/activate && {server['command']} > sandbox/logs/{server_key}_server.log 2>&1 &"
 
         os.system(command)
 

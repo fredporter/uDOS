@@ -18,7 +18,7 @@
 5. [Troubleshooting & Repair](#troubleshooting)
 
 ### Volume 2: Knowledge Library (250 pages)
-1. [Knowledge System Overview](KNOWLEDGE-Commands.md) ✅
+1. [Knowledge System Overview](Knowledge-System.md) ✅
 2. [Quick Reference Guides](../docs/QUICKREF-v1.0.20-KNOWLEDGE.md) ✅
 3. [Skill Trees](#skill-trees)
 4. [Cross-References & Index](#knowledge-index)
@@ -188,7 +188,7 @@ All uDOS documentation follows these core principles:
 ## Volume 2: Knowledge Library
 
 ### 2.1 Knowledge System Overview ✅
-**File**: `KNOWLEDGE-Commands.md`
+**File**: `Knowledge-System.md`
 **Status**: Complete
 **Coverage**:
 - 4-tier memory architecture
@@ -352,7 +352,7 @@ Complete guide to building survival scenarios and learning adventures
 
 ### 3.4 API Documentation
 **Status**: Planned
-**File**: `API-Reference.md`
+**File**: `Developers-Guide.md`
 
 **Content Required**:
 - All public Python APIs
@@ -456,49 +456,34 @@ Steps:
 
 ---
 
-## ASCII Diagram Library (100+ Diagrams)
+## ASCII Diagram Library
 
-### System Diagrams
-**Location**: `wiki/diagrams/system/`
+All diagram templates, UI mockups, system architecture patterns, and concept maps are now consolidated in the **Content Generation Guide** for easy reference.
 
-1. **Command Handler Flow**
-```
-┌─────────┐      ┌─────────┐      ┌─────────┐      ┌─────────┐
-│  Input  │─────>│ Parser  │─────>│ Handler │─────>│ Output  │
-└─────────┘      └─────────┘      └─────────┘      └─────────┘
-     │                │                │                │
-     v                v                v                v
- Keyboard      Tokenize          Execute         Terminal
-   User        Validate          Command          Display
-```
+**Location**: [Content-Generation.md#design-patterns--templates](Content-Generation.md#design-patterns--templates)
 
-2. **Grid System Structure**
-3. **TIZO Mapping System**
-4. **4-Tier Knowledge Architecture**
+### Available Template Categories
 
-### Data Flow Diagrams
-**Location**: `wiki/diagrams/dataflow/`
+1. **UI Mockup Templates**
+   - Viewport Tier Adaptation (Tiers 0, 5, 10, 14)
+   - Command Palette patterns
+   - Progress Indicators
+   - Status Bar variations
 
-1. **File Operations Pipeline**
-2. **uCODE Execution Flow**
-3. **Web Server Request Handling**
-4. **Database Query Paths**
+2. **ASCII Diagram Templates**
+   - Survival diagrams (fire triangle, water filters, knots)
+   - System architecture patterns (pipelines, hierarchies)
+   - Data flow diagrams (command execution, request handling)
 
-### Concept Maps
-**Location**: `wiki/diagrams/concepts/`
+3. **Concept Map Templates**
+   - Learning paths
+   - Feature dependencies
+   - Command hierarchies
 
-1. **Command Categories Tree**
-2. **Knowledge Interconnections**
-3. **Skill Progression Paths**
-4. **Feature Dependency Graph**
-
-### UI Mockups
-**Location**: `wiki/diagrams/ui/`
-
-1. **Viewport Tier Examples (Tiers 0, 5, 10, 14)**
-2. **Grid Panel Arrangements**
-3. **Command Palette Layouts**
-4. **Theme Previews**
+4. **Design Principles**
+   - Box drawing characters reference
+   - Block characters for visual elements
+   - Arrows & symbols guide
 
 ---
 
@@ -593,9 +578,9 @@ See [Contributing Guide](Contributing.md) for:
 - [Architecture](Architecture.md) - System design
 - [uCODE Language](uCODE-Language.md) - Scripting guide
 - [Extensions System](Extensions-System.md) - Building extensions
-- [Knowledge System](KNOWLEDGE-Commands.md) - Memory tiers
+- [Knowledge System](Knowledge-System.md) - Memory tiers & architecture
 - [Philosophy](Philosophy.md) - Design principles
-- [Why uDOS](Why-uDOS.md) - Project rationale
+- [Philosophy](Philosophy.md) - Complete manifesto & rationale
 
 ---
 

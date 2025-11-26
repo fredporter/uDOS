@@ -363,7 +363,7 @@ ECHO ""
 SET date = TODAY
 
 # Create or append to standup file
-SET filename = "memory/logs/standup-${date}.md"
+SET filename = "sandbox/logs/standup-${date}.md"
 
 ECHO "What did you accomplish yesterday?"
 READ yesterday
@@ -414,7 +414,7 @@ MKDIR ${backup_dir}/${date}
 # Copy important directories
 COPY knowledge/personal ${backup_dir}/${date}/personal
 COPY sandbox/projects ${backup_dir}/${date}/projects
-COPY memory/logs ${backup_dir}/${date}/logs
+COPY sandbox/logs ${backup_dir}/${date}/logs
 
 ECHO "Backup complete: ${backup_dir}/${date}"
 LIST ${backup_dir}/${date}
@@ -817,7 +817,7 @@ ECHO "Good work today! See you tomorrow."
 - **[Command Reference](Command-Reference.md)** - All uDOS commands
 - **[uCODE Language](uCODE-Language.md)** - Scripting reference
 - **[Getting Started](Getting-Started.md)** - Beginner guide
-- **[Knowledge Architecture](Knowledge-Architecture.md)** - Organizing knowledge
+- **[Knowledge System](Knowledge-System.md)** - Organizing knowledge
 
 ---
 
@@ -833,6 +833,6 @@ Have a workflow that works well for you? Share it!
 ---
 
 **Last Updated**: November 14, 2025
-**Version**: v1.0.15
+**Version**: v1.0.0
 
 **Remember**: Workflows evolve. Start with these, adapt them to your needs, and create your own. The best workflow is the one you'll actually use.

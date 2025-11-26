@@ -1,21 +1,47 @@
-# uDOS v1.5.0 - DEV MODE & Asset Management
+# uDOS v1.0.0 - First Stable Public Release
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.5.0 Complete** (November 2025)
-**Test Coverage**: **1,810 tests passing** (100%) - 77 new v1.5.0 tests
+**Current Status**: ✅ **v1.0.0 Stable** (November 2025)
+**Test Coverage**: **1,810 tests passing** (100%)
 **Knowledge Bank**: **166+ comprehensive survival guides** across 8 categories
 **Documentation**: **62 wiki pages** (20,000+ lines, 100% coverage)
-**Community**: Ready for public beta with GitHub templates, discussions, and marketplace
-**Beta Launch**: 📋 Scheduled post-v1.5.0 (Q1 2026)
+**Architecture**: **5-Tier Knowledge System** with private sandbox workspace
+**Community**: Production ready with GitHub templates, discussions, and marketplace
 
 ---
 
-## 🚀 v1.5.0 - Infrastructure Complete!
+## 🚀 v1.0.0 - First Stable Public Release!
 
-**Latest Release:** v1.5.0 delivers foundational systems for secure development, shared resources, and clean architecture.
+**Latest Release:** v1.0.0 is the first production-ready stable release with clean sandbox architecture, 5-tier knowledge system, comprehensive testing, and community-ready infrastructure.
 
-### What's New in v1.5.0
+### What's in v1.0.0
+
+📁 **Sandbox Workspace** - Clean private development environment
+- Centralized `/sandbox` directory for all user work
+- 10 organized subdirectories: trash, dev, docs, drafts, tests, logs, scripts, ucode, workflow, peek
+- Flat file structure where practical (no deep nesting)
+- All logs consolidated in `sandbox/logs/` (moved from `memory/logs/`)
+- File processing inbox in `sandbox/peek/`
+- User data moved to `sandbox/` (from `memory/sandbox/`)
+
+🏛️ **5-Tier Knowledge System** - Refined data architecture
+- **PRIVATE** (`/sandbox`) - Personal workspace, user-only access
+- **SHARED** (`/memory/shared`) - Direct peer-to-peer sharing
+- **GROUPS** (`/memory/groups`) - Team collaboration
+- **COMMUNITY** (`/memory/community`) - Public user content (renamed from `public/`)
+- **KNOWLEDGE** (`/knowledge`) - Curated system knowledge (read-only)
+
+🧹 **Maintenance Commands** - Automated cleanup and organization
+- **CLEAN** - Flush old logs, empty trash, archive drafts
+- **TIDY** - Organize and categorize sandbox files
+- Interactive prompts with `--all` flag for automation
+- Configurable retention (default 30 days)
+- Statistics and reporting
+
+### Previous Releases
+
+#### v1.5.0 - Infrastructure Complete!
 
 🔧 **DEV MODE** - Secure development environment (master user only)
 - Password-based authentication (SHA256)
@@ -47,14 +73,13 @@
 - **User Data**: Consolidated in memory/user/ (databases, configs, planets)
 - **Planet System**: Workspace renamed to Planet, linked to universe.json
 
-🌍 **Planet System** - Workspace metaphor upgrade
+🌍 **Planet System** - Workspace metaphor
 - Renamed "workspace" to "planet" (Earth, Mars, etc.)
 - Links to knowledge/system/universe.json (Sol system data)
 - Each planet has isolated workspace path
 - Current planet in .env + planets.json sync
-- Scientific data: gravity, atmosphere, moons
 
-### What's in v1.4.0
+### Knowledge & Documentation
 
 📚 **Knowledge Infrastructure**
 - **166+ comprehensive survival guides** (water, fire, shelter, food, navigation, medical, tools, communication)
@@ -68,24 +93,24 @@
 - Seamless switching between interfaces
 - Works completely offline
 
-📝 **uCODE Scripting v2.0**
+📝 **uCODE Scripting**
 - Human-readable bracket syntax
 - Markdown-compatible (.uscript files)
 - Variables, conditionals, loops, error handling
-- 650+ line comprehensive specification
+- Comprehensive specification
 
 📖 **Complete Documentation**
-- **60 wiki pages** (17,000+ lines total)
+- **62 wiki pages** (20,000+ lines total)
 - Getting Started tutorials with ASCII diagrams
-- API reference for developers (800+ lines)
-- Troubleshooting guide (800+ lines)
+- API reference for developers
+- Troubleshooting guide
 - Extension marketplace structure
 
 🤝 **Community Ready**
 - GitHub issue templates (4 types)
 - Discussion templates (Ideas, Show & Tell, Q&A)
 - Code of Conduct and contribution guidelines
-- Community onboarding guide (1,200+ lines)
+- Community onboarding guide
 - Extension marketplace infrastructure
 
 ### Beta Testing
@@ -101,25 +126,11 @@
 **Commitment:** Flexible - as much or little as you want
 **Requirements:** Python 3.9+, terminal familiarity helpful
 
-👉 **[Join the Beta](https://github.com/fredporter/uDOS/discussions)** | **[Read Release Notes](wiki/Release-v1.4.0.md)**
+👉 **[Join the Beta](https://github.com/fredporter/uDOS/discussions)** | **[Read Roadmap](ROADMAP.MD)**
 
 ---
 
 ## 🎯 What's Included
-
-### v1.1.0 - Core TUI Stabilisation (268 tests)
-
-**OK Assistant & Role Security**
-- Role-based API access (Wizard unrestricted, User offline-first)
-- Offline fallback to 4-Tier Knowledge Bank
-- Live session analytics with command trace
-- Intelligent error handler with contextual solutions
-- User feedback system (`FEEDBACK` and `REPORT` commands)
-
-**TUI Reliability & Input System**
----
-
-## 🎯 Core Features
 
 ### 📚 Offline Knowledge System
 
@@ -235,30 +246,26 @@ Terminal Emulators:
 ### 🚀 Getting Started
 - [**Quick Start**](QUICK-START.md) - Get running in 5 minutes
 - [**Getting Started Tutorial**](wiki/Tutorial-Getting-Started.md) - Interactive learning
-- [**DEV MODE Guide**](wiki/DEV-MODE-GUIDE.md) - 🆕 v1.5.0 Master user development
-- [**Community Onboarding**](wiki/Community-Onboarding.md) - Join the community
 - [**Installation Guide**](INSTALL.md) - Detailed setup
+- [**Community Onboarding**](wiki/Community-Onboarding.md) - Join the community
 
 ### 📚 User Guides
 - [**Quick Reference**](wiki/Quick-Reference.md) - Essential commands
 - [**Command Reference**](wiki/Command-Reference.md) - Complete command list
-- [**uCODE Language**](wiki/uCODE-Language.md) - Scripting guide v2.0
+- [**uCODE Language**](wiki/uCODE-Language.md) - Scripting guide
 - [**Troubleshooting**](wiki/Troubleshooting-Complete.md) - Fix common issues
 - [**FAQ**](wiki/FAQ.md) - Frequently asked questions
 
 ### 🔧 Developer Resources
-- [**API Reference**](wiki/API-Reference.md) - Developer API (800+ lines)
+- [**API Reference**](wiki/API-Reference.md) - Developer API
 - [**Architecture Guide**](wiki/Architecture-Contributor-Guide.md) - Codebase overview
 - [**Extension Marketplace**](wiki/Extension-Marketplace.md) - Build & share extensions
-- [**ASSETS Guide**](ASSETS-GUIDE.md) - 🆕 v1.5.0 Shared resources system
-- [**DEV MODE Guide**](wiki/DEV-MODE-GUIDE.md) - 🆕 v1.5.0 Development environment
+- [**ASSETS Guide**](ASSETS-GUIDE.md) - Shared resources system
+- [**DEV MODE Guide**](wiki/DEV-MODE-GUIDE.md) - Development environment
 - [**Contributing**](CONTRIBUTING.md) - How to contribute
-- [**SVG Generator**](wiki/SVG-Generator-Guide.md) - Diagram creation
 
 ### 📊 Project Information
-- [**Release v1.5.0**](dev/planning/releases/RELEASE-NOTES-v1.5.0.md) - 🆕 Latest release notes
-- [**Release v1.4.0**](wiki/Release-v1.4.0.md) - Infrastructure release notes
-- [**ROADMAP**](ROADMAP.MD) - Development plan
+- [**ROADMAP**](ROADMAP.MD) - Development plan (v1.1.1 Content Generation)
 - [**CHANGELOG**](CHANGELOG.md) - Version history
 - [**Documentation Index**](wiki/Documentation-Index.md) - Complete docs map
 
@@ -382,7 +389,7 @@ uDOS is built on six core principles:
 🎮 **Learn by Creating** - Education through game creation
 👤 **Individual-User-Owned** - You control your data, not corporations
 
-[Read More →](wiki/Philosophy.md) | [Why uDOS?](wiki/Why-uDOS.md)
+[Read More →](wiki/Philosophy.md)
 
 ---
 
@@ -443,7 +450,7 @@ uDOS is free and open source software. You're free to use, modify, and distribut
 ## 📞 Support & Community
 
 **Get Help:**
-- 📖 [Documentation](wiki/) - 60 pages covering everything
+- 📖 [Documentation](wiki/) - 31 comprehensive wiki pages
 - 💬 [GitHub Discussions](https://github.com/fredporter/uDOS/discussions) - Q&A and community
 - 🐛 [Issue Tracker](https://github.com/fredporter/uDOS/issues) - Report bugs
 - 🎓 [Community Onboarding](wiki/Community-Onboarding.md) - Get started

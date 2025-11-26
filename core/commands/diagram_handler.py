@@ -30,7 +30,7 @@ class DiagramHandler:
         """Initialize DiagramHandler"""
         self.viewport = viewport
         self.logger = logger
-        self.diagrams_path = Path("knowledge/system/diagrams")
+        self.diagrams_path = Path("core/data/diagrams")
         self.diagrams_path.mkdir(parents=True, exist_ok=True)
         self.knowledge_path = Path("knowledge")
 

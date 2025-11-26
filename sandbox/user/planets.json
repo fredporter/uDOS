@@ -1,0 +1,34 @@
+{
+  "current_planet": "Earth",
+  "user_planets": {
+    "Earth": {
+      "name": "Earth",
+      "solar_system": "Sol",
+      "planet_type": "Earth",
+      "icon": "🌍",
+      "created": "2025-11-22T23:42:09.610754",
+      "last_accessed": "2025-11-22T23:42:09.610761",
+      "location": {
+        "latitude": 51.5074,
+        "longitude": -0.1278,
+        "name": "London",
+        "region": "England",
+        "country": "UK"
+      },
+      "workspace_path": "memory/planet/earth",
+      "description": "Our home planet with comprehensive survival knowledge"
+    },
+    "Mars": {
+      "name": "Mars",
+      "solar_system": "Sol",
+      "planet_type": "Mars",
+      "icon": "🔴",
+      "created": "2025-11-22T23:42:09.611172",
+      "last_accessed": "2025-11-22T23:42:09.611173",
+      "location": null,
+      "workspace_path": "memory/planet/mars",
+      "description": "Red planet workspace for future colonization scenarios"
+    }
+  },
+  "reference_universe": "knowledge/system/universe.json"
+}

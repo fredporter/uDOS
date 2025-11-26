@@ -10,7 +10,7 @@ This wiki is the **official and only source** for all uDOS documentation. Everyt
 
 ### New to uDOS?
 1. **[Philosophy](Philosophy.md)** - Understand what uDOS is and why it exists
-2. **[Quick Start](Quick-Start.md)** - Get up and running in 5 minutes
+2. **[Quick Start](../QUICK-START.md)** - Get up and running in 5 minutes
 3. **[Getting Started Guide](Getting-Started.md)** - Comprehensive onboarding
 
 ### Core Documentation
@@ -26,7 +26,6 @@ This wiki is the **official and only source** for all uDOS documentation. Everyt
 **Understand the "why" behind uDOS**
 
 - **[Philosophy](Philosophy.md)** ⭐ **START HERE** - The People's Operating System
-- **[Why uDOS?](Why-uDOS.md)** - Rationale and comparison to alternatives
 - **[Text-First Computing](Text-First-Computing.md)** - Minimal interface philosophy
 - **[Human-Centric Design](Human-Centric-Design.md)** - Empowerment over engagement
 
@@ -34,7 +33,7 @@ This wiki is the **official and only source** for all uDOS documentation. Everyt
 **Fundamental uDOS systems and ideas**
 
 - **[Architecture](Architecture.md)** - System design and components
-- **[Knowledge Architecture](Knowledge-Architecture.md)** - How information is organized
+- **[Knowledge System](Knowledge-System.md)** - How information is organized
 - **[TIZO System](TIZO-System.md)** - Global location codes
 - **[GRID System](GRID-System.md)** - Document panels and workspace
 - **[Viewport System](Viewport-System.md)** - Universal screen adaptation
@@ -42,7 +41,7 @@ This wiki is the **official and only source** for all uDOS documentation. Everyt
 ### 📖 User Guides
 **How to use uDOS effectively**
 
-- **[Quick Start](Quick-Start.md)** - 5-minute getting started guide
+- **[Quick Start](../QUICK-START.md)** - 5-minute getting started guide
 - **[Getting Started](Getting-Started.md)** - Comprehensive beginner guide
 - **[Command Reference](Command-Reference.md)** - All commands explained
 - **[Command Palette](Command-Palette.md)** - Interactive command discovery
@@ -62,15 +61,13 @@ This wiki is the **official and only source** for all uDOS documentation. Everyt
 **Contributing to uDOS**
 
 - **[Contributing](Contributing.md)** - How to participate in the project
-- **[Development History](Development-History.md)** - Evolution of uDOS
-- **[Latest Development](Latest-Development.md)** - Current work and progress
-- **[Dev Rounds Workflow](Dev-Rounds-Workflow.md)** - Development methodology
+- **[Development History](Development-History.md)** - Complete evolution and current work
+- **[Developers Guide](Developers-Guide.md)** - Complete developer documentation
 - **[Style Guide](Style-Guide.md)** - Code and documentation standards
 
-### �️ Project Organization
+### 🗄️ Project Organization
 **Understanding the structure**
 
-- **[Project Organization](Project-Organization.md)** - Repository layout
 - **[File Organization](../docs/FILE-ORGANIZATION-COMPLETE.md)** - Directory structure
 - **[Roadmap](../ROADMAP.MD)** - Future plans and version history
 
@@ -114,7 +111,7 @@ knowledge/
     └── local-resilience/
 ```
 
-See **[Knowledge Architecture](Knowledge-Architecture.md)** for complete details.
+See **[Knowledge System](Knowledge-System.md)** for complete details.
 
 ---
 
@@ -200,26 +197,26 @@ See **[Contributing](Contributing.md)** for complete guidelines.
 - [Contributing](Contributing.md)
 - [CSS Framework Integration](CSS-Framework-Integration.md)
 - [Development History](Development-History.md)
-- [Dev Rounds Workflow](Dev-Rounds-Workflow.md)
+- [Developers Guide](Developers-Guide.md)
 - [Extensions System](Extensions-System.md)
 - [FAQ](FAQ.md)
 - [Getting Started](Getting-Started.md)
 - [GRID System](GRID-System.md)
 - [Home](Home.md)
 - [Human-Centric Design](Human-Centric-Design.md)
-- [Knowledge Architecture](Knowledge-Architecture.md)
 - [Knowledge System](Knowledge-System.md)
-- [Latest Development](Latest-Development.md)
+- [Knowledge System](Knowledge-System.md)
+- [Development History](Development-History.md)
 - [Mapping System](Mapping-System.md)
 - [Philosophy](Philosophy.md) ⭐
-- [Project Organization](Project-Organization.md)
-- [Quick Start](Quick-Start.md)
+
+- [Quick Start](../QUICK-START.md)
 - [Style Guide](Style-Guide.md)
 - [Text-First Computing](Text-First-Computing.md)
 - [TIZO System](TIZO-System.md)
 - [uCODE Language](uCODE-Language.md)
 - [Viewport System](Viewport-System.md)
-- [Why uDOS?](Why-uDOS.md)
+- [Philosophy](Philosophy.md)
 - [Workflows](Workflows.md)
 
 ---
@@ -228,7 +225,7 @@ See **[Contributing](Contributing.md)** for complete guidelines.
 
 - **[GitHub Repository](https://github.com/fredporter/uDOS)** - Source code
 - **[Roadmap](../ROADMAP.MD)** - Development plans
-- **[Release Notes](../docs/releases/)** - Version history
+- **[Development History](Development-History.md)** - Current stable release and evolution
 - **[Credits](../CREDITS.md)** - Acknowledgments
 - **[License](../LICENSE.txt)** - GPL v3.0
 
@@ -387,6 +384,7 @@ Or:
 
 **Wiki Status**: ✅ Ready for deployment
 
-**Last Updated**: October 30, 2025
+**Wiki Pages**: 31 comprehensive documentation files
+**Last Updated**: November 26, 2025
 
 🔮 *Documentation is magic - keep it clear and current!*

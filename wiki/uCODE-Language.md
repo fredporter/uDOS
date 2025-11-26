@@ -551,9 +551,372 @@ done
 
 ---
 
+## Complete Command Reference
+
+### TILE Commands - Geographic Reference System
+
+Geographic data and mapping system with 250 cities, 50 countries, 120 timezones.
+
+#### TILE INFO
+Get comprehensive information about any city or country
+
+```bash
+TILE INFO <location>
+```
+
+**Examples:**
+```bash
+TILE INFO Tokyo          # City information with TIZO code
+TILE INFO France         # Country demographics and details
+```
+
+#### TILE SEARCH
+Search for cities or countries by name
+
+```bash
+TILE SEARCH <query>
+```
+
+#### TILE NEARBY
+Find cities within a specified radius (default: 500km)
+
+```bash
+TILE NEARBY <location> [radius_km]
+```
+
+Uses Haversine formula for accurate great-circle distances.
+
+#### TILE WEATHER
+Get climate zone information (Köppen classification)
+
+```bash
+TILE WEATHER <location>
+```
+
+Returns climate type, temperature range, rainfall, vegetation.
+
+#### TILE TIMEZONE
+Detailed timezone information with DST rules
+
+```bash
+TILE TIMEZONE <location>
+```
+
+Shows UTC offsets, DST schedules, major cities in timezone.
+
+#### TILE TERRAIN
+Terrain type definitions and characteristics
+
+```bash
+TILE TERRAIN [type]      # Specific type or list all 24 types
+```
+
+**Terrain Types:** ocean, river, lake, beach, desert, plains, grassland, forest, jungle, hills, mountains, glacier, tundra, ice sheet, swamp, wetland, canyon, plateau, volcanic, urban, farmland, badlands.
+
+#### TILE ROUTE
+Calculate routes between locations with distance and bearing
+
+```bash
+TILE ROUTE <from> <to>
+```
+
+Returns distance (km/miles), bearing (8-point compass), climate comparison.
+
+#### TILE CONVERT
+Convert between measurement units
+
+```bash
+TILE CONVERT <value> <from_unit> <to_unit>
+```
+
+**Supported:**
+- **Temperature:** C ↔ F ↔ K
+- **Distance:** km ↔ mi, m ↔ ft
+- **Mass:** kg ↔ lb
+
+**Examples:**
+```bash
+TILE CONVERT 100 C F     # 100°C = 212.00°F
+TILE CONVERT 100 km mi   # 100 km = 62.14 miles
+TILE CONVERT 50 kg lb    # 50 kg = 110.23 lbs
+```
+
+---
+
+### POKE Commands - Server Management
+
+Manage web-based extension servers (non-blocking architecture).
+
+#### POKE START
+Start a server in background
+
+```bash
+POKE START <name> [--port N] [--no-browser]
+```
+
+**Available Servers:**
+- `dashboard` - NES-style dashboard (port 8887)
+- `terminal` - C64 PETSCII terminal (port 8890)
+- `teletext` - BBC Teletext viewer (port 9002)
+- `markdown` - Knowledge viewer (port 9000)
+- `character` - Pixel art editor (port 8891)
+- `typo` - Web markdown editor (port 5173, requires Node.js)
+
+**Examples:**
+```bash
+POKE START typo              # Start with defaults
+POKE START dashboard         # Port 8887, auto-open browser
+POKE START terminal --port 9000  # Custom port
+POKE START teletext --no-browser # Don't open browser
+```
+
+#### POKE STATUS
+Check server status and health
+
+```bash
+POKE STATUS [name]
+```
+
+Shows: PID, URL, port availability, uptime, log file location.
+
+**Status Indicators:**
+- 🟢 Running and responding
+- 🟡 Process alive but port not ready (starting)
+- ❌ Not running
+
+#### POKE STOP
+Stop a running server (graceful shutdown)
+
+```bash
+POKE STOP <name>
+```
+
+Sends SIGTERM, waits 5 seconds, then SIGKILL if needed.
+
+#### POKE RESTART
+Restart a server (stop + start)
+
+```bash
+POKE RESTART <name>
+```
+
+#### POKE LIST
+List all available servers with install status
+
+```bash
+POKE LIST
+```
+
+#### POKE HEALTH
+System-wide health report
+
+```bash
+POKE HEALTH
+```
+
+Shows running/stopped count, system health percentage.
+
+**State Management:**
+- State file: `sandbox/.server_state.json`
+- Logs: `sandbox/logs/<name>_<port>.log`
+- Process spawning: `subprocess.Popen` with `start_new_session=True`
+
+---
+
+### PANEL Commands - Teletext Graphics System
+
+Character-based display panels with teletext-style graphics.
+
+#### PANEL CREATE
+Create a new display panel
+
+```bash
+PANEL CREATE <name> <width> <height> <tier>
+```
+
+**Screen Tiers (0-14):**
+| Tier | Name | Dimensions | Use Case |
+|:----:|:-----|:-----------|:---------|
+| 0 | Watch | 20×10 | Tiny displays |
+| 1 | Mobile | 40×20 | Phone screens |
+| 2 | Tablet | 60×30 | Tablet displays |
+| 3 | Laptop | 80×40 | Laptop screens |
+| 4 | Desktop | 120×60 | Desktop monitors |
+| 5 | 2K | 160×80 | 2K displays |
+| 6 | 4K | 240×120 | 4K monitors |
+| 7 | 8K | 320×160 | 8K displays |
+
+**Example:**
+```bash
+PANEL CREATE dashboard 80 25 4  # Desktop-sized panel
+```
+
+#### PANEL SHOW
+Display panel contents
+
+```bash
+PANEL SHOW <name> [border]
+```
+
+**Border styles:**
+- `border` - C64-style ▓ blocks
+- No argument - Clean box drawing
+
+#### PANEL LIST
+Show all panels with dimensions and tier
+
+```bash
+PANEL LIST
+```
+
+#### PANEL INFO
+Get panel statistics (size, memory, fill percentage)
+
+```bash
+PANEL INFO <name>
+```
+
+#### PANEL CLEAR
+Clear panel buffer (fill with spaces)
+
+```bash
+PANEL CLEAR <name>
+```
+
+#### PANEL DELETE
+Remove panel from memory
+
+```bash
+PANEL DELETE <name>
+```
+
+#### PANEL POKE
+Write single character at position (C64-style, 0-based coordinates)
+
+```bash
+PANEL POKE <name> <x> <y> <character>
+```
+
+**Example:**
+```bash
+PANEL POKE dashboard 10 5 █     # Place solid block
+PANEL POKE dashboard 0 0 @      # Top-left marker
+```
+
+#### PANEL WRITE
+Write text string at position
+
+```bash
+PANEL WRITE <name> <x> <y> <text>
+```
+
+Supports Unicode and emoji, auto-wraps at panel boundary.
+
+#### PANEL FILL
+Fill rectangular area with character
+
+```bash
+PANEL FILL <name> <x> <y> <width> <height> <character>
+```
+
+**Use cases:** Borders, backgrounds, box drawing, separators.
+
+#### PANEL BLOCK
+Place teletext block graphic
+
+```bash
+PANEL BLOCK <name> <x> <y> <block_type>
+```
+
+**Block Types:**
+- **Shading:** `full` (█), `dark` (▓), `medium` (▒), `light` (░)
+- **Half blocks:** `top` (▀), `bottom` (▄), `left` (▌), `right` (▐)
+- **Quarter blocks:** `topleft` (▘), `topright` (▝), `bottomleft` (▖), `bottomright` (▗)
+- **Mosaic:** `checkerboard` (▚), `diagonal1` (▞), `diagonal2` (▚)
+
+#### PANEL PATTERN
+Fill area with repeating pattern
+
+```bash
+PANEL PATTERN <name> <x> <y> <width> <height> <pattern>
+```
+
+**Patterns:** `checkerboard`, `gradient`, `waves`, `dots`, `diagonal`
+
+#### PANEL TERRAIN
+Fill area with terrain graphics
+
+```bash
+PANEL TERRAIN <name> <x> <y> <width> <height> <terrain>
+```
+
+**Terrain Types (16):**
+- **Water:** `ocean_deep`, `ocean`, `ocean_shallow`, `coast`, `water`, `river`, `lake`
+- **Land:** `plains`, `grassland`, `forest`, `jungle`, `desert`, `tundra`, `ice`
+- **Elevation:** `hills`, `mountains`
+
+#### PANEL COLOR
+Apply color to region (terminal support required)
+
+```bash
+PANEL COLOR <name> <x> <y> <width> <height> <color>
+```
+
+**Colors:** red, green, blue, yellow, cyan, magenta, white, black, orange, purple, brown, gray
+
+#### PANEL BLOCKS
+List all 24 block types with symbols
+
+```bash
+PANEL BLOCKS
+```
+
+#### PANEL COLORS
+List available colors
+
+```bash
+PANEL COLORS
+```
+
+#### PANEL TERRAINS
+List all terrain types with symbols
+
+```bash
+PANEL TERRAINS
+```
+
+#### PANEL SIZE
+List all screen tiers with dimensions
+
+```bash
+PANEL SIZE
+```
+
+#### PANEL EMBED
+Export panel to markdown file
+
+```bash
+PANEL EMBED <name> <filename.md>
+```
+
+Creates markdown file with panel contents in fenced code block.
+
+**Example Use Case:**
+```bash
+# Create progress bar
+PANEL CREATE progress 50 3 1
+PANEL FILL progress 0 0 50 1 ═
+PANEL WRITE progress 2 1 "Loading..."
+PANEL FILL progress 2 2 30 1 █
+PANEL FILL progress 32 2 18 1 ░
+PANEL EMBED progress docs/progress.md
+```
+
+---
+
 ## Future Enhancements
 
-### Planned Features (v1.5.0)
+### Planned Features (Future Release)
 
 1. **Parallel Execution**
    ```
@@ -603,14 +966,14 @@ GENERATE guide water/purification
 REFRESH --check all
 ```
 
-### New Syntax (v2.0)
+### Alternative Bracket Syntax (Planned)
 
 ```
 [GENERATE|guide|water/purification]
 [REFRESH|--check|all]
 ```
 
-**Both supported** - v2.0 maintains backward compatibility.
+**Planned for future release** - Will maintain backward compatibility with current space-separated syntax.
 
 ---
 
@@ -624,7 +987,7 @@ See [UCODE_GRAMMAR.md](UCODE_GRAMMAR.md) for formal BNF grammar.
 
 ## Appendix C: Migration Guide
 
-See [UCODE_MIGRATION.md](UCODE_MIGRATION.md) for v1.x → v2.0 migration.
+See [UCODE_MIGRATION.md](UCODE_MIGRATION.md) for future syntax migration information.
 
 ---
 

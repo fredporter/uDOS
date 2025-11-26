@@ -2,7 +2,7 @@
 uDOS Core Package
 Main entry point for uDOS core functionality
 
-Version: 1.5.0
+Version: 1.1.0
 """
 
 from .theme_loader import load_theme, ThemeLoader

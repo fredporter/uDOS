@@ -769,7 +769,7 @@ Landmarks: ████████ Excellent (coast)
 - **Water Sources:** `knowledge/survival/water/australian-water-sources.md`
 - **Snakebite Treatment:** `knowledge/survival/medical/australian-snakebite-treatment.md`
 - **Emergency Kit:** `knowledge/survival/preparation/australian-survival-kit.md`
-- **Grid System:** `knowledge/system/mapping/udos-grid-reference.md`
+- **Grid System:** `core/data/mapping/udos-grid-reference.md`
 
 ---
 

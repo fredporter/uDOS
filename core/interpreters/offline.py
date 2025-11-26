@@ -12,7 +12,7 @@ class OfflineEngine:
     Works without internet connection.
     """
 
-    def __init__(self, knowledge_file='knowledge/system/faq.json'):
+    def __init__(self, knowledge_file='core/data/faq.json'):
         self.knowledge_file = knowledge_file
         self.knowledge = self.load_knowledge()
         self.is_online = self.check_connection()

@@ -35,8 +35,8 @@ class SetupWizard:
             story_manager: StoryManager instance for story.json access
             output_formatter: OutputFormatter instance for consistent output
         """
-        self.config_file = "memory/user/USER.UDT"
-        self.themes_dir = Path("knowledge/system/themes")
+        self.config_file = "sandbox/user/USER.UDT"
+        self.themes_dir = Path("core/data/themes")
         self.user_config = {}
 
         # v1.0.29: Smart input services

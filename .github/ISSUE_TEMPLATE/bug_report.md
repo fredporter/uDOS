@@ -27,7 +27,7 @@ What actually happened.
 ## 🖥️ Environment
 
 - **OS**: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
-- **uDOS Version**: [e.g., v1.4.0]
+- **uDOS Version**: [e.g., v1.1.0]
 - **Python Version**: [run `python3 --version`]
 - **Installation Method**: [e.g., git clone, pip install]
 

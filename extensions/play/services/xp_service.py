@@ -40,7 +40,7 @@ class XPService:
     4. Achievements unlock at milestones
     """
 
-    def __init__(self, db_path: str = "memory/user/xp.db"):
+    def __init__(self, db_path: str = "sandbox/user/xp.db"):
         """Initialize XP service with database"""
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)

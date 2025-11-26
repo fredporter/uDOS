@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 
 
 class FontSystemManager:
-    """Manages font system configuration from knowledge/system/font-system.json"""
+    """Manages font system configuration from core/data/font-system.json"""
 
     _instance = None
     _font_system = None
@@ -25,7 +25,7 @@ class FontSystemManager:
 
     def __init__(self):
         """Load font system configuration"""
-        self.font_system_path = Path("knowledge/system/font-system.json")
+        self.font_system_path = Path("core/data/font-system.json")
         self.load_font_system()
 
     def load_font_system(self) -> Dict[str, Any]:
@@ -121,7 +121,7 @@ class SettingsManager:
         }
     }
 
-    def __init__(self, settings_file: str = "memory/user/USER.UDT"):
+    def __init__(self, settings_file: str = "sandbox/user/USER.UDT"):
         self.settings_file = Path(settings_file)
         self.settings = self.load_settings()
         self.font_system = FontSystemManager.get_instance()

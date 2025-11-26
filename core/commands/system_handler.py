@@ -491,8 +491,8 @@ class SystemCommandHandler(BaseCommandHandler):
                 format_type = 'txt'  # Default
                 filename += '.txt'
 
-            # Create export path in memory/logs/
-            export_path = Path("memory/logs") / filename
+            # Create export path in sandbox/logs/
+            export_path = Path("sandbox/logs") / filename
             export_path.parent.mkdir(parents=True, exist_ok=True)
 
             success = history.export_history(str(export_path), format_type)
@@ -1938,7 +1938,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         try:
             from pathlib import Path
 
-            sandbox_path = Path("memory/sandbox")
+            sandbox_path = Path("sandbox")
             if not sandbox_path.exists():
                 return self.output_formatter.format_warning(
                     "Sandbox is empty",
@@ -3600,7 +3600,7 @@ Examples:
             "║  Security:                                                ║\n"
             "║                                                           ║\n"
             "║  • Requires master user credentials (.env)                ║\n"
-            "║  • All operations logged to memory/logs/dev_mode.log      ║\n"
+            "║  • All operations logged to sandbox/logs/dev_mode.log      ║\n"
             "║  • Session auto-expires after 1 hour of inactivity        ║\n"
             "║  • Never enable on production systems                     ║\n"
             "║                                                           ║\n"

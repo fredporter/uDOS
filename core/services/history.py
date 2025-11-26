@@ -33,7 +33,7 @@ class CommandHistory(History):
 
         # Default history location
         if history_file is None:
-            history_dir = Path("memory/logs")
+            history_dir = Path("sandbox/logs")
             history_dir.mkdir(parents=True, exist_ok=True)
             history_file = str(history_dir / "command_history.db")
 

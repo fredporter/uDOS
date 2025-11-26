@@ -56,7 +56,7 @@ What testing has been done?
 
 List any dependencies:
 
-- uDOS version: [e.g., >=v1.4.0]
+- uDOS version: [e.g., >=v1.1.0]
 - Python packages: [if any]
 - External tools: [if any]
 
@@ -85,7 +85,7 @@ If yes to any, explain the necessity and safety measures.
 - [ ] All features are tested
 - [ ] Extension metadata is complete (manifest.json)
 - [ ] No security vulnerabilities identified
-- [ ] Compatible with uDOS v1.4.0+
+- [ ] Compatible with uDOS v1.1.0+
 - [ ] Follows [extension development guidelines](https://github.com/fredporter/uDOS/wiki/API-Reference)
 
 ## 📝 Additional Notes

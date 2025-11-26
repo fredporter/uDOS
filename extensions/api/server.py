@@ -41,8 +41,8 @@ app.config['SECRET_KEY'] = 'udos-teletext-api-v1.0.19'
 CORS(app)  # Enable CORS for web interface
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Setup logging to memory/logs
-LOG_DIR = Path(__file__).parent.parent.parent / 'memory' / 'logs'
+# Setup logging to sandbox/logs
+LOG_DIR = Path(__file__).parent.parent.parent / 'sandbox' / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / 'api_server.log'
 

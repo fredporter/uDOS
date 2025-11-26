@@ -33,8 +33,8 @@ class ThemeBuilder:
             theme_manager: Optional ThemeManager instance for validation
         """
         self.theme_manager = theme_manager
-        self.templates_dir = Path("knowledge/system/themes/templates")
-        self.output_dir = Path("knowledge/system/themes")
+        self.templates_dir = Path("core/data/themes/templates")
+        self.output_dir = Path("core/data/themes")
         self.input_service = StandardizedInput()
 
         # Default templates

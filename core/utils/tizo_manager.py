@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 class TIZOLocationManager:
     """Manage TIZO location codes and nearest city detection."""
 
-    def __init__(self, data_dir="knowledge/system"):
+    def __init__(self, data_dir="core/data"):
         self.data_dir = Path(data_dir)
         self.tizo_cities = self.load_tizo_cities()
         self.worldmap = self.load_worldmap()

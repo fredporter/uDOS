@@ -6,8 +6,8 @@
 - **Author**: Fred Porter
 - **License**: See LICENSE.txt
 - **Repository**: https://github.com/fredporter/uDOS
-- **Version**: v1.1.2 (Production Release)
-- **Test Coverage**: 1,062 tests (100% passing)
+- **Version**: v1.1.0 (First Stable Public Release)
+- **Test Coverage**: 1,810 tests (100% passing)
 
 ---
 

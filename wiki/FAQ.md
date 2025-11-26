@@ -250,7 +250,7 @@ Absolutely! uDOS v1.0.6 is mobile-friendly:
 
 ### Where is my command history stored?
 
-Command history is stored in `memory/logs/command_history.db` (SQLite database):
+Command history is stored in `sandbox/logs/command_history.db` (SQLite database):
 - **Persistent**: Survives restarts and crashes
 - **Searchable**: Fast fuzzy search capabilities
 - **Exportable**: `HISTORY EXPORT backup.json`

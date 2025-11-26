@@ -10,7 +10,7 @@ class Logger:
     Enhanced to support reversible actions for UNDO/REDO/RESTORE.
     Tracks MOVES (INPUT/OUTPUT pairs) for lifespan management.
     """
-    def __init__(self, log_dir="memory/logs"):
+    def __init__(self, log_dir="sandbox/logs"):
         """
         Initializes the logger and creates a new log file.
         """

@@ -72,7 +72,7 @@ class ServerManager:
 
         try:
             # Start server in background using Popen (don't wait for it)
-            log_dir = Path('memory/logs')
+            log_dir = Path('sandbox/logs')
             log_dir.mkdir(parents=True, exist_ok=True)
             log_file = log_dir / f'{server_name}_{port or "default"}.log'
 
@@ -196,7 +196,7 @@ class ServerManager:
         try:
             # Start npm run dev in background, fully detached
             # Redirect output to log file
-            log_dir = Path('memory/logs')
+            log_dir = Path('sandbox/logs')
             log_dir.mkdir(parents=True, exist_ok=True)
             log_file = log_dir / f'typo_{port}.log'
 
@@ -299,7 +299,7 @@ class ServerManager:
         try:
             # Start http-server in background, fully detached
             # Redirect output to log file
-            log_dir = Path('memory/logs')
+            log_dir = Path('sandbox/logs')
             log_dir.mkdir(parents=True, exist_ok=True)
             log_file = log_dir / f'cmd_{port}.log'
 

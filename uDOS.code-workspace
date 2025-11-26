@@ -8,21 +8,24 @@
 		"python.defaultInterpreterPath": "./.venv/bin/python",
 		"python.terminal.activateEnvironment": true,
 		"python.testing.pytestArgs": [
-			"memory/tests",
-			"--cache-dir=memory/sandbox/.pytest_cache"
+			"sandbox/tests",
+			"--cache-dir=sandbox/.pytest_cache"
 		],
 		"python.testing.unittestEnabled": false,
 		"python.testing.pytestEnabled": true,
 		"files.watcherExclude": {
 			"**/.venv/**": true,
-			"**/memory/logs/**": true,
-			"**/memory/sandbox/.pytest_cache/**": true,
+			"**/sandbox/logs/**": true,
+			"**/sandbox/trash/**": true,
+			"**/sandbox/.pytest_cache/**": true,
 			"**/__pycache__/**": true
 		},
 		"search.exclude": {
 			"**/.venv": true,
-			"**/memory/logs": true,
-			"**/memory/sandbox/.pytest_cache": true,
+			"**/sandbox/logs": true,
+			"**/sandbox/trash": true,
+			"**/sandbox/.pytest_cache": true,
+			"**/sandbox/scripts": true,
 			"**/__pycache__": true
 		},
 		"files.exclude": {
@@ -58,7 +61,7 @@
 				"type": "shell",
 				"command": "./start_udos.sh",
 				"args": [
-					"memory/tests/shakedown.uscript"
+					"sandbox/ucode/shakedown.uscript"
 				],
 				"group": {
 					"kind": "test",
@@ -96,7 +99,7 @@
 					"-m",
 					"pytest",
 					"-q",
-					"memory/tests"
+					"sandbox/tests"
 				],
 				"group": "test",
 				"dependsOn": "Check Virtual Environment"
@@ -107,7 +110,7 @@
 				"command": "tail",
 				"args": [
 					"-f",
-					"memory/logs/dev-*.log"
+					"sandbox/logs/dev-*.log"
 				],
 				"group": "build",
 				"isBackground": true
@@ -180,7 +183,41 @@
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [
 					"-c",
-					"import datetime; print(f'📝 Updating wiki with current dev round status - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress')"
+					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: sandbox/dev/'); print('Documentation: sandbox/docs/')"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Generate SVG Diagram",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"sandbox/scripts/generate_svg_diagram.py",
+					"${input:diagramDescription}",
+					"${input:diagramCategory}"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "CLEAN Sandbox",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"CLEAN\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "TIDY Sandbox",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"TIDY --report\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
 				],
 				"group": "build",
 				"dependsOn": "Check Virtual Environment"
@@ -191,6 +228,18 @@
 				"id": "summaryMessage",
 				"description": "Enter dev summary message",
 				"default": "",
+				"type": "promptString"
+			},
+			{
+				"id": "diagramDescription",
+				"description": "Enter diagram description",
+				"default": "water filter 3 stages",
+				"type": "promptString"
+			},
+			{
+				"id": "diagramCategory",
+				"description": "Enter category (water, fire, shelter, food, medical, tools, navigation, communication)",
+				"default": "water",
 				"type": "promptString"
 			}
 		]

@@ -1,4 +1,4 @@
-# Troubleshooting & Repair Guide - v1.4.0
+# Troubleshooting & Repair Guide - v1.0.0
 
 Complete troubleshooting guide for uDOS with ASCII diagrams and step-by-step solutions.
 
@@ -72,7 +72,7 @@ Complete troubleshooting guide for uDOS with ASCII diagrams and step-by-step sol
 │    pip list | grep -E "google|requests|pyyaml"                 │
 │                                                                  │
 │  □ Check logs for errors                                        │
-│    tail -50 memory/logs/udos.log                               │
+│    tail -50 sandbox/logs/udos.log                               │
 │                                                                  │
 │  □ Test basic command                                           │
 │    HELP  (should show command list)                            │
@@ -391,7 +391,7 @@ GEMINI_API_KEY='your-api-key-here'
 │                                                                  │
 │  Slow Startup?                                                  │
 │  ├─ Check extension loading                                     │
-│  │  Disable unused extensions in memory/user/user.json          │
+│  │  Disable unused extensions in sandbox/user/user.json          │
 │  └─ Reduce session history size (config setting)                │
 │                                                                  │
 │  Slow GENERATE commands?                                        │
@@ -411,7 +411,7 @@ GEMINI_API_KEY='your-api-key-here'
 │  │  top  (CPU usage)                                            │
 │  │  df -h  (disk space)                                         │
 │  └─ Clear logs                                                  │
-│      rm memory/logs/*.log                                        │
+│      rm sandbox/logs/*.log                                        │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -423,11 +423,11 @@ GEMINI_API_KEY='your-api-key-here'
 top  # Press 'q' to quit
 
 # 2. Clear logs (if very large)
-du -sh memory/logs/
-rm memory/logs/udos.log  # Will be recreated
+du -sh sandbox/logs/
+rm sandbox/logs/udos.log  # Will be recreated
 
 # 3. Optimize configuration
-# Edit memory/user/user.json:
+# Edit sandbox/user/user.json:
 {
   "max_session_history": 100,  # Reduce from 1000
   "auto_save_interval": 300,   # Increase from 60
@@ -455,7 +455,7 @@ top -p $(pgrep -f uDOS)
 
 1. **Large session history:**
    ```bash
-   # Reduce in memory/user/user.json
+   # Reduce in sandbox/user/user.json
    "max_session_history": 50  # Down from 1000
    ```
 
@@ -554,7 +554,7 @@ bash setup_typo.sh
 
 3. **Enable extension:**
    ```bash
-   # Edit memory/user/user.json
+   # Edit sandbox/user/user.json
    {
      "extensions_enabled": ["ok-assist", "my-extension"]
    }
@@ -564,7 +564,7 @@ bash setup_typo.sh
 
 4. **Check logs:**
    ```bash
-   grep "extension" memory/logs/udos.log
+   grep "extension" sandbox/logs/udos.log
    # Look for error messages
    ```
 
@@ -606,7 +606,7 @@ GENERATE fails
 .venv/bin/python extensions/core/ok-assist/examples/test_quick.py
 
 # 3. Use offline mode (templates)
-# Edit memory/user/user.json:
+# Edit sandbox/user/user.json:
 {
   "force_offline_mode": true
 }
@@ -727,7 +727,7 @@ python -m core.ucode.validator --lint script.uscript
 # Test it manually in CLI
 
 # 4. Check logs
-tail -50 memory/logs/udos.log | grep ERROR
+tail -50 sandbox/logs/udos.log | grep ERROR
 ```
 
 ---
@@ -741,7 +741,7 @@ tail -50 memory/logs/udos.log | grep ERROR
 **Check configuration files:**
 ```bash
 # 1. User settings
-cat memory/user/user.json
+cat sandbox/user/user.json
 # Should be valid JSON
 
 # 2. Environment variables
@@ -749,7 +749,7 @@ cat .env
 # Should have KEY='value' format
 
 # 3. File permissions
-ls -l memory/user/user.json
+ls -l sandbox/user/user.json
 # Should be writable: -rw-r--r--
 ```
 
@@ -757,15 +757,15 @@ ls -l memory/user/user.json
 
 ```bash
 # 1. Validate JSON syntax
-python3 -c "import json; print(json.load(open('memory/user/user.json')))"
+python3 -c "import json; print(json.load(open('sandbox/user/user.json')))"
 
 # 2. Fix permissions
-chmod 644 memory/user/user.json
+chmod 644 sandbox/user/user.json
 chmod 644 .env
 
 # 3. Reset to defaults
-cp memory/user/user.json memory/user/user.json.backup
-cat > memory/user/user.json << 'EOF'
+cp sandbox/user/user.json sandbox/user/user.json.backup
+cat > sandbox/user/user.json << 'EOF'
 {
   "username": "user",
   "theme": "c64",
@@ -873,10 +873,10 @@ GEMINI_API_KEY='abc123'
 **2. Check Logs:**
 ```bash
 # Error log
-tail -100 memory/logs/udos.log | grep ERROR
+tail -100 sandbox/logs/udos.log | grep ERROR
 
 # Full debug log
-cat memory/logs/debug.log
+cat sandbox/logs/debug.log
 ```
 
 **3. Search Issues:**
@@ -916,8 +916,8 @@ https://github.com/fredporter/uDOS/issues/new
 
 ```bash
 # Weekly:
-- Check logs for errors: grep ERROR memory/logs/udos.log
-- Clear old logs: rm memory/logs/*.log.old
+- Check logs for errors: grep ERROR sandbox/logs/udos.log
+- Clear old logs: rm sandbox/logs/*.log.old
 - Update dependencies: pip install -r requirements.txt --upgrade
 
 # Monthly:

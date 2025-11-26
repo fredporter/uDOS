@@ -456,13 +456,13 @@ class DashboardHandler(BaseCommandHandler):
         - Grayscale gradient
         """
         try:
-            # Load palette data
-            palette_path = Path('knowledge/system/palette.json')
+            # Load palette data from font-system.json
+            palette_path = Path('core/data/font-system.json')
             with open(palette_path, 'r') as f:
-                palette_data = json.load(f)
+                font_system = json.load(f)
 
-            palette = palette_data['PALETTE']
-            colors = palette['COLORS']
+            palette = font_system['font_system']['color_palette']
+            colors = palette['colors']
 
             # Build output
             output = []

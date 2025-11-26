@@ -1,8 +1,8 @@
 # Documentation Index
 
-**uDOS v1.4.0** - Complete documentation reference
+**uDOS v1.1.0** - Complete documentation reference
 
-> **💡 Quick Links**: [Getting Started](Tutorial-Getting-Started.md) | [Quick Reference](Quick-Reference.md) | [Commands](Command-Reference.md) | [Troubleshooting](Troubleshooting-Complete.md)
+> **💡 Quick Links**: [Getting Started](Tutorial-Getting-Started.md) | [Commands](Command-Reference.md) | [Troubleshooting](Troubleshooting-Complete.md)
 
 ---
 
@@ -10,7 +10,7 @@
 
 Total Wiki Pages: **58**
 Last Updated: **November 25, 2025**
-Version: **v1.4.0 (Community Beta - 88% complete)**
+Version: **v1.1.0 (First Stable Public Release)**
 
 ---
 
@@ -19,7 +19,7 @@ Version: **v1.4.0 (Community Beta - 88% complete)**
 Start here if you're new to uDOS:
 
 1. **[Tutorial: Getting Started](Tutorial-Getting-Started.md)** ⭐ - Interactive tutorial with ASCII diagrams
-2. **[Quick Start](Quick-Start.md)** - Get running in 5 minutes
+2. **[Quick Start](../QUICK-START.md)** - Get running in 5 minutes
 3. **[Quick Reference](Quick-Reference.md)** ⭐ - Essential commands cheat sheet
 4. **[FAQ](FAQ.md)** - Frequently asked questions
 
@@ -30,11 +30,9 @@ Start here if you're new to uDOS:
 ## 📚 User Documentation
 
 ### Command Reference
-- **[Command Reference](Command-Reference.md)** - Complete command documentation (3,000+ lines)
-- **[Quick Reference](Quick-Reference.md)** ⭐ - Essential commands (500 lines)
-- **[TILE Commands](TILE-Commands.md)** - Geographic reference system
-- **[PANEL Commands](PANEL-Commands.md)** - Display panel management
-- **[KNOWLEDGE Commands](KNOWLEDGE-Commands.md)** - Knowledge bank operations
+- **[Command Reference](Command-Reference.md)** - Complete command documentation (3,600+ lines)
+- **[uCODE Language](uCODE-Language.md)** ⭐ - Complete command reference (TILE, POKE, PANEL)
+- **[Knowledge System](Knowledge-System.md)** - 4-tier knowledge bank & architecture
 
 ### Scripting & Automation
 - **[uCODE Language](uCODE-Language.md)** ⭐ - v2.0.0 scripting language specification
@@ -42,7 +40,7 @@ Start here if you're new to uDOS:
 - **[Debugging Guide](Debugging-Guide.md)** - Interactive debugger
 
 ### Knowledge Management
-- **[Knowledge Architecture](Knowledge-Architecture.md)** - Information organization
+
 - **[Content Curation](Content-Curation.md)** - Building knowledge commons
 - **[Mapping System](Mapping-System.md)** - Navigation & geospatial
 
@@ -57,26 +55,29 @@ Start here if you're new to uDOS:
 - **[Dev Rounds Workflow](Dev-Rounds-Workflow.md)** - Development process
 
 ### Tools & Integration
-- **[SVG Generator Guide](SVG-Generator-Guide.md)** ⭐ - AI diagram generation
-- **[OK Assist Integration](OK-Assist-Integration.md)** ⭐ - AI content generation
+- **[Content Generation](Content-Generation.md)** ⭐ - OK Assist + SVG diagram generation
 - **[Extensions System](Extensions-System.md)** - Extension development
 - **[Documentation Handbook](Documentation-Handbook.md)** - Writing docs
 
 ### Technical Reference
 - **[Architecture (System)](Architecture.md)** - Internal design
-- **[Command Palette](Command-Palette.md)** - Command system
-- **[GRID System](GRID-SYSTEM.md)** - Data visualization
-- **[CSS Framework Integration](CSS-Framework-Integration.md)** - Styling
-- **[SYSTEM CSS Reference](SYSTEM-CSS-REFERENCE.md)** - CSS variables
+- **[Mapping System](Mapping-System.md)** - Navigation, geospatial & grid layout
 
 ---
 
-## 🎨 Customization
+## 🎨 Customization & Design
 
+### User Customization
 - **[Theme System](Theme-System.md)** - Complete theming guide (700+ lines)
-- **[Style Guide](Style-Guide.md)** - Code & design standards
-- **[Teletext Themes](Teletext-Synthwave.md)** - Retro BBC Ceefax themes
 - **[Configuration](Configuration.md)** - System configuration
+
+### Developer Resources
+- **[Style Guide](Style-Guide.md)** - Design conventions & CSS frameworks (1,200+ lines)
+- **[ASSETS-GUIDE](ASSETS-GUIDE.md)** - Asset management & web components (fonts, icons, patterns, shared components)
+
+### Extensions
+- **[Extensions System](Extensions-System.md)** - Extension development
+- **[Teletext Extension](Teletext-Extension.md)** - BBC Ceefax Mode 7 interface
 
 ---
 
@@ -89,36 +90,29 @@ Start here if you're new to uDOS:
   - Complete error decoder
   - Performance optimization
   - Prevention tips
-- [Troubleshooting (Basic)](Troubleshooting.md) - ⚠️ Deprecated (use Complete version)
 
 ### Reference
 - **[FAQ](FAQ.md)** - Common questions & answers
 - **[Configuration](Configuration.md)** - Setup & config
-- **[CLI Features v1.0.6](CLI-Features-v1-0-6.md)** - Terminal features
 
 ---
 
 ## 💡 Philosophy & Design
 
 - **[Philosophy](Philosophy.md)** - Core mission & values
-- **[Why uDOS](Why-uDOS.md)** - Rationale & comparisons
-- **[Text-First Computing](Text-First-Computing.md)** - Power of text
-- **[Human-Centric Design](Human-Centric-Design.md)** - Design principles
+- **[Philosophy](Philosophy.md)** - Complete manifesto, rationale & comparisons
 
 ---
 
 ## 🚀 Release Information
 
-### Current Releases
-- **[v1.4.0 Progress](releases/v1.4.0-PROGRESS.md)** ⭐ - Community Beta (88% complete)
-- **[Release v1.1.2](Release-v1.1.2.md)** - Latest stable
-- **[Release v1.0.30](Release-v1.0.30.md)** - Content system
-- **[Release v1.0.13](Release-v1.0.13.md)** - Major milestone
+### Current Release
+- **[Release v1.1.0](Release-v1.1.0.md)** - First stable public release
 
 ### Planning
 - **[ROADMAP](../ROADMAP.MD)** - Development roadmap
 - **[Development History](Development-History.md)** - Version history
-- **[Latest Development](Latest-Development.md)** - Current work
+- **[Development History](Development-History.md)** - Complete evolution and current work
 - **[Project Organization](Project-Organization.md)** - Repository structure
 
 ---
@@ -127,8 +121,8 @@ Start here if you're new to uDOS:
 
 ### For Beginners
 1. [Tutorial: Getting Started](Tutorial-Getting-Started.md) - Interactive walkthrough
-2. [Quick Start](Quick-Start.md) - 5-minute setup
-3. [Quick Reference](Quick-Reference.md) - Command cheat sheet
+2. [Quick Start](../QUICK-START.md) - 5-minute setup
+3. [Command Reference](Command-Reference.md) - All commands with quick reference
 4. [Troubleshooting (Complete)](Troubleshooting-Complete.md) - Self-service help
 
 **Total**: 4 pages, ~3,000 lines
@@ -138,15 +132,15 @@ Start here if you're new to uDOS:
 2. [uCODE Language](uCODE-Language.md) - Scripting language
 3. [Workflows](Workflows.md) - Automation patterns
 4. [Theme System](Theme-System.md) - Customization
-5. [Knowledge Architecture](Knowledge-Architecture.md) - Organization
+5. [Knowledge System](Knowledge-System.md) - Knowledge bank & organization
 
 **Total**: 10+ pages, ~8,000 lines
 
 ### For Developers
 1. [API Reference](API-Reference.md) - Extension API
 2. [Architecture (Contributors)](Architecture-Contributor-Guide.md) - System design
-3. [SVG Generator Guide](SVG-Generator-Guide.md) - Diagram tools
-4. [OK Assist Integration](OK-Assist-Integration.md) - AI integration
+3. [Content Generation](Content-Generation.md) - Gemini-assisted content creation
+4. [Extensions System](Extensions-System.md) - Extension development
 5. [Contributing](Contributing.md) - How to contribute
 
 **Total**: 15+ pages, ~5,000 lines
@@ -166,13 +160,13 @@ Start here if you're new to uDOS:
 - **Developer Tools**: 100% ✅
 
 ### Content Metrics
-- **Total pages**: 58
-- **Total lines**: ~15,000+
+- **Total pages**: 40
+- **Total lines**: ~20,000+
 - **ASCII diagrams**: 40+
-- **Code examples**: 150+
+- **Code examples**: 200+
 - **Tutorials**: 3
 - **Reference docs**: 8
-- **Guides**: 20+
+- **Guides**: 15+
 
 ### Quality Metrics
 - **Clarity**: 95%
@@ -188,44 +182,41 @@ Start here if you're new to uDOS:
 ### By Topic
 | Topic | Documentation |
 |-------|--------------|
-| **Installation** | [Quick Start](Quick-Start.md), [INSTALL](../INSTALL.md) |
-| **Commands** | [Command Reference](Command-Reference.md), [Quick Reference](Quick-Reference.md) |
+| **Installation** | [Quick Start](../QUICK-START.md), [INSTALL](../INSTALL.md) |
+| **Commands** | [Command Reference](Command-Reference.md) |
 | **Scripting** | [uCODE Language](uCODE-Language.md), [Workflows](Workflows.md) |
-| **Extensions** | [API Reference](API-Reference.md), [Extensions System](Extensions-System.md) |
+| **Extensions** | [API Reference](API-Reference.md), [Extensions System](Extensions-System.md), [Teletext Extension](Teletext-Extension.md) |
 | **Themes** | [Theme System](Theme-System.md), [Style Guide](Style-Guide.md) |
+| **Assets** | [ASSETS-GUIDE](ASSETS-GUIDE.md), [Style Guide](Style-Guide.md) |
 | **Troubleshooting** | [Troubleshooting (Complete)](Troubleshooting-Complete.md) |
-| **AI Features** | [OK Assist Integration](OK-Assist-Integration.md) |
-| **Diagrams** | [SVG Generator Guide](SVG-Generator-Guide.md) |
+| **Content** | [Content Generation](Content-Generation.md) |
 
 ### By Format
 | Format | Description | Examples |
 |--------|-------------|----------|
 | **Tutorials** | Step-by-step guides | Getting Started, Quick Start |
 | **Reference** | Complete specifications | Command Reference, API Reference, uCODE Language |
-| **How-To** | Task-specific guides | Workflows, SVG Generator, OK Assist |
+| **How-To** | Task-specific guides | Workflows, AI Content Generation |
 | **Explanation** | Conceptual docs | Architecture, Philosophy, Design |
 
 ---
 
-## 🆕 What's New in v1.4.0
+## 🆕 What's in v1.1.0
 
-### New Documentation
-1. **[Quick Reference](Quick-Reference.md)** - Essential commands & dev guide
-2. **[Tutorial: Getting Started](Tutorial-Getting-Started.md)** - Interactive tutorial
-3. **[API Reference](API-Reference.md)** - Developer API (800+ lines)
-4. **[Architecture (Contributors)](Architecture-Contributor-Guide.md)** - System architecture (900+ lines)
-5. **[Troubleshooting (Complete)](Troubleshooting-Complete.md)** - Comprehensive guide (800+ lines)
-6. **[SVG Generator Guide](SVG-Generator-Guide.md)** - Diagram generation
-7. **[OK Assist Integration](OK-Assist-Integration.md)** - AI integration
+### Documentation Highlights
+1. **[Tutorial: Getting Started](Tutorial-Getting-Started.md)** - Interactive tutorial
+2. **[API Reference](API-Reference.md)** - Developer API (800+ lines)
+3. **[Architecture (Contributors)](Architecture-Contributor-Guide.md)** - System architecture (900+ lines)
+4. **[Troubleshooting (Complete)](Troubleshooting-Complete.md)** - Comprehensive guide (800+ lines)
+5. **[Content Generation](Content-Generation.md)** - Gemini-assisted guides & diagrams
 
-### Updated Documentation
-1. **[uCODE Language](uCODE-Language.md)** - v2.0.0 specification
-2. **[FAQ](FAQ.md)** - v1.4.0 content
-3. **Navigation** - Updated sidebar with v1.4.0 links
+### Core Documentation
+1. **[uCODE Language](uCODE-Language.md)** - Scripting language specification
+2. **[FAQ](FAQ.md)** - Frequently asked questions
+3. **Navigation** - Comprehensive wiki sidebar
 
 ### Deprecated
-1. **[Troubleshooting (Basic)](Troubleshooting.md)** - Use Complete version
-2. **[../QUICK-REFERENCE.md](../QUICK-REFERENCE.md)** - Moved to wiki
+1. **[../QUICK-START.md](../QUICK-START.md)** - Use [Tutorial: Getting Started](Tutorial-Getting-Started.md) instead
 
 **Total new content**: ~5,000 lines
 **ASCII diagrams**: 30+ new diagrams
@@ -295,7 +286,7 @@ STATUS
 ---
 
 **Last Updated**: November 25, 2025
-**Version**: v1.4.0 (Community Beta - 88% complete)
+**Version**: v1.1.0 (First Stable Public Release)
 **Next Update**: Phase 5 completion (community infrastructure)
 
-⭐ = New in v1.4.0
+⭐ = Featured guide

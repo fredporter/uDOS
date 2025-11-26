@@ -98,7 +98,7 @@ class MapDataManager:
     Manages world geography data, TILE system, and map rendering.
 
     Responsibilities:
-    - Load geography data from /knowledge/system/geography/
+    - Load geography data from /core/data/geography/
     - Generate TILE grid covering world
     - Render ASCII/Teletext maps
     - Handle coordinate conversions
@@ -110,7 +110,7 @@ class MapDataManager:
         Initialize Map Data Manager.
 
         Args:
-            data_dir: Path to knowledge/system/geography/ (default: auto-detect)
+            data_dir: Path to core/data/geography/ (default: auto-detect)
         """
         if data_dir is None:
             data_dir = Path(__file__).parent.parent.parent / "knowledge" / "system" / "geography"

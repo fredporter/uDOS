@@ -1,8 +1,8 @@
 # uDOS Quick Start Guide
 
-## Welcome to uDOS v1.1.2! ✅
+## Welcome to uDOS v1.1.0! ✅
 
-uDOS is production-ready with **1,062 passing tests**, enterprise security, and dual-interface support (Terminal + Web GUI).
+uDOS is production-ready with **1,810 passing tests**, sandbox architecture, and dual-interface support (Terminal + Web GUI).
 
 ## Starting uDOS
 
@@ -25,7 +25,7 @@ On first startup, you'll see the welcome screen showing your current role and in
 
 ```
 ==================================================
-Welcome to uDOS v1.1.2
+Welcome to uDOS v1.1.0
 ==================================================
 
 Current Role: User (offline-first mode)
@@ -168,7 +168,7 @@ python uDOS.py
 ## Getting Help
 
 - Type `help` in uDOS for command reference
-- Check `/knowledge/system/` for system documentation
+- Check `/core/data/` for system documentation
 - Wiki: https://github.com/fredporter/uDOS/wiki
 - Full documentation: [Release v1.1.2](wiki/Release-v1.1.2.md)
 

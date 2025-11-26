@@ -434,9 +434,9 @@ Barter uses MAP/LOCATE data (v1.0.32):
 - Same-location traders get +0.2 score bonus
 - Planet-specific barter economies (future)
 
-### Future Enhancements (v1.1.3+)
+### Future Enhancements
 
-Planned for v1.1.3 Adventure & Economy Systems:
+Planned improvements:
 - [ ] Barter analytics dashboard
 - [ ] Trade history visualization
 - [ ] Multi-party trades (3+ participants)

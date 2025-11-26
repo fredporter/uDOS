@@ -35,7 +35,7 @@ No setup needed! uDOS CLI works out of the box without this extension.
 ## 🌐 Enabling Web GUI
 
 ### Method 1: User Settings
-Edit `memory/user/profile.json`:
+Edit `sandbox/user/profile.json`:
 ```json
 {
   "settings": {

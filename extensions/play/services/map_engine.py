@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """
-uDOS v1.0.3 - Mapping System
+uDOS v2.0.0 - Mapping System
 
-Combines APAC-centered 480×270 cell reference grid with TIZO location codes
-and multi-layer mapping system for comprehensive world navigation.
+Hierarchical TILE code grid system with timezone-based location detection.
 
 Features:
-- Cell reference system (A1-RL270 format)
-- TIZO location integration
+- TILE code system (CONTINENT-COUNTRY-CITY[-DISTRICT[-BLOCK]])
+- 5 zoom levels (World → Region → City → District → Block)
+- Timezone-based location detection (TIZO/TZONE)
 - Multi-layer mapping (SURFACE, CLOUD, SATELLITE, DUNGEON)
+- Legacy cell reference support (A1-RL270 format)
 - Coordinate conversions
-- Distance calculations
-- World navigation
 
-Version: 1.0.3
+Version: 2.0.0
 Author: Fred Porter
 """
 
@@ -28,6 +27,189 @@ import sys
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from core.utils.tizo_manager import TIZOLocationManager
+
+
+class TileCodeSystem:
+    """Hierarchical TILE code system for location representation (v2.0.0)."""
+
+    def __init__(self, data_dir="core/data"):
+        self.data_dir = Path(data_dir)
+        self.locations_data = self._load_locations()
+        self.timezone_cities = self.locations_data.get("timezone_cities", {})
+        self.tile_system = self.locations_data.get("tile_system", {})
+        self.continents = self.tile_system.get("continents", {})
+
+    def _load_locations(self) -> Dict:
+        """Load locations.json with TILE code data."""
+        locations_file = self.data_dir / "locations.json"
+        if locations_file.exists():
+            with open(locations_file, 'r') as f:
+                return json.load(f)
+        return {}
+
+    def tile_to_grid(self, tile_code: str) -> Optional[str]:
+        """
+        Convert TILE code to grid cell reference.
+
+        Args:
+            tile_code: TILE code (e.g., "AS-JP-TYO", "OC-AU-SYD-C1")
+
+        Returns:
+            Grid cell (e.g., "Y320", "AA340") or None if not found
+        """
+        # Check timezone_cities for known tiles
+        for tz, city_data in self.timezone_cities.items():
+            if city_data.get("tile", "").startswith(tile_code):
+                grid_cell = city_data.get("grid_cell")
+                if grid_cell:
+                    return grid_cell
+
+        # For partial tiles, try to find the base city
+        parts = tile_code.split("-")
+        if len(parts) >= 3:
+            base_tile = "-".join(parts[:3])  # Get city-level tile
+            for tz, city_data in self.timezone_cities.items():
+                if city_data.get("tile") == base_tile:
+                    grid_cell = city_data.get("grid_cell")
+                    if grid_cell:
+                        return grid_cell
+
+        return None
+
+    def grid_to_tile(self, grid_cell: str, precision: str = "city") -> Optional[str]:
+        """
+        Convert grid cell to nearest TILE code.
+
+        Args:
+            grid_cell: Grid cell reference (e.g., "Y320", "AA340")
+            precision: "continent", "city", "district", or "block"
+
+        Returns:
+            TILE code or None
+        """
+        # Find city with matching grid cell
+        for tz, city_data in self.timezone_cities.items():
+            if city_data.get("grid_cell") == grid_cell:
+                return city_data.get("tile")
+
+        return None
+
+    def decode_tile(self, tile_code: str) -> Dict:
+        """
+        Decode TILE code into human-readable information.
+
+        Args:
+            tile_code: TILE code (e.g., "AS-JP-TYO-C5-42")
+
+        Returns:
+            Dictionary with decoded information
+        """
+        parts = tile_code.split("-")
+
+        result = {
+            "tile": tile_code,
+            "zoom_level": len(parts),
+            "parts": {}
+        }
+
+        if len(parts) >= 1:
+            continent_code = parts[0]
+            continent_info = self.continents.get(continent_code, {})
+            result["parts"]["continent"] = {
+                "code": continent_code,
+                "name": continent_info.get("name", "Unknown")
+            }
+
+        if len(parts) >= 2:
+            result["parts"]["country"] = {
+                "code": parts[1],
+                "name": self._get_country_name(parts[1])
+            }
+
+        if len(parts) >= 3:
+            city_code = parts[2]
+            # Find city info from timezone_cities
+            for tz, city_data in self.timezone_cities.items():
+                if city_data.get("tile", "").startswith("-".join(parts[:3])):
+                    result["parts"]["city"] = {
+                        "code": city_code,
+                        "name": city_data.get("name", "Unknown"),
+                        "country": city_data.get("country", "Unknown"),
+                        "coords": city_data.get("coords", [])
+                    }
+                    break
+
+        if len(parts) >= 4:
+            result["parts"]["district"] = {
+                "code": parts[3]
+            }
+
+        if len(parts) >= 5:
+            result["parts"]["block"] = {
+                "code": parts[4]
+            }
+
+        return result
+
+    def _get_country_name(self, country_code: str) -> str:
+        """Get country name from ISO code."""
+        # Basic mapping - expand as needed
+        country_map = {
+            "AU": "Australia", "JP": "Japan", "UK": "United Kingdom",
+            "US": "USA", "DE": "Germany", "IN": "India",
+            "CN": "China", "BR": "Brazil", "ZA": "South Africa",
+            "NZ": "New Zealand", "SG": "Singapore"
+        }
+        return country_map.get(country_code, country_code)
+
+    def get_city_by_timezone(self, timezone: str) -> Optional[Dict]:
+        """
+        Get city data by timezone code.
+
+        Args:
+            timezone: Timezone code (e.g., "AEST", "JST")
+
+        Returns:
+            City data dictionary or None
+        """
+        return self.timezone_cities.get(timezone)
+
+    def zoom_out(self, tile_code: str) -> Optional[str]:
+        """
+        Zoom out by removing the most specific level.
+
+        Args:
+            tile_code: Current TILE code
+
+        Returns:
+            Parent TILE code or None if already at world level
+        """
+        parts = tile_code.split("-")
+        if len(parts) > 1:
+            return "-".join(parts[:-1])
+        return None
+
+    def zoom_in(self, tile_code: str, sublevel: str) -> str:
+        """
+        Zoom in by adding a sublevel.
+
+        Args:
+            tile_code: Current TILE code
+            sublevel: Sublevel identifier (e.g., "C5", "42")
+
+        Returns:
+            New TILE code
+        """
+        return f"{tile_code}-{sublevel}"
+
+    def get_zoom_level(self, tile_code: str) -> int:
+        """
+        Get the zoom level (1-5) of a TILE code.
+
+        Returns:
+            1=World, 2=Region, 3=City, 4=District, 5=Block
+        """
+        return len(tile_code.split("-"))
 
 
 class CellReferenceSystem:
@@ -141,10 +323,18 @@ class CellReferenceSystem:
 
 
 class MapEngine:
-    """Mapping engine combining cell references with TIZO locations and world cities."""
+    """Mapping engine with TILE code system and legacy cell reference support."""
 
-    def __init__(self, data_dir="knowledge/system"):
+    def __init__(self, data_dir="core/data"):
         self.data_dir = Path(data_dir)
+
+        # v2.0.0: TILE code system (primary)
+        self.tile_system = TileCodeSystem(data_dir)
+        self.current_tile = self.tile_system.tile_system.get("default_start", "OC-AU-SYD")
+        self.current_layer = "SURFACE"
+        self.zoom_level = 3  # City level by default
+
+        # Legacy: Cell reference system (backwards compatibility)
         self.tizo_manager = TIZOLocationManager(data_dir)
         self.cell_system = CellReferenceSystem()
 
@@ -152,11 +342,146 @@ class MapEngine:
         self.worldmap = self.load_worldmap()
         self.city_cells = {}
         self.world_cities = {}
-        self.layers = {}
+        self.layers = self._initialize_layers()
 
         # Initialize with world cities and TIZO locations
         self.load_world_cities()
         self.initialize_tizo_cells()
+
+    def _initialize_layers(self) -> Dict:
+        """Initialize default map layers."""
+        return {
+            "SATELLITE": {"depth": 100, "type": "VIRTUAL", "accessible": True},
+            "CLOUD": {"depth": 10, "type": "VIRTUAL", "accessible": True},
+            "SURFACE": {"depth": 0, "type": "PHYSICAL", "accessible": True},
+            "DUNGEON-1": {"depth": -1, "type": "PHYSICAL", "accessible": True},
+            "DUNGEON-2": {"depth": -2, "type": "PHYSICAL", "accessible": False},
+            "DUNGEON-3": {"depth": -3, "type": "PHYSICAL", "accessible": False},
+            "MINES": {"depth": -10, "type": "PHYSICAL", "accessible": False},
+            "CORE": {"depth": -100, "type": "PHYSICAL", "accessible": False}
+        }
+
+    # ========== TILE CODE METHODS (v2.0.0) ==========
+
+    def move_to_tile(self, tile_code: str) -> str:
+        """Move to a specific TILE location."""
+        grid_cell = self.tile_system.tile_to_grid(tile_code)
+        if grid_cell is None:
+            return f"❌ Invalid TILE code: {tile_code}"
+
+        self.current_tile = tile_code
+        self.zoom_level = self.tile_system.get_zoom_level(tile_code)
+
+        tile_info = self.tile_system.decode_tile(tile_code)
+        city_name = tile_info.get("parts", {}).get("city", {}).get("name", "Unknown")
+
+        return f"📍 Moved to {tile_code} ({city_name}) @ {grid_cell}"
+
+    def set_location_by_timezone(self, timezone: str) -> str:
+        """Set location based on timezone (TIZO detection)."""
+        city_data = self.tile_system.get_city_by_timezone(timezone)
+        if city_data is None:
+            return f"❌ Unknown timezone: {timezone}"
+
+        tile_code = city_data.get("tile")
+        city_name = city_data.get("name")
+        country = city_data.get("country")
+
+        self.current_tile = tile_code
+        self.zoom_level = 3  # City level
+
+        return f"📍 Location set to {city_name}, {country}\n🌏 TILE: {tile_code}\n🕐 Timezone: {timezone} ({city_data.get('offset')})\n🗺️  Zoom Level: {self.zoom_level} (City)"
+
+    def get_current_tile(self) -> str:
+        """Get current TILE code."""
+        return self.current_tile
+
+    def zoom_in_tile(self, sublevel: str = "C1") -> str:
+        """Zoom into a sublayer."""
+        if self.zoom_level >= 5:
+            return "❌ Already at maximum zoom level (Block)"
+
+        new_tile = self.tile_system.zoom_in(self.current_tile, sublevel)
+        self.current_tile = new_tile
+        self.zoom_level += 1
+
+        level_names = ["", "World", "Region", "City", "District", "Block"]
+        return f"🔍 Zoomed to {level_names[self.zoom_level]} level: {new_tile}"
+
+    def zoom_out_tile(self) -> str:
+        """Zoom out to parent layer."""
+        if self.zoom_level <= 1:
+            return "❌ Already at minimum zoom level (World)"
+
+        parent_tile = self.tile_system.zoom_out(self.current_tile)
+        if parent_tile is None:
+            return "❌ Cannot zoom out further"
+
+        self.current_tile = parent_tile
+        self.zoom_level -= 1
+
+        level_names = ["", "World", "Region", "City", "District", "Block"]
+        return f"🔍 Zoomed to {level_names[self.zoom_level]} level: {parent_tile}"
+
+    def change_layer(self, layer_name: str) -> str:
+        """Switch to a different layer."""
+        layer_name = layer_name.upper()
+        if layer_name not in self.layers:
+            return f"❌ Unknown layer: {layer_name}"
+
+        layer_info = self.layers[layer_name]
+        if not layer_info.get("accessible", False):
+            return f"🔒 Layer {layer_name} is not accessible"
+
+        self.current_layer = layer_name
+        return f"🔄 Switched to layer: {layer_name} (depth: {layer_info['depth']})"
+
+    def get_current_status(self) -> str:
+        """Get formatted status display with TILE information."""
+        tile_info = self.tile_system.decode_tile(self.current_tile)
+        parts = tile_info.get("parts", {})
+
+        city = parts.get("city", {})
+        city_name = city.get("name", "Unknown")
+        country = city.get("country", "Unknown")
+
+        continent = parts.get("continent", {})
+        continent_name = continent.get("name", "Unknown")
+
+        layer_info = self.layers.get(self.current_layer, {})
+        layer_depth = layer_info.get("depth", 0)
+        layer_type = layer_info.get("type", "UNKNOWN")
+
+        level_names = ["", "World", "Region", "City", "District", "Block"]
+        zoom_name = level_names[self.zoom_level] if self.zoom_level < len(level_names) else "Unknown"
+
+        # Get accessible layers
+        accessible = [name for name, data in self.layers.items() if data.get("accessible", False)]
+
+        output = []
+        output.append("=" * 60)
+        output.append("🗺️  MAP STATUS")
+        output.append("=" * 60)
+        output.append("")
+        output.append(f"📍 Location: {self.current_tile} ({city_name}, {country})")
+        output.append(f"🌍 Layer: {self.current_layer}")
+        output.append(f"   Depth: {layer_depth}")
+        output.append(f"   Type: {layer_type}")
+        output.append(f"   Zoom: Level {self.zoom_level} ({zoom_name})")
+        output.append("")
+
+        if len(accessible) > 1:
+            output.append("🔗 Available Layers:")
+            for layer in sorted(accessible, key=lambda x: self.layers[x]['depth'], reverse=True):
+                depth = self.layers[layer]['depth']
+                symbol = "☁️ " if depth > 0 else "⬇️ " if depth < 0 else "🌍"
+                current = " ← YOU ARE HERE" if layer == self.current_layer else ""
+                output.append(f"   {symbol} {layer} (depth {depth}){current}")
+
+        output.append("=" * 60)
+        return "\n".join(output)
+
+    # ========== LEGACY METHODS (Backwards Compatibility) ==========
 
     def load_worldmap(self) -> Dict:
         """Load worldmap data."""

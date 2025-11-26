@@ -6,6 +6,8 @@ This document outlines the design and style conventions for uDOS v1.0.0, ensurin
 
 ## Table of Contents
 
+> **📦 See Also**: [ASSETS-GUIDE](ASSETS-GUIDE.md) - Shared asset management (fonts, icons, patterns, CSS, JS)
+
 1. [Core Principles](#1-core-principles)
 2. [Retro CSS Frameworks](#2-retro-css-frameworks)
 3. [Command and uCODE Syntax](#3-command-and-ucode-syntax)
@@ -247,9 +249,9 @@ The `LEXICON.UDO` file in the `/data` directory defines the thematic "skin" of t
 
 ### uDOS Core Font System
 
-uDOS v1.0.24 uses a curated collection of retro fonts stored in `extensions/core/fonts/` with comprehensive fallback stacks for reliability. The font system is defined in `knowledge/system/font-system.json` and integrated across all extensions.
+uDOS v1.0.0 uses a curated collection of retro fonts stored in `extensions/assets/fonts/` with comprehensive fallback stacks for reliability. The font system is managed by the Asset Manager and integrated across all extensions.
 
-**Font Configuration:** See `knowledge/system/font-system.json` for complete font system specification.
+**Font Management:** See [ASSETS-GUIDE](ASSETS-GUIDE.md) for programmatic font loading and the complete font catalog.
 
 **Retro Font Families:**
 
@@ -1191,4 +1193,4 @@ For updates to this style guide, see the [Contributing Guide](https://github.com
 
 **Last Updated:** October 31, 2025
 **Maintainer:** Fred Porter
-**License:** GNU GPL v3.0
+**License:** MIT License

@@ -139,7 +139,7 @@ class ScreenManager:
     def _clear_logs(self) -> str:
         """Clear session logs (placeholder)."""
         # This would integrate with logging system
-        # Could clear memory/logs/sessions/ files
+        # Could clear sandbox/logs/sessions/ files
         return "⚠️  Log clearing requires confirmation (use CLEAR LOGS CONFIRM)"
 
     def _clear_history(self) -> str:

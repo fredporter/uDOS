@@ -40,7 +40,7 @@ This guide will get you from zero to productive in 30 minutes. No prior experien
 - ♿ **Accessible** - screen readers work perfectly
 - 🔋 **Efficient** - runs on 20+ year old hardware
 
-**Learn more**: [Why uDOS](Why-uDOS.md) | [Text-First Computing](Text-First-Computing.md) | [Philosophy](Philosophy.md)
+**Learn more**: [Philosophy](Philosophy.md) - Complete manifesto covering rationale, principles, and text-first computing
 
 ---
 
@@ -125,7 +125,7 @@ When you run `./start_udos.sh` for the first time, you'll see:
 
 ```
 ┌─────────────────────────────────────┐
-│         μDOS v1.0.15                │
+│         μDOS v1.0.0                │
 │    The People's Operating System    │
 └─────────────────────────────────────┘
 
@@ -470,7 +470,7 @@ CD sandbox
 **Resources**:
 - [Architecture](Architecture.md)
 - [Contributing](Contributing.md)
-- [Dev Rounds Workflow](Dev-Rounds-Workflow.md)
+- [Developers Guide](Developers-Guide.md)
 - [Extensions System](Extensions-System.md)
 
 ---
@@ -554,9 +554,9 @@ You've completed the Getting Started guide! Here's what to explore next:
 
 Choose what interests you most:
 
-- **Knowledge Management** → [Knowledge Architecture](Knowledge-Architecture.md)
+- **Knowledge Management** → [Knowledge System](Knowledge-System.md)
 - **Automation** → [uCODE Language](uCODE-Language.md)
-- **Philosophy** → [Why uDOS](Why-uDOS.md) and [Human-Centric Design](Human-Centric-Design.md)
+- **Philosophy** → [Philosophy](Philosophy.md) - Complete manifesto
 - **All Commands** → [Command Reference](Command-Reference.md)
 
 ### 2. Customize Your Setup
@@ -736,7 +736,7 @@ export LC_ALL=en_US.UTF-8
 ---
 
 **Last Updated**: November 14, 2025
-**Version**: v1.0.15
+**Version**: v1.0.0
 **Feedback**: Open an issue or discussion on GitHub
 
 **Next**: [Command Reference](Command-Reference.md) | [Philosophy](Philosophy.md) | [FAQ](FAQ.md)

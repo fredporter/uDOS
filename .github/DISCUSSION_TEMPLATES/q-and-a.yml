@@ -52,7 +52,7 @@ body:
       placeholder: |
         OS: macOS Sonoma 14.2
         Python: 3.11.5
-        uDOS: v1.4.0
+        uDOS: v1.1.0
 
         Tried: BANK ADD guide.md
         Error: File not found

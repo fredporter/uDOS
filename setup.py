@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="udos",
-    version="1.0.31",
+    version="1.1.0",
     author="Fred Porter",
     author_email="fred@udos.dev",
     description="uDOS - Smart Commands & Interactive System for Offline Survival",
@@ -23,7 +23,7 @@ setup(
     },
     packages=find_packages(include=["core", "core.*"]),
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: End Users/Desktop",
         "Topic :: System :: Shells",

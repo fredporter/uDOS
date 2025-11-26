@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║                         uDOS v1.4.0                              ║
+║                         uDOS v1.0.0                              ║
 ║                 Universal Digital Operating System               ║
 ╚══════════════════════════════════════════════════════════════════╝
 
@@ -138,8 +138,8 @@ Available Commands:
 
 **Output:**
 ```
-uDOS v1.4.0 - Universal Digital Operating System
-Released: November 25, 2025
+uDOS v1.0.0 - Universal Digital Operating System
+Released: November 26, 2025
 Python: 3.11.5
 License: MIT
 ```
@@ -508,14 +508,14 @@ python -m core.ucode.validator --lint water_guides.uscript
 1. ✓ Complete this tutorial
 2. → Read [Command Reference](Command-Reference.md)
 3. → Try [uCODE Language Guide](uCODE-Language.md)
-4. → Explore [Knowledge Architecture](Knowledge-Architecture.md)
+4. → Explore [Knowledge System](Knowledge-System.md)
 ```
 
 ### Intermediate Path
 ```
 1. ✓ Master basic commands
 2. → Write complex scripts
-3. → Read [API Reference](API-Reference.md)
+3. → Read [Developers Guide](Developers-Guide.md)
 4. → Build your first extension
 ```
 
@@ -585,7 +585,7 @@ Run: python -m core.ucode.validator --lint yourscript.uscript
 ### Documentation
 - [Command Reference](Command-Reference.md) - All commands explained
 - [uCODE Language](uCODE-Language.md) - Complete scripting guide
-- [API Reference](API-Reference.md) - Extension development
+- [Developers Guide](Developers-Guide.md) - Complete developer documentation
 - [Architecture](Architecture.md) - System design
 
 ### Examples

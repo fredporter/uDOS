@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.1.2** - A Human-Readable CLI Framework with Security, Web GUI, Offline Knowledge Bank, OK Assist Integration, 4-Tier Memory, and Complete Geographic Reference System
+**uDOS v1.0.0** - First Stable Public Release - Offline-first knowledge system with sandbox architecture, 5-tier knowledge system, and dual-interface support (Terminal + Web GUI).
 
-**v1.4.0 Phase 1**: 🚀 **123+ OK Assist Survival Guides** | **80+ SVG Diagrams** | OK Assistant Integration Active
+**Production Ready**: **1,810 tests passing** (100%) | Sandbox Architecture | DEV MODE | Asset Management
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -12,41 +12,16 @@
 
 | Getting Started | Reference | Advanced |
 |:----------------|:----------|:---------|
-| [Quick Start](Quick-Start) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
-| [Installation](Installation) | [Architecture](Architecture) | [Mapping System](Mapping-System) |
-| [First Steps](First-Steps) | [CLI Features v1.0.6](CLI-Features-v1-0-6) | [Extensions System](Extensions-System) |
-| [Tutorials](Tutorials) | [Development History](Development-History) | [Theme System](Theme-System) ⭐ |
+| [Quick Start](../QUICK-START.md) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
+| [Installation](../INSTALL.md) | [Architecture](Architecture) | [Extensions System](Extensions-System) |
+| [Interactive Tutorial](Tutorial-Getting-Started) | [Developers Guide](Developers-Guide) | [Theme System](Theme-System) ⭐ |
+| [FAQ](FAQ) | [Troubleshooting](Troubleshooting-Complete) | [Extension Development](Extension-Development) |
 
 ---
 
-## 🔐 NEW in v1.1.2 - Security, Web GUI, and Offline Knowledge (November 2025)
+## ✅ v1.0.0 - First Stable Public Release (November 2025)
 
-**Production Ready**: **1,062 tests passing** (100%) | Zero Breaking Changes | Full v1.0.x Compatibility
-
-### Major Milestones
-
-**v1.1.0 - Core TUI Stabilisation** (268 tests)
-- OK assistant with role-based security (Wizard/User offline-first)
-- Unified selector with automatic fallback (16+ terminals)
-- Retro graphics system (BBC Teletext aesthetic)
-- Session analytics, replay, and intelligent error handling
-
-**v1.1.1 - Web Extension & Dual-Interface** (327 tests)
-- Production web server with Teletext display
-- CLI→Web delegation API with state sync
-- Browser extension for knowledge capture (Chrome/Firefox/Edge)
-- Mobile PWA with offline capability
-
-**v1.1.2 - Security & Offline Knowledge** (467 tests)
-- **RBAC**: 4 user roles (User/Power/Wizard/Root) with permission inheritance
-- **4-Tier Memory**: AES-256/AES-128 encryption (Private/Shared/Community/Public)
-- **Installation Types**: CLONE/SPAWN/HYBRID with SHA-256 integrity checks
-- **Offline Knowledge**: 8-category library (foundation for 500+ guides)
-- **OK Assist Prompts**: Offline template development with validation (no API calls)
-- **SVG/Citation**: Diagram generation with APA/MLA/Chicago/IEEE bibliography
-- **Validation**: Content quality, freshness, contradiction detection
-
-### 🚀 v1.4.0 Phase 1 - OK Assist Knowledge Expansion (ACTIVE - Nov 2025)
+**What's in v1.0.0:**
 
 **Week 1 Complete**: 123% of target achieved! 🎉
 
@@ -63,7 +38,7 @@
 
 **Next**: Week 2 targets 273 total guides (150 more) + 50 additional diagrams
 
-[🔗 Full Release Notes →](Release-v1.1.2) | [🔗 Latest Development →](Latest-Development) | [🔗 ROADMAP →](../ROADMAP.md)
+[🔗 Development History →](Development-History) | [🔗 ROADMAP →](../ROADMAP.md)
 
 ---
 
@@ -106,7 +81,7 @@
 - **Cross-Tier Operations** - MEMORY SEARCH across all tiers
 - **Security Built-In** - Encryption, permissions, audit logging
 
-[🔗 4-Tier Knowledge Guide →](Knowledge-Architecture) | [🔗 User Guide →](/docs/guides/4-TIER-KNOWLEDGE-BANK-USER-GUIDE.md)
+[🔗 4-Tier Knowledge Guide →](Knowledge-System) | [🔗 User Guide →](/docs/guides/4-TIER-KNOWLEDGE-BANK-USER-GUIDE.md)
 
 ---
 
@@ -119,7 +94,7 @@
 - **Validation & Safety** - Auto-fix and comprehensive checks
 - **10+ New Commands** - Complete theme management suite
 
-[🔗 Explore Theme System →](Theme-System) | [🔗 Release Notes v1.0.13 →](Release-v1.0.13)
+[🔗 Explore Theme System →](Theme-System)
 
 ---
 
@@ -134,7 +109,7 @@
 - **Legal Compliance** - Proper attribution and font licensing assessment
 - **Clean Architecture** - Separation between bundled and cloned content
 
-[🔗 Explore Extensions System →](Extensions-System) | [🔗 Latest Development →](Latest-Development)
+[🔗 Explore Extensions System →](Extensions-System) | [🔗 Development History →](Development-History)
 
 ---
 
@@ -318,7 +293,7 @@ LAYOUT MODE <mode>          # Set responsive layout mode
 - **Health monitoring system** with real-time status and percentages
 - **Server lifecycle management** with proper cleanup and error handling
 - **Integration with ServerManager** for unified web extension control
-- **Comprehensive logging** to memory/logs/servers/ for debugging
+- **Comprehensive logging** to sandbox/logs/servers/ for debugging
 
 **Key Achievements**: Production-ready web infrastructure, multi-server coordination
 
@@ -356,7 +331,7 @@ LAYOUT MODE <mode>          # Set responsive layout mode
 - **Game Developers**: Explore text-based navigation systems
 
 ### 👨‍💻 Developers
-- **Contributors**: Follow structured [Dev Rounds Workflow](Dev-Rounds-Workflow)
+- **Contributors**: Follow structured [Developers Guide](Developers-Guide)
 - **VS Code Users**: Integrated development environment with power dev mode
 - **Quality Assurance**: Operator checkpoints and automated testing
 
@@ -377,7 +352,7 @@ code uDOS.code-workspace
 ```
 
 ### Development Workflow
-- **[Dev Rounds Workflow](Dev-Rounds-Workflow)** - Structured development process with operator checkpoints
+- **[Developers Guide](Developers-Guide)** - Complete developer documentation with workflows, APIs, and best practices
 - **[Architecture](Architecture)** - Technical system design and patterns
 - **[Command Reference](Command-Reference)** - Complete API documentation
 - **Power Dev Mode** - Integrated logging, testing, and wiki updates
@@ -425,7 +400,7 @@ Each development round includes:
 - [Session Logging](Session-Logging) - History and recovery
 
 ### Features
-- [OK Assist Integration](AI-Integration) - OK Assistant API and offline fallback
+- [Content Generation](Content-Generation) - Gemini-assisted content creation with OK Assist
 - [Connection Awareness](Connection-Awareness) - Online/offline modes
 - [Viewport System](Viewport-System) - Terminal adaptation
 - [Mapping System](Mapping-System) - NetHack-style navigation

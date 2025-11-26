@@ -1,6 +1,6 @@
 # uDOS Installation Guide
-**Version**: v1.1.2
-**Updated**: November 24, 2025
+**Version**: v1.1.0
+**Updated**: November 26, 2025
 
 ## Quick Install
 
@@ -107,7 +107,7 @@ source .venv/bin/activate
 
 # Run system check
 python uDOS.py --version
-# Should show: uDOS v1.1.2
+# Should show: uDOS v1.1.0
 
 # Run basic test
 echo "STATUS" | python uDOS.py
@@ -207,4 +207,4 @@ rm -rf uDOS
 - ✅ Linux: Fully tested and supported (Ubuntu, Debian, Fedora, Arch)
 - ✅ Windows: Fully tested and supported (10/11, WSL2)
 
-**v1.1.2** is a **production release** with full cross-platform support and 1,062 passing tests.
+**v1.1.0** is the **first stable public release** with full cross-platform support and 1,810 passing tests.

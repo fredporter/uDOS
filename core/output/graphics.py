@@ -397,7 +397,7 @@ if __name__ == "__main__":
 class FontGraphicsHelper:
     """
     Helper class for font-based graphics using Synthwave DOS colors and retro fonts.
-    Integrates with knowledge/system/font-system.json
+    Integrates with core/data/font-system.json
     """
 
     @staticmethod

@@ -23,7 +23,7 @@ from core.theme_loader import load_theme
 class CommandHandler:
     """Main command router - delegates to specialized handlers."""
 
-    def __init__(self, theme='dungeon', commands_file='knowledge/system/commands.json',
+    def __init__(self, theme='dungeon', commands_file='core/data/commands.json',
                  history=None, connection=None, viewport=None, user_manager=None, command_history=None, logger=None):
         """
         Initialize command handler and load specialized handlers.
@@ -110,6 +110,9 @@ class CommandHandler:
         # v1.5.0 - PEEK Data Collection System
         from core.commands.peek_handler import PeekHandler
 
+        # v2.0 - Sandbox Management System
+        from core.commands.sandbox_handler import SandboxHandler
+
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
@@ -144,6 +147,9 @@ class CommandHandler:
 
         # v1.5.0 - PEEK Data Collection handler
         self.peek_handler = PeekHandler(**handler_kwargs)
+
+        # v2.0 - Sandbox Management handler
+        self.sandbox_handler = SandboxHandler()
 
         # Now set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
@@ -291,6 +297,10 @@ class CommandHandler:
             # v1.5.0 - PEEK Data Collection System
             elif module == "PEEK":
                 return self.peek_handler.handle(command, params, grid, parser)
+
+            # v2.0 - Sandbox Management System
+            elif module == "SANDBOX":
+                return self.sandbox_handler.handle(command, params)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

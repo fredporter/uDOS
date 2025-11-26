@@ -61,7 +61,7 @@ class FeedbackHandler:
         """
         self.analytics = session_analytics or SessionAnalytics()
         self.memory_root = memory_root or Path("memory")
-        # v1.5.0: Flat log structure - feedback files in memory/logs/
+        # v1.5.0: Flat log structure - feedback files in sandbox/logs/
         self.feedback_dir = self.memory_root / "logs"
         self.feedback_dir.mkdir(parents=True, exist_ok=True)
 

@@ -235,7 +235,7 @@ Configure command history retention:
     "enabled": true,
     "max_entries": 1000,
     "persist": true,
-    "file": "memory/logs/command_history.log"
+    "file": "sandbox/logs/command_history.log"
   }
 }
 ```
@@ -435,7 +435,7 @@ Control log verbosity and output:
 {
   "logging": {
     "level": "INFO",
-    "file": "memory/logs/udos.log",
+    "file": "sandbox/logs/udos.log",
     "console": false,
     "max_size_mb": 10,
     "backup_count": 5,
@@ -446,9 +446,9 @@ Control log verbosity and output:
 
 Levels: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
 
-### Network Settings (v1.1.x)
+### Network Settings
 
-Future configuration for web server and P2P:
+Configuration for web server and network features:
 ```json
 {
   "network": {
@@ -581,7 +581,7 @@ ls -la data/themes/<theme_name>.theme.json
 - [Theme System](Theme-System.md) - Creating and managing themes
 - [SETUP Command](Command-Reference.md#setup) - Interactive configuration
 - [Viewport System](Architecture.md#viewport) - Screen tier details
-- [Troubleshooting](Troubleshooting.md) - Fixing common issues
+- [Troubleshooting](Troubleshooting-Complete.md) - Fixing common issues
 
 ---
 

@@ -22,7 +22,7 @@ class UsageTracker:
     - Persistent storage across sessions
     """
 
-    def __init__(self, data_dir="knowledge/system", max_recent=100):
+    def __init__(self, data_dir="core/data", max_recent=100):
         """
         Initialize the usage tracker.
 

@@ -153,17 +153,17 @@ def check_critical_files() -> HealthCheckResult:
         "core/uDOS_parser.py",
         "core/uDOS_grid.py",
         "core/uDOS_commands.py",
-        "knowledge/system/commands.json",
-        "knowledge/system/themes/dungeon.json",
-        "knowledge/system/themes/default.json",
+        "core/data/commands.json",
+        "core/data/themes/dungeon.json",
+        "core/data/themes/default.json",
     ]
 
     # Critical directories
     critical_dirs = [
         "core",
-        "knowledge/system",
-        "knowledge/system/themes",
-        "memory/sandbox",
+        "core/data",
+        "core/data/themes",
+        "sandbox",
         "memory",
     ]
 
@@ -257,9 +257,9 @@ def check_json_configs() -> HealthCheckResult:
 
     # JSON files to validate
     json_files = [
-        "knowledge/system/commands.json",
-        "knowledge/system/themes/dungeon.json",
-        "knowledge/system/templates/story.template.json",
+        "core/data/commands.json",
+        "core/data/themes/dungeon.json",
+        "core/data/templates/story.template.json",
     ]
 
     for json_path in json_files:
@@ -320,9 +320,9 @@ def check_permissions() -> HealthCheckResult:
 
     # Directories that need write permission
     writable_dirs = [
-        "memory/sandbox",
+        "sandbox",
         "memory",
-        "memory/logs",
+        "sandbox/logs",
     ]
 
     for dir_path in writable_dirs:
@@ -613,7 +613,7 @@ def check_pip_version() -> HealthCheckResult:
                                 result.add_warning(
                                     f"pip {current_version} is outdated (latest: {available_version})",
                                     f"Upgrade with: {sys.executable} -m pip install --upgrade pip\n"
-                                    f"To suppress this warning: touch memory/user/.pip_update_suppressed"
+                                    f"To suppress this warning: touch sandbox/user/.pip_update_suppressed"
                                 )
                                 break
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
@@ -1185,7 +1185,7 @@ def repair_permissions() -> List[str]:
     repaired = []
     root = get_udos_root()
 
-    writable_dirs = ["memory/sandbox", "memory", "memory/logs"]
+    writable_dirs = ["sandbox", "memory", "sandbox/logs"]
 
     for dir_path in writable_dirs:
         full_path = root / dir_path

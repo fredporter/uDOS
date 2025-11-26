@@ -159,7 +159,7 @@ Startup sequence. Handles:
 
 ### `uDOS_logger.py`
 Centralized logging system with:
-- File logging (`memory/logs/`)
+- File logging (`sandbox/logs/`)
 - Session logging
 - Error tracking
 

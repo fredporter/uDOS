@@ -18,7 +18,7 @@ uDOS v1.0.26 introduces a comprehensive server infrastructure with bulletproof p
 #### Base Server (`base_server.py`)
 - **BaseExtensionServer**: Foundation for all web extensions
 - **BaseExtensionHandler**: Common HTTP handler with CORS
-- **Logging**: Rotating file logs to `memory/logs/`
+- **Logging**: Rotating file logs to `sandbox/logs/`
 - **Signal handling**: Graceful shutdown on SIGTERM/SIGINT
 - **Health endpoints**: `/health` and `/status` built-in
 
@@ -129,7 +129,7 @@ The port manager automatically:
 
 ### Logging
 
-All servers log to `memory/logs/`:
+All servers log to `sandbox/logs/`:
 - `api_server.log` - API server
 - `terminal_server.log` - Terminal extension
 - `dashboard_server.log` - Dashboard extension
@@ -188,7 +188,7 @@ python extensions/server_manager.py cleanup-all
 
 ### Server Won't Start
 
-1. **Check logs**: `tail -f memory/logs/terminal_server.log`
+1. **Check logs**: `tail -f sandbox/logs/terminal_server.log`
 2. **Verify port**: `lsof -i :8889`
 3. **Check health**: `curl http://localhost:8889/health`
 4. **Use server manager**: `python extensions/server_manager.py status`
@@ -299,7 +299,7 @@ server.cleanup()
 ## Best Practices
 
 1. **Always use server manager** for production
-2. **Monitor logs** in `memory/logs/`
+2. **Monitor logs** in `sandbox/logs/`
 3. **Cleanup before starting** to avoid conflicts
 4. **Check health** before making requests
 5. **Use graceful shutdown** (Ctrl+C) when possible

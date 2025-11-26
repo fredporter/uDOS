@@ -58,7 +58,7 @@ SEARCH fire starting
 READ knowledge/reference/fire-starting-methods.md
 ```
 
-📚 **Full Guide:** See [Knowledge Architecture](Knowledge-Architecture.md)
+📚 **Full Guide:** See [Knowledge System](Knowledge-System.md)
 
 ---
 
@@ -133,7 +133,7 @@ RUN memory/workflow/morning-routine.uscript
 
 **Contribute Code**
 1. Read [Contributing Guide](../CONTRIBUTING.md)
-2. Check [Architecture Guide](Architecture-Contributor-Guide.md)
+2. Check [Developers Guide](Developers-Guide.md)
 3. Review [Good First Issues](https://github.com/fredporter/uDOS/labels/good%20first%20issue)
 4. Submit a [Pull Request](https://github.com/fredporter/uDOS/compare)
 
@@ -159,7 +159,7 @@ RUN memory/workflow/morning-routine.uscript
 - Cite sources and provide context
 
 **Visual Content**
-- Create diagrams using our [SVG Generator](SVG-Generator-Guide.md)
+- Create content using our [Content Generation](Content-Generation.md) system
 - Design ASCII art for terminal display
 - Build Teletext graphics for web interface
 - Follow Mac OS System 1 aesthetic guidelines
@@ -178,12 +178,12 @@ RUN memory/workflow/morning-routine.uscript
 
 | Resource | Purpose | Audience |
 |----------|---------|----------|
-| [Quick Start](Quick-Start.md) | Get running in 5 minutes | New users |
+| [Quick Start](../QUICK-START.md) | Get running in 5 minutes | New users |
 | [Quick Reference](Quick-Reference.md) | Essential commands | All users |
 | [Command Reference](Command-Reference.md) | Complete command list | Power users |
 | [uCODE Language](uCODE-Language.md) | Scripting guide | Scripters |
-| [API Reference](API-Reference.md) | Developer API docs | Extension devs |
-| [Architecture Guide](Architecture-Contributor-Guide.md) | Codebase overview | Contributors |
+| [Developers Guide](Developers-Guide.md) | Complete developer docs | All developers |
+
 | [Troubleshooting](Troubleshooting-Complete.md) | Fix common issues | All users |
 
 **Full Index:** [Documentation Index](Documentation-Index.md)
@@ -315,26 +315,25 @@ RUN memory/workflow/morning-routine.uscript
 - Roadmap discussions
 
 **Beta Testing Sprints** (Ongoing)
-- Help test v1.4.0 features
+- Help test new features
 - Report bugs and issues
 - Suggest improvements
 - Earn contributor badges
 
 ---
 
-### Upcoming Milestones
+### Recent Release
 
-**v1.4.0 Public Beta** (Q1 2026)
+**v1.1.0 Stable Release** (November 2025)
 - 58 wiki pages of documentation
 - 166+ survival guides
 - 68+ diagrams across formats
 - Community infrastructure complete
 
-**v1.5.0 Content Population** (Q2-Q3 2026)
+**Future Goals** (2026+)
 - Target: 1,000+ guides
 - 500+ diagrams
 - Shared asset library
-- Extension marketplace
 
 ---
 
@@ -381,7 +380,7 @@ I'm trying to import a guide into the knowledge bank, but getting
 "File not found" error.
 
 Setup:
-- uDOS v1.4.0
+- uDOS v1.1.0
 - macOS Sonoma 14.2
 - File location: ~/Documents/guide.md
 
@@ -436,7 +435,7 @@ I've verified the file exists. What am I missing?
 
 **Choose Your Path:**
 
-- 📖 **Learn More:** [Quick Start Guide](Quick-Start.md)
+- 📖 **Learn More:** [Quick Start Guide](../QUICK-START.md)
 - 💬 **Ask Questions:** [GitHub Discussions](https://github.com/fredporter/uDOS/discussions)
 - 🛠️ **Start Contributing:** [Contributing Guide](../CONTRIBUTING.md)
 - 🎨 **Build Something:** [Extension Development](Extensions-System.md)
@@ -448,6 +447,6 @@ I've verified the file exists. What am I missing?
 
 ---
 
-**Last Updated:** v1.4.0 Beta (November 2025)
+**Last Updated:** v1.1.0 (November 2025)
 **Maintainers:** uDOS Community Team
 **License:** See [LICENSE.txt](../LICENSE.txt)

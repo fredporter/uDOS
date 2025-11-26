@@ -19,8 +19,8 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent))
 from shared import get_port_manager, BaseExtensionServer, BaseExtensionHandler
 
-# Setup logging to memory/logs
-LOG_DIR = Path(__file__).parent.parent.parent / 'memory' / 'logs'
+# Setup logging to sandbox/logs
+LOG_DIR = Path(__file__).parent.parent.parent / 'sandbox' / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configure logging

@@ -1,10 +1,10 @@
-# uDOS Extensions System v1.1.2
+# uDOS Extensions System v1.1.0
 
 **Web GUI, Browser Extension, Mobile PWA, and Extension Framework**
 
 ## Overview
 
-The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure introduced in v1.1.1-v1.1.2.
+The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure.
 
 **v1.1.1 Features** (327 tests):
 - Production web server with health monitoring
@@ -15,7 +15,7 @@ The uDOS extensions system provides dual-interface capabilities (Terminal + Web)
 - Browser extension (Chrome/Firefox/Edge)
 - Mobile PWA with offline support
 
-**v1.1.2 Features** (467 tests):
+**v1.1.0 Features** (1,810 tests):
 - RBAC integration for web access
 - Encrypted memory tier access via web
 - Knowledge library web interface

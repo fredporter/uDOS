@@ -30,13 +30,13 @@ class FilePicker:
         self.workspace_manager = workspace_manager or WorkspaceManager()
 
         # Initialize file access tracking database
-        self.db_path = Path("memory/logs/file_access.db")
+        self.db_path = Path("sandbox/logs/file_access.db")
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
 
         # Folder shortcuts for quick navigation
         self.folder_shortcuts = {
-            'sandbox': Path('memory/sandbox'),
+            'sandbox': Path('sandbox'),
             'memory': Path('memory'),
             'knowledge': Path('knowledge'),
             'public': Path('memory/public'),
@@ -44,7 +44,7 @@ class FilePicker:
             'groups': Path('memory/groups'),
             'shared': Path('memory/shared'),
             'planet': Path('memory/planet'),
-            'user': Path('memory/user')
+            'user': Path('sandbox/user')
         }
 
         # Search and filtering settings

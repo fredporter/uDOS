@@ -98,32 +98,6 @@ memory/logs/**/*
 *.pid
 *.state
 
-# Development Workspace (v1.0.27+)
-# ----------------------
-# /dev/ = Development workspace (mostly NOT distributed)
-# /dev/planning/ = Roadmaps and specs (TRACKED for contributors)
-# /dev/archive/ = Development history (NOT tracked, local only)
-# /dev/notes/ = Personal notes (NOT tracked, local only)
-# /dev/tests/ = Local test scripts (NOT tracked, local only)
-# /dev/docs/ = Generated docs (NOT tracked, built from source)
-# /wiki/ = User-facing documentation (distributed with uDOS)
-
-# Ignore most of /dev except planning and tools
-/dev/archive/
-/dev/notes/
-/dev/tests/
-/dev/docs/
-/dev/demo_*.py
-# Track these for contributors:
-!/dev/
-!/dev/README.md
-!/dev/planning/
-!/dev/planning/**/*
-!/dev/tools/
-!/dev/tools/**/*
-!/dev/EXTENSION-FIXES-v1.5.0.md
-!/dev/THEME_GUIDE.md
-
 # Wiki Deployment
 # ----------------------
 # Keep source in /wiki, ignore deployed clone
@@ -168,7 +142,7 @@ backups/
 !knowledge/**/*
 
 # /memory/ - USER DATA (gitignored, user-writable workspace)
-# v1.5.0: Track templates and tests for distribution, ignore user content
+# v1.1.0: Track templates and tests for distribution, ignore user content
 memory/
 memory/**/*
 
@@ -177,31 +151,42 @@ memory/**/*
 !memory/.gitignore
 !memory/config/
 !memory/config/.gitkeep
-!memory/sandbox/
-!memory/sandbox/.gitkeep
-!memory/sandbox/README.md
-!memory/workflow/
-!memory/workflow/README.md
-!memory/workflow/.gitkeep
-!memory/tests/
-!memory/tests/**/*
-!memory/planet/
-!memory/planet/.gitkeep
+# Sandbox directories (v1.1.0 structure - private workspace)
+!sandbox/
+!sandbox/.gitkeep
+!sandbox/peek/
+!sandbox/peek/.gitkeep
+sandbox/logs/
+sandbox/drafts/
+sandbox/dev/
+sandbox/docs/
+sandbox/trash/
+sandbox/workflow/
+sandbox/scripts/
+sandbox/tests/
+sandbox/ucode/
+sandbox/user.json
+sandbox/.server_state.json
+
+# Memory tiers (4-tier system)
+!memory/community/  # Public tier (user-generated content)
+!memory/shared/     # Shared tier (explicit sharing)
+!memory/groups/     # Groups tier
 !memory/user/
 !memory/user/.gitkeep
-!memory/logs/
-!memory/logs/.gitkeep
+!memory/planet/
+!memory/planet/.gitkeep
 
 # User databases and logs (always ignore)
 *.db
 *.sqlite
 *.sqlite3
-memory/logs/
 
-# 4-Tier Memory System (user content ignored)
+# Old memory structure (pre-v1.1.0 deprecated paths)
+memory/logs/
+memory/sandbox/
+memory/workflow/
 memory/private/
-memory/shared/
-memory/groups/
 memory/public/
 memory/personal/
 memory/workspace/
