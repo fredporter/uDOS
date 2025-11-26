@@ -49,6 +49,17 @@
         charReference = document.getElementById('charReference');
         terminalViewport = document.querySelector('.terminal-viewport');
 
+        // Click anywhere in terminal to focus input
+        const terminalScreen = document.getElementById('screen');
+        if (terminalScreen) {
+            terminalScreen.addEventListener('click', () => {
+                if (commandInput) {
+                    commandInput.focus();
+                    console.log('[uDOS Terminal] Input focused via click');
+                }
+            });
+        }
+
         // Setup cursor positioning
         setupCursor();
 
@@ -103,11 +114,11 @@
      * Initialize session with uDOS core
      */
     async function initializeSession() {
-        // Hide boot message after initialization
-        setTimeout(() => {
-            const bootMsg = document.getElementById('bootMessage');
-            if (bootMsg) bootMsg.style.display = 'none';
-        }, 1500);
+        // Print boot message
+        printLine('**** uDOS UNIVERSAL DEVICE OPERATIONS ****', 'output-info');
+        printLine('VERSION 1.5 - TERMINAL MODE', 'output-info');
+        printLine('READY.', 'output-info');
+        printLine('');
 
         try {
             // Create a new terminal session
@@ -174,9 +185,12 @@
      * Handle keyboard input
      */
     function handleKeyDown(e) {
+        console.log('[uDOS Terminal] Key pressed:', e.key);
+
         switch(e.key) {
             case 'Enter':
                 e.preventDefault();
+                console.log('[uDOS Terminal] Enter pressed, executing command');
                 executeCommand();
                 break;
 

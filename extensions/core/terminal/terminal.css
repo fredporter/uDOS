@@ -394,7 +394,7 @@ html, body {
     padding: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
-    line-height: 1.1;
+    line-height: 1.0;
     opacity: 0;
     animation: textRollOut 0.3s ease-out forwards;
 }
@@ -454,7 +454,7 @@ html, body {
     font-family: "PetMe64", monospace;
     font-size: var(--char-height);
     line-height: 1.4;
-    caret-color: transparent;
+    caret-color: var(--term-fg);
     padding: 0;
     min-width: 0;
     position: relative;

@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>uDOS Terminal v1.0.24</title>
-    <link rel="stylesheet" href="terminal.css">
+    <link rel="stylesheet" href="terminal.css?v=1.0.24">
 </head>
 <body>
     <!-- C64 Loading Screen with Rainbow Bars -->
@@ -53,11 +56,6 @@
             <!-- Terminal Screen (80×30 characters) -->
             <div class="terminal-screen" id="screen">
                 <div class="terminal-viewport">
-                    <div class="boot-message" id="bootMessage">
-                        <p>**** uDOS UNIVERSAL DEVICE OPERATIONS ****</p>
-                        <p>VERSION 1.5 - TERMINAL MODE</p>
-                        <p>READY.</p>
-                    </div>
                     <div class="terminal-output" id="output"></div>
                     <div class="terminal-input-line">
                         <span class="prompt">></span>
