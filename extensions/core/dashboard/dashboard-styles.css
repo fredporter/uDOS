@@ -1,7 +1,17 @@
 /**
  * uDOS Dashboard Builder Styles v1.0.24
  * NES Framework + Synthwave DOS Integration
+ * Self-contained - no external dependencies
  */
+
+/* Press Start 2P Font (NES authentic) */
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
 
 :root {
     /* Theme Colors (can be overridden by JS) */
@@ -15,9 +25,10 @@
     --spacing-md: 15px;
     --spacing-lg: 20px;
     --spacing-xl: 30px;
-}
 
-* {
+    /* NES.css Variables */
+    --nes-border-radius: 4px;
+}* {
     box-sizing: border-box;
 }
 
@@ -61,15 +72,7 @@ body {
     font-size: 24px;
     margin: 0 0 var(--spacing-sm) 0;
     color: var(--theme-primary);
-    text-shadow:
-        2px 2px 0 #000,
-        0 0 20px var(--theme-primary);
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-    from { text-shadow: 2px 2px 0 #000, 0 0 10px var(--theme-primary); }
-    to { text-shadow: 2px 2px 0 #000, 0 0 30px var(--theme-primary); }
+    text-shadow: 2px 2px 0 #000;
 }
 
 .subtitle-text {
@@ -97,7 +100,7 @@ body {
 .widget {
     background: rgba(0, 0, 0, 0.7);
     padding: var(--spacing-md);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s;
 }
 
 .widget:hover {
@@ -246,7 +249,6 @@ body {
     font-size: 32px;
     color: var(--theme-primary);
     margin-bottom: var(--spacing-sm);
-    text-shadow: 0 0 20px var(--theme-primary);
 }
 
 .clock-date {
@@ -600,3 +602,129 @@ body {
         transition: none !important;
     }
 }
+
+/* ============================================
+   NES.css Inspired Styles (Self-Contained)
+   ============================================ */
+
+/* NES Buttons */
+.nes-btn {
+    position: relative;
+    display: inline-block;
+    padding: 10px 20px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #fff;
+    background-color: #209cee;
+    border: 4px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-decoration: none;
+}
+
+.nes-btn:hover {
+    background-color: #1a8cd8;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+.nes-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 #000;
+}
+
+.nes-btn.is-primary { background-color: #209cee; }
+.nes-btn.is-success { background-color: #92cc41; }
+.nes-btn.is-warning { background-color: #f7d51d; color: #000; }
+.nes-btn.is-error { background-color: #e76e55; }
+
+/* NES Containers */
+.nes-container {
+    position: relative;
+    padding: 20px;
+    border: 4px solid #fff;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.nes-container.is-dark {
+    background-color: #212529;
+    border-color: #fff;
+}
+
+.nes-container.is-rounded {
+    border-radius: 8px;
+}
+
+.nes-container.with-title > .title {
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    padding: 0 8px;
+    background-color: #212529;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* NES Badge */
+.nes-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+.nes-badge.is-splited {
+    border: 2px solid #fff;
+}
+
+.nes-badge.is-splited > span {
+    padding: 4px 8px;
+}
+
+.nes-badge .is-dark {
+    background-color: #212529;
+    color: #fff;
+}
+
+.nes-badge .is-primary {
+    background-color: #209cee;
+    color: #fff;
+}
+
+/* NES Select */
+.nes-select select {
+    width: 100%;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    background-color: #fff;
+    border: 4px solid #000;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.nes-field {
+    margin-bottom: 16px;
+}
+
+.nes-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+/* NES Icons (simple emoji fallback) */
+.nes-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+}
+
+.nes-icon.is-small {
+    width: 12px;
+    height: 12px;
+}
+

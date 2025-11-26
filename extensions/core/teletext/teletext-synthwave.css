@@ -1,101 +1,271 @@
 /**
- * uDOS Teletext - Synthwave DOS Palette
- * Version: 1.0.24
+ * uDOS Teletext Interface - Authentic Teletext Rendering
+ * Version: 2.0.0
  *
- * Features:
- * - Synthwave DOS 16-color standard palette
- * - Mallard Blocky font integration
- * - C64 PETSCII block graphics support
- * - Enhanced teletext styling
+ * Inspired by: https://galax.xyz/TELETEXT/
+ * Original Teletext font concept by 3d@galax.xyz (2014)
+ *
+ * uDOS implementation:
+ * - Mallard Blocky font (uDOS standard)
+ * - Authentic teletext colors (black background, bright text)
+ * - Fullscreen teletext rendering (no border)
+ * - Clean terminal-style interface
  */
-
-/* Synthwave DOS colors loaded via HTML link tag */
-
-/* ============================================
-   TELETEXT COLOR MAPPING
-   ============================================ */
-
-:root {
-  /* C64 Color Aliases (mapped to Synthwave DOS) */
-  --c64-black: var(--color-black);
-  --c64-white: var(--color-white-bright);
-  --c64-red: var(--color-red-bright);
-  --c64-cyan: var(--color-cyan-bright);
-  --c64-purple: var(--color-magenta-bright);
-  --c64-green: var(--color-green-bright);
-  --c64-blue: var(--color-blue-bright);
-  --c64-yellow: var(--color-orange-bright);
-  --c64-orange: var(--color-orange-bright);
-  --c64-brown: var(--color-orange-dark);
-  --c64-light-red: var(--color-red-bright);
-  --c64-dark-gray: var(--color-gray-dark);
-  --c64-gray: var(--color-gray-light);
-  --c64-light-green: var(--color-green-bright);
-  --c64-light-blue: var(--color-cyan-bright);
-  --c64-light-gray: var(--color-gray-light);
-
-  /* Transparency Variants (using Synthwave DOS) */
-  --c64-black-10: var(--color-black-10);
-  --c64-black-25: var(--color-black-25);
-  --c64-black-50: var(--color-black-50);
-  --c64-black-75: var(--color-black-75);
-
-  --c64-white-10: var(--color-white-bright-10);
-  --c64-white-25: var(--color-white-bright-25);
-  --c64-white-50: var(--color-white-bright-50);
-  --c64-white-75: var(--color-white-bright-75);
-
-  --c64-cyan-10: var(--color-cyan-bright-10);
-  --c64-cyan-25: var(--color-cyan-bright-25);
-  --c64-cyan-50: var(--color-cyan-bright-50);
-  --c64-cyan-75: var(--color-cyan-bright-75);
-
-  --c64-purple-10: var(--color-magenta-bright-10);
-  --c64-purple-25: var(--color-magenta-bright-25);
-  --c64-purple-50: var(--color-magenta-bright-50);
-  --c64-purple-75: var(--color-magenta-bright-75);
-
-  --c64-yellow-10: var(--color-orange-bright-10);
-  --c64-yellow-25: var(--color-orange-bright-25);
-  --c64-yellow-50: var(--color-orange-bright-50);
-  --c64-yellow-75: var(--color-orange-bright-75);
-
-  --c64-blue-25: var(--color-blue-bright-25);
-
-  /* Teletext Defaults */
-  --teletext-bg: var(--c64-black);
-  --teletext-fg: var(--c64-cyan);
-  --teletext-border: var(--c64-blue);
-  --teletext-header: var(--c64-yellow);
-  --teletext-status: var(--c64-light-blue);
-
-  /* Computed font size for responsive scaling */
-  --computed-font-size: 16px;
-}
 
 /* ============================================
    FONT DECLARATIONS
    ============================================ */
 
 @font-face {
-  font-family: 'Mallard';
-  src: url('../../assets/fonts/mallard/mallard-blocky.otf') format('opentype');
+  font-family: 'Teletext50';
+  src: url('fonts/Teletext50.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-/* MODE7GX3 font not currently available in assets
-@font-face {
-  font-family: 'MODE7GX3';
-  src: url('./fonts/MODE7GX3.TTF') format('truetype');
-  font-display: swap;
-}
-*/
+/* ============================================
+   COLOR VARIABLES (Synthwave)
+   ============================================ */
 
-/* Fallback font stack: Mallard → Monospace */
-body {
-  font-family: 'Mallard', 'Courier New', monospace;
+:root {
+  /* Teletext authentic colors */
+  --teletext-bg: #000000;
+  --teletext-fg: #00FFFF;
+  --teletext-prompt: #00FFFF;
+  --teletext-yellow: #FFFF00;
+  --teletext-white: #FFFFFF;
+  --teletext-green: #00FF00;
+  --teletext-red: #FF0000;
+  --teletext-magenta: #FF00FF;
+  --teletext-status: #1a1a1a;
+
+  /* Synthwave colors */
+  --synthwave-pink: #FF006E;
+  --synthwave-purple: #8338EC;
+  --synthwave-blue: #3A86FF;
+  --synthwave-cyan: #00F5FF;
+  --synthwave-orange: #FB5607;
+  --synthwave-violet: #BF40BF;
+  --synthwave-neon-green: #39FF14;
+  --synthwave-hot-pink: #FF69B4;
+}
+
+/* ============================================
+   BASE LAYOUT - FULLSCREEN
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000000;
+  color: var(--teletext-fg);
+  font-family: 'Teletext50', monospace;
+  font-size: 20px;
+  line-height: 1.0;
+  letter-spacing: 0;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
+/* ============================================
+   TOP BAR - COMBINED STATUS & F-KEYS
+   ============================================ */
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: #000000;
+  border-bottom: 1px solid #FF006E;
+  color: var(--teletext-fg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  font-size: 11px;
+  z-index: 1000;
+}
+
+.status-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-item {
+  white-space: nowrap;
+}
+
+.fkey-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fkey-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.fkey-item:hover {
+  background: #333333;
+}
+
+.fkey-num {
+  color: #FFFF00;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.fkey-label {
+  color: #00FFFF;
+  font-size: 10px;
+}
+
+/* ============================================
+   TELETEXT SCREEN - FULLSCREEN AUTO-WIDTH
+   ============================================ */
+
+.teletext-screen {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  height: calc(100% - 28px);
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  overflow: hidden;
+  background: #000000;
+}
+
+/* ============================================
+   OUTPUT AREA
+   ============================================ */
+
+.teletext-output {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  line-height: 1.0;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--teletext-fg) var(--teletext-bg);
+}
+
+.teletext-output::-webkit-scrollbar {
+  width: 8px;
+}
+
+.teletext-output::-webkit-scrollbar-track {
+  background: var(--teletext-bg);
+}
+
+.teletext-output::-webkit-scrollbar-thumb {
+  background: var(--teletext-fg);
+  border-radius: 4px;
+}
+
+.teletext-output div {
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ============================================
+   INPUT LINE
+   ============================================ */
+
+.teletext-input-line {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: auto;
+}
+
+.teletext-input-line .prompt {
+  color: var(--teletext-prompt);
+  flex-shrink: 0;
+}
+
+.teletext-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--teletext-fg);
+  font-family: inherit;
+  font-size: inherit;
+  caret-color: var(--teletext-prompt);
+}
+
+.teletext-input::selection {
+  background: var(--teletext-fg);
+  color: var(--teletext-bg);
+}
+
+/* Old status bar and F-key bar removed - now combined in top-bar */
+
+/* ============================================
+   COLOR CLASSES
+   ============================================ */
+
+.fg-cyan { color: #00FFFF; }
+.fg-yellow { color: #FFFF00; }
+.fg-red { color: #FF0000; }
+.fg-green { color: #00FF00; }
+.fg-magenta { color: #FF00FF; }
+.fg-white { color: #FFFFFF; }
+.fg-gray { color: #808080; }
+.fg-blue { color: #0000FF; }
+
+/* Synthwave color classes */
+.fg-synthwave-pink { color: var(--synthwave-pink); }
+.fg-synthwave-purple { color: var(--synthwave-purple); }
+.fg-synthwave-blue { color: var(--synthwave-blue); }
+.fg-synthwave-cyan { color: var(--synthwave-cyan); }
+.fg-synthwave-orange { color: var(--synthwave-orange); }
+.fg-synthwave-violet { color: var(--synthwave-violet); }
+.fg-synthwave-neon-green { color: var(--synthwave-neon-green); }
+.fg-synthwave-hot-pink { color: var(--synthwave-hot-pink); }
+
+/* ============================================
+   SCANLINE EFFECT (Optional)
+   ============================================ */
+
+.scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 999;
 }
 
 /* ============================================

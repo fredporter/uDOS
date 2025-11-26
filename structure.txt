@@ -9,6 +9,7 @@ uDOS/
 │   │   ├── documentation.md
 │   │   ├── extension_submission.md
 │   │   └── feature_request.md
+│   ├── copilot-instructions.md
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── core/
 │   ├── commands/
@@ -37,15 +38,81 @@ uDOS/
 │   │   ├── memory_commands.py
 │   │   ├── memory_unified_handler.py
 │   │   ├── panel_handler.py
+│   │   ├── peek_handler.py
 │   │   ├── private_commands.py
 │   │   ├── refresh_command.py
 │   │   ├── repair_handler.py
+│   │   ├── sandbox_handler.py
 │   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
 │   │   ├── tree_handler.py
 │   │   └── user_handler.py
+│   ├── data/
+│   │   ├── diagrams/
+│   │   ├── graphics/
+│   │   │   ├── teletext/
+│   │   │   │   ├── patterns.md
+│   │   │   │   └── README.md
+│   │   │   ├── ascii_blocks.json
+│   │   │   └── teletext_mosaic.json
+│   │   ├── help_templates/
+│   │   │   ├── _index.json
+│   │   │   ├── assistant_commands.json
+│   │   │   ├── file_commands.json
+│   │   │   ├── grid_commands.json
+│   │   │   ├── README.md
+│   │   │   └── system_commands.json
+│   │   ├── templates/
+│   │   │   ├── .env.example
+│   │   │   ├── crud_app.uscript
+│   │   │   ├── form_validation.uscript
+│   │   │   ├── menu_system.uscript
+│   │   │   ├── setup.uscript
+│   │   │   ├── story.template.json
+│   │   │   ├── usage_tracker.json
+│   │   │   └── user.template.json
+│   │   ├── themes/
+│   │   │   ├── templates/
+│   │   │   │   ├── dark-modern.json
+│   │   │   │   ├── high-contrast.json
+│   │   │   │   ├── light-professional.json
+│   │   │   │   ├── minimal.json
+│   │   │   │   └── README.md
+│   │   │   ├── _index.json
+│   │   │   ├── _schema.json
+│   │   │   ├── default.json
+│   │   │   ├── dungeon.json
+│   │   │   ├── foundation.json
+│   │   │   ├── galaxy.json
+│   │   │   ├── imported_test_theme.json
+│   │   │   ├── project.json
+│   │   │   ├── science.json
+│   │   │   └── teletext.json
+│   │   ├── commands.json
+│   │   ├── extensions.json
+│   │   ├── faq.json
+│   │   ├── font-profile-template.json
+│   │   ├── font-system.json
+│   │   ├── fonts.json
+│   │   ├── locations.json
+│   │   ├── ucode_variables.json
+│   │   └── viewport.json
+│   ├── docs/
+│   │   ├── BLANK-ENHANCED.md
+│   │   ├── command-architecture.md
+│   │   ├── HELP-ENHANCED.md
+│   │   ├── KNOWLEDGE-REFERENCE.md
+│   │   ├── MAP.md
+│   │   ├── OK.md
+│   │   ├── README-FONT-SYSTEM.md
+│   │   ├── REDO.md
+│   │   ├── RESTORE.md
+│   │   ├── RUN.md
+│   │   ├── SETUP-ENHANCED.md
+│   │   ├── SYSTEM.md
+│   │   └── UNDO.md
 │   ├── input/
 │   │   ├── __init__.py
 │   │   ├── interactive.py
@@ -78,6 +145,7 @@ uDOS/
 │   │   ├── api_audit.py
 │   │   ├── asset_manager.py
 │   │   ├── barter_service.py
+│   │   ├── citation_manager.py
 │   │   ├── community_service.py
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
@@ -85,6 +153,7 @@ uDOS/
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
+│   │   ├── gemini_generator.py
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
@@ -147,7 +216,6 @@ uDOS/
 │   ├── uDOS_main.py
 │   ├── uDOS_parser.py
 │   └── uDOS_startup.py
-├── data/
 ├── extensions/
 │   ├── api/
 │   │   ├── manager.py
@@ -155,18 +223,32 @@ uDOS/
 │   │   └── server.py
 │   ├── assets/
 │   │   ├── css/
-│   │   │   ├── classic-mac-patterns.css
+│   │   │   ├── arcade.css
+│   │   │   ├── classic-icons.css
+│   │   │   ├── classic-patterns.css
 │   │   │   ├── classic.css
-│   │   │   ├── mac-icons.css
-│   │   │   ├── nes.css
 │   │   │   ├── synthwave-dos-colors.css
-│   │   │   ├── system-mac.css
+│   │   │   ├── system-classic.css
 │   │   │   ├── system.css
 │   │   │   ├── typography-system.css
 │   │   │   ├── udos-filepicker.css
 │   │   │   ├── udos-grid.css
 │   │   │   ├── udos-syntax.css
 │   │   │   └── udos-v13-theme.css
+│   │   ├── data/
+│   │   │   ├── worldmap/
+│   │   │   ├── cities.json
+│   │   │   ├── climate.json
+│   │   │   ├── countries.json
+│   │   │   ├── credits.json
+│   │   │   ├── imperial.json
+│   │   │   ├── metric.json
+│   │   │   ├── terrain.json
+│   │   │   ├── terrain_types.json
+│   │   │   ├── tile_schema.json
+│   │   │   ├── timezones.json
+│   │   │   ├── tzone.json
+│   │   │   └── universe.json
 │   │   ├── fonts/
 │   │   │   ├── chicago/
 │   │   │   ├── mallard/
@@ -235,6 +317,8 @@ uDOS/
 │   │   │   └── wood-grain.json
 │   │   ├── CREDITS.md
 │   │   └── README.md
+│   ├── assistant/
+│   │   └── gemini_prompts.json
 │   ├── core/
 │   │   ├── dashboard/
 │   │   │   ├── routes/
@@ -267,23 +351,16 @@ uDOS/
 │   │   │   ├── marked-loader.html
 │   │   │   ├── README.md
 │   │   │   └── TEST-RESULTS.md
-│   │   ├── markdown/
-│   │   │   ├── static/
-│   │   │   ├── templates/
-│   │   │   ├── CHANGELOG.md
-│   │   │   ├── config.json
-│   │   │   ├── CREDITS.md
-│   │   │   ├── IMPLEMENTATION.md
-│   │   │   ├── index.html
-│   │   │   ├── manifest.json
-│   │   │   ├── README.md
-│   │   │   └── start.sh
 │   │   ├── ok_assistant/
 │   │   │   ├── __init__.py
 │   │   │   └── gemini_service.py
 │   │   ├── server_manager/
 │   │   │   ├── __init__.py
 │   │   │   └── server.py
+│   │   ├── shared/
+│   │   │   ├── __init__.py
+│   │   │   ├── base_server.py
+│   │   │   └── port_manager.py
 │   │   ├── teletext/
 │   │   │   ├── data/
 │   │   │   ├── static/
@@ -334,7 +411,10 @@ uDOS/
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
 │   ├── web/
-│   └── README.md
+│   ├── QUICK-REFERENCE.md
+│   ├── README.md
+│   ├── SERVER-MANAGEMENT.md
+│   └── server_manager.py
 ├── knowledge/
 │   ├── checklists/
 │   ├── communication/
@@ -344,6 +424,7 @@ uDOS/
 │   ├── external/
 │   ├── fire/
 │   ├── food/
+│   ├── generated/
 │   ├── making/
 │   ├── medical/
 │   ├── navigation/
@@ -351,7 +432,6 @@ uDOS/
 │   ├── shelter/
 │   ├── skills/
 │   ├── survival/
-│   ├── system/
 │   ├── tech/
 │   ├── tools/
 │   ├── water/
@@ -360,9 +440,13 @@ uDOS/
 │   ├── README.md
 │   └── structure.txt
 ├── sandbox/
+│   ├── peek/
+│   │   └── .gitkeep
+│   ├── update_all_docs.py
+│   ├── update_logging_paths.py
+│   └── update_paths.py
 ├── .env.example
 ├── .gitignore
-├── ASSETS-GUIDE.md
 ├── CHANGELOG.md
 ├── CODE-OF-CONDUCT.md
 ├── CONTRIBUTING.md
@@ -377,8 +461,5 @@ uDOS/
 ├── setup.py
 ├── start_udos.sh
 ├── structure.txt
-├── test_extensions.py
-├── test_poke.uscript
-├── test_startup.uscript
 ├── uDOS.code-workspace
 └── uDOS.py

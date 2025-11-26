@@ -1,7 +1,6 @@
 /**
- * uDOS Terminal - Main Terminal Logic
- * Version: 1.0.24
- * Integrated with uDOS core command system
+ * uDOS Terminal v2.0.0 - JavaScript
+ * Clean rebuild with uDOS API integration
  */
 
 (function() {
@@ -11,551 +10,393 @@
     const state = {
         commandHistory: [],
         historyIndex: -1,
-        currentDirectory: '/',
-        sessionId: null,
         ready: false,
-        udosApiUrl: 'http://localhost:5001/api'  // uDOS core API endpoint
+        coreConnected: false,
+        udosApiUrl: 'http://localhost:5001/api'
     };
 
     // DOM Elements
-    let terminal;
-    let commandInput;
-    let terminalOutput;
-    let statusElement;
-    let charReference;
-    let terminalViewport;
+    let terminal, output, input, loadingScreen, functionKeys;
 
     /**
-     * Initialize terminal
+     * Show splash screen with uDOS logo and loader
      */
-    function init() {
-        // Wait for terminal to be ready
-        document.addEventListener('udos:terminal:ready', function() {
-            setupTerminal();
+    function showSplashScreen() {
+        return new Promise((resolve) => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.innerHTML = '';
+
+            // Create splash content
+            const splash = document.createElement('div');
+            splash.style.cssText = 'text-align: center; padding: 20px; font-family: "C64 User Mono", monospace;';
+
+            // uDOS ASCII art logo - simple U
+            const logo = [
+                '',
+                '',
+                '  ██       ██',
+                '  ██       ██',
+                '  ██       ██',
+                '  ██       ██',
+                '  ██       ██',
+                '  ██       ██',
+                '  ███████████',
+                '',
+                '  UNIVERSAL DEVICE OPERATIONS SYSTEM',
+                '          VERSION 2.0.0',
+                '',
+                ''
+            ];
+
+            logo.forEach((line, i) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.textContent = line;
+                // U in cyan, text in gray/pink
+                if (i >= 2 && i <= 8) {
+                    lineDiv.style.color = '#00D9FF'; // Cyan for U
+                } else if (i === 10) {
+                    lineDiv.style.color = '#A5A5A5'; // Gray for subtitle
+                } else if (i === 11) {
+                    lineDiv.style.color = '#FD79A8'; // Pink for version
+                } else {
+                    lineDiv.style.color = '#6C5CE7'; // Purple for empty lines
+                }
+                splash.appendChild(lineDiv);
+            });
+
+            // Loading bar container
+            const loaderContainer = document.createElement('div');
+            loaderContainer.style.cssText = 'margin: 20px auto; width: 300px;';
+
+            const loaderText = document.createElement('div');
+            loaderText.textContent = 'LOADING:';
+            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 10px;';
+            loaderContainer.appendChild(loaderText);
+
+            const progressBar = document.createElement('div');
+            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8;';
+            loaderContainer.appendChild(progressBar);
+
+            splash.appendChild(loaderContainer);
+            loadingScreen.appendChild(splash);
+
+            // Animate loader
+            let progress = 0;
+            const totalSteps = 50;
+            const interval = setInterval(() => {
+                progress++;
+                const filled = '█'.repeat(Math.floor(progress / 2));
+                const empty = '░'.repeat(Math.floor((totalSteps - progress) / 2));
+                const percent = Math.floor((progress / totalSteps) * 100);
+
+                progressBar.textContent = `[${filled}${empty}] ${percent}%`;
+
+                if (progress >= totalSteps) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        resolve();
+                    }, 300);
+                }
+            }, 100); // 5 seconds total
         });
     }
 
     /**
-     * Setup terminal once splash is complete
+     * Initialize
+     */
+    async function init() {
+        // Get elements
+        loadingScreen = document.getElementById('loadingScreen');
+        terminal = document.getElementById('terminal');
+        output = document.getElementById('output');
+        input = document.getElementById('input');
+        functionKeys = document.getElementById('functionKeys');
+
+        // Show splash screen
+        await showSplashScreen();
+
+        // Hide loading, show terminal
+        loadingScreen.classList.add('hidden');
+        terminal.classList.add('active');
+        setupTerminal();
+    }
+
+    /**
+     * Setup terminal after loading
      */
     function setupTerminal() {
-        console.log('[uDOS Terminal] Initializing...');
+        // Event listeners
+        input.addEventListener('keydown', handleKeyDown);
+        input.addEventListener('input', handleInputChange);
 
-        // Get DOM elements
-        terminal = document.getElementById('terminalContainer');
-        commandInput = document.getElementById('commandInput');
-        terminalOutput = document.getElementById('output');
-        statusElement = document.getElementById('status');
-        charReference = document.getElementById('charReference');
-        terminalViewport = document.querySelector('.terminal-viewport');
-
-        // Click anywhere in terminal to focus input
-        const terminalScreen = document.getElementById('screen');
-        if (terminalScreen) {
-            terminalScreen.addEventListener('click', () => {
-                if (commandInput) {
-                    commandInput.focus();
-                    console.log('[uDOS Terminal] Input focused via click');
-                }
-            });
-        }
-
-        // Initialize session
-        initializeSession();
-
-        // Setup event listeners
-        setupEventListeners();
-
-        // Mark as ready
-        state.ready = true;
-        updateStatus('READY.');
-
-        // Focus input
-        commandInput.focus();
-
-        console.log('[uDOS Terminal] Ready');
-    }
-
-    /**
-     * Initialize session with uDOS core
-     */
-    async function initializeSession() {
-        // Print boot message
-        printLine('**** uDOS UNIVERSAL DEVICE OPERATIONS ****', 'output-info');
-        printLine('VERSION 1.5 - TERMINAL MODE', 'output-info');
-        printLine('READY.', 'output-info');
-        printLine('');
-
-        try {
-            // Create a new terminal session
-            state.sessionId = 'web-terminal-' + Date.now();
-
-            // Try to ping uDOS core
-            const response = await fetch(`${state.udosApiUrl}/status`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('[uDOS Terminal] Connected to core:', data);
-                printLine('✓ CONNECTED TO uDOS CORE v' + (data.version || '1.0.24'), 'output-success');
-            } else {
-                console.warn('[uDOS Terminal] Core not available, running in standalone mode');
-                printLine('⚠ RUNNING IN STANDALONE MODE', 'output-warning');
-            }
-        } catch (error) {
-            console.warn('[uDOS Terminal] Core not available:', error.message);
-            printLine('⚠ RUNNING IN STANDALONE MODE', 'output-warning');
-            printLine('  START uDOS CORE FOR FULL FUNCTIONALITY', 'output-dim');
-        }
-
-        printLine('');
-    }
-
-    /**
-     * Setup event listeners
-     */
-    function setupEventListeners() {
-        // Command input
-        if (commandInput) {
-            commandInput.addEventListener('keydown', handleKeyDown);
-        }
-
-        // Function keys
-        const fKeys = document.querySelectorAll('.f-key');
-        fKeys.forEach(key => {
-            key.addEventListener('click', () => handleFunctionKey(key.dataset.key));
+        // Function key handlers
+        functionKeys.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => handleFunctionKey(btn.dataset.key));
         });
-
-        // Character reference close button
-        const closeBtn = document.getElementById('closeCharRef');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', toggleCharReference);
-        }
 
         // Global keyboard shortcuts
         document.addEventListener('keydown', handleGlobalKeys);
 
-        // Click outside char reference to close
-        document.addEventListener('click', (e) => {
-            if (!charReference.classList.contains('hidden') &&
-                !charReference.contains(e.target) &&
-                !e.target.closest('.f-key[data-key="F8"]')) {
-                charReference.classList.add('hidden');
-            }
-        });
-    }
+        // Focus input
+        input.focus();
 
-    /**
-     * Handle keyboard input
-     */
-    function handleKeyDown(e) {
-        console.log('[uDOS Terminal] Key pressed:', e.key);
+        // Welcome message
+        printLine('**** uDOS UNIVERSAL DEVICE OPERATIONS ****');
+        printLine('TERMINAL MODE v2.0.0');
+        printLine('');
 
-        switch(e.key) {
-            case 'Enter':
-                e.preventDefault();
-                console.log('[uDOS Terminal] Enter pressed, executing command');
-                executeCommand();
-                break;
+        // Check API connection
+        checkConnection();
 
-            case 'ArrowUp':
-                e.preventDefault();
-                navigateHistory('up');
-                break;
-
-            case 'ArrowDown':
-                e.preventDefault();
-                navigateHistory('down');
-                break;
-
-            case 'Tab':
-                e.preventDefault();
-                // TODO: Implement tab completion
-                break;
-
-            case 'Escape':
-                e.preventDefault();
-                commandInput.value = '';
-                break;
-        }
+        printLine('READY.');
+        printLine('');
+        state.ready = true;
     }
 
     /**
      * Handle global keyboard shortcuts
      */
     function handleGlobalKeys(e) {
-        // Function keys
+        // F1-F8 function keys
         if (e.key.startsWith('F') && e.key.length === 2) {
             e.preventDefault();
-            handleFunctionKey(e.key);
-        }
-
-        // Ctrl+L - Clear screen
-        if (e.ctrlKey && e.key === 'l') {
-            e.preventDefault();
-            clearScreen();
+            handleFunctionKey(e.key.toUpperCase());
         }
     }
 
     /**
-     * Handle function key press
+     * Handle input changes for smart suggestions
      */
-    function handleFunctionKey(key) {
-        console.log('[uDOS Terminal] Function key:', key);
+    function handleInputChange(e) {
+        const value = input.value.toLowerCase();
+        // Simple autocomplete could be added here
+        // For now, just ensure proper input handling
+    }
 
-        switch(key) {
-            case 'F1':
-                executeCommand('HELP');
-                break;
-            case 'F2':
-                executeCommand('KNOWLEDGE');
-                break;
-            case 'F3':
-                executeCommand('LIST');
-                break;
-            case 'F4':
-                printLine('✎ EDIT MODE - Use EDIT <filename> command', 'output-info');
-                break;
-            case 'F5':
-                printLine('▶ RUN MODE - Use RUN <script> command', 'output-info');
-                break;
-            case 'F6':
-                executeCommand('STATUS');
-                break;
-            case 'F7':
-                clearScreen();
-                break;
-            case 'F8':
-                toggleCharReference();
-                break;
+    /**
+     * Handle keyboard input
+     */
+    function handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const command = input.value.trim();
+            if (command) {
+                executeCommand(command);
+                state.commandHistory.push(command);
+                state.historyIndex = state.commandHistory.length;
+            }
+            input.value = '';
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (state.historyIndex > 0) {
+                state.historyIndex--;
+                input.value = state.commandHistory[state.historyIndex] || '';
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (state.historyIndex < state.commandHistory.length) {
+                state.historyIndex++;
+                input.value = state.commandHistory[state.historyIndex] || '';
+            }
         }
     }
 
     /**
      * Execute command
      */
-    async function executeCommand(cmdText = null) {
-        const command = cmdText || commandInput.value.trim();
+    async function executeCommand(command) {
+        printLine(`> ${command}`);
 
-        if (!command) {
-            printPromptLine('');
+        // Local commands
+        const cmd = command.toLowerCase();
+
+        if (cmd === 'clear' || cmd === 'cls') {
+            output.innerHTML = '';
             return;
         }
 
-        // Print command with prompt
-        printPromptLine(command);
-
-        // Add to history
-        if (!cmdText) {
-            state.commandHistory.push(command);
-            state.historyIndex = state.commandHistory.length;
-            commandInput.value = '';
+        if (cmd === 'help') {
+            printLine('AVAILABLE COMMANDS:');
+            printLine('  HELP     - SHOW THIS MESSAGE');
+            printLine('  CLEAR    - CLEAR SCREEN');
+            printLine('  STATUS   - SHOW SYSTEM STATUS');
+            printLine('  EXIT     - CLOSE TERMINAL');
+            printLine('');
+            printLine('USE FUNCTION KEYS FOR QUICK ACCESS');
+            return;
         }
 
-        // Update status
-        updateStatus('PROCESSING...');
+        if (cmd === 'status') {
+            printLine(`TERMINAL: READY`);
+            printLine(`API: ${state.coreConnected ? 'CONNECTED' : 'DISCONNECTED'}`);
+            printLine(`HISTORY: ${state.commandHistory.length} COMMANDS`);
+            return;
+        }
 
-        // Process command
-        await processCommand(command);
-
-        // Reset status
-        updateStatus('READY.');
-
-        // Scroll to bottom
-        scrollToBottom();
-
-        // Focus input
-        commandInput.focus();
-    }
-
-    /**
-     * Process command (integrate with uDOS core or handle locally)
-     */
-    async function processCommand(command) {
-        const cmd = command.toUpperCase();
-        const args = command.split(/\s+/).slice(1);
-
-        // Try to send to uDOS core first
-        console.log(`[uDOS Terminal] Executing command: ${command}`);
-        try {
-            console.log(`[uDOS Terminal] Sending to API: ${state.udosApiUrl}/command`);
-            const response = await fetch(`${state.udosApiUrl}/command`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: state.sessionId,
-                    command: command,
-                    cwd: state.currentDirectory
-                })
-            });
-
-            console.log(`[uDOS Terminal] API response status: ${response.status}`);
-            if (response.ok) {
-                const result = await response.json();
-                console.log('[uDOS Terminal] API response:', result);
-                displayCommandResult(result);
-                return;
+        if (cmd === 'start') {
+            if (state.coreConnected) {
+                printLine('STARTING uDOS CORE SYSTEMS...');
+                printLine('INITIALIZING KNOWLEDGE BANK...');
+                printLine('LOADING EXTENSIONS...');
+                printLine('');
+                printLine('uCORE READY.');
+                printLine('TIP: TYPE "HELP" FOR AVAILABLE COMMANDS');
             } else {
-                console.warn(`[uDOS Terminal] API returned ${response.status}, using local handlers`);
+                printLine('UDOS SYSTEMS NOT AVAILABLE');
+                printLine('API SERVER REQUIRED FOR FULL FUNCTIONALITY');
+                printLine('');
+                printLine('START SERVER:');
+                printLine('  cd extensions/api && python server.py');
             }
-        } catch (error) {
-            console.log(`[uDOS Terminal] API error: ${error.message}, using local handlers`);
+            return;
         }
 
-        // Local command handlers (fallback)
-        await handleLocalCommand(cmd, args);
+        if (cmd === 'exit' || cmd === 'quit') {
+            printLine('GOODBYE.');
+            setTimeout(() => window.close(), 1000);
+            return;
+        }
+
+        // Try API
+        if (state.coreConnected) {
+            try {
+                const response = await fetch(`${state.udosApiUrl}/command`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    printLine(data.output || data.message || 'COMMAND EXECUTED');
+                    return;
+                }
+            } catch (error) {
+                console.error('[Terminal] API error:', error);
+            }
+        }
+
+        printLine(`UNKNOWN COMMAND: ${command}`);
+        printLine('TYPE "HELP" FOR AVAILABLE COMMANDS');
     }
 
     /**
-     * Handle local commands when core is not available
+     * Handle function keys
      */
-    async function handleLocalCommand(cmd, args) {
-        switch(cmd) {
-            case 'HELP':
-                displayHelp();
+    function handleFunctionKey(key) {
+        switch(key) {
+            case 'F1':
+                printLine('===== uDOS HELP SYSTEM =====');
+                executeCommand('help');
                 break;
-
-            case 'CLEAR':
-            case 'CLS':
-                clearScreen();
-                break;
-
-            case 'STATUS':
-                displayStatus();
-                break;
-
-            case 'HISTORY':
-                displayHistory();
-                break;
-
-            case 'KNOWLEDGE':
-                printLine('KNOWLEDGE BASE COMMANDS:', 'output-info');
-                printLine('  K-LIST   - List knowledge articles', 'output-dim');
-                printLine('  K-SEARCH - Search knowledge base', 'output-dim');
-                printLine('  K-READ   - Read knowledge article', 'output-dim');
-                break;
-
-            case 'LIST':
-            case 'LS':
-            case 'DIR':
-                printLine('DIRECTORY LISTING: ' + state.currentDirectory, 'output-info');
-                printLine('  Use with uDOS Core for full file system access', 'output-dim');
-                break;
-
-            case 'GUIDE':
-                printLine('uDOS TERMINAL GUIDE:', 'output-info');
-                printLine('', 'output-dim');
-                printLine('  FUNCTION KEYS:', 'output-dim');
-                printLine('    F1 - Help System', 'output-dim');
-                printLine('    F2 - Knowledge Base', 'output-dim');
-                printLine('    F3 - List Directory', 'output-dim');
-                printLine('    F7 - Clear Screen', 'output-dim');
-                printLine('    F8 - Character Reference', 'output-dim');
-                printLine('', 'output-dim');
-                printLine('  NAVIGATION:', 'output-dim');
-                printLine('    ↑/↓ - Command History', 'output-dim');
-                printLine('    ESC - Clear Input', 'output-dim');
-                break;
-
-            case 'CHARS':
-            case 'PETSCII':
-                toggleCharReference();
-                break;
-
-            case 'VER':
-            case 'VERSION':
-                printLine('uDOS TERMINAL v1.0.24', 'output-success');
-                printLine('UNIVERSAL DIGITAL OPERATIONS SYSTEM', 'output-dim');
-                break;
-
-            default:
-                if (cmd) {
-                    printLine('✗ UNKNOWN COMMAND: ' + cmd, 'output-error');
-                    printLine('  TYPE "HELP" FOR COMMAND LIST', 'output-dim');
+            case 'F2':
+                printLine('===== KNOWLEDGE BASE =====');
+                if (state.coreConnected) {
+                    printLine('CATEGORIES: WATER, FIRE, SHELTER, FOOD, MEDICAL, NAVIGATION');
+                    printLine('USAGE: KNOW <CATEGORY>');
+                } else {
+                    printLine('KNOWLEDGE BASE REQUIRES API CONNECTION');
                 }
                 break;
+            case 'F3':
+                printLine('===== DIRECTORY LISTING =====');
+                if (state.coreConnected) {
+                    executeCommand('ls');
+                } else {
+                    printLine('DIRECTORY ACCESS REQUIRES API CONNECTION');
+                }
+                break;
+            case 'F4':
+                printLine('===== EDIT MODE =====');
+                printLine('FEATURE IN DEVELOPMENT');
+                printLine('COMING SOON: FILE EDITOR');
+                break;
+            case 'F5':
+                printLine('===== RUN SCRIPT =====');
+                printLine('FEATURE IN DEVELOPMENT');
+                printLine('COMING SOON: uCODE SCRIPT EXECUTION');
+                break;
+            case 'F6':
+                printLine('===== SYSTEM STATUS =====');
+                executeCommand('status');
+                break;
+            case 'F7':
+                executeCommand('clear');
+                break;
+            case 'F8':
+                showCharacterMap();
+                break;
         }
+        input.focus();
     }
 
     /**
-     * Display command result from uDOS core
+     * Show PETSCII character map
      */
-    function displayCommandResult(result) {
-        if (result.output) {
-            if (Array.isArray(result.output)) {
-                result.output.forEach(line => printLine(line));
-            } else {
-                printLine(result.output);
+    function showCharacterMap() {
+        printLine('===== PETSCII CHARACTER MAP =====');
+        printLine('');
+
+        // PETSCII printable characters (32-126, basic ASCII subset)
+        printLine('STANDARD CHARACTERS:');
+        let line = '';
+        for (let i = 32; i <= 126; i++) {
+            line += String.fromCharCode(i);
+            if ((i - 31) % 40 === 0) {
+                printLine(line);
+                line = '';
             }
         }
+        if (line) printLine(line);
 
-        if (result.error) {
-            printLine('✗ ERROR: ' + result.error, 'output-error');
-        }
+        printLine('');
+        printLine('BLOCK GRAPHICS:');
+        // Unicode block drawing characters (approximating PETSCII blocks)
+        const blocks = '▀▄█▌▐░▒▓■□▪▫';
+        printLine(blocks);
 
-        if (result.cwd) {
-            state.currentDirectory = result.cwd;
-        }
+        printLine('');
+        printLine('BOX DRAWING:');
+        const boxes = '─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬';
+        printLine(boxes);
+
+        printLine('');
+        printLine('PETSCII SYMBOLS:');
+        const symbols = '♠♥♦♣●○◆◇★☆▲▼◄►';
+        printLine(symbols);
+
+        printLine('');
+        printLine('USAGE: Type characters directly in terminal');
+        printLine('TIP: Press Ctrl+V then character code for special chars');
+        printLine('');
     }
 
     /**
-     * Display help
+     * Check API connection
      */
-    function displayHelp() {
-        printLine('uDOS TERMINAL COMMANDS:', 'output-success');
-        printLine('');
-        printLine('SYSTEM:', 'output-info');
-        printLine('  HELP     - Show this help', 'output-dim');
-        printLine('  STATUS   - System status', 'output-dim');
-        printLine('  CLEAR    - Clear screen', 'output-dim');
-        printLine('  GUIDE    - Terminal guide', 'output-dim');
-        printLine('  VERSION  - Show version', 'output-dim');
-        printLine('');
-        printLine('FILES:', 'output-info');
-        printLine('  LIST     - List directory', 'output-dim');
-        printLine('  EDIT     - Edit file', 'output-dim');
-        printLine('  RUN      - Run script', 'output-dim');
-        printLine('');
-        printLine('KNOWLEDGE:', 'output-info');
-        printLine('  KNOWLEDGE - Knowledge base commands', 'output-dim');
-        printLine('  K-LIST    - List articles', 'output-dim');
-        printLine('  K-SEARCH  - Search knowledge', 'output-dim');
-        printLine('');
-        printLine('NOTE: Connect to uDOS Core for full command set', 'output-warning');
-    }
-
-    /**
-     * Display system status
-     */
-    function displayStatus() {
-        printLine('uDOS TERMINAL STATUS:', 'output-success');
-        printLine('');
-        printLine('  Version:    1.0.24', 'output-dim');
-        printLine('  Session:    ' + state.sessionId, 'output-dim');
-        printLine('  Directory:  ' + state.currentDirectory, 'output-dim');
-        printLine('  History:    ' + state.commandHistory.length + ' commands', 'output-dim');
-        printLine('  Status:     ' + (state.ready ? 'READY' : 'INITIALIZING'), 'output-dim');
-    }
-
-    /**
-     * Display command history
-     */
-    function displayHistory() {
-        if (state.commandHistory.length === 0) {
-            printLine('NO COMMAND HISTORY', 'output-dim');
-            return;
-        }
-
-        printLine('COMMAND HISTORY:', 'output-info');
-        state.commandHistory.forEach((cmd, index) => {
-            printLine(`  ${index + 1}. ${cmd}`, 'output-dim');
-        });
-    }
-
-    /**
-     * Navigate command history
-     */
-    function navigateHistory(direction) {
-        if (state.commandHistory.length === 0) return;
-
-        if (direction === 'up') {
-            if (state.historyIndex > 0) {
-                state.historyIndex--;
-                commandInput.value = state.commandHistory[state.historyIndex];
+    async function checkConnection() {
+        try {
+            const response = await fetch(`${state.udosApiUrl}/status`);
+            if (response.ok) {
+                state.coreConnected = true;
+                printLine('API SERVER: CONNECTED');
             }
-        } else if (direction === 'down') {
-            if (state.historyIndex < state.commandHistory.length - 1) {
-                state.historyIndex++;
-                commandInput.value = state.commandHistory[state.historyIndex];
-            } else {
-                state.historyIndex = state.commandHistory.length;
-                commandInput.value = '';
-            }
+        } catch (error) {
+            state.coreConnected = false;
+            printLine('API SERVER: OFFLINE');
+            printLine('START WITH: cd extensions/api && python server.py');
         }
     }
 
     /**
-     * Clear screen
+     * Print line to output
      */
-    function clearScreen() {
-        terminalOutput.innerHTML = '';
-        updateStatus('SCREEN CLEARED');
-        setTimeout(() => updateStatus('READY.'), 1000);
-    }
-
-    /**
-     * Toggle character reference panel
-     */
-    function toggleCharReference() {
-        charReference.classList.toggle('hidden');
-    }
-
-    /**
-     * Print line to terminal
-     */
-    let lineCount = 0;
-    function printLine(text, className = '') {
-        const line = document.createElement('p');
+    function printLine(text) {
+        const line = document.createElement('div');
         line.textContent = text;
-        if (className) {
-            line.className = className;
-        }
-        // Add staggered animation delay for smooth reading
-        line.style.animationDelay = `${lineCount * 0.05}s`;
-        lineCount++;
-        terminalOutput.appendChild(line);
-
-        // Reset counter after animation completes
-        setTimeout(() => lineCount = 0, 300);
+        output.appendChild(line);
+        output.scrollTop = output.scrollHeight;
     }
-
-    /**
-     * Print command with prompt
-     */
-    function printPromptLine(command) {
-        const line = document.createElement('p');
-        line.innerHTML = '<span style="color: var(--term-prompt);">█</span> ' + escapeHtml(command);
-        terminalOutput.appendChild(line);
-    }
-
-    /**
-     * Update status display
-     */
-    function updateStatus(text) {
-        if (statusElement) {
-            statusElement.textContent = text;
-        }
-    }
-
-    /**
-     * Scroll terminal to bottom
-     */
-    function scrollToBottom() {
-        if (terminalViewport) {
-            terminalViewport.scrollTop = terminalViewport.scrollHeight;
-        }
-    }
-
-    /**
-     * Escape HTML
-     */
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    /**
-     * Make terminal accessible globally
-     */
-    window.uDOSTerminal = {
-        executeCommand,
-        printLine,
-        clearScreen,
-        getState: () => ({ ...state })
-    };
 
     // Initialize on load
     if (document.readyState === 'loading') {

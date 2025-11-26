@@ -1,0 +1,122 @@
+{
+  "command_counts": {
+    "HELP": 2,
+    "DASH": 2,
+    "SHOW": 1,
+    "CONFIG": 1,
+    "OUTPUT": 5
+  },
+  "success_counts": {
+    "HELP": 2,
+    "DASH": 2,
+    "SHOW": 1,
+    "CONFIG": 1,
+    "OUTPUT": 5
+  },
+  "failure_counts": {},
+  "recent_commands": [
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-26T18:19:32.901209",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-11-26T18:19:35.778835",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-11-26T18:19:50.980897",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-26T18:20:54.954507",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-11-26T18:20:59.731418",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-26T18:21:21.373259",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T18:21:28.600770",
+      "params": [
+        "start",
+        "dashboard"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T18:21:39.869782",
+      "params": [
+        "start",
+        "desktop"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T18:22:21.894864",
+      "params": [
+        "start",
+        "terminal"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T18:53:47.114768",
+      "params": [
+        "start",
+        "terminal"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-26T20:20:30.487583",
+      "params": [
+        "start",
+        "terminal"
+      ],
+      "success": true,
+      "context": {}
+    }
+  ],
+  "last_updated": "2025-11-26T20:21:08.840225"
+}

@@ -38,16 +38,6 @@ knowledge/
 │   │   ├── README.md
 │   │   ├── teletext.css
 │   │   └── teletext.js
-│   ├── udos_map_480x270_cellkey/
-│   │   ├── data/
-│   │   │   └── cities_sample.csv
-│   │   ├── output/
-│   │   │   ├── key_example.csv
-│   │   │   └── test_keys.csv
-│   │   ├── tools/
-│   │   │   └── compute_keys.py
-│   │   ├── MANIFEST.json
-│   │   └── README.txt
 │   ├── advanced_features.uscript
 │   ├── hello-automation.uscript
 │   ├── library_example.uscript
@@ -194,6 +184,11 @@ knowledge/
 │   ├── wild-edible-basics.md
 │   ├── wild_edible_roots_and_tubers.md
 │   └── wild_game_preparation.md
+├── generated/
+│   ├── test_ascii_art.ascii
+│   ├── test_teletext.html
+│   ├── test_water_purification.md
+│   └── test_water_purification.svg
 ├── making/
 │   ├── basic-woodworking.md
 │   ├── README.md
@@ -407,107 +402,6 @@ knowledge/
 │   ├── water-sources-wilderness.md
 │   ├── wild-edible-basics.md
 │   └── wound-care-bleeding.md
-├── system/
-│   ├── diagrams/
-│   │   ├── data-structures/
-│   │   ├── flowcharts/
-│   │   ├── programming/
-│   │   │   ├── control-flow/
-│   │   │   │   ├── if-else-medium.md
-│   │   │   │   └── while-loop-medium.md
-│   │   │   └── syntax-trees/
-│   │   │       └── variable-scope-medium.md
-│   │   ├── survival/
-│   │   │   ├── knots/
-│   │   │   │   └── square-knot-medium.md
-│   │   │   └── water/
-│   │   │       └── purification-methods-medium.md
-│   │   ├── systems/
-│   │   │   ├── memory-architecture-medium.md
-│   │   │   └── memory-tiers-medium.md
-│   │   └── README.md
-│   ├── geography/
-│   │   ├── cities.json
-│   │   ├── climate.json
-│   │   ├── countries.json
-│   │   ├── terrain.json
-│   │   ├── terrain_types.json
-│   │   ├── tile_schema.json
-│   │   ├── timezones.json
-│   │   └── tzone.json
-│   ├── graphics/
-│   │   ├── teletext/
-│   │   │   ├── patterns.md
-│   │   │   └── README.md
-│   │   ├── ascii_blocks.json
-│   │   └── teletext_mosaic.json
-│   ├── help_templates/
-│   │   ├── _index.json
-│   │   ├── assistant_commands.json
-│   │   ├── file_commands.json
-│   │   ├── grid_commands.json
-│   │   ├── README.md
-│   │   └── system_commands.json
-│   ├── reference/
-│   │   ├── imperial.json
-│   │   └── metric.json
-│   ├── templates/
-│   │   ├── .env.example
-│   │   ├── crud_app.uscript
-│   │   ├── form_validation.uscript
-│   │   ├── menu_system.uscript
-│   │   ├── setup.uscript
-│   │   ├── story.template.json
-│   │   └── user.template.json
-│   ├── tests/
-│   │   ├── test_startup.py
-│   │   └── test_system.py
-│   ├── themes/
-│   │   ├── templates/
-│   │   │   ├── dark-modern.json
-│   │   │   ├── high-contrast.json
-│   │   │   ├── light-professional.json
-│   │   │   ├── minimal.json
-│   │   │   └── README.md
-│   │   ├── _index.json
-│   │   ├── _schema.json
-│   │   ├── default.json
-│   │   ├── dungeon.json
-│   │   ├── foundation.json
-│   │   ├── galaxy.json
-│   │   ├── imported_test_theme.json
-│   │   ├── project.json
-│   │   ├── science.json
-│   │   └── teletext.json
-│   ├── BLANK-ENHANCED.md
-│   ├── command-architecture.md
-│   ├── commands.json
-│   ├── credits.json
-│   ├── extensions.json
-│   ├── faq.json
-│   ├── font-profile-template.json
-│   ├── font-system.json
-│   ├── fonts.json
-│   ├── HELP-ENHANCED.md
-│   ├── KNOWLEDGE-REFERENCE.md
-│   ├── MAP.md
-│   ├── OK.md
-│   ├── palette.json
-│   ├── README-FONT-SYSTEM.md
-│   ├── REDO.md
-│   ├── RESTORE.md
-│   ├── RUN.md
-│   ├── SETUP-ENHANCED.md
-│   ├── SYSTEM.md
-│   ├── tizo_cities.json
-│   ├── ucode_variables.json
-│   ├── UNDO.md
-│   ├── universe.json
-│   ├── usage_tracker.json
-│   ├── viewport.json
-│   ├── world_cities.csv
-│   ├── world_cities_cellkeys.csv
-│   └── worldmap.json
 ├── tech/
 │   ├── control-flow.md
 │   ├── daily-automation.md
@@ -566,6 +460,7 @@ knowledge/
 │   ├── README.md
 │   ├── sleep-hygiene-optimization.md
 │   └── stress-management-resilience.md
+├── .DS_Store
 ├── KNOWLEDGE-SYSTEM.md
 ├── README.md
 └── structure.txt

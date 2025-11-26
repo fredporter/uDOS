@@ -75,6 +75,24 @@ Credits and attributions for all uDOS web-based core extensions.
   - BASIC V2 command structure
   - Internal reference: **Retro styling**
 
+- **Retrocomputing.NET by Hein-Andre Grønnestad**
+  - C64 Emulator implementation reference
+  - Source: https://github.com/hagronnestad/retro-computing
+  - Authentic C64 color palette implementation
+  - VIC-II graphics mode rendering
+  - Border and display frame calculations
+  - License: Educational/Reference
+  - Internal reference: **C64 color accuracy**
+
+- **C64 Loading Screen by Sean Slater**
+  - Authentic C64 loading animation
+  - Source: https://github.com/seanslater/c64-loading
+  - Rainbow border decrunch effect
+  - Typing animation sequence
+  - Based on RoelN/c64css3
+  - License: Public Domain
+  - Internal reference: **C64 loading animation**
+
 ### Fonts
 - **PetMe64 & PetMe128**
   - Commodore PET/C64/C128-inspired fonts
@@ -155,7 +173,7 @@ Credits and attributions for all uDOS web-based core extensions.
 
 ### uDOS Project
 - **uDOS v1.0.24-25**
-  - Universal Digital Operations System
+  - Universal Device Operations System
   - Development: 2024
 
 ### Shared Systems

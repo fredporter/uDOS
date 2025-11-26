@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>uDOS System Desktop v1.0.24 - Classic Mac OS Interface</title>
+    <link rel="stylesheet" href="../../assets/css/classic-patterns.css">
     <link rel="stylesheet" href="desktop.css">
 </head>
 <body>
@@ -69,24 +70,24 @@
     <div id="desktop-icons"></div>
 
     <!-- About uDOS Window -->
-    <div class="window" id="about-window" style="position: absolute; left: 50px; top: 50px; width: 400px;">
+    <div class="window" id="about-window" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 300px;">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('about-window')"></button>
+            <button class="close" aria-label="Close" onclick="closeWindow('about-window')"></button>
             <h1 class="title">About uDOS</h1>
             <button aria-label="Resize" disabled></button>
         </div>
         <div class="separator"></div>
-        <div class="window-pane">
+        <div class="window-pane" style="font-family: Roboto, sans-serif; font-size: 12px;">
             <div class="about-box">
                 <div class="about-logo">🖥️</div>
-                <div class="about-version">uDOS System Desktop</div>
-                <div style="font-size: 18px; font-weight: bold; margin: 4px 0;">v1.0.24</div>
-                <div style="margin: 16px 0; padding: 12px; background: #f0f0f0; border: 1px solid #888;">
-                    <strong>Phase 8.8 Complete</strong><br>
+                <div class="about-version" style="font-family: Roboto, sans-serif; font-size: 12px;">uDOS System Desktop</div>
+                <div style="font-family: Roboto, sans-serif; font-size: 12px; margin: 4px 0;">v1.0.24</div>
+                <div style="font-family: Roboto, sans-serif; font-size: 12px; margin: 16px 0; padding: 12px; background: #f0f0f0; border: 1px solid #888;">
+                    Phase 8.8 Complete<br>
                     system.css Integration<br>
                     Extensions Restructure
                 </div>
-                <div class="about-credits">
+                <div class="about-credits" style="font-family: Roboto, sans-serif; font-size: 12px;">
                     Built with system.css (sakofchit)<br>
                     Chicago font • Classic Mac OS System 7<br>
                     Synthwave DOS color palette<br><br>
@@ -104,7 +105,7 @@
     <!-- System Information Window -->
     <div class="window" id="system-window" style="position: absolute; left: 80px; top: 70px; width: 420px; display: none;">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('system-window')"></button>
+            <button class="close" aria-label="Close" onclick="closeWindow('system-window')"></button>
             <h1 class="title">System Information</h1>
             <button aria-label="Resize" disabled></button>
         </div>
@@ -163,7 +164,7 @@
     <!-- Finder/Extensions Window -->
     <div class="window" id="finder-window" style="position: absolute; left: 120px; top: 100px; width: 500px; display: none;">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('finder-window')"></button>
+            <button class="close" aria-label="Close" onclick="closeWindow('finder-window')"></button>
             <h1 class="title">uDOS Extensions</h1>
             <button aria-label="Resize" disabled></button>
         </div>
@@ -215,7 +216,7 @@
     <!-- Command Palette Window -->
     <div class="window" id="command-window" style="position: absolute; left: 180px; top: 120px; width: 600px; display: none;">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('command-window')"></button>
+            <button class="close" aria-label="Close" onclick="closeWindow('command-window')"></button>
             <h1 class="title">Command Palette</h1>
             <button aria-label="Resize" disabled></button>
         </div>
@@ -238,9 +239,9 @@
     <!-- Character Editor Window -->
     <div class="window" id="character-editor-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeCharacterEditor()"></button>
+            <button class="close" aria-label="Close" onclick="closeCharacterEditor()"></button>
             <h1 class="title">Character Editor</h1>
-            <button aria-label="Resize" onclick="maximizeWindow('character-editor-window')"></button>
+            <button aria-label="Resize" disabled></button>
         </div>
         <div class="separator"></div>
         <div class="window-pane" style="padding: 0; overflow: hidden; height: calc(100% - 38px);">
@@ -251,9 +252,9 @@
     <!-- File Picker Window -->
     <div class="window" id="file-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeFilePicker()"></button>
+            <button class="close" aria-label="Close" onclick="closeFilePicker()"></button>
             <h1 class="title">Memory Browser</h1>
-            <button aria-label="Resize" onclick="maximizeWindow('file-picker-window')"></button>
+            <button aria-label="Resize" disabled></button>
         </div>
         <div class="separator"></div>
         <div class="details-bar">
@@ -280,9 +281,9 @@
     <!-- Knowledge Library Picker Window -->
     <div class="window" id="knowledge-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeKnowledgePicker()"></button>
+            <button class="close" aria-label="Close" onclick="closeKnowledgePicker()"></button>
             <h1 class="title">Knowledge Library</h1>
-            <button aria-label="Resize" onclick="maximizeWindow('knowledge-picker-window')"></button>
+            <button aria-label="Resize" disabled></button>
         </div>
         <div class="separator"></div>
         <div class="details-bar">
@@ -309,7 +310,7 @@
     <!-- Design System Test Window -->
     <div class="window" id="test-window" style="position: absolute; left: 160px; top: 100px; width: 700px; max-height: 600px; overflow-y: auto; display: none;">
         <div class="title-bar">
-            <button aria-label="Close" onclick="closeWindow('test-window')"></button>
+            <button class="close" aria-label="Close" onclick="closeWindow('test-window')"></button>
             <h1 class="title">system.css Design System Test</h1>
             <button aria-label="Resize" disabled></button>
         </div>
@@ -319,10 +320,13 @@
 
             <div style="margin-bottom: 20px;">
                 <h3>Font Families:</h3>
-                <p style="font-family: Chicago_12; font-size: 12px;">Chicago_12 - Primary UI font (12px)</p>
-                <p style="font-family: Geneva_9; font-size: 9px;">Geneva_9 - Small text font (9px)</p>
+                <p style="font-family: Chicago; font-size: 12px;">Chicago - Primary UI font (12px)</p>
+                <p style="font-family: Chicago; font-size: 10px;">Chicago - Small text (10px)</p>
                 <p style="font-family: Chicago; font-size: 18px;">Chicago - Display font (18px)</p>
-                <p style="font-family: Monaco; font-size: 12px;">Monaco - Monospace font (12px)</p>
+                <p style="font-family: Roboto; font-size: 12px;">Roboto - Body text font (12px)</p>
+                <p style="font-family: Roboto; font-weight: bold; font-size: 12px;">Roboto Bold - Headings (12px)</p>
+                <p style="font-family: Roboto; font-style: italic; font-size: 12px;">Roboto Italic - Emphasis (12px)</p>
+                <p style="font-family: monospace; font-size: 11px;">Monospace - Code/Terminal (11px)</p>
             </div>
 
             <h3>Buttons</h3>
@@ -384,23 +388,23 @@
                 <p style="margin-bottom: 12px;"><strong>system.css Icons:</strong></p>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <div style="text-align: center;">
-                        <img src="../../assets/icons/apple.svg" alt="Apple" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <img src="icons/apple.svg" alt="Apple" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
                         <div style="font-size: 9px; margin-top: 4px;">apple.svg</div>
                     </div>
                     <div style="text-align: center;">
-                        <img src="../../assets/icons/checkmark.svg" alt="Checkmark" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <img src="icons/checkmark.svg" alt="Checkmark" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
                         <div style="font-size: 9px; margin-top: 4px;">checkmark.svg</div>
                     </div>
                     <div style="text-align: center;">
-                        <img src="../../assets/icons/radio-dot.svg" alt="Radio Dot" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <img src="icons/radio-dot.svg" alt="Radio Dot" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
                         <div style="font-size: 9px; margin-top: 4px;">radio-dot.svg</div>
                     </div>
                     <div style="text-align: center;">
-                        <img src="../../assets/icons/scrollbar-up.svg" alt="Scroll Up" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <img src="icons/scrollbar-up.svg" alt="Scroll Up" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
                         <div style="font-size: 9px; margin-top: 4px;">scrollbar-up.svg</div>
                     </div>
                     <div style="text-align: center;">
-                        <img src="../../assets/icons/scrollbar-down.svg" alt="Scroll Down" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <img src="icons/scrollbar-down.svg" alt="Scroll Down" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
                         <div style="font-size: 9px; margin-top: 4px;">scrollbar-down.svg</div>
                     </div>
                 </div>
@@ -421,22 +425,90 @@
                 <p>Line 10 - End of test content</p>
             </div>
 
-            <h3>Color Test</h3>
-            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <h3>Classic Patterns</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; margin-bottom: 20px;">
                 <div style="text-align: center;">
-                    <div style="width: 60px; height: 60px; background: #000; border: 2px solid #000;"></div>
+                    <div class="pattern-checkerboard" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Checker</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-fine-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Fine Dots</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-grid-small" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Grid</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-diagonal" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Diagonal</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-crosshatch" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Crosshatch</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-dense-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Dense</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-sparse-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Sparse</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-vertical-lines" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Vertical</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-horizontal-lines" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Horizontal</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-bricks" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Bricks</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-scales" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Scales</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-waves" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Waves</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-triangles" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Triangles</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-hexagons" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Hexagons</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-diagonal-right" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Diag Right</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-weave" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Weave</div>
+                </div>
+            </div>
+
+            <h3>Color Test</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #000; border: 2px solid #000; margin: 0 auto;"></div>
                     <div style="font-size: 9px; margin-top: 4px;">Black<br>#000</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="width: 60px; height: 60px; background: #fff; border: 2px solid #000;"></div>
+                    <div style="width: 60px; height: 60px; background: #fff; border: 2px solid #000; margin: 0 auto;"></div>
                     <div style="font-size: 9px; margin-top: 4px;">White<br>#fff</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="width: 60px; height: 60px; background: #c0c0c0; border: 2px solid #000;"></div>
+                    <div style="width: 60px; height: 60px; background: #c0c0c0; border: 2px solid #000; margin: 0 auto;\"></div>
                     <div style="font-size: 9px; margin-top: 4px;">Grey<br>#c0c0c0</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="width: 60px; height: 60px; background: #808080; border: 2px solid #000;"></div>
+                    <div style="width: 60px; height: 60px; background: #808080; border: 2px solid #000; margin: 0 auto;\"></div>
                     <div style="font-size: 9px; margin-top: 4px;">Dark Grey<br>#808080</div>
                 </div>
             </div>
@@ -457,632 +529,6 @@
         </div>
     </div>
 
-    <script>
-        // Desktop icon positions
-        const desktopIcons = [
-            { id: 'terminal', icon: '/extensions/icons/coreui/cil-terminal.svg', label: 'Terminal', x: 20, y: 40, port: 8889 },
-            { id: 'markdown', icon: '/extensions/icons/coreui/cil-book.svg', label: 'Knowledge', x: 20, y: 140, action: 'openMarkedViewer' },
-            { id: 'teletext', icon: '/extensions/icons/coreui/cil-tv.svg', label: 'Teletext', x: 20, y: 240, port: 8890 },
-            { id: 'character', icon: '/extensions/icons/coreui/cil-text.svg', label: 'Character', x: 20, y: 340, action: 'openCharacterEditor' },
-            { id: 'dashboard', icon: '/extensions/icons/coreui/cil-apps.svg', label: 'Dashboard', x: 20, y: 440, port: 8888 },
-            { id: 'files', icon: '/extensions/icons/coreui/cil-folder.svg', label: 'Files', x: 20, y: 540, action: 'openFilePicker' }
-        ];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('%c🖥️ uDOS System Desktop v1.0.24', 'font-size: 16px; font-weight: bold; color: #00ffff;');
-            console.log('%csystem.css Framework • Chicago Font', 'color: #888;');
-
-            // Create desktop icons
-            createDesktopIcons();
-
-            // Setup command input
-            setupCommandPalette();
-
-            // Make windows draggable
-            makeWindowsDraggable();
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Cmd/Ctrl + K for command palette
-                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                    e.preventDefault();
-                    toggleWindow('command-window');
-                    const input = document.getElementById('cmd-input');
-                    if (input) input.focus();
-                }
-            });
-        });
-
-        function createDesktopIcons() {
-            const container = document.getElementById('desktop-icons');
-            if (!container) return;
-
-            desktopIcons.forEach(icon => {
-                const iconEl = document.createElement('div');
-                iconEl.className = 'desktop-icon';
-                iconEl.style.left = icon.x + 'px';
-                iconEl.style.top = icon.y + 'px';
-                iconEl.innerHTML = `
-                    <img src="${icon.icon}" alt="${icon.label}" class="desktop-icon-image">
-                    <div class="desktop-icon-label">${icon.label}</div>
-                `;
-                iconEl.addEventListener('dblclick', () => {
-                    if (icon.action) {
-                        window[icon.action]();
-                    } else if (icon.port) {
-                        openExtension(icon.id, icon.port);
-                    }
-                });
-                container.appendChild(iconEl);
-            });
-        }
-
-        function setupCommandPalette() {
-            const input = document.getElementById('cmd-input');
-            const output = document.getElementById('cmd-output');
-
-            if (input && output) {
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        const cmd = this.value.trim();
-                        if (cmd) {
-                            executeCommand(cmd, output);
-                            this.value = '';
-                        }
-                    }
-                });
-            }
-        }
-
-        function executeCommand(cmd, output) {
-            const line = document.createElement('div');
-            line.innerHTML = `<span class="command-prompt">$</span> ${cmd}`;
-            output.appendChild(line);
-
-            const response = document.createElement('div');
-            response.style.color = '#00ff00';
-            response.style.marginLeft = '12px';
-
-            if (cmd === 'help') {
-                response.innerHTML = `Available commands:
-  help        - Show this help
-  status      - Show system status
-  extensions  - List extensions
-  clear       - Clear output
-  open [ext]  - Open extension
-  editor      - Open character editor`;
-            } else if (cmd === 'status') {
-                response.innerHTML = `System Status:
-  Version: v1.0.24
-  Branch: v1.0.24-extensions
-  Phase: 8.8 (system.css integration)
-  Extensions: 6 active`;
-            } else if (cmd === 'extensions') {
-                response.innerHTML = `Active Extensions:
-  • Markdown Viewer (port 9000)
-  • Character Editor
-  • Teletext (port 8890)
-  • C64 Terminal (port 8889)
-  • Dashboard NES (port 8888)
-  • System Desktop (current)`;
-            } else if (cmd === 'clear') {
-                output.innerHTML = '<span class="command-prompt">$</span> ';
-                return;
-            } else if (cmd === 'editor') {
-                openCharacterEditor();
-                response.innerHTML = 'Opening Character Editor...';
-            } else if (cmd.startsWith('open ')) {
-                const ext = cmd.split(' ')[1];
-                const ports = {
-                    'terminal': 8889,
-                    'markdown': 9000,
-                    'teletext': 8890,
-                    'character': null,
-                    'dashboard': 8888
-                };
-                if (ext === 'character') {
-                    openCharacterEditor();
-                    response.innerHTML = 'Opening Character Editor...';
-                } else if (ports[ext]) {
-                    openExtension(ext, ports[ext]);
-                    response.innerHTML = `Opening ${ext}...`;
-                } else {
-                    response.innerHTML = `Unknown extension: ${ext}`;
-                    response.style.color = '#ff0040';
-                }
-            } else {
-                response.innerHTML = `Command not found: ${cmd}
-Type 'help' for available commands`;
-                response.style.color = '#ff0040';
-            }
-
-            output.appendChild(response);
-            output.scrollTop = output.scrollHeight;
-        }
-
-        function toggleWindow(windowId) {
-            const win = document.getElementById(windowId);
-            if (win) {
-                win.style.display = win.style.display === 'none' ? 'block' : 'none';
-                bringToFront(win);
-            }
-        }
-
-        function closeWindow(windowId) {
-            const win = document.getElementById(windowId);
-            if (win) {
-                win.style.display = 'none';
-            }
-        }
-
-        function closeCharacterEditor() {
-            closeWindow('character-editor-window');
-            // Show about window and desktop icons
-            document.getElementById('about-window').style.display = 'block';
-            document.querySelectorAll('.desktop-icon').forEach(icon => {
-                icon.style.display = 'flex';
-            });
-        }
-
-        function closeFilePicker() {
-            closeWindow('file-picker-window');
-            // Show about window and desktop icons
-            document.getElementById('about-window').style.display = 'block';
-            document.querySelectorAll('.desktop-icon').forEach(icon => {
-                icon.style.display = 'flex';
-            });
-        }
-
-        function closeKnowledgePicker() {
-            closeWindow('knowledge-picker-window');
-            // Show about window and desktop icons
-            document.getElementById('about-window').style.display = 'block';
-            document.querySelectorAll('.desktop-icon').forEach(icon => {
-                icon.style.display = 'flex';
-            });
-        }
-
-        async function loadKnowledgeLibrary() {
-            const knowledgeList = document.getElementById('knowledge-list');
-            const statusText = document.getElementById('knowledge-status');
-
-            statusText.textContent = 'Loading...';
-            knowledgeList.innerHTML = '<div style="padding: 20px; text-align: center;">Loading knowledge library...</div>';
-
-            try {
-                const response = await fetch('/knowledge/');
-                if (!response.ok) throw new Error('Cannot access knowledge directory');
-
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Get all links (directories and files)
-                const links = Array.from(doc.querySelectorAll('a')).filter(a => {
-                    const href = a.getAttribute('href');
-                    return href && href !== '../' && !href.startsWith('/');
-                });
-
-                // Recursively scan for .md files
-                const mdFiles = [];
-                await scanForMdFiles('knowledge', mdFiles);
-
-                if (mdFiles.length === 0) {
-                    knowledgeList.innerHTML = '<div style="padding: 20px; text-align: center; color: #808080;">No markdown files found</div>';
-                    document.getElementById('knowledge-count').textContent = '0 items';
-                    statusText.textContent = 'Empty';
-                    return;
-                }
-
-                renderKnowledgeList(mdFiles);
-                statusText.textContent = 'Ready';
-            } catch (error) {
-                console.error('Error loading knowledge library:', error);
-                knowledgeList.innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #ff0000;">
-                        <p>Cannot load knowledge library</p>
-                        <p style="font-size: 11px; margin-top: 8px;">Error: ${error.message}</p>
-                    </div>
-                `;
-                statusText.textContent = 'Error';
-            }
-        }
-
-        async function scanForMdFiles(basePath, results) {
-            try {
-                const response = await fetch(`/${basePath}/`);
-                if (!response.ok) return;
-
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                const links = Array.from(doc.querySelectorAll('a')).filter(a => {
-                    const href = a.getAttribute('href');
-                    return href && href !== '../' && !href.startsWith('/');
-                });
-
-                for (const link of links) {
-                    const href = link.getAttribute('href');
-                    const name = decodeURIComponent(href.replace(/\/$/, ''));
-                    const isFolder = href.endsWith('/');
-                    const fullPath = `${basePath}/${name}`;
-
-                    if (isFolder) {
-                        await scanForMdFiles(fullPath, results);
-                    } else if (name.endsWith('.md')) {
-                        results.push(fullPath);
-                    }
-                }
-            } catch (error) {
-                console.error(`Error scanning ${basePath}:`, error);
-            }
-        }
-
-        function renderKnowledgeList(files) {
-            const knowledgeList = document.getElementById('knowledge-list');
-            knowledgeList.innerHTML = '';
-
-            files.forEach(filePath => {
-                const filename = filePath.split('/').pop();
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                item.style.cssText = `
-                    padding: 8px 12px;
-                    border-bottom: 1px solid #e0e0e0;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-family: Geneva_9, Chicago, sans-serif;
-                    font-size: 12px;
-                `;
-
-                item.innerHTML = `
-                    <span style="font-size: 16px;">\ud83d\udcdd</span>
-                    <span style="flex: 1;">${filePath.replace('knowledge/', '')}</span>
-                    <span style="color: #808080; font-size: 10px;">MD</span>
-                `;
-
-                item.addEventListener('mouseenter', () => {
-                    item.style.background = '#f0f0f0';
-                });
-
-                item.addEventListener('mouseleave', () => {
-                    item.style.background = 'transparent';
-                });
-
-                item.addEventListener('click', () => {
-                    // Deselect all
-                    document.querySelectorAll('#knowledge-list .file-item').forEach(el => {
-                        el.style.background = 'transparent';
-                        el.style.color = '#000';
-                    });
-                    // Select current
-                    item.style.background = '#000';
-                    item.style.color = '#fff';
-                    document.getElementById('knowledge-selected').textContent = filename;
-                });
-
-                item.addEventListener('dblclick', () => {
-                    const markedUrl = `/extensions/core/desktop/marked-loader.html?file=${encodeURIComponent('/' + filePath)}`;
-                    window.open(markedUrl, '_blank');
-                    document.getElementById('knowledge-status').textContent = `Opened: ${filename}`;
-                });
-
-                knowledgeList.appendChild(item);
-            });
-
-            document.getElementById('knowledge-count').textContent = `${files.length} files`;
-        }
-
-        function maximizeWindow(windowId) {
-            const win = document.getElementById(windowId);
-            if (!win) return;
-
-            // Check if already maximized
-            const isMaximized = win.dataset.maximized === 'true';
-
-            if (isMaximized) {
-                // Restore to original size
-                win.style.left = win.dataset.origLeft || '140px';
-                win.style.top = win.dataset.origTop || '80px';
-                win.style.width = win.dataset.origWidth || '900px';
-                win.style.height = win.dataset.origHeight || '700px';
-                win.dataset.maximized = 'false';
-            } else {
-                // Save original position and size
-                win.dataset.origLeft = win.style.left;
-                win.dataset.origTop = win.style.top;
-                win.dataset.origWidth = win.style.width;
-                win.dataset.origHeight = win.style.height;
-
-                // Maximize
-                win.style.left = '10px';
-                win.style.top = '30px';
-                win.style.width = 'calc(100% - 20px)';
-                win.style.height = 'calc(100% - 40px)';
-                win.dataset.maximized = 'true';
-            }
-
-            bringToFront(win);
-        }
-
-        function openExtension(name, port) {
-            window.open(`http://localhost:${port}`, '_blank');
-        }
-
-        function openMarkedViewer() {
-            const win = document.getElementById('knowledge-picker-window');
-            if (win) {
-                win.style.display = 'block';
-                bringToFront(win);
-                loadKnowledgeLibrary();
-            }
-        }
-
-        function openCharacterEditor() {
-            const win = document.getElementById('character-editor-window');
-            const iframe = document.getElementById('character-editor-iframe');
-
-            if (win && iframe) {
-                // Load character editor in iframe
-                if (!iframe.src || iframe.src === '' || iframe.src === window.location.href) {
-                    iframe.src = 'character-editor.html';
-                }
-                win.style.display = 'block';
-                bringToFront(win);
-            }
-        }
-
-        function newDocument() {
-            alert('New document feature coming soon!');
-        }
-
-        function openDocument() {
-            alert('Open document feature coming soon!');
-        }
-
-        function showHelp() {
-            alert('uDOS Desktop Help:\n\n• Use menu bar for navigation\n• Double-click icons to open extensions\n• Cmd/Ctrl+K for command palette\n• Drag windows to move them');
-        }
-
-        function testIcons() {
-            console.log('%c🎨 Testing system.css Icons', 'font-weight: bold; color: #00ff00;');
-            const icons = [
-                'apple.svg',
-                'button.svg',
-                'button-default.svg',
-                'checkmark.svg',
-                'radio-border.svg',
-                'radio-border-focused.svg',
-                'radio-dot.svg',
-                'scrollbar-up.svg',
-                'scrollbar-up-active.svg',
-                'scrollbar-down.svg',
-                'scrollbar-down-active.svg',
-                'scrollbar-left.svg',
-                'scrollbar-left-active.svg',
-                'scrollbar-right.svg',
-                'scrollbar-right-active.svg',
-                'select-button.svg'
-            ];
-
-            icons.forEach(icon => {
-                const img = new Image();
-                img.src = `/core/icons/${icon}`;
-                img.onload = () => console.log(`✅ ${icon} - OK`);
-                img.onerror = () => console.error(`❌ ${icon} - FAILED`);
-            });
-
-            alert('Icon test running - check browser console (F12) for results');
-        }
-
-        function testFonts() {
-            console.log('%c🔤 Testing system.css Fonts', 'font-weight: bold; color: #00ff00;');
-
-            const fonts = [
-                { family: 'Chicago_12', file: 'ChiKareGo2.woff2' },
-                { family: 'Geneva_9', file: 'FindersKeepers.woff2' },
-                { family: 'Chicago', file: 'ChicagoFLF.woff2' },
-                { family: 'Monaco', file: 'monaco.woff2' }
-            ];
-
-            fonts.forEach(font => {
-                if (document.fonts.check(`12px ${font.family}`)) {
-                    console.log(`✅ ${font.family} (${font.file}) - LOADED`);
-                } else {
-                    console.warn(`⚠️  ${font.family} (${font.file}) - NOT LOADED`);
-                }
-            });
-
-            // Test font rendering
-            const testDiv = document.createElement('div');
-            testDiv.style.position = 'fixed';
-            testDiv.style.top = '50%';
-            testDiv.style.left = '50%';
-            testDiv.style.transform = 'translate(-50%, -50%)';
-            testDiv.style.background = 'white';
-            testDiv.style.border = '2px solid black';
-            testDiv.style.padding = '20px';
-            testDiv.style.zIndex = '10000';
-            testDiv.innerHTML = `
-                <h3 style="font-family: Chicago; margin-bottom: 12px;">Font Test</h3>
-                <p style="font-family: Chicago_12; font-size: 12px; margin: 8px 0;">Chicago_12 (Primary UI)</p>
-                <p style="font-family: Geneva_9; font-size: 9px; margin: 8px 0;">Geneva_9 (Small text)</p>
-                <p style="font-family: Chicago; font-size: 16px; margin: 8px 0;">Chicago (Display)</p>
-                <p style="font-family: Monaco; font-size: 12px; margin: 8px 0;">Monaco (Monospace)</p>
-                <button onclick="this.parentElement.remove()" style="margin-top: 12px;">Close</button>
-            `;
-            document.body.appendChild(testDiv);
-
-            console.log('Font test overlay displayed - check console for detailed results');
-        }
-
-        // Window dragging functionality
-        let draggedWindow = null;
-        let dragOffset = { x: 0, y: 0 };
-        let highestZIndex = 1000;
-
-        function makeWindowsDraggable() {
-            const windows = document.querySelectorAll('.window');
-
-            windows.forEach(win => {
-                const titleBar = win.querySelector('.title-bar');
-                if (titleBar) {
-                    titleBar.style.cursor = 'move';
-                    titleBar.addEventListener('mousedown', startDrag);
-                }
-            });
-
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', stopDrag);
-        }
-
-        function startDrag(e) {
-            if (e.target.tagName === 'BUTTON') return;
-
-            draggedWindow = e.currentTarget.closest('.window');
-            if (!draggedWindow) return;
-
-            bringToFront(draggedWindow);
-
-            const rect = draggedWindow.getBoundingClientRect();
-            dragOffset.x = e.clientX - rect.left;
-            dragOffset.y = e.clientY - rect.top;
-        }
-
-        function drag(e) {
-            if (!draggedWindow) return;
-
-            e.preventDefault();
-
-            let newX = e.clientX - dragOffset.x;
-            let newY = e.clientY - dragOffset.y;
-
-            // Keep window within viewport
-            newX = Math.max(0, Math.min(newX, window.innerWidth - draggedWindow.offsetWidth));
-            newY = Math.max(0, Math.min(newY, window.innerHeight - draggedWindow.offsetHeight));
-
-            draggedWindow.style.left = newX + 'px';
-            draggedWindow.style.top = newY + 'px';
-        }
-
-        function stopDrag() {
-            draggedWindow = null;
-        }
-
-        function bringToFront(win) {
-            if (!win) return;
-            highestZIndex++;
-            win.style.zIndex = highestZIndex;
-        }
-
-        // File Picker Functions
-        let currentPath = '/memory';
-        let currentFolder = '';
-
-        function openFilePicker() {
-            const win = document.getElementById('file-picker-window');
-            if (win) {
-                win.style.display = 'block';
-                bringToFront(win);
-                loadMemoryLibrary();
-            }
-        }
-
-        async function loadMemoryLibrary() {
-            const fileList = document.getElementById('file-list');
-            const statusText = document.getElementById('status-text');
-
-            statusText.textContent = 'Loading...';
-            fileList.innerHTML = '<div style="padding: 20px; text-align: center;">Loading memory library...</div>';
-
-            try {
-                const response = await fetch('/memory/');
-                if (!response.ok) throw new Error('Cannot access memory directory');
-
-                // Recursively scan for .md files
-                const mdFiles = [];
-                await scanForMdFiles('memory', mdFiles);
-
-                if (mdFiles.length === 0) {
-                    fileList.innerHTML = '<div style="padding: 20px; text-align: center; color: #808080;">No markdown files found</div>';
-                    document.getElementById('file-count').textContent = '0 items';
-                    statusText.textContent = 'Empty';
-                    return;
-                }
-
-                renderMemoryList(mdFiles);
-                statusText.textContent = 'Ready';
-            } catch (error) {
-                console.error('Error loading memory library:', error);
-                fileList.innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #ff0000;">
-                        <p>Cannot load memory library</p>
-                        <p style="font-size: 11px; margin-top: 8px;">Error: ${error.message}</p>
-                    </div>
-                `;
-                statusText.textContent = 'Error';
-            }
-        }
-
-        function renderMemoryList(files) {
-            const fileList = document.getElementById('file-list');
-            fileList.innerHTML = '';
-
-            files.forEach(filePath => {
-                const filename = filePath.split('/').pop();
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                item.style.cssText = `
-                    padding: 8px 12px;
-                    border-bottom: 1px solid #e0e0e0;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-family: Geneva_9, Chicago, sans-serif;
-                    font-size: 12px;
-                `;
-
-                item.innerHTML = `
-                    <span style="font-size: 16px;">📝</span>
-                    <span style="flex: 1;">${filePath.replace('memory/', '')}</span>
-                    <span style="color: #808080; font-size: 10px;">MD</span>
-                `;
-
-                item.addEventListener('mouseenter', () => {
-                    item.style.background = '#f0f0f0';
-                });
-
-                item.addEventListener('mouseleave', () => {
-                    item.style.background = 'transparent';
-                });
-
-                item.addEventListener('click', () => {
-                    // Deselect all
-                    document.querySelectorAll('#file-list .file-item').forEach(el => {
-                        el.style.background = 'transparent';
-                        el.style.color = '#000';
-                    });
-                    // Select current
-                    item.style.background = '#000';
-                    item.style.color = '#fff';
-                    document.getElementById('selected-file').textContent = filename;
-                });
-
-                item.addEventListener('dblclick', () => {
-                    const markedUrl = `/extensions/core/desktop/marked-loader.html?file=${encodeURIComponent('/' + filePath)}`;
-                    window.open(markedUrl, '_blank');
-                    document.getElementById('status-text').textContent = `Opened: ${filename}`;
-                });
-
-                fileList.appendChild(item);
-            });
-
-            document.getElementById('file-count').textContent = `${files.length} files`;
-        }
-    </script>
+    <script src="static/desktop.js"></script>
 </body>
 </html>

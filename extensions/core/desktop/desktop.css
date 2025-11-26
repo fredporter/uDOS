@@ -32,37 +32,38 @@
   --tertiary: var(--mac-white);
 }
 
-/* ===== AUTHENTIC SYSTEM.CSS FONTS ===== */
-/* ChicagoFLF - Main display font */
+/* ===== FONTS ===== */
+/* Chicago - For menus, titles, and filenames */
 @font-face {
     font-family: Chicago;
-    src: url('/extensions/assets/fonts/ChicagoFLF.woff2') format('woff2'),
-         url('../../assets/fonts/ChicagoFLF.woff') format('woff');
-  font-display: swap;
+    src: url('fonts/ChicagoFLF.woff2') format('woff2'),
+         url('fonts/ChicagoFLF.woff') format('woff');
+    font-display: swap;
 }
 
-/* Chicago_12 (ChiKareGo2) - Primary UI font */
+/* Roboto - For body text, articles, and viewports */
 @font-face {
-    font-family: Chicago_12;
-    src: url('/extensions/assets/fonts/ChiKareGo2.woff2') format('woff2'),
-         url('../../assets/fonts/ChiKareGo2.woff') format('woff');
-  font-display: swap;
+    font-family: Roboto;
+    src: url('fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
 
-/* Geneva_9 (FindersKeepers) - Small system font */
 @font-face {
-    font-family: Geneva_9;
-    src: url('/extensions/assets/fonts/FindersKeepers.woff2') format('woff2'),
-         url('../../assets/fonts/FindersKeepers.woff') format('woff');
-  font-display: swap;
+    font-family: Roboto;
+    src: url('fonts/Roboto-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
 
-/* Monaco - Monospace font for code/terminal */
 @font-face {
-    font-family: Monaco;
-    src: url('/extensions/assets/fonts/monaco.woff2') format('woff2'),
-         url('../../assets/fonts/monaco.woff') format('woff');
-  font-display: swap;
+    font-family: Roboto;
+    src: url('fonts/Roboto-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
 }
 
 /* ===== CUSTOM SCROLLBARS ===== */
@@ -102,49 +103,77 @@
   width: 22px;
 }
 
-/* Scrollbar arrows using authentic system.css icons */
+/* Scrollbar arrows using simple triangles */
 ::-webkit-scrollbar-button:vertical:decrement {
-  background-image: url("../../assets/icons/scrollbar-up.svg");
+  background-image: linear-gradient(135deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+                    linear-gradient(-135deg, transparent 45%, #000 45%, #000 55%, transparent 55%);
+  background-size: 10px 10px;
+  background-position: center;
 }
 
 ::-webkit-scrollbar-button:vertical:decrement:active {
-  background-image: url("../../assets/icons/scrollbar-up-active.svg");
+  background-color: #000;
+  background-image: linear-gradient(135deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+                    linear-gradient(-135deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
 }
 
 ::-webkit-scrollbar-button:vertical:increment {
-  background-image: url("../../assets/icons/scrollbar-down.svg");
+  background-image: linear-gradient(45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+                    linear-gradient(-45deg, transparent 45%, #000 45%, #000 55%, transparent 55%);
+  background-size: 10px 10px;
+  background-position: center;
 }
 
 ::-webkit-scrollbar-button:vertical:increment:active {
-  background-image: url("../../assets/icons/scrollbar-down-active.svg");
+  background-color: #000;
+  background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+                    linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
 }
 
 ::-webkit-scrollbar-button:horizontal:decrement {
-  background-image: url("../../assets/icons/scrollbar-left.svg");
+  background-image: linear-gradient(45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+                    linear-gradient(135deg, transparent 45%, #000 45%, #000 55%, transparent 55%);
+  background-size: 10px 10px;
+  background-position: center;
 }
 
 ::-webkit-scrollbar-button:horizontal:decrement:active {
-  background-image: url("../../assets/icons/scrollbar-left-active.svg");
+  background-color: #000;
+  background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+                    linear-gradient(135deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
 }
 
 ::-webkit-scrollbar-button:horizontal:increment {
-  background-image: url("../../assets/icons/scrollbar-right.svg");
+  background-image: linear-gradient(-45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+                    linear-gradient(-135deg, transparent 45%, #000 45%, #000 55%, transparent 55%);
+  background-size: 10px 10px;
+  background-position: center;
 }
 
 ::-webkit-scrollbar-button:horizontal:increment:active {
-  background-image: url("../../assets/icons/scrollbar-right-active.svg");
+  background-color: #000;
+  background-image: linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+                    linear-gradient(-135deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
 }
 
 /* ===== BASE TYPOGRAPHY & LAYOUT ===== */
 body {
+  /* Default checkerboard pattern - can be overridden by pattern selector */
   background: linear-gradient(90deg, #fff 21px, transparent 1%) 50%,
     linear-gradient(#fff 21px, transparent 1%) 50%, #000;
   background-attachment: fixed;
   background-size: 22px 22px;
-  font-family: Chicago_12, Geneva_9, Chicago, Monaco, 'Courier New', monospace;
-  font-size: 13px;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Hide scrollbars on body when fullscreen windows are open */
+body.fullscreen-mode {
+  overflow: hidden;
 }
 
 a {
@@ -159,8 +188,8 @@ hr {
   border-right: none;
 }
 
-h1, h2, .heading {
-  font-family: Chicago;
+h1, h2, h3, .heading {
+  font-family: Chicago, sans-serif;
 }
 
 h1 { font-size: 1em; }
@@ -172,19 +201,37 @@ h2 { font-size: 2em; }
   border: 2px solid #000;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
   flex-direction: column;
-  font-family: Chicago_12, Geneva_9, Chicago, Monaco, monospace;
+  font-family: Chicago, Geneva, sans-serif;
   margin: 1rem;
   min-width: 320px;
   overflow: hidden;
   position: absolute;
+  z-index: 1;
+  display: none;
+}
+
+/* Fullscreen window state */
+.window[data-fullscreened="true"] {
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  border-radius: 0;
+}
 }
 
 .window-pane {
-  font-size: 18px;
+  font-size: 12px;
+  font-family: Chicago, Geneva, sans-serif;
   height: 100%;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
+  line-height: 1.5;
   overflow-y: scroll;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
+}
+
+.window-pane > * {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 /* ===== TITLE BAR ===== */
@@ -203,7 +250,7 @@ h2 { font-size: 2em; }
 .title-bar .title {
   background: #fff;
   cursor: default;
-  font-family: Chicago_12, Geneva_9, Chicago, sans-serif;
+  font-family: Chicago, sans-serif;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -271,6 +318,10 @@ h2 { font-size: 2em; }
 
 .title-bar button.hidden {
   visibility: hidden;
+}
+
+.title-bar button[disabled] {
+  display: none;
 }
 
 /* ===== SEPARATOR ===== */
@@ -408,7 +459,7 @@ input[type="radio"] + label {
 
 input[type="radio"] + label::before {
   /* Authentic system.css radio border */
-  background: url("../../assets/icons/radio-border.svg");
+  background: url("icons/radio-border.svg");
   content: "";
   display: inline-block;
   height: 12px;
@@ -421,12 +472,12 @@ input[type="radio"] + label::before {
 
 input[type="radio"]:focus + label::before {
   /* Authentic system.css focused radio border */
-  background: url("../../assets/icons/radio-border-focused.svg");
+  background: url("icons/radio-border-focused.svg");
 }
 
 input[type="radio"]:checked + label::after {
   /* Authentic system.css radio dot */
-  background: url("../../assets/icons/radio-dot.svg");
+  background: url("icons/radio-dot.svg");
   content: "";
   display: block;
   height: 6px;
@@ -460,7 +511,7 @@ input[type="checkbox"]:hover + label::before {
 
 input[type="checkbox"]:checked + label::after {
   /* Authentic system.css checkmark */
-  background: url("../../assets/icons/checkmark.svg");
+  background: url("icons/checkmark.svg");
   background-repeat: no-repeat;
   content: "";
   display: block;
@@ -493,8 +544,8 @@ ul[role="menu-bar"] {
   border-bottom: 2px solid #000;
   cursor: pointer;
   display: flex;
-  font-family: Chicago_12, Chicago, sans-serif;
-  font-size: 1em;
+  font-family: Chicago, sans-serif;
+  font-size: 13px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -643,12 +694,47 @@ ul [role="menu-item"].divider::after {
 
 /* ===== DESKTOP SPECIFIC ===== */
 #desktop-icons {
-  position: relative;
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   z-index: 1;
 }
 
+/* Responsive icon layout for limited viewport heights */
+@media (max-height: 700px) {
+  #desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(2, 100px);
+    grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
+    gap: 10px;
+    padding: 20px;
+    position: static;
+    left: auto;
+    top: auto;
+  }
+
+  .desktop-icon {
+    position: static !important;
+  }
+}
+
+@media (max-height: 350px) {
+  #desktop-icons {
+    grid-template-columns: repeat(3, 90px);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .desktop-icon {
+    width: 90px;
+  }
+}
+
 .desktop-icon {
-  position: absolute;
   width: 80px;
   text-align: center;
   cursor: pointer;
@@ -674,13 +760,13 @@ ul [role="menu-item"].divider::after {
 }
 
 .desktop-icon-label {
-  background: rgba(255, 255, 255, 0.9);
+  color: #000;
   padding: 2px 6px;
-  font-size: 10px;
-  font-family: Chicago_12, Chicago, sans-serif;
-  border: 1px solid #000;
+  font-size: 11px;
+  font-family: Chicago, sans-serif;
   text-align: center;
   line-height: 1.2;
+  text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white;
 }
 
 /* ===== CUSTOM COMPONENTS ===== */
@@ -905,6 +991,158 @@ ul [role="menu-item"].divider::after {
 .p-1 { padding: 8px; }
 .p-2 { padding: 16px; }
 .hidden { display: none !important; }
+
+/* ===== CLASSIC MAC PATTERNS ===== */
+/* Authentic patterns from Mac System 1 */
+/* Recreated using CSS gradients for reliable rendering */
+
+.pattern-checkerboard {
+  background-color: #fff;
+  background-image: linear-gradient(45deg, #000 25%, transparent 25%),
+    linear-gradient(-45deg, #000 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #000 75%),
+    linear-gradient(-45deg, transparent 75%, #000 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+}
+
+.pattern-fine-dots {
+  background-color: #fff;
+  background-image: radial-gradient(circle, #000 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+.pattern-grid-small {
+  background-color: #fff;
+  background-image:
+    linear-gradient(#000 1px, transparent 1px),
+    linear-gradient(90deg, #000 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.pattern-diagonal {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #000,
+    #000 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.pattern-crosshatch {
+  background-color: #fff;
+  background-image:
+    repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(90deg, #000, #000 1px, transparent 1px, transparent 4px);
+}
+
+.pattern-dense-dots {
+  background-color: #fff;
+  background-image: radial-gradient(circle, #000 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+.pattern-sparse-dots {
+  background-color: #fff;
+  background-image: radial-gradient(circle, #000 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.pattern-vertical-lines {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #000,
+    #000 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.pattern-horizontal-lines {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    0deg,
+    #000,
+    #000 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.pattern-bricks {
+  background-color: #fff;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 7px, #000 7px, #000 8px),
+    repeating-linear-gradient(90deg, transparent, transparent 15px, #000 15px, #000 16px),
+    repeating-linear-gradient(90deg, #000, #000 1px, transparent 1px, transparent 8px);
+  background-position: 0 0, 0 0, 0 4px;
+}
+
+.pattern-scales {
+  background-color: #fff;
+  background-image:
+    radial-gradient(circle at 50% 0%, transparent 30%, #000 30%, #000 40%, transparent 40%),
+    radial-gradient(circle at 0% 50%, transparent 30%, #000 30%, #000 40%, transparent 40%),
+    radial-gradient(circle at 100% 50%, transparent 30%, #000 30%, #000 40%, transparent 40%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 0 8px;
+}
+
+.pattern-waves {
+  background-color: #fff;
+  background-image: repeating-radial-gradient(
+    circle at 0 0,
+    transparent 0,
+    #fff 8px,
+    transparent 8px,
+    transparent 16px,
+    #000 16px,
+    #000 17px
+  );
+  background-size: 16px 16px;
+}
+
+.pattern-triangles {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #000 50%),
+    linear-gradient(-45deg, transparent 50%, #000 50%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 0;
+}
+
+.pattern-hexagons {
+  background-color: #fff;
+  background-image:
+    linear-gradient(30deg, transparent 40%, #000 40%, #000 60%, transparent 60%),
+    linear-gradient(150deg, transparent 40%, #000 40%, #000 60%, transparent 60%);
+  background-size: 12px 21px;
+  background-position: 0 0, 6px 10.5px;
+}
+
+.pattern-diagonal-right {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #000,
+    #000 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.pattern-weave {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #000 12.5%, transparent 12.5%, transparent 87.5%, #000 87.5%),
+    linear-gradient(-45deg, #000 12.5%, transparent 12.5%, transparent 87.5%, #000 87.5%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 0;
+}
+
 .flex { display: flex; }
 .flex-column { flex-direction: column; }
 .gap-1 { gap: 8px; }

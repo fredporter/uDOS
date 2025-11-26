@@ -1,448 +1,378 @@
 /**
- * uDOS Terminal Stylesheet
- * Version: 1.0.24
- * Features: C64 fonts, Synthwave DOS palette, 80×30 character grid, PETSCII support
+ * uDOS Terminal v2.0.0
+ * Clean rebuild based on seanslater/c64-loading
+ * Credits:
+ * - Sean Slater: https://github.com/seanslater/c64-loading
+ * - Roel Nieskens: https://github.com/RoelN/c64css3
  */
 
-/* ========================================
-   FONT DECLARATIONS
-   ======================================== */
-
-/* PetMe Font - Authentic C64 PETSCII */
-@font-face {
-    font-family: 'PetMe64';
-    src: url("../../assets/fonts/petme/PetMe64.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'PetMe128';
-    src: url("../../assets/fonts/petme/PetMe128.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-}
-
-/* Monosort for Emoji Support */
-@font-face {
-    font-family: "Monosort";
-    src: local("Monosort"), local("Noto Color Emoji");
-    font-weight: normal;
-    font-style: normal;
-}
-
-/* ========================================
-   SYNTHWAVE DOS COLOR PALETTE
-   ======================================== */
-:root {
-    /* Base Colors */
-    --color-black: #000000;
-    --color-white: #FFFFFF;
-
-    /* Synthwave DOS Primary */
-    --color-blue-dark: #0a1628;      /* Deep space blue */
-    --color-blue-bright: #2196F3;    /* Bright blue */
-    --color-cyan-bright: #00E5FF;    /* Neon cyan */
-    --color-magenta-bright: #E91E63; /* Hot magenta */
-    --color-purple: #2A1E5C;         /* Purple */
-    --color-pink: #EE4266;           /* Pink */
-    --color-orange-bright: #FFEB3B;  /* Bright yellow-orange */
-    --color-orange-dark: #FF6F00;    /* Deep orange */
-    --color-green-bright: #00E676;   /* Neon green */
-    --color-red-bright: #FF1744;     /* Bright red */
-
-    /* Grays */
-    --color-gray-dark: #1a1a1a;
-    --color-gray-medium: #4a4a4a;
-    --color-gray-light: #a0a0a0;
-    --color-white-bright: #f5f5f5;
-
-    /* Terminal-Specific Mappings */
-    --term-bg: var(--color-blue-dark);
-    --term-fg: var(--color-cyan-bright);
-    --term-border: var(--color-cyan-bright);
-    --term-cursor: var(--color-cyan-bright);
-    --term-header: var(--color-magenta-bright);
-    --term-prompt: var(--color-orange-bright);
-    --term-success: var(--color-green-bright);
-    --term-error: var(--color-red-bright);
-    --term-warning: var(--color-orange-bright);
-    --term-info: var(--color-cyan-bright);
-
-    /* 80×30 Grid Dimensions */
-    --char-width: 12px;
-    --char-height: 20px;
-    --term-cols: 80;
-    --term-rows: 30;
-    --term-width: calc(var(--char-width) * var(--term-cols));
-    --term-height: calc(var(--char-height) * var(--term-rows));
-}
-
-/* ========================================
-   RESET & BASE STYLES
-   ======================================== */
-* {
+/* CSS Reset */
+html, body, div, span, section, nav, button, ul, li, input {
     margin: 0;
     padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
     box-sizing: border-box;
 }
 
-html, body {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background: var(--color-black);
-    font-family: "PetMe64", "C64 User Mono", "Courier New", monospace;
-    color: var(--term-fg);
+/* C64 Font */
+@font-face {
+    font-family: "C64 User Mono";
+    src: url("fonts/PetMe64.ttf?v=2") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
 }
 
-/* ========================================
-   C64 LOADING SCREEN (Rainbow Bars)
-   ======================================== */
-.splash-screen {
+/* uDOS Synthwave Colors */
+:root {
+    --syn-bg: #1a1a2e;
+    --syn-surface: #16213e;
+    --syn-border: #0f3460;
+    --syn-accent: #e94560;
+    --syn-text: #f1f1f1;
+    --syn-dim: #a0a0a0;
+    --syn-cyan: #00d4ff;
+    --syn-purple: #9d4edd;
+    --syn-pink: #ff006e;
+}
+
+/* Base */
+html, body {
+    height: 100%;
+    background: var(--syn-bg);
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    color: var(--syn-cyan);
+    font: normal 16px "C64 User Mono", monospace;
+    text-transform: uppercase;
+}
+
+/* ===== C64 LOADING SCREEN ===== */
+.loading-screen {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--color-blue-dark);
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 1000;
 }
 
-/* Chunky Rainbow Loading Bars */
-.loading-bars {
-    width: 80%;
-    max-width: 640px;
-    height: 60px;
-    list-style: none;
-    display: flex;
-    margin-bottom: 3rem;
-    padding: 0;
-}
-
-.loading-bars li {
-    flex: 1;
-    animation: color-pulse 2s ease-in-out infinite, bar-wave 4s ease-in-out infinite;
-    transition: all 0.3s ease;
-}
-
-.loading-bars li:nth-child(1) {
-    background: var(--color-red-bright);
-    animation-delay: 0s, 0s;
-}
-
-.loading-bars li:nth-child(2) {
-    background: var(--color-orange-bright);
-    animation-delay: 0.3s, 0.5s;
-}
-
-.loading-bars li:nth-child(3) {
-    background: var(--color-green-bright);
-    animation-delay: 0.6s, 1s;
-}
-
-.loading-bars li:nth-child(4) {
-    background: var(--color-cyan-bright);
-    animation-delay: 0.9s, 1.5s;
-}
-
-.loading-bars li:nth-child(5) {
-    background: var(--color-blue-bright);
-    animation-delay: 1.2s, 2s;
-}
-
-.loading-bars li:nth-child(6) {
-    background: #EE4266;
-    animation-delay: 1.5s, 2.5s;
-}
-
-.loading-bars li:nth-child(7) {
-    background: #2A1E5C;
-    animation-delay: 1.8s, 3s;
-}
-
-/* Horizontal color cycle animation (from original c64-terminal) */
-@keyframes color-pulse {
-    0%, 100% {
-        opacity: 1;
-        filter: brightness(1);
-        transform: scaleY(1);
-    }
-    25% {
-        opacity: 0.8;
-        filter: brightness(1.2);
-        transform: scaleY(0.95);
-    }
-    50% {
-        opacity: 0.7;
-        filter: brightness(1.5);
-        transform: scaleY(0.9);
-    }
-    75% {
-        opacity: 0.8;
-        filter: brightness(1.2);
-        transform: scaleY(0.95);
-    }
-}
-
-/* Horizontal wave effect for bars */
-@keyframes bar-wave {
-    0%, 100% {
-        height: 60px;
-    }
-    50% {
-        height: 70px;
-    }
-}
-
-.splash-content {
-    text-align: center;
-    color: var(--color-cyan-bright);
-    font-family: "PetMe64", "C64 User Mono", monospace;
-}
-
-.ascii-logo {
-    font-family: "PetMe64", monospace;
-    font-size: 1.2rem;
-    line-height: 1.2;
-    color: var(--color-cyan-bright);
-    margin-bottom: 1.5rem;
-}
-
-.splash-info {
-    margin-top: 1rem;
-}
-
-.splash-title {
-    font-size: 1rem;
-    color: var(--color-cyan-bright);
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.splash-version {
-    font-size: 0.9rem;
-    color: var(--color-cyan-bright);
-    margin-bottom: 1rem;
-}
-
-.splash-status {
-    font-size: 0.85rem;
-    color: var(--color-cyan-bright);
-    margin-bottom: 1rem;
-    min-height: 1.5em;
-}
-
-/* Progress Bar - Hard Edges C64 Style */
-.progress-bar {
-    width: 100%;
-    max-width: 400px;
-    height: 20px;
-    background: var(--color-black);
-    overflow: hidden;
-    margin: 0 auto 1rem;
-}
-
-.progress-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--color-cyan-bright);
-    transition: width 0.3s ease-out;
-}
-
-.system-checks {
-    text-align: left;
-    font-size: 0.85rem;
-    color: var(--color-green-bright);
-    line-height: 1.6;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.system-checks p {
-    margin: 0.25rem 0;
-}
-
-/* ========================================
-   TERMINAL CONTAINER (Centered)
-   ======================================== */
-.terminal-container {
+/* Fullscreen Rainbow Border */
+.loading-screen:before {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-black);
-    padding: 2rem;
-}
-
-.terminal-window {
-    width: var(--term-width);
-    max-width: 95vw;
-    background: var(--term-bg);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-/* Scanline Effect Overlay */
-.scanlines {
-    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    pointer-events: none;
-    z-index: 100;
-    opacity: 0.05;
+    content: "";
+    background: #6076c5;
+    z-index: -1;
+    /* Rainbow border animation */
+    animation: rainbow-border 2s linear infinite;
 }
 
-/* ========================================
-   TERMINAL HEADER
-   ======================================== */
-.terminal-header {
-    background: var(--color-blue-bright);
-    padding: 0.75rem 1.5rem;
+/* C64 Screen - Centered */
+.loading-screen:after {
+    position: absolute;
+    width: 640px;
+    height: 400px;
+    content: "";
+    background: #20398d;
+    z-index: -1;
+}
+
+/* Simplified rainbow border - color bars only */
+@keyframes rainbow-border {
+    0% {
+        background-image: linear-gradient(to bottom,
+            #882000 10%, #68d0a8 10%, #68d0a8 12%, #a838a0 12%, #a838a0 18%,
+            #50b818 18%, #50b818 27%, #181090 27%, #181090 38%, #f0e858 38%,
+            #f0e858 41%, #a04800 41%, #a04800 56%, #472b1b 56%, #472b1b 61%,
+            #c87870 61%, #c87870 66%, #484848 66%, #484848 68%, #808080 68%,
+            #808080 75%, #98ff98 75%, #98ff98 77%, #5090d0 77%, #5090d0 92%,
+            #b8b8b8 92%, #b8b8b8 94%, #000000 94%, #000000 97%, #ffffff 97%);
+    }
+    25% {
+        background-image: linear-gradient(to bottom,
+            #ffffff 5%, #000000 5%, #000000 10%, #b8b8b8 10%, #b8b8b8 16%,
+            #5090d0 16%, #5090d0 23%, #98ff98 23%, #98ff98 28%, #808080 28%,
+            #808080 33%, #484848 33%, #484848 40%, #c87870 40%, #c87870 46%,
+            #472b1b 46%, #472b1b 51%, #a04800 51%, #a04800 57%, #f0e858 57%,
+            #f0e858 62%, #181090 62%, #181090 69%, #50b818 69%, #50b818 78%,
+            #a838a0 78%, #a838a0 86%, #68d0a8 86%, #68d0a8 95%, #882000 95%);
+    }
+    50% {
+        background-image: linear-gradient(to bottom,
+            #50b818 5%, #a838a0 5%, #a838a0 14%, #68d0a8 14%, #68d0a8 22%,
+            #882000 22%, #882000 31%, #ffffff 31%, #ffffff 38%, #000000 38%,
+            #000000 43%, #b8b8b8 43%, #b8b8b8 49%, #5090d0 49%, #5090d0 54%,
+            #98ff98 54%, #98ff98 60%, #808080 60%, #808080 67%, #484848 67%,
+            #484848 72%, #c87870 72%, #c87870 77%, #472b1b 77%, #472b1b 84%,
+            #a04800 84%, #a04800 90%, #f0e858 90%, #f0e858 95%, #181090 95%);
+    }
+    75% {
+        background-image: linear-gradient(to bottom,
+            #98ff98 5%, #808080 5%, #808080 14%, #484848 14%, #484848 22%,
+            #c87870 22%, #c87870 31%, #472b1b 31%, #472b1b 38%, #a04800 38%,
+            #a04800 43%, #f0e858 43%, #f0e858 49%, #181090 49%, #181090 54%,
+            #50b818 54%, #50b818 60%, #a838a0 60%, #a838a0 67%, #68d0a8 67%,
+            #68d0a8 72%, #882000 72%, #882000 77%, #ffffff 77%, #ffffff 84%,
+            #000000 84%, #000000 90%, #b8b8b8 90%, #b8b8b8 95%, #5090d0 95%);
+    }
+    100% {
+        background-image: linear-gradient(to bottom,
+            #882000 10%, #68d0a8 10%, #68d0a8 12%, #a838a0 12%, #a838a0 18%,
+            #50b818 18%, #50b818 27%, #181090 27%, #181090 38%, #f0e858 38%,
+            #f0e858 41%, #a04800 41%, #a04800 56%, #472b1b 56%, #472b1b 61%,
+            #c87870 61%, #c87870 66%, #484848 66%, #484848 68%, #808080 68%,
+            #808080 75%, #98ff98 75%, #98ff98 77%, #5090d0 77%, #5090d0 92%,
+            #b8b8b8 92%, #b8b8b8 94%, #000000 94%, #000000 97%, #ffffff 97%);
+    }
+}/* Loading text */
+.loading {
+    line-height: 1;
+    list-style: none;
+    width: 640px;
+    height: 400px;
+    padding: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.loading li {
+    padding-right: 1em;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    display: inline-block;
+    position: relative;
+    float: left;
+    clear: left;
+}
+
+.loading li:first-child {
+    height: auto;
+    width: auto;
+}
+
+.loading li:before {
+    white-space: pre;
+}
+
+.loading li:first-child:before {
+    content: "\a     **** uDOS UNIVERSAL DEVICE OPERATIONS ****\
+    \a\a  64k ram system  38911 basic bytes free\
+    \a\aready.";
+}
+
+.loading li:nth-child(2):before {
+    content: "load\"uDOS-terminal\",8,1";
+}
+
+.loading li:nth-child(3):before {
+    content: "\asearching for uDOS-terminal\aloading";
+}
+
+.loading li:nth-child(4):before {
+    content: "ready.";
+}
+
+.loading li:nth-child(5):before {
+    content: "run";
+}
+
+/* Typing animations */
+.loading li:nth-child(2) {
+    width: 1em;
+    height: auto;
+    text-indent: 1em;
+    animation: type-line-one 3s steps(23) 2s forwards;
+}
+
+.loading li:nth-child(2):after {
+    content: "";
+    width: 1em;
+    height: 1em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    animation: cursor-blink 1s steps(1) infinite 2s, cursor-blink 1s steps(1) 7 forwards 2s;
+}
+
+.loading li:nth-child(3) {
+    animation: expand-full 1s steps(1) 7s forwards;
+}
+
+.loading li:nth-child(4) {
+    animation: expand-full 1s steps(1) 11s forwards;
+}
+
+.loading li:nth-child(5) {
+    width: 1em;
+    height: auto;
+    text-indent: 1em;
+    animation: type-line-three 1s steps(3) 12s forwards;
+}
+
+.loading li:nth-child(5):after {
+    content: "";
+    width: 1em;
+    height: 1em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    animation: cursor-blink 1s steps(1) 3 10.5s forwards;
+}
+
+@keyframes cursor-blink {
+    0% { background: #20398d; }
+    50% { background: #6076c5; }
+}
+
+@keyframes type-line-one {
+    to {
+        height: auto;
+        width: 23em;
+        text-indent: 0;
+    }
+}
+
+@keyframes expand-full {
+    to {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@keyframes type-line-three {
+    to {
+        height: 100%;
+        width: 4em;
+        text-indent: 0;
+    }
+}
+
+/* Fade out loading screen */
+.loading-screen.hidden {
+    animation: fade-out 0.5s forwards;
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* ===== TERMINAL ===== */
+.terminal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding: 1rem;
+}
+/* Fullscreen C64 Blue Border */
+.terminal:before {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: "";
+    background: #6076c5;
+    z-index: -2;
+}
+
+/* Terminal Screen - Centered */
+.terminal:after {
+    position: absolute;
+    width: 640px;
+    height: 400px;
+    content: "";
+    background: var(--syn-surface);
+    border: 2px solid var(--syn-border);
+    z-index: -1;
+}
+
+.terminal.active {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
 }
 
-.terminal-title {
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--color-white);
-    letter-spacing: 2px;
-}
-
-.terminal-status {
-    font-size: 0.9rem;
-    color: var(--color-orange-bright);
-}
-
-/* ========================================
-   TERMINAL SCREEN (80×30)
-   ======================================== */
-.terminal-screen {
-    height: var(--term-height);
-    overflow: hidden;
-    position: relative;
-    background: var(--term-bg);
+.terminal-container {
+    width: 640px;
+    height: 400px;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
 }
 
-.terminal-viewport {
-    height: 100%;
+.terminal-output {
+    flex: 1;
+    width: 100%;
+    max-width: 608px;
     overflow-y: auto;
     overflow-x: hidden;
-    font-family: "PetMe64", monospace;
-    font-size: var(--char-height);
     line-height: 1.3;
-    color: var(--term-fg);
-    white-space: pre-wrap;
+    padding: 0;
+    margin: 0;
     scrollbar-width: thin;
-    scrollbar-color: var(--term-border) var(--term-bg);
-    scroll-behavior: smooth;
-    text-align: left;
+    scrollbar-color: var(--syn-cyan) var(--syn-surface);
+    color: var(--syn-text);
 }
 
-/* Custom Scrollbar */
-.terminal-viewport::-webkit-scrollbar {
-    width: 12px;
-}
-
-.terminal-viewport::-webkit-scrollbar-track {
-    background: var(--term-bg);
-    border-left: 2px solid var(--term-border);
-}
-
-.terminal-viewport::-webkit-scrollbar-thumb {
-    background: var(--term-border);
-}
-
-.terminal-viewport::-webkit-scrollbar-thumb:hover {
-    background: var(--color-magenta-bright);
-}
-
-/* Boot Message */
-.boot-message {
-    margin-bottom: 1rem;
-    color: var(--color-cyan-bright);
-}
-
-.boot-message p {
-    margin: 0;
+.terminal-output div {
     padding: 0;
-    white-space: pre;
-    line-height: 1.0;
-}
-
-/* Terminal Output */
-.terminal-output {
-    margin-bottom: 0.5rem;
-}
-
-.terminal-output p {
     margin: 0;
-    padding: 0;
-    white-space: pre-wrap;
     word-wrap: break-word;
-    line-height: 1.0;
-    opacity: 0;
-    animation: textRollOut 0.3s ease-out forwards;
 }
 
-@keyframes textRollOut {
-    from {
-        opacity: 0;
-        transform: translateY(-2px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
 }
 
-/* Command Output Colors */
-.output-success { color: var(--term-success); font-weight: bold; }
-.output-error { color: var(--term-error); font-weight: bold; }
-.output-warning { color: var(--term-warning); }
-.output-info { color: var(--term-info); font-weight: bold; }
-.output-dim { color: var(--color-gray-light); opacity: 0.8; }
-
-/* Output formatting */
-.command-line {
-    margin-top: 0.5rem;
-    color: var(--term-fg);
+.terminal-output::-webkit-scrollbar-track {
+    background: var(--syn-surface);
 }
 
-.command-line .prompt {
-    color: var(--term-prompt);
-    margin-right: 0.5rem;
+.terminal-output::-webkit-scrollbar-thumb {
+    background: var(--syn-cyan);
 }
 
-/* ========================================
-   INPUT LINE
-   ======================================== */
 .terminal-input-line {
     display: flex;
-    align-items: baseline;
-    margin-top: 0.3rem;
     gap: 0.5rem;
+    width: 100%;
+    max-width: 608px;
+    padding: 0;
+    margin-top: 0.5rem;
     position: relative;
 }
 
 .prompt {
-    color: var(--term-prompt);
-    font-weight: bold;
     flex-shrink: 0;
+    color: var(--syn-accent);
 }
 
 .terminal-input {
@@ -450,251 +380,63 @@ html, body {
     background: transparent;
     border: none;
     outline: none;
-    color: var(--term-fg);
-    font-family: "PetMe64", monospace;
-    font-size: var(--char-height);
-    line-height: 1.4;
-    caret-color: var(--term-fg);  /* Use native caret only */
-    padding: 0;
-    min-width: 0;
-    position: relative;
-    z-index: 10;
-    pointer-events: auto;
+    color: var(--syn-cyan);
+    font: inherit;
+    caret-color: var(--syn-accent);
 }
 
-.cursor {
-    display: none;  /* Hide custom cursor - using native caret instead */
-}
-
-@keyframes cursorBlink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-}
-
-/* ========================================
-   FUNCTION KEYS BAR
-   ======================================== */
+/* ===== FUNCTION KEYS ===== */
 .function-keys {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: 0;
-    border-top: 2px solid var(--term-border);
-    background: var(--color-gray-dark);
+    background: var(--syn-surface);
+    border-top: 2px solid var(--syn-border);
+    z-index: 2000;
 }
 
-.f-key {
-    background: var(--color-gray-medium);
+.function-keys button {
+    background: var(--syn-border);
     border: none;
-    border-right: 1px solid var(--color-black);
-    color: var(--color-cyan-bright);
+    border-right: 1px solid var(--syn-bg);
+    color: var(--syn-cyan);
     padding: 0.5rem 0.25rem;
-    font-family: "PetMe64", monospace;
-    font-size: 0.75rem;
+    font: inherit;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+    transition: all 0.2s;
 }
 
-.f-key:last-child {
+.function-keys button:last-child {
     border-right: none;
 }
 
-.f-key:hover {
-    background: var(--color-blue-bright);
-    color: var(--color-white);
+.function-keys button:hover {
+    background: var(--syn-accent);
+    color: var(--syn-text);
 }
 
-.f-key:active {
+.function-keys button:active {
     transform: translateY(2px);
 }
 
-.f-key-label {
+.function-keys button span {
     font-weight: bold;
     font-size: 0.9rem;
+    color: var(--syn-pink);
 }
 
-.f-key-desc {
+.function-keys button:hover span {
+    color: var(--syn-text);
+}
+
+.function-keys button small {
     font-size: 0.7rem;
-    color: var(--color-orange-bright);
-}
-
-.f-key:hover .f-key-desc {
-    color: var(--color-white);
-}
-
-/* ========================================
-   CHARACTER REFERENCE PANEL
-   ======================================== */
-.char-reference {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 400px;
-    height: 100%;
-    background: var(--term-bg);
-    border-left: 4px solid var(--term-border);
-    z-index: 2000;
-    transform: translateX(100%);
-    transition: transform 0.3s ease-out;
-}
-
-.char-reference:not(.hidden) {
-    transform: translateX(0);
-}
-
-.char-panel {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.char-panel-header {
-    background: var(--color-blue-bright);
-    padding: 1rem;
-    border-bottom: 2px solid var(--term-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.char-panel-header h3 {
-    margin: 0;
-    color: var(--color-white);
-    font-size: 1rem;
-}
-
-.close-btn {
-    background: var(--color-red-bright);
-    border: 2px solid var(--color-white);
-    color: var(--color-white);
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    line-height: 1;
-    transition: background 0.2s;
-}
-
-.close-btn:hover {
-    background: var(--color-magenta-bright);
-}
-
-.char-panel-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-}
-
-.char-section {
-    margin-bottom: 2rem;
-}
-
-.char-section h4 {
-    color: var(--color-magenta-bright);
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--term-border);
-    padding-bottom: 0.5rem;
-}
-
-.char-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.char-item {
-    background: var(--color-gray-dark);
-    border: 1px solid var(--term-border);
-    padding: 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 1.2rem;
-}
-
-.char-item:hover {
-    background: var(--color-blue-bright);
-    border-color: var(--color-cyan-bright);
-}
-
-.emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.5rem;
-}
-
-.emoji-item {
-    background: var(--color-gray-dark);
-    border: 1px solid var(--term-border);
-    padding: 0.75rem;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-    font-family: "Monosort", "Noto Color Emoji", sans-serif;
-    font-size: 1.5rem;
-}
-
-.emoji-item:hover {
-    background: var(--color-purple);
-    border-color: var(--color-magenta-bright);
-}
-
-/* ========================================
-   UTILITY CLASSES
-   ======================================== */
-.hidden {
-    display: none !important;
-}
-
-.fade-out {
-    animation: fadeOut 0.5s ease-out forwards;
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-in forwards;
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* ========================================
-   RESPONSIVE ADJUSTMENTS
-   ======================================== */
-@media (max-width: 1200px) {
-    :root {
-        --char-width: 10px;
-        --char-height: 16px;
-    }
-
-    .terminal-container {
-        padding: 1rem;
-    }
-}
-
-@media (max-width: 900px) {
-    :root {
-        --char-width: 8px;
-        --char-height: 14px;
-    }
-
-    .function-keys {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .char-reference {
-        width: 100%;
-    }
+    opacity: 0.8;
 }

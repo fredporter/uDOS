@@ -41,7 +41,7 @@ class GeminiGenerator:
         genai.configure(api_key=self.api_key)
 
         # Load prompt templates
-        prompts_path = Path("extensions/assistant/gemini_prompts.json")
+        prompts_path = Path("core/data/prompts/gemini_prompts.json")
         if prompts_path.exists():
             with open(prompts_path, 'r') as f:
                 self.prompts = json.load(f)
