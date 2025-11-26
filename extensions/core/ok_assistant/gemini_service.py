@@ -50,8 +50,8 @@ class GeminiCLI:
             config = get_config()
 
             self.api_key = config.get('GEMINI_API_KEY')
-            self.username = config.get('UDOS_USERNAME', 'user')
-            self.installation_id = config.get('UDOS_INSTALLATION_ID', 'default')
+            self.username = config.get('USERNAME', 'user')
+            self.installation_id = config.get('INSTALLATION_ID', 'default')
 
             if not self.api_key:
                 raise ValueError("GEMINI_API_KEY not found in configuration")
@@ -76,8 +76,8 @@ class GeminiCLI:
                             env_vars[key.strip()] = value
 
             self.api_key = env_vars.get('GEMINI_API_KEY')
-            self.username = env_vars.get('UDOS_USERNAME', 'user')
-            self.installation_id = env_vars.get('UDOS_INSTALLATION_ID', 'default')
+            self.username = env_vars.get('USERNAME', 'user')
+            self.installation_id = env_vars.get('INSTALLATION_ID', 'default')
 
             if not self.api_key:
                 raise ValueError("GEMINI_API_KEY not found in .env file")

@@ -142,7 +142,7 @@ class PlanetManager:
     def _save_planets(self, planets: Dict):
         """Save planets to JSON file with new structure."""
         # Get current planet
-        current_planet = os.getenv('UDOS_CURRENT_PLANET', 'Earth')
+        current_planet = os.getenv('PLANET', 'Earth')
 
         data = {
             "current_planet": current_planet,
@@ -196,7 +196,7 @@ class PlanetManager:
     def get_current(self) -> Optional[Planet]:
         """Get current active planet from .env or planets.json."""
         # Try .env first
-        current_name = os.getenv('UDOS_CURRENT_PLANET')
+        current_name = os.getenv('PLANET')
 
         # Fall back to planets.json
         if not current_name and self.planets_file.exists():

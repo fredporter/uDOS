@@ -379,18 +379,37 @@ def check_configuration() -> HealthCheckResult:
             # Create minimal .env
             try:
                 env_content = f"""# uDOS Environment Configuration
-# Get your API key from: https://makersuite.google.com/app/apikey
-GEMINI_API_KEY=your_gemini_api_key_here
+# Edit values using CLI: udos config set <key> <value>
 
-# User Configuration
-UDOS_USERNAME=user
-UDOS_LOCATION=Unknown
-UDOS_TIMEZONE=UTC
+# User Information
+USERNAME=user
+PASSWORD=
+ROLE=admin
 
-# Installation Settings
-UDOS_INSTALL_PATH={root}
-UDOS_INSTALLATION_ID=default
-UDOS_VERSION=1.5.0
+# Planet Configuration
+PLANET=Earth
+
+# Theme Configuration
+ACTIVE_THEME=dungeon
+
+# Gemini AI API Key
+GEMINI_API_KEY=
+
+# System Timezone
+TIMEZONE=UTC
+TIMEZONE_OS=+00:00
+
+# Unique Installation ID
+INSTALLATION_ID=default
+
+# System Configuration
+OFFLINE_MODE_ALLOWED=true
+AUTO_UPDATE_CHECK=true
+TELEMETRY_ENABLED=false
+
+# Editor Preferences
+CLI_EDITOR=micro
+WEB_EDITOR=typo
 """
                 env_path.write_text(env_content)
                 result.add_warning(
@@ -420,15 +439,15 @@ UDOS_VERSION=1.5.0
                 "GEMINI_API_KEY not set in .env",
                 "Add your Gemini API key to enable AI features"
             )
-        elif env_vars.get('GEMINI_API_KEY') == 'your_gemini_api_key_here':
+        elif env_vars.get('GEMINI_API_KEY') == '':
             result.add_warning(
-                "GEMINI_API_KEY still has placeholder value",
-                "Replace with your actual API key from https://makersuite.google.com/app/apikey"
+                "GEMINI_API_KEY is empty",
+                "Add your API key from https://makersuite.google.com/app/apikey"
             )
 
-        if not env_vars.get('UDOS_USERNAME'):
+        if not env_vars.get('USERNAME'):
             result.add_warning(
-                "UDOS_USERNAME not set in .env",
+                "USERNAME not set in .env",
                 "Add your username to personalize uDOS"
             )
 

@@ -76,8 +76,8 @@ class DevModeManager:
             return False
 
         # Get master password from config
-        master_password = self.config.get('UDOS_MASTER_PASSWORD', '')
-        master_user = self.config.get('UDOS_MASTER_USER', '')
+        master_password = self.config.get('PASSWORD', '')
+        master_user = self.config.get('USERNAME', '')
         current_user = self.config.get('username', '')
 
         # Validate master user is configured
@@ -254,7 +254,7 @@ class DevModeManager:
         if not self.is_active:
             return {
                 'active': False,
-                'master_user': self.config.get('UDOS_MASTER_USER', 'Not configured') if self.config else 'Unknown',
+                'master_user': self.config.get('USERNAME', 'Not configured') if self.config else 'Unknown',
                 'message': 'DEV MODE inactive'
             }
 

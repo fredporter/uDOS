@@ -102,125 +102,108 @@ class ConfigManager:
             },
 
             # User Profile
-            'username': {
+            'USERNAME': {
                 'type': str,
                 'default': 'user',
                 'required': True,
-                'source': 'user_json',
-                'description': 'User display name'
+                'source': 'env',
+                'description': 'User name'
             },
-            'UDOS_USERNAME': {
+            'PASSWORD': {
                 'type': str,
-                'default': 'user',
+                'default': '',
                 'required': False,
                 'source': 'env',
-                'description': 'Username in .env (synced with username)'
+                'description': 'User password (hashed)'
             },
-            'password': {
-                'type': (str, type(None)),
-                'default': None,
-                'required': False,
-                'source': 'user_json',
-                'description': 'User password (optional, hashed)'
-            },
-            'location': {
+            'ROLE': {
                 'type': str,
-                'default': 'Unknown',
-                'required': False,
-                'source': 'user_json',
-                'description': 'User location'
-            },
-            'UDOS_LOCATION': {
-                'type': str,
-                'default': 'Unknown',
+                'default': 'admin',
                 'required': False,
                 'source': 'env',
-                'description': 'Location in .env (synced with location)'
-            },
-            'timezone': {
-                'type': str,
-                'default': 'UTC',
-                'required': False,
-                'source': 'user_json',
-                'description': 'User timezone'
-            },
-            'UDOS_TIMEZONE': {
-                'type': str,
-                'default': 'UTC',
-                'required': False,
-                'source': 'env',
-                'description': 'Timezone in .env (synced with timezone)'
+                'description': 'User role (admin, user, guest)'
             },
 
-            # Installation Settings
-            'UDOS_INSTALL_PATH': {
+            # Planet Configuration
+            'PLANET': {
                 'type': str,
-                'default': str(self.base_path),
+                'default': 'Earth',
                 'required': False,
                 'source': 'env',
-                'description': 'Installation directory path'
+                'description': 'Current planet'
             },
-            'UDOS_INSTALLATION_ID': {
+
+            # Theme
+            'ACTIVE_THEME': {
+                'type': str,
+                'default': 'dungeon',
+                'required': False,
+                'source': 'env',
+                'description': 'Active theme (default, dungeon, cyberpunk)'
+            },
+
+            # Timezone
+            'TIMEZONE': {
+                'type': str,
+                'default': 'UTC',
+                'required': False,
+                'source': 'env',
+                'description': 'User timezone'
+            },
+            'TIMEZONE_OS': {
+                'type': str,
+                'default': '+00:00',
+                'required': False,
+                'source': 'env',
+                'description': 'OS timezone offset'
+            },
+
+            # Installation
+            'INSTALLATION_ID': {
                 'type': str,
                 'default': 'default',
                 'required': False,
                 'source': 'env',
                 'description': 'Unique installation identifier'
             },
-            'UDOS_VERSION': {
-                'type': str,
-                'default': '1.5.0',
+
+            # System Configuration
+            'OFFLINE_MODE_ALLOWED': {
+                'type': bool,
+                'default': True,
                 'required': False,
                 'source': 'env',
-                'description': 'uDOS version'
+                'description': 'Allow offline mode'
             },
-
-            # UI Settings
-            'theme': {
-                'type': str,
-                'default': 'dungeon',
-                'required': False,
-                'source': 'user_json',
-                'description': 'Active theme (default, dungeon, cyberpunk)'
-            },
-            'grid_size': {
-                'type': list,
-                'default': [22, 15],
-                'required': False,
-                'source': 'user_json',
-                'description': 'Grid size [width, height] in cells'
-            },
-
-            # DEV MODE Settings (v1.5.0+)
-            'UDOS_MASTER_PASSWORD': {
-                'type': str,
-                'default': '',
+            'AUTO_UPDATE_CHECK': {
+                'type': bool,
+                'default': True,
                 'required': False,
                 'source': 'env',
-                'description': 'Master user password for DEV MODE'
+                'description': 'Check for updates automatically'
             },
-            'UDOS_MASTER_USER': {
-                'type': str,
-                'default': 'user',
-                'required': False,
-                'source': 'env',
-                'description': 'Master user name (must match username)'
-            },
-
-            # Advanced Settings
-            'UDOS_DEBUG': {
+            'TELEMETRY_ENABLED': {
                 'type': bool,
                 'default': False,
                 'required': False,
                 'source': 'env',
-                'description': 'Debug mode enabled'
+                'description': 'Enable telemetry'
             },
-            'UDOS_VIEWPORT_MODE': {
+
+            # Editor Preferences
+            'CLI_EDITOR': {
                 'type': str,
-                'default': 'auto',
+                'default': 'micro',
                 'required': False,
                 'source': 'env',
-                'description': 'Viewport mode (auto, terminal, mobile, desktop)'
+                'description': 'CLI text editor (micro, nano, vim)'
+            },
+            'WEB_EDITOR': {
+                'type': str,
+                'default': 'typo',
+                'required': False,
+                'source': 'env',
+                'description': 'Web text editor'
             },
         }
 
@@ -353,10 +336,8 @@ class ConfigManager:
             self._modified_fields.add(env_field)
 
     def _sync_username(self) -> None:
-        """Ensure username is synchronized between user.json and .env."""
-        self._sync_field('username', 'UDOS_USERNAME')
-        self._sync_field('location', 'UDOS_LOCATION')
-        self._sync_field('timezone', 'UDOS_TIMEZONE')
+        """No longer needed - all config in .env now."""
+        pass
 
     def get(self, key: str, default: Any = None) -> Any:
         """
@@ -535,11 +516,6 @@ class ConfigManager:
             List of repairs performed
         """
         repairs = []
-
-        # Sync username
-        if self._config.get('username') != self._config.get('UDOS_USERNAME'):
-            self._config['UDOS_USERNAME'] = self._config['username']
-            repairs.append(f"Synced UDOS_USERNAME to match username: {self._config['username']}")
 
         # Set defaults for missing required fields
         for key, spec in self._schema.items():

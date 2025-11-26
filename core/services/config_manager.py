@@ -13,11 +13,15 @@ class ConfigManager:
 
     ALLOWED_KEYS = {
         'GEMINI_API_KEY': 'Gemini AI API Key',
-        'UDOS_USERNAME': 'Username',
-        'UDOS_INSTALLATION_ID': 'Installation ID',
-        'DEFAULT_WORKSPACE': 'Default workspace',
-        'AUTO_START_WEB': 'Auto-start web dashboard (true/false)',
-        'THEME': 'Color theme (dark/light)',
+        'USERNAME': 'Username',
+        'PASSWORD': 'Password',
+        'ROLE': 'User Role',
+        'PLANET': 'Current Planet',
+        'ACTIVE_THEME': 'Active Theme',
+        'TIMEZONE': 'Timezone',
+        'INSTALLATION_ID': 'Installation ID',
+        'CLI_EDITOR': 'CLI Editor',
+        'WEB_EDITOR': 'Web Editor',
     }
 
     def __init__(self, env_path: Optional[Path] = None):
@@ -30,25 +34,37 @@ class ConfigManager:
         if not self.env_path.exists():
             # Create default .env
             self.env_path.write_text("""# uDOS Environment Configuration
-# Edit these values using CLI commands only: udos config set <key> <value>
-
-# Gemini AI API Key
-GEMINI_API_KEY=''
+# Edit values using CLI: udos config set <key> <value>
 
 # User Information
-UDOS_USERNAME='user'
+USERNAME=user
+PASSWORD=
+ROLE=admin
 
-# Unique Installation ID (auto-generated)
-UDOS_INSTALLATION_ID='default'
+# Planet Configuration
+PLANET=Earth
 
-# Default Workspace
-DEFAULT_WORKSPACE='sandbox'
+# Theme Configuration
+ACTIVE_THEME=dungeon
 
-# Auto-start Web Dashboard
-AUTO_START_WEB='false'
+# Gemini AI API Key
+GEMINI_API_KEY=
 
-# Color Theme
-THEME='dark'
+# System Timezone
+TIMEZONE=UTC
+TIMEZONE_OS=+00:00
+
+# Unique Installation ID
+INSTALLATION_ID=default
+
+# System Configuration
+OFFLINE_MODE_ALLOWED=true
+AUTO_UPDATE_CHECK=true
+TELEMETRY_ENABLED=false
+
+# Editor Preferences
+CLI_EDITOR=micro
+WEB_EDITOR=typo
 """)
 
     def get(self, key: str) -> Optional[str]:
@@ -128,12 +144,12 @@ THEME='dark'
         validation['GEMINI_API_KEY'] = bool(api_key and len(api_key) > 10)
 
         # Check username
-        username = env_vars.get('UDOS_USERNAME', '')
-        validation['UDOS_USERNAME'] = bool(username and len(username) > 0)
+        username = env_vars.get('USERNAME', '')
+        validation['USERNAME'] = bool(username and len(username) > 0)
 
         # Check installation ID
-        install_id = env_vars.get('UDOS_INSTALLATION_ID', '')
-        validation['UDOS_INSTALLATION_ID'] = bool(install_id and len(install_id) > 0)
+        install_id = env_vars.get('INSTALLATION_ID', '')
+        validation['INSTALLATION_ID'] = bool(install_id and len(install_id) > 0)
 
         return validation
 

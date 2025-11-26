@@ -131,7 +131,7 @@ class BarterService:
             try:
                 from core.uDOS_main import get_config
                 config = get_config()
-                project_root = config.get('UDOS_INSTALL_PATH', str(Path.cwd()))
+                project_root = str(Path.cwd())
                 base_path = Path(project_root) / "memory" / "barter"
             except Exception:
                 # Fallback to current working directory
