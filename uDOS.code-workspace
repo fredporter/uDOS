@@ -18,20 +18,27 @@
 			"**/sandbox/logs/**": true,
 			"**/sandbox/trash/**": true,
 			"**/sandbox/.pytest_cache/**": true,
-			"**/__pycache__/**": true
+			"**/__pycache__/**": true,
+			"**/extensions/cloned/**": true
 		},
 		"search.exclude": {
 			"**/.venv": true,
 			"**/sandbox/logs": true,
 			"**/sandbox/trash": true,
 			"**/sandbox/.pytest_cache": true,
-			"**/sandbox/scripts": true,
-			"**/__pycache__": true
+			"**/__pycache__": true,
+			"**/extensions/cloned": true
 		},
 		"files.exclude": {
 			"**/__pycache__": true,
-			"**/*.pyc": true
-		}
+			"**/*.pyc": true,
+			"**/sandbox/.server_state.json": true
+		},
+		"github.copilot.chat.codeGeneration.instructions": [
+			{
+				"file": ".github/copilot-instructions.md"
+			}
+		]
 	},
 	"tasks": {
 		"version": "2.0.0",

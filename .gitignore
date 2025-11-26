@@ -151,22 +151,32 @@ memory/**/*
 !memory/.gitignore
 !memory/config/
 !memory/config/.gitkeep
-# Sandbox directories (v1.1.0 structure - private workspace)
+
+# Sandbox directories (v2.0.0 structure - development workspace)
 !sandbox/
+!sandbox/README.md
 !sandbox/.gitkeep
 !sandbox/peek/
 !sandbox/peek/.gitkeep
+!sandbox/dev/
+!sandbox/dev/README.md
+!sandbox/dev/planning/
+!sandbox/dev/planning/**/*
+sandbox/dev/sessions/
+sandbox/dev/notes/
+sandbox/dev/archive/
 sandbox/logs/
 sandbox/drafts/
-sandbox/dev/
 sandbox/docs/
 sandbox/trash/
 sandbox/workflow/
 sandbox/scripts/
 sandbox/tests/
 sandbox/ucode/
+sandbox/user/
 sandbox/user.json
 sandbox/.server_state.json
+sandbox/.pytest_cache/
 
 # Memory tiers (4-tier system)
 !memory/community/  # Public tier (user-generated content)
