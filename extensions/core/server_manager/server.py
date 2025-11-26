@@ -409,33 +409,34 @@ class ServerManager:
         Unified method to start any web server.
 
         Args:
-            name (str): Server name (typo, cmd, font-editor, markdown-viewer, dashboard, terminal)
+            name (str): Server name (typo, terminal, teletext, desktop, dashboard, font-editor, etc.)
             port (int, optional): Custom port number
             open_browser (bool): Whether to open browser after starting
 
         Returns:
             str: Status message for OUTPUT command
         """
-        # Map server names to their start methods
-        server_methods = {
-            'typo': self.start_typo_server,
-            'cmd': self.start_cmd_server,
-            'terminal': self.start_terminal_server,
-            'font-editor': self.start_font_editor,
-            'markdown': self.start_markdown_viewer,  # Uses Typo in preview mode
-            'dashboard': self.start_dashboard
-        }
+        # Use bulletproof launcher for all servers (uses extensions_server.py)
+        # Special cases that have custom launchers
+        if name == 'typo':
+            method = self.start_typo_server
+        elif name == 'cmd':
+            method = self.start_cmd_server
+        else:
+            # Use bulletproof launcher for all core extensions
+            # (dashboard, terminal, teletext, desktop, font-editor, etc.)
+            if port is None:
+                port = self._get_default_port(name)
+            success, message = self._use_bulletproof_launcher(name, port, open_browser)
+            if success:
+                return f"🌐 {message}"
+            else:
+                return message
 
-        method = server_methods.get(name)
-        if not method:
-            available = ', '.join(server_methods.keys())
-            return f"❌ Unknown server: {name}\nAvailable: {available}"
-
-        # Use default port if none specified
+        # For typo and cmd, call their specific methods
         if port is None:
             port = self._get_default_port(name)
 
-        # Call the appropriate start method
         try:
             success, message = method(port=port, open_browser=open_browser)
             if success:
