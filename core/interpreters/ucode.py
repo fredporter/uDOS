@@ -1571,7 +1571,7 @@ class UCodeInterpreter:
 
         Reserved uCODE characters (NOT allowed in simple bracket content):
         ~^-+=|<>*
-        
+
         Note: $ { } are allowed for variable substitution (${var})
 
         Args:
@@ -1584,7 +1584,8 @@ class UCodeInterpreter:
 
         # Reserved characters that indicate this is NOT simple bracket notation
         # Note: $ { } are allowed for variable substitution ${var}
-        RESERVED_CHARS = set('~^-+=|<>*')  # Removed { } for ${var} support
+        # Note: = is allowed for SET command (var = value)
+        RESERVED_CHARS = set('~^-+|<>*')  # Removed = for SET support
 
         # Format 1: [COMMAND|params] - standard uCODE format
         if line.startswith('[') and '|' in line and line.endswith(']'):
@@ -1595,14 +1596,21 @@ class UCodeInterpreter:
                 command = parts[0].strip()
                 params = parts[1].strip() if len(parts) > 1 else ""
 
-                # Check if params contain reserved characters (except |)
+                # Check if params contain reserved characters (except | and = for SET)
                 param_chars = set(params) - set('|')
+                if command.upper() == 'SET':
+                    param_chars = param_chars - set('=')  # Allow = for SET
+                
                 if param_chars & RESERVED_CHARS:
                     # Contains reserved chars, leave as-is for parser
                     return line
 
                 # Simple text, convert to plain syntax
-                return f'{command} "{params}"' if params else command
+                # SET and GET don't use quotes, others do
+                if command.upper() in ['SET', 'GET']:
+                    return f'{command} {params}' if params else command
+                else:
+                    return f'{command} "{params}"' if params else command
 
         # Format 2: COMMAND[params] or COMMAND [params]
         if '[' in line and line.endswith(']'):
@@ -1614,12 +1622,20 @@ class UCodeInterpreter:
             # Only process known simple commands
             if command.upper() in ['PRINT', 'ECHO', 'SET', 'GET', 'CALL']:
                 # Check if params contain reserved characters
-                if set(params) & RESERVED_CHARS:
+                param_chars = set(params)
+                if command.upper() == 'SET':
+                    param_chars = param_chars - set('=')  # Allow = for SET
+                
+                if param_chars & RESERVED_CHARS:
                     # Contains reserved chars, leave as-is
                     return line
 
                 # Simple text, convert to plain syntax
-                return f'{command} "{params}"' if params else command
+                # SET and GET don't use quotes, others do
+                if command.upper() in ['SET', 'GET']:
+                    return f'{command} {params}' if params else command
+                else:
+                    return f'{command} "{params}"' if params else command
 
         return line
 
