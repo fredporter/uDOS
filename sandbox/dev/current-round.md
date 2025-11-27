@@ -164,7 +164,9 @@ None currently.
   - Three equivalent formats: `PRINT[text]`, `PRINT [text]`, `[PRINT|text]`
   - Added `_normalize_bracket_syntax()` preprocessor
   - All formats support ${var} templates
-  - Test: `sandbox/tests/test_bracket_syntax.py` (7/7 tests pass)
+  - **Reserved character protection**: `~^-+=|<>*` prevent normalization
+  - Allows ${var} syntax (removed {}, $, \\ from reserved set)
+  - Test: `sandbox/tests/test_bracket_syntax.py` (11/11 tests pass)
   - Much simpler than curly braces - consistent with existing uCODE design
 - **Next:** Step 5 - Extend SET, GET, and other commands for brackets
 
