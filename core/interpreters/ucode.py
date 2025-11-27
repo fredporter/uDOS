@@ -915,9 +915,19 @@ class UCodeInterpreter:
                 continue
 
             # Handle IF statements
-            if line.upper().startswith('IF '):
-                i = self._handle_if_block(lines, results, i, end_index)
-                continue
+            if line.upper().startswith('IF ') or line.upper().startswith('IF{'):
+                # Check if it's a one-line IF with THEN (v1.1.1)
+                if ' THEN ' in line.upper():
+                    # One-line IF, execute via execute_line
+                    result = self.execute_line(line, line_num)
+                    if result is not None:
+                        results.append(result)
+                    i += 1
+                    continue
+                else:
+                    # Multi-line IF block
+                    i = self._handle_if_block(lines, results, i, end_index)
+                    continue
 
             # Handle FOR loops
             if line.upper().startswith('FOR '):
@@ -1600,7 +1610,7 @@ class UCodeInterpreter:
                 param_chars = set(params) - set('|')
                 if command.upper() == 'SET':
                     param_chars = param_chars - set('=')  # Allow = for SET
-                
+
                 if param_chars & RESERVED_CHARS:
                     # Contains reserved chars, leave as-is for parser
                     return line
@@ -1625,7 +1635,7 @@ class UCodeInterpreter:
                 param_chars = set(params)
                 if command.upper() == 'SET':
                     param_chars = param_chars - set('=')  # Allow = for SET
-                
+
                 if param_chars & RESERVED_CHARS:
                     # Contains reserved chars, leave as-is
                     return line
@@ -1659,6 +1669,11 @@ class UCodeInterpreter:
 
         # Substitute variables first
         line = self.substitute_variables(line)
+
+        # Handle one-line IF with THEN (v1.1.1)
+        # Matches: IF condition THEN, IF{condition} THEN
+        if (line.upper().startswith('IF ') or line.upper().startswith('IF{')) and ' THEN ' in line.upper():
+            return self._handle_oneline_if(line)
 
         # Handle IMPORT command (module imports)
         if line.upper().startswith('IMPORT '):
@@ -1921,6 +1936,58 @@ class UCodeInterpreter:
         if warning:
             return warning + result
         return result
+
+    def _handle_oneline_if(self, line: str) -> str:
+        """
+        Handle one-line IF with THEN (v1.1.1).
+
+        Syntax:
+            IF condition THEN command
+            IF{condition} THEN command
+            IF{condition} THEN PRINT[text]
+
+        Args:
+            line: One-line IF command
+
+        Returns:
+            Command result or None if condition false
+        """
+        # Find THEN keyword (case-insensitive)
+        upper_line = line.upper()
+        then_pos = upper_line.find(' THEN ')
+
+        if then_pos == -1:
+            return "❌ One-line IF syntax: IF condition THEN command"
+
+        # Extract condition part (everything between IF and THEN)
+        # Handle both: "IF condition" and "IF{condition}"
+        if line.upper().startswith('IF{'):
+            # IF{condition} format - extract from position 2 (after "IF")
+            condition_part = line[2:then_pos].strip()
+        else:
+            # IF condition format - extract from position 3 (after "IF ")
+            condition_part = line[3:then_pos].strip()
+
+        # Remove curly braces if present: {condition} → condition
+        if condition_part.startswith('{') and condition_part.endswith('}'):
+            condition_part = condition_part[1:-1].strip()
+
+        # Extract command part (after THEN)
+        command_part = line[then_pos + 6:].strip()  # Skip " THEN "
+
+        # Evaluate condition using debugger's condition evaluator
+        try:
+            condition_result = self.debugger._evaluate_condition(condition_part)
+        except Exception as e:
+            return f"❌ IF condition error: {e}"        # Execute command if condition is true
+        if condition_result:
+            try:
+                return self.execute_line(command_part)
+            except Exception as e:
+                return f"❌ Command error: {e}"
+
+        # Condition false, return None (no output)
+        return None
 
     def _handle_import(self, line: str) -> str:
         """Handle IMPORT command for module loading."""
