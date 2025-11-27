@@ -967,7 +967,10 @@ class UCodeInterpreter:
     def _handle_if_block(self, lines: List[str], results: List[str],
                         start_index: int, end_index: int) -> int:
         """
-        Handle IF/ELSE/ENDIF block.
+        Handle IF/ELSE/ENDIF block (both old and new syntax).
+
+        Old syntax: IF condition ... ELSE ... ENDIF
+        New syntax: IF (condition) { ... } ELSE { ... }
 
         Args:
             lines: List of script lines
@@ -976,15 +979,24 @@ class UCodeInterpreter:
             end_index: End boundary
 
         Returns:
-            Index after ENDIF
+            Index after ENDIF or closing }
         """
         if_line = lines[start_index].strip()
         line_num = start_index + 1
 
-        # Parse condition from "IF condition THEN" or "IF condition"
+        # Check if using curly brace syntax
+        uses_braces = if_line.endswith('{')
+
+        # Parse condition from "IF condition THEN", "IF condition", or "IF (condition) {"
         condition_text = if_line[3:].strip()  # Remove "IF "
         if condition_text.upper().endswith(' THEN'):
             condition_text = condition_text[:-5].strip()
+        elif uses_braces:
+            # Remove trailing {
+            condition_text = condition_text[:-1].strip()
+            # Remove parentheses if present
+            if condition_text.startswith('(') and condition_text.endswith(')'):
+                condition_text = condition_text[1:-1].strip()
 
         # Evaluate condition
         try:
@@ -993,40 +1005,106 @@ class UCodeInterpreter:
             results.append(f"❌ Error evaluating condition on line {line_num}: {str(e)}")
             condition_result = False
 
-        # Find ELSE and ENDIF
+        # Find ELSE and block end (ENDIF or })
         else_index = None
-        endif_index = None
+        block_end_index = None
         nesting_level = 0
+        brace_depth = 0
+        found_else_with_closing_brace = False
 
         for i in range(start_index + 1, end_index):
-            line = lines[i].strip().upper()
+            line = lines[i].strip()
+            line_upper = line.upper()
 
-            if line.startswith('IF '):
-                nesting_level += 1
-            elif line == 'ELSE' and nesting_level == 0 and else_index is None:
+            # Track brace depth for new syntax
+            if uses_braces:
+                # Check for } ELSE { pattern on same line
+                if line_upper == '} ELSE {' and brace_depth == 0 and else_index is None:
+                    else_index = i
+                    found_else_with_closing_brace = True
+                    # Continue searching for final }
+                    continue
+                elif line == '{':
+                    brace_depth += 1
+                elif line == '}':
+                    if brace_depth == 0:
+                        # This is the closing brace for IF or ELSE
+                        if found_else_with_closing_brace:
+                            # This closes the ELSE block
+                            block_end_index = i
+                            break
+                        elif else_index is None:
+                            # No ELSE found yet, keep searching
+                            block_end_index = i
+                            # But keep looking for possible ELSE after this
+                            # Actually, if we found }, we're done unless there's ELSE
+                            # Let's check the next line
+                            if i + 1 < end_index:
+                                next_line = lines[i + 1].strip().upper()
+                                if next_line == 'ELSE {' or next_line.startswith('ELSE '):
+                                    # Don't break, there's an ELSE coming
+                                    else_index = i + 1
+                                    if next_line == 'ELSE {':
+                                        found_else_with_closing_brace = False
+                                    continue
+                            # No ELSE, we're done
+                            break
+                        else:
+                            # We already found ELSE, this closes it
+                            block_end_index = i
+                            break
+                    else:
+                        brace_depth -= 1
+
+            # Check for nested IF blocks
+            if line_upper.startswith('IF '):
+                if uses_braces and line.endswith('{'):
+                    brace_depth += 1
+                else:
+                    nesting_level += 1
+
+            # Check for ELSE (works in both syntaxes)
+            elif line_upper == 'ELSE' and nesting_level == 0 and brace_depth == 0 and else_index is None:
                 else_index = i
-            elif line == 'ENDIF':
+            elif line_upper == 'ELSE {' and uses_braces and brace_depth == 0 and else_index is None:
+                else_index = i
+
+            # Check for ENDIF (old syntax)
+            elif not uses_braces and line_upper == 'ENDIF':
                 if nesting_level == 0:
-                    endif_index = i
+                    block_end_index = i
                     break
                 else:
                     nesting_level -= 1
 
-        if endif_index is None:
-            results.append(f"❌ Error on line {line_num}: IF without matching ENDIF")
+        if block_end_index is None:
+            end_marker = '}' if uses_braces else 'ENDIF'
+            results.append(f"❌ Error on line {line_num}: IF without matching {end_marker}")
             return start_index + 1
 
         # Execute appropriate block
         if condition_result:
             # Execute IF block
-            block_end = else_index if else_index else endif_index
+            block_end = else_index if else_index else block_end_index
             self._execute_lines(lines, results, start_index + 1, block_end)
         elif else_index is not None:
             # Execute ELSE block
-            self._execute_lines(lines, results, else_index + 1, endif_index)
+            else_line = lines[else_index].strip()
+            else_line_upper = else_line.upper()
 
-        # Return index after ENDIF
-        return endif_index + 1
+            if else_line_upper == '} ELSE {':
+                # Inline } ELSE { - ELSE block is on next line
+                else_start = else_index + 1
+            elif else_line_upper == 'ELSE {' or else_line_upper == 'ELSE':
+                # ELSE block starts after ELSE line
+                else_start = else_index + 1
+            else:
+                else_start = else_index + 1
+
+            self._execute_lines(lines, results, else_start, block_end_index)
+
+        # Return index after block end
+        return block_end_index + 1
 
     def _handle_for_loop(self, lines: List[str], results: List[str],
                         start_index: int, end_index: int) -> int:

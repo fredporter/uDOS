@@ -2,7 +2,7 @@
 
 **Started:** 27 November 2025
 **Status:** 🚀 ACTIVE
-**Progress:** 3/38 steps (7.9%)
+**Progress:** 4/38 steps (10.5%)
 
 ---
 
@@ -29,7 +29,7 @@
 - [x] 1. Add `PRINT` command handler to `core/interpreters/ucode.py`
 - [x] 2. Implement template string support: `PRINT "Value: ${var}"`
 - [x] 3. Add deprecation warnings for `ECHO` usage
-- [ ] 4. Create curly brace parser for blocks: `IF (condition) { }`
+- [x] 4. Create curly brace parser for blocks: `IF (condition) { }`
 - [ ] 5. Extend `_handle_if_block()` for both syntaxes
 - [ ] 6. Extend `_handle_for_loop()` for both syntaxes
 - [ ] 7. Extend `_handle_while_loop()` for both syntaxes
@@ -39,7 +39,7 @@
 - [ ] 11. Test backward compatibility (old syntax still works)
 - [ ] 12. Update error messages for new syntax
 
-**Status:** 🔨 Step 3/12 complete
+**Status:** 🔨 Step 4/12 complete
 **Estimated Complexity:** Mix of simple and medium steps---
 
 ## Move 2: Migration Tools (8 steps) - NOT STARTED
@@ -159,7 +159,13 @@ None currently.
   - Warning only shown once per session
   - ECHO still works (executes as PRINT)
   - Created test: `sandbox/tests/test_echo_deprecation.py` (all tests pass)
-- **Next:** Step 4 - Create curly brace parser
+- **Step 4 COMPLETE**: Curly brace syntax for IF blocks
+  - New syntax: `IF (condition) { }` and `} ELSE {`
+  - Old syntax still works: `IF condition ... ENDIF`
+  - Both syntaxes fully functional and tested
+  - Handles nested blocks and brace depth tracking
+  - Test script: `sandbox/ucode/test_square_brackets.uscript` (all 4 tests pass)
+- **Next:** Step 5 - Extend FOR/WHILE/FUNCTION/TRY for curly braces
 
 ---
 
