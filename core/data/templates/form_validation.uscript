@@ -16,18 +16,16 @@ FUNCTION validate_username(username)
 
         # Check length
         CALL length(username)
-        GET RETURN_VALUE
-        SET len = RETURN_VALUE
+        GET[RETURN_VALUE]
+        SET[len = RETURN_VALUE]
 
         CALL is_in_range(len, 3, 20)
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Username must be 3-20 characters"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Username must be 3-20 characters"
 
         RETURN true
     CATCH error
-        GET ERROR
+        GET[ERROR]
         RETURN ERROR
     ENDTRY
 ENDFUNCTION
@@ -42,21 +40,17 @@ FUNCTION validate_email(email)
 
         # Check contains @
         CALL contains(email, "@")
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Email must contain @"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Email must contain @"
 
         # Check contains .
         CALL contains(email, ".")
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Email must contain domain"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Email must contain domain"
 
         RETURN true
     CATCH error
-        GET ERROR
+        GET[ERROR]
         RETURN ERROR
     ENDTRY
 ENDFUNCTION
@@ -71,18 +65,16 @@ FUNCTION validate_password(password)
 
         # Check length
         CALL length(password)
-        GET RETURN_VALUE
-        SET len = RETURN_VALUE
+        GET[RETURN_VALUE]
+        SET[len = RETURN_VALUE]
 
         CALL is_in_range(len, 8, 50)
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Password must be 8-50 characters"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Password must be 8-50 characters"
 
         RETURN true
     CATCH error
-        GET ERROR
+        GET[ERROR]
         RETURN ERROR
     ENDTRY
 ENDFUNCTION
@@ -97,21 +89,17 @@ FUNCTION validate_age(age)
 
         # Check is number
         CALL is_number(age)
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Age must be a number"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Age must be a number"
 
         # Check range
         CALL is_in_range(age, 1, 150)
-        GET RETURN_VALUE
-        IF RETURN_VALUE == "false"
-            THROW "Age must be 1-150"
-        ENDIF
+        GET[RETURN_VALUE]
+        IF{RETURN_VALUE == "false"} THEN THROW "Age must be 1-150"
 
         RETURN true
     CATCH error
-        GET ERROR
+        GET[ERROR]
         RETURN ERROR
     ENDTRY
 ENDFUNCTION
@@ -120,41 +108,39 @@ ENDFUNCTION
 # FUNCTION: validate_form
 # ====================================
 FUNCTION validate_form(username, email, password, age)
-    SET errors = []
+    SET[errors = []]
 
     # Validate username
     CALL validate_username(username)
-    GET RETURN_VALUE
+    GET[RETURN_VALUE]
     IF RETURN_VALUE != "true"
-        SET errors = APPEND errors WITH RETURN_VALUE
+        SET[errors = APPEND errors WITH RETURN_VALUE]
     ENDIF
 
     # Validate email
     CALL validate_email(email)
-    GET RETURN_VALUE
+    GET[RETURN_VALUE]
     IF RETURN_VALUE != "true"
-        SET errors = APPEND errors WITH RETURN_VALUE
+        SET[errors = APPEND errors WITH RETURN_VALUE]
     ENDIF
 
     # Validate password
     CALL validate_password(password)
-    GET RETURN_VALUE
+    GET[RETURN_VALUE]
     IF RETURN_VALUE != "true"
-        SET errors = APPEND errors WITH RETURN_VALUE
+        SET[errors = APPEND errors WITH RETURN_VALUE]
     ENDIF
 
     # Validate age
     CALL validate_age(age)
-    GET RETURN_VALUE
+    GET[RETURN_VALUE]
     IF RETURN_VALUE != "true"
-        SET errors = APPEND errors WITH RETURN_VALUE
+        SET[errors = APPEND errors WITH RETURN_VALUE]
     ENDIF
 
     # Check if any errors
-    SET error_count = COUNT errors
-    IF error_count > 0
-        RETURN errors
-    ENDIF
+    SET[error_count = COUNT errors]
+    IF{error_count > 0} THEN RETURN errors
 
     RETURN "✅ Form is valid"
 ENDFUNCTION
