@@ -186,7 +186,17 @@ None currently.
   - Uses debugger condition evaluator for safe execution
   - Works with all commands (PRINT, SET, GET, etc.)
   - Test: `sandbox/tests/test_oneline_if.py` (10/10 tests pass)
-- **Next:** Steps 11-12 - Backward compatibility testing, error messages
+- **Steps 11-12 SKIPPED**: Backward compatibility not needed
+  - Focused on modernizing system files instead
+- **Steps 21-24 COMPLETE**: Template modernization
+  - Updated `core/data/templates/menu_system.uscript`
+  - Updated `core/data/templates/crud_app.uscript`
+  - Updated `core/data/templates/form_validation.uscript`
+  - All ECHO → PRINT[text]
+  - All SET/GET use bracket syntax
+  - One-line IF{} used where appropriate
+  - Setup & utility scripts already modern
+- **Next:** Steps 13-20 (migration tools) OR Steps 25-38 (remaining docs/tests)
 
 ---
 
