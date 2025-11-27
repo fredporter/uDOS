@@ -115,3 +115,18 @@ Good for quick shade or rain protection but less robust than an A-frame.
 *   **First Aid for Bites, Stings & Heat-Related Illnesses:** Crucial knowledge for tropical survival.
 *   **Fire Starting & Management (Smudge Fires):** For warmth (if needed), cooking, and insect deterrence.
 ```
+
+---
+
+## Diagram
+
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐ The Elevated A-Frame (Primary Recommendation) ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+                   ┃
+                   ▼
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐ The Lean-To with Elevated Platform (Quick & Dirty) ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+```

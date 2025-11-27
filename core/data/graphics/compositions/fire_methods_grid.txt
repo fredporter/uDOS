@@ -1,0 +1,25 @@
+"""
+Fire Starting Methods Comparison - Grid Diagram
+Demonstrates table/grid layout with chunky headers
+"""
+
+▐▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐   Method   ▌▐ Difficulty ▌▐    Time    ▌▐ Materials  ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▌
+═════════════════════════════════════════════════════════
+┃  Friction  ┃    Hard    ┃  5-15 min  ┃  Dry wood  ┃
+┃ Flint/Steel┃   Medium   ┃   1-3 min  ┃ Flint,steel┃
+┃ Magnifier  ┃    Easy    ┃   30 sec   ┃ Glass, sun ┃
+┃ Fire Plow  ┃    Hard    ┃ 10-20 min  ┃ Soft wood  ┃
+┃ Bow Drill  ┃   Medium   ┃  3-10 min  ┃ Wood, cord ┃
+
+RATINGS:
+Easy   = Beginner friendly, high success rate
+Medium = Some practice needed
+Hard   = Significant skill & practice required
+
+CONDITIONS:
+• All methods require DRY materials
+• Wind protection improves success
+• Tinder preparation is critical
+• Practice in good conditions first

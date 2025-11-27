@@ -797,6 +797,23 @@ Then build from there.
 
 ---
 
+---
+
+## Diagram
+
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐   Category  ▌▐ Essential Items ▌▐   Priority  ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+═════════════════════════════════════════════
+┃  Wound care ┃ Bandages, gauze, tape ┃   Critical  ┃
+┃ Medications ┃ Pain relief, antibiotic ┃     High    ┃
+┃    Tools    ┃ Scissors, tweezers ┃     High    ┃
+┃  Protection ┃ Gloves, mask ┃    Medium   ┃
+```
+
+---
+
 ## Related Guides
 
 - **CPR:** `GUIDE START basic-cpr`

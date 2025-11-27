@@ -1,46 +1,79 @@
 # Smoking Meat
 
 **Category:** food
-**Difficulty:** beginner
-**Generated:** 2025-11-24
+**Difficulty:** intermediate
+**Generated:** 2025-11-27
 
 ## Overview
 
-[Placeholder - To be generated with GENERATE GUIDE command]
+Smoking meat is an ancient preservation technique that extends the shelf life of wild game or fish when refrigeration is unavailable. In wilderness survival or emergency situations, smoking provides a safe method to store protein resources by reducing moisture content and inhibiting bacterial growth. This guide focuses on hot smoking for immediate consumption and short-term preservation.
 
-## Materials Needed
+## Materials/Equipment Needed
 
-- Material 1
-- Material 2
-- Material 3
+- Fresh meat or fish (field-dressed, cleaned)
+- Fuel wood - hardwoods only: Oak, hickory, maple, fruitwoods (apple, cherry)
+- **Avoid:** Pine, cedar, softwoods (toxic resins)
+- Cutting tools (knife, axe/saw)
+- Smoking chamber (improvised or constructed)
+- Green wood poles/racks for hanging meat
+- Fire-starting materials
+- Salt (optional - aids preservation)
 
 ## Step-by-Step Instructions
 
-### Step 1: Preparation
-[Instructions]
+### Meat Preparation
 
-### Step 2: Execution
-[Instructions]
+1. Remove all fat, organs, bloodshot areas
+2. Cut into thin strips (1/4 to 1/2 inch thick)
+3. Optional: Salt coat, let sit 30-60 minutes, rinse
 
-### Step 3: Verification
-[Instructions]
+### Construct Pit Smoker
+
+1. Dig pit 2-3 feet deep, 2-3 feet wide
+2. Build fire in bottom
+3. Place green wood frame across top
+4. Hang meat from frame
+5. Cover with bark/hides (leave vent holes)
+
+### Smoking Process
+
+1. Start hot fire, let die to smoldering coals
+2. Add green/damp hardwood chips
+3. Hang meat 3-4 feet above heat
+4. Maintain 150-200°F (warm to touch)
+5. Duration: 4-6 hours (short-term), 12-18 hours (week), 24-48 hours (long-term)
 
 ## Safety Considerations
 
-- Safety point 1
-- Safety point 2
-- Safety point 3
+**Food Safety:**
+- Internal temp: 145°F (fish), 165°F (poultry)
+- Meat should be firm, not mushy
+- Discard if sour smell develops
 
-## Common Mistakes
+**Fire Safety:**
+- Clear 10-foot radius of flammables
+- Never leave unattended
+- Keep water nearby
 
-- Mistake 1
-- Mistake 2
+**Health Warnings:**
+- Undercooked meat carries disease risk
+- Smoked meat is NOT sterile
+- Consume within preservation timeframe
 
-## Related Topics
+## Tips & Troubleshooting
 
-- Related topic 1
-- Related topic 2
+**Common Mistakes:**
+- Fire too hot (cooks instead of smokes)
+- Meat too thick (doesn't dry properly)
+- Using wrong wood type
 
----
+**Improving Results:**
+- Consistent low heat better than fluctuating temps
+- Light smoke = good, heavy = bitter
+- Turn/rotate meat every few hours
+- Meat should bend but not break when done
 
-*Generated as part of v1.4.0 content expansion*
+**Signs of Proper Smoking:**
+- Dark brown/mahogany color
+- Firm but flexible texture
+- Dry surface, pleasant smoky aroma

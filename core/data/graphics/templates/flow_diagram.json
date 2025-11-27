@@ -1,0 +1,44 @@
+{
+  "_comment": "Flow diagram template using chunky teletext blocks",
+  "_style": "vertical flow with labeled boxes and arrows",
+
+  "config": {
+    "box_width": 30,
+    "box_height": 3,
+    "label_style": "chunky",
+    "arrow_style": "heavy",
+    "spacing": 1
+  },
+
+  "components": {
+    "box": {
+      "top": "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+      "middle": "┃ {label:^26} ┃",
+      "bottom": "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+    },
+    "box_chunky": {
+      "top": "▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌",
+      "middle": "▐ {label:^26} ▌",
+      "bottom": "▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌"
+    },
+    "arrow_down": {
+      "line": "             ┃",
+      "head": "             ▼"
+    },
+    "branch": {
+      "split": "             ┳",
+      "left_arm": "        ━━━━┛",
+      "right_arm": "             ┗━━━━"
+    }
+  },
+
+  "example": {
+    "title": "Water Purification Process",
+    "steps": [
+      "Collect water source",
+      "Filter large particles",
+      "Boil for 1-3 minutes",
+      "Cool and store safely"
+    ]
+  }
+}

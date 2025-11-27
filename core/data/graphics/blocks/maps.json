@@ -1,0 +1,179 @@
+{
+  "_comment": "Map-specific patterns and terrain characters",
+  "_version": "1.1.1",
+  "_usage": "Map rendering (map_data_manager), terrain visualization",
+
+  "terrain_chars": {
+    "water": {
+      "deep_ocean": "█",
+      "ocean": "▓",
+      "shallow": "▒",
+      "coast": "░",
+      "river": "~",
+      "lake": "○",
+      "wave_deep": "≈",
+      "wave_shallow": "~",
+      "wave_flow": "∿"
+    },
+    "land": {
+      "plains": "·",
+      "grassland": "≈",
+      "desert": "∴",
+      "tundra": "▒",
+      "ice": "❅",
+      "glacier": "❄",
+      "beach": "░"
+    },
+    "vegetation": {
+      "forest": "♠",
+      "jungle": "♣",
+      "sparse_trees": "♠",
+      "dense_trees": "♣"
+    },
+    "elevation": {
+      "mountain": "▲",
+      "hill": "∩",
+      "valley": "∪",
+      "peak": "▲",
+      "ridge": "∩∩∩"
+    },
+    "urban": {
+      "sparse": "▪",
+      "city": "■",
+      "metro": "●",
+      "settlement": "▪",
+      "town": "■",
+      "capital": "●"
+    }
+  },
+
+  "gradient_sequences": {
+    "ocean_to_land": ["█", "▓", "▒", "░", "·", "≈", "♠"],
+    "land_to_mountain": ["·", "≈", "♠", "∩", "▲"],
+    "depth_gradient": ["█", "▓", "▒", "░"],
+    "density_gradient": ["░", "▒", "▓", "█"],
+    "urban_density": ["▪", "■", "●"]
+  },
+
+  "pattern_templates": {
+    "ocean_waves": {
+      "pattern": ["≈~≈~≈~≈~≈~", "~≈~≈~≈~≈~≈"],
+      "repeat": true
+    },
+    "forest_scattered": {
+      "pattern": ["♠ ♠ ♠ ♠ ♠ ", " ♠ ♠ ♠ ♠ ♠"],
+      "repeat": true
+    },
+    "forest_dense": {
+      "pattern": ["♣♣♣♣♣♣♣♣♣♣"],
+      "repeat": true
+    },
+    "mountain_range": {
+      "pattern": ["  ▲   ▲▲  ▲  ", " ▲▲▲ ▲▲▲▲▲▲▲"],
+      "repeat": false
+    },
+    "hills_rolling": {
+      "pattern": ["  ∩  ∩∩  ∩  ", "∩∩∩∩∩∩∩∩∩∩∩∩"],
+      "repeat": true
+    },
+    "checkerboard": {
+      "pattern": ["█░█░█░█░█░", "░█░█░█░█░█"],
+      "repeat": true
+    },
+    "diagonal_stripes": {
+      "pattern": ["▞▚▞▚▞▚▞▚▞▚", "▚▞▚▞▚▞▚▞▚▞"],
+      "repeat": true
+    }
+  },
+
+  "terrain_transitions": {
+    "ocean_to_coast": {
+      "sequence": ["█", "▓", "▒", "░"],
+      "width": 4,
+      "description": "Deep ocean to coastline"
+    },
+    "coast_to_plains": {
+      "sequence": ["░", "·", "≈"],
+      "width": 3,
+      "description": "Coast to grassland"
+    },
+    "plains_to_forest": {
+      "sequence": ["≈", "♠", "♣"],
+      "width": 3,
+      "description": "Grassland to dense forest"
+    },
+    "forest_to_mountain": {
+      "sequence": ["♣", "♠", "∩", "▲"],
+      "width": 4,
+      "description": "Forest to mountain peaks"
+    },
+    "mountain_to_desert": {
+      "sequence": ["▲", "∩", "·", "∴"],
+      "width": 4,
+      "description": "Mountain to desert via plains"
+    }
+  },
+
+  "biome_patterns": {
+    "tropical": {
+      "primary": "♣",
+      "secondary": "≈",
+      "accent": "~",
+      "description": "Jungle with rivers and grassland"
+    },
+    "temperate": {
+      "primary": "♠",
+      "secondary": "≈",
+      "accent": "·",
+      "description": "Mixed forest and plains"
+    },
+    "arid": {
+      "primary": "∴",
+      "secondary": "·",
+      "accent": "∩",
+      "description": "Desert with sparse vegetation"
+    },
+    "arctic": {
+      "primary": "❄",
+      "secondary": "▒",
+      "accent": "░",
+      "description": "Ice and tundra"
+    },
+    "coastal": {
+      "primary": "░",
+      "secondary": "~",
+      "accent": "≈",
+      "description": "Beach, rivers, grassland"
+    },
+    "mountainous": {
+      "primary": "▲",
+      "secondary": "∩",
+      "accent": "♠",
+      "description": "Peaks, hills, alpine forest"
+    }
+  },
+
+  "map_legends": {
+    "standard": {
+      "Water": {"█": "Deep Ocean", "▓": "Ocean", "▒": "Shallow", "░": "Coast", "~": "River", "○": "Lake"},
+      "Land": {"·": "Plains", "≈": "Grassland", "♠": "Forest", "♣": "Jungle", "∴": "Desert", "❄": "Ice/Snow"},
+      "Elevation": {"∩": "Hills", "▲": "Mountains"},
+      "Urban": {"▪": "Urban", "■": "City", "●": "Metro"}
+    },
+    "simple": {
+      "█": "Ocean",
+      "░": "Coast",
+      "·": "Land",
+      "♠": "Forest",
+      "▲": "Mountain"
+    }
+  },
+
+  "weather_overlays": {
+    "clear": "☀",
+    "cloudy": "☁",
+    "rainy": "🌧",
+    "snowy": "❄",
+    "stormy": "⛈"
+  }
+}

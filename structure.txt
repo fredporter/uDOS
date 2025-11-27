@@ -52,11 +52,20 @@ uDOS/
 │   ├── data/
 │   │   ├── diagrams/
 │   │   ├── graphics/
-│   │   │   ├── teletext/
-│   │   │   │   ├── patterns.md
-│   │   │   │   └── README.md
-│   │   │   ├── ascii_blocks.json
-│   │   │   └── teletext_mosaic.json
+│   │   │   ├── blocks/
+│   │   │   │   ├── borders.json
+│   │   │   │   ├── maps.json
+│   │   │   │   ├── patterns.json
+│   │   │   │   └── teletext.json
+│   │   │   ├── compositions/
+│   │   │   │   ├── fire_methods_grid.txt
+│   │   │   │   ├── shelter_hierarchy_tree.txt
+│   │   │   │   └── water_purification_flow.txt
+│   │   │   ├── templates/
+│   │   │   │   ├── flow_diagram.json
+│   │   │   │   ├── grid_diagram.json
+│   │   │   │   └── tree_diagram.json
+│   │   │   └── README.md
 │   │   ├── help_templates/
 │   │   │   ├── _index.json
 │   │   │   ├── assistant_commands.json
@@ -64,6 +73,8 @@ uDOS/
 │   │   │   ├── grid_commands.json
 │   │   │   ├── README.md
 │   │   │   └── system_commands.json
+│   │   ├── prompts/
+│   │   │   └── gemini_prompts.json
 │   │   ├── templates/
 │   │   │   ├── .env.example
 │   │   │   ├── crud_app.uscript
@@ -75,10 +86,6 @@ uDOS/
 │   │   │   └── user.template.json
 │   │   ├── themes/
 │   │   │   ├── templates/
-│   │   │   │   ├── dark-modern.json
-│   │   │   │   ├── high-contrast.json
-│   │   │   │   ├── light-professional.json
-│   │   │   │   ├── minimal.json
 │   │   │   │   └── README.md
 │   │   │   ├── _index.json
 │   │   │   ├── _schema.json
@@ -98,6 +105,7 @@ uDOS/
 │   │   ├── fonts.json
 │   │   ├── locations.json
 │   │   ├── ucode_variables.json
+│   │   ├── usage_tracker.json
 │   │   └── viewport.json
 │   ├── docs/
 │   │   ├── BLANK-ENHANCED.md
@@ -154,6 +162,7 @@ uDOS/
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
 │   │   ├── gemini_generator.py
+│   │   ├── graphics_compositor.py
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
@@ -218,23 +227,9 @@ uDOS/
 │   └── uDOS_startup.py
 ├── extensions/
 │   ├── api/
-│   │   ├── manager.py
 │   │   ├── README.md
 │   │   └── server.py
 │   ├── assets/
-│   │   ├── css/
-│   │   │   ├── arcade.css
-│   │   │   ├── classic-icons.css
-│   │   │   ├── classic-patterns.css
-│   │   │   ├── classic.css
-│   │   │   ├── synthwave-dos-colors.css
-│   │   │   ├── system-classic.css
-│   │   │   ├── system.css
-│   │   │   ├── typography-system.css
-│   │   │   ├── udos-filepicker.css
-│   │   │   ├── udos-grid.css
-│   │   │   ├── udos-syntax.css
-│   │   │   └── udos-v13-theme.css
 │   │   ├── data/
 │   │   │   ├── worldmap/
 │   │   │   ├── cities.json
@@ -253,6 +248,8 @@ uDOS/
 │   │   │   ├── chicago/
 │   │   │   ├── mallard/
 │   │   │   ├── petme/
+│   │   │   ├── roboto/
+│   │   │   ├── teletext50/
 │   │   │   ├── C64_User_Mono_v1.0-STYLE.woff
 │   │   │   ├── ChicagoFLF.woff
 │   │   │   ├── ChicagoFLF.woff2
@@ -264,63 +261,16 @@ uDOS/
 │   │   │   ├── LICENSE_ASSESSMENT.md
 │   │   │   ├── monaco.woff
 │   │   │   ├── monaco.woff2
+│   │   │   ├── PressStart2P-Regular.ttf
 │   │   │   └── README.md
 │   │   ├── icons/
 │   │   │   ├── coreui/
-│   │   │   ├── apple.svg
-│   │   │   ├── button-default.svg
-│   │   │   ├── button.png
-│   │   │   ├── button.svg
-│   │   │   ├── checkmark.svg
-│   │   │   ├── radio-border-focused.svg
-│   │   │   ├── radio-border.svg
-│   │   │   ├── radio-dot.svg
-│   │   │   ├── README.md
-│   │   │   ├── scrollbar-down-active.svg
-│   │   │   ├── scrollbar-down.svg
-│   │   │   ├── scrollbar-left-active.svg
-│   │   │   ├── scrollbar-left.svg
-│   │   │   ├── scrollbar-right-active.svg
-│   │   │   ├── scrollbar-right.svg
-│   │   │   ├── scrollbar-up-active.svg
-│   │   │   ├── scrollbar-up.svg
-│   │   │   └── select-button.svg
-│   │   ├── js/
-│   │   │   ├── typography-manager.js
-│   │   │   ├── udos-controls.js
-│   │   │   ├── udos-filepicker.js
-│   │   │   ├── udos-option-selector.js
-│   │   │   └── udos-panels.js
-│   │   ├── patterns/
-│   │   │   ├── ascii-double.json
-│   │   │   ├── ascii-simple.json
-│   │   │   ├── ascii-stars.json
-│   │   │   ├── block-thick.json
-│   │   │   ├── block-thin.json
-│   │   │   ├── brick.json
-│   │   │   ├── crosshatch.json
-│   │   │   ├── dos-gradient.json
-│   │   │   ├── dots-dense.json
-│   │   │   ├── dots-sparse.json
-│   │   │   ├── fabric.json
-│   │   │   ├── grid-large.json
-│   │   │   ├── grid-medium.json
-│   │   │   ├── grid-small.json
-│   │   │   ├── mac-checkerboard.json
-│   │   │   ├── metal-mesh.json
-│   │   │   ├── README.md
-│   │   │   ├── stone.json
-│   │   │   ├── teletext-double.json
-│   │   │   ├── teletext-rounded.json
-│   │   │   ├── teletext-single.json
-│   │   │   ├── waves.json
-│   │   │   └── wood-grain.json
+│   │   │   └── README.md
 │   │   ├── CREDITS.md
 │   │   └── README.md
-│   ├── assistant/
-│   │   └── gemini_prompts.json
 │   ├── core/
 │   │   ├── dashboard/
+│   │   │   ├── fonts/
 │   │   │   ├── routes/
 │   │   │   ├── server/
 │   │   │   ├── services/
@@ -338,6 +288,9 @@ uDOS/
 │   │   │   ├── README.md
 │   │   │   └── start.sh
 │   │   ├── desktop/
+│   │   │   ├── fonts/
+│   │   │   ├── icons/
+│   │   │   ├── static/
 │   │   │   ├── CHARACTER-EDITOR-INTEGRATION.md
 │   │   │   ├── CHARACTER-EDITOR-KEYBOARDS.md
 │   │   │   ├── character-editor.html
@@ -349,20 +302,20 @@ uDOS/
 │   │   │   ├── index.html
 │   │   │   ├── KEYBOARD-LAYOUT-REFERENCE.md
 │   │   │   ├── marked-loader.html
+│   │   │   ├── QUICK-REFERENCE.md
 │   │   │   ├── README.md
+│   │   │   ├── STRUCTURE.md
 │   │   │   └── TEST-RESULTS.md
 │   │   ├── ok_assistant/
 │   │   │   ├── __init__.py
 │   │   │   └── gemini_service.py
-│   │   ├── server_manager/
-│   │   │   ├── __init__.py
-│   │   │   └── server.py
 │   │   ├── shared/
 │   │   │   ├── __init__.py
 │   │   │   ├── base_server.py
 │   │   │   └── port_manager.py
 │   │   ├── teletext/
 │   │   │   ├── data/
+│   │   │   ├── fonts/
 │   │   │   ├── static/
 │   │   │   ├── index.html
 │   │   │   ├── README.md
@@ -370,18 +323,12 @@ uDOS/
 │   │   │   ├── start.sh
 │   │   │   └── teletext-synthwave.css
 │   │   ├── terminal/
+│   │   │   ├── fonts/
 │   │   │   ├── static/
-│   │   │   ├── BUILD-SUMMARY.md
 │   │   │   ├── index.html
-│   │   │   ├── QUICK-START.md
-│   │   │   ├── README.md
-│   │   │   ├── start.sh
-│   │   │   ├── terminal.css
-│   │   │   └── test.html
+│   │   │   └── terminal.css
 │   │   ├── CREDITS.md
 │   │   ├── extension_dev_tools.py
-│   │   ├── extension_manager.py
-│   │   ├── extension_metadata_manager.py
 │   │   ├── extensions_server.py
 │   │   ├── launch.sh
 │   │   └── README.md
@@ -410,7 +357,6 @@ uDOS/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
-│   ├── web/
 │   ├── QUICK-REFERENCE.md
 │   ├── README.md
 │   ├── SERVER-MANAGEMENT.md
@@ -419,12 +365,8 @@ uDOS/
 │   ├── checklists/
 │   ├── communication/
 │   ├── community/
-│   ├── demos/
-│   ├── diagrams/
-│   ├── external/
 │   ├── fire/
 │   ├── food/
-│   ├── generated/
 │   ├── making/
 │   ├── medical/
 │   ├── navigation/
@@ -457,7 +399,6 @@ uDOS/
 ├── QUICK-START.md
 ├── README.MD
 ├── requirements.txt
-├── ROADMAP.MD
 ├── setup.py
 ├── start_udos.sh
 ├── structure.txt

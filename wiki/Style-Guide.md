@@ -20,6 +20,8 @@ This document outlines the design and style conventions for uDOS v1.0.0, ensurin
 10. [Map Tile Coordinate System](#10-map-tile-coordinate-system)
 11. [Date, Time, and Location Formats](#11-date-time-and-location-formats)
 12. [Command Reference](#12-command-reference)
+13. [Graphics and Diagrams](#13-graphics-and-diagrams)
+14. [Quick Reference Tables](#14-quick-reference-tables)
 
 ---
 
@@ -1124,6 +1126,329 @@ function adaptGrid() {
 
 ---
 
+## 13. Graphics and Diagrams
+
+**Version:** v1.1.1+ (November 2025)
+**Philosophy:** Text-first, offline-compatible, chunky teletext aesthetic
+
+### Core Principles
+
+1. **ASCII/Teletext Only** - All diagrams use text characters, no images
+2. **Embedded in Markdown** - Diagrams live in guide files, not separate
+3. **Offline Rendering** - Full functionality without internet
+4. **Chunky Aesthetic** - Retro teletext blocks (▐ ▀ ▄) preferred
+5. **Terminal Compatible** - Renders correctly in all terminals
+
+### Diagram Types
+
+#### Flow Diagrams (Process Steps)
+
+**Use For:** Sequential processes, step-by-step instructions, workflows
+
+**Example:**
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐        Pre-Filter (if needed)        ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+                   ┃
+                   ▼
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐               Boiling                ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+                   ┃
+                   ▼
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐          Cooling & Storage           ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+```
+
+**Code:**
+```python
+from core.services.graphics_compositor import create_flow
+
+diagram = create_flow(
+    steps=['Pre-Filter (if needed)', 'Boiling', 'Cooling & Storage'],
+    style='chunky',
+    width=40
+)
+```
+
+#### Tree Diagrams (Hierarchies)
+
+**Use For:** Categories, taxonomies, decision trees, organizational structures
+
+**Example:**
+```
+                Shelter Types
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+     Natural     Constructed    Improvised
+        │             │             │
+    ┌───┼───┐     ┌───┼───┐     ┌───┼───┐
+    ▼   ▼   ▼     ▼   ▼   ▼     ▼   ▼   ▼
+  Cave Rock Tree  Lean A-frame  Tarp Snow
+              Hollow -to   Debris  Shelter Cave
+                          Hut
+```
+
+**Code:**
+```python
+from core.services.graphics_compositor import create_tree
+
+diagram = create_tree(
+    root='Shelter Types',
+    branches={
+        'Natural': ['Cave', 'Rock', 'Tree Hollow'],
+        'Constructed': ['Lean-to', 'A-frame', 'Debris Hut'],
+        'Improvised': ['Tarp Shelter', 'Snow Cave']
+    },
+    style='chunky'
+)
+```
+
+#### Grid Diagrams (Comparisons)
+
+**Use For:** Feature comparisons, specifications, checklists, ratings
+
+**Example:**
+```
+╔════════════╦════════╦════════════╦═══════════╗
+║ Method     ║  Time  ║ Difficulty ║   Tools   ║
+╠════════════╬════════╬════════════╬═══════════╣
+║ Boiling    ║ 10 min ║    Easy    ║ Pot, fire ║
+║ Chemical   ║ 30 min ║    Easy    ║  Tablets  ║
+║ UV Light   ║ 15 min ║   Medium   ║ UV device ║
+║ Filter     ║  5 min ║    Easy    ║   Filter  ║
+╚════════════╩════════╩════════════╩═══════════╝
+```
+
+**Code:**
+```python
+from core.services.graphics_compositor import create_grid
+
+diagram = create_grid(
+    headers=['Method', 'Time', 'Difficulty', 'Tools'],
+    rows=[
+        ['Boiling', '10 min', 'Easy', 'Pot, fire'],
+        ['Chemical', '30 min', 'Easy', 'Tablets'],
+        ['UV Light', '15 min', 'Medium', 'UV device'],
+        ['Filter', '5 min', 'Easy', 'Filter']
+    ],
+    style='chunky'
+)
+```
+
+### Teletext Block Character Set
+
+**Core Blocks:**
+```
+█ ▓ ▒ ░    Solid blocks (dark to light)
+▐ ▀ ▄      Chunky teletext blocks
+▌ ▐        Half blocks (left/right)
+▀ ▄        Half blocks (top/bottom)
+```
+
+**Box Drawing:**
+```
+┌─┐        Light borders
+│ │
+└─┘
+
+╔═╗        Heavy/double borders
+║ ║
+╚═╝
+
+╭─╮        Rounded borders
+│ │
+╰─╯
+```
+
+**Arrows & Connectors:**
+```
+↑ ↓ ← →    Thin arrows
+▲ ▼ ◄ ►    Solid arrows
+┃ ━        Heavy lines
+│ ─        Light lines
+```
+
+**Terrain & Icons:**
+```
+≈          Water/waves
+∩          Hills
+▲          Mountains
+♠ ♣        Trees/forest
+∴          Desert/sand
+· ∙        Dots/points
+● ○        Circles (filled/hollow)
+■ □        Squares (filled/hollow)
+```
+
+### Embedding Diagrams in Guides
+
+**Markdown Structure:**
+```markdown
+# Guide Title
+
+## Overview
+Brief description...
+
+## Step-by-Step Instructions
+1. Step one
+2. Step two
+3. Step three
+
+## Diagram
+
+```
+[ASCII diagram here - no code markers inside]
+```
+
+## Key Points
+- Point 1
+- Point 2
+
+## Sources
+- Source citation
+```
+
+**Best Practices:**
+1. Place diagram after instructions, before key points
+2. Use triple backticks (```) around diagram
+3. No syntax highlighting language (just ```)
+4. Ensure diagram is 80 chars wide max for terminal compatibility
+5. Test rendering in actual terminal
+
+### Style Guidelines
+
+#### Box Styles
+
+| Style | Characters | Use Case |
+|-------|-----------|----------|
+| `chunky` | ▐ ▀ ▄ | Default, teletext aesthetic |
+| `heavy` | ╔ ═ ╗ | Emphasis, warnings |
+| `light` | ┌ ─ ┐ | Subtle, minimal |
+| `double` | ╔ ═ ╗ | Tables, grids |
+| `rounded` | ╭ ─ ╮ | Friendly, modern |
+
+#### Width Standards
+
+- **Narrow:** 30 chars - Mobile/small terminals
+- **Standard:** 40 chars - Default for most diagrams
+- **Wide:** 60 chars - Detailed comparisons
+- **Max:** 80 chars - Terminal compatibility limit
+
+#### Spacing
+
+- **Compact:** No spacing between elements
+- **Standard:** 1 line between boxes (default)
+- **Spacious:** 2+ lines for readability
+
+### Tools & Scripts
+
+**Generate New Guide with Diagram:**
+```bash
+.venv/bin/python sandbox/scripts/generate_knowledge_guide.py \
+    --category water \
+    --title "Water Purification Methods" \
+    --type flow \
+    --complexity beginner
+```
+
+**Add Diagrams to Existing Guides:**
+```bash
+# Refresh single category
+.venv/bin/python sandbox/scripts/refresh_knowledge_diagrams.py knowledge/water/
+
+# Refresh all categories
+.venv/bin/python sandbox/scripts/refresh_knowledge_diagrams.py --all
+```
+
+**Validate Content:**
+```bash
+.venv/bin/python sandbox/scripts/validate_knowledge_content.py --all
+```
+
+**Generate Custom Diagram:**
+```python
+from core.services.graphics_compositor import GraphicsCompositor
+
+gc = GraphicsCompositor()
+
+# Flow diagram
+flow = gc.create_flow(['Step 1', 'Step 2', 'Step 3'], style='chunky', width=40)
+print(flow)
+
+# Save to file
+with open('diagram.txt', 'w') as f:
+    f.write(flow)
+```
+
+### Block Library Reference
+
+**Location:** `core/data/graphics/blocks/`
+
+```
+teletext.json       Core teletext blocks
+├── solid_blocks    █, ▓, ▒, ░
+├── box_drawing     ┌─┐ ╔═╗ ╭─╮
+├── arrows          ↑ ↓ ← → ▲ ▼
+├── icons           ● ○ ■ □ ▪ ▫
+├── geometric       △ ▽ ◇ ◆
+├── terrain         ≈ ∩ ▲ ♠ ♣
+└── mosaic_2x3      ▐ ▀ ▄ (chunky)
+
+borders.json        Border styles
+├── heavy           ▐ ▀ ▄
+├── double          ╔ ═ ╗
+├── light           ┌ ─ ┐
+├── rounded         ╭ ─ ╮
+└── chunky          ▐ ▀ ▄ (default)
+
+patterns.json       Fill patterns
+├── solid           Full blocks
+├── gradient        █ ▓ ▒ ░
+├── checkerboard    Alternating
+└── dots            Sparse
+
+maps.json           Map terrain
+├── terrain_chars   Ocean, land, mountains
+├── biome_patterns  Forest, desert, etc.
+└── gradients       Elevation transitions
+```
+
+### Examples in Knowledge Bank
+
+**Current Coverage (v1.1.1):**
+- Water guides: 17/25 have diagrams (68%)
+- Fire guides: 12/20 have diagrams (60%)
+- Shelter guides: 13/20 have diagrams (65%)
+- Food guides: 12/22 have diagrams (55%)
+- Medical guides: 12/26 have diagrams (46%)
+- Navigation guides: 10/20 have diagrams (50%)
+
+**Example Files:**
+- `knowledge/water/boiling-purification.md` - Flow diagram
+- `knowledge/fire/bow_drill_technique.md` - Flow diagram
+- `knowledge/shelter/lean-to_construction.md` - Flow diagram
+
+### Deprecated: SVG Graphics
+
+**Status:** Removed in v1.1.1 (November 2025)
+
+- 135 SVG files deleted
+- `knowledge/diagrams/` folder removed
+- All graphics now embedded as ASCII/teletext
+- SVG generation deferred to v1.1.2 as optional extension
+
+**Rationale:**
+- Offline-first priority
+- Terminal-native rendering
+- Consistent chunky aesthetic
+- Easier maintenance (text-based)
+
+---
+
 ## 14. Quick Reference Tables
 
 ### Coordinate Format Quick Lookup
@@ -1173,6 +1498,7 @@ function adaptGrid() {
 **Current Style Guide Version:** 1.1.4 (2025-10-31)
 
 **Changelog:**
+- 1.1.5: Added graphics and diagrams system (ASCII/teletext)
 - 1.1.4: Added map tile coordinates, timestamps with location, web grid styles
 - 1.1.3: Integrated Monaspace font system
 - 1.1.2: Consolidated viewport colors from separate document
@@ -1191,6 +1517,6 @@ For updates to this style guide, see the [Contributing Guide](https://github.com
 
 ---
 
-**Last Updated:** October 31, 2025
+**Last Updated:** November 27, 2025
 **Maintainer:** Fred Porter
 **License:** MIT License

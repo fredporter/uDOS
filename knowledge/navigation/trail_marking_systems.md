@@ -103,7 +103,26 @@ These marks are designed to be seen by search teams, often from a distance or fr
 *   **Failing to Adapt:** Not adjusting marking techniques for different terrain (e.g., dense forest vs. open rocky areas).
 *   **Not Knowing Your Hemispheres:** (While not directly related to marking, this applies to broader navigation). Always be aware of your global position for other navigation methods.
 
-### Related Topics
+#
+
+---
+
+## Diagram
+
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐     Mark    ▌▐   Meaning   ▌▐   Material  ▌▐     Use     ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+════════════════════════════════════════════════════════════
+┃    Cairn    ┃ Path continues ┃    Rocks    ┃ Above treeline ┃
+┃    Blaze    ┃ Trail marker ┃ Paint/carve ┃    Trees    ┃
+┃    Arrow    ┃  Direction  ┃ Sticks/rocks ┃  Junctions  ┃
+┃      X      ┃  Wrong way  ┃     Any     ┃   Warnings  ┃
+```
+
+---
+
+## Related Topics
 
 *   **Map Reading & Compass Navigation:** Fundamental skills for planned and unplanned wilderness travel.
 *   **Natural Navigation Signs:** Using the sun, stars, wind patterns, and vegetation to find direction when tools are unavailable.

@@ -6,41 +6,30 @@
 
 ## Overview
 
-[Placeholder - To be generated with GENERATE GUIDE command]
+# Hypothermia Prevention
+
+## Overview
+Hypothermia is a dangerous condition where your body loses heat faster than it can produce it, causing your core body temperature to drop below 95°F (35°C). Prevention is paramount in any survival situation, as it can quickly impair judgment, coordination, and ultimately lead to death. This guide provides actionable steps to maintain your body's warmth and avoid the onset of hypothermia.
 
 ## Materials Needed
-
-- Material 1
-- Material 2
-- Material 3
+*   **Layered Clothing:**
+    *   **Base Layer:** Moisture-wicking material (synthetic, merino wool). Avoid cotton.
+    *   **Middle Layer:** Insulating material (fleece, down, wool).
+    *   **Outer Layer:** Windproof and waterproof shell (Gore-Tex, nylon).
+*   **Headwear:** Insulated hat or balaclava (significant heat loss occurs through the head).
+*   **Gloves/Mittens:** Insulated, waterproof.
+*   **Socks:** Wool or synthetic, multiple pairs.
+*   **Footwear:** Waterproof, insulated boots.
+*   **Emergency Shelter Material:** Tarp, space blanket, large plastic bags, snow shovel (for snow shelters).
+*   **Fire Starting Kit:** Lighter, waterproof matches, ferro rod, tinder, kindling.
+*   **Hydration:** Water bottle, water filter/purification tablets.
+*   **High-Energy Food:** Nuts, dried fruit, energy bars, fats.
+*   **Knife/Multi-tool:** For shelter building, preparing kindling.
+*   **Sleeping Bag/Insulated Pad:** If stationary for extended periods.
 
 ## Step-by-Step Instructions
 
-### Step 1: Preparation
-[Instructions]
-
-### Step 2: Execution
-[Instructions]
-
-### Step 3: Verification
-[Instructions]
-
-## Safety Considerations
-
-- Safety point 1
-- Safety point 2
-- Safety point 3
-
-## Common Mistakes
-
-- Mistake 1
-- Mistake 2
-
-## Related Topics
-
-- Related topic 1
-- Related topic 2
-
----
-
-*Generated as part of v1.4.0 content expansion*
+1.  **Dress in Layers (The "COLD" Principle):**
+    *   **C - Cover:** Cover all exposed skin, especially head, neck, hands, and feet. Use hats, gloves, scarves, and insulated boots.
+    *   **O - Overexertion:** Avoid activities that cause excessive sweating, as wet clothing loses its insulating properties rapidly. If you must exert yourself, remove layers beforehand and put them back on immediately once you stop.
+    *   **L - Layers:** Wear multiple thin layers rather than one thick one. This

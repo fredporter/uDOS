@@ -1,0 +1,64 @@
+{
+  "_comment": "Border styles for boxes, panels, and UI elements",
+
+  "heavy": {
+    "horizontal": "━",
+    "vertical": "┃",
+    "top_left": "┏",
+    "top_right": "┓",
+    "bottom_left": "┗",
+    "bottom_right": "┛",
+    "name": "Heavy borders (bold, chunky)"
+  },
+
+  "double": {
+    "horizontal": "═",
+    "vertical": "║",
+    "top_left": "╔",
+    "top_right": "╗",
+    "bottom_left": "╚",
+    "bottom_right": "╝",
+    "name": "Double borders (elegant)"
+  },
+
+  "light": {
+    "horizontal": "─",
+    "vertical": "│",
+    "top_left": "┌",
+    "top_right": "┐",
+    "bottom_left": "└",
+    "bottom_right": "┘",
+    "name": "Light borders (minimal)"
+  },
+
+  "rounded": {
+    "horizontal": "─",
+    "vertical": "│",
+    "top_left": "╭",
+    "top_right": "╮",
+    "bottom_left": "╰",
+    "bottom_right": "╯",
+    "name": "Rounded borders (soft)"
+  },
+
+  "block": {
+    "horizontal": "▀",
+    "vertical": "█",
+    "top_left": "█",
+    "top_right": "█",
+    "bottom_left": "█",
+    "bottom_right": "█",
+    "name": "Solid block borders (chunky teletext)"
+  },
+
+  "shadow": {
+    "horizontal": "─",
+    "vertical": "│",
+    "top_left": "┌",
+    "top_right": "┐",
+    "bottom_left": "└",
+    "bottom_right": "┘",
+    "shadow_char": "▓",
+    "name": "Borders with drop shadow"
+  }
+}

@@ -6,41 +6,37 @@
 
 ## Overview
 
-[Placeholder - To be generated with GENERATE GUIDE command]
+# Plant Poisons: Identification and Emergency Response
+
+## Overview
+
+Encountering poisonous plants is a significant risk in survival situations. Ingesting or coming into contact with toxic flora can lead to severe illness, incapacitation, or even death. This guide provides essential steps for identifying potential threats, recognizing symptoms of poisoning, and administering immediate first aid when professional medical help is unavailable.
 
 ## Materials Needed
 
-- Material 1
-- Material 2
-- Material 3
+*   **Knowledge:** The most critical tool. Familiarize yourself with common poisonous plants in your region *before* a survival situation.
+*   **First-Aid Kit:**
+    *   **Activated Charcoal:** Essential for absorbing many ingested toxins.
+    *   **Emetic (optional, use with extreme caution):** Such as syrup of ipecac (if available and not expired), or a strong saltwater solution (1-2 tablespoons salt in a glass of warm water).
+    *   **Antihistamines:** For allergic reactions or skin rashes (e.g., diphenhydramine).
+    *   **Pain Relievers:** For discomfort.
+    *   **Anti-diarrhea medication.**
+    *   **Bandages and antiseptic wipes.**
+*   **Water:** For washing, drinking, and mixing solutions.
+*   **Container/Bag:** To collect plant samples for identification.
+*   **Gloves:** To handle unknown plants safely.
+*   **Field Guide:** A local plant identification guide (if available and practical to carry).
 
 ## Step-by-Step Instructions
 
-### Step 1: Preparation
-[Instructions]
+### 1. Prevention and Identification
 
-### Step 2: Execution
-[Instructions]
+The best defense is prevention.
+*   **"When in doubt, don't eat it."** This is the golden rule. Avoid consuming any plant you cannot positively identify as safe.
+*   **Learn Local Flora:** Prioritize learning about common poisonous plants in your expected survival environment (e.g., poison ivy/oak, hemlock, nightshade, oleander, castor bean). Focus on their appearance, habitat, and toxic parts.
+*   **Observe Animal Behavior:** While not foolproof, observe what local animals eat. However, some animals can consume plants toxic to humans.
 
-### Step 3: Verification
-[Instructions]
+### 2. Recognize Symptoms of Poisoning
 
-## Safety Considerations
-
-- Safety point 1
-- Safety point 2
-- Safety point 3
-
-## Common Mistakes
-
-- Mistake 1
-- Mistake 2
-
-## Related Topics
-
-- Related topic 1
-- Related topic 2
-
----
-
-*Generated as part of v1.4.0 content expansion*
+Symptoms vary widely but often include:
+*   **Gastrointestinal:** Nausea, vomiting, diarrhea,

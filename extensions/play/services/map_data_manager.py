@@ -121,8 +121,11 @@ class MapDataManager:
         # Load data
         self.terrain_types = self._load_json("terrain_types.json")
         self.cities = self._load_cities()
-        self.ascii_blocks = self._load_json("ascii_blocks.json", self.graphics_dir)
-        self.teletext_mosaic = self._load_json("teletext_mosaic.json", self.graphics_dir)
+        # Consolidated blocks (includes all ASCII blocks + mosaic patterns)
+        blocks_data = self._load_json("blocks/teletext.json", self.graphics_dir)
+        self.ascii_blocks = blocks_data
+        # Mosaic patterns are now in blocks_data['mosaic_2x3']
+        self.teletext_mosaic = blocks_data.get('mosaic_2x3', {})
 
         # TILE grid parameters
         self.tile_size = 1.0  # degrees (latitude/longitude)

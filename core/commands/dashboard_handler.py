@@ -84,7 +84,7 @@ class DashboardHandler(BaseCommandHandler):
 
         # Import ServerManager if available
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
 
             any_running = False

@@ -92,7 +92,26 @@ This guide focuses on non-pharmacological methods to alleviate or reduce pain in
 *   **Lack of Hydration/Nutrition:** Depriving the body of essential resources for healing.
 *   **Panicking or Dwelling on Pain:** While understandable, this can intensify the perception of pain and deplete mental resources.
 
-### Related Topics
+#
+
+---
+
+## Diagram
+
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐    Method   ▌▐     Type    ▌▐ Effectiveness ▌▐     Time    ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+════════════════════════════════════════════════════════════
+┃ Cold compress ┃    Acute    ┃     High    ┃   Minutes   ┃
+┃     Heat    ┃   Chronic   ┃    Medium   ┃  15-20 min  ┃
+┃   Pressure  ┃    Acute    ┃    Medium   ┃  Immediate  ┃
+┃ Distraction ┃     Any     ┃   Low-Med   ┃   Ongoing   ┃
+```
+
+---
+
+## Related Topics
 
 *   Splinting Techniques
 *   Basic Trauma Assessment

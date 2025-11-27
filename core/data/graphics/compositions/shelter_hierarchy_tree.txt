@@ -1,0 +1,30 @@
+"""
+Shelter Types Hierarchy - Tree Diagram
+Demonstrates branching tree structure with teletext blocks
+"""
+
+        ▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+        ▐  Emergency Shelter  ▌
+        ▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+                  ┃
+                  ┃
+        ┏━━━━━━━━━╋━━━━━━━━━┓
+        ┃         ┃         ┃
+        ┃         ┃         ┃
+    ┏━━━━━━━┓ ┏━━━━━━━┓ ┏━━━━━━━┓
+    ┃Natural┃ ┃Construct┃ ┃Improvised┃
+    ┗━━━━━━━┛ ┗━━━━━━━┛ ┗━━━━━━━┛
+        ┃         ┃         ┃
+        ┣━ Cave   ┣━ Lean-to ┣━ Tarp
+        ┃         ┃         ┃
+        ┣━ Tree   ┣━ Debris  ┣━ Snow
+        ┃  hollow ┃  hut     ┃  cave
+        ┃         ┃         ┃
+        ┗━ Rock   ┗━ A-frame ┗━ Dugout
+           overhang
+
+KEY:
+▐ ▌ = Primary category (chunky)
+┏━┓ = Subcategory (heavy border)
+━   = Branch connector
+┣━  = Item connector

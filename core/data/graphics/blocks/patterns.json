@@ -1,0 +1,35 @@
+{
+  "_comment": "Fill patterns and textures for teletext diagrams",
+
+  "fills": {
+    "solid": "█",
+    "light": "░",
+    "medium": "▒",
+    "dark": "▓",
+    "dots": "··",
+    "checkerboard": "▒░",
+    "horizontal": "─",
+    "vertical": "│",
+    "diagonal_right": "╱",
+    "diagonal_left": "╲",
+    "cross_hatch": "╳"
+  },
+
+  "backgrounds": {
+    "water": "░░░",
+    "fire": "▒▓▒",
+    "earth": "▓▒░",
+    "air": "···",
+    "wood": "║│║",
+    "stone": "▓▓▒"
+  },
+
+  "separators": {
+    "thin": "─────────────────────────────────────────",
+    "thick": "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "double": "═════════════════════════════════════════",
+    "dotted": "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄",
+    "dashed": "╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌",
+    "wavy": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  }
+}

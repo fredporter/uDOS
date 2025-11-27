@@ -585,6 +585,21 @@ Composting transforms kitchen scraps and yard waste into nutrient-rich soil amen
 
 ---
 
+## Diagram
+
+```
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐    Method   ▌▐     Time    ▌▐    Effort   ▌▐ Kills Seeds ▌▐   Best For  ▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+═══════════════════════════════════════════════════════════════════════════
+┃     Hot     ┃    2-3 mo   ┃     High    ┃     Yes     ┃ Fast results ┃
+┃     Cold    ┃   6-12 mo   ┃     Low     ┃      No     ┃  Easy/lazy  ┃
+┃     Worm    ┃    3-6 mo   ┃    Medium   ┃      No     ┃   Indoors   ┃
+┃    Trench   ┃   6-12 mo   ┃     Low     ┃      No     ┃  In-ground  ┃
+```
+
+---
+
 **Related Guides**:
 - Soil Building Techniques
 - Vermicomposting Details

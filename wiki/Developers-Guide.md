@@ -104,6 +104,29 @@ core/                           # Core system (required)
     └── diagram_utils.py       # ASCII/diagram helpers
 ```
 
+#### Data & Graphics
+```
+core/data/                      # Core data files
+├── graphics/                   # Graphics system (v1.1.1+)
+│   ├── blocks/                # Teletext block library
+│   │   ├── teletext.json      # Core blocks (solid, arrows, etc.)
+│   │   ├── borders.json       # Border styles (heavy, chunky, etc.)
+│   │   ├── patterns.json      # Fill patterns
+│   │   └── maps.json          # Map terrain patterns
+│   ├── templates/             # Diagram templates
+│   │   ├── flow_diagram.json  # Vertical process flows
+│   │   ├── tree_diagram.json  # Hierarchical structures
+│   │   └── grid_diagram.json  # Comparison tables
+│   ├── compositions/          # Example diagrams
+│   │   ├── water_purification_flow.txt
+│   │   ├── shelter_hierarchy_tree.txt
+│   │   └── fire_methods_grid.txt
+│   └── README.md              # Graphics system docs
+├── themes/                     # Theme definitions
+├── templates/                  # Content templates
+└── config/                     # System configuration
+```
+
 #### Extensions
 ```
 extensions/                     # Extension system
@@ -133,15 +156,18 @@ extensions/                     # Extension system
 #### Knowledge & Documentation
 ```
 knowledge/                      # Knowledge bank (read-only system)
-├── water/                      # Water (26 guides)
-├── fire/                       # Fire (20 guides)
-├── shelter/                    # Shelter (20 guides)
-├── food/                       # Food (23 guides)
-├── navigation/                 # Navigation (20 guides)
-├── medical/                    # Medical (27 guides)
-├── diagrams/                   # Multi-format diagrams
-├── system/                     # System knowledge
+├── water/                      # Water (25 guides with diagrams)
+├── fire/                       # Fire (20 guides with diagrams)
+├── shelter/                    # Shelter (20 guides with diagrams)
+├── food/                       # Food (22 guides with diagrams)
+├── navigation/                 # Navigation (20 guides with diagrams)
+├── medical/                    # Medical (26 guides with diagrams)
+├── skills/                     # Skills & techniques
+├── making/                     # Crafting & tools
+├── checklists/                 # Reference checklists
+├── reference/                  # Reference materials
 └── demos/                      # Examples & tutorials
+# Note: All diagrams are now embedded as ASCII/teletext in .md files
 
 wiki/                           # Wiki documentation
 ├── Home.md
@@ -1172,6 +1198,291 @@ themes.create_theme(
 - `mac-os` - Classic Mac (monochrome)
 - `terminal` - Green phosphor
 - `amber` - Amber monitor
+
+### Graphics System API (v1.1.1+)
+
+#### GraphicsCompositor - ASCII/Teletext Diagram Generation
+
+```python
+from core.services.graphics_compositor import GraphicsCompositor
+
+# Initialize compositor
+gc = GraphicsCompositor()
+
+# Create flow diagram (vertical process)
+flow = gc.create_flow(
+    steps=['Collect water', 'Filter', 'Boil', 'Cool', 'Store'],
+    style='chunky',  # chunky, heavy, light
+    width=40
+)
+print(flow)
+# Output:
+# ▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+# ▐           Collect water              ▌
+# ▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+#                    ┃
+#                    ▼
+# ▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+# ▐              Filter                  ▌
+# ▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+# ... etc
+
+# Create tree diagram (hierarchy)
+tree = gc.create_tree(
+    root='Shelter Types',
+    branches={
+        'Natural': ['Cave', 'Rock overhang', 'Tree hollow'],
+        'Constructed': ['Lean-to', 'A-frame', 'Debris hut'],
+        'Improvised': ['Tarp shelter', 'Snow cave']
+    },
+    style='chunky',
+    width=50
+)
+
+# Create grid diagram (comparison table)
+grid = gc.create_grid(
+    headers=['Method', 'Time', 'Difficulty', 'Tools'],
+    rows=[
+        ['Boiling', '10 min', 'Easy', 'Pot, fire'],
+        ['Chemical', '30 min', 'Easy', 'Tablets'],
+        ['UV Light', '15 min', 'Medium', 'UV device'],
+        ['Filter', '5 min', 'Easy', 'Filter']
+    ],
+    style='chunky'
+)
+
+# Create simple box
+box = gc.create_box(
+    width=30,
+    height=5,
+    label='Water Storage',
+    style='heavy'  # heavy, light, double, rounded
+)
+
+# Create chunky teletext box
+chunky_box = gc.create_chunky_box(
+    width=35,
+    label='⚠ SAFETY WARNING'
+)
+
+# Create label with connector
+label = gc.create_label('Start here', width=20)
+
+# Create arrow connector
+arrow = gc.create_arrow_connector(direction='down')  # down, up, right, left
+```
+
+**Convenience Functions:**
+
+```python
+from core.services.graphics_compositor import (
+    create_flow,
+    create_tree,
+    create_grid,
+    create_box
+)
+
+# Direct function calls (same as using GraphicsCompositor)
+diagram = create_flow(['Step 1', 'Step 2', 'Step 3'], style='chunky')
+```
+
+**Block Library Structure:**
+
+```python
+# Located at: core/data/graphics/blocks/
+
+teletext.json       # Core teletext blocks
+├── solid_blocks    # █, ▓, ▒, ░
+├── box_drawing     # ┌─┐ ╔═╗ ╭─╮
+├── arrows          # ↑ ↓ ← → ▲ ▼
+├── icons           # ● ○ ■ □ ▪ ▫
+├── geometric       # △ ▽ ◇ ◆
+├── terrain         # ≈ ∩ ▲ ♠ ♣
+├── special         # ☀ ☁ ❄ 🌧
+└── mosaic_2x3      # Chunky teletext blocks
+
+borders.json        # Border styles
+├── heavy           # ▐ ▀ ▄
+├── double          # ╔ ═ ╗
+├── light           # ┌ ─ ┐
+├── rounded         # ╭ ─ ╮
+├── block           # █ (solid)
+└── chunky          # ▐ ▀ ▄ (teletext)
+
+patterns.json       # Fill patterns
+├── solid           # Full blocks
+├── gradient        # █ ▓ ▒ ░
+├── checkerboard    # Alternating
+└── dots            # Sparse fill
+
+maps.json           # Map-specific patterns
+├── terrain_chars   # Ocean, land, mountains
+├── gradient_sequences
+├── biome_patterns
+└── map_legends
+```
+
+**Diagram Templates:**
+
+```python
+# Located at: core/data/graphics/templates/
+
+flow_diagram.json   # Vertical process flows
+tree_diagram.json   # Hierarchical structures
+grid_diagram.json   # Comparison tables
+```
+
+**See Also:**
+- `core/data/graphics/README.md` - Complete graphics system documentation
+- `sandbox/docs/teletext-patterns-reference.md` - Pattern examples
+- `sandbox/scripts/generate_diagram.py` - CLI diagram generator
+
+### Content Generation Workflow
+
+#### Knowledge Guide Generator
+
+```python
+# Use the guide generator script
+# Located at: sandbox/scripts/generate_knowledge_guide.py
+
+# Generate guide with flow diagram
+.venv/bin/python sandbox/scripts/generate_knowledge_guide.py \
+    --category water \
+    --title "Boiling Water Purification" \
+    --type flow \
+    --complexity beginner \
+    --output knowledge/water/boiling_water.md
+
+# Generate guide with tree diagram
+.venv/bin/python sandbox/scripts/generate_knowledge_guide.py \
+    --category shelter \
+    --title "Shelter Type Selection" \
+    --type tree \
+    --complexity intermediate
+
+# Generate guide with grid diagram
+.venv/bin/python sandbox/scripts/generate_knowledge_guide.py \
+    --category fire \
+    --title "Fire Starting Methods Comparison" \
+    --type grid \
+    --complexity beginner
+```
+
+**Programmatic Generation:**
+
+```python
+from core.services.graphics_compositor import create_flow
+
+# Generate guide content
+guide_content = f"""# Water Purification: Boiling Method
+
+**Category:** Water
+**Complexity:** Beginner
+**Time Required:** 15-30 minutes
+
+## Overview
+
+Boiling is the most reliable method of water purification in survival situations.
+
+## Step-by-Step Instructions
+
+### 1. Pre-Filter
+Remove large debris and sediment from water.
+
+### 2. Boil
+Heat water to rolling boil for 1-3 minutes.
+
+### 3. Cool
+Allow water to cool to safe drinking temperature.
+
+### 4. Store
+Store in clean, covered container.
+
+## Diagram
+
+```
+{create_flow(['Pre-Filter', 'Boil', 'Cool', 'Store'], style='chunky', width=40)}
+```
+
+## Key Points
+
+- Kills 99.9% of pathogens
+- No special equipment needed
+- Works at any altitude (adjust time)
+- Does not remove chemicals
+
+## Sources
+
+- WHO Water Treatment Guidelines (2022)
+- Wilderness Medicine Handbook
+"""
+
+# Save to file
+with open('knowledge/water/boiling_purification.md', 'w') as f:
+    f.write(guide_content)
+```
+
+#### Diagram Refresh Script
+
+```python
+# Use the refresh script to add diagrams to existing guides
+# Located at: sandbox/scripts/refresh_knowledge_diagrams.py
+
+# Refresh single category
+.venv/bin/python sandbox/scripts/refresh_knowledge_diagrams.py knowledge/water/
+
+# Refresh all categories
+.venv/bin/python sandbox/scripts/refresh_knowledge_diagrams.py --all
+
+# Dry run (preview changes)
+.venv/bin/python sandbox/scripts/refresh_knowledge_diagrams.py --all --dry-run
+```
+
+#### Content Validator
+
+```python
+# Validate knowledge content
+# Located at: sandbox/scripts/validate_knowledge_content.py
+
+# Validate single category
+.venv/bin/python sandbox/scripts/validate_knowledge_content.py knowledge/water/
+
+# Validate all categories
+.venv/bin/python sandbox/scripts/validate_knowledge_content.py --all
+
+# Check for:
+# - Missing required sections
+# - Placeholder text ([FILL IN])
+# - Missing sources/citations
+# - Safety warnings
+# - Formatting issues
+```
+
+**Content Generation Best Practices:**
+
+1. **Use Templates** - Start with generated template, fill in details
+2. **Add Diagrams Early** - Create diagram while writing steps
+3. **Validate Often** - Run validator frequently during development
+4. **Cross-Reference** - Link related guides
+5. **Cite Sources** - Always include source citations
+6. **Test Rendering** - View in terminal to check ASCII rendering
+
+**Knowledge Bank Organization:**
+
+```
+knowledge/
+├── water/          # 25 guides, 17 with diagrams
+├── fire/           # 20 guides, 12 with diagrams
+├── shelter/        # 20 guides, 13 with diagrams
+├── food/           # 22 guides, 12 with diagrams
+├── medical/        # 26 guides, 12 with diagrams
+├── navigation/     # 20 guides, 10 with diagrams
+├── skills/         # Expandable category
+└── making/         # Expandable category
+
+# Current: 133 guides total, 78 with embedded diagrams (59%)
+# Target: 500+ guides, 100% diagram coverage
+```
 - `paper` - White/sepia
 
 ### Command System API
@@ -1573,7 +1884,7 @@ Related to #456
 
 ---
 
-**Last Updated:** November 26, 2025
-**Version:** v1.0.0
+**Last Updated:** November 27, 2025
+**Version:** v1.1.1
 
 🔧 *This guide provides everything developers need to contribute to uDOS, from architecture understanding to practical API usage and extension development.*

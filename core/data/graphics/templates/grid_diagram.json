@@ -1,0 +1,40 @@
+{
+  "_comment": "Grid/table diagram template with chunky styling",
+  "_style": "structured grid with headers and cells",
+
+  "config": {
+    "cell_width": 15,
+    "cell_height": 2,
+    "border_style": "heavy",
+    "header_style": "chunky"
+  },
+
+  "components": {
+    "header_cell": {
+      "top": "▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌",
+      "middle": "▐ {label:^11} ▌",
+      "bottom": "▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌"
+    },
+    "data_cell": {
+      "top": "┏━━━━━━━━━━━━━┓",
+      "middle": "┃ {value:^11} ┃",
+      "bottom": "┗━━━━━━━━━━━━━┛"
+    },
+    "separators": {
+      "horizontal": "━",
+      "vertical": "┃",
+      "cross": "╋"
+    }
+  },
+
+  "example": {
+    "title": "Fire Starting Methods Comparison",
+    "headers": ["Method", "Difficulty", "Time", "Materials"],
+    "rows": [
+      ["Friction", "Hard", "5-15min", "Dry wood"],
+      ["Flint/Steel", "Medium", "1-3min", "Flint, steel"],
+      ["Magnifier", "Easy", "30sec", "Glass, sun"],
+      ["Fire plow", "Hard", "10-20min", "Soft wood"]
+    ]
+  }
+}

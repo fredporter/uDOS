@@ -384,7 +384,7 @@ class FileCommandHandler(BaseCommandHandler):
             # Open in Typo preview mode for markdown files
             if file_path.endswith('.md'):
                 try:
-                    from extensions.core.server_manager.server import ServerManager
+                    from extensions.server_manager import ServerManager
                     mgr = ServerManager()
                     success, msg = mgr.start_markdown_viewer(open_browser=True, file_path=abs_path)
                     if success:

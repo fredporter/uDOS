@@ -1533,6 +1533,10 @@ class UCodeInterpreter:
         if line.upper() == 'VARS' or line.upper() == 'VARIABLES':
             return self._handle_vars()
 
+        # Handle PRINT command (modern output)
+        if line.upper().startswith('PRINT '):
+            return self._handle_print(line)
+
         # Handle uCODE format [MODULE|COMMAND*PARAMS]
         if line.startswith('[') and line.endswith(']'):
             return self._execute_ucode(line)
@@ -1668,6 +1672,57 @@ class UCodeInterpreter:
         lines.append(f"Total: {len(variables)} variable(s)")
 
         return "\n".join(lines)
+
+    def _handle_print(self, line: str) -> str:
+        """
+        Handle PRINT command with template string support.
+
+        Syntax:
+            PRINT "text"
+            PRINT "Value: ${var}"
+            PRINT variable_name
+
+        Args:
+            line: PRINT command line
+
+        Returns:
+            Output string (printed value)
+        """
+        content = line[6:].strip()  # Remove "PRINT "
+
+        if not content:
+            return ""  # Empty PRINT just outputs blank line
+
+        # Check if it's a quoted string
+        if (content.startswith('"') and content.endswith('"')) or \
+           (content.startswith("'") and content.endswith("'")):
+            # Remove quotes
+            text = content[1:-1]
+
+            # Substitute ${var} template strings
+            # Pattern: ${variable_name}
+            template_pattern = r'\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}'
+
+            def replace_var(match):
+                var_name = match.group(1)
+                # Check if variable exists
+                if self.current_scope.has(var_name):
+                    value = self.get_variable(var_name)
+                    return str(value)
+                else:
+                    return f"${{{var_name}}}"  # Keep original if not found
+
+            text = re.sub(template_pattern, replace_var, text)
+            return text
+        else:
+            # Treat as variable name or expression
+            # Check if variable exists
+            if self.current_scope.has(content):
+                value = self.get_variable(content)
+                return str(value)
+            else:
+                # Not a variable, return as-is
+                return content
 
     def _handle_import(self, line: str) -> str:
         """Handle IMPORT command for module loading."""

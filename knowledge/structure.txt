@@ -32,112 +32,6 @@ knowledge/
 │   ├── local-resilience/
 │   ├── mutual-aid/
 │   └── README.md
-├── demos/
-│   ├── teletext_clone_bundle_with_blocks/
-│   │   ├── index.html
-│   │   ├── README.md
-│   │   ├── teletext.css
-│   │   └── teletext.js
-│   ├── advanced_features.uscript
-│   ├── hello-automation.uscript
-│   ├── library_example.uscript
-│   ├── option_selector_demo.py
-│   ├── panel_demo.uscript
-│   ├── README.md
-│   ├── selector_validation.py
-│   ├── simple-setup.uscript
-│   ├── task_manager.uscript
-│   ├── terminal_compatibility.py
-│   └── unified_selector_demo.py
-├── diagrams/
-│   ├── ascii/
-│   │   ├── bow-drill-components.txt
-│   │   ├── debris-hut-construction.txt
-│   │   ├── edible-vs-poisonous-plants.txt
-│   │   ├── fire-lay-configurations.txt
-│   │   ├── fire-triangle.txt
-│   │   ├── fish-trap-construction.txt
-│   │   ├── food-preservation-methods.txt
-│   │   ├── heart-anatomy.txt
-│   │   ├── lean-to-shelter.txt
-│   │   ├── shadow-stick-method.txt
-│   │   ├── star-navigation-basics.txt
-│   │   ├── tarp-shelter-configurations.txt
-│   │   └── water-filter.txt
-│   ├── communication/
-│   │   ├── ground-to-air-signals.svg
-│   │   ├── nato-phonetic-alphabet.svg
-│   │   ├── signal-mirror-technique.svg
-│   │   ├── three-fire-triangle.svg
-│   │   └── whistle-signal-codes.svg
-│   ├── fire/
-│   │   ├── bow-drill-components.svg
-│   │   ├── fire-triangle-mac-os.svg
-│   │   ├── fire-triangle-organic.svg
-│   │   ├── fire-triangle-technical.svg
-│   │   ├── grayscale-techniques-demo.svg
-│   │   ├── pattern-library-test-creative.svg
-│   │   └── simple-fire-triangle-diagram.svg
-│   ├── food/
-│   │   ├── edible-vs-poisonous-plants.svg
-│   │   ├── fish-trap-construction.svg
-│   │   └── plant-test-mac-os.svg
-│   ├── medical/
-│   │   ├── arterial-pressure-points.svg
-│   │   ├── burn-classification.svg
-│   │   ├── cpr-steps-mac-os.svg
-│   │   ├── heart-anatomy-detailed.svg
-│   │   ├── march-protocol.svg
-│   │   ├── recovery-position.svg
-│   │   ├── shock-treatment.svg
-│   │   └── tourniquet-application-mac-os.svg
-│   ├── navigation/
-│   │   ├── compass-basics.svg
-│   │   ├── handrail-navigation.svg
-│   │   ├── north-star-polaris.svg
-│   │   ├── shadow-stick-method.svg
-│   │   └── terrain-association.svg
-│   ├── shelter/
-│   │   ├── debris-hut-construction.svg
-│   │   ├── lean-to-shelter.svg
-│   │   ├── setup-checklist-ui.svg
-│   │   └── shelter-priorities-mac-os.svg
-│   ├── system/
-│   │   └── ui-components-demo.svg
-│   ├── teletext/
-│   │   ├── fire-triangle.html
-│   │   ├── heart-anatomy.html
-│   │   ├── star-navigation-basics.html
-│   │   └── water-filter.html
-│   ├── tools/
-│   │   ├── axe-techniques.svg
-│   │   ├── bow-saw-construction.svg
-│   │   ├── essential-knots.svg
-│   │   ├── improvised-tools.svg
-│   │   ├── knife-safety-mac-os.svg
-│   │   ├── saw-technique.svg
-│   │   ├── sharpening-technique.svg
-│   │   └── tool-maintenance.svg
-│   ├── water/
-│   │   ├── boiling-requirements.svg
-│   │   ├── chemical-purification.svg
-│   │   ├── collection-methods.svg
-│   │   ├── dehydration-signs.svg
-│   │   ├── diy-water-filter.svg
-│   │   ├── purification-decision-ui.svg
-│   │   ├── sodis-uv-purification.svg
-│   │   ├── solar-still-mac-os.svg
-│   │   ├── water-filter-technical.svg
-│   │   ├── water-purification-multi-barrier-monochrome.svg
-│   │   └── water-storage.svg
-│   ├── .DS_Store
-│   ├── fire_triangle_technical.svg
-│   ├── heart_teletext.html
-│   ├── README.md
-│   ├── tree_organic.svg
-│   └── water_filter_ascii.txt
-├── external/
-│   └── README.md
 ├── fire/
 │   ├── bow_drill_technique.md
 │   ├── char_cloth_preparation.md
@@ -184,11 +78,6 @@ knowledge/
 │   ├── wild-edible-basics.md
 │   ├── wild_edible_roots_and_tubers.md
 │   └── wild_game_preparation.md
-├── generated/
-│   ├── test_ascii_art.ascii
-│   ├── test_teletext.html
-│   ├── test_water_purification.md
-│   └── test_water_purification.svg
 ├── making/
 │   ├── basic-woodworking.md
 │   ├── README.md
@@ -246,95 +135,6 @@ knowledge/
 │   ├── watch_navigation_technique.md
 │   └── weather_pattern_navigation.md
 ├── reference/
-│   ├── diagrams/
-│   │   ├── communication/
-│   │   │   ├── community_coordination.svg
-│   │   │   ├── emergency_communication.svg
-│   │   │   ├── hand_signals.svg
-│   │   │   ├── message_systems.svg
-│   │   │   ├── mirror_signals.svg
-│   │   │   ├── morse_code.svg
-│   │   │   ├── radio_basics.svg
-│   │   │   ├── security_protocols.svg
-│   │   │   ├── smoke_signals.svg
-│   │   │   └── whistle_codes.svg
-│   │   ├── fire/
-│   │   │   ├── cooking_fires.svg
-│   │   │   ├── fire_in_wet_conditions.svg
-│   │   │   ├── fire_maintenance.svg
-│   │   │   ├── fire_safety_zones.svg
-│   │   │   ├── fire_starter_materials.svg
-│   │   │   ├── fire_starting_techniques.svg
-│   │   │   ├── friction_fire_methods.svg
-│   │   │   ├── signal_fires.svg
-│   │   │   ├── smokeless_fires.svg
-│   │   │   └── tinder_preparation.svg
-│   │   ├── food/
-│   │   │   ├── cooking_methods.svg
-│   │   │   ├── drying_foods.svg
-│   │   │   ├── edible_plants_identification.svg
-│   │   │   ├── fishing_techniques.svg
-│   │   │   ├── food_preservation.svg
-│   │   │   ├── foraging_safety.svg
-│   │   │   ├── nutrition_planning.svg
-│   │   │   ├── smoking_meat.svg
-│   │   │   ├── trapping_basics.svg
-│   │   │   └── wild_game_preparation.svg
-│   │   ├── medical/
-│   │   │   ├── burns_treatment.svg
-│   │   │   ├── emergency_cpr.svg
-│   │   │   ├── first_aid_basics.svg
-│   │   │   ├── fracture_treatment.svg
-│   │   │   ├── heat_exhaustion.svg
-│   │   │   ├── hypothermia_prevention.svg
-│   │   │   ├── plant_poisons.svg
-│   │   │   ├── snake_bites.svg
-│   │   │   ├── wilderness_medicine.svg
-│   │   │   └── wound_care.svg
-│   │   ├── navigation/
-│   │   │   ├── compass_use.svg
-│   │   │   ├── map_reading.svg
-│   │   │   ├── natural_navigation.svg
-│   │   │   ├── rescue_signals.svg
-│   │   │   ├── route_planning.svg
-│   │   │   ├── signaling_techniques.svg
-│   │   │   ├── sos_procedures.svg
-│   │   │   ├── star_navigation.svg
-│   │   │   ├── sun_navigation.svg
-│   │   │   └── terrain_features.svg
-│   │   ├── shelter/
-│   │   │   ├── a-frame_shelters.svg
-│   │   │   ├── debris_huts.svg
-│   │   │   ├── emergency_shelters.svg
-│   │   │   ├── insulation_techniques.svg
-│   │   │   ├── knot_tying.svg
-│   │   │   ├── lashing_techniques.svg
-│   │   │   ├── lean-to_construction.svg
-│   │   │   ├── shelter_site_selection.svg
-│   │   │   ├── shelter_ventilation.svg
-│   │   │   └── weatherproofing.svg
-│   │   ├── tools/
-│   │   │   ├── axe_use_and_safety.svg
-│   │   │   ├── cordage_techniques.svg
-│   │   │   ├── equipment_care.svg
-│   │   │   ├── knife_maintenance.svg
-│   │   │   ├── makeshift_tools.svg
-│   │   │   ├── multi-tool_uses.svg
-│   │   │   ├── rope_making.svg
-│   │   │   ├── saw_techniques.svg
-│   │   │   ├── tool_repairs.svg
-│   │   │   └── tool_sharpening.svg
-│   │   └── water/
-│   │       ├── emergency_water_sources.svg
-│   │       ├── finding_water_sources.svg
-│   │       ├── rainwater_collection.svg
-│   │       ├── solar_still_construction.svg
-│   │       ├── water_conservation.svg
-│   │       ├── water_filtration_systems.svg
-│   │       ├── water_purification_methods.svg
-│   │       ├── water_quality_testing.svg
-│   │       ├── water_storage_techniques.svg
-│   │       └── well_digging_basics.svg
 │   ├── edible-plants-australia.md
 │   ├── essential-knots.md
 │   ├── fire-starting-methods-comparison.md
@@ -368,10 +168,6 @@ knowledge/
 │   ├── underground_shelters.md
 │   └── weatherproofing.md
 ├── skills/
-│   ├── art/
-│   ├── music/
-│   ├── writing/
-│   ├── basic-budgeting-guide.md
 │   ├── sewing-mending-basics.md
 │   └── tool-skills-maintenance.md
 ├── survival/
@@ -453,10 +249,6 @@ knowledge/
 │   ├── water_storage_techniques.md
 │   └── well_digging_basics.md
 ├── well-being/
-│   ├── mental-health/
-│   ├── mindfulness/
-│   ├── physical-health/
-│   ├── relationships/
 │   ├── README.md
 │   ├── sleep-hygiene-optimization.md
 │   └── stress-management-resilience.md

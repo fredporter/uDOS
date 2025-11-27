@@ -2106,7 +2106,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_list(self):
         """List all available web extensions."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
             return server_manager.list_servers()
         except Exception as e:
@@ -2115,7 +2115,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_status(self, extension_name=None):
         """Show status of web extensions."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
             return server_manager.get_status(extension_name)
         except Exception as e:
@@ -2124,7 +2124,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_start(self, extension_name, options):
         """Start a web extension server."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Parse options
@@ -2150,7 +2150,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_stop(self, extension_name):
         """Stop a web extension server."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
             success, message = server_manager.stop_server(extension_name)
             return f"🛑 {message}" if success else f"⚠️  {message}"
@@ -2160,7 +2160,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_health(self):
         """Perform health check on all running servers."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Get current status
@@ -2202,7 +2202,7 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def _handle_output_restart(self, extension_name):
         """Restart a web extension server."""
         try:
-            from extensions.core.server_manager import ServerManager
+            from extensions.server_manager import ServerManager
             server_manager = ServerManager()
 
             # Stop the server first

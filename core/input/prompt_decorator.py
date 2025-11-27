@@ -21,24 +21,21 @@ class PromptDecorator:
             'dungeon': {
                 'assist_prompt': '🤖 OK> ',
                 'normal_prompt': '🌀> ',
-                'panel_prefix': '📋 [{panel}] ',
             },
             'science': {
                 'assist_prompt': '🤖 OK> ',
                 'normal_prompt': '⚗️> ',
-                'panel_prefix': '📊 [{panel}] ',
             },
             'cyberpunk': {
                 'assist_prompt': '🤖 OK> ',
                 'normal_prompt': '🔮> ',
-                'panel_prefix': '💻 [{panel}] ',
             }
         }
 
     def get_prompt(
         self,
         is_assist_mode: bool = False,
-        panel_name: Optional[str] = None,
+        panel_name: Optional[str] = None,  # Deprecated but kept for compatibility
         flash: bool = False,
         dev_mode: bool = False
     ) -> str:
@@ -47,7 +44,7 @@ class PromptDecorator:
 
         Args:
             is_assist_mode: Whether in assist mode
-            panel_name: Currently selected panel (if any)
+            panel_name: DEPRECATED - no longer used (kept for compatibility)
             flash: Whether to add flash effect (deprecated, kept for compatibility)
             dev_mode: Whether DEV MODE is active (v1.5.0)
 
@@ -59,9 +56,8 @@ class PromptDecorator:
         # Build prompt parts
         parts = []
 
-        # Add panel prefix if panel is selected
-        if panel_name:
-            parts.append(theme_config['panel_prefix'].format(panel=panel_name))
+        # Panel/workspace display deprecated in v1.1.1
+        # uDOS environments are managed via folder structure, not displayed in prompt
 
         # Add DEV MODE indicator if active (v1.5.0)
         if dev_mode:
