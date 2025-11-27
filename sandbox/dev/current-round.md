@@ -29,8 +29,8 @@
 - [x] 1. Add `PRINT` command handler to `core/interpreters/ucode.py`
 - [x] 2. Implement template string support: `PRINT "Value: ${var}"`
 - [x] 3. Add deprecation warnings for `ECHO` usage
-- [x] 4. Create curly brace parser for blocks: `IF (condition) { }`
-- [ ] 5. Extend `_handle_if_block()` for both syntaxes
+- [x] 4. Implement flexible bracket syntax: `PRINT[text]`, `PRINT [text]`, `[PRINT|text]`
+- [ ] 5. Extend all commands to support bracket notation
 - [ ] 6. Extend `_handle_for_loop()` for both syntaxes
 - [ ] 7. Extend `_handle_while_loop()` for both syntaxes
 - [ ] 8. Extend `_handle_function_definition()` for both syntaxes
@@ -159,13 +159,14 @@ None currently.
   - Warning only shown once per session
   - ECHO still works (executes as PRINT)
   - Created test: `sandbox/tests/test_echo_deprecation.py` (all tests pass)
-- **Step 4 COMPLETE**: Curly brace syntax for IF blocks
-  - New syntax: `IF (condition) { }` and `} ELSE {`
-  - Old syntax still works: `IF condition ... ENDIF`
-  - Both syntaxes fully functional and tested
-  - Handles nested blocks and brace depth tracking
-  - Test script: `sandbox/ucode/test_square_brackets.uscript` (all 4 tests pass)
-- **Next:** Step 5 - Extend FOR/WHILE/FUNCTION/TRY for curly braces
+- **Step 4 COMPLETE**: Flexible bracket syntax (REVISED)
+  - **Design Decision**: Use standard uCODE brackets, not curly braces
+  - Three equivalent formats: `PRINT[text]`, `PRINT [text]`, `[PRINT|text]`
+  - Added `_normalize_bracket_syntax()` preprocessor
+  - All formats support ${var} templates
+  - Test: `sandbox/tests/test_bracket_syntax.py` (7/7 tests pass)
+  - Much simpler than curly braces - consistent with existing uCODE design
+- **Next:** Step 5 - Extend SET, GET, and other commands for brackets
 
 ---
 

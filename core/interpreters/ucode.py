@@ -1559,6 +1559,46 @@ class UCodeInterpreter:
 
         return endtry_index + 1
 
+    def _normalize_bracket_syntax(self, line: str) -> str:
+        """
+        Normalize flexible bracket syntax to standard uCODE format.
+        
+        Supports:
+        - PRINT[text] -> PRINT "text"
+        - PRINT [text] -> PRINT "text"  
+        - [PRINT|text] -> PRINT "text"
+        
+        Args:
+            line: Original command line
+            
+        Returns:
+            Normalized command line
+        """
+        line = line.strip()
+        
+        # Format 1: [COMMAND|params] - standard uCODE (leave as-is, parser will handle)
+        if line.startswith('[') and '|' in line and line.endswith(']'):
+            # Extract command and params
+            inner = line[1:-1]  # Remove outer brackets
+            if '|' in inner:
+                parts = inner.split('|', 1)
+                command = parts[0].strip()
+                params = parts[1].strip() if len(parts) > 1 else ""
+                # Convert to plain syntax
+                return f'{command} "{params}"' if params else command
+        
+        # Format 2: COMMAND[params] or COMMAND [params]
+        if '[' in line and line.endswith(']'):
+            # Find command part
+            bracket_pos = line.index('[')
+            command = line[:bracket_pos].strip()
+            params = line[bracket_pos+1:-1].strip()  # Content between [ ]
+            
+            if command.upper() in ['PRINT', 'ECHO', 'SET', 'GET', 'CALL']:
+                return f'{command} "{params}"' if params else command
+        
+        return line
+
     def execute_line(self, line, line_num=0):
         """
         Execute a single line of uCODE/command.
@@ -1573,6 +1613,9 @@ class UCodeInterpreter:
         # v1.0.17: Update debugger line tracking
         if self.debug_mode and line_num > 0:
             self.debugger.current_line = line_num
+
+        # Normalize bracket syntax (v1.1.1)
+        line = self._normalize_bracket_syntax(line)
 
         # Substitute variables first
         line = self.substitute_variables(line)
