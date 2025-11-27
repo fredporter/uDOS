@@ -175,7 +175,18 @@ None currently.
   - All formats work: `SET[x = 1]`, `SET [x = 1]`, `[SET|x = 1]`
   - Variable substitution works: `PRINT[Value: ${x}]` after `SET[x = 10]`
   - Test: `sandbox/tests/test_set_get_brackets.py` (14/14 tests pass)
-- **Next:** Steps 6-12 - Control flow (IF/FOR/WHILE), one-line commands, testing
+- **Steps 6-9 SKIPPED**: Control flow curly braces for blocks
+  - IF/FOR/WHILE already use IF...ENDIF syntax
+  - Curly braces for blocks add complexity without benefit
+  - Focused on one-line commands instead (Step 10)
+- **Step 10 COMPLETE**: One-line IF command support
+  - Implemented: `IF{condition} THEN command`
+  - Also supports: `IF condition THEN command` (traditional)
+  - Mixed syntax: `IF{x > 5} THEN PRINT[result]`
+  - Uses debugger condition evaluator for safe execution
+  - Works with all commands (PRINT, SET, GET, etc.)
+  - Test: `sandbox/tests/test_oneline_if.py` (10/10 tests pass)
+- **Next:** Steps 11-12 - Backward compatibility testing, error messages
 
 ---
 
