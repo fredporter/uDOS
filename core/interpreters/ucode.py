@@ -560,6 +560,9 @@ class UCodeInterpreter:
         self.debugger = UCodeDebugger(self)
         self.debug_mode = False
 
+        # Deprecation tracking (v1.1.1)
+        self._deprecation_warnings_shown = set()  # Track warnings shown this session
+
         # Persistence
         self.variables_file = Path("core/data/ucode_variables.json")
         self._load_persistent_variables()
@@ -1537,6 +1540,10 @@ class UCodeInterpreter:
         if line.upper().startswith('PRINT '):
             return self._handle_print(line)
 
+        # Handle ECHO command (deprecated, use PRINT)
+        if line.upper().startswith('ECHO '):
+            return self._handle_echo_deprecated(line)
+
         # Handle uCODE format [MODULE|COMMAND*PARAMS]
         if line.startswith('[') and line.endswith(']'):
             return self._execute_ucode(line)
@@ -1723,6 +1730,36 @@ class UCodeInterpreter:
             else:
                 # Not a variable, return as-is
                 return content
+
+    def _handle_echo_deprecated(self, line: str) -> str:
+        """
+        Handle ECHO command (deprecated in v1.1.1).
+
+        Shows deprecation warning once per session, then executes as PRINT.
+
+        Args:
+            line: ECHO command line
+
+        Returns:
+            Output string with deprecation warning (first time only)
+        """
+        # Show warning once per session
+        warning_key = 'ECHO'
+        if warning_key not in self._deprecation_warnings_shown:
+            self._deprecation_warnings_shown.add(warning_key)
+            warning = "⚠️  DEPRECATED: ECHO command is deprecated in uDOS v1.1.1. Use PRINT instead.\n" + \
+                     "   This warning will only be shown once per session.\n"
+        else:
+            warning = ""
+
+        # Convert ECHO to PRINT and execute
+        print_line = "PRINT " + line[5:]  # Replace "ECHO " with "PRINT "
+        result = self._handle_print(print_line)
+
+        # Return warning + result
+        if warning:
+            return warning + result
+        return result
 
     def _handle_import(self, line: str) -> str:
         """Handle IMPORT command for module loading."""

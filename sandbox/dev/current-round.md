@@ -1,8 +1,8 @@
 # Development Round: v1.1.1 - uCODE Modernization
 
-**Started:** 27 November 2025  
-**Status:** 🚀 ACTIVE  
-**Progress:** 2/38 steps (5.3%)
+**Started:** 27 November 2025
+**Status:** 🚀 ACTIVE
+**Progress:** 3/38 steps (7.9%)
 
 ---
 
@@ -16,8 +16,8 @@
 - Enable one-line command syntax
 - Both old and new syntax work simultaneously
 
-**Complexity:** Medium (38 steps across 4 moves)  
-**Dependencies:** None  
+**Complexity:** Medium (38 steps across 4 moves)
+**Dependencies:** None
 **Location:** `core/interpreters/ucode.py` (primary), templates, docs
 
 ---
@@ -28,7 +28,7 @@
 
 - [x] 1. Add `PRINT` command handler to `core/interpreters/ucode.py`
 - [x] 2. Implement template string support: `PRINT "Value: ${var}"`
-- [ ] 3. Add deprecation warnings for `ECHO` usage
+- [x] 3. Add deprecation warnings for `ECHO` usage
 - [ ] 4. Create curly brace parser for blocks: `IF (condition) { }`
 - [ ] 5. Extend `_handle_if_block()` for both syntaxes
 - [ ] 6. Extend `_handle_for_loop()` for both syntaxes
@@ -39,7 +39,7 @@
 - [ ] 11. Test backward compatibility (old syntax still works)
 - [ ] 12. Update error messages for new syntax
 
-**Status:** 🔨 Step 2/12 complete  
+**Status:** 🔨 Step 3/12 complete
 **Estimated Complexity:** Mix of simple and medium steps---
 
 ## Move 2: Migration Tools (8 steps) - NOT STARTED
@@ -154,7 +154,12 @@ None currently.
   - Works with numbers, strings, all types
 - Created test suite: `sandbox/tests/test_print_standalone.py` (7/7 tests pass)
 - Created test script: `sandbox/ucode/test_print.uscript` (works perfectly)
-- **Next:** Step 3 - Add ECHO deprecation warnings
+- **Step 3 COMPLETE**: Added ECHO deprecation warnings
+  - ECHO now shows deprecation warning on first use
+  - Warning only shown once per session
+  - ECHO still works (executes as PRINT)
+  - Created test: `sandbox/tests/test_echo_deprecation.py` (all tests pass)
+- **Next:** Step 4 - Create curly brace parser
 
 ---
 
