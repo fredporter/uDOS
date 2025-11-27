@@ -168,7 +168,14 @@ None currently.
   - Allows ${var} syntax (removed {}, $, \\ from reserved set)
   - Test: `sandbox/tests/test_bracket_syntax.py` (11/11 tests pass)
   - Much simpler than curly braces - consistent with existing uCODE design
-- **Next:** Step 5 - Extend SET, GET, and other commands for brackets
+- **Step 5 COMPLETE**: Extended bracket syntax to SET and GET
+  - SET and GET now support all three bracket formats
+  - Context-sensitive normalization: SET/GET don't add quotes
+  - Allowed `=` character for SET command (context-specific)
+  - All formats work: `SET[x = 1]`, `SET [x = 1]`, `[SET|x = 1]`
+  - Variable substitution works: `PRINT[Value: ${x}]` after `SET[x = 10]`
+  - Test: `sandbox/tests/test_set_get_brackets.py` (14/14 tests pass)
+- **Next:** Steps 6-12 - Control flow (IF/FOR/WHILE), one-line commands, testing
 
 ---
 
