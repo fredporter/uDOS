@@ -1562,21 +1562,31 @@ class UCodeInterpreter:
     def _normalize_bracket_syntax(self, line: str) -> str:
         """
         Normalize flexible bracket syntax to standard uCODE format.
-        
+
         Supports:
         - PRINT[text] -> PRINT "text"
-        - PRINT [text] -> PRINT "text"  
+        - PRINT [text] -> PRINT "text"
         - [PRINT|text] -> PRINT "text"
+        - Variables: PRINT[System: ${name}] -> PRINT "System: ${name}"
+
+        Reserved uCODE characters (NOT allowed in simple bracket content):
+        ~^-+=|<>*
         
+        Note: $ { } are allowed for variable substitution (${var})
+
         Args:
             line: Original command line
-            
+
         Returns:
             Normalized command line
         """
         line = line.strip()
-        
-        # Format 1: [COMMAND|params] - standard uCODE (leave as-is, parser will handle)
+
+        # Reserved characters that indicate this is NOT simple bracket notation
+        # Note: $ { } are allowed for variable substitution ${var}
+        RESERVED_CHARS = set('~^-+=|<>*')  # Removed { } for ${var} support
+
+        # Format 1: [COMMAND|params] - standard uCODE format
         if line.startswith('[') and '|' in line and line.endswith(']'):
             # Extract command and params
             inner = line[1:-1]  # Remove outer brackets
@@ -1584,19 +1594,33 @@ class UCodeInterpreter:
                 parts = inner.split('|', 1)
                 command = parts[0].strip()
                 params = parts[1].strip() if len(parts) > 1 else ""
-                # Convert to plain syntax
+
+                # Check if params contain reserved characters (except |)
+                param_chars = set(params) - set('|')
+                if param_chars & RESERVED_CHARS:
+                    # Contains reserved chars, leave as-is for parser
+                    return line
+
+                # Simple text, convert to plain syntax
                 return f'{command} "{params}"' if params else command
-        
+
         # Format 2: COMMAND[params] or COMMAND [params]
         if '[' in line and line.endswith(']'):
             # Find command part
             bracket_pos = line.index('[')
             command = line[:bracket_pos].strip()
             params = line[bracket_pos+1:-1].strip()  # Content between [ ]
-            
+
+            # Only process known simple commands
             if command.upper() in ['PRINT', 'ECHO', 'SET', 'GET', 'CALL']:
+                # Check if params contain reserved characters
+                if set(params) & RESERVED_CHARS:
+                    # Contains reserved chars, leave as-is
+                    return line
+
+                # Simple text, convert to plain syntax
                 return f'{command} "{params}"' if params else command
-        
+
         return line
 
     def execute_line(self, line, line_num=0):
