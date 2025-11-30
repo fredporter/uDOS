@@ -125,7 +125,7 @@ When you run `./start_udos.sh` for the first time, you'll see:
 
 ```
 ┌─────────────────────────────────────┐
-│         μDOS v1.0.0                │
+│         μDOS v1.1.6                │
 │    The People's Operating System    │
 └─────────────────────────────────────┘
 
@@ -736,7 +736,7 @@ export LC_ALL=en_US.UTF-8
 ---
 
 **Last Updated**: November 14, 2025
-**Version**: v1.0.0
+**Version**: v1.1.6
 **Feedback**: Open an issue or discussion on GitHub
 
 **Next**: [Command Reference](Command-Reference.md) | [Philosophy](Philosophy.md) | [FAQ](FAQ.md)

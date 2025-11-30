@@ -4,6 +4,10 @@
 # AI Integration (Gemini)
 google-generativeai>=0.3.0
 
+# Image Processing & Vectorization (NEW v2.0)
+Pillow>=10.0.0
+vtracer>=0.6.0
+
 # Environment variable management
 python-dotenv>=1.0.0
 

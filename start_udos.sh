@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# uDOS Launcher Script v1.0.31
+# uDOS Launcher Script v1.1.6
 # Enhanced startup with health checks, auto-repair, and user-friendly error handling
 
 set -e  # Exit on error
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Startup banner
 echo -e "${CYAN}╔═══════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.0.31 Startup${NC}           ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.1.6 Startup${NC}            ${CYAN}║${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════╝${NC}"
 echo ""
 

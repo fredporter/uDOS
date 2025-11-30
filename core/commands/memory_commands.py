@@ -25,6 +25,10 @@ class MemoryCommandHandler:
         self.manager = MemoryManager()
         self.user_id = "owner"  # TODO: Get from session/auth system
 
+        # Import TreeHandler for TREE subcommand
+        from core.commands.tree_handler import TreeHandler
+        self.tree_handler = TreeHandler()
+
     def handle(self, command: str, args: List[str]) -> str:
         """
         Route MEMORY commands to appropriate handlers
@@ -52,6 +56,7 @@ class MemoryCommandHandler:
             'CHECK': self._health,  # Alias
             'TIERS': self._tiers,
             'INFO': self._tiers,    # Alias
+            'TREE': self._tree,     # Directory structure
         }
 
         handler = handlers.get(command)
@@ -77,6 +82,7 @@ COMMANDS:
   MEMORY LIST <tier> [path]  List files in a specific tier
   MEMORY HEALTH              Verify integrity of all tiers
   MEMORY TIERS               Display tier information
+  MEMORY TREE                Show memory directory structure
 
 TIER-SPECIFIC COMMANDS:
   PRIVATE <subcommand>       Manage Tier 1 (encrypted personal data)
@@ -318,6 +324,10 @@ Cross-tier operations:
   MEMORY LIST       - Browse tier contents
   MEMORY HEALTH     - Verify tier integrity
 """
+
+    def _tree(self, args: List[str]) -> str:
+        """Display memory directory tree structure"""
+        return self.tree_handler.generate_memory_tree()
 
 
 def main():

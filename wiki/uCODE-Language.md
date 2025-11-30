@@ -1,8 +1,8 @@
 # uCODE Language Specification
 
-**Version:** 2.0.0
+**Version:** 2.0.0 (with v1.1.1 Modern Syntax)
 **Status:** Draft - Phase 4 Development
-**Last Updated:** November 25, 2025
+**Last Updated:** November 27, 2025
 
 ---
 
@@ -17,6 +17,89 @@ uCODE is a human-readable, markdown-compatible scripting language for uDOS autom
 3. **Progressive Complexity**: Simple commands → complex scripts
 4. **CLI Integration**: Every uCODE command maps to CLI
 5. **Self-Documenting**: Inline help and examples
+
+---
+
+## Modern Syntax (v1.1.1+)
+
+### Output Commands
+
+**PRINT** - Modern output command (replaces ECHO)
+
+```uscript
+# Bracket syntax (three equivalent formats)
+PRINT[Hello World]
+PRINT [Hello World]
+[PRINT|Hello World]
+
+# With template strings
+PRINT[User: ${name}]
+PRINT[Status: ${status}, Count: ${count}]
+
+# Traditional syntax (still supported)
+PRINT "Hello World"
+PRINT "Value: ${x}"
+```
+
+**Template Strings** - Variable substitution with `${var}`:
+
+```uscript
+SET[name = Alice]
+SET[age = 30]
+PRINT[${name} is ${age} years old]
+```
+
+### Variable Commands
+
+**SET** - Assign variables:
+
+```uscript
+# Modern bracket syntax
+SET[name = Alice]
+SET[count = 42]
+SET[active = true]
+
+# Traditional syntax
+SET name = "Alice"
+SET count = 42
+```
+
+**GET** - Retrieve variable value:
+
+```uscript
+# Modern bracket syntax
+GET[name]
+GET [count]
+[GET|active]
+
+# Traditional syntax
+GET name
+```
+
+### Conditional Commands
+
+**One-line IF** - Simple conditionals with curly braces:
+
+```uscript
+# Modern one-line syntax
+IF{x > 5} THEN PRINT[x is large]
+IF{status == "active"} THEN PRINT[Running]
+IF{count == 0} THEN PRINT[Empty]
+
+# Traditional one-line
+IF x > 5 THEN PRINT "x is large"
+
+# Multi-line blocks (for complex logic)
+IF x > 5
+    PRINT[x is large]
+    SET[result = pass]
+ELSE
+    PRINT[x is small]
+    SET[result = fail]
+ENDIF
+```
+
+**See Also:** [uCODE Syntax Quick Reference](uCODE-Syntax-Quick-Reference.md) for complete modern syntax guide.
 
 ---
 

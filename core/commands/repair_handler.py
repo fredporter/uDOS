@@ -116,6 +116,9 @@ class RepairHandler(BaseCommandHandler):
                 result += f"❌ {health.get_issues_count()} issue(s) require attention\n"
                 result += f"💡 Run 'REPAIR' to restore balance\n\n"
 
+            # Add sandbox health check
+            result += self._check_sandbox_health()
+
             # Show quick summary with softer language
             for check in health.checks:
                 if check.is_healthy():
@@ -137,8 +140,8 @@ class RepairHandler(BaseCommandHandler):
                     result += f"   └─ {check.warnings[0]}\n"
 
             # Add extension status and upgrade suggestions
-            result += "\n" + self._repair_check_extensions()
-            result += "\n" + self._check_upgrade_opportunities()
+            result += self._repair_check_extensions()
+            result += self._check_upgrade_opportunities()
             return result
 
         # Full report mode
@@ -564,3 +567,31 @@ class RepairHandler(BaseCommandHandler):
 
         except Exception as e:
             return False
+
+    def _check_sandbox_health(self):
+        """Check sandbox health using sandbox_handler.repair_sandbox()."""
+        try:
+            from core.commands.sandbox_handler import SandboxHandler
+            sandbox_handler = SandboxHandler()
+            health_report = sandbox_handler.repair_sandbox()
+
+            result = "\n🗂️  Sandbox Health:\n"
+
+            if health_report['status'] == 'healthy':
+                result += "  ✅ Sandbox structure is optimal\n"
+            elif health_report['status'] == 'repaired':
+                result += f"  🔧 {len(health_report['repairs'])} repair(s) applied:\n"
+                for repair in health_report['repairs']:
+                    result += f"    • {repair}\n"
+            else:  # 'issues'
+                result += f"  ⚠️  {len(health_report['issues'])} issue(s) detected:\n"
+                for issue in health_report['issues']:
+                    result += f"    • {issue}\n"
+
+            if health_report.get('recommendation'):
+                result += f"  💡 {health_report['recommendation']}\n"
+
+            return result
+
+        except Exception as e:
+            return f"\n⚠️  Sandbox health check failed: {e}\n"

@@ -1,0 +1,72 @@
+{
+  "name": "Hierarchy Diagram Template",
+  "description": "Template for creating organizational hierarchy and dependency diagrams",
+  "version": "1.0.0",
+  "type": "hierarchy",
+  "components": {
+    "executive": {
+      "type": "box",
+      "style": "double",
+      "width": 24,
+      "height": 4,
+      "text_align": "center",
+      "color": "cyan"
+    },
+    "manager": {
+      "type": "box",
+      "style": "simple",
+      "width": 20,
+      "height": 3,
+      "text_align": "center",
+      "color": "blue"
+    },
+    "worker": {
+      "type": "box",
+      "style": "light",
+      "width": 18,
+      "height": 3,
+      "text_align": "center",
+      "color": "white"
+    },
+    "connector": {
+      "type": "line",
+      "style": "vertical_tree",
+      "arrow": "down"
+    }
+  },
+  "layout": {
+    "orientation": "top_down",
+    "level_spacing": 3,
+    "group_spacing": 6,
+    "margin": 2,
+    "show_levels": true
+  },
+  "example": {
+    "levels": [
+      {
+        "level": 1,
+        "nodes": [
+          {"id": "ceo", "type": "executive", "text": "CEO"}
+        ]
+      },
+      {
+        "level": 2,
+        "nodes": [
+          {"id": "cto", "type": "manager", "text": "CTO"},
+          {"id": "cpo", "type": "manager", "text": "CPO"},
+          {"id": "cfo", "type": "manager", "text": "CFO"}
+        ]
+      },
+      {
+        "level": 3,
+        "nodes": [
+          {"id": "eng1", "type": "worker", "text": "Eng Lead", "parent": "cto"},
+          {"id": "eng2", "type": "worker", "text": "DevOps Lead", "parent": "cto"},
+          {"id": "pm1", "type": "worker", "text": "PM Lead", "parent": "cpo"},
+          {"id": "design1", "type": "worker", "text": "Design Lead", "parent": "cpo"},
+          {"id": "acct1", "type": "worker", "text": "Controller", "parent": "cfo"}
+        ]
+      }
+    ]
+  }
+}

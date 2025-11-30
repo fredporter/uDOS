@@ -63,6 +63,7 @@ class HelpManager:
             "🎨 Display & Themes": [],
             "🔍 Search & Navigation": [],
             "⚙️  Configuration": [],
+            "🎮 Automation & Missions": [],
             "⚡ Other": []
         }
 
@@ -75,7 +76,7 @@ class HelpManager:
                 continue
 
             # Auto-categorize based on name and uCODE template
-            if cmd_name in ['STATUS', 'DASH', 'DASHBOARD', 'HELP', 'HISTORY']:
+            if cmd_name in ['STATUS', 'DASH', 'DASHBOARD', 'HELP', 'HISTORY', 'LOGS', 'RESOURCE']:
                 categories["📊 System & Info"].append(cmd_name)
             elif cmd_name in ['BLANK', 'SPLASH', 'REBOOT', 'REPAIR', 'DESTROY', 'UNDO', 'REDO', 'RESTORE']:
                 categories["🔧 System Control"].append(cmd_name)
@@ -83,12 +84,14 @@ class HelpManager:
                 categories["📝 File Operations"].append(cmd_name)
             elif cmd_name in ['BANK', 'MEMORY', 'KNOWLEDGE']:
                 categories["💾 Knowledge & Memory"].append(cmd_name)
-            elif cmd_name in ['PANEL', 'GUIDE', 'DIAGRAM', 'TILE', 'VIEWPORT', 'PALETTE', 'THEME']:
+            elif cmd_name in ['PANEL', 'GUIDE', 'DIAGRAM', 'TILE', 'VIEWPORT', 'PALETTE', 'THEME', 'DRAW', 'SVG']:
                 categories["🎨 Display & Themes"].append(cmd_name)
             elif cmd_name in ['SEARCH', 'FIND', 'LOCATE', 'WHERE']:
                 categories["🔍 Search & Navigation"].append(cmd_name)
             elif cmd_name in ['CONFIG', 'SETTINGS', 'SETUP', 'GET', 'SET', 'WORKSPACE']:
                 categories["⚙️  Configuration"].append(cmd_name)
+            elif cmd_name in ['MISSION', 'SCHEDULE', 'WORKFLOW']:
+                categories["🎮 Automation & Missions"].append(cmd_name)
             else:
                 categories["⚡ Other"].append(cmd_name)
 

@@ -16,7 +16,9 @@ sandbox/
 ├── logs/       # All system and session logs
 ├── scripts/    # Utility and automation scripts
 ├── ucode/      # uScript automation files
-├── workflow/   # Workflow definitions
+├── workflow/   # Workflow definitions (private user data)
+├── sessions/   # Session data and history (private user data)
+├── user/       # User databases and planet configuration
 └── peek/       # File processing inbox
 ```
 

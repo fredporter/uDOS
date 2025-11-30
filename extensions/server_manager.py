@@ -56,14 +56,21 @@ class ServerManager:
         self.port_manager = get_port_manager()
         self.root = Path(__file__).parent
 
-    def check_health(self, server_key):
-        """Check server health via HTTP endpoint"""
+    def check_health(self, server_key, port=None):
+        """Check server health via HTTP endpoint, with optional port override."""
         server = self.SERVERS.get(server_key)
         if not server:
             return False, "Unknown server"
 
+        health_url = server['health_url']
+        if port:
+            # If a custom port is used, we need to adjust the health check URL
+            default_port = server['port']
+            if str(default_port) in health_url:
+                health_url = health_url.replace(str(default_port), str(port))
+
         try:
-            response = requests.get(server['health_url'], timeout=2)
+            response = requests.get(health_url, timeout=2)
             if response.status_code == 200:
                 data = response.json()
                 return True, data.get('status', 'unknown')
@@ -137,42 +144,84 @@ class ServerManager:
 
         print(f"{'='*70}\n")
 
-    def start_server(self, server_key):
-        """Start a specific server"""
+    def start_server(self, server_key, port=None, open_browser=False):
+        """Start a specific server, with optional port override."""
         server = self.SERVERS.get(server_key)
         if not server:
             print(f"❌ Unknown server: {server_key}")
             return False
 
-        port = server['port']
+        # Use provided port or default from config
+        start_port = port or server['port']
 
         # Check if already running
-        if not self.port_manager.is_port_available(port):
-            healthy, _ = self.check_health(server_key)
+        if not self.port_manager.is_port_available(start_port):
+            # Check health on the potentially custom port
+            healthy, _ = self.check_health(server_key, port=start_port)
             if healthy:
-                print(f"✓ {server['name']} is already running and healthy")
+                print(f"✓ {server['name']} is already running and healthy on port {start_port}")
+                if open_browser:
+                    self._open_browser_for_server(server_key, start_port)
                 return True
             else:
-                print(f"⚠️ Port {port} in use but server unhealthy, cleaning up...")
-                self.cleanup_server(server_key)
+                print(f"⚠️ Port {start_port} in use but server unhealthy, cleaning up...")
+                # Cleanup should also be aware of the port
+                self.port_manager.cleanup_port(start_port)
 
         # Start server
-        print(f"🚀 Starting {server['name']} on port {port}...")
-        command = f"cd {self.root} && source .venv/bin/activate && {server['command']} > sandbox/logs/{server_key}_server.log 2>&1 &"
+        print(f"🚀 Starting {server['name']} on port {start_port}...")
 
-        os.system(command)
+        # Construct command with potential port override
+        command = server['command']
+        env_vars = ""
+
+        if 'extensions_server.py' in command and start_port:
+            # For extensions_server, add the port as an argument
+            command = f"{command} --port {start_port}"
+        elif 'PORT=' in command and start_port:
+            # For API server, override the PORT env var
+            env_vars = f"PORT={start_port} "
+            command = command.split(' ', 1)[1]
+
+        # Use absolute path for python from venv
+        python_executable = f"{self.root.parent}/.venv/bin/python"
+        command = command.replace("python", python_executable, 1)
+
+        full_command = f"cd {self.root.parent} && source .venv/bin/activate && {env_vars}{command} > sandbox/logs/{server_key}_server.log 2>&1 &"
+
+        os.system(full_command)
 
         # Wait and verify
-        time.sleep(2)
-        healthy, status = self.check_health(server_key)
+        time.sleep(3) # Increased wait time
+        healthy, status = self.check_health(server_key, port=start_port)
 
         if healthy:
             print(f"✅ {server['name']} started successfully")
-            print(f"   URL: {server['health_url'].replace('/health', '')}")
+            display_url = self._get_server_url(server_key, start_port)
+            print(f"   URL: {display_url}")
+
+            if open_browser:
+                self._open_browser_for_server(server_key, start_port)
             return True
         else:
-            print(f"❌ {server['name']} failed to start: {status}")
+            print(f"❌ {server['name']} failed to start on port {start_port}: {status}")
+            log_path = f"sandbox/logs/{server_key}_server.log"
+            print(f"   Check log for details: {log_path}")
             return False
+
+    def _get_server_url(self, server_key, port):
+        """Gets the base URL for a server, using a specific port."""
+        server = self.SERVERS[server_key]
+        url = server['health_url'].replace('/health', '')
+        # Replace default port with the one it's actually running on
+        return url.replace(str(server['port']), str(port))
+
+    def _open_browser_for_server(self, server_key, port):
+        """Opens a browser for a given server and port."""
+        import webbrowser
+        url = self._get_server_url(server_key, port)
+        print(f"🌐 Opening browser to {url}...")
+        webbrowser.open(url)
 
     def start_all(self):
         """Start all servers"""

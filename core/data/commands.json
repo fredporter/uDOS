@@ -137,13 +137,13 @@
     {
       "NAME": "CONFIG",
       "SYNTAX": "CONFIG <list|get|set|validate> [key] [value]",
-      "DESCRIPTION": "Manage .env configuration (API keys, username, installation ID).",
+      "DESCRIPTION": "Manage .env configuration (API keys, installation ID, system settings).",
       "UCODE_TEMPLATE": "[SYSTEM|CONFIG*$1*$2*$3]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "CONFIG list",
         "CONFIG get GEMINI_API_KEY",
-        "CONFIG set UDOS_USERNAME myname",
+        "CONFIG set THEME foundation",
         "CONFIG validate"
       ]
     },
@@ -799,11 +799,22 @@
       ]
     },
     {
-      "NAME": "SETUP",
-      "SYNTAX": "SETUP",
-      "DESCRIPTION": "Run interactive USER.UDO configuration (editable with EDIT data/SETUP.USC).",
-      "UCODE_TEMPLATE": "[SYSTEM|SETUP]",
-      "DEFAULT_PARAMS": {}
+      "NAME": "WIZARD",
+      "ALIASES": ["SETUP"],
+      "SYNTAX": "WIZARD [QUICK|THEME|VIEWPORT|EXTENSIONS|HELP]",
+      "DESCRIPTION": "Run interactive setup wizard for first-time configuration. SETUP is an alias for backward compatibility.",
+      "UCODE_TEMPLATE": "[SYSTEM|WIZARD*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "WIZARD"
+      },
+      "NOTES": [
+        "WIZARD or WIZARD WIZARD runs full interactive setup",
+        "WIZARD QUICK uses sensible defaults",
+        "WIZARD THEME configures theme only",
+        "WIZARD VIEWPORT configures viewport only",
+        "WIZARD EXTENSIONS manages extensions",
+        "SETUP is deprecated - use WIZARD for setup, or CONFIG for settings"
+      ]
     },
     {
       "NAME": "TREE",
@@ -812,7 +823,10 @@
       "UCODE_TEMPLATE": "[TREE|SHOW*$1]",
       "DEFAULT_PARAMS": {
         "$1": ""
-      }
+      },
+      "NOTES": [
+        "Note: Use 'TREE' for root, or 'MEMORY TREE'/'KNOWLEDGE TREE' as two-word commands"
+      ]
     },
     {
       "NAME": "POKE",
@@ -1123,11 +1137,11 @@
     },
     {
       "NAME": "MEMORY",
-      "SYNTAX": "MEMORY [<tier>] [<action>]",
+      "SYNTAX": "MEMORY [<subcommand>] [<args>]",
       "DESCRIPTION": "Access memory system with 4 tiers (PRIVATE, SHARED, COMMUNITY, PUBLIC). Manage personal and shared knowledge.",
-      "UCODE_TEMPLATE": "[MEMORY|ACCESS*$1*$2]",
+      "UCODE_TEMPLATE": "[MEMORY|$1*$2]",
       "DEFAULT_PARAMS": {
-        "$1": "",
+        "$1": "STATUS",
         "$2": ""
       },
       "FLAGS": {
@@ -1150,6 +1164,22 @@
         "4 tiers: PRIVATE (encrypted), SHARED (team), COMMUNITY (group), PUBLIC (open)",
         "Each tier has different security and speed",
         "Supports intelligent content classification"
+      ]
+    },
+    {
+      "NAME": "KNOWLEDGE",
+      "SYNTAX": "KNOWLEDGE [TREE|<subcommand>]",
+      "DESCRIPTION": "Access the knowledge bank directory. KNOWLEDGE TREE shows the knowledge directory structure.",
+      "UCODE_TEMPLATE": "[TREE|SHOW*KNOWLEDGE]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "TREE": "Show knowledge directory tree structure"
+      },
+      "EXAMPLES": [
+        "KNOWLEDGE TREE"
+      ],
+      "NOTES": [
+        "Routes to TREE handler to display knowledge/ directory structure"
       ]
     },
     {
@@ -1182,18 +1212,16 @@
       ]
     },
     {
-      "NAME": "SETTINGS",
-      "ALIASES": [],
-      "SYNTAX": "SETTINGS <SHOW|EDIT|RESET>",
-      "DESCRIPTION": "Manage user preferences and system configuration. Interactive editor for all settings categories.",
-      "UCODE_TEMPLATE": "[SYSTEM|SETTINGS*$1]",
-      "DEFAULT_PARAMS": {
-        "$1": "SHOW"
-      },
+      "NAME": "SETUP",
+      "ALIASES": ["SETTINGS"],
+      "SYNTAX": "SETUP [SHOW|EDIT|RESET|<key>]",
+      "DESCRIPTION": "Quick setup - display or modify system settings. For full configuration options use CONFIG command.",
+      "UCODE_TEMPLATE": "[SYSTEM|SETUP]",
+      "DEFAULT_PARAMS": {},
       "FLAGS": {},
       "SUBCOMMANDS": {
         "SHOW": "Display all current settings",
-        "EDIT": "Interactive settings editor",
+        "EDIT": "Interactive configuration menu (same as CONFIG)",
         "RESET": "Restore default settings"
       },
       "CATEGORIES": {
@@ -1202,16 +1230,16 @@
         "workspace": "Default workspace, auto-save, backups"
       },
       "EXAMPLES": [
-        "SETTINGS",
-        "SETTINGS SHOW",
-        "SETTINGS EDIT",
-        "CONFIG RESET"
+        "SETUP",
+        "SETUP SHOW",
+        "SETUP EDIT",
+        "CONFIG"
       ],
       "NOTES": [
-        "Settings saved to data/USER.UDT",
-        "Backward compatible with old USER.UDO format",
-        "EDIT provides interactive category selection",
-        "RESET requires confirmation",
+        "SETUP is a quick view of settings - use CONFIG for full interactive menu",
+        "SETTINGS is an alias for SETUP (backward compatibility)",
+        "SETUP EDIT redirects to CONFIG interactive menu",
+        "Settings saved to user.json and .env",
         "Changes apply to both CLI and web interface"
       ]
     },
@@ -1335,6 +1363,210 @@
         "Technical-Kinetic SVG style: monochrome MCM + kinetic flow",
         "Citation coverage target: ≥95% (strict mode: 100%)",
         "Multi-stage: Analysis → Crawl → Text → SVG → Assembly"
+      ]
+    },
+    {
+      "NAME": "LOGS",
+      "SYNTAX": "LOGS STATUS | LOGS CLEANUP [--dry-run] | LOGS SEARCH <pattern> | LOGS ARCHIVE [month] | LOGS HELP",
+      "DESCRIPTION": "Manage uDOS logging system with flat directory structure.",
+      "UCODE_TEMPLATE": "[LOGS|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "STATUS": "Show logging statistics and current log files",
+        "CLEANUP": "Clean up old logs per retention policy (--dry-run to preview)",
+        "SEARCH": "Search log files for patterns",
+        "ARCHIVE": "Archive logs to compressed file (default: last month)",
+        "HELP": "Show LOGS command help"
+      },
+      "EXAMPLES": [
+        "LOGS STATUS",
+        "LOGS CLEANUP --dry-run",
+        "LOGS SEARCH error --category system --days 3",
+        "LOGS ARCHIVE 2025-10"
+      ],
+      "NOTES": [
+        "v1.1.6 - Flat directory structure (sandbox/logs/*.log)",
+        "Category-based naming: system-, web-, ucode-, workflow-, etc.",
+        "Retention policies: Daily logs (30d), Mission logs (never), Debug logs (7d)",
+        "18 files, ~58MB average storage"
+      ]
+    },
+    {
+      "NAME": "DRAW",
+      "SYNTAX": "DRAW <type> \"<description>\" [--file <file>] [--save <output>] [--format <format>]",
+      "DESCRIPTION": "Generate ASCII/Unicode diagrams (flowcharts, trees, grids, hierarchies).",
+      "UCODE_TEMPLATE": "[DRAW|$1*$2*$3*$4]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "FLOW": "Create flowchart diagram",
+        "TREE": "Create tree structure diagram",
+        "GRID": "Create table/grid diagram",
+        "HIERARCHY": "Create org chart/hierarchy diagram",
+        "HELP": "Show DRAW command help",
+        "TYPES": "List available diagram types"
+      },
+      "EXAMPLES": [
+        "DRAW FLOW \"Start → Process → End\"",
+        "DRAW TREE \"System\\nUsers\\nData\\nConfig\"",
+        "DRAW GRID \"Name,Age\\nAlice,30\\nBob,25\"",
+        "DRAW HIERARCHY \"CEO\\n  CTO\\n  CFO\"",
+        "DRAW \"Process checkout workflow\"",
+        "DRAW FLOW --file workflow.txt --save diagram.txt",
+        "DRAW FLOW --data flowchart.json --format unicode"
+      ],
+      "NOTES": [
+        "v1.1.4 - ASCII/Teletext Graphics System",
+        "Auto type detection from natural language",
+        "8 Unicode box-drawing character sets",
+        "Export formats: ASCII, ANSI, Unicode",
+        "Performance: <10ms (small), <200ms (large)"
+      ]
+    },
+    {
+      "NAME": "SVG",
+      "SYNTAX": "SVG \"<description>\" [--style <style>] [--save <file>]",
+      "DESCRIPTION": "Generate AI-powered SVG vector diagrams (requires Gemini API).",
+      "UCODE_TEMPLATE": "[SVG|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "HELP": "Show SVG command help"
+      },
+      "STYLES": {
+        "lineart": "Clean line art (default)",
+        "blueprint": "Technical blueprint style",
+        "sketch": "Hand-drawn sketch style",
+        "isometric": "Isometric 3D style"
+      },
+      "EXAMPLES": [
+        "SVG \"water filtration system\"",
+        "SVG \"fire starting technique\" --style blueprint",
+        "SVG \"shelter construction\" --save shelter.svg --style isometric",
+        "SVG \"knot tying steps\" --style sketch"
+      ],
+      "NOTES": [
+        "v1.1.5 - SVG Graphics Extension",
+        "AI-powered generation with fallback templates",
+        "4 artistic styles (lineart, blueprint, sketch, isometric)",
+        "XML validation and post-processing",
+        "ASCII preview in terminal",
+        "Auto-save to sandbox/drafts/svg/"
+      ]
+    },
+    {
+      "NAME": "MISSION",
+      "SYNTAX": "MISSION <subcommand> [options]",
+      "DESCRIPTION": "Mission Control system for managing long-running projects with moves and steps.",
+      "UCODE_TEMPLATE": "[MISSION|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "CREATE": "Create new mission",
+        "START": "Start mission work",
+        "PAUSE": "Pause mission",
+        "RESUME": "Resume mission",
+        "STATUS": "Show mission status",
+        "COMPLETE": "Mark mission complete",
+        "LIST": "List all missions",
+        "TEMPLATES": "List mission templates",
+        "HELP": "Show MISSION command help"
+      },
+      "EXAMPLES": [
+        "MISSION CREATE \"Write Novel\" --template novel",
+        "MISSION START my-mission",
+        "MISSION STATUS",
+        "MISSION TEMPLATES"
+      ],
+      "NOTES": [
+        "v1.1.2 - Mission Control & Workflow Automation",
+        "Work measured in STEPS and MOVES (not time)",
+        "13 templates: Creative (5), Research (4), Personal Dev (4)",
+        "Progress tracking with cron-like scheduling"
+      ]
+    },
+    {
+      "NAME": "SCHEDULE",
+      "SYNTAX": "SCHEDULE <subcommand> [options]",
+      "DESCRIPTION": "Cron-like task scheduling for automation.",
+      "UCODE_TEMPLATE": "[SCHEDULE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "DAILY": "Schedule daily task",
+        "EVERY": "Schedule recurring task",
+        "ONCE": "Schedule one-time task",
+        "CANCEL": "Cancel scheduled task",
+        "LIST": "List scheduled tasks",
+        "STATUS": "Show scheduler status",
+        "HELP": "Show SCHEDULE command help"
+      },
+      "EXAMPLES": [
+        "SCHEDULE DAILY AT 09:00 backup.uscript",
+        "SCHEDULE EVERY 1h health-check.uscript",
+        "SCHEDULE ONCE AT 2025-12-01T15:00 deploy.uscript"
+      ],
+      "NOTES": [
+        "v1.1.2 - Scheduler System",
+        "Background task queue with worker thread",
+        "Priority system (CRITICAL, HIGH, MEDIUM, LOW)",
+        "Retry logic with exponential backoff"
+      ]
+    },
+    {
+      "NAME": "WORKFLOW",
+      "SYNTAX": "WORKFLOW <command> [params]",
+      "DESCRIPTION": "Workflow automation commands (LOG, LOAD_JSON, SAVE_JSON, etc.).",
+      "UCODE_TEMPLATE": "[WORKFLOW|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "LOG": "Log message (info, warn, error, debug)",
+        "LOAD_JSON": "Load JSON file",
+        "SAVE_JSON": "Save JSON file",
+        "CHECK_ENV": "Check environment variable",
+        "ENSURE_DIR": "Create directory",
+        "RUN_PYTHON": "Run Python script",
+        "SLEEP": "Sleep for duration",
+        "TIMESTAMP": "Get current timestamp",
+        "HELP": "Show WORKFLOW command help"
+      },
+      "EXAMPLES": [
+        "WORKFLOW LOG info \"Starting process\"",
+        "WORKFLOW LOAD_JSON data.json",
+        "WORKFLOW ENSURE_DIR output/reports"
+      ],
+      "NOTES": [
+        "v1.1.2 - Workflow Automation",
+        "18 commands for script automation",
+        "Template engine with {{var}} substitution",
+        "File logging to sandbox/logs/workflow.log"
+      ]
+    },
+    {
+      "NAME": "RESOURCE",
+      "SYNTAX": "RESOURCE <subcommand> [options]",
+      "DESCRIPTION": "Resource management (API quotas, disk space, CPU, memory).",
+      "UCODE_TEMPLATE": "[RESOURCE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "HELP"
+      },
+      "SUBCOMMANDS": {
+        "STATUS": "Show resource usage dashboard",
+        "QUOTA": "Check API quotas",
+        "ALLOCATE": "Allocate resources for mission",
+        "RELEASE": "Release mission resources",
+        "THROTTLE": "Check throttling status",
+        "SUMMARY": "Complete resource dashboard",
+        "HELP": "Show resource command help"
+      },
+      "EXAMPLES": [
+        "RESOURCE STATUS",
+        "RESOURCE QUOTA gemini",
+        "RESOURCE SUMMARY",
+        "RESOURCE HELP"
+      ],
+      "NOTES": [
+        "v1.1.2 - Resource Management",
+        "API quota tracking (Gemini, GitHub)",
+        "Rate limiting (sliding window)",
+        "Disk space warnings (90% threshold)",
+        "CPU/memory monitoring with psutil"
       ]
     }
   ]

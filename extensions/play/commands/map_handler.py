@@ -29,6 +29,7 @@ class MapCommandHandler(BaseCommandHandler):
         super().__init__(**kwargs)
         self._map_engine = None
         self._teletext_integration = None
+        self._map_renderer = None
 
     @property
     def map_engine(self):
@@ -45,6 +46,14 @@ class MapCommandHandler(BaseCommandHandler):
             from core.output.teletext_renderer import TeletextMapIntegration
             self._teletext_integration = TeletextMapIntegration()
         return self._teletext_integration
+
+    @property
+    def map_renderer(self):
+        """Lazy load ASCII map renderer (v2.0.0 TILE system)."""
+        if self._map_renderer is None:
+            from core.ui.map_renderer import MapRenderer
+            self._map_renderer = MapRenderer()
+        return self._map_renderer
 
     def handle(self, command, params, grid):
         """
@@ -175,10 +184,12 @@ Use 'MAP VIEW' to see the area around you."""
                 return f"Error reading planet data: {str(e)}"
 
     def _handle_view(self, params):
-        """Show ASCII map view."""
+        """Show ASCII map view using v2.0.0 TILE renderer."""
         # Get current location from planet system
         try:
             from core.services.planet_manager import PlanetManager
+            from core.utils.grid_utils import latlong_to_tile
+
             pm = PlanetManager()
             current_planet = pm.get_current()
 
@@ -206,68 +217,52 @@ Planet: {current_planet.icon} {current_planet.name}
    • LOCATE SET <lat> <lon> - Set custom coordinates"""
 
             # Parse parameters for view size
-            width = 40
+            width = 60
             height = 20
+            layer = 100  # Default layer
             if params:
                 parts = params.strip().split()
-                if len(parts) >= 1 and parts[0].isdigit():
-                    width = int(parts[0])
-                if len(parts) >= 2 and parts[1].isdigit():
-                    height = int(parts[1])
+                for part in parts:
+                    if part.upper().startswith('LAYER='):
+                        layer = int(part.split('=')[1])
+                    elif part.isdigit():
+                        if width == 60:  # First number is width
+                            width = int(part)
+                        else:  # Second number is height
+                            height = int(part)
 
-            # Find nearest cell reference
-            nearest_city = self._find_nearest_city(location.latitude, location.longitude)
-            if nearest_city:
-                cell_ref = nearest_city.get('cell_ref', 'JN196')  # Default to Melbourne
-            else:
-                # Calculate cell ref from coordinates
-                # For now, use a default - full cell calculation would go here
-                cell_ref = 'JN196'
+            # Convert location to TILE code
+            tile_code = latlong_to_tile(location.latitude, location.longitude, layer=layer)
 
-            # Generate ASCII map centered on location
-            ascii_map = self.map_engine.generate_ascii_map(cell_ref, width, height)
+            # Generate ASCII map using new renderer
+            ascii_map = self.map_renderer.render_map(
+                center_tile=tile_code,
+                width=width,
+                height=height,
+                show_grid=True,
+                show_labels=True,
+                show_border=True
+            )
 
             # Add header with planet and location context
             header = f"""🗺️  Map View - {current_planet.icon} {current_planet.name}
-{'='*40}
+{'='*60}
 Location: {location.name or 'Custom'}
 Coordinates: {location.latitude:.2f}°, {location.longitude:.2f}°
-Cell: {cell_ref}
+TILE Code: {tile_code}
 
 """
             return header + ascii_map
 
         except Exception as e:
-            # Fallback to legacy behavior
-            import json
-            config_file = Path("sandbox/user.json")
-            if config_file.exists():
-                with open(config_file, 'r') as f:
-                    config = json.load(f)
+            # Fallback to legacy behavior or return error
+            import traceback
+            return f"""Error generating map view: {str(e)}
 
-                location = config.get("location", {})
-                tizo_code = location.get("tizo_code", "MEL")
+Use MAP VIEW [width] [height] [layer=N] to customize view.
+Example: MAP VIEW 80 30 layer=100
 
-                if tizo_code in self.map_engine.city_cells:
-                    city_data = self.map_engine.city_cells[tizo_code]
-                    cell_ref = city_data["cell_ref"]
-
-                    # Parse parameters for view size
-                    width = 40
-                    height = 20
-                    if params:
-                        parts = params.strip().split()
-                        if len(parts) >= 1 and parts[0].isdigit():
-                            width = int(parts[0])
-                        if len(parts) >= 2 and parts[1].isdigit():
-                            height = int(parts[1])
-
-                    ascii_map = self.map_engine.generate_ascii_map(cell_ref, width, height)
-                    return ascii_map
-                else:
-                    return f"Cannot generate view for location: {tizo_code}"
-            else:
-                return f"Error generating view: {str(e)}"
+{traceback.format_exc()}"""
 
     def _handle_cell(self, params):
         """Get information about a specific cell."""
@@ -379,27 +374,140 @@ Cell Distance: {nav_info['cell_distance']} cells
 Bearing: {nav_info['bearing']}° ({nav_info['direction']})"""
 
     def _handle_locate(self, params):
-        """Set location to a city or cell."""
+        """Set location to a city using v2.0.0 TILE system."""
+        from core.utils.grid_utils import latlong_to_tile, validate_tile_code
+
         if not params:
-            return "Usage: MAP LOCATE <tizo_code> or MAP LOCATE <cell_reference>"
+            return """Usage: MAP LOCATE CITY <name> or MAP LOCATE SET <lat> <lon>
 
-        location = params.strip().upper()
+Examples:
+  MAP LOCATE CITY London
+  MAP LOCATE CITY Sydney
+  MAP LOCATE SET 51.5074 -0.1278"""
 
-        # Try as TIZO code first
-        if location in self.map_engine.city_cells:
-            city_data = self.map_engine.city_cells[location]
-            return f"📍 Location set to {city_data['name']}, {city_data['country']} ({location})\nCell: {city_data['cell_ref']}"
+        parts = params.strip().split()
+        subcommand = parts[0].upper()
 
-        # Try as cell reference
-        try:
-            city = self.map_engine.get_city_by_cell(location)
-            if city:
-                return f"📍 Location set to {city['name']}, {city['country']} ({city['tizo_code']})\nCell: {location}"
-            else:
-                lat, lon = self.map_engine.cell_system.cell_to_coord(location)
-                return f"📍 Location set to cell {location}\nCoordinates: {lat:.2f}°, {lon:.2f}°"
-        except ValueError:
-            return f"Invalid location: {location}\nUse TIZO code (e.g., MEL) or cell reference (e.g., JN196)"
+        # Load cities from new database
+        cities = self.map_renderer.cities
+
+        if subcommand == "CITY" and len(parts) > 1:
+            # Search for city by name
+            city_name = " ".join(parts[1:])
+            matching_city = None
+
+            # Try exact match first
+            for city in cities:
+                if city['name'].lower() == city_name.lower():
+                    matching_city = city
+                    break
+
+            # Try partial match
+            if not matching_city:
+                for city in cities:
+                    if city_name.lower() in city['name'].lower():
+                        matching_city = city
+                        break
+
+            if not matching_city:
+                # Show suggestions
+                suggestions = [c['name'] for c in cities if city_name.lower()[0] == c['name'].lower()[0]][:5]
+                result = f"City not found: {city_name}\n\n"
+                if suggestions:
+                    result += "Did you mean:\n"
+                    for sug in suggestions:
+                        result += f"  • {sug}\n"
+                return result
+
+            # Update planet manager with new location
+            try:
+                from core.services.planet_manager import PlanetManager
+                pm = PlanetManager()
+                current_planet = pm.get_current()
+
+                if current_planet:
+                    pm.set_location(
+                        planet_name=current_planet.name,
+                        name=matching_city['name'],
+                        latitude=matching_city['latitude'],
+                        longitude=matching_city['longitude'],
+                        region=matching_city.get('region'),
+                        country=matching_city['country']
+                    )
+
+                    return f"""📍 Location Set
+{'='*40}
+City: {matching_city['name']}
+Country: {matching_city['country']}
+Region: {matching_city.get('region', 'N/A')}
+Coordinates: {matching_city['latitude']:.4f}°, {matching_city['longitude']:.4f}°
+TILE Code: {matching_city['tile_code']}
+Grid Cell: {matching_city['grid_cell']}
+Layer: {matching_city['layer']}
+
+Use MAP VIEW to see the area around you."""
+                else:
+                    return "⚠️  No planet selected. Use CONFIG PLANET first."
+
+            except Exception as e:
+                return f"Error setting location: {str(e)}"
+
+        elif subcommand == "SET" and len(parts) >= 3:
+            # Set custom coordinates
+            try:
+                lat = float(parts[1])
+                lon = float(parts[2])
+
+                # Validate coordinates
+                if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                    return "Invalid coordinates. Latitude: -90 to 90, Longitude: -180 to 180"
+
+                # Convert to TILE code
+                tile_code = latlong_to_tile(lat, lon, layer=100)
+
+                # Update planet manager
+                from core.services.planet_manager import PlanetManager
+                pm = PlanetManager()
+                current_planet = pm.get_current()
+
+                if current_planet:
+                    pm.set_location(
+                        planet_name=current_planet.name,
+                        name="Custom Location",
+                        latitude=lat,
+                        longitude=lon
+                    )
+
+                    # Find nearest city
+                    nearby = self.map_renderer.list_cities_in_view(tile_code, radius_km=100)
+                    nearest = nearby[0] if nearby else None
+
+                    result = f"""📍 Custom Location Set
+{'='*40}
+Coordinates: {lat:.4f}°, {lon:.4f}°
+TILE Code: {tile_code}"""
+
+                    if nearest:
+                        result += f"""
+Nearest City: {nearest['name']} ({nearest['distance_km']:.1f} km)"""
+
+                    result += "\n\nUse MAP VIEW to see the area."
+                    return result
+                else:
+                    return "⚠️  No planet selected. Use CONFIG PLANET first."
+
+            except ValueError:
+                return "Invalid coordinates. Use decimal degrees (e.g., MAP LOCATE SET 51.5074 -0.1278)"
+            except Exception as e:
+                return f"Error setting location: {str(e)}"
+
+        else:
+            return """Usage: MAP LOCATE CITY <name> or MAP LOCATE SET <lat> <lon>
+
+Examples:
+  MAP LOCATE CITY London
+  MAP LOCATE CITY Sydney
+  MAP LOCATE SET 51.5074 -0.1278"""
 
     def _handle_layers(self, params):
         """Show accessible layers."""

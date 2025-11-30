@@ -25,13 +25,12 @@ class Config:
     Handles .env files, user.json, and runtime state.
     """
 
-    # Allowed .env keys
+    # Allowed .env keys (SYSTEM configuration only - NO user data)
     ENV_KEYS = {
         'GEMINI_API_KEY': 'Gemini AI API Key',
         'OPENROUTER_API_KEY': 'OpenRouter API Key',
         'ANTHROPIC_API_KEY': 'Anthropic API Key',
         'OPENAI_API_KEY': 'OpenAI API Key',
-        'UDOS_USERNAME': 'Username',
         'UDOS_INSTALLATION_ID': 'Installation ID',
         'DEFAULT_WORKSPACE': 'Default workspace',
         'DEFAULT_MODEL': 'Default AI model',
@@ -58,7 +57,7 @@ class Config:
 
         self.project_root = project_root
         self.env_file = project_root / '.env'
-        self.user_config_file = project_root / 'memory' / 'sandbox' / 'user.json'
+        self.user_config_file = project_root / 'sandbox' / 'user' / 'user.json'
 
         self._env_loaded = False
         self._user_config: Optional[Dict] = None
@@ -125,8 +124,7 @@ OPENROUTER_API_KEY=''
 ANTHROPIC_API_KEY=''
 OPENAI_API_KEY=''
 
-# User Information
-UDOS_USERNAME='user'
+# Installation Identity (not user identity - see user.json for username)
 UDOS_INSTALLATION_ID='default'
 
 # Default Settings
@@ -329,9 +327,8 @@ AUTO_SAVE_SESSION='true'
 
     @property
     def username(self) -> str:
-        """Get username from env or user config."""
-        return self.get_env('UDOS_USERNAME') or \
-               self.get_user('user_profile.username', 'user')
+        """Get username from user config only (single source of truth)."""
+        return self.get_user('USER_PROFILE.NAME', 'user')
 
     @property
     def installation_id(self) -> str:

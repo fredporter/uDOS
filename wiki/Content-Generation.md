@@ -1,25 +1,39 @@
 # Content Generation Guide
 
-**uDOS v1.0.0** - Automated content generation using Google Gemini (OK Assist)
+**uDOS v1.1.6** - Automated content generation using Google Gemini (OK Assist + Nano Banana)
 
-> **💡 Quick Start**: Generate content with `OK <task>` or `GENERATE guide <topic>`
+> **💡 Quick Start**: Generate SVG diagrams with `GENERATE SVG <description>` or guides with `OK <task>`
 
 ---
 
 ## Overview
 
-The Content Generation system (OK Assist) is uDOS's integrated Gemini-powered content creation toolkit using Google's Gemini API. It creates high-quality survival guides, technical diagrams, and reference materials in multiple formats.
+The Content Generation system includes two powerful subsystems:
+
+1. **GENERATE Command** (v1.1.6) - PNG→SVG pipeline for Technical-Kinetic diagrams via Nano Banana
+2. **OK Assist** (v1.0.0) - Text-based content creation using Gemini API
+
+Together they create high-quality survival guides, technical diagrams, and reference materials in multiple formats.
 
 ### Features
 
+**GENERATE Command (v1.1.6):**
+- ✅ **PNG→SVG Pipeline** - Nano Banana image generation + vectorization
+- ✅ **Technical-Kinetic Diagrams** - MCM geometry, monochrome, 2-3px strokes
+- ✅ **8 Diagram Types** - Flowchart, architecture, kinetic-flow, schematic, etc.
+- ✅ **3 Visual Styles** - technical-kinetic, hand-illustrative, hybrid
+- ✅ **Style Guide System** - 0-14 reference images for consistency
+- ✅ **Dual Vectorization** - potrace (primary) + vtracer (fallback)
+- ✅ **Strict Validation** - Technical-Kinetic compliance checking
+- ✅ **Fast Generation** - <30s standard, <60s Pro mode
+
+**OK Assist (v1.0.0):**
 - ✅ **Content Generation** - Guides, diagrams, checklists, reference materials
 - ✅ **Multi-Format Support** - Markdown, SVG, ASCII, Teletext
 - ✅ **Smart Fallback** - Automatically uses placeholders when offline
 - ✅ **Rate Limiting** - Prevents API quota issues (0.5s delays)
 - ✅ **Quality Validation** - Ensures generated content meets standards
 - ✅ **Batch Processing** - Generate multiple items efficiently
-- ✅ **Technical-Kinetic SVG** - Compliant diagram generation
-- ✅ **Pattern Library** - 12 pre-defined visual patterns
 
 ---
 
@@ -57,7 +71,121 @@ python dev/tools/generate_svg_diagram.py "test diagram" water
 
 ---
 
-## Content Generation
+## GENERATE Command (v1.1.6 - Nano Banana)
+
+> **⚡ New in v1.1.6**: Unified generation system with PNG→SVG pipeline for production-quality diagrams.
+
+### Quick Start
+
+```bash
+# Generate Technical-Kinetic SVG diagram
+GENERATE SVG water purification filter
+
+# Generate diagram with specific type
+GENERATE DIAGRAM gear mechanism --type kinetic-flow
+
+# Generate ASCII art (offline, instant)
+GENERATE ASCII water cycle --width 100
+
+# Pro mode (higher quality, slower)
+GENERATE SVG fire triangle --pro --strict
+```
+
+### Complete Reference
+
+**See:** [Nano Banana Integration Guide](Nano-Banana-Integration.md) for comprehensive documentation.
+
+**Key Features:**
+- **Nano Banana** - Gemini 2.5 Flash Image ("INSANE at generating LINE ART")
+- **PNG→SVG Pipeline** - Style Guide → Generate PNG → Vectorize → Validate → Save
+- **Technical-Kinetic** - MCM geometry, monochrome, 2-3px strokes, perfect for knowledge base
+- **Style Guide System** - Load 0-14 reference PNGs for consistent style
+- **Dual Vectorization** - potrace (primary) or vtracer (fallback)
+- **8 Diagram Types** - flowchart, architecture, kinetic-flow, schematic, hatching-pattern, typography, curved-conduits, gears-cogs
+- **3 Visual Styles** - technical-kinetic, hand-illustrative, hybrid
+- **Fast** - <30s generation (standard), <60s (Pro mode)
+
+### Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `GENERATE SVG <desc>` | Generate vector diagram | `GENERATE SVG water filter` |
+| `GENERATE DIAGRAM <desc>` | Alias for SVG | `GENERATE DIAGRAM fire triangle` |
+| `GENERATE ASCII <desc>` | ASCII art (offline) | `GENERATE ASCII water cycle --width 100` |
+| `GENERATE TELETEXT` | *(Not implemented)* | Redirects to DRAW |
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--style <style>` | Visual style | `technical-kinetic` |
+| `--type <type>` | Diagram type | `flowchart` |
+| `--save <file>` | Custom filename | Auto-generated |
+| `--pro` | Use Nano Banana Pro | `false` |
+| `--strict` | Enforce strict validation | `false` |
+| `--no-preview` | Skip preview hints | `false` |
+
+### Workflow Examples
+
+**Basic Generation:**
+```bash
+GENERATE SVG water purification methods
+GENERATE DIAGRAM shelter construction --style hand-illustrative
+GENERATE SVG gear mechanism --type kinetic-flow --pro
+```
+
+**Batch Generation with Quality Validation:**
+```uscript
+# File: sandbox/workflow/batch_svg_generation.uscript
+$topics = ["water filter", "fire triangle", "shelter types"]
+
+for $topic in $topics
+  PRINT "Generating: $topic"
+  GENERATE SVG $topic --strict --no-preview
+  SLEEP 3  # API rate limiting
+done
+
+PRINT "✅ Batch complete!"
+```
+
+**Knowledge Base Generation:**
+```uscript
+# Generate all water category diagrams
+GENERATE SVG water purification overview --type architecture --strict
+GENERATE SVG water collection methods --type flowchart --strict
+GENERATE SVG water filter construction --type kinetic-flow --strict
+GENERATE SVG water storage systems --type schematic --strict
+```
+
+### Testing
+
+Run comprehensive test suite:
+
+```bash
+# Run all tests with coverage
+python sandbox/tests/run_generate_tests.py --coverage
+
+# Unit tests only (fast, no API)
+python sandbox/tests/run_generate_tests.py --unit
+
+# Integration tests (requires API key)
+python sandbox/tests/run_generate_tests.py --integration
+
+# Quick tests (skip slow/network tests)
+python sandbox/tests/run_generate_tests.py --quick
+```
+
+### See Also
+
+- **[Nano Banana Integration Guide](Nano-Banana-Integration.md)** - Complete pipeline documentation
+- **[SVG Command Reference](SVG-Command-Reference.md)** - Legacy SVG command (deprecated in v1.1.6)
+- **[Workflows](Workflows.md)** - uCODE automation examples
+
+---
+
+## OK Assist (v1.0.0 - Text Content)
+
+### Content Generation
 
 ### Interactive Commands
 

@@ -1,0 +1,39 @@
+{
+  "name": "Grid Layout Template",
+  "description": "Template for creating grid-based layouts and tables",
+  "version": "1.0.0",
+  "type": "grid",
+  "components": {
+    "cell": {
+      "type": "box",
+      "style": "simple_box",
+      "width": 15,
+      "height": 3,
+      "text_align": "left",
+      "padding": 1
+    },
+    "header": {
+      "type": "box",
+      "style": "heavy_box",
+      "width": 15,
+      "height": 3,
+      "text_align": "center",
+      "padding": 1
+    }
+  },
+  "layout": {
+    "columns": 3,
+    "rows": "auto",
+    "cell_spacing": 0,
+    "margin": 1,
+    "border_collapse": true
+  },
+  "example": {
+    "headers": ["Name", "Status", "Priority"],
+    "rows": [
+      ["Task 1", "✓ Done", "High"],
+      ["Task 2", "→ Active", "Medium"],
+      ["Task 3", "○ Todo", "Low"]
+    ]
+  }
+}

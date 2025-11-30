@@ -41,33 +41,165 @@ class ConfigurationHandler(BaseCommandHandler):
             self._theme_builder = ThemeBuilder(theme_manager=self.theme_manager)
         return self._theme_builder
 
-    def handle_settings(self, params, grid, parser):
+    def handle_setup(self, params, grid, parser):
         """
-        Display or modify system settings.
+        Interactive story-style setup wizard.
 
         Usage:
-            SETTINGS                 - Show all settings
-            SETTINGS <key>           - Show specific setting
-            SETTINGS <key> <value>   - Set setting value
+            SETUP                 - Run interactive setup wizard
+            SETUP --show          - Display all current settings
+            SETUP <key>           - Show specific setting
+            SETUP <key> <value>   - Set setting value
 
-        Settings categories:
-            - THEME: Color theme settings
-            - GRID: Grid display settings
-            - USER: User profile settings
-            - SYSTEM: System configuration
+        The interactive wizard will guide you through:
+            - User profile (name, location, timezone)
+            - System preferences (theme, editor, offline mode)
+            - Optional world map location
         """
+        # Check for --show flag or no params runs wizard
         if not params:
+            return self._run_interactive_setup()
+        elif params[0] == '--show' or params[0].upper() == 'SHOW':
             return self._show_all_settings()
         elif len(params) == 1:
             return self._show_setting(params[0])
         elif len(params) == 2:
             return self._set_setting(params[0], params[1])
         else:
-            return ("❌ Invalid settings command\n\n"
+            return ("❌ Invalid setup command\n\n"
                    "Usage:\n"
-                   "  SETTINGS                  - Show all settings\n"
-                   "  SETTINGS <key>           - Show specific setting\n"
-                   "  SETTINGS <key> <value>   - Set setting value")
+                   "  SETUP                  - Run interactive setup wizard\n"
+                   "  SETUP --show           - Display all settings\n"
+                   "  SETUP <key>           - Show specific setting\n"
+                   "  SETUP <key> <value>   - Set setting value")
+
+    def _run_interactive_setup(self):
+        """Run interactive story-style setup wizard."""
+        try:
+            from core.config import Config
+            config = Config()
+
+            output = []
+            output.append("")
+            output.append("╔══════════════════════════════════════════════════════════╗")
+            output.append("║     🎮 Welcome to uDOS Interactive Setup Wizard!        ║")
+            output.append("╚══════════════════════════════════════════════════════════╝")
+            output.append("")
+            output.append("This wizard will help you configure your uDOS environment.")
+            output.append("")
+
+            # Get current values
+            current_username = config.get_user('USER_PROFILE.NAME', '')
+            current_location = config.get_user('USER_PROFILE.LOCATION', '')
+            current_timezone = config.get_user('USER_PROFILE.TIMEZONE', 'UTC')
+            current_theme = config.get_env('THEME', 'dungeon')
+
+            changes_made = False
+
+            # Username
+            output.append("┌─────────────────────────────────────────────────────────┐")
+            output.append("│ Step 1: User Profile                                    │")
+            output.append("└─────────────────────────────────────────────────────────┘")
+            output.append("")
+
+            if not current_username or current_username == 'user':
+                if self.input_manager:
+                    username = self.input_manager.prompt_user(
+                        message="What should we call you?",
+                        default="Explorer",
+                        required=True
+                    )
+                    config.set_user('USER_PROFILE.NAME', username)
+                    output.append(f"✅ Username set to: {username}")
+                    changes_made = True
+                else:
+                    output.append(f"Current username: {current_username}")
+                    output.append("💡 To change: SETUP username <new_name>")
+            else:
+                output.append(f"✅ Username: {current_username}")
+
+            output.append("")
+
+            # Location & Timezone
+            output.append("┌─────────────────────────────────────────────────────────┐")
+            output.append("│ Step 2: Location & Time                                 │")
+            output.append("└─────────────────────────────────────────────────────────┘")
+            output.append("")
+
+            # Auto-detect timezone
+            try:
+                from core.utils.system_info import get_system_timezone
+                detected_tz, detected_city = get_system_timezone()
+                output.append(f"📍 Detected: {detected_city} ({detected_tz})")
+
+                if not current_location or current_location == 'Unknown':
+                    if self.input_manager:
+                        use_detected = self.input_manager.prompt_choice(
+                            message="Use detected location?",
+                            choices=["Yes", "No, enter manually"],
+                            default="Yes"
+                        )
+
+                        if use_detected == "Yes":
+                            config.set_user('USER_PROFILE.LOCATION', detected_city)
+                            config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
+                            output.append(f"✅ Location set to: {detected_city}")
+                            output.append(f"✅ Timezone set to: {detected_tz}")
+                            changes_made = True
+                        else:
+                            location = self.input_manager.prompt_user(
+                                message="Enter your location (city, country):",
+                                default=detected_city,
+                                required=False
+                            )
+                            if location:
+                                config.set_user('USER_PROFILE.LOCATION', location)
+                                config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
+                                output.append(f"✅ Location set to: {location}")
+                                changes_made = True
+                    else:
+                        output.append(f"Current location: {current_location}")
+                        output.append("💡 To change: SETUP location <city>")
+                else:
+                    output.append(f"✅ Location: {current_location}")
+                    output.append(f"✅ Timezone: {current_timezone}")
+            except:
+                output.append(f"Location: {current_location}")
+                output.append(f"Timezone: {current_timezone}")
+
+            output.append("")
+
+            # Theme selection
+            output.append("┌─────────────────────────────────────────────────────────┐")
+            output.append("│ Step 3: Visual Theme                                    │")
+            output.append("└─────────────────────────────────────────────────────────┘")
+            output.append("")
+            output.append(f"Current theme: {current_theme}")
+            output.append("")
+            output.append("💡 Available themes: dungeon, cyberpunk, foundation")
+            output.append("💡 To change theme: THEME <name>")
+            output.append("")
+
+            # Summary
+            output.append("")
+            output.append("╔══════════════════════════════════════════════════════════╗")
+            if changes_made:
+                output.append("║  ✅ Setup Complete - Configuration Saved!               ║")
+            else:
+                output.append("║  ✅ Setup Complete - Configuration Verified!            ║")
+            output.append("╚══════════════════════════════════════════════════════════╝")
+            output.append("")
+            output.append("📝 Quick reference:")
+            output.append("   • View all settings: SETUP --show")
+            output.append("   • Interactive config: CONFIG")
+            output.append("   • Change theme: THEME <name>")
+            output.append("   • Edit settings: SETUP <key> <value>")
+            output.append("")
+
+            return "\n".join(output)
+
+        except Exception as e:
+            return f"❌ Setup wizard error: {e}\n\n💡 Try: SETUP --show to view current settings"
 
     def _show_all_settings(self):
         """Display all current settings organized by category."""
@@ -103,10 +235,10 @@ class ConfigurationHandler(BaseCommandHandler):
 
         # Get user data from ConfigManager (v1.5.0)
         config = get_config()
-        user_name = config.get('username', 'Not set')
-        location = config.get('location', 'Not set')
-        timezone = config.get('timezone', 'UTC')
-        password = config.get('password', '')
+        user_name = config.get_user('USER_PROFILE.NAME', 'Not set')
+        location = config.get_user('USER_PROFILE.LOCATION', 'Not set')
+        timezone = config.get_user('USER_PROFILE.TIMEZONE', 'UTC')
+        password = config.get_user('USER_PROFILE.PASSWORD', '')
         project_name = 'uDOS_project'  # TODO: Add to ConfigManager schema if needed
 
         password_display = '●●●●●●' if password else 'Not set'
@@ -118,7 +250,7 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append(f"  Timezone: {timezone}")
 
         # Get theme from ConfigManager
-        theme_name = config.get('theme', 'Not set')
+        theme_name = config.get_env('THEME', 'Not set')
         output.append(f"  Theme: {theme_name}")
 
         # System settings
@@ -128,11 +260,12 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append(f"  Debug Mode: {getattr(self.logger, 'debug_enabled', False) if self.logger else False}")
         output.append(f"  Auto-save: Enabled")
         output.append(f"  Connection Mode: {self.connection.get_mode() if self.connection else 'OFFLINE'}")
-        output.append(f"  CLI Editor: {config.get('CLI_EDITOR', 'nano')}")
+        output.append(f"  CLI Editor: {config.get_env('CLI_EDITOR', 'nano')}")
 
         output.append("")
         output.append("=" * 60)
-        output.append("💡 Use: SETTINGS <key> <value> to modify settings")
+        output.append("💡 Use: SETUP <key> <value> to modify settings")
+        output.append("💡 Use: CONFIG for interactive menu")
         output.append("💡 Use: THEME LIST to see available themes")
 
         return "\n".join(output)
@@ -140,6 +273,18 @@ class ConfigurationHandler(BaseCommandHandler):
     def _show_setting(self, key):
         """Show a specific setting value."""
         key_upper = key.upper()
+
+        # Special case: SHOW (from default params) means show all settings
+        if key_upper == 'SHOW':
+            return self._show_all_settings()
+
+        # Special case: EDIT means launch interactive editor
+        elif key_upper == 'EDIT':
+            return self.handle_config([])  # Launch interactive CONFIG menu
+
+        # Special case: RESET means reset to defaults
+        elif key_upper == 'RESET':
+            return self._reset_configs()
 
         # Check different setting categories
         if key_upper == 'THEME':
@@ -160,10 +305,10 @@ class ConfigurationHandler(BaseCommandHandler):
         elif key_upper == 'USER':
             # Get user data from ConfigManager (v1.5.0)
             config = get_config()
-            user_name = config.get('username', 'Not set')
-            location = config.get('location', 'Not set')
-            timezone = config.get('timezone', 'UTC')
-            password = config.get('password', '')
+            user_name = config.get_user('USER_PROFILE.NAME', 'Not set')
+            location = config.get_user('USER_PROFILE.LOCATION', 'Not set')
+            timezone = config.get_user('USER_PROFILE.TIMEZONE', 'UTC')
+            password = config.get_user('USER_PROFILE.PASSWORD', '')
 
             password_display = '●●●●●●' if password else 'Not set'
 
@@ -971,9 +1116,9 @@ class ConfigurationHandler(BaseCommandHandler):
                 "API Keys & Credentials",
                 "User Profile Settings",
                 "System Settings (Theme, Viewport, Debug)",
+                "Quick Setup (View/Edit All Settings)",
                 "Backup/Restore Configuration",
                 "Validate All Configurations",
-                "View All Settings (Detailed)",
                 "Cancel"
             ]
 
@@ -995,14 +1140,14 @@ class ConfigurationHandler(BaseCommandHandler):
             elif choice == "System Settings (Theme, Viewport, Debug)":
                 return self._manage_system_settings_interactive()
 
+            elif choice == "Quick Setup (View/Edit All Settings)":
+                return self._show_all_settings()
+
             elif choice == "Backup/Restore Configuration":
                 return self._manage_backup_restore_interactive()
 
             elif choice == "Validate All Configurations":
                 return self._validate_configs()
-
-            elif choice == "View All Settings (Detailed)":
-                return self._show_all_settings()
 
             else:  # Cancel
                 return "Configuration menu cancelled."
@@ -1020,8 +1165,8 @@ class ConfigurationHandler(BaseCommandHandler):
             config = get_config()
 
             # Get current API keys from ConfigManager
-            gemini_key = config.get('GEMINI_API_KEY', '')
-            github_token = config.get('GITHUB_TOKEN', '')
+            gemini_key = config.get_env('GEMINI_API_KEY', '')
+            github_token = config.get_env('GITHUB_TOKEN', '')
 
             # Show current status
             output = []
@@ -1051,7 +1196,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
                 if new_key:
-                    config.set('GEMINI_API_KEY', new_key, persist=True)
+                    config.set_env('GEMINI_API_KEY', new_key)
                     output.append("\n✅ Gemini API Key updated")
                     output.append("📝 Changes saved to .env")
                 else:
@@ -1064,7 +1209,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
                 if new_token:
-                    config.set('GITHUB_TOKEN', new_token, persist=True)
+                    config.set_env('GITHUB_TOKEN', new_token)
                     output.append("\n✅ GitHub Token updated")
                     output.append("📝 Changes saved to .env")
                 else:
@@ -1082,8 +1227,8 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=False
                 )
                 if confirm:
-                    config.set('GEMINI_API_KEY', '', persist=True)
-                    config.set('GITHUB_TOKEN', '', persist=True)
+                    config.set_env('GEMINI_API_KEY', '')
+                    config.set_env('GITHUB_TOKEN', '')
                     output.append("\n✅ API Keys cleared")
                     output.append("📝 Changes saved to .env")
                 else:
@@ -1107,11 +1252,11 @@ class ConfigurationHandler(BaseCommandHandler):
             from core.utils.system_info import get_system_timezone
             detected_timezone, detected_city = get_system_timezone()
 
-            # Get current profile from ConfigManager
-            user_name = config.get('username', '')
-            password = config.get('password', '')
-            location = config.get('location', '')
-            timezone = config.get('timezone', '')
+            # Get current profile from ConfigManager (user.json only - single source of truth)
+            user_name = config.get_user('USER_PROFILE.NAME', '')
+            password = config.get_user('USER_PROFILE.PASSWORD', '')
+            location = config.get_user('USER_PROFILE.LOCATION', '')
+            timezone = config.get_user('USER_PROFILE.TIMEZONE', '')
 
             # Use detected values as defaults if not set
             if not timezone or timezone == 'UTC':
@@ -1150,8 +1295,8 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=user_name,
                     required=True
                 )
-                # Update via ConfigManager (auto-persists to both .env and user.json)
-                config.set('username', new_name, persist=True)
+                # Update via ConfigManager (user.json only - single source of truth)
+                config.set_user('USER_PROFILE.NAME', new_name)
                 output.append(f"\n✅ Username updated to: {new_name}")
 
             elif action == "Password":
@@ -1160,7 +1305,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default="",
                     required=False
                 )
-                config.set('password', new_password, persist=True)
+                config.set_user('USER_PROFILE.PASSWORD', new_password if new_password else '')
                 if new_password:
                     output.append("\n✅ Password updated")
                 else:
@@ -1172,7 +1317,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=location or detected_city,
                     required=False
                 )
-                config.set('location', new_location, persist=True)
+                config.set_user('USER_PROFILE.LOCATION', new_location)
                 output.append(f"\n✅ Location updated to: {new_location}")
 
             elif action == "Timezone":
@@ -1181,7 +1326,7 @@ class ConfigurationHandler(BaseCommandHandler):
                     default=timezone or detected_timezone,
                     required=False
                 )
-                config.set('timezone', new_timezone, persist=True)
+                config.set_user('USER_PROFILE.TIMEZONE', new_timezone)
                 output.append(f"\n✅ Timezone updated to: {new_timezone}")
 
             elif action == "Update All Fields":
@@ -1210,15 +1355,15 @@ class ConfigurationHandler(BaseCommandHandler):
                     required=False
                 )
 
-                # Save all fields via ConfigManager (auto-persists)
-                config.set('username', new_name, persist=False)
-                config.set('password', new_password, persist=False)
-                config.set('timezone', new_timezone, persist=False)
-                config.set('location', new_location, persist=False)
-                config.save()  # Save all changes at once
+                # Save all fields via ConfigManager (user.json only - single source of truth)
+                config.set_user('USER_PROFILE.NAME', new_name)
+                if new_password:
+                    config.set_user('USER_PROFILE.PASSWORD', new_password)
+                config.set_user('USER_PROFILE.TIMEZONE', new_timezone)
+                config.set_user('USER_PROFILE.LOCATION', new_location)
 
                 output.append("\n✅ User profile updated")
-                output.append("📝 Changes saved to .env and user.json")
+                output.append("📝 Changes saved to user.json")
 
             return "\n".join(output)
 
@@ -1235,7 +1380,7 @@ class ConfigurationHandler(BaseCommandHandler):
             config = get_config()
 
             # Get current settings
-            current_theme = config.get('theme', 'dungeon')
+            current_theme = config.get_env('THEME', 'dungeon')
             debug_mode = getattr(self.logger, 'debug_enabled', False) if self.logger else False
             offline_mode = False  # TODO: Add to ConfigManager schema in future
 
@@ -1277,7 +1422,7 @@ class ConfigurationHandler(BaseCommandHandler):
                         choices=available_themes,
                         default=current_theme if current_theme in available_themes else available_themes[0]
                     )
-                    config.set('theme', new_theme, persist=True)
+                    config.set_env('THEME', new_theme)
                     output.append(f"\n✅ Theme changed to: {new_theme}")
                     output.append("📝 Changes saved to .env and user.json")
                     output.append("⚠️ Restart uDOS to apply theme changes")
@@ -1308,7 +1453,7 @@ class ConfigurationHandler(BaseCommandHandler):
 
             elif action == "Set CLI Editor (nano/micro/vim)":
                 # Get current editor
-                current_editor = config.get('CLI_EDITOR', 'nano')
+                current_editor = config.get_env('CLI_EDITOR', 'nano')
 
                 # Detect available editors
                 from core.services.editor_manager import EditorManager
@@ -1334,13 +1479,13 @@ class ConfigurationHandler(BaseCommandHandler):
                         output.append("\n📦 Installing micro editor...")
                         if editor_mgr.install_micro():
                             output.append("✅ Micro editor installed successfully!")
-                            config.set('CLI_EDITOR', 'micro', persist=True)
+                            config.set_env('CLI_EDITOR', 'micro')
                             output.append("📝 Set as default CLI editor")
                             output.append("💡 Use 'edit filename' to open files in micro")
                         else:
                             output.append("❌ Failed to install micro editor")
                     elif new_editor != "Back":
-                        config.set('CLI_EDITOR', new_editor, persist=True)
+                        config.set_env('CLI_EDITOR', new_editor)
 
                         # Reload environment variable immediately
                         import os
@@ -1413,7 +1558,12 @@ class ConfigurationHandler(BaseCommandHandler):
             config = get_config()
 
             # Try ConfigManager first for known keys
-            value = config.get(key)
+            # Check ENV keys first, then user config
+            if key.upper() in config.ENV_KEYS:
+                value = config.get_env(key.upper())
+            else:
+                value = config.get_user(key)
+
             if value is not None:
                 return self.output_formatter.format_panel(
                     f"Configuration: {key}",
@@ -1444,7 +1594,11 @@ class ConfigurationHandler(BaseCommandHandler):
 
             # Try ConfigManager first for known keys
             try:
-                config.set(key, value, persist=True)
+                # Route to appropriate method based on key type
+                if key.upper() in config.ENV_KEYS:
+                    config.set_env(key.upper(), value)
+                else:
+                    config.set_user(key, value)
                 return self.output_formatter.format_panel(
                     f"Configuration Updated: {key}",
                     f"New value: {value}\n📝 Changes saved to .env and user.json"

@@ -1,0 +1,120 @@
+{
+  "id": "poke_online",
+  "name": "POKE Online - Sharing & Tunneling",
+  "version": "1.1.7",
+  "description": "Local-first peer-to-peer sharing with secure tunneling. Share missions, collaborate on projects, and connect uDOS instances safely.",
+  "author": "uDOS Core Team",
+  "license": "MIT",
+  "category": "cloud",
+  "type": "service",
+  "status": "active",
+
+  "dependencies": {
+    "uDOS": ">=1.1.6",
+    "python": ">=3.10",
+    "extensions": ["logging-manager"]
+  },
+
+  "optional_dependencies": {
+    "ngrok": {
+      "description": "Secure tunneling service",
+      "install": "pip install pyngrok",
+      "config_required": "NGROK_AUTH_TOKEN"
+    },
+    "cloudflared": {
+      "description": "Cloudflare tunnel alternative",
+      "install": "Download from cloudflare.com",
+      "config_required": false
+    }
+  },
+
+  "requires_network": true,
+  "requires_permissions": [
+    "internet",
+    "file_share",
+    "tunnel_create",
+    "user_sessions"
+  ],
+
+  "commands": [
+    {
+      "name": "POKE TUNNEL",
+      "description": "Manage secure tunnels",
+      "subcommands": [
+        "OPEN [--port PORT] [--subdomain NAME] [--expires HOURS]",
+        "CLOSE [tunnel_id]",
+        "STATUS",
+        "LIST"
+      ]
+    },
+    {
+      "name": "POKE SHARE",
+      "description": "Share content with other users",
+      "subcommands": [
+        "CREATE <path> [--read] [--write] [--execute] [--expires HOURS]",
+        "REVOKE <token>",
+        "LIST [--mine] [--received]",
+        "ACCESS <token>"
+      ]
+    },
+    {
+      "name": "POKE GROUP",
+      "description": "Group collaboration features",
+      "subcommands": [
+        "CREATE <name> [--private]",
+        "JOIN <group_id>",
+        "INVITE <user> <group_id>",
+        "LEAVE <group_id>",
+        "LIST",
+        "CHAT <group_id> [message]"
+      ]
+    }
+  ],
+
+  "services": [
+    "TunnelManager",
+    "SharingManager",
+    "GroupManager",
+    "SecurityManager"
+  ],
+
+  "config": {
+    "default_tunnel_lifetime": "24h",
+    "max_concurrent_tunnels": 3,
+    "default_share_lifetime": "7d",
+    "max_share_size": "100MB",
+    "allow_public_shares": false,
+    "require_auth": true,
+    "rate_limit": {
+      "tunnels_per_hour": 10,
+      "shares_per_hour": 50,
+      "bandwidth_mb_per_hour": 500
+    }
+  },
+
+  "security": {
+    "encryption": "AES-256",
+    "authentication": "JWT + RSA",
+    "tunnel_protocol": "HTTPS only",
+    "share_validation": true,
+    "content_scanning": false,
+    "audit_logging": true
+  },
+
+  "ui": {
+    "web_dashboard": true,
+    "dashboard_port": 5002,
+    "real_time_updates": true,
+    "tunnel_qr_codes": true
+  },
+
+  "installation": {
+    "requires_setup": true,
+    "setup_steps": [
+      "Install ngrok or cloudflared",
+      "Configure authentication tokens",
+      "Set network permissions",
+      "Initialize security keys"
+    ]
+  }
+}

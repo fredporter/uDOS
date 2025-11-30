@@ -19,6 +19,10 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent))
 from shared import get_port_manager, BaseExtensionServer, BaseExtensionHandler
 
+# Import uDOS services
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'core'))
+from services.resource_manager import get_resource_manager
+
 # Setup logging to sandbox/logs
 LOG_DIR = Path(__file__).parent.parent.parent / 'sandbox' / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -37,9 +41,9 @@ port_manager = get_port_manager()
 EXTENSIONS = {
     'dashboard': {
         'port': 8888,
-        'path': 'dashboard',
-        'name': 'Dashboard Builder',
-        'description': 'Arcade-style customizable dashboard',
+        'path': '../bundled/web/dashboard',
+        'name': 'System Dashboard',
+        'description': 'Real-time system monitoring and control',
         'enabled': True
     },
     'teletext': {
@@ -109,6 +113,11 @@ class ExtensionHandler(BaseExtensionHandler):
         # Serve extension status page
         if path == '/api/status':
             self.serve_status_page()
+            return
+
+        # API endpoint for resources
+        if path == '/api/resources':
+            self.serve_resources()
             return
 
         # Default file serving
@@ -226,12 +235,57 @@ class ExtensionHandler(BaseExtensionHandler):
         <p>📊 <a href="/api/extensions">/api/extensions</a> - Extension configuration (JSON)</p>
         <p>💚 <a href="/api/health">/api/health</a> - Health check (JSON)</p>
         <p>📈 <a href="/api/status">/api/status</a> - This status page (HTML)</p>
+        <p>🔧 <a href="/api/resources">/api/resources</a> - Resource usage summary (JSON)</p>
     </div>
 </body>
 </html>
 """
 
         self.wfile.write(html.encode())
+
+    def serve_resources(self):
+        """Serve resource usage summary as JSON"""
+        try:
+            rm = get_resource_manager()
+
+            # API quotas
+            api_quotas = {}
+            for provider in ['gemini', 'github']:
+                status = rm.check_api_quota(provider)
+                api_quotas[provider] = {
+                    'used': status.get('used', 0),
+                    'limit': status.get('limit', 0),
+                    'available': status.get('available', 0),
+                    'percent': status.get('percent', 0)
+                }
+
+            # Disk usage
+            disk_usage = rm.get_disk_usage()
+
+            # System stats
+            system_stats = rm.get_system_stats()
+
+            response = {
+                'success': True,
+                'resources': {
+                    'api_quotas': api_quotas,
+                    'disk': disk_usage,
+                    'system': system_stats
+                },
+                'timestamp': datetime.now().isoformat()
+            }
+
+        except Exception as e:
+            response = {
+                'success': False,
+                'error': str(e)
+            }
+
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(response, indent=2).encode())
+
 
 def run_server(extension_name=None, port=None):
     """Run the unified extensions server with bulletproof port management"""
@@ -379,9 +433,9 @@ Available extensions: dashboard, teletext, terminal, markdown, character
     parser.add_argument(
         'extension',
         nargs='?',
-        choices=list(EXTENSIONS.keys()) + ['all'],
-        default='all',
-        help='Extension to run (default: all)'
+        choices=list(EXTENSIONS.keys()),
+        default=None,
+        help='Specific extension to run (e.g., terminal). If omitted, runs the main server manager.'
     )
 
     parser.add_argument(
@@ -410,8 +464,7 @@ Available extensions: dashboard, teletext, terminal, markdown, character
         sys.exit(0)
 
     # Run server
-    extension = None if args.extension == 'all' else args.extension
-    run_server(extension, args.port)
+    run_server(args.extension, args.port)
 
 if __name__ == '__main__':
     main()

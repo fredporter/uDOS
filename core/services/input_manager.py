@@ -346,10 +346,10 @@ class InputManager:
         """
         # Get viewport dimensions
         try:
-            from core.config_manager import ConfigManager
-            config = ConfigManager()
-            viewport_height = config.get('VIEWPORT_HEIGHT', 30)
-            viewport_width = config.get('VIEWPORT_WIDTH', 90)
+            from core.config import Config
+            config = Config()
+            viewport_height = config.get_user('SESSION_DATA.VIEWPORT.height', 30)
+            viewport_width = config.get_user('SESSION_DATA.VIEWPORT.width', 90)
         except:
             viewport_height = 30
             viewport_width = 90

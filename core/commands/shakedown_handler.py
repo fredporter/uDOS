@@ -173,10 +173,10 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("─" * 63)
 
         # Check universe.json exists
-        universe_path = self.root / "extensions" / "assets" / "data" / "universe.json"
+        universe_path = self.root / "core" / "data" / "universe.json"
         exists = universe_path.exists()
         symbol = '\u2713' if exists else '\u2717'
-        output.append(f"  {symbol} extensions/assets/data/universe.json")
+        output.append(f"  {symbol} core/data/universe.json")
         self._add_test("Planet: universe.json exists", exists)
 
         if exists:
@@ -200,7 +200,7 @@ class ShakedownHandler(BaseCommandHandler):
             except Exception as e:
                 output.append(f"  ❌ Error reading universe.json: {e}")
                 self._add_test("Planet: universe.json valid JSON", False, str(e))        # Check planets.json structure
-        planets_path = self.root / "memory" / "user" / "planets.json"
+        planets_path = self.root / "sandbox" / "user" / "planets.json"
         exists = planets_path.exists()
         symbol = "✅" if exists else "❌"
         output.append(f"  {symbol} sandbox/user/planets.json")
@@ -254,8 +254,8 @@ class ShakedownHandler(BaseCommandHandler):
         self._add_test("Assets: central directory exists", exists)
 
         if exists:
-            # Check asset subdirectories
-            asset_types = ["fonts", "icons", "patterns", "css", "js"]
+            # Check asset subdirectories (only fonts, icons, data)
+            asset_types = ["fonts", "icons", "data"]
             for asset_type in asset_types:
                 type_path = assets_path / asset_type
                 exists = type_path.exists()
@@ -334,9 +334,9 @@ class ShakedownHandler(BaseCommandHandler):
 
         memory_path = self.root / "memory"
 
-        # Expected directories (v1.5.0)
+        # Expected directories (v2.0.0 - workflow/sessions moved to sandbox)
         expected_dirs = [
-            "user", "planet", "sandbox", "workflow", "logs", "sessions",
+            "user", "planet", "sandbox", "logs",
             "private", "shared", "groups", "public", "modules", "scenarios",
             "missions", "barter", "themes"
         ]
@@ -348,6 +348,17 @@ class ShakedownHandler(BaseCommandHandler):
             if verbose or not exists:
                 output.append(f"  {symbol} memory/{dir_name}/")
             self._add_test(f"Memory: {dir_name} directory", True)  # Some may not exist yet
+
+        # Check sandbox directories for user data
+        sandbox_path = self.root / "sandbox"
+        sandbox_dirs = ["workflow", "sessions"]
+        for dir_name in sandbox_dirs:
+            dir_path = sandbox_path / dir_name
+            exists = dir_path.exists()
+            symbol = "✅" if exists else "⚠️"
+            if verbose or not exists:
+                output.append(f"  {symbol} sandbox/{dir_name}/")
+            self._add_test(f"Sandbox: {dir_name} directory", True)  # May not exist yet
 
         # Removed directories
         removed_dirs = ["config", "templates", "workspace", "tests"]
@@ -376,7 +387,7 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("🗄️  Database Location Tests")
         output.append("─" * 63)
 
-        user_path = self.root / "memory" / "user"
+        user_path = self.root / "sandbox" / "user"
 
         # Databases in sandbox/user/
         databases = ["knowledge.db", "xp.db"]

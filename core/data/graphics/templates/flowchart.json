@@ -1,0 +1,66 @@
+{
+  "name": "Flowchart Template",
+  "description": "Template for creating flowchart diagrams with decision nodes and process steps",
+  "version": "1.0.0",
+  "type": "flow",
+  "components": {
+    "process": {
+      "type": "box",
+      "style": "simple",
+      "width": 20,
+      "height": 3,
+      "padding": 1,
+      "text_align": "center"
+    },
+    "decision": {
+      "type": "diamond",
+      "style": "simple",
+      "width": 20,
+      "height": 5,
+      "text_align": "center"
+    },
+    "start_end": {
+      "type": "rounded_box",
+      "style": "rounded",
+      "width": 20,
+      "height": 3,
+      "text_align": "center"
+    },
+    "data": {
+      "type": "parallelogram",
+      "style": "simple",
+      "width": 20,
+      "height": 3,
+      "text_align": "center"
+    },
+    "connector": {
+      "type": "arrow",
+      "direction": "down",
+      "style": "light"
+    }
+  },
+  "layout": {
+    "orientation": "vertical",
+    "spacing": 2,
+    "margin": 2,
+    "auto_connect": true
+  },
+  "example": {
+    "nodes": [
+      {"id": "start", "type": "start_end", "text": "Start"},
+      {"id": "input", "type": "data", "text": "Get user input"},
+      {"id": "check", "type": "decision", "text": "Valid?"},
+      {"id": "process", "type": "process", "text": "Process data"},
+      {"id": "error", "type": "process", "text": "Show error"},
+      {"id": "end", "type": "start_end", "text": "End"}
+    ],
+    "connections": [
+      {"from": "start", "to": "input"},
+      {"from": "input", "to": "check"},
+      {"from": "check", "to": "process", "label": "Yes"},
+      {"from": "check", "to": "error", "label": "No"},
+      {"from": "process", "to": "end"},
+      {"from": "error", "to": "input"}
+    ]
+  }
+}

@@ -26,7 +26,7 @@ try:
     from core.uDOS_parser import Parser
     from core.uDOS_commands import CommandHandler
     from core.uDOS_grid import Grid
-    from core.uDOS_logger import Logger
+    from core.services.session_logger import SessionLogger  # v1.1.6: Backward-compatible wrapper
     from core.utils.files import WorkspaceManager
     from core.services.history import CommandHistory
     from core.services.user_manager import UserManager
@@ -145,7 +145,7 @@ def init_udos_systems():
             api_logger.info('Initializing uDOS systems...')
             parser = Parser()
             grid = Grid()
-            logger = Logger()
+            logger = SessionLogger()  # v1.1.6: Use backward-compatible wrapper
             workspace_manager = WorkspaceManager()
             command_history = CommandHistory()
             user_manager = UserManager()

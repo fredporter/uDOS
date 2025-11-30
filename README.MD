@@ -1,17 +1,105 @@
-# uDOS v1.0.0 - First Stable Public Release
+# uDOS v1.1.6 - Production Logging & Configuration
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.0.0 Stable** (November 2025)
-**Test Coverage**: **1,810 tests passing** (100%)
+**Current Status**: ✅ **v1.1.6 Stable** (November 28, 2025)
+**Latest Update**: Production logging system, variable duplication eliminated, single source of truth
+**Test Coverage**: **34 tests passing** for v1.1.6 logging system + **62 total tests**
 **Knowledge Bank**: **166+ comprehensive survival guides** across 8 categories
-**Documentation**: **62 wiki pages** (20,000+ lines, 100% coverage)
+**Documentation**: **62+ wiki pages** + comprehensive variable reference
 **Architecture**: **5-Tier Knowledge System** with private sandbox workspace
 **Community**: Production ready with GitHub templates, discussions, and marketplace
 
 ---
 
-## 🚀 v1.0.0 - First Stable Public Release!
+## 🚀 v1.1.6 - Production Logging & Configuration (November 28, 2025)
+
+**Latest Release:** v1.1.6 delivers production-grade flat-file logging with daily rotation and eliminates configuration duplication for cleaner architecture.
+
+### What's New in v1.1.6
+
+📊 **Production Logging System**
+- **Flat-File Architecture**: Simple, reliable logging without database overhead
+  - Daily log rotation with configurable retention
+  - Structured JSON logging for easy parsing
+  - Multiple log levels (DEBUG, INFO, WARNING, ERROR)
+  - Search utilities and statistics
+
+- **LoggingManager Service** (`core/services/logging_manager.py`, 432 lines)
+  - Centralized logging configuration
+  - Category-based log organization
+  - Context injection for rich metadata
+  - Backward-compatible with existing code
+
+- **SessionLogger** (`core/services/session_logger.py`, 166 lines)
+  - Session-aware logging for game/scenario tracking
+  - Move tracking and statistics
+  - Newline sanitization for clean logs
+
+🔧 **Configuration System Improvements**
+- **Single Source of Truth**: Eliminated variable duplication
+  - Username now lives ONLY in `user.json` (not `.env`)
+  - Clear separation: `.env` = system config, `user.json` = user data
+  - No sync issues, no confusion
+
+- **System Variables Documentation** (`core/docs/SYSTEM-VARIABLES.md`)
+  - Canonical variable reference
+  - NO DUPLICATION principle established
+  - Migration guide from older versions
+  - Code examples and best practices
+
+✅ **Complete Test Coverage**
+- 34/34 logging tests passing (100%)
+- 28/32 integration tests passing (87.5%)
+- Test suite: 21 LoggingManager + 13 SessionLogger
+
+---
+
+## 🎯 Previous Major Releases
+
+### v1.1.5 - SVG Graphics Extension (November 28, 2025)
+- AI-powered vector diagram generation
+- 4 artistic styles (lineart, blueprint, sketch, isometric)
+- Natural language → scalable SVG diagrams
+- Gemini API integration with offline fallback
+
+### v1.1.1 - Modern Syntax Update (November 27, 2025)
+
+**Latest Release:** v1.1.1 modernizes uCODE scripting with bracket notation, template strings, and one-line conditionals.
+
+### What's New in v1.1.1
+
+📝 **Modern uCODE Syntax**
+- **PRINT Command**: New primary output with `${var}` template strings
+  - `PRINT "Hello ${name}"` - Template substitution
+  - `PRINT[text]` - Three equivalent bracket formats
+  - Replaces verbose ECHO syntax
+
+- **Bracket Notation**: Clean, consistent syntax
+  - `SET[var = value]` - Assignment with brackets
+  - `GET[var]` - Retrieval with brackets
+  - Context-sensitive normalization
+
+- **One-Line IF**: Curly braces for conditions
+  - `IF{x > 5} THEN PRINT[Value is large]`
+  - `IF{status == "ready"} THEN SET[active=true]`
+  - Complex operators: `>`, `<`, `==`, `!=`, `AND`, `OR`, `NOT`
+
+📚 **Enhanced Documentation**
+- New **uCODE Syntax Quick Reference** (300+ lines)
+- Syntax comparison tables (old vs new)
+- Migration guide from v1.0.x
+- Updated inline code comments throughout
+
+✅ **Complete Test Coverage**
+- 35/35 tests passing (100%)
+- Bracket syntax: 11/11 ✅
+- SET/GET brackets: 14/14 ✅
+- One-line IF: 10/10 ✅
+
+---
+
+## 🚀 v1.0.0 - First Stable Public Release
 
 **Latest Release:** v1.0.0 is the first production-ready stable release with clean sandbox architecture, 5-tier knowledge system, comprehensive testing, and community-ready infrastructure.
 

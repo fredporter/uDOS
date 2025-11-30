@@ -1,6 +1,7 @@
 # ====================================
 # Form Validation Template
 # Provides a complete form validation system
+# Modern uCODE v1.1.2+ syntax
 # ====================================
 
 # Import validators module
@@ -16,12 +17,12 @@ FUNCTION validate_username(username)
 
         # Check length
         CALL length(username)
-        GET[RETURN_VALUE]
-        SET[len = RETURN_VALUE]
+        GET [RETURN_VALUE]
+        SET [len = RETURN_VALUE]
 
         CALL is_in_range(len, 3, 20)
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Username must be 3-20 characters"
+        GET [RETURN_VALUE]
+        IF {RETURN_VALUE == "false"} THEN THROW "Username must be 3-20 characters"
 
         RETURN true
     CATCH error
@@ -40,13 +41,13 @@ FUNCTION validate_email(email)
 
         # Check contains @
         CALL contains(email, "@")
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Email must contain @"
+        GET [RETURN_VALUE]
+        IF {RETURN_VALUE == "false"} THEN THROW "Email must contain @"
 
         # Check contains .
         CALL contains(email, ".")
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Email must contain domain"
+        GET [RETURN_VALUE]
+        IF {RETURN_VALUE == "false"} THEN THROW "Email must contain domain"
 
         RETURN true
     CATCH error
@@ -65,12 +66,12 @@ FUNCTION validate_password(password)
 
         # Check length
         CALL length(password)
-        GET[RETURN_VALUE]
-        SET[len = RETURN_VALUE]
+        GET [RETURN_VALUE]
+        SET [len = RETURN_VALUE]
 
         CALL is_in_range(len, 8, 50)
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Password must be 8-50 characters"
+        GET [RETURN_VALUE]
+        IF {RETURN_VALUE == "false"} THEN THROW "Password must be 8-50 characters"
 
         RETURN true
     CATCH error

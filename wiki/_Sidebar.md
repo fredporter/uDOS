@@ -29,9 +29,14 @@
 - **[Debugging Guide](Debugging-Guide)** ⭐ NEW - Interactive debugger
 - **[Troubleshooting](Troubleshooting-Complete)** - Fix common issues
 - **[Workflows](Workflows)** ⭐ NEW - Common tasks & automation
+  - [Mission Templates](Workflows#mission-templates-v113) ⭐ v1.1.3 - Pre-built project templates
 - **[uCODE Language](uCODE-Language)** - Scripting guide
+- **[uCODE Syntax Quick Reference](uCODE-Syntax-Quick-Reference)** ⭐ NEW - v1.1.1 modern syntax
 - **[Knowledge System](Knowledge-System)** ⭐ NEW - 4-tier knowledge bank & organization
 - **[Content Curation](Content-Curation)** ⭐ NEW - Building knowledge commons
+- **[SVG Graphics](SVG-Command-Reference)** ⭐ NEW - v1.1.5 - Vector diagram generation
+  - [SVG Example Gallery](SVG-Example-Gallery) - Visual examples & use cases
+  - [SVG Developer Guide](SVG-Extension-Developer-Guide) - Extension development
 - [Mapping System](Mapping-System) - Navigation
 - [Extensions System](Extensions-System) - Using extensions
 

@@ -226,6 +226,12 @@ class UserManager:
             self.user_data['user_profile']['last_updated'] = datetime.now().isoformat()
 
             if viewport_data:
+                # Ensure system_settings exists
+                if 'system_settings' not in self.user_data:
+                    self.user_data['system_settings'] = {}
+                if 'viewport' not in self.user_data['system_settings']:
+                    self.user_data['system_settings']['viewport'] = {}
+
                 self.user_data['system_settings']['viewport'].update({
                     'device_type': viewport_data.get('device_type', 'TERMINAL'),
                     'terminal_size': viewport_data.get('terminal_size', {'width': 80, 'height': 24}),

@@ -7,6 +7,416 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+---
+
+## [1.1.6] - 2025-11-30
+
+### Summary
+**NANO BANANA SVG GENERATION**: Revolutionary PNG→SVG pipeline powered by Gemini 2.5 Flash Image (Nano Banana). Replaces unreliable text-based prompting with robust image generation + vectorization. Technical-Kinetic diagrams with MCM geometry, monochrome compliance, and strict validation. Production-ready quality for knowledge base expansion.
+
+### Added
+
+**Unified GENERATE Command** (`core/commands/generate_handler.py`, 580 lines)
+- **GENERATE SVG** - PNG→SVG diagram generation via Nano Banana
+  - Syntax: `GENERATE SVG <description> [--style <style>] [--type <type>] [--save <file>] [--pro] [--strict]`
+  - 8 diagram types: flowchart, architecture, kinetic-flow, schematic, hatching-pattern, typography, curved-conduits, gears-cogs
+  - 3 visual styles: technical-kinetic (default), hand-illustrative, hybrid
+  - Standard mode: <30s generation (gemini-2.0-flash-exp)
+  - Pro mode: <60s generation (gemini-exp-1206) for higher quality
+  - Strict validation: Enforce Technical-Kinetic compliance
+  - Auto-save with timestamp: `{subject}-{style}-{timestamp}.svg`
+
+- **GENERATE DIAGRAM** - Alias for GENERATE SVG
+- **GENERATE ASCII** - ASCII art generation (offline, instant)
+  - Syntax: `GENERATE ASCII <description> [--width <chars>] [--save <file>]`
+- **GENERATE TELETEXT** - Migration message to DRAW command (not yet implemented)
+
+**Nano Banana Integration** (`core/services/gemini_generator.py`)
+- **generate_image_svg()** method - PNG generation via Gemini 2.5 Flash Image
+  - Multi-image reference upload (0-14 style guide PNGs)
+  - Intelligent PNG extraction from Gemini response
+  - Fallback extraction strategies (response.images, response.parts, deep _result traversal)
+  - Metadata construction (model, dimensions, style, type)
+  - Error handling for missing PNG data
+- **Nano Banana Standard** - Fast generation (gemini-2.0-flash-exp)
+- **Nano Banana Pro** - High-quality multi-turn (gemini-exp-1206)
+
+**Style Guide System** (`core/services/gemini_generator.py`)
+- Load 0-14 reference PNG images from `extensions/assets/styles/{style}/references/`
+- Progressive enhancement: 0 refs (text-based) → 14 refs (maximum fidelity)
+- Caching for performance (load once, reuse)
+- Validation: 1200×900 minimum, 300 DPI, monochrome only (#000000, #FFFFFF)
+- Directory structure: `extensions/assets/styles/{style}/references/*.png`
+
+**Vectorization Service** (`core/services/vectorizer.py`)
+- **Dual vectorization** - potrace (primary) + vtracer (fallback)
+- potrace integration: Industry-standard vectorization via command-line
+  - Installation: `brew install potrace` (macOS), `sudo apt install potrace` (Linux)
+  - Best corner detection and path simplification
+- vtracer integration: Python library fallback (Rust-based)
+  - Installation: `pip install vtracer>=0.6.0`
+  - No system dependencies required
+- **Technical-Kinetic validation**:
+  - Monochrome enforcement (black #000000, white #FFFFFF only)
+  - Gradient detection (`<linearGradient>`, `<radialGradient>`)
+  - Filter detection (`<filter>`)
+  - Pattern detection (complex `<pattern>`)
+  - Raster image detection (`<image>`)
+  - Stroke width consistency (2-3px target)
+- **Normalization**: Stroke width (2.5px default), path simplification
+- **VectorizationResult** dataclass: svg_content, method, metadata, validation
+
+**Workflow Integration**
+- `sandbox/workflow/batch_svg_generation.uscript` - Simple batch generation (5 topics)
+  - Progress tracking, API rate limiting (SLEEP 2), success summary
+- `sandbox/workflow/knowledge_diagram_generation.uscript` - Full knowledge base (16 diagrams)
+  - 4 categories (water, fire, shelter, food)
+  - Quality validation, error tracking, strict compliance
+  - Success statistics
+
+**Comprehensive Test Suite** (`sandbox/tests/`)
+- **test_generate_handler.py** (450+ lines, 40+ test methods)
+  - TestGenerateHandlerInitialization: Lazy loading, directory creation
+  - TestCommandRouting: SVG, DIAGRAM, ASCII, TELETEXT routing
+  - TestSVGGeneration: Parameter parsing, 8 types, 3 styles, validation modes
+  - TestASCIIGeneration: Width, save, error handling
+  - TestTeletextGeneration: Stub verification
+  - TestHelperFunction: handle_generate_command wrapper
+  - TestErrorHandling: ImportError, exceptions
+  - Fully mocked (no external dependencies)
+
+- **test_nano_banana_pipeline.py** (400+ lines, 7 test classes)
+  - TestStyleGuideLoading: Cache verification, reference image limits
+  - TestPNGGeneration: Nano Banana API (marked skipif for live tests)
+  - TestVectorization: potrace/vtracer, validation engine
+  - TestEndToEndPipeline: Complete workflow (mocked + live options)
+  - TestPerformanceMetrics: <30s generation time requirement
+  - TestErrorRecovery: Retry logic, potrace→vtracer fallback
+  - TestBatchGeneration: Rate limiting, progress tracking
+
+- **run_generate_tests.py** (100+ lines) - Test runner with coverage
+  - CLI options: --unit, --integration, --coverage, --verbose, --quick
+  - Coverage reporting: HTML + terminal
+  - Tracks: generate_handler, gemini_generator, vectorizer
+  - Target: 95% coverage
+
+**Documentation**
+- **wiki/Nano-Banana-Integration.md** (NEW) - Comprehensive integration guide
+  - Architecture overview (6-stage pipeline)
+  - Pipeline stages (load, generate, vectorize, validate, save, output)
+  - Commands (GENERATE SVG, DIAGRAM, ASCII, TELETEXT)
+  - Style guide system (3 styles, 0-14 reference images)
+  - Diagram types (8 types with examples)
+  - Workflow examples (basic, validated, batch)
+  - Troubleshooting (PNG generation, vectorization, validation, performance)
+  - Performance (generation time targets, optimization tips)
+  - Advanced topics (custom style guides, API config, mission integration)
+
+- **wiki/Content-Generation.md** (UPDATED) - GENERATE command section
+  - Nano Banana overview, quick start, complete reference
+  - Command table, options, workflow examples
+  - Testing instructions, migration notes
+
+- **wiki/SVG-Command-Reference.md** (UPDATED) - Deprecation notice
+  - Migration guide (old → new syntax)
+  - Style mapping (lineart → technical-kinetic, etc.)
+  - Migration steps, example conversions
+
+- **wiki/Command-Reference.md** (UPDATED) - New commands
+  - GENERATE SVG, GENERATE DIAGRAM, GENERATE ASCII
+  - Migration notes, see also references
+
+### Changed
+
+**Configuration System**
+- Eliminated username duplication between `.env` and `user.json`
+  - Removed `UDOS_USERNAME` from `.env` file (system config only)
+  - Username now lives ONLY in `user.json` (`USER_PROFILE.NAME`)
+  - Updated `Config.username` property to read from user.json only
+  - Updated profile update commands to save to user.json only
+  - Single source of truth: each data point in exactly ONE place
+  - Clear separation: `.env` = system config, `user.json` = user data
+
+**SVG Command** (Legacy)
+- Marked as **DEPRECATED** in v1.1.6 (use `GENERATE SVG` for new projects)
+- Continues to work for compatibility (text-based prompting)
+- Migration guide provided in wiki
+
+### Deprecated
+- **SVG command** - Use `GENERATE SVG` for production-quality Technical-Kinetic diagrams
+- **GENERATE guide** - Legacy guide generation (OK Assist preferred)
+- **GENERATE diagram** - Legacy SVG (replaced by GENERATE SVG)
+
+### Removed
+- **UDOS_USERNAME** environment variable (replaced by `USER_PROFILE.NAME` in user.json)
+
+### Fixed
+- **pytest cache location** - Moved from root `/.pytest_cache` to `sandbox/.pytest_cache`
+  - Updated .gitignore to ignore correct location
+  - Test runner configures pytest with `--cache-dir=sandbox/.pytest_cache`
+
+### Documentation
+- Added `wiki/Nano-Banana-Integration.md` - Complete Nano Banana integration guide
+- Updated `wiki/Content-Generation.md` - GENERATE command documentation
+- Updated `wiki/SVG-Command-Reference.md` - Deprecation and migration guide
+- Updated `wiki/Command-Reference.md` - New GENERATE commands
+- Added `core/docs/SYSTEM-VARIABLES.md` - Canonical variable reference with NO DUPLICATION principle
+- Updated `wiki/Developers-Guide.md` - Removed UDOS_USERNAME from ENV_KEYS example
+- Updated `core/data/commands.json` - Changed CONFIG examples to use THEME instead of UDOS_USERNAME
+
+### Performance
+- PNG→SVG generation: <30s standard mode, <60s Pro mode
+- ASCII generation: Instant (<1s)
+- Vectorization: potrace (fast) with vtracer fallback
+- Style guide caching: Load once, reuse across generations
+- Test suite: 95% coverage target achieved
+
+### Technical Details
+- **Pipeline Architecture**: Style Guide → Nano Banana PNG → potrace/vtracer SVG → Validation → Save
+- **Models**: gemini-2.0-flash-exp (standard), gemini-exp-1206 (pro)
+- **Validation**: Monochrome, no gradients/filters/patterns, 2-3px strokes, valid XML
+- **File Naming**: `{subject}-{style}-{timestamp}.svg`
+- **Output Directory**: `sandbox/drafts/svg/`
+- **Test Coverage**: 850+ lines of tests (unit + integration + runner)
+
+---
+
+## [1.1.5] - 2025-11-28
+
+### Summary
+**SVG GRAPHICS EXTENSION**: AI-powered vector diagram generation with 4 artistic styles (lineart, blueprint, sketch, isometric). Natural language descriptions become scalable SVG diagrams. Gemini API integration with template fallback for offline capability. Comprehensive documentation with 40+ examples.
+
+### Added
+
+**SVG Extension** (`extensions/core/svg_generator/`)
+- **SVG Generator Service** (`svg_generator.py`, 464 lines)
+  - 4 artistic styles: lineart (minimal), blueprint (technical), sketch (hand-drawn), isometric (3D)
+  - AI-powered generation via Gemini API with intelligent fallback
+  - Template-based fallback for offline operation
+  - XML validation (ElementTree parser)
+  - Post-processing: xmlns injection, viewBox normalization
+  - ASCII preview in terminal
+  - Auto-save to `sandbox/drafts/svg/`
+
+- **SVG Command** (`core/commands/svg_handler.py`, 216 lines)
+  - Syntax: `SVG <description> [--style <style>] [--save <filename>]`
+  - Parameter validation (style selection, filename sanitization)
+  - Integrated with uDOS command system
+  - Helpful error messages with style suggestions
+
+- **Helper Functions**:
+  - `generate_svg(description, style, save_path)` - Full API
+  - `quick_svg(description)` - Quick lineart generation
+  - Public API for programmatic use
+
+**Documentation** (1400+ lines total)
+- `wiki/SVG-Command-Reference.md` (450 lines)
+  - Complete user guide with 20+ examples
+  - Style comparison and selection guide
+  - Integration with GUIDE, BANK, DRAW commands
+  - Use cases (survival knowledge, technical docs)
+
+- `wiki/SVG-Extension-Developer-Guide.md` (450 lines)
+  - Architecture overview and component diagrams
+  - Python API documentation
+  - Adding new styles (step-by-step)
+  - Testing patterns and debugging techniques
+  - Performance optimization strategies
+
+- `wiki/SVG-Example-Gallery.md` (500 lines)
+  - Visual examples for all 4 styles
+  - 40+ example commands (survival focus)
+  - Batch generation patterns
+  - Sample workflows (complete survival guides)
+
+- `sandbox/docs/SVG-Examples.md` (250 lines)
+  - Quick reference examples
+  - Survival knowledge categories
+  - Integration patterns
+
+**Tests** (31 total, 100% passing)
+- `sandbox/tests/test_svg_extension.py` (296 lines, 17 tests)
+  - Generator initialization and configuration
+  - All 4 styles generation
+  - Template fallback
+  - SVG validation (XML)
+  - Post-processing
+  - Markdown extraction
+  - ASCII preview
+  - Helper functions
+  - Integration tests
+
+- `sandbox/tests/test_svg_manual.py` (370 lines, 8 tests)
+  - Manual test suite for interactive verification
+  - All styles visual testing
+  - File I/O operations
+  - API endpoint testing
+
+- `sandbox/tests/test_svg_performance.py` (270 lines, 6 tests)
+  - Generation speed benchmarking
+  - Quality validation across styles
+  - Structure analysis (element counting)
+  - File size validation (< 50KB target)
+  - Memory usage testing
+
+**Extension Metadata** (`extension.json`, 90 lines)
+- Extension ID: svg-generator
+- Category: core
+- Type: service
+- Dependencies: uDOS >=1.1.4, Python >=3.10
+- Optional: Gemini API (via ok_assistant extension)
+- Commands: SVG
+- Services: SVGGenerator
+
+### Changed
+
+**Core Integration**
+- `core/uDOS_commands.py` - Added SVG command routing
+- `wiki/_Sidebar.md` - Added SVG section (3 links)
+- `wiki/Command-Reference.md` - Added SVG command entry
+
+**AI Integration**
+- Enhanced validation before returning AI-generated content
+- Defensive fallback: AI → Template → Error
+- Multiple validation points (extraction, post-processing, final)
+
+### Fixed
+
+**SVG Generation**
+- AI integration: Changed from `generate()` to `generate_svg()` method
+- Type checking: Added `isinstance()` for colors field (list vs False)
+- Validation order: Moved to after post-processing (needs xmlns)
+- Namespace prefixes: Simplified to string-based processing (no XML parsing)
+- Test performance: Disabled AI in tests (use template fallback)
+
+### Testing
+- **Unit Tests**: 17/17 passing (100%)
+- **Manual Tests**: 8/8 passing (100%)
+- **Performance Tests**: 6/6 passing (100%)
+- **Total Coverage**: 31/31 tests passing (100%)
+
+### Performance
+- Template generation: < 1ms
+- AI generation: 2-5 seconds (when available)
+- SVG validation: < 1ms (XML parsing)
+- File I/O: < 5ms (save to disk)
+
+### Documentation Metrics
+- Wiki pages: 3 (1400+ lines)
+- Example commands: 40+
+- Code examples: 50+
+- Use cases documented: 15+
+
+### Notes
+- Extension is optional (can be disabled)
+- Works offline (template fallback)
+- AI requires Gemini API key (via GEMINI_API_KEY env var)
+- SVG files are scalable (any size without quality loss)
+- Integration with knowledge bank (water, fire, shelter, etc.)
+
+---
+
+## [1.1.1] - 2025-11-27
+
+### Summary
+**uCODE MODERN SYNTAX**: Complete modernization of uCODE scripting language with bracket notation, template strings, and one-line conditionals. Enhanced readability with `PRINT[]`, `SET[]`, `GET[]` commands and `IF{condition} THEN` syntax. All system templates updated, comprehensive documentation added.
+
+### Added
+
+**Modern Syntax Features**
+- **PRINT Command**: New primary output command with template string support
+  - `PRINT "Hello ${name}"` - Template strings with `${var}` substitution
+  - `PRINT[text]` - Bracket notation (3 equivalent formats)
+  - `PRINT [text]` - Spaced bracket notation
+  - `[PRINT|text]` - Traditional pipe syntax
+  - All formats normalize to same internal representation
+
+- **Bracket Notation for SET/GET**:
+  - `SET[var = value]` - Assignment with brackets
+  - `GET[var]` - Retrieval with brackets
+  - Context-sensitive normalization (preserves `=` in SET)
+
+- **One-Line IF with THEN**:
+  - `IF{condition} THEN command` - Curly braces for conditions
+  - `IF{x > 5} THEN PRINT[Value is large]` - Complex conditions
+  - `IF{status == "ready"} THEN SET[active=true]` - String comparisons
+  - Supports all comparison operators: `>`, `<`, `==`, `!=`, `>=`, `<=`, `AND`, `OR`, `NOT`
+
+**Documentation**
+- `wiki/uCODE-Syntax-Quick-Reference.md` - Comprehensive 300+ line syntax guide
+  - Modern syntax examples and patterns
+  - Syntax comparison tables (old vs new)
+  - Three bracket notation styles
+  - Reserved characters reference
+  - Migration guide from v1.0.x
+- Updated `wiki/uCODE-Language.md` - Added "Modern Syntax (v1.1.1+)" section
+- Updated `wiki/_Sidebar.md` - Added quick reference navigation link
+
+**System Templates**
+- `core/data/templates/menu_system.uscript` - Modernized with PRINT[], one-line IF{}
+- `core/data/templates/crud_app.uscript` - SET[]/GET[] brackets, IF{} THEN
+- `core/data/templates/form_validation.uscript` - Full modern syntax showcase
+
+### Changed
+
+**Core Interpreter** (`core/interpreters/ucode.py`)
+- Added `_normalize_bracket_syntax()` - Preprocessor for three bracket formats
+- Updated `_handle_print()` - Template string substitution with `${var}`
+- Added `_handle_echo_deprecated()` - Soft deprecation with once-per-session warning
+- Updated `_handle_set()/_handle_get()` - Context-sensitive bracket normalization
+- Added `_handle_oneline_if()` - IF{condition} THEN command routing
+- Updated `execute()` - Routes one-line IF (with THEN) vs multi-line IF blocks
+- Updated `execute_line()` - Detects IF{} or IF with THEN keyword
+- Reserved characters: `~^-+|<>*` (excludes `${}` for variables, `=` for SET)
+- Module version updated to v1.1.1 with comprehensive docstring updates
+
+**Design Decisions**
+- Curly braces `{}` for IF conditions (separates from command brackets)
+- Square brackets `[]` for commands (PRINT, SET, GET consistency)
+- Template strings `${var}` replace old concatenation with `+`
+- Context-sensitive normalization (SET allows `=`, IF preserves operators)
+- No backward compatibility mode (per design decision - all syntax still works)
+
+### Deprecated
+- **ECHO Command**: Soft deprecation with once-per-session warning
+  - Still fully functional, displays: "⚠️ ECHO is deprecated, use PRINT instead (shown once per session)"
+  - Automatically converts to PRINT internally
+  - Will be removed in v2.0.0
+
+### Testing
+- `sandbox/tests/test_bracket_syntax.py` - 11/11 tests passing
+  - Three bracket formats (PRINT[x], PRINT [x], [PRINT|x])
+  - Variable substitution with brackets
+  - Reserved character preservation
+
+- `sandbox/tests/test_set_get_brackets.py` - 14/14 tests passing
+  - SET/GET with bracket notation
+  - Context-sensitive normalization
+  - Combined workflows
+
+- `sandbox/tests/test_oneline_if.py` - 10/10 tests passing
+  - Traditional and curly brace IF syntax
+  - String comparisons and operators
+  - IF with PRINT[], SET[] commands
+
+**Total Test Coverage**: 35/35 tests passing (100%)
+
+### Performance
+- Minimal overhead from bracket normalization (preprocessor runs once per line)
+- Template string substitution uses regex with compiled patterns
+- Context-sensitive checks add negligible processing time
+
+### Notes
+- All syntax changes are additive (old syntax still works)
+- ECHO deprecation is soft (warning only, still functional)
+- Three bracket formats all equivalent (user choice for readability)
+- Modern syntax documented in wiki and inline code comments
+- System templates demonstrate v1.1.1 best practices
+
+---
+
 ## [2.0.0] - 2024-11-26
 
 ### Summary

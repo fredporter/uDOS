@@ -852,7 +852,6 @@ ENV_KEYS = {
     'OPENROUTER_API_KEY': 'OpenRouter API Key',
     'ANTHROPIC_API_KEY': 'Anthropic API Key',
     'OPENAI_API_KEY': 'OpenAI API Key',
-    'UDOS_USERNAME': 'Username',
     'UDOS_INSTALLATION_ID': 'Installation ID',
     'DEFAULT_WORKSPACE': 'Default workspace',
     'DEFAULT_MODEL': 'Default AI model',
@@ -864,6 +863,8 @@ ENV_KEYS = {
     'AUTO_SAVE_SESSION': 'Auto-save session',
 }
 ```
+
+**Note**: `UDOS_USERNAME` was removed in v1.1.6 - username now lives ONLY in `user.json` (`USER_PROFILE.NAME`).
 
 ### Extension System
 
@@ -1666,15 +1667,28 @@ except Exception as e:
 
 #### 4. Log Activity
 
+**v1.1.6+ (Recommended)**:
 ```python
-from core.logger import get_logger
+from core.services.logging_manager import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger('my-extension')
 
 logger.info("Extension started")
 logger.warning("Potential issue detected")
 logger.error("Operation failed", exc_info=True)
 logger.debug("Debug information", extra={'data': debug_data})
+```
+
+**See**: [Logging System](Logging-System.md) for complete logging API documentation.
+
+**Backward compatible** (Session logging):
+```python
+from core.services.session_logger import SessionLogger
+
+logger = SessionLogger()
+logger.log("Extension started")
+logger.error("Operation failed")
+logger.close()  # Optional - automatic cleanup
 ```
 
 ---

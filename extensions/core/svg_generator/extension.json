@@ -1,0 +1,89 @@
+{
+  "id": "svg-generator",
+  "name": "SVG Diagram Generator",
+  "version": "1.0.0",
+  "description": "Generate SVG diagrams using AI with multiple artistic styles",
+  "author": "uDOS Core Team",
+  "license": "MIT",
+  "category": "core",
+  "type": "service",
+  "status": "active",
+
+  "dependencies": {
+    "uDOS": ">=1.1.4",
+    "python": ">=3.10",
+    "extensions": ["ok_assistant"]
+  },
+
+  "requires_api": {
+    "gemini": {
+      "required": true,
+      "key_env": "GEMINI_API_KEY",
+      "models": ["gemini-1.5-flash", "gemini-1.5-pro"],
+      "quota_warning": "SVG generation uses AI tokens. Monitor usage."
+    }
+  },
+
+  "provides": {
+    "commands": [
+      {
+        "name": "SVG",
+        "description": "Generate SVG diagrams from text descriptions",
+        "syntax": "SVG <description> [--style <style>] [--save <file>]",
+        "examples": [
+          "SVG 'water filter diagram' --style blueprint",
+          "SVG 'fire starting' --style lineart --save fire.svg",
+          "SVG 'shelter construction' --style isometric"
+        ]
+      }
+    ],
+
+    "api_endpoints": [],
+
+    "services": [
+      {
+        "name": "SVGGenerator",
+        "description": "AI-powered SVG generation service",
+        "file": "svg_generator.py"
+      }
+    ]
+  },
+
+  "configuration": {
+    "default_style": "lineart",
+    "allowed_styles": ["lineart", "blueprint", "sketch", "isometric"],
+    "output_directory": "sandbox/drafts/svg",
+    "max_retries": 3,
+    "timeout_seconds": 60,
+    "validation_enabled": true,
+    "preview_enabled": true
+  },
+
+  "activation": {
+    "auto_load": false,
+    "requires_confirmation": true,
+    "activation_command": "EXTENSION LOAD svg-generator"
+  },
+
+  "files": {
+    "main": "svg_generator.py",
+    "init": "__init__.py",
+    "readme": "README.md",
+    "prompts": "prompts/",
+    "tests": "tests/"
+  },
+
+  "metadata": {
+    "created": "2025-11-28",
+    "updated": "2025-11-28",
+    "version_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-28",
+        "changes": "Initial release with 4 artistic styles"
+      }
+    ],
+    "documentation_url": "wiki/SVG-Generator-Extension.md",
+    "source_url": "extensions/core/svg-generator/"
+  }
+}

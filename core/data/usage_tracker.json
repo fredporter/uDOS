@@ -1,19 +1,34 @@
 {
   "command_counts": {
-    "HELP": 2,
-    "DASH": 2,
-    "SHOW": 1,
-    "CONFIG": 1,
-    "OUTPUT": 5
+    "HELP": 10,
+    "DASH": 3,
+    "SHOW": 2,
+    "CONFIG": 2,
+    "OUTPUT": 6,
+    "SETUP": 2,
+    "HISTORY": 1,
+    "STATUS": 1,
+    "SHAKEDOWN": 2,
+    "ACCESS": 2,
+    "ERROR": 2
   },
   "success_counts": {
-    "HELP": 2,
-    "DASH": 2,
-    "SHOW": 1,
-    "CONFIG": 1,
-    "OUTPUT": 5
+    "HELP": 10,
+    "DASH": 3,
+    "SHOW": 2,
+    "CONFIG": 2,
+    "OUTPUT": 5,
+    "SETUP": 1,
+    "HISTORY": 1,
+    "STATUS": 1,
+    "SHAKEDOWN": 2,
+    "ACCESS": 2
   },
-  "failure_counts": {},
+  "failure_counts": {
+    "OUTPUT": 1,
+    "ERROR": 2,
+    "SETUP": 1
+  },
   "recent_commands": [
     {
       "command": "HELP",
@@ -116,7 +131,194 @@
       ],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-11-29T13:33:20.192399",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SETUP",
+      "timestamp": "2025-11-29T13:34:03.721377",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-11-29T13:34:11.044511",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-11-29T13:34:28.257458",
+      "params": [
+        "start",
+        "terminal"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T13:35:03.458191",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HISTORY",
+      "timestamp": "2025-11-29T13:35:11.435801",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-11-29T13:35:14.823567",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T13:35:32.886598",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHAKEDOWN",
+      "timestamp": "2025-11-29T13:35:37.548580",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T13:35:55.625998",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T15:04:23.267244",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T15:05:21.484038",
+      "params": [
+        "RECENT"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T15:05:24.333023",
+      "params": [
+        "RECENT"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T15:05:30.833786",
+      "params": [
+        "STATS"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-11-29T15:05:34.045466",
+      "params": [
+        "session"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-11-29T15:05:42.400612",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHAKEDOWN",
+      "timestamp": "2025-11-29T15:05:44.321971",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ACCESS",
+      "timestamp": "2025-11-29T15:11:09.450731",
+      "params": [
+        "tree",
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-29T15:11:13.199617",
+      "params": [
+        "Invalid command: knowledge tree"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ACCESS",
+      "timestamp": "2025-11-29T15:11:17.045332",
+      "params": [
+        "help",
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-11-30T23:06:30.240929",
+      "params": [
+        "Invalid command: ./start_udos.sh sandbox/ucode/test_settings_fix.uscript 2>&1 "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "SETUP",
+      "timestamp": "2025-11-30T23:15:18.469167",
+      "params": [],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-26T20:21:08.840225"
+  "last_updated": "2025-11-30T23:16:02.205053"
 }

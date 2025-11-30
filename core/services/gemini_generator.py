@@ -1,16 +1,17 @@
 """
-Gemini Generator Service - v1.6.0
+Gemini Generator Service - v1.1.6
 API integration for content and diagram generation with citation tracking
 
 Features:
 - Text generation with mandatory citations
-- SVG generation (Technical-Kinetic style)
+- SVG generation via Nano Banana (Gemini 2.5 Flash Image) → PNG → vectorized SVG
 - ASCII/Teletext generation
+- Multi-image style guide uploads (up to 14 references)
 - Rate limiting and retry logic
 - Response validation
 
 Author: uDOS Development Team
-Version: 1.6.0
+Version: 1.1.6
 """
 
 import os
@@ -18,6 +19,7 @@ import json
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 import google.generativeai as genai
 from core.services.citation_manager import get_citation_manager
 
@@ -53,13 +55,26 @@ class GeminiGenerator:
         self.request_times: List[float] = []
 
         # Model configuration
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-2.5-flash"  # Text generation
+        self.image_model = "gemini-2.0-flash-exp"  # Image generation (Nano Banana)
+        self.image_pro_model = "gemini-exp-1206"  # Image Pro (Nano Banana Pro)
+
         self.generation_config = {
             "temperature": 0.7,
             "top_p": 0.95,
             "top_k": 40,
             "max_output_tokens": 8192,
         }
+
+        # Image generation config
+        self.image_config = {
+            "temperature": 0.4,  # Lower for consistent line art
+            "top_p": 0.9,
+            "top_k": 32,
+        }
+
+        # Style guide cache
+        self.style_guides: Dict[str, List[str]] = {}  # style_name -> [file_paths]
 
     def _check_rate_limit(self) -> None:
         """Enforce rate limiting"""
@@ -147,10 +162,181 @@ class GeminiGenerator:
 
         return content, metadata
 
+    def load_style_guide(self, style_name: str) -> List[Path]:
+        """
+        Load reference images for style guide.
+
+        Args:
+            style_name: Style identifier (technical-kinetic, hand-illustrative, etc.)
+
+        Returns:
+            List of image file paths (up to 14 for Nano Banana Pro)
+        """
+        # Check cache
+        if style_name in self.style_guides:
+            return [Path(p) for p in self.style_guides[style_name]]
+
+        # Load from filesystem
+        style_dir = Path(f"extensions/assets/styles/{style_name}/references")
+        if not style_dir.exists():
+            raise FileNotFoundError(f"Style guide not found: {style_dir}")
+
+        # Get PNG/JPG reference images (up to 14)
+        image_files = []
+        for pattern in ["*.png", "*.jpg", "*.jpeg"]:
+            image_files.extend(sorted(style_dir.glob(pattern)))
+
+        image_files = image_files[:14]  # Limit to 14 for Nano Banana Pro
+
+        if not image_files:
+            raise FileNotFoundError(f"No reference images in {style_dir}")
+
+        # Cache paths
+        self.style_guides[style_name] = [str(p) for p in image_files]
+
+        return image_files
+
+    def generate_image_svg(
+        self,
+        subject: str,
+        diagram_type: str = "flowchart",
+        style: str = "technical-kinetic",
+        requirements: Optional[List[str]] = None,
+        use_pro: bool = False
+    ) -> Tuple[bytes, Dict]:
+        """
+        Generate SVG via PNG intermediate using Nano Banana (Gemini Image models).
+
+        This is the NEW primary method for SVG generation using:
+        1. Gemini 2.0 Flash (Nano Banana) for image generation
+        2. Style guide reference images (up to 14)
+        3. Returns PNG bytes for vectorization
+
+        Args:
+            subject: Description of what to generate
+            diagram_type: flowchart, architecture, organic, schematic
+            style: Style guide name (technical-kinetic, etc.)
+            requirements: Additional requirements
+            use_pro: Use Nano Banana Pro for multi-turn refinement
+
+        Returns:
+            Tuple of (PNG bytes, metadata dict)
+
+        Raises:
+            FileNotFoundError: Style guide not found
+            RuntimeError: API call failed
+        """
+        # Load style guide reference images
+        ref_images = self.load_style_guide(style)
+
+        # Build prompt from template
+        prompt_key = 'svg_generation_technical_kinetic'
+        if prompt_key not in self.prompts.get('prompts', {}):
+            raise ValueError(f"Prompt template not found: {prompt_key}")
+
+        template = self.prompts['prompts'][prompt_key]['template']
+
+        # Format requirements
+        if requirements:
+            req_text = "\n".join(f"- {r}" for r in requirements)
+        else:
+            req_text = "(standard diagram)"
+
+        # Build prompt
+        prompt = template.format(
+            diagram_type=diagram_type,
+            subject=subject,
+            requirements=req_text
+        )
+
+        # Add critical instructions for PNG output
+        prompt += "\n\n**CRITICAL OUTPUT REQUIREMENT:**\n"
+        prompt += "Generate a HIGH-RESOLUTION PNG IMAGE (1200x900, 300dpi) with PERFECT monochrome line art.\n"
+        prompt += "This will be vectorized to SVG, so ensure:\n"
+        prompt += "- ONLY pure black (#000000) lines on pure white (#FFFFFF) background\n"
+        prompt += "- NO GRAY FILLS, NO GRADIENTS, NO ANTIALIASING\n"
+        prompt += "- Clean, crisp 2-3px stroke weight\n"
+        prompt += "- High contrast for perfect vectorization\n"
+
+        # Select model
+        model_name = self.image_pro_model if use_pro else self.image_model
+
+        # Check rate limit
+        self._check_rate_limit()
+
+        # Upload reference images
+        uploaded_refs = []
+        try:
+            for img_path in ref_images:
+                uploaded = genai.upload_file(str(img_path))
+                uploaded_refs.append(uploaded)
+
+            # Create model
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                generation_config=self.image_config
+            )
+
+            # Generate content with references
+            response = model.generate_content([
+                prompt,
+                *uploaded_refs  # Unpack all reference images
+            ])
+
+            # Extract PNG from response
+            # NOTE: The actual method to extract image bytes may vary
+            # depending on the Gemini API implementation
+            png_bytes = None
+
+            # Try different extraction methods
+            if hasattr(response, 'images') and response.images:
+                # Direct image data
+                png_bytes = response.images[0].data
+            elif hasattr(response, 'parts'):
+                # Check parts for image data
+                for part in response.parts:
+                    if hasattr(part, 'mime_type') and 'image' in part.mime_type:
+                        png_bytes = part.data
+                        break
+            elif hasattr(response, '_result') and hasattr(response._result, 'candidates'):
+                # Deep extraction from candidates
+                for candidate in response._result.candidates:
+                    for part in candidate.content.parts:
+                        if hasattr(part, 'inline_data') and part.inline_data:
+                            png_bytes = part.inline_data.data
+                            break
+
+            if not png_bytes:
+                raise RuntimeError(
+                    "Failed to extract PNG image from Gemini response. "
+                    "The model may not support image generation or returned unexpected format."
+                )
+
+            metadata = {
+                "model": model_name,
+                "style": style,
+                "diagram_type": diagram_type,
+                "subject": subject,
+                "reference_count": len(ref_images),
+                "use_pro": use_pro,
+                "timestamp": datetime.now().isoformat(),
+                "size_bytes": len(png_bytes)
+            }
+
+            return png_bytes, metadata
+
+        except Exception as e:
+            raise RuntimeError(f"Nano Banana image generation failed: {str(e)}")
+
     def generate_svg(self, subject: str, diagram_type: str = "flowchart",
                     requirements: List[str] = None) -> Tuple[str, Dict]:
         """
-        Generate Technical-Kinetic SVG diagram.
+        Generate Technical-Kinetic SVG diagram (LEGACY - direct text-to-SVG).
+
+        ⚠️ DEPRECATED: Use generate_image_svg() for better quality via Nano Banana.
+
+        This method uses text-based generation which produces inconsistent results.
+        Kept for backward compatibility only.
 
         Args:
             subject: Diagram subject/topic

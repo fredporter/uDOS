@@ -70,11 +70,19 @@ class DashboardHandler(BaseCommandHandler):
             status += f"║ 📐 Display: {specs['terminal_width']}×{specs['terminal_height']} chars".ljust(68) + " ║\n"
             status += f"║    Device Type: {specs['device_type'].ljust(50)} ║\n"
 
-        # User info
+        # User info - enhanced with location
+        config = get_config()
         if self.user_manager and self.user_manager.user_data:
             user_profile = self.user_manager.user_data.get('user_profile', {})
-            name = user_profile.get('NAME', 'Unknown')
-            status += f"║ 👤 User: {name[:50].ljust(56)} ║\n"
+            name = user_profile.get('username', config.username or 'user')
+            project = user_profile.get('project_name', 'uDOS')
+            status += f"║ 👤 User: {name[:20]} ({project[:30]})" + " "*(68-len(f"User: {name[:20]} ({project[:30]})") -4) + "║\n"
+
+            # Location info
+            location_data = self.user_manager.user_data.get('location', {})
+            city = location_data.get('city_name', 'Unknown')
+            timezone = location_data.get('timezone', {}).get('name', 'Unknown')
+            status += f"║ 📍 Location: {city}, {timezone}" + " "*(68-len(f"Location: {city}, {timezone}") -4) + "║\n"
 
         status += "╠" + "═"*68 + "╣\n"
 
@@ -105,14 +113,15 @@ class DashboardHandler(BaseCommandHandler):
                     status += f"║    {url.ljust(64)}║\n"
 
             if not any_running:
-                status += "║  ⭕ No servers running".ljust(69) + "║\n"
-                status += "║     Use: OUTPUT START <name> to launch".ljust(69) + "║\n"
+                status += "║  ⭕ No servers running" + " "*44 + "║\n"
+                status += "║     💡 Use: OUTPUT START teletext (or dashboard/typo)" + " "*7 + "║\n"
         except Exception as e:
-            status += "║  ⚠️  Server info unavailable".ljust(69) + "║\n"
+            status += "║  📡 Web servers not configured" + " "*36 + "║\n"
+            status += "║     💡 Available when extensions loaded" + " "*24 + "║\n"
 
         status += "╠" + "═"*68 + "╣\n"
 
-        # System health
+        # System health and resources
         status += "║ " + "🏥 SYSTEM HEALTH".ljust(67) + "║\n"
         status += "║ " + "─"*67 + "║\n"
 
@@ -122,19 +131,54 @@ class DashboardHandler(BaseCommandHandler):
             dep_result = check_dependencies()
             dep_ok = dep_result.status == "success"
 
-            status += f"║  Python: {'✅ OK' if py_ok else '⚠️  WARNING'.ljust(58)} ║\n"
-            status += f"║  Dependencies: {'✅ OK' if dep_ok else '⚠️  Issues detected'.ljust(52)} ║\n"
-        except Exception:
-            status += "║  Health check: ⚠️  Unable to verify".ljust(69) + "║\n"
+            status += f"║  Python: {'✅ ' + sys.version.split()[0] if py_ok else '⚠️  WARNING'}" + " "*(68-len(f"Python: {'✅ ' + sys.version.split()[0] if py_ok else '⚠️  WARNING'}") -3) + "║\n"
+            status += f"║  Dependencies: {'✅ All installed' if dep_ok else '⚠️  Issues detected'}" + " "*(68-len(f"Dependencies: {'✅ All installed' if dep_ok else '⚠️  Issues detected'}") -3) + "║\n"
+
+            # Add system resources
+            try:
+                import psutil
+                cpu = psutil.cpu_percent(interval=0.1)
+                mem = psutil.virtual_memory().percent
+                disk = psutil.disk_usage('.').percent
+
+                cpu_emoji = '✅' if cpu < 70 else '⚠️' if cpu < 90 else '🔴'
+                mem_emoji = '✅' if mem < 70 else '⚠️' if mem < 90 else '🔴'
+                disk_emoji = '✅' if disk < 80 else '⚠️' if disk < 95 else '🔴'
+
+                status += f"║  CPU: {cpu_emoji} {cpu:.1f}%  Memory: {mem_emoji} {mem:.1f}%  Disk: {disk_emoji} {disk:.1f}%" + " "*(68-len(f"CPU: {cpu_emoji} {cpu:.1f}%  Memory: {mem_emoji} {mem:.1f}%  Disk: {disk_emoji} {disk:.1f}%") -3) + "║\n"
+            except ImportError:
+                status += "║  Resources: 💡 Install psutil for monitoring" + " "*21 + "║\n"
+        except Exception as e:
+            status += "║  Health check: ⚠️  Unable to verify" + " "*30 + "║\n"
 
         # History stats if available
         if self.history:
             undo_count = len(self.history.undo_stack)
             redo_count = len(self.history.redo_stack)
-            status += f"║  History: {undo_count} undo / {redo_count} redo available".ljust(69) + "║\n"
+            history_str = f"History: {undo_count} undo / {redo_count} redo available"
+            status += f"║  {history_str}" + " "*(68-len(history_str) -3) + "║\n"
+
+        # API Quotas (if resource manager available)
+        try:
+            from core.services.resource_manager import get_resource_manager
+            rm = get_resource_manager()
+
+            status += "╠" + "═"*68 + "╣\n"
+            status += "║ " + "🔑 API QUOTAS".ljust(67) + "║\n"
+            status += "║ " + "─"*67 + "║\n"
+
+            for provider in ['gemini', 'github']:
+                quota_info = rm.check_api_quota(provider)
+                if 'error' not in quota_info:
+                    percent = quota_info['percent']
+                    emoji = "✅" if percent < 50 else "⚠️" if percent < 80 else "🔴"
+                    quota_str = f"{provider.upper()}: {emoji} {quota_info['used']}/{quota_info['limit']} ({percent}%)"
+                    status += f"║  {quota_str}" + " "*(68-len(quota_str) -3) + "║\n"
+        except Exception:
+            pass  # Skip quota section if not available
 
         status += "╚" + "═"*68 + "╝\n"
-        status += "\n💡 Tip: Use 'STATUS --live' for real-time monitoring\n"
+        status += "\n💡 Tips: STATUS --live (monitoring) | RESOURCE STATUS (detailed quotas)\n"
 
         return status
 
@@ -239,23 +283,27 @@ class DashboardHandler(BaseCommandHandler):
                 user_name = config.get('username', 'user')
                 location = config.get('location', 'Unknown')
                 timezone = config.get('timezone', 'UTC')
-                project = "uDOS"
-                project_type = "CLI Framework"
-                mode = "STANDARD"
+                planet = config.get('planet', 'Earth')
+                project = config.get('project_name', 'uDOS')
+                project_type = config.get('project_description', 'CLI Framework')
+                mode = config.get('mode', 'STANDARD')
             except:
                 user_name = "user"
                 location = "Unknown"
                 timezone = "UTC"
+                planet = "Earth"
                 project = "uDOS"
                 project_type = "CLI Framework"
                 mode = "STANDARD"
 
             line1 = f"  Name: {user_name:<20} Location: {location}"
             line2 = f"  Timezone: {timezone:<16} Mode: {mode}"
-            line3 = f"  Project: {project:<18} Type: {project_type}"
+            line3 = f"  Planet: {planet:<18} Project: {project}"
+            line4 = f"  Type: {project_type}"
             output.append("║" + line1.ljust(width) + "║")
             output.append("║" + line2.ljust(width) + "║")
             output.append("║" + line3.ljust(width) + "║")
+            output.append("║" + line4.ljust(width) + "║")
 
             # Installation Info
             output.append("╠" + "═" * width + "╣")

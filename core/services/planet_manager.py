@@ -115,7 +115,7 @@ class PlanetManager:
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
         self.planets_file = self.config_dir / "planets.json"
-        self.universe_file = Path("extensions/assets/data/universe.json")
+        self.universe_file = Path("core/data/universe.json")
         # Current planet now stored in planets.json under "current_planet" key
 
         # Initialize if needed
@@ -147,7 +147,7 @@ class PlanetManager:
         data = {
             "current_planet": current_planet,
             "user_planets": {name: asdict(planet) for name, planet in planets.items()},
-            "reference_universe": "extensions/assets/data/universe.json"
+            "reference_universe": "core/data/universe.json"
         }
 
         with open(self.planets_file, 'w') as f:

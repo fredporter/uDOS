@@ -27,6 +27,7 @@ uDOS/
 │   │   ├── diagram_handler.py
 │   │   ├── doc_handler.py
 │   │   ├── docs_unified_handler.py
+│   │   ├── draw_handler.py
 │   │   ├── example_handler.py
 │   │   ├── feedback_handler.py
 │   │   ├── file_handler.py
@@ -34,26 +35,33 @@ uDOS/
 │   │   ├── handbook_handler.py
 │   │   ├── knowledge_commands.py
 │   │   ├── learn_unified_handler.py
+│   │   ├── logs_handler.py
 │   │   ├── manual_handler.py
 │   │   ├── memory_commands.py
 │   │   ├── memory_unified_handler.py
+│   │   ├── mission_handler.py
 │   │   ├── panel_handler.py
 │   │   ├── peek_handler.py
 │   │   ├── private_commands.py
 │   │   ├── refresh_command.py
 │   │   ├── repair_handler.py
+│   │   ├── resource_handler.py
 │   │   ├── sandbox_handler.py
+│   │   ├── schedule_handler.py
 │   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
+│   │   ├── svg_handler.py
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
 │   │   ├── tree_handler.py
-│   │   └── user_handler.py
+│   │   ├── user_handler.py
+│   │   └── workflow_handler.py
 │   ├── data/
 │   │   ├── diagrams/
 │   │   ├── graphics/
 │   │   │   ├── blocks/
 │   │   │   │   ├── borders.json
+│   │   │   │   ├── box_drawing.json
 │   │   │   │   ├── maps.json
 │   │   │   │   ├── patterns.json
 │   │   │   │   └── teletext.json
@@ -62,9 +70,11 @@ uDOS/
 │   │   │   │   ├── shelter_hierarchy_tree.txt
 │   │   │   │   └── water_purification_flow.txt
 │   │   │   ├── templates/
-│   │   │   │   ├── flow_diagram.json
-│   │   │   │   ├── grid_diagram.json
-│   │   │   │   └── tree_diagram.json
+│   │   │   │   ├── flowchart.json
+│   │   │   │   ├── grid.json
+│   │   │   │   ├── hierarchy.json
+│   │   │   │   └── tree.json
+│   │   │   ├── components.json
 │   │   │   └── README.md
 │   │   ├── help_templates/
 │   │   │   ├── _index.json
@@ -104,6 +114,7 @@ uDOS/
 │   │   ├── font-system.json
 │   │   ├── fonts.json
 │   │   ├── locations.json
+│   │   ├── resource-config.json
 │   │   ├── ucode_variables.json
 │   │   ├── usage_tracker.json
 │   │   └── viewport.json
@@ -119,6 +130,7 @@ uDOS/
 │   │   ├── RESTORE.md
 │   │   ├── RUN.md
 │   │   ├── SETUP-ENHANCED.md
+│   │   ├── SYSTEM-VARIABLES.md
 │   │   ├── SYSTEM.md
 │   │   └── UNDO.md
 │   ├── input/
@@ -158,19 +170,28 @@ uDOS/
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
 │   │   ├── dev_mode_manager.py
+│   │   ├── diagram_compositor.py
+│   │   ├── diagram_generator.py
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
 │   │   ├── gemini_generator.py
 │   │   ├── graphics_compositor.py
+│   │   ├── graphics_library.py
 │   │   ├── help_manager.py
 │   │   ├── history.py
 │   │   ├── history_manager.py
 │   │   ├── input_manager.py
 │   │   ├── intelligent_error_handler.py
+│   │   ├── logging_manager.py
 │   │   ├── memory_manager.py
+│   │   ├── mission_manager.py
+│   │   ├── output_pacer.py
 │   │   ├── planet_manager.py
+│   │   ├── resource_manager.py
+│   │   ├── scheduler.py
 │   │   ├── session_analytics.py
+│   │   ├── session_logger.py
 │   │   ├── session_manager.py
 │   │   ├── session_replay.py
 │   │   ├── setup_wizard.py
@@ -268,6 +289,20 @@ uDOS/
 │   │   │   └── README.md
 │   │   ├── CREDITS.md
 │   │   └── README.md
+│   ├── bundled/
+│   │   └── web/
+│   │       └── dashboard/
+│   ├── cloud/
+│   │   └── poke_online/
+│   │       ├── web/
+│   │       ├── __init__.py
+│   │       ├── extension.json
+│   │       ├── group_manager.py
+│   │       ├── poke_commands.py
+│   │       ├── server.py
+│   │       ├── sharing_manager.py
+│   │       ├── start_server.sh
+│   │       └── tunnel_manager.py
 │   ├── core/
 │   │   ├── dashboard/
 │   │   │   ├── fonts/
@@ -306,6 +341,13 @@ uDOS/
 │   │   │   ├── README.md
 │   │   │   ├── STRUCTURE.md
 │   │   │   └── TEST-RESULTS.md
+│   │   ├── mission-control/
+│   │   │   ├── dashboard.css
+│   │   │   ├── dashboard.html
+│   │   │   ├── dashboard.js
+│   │   │   ├── dashboard_handler.py
+│   │   │   ├── extension.json
+│   │   │   └── README.md
 │   │   ├── ok_assistant/
 │   │   │   ├── __init__.py
 │   │   │   └── gemini_service.py
@@ -313,6 +355,11 @@ uDOS/
 │   │   │   ├── __init__.py
 │   │   │   ├── base_server.py
 │   │   │   └── port_manager.py
+│   │   ├── svg_generator/
+│   │   │   ├── __init__.py
+│   │   │   ├── extension.json
+│   │   │   ├── README.md
+│   │   │   └── svg_generator.py
 │   │   ├── teletext/
 │   │   │   ├── data/
 │   │   │   ├── fonts/
@@ -357,6 +404,7 @@ uDOS/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
+│   ├── web/
 │   ├── QUICK-REFERENCE.md
 │   ├── README.md
 │   ├── SERVER-MANAGEMENT.md
@@ -382,11 +430,8 @@ uDOS/
 │   ├── README.md
 │   └── structure.txt
 ├── sandbox/
-│   ├── peek/
-│   │   └── .gitkeep
-│   ├── update_all_docs.py
-│   ├── update_logging_paths.py
-│   └── update_paths.py
+│   └── peek/
+│       └── .gitkeep
 ├── .env.example
 ├── .gitignore
 ├── CHANGELOG.md

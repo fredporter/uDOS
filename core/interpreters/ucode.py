@@ -1,15 +1,27 @@
 """
 uDOS uCODE Interpreter
 Executes .uscript files with advanced programming features
-Version: 1.0.17
+Version: 1.1.1 (Modern Syntax Update)
 
 Features:
 - Variables (SET/GET/${var})
+- Modern Syntax (v1.1.1+):
+  * PRINT[] with ${var} template strings
+  * Flexible bracket notation: PRINT[x], PRINT [x], [PRINT|x]
+  * SET[]/GET[] bracket support
+  * One-line IF{condition} THEN command
+  * ECHO soft deprecation (still functional)
 - Control flow (IF/ELSE, FOR/WHILE)
 - Functions (FUNCTION/RETURN)
 - Error handling (TRY/CATCH)
 - Modules (IMPORT/EXPORT)
 - Interactive Debugger (DEBUG, BREAK, STEP, INSPECT)
+
+Syntax Notes:
+- Reserved chars for normalization: ~^-+|<>*
+- Template strings use ${var} instead of concatenation
+- Curly braces {} for IF conditions, square brackets [] for commands
+- Context-sensitive normalization (SET allows =, IF preserves operators)
 """
 
 import os
@@ -685,10 +697,14 @@ class UCodeInterpreter:
 
     def substitute_variables(self, text: str) -> str:
         """
-        Substitute ${variable} placeholders in text.
+        Substitute variable placeholders in text.
+
+        Supports two syntaxes:
+        - ${variable} - Traditional shell-style (backward compatible)
+        - @variable - Modern clean syntax (v1.1.2+)
 
         Args:
-            text: Text with ${var} placeholders
+            text: Text with ${var} or @var placeholders
 
         Returns:
             Text with variables substituted
@@ -700,7 +716,14 @@ class UCodeInterpreter:
                 return match.group(0)  # Keep placeholder if not found
             return str(value)
 
-        return re.sub(r'\$\{(\w+)\}', replacer, text)
+        # First substitute ${variable} syntax
+        text = re.sub(r'\$\{(\w+)\}', replacer, text)
+
+        # Then substitute @variable syntax (v1.1.2+)
+        # Match @word but not @@ or @ at end
+        text = re.sub(r'@(\w+)', replacer, text)
+
+        return text
 
     def evaluate_condition(self, condition: str) -> bool:
         """
@@ -1571,16 +1594,23 @@ class UCodeInterpreter:
 
     def _normalize_bracket_syntax(self, line: str) -> str:
         """
-        Normalize flexible bracket syntax to standard uCODE format.
+        Normalize flexible bracket syntax to standard uCODE format (v1.1.1).
 
-        Supports:
+        Modern Syntax Support:
         - PRINT[text] -> PRINT "text"
         - PRINT [text] -> PRINT "text"
         - [PRINT|text] -> PRINT "text"
+        - SET[var=value] -> SET var "value"
+        - GET[var] -> GET var
         - Variables: PRINT[System: ${name}] -> PRINT "System: ${name}"
 
         Reserved uCODE characters (NOT allowed in simple bracket content):
-        ~^-+=|<>*
+        ~^-+|<>*
+
+        Context-Sensitive Normalization:
+        - SET command: = allowed (for assignment syntax)
+        - IF command: NOT normalized (preserves operators like >, <, ==)
+        - Other commands: Normalize if no reserved chars present
 
         Note: $ { } are allowed for variable substitution (${var})
 
@@ -1734,9 +1764,19 @@ class UCodeInterpreter:
 
     def _handle_set(self, line: str) -> str:
         """
-        Handle SET command for variable assignment.
+        Handle SET command for variable assignment (v1.1.1 Modern Syntax).
 
-        Syntax: SET varname = value [PERSISTENT]
+        Syntax:
+            SET varname = value [PERSISTENT]
+            SET varname value [PERSISTENT]  # shorthand (no =)
+            SET[varname = value]  # v1.1.1 bracket notation
+            SET[varname=value]    # v1.1.1 compact notation
+
+        Examples:
+            SET name = "Alice"
+            SET name "Alice"      # shorthand
+            SET[count=42]
+            SET status active PERSISTENT
 
         Args:
             line: SET command line
@@ -1752,13 +1792,19 @@ class UCodeInterpreter:
         if persistent:
             line = line[:-11].strip()
 
-        # Parse assignment
-        if '=' not in line:
-            return "❌ SET syntax: SET varname = value [PERSISTENT]"
-
-        parts = line.split('=', 1)
-        var_name = parts[0].strip()
-        var_value = parts[1].strip() if len(parts) > 1 else ""
+        # Parse assignment (support both = and space-separated syntax)
+        if '=' in line:
+            # SET varname = value format
+            parts = line.split('=', 1)
+            var_name = parts[0].strip()
+            var_value = parts[1].strip() if len(parts) > 1 else ""
+        else:
+            # SET varname value format (shorthand)
+            parts = line.split(maxsplit=1)
+            if len(parts) < 2:
+                return "❌ SET syntax: SET varname value [PERSISTENT] or SET varname = value [PERSISTENT]"
+            var_name = parts[0].strip()
+            var_value = parts[1].strip()
 
         # Validate variable name
         if not var_name.isidentifier():
@@ -1776,15 +1822,22 @@ class UCodeInterpreter:
 
     def _handle_get(self, line: str) -> str:
         """
-        Handle GET command for variable retrieval.
+        Handle GET command for variable retrieval (v1.1.1 Modern Syntax).
 
-        Syntax: GET varname
+        Syntax:
+            GET varname
+            GET[varname]  # v1.1.1 bracket notation
+
+        Examples:
+            GET name
+            GET[count]
+            GET status
 
         Args:
             line: GET command line
 
         Returns:
-            Variable value or error
+            Variable value or error message
         """
         # Remove 'GET ' prefix
         var_name = line[4:].strip()
@@ -1858,12 +1911,18 @@ class UCodeInterpreter:
 
     def _handle_print(self, line: str) -> str:
         """
-        Handle PRINT command with template string support.
+        Handle PRINT command with template string support (v1.1.1 Modern Syntax).
 
         Syntax:
             PRINT "text"
             PRINT "Value: ${var}"
             PRINT variable_name
+            PRINT[text]               # v1.1.1 bracket notation
+            PRINT[System: ${name}]    # v1.1.1 with templates
+
+        Template Strings:
+            ${var} - Variable substitution within quoted strings
+            Example: PRINT "Hello ${name}, you have ${count} items"
 
         Args:
             line: PRINT command line
@@ -1881,6 +1940,13 @@ class UCodeInterpreter:
            (content.startswith("'") and content.endswith("'")):
             # Remove quotes
             text = content[1:-1]
+
+            # Process escape sequences (v1.1.1 fix)
+            text = text.replace('\\n', '\n')
+            text = text.replace('\\t', '\t')
+            text = text.replace('\\"', '"')
+            text = text.replace("\\'", "'")
+            text = text.replace('\\\\', '\\')
 
             # Substitute ${var} template strings
             # Pattern: ${variable_name}
@@ -1939,12 +2005,19 @@ class UCodeInterpreter:
 
     def _handle_oneline_if(self, line: str) -> str:
         """
-        Handle one-line IF with THEN (v1.1.1).
+        Handle one-line IF with THEN (v1.1.1 Modern Syntax).
 
-        Syntax:
+        Syntax Examples:
             IF condition THEN command
             IF{condition} THEN command
-            IF{condition} THEN PRINT[text]
+            IF{x > 5} THEN PRINT[Value is large]
+            IF{status == "ready"} THEN SET[active=true]
+
+        Features:
+        - Curly braces {} for conditions (v1.1.1 modern syntax)
+        - Supports complex operators: >, <, ==, !=, >=, <=, AND, OR, NOT
+        - THEN keyword required for one-line IF
+        - Can execute any command after THEN (including PRINT[], SET[], etc.)
 
         Args:
             line: One-line IF command

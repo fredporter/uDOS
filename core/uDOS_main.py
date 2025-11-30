@@ -9,7 +9,7 @@ from .output.splash import print_splash_screen
 from .uDOS_parser import Parser
 from .uDOS_commands import CommandHandler
 from .uDOS_grid import Grid
-from .uDOS_logger import Logger
+from .services.session_logger import SessionLogger  # v1.1.6: Backward-compatible wrapper
 from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
@@ -23,7 +23,7 @@ from .input.prompt_decorator import get_prompt_decorator
 # Old tree utility removed - now using TreeHandler
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput
-from .config_manager import get_config_manager  # v1.5.0 Unified Configuration
+from .config import Config  # v2.0.0 Unified Configuration (replaces config_manager)
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -31,52 +31,87 @@ import sys
 import os
 import time
 
-# Global configuration manager (v1.5.0+)
+# Global configuration manager (v2.0.0: Uses new Config class)
 _config_manager = None
 
 
 def get_config():
     """
-    Get global ConfigManager instance.
+    Get global Config instance.
 
     Returns:
-        ConfigManager instance
+        Config instance (v2.0.0: New unified config with .env and user.json support)
     """
     global _config_manager
     if _config_manager is None:
-        _config_manager = get_config_manager()
+        _config_manager = Config()
     return _config_manager
 
 def run_script(script_path, parser, grid, command_handler, logger, command_history=None):
     """
     Executes a uDOS script file non-interactively.
+
+    v1.1.1: Routes .uscript files to UCodeInterpreter for modern syntax support.
     """
     try:
-        with open(script_path, 'r') as f:
-            for line in f:
-                clean_line = line.strip()
-                if not clean_line or clean_line.startswith('#'):
-                    continue
+        # v1.1.1: Check if this is a .uscript file (modern syntax)
+        is_uscript = script_path.lower().endswith('.uscript')
 
-                # Store command in command history if available
-                if command_history:
-                    command_history.append_string(clean_line)
+        if is_uscript:
+            # Use UCodeInterpreter for modern uCODE syntax
+            from core.interpreters.ucode import UCodeInterpreter
+            interpreter = UCodeInterpreter()
 
-                logger.log(f"uDOS> {clean_line}")
+            logger.log(f"🔷 Running uCODE script: {script_path}")
 
-                # Check if line is already in uCODE format
-                if clean_line.startswith('[') and clean_line.endswith(']'):
-                    ucode = clean_line  # Already uCODE, use as-is
-                else:
-                    ucode = parser.parse(clean_line)  # Parse plain text to uCODE
+            with open(script_path, 'r') as f:
+                for line in f:
+                    clean_line = line.strip()
+                    if not clean_line or clean_line.startswith('#'):
+                        continue
 
-                if ucode.startswith("[SYSTEM|ERROR"):
-                    result = ucode
-                else:
-                    result = command_handler.handle_command(ucode, grid, parser)
+                    # Store command in command history if available
+                    if command_history:
+                        command_history.append_string(clean_line)
 
-                logger.log(result)
-                print(result)
+                    logger.log(f"uDOS> {clean_line}")
+
+                    try:
+                        result = interpreter.execute_line(clean_line)
+                        if result:
+                            logger.log(result)
+                            print(result)
+                    except Exception as e:
+                        error_msg = f"❌ Error executing '{clean_line}': {e}"
+                        logger.log(error_msg)
+                        print(error_msg)
+        else:
+            # Use legacy parser for non-.uscript files
+            with open(script_path, 'r') as f:
+                for line in f:
+                    clean_line = line.strip()
+                    if not clean_line or clean_line.startswith('#'):
+                        continue
+
+                    # Store command in command history if available
+                    if command_history:
+                        command_history.append_string(clean_line)
+
+                    logger.log(f"uDOS> {clean_line}")
+
+                    # Check if line is already in uCODE format
+                    if clean_line.startswith('[') and clean_line.endswith(']'):
+                        ucode = clean_line  # Already uCODE, use as-is
+                    else:
+                        ucode = parser.parse(clean_line)  # Parse plain text to uCODE
+
+                    if ucode.startswith("[SYSTEM|ERROR"):
+                        result = ucode
+                    else:
+                        result = command_handler.handle_command(ucode, grid, parser)
+
+                    logger.log(result)
+                    print(result)
     except FileNotFoundError:
         error_msg = f"Error: Script file not found at '{script_path}'"
         logger.log(error_msg)
@@ -139,7 +174,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
             print(f"✓ {viewport.device_type} ({viewport.width}×{viewport.height})")
             # Show full-screen viewport measurement (with error handling)
             try:
-                from core.uDOS_splash import print_viewport_measurement
+                from core.output.splash import print_viewport_measurement
                 print_viewport_measurement(viewport, delay=1.0)
             except (BrokenPipeError, IOError):
                 # Skip viewport display if output is piped or redirected
@@ -251,8 +286,49 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
 def main():
     """Main function with full system initialization."""
     try:
-        # Check for flags
-        is_script_mode = len(sys.argv) > 1 and not sys.argv[1].startswith('--')
+        # Check for help flag first
+        if '--help' in sys.argv or '-h' in sys.argv:
+            print("uDOS v1.1.6 - Universal Device Operating System")
+            print("Usage:")
+            print("  python uDOS.py                     # Interactive mode")
+            print("  python uDOS.py -c \"COMMAND\"       # Execute single command")
+            print("  python uDOS.py script.uscript      # Run uCODE script")
+            print("  python uDOS.py --version           # Show version")
+            print("  python uDOS.py --check             # Run system health check")
+            print("  python uDOS.py --help              # Show this help")
+            print("\nExamples:")
+            print("  python uDOS.py -c \"STATUS\"")
+            print("  python uDOS.py -c \"HELP\"")
+            print("  echo \"STATUS\" | python uDOS.py")
+            return 0
+
+        # Check for version flag
+        if '--version' in sys.argv or '-v' in sys.argv:
+            print("uDOS v1.1.6 - Production Logging & Configuration")
+            print("Released: November 28, 2025")
+            print("\nFeatures:")
+            print("  • Production logging system (flat-file)")
+            print("  • Single source of truth configuration")
+            print("  • SVG graphics generation")
+            print("  • Modern uCODE syntax")
+            print("  • 166+ survival knowledge guides")
+            return 0
+
+        # Check for command flags first
+        command_to_run = None
+        if '-c' in sys.argv:
+            try:
+                c_index = sys.argv.index('-c')
+                if c_index + 1 < len(sys.argv):
+                    command_to_run = sys.argv[c_index + 1]
+            except (ValueError, IndexError):
+                print("Error: -c flag requires a command argument")
+                return 1
+
+        # Check for other flags
+        is_script_mode = (len(sys.argv) > 1 and
+                         not sys.argv[1].startswith('--') and
+                         '-c' not in sys.argv)
         run_health_check = '--check' in sys.argv
         fast_mode = not run_health_check  # Skip health by default unless --check is passed
 
@@ -270,11 +346,67 @@ def main():
         # Initialize core components (only once!)
         parser = Parser()
         grid = Grid()
-        logger = Logger()
+        # v1.1.6: Use SessionLogger wrapper (backward-compatible with old Logger)
+        logger = SessionLogger()
         history = ActionHistory(logger=logger)
 
         # Initialize command history system with persistent storage
         command_history = CommandHistory()
+
+        # Handle -c command flag (single command execution)
+        if command_to_run:
+            try:
+                # Initialize command handler with proper parameters
+                command_handler = CommandHandler(
+                    history=history,
+                    connection=connection,
+                    viewport=viewport,
+                    user_manager=user_manager,
+                    command_history=command_history,
+                    logger=logger
+                )
+
+                # Execute single command and exit
+                ucode = parser.parse(command_to_run)
+                result = command_handler.handle_command(ucode, grid, parser)
+                if result:
+                    print(result)
+                return 0
+            except Exception as e:
+                print(f"Error executing command '{command_to_run}': {e}")
+                return 1
+
+        # Handle piped input (stdin) - process commands from pipe then exit
+        if not sys.stdin.isatty():
+            try:
+                # Initialize command handler with proper parameters
+                command_handler = CommandHandler(
+                    history=history,
+                    connection=connection,
+                    viewport=viewport,
+                    user_manager=user_manager,
+                    command_history=command_history,
+                    logger=logger
+                )
+
+                # Read and process all piped commands
+                for line in sys.stdin:
+                    line = line.strip()
+                    if line and line.lower() != 'exit':
+                        try:
+                            ucode = parser.parse(line)
+                            result = command_handler.handle_command(ucode, grid, parser)
+                            if result:
+                                print(result)
+                        except Exception as e:
+                            print(f"Error executing command '{line}': {e}")
+
+                return 0
+            except (KeyboardInterrupt, EOFError):
+                return 0
+            except Exception as e:
+                print(f"Error processing piped input: {e}")
+                return 1
 
         # Get session and move stats
         move_stats = logger.get_move_stats()
@@ -443,6 +575,10 @@ def main():
 
                 # Skip empty input (happens with piped input at EOF)
                 if not user_input or not user_input.strip():
+                    # Check if we're at EOF with piped input
+                    if not sys.stdin.isatty():
+                        # Non-interactive stdin reached EOF - exit gracefully
+                        break
                     continue
 
                 logger.log("INPUT", user_input)

@@ -9,11 +9,14 @@
       "created": "2025-11-22T23:42:09.610754",
       "last_accessed": "2025-11-22T23:42:09.610761",
       "location": {
-        "latitude": 51.5074,
-        "longitude": -0.1278,
+        "tile_code": "JF57-100",
+        "grid_cell": "JF57",
+        "layer": 100,
         "name": "London",
         "region": "England",
-        "country": "UK"
+        "country": "UK",
+        "timezone": "GMT",
+        "coordinate_system": "uDOS TILE grid (480x270, 83km @ layer 100)"
       },
       "workspace_path": "memory/planet/earth",
       "description": "Our home planet with comprehensive survival knowledge"
@@ -30,5 +33,5 @@
       "description": "Red planet workspace for future colonization scenarios"
     }
   },
-  "reference_universe": "knowledge/system/universe.json"
+  "reference_universe": "core/data/universe.json"
 }

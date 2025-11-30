@@ -113,6 +113,12 @@ class CommandHandler:
         # v2.0 - Sandbox Management System
         from core.commands.sandbox_handler import SandboxHandler
 
+        # v1.1.2 - Mission Control & Workflow Automation
+        from core.commands.mission_handler import handle_mission_command
+        from core.commands.schedule_handler import handle_schedule_command
+        from core.commands.workflow_handler import handle_workflow_command
+        from core.commands.resource_handler import handle_resource_command
+
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
@@ -135,6 +141,22 @@ class CommandHandler:
         # v1.0.21 - GUIDE & DIAGRAM Interactive Knowledge handlers
         self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
         self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
+
+        # v1.1.4 - DRAW Diagram Generation handler (ASCII/Teletext graphics)
+        from core.commands.draw_handler import DrawHandler
+        self.draw_handler = DrawHandler(viewport=viewport, logger=logger)
+
+        # v1.1.6 - GENERATE handler (unified generation system via Nano Banana)
+        from core.commands.generate_handler import GenerateHandler
+        self.generate_handler = GenerateHandler(viewport=viewport, logger=logger)
+
+        # v1.1.5 - SVG Graphics Extension handler (DEPRECATED - use GENERATE SVG)
+        from core.commands.svg_handler import SVGHandler
+        self.svg_handler = SVGHandler(viewport=viewport, logger=logger)
+
+        # v1.1.6 - LOGS Command handler (Logging System Management)
+        from core.commands.logs_handler import create_logs_handler
+        self.logs_handler = create_logs_handler()
 
         # v1.0.33 - BARTER Economy handler
         self.barter_handler = BarterCommandHandler()
@@ -179,9 +201,21 @@ class CommandHandler:
             template = self.lexicon.get(key)
         else:
             template = f"<{key}>"
+
         try:
+            # Format with provided kwargs
             return template.format(**kwargs)
-        except Exception:
+        except KeyError as e:
+            # Missing template variable - provide better error context
+            missing_var = str(e).strip("'")
+            if self.logger:
+                self.logger.warning(f"Template '{key}' missing variable: {missing_var}")
+            # Return template with visible placeholder instead of empty
+            return template.replace(f"{{{missing_var}}}", f"<{missing_var.upper()}>")
+        except Exception as e:
+            # Other formatting errors - log and return template as-is
+            if self.logger:
+                self.logger.warning(f"Error formatting message '{key}': {e}")
             return template
 
     def handle_command(self, ucode, grid, parser):
@@ -277,14 +311,44 @@ class CommandHandler:
             elif module == "DIAGRAM":
                 return self.diagram_handler.handle(command, params)
 
-            # v1.0.32 - POKE/OUTPUT/SERVER Extension Management
-            elif module == "POKE" or module == "OUTPUT" or module == "SERVER":
-                # Delegate to system handler for extension management
-                return self.system_handler.handle_output(params, self.grid, self.parser)
+            # v1.1.4 - DRAW Diagram Generation (ASCII/Teletext graphics)
+            elif module == "DRAW":
+                return self.draw_handler.handle(command, params)
 
-            # v1.0.29 - GENERATE AI-assisted script creation
+            # v1.1.6 - GENERATE Unified Generation System (Nano Banana pipeline)
             elif module == "GENERATE":
-                return "⚠️ GENERATE command requires AI assist integration\n💡 Use: OK ASK to get help with script generation"
+                return self.generate_handler.handle_command(params)
+
+            # v1.1.5 - SVG Graphics Extension (DEPRECATED - use GENERATE SVG)
+            elif module == "SVG":
+                deprecation_msg = (
+                    "⚠️  The SVG command is deprecated in v1.1.6\n"
+                    "💡 Use: GENERATE SVG <description> [options]\n\n"
+                    "Running legacy SVG command...\n\n"
+                )
+                result = self.svg_handler.handle_command(params)
+                return deprecation_msg + result
+
+            # v1.1.6 - LOGS System Management
+            elif module == "LOGS":
+                return self.logs_handler.handle(command, params)
+
+            # v1.0.32 & v1.1.7 - POKE Extension Management & Online Features
+            elif module == "POKE" or module == "OUTPUT" or module == "SERVER":
+                # Check if this is POKE Online extension command
+                if params and params[0].upper() in ["TUNNEL", "SHARE", "GROUP"]:
+                    # Try to load POKE Online extension
+                    try:
+                        from extensions.cloud.poke_online.poke_commands import handle_poke_command
+                        return handle_poke_command(params)
+                    except ImportError:
+                        return ("❌ POKE Online extension not available\n"
+                               "💡 Install the extension to use tunnel/sharing features")
+                    except Exception as e:
+                        return f"❌ POKE Online error: {e}"
+                else:
+                    # Delegate to system handler for extension management
+                    return self.system_handler.handle_output(params, self.grid, self.parser)
 
             # v1.1.0 - User Feedback System
             elif module == "USER":
@@ -301,6 +365,57 @@ class CommandHandler:
             # v2.0 - Sandbox Management System
             elif module == "SANDBOX":
                 return self.sandbox_handler.handle(command, params)
+
+            # v1.1.2 - Mission Control & Workflow Automation
+            elif module == "MISSION":
+                # Reconstruct command line for mission handler
+                command_line = f"MISSION {command}" + (' ' + ' '.join(params) if params else '')
+                return handle_mission_command(command_line)
+
+            # v1.1.2 - Scheduler System
+            elif module == "SCHEDULE":
+                # Reconstruct command line for schedule handler
+                command_line = f"SCHEDULE {command}" + (' ' + ' '.join(params) if params else '')
+                return handle_schedule_command(command_line)
+
+            # v1.1.2 - Workflow Automation
+            elif module == "WORKFLOW":
+                from core.config import Config
+                config = Config()
+                return handle_workflow_command(command, params, config)
+
+            # v1.1.2 - Resource Management
+            elif module == "RESOURCE":
+                # If no command provided, show help
+                if not command or command.strip() == '':
+                    result = handle_resource_command('HELP')
+                    return result.get('output', str(result))
+
+                # Parse params into kwargs for resource handler
+                kwargs = {'provider': params[0] if params else None}
+
+                # Handle --flag arguments
+                i = 0
+                while i < len(params):
+                    param = params[i]
+                    if param.startswith('--'):
+                        # Flag with value
+                        flag_name = param[2:]  # Remove --
+                        if i + 1 < len(params) and not params[i + 1].startswith('--'):
+                            kwargs[flag_name] = params[i + 1]
+                            i += 2
+                        else:
+                            kwargs[flag_name] = True
+                            i += 1
+                    elif not param.startswith('--') and 'mission_id' not in kwargs:
+                        # First non-flag param is mission_id
+                        kwargs['mission_id'] = param
+                        i += 1
+                    else:
+                        i += 1
+
+                result = handle_resource_command(command, **kwargs)
+                return result.get('output', str(result))
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag

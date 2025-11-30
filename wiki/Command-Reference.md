@@ -29,11 +29,14 @@ LOAD <file>               # Load file into memory
 SAVE <file>               # Save current content
 EDIT <file>               # Edit file in micro editor
 
-# Content Generation (OK Assist)
-OK <task>                 # Generate content with AI
+# Content Generation (v1.1.6+)
+OK <task>                 # Generate content with AI (OK Assist)
 OK ASK <question>         # Ask AI assistant
-GENERATE guide <topic>    # Generate survival guide
-GENERATE diagram <topic>  # Generate SVG diagram
+GENERATE SVG <desc>       # Generate PNG→SVG diagram (Nano Banana)
+GENERATE DIAGRAM <desc>   # Alias for GENERATE SVG
+GENERATE ASCII <desc>     # Generate ASCII art (offline)
+GENERATE guide <topic>    # Legacy guide generation
+GENERATE diagram <topic>  # Legacy SVG diagram (deprecated)
 REFRESH                   # Update content to latest standards
 
 # Knowledge Bank
@@ -90,13 +93,17 @@ DEBUG <script>            # Debug uCODE script
 | `SAVE` | Save current content | `SAVE output.txt` |
 | `EDIT` | Edit file with micro | `EDIT config.json` |
 
-#### 🤖 OK Assist (AI)
+# Content Generation (OK Assist + Nano Banana)
 | Command | Description | Example |
 |---------|-------------|---------|
 | `OK` | General AI task | `OK create water purification guide` |
 | `OK ASK` | Ask AI question | `OK ASK how to start fire without matches` |
 | `OK DEV` | Development assistance | `OK DEV explain this code` |
 | `READ` | Read content for context | `READ water-guide.md` |
+| `GENERATE SVG` | Generate PNG→SVG diagram (v1.1.6+) | `GENERATE SVG water filter` |
+| `GENERATE DIAGRAM` | Alias for GENERATE SVG | `GENERATE DIAGRAM fire triangle` |
+| `GENERATE ASCII` | Generate ASCII art (offline) | `GENERATE ASCII water cycle --width 100` |
+| `GENERATE` | Legacy guide generation | `GENERATE guide water/purification` |
 
 #### 📚 Knowledge Bank
 | Command | Description | Example |
@@ -1174,6 +1181,63 @@ ANALYZE "<panel>"
 ```
 
 **uCODE**: `[AI|ANALYZE*<panel>]`
+
+---
+
+### SVG
+
+**Purpose**: Generate vector diagrams with artistic styles (v1.1.5+)
+
+**Syntax**:
+```
+SVG <description> [--style <style>] [--save <filename>]
+```
+
+**Parameters**:
+- `description` (required) - What to diagram (5-15 words optimal)
+- `style` (optional) - Artistic style: lineart, blueprint, sketch, isometric (default: lineart)
+- `save` (optional) - Custom filename (auto-generates if omitted)
+
+**Styles**:
+- **lineart**: Clean black lines, minimal (icons, diagrams)
+- **blueprint**: Blue technical plans with grid (documentation, plans)
+- **sketch**: Hand-drawn organic look (field notes, informal)
+- **isometric**: 3D isometric projection (architecture, layouts)
+
+**Examples**:
+```
+🔮 > SVG water filter diagram
+🔮 > SVG fire triangle showing heat oxygen fuel --style lineart
+🔮 > SVG A-frame shelter construction --style blueprint
+🔮 > SVG campfire setup --style sketch --save my-campfire.svg
+🔮 > SVG rainwater collection system --style isometric
+```
+
+**Output**:
+```
+✅ SVG diagram generated: sandbox/drafts/svg/water-filter-diagram.svg
+   Style: lineart
+   Size: 445 chars
+   Valid: ✓
+```
+
+**Features**:
+- AI-powered with Gemini (optional, has fallback)
+- 4 artistic styles for different use cases
+- Auto-validates SVG XML
+- Saves to sandbox/drafts/svg/
+- Works offline (template fallback)
+
+**See Also**:
+- **[Nano Banana Integration Guide](Nano-Banana-Integration)** - v1.1.6 PNG→SVG pipeline (recommended)
+- **[SVG Command Reference](SVG-Command-Reference)** - Legacy SVG command (deprecated in v1.1.6)
+- **[SVG Example Gallery](SVG-Example-Gallery)** - Visual examples
+- **[SVG Developer Guide](SVG-Extension-Developer-Guide)** - Extension API
+- **[Content Generation](Content-Generation)** - Complete generation guide
+
+**Migration Note**: For new projects, use `GENERATE SVG` instead of the legacy `SVG` command. The new command uses Gemini 2.5 Flash Image (Nano Banana) with a PNG→SVG pipeline for superior quality and Technical-Kinetic compliance.
+
+**uCODE**: `[SVG|<description>*<style>*<filename>]`
 
 ---
 

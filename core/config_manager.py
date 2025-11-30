@@ -1,4 +1,28 @@
 """
+⚠️ DEPRECATED: This module is deprecated as of v1.1.5.1 (November 30, 2025)
+Use `core.config.Config` instead for new code.
+
+This ConfigManager will be removed in v2.1.0.
+
+Migration:
+    # OLD (deprecated):
+    from core.config_manager import ConfigManager
+    config = ConfigManager()
+    value = config.get('key')
+    config.set('key', 'value', persist=True)
+
+    # NEW (v1.1.5.1+):
+    from core.config import Config
+    config = Config()
+    # For user data:
+    value = config.get_user('USER_PROFILE.KEY', default)
+    config.set_user('USER_PROFILE.KEY', value)
+    # For env variables:
+    value = config.get_env('API_KEY', default)
+    config.set_env('API_KEY', value)
+
+---
+
 uDOS Unified Configuration Manager (v1.5.0+)
 
 Provides a single source of truth for configuration across .env, user.json, and runtime state.
@@ -29,11 +53,32 @@ Usage:
 """
 
 import json
+import warnings
+
+# Deprecation warning
+warnings.warn(
+    "ConfigManager is deprecated as of v1.1.5.1. "
+    "Use 'from core.config import Config' instead. "
+    "See module docstring for migration guide. "
+    "ConfigManager will be removed in v2.1.0.",
+    DeprecationWarning,
+    stacklevel=2
+)
 import os
 import shutil
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 from datetime import datetime
+
+# Import grid utilities for TILE code validation
+try:
+    from core.utils.grid_utils import validate_tile_code, parse_tile_code
+except ImportError:
+    # Fallback if grid_utils not available yet
+    def validate_tile_code(code: str) -> bool:
+        return '-' in code
+    def parse_tile_code(code: str) -> dict:
+        return {}
 
 
 class ConfigManager:
@@ -57,13 +102,13 @@ class ConfigManager:
         """
         # Determine base path
         if base_path is None:
-            # Auto-detect: go up from core/config/ to project root
-            base_path = Path(__file__).parent.parent.parent
+            # Auto-detect: go up from core/config_manager.py to project root
+            base_path = Path(__file__).parent.parent
         self.base_path = Path(base_path)
 
         # Configuration file paths
         self.env_path = self.base_path / '.env'
-        self.user_json_path = self.base_path / 'memory' / 'sandbox' / 'user.json'
+        self.user_json_path = self.base_path / 'sandbox' / 'user.json'
 
         # In-memory configuration cache (single source of truth)
         self._config: Dict[str, Any] = {}
@@ -205,6 +250,80 @@ class ConfigManager:
                 'source': 'env',
                 'description': 'Web text editor'
             },
+
+            # User data fields (lowercase for dashboard compatibility)
+            'username': {
+                'type': str,
+                'default': 'user',
+                'required': False,
+                'source': 'user_json',
+                'description': 'User name (from user.json)'
+            },
+            'location': {
+                'type': str,
+                'default': 'Unknown',
+                'required': False,
+                'source': 'planets_json',
+                'description': 'User location (from planets.json)'
+            },
+            'timezone': {
+                'type': str,
+                'default': 'UTC',
+                'required': False,
+                'source': 'user_json',
+                'description': 'User timezone (from user.json)'
+            },
+            'planet': {
+                'type': str,
+                'default': 'Earth',
+                'required': False,
+                'source': 'planets_json',
+                'description': 'Current planet (from planets.json)'
+            },
+            'project_name': {
+                'type': str,
+                'default': 'uDOS',
+                'required': False,
+                'source': 'user_json',
+                'description': 'Project name (from user.json)'
+            },
+            'project_description': {
+                'type': str,
+                'default': 'CLI Framework',
+                'required': False,
+                'source': 'user_json',
+                'description': 'Project description (from user.json)'
+            },
+            'mode': {
+                'type': str,
+                'default': 'STANDARD',
+                'required': False,
+                'source': 'user_json',
+                'description': 'Preferred mode (from user.json)'
+            },
+
+            # TILE code system (v2.0.0)
+            'tile_code': {
+                'type': str,
+                'default': None,
+                'required': False,
+                'source': 'user_json',
+                'description': 'TILE code location (e.g., OC-AU-SYD)'
+            },
+            'grid_cell': {
+                'type': str,
+                'default': None,
+                'required': False,
+                'source': 'user_json',
+                'description': 'Grid cell reference (e.g., AA340, YY320)'
+            },
+            'layer': {
+                'type': int,
+                'default': 100,
+                'required': False,
+                'source': 'user_json',
+                'description': 'Map layer (100=base world map, aligns with teletext pages)'
+            },
         }
 
     def get_defaults(self) -> Dict[str, Any]:
@@ -227,7 +346,8 @@ class ConfigManager:
         1. Defaults (lowest)
         2. .env file
         3. user.json file
-        4. Runtime modifications (highest)
+        4. planets.json (for planet/location data)
+        5. Runtime modifications (highest)
         """
         # 1. Start with defaults
         self._config = self.get_defaults()
@@ -238,7 +358,10 @@ class ConfigManager:
         # 3. Load user.json (overrides .env where applicable)
         self.load_user_json()
 
-        # 4. Sync username between sources
+        # 4. Load planet data from planets.json
+        self.load_planet_data()
+
+        # 5. Sync username between sources
         self._sync_username()
 
         # Clear modified fields after load
@@ -282,27 +405,116 @@ class ConfigManager:
             with open(self.user_json_path, 'r') as f:
                 user_data = json.load(f)
 
-                # Support nested structure (user_profile, system_settings)
-                flat_data = {}
+                # Handle both old (uppercase USER_PROFILE) and new (lowercase user_profile) formats
+                profile = user_data.get('USER_PROFILE') or user_data.get('user_profile', {})
 
-                # Extract from user_profile
-                if 'user_profile' in user_data:
-                    flat_data.update(user_data['user_profile'])
+                if profile:
+                    # Map profile fields to config keys (handles both old uppercase and new lowercase)
+                    if 'NAME' in profile:
+                        self._config['username'] = profile['NAME']
+                    elif 'username' in profile:
+                        self._config['username'] = profile['username']
 
-                # Extract from system_settings.display
-                if 'system_settings' in user_data and 'display' in user_data['system_settings']:
-                    flat_data.update(user_data['system_settings']['display'])
+                    if 'TIMEZONE' in profile:
+                        self._config['timezone'] = profile['TIMEZONE']
+                    elif 'timezone' in profile:
+                        self._config['timezone'] = profile['timezone']
 
-                # If no nesting, use flat
-                if not flat_data:
-                    flat_data = user_data
+                    if 'PREFERRED_MODE' in profile:
+                        self._config['mode'] = profile['PREFERRED_MODE']
+                    elif 'mode' in profile:
+                        self._config['mode'] = profile['mode']
 
-                # Only load fields that are defined for user.json in schema
-                for key, spec in self._schema.items():
-                    if spec['source'] == 'user_json' and key in flat_data:
-                        self._config[key] = flat_data[key]
+                    if 'project_name' in profile:
+                        self._config['project_name'] = profile['project_name']
+
+                # Extract location data (TILE code system v2.0.0)
+                location_data = user_data.get('LOCATION_DATA') or user_data.get('location', {})
+                if location_data:
+                    # Build location string from available fields
+                    city = location_data.get('CITY') or location_data.get('city_name', '')
+                    region = location_data.get('region', '')
+                    country = location_data.get('COUNTRY') or location_data.get('country', '')
+
+                    location_parts = [p for p in [city, region, country] if p]
+                    if location_parts:
+                        self._config['location'] = ', '.join(location_parts)
+
+                    # Store TILE code if available (v2.0.0)
+                    if 'tile_code' in location_data:
+                        self._config['tile_code'] = location_data['tile_code']
+
+                    # Store grid cell if available
+                    if 'grid_cell' in location_data:
+                        self._config['grid_cell'] = location_data['grid_cell']
+
+                    # Store layer (default: 100 = base world map)
+                    self._config['layer'] = location_data.get('layer', 100)
+
+                # Extract PROJECT if present (old format)
+                if 'PROJECT' in user_data:
+                    proj = user_data['PROJECT']
+                    if 'NAME' in proj:
+                        self._config['project_name'] = proj['NAME']
+                    if 'DESCRIPTION' in proj:
+                        self._config['project_description'] = proj['DESCRIPTION']
+
         except Exception as e:
             print(f"⚠️  Error loading user.json: {e}")
+
+    def load_planet_data(self) -> None:
+        """Load planet and location data from planets.json."""
+        planets_path = self.base_path / 'sandbox' / 'user' / 'planets.json'
+
+        if not planets_path.exists():
+            return
+
+        try:
+            with open(planets_path, 'r') as f:
+                planet_data = json.load(f)
+
+                # Get current planet
+                current_planet_name = planet_data.get('current_planet', 'Earth')
+                self._config['planet'] = current_planet_name
+
+                # Get planet details
+                user_planets = planet_data.get('user_planets', {})
+                if current_planet_name in user_planets:
+                    planet = user_planets[current_planet_name]
+
+                    # Extract location if available (TILE code system v2.0.0)
+                    if 'location' in planet and planet['location']:
+                        loc = planet['location']
+
+                        # Build location string
+                        location_parts = []
+                        if 'name' in loc:
+                            location_parts.append(loc['name'])
+                        if 'region' in loc and loc['region']:
+                            location_parts.append(loc['region'])
+                        if 'country' in loc:
+                            location_parts.append(loc['country'])
+
+                        if location_parts:
+                            self._config['location'] = ', '.join(location_parts)
+
+                        # Store TILE code (v2.0.0)
+                        if 'tile_code' in loc:
+                            self._config['tile_code'] = loc['tile_code']
+
+                        # Store grid cell reference
+                        if 'grid_cell' in loc:
+                            self._config['grid_cell'] = loc['grid_cell']
+
+                        # Store layer (default: 100 = base world map)
+                        self._config['layer'] = loc.get('layer', 100)
+
+                        # Store timezone
+                        if 'timezone' in loc:
+                            self._config['planet_timezone'] = loc['timezone']
+
+        except Exception as e:
+            print(f"⚠️  Error loading planets.json: {e}")
 
     def _sync_field(self, user_field: str, env_field: str) -> None:
         """
@@ -528,6 +740,44 @@ class ConfigManager:
             self.save()
 
         return repairs
+
+    def validate_tile_code(self, tile_code: str) -> bool:
+        """
+        Validate TILE code format using grid utilities.
+
+        Args:
+            tile_code: TILE code to validate (e.g., "QZ185-100")
+
+        Returns:
+            True if valid, False otherwise
+        """
+        return validate_tile_code(tile_code)
+
+    def get_location_info(self) -> Dict[str, Any]:
+        """
+        Get parsed location information from TILE code.
+
+        Returns:
+            Dictionary with location details (grid, lat/long, layer)
+        """
+        tile_code = self._config.get('tile_code')
+        if not tile_code:
+            return {}
+
+        try:
+            parsed = parse_tile_code(tile_code)
+            # Add lat/long conversion if available
+            try:
+                from core.utils.grid_utils import tile_to_latlong
+                lat, lon, layer = tile_to_latlong(tile_code)
+                parsed['latitude'] = lat
+                parsed['longitude'] = lon
+            except:
+                pass
+
+            return parsed
+        except:
+            return {}
 
     def backup(self, backup_dir: Optional[Path] = None) -> Path:
         """

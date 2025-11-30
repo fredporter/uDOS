@@ -1,0 +1,71 @@
+{
+  "name": "Tree Diagram Template",
+  "description": "Template for creating hierarchical tree diagrams",
+  "version": "1.0.0",
+  "type": "tree",
+  "components": {
+    "root": {
+      "type": "box",
+      "style": "double_box",
+      "width": 24,
+      "height": 3,
+      "text_align": "center"
+    },
+    "parent": {
+      "type": "box",
+      "style": "simple_box",
+      "width": 20,
+      "height": 3,
+      "text_align": "center"
+    },
+    "leaf": {
+      "type": "box",
+      "style": "light",
+      "width": 16,
+      "height": 3,
+      "text_align": "center"
+    },
+    "connector": {
+      "type": "line",
+      "style": "light",
+      "branch_style": "├─"
+    }
+  },
+  "layout": {
+    "orientation": "vertical",
+    "level_spacing": 3,
+    "sibling_spacing": 4,
+    "margin": 2,
+    "auto_balance": true
+  },
+  "example": {
+    "root": {"id": "root", "text": "Organization"},
+    "children": [
+      {
+        "id": "eng",
+        "text": "Engineering",
+        "children": [
+          {"id": "frontend", "text": "Frontend"},
+          {"id": "backend", "text": "Backend"},
+          {"id": "devops", "text": "DevOps"}
+        ]
+      },
+      {
+        "id": "product",
+        "text": "Product",
+        "children": [
+          {"id": "design", "text": "Design"},
+          {"id": "pm", "text": "Product Mgmt"}
+        ]
+      },
+      {
+        "id": "ops",
+        "text": "Operations",
+        "children": [
+          {"id": "hr", "text": "HR"},
+          {"id": "finance", "text": "Finance"}
+        ]
+      }
+    ]
+  }
+}

@@ -4,7 +4,8 @@ uDOS v1.0.0 - System Command Handler (Modular)
 Handles system administration commands by delegating to specialized handlers:
 - REPAIR: Delegates to RepairHandler for comprehensive diagnostics and maintenance
 - STATUS, DASHBOARD, VIEWPORT, PALETTE: Delegates to DashboardHandler
-- SETTINGS, CONFIG: Delegates to ConfigurationHandler
+- WIZARD (old SETUP): Setup wizard for first-time configuration
+- CONFIG: Delegates to ConfigurationHandler for settings management
 - REBOOT, DESTROY: Core system commands handled directly
 """
 
@@ -142,8 +143,8 @@ class SystemCommandHandler(BaseCommandHandler):
             # TREE removed - now handled by TreeHandler module
             'CLEAN': self.handle_clean,
             'CONFIG': self.handle_config,
-            'SETTINGS': self.handle_settings,
-            'SETUP': self.handle_setup,
+            'WIZARD': self.handle_wizard,
+            'SETUP': self.handle_settings,  # Settings/setup command
             'WORKSPACE': self.handle_workspace,
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,  # Alias for OUTPUT
@@ -248,6 +249,8 @@ class SystemCommandHandler(BaseCommandHandler):
         - HELP SEARCH <query>: Search help content
         - HELP CATEGORY <category>: Filter by category
         - HELP RECENT: Show recently used commands (if usage tracker available)
+        - HELP STATS: Show most used commands
+        - HELP SESSION: Show current session statistics
 
         Args:
             params: List with optional command/subcommand
@@ -258,16 +261,20 @@ class SystemCommandHandler(BaseCommandHandler):
             Formatted help text
         """
         # Handle subcommands
-        if params and len(params) >= 2:
+        if params and len(params) >= 1:
             subcommand = params[0].upper()
 
-            # HELP SEARCH <query>
+            # HELP SEARCH <query> (requires query parameter)
             if subcommand == 'SEARCH':
+                if len(params) < 2:
+                    return "❌ Usage: HELP SEARCH <query>\n💡 Example: HELP SEARCH knowledge"
                 query = ' '.join(params[1:])
                 return self.help_manager.format_search_results(query)
 
-            # HELP CATEGORY <category>
+            # HELP CATEGORY <category> (requires category parameter)
             elif subcommand == 'CATEGORY':
+                if len(params) < 2:
+                    return "❌ Usage: HELP CATEGORY <category>\n💡 Example: HELP CATEGORY file"
                 category = ' '.join(params[1:])
                 return self.help_manager.format_help_category(category)
 
@@ -1728,21 +1735,20 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
     def handle_settings(self, params, grid, parser):
         """
         Manage system settings.
-        Delegates to specialized ConfigurationHandler for functionality.
+        Delegates to ConfigurationHandler.handle_setup() for settings management.
+        SETTINGS is an alias - primary command is now CONFIG.
         """
         from .configuration_handler import ConfigurationHandler
 
-        # Create configuration handler with same context
         config_handler = ConfigurationHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
             theme=self.theme,
-            logger=self.logger
+            viewport=self.viewport,
+            logger=self.logger,
+            input_manager=getattr(self, 'input_manager', None),
+            output_formatter=getattr(self, 'output_formatter', None),
+            resource_manager=getattr(self, 'resource_manager', None)
         )
-
-        return config_handler.handle_settings(params, grid, parser)
+        return config_handler.handle_setup(params, grid, parser)
 
     def handle_config(self, params, grid, parser):
         """
@@ -1838,37 +1844,49 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         Returns:
             Destruction confirmation or cancellation message
         """
+        from core.commands.sandbox_handler import SandboxHandler
+
         # Safety confirmation required
         destruction_type = params[0] if params else None
 
+        # Handle confirmation (if user types DESTROY CONFIRM after warning)
+        if destruction_type and destruction_type.upper() == "CONFIRM":
+            # This shouldn't be reached normally - confirmation happens via re-entering command
+            return "⚠️  Please re-enter DESTROY command with flag (--reset, --env, or --all)"
+
+        # Map destruction types to sandbox modes
+        sandbox_mode_map = {
+            "--reset": "reset",
+            "--env": "env",
+            "--all": "all"
+        }
+
         # Warning message based on destruction type
         if destruction_type == "--all":
-            warning_msg = "⚠️  DANGER: This will DELETE ALL user data, extensions, and settings!"
-            target = "entire uDOS installation"
+            warning_msg = "⚠️  DANGER: This will DELETE ALL user data, sandbox, and logs!"
+            target = "sandbox (all folders except protected)"
         elif destruction_type == "--env":
-            warning_msg = "⚠️  This will reset the Python environment and dependencies"
-            target = "Python environment"
+            warning_msg = "⚠️  This will clean environment files and cached data"
+            target = "environment files (.env, .venv cache)"
         elif destruction_type == "--reset":
-            warning_msg = "⚠️  This will reset all settings to defaults"
-            target = "configuration settings"
+            warning_msg = "⚠️  This will reset sandbox to pristine state"
+            target = "sandbox (preserving user/ and tests/)"
         else:
             return ("❌ DESTROY requires a flag\n\n"
                    "Available options:\n"
-                   "  DESTROY --reset    Reset settings to defaults\n"
-                   "  DESTROY --env      Reset Python environment\n"
-                   "  DESTROY --all      Delete all user data (DANGER!)\n\n"
+                   "  DESTROY --reset    Reset sandbox (safe - preserves user/tests)\n"
+                   "  DESTROY --env      Clean environment files\n"
+                   "  DESTROY --all      Delete all sandbox data (DANGER!)\n\n"
                    "⚠️  All DESTROY operations require confirmation")
 
-        # Return warning and ask for confirmation
-        result = f"🚨 DESTRUCTION CONFIRMATION REQUIRED\n"
-        result += "=" * 50 + "\n"
-        result += f"{warning_msg}\n\n"
-        result += f"Target: {target}\n\n"
-        result += "To proceed, type: DESTROY CONFIRM\n"
-        result += "To cancel, type any other command\n"
-        result += "\n⚠️  This action cannot be undone!"
-
-        return result
+        # Execute destruction via sandbox handler
+        mode = sandbox_mode_map.get(destruction_type)
+        if mode:
+            sandbox_handler = SandboxHandler()
+            result = sandbox_handler.destroy_sandbox(mode=mode)
+            return result
+        else:
+            return f"❌ Unknown destruction mode: {destruction_type}"
 
     # ======================================================================
     # STUB METHODS - To be implemented or moved to other handlers
@@ -1884,11 +1902,11 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
         - SPLASH FILE <path>: Load ASCII art from file
         """
         # Import splash module
-        from core import uDOS_splash
+        from core.output.splash import print_splash_screen
 
         if not params or (params and params[0].upper() == 'LOGO'):
             # Default: show uDOS logo
-            uDOS_splash.print_splash_screen()
+            print_splash_screen()
             return ""  # Splash already printed
 
         elif params[0].upper() == 'FILE' and len(params) > 1:
@@ -1983,17 +2001,17 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
                 details={"Error": str(e)}
             )
 
-    def handle_setup(self, params, grid, parser):
+    def handle_wizard(self, params, grid, parser):
         """
-        Enhanced setup wizard with multiple modes.
+        Enhanced setup wizard with multiple modes (renamed from SETUP).
 
         Modes:
-        - SETUP or SETUP WIZARD: Full interactive wizard
-        - SETUP QUICK: Quick setup with sensible defaults
-        - SETUP THEME: Theme selection only
-        - SETUP VIEWPORT: Viewport configuration only
-        - SETUP EXTENSIONS: Extension management only
-        - SETUP HELP: Show setup help information
+        - WIZARD or WIZARD WIZARD: Full interactive wizard
+        - WIZARD QUICK: Quick setup with sensible defaults
+        - WIZARD THEME: Theme selection only
+        - WIZARD VIEWPORT: Viewport configuration only
+        - WIZARD EXTENSIONS: Extension management only
+        - WIZARD HELP: Show setup help information
         """
         if not params:
             # Default to full wizard
@@ -2020,15 +2038,16 @@ Try resizing your terminal and running 'LAYOUT RESIZE' to see adaptive changes!"
             return self.setup_wizard.setup_extensions_only()
 
         else:
-            return (f"❌ Unknown setup mode: {mode}\n\n"
+            return (f"❌ Unknown wizard mode: {mode}\n\n"
                    "📋 Available modes:\n"
-                   "  SETUP or SETUP WIZARD     # Full interactive setup\n"
-                   "  SETUP QUICK              # Quick setup with defaults\n"
-                   "  SETUP THEME              # Theme selection only\n"
-                   "  SETUP VIEWPORT           # Viewport configuration only\n"
-                   "  SETUP EXTENSIONS         # Extension management only\n"
-                   "  SETUP HELP               # Show detailed help\n\n"
-                   "💡 Tip: Use SETUP HELP for detailed information")
+                   "  WIZARD or WIZARD WIZARD     # Full interactive setup\n"
+                   "  WIZARD QUICK              # Quick setup with defaults\n"
+                   "  WIZARD THEME              # Theme selection only\n"
+                   "  WIZARD VIEWPORT           # Viewport configuration only\n"
+                   "  WIZARD EXTENSIONS         # Extension management only\n"
+                   "  WIZARD HELP               # Show detailed help\n\n"
+                   "💡 Tip: Use WIZARD HELP for detailed information\n"
+                   "💡 Note: For settings, use SETUP or CONFIG commands")
 
     def handle_workspace(self, params, grid, parser):
         """Workspace management - to be implemented."""

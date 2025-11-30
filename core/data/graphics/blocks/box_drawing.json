@@ -1,0 +1,176 @@
+{
+  "name": "Box Drawing Characters",
+  "description": "Unicode box-drawing characters for ASCII diagrams and teletext graphics",
+  "version": "1.0.0",
+  "characters": {
+    "light": {
+      "horizontal": "─",
+      "vertical": "│",
+      "down_right": "┌",
+      "down_left": "┐",
+      "up_right": "└",
+      "up_left": "┘",
+      "vertical_right": "├",
+      "vertical_left": "┤",
+      "horizontal_down": "┬",
+      "horizontal_up": "┴",
+      "cross": "┼"
+    },
+    "heavy": {
+      "horizontal": "━",
+      "vertical": "┃",
+      "down_right": "┏",
+      "down_left": "┓",
+      "up_right": "┗",
+      "up_left": "┛",
+      "vertical_right": "┣",
+      "vertical_left": "┫",
+      "horizontal_down": "┳",
+      "horizontal_up": "┻",
+      "cross": "╋"
+    },
+    "double": {
+      "horizontal": "═",
+      "vertical": "║",
+      "down_right": "╔",
+      "down_left": "╗",
+      "up_right": "╚",
+      "up_left": "╝",
+      "vertical_right": "╠",
+      "vertical_left": "╣",
+      "horizontal_down": "╦",
+      "horizontal_up": "╩",
+      "cross": "╬"
+    },
+    "rounded": {
+      "down_right": "╭",
+      "down_left": "╮",
+      "up_right": "╰",
+      "up_left": "╯"
+    },
+    "blocks": {
+      "full": "█",
+      "dark_shade": "▓",
+      "medium_shade": "▒",
+      "light_shade": "░",
+      "upper_half": "▀",
+      "lower_half": "▄",
+      "left_half": "▌",
+      "right_half": "▐",
+      "upper_one_eighth": "▔",
+      "lower_one_eighth": "▁",
+      "upper_one_quarter": "▀",
+      "lower_three_quarters": "▙"
+    },
+    "arrows": {
+      "up": "↑",
+      "down": "↓",
+      "left": "←",
+      "right": "→",
+      "up_down": "↕",
+      "left_right": "↔",
+      "diagonal_up_right": "↗",
+      "diagonal_down_right": "↘",
+      "diagonal_down_left": "↙",
+      "diagonal_up_left": "↖",
+      "thick_up": "⬆",
+      "thick_down": "⬇",
+      "thick_left": "⬅",
+      "thick_right": "➡"
+    },
+    "bullets": {
+      "circle": "●",
+      "circle_outline": "○",
+      "square": "■",
+      "square_outline": "□",
+      "diamond": "◆",
+      "diamond_outline": "◇",
+      "triangle_up": "▲",
+      "triangle_down": "▼",
+      "triangle_right": "▶",
+      "triangle_left": "◀"
+    },
+    "misc": {
+      "checkmark": "✓",
+      "cross_mark": "✗",
+      "star": "★",
+      "star_outline": "☆",
+      "circle_dot": "◉",
+      "target": "◎"
+    }
+  },
+  "color_schemes": {
+    "teletext": {
+      "black": "0",
+      "red": "1",
+      "green": "2",
+      "yellow": "3",
+      "blue": "4",
+      "magenta": "5",
+      "cyan": "6",
+      "white": "7"
+    },
+    "ansi_basic": {
+      "black": "30",
+      "red": "31",
+      "green": "32",
+      "yellow": "33",
+      "blue": "34",
+      "magenta": "35",
+      "cyan": "36",
+      "white": "37"
+    },
+    "ansi_bright": {
+      "black": "90",
+      "red": "91",
+      "green": "92",
+      "yellow": "93",
+      "blue": "94",
+      "magenta": "95",
+      "cyan": "96",
+      "white": "97"
+    }
+  },
+  "presets": {
+    "simple_box": {
+      "top_left": "┌",
+      "top_right": "┐",
+      "bottom_left": "└",
+      "bottom_right": "┘",
+      "horizontal": "─",
+      "vertical": "│"
+    },
+    "double_box": {
+      "top_left": "╔",
+      "top_right": "╗",
+      "bottom_left": "╚",
+      "bottom_right": "╝",
+      "horizontal": "═",
+      "vertical": "║"
+    },
+    "rounded_box": {
+      "top_left": "╭",
+      "top_right": "╮",
+      "bottom_left": "╰",
+      "bottom_right": "╯",
+      "horizontal": "─",
+      "vertical": "│"
+    },
+    "heavy_box": {
+      "top_left": "┏",
+      "top_right": "┓",
+      "bottom_left": "┗",
+      "bottom_right": "┛",
+      "horizontal": "━",
+      "vertical": "┃"
+    },
+    "block_box": {
+      "top_left": "█",
+      "top_right": "█",
+      "bottom_left": "█",
+      "bottom_right": "█",
+      "horizontal": "█",
+      "vertical": "█"
+    }
+  }
+}

@@ -773,6 +773,667 @@ ECHO "Good work today! See you tomorrow."
 
 ---
 
+## Mission Templates (v1.1.3+)
+
+**Fast-track complex projects with pre-built mission templates**
+
+Mission templates provide structured workflows for common projects, eliminating manual setup and ensuring consistent organization.
+
+### What Are Mission Templates?
+
+Templates are pre-configured mission structures with:
+- **Moves**: Major project phases (e.g., Planning, Drafting, Revision)
+- **Steps**: Specific tasks within each move
+- **Variables**: Customizable parameters (title, author, goals, etc.)
+- **Checkpoints**: Progress milestones
+
+**Time Savings**: Create a 35-step novel writing mission in 30 seconds vs. 30 minutes of manual setup.
+
+### Available Templates
+
+#### List All Templates
+
+```bash
+# See all available templates
+🔮 > MISSION TEMPLATES
+
+# Filter by category
+🔮 > MISSION TEMPLATES creative-writing
+```
+
+**Categories**:
+- `creative-writing` - Novels, plays, screenplays, poetry
+- `research-learning` - Research, skill development, learning paths
+- `personal-development` - Habits, goals, journaling
+- `knowledge-creation` - Documentation, tutorials, reference materials
+
+#### Preview a Template
+
+```bash
+# See template details, variables, and structure
+🔮 > MISSION TEMPLATE novel
+
+📋 Template: Novel Writing Project
+   Category: creative-writing
+   Moves: 7
+   Total Steps: 35
+
+🔧 Variables:
+   [✓] NOVEL_TITLE - Title of your novel
+   [✓] AUTHOR_NAME - Author name
+   [✓] GENRE - Novel genre (Fantasy, Sci-Fi, Mystery, etc.)
+   [ ] TARGET_WORDS - Target word count (default: 80000)
+   ...
+```
+
+### Using Templates
+
+#### Quick Start: Novel Writing Project
+
+```bash
+# 1. Preview the template
+🔮 > MISSION TEMPLATE novel
+
+# 2. Create mission from template
+🔮 > MISSION CREATE --template novel --id my-novel \
+       --vars "NOVEL_TITLE=The Dragon's Oath,AUTHOR_NAME=Sarah Wordsmith,GENRE=Fantasy,TARGET_WORDS=120000"
+
+# ✅ Mission created with 7 moves, 35 steps!
+
+# 3. Start working
+🔮 > MISSION START my-novel
+🔮 > MISSION STATUS my-novel
+```
+
+#### Template Variables
+
+**Required variables** (marked with ✓):
+- Must be provided when creating mission
+- Validation ensures all required variables are present
+
+**Optional variables** (marked with space):
+- Have sensible defaults
+- Can override if needed
+
+**Variable Types**:
+- `string` - Text values (titles, names, descriptions)
+- `number` - Numeric values (word counts, chapter numbers)
+- `choice` - Select from predefined options (genres, difficulty levels)
+- `boolean` - True/false flags
+- `date` - Date values
+
+#### Example: Create Novel with Custom Title
+
+```bash
+# Create mission with template variables and custom title
+🔮 > MISSION CREATE --template novel --id epic-fantasy \
+       --vars "NOVEL_TITLE=Crystal Throne,AUTHOR_NAME=Jane Writer,GENRE=Fantasy" \
+       --title "My Epic Fantasy Novel Project" \
+       --desc "A 100k-word epic fantasy about dragons and magic"
+
+# The mission uses the template structure but with your custom title/description
+```
+
+### Template Structure
+
+#### Novel Template Example
+
+**7 Moves** (Major Phases):
+1. **Planning & Outline** - Story structure, characters, world
+2. **First Draft - Opening** - Write first 25% (approx. 20k words)
+3. **First Draft - Rising Action** - Middle 50% (approx. 40k words)
+4. **First Draft - Climax** - Final 25% (approx. 20k words)
+5. **Revision - Structure** - Plot, pacing, character arcs
+6. **Revision - Line Editing** - Sentence-level improvements
+7. **Final Polish** - Proofreading, formatting, submission prep
+
+**35 Steps** spread across moves:
+- Each step is a specific, actionable task
+- Checkpoints after major milestones
+- Progress tracking built-in
+
+**6 Variables**:
+- NOVEL_TITLE, AUTHOR_NAME, GENRE (required)
+- TARGET_WORDS, CHAPTER_COUNT, DAILY_WORD_GOAL (optional)
+
+### Common Workflows
+
+#### Workflow 1: Start a Novel
+
+```bash
+# List creative writing templates
+🔮 > MISSION TEMPLATES creative-writing
+
+# Preview the novel template
+🔮 > MISSION TEMPLATE novel
+
+# Create your novel mission
+🔮 > MISSION CREATE --template novel --id my-scifi-novel \
+       --vars "NOVEL_TITLE=Starship Nexus,AUTHOR_NAME=Alex Chen,GENRE=Sci-Fi,TARGET_WORDS=90000,DAILY_WORD_GOAL=1000"
+
+# Start writing
+🔮 > MISSION START my-scifi-novel
+
+# Check your progress
+🔮 > MISSION STATUS my-scifi-novel
+```
+
+#### Workflow 2: Write a Stage Play
+
+```bash
+# Preview the play template
+🔮 > MISSION TEMPLATE play
+
+# Create your play mission (3-act drama)
+🔮 > MISSION CREATE --template play --id garden-play \
+       --vars "PLAY_TITLE=Echoes in the Garden,PLAYWRIGHT=Jordan Lee,GENRE=Drama,ACT_COUNT=3,SCENE_COUNT=12"
+
+# Start developing characters and scenes
+🔮 > MISSION START garden-play
+🔮 > MISSION STATUS garden-play
+```
+
+**Play Template Structure** (8 moves, 54 steps):
+1. Foundation & Concept
+2. Character Development
+3. Structure & Outline
+4. First Draft - Act 1
+5. First Draft - Acts 2+
+6. Revision - Structure & Story
+7. Revision - Dialogue & Craft
+8. Polish & Submission
+
+**Variables**: PLAY_TITLE, PLAYWRIGHT, GENRE (Drama/Comedy/Tragedy/Farce/Melodrama/Absurdist/Musical Drama), ACT_COUNT, SCENE_COUNT, RUNTIME_TARGET, CHARACTER_COUNT
+
+#### Workflow 3: Compose a Musical
+
+```bash
+# Preview the musical template
+🔮 > MISSION TEMPLATE musical
+
+# Create your musical mission (Broadway-style show)
+🔮 > MISSION CREATE --template musical --id neon-dreams \
+       --vars "MUSICAL_TITLE=Neon Dreams,COMPOSER=Alex Chen,LYRICIST=Jordan Lee,GENRE=Broadway,SONG_COUNT=16"
+
+# Start with concept and characters
+🔮 > MISSION START neon-dreams
+```
+
+**Musical Template Structure** (8 moves, 55 steps):
+1. Concept & Story Development
+2. Character & Song List Development
+3. Book Writing (Scenes & Dialogue)
+4. Lyric Writing - Act 1
+5. Lyric Writing - Act 2+
+6. Music Composition - Melodies & Structure
+7. Orchestration & Arrangements
+8. Revision & Production Preparation
+
+**Variables**: MUSICAL_TITLE, COMPOSER, LYRICIST, BOOK_WRITER, GENRE (Broadway/Rock Musical/Jukebox Musical/Operetta/Folk/Jazz/Pop), SONG_COUNT, ACT_COUNT, RUNTIME_TARGET
+
+#### Workflow 4: Write a Screenplay
+
+```bash
+# Preview the screenplay template
+🔮 > MISSION TEMPLATE screenplay
+
+# Create feature film screenplay
+🔮 > MISSION CREATE --template screenplay --id last-signal \
+       --vars "SCREENPLAY_TITLE=The Last Signal,SCREENWRITER=Taylor Brooks,GENRE=Sci-Fi,FORMAT=Feature Film,PAGE_TARGET=110"
+
+# Or create TV pilot
+🔮 > MISSION CREATE --template screenplay --id city-echoes \
+       --vars "SCREENPLAY_TITLE=City of Echoes,SCREENWRITER=Morgan Lee,GENRE=Drama,FORMAT=TV Pilot,PAGE_TARGET=60"
+
+# Start writing
+🔮 > MISSION START last-signal
+```
+
+**Screenplay Template Structure** (8 moves, 52 steps):
+1. Concept & Logline
+2. Character Development
+3. Story Structure & Beat Sheet
+4. First Draft - Act 1
+5. First Draft - Act 2 & 3
+6. Revision - Story & Structure
+7. Revision - Dialogue & Action
+8. Polish & Submission
+
+**Variables**: SCREENPLAY_TITLE, SCREENWRITER, GENRE (Action/Drama/Comedy/Thriller/Horror/Sci-Fi/Fantasy/Romance/Mystery/Adventure), FORMAT (Feature Film/TV Pilot/TV Episode/Short Film), PAGE_TARGET, ACT_COUNT
+
+**Key Feature**: Proper screenplay formatting guidance (1 page = 1 minute screen time)
+
+#### Workflow 5: Curate a Poetry Collection
+
+```bash
+# Preview the poetry template
+🔮 > MISSION TEMPLATE poetry-collection
+
+# Create free verse collection
+🔮 > MISSION CREATE --template poetry-collection --id wire-whispers \
+       --vars "COLLECTION_TITLE=Whispers in the Wire,POET=River Song,THEME=Technology and human connection,POEM_COUNT=42,STYLE=Free Verse"
+
+# Or create formal poetry collection
+🔮 > MISSION CREATE --template poetry-collection --id stone-seasons \
+       --vars "COLLECTION_TITLE=Seasons of Stone,POET=Morgan Wilde,THEME=Geological time and memory,POEM_COUNT=50,STYLE=Formal"
+
+# Begin drafting poems
+🔮 > MISSION START wire-whispers
+```
+
+**Poetry Collection Template Structure** (7 moves, 45 steps):
+1. Vision & Theme Development
+2. Initial Draft - Poem Generation
+3. Organization & Structure
+4. Revision - Individual Poems
+5. Revision - Collection Cohesion
+6. Line-Level Polish
+7. Publication Preparation
+
+**Variables**: COLLECTION_TITLE, POET, THEME, POEM_COUNT, STYLE (Free Verse/Formal/Prose Poetry/Mixed/Experimental/Narrative), SECTION_COUNT, PAGE_TARGET
+
+**Unique Focus**: Collection as unified artistic statement, not just gathered poems
+
+#### Workflow 6: Conduct Academic Research
+
+```bash
+# Preview the research template
+🔮 > MISSION TEMPLATE research-topic
+
+# Create academic research project
+🔮 > MISSION CREATE --template research-topic --id climate-study \
+       --vars "TOPIC=Climate adaptation strategies in urban planning,RESEARCHER=Dr. Sarah Chen,DISCIPLINE=Social Sciences,SCOPE=Comprehensive,METHODOLOGY=Case Study,TIMELINE=16"
+
+# Or create personal research project
+🔮 > MISSION CREATE --template research-topic --id architecture-history \
+       --vars "TOPIC=Victorian-era commercial buildings in downtown Brisbane,RESEARCHER=Alex Martinez,DISCIPLINE=Humanities,METHODOLOGY=Historical Analysis,OUTPUT_FORMAT=Article"
+
+# Begin research planning
+🔮 > MISSION START climate-study
+```
+
+**Research Topic Template Structure** (8 moves, 44 steps):
+1. Research Question & Planning
+2. Literature Review & Background Research
+3. Data Collection & Primary Research
+4. Data Analysis & Interpretation
+5. Writing & Structuring Research Output
+6. Citations & References
+7. Revision & Polish
+8. Submission & Dissemination
+
+**Variables**: TOPIC, RESEARCHER, DISCIPLINE (10 choices), SCOPE (Exploratory/Moderate/Comprehensive/Thesis-Level), METHODOLOGY (8 choices including Literature Review/Experimental/Survey/Case Study), TIMELINE (weeks), OUTPUT_FORMAT (Research Paper/Report/Thesis/Article/etc.)
+
+**Key Feature**: Rigorous academic methodology with proper citation management and data analysis guidance
+
+#### Workflow 7: Explore a New Subject
+
+```bash
+# Preview the subject exploration template
+🔮 > MISSION TEMPLATE explore-subject
+
+# Learn data science for career transition
+🔮 > MISSION CREATE --template explore-subject --id data-science \
+       --vars "SUBJECT=Data Science and Machine Learning,LEARNER=Jamie Park,DEPTH=Intermediate (working knowledge),TIMEFRAME=16,LEARNING_STYLE=Project-Based (learn by building),GOAL=Career Development"
+
+# Or explore philosophy for personal growth
+🔮 > MISSION CREATE --template explore-subject --id philosophy \
+       --vars "SUBJECT=Western Philosophy,LEARNER=Morgan Lee,DEPTH=Survey (broad overview),TIMEFRAME=12,LEARNING_STYLE=Theory-First (concepts then practice)"
+
+# Start learning journey
+🔮 > MISSION START data-science
+```
+
+**Explore Subject Template Structure** (5 moves, 26 steps):
+1. Foundation & Orientation
+2. Core Concepts & Fundamentals (3 concepts with practice)
+3. Intermediate Topics & Applications
+4. Advanced Topics & Specialization
+5. Synthesis & Knowledge Consolidation
+
+**Variables**: SUBJECT, LEARNER, DEPTH (Survey/Intermediate/Advanced/Mastery), TIMEFRAME (weeks), LEARNING_STYLE (Theory-First/Practice-First/Balanced/Project-Based), GOAL (Personal Growth/Career Development/Academic/Creative/Problem-Solving/Teaching)
+
+**Key Feature**: Adaptable to any subject with customizable depth and learning approach
+
+#### Workflow 8: Learn Programming
+
+```bash
+# Preview the coding template
+🔮 > MISSION TEMPLATE learn-to-code
+
+# Learn uCODE for workflow automation
+🔮 > MISSION CREATE --template learn-to-code --id ucode-automation \
+       --vars "LANGUAGE=uCODE (uDOS workflow scripting),LEARNER=Taylor Kim,SKILL_LEVEL=Complete Beginner,PROJECT_GOAL=Automate my daily task tracking and reporting,PRACTICE_HOURS=4"
+
+# Or learn Python for data analysis
+🔮 > MISSION CREATE --template learn-to-code --id python-data \
+       --vars "LANGUAGE=Python,LEARNER=Jordan Martinez,SKILL_LEVEL=Some Coding Experience,PROJECT_GOAL=Build data dashboards for sales analysis,PRACTICE_HOURS=8,LEARNING_PATH=Fundamentals-First (theory then practice)"
+
+# Start coding
+🔮 > MISSION START ucode-automation
+```
+
+**Learn to Code Template Structure** (8 moves, 40 steps):
+1. Setup & Hello World
+2. Variables & Data Types
+3. Control Flow - Decisions & Loops
+4. Data Structures - Lists & Collections
+5. Functions & Code Organization
+6. Files & External Data
+7. Advanced Concepts & Best Practices
+8. Next Steps & Continued Learning
+
+**Variables**: LANGUAGE (uCODE/Python/JavaScript/Java/C++/Ruby/Go/Rust/Other), LEARNER, SKILL_LEVEL (Complete Beginner/Some Experience/New to This Language/Intermediate), PROJECT_GOAL, PRACTICE_HOURS (weekly), LEARNING_PATH (Project-Based/Fundamentals-First/Tutorial-Driven/Problem-Solving)
+
+**Key Feature**: Special focus on uCODE for uDOS users, with detailed language-specific guidance in step notes
+
+#### Workflow 9: Master a Foreign Language
+
+```bash
+# Preview the language learning template
+🔮 > MISSION TEMPLATE language-learning
+
+# Learn Spanish for travel
+🔮 > MISSION CREATE --template language-learning --id spanish-travel \
+       --vars "LANGUAGE=Spanish,LEARNER=Alex Rivera,CURRENT_LEVEL=Complete Beginner,TARGET_LEVEL=Intermediate (B1),STUDY_HOURS=7,MOTIVATION=Travel,FOCUS_SKILLS=Speaking/Listening"
+
+# Or learn Japanese for career
+🔮 > MISSION CREATE --template language-learning --id japanese-business \
+       --vars "LANGUAGE=Japanese,LEARNER=Sam Chen,CURRENT_LEVEL=Elementary (A1),TARGET_LEVEL=Upper-Intermediate (B2),STUDY_HOURS=10,MOTIVATION=Career/Business,FOCUS_SKILLS=Balanced (all skills)"
+
+# Begin language study
+🔮 > MISSION START spanish-travel
+```
+
+**Language Learning Template Structure** (6 moves, 31 steps):
+1. Foundation & First Steps
+2. Elementary Communication
+3. Intermediate Conversations
+4. Reading & Writing Development
+5. Cultural Fluency & Advanced Skills
+6. Maintenance & Continued Growth
+
+**Variables**: LANGUAGE, LEARNER, CURRENT_LEVEL (Complete Beginner/A1/A2/B1/B2), TARGET_LEVEL (A1/A2/B1/B2/C1/C2 using CEFR scale), STUDY_HOURS (weekly), MOTIVATION (Personal Interest/Travel/Career/Family/Academic/Immigration), FOCUS_SKILLS (Balanced/Speaking-Listening/Reading-Writing/Conversational/Academic-Formal)
+
+**Key Feature**: CEFR-aligned proficiency levels with cultural awareness and real-world communication focus
+
+#### Workflow 10: Track and Build Habits
+
+```bash
+# Preview the habit tracking template
+🔮 > MISSION TEMPLATE habit-tracking
+
+# Build daily meditation habit
+🔮 > MISSION CREATE --template habit-tracking --id meditation-90 \
+       --vars "HABIT_NAME=Morning meditation,TRACKER=Alex Park,FREQUENCY=Daily,DURATION=90,TIME_COMMITMENT=10,MOTIVATION=Mental Wellbeing"
+
+# Or establish fitness routine
+🔮 > MISSION CREATE --template habit-tracking --id strength-training \
+       --vars "HABIT_NAME=Strength training workout,TRACKER=Sam Rodriguez,FREQUENCY=3x per Week,DURATION=90,TIME_COMMITMENT=45,MOTIVATION=Health & Fitness"
+
+# Start habit building
+🔮 > MISSION START meditation-90
+```
+
+**Habit Tracking Template Structure** (6 moves, 26 steps):
+1. Habit Design & Setup
+2. Launch & First Week (Days 1-7)
+3. Consistency Building (Days 8-30)
+4. Habit Solidification (Days 31-60)
+5. Habit Mastery (Days 61-90)
+6. Long-Term Maintenance & Expansion
+
+**Variables**: HABIT_NAME, TRACKER, FREQUENCY (Daily/Every Weekday/3x per Week/Weekly/Custom), DURATION (in days, default 90), TIME_COMMITMENT (minutes per instance), MOTIVATION (Health & Fitness/Personal Growth/Career/Relationships/Creativity/Mental Wellbeing/Productivity)
+
+**Key Feature**: Progressive 90-day framework with trigger design, obstacle planning, and streak counting
+
+#### Workflow 11: Achieve Major Goals
+
+```bash
+# Preview the goal achievement template
+🔮 > MISSION TEMPLATE goal-achievement
+
+# Train for half marathon
+🔮 > MISSION CREATE --template goal-achievement --id half-marathon \
+       --vars "GOAL=Complete a half marathon in under 2 hours,ACHIEVER=Jordan Lee,TIMEFRAME=6 Months,GOAL_TYPE=Health/Fitness,MEASUREMENT=Official race completion time and distance,DIFFICULTY=Challenging"
+
+# Or launch side business
+🔮 > MISSION CREATE --template goal-achievement --id course-business \
+       --vars "GOAL=Launch online course business generating $5,000 monthly revenue,ACHIEVER=Taylor Martinez,TIMEFRAME=1 Year,GOAL_TYPE=Career/Professional,MEASUREMENT=Monthly recurring revenue of $5,000+,DIFFICULTY=Very Ambitious"
+
+# Begin goal pursuit
+🔮 > MISSION START half-marathon
+```
+
+**Goal Achievement Template Structure** (6 moves, 27 steps):
+1. Goal Clarity & Vision
+2. Milestone Planning & Roadmap
+3. Launch & First Milestone
+4. Middle Milestones & Momentum
+5. Final Push & Goal Achievement
+6. Reflection & Integration
+
+**Variables**: GOAL (specific achievement), ACHIEVER, TIMEFRAME (30 Days/90 Days/6 Months/1 Year/Custom), GOAL_TYPE (Career/Financial/Health/Learning/Creative/Relationships/Personal Growth/Adventure), MEASUREMENT (success criteria), DIFFICULTY (Comfortable Stretch/Challenging/Very Ambitious/Moonshot)
+
+**Key Feature**: Milestone-based progression with action planning, celebration points, and identity integration
+
+#### Workflow 12: Develop Journaling Practice
+
+```bash
+# Preview the journaling template
+🔮 > MISSION TEMPLATE journal-reflection
+
+# Start gratitude journal
+🔮 > MISSION CREATE --template journal-reflection --id morning-gratitude \
+       --vars "JOURNAL_NAME=Morning Light Journal,JOURNALER=Casey Williams,FREQUENCY=Daily,JOURNAL_FOCUS=Gratitude & Positivity,DURATION=90,ENTRY_LENGTH=Short (0.5 page)"
+
+# Or weekly personal growth journal
+🔮 > MISSION CREATE --template journal-reflection --id growth-chronicle \
+       --vars "JOURNAL_NAME=Evolution Journal,JOURNALER=Morgan Chen,FREQUENCY=Weekly,JOURNAL_FOCUS=Personal Growth,DURATION=365,ENTRY_LENGTH=Long (3-5 pages)"
+
+# Begin journaling
+🔮 > MISSION START morning-gratitude
+```
+
+**Journal & Reflection Template Structure** (6 moves, 25 steps):
+1. Journal Foundation & Setup
+2. Daily Practice Establishment (Days 1-14)
+3. Depth & Discovery (Days 15-30)
+4. Integration & Experimentation (Days 31-60)
+5. Mastery & Long-term Vision (Days 61-90)
+6. Lifelong Practice Design
+
+**Variables**: JOURNAL_NAME, JOURNALER, FREQUENCY (Daily/3-5x per Week/Weekly/Monthly/Custom), JOURNAL_FOCUS (Personal Growth/Gratitude/Goal Tracking/Creative/Emotional Processing/Life Documentation/Problem Solving/General Reflection), DURATION (days), ENTRY_LENGTH (Short/Medium/Long/Stream of Consciousness)
+
+**Key Feature**: Structured prompts, weekly/monthly reviews, and progressive depth from beginner to lifelong journaler
+
+#### Workflow 13: Build Personal Knowledge Base
+
+```bash
+# Preview the knowledge expansion template
+🔮 > MISSION TEMPLATE knowledge-expansion
+
+# Master digital photography
+🔮 > MISSION CREATE --template knowledge-expansion --id photo-mastery \
+       --vars "TOPIC=Digital Photography,LEARNER=Riley Martinez,DEPTH_GOAL=Proficient (can teach others),TIMEFRAME=6 Months (Comprehensive),APPLICATION=Creative Work,LEARNING_STYLE=Balanced"
+
+# Or understand climate science
+🔮 > MISSION CREATE --template knowledge-expansion --id climate-knowledge \
+       --vars "TOPIC=Climate Science,LEARNER=Alex Chen,DEPTH_GOAL=Working Knowledge (practical understanding),TIMEFRAME=3 Months (Deep Dive),APPLICATION=Pure Interest/Curiosity,LEARNING_STYLE=Reading-Heavy (books, articles, papers)"
+
+# Start learning
+🔮 > MISSION START photo-mastery
+```
+
+**Knowledge Expansion Template Structure** (5 moves, 28 steps):
+1. Knowledge Mapping & Foundation
+2. Core Concept Acquisition
+3. Knowledge Expansion & Depth
+4. Synthesis & Original Thinking
+5. Maintenance & Continued Growth
+
+**Variables**: TOPIC (subject to master), LEARNER, DEPTH_GOAL (Working Knowledge/Proficient/Expert/Authority), TIMEFRAME (1 Month/3 Months/6 Months/1 Year/Ongoing), APPLICATION (Career/Personal Project/Teaching/Creative/Problem Solving/Pure Interest/Writing), LEARNING_STYLE (Reading-Heavy/Practice-Focused/Social Learning/Balanced)
+
+**Key Feature**: Systematic knowledge building from foundational mapping to original contributions, with knowledge management system setup
+
+### Template Best Practices
+
+#### Choosing the Right Template
+
+**Creative Writing** (5 templates):
+- **Novel Template**: Long-form fiction (50k+ words, 7 moves, 35 steps)
+- **Play Template**: Stage drama/comedy (8 moves, 54 steps) - dialogue-driven theatrical work
+- **Musical Template**: Musical theater (8 moves, 55 steps) - integrates book, music, lyrics
+- **Screenplay Template**: Film/TV scripts (8 moves, 52 steps) - visual storytelling format
+- **Poetry Collection Template**: Curated anthology (7 moves, 45 steps) - unified poetic vision
+
+**Research & Learning** (4 templates):
+- **Research Topic Template**: Academic/personal research (8 moves, 44 steps) - rigorous methodology with citations
+- **Explore Subject Template**: Learn any subject (5 moves, 26 steps) - adaptable depth and learning style
+- **Learn to Code Template**: Programming skills (8 moves, 40 steps) - includes uCODE focus for uDOS users
+- **Language Learning Template**: Foreign language (6 moves, 31 steps) - CEFR-aligned with cultural awareness
+
+**Personal Development & Knowledge** (4 templates):
+- **Habit Tracking Template**: Build consistent habits (6 moves, 26 steps) - 90-day framework with trigger design
+- **Goal Achievement Template**: Achieve major goals (6 moves, 27 steps) - milestone-based with action planning
+- **Journal & Reflection Template**: Develop journaling practice (6 moves, 25 steps) - structured prompts and reviews
+- **Knowledge Expansion Template**: Build knowledge base (5 moves, 28 steps) - systematic learning to expertise
+
+#### Customizing Templates
+
+**Do**:
+- ✅ Use `--title` to override template title
+- ✅ Use `--desc` to add custom description
+- ✅ Adjust optional variables to your needs
+- ✅ Review template preview before creating
+
+**Don't**:
+- ❌ Skip required variables (validation will fail)
+- ❌ Use invalid choice values (e.g., "Fiction" when only "Fantasy" is allowed)
+- ❌ Ignore the template structure - it's designed for success
+
+#### Managing Template-Based Missions
+
+```bash
+# Template missions work like any other mission
+🔮 > MISSION START my-novel
+🔮 > MISSION PAUSE my-novel
+🔮 > MISSION RESUME my-novel
+🔮 > MISSION STATUS my-novel
+🔮 > MISSION COMPLETE my-novel
+
+# List all missions (including template-based)
+🔮 > MISSION LIST
+
+# Clone a template-based mission
+🔮 > MISSION CLONE my-novel sequel-novel
+```
+
+### Creating Your Own Templates
+
+See the **[Template Creation Guide](../sandbox/docs/template-creation-guide.md)** for:
+- Template file structure
+- Variable types and validation
+- Move and step best practices
+- Testing templates
+- Contributing templates to uDOS
+
+**Quick Template Anatomy**:
+```json
+{
+  "id": "template-id",
+  "name": "Template Name with {{VARIABLES}}",
+  "category": "creative-writing",
+  "variables": {
+    "VARIABLE_NAME": {
+      "type": "string|number|choice|boolean",
+      "required": true,
+      "description": "What this variable represents"
+    }
+  },
+  "moves": [
+    {
+      "name": "Move Name",
+      "steps": [
+        {"description": "Step with {{VARIABLE}} substitution"}
+      ]
+    }
+  ]
+}
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+**Problem**: "Template not found"
+```bash
+# Solution: List available templates
+🔮 > MISSION TEMPLATES
+```
+
+**Problem**: "Variable validation failed"
+```bash
+# Solution: Preview template to see required variables
+🔮 > MISSION TEMPLATE novel
+
+# Then provide all required variables
+🔮 > MISSION CREATE --template novel --id my-novel \
+       --vars "NOVEL_TITLE=My Book,AUTHOR_NAME=Me,GENRE=Fantasy"
+```
+
+**Problem**: "Variable must be one of: Fantasy, Sci-Fi..."
+```bash
+# Solution: Use exact choice values from template
+🔮 > MISSION TEMPLATE novel  # See valid choices
+# Use "Sci-Fi" not "Science Fiction"
+```
+
+#### Getting Help
+
+```bash
+# See all mission commands including templates
+🔮 > MISSION HELP
+
+# Preview template for variable requirements
+🔮 > MISSION TEMPLATE <template-id>
+
+# Check template creation guide
+🔮 > VIEW sandbox/docs/template-creation-guide.md
+```
+
+### Template Roadmap
+
+**v1.1.3 Move 1** ✅ (Complete):
+- Template engine
+- Novel template
+- Command interface
+
+**v1.1.3 Move 2** ✅ (Complete):
+- Play template (Drama/Comedy/Tragedy)
+- Musical template (Broadway/Rock/Operetta)
+- Screenplay template (Feature/TV/Short)
+- Poetry collection template (Free Verse/Formal/Mixed)
+
+**v1.1.3 Move 3** ✅ (Complete):
+- Research topic template (Academic/Personal research)
+- Explore subject template (Learning any subject)
+- Learn to code template (Programming with uCODE focus)
+- Language learning template (Foreign language study)
+
+**v1.1.3 Move 4** ✅ (Complete):
+- Habit tracking template (90-day habit building)
+- Goal achievement template (Milestone-based goals)
+- Journal & reflection template (Journaling practice)
+- Knowledge expansion template (Personal knowledge base)
+
+**Total Available Templates**: 13 templates
+- 5 creative writing templates (novel, play, musical, screenplay, poetry)
+- 4 research & learning templates (research, explore, code, language)
+- 4 personal development & knowledge templates (habit, goal, journal, knowledge)
+
+---
+
 ## Workflow Templates
 
 ### Quick Start Templates
@@ -832,7 +1493,9 @@ Have a workflow that works well for you? Share it!
 
 ---
 
-**Last Updated**: November 14, 2025
-**Version**: v1.0.0
+**Last Updated**: November 16, 2025
+**Version**: v1.1.3 ✅ COMPLETE
 
 **Remember**: Workflows evolve. Start with these, adapt them to your needs, and create your own. The best workflow is the one you'll actually use.
+
+**v1.1.3 Achievement**: 13 mission templates across 4 categories, enabling structured approaches to creative writing, learning, personal development, and knowledge building.
