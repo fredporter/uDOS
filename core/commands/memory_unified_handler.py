@@ -29,7 +29,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.commands.private_commands import PrivateCommandHandler
 from core.commands.shared_commands import SharedCommandHandler
 from core.commands.community_commands import CommunityCommandHandler
-from core.commands.knowledge_commands import KnowledgeCommandHandler
+# KnowledgeCommandHandler removed in v2.0.0 - use guide_handler instead
+# from core.commands.knowledge_commands import KnowledgeCommandHandler
 
 
 class MemoryUnifiedHandler:
@@ -45,7 +46,8 @@ class MemoryUnifiedHandler:
         self.private_handler = PrivateCommandHandler()
         self.shared_handler = SharedCommandHandler()
         self.community_handler = CommunityCommandHandler()
-        self.kb_handler = KnowledgeCommandHandler()
+        # self.kb_handler = KnowledgeCommandHandler()  # Removed in v2.0.0
+        self.kb_handler = None  # KB commands redirect to GUIDE handler
 
         # Tier definitions with security levels
         self.tiers = {

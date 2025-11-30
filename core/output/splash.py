@@ -11,8 +11,11 @@ def print_splash_screen():
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
     print(splash_text)
-    print("uDOS v1.1.6 - Production Logging & Configuration")
+    print("uDOS v2.0.0 - Offline-First Survival OS")
     print("="*50)
+    print("Type HELP for commands | CONFIG LIST for settings")
+    print("Syntax: COMMAND [params] or [MODULE|COMMAND*PARAM]")
+    print()
 
 
 def print_viewport_measurement(viewport, delay=1.0):

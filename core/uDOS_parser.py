@@ -29,6 +29,10 @@ class Parser:
     def parse(self, user_input):
         original_input = user_input.strip()
 
+        # If already in uCODE format [MODULE|COMMAND*PARAM], pass through
+        if original_input.startswith('[') and original_input.endswith(']'):
+            return original_input
+
         best_match_cmd = None
         for cmd_name in self.commands.keys():
             # Check if the input starts with the command name, ensuring a word boundary

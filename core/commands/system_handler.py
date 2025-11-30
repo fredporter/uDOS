@@ -105,6 +105,73 @@ class SystemCommandHandler(BaseCommandHandler):
             self._dev_mode_manager = get_dev_mode_manager(config_manager=self.config_manager)
         return self._dev_mode_manager
 
+    def handle_help(self, params, grid, parser):
+        """Quick help - shows essential commands and both syntaxes."""
+        from .display_handler import DisplayHandler
+
+        # Delegate to display_handler for full help functionality
+        display_handler = DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return display_handler.handle_help(params, grid, parser)
+
+    def handle_blank(self, params, grid, parser):
+        """Clear screen (BLANK) - delegates to DisplayHandler."""
+        from .display_handler import DisplayHandler
+        display_handler = DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return display_handler.handle_blank(params, grid, parser)
+
+    def handle_splash(self, params, grid, parser):
+        """Show splash screen - delegates to DisplayHandler."""
+        from .display_handler import DisplayHandler
+        display_handler = DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return display_handler.handle_splash(params, grid, parser)
+
+    def handle_layout(self, params, grid, parser):
+        """Screen layout management - delegates to DisplayHandler."""
+        from .display_handler import DisplayHandler
+        display_handler = DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return display_handler.handle_layout(params, grid, parser)
+
+    def handle_progress(self, params, grid, parser):
+        """Show progress indicators - delegates to DisplayHandler."""
+        from .display_handler import DisplayHandler
+        display_handler = DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return display_handler.handle_progress(params, grid, parser)
+
     def handle(self, command, params, grid, parser):
         """
         Route system commands to appropriate handlers.
@@ -124,12 +191,7 @@ class SystemCommandHandler(BaseCommandHandler):
             'SPLASH': self.handle_splash,
             'HELP': self.handle_help,
             'HISTORY': self.handle_history,
-            'UNDO': self.handle_undo,
-            'REDO': self.handle_redo,
-            'RESTORE': self.handle_restore,
-            'THEME': self.handle_theme,
             'PROGRESS': self.handle_progress,
-            'SESSION': self.handle_session,
             'LAYOUT': self.handle_layout,
             'STATUS': self.handle_status,
             'REPAIR': self.handle_repair,
@@ -140,36 +202,18 @@ class SystemCommandHandler(BaseCommandHandler):
             'PALETTE': self.handle_palette,
             'DASH': self.handle_dashboard,
             'DASHBOARD': self.handle_dashboard,
-            # TREE removed - now handled by TreeHandler module
             'CLEAN': self.handle_clean,
             'CONFIG': self.handle_config,
             'WIZARD': self.handle_wizard,
-            'SETUP': self.handle_settings,  # Settings/setup command
+            'SETUP': self.handle_settings,
             'WORKSPACE': self.handle_workspace,
             'OUTPUT': self.handle_output,
-            'SERVER': self.handle_output,  # Alias for OUTPUT
-            # v1.0.29: GET/SET system
+            'SERVER': self.handle_output,
             'GET': self.handle_get,
             'SET': self.handle_set,
-            # v1.0.17: Debugger commands
-            'DEBUG': self.handle_debug,
-            'BREAK': self.handle_breakpoint,
-            'STEP': self.handle_step,
-            'CONTINUE': self.handle_continue,
-            'INSPECT': self.handle_inspect,
-            'WATCH': self.handle_watch,
-            'STACK': self.handle_stack,
-            # v1.0.17 Phase 4: Advanced debugging
-            'MODIFY': self.handle_modify,
-            'PROFILE': self.handle_profile,
-            # v1.0.17 Phase 4+: Variable history
-            'HISTORY': self.handle_history,
-            # v1.0.32: Planet system
             'CONFIG_PLANET': self.handle_config_planet,
             'LOCATE': self.handle_locate,
-            # v1.5.0: DEV MODE (master user only)
             'DEV': self.handle_dev_mode,
-            # v1.5.3: Asset management system
             'ASSETS': self.handle_assets,
         }
 

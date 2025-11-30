@@ -72,8 +72,6 @@ class CommandHandler:
         from core.commands.assistant_handler import AssistantCommandHandler
         from core.commands.file_handler import FileCommandHandler
         from core.commands.system_handler import SystemCommandHandler
-        from core.commands.bank_handler import BankCommandHandler
-        from core.commands.cmd_knowledge import cmd_knowledge
 
         # Play extension (optional) - load if available
         try:
@@ -88,7 +86,7 @@ class CommandHandler:
         from core.commands.private_commands import PrivateCommandHandler
         from core.commands.shared_commands import SharedCommandHandler
         from core.commands.community_commands import CommunityCommandHandler
-        from core.commands.knowledge_commands import KnowledgeCommandHandler  # KB command (Tier 4)
+        # Note: KB command now redirects to GUIDE handler (KnowledgeCommandHandler removed in v2.0.0)
 
         # v1.0.20b - Enhanced Mapping & Reference Data System
         from core.commands.tile_handler import TILECommandHandler
@@ -123,14 +121,14 @@ class CommandHandler:
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
-        self.bank_handler = BankCommandHandler(**handler_kwargs)
+        # Note: bank_handler removed in v2.0.0 - use GUIDE for knowledge access
 
         # v1.0.20 - 4-Tier Memory System handlers
         self.memory_handler = MemoryCommandHandler()
         self.private_handler = PrivateCommandHandler()
         self.shared_handler = SharedCommandHandler()
         self.community_handler = CommunityCommandHandler()
-        self.knowledge_v2_handler = KnowledgeCommandHandler()
+        # Note: knowledge_v2_handler removed in v2.0.0 - KB commands redirect to GUIDE
 
         # v1.0.20b - TILE Enhanced Mapping handler
         self.tile_handler = TILECommandHandler(**handler_kwargs)
@@ -173,9 +171,9 @@ class CommandHandler:
         # v2.0 - Sandbox Management handler
         self.sandbox_handler = SandboxHandler()
 
-        # Now set main_handler reference on all handlers
+        # Now set main_handler reference on all handlers (v2.0.0: removed bank_handler)
         for handler in [self.assistant_handler, self.file_handler,
-                       self.system_handler, self.bank_handler]:
+                       self.system_handler]:
             handler.main_handler = self
 
         # Set main_handler on map_handler if available
@@ -269,7 +267,8 @@ class CommandHandler:
                            "💡 Install: POKE START play")
 
             elif module == "BANK":
-                return self.bank_handler.handle(command, params, grid)
+                # BANK handler removed in v2.0.0 - redirect to GUIDE
+                return self.guide_handler.handle(command, params)
 
             # v1.0.20 - 4-Tier Knowledge Bank & Memory System
             elif module == "MEMORY":
@@ -285,8 +284,8 @@ class CommandHandler:
                 return self.community_handler.handle(command, params)
 
             elif module == "KB" or module == "KNOWLEDGEBANK":
-                # New v1.0.20 knowledge bank (use KB to distinguish from legacy)
-                return self.knowledge_v2_handler.handle(command, params)
+                # KB handler removed in v2.0.0 - redirect to GUIDE
+                return self.guide_handler.handle(command, params)
 
             # v1.0.20b - Enhanced Mapping & Reference Data System
             elif module == "TILE":
@@ -428,10 +427,10 @@ class CommandHandler:
             else:
                 return self.get_message("ERROR_UNKNOWN_MODULE", module=module)
 
-        except IndexError:
+        except IndexError as e:
             return self.get_message("ERROR_INVALID_UCODE_FORMAT",
                                    ucode=ucode,
-                                   error="Missing module or command")
+                                   error=f"Missing module or command: {str(e)}")
         except Exception as e:
             return self.get_message("ERROR_INVALID_UCODE_FORMAT",
                                    ucode=ucode,

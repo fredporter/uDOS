@@ -13,7 +13,7 @@ from .services.session_logger import SessionLogger  # v1.1.6: Backward-compatibl
 from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
-from .services.history import CommandHistory
+# CommandHistory removed in v2.0.0 - using prompt_toolkit's InMemoryHistory
 from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
@@ -27,6 +27,7 @@ from .config import Config  # v2.0.0 Unified Configuration (replaces config_mana
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.history import InMemoryHistory  # v2.0.0: Replace CommandHistory
 import sys
 import os
 import time
@@ -346,12 +347,11 @@ def main():
         # Initialize core components (only once!)
         parser = Parser()
         grid = Grid()
-        # v1.1.6: Use SessionLogger wrapper (backward-compatible with old Logger)
         logger = SessionLogger()
         history = ActionHistory(logger=logger)
 
-        # Initialize command history system with persistent storage
-        command_history = CommandHistory()
+        # Initialize command history system (v2.0.0: using InMemoryHistory)
+        command_history = InMemoryHistory()
 
         # Handle -c command flag (single command execution)
         if command_to_run:
