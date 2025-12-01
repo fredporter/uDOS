@@ -73,10 +73,11 @@ sandbox/*.txt
 sandbox/*.md
 sandbox/*.json
 sandbox/.server_state.json
-sandbox/tests/*.uscript
-sandbox/tests/*.udo
-sandbox/tests/*.py
-sandbox/tests/*.sh
+sandbox/ucode/*.uscript
+sandbox/ucode/*.udo
+sandbox/ucode/*.py
+sandbox/ucode/*.upy
+sandbox/ucode/*.sh
 
 # User Customization Files (Track Templates Only)
 # ----------------------
@@ -170,8 +171,6 @@ sandbox/drafts/
 sandbox/docs/
 sandbox/trash/
 sandbox/workflow/
-sandbox/scripts/
-sandbox/tests/
 sandbox/ucode/
 sandbox/user/
 sandbox/user.json

@@ -193,6 +193,10 @@ class CommandHandler:
         # v2.0 - Sandbox Management handler
         self.sandbox_handler = SandboxHandler()
 
+        # v1.1.8 - EXTENSION Management handler (Extension Polish)
+        from core.commands.extension_handler import create_extension_handler
+        self.extension_handler = create_extension_handler(viewport=viewport, logger=logger)
+
         # Now set main_handler reference on all handlers (v2.0.0: removed bank_handler)
         for handler in [self.assistant_handler, self.file_handler,
                        self.system_handler]:

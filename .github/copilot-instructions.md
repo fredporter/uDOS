@@ -16,9 +16,7 @@ sandbox/
 ├── docs/                   # Draft documentation before wiki promotion
 ├── drafts/                 # Work-in-progress content
 ├── logs/                   # Runtime logs, dev logs, test output
-├── scripts/                # Development scripts, utilities, generators
-├── tests/                  # Pytest test suite (primary test location)
-├── ucode/                  # Test scripts and example .uscript files
+├── ucode/                  # Local .upy scripts (not synced to git)
 ├── trash/                  # Temporary files (auto-cleaned)
 ├── user/                   # User data (planets.json, USER.UDT)
 └── workflow/               # uCODE workflow automation scripts
@@ -28,8 +26,7 @@ sandbox/
 
 **✅ Use `/sandbox/` for:**
 - Development notes and session logs → `sandbox/dev/`
-- Test files → `sandbox/tests/`
-- Scratch scripts → `sandbox/scripts/`
+- Local .upy scripts (not synced) → `sandbox/ucode/`
 - Draft documentation → `sandbox/docs/`
 - Experimental code → `sandbox/drafts/`
 - Generated content (testing) → `sandbox/drafts/`
@@ -70,6 +67,9 @@ knowledge/                  # Public knowledge bank (read-only)
 ├── food/                   # Food guides (23 files)
 ├── navigation/             # Navigation guides (20 files)
 └── medical/                # Medical guides (27 files)
+
+memory/                     # User memory tier
+└── ucode/                  # Core distributable .upy scripts and tests
 
 wiki/                       # GitHub wiki (documentation)
 ```
@@ -121,8 +121,8 @@ data = load_json("../data/themes/galaxy.json")
 ### Testing
 
 ```python
-# Place ALL tests in sandbox/tests/
-# File: sandbox/tests/test_feature_name.py
+# Core tests go in memory/ucode/
+# File: memory/ucode/test_feature_name.py
 
 import pytest
 from core.services.knowledge_manager import KnowledgeManager
@@ -246,13 +246,13 @@ When creating extensions:
 
 ```bash
 # Run tests
-pytest sandbox/tests/ -v
+pytest memory/ucode/ -v
 
 # Run shakedown test
 ./start_udos.sh sandbox/ucode/shakedown.uscript
 
 # Generate SVG diagram (requires Gemini API key)
-python sandbox/scripts/generate_svg_diagram.py "water filter" water
+python memory/ucode/generate_svg_diagram.py "water filter" water
 
 # Clean sandbox
 # In uDOS: CLEAN
