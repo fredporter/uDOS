@@ -367,14 +367,40 @@ Integration:
                     output += " (Tired)"
                 output += "\n"
         except Exception as e:
-            output += f"Stats unavailable: {e}\n"        # Get XP/Level
+            output += f"Stats unavailable: {e}\n"
+        
+        # Get XP/Level
+        output += "\n" + "-" * 60 + "\n"
+        output += "EXPERIENCE & LEVEL\n"
+        output += "-" * 60 + "\n\n"
+        
         try:
-            xp_data = self.xp_service.get_current_xp()
-            if xp_data:
-                output += f"\n🌟 Level: {xp_data.get('level', 1)}\n"
-                output += f"✨ XP: {xp_data.get('current_xp', 0)}/{xp_data.get('next_level_xp', 100)}\n"
-        except:
-            pass
+            total_xp = self.xp_service.get_total_xp()
+            
+            # Calculate overall level from total XP
+            # Using same formula as skills: Level N starts at (N-1)^2 * 100 XP
+            level = 1
+            while level ** 2 * 100 <= total_xp:
+                level += 1
+            
+            # Calculate XP for current and next level
+            current_level_base = (level - 1) ** 2 * 100
+            next_level_total = level ** 2 * 100
+            xp_in_level = total_xp - current_level_base
+            xp_needed = next_level_total - current_level_base
+            
+            # Progress bar (20 chars)
+            if xp_needed > 0:
+                progress = int((xp_in_level / xp_needed) * 20)
+                bar = "█" * progress + "░" * (20 - progress)
+            else:
+                bar = "█" * 20
+            
+            output += f"🌟 Level: {level}\n"
+            output += f"✨ XP: {total_xp} ({xp_in_level}/{xp_needed} to next level)\n"
+            output += f"   [{bar}] {int((xp_in_level/xp_needed)*100) if xp_needed > 0 else 100}%\n"
+        except Exception as e:
+            output += f"XP unavailable: {e}\n"
 
         # Get inventory
         output += "\n" + "-" * 60 + "\n"
@@ -382,21 +408,36 @@ Integration:
         output += "-" * 60 + "\n\n"
 
         try:
-            inventory = self.inventory_service.get_inventory_summary()
+            inventory = self.inventory_service.get_inventory("Personal Inventory")
             if inventory and len(inventory) > 0:
-                for item in inventory[:10]:  # Show first 10 items
+                # Show first 10 items
+                for item in inventory[:10]:
                     item_name = item.get('name', 'Unknown')
                     quantity = item.get('quantity', 1)
+                    condition = item.get('condition_state', '')
+                    
                     output += f"  • {item_name}"
                     if quantity > 1:
                         output += f" x{quantity}"
+                    if condition and condition != 'pristine':
+                        output += f" ({condition})"
                     output += "\n"
+                
                 if len(inventory) > 10:
                     output += f"  ... and {len(inventory) - 10} more items\n"
+                
+                # Show inventory stats
+                stats = self.inventory_service.get_inventory_stats("Personal Inventory")
+                if stats:
+                    total_weight = stats.get('total_weight', 0)
+                    item_count = stats.get('item_count', 0)
+                    # Calculate total quantity from inventory list
+                    total_quantity = sum(item.get('quantity', 1) for item in inventory)
+                    output += f"\n  Total: {total_quantity} items ({item_count} unique), {total_weight:.1f} kg\n"
             else:
                 output += "  (Empty)\n"
-        except:
-            output += "  Inventory unavailable\n"
+        except Exception as e:
+            output += f"  Inventory unavailable: {e}\n"
 
         output += "\n" + "=" * 60 + "\n"
         output += "💡 Use 'STORY CONTINUE' to proceed\n"
@@ -450,7 +491,7 @@ Integration:
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Failed to initialize player stats: {e}")
-    
+
     def _continue_adventure(self) -> str:
         """Continue current adventure."""
         if not self.current_adventure:
