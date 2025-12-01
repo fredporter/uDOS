@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Sprite Variables",
+  "description": "Game sprite/character variables for adventure gameplay",
+  "type": "object",
+  "variables": {
+    "SPRITE-NAME": {
+      "type": "string",
+      "description": "Character/sprite name",
+      "scope": "session",
+      "default": "Survivor",
+      "validation": {
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z0-9 _-]+$"
+      }
+    },
+    "SPRITE-HP": {
+      "type": "integer",
+      "description": "Current hit points/health",
+      "scope": "session",
+      "default": 100,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999
+      }
+    },
+    "SPRITE-HP-MAX": {
+      "type": "integer",
+      "description": "Maximum hit points",
+      "scope": "session",
+      "default": 100,
+      "validation": {
+        "minimum": 1,
+        "maximum": 999
+      }
+    },
+    "SPRITE-XP": {
+      "type": "integer",
+      "description": "Experience points",
+      "scope": "session",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999999
+      }
+    },
+    "SPRITE-LEVEL": {
+      "type": "integer",
+      "description": "Character level",
+      "scope": "session",
+      "default": 1,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "SPRITE-STRENGTH": {
+      "type": "integer",
+      "description": "Strength stat",
+      "scope": "session",
+      "default": 10,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "SPRITE-DEXTERITY": {
+      "type": "integer",
+      "description": "Dexterity stat",
+      "scope": "session",
+      "default": 10,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "SPRITE-INTELLIGENCE": {
+      "type": "integer",
+      "description": "Intelligence stat",
+      "scope": "session",
+      "default": 10,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "SPRITE-STAMINA": {
+      "type": "integer",
+      "description": "Stamina/endurance stat",
+      "scope": "session",
+      "default": 10,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "SPRITE-INVENTORY": {
+      "type": "array",
+      "description": "List of item IDs in inventory",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 50
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "SPRITE-EQUIPPED-WEAPON": {
+      "type": "string",
+      "description": "Currently equipped weapon ID",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]*$"
+      }
+    },
+    "SPRITE-EQUIPPED-ARMOR": {
+      "type": "string",
+      "description": "Currently equipped armor ID",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]*$"
+      }
+    },
+    "SPRITE-LOCATION": {
+      "type": "string",
+      "description": "Current TILE code location",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "pattern": "^[A-Z]{2}\\d{1,3}(-\\d{3})?$"
+      }
+    },
+    "SPRITE-STATUS": {
+      "type": "string",
+      "description": "Current status (normal, poisoned, stunned, etc.)",
+      "scope": "session",
+      "default": "normal",
+      "validation": {
+        "enum": ["normal", "poisoned", "stunned", "blessed", "cursed", "frozen", "burning"]
+      }
+    },
+    "SPRITE-GOLD": {
+      "type": "integer",
+      "description": "Currency/gold amount",
+      "scope": "session",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999999
+      }
+    }
+  },
+  "meta": {
+    "version": "1.0.0",
+    "created": "2025-12-01",
+    "category": "gameplay",
+    "xp_per_level": 100,
+    "level_formula": "XP / 100 + 1"
+  }
+}

@@ -1,12 +1,14 @@
 """
-uDOS Variable Resolution System v1.0.2
+uDOS Variable Resolution System v1.1.9
 Provides dynamic variable replacement for templates, commands, and help text.
-Now includes Character and Object variable types for Stories integration.
+Now includes JSON schema-based variable system with SPRITE, OBJECT, and STORY types.
+Supports scope management (global, session, script, local) and type validation.
 """
 
 import os
 import sys
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -17,6 +19,7 @@ class VariableManager:
     """
     Manages system and user variables for template resolution.
     Variables can be static values or dynamic callables.
+    Supports JSON schema-based validation and scope management.
     """
 
     def __init__(self, components: Optional[Dict[str, Any]] = None):
@@ -27,15 +30,209 @@ class VariableManager:
             components: Dictionary of system components (grid, env, theme, etc.)
         """
         self.components = components or {}
+        self.schemas = {}  # Loaded JSON schemas
+        self.variables = {}  # All active variables by scope
+        
+        # Initialize scope containers
+        self.variables['global'] = {}
+        self.variables['session'] = {}
+        self.variables['script'] = {}
+        self.variables['local'] = {}
+        
+        # Load schemas and initialize variables
+        self._load_schemas()
         self._init_system_vars()
         self._init_user_vars()
         self._init_path_vars()
+        
+    def _load_schemas(self):
+        """Load all JSON variable schemas from core/data/variables/."""
+        schema_dir = Path(__file__).parent.parent / 'data' / 'variables'
+        if not schema_dir.exists():
+            return
+            
+        schema_files = ['system.json', 'user.json', 'sprite.json', 'object.json', 'story.json']
+        
+        for schema_file in schema_files:
+            schema_path = schema_dir / schema_file
+            if schema_path.exists():
+                try:
+                    with open(schema_path, 'r') as f:
+                        schema = json.load(f)
+                        schema_name = schema_file.replace('.json', '')
+                        self.schemas[schema_name] = schema
+                        
+                        # Initialize default values for each variable
+                        for var_name, var_def in schema.get('variables', {}).items():
+                            scope = var_def.get('scope', 'global')
+                            default = var_def.get('default')
+                            self.variables[scope][var_name] = default
+                except Exception as e:
+                    print(f"Warning: Could not load schema {schema_file}: {e}")
+    
+    def validate_variable(self, var_name: str, value: Any, schema_type: str = None) -> tuple[bool, str]:
+        """
+        Validate a variable value against its schema definition.
+        
+        Args:
+            var_name: Variable name (e.g., "SPRITE-HP")
+            value: Value to validate
+            schema_type: Schema to check (system, user, sprite, object, story) or auto-detect
+            
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        # Find the variable definition
+        var_def = None
+        found_schema = None
+        
+        if schema_type:
+            schemas_to_check = [schema_type]
+        else:
+            schemas_to_check = self.schemas.keys()
+        
+        for schema_name in schemas_to_check:
+            schema = self.schemas.get(schema_name)
+            if schema and var_name in schema.get('variables', {}):
+                var_def = schema['variables'][var_name]
+                found_schema = schema_name
+                break
+        
+        if not var_def:
+            return (True, "")  # Unknown variables pass validation (user-defined)
+        
+        # Type validation
+        expected_type = var_def.get('type')
+        if expected_type == 'string' and not isinstance(value, str):
+            return (False, f"{var_name} must be a string")
+        elif expected_type == 'integer' and not isinstance(value, int):
+            return (False, f"{var_name} must be an integer")
+        elif expected_type == 'number' and not isinstance(value, (int, float)):
+            return (False, f"{var_name} must be a number")
+        elif expected_type == 'boolean' and not isinstance(value, bool):
+            return (False, f"{var_name} must be a boolean")
+        elif expected_type == 'array' and not isinstance(value, list):
+            return (False, f"{var_name} must be an array")
+        elif expected_type == 'object' and not isinstance(value, dict):
+            return (False, f"{var_name} must be an object")
+        
+        # Additional validation rules
+        validation = var_def.get('validation', {})
+        
+        # String validations
+        if expected_type == 'string':
+            if 'minLength' in validation and len(value) < validation['minLength']:
+                return (False, f"{var_name} must be at least {validation['minLength']} characters")
+            if 'maxLength' in validation and len(value) > validation['maxLength']:
+                return (False, f"{var_name} must be at most {validation['maxLength']} characters")
+            if 'pattern' in validation:
+                if not re.match(validation['pattern'], value):
+                    return (False, f"{var_name} does not match required pattern")
+            if 'enum' in validation and value not in validation['enum']:
+                return (False, f"{var_name} must be one of: {', '.join(validation['enum'])}")
+        
+        # Number validations
+        if expected_type in ['integer', 'number']:
+            if 'minimum' in validation and value < validation['minimum']:
+                return (False, f"{var_name} must be at least {validation['minimum']}")
+            if 'maximum' in validation and value > validation['maximum']:
+                return (False, f"{var_name} must be at most {validation['maximum']}")
+        
+        # Array validations
+        if expected_type == 'array':
+            if 'maxItems' in validation and len(value) > validation['maxItems']:
+                return (False, f"{var_name} can have at most {validation['maxItems']} items")
+        
+        # Readonly check
+        if var_def.get('readonly', False):
+            return (False, f"{var_name} is read-only and cannot be modified")
+        
+        return (True, "")
+    
+    def set_variable(self, var_name: str, value: Any, scope: str = None) -> bool:
+        """
+        Set a variable value with validation and scope management.
+        
+        Args:
+            var_name: Variable name (with or without $ prefix)
+            value: Value to set
+            scope: Target scope (global, session, script, local) or auto-detect
+            
+        Returns:
+            True if successful, False if validation failed
+        """
+        # Strip $ prefix if present
+        var_name = var_name.lstrip('$')
+        
+        # Determine scope if not provided
+        if not scope:
+            # Find existing scope or use default from schema
+            for s in ['local', 'script', 'session', 'global']:
+                if var_name in self.variables[s]:
+                    scope = s
+                    break
+            
+            if not scope:
+                # Look up default scope in schemas
+                for schema in self.schemas.values():
+                    if var_name in schema.get('variables', {}):
+                        scope = schema['variables'][var_name].get('scope', 'global')
+                        break
+                if not scope:
+                    scope = 'global'  # Default for unknown variables
+        
+        # Validate before setting
+        is_valid, error = self.validate_variable(var_name, value)
+        if not is_valid:
+            print(f"Variable validation error: {error}")
+            return False
+        
+        self.variables[scope][var_name] = value
+        return True
+    
+    def get_variable(self, var_name: str, default: Any = None) -> Any:
+        """
+        Get variable value, checking scopes in order: local → script → session → global.
+        
+        Args:
+            var_name: Variable name (with or without $ prefix)
+            default: Default value if variable not found
+            
+        Returns:
+            Variable value or default
+        """
+        # Strip $ prefix if present
+        var_name = var_name.lstrip('$')
+        
+        # Check scopes in priority order
+        for scope in ['local', 'script', 'session', 'global']:
+            if var_name in self.variables[scope]:
+                value = self.variables[scope][var_name]
+                # Evaluate if callable
+                if callable(value):
+                    try:
+                        return value()
+                    except Exception:
+                        return default
+                return value
+        
+        return default
+    
+    def clear_scope(self, scope: str):
+        """Clear all variables in a specific scope."""
+        if scope in self.variables:
+            self.variables[scope] = {}
+    
+    def get_scope_variables(self, scope: str) -> Dict[str, Any]:
+        """Get all variables in a specific scope."""
+        return self.variables.get(scope, {}).copy()
 
     def _init_system_vars(self):
         """Initialize static and dynamic system variables."""
-        self.system_vars = {
+        # Legacy system vars (kept for backward compatibility)
+        legacy_vars = {
             # Version info
-            'VERSION': '1.0.0',
+            'VERSION': '1.1.9',
             'PYTHON_VERSION': sys.version.split()[0],
 
             # Paths
@@ -58,10 +255,15 @@ class VariableManager:
             'OS': sys.platform,
             'HOSTNAME': lambda: os.uname().nodename if hasattr(os, 'uname') else 'unknown',
         }
+        
+        # Add legacy vars to global scope
+        for var_name, value in legacy_vars.items():
+            if var_name not in self.variables['global']:
+                self.variables['global'][var_name] = value
 
     def _init_user_vars(self):
         """Initialize user-specific variables from STORY.UDO."""
-        self.user_vars = {
+        legacy_user_vars = {
             'USERNAME': lambda: self._get_story_value('USER_PROFILE', 'NAME', 'Adventurer'),
             'USER_ROLE': lambda: self._get_story_value('USER_PROFILE', 'ROLE', 'Explorer'),
             'PROJECT': lambda: self._get_story_value('PROJECT', 'NAME', 'Unknown'),
@@ -72,10 +274,15 @@ class VariableManager:
             'TOTAL_SESSIONS': lambda: self._get_story_value('SESSION_STATS', 'TOTAL_SESSIONS', '0'),
             'ACTIVE_PANEL': lambda: self._get_active_panel(),
         }
+        
+        # Add legacy vars to global scope if not already defined
+        for var_name, value in legacy_user_vars.items():
+            if var_name not in self.variables['global']:
+                self.variables['global'][var_name] = value
 
     def _init_path_vars(self):
         """Initialize path template variables for common folders."""
-        self.path_vars = {
+        legacy_path_vars = {
             'FOLDER_SANDBOX': 'sandbox',
             'FOLDER_MEMORY': 'memory',
             'FOLDER_KNOWLEDGE': 'knowledge',
@@ -86,6 +293,11 @@ class VariableManager:
             'FOLDER_EXAMPLES': 'examples',
             'FOLDER_DATA': 'data',
         }
+        
+        # Add legacy path vars to global scope if not already defined
+        for var_name, value in legacy_path_vars.items():
+            if var_name not in self.variables['global']:
+                self.variables['global'][var_name] = value
 
     def _get_story_value(self, section: str, key: str, default: str = '') -> str:
         """
@@ -144,10 +356,10 @@ class VariableManager:
 
     def resolve(self, template: str, extra_vars: Optional[Dict[str, Any]] = None) -> str:
         """
-        Replace {VAR} placeholders with actual values.
+        Replace {VAR} and $VAR placeholders with actual values.
 
         Args:
-            template: String containing {VAR} placeholders
+            template: String containing {VAR} or $VAR placeholders
             extra_vars: Additional variables to include (override defaults)
 
         Returns:
@@ -155,31 +367,37 @@ class VariableManager:
 
         Example:
             >>> vm = VariableManager()
-            >>> vm.resolve("User: {USERNAME}, Date: {DATE}")
-            "User: Adventurer, Date: 2025-10-31"
+            >>> vm.resolve("User: {USER-NAME}, Date: {DATE}")
+            "User: survivor, Date: 2025-12-01"
+            >>> vm.resolve("Health: $SPRITE-HP / $SPRITE-HP-MAX")
+            "Health: 100 / 100"
         """
-        # Combine all variable sources
-        all_vars = {
-            **self.system_vars,
-            **self.user_vars,
-            **self.path_vars,
-            **(extra_vars or {})
-        }
-
         result = template
 
-        # Replace each variable
-        for var_name, value in all_vars.items():
-            placeholder = f'{{{var_name}}}'
-            if placeholder in result:
-                # Evaluate if callable
-                if callable(value):
-                    try:
-                        value = value()
-                    except Exception as e:
-                        value = f'[ERROR:{var_name}]'
+        # Collect all variables from all scopes (priority: local → script → session → global)
+        all_vars = {}
+        for scope in ['global', 'session', 'script', 'local']:
+            all_vars.update(self.variables[scope])
+        
+        # Add extra vars (highest priority)
+        if extra_vars:
+            all_vars.update(extra_vars)
 
-                result = result.replace(placeholder, str(value))
+        # Replace {VAR} and $VAR patterns
+        for var_name, value in all_vars.items():
+            # Handle both {VAR} and $VAR formats
+            patterns = [f'{{{var_name}}}', f'${var_name}']
+            
+            for pattern in patterns:
+                if pattern in result:
+                    # Evaluate if callable
+                    if callable(value):
+                        try:
+                            value = value()
+                        except Exception as e:
+                            value = f'[ERROR:{var_name}]'
+
+                    result = result.replace(pattern, str(value))
 
         return result
 
@@ -212,39 +430,38 @@ class VariableManager:
 
     def get_all_vars(self) -> Dict[str, str]:
         """
-        Get a snapshot of all current variable values.
+        Get a snapshot of all current variable values across all scopes.
         Useful for debugging or displaying available variables.
 
         Returns:
             Dictionary of all variables with resolved values
         """
         result = {}
-        all_vars = {
-            **self.system_vars,
-            **self.user_vars,
-            **self.path_vars
-        }
-
-        for var_name, value in all_vars.items():
-            if callable(value):
-                try:
-                    result[var_name] = str(value())
-                except Exception:
-                    result[var_name] = '[UNAVAILABLE]'
-            else:
-                result[var_name] = str(value)
+        
+        # Collect from all scopes (global → session → script → local)
+        for scope in ['global', 'session', 'script', 'local']:
+            for var_name, value in self.variables[scope].items():
+                if callable(value):
+                    try:
+                        result[var_name] = str(value())
+                    except Exception:
+                        result[var_name] = '[UNAVAILABLE]'
+                else:
+                    result[var_name] = str(value)
 
         return result
 
-    def add_custom_var(self, name: str, value: Any):
+    def add_custom_var(self, name: str, value: Any, scope: str = 'global'):
         """
         Add a custom variable at runtime.
 
         Args:
-            name: Variable name (without braces)
+            name: Variable name (without $ or {} prefix)
             value: Variable value (can be callable)
+            scope: Variable scope (global, session, script, local)
         """
-        self.user_vars[name] = value
+        name = name.lstrip('$').strip('{}')
+        self.set_variable(name, value, scope)
 
 
 def create_variable_manager(components: Optional[Dict[str, Any]] = None) -> VariableManager:

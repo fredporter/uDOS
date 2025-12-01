@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS System Variables",
+  "description": "Core system variables managed by uDOS runtime",
+  "type": "object",
+  "variables": {
+    "CURRENT-PATH": {
+      "type": "string",
+      "description": "Current working directory path",
+      "scope": "global",
+      "default": "sandbox",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9/_.-]+$"
+      }
+    },
+    "CURRENT-MODE": {
+      "type": "string",
+      "description": "Current system mode (PROD, DEV, OFFLINE)",
+      "scope": "global",
+      "default": "PROD",
+      "validation": {
+        "enum": ["PROD", "DEV", "OFFLINE"]
+      }
+    },
+    "ACTIVE-WORKSPACE": {
+      "type": "string",
+      "description": "Active workspace name",
+      "scope": "global",
+      "default": "sandbox",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "SYSTEM-VERSION": {
+      "type": "string",
+      "description": "uDOS version number",
+      "scope": "global",
+      "default": "1.1.9",
+      "readonly": true,
+      "validation": {
+        "pattern": "^\\d+\\.\\d+\\.\\d+$"
+      }
+    },
+    "USER-NAME": {
+      "type": "string",
+      "description": "Current user name",
+      "scope": "global",
+      "default": "survivor",
+      "validation": {
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "THEME-CURRENT": {
+      "type": "string",
+      "description": "Active theme name",
+      "scope": "global",
+      "default": "foundation",
+      "validation": {
+        "enum": ["foundation", "galaxy", "survival", "retro"]
+      }
+    },
+    "LAST-COMMAND": {
+      "type": "string",
+      "description": "Most recently executed command",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    "COMMAND-HISTORY-SIZE": {
+      "type": "integer",
+      "description": "Number of commands to keep in history",
+      "scope": "global",
+      "default": 100,
+      "validation": {
+        "minimum": 10,
+        "maximum": 1000
+      }
+    },
+    "LOG-LEVEL": {
+      "type": "string",
+      "description": "Logging level (DEBUG, INFO, WARNING, ERROR)",
+      "scope": "global",
+      "default": "INFO",
+      "validation": {
+        "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+      }
+    },
+    "API-QUOTA-REMAINING": {
+      "type": "integer",
+      "description": "Remaining API quota for current billing period",
+      "scope": "session",
+      "default": 0,
+      "validation": {
+        "minimum": 0
+      }
+    },
+    "OFFLINE-MODE": {
+      "type": "boolean",
+      "description": "Whether system is running in offline mode",
+      "scope": "global",
+      "default": false
+    },
+    "LAST-LOCATION": {
+      "type": "string",
+      "description": "Last known TILE code location",
+      "scope": "global",
+      "default": "",
+      "validation": {
+        "pattern": "^[A-Z]{2}\\d{1,3}(-\\d{3})?$"
+      }
+    }
+  },
+  "meta": {
+    "version": "1.0.0",
+    "created": "2025-12-01",
+    "scope_levels": ["global", "session", "script", "local"],
+    "scope_definitions": {
+      "global": "Persisted to user.json, available everywhere",
+      "session": "Exists for current uDOS session only, cleared on exit",
+      "script": "Exists for duration of .upy script execution",
+      "local": "Exists within single function/block scope"
+    }
+  }
+}
