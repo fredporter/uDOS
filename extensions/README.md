@@ -1,10 +1,18 @@
-# uDOS Extensions System v1.1.0
+# uDOS Extensions System v1.1.7
 
 **Web GUI, Browser Extension, Mobile PWA, and Extension Framework**
 
 ## Overview
 
-The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure.
+The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure and diagram generation.
+
+**v1.1.7 Features** (Nano Banana Complete):
+- Full PNG→SVG diagram generation pipeline
+- Gemini 2.5 Flash Image integration (Nano Banana)
+- Style guide system (technical-kinetic, hand-illustrative, hybrid)
+- Vectorization service (potrace + vtracer)
+- 4 production workflow examples
+- Complete testing framework
 
 **v1.1.1 Features** (327 tests):
 - Production web server with health monitoring

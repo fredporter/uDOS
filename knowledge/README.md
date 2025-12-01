@@ -2,7 +2,9 @@
 
 **The People's Knowledge Commons - v1.4.0 Comprehensive Survival Library**
 
-A comprehensive offline collection of 166+ survival guides and technical diagrams for self-sufficiency, emergency preparedness, and sustainable living. Powered by OK Assist integration for continuous expansion.
+A comprehensive offline collection of 166+ survival guides and technical diagrams for self-sufficiency, emergency preparedness, and sustainable living. Powered by OK Assist integration and Nano Banana diagram generation for continuous expansion.
+
+**New in v1.1.7**: Full PNG→SVG diagram generation via `GENERATE SVG` command - create Technical-Kinetic diagrams for any survival topic.
 
 ---
 

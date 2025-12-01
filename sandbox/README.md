@@ -88,4 +88,5 @@ When ready to share:
 
 ---
 
-**Version**: 2.0 (November 2025)
+**Version**: 2.1 (December 2025)
+**Latest**: v1.1.7 adds workflow examples in `workflow/examples/` and test framework in `tests/`
