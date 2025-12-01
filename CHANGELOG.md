@@ -11,7 +11,8 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### v2.0.0 - Core Consolidation & Architecture Cleanup (In Progress)
 
-Phase 1-2: Geographic data consolidation and duplicate removal.
+**Phase 1-2**: Geographic data consolidation and duplicate removal (COMPLETE)
+**Phase 3**: Full migration to core/data/geography/ (COMPLETE)
 
 #### Removed
 
@@ -24,22 +25,27 @@ Phase 1-2: Geographic data consolidation and duplicate removal.
 
 #### Changed
 
-**Geographic Data Organization**
+**Geographic Data Organization (Phase 1-2)**
 - Created `core/data/geography/` for system reference data
 - Consolidated cities: `cities_v2.json` → `cities.json` (single source, 55 cities with TILE codes)
 - Consolidated terrain: `terrain_types.json` → `terrain.json` (24 terrain types, complete schema)
 - Moved to core: cities.json, terrain.json, climate.json, countries.json, timezones.json
 
-**File Updates**
+**File Updates (Phase 2)**
 - `core/ui/map_renderer.py` - Updated to use cities.json (removed cities_v2 fallback)
-- `extensions/play/services/map_data_manager.py` - Changed to use terrain.json
+- `extensions/play/services/map_data_manager.py` - Changed to use terrain.json (Phase 2), then core/data/geography/ (Phase 3)
 - `core/services/setup_wizard.py` - Updated city data path to core/data/geography/
+
+**Extension Migration (Phase 3)**
+- `extensions/play/services/map_data_manager.py` - Updated to load from core/data/geography/, handle v2.0.0 cities.json format
+- `extensions/play/services/map_engine.py` - Updated default data_dir to core/data/geography/
+- All geographic data now loads from single source (zero duplicates)
 
 **Architecture**
 ```
 core/data/
-├── geography/          # NEW: Geographic reference data
-│   ├── cities.json     # 55 cities with TILE codes (consolidated)
+├── geography/          # NEW: Geographic reference data (single source of truth)
+│   ├── cities.json     # 55 cities with TILE codes (v2.0.0 format)
 │   ├── terrain.json    # 24 terrain types (consolidated)
 │   ├── climate.json    # Climate zones
 │   ├── countries.json  # Country reference
@@ -54,7 +60,7 @@ core/data/
 **Testing Infrastructure**
 - `sandbox/ucode/shakedown.upy` - Comprehensive 100-test suite using modern uPY v1.1.9+ syntax
   - Tests 1-15: Core uPY features (variables, functions, emoji, JSON, conditionals)
-  - Tests 16-20: Phase 2 consolidation (geography, TILE grid, map engine)
+  - Tests 16-20: Phase 2-3 consolidation (geography, TILE grid, map engine, migration)
   - Tests 21-30: Command handlers
   - Tests 31-40: Web extensions
   - Tests 41-50: Graphics system
@@ -71,9 +77,15 @@ core/data/
 
 **Session Logs**
 - `sandbox/dev/session-2025-12-02-consolidation-phase1-2.md` - Phase 1-2 completion report
+- `sandbox/dev/session-2025-12-02-phase3-migration.md` - Phase 3 migration report
+
+**Migration Results**
+- ✅ Phase 1-2: Removed 3 duplicate files (~1,200 lines), consolidated data sources
+- ✅ Phase 3: Migrated 2 extension services, zero duplicates remain
+- ✅ All tests passing: MapDataManager, MapEngine, SetupWizard loading from core/data/geography/
+- ✅ Backward compatible: Supports both old and new cities.json formats
 
 **Next Steps**
-- Phase 3: Migrate all extension references to core/data/geography/
 - Phase 4-6: Move play engine services to core, unify variable/service system
 - Round 2: STORY command and adventure scripting integration
 

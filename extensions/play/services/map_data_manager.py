@@ -113,10 +113,12 @@ class MapDataManager:
             data_dir: Path to core/data/geography/ (default: auto-detect)
         """
         if data_dir is None:
-            data_dir = Path(__file__).parent.parent.parent / "knowledge" / "system" / "geography"
+            # Updated to use core/data/geography/ (Phase 3 consolidation)
+            data_dir = Path(__file__).parent.parent.parent.parent / "core" / "data" / "geography"
 
         self.data_dir = data_dir
-        self.graphics_dir = Path(__file__).parent.parent.parent / "knowledge" / "system" / "graphics"
+        # Graphics data remains in knowledge/system/graphics/
+        self.graphics_dir = Path(__file__).parent.parent.parent.parent / "knowledge" / "system" / "graphics"
 
         # Load data
         terrain_data = self._load_json("terrain.json")
@@ -145,19 +147,26 @@ class MapDataManager:
             return json.load(f)
 
     def _load_cities(self) -> List[CityData]:
-        """Load city data."""
+        """Load city data from core/data/geography/cities.json (v2.0.0 format)."""
         data = self._load_json("cities.json")
         cities = []
 
         for city_dict in data.get("cities", []):
+            # Handle both old and new timezone formats
+            timezone = city_dict.get("timezone", {})
+            if isinstance(timezone, dict):
+                tzone = timezone.get("offset", "+00:00")  # Use offset as tzone
+            else:
+                tzone = city_dict.get("tzone", "UTC")  # Fallback to old format
+
             cities.append(CityData(
                 name=city_dict["name"],
                 country=city_dict["country"],
                 grid_cell=city_dict["grid_cell"],
-                tzone=city_dict["tzone"],
-                climate=city_dict["climate"],
-                languages=city_dict["languages"],
-                region=city_dict["region"],
+                tzone=tzone,
+                climate=city_dict.get("climate", "unknown"),
+                languages=city_dict.get("languages", []),
+                region=city_dict.get("region", "unknown"),
                 population=city_dict.get("population"),
                 elevation=city_dict.get("elevation")
             ))
