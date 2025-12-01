@@ -43,9 +43,9 @@ Round 2 implementation is progressing well with major components complete. The .
 - ✅ Two ending types (LESSON-LEARNED, SUCCESS-ENDING)
 - ✅ Successfully parses and loads
 
-### 3. SPRITE/OBJECT Integration (80% COMPLETE)
+### 3. SPRITE/OBJECT Integration (100% COMPLETE) ✅
 **File:** `core/commands/story_handler.py` (updated)
-**Commit:** 3df55288
+**Commits:** 3df55288, b88f655c
 
 #### Completed:
 - ✅ Enhanced STORY STATUS display
@@ -54,41 +54,65 @@ Round 2 implementation is progressing well with major components complete. The .
   - Character stats section (❤️💧🍖⚡)
   - Conditional warnings (CRITICAL/Low/High/Exhausted)
   - Formatted sections for stats/XP/inventory
-
+  
 - ✅ _initialize_player_stats method
   - Sets default healthy values at adventure start
   - Uses correct SurvivalService API
   - set_stat(SurvivalStat.HEALTH, 100) pattern
   - Initializes thirst=0, hunger=0, fatigue=0
-
+  
 - ✅ Stats display working correctly
   - Shows health: 100/100
   - Shows thirst: 0/100
-  - Shows hunger: 0/100
+  - Shows hunger: 0/100  
   - Shows stamina: 100/100 (inverted fatigue)
   - Status warnings based on thresholds
 
-#### Pending:
-- ⏳ XP/Level display (service integration needed)
-- ⏳ Inventory display (service integration needed)
-- ⏳ Stats modification from .upy commands (HP/THIRST/etc.)
-
-**Test Results:**
+- ✅ XP/Level display complete
+  - Calculates level from total XP across all categories
+  - Shows current level (formula: Level N at (N-1)^2 * 100 XP)
+  - Displays XP progress to next level
+  - 20-char Unicode progress bar (█░)
+  - Progress percentage display
+  
+- ✅ Inventory display complete
+  - Lists first 10 items with quantities
+  - Shows item condition when not pristine
+  - Displays total items vs unique item types
+  - Shows total weight from inventory stats
+  - Clean (Empty) display when no items
+  - Proper error handling**Test Results:**
 ```
 STORY START first-steps
-✅ Adventure started: first-steps, Format: .upy, Session ID: 4, Player stats initialized
+✅ Adventure started: first-steps, Format: .upy, Session ID: 7
 
-STORY STATUS
-✅ Stats displaying correctly:
+STORY STATUS (with data)
+✅ Character Stats:
    ❤️  Health: 100/100
    💧 Thirst: 0/100
    🍖 Hunger: 0/100
    ⚡ Stamina: 100/100
-```
 
+✅ Experience & Level:
 ## In Progress ⏳
 
-### 4. STORY Command Implementation (30% COMPLETE)
+### 4. Event Processing & STORY Commands (0% COMPLETE)
+**File:** `core/commands/story_handler.py`
+**Estimated:** 3-4 hours
+
+Current Status:
+- ✅ START - Load and begin adventure
+- ✅ STATUS - Show current state with full stats/XP/inventory
+- ✅ LIST - Show available adventures
+
+Pending Implementation:
+- ⏳ CONTINUE - Process next event from scenario engine
+- ⏳ CHOICE - Handle player decisions with branching
+- ⏳ Stat modifications from .upy commands (HP/THIRST/etc.)
+- ⏳ Inventory commands (GIVE/TAKE)
+- ⏳ XP awards from adventures
+- ⏳ ROLLBACK - Undo last choice
+- ⏳ SAVE/LOAD - Persist adventure state% COMPLETE)
 **File:** `core/commands/story_handler.py`
 
 Completed:
@@ -111,17 +135,46 @@ Need to implement:
 - Execute stat modification commands (HP, XP, etc.)
 - Execute inventory commands (GIVE, TAKE)
 - Execute flag commands (FLAG set/check)
-- Execute SET commands (variable assignment)
-- Handle ROLL outcomes (dice results)
-- Evaluate IF conditions (branching logic)
-
 ## Pending Tasks ⏳
 
-### 6. XP/Inventory Service Integration (1-2 hours)
-- Connect XPService to STORY STATUS
-- Display level and XP progress bar
-- Connect InventoryService to STORY STATUS
-- Display first 10 items with counts
+### 5. Event Processing Engine (3-4 hours)
+**Priority:** HIGH - Required for playable adventures
+
+Need to implement in `_continue_adventure()`:
+- Execute PRINT events (display narrative text)
+- Execute CHOICE events (show options, wait for player input)
+- Execute stat modification commands:
+  * HP ±N - Modify health
+  * THIRST ±N - Modify thirst
+  * HUNGER ±N - Modify hunger
+  * STAMINA ±N - Modify stamina
+  * XP +N - Award experience points
+- Execute inventory commands:
+  * GIVE item [quantity] - Add items to inventory
+  * TAKE item [quantity] - Remove items from inventory
+- Execute flag commands:
+  * FLAG name - Set achievement flag
+- Execute SET commands:
+  * SET $VAR value - Set variable
+- Handle ROLL outcomes:
+  * Store dice results in variables
+  * Evaluate in IF conditions
+- Evaluate IF conditions:
+  * $VAR >= N comparisons
+  * FLAG:name checks
+  * Branch to ENDIF when false
+
+### 6. CHOICE Command Handler (1-2 hours)
+**Priority:** HIGH - Required for interactive decisions
+
+Implement `_handle_choice()`:
+- Parse player's choice number
+- Validate choice is in range
+- Execute chosen OPTION's jump target
+- Update scenario engine to new LABEL
+- Continue event processing
+
+### 7. Integration Testing (2-3 hours)
 - Implement XP command processing
 - Implement GIVE/TAKE processing
 
@@ -149,42 +202,54 @@ Need to implement:
                                             StoryHandler (commands)
                                                        ↓
                                     ┌──────────────────┴──────────────────┐
-                                    ↓                  ↓                  ↓
-                          SurvivalService     XPService        InventoryService
-                            (stats DB)      (progression)         (items)
-```
-
-### Service APIs (Verified)
-
-**SurvivalService:**
-- `get_stat(SurvivalStat) → Dict` - Returns current/max/min/status/percent
-- `set_stat(SurvivalStat, value, reason)` - Absolute value setting
-- `update_stat(SurvivalStat, change, reason)` - Delta modification
-
-**XPService:**
-- `get_xp_breakdown() → Dict` - Returns current XP/level info
-- (need to research level/progress methods)
-
-**InventoryService:**
-- `get_inventory(location) → List` - Returns item list
-- `get_inventory_stats(location) → Dict` - Returns counts/weight
-- (need to research add/remove methods)
-
-## Git Commits
-
-1. **24bacc88** - .upy parser implementation
-   - UPYAdventureParser class (479 lines)
-   - 15 command types
-   - Tested on water_quest.upy
-
-2. **a458a65a** - first-steps.json → .upy conversion
-   - first-steps.upy (280 lines)
-   - THIRST/HUNGER support added
-   - Successfully parses
-
 3. **3df55288** - SPRITE/OBJECT integration (stats display)
    - Enhanced STORY STATUS
    - Character stats with emoji
+   - Conditional warnings
+   - _initialize_player_stats
+
+4. **b88f655c** - SPRITE/OBJECT integration complete (XP + inventory)
+   - XP/Level display with progress bar
+   - Inventory display with quantities and weight
+   - Level calculation from total XP
+   - Item count and unique items display
+### Service APIs (Verified)
+**Code Added:**
+- Parser: 479 lines
+- first-steps.upy: 280 lines
+- story_handler updates: ~160 lines
+- Progress report: ~250 lines
+- **Total:** ~1,169 lines
+
+**Test Coverage:**
+- Parser: ✅ Tested (2 adventures)
+- Conversion: ✅ Verified parseable
+- Stats display: ✅ Working with warnings
+- XP display: ✅ Working with progress bar
+- Inventory display: ✅ Working with quantities
+- Integration: ⏳ Pending (event processing)
+
+**Completion:**
+- Parser: 100% ✅
+- Conversion: 100% ✅
+- SPRITE/OBJECT: 100% ✅
+- Event Processing: 0% ⏳
+## Next Steps
+
+### Immediate (3-4 hours):
+1. ✅ ~~Implement XP display in STORY STATUS~~ COMPLETE
+2. ✅ ~~Implement inventory display in STORY STATUS~~ COMPLETE
+3. ✅ ~~Test full stats + XP + inventory display~~ COMPLETE
+4. ✅ ~~Commit XP/inventory integration~~ COMPLETE
+5. **NEXT:** Implement STORY CONTINUE (event processing)
+6. **NEXT:** Implement STORY CHOICE (decision handling)
+
+### Short-term (3-4 hours):
+1. Implement event processing for all command types
+2. Handle stat modifications (HP/XP/THIRST/etc.)
+3. Handle inventory commands (GIVE/TAKE)
+4. Test full adventure playthrough
+5. Verify all .upy commands work correctly
    - Conditional warnings
    - _initialize_player_stats
 
@@ -197,18 +262,21 @@ Need to implement:
 - **Total:** ~879 lines
 
 **Test Coverage:**
-- Parser: ✅ Tested (2 adventures)
-- Conversion: ✅ Verified parseable
-- Stats display: ✅ Working
-- Integration: ⏳ Pending
+**Strengths:**
+- Parser is robust and well-tested
+- .upy format is clean and readable
+- Stats integration uses correct service APIs
+- XP/Level display with elegant progress bar
+- Inventory display shows quantities and weight
+- Error handling throughout
+- Good separation of concerns
+- Beautiful formatted output
 
-**Completion:**
-- Parser: 100%
-- Conversion: 100%
-- SPRITE/OBJECT: 80%
-- Event Processing: 0%
-- Full Integration: 0%
-- **Overall Round 2:** ~70%
+**Current Achievement:**
+- ✅ Complete SPRITE/OBJECT integration (100%)
+- ✅ Full status display with all game systems
+- ✅ Stats, XP, and inventory all working
+- Ready for event processing implementation
 
 ## Next Steps
 
@@ -242,9 +310,11 @@ Need to implement:
 - Parser is robust and well-tested
 - .upy format is clean and readable
 - Stats integration uses correct service APIs
-- Error handling in place
-- Good separation of concerns
+---
 
+**Status:** Excellent progress! Parser complete, conversion complete, SPRITE/OBJECT integration 100% COMPLETE! Status display shows stats, XP with progress bar, and inventory with quantities. Ready for event processing implementation.
+
+**Current Phase:** Round 2 is ~75% complete. Next: Implement STORY CONTINUE and event processing engine.
 **Challenges:**
 - Event processing will be complex (15 command types)
 - Need to handle all conditional logic
