@@ -398,6 +398,154 @@ Fix integration test suite and enhance extension system while maintaining produc
 
 ---
 
+## 🔧 v1.1.9 - uCODE → uPY Refactor + Variable System + Play Extension (Q4 2025)
+
+**Target:** December 2025 - January 2026 (12-18 days)
+**Status:** 📋 Planning Complete - Implementation Rounds Defined
+**Complexity:** High (major refactoring + new systems)
+
+### Overview
+
+Three-round implementation plan for Python-first architecture with comprehensive variable system and gameplay integration.
+
+**See Detailed Plans**:
+- 📋 [Implementation Rounds](../implementation-rounds-dec-2025.md) - Full task breakdown
+- 🎯 [Quick Reference](../ROUNDS-QUICKREF.md) - Commands and checklists
+- 📝 Progress Tracking: `sandbox/dev/round-<N>-progress.md`
+
+### Development Rounds
+
+#### Round 1: Variable Definition System (3-5 days)
+**Goal**: JSON-defined variables for system, user, sprites, objects, and stories
+
+**Key Features**:
+- Variable schemas in `core/data/variables/*.json`
+- Type validation and format enforcement
+- SPRITE variables (HP, XP, level, stats)
+- OBJECT variables (items, equipment, inventory)
+- Scope management (global, session, script, local)
+
+**Deliverables**:
+- 5 JSON schema files (system, user, sprite, object, story)
+- Extended VariableManager with schema loading
+- 30+ unit tests
+- Wiki documentation
+
+#### Round 2: Play Extension Alignment (4-6 days)
+**Goal**: STORY command + .upy conditional adventures + sprite/object gameplay
+
+**Key Features**:
+- STORY command for adventure management
+- .upy adventure scripts with IF/THEN/CHOICE
+- SPRITE integration (character creation, HP/XP tracking)
+- OBJECT integration (inventory, equipment)
+- Map layer integration with sprites/objects
+
+**Deliverables**:
+- `extensions/play/commands/story_handler.py`
+- 3-5 adventure scripts (.upy format)
+- Adventure template
+- 25+ integration tests
+- `wiki/Adventure-Scripting.md`
+
+**Sample Adventure Format**:
+```python
+#!/usr/bin/env python3
+# water_quest.upy
+
+SET [$SPRITE-NAME = "Survivor"]
+SET [$SPRITE-HP = 100]
+
+CHOICE [What do you do?]
+  OPTION [Search buildings] → BRANCH-BUILDINGS
+  OPTION [Head to river] → BRANCH-RIVER
+
+LABEL [BRANCH-BUILDINGS]
+ROLL [1d20] → $SEARCH-RESULT
+IF [$SEARCH-RESULT > 15]
+  PRINT [Found water!]
+  XP [+50]
+ENDIF
+```
+
+#### Round 3: uCODE → uPY Refactor (5-7 days)
+**Goal**: Python-first architecture with hyphenated naming conventions
+
+**Key Features**:
+- Command naming: `UPPERCASE-HYPHEN` (e.g., `SYSTEM-STATUS`, `FILE-INFO`)
+- Variable naming: `$UPPERCASE-HYPHEN` (e.g., `$CURRENT-PATH`, `$USER-NAME`)
+- Central command registry (`core/runtime/commands.py`)
+- .upy preprocessor for hybrid Python + uCODE
+- Shell integration (`bin/udos`, `uenv.sh`)
+- Backward compatible with .uscript
+
+**Deliverables**:
+- Command registry system
+- .upy preprocessor
+- 4+ sample .upy scripts
+- Shell launcher and environment
+- Migration tool (.uscript → .upy)
+- `COPILOT_BRIEF.md`
+- 40+ tests (including compatibility)
+
+### Implementation Tools
+
+**Start Round**:
+```bash
+./start_round.sh <1|2|3>
+# Creates feature branch, cleans sandbox, sets up progress tracker
+```
+
+**Complete Round**:
+```bash
+./complete_round.sh <1|2|3>
+# Runs tests, merges to main, tags release, updates CHANGELOG
+```
+
+**Track Progress**:
+```bash
+cat sandbox/dev/round-<N>-progress.md
+# Task checklist, success criteria, session log
+```
+
+### Timeline
+
+| Round | Focus | Duration | Dependencies |
+|-------|-------|----------|--------------|
+| **Round 1** | Variable System | 3-5 days | None (independent) |
+| **Round 2** | Play Extension | 4-6 days | Round 1 (SPRITE/OBJECT) |
+| **Round 3** | uPY Refactor | 5-7 days | Round 1 (variables) |
+
+**Parallel Option**: Round 1 + Round 3 can run simultaneously (different codebases)
+
+### Success Metrics
+
+| Metric | Round 1 | Round 2 | Round 3 | Total |
+|--------|---------|---------|---------|-------|
+| **Files Created** | 6 | 10+ | 15+ | 31+ |
+| **Tests Added** | 30+ | 25+ | 40+ | 95+ |
+| **Documentation** | 1 wiki page | 1 wiki page | 3 wiki pages | 5+ pages |
+| **Backward Compatible** | N/A | Yes | Yes | ✅ |
+
+### Release Strategy
+
+- **v1.1.9-alpha.1**: After Round 1 (Variable System)
+- **v1.1.9-alpha.2**: After Round 2 (Play Extension)
+- **v1.1.9**: After Round 3 (uPY Refactor complete)
+
+### Migration Notes
+
+**From v1.1.8 to v1.1.9**:
+- .uscript files still work (backward compatible)
+- New .upy format recommended for new scripts
+- Commands accept both old and hyphenated format
+- Variables support both `$VAR` and `$VAR-NAME` syntax
+- Migration tool available: `MIGRATE USCRIPT <file>`
+
+**Breaking Changes**: None (fully backward compatible)
+
+---
+
 ## 🎯 v1.2.0 - Extension Marketplace (Q1 2026)
 
 **Status:** Planned
