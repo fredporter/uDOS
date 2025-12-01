@@ -31,14 +31,26 @@
 - **[Troubleshooting](Troubleshooting-Complete)** - Fix common issues
 - **[Workflows](Workflows)** ⭐ NEW - Common tasks & automation
   - [Mission Templates](Workflows#mission-templates-v113) ⭐ v1.1.3 - Pre-built project templates
-- **[uCODE Language](uCODE-Language)** - Scripting guide
+
+### uCODE Scripting & uPY
+- **[uCODE Language](uCODE-Language)** - Complete language reference
 - **[uCODE Syntax Quick Reference](uCODE-Syntax-Quick-Reference)** ⭐ NEW - v1.1.1 modern syntax
+- **[Tutorial: uPY Quick Start](Tutorial-uPY-Quick-Start)** ⭐ v1.1.9+ - 15-minute beginner guide
+- **[uPY Before & After](uPY-Before-After)** ⭐ v1.1.9+ - Visual syntax comparison
+- **[uPY Cheat Sheet](uPY-Cheat-Sheet)** ⭐ v1.1.9+ - Quick syntax reference
+- **[Emoji Reference](Emoji-Reference)** ⭐ v1.1.9+ - 80+ emoji codes
+- **[Function Programming Guide](Function-Programming-Guide)** ⭐ v1.1.9+ - Functions tutorial
+- **[Migration Guide v1.1.9](Migration-Guide-v1.1.9)** ⭐ NEW - uPY syntax upgrade
+
+### Knowledge & Content
 - **[Knowledge System](Knowledge-System)** ⭐ NEW - 4-tier knowledge bank & organization
 - **[Content Curation](Content-Curation)** ⭐ NEW - Building knowledge commons
 - **[Nano Banana Integration](Nano-Banana-Integration)** ⭐ v1.1.7 - PNG→SVG pipeline (complete)
 - **[SVG Graphics](SVG-Command-Reference)** - v1.1.5 legacy (deprecated)
   - [SVG Example Gallery](SVG-Example-Gallery) - Visual examples & use cases
   - [SVG Developer Guide](SVG-Extension-Developer-Guide) - Extension development
+
+### Systems
 - [Mapping System](Mapping-System) - Navigation
 - [Extensions System](Extensions-System) - Using extensions
 

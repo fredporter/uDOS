@@ -2,10 +2,12 @@
   "id": "mission-control",
   "name": "Mission Control Dashboard",
   "version": "1.1.2",
-  "type": "core",
+  "type": "interface",
   "category": "web",
   "description": "Web-based dashboard for mission management, scheduling, and resource monitoring",
   "author": "uDOS Development Team",
+  "license": "MIT",
+  "status": "active",
   "dependencies": {
     "core": ">=1.1.2",
     "services": ["mission_manager", "scheduler", "resource_manager", "output_pacer"]

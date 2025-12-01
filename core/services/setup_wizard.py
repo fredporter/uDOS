@@ -414,7 +414,7 @@ class SetupWizard:
     def _load_city_data(self) -> List[Dict]:
         """Load city data from cities.json."""
         try:
-            cities_path = Path('extensions/assets/data/cities.json')
+            cities_path = Path('core/data/geography/cities.json')
             if cities_path.exists():
                 with open(cities_path, 'r') as f:
                     data = json.load(f)

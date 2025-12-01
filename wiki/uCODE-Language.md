@@ -1,14 +1,16 @@
 # uCODE Language Specification
 
-**Version:** 2.0.0 (with v1.1.1 Modern Syntax)
-**Status:** Draft - Phase 4 Development
-**Last Updated:** November 27, 2025
+**Version:** 2.0.0 (with v1.1.9+ uPY Syntax)
+**Status:** Production - v1.1.9+ Complete
+**Last Updated:** January 2025
 
 ---
 
 ## Overview
 
 uCODE is a human-readable, markdown-compatible scripting language for uDOS automation. It combines the simplicity of shortcodes with the power of full scripting, enabling both quick one-liners and complex workflows.
+
+**uPY (Python-like extension)** adds modern programming features: variables with `$` prefix, assignment operator `=`, emoji codes with `:emoji:` syntax, function definitions with `@` prefix, and full JSON support.
 
 ### Design Principles
 
@@ -17,6 +19,7 @@ uCODE is a human-readable, markdown-compatible scripting language for uDOS autom
 3. **Progressive Complexity**: Simple commands → complex scripts
 4. **CLI Integration**: Every uCODE command maps to CLI
 5. **Self-Documenting**: Inline help and examples
+6. **Modern Extensions**: uPY adds variables, functions, emojis, JSON
 
 ---
 
@@ -103,7 +106,215 @@ ENDIF
 
 ---
 
-## Basic Syntax
+## uPY Syntax (v1.1.9+)
+
+Modern Python-like syntax extensions for advanced scripting.
+
+### Variables with $ Prefix
+
+Variables in uPY use the `$` prefix for clear identification:
+
+```upy
+# Variable assignment
+$NAME = 'Hero'
+$HP = 100
+$GOLD = 50
+
+# Using variables
+PRINT("Player: $NAME")
+PRINT("HP: $HP")
+PRINT("Gold: $GOLD")
+```
+
+**Variable Names:**
+- Start with letter or underscore
+- Contain letters, numbers, underscores, hyphens
+- Case-sensitive
+- Examples: `$PLAYER-HP`, `$max_health`, `$Item_Count`
+
+### Assignment Operator
+
+Clean assignment with `=`:
+
+```upy
+# Simple assignment
+$X = 10
+$NAME = 'Alice'
+$ACTIVE = true
+
+# Expressions
+$TOTAL = $HP + $MANA
+$PERCENT = ($HP / $MAX-HP) * 100
+$NEW-GOLD = $GOLD + 100
+```
+
+### Emoji Codes
+
+Use emoji with `:emoji:` syntax (80+ codes available):
+
+```upy
+# Status indicators
+PRINT(":check: Quest complete!")
+PRINT(":cross: Failed to load")
+PRINT(":warning: Low health")
+
+# Game items
+PRINT(":heart: HP: $HP")
+PRINT(":coin: Gold: $GOLD")
+PRINT(":sword: Attack: $ATTACK")
+
+# Directions
+PRINT(":up: Go north")
+PRINT(":down: Go south")
+PRINT(":left: Go west")
+PRINT(":right: Go east")
+```
+
+**Category Examples:**
+- **Status**: `:check:` ✓, `:cross:` ✗, `:warning:` ⚠
+- **Items**: `:heart:` ♥, `:coin:` ⊚, `:sword:` †
+- **Directions**: `:up:` ↑, `:down:` ↓, `:left:` ←, `:right:` →
+- **UI**: `:menu:` ≡, `:home:` ⌂, `:gear:` ⚙
+
+**See:** [Emoji Reference](Emoji-Reference.md) for complete list.
+
+### Functions
+
+Define reusable code blocks with `@` prefix:
+
+```upy
+# Function definition
+FUNCTION [@GREET($NAME)
+    PRINT("Hello, $NAME!")
+]
+
+# Function call
+@GREET('Hero')  # Output: Hello, Hero!
+```
+
+**With return values:**
+
+```upy
+FUNCTION [@CALCULATE-DAMAGE($BASE, $ARMOR)
+    $DAMAGE = $BASE - $ARMOR
+    IF {$DAMAGE < 0 | RETURN 0}
+    RETURN $DAMAGE
+]
+
+$FINAL-DAMAGE = @CALCULATE-DAMAGE(50, 20)  # 30
+PRINT(":crossed_swords: Damage: $FINAL-DAMAGE")
+```
+
+**Multiple parameters:**
+
+```upy
+FUNCTION [@CHECK-HEALTH($HP, $MAX-HP)
+    $PERCENT = ($HP / $MAX-HP) * 100
+
+    IF {$PERCENT >= 75 | RETURN 'healthy'}
+    IF {$PERCENT >= 50 | RETURN 'moderate'}
+    IF {$PERCENT >= 25 | RETURN 'low'}
+    RETURN 'critical'
+]
+
+$STATUS = @CHECK-HEALTH($HP, $MAX-HP)
+PRINT(":heart: Health: $STATUS")
+```
+
+**See:** [Function Programming Guide](Function-Programming-Guide.md) for complete guide.
+
+### JSON Support
+
+Load, manipulate, and save JSON data:
+
+```upy
+# Load JSON file
+JSON.load("player.json")
+
+# Access with dot notation
+$NAME = player.name
+$HP = player.stats.health
+$GOLD = player.inventory.gold
+
+# Access arrays
+$FIRST-ITEM = player.inventory.items[0]
+$QUEST-NAME = player.quests[1].name
+
+# Modify data
+player.stats.health = 100
+player.inventory.gold = player.inventory.gold + 50
+
+# Add to arrays
+player.inventory.items.append("Health Potion")
+
+# Save changes
+JSON.save("player.json")
+```
+
+**Complete example:**
+
+```upy
+# Load player data
+JSON.load("player.json")
+
+# Check health
+IF {player.stats.health < 50 | PRINT(":warning: Low health!")}
+
+# Add quest reward
+player.inventory.gold = player.inventory.gold + 100
+player.inventory.items.append("Magic Sword")
+
+# Update stats
+player.stats.level = player.stats.level + 1
+player.stats.max_health = player.stats.max_health + 10
+
+# Save changes
+JSON.save("player.json")
+PRINT(":check: Player data saved!")
+```
+
+### Inline Conditionals
+
+Compact conditionals with curly braces:
+
+```upy
+# One-line conditionals
+IF {$HP <= 0 | PRINT(":skull: Game Over")}
+IF {$GOLD >= 100 | PRINT(":coin: Can afford item")}
+IF {$LEVEL > 5 | $DAMAGE = $DAMAGE * 2}
+
+# With return (in functions)
+IF {$X < 0 | RETURN 0}
+IF {$HP <= 0 | RETURN 'dead'}
+```
+
+### PRINT Enhancements
+
+Print with variable substitution and emojis:
+
+```upy
+# Simple print
+PRINT("Hello, world!")
+
+# Variable substitution
+$NAME = 'Hero'
+PRINT("Welcome, $NAME!")
+
+# Multiple variables
+PRINT("HP: $HP / Gold: $GOLD")
+
+# With emojis
+PRINT(":heart: Health: $HP")
+PRINT(":coin: Gold: $GOLD coins")
+
+# Expressions (evaluated first)
+$TOTAL = $HP + $MANA
+PRINT("Total: $TOTAL")
+```
+
+---
+
+## Basic uCODE Syntax
 
 ### Command Structure
 

@@ -43,14 +43,26 @@ class PeekHandler(BaseCommandHandler):
         if not params:
             return self._show_help()
 
+        # Check if first param is a markdown file - auto-launch in Typo
+        first_param = params[0]
+        if first_param.endswith('.md') and not first_param.startswith('http'):
+            # PEEK filename.md - Open in Typo viewer
+            return self._peek_markdown_file(first_param, params[1:])
+
+        # PEEK TYPO <file> - Explicit Typo command (legacy support)
+        if first_param.upper() == 'TYPO':
+            if len(params) < 2:
+                return "❌ Usage: PEEK TYPO <file.md>"
+            return self._peek_markdown_file(params[1], params[2:])
+
         # PEEK FILE <path>
-        if params[0].upper() == 'FILE':
+        if first_param.upper() == 'FILE':
             if len(params) < 2:
                 return "❌ Usage: PEEK FILE <path>"
             return self._peek_file(params[1:])
 
         # PEEK <url> [options]
-        url = params[0]
+        url = first_param
         options = self._parse_options(params[1:])
         return self._peek_url(url, options)
 
@@ -60,6 +72,11 @@ class PeekHandler(BaseCommandHandler):
 ╔════════════════════════════════════════════════════════════════════════════╗
 ║                          🔍 PEEK - Data Collection                         ║
 ╠════════════════════════════════════════════════════════════════════════════╣
+║                                                                            ║
+║  Markdown Viewer (Smart):                                                  ║
+║    PEEK <file.md>                  # View markdown in Typo web viewer      ║
+║    PEEK <file.md> --slides         # View as slideshow                     ║
+║    PEEK <file.md> --preview        # Preview mode (read-only)              ║
 ║                                                                            ║
 ║  URL Fetching:                                                             ║
 ║    PEEK <url>                      # Fetch and display content             ║
@@ -71,12 +88,14 @@ class PeekHandler(BaseCommandHandler):
 ║    PEEK FILE <path> --extract      # Extract structured data               ║
 ║                                                                            ║
 ║  Supported Formats:                                                        ║
-║    • Markdown (.md)                                                        ║
+║    • Markdown (.md) → Typo viewer                                          ║
 ║    • JSON (.json)                                                          ║
 ║    • SVG (.svg)                                                            ║
 ║    • HTML (web pages)                                                      ║
 ║                                                                            ║
 ║  Examples:                                                                 ║
+║    PEEK README.md                  # View in web browser (Typo)            ║
+║    PEEK guide.md --slides          # Present as slideshow                  ║
 ║    PEEK https://example.com/data.json                                      ║
 ║    PEEK https://github.com/user/repo/README.md --save readme.md            ║
 ║    PEEK FILE knowledge/guide.md --extract                                  ║
@@ -235,3 +254,60 @@ class PeekHandler(BaseCommandHandler):
         sandbox.mkdir(exist_ok=True, parents=True)
         filepath = sandbox / filename
         filepath.write_text(content, encoding='utf-8')
+
+    def _peek_markdown_file(self, filepath: str, options: list) -> str:
+        """
+        View markdown file in Typo web viewer.
+
+        Args:
+            filepath: Path to markdown file
+            options: Additional options (--slides, --preview)
+
+        Returns:
+            Success message or error
+        """
+        from core.services.typo_manager import TypoManager
+
+        # Initialize Typo manager
+        config = getattr(self, 'config', None)
+        typo = TypoManager(config)
+
+        # Check if file exists
+        file_path = Path(filepath)
+        if not file_path.exists():
+            return f"❌ File not found: {filepath}"
+
+        # Determine mode from options
+        mode = 'preview'  # Default to preview for PEEK (read-only)
+
+        if '--slides' in options or '--slideshow' in options:
+            mode = 'slides'
+        elif '--edit' in options:
+            mode = 'edit'
+
+        # Open in Typo
+        success, msg = typo.open_file(str(file_path), mode=mode, auto_start=True)
+
+        if success:
+            mode_emoji = {
+                'preview': '👁️',
+                'slides': '📊',
+                'edit': '✏️'
+            }.get(mode, '👁️')
+
+            return f"{mode_emoji} {msg}"
+        else:
+            # Fallback to terminal display
+            try:
+                content = file_path.read_text(encoding='utf-8')
+                lines = content.split('\n')
+                preview = '\n'.join(lines[:50])
+
+                if len(lines) > 50:
+                    preview += f"\n\n... ({len(lines) - 50} more lines)"
+
+                return (f"⚠️  Typo unavailable, showing preview:\n\n"
+                       f"{preview}\n\n"
+                       f"💡 Install Typo: ./extensions/setup/setup_typo.sh")
+            except Exception as e:
+                return f"❌ Error: {str(e)}"

@@ -1193,6 +1193,6 @@ PRINT [Nothing happens.]
 
 ---
 
-**Version:** v1.1.9 Round 2  
-**Last Updated:** November 2025  
+**Version:** v1.1.9 Round 2
+**Last Updated:** November 2025
 **Status:** Active Development

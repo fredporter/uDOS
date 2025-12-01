@@ -69,10 +69,10 @@ IF [$LOCATION >= 13]
   PRINT [You find a natural hollow with two trees 8 feet apart.]
   PRINT [This will save time and provide excellent support!]
   PRINT []
-  
+
   XP [+25]
   FLAG [optimal_location]
-  
+
   BRANCH [LEANTO-BUILD]
 ENDIF
 
@@ -82,7 +82,7 @@ IF [$LOCATION >= 8]
   PRINT [You find a reasonably flat area with one support tree.]
   PRINT [You'll need to build extra bracing.]
   PRINT []
-  
+
   XP [+15]
   BRANCH [LEANTO-BUILD]
 ENDIF
@@ -107,21 +107,21 @@ IF [$GATHERING >= 12]
   PRINT [🎲 Gathering: $GATHERING - Excellent materials!]
   PRINT []
   PRINT [You collect:]
-  
+
   ITEM [ridgepole]
   ITEM [support_branches]
   ITEM [bark_sheets]
   ITEM [pine_boughs]
-  
+
   PRINT [  • Strong ridgepole (10 feet)]
   PRINT [  • 8 support branches]
   PRINT [  • Large bark sheets]
   PRINT [  • Dense pine boughs for bedding]
   PRINT []
-  
+
   XP [+30]
   FLAG [quality_materials]
-  
+
   BRANCH [LEANTO-ASSEMBLE]
 ENDIF
 
@@ -152,11 +152,11 @@ IF [$CONSTRUCTION >= 14]
   PRINT [The roof slope ensures rain runoff.]
   PRINT [Pine boughs create a soft, dry bed.]
   PRINT []
-  
+
   XP [+50]
   HP [+15]
   FLAG [leanto_built]
-  
+
   BRANCH [SHELTER-COMPLETE]
 ENDIF
 
@@ -166,10 +166,10 @@ IF [$CONSTRUCTION >= 9]
   PRINT [The lean-to is decent but has some gaps.]
   PRINT [It will keep most rain out.]
   PRINT []
-  
+
   XP [+35]
   HP [+10]
-  
+
   BRANCH [SHELTER-ADEQUATE]
 ENDIF
 
@@ -206,10 +206,10 @@ IF [$FRAME-BUILD >= 11]
   PRINT [You construct a sturdy A-frame structure.]
   PRINT [The ridgepole rests solidly on a forked tree.]
   PRINT []
-  
+
   XP [+30]
   ITEM [debris_frame]
-  
+
   BRANCH [DEBRIS-INSULATE]
 ENDIF
 
@@ -238,10 +238,10 @@ IF [$DEBRIS-COLLECT >= 13]
   PRINT [You gather an enormous amount of dry leaves.]
   PRINT [The debris layer is 3 feet thick - excellent insulation!]
   PRINT []
-  
+
   XP [+45]
   FLAG [thick_insulation]
-  
+
   BRANCH [DEBRIS-COMPLETE]
 ENDIF
 
@@ -251,7 +251,7 @@ IF [$DEBRIS-COLLECT >= 8]
   PRINT [The insulation is about 18 inches thick.]
   PRINT [Not perfect, but should keep you warm.]
   PRINT []
-  
+
   XP [+30]
   BRANCH [DEBRIS-COMPLETE]
 ENDIF
@@ -299,12 +299,12 @@ ROLL [1d20] → $GEAR-CHECK
 IF [$GEAR-CHECK >= 11]
   PRINT [🎲 Gear: $GEAR-CHECK - Tarp found in your pack!]
   PRINT []
-  
+
   ITEM [tarp]
   ITEM [paracord]
-  
+
   XP [+20]
-  
+
   BRANCH [TARP-SETUP]
 ENDIF
 
@@ -340,11 +340,11 @@ IF [$SETUP >= 10]
   PRINT []
   PRINT [The tarp is taut with proper water runoff.]
   PRINT []
-  
+
   XP [+35]
   HP [+15]
   FLAG [tarp_shelter_built]
-  
+
   BRANCH [SHELTER-COMPLETE]
 ENDIF
 
@@ -399,7 +399,7 @@ IF [$SNOW-CHECK >= 15]
   PRINT []
   PRINT [Deep, packed snow - ideal for a cave.]
   PRINT []
-  
+
   XP [+25]
   BRANCH [SNOW-EXCAVATE]
 ENDIF
@@ -430,11 +430,11 @@ IF [$EXCAVATION >= 12]
   PRINT [The snow cave is spacious and well-designed.]
   PRINT [Cold air sinks into the tunnel, keeping you warm!]
   PRINT []
-  
+
   XP [+60]
   HP [+25]
   FLAG [snow_cave_built]
-  
+
   BRANCH [SHELTER-COMPLETE]
 ENDIF
 

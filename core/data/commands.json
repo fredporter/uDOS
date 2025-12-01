@@ -1568,6 +1568,73 @@
         "Disk space warnings (90% threshold)",
         "CPU/memory monitoring with psutil"
       ]
+    },
+    {
+      "NAME": "SPRITE",
+      "SYNTAX": "SPRITE <subcommand> [args]",
+      "DESCRIPTION": "Character/sprite management with JSON schema validation.",
+      "UCODE_TEMPLATE": "[SPRITE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "CREATE": "Create new sprite with defaults",
+        "LOAD": "Load sprite from JSON file",
+        "SAVE": "Save sprite to JSON file",
+        "SET": "Set sprite property (dot notation)",
+        "GET": "Get sprite property (dot notation)",
+        "LIST": "List all sprites",
+        "DELETE": "Delete sprite",
+        "INFO": "Show sprite details"
+      },
+      "EXAMPLES": [
+        "SPRITE CREATE HERO",
+        "SPRITE LOAD WARRIOR hero.json",
+        "SPRITE SET HERO.stats.hp = 50",
+        "SPRITE GET HERO.stats.level",
+        "SPRITE SAVE HERO hero.json",
+        "SPRITE LIST",
+        "SPRITE INFO HERO"
+      ],
+      "NOTES": [
+        "v1.1.9 - Round 1 Variable System",
+        "JSON Schema validation (sprite.schema.json)",
+        "Dot notation for property access",
+        "Stats, inventory, status, skills",
+        "Scope management (global, session, script, local)",
+        "Files saved to sandbox/user/ by default"
+      ]
+    },
+    {
+      "NAME": "OBJECT",
+      "SYNTAX": "OBJECT <subcommand> [args]",
+      "DESCRIPTION": "Item/object catalog management with JSON schema validation.",
+      "UCODE_TEMPLATE": "[OBJECT|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "LOAD": "Load objects catalog from JSON",
+        "LIST": "List all objects (optionally by category)",
+        "INFO": "Show object details",
+        "SEARCH": "Search objects by name/description",
+        "FILTER": "Filter objects by property"
+      },
+      "EXAMPLES": [
+        "OBJECT LOAD sandbox/user/items.json",
+        "OBJECT LIST weapon",
+        "OBJECT INFO SWORD-IRON",
+        "OBJECT SEARCH potion",
+        "OBJECT FILTER rarity=legendary"
+      ],
+      "NOTES": [
+        "v1.1.9 - Round 1 Variable System",
+        "JSON Schema validation (object.schema.json)",
+        "Categories: weapon, armor, consumable, key-item, etc.",
+        "Properties: stackable, weight, value, rarity",
+        "Stats, effects, requirements, crafting",
+        "Catalog loaded from JSON files"
+      ]
     }
   ]
 }

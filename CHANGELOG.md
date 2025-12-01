@@ -9,6 +9,199 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### v2.0.0 - Core Consolidation & Architecture Cleanup (In Progress)
+
+Phase 1-2: Geographic data consolidation and duplicate removal.
+
+#### Removed
+
+**Duplicate Files**
+- `extensions/play/services/map_engine_old.py` - Superseded by map_engine.py v2.0.0 (500+ lines)
+- `extensions/assets/data/tzone.json` - Superseded by timezones.json
+- `extensions/assets/data/terrain_types.json` - Superseded by terrain.json (233 lines)
+
+**Impact**: ~1,200 lines of duplicate code/data removed
+
+#### Changed
+
+**Geographic Data Organization**
+- Created `core/data/geography/` for system reference data
+- Consolidated cities: `cities_v2.json` → `cities.json` (single source, 55 cities with TILE codes)
+- Consolidated terrain: `terrain_types.json` → `terrain.json` (24 terrain types, complete schema)
+- Moved to core: cities.json, terrain.json, climate.json, countries.json, timezones.json
+
+**File Updates**
+- `core/ui/map_renderer.py` - Updated to use cities.json (removed cities_v2 fallback)
+- `extensions/play/services/map_data_manager.py` - Changed to use terrain.json
+- `core/services/setup_wizard.py` - Updated city data path to core/data/geography/
+
+**Architecture**
+```
+core/data/
+├── geography/          # NEW: Geographic reference data
+│   ├── cities.json     # 55 cities with TILE codes (consolidated)
+│   ├── terrain.json    # 24 terrain types (consolidated)
+│   ├── climate.json    # Climate zones
+│   ├── countries.json  # Country reference
+│   └── timezones.json  # Timezone data
+├── variables/          # Variable schemas (Round 1 complete)
+├── themes/             # Color themes
+└── graphics/           # ASCII/teletext data
+```
+
+#### Added
+
+**Testing Infrastructure**
+- `sandbox/ucode/shakedown.upy` - Comprehensive 100-test suite using modern uPY v1.1.9+ syntax
+  - Tests 1-15: Core uPY features (variables, functions, emoji, JSON, conditionals)
+  - Tests 16-20: Phase 2 consolidation (geography, TILE grid, map engine)
+  - Tests 21-30: Command handlers
+  - Tests 31-40: Web extensions
+  - Tests 41-50: Graphics system
+  - Tests 51-60: Mission system
+  - Tests 61-70: Workflow automation
+  - Tests 71-80: Project templates
+  - Tests 81-90: Resource management
+  - Tests 91-100: Advanced features
+
+**Backup System**
+- `sandbox/backup/consolidation-20251202/` - Timestamped backups of removed files
+
+#### Documentation
+
+**Session Logs**
+- `sandbox/dev/session-2025-12-02-consolidation-phase1-2.md` - Phase 1-2 completion report
+
+**Next Steps**
+- Phase 3: Migrate all extension references to core/data/geography/
+- Phase 4-6: Move play engine services to core, unify variable/service system
+- Round 2: STORY command and adventure scripting integration
+
+---
+
+### v1.1.9+ - Python-Like Syntax Overhaul (Complete)
+
+Complete redesign of uPY scripting language with modern Python-inspired syntax.
+
+#### Added
+
+**Assignment Operator**
+- `$VAR = value` syntax as alternative to SET command
+- Expression support: `$HP = $HP-MAX - 10`
+- Dot notation: `$PLAYER.stats.hp = 100`
+- Array indexing: `$ITEMS[0] = 'Sword'`
+- Backwards compatible with SET command
+
+**Emoji System** (80+ emoji codes)
+- Markdown-style `:emoji:` syntax in PRINT statements
+- Automatic Unicode replacement (`:heart:` → ❤️)
+- Categories: Status, Items, Effects, Directions, UI, Special chars
+- Examples: `:sword:`, `:shield:`, `:fire:`, `:bolt:`, `:check:`
+- Special character escaping (`:lbrack:`, `:rbrack:`, `:quot:`)
+
+**Function System**
+- `FUNCTION [@NAME($PARAMS) ... ]` syntax
+- Function definitions with parameters
+- Local scope handling
+- RETURN statements
+- Function calls with @ prefix (`@FUNCTION-NAME($ARGS)`)
+- Nested function calls supported
+
+**JSON Integration**
+- `JSON.load('file')` for loading JSON files
+- `JSON.save('file', $var)` for saving JSON files
+- Dot notation for nested access: `$var.field.subfield`
+- Array indexing: `$var[0]`
+- Integrated with assignment operator
+
+**Enhanced PRINT**
+- New syntax: `PRINT("message")` with double quotes
+- Emoji code replacement in strings
+- Variable interpolation: `PRINT("HP: $HP")`
+- Backwards compatible with old syntax
+
+**Naming Convention**
+- UPPERCASE-HYPHEN for all identifiers
+- Variables: `$VARIABLE-NAME`
+- Functions: `@FUNCTION-NAME`
+- Hyphens replace underscores for readability
+
+#### Changed
+
+**Quote Strategy**
+- Double quotes `"` for PRINT statements
+- Single quotes `'` for other string literals
+- Consistent with emoji code usage (avoids `:` conflicts)
+
+**Expression Parser**
+- Enhanced to handle function calls, dot notation, arrays
+- Multi-feature expression support
+- Improved error messages
+
+**Preprocessor** (`core/interpreters/upy_preprocessor.py`)
+- Integrated emoji replacement system
+- Assignment operator parsing
+- Function block detection and conversion
+- JSON operation handling
+- 115 new lines of functionality
+
+#### Documentation
+
+**New Files**
+- `sandbox/docs/migration-guide-v1.1.9.md` - Complete migration guide
+- `sandbox/ucode/rpg_demo_v1.1.9.upy` - 175-line RPG demo
+- `sandbox/tests/test_upy_v1_1_9.py` - 26 comprehensive tests
+- `sandbox/archive/README.md` - Old syntax documentation
+- `sandbox/docs/wiki-documentation-plan.md` - Wiki update plan
+
+**Archived**
+- `sandbox/archive/upy_preprocessor_v1.1.8_*.py` - Pre-v1.1.9 backup
+
+#### Testing
+
+**Test Suite** (`sandbox/tests/test_upy_v1_1_9.py`)
+- ✅ 26/26 tests passing (100% success rate)
+- Emoji replacement (4 tests)
+- Assignment operator (4 tests)
+- PRINT with emojis (4 tests)
+- Function blocks (4 tests)
+- JSON integration (5 tests)
+- Inline conditionals (2 tests)
+- Backwards compatibility (2 tests)
+- Complete RPG example (1 test)
+
+#### Breaking Changes
+
+**Deprecated Syntax** (still works but not recommended):
+- `SET var value` → Use `$VAR = value`
+- `PRINT [message]` → Use `PRINT("message")`
+- `PRINT ('text')` → Use `PRINT("text")`
+
+**Removed Support**:
+- `{variable}` format no longer supported
+- Mixed quote usage in PRINT
+
+#### Migration
+
+See `sandbox/docs/migration-guide-v1.1.9.md` for:
+- Complete before/after examples
+- Feature-by-feature migration steps
+- Backwards compatibility details
+- Common patterns and best practices
+
+#### Performance
+
+- Emoji replacement: O(n) regex substitution, minimal overhead
+- Assignment parsing: Single regex match per statement
+- Function detection: Early filtering, no performance impact
+- JSON operations: Direct string replacement
+
+#### Known Issues
+
+- Wiki documentation pending (plan created)
+- CHANGELOG version number not yet updated
+- JSON VM methods (load_json, save_json) need implementation in VariableManager
+
 ---
 
 ## [1.1.7] - 2025-12-01

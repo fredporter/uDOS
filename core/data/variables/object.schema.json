@@ -1,0 +1,429 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OBJECT Variable Schema",
+  "description": "Schema for item/object variables in uDOS v1.1.9+ Round 1",
+  "type": "object",
+  "required": ["type", "name", "category", "meta"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "object",
+      "description": "Variable type identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "pattern": "^[A-Z][A-Z0-9-]*$",
+      "description": "Object name in UPPERCASE-HYPHEN format"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["weapon", "armor", "shield", "accessory", "consumable", "key-item", "material", "quest-item"],
+      "description": "Item category"
+    },
+    "properties": {
+      "type": "object",
+      "description": "Object properties",
+      "required": ["stackable"],
+      "properties": {
+        "stackable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can multiple be held in one slot"
+        },
+        "max_stack": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 99,
+          "description": "Maximum stack size"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1.0,
+          "description": "Item weight"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Base gold value"
+        },
+        "rarity": {
+          "type": "string",
+          "enum": ["common", "uncommon", "rare", "epic", "legendary"],
+          "default": "common",
+          "description": "Item rarity"
+        },
+        "tradeable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can be traded/sold"
+        },
+        "droppable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can be dropped from inventory"
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "description": "Stat modifiers for equipment",
+      "properties": {
+        "attack": {
+          "type": "integer",
+          "default": 0,
+          "description": "Attack bonus"
+        },
+        "defense": {
+          "type": "integer",
+          "default": 0,
+          "description": "Defense bonus"
+        },
+        "speed": {
+          "type": "integer",
+          "default": 0,
+          "description": "Speed bonus"
+        },
+        "hp_bonus": {
+          "type": "integer",
+          "default": 0,
+          "description": "HP increase"
+        },
+        "mp_bonus": {
+          "type": "integer",
+          "default": 0,
+          "description": "MP increase"
+        },
+        "luck": {
+          "type": "integer",
+          "default": 0,
+          "description": "Luck bonus"
+        }
+      },
+      "default": {}
+    },
+    "effects": {
+      "type": "object",
+      "description": "Item effects (for consumables)",
+      "properties": {
+        "hp_restore": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "HP restored when used"
+        },
+        "mp_restore": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "MP restored when used"
+        },
+        "status_cure": {
+          "type": "array",
+          "description": "Status effects cured",
+          "items": {
+            "type": "string",
+            "enum": ["poison", "burn", "freeze", "stun", "blind"]
+          },
+          "default": []
+        },
+        "status_apply": {
+          "type": "array",
+          "description": "Status effects applied",
+          "items": {
+            "type": "object",
+            "required": ["effect", "duration"],
+            "properties": {
+              "effect": {
+                "type": "string",
+                "enum": ["poison", "burn", "freeze", "stun", "blind", "heal", "buff", "debuff"]
+              },
+              "duration": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 1
+              }
+            }
+          },
+          "default": []
+        },
+        "buff_duration": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Duration of temporary buffs (turns)"
+        },
+        "consumable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Item is consumed on use"
+        }
+      },
+      "default": {}
+    },
+    "requirements": {
+      "type": "object",
+      "description": "Requirements to use/equip item",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Minimum level required"
+        },
+        "stats": {
+          "type": "object",
+          "description": "Minimum stat requirements",
+          "properties": {
+            "attack": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "defense": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "speed": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          "default": {}
+        },
+        "class": {
+          "type": "array",
+          "description": "Required character classes",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "default": {}
+    },
+    "display": {
+      "type": "object",
+      "description": "Display information",
+      "required": ["display_name"],
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Item description"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon emoji code (e.g., ':sword:')"
+        },
+        "flavor_text": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Flavor/lore text"
+        }
+      }
+    },
+    "crafting": {
+      "type": "object",
+      "description": "Crafting information",
+      "properties": {
+        "craftable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can be crafted"
+        },
+        "recipe": {
+          "type": "array",
+          "description": "Required materials",
+          "items": {
+            "type": "object",
+            "required": ["item", "quantity"],
+            "properties": {
+              "item": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9-]*$"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "default": []
+        },
+        "skill_required": {
+          "type": ["string", "null"],
+          "description": "Required crafting skill (null for non-craftable)"
+        },
+        "level_required": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "default": 1,
+          "description": "Required skill level (null for non-craftable)"
+        }
+      },
+      "default": {}
+    },
+    "meta": {
+      "type": "object",
+      "description": "Metadata about the object",
+      "required": ["created", "modified"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["global", "session", "script", "local"],
+          "default": "global",
+          "description": "Variable scope"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorization",
+          "default": []
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "default": "1.0.0",
+          "description": "Object definition version"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "type": "object",
+      "name": "SWORD-IRON",
+      "category": "weapon",
+      "properties": {
+        "stackable": false,
+        "max_stack": 1,
+        "weight": 5.0,
+        "value": 150,
+        "rarity": "common",
+        "tradeable": true,
+        "droppable": true
+      },
+      "stats": {
+        "attack": 15,
+        "defense": 0,
+        "speed": -2,
+        "hp_bonus": 0,
+        "mp_bonus": 0,
+        "luck": 0
+      },
+      "effects": {},
+      "requirements": {
+        "level": 1,
+        "stats": {},
+        "class": []
+      },
+      "display": {
+        "display_name": "Iron Sword",
+        "description": "A sturdy iron sword suitable for beginners.",
+        "icon": ":sword:",
+        "flavor_text": "Every hero's first blade."
+      },
+      "crafting": {
+        "craftable": true,
+        "recipe": [
+          {
+            "item": "IRON-BAR",
+            "quantity": 3
+          },
+          {
+            "item": "WOOD",
+            "quantity": 1
+          }
+        ],
+        "skill_required": "BLACKSMITHING",
+        "level_required": 1
+      },
+      "meta": {
+        "created": "2025-12-01T10:00:00Z",
+        "modified": "2025-12-01T10:00:00Z",
+        "scope": "global",
+        "tags": ["weapon", "sword", "starter"],
+        "version": "1.0.0"
+      }
+    },
+    {
+      "type": "object",
+      "name": "POTION",
+      "category": "consumable",
+      "properties": {
+        "stackable": true,
+        "max_stack": 99,
+        "weight": 0.5,
+        "value": 50,
+        "rarity": "common",
+        "tradeable": true,
+        "droppable": true
+      },
+      "stats": {},
+      "effects": {
+        "hp_restore": 50,
+        "mp_restore": 0,
+        "status_cure": [],
+        "status_apply": [],
+        "buff_duration": 0,
+        "consumable": true
+      },
+      "requirements": {},
+      "display": {
+        "display_name": "Health Potion",
+        "description": "Restores 50 HP.",
+        "icon": ":potion:",
+        "flavor_text": "A basic healing remedy."
+      },
+      "crafting": {
+        "craftable": true,
+        "recipe": [
+          {
+            "item": "HERB",
+            "quantity": 2
+          },
+          {
+            "item": "WATER",
+            "quantity": 1
+          }
+        ],
+        "skill_required": "ALCHEMY",
+        "level_required": 1
+      },
+      "meta": {
+        "created": "2025-12-01T10:00:00Z",
+        "modified": "2025-12-01T10:00:00Z",
+        "scope": "global",
+        "tags": ["consumable", "healing", "potion"],
+        "version": "1.0.0"
+      }
+    }
+  ]
+}

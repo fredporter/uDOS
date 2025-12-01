@@ -148,6 +148,19 @@ class CommandHandler:
         from core.commands.generate_handler import GenerateHandler
         self.generate_handler = GenerateHandler(viewport=viewport, logger=logger)
 
+        # v1.1.9 - SPRITE & OBJECT handlers (Round 1 Variable System)
+        from core.commands.sprite_handler import SpriteHandler
+        from core.commands.object_handler import ObjectHandler
+
+        # Get variable_manager from components (if available)
+        components = {
+            'config': None,
+            'variable_manager': None,
+            'logger': logger
+        }
+        self.sprite_handler = SpriteHandler(components)
+        self.object_handler = ObjectHandler(components)
+
         # v1.1.5 - SVG Graphics Extension handler (DEPRECATED - use GENERATE SVG)
         from core.commands.svg_handler import SVGHandler
         self.svg_handler = SVGHandler(viewport=viewport, logger=logger)
@@ -298,6 +311,15 @@ class CommandHandler:
                     return self.barter_handler.handle(module, params)
                 else:
                     return self.barter_handler.handle(command, params)
+
+            # v1.1.9 - SPRITE & OBJECT Variable System (Round 1)
+            elif module == "SPRITE":
+                success = self.sprite_handler.handle([command] + params)
+                return "✅ Command executed" if success else "❌ Command failed"
+
+            elif module == "OBJECT":
+                success = self.object_handler.handle([command] + params)
+                return "✅ Command executed" if success else "❌ Command failed"
 
             # v1.0.21 - Teletext Display System
             elif module == "PANEL" or module == "UI":

@@ -1361,6 +1361,312 @@ RUN "<script>"
 
 ---
 
+## uPY Commands (v1.1.9+)
+
+Modern Python-like scripting commands for .upy files. See [uCODE Language Reference](uCODE-Language.md#upy-syntax-v119) for complete syntax.
+
+### Variable Assignment
+
+**Purpose**: Assign values to variables with clean syntax
+
+**Syntax**:
+```upy
+$VARIABLE-NAME = value
+```
+
+**Parameters**:
+- `$VARIABLE-NAME` - Variable name with $ prefix (UPPERCASE-HYPHEN convention)
+- `value` - String (single quotes), number, or expression
+
+**Examples**:
+```upy
+$HP = 100
+$NAME = 'Hero'
+$GOLD = 50
+$MAX-HP = 100
+$LEVEL = 1
+
+# Expressions
+$TOTAL = $HP + $MANA
+$PERCENT = ($HP / $MAX-HP) * 100
+```
+
+**See**: [Migration Guide](Migration-Guide-v1.1.9.md#variables)
+
+---
+
+### PRINT (Enhanced)
+
+**Purpose**: Output text with variable substitution and emojis
+
+**Syntax**:
+```upy
+PRINT("text with $VARIABLES and :emoji:")
+```
+
+**Parameters**:
+- `text` - String with double quotes
+- `$VARIABLES` - Automatically substituted
+- `:emoji:` - Emoji codes (80+ available)
+
+**Examples**:
+```upy
+PRINT("Hello, world!")
+PRINT("Player: $NAME")
+PRINT(":heart: HP: $HP")
+PRINT(":coin: Gold: $GOLD coins")
+PRINT(":check: Quest complete!")
+```
+
+**Common Emojis**:
+- `:heart:` ♥ - Health
+- `:coin:` ⊚ - Currency
+- `:sword:` † - Attack
+- `:check:` ✓ - Success
+- `:warning:` ⚠ - Warning
+
+**See**: [Emoji Reference](Emoji-Reference.md)
+
+---
+
+### FUNCTION
+
+**Purpose**: Define reusable code blocks with parameters and return values
+
+**Syntax**:
+```upy
+FUNCTION [@FUNCTION-NAME($PARAM1, $PARAM2)
+    # Function body
+    RETURN value
+]
+```
+
+**Parameters**:
+- `@FUNCTION-NAME` - Function name with @ prefix (UPPERCASE-HYPHEN)
+- `$PARAM1, $PARAM2` - Parameters (comma-separated, $ prefix)
+- `RETURN value` - Optional return statement
+
+**Examples**:
+
+Basic function:
+```upy
+FUNCTION [@GREET($NAME)
+    PRINT("Hello, $NAME!")
+]
+
+@GREET('Hero')  # Call function
+```
+
+With return value:
+```upy
+FUNCTION [@CALCULATE-DAMAGE($BASE, $ARMOR)
+    $DAMAGE = $BASE - $ARMOR
+    IF {$DAMAGE < 0 | RETURN 0}
+    RETURN $DAMAGE
+]
+
+$FINAL-DAMAGE = @CALCULATE-DAMAGE(50, 20)
+PRINT(":sword: Damage: $FINAL-DAMAGE")
+```
+
+Multiple parameters:
+```upy
+FUNCTION [@CHECK-HEALTH($HP, $MAX-HP)
+    $PERCENT = ($HP / $MAX-HP) * 100
+    IF {$PERCENT >= 75 | RETURN 'healthy'}
+    IF {$PERCENT >= 50 | RETURN 'moderate'}
+    IF {$PERCENT >= 25 | RETURN 'low'}
+    RETURN 'critical'
+]
+
+$STATUS = @CHECK-HEALTH($HP, $MAX-HP)
+PRINT(":heart: Status: $STATUS")
+```
+
+**See**: [Function Programming Guide](Function-Programming-Guide.md)
+
+---
+
+### JSON.load
+
+**Purpose**: Load JSON file into memory for manipulation
+
+**Syntax**:
+```upy
+JSON.load("filename.json")
+```
+
+**Parameters**:
+- `filename.json` - Path to JSON file (double quotes)
+
+**Examples**:
+```upy
+JSON.load("player.json")
+JSON.load("data/config.json")
+JSON.load("inventory.json")
+```
+
+**Data Access**:
+```upy
+# Dot notation for nested fields
+$NAME = player.name
+$HP = player.stats.health
+$GOLD = player.inventory.gold
+
+# Array indexing
+$FIRST-ITEM = player.inventory.items[0]
+$QUEST-NAME = player.quests[1].name
+```
+
+**See**: [uCODE Language Reference](uCODE-Language.md#json-support)
+
+---
+
+### JSON.save
+
+**Purpose**: Save modified JSON data back to file
+
+**Syntax**:
+```upy
+JSON.save("filename.json")
+```
+
+**Parameters**:
+- `filename.json` - Path to JSON file (double quotes)
+
+**Examples**:
+```upy
+# Modify data
+player.stats.health = 100
+player.inventory.gold = player.inventory.gold + 50
+
+# Save changes
+JSON.save("player.json")
+PRINT(":check: Player data saved!")
+```
+
+**Complete workflow**:
+```upy
+# Load JSON
+JSON.load("player.json")
+
+# Read data
+$HP = player.stats.health
+PRINT(":heart: Current HP: $HP")
+
+# Modify data
+player.stats.health = 100
+player.inventory.gold = player.inventory.gold + 100
+player.inventory.items.append("Magic Sword")
+
+# Save changes
+JSON.save("player.json")
+PRINT(":check: Saved!")
+```
+
+---
+
+### IF (Inline)
+
+**Purpose**: One-line conditional execution
+
+**Syntax**:
+```upy
+IF {condition | statement}
+IF {condition | RETURN value}
+```
+
+**Parameters**:
+- `condition` - Boolean expression
+- `statement` - Command to execute if true
+- `|` - Pipe separator (required)
+
+**Examples**:
+```upy
+# Simple conditionals
+IF {$HP <= 0 | PRINT(":skull: Game Over")}
+IF {$GOLD >= 100 | PRINT(":coin: Can afford item")}
+IF {$LEVEL > 5 | $DAMAGE = $DAMAGE * 2}
+
+# In functions (early return)
+FUNCTION [@VALIDATE($VALUE)
+    IF {$VALUE < 0 | RETURN 0}
+    IF {$VALUE > 100 | RETURN 100}
+    RETURN $VALUE
+]
+```
+
+**Operators**:
+- `==` - Equal to
+- `!=` - Not equal
+- `<`, `>`, `<=`, `>=` - Comparison
+- `and`, `or` - Logical operators
+
+**See**: [Migration Guide](Migration-Guide-v1.1.9.md#conditionals)
+
+---
+
+### Emoji Codes
+
+**Purpose**: Insert Unicode symbols with readable codes
+
+**Syntax**:
+```upy
+:emoji-code:
+```
+
+**Categories** (80+ total):
+
+**Status Indicators:**
+- `:check:` ✓ - Success
+- `:cross:` ✗ - Failure
+- `:warning:` ⚠ - Warning
+- `:info:` ⓘ - Information
+- `:star:` ⭐ - Important
+
+**Game Items:**
+- `:heart:` ♥ - Health
+- `:sword:` † - Weapon
+- `:shield:` ◊ - Armor
+- `:coin:` ⊚ - Currency
+- `:gem:` ◆ - Gems
+- `:key:` ⚷ - Keys
+- `:potion:` ⚗ - Potions
+
+**Combat:**
+- `:crossed_swords:` ⚔ - Battle
+- `:boom:` ⚡ - Explosion
+- `:fire:` ▲ - Fire
+- `:bolt:` ↯ - Lightning
+- `:skull:` ☠ - Death
+
+**Directions:**
+- `:up:` ↑ - North
+- `:down:` ↓ - South
+- `:left:` ← - West
+- `:right:` → - East
+
+**UI Elements:**
+- `:menu:` ≡ - Menu
+- `:home:` ⌂ - Home
+- `:gear:` ⚙ - Settings
+- `:search:` ⌕ - Search
+
+**Examples**:
+```upy
+PRINT(":heart: HP: $HP/$MAX-HP")
+PRINT(":sword: Attack: $ATTACK")
+PRINT(":shield: Defense: $DEFENSE")
+PRINT(":coin: Gold: $GOLD")
+PRINT(":check: Quest Complete!")
+PRINT(":warning: Low health!")
+PRINT(":crossed_swords: Combat started!")
+```
+
+**See**: [Emoji Reference](Emoji-Reference.md) for complete list
+
+---
+
 ## System Commands
 
 ### REBOOT

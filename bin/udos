@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# uDOS Launcher Script
+# Convenient wrapper for running uDOS from anywhere
+#
+# Usage:
+#   udos                    # Interactive mode
+#   udos script.uscript     # Run script
+#   udos --version          # Show version
+#   udos --help             # Show help
+#
+
+# Find uDOS installation directory
+UDOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Change to uDOS directory
+cd "$UDOS_ROOT" || {
+    echo "Error: Cannot change to uDOS directory: $UDOS_ROOT"
+    exit 1
+}
+
+# Run start_udos.sh with all arguments
+exec ./start_udos.sh "$@"

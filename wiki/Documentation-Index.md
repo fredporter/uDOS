@@ -56,7 +56,8 @@ Start here if you're new to uDOS:
 
 ### Tools & Integration
 - **[Content Generation](Content-Generation.md)** ⭐ - OK Assist + SVG diagram generation
-- **[Extensions System](Extensions-System.md)** - Extension development
+- **[Extensions System](Extensions-System.md)** - Extension system overview
+- **[Extension Development](Extension-Development.md)** ⭐ - Complete extension development guide
 - **[Documentation Handbook](Documentation-Handbook.md)** - Writing docs
 
 ### Technical Reference

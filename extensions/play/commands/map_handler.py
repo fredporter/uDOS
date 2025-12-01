@@ -14,12 +14,14 @@ Handles all map navigation commands with integrated cell reference system:
 Version: 1.0.3
 """
 
-from .base_handler import BaseCommandHandler
 import sys
 from pathlib import Path
 
 # Add project root to path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from core.commands.base_handler import BaseCommandHandler
 
 
 class MapCommandHandler(BaseCommandHandler):

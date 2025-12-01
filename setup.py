@@ -9,10 +9,10 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="udos",
-    version="1.1.6",
+    version="1.1.9",
     author="Fred Porter",
     author_email="fred@udos.dev",
-    description="uDOS - Smart Commands & Interactive System for Offline Survival",
+    description="uDOS - Offline-first Operating System for Survival Knowledge",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fredporter/uDOS",
@@ -21,7 +21,7 @@ setup(
         "Documentation": "https://github.com/fredporter/uDOS/wiki",
         "Source Code": "https://github.com/fredporter/uDOS",
     },
-    packages=find_packages(include=["core", "core.*"]),
+    packages=find_packages(include=["udos", "udos.*", "core", "core.*", "extensions", "extensions.*"]),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -56,6 +56,9 @@ setup(
             "udos=core.uDOS_main:main",
         ],
     },
+    scripts=[
+        "bin/udos",
+    ],
     include_package_data=True,
     package_data={
         "": [
@@ -64,6 +67,7 @@ setup(
             "data/**/*",
             "extensions/**/*",
         ],
+        "udos": ["py.typed"],
     },
     zip_safe=False,
 )

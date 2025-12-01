@@ -10,13 +10,14 @@
 
 1. [Overview](#overview)
 2. [Directory Structure](#directory-structure)
-3. [Extensions Server](#extensions-server)
-4. [Bundled Web Extensions](#bundled-web-extensions)
-5. [External Dependencies](#external-dependencies)
-6. [Quick Start Guide](#quick-start-guide)
-7. [API & Configuration](#api--configuration)
-8. [Development Guidelines](#development-guidelines)
-9. [Troubleshooting](#troubleshooting)
+3. [Extension Manager](#extension-manager)
+4. [Extensions Server](#extensions-server)
+5. [Bundled Web Extensions](#bundled-web-extensions)
+6. [External Dependencies](#external-dependencies)
+7. [Quick Start Guide](#quick-start-guide)
+8. [API & Configuration](#api--configuration)
+9. [Development Guidelines](#development-guidelines)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -63,6 +64,140 @@ extensions/
 ├── fonts/                     # Font assets with licensing
 └── setup/                     # Installation scripts
 ```
+
+---
+
+## Extension Manager
+
+### Automatic Discovery & Validation (v1.1.8)
+
+The Extension Manager provides automatic discovery, validation, and health monitoring for all uDOS extensions. It scans extension directories, validates manifests, and tracks extension health.
+
+**Key Features:**
+- 🔍 **Automatic Discovery**: Scans all extension directories
+- ✅ **JSON Validation**: Validates extension.json schemas
+- 🏥 **Health Monitoring**: Checks files, dependencies, API keys
+- 📊 **Command Registry**: Aggregates commands from all extensions
+- 🎯 **Performance Metrics**: Tracks load time, invocations, response time
+
+### Using Extension Manager
+
+#### CLI Commands
+
+```bash
+# Discover all extensions
+python core/services/extension_manager.py discover
+
+# List all extensions
+python core/services/extension_manager.py list
+
+# Check extension health
+python core/services/extension_manager.py health
+
+# Show command registry
+python core/services/extension_manager.py commands
+```
+
+#### Python API
+
+```python
+from core.services.extension_manager import get_extension_manager
+
+# Get manager instance
+manager = get_extension_manager()
+
+# Discover extensions
+count = manager.discover_extensions()
+print(f"Found {count} extensions")
+
+# List extensions
+extensions = manager.list_extensions(category='core')
+for ext in extensions:
+    print(f"{ext.name} v{ext.version}")
+
+# Check health
+health = manager.check_health()
+print(f"Healthy: {health['healthy']}/{health['total']}")
+
+# Get command registry
+registry = manager.get_commands_registry()
+for cmd_name, cmd_info in registry.items():
+    print(f"{cmd_name}: {cmd_info['description']}")
+```
+
+### Extension Manifest Schema
+
+All extensions require a valid `extension.json` manifest:
+
+```json
+{
+  "id": "my-extension",
+  "name": "My Extension",
+  "version": "1.0.0",
+  "type": "command",
+  "category": "bundled",
+  "description": "Extension description",
+  "author": "Your Name",
+  "license": "MIT",
+  "status": "active",
+  "main_file": "main.py",
+  "provides_commands": [
+    {
+      "name": "MYCOMMAND",
+      "handler": "main.handle_command",
+      "description": "Command description",
+      "syntax": "MYCOMMAND <args>"
+    }
+  ]
+}
+```
+
+**Valid Types**: `service`, `command`, `interface`, `integration`, `tool`
+**Valid Categories**: `core`, `bundled`, `native`, `cloned`, `play`, `web`, `cloud`, `api`
+**Valid Statuses**: `active`, `inactive`, `experimental`, `deprecated`
+
+### Health Monitoring
+
+The Extension Manager automatically monitors extension health:
+
+```bash
+$ python core/services/extension_manager.py health
+
+🏥 Extension Health Report
+============================================================
+Total Extensions: 3
+Healthy: 2 ✅
+Unhealthy: 1 ❌
+
+❌ SVG Diagram Generator (svg-generator)
+   Category: core | Version: 1.0.0
+   Status: Failed: api_gemini (3/4 passed)
+   Commands: SVG
+
+✅ Mission Control Dashboard (mission-control)
+   Category: web | Version: 1.1.2
+   Status: All checks passed (1/1)
+
+✅ Cloud Access - POKE (cloud)
+   Category: cloud | Version: 2.0.0
+   Status: All checks passed (2/2)
+```
+
+**Health Checks Include:**
+- File existence (main file, static files)
+- Dependency availability (Python packages)
+- API key requirements (environment variables)
+- Extension directory structure
+
+### Creating Extensions
+
+See **[Extension Development Guide](Extension-Development.md)** for complete documentation on:
+- Extension structure and anatomy
+- Manifest schema details
+- Command handlers and services
+- Web interfaces and APIs
+- Testing and validation
+- Best practices and patterns
 
 ---
 

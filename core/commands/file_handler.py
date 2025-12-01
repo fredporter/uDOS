@@ -345,9 +345,9 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ Error renaming file: {str(e)}"
 
     def _handle_show(self, params):
-        """Display file in browser or terminal (v1.0.30 with micro editor)."""
+        """Display file with smart viewer detection (Typo for markdown preview)."""
         if not params:
-            # v1.0.30: Use knowledge file picker for .md and .uscript files
+            # Use knowledge file picker for .md and .uscript files
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
@@ -362,17 +362,12 @@ class FileCommandHandler(BaseCommandHandler):
         else:
             file_path = params[0]
 
-        # Parse flags
-        mode = '--cli'  # Default to terminal display
-        if len(params) > 1 and params[1] in ['--web', '--browser']:
-            mode = '--web'
-
         # Security check
         abs_path = os.path.abspath(file_path)
         allowed_dirs = [
             os.path.abspath('sandbox'),
             os.path.abspath('memory'),
-            os.path.abspath('knowledge')  # v1.0.30: Allow knowledge access
+            os.path.abspath('knowledge')
         ]
         if not any(abs_path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
             return f"❌ Access denied: {file_path}\n\nOnly sandbox/, memory/, and knowledge/ are accessible"
@@ -380,47 +375,109 @@ class FileCommandHandler(BaseCommandHandler):
         if not os.path.exists(file_path):
             return f"❌ File not found: {file_path}"
 
-        if mode == '--web':
-            # Open in Typo preview mode for markdown files
-            if file_path.endswith('.md'):
-                try:
-                    from extensions.server_manager import ServerManager
-                    mgr = ServerManager()
-                    success, msg = mgr.start_markdown_viewer(open_browser=True, file_path=abs_path)
-                    if success:
-                        return f"✅ Opening in Typo preview: {file_path}\n{msg}"
-                    else:
-                        # Fallback to browser
-                        import webbrowser
-                        webbrowser.open(f"file://{abs_path}")
-                        return f"✅ Opened in browser: {file_path}"
-                except Exception:
-                    # Fallback to browser
-                    import webbrowser
-                    webbrowser.open(f"file://{abs_path}")
-                    return f"✅ Opened in browser: {file_path}"
-            else:
-                # Non-markdown files: use browser
-                import webbrowser
-                webbrowser.open(f"file://{abs_path}")
-                return f"✅ Opened in browser: {file_path}"
+        # Detect view mode
+        view_mode = self._detect_view_mode(file_path, params)
+
+        if view_mode == 'typo':
+            return self._view_with_typo(file_path, params)
+        elif view_mode == 'browser':
+            return self._view_with_browser(file_path)
         else:
-            # Use nano/less for viewing (better than custom editor)
+            return self._view_with_terminal(file_path)
+
+    def _detect_view_mode(self, file_path: str, params: list) -> str:
+        """
+        Detect which viewer to use.
+
+        Returns: 'typo', 'browser', or 'terminal'
+        """
+        # Explicit flags
+        if any(flag in params for flag in ['--typo', '--slides']):
+            return 'typo'
+        if any(flag in params for flag in ['--web', '--browser']):
+            if file_path.endswith('.md'):
+                return 'typo'
+            return 'browser'
+        if any(flag in params for flag in ['--terminal', '--cli']):
+            return 'terminal'
+
+        # Auto-detection for markdown
+        if file_path.endswith('.md'):
             try:
-                # Try less first (better for viewing)
-                result = subprocess.run(['less', file_path], check=False)
-                return f"✅ Viewed: {file_path}"
-            except Exception as e:
-                # Fallback to simple display
-                try:
-                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        content = f.read()
-                    return f"📄 {file_path}\n{'═'*60}\n\n{content}\n\n{'═'*60}"
-                except Exception as e2:
-                    return f"❌ Error reading file: {str(e2)}"
+                from core.config import Config
+                from core.services.typo_manager import TypoManager
+
+                config = Config()
+                web_enabled = config.get('editor.web_editor_enabled', True)
+
+                if web_enabled:
+                    typo = TypoManager(config)
+                    if typo.is_installed():
+                        return 'typo'
+            except Exception:
+                pass
+
+        # Default to terminal
+        return 'terminal'
+
+    def _view_with_typo(self, file_path: str, params: list) -> str:
+        """View file in Typo preview mode."""
+        try:
+            from core.config import Config
+            from core.services.typo_manager import TypoManager
+
+            config = Config()
+            typo = TypoManager(config)
+
+            if not typo.is_installed():
+                return ("❌ Typo not installed\n\n"
+                       "Install with: ./extensions/setup/setup_typo.sh\n"
+                       "Or use: SHOW --terminal")
+
+            # Determine mode
+            mode = 'preview' if '--preview' not in params else 'preview'
+            if '--slides' in params:
+                mode = 'slides'
+
+            success, msg = typo.open_file(file_path, mode=mode, auto_start=True)
+
+            if success:
+                return msg
+            else:
+                return f"{msg}\n\n🔄 Falling back to terminal viewer..."
+
+        except Exception as e:
+            return f"⚠️  Typo error: {str(e)}\n\n🔄 Using terminal viewer instead..."
+
+    def _view_with_browser(self, file_path: str) -> str:
+        """View file in default browser."""
+        try:
+            import webbrowser
+            abs_path = os.path.abspath(file_path)
+            webbrowser.open(f"file://{abs_path}")
+            return f"✅ Opened in browser: {file_path}"
+        except Exception as e:
+            return f"❌ Error opening browser: {str(e)}"
+
+    def _view_with_terminal(self, file_path: str) -> str:
+        """View file in terminal."""
+        import subprocess
+
+        try:
+            # Try less first (better for viewing)
+            result = subprocess.run(['less', file_path], check=False)
+            return f"✅ Viewed: {file_path}"
+        except Exception as e:
+            # Fallback to simple display
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                return f"📄 {file_path}\n{'═'*60}\n\n{content}\n\n{'═'*60}"
+            except Exception as e2:
+                return f"❌ Error reading file: {str(e2)}"
 
     def _handle_edit(self, params):
-        """Edit file with nano/micro/vim editor."""
+        """Edit file with smart editor detection (Typo for markdown, micro for others)."""
         if not params:
             # Use knowledge file picker for .md and .uscript files
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
@@ -438,15 +495,117 @@ class FileCommandHandler(BaseCommandHandler):
         else:
             file_path = params[0]
 
+        # Detect editor mode
+        editor_mode = self._detect_edit_mode(file_path, params)
+
+        if editor_mode == 'typo':
+            return self._edit_with_typo(file_path, params)
+        else:
+            return self._edit_with_terminal(file_path, params)
+
+    def _detect_edit_mode(self, file_path: str, params: list) -> str:
+        """
+        Detect which editor to use based on file type and flags.
+
+        Args:
+            file_path: Path to file
+            params: Command parameters
+
+        Returns:
+            'typo' or 'terminal'
+        """
+        # Explicit flags take precedence
+        if any(flag in params for flag in ['--typo', '--web-editor']):
+            return 'typo'
+        if any(flag in params for flag in ['--tui', '--cli', '--terminal']):
+            return 'terminal'
+        if any(flag in params for flag in ['--preview', '--slides']):
+            return 'typo'
+
+        # Check if auto-detection is enabled
+        try:
+            from core.config import Config
+            config = Config()
+            auto_detect = config.get('editor.auto_detect_editor', True)
+            web_enabled = config.get('editor.web_editor_enabled', True)
+
+            if auto_detect and web_enabled:
+                # Markdown files → Typo (if installed)
+                if file_path.endswith('.md'):
+                    from core.services.typo_manager import TypoManager
+                    typo = TypoManager(config)
+                    if typo.is_installed():
+                        return 'typo'
+        except Exception:
+            pass  # Fallback to terminal on any error
+
+        # Default to terminal
+        return 'terminal'
+
+    def _edit_with_typo(self, file_path: str, params: list) -> str:
+        """
+        Open file in Typo web editor.
+
+        Args:
+            file_path: Path to file
+            params: Command parameters
+
+        Returns:
+            Result message
+        """
+        try:
+            from core.config import Config
+            from core.services.typo_manager import TypoManager
+
+            config = Config()
+            typo = TypoManager(config)
+
+            # Check if installed
+            if not typo.is_installed():
+                return ("❌ Typo not installed\n\n"
+                       "Install with: ./extensions/setup/setup_typo.sh\n"
+                       "Or use: EDIT --tui to edit in terminal")
+
+            # Determine mode
+            mode = 'edit'  # Default
+            if '--preview' in params:
+                mode = 'preview'
+            elif '--slides' in params:
+                mode = 'slides'
+
+            # Open file
+            success, msg = typo.open_file(file_path, mode=mode, auto_start=True)
+
+            if success:
+                return msg
+            else:
+                # Fallback to terminal
+                return f"{msg}\n\n🔄 Falling back to terminal editor...\n\n" + \
+                       self._edit_with_terminal(file_path, params)
+
+        except Exception as e:
+            # Fallback to terminal on error
+            return f"⚠️  Typo error: {str(e)}\n\n🔄 Using terminal editor instead...\n\n" + \
+                   self._edit_with_terminal(file_path, params)
+
+    def _edit_with_terminal(self, file_path: str, params: list) -> str:
+        """
+        Open file in terminal editor (micro/nano/vim).
+
+        Args:
+            file_path: Path to file
+            params: Command parameters
+
+        Returns:
+            Result message
+        """
         # Use nano/micro/vim via EditorManager
-        mode = 'CLI'  # Force CLI mode
+        mode = 'CLI'
         specific_editor = None
 
-        # Parse options
-        for i, param in enumerate(params[1:], 1):
-            if param in ['--web', '--browser']:
-                mode = 'WEB'
-            elif param in ['--nano', '--vim', '--micro']:
+        # Parse editor-specific options
+        for param in params[1:] if len(params) > 1 else []:
+            if param in ['--nano', '--vim', '--micro']:
                 specific_editor = param[2:]  # Remove --
 
         try:

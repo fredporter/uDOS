@@ -16,6 +16,57 @@
 | [Installation](../INSTALL.md) | [Architecture](Architecture) | [Extensions System](Extensions-System) |
 | [Interactive Tutorial](Tutorial-Getting-Started) | [Developers Guide](Developers-Guide) | [Theme System](Theme-System) ⭐ |
 | [FAQ](FAQ) | [Troubleshooting](Troubleshooting-Complete) | [Extension Development](Extension-Development) |
+| [uPY Quick Start](Tutorial-uPY-Quick-Start) ⭐ NEW | [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ NEW | [Before & After Guide](uPY-Before-After) ⭐ NEW |
+
+---
+
+## ✅ v1.1.9+ - uPY Python-like Syntax (January 2025)
+
+**Modern Scripting**: Python-inspired syntax for advanced uCODE automation
+
+**Features Complete** (26/26 tests passing):
+- ✅ **Variables** - Clean `$VARIABLE = value` assignment syntax
+- ✅ **Emoji Codes** - 80+ codes with `:emoji:` syntax (`:heart:` `:sword:` `:check:`)
+- ✅ **Functions** - Reusable code blocks with `FUNCTION [@NAME($PARAMS) ... ]`
+- ✅ **JSON Integration** - Load/save with dot notation (`player.stats.health = 100`)
+- ✅ **Inline Conditionals** - One-line `IF {condition | statement}` syntax
+- ✅ **PRINT Enhancement** - Variable substitution and emoji support
+
+**New Wiki Pages**:
+- [Tutorial: uPY Quick Start](Tutorial-uPY-Quick-Start) ⭐ NEW - 15-minute beginner tutorial
+- [uPY Before & After](uPY-Before-After) ⭐ NEW - Visual syntax comparison
+- [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ NEW - Quick syntax reference
+- [Emoji Reference](Emoji-Reference) - Complete emoji code catalog (80+ symbols)
+- [Function Programming Guide](Function-Programming-Guide) - Tutorial with examples
+- [Migration Guide v1.1.9](Migration-Guide-v1.1.9) - Upgrade from v1.1.8
+
+**Total Documentation:** 10 wiki pages, ~4,000 lines
+
+**Example Script**:
+```upy
+# Load player data
+JSON.load("player.json")
+
+# Define health check function
+FUNCTION [@CHECK-HEALTH($HP, $MAX)
+    $PERCENT = ($HP / $MAX) * 100
+    IF {$PERCENT >= 75 | RETURN ':heart: healthy'}
+    IF {$PERCENT >= 50 | RETURN ':warning: moderate'}
+    RETURN ':skull: critical'
+]
+
+# Check and display status
+$STATUS = @CHECK-HEALTH(player.stats.health, player.stats.max_health)
+PRINT("Status: $STATUS")
+
+# Award quest reward
+player.inventory.gold = player.inventory.gold + 100
+player.inventory.items.append("Magic Sword")
+JSON.save("player.json")
+PRINT(":check: Quest reward granted!")
+```
+
+[🔗 uPY Syntax Documentation →](uCODE-Language#upy-syntax-v119) | [🔗 Command Reference →](Command-Reference#upy-commands-v119)
 
 ---
 

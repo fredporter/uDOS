@@ -60,10 +60,10 @@ IF [$TRACKING >= 14]
   PRINT [You follow the tracks skillfully through the brush.]
   PRINT [After 20 minutes, you hear running water ahead!]
   PRINT []
-  
+
   XP [+40]
   FLAG [followed_tracks]
-  
+
   BRANCH [FOUND-STREAM]
 ENDIF
 
@@ -73,10 +73,10 @@ IF [$TRACKING >= 8]
   PRINT [The tracks are faint, but you manage to follow them.]
   PRINT [You lose the trail several times, wasting time...]
   PRINT []
-  
+
   HP [-10]
   XP [+20]
-  
+
   BRANCH [FOUND-STREAM]
 ENDIF
 
@@ -108,10 +108,10 @@ IF [$BOTANY >= 12]
   PRINT [You spot a cluster of willows and cattails ahead.]
   PRINT [These plants always grow near water sources!]
   PRINT []
-  
+
   XP [+35]
   FLAG [used_plant_knowledge]
-  
+
   BRANCH [FOUND-WETLAND]
 ENDIF
 
@@ -151,10 +151,10 @@ IF [$PERCEPTION >= 16]
   PRINT [You hear it! A faint babbling sound to the east.]
   PRINT [Definitely running water, maybe half a mile away.]
   PRINT []
-  
+
   XP [+50]
   FLAG [heard_stream]
-  
+
   BRANCH [FOUND-STREAM]
 ENDIF
 
@@ -164,16 +164,16 @@ IF [$PERCEPTION >= 10]
   PRINT [You hear something... could be water, could be wind.]
   PRINT [You decide to investigate the sound.]
   PRINT []
-  
+
   XP [+25]
-  
+
   ROLL [1d20] → $CONFIRM
-  
+
   IF [$CONFIRM >= 12]
     PRINT [Following the sound, you find a stream!]
     BRANCH [FOUND-STREAM]
   ENDIF
-  
+
   PRINT [False alarm - just wind through hollow logs.]
   HP [-5]
   BRANCH [START]
@@ -206,15 +206,15 @@ IF [$COLLECTION >= 13]
   PRINT [You collect dew from grass and leaves using your shirt.]
   PRINT [After 30 minutes, you've gathered about half a liter.]
   PRINT []
-  
+
   HP [+15]
   XP [+30]
   ITEM [dew_water]
   FLAG [collected_dew]
-  
+
   PRINT [It's not much, but it buys you time to find more.]
   PRINT []
-  
+
   CHOICE [What next?]
     OPTION [Keep collecting dew] → BRANCH-DEW
     OPTION [Search for a better source] → BRANCH-START
@@ -301,12 +301,12 @@ IF [$FIRE-SKILL >= 12]
   PRINT []
   PRINT [The water boils for 5 minutes, killing pathogens.]
   PRINT []
-  
+
   HP [+30]
   XP [+60]
   ITEM [boiled_water]
   FLAG [purified_water]
-  
+
   BRANCH [VICTORY-CLEAN]
 ENDIF
 
@@ -352,12 +352,12 @@ IF [$SUPPLIES >= 10]
   PRINT [You drop a purification tablet into the water.]
   PRINT [After 30 minutes, the water is safe to drink.]
   PRINT []
-  
+
   HP [+30]
   XP [+40]
   ITEM [purified_water]
   FLAG [purified_water]
-  
+
   BRANCH [VICTORY-CLEAN]
 ENDIF
 
@@ -386,16 +386,16 @@ IF [$CRAFTING >= 14]
   PRINT [Your filter removes sediment and some pathogens.]
   PRINT [The water comes out much clearer.]
   PRINT []
-  
+
   HP [+25]
   XP [+50]
   ITEM [filtered_water]
   FLAG [made_filter]
-  
+
   PRINT [Note: Filtering removes particles but not all bacteria.]
   PRINT [Boiling would be safer, but this is better than nothing.]
   PRINT []
-  
+
   BRANCH [VICTORY-FILTERED]
 ENDIF
 
@@ -458,14 +458,14 @@ IF [$HEALTH-CHECK >= 17]
   PRINT [The water was cleaner than it looked.]
   PRINT [You feel hydrated with no ill effects.]
   PRINT []
-  
+
   HP [+20]
   XP [+15]
   FLAG [drank_raw_water]
-  
+
   PRINT [You got lucky this time, but this is very risky!]
   PRINT []
-  
+
   BRANCH [VICTORY-RISKY]
 ENDIF
 

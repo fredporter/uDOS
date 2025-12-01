@@ -119,7 +119,8 @@ class MapDataManager:
         self.graphics_dir = Path(__file__).parent.parent.parent / "knowledge" / "system" / "graphics"
 
         # Load data
-        self.terrain_types = self._load_json("terrain_types.json")
+        terrain_data = self._load_json("terrain.json")
+        self.terrain_types = terrain_data.get("terrain_types", []) if isinstance(terrain_data, dict) else terrain_data
         self.cities = self._load_cities()
         # Consolidated blocks (includes all ASCII blocks + mosaic patterns)
         blocks_data = self._load_json("blocks/teletext.json", self.graphics_dir)

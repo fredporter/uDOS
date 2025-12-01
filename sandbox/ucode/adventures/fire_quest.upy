@@ -77,10 +77,10 @@ IF [$MATERIAL-SEARCH >= 10]
   PRINT [  • Flexible branch for the bow]
   PRINT [  • Cordage from plant fibers]
   PRINT []
-  
+
   XP [+20]
   FLAG [found_bow_drill_materials]
-  
+
   BRANCH [BOW-DRILL-CRAFT]
 ENDIF
 
@@ -108,7 +108,7 @@ IF [$CRAFTING >= 12]
   PRINT []
   XP [+30]
   FLAG [crafted_bow_drill]
-  
+
   BRANCH [BOW-DRILL-USE]
 ENDIF
 
@@ -141,22 +141,22 @@ ENDIF
 IF [$TECHNIQUE-1 >= 10]
   PRINT [Good start, but you need to keep going...]
   PRINT []
-  
+
   ROLL [1d20] → $TECHNIQUE-2
   PRINT [🎲 Second attempt: $TECHNIQUE-2]
-  
+
   IF [$TECHNIQUE-2 >= 12]
     PRINT [Success! A glowing ember appears in the dust!]
     XP [+40]
     BRANCH [EMBER-SUCCESS]
   ENDIF
-  
+
   PRINT [Almost there... one more try!]
   HP [-10]
-  
+
   ROLL [1d20] → $TECHNIQUE-3
   PRINT [🎲 Final attempt: $TECHNIQUE-3]
-  
+
   IF [$TECHNIQUE-3 >= 10]
     PRINT [You did it! An ember glows in the wood dust!]
     XP [+50]
@@ -189,10 +189,10 @@ IF [$HAND-DRILL-SKILL >= 18]
   PRINT [Your hands move with practiced precision.]
   PRINT [An ember forms in just 2 minutes!]
   PRINT []
-  
+
   XP [+70]
   FLAG [hand_drill_master]
-  
+
   BRANCH [EMBER-SUCCESS]
 ENDIF
 
@@ -201,10 +201,10 @@ IF [$HAND-DRILL-SKILL >= 12]
   PRINT []
   PRINT [After 10 exhausting minutes, you get an ember.]
   PRINT []
-  
+
   HP [-20]
   XP [+40]
-  
+
   BRANCH [EMBER-SUCCESS]
 ENDIF
 
@@ -236,11 +236,11 @@ ROLL [1d20] → $ROCK-SEARCH
 IF [$ROCK-SEARCH >= 13]
   PRINT [🎲 Search: $ROCK-SEARCH - Found flint and quartzite!]
   PRINT []
-  
+
   XP [+25]
   ITEM [flint]
   ITEM [steel_striker]
-  
+
   BRANCH [FLINT-STRIKE]
 ENDIF
 
@@ -266,10 +266,10 @@ IF [$STRIKING >= 11]
   PRINT []
   PRINT [Hot sparks land in your tinder bundle!]
   PRINT []
-  
+
   XP [+35]
   FLAG [flint_sparks_created]
-  
+
   BRANCH [TINDER-IGNITE]
 ENDIF
 
@@ -296,7 +296,7 @@ IF [$HARD-STRIKE >= 16]
   PRINT []
   PRINT [You manage to get a few weak sparks.]
   PRINT []
-  
+
   XP [+45]
   BRANCH [TINDER-IGNITE]
 ENDIF
@@ -325,10 +325,10 @@ IF [$GEAR-CHECK >= 12]
   PRINT [You touch the battery terminals to steel wool...]
   PRINT [It ignites instantly in a shower of sparks!]
   PRINT []
-  
+
   XP [+30]
   FLAG [battery_fire]
-  
+
   BRANCH [TINDER-IGNITE]
 ENDIF
 
@@ -353,7 +353,7 @@ ROLL [1d20] → $WEATHER-CHECK
 IF [$WEATHER-CHECK >= 15]
   PRINT [🎲 Weather: $WEATHER-CHECK - Perfect sunny conditions!]
   PRINT []
-  
+
   CHOICE [What will you use as a lens?]
     OPTION [Magnifying glass] → BRANCH-MAGNIFY
     OPTION [Ice lens (carved from clear ice)] → BRANCH-ICE-LENS
@@ -394,10 +394,10 @@ IF [$CARVING >= 14]
   PRINT []
   PRINT [The ice lens focuses sunlight beautifully.]
   PRINT []
-  
+
   XP [+60]
   FLAG [ice_lens_mastery]
-  
+
   BRANCH [TINDER-IGNITE]
 ENDIF
 
@@ -447,10 +447,10 @@ IF [$TINDER-SKILL >= 10]
   PRINT []
   PRINT [Flames burst to life in the tinder!]
   PRINT []
-  
+
   XP [+40]
   FLAG [tinder_ignited]
-  
+
   BRANCH [BUILD-FIRE]
 ENDIF
 
@@ -487,10 +487,10 @@ IF [$FIRE-BUILDING >= 12]
   PRINT []
   PRINT [The fire builds steadily, each layer catching well.]
   PRINT []
-  
+
   XP [+50]
   FLAG [fire_established]
-  
+
   BRANCH [VICTORY]
 ENDIF
 
@@ -500,21 +500,21 @@ IF [$FIRE-BUILDING >= 8]
   PRINT [You added too much too fast, smothering flames.]
   PRINT [Quick! Blow on it and remove some fuel!]
   PRINT []
-  
+
   ROLL [1d20] → $RECOVERY
-  
+
   IF [$RECOVERY >= 10]
     PRINT [🎲 Recovery: $RECOVERY - Saved it!]
     PRINT []
     XP [+40]
     BRANCH [VICTORY]
   ENDIF
-  
+
   PRINT [🎲 Recovery: $RECOVERY - Fire went out]
   PRINT []
   PRINT [The fire dies. You'll need to start over.]
   HP [-10]
-  
+
   BRANCH [START]
 ENDIF
 

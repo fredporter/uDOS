@@ -78,20 +78,20 @@ IF [$EXPLORATION-ROLL >= 15]
   PRINT [Success! You rolled $EXPLORATION-ROLL]
   PRINT [You discover a fresh water spring!]
   PRINT []
-  
+
   # Award XP for success
   XP [+50]
-  
+
   # Add item to inventory
   ITEM [water_bottle]
   PRINT [You fill your water bottle from the spring.]
-  
+
   # Set story flag
   FLAG [found_water_source]
-  
+
   # Restore some HP
   HP [+10]
-  
+
   BRANCH [RIVER-SUCCESS]
 ENDIF
 
@@ -150,16 +150,16 @@ IF [$CLIMB-ROLL >= 12]
   PRINT [You reach the summit successfully!]
   PRINT [From here, you can see for miles...]
   PRINT []
-  
+
   XP [+40]
   FLAG [climbed_hill]
-  
+
   PRINT [You spot:]
   PRINT [  • A river to the west]
   PRINT [  • Dense forest to the south]
   PRINT [  • Smoke rising in the distance (northeast)]
   PRINT []
-  
+
   CHOICE [Where do you head next?]
     OPTION [Investigate the smoke] → BRANCH-SMOKE
     OPTION [Head to the river] → BRANCH-RIVER
@@ -194,20 +194,20 @@ IF [$SEARCH-ROLL >= 16]
   XP [+60]
   FLAG [found_shelter]
   ITEM [cabin_key]
-  
+
   PRINT []
   PRINT [Inside the cabin, you find:]
   PRINT [  • A rusty knife]
   PRINT [  • Canned food (3 days worth)]
   PRINT [  • A worn map]
-  
+
   ITEM [rusty_knife]
   ITEM [canned_food]
   ITEM [old_map]
-  
+
   HP [+25]
   PRINT [You rest and recover in the shelter.]
-  
+
   BRANCH [CABIN-FOUND]
 ENDIF
 
@@ -216,7 +216,7 @@ IF [$SEARCH-ROLL >= 10]
   XP [+30]
   FLAG [found_cave]
   HP [+10]
-  
+
   BRANCH [CAVE-FOUND]
 ENDIF
 
@@ -250,14 +250,14 @@ IF [$FIRE-ROLL >= 14]
   PRINT []
   PRINT [Success! The fire roars to life!]
   PRINT [Smoke billows into the sky...]
-  
+
   XP [+45]
   FLAG [built_signal_fire]
-  
+
   PRINT []
   PRINT [After an hour, you see movement in the distance.]
   PRINT [A rescue team has spotted your signal!]
-  
+
   BRANCH [ENDING-RESCUE]
 ENDIF
 
@@ -266,7 +266,7 @@ IF [$FIRE-ROLL >= 8]
   PRINT []
   PRINT [You manage a small fire, but it's not very visible.]
   XP [+20]
-  
+
   CHOICE [The fire is weak. What now?]
     OPTION [Add more wood and wait] → BRANCH-FIRE-WAIT
     OPTION [Give up and explore] → BRANCH-START
@@ -401,7 +401,7 @@ END
 # ============================================================
 # TEMPLATE INSTRUCTIONS
 # ============================================================
-# 
+#
 # Commands Available:
 #   SET [$VAR = value]              - Set variable
 #   PRINT [text with $VARS]         - Display text
@@ -424,11 +424,11 @@ END
 #   SPRITE-INVENTORY, SPRITE-LOCATION
 #   SPRITE-STRENGTH, SPRITE-DEXTERITY
 #   SPRITE-INTELLIGENCE, SPRITE-STAMINA
-#   
+#
 #   STORY-CURRENT, STORY-CHAPTER
 #   STORY-FLAGS, STORY-CHOICES
 #   STORY-QUEST-ACTIVE, STORY-QUEST-COMPLETED
-#   
+#
 # Dice Notation:
 #   1d20      - Roll 1 twenty-sided die
 #   2d6       - Roll 2 six-sided dice

@@ -59,20 +59,13 @@ class MapRenderer:
         self._load_cities()
 
     def _load_cities(self):
-        """Load city data from cities_v2.json."""
-        cities_file = self.project_root / "extensions" / "assets" / "data" / "cities_v2.json"
+        """Load city data from cities.json."""
+        cities_file = self.project_root / "extensions" / "assets" / "data" / "cities.json"
 
         if cities_file.exists():
             with open(cities_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                self.cities = data.get("cities", [])
-        else:
-            # Fallback to cities.json (old format)
-            old_file = self.project_root / "extensions" / "assets" / "data" / "cities.json"
-            if old_file.exists():
-                with open(old_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    self.cities = data if isinstance(data, list) else data.get("cities", [])
+                self.cities = data.get("cities", []) if isinstance(data, dict) else data
 
     def _load_layer(self, layer: int) -> Dict:
         """
