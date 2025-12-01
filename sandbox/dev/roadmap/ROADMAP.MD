@@ -299,9 +299,9 @@ Deliver production-grade logging system, eliminate configuration duplication, en
 **None Critical** ✅
 
 All TODOs are optional future enhancements:
-- User authentication (planned for v1.3.0)
-- Extension marketplace (planned for v1.2.0)
-- Grid enhancements (planned for v1.4.0)
+- User authentication (planned for v1.1.11)
+- Git-based extension contributions (Dev Mode available now)
+- Grid enhancements (planned for v1.1.10)
 
 ### Version Correction Note
 
@@ -412,6 +412,7 @@ Three-round implementation plan for Python-first architecture with comprehensive
 - 📋 [Implementation Rounds](../implementation-rounds-dec-2025.md) - Full task breakdown
 - 🎯 [Quick Reference](../ROUNDS-QUICKREF.md) - Commands and checklists
 - 📝 Progress Tracking: `sandbox/dev/round-<N>-progress.md`
+- 🤖 [Copilot Brief](COPILOT-BRIEF.py) - VS Code Copilot reference for uPY development
 
 ### Development Rounds
 
@@ -547,32 +548,31 @@ cat sandbox/dev/round-<N>-progress.md
 
 ---
 
-## 🎯 v1.2.0 - Extension Marketplace (Q1 2026)
+## 🗺️ v1.1.10 - Grid System Enhancement (Q1 2026)
 
 **Status:** Planned
-**Dependencies:** v1.1.7 (Extension System)
-**Complexity:** High
+**Complexity:** Medium-High
 
 ### Objectives
 
-Build community-driven extension marketplace with ratings, reviews, and one-click installation.
+Enhance TILE code system with interactive navigation, terrain data, and location-based features.
 
 ### Planned Features
 
-- Extension browsing and search
-- Community ratings and reviews
-- Security verification system
-- One-click installation
-- Automatic updates
-- Developer portal
-- Extension analytics
+- Interactive grid navigation
+- Enhanced map rendering
+- Location-based knowledge filtering
+- Grid-based mission system
+- Terrain data integration
+- Subcode positioning
 
 **Timeline:** 4-6 weeks
-**Requires:** Community engagement, security audit
+
+**Priority Rationale:** Builds directly on v1.1.9 variable system (object/sprite data), enhances core gameplay mechanics, provides immediate user value without external dependencies.
 
 ---
 
-## 🚀 v1.3.0 - Multi-User System (Q2 2026)
+## 🚀 v1.1.11 - Multi-User System (Q2 2026)
 
 **Status:** Planned
 **Complexity:** High (security-critical)
@@ -593,31 +593,11 @@ Enable multi-user support with authentication, role-based access, and shared/pri
 **Timeline:** 6-8 weeks
 **Requires:** Security audit, authentication library selection
 
----
-
-## 🗺️ v1.4.0 - Grid System Enhancement (Q2 2026)
-
-**Status:** Planned
-**Complexity:** Medium-High
-
-### Objectives
-
-Enhance TILE code system with interactive navigation, terrain data, and location-based features.
-
-### Planned Features
-
-- Interactive grid navigation
-- Enhanced map rendering
-- Location-based knowledge filtering
-- Grid-based mission system
-- Terrain data integration
-- Subcode positioning
-
-**Timeline:** 4-6 weeks
+**Priority Rationale:** Complex security feature that benefits from stable Grid System (v1.1.10) and core variable system. Enables community features without marketplace infrastructure.
 
 ---
 
-## 📱 v1.5.0 - Mobile/PWA Support (Q3 2026)
+## 📱 v1.1.12 - Mobile/PWA Support (Q2-Q3 2026)
 
 **Status:** Planned
 **Complexity:** Very High
@@ -637,6 +617,29 @@ Progressive Web App implementation for mobile devices with offline-first sync.
 
 **Timeline:** 8-10 weeks
 **Requires:** UI/UX redesign, platform testing
+
+**Priority Rationale:** Major expansion of uDOS accessibility. Requires stable multi-user system (v1.1.11) for sync features.
+
+---
+
+### 🔧 Extension Development Model
+
+uDOS uses a **git-based contribution model** instead of a centralized marketplace:
+
+- **Dev Mode**: Developers enable Dev Mode for local extension development
+- **Git Clone**: Clone the uDOS repository for development
+- **Pull Requests**: Submit extensions via PRs to the main repository
+- **Community Review**: Extensions reviewed by maintainers and community
+- **Distribution**: Approved extensions merged into `extensions/cloned/` or `extensions/bundled/`
+- **Git Branches**: Experimental extensions shared via feature branches
+
+**Why Git Over Marketplace:**
+- Maintains offline-first philosophy
+- No infrastructure overhead (servers, databases, auth)
+- Transparent review process
+- Version control built-in
+- Community-driven curation
+- No security vulnerabilities from untrusted code execution
 
 ---
 
@@ -679,18 +682,24 @@ v2.0.0 = Breaking changes + major redesign (not just improvements)
 
 ### Marked for Removal
 
+**Note:** With v1.1.9's removal of backward compatibility, deprecated features are being phased out aggressively.
+
 **SVG command** - Deprecated in favor of `GENERATE SVG`
-- Still works for backward compatibility
 - Migration guide provided in wiki
-- Removal target: v1.2.0
+- **Removal target: v1.1.10** (Grid System Enhancement)
 
 **Old config_manager.py** - Deprecated in favor of `Config` class
 - Marked with deprecation warning
-- Removal target: v1.2.0
+- **Removal target: v1.1.10** (Grid System Enhancement)
 
 **Legacy uCODE ECHO** - Deprecated in favor of `PRINT`
 - Deprecation warnings in place
-- Removal target: v1.3.0
+- **Removal target: v1.1.11** (Multi-User System)
+
+**.uscript format** - **REMOVED in v1.1.9**
+- Replaced by .upy (Python-compatible format)
+- No backward compatibility
+- Migration: Convert to .upy syntax (UPPERCASE-HYPHEN commands)
 
 ### Objectives
 
@@ -1059,7 +1068,7 @@ Move test/debug themes:
 
 ✅ **Infrastructure**
 - Dual interface (Terminal CLI + Web GUI)
-- Extension system with community marketplace ready
+- Extension system with git-based contribution model
 - 62 wiki pages of documentation (20,000+ lines)
 - Complete test coverage (1,810 tests, 100% passing)
 
