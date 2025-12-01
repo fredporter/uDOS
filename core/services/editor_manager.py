@@ -18,7 +18,7 @@ from pathlib import Path
 class EditorManager:
     """Manages text editors for uDOS CLI and web modes."""
 
-    def __init__(self, user_data_path='sandbox/user.json'):
+    def __init__(self, user_data_path='sandbox/user/user.json'):
         self.user_data_path = user_data_path
         self.extensions_dir = Path('extensions')
         self.native_dir = self.extensions_dir / 'native'

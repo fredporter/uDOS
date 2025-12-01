@@ -156,7 +156,7 @@ Available Commands:
         except Exception as e:
             # Fallback to legacy behavior if planet system not available
             import json
-            config_file = Path("sandbox/user.json")
+            config_file = Path("sandbox/user/user.json")
             if config_file.exists():
                 with open(config_file, 'r') as f:
                     config = json.load(f)
@@ -513,7 +513,7 @@ Examples:
         """Show accessible layers."""
         try:
             import json
-            config_file = Path("sandbox/user.json")
+            config_file = Path("sandbox/user/user.json")
             if config_file.exists():
                 with open(config_file, 'r') as f:
                     config = json.load(f)
@@ -595,7 +595,7 @@ Examples:
         # Get current location
         try:
             import json
-            config_file = Path("sandbox/user.json")
+            config_file = Path("sandbox/user/user.json")
             if config_file.exists():
                 with open(config_file, 'r') as f:
                     config = json.load(f)
