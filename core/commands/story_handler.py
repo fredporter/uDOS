@@ -26,10 +26,11 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 
 from core.services.game.scenario_engine import ScenarioEngine, EventType
-from core.services.game.scenario_service import ScenarioService
+from core.services.game.scenario_service import ScenarioService, ScenarioType
 from core.services.game.xp_service import XPService, XPCategory
 from core.services.game.inventory_service import InventoryService
 from core.services.game.survival_service import SurvivalService
+from core.services.game.upy_adventure_parser import parse_upy_adventure
 
 
 class StoryHandler:
@@ -137,10 +138,12 @@ Integration:
 
         adventure_name = params[0]
         adventure_file = self.adventure_dir / f"{adventure_name}.upy"
+        is_upy = True
 
         if not adventure_file.exists():
             # Try .json extension
             adventure_file = self.adventure_dir / f"{adventure_name}.json"
+            is_upy = False
             if not adventure_file.exists():
                 return (f"❌ Adventure not found: {adventure_name}\n"
                        f"   Looking in: {self.adventure_dir}\n\n"
@@ -148,6 +151,56 @@ Integration:
 
         # Load adventure script
         try:
+            # If .upy file, parse it first
+            if is_upy:
+                if self.logger:
+                    self.logger.info(f"Parsing .upy adventure: {adventure_file}")
+                
+                # Parse .upy to scenario structure
+                parsed_scenario = parse_upy_adventure(str(adventure_file))
+                
+                # Register scenario with metadata from parsed data
+                metadata = parsed_scenario.get('metadata', {})
+                scenario_name = metadata.get('name', adventure_name)
+                
+                # Register if not already exists
+                self.scenario_service.register_scenario(
+                    name=scenario_name,
+                    scenario_type=ScenarioType.STORY,
+                    title=metadata.get('name', adventure_name),
+                    description=metadata.get('description', ''),
+                    difficulty=1,
+                    estimated_minutes=30,
+                    xp_reward=100
+                )
+                
+                # Save parsed scenario as temp JSON for ScenarioEngine
+                temp_json = self.adventure_dir / f".{adventure_name}_parsed.json"
+                with open(temp_json, 'w') as f:
+                    json.dump(parsed_scenario, f, indent=2)
+                
+                adventure_file = temp_json
+                
+                if self.logger:
+                    self.logger.info(f"Parsed {len(parsed_scenario['events'])} events, "
+                                   f"{len(parsed_scenario['labels'])} labels")
+            else:
+                # For JSON files, load and register
+                with open(adventure_file, 'r') as f:
+                    scenario_data = json.load(f)
+                    metadata = scenario_data.get('metadata', {})
+                    scenario_name = metadata.get('name', adventure_name)
+                    
+                    self.scenario_service.register_scenario(
+                        name=scenario_name,
+                        scenario_type=ScenarioType.STORY,
+                        title=metadata.get('title', adventure_name),
+                        description=metadata.get('description', ''),
+                        difficulty=metadata.get('difficulty', 1),
+                        estimated_minutes=metadata.get('estimated_time', 30),
+                        xp_reward=metadata.get('xp_reward', 100)
+                    )
+            
             result = self.scenario_engine.start_scenario_from_script(str(adventure_file))
             if "error" in result:
                 return f"❌ Error loading adventure: {result['error']}"
@@ -155,13 +208,16 @@ Integration:
             self.current_adventure = adventure_name
             self.current_session_id = result.get("session_id")
 
-            return (f"✅ Adventure started!\n"
+            return (f"✅ Adventure started: {adventure_name}\n"
+                   f"   Format: {'.upy' if is_upy else '.json'}\n"
                    f"   Session ID: {self.current_session_id}\n\n"
                    f"💡 Use 'STORY CONTINUE' to begin")
 
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Adventure start error: {e}")
+                import traceback
+                self.logger.error(traceback.format_exc())
             return f"❌ Failed to start adventure: {e}"
 
     def _load_save(self, args: list) -> str:
