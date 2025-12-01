@@ -278,98 +278,31 @@ if python3 -m pip list --outdated 2>/dev/null | grep -q "^pip "; then
 fi
 
 # Check/Install web extensions
-print_status "Checking web extensions..."
-
-# Check micro editor
-if [ -f "extensions/setup/setup_micro.sh" ]; then
-    if [ ! -f "extensions/cloned/micro/micro" ]; then
-        print_warning "micro editor not installed"
-        read -p "Install now? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            bash "extensions/setup/setup_micro.sh"
-        fi
-    else
-        print_success "micro editor ready"
-    fi
-fi
-
-# Check typo editor (requires Node.js)
 if command -v node &> /dev/null; then
-    if [ -f "extensions/setup/setup_typo.sh" ]; then
-        if [ ! -d "extensions/cloned/typo" ]; then
-            print_warning "typo editor not installed"
-            read -p "Install now? (y/N): " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                bash "extensions/setup/setup_typo.sh"
-            fi
-        else
-            print_success "typo editor ready"
-        fi
+    # Quick check only - skip prompts on startup for speed
+    if [ -f "extensions/cloned/micro/micro" ] && [ -d "extensions/cloned/typo" ]; then
+        # Both installed - skip
+        :
+    else
+        print_status "Web extensions available (use POKE to install)"
     fi
 fi
 
-# Check data directories (v2.0: sandbox-based structure)
-print_status "Checking data directories..."
+# Check data directories (v2.0: sandbox-based structure) - silent creation
 for dir in sandbox/logs sandbox/drafts sandbox/workflow sandbox/scripts sandbox/ucode sandbox/tests memory/user memory/planet memory/community memory/shared memory/groups; do
-    if [ ! -d "$dir" ]; then
-        print_warning "Creating directory: $dir"
-        mkdir -p "$dir"
-    fi
-done
-print_success "Data directories verified"
-
-# Check critical data files
-print_status "Checking critical data files..."
-DATA_FILES_OK=1
-for file in "system/commands.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
-    if [ ! -f "knowledge/$file" ]; then
-        print_warning "knowledge/$file not found"
-        DATA_FILES_OK=0
-    fi
+    mkdir -p "$dir" 2>/dev/null
 done
 
-if [ $DATA_FILES_OK -eq 1 ]; then
-    print_success "All critical data files present"
-else
-    print_warning "Some data files missing - will be created on first run"
-fi
+# Skip slow file existence checks - files will be created on first run if needed
 
-# Validate JSON in critical files
-print_status "Validating configuration files..."
-JSON_OK=1
-for file in "system/commands.json" "system/palette.json" "system/themes/dungeon.json" "system/themes/_index.json"; do
-    if [ -f "knowledge/$file" ]; then
-        if ! python3 -c "import json; json.load(open('knowledge/$file'))" 2>/dev/null; then
-            print_error "knowledge/$file has invalid JSON"
-            JSON_OK=0
-        fi
-    fi
-done
-
-if [ $JSON_OK -eq 1 ]; then
-    print_success "Configuration files validated"
-else
-    print_error "Configuration validation failed - run 'python3 -m core.uDOS_health' for details"
-fi
+# Skip JSON validation - Python will handle errors at runtime
 
 # Display startup summary
 echo ""
-echo -e "${CYAN}╔═══════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  ${GREEN}✓ System Check Complete${NC}            ${CYAN}║${NC}"
-echo -e "${CYAN}║${NC}  ${MAGENTA}🤖 OK Assisted Task Mode Ready${NC}         ${CYAN}║${NC}"
-echo -e "${CYAN}╚═══════════════════════════════════════╝${NC}"
-echo ""
-echo -e "${BLUE}Quick Tips:${NC}"
-echo -e "  • Type ${CYAN}HELP${NC} for command reference"
-echo -e "  • Type ${CYAN}OK \"question\"${NC} for OK Assisted Task support"
-echo -e "  • Type ${CYAN}CONFIG list${NC} to view settings"
-echo -e "  • Type ${CYAN}DASH WEB${NC} to open dashboard"
+print_success "System ready"
 echo ""
 
 # Run the main application with any provided arguments
-print_status "Starting uDOS..."
 python uDOS.py "$@"
 
 # Deactivate the virtual environment on exit

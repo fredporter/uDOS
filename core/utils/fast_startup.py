@@ -47,40 +47,56 @@ class FastStartup:
             Dictionary of initialized components
         """
         if self.verbose and not is_script_mode:
-            from core.services.standardized_input import StandardizedInput
-            si = StandardizedInput()
-            si.show_status("Starting uDOS", "info")
+            print("⚙️  Initializing system...", flush=True)
 
         # Step 1: Viewport (cached if available)
+        if self.verbose and not is_script_mode:
+            print("  • Viewport detection", end="", flush=True)
         viewport = self._init_viewport(is_script_mode)
         self.components['viewport'] = viewport
+        if self.verbose and not is_script_mode:
+            print(f" ✓", flush=True)
 
         # Step 2: User profile (required by main)
+        if self.verbose and not is_script_mode:
+            print("  • User profile", end="", flush=True)
         from core.services.user_manager import UserManager
         user_manager = UserManager()
         viewport_data = viewport.get_status_summary()
 
         if user_manager.needs_user_setup():
+            if self.verbose and not is_script_mode:
+                print("", flush=True)  # New line before setup prompts
             user_manager.run_user_setup(interactive=not is_script_mode, viewport_data=viewport_data)
         else:
             user_manager.load_user_profile()
             import time
             session_id = f"session_{int(time.time())}"
             user_manager.update_session_data(session_id, viewport_data)
+            if self.verbose and not is_script_mode:
+                print(f" ✓", flush=True)
 
         self.components['user_manager'] = user_manager
 
         # Step 3: Story/User data (quick load)
+        if self.verbose and not is_script_mode:
+            print("  • Loading configuration", end="", flush=True)
         story_data = self._init_story(is_script_mode)
         self.components['story_data'] = story_data
+        if self.verbose and not is_script_mode:
+            print(f" ✓", flush=True)
 
         # Step 4: Connection (initialize, but don't check unless needed)
+        if self.verbose and not is_script_mode:
+            print("  • Network status", end="", flush=True)
         from core.services.connection_manager import ConnectionMonitor
         connection = ConnectionMonitor()
         # Don't check internet unless explicitly requested (saves time)
         if self.run_health_check:
             connection.check_internet_connection()
         self.components['connection'] = connection
+        if self.verbose and not is_script_mode:
+            print(f" ✓", flush=True)
 
         # Step 5: Optional health check
         if self.run_health_check and not is_script_mode:
