@@ -56,7 +56,7 @@ The dashboard is included in uDOS core extensions. No additional installation ne
    ```
 
 2. **Launch Dashboard**:
-   
+
    **From uDOS CLI:**
    ```bash
    DASH WEB
@@ -124,17 +124,7 @@ Retro-style command-line interface:
 
 Edit `config.json` to customize:
 
-### **Framework Settings**
-```json
-{
-  "frameworks": {
-    "retrocss3": { "enabled": true },
-    "teletext": { "enabled": true },
-    "typography": { "enabled": true }
-  }
-}
-```
-### **Framework Settings**
+### **Server Settings**
 ```json
 {
   "server": {
@@ -161,6 +151,7 @@ Edit `config.json` to customize:
     }
   }
 }
+```
 ## 🌐 API Reference
 
 ### **Dashboard API**
@@ -186,11 +177,8 @@ GET  /api/knowledge/categories - List knowledge categories
 GET  /api/knowledge/:category  - Get guides in category
 GET  /api/config               - Get current configuration
 POST /api/config               - Update configuration
-```*Mobile** (<768px): Single column, sidebar becomes overlay
+```
 
-## 🎵 Retro Authenticity
-
-### **Visual Effects**
 ## 🎵 Retro Authenticity
 
 ### **Visual Effects**
@@ -198,13 +186,7 @@ POST /api/config               - Update configuration
 - 8-bit color palettes from period hardware
 - Pixel-perfect bitmap fonts
 - Classic UI elements (windows, buttons, dialogs)
-The dashboard integrates with the main uDOS system:
 
-### **Command Integration**
-- Execute uDOS commands from dashboard
-- Real-time system data from uDOS core
-- File system access through uDOS API
-- Process monitoring via uDOS services
 ## 🔌 Integration with uDOS
 
 The dashboard integrates seamlessly with uDOS core:
@@ -241,32 +223,32 @@ STATUS
 - Real-time collaboration features
 - Plugin system for custom modules
 - Enhanced knowledge browser with search
+# Check server status
+STATUS
+```
+
+## 🎯 Future Enhancements
+
+### **Planned Features**
+- Mobile app companion (PWA)
+- Real-time collaboration features
+- Plugin system for custom modules
+- Enhanced knowledge browser with search
 - Command builder interface
-- Advanced configuration editor
-- Mobile app companion
-
-### **v1.2 Vision**
-- VR/AR retro computer environment
-- Multiplayer teletext chat
-- Demo scene integration
-- Hardware controller support
-- Time-period accurate animations
-## 📄 License
-
 Part of the uDOS project. Integrates:
 - NES.css (by B.C.Rikko - MIT License)
 - MODE7 fonts (Various licenses)
 - Custom uDOS components (uDOS License)
-- Custom uDOS components (uDOS License)
 
 ## 🤝 Contributing
 
+1. Fork the uDOS repository
+2. Create feature branch: `git checkout -b feature/dashboard-enhancement`
+3. Make changes to `extensions/core/dashboard/`
+4. Test with multiple browsers and screen sizes
+5. Submit pull request with detailed description
+
 ## 🐛 Troubleshooting
-
-### **Common Issues**
-
-**Dashboard won't start**: Check that port 5555 is not in use: `lsof -i :5555`
-
 **Commands not executing**: Verify uDOS core is accessible and Python backend is running
 
 **Fonts not loading**: Check that font files exist in `fonts/` directory
@@ -296,9 +278,3 @@ Check logs in:
 **Made with 💚 for the uDOS community**
 
 *A retro dashboard for offline-first survival computing*
-
----
-
-**Made with 💚 for the retro computing community**
-
-*Experience the future as imagined by the past*
