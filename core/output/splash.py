@@ -11,7 +11,7 @@ def print_splash_screen():
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
     print(splash_text)
-    print("uDOS v2.0.0 - Offline-First Survival OS")
+    print("uDOS v1.1.6 - Offline-First Survival OS")
     print("="*50)
     print("Type HELP for commands | CONFIG LIST for settings")
     print("Syntax: COMMAND [params] or [MODULE|COMMAND*PARAM]")
