@@ -1,32 +1,35 @@
 {
   "command_counts": {
-    "HELP": 15,
-    "DASH": 4,
-    "SHOW": 2,
+    "HELP": 18,
+    "DASH": 6,
+    "SHOW": 3,
     "CONFIG": 4,
     "OUTPUT": 6,
     "SETUP": 2,
     "HISTORY": 1,
-    "STATUS": 2,
+    "STATUS": 3,
     "SHAKEDOWN": 2,
     "ACCESS": 2,
     "ERROR": 3,
-    "LIST": 1,
-    "WIZARD": 1
+    "LIST": 2,
+    "WIZARD": 1,
+    "CATEGORIES": 1,
+    "$1": 1
   },
   "success_counts": {
-    "HELP": 12,
-    "DASH": 3,
-    "SHOW": 2,
+    "HELP": 15,
+    "DASH": 5,
+    "SHOW": 3,
     "CONFIG": 3,
     "OUTPUT": 5,
     "SETUP": 1,
     "HISTORY": 1,
-    "STATUS": 2,
+    "STATUS": 3,
     "SHAKEDOWN": 2,
     "ACCESS": 2,
-    "LIST": 1,
-    "WIZARD": 1
+    "LIST": 2,
+    "WIZARD": 1,
+    "CATEGORIES": 1
   },
   "failure_counts": {
     "OUTPUT": 1,
@@ -34,7 +37,8 @@
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 1,
-    "HELP": 3
+    "HELP": 3,
+    "$1": 1
   },
   "recent_commands": [
     {
@@ -427,7 +431,87 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T14:37:47.153125",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-12-01T14:37:50.858383",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CATEGORIES",
+      "timestamp": "2025-12-01T14:37:55.615184",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T14:37:59.138541",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "$1",
+      "timestamp": "2025-12-01T14:38:04.473173",
+      "params": [],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T14:38:06.886309",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-12-01T14:38:13.815000",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-12-01T14:38:19.485455",
+      "params": [
+        "web"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-12-01T14:38:22.696949",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-12-01T14:38:37.984150",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-01T12:16:11.266427"
+  "last_updated": "2025-12-01T14:38:37.984162"
 }

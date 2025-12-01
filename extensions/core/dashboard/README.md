@@ -1,13 +1,13 @@
-# uDOS Advanced Dashboard
+# uDOS Core Dashboard
 
-A retro-futuristic web dashboard that combines the nostalgic aesthetics of Retro, Teletext, and classic interfaces with modern web technologies.
+A retro-futuristic web dashboard that combines the nostalgic aesthetics of NES.css, Teletext, and classic interfaces with modern web technologies.
 
 ## 🎮 Features
 
 ### **Multi-Framework Integration**
-- **Retro CSS3**: Authentic retro styling with pixel-perfect fonts and color schemes
+- **NES.css**: Authentic 8-bit NES styling with pixel-perfect fonts and color schemes
 - **Teletext Framework**: BBC Teletext-inspired data presentation with mosaic graphics
-- **Typography System**: 15+ classic computer fonts with 8 themed configurations
+- **Typography System**: Classic computer fonts with themed configurations
 - **Responsive Design**: Adapts from desktop to mobile while maintaining retro authenticity
 
 ### **Real-Time Monitoring**
@@ -15,125 +15,110 @@ A retro-futuristic web dashboard that combines the nostalgic aesthetics of Retro
 - Network activity tracking
 - Process monitoring
 - Live system logs
-- Temperature and load monitoring
+- uDOS command execution
 
-### **Interactive Modules** (8 Core Modules)
+### **Interactive Modules**
 1. **System Monitor** - Real-time CPU, memory, and disk usage tracking
 2. **Process Manager** - Active process monitoring and management
-3. **Network Analyzer** - Upload/download speeds, connections, packet analysis
-4. **File Browser** - Integrated file system navigation and management
-5. **Terminal Emulator** - Retro-style command line interface with authentic commands
-6. **Retro Simulator** - Authentic retro BASIC command processing
-7. **Teletext Decoder** - BBC Teletext page decoding and data stream visualization
-8. **System7 Interface** - Classic Macintosh window management and file operations
+3. **Network Analyzer** - Upload/download speeds, connections
+4. **File Browser** - Integrated file system navigation
+5. **Terminal Emulator** - Retro-style command line interface
+6. **Command Center** - Execute uDOS commands directly
+7. **Knowledge Browser** - Access uDOS knowledge bank
+8. **Configuration Panel** - Manage uDOS settings
 
 ### **Visual Effects**
-- Authentic CRT scanlines and glow effects
+- Authentic NES-style pixel graphics
 - Animated data streams
-- Rainbow color cycling
 - Pixel-perfect retro fonts
 - Smooth transitions with period-appropriate styling
 
 ## 🚀 Installation
 
-1. **Framework Setup** (optional - uses shared assets by default):
-   ```bash
-   # Retro CSS3 framework (based on C64 CSS3 by RoelN)
-   cd /Users/fredbook/Code/uDOS/extensions/cloned
-   git clone https://github.com/RoelN/c64css3.git retrocss3
-   ```
+The dashboard is included in uDOS core extensions. No additional installation needed.
 
-2. **Verify File Structure**:
+1. **Verify File Structure**:
    ```
-   extensions/web/advanced-dashboard/
+   extensions/core/dashboard/
    ├── index.html              # Main dashboard interface
    ├── dashboard-api.js        # Core API and module system
+   ├── dashboard-builder.js    # Dashboard builder interface
+   ├── dashboard-styles.css    # Core styling
    ├── config.json            # Configuration settings
-   └── README.md              # This file
-
-   extensions/cloned/retrocss3/  # Retro CSS3 framework (C64-inspired)
-   ├── css.css                # Retro styling
-   ├── Retro_User_Mono_v1.0-STYLE.*  # Retro fonts
-   └── giana.*                # Additional retro fonts
-
-   extensions/core/teletext/   # Teletext framework
-   ├── teletext-enhanced.css   # Teletext styling
-   ├── teletext-api.js        # Teletext API
-   └── fonts/MODE7GX3.TTF     # Teletext font
-
-   extensions/web/system7-css/ # System 7 framework
-   ├── system7.css            # Classic Mac styling
-   ├── system7.js             # Window management system
-   ├── index.html             # Demo page
-   └── README.md              # Framework documentation
+   ├── manifest.json          # Extension manifest
+   ├── app.py                 # Python Flask backend
+   ├── start.sh               # Startup script
+   ├── static/                # Static assets
+   ├── routes/                # API routes
+   ├── server/                # Server components
+   ├── services/              # Backend services
+   └── fonts/                 # Retro fonts
    ```
 
-3. **Launch Dashboard**:
+2. **Launch Dashboard**:
+   
+   **From uDOS CLI:**
    ```bash
-   cd /Users/fredbook/Code/uDOS/extensions/web
-   python3 -m http.server 8080
-   # Then open: http://localhost:8080/advanced-dashboard/
+   DASH WEB
+   # or
+   OUTPUT START dashboard
    ```
 
-## 🎨 Multiple Retro Themes
+   **Manual Start:**
+   ```bash
+   cd /Users/fredbook/Code/uDOS/extensions/core/dashboard
+   ./start.sh
+   # Then open: http://localhost:5555
+   ```
+
+## 🎨 Retro Themes
 
 ### **Theme Support**
-- **Retro Classic** - Classic uDOS green-on-dark aesthetic
-- **Retro** - Authentic retro blue color scheme with pixel fonts
-- **Teletext** - BBC Teletext-inspired data visualization with MODE7 fonts
-- **System 7** - Classic Macintosh interface with authentic window chrome and Geneva/Chicago fonts
-- **Modern Dark** - Contemporary dark theme for modern sensibilities
+- **NES Classic** - Authentic 8-bit NES aesthetic with pixel fonts
+- **Teletext** - BBC Teletext-inspired data visualization
+- **uDOS Foundation** - Classic uDOS green-on-dark theme
+- **Galaxy** - Space-themed dark interface
+- **Science** - Technical/scientific aesthetic
 
 ### **Theme Features**
-- **Seamless Switching** - Cycle through themes with the Theme button or Ctrl+T
-- **Framework Integration** - Each theme integrates with corresponding CSS frameworks
-- **Authentic Typography** - Period-accurate fonts and styling for each theme
-- **Interactive Elements** - Theme-specific buttons, windows, and UI controls
+- **Seamless Switching** - Cycle through themes with the Theme button
+- **Authentic Typography** - Period-accurate fonts for each theme
+- **Interactive Elements** - Theme-specific buttons and UI controls
 
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
 | `Ctrl+T` | Cycle themes |
-| `Alt+1` | System Monitor |
-| `Alt+2` | Process Manager |
-| `Alt+3` | Network Analyzer |
-| `Alt+4` | Terminal |
-| `Alt+5` | Retro Simulator |
-| `Alt+6` | Teletext Decoder |
-| `Alt+7` | System 7 Interface |
-| `Alt+8` | File Browser |
-| `Alt+9` | Performance Tracker |
 | `F1` | Help |
+| `F5` | Refresh data |
+| `Ctrl+K` | Command palette |
 
 ## 🖥️ Modules
 
 ### **System Monitor**
 Real-time system performance with animated progress bars and live metrics.
 
-### **Retro Simulator**
-Working retro BASIC interpreter supporting:
-- `LIST` - Show program listing
-- `RUN` - Execute program
-- `LOAD` - Load programs
-- `CATALOG` - Show directory
-- `SYS 64738` - Memory info
-- `HELP` - Command reference
-
-### **Teletext Decoder**
-Multi-page information system:
-- Page 100: Main menu
-- Page 101: System status
-- Page 102: News & updates
-- Page 200: Weather data
-- Page 300: Sports results
-
-### **Terminal Emulator**
-Command-line interface with:
-- Retro styling
+### **Command Center**
+Execute uDOS commands directly from the dashboard:
 - Command history
 - Syntax highlighting
-- Integration with uDOS commands
+- Real-time output
+- Integration with uDOS core
+
+### **Knowledge Browser**
+Access the uDOS knowledge bank:
+- Browse categories (water, fire, shelter, food, navigation, medical)
+- Search knowledge base
+- View guides with proper formatting
+- Quick reference cards
+
+### **Terminal Emulator**
+Retro-style command-line interface:
+- Full uDOS command support
+- Command history
+- Autocomplete
+- Color-coded output
 
 ## 🔧 Configuration
 
@@ -149,6 +134,18 @@ Edit `config.json` to customize:
   }
 }
 ```
+### **Framework Settings**
+```json
+{
+  "server": {
+    "port": 5555,
+    "host": "localhost"
+  },
+  "themes": {
+    "default": "nes-classic"
+  }
+}
+```
 
 ### **Module Configuration**
 ```json
@@ -156,26 +153,14 @@ Edit `config.json` to customize:
   "modules": {
     "system-monitor": {
       "enabled": true,
-      "hotkey": "Alt+1"
+      "refresh_rate": 1000
+    },
+    "knowledge-browser": {
+      "enabled": true,
+      "categories": ["water", "fire", "shelter", "food", "navigation", "medical"]
     }
   }
 }
-```
-
-### **Theme Customization**
-```json
-{
-  "themes": {
-    "custom": {
-      "colors": {
-        "primary": "#custom-color",
-        "secondary": "#another-color"
-      }
-    }
-  }
-}
-```
-
 ## 🌐 API Reference
 
 ### **Dashboard API**
@@ -183,53 +168,36 @@ Edit `config.json` to customize:
 // Initialize dashboard
 await DashboardAPI.init();
 
-// Load module
-const module = await DashboardAPI.loadModule('system-monitor');
-
-// Change theme
-DashboardAPI.applyTheme('c64');
+// Execute uDOS command
+const result = await DashboardAPI.executeCommand('HELP');
 
 // Get system metrics
-const metrics = DashboardAPI.modules.get('system-monitor').api.getCPUUsage();
+const metrics = await DashboardAPI.getSystemMetrics();
+
+// Browse knowledge
+const guides = await DashboardAPI.getKnowledgeCategory('water');
 ```
 
-### **Module Development**
-```javascript
-// Create custom module
-const customModule = {
-  name: 'my-module',
-  api: {
-    customFunction: () => 'Hello from custom module!'
-  }
-};
-
-DashboardAPI.modules.set('my-module', customModule);
+### **Backend API Endpoints**
 ```
-
-## 📱 Responsive Design
-
-The dashboard automatically adapts to different screen sizes:
-
-- **Desktop** (1200px+): Full 3-column layout with all panels
-- **Tablet** (768-1200px): 2-column layout, right panel hidden
-- **Mobile** (<768px): Single column, sidebar becomes overlay
+GET  /api/system/metrics      - Get system performance data
+POST /api/command/execute     - Execute uDOS command
+GET  /api/knowledge/categories - List knowledge categories
+GET  /api/knowledge/:category  - Get guides in category
+GET  /api/config               - Get current configuration
+POST /api/config               - Update configuration
+```*Mobile** (<768px): Single column, sidebar becomes overlay
 
 ## 🎵 Retro Authenticity
 
 ### **Visual Effects**
-- CRT scanlines with configurable intensity
-- Phosphor glow on text elements
-- Authentic color palettes from period hardware
+## 🎵 Retro Authenticity
+
+### **Visual Effects**
+- Authentic NES-style pixel graphics
+- 8-bit color palettes from period hardware
 - Pixel-perfect bitmap fonts
-
-### **Sound Effects** (Future Enhancement)
-- Retro SID chip sound emulation
-- Teletext page loading sounds
-- Terminal beep sounds
-- Authentic system startup sounds
-
-## 🔌 Integration with uDOS
-
+- Classic UI elements (windows, buttons, dialogs)
 The dashboard integrates with the main uDOS system:
 
 ### **Command Integration**
@@ -237,37 +205,44 @@ The dashboard integrates with the main uDOS system:
 - Real-time system data from uDOS core
 - File system access through uDOS API
 - Process monitoring via uDOS services
+## 🔌 Integration with uDOS
+
+The dashboard integrates seamlessly with uDOS core:
+
+### **Command Integration**
+- Execute any uDOS command from dashboard
+- Real-time command output streaming
+- Command history and autocomplete
+- Full access to uDOS functionality
 
 ### **Data Sources**
-- Live system metrics
-- Process information
-- Network statistics
-- Log file monitoring
+- Live system metrics from uDOS core
+- Knowledge bank integration (6 categories, 136+ guides)
 - Configuration management
+- File system access
+- Process monitoring via uDOS services
 
-## 🚀 Performance
+### **Server Management**
+Start/stop from uDOS:
+```bash
+# Start dashboard server
+OUTPUT START dashboard
+DASH WEB
 
-### **Optimization Features**
-- Lazy loading of modules
-- Efficient data streaming
-- Minimal DOM manipulation
-- CSS animations over JavaScript
-- Debounced update cycles
+# Stop dashboard server
+OUTPUT STOP dashboard
 
-### **Browser Compatibility**
-- Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
-- ES6+ features required
-- WebGL for advanced effects (optional)
-- Local storage for preferences
-
+# Check server status
+STATUS
 ## 🎯 Future Enhancements
 
-### **v1.1 Planned Features**
-- Sound effects and audio feedback
-- More teletext pages and data sources
-- Advanced retro program support
+### **Planned Features**
+- Mobile app companion (PWA)
+- Real-time collaboration features
 - Plugin system for custom modules
-- WebSocket real-time updates
+- Enhanced knowledge browser with search
+- Command builder interface
+- Advanced configuration editor
 - Mobile app companion
 
 ### **v1.2 Vision**
@@ -276,41 +251,51 @@ The dashboard integrates with the main uDOS system:
 - Demo scene integration
 - Hardware controller support
 - Time-period accurate animations
-
 ## 📄 License
 
 Part of the uDOS project. Integrates:
-- Retro CSS3 (based on C64 CSS3 by Roel Nieskens - MIT License)
-- Arcade styling (based on NES.css by B.C.Rikko - MIT License)
+- NES.css (by B.C.Rikko - MIT License)
 - MODE7 fonts (Various licenses)
+- Custom uDOS components (uDOS License)
 - Custom uDOS components (uDOS License)
 
 ## 🤝 Contributing
-
-1. Fork the uDOS repository
-2. Create feature branch: `git checkout -b feature/dashboard-enhancement`
-3. Make changes to `extensions/web/advanced-dashboard/`
-4. Test with multiple browsers and screen sizes
-5. Submit pull request with detailed description
 
 ## 🐛 Troubleshooting
 
 ### **Common Issues**
 
-**Fonts not loading**: Check that font files exist in `../retrocss3/` and `../teletext/fonts/`
+**Dashboard won't start**: Check that port 5555 is not in use: `lsof -i :5555`
 
-**Modules not working**: Verify `dashboard-api.js` is loaded and no console errors
+**Commands not executing**: Verify uDOS core is accessible and Python backend is running
 
-**Layout broken**: Check browser compatibility and screen resolution
+**Fonts not loading**: Check that font files exist in `fonts/` directory
 
-**Performance issues**: Disable animations in config.json, reduce update frequency
+**Layout broken**: Check browser compatibility (Chrome 80+, Firefox 75+, Safari 13+)
 
 ### **Debug Mode**
-Add `?debug=true` to URL for:
-- Console logging
-- Performance metrics
-- Module status display
-- API call tracing
+Set in `config.json`:
+```json
+{
+  "debug": true,
+  "logging": {
+    "level": "DEBUG",
+    "console": true
+  }
+}
+```
+
+### **Server Logs**
+Check logs in:
+- `sandbox/logs/dashboard-server.log`
+- Browser console (F12)
+- Terminal output when running `./start.sh`
+
+---
+
+**Made with 💚 for the uDOS community**
+
+*A retro dashboard for offline-first survival computing*
 
 ---
 

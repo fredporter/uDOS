@@ -15,25 +15,25 @@ uDOS/
 │   ├── commands/
 │   │   ├── assets_handler.py
 │   │   ├── assistant_handler.py
-│   │   ├── bank_handler.py
 │   │   ├── barter_commands.py
 │   │   ├── base_handler.py
 │   │   ├── cmd_config_planet.py
-│   │   ├── cmd_knowledge.py
 │   │   ├── cmd_locate.py
 │   │   ├── community_commands.py
 │   │   ├── configuration_handler.py
 │   │   ├── dashboard_handler.py
+│   │   ├── debug_handler.py
 │   │   ├── diagram_handler.py
+│   │   ├── display_handler.py
 │   │   ├── doc_handler.py
 │   │   ├── docs_unified_handler.py
 │   │   ├── draw_handler.py
 │   │   ├── example_handler.py
 │   │   ├── feedback_handler.py
 │   │   ├── file_handler.py
+│   │   ├── generate_handler.py
 │   │   ├── guide_handler.py
 │   │   ├── handbook_handler.py
-│   │   ├── knowledge_commands.py
 │   │   ├── learn_unified_handler.py
 │   │   ├── logs_handler.py
 │   │   ├── manual_handler.py
@@ -43,11 +43,11 @@ uDOS/
 │   │   ├── panel_handler.py
 │   │   ├── peek_handler.py
 │   │   ├── private_commands.py
-│   │   ├── refresh_command.py
 │   │   ├── repair_handler.py
 │   │   ├── resource_handler.py
 │   │   ├── sandbox_handler.py
 │   │   ├── schedule_handler.py
+│   │   ├── session_handler.py
 │   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
 │   │   ├── svg_handler.py
@@ -116,6 +116,7 @@ uDOS/
 │   │   ├── locations.json
 │   │   ├── resource-config.json
 │   │   ├── ucode_variables.json
+│   │   ├── universe.json
 │   │   ├── usage_tracker.json
 │   │   └── viewport.json
 │   ├── docs/
@@ -179,7 +180,6 @@ uDOS/
 │   │   ├── graphics_compositor.py
 │   │   ├── graphics_library.py
 │   │   ├── help_manager.py
-│   │   ├── history.py
 │   │   ├── history_manager.py
 │   │   ├── input_manager.py
 │   │   ├── intelligent_error_handler.py
@@ -198,11 +198,13 @@ uDOS/
 │   │   ├── sharing_service.py
 │   │   ├── standardized_input.py
 │   │   ├── user_manager.py
+│   │   ├── vectorizer.py
 │   │   └── viewport_manager.py
 │   ├── ui/
 │   │   ├── __init__.py
 │   │   ├── file_picker.py
 │   │   ├── knowledge_file_picker.py
+│   │   ├── map_renderer.py
 │   │   ├── option_selector.py
 │   │   ├── picker.py
 │   │   ├── progress_indicators.py
@@ -218,6 +220,7 @@ uDOS/
 │   │   ├── files.py
 │   │   ├── fuzzy_matcher.py
 │   │   ├── generate_world_map.uscript
+│   │   ├── grid_utils.py
 │   │   ├── lazy_loader.py
 │   │   ├── map_painter.uscript
 │   │   ├── path_validator.py
@@ -235,7 +238,6 @@ uDOS/
 │   │   └── viewport_viz.py
 │   ├── __init__.py
 │   ├── config.py
-│   ├── config_manager.py
 │   ├── README.md
 │   ├── theme_builder.py
 │   ├── theme_loader.py
@@ -254,17 +256,18 @@ uDOS/
 │   │   ├── data/
 │   │   │   ├── worldmap/
 │   │   │   ├── cities.json
+│   │   │   ├── cities_v2.json
 │   │   │   ├── climate.json
 │   │   │   ├── countries.json
 │   │   │   ├── credits.json
 │   │   │   ├── imperial.json
+│   │   │   ├── map_layer_100.json
 │   │   │   ├── metric.json
 │   │   │   ├── terrain.json
 │   │   │   ├── terrain_types.json
 │   │   │   ├── tile_schema.json
 │   │   │   ├── timezones.json
-│   │   │   ├── tzone.json
-│   │   │   └── universe.json
+│   │   │   └── tzone.json
 │   │   ├── fonts/
 │   │   │   ├── chicago/
 │   │   │   ├── mallard/
@@ -287,6 +290,10 @@ uDOS/
 │   │   ├── icons/
 │   │   │   ├── coreui/
 │   │   │   └── README.md
+│   │   ├── styles/
+│   │   │   ├── hand-illustrative/
+│   │   │   ├── hybrid/
+│   │   │   └── technical-kinetic/
 │   │   ├── CREDITS.md
 │   │   └── README.md
 │   ├── bundled/
@@ -394,6 +401,7 @@ uDOS/
 │   │   │   ├── inventory_service.py
 │   │   │   ├── map_data_manager.py
 │   │   │   ├── map_engine.py
+│   │   │   ├── map_engine_old.py
 │   │   │   ├── scenario_engine.py
 │   │   │   ├── scenario_service.py
 │   │   │   ├── survival_service.py
@@ -430,8 +438,9 @@ uDOS/
 │   ├── README.md
 │   └── structure.txt
 ├── sandbox/
-│   └── peek/
-│       └── .gitkeep
+│   ├── peek/
+│   │   └── .gitkeep
+│   └── sessions/
 ├── .env.example
 ├── .gitignore
 ├── CHANGELOG.md
