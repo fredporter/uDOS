@@ -245,41 +245,41 @@ Integration:
                 save_data = json.load(f)
 
             adventure_name = save_data.get('adventure')
-            
+
             # Restart the adventure
             adventure_file = self.adventure_dir / f"{adventure_name}.upy"
             is_upy = adventure_file.exists()
-            
+
             if not is_upy:
                 adventure_file = self.adventure_dir / f"{adventure_name}.json"
                 if not adventure_file.exists():
                     return f"❌ Adventure file not found: {adventure_name}"
-            
+
             # Load and parse adventure
             if is_upy:
                 from core.services.game.upy_adventure_parser import parse_upy_adventure
                 parsed_scenario = parse_upy_adventure(str(adventure_file))
-                
+
                 # Save parsed scenario as temp JSON for ScenarioEngine
                 temp_json = self.adventure_dir / f".{adventure_name}_loaded.json"
                 with open(temp_json, 'w') as f:
                     json.dump(parsed_scenario, f, indent=2)
-                
+
                 adventure_file = temp_json
-            
+
             # Start scenario
             result = self.scenario_engine.start_scenario_from_script(str(adventure_file))
-            
+
             if "error" in result:
                 return f"❌ Failed to load adventure: {result['error']}"
-            
+
             self.current_adventure = adventure_name
             self.current_session_id = result.get("session_id")
-            
+
             # Restore game state
             from core.services.game.survival_service import SurvivalStat
             from core.services.game.inventory_service import ItemCategory
-            
+
             # Restore stats
             stats = save_data.get('stats', {})
             for stat_name, value in stats.items():
@@ -291,14 +291,14 @@ Integration:
                     self.survival_service.set_stat(SurvivalStat.HUNGER, value, "Load save")
                 elif stat_name == 'fatigue':
                     self.survival_service.set_stat(SurvivalStat.FATIGUE, value, "Load save")
-            
+
             # Restore XP (approximate by awarding difference)
             saved_xp = save_data.get('xp', 0)
             current_xp = self.xp_service.get_total_xp()
             if saved_xp > current_xp:
                 from core.services.game.xp_service import XPCategory
                 self.xp_service.award_xp(XPCategory.INFORMATION, saved_xp - current_xp, "Load save")
-            
+
             # Restore inventory
             inventory_data = save_data.get('inventory', [])
             for item in inventory_data:
@@ -306,22 +306,22 @@ Integration:
                     cat = ItemCategory[item['category'].upper()]
                 except KeyError:
                     cat = ItemCategory.MISC
-                
+
                 self.inventory_service.add_item(
                     name=item['name'],
                     category=cat,
                     quantity=item['quantity'],
                     weight=item.get('weight', 0.5)
                 )
-            
+
             # Restore scenario position
             scenario_state = save_data.get('scenario', {})
             event_index = scenario_state.get('event_index', 0)
             self.scenario_engine.event_index = event_index
-            
+
             timestamp = save_data.get('timestamp', 'Unknown')
             total_events = scenario_state.get('total_events', 0)
-            
+
             return (f"📂 Loaded save: {save_name}\n"
                    f"   Adventure: {adventure_name}\n"
                    f"   Saved: {timestamp[:19]}\n"
@@ -347,7 +347,7 @@ Integration:
             save_name = f"{self.current_adventure}_{timestamp}"
         else:
             save_name = args[0]
-        
+
         # Ensure .json extension
         if not save_name.endswith('.json'):
             save_name += '.json'
@@ -357,17 +357,17 @@ Integration:
         try:
             # Collect game state
             from core.services.game.survival_service import SurvivalStat
-            
+
             # Get survival stats
             stats = {}
-            for stat in [SurvivalStat.HEALTH, SurvivalStat.THIRST, 
+            for stat in [SurvivalStat.HEALTH, SurvivalStat.THIRST,
                         SurvivalStat.HUNGER, SurvivalStat.FATIGUE]:
                 stat_data = self.survival_service.get_stat(stat)
                 stats[stat.value] = stat_data.get('current', 0)
-            
+
             # Get XP
             total_xp = self.xp_service.get_total_xp()
-            
+
             # Get inventory
             inventory = self.inventory_service.get_inventory("Personal Inventory")
             inventory_data = []
@@ -378,14 +378,14 @@ Integration:
                     'quantity': item['quantity'],
                     'weight': item['weight']
                 })
-            
+
             # Get scenario state
             scenario_state = {
                 'event_index': self.scenario_engine.event_index,
                 'total_events': len(self.scenario_engine.current_events),
                 'has_choice': self.current_choice_options is not None
             }
-            
+
             save_data = {
                 'adventure': self.current_adventure,
                 'session_id': self.current_session_id,

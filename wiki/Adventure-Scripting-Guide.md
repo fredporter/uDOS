@@ -996,6 +996,6 @@ OBJECT
 
 ---
 
-**Version:** 2.0.0 (Round 2)  
-**Last Updated:** Dec 2024  
+**Version:** 2.0.0 (Round 2)
+**Last Updated:** Dec 2024
 **Maintainer:** uDOS Team

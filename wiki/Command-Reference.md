@@ -1400,7 +1400,7 @@ STORY LOAD <name>
 ✅ Adventure started: first-steps
    Format: .upy
    Session ID: 42
-   
+
 📊 Player stats initialized
 💡 Use 'STORY CONTINUE' to begin
 
@@ -1450,7 +1450,7 @@ Status:    Active
    Adventure: first-steps
    Saved: 2024-12-02 14:23:15
    Progress: 18/30 events
-   
+
 💡 Use 'STORY STATUS' to check state
 💡 Use 'STORY CONTINUE' to resume
 ```
@@ -1611,8 +1611,8 @@ handler.handle('LOAD', ['my-save'])
 
 **uCODE**: `[STORY|START*first-steps]`, `[STORY|CONTINUE]`, `[STORY|CHOICE*1]`
 
-**Status**: ✅ Complete (v2.0.0 - Round 2)  
-**Tests**: 32 passing (integration + save/load)  
+**Status**: ✅ Complete (v2.0.0 - Round 2)
+**Tests**: 32 passing (integration + save/load)
 **Examples**: `sandbox/ucode/adventures/first-steps.upy` (280 lines, 30 events)
 
 ---
