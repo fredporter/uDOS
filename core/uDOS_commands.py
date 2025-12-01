@@ -404,6 +404,10 @@ class CommandHandler:
             elif module == "SANDBOX":
                 return self.sandbox_handler.handle(command, params)
 
+            # v1.1.8 - EXTENSION Management (Extension Polish)
+            elif module == "EXTENSION" or module == "EXT":
+                return self.extension_handler.handle_command([command] + params)
+
             # v1.1.2 - Mission Control & Workflow Automation
             elif module == "MISSION":
                 # Reconstruct command line for mission handler
