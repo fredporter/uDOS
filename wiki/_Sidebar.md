@@ -25,6 +25,7 @@
 ## 📖 User Guides
 - **[Command Reference](Command-Reference)** - All commands
 - **[Tutorial: Getting Started](Tutorial-Getting-Started)** - Interactive tutorial
+- **[Tutorial: Nano Banana](Tutorial-Nano-Banana)** ⭐ v1.1.7 - SVG generation quick start
 - **[TILE Commands](TILE-Commands)** ⭐ NEW - Geographic reference system
 - **[Debugging Guide](Debugging-Guide)** ⭐ NEW - Interactive debugger
 - **[Troubleshooting](Troubleshooting-Complete)** - Fix common issues
@@ -34,7 +35,8 @@
 - **[uCODE Syntax Quick Reference](uCODE-Syntax-Quick-Reference)** ⭐ NEW - v1.1.1 modern syntax
 - **[Knowledge System](Knowledge-System)** ⭐ NEW - 4-tier knowledge bank & organization
 - **[Content Curation](Content-Curation)** ⭐ NEW - Building knowledge commons
-- **[SVG Graphics](SVG-Command-Reference)** ⭐ NEW - v1.1.5 - Vector diagram generation
+- **[Nano Banana Integration](Nano-Banana-Integration)** ⭐ v1.1.7 - PNG→SVG pipeline (complete)
+- **[SVG Graphics](SVG-Command-Reference)** - v1.1.5 legacy (deprecated)
   - [SVG Example Gallery](SVG-Example-Gallery) - Visual examples & use cases
   - [SVG Developer Guide](SVG-Extension-Developer-Guide) - Extension development
 - [Mapping System](Mapping-System) - Navigation
@@ -108,7 +110,7 @@ The knowledge/ directory contains:
 
 ---
 
-**Current Version**: v1.0.0 (First Stable Public Release)
-**Last Wiki Update**: November 26, 2025
+**Current Version**: v1.1.7 (Nano Banana Complete)
+**Last Wiki Update**: December 1, 2025
 
 ⭐ = Featured guide

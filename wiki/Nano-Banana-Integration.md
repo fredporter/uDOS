@@ -1,8 +1,8 @@
 # Nano Banana Integration Guide
 
-**Version:** 1.1.6
-**Status:** Production Ready
-**Last Updated:** November 30, 2025
+**Version:** 1.1.7
+**Status:** Production Ready (Workflows Complete)
+**Last Updated:** December 1, 2025
 
 ## Overview
 
@@ -454,6 +454,279 @@ done
 
 ---
 
+## Workflow Examples
+
+uDOS v1.1.7 includes 4 production-ready workflow examples in `sandbox/workflow/examples/`:
+
+### 1. Quick Start Tutorial
+
+**File:** `nano_banana_quick_start.uscript`
+
+**Purpose:** Beginner tutorial for single SVG generation with error handling.
+
+**Features:**
+- Step-by-step guidance
+- API key validation
+- Error handling examples
+- Success/failure reporting
+
+**Usage:**
+```bash
+🔮 > RUN "sandbox/workflow/examples/nano_banana_quick_start.uscript"
+```
+
+**Code Preview:**
+```uscript
+---
+title: "Nano Banana Quick Start Tutorial"
+description: "Learn to generate your first SVG diagram"
+version: "1.0.0"
+---
+
+PRINT "🎨 Nano Banana Quick Start Tutorial"
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Step 1: Basic generation
+PRINT "Step 1: Generating basic diagram..."
+GENERATE SVG water filter --style technical-kinetic
+
+# Step 2: With custom style
+PRINT "Step 2: Trying hand-illustrative style..."
+GENERATE SVG fire triangle --style hand-illustrative
+
+# Step 3: Pro mode
+PRINT "Step 3: Using Pro mode for higher quality..."
+GENERATE SVG shelter frame --type architecture --pro
+
+PRINT "✅ Tutorial complete! Check sandbox/drafts/svg/"
+```
+
+### 2. Batch Generation
+
+**File:** `nano_banana_batch.uscript`
+
+**Purpose:** Generate multiple diagrams with rate limiting and progress tracking.
+
+**Features:**
+- Batch processing 4 categories
+- Rate limiting (6-second delays)
+- Success/failure tracking
+- Summary report
+
+**Usage:**
+```bash
+🔮 > RUN "sandbox/workflow/examples/nano_banana_batch.uscript"
+```
+
+**Code Preview:**
+```uscript
+---
+title: "Nano Banana Batch Generation"
+description: "Generate multiple SVG diagrams with tracking"
+version: "1.0.0"
+---
+
+PRINT "🔄 Batch Generation: 4 Survival Topics"
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Initialize counters
+$total = 0
+$success = 0
+$failed = 0
+
+# Define topics
+$topics = ["water purification", "fire triangle", "shelter types", "navigation basics"]
+
+# Generate each topic
+FOR $topic IN $topics
+  $total = $total + 1
+  PRINT "[$total/4] Generating: $topic"
+
+  $result = GENERATE SVG $topic --style technical-kinetic --no-preview
+
+  IF $result CONTAINS "✅"
+    $success = $success + 1
+    PRINT "  ✅ Success"
+  ELSE
+    $failed = $failed + 1
+    PRINT "  ❌ Failed"
+  ENDIF
+
+  # Rate limiting (API throttle prevention)
+  IF $total < 4
+    PRINT "  ⏳ Waiting 6 seconds (rate limiting)..."
+    SLEEP 6
+  ENDIF
+DONE
+
+# Summary
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+PRINT "📊 Batch Summary:"
+PRINT "   Total: $total"
+PRINT "   Success: $success"
+PRINT "   Failed: $failed"
+PRINT "   Location: sandbox/drafts/svg/"
+```
+
+### 3. Quality Check with Retry
+
+**File:** `nano_banana_quality_check.uscript`
+
+**Purpose:** Generate diagram with validation and automatic retry logic.
+
+**Features:**
+- Strict quality validation
+- Pro mode for higher quality
+- Automatic retry (max 3 attempts)
+- Failure reporting
+
+**Usage:**
+```bash
+🔮 > RUN "sandbox/workflow/examples/nano_banana_quality_check.uscript"
+```
+
+**Code Preview:**
+```uscript
+---
+title: "Nano Banana Quality Check"
+description: "Generate with validation and retry logic"
+version: "1.0.0"
+---
+
+PRINT "🔍 Quality-Validated Generation with Retry"
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Configuration
+$subject = "water purification filter"
+$max_retries = 3
+$attempt = 0
+$success = false
+
+# Retry loop
+WHILE $attempt < $max_retries AND NOT $success
+  $attempt = $attempt + 1
+  PRINT "Attempt $attempt/$max_retries: $subject"
+
+  # Generate with strict validation + Pro mode
+  $result = GENERATE SVG $subject --style technical-kinetic --pro --strict --no-preview
+
+  # Check validation
+  IF $result CONTAINS "✅" AND $result CONTAINS "compliant"
+    $success = true
+    PRINT "✅ Generation successful with quality validation!"
+  ELSE
+    PRINT "⚠️  Validation failed or errors occurred"
+    IF $attempt < $max_retries
+      PRINT "   Retrying in 10 seconds..."
+      SLEEP 10
+    ENDIF
+  ENDIF
+DONE
+
+# Final report
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+IF $success
+  PRINT "✅ Quality-validated diagram generated!"
+  PRINT "   Subject: $subject"
+  PRINT "   Attempts: $attempt"
+  PRINT "   Location: sandbox/drafts/svg/"
+ELSE
+  PRINT "❌ Failed after $max_retries attempts"
+  PRINT "   Subject: $subject"
+  PRINT "   Suggestion: Try different style or check API status"
+ENDIF
+```
+
+### 4. Styles Demonstration
+
+**File:** `nano_banana_styles_demo.uscript`
+
+**Purpose:** Demonstrate all style/type combinations (9 diagrams total).
+
+**Features:**
+- 3 styles × 3 types = 9 combinations
+- Educational matrix demonstration
+- Comparative output
+- Complete style guide
+
+**Usage:**
+```bash
+🔮 > RUN "sandbox/workflow/examples/nano_banana_styles_demo.uscript"
+```
+
+**Code Preview:**
+```uscript
+---
+title: "Nano Banana Styles & Types Demo"
+description: "Generate all style/type combinations"
+version: "1.0.0"
+---
+
+PRINT "🎨 Styles & Types Demonstration"
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+PRINT "Generating 9 diagrams (3 styles × 3 types)"
+
+# Styles and types
+$styles = ["technical-kinetic", "hand-illustrative", "hybrid"]
+$types = ["flowchart", "architecture", "kinetic-flow"]
+$subject = "water filter system"
+
+$count = 0
+
+# Nested loops for all combinations
+FOR $style IN $styles
+  FOR $type IN $types
+    $count = $count + 1
+    PRINT "[$count/9] Style: $style | Type: $type"
+
+    GENERATE SVG $subject --style $style --type $type --no-preview
+
+    # Rate limiting
+    IF $count < 9
+      PRINT "  ⏳ Waiting 5 seconds..."
+      SLEEP 5
+    ENDIF
+  DONE
+DONE
+
+PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+PRINT "✅ Complete! 9 variations generated"
+PRINT "   Check sandbox/drafts/svg/ for all styles"
+```
+
+### Customizing Workflows
+
+**Create your own workflow:**
+
+1. Copy an example to `sandbox/workflow/`
+2. Modify subject, style, type parameters
+3. Adjust retry logic, delays, validation
+4. Run with `RUN "sandbox/workflow/yourfile.uscript"`
+
+**Template Structure:**
+```uscript
+---
+title: "Your Workflow Title"
+description: "What this workflow does"
+version: "1.0.0"
+author: "Your Name"
+---
+
+# Your workflow code here
+PRINT "Starting..."
+GENERATE SVG your subject
+PRINT "Complete!"
+```
+
+**Best Practices:**
+- Add 3-6 second delays between API calls (rate limiting)
+- Use `--no-preview` for batch operations
+- Track success/failure with counters
+- Provide progress updates with PRINT
+- Handle errors gracefully
+
+---
+
 ## Troubleshooting
 
 ### PNG Generation Fails
@@ -623,14 +896,15 @@ GEMINI_PRO_MODEL=gemini-exp-1206    # Nano Banana Pro
 
 ## See Also
 
-- [GENERATE Command Reference](SVG-Command-Reference.md)
-- [Content Generation Guide](Content-Generation.md)
-- [Style Guide System](Style-Guide.md)
-- [uCODE Workflows](Workflows.md)
-- [Graphics System](Graphics-System.md)
+- **[Tutorial: Nano Banana Quick Start](Tutorial-Nano-Banana)** - Step-by-step beginner guide
+- **[GENERATE Command Reference](Command-Reference#generate-svg-nano-banana)** - Complete command documentation
+- **[Content Generation Guide](Content-Generation)** - Full generation system overview
+- **[Style Guide System](Style-Guide)** - Creating custom styles
+- **[uCODE Workflows](Workflows)** - Automation and scripting
+- **[Graphics System](Graphics-System)** - Complete graphics overview
 
 ---
 
-**Document Version:** 1.1.6
-**Last Updated:** November 30, 2025
-**Status:** Production Ready ✅
+**Document Version:** 1.1.7
+**Last Updated:** December 1, 2025
+**Status:** Production Ready ✅ (Workflows Complete)

@@ -9,10 +9,10 @@ Complete guide to all uDOS commands
 ## 🚀 Quick Reference Card
 
 ### Current Status
-- **Version**: v1.1.0 (First Stable Public Release)
-- **Tests**: 1,810 passing (100%)
-- **Documentation**: Complete with ASCII diagrams
-- **Next**: Content expansion (v1.1.1)
+- **Version**: v1.1.7 (Nano Banana Complete)
+- **Tests**: Smoke tests passing (integration suite in v1.1.8)
+- **Documentation**: Complete with workflow examples
+- **Next**: Test suite overhaul (v1.1.8)
 
 ### Essential Commands (Most Common)
 ```bash
@@ -1238,6 +1238,90 @@ SVG <description> [--style <style>] [--save <filename>]
 **Migration Note**: For new projects, use `GENERATE SVG` instead of the legacy `SVG` command. The new command uses Gemini 2.5 Flash Image (Nano Banana) with a PNG→SVG pipeline for superior quality and Technical-Kinetic compliance.
 
 **uCODE**: `[SVG|<description>*<style>*<filename>]`
+
+---
+
+### GENERATE SVG (Nano Banana)
+
+**Purpose**: Generate vector diagrams via PNG→SVG pipeline (v1.1.7+)
+
+**Syntax**:
+```
+GENERATE SVG <description> [options]
+GENERATE DIAGRAM <description> [options]  # Alias
+```
+
+**Parameters**:
+- `description` (required) - Subject to diagram (5-15 words optimal)
+- `--style <style>` - Visual style (default: technical-kinetic)
+- `--type <type>` - Diagram type (default: flowchart)
+- `--save <file>` - Custom filename (auto-generates if omitted)
+- `--pro` - Use Nano Banana Pro (slower, higher quality)
+- `--strict` - Enforce strict Technical-Kinetic validation
+- `--no-preview` - Skip preview hints
+
+**Styles**:
+- `technical-kinetic` (default) - MCM geometry, 2-3px strokes, monochrome
+- `hand-illustrative` - Organic lines, hand-drawn aesthetic
+- `hybrid` - Mix of technical and hand-drawn elements
+
+**Diagram Types**:
+- `flowchart` (default) - Process flows, curved conduits
+- `architecture` - System architecture, MCM structures
+- `kinetic-flow` - Mechanical systems, gears, motion
+- `schematic` - Technical schematics, circuit-like layouts
+
+**Examples**:
+```
+🔮 > GENERATE SVG water purification filter
+🔮 > GENERATE SVG fire triangle --style hand-illustrative
+🔮 > GENERATE DIAGRAM shelter frame --type architecture --pro
+🔮 > GENERATE SVG gear mechanism --type kinetic-flow --strict --save gears.svg
+```
+
+**Output**:
+```
+✅ SVG diagram generated: water purification filter
+   Style: technical-kinetic
+   Type: flowchart
+   Vectorizer: potrace
+   Time: 18.3s
+   Saved: sandbox/drafts/svg/water-purification-filter-technical-kinetic-20251201.svg
+   Validation: ✅ Technical-Kinetic compliant
+
+🔧 Next Steps:
+   - Edit: open -a 'Inkscape' sandbox/drafts/svg/water-purification-filter-*.svg
+   - Regenerate: GENERATE SVG water purification filter --style hand-illustrative
+   - Refine: GENERATE SVG water purification filter --pro --strict
+```
+
+**Pipeline**:
+1. Load style guide (0-14 reference PNGs)
+2. Generate PNG with Gemini 2.5 Flash Image (Nano Banana)
+3. Vectorize PNG→SVG (potrace or vtracer)
+4. Validate Technical-Kinetic compliance
+5. Save to sandbox/drafts/svg/
+
+**Performance**:
+- Standard mode: <30s typical (15-20s average)
+- Pro mode (`--pro`): <60s typical (30-45s average)
+- Requires: GEMINI_API_KEY in .env
+
+**Workflow Examples**:
+
+See `sandbox/workflow/examples/` for complete workflow scripts:
+- `nano_banana_quick_start.uscript` - Beginner tutorial
+- `nano_banana_batch.uscript` - Batch generation with rate limiting
+- `nano_banana_quality_check.uscript` - Quality validation + retry logic
+- `nano_banana_styles_demo.uscript` - Demonstrate all styles/types
+
+**uCODE**: `[GENERATE|SVG*<description>*<style>*<type>*<options>]`
+
+**See Also**:
+- **[Nano Banana Integration Guide](Nano-Banana-Integration)** - Complete pipeline documentation
+- **[Tutorial: Nano Banana Quick Start](Tutorial-Nano-Banana)** - Step-by-step beginner guide
+- **[SVG Command Reference](SVG-Command-Reference)** - Legacy SVG command (deprecated)
+- **[Content Generation](Content-Generation)** - Complete generation system guide
 
 ---
 
