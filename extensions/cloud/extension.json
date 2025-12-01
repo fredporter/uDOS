@@ -1,8 +1,8 @@
 {
   "id": "cloud",
-  "name": "Cloud Services - POKE Online",
+  "name": "Cloud Access - POKE",
   "version": "2.0.0",
-  "description": "Cloud services including tunneling, sharing, and web service management. Provides POKE commands for dashboard, desktop, terminal, teletext, and web publishing.",
+  "description": "Secure external access for uDOS. Manages tunneling for remote access, file sharing via HTTP, and group collaboration. All cloud/internet access runs through this extension to protect offline-first environment. Service shortcuts provide convenient access to core extensions.",
   "author": "uDOS Core Team",
   "license": "MIT",
   "category": "cloud",
@@ -58,19 +58,19 @@
       "subcommands": ["--stop"]
     },
     {
-      "name": "POKE WEB",
-      "description": "Start web publishing tools (port 8080)",
-      "subcommands": ["--stop"]
-    },
-    {
       "name": "POKE START",
-      "description": "Start a web service",
-      "subcommands": ["dashboard", "desktop", "terminal", "teletext", "web"]
+      "description": "Start a core extension service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
     },
     {
       "name": "POKE STOP",
-      "description": "Stop a web service",
-      "subcommands": ["dashboard", "desktop", "terminal", "teletext", "web"]
+      "description": "Stop a running service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
+    },
+    {
+      "name": "POKE RESTART",
+      "description": "Restart a service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
     },
     {
       "name": "POKE LIST",
@@ -82,7 +82,7 @@
     },
     {
       "name": "POKE TUNNEL",
-      "description": "Manage secure tunnels",
+      "description": "Manage secure tunnels for remote access",
       "subcommands": [
         "OPEN [--port PORT] [--subdomain NAME] [--expires HOURS]",
         "CLOSE [tunnel_id]",
@@ -92,17 +92,17 @@
     },
     {
       "name": "POKE SHARE",
-      "description": "Share content with other users",
+      "description": "Share files/data via secure tunnels (v2.1 - roadmap)",
       "subcommands": [
-        "CREATE <path> [--read] [--write] [--execute] [--expires HOURS]",
-        "REVOKE <token>",
-        "LIST [--mine] [--received]",
-        "ACCESS <token>"
+        "FILE <path> [--expires HOURS]",
+        "FOLDER <path> [--expires HOURS]",
+        "STOP <share_id>",
+        "LIST"
       ]
     },
     {
       "name": "POKE GROUP",
-      "description": "Group collaboration features",
+      "description": "Group collaboration (v2.1 - roadmap)",
       "subcommands": [
         "CREATE <name> [--private]",
         "JOIN <group_id>",
@@ -118,8 +118,7 @@
     "TunnelManager",
     "SharingManager",
     "GroupManager",
-    "SecurityManager",
-    "ServiceManager"
+    "SecurityManager"
   ],
 
   "config": {
@@ -146,8 +145,7 @@
   },
 
   "ui": {
-    "web_dashboard": true,
-    "dashboard_port": 5555,
+    "web_dashboard": false,
     "real_time_updates": true,
     "tunnel_qr_codes": true
   },
@@ -160,5 +158,20 @@
       "Set network permissions",
       "Initialize security keys"
     ]
+  },
+
+  "roadmap": {
+    "v2.1": {
+      "poke_web": "Secure HTTP sharing of uDOS instances, files, and data between users or for remote access",
+      "security_requirements": [
+        "End-to-end encryption for shared data",
+        "Authentication and authorization system",
+        "Rate limiting and abuse prevention",
+        "Content validation and scanning",
+        "Audit logging for all external access"
+      ],
+      "share_implementation": "Complete POKE SHARE FILE/FOLDER commands with HTTP servers and tunnel integration",
+      "group_collaboration": "Multi-user collaboration with real-time sync"
+    }
   }
 }

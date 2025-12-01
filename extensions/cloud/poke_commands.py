@@ -54,8 +54,7 @@ class POKECommandHandler:
             'dashboard': lambda args: self._handle_start(['dashboard'] + args),
             'desktop': lambda args: self._handle_start(['desktop'] + args),
             'terminal': lambda args: self._handle_start(['terminal'] + args),
-            'teletext': lambda args: self._handle_start(['teletext'] + args),
-            'web': lambda args: self._handle_start(['web'] + args)
+            'teletext': lambda args: self._handle_start(['teletext'] + args)
         }
 
         # Subcommand routing
@@ -109,21 +108,20 @@ class POKECommandHandler:
 
     def _show_help(self) -> str:
         """Show POKE command help."""
-        return """POKE Online Extension v1.1.7
+        return """POKE Cloud Extension v2.0
 
-SERVICE SHORTCUTS (v2.0):
+SERVICE SHORTCUTS (Core Extensions):
   POKE DASHBOARD [--stop]      - NES-themed system dashboard (port 5555)
   POKE DESKTOP [--stop]        - System desktop interface (port 8892)
   POKE TERMINAL [--stop]       - Web-based terminal (port 8889)
   POKE TELETEXT [--stop]       - Teletext interface (port 9002)
-  POKE WEB [--stop]            - Web publishing tools (port 8080)
 
 SERVICE MANAGEMENT:
-  POKE START <service>         - Start a web service
-  POKE STOP <service>          - Stop a web service
-  POKE RESTART <service>       - Restart a web service
-  POKE LIST                    - List all services and their status
-  POKE STATUS                  - Show detailed service status
+  POKE START <service>         - Start a core extension service
+  POKE STOP <service>          - Stop a running service
+  POKE RESTART <service>       - Restart a service
+  POKE LIST                    - List all services and status
+  POKE STATUS                  - Show detailed service panel
 
 TUNNEL COMMANDS:
   POKE TUNNEL OPEN <port> [--provider=ngrok] [--subdomain=name] [--expires=24]
@@ -572,19 +570,19 @@ Use 'POKE SHARE STOP {tunnel.id}' to stop sharing."""
         return services.get(service_name)
 
     def _handle_start(self, args: List[str]) -> Tuple[bool, str]:
-        \"\"\"Start a web service.\"\"\"
+        """Start a web service."""
         if not args:
-            return False, \"Usage: POKE START <service>\\nServices: dashboard, desktop, terminal, teletext, web\"
+            return False, "Usage: POKE START <service>\nServices: dashboard, desktop, terminal, teletext"
 
         service_name = args[0].lower()
         service_config = self._get_service_config(service_name)
 
         if not service_config:
-            return False, f\"Unknown service: {service_name}\\nAvailable: dashboard, desktop, terminal, teletext, web\"
+            return False, f"Unknown service: {service_name}\nAvailable: dashboard, desktop, terminal, teletext"
 
         # Check if already running
         if self._is_port_available(service_config['port']):
-            return True, f\"✅ {service_name.title()} already running at http://localhost:{service_config['port']}\"
+            return True, f"✅ {service_name.title()} already running at http://localhost:{service_config['port']}"
 
         # Start service
         try:
@@ -597,7 +595,7 @@ Use 'POKE SHARE STOP {tunnel.id}' to stop sharing."""
             script_file = service_path / service_config['script']
 
             if not script_file.exists():
-                return False, f\"Service script not found: {script_file}\"
+                return False, f"Service script not found: {script_file}"
 
             # Start server in background
             if service_config['script'].endswith('.sh'):
@@ -620,37 +618,37 @@ Use 'POKE SHARE STOP {tunnel.id}' to stop sharing."""
             time.sleep(2)
 
             # Open in browser
-            webbrowser.open(f\"http://localhost:{service_config['port']}\")
+            webbrowser.open(f"http://localhost:{service_config['port']}")
 
-            return True, f\"\"\"✅ {service_name.title()} started successfully!
+            return True, f"""✅ {service_name.title()} started successfully!
 
 🌐 URL: http://localhost:{service_config['port']}
 📝 {service_config['description']}
 
 Use: POKE STOP {service_name} to stop
 Use: POKE TUNNEL OPEN {service_config['port']} to share publicly
-\"\"\"
+"""
 
         except Exception as e:
-            self.logger.error(f\"Failed to start {service_name}: {e}\")
-            return False, f\"Failed to start {service_name}: {e}\"
+            self.logger.error(f"Failed to start {service_name}: {e}")
+            return False, f"Failed to start {service_name}: {e}"
 
     def _handle_stop(self, args: List[str]) -> Tuple[bool, str]:
-        \"\"\"Stop a web service.\"\"\"
+        """Stop a web service."""
         if not args:
-            return False, \"Usage: POKE STOP <service>\\nServices: dashboard, desktop, terminal, teletext, web\"
+            return False, "Usage: POKE STOP <service>\\nServices: dashboard, desktop, terminal, teletext, web"
 
         service_name = args[0].lower()
         service_config = self._get_service_config(service_name)
 
         if not service_config:
-            return False, f\"Unknown service: {service_name}\"
+            return False, f"Unknown service: {service_name}"
 
         # Find and kill process on port
         try:
             import subprocess
             result = subprocess.run(
-                ['lsof', '-ti', f\":{service_config['port']}\"],
+                ['lsof', '-ti', f":{service_config['port']}"],
                 capture_output=True,
                 text=True
             )
@@ -658,25 +656,25 @@ Use: POKE TUNNEL OPEN {service_config['port']} to share publicly
             if result.stdout.strip():
                 pid = result.stdout.strip().split('\\n')[0]
                 subprocess.run(['kill', pid])
-                return True, f\"✅ {service_name.title()} stopped (port {service_config['port']})\"
+                return True, f"✅ {service_name.title()} stopped (port {service_config['port']})"
             else:
-                return True, f\"ℹ️  {service_name.title()} is not running\"
+                return True, f"ℹ️  {service_name.title()} is not running"
 
         except Exception as e:
-            self.logger.error(f\"Failed to stop {service_name}: {e}\")
-            return False, f\"Failed to stop {service_name}: {e}\"
+            self.logger.error(f"Failed to stop {service_name}: {e}")
+            return False, f"Failed to stop {service_name}: {e}"
 
     def _handle_restart(self, args: List[str]) -> Tuple[bool, str]:
-        \"\"\"Restart a web service.\"\"\"
+        """Restart a web service."""
         if not args:
-            return False, \"Usage: POKE RESTART <service>\"
+            return False, "Usage: POKE RESTART <service>"
 
         service_name = args[0].lower()
 
         # Stop service
         success, message = self._handle_stop([service_name])
         if not success:
-            return False, f\"Failed to stop {service_name}: {message}\"
+            return False, f"Failed to stop {service_name}: {message}"
 
         # Wait a moment
         import time
@@ -686,36 +684,36 @@ Use: POKE TUNNEL OPEN {service_config['port']} to share publicly
         return self._handle_start([service_name])
 
     def _handle_list_services(self, args: List[str]) -> Tuple[bool, str]:
-        \"\"\"List all services and their status.\"\"\"
+        """List all services and their status."""
         services = ['dashboard', 'desktop', 'terminal', 'teletext', 'web']
 
         output = []
-        output.append(\"🌐 POKE SERVICES\\n\")
-        output.append(\"Service       Port   Status      Description\")
-        output.append(\"─\" * 70)
+        output.append("🌐 POKE SERVICES\\n")
+        output.append("Service       Port   Status      Description")
+        output.append("─" * 70)
 
         for service in services:
             config = self._get_service_config(service)
             if config:
                 is_running = self._is_port_available(config['port'])
-                status = \"🟢 Running\" if is_running else \"⚪ Stopped\"
-                line = f\"{service.ljust(12)} {str(config['port']).ljust(6)} {status.ljust(11)} {config['description']}\"
+                status = "🟢 Running" if is_running else "⚪ Stopped"
+                line = f"{service.ljust(12)} {str(config['port']).ljust(6)} {status.ljust(11)} {config['description']}"
                 output.append(line)
 
-        output.append(\"\")
-        output.append(\"💡 Use: POKE <service> to start (e.g., POKE DASHBOARD)\")
-        output.append(\"💡 Use: POKE STOP <service> to stop\")
+        output.append("")
+        output.append("💡 Use: POKE <service> to start (e.g., POKE DASHBOARD)")
+        output.append("💡 Use: POKE STOP <service> to stop")
 
-        return True, \"\\n\".join(output)
+        return True, "\\n".join(output)
 
     def _handle_service_status(self, args: List[str]) -> Tuple[bool, str]:
-        \"\"\"Show detailed service status.\"\"\"
+        """Show detailed service status."""
         services = ['dashboard', 'desktop', 'terminal', 'teletext', 'web']
 
         output = []
-        output.append(\"╔\" + \"═\" * 68 + \"╗\")
-        output.append(\"║\" + \" POKE SERVICES STATUS\".center(68) + \"║\")
-        output.append(\"╠\" + \"═\" * 68 + \"╣\")
+        output.append("╔" + "═" * 68 + "╗")
+        output.append("║" + " POKE SERVICES STATUS".center(68) + "║")
+        output.append("╠" + "═" * 68 + "╣")
 
         for service in services:
             config = self._get_service_config(service)
@@ -723,37 +721,37 @@ Use: POKE TUNNEL OPEN {service_config['port']} to share publicly
                 is_running = self._is_port_available(config['port'])
 
                 if is_running:
-                    status_icon = \"🟢\"
-                    status_text = \"RUNNING\"
-                    url = f\"http://localhost:{config['port']}\"
+                    status_icon = "🟢"
+                    status_text = "RUNNING"
+                    url = f"http://localhost:{config['port']}"
                 else:
-                    status_icon = \"⚪\"
-                    status_text = \"STOPPED\"
-                    url = \"─\"
+                    status_icon = "⚪"
+                    status_text = "STOPPED"
+                    url = "─"
 
-                output.append(f\"║ {status_icon} {service.upper().ljust(12)} {status_text.ljust(10)} :{str(config['port']).ljust(5)}\" + \" \" * 30 + \"║\")
-                output.append(f\"║   {config['description'].ljust(65)} ║\")
+                output.append(f"║ {status_icon} {service.upper().ljust(12)} {status_text.ljust(10)} :{str(config['port']).ljust(5)}" + " " * 30 + "║")
+                output.append(f"║   {config['description'].ljust(65)} ║")
                 if is_running:
-                    output.append(f\"║   URL: {url.ljust(61)} ║\")
-                output.append(\"║\" + \" \" * 68 + \"║\")
+                    output.append(f"║   URL: {url.ljust(61)} ║")
+                output.append("║" + " " * 68 + "║")
 
-        output.append(\"╚\" + \"═\" * 68 + \"╝\")
-        output.append(\"\")
-        output.append(\"💡 Quick Start: POKE DASHBOARD | POKE TELETEXT | POKE WEB\")
-        output.append(\"💡 Management: POKE STOP <service> | POKE RESTART <service>\")
+        output.append("╚" + "═" * 68 + "╝")
+        output.append("")
+        output.append("💡 Quick Start: POKE DASHBOARD | POKE TELETEXT | POKE WEB")
+        output.append("💡 Management: POKE STOP <service> | POKE RESTART <service>")
 
-        return True, \"\\n\".join(output)
+        return True, "\\n".join(output)
 
 
 # Utility function for getting tunnel status (used by connection status checks)
 def get_tunnel_status() -> Optional[str]:
-    \"\"\"Get active tunnel status for connection checks.\"\"\"
+    """Get active tunnel status for connection checks."""
     try:
         handler = POKECommandHandler()
         tunnels = handler.tunnel_manager.list_tunnels()
         active = [t for t in tunnels if t.status == 'active']
         if active:
-            return f\"{len(active)} tunnel(s) active\"
+            return f"{len(active)} tunnel(s) active"
         return None
     except:
         return None
