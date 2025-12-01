@@ -25,6 +25,7 @@ class DisplayHandler(BaseCommandHandler):
         self._screen_manager = None
         self._help_manager = None
         self._progress_manager = None
+        self._usage_tracker = None
 
     @property
     def layout_manager(self):
@@ -49,6 +50,18 @@ class DisplayHandler(BaseCommandHandler):
             from core.services.help_manager import HelpManager
             self._help_manager = HelpManager()
         return self._help_manager
+
+    @property
+    def usage_tracker(self):
+        """Lazy load usage tracker."""
+        if self._usage_tracker is None:
+            try:
+                from core.utils.usage_tracker import UsageTracker
+                self._usage_tracker = UsageTracker()
+            except ImportError:
+                # Usage tracker is optional
+                return None
+        return self._usage_tracker
 
     @property
     def progress_manager(self):
