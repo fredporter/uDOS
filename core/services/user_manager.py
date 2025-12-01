@@ -24,9 +24,9 @@ class UserManager:
         try:
             with open(self.user_file, 'r') as f:
                 data = json.load(f)
-                # Check for required fields in new JSON format
-                user_profile = data.get('user_profile', {})
-                if not user_profile.get('username'):
+                # Check for required fields in new JSON format (uppercase USER_PROFILE)
+                user_profile = data.get('USER_PROFILE', {})
+                if not user_profile.get('NAME'):
                     return True
                 return False
         except (json.JSONDecodeError, FileNotFoundError):
@@ -58,89 +58,97 @@ class UserManager:
             with open(self.user_file, 'r') as f:
                 user_config = json.load(f)
         else:
-            # Create default configuration
+            # Create default configuration matching wizard format
             user_config = {
-                "user_profile": {
-                    "schema_version": "USER_PROFILE_V2",
-                    "installation_id": "user_dev_install",
-                    "profile_version": "2.0",
-                    "created_at": datetime.now().isoformat(),
-                    "last_updated": datetime.now().isoformat(),
-                    "last_session": f"session_{int(time.time())}",
-                    "username": "user",
-                    "password": "",
-                    "timezone": detected_timezone,
-                    "location": detected_city,
-                    "project_name": "uDOS_project"
+                "SYSTEM_NAME": "uDOS",
+                "VERSION": "1.1.7",
+                "USER_PROFILE": {
+                    "NAME": "user",
+                    "LOCATION": detected_city,
+                    "TIMEZONE": detected_timezone,
+                    "PREFERRED_MODE": "STANDARD",
+                    "PASSWORD": ""
+                },
+                "PROJECT": {
+                    "NAME": "uDOS Development",
+                    "DESCRIPTION": "Offline-first OS for survival knowledge",
+                    "START_DATE": datetime.now().strftime('%Y-%m-%d')
+                },
+                "LOCATION_DATA": {
+                    "CITY": detected_city,
+                    "COUNTRY": "Unknown",
+                    "LATITUDE": 0,
+                    "LONGITUDE": 0,
+                    "MAP_POSITION": {
+                        "X": 0,
+                        "Y": 0
+                    },
+                    "CURRENT_LAYER": "SURFACE"
+                },
+                "SESSION_DATA": {
+                    "CURRENT_SESSION": f"session_{int(time.time())}",
+                    "SESSION_COUNT": 0,
+                    "LAST_LOGIN": datetime.now().isoformat(),
+                    "VIEWPORT": {}
                 },
                 "system_settings": {
-                    "display": {
-                        "theme": "DUNGEON_CRAWLER",
-                        "color_support": True,
-                        "unicode_support": True,
-                        "render_mode": "TERMINAL"
+                    "interface": {
+                        "theme": "dungeon"
                     },
                     "workspace_preference": "sandbox"
-                },
-                "session_preferences": {
-                    "assist_mode": False,
-                    "preferred_mode": "STANDARD"
-                },
-                "advanced": {
-                    "developer_mode": True,
-                    "debug_logging": True,
-                    "experimental_features": True
-                },
-                "metadata": {
-                    "installation_type": "DEVELOPMENT",
-                    "config_format": "JSON_V2",
-                    "created_date": datetime.now().strftime('%Y-%m-%d')
                 }
             }
 
         if interactive:
             # Required field: Username
-            username = input(f"👤 Username [{user_config['user_profile'].get('username', 'user')}]: ").strip()
+            username = input(f"👤 Username [{user_config.get('USER_PROFILE', {}).get('NAME', 'user')}]: ").strip()
             if username:
-                user_config['user_profile']['username'] = username
+                if 'USER_PROFILE' not in user_config:
+                    user_config['USER_PROFILE'] = {}
+                user_config['USER_PROFILE']['NAME'] = username
 
             # Optional field: Password
             password = input("🔐 Password (leave blank for none): ").strip()
-            user_config['user_profile']['password'] = password
+            user_config['USER_PROFILE']['PASSWORD'] = password
 
             # Auto-detected timezone (modifiable)
-            current_tz = user_config['user_profile'].get('timezone', detected_timezone)
+            current_tz = user_config.get('USER_PROFILE', {}).get('TIMEZONE', detected_timezone)
             timezone = input(f"🌍 Timezone [{current_tz}]: ").strip()
             if timezone:
-                user_config['user_profile']['timezone'] = timezone
+                user_config['USER_PROFILE']['TIMEZONE'] = timezone
             else:
-                user_config['user_profile']['timezone'] = current_tz
+                user_config['USER_PROFILE']['TIMEZONE'] = current_tz
 
             # Location defaults to timezone city (modifiable)
-            current_loc = user_config['user_profile'].get('location', detected_city)
+            current_loc = user_config.get('USER_PROFILE', {}).get('LOCATION', detected_city)
             location = input(f"📍 Location [{current_loc}]: ").strip()
             if location:
-                user_config['user_profile']['location'] = location
+                user_config['USER_PROFILE']['LOCATION'] = location
             else:
-                user_config['user_profile']['location'] = current_loc
+                user_config['USER_PROFILE']['LOCATION'] = current_loc
 
             # Project name
-            project_name = input(f"🎯 Project name [{user_config['user_profile'].get('project_name', 'uDOS_project')}]: ").strip()
+            project_name = input(f"🎯 Project name [{user_config.get('PROJECT', {}).get('NAME', 'uDOS Development')}]: ").strip()
             if project_name:
-                user_config['user_profile']['project_name'] = project_name
+                if 'PROJECT' not in user_config:
+                    user_config['PROJECT'] = {}
+                user_config['PROJECT']['NAME'] = project_name
 
             # Theme selection
-            print("\n🎨 Available themes: DUNGEON_CRAWLER, CYBERPUNK, MINIMAL")
-            theme = input(f"Theme [{user_config['system_settings']['display']['theme']}]: ").strip().upper()
-            if theme in ['DUNGEON_CRAWLER', 'CYBERPUNK', 'MINIMAL']:
-                user_config['system_settings']['display']['theme'] = theme
+            print("\n🎨 Available themes: dungeon, galaxy, foundation, science, project")
+            current_theme = user_config.get('system_settings', {}).get('interface', {}).get('theme', 'dungeon')
+            theme = input(f"Theme [{current_theme}]: ").strip().lower()
+            if theme in ['dungeon', 'galaxy', 'foundation', 'science', 'project']:
+                if 'system_settings' not in user_config:
+                    user_config['system_settings'] = {}
+                if 'interface' not in user_config['system_settings']:
+                    user_config['system_settings']['interface'] = {}
+                user_config['system_settings']['interface']['theme'] = theme
 
-            # Assist mode
-            assist_choice = input("🤖 Enable assist mode? (y/N): ").strip().lower()
-            user_config['session_preferences']['assist_mode'] = assist_choice == 'y'
-
-        # Update timestamps
-        user_config['user_profile']['last_updated'] = datetime.now().isoformat()
+        # Update session data
+        if 'SESSION_DATA' not in user_config:
+            user_config['SESSION_DATA'] = {}
+        user_config['SESSION_DATA']['LAST_LOGIN'] = datetime.now().isoformat()
 
         # Save configuration
         os.makedirs(os.path.dirname(self.user_file), exist_ok=True)
@@ -213,7 +221,7 @@ class UserManager:
             self.load_user_profile()
 
         if self.user_data:
-            return self.user_data.get('user_profile', {}).get('username', 'Guest')
+            return self.user_data.get('USER_PROFILE', {}).get('NAME', 'Guest')
         return 'Guest'
 
     def update_session_data(self, session_id, viewport_data=None):
@@ -222,21 +230,19 @@ class UserManager:
             self.load_user_profile()
 
         if self.user_data:
-            self.user_data['user_profile']['last_session'] = session_id
-            self.user_data['user_profile']['last_updated'] = datetime.now().isoformat()
+            # Update session data
+            if 'SESSION_DATA' not in self.user_data:
+                self.user_data['SESSION_DATA'] = {}
+            self.user_data['SESSION_DATA']['CURRENT_SESSION'] = session_id
+            self.user_data['SESSION_DATA']['LAST_LOGIN'] = datetime.now().isoformat()
 
             if viewport_data:
-                # Ensure system_settings exists
-                if 'system_settings' not in self.user_data:
-                    self.user_data['system_settings'] = {}
-                if 'viewport' not in self.user_data['system_settings']:
-                    self.user_data['system_settings']['viewport'] = {}
-
-                self.user_data['system_settings']['viewport'].update({
+                # Store viewport in SESSION_DATA
+                self.user_data['SESSION_DATA']['VIEWPORT'] = {
                     'device_type': viewport_data.get('device_type', 'TERMINAL'),
                     'terminal_size': viewport_data.get('terminal_size', {'width': 80, 'height': 24}),
                     'grid_dimensions': viewport_data.get('grid_dimensions', {'width': 10, 'height': 9})
-                })
+                }
 
             with open(self.user_file, 'w') as f:
                 json.dump(self.user_data, f, indent=2)
@@ -247,12 +253,12 @@ class UserManager:
             self.load_user_profile()
 
         if self.user_data:
-            name = self.user_data.get('user_profile', {}).get('username', 'Adventurer')
-            assist_mode = self.user_data.get('session_preferences', {}).get('assist_mode', False)
+            name = self.user_data.get('USER_PROFILE', {}).get('NAME', 'Adventurer')
+            preferred_mode = self.user_data.get('USER_PROFILE', {}).get('PREFERRED_MODE', 'STANDARD')
 
             greeting = f"Welcome back, {name}!"
-            if assist_mode:
-                greeting += " [ASSIST MODE]"
+            if preferred_mode != 'STANDARD':
+                greeting += f" [MODE: {preferred_mode}]"
 
             return greeting
 
