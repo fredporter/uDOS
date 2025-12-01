@@ -1,0 +1,354 @@
+#!/usr/bin/env python3
+# First Steps in the Wasteland
+# Your first adventure in the post-collapse world. Learn the basics of survival.
+
+# Initialize character
+SET [$SPRITE-NAME = "Wanderer"]
+SET [$SPRITE-HP = 100]
+SET [$SPRITE-HP-MAX = 100]
+SET [$SPRITE-LEVEL = 1]
+SET [$SPRITE-XP = 0]
+SET [$SPRITE-STAMINA = 100]
+SET [$SPRITE-INVENTORY = []]
+
+# Story setup
+SET [$STORY-CURRENT = "first-steps"]
+SET [$STORY-CHAPTER = 1]
+SET [$STORY-FLAGS = []]
+
+# Introduction
+PRINT []
+PRINT [==========================================]
+PRINT [  FIRST STEPS IN THE WASTELAND]
+PRINT [==========================================]
+PRINT []
+PRINT [You wake up in the ruins of what was once]
+PRINT [a thriving city. The sky is gray, and]
+PRINT [silence fills the air.]
+PRINT []
+PRINT [Your throat is dry, and your stomach aches]
+PRINT [with hunger. You need to find water and]
+PRINT [food to survive.]
+PRINT []
+
+# Set initial stats
+THIRST [+60]
+HUNGER [+50]
+
+# Main decision
+LABEL [START]
+
+PRINT [You see two paths ahead:]
+PRINT []
+PRINT [  • A nearby stream (might have water)]
+PRINT [  • An old convenience store (might have supplies)]
+PRINT []
+
+CHOICE [Which do you choose?]
+  OPTION [Go to the stream] → STREAM-PATH
+  OPTION [Check the convenience store] → STORE-PATH
+
+# ============================================================
+# STREAM PATH
+# ============================================================
+
+LABEL [STREAM-PATH]
+
+PRINT []
+PRINT [You approach the stream. The water looks]
+PRINT [relatively clear. You remember from the]
+PRINT [survival guides that you should purify]
+PRINT [water before drinking.]
+PRINT []
+PRINT [You have a small pot and can boil the water]
+PRINT [if you can make a fire.]
+PRINT []
+
+GIVE [water_unpurified]
+GIVE [water_unpurified]
+GIVE [water_unpurified]
+
+LABEL [STREAM-CHOICE]
+
+CHOICE [What do you do with the water?]
+  OPTION [Drink it raw (risky but immediate relief)] → DRINK-RAW
+  OPTION [Look for materials to make fire and boil it] → MAKE-FIRE
+  OPTION [Continue searching for bottled water] → SEARCH-MORE
+
+# ------------------------------------------------------------
+# Drink raw water outcome
+# ------------------------------------------------------------
+
+LABEL [DRINK-RAW]
+
+PRINT []
+PRINT [You drink the water desperately. It tastes]
+PRINT [earthy but refreshing. Your thirst is]
+PRINT [quenched...]
+PRINT []
+PRINT [However, a few hours later, you start]
+PRINT [feeling ill. Raw water from unknown]
+PRINT [sources is dangerous.]
+PRINT []
+
+THIRST [-40]
+HP [-20]
+FLAG [got_sick_from_water]
+XP [+10]
+
+PRINT [💡 Lesson: Always purify water before drinking!]
+PRINT []
+
+BRANCH [LESSON-LEARNED]
+
+# ------------------------------------------------------------
+# Boil water outcome
+# ------------------------------------------------------------
+
+LABEL [MAKE-FIRE]
+
+PRINT []
+PRINT [You gather dry wood and tinder. After]
+PRINT [several attempts, you manage to start]
+PRINT [a small fire.]
+PRINT []
+PRINT [You boil the water for several minutes,]
+PRINT [killing any harmful bacteria. The water]
+PRINT [is now safe to drink!]
+PRINT []
+PRINT [✅ You've learned a valuable survival skill!]
+PRINT []
+
+THIRST [-50]
+GIVE [water_purified]
+GIVE [water_purified]
+FLAG [learned_water_purification]
+XP [+25]
+
+BRANCH [SUCCESS-ENDING]
+
+# ------------------------------------------------------------
+# Continue searching outcome
+# ------------------------------------------------------------
+
+LABEL [SEARCH-MORE]
+
+PRINT []
+PRINT [You decide to keep looking. After walking]
+PRINT [for 20 minutes, you find an abandoned]
+PRINT [campsite with a water filter!]
+PRINT []
+PRINT [Using the filter, you purify the stream]
+PRINT [water safely. Smart thinking!]
+PRINT []
+
+THIRST [-45]
+GIVE [water_purified]
+GIVE [water_purified]
+GIVE [water_filter]
+FLAG [found_water_filter]
+XP [+30]
+
+BRANCH [SUCCESS-ENDING]
+
+# ============================================================
+# STORE PATH
+# ============================================================
+
+LABEL [STORE-PATH]
+
+PRINT []
+PRINT [You enter the old convenience store.]
+PRINT [Most shelves are empty, looted long ago.]
+PRINT []
+PRINT [But in a back corner, you find:]
+PRINT [  • 2 bottles of water (sealed!)]
+PRINT [  • 1 can of beans]
+PRINT [  • 1 energy bar]
+PRINT []
+PRINT [Jackpot! These supplies will keep you]
+PRINT [alive for a few days.]
+PRINT []
+
+GIVE [water_bottle]
+GIVE [water_bottle]
+GIVE [canned_beans]
+GIVE [energy_bar]
+FLAG [scavenged_store]
+XP [+20]
+
+LABEL [STORE-CHOICE]
+
+CHOICE [You have supplies now. What's your next move?]
+  OPTION [Consume everything immediately] → CONSUME-ALL
+  OPTION [Ration carefully (make it last)] → RATION-SUPPLIES
+  OPTION [Look for a safe place to rest] → FIND-SHELTER
+
+# ------------------------------------------------------------
+# Consume all outcome
+# ------------------------------------------------------------
+
+LABEL [CONSUME-ALL]
+
+PRINT []
+PRINT [You devour the energy bar and beans,]
+PRINT [drinking both bottles of water.]
+PRINT []
+PRINT [Your immediate needs are satisfied, but]
+PRINT [you've used up all your supplies.]
+PRINT []
+PRINT [You'll need to find more food and water]
+PRINT [soon. This is a valuable lesson in]
+PRINT [resource management.]
+PRINT []
+
+HUNGER [-60]
+THIRST [-70]
+TAKE [water_bottle]
+TAKE [water_bottle]
+TAKE [canned_beans]
+TAKE [energy_bar]
+FLAG [consumed_all_supplies]
+XP [+15]
+
+PRINT [💡 Lesson: Resources are precious - ration wisely!]
+PRINT []
+
+BRANCH [LESSON-LEARNED]
+
+# ------------------------------------------------------------
+# Ration supplies outcome
+# ------------------------------------------------------------
+
+LABEL [RATION-SUPPLIES]
+
+PRINT []
+PRINT [You eat half the energy bar and drink]
+PRINT [one bottle of water. Your hunger and]
+PRINT [thirst are reduced, and you still have]
+PRINT [supplies for later.]
+PRINT []
+PRINT [✅ This is smart survival thinking!]
+PRINT [Resources are precious in the wasteland.]
+PRINT []
+
+HUNGER [-30]
+THIRST [-35]
+TAKE [water_bottle]
+GIVE [energy_bar_half]
+FLAG [demonstrated_rationing]
+XP [+30]
+
+BRANCH [SUCCESS-ENDING]
+
+# ------------------------------------------------------------
+# Find shelter outcome
+# ------------------------------------------------------------
+
+LABEL [FIND-SHELTER]
+
+PRINT []
+PRINT [You scout the area and find an intact]
+PRINT [building with a lockable door. You set]
+PRINT [up a secure camp, organize your supplies,]
+PRINT [and get some rest.]
+PRINT []
+PRINT [✅ Excellent planning! Shelter is one of]
+PRINT [the three survival priorities (along with]
+PRINT [water and food).]
+PRINT []
+
+HP [+10]
+STAMINA [+20]
+FLAG [found_shelter]
+XP [+35]
+
+BRANCH [SUCCESS-ENDING]
+
+# ============================================================
+# ENDINGS
+# ============================================================
+
+LABEL [LESSON-LEARNED]
+
+PRINT []
+PRINT [========================================]
+PRINT [  FIRST DAY COMPLETE]
+PRINT [========================================]
+PRINT []
+PRINT [Your first day in the wasteland has been]
+PRINT [challenging, but you've learned valuable]
+PRINT [lessons.]
+PRINT []
+PRINT [Key Takeaways:]
+PRINT [  ✓ Always purify water before drinking]
+PRINT [  ✓ Manage resources carefully]
+PRINT [  ✓ Survival requires knowledge & planning]
+PRINT []
+PRINT [You've gained experience and knowledge.]
+PRINT [Keep learning, keep surviving!]
+PRINT []
+
+XP [+20]
+
+BRANCH [END]
+
+LABEL [SUCCESS-ENDING]
+
+PRINT []
+PRINT [========================================]
+PRINT [  🎉 SUCCESS!]
+PRINT [========================================]
+PRINT []
+PRINT [Congratulations! You've successfully]
+PRINT [navigated your first day in the wasteland.]
+PRINT []
+PRINT [You've demonstrated:]
+PRINT [  ✓ Resource awareness]
+PRINT [  ✓ Survival knowledge]
+PRINT [  ✓ Decision-making skills]
+PRINT []
+PRINT [Your journey has just begun. There's much]
+PRINT [more to learn and explore.]
+PRINT []
+PRINT [Next steps:]
+PRINT [  • Read survival guides (GUIDE command)]
+PRINT [  • Build your skills]
+PRINT [  • Find a community]
+PRINT [  • Plan for the long term]
+PRINT []
+
+XP [+50]
+
+BRANCH [END]
+
+# ============================================================
+# END
+# ============================================================
+
+LABEL [END]
+
+PRINT []
+PRINT [🎉 Adventure Complete!]
+PRINT []
+PRINT [First Steps in the Wasteland]
+PRINT []
+PRINT [Thank you for playing!]
+PRINT [Use 'STORY LIST' to see more adventures.]
+PRINT []
+
+# Quest completion check
+IF [FLAG:learned_water_purification]
+  PRINT [🏆 Achievement: Water Purification Master]
+ENDIF
+
+IF [FLAG:demonstrated_rationing]
+  PRINT [🏆 Achievement: Resource Manager]
+ENDIF
+
+IF [FLAG:found_shelter]
+  PRINT [🏆 Achievement: Shelter Builder]
+ENDIF
+
+PRINT []
+PRINT [==========================================]

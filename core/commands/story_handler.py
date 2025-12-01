@@ -155,14 +155,14 @@ Integration:
             if is_upy:
                 if self.logger:
                     self.logger.info(f"Parsing .upy adventure: {adventure_file}")
-                
+
                 # Parse .upy to scenario structure
                 parsed_scenario = parse_upy_adventure(str(adventure_file))
-                
+
                 # Register scenario with metadata from parsed data
                 metadata = parsed_scenario.get('metadata', {})
                 scenario_name = metadata.get('name', adventure_name)
-                
+
                 # Register if not already exists
                 self.scenario_service.register_scenario(
                     name=scenario_name,
@@ -173,14 +173,14 @@ Integration:
                     estimated_minutes=30,
                     xp_reward=100
                 )
-                
+
                 # Save parsed scenario as temp JSON for ScenarioEngine
                 temp_json = self.adventure_dir / f".{adventure_name}_parsed.json"
                 with open(temp_json, 'w') as f:
                     json.dump(parsed_scenario, f, indent=2)
-                
+
                 adventure_file = temp_json
-                
+
                 if self.logger:
                     self.logger.info(f"Parsed {len(parsed_scenario['events'])} events, "
                                    f"{len(parsed_scenario['labels'])} labels")
@@ -190,7 +190,7 @@ Integration:
                     scenario_data = json.load(f)
                     metadata = scenario_data.get('metadata', {})
                     scenario_name = metadata.get('name', adventure_name)
-                    
+
                     self.scenario_service.register_scenario(
                         name=scenario_name,
                         scenario_type=ScenarioType.STORY,
@@ -200,7 +200,7 @@ Integration:
                         estimated_minutes=metadata.get('estimated_time', 30),
                         xp_reward=metadata.get('xp_reward', 100)
                     )
-            
+
             result = self.scenario_engine.start_scenario_from_script(str(adventure_file))
             if "error" in result:
                 return f"❌ Error loading adventure: {result['error']}"

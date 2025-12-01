@@ -138,6 +138,10 @@ class UPYAdventureParser:
                 self._parse_hp(line)
             elif line.startswith('STAMINA ['):
                 self._parse_stamina(line)
+            elif line.startswith('THIRST ['):
+                self._parse_thirst(line)
+            elif line.startswith('HUNGER ['):
+                self._parse_hunger(line)
             elif line.startswith('FLAG ['):
                 self._parse_flag(line)
             elif line.startswith('GIVE ['):
@@ -339,6 +343,30 @@ class UPYAdventureParser:
                 self.current_event["effects"].append({
                     "type": "stat_change",
                     "target": "stamina",
+                    "value": amount
+                })
+
+    def _parse_thirst(self, line: str):
+        """Parse THIRST modification"""
+        match = re.match(r'THIRST\s+\[([+\-]?\d+)\]', line)
+        if match:
+            amount = int(match.group(1))
+            if self.current_event:
+                self.current_event["effects"].append({
+                    "type": "stat_change",
+                    "target": "thirst",
+                    "value": amount
+                })
+
+    def _parse_hunger(self, line: str):
+        """Parse HUNGER modification"""
+        match = re.match(r'HUNGER\s+\[([+\-]?\d+)\]', line)
+        if match:
+            amount = int(match.group(1))
+            if self.current_event:
+                self.current_event["effects"].append({
+                    "type": "stat_change",
+                    "target": "hunger",
                     "value": amount
                 })
 
