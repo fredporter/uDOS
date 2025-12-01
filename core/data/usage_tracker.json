@@ -1,46 +1,52 @@
 {
   "command_counts": {
-    "HELP": 20,
+    "HELP": 27,
     "DASH": 6,
-    "SHOW": 3,
-    "CONFIG": 5,
+    "SHOW": 4,
+    "CONFIG": 11,
     "OUTPUT": 6,
     "SETUP": 2,
     "HISTORY": 1,
     "STATUS": 3,
-    "SHAKEDOWN": 2,
+    "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "ERROR": 3,
+    "ERROR": 4,
     "LIST": 2,
     "WIZARD": 1,
     "CATEGORIES": 1,
     "$1": 1,
-    "REBOOT": 2
+    "REBOOT": 2,
+    "MENU": 2,
+    "RUN": 1,
+    "FETCH": 1
   },
   "success_counts": {
-    "HELP": 15,
+    "HELP": 22,
     "DASH": 5,
-    "SHOW": 3,
-    "CONFIG": 3,
+    "SHOW": 4,
+    "CONFIG": 9,
     "OUTPUT": 5,
     "SETUP": 1,
     "HISTORY": 1,
     "STATUS": 3,
-    "SHAKEDOWN": 2,
+    "SHAKEDOWN": 3,
     "ACCESS": 2,
     "LIST": 2,
     "WIZARD": 1,
-    "CATEGORIES": 1
+    "CATEGORIES": 1,
+    "MENU": 2,
+    "FETCH": 1
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 3,
+    "ERROR": 4,
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 2,
     "HELP": 5,
     "$1": 1,
-    "REBOOT": 2
+    "REBOOT": 2,
+    "RUN": 1
   },
   "recent_commands": [
     {
@@ -552,7 +558,167 @@
       "params": [],
       "success": false,
       "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:30:09.820321",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:30:47.883562",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "MENU",
+      "timestamp": "2025-12-01T17:31:03.657014",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:31:06.119838",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-12-01T17:31:19.480734",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:31:52.765238",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-01T17:32:02.926642",
+      "params": [
+        "Invalid command: eun"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "RUN",
+      "timestamp": "2025-12-01T17:32:04.342767",
+      "params": [],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "MENU",
+      "timestamp": "2025-12-01T17:32:27.857864",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:32:30.393489",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:45:18.209625",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:45:33.072555",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:45:45.024865",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:45:53.541823",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:46:49.108453",
+      "params": [
+        "validate"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T17:46:55.998170",
+      "params": [
+        "backup"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:47:03.293378",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "FETCH",
+      "timestamp": "2025-12-01T17:47:22.707012",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T17:47:25.746372",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "SHAKEDOWN",
+      "timestamp": "2025-12-01T17:47:28.659643",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-01T16:21:21.741298"
+  "last_updated": "2025-12-01T17:47:28.659670"
 }

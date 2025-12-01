@@ -475,18 +475,18 @@ ENDIF
 - Command naming: `UPPERCASE-HYPHEN` (e.g., `SYSTEM-STATUS`, `FILE-INFO`)
 - Variable naming: `$UPPERCASE-HYPHEN` (e.g., `$CURRENT-PATH`, `$USER-NAME`)
 - Central command registry (`core/runtime/commands.py`)
-- .upy preprocessor for hybrid Python + uCODE
+- .upy preprocessor (minimal, Python 3 compatible)
 - Shell integration (`bin/udos`, `uenv.sh`)
-- Backward compatible with .uscript
+- .upy files are valid Python 3 (no legacy format support)
 
 **Deliverables**:
 - Command registry system
-- .upy preprocessor
-- 4+ sample .upy scripts
+- .upy preprocessor (Python-compatible)
+- 4+ sample .upy scripts (all valid Python 3)
 - Shell launcher and environment
-- Migration tool (.uscript → .upy)
 - `COPILOT_BRIEF.md`
-- 40+ tests (including compatibility)
+- Python module structure
+- 40+ tests (including Python stdlib integration)
 
 ### Implementation Tools
 
@@ -536,13 +536,14 @@ cat sandbox/dev/round-<N>-progress.md
 ### Migration Notes
 
 **From v1.1.8 to v1.1.9**:
-- .uscript files still work (backward compatible)
-- New .upy format recommended for new scripts
-- Commands accept both old and hyphenated format
-- Variables support both `$VAR` and `$VAR-NAME` syntax
-- Migration tool available: `MIGRATE USCRIPT <file>`
+- ⚠️ **BREAKING CHANGES**: v1.1.9 is a clean break, forward evolution
+- Old .uscript format deprecated (no longer supported)
+- All scripts must use new .upy format (valid Python 3)
+- Commands use UPPERCASE-HYPHEN naming only
+- Variables use `$UPPERCASE-HYPHEN` syntax only
+- Migration guide provided in wiki for manual conversion
 
-**Breaking Changes**: None (fully backward compatible)
+**Philosophy**: uDOS evolves forward, not backward. Clean architecture over legacy bloat.
 
 ---
 

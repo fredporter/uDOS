@@ -226,8 +226,8 @@ ENDIF
 #### 3.2 Command Registry System (Day 1-2)
 - [ ] Create `core/runtime/commands.py` - central registry
 - [ ] Map all commands to handler functions
-- [ ] Support both old format and new hyphenated format
-- [ ] Deprecation warnings for old syntax
+- [ ] Pure Python-compatible command dispatch
+- [ ] No legacy format support (clean break)
 
 **Registry Example**:
 ```python
@@ -253,7 +253,7 @@ COMMAND_REGISTRY = {
 - [ ] `sandbox/ucode/file_ops_demo.upy` - File operations
 - [ ] `sandbox/ucode/knowledge_demo.upy` - Knowledge/memory commands
 - [ ] `sandbox/ucode/mixed_python_upy.upy` - Hybrid Python + uCODE
-- [ ] Migration guide for .uscript → .upy
+- [ ] Pure Python examples showing .upy as Python superset
 
 #### 3.5 Command Handler Modules (Day 4-5)
 - [ ] Restructure handlers under naming convention:
@@ -269,12 +269,12 @@ COMMAND_REGISTRY = {
 - [ ] Shell aliases: `udos`, `u` shorthand
 - [ ] Python module entry: `python -m udos.cli`
 
-#### 3.7 Testing & Migration (Day 6-7)
+#### 3.7 Testing & Python Compatibility (Day 6-7)
 - [ ] Unit tests for upy_preprocessor
 - [ ] Command registry tests
 - [ ] .upy script execution tests
-- [ ] Backward compatibility tests (.uscript still works)
-- [ ] Migration tool: `MIGRATE USCRIPT <file>` converts to .upy
+- [ ] Python compatibility tests (valid Python 3 syntax)
+- [ ] Standard library integration tests (importable as module)
 - [ ] Update all wiki documentation
 - [ ] Create `COPILOT_BRIEF.md` in project root
 
@@ -284,17 +284,17 @@ COMMAND_REGISTRY = {
 - ✅ Variable substitution works with hyphens
 - ✅ Command registry functional
 - ✅ Shell integration working
-- ✅ Backward compatible with .uscript
+- ✅ Pure Python 3 compatibility (.upy files are valid Python)
 - ✅ 95%+ test coverage
 
 **Deliverables**:
 - `core/runtime/commands.py`
 - `core/interpreters/upy_preprocessor.py`
-- 4+ sample .upy scripts
+- 4+ sample .upy scripts (all valid Python)
 - `bin/udos` and `uenv.sh`
-- Migration tool
 - `COPILOT_BRIEF.md`
 - Complete wiki updates
+- Python module structure (`python -m udos`)
 
 ---
 
@@ -331,9 +331,10 @@ COMMAND_REGISTRY = {
 - [ ] All commands use hyphenated names
 - [ ] .upy preprocessor functional
 - [ ] Command registry complete
-- [ ] 4+ sample .upy scripts
+- [ ] 4+ sample .upy scripts (all valid Python)
 - [ ] Shell integration working
-- [ ] 40+ tests passing (includes compatibility)
+- [ ] Python 3 compatibility verified
+- [ ] 40+ tests passing (includes Python stdlib integration)
 
 ---
 
@@ -409,11 +410,14 @@ After completing each round:
   **Mitigation**: Unified state management, single source of truth
 
 ### Round 3 Risks
-- **Risk**: Breaking changes in command naming
-  **Mitigation**: Backward compatibility layer, dual support for 6 months
+- **Risk**: Breaking changes require user script updates
+  **Mitigation**: Clear migration guide, example conversions in wiki
 
 - **Risk**: .upy preprocessor performance issues
-  **Mitigation**: Cache compiled scripts, optimize parser
+  **Mitigation**: Keep preprocessing minimal, leverage Python's ast module
+
+- **Risk**: Python compatibility issues with uCODE syntax
+  **Mitigation**: Design .upy as valid Python first, add shortcuts second
 
 ---
 
