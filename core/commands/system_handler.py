@@ -206,7 +206,7 @@ class SystemCommandHandler(BaseCommandHandler):
             'CONFIG': self.handle_config,
             'WIZARD': self.handle_wizard,
             'SETUP': self.handle_settings,
-            'WORKSPACE': self.handle_workspace,
+            # WORKSPACE command removed - use file pickers
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,
             'GET': self.handle_get,
