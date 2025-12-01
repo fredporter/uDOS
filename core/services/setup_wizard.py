@@ -61,7 +61,8 @@ class SetupWizard:
         """Lazy-load StoryManager if not provided."""
         if self._story_manager is None:
             from core.output.story_manager import StoryManager
-            self._story_manager = StoryManager()
+            # Use same file as Config reads from
+            self._story_manager = StoryManager(story_path="sandbox/user/user.json")
         return self._story_manager
 
     @property
@@ -220,16 +221,16 @@ class SetupWizard:
                     required=True
                 )
 
-                self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
+                self.story_manager.set_field('USER_PROFILE.NAME', user_name, auto_save=False)
 
                 # Auto-set timezone and location from detection
-                self.story_manager.set_field('STORY.TIMEZONE', detected_timezone, auto_save=False)
-                self.story_manager.set_field('STORY.LOCATION', detected_city, auto_save=False)
+                self.story_manager.set_field('USER_PROFILE.TIMEZONE', detected_timezone, auto_save=False)
+                self.story_manager.set_field('USER_PROFILE.LOCATION', detected_city, auto_save=False)
 
             # Apply default theme if not set
-            current_theme = self.story_manager.get_field('STORY.THEME', '')
+            current_theme = self.story_manager.get_field('system_settings.interface.theme', '')
             if not current_theme:
-                self.story_manager.set_field('STORY.THEME', 'dungeon', auto_save=False)
+                self.story_manager.set_field('system_settings.interface.theme', 'dungeon', auto_save=False)
 
             # Save all changes
             self.story_manager.save()
@@ -238,7 +239,7 @@ class SetupWizard:
             output.append(self.output_formatter.format_success(
                 "Quick setup complete!",
                 details={
-                    'Theme': self.story_manager.get_field('STORY.THEME', 'dungeon'),
+                    'Theme': self.story_manager.get_field('system_settings.interface.theme', 'dungeon'),
                     'Viewport': 'Auto-detect',
                     'Extensions': 'Enabled (web, teletext, dashboard)'
                 }
@@ -307,10 +308,10 @@ class SetupWizard:
         detected_timezone, detected_city = get_system_timezone()
 
         # Get current values
-        current_name = self.story_manager.get_field('STORY.USER_NAME', '')
-        current_password = self.story_manager.get_field('STORY.PASSWORD', '')
-        current_location = self.story_manager.get_field('STORY.LOCATION', '')
-        current_timezone = self.story_manager.get_field('STORY.TIMEZONE', '')
+        current_name = self.story_manager.get_field('USER_PROFILE.NAME', '')
+        current_password = self.story_manager.get_field('USER_PROFILE.PASSWORD', '')
+        current_location = self.story_manager.get_field('USER_PROFILE.LOCATION', '')
+        current_timezone = self.story_manager.get_field('USER_PROFILE.TIMEZONE', '')
 
         # Use detected values as defaults if not set
         if not current_timezone:
@@ -324,7 +325,7 @@ class SetupWizard:
             default=current_name,
             required=True
         )
-        self.story_manager.set_field('STORY.USER_NAME', user_name, auto_save=False)
+        self.story_manager.set_field('USER_PROFILE.NAME', user_name, auto_save=False)
 
         # Prompt for password (optional)
         password = self.input_manager.prompt_user(
@@ -332,7 +333,7 @@ class SetupWizard:
             default="",
             required=False
         )
-        self.story_manager.set_field('STORY.PASSWORD', password, auto_save=False)
+        self.story_manager.set_field('USER_PROFILE.PASSWORD', password, auto_save=False)
 
         # Prompt for timezone (auto-detected, modifiable)
         print(f"\nℹ️  Detected timezone: {detected_timezone}")
@@ -342,9 +343,9 @@ class SetupWizard:
             required=False
         )
         if timezone:
-            self.story_manager.set_field('STORY.TIMEZONE', timezone, auto_save=False)
+            self.story_manager.set_field('USER_PROFILE.TIMEZONE', timezone, auto_save=False)
         else:
-            self.story_manager.set_field('STORY.TIMEZONE', current_timezone, auto_save=False)
+            self.story_manager.set_field('USER_PROFILE.TIMEZONE', current_timezone, auto_save=False)
 
         # Prompt for location (defaults to timezone city, modifiable)
         location = self.input_manager.prompt_user(
@@ -353,16 +354,16 @@ class SetupWizard:
             required=False
         )
         if location:
-            self.story_manager.set_field('STORY.LOCATION', location, auto_save=False)
+            self.story_manager.set_field('USER_PROFILE.LOCATION', location, auto_save=False)
         else:
-            self.story_manager.set_field('STORY.LOCATION', current_location, auto_save=False)
+            self.story_manager.set_field('USER_PROFILE.LOCATION', current_location, auto_save=False)
 
         # Save all profile changes
         self.story_manager.save()
 
     def _wizard_step_theme(self) -> str:
         """Theme selection step (v1.0.29 Smart Mode)."""
-        current_theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
+        current_theme = self.story_manager.get_field('system_settings.interface.theme', 'dungeon')
 
         # Show available themes
         if not self.available_themes:
@@ -374,7 +375,7 @@ class SetupWizard:
             default=current_theme if current_theme in self.available_themes else self.available_themes[0]
         )
 
-        self.story_manager.set_field('STORY.THEME', theme, auto_save=True)
+        self.story_manager.set_field('system_settings.interface.theme', theme, auto_save=True)
         return theme
 
     def _wizard_step_viewport(self) -> str:
@@ -442,11 +443,11 @@ class SetupWizard:
 
     def _format_completion_summary(self) -> str:
         """Format completion summary with current config (v1.0.29)."""
-        user_name = self.story_manager.get_field('STORY.USER_NAME', 'Not set')
-        password = self.story_manager.get_field('STORY.PASSWORD', '')
-        theme = self.story_manager.get_field('STORY.THEME', 'dungeon')
-        location = self.story_manager.get_field('STORY.LOCATION', 'Not set')
-        timezone = self.story_manager.get_field('STORY.TIMEZONE', 'UTC')
+        user_name = self.story_manager.get_field('USER_PROFILE.NAME', 'Not set')
+        password = self.story_manager.get_field('USER_PROFILE.PASSWORD', '')
+        theme = self.story_manager.get_field('system_settings.interface.theme', 'dungeon')
+        location = self.story_manager.get_field('USER_PROFILE.LOCATION', 'Not set')
+        timezone = self.story_manager.get_field('USER_PROFILE.TIMEZONE', 'UTC')
 
         password_display = '●●●●●●' if password else 'Not set'
 

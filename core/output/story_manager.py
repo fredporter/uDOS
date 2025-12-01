@@ -94,15 +94,11 @@ class StoryManager:
         if not self.story_data:
             return True
 
-        # Check required fields
-        story = self.story_data.get('STORY', {})
+        # Check required fields in USER_PROFILE section
+        user_profile = self.story_data.get('USER_PROFILE', {})
 
         # User name is required
-        if not story.get('USER_NAME'):
-            return True
-
-        # Project name is required
-        if not story.get('PROJECT_NAME'):
+        if not user_profile.get('NAME'):
             return True
 
         return False
