@@ -267,7 +267,7 @@ class ConfigurationHandler(BaseCommandHandler):
 
         # Check for cloud extension API
         try:
-            from extensions.cloud.poke_online.poke_commands import get_tunnel_status
+            from extensions.cloud.poke_commands import get_tunnel_status
             tunnel_status = get_tunnel_status()
             if tunnel_status:
                 output.append(f"  Cloud Tunnel: {tunnel_status}")

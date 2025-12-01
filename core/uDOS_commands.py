@@ -338,7 +338,7 @@ class CommandHandler:
                 if params and params[0].upper() in ["TUNNEL", "SHARE", "GROUP"]:
                     # Try to load POKE Online extension
                     try:
-                        from extensions.cloud.poke_online.poke_commands import handle_poke_command
+                        from extensions.cloud.poke_commands import handle_poke_command
                         return handle_poke_command(params)
                     except ImportError:
                         return ("❌ POKE Online extension not available\n"

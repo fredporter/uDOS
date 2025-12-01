@@ -1,8 +1,8 @@
 {
-  "id": "poke_online",
-  "name": "POKE Online - Sharing & Tunneling",
-  "version": "1.1.7",
-  "description": "Local-first peer-to-peer sharing with secure tunneling. Share missions, collaborate on projects, and connect uDOS instances safely.",
+  "id": "cloud",
+  "name": "Cloud Services - POKE Online",
+  "version": "2.0.0",
+  "description": "Cloud services including tunneling, sharing, and web service management. Provides POKE commands for dashboard, desktop, terminal, teletext, and web publishing.",
   "author": "uDOS Core Team",
   "license": "MIT",
   "category": "cloud",
@@ -10,7 +10,7 @@
   "status": "active",
 
   "dependencies": {
-    "uDOS": ">=1.1.6",
+    "uDOS": ">=2.0.0",
     "python": ">=3.10",
     "extensions": ["logging-manager"]
   },
@@ -37,6 +37,49 @@
   ],
 
   "commands": [
+    {
+      "name": "POKE DASHBOARD",
+      "description": "Start NES-themed dashboard (port 5555)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE DESKTOP",
+      "description": "Start desktop interface (port 8892)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE TERMINAL",
+      "description": "Start web terminal (port 8889)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE TELETEXT",
+      "description": "Start teletext interface (port 9002)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE WEB",
+      "description": "Start web publishing tools (port 8080)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE START",
+      "description": "Start a web service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext", "web"]
+    },
+    {
+      "name": "POKE STOP",
+      "description": "Stop a web service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext", "web"]
+    },
+    {
+      "name": "POKE LIST",
+      "description": "List all services and their status"
+    },
+    {
+      "name": "POKE STATUS",
+      "description": "Show detailed service status"
+    },
     {
       "name": "POKE TUNNEL",
       "description": "Manage secure tunnels",
@@ -75,7 +118,8 @@
     "TunnelManager",
     "SharingManager",
     "GroupManager",
-    "SecurityManager"
+    "SecurityManager",
+    "ServiceManager"
   ],
 
   "config": {
@@ -103,7 +147,7 @@
 
   "ui": {
     "web_dashboard": true,
-    "dashboard_port": 5002,
+    "dashboard_port": 5555,
     "real_time_updates": true,
     "tunnel_qr_codes": true
   },
