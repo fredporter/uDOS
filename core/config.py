@@ -40,7 +40,7 @@ class Config:
         'THEME': 'Color theme',
         'MAX_SESSION_HISTORY': 'Max session history',
         'AUTO_SAVE_SESSION': 'Auto-save session',
-        'CLI_EDITOR': 'CLI text editor (nano, micro, vim, vi)',
+        'CLI_EDITOR': 'CLI text editor (micro, nano, vim, vi) - default: micro',
         'WEB_EDITOR': 'Web-based editor (typo)',
     }
 
@@ -376,6 +376,21 @@ AUTO_SAVE_SESSION='true'
     def default_workspace(self) -> str:
         """Get default workspace."""
         return self.get_env('DEFAULT_WORKSPACE', 'sandbox')
+
+    @property
+    def color_palette(self) -> str:
+        """Get current color palette."""
+        return self.get_user('system_settings.interface.color_palette', 'polaroid')
+
+    @property
+    def dev_mode(self) -> bool:
+        """Get Dev Mode status (runtime or user config)."""
+        return self.get('DEV_MODE', False) or self.get_user('DEV_MODE', False)
+
+    @property
+    def cli_editor(self) -> str:
+        """Get CLI editor preference (default: micro)."""
+        return self.get_env('CLI_EDITOR', 'micro')
 
     def has_api_key(self, service: str) -> bool:
         """

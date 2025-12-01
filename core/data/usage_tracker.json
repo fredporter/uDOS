@@ -1,9 +1,9 @@
 {
   "command_counts": {
-    "HELP": 18,
+    "HELP": 20,
     "DASH": 6,
     "SHOW": 3,
-    "CONFIG": 4,
+    "CONFIG": 5,
     "OUTPUT": 6,
     "SETUP": 2,
     "HISTORY": 1,
@@ -14,7 +14,8 @@
     "LIST": 2,
     "WIZARD": 1,
     "CATEGORIES": 1,
-    "$1": 1
+    "$1": 1,
+    "REBOOT": 2
   },
   "success_counts": {
     "HELP": 15,
@@ -36,9 +37,10 @@
     "ERROR": 3,
     "SETUP": 1,
     "DASH": 1,
-    "CONFIG": 1,
-    "HELP": 3,
-    "$1": 1
+    "CONFIG": 2,
+    "HELP": 5,
+    "$1": 1,
+    "REBOOT": 2
   },
   "recent_commands": [
     {
@@ -511,7 +513,46 @@
       ],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T15:47:46.255241",
+      "params": [],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T15:47:49.311148",
+      "params": [
+        "ALL"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "REBOOT",
+      "timestamp": "2025-12-01T15:49:47.222197",
+      "params": [],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T15:50:08.957529",
+      "params": [
+        "ALL"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "REBOOT",
+      "timestamp": "2025-12-01T16:20:57.579234",
+      "params": [],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-01T14:38:37.984162"
+  "last_updated": "2025-12-01T16:21:21.741298"
 }

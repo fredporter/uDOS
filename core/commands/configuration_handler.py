@@ -207,66 +207,91 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("⚙️ uDOS SYSTEM SETTINGS")
         output.append("=" * 60)
 
-        # Theme settings
-        output.append("")
-        output.append("🎨 THEME SETTINGS:")
-        output.append("-" * 40)
-        if self.theme:
-            output.append(f"  Current Theme: {getattr(self.theme, 'name', 'Default')}")
-            output.append(f"  Color Mode: {getattr(self.theme, 'color_mode', 'AUTO')}")
-        else:
-            output.append("  Theme: Not loaded")
-
-        # Grid settings
-        output.append("")
-        output.append("📐 GRID SETTINGS:")
-        output.append("-" * 40)
-        if self.viewport:
-            output.append(f"  Terminal Size: {self.viewport.width}×{self.viewport.height}")
-            output.append(f"  Grid Size: {getattr(self.viewport, 'grid_width', '?')}×{getattr(self.viewport, 'grid_height', '?')}")
-            output.append(f"  Device Type: {getattr(self.viewport, 'device_type', 'UNKNOWN')}")
-        else:
-            output.append("  Grid: Not initialized")
-
-        # User settings
-        output.append("")
-        output.append("👤 USER SETTINGS:")
-        output.append("-" * 40)
-
-        # Get user data from ConfigManager (v1.5.0)
+        # Get user data from ConfigManager (v2.0)
         config = get_config()
+
+        # System Location
+        output.append("")
+        output.append("🌌 SYSTEM LOCATION:")
+        output.append("-" * 40)
+        galaxy = config.get_user('SYSTEM.GALAXY', 'Milky Way')
+        planet = config.get_user('SYSTEM.PLANET', 'Earth')
+        city = config.get_user('SYSTEM.CITY', 'Not set')
+        city_grid = config.get_user('SYSTEM.CITY_GRID', 'N/A')
+        city_layer = config.get_user('SYSTEM.CITY_LAYER', 100)
+        full_tile = f"{city_grid}-{city_layer}" if city_grid != 'N/A' else 'N/A'
+
+        output.append(f"  Galaxy: {galaxy}")
+        output.append(f"  Planet: {planet}")
+        output.append(f"  City: {city}")
+        output.append(f"  TILE Code: {full_tile}")
+
+        # User Profile
+        output.append("")
+        output.append("👤 USER PROFILE:")
+        output.append("-" * 40)
         user_name = config.get_user('USER_PROFILE.NAME', 'Not set')
         location = config.get_user('USER_PROFILE.LOCATION', 'Not set')
         timezone = config.get_user('USER_PROFILE.TIMEZONE', 'UTC')
         password = config.get_user('USER_PROFILE.PASSWORD', '')
-        project_name = 'uDOS_project'  # TODO: Add to ConfigManager schema if needed
-
         password_display = '●●●●●●' if password else 'Not set'
 
         output.append(f"  Username: {user_name}")
         output.append(f"  Password: {password_display}")
-        output.append(f"  Project: {project_name}")
         output.append(f"  Location: {location}")
         output.append(f"  Timezone: {timezone}")
 
-        # Get theme from ConfigManager
-        theme_name = config.get_env('THEME', 'Not set')
-        output.append(f"  Theme: {theme_name}")
-
-        # System settings
+        # Theme & Display
         output.append("")
-        output.append("🔧 SYSTEM SETTINGS:")
+        output.append("🎨 THEME & DISPLAY:")
         output.append("-" * 40)
-        output.append(f"  Debug Mode: {getattr(self.logger, 'debug_enabled', False) if self.logger else False}")
-        output.append(f"  Auto-save: Enabled")
-        output.append(f"  Connection Mode: {self.connection.get_mode() if self.connection else 'OFFLINE'}")
-        output.append(f"  CLI Editor: {config.get_env('CLI_EDITOR', 'nano')}")
+        theme_name = config.get_env('THEME', 'dungeon')
+        color_palette = config.get_user('system_settings.interface.color_palette', 'polaroid')
+
+        output.append(f"  Theme: {theme_name}")
+        output.append(f"  Color Palette: {color_palette}")
+
+        if self.viewport:
+            output.append(f"  Viewport: {self.viewport.width}×{self.viewport.height}")
+            output.append(f"  Device: {getattr(self.viewport, 'device_type', 'TERMINAL')}")
+
+        # Connection & Services
+        output.append("")
+        output.append("🌐 CONNECTION & SERVICES:")
+        output.append("-" * 40)
+        connection_mode = self.connection.get_mode() if self.connection else 'OFFLINE'
+        internet_available = self.connection.is_online() if self.connection else False
+
+        output.append(f"  Connection: {connection_mode}")
+        output.append(f"  Internet: {'✓ Available' if internet_available else '✗ Offline'}")
+
+        # Check for cloud extension API
+        try:
+            from extensions.cloud.poke_online.poke_commands import get_tunnel_status
+            tunnel_status = get_tunnel_status()
+            if tunnel_status:
+                output.append(f"  Cloud Tunnel: {tunnel_status}")
+        except:
+            pass
+
+        # Development & Tools
+        output.append("")
+        output.append("🔧 DEVELOPMENT & TOOLS:")
+        output.append("-" * 40)
+        debug_mode = getattr(self.logger, 'debug_enabled', False) if self.logger else False
+        dev_mode = config.get('DEV_MODE', False)
+        cli_editor = config.get_env('CLI_EDITOR', 'micro')
+
+        output.append(f"  Debug Mode: {'✓ Enabled' if debug_mode else '✗ Disabled'}")
+        output.append(f"  Dev Mode: {'✓ Enabled' if dev_mode else '✗ Disabled'}")
+        output.append(f"  CLI Editor: {cli_editor} (fallback: nano)")
+        output.append(f"  Auto-save: ✓ Enabled")
 
         output.append("")
         output.append("=" * 60)
         output.append("💡 Use: SETUP <key> <value> to modify settings")
         output.append("💡 Use: CONFIG for interactive menu")
-        output.append("💡 Use: THEME LIST to see available themes")
+        output.append("💡 Use: WIZARD to reconfigure system")
 
         return "\n".join(output)
 
@@ -1374,23 +1399,27 @@ class ConfigurationHandler(BaseCommandHandler):
             )
 
     def _manage_system_settings_interactive(self):
-        """Interactive system settings management (v1.5.0: Uses ConfigManager)."""
+        """Interactive system settings management (v2.0: Enhanced with palettes, dev mode)."""
         try:
             # Get ConfigManager instance
             config = get_config()
 
             # Get current settings
             current_theme = config.get_env('THEME', 'dungeon')
+            current_palette = config.get_user('system_settings.interface.color_palette', 'polaroid')
             debug_mode = getattr(self.logger, 'debug_enabled', False) if self.logger else False
-            offline_mode = False  # TODO: Add to ConfigManager schema in future
+            dev_mode = config.get('DEV_MODE', False)
+            cli_editor = config.get_env('CLI_EDITOR', 'micro')
 
             # Show current settings
             output = []
             output.append(self.output_formatter.format_panel(
                 "System Settings",
                 f"Theme: {current_theme}\n"
+                f"Color Palette: {current_palette}\n"
                 f"Debug Mode: {'Enabled' if debug_mode else 'Disabled'}\n"
-                f"Offline Mode: {'Enabled' if offline_mode else 'Disabled'}"
+                f"Dev Mode: {'Enabled' if dev_mode else 'Disabled'}\n"
+                f"CLI Editor: {cli_editor}"
             ))
 
             # Ask what to update
@@ -1398,9 +1427,12 @@ class ConfigurationHandler(BaseCommandHandler):
                 message="What would you like to change?",
                 choices=[
                     "Change Theme",
+                    "Select Color Palette",
                     "Toggle Debug Mode",
+                    "Toggle Dev Mode",
                     "Configure Viewport",
-                    "Set CLI Editor (nano/micro/vim)",
+                    "Set CLI Editor (micro/nano/vim)",
+                    "Edit System Location (Galaxy/Planet/City)",
                     "View Viewport Info",
                     "Back to Main Menu"
                 ],
@@ -1427,6 +1459,29 @@ class ConfigurationHandler(BaseCommandHandler):
                     output.append("📝 Changes saved to .env and user.json")
                     output.append("⚠️ Restart uDOS to apply theme changes")
 
+            elif action == "Select Color Palette":
+                # Available palettes from uDOS style guide
+                palettes = [
+                    "polaroid",      # Default: warm, nostalgic
+                    "concrete",      # Neutral grays
+                    "brutalist",     # High contrast
+                    "terminal",      # Classic green/amber
+                    "cyberpunk",     # Neon colors
+                    "sepia",         # Vintage brown tones
+                    "mono",          # Black and white
+                    "earth"          # Natural earth tones
+                ]
+
+                new_palette = self.input_manager.prompt_choice(
+                    message="Select color palette:",
+                    choices=palettes,
+                    default=current_palette if current_palette in palettes else "polaroid"
+                )
+                config.set_user('system_settings.interface.color_palette', new_palette)
+                output.append(f"\n✅ Color palette set to: {new_palette}")
+                output.append("📝 Changes saved to user.json")
+                output.append("💡 Restart for full palette application")
+
             elif action == "Toggle Debug Mode":
                 if self.logger:
                     self.logger.debug_enabled = not debug_mode
@@ -1434,6 +1489,14 @@ class ConfigurationHandler(BaseCommandHandler):
                     output.append(f"\n✅ Debug mode {new_state}")
                 else:
                     output.append("\n❌ Logger not available")
+
+            elif action == "Toggle Dev Mode":
+                new_dev_mode = not dev_mode
+                config.set('DEV_MODE', new_dev_mode)
+                output.append(f"\n✅ Dev Mode {'enabled' if new_dev_mode else 'disabled'}")
+                output.append("📝 Changes saved to user.json")
+                if new_dev_mode:
+                    output.append("💡 Dev Mode unlocks: sandbox write access, debug commands, verbose logging")
 
             elif action == "Configure Viewport":
                 width = self.input_manager.prompt_user(
@@ -1451,9 +1514,9 @@ class ConfigurationHandler(BaseCommandHandler):
                 except ValueError:
                     output.append("\n❌ Invalid dimensions")
 
-            elif action == "Set CLI Editor (nano/micro/vim)":
+            elif action == "Set CLI Editor (micro/nano/vim)":
                 # Get current editor
-                current_editor = config.get_env('CLI_EDITOR', 'nano')
+                current_editor = config.get_env('CLI_EDITOR', 'micro')
 
                 # Detect available editors
                 from core.services.editor_manager import EditorManager
@@ -1463,16 +1526,16 @@ class ConfigurationHandler(BaseCommandHandler):
                 if not available['CLI']:
                     output.append("\n❌ No CLI editors found!")
                 else:
-                    # Add "Install micro editor" option if not already installed
+                    # Prioritize micro as default
                     choices = available['CLI'].copy()
                     if 'micro' not in available['CLI']:
                         choices.append("📥 Install micro editor")
                     choices.append("Back")
 
                     new_editor = self.input_manager.prompt_choice(
-                        message="Select default CLI editor:",
+                        message="Select default CLI editor (micro recommended):",
                         choices=choices,
-                        default=current_editor if current_editor in available['CLI'] else available['CLI'][0]
+                        default='micro' if 'micro' in available['CLI'] else current_editor
                     )
 
                     if new_editor == "📥 Install micro editor":
@@ -1494,6 +1557,16 @@ class ConfigurationHandler(BaseCommandHandler):
                         output.append(f"\n✅ CLI editor set to: {new_editor}")
                         output.append("📝 Changes saved to .env")
                         output.append(f"💡 Use 'edit filename' to open files in {new_editor}")
+
+            elif action == "Edit System Location (Galaxy/Planet/City)":
+                # Show current location
+                galaxy = config.get_user('SYSTEM.GALAXY', 'Milky Way')
+                planet = config.get_user('SYSTEM.PLANET', 'Earth')
+                city = config.get_user('SYSTEM.CITY', 'Not set')
+
+                output.append(f"\n📍 Current Location: {galaxy} > {planet} > {city}")
+                output.append("\n💡 To change location, run: WIZARD")
+                output.append("   This will guide you through city selection with TILE codes")
 
             elif action == "View Viewport Info":
                 return self._show_viewport_config()
