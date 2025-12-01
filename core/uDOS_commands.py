@@ -161,6 +161,15 @@ class CommandHandler:
         self.sprite_handler = SpriteHandler(components)
         self.object_handler = ObjectHandler(components)
 
+        # v1.1.9+ - STORY handler (Round 2 Adventure System)
+        from core.commands.story_handler import StoryHandler
+        story_components = {
+            'config': None,
+            'logger': logger,
+            'output': viewport
+        }
+        self.story_handler = StoryHandler(story_components)
+
         # v1.1.5 - SVG Graphics Extension handler (DEPRECATED - use GENERATE SVG)
         from core.commands.svg_handler import SVGHandler
         self.svg_handler = SVGHandler(viewport=viewport, logger=logger)
@@ -320,6 +329,10 @@ class CommandHandler:
             elif module == "OBJECT":
                 success = self.object_handler.handle([command] + params)
                 return "✅ Command executed" if success else "❌ Command failed"
+
+            # v1.1.9+ - STORY Adventure System (Round 2)
+            elif module == "STORY":
+                return self.story_handler.handle(command, params)
 
             # v1.0.21 - Teletext Display System
             elif module == "PANEL" or module == "UI":

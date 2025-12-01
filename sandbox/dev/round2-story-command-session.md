@@ -42,7 +42,7 @@
 **Commands Implemented:**
 - `STORY START <adventure>` - Start new adventure
 - `STORY LOAD <save>` - Load saved progress
-- `STORY SAVE <save>` - Save current progress  
+- `STORY SAVE <save>` - Save current progress
 - `STORY STATUS` - Show adventure status
 - `STORY LIST` - List available adventures
 - `STORY CONTINUE` - Continue current adventure
@@ -84,7 +84,7 @@ from core.services.game.survival_service import SurvivalService
 
 **Learning Objectives:**
 1. Water purification is essential
-2. Resource management is critical  
+2. Resource management is critical
 3. Every choice has consequences
 
 **Event Types Used:**
@@ -254,7 +254,7 @@ CHOICE "What do you do?"
 LABEL stream_path
   NARRATE "You approach the stream..."
   GIVE water_unpurified 3
-  
+
   CHOICE "What do you do with the water?"
     OPTION "Drink it raw" → drink_raw
       ROLL survival >= 15 ? safe_drink : sick_drink

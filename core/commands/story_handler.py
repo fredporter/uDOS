@@ -63,28 +63,25 @@ class StoryHandler:
         self.save_dir = Path("sandbox/user/saves")
         self.save_dir.mkdir(parents=True, exist_ok=True)
 
-    def handle(self, args: list) -> bool:
+    def handle(self, command: str, params: list) -> str:
         """
         Handle STORY commands.
 
         Args:
-            args: Command arguments
+            command: STORY subcommand (START, LIST, etc.)
+            params: Command parameters
 
         Returns:
-            True if command handled successfully
+            Result message string
         """
-        if not args:
-            self._show_help()
-            return True
-
-        command = args[0].upper()
+        command = command.upper()
 
         if command == 'START':
-            return self._start_adventure(args[1:])
+            return self._start_adventure(params)
         elif command == 'LOAD':
-            return self._load_save(args[1:])
+            return self._load_save(params)
         elif command == 'SAVE':
-            return self._save_progress(args[1:])
+            return self._save_progress(params)
         elif command == 'STATUS':
             return self._show_status()
         elif command == 'LIST':
@@ -92,19 +89,19 @@ class StoryHandler:
         elif command == 'CONTINUE':
             return self._continue_adventure()
         elif command == 'CHOICE':
-            return self._make_choice(args[1:])
+            return self._make_choice(params)
         elif command == 'ROLLBACK':
             return self._rollback()
         elif command == 'QUIT':
             return self._quit_adventure()
+        elif command == 'HELP' or not command:
+            return self._show_help()
         else:
-            self.output.print(f"❌ Unknown STORY command: {command}")
-            self._show_help()
-            return False
+            return f"❌ Unknown STORY command: {command}\n\n" + self._show_help()
 
-    def _show_help(self):
+    def _show_help(self) -> str:
         """Display STORY command help."""
-        self.output.print("""
+        return """
 📖 STORY Command - Adventure System
 
 Commands:
@@ -131,56 +128,46 @@ Integration:
   - Tracks survival stats (hunger, thirst, health)
   - Awards XP for choices and actions
   - Persistent save/load system
-""")
+"""
 
-    def _start_adventure(self, args: list) -> bool:
+    def _start_adventure(self, params: list) -> str:
         """Start a new adventure."""
-        if not args:
-            self.output.print("❌ Usage: STORY START <adventure_name>")
-            return False
+        if not params:
+            return "❌ Usage: STORY START <adventure_name>"
 
-        adventure_name = args[0]
+        adventure_name = params[0]
         adventure_file = self.adventure_dir / f"{adventure_name}.upy"
 
         if not adventure_file.exists():
             # Try .json extension
             adventure_file = self.adventure_dir / f"{adventure_name}.json"
             if not adventure_file.exists():
-                self.output.print(f"❌ Adventure not found: {adventure_name}")
-                self.output.print(f"   Looking in: {self.adventure_dir}")
-                self.output.print(f"\n💡 Use 'STORY LIST' to see available adventures")
-                return False
-
-        self.output.print(f"📖 Starting adventure: {adventure_name}")
-        self.output.print(f"   File: {adventure_file}")
+                return (f"❌ Adventure not found: {adventure_name}\n"
+                       f"   Looking in: {self.adventure_dir}\n\n"
+                       f"💡 Use 'STORY LIST' to see available adventures")
 
         # Load adventure script
         try:
             result = self.scenario_engine.start_scenario_from_script(str(adventure_file))
             if "error" in result:
-                self.output.print(f"❌ Error loading adventure: {result['error']}")
-                return False
+                return f"❌ Error loading adventure: {result['error']}"
 
             self.current_adventure = adventure_name
             self.current_session_id = result.get("session_id")
 
-            self.output.print(f"✅ Adventure started!")
-            self.output.print(f"   Session ID: {self.current_session_id}")
-            self.output.print(f"\n💡 Use 'STORY CONTINUE' to begin")
-
-            return True
+            return (f"✅ Adventure started!\n"
+                   f"   Session ID: {self.current_session_id}\n\n"
+                   f"💡 Use 'STORY CONTINUE' to begin")
 
         except Exception as e:
-            self.output.print(f"❌ Failed to start adventure: {e}")
             if self.logger:
                 self.logger.error(f"Adventure start error: {e}")
-            return False
+            return f"❌ Failed to start adventure: {e}"
 
-    def _load_save(self, args: list) -> bool:
+    def _load_save(self, args: list) -> str:
         """Load saved adventure progress."""
         if not args:
-            self.output.print("❌ Usage: STORY LOAD <save_name>")
-            return False
+            return "❌ Usage: STORY LOAD <save_name>"
 
         save_name = args[0]
         if not save_name.endswith('.json'):
@@ -189,9 +176,8 @@ Integration:
         save_file = self.save_dir / save_name
 
         if not save_file.exists():
-            self.output.print(f"❌ Save file not found: {save_name}")
-            self.output.print(f"   Looking in: {self.save_dir}")
-            return False
+            return (f"❌ Save file not found: {save_name}\n"
+                   f"   Looking in: {self.save_dir}")
 
         try:
             with open(save_file, 'r') as f:
@@ -203,24 +189,20 @@ Integration:
             # TODO: Restore scenario engine state
             # self.scenario_engine.load_state(save_data['engine_state'])
 
-            self.output.print(f"✅ Loaded save: {save_name}")
-            self.output.print(f"   Adventure: {self.current_adventure}")
-            self.output.print(f"   Session: {self.current_session_id}")
-            self.output.print(f"\n💡 Use 'STORY CONTINUE' to resume")
-
-            return True
+            return (f"✅ Loaded save: {save_name}\n"
+                   f"   Adventure: {self.current_adventure}\n"
+                   f"   Session: {self.current_session_id}\n\n"
+                   f"💡 Use 'STORY CONTINUE' to resume")
 
         except Exception as e:
-            self.output.print(f"❌ Failed to load save: {e}")
             if self.logger:
                 self.logger.error(f"Save load error: {e}")
-            return False
+            return f"❌ Failed to load save: {e}"
 
-    def _save_progress(self, args: list) -> bool:
+    def _save_progress(self, args: list) -> str:
         """Save current adventure progress."""
         if not self.current_adventure:
-            self.output.print("❌ No active adventure to save")
-            return False
+            return "❌ No active adventure to save"
 
         if not args:
             # Auto-generate save name
@@ -245,134 +227,117 @@ Integration:
             with open(save_file, 'w') as f:
                 json.dump(save_data, f, indent=2)
 
-            self.output.print(f"✅ Progress saved: {save_name}")
-            self.output.print(f"   Location: {save_file}")
-
-            return True
+            return (f"✅ Progress saved: {save_name}\n"
+                   f"   Location: {save_file}")
 
         except Exception as e:
-            self.output.print(f"❌ Failed to save: {e}")
             if self.logger:
                 self.logger.error(f"Save error: {e}")
-            return False
+            return f"❌ Failed to save: {e}"
 
-    def _show_status(self) -> bool:
+    def _show_status(self) -> str:
         """Show current adventure status."""
         if not self.current_adventure:
-            self.output.print("📖 No active adventure")
-            self.output.print("💡 Use 'STORY START <name>' to begin")
-            return True
+            return ("📖 No active adventure\n"
+                   "💡 Use 'STORY START <name>' to begin")
 
-        self.output.print(f"📖 Current Adventure: {self.current_adventure}")
-        self.output.print(f"   Session ID: {self.current_session_id}")
+        output = f"📖 Current Adventure: {self.current_adventure}\n"
+        output += f"   Session ID: {self.current_session_id}\n"
 
         # Show scenario progress
         if self.scenario_engine.current_events:
             total = len(self.scenario_engine.current_events)
             current = self.scenario_engine.event_index
-            self.output.print(f"   Progress: {current}/{total} events")
+            output += f"   Progress: {current}/{total} events\n"
 
         # TODO: Show sprite stats, inventory, etc.
-        self.output.print(f"\n💡 Use 'STORY CONTINUE' to proceed")
+        output += "\n💡 Use 'STORY CONTINUE' to proceed"
 
-        return True
+        return output
 
-    def _list_adventures(self) -> bool:
+    def _list_adventures(self) -> str:
         """List available adventures."""
         if not self.adventure_dir.exists():
-            self.output.print(f"📖 No adventures directory: {self.adventure_dir}")
-            return True
+            return f"📖 No adventures directory: {self.adventure_dir}"
 
         adventures = []
         for ext in ['*.upy', '*.json']:
             adventures.extend(self.adventure_dir.glob(ext))
 
         if not adventures:
-            self.output.print(f"📖 No adventures found in {self.adventure_dir}")
-            self.output.print(f"\n💡 Create adventure scripts (.upy or .json files)")
-            return True
+            return (f"📖 No adventures found in {self.adventure_dir}\n\n"
+                   f"💡 Create adventure scripts (.upy or .json files)")
 
-        self.output.print(f"📖 Available Adventures ({len(adventures)}):\n")
+        output = f"📖 Available Adventures ({len(adventures)}):\n\n"
 
         for adventure in sorted(adventures):
             name = adventure.stem
             size = adventure.stat().st_size
             modified = datetime.fromtimestamp(adventure.stat().st_mtime)
 
-            self.output.print(f"  • {name}")
-            self.output.print(f"    File: {adventure.name}")
-            self.output.print(f"    Size: {size} bytes")
-            self.output.print(f"    Modified: {modified.strftime('%Y-%m-%d %H:%M')}")
-            self.output.print()
+            output += f"  • {name}\n"
+            output += f"    File: {adventure.name}\n"
+            output += f"    Size: {size} bytes\n"
+            output += f"    Modified: {modified.strftime('%Y-%m-%d %H:%M')}\n\n"
 
-        self.output.print(f"💡 Start with: STORY START <name>")
+        output += "💡 Start with: STORY START <name>"
 
-        return True
+        return output
 
-    def _continue_adventure(self) -> bool:
+    def _continue_adventure(self) -> str:
         """Continue current adventure."""
         if not self.current_adventure:
-            self.output.print("❌ No active adventure")
-            self.output.print("💡 Use 'STORY START <name>' to begin")
-            return False
+            return ("❌ No active adventure\n"
+                   "💡 Use 'STORY START <name>' to begin")
 
         # TODO: Process next event from scenario engine
-        self.output.print(f"📖 Continuing: {self.current_adventure}")
-        self.output.print("⚠️  Adventure engine integration in progress...")
-        self.output.print("💡 Full event processing coming soon")
+        return (f"📖 Continuing: {self.current_adventure}\n"
+               f"⚠️  Adventure engine integration in progress...\n"
+               f"💡 Full event processing coming soon")
 
-        return True
-
-    def _make_choice(self, args: list) -> bool:
+    def _make_choice(self, args: list) -> str:
         """Make a choice in the adventure."""
         if not self.current_adventure:
-            self.output.print("❌ No active adventure")
-            return False
+            return "❌ No active adventure"
 
         if not args:
-            self.output.print("❌ Usage: STORY CHOICE <number>")
-            return False
+            return "❌ Usage: STORY CHOICE <number>"
 
         try:
             choice_num = int(args[0])
             # TODO: Process choice through scenario engine
-            self.output.print(f"📖 Choice {choice_num} selected")
-            self.output.print("⚠️  Choice processing in progress...")
-            return True
+            return (f"📖 Choice {choice_num} selected\n"
+                   f"⚠️  Choice processing in progress...")
 
         except ValueError:
-            self.output.print(f"❌ Invalid choice number: {args[0]}")
-            return False
+            return f"❌ Invalid choice number: {args[0]}"
 
-    def _rollback(self) -> bool:
+    def _rollback(self) -> str:
         """Rollback last choice."""
         if not self.current_adventure:
-            self.output.print("❌ No active adventure")
-            return False
+            return "❌ No active adventure"
 
         # TODO: Implement rollback through scenario engine
-        self.output.print("📖 Rolling back last choice...")
-        self.output.print("⚠️  Rollback feature in progress...")
+        return ("📖 Rolling back last choice...\n"
+               "⚠️  Rollback feature in progress...")
 
-        return True
-
-    def _quit_adventure(self) -> bool:
+    def _quit_adventure(self) -> str:
         """Exit current adventure."""
         if not self.current_adventure:
-            self.output.print("❌ No active adventure")
-            return False
+            return "❌ No active adventure"
 
-        self.output.print(f"📖 Exiting adventure: {self.current_adventure}")
+        adventure_name = self.current_adventure
 
         # Prompt to save
-        self.output.print("💾 Would you like to save before quitting? (Use STORY SAVE)")
+        output = f"📖 Exiting adventure: {adventure_name}\n\n"
+        output += "💾 Would you like to save before quitting? (Use STORY SAVE)\n\n"
 
         self.current_adventure = None
         self.current_session_id = None
 
-        self.output.print("✅ Adventure exited")
+        output += "✅ Adventure exited"
 
-        return True
+        return output
 
 
 # Register command
