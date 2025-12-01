@@ -1,0 +1,80 @@
+---
+title: Nano Banana Batch Generation
+description: Generate multiple SVG diagrams for knowledge base
+version: 1.1.7
+author: uDOS Development Team
+tags: [nano-banana, svg, batch, automation]
+---
+
+# Nano Banana Batch Generation - Knowledge Base Diagrams
+# Generate SVGs for multiple knowledge categories
+
+PRINT "🎨 Batch SVG Generation Starting..."
+PRINT "="*50
+PRINT ""
+
+# Configuration
+SET categories ["water", "fire", "shelter", "food"]
+SET success_count 0
+SET fail_count 0
+SET start_time [TIME|now]
+
+PRINT "📋 Configuration:"
+PRINT "   Categories: $categories"
+PRINT "   Style: technical-kinetic"
+PRINT "   Type: architecture (overview diagrams)"
+PRINT ""
+
+# Process each category
+FOR category IN $categories
+  PRINT "📂 Processing category: $category"
+  PRINT "   Generating overview diagram..."
+  
+  # Generate overview diagram
+  GENERATE SVG "$category overview" --type architecture --save "$category-overview.svg"
+  
+  # Track results
+  IF $? == 0
+    SET success_count ($success_count + 1)
+    PRINT "   ✅ Success: $category-overview.svg"
+  ELSE
+    SET fail_count ($fail_count + 1)
+    PRINT "   ❌ Failed: $category-overview.svg"
+  ENDIF
+  
+  # Rate limiting (API courtesy)
+  IF $category != [LAST|$categories]
+    PRINT "   ⏳ Waiting 2 seconds (API rate limiting)..."
+    SLEEP 2
+  ENDIF
+  
+  PRINT ""
+DONE
+
+# Calculate elapsed time
+SET end_time [TIME|now]
+SET elapsed [TIME|diff|$start_time|$end_time]
+
+# Summary report
+PRINT "="*50
+PRINT "📊 Batch Generation Complete"
+PRINT "="*50
+PRINT ""
+PRINT "Results:"
+PRINT "   ✅ Successful: $success_count"
+PRINT "   ❌ Failed: $fail_count"
+PRINT "   📁 Total: " ($success_count + $fail_count)
+PRINT ""
+PRINT "Performance:"
+PRINT "   ⏱️  Elapsed time: $elapsed seconds"
+PRINT "   📍 Output: sandbox/drafts/svg/"
+PRINT ""
+
+# Exit with appropriate status
+IF $fail_count > 0
+  PRINT "⚠️  Some generations failed - check logs for details"
+  EXIT 1
+ELSE
+  PRINT "🎉 All diagrams generated successfully!"
+  EXIT 0
+ENDIF

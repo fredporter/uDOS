@@ -1,0 +1,52 @@
+---
+title: Nano Banana Quick Start
+description: Generate your first SVG diagram using Nano Banana
+version: 1.1.7
+author: uDOS Development Team
+tags: [nano-banana, svg, quick-start, tutorial]
+---
+
+# Nano Banana Quick Start - Single SVG Generation
+# Demonstrates basic GENERATE SVG usage
+
+PRINT "🎨 Nano Banana Quick Start"
+PRINT "="*50
+PRINT ""
+PRINT "This tutorial will generate a water filtration diagram"
+PRINT "using the Nano Banana PNG→SVG pipeline."
+PRINT ""
+
+# Generate single SVG with default settings
+PRINT "📝 Generating: water filtration system"
+PRINT "   Style: technical-kinetic (default)"
+PRINT "   Type: flowchart"
+PRINT ""
+
+GENERATE SVG "water filtration system" --style technical-kinetic --type flowchart
+
+# Check if successful
+IF $? == 0
+  PRINT ""
+  PRINT "✅ SVG generated successfully!"
+  PRINT "📁 Location: sandbox/drafts/svg/"
+  PRINT ""
+  PRINT "💡 Tips for next steps:"
+  PRINT "   • Try --pro for higher quality (slower)"
+  PRINT "   • Try --strict for validation enforcement"
+  PRINT "   • Try different styles: hand-illustrative, hybrid"
+  PRINT "   • Try different types: architecture, schematic"
+ELSE
+  PRINT ""
+  PRINT "❌ Generation failed!"
+  PRINT "💡 Troubleshooting:"
+  PRINT "   • Check GEMINI_API_KEY in .env"
+  PRINT "   • Verify internet connection"
+  PRINT "   • Check API quota/billing"
+  EXIT 1
+ENDIF
+
+PRINT ""
+PRINT "📚 Learn more:"
+PRINT "   • wiki/Nano-Banana-Integration.md"
+PRINT "   • wiki/Tutorial-Nano-Banana.md"
+PRINT "   • sandbox/workflow/examples/ (more examples)"
