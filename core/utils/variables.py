@@ -32,27 +32,27 @@ class VariableManager:
         self.components = components or {}
         self.schemas = {}  # Loaded JSON schemas
         self.variables = {}  # All active variables by scope
-        
+
         # Initialize scope containers
         self.variables['global'] = {}
         self.variables['session'] = {}
         self.variables['script'] = {}
         self.variables['local'] = {}
-        
+
         # Load schemas and initialize variables
         self._load_schemas()
         self._init_system_vars()
         self._init_user_vars()
         self._init_path_vars()
-        
+
     def _load_schemas(self):
         """Load all JSON variable schemas from core/data/variables/."""
         schema_dir = Path(__file__).parent.parent / 'data' / 'variables'
         if not schema_dir.exists():
             return
-            
+
         schema_files = ['system.json', 'user.json', 'sprite.json', 'object.json', 'story.json']
-        
+
         for schema_file in schema_files:
             schema_path = schema_dir / schema_file
             if schema_path.exists():
@@ -61,7 +61,7 @@ class VariableManager:
                         schema = json.load(f)
                         schema_name = schema_file.replace('.json', '')
                         self.schemas[schema_name] = schema
-                        
+
                         # Initialize default values for each variable
                         for var_name, var_def in schema.get('variables', {}).items():
                             scope = var_def.get('scope', 'global')
@@ -69,38 +69,38 @@ class VariableManager:
                             self.variables[scope][var_name] = default
                 except Exception as e:
                     print(f"Warning: Could not load schema {schema_file}: {e}")
-    
+
     def validate_variable(self, var_name: str, value: Any, schema_type: str = None) -> tuple[bool, str]:
         """
         Validate a variable value against its schema definition.
-        
+
         Args:
             var_name: Variable name (e.g., "SPRITE-HP")
             value: Value to validate
             schema_type: Schema to check (system, user, sprite, object, story) or auto-detect
-            
+
         Returns:
             Tuple of (is_valid, error_message)
         """
         # Find the variable definition
         var_def = None
         found_schema = None
-        
+
         if schema_type:
             schemas_to_check = [schema_type]
         else:
             schemas_to_check = self.schemas.keys()
-        
+
         for schema_name in schemas_to_check:
             schema = self.schemas.get(schema_name)
             if schema and var_name in schema.get('variables', {}):
                 var_def = schema['variables'][var_name]
                 found_schema = schema_name
                 break
-        
+
         if not var_def:
             return (True, "")  # Unknown variables pass validation (user-defined)
-        
+
         # Type validation
         expected_type = var_def.get('type')
         if expected_type == 'string' and not isinstance(value, str):
@@ -115,10 +115,10 @@ class VariableManager:
             return (False, f"{var_name} must be an array")
         elif expected_type == 'object' and not isinstance(value, dict):
             return (False, f"{var_name} must be an object")
-        
+
         # Additional validation rules
         validation = var_def.get('validation', {})
-        
+
         # String validations
         if expected_type == 'string':
             if 'minLength' in validation and len(value) < validation['minLength']:
@@ -130,40 +130,40 @@ class VariableManager:
                     return (False, f"{var_name} does not match required pattern")
             if 'enum' in validation and value not in validation['enum']:
                 return (False, f"{var_name} must be one of: {', '.join(validation['enum'])}")
-        
+
         # Number validations
         if expected_type in ['integer', 'number']:
             if 'minimum' in validation and value < validation['minimum']:
                 return (False, f"{var_name} must be at least {validation['minimum']}")
             if 'maximum' in validation and value > validation['maximum']:
                 return (False, f"{var_name} must be at most {validation['maximum']}")
-        
+
         # Array validations
         if expected_type == 'array':
             if 'maxItems' in validation and len(value) > validation['maxItems']:
                 return (False, f"{var_name} can have at most {validation['maxItems']} items")
-        
+
         # Readonly check
         if var_def.get('readonly', False):
             return (False, f"{var_name} is read-only and cannot be modified")
-        
+
         return (True, "")
-    
+
     def set_variable(self, var_name: str, value: Any, scope: str = None) -> bool:
         """
         Set a variable value with validation and scope management.
-        
+
         Args:
             var_name: Variable name (with or without $ prefix)
             value: Value to set
             scope: Target scope (global, session, script, local) or auto-detect
-            
+
         Returns:
             True if successful, False if validation failed
         """
         # Strip $ prefix if present
         var_name = var_name.lstrip('$')
-        
+
         # Determine scope if not provided
         if not scope:
             # Find existing scope or use default from schema
@@ -171,7 +171,7 @@ class VariableManager:
                 if var_name in self.variables[s]:
                     scope = s
                     break
-            
+
             if not scope:
                 # Look up default scope in schemas
                 for schema in self.schemas.values():
@@ -180,30 +180,30 @@ class VariableManager:
                         break
                 if not scope:
                     scope = 'global'  # Default for unknown variables
-        
+
         # Validate before setting
         is_valid, error = self.validate_variable(var_name, value)
         if not is_valid:
             print(f"Variable validation error: {error}")
             return False
-        
+
         self.variables[scope][var_name] = value
         return True
-    
+
     def get_variable(self, var_name: str, default: Any = None) -> Any:
         """
         Get variable value, checking scopes in order: local → script → session → global.
-        
+
         Args:
             var_name: Variable name (with or without $ prefix)
             default: Default value if variable not found
-            
+
         Returns:
             Variable value or default
         """
         # Strip $ prefix if present
         var_name = var_name.lstrip('$')
-        
+
         # Check scopes in priority order
         for scope in ['local', 'script', 'session', 'global']:
             if var_name in self.variables[scope]:
@@ -215,14 +215,14 @@ class VariableManager:
                     except Exception:
                         return default
                 return value
-        
+
         return default
-    
+
     def clear_scope(self, scope: str):
         """Clear all variables in a specific scope."""
         if scope in self.variables:
             self.variables[scope] = {}
-    
+
     def get_scope_variables(self, scope: str) -> Dict[str, Any]:
         """Get all variables in a specific scope."""
         return self.variables.get(scope, {}).copy()
@@ -255,7 +255,7 @@ class VariableManager:
             'OS': sys.platform,
             'HOSTNAME': lambda: os.uname().nodename if hasattr(os, 'uname') else 'unknown',
         }
-        
+
         # Add legacy vars to global scope
         for var_name, value in legacy_vars.items():
             if var_name not in self.variables['global']:
@@ -274,7 +274,7 @@ class VariableManager:
             'TOTAL_SESSIONS': lambda: self._get_story_value('SESSION_STATS', 'TOTAL_SESSIONS', '0'),
             'ACTIVE_PANEL': lambda: self._get_active_panel(),
         }
-        
+
         # Add legacy vars to global scope if not already defined
         for var_name, value in legacy_user_vars.items():
             if var_name not in self.variables['global']:
@@ -293,7 +293,7 @@ class VariableManager:
             'FOLDER_EXAMPLES': 'examples',
             'FOLDER_DATA': 'data',
         }
-        
+
         # Add legacy path vars to global scope if not already defined
         for var_name, value in legacy_path_vars.items():
             if var_name not in self.variables['global']:
@@ -378,7 +378,7 @@ class VariableManager:
         all_vars = {}
         for scope in ['global', 'session', 'script', 'local']:
             all_vars.update(self.variables[scope])
-        
+
         # Add extra vars (highest priority)
         if extra_vars:
             all_vars.update(extra_vars)
@@ -387,7 +387,7 @@ class VariableManager:
         for var_name, value in all_vars.items():
             # Handle both {VAR} and $VAR formats
             patterns = [f'{{{var_name}}}', f'${var_name}']
-            
+
             for pattern in patterns:
                 if pattern in result:
                     # Evaluate if callable
@@ -437,7 +437,7 @@ class VariableManager:
             Dictionary of all variables with resolved values
         """
         result = {}
-        
+
         # Collect from all scopes (global → session → script → local)
         for scope in ['global', 'session', 'script', 'local']:
             for var_name, value in self.variables[scope].items():

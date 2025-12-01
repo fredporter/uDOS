@@ -226,19 +226,19 @@ def gain_xp(vm, amount):
     """Award XP and handle leveling."""
     current_xp = vm.get_variable('SPRITE-XP')
     current_level = vm.get_variable('SPRITE-LEVEL')
-    
+
     new_xp = current_xp + amount
     vm.set_variable('SPRITE-XP', new_xp, 'session')
-    
+
     # Check for level up (100 XP per level)
     xp_for_next = current_level * 100
     if new_xp >= xp_for_next:
         vm.set_variable('SPRITE-LEVEL', current_level + 1, 'session')
-        
+
         # Restore HP on level up
         max_hp = vm.get_variable('SPRITE-HP-MAX')
         vm.set_variable('SPRITE-HP', max_hp, 'session')
-        
+
         print(f"Level up! Now level {current_level + 1}")
 ```
 

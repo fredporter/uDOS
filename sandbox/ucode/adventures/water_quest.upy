@@ -1,0 +1,584 @@
+#!/usr/bin/env python3
+# Water Quest - Find and purify water in the wilderness
+# Demonstrates basic .upy syntax with survival theme
+
+# Initialize character
+SET [$SPRITE-NAME = "Survivor"]
+SET [$SPRITE-HP = 100]
+SET [$SPRITE-HP-MAX = 100]
+SET [$SPRITE-LEVEL = 1]
+SET [$SPRITE-XP = 0]
+SET [$SPRITE-STAMINA = 100]
+SET [$SPRITE-INVENTORY = []]
+
+# Story setup
+SET [$STORY-CURRENT = "water_quest"]
+SET [$STORY-CHAPTER = 1]
+SET [$STORY-FLAGS = []]
+
+# Introduction
+PRINT []
+PRINT [==========================================]
+PRINT [  WATER QUEST: THE SEARCH FOR LIFE]
+PRINT [==========================================]
+PRINT []
+PRINT [You've been stranded for 36 hours.]
+PRINT [Your water supply is running critically low.]
+PRINT [Dehydration is setting in - you must find water soon.]
+PRINT []
+
+XP [+5]
+
+# Main decision
+LABEL [START]
+
+PRINT [You scan the landscape for signs of water...]
+PRINT []
+
+CHOICE [Where will you search first?]
+  OPTION [Follow animal tracks (they lead to water)] → BRANCH-TRACKS
+  OPTION [Look for green vegetation (indicates moisture)] → BRANCH-VEGETATION
+  OPTION [Listen for sounds of running water] → BRANCH-LISTEN
+  OPTION [Search for morning dew on plants] → BRANCH-DEW
+
+# ============================================================
+# ANIMAL TRACKS PATH
+# ============================================================
+
+LABEL [BRANCH-TRACKS]
+
+PRINT []
+PRINT [You spot tracks in the soft earth...]
+PRINT [Deer tracks, heading northwest.]
+PRINT []
+
+ROLL [1d20] → $TRACKING
+
+IF [$TRACKING >= 14]
+  PRINT [🎲 Tracking roll: $TRACKING - Success!]
+  PRINT []
+  PRINT [You follow the tracks skillfully through the brush.]
+  PRINT [After 20 minutes, you hear running water ahead!]
+  PRINT []
+  
+  XP [+40]
+  FLAG [followed_tracks]
+  
+  BRANCH [FOUND-STREAM]
+ENDIF
+
+IF [$TRACKING >= 8]
+  PRINT [🎲 Tracking roll: $TRACKING - Partial success]
+  PRINT []
+  PRINT [The tracks are faint, but you manage to follow them.]
+  PRINT [You lose the trail several times, wasting time...]
+  PRINT []
+  
+  HP [-10]
+  XP [+20]
+  
+  BRANCH [FOUND-STREAM]
+ENDIF
+
+# Failed tracking
+PRINT [🎲 Tracking roll: $TRACKING - Failed]
+PRINT []
+PRINT [You lose the tracks in rocky terrain.]
+PRINT [The search has exhausted you further.]
+HP [-15]
+PRINT []
+
+BRANCH [START]
+
+# ============================================================
+# VEGETATION PATH
+# ============================================================
+
+LABEL [BRANCH-VEGETATION]
+
+PRINT []
+PRINT [You search for areas with lush green plants...]
+PRINT []
+
+ROLL [1d20] → $BOTANY
+
+IF [$BOTANY >= 12]
+  PRINT [🎲 Botany roll: $BOTANY - Success!]
+  PRINT []
+  PRINT [You spot a cluster of willows and cattails ahead.]
+  PRINT [These plants always grow near water sources!]
+  PRINT []
+  
+  XP [+35]
+  FLAG [used_plant_knowledge]
+  
+  BRANCH [FOUND-WETLAND]
+ENDIF
+
+# Partial success - found edible plants
+PRINT [🎲 Botany roll: $BOTANY - Partial success]
+PRINT []
+PRINT [No major water source, but you find succulent plants.]
+PRINT [You squeeze moisture from them - not much, but it helps.]
+PRINT []
+
+HP [+5]
+XP [+15]
+ITEM [plant_fibers]
+
+PRINT []
+CHOICE [Keep searching for better water sources?]
+  OPTION [Yes, continue searching] → BRANCH-START
+  OPTION [Try following tracks instead] → BRANCH-TRACKS
+  OPTION [Listen for water sounds] → BRANCH-LISTEN
+
+# ============================================================
+# LISTENING PATH
+# ============================================================
+
+LABEL [BRANCH-LISTEN]
+
+PRINT []
+PRINT [You close your eyes and listen carefully...]
+PRINT [The wind rustles through the trees...]
+PRINT []
+
+ROLL [1d20] → $PERCEPTION
+
+IF [$PERCEPTION >= 16]
+  PRINT [🎲 Perception roll: $PERCEPTION - Excellent!]
+  PRINT []
+  PRINT [You hear it! A faint babbling sound to the east.]
+  PRINT [Definitely running water, maybe half a mile away.]
+  PRINT []
+  
+  XP [+50]
+  FLAG [heard_stream]
+  
+  BRANCH [FOUND-STREAM]
+ENDIF
+
+IF [$PERCEPTION >= 10]
+  PRINT [🎲 Perception roll: $PERCEPTION - Success]
+  PRINT []
+  PRINT [You hear something... could be water, could be wind.]
+  PRINT [You decide to investigate the sound.]
+  PRINT []
+  
+  XP [+25]
+  
+  ROLL [1d20] → $CONFIRM
+  
+  IF [$CONFIRM >= 12]
+    PRINT [Following the sound, you find a stream!]
+    BRANCH [FOUND-STREAM]
+  ENDIF
+  
+  PRINT [False alarm - just wind through hollow logs.]
+  HP [-5]
+  BRANCH [START]
+ENDIF
+
+# Failed listening
+PRINT [🎲 Perception roll: $PERCEPTION - Failed]
+PRINT []
+PRINT [Too much environmental noise to hear anything useful.]
+PRINT []
+
+BRANCH [START]
+
+# ============================================================
+# DEW COLLECTION PATH
+# ============================================================
+
+LABEL [BRANCH-DEW]
+
+PRINT []
+PRINT [You search for plants with morning dew...]
+PRINT [This requires patience and careful technique.]
+PRINT []
+
+ROLL [1d20] → $COLLECTION
+
+IF [$COLLECTION >= 13]
+  PRINT [🎲 Collection roll: $COLLECTION - Success!]
+  PRINT []
+  PRINT [You collect dew from grass and leaves using your shirt.]
+  PRINT [After 30 minutes, you've gathered about half a liter.]
+  PRINT []
+  
+  HP [+15]
+  XP [+30]
+  ITEM [dew_water]
+  FLAG [collected_dew]
+  
+  PRINT [It's not much, but it buys you time to find more.]
+  PRINT []
+  
+  CHOICE [What next?]
+    OPTION [Keep collecting dew] → BRANCH-DEW
+    OPTION [Search for a better source] → BRANCH-START
+ENDIF
+
+# Minimal success
+PRINT [🎲 Collection roll: $COLLECTION - Limited success]
+PRINT []
+PRINT [You gather a small amount of dew - barely a few sips.]
+HP [+5]
+XP [+10]
+PRINT []
+
+BRANCH [START]
+
+# ============================================================
+# STREAM FOUND
+# ============================================================
+
+LABEL [FOUND-STREAM]
+
+PRINT []
+PRINT [==========================================]
+PRINT [  WATER SOURCE DISCOVERED!]
+PRINT [==========================================]
+PRINT []
+PRINT [A clear stream flows over smooth stones.]
+PRINT [The water looks clean and refreshing.]
+PRINT []
+
+XP [+50]
+FLAG [found_water_source]
+
+PRINT [⚠️  But wait - should you drink it directly?]
+PRINT [Untreated water can contain parasites and bacteria.]
+PRINT []
+
+CHOICE [How will you make the water safe?]
+  OPTION [Boil it first (requires fire)] → BRANCH-BOIL
+  OPTION [Use water purification tablets] → BRANCH-TABLETS
+  OPTION [Filter through cloth and sand] → BRANCH-FILTER
+  OPTION [Drink it anyway (risky!)] → BRANCH-DRINK-RAW
+
+# ============================================================
+# WETLAND FOUND
+# ============================================================
+
+LABEL [FOUND-WETLAND]
+
+PRINT []
+PRINT [You've found a marshy wetland area.]
+PRINT [Water pools between cattails and reeds.]
+PRINT [The water is murky and stagnant.]
+PRINT []
+
+XP [+40]
+FLAG [found_wetland]
+
+PRINT [This water definitely needs purification!]
+PRINT []
+
+CHOICE [How will you treat this water?]
+  OPTION [Boil it thoroughly] → BRANCH-BOIL-WETLAND
+  OPTION [Build a solar still] → BRANCH-SOLAR-STILL
+  OPTION [Filter and treat with iodine] → BRANCH-FILTER-IODINE
+
+# ============================================================
+# PURIFICATION METHODS
+# ============================================================
+
+LABEL [BRANCH-BOIL]
+
+PRINT []
+PRINT [You decide to boil the water for safety...]
+PRINT []
+
+ROLL [1d20] → $FIRE-SKILL
+
+IF [$FIRE-SKILL >= 12]
+  PRINT [🎲 Fire-building roll: $FIRE-SKILL - Success!]
+  PRINT []
+  PRINT [You gather dry wood and kindling.]
+  PRINT [Using friction, you start a small fire.]
+  PRINT []
+  PRINT [The water boils for 5 minutes, killing pathogens.]
+  PRINT []
+  
+  HP [+30]
+  XP [+60]
+  ITEM [boiled_water]
+  FLAG [purified_water]
+  
+  BRANCH [VICTORY-CLEAN]
+ENDIF
+
+# Fire building failed
+PRINT [🎲 Fire-building roll: $FIRE-SKILL - Failed]
+PRINT []
+PRINT [You can't get the fire started with damp wood.]
+PRINT []
+
+CHOICE [Try another purification method?]
+  OPTION [Filter the water instead] → BRANCH-FILTER
+  OPTION [Use purification tablets] → BRANCH-TABLETS
+  OPTION [Risk drinking it raw] → BRANCH-DRINK-RAW
+
+LABEL [BRANCH-BOIL-WETLAND]
+
+PRINT []
+PRINT [You build a fire and boil the murky wetland water...]
+PRINT [After 10 minutes of hard boiling, it's safe.]
+PRINT []
+
+HP [+25]
+XP [+55]
+ITEM [boiled_wetland_water]
+FLAG [purified_water]
+
+PRINT [The water tastes a bit earthy, but it's safe and hydrating.]
+PRINT []
+
+BRANCH [VICTORY-CLEAN]
+
+LABEL [BRANCH-TABLETS]
+
+PRINT []
+PRINT [You check your survival kit for purification tablets...]
+PRINT []
+
+ROLL [1d20] → $SUPPLIES
+
+IF [$SUPPLIES >= 10]
+  PRINT [🎲 Supplies check: $SUPPLIES - Found them!]
+  PRINT []
+  PRINT [You drop a purification tablet into the water.]
+  PRINT [After 30 minutes, the water is safe to drink.]
+  PRINT []
+  
+  HP [+30]
+  XP [+40]
+  ITEM [purified_water]
+  FLAG [purified_water]
+  
+  BRANCH [VICTORY-CLEAN]
+ENDIF
+
+# No tablets
+PRINT [🎲 Supplies check: $SUPPLIES - No tablets found]
+PRINT []
+PRINT [You must have lost them during the crash.]
+PRINT []
+
+CHOICE [Try another method?]
+  OPTION [Boil the water] → BRANCH-BOIL
+  OPTION [Filter it] → BRANCH-FILTER
+
+LABEL [BRANCH-FILTER]
+
+PRINT []
+PRINT [You improvise a water filter...]
+PRINT [Using layers of cloth, sand, and charcoal from old fires.]
+PRINT []
+
+ROLL [1d20] → $CRAFTING
+
+IF [$CRAFTING >= 14]
+  PRINT [🎲 Crafting roll: $CRAFTING - Excellent filter!]
+  PRINT []
+  PRINT [Your filter removes sediment and some pathogens.]
+  PRINT [The water comes out much clearer.]
+  PRINT []
+  
+  HP [+25]
+  XP [+50]
+  ITEM [filtered_water]
+  FLAG [made_filter]
+  
+  PRINT [Note: Filtering removes particles but not all bacteria.]
+  PRINT [Boiling would be safer, but this is better than nothing.]
+  PRINT []
+  
+  BRANCH [VICTORY-FILTERED]
+ENDIF
+
+# Filter not effective
+PRINT [🎲 Crafting roll: $CRAFTING - Poor filter quality]
+PRINT []
+PRINT [Your makeshift filter doesn't work well.]
+PRINT [The water is still murky.]
+PRINT []
+
+CHOICE [What now?]
+  OPTION [Try boiling instead] → BRANCH-BOIL
+  OPTION [Drink it anyway] → BRANCH-DRINK-RAW
+
+LABEL [BRANCH-FILTER-IODINE]
+
+PRINT []
+PRINT [You build a filter and treat with iodine...]
+PRINT [This combination should handle most threats.]
+PRINT []
+
+HP [+28]
+XP [+65]
+ITEM [treated_water]
+FLAG [purified_water]
+
+BRANCH [VICTORY-CLEAN]
+
+LABEL [BRANCH-SOLAR-STILL]
+
+PRINT []
+PRINT [You construct a solar still using plastic and rocks...]
+PRINT [This will take several hours to produce water.]
+PRINT []
+
+XP [+70]
+ITEM [solar_still]
+FLAG [built_solar_still]
+
+PRINT [The still slowly collects condensed water vapor.]
+PRINT [After 4 hours, you have about 500ml of pure water.]
+PRINT []
+
+HP [+20]
+ITEM [distilled_water]
+
+BRANCH [VICTORY-CLEAN]
+
+LABEL [BRANCH-DRINK-RAW]
+
+PRINT []
+PRINT [⚠️  You decide to risk drinking untreated water...]
+PRINT []
+
+ROLL [1d20] → $HEALTH-CHECK
+
+IF [$HEALTH-CHECK >= 17]
+  PRINT [🎲 Health check: $HEALTH-CHECK - Lucky!]
+  PRINT []
+  PRINT [The water was cleaner than it looked.]
+  PRINT [You feel hydrated with no ill effects.]
+  PRINT []
+  
+  HP [+20]
+  XP [+15]
+  FLAG [drank_raw_water]
+  
+  PRINT [You got lucky this time, but this is very risky!]
+  PRINT []
+  
+  BRANCH [VICTORY-RISKY]
+ENDIF
+
+# Got sick
+PRINT [🎲 Health check: $HEALTH-CHECK - Contaminated!]
+PRINT []
+PRINT [Within hours, you feel nauseous and weak.]
+PRINT [You've contracted a waterborne illness.]
+PRINT []
+
+HP [-30]
+SET [$SPRITE-STATUS = "poisoned"]
+
+PRINT [You manage to survive, but barely.]
+PRINT [You learned a hard lesson about water safety.]
+PRINT []
+
+BRANCH [ENDING-SICK]
+
+# ============================================================
+# ENDINGS
+# ============================================================
+
+LABEL [VICTORY-CLEAN]
+
+PRINT []
+PRINT [==========================================]
+PRINT [  VICTORY: SAFE WATER SECURED]
+PRINT [==========================================]
+PRINT []
+PRINT [You've successfully found and purified water!]
+PRINT [Your knowledge of survival techniques saved your life.]
+PRINT []
+PRINT [Key lessons learned:]
+PRINT [  ✓ Always purify water from natural sources]
+PRINT [  ✓ Boiling for 5-10 minutes kills most pathogens]
+PRINT [  ✓ Multiple purification methods increase safety]
+PRINT []
+
+XP [+100]
+FLAG [quest_complete]
+SET [$STORY-QUEST-COMPLETED = ["water_quest"]]
+
+PRINT [Final Stats:]
+PRINT [  Level: $SPRITE-LEVEL]
+PRINT [  XP: $SPRITE-XP]
+PRINT [  HP: $SPRITE-HP/$SPRITE-HP-MAX]
+PRINT []
+
+END
+
+LABEL [VICTORY-FILTERED]
+
+PRINT []
+PRINT [==========================================]
+PRINT [  VICTORY: WATER OBTAINED]
+PRINT [==========================================]
+PRINT []
+PRINT [You've secured a water source through filtering.]
+PRINT [While not as safe as boiling, it's much better than nothing.]
+PRINT []
+
+XP [+75]
+FLAG [quest_complete]
+
+PRINT [Final Stats:]
+PRINT [  Level: $SPRITE-LEVEL]
+PRINT [  XP: $SPRITE-XP]
+PRINT [  HP: $SPRITE-HP/$SPRITE-HP-MAX]
+PRINT []
+
+END
+
+LABEL [VICTORY-RISKY]
+
+PRINT []
+PRINT [==========================================]
+PRINT [  SURVIVAL: RISKY VICTORY]
+PRINT [==========================================]
+PRINT []
+PRINT [You've hydrated, but took unnecessary risks.]
+PRINT [In a real survival situation, always purify water!]
+PRINT []
+
+XP [+50]
+
+PRINT [Final Stats:]
+PRINT [  Level: $SPRITE-LEVEL]
+PRINT [  XP: $SPRITE-XP]
+PRINT [  HP: $SPRITE-HP/$SPRITE-HP-MAX]
+PRINT []
+
+END
+
+LABEL [ENDING-SICK]
+
+PRINT []
+PRINT [==========================================]
+PRINT [  LESSON LEARNED: WATER SAFETY CRITICAL]
+PRINT [==========================================]
+PRINT []
+PRINT [You survived, but illness nearly killed you.]
+PRINT []
+PRINT [Remember: Untreated water can contain:]
+PRINT [  • Giardia parasites]
+PRINT [  • E. coli bacteria]
+PRINT [  • Cryptosporidium]
+PRINT [  • Cholera]
+PRINT [  • Many other pathogens]
+PRINT []
+PRINT [Always purify water in survival situations!]
+PRINT []
+
+XP [+25]
+
+END
