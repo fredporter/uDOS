@@ -620,9 +620,8 @@ class SystemCommandHandler(BaseCommandHandler):
                    "💡 Tip: Use WIZARD HELP for detailed information\n"
                    "💡 Note: For settings, use SETUP or CONFIG commands")
 
-    def handle_workspace(self, params, grid, parser):
-        """Workspace management - to be implemented."""
-        return "🏢 WORKSPACE command - Implementation pending"
+    # WORKSPACE command removed - use file pickers with uDOS subdirectories instead
+    # (sandbox, memory, knowledge, etc. act as workspaces)
 
     def handle_output(self, params, grid, parser):
         """

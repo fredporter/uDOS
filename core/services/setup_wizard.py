@@ -301,7 +301,7 @@ class SetupWizard:
     def _wizard_step_user_profile(self) -> None:
         """
         User profile configuration step (v1.0.29 Smart Mode).
-        Matches CONFIG command variables: username, password, timezone, location.
+        Includes system location (Galaxy, Planet, City with TILE codes).
         """
         # Auto-detect timezone and location from system
         from core.utils.system_info import get_system_timezone
@@ -310,14 +310,18 @@ class SetupWizard:
         # Get current values
         current_name = self.story_manager.get_field('USER_PROFILE.NAME', '')
         current_password = self.story_manager.get_field('USER_PROFILE.PASSWORD', '')
-        current_location = self.story_manager.get_field('USER_PROFILE.LOCATION', '')
         current_timezone = self.story_manager.get_field('USER_PROFILE.TIMEZONE', '')
+
+        # System location values
+        current_galaxy = self.story_manager.get_field('SYSTEM.GALAXY', 'Milky Way')
+        current_planet = self.story_manager.get_field('SYSTEM.PLANET', 'Earth')
+        current_city = self.story_manager.get_field('SYSTEM.CITY', '')
 
         # Use detected values as defaults if not set
         if not current_timezone:
             current_timezone = detected_timezone
-        if not current_location:
-            current_location = detected_city
+        if not current_city:
+            current_city = detected_city
 
         # Prompt for user name (required)
         user_name = self.input_manager.prompt_user(
@@ -335,10 +339,66 @@ class SetupWizard:
         )
         self.story_manager.set_field('USER_PROFILE.PASSWORD', password, auto_save=False)
 
-        # Prompt for timezone (auto-detected, modifiable)
+        # System Location Configuration
+        print("\n🌌 System Location Configuration")
+        print("=" * 50)
+
+        # Galaxy selection (from universe.json)
+        galaxy = self.input_manager.prompt_user(
+            message="Galaxy:",
+            default=current_galaxy,
+            required=False
+        )
+        if galaxy:
+            self.story_manager.set_field('SYSTEM.GALAXY', galaxy, auto_save=False)
+
+        # Planet selection (from universe.json Sol system)
+        available_planets = ["Earth", "Mars", "Venus", "Mercury", "Jupiter", "Saturn", "Uranus", "Neptune"]
+        planet = self.input_manager.prompt_choice(
+            message="Select planet:",
+            choices=available_planets,
+            default=current_planet if current_planet in available_planets else "Earth"
+        )
+        self.story_manager.set_field('SYSTEM.PLANET', planet, auto_save=False)
+
+        # City selection (from cities.json with TILE codes)
+        city_data = self._load_city_data()
+        if city_data:
+            city_choices = [f"{city['name']}, {city['country']} ({city['grid_cell']})"
+                          for city in city_data]
+            city_choice = self.input_manager.prompt_choice(
+                message="Select city:",
+                choices=city_choices,
+                default=city_choices[0] if city_choices else current_city
+            )
+            # Parse selection
+            selected_city = city_choice.split(',')[0]
+            selected_grid = city_choice.split('(')[1].rstrip(')')
+
+            # Find full city data
+            for city in city_data:
+                if city['name'] == selected_city:
+                    self.story_manager.set_field('SYSTEM.CITY', city['name'], auto_save=False)
+                    self.story_manager.set_field('SYSTEM.CITY_GRID', city['grid_cell'], auto_save=False)
+                    self.story_manager.set_field('SYSTEM.TIMEZONE', city.get('tzone', detected_timezone), auto_save=False)
+                    # Also update USER_PROFILE for backward compatibility
+                    self.story_manager.set_field('USER_PROFILE.LOCATION', city['name'], auto_save=False)
+                    break
+        else:
+            # Fallback to manual entry
+            city = self.input_manager.prompt_user(
+                message="City:",
+                default=current_city or detected_city,
+                required=False
+            )
+            if city:
+                self.story_manager.set_field('SYSTEM.CITY', city, auto_save=False)
+                self.story_manager.set_field('USER_PROFILE.LOCATION', city, auto_save=False)
+
+        # Timezone (auto-detected, modifiable)
         print(f"\nℹ️  Detected timezone: {detected_timezone}")
         timezone = self.input_manager.prompt_user(
-            message=f"Timezone:",
+            message="Timezone:",
             default=current_timezone,
             required=False
         )
@@ -347,19 +407,20 @@ class SetupWizard:
         else:
             self.story_manager.set_field('USER_PROFILE.TIMEZONE', current_timezone, auto_save=False)
 
-        # Prompt for location (defaults to timezone city, modifiable)
-        location = self.input_manager.prompt_user(
-            message=f"Location (city):",
-            default=current_location,
-            required=False
-        )
-        if location:
-            self.story_manager.set_field('USER_PROFILE.LOCATION', location, auto_save=False)
-        else:
-            self.story_manager.set_field('USER_PROFILE.LOCATION', current_location, auto_save=False)
-
         # Save all profile changes
         self.story_manager.save()
+
+    def _load_city_data(self) -> List[Dict]:
+        """Load city data from cities.json."""
+        try:
+            cities_path = Path('extensions/assets/data/cities.json')
+            if cities_path.exists():
+                with open(cities_path, 'r') as f:
+                    data = json.load(f)
+                    return data.get('cities', [])
+        except Exception as e:
+            print(f"⚠️  Could not load cities.json: {e}")
+        return []
 
     def _wizard_step_theme(self) -> str:
         """Theme selection step (v1.0.29 Smart Mode)."""
@@ -446,15 +507,22 @@ class SetupWizard:
         user_name = self.story_manager.get_field('USER_PROFILE.NAME', 'Not set')
         password = self.story_manager.get_field('USER_PROFILE.PASSWORD', '')
         theme = self.story_manager.get_field('system_settings.interface.theme', 'dungeon')
-        location = self.story_manager.get_field('USER_PROFILE.LOCATION', 'Not set')
         timezone = self.story_manager.get_field('USER_PROFILE.TIMEZONE', 'UTC')
+
+        # System location fields
+        galaxy = self.story_manager.get_field('SYSTEM.GALAXY', 'Not set')
+        planet = self.story_manager.get_field('SYSTEM.PLANET', 'Not set')
+        city = self.story_manager.get_field('SYSTEM.CITY', 'Not set')
+        city_grid = self.story_manager.get_field('SYSTEM.CITY_GRID', 'N/A')
 
         password_display = '●●●●●●' if password else 'Not set'
 
         summary_data = {
             'Username': user_name,
             'Password': password_display,
-            'Location': location,
+            'Galaxy': galaxy,
+            'Planet': planet,
+            'City': f"{city} ({city_grid})",
             'Timezone': timezone,
             'Theme': theme
         }
