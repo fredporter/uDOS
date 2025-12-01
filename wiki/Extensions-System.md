@@ -285,7 +285,7 @@ cd extensions/core
 
 #### Using Individual Servers
 ```bash
-cd extensions/bundled/web/dashboard && python3 -m http.server 8080
+cd extensions/core/dashboard && ./start.sh
 cd extensions/bundled/web/system-desktop && python3 -m http.server 8082
 cd extensions/bundled/web/teletext && python3 -m http.server 8081
 ```

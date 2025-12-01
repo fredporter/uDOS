@@ -106,7 +106,7 @@ All extensions are maintained as part of the uDOS project for stability and inte
 - **License**: MIT
 - **Copyright**: © 2024-2025 Fred Porter
 - **Purpose**: Modern web-based dashboard interface for uDOS
-- **Location**: extensions/bundled/web/dashboard
+- **Location**: extensions/core/dashboard
 
 ### Font Editor - Typography Tool
 - **License**: MIT

@@ -40,10 +40,10 @@ port_manager = get_port_manager()
 # Extension Configuration
 EXTENSIONS = {
     'dashboard': {
-        'port': 8888,
-        'path': '../bundled/web/dashboard',
+        'port': 5555,
+        'path': 'dashboard',
         'name': 'System Dashboard',
-        'description': 'Real-time system monitoring and control',
+        'description': 'NES-themed system monitoring and control',
         'enabled': True
     },
     'teletext': {
