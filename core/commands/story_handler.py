@@ -208,9 +208,13 @@ Integration:
             self.current_adventure = adventure_name
             self.current_session_id = result.get("session_id")
 
+            # Initialize player stats for new adventure
+            self._initialize_player_stats()
+
             return (f"✅ Adventure started: {adventure_name}\n"
                    f"   Format: {'.upy' if is_upy else '.json'}\n"
                    f"   Session ID: {self.current_session_id}\n\n"
+                   f"📊 Player stats initialized\n"
                    f"💡 Use 'STORY CONTINUE' to begin")
 
         except Exception as e:
@@ -292,22 +296,111 @@ Integration:
             return f"❌ Failed to save: {e}"
 
     def _show_status(self) -> str:
-        """Show current adventure status."""
+        """Show current adventure status with SPRITE stats and inventory."""
         if not self.current_adventure:
             return ("📖 No active adventure\n"
                    "💡 Use 'STORY START <name>' to begin")
 
-        output = f"📖 Current Adventure: {self.current_adventure}\n"
-        output += f"   Session ID: {self.current_session_id}\n"
+        output = "=" * 60 + "\n"
+        output += f"📖 ADVENTURE STATUS\n"
+        output += "=" * 60 + "\n\n"
+
+        output += f"Adventure: {self.current_adventure}\n"
+        output += f"Session ID: {self.current_session_id}\n"
 
         # Show scenario progress
         if self.scenario_engine.current_events:
             total = len(self.scenario_engine.current_events)
             current = self.scenario_engine.event_index
-            output += f"   Progress: {current}/{total} events\n"
+            output += f"Progress: {current}/{total} events ({int(current/total*100)}%)\n"
 
-        # TODO: Show sprite stats, inventory, etc.
-        output += "\n💡 Use 'STORY CONTINUE' to proceed"
+        output += "\n" + "-" * 60 + "\n"
+        output += "CHARACTER STATS\n"
+        output += "-" * 60 + "\n\n"
+
+        # Get survival stats
+        try:
+            from core.services.game.survival_service import SurvivalStat
+
+            # Health/HP
+            health_data = self.survival_service.get_stat(SurvivalStat.HEALTH)
+            if 'current' in health_data:
+                hp = int(health_data['current'])
+                output += f"❤️  Health: {hp}/100"
+                if health_data['status'] == "critical":
+                    output += " (CRITICAL!)"
+                elif health_data['status'] == "warning":
+                    output += " (Low)"
+                output += "\n"
+
+            # Thirst
+            thirst_data = self.survival_service.get_stat(SurvivalStat.THIRST)
+            if 'current' in thirst_data:
+                thirst = int(thirst_data['current'])
+                output += f"💧 Thirst: {thirst}/100"
+                if thirst_data['status'] == "critical":
+                    output += " (CRITICAL!)"
+                elif thirst_data['status'] == "warning":
+                    output += " (High)"
+                output += "\n"
+
+            # Hunger
+            hunger_data = self.survival_service.get_stat(SurvivalStat.HUNGER)
+            if 'current' in hunger_data:
+                hunger = int(hunger_data['current'])
+                output += f"🍖 Hunger: {hunger}/100"
+                if hunger_data['status'] == "critical":
+                    output += " (CRITICAL!)"
+                elif hunger_data['status'] == "warning":
+                    output += " (High)"
+                output += "\n"
+
+            # Fatigue (stamina)
+            fatigue_data = self.survival_service.get_stat(SurvivalStat.FATIGUE)
+            if 'current' in fatigue_data:
+                fatigue = int(fatigue_data['current'])
+                stamina = 100 - fatigue  # Invert fatigue to stamina
+                output += f"⚡ Stamina: {stamina}/100"
+                if fatigue_data['status'] == "critical":
+                    output += " (Exhausted)"
+                elif fatigue_data['status'] == "warning":
+                    output += " (Tired)"
+                output += "\n"
+        except Exception as e:
+            output += f"Stats unavailable: {e}\n"        # Get XP/Level
+        try:
+            xp_data = self.xp_service.get_current_xp()
+            if xp_data:
+                output += f"\n🌟 Level: {xp_data.get('level', 1)}\n"
+                output += f"✨ XP: {xp_data.get('current_xp', 0)}/{xp_data.get('next_level_xp', 100)}\n"
+        except:
+            pass
+
+        # Get inventory
+        output += "\n" + "-" * 60 + "\n"
+        output += "INVENTORY\n"
+        output += "-" * 60 + "\n\n"
+
+        try:
+            inventory = self.inventory_service.get_inventory_summary()
+            if inventory and len(inventory) > 0:
+                for item in inventory[:10]:  # Show first 10 items
+                    item_name = item.get('name', 'Unknown')
+                    quantity = item.get('quantity', 1)
+                    output += f"  • {item_name}"
+                    if quantity > 1:
+                        output += f" x{quantity}"
+                    output += "\n"
+                if len(inventory) > 10:
+                    output += f"  ... and {len(inventory) - 10} more items\n"
+            else:
+                output += "  (Empty)\n"
+        except:
+            output += "  Inventory unavailable\n"
+
+        output += "\n" + "=" * 60 + "\n"
+        output += "💡 Use 'STORY CONTINUE' to proceed\n"
+        output += "=" * 60 + "\n"
 
         return output
 
@@ -340,6 +433,24 @@ Integration:
 
         return output
 
+    def _initialize_player_stats(self):
+        """Initialize player stats at adventure start."""
+        try:
+            # Initialize with default healthy starting values
+            from core.services.game.survival_service import SurvivalStat
+
+            self.survival_service.set_stat(SurvivalStat.HEALTH, 100, "Adventure start")
+            self.survival_service.set_stat(SurvivalStat.THIRST, 0, "Adventure start")
+            self.survival_service.set_stat(SurvivalStat.HUNGER, 0, "Adventure start")
+            self.survival_service.set_stat(SurvivalStat.FATIGUE, 0, "Adventure start")
+
+            if self.logger:
+                self.logger.info("Player stats initialized for adventure")
+
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Failed to initialize player stats: {e}")
+    
     def _continue_adventure(self) -> str:
         """Continue current adventure."""
         if not self.current_adventure:
