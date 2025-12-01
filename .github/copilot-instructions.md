@@ -193,16 +193,24 @@ data = pattern.load()  # Returns dict with pattern data
 
 ### Grid System (TILE Codes)
 
-- **Format**: Strict 2-letter columns (AA-RL for 0-479)
-- **No coordinates**: Use TILE codes only (e.g., `OC-AU-SYD`)
-- **Layers**: 100 (world), 200 (region), 300 (city), 400 (district), 500 (block)
+- **Format**: Strict 2-letter columns (AA-RL for 0-479) + row number (0-269)
+- **Layer suffix**: Optional -XXX suffix for layer (e.g., AA340-100 for world layer)
+- **No coordinates**: Use TILE codes only
+- **Layers**: 100 (world ~83km/cell), 200 (region ~2.78km), 300 (city ~93m), 400 (district ~3m), 500 (block ~10cm)
 
 ```python
 # ✅ Good: Use TILE codes
-location = "OC-AU-SYD"  # Sydney, Australia
-grid_cell = "AA340"     # Grid position
+grid_cell = "AA340"        # Sydney (grid position only)
+tile_code = "AA340-100"    # Sydney at world layer
+city_grid = "JF57"         # London (grid position)
+full_tile = "JF57-100"     # London at world layer
 
 # ❌ Bad: Don't use lat/long (removed in v2.0.0)
+# coords = [-33.87, 151.21]  # DEPRECATED
+
+# ❌ Bad: Don't use old hierarchical format
+# location = "OC-AU-SYD"  # DEPRECATED (v1.x format)
+```
 # coords = [-33.87, 151.21]  # DEPRECATED
 ```
 

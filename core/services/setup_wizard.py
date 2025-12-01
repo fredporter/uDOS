@@ -380,6 +380,7 @@ class SetupWizard:
                 if city['name'] == selected_city:
                     self.story_manager.set_field('SYSTEM.CITY', city['name'], auto_save=False)
                     self.story_manager.set_field('SYSTEM.CITY_GRID', city['grid_cell'], auto_save=False)
+                    self.story_manager.set_field('SYSTEM.CITY_LAYER', 100, auto_save=False)  # World layer
                     self.story_manager.set_field('SYSTEM.TIMEZONE', city.get('tzone', detected_timezone), auto_save=False)
                     # Also update USER_PROFILE for backward compatibility
                     self.story_manager.set_field('USER_PROFILE.LOCATION', city['name'], auto_save=False)
@@ -514,6 +515,10 @@ class SetupWizard:
         planet = self.story_manager.get_field('SYSTEM.PLANET', 'Not set')
         city = self.story_manager.get_field('SYSTEM.CITY', 'Not set')
         city_grid = self.story_manager.get_field('SYSTEM.CITY_GRID', 'N/A')
+        city_layer = self.story_manager.get_field('SYSTEM.CITY_LAYER', 100)
+
+        # Format full TILE code with layer
+        full_tile = f"{city_grid}-{city_layer}" if city_grid != 'N/A' else 'N/A'
 
         password_display = '●●●●●●' if password else 'Not set'
 
@@ -522,7 +527,7 @@ class SetupWizard:
             'Password': password_display,
             'Galaxy': galaxy,
             'Planet': planet,
-            'City': f"{city} ({city_grid})",
+            'City': f"{city} (TILE: {full_tile})",
             'Timezone': timezone,
             'Theme': theme
         }
