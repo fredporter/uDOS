@@ -13,15 +13,26 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Phase 1-2**: Geographic data consolidation and duplicate removal (COMPLETE)
 **Phase 3**: Full migration to core/data/geography/ (COMPLETE)
+**Phase 4**: Game services migration to core/services/game/ (COMPLETE)
 
 #### Removed
 
-**Duplicate Files**
+**Duplicate Files (Phase 1-2)**
 - `extensions/play/services/map_engine_old.py` - Superseded by map_engine.py v2.0.0 (500+ lines)
 - `extensions/assets/data/tzone.json` - Superseded by timezones.json
 - `extensions/assets/data/terrain_types.json` - Superseded by terrain.json (233 lines)
 
 **Impact**: ~1,200 lines of duplicate code/data removed
+
+**Game Services Moved to Core (Phase 4)**
+- `extensions/play/services/xp_service.py` → `core/services/game/xp_service.py` (426 lines)
+- `extensions/play/services/inventory_service.py` → `core/services/game/inventory_service.py` (474 lines)
+- `extensions/play/services/survival_service.py` → `core/services/game/survival_service.py` (574 lines)
+- `extensions/play/services/scenario_engine.py` → `core/services/game/scenario_engine.py` (503 lines)
+- `extensions/play/services/scenario_service.py` → `core/services/game/scenario_service.py` (~600 lines)
+- `extensions/play/services/barter_service.py` → `core/services/game/barter_game_service.py` (460 lines)
+
+**Impact**: ~3,037 lines of gameplay logic consolidated into core
 
 #### Changed
 
@@ -41,43 +52,76 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `extensions/play/services/map_engine.py` - Updated default data_dir to core/data/geography/
 - All geographic data now loads from single source (zero duplicates)
 
+**Game Services Migration (Phase 4)**
+- Created `core/services/game/` package with __init__.py
+- Updated 11 import statements across 7 files:
+  - `core/knowledge/service.py` (2 imports)
+  - `extensions/play/commands/resource_handler.py`
+  - `extensions/play/commands/scenario_play_handler.py`
+  - `extensions/play/commands/xp_handler.py`
+  - `extensions/play/commands/survival_handler.py`
+- Fixed internal cross-references in scenario_engine.py and barter_game_service.py
+- Renamed `barter_service.py` → `barter_game_service.py` (avoid conflict with core community barter)
+
 **Architecture**
 ```
-core/data/
-├── geography/          # NEW: Geographic reference data (single source of truth)
-│   ├── cities.json     # 55 cities with TILE codes (v2.0.0 format)
-│   ├── terrain.json    # 24 terrain types (consolidated)
-│   ├── climate.json    # Climate zones
-│   ├── countries.json  # Country reference
-│   └── timezones.json  # Timezone data
-├── variables/          # Variable schemas (Round 1 complete)
-├── themes/             # Color themes
-└── graphics/           # ASCII/teletext data
+core/
+├── data/
+│   ├── geography/          # Phase 2-3: Geographic reference data
+│   │   ├── cities.json     # 55 cities with TILE codes (v2.0.0 format)
+│   │   ├── terrain.json    # 24 terrain types (consolidated)
+│   │   ├── climate.json
+│   │   ├── countries.json
+│   │   └── timezones.json
+│   ├── variables/          # Round 1: SPRITE/OBJECT schemas
+│   ├── themes/
+│   └── graphics/
+└── services/
+    ├── game/               # Phase 4: Game services (NEW)
+    │   ├── xp_service.py
+    │   ├── inventory_service.py
+    │   ├── survival_service.py
+    │   ├── scenario_engine.py
+    │   ├── scenario_service.py
+    │   └── barter_game_service.py
+    └── (40+ other services)
+
+extensions/play/services/
+├── map_data_manager.py     # Extension-specific (geography)
+└── map_engine.py           # Extension-specific (map rendering)
 ```
 
 #### Added
 
+**Game Services Package (Phase 4)**
+- `core/services/game/__init__.py` - Package initialization with clean API
+- Exports: XPService, InventoryService, SurvivalService, ScenarioEngine, ScenarioService, BarterGameService
+- Clean imports: `from core.services.game import XPService, InventoryService, etc.`
+
 **Testing Infrastructure**
-- `sandbox/ucode/shakedown.upy` - Comprehensive 100-test suite using modern uPY v1.1.9+ syntax
+- `sandbox/ucode/shakedown.upy` - Comprehensive 101-test suite using modern uPY v1.1.9+ syntax
   - Tests 1-15: Core uPY features (variables, functions, emoji, JSON, conditionals)
   - Tests 16-20: Phase 2-3 consolidation (geography, TILE grid, map engine, migration)
-  - Tests 21-30: Command handlers
-  - Tests 31-40: Web extensions
-  - Tests 41-50: Graphics system
-  - Tests 51-60: Mission system
-  - Tests 61-70: Workflow automation
-  - Tests 71-80: Project templates
-  - Tests 81-90: Resource management
-  - Tests 91-100: Advanced features
+  - TEST 21: Phase 4 game services migration validation (NEW)
+  - Tests 22-31: Command handlers
+  - Tests 32-41: Web extensions
+  - Tests 42-51: Graphics system
+  - Tests 52-61: Mission system
+  - Tests 62-71: Workflow automation
+  - Tests 72-81: Project templates
+  - Tests 82-91: Resource management
+  - Tests 92-101: Advanced features
 
 **Backup System**
-- `sandbox/backup/consolidation-20251202/` - Timestamped backups of removed files
+- `sandbox/backup/consolidation-20251202/` - Phase 1-2 backups
+- `sandbox/backup/consolidation-phase4-20251202/` - Phase 4 backups (6 service files)
 
 #### Documentation
 
 **Session Logs**
 - `sandbox/dev/session-2025-12-02-consolidation-phase1-2.md` - Phase 1-2 completion report
 - `sandbox/dev/session-2025-12-02-phase3-migration.md` - Phase 3 migration report
+- `sandbox/dev/session-2025-12-02-phase4-game-services.md` - Phase 4 migration report (NEW)
 
 **Migration Results**
 - ✅ Phase 1-2: Removed 3 duplicate files (~1,200 lines), consolidated data sources
