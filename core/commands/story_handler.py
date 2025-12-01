@@ -244,20 +244,96 @@ Integration:
             with open(save_file, 'r') as f:
                 save_data = json.load(f)
 
-            self.current_adventure = save_data.get('adventure')
-            self.current_session_id = save_data.get('session_id')
-
-            # TODO: Restore scenario engine state
-            # self.scenario_engine.load_state(save_data['engine_state'])
-
-            return (f"✅ Loaded save: {save_name}\n"
-                   f"   Adventure: {self.current_adventure}\n"
-                   f"   Session: {self.current_session_id}\n\n"
+            adventure_name = save_data.get('adventure')
+            
+            # Restart the adventure
+            adventure_file = self.adventure_dir / f"{adventure_name}.upy"
+            is_upy = adventure_file.exists()
+            
+            if not is_upy:
+                adventure_file = self.adventure_dir / f"{adventure_name}.json"
+                if not adventure_file.exists():
+                    return f"❌ Adventure file not found: {adventure_name}"
+            
+            # Load and parse adventure
+            if is_upy:
+                from core.services.game.upy_adventure_parser import parse_upy_adventure
+                parsed_scenario = parse_upy_adventure(str(adventure_file))
+                
+                # Save parsed scenario as temp JSON for ScenarioEngine
+                temp_json = self.adventure_dir / f".{adventure_name}_loaded.json"
+                with open(temp_json, 'w') as f:
+                    json.dump(parsed_scenario, f, indent=2)
+                
+                adventure_file = temp_json
+            
+            # Start scenario
+            result = self.scenario_engine.start_scenario_from_script(str(adventure_file))
+            
+            if "error" in result:
+                return f"❌ Failed to load adventure: {result['error']}"
+            
+            self.current_adventure = adventure_name
+            self.current_session_id = result.get("session_id")
+            
+            # Restore game state
+            from core.services.game.survival_service import SurvivalStat
+            from core.services.game.inventory_service import ItemCategory
+            
+            # Restore stats
+            stats = save_data.get('stats', {})
+            for stat_name, value in stats.items():
+                if stat_name == 'health':
+                    self.survival_service.set_stat(SurvivalStat.HEALTH, value, "Load save")
+                elif stat_name == 'thirst':
+                    self.survival_service.set_stat(SurvivalStat.THIRST, value, "Load save")
+                elif stat_name == 'hunger':
+                    self.survival_service.set_stat(SurvivalStat.HUNGER, value, "Load save")
+                elif stat_name == 'fatigue':
+                    self.survival_service.set_stat(SurvivalStat.FATIGUE, value, "Load save")
+            
+            # Restore XP (approximate by awarding difference)
+            saved_xp = save_data.get('xp', 0)
+            current_xp = self.xp_service.get_total_xp()
+            if saved_xp > current_xp:
+                from core.services.game.xp_service import XPCategory
+                self.xp_service.award_xp(XPCategory.INFORMATION, saved_xp - current_xp, "Load save")
+            
+            # Restore inventory
+            inventory_data = save_data.get('inventory', [])
+            for item in inventory_data:
+                try:
+                    cat = ItemCategory[item['category'].upper()]
+                except KeyError:
+                    cat = ItemCategory.MISC
+                
+                self.inventory_service.add_item(
+                    name=item['name'],
+                    category=cat,
+                    quantity=item['quantity'],
+                    weight=item.get('weight', 0.5)
+                )
+            
+            # Restore scenario position
+            scenario_state = save_data.get('scenario', {})
+            event_index = scenario_state.get('event_index', 0)
+            self.scenario_engine.event_index = event_index
+            
+            timestamp = save_data.get('timestamp', 'Unknown')
+            total_events = scenario_state.get('total_events', 0)
+            
+            return (f"📂 Loaded save: {save_name}\n"
+                   f"   Adventure: {adventure_name}\n"
+                   f"   Saved: {timestamp[:19]}\n"
+                   f"   Progress: {event_index}/{total_events} events\n\n"
+                   f"💡 Use 'STORY STATUS' to check state\n"
                    f"💡 Use 'STORY CONTINUE' to resume")
 
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Save load error: {e}")
+                import traceback
+                self.logger.error(traceback.format_exc())
             return f"❌ Failed to load save: {e}"
 
     def _save_progress(self, args: list) -> str:
@@ -268,28 +344,66 @@ Integration:
         if not args:
             # Auto-generate save name
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            save_name = f"{self.current_adventure}_{timestamp}.json"
+            save_name = f"{self.current_adventure}_{timestamp}"
         else:
             save_name = args[0]
-            if not save_name.endswith('.json'):
-                save_name += '.json'
+        
+        # Ensure .json extension
+        if not save_name.endswith('.json'):
+            save_name += '.json'
 
         save_file = self.save_dir / save_name
 
         try:
+            # Collect game state
+            from core.services.game.survival_service import SurvivalStat
+            
+            # Get survival stats
+            stats = {}
+            for stat in [SurvivalStat.HEALTH, SurvivalStat.THIRST, 
+                        SurvivalStat.HUNGER, SurvivalStat.FATIGUE]:
+                stat_data = self.survival_service.get_stat(stat)
+                stats[stat.value] = stat_data.get('current', 0)
+            
+            # Get XP
+            total_xp = self.xp_service.get_total_xp()
+            
+            # Get inventory
+            inventory = self.inventory_service.get_inventory("Personal Inventory")
+            inventory_data = []
+            for item in inventory:
+                inventory_data.append({
+                    'name': item['name'],
+                    'category': item['category'],
+                    'quantity': item['quantity'],
+                    'weight': item['weight']
+                })
+            
+            # Get scenario state
+            scenario_state = {
+                'event_index': self.scenario_engine.event_index,
+                'total_events': len(self.scenario_engine.current_events),
+                'has_choice': self.current_choice_options is not None
+            }
+            
             save_data = {
                 'adventure': self.current_adventure,
                 'session_id': self.current_session_id,
                 'timestamp': datetime.now().isoformat(),
-                # TODO: Save scenario engine state
-                # 'engine_state': self.scenario_engine.get_state(),
+                'stats': stats,
+                'xp': total_xp,
+                'inventory': inventory_data,
+                'scenario': scenario_state,
+                'version': '2.0.0'
             }
 
             with open(save_file, 'w') as f:
                 json.dump(save_data, f, indent=2)
 
-            return (f"✅ Progress saved: {save_name}\n"
-                   f"   Location: {save_file}")
+            return (f"💾 Progress saved: {save_name}\n"
+                   f"   Location: {save_file}\n"
+                   f"   Adventure: {self.current_adventure}\n"
+                   f"   Progress: {scenario_state['event_index']}/{scenario_state['total_events']} events")
 
         except Exception as e:
             if self.logger:
@@ -527,15 +641,15 @@ Integration:
 
     def _process_event(self, event: dict) -> str:
         """Process a single adventure event and return display text.
-        
+
         Args:
             event: Event dict from .upy parser
-            
+
         Returns:
             String to display to user (or empty string for silent events)
         """
         event_type = event.get("type")
-        
+
         if event_type == "narrative":
             return self._process_narrative_upy(event)
         elif event_type == "choice":
@@ -551,11 +665,11 @@ Integration:
                 if effect_result:
                     output += effect_result
             return output
-    
+
     def _process_narrative_upy(self, event: dict) -> str:
         """Process narrative text event from .upy parser."""
         content = event.get("content", "")
-        
+
         # Process any effects first
         effects_output = ""
         effects = event.get("effects", [])
@@ -563,25 +677,25 @@ Integration:
             effect_result = self._process_effect(effect)
             if effect_result:
                 effects_output += effect_result
-        
+
         # Display narrative text
         output = "\n" + content + "\n\n"
-        
+
         # Add effects output after narrative
         if effects_output:
             output += effects_output
-        
+
         return output
-    
+
     def _process_choice_upy(self, event: dict) -> str:
         """Process choice event from .upy parser - display options and wait."""
         content = event.get("content", "What do you do?")
         choices = event.get("choices", [])
-        
+
         output = "\n" + "=" * 60 + "\n"
         output += f"🤔 {content}\n"
         output += "=" * 60 + "\n\n"
-        
+
         # Convert .upy choices to option format for handler
         options = []
         for choice in choices:
@@ -592,21 +706,21 @@ Integration:
                 "jump_to": next_event,
                 "consequences": []
             })
-        
+
         for i, option in enumerate(options, 1):
             output += f"  {i}. {option['text']}\n"
-        
+
         output += "\n💡 Use 'STORY CHOICE <number>' to decide\n"
-        
+
         # Store current choice options for validation
         self.current_choice_options = options
-        
+
         return output
-    
+
     def _process_effect(self, effect: dict) -> str:
         """Process an effect from event effects list."""
         effect_type = effect.get("type")
-        
+
         if effect_type == "stat_change":
             return self._process_stat_effect(effect)
         elif effect_type == "xp_award":
@@ -622,14 +736,14 @@ Integration:
             return ""
         else:
             return ""
-    
+
     def _process_stat_effect(self, effect: dict) -> str:
         """Process stat modification effect."""
         target = effect.get("target", "").lower()
         change = effect.get("value", 0)
-        
+
         from core.services.game.survival_service import SurvivalStat
-        
+
         # Map target names to SurvivalStat enum
         stat_map = {
             "health": SurvivalStat.HEALTH,
@@ -638,19 +752,19 @@ Integration:
             "stamina": SurvivalStat.FATIGUE,  # Invert: stamina decrease = fatigue increase
             "fatigue": SurvivalStat.FATIGUE
         }
-        
+
         if target not in stat_map:
             return ""
-        
+
         stat = stat_map[target]
-        
+
         # Invert stamina changes (stamina +10 = fatigue -10)
         if target == "stamina":
             change = -change
-        
+
         try:
             self.survival_service.update_stat(stat, change, "adventure event")
-            
+
             # Display notification
             if change > 0:
                 symbol = "⬆️"
@@ -658,22 +772,22 @@ Integration:
             else:
                 symbol = "⬇️"
                 direction = "decreased"
-            
+
             display_name = target.capitalize()
-            
+
             return f"{symbol} {display_name} {direction} by {abs(change)}\n"
-            
+
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Failed to update stat {target}: {e}")
             return ""
-    
+
     def _process_xp_effect(self, effect: dict) -> str:
         """Process XP award effect."""
         amount = effect.get("value", 0)
-        
+
         from core.services.game.xp_service import XPCategory
-        
+
         try:
             # Award to INFORMATION category by default
             self.xp_service.award_xp(XPCategory.INFORMATION, amount, "adventure progress")
@@ -682,22 +796,22 @@ Integration:
             if self.logger:
                 self.logger.error(f"Failed to award XP: {e}")
             return ""
-    
+
     def _process_item_give_effect(self, effect: dict) -> str:
         """Process item acquisition effect."""
         item_name = effect.get("item", "Unknown Item")
         quantity = effect.get("quantity", 1)
         category = effect.get("category", "misc")
         weight = effect.get("weight", 0.5)
-        
+
         from core.services.game.inventory_service import ItemCategory
-        
+
         # Map category string to enum
         try:
             item_category = ItemCategory[category.upper()]
         except KeyError:
             item_category = ItemCategory.MISC
-        
+
         try:
             self.inventory_service.add_item(
                 name=item_name,
@@ -705,46 +819,46 @@ Integration:
                 quantity=quantity,
                 weight=weight
             )
-            
+
             if quantity > 1:
                 return f"📦 Received {quantity}x {item_name}\n"
             else:
                 return f"📦 Received {item_name}\n"
-                
+
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Failed to add item {item_name}: {e}")
             return ""
-    
+
     def _process_item_take_effect(self, effect: dict) -> str:
         """Process item removal effect."""
         item_name = effect.get("item", "Unknown Item")
         quantity = effect.get("quantity", 1)
-        
+
         try:
             # Find item in inventory
             inventory = self.inventory_service.get_inventory("Personal Inventory")
             item = next((i for i in inventory if i['name'] == item_name), None)
-            
+
             if not item:
                 return f"⚠️  You don't have: {item_name}\n"
-            
+
             self.inventory_service.remove_item(item['id'], quantity)
-            
+
             if quantity > 1:
                 return f"📤 Lost {quantity}x {item_name}\n"
             else:
                 return f"📤 Lost {item_name}\n"
-                
+
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Failed to remove item {item_name}: {e}")
             return ""
-    
+
     def _process_flag_effect(self, effect: dict) -> str:
         """Process flag setting effect."""
         flag_name = effect.get("flag", "")
-        
+
         # Store flag in scenario service
         if self.current_session_id and flag_name:
             self.scenario_service.set_variable(
@@ -753,7 +867,7 @@ Integration:
                 True
             )
             return f"🏁 Achievement: {flag_name}\n"
-        
+
         return ""
     def _make_choice(self, args: list) -> str:
         """Make a choice in the adventure."""

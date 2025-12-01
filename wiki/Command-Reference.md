@@ -52,6 +52,14 @@ NEW GRID <name>           # Create new grid
 PANEL <name>              # Access panel
 TILE <coords>             # Geographic tile data
 
+# Adventures (v2.0.0)
+STORY START <adventure>   # Start interactive adventure
+STORY CONTINUE            # Progress through story
+STORY CHOICE <number>     # Make a choice
+STORY STATUS              # Check progress
+STORY SAVE <name>         # Save progress
+STORY LOAD <name>         # Load saved game
+
 # Navigation
 MAP                       # Show current position
 GOTO <location>           # Navigate to location
@@ -77,6 +85,7 @@ DEBUG <script>            # Debug uCODE script
 | **AI Content** | `OK`, `OK ASK`, `GENERATE`, `REFRESH` |
 | **Knowledge** | `MEMORY`, `PRIVATE`, `SHARED`, `KB` |
 | **Grid** | `GRID`, `NEW GRID`, `PANEL`, `TILE` |
+| **Adventures** | `STORY START`, `STORY CONTINUE`, `STORY CHOICE`, `STORY SAVE/LOAD` |
 | **Navigation** | `MAP`, `GOTO`, `MOVE`, `LEVEL` |
 | **System** | `STATUS`, `VIEWPORT`, `REPAIR`, `CONFIG` |
 | **Automation** | `RUN <script>`, `DEBUG <script>` |
@@ -1358,6 +1367,253 @@ RUN "<script>"
 **Script Format**: uCODE or regular commands
 
 **uCODE**: `[SYSTEM|RUN*<script>]`
+
+---
+
+### STORY
+
+**Purpose**: Interactive adventure system with branching narratives, survival mechanics, and save/load functionality
+
+**Syntax**:
+```
+STORY LIST
+STORY START <adventure>
+STORY CONTINUE
+STORY CHOICE <number>
+STORY STATUS
+STORY SAVE <name>
+STORY LOAD <name>
+```
+
+**Parameters**:
+- `adventure` - Name of adventure file (.upy or .json)
+- `number` - Choice option number (1-9)
+- `name` - Save file name (auto-adds .json)
+
+**Examples**:
+```
+🔮 > STORY LIST
+📚 Available Adventures:
+  • first-steps (.upy) - Learn wilderness survival basics
+
+🔮 > STORY START first-steps
+✅ Adventure started: first-steps
+   Format: .upy
+   Session ID: 42
+   
+📊 Player stats initialized
+💡 Use 'STORY CONTINUE' to begin
+
+🔮 > STORY CONTINUE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📖 You wake up beside a stream in unfamiliar wilderness.
+The sun is high overhead. You're thirsty and exhausted.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Use 'STORY CONTINUE' to proceed
+
+🔮 > STORY CHOICE 1
+✅ Choice recorded: 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📖 You follow the stream upstream...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔼 Thirst: -20
+⭐ +100 XP (water) - Found clean water
+📦 Added: Water Bottle (CONTAINER) x1
+
+🔮 > STORY STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Adventure Progress
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Adventure: first-steps
+Progress:  18/30 events (60%)
+Status:    Active
+
+┌─ CHARACTER STATS ──────────┐
+│ Health:  ████████░░ 80%   │
+│ Thirst:  ██░░░░░░░░ 20%   │
+│ Hunger:  ███░░░░░░░ 30%   │
+│ Fatigue: █████░░░░░ 50%   │
+└────────────────────────────┘
+
+💡 Use 'STORY CONTINUE' to proceed
+💡 Use 'STORY SAVE' to preserve progress
+
+🔮 > STORY SAVE my-progress
+💾 Progress saved: my-progress.json
+   Adventure: first-steps (event 18/30)
+   Stats: Health 80, Thirst 20, Hunger 30, Fatigue 50
+   XP: 2,450
+   Inventory: 8 items
+
+🔮 > STORY LOAD my-progress
+📂 Loaded save: my-progress.json
+   Adventure: first-steps
+   Saved: 2024-12-02 14:23:15
+   Progress: 18/30 events
+   
+💡 Use 'STORY STATUS' to check state
+💡 Use 'STORY CONTINUE' to resume
+```
+
+**Features**:
+
+1. **Event Processing** (8 types):
+   - `NARRATIVE` - Story text display
+   - `CHOICE` - Player decisions with branching
+   - `GOTO` - Label-based navigation
+   - `SET_STAT` - Modify survival stats (health/thirst/hunger/fatigue)
+   - `AWARD_XP` - Grant experience points
+   - `ADD_ITEM` / `REMOVE_ITEM` - Inventory management
+   - `CHECK_STAT` / `CHECK_ITEM` / `CHECK_XP` - Conditionals
+   - `SPRITE` / `OBJECT` - Display character stats/inventory
+
+2. **Game Integration**:
+   - **SurvivalService**: Track health, thirst, hunger, fatigue (0-100)
+   - **XPService**: Experience points across 9 categories
+   - **InventoryService**: Item management with categories and weight
+   - **ScenarioEngine**: Event processing and state management
+
+3. **Choice System**:
+   - 2-9 options per choice
+   - Automatic branching (option N → event N+1)
+   - Validation and error handling
+   - Support for GOTO-based path convergence
+
+4. **Save/Load System**:
+   - JSON-based saves in `sandbox/user/saves/`
+   - Complete state preservation:
+     - Survival stats (all 4 stats)
+     - Total XP (across all categories)
+     - Complete inventory (items with full details)
+     - Scenario position (event index, choice state)
+   - Version tracking (2.0.0)
+   - Timestamp and progress metadata
+
+**Adventure File Format (.upy)**:
+
+```python
+# ========================================
+# METADATA
+# ========================================
+# metadata.name: "First Steps"
+# metadata.description: "Learn wilderness survival"
+# metadata.author: "uDOS Team"
+# metadata.version: "1.0.0"
+
+# ========================================
+# LABELS (for branching)
+# ========================================
+@start
+@water_found
+@victory
+
+# ========================================
+# EVENTS
+# ========================================
+
+# Event 1: Opening
+NARRATIVE
+You wake up beside a stream.
+END
+
+# Event 2: First choice
+CHOICE
+What do you do?
+1. Find water
+2. Build shelter
+3. Explore area
+END
+
+# Event 3: Find water (option 1)
+NARRATIVE
+You follow the stream upstream.
+After 30 minutes, you find a spring.
+END
+SET_STAT thirst 0
+ADD_ITEM "Water Bottle" CONTAINER 1 0.5
+AWARD_XP water 100 "Found clean water"
+
+# Event 4: Build shelter (option 2)
+NARRATIVE
+You gather branches and build a lean-to.
+END
+SET_STAT fatigue 70
+AWARD_XP shelter 150 "Built first shelter"
+
+# Event 5: Explore (option 3)
+NARRATIVE
+You scout the area.
+END
+AWARD_XP navigation 50 "Scouted surroundings"
+
+# Event 6: Convergence
+@water_found
+NARRATIVE
+As evening approaches, you need camp.
+END
+SPRITE
+OBJECT
+```
+
+**uPY Commands (15 total)**:
+- `NARRATIVE` / `END` - Multi-line story text
+- `CHOICE` / `END` - Player decisions
+- `GOTO @label` - Jump to label
+- `SET_STAT health 90` - Modify stat
+- `AWARD_XP survival 50 "reason"` - Grant XP
+- `ADD_ITEM "Rope" TOOL 1 1.5` - Give item
+- `REMOVE_ITEM "Rope" 1` - Take item
+- `CHECK_STAT health > 50` - Conditional check
+- `CHECK_ITEM "Rope"` - Item possession check
+- `CHECK_XP > 100` - XP threshold check
+- `SPRITE` - Show character stats UI
+- `OBJECT` - Show inventory UI
+- `VARIABLE x 10` - Set variable
+- `CONDITION x > 5` - If statement
+- `SCRIPT` / `END` - Custom code block
+
+**Integration with Core Services**:
+
+```python
+# Example: Internal flow
+handler = StoryHandler(components={
+    'scenario_service': ScenarioService(),
+    'xp_service': XPService(),
+    'inventory_service': InventoryService(),
+    'survival_service': SurvivalService()
+})
+
+# Start adventure → Parse .upy → Load events
+handler.handle('START', ['first-steps'])
+# → parse_upy_adventure() → register scenario → start session
+
+# Continue → Process next event
+handler.handle('CONTINUE', [])
+# → scenario_engine.process_event() → execute event actions
+
+# Choice → Validate → Branch
+handler.handle('CHOICE', ['1'])
+# → validate option → jump to path → continue
+
+# Save → Capture state → Write JSON
+handler.handle('SAVE', ['my-save'])
+# → collect stats/XP/inventory/position → save to file
+
+# Load → Parse JSON → Restore state
+handler.handle('LOAD', ['my-save'])
+# → restart adventure → restore stats/XP/inventory → resume
+```
+
+**Related Documentation**:
+- [Adventure Scripting Guide](Adventure-Scripting-Guide.md) - Complete .upy format reference
+- [uCODE Language](uCODE-Language.md) - Script automation
+- [Getting Started](Getting-Started.md#story-mode) - Tutorial walkthrough
+
+**uCODE**: `[STORY|START*first-steps]`, `[STORY|CONTINUE]`, `[STORY|CHOICE*1]`
+
+**Status**: ✅ Complete (v2.0.0 - Round 2)  
+**Tests**: 32 passing (integration + save/load)  
+**Examples**: `sandbox/ucode/adventures/first-steps.upy` (280 lines, 30 events)
 
 ---
 
