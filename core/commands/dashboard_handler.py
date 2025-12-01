@@ -441,42 +441,50 @@ class DashboardHandler(BaseCommandHandler):
     def _dashboard_web_mode(self):
         """Open interactive web dashboard in browser."""
         # Check if dashboard extension exists
-        dashboard_path = Path('extensions/web/dashboard/index.html')
+        dashboard_path = Path('extensions/core/dashboard/index.html')
 
         if not dashboard_path.exists():
-            return ("⚠️  Web dashboard not installed\n\n"
-                   "To install:\n"
-                   "  cd extensions/web\n"
-                   "  git clone https://github.com/fredporter/udos-dashboard dashboard\n\n"
-                   "Or use the CLI dashboard: DASH")
+            return ("⚠️  Core dashboard not found\n\n"
+                   "Expected location: extensions/core/dashboard/\n"
+                   "Please verify installation or use CLI dashboard: DASH")
 
         # Start dashboard server if not running
         try:
-            # Check if server is running
+            # Check if server is running on port 5555
             import subprocess
             result = subprocess.run(
-                ['lsof', '-ti:8887'],
+                ['lsof', '-ti:5555'],
                 capture_output=True,
                 text=True
             )
 
             if not result.stdout.strip():
-                # Start server in background
-                server_script = Path('extensions/web/dashboard/server.py')
+                # Start server in background using start.sh
+                server_script = Path('extensions/core/dashboard/start.sh')
                 if server_script.exists():
                     subprocess.Popen(
-                        [sys.executable, str(server_script)],
+                        ['bash', str(server_script)],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL
                     )
                     time.sleep(2)  # Give server time to start
+                else:
+                    # Fallback to app.py directly
+                    app_script = Path('extensions/core/dashboard/app.py')
+                    if app_script.exists():
+                        subprocess.Popen(
+                            [sys.executable, str(app_script)],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL
+                        )
+                        time.sleep(2)
 
             # Open in browser
-            webbrowser.open('http://localhost:8887')
+            webbrowser.open('http://localhost:5555')
 
             return ("✅ Dashboard opened in browser\n\n"
-                   "🌐 URL: http://localhost:8887\n"
-                   "📊 Interactive dashboard with live updates\n\n"
+                   "🌐 URL: http://localhost:5555\n"
+                   "📊 NES-themed dashboard with live system monitoring\n\n"
                    "Use CTRL+C in server window to stop")
 
         except Exception as e:
