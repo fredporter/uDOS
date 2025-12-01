@@ -93,10 +93,10 @@ PRINT ""
 
 FOR category IN $categories
     PRINT "📂 Processing: $category"
-    
+
     # Generate overview diagram
     GENERATE SVG "$category overview" --type architecture --save "$category-overview.svg"
-    
+
     IF $? == 0
         SET success_count ($success_count + 1)
         PRINT "  ✅ Success: $category-overview.svg"
@@ -104,7 +104,7 @@ FOR category IN $categories
         SET fail_count ($fail_count + 1)
         PRINT "  ❌ Failed: $category-overview.svg"
     ENDIF
-    
+
     SLEEP 2  # Rate limiting
 DONE
 
@@ -134,10 +134,10 @@ PRINT ""
 
 WHILE $attempt <= $max_attempts
     PRINT "Attempt $attempt/$max_attempts..."
-    
+
     # Generate with strict validation
     GENERATE SVG "$subject" --strict --pro
-    
+
     IF $? == 0
         PRINT "✅ Quality check passed!"
         BREAK
@@ -199,47 +199,47 @@ pytestmark = pytest.mark.skipif(
 
 class TestLiveNanoBanana:
     """Live API tests for Nano Banana pipeline."""
-    
+
     def test_generate_simple_png(self):
         """Test basic PNG generation via Nano Banana."""
         gen = GeminiGenerator()
-        
+
         png_bytes, metadata = gen.generate_image_svg(
             "simple water filter diagram",
             style="technical-kinetic",
             diagram_type="flowchart",
             use_pro=False
         )
-        
+
         assert png_bytes is not None
         assert len(png_bytes) > 0
         assert metadata['model'] == 'gemini-2.0-flash-exp'
-    
+
     def test_png_to_svg_pipeline(self):
         """Test complete PNG → SVG pipeline."""
         gen = GeminiGenerator()
         vec = Vectorizer()
-        
+
         # Generate PNG
         png_bytes, metadata = gen.generate_image_svg(
             "fire triangle",
             style="technical-kinetic",
             diagram_type="schematic"
         )
-        
+
         # Vectorize to SVG
         result = vec.vectorize_png(png_bytes, method='potrace')
-        
+
         assert result.svg_content is not None
         assert '<svg' in result.svg_content
         assert result.validation.is_valid
-    
+
     def test_style_guide_loading(self):
         """Test loading of style guide reference images."""
         gen = GeminiGenerator()
-        
+
         references = gen.load_style_guide('technical-kinetic')
-        
+
         # Should work with 0 references (fallback)
         assert isinstance(references, list)
         # If references exist, validate format
@@ -263,7 +263,7 @@ from core.commands.generate_handler import GenerateHandler, handle_generate_comm
 
 class TestGenerateIntegration:
     """Integration tests for GENERATE command handler."""
-    
+
     @patch('core.commands.generate_handler.GeminiGenerator')
     @patch('core.commands.generate_handler.Vectorizer')
     def test_full_svg_generation_flow(self, mock_vec, mock_gen):
@@ -273,18 +273,18 @@ class TestGenerateIntegration:
             b'fake_png_data',
             {'model': 'gemini-2.0-flash-exp', 'size': (1200, 900)}
         )
-        
+
         # Mock vectorization
         mock_vec.return_value.vectorize_png.return_value.svg_content = '<svg>test</svg>'
         mock_vec.return_value.vectorize_png.return_value.validation.is_valid = True
-        
+
         # Execute command
         result = handle_generate_command(
             ['SVG', 'test diagram', '--style', 'technical-kinetic'],
             grid=None,
             parser=None
         )
-        
+
         assert 'Success' in result or 'generated' in result.lower()
         assert mock_gen.return_value.generate_image_svg.called
         assert mock_vec.return_value.vectorize_png.called

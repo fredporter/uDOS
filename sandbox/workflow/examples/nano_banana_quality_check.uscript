@@ -31,10 +31,10 @@ WHILE $attempt <= $max_attempts AND $success == false
   PRINT "🔄 Attempt $attempt/$max_attempts"
   PRINT "   Generating with strict validation..."
   PRINT ""
-  
+
   # Generate with strict validation and Pro mode
   GENERATE SVG "$subject" --strict --pro
-  
+
   # Check result
   IF $? == 0
     SET success true
@@ -46,10 +46,10 @@ WHILE $attempt <= $max_attempts AND $success == false
   ELSE
     PRINT ""
     PRINT "⚠️  Validation failed on attempt $attempt"
-    
+
     # Increment attempt counter
     SET attempt ($attempt + 1)
-    
+
     # Wait before retry (exponential backoff)
     IF $attempt <= $max_attempts
       SET wait_time ($attempt * 2)

@@ -29,10 +29,10 @@ PRINT ""
 FOR category IN $categories
   PRINT "📂 Processing category: $category"
   PRINT "   Generating overview diagram..."
-  
+
   # Generate overview diagram
   GENERATE SVG "$category overview" --type architecture --save "$category-overview.svg"
-  
+
   # Track results
   IF $? == 0
     SET success_count ($success_count + 1)
@@ -41,13 +41,13 @@ FOR category IN $categories
     SET fail_count ($fail_count + 1)
     PRINT "   ❌ Failed: $category-overview.svg"
   ENDIF
-  
+
   # Rate limiting (API courtesy)
   IF $category != [LAST|$categories]
     PRINT "   ⏳ Waiting 2 seconds (API rate limiting)..."
     SLEEP 2
   ENDIF
-  
+
   PRINT ""
 DONE
 

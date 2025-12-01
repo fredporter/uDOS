@@ -30,27 +30,27 @@ SET count 0
 FOR style IN $styles
   PRINT "🎨 Style: $style"
   PRINT ""
-  
+
   FOR type IN $types
     SET count ($count + 1)
     PRINT "   [$count] Type: $type"
     PRINT "      Generating..."
-    
+
     # Generate with specific style and type
     SET filename "$subject-$style-$type.svg"
     GENERATE SVG "$subject" --style $style --type $type --save $filename
-    
+
     IF $? == 0
       PRINT "      ✅ Saved: $filename"
     ELSE
       PRINT "      ❌ Failed"
     ENDIF
-    
+
     # Rate limiting
     IF $count < ([COUNT|$styles] * [COUNT|$types])
       SLEEP 2
     ENDIF
-    
+
     PRINT ""
   DONE
 DONE

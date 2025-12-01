@@ -328,7 +328,38 @@ AUTO_SAVE_SESSION='true'
     @property
     def username(self) -> str:
         """Get username from user config only (single source of truth)."""
-        return self.get_user('USER_PROFILE.NAME', 'user')
+        # Read from USER_PROFILE.NAME (sandbox/user/user.json)
+        name = self.get_user('USER_PROFILE.NAME')
+        if not name:
+            # Fallback to lowercase structure (legacy)
+            name = self.get_user('user_profile.username', 'user')
+        return name
+
+    @property
+    def timezone(self) -> str:
+        """Get timezone from user config."""
+        # Read from USER_PROFILE.TIMEZONE (sandbox/user/user.json)
+        tz = self.get_user('USER_PROFILE.TIMEZONE')
+        if not tz:
+            # Fallback to lowercase structure (legacy)
+            tz = self.get_user('user_profile.timezone', 'UTC')
+        return tz
+
+    @property
+    def location(self) -> str:
+        """Get location from user config."""
+        # Read from USER_PROFILE.LOCATION (sandbox/user/user.json)
+        loc = self.get_user('USER_PROFILE.LOCATION')
+        if not loc:
+            # Try LOCATION_DATA structure
+            city = self.get_user('LOCATION_DATA.CITY')
+            country = self.get_user('LOCATION_DATA.COUNTRY')
+            if city and country:
+                loc = f"{city}, {country}"
+            else:
+                # Fallback to lowercase structure (legacy)
+                loc = self.get_user('user_profile.location', 'Unknown')
+        return loc
 
     @property
     def installation_id(self) -> str:

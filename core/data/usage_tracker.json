@@ -1,33 +1,40 @@
 {
   "command_counts": {
-    "HELP": 10,
-    "DASH": 3,
+    "HELP": 15,
+    "DASH": 4,
     "SHOW": 2,
-    "CONFIG": 2,
+    "CONFIG": 4,
     "OUTPUT": 6,
     "SETUP": 2,
     "HISTORY": 1,
-    "STATUS": 1,
+    "STATUS": 2,
     "SHAKEDOWN": 2,
     "ACCESS": 2,
-    "ERROR": 2
+    "ERROR": 3,
+    "LIST": 1,
+    "WIZARD": 1
   },
   "success_counts": {
-    "HELP": 10,
+    "HELP": 12,
     "DASH": 3,
     "SHOW": 2,
-    "CONFIG": 2,
+    "CONFIG": 3,
     "OUTPUT": 5,
     "SETUP": 1,
     "HISTORY": 1,
-    "STATUS": 1,
+    "STATUS": 2,
     "SHAKEDOWN": 2,
-    "ACCESS": 2
+    "ACCESS": 2,
+    "LIST": 1,
+    "WIZARD": 1
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 2,
-    "SETUP": 1
+    "ERROR": 3,
+    "SETUP": 1,
+    "DASH": 1,
+    "CONFIG": 1,
+    "HELP": 3
   },
   "recent_commands": [
     {
@@ -318,7 +325,109 @@
       "params": [],
       "success": false,
       "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-12-01T00:26:22.129673",
+      "params": [
+        "web"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T00:26:36.041435",
+      "params": [
+        "list"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T11:50:57.739140",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-12-01T11:51:05.762231",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T11:51:09.842777",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T11:51:38.387686",
+      "params": [
+        "RECENT"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T11:51:44.183777",
+      "params": [
+        "recent"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-01T11:51:48.355099",
+      "params": [
+        "Invalid command: heklp stats"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-01T11:51:53.310015",
+      "params": [
+        "session"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "WIZARD",
+      "timestamp": "2025-12-01T11:52:31.054656",
+      "params": [
+        "WIZARD"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-12-01T11:52:44.347089",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-01T11:53:11.759412",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-11-30T23:16:02.205053"
+  "last_updated": "2025-12-01T11:53:11.759480"
 }

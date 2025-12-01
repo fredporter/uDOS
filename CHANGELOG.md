@@ -24,19 +24,19 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
   - API key validation
   - Error handling examples
   - Success/failure reporting
-  
+
 - **nano_banana_batch.uscript** (~80 lines) - Batch generation with tracking
   - 4 survival topics (water, fire, shelter, navigation)
   - Rate limiting (6-second delays between requests)
   - Success/failure counters
   - Summary report with statistics
-  
+
 - **nano_banana_quality_check.uscript** (~90 lines) - Quality validation + retry
   - Automatic retry logic (max 3 attempts)
   - Pro mode for higher quality
   - Strict validation enforcement
   - Failure reporting and suggestions
-  
+
 - **nano_banana_styles_demo.uscript** (~70 lines) - Style/type matrix demo
   - 3 styles × 3 types = 9 diagrams
   - Educational demonstration

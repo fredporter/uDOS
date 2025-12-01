@@ -72,17 +72,13 @@ class DashboardHandler(BaseCommandHandler):
 
         # User info - enhanced with location
         config = get_config()
-        if self.user_manager and self.user_manager.user_data:
-            user_profile = self.user_manager.user_data.get('user_profile', {})
-            name = user_profile.get('username', config.username or 'user')
-            project = user_profile.get('project_name', 'uDOS')
-            status += f"║ 👤 User: {name[:20]} ({project[:30]})" + " "*(68-len(f"User: {name[:20]} ({project[:30]})") -4) + "║\n"
+        name = config.username or 'user'
+        project = config.get('project_name', 'uDOS')
+        location = config.location or 'Unknown'
+        timezone = config.timezone or 'UTC'
 
-            # Location info
-            location_data = self.user_manager.user_data.get('location', {})
-            city = location_data.get('city_name', 'Unknown')
-            timezone = location_data.get('timezone', {}).get('name', 'Unknown')
-            status += f"║ 📍 Location: {city}, {timezone}" + " "*(68-len(f"Location: {city}, {timezone}") -4) + "║\n"
+        status += f"║ 👤 User: {name[:20]} ({project[:30]})" + " "*(68-len(f"User: {name[:20]} ({project[:30]})") -4) + "║\n"
+        status += f"║ 📍 Location: {location}, {timezone}" + " "*(68-len(f"Location: {location}, {timezone}") -4) + "║\n"
 
         status += "╠" + "═"*68 + "╣\n"
 
@@ -280,9 +276,9 @@ class DashboardHandler(BaseCommandHandler):
             # Get user info from ConfigManager
             try:
                 config = get_config()
-                user_name = config.get('username', 'user')
-                location = config.get('location', 'Unknown')
-                timezone = config.get('timezone', 'UTC')
+                user_name = config.username or 'user'
+                location = config.location or 'Unknown'
+                timezone = config.timezone or 'UTC'
                 planet = config.get('planet', 'Earth')
                 project = config.get('project_name', 'uDOS')
                 project_type = config.get('project_description', 'CLI Framework')
