@@ -189,14 +189,26 @@ Unify isolated workflow/mission/checklist systems into a cohesive JSON-based tas
 - ✅ All validated against checklist.schema.json
 - ✅ Added to `knowledge/checklists/` (10 total checklists, 126+ items)
 
-**8. Documentation**
-- Consolidate workflow docs (INDEX.md, OVERVIEW.md → wiki)
-- Create `wiki/Systems-Integration.md` (mission ↔ workflow ↔ checklist)
-- Update `wiki/Command-Reference.md` with new commands:
-  - CHECKLIST (CREATE, LIST, LOAD, COMPLETE, STATUS, PROGRESS)
-  - ARCHIVE (mission, workflow, checklist)
-  - WORKFLOW (expose in main CLI)
-- Create `wiki/Dashboard-Guide.md` (setup, usage, widgets)
+**8. Documentation** ✅ COMPLETE (December 2, 2025)
+- ✅ Consolidated workflow docs to wiki
+- ✅ Created `wiki/Systems-Integration.md` - comprehensive guide to mission/workflow/checklist integration
+  - ✅ 5 integration patterns documented
+  - ✅ Complete example workflows
+  - ✅ State file reference
+  - ✅ Best practices section
+- ✅ Updated `wiki/Command-Reference.md` with v1.1.14 commands:
+  - ✅ GUIDE (LIST, SHOW, START)
+  - ✅ CHECKLIST (CREATE, LIST, LOAD, COMPLETE, STATUS, PROGRESS, RESET)
+  - ✅ MISSION (CREATE, START, STATUS, COMPLETE)
+  - ✅ ARCHIVE (LIST, mission, checklist, workflow, restore)
+  - ✅ GET (MISSION.*, CHECKLIST.*, WORKFLOW.*)
+- ✅ Created `wiki/Dashboard-Guide.md` - complete dashboard documentation
+  - ✅ Quick start guide
+  - ✅ All 4 widgets documented
+  - ✅ 5 API endpoints referenced
+  - ✅ Troubleshooting section
+  - ✅ Customization guide
+  - ✅ Production deployment section
 
 ### Success Metrics
 
