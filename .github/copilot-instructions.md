@@ -4,9 +4,10 @@
 
 uDOS is an **offline-first operating system** for survival knowledge, mapping, and text-based computing. It prioritizes minimal design, offline functionality, and human-centric interfaces.
 
-## Workspace Organization (v1.1.13)
+## Workspace Organization (v1.1.16)
 
 **CRITICAL**: Development files (tracked) in `/dev/`. User workspace (gitignored) in `/memory/`.
+**NEW v1.1.16**: Universal `.archive/` folders in any directory for version history, backups, and file recovery.
 
 ### Development Directory (`/dev/` - tracked in git)
 
@@ -27,18 +28,21 @@ memory/
 │   ├── examples/           # Example scripts
 │   └── stdlib/             # Standard library
 ├── workflows/              # Unified workflow system (v2.0 - flat structure)
+│   ├── .archive/           # Workflow version history & completed work
 │   ├── config.json         # Workflow system configuration
 │   ├── README.md           # Workflow v2.0 documentation
 │   ├── missions/           # All mission workflow scripts (.upy)
+│   │   └── .archive/       # Archived missions
 │   ├── checkpoints/        # Auto-saved state snapshots
+│   │   └── .archive/       # Old checkpoint history
 │   ├── state/              # Current execution state and control
-│   ├── extensions/         # Gameplay/XP/achievement integration
-│   └── .archive/           # Legacy structure (v1.x)
+│   └── extensions/         # Gameplay/XP/achievement integration
 ├── system/                 # System files
-│   ├── archived/           # Archived system files
-│   ├── backup/             # Configuration backups
+│   ├── .archive/           # System file backups & old configs
 │   ├── themes/             # Custom themes
+│   │   └── .archive/       # Theme backups
 │   └── user/               # User settings and persistent data
+│       └── .archive/       # User config history (BACKUP command)
 ├── bank/                   # Banking/barter system
 │   ├── private/            # Private transactions
 │   └── barter/             # Barter transactions
@@ -54,6 +58,49 @@ memory/
     └── teletext/           # Teletext drafts
 ```
 
+### Universal .archive/ System (v1.1.16)
+
+**Purpose:** Every directory can have a hidden `.archive/` folder for:
+- File version history (old/working versions)
+- Backup files (automated and manual)
+- Deleted files (recovery before permanent deletion)
+- Archived work (completed missions, workflows, checklists)
+
+**Location Pattern:**
+```
+any-folder/
+├── .archive/              # Hidden archive folder
+│   ├── 20251203_143022_   # Timestamped backups
+│   ├── old_versions/      # Version history
+│   └── deleted/           # Soft-deleted files
+├── active_file.txt        # Active files
+└── working_data.json
+```
+
+**Commands Integration:**
+- `CLEAN` - Scans and purges old `.archive/` files across workspace
+- `BACKUP` - Creates timestamped copies in `.archive/`
+- `REPAIR` - Can access `.archive/` for recovery
+- `ARCHIVE` - Moves completed work to `.archive/`
+- `UNDO/REDO` - Uses `.archive/` for version rollback
+- `STATUS --health` - Reports `.archive/` usage across all folders
+
+**Example Paths:**
+```
+memory/workflows/.archive/        # Workflow backups
+memory/missions/.archive/         # Mission archives
+memory/system/user/.archive/      # Config backups
+wiki/.archive/                    # Old wiki versions (already in use)
+core/data/.archive/               # System file backups
+memory/logs/.archive/             # Log rotation
+```
+
+**Auto-Management:**
+- Old backups (>30 days): Flagged by CLEAN command
+- Version history: Keep last 5 versions per file
+- Deleted files: 7-day recovery window
+- Archive size: Tracked in system health metrics
+
 ### File Placement Rules
 
 **✅ Use `/dev/` for (tracked in git):**
@@ -64,13 +111,22 @@ memory/
 
 **✅ Use `/memory/` for (gitignored, except ucode/):**
 - Mission workflows → `memory/workflows/missions/` (all .upy scripts)
+  - Archived missions → `memory/workflows/missions/.archive/`
 - Workflow checkpoints → `memory/workflows/checkpoints/` (auto-saved state)
+  - Old checkpoints → `memory/workflows/checkpoints/.archive/`
 - Workflow state → `memory/workflows/state/` (current execution state)
 - Workflow extensions → `memory/workflows/extensions/` (gameplay integration)
 - User data → `memory/system/user/`
-- System backups → `memory/system/backup/`
-- System archives → `memory/system/archived/`
+  - Config backups → `memory/system/user/.archive/`
+- System backups → `memory/system/.archive/` (NEW - unified backup location)
 - Core tests/utilities → `memory/ucode/` (tracked in git)
+
+**✅ Use `.archive/` folders for (auto-managed):**
+- File version history (old/working versions)
+- Backup snapshots (timestamped)
+- Soft-deleted files (7-day recovery)
+- Completed/archived work
+- Log rotation (memory/logs/.archive/)
 
 **❌ Never commit to git:**
 - Entire `memory/` directory (except `memory/ucode/`)
@@ -365,15 +421,20 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Mix user data with system files
 - Create JSON files in `knowledge/` (use `core/data/` or `extensions/play/data/`)
 - Use lat/long coordinates (TILE codes only since v1.1.12)
+- Manually manage `.archive/` folders (use CLEAN, BACKUP, ARCHIVE commands)
+- Store permanent data in `.archive/` (use for versioning/recovery only)
 
 ✅ **Do:**
 - Use `/dev/` for tracked development files (roadmap, tools, sessions)
 - Use `/memory/` for user workspace (missions, workflows, checklists)
+- Use `.archive/` folders for version history and backups (auto-managed)
 - Follow directory structure conventions
 - Document all public APIs
 - Write tests for new features
 - Use type hints in Python
 - Keep knowledge bank read-only (guides are curated)
+- Use BACKUP command before major config changes
+- Use CLEAN command to manage .archive/ space
 
 ## Command Handler Architecture (As of Dec 2025)
 

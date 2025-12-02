@@ -1,10 +1,147 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.1.15 ✅ **COMPLETE** (Graphics Infrastructure Enhancement)
-**Status:** All 6 tasks complete - Mermaid, GitHub diagrams, ASCII, Typora, Nano Banana, Workflow integration
+**Current Version:** v1.1.16 🚧 **IN PROGRESS** (Archive System Infrastructure)
+**Status:** Specification complete - Implementation pending
 **Last Updated:** December 3, 2025
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns.
+
+---
+
+## 📍 Next Release: v1.1.16 (December 2025)
+
+**Status:** 🚧 **IN PROGRESS** - Archive System Infrastructure
+**Phase:** Specification complete, implementation starting
+**Target:** Universal `.archive/` folder system with enhanced CLEAN, BACKUP, UNDO/REDO
+
+### Mission: Universal Archive System
+
+Replace fragmented `backup/`, `archived/`, `trash/` folders with a consistent `.archive/` approach across all directories.
+
+**Core Concept:**
+Every directory can have a `.archive/` subfolder containing:
+- File version history (old/working versions)
+- Backup snapshots (automated and manual)
+- Soft-deleted files (7-day recovery window)
+- Archived work (completed missions, workflows, checklists)
+
+**Key Features:**
+1. **Universal Pattern:** `.archive/` folders in any directory
+2. **Auto-Management:** CLEAN command scans and purges old files
+3. **Version Control:** Built-in UNDO/REDO using `.archive/versions/`
+4. **Backup System:** BACKUP command creates timestamped copies
+5. **Health Metrics:** STATUS reports `.archive/` usage across workspace
+6. **Recovery:** REPAIR can access `.archive/` for file recovery
+
+### Tasks (v1.1.16)
+
+#### Task 1: Archive Infrastructure ⏳ PENDING
+- [ ] Create `core/utils/archive_manager.py` utility
+- [ ] Implement `.archive/` folder auto-creation
+- [ ] Design metadata.json schema for archive tracking
+- [ ] Create `.archive/` folders in key locations:
+  - `memory/workflows/.archive/`
+  - `memory/workflows/missions/.archive/`
+  - `memory/workflows/checkpoints/.archive/`
+  - `memory/system/.archive/`
+  - `memory/system/user/.archive/`
+  - `memory/logs/.archive/`
+- [ ] Update `.gitignore` to exclude all `.archive/` folders
+
+**Estimated Lines:** ~400 lines (ArchiveManager + folder setup)
+
+#### Task 2: Enhanced CLEAN Command ⏳ PENDING
+- [ ] Update `core/commands/environment_handler.py`
+- [ ] Add `.archive/` scanning across workspace
+- [ ] Implement purge logic (30-day default retention)
+- [ ] Add stats reporting (space used, file counts, age distribution)
+- [ ] Add `--scan`, `--purge [days]`, `--dry-run`, `--path` flags
+- [ ] Interactive cleanup with recommendations
+
+**Estimated Lines:** ~300 lines (CLEAN enhancements)
+
+#### Task 3: BACKUP Command ⏳ PENDING
+- [ ] Create `core/commands/backup_handler.py`
+- [ ] Implement timestamped backup creation
+- [ ] Format: `YYYYMMDD_HHMMSS_filename.ext`
+- [ ] Auto-backup scheduling (optional)
+- [ ] Retention policy (keep last 10 backups, 30-day expiry)
+- [ ] Integration with ArchiveManager
+
+**Estimated Lines:** ~250 lines (BACKUP handler)
+
+#### Task 4: UNDO/REDO Commands ⏳ PENDING
+- [ ] Create `core/commands/undo_handler.py`
+- [ ] Implement version history tracking
+- [ ] File save hooks to create versions
+- [ ] UNDO: Revert to previous version
+- [ ] REDO: Re-apply undone changes
+- [ ] `--list`, `--to-version` flags
+- [ ] Maintain last 5-10 versions per file
+
+**Estimated Lines:** ~200 lines (UNDO/REDO handler)
+
+#### Task 5: Enhanced Commands ⏳ PENDING
+- [ ] Update `archive_handler.py`: Change paths to `.archive/completed/`
+- [ ] Update `repair_handler.py`: Add backup listing, recovery from `.archive/`
+- [ ] Update `system_handler.py`: Add `.archive/` metrics to STATUS --health
+- [ ] Update `file_handler.py`: Soft-delete to `.archive/deleted/`, version tracking
+
+**Estimated Lines:** ~200 lines (command updates across 4 handlers)
+
+#### Task 6: Migration & Testing ⏳ PENDING
+- [ ] Migrate existing archives:
+  - `memory/system/archived/*` → `memory/workflows/missions/.archive/completed/`
+  - `memory/system/backup/*` → `memory/system/user/.archive/backups/`
+- [ ] Clean up old `archived/` and `backup/` folders
+- [ ] Create test suite for ArchiveManager
+- [ ] Integration tests for all commands
+- [ ] Update `wiki/Command-Reference.md`
+- [ ] Create `wiki/Archive-System.md`
+- [ ] Update `.github/copilot-instructions.md` ✅ DONE
+
+**Estimated Lines:** ~300 lines (tests + documentation)
+
+### Progress Summary
+
+**Total Estimated Lines:** ~1,650 lines
+**Completion:** 0/6 tasks (Specification phase complete)
+
+**Benefits:**
+- ✅ Consistent archive approach across all directories
+- ✅ Auto-managed cleanup (no manual intervention needed)
+- ✅ 7-day soft-delete recovery window
+- ✅ Built-in version control (UNDO/REDO)
+- ✅ System health metrics for archive usage
+- ✅ Automated and manual backup system
+
+**See:** `dev/sessions/2025-12-03-archive-system-spec.md` for complete specification
+
+---
+
+## 📍 Previous Release: v1.1.15 (December 2025)
+
+**Status:** ✅ **COMPLETE** - Graphics Infrastructure Enhancement
+**Release Date:** December 3, 2025
+
+### What Was Added in v1.1.15
+
+**Graphics Infrastructure (Tasks 1-6 Complete):**
+- ✅ **Mermaid Diagrams** - 12 diagram types with server-side rendering (826 lines)
+- ✅ **GitHub Diagrams** - Native GeoJSON maps + ASCII STL 3D models (1,050 lines)
+- ✅ **ASCII Graphics** - Unicode box-drawing + 2 house styles, 51 diagrams extracted
+- ✅ **Typora Support** - 13 diagram types with offline WYSIWYG editing (1,900+ lines)
+- ✅ **Nano Banana Optimization** - 13 survival prompts, 3 style guides, 3 vectorization presets (1,640+ lines)
+- ✅ **Testing Framework** - 23 automated tests validating prompts, styles, presets (400+ lines)
+- ✅ **Typora Workflow** - Complete integration documentation (944 lines)
+
+**Wiki Cleanup (December 3, 2025):**
+- ✅ Archived 8 outdated wiki files (Development-History, Migration guides, SVG docs)
+- ✅ Rewrote Command-Reference.md: 4,338 → 811 lines (81% reduction, v1.1.15 accurate)
+- ✅ Updated Developers-Guide.md to v1.1.15 (extension structure, .upy format)
+- ✅ Updated Style-Guide.md graphics evolution history
+- ✅ Fixed 14 broken links to archived pages
+- ✅ All version references: v1.1.15, all script format: .upy
 
 ---
 
