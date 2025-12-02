@@ -936,11 +936,19 @@ cat sandbox/dev/round-<N>-progress.md
   - Save/load system complete but uses old format
 
 ### From v1.1.5.x Consolidation Plans
-- ⏸️ **v1.1.5.1 Task 1** - ConfigManager deprecation warning (in progress)
+- ✅ **v1.1.5.1 Task 1** - ConfigManager deprecation warning (COMPLETE - Dec 2, 2025)
 - ⏸️ **v1.1.5.1 Task 2** - System handler refactoring (3,664 lines → modular)
 - ⏸️ **v1.1.5.2 Task 1** - Knowledge/Memory handler investigation
 - ⏸️ **v1.1.5.2 Task 2** - Documentation handler consolidation (6 → 1)
 - ⏸️ **v1.1.5.3** - All 4 tasks (shared utilities, base handler, deprecated code removal, test theme relocation)
+
+### Core Cleanup (Dec 2, 2025) ✅
+- ✅ Fixed broken UCodeInterpreter import → UPYParser
+- ✅ Updated all file pickers (.uscript → .upy)
+- ✅ Fixed path references (dev/ → sandbox/dev/)
+- ✅ Updated deprecation messages to v1.1.12
+- ✅ Added deprecation warning to config_manager.py
+- ⚠️ validator.py still references .uscript (needs decision)
 
 ### Priority Recommendations
 
