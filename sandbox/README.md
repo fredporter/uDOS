@@ -1,92 +1,66 @@
-# Sandbox - Private Workspace
+# Sandbox - Runtime User Workspace
 
-## Overview
-
-The `/sandbox` directory is your **private workspace** in uDOS. This is where you develop, test, and organize all your personal content before sharing it with others.
-
-## Structure
-
-```
-sandbox/
-├── trash/      # Archived and processed files
-├── dev/        # Development notes and planning
-├── docs/       # Completed documentation
-├── drafts/     # Work-in-progress files
-├── tests/      # Testing scripts and data
-├── logs/       # All system and session logs
-├── scripts/    # Utility and automation scripts
-├── ucode/      # uScript automation files
-├── workflow/   # Workflow definitions (private user data)
-├── sessions/   # Session data and history (private user data)
-├── user/       # User databases and planet configuration
-└── peek/       # File processing inbox
-```
-
-## Quick Start
-
-### Working with Files
-```bash
-# Create a draft
-POKE drafts/myidea.md "# My Idea\nContent here..."
-
-# View it
-PEEK drafts/myidea.md
-
-# Edit it
-EDIT drafts/myidea.md
-```
-
-### Processing External Files
-```bash
-# Drop a file into peek/ for automatic processing
-# uDOS will convert it to the appropriate format
-
-PEEK peek/           # View inbox
-```
-
-### Maintenance
-```bash
-# Clean up old logs and trash
-CLEAN
-
-# Clean specific area
-CLEAN logs
-CLEAN trash
-
-# Organize files
-TIDY
-
-# View sandbox statistics
-TIDY --report
-```
-
-## Best Practices
-
-1. **Start in drafts/** - Create new content here first
-2. **Test in tests/** - Put test scripts and data here
-3. **Document in docs/** - Move completed docs here
-4. **Regular cleanup** - Use `CLEAN` weekly to manage disk space
-5. **Organize regularly** - Use `TIDY` to keep things sorted
-
-## Privacy
-
-- Everything in `/sandbox` is **private to you**
-- Not synced by default
-- Excluded from git (except structure)
-- Your personal workspace
-
-When ready to share:
-- Move to `/memory/shared` for specific users
-- Move to `/memory/groups` for your team
-- Contribute to `/memory/community` for everyone
-
-## Learn More
-
-- [Sandbox Structure Guide](docs/SANDBOX-STRUCTURE.md)
-- [4-Tier Knowledge Architecture](docs/KNOWLEDGE-ARCHITECTURE.md)
-- Use `HELP CLEAN` and `HELP TIDY` for command help
+**Version:** 2.0.1  
+**Purpose:** Gitignored runtime workspace for user files, logs, and temporary content
 
 ---
 
-**Version**: 2.1 (December 2025)
-**Latest**: v1.1.7 adds workflow examples in `workflow/examples/` and test framework in `tests/`
+## Overview
+
+`/sandbox/` is the **runtime-only** workspace for uDOS. All files here are **gitignored** (not tracked in version control). This is where user-generated content, logs, and temporary files live.
+
+### ⚠️ Important: Development vs Runtime
+
+- **Development work** (tracked in git): Use `/dev/` directory
+  - Session logs → `/dev/sessions/`
+  - Roadmap & planning → `/dev/roadmap/`
+  - Development tools → `/dev/tools/`
+
+- **Runtime files** (gitignored): Use `/sandbox/` directory (this folder)
+  - User scripts → `sandbox/ucode/`
+  - User data → `sandbox/user/`
+  - Logs → `sandbox/logs/`
+  - Drafts → `sandbox/drafts/`
+
+---
+
+## Directory Structure
+
+```
+sandbox/
+├── ucode/        # User .upy scripts (gitignored)
+├── user/         # User data files (planets.json, USER.UDT)
+├── logs/         # Runtime logs (dev, error, session)
+├── drafts/       # Work-in-progress content
+├── docs/         # Draft documentation (before promoting to wiki)
+├── workflow/     # uCODE workflow automation scripts
+└── trash/        # Temporary files (auto-cleaned by CLEAN command)
+```
+
+---
+
+## Usage Guidelines
+
+### ✅ Use Sandbox For:
+
+1. **Testing Scripts** - `sandbox/ucode/test_*.upy`
+2. **User Data** - `sandbox/user/planets.json`
+3. **Draft Docs** - `sandbox/docs/new-feature.md`
+4. **Temporary Files** - `sandbox/trash/temp.txt`
+5. **Runtime Logs** - `sandbox/logs/dev.log`
+
+### ❌ Don't Use Sandbox For:
+
+1. **Development session logs** → Use `/dev/sessions/`
+2. **Project planning** → Use `/dev/roadmap/`
+3. **Migration tools** → Use `/dev/tools/`
+4. **Core documentation** → Use `wiki/` or `core/docs/`
+
+---
+
+## See Also
+
+- `/dev/` - Development workspace (tracked in git)
+- `CLEAN` command - Cleanup sandbox files
+- `TIDY` command - Organize sandbox structure
+- `.gitignore` - Gitignore rules

@@ -4,40 +4,51 @@
 
 uDOS is an **offline-first operating system** for survival knowledge, mapping, and text-based computing. It prioritizes minimal design, offline functionality, and human-centric interfaces.
 
-## Development Workspace: `/sandbox/`
+## Development Workspace: `/dev/` (v2.0.1)
 
-**CRITICAL**: All development work, testing, and scratch files belong in `/sandbox/`. This is the primary development workspace.
+**CRITICAL**: Development files (tracked in git) belong in `/dev/`. User runtime files (gitignored) belong in `/sandbox/`.
 
-### Sandbox Directory Structure
+### Development Directory (`/dev/` - tracked in git)
+
+```
+dev/
+├── tools/                  # Development utilities (migrate_upy.py, etc.)
+├── roadmap/                # Project roadmap and planning
+├── sessions/               # Development session logs
+└── scripts/                # Development scripts
+```
+
+### Sandbox Directory (`/sandbox/` - gitignored, user workspace)
 
 ```
 sandbox/
-├── dev/                    # Development notes, planning, session logs
-├── docs/                   # Draft documentation before wiki promotion
-├── drafts/                 # Work-in-progress content
-├── logs/                   # Runtime logs, dev logs, test output
 ├── ucode/                  # Local .upy scripts (not synced to git)
-├── trash/                  # Temporary files (auto-cleaned)
 ├── user/                   # User data (planets.json, USER.UDT)
-└── workflow/               # uCODE workflow automation scripts
+├── logs/                   # Runtime logs
+├── drafts/                 # Work-in-progress content
+├── docs/                   # Draft documentation before wiki promotion
+├── workflow/               # uCODE workflow automation scripts
+└── trash/                  # Temporary files (auto-cleaned)
 ```
 
 ### File Placement Rules
 
-**✅ Use `/sandbox/` for:**
-- Development notes and session logs → `sandbox/dev/`
-- Local .upy scripts (not synced) → `sandbox/ucode/`
+**✅ Use `/dev/` for (tracked in git):**
+- Development session logs → `dev/sessions/`
+- Project planning and roadmap → `dev/roadmap/`
+- Development tools → `dev/tools/`
+- Development scripts → `dev/scripts/`
+
+**✅ Use `/sandbox/` for (gitignored):**
+- Local .upy scripts → `sandbox/ucode/`
 - Draft documentation → `sandbox/docs/`
 - Experimental code → `sandbox/drafts/`
-- Generated content (testing) → `sandbox/drafts/`
 - Runtime logs → `sandbox/logs/`
+- User data → `sandbox/user/`
 
 **❌ Never commit to git:**
-- `sandbox/logs/` (logs)
-- `sandbox/trash/` (temp files)
-- `sandbox/.pytest_cache/` (test cache)
-- `sandbox/user/` (user data)
-- `sandbox/.server_state.json` (runtime state)
+- Entire `sandbox/` directory (all gitignored)
+- `.env` file (contains secrets)
 
 ## Core Architecture
 
@@ -204,7 +215,7 @@ data = pattern.load()  # Returns dict with pattern data
 - `knowledge/system/` → `core/data/` (60+ files)
 - `knowledge/geography/` → `extensions/assets/data/` (8 files)
 - `extensions/ai/` → `extensions/assistant/`
-- Removed `dev/` directory (all dev work → `sandbox/dev/`)
+- `sandbox/dev/` → `/dev/` (development workspace reorganization)
 
 ### Grid System (TILE Codes)
 
@@ -290,8 +301,7 @@ Available via `Ctrl+Shift+P` → "Run Task":
 ## Anti-Patterns to Avoid
 
 ❌ **Don't:**
-- Create files outside `/sandbox/` for development/testing
-- Use `dev/` directory (removed in v2.0.0)
+- Create files outside `/dev/` or `/sandbox/` for development/testing
 - Store sensitive data in git (use `.env`)
 - Hardcode paths (use Config or constants)
 - Mix user data with system files
@@ -299,7 +309,8 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Use lat/long coordinates (TILE codes only since v1.1.12)
 
 ✅ **Do:**
-- Use `/sandbox/` for all development work
+- Use `/dev/` for tracked development files (roadmap, sessions, tools)
+- Use `/sandbox/` for gitignored runtime files (user data, logs)
 - Follow directory structure conventions
 - Document all public APIs
 - Write tests for new features
@@ -340,4 +351,4 @@ Available via `Ctrl+Shift+P` → "Run Task":
 
 ---
 
-**Remember**: `/sandbox/` is your development workspace. Use it freely for experiments, tests, and drafts. Keep `core/` and `knowledge/` stable and production-ready.
+**Remember**: `/dev/` is for tracked development files (roadmap, tools, sessions). `/sandbox/` is for gitignored runtime files (user data, logs, drafts). Keep `core/` and `knowledge/` stable and production-ready.

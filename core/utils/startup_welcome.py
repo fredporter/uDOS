@@ -88,7 +88,7 @@ def run_demo():
             return result.returncode == 0
         else:
             print(f"  ⚠️  Demo not found at: {demo_path}")
-            print(f"  💡 Run manually: python sandbox/dev/demo_v1_0_30.py")
+            print(f"  💡 Run manually: python dev/demo_v1_0_30.py")
             return False
 
     except Exception as e:

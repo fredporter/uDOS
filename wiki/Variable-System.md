@@ -673,7 +673,7 @@ for scope in ['global', 'session', 'script', 'local']:
 - [uPY Language Reference](uCODE-Language.md) - Variable usage in .upy scripts
 - [Adventure Scripting](Adventure-Scripting.md) - SPRITE/OBJECT in gameplay (Round 2)
 - [Developers Guide](Developers-Guide.md) - Variable system integration
-- [COPILOT-BRIEF.md](../sandbox/dev/roadmap/COPILOT-BRIEF.py) - uPY refactor reference
+- [COPILOT-BRIEF.md](../dev/roadmap/COPILOT-BRIEF.py) - uPY refactor reference
 
 ---
 

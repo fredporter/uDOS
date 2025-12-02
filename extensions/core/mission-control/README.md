@@ -322,7 +322,7 @@ Part of uDOS project - see main LICENSE.txt
 
 ---
 
-**Documentation**: See `sandbox/dev/session-v1.1.2-move6-dashboard.md` for implementation details.
+**Documentation**: See `dev/session-v1.1.2-move6-dashboard.md` for implementation details.
 
 **Support**: Open issue on GitHub or consult uDOS wiki.
 

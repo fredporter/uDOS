@@ -195,9 +195,9 @@ extensions/play/services/
 #### Documentation
 
 **Session Logs**
-- `sandbox/dev/session-2025-12-02-consolidation-phase1-2.md` - Phase 1-2 completion report
-- `sandbox/dev/session-2025-12-02-phase3-migration.md` - Phase 3 migration report
-- `sandbox/dev/session-2025-12-02-phase4-game-services.md` - Phase 4 migration report (NEW)
+- `dev/session-2025-12-02-consolidation-phase1-2.md` - Phase 1-2 completion report
+- `dev/session-2025-12-02-phase3-migration.md` - Phase 3 migration report
+- `dev/session-2025-12-02-phase4-game-services.md` - Phase 4 migration report (NEW)
 
 **Migration Results**
 - ✅ Phase 1-2: Removed 3 duplicate files (~1,200 lines), consolidated data sources
@@ -426,7 +426,7 @@ See `sandbox/docs/migration-guide-v1.1.9.md` for:
   - Updated version to v1.1.7
   - Reorganized SVG section (legacy deprecated)
 
-**Development Documentation** (`sandbox/dev/`)
+**Development Documentation** (`dev/`)
 - **nano-banana-completion-plan.md** (850 lines) - Implementation roadmap
   - Tasks 6-8 breakdown (workflow, testing, documentation)
   - 5-8 hour timeline
@@ -519,7 +519,7 @@ See `sandbox/docs/migration-guide-v1.1.9.md` for:
 - [Tutorial: Nano Banana Quick Start](wiki/Tutorial-Nano-Banana.md)
 - [Nano Banana Integration Guide](wiki/Nano-Banana-Integration.md)
 - [Command Reference](wiki/Command-Reference.md)
-- [Development Session](sandbox/dev/session-2025-12-01-nano-banana-sprint.md)
+- [Development Session](dev/session-2025-12-01-nano-banana-sprint.md)
 
 ---
 
@@ -1167,7 +1167,7 @@ Production-ready stable release consolidating all infrastructure work from v1.0.
 **Directory Consolidation**
 - Logs consolidated in `sandbox/logs/`
 - User workspace in `sandbox/`
-- Development files in `sandbox/dev/`
+- Development files in `dev/`
 - Renamed `memory/public/` to `memory/community/`
 
 **Configuration**
@@ -1194,7 +1194,7 @@ Production-ready stable release consolidating all infrastructure work from v1.0.
 
 ## [1.0.x] - Pre-Release Development (2024-2025)
 
-Exploratory development builds leading to v1.1.0 stable release. See `sandbox/dev/ROADMAP-ARCHIVE.MD` for historical details of v1.0.0 through v1.0.31 development cycles.
+Exploratory development builds leading to v1.1.0 stable release. See `dev/ROADMAP-ARCHIVE.MD` for historical details of v1.0.0 through v1.0.31 development cycles.
 
 Key milestones achieved:
 - Core TUI stabilization

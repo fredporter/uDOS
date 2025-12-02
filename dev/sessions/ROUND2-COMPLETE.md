@@ -145,7 +145,7 @@ Complete demo successful (`sandbox/scripts/demo_round2_complete.py`):
 ### Documentation
 - ✅ `wiki/Adventure-Scripting-Guide.md` (500+ lines)
 - ✅ `wiki/Command-Reference.md` (+200 lines)
-- ✅ `sandbox/dev/round2-final-status.md` (this file)
+- ✅ `dev/round2-final-status.md` (this file)
 
 ### Demo
 - ✅ `sandbox/scripts/demo_round2_complete.py` (100 lines)

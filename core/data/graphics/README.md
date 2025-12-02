@@ -379,7 +379,7 @@ This will demonstrate:
 ## Related Documentation
 
 - **Teletext Pattern Reference** - See `sandbox/docs/teletext-patterns-reference.md`
-- **SVG Graphics Extension** (v1.1.2) - See `sandbox/dev/svg-extension-spec-v1.1.2.md`
+- **SVG Graphics Extension** (v1.1.2) - See `dev/svg-extension-spec-v1.1.2.md`
 - **Knowledge System** - See `wiki/Knowledge-System.md`
 - **Content Generation** - See `wiki/Content-Generation.md`
 - **Theme System** - See `wiki/Theme-System.md`

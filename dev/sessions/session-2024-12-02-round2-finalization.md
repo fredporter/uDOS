@@ -122,8 +122,8 @@ docs: Update roadmap - Round 2 (Play Extension) complete
 4. `sandbox/tests/test_adventure_integration.py` (350 lines, 27 tests)
 5. `sandbox/tests/test_save_load.py` (120 lines, 5 tests)
 6. `wiki/Adventure-Scripting-Guide.md` (500+ lines)
-7. `sandbox/dev/round2-final-status.md` (detailed status)
-8. `sandbox/dev/ROUND2-COMPLETE.md` (completion summary)
+7. `dev/round2-final-status.md` (detailed status)
+8. `dev/ROUND2-COMPLETE.md` (completion summary)
 9. `sandbox/scripts/demo_round2_complete.py` (demo script)
 
 **Modified:**

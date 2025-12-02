@@ -109,7 +109,7 @@ Complete the Nano Banana PNG→SVG pipeline with workflow integration, testing f
 - `Tutorial-Nano-Banana.md` (comprehensive beginner guide)
 - Updates to `Command-Reference.md`, `Nano-Banana-Integration.md`, `_Sidebar.md`
 
-**Development Logs** (`sandbox/dev/`):
+**Development Logs** (`dev/`):
 - `nano-banana-completion-plan.md` (implementation roadmap)
 - `test-failures-dec1.md` (integration test analysis)
 - `session-2025-12-01-nano-banana-sprint.md` (sprint summary)
@@ -236,8 +236,8 @@ Deliver production-grade logging system, eliminate configuration duplication, en
 - `sandbox/tests/test_logging_manager.py` (34 tests)
 - `sandbox/tests/test_generate_handler.py` (450+ lines)
 - `sandbox/tests/test_nano_banana_pipeline.py` (400+ lines)
-- `sandbox/dev/session-2025-12-01-cleanup-complete.md`
-- `sandbox/dev/version-revision-v1.1.6.md`
+- `dev/session-2025-12-01-cleanup-complete.md`
+- `dev/version-revision-v1.1.6.md`
 
 **Modified:**
 - `core/config.py` (username property updated)
@@ -288,7 +288,7 @@ Deliver production-grade logging system, eliminate configuration duplication, en
 - `wiki/Logging-System.md` (comprehensive guide)
 - `wiki/Migration-Guide-v1.1.6.md` (upgrade guide)
 - `wiki/Nano-Banana-Integration.md` (architecture & usage)
-- `sandbox/dev/v1.1.6-progress-report-dec1.md` (this report)
+- `dev/v1.1.6-progress-report-dec1.md` (this report)
 
 **Updated:**
 - `wiki/Configuration.md` (single Config class)
@@ -309,7 +309,7 @@ All TODOs are optional future enhancements:
 
 Initial commits incorrectly referenced "v2.0.0" but were corrected to v1.1.6 on Dec 1, 2025. v2.0.0 is planned for Q4 2026+ and requires breaking changes (not present in v1.1.6).
 
-See: `sandbox/dev/version-revision-v1.1.6.md` for full explanation.
+See: `dev/version-revision-v1.1.6.md` for full explanation.
 
 ---
 
@@ -500,9 +500,9 @@ See `sandbox/docs/migration-guide-v1.1.9.md` for complete guide.
 **Documentation (Sandbox):**
 3. `sandbox/docs/migration-guide-v1.1.9.md` (410 lines)
 4. `sandbox/docs/wiki-documentation-plan.md` (525 lines)
-5. `sandbox/dev/upy-v1.1.9-implementation-summary.md`
-6. `sandbox/dev/session-complete-v1.1.9.md`
-7. `sandbox/dev/session-2025-01-wiki-completion.md`
+5. `dev/upy-v1.1.9-implementation-summary.md`
+6. `dev/session-complete-v1.1.9.md`
+7. `dev/session-2025-01-wiki-completion.md`
 
 **Wiki Documentation (10 pages):**
 8. `wiki/Emoji-Reference.md` (NEW - ~500 lines)
@@ -762,7 +762,7 @@ Three-round implementation plan for Python-first architecture with comprehensive
 **See Detailed Plans**:
 - 📋 [Implementation Rounds](../implementation-rounds-dec-2025.md) - Full task breakdown
 - 🎯 [Quick Reference](../ROUNDS-QUICKREF.md) - Commands and checklists
-- 📝 Progress Tracking: `sandbox/dev/round-<N>-progress.md`
+- 📝 Progress Tracking: `dev/round-<N>-progress.md`
 - 🤖 [Copilot Brief](COPILOT-BRIEF.py) - VS Code Copilot reference for uPY development
 
 ### Development Rounds
@@ -870,7 +870,7 @@ ENDIF
 
 **Track Progress**:
 ```bash
-cat sandbox/dev/round-<N>-progress.md
+cat dev/round-<N>-progress.md
 # Task checklist, success criteria, session log
 ```
 
@@ -954,7 +954,7 @@ cat sandbox/dev/round-<N>-progress.md
 ### Core Cleanup (Dec 2, 2025) ✅
 - ✅ Fixed broken UCodeInterpreter import → UPYParser
 - ✅ Updated all file pickers (.uscript → .upy)
-- ✅ Fixed path references (dev/ → sandbox/dev/)
+- ✅ Fixed path references (dev/ → dev/)
 - ✅ Updated deprecation messages to v1.1.12
 - ✅ Added deprecation warning to config_manager.py
 - ✅ System handler refactored into 3 specialized handlers
@@ -966,7 +966,7 @@ cat sandbox/dev/round-<N>-progress.md
 
 **High Priority (Blocking):**
 1. ~~System handler refactoring (v1.1.5.1 Task 2)~~ ✅ COMPLETE
-2. ~~Documentation handler cleanup (v1.1.5.2 Task 1)~~ ✅ COMPLETE  
+2. ~~Documentation handler cleanup (v1.1.5.2 Task 1)~~ ✅ COMPLETE
 3. ~~Deprecated code removal (v1.1.5.3 Task 3)~~ ✅ COMPLETE
 4. Nano Banana workflow integration - Complete v1.1.6 deliverables
 5. Variable Definition System (Round 1) - Foundation for gameplay
@@ -1166,7 +1166,7 @@ User Request
 ### Completed Work
 
 1. ✅ **Architecture Design** (Task 1)
-   - Created comprehensive architecture document: `sandbox/dev/nano-banana-svg-architecture.md`
+   - Created comprehensive architecture document: `dev/nano-banana-svg-architecture.md`
    - Designed PNG → SVG pipeline with potrace/vtracer integration
    - Defined style guide system (up to 14 reference images)
    - Documented validation requirements
@@ -1238,7 +1238,7 @@ User Request
 ### Files Created/Modified
 
 **Created:**
-- `sandbox/dev/nano-banana-svg-architecture.md` (500+ lines)
+- `dev/nano-banana-svg-architecture.md` (500+ lines)
 - `core/services/vectorizer.py` (360 lines)
 - `core/commands/generate_handler.py` (580 lines) **NEW**
 - `extensions/assets/styles/technical-kinetic/style.json`
@@ -1251,7 +1251,7 @@ User Request
 - `core/services/gemini_generator.py` (+150 lines, v1.1.6)
 - `core/uDOS_commands.py` (+20 lines, GENERATE routing, SVG deprecation)
 - `requirements.txt` (+2 dependencies: Pillow, vtracer)
-- `sandbox/dev/roadmap/ROADMAP.MD` (+300 lines, v1.1.6 section)
+- `dev/roadmap/ROADMAP.MD` (+300 lines, v1.1.6 section)
 
 **Directories Created:**
 - `extensions/assets/styles/technical-kinetic/references/`
@@ -1483,7 +1483,7 @@ Merge 6 documentation handlers into 1 unified system:
 **Task 3: Session Log Archiving** (2 hours)
 
 Organize development session logs:
-- Create `sandbox/dev/archive/` structure by version
+- Create `dev/archive/` structure by version
 - Move logs older than 30 days to archive
 - Keep last 30 days in main `dev/` folder
 - Document archive policy in README
@@ -1980,13 +1980,13 @@ Not time-based, but work-based.
 - **Total**: ~8,637 lines of production code + tests + examples
 
 **Session Logs:**
-- `sandbox/dev/session-2025-11-27-mission-core.md`
-- `sandbox/dev/session-2025-11-27-scheduler.md`
-- `sandbox/dev/session-2025-11-27-workflow.md`
-- `sandbox/dev/session-v1.1.2-move4-resources.md`
-- `sandbox/dev/session-v1.1.2-move5-output-pacing.md`
-- `sandbox/dev/session-v1.1.2-move6-dashboard.md`
-- `sandbox/dev/v1.1.2-COMPLETE.md`
+- `dev/session-2025-11-27-mission-core.md`
+- `dev/session-2025-11-27-scheduler.md`
+- `dev/session-2025-11-27-workflow.md`
+- `dev/session-v1.1.2-move4-resources.md`
+- `dev/session-v1.1.2-move5-output-pacing.md`
+- `dev/session-v1.1.2-move6-dashboard.md`
+- `dev/v1.1.2-COMPLETE.md`
 
 **Status**: ✅ v1.1.2 PRODUCTION READY - All features implemented and tested
 
@@ -2041,8 +2041,8 @@ Mission templates for common user projects: creative writing, research, learning
 - `sandbox/tests/test_novel_template.py` (13 tests)
 - `sandbox/tests/test_mission_template_commands.py` (19 tests)
 - `sandbox/docs/template-creation-guide.md` (400+ lines)
-- `sandbox/dev/session-v1.1.3-move1-complete.md` (summary)
-- `sandbox/dev/v1.1.3-move1-FINAL.md` (completion summary)
+- `dev/session-v1.1.3-move1-complete.md` (summary)
+- `dev/v1.1.3-move1-FINAL.md` (completion summary)
 
 **Files Modified** (4 files, +670 lines):
 - `core/services/mission_manager.py`: +170 lines (9 new methods)
@@ -2840,10 +2840,10 @@ Total:   45 steps
 
 ## 🏗️ Development Workflow
 
-All development work happens in `/sandbox/dev/`:
+All development work happens in `/dev/`:
 
 ```
-sandbox/dev/
+dev/
 ├── roadmap/
 │   ├── ROADMAP.MD  # This file
 │   └── ROADMAP-ARCHIVE.MD          # Historical
@@ -2954,11 +2954,11 @@ extensions/
 **Documentation:** 62 wiki pages covering everything
 **Community:** GitHub Discussions for Q&A
 **Issues:** GitHub Issues for bug reports
-**Development:** sandbox/dev/ for current work
+**Development:** dev/ for current work
 
 ---
 
-**Ready to contribute?** Check `sandbox/dev/current-round.md` for active work!
+**Ready to contribute?** Check `dev/current-round.md` for active work!
 
 ---
 
@@ -2992,6 +2992,6 @@ VIEWPORT
 - **Better integration**: uCODE scripts run natively in uDOS
 - **Easier maintenance**: No legacy test files to update
 
-See: `sandbox/dev/cleanup-results-2025-12-11.md` for full details.
+See: `dev/cleanup-results-2025-12-11.md` for full details.
 
 ---

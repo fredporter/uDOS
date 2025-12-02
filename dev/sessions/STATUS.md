@@ -64,4 +64,4 @@ e477c3d6 - Migration: Integrate new uPY parser and clean old code
 **Breaking Changes:** ❌ NO (backward compatible)
 **Documentation:** ⏸️  PENDING (Phase 5)
 
-See full details: `sandbox/dev/sessions/migration-session-2024-12-02.md`
+See full details: `dev/sessions/migration-session-2024-12-02.md`

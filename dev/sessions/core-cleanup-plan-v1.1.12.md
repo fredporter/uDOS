@@ -26,7 +26,7 @@
 4. **Old Path References**
    - `knowledge/system` → moved to `core/data`
    - `knowledge/geography` → moved to `extensions/assets/data`
-   - `dev/` references → should be `sandbox/dev/`
+   - `dev/` references → should be `dev/`
    - Status: ⚠️ OUTDATED PATHS
 
 5. **File Pickers Reference .uscript**
@@ -64,7 +64,7 @@
 ### Phase 2: Path Updates ✅ COMPLETE
 
 - [x] Update all file pickers to use .upy extension
-- [x] Fix dev/ references → sandbox/dev/
+- [x] Fix dev/ references → dev/
 - [x] Update file type icons (.uscript → .upy)
 - [x] Update startup welcome messages
 - [ ] Fix path references (knowledge/system → core/data) - NOT FOUND
@@ -124,7 +124,7 @@ After each phase:
 9. **core/commands/system_handler.py** - Fixed dev/ path reference
 10. **core/commands/dashboard_handler.py** - Updated deprecation version
 11. **core/uDOS_main.py** - Updated help text (.uscript → .upy)
-12. **sandbox/dev/core-cleanup-plan-v1.1.12.md** - This file
+12. **dev/core-cleanup-plan-v1.1.12.md** - This file
 
 ### Summary
 
@@ -136,7 +136,7 @@ After each phase:
 
 ## Phase 2: System Handler Refactoring (IN PROGRESS)
 
-See: `sandbox/dev/system-handler-refactor-plan.md`
+See: `dev/system-handler-refactor-plan.md`
 
 **Phase 2.1 COMPLETE ✅ (Dec 2, 2025)**
 - Created `core/commands/variable_handler.py` (294 lines)

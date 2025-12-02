@@ -190,7 +190,7 @@
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [
 					"-c",
-					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: sandbox/dev/'); print('Documentation: sandbox/docs/')"
+					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: dev/'); print('Documentation: sandbox/docs/')"
 				],
 				"group": "build",
 				"dependsOn": "Check Virtual Environment"
