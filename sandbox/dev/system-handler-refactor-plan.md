@@ -227,7 +227,7 @@ def handle_clean(self, params, grid, parser):
 
 **Extracted Handlers:**
 1. variable_handler.py (294 lines) - GET, SET, HISTORY
-2. environment_handler.py (233 lines) - SETTINGS, CLEAN, DEV MODE  
+2. environment_handler.py (233 lines) - SETTINGS, CLEAN, DEV MODE
 3. output_handler.py (417 lines) - POKE, servers, extensions
 
 **Total:** 944 lines of specialized code extracted and modularized
