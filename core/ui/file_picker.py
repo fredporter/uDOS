@@ -57,7 +57,7 @@ class FilePicker:
             'text': {'.txt', '.md', '.rst', '.log'},
             'code': {'.py', '.js', '.ts', '.html', '.css', '.json', '.yaml', '.yml'},
             'config': {'.ini', '.cfg', '.conf', '.env', '.toml'},
-            'script': {'.sh', '.bash', '.zsh', '.bat', '.ps1', '.uscript'},
+            'script': {'.sh', '.bash', '.zsh', '.bat', '.ps1', '.upy'},
             'data': {'.csv', '.xml', '.sql', '.db', '.sqlite'},
             'doc': {'.pdf', '.doc', '.docx', '.odt'}
         }

@@ -175,7 +175,7 @@ class KnowledgeFilePicker:
         items = []
         for file in files[:9]:  # Limit to 9 for keyboard shortcuts
             # Format file info
-            icon = self.blocks.CODE if file['type'] == '.uscript' else self.blocks.FILE
+            icon = self.blocks.CODE if file['type'] == '.upy' else self.blocks.FILE
 
             if show_path:
                 label = file['relative_path']
@@ -211,7 +211,7 @@ class KnowledgeFilePicker:
             f"{self.blocks.DOUBLE_TL}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_TR}",
             f"{self.blocks.DOUBLE_V}{'No Files Found':^68}{self.blocks.DOUBLE_V}",
             f"{self.blocks.DOUBLE_VR}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_VL}",
-            f"{self.blocks.DOUBLE_V}{f'No .md or .uscript files found in /{workspace}':^68}{self.blocks.DOUBLE_V}",
+            f"{self.blocks.DOUBLE_V}{f'No .md or .upy files found in /{workspace}':^68}{self.blocks.DOUBLE_V}",
             f"{self.blocks.DOUBLE_BL}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_BR}",
         ]
         return '\n'.join(lines)

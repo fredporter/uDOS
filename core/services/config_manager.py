@@ -1,15 +1,35 @@
 """
 uDOS Configuration Manager
 Handles .env file configuration via CLI only
+
+⚠️ DEPRECATED in v1.1.12: Use core.config.Config instead.
+This module is kept for backward compatibility only.
+Will be removed in v1.2.0.
 """
 
 import os
+import warnings
 from pathlib import Path
 from typing import Optional, Dict, Any
 import re
 
 class ConfigManager:
-    """Manage uDOS .env configuration securely"""
+    """Manage uDOS .env configuration securely
+    
+    ⚠️ DEPRECATED: Use core.config.Config instead.
+    """
+    
+    def __init__(self, env_path: Optional[Path] = None):
+        """Initialize configuration manager
+        
+        ⚠️ DEPRECATED: Use core.config.Config instead.
+        """
+        warnings.warn(
+            "ConfigManager is deprecated in v1.1.12. Use core.config.Config instead. "
+            "This class will be removed in v1.2.0.",
+            DeprecationWarning,
+            stacklevel=2
+        )
 
     ALLOWED_KEYS = {
         'GEMINI_API_KEY': 'Gemini AI API Key',

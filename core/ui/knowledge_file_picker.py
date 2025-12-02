@@ -280,7 +280,7 @@ class KnowledgeFilePicker:
             f"{self.blocks.DOUBLE_TL}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_TR}",
             f"{self.blocks.DOUBLE_V}{'No Files Found':^68}{self.blocks.DOUBLE_V}",
             f"{self.blocks.DOUBLE_VR}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_VL}",
-            f"{self.blocks.DOUBLE_V}{f'No .md or .uscript files found in /{workspace}':^68}{self.blocks.DOUBLE_V}",
+            f"{self.blocks.DOUBLE_V}{f'No .md or .upy files found in /{workspace}':^68}{self.blocks.DOUBLE_V}",
             f"{self.blocks.DOUBLE_BL}{self.blocks.DOUBLE_H * 68}{self.blocks.DOUBLE_BR}",
         ]
         return '\n'.join(lines)

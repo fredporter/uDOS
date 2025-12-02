@@ -648,15 +648,17 @@ class FileCommandHandler(BaseCommandHandler):
         # Check if it's a .upy file
         if script_file.endswith('.upy'):
             try:
-                from core.uDOS_ucode import UCodeInterpreter
-                # Pass the main CommandHandler for executing nested commands
-                interpreter = UCodeInterpreter(
-                    command_handler=self.main_handler if hasattr(self, 'main_handler') else None,
-                    parser=parser,
-                    grid=None  # Grid will be passed when UCodeInterpreter calls handle_command
-                )
-                result = interpreter.execute_script(script_file)
-                return result  # UCodeInterpreter already formats output
+                from core.runtime.upy_parser import UPYParser
+                from core.runtime.upy_preprocessor import UPYPreprocessor
+                
+                # Use UPYParser for new COMMAND(args) syntax
+                preprocessor = UPYPreprocessor()
+                upy_parser = UPYParser()
+                
+                # Preprocess and execute
+                code = preprocessor.preprocess(script_file)
+                result = upy_parser.execute(code)
+                return result if result else "✅ Script executed successfully"
             except Exception as e:
                 import traceback
                 error_detail = traceback.format_exc()

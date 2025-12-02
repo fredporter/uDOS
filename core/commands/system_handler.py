@@ -1502,7 +1502,7 @@ class SystemCommandHandler(BaseCommandHandler):
             "║  3. Run: DEV MODE ON                                      ║\n"
             "║                                                           ║\n"
             "╚═══════════════════════════════════════════════════════════╝\n\n"
-            "📖 Full documentation: dev/planning/DEV_MODE_GUIDE.md"
+            "📖 Full documentation: sandbox/dev/planning/DEV_MODE_GUIDE.md"
         )
 
     def handle_assets(self, params, grid, parser):

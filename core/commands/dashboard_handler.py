@@ -244,11 +244,11 @@ class DashboardHandler(BaseCommandHandler):
         """
         DEPRECATED: Use STATUS for text dashboard or POKE DASHBOARD for web.
 
-        This command is deprecated in v2.0. Use:
+        This command is deprecated in v1.1.12. Use:
         - STATUS - Text-based system dashboard (TUI)
         - POKE DASHBOARD - Web-based dashboard
         """
-        return ("⚠️  DASH command deprecated in v2.0\n\n"
+        return ("⚠️  DASH command deprecated in v1.1.12\n\n"
                "Use instead:\n"
                "  STATUS - Text-based system dashboard\n"
                "  POKE DASHBOARD - Web-based NES dashboard\n\n"

@@ -264,7 +264,7 @@ def main():
             print("Usage:")
             print("  python uDOS.py                     # Interactive mode")
             print("  python uDOS.py -c \"COMMAND\"       # Execute single command")
-            print("  python uDOS.py script.uscript      # Run uCODE script")
+            print("  python uDOS.py script.upy          # Run uPY script")
             print("  python uDOS.py --version           # Show version")
             print("  python uDOS.py --check             # Run system health check")
             print("  python uDOS.py --help              # Show this help")

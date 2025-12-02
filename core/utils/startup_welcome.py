@@ -29,7 +29,7 @@ def show_v1_0_30_welcome(viewport_width: int = 70):
     print("  New in this version:")
     print("  📺 Teletext-style block character UI")
     print("  ✏️  Built-in micro editor (FILE EDIT/VIEW)")
-    print("  📁 Knowledge file picker (.md & .uscript)")
+    print("  📁 Knowledge file picker (.md & .upy)")
     print("  🔧 Robust CLI with fallback mode")
     print("  📋 Better copy-paste support")
     print()
@@ -88,7 +88,7 @@ def run_demo():
             return result.returncode == 0
         else:
             print(f"  ⚠️  Demo not found at: {demo_path}")
-            print(f"  💡 Run manually: python dev/demo_v1_0_30.py")
+            print(f"  💡 Run manually: python sandbox/dev/demo_v1_0_30.py")
             return False
 
     except Exception as e:

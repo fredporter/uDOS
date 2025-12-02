@@ -368,7 +368,7 @@ class SmartFilePicker:
             '.py': '🐍',
             '.txt': '📄',
             '.json': '🔧',
-            '.uscript': '⚙️',
+            '.upy': '⚙️',
             '.sh': '🔨',
             '.js': '💛',
             '.css': '🎨',

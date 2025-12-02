@@ -46,7 +46,7 @@ class AdvancedCompleter(Completer):
         # File type icons
         self.file_icons = {
             '.py': '🐍',
-            '.uscript': '📜',
+            '.upy': '📜',
             '.usc': '📜',
             '.md': '📝',
             '.txt': '📄',
