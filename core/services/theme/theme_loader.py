@@ -20,12 +20,16 @@ def _load_json(path: Path) -> Dict[str, Any]:
         return {}
 
 
-def load_theme(theme_name: str = 'dungeon', root_path: Path = None) -> Dict[str, Dict[str, Any]]:
+def load_theme(theme_name: str = 'default', root_path: Path = None) -> Dict[str, Dict[str, Any]]:
     """
-    Load a theme lexicon by merging the bundled theme under `knowledge` with
-    optional user overrides in `memory`.
+    Load a theme lexicon by merging bundled themes with optional user overrides.
 
-    Precedence: memory override (if present) > knowledge bundled theme.
+    Search order:
+    1. core/data/themes/ (system themes for layers 100-399)
+    2. extensions/play/data/themes/ (gameplay themes for layers 400-899)
+    3. memory/themes/ (user overrides - highest priority)
+
+    Precedence: memory override > extensions/play > core.
 
     Returns a dict with keys: 'TERMINOLOGY', 'MESSAGES', 'META', and optionally
     'THEME_NAME', 'VERSION', 'NAME', 'STYLE', 'DESCRIPTION', 'ICON'.
@@ -33,32 +37,46 @@ def load_theme(theme_name: str = 'dungeon', root_path: Path = None) -> Dict[str,
     if root_path is None:
         root_path = Path(__file__).parent.parent.parent
 
-    knowledge_theme_path = root_path / 'knowledge' / 'system' / 'themes' / f"{theme_name}.json"
-    memory_theme_path = root_path / 'memory' / 'system' / 'themes' / f"{theme_name}.json"
+    # Search paths in order (lowest to highest priority)
+    core_theme_path = root_path / 'core' / 'data' / 'themes' / f"{theme_name}.json"
+    extensions_theme_path = root_path / 'extensions' / 'play' / 'data' / 'themes' / f"{theme_name}.json"
+    memory_theme_path = root_path / 'memory' / 'themes' / f"{theme_name}.json"
 
-    # Merge themes (memory overrides knowledge)
+    # Merge themes (memory overrides extensions overrides core)
     merged = {
         'TERMINOLOGY': {},
         'MESSAGES': {},
         'META': {
             'theme_name': theme_name,
-            'source_knowledge': str(knowledge_theme_path) if knowledge_theme_path.exists() else None,
+            'source_core': str(core_theme_path) if core_theme_path.exists() else None,
+            'source_extensions': str(extensions_theme_path) if extensions_theme_path.exists() else None,
             'source_memory': str(memory_theme_path) if memory_theme_path.exists() else None
         }
     }
 
-    # Load from bundled knowledge first
-    if knowledge_theme_path.exists():
-        with knowledge_theme_path.open('r', encoding='utf-8') as f:
-            knowledge_data = json.load(f)
-            merged['TERMINOLOGY'].update(knowledge_data.get('TERMINOLOGY', {}))
-            merged['MESSAGES'].update(knowledge_data.get('MESSAGES', {}))
+    # Load from core first (system themes)
+    if core_theme_path.exists():
+        with core_theme_path.open('r', encoding='utf-8') as f:
+            core_data = json.load(f)
+            merged['TERMINOLOGY'].update(core_data.get('TERMINOLOGY', {}))
+            merged['MESSAGES'].update(core_data.get('MESSAGES', {}))
             # Copy metadata fields
             for key in ['THEME_NAME', 'VERSION', 'NAME', 'STYLE', 'DESCRIPTION', 'ICON']:
-                if key in knowledge_data:
-                    merged[key] = knowledge_data[key]
+                if key in core_data:
+                    merged[key] = core_data[key]
 
-    # Overlay user customizations from memory
+    # Overlay extensions (gameplay themes)
+    if extensions_theme_path.exists():
+        with extensions_theme_path.open('r', encoding='utf-8') as f:
+            extensions_data = json.load(f)
+            merged['TERMINOLOGY'].update(extensions_data.get('TERMINOLOGY', {}))
+            merged['MESSAGES'].update(extensions_data.get('MESSAGES', {}))
+            # Extensions can override metadata
+            for key in ['THEME_NAME', 'VERSION', 'NAME', 'STYLE', 'DESCRIPTION', 'ICON']:
+                if key in extensions_data:
+                    merged[key] = extensions_data[key]
+
+    # Overlay user customizations from memory (highest priority)
     if memory_theme_path.exists():
         with memory_theme_path.open('r', encoding='utf-8') as f:
             memory_data = json.load(f)
@@ -86,7 +104,9 @@ class ThemeValidator:
         if root_path is None:
             root_path = Path(__file__).parent.parent.parent
         self.root_path = root_path
-        self.theme_dir = root_path / 'knowledge' / 'system' / 'themes'
+        # Check both core and extensions theme directories
+        self.core_theme_dir = root_path / 'core' / 'data' / 'themes'
+        self.extensions_theme_dir = root_path / 'extensions' / 'play' / 'data' / 'themes'
 
     def validate_theme_file(self, theme_path: Path) -> Tuple[bool, List[str]]:
         """
@@ -155,6 +175,18 @@ class ThemeValidator:
 
         return len(errors) == 0, errors
 
+    def find_theme(self, theme_name: str) -> Path:
+        """Find theme file in core or extensions directories."""
+        core_path = self.core_theme_dir / f"{theme_name}.json"
+        if core_path.exists():
+            return core_path
+
+        extensions_path = self.extensions_theme_dir / f"{theme_name}.json"
+        if extensions_path.exists():
+            return extensions_path
+
+        raise FileNotFoundError(f"Theme '{theme_name}' not found in core or extensions")
+
 
 class ThemeLoader:
     """Unified theme loading and validation."""
@@ -165,17 +197,20 @@ class ThemeLoader:
         self.root_path = root_path
         self.validator = ThemeValidator(root_path)
 
-    def load(self, theme_name: str = 'dungeon', validate: bool = False) -> Dict[str, Any]:
+    def load(self, theme_name: str = 'default', validate: bool = False) -> Dict[str, Any]:
         """Load theme with optional validation."""
         theme_data = load_theme(theme_name, self.root_path)
 
         if validate:
-            theme_path = self.root_path / 'knowledge' / 'system' / 'themes' / f"{theme_name}.json"
-            if theme_path.exists():
+            try:
+                theme_path = self.find_theme(theme_name)
                 is_valid, errors = self.validator.validate_theme_file(theme_path)
                 if not is_valid:
                     print(f"⚠️  Theme '{theme_name}' has validation errors:")
                     for error in errors:
                         print(f"  - {error}")
+            except FileNotFoundError:
+                # Theme not found - might be loaded from memory only
+                pass
 
         return theme_data
