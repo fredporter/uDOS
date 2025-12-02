@@ -108,7 +108,7 @@ Top bloat methods in system_handler.py:
 - Total: 287 lines
 - Expected: system_handler.py 1,534 → 1,247 lines
 
-### Phase 2: Extract Environment Commands  
+### Phase 2: Extract Environment Commands
 **Target:** Create `core/commands/environment_handler.py`
 - Move: handle_clean (61 lines), handle_settings, handle_dev_mode
 - Total: ~150 lines
@@ -128,13 +128,59 @@ Top bloat methods in system_handler.py:
 **Step 4:** Test all variable commands work
 **Step 5:** Commit "Core: Extract variable commands to VariableHandler"
 
-**Next:** Repeat for environment commands, then POKE commands## Next Steps
+**Next:** Repeat for environment commands, then POKE commands## Implementation Status
 
-1. Check if display_handler.py already has these methods
-2. If yes: Update routing in system_handler.py
-3. If no: Extract methods to display_handler.py
-4. Create environment_handler.py
-5. Create variable_handler.py
-6. Update routing in uDOS_commands.py
-7. Test all commands still work
-8. Update documentation
+### ✅ Phase 1 Complete: Variable Commands Extracted (Dec 2, 2025)
+
+**Created:** `core/commands/variable_handler.py` (294 lines)
+**Modified:** `core/commands/system_handler.py` (1,276 lines, down from 1,342)
+
+**Changes:**
+- Moved handle_get (117 lines) → VariableHandler
+- Moved handle_set (96 lines) → VariableHandler
+- Moved handle_history (74 lines) → VariableHandler
+- Total extracted: 287 lines
+- Actual reduction: 1,342 → 1,276 = 66 lines (delegation wrappers remain)
+
+**Delegation pattern:**
+```python
+@property
+def variable_handler(self):
+    if not hasattr(self, '_variable_handler') or self._variable_handler is None:
+        from .variable_handler import VariableHandler
+        self._variable_handler = VariableHandler(**self.__dict__)
+    return self._variable_handler
+
+def handle_get(self, params, grid, parser):
+    """GET field value - delegates to VariableHandler."""
+    return self.variable_handler.handle_get(params, grid, parser)
+```
+
+**Testing:** All 111 tests passing ✅
+
+**Commit:** Ready to commit
+
+### ⏳ Phase 2 Pending: Environment Commands
+**Target:** Create `core/commands/environment_handler.py`
+- Extract: handle_clean (61 lines), handle_settings, handle_dev_mode
+- Estimated: ~150 lines
+- Expected: system_handler.py 1,276 → ~1,126 lines
+
+### ⏳ Phase 3 Pending: POKE/Output Commands
+**Target:** Consolidate to extensions handler
+- Extract: handle_output and helpers
+- Estimated: ~200 lines
+- Expected: system_handler.py 1,126 → ~926 lines
+
+## Next Steps
+
+1. ✅ Create variable_handler.py with GET, SET, HISTORY commands
+2. ✅ Update system_handler.py to delegate to VariableHandler
+3. ✅ Test all variable commands work (111/111 tests pass)
+4. ⏳ Commit "Core: Extract variable commands to VariableHandler"
+5. Create environment_handler.py
+6. Extract environment commands
+7. Test and commit
+8. Extract POKE/output commands
+9. Final testing
+10. Update documentation

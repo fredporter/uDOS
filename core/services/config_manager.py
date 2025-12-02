@@ -15,13 +15,13 @@ import re
 
 class ConfigManager:
     """Manage uDOS .env configuration securely
-    
+
     ⚠️ DEPRECATED: Use core.config.Config instead.
     """
-    
+
     def __init__(self, env_path: Optional[Path] = None):
         """Initialize configuration manager
-        
+
         ⚠️ DEPRECATED: Use core.config.Config instead.
         """
         warnings.warn(

@@ -650,11 +650,11 @@ class FileCommandHandler(BaseCommandHandler):
             try:
                 from core.runtime.upy_parser import UPYParser
                 from core.runtime.upy_preprocessor import UPYPreprocessor
-                
+
                 # Use UPYParser for new COMMAND(args) syntax
                 preprocessor = UPYPreprocessor()
                 upy_parser = UPYParser()
-                
+
                 # Preprocess and execute
                 code = preprocessor.preprocess(script_file)
                 result = upy_parser.execute(code)
