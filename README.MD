@@ -1,9 +1,9 @@
-# uDOS v1.1.7 - Nano Banana Complete
+# uDOS v1.1.12 - uPY Migration Complete
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.1.7 Stable** (December 1, 2025)
-**Latest Update**: Nano Banana PNG→SVG pipeline complete with workflows, testing, and documentation
+**Current Status**: ✅ **v1.1.12 Stable** (December 2, 2025)
+**Latest Update**: Complete migration to .upy format, backward compatibility removed
 **Test Coverage**: **Smoke tests passing** (5/6, 0.03s) + comprehensive integration suite
 **Knowledge Bank**: **166+ comprehensive survival guides** across 8 categories
 **Documentation**: **65+ wiki pages** including Nano Banana tutorial
@@ -12,11 +12,47 @@
 
 ---
 
-## 🚀 v1.1.7 - Nano Banana Complete (December 1, 2025)
+## 🚀 v1.1.12 - uPY Migration Complete (December 2, 2025)
 
-**Latest Release:** v1.1.7 delivers the complete Nano Banana PNG→SVG diagram generation system with workflow integration, testing framework, and comprehensive documentation.
+**Latest Release:** v1.1.12 completes the migration to .upy format with COMMAND(args) syntax. All backward compatibility removed, migration tools included.
 
-### What's New in v1.1.7
+### What's New in v1.1.12
+
+🔄 **uPY Migration Complete**
+- **.upy Format Only**: Old .uscript format completely removed
+  - Use `COMMAND(args)` syntax instead of `[MODULE|COMMAND*ARGS]`
+  - Migration tool: `python bin/migrate_upy.py old.uscript new.upy`
+  - All 64 tests passing (command registry, preprocessor, parser)
+
+- **Backward Compatibility Removed**
+  - Deprecated interpreters archived (3,167 lines)
+  - Old format files archived (13 files, ~5,500 lines)
+  - Clean v1.1.12 codebase (no legacy code)
+
+- **New Architecture**
+  - UPYParser with COMMAND(args) syntax
+  - UPYPreprocessor for Python 3 validation
+  - Command registry for discovery
+  - Shell integration (bin/udos, bin/uenv.sh)
+
+📝 **Migration Tools & Examples**
+- `bin/migrate_upy.py` - Automated conversion tool
+- 3 new example files:
+  - `hello-world.upy` - Simple introduction
+  - `rpg-combat.upy` - Combat mechanics demo
+  - `shakedown.upy` - System validation
+
+✅ **Production Ready**
+- All tests passing (64/64, 0.05s)
+- Clean codebase (no deprecated code)
+- Migration documentation complete
+- Breaking change: .uscript support removed
+
+---
+
+## 🎯 Previous Major Releases
+
+### v1.1.7 - Nano Banana PNG→SVG Pipeline (December 1, 2025)
 
 🎨 **Nano Banana System Complete (8/8 Tasks)**
 - **PNG→SVG Pipeline**: Full diagram generation powered by Gemini 2.5 Flash Image

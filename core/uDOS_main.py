@@ -1,4 +1,4 @@
-# uDOS v1.5.0 - Main Application
+# uDOS v1.1.12 - Main Application
 
 # Suppress dependency warnings gracefully
 import warnings
@@ -22,11 +22,11 @@ from .input.prompt_decorator import get_prompt_decorator
 # Old tree utility removed - now using TreeHandler
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
 from .services.standardized_input import StandardizedInput
-from .config import Config  # v2.0.0 Unified Configuration (replaces config_manager)
+from .config import Config  # v1.1.12 Unified Configuration (replaces config_manager)
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.history import InMemoryHistory  # v2.0.0: Replace CommandHistory
+from prompt_toolkit.history import InMemoryHistory  # v1.1.12: Replace CommandHistory
 import sys
 import os
 import time
@@ -40,7 +40,7 @@ def get_config():
     Get global Config instance.
 
     Returns:
-        Config instance (v2.0.0: New unified config with .env and user.json support)
+        Config instance (v1.1.12: New unified config with .env and user.json support)
     """
     global _config_manager
     if _config_manager is None:
@@ -51,11 +51,11 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
     """
     Executes a uDOS script file (.upy format only).
 
-    v2.0.0: Uses UPYParser for new COMMAND(args) syntax.
-    Backward compatibility for .uscript removed in v2.0.0.
+    v1.1.12: Uses UPYParser for new COMMAND(args) syntax.
+    Backward compatibility for .uscript removed in v1.1.12.
     """
     try:
-        # v2.0.0: Only .upy files supported
+        # v1.1.12: Only .upy files supported
         if not script_path.lower().endswith('.upy'):
             error_msg = f"❌ Unsupported file format. Only .upy files are supported.\n   Convert with: python bin/migrate_upy.py {script_path}"
             logger.log(error_msg)
@@ -260,7 +260,7 @@ def main():
     try:
         # Check for help flag first
         if '--help' in sys.argv or '-h' in sys.argv:
-            print("uDOS v1.1.6 - Universal Device Operating System")
+            print("uDOS v1.1.12 - Universal Device Operating System")
             print("Usage:")
             print("  python uDOS.py                     # Interactive mode")
             print("  python uDOS.py -c \"COMMAND\"       # Execute single command")
@@ -276,13 +276,13 @@ def main():
 
         # Check for version flag
         if '--version' in sys.argv or '-v' in sys.argv:
-            print("uDOS v1.1.6 - Production Logging & Configuration")
-            print("Released: November 28, 2025")
+            print("uDOS v1.1.12 - uPY Migration Complete")
+            print("Released: December 2, 2025")
             print("\nFeatures:")
-            print("  • Production logging system (flat-file)")
-            print("  • Single source of truth configuration")
-            print("  • SVG graphics generation")
-            print("  • Modern uCODE syntax")
+            print("  • .upy format only (COMMAND args syntax)")
+            print("  • Python-first architecture")
+            print("  • Backward compatibility removed")
+            print("  • Migration tools included")
             print("  • 166+ survival knowledge guides")
             return 0
 
@@ -321,7 +321,7 @@ def main():
         logger = SessionLogger()
         history = ActionHistory(logger=logger)
 
-        # Initialize command history system (v2.0.0: using InMemoryHistory)
+        # Initialize command history system (v1.1.12: using InMemoryHistory)
         command_history = InMemoryHistory()
 
         # Handle -c command flag (single command execution)

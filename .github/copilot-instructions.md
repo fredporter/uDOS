@@ -181,11 +181,11 @@ pattern = mgr.load_pattern('teletext-single')
 data = pattern.load()  # Returns dict with pattern data
 ```
 
-## Version 2.0.0 Changes (Current)
+## Version 1.1.12 Changes (Current)
 
 ### Data Consolidation
 
-**COMPLETED** (Nov 2025):
+**COMPLETED** (Dec 2025):
 - `knowledge/system/` → `core/data/` (60+ files)
 - `knowledge/geography/` → `extensions/assets/data/` (8 files)
 - `extensions/ai/` → `extensions/assistant/`
@@ -205,7 +205,7 @@ tile_code = "AA340-100"    # Sydney at world layer
 city_grid = "JF57"         # London (grid position)
 full_tile = "JF57-100"     # London at world layer
 
-# ❌ Bad: Don't use lat/long (removed in v2.0.0)
+# ❌ Bad: Don't use lat/long (removed in v1.1.12)
 # coords = [-33.87, 151.21]  # DEPRECATED
 
 # ❌ Bad: Don't use old hierarchical format
@@ -281,7 +281,7 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Hardcode paths (use Config or constants)
 - Mix user data with system files
 - Create JSON files in `knowledge/` (use `core/data/` or `extensions/assets/data/`)
-- Use lat/long coordinates (TILE codes only)
+- Use lat/long coordinates (TILE codes only since v1.1.12)
 
 ✅ **Do:**
 - Use `/sandbox/` for all development work
@@ -291,9 +291,9 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Use type hints in Python
 - Keep knowledge bank read-only (guides are curated)
 
-## Current Focus (v2.0.0)
+## Current Focus (v1.1.12)
 
-**Stabilization & Documentation**:
+**uPY Migration & Cleanup**:
 - Core data minimization complete
 - Grid system standardized (2-letter format)
 - TILE code system (no coordinates)

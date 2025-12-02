@@ -9,7 +9,83 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### v2.0.0 - Core Consolidation & Architecture Cleanup (In Progress)
+### v1.1.12 - uPY Migration Complete (December 2, 2025)
+
+**Breaking Change:** Backward compatibility for .uscript files removed. Only .upy format supported.
+
+#### Added
+
+**Migration Tools**
+- `bin/migrate_upy.py` (246 lines) - Automated conversion from old to new format
+- Migration supports: SET, PRINT, IF/THEN/ELSE, ROLL, variable assignment
+- Batch processing capability
+
+**New Runtime System**
+- `core/runtime/commands.py` (370 lines) - Command registry with UPPERCASE-HYPHEN validation
+- `core/runtime/upy_preprocessor.py` (276 lines) - Python 3 AST validation
+- `core/runtime/upy_parser.py` (450 lines) - COMMAND(args) syntax parser
+- `bin/udos` - Shell launcher for .upy scripts
+- `bin/uenv.sh` - Environment setup
+
+**Example Files**
+- `memory/ucode/examples/hello-world.upy` (28 lines) - Simple introduction
+- `memory/ucode/examples/rpg-combat.upy` (137 lines) - Combat mechanics
+- `memory/ucode/examples/shakedown.upy` (141 lines) - System validation
+
+**Templates**
+- `core/data/templates/menu_system.upy` - Migrated from .uscript
+- `core/data/templates/setup.upy` - Migrated from .uscript
+- `core/data/templates/crud_app.upy` - Migrated from .uscript
+- `core/data/templates/form_validation.upy` - Migrated from .uscript
+
+#### Removed
+
+**Backward Compatibility**
+- `core/interpreters/ucode.py` (2,230 lines) - Old .uscript interpreter
+- `core/interpreters/upy_preprocessor.deprecated.py` (937 lines) - Old preprocessor
+- All .uscript support from main application
+
+**Archived Files** (→ `sandbox/trash/deprecated-uscript-20241202/`)
+- 4 template .uscript files
+- 5 old format .upy files
+- Total: 13 files (~5,500 lines)
+
+#### Changed
+
+**Core System**
+- `core/uDOS_main.py` - Only accepts .upy files, removed .uscript routing
+- Updated 7 files to use .upy references:
+  - `core/commands/example_handler.py`
+  - `core/commands/file_handler.py`
+  - `core/commands/sandbox_handler.py`
+  - `core/commands/memory_unified_handler.py`
+  - `core/services/input_manager.py`
+  - `extensions/core/ok_assistant/gemini_service.py`
+
+**New Syntax**
+```python
+# Old (REMOVED):
+[FILE|SAVE*test.txt]
+SET HP 100
+
+# New (v1.1.12):
+FILE-SAVE('test.txt')
+SPRITE-SET('HP'|100)
+{IF $HP < 50: GAME-HEAL(25)}
+```
+
+**Testing**
+- 64 tests passing (command registry: 15, preprocessor: 20, parser: 29)
+- Runtime: 0.05s
+
+**Impact**
+- ~4,500 lines removed (deprecated code)
+- ~550 lines added (new system)
+- Net: -3,950 lines cleaner codebase
+
+---
+
+### v2.0.0 - Core Consolidation & Architecture Cleanup (Deprecated - Use v1.1.12)
 
 **Phase 1-2**: Geographic data consolidation and duplicate removal (COMPLETE)
 **Phase 3**: Full migration to core/data/geography/ (COMPLETE)
