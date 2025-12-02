@@ -1,7 +1,12 @@
 """
-uDOS uCODE Interpreter
+uDOS uCODE Interpreter [DEPRECATED]
 Executes .uscript files with advanced programming features
 Version: 1.1.1 (Modern Syntax Update)
+
+⚠️  DEPRECATED in v2.0.0
+Use core/runtime/upy_parser.py for new .upy files with COMMAND(args) syntax.
+This interpreter remains for backward compatibility with .uscript files.
+Will be removed in v3.0.0.
 
 Features:
 - Variables (SET/GET/${var})

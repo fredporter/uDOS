@@ -10,7 +10,7 @@ from .upy_parser import UPYParser, migrate_ucode_to_upy
 
 __all__ = [
     'CommandRegistry',
-    'register_command', 
+    'register_command',
     'get_registry',
     'UPYPreprocessor',
     'UPYParser',

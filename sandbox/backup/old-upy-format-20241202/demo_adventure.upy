@@ -1,0 +1,136 @@
+# Demo Adventure - uPY Format
+# uDOS v1.1.9 Round 3
+#
+# This demonstrates the .upy preprocessor converting uCODE syntax to Python
+
+# ===================================
+# INITIALIZATION
+# ===================================
+
+SET HP 100
+SET HP-MAX 100
+SET MP 50
+SET MP-MAX 50
+SET GOLD 25
+SET LOCATION forest-entrance
+SET QUEST-COMPLETE 0
+
+PRINT [===================================]
+PRINT [    WATER QUEST - Demo Adventure]
+PRINT [===================================]
+PRINT []
+PRINT [HP: {HP}/{HP-MAX} | MP: {MP}/{MP-MAX} | Gold: {GOLD}]
+PRINT []# ===================================
+# MAIN GAME LOOP
+# ===================================
+
+LABEL start
+    PRINT []
+    PRINT [You are at: {LOCATION}]
+    PRINT []
+
+    # Show location-specific options
+    IF {LOCATION} == forest-entrance THEN
+        PRINT [A dense forest stretches before you.]
+        PRINT [You hear water flowing to the north.]
+        CHOICE "Go North|Rest|Check Stats"
+
+        IF ({choice} == "Go North" THEN SET LOCATION stream)
+        IF ({choice} == "Go North" THEN PRINT [You walk deeper into the forest...])
+        IF ({choice} == "Go North" THEN GOTO start)
+
+        IF ({choice} == "Rest" THEN GOTO rest)
+        IF ({choice} == "Check Stats" THEN GOTO stats)
+    END
+
+    IF {LOCATION} == stream THEN
+        PRINT [You discover a clear stream!]
+        PRINT [The water looks clean and refreshing.]
+        CHOICE "Drink Water|Fill Bottle|Go South|Rest"
+
+        IF {choice} == "Drink Water" THEN
+            PRINT [You drink from the stream...]
+            ROLL 1d20
+
+            IF ({result} > 10 THEN PRINT [The water is pure! HP restored.])
+            IF ({result} > 10 THEN SET HP {HP-MAX})
+            IF ({result} > 10 THEN SET MP {MP-MAX})
+
+            IF ({result} <= 10 THEN PRINT [The water made you ill...])
+            IF ({result} <= 10 THEN SET HP {HP - 20})
+
+            GOTO start
+        END
+
+        IF {choice} == "Fill Bottle" THEN
+            PRINT [You fill your bottle with fresh water.]
+            SET GOLD {GOLD + 10}
+            PRINT [Quest progress! Gold: {GOLD}]
+
+            IF ({GOLD} >= 50 THEN PRINT [])
+            IF ({GOLD} >= 50 THEN PRINT [🎉 QUEST COMPLETE! 🎉])
+            IF ({GOLD} >= 50 THEN SET QUEST-COMPLETE 1)
+            IF ({GOLD} >= 50 THEN GOTO end)
+
+            GOTO start
+        END
+
+        IF ({choice} == "Go South" THEN SET LOCATION forest-entrance)
+        IF ({choice} == "Go South" THEN PRINT [You return to the forest entrance.])
+        IF ({choice} == "Go South" THEN GOTO start)
+
+        IF ({choice} == "Rest" THEN GOTO rest)
+    END
+END
+
+# ===================================
+# REST FUNCTION
+# ===================================
+
+LABEL rest
+    PRINT []
+    PRINT [You rest for a while...]
+
+    ROLL 1d6
+    SET HP {HP + result}
+
+    IF ({HP} > {HP-MAX} THEN SET HP {HP-MAX})
+
+    PRINT [HP restored: {HP}/{HP-MAX}]
+    GOTO start
+END
+
+# ===================================
+# STATS DISPLAY
+# ===================================
+
+LABEL stats
+    PRINT []
+    PRINT [=== CHARACTER STATS ===]
+    PRINT [HP: {HP}/{HP-MAX}]
+    PRINT [MP: {MP}/{MP-MAX}]
+    PRINT [Gold: {GOLD}]
+    PRINT [Location: {LOCATION}]
+    PRINT [Quest: {QUEST-COMPLETE}/1 complete]
+    PRINT []
+    GOTO start
+END
+
+# ===================================
+# END GAME
+# ===================================
+
+LABEL end
+    PRINT []
+    PRINT [===================================]
+    PRINT [    QUEST COMPLETE!]
+    PRINT [===================================]
+    PRINT []
+    PRINT [Final Stats:]
+    PRINT [  HP: {HP}/{HP-MAX}]
+    PRINT [  MP: {MP}/{MP-MAX}]
+    PRINT [  Gold: {GOLD}]
+    PRINT []
+    PRINT [Thank you for playing!]
+    RETURN
+END

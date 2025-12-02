@@ -1,0 +1,196 @@
+# RPG Combat System - uPY v1.1.9+ Complete Demo
+# Demonstrates all new syntax features
+
+# ==============================================================================
+# CHARACTER STATS (Assignment Operator)
+# ==============================================================================
+
+$PLAYER-NAME = 'Hero'
+$HP = 100
+$HP-MAX = 100
+$MP = 50
+$MP-MAX = 50
+$LEVEL = 1
+$XP = 0
+
+# Enemy stats
+$ENEMY-NAME = 'Dragon'
+$ENEMY-HP = 150
+$ENEMY-HP-MAX = 150
+
+# ==============================================================================
+# GAME START (Emoji Support in PRINT)
+# ==============================================================================
+
+PRINT("")
+PRINT(":star::star::star: RPG COMBAT DEMO :star::star::star:")
+PRINT("")
+PRINT(":scroll: Welcome to the uDOS RPG System")
+PRINT("This demo shows all v1.1.9+ features")
+PRINT("")
+
+# Display player stats
+PRINT(":shield: Player: $PLAYER-NAME (Level $LEVEL)")
+PRINT(":heart: HP: $HP/$HP-MAX")
+PRINT(":magic: MP: $MP/$MP-MAX")
+PRINT(":sparkles: XP: $XP")
+PRINT("")
+
+# Display enemy
+PRINT(":dragon: Enemy: $ENEMY-NAME")
+PRINT(":fire: HP: $ENEMY-HP/$ENEMY-HP-MAX")
+PRINT("")
+
+# ==============================================================================
+# FUNCTIONS (v1.1.9+ Function Blocks)
+# ==============================================================================
+
+# Calculate damage with critical hit chance
+FUNCTION [@CALCULATE-DAMAGE($BASE-DAMAGE)
+    $CRIT-CHANCE = 20
+    ROLL 1d100
+    IF {result <= $CRIT-CHANCE | RETURN $BASE-DAMAGE * 2}
+    RETURN $BASE-DAMAGE
+]
+
+# Apply damage to target
+FUNCTION [@TAKE-DAMAGE($CURRENT-HP, $DAMAGE)
+    $NEW-HP = $CURRENT-HP - $DAMAGE
+    IF {$NEW-HP < 0 | RETURN 0}
+    RETURN $NEW-HP
+]
+
+# Check if character is alive
+FUNCTION [@IS-ALIVE($HP)
+    IF {$HP > 0 | RETURN 'alive'}
+    RETURN 'dead'
+]
+
+# Heal character
+FUNCTION [@HEAL($CURRENT-HP, $MAX-HP, $HEAL-AMOUNT)
+    $NEW-HP = $CURRENT-HP + $HEAL-AMOUNT
+    IF {$NEW-HP > $MAX-HP | RETURN $MAX-HP}
+    RETURN $NEW-HP
+]
+
+# Magic attack (costs MP)
+FUNCTION [@MAGIC-ATTACK($CURRENT-MP, $MP-COST)
+    IF {$CURRENT-MP < $MP-COST | RETURN 0}
+    RETURN $MP-COST
+]
+
+# ==============================================================================
+# COMBAT SIMULATION
+# ==============================================================================
+
+PRINT(":crossed_swords: COMBAT BEGIN!")
+PRINT("")
+
+# Round 1 - Normal Attack
+PRINT(":one: Round 1 - Attack")
+$DAMAGE = @CALCULATE-DAMAGE(25)
+IF {$DAMAGE > 25 | PRINT(":boom: CRITICAL HIT!")}
+PRINT(":sword: You attack for $DAMAGE damage")
+$ENEMY-HP = @TAKE-DAMAGE($ENEMY-HP, $DAMAGE)
+PRINT(":dragon: Enemy HP: $ENEMY-HP/$ENEMY-HP-MAX")
+PRINT("")
+
+# Check if enemy defeated
+$ENEMY-STATUS = @IS-ALIVE($ENEMY-HP)
+IF {$ENEMY-STATUS == 'dead' | PRINT(":check: Victory!") | GOTO victory}
+
+# Round 2 - Magic Attack
+PRINT(":two: Round 2 - Magic Attack")
+$MP-USED = @MAGIC-ATTACK($MP, 20)
+IF $MP-USED > 0 THEN
+    $MP = $MP - $MP-USED
+    $MAGIC-DAMAGE = 40
+    PRINT(":bolt: Fire Bolt! $MAGIC-DAMAGE damage")
+    $ENEMY-HP = @TAKE-DAMAGE($ENEMY-HP, $MAGIC-DAMAGE)
+    PRINT(":magic: MP: $MP/$MP-MAX")
+    PRINT(":dragon: Enemy HP: $ENEMY-HP/$ENEMY-HP-MAX")
+ELSE
+    PRINT(":cross: Not enough MP!")
+END
+PRINT("")
+
+# Check again
+$ENEMY-STATUS = @IS-ALIVE($ENEMY-HP)
+IF {$ENEMY-STATUS == 'dead' | PRINT(":check: Victory!") | GOTO victory}
+
+# Round 3 - Enemy Counterattack
+PRINT(":three: Round 3 - Enemy Attacks")
+$ENEMY-DAMAGE = 30
+PRINT(":fire: Dragon breathes fire! $ENEMY-DAMAGE damage")
+$HP = @TAKE-DAMAGE($HP, $ENEMY-DAMAGE)
+PRINT(":heart: Your HP: $HP/$HP-MAX")
+PRINT("")
+
+# Round 4 - Heal
+PRINT(":four: Round 4 - Healing")
+$HEAL-POWER = 20
+$HP = @HEAL($HP, $HP-MAX, $HEAL-POWER)
+PRINT(":potion: You drink a potion! Restored $HEAL-POWER HP")
+PRINT(":heart: HP: $HP/$HP-MAX")
+PRINT("")
+
+# Round 5 - Final Attack
+PRINT(":five: Round 5 - Final Strike")
+$FINAL-DAMAGE = @CALCULATE-DAMAGE(35)
+IF {$FINAL-DAMAGE > 35 | PRINT(":boom: CRITICAL HIT!")}
+PRINT(":axe: You swing your axe! $FINAL-DAMAGE damage")
+$ENEMY-HP = @TAKE-DAMAGE($ENEMY-HP, $FINAL-DAMAGE)
+PRINT(":dragon: Enemy HP: $ENEMY-HP/$ENEMY-HP-MAX")
+PRINT("")
+
+# ==============================================================================
+# VICTORY
+# ==============================================================================
+
+LABEL victory
+
+$ENEMY-STATUS = @IS-ALIVE($ENEMY-HP)
+
+IF {$ENEMY-STATUS == 'dead' | PRINT(":check: VICTORY!")}
+IF {$ENEMY-STATUS == 'alive' | PRINT(":warning: Enemy still stands...")}
+
+PRINT("")
+PRINT(":trophy: Battle Complete!")
+PRINT("")
+
+# Award XP
+$XP-GAIN = 100
+$XP = $XP + $XP-GAIN
+PRINT(":sparkles: Gained $XP-GAIN XP!")
+PRINT(":star: Total XP: $XP")
+
+# Check level up
+IF $XP >= 100 THEN
+    $LEVEL = $LEVEL + 1
+    PRINT(":up: LEVEL UP! Now level $LEVEL")
+END
+
+PRINT("")
+PRINT(":shield: Final Stats:")
+PRINT("  :heart: HP: $HP/$HP-MAX")
+PRINT("  :magic: MP: $MP/$MP-MAX")
+PRINT("  :sparkles: Level $LEVEL (XP: $XP)")
+PRINT("")
+
+# ==============================================================================
+# JSON SAVE DEMO (v1.1.9+ JSON Integration)
+# ==============================================================================
+
+PRINT(":save: Saving game state...")
+
+# Note: This would work if we had JSON methods in VM
+# $SAVE-DATA = JSON.load('player.json')
+# $SAVE-DATA.player.hp = $HP
+# $SAVE-DATA.player.mp = $MP
+# $SAVE-DATA.player.level = $LEVEL
+# JSON.save('player.json', $SAVE-DATA)
+
+PRINT(":check: Game saved!")
+PRINT("")
+PRINT(":wave: Thanks for playing!")
+PRINT(":star::star::star:")

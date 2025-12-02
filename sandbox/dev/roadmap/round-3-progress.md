@@ -247,7 +247,7 @@ Round 3 delivered a Python-first architecture with UPPERCASE-HYPHEN naming and c
 - Created comprehensive tests (64 tests) ✅
 - **Tests:** 64/64 passing in 0.09s ✅
   - Command registry: 15 tests
-  - UPY preprocessor: 20 tests  
+  - UPY preprocessor: 20 tests
   - UPY parser: 29 tests
 - **Time:** ~3 hours (vs 2-day estimate!)
 - **New Syntax:** COMMAND(args) format implemented

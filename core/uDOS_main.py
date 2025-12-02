@@ -52,18 +52,42 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
     """
     Executes a uDOS script file non-interactively.
 
-    v1.1.1: Routes .uscript files to UCodeInterpreter for modern syntax support.
+    v2.0.0: Routes .upy files to UPYParser for new COMMAND(args) syntax.
+    v1.1.1: Routes .uscript files to UCodeInterpreter (deprecated).
     """
     try:
-        # v1.1.1: Check if this is a .uscript file (modern syntax)
+        # v2.0.0: Check file extension and route appropriately
+        is_upy = script_path.lower().endswith('.upy')
         is_uscript = script_path.lower().endswith('.uscript')
 
-        if is_uscript:
-            # Use UCodeInterpreter for modern uCODE syntax
+        if is_upy:
+            # v2.0.0: Use new UPYParser for COMMAND(args) syntax
+            from core.runtime.upy_parser import UPYParser
+            from core.runtime.upy_preprocessor import UPYPreprocessor
+
+            preprocessor = UPYPreprocessor()
+            upy_parser = UPYParser()
+
+            logger.log(f"🔷 Running uPY script: {script_path}")
+
+            # Preprocess and execute
+            try:
+                code = preprocessor.preprocess(script_path)
+                result = upy_parser.execute(code)
+                if result:
+                    logger.log(result)
+                    print(result)
+            except Exception as e:
+                error_msg = f"❌ Error executing '{script_path}': {e}"
+                logger.log(error_msg)
+                print(error_msg)
+
+        elif is_uscript:
+            # v1.1.1: Use UCodeInterpreter for .uscript (DEPRECATED)
             from core.interpreters.ucode import UCodeInterpreter
             interpreter = UCodeInterpreter()
 
-            logger.log(f"🔷 Running uCODE script: {script_path}")
+            logger.log(f"⚠️  Running .uscript (DEPRECATED - use .upy): {script_path}")
 
             with open(script_path, 'r') as f:
                 for line in f:
