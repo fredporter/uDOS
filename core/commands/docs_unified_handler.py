@@ -785,27 +785,82 @@ Examples:
             generator = get_gemini_generator()
         except ImportError:
             return "❌ Gemini generator not available. Install required dependencies."
+        except ValueError as e:
+            return f"❌ {str(e)}\n\nSet GEMINI_API_KEY in .env file to enable content regeneration."
+
+        # Assess current quality (before)
+        quality_before = self._assess_quality(item, content_data)
+        overall_before = sum(quality_before.values()) / len(quality_before)
 
         # Run regeneration
         output = ["", f"🔄 Regenerating: {item['title']}", "═" * 60]
         output.append(f"Mode: {'Pro' if options['pro'] else 'Standard'} | Citations: {'Strict' if options['strict'] else 'Standard'}")
         output.append("")
+        output.append(f"Current Quality: {self._progress_bar(int(overall_before * 100))} {overall_before:.1%}")
+        output.append("")
+
+        # Get quality recommendations
+        weak_areas = [dim for dim, score in quality_before.items() if score < 0.8]
+        if weak_areas:
+            output.append("Areas for improvement:")
+            for dim in weak_areas:
+                output.append(f"  • {dim.capitalize()}: {self._get_improvement_tip(dim, item['type'])}")
+            output.append("")
+
         output.append("⏳ Generating improved content with AI...")
         output.append("")
 
-        # TODO: Implement actual regeneration logic
-        # For now, return placeholder
-        output.append("⚠️  REGEN implementation pending (v1.1.17)")
-        output.append("")
-        output.append("This feature will:")
-        output.append("  • Analyze current content quality")
-        output.append("  • Use Gemini API to enhance content")
-        output.append("  • Add citations and references")
-        output.append("  • Improve structure and clarity")
-        output.append("  • Save version history for rollback")
-        output.append("")
-        output.append("Planned for completion in v1.1.17 Move 1 Step 9")
-        output.append("")
+        try:
+            # Generate enhanced content
+            enhanced_content = self._generate_enhanced_content(
+                item, content_data, quality_before, options
+            )
+
+            # Preview mode - show changes without saving
+            if options['preview']:
+                output.append("📋 Preview Mode (changes not saved):")
+                output.append("")
+                output.append(enhanced_content[:500] + "..." if len(enhanced_content) > 500 else enhanced_content)
+                output.append("")
+                output.append("Run without --preview to apply changes")
+                return "\n".join(output)
+
+            # Save version to archive
+            archive_path = self._save_version(item, content_data)
+            output.append(f"✅ Previous version archived: {archive_path.name}")
+            output.append("")
+
+            # Apply enhanced content
+            self._save_enhanced_content(item, enhanced_content)
+
+            # Assess new quality (after)
+            new_content_data = self._load_content(item)
+            quality_after = self._assess_quality(item, new_content_data)
+            overall_after = sum(quality_after.values()) / len(quality_after)
+
+            # Show improvements
+            output.append(f"New Quality: {self._progress_bar(int(overall_after * 100))} {overall_after:.1%}")
+            output.append("")
+            output.append("Quality Changes:")
+            for dim in quality_before.keys():
+                before_pct = int(quality_before[dim] * 100)
+                after_pct = int(quality_after[dim] * 100)
+                delta = after_pct - before_pct
+                icon = "📈" if delta > 0 else "📉" if delta < 0 else "➡️"
+                output.append(f"  {icon} {dim.capitalize()}: {before_pct}% → {after_pct}% ({delta:+d}%)")
+
+            output.append("")
+            output.append(f"✅ Content regenerated successfully")
+            output.append(f"   Use 'DOCS HISTORY {content_name}' to view version history")
+            output.append(f"   Use 'DOCS REGEN {content_name} --rollback' to revert")
+
+        except Exception as e:
+            output.append(f"❌ Regeneration failed: {str(e)}")
+            output.append("")
+            output.append("Please check:")
+            output.append("  • GEMINI_API_KEY is set in .env")
+            output.append("  • API key has valid permissions")
+            output.append("  • Network connection is available")
 
         return "\n".join(output)
 
@@ -825,19 +880,64 @@ Examples:
             return f"❌ Content not found: {content_name}"
 
         # Check for version history
-        # TODO: Implement version tracking
+        content_path = Path(item['path'])
+        archive_dir = content_path.parent / ".archive" / "versions"
+        metadata_path = archive_dir / "metadata.json"
 
+        if not metadata_path.exists():
+            return f"❌ No version history found for: {item['title']}\n\nContent has not been regenerated yet."
+
+        # Load metadata
+        with open(metadata_path, 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+
+        versions = metadata.get("versions", [])
+        if not versions:
+            return f"❌ Version history empty for: {item['title']}"
+
+        # Build output
         output = ["", f"📜 Version History: {item['title']}", "═" * 60]
+        output.append(f"Total versions: {len(versions)}")
         output.append("")
-        output.append("⚠️  Version history not yet implemented (v1.1.17)")
-        output.append("")
-        output.append("This feature will:")
-        output.append("  • Show all content versions")
-        output.append("  • Display quality scores over time")
-        output.append("  • Allow rollback to previous versions")
-        output.append("  • Track regeneration history")
-        output.append("")
-        output.append("Planned for completion in v1.1.17 Move 1 Step 10")
+
+        # Show versions in reverse chronological order (newest first)
+        for i, version in enumerate(reversed(versions), 1):
+            version_num = len(versions) - i + 1
+            is_current = (i == 1)
+            icon = "📍" if is_current else "📝"
+
+            output.append(f"{icon} Version {version_num} {' (CURRENT)' if is_current else ''}")
+            output.append(f"   File: {version['file']}")
+            output.append(f"   Date: {version['timestamp'][:19].replace('T', ' ')}")
+            output.append(f"   Overall Quality: {self._progress_bar(int(version['overall'] * 100))} {version['overall']:.1%}")
+            output.append("")
+
+            # Show quality breakdown
+            output.append("   Quality Breakdown:")
+            scores = version.get('quality_scores', {})
+            for dim, score in scores.items():
+                pct = int(score * 100)
+                status = "✓" if score >= 0.8 else "⚠" if score >= 0.7 else "✗"
+                output.append(f"     {status} {dim.capitalize()}: {self._progress_bar(pct, 15)} {score:.1%}")
+
+            # Show improvement from previous version
+            if i < len(versions):
+                prev_idx = len(versions) - i
+                prev_overall = versions[prev_idx - 1]['overall']
+                delta = version['overall'] - prev_overall
+                if delta > 0:
+                    output.append(f"     📈 +{delta:.1%} improvement from v{version_num - 1}")
+                elif delta < 0:
+                    output.append(f"     📉 {delta:.1%} decline from v{version_num - 1}")
+
+            output.append("")
+
+        # Add usage tips
+        output.append("═" * 60)
+        output.append("Commands:")
+        output.append(f"  DOCS REVIEW {content_name}")
+        output.append(f"  DOCS REGEN {content_name} [--pro] [--strict]")
+        output.append(f"  DOCS REGEN {content_name} --rollback")
         output.append("")
 
         return "\n".join(output)
@@ -1434,10 +1534,211 @@ Examples:
 
         return tips.get(dimension, {}).get(content_type, 'Review and enhance content')
 
+    # === Content regeneration helpers (v1.1.17+) ===
+
+    def _generate_enhanced_content(self, item: Dict, content_data: Dict,
+                                   quality_scores: Dict[str, float],
+                                   options: Dict[str, bool]) -> str:
+        """
+        Generate enhanced content using Gemini API.
+
+        Args:
+            item: Content metadata
+            content_data: Current content
+            quality_scores: Quality assessment scores
+            options: Regeneration options (pro, strict, etc.)
+
+        Returns:
+            Enhanced content string
+        """
+        from core.services.gemini_generator import get_gemini_generator
+
+        # Get Gemini generator
+        generator = get_gemini_generator()
+
+        # Build enhancement prompt
+        prompt_parts = []
+        prompt_parts.append(f"# Content Enhancement Task")
+        prompt_parts.append(f"")
+        prompt_parts.append(f"**Original Content:** {item['title']}")
+        prompt_parts.append(f"**Type:** {item['type']}")
+        prompt_parts.append(f"**Category:** {item.get('category', 'general')}")
+        prompt_parts.append(f"")
+        prompt_parts.append(f"## Current Quality Scores")
+        for dim, score in quality_scores.items():
+            status = "✓ Good" if score >= 0.8 else "⚠ Needs improvement"
+            prompt_parts.append(f"- {dim.capitalize()}: {score:.1%} {status}")
+        prompt_parts.append(f"")
+
+        # Identify weak areas
+        weak_areas = [dim for dim, score in quality_scores.items() if score < 0.8]
+        if weak_areas:
+            prompt_parts.append(f"## Areas Requiring Improvement")
+            for dim in weak_areas:
+                tip = self._get_improvement_tip(dim, item['type'])
+                prompt_parts.append(f"- **{dim.capitalize()}:** {tip}")
+            prompt_parts.append(f"")
+
+        # Mode-specific instructions
+        if options['pro']:
+            prompt_parts.append(f"## Enhancement Mode: PRO")
+            prompt_parts.append(f"- Provide expert-level analysis and depth")
+            prompt_parts.append(f"- Include advanced techniques and nuances")
+            prompt_parts.append(f"- Add practical warnings and edge cases")
+            prompt_parts.append(f"- Cross-reference related topics")
+        else:
+            prompt_parts.append(f"## Enhancement Mode: STANDARD")
+            prompt_parts.append(f"- Maintain clear, accessible language")
+            prompt_parts.append(f"- Focus on practical application")
+            prompt_parts.append(f"- Include beginner-friendly explanations")
+
+        prompt_parts.append(f"")
+
+        if options['strict']:
+            prompt_parts.append(f"## Citation Requirements: STRICT")
+            prompt_parts.append(f"- Include citations for all factual claims")
+            prompt_parts.append(f"- Use Markdown reference format: [source_name](URL)")
+            prompt_parts.append(f"- Add 'References' section at end")
+            prompt_parts.append(f"- Prefer authoritative sources (WHO, CDC, scientific papers)")
+        else:
+            prompt_parts.append(f"## Citation Requirements: STANDARD")
+            prompt_parts.append(f"- Add citations for key facts and figures")
+            prompt_parts.append(f"- Include references section if using external sources")
+
+        prompt_parts.append(f"")
+        prompt_parts.append(f"## Original Content")
+        prompt_parts.append(f"```markdown")
+        prompt_parts.append(content_data.get('content', ''))
+        prompt_parts.append(f"```")
+        prompt_parts.append(f"")
+        prompt_parts.append(f"## Task")
+        prompt_parts.append(f"Enhance the above content addressing the quality issues identified.")
+        prompt_parts.append(f"Maintain the same Markdown format and structure.")
+        prompt_parts.append(f"Return ONLY the enhanced Markdown content, no explanations.")
+
+        prompt = "\n".join(prompt_parts)
+
+        # Generate enhanced content
+        enhanced_text, citations = generator.generate_text(
+            source_content=content_data.get('content', ''),
+            topic=item['title']
+        )
+
+        return enhanced_text
+
+    def _save_version(self, item: Dict, content_data: Dict) -> Path:
+        """
+        Save current version to .archive/versions/.
+
+        Args:
+            item: Content metadata
+            content_data: Current content
+
+        Returns:
+            Path to archived version
+        """
+        from datetime import datetime
+
+        # Determine archive directory
+        content_path = Path(item['path'])
+        archive_dir = content_path.parent / ".archive" / "versions"
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate version filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        version_name = f"{content_path.stem}_v{timestamp}{content_path.suffix}"
+        archive_path = archive_dir / version_name
+
+        # Save content
+        with open(archive_path, 'w', encoding='utf-8') as f:
+            f.write(content_data.get('content', ''))
+
+        # Update metadata
+        metadata_path = archive_dir / "metadata.json"
+        if metadata_path.exists():
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+        else:
+            metadata = {"versions": []}
+
+        # Add version record
+        quality_scores = self._assess_quality(item, content_data)
+        metadata["versions"].append({
+            "file": version_name,
+            "timestamp": datetime.now().isoformat(),
+            "quality_scores": quality_scores,
+            "overall": sum(quality_scores.values()) / len(quality_scores)
+        })
+
+        with open(metadata_path, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2)
+
+        return archive_path
+
+    def _save_enhanced_content(self, item: Dict, content: str) -> None:
+        """
+        Save enhanced content to file.
+
+        Args:
+            item: Content metadata
+            content: Enhanced content string
+        """
+        content_path = Path(item['path'])
+        with open(content_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+
     def _rollback_content(self, item: Dict) -> str:
-        """Rollback content to previous version"""
-        # TODO: Implement version rollback
-        return f"⚠️  Version rollback not yet implemented for: {item['title']}\n\nPlanned for v1.1.17 Move 1 Step 10\n"
+        """
+        Rollback content to previous version.
+
+        Args:
+            item: Content metadata
+
+        Returns:
+            Status message
+        """
+        content_path = Path(item['path'])
+        archive_dir = content_path.parent / ".archive" / "versions"
+        metadata_path = archive_dir / "metadata.json"
+
+        if not metadata_path.exists():
+            return "❌ No version history found"
+
+        # Load metadata
+        with open(metadata_path, 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+
+        versions = metadata.get("versions", [])
+        if len(versions) < 2:
+            return "❌ No previous version available"
+
+        # Get previous version (second to last)
+        prev_version = versions[-2]
+        version_path = archive_dir / prev_version["file"]
+
+        if not version_path.exists():
+            return f"❌ Version file not found: {prev_version['file']}"
+
+        # Load previous content
+        with open(version_path, 'r', encoding='utf-8') as f:
+            prev_content = f.read()
+
+        # Save current as new version before rollback
+        current_data = self._load_content(item)
+        self._save_version(item, current_data)
+
+        # Restore previous content
+        with open(content_path, 'w', encoding='utf-8') as f:
+            f.write(prev_content)
+
+        # Show quality comparison
+        output = ["", f"⏪ Rolled back: {item['title']}", "═" * 60]
+        output.append(f"Restored version: {prev_version['file']}")
+        output.append(f"Previous quality: {prev_version['overall']:.1%}")
+        output.append("")
+        output.append("✅ Rollback complete")
+
+        return "\n".join(output)
 
     # === Utility methods ===
 
