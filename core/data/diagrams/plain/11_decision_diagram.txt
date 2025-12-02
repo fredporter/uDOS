@@ -1,0 +1,17 @@
+[ DECISION: RETRY? ]
+--------------------
+          [ RETRY? ]
+           /   \
+          v     v
+      [ YES ] [ NO ]
+         |      |
+         v      v
+   [ TRY AGAIN ] [ STOP ]
+If you want strictly no diagonal-like slashes, use this variant instead:
+          [ RETRY? ]
+           |     |
+           v     v
+       [ YES ] [ NO ]
+           |     |
+           v     v
+   [ TRY AGAIN ] [ STOP ]

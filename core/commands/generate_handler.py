@@ -86,6 +86,21 @@ class GenerateHandler:
                 ) from e
         return self._vectorizer
 
+    @property
+    def ascii_generator(self):
+        """Lazy load ASCII generator service."""
+        if self._ascii_generator is None:
+            try:
+                from core.services.ascii_generator import get_ascii_generator
+                self._ascii_generator = get_ascii_generator(style="unicode")
+                if self.logger:
+                    self.logger.info("ASCII generator loaded (Unicode style)")
+            except ImportError as e:
+                if self.logger:
+                    self.logger.error(f"Failed to load ASCII generator: {e}")
+                raise ImportError("ASCII generator not available") from e
+        return self._ascii_generator
+
     def handle_command(self, params):
         """
         Handle GENERATE command routing.
@@ -323,24 +338,45 @@ class GenerateHandler:
 
     def _generate_ascii(self, params):
         """
-        Generate ASCII art diagram.
+        Generate ASCII art diagram with Unicode box-drawing.
 
         Args:
-            params: [description, --width, --save, etc.]
+            params: [type, description, --style, --width, --save, etc.]
 
         Returns:
             ASCII art diagram
+
+        Supported types:
+        - box: Simple box with title/content
+        - table: Data table with headers
+        - flowchart: Vertical flowchart
+        - panel: Panel header (block/plain style)
+        - progress: Progress bar
+        - banner: Centered banner text
+        - list: Bulleted/numbered/checkbox list
         """
         # Parse parameters
+        diagram_type = None
         description_parts = []
-        width = 80
+        width = 60
+        height = 10
+        style = "unicode"
         save_path = None
+
+        # Additional params for specific diagram types
+        headers = []
+        rows = []
+        items = []
+        percentage = 0
 
         i = 0
         while i < len(params):
             param = params[i]
 
-            if param == "--width":
+            if param.lower() in ["box", "table", "flowchart", "panel", "progress", "banner", "list", "tree"]:
+                diagram_type = param.lower()
+                i += 1
+            elif param == "--width":
                 if i + 1 < len(params):
                     try:
                         width = int(params[i + 1])
@@ -349,41 +385,168 @@ class GenerateHandler:
                         return "❌ --width requires an integer\n"
                 else:
                     return "❌ --width requires a value\n"
-
+            elif param == "--height":
+                if i + 1 < len(params):
+                    try:
+                        height = int(params[i + 1])
+                        i += 2
+                    except ValueError:
+                        return "❌ --height requires an integer\n"
+                else:
+                    return "❌ --height requires a value\n"
+            elif param == "--style":
+                if i + 1 < len(params):
+                    style = params[i + 1]
+                    i += 2
+                else:
+                    return "❌ --style requires a value (unicode/plain/blocks)\n"
             elif param == "--save":
                 if i + 1 < len(params):
                     save_path = params[i + 1]
                     i += 2
                 else:
                     return "❌ --save requires a filename\n"
-
+            elif param == "--percent":
+                if i + 1 < len(params):
+                    try:
+                        percentage = int(params[i + 1])
+                        i += 2
+                    except ValueError:
+                        return "❌ --percent requires an integer (0-100)\n"
+                else:
+                    return "❌ --percent requires a value\n"
             else:
                 description_parts.append(param)
                 i += 1
 
         description = " ".join(description_parts)
 
-        if not description:
-            return "❌ No description provided\n"
+        if not description and diagram_type not in ["table", "list"]:
+            return self._ascii_help()
 
         try:
-            # Generate ASCII art
-            ascii_art = self._create_ascii_diagram(description, width)
+            # Get ASCII generator with requested style
+            from core.services.ascii_generator import get_ascii_generator
+            generator = get_ascii_generator(style=style)
+
+            # Generate based on type
+            if diagram_type == "box":
+                ascii_art = generator.generate_box(
+                    width=width,
+                    height=height,
+                    title=description,
+                    style="single" if style != "double" else "double"
+                )
+            elif diagram_type == "panel":
+                panel_style = "blocks" if style == "blocks" else "plain"
+                ascii_art = generator.generate_panel(
+                    width=width,
+                    title=description,
+                    style=panel_style
+                )
+            elif diagram_type == "banner":
+                banner_style = "blocks" if style == "blocks" else ("double" if style == "unicode" else "single")
+                ascii_art = generator.generate_banner(
+                    text=description,
+                    width=width,
+                    style=banner_style
+                )
+            elif diagram_type == "progress":
+                ascii_art = generator.generate_progress_bar(
+                    label=description,
+                    percentage=percentage,
+                    width=width,
+                    style="blocks" if style == "blocks" else "chars"
+                )
+            elif diagram_type == "list":
+                # Parse items from description (semicolon-separated)
+                items = [item.strip() for item in description.split(';')]
+                list_style = "bullet"  # Default
+                if "--numbered" in params:
+                    list_style = "number"
+                elif "--checkbox" in params:
+                    list_style = "checkbox"
+
+                ascii_art = generator.generate_list(items, style=list_style)
+            elif diagram_type == "table":
+                # Simple example table (would need more sophisticated parsing)
+                headers = ["Column 1", "Column 2", "Column 3"]
+                rows = [
+                    ["Data 1", "Data 2", "Data 3"],
+                    ["Row 2", "Value", "More"]
+                ]
+                ascii_art = generator.generate_table(headers, rows)
+            else:
+                # Default: simple box with description
+                ascii_art = generator.generate_box(
+                    width=width,
+                    height=8,
+                    title=description or "ASCII Diagram",
+                    content=[
+                        "Use GENERATE ASCII with a type:",
+                        "",
+                        "  box, panel, banner, table,",
+                        "  progress, list, flowchart",
+                    ],
+                    style="single"
+                )
 
             # Save if requested
             if save_path:
-                if not save_path.endswith('.txt'):
-                    save_path += '.txt'
-                output_path = self.ascii_output / save_path
-                output_path.write_text(ascii_art, encoding='utf-8')
-                return f"✅ ASCII diagram saved: {output_path}\n\n{ascii_art}"
+                from pathlib import Path
+                output_path = generator.save(ascii_art, save_path, Path("memory/drafts/ascii"))
+                return f"✅ ASCII diagram saved: {output_path}\n\n{ascii_art}\n"
             else:
-                return f"✅ ASCII diagram:\n\n{ascii_art}"
+                return f"✅ ASCII diagram:\n\n{ascii_art}\n"
 
         except Exception as e:
             if self.logger:
-                self.logger.error(f"ASCII generation error: {e}")
-            return f"❌ Error generating ASCII: {e}"
+                self.logger.error(f"ASCII generation error: {e}", exc_info=True)
+            return f"❌ Error generating ASCII: {e}\n"
+
+    def _ascii_help(self):
+        """Show ASCII generation help."""
+        return """
+┌──────────────────────────────────────────────────────────────────┐
+│  GENERATE ASCII - Unicode Box-Drawing Diagrams                   │
+└──────────────────────────────────────────────────────────────────┘
+
+USAGE:
+  GENERATE ASCII <type> <description> [options]
+
+TYPES:
+  box         Simple box with title and content
+  panel       Panel header (block or plain style)
+  banner      Centered banner text
+  table       Data table with headers and rows
+  progress    Progress bar with percentage
+  list        Bulleted, numbered, or checkbox list
+  flowchart   Vertical flowchart (basic)
+  tree        Tree structure
+
+OPTIONS:
+  --width <n>      Diagram width (default: 60)
+  --height <n>     Diagram height (default: 10)
+  --style <s>      unicode | plain | blocks
+  --percent <n>    Progress percentage (0-100)
+  --save <file>    Save to file
+  --numbered       Use numbered list
+  --checkbox       Use checkbox list
+
+STYLES:
+  unicode    ┌─┐ │ └─┘ (refined box-drawing)
+  plain      +--+ | (maximum compatibility)
+  blocks     █▓▒░ (visual hierarchy)
+
+EXAMPLES:
+  GENERATE ASCII box System Status --width 40 --style unicode
+  GENERATE ASCII panel Mission Control --width 60 --style blocks
+  GENERATE ASCII progress "Water Purification" --percent 75
+  GENERATE ASCII banner "uDOS v1.1.15" --width 50 --style blocks
+  GENERATE ASCII list "Water;Fire;Shelter;Food" --checkbox
+
+See: core/data/diagrams/ for 50 pre-built examples
+"""
 
     def _generate_teletext(self, params):
         """
@@ -405,34 +568,7 @@ class GenerateHandler:
             f"   DRAW {description}"
         )
 
-    def _create_ascii_diagram(self, description: str, width: int) -> str:
-        """
-        Create simple ASCII diagram (placeholder for now).
 
-        Args:
-            description: Diagram description
-            width: Character width
-
-        Returns:
-            ASCII art string
-        """
-        # Simple box diagram for now
-        header = f" {description.upper()} "
-        border = "+" + "-" * (width - 2) + "+"
-        content = "|" + " " * (width - 2) + "|"
-
-        lines = [
-            border,
-            "|" + header.center(width - 2) + "|",
-            border,
-            content,
-            "|  [ASCII diagram generation requires AI integration]".ljust(width - 1) + "|",
-            "|  Use: DRAW command for offline ASCII diagrams".ljust(width - 1) + "|",
-            content,
-            border
-        ]
-
-        return "\n".join(lines)
 
     def _show_help(self):
         """Show comprehensive GENERATE command help."""

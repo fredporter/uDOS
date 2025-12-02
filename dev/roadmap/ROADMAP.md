@@ -124,17 +124,17 @@ uDOS/
 class MermaidHandler:
     """
     Mermaid diagram generation and management.
-    
+
     Commands:
     - MERMAID RENDER <type> <code|file>  # Generate diagram
     - MERMAID EXPORT <format>            # Export to SVG/PNG
     - MERMAID LIST                       # List supported types
     - MERMAID VALIDATE <code>            # Syntax check
-    
+
     Supported types (Typora-compatible):
     - sequence, flowchart, gantt, class, state, pie
     - gitgraph, mindmap, timeline, quadrant
-    
+
     Output: sandbox/drafts/mermaid/
     """
 ```
@@ -206,10 +206,16 @@ endsolid
 - Cleaner line styles (single/double/dashed)
 - Improved table formatting (compact, aligned)
 - Enhanced flowchart generation (decision diamonds, rounded boxes)
+- Two house styles: Plain ASCII (max compatibility) + Block shading (visual hierarchy)
+
+**Reference Library:**
+- `dev/roadmap/graphics1.md` - 25 panel-style diagrams with block shading (█▓▒░)
+- `dev/roadmap/graphics2.md` - 25 plain ASCII diagrams (no block characters)
+- Includes: system architecture, flows, pipelines, tables, progress bars, theatre layouts
 
 **Update Targets:**
 - `core/services/ascii_generator.py` (or create if missing)
-- `core/data/diagrams/` library (add refined examples)
+- `core/data/diagrams/` library (add 50 refined examples from graphics1/2.md)
 - `diagram_handler.py` GENERATE command (use new renderer)
 
 **Test Cases:**

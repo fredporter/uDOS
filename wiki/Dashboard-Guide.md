@@ -1,7 +1,7 @@
 # Dashboard Guide
 
-**Version:** 1.1.14  
-**Extension:** `extensions/web/dashboard/`  
+**Version:** 1.1.14
+**Extension:** `extensions/web/dashboard/`
 **Last Updated:** December 2, 2025
 
 ## Overview
@@ -726,7 +726,7 @@ start_dashboard()
    ```python
    from flask_caching import Cache
    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-   
+
    @app.route('/api/status')
    @cache.cached(timeout=5)
    def status():
@@ -822,9 +822,9 @@ A: Yes, all data is local. No external API calls except NES.css CDN (can be down
 
 ---
 
-**Extension Path:** `extensions/web/dashboard/`  
-**Server Script:** `server.py`  
-**Template:** `templates/index.html`  
-**JavaScript:** `static/dashboard.js`  
-**Version:** 1.1.14  
+**Extension Path:** `extensions/web/dashboard/`
+**Server Script:** `server.py`
+**Template:** `templates/index.html`
+**JavaScript:** `static/dashboard.js`
+**Version:** 1.1.14
 **Last Updated:** December 2, 2025

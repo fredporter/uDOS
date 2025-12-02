@@ -1,0 +1,6 @@
+[ CHECKLIST ]
+-------------
+[ x ] Define requirements
+[ x ] Create diagrams
+[   ] Write documentation
+[   ] Final review
