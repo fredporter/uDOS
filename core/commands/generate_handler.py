@@ -114,6 +114,10 @@ class GenerateHandler:
         if not params:
             return self._show_help()
 
+        # Check for --survival-help flag anywhere
+        if "--survival-help" in params:
+            return self._show_survival_help()
+
         subcommand = params[0].upper()
         remaining_params = params[1:]
 
@@ -125,6 +129,8 @@ class GenerateHandler:
             return self._generate_teletext(remaining_params)
         elif subcommand == "HELP":
             return self._show_help()
+        elif subcommand == "--SURVIVAL-HELP":  # Direct command
+            return self._show_survival_help()
         else:
             return f"❌ Unknown GENERATE subcommand: {subcommand}\n\n" + self._show_help()
 
@@ -135,7 +141,7 @@ class GenerateHandler:
         Pipeline: Load Style Guide → Generate PNG → Vectorize → Validate → Save SVG
 
         Args:
-            params: [description, --style, --type, --save, --no-preview, etc.]
+            params: [description, --style, --type, --save, --no-preview, --survival, etc.]
 
         Returns:
             Result message with saved file path
@@ -148,6 +154,8 @@ class GenerateHandler:
         preview = True
         use_pro = False
         strict = False
+        survival_category = None  # v1.1.15: Survival-specific templates
+        survival_prompt = None    # v1.1.15: Specific prompt key
 
         i = 0
         while i < len(params):
@@ -173,6 +181,19 @@ class GenerateHandler:
                     i += 2
                 else:
                     return "❌ --save requires a filename\n\n" + self._show_help()
+
+            elif param == "--survival":
+                # v1.1.15: Use survival-specific templates
+                if i + 1 < len(params):
+                    survival_spec = params[i + 1]
+                    if '/' in survival_spec:
+                        survival_category, survival_prompt = survival_spec.split('/', 1)
+                    else:
+                        survival_category = survival_spec
+                        survival_prompt = None
+                    i += 2
+                else:
+                    return "❌ --survival requires category or category/prompt\n\n" + self._show_survival_help()
 
             elif param == "--no-preview":
                 preview = False
@@ -218,23 +239,49 @@ class GenerateHandler:
         # Start generation
         try:
             if self.logger:
-                self.logger.info(
-                    f"Generating SVG: {description} "
-                    f"(style: {style}, type: {diagram_type}, pro: {use_pro})"
-                )
+                log_msg = f"Generating SVG: {description} (style: {style}, type: {diagram_type}, pro: {use_pro}"
+                if survival_category:
+                    log_msg += f", survival: {survival_category}/{survival_prompt or 'auto'}"
+                log_msg += ")"
+                self.logger.info(log_msg)
 
             start_time = time.time()
 
             # Step 1: Generate PNG via Nano Banana
             if self.viewport:
-                self.viewport.write("⏳ Generating PNG via Nano Banana...")
+                mode = "Survival Template" if survival_category else "Standard"
+                self.viewport.write(f"⏳ Generating PNG via Nano Banana ({mode})...")
 
-            png_bytes, metadata = self.gemini_generator.generate_image_svg(
-                subject=description,
-                diagram_type=diagram_type,
-                style=style,
-                use_pro=use_pro
-            )
+            # v1.1.15: Use survival-specific templates if specified
+            if survival_category:
+                if not survival_prompt:
+                    # Auto-select first prompt from category
+                    try:
+                        cat_prompts = self.gemini_generator.prompts['prompts']['survival']['categories'][survival_category]['prompts']
+                        survival_prompt = list(cat_prompts.keys())[0]
+                        if self.viewport:
+                            self.viewport.write(f"   Auto-selected prompt: {survival_prompt}")
+                    except (KeyError, IndexError) as e:
+                        return f"❌ Failed to auto-select prompt for category '{survival_category}': {e}"
+
+                png_bytes, metadata = self.gemini_generator.generate_survival_diagram(
+                    category=survival_category,
+                    prompt_key=survival_prompt,
+                    use_pro=use_pro
+                )
+
+                # Get vectorization preset for this survival category
+                vec_params = self.gemini_generator.get_vectorization_preset(survival_category, survival_prompt)
+                stroke_width = vec_params.get('stroke_width', 2.5)
+            else:
+                # Standard generation
+                png_bytes, metadata = self.gemini_generator.generate_image_svg(
+                    subject=description,
+                    diagram_type=diagram_type,
+                    style=style,
+                    use_pro=use_pro
+                )
+                stroke_width = 2.5  # Default
 
             if not png_bytes:
                 return "❌ Failed to generate PNG from Nano Banana"
@@ -248,7 +295,7 @@ class GenerateHandler:
 
             vectorize_result = self.vectorizer.vectorize(
                 png_bytes,
-                stroke_width=2.5,
+                stroke_width=stroke_width,  # Use optimized stroke width
                 simplify=True,
                 validate_compliance=strict
             )
@@ -589,6 +636,7 @@ SVG/DIAGRAM OPTIONS:
   <description>          Subject to illustrate (required)
   --style <style>        Visual style (default: technical-kinetic)
   --type <type>          Diagram type (default: flowchart)
+  --survival <cat/key>   Use survival templates (v1.1.15) - see below
   --save <file>          Save to specific file (optional)
   --no-preview           Skip preview hints (optional)
   --pro                  Use Nano Banana Pro for refinement (slower)
@@ -628,6 +676,12 @@ EXAMPLES:
 
   GENERATE SVG shelter construction --type architecture --pro
     → Precise MCM architecture with Pro refinement
+
+  GENERATE SVG --survival water/purification_flow --pro
+    → Optimized water purification flowchart using survival template (v1.1.15)
+
+  GENERATE SVG --survival fire/fire_triangle --strict
+    → Fire triangle using survival-specific prompt and validation
 
   GENERATE DIAGRAM gear mechanism --type kinetic-flow --strict
     → Kinetic flow diagram with strict validation
@@ -670,14 +724,121 @@ SEE ALSO:
 💡 TIPS:
   • Use --pro for critical diagrams requiring precision
   • Use --strict to enforce monochrome-only output
+  • Use --survival for optimized survival category templates (v1.1.15)
   • Batch generation: Use uCODE loops with GENERATE commands
   • Edit SVGs in Inkscape or any vector editor
   • Technical-Kinetic style best for knowledge base diagrams
+  • For survival help: GENERATE --survival-help
 
 uCODE EXAMPLE:
   for topic in water fire shelter food
     [GENERATE|svg|$topic/overview|style=technical-kinetic|type=flowchart]
   done
+"""
+
+    def _show_survival_help(self):
+        """Show survival-specific template help (v1.1.15)."""
+        return """
+╔══════════════════════════════════════════════════════════════════════╗
+║  GENERATE --survival - Survival Diagram Templates (v1.1.15)          ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+USAGE:
+  GENERATE SVG --survival <category>/<prompt_key> [options]
+  GENERATE SVG --survival <category> [options]  (auto-selects first prompt)
+
+SURVIVAL CATEGORIES:
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ WATER - Water systems and purification                               │
+├──────────────────────────────────────────────────────────────────────┤
+│  water/purification_flow     - Complete purification process         │
+│  water/collection_system     - Rainwater catchment schematic         │
+│  water/filtration_detail     - Multi-stage filter cross-section      │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ FIRE - Fire systems and management                                   │
+├──────────────────────────────────────────────────────────────────────┤
+│  fire/fire_triangle          - Fire triangle with interdependencies  │
+│  fire/fire_lay_types         - 4 fire lay configurations (2×2 grid)  │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ SHELTER - Shelter construction and insulation                        │
+├──────────────────────────────────────────────────────────────────────┤
+│  shelter/a_frame_construction - A-frame with dimensions & callouts   │
+│  shelter/insulation_layers    - Layering system cross-section        │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ FOOD - Foraging and preservation                                     │
+├──────────────────────────────────────────────────────────────────────┤
+│  food/edible_plant_anatomy   - Plant identification (organic style)  │
+│  food/food_preservation_flow - Preservation method decision tree     │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ NAVIGATION - Direction finding and orientation                       │
+├──────────────────────────────────────────────────────────────────────┤
+│  navigation/compass_rose_detailed - 16-point compass with degrees    │
+│  navigation/sun_navigation       - Shadow stick method steps         │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ MEDICAL - First aid and wound care                                   │
+├──────────────────────────────────────────────────────────────────────┤
+│  medical/wound_care_flow     - Wound treatment procedure             │
+│  medical/human_anatomy_reference - Anatomical zones for first aid    │
+└──────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FEATURES (v1.1.15):
+  ✅ Survival-specific prompts with domain terminology
+  ✅ Category-optimized vectorization parameters
+  ✅ Auto-selected style (technical-kinetic, hand-illustrative, hybrid)
+  ✅ Pre-configured stroke width and pattern density per category
+
+STYLES BY CATEGORY:
+  water, fire, shelter, navigation, medical → technical_kinetic
+  food                                      → hand_illustrative
+  (Technical diagrams use MCM geometry, organic subjects use flowing lines)
+
+VECTORIZATION PRESETS:
+  technical  - For flowcharts, schematics (majority policy, low tolerance)
+  organic    - For plants, natural forms (white policy, high tolerance)
+  hybrid     - For mixed technical/organic (balanced settings)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EXAMPLES:
+
+  GENERATE SVG --survival water/purification_flow --pro
+    → Water purification flowchart with optimized parameters
+
+  GENERATE SVG --survival fire
+    → Auto-selects fire/fire_triangle (first prompt in category)
+
+  GENERATE SVG --survival food/edible_plant_anatomy --strict
+    → Plant illustration with hand-illustrative style + strict validation
+
+  GENERATE SVG --survival navigation/compass_rose_detailed --save compass.svg
+    → 16-point compass rose saved to specified file
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BENEFITS:
+  • Consistent terminology across survival categories
+  • Pre-tested prompts with proven results
+  • Optimized vectorization for technical vs organic subjects
+  • Faster iteration (no manual prompt engineering)
+  • Style guide compliance built-in
+
+SEE ALSO:
+  GUIDE water    - Knowledge base for water systems
+  GUIDE fire     - Knowledge base for fire management
+  DRAW           - Offline ASCII diagram library
 """
 
 

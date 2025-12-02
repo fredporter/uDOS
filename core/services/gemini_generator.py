@@ -50,6 +50,24 @@ class GeminiGenerator:
         else:
             raise FileNotFoundError(f"Prompt templates not found: {prompts_path}")
 
+        # Load survival-specific prompts (v1.1.15)
+        survival_prompts_path = Path("core/data/diagrams/templates/survival_prompts.json")
+        if survival_prompts_path.exists():
+            with open(survival_prompts_path, 'r') as f:
+                survival_data = json.load(f)
+                # Merge survival prompts into main prompts
+                if 'prompts' not in self.prompts:
+                    self.prompts['prompts'] = {}
+                self.prompts['prompts']['survival'] = survival_data
+
+        # Load style templates (v1.1.15)
+        self.style_templates = {}
+        style_dir = Path("core/data/diagrams/templates")
+        for style_file in style_dir.glob("style_*.json"):
+            style_name = style_file.stem.replace("style_", "")
+            with open(style_file, 'r') as f:
+                self.style_templates[style_name] = json.load(f)
+
         # Rate limiting
         self.requests_per_minute = 60
         self.request_times: List[float] = []
@@ -487,6 +505,171 @@ class GeminiGenerator:
             issues.append("Raster images forbidden in Technical-Kinetic style")
 
         return len(issues) == 0, issues
+
+    def generate_survival_diagram(
+        self,
+        category: str,
+        prompt_key: str,
+        use_pro: bool = False,
+        **kwargs
+    ) -> Tuple[bytes, Dict]:
+        """
+        Generate survival-specific diagram using optimized templates (v1.1.15).
+
+        Args:
+            category: Survival category (water, fire, shelter, food, navigation, medical)
+            prompt_key: Prompt identifier within category (e.g., 'purification_flow', 'fire_triangle')
+            use_pro: Use Nano Banana Pro for multi-turn refinement
+            **kwargs: Additional parameters to format prompt template
+
+        Returns:
+            Tuple of (PNG bytes, metadata dict)
+
+        Raises:
+            ValueError: Category or prompt not found
+            RuntimeError: API call failed
+
+        Example:
+            >>> gen = GeminiGenerator()
+            >>> png, meta = gen.generate_survival_diagram('water', 'purification_flow')
+            >>> # Vectorize PNG using vectorizer.py
+        """
+        # Validate category
+        if 'survival' not in self.prompts.get('prompts', {}):
+            raise ValueError("Survival prompts not loaded")
+
+        survival = self.prompts['prompts']['survival']
+
+        if 'categories' not in survival or category not in survival['categories']:
+            valid = list(survival.get('categories', {}).keys())
+            raise ValueError(f"Invalid category '{category}'. Valid: {valid}")
+
+        cat_data = survival['categories'][category]
+
+        # Validate prompt key
+        if prompt_key not in cat_data.get('prompts', {}):
+            valid = list(cat_data.get('prompts', {}).keys())
+            raise ValueError(f"Invalid prompt '{prompt_key}'. Valid for {category}: {valid}")
+
+        prompt_data = cat_data['prompts'][prompt_key]
+
+        # Get style (from category default or prompt override)
+        style = prompt_data.get('style', cat_data.get('style', 'technical_kinetic'))
+
+        # Build prompt from template
+        template = prompt_data['template']
+        prompt = template.format(**kwargs) if kwargs else template
+
+        # Get vectorization parameters
+        params = prompt_data.get('parameters', {})
+
+        # Select model
+        model_name = self.image_pro_model if use_pro else self.image_model
+
+        # Check rate limit
+        self._check_rate_limit()
+
+        # For now, use direct generation without reference images
+        # TODO: Load style-specific reference images when available
+        try:
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                generation_config=self.image_config
+            )
+
+            # Add technical requirements
+            full_prompt = f"{prompt}\n\n**OUTPUT**: High-resolution PNG (1200×900, 300dpi) with pure black lines on white background for vectorization."
+
+            response = model.generate_content(full_prompt)
+
+            # Extract PNG (same extraction logic as generate_image_svg)
+            png_bytes = None
+
+            if hasattr(response, 'images') and response.images:
+                png_bytes = response.images[0].data
+            elif hasattr(response, 'parts'):
+                for part in response.parts:
+                    if hasattr(part, 'mime_type') and 'image' in part.mime_type:
+                        png_bytes = part.data
+                        break
+            elif hasattr(response, '_result') and hasattr(response._result, 'candidates'):
+                for candidate in response._result.candidates:
+                    for part in candidate.content.parts:
+                        if hasattr(part, 'inline_data') and part.inline_data:
+                            png_bytes = part.inline_data.data
+                            break
+
+            if not png_bytes:
+                raise RuntimeError(
+                    "Failed to extract PNG from Gemini response. "
+                    "Model may not support image generation."
+                )
+
+            metadata = {
+                "model": model_name,
+                "category": category,
+                "prompt_key": prompt_key,
+                "style": style,
+                "subject": prompt_data.get('subject', 'survival diagram'),
+                "diagram_type": prompt_data.get('diagram_type', 'unknown'),
+                "parameters": params,
+                "use_pro": use_pro,
+                "timestamp": datetime.now().isoformat(),
+                "size_bytes": len(png_bytes)
+            }
+
+            return png_bytes, metadata
+
+        except Exception as e:
+            raise RuntimeError(f"Survival diagram generation failed: {str(e)}")
+
+    def get_vectorization_preset(self, category: str, prompt_key: str = None) -> Dict:
+        """
+        Get optimized vectorization parameters for a survival category/prompt.
+
+        Args:
+            category: Survival category
+            prompt_key: Optional specific prompt (uses category default if omitted)
+
+        Returns:
+            Vectorization parameters dict
+
+        Example:
+            >>> params = gen.get_vectorization_preset('water', 'purification_flow')
+            >>> # Use params with vectorizer.py
+        """
+        if 'survival' not in self.prompts.get('prompts', {}):
+            return {}  # Return empty dict if survival prompts not loaded
+
+        survival = self.prompts['prompts']['survival']
+
+        # Get preset name from prompt or category
+        preset_name = 'technical'  # Default
+
+        if category in survival.get('categories', {}):
+            cat_data = survival['categories'][category]
+            style = cat_data.get('style', 'technical_kinetic')
+
+            # Map style to preset
+            if style == 'hand_illustrative':
+                preset_name = 'organic'
+            elif style == 'hybrid':
+                preset_name = 'hybrid'
+            # technical_kinetic → technical (default)
+
+            # Override from specific prompt
+            if prompt_key and prompt_key in cat_data.get('prompts', {}):
+                prompt_data = cat_data['prompts'][prompt_key]
+                if 'parameters' in prompt_data:
+                    # Custom parameters take precedence
+                    return prompt_data['parameters']
+
+        # Get preset from survival_prompts.json
+        if 'vectorization_presets' in survival:
+            if preset_name in survival['vectorization_presets']:
+                return survival['vectorization_presets'][preset_name]
+
+        return {}  # Empty dict if preset not found
 
 
 # Singleton instance
