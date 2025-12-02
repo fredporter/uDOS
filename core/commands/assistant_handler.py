@@ -622,19 +622,19 @@ Run: copilot auth login
 
     def _extract_token_usage(self, response: str) -> Optional[Dict[str, int]]:
         """Extract token usage from Gemini response metadata
-        
+
         Args:
             response: Response from Gemini API
-            
+
         Returns:
             Dictionary with token counts or None if unavailable
-            
+
         Note:
             Gemini API response objects have a usage_metadata attribute with:
             - prompt_token_count: Input tokens
-            - candidates_token_count: Output tokens  
+            - candidates_token_count: Output tokens
             - total_token_count: Total tokens
-            
+
             Since we receive a string response, we estimate tokens:
             - Input: ~4 chars per token (conservative)
             - Output: ~4 chars per token (conservative)
@@ -647,29 +647,29 @@ Run: copilot auth login
 
     def _calculate_cost(self, tokens: Optional[Dict[str, int]]) -> Optional[float]:
         """Calculate API cost based on token usage
-        
+
         Args:
             tokens: Dictionary with input_tokens and output_tokens
-            
+
         Returns:
             Cost in USD or None if tokens unavailable
-            
+
         Pricing (Gemini 2.5 Flash, Dec 2024):
             - Input: $0.075 per 1M tokens
             - Output: $0.30 per 1M tokens
         """
         if not tokens:
             return None
-            
+
         input_cost_per_million = 0.075
         output_cost_per_million = 0.30
-        
+
         input_tokens = tokens.get('input_tokens', 0)
         output_tokens = tokens.get('output_tokens', 0)
-        
+
         input_cost = (input_tokens / 1_000_000) * input_cost_per_million
         output_cost = (output_tokens / 1_000_000) * output_cost_per_million
-        
+
         total_cost = input_cost + output_cost
         return round(total_cost, 6)  # Round to 6 decimal places
 

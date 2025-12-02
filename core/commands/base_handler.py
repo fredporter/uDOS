@@ -1,15 +1,27 @@
 """
-uDOS v1.0.29 - Base Command Handler
+uDOS v1.1.13 - Base Command Handler
 
 Provides the foundation for all command handlers in uDOS.
 All specific handlers (SystemHandler, AssistantHandler, etc.) inherit from this.
 
-v1.0.29 adds smart input and output services for all commands.
+v1.0.29: Added smart input and output services for all commands.
+v1.1.13: Added utility methods (validate_file_path, parse_key_value_params, format helpers).
 """
 
 import json
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 from core.services.theme.theme_loader import load_theme
+from core.utils.common import (
+    validate_path,
+    resolve_path,
+    load_json_safe,
+    save_json_atomic,
+    parse_key_value_args,
+    parse_flags,
+    is_valid_filename,
+    is_valid_extension
+)
 
 
 class BaseCommandHandler:
@@ -111,3 +123,111 @@ class BaseCommandHandler:
                 width=width
             )
         return self._output_formatter
+
+    # ========================================================================
+    # v1.1.13: UTILITY METHODS
+    # ========================================================================
+
+    def validate_file_path(self, path: str, must_exist: bool = False) -> Tuple[bool, Optional[Path], str]:
+        """
+        Validate a file path using common utilities.
+
+        Args:
+            path: Path string to validate
+            must_exist: Whether path must exist on filesystem
+
+        Returns:
+            Tuple of (is_valid, resolved_path, error_message)
+
+        Examples:
+            >>> success, path_obj, error = self.validate_file_path("core/data/themes/galaxy.json", must_exist=True)
+        """
+        return validate_path(path, must_exist=must_exist, base_dir=self.get_root_path())
+
+    def parse_key_value_params(self, args: List[str]) -> Dict[str, str]:
+        """
+        Parse key=value argument pairs.
+
+        Args:
+            args: List of argument strings
+
+        Returns:
+            Dictionary of key-value pairs
+
+        Examples:
+            >>> params = self.parse_key_value_params(["name=test", "type=water"])
+            {'name': 'test', 'type': 'water'}
+        """
+        return parse_key_value_args(args)
+
+    def parse_command_flags(self, args: List[str]) -> Tuple[List[str], Dict[str, bool]]:
+        """
+        Parse flag arguments (--flag) from argument list.
+
+        Args:
+            args: List of argument strings
+
+        Returns:
+            Tuple of (non_flag_args, flag_dict)
+
+        Examples:
+            >>> args, flags = self.parse_command_flags(["file.txt", "--verbose"])
+            (['file.txt'], {'verbose': True})
+        """
+        return parse_flags(args)
+
+    def load_json_file(self, path: str) -> Tuple[bool, Optional[Dict], str]:
+        """
+        Load JSON file safely.
+
+        Args:
+            path: Path to JSON file (relative to root or absolute)
+
+        Returns:
+            Tuple of (success, data, error_message)
+
+        Examples:
+            >>> success, data, error = self.load_json_file("core/data/themes/galaxy.json")
+        """
+        is_valid, path_obj, error = self.validate_file_path(path, must_exist=True)
+        if not is_valid:
+            return False, None, error
+        return load_json_safe(path_obj)
+
+    def save_json_file(self, path: str, data: Dict, indent: int = 2) -> Tuple[bool, str]:
+        """
+        Save JSON file atomically.
+
+        Args:
+            path: Path to JSON file (relative to root or absolute)
+            data: Dictionary to save
+            indent: JSON indentation (default: 2)
+
+        Returns:
+            Tuple of (success, error_message)
+
+        Examples:
+            >>> success, error = self.save_json_file("sandbox/config.json", {"key": "value"})
+        """
+        is_valid, path_obj, error = self.validate_file_path(path, must_exist=False)
+        if not is_valid:
+            return False, error
+        return save_json_atomic(path_obj, data, indent=indent)
+
+    # Format helpers (delegate to output_formatter)
+
+    def format_success(self, message: str) -> str:
+        """Format success message using output formatter."""
+        return self.output_formatter.format_success(message)
+
+    def format_error(self, message: str) -> str:
+        """Format error message using output formatter."""
+        return self.output_formatter.format_error(message)
+
+    def format_info(self, message: str) -> str:
+        """Format info message using output formatter."""
+        return self.output_formatter.format_info(message)
+
+    def format_warning(self, message: str) -> str:
+        """Format warning message using output formatter."""
+        return self.output_formatter.format_warning(message)

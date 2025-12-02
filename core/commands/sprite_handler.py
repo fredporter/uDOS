@@ -30,15 +30,16 @@ class SpriteHandler:
 
     def _load_schema(self) -> Optional[Dict]:
         """Load sprite.schema.json."""
-        schema_path = Path(__file__).parent.parent / 'data' / 'variables' / 'sprite.schema.json'
-        if schema_path.exists():
-            try:
-                with open(schema_path, 'r') as f:
-                    return json.load(f)
-            except Exception as e:
-                if self.logger:
-                    self.logger.error(f"Failed to load sprite schema: {e}")
-        return None
+        schema_path = 'core/data/variables/sprite.schema.json'
+
+        # Use base handler method for safe JSON loading
+        success, data, error = self.load_json_file(schema_path)
+        if not success:
+            if self.logger:
+                self.logger.error(f"Failed to load sprite schema: {error}")
+            return None
+
+        return data
 
     def handle(self, args: list) -> bool:
         """
@@ -177,24 +178,26 @@ class SpriteHandler:
         path = Path(filepath)
         if not path.is_absolute():
             # Try sandbox/user/ first
-            user_path = Path('sandbox/user') / filepath
-            if user_path.exists():
-                path = user_path
-            else:
-                path = Path(filepath)
+            user_path = 'sandbox/user/' + filepath
+            is_valid, path, error = self.validate_file_path(user_path, must_exist=True)
+            if not is_valid:
+                # Try filepath as-is
+                is_valid, path, error = self.validate_file_path(filepath, must_exist=True)
 
-        if not path.exists():
-            print(f"❌ File not found: {filepath}")
+        if not is_valid:
+            print(self.format_error(f"File not found: {filepath}"))
             return False
 
-        try:
-            with open(path, 'r') as f:
-                sprite = json.load(f)
+        # Use base handler method for safe JSON loading
+        success, sprite, load_error = self.load_json_file(str(path))
+        if not success:
+            print(self.format_error(f"Failed to load sprite: {load_error}"))
+            return False
 
-            # Validate structure
-            if sprite.get('type') != 'sprite':
-                print(f"❌ Invalid sprite file: missing or wrong 'type' field")
-                return False
+        # Validate structure
+        if sprite.get('type') != 'sprite':
+            print(self.format_error("Invalid sprite file: missing or wrong 'type' field"))
+            return False
 
             # Validate against schema if available
             if JSONSCHEMA_AVAILABLE and self.schema:

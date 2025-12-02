@@ -168,27 +168,23 @@ class WorkflowHandler:
             if arg.startswith("--var="):
                 var_name = arg.split("=", 1)[1]
 
-        try:
-            with open(filepath, "r") as f:
-                data = json.load(f)
+        # Use base handler method for safe JSON loading
+        success, data, error = self.load_json_file(filepath)
+        if not success:
+            return self.format_error(error)
 
-            # Pretty print preview
-            preview = json.dumps(data, indent=2)
-            if len(preview) > 500:
-                preview = preview[:500] + "\n... (truncated)"
+        # Pretty print preview
+        preview = json.dumps(data, indent=2)
+        if len(preview) > 500:
+            preview = preview[:500] + "\n... (truncated)"
 
-            result = f"✅ Loaded JSON from: {filepath}\n\n{preview}"
+        result = f"✅ Loaded JSON from: {filepath}\n\n{preview}"
 
-            if var_name:
-                # In a real implementation, store in variable context
-                result += f"\n\n💾 Stored as variable: {var_name}"
+        if var_name:
+            # In a real implementation, store in variable context
+            result += f"\n\n💾 Stored as variable: {var_name}"
 
-            return result
-
-        except FileNotFoundError:
-            return f"❌ File not found: {filepath}"
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid JSON in {filepath}: {str(e)}"
+        return result
 
     def _handle_save_json(self, args: List[str]) -> str:
         """Handle SAVE_JSON command.
@@ -215,27 +211,22 @@ class WorkflowHandler:
             else:
                 data = json.loads(data_str)
 
-            # Create directory if needed
-            Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+            # Use base handler method for atomic JSON save
+            indent = 2 if pretty else None
+            success, error = self.save_json_file(filepath, data, indent=indent if indent else 0)
+            if not success:
+                return self.format_error(error)
 
-            # Write with atomic operation
-            temp_file = filepath + ".tmp"
-            with open(temp_file, "w") as f:
-                if pretty:
-                    json.dump(data, f, indent=2)
-                else:
-                    json.dump(data, f)
+            # Get file size
+            from pathlib import Path
+            size = Path(filepath).stat().st_size
 
-            # Atomic rename
-            os.rename(temp_file, filepath)
-
-            size = os.path.getsize(filepath)
             return f"✅ Saved JSON to: {filepath}\n📊 Size: {size} bytes"
 
         except json.JSONDecodeError as e:
-            return f"❌ Invalid JSON data: {str(e)}"
+            return self.format_error(f"Invalid JSON data: {str(e)}")
         except Exception as e:
-            return f"❌ Error saving file: {str(e)}"
+            return self.format_error(f"Error saving file: {str(e)}")
 
     def _handle_check_env(self, args: List[str]) -> str:
         """Handle CHECK_ENV command.
@@ -320,12 +311,14 @@ class WorkflowHandler:
         if not script:
             return "❌ No script specified"
 
-        if not os.path.exists(script):
-            return f"❌ Script not found: {script}"
+        # Validate script path using base handler method
+        is_valid, script_path, error = self.validate_file_path(script, must_exist=True)
+        if not is_valid:
+            return self.format_error(f"Script not found: {script}")
 
         try:
-            # Build command
-            cmd = [sys.executable, script] + script_args
+            # Build command (use string path for subprocess)
+            cmd = [sys.executable, str(script_path)] + script_args
 
             if background:
                 # Start background process
