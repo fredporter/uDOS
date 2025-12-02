@@ -10,14 +10,17 @@
 
 ## 📍 Current Release: v1.1.13 (December 2025)
 
-**Status:** ✅ **STABLE** - Production ready
+**Status:** ✅ **COMPLETE** - Production ready
 **Test Coverage:** 111/111 tests passing (100%)
+**Completion Date:** December 2, 2025
 
 ### What's New
 
 - **Project Structure:** Clean separation between `/dev/` (tracked) and `/memory/` (unified user workspace)
 - **Development Workspace:** Organized tools, roadmaps, and session logs in `/dev/`
 - **User Workspace:** Consolidated `/sandbox/` → `/memory/` for simpler mental model
+- **Memory Consolidation:** Merged 721 files, removed 5 directories, renamed 23 .uscript → .upy
+- **Directory Cleanup:** `/data/` databases → `memory/user/`, flattened logs, merged shared+groups→community
 - **Professional Organization:** Unix-style conventions, clear file lifecycle
 - **Git Clarity:** Simple .gitignore rules, selective tracking (ucode/ only)
 
@@ -33,18 +36,36 @@ uDOS/
 │
 ├── memory/                 # Unified user workspace (tracked selectively)
 │   ├── ucode/              # Core distributable .upy scripts + tests
+│   │   └── stdlib/         # Standard library (merged from modules/)
 │   ├── missions/           # Mission definitions and state
-│   ├── workflows/          # Workflow templates and active runs
+│   ├── workflows/          # Workflow templates and active runs (.upy format)
 │   ├── checklists/         # Checklist progress and state
+│   ├── scenarios/          # Scenario definitions (JSON)
+│   ├── sessions/           # Session management
 │   ├── archived/           # Completed/archived work
-│   ├── user/               # User profiles and persistent settings
-│   └── logs/               # Session and runtime logs
+│   ├── community/          # Community content (merged from shared/groups/)
+│   ├── logs/               # Session and runtime logs (flattened)
+│   ├── user/               # User profiles, settings, databases
+│   ├── system_backup/      # System config backups (used by core)
+│   ├── docs/               # Draft documentation
+│   ├── drafts/             # Work in progress
+│   ├── private/            # Private user content
+│   ├── public/             # Public user content
+│   ├── barter/             # Barter system data
+│   └── themes/             # Custom themes
 │
 ├── core/                   # Core system (required, stable)
 ├── extensions/             # Extension system
 ├── knowledge/              # Public knowledge bank (read-only)
 └── wiki/                   # GitHub wiki (documentation)
 ```
+
+**Changes in v1.1.13:**
+- Removed `/sandbox/` (721 files merged into `/memory/`)
+- Removed `/data/` (databases moved to `memory/user/`)
+- Removed `inbox/`, `shared/`, `groups/`, `modules/` (consolidated)
+- Flattened `logs/sessions/` → `logs/`
+- Renamed all `.uscript` → `.upy` (23 files)
 
 **Note:** `/memory/` replaces old `/sandbox/` split for v1.1.13+ unified workspace.
 
@@ -104,11 +125,7 @@ Unify isolated workflow/mission/checklist systems into a cohesive JSON-based tas
   - `knowledge/checklists/daily/water-storage-maintenance.md`
 
 **2. Workflow Migration**
-- Convert 8 `.uscript` files to `.upy` using `dev/tools/migrate_upy.py`:
-  - `memory/workflows/examples/nano_banana_*.uscript` (4 files)
-  - `memory/workflows/batch_svg_generation.uscript`
-  - `memory/workflows/templates/workflow_template.uscript`
-  - `memory/workflows/knowledge_generation.uscript`
+- ✅ Convert 23 `.uscript` files to `.upy` (COMPLETE v1.1.13)
 - Update workflow templates to `.upy` format
 - Expose WORKFLOW commands in main CLI (currently hidden in handler)
 
@@ -188,7 +205,7 @@ Unify isolated workflow/mission/checklist systems into a cohesive JSON-based tas
 - ✅ Guide integration
 
 **Workflows:**
-- ✅ Zero .uscript files (all migrated to .upy)
+- ✅ Zero .uscript files (all migrated to .upy) - COMPLETE v1.1.13
 - ✅ WORKFLOW commands in main CLI
 - ✅ Mission-workflow linking functional
 
@@ -464,6 +481,13 @@ GENERATE SVG "wolf portrait" wildlife detailed
 **Knowledge Articles:** 136 guides across 6 categories
 **Wiki Pages:** 30+ comprehensive documentation pages
 **Extensions:** 12 bundled, unlimited cloneable
+
+**v1.1.13 Consolidation Stats:**
+- Files merged: 721 (sandbox → memory)
+- Directories removed: 5 (inbox, shared, groups, modules, data)
+- Scripts migrated: 23 (.uscript → .upy)
+- Git commits: 5 (roadmap, memory structure, sandbox removal, data cleanup, consolidation)
+- Lines removed: 2,709 (cleanup + consolidation)
 
 **Quality Metrics:**
 - ✅ Zero breaking bugs in production
