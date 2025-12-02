@@ -1,0 +1,72 @@
+# uDOS Memory System - Git Ignore Rules
+# v1.0.20 - 4-Tier Knowledge Bank
+
+# =================================================================
+# TIER 1: PRIVATE - Fully Protected (Never Committed)
+# =================================================================
+# All encrypted private data
+private/*.enc
+private/**/*.enc
+private/*.json
+private/**/*.json
+private/**/*
+!private/README.md
+
+# =================================================================
+# TIER 2: SHARED - User Data Protected
+# =================================================================
+# Shared content (user decides what to commit)
+shared/*.json
+shared/**/*.json
+shared/**/*
+!shared/README.md
+
+# =================================================================
+# TIER 3: GROUPS - Community Data Protected
+# =================================================================
+# Group data (may be selectively committed)
+groups/*/members.json
+groups/*/contributions/**
+groups/**/*.json
+!groups/README.md
+
+# =================================================================
+# TIER 4: PUBLIC - Selectively Committed
+# =================================================================
+# Public knowledge (curated for commit)
+public/**/*.md
+!public/README.md
+
+# =================================================================
+# METADATA - Protected
+# =================================================================
+# All metadata and configuration
+.metadata/**
+*.key
+*.salt
+
+# =================================================================
+# TEST DATA - Not Committed
+# =================================================================
+tests/test_data/**
+tests/**/*.enc
+sandbox/**
+
+# =================================================================
+# LOGS - Not Committed
+# =================================================================
+logs/**/*.log
+logs/**/*.txt
+
+# =================================================================
+# CONFIGURATION - Protected
+# =================================================================
+config/*.json
+!config/README.md
+
+# =================================================================
+# EXCEPTIONS - Always Include
+# =================================================================
+# Documentation always committed
+!**/README.md
+!docs/**

@@ -155,6 +155,7 @@ memory/**/*
 !memory/ucode/**/*
 !memory/README.md
 !memory/README-v1.1.13.md
+!memory/.gitignore
 
 # Track directory structure (empty placeholders)
 !memory/missions/
