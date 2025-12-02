@@ -148,6 +148,23 @@ class CommandHandler:
         from core.commands.generate_handler import GenerateHandler
         self.generate_handler = GenerateHandler(viewport=viewport, logger=logger)
 
+        # v1.1.15 - MERMAID handler (Mermaid.js diagram integration)
+        from core.commands.mermaid_handler import MermaidHandler
+        self.mermaid_handler = MermaidHandler(viewport=viewport, logger=logger)
+
+        # v1.1.15 - GITHUB DIAGRAMS handler (GeoJSON maps + ASCII STL 3D)
+        from core.commands.github_diagrams_handler import GitHubDiagramsHandler
+        self.github_diagrams_handler = GitHubDiagramsHandler(viewport=viewport, logger=logger)
+
+        # v1.1.15 - TYPORA handler (Extended diagram syntax support)
+        try:
+            from extensions.core.typora_diagrams.handler import get_handler as get_typora_handler
+            self.typora_handler = get_typora_handler(viewport=viewport, logger=logger)
+        except ImportError:
+            self.typora_handler = None
+            if logger:
+                logger.debug("Typora diagrams extension not available")
+
         # v1.1.9 - SPRITE & OBJECT handlers (Round 1 Variable System)
         from core.commands.sprite_handler import SpriteHandler
         from core.commands.object_handler import ObjectHandler
@@ -376,6 +393,18 @@ class CommandHandler:
             # v1.1.15 - GitHub Diagrams (GeoJSON, ASCII STL)
             elif module == "GEODIAGRAM" or module == "GEOJSON" or module == "STL":
                 return self.github_diagrams_handler.handle_command(params)
+
+            # v1.1.15 - TYPORA Extended Diagram Support
+            elif module == "TYPORA":
+                if self.typora_handler:
+                    return self.typora_handler.handle_command(params)
+                else:
+                    return (
+                        "❌ Typora diagrams extension not available\n\n"
+                        "The extension is located in:\n"
+                        "  extensions/core/typora-diagrams/\n\n"
+                        "Make sure the handler.py file exists and is importable.\n"
+                    )
 
             # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use GENERATE SVG)
             elif module == "SVG":

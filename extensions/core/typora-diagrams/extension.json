@@ -1,0 +1,36 @@
+{
+  "id": "typora-diagrams",
+  "name": "Typora Diagram Support",
+  "version": "1.0.0",
+  "description": "Extended diagram syntax support for Typora markdown editor with flowcharts, sequence diagrams, Gantt charts, class/state diagrams, pie charts, mindmaps, Gitgraph, C4/PlantUML, quadrant charts, Sankey diagrams, timeline charts, and XY charts",
+  "author": "uDOS Development Team",
+  "category": "graphics",
+  "tags": ["diagrams", "markdown", "typora", "mermaid", "sequence", "flowchart", "visualization"],
+  "dependencies": {
+    "core": ">=1.1.15",
+    "mermaid": "optional",
+    "sequence-diagrams": "optional"
+  },
+  "commands": [
+    "TYPORA",
+    "TYPORA CONVERT",
+    "TYPORA EXPORT",
+    "TYPORA VALIDATE",
+    "TYPORA LIST",
+    "TYPORA EXAMPLES"
+  ],
+  "output_formats": [
+    "markdown",
+    "mermaid",
+    "sequence",
+    "flowchart",
+    "plantuml"
+  ],
+  "integration": {
+    "editor": "Typora",
+    "renderer": "offline",
+    "export": ["md", "pdf", "html"]
+  },
+  "activation": "manual",
+  "offline_capable": true
+}
