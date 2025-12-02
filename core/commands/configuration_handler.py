@@ -968,7 +968,7 @@ class ConfigurationHandler(BaseCommandHandler):
         """Backup all configuration files."""
         try:
             config_dir = Path('core/data')
-            backup_dir = Path('memory/system_backup')
+            backup_dir = Path('memory/system/backup')
             backup_dir.mkdir(parents=True, exist_ok=True)
 
             backed_up = []
@@ -990,7 +990,7 @@ class ConfigurationHandler(BaseCommandHandler):
     def _restore_configs(self):
         """Restore configuration files from backup."""
         try:
-            backup_dir = Path('memory/system_backup')
+            backup_dir = Path('memory/system/backup')
             if not backup_dir.exists():
                 return "❌ No backup directory found\n\nUse: CONFIG BACKUP first"
 
