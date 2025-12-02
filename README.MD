@@ -228,8 +228,8 @@
 🏗️ **Architecture Cleanup** - Cleaner, flatter structure
 - **Core**: Flattened from 17 to 11 directories (TUI only, read-only)
 - **Extensions/Core**: Removed duplicates, centralized assets library
-- **Memory**: Flattened from 28 to 16 directories (43% reduction)
-- **Logs**: All logs in flat memory/logs/ (no subdirectories)
+- **Memory**: Unified workspace structure (workflows, system, bank, shared)
+- **Logs**: Consolidated in memory/workflows/logs/
 - **User Data**: Consolidated in memory/system/user/ (databases, configs, planets)
 - **Planet System**: Workspace renamed to Planet, linked to universe.json
 
@@ -387,7 +387,7 @@ Architecture Improvements:
 ✅ Core: 17 → 11 directories (35% reduction)
 ✅ Memory: 28 → 16 directories (43% reduction)
 ✅ Extensions/Core: Removed duplicates, centralized assets
-✅ All logs: Flat memory/logs/ structure
+✅ All workflows: Unified in memory/workflows/ (missions, checklists, sessions, logs)
 ✅ User data: Consolidated in memory/system/user/
 
 Platform Support:

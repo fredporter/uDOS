@@ -23,27 +23,43 @@ dev/
 ```
 memory/
 ├── ucode/                  # Core distributable .upy scripts + tests (tracked)
-├── missions/               # Mission definitions and state
-│   ├── active/             # Current missions
-│   ├── completed/          # Finished missions
-│   └── templates/          # Mission templates
-├── workflows/              # Workflow automation
+│   ├── adventures/         # Adventure scripts
+│   ├── examples/           # Example scripts
+│   └── stdlib/             # Standard library
+├── workflows/              # Unified workflow system
 │   ├── active/             # Running workflows
-│   ├── completed/          # Finished runs
-│   ├── templates/          # Workflow templates (.upy)
+│   ├── archived/           # Archived workflows
+│   ├── checklists/         # Checklist workflows
 │   ├── checkpoints/        # State snapshots
-│   └── examples/           # Example workflows
-├── checklists/             # Checklist tracking (NEW v1.1.14)
-│   ├── active/             # Current checklists
-│   ├── completed/          # Finished checklists
-│   └── templates/          # Checklist templates (JSON)
-├── archived/               # Archived work
-│   ├── missions/           # Archived missions (timestamped)
-│   ├── workflows/          # Archived workflows
-│   └── checklists/         # Archived checklists
-├── user/                   # User settings and persistent data
-├── logs/                   # Session and runtime logs
-└── [other user folders]    # Private, shared, groups, public, etc.
+│   ├── completed/          # Finished workflows
+│   ├── examples/           # Example workflows
+│   ├── logs/               # Workflow logs
+│   ├── missions/           # Mission workflows
+│   ├── reports/            # Workflow reports
+│   ├── scenarios/          # Scenario workflows
+│   ├── schedules/          # Scheduled workflows
+│   ├── scripts/            # Workflow scripts
+│   ├── sessions/           # Session workflows
+│   ├── templates/          # Workflow templates (.upy)
+│   └── workflows/          # Workflow definitions
+├── system/                 # System files
+│   ├── archived/           # Archived system files
+│   ├── backup/             # Configuration backups
+│   ├── themes/             # Custom themes
+│   └── user/               # User settings and persistent data
+├── bank/                   # Banking/barter system
+│   ├── private/            # Private transactions
+│   └── barter/             # Barter transactions
+├── shared/                 # Shared/community content
+│   ├── groups/             # Community groups
+│   ├── metadata/           # Shared metadata
+│   ├── public/             # Public content
+│   └── .submissions/       # Content submissions
+├── docs/                   # User documentation
+└── drafts/                 # Draft content
+    ├── ascii/              # ASCII art drafts
+    ├── svg/                # SVG drafts
+    └── teletext/           # Teletext drafts
 ```
 
 ### File Placement Rules
@@ -55,13 +71,14 @@ memory/
 - Development scripts → `dev/scripts/`
 
 **✅ Use `/memory/` for (gitignored, except ucode/):**
-- Active missions → `memory/missions/active/`
 - Active workflows → `memory/workflows/active/`
-- Active checklists → `memory/checklists/active/`
-- Completed work → `memory/*/completed/`
-- Archived work → `memory/archived/`
-- User data → `memory/user/`
-- Runtime logs → `memory/logs/`
+- Missions → `memory/workflows/missions/`
+- Checklists → `memory/workflows/checklists/`
+- Completed work → `memory/workflows/completed/`
+- Archived work → `memory/system/archived/` or `memory/workflows/archived/`
+- User data → `memory/system/user/`
+- Runtime logs → `memory/workflows/logs/`
+- System backups → `memory/system/backup/`
 - Core tests/utilities → `memory/ucode/` (tracked in git)
 
 **❌ Never commit to git:**

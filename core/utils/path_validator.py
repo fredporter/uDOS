@@ -254,13 +254,11 @@ def validate_directory_structure(root: str) -> list:
 
     Creates standard uDOS directory structure:
         /core/data/ - System reference data
-        /memory/private/ - Encrypted personal data
-        /memory/shared/ - Shared knowledge
-        /memory/groups/ - Community groups
-        /memory/sandbox/ - Temporary workspace
-        /memory/planet/ - User planet workspace
-        /memory/ - User configuration
-        /sandbox/ - General scratch space
+        /memory/bank/private/ - Private transactions
+        /memory/shared/public/ - Public content
+        /memory/shared/groups/ - Community groups
+        /memory/system/user/ - User configuration and data
+        /memory/workflows/ - Workflow automation
         /output/ - Generated output
     """
     root_path = Path(root)
