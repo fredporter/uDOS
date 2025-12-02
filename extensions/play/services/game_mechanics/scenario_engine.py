@@ -9,9 +9,9 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 
-from core.services.game.xp_service import XPCategory
-from core.services.game.inventory_service import ItemCategory
-from core.services.game.survival_service import SurvivalStat, StatusEffect
+from extensions.play.services.game_mechanics.xp_service import XPCategory
+from extensions.play.services.game_mechanics.inventory_service import ItemCategory
+from extensions.play.services.game_mechanics.survival_service import SurvivalStat, StatusEffect
 
 
 class EventType(str, Enum):

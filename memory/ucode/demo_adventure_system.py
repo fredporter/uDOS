@@ -11,10 +11,10 @@ Demonstrates:
 """
 
 from core.commands.story_handler import StoryHandler
-from core.services.game.scenario_service import ScenarioService
-from core.services.game.xp_service import XPService
-from core.services.game.inventory_service import InventoryService
-from core.services.game.survival_service import SurvivalService
+from extensions.play.services.game_mechanics.scenario_service import ScenarioService
+from extensions.play.services.game_mechanics.xp_service import XPService
+from extensions.play.services.game_mechanics.inventory_service import InventoryService
+from extensions.play.services.game_mechanics.survival_service import SurvivalService
 
 
 def print_section(title):

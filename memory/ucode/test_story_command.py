@@ -7,7 +7,7 @@ Tests that the handler is properly integrated
 import sys
 sys.path.insert(0, '/Users/fredbook/Code/uDOS')
 
-from core.commands.story_handler import StoryHandler
+from extensions.play.commands.story_handler import StoryHandler
 
 print("=" * 60)
 print("STORY Command Integration Test")

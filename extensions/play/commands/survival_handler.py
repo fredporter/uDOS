@@ -4,7 +4,7 @@ Handles STATUS, STATS, and survival-related commands.
 """
 
 from typing import Dict, List
-from core.services.game.survival_service import SurvivalService, SurvivalStat, StatusEffect
+from extensions.play.services.game_mechanics.survival_service import SurvivalService, SurvivalStat, StatusEffect
 
 
 class SurvivalCommandHandler:
