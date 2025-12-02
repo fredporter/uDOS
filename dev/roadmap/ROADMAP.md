@@ -20,7 +20,7 @@
 - ✅ Mission-workflow-checklist integration
 - ✅ Archive handler for completed work
 - ✅ Variable system extensions (MISSION.*, CHECKLIST.*, WORKFLOW.*)
-- ✅ Dashboard MVP with NES.css styling (port 5050 → archived)
+- ✅ Dashboard MVP with NES.css styling (port 5050)
 - ✅ Mission Control dashboard (port 5000)
 - ✅ 10 checklists across emergency/daily/project/seasonal categories
 - ✅ Complete wiki documentation
@@ -47,8 +47,7 @@
 - ✅ **Typora Workflow** - Complete integration documentation (944 lines)
 
 **Extensions Reorganization (Pre-Task 5):**
-- ✅ Archived redundant `extensions/web/dashboard` (replaced by mission-control)
-- ✅ Removed deprecated `marked` extension (replaced by Typo)
+- ✅ Removed deprecated `marked` extension (replaced by Typora)
 - ✅ Moved `extensions/assets/data/` → `extensions/play/data/` (better scoping)
 - ✅ Updated server configurations and port registry
 - ✅ Created comprehensive PORT-REGISTRY.md
@@ -97,8 +96,7 @@
 │   │   ├── typora-diagrams/  # 13 diagram types support
 │   │   └── svg_generator/    # Nano Banana vectorization
 **Changes in v1.1.15:**
-- Removed `extensions/web/dashboard/` (archived, replaced by mission-control)
-- Removed `extensions/cloned/marked/` (replaced by Typo)
+- Removed `extensions/cloned/marked/` (replaced by Typora)
 - Moved `extensions/assets/data/` → `extensions/play/data/` (better scoping)
 - Created graphics workspaces: `memory/drafts/typora/`, `png/`, `vectorized/`
 - Added 4 new handlers: `mermaid_handler.py`, `github_diagrams_handler.py`, `typora-diagrams/handler.py`
@@ -349,7 +347,7 @@ GENERATE --survival-help
 
 **Complete Pipeline:**
 ```
-uDOS GENERATE --survival → Gemini API → PNG → Vectorization → SVG 
+uDOS GENERATE --survival → Gemini API → PNG → Vectorization → SVG
 → Markdown → Typora (WYSIWYG) → Export (PDF/PNG/HTML/DOCX)
 ```
 
@@ -831,7 +829,7 @@ GENERATE SVG "wolf portrait" wildlife detailed
 - Lines added: ~6,800 (handlers, diagrams, examples, templates, docs)
 - Diagrams created: 56 ASCII + 4 GeoJSON/STL examples
 - Templates created: 4 JSON files (survival_prompts.json + 3 style guides, ~4,200 lines)
-- Extensions cleaned: 2 removed (web/dashboard, cloned/marked)
+- Extensions cleaned: 1 removed (cloned/marked)
 - Reorganizations: 1 major (data → play/data)
 - Documentation: PORT-REGISTRY.md, session logs, comprehensive help systems
 - Commits: 9 (compatibility, Mermaid, GitHub, ASCII, Typora, reorganizations, cleanup, Nano Banana, session log)

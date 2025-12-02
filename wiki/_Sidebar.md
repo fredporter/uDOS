@@ -48,6 +48,7 @@
 - **[Graphics System](Graphics-System)** - Diagrams, ASCII, Mermaid, Typora
 
 ### Systems
+- **[Dashboard Guide](Dashboard-Guide)** - Web dashboard & mission control
 - [Mapping System](Mapping-System) - Navigation
 - [Extensions System](Extensions-System) - Using extensions
 
