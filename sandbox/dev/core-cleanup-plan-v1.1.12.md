@@ -145,10 +145,12 @@ See: `sandbox/dev/system-handler-refactor-plan.md`
 - All 111 tests passing ✅
 - Commit: d4f3790e
 
-**Phase 2.2 PLANNED: Environment Commands**
-- Create `core/commands/environment_handler.py`
-- Extract CLEAN, SETTINGS, DEV MODE (~150 lines)
-- Expected: system_handler.py → ~1,126 lines
+**Phase 2.2 COMPLETE ✅ (Dec 2, 2025)**
+- Created `core/commands/environment_handler.py` (233 lines)
+- Extracted SETTINGS, CLEAN, DEV MODE (229 lines)
+- system_handler.py: 1,276 → 1,098 lines
+- All 111 tests passing ✅
+- Commit: 45624b13
 
 **Phase 2.3 PLANNED: POKE/Output Commands**
 - Move to extensions handler (~200 lines)
