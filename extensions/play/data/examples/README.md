@@ -122,7 +122,7 @@ endsolid
 ## File Locations
 
 ```
-extensions/assets/data/
+extensions/play/data/
 ├── examples/
 │   └── survival_area_map.geojson
 └── models/

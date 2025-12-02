@@ -271,7 +271,7 @@ data = pattern.load()  # Returns dict with pattern data
 
 **Data Consolidation** ✅
 - `knowledge/system/` → `core/data/` (60+ files)
-- `knowledge/geography/` → `extensions/assets/data/` (8 files)
+- `knowledge/geography/` → `extensions/play/data/` (8 files)
 - `extensions/ai/` → `extensions/assistant/`
 - `sandbox/dev/` → `/dev/` (development workspace reorganization)
 
@@ -363,7 +363,7 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Store sensitive data in git (use `.env`)
 - Hardcode paths (use Config or constants)
 - Mix user data with system files
-- Create JSON files in `knowledge/` (use `core/data/` or `extensions/assets/data/`)
+- Create JSON files in `knowledge/` (use `core/data/` or `extensions/play/data/`)
 - Use lat/long coordinates (TILE codes only since v1.1.12)
 
 ✅ **Do:**

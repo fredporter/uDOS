@@ -57,7 +57,7 @@ class GitHubDiagramsHandler:
         self.output_dir = Path("memory/drafts/github_diagrams")
         self.geojson_dir = self.output_dir / "geojson"
         self.stl_dir = self.output_dir / "stl"
-        self.template_dir = Path("extensions/assets/data/models")
+        self.template_dir = Path("extensions/play/data/models")
 
         # Ensure directories exist
         self.geojson_dir.mkdir(parents=True, exist_ok=True)
@@ -497,7 +497,7 @@ CREATE:
   GEODIAGRAM GEO CREATE polygon
 
 EXAMPLES:
-  extensions/assets/data/examples/geojson/
+  extensions/play/data/examples/
 """
 
     def _list_stl_templates(self) -> str:
@@ -527,7 +527,7 @@ CREATE:
   GEODIAGRAM STL CREATE trap
 
 EXAMPLES:
-  extensions/assets/data/models/
+  extensions/play/data/models/
 """
 
     def _show_help(self) -> str:

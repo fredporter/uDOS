@@ -49,22 +49,21 @@ extensions/
 │
 ├── play/                       # ✅ PLAY EXTENSION
 │   ├── commands/              # Game commands (MAP, TILE, SCENARIO)
-│   └── services/              # Game services (planet, XP, scenarios)
+│   ├── services/              # Game services (planet, XP, scenarios)
+│   └── data/                  # Game data (GeoJSON maps, STL models)
+│       ├── examples/          # survival_area_map.geojson
+│       └── models/            # shelter/, tools/ STL files
 │
 ├── api/                        # ✅ API SERVER (port 5001)
 │   └── server.py              # REST API for all uDOS commands
 │
 ├── assets/                     # ✅ SHARED ASSETS
 │   ├── fonts/                 # PetMe, Chicago, Monaco, Mallard, etc.
-│   ├── styles/                # Shared stylesheets (Synthwave DOS, NES)
-│   └── data/                  # Examples (GeoJSON) + models (STL)
-│       ├── examples/          # survival_area_map.geojson
-│       └── models/            # shelter/, tools/ STL files
+│   └── styles/                # Shared stylesheets (Synthwave DOS, NES)
 │
 ├── cloned/                     # ✅ EXTERNAL TOOLS (gitignored)
 │   ├── micro/                 # Modern terminal editor (Go)
 │   ├── typo/                  # Markdown editor (Node.js)
-│   ├── marked/                # Markdown parser library
 │   └── coreui/                # CoreUI framework
 │
 ├── setup/                      # ✅ INSTALLATION SCRIPTS
