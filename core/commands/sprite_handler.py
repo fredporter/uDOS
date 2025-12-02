@@ -5,7 +5,7 @@ Handles creation, loading, saving, and manipulation of SPRITE variables.
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
 try:
@@ -137,8 +137,8 @@ class SpriteHandler:
             },
             "skills": [],
             "meta": {
-                "created": datetime.utcnow().isoformat() + "Z",
-                "modified": datetime.utcnow().isoformat() + "Z",
+                "created": datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+                "modified": datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
                 "scope": "session",
                 "description": f"Sprite created: {name}",
                 "tags": ["sprite"]
@@ -209,7 +209,7 @@ class SpriteHandler:
 
         # Update name if different
         sprite['name'] = name
-        sprite['meta']['modified'] = datetime.utcnow().isoformat() + "Z"
+        sprite['meta']['modified'] = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
 
         # Store in variable manager
         if self.var_manager:
@@ -244,7 +244,7 @@ class SpriteHandler:
             return False
 
         # Update modified timestamp
-        sprite['meta']['modified'] = datetime.utcnow().isoformat() + "Z"
+        sprite['meta']['modified'] = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
 
         # Resolve path
         path = Path(filepath)
@@ -322,7 +322,7 @@ class SpriteHandler:
         current[final_key] = value
 
         # Update modified timestamp
-        sprite['meta']['modified'] = datetime.utcnow().isoformat() + "Z"
+        sprite['meta']['modified'] = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
 
         # Save back to variable manager
         scope = sprite['meta'].get('scope', 'session')
