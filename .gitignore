@@ -142,54 +142,66 @@ backups/
 !knowledge/
 !knowledge/**/*
 
-# /memory/ - USER DATA (gitignored, user-writable workspace)
-# v1.1.0: Track templates and tests for distribution, ignore user content
+# /memory/ - UNIFIED USER WORKSPACE (v1.1.13+)
+# ----------------------
+# Track: ucode/ (core distributable scripts and tests)
+# Ignore: Everything else (user data, active work, logs)
+
 memory/
 memory/**/*
 
-# Track structure, templates, and tests
+# Track core distributable scripts and tests
+!memory/ucode/
+!memory/ucode/**/*
 !memory/README.md
-!memory/.gitignore
-!memory/config/
-!memory/config/.gitkeep
+!memory/README-v1.1.13.md
 
-# Development Workspace (v1.1.13 structure - tracked in git)
-# ----------------------
-!dev/
-!dev/**/*
+# Track directory structure (empty placeholders)
+!memory/missions/
+!memory/missions/.gitkeep
+!memory/workflows/
+!memory/workflows/.gitkeep
+!memory/checklists/
+!memory/checklists/.gitkeep
+!memory/archived/
+!memory/archived/.gitkeep
 
-# Sandbox - Runtime Only (v1.1.13 - gitignored, user workspace)
-# ----------------------
-sandbox/
-sandbox/**/*
-!sandbox/README.md
-!sandbox/.gitkeep
-
-# Memory tiers (4-tier system)
-!memory/community/  # Public tier (user-generated content)
-!memory/shared/     # Shared tier (explicit sharing)
-!memory/groups/     # Groups tier
-!memory/user/
-!memory/user/.gitkeep
-!memory/planet/
-!memory/planet/.gitkeep
+# Ignore all user data and active work
+memory/missions/**/*
+memory/workflows/**/*
+memory/checklists/**/*
+memory/archived/**/*
+memory/user/**/*
+memory/logs/**/*
+memory/private/**/*
+memory/shared/**/*
+memory/groups/**/*
+memory/public/**/*
+memory/community/**/*
+memory/planet/**/*
+memory/themes/**/*
+memory/modules/**/*
+memory/barter/**/*
+memory/sessions/**/*
+memory/scenarios/**/*
 
 # User databases and logs (always ignore)
 *.db
 *.sqlite
 *.sqlite3
+*.log
 
-# Old memory structure (pre-v1.1.0 deprecated paths)
-memory/logs/
-memory/sandbox/
-memory/workflow/
-memory/private/
-memory/public/
-memory/personal/
-memory/workspace/
-memory/legacy/
-memory/missions/
-memory/scenarios/
+# Development Workspace (v1.1.13 - tracked in git)
+# ----------------------
+!dev/
+!dev/**/*
+
+# Sandbox - DEPRECATED (v1.1.13 - use /memory/ instead)
+# ----------------------
+sandbox/
+sandbox/**/*
+!sandbox/README.md
+!sandbox/.gitkeep
 
 # /knowledge/ - TRACKED (core knowledge library, ships with uDOS)
 !knowledge/

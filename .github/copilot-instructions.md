@@ -4,51 +4,70 @@
 
 uDOS is an **offline-first operating system** for survival knowledge, mapping, and text-based computing. It prioritizes minimal design, offline functionality, and human-centric interfaces.
 
-## Development Workspace: `/dev/` (v1.1.13)
+## Workspace Organization (v1.1.13)
 
-**CRITICAL**: Development files (tracked in git) belong in `/dev/`. User runtime files (gitignored) belong in `/sandbox/`.
+**CRITICAL**: Development files (tracked) in `/dev/`. User workspace (gitignored) in `/memory/`.
 
 ### Development Directory (`/dev/` - tracked in git)
 
 ```
 dev/
 ├── tools/                  # Development utilities (migrate_upy.py, etc.)
-├── roadmap/                # Project roadmap and planning
+├── roadmap/                # ROADMAP.md - streamlined planning
 ├── sessions/               # Development session logs
 └── scripts/                # Development scripts
 ```
 
-### Sandbox Directory (`/sandbox/` - gitignored, user workspace)
+### Memory Directory (`/memory/` - gitignored, unified user workspace)
 
 ```
-sandbox/
-├── ucode/                  # Local .upy scripts (not synced to git)
-├── user/                   # User data (planets.json, USER.UDT)
-├── logs/                   # Runtime logs
-├── drafts/                 # Work-in-progress content
-├── docs/                   # Draft documentation before wiki promotion
-├── workflow/               # uCODE workflow automation scripts
-└── trash/                  # Temporary files (auto-cleaned)
+memory/
+├── ucode/                  # Core distributable .upy scripts + tests (tracked)
+├── missions/               # Mission definitions and state
+│   ├── active/             # Current missions
+│   ├── completed/          # Finished missions
+│   └── templates/          # Mission templates
+├── workflows/              # Workflow automation
+│   ├── active/             # Running workflows
+│   ├── completed/          # Finished runs
+│   ├── templates/          # Workflow templates (.upy)
+│   ├── checkpoints/        # State snapshots
+│   └── examples/           # Example workflows
+├── checklists/             # Checklist tracking (NEW v1.1.14)
+│   ├── active/             # Current checklists
+│   ├── completed/          # Finished checklists
+│   └── templates/          # Checklist templates (JSON)
+├── archived/               # Archived work
+│   ├── missions/           # Archived missions (timestamped)
+│   ├── workflows/          # Archived workflows
+│   └── checklists/         # Archived checklists
+├── user/                   # User settings and persistent data
+├── logs/                   # Session and runtime logs
+└── [other user folders]    # Private, shared, groups, public, etc.
 ```
 
 ### File Placement Rules
 
 **✅ Use `/dev/` for (tracked in git):**
 - Development session logs → `dev/sessions/`
-- Project planning and roadmap → `dev/roadmap/`
+- Project roadmap → `dev/roadmap/ROADMAP.md`
 - Development tools → `dev/tools/`
 - Development scripts → `dev/scripts/`
 
-**✅ Use `/sandbox/` for (gitignored):**
-- Local .upy scripts → `sandbox/ucode/`
-- Draft documentation → `sandbox/docs/`
-- Experimental code → `sandbox/drafts/`
-- Runtime logs → `sandbox/logs/`
-- User data → `sandbox/user/`
+**✅ Use `/memory/` for (gitignored, except ucode/):**
+- Active missions → `memory/missions/active/`
+- Active workflows → `memory/workflows/active/`
+- Active checklists → `memory/checklists/active/`
+- Completed work → `memory/*/completed/`
+- Archived work → `memory/archived/`
+- User data → `memory/user/`
+- Runtime logs → `memory/logs/`
+- Core tests/utilities → `memory/ucode/` (tracked in git)
 
 **❌ Never commit to git:**
-- Entire `sandbox/` directory (all gitignored)
+- Entire `memory/` directory (except `memory/ucode/`)
 - `.env` file (contains secrets)
+- User data, logs, active work
 
 ## Core Architecture
 
@@ -79,8 +98,12 @@ knowledge/                  # Public knowledge bank (read-only)
 ├── navigation/             # Navigation guides (20 files)
 └── medical/                # Medical guides (27 files)
 
-memory/                     # User memory tier
-└── ucode/                  # Core distributable .upy scripts and tests
+memory/                     # User workspace (unified in v1.1.13)
+├── ucode/                  # Core distributable .upy scripts + tests
+├── missions/               # Mission management
+├── workflows/              # Workflow automation
+├── checklists/             # Checklist tracking
+└── user/                   # User settings and data
 
 wiki/                       # GitHub wiki (documentation)
 ```
@@ -258,7 +281,7 @@ When creating extensions:
 - **Extensions** → `extensions/*/README.md`
 - **User guides** → `wiki/` (GitHub wiki)
 - **API docs** → `wiki/Developers-Guide.md`
-- **Draft docs** → `sandbox/docs/` (before wiki promotion)
+- **Draft docs** → `dev/sessions/` (development notes)
 
 ### Wiki Structure
 
@@ -275,15 +298,15 @@ When creating extensions:
 pytest memory/ucode/ -v
 
 # Run shakedown test
-./start_udos.sh sandbox/ucode/shakedown.uscript
+./start_udos.sh memory/tests/shakedown.uscript
 
 # Generate SVG diagram (requires Gemini API key)
 python memory/ucode/generate_svg_diagram.py "water filter" water
 
-# Clean sandbox
+# Clean memory workspace
 # In uDOS: CLEAN
 
-# Tidy sandbox (organize files)
+# Tidy memory workspace
 # In uDOS: TIDY --report
 ```
 
@@ -295,13 +318,13 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - **Run Shakedown Test** - Core functionality test
 - **Run Pytest** - Full test suite
 - **Logs: Tail Dev** - Monitor dev logs
-- **CLEAN Sandbox** - Remove trash/temp files
-- **TIDY Sandbox** - Organize sandbox files
+- **CLEAN Memory** - Remove trash/temp files
+- **TIDY Memory** - Organize workspace files
 
 ## Anti-Patterns to Avoid
 
 ❌ **Don't:**
-- Create files outside `/dev/` or `/sandbox/` for development/testing
+- Create files outside `/dev/` or `/memory/` for development/testing
 - Store sensitive data in git (use `.env`)
 - Hardcode paths (use Config or constants)
 - Mix user data with system files
@@ -309,8 +332,8 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Use lat/long coordinates (TILE codes only since v1.1.12)
 
 ✅ **Do:**
-- Use `/dev/` for tracked development files (roadmap, sessions, tools)
-- Use `/sandbox/` for gitignored runtime files (user data, logs)
+- Use `/dev/` for tracked development files (roadmap, tools, sessions)
+- Use `/memory/` for user workspace (missions, workflows, checklists)
 - Follow directory structure conventions
 - Document all public APIs
 - Write tests for new features
@@ -341,7 +364,7 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - ✅ Dead code removal (1,604 lines cleaned)
 - ✅ Core data minimization complete
 - ✅ Grid system standardized (2-letter TILE codes)
-- ✅ Sandbox as primary dev workspace
+- ✅ Unified /memory workspace (v1.1.13)
 
 **Next Priorities**:
 - v1.1.5.3: Deprecated code removal & utilities refactoring
@@ -351,4 +374,4 @@ Available via `Ctrl+Shift+P` → "Run Task":
 
 ---
 
-**Remember**: `/dev/` is for tracked development files (roadmap, tools, sessions). `/sandbox/` is for gitignored runtime files (user data, logs, drafts). Keep `core/` and `knowledge/` stable and production-ready.
+**Remember**: `/dev/` is for tracked development files (roadmap, tools, sessions). `/memory/` is for user workspace (missions, workflows, checklists, user data). Keep `core/` and `knowledge/` stable and production-ready.
