@@ -948,10 +948,16 @@ def check_web_servers() -> HealthCheckResult:
             'name': 'Markdown Viewer'
         },
         'dashboard': {
-            'port': 8887,
-            'path': 'extensions/web/dashboard',
-            'script': 'server.py',
-            'name': 'Dashboard'
+            'port': 8888,
+            'path': 'extensions/core/dashboard',
+            'script': 'app.py',
+            'name': 'System Dashboard'
+        },
+        'mission-control': {
+            'port': 5000,
+            'path': 'extensions/core/mission-control',
+            'script': 'dashboard_handler.py',
+            'name': 'Mission Control Dashboard'
         }
     }
 

@@ -1,18 +1,20 @@
-# uDOS Extensions System v1.1.7
+# uDOS Extensions System v1.1.15
 
-**Web GUI, Browser Extension, Mobile PWA, and Extension Framework**
+**Web GUI, Diagram Generation, AI Assistant, and Extension Framework**
 
 ## Overview
 
-The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure and diagram generation.
+The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure, comprehensive diagram generation, and AI-powered assistance.
 
-**v1.1.7 Features** (Nano Banana Complete):
-- Full PNG→SVG diagram generation pipeline
-- Gemini 2.5 Flash Image integration (Nano Banana)
-- Style guide system (technical-kinetic, hand-illustrative, hybrid)
-- Vectorization service (potrace + vtracer)
-- 4 production workflow examples
-- Complete testing framework
+**v1.1.15 Features** (Graphics Infrastructure Complete):
+- **Mermaid Diagrams**: 12 diagram types with server-side rendering
+- **GitHub Diagrams**: Native GeoJSON maps + ASCII STL 3D models
+- **ASCII Graphics**: Unicode box-drawing + 2 house styles (51 diagrams)
+- **Typora Support**: 13 diagram types with offline WYSIWYG editing
+- **Nano Banana**: PNG→SVG vectorization with Gemini 2.5 Flash (Task 5)
+- **Style Guides**: Technical-kinetic, hand-illustrative, hybrid templates
+- **Vectorization**: potrace + vtracer integration
+- Complete testing framework (327 tests)
 
 **v1.1.1 Features** (327 tests):
 - Production web server with health monitoring
@@ -33,43 +35,43 @@ The uDOS extensions system provides dual-interface capabilities (Terminal + Web)
 
 ```
 extensions/
-├── core/                       # ✅ CORE WEB EXTENSIONS (v1.1.1+)
-│   ├── terminal/              # Retro terminal with PetMe font & Synthwave DOS
-│   │   ├── assets/            # Shared assets (fonts, icons, CSS)
-│   │   └── static/            # Terminal-specific JavaScript
-│   ├── markdown/              # GitHub-flavored markdown viewer
-│   │   └── static/            # Markdown rendering with uCODE support
-│   ├── dashboard/             # NES Framework system dashboard
-│   │   └── static/            # Extension management interface
+├── core/                       # ✅ CORE EXTENSIONS (v1.1.15)
+│   ├── terminal/              # Retro terminal (PetMe font, Synthwave DOS)
+│   ├── dashboard/             # System dashboard (NES.css, port 8888)
+│   ├── mission-control/       # Mission tracker dashboard (port 5000)
 │   ├── desktop/               # System 7 desktop environment
-│   │   └── static/            # Classic Mac interface
-│   ├── teletext/              # BBC Teletext with WebSocket streaming (v1.1.1)
-│   │   ├── server.py          # Production Flask server
-│   │   └── static/            # Teletext display and fonts
-│   └── browser-extension/     # Knowledge capture extension (v1.1.1)
-│       ├── manifest.json      # Extension manifest (Chrome/Firefox/Edge)
-│       └── src/               # Extension source code
+│   ├── teletext/              # BBC Teletext with WebSocket streaming
+│   ├── ok_assistant/          # Gemini AI assistant integration
+│   ├── svg_generator/         # Nano Banana PNG→SVG vectorization
+│   ├── typora-diagrams/       # Typora diagram templates (13 types)
+│   ├── shared/                # Base server, port manager, common utilities
+│   └── extension_dev_tools.py # Development utilities
 │
 ├── play/                       # ✅ PLAY EXTENSION
-│   ├── commands/              # Game-specific commands (MAP, TILE, etc.)
-│   └── services/              # Game services (planet manager, etc.)
+│   ├── commands/              # Game commands (MAP, TILE, SCENARIO)
+│   └── services/              # Game services (planet, XP, scenarios)
+│
+├── api/                        # ✅ API SERVER (port 5001)
+│   └── server.py              # REST API for all uDOS commands
 │
 ├── assets/                     # ✅ SHARED ASSETS
 │   ├── fonts/                 # PetMe, Chicago, Monaco, Mallard, etc.
-│   ├── icons/                 # CoreUI icons, system icons
-│   ├── css/                   # Shared stylesheets (Synthwave DOS, NES, etc.)
-│   └── js/                    # Shared JavaScript libraries
+│   ├── styles/                # Shared stylesheets (Synthwave DOS, NES)
+│   └── data/                  # Examples (GeoJSON) + models (STL)
+│       ├── examples/          # survival_area_map.geojson
+│       └── models/            # shelter/, tools/ STL files
 │
-├── cloned/                     # ✅ EXTERNAL TOOLS (git ignored)
-│   └── micro/                 # Modern terminal editor (Go-based)
+├── cloned/                     # ✅ EXTERNAL TOOLS (gitignored)
+│   ├── micro/                 # Modern terminal editor (Go)
+│   ├── typo/                  # Markdown editor (Node.js)
+│   ├── marked/                # Markdown parser library
+│   └── coreui/                # CoreUI framework
 │
 ├── setup/                      # ✅ INSTALLATION SCRIPTS
-│   └── (setup scripts for cloned tools)
+│   └── (setup scripts for external tools)
 │
-├── templates/                  # ✅ EXTENSION SCAFFOLDING
-│   ├── cli-extension-template/
-│   └── web-extension-template/
-│
+├── server_manager.py           # ✅ UNIFIED SERVER CONTROL
+├── SERVER-MANAGEMENT.md        # Server documentation
 └── README.md                   # This file
 ```
 

@@ -27,25 +27,25 @@ class ServerManager:
             'command': 'PORT=5001 python extensions/api/server.py'
         },
         'terminal': {
-            'name': 'Terminal',
+            'name': 'Retro Terminal',
             'port': 8889,
             'health_url': 'http://localhost:8889/health',
             'command': 'python extensions/core/extensions_server.py terminal'
         },
         'dashboard': {
-            'name': 'Dashboard',
+            'name': 'System Dashboard',
             'port': 8888,
             'health_url': 'http://localhost:8888/health',
             'command': 'python extensions/core/extensions_server.py dashboard'
         },
         'teletext': {
-            'name': 'Teletext',
+            'name': 'Teletext Display',
             'port': 9002,
             'health_url': 'http://localhost:9002/health',
             'command': 'python extensions/core/extensions_server.py teletext'
         },
         'desktop': {
-            'name': 'Desktop',
+            'name': 'Retro Desktop',
             'port': 8892,
             'health_url': 'http://localhost:8892/health',
             'command': 'python extensions/core/extensions_server.py desktop'
