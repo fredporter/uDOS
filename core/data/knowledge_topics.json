@@ -4,7 +4,7 @@
   "description": "Comprehensive list of survival knowledge topics for gap analysis and content generation",
   "version": "1.0.0",
   "last_updated": "2025-12-03",
-  
+
   "categories": {
     "water": {
       "current_count": 26,
@@ -155,7 +155,7 @@
         ]
       }
     },
-    
+
     "fire": {
       "current_count": 20,
       "target_count": 35,
@@ -307,7 +307,7 @@
         ]
       }
     },
-    
+
     "shelter": {
       "current_count": 20,
       "target_count": 35,
@@ -437,7 +437,7 @@
         ]
       }
     },
-    
+
     "food": {
       "current_count": 23,
       "target_count": 40,
@@ -583,7 +583,7 @@
         ]
       }
     },
-    
+
     "navigation": {
       "current_count": 20,
       "target_count": 35,
@@ -713,7 +713,7 @@
         ]
       }
     },
-    
+
     "medical": {
       "current_count": 27,
       "target_count": 40,
@@ -828,7 +828,7 @@
       }
     }
   },
-  
+
   "metadata": {
     "total_existing": 136,
     "total_planned": 100,
