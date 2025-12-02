@@ -199,34 +199,30 @@ class SpriteHandler:
             print(self.format_error("Invalid sprite file: missing or wrong 'type' field"))
             return False
 
-            # Validate against schema if available
-            if JSONSCHEMA_AVAILABLE and self.schema:
-                try:
-                    validate(instance=sprite, schema=self.schema)
-                except ValidationError as e:
-                    print(f"❌ Schema validation failed: {e.message}")
-                    return False
+        # Validate against schema if available
+        if JSONSCHEMA_AVAILABLE and self.schema:
+            try:
+                validate(instance=sprite, schema=self.schema)
+            except ValidationError as e:
+                print(f"❌ Schema validation failed: {e.message}")
+                return False
 
-            # Update name if different
-            sprite['name'] = name
-            sprite['meta']['modified'] = datetime.utcnow().isoformat() + "Z"
+        # Update name if different
+        sprite['name'] = name
+        sprite['meta']['modified'] = datetime.utcnow().isoformat() + "Z"
 
-            # Store in variable manager
-            if self.var_manager:
-                scope = sprite['meta'].get('scope', 'session')
-                self.var_manager.set_variable(name, sprite, scope=scope)
-                print(f"✅ Loaded sprite: {name}")
-                print(f"   HP: {sprite['stats']['hp']}/{sprite['stats']['hp_max']}")
-                print(f"   Level: {sprite['stats']['level']}")
-                print(f"   Gold: {sprite['inventory']['gold']}")
-                return True
+        # Store in variable manager
+        if self.var_manager:
+            scope = sprite['meta'].get('scope', 'session')
+            self.var_manager.set_variable(name, sprite, scope=scope)
+            print(f"✅ Loaded sprite: {name}")
+            print(f"   HP: {sprite['stats']['hp']}/{sprite['stats']['hp_max']}")
+            print(f"   Level: {sprite['stats']['level']}")
+            print(f"   Gold: {sprite['inventory']['gold']}")
+            return True
 
-            print("❌ Variable manager not available")
-            return False
-
-        except Exception as e:
-            print(f"❌ Error loading sprite: {e}")
-            return False
+        print("❌ Variable manager not available")
+        return False
 
     def _save_sprite(self, args: list) -> bool:
         """Save sprite to JSON file."""
