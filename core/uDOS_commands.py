@@ -373,6 +373,10 @@ class CommandHandler:
             elif module == "MERMAID":
                 return self.mermaid_handler.handle_command(params)
 
+            # v1.1.15 - GitHub Diagrams (GeoJSON, ASCII STL)
+            elif module == "GEODIAGRAM" or module == "GEOJSON" or module == "STL":
+                return self.github_diagrams_handler.handle_command(params)
+
             # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use GENERATE SVG)
             elif module == "SVG":
                 return (
