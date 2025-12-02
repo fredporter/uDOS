@@ -1,6 +1,8 @@
-# uDOS v1.0.0 Style Guide
+# uDOS Style Guide
 
-This document outlines the design and style conventions for uDOS v1.0.0, ensuring a consistent and intuitive user experience across CLI, web interfaces, maps, and data formats. The core principle is a "human-readable," minimal-touch interface with authentic retro computing aesthetics.
+**Version:** v1.1.15 (December 2025)
+
+This document outlines the design and style conventions for uDOS, ensuring a consistent and intuitive user experience across CLI, web interfaces, maps, and data formats. The core principle is a "human-readable," minimal-touch interface with authentic retro computing aesthetics.
 
 ---
 

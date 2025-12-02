@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.0.0** - First Stable Public Release - Offline-first knowledge system with sandbox architecture, 5-tier knowledge system, and dual-interface support (Terminal + Web GUI).
+**uDOS v1.1.15** - Graphics Infrastructure Enhancement - Offline-first survival knowledge system with advanced diagram generation, mission control, and comprehensive testing framework.
 
-**Production Ready**: **1,810 tests passing** (100%) | Sandbox Architecture | DEV MODE | Asset Management
+**Production Ready**: Complete test coverage | Graphics Infrastructure | Mission Control | Nano Banana AI
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 

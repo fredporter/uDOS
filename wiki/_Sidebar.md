@@ -15,10 +15,9 @@
 ---
 
 ## 💡 Philosophy & Vision
-- **[Philosophy](Philosophy)** ⭐ NEW - Core mission & values
-- **[Philosophy](Philosophy)** ⭐ Complete manifesto & rationale
-- **[Text-First Computing](Text-First-Computing)** ⭐ NEW - Power of text
-- **[Human-Centric Design](Human-Centric-Design)** ⭐ NEW - Design principles
+- **[Philosophy](Philosophy)** - Core mission & values
+- **[Text-First Computing](Text-First-Computing)** - Power of text
+- **[Human-Centric Design](Human-Centric-Design)** - Design principles
 
 ---
 
@@ -43,12 +42,10 @@
 - **[Migration Guide v1.1.9](Migration-Guide-v1.1.9)** ⭐ NEW - uPY syntax upgrade
 
 ### Knowledge & Content
-- **[Knowledge System](Knowledge-System)** ⭐ NEW - 4-tier knowledge bank & organization
-- **[Content Curation](Content-Curation)** ⭐ NEW - Building knowledge commons
-- **[Nano Banana Integration](Nano-Banana-Integration)** ⭐ v1.1.7 - PNG→SVG pipeline (complete)
-- **[SVG Graphics](SVG-Command-Reference)** - v1.1.5 legacy (deprecated)
-  - [SVG Example Gallery](SVG-Example-Gallery) - Visual examples & use cases
-  - [SVG Developer Guide](SVG-Extension-Developer-Guide) - Extension development
+- **[Knowledge System](Knowledge-System)** - 4-tier knowledge bank
+- **[Content Curation](Content-Curation)** - Building knowledge commons
+- **[Nano Banana Integration](Nano-Banana-Integration)** ⭐ v1.1.15 - AI diagram generation
+- **[Graphics System](Graphics-System)** - Diagrams, ASCII, Mermaid, Typora
 
 ### Systems
 - [Mapping System](Mapping-System) - Navigation
@@ -79,13 +76,10 @@
 
 ## 👩‍💻 Development
 - **[Contributing](Contributing)** - How to contribute
+## 👩‍💻 Development
+- **[Contributing](Contributing)** - How to contribute
 - **[Documentation Index](Documentation-Index)** - Complete docs map
-
-- [Development History](Development-History) - Version history
-
-- [Development History](Development-History) - Complete evolution and current work
-
----
+- **[Extension Development](Extension-Development)** - Build extensions
 
 ## 📚 Knowledge Library
 The knowledge/ directory contains:
@@ -103,10 +97,9 @@ The knowledge/ directory contains:
 ## 🚀 Releases
 - **[Development History](Development-History)** - First stable public release and evolution
 - [Changelog](Changelog) - All versions
-- [ROADMAP](../ROADMAP.MD) - Future plans
-
----
-
+## 🚀 Releases
+- [Changelog](Changelog) - All versions
+- [ROADMAP](../dev/roadmap/ROADMAP.md) - Future plans
 ## 🤝 Community
 - **[GitHub Discussions](https://github.com/fredporter/uDOS/discussions)** - Q&A, ideas, showcase
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
@@ -124,5 +117,9 @@ The knowledge/ directory contains:
 
 **Current Version**: v1.1.7 (Nano Banana Complete)
 **Last Wiki Update**: December 1, 2025
+---
+
+**Current Version**: v1.1.15 (Graphics Infrastructure Complete)
+**Last Wiki Update**: December 3, 2025
 
 ⭐ = Featured guide
