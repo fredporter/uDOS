@@ -1,6 +1,6 @@
 # Command Reference
 
-**Version:** v1.1.15 (Graphics Infrastructure Complete)
+**Version:** v1.1.16 (Archive System Infrastructure)
 **Format:** uPY (Python-like syntax)
 **Last Updated:** December 3, 2025
 
@@ -631,13 +631,26 @@ TREE knowledge 2                    # 2 levels deep
 ```
 
 ### CLEAN
-Clean workspace (remove temp files).
+Clean workspace and manage archive system.
 
 **Syntax:**
 ```
-CLEAN                               # Clean workspace
-CLEAN --dry-run                     # Preview only
+CLEAN                               # Clean workspace (review mode)
+CLEAN --scan                        # Scan all .archive/ folders
+CLEAN --purge [days]                # Purge old files (default: 30 days)
+CLEAN --dry-run                     # Preview deletions
+CLEAN --path <dir>                  # Target specific directory
 ```
+
+**Examples:**
+```upy
+CLEAN                               # Review sandbox files
+CLEAN --scan                        # Health check on archives
+CLEAN --purge 7                     # Remove files older than 7 days
+CLEAN --purge --dry-run             # Preview what would be deleted
+```
+
+**v1.1.16:** Enhanced with archive system health metrics and retention-based cleanup.
 
 ### TIDY
 Organize workspace files.
@@ -647,6 +660,72 @@ Organize workspace files.
 TIDY                                # Tidy workspace
 TIDY --report                       # Show report
 ```
+
+### BACKUP
+Create and manage file backups in .archive/ folders.
+
+**Syntax:**
+```
+BACKUP <file>                       # Create timestamped backup
+BACKUP <file> --to <path>           # Backup to specific archive
+BACKUP LIST [file]                  # List backups
+BACKUP RESTORE <backup>             # Restore backup
+BACKUP RESTORE <backup> --to <path> # Restore to custom location
+BACKUP CLEAN [days]                 # Purge old backups (default: 30)
+BACKUP CLEAN --dry-run              # Preview cleanup
+BACKUP HELP                         # Show help
+```
+
+**Examples:**
+```upy
+BACKUP config.json                  # Create backup
+BACKUP LIST config.json             # List all config.json backups
+BACKUP RESTORE 20251203_120000_config.json
+BACKUP CLEAN 7                      # Remove backups older than 7 days
+```
+
+**v1.1.16:** New command for file backup lifecycle management.
+
+### UNDO / REDO
+Revert files to previous versions using version history.
+
+**Syntax:**
+```
+UNDO <file>                         # Revert to previous version
+UNDO --list <file>                  # List version history
+UNDO --to-version <version> <file>  # Revert to specific version
+REDO <file>                         # Re-apply undone changes
+```
+
+**Examples:**
+```upy
+UNDO config.json                    # Undo last change
+UNDO --list config.json             # See all versions
+UNDO --to-version 20251203_120000_config.json config.json
+REDO config.json                    # Redo after undo
+```
+
+**v1.1.16:** New commands for file version history management. Versions stored in `.archive/versions/`.
+
+### REPAIR
+System maintenance and file recovery.
+
+**Syntax:**
+```
+REPAIR                              # System health check
+REPAIR auto                         # Auto-repair issues
+REPAIR report                       # Detailed report
+REPAIR recover [file]               # Recover deleted files
+```
+
+**Examples:**
+```upy
+REPAIR                              # Check system health
+REPAIR recover                      # List recoverable files
+REPAIR recover config.json          # Restore deleted file
+```
+
+**v1.1.16:** Added `RECOVER` subcommand for soft-delete recovery from `.archive/deleted/` (7-day window).
 
 ### LOGS
 View system logs.

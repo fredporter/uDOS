@@ -172,11 +172,21 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ Error creating file: {str(e)}"
 
     def _handle_delete(self, params):
-        """Delete file with confirmation."""
+        """Delete file with soft-delete to .archive/deleted/ (v1.1.16)."""
         from core.uDOS_interactive import InteractivePrompt
+        from core.utils.archive_manager import ArchiveManager
+        from pathlib import Path
+
         prompt = InteractivePrompt()
+        archive_mgr = ArchiveManager()
 
         filename = params[0] if params else ''
+
+        # Check for --permanent flag
+        permanent = '--permanent' in params or '--force' in params
+        if permanent:
+            # Remove flag from filename
+            filename = [p for p in params if not p.startswith('--')][0] if params else ''
 
         # Show files in current workspace
         files = self.workspace_manager.list_files()
@@ -195,17 +205,31 @@ class FileCommandHandler(BaseCommandHandler):
                 return "❌ Delete cancelled"
 
         # Confirm deletion
-        confirm = prompt.ask_yes_no(
-            f"⚠️  Delete {filename}? This cannot be undone!",
-            default=False
-        )
+        if permanent:
+            confirm_msg = f"⚠️  PERMANENTLY delete {filename}? This CANNOT be undone!"
+        else:
+            confirm_msg = f"⚠️  Delete {filename}? (Recoverable for 7 days from .archive/deleted/)"
+
+        confirm = prompt.ask_yes_no(confirm_msg, default=False)
 
         if not confirm:
             return "❌ Delete cancelled"
 
         try:
-            self.workspace_manager.delete_file(filename)
-            return f"✅ Deleted: {filename}"
+            file_path = Path(filename)
+
+            if permanent:
+                # Permanent deletion
+                self.workspace_manager.delete_file(filename)
+                return f"✅ PERMANENTLY deleted: {filename}"
+            else:
+                # Soft delete to .archive/deleted/
+                archive_dir = file_path.parent
+                deleted_path = archive_mgr.soft_delete(file_path, archive_dir)
+
+                recovery_msg = f"\n💡 Recover with: REPAIR RECOVER {deleted_path.name}"
+                return f"✅ Deleted: {filename} → .archive/deleted/{recovery_msg}"
+
         except FileNotFoundError as e:
             return f"❌ {str(e)}"
         except Exception as e:

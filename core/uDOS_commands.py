@@ -93,8 +93,9 @@ class CommandHandler:
 
         # v1.0.21 - Teletext Display System
         from core.commands.panel_handler import PanelCommandHandler
-        from core.commands.guide_handler import GuideHandler
-        from core.commands.diagram_handler import DiagramHandler
+
+        # v1.1.17 - Unified Documentation System (consolidates GUIDE + DIAGRAM + LEARN)
+        from core.commands.docs_unified_handler import DocsUnifiedHandler
 
         # v1.0.33 - Barter Economy System
         from core.commands.barter_commands import BarterCommandHandler
@@ -128,7 +129,7 @@ class CommandHandler:
         self.private_handler = PrivateCommandHandler()
         self.shared_handler = SharedCommandHandler()
         self.community_handler = CommunityCommandHandler()
-        # Note: knowledge_v2_handler removed in v2.0.0 - KB commands redirect to GUIDE
+        # Note: knowledge_v2_handler removed in v2.0.0 - KB commands redirect to DOCS
 
         # v1.0.20b - TILE Enhanced Mapping handler
         self.tile_handler = TILECommandHandler(**handler_kwargs)
@@ -136,11 +137,8 @@ class CommandHandler:
         # v1.0.21 - PANEL Teletext Display handler
         self.panel_handler = PanelCommandHandler(**handler_kwargs)
 
-        # v1.0.21 - GUIDE & DIAGRAM Interactive Knowledge handlers
-        self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
-        self.diagram_handler = DiagramHandler(viewport=viewport, logger=logger)
-
-        # v1.1.4 - DRAW Diagram Generation handler (ASCII/Teletext graphics)
+        # v1.1.17 - DOCS Unified Documentation handler (replaces GUIDE + DIAGRAM + LEARN)
+        self.docs_handler = DocsUnifiedHandler(viewport=viewport, logger=logger)        # v1.1.4 - DRAW Diagram Generation handler (ASCII/Teletext graphics)
         from core.commands.draw_handler import DrawHandler
         self.draw_handler = DrawHandler(viewport=viewport, logger=logger)
 
@@ -176,6 +174,14 @@ class CommandHandler:
         # v1.1.14 - ARCHIVE handler (Historical Data Management)
         from core.commands.archive_handler import ArchiveHandler
         self.archive_handler = ArchiveHandler(**handler_kwargs)
+
+        # v1.1.16 - BACKUP handler (Archive System Infrastructure)
+        from core.commands.backup_handler import create_handler as create_backup_handler
+        self.backup_handler = create_backup_handler(viewport=viewport, logger=logger)
+
+        # v1.1.16 - UNDO/REDO handler (Version History Management)
+        from core.commands.undo_handler import create_handler as create_undo_handler
+        self.undo_handler = create_undo_handler(viewport=viewport, logger=logger)
 
         # Get variable_manager from components (if available)
         components = {
@@ -314,8 +320,8 @@ class CommandHandler:
                            "💡 Install: POKE START play")
 
             elif module == "BANK":
-                # BANK handler removed in v2.0.0 - redirect to GUIDE
-                return self.guide_handler.handle(command, params)
+                # BANK handler removed in v2.0.0 - redirect to DOCS
+                return self.docs_handler.handle(command, params)
 
             # v1.0.20 - 4-Tier Knowledge Bank & Memory System
             elif module == "MEMORY":
@@ -331,8 +337,8 @@ class CommandHandler:
                 return self.community_handler.handle(command, params)
 
             elif module == "KB" or module == "KNOWLEDGEBANK":
-                # KB handler removed in v2.0.0 - redirect to GUIDE
-                return self.guide_handler.handle(command, params)
+                # KB handler removed in v2.0.0 - redirect to DOCS
+                return self.docs_handler.handle(command, params)
 
             # v1.0.20b - Enhanced Mapping & Reference Data System
             elif module == "TILE":
@@ -363,12 +369,22 @@ class CommandHandler:
             elif module == "PANEL" or module == "UI":
                 return self.panel_handler.handle(command, params, grid)
 
-            # v1.0.21 - Interactive Knowledge Viewers
+            # v1.1.17 - Unified Documentation System
+            elif module == "DOCS":
+                return self.docs_handler.handle(command, params)
+
+            # v1.1.17 - Legacy commands (deprecated, show migration notice)
             elif module == "GUIDE":
-                return self.guide_handler.handle(command, params)
+                notice = "⚠️  GUIDE command deprecated in v1.1.17\n\nUse: DOCS {cmd}\n\nAll GUIDE commands work with DOCS:\n  GUIDE LIST → DOCS LIST guide\n  GUIDE START <name> → DOCS START <name>\n  GUIDE NEXT → DOCS NEXT\n\nExecuting as DOCS...\n\n".format(cmd=command if command else 'LIST')
+                return notice + self.docs_handler.handle(command, params)
 
             elif module == "DIAGRAM":
-                return self.diagram_handler.handle(command, params)
+                notice = "⚠️  DIAGRAM command deprecated in v1.1.17\n\nUse: DOCS {cmd}\n\nAll DIAGRAM commands work with DOCS:\n  DIAGRAM LIST → DOCS LIST diagram\n  DIAGRAM SHOW <name> → DOCS SHOW <name>\n  DIAGRAM SEARCH → DOCS SEARCH\n\nExecuting as DOCS...\n\n".format(cmd=command if command else 'LIST')
+                return notice + self.docs_handler.handle(command, params)
+
+            elif module == "LEARN":
+                notice = "⚠️  LEARN command deprecated in v1.1.17\n\nUse: DOCS {cmd}\n\nAll LEARN commands work with DOCS:\n  LEARN → DOCS\n  LEARN <name> → DOCS SHOW <name>\n  LEARN --continue → DOCS CONTINUE\n\nExecuting as DOCS...\n\n".format(cmd=command if command else '')
+                return notice + self.docs_handler.handle(command, params)
 
             # v1.1.14 - Checklist Task Management
             elif module == "CHECKLIST":
@@ -377,6 +393,17 @@ class CommandHandler:
             # v1.1.14 - Archive Management System
             elif module == "ARCHIVE":
                 return self.archive_handler.handle(params, grid, parser)
+
+            # v1.1.16 - BACKUP Archive System
+            elif module == "BACKUP":
+                return self.backup_handler.handle(params, grid, parser)
+
+            # v1.1.16 - UNDO/REDO Version History
+            elif module == "UNDO":
+                return self.undo_handler.handle(params, grid, parser)
+
+            elif module == "REDO":
+                return self.undo_handler.handle_redo(params, grid, parser)
 
             # v1.1.4 - DRAW Diagram Generation (ASCII/Teletext graphics)
             elif module == "DRAW":

@@ -306,9 +306,40 @@ pattern = mgr.load_pattern('teletext-single')
 data = pattern.load()  # Returns dict with pattern data
 ```
 
-## Version 1.1.12 Changes (Current)
+## Version 1.1.16 (Current)
 
-### Recent Completions (December 2025)
+### Archive System Infrastructure ✅
+
+**v1.1.16 - Universal .archive/ Folders** (December 3, 2025)
+- **ArchiveManager** utility (450 lines) - Core archive lifecycle management
+- **BACKUP command** (370 lines) - Create, list, restore, clean backups
+- **UNDO/REDO commands** (350 lines) - File version history navigation
+- **Enhanced CLEAN** (+210 lines) - Archive scanning, health metrics, purging
+- **Soft-delete recovery** - 7-day window in `.archive/deleted/`
+- **Migration script** - Automated legacy folder migration
+- **Complete documentation** - wiki/Archive-System.md (500+ lines)
+
+**Total Delivered:** 2,602+ lines (1,822 code + 780 docs)
+
+**Archive Structure:**
+```
+.archive/
+├── versions/          # File version history (90-day retention)
+├── backups/           # Timestamped snapshots (30-day retention)
+├── deleted/           # Soft-deleted files (7-day recovery window)
+├── completed/         # Archived work (missions, workflows)
+└── metadata.json      # Retention policies, tracking data
+```
+
+**New Commands:**
+- `BACKUP <file>` - Create/list/restore/clean backups
+- `UNDO <file>` - Revert to previous version
+- `REDO <file>` - Re-apply undone changes
+- `CLEAN --scan` - Archive health metrics
+- `CLEAN --purge [days]` - Retention-based cleanup
+- `REPAIR RECOVER [file]` - Restore deleted files
+
+### Previous Completions (December 2025)
 
 **v1.1.5.1 - System Handler Refactoring** ✅
 - Refactored `system_handler.py`: 1,342 → 674 lines (50% reduction)
@@ -438,10 +469,12 @@ Available via `Ctrl+Shift+P` → "Run Task":
 
 ## Command Handler Architecture (As of Dec 2025)
 
-**Active Handlers** (46 total in `core/commands/`):
+**Active Handlers** (49 total in `core/commands/`):
 - **Knowledge**: `guide_handler.py` (interactive guides with progress tracking)
 - **System**: `system_handler.py` (routing), `variable_handler.py`, `environment_handler.py`, `output_handler.py`
-- **Files**: `file_handler.py` (NEW/DELETE/COPY/MOVE/etc.)
+- **Files**: `file_handler.py` (NEW/DELETE/COPY/MOVE/etc., soft-delete v1.1.16)
+- **Archive**: `archive_handler.py` (completed work), `backup_handler.py` (v1.1.16), `undo_handler.py` (v1.1.16)
+- **Repair**: `repair_handler.py` (with RECOVER for soft-delete, v1.1.16)
 - **Memory**: `memory_commands.py` (4-tier system), `private_commands.py`, `shared_commands.py`, `community_commands.py`
 - **Graphics**: `diagram_handler.py`, `panel_handler.py`, `generate_handler.py`, `sprite_handler.py`
 - **Assistant**: `assistant_handler.py` (Gemini integration)
@@ -453,21 +486,24 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - ❌ KB handler (redirects to GUIDE as of v2.0.0)
 - ❌ .uscript format (use .upy only)
 
-## Current Focus (v1.1.12)
+## Current Focus (v1.1.16)
 
 **Recent Achievements**:
+- ✅ Archive System Infrastructure (v1.1.16) - Universal .archive/ folders
+- ✅ BACKUP, UNDO/REDO commands - Complete lifecycle management
+- ✅ Enhanced CLEAN command - Health metrics and retention cleanup
+- ✅ Soft-delete recovery - 7-day window in .archive/deleted/
 - ✅ System handler refactoring (50% reduction)
 - ✅ Dead code removal (1,604 lines cleaned)
-- ✅ Core data minimization complete
 - ✅ Grid system standardized (2-letter TILE codes)
 - ✅ Unified /memory workspace (v1.1.13)
 
 **Next Priorities**:
-- v1.1.5.3: Deprecated code removal & utilities refactoring
-- v1.1.6: Nano Banana workflow integration
+- v1.1.17: Version compression (reduce storage overhead)
+- v1.1.18: Cloud sync for .archive/ folders
 - Extension system improvements
 - Knowledge bank expansion
 
 ---
 
-**Remember**: `/dev/` is for tracked development files (roadmap, tools, sessions). `/memory/` is for user workspace (missions, workflows, checklists, user data). Keep `core/` and `knowledge/` stable and production-ready.
+**Remember**: `/dev/` is for tracked development files (roadmap, tools, sessions). `/memory/` is for user workspace (missions, workflows, checklists, user data). `.archive/` folders are auto-managed (BACKUP, UNDO, CLEAN commands). Keep `core/` and `knowledge/` stable and production-ready.

@@ -321,10 +321,8 @@ class VariableHandler(BaseCommandHandler):
         if not state_file.exists():
             return f"MISSION.{field} = <no active mission>"
 
-        try:
-            with open(state_file, 'r') as f:
-                state = json.load(f)
-        except (json.JSONDecodeError, IOError):
+        success, state, error = self.load_json_file(state_file)
+        if not success:
             return f"MISSION.{field} = <error reading state>"
 
         current_mission = state.get('current_mission')
@@ -355,10 +353,8 @@ class VariableHandler(BaseCommandHandler):
         if not state_file.exists():
             return f"CHECKLIST.{field} = <no checklist state>"
 
-        try:
-            with open(state_file, 'r') as f:
-                state = json.load(f)
-        except (json.JSONDecodeError, IOError):
+        success, state, error = self.load_json_file(state_file)
+        if not success:
             return f"CHECKLIST.{field} = <error reading state>"
 
         checklists = state.get('checklists', {})
@@ -396,10 +392,8 @@ class VariableHandler(BaseCommandHandler):
         if not state_file.exists():
             return f"WORKFLOW.{field} = <no active workflow>"
 
-        try:
-            with open(state_file, 'r') as f:
-                state = json.load(f)
-        except (json.JSONDecodeError, IOError):
+        success, state, error = self.load_json_file(state_file)
+        if not success:
             return f"WORKFLOW.{field} = <error reading state>"
 
         # Map field names to state data (these would be populated during workflow execution)

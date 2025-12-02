@@ -173,6 +173,30 @@ class DashboardHandler(BaseCommandHandler):
         except Exception:
             pass  # Skip quota section if not available
 
+        # Archive System Health (v1.1.16)
+        try:
+            from core.utils.archive_manager import ArchiveManager
+            archive_mgr = ArchiveManager()
+            health = archive_mgr.get_health_metrics()
+
+            status += "╠" + "═"*68 + "╣\n"
+            status += "║ " + "📦 ARCHIVE SYSTEM".ljust(67) + "║\n"
+            status += "║ " + "─"*67 + "║\n"
+
+            # Total stats
+            total_size_mb = round(health['total_size'] / (1024 * 1024), 2)
+            emoji = "✅" if total_size_mb < 100 else "⚠️" if total_size_mb < 500 else "🔴"
+
+            status += f"║  Archives: {health['total_archives']}  Files: {health['total_files']}  Size: {emoji} {total_size_mb} MB" + " "*(68-len(f"Archives: {health['total_archives']}  Files: {health['total_files']}  Size: {emoji} {total_size_mb} MB") -3) + "║\n"
+
+            # Warnings
+            if health['warnings']:
+                for warning in health['warnings'][:2]:  # Show max 2 warnings
+                    warn_text = warning[:62]  # Truncate long warnings
+                    status += f"║  ⚠️  {warn_text}" + " "*(68-len(warn_text) -6) + "║\n"
+        except Exception:
+            pass  # Skip archive section if not available
+
         status += "╚" + "═"*68 + "╝\n"
         status += "\n💡 Tips: STATUS --live (monitoring) | RESOURCE STATUS (detailed quotas)\n"
 

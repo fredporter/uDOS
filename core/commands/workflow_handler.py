@@ -29,9 +29,10 @@ import glob
 import psutil
 
 from core.config import Config
+from core.commands.base_handler import BaseCommandHandler
 
 
-class WorkflowHandler:
+class WorkflowHandler(BaseCommandHandler):
     """Handler for workflow automation commands."""
 
     def __init__(self, config: Config):
@@ -40,7 +41,7 @@ class WorkflowHandler:
         Args:
             config: uDOS configuration instance
         """
-        self.config = config
+        super().__init__(config)
         self.log_dir = Path("sandbox/logs")
         self.log_file = self.log_dir / "workflow.log"
         self.checkpoint_dir = Path("sandbox/workflow/checkpoints")
@@ -480,8 +481,9 @@ class WorkflowHandler:
                 "data": data
             }
 
-            with open(checkpoint_file, "w") as f:
-                json.dump(checkpoint, f, indent=2)
+            success, error = self.save_json_file(checkpoint_file, checkpoint)
+            if not success:
+                return f"❌ Error saving checkpoint: {error}"
 
             return f"✅ Checkpoint saved: {name}\n📁 File: {checkpoint_file}"
 
@@ -503,24 +505,18 @@ class WorkflowHandler:
         name = args[0]
         checkpoint_file = self.checkpoint_dir / f"{name}.json"
 
-        if not checkpoint_file.exists():
-            return f"❌ Checkpoint not found: {name}"
+        success, checkpoint, error = self.load_json_file(checkpoint_file)
+        if not success:
+            return f"❌ Error loading checkpoint: {error}"
 
-        try:
-            with open(checkpoint_file, "r") as f:
-                checkpoint = json.load(f)
+        timestamp = checkpoint.get("timestamp", "unknown")
+        data = checkpoint.get("data", {})
 
-            timestamp = checkpoint.get("timestamp", "unknown")
-            data = checkpoint.get("data", {})
+        preview = json.dumps(data, indent=2)
+        if len(preview) > 500:
+            preview = preview[:500] + "\n... (truncated)"
 
-            preview = json.dumps(data, indent=2)
-            if len(preview) > 500:
-                preview = preview[:500] + "\n... (truncated)"
-
-            return f"✅ Loaded checkpoint: {name}\n🕐 Saved: {timestamp}\n\n{preview}"
-
-        except Exception as e:
-            return f"❌ Error loading checkpoint: {str(e)}"
+        return f"✅ Loaded checkpoint: {name}\n🕐 Saved: {timestamp}\n\n{preview}"
 
     def _handle_extract_metric(self, args: List[str]) -> str:
         """Handle EXTRACT_METRIC command.

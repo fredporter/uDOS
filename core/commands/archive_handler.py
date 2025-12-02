@@ -13,12 +13,26 @@ from datetime import datetime
 
 
 class ArchiveHandler(BaseCommandHandler):
-    """Handler for archiving completed work (missions, workflows, checklists)."""
+    """Handler for archiving completed work (missions, workflows, checklists).
+
+    v1.1.16: Now uses .archive/completed/ folders within each workspace area
+    instead of centralized memory/system/archived/.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.archive_base = Path("memory/system/archived")
-        self.archive_base.mkdir(parents=True, exist_ok=True)
+        # v1.1.16: Use distributed .archive/completed/ folders
+        # Mission archives: memory/workflows/missions/.archive/completed/
+        # Workflow archives: memory/workflows/.archive/completed/
+        # Checklist archives: memory/checklists/.archive/completed/
+        self.mission_archive = Path("memory/workflows/missions/.archive/completed")
+        self.workflow_archive = Path("memory/workflows/.archive/completed")
+        self.checklist_archive = Path("memory/checklists/.archive/completed")
+
+        # Ensure archive folders exist
+        self.mission_archive.mkdir(parents=True, exist_ok=True)
+        self.workflow_archive.mkdir(parents=True, exist_ok=True)
+        self.checklist_archive.mkdir(parents=True, exist_ok=True)
 
     def handle(self, params, grid, parser):
         """
@@ -171,7 +185,7 @@ class ArchiveHandler(BaseCommandHandler):
             return self._archive_checklist(item_id)
 
     def _archive_mission(self, mission_id: str):
-        """Archive a specific mission with metadata."""
+        """Archive a specific mission with metadata (v1.1.16: uses .archive/completed/)."""
         mission_path = Path(f"memory/workflows/missions/{mission_id}")
 
         if not mission_path.exists():
@@ -180,9 +194,9 @@ class ArchiveHandler(BaseCommandHandler):
                 f"Path: {mission_path}"
             )
 
-        # Create archive directory
+        # Create archive directory in mission-specific .archive/completed/
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        archive_dir = self.archive_base / "missions" / f"{mission_id}_{timestamp}"
+        archive_dir = self.mission_archive / f"{mission_id}_{timestamp}"
         archive_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy mission files
@@ -200,8 +214,9 @@ class ArchiveHandler(BaseCommandHandler):
             "archive_path": str(archive_dir)
         }
 
-        with open(archive_dir / "metadata.json", 'w') as f:
-            json.dump(metadata, f, indent=2)
+        success, error = self.save_json_file(archive_dir / "metadata.json", metadata)
+        if not success:
+            return self.output_formatter.format_error(f"Failed to save metadata: {error}")
 
         # Remove original (optional - can be configured)
         # shutil.rmtree(mission_path) if mission_path.is_dir() else mission_path.unlink()
@@ -216,7 +231,7 @@ class ArchiveHandler(BaseCommandHandler):
         )
 
     def _archive_workflow(self, workflow_id: str):
-        """Archive a specific workflow with checkpoints."""
+        """Archive a specific workflow with checkpoints (v1.1.16: uses .archive/completed/)."""
         workflow_file = Path(f"memory/workflows/missions/{workflow_id}.upy")
 
         if not workflow_file.exists():
@@ -225,9 +240,9 @@ class ArchiveHandler(BaseCommandHandler):
                 f"Path: {workflow_file}"
             )
 
-        # Create archive directory
+        # Create archive directory in workflow-specific .archive/completed/
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        archive_dir = self.archive_base / "workflows" / f"{workflow_id}_{timestamp}"
+        archive_dir = self.workflow_archive / f"{workflow_id}_{timestamp}"
         archive_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy workflow file
@@ -253,8 +268,9 @@ class ArchiveHandler(BaseCommandHandler):
             "checkpoints_count": len(checkpoints) if checkpoint_dir.exists() else 0
         }
 
-        with open(archive_dir / "metadata.json", 'w') as f:
-            json.dump(metadata, f, indent=2)
+        success, error = self.save_json_file(archive_dir / "metadata.json", metadata)
+        if not success:
+            return self.output_formatter.format_error(f"Failed to save metadata: {error}")
 
         return self.output_formatter.format_success(
             f"Workflow archived: {workflow_id}",
@@ -271,8 +287,9 @@ class ArchiveHandler(BaseCommandHandler):
         state_file = Path("memory/system/user/checklist_state.json")
         state = {}
         if state_file.exists():
-            with open(state_file, 'r') as f:
-                state = json.load(f)
+            success, state, error = self.load_json_file(state_file)
+            if not success:
+                return self.output_formatter.format_error(f"Failed to load state: {error}")
 
         checklist_state = state.get(checklist_id, {})
 
@@ -289,14 +306,16 @@ class ArchiveHandler(BaseCommandHandler):
             "progress": checklist_state
         }
 
-        with open(archive_dir / "metadata.json", 'w') as f:
-            json.dump(metadata, f, indent=2)
+        success, error = self.save_json_file(archive_dir / "metadata.json", metadata)
+        if not success:
+            return self.output_formatter.format_error(f"Failed to save metadata: {error}")
 
         # Remove from active state
         if checklist_id in state:
             del state[checklist_id]
-            with open(state_file, 'w') as f:
-                json.dump(state, f, indent=2)
+            success, error = self.save_json_file(state_file, state)
+            if not success:
+                return self.output_formatter.format_error(f"Failed to update state: {error}")
 
         return self.output_formatter.format_success(
             f"Checklist archived: {checklist_id}",
@@ -324,14 +343,21 @@ class ArchiveHandler(BaseCommandHandler):
         )
 
     def _list_archived(self, archive_type: str = None):
-        """List archived items with metadata."""
+        """List archived items with metadata (v1.1.16: scans .archive/completed/ folders)."""
         output = ["📦 ARCHIVED ITEMS\n" + "=" * 60 + "\n"]
+
+        # Map type names to archive locations
+        type_locations = {
+            "missions": self.mission_archive,
+            "workflows": self.workflow_archive,
+            "checklists": self.checklist_archive
+        }
 
         types_to_check = [archive_type] if archive_type else ["missions", "workflows", "checklists"]
 
         for item_type in types_to_check:
-            type_dir = self.archive_base / item_type
-            if not type_dir.exists():
+            type_dir = type_locations.get(item_type)
+            if not type_dir or not type_dir.exists():
                 continue
 
             archives = sorted(type_dir.iterdir(), reverse=True)
@@ -342,8 +368,9 @@ class ArchiveHandler(BaseCommandHandler):
             for archive in archives[:10]:  # Show latest 10
                 metadata_file = archive / "metadata.json"
                 if metadata_file.exists():
-                    with open(metadata_file, 'r') as f:
-                        metadata = json.load(f)
+                    success, metadata, error = self.load_json_file(metadata_file)
+                    if not success:
+                        continue
 
                     archived_time = metadata.get('archived_at', 'Unknown')
                     item_id = metadata.get('id', archive.name)
@@ -352,10 +379,17 @@ class ArchiveHandler(BaseCommandHandler):
         return "\n".join(output)
 
     def _restore_archived(self, archive_type: str, item_id: str):
-        """Restore an archived item to active state."""
-        type_dir = self.archive_base / archive_type
+        """Restore an archived item to active state (v1.1.16: uses .archive/completed/)."""
+        # Map type names to archive locations
+        type_locations = {
+            "missions": self.mission_archive,
+            "workflows": self.workflow_archive,
+            "checklists": self.checklist_archive
+        }
 
-        if not type_dir.exists():
+        type_dir = type_locations.get(archive_type)
+
+        if not type_dir or not type_dir.exists():
             return self.output_formatter.format_error(
                 f"No archived {archive_type}s found"
             )
@@ -375,8 +409,9 @@ class ArchiveHandler(BaseCommandHandler):
                 "Archive metadata missing"
             )
 
-        with open(metadata_file, 'r') as f:
-            metadata = json.load(f)
+        success, metadata, error = self.load_json_file(metadata_file)
+        if not success:
+            return self.output_formatter.format_error(f"Failed to load metadata: {error}")
 
         original_path = Path(metadata['original_path'])
 
@@ -405,13 +440,15 @@ class ArchiveHandler(BaseCommandHandler):
             state_file = Path("memory/system/user/checklist_state.json")
             state = {}
             if state_file.exists():
-                with open(state_file, 'r') as f:
-                    state = json.load(f)
+                success, state, error = self.load_json_file(state_file)
+                if not success:
+                    return self.output_formatter.format_error(f"Failed to load state: {error}")
 
             state[item_id] = metadata.get('progress', {})
 
-            with open(state_file, 'w') as f:
-                json.dump(state, f, indent=2)
+            success, error = self.save_json_file(state_file, state)
+            if not success:
+                return self.output_formatter.format_error(f"Failed to save state: {error}")
 
         return self.output_formatter.format_success(
             f"Restored {archive_type}: {item_id}",
@@ -431,8 +468,8 @@ class ArchiveHandler(BaseCommandHandler):
         for archive in type_dir.iterdir():
             metadata_file = archive / "metadata.json"
             if metadata_file.exists():
-                with open(metadata_file, 'r') as f:
-                    metadata = json.load(f)
-                items.append(metadata)
+                success, metadata, error = self.load_json_file(metadata_file)
+                if success:
+                    items.append(metadata)
 
         return sorted(items, key=lambda x: x['archived_at'], reverse=True)

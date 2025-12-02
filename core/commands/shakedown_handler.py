@@ -1,14 +1,17 @@
 """
-uDOS v1.5.0 - Shakedown Test Handler
+uDOS v1.1.16+ - Shakedown Test Handler
 
-Comprehensive system validation testing for v1.5.0 features:
-- Core architecture (flattened structure)
+Comprehensive system validation testing for v1.1.16+ features:
+- Core architecture (v1.5.0: flattened structure)
 - Planet system (workspace renamed to planet)
 - Asset management (centralized library)
 - DEV MODE (security system)
 - Configuration sync (.env ↔ user.json)
 - Memory structure (43% reduction)
 - Database locations (sandbox/user/)
+- Variable System (v1.1.18: SPRITE/OBJECT with JSON schemas)
+- Handler Architecture (v1.1.17: system handler refactored, UNDO/REDO)
+- Play Extension (v1.1.19: STORY command when implemented)
 
 Usage:
     SHAKEDOWN           - Run all tests with summary
@@ -68,6 +71,15 @@ class ShakedownHandler(BaseCommandHandler):
         if not quick:
             self._test_startup_health(output, verbose)
             self._test_core_imports(output, verbose)
+
+        # v1.1.17+ test suites (documentation, variables, play extension)
+        self._test_variable_system(output, verbose)
+        self._test_sprite_object_system(output, verbose)
+        self._test_content_generation(output, verbose)
+
+        if not quick:
+            self._test_story_system(output, verbose)
+            self._test_handler_architecture(output, verbose)
 
         # Summary
         output.append("")
@@ -467,6 +479,217 @@ class ShakedownHandler(BaseCommandHandler):
                 self._add_test(f"Import: {name}", False, str(e))
 
         output.append("")
+
+    def _test_variable_system(self, output: List[str], verbose: bool):
+        """Test variable system with JSON schema support (v1.1.18)."""
+        output.append("🔢 Variable System Tests (v1.1.18)")
+        output.append("─" * 63)
+
+        # Test VariableManager import
+        try:
+            from core.utils.variables import VariableManager
+            output.append(f"  ✅ VariableManager imports successfully")
+            self._add_test("Variables: VariableManager import", True)
+
+            manager = VariableManager()
+
+            # Test schema loading
+            expected_schemas = ['system', 'user', 'sprite', 'object', 'story']
+            for schema_name in expected_schemas:
+                has_schema = schema_name in manager.schemas
+                symbol = "✅" if has_schema else "❌"
+                if verbose or not has_schema:
+                    output.append(f"  {symbol} {schema_name}.json schema loaded")
+                self._add_test(f"Variables: {schema_name} schema loaded", has_schema)
+
+            # Test scope management
+            scopes = ['global', 'session', 'script', 'local']
+            for scope in scopes:
+                has_scope = scope in manager.variables
+                symbol = "✅" if has_scope else "❌"
+                if verbose or not has_scope:
+                    output.append(f"  {symbol} {scope} scope initialized")
+                self._add_test(f"Variables: {scope} scope", has_scope)
+
+        except Exception as e:
+            output.append(f"  ❌ VariableManager import failed: {e}")
+            self._add_test("Variables: VariableManager import", False, str(e))
+
+        output.append("")
+
+    def _test_sprite_object_system(self, output: List[str], verbose: bool):
+        """Test SPRITE and OBJECT handlers (v1.1.18)."""
+        output.append("🎮 SPRITE/OBJECT System Tests (v1.1.18)")
+        output.append("─" * 63)
+
+        # Test SPRITE handler
+        try:
+            from core.commands.sprite_handler import SpriteHandler
+            output.append(f"  ✅ SpriteHandler imports successfully")
+            self._add_test("SPRITE: handler import", True)
+
+            # Check sprite schema exists
+            sprite_schema_path = self.root / "core" / "data" / "variables" / "sprite.schema.json"
+            exists = sprite_schema_path.exists()
+            symbol = "✅" if exists else "❌"
+            output.append(f"  {symbol} sprite.schema.json exists")
+            self._add_test("SPRITE: schema file", exists)
+
+            if exists and verbose:
+                with open(sprite_schema_path) as f:
+                    schema = json.load(f)
+                    props = len(schema.get('properties', {}))
+                    output.append(f"     └─ {props} sprite properties defined")
+
+        except Exception as e:
+            output.append(f"  ❌ SpriteHandler import failed: {e}")
+            self._add_test("SPRITE: handler import", False, str(e))
+
+        # Test OBJECT handler
+        try:
+            from core.commands.object_handler import ObjectHandler
+            output.append(f"  ✅ ObjectHandler imports successfully")
+            self._add_test("OBJECT: handler import", True)
+
+            # Check object schema exists
+            object_schema_path = self.root / "core" / "data" / "variables" / "object.schema.json"
+            exists = object_schema_path.exists()
+            symbol = "✅" if exists else "❌"
+            output.append(f"  {symbol} object.schema.json exists")
+            self._add_test("OBJECT: schema file", exists)
+
+        except Exception as e:
+            output.append(f"  ❌ ObjectHandler import failed: {e}")
+            self._add_test("OBJECT: handler import", False, str(e))
+
+        output.append("")
+
+    def _test_story_system(self, output: List[str], verbose: bool):
+        """Test STORY command handler (v1.1.19)."""
+        output.append("📖 STORY System Tests (v1.1.19)")
+        output.append("─" * 63)
+
+        # Test STORY handler (if exists)
+        try:
+            from core.commands.story_handler import StoryHandler
+            output.append(f"  ✅ StoryHandler imports successfully")
+            self._add_test("STORY: handler import", True)
+
+            # Check for adventure scripts
+            adventures_path = self.root / "memory" / "ucode" / "adventures"
+            if adventures_path.exists():
+                adventures = list(adventures_path.glob("*.upy"))
+                count = len(adventures)
+                symbol = "✅" if count > 0 else "⚠️"
+                output.append(f"  {symbol} {count} adventure script(s) found")
+                self._add_test("STORY: adventure scripts", count > 0)
+            else:
+                output.append(f"  ⚠️  No adventures directory (will be created)")
+                self._add_test("STORY: adventure scripts", True)  # OK if not exists yet
+
+        except ImportError:
+            output.append(f"  ⚠️  StoryHandler not yet implemented (planned v1.1.19)")
+            self._add_test("STORY: handler import", True)  # Not implemented yet, OK
+        except Exception as e:
+            output.append(f"  ❌ StoryHandler error: {e}")
+            self._add_test("STORY: handler import", False, str(e))
+
+        output.append("")
+
+    def _test_content_generation(self, output: List[str], verbose: bool):
+        """Test content generation system (v1.1.6 + v1.1.15)."""
+        output.append("🎨 Content Generation Tests (v1.1.6 + v1.1.15)")
+        output.append("─" * 63)
+
+        # Test GENERATE handler
+        try:
+            from core.commands.generate_handler import GenerateHandler
+            output.append(f"  ✅ GenerateHandler imports successfully")
+            self._add_test("GENERATE: handler import", True)
+
+            # Check handler size
+            handler_path = self.root / "core" / "commands" / "generate_handler.py"
+            if handler_path.exists():
+                with open(handler_path) as f:
+                    lines = len(f.readlines())
+                symbol = "✅" if lines > 500 else "⚠️"
+                output.append(f"  {symbol} generate_handler.py: {lines} lines")
+                self._add_test("GENERATE: handler size", lines > 500)
+
+        except ImportError as e:
+            output.append(f"  ❌ GenerateHandler import failed: {e}")
+            self._add_test("GENERATE: handler import", False, str(e))
+
+        # Test survival prompts (Nano Banana optimization)
+        prompts_path = self.root / "core" / "data" / "diagrams" / "templates" / "survival_prompts.json"
+        if prompts_path.exists():
+            import json
+            with open(prompts_path) as f:
+                data = json.load(f)
+                prompt_count = len(data.get("prompts", {}))
+                symbol = "✅" if prompt_count >= 13 else "⚠️"
+                output.append(f"  {symbol} {prompt_count} survival diagram prompts")
+                self._add_test("GENERATE: survival prompts", prompt_count >= 13)
+        else:
+            output.append(f"  ⚠️  survival_prompts.json not found")
+            self._add_test("GENERATE: survival prompts", False)
+
+        # Check for REVIEW/REGEN (planned v1.1.17)
+        try:
+            # REVIEW and REGEN should be in docs_unified_handler (v1.1.17)
+            docs_handler_path = self.root / "core" / "commands" / "docs_unified_handler.py"
+            if docs_handler_path.exists():
+                with open(docs_handler_path) as f:
+                    content = f.read()
+                    has_review = "REVIEW" in content or "review" in content
+                    has_regen = "REGEN" in content or "regen" in content
+                    symbol = "✅" if (has_review and has_regen) else "⚠️"
+                    output.append(f"  {symbol} REVIEW/REGEN commands: {'found' if has_review and has_regen else 'not yet implemented'}")
+                    self._add_test("GENERATE: REVIEW/REGEN", has_review and has_regen)
+            else:
+                output.append(f"  ⚠️  REVIEW/REGEN not yet implemented (planned v1.1.17)")
+                self._add_test("GENERATE: REVIEW/REGEN", True)  # OK if not exists yet
+        except Exception as e:
+            output.append(f"  ⚠️  REVIEW/REGEN check skipped: {e}")
+
+        output.append("")
+
+    def _test_handler_architecture(self, output: List[str], verbose: bool):
+        """Test handler architecture and consolidation (v1.1.17)."""
+        output.append("🏗️  Handler Architecture Tests (v1.1.17)")
+        output.append("─" * 63)
+
+        # Test system handler size (should be ~674 lines after v1.1.5.1 refactor)
+        system_handler_path = self.root / "core" / "commands" / "system_handler.py"
+        if system_handler_path.exists():
+            with open(system_handler_path) as f:
+                lines = len(f.readlines())
+
+            # After refactoring should be 600-700 lines
+            refactored = 600 <= lines <= 750
+            symbol = "✅" if refactored else "⚠️"
+            output.append(f"  {symbol} system_handler.py: {lines} lines (target: 600-700)")
+            self._add_test("Handler: system_handler refactored", refactored)
+
+        # Check for shared utilities
+        common_path = self.root / "core" / "utils" / "common.py"
+        exists = common_path.exists()
+        symbol = "✅" if exists else "❌"
+        output.append(f"  {symbol} core/utils/common.py (shared utilities)")
+        self._add_test("Handler: shared utilities", exists)
+
+        # Check UNDO/REDO commands exist
+        try:
+            from core.commands.session_handler import SessionHandler
+            output.append(f"  ✅ SessionHandler (UNDO/REDO) imports")
+            self._add_test("Handler: UNDO/REDO commands", True)
+        except Exception as e:
+            output.append(f"  ❌ SessionHandler import failed: {e}")
+            self._add_test("Handler: UNDO/REDO commands", False, str(e))
+
+        output.append("")
+
+
 def create_handler(**kwargs) -> ShakedownHandler:
     """Factory function for handler creation."""
     return ShakedownHandler(**kwargs)

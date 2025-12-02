@@ -104,8 +104,11 @@ memory/workflows/logs/**/*
 # Keep source in /wiki, ignore deployed clone
 uDOS.wiki/
 
-# Backups & Archives
+# Backups & Archives (v1.1.16+)
 # ----------------------
+# Universal .archive/ folders (version history, backups, soft-deletes)
+.archive/
+**/.archive/
 backups/
 *.backup
 *.bak

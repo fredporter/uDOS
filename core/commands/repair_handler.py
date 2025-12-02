@@ -56,6 +56,9 @@ class RepairHandler(BaseCommandHandler):
         git_pull = component == "pull"
         pip_upgrade = component == "upgrade-pip"
 
+        # v1.1.16 - Archive system recovery
+        recover_file = component == "recover"
+
         # New upgrade options
         python_upgrade = component == "upgrade-python"
         venv_upgrade = component == "upgrade-venv"
@@ -64,6 +67,11 @@ class RepairHandler(BaseCommandHandler):
         # Extension management flags
         install_extensions = component == "install-extensions"
         clone_extension = component and component.startswith("clone")
+
+        # Handle file recovery from .archive/deleted/ (v1.1.16)
+        if recover_file:
+            filename = params[1] if len(params) > 1 else None
+            return self._repair_recover_deleted(filename)
 
         # Handle extension cloning
         if install_extensions:
@@ -595,3 +603,79 @@ class RepairHandler(BaseCommandHandler):
 
         except Exception as e:
             return f"\n⚠️  Sandbox health check failed: {e}\n"
+
+    def _repair_recover_deleted(self, filename: str = None):
+        """Recover soft-deleted files from .archive/deleted/ (v1.1.16)."""
+        from core.utils.archive_manager import ArchiveManager
+        from pathlib import Path
+
+        archive_mgr = ArchiveManager()
+
+        if not filename:
+            # List all recoverable files
+            archives = archive_mgr.scan_archives()
+            recoverable = []
+
+            for archive in archives:
+                deleted_dir = Path(archive) / 'deleted'
+                if deleted_dir.exists():
+                    for file in deleted_dir.iterdir():
+                        if file.is_file():
+                            recoverable.append({
+                                'name': file.name,
+                                'path': file,
+                                'size': file.stat().st_size,
+                                'deleted': file.stat().st_mtime
+                            })
+
+            if not recoverable:
+                return "✅ No deleted files to recover\n💡 Deleted files are kept for 7 days"
+
+            # Format list
+            from datetime import datetime
+            output = "╔═══════════════════════════════════════════════════════════╗\n"
+            output += "║           Recoverable Deleted Files (7-day window)        ║\n"
+            output += "╠═══════════════════════════════════════════════════════════╣\n"
+
+            for i, file in enumerate(recoverable, 1):
+                deleted_time = datetime.fromtimestamp(file['deleted']).strftime('%Y-%m-%d %H:%M')
+                size_kb = round(file['size'] / 1024, 2)
+                output += f"║ {i}. {file['name'][:45]:<45} ║\n"
+                output += f"║    Deleted: {deleted_time}  Size: {size_kb} KB{' ' * (17 - len(str(size_kb)))} ║\n"
+                if i < len(recoverable):
+                    output += "║ ─────────────────────────────────────────────────────────  ║\n"
+
+            output += "╚═══════════════════════════════════════════════════════════╝\n"
+            output += "\n💡 Recover with: REPAIR RECOVER <filename>"
+
+            return output
+
+        # Recover specific file
+        archives = archive_mgr.scan_archives()
+        for archive in archives:
+            deleted_dir = Path(archive) / 'deleted'
+            if deleted_dir.exists():
+                deleted_file = deleted_dir / filename
+                if deleted_file.exists():
+                    # Restore to parent of archive
+                    restore_path = Path(archive).parent / filename
+
+                    # Check if file already exists
+                    if restore_path.exists():
+                        return (
+                            f"❌ Cannot recover: {filename}\n"
+                            f"File already exists: {restore_path}\n\n"
+                            f"💡 Rename or delete existing file first"
+                        )
+
+                    # Restore file
+                    import shutil
+                    shutil.move(deleted_file, restore_path)
+
+                    return (
+                        f"✅ Recovered: {filename}\n\n"
+                        f"Restored to: {restore_path}\n"
+                        f"Size: {round(restore_path.stat().st_size / 1024, 2)} KB"
+                    )
+
+        return f"❌ File not found in deleted archives: {filename}\n💡 Use REPAIR RECOVER to see all recoverable files"

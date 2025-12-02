@@ -9,6 +9,89 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### v1.1.17 - Code Quality & Documentation Consolidation (December 3, 2025)
+
+**Code Quality Improvement:** Unified documentation system (Move 1) + Shared utilities enhancement (Move 2).
+
+#### Added
+
+**Unified Documentation System**
+- `core/commands/docs_unified_handler.py` (1,460 lines) - Consolidates GUIDE + DIAGRAM + LEARN
+- New commands: `DOCS REVIEW <name>` - Assess content quality (scores: completeness, clarity, accuracy, usefulness)
+- New commands: `DOCS REGEN <name>` - AI-powered content regeneration with citations (pending implementation)
+- New commands: `DOCS HISTORY <name>` - View content version history (pending implementation)
+- Smart content detection - Auto-detects guide vs diagram vs reference
+- Unified progress tracking across all content types
+- Interactive picker with recommendations
+- Content quality scoring system (4 dimensions)
+
+**Testing**
+- `memory/ucode/test_docs_unified_handler.py` (330 lines) - Comprehensive test suite
+- 33 tests across 13 test classes (100% passing)
+- Coverage: command routing, progress tracking, content indexing, quality assessment
+
+**Deprecation Notices**
+- Legacy `GUIDE` command → Shows migration notice, executes as `DOCS`
+- Legacy `DIAGRAM` command → Shows migration notice, executes as `DOCS`
+- Legacy `LEARN` command → Shows migration notice, executes as `DOCS`
+- All legacy functionality preserved with clear migration path
+
+#### Changed
+
+**Command Routing Updates**
+- `core/uDOS_commands.py` - Updated to use unified DOCS handler
+- `BANK` command → Redirects to `DOCS` (was `GUIDE`)
+- `KB`/`KNOWLEDGEBANK` → Redirects to `DOCS` (was `GUIDE`)
+
+**Shared Utilities Enhancement (Move 2)**
+- `core/commands/docs_unified_handler.py` - Now uses `BaseCommandHandler` utilities
+- `core/commands/workflow_handler.py` - Refactored to use shared utilities (857 → 852 lines, -5)
+- `core/commands/archive_handler.py` - Enhanced with atomic JSON writes (467 → 475 lines, +8)
+- `core/commands/variable_handler.py` - Simplified JSON operations (416 → 409 lines, -7)
+- **29 manual file I/O operations** → Use shared utilities from `core/utils/common.py`
+- **Atomic JSON writes** - Temp file + rename pattern prevents corruption
+- **Consistent error handling** - Detailed error messages across all handlers
+- **Safer persistence** - Crash-resistant file operations
+
+#### Removed
+
+**Consolidated Handlers** (→ `core/commands/.archive/v1.1.17_consolidation/`)
+- `guide_handler.py` (697 lines) - Interactive step-by-step guides
+- `learn_unified_handler.py` (347 lines) - Smart wrapper for GUIDE + DIAGRAM
+- `diagram_handler.py` (607 lines) - ASCII art library browser
+
+**Code Reduction:**
+- Move 1: Before: 1,651 lines (3 handlers) → After: 1,460 lines → **Savings: 191 lines (11.6%)**
+- Move 2: Before: 3,200 lines (4 handlers) → After: 3,199 lines → **Savings: 1 line (safety > lines)**
+- **Total v1.1.17: 192 lines saved, significantly safer code**
+
+#### Migration Guide
+
+**For Users:**
+```bash
+# Old commands still work with deprecation notices
+GUIDE LIST → DOCS LIST guide
+GUIDE START water-purification → DOCS START water-purification
+DIAGRAM SHOW knot-types → DOCS SHOW knot-types
+LEARN water → DOCS SHOW water
+
+# New unified commands
+DOCS                    # Interactive picker
+DOCS LIST [type] [cat]  # List content (guide/diagram/reference)
+DOCS SHOW <name>        # Smart display (auto-detects type)
+DOCS SEARCH <query>     # Search all documentation
+DOCS REVIEW <name>      # Assess content quality (NEW)
+DOCS REGEN <name>       # Improve with AI (NEW, pending)
+```
+
+**For Developers:**
+- Import `DocsUnifiedHandler` instead of `GuideHandler`, `DiagramHandler`, `LearnUnifiedHandler`
+- All handler methods preserved with same signatures
+- Progress file location unchanged: `memory/modules/.docs_progress.json`
+- Content index built automatically on initialization
+
+---
+
 ### v1.1.12 - uPY Migration Complete (December 2, 2025)
 
 **Breaking Change:** Backward compatibility for .uscript files removed. Only .upy format supported.
