@@ -130,52 +130,52 @@ Unify isolated workflow/mission/checklist systems into a cohesive JSON-based tas
 - ✅ Re-engineer workflows folder (v2.0 flat structure, gameplay integration)
 - 🔄 Expose WORKFLOW commands in main CLI (currently in handler)
 
-**3. Archive Handler**
-- Create `core/commands/archive_handler.py`
-- Commands: `ARCHIVE mission|workflow|checklist <id>`
-- Storage: `memory/archived/` with timestamps
-- Metadata: JSON files with completion stats
-- Integration with existing cleanup commands (CLEAN, TIDY)
+**3. Archive Handler** ✅ COMPLETE (December 2, 2025)
+- ✅ Create `core/commands/archive_handler.py` (430 lines)
+- ✅ Commands: `ARCHIVE mission|workflow|checklist <id>`, LIST, restore
+- ✅ Storage: `memory/system/archived/` with timestamps
+- ✅ Metadata: JSON files with completion stats
+- ✅ Integration with existing cleanup commands (CLEAN, TIDY)
 
 #### Phase 2: Integration (Week 3-4)
 
-**4. Variable System Extension**
-- Extend `core/commands/variable_handler.py` with new scopes:
-  - `MISSION.*` - Access mission state from `mission_manager.py`
-  - `CHECKLIST.*` - Access checklist progress from `checklist_manager.py`
-  - `WORKFLOW.*` - Access workflow state from checkpoints
-- Examples:
-  - `GET MISSION.PROGRESS` → "45/55 (81.8%)"
-  - `GET CHECKLIST.COMPLETED_ITEMS` → "127/156"
-  - `GET WORKFLOW.PHASE` → "monitoring"
+**4. Variable System Extension** ✅ COMPLETE (December 2, 2025)
+- ✅ Extend `core/commands/variable_handler.py` with new scopes:
+  - ✅ `MISSION.*` - Access mission state from workflow state
+  - ✅ `CHECKLIST.*` - Access checklist progress from state file
+  - ✅ `WORKFLOW.*` - Access workflow state from checkpoints
+- ✅ Examples working:
+  - `GET MISSION.PROGRESS` → "0/0 (no active mission)"
+  - `GET CHECKLIST.ACTIVE` → "3"
+  - `GET WORKFLOW.PHASE` → "IDLE"
 
-**5. System Linking**
-- Add `workflow_script` field to `memory/workflows/templates/mission_template.json`
-- Add `related_guides`, `related_checklists` to checklist schema
-- Update `core/commands/guide_handler.py` to display related checklists
-- Sync mission metrics from workflow checkpoints automatically
+**5. System Linking** ✅ COMPLETE (December 2, 2025)
+- ✅ Add `workflow_script` field to mission schema (mission.schema.json)
+- ✅ Add `related_guides`, `related_checklists` to mission schema
+- ✅ Update `core/commands/guide_handler.py` to display related checklists
+- ✅ Created example mission: water-purification-setup.json (links guides + checklists)
+- 🔄 Sync mission metrics from workflow checkpoints (future enhancement)
 
-**6. Dashboard MVP**
-- Create `extensions/web/dashboard/` structure:
+**6. Dashboard MVP** ✅ COMPLETE (December 2, 2025)
+- ✅ Create `extensions/web/dashboard/` structure:
   ```
   dashboard/
   ├── extension.json         # Extension metadata
-  ├── server.py              # Flask application
+  ├── server.py              # Flask application (215 lines)
   ├── static/
-  │   ├── nes.css           # Nintendo 8-bit styling
-  │   ├── dashboard.js      # Real-time updates
-  │   └── icons/            # Retro icons
+  │   └── dashboard.js       # Real-time updates (5s refresh)
   └── templates/
-      ├── index.html        # Main dashboard
-      └── widgets/          # Widget templates
+      └── index.html         # Main dashboard (NES.css)
   ```
-- Core widgets:
-  - Mission progress bars (current mission, all missions)
-  - Checklist completion meters (active checklists)
-  - Workflow phase indicators (current phase, iterations)
-  - Resource usage graphs (retro-styled)
-- Real-time polling (5-second refresh)
-- Port: 5050 (configurable)
+- ✅ Core widgets:
+  - ✅ Mission progress bars (current mission, all missions)
+  - ✅ Checklist completion meters (active checklists)
+  - ✅ Workflow phase indicators (current phase, iterations)
+  - ✅ XP and achievements display
+- ✅ Real-time polling (5-second refresh)
+- ✅ Port: 5050 (configurable)
+- ✅ NES.css retro Nintendo 8-bit styling
+- ✅ Complete README.md documentation
 
 #### Phase 3: Content & Polish (Week 5-6)
 
