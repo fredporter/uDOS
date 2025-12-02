@@ -1,0 +1,112 @@
+# ====================================
+# Menu System Template
+# Creates an interactive menu system
+# Modern uCODE v1.1.1+ syntax
+# ====================================
+
+# Menu state
+SPRITE-SET('[current_menu'|'= main]')
+SPRITE-SET('[running'|'= true]')
+
+# ====================================
+# FUNCTION: show_main_menu
+# ====================================
+FUNCTION show_main_menu()
+    PRINT('======================================')
+    PRINT('           MAIN MENU')
+    PRINT('======================================')
+    PRINT('1. Option 1')
+    PRINT('2. Option 2')
+    PRINT('3. Settings')
+    PRINT('4. Help')
+    PRINT('0. Exit')
+    PRINT('======================================')
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: show_settings_menu
+# ====================================
+FUNCTION show_settings_menu()
+    PRINT('======================================')
+    PRINT('          SETTINGS')
+    PRINT('======================================')
+    PRINT('1. Change Theme')
+    PRINT('2. Configure Display')
+    PRINT('3. Reset Defaults')
+    PRINT('0. Back to Main Menu')
+    PRINT('======================================')
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: show_help
+# ====================================
+FUNCTION show_help()
+    PRINT('======================================')
+    PRINT('             HELP')
+    PRINT('======================================')
+    PRINT('Navigation:')
+    PRINT('  - Use number keys to select options')
+    PRINT('  - Press 0 to go back or exit')
+    PRINT('')
+    PRINT('Commands:')
+    PRINT('  - CALL show_main_menu() - Display main menu')
+    PRINT('  - CALL show_settings_menu() - Display settings')
+    PRINT('  - SET running = false - Exit program')
+    PRINT('======================================')
+    RETURN true
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: handle_main_choice
+# ====================================
+FUNCTION handle_main_choice(choice)
+    {IF {@choice == "1"}:
+    {IF {@choice == "1"}:
+
+    {IF {@choice == "2"}:
+    {IF {@choice == "2"}:
+
+    {IF {@choice == "3"}:
+
+    IF @choice == "4"
+        CALL show_help()
+        RETURN "main"
+    ENDIF
+
+    IF @choice == "0"
+        PRINT('👋 Goodbye!')
+        RETURN "exit"
+    ENDIF
+
+    PRINT('❌ Invalid choice')
+    RETURN "main"
+ENDFUNCTION
+
+# ====================================
+# FUNCTION: handle_settings_choice
+# ====================================
+FUNCTION handle_settings_choice(choice)
+    {IF {@choice == "1"}:
+    {IF {@choice == "1"}:
+
+    {IF {@choice == "2"}:
+    {IF {@choice == "2"}:
+
+    {IF {@choice == "3"}:
+    {IF {@choice == "3"}:
+
+    {IF {@choice == "0"}:
+
+    PRINT('❌ Invalid choice')
+    RETURN "settings"
+ENDFUNCTION
+
+# Export all menu functions
+EXPORT show_main_menu
+EXPORT show_settings_menu
+EXPORT show_help
+EXPORT handle_main_choice
+EXPORT handle_settings_choice
+

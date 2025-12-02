@@ -9,7 +9,7 @@ IMPORT validators
 IMPORT string_utils
 
 # Initialize data storage
-SET [items = []]
+SPRITE-SET('[items'|'= []]')
 
 # ====================================
 # FUNCTION: create_item
@@ -21,8 +21,8 @@ FUNCTION create_item(name, value)
         CALL validate_required(value, "value")
 
         # Create item
-        SET [item = CONCAT name WITH ":" WITH value]
-        SET [items = APPEND items WITH item]
+        SPRITE-SET('[item'|'= CONCAT name WITH ":" WITH value]')
+        SPRITE-SET('[items'|'= APPEND items WITH item]')
 
         RETURN "✅ Created item: " + item
     CATCH error
@@ -39,10 +39,10 @@ FUNCTION read_item(index)
         # Validate index
         CALL is_number(index)
         GET [RETURN_VALUE]
-        IF {RETURN_VALUE == "false"} THEN THROW "Index must be a number"
+        {IF {RETURN_VALUE == "false"}:
 
         # Get item
-        SET [item = GET items AT index]
+        SPRITE-SET('[item'|'= GET items AT index]')
         RETURN "📖 Item: " + item
     CATCH error
         GET[ERROR]
@@ -65,8 +65,8 @@ FUNCTION update_item(index, new_name, new_value)
         CALL validate_required(new_value, "value")
 
         # Update item
-        SET [new_item = CONCAT new_name WITH ":" WITH new_value]
-        SET [items = UPDATE items AT index WITH new_item]
+        SPRITE-SET('[new_item'|'= CONCAT new_name WITH ":" WITH new_value]')
+        SPRITE-SET('[items'|'= UPDATE items AT index WITH new_item]')
 
         RETURN "✅ Updated item: " + new_item
     CATCH error
@@ -83,10 +83,10 @@ FUNCTION delete_item(index)
         # Validate index
         CALL is_number(index)
         GET [RETURN_VALUE]
-        IF {RETURN_VALUE == "false"} THEN THROW "Index must be a number"
+        {IF {RETURN_VALUE == "false"}:
 
         # Delete item
-        SET [items = REMOVE items AT index]
+        SPRITE-SET('[items'|'= REMOVE items AT index]')
 
         RETURN "✅ Deleted item at index " + index
     CATCH error
@@ -99,8 +99,8 @@ ENDFUNCTION
 # FUNCTION: list_all
 # ====================================
 FUNCTION list_all()
-    SET [count = COUNT items]
-    IF {count == 0} THEN RETURN "📋 No items found"
+    SPRITE-SET('[count'|'= COUNT items]')
+    {IF {count == 0}:
 
     RETURN "📋 Total items: " + count
 ENDFUNCTION

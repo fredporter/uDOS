@@ -347,14 +347,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _handle_show(self, params):
         """Display file with smart viewer detection (Typo for markdown preview)."""
         if not params:
-            # Use knowledge file picker for .md and .uscript files
+            # Use knowledge file picker for .md and .upy files
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(
                 workspace='both',
                 prompt="📄 Select file to view",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not file_path:
@@ -479,14 +479,14 @@ class FileCommandHandler(BaseCommandHandler):
     def _handle_edit(self, params):
         """Edit file with smart editor detection (Typo for markdown, micro for others)."""
         if not params:
-            # Use knowledge file picker for .md and .uscript files
+            # Use knowledge file picker for .md and .upy files
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(
                 workspace='folder',  # Shows workspace folder selector
                 prompt="📝 Select file to edit",
-                file_types=['.md', '.uscript', '.txt', '.json'],
+                file_types=['.md', '.upy', '.txt', '.json'],
                 show_workspace_selector=True
             )
 
@@ -625,12 +625,12 @@ class FileCommandHandler(BaseCommandHandler):
             from core.uDOS_interactive import InteractivePrompt
             prompt = InteractivePrompt()
 
-            # Show .uscript files
+            # Show .upy files
             script_files = [f for f in self.workspace_manager.list_files()
-                          if f.endswith('.uscript')]
+                          if f.endswith('.upy')]
 
             if not script_files:
-                return "❌ No .uscript files found"
+                return "❌ No .upy files found"
 
             script_file = prompt.ask_choice(
                 "▶️  Run script",
@@ -645,8 +645,8 @@ class FileCommandHandler(BaseCommandHandler):
         if not os.path.exists(script_file):
             return f"❌ Script not found: {script_file}"
 
-        # Check if it's a .uscript file (uCODE with IF/THEN logic)
-        if script_file.endswith('.uscript'):
+        # Check if it's a .upy file
+        if script_file.endswith('.upy'):
             try:
                 from core.uDOS_ucode import UCodeInterpreter
                 # Pass the main CommandHandler for executing nested commands
@@ -1311,7 +1311,7 @@ class FileCommandHandler(BaseCommandHandler):
             file_path = picker.pick_file(
                 workspace='both',
                 prompt="📝 Select file to edit",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not file_path:
@@ -1336,7 +1336,7 @@ class FileCommandHandler(BaseCommandHandler):
             file_path = picker.pick_file(
                 workspace='both',
                 prompt="📄 Select file to view",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not file_path:
@@ -1361,7 +1361,7 @@ class FileCommandHandler(BaseCommandHandler):
             source = picker.pick_file(
                 workspace='both',
                 prompt="📎 Select file to copy",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not source:
@@ -1402,7 +1402,7 @@ class FileCommandHandler(BaseCommandHandler):
             source = picker.pick_file(
                 workspace='both',
                 prompt="📦 Select file to move",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not source:
@@ -1442,7 +1442,7 @@ class FileCommandHandler(BaseCommandHandler):
             old_name = picker.pick_file(
                 workspace='both',
                 prompt="✏️  Select file to rename",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not old_name:
@@ -1483,7 +1483,7 @@ class FileCommandHandler(BaseCommandHandler):
             filename = picker.pick_file(
                 workspace='both',
                 prompt="🗑️  Select file to delete",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not filename:
@@ -1517,7 +1517,7 @@ class FileCommandHandler(BaseCommandHandler):
             filename = picker.pick_file(
                 workspace='both',
                 prompt="ℹ️  Select file for info",
-                file_types=['.md', '.uscript', '.txt', '.json']
+                file_types=['.md', '.upy', '.txt', '.json']
             )
 
             if not filename:

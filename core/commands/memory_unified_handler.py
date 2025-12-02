@@ -310,7 +310,7 @@ Proceed? (y/n) or specify tier (private/shared/community/public):
             return 'shared'
 
         # Scripts → COMMUNITY (shareable)
-        script_extensions = ['.py', '.uscript', '.sh', '.js']
+        script_extensions = ['.py', '.upy', '.sh', '.js']
         if any(file_path.endswith(ext) for ext in script_extensions):
             return 'community'
 
@@ -334,7 +334,7 @@ Proceed? (y/n) or specify tier (private/shared/community/public):
             'community': {
                 'script': 'Shareable code/script',
                 '.py': 'Python script for community',
-                '.uscript': 'uCODE script for sharing',
+                '.upy': 'uPY script for sharing',
                 'default': 'Useful for community sharing'
             },
             'public': {

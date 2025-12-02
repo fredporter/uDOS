@@ -13,7 +13,6 @@ from .services.session_logger import SessionLogger  # v1.1.6: Backward-compatibl
 from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
-# CommandHistory removed in v2.0.0 - using prompt_toolkit's InMemoryHistory
 from .uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
@@ -32,7 +31,7 @@ import sys
 import os
 import time
 
-# Global configuration manager (v2.0.0: Uses new Config class)
+# Global configuration manager (Uses new Config class)
 _config_manager = None
 
 
@@ -50,93 +49,41 @@ def get_config():
 
 def run_script(script_path, parser, grid, command_handler, logger, command_history=None):
     """
-    Executes a uDOS script file non-interactively.
+    Executes a uDOS script file (.upy format only).
 
-    v2.0.0: Routes .upy files to UPYParser for new COMMAND(args) syntax.
-    v1.1.1: Routes .uscript files to UCodeInterpreter (deprecated).
+    v2.0.0: Uses UPYParser for new COMMAND(args) syntax.
+    Backward compatibility for .uscript removed in v2.0.0.
     """
     try:
-        # v2.0.0: Check file extension and route appropriately
-        is_upy = script_path.lower().endswith('.upy')
-        is_uscript = script_path.lower().endswith('.uscript')
+        # v2.0.0: Only .upy files supported
+        if not script_path.lower().endswith('.upy'):
+            error_msg = f"❌ Unsupported file format. Only .upy files are supported.\n   Convert with: python bin/migrate_upy.py {script_path}"
+            logger.log(error_msg)
+            print(error_msg)
+            return
 
-        if is_upy:
-            # v2.0.0: Use new UPYParser for COMMAND(args) syntax
-            from core.runtime.upy_parser import UPYParser
-            from core.runtime.upy_preprocessor import UPYPreprocessor
+        # Use UPYParser for COMMAND(args) syntax
+        from core.runtime.upy_parser import UPYParser
+        from core.runtime.upy_preprocessor import UPYPreprocessor
 
-            preprocessor = UPYPreprocessor()
-            upy_parser = UPYParser()
+        preprocessor = UPYPreprocessor()
+        upy_parser = UPYParser()
 
-            logger.log(f"🔷 Running uPY script: {script_path}")
+        logger.log(f"🔷 Running uPY script: {script_path}")
 
-            # Preprocess and execute
-            try:
-                code = preprocessor.preprocess(script_path)
-                result = upy_parser.execute(code)
-                if result:
-                    logger.log(result)
-                    print(result)
-            except Exception as e:
-                error_msg = f"❌ Error executing '{script_path}': {e}"
-                logger.log(error_msg)
-                print(error_msg)
+        # Preprocess and execute
+        try:
+            code = preprocessor.preprocess(script_path)
+            result = upy_parser.execute(code)
+            if result:
+                logger.log(result)
+                print(result)
+        except Exception as e:
+            error_msg = f"❌ Error executing '{script_path}': {e}"
+            logger.log(error_msg)
+            print(error_msg)
 
-        elif is_uscript:
-            # v1.1.1: Use UCodeInterpreter for .uscript (DEPRECATED)
-            from core.interpreters.ucode import UCodeInterpreter
-            interpreter = UCodeInterpreter()
 
-            logger.log(f"⚠️  Running .uscript (DEPRECATED - use .upy): {script_path}")
-
-            with open(script_path, 'r') as f:
-                for line in f:
-                    clean_line = line.strip()
-                    if not clean_line or clean_line.startswith('#'):
-                        continue
-
-                    # Store command in command history if available
-                    if command_history:
-                        command_history.append_string(clean_line)
-
-                    logger.log(f"uDOS> {clean_line}")
-
-                    try:
-                        result = interpreter.execute_line(clean_line)
-                        if result:
-                            logger.log(result)
-                            print(result)
-                    except Exception as e:
-                        error_msg = f"❌ Error executing '{clean_line}': {e}"
-                        logger.log(error_msg)
-                        print(error_msg)
-        else:
-            # Use legacy parser for non-.uscript files
-            with open(script_path, 'r') as f:
-                for line in f:
-                    clean_line = line.strip()
-                    if not clean_line or clean_line.startswith('#'):
-                        continue
-
-                    # Store command in command history if available
-                    if command_history:
-                        command_history.append_string(clean_line)
-
-                    logger.log(f"uDOS> {clean_line}")
-
-                    # Check if line is already in uCODE format
-                    if clean_line.startswith('[') and clean_line.endswith(']'):
-                        ucode = clean_line  # Already uCODE, use as-is
-                    else:
-                        ucode = parser.parse(clean_line)  # Parse plain text to uCODE
-
-                    if ucode.startswith("[SYSTEM|ERROR"):
-                        result = ucode
-                    else:
-                        result = command_handler.handle_command(ucode, grid, parser)
-
-                    logger.log(result)
-                    print(result)
     except FileNotFoundError:
         error_msg = f"Error: Script file not found at '{script_path}'"
         logger.log(error_msg)

@@ -578,7 +578,7 @@ class SandboxHandler:
         if not workflow_dir.exists():
             return "ℹ️  No workflow directory to tidy"
 
-        uscripts = list(workflow_dir.glob('*.uscript'))
+        upy_scripts = list(workflow_dir.glob('*.upy'))
         json_files = list(workflow_dir.glob('*.json'))
 
         total = len(uscripts) + len(json_files)
@@ -605,7 +605,7 @@ class SandboxHandler:
         if not ucode_dir.exists():
             return "ℹ️  No ucode directory to tidy"
 
-        scripts = list(ucode_dir.glob('*.uscript'))
+        scripts = list(ucode_dir.glob('*.upy'))
 
         if not scripts:
             return "✅ uCode: Empty directory"

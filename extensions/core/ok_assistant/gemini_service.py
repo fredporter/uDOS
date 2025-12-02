@@ -183,7 +183,7 @@ Keep responses under 500 words unless explicitly asked for more.
 
     def generate_script(self, description: str) -> str:
         """Generate a uDOS script from natural language description"""
-        prompt = f"""Generate a uDOS script (.uscript) for: {description}
+        prompt = f"""Generate a uDOS script (.upy) for: {description}
 
 Use uDOS commands like:
 - NEW <filename> - Create file
@@ -192,7 +192,7 @@ Use uDOS commands like:
 - HELP - Show help
 - WORKSPACE <name> - Switch workspace
 
-Format as a complete .uscript file."""
+Format as a complete .upy file with COMMAND(args) syntax."""
         return self.ask(prompt)
 
     def debug_error(self, error_msg: str, context: Optional[str] = None) -> str:

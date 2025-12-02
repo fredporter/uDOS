@@ -365,7 +365,7 @@ class InputManager:
             # Handle multiple file types for content files
             if file_type == "all" or file_type is None:
                 # Search for common content file types
-                patterns = ["**/*.md", "**/*.uscript", "**/*.txt", "**/*.json"]
+                patterns = ["**/*.md", "**/*.upy", "**/*.txt", "**/*.json"]
             elif isinstance(file_type, list):
                 patterns = [f"**/*{ext}" for ext in file_type]
             else:

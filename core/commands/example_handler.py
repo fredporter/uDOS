@@ -69,8 +69,8 @@ class ExampleHandler:
         if not self.examples_path.exists():
             return index
 
-        # Index .uscript files
-        for script in self.examples_path.rglob("*.uscript"):
+        # Index .upy files
+        for script in self.examples_path.rglob("*.upy"):
             name = script.stem.lower()
             index[name] = {
                 "name": script.stem,
@@ -153,7 +153,7 @@ CATEGORIES:
   • Advanced           Complex features
 
 RUNNING EXAMPLES:
-  • .uscript files run as uCODE scripts
+  • .upy files run as uPY scripts (COMMAND syntax)
   • .py files are displayed (not executed)
   • .txt files show text output examples
 
@@ -240,7 +240,7 @@ See also: GUIDE, HANDBOOK, LIBRARY
         ex_data = self.examples[name]
 
         if ex_data['type'] != "uCODE Script":
-            return f"\n❌ Cannot run {ex_data['type']}\n\nOnly .uscript files can be executed\n"
+            return f"\n❌ Cannot run {ex_data['type']}\n\nOnly .upy files can be executed\n"
 
         # Return instruction to run via uCODE interpreter
         return f"""
