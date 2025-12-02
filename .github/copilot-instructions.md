@@ -26,22 +26,14 @@ memory/
 │   ├── adventures/         # Adventure scripts
 │   ├── examples/           # Example scripts
 │   └── stdlib/             # Standard library
-├── workflows/              # Unified workflow system
-│   ├── active/             # Running workflows
-│   ├── archived/           # Archived workflows
-│   ├── checklists/         # Checklist workflows
-│   ├── checkpoints/        # State snapshots
-│   ├── completed/          # Finished workflows
-│   ├── examples/           # Example workflows
-│   ├── logs/               # Workflow logs
-│   ├── missions/           # Mission workflows
-│   ├── reports/            # Workflow reports
-│   ├── scenarios/          # Scenario workflows
-│   ├── schedules/          # Scheduled workflows
-│   ├── scripts/            # Workflow scripts
-│   ├── sessions/           # Session workflows
-│   ├── templates/          # Workflow templates (.upy)
-│   └── workflows/          # Workflow definitions
+├── workflows/              # Unified workflow system (v2.0 - flat structure)
+│   ├── config.json         # Workflow system configuration
+│   ├── README.md           # Workflow v2.0 documentation
+│   ├── missions/           # All mission workflow scripts (.upy)
+│   ├── checkpoints/        # Auto-saved state snapshots
+│   ├── state/              # Current execution state and control
+│   ├── extensions/         # Gameplay/XP/achievement integration
+│   └── .archive/           # Legacy structure (v1.x)
 ├── system/                 # System files
 │   ├── archived/           # Archived system files
 │   ├── backup/             # Configuration backups
@@ -71,14 +63,13 @@ memory/
 - Development scripts → `dev/scripts/`
 
 **✅ Use `/memory/` for (gitignored, except ucode/):**
-- Active workflows → `memory/workflows/active/`
-- Missions → `memory/workflows/missions/`
-- Checklists → `memory/workflows/checklists/`
-- Completed work → `memory/workflows/completed/`
-- Archived work → `memory/system/archived/` or `memory/workflows/archived/`
+- Mission workflows → `memory/workflows/missions/` (all .upy scripts)
+- Workflow checkpoints → `memory/workflows/checkpoints/` (auto-saved state)
+- Workflow state → `memory/workflows/state/` (current execution state)
+- Workflow extensions → `memory/workflows/extensions/` (gameplay integration)
 - User data → `memory/system/user/`
-- Runtime logs → `memory/workflows/logs/`
 - System backups → `memory/system/backup/`
+- System archives → `memory/system/archived/`
 - Core tests/utilities → `memory/ucode/` (tracked in git)
 
 **❌ Never commit to git:**
@@ -184,6 +175,33 @@ def test_load_water_guide():
     guide = km.load_guide("water/purification")
     assert guide is not None
     assert "boiling" in guide['content'].lower()
+```
+
+## System Variables (v2.0)
+
+### Workflow Variables
+```python
+# Mission context
+$MISSION.ID              # Current mission ID
+$MISSION.NAME            # Mission name
+$MISSION.STATUS          # DRAFT | ACTIVE | PAUSED | COMPLETED | FAILED
+$MISSION.PROGRESS        # Progress (e.g., "45/55" or "82%")
+$MISSION.START_TIME      # ISO timestamp
+$MISSION.OBJECTIVE       # Mission goal
+
+# Workflow execution context
+$WORKFLOW.NAME           # Current workflow script name
+$WORKFLOW.PHASE          # INIT | SETUP | EXECUTE | MONITOR | COMPLETE
+$WORKFLOW.ITERATION      # Current loop iteration
+$WORKFLOW.ERRORS         # Error count
+$WORKFLOW.ELAPSED_TIME   # Seconds since start
+
+# Checkpoint context
+$CHECKPOINT.ID           # Unique checkpoint identifier
+$CHECKPOINT.TIMESTAMP    # When checkpoint was saved
+$CHECKPOINT.DATA         # Serialized state data
+$CHECKPOINT.PREVIOUS     # Previous checkpoint (linked list)
+$CHECKPOINT.NEXT         # Next checkpoint
 ```
 
 ## Common Patterns
