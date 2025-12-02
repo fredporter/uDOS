@@ -134,19 +134,25 @@ After each phase:
 - ✅ Deprecation messages accurate
 - ⚠️ validator.py still references .uscript (needs decision: migrate or deprecate)
 
-## Phase 2: System Handler Refactoring (PLANNED)
+## Phase 2: System Handler Refactoring (IN PROGRESS)
 
 See: `sandbox/dev/system-handler-refactor-plan.md`
 
-**Current Status:** 1,534 lines
-**Analysis Complete:** Identified 287 lines of variable commands to extract
+**Phase 2.1 COMPLETE ✅ (Dec 2, 2025)**
+- Created `core/commands/variable_handler.py` (294 lines)
+- Extracted GET, SET, HISTORY commands (287 lines)
+- system_handler.py: 1,342 → 1,276 lines
+- All 111 tests passing ✅
+- Commit: d4f3790e
 
-**Planned Actions:**
-1. Extract Variable Commands (GET, SET, HISTORY) → variable_handler.py (287 lines)
-2. Extract Environment Commands (CLEAN, SETTINGS, DEV MODE) → environment_handler.py (~150 lines)
-3. Consolidate POKE/Output → extensions handler (~200 lines)
+**Phase 2.2 PLANNED: Environment Commands**
+- Create `core/commands/environment_handler.py`
+- Extract CLEAN, SETTINGS, DEV MODE (~150 lines)
+- Expected: system_handler.py → ~1,126 lines
 
-**Expected Result:** system_handler.py: 1,534 → ~900 lines (42% reduction)
+**Phase 2.3 PLANNED: POKE/Output Commands**
+- Move to extensions handler (~200 lines)
+- Expected: system_handler.py → ~926 lines
 
 ### Next Steps (Ready for Implementation)
 

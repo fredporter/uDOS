@@ -160,7 +160,37 @@ def handle_get(self, params, grid, parser):
 
 **Commit:** Ready to commit
 
-### ⏳ Phase 2 Pending: Environment Commands
+### ✅ Phase 2 Complete: Environment Commands Extracted (Dec 2, 2025)
+
+**Created:** `core/commands/environment_handler.py` (233 lines)
+**Modified:** `core/commands/system_handler.py` (1,098 lines, down from 1,276)
+
+**Changes:**
+- Moved handle_settings (18 lines) → EnvironmentHandler
+- Moved handle_clean (61 lines) → EnvironmentHandler
+- Moved handle_dev_mode (150 lines) → EnvironmentHandler
+- Total extracted: 229 lines
+- Actual reduction: 1,276 → 1,098 = 178 lines
+
+**Delegation pattern:**
+```python
+@property
+def environment_handler(self):
+    if not hasattr(self, '_environment_handler') or self._environment_handler is None:
+        from .environment_handler import EnvironmentHandler
+        self._environment_handler = EnvironmentHandler(**self.__dict__)
+    return self._environment_handler
+
+def handle_clean(self, params, grid, parser):
+    """Review sandbox files - delegates to EnvironmentHandler."""
+    return self.environment_handler.handle_clean(params, grid, parser)
+```
+
+**Testing:** All 111 tests passing ✅
+
+**Commit:** Ready to commit
+
+### ⏳ Phase 3 Pending: POKE/Output Commands
 **Target:** Create `core/commands/environment_handler.py`
 - Extract: handle_clean (61 lines), handle_settings, handle_dev_mode
 - Estimated: ~150 lines
