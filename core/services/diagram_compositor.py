@@ -11,11 +11,84 @@ from typing import Dict, List, Tuple, Optional, Any, Union
 from dataclasses import dataclass, field
 from pathlib import Path
 import json
+import re
 
 from core.services.graphics_library import (
     GraphicsLibrary, Box, Connector, Point, Size,
     create_simple_box, create_flowchart_node
 )
+
+
+# ANSI color codes for terminal output
+class ANSIColors:
+    """ANSI color codes for terminal formatting"""
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+
+    # Foreground colors
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+
+    # Bright foreground colors
+    BRIGHT_BLACK = '\033[90m'
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+
+    # Background colors
+    BG_BLACK = '\033[40m'
+    BG_RED = '\033[41m'
+    BG_GREEN = '\033[42m'
+    BG_YELLOW = '\033[43m'
+    BG_BLUE = '\033[44m'
+    BG_MAGENTA = '\033[45m'
+    BG_CYAN = '\033[46m'
+    BG_WHITE = '\033[47m'
+
+    @classmethod
+    def get_color(cls, color_name: Optional[str]) -> str:
+        """Get ANSI color code by name
+
+        Args:
+            color_name: Color name (e.g., 'red', 'green', 'blue')
+
+        Returns:
+            ANSI color code or empty string if not found
+        """
+        if not color_name:
+            return ''
+
+        color_map = {
+            'black': cls.BLACK,
+            'red': cls.RED,
+            'green': cls.GREEN,
+            'yellow': cls.YELLOW,
+            'blue': cls.BLUE,
+            'magenta': cls.MAGENTA,
+            'cyan': cls.CYAN,
+            'white': cls.WHITE,
+            'bright_black': cls.BRIGHT_BLACK,
+            'bright_red': cls.BRIGHT_RED,
+            'bright_green': cls.BRIGHT_GREEN,
+            'bright_yellow': cls.BRIGHT_YELLOW,
+            'bright_blue': cls.BRIGHT_BLUE,
+            'bright_magenta': cls.BRIGHT_MAGENTA,
+            'bright_cyan': cls.BRIGHT_CYAN,
+            'bright_white': cls.BRIGHT_WHITE,
+        }
+
+        return color_map.get(color_name.lower(), '')
 
 
 @dataclass
@@ -375,12 +448,57 @@ class DiagramCompositor:
         if format == "ascii":
             return self.render()
         elif format == "ansi":
-            # TODO: Add ANSI color codes
-            return self.render()
+            # Apply ANSI color codes to rendered diagram
+            return self._apply_ansi_colors(self.render())
         elif format == "unicode":
             return self.render()
         else:
             raise ValueError(f"Unknown export format: {format}")
+
+    def _apply_ansi_colors(self, diagram: str) -> str:
+        """Apply ANSI color codes to diagram based on node colors
+
+        Args:
+            diagram: Plain ASCII diagram
+
+        Returns:
+            Diagram with ANSI color codes
+        """
+        # Build a map of text positions to colors
+        colored_diagram = diagram
+
+        # Color each node based on its configured color
+        for node in self.nodes.values():
+            if node.color:
+                color_code = ANSIColors.get_color(node.color)
+                if color_code:
+                    # Find and color the node's text
+                    # This is a simple implementation - colors the entire text line
+                    text_pattern = re.escape(node.text)
+                    colored_diagram = re.sub(
+                        text_pattern,
+                        f"{color_code}{node.text}{ANSIColors.RESET}",
+                        colored_diagram
+                    )
+
+        # Color box drawing characters (make them bright for visibility)
+        box_chars = ['─', '│', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼',
+                     '═', '║', '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬']
+        for char in box_chars:
+            colored_diagram = colored_diagram.replace(
+                char,
+                f"{ANSIColors.BRIGHT_BLACK}{char}{ANSIColors.RESET}"
+            )
+
+        # Color arrows and connectors
+        arrow_chars = ['→', '←', '↑', '↓', '▲', '▼', '◄', '►']
+        for char in arrow_chars:
+            colored_diagram = colored_diagram.replace(
+                char,
+                f"{ANSIColors.BRIGHT_CYAN}{char}{ANSIColors.RESET}"
+            )
+
+        return colored_diagram
 
     def save(self, filepath: Path, format: str = "ascii") -> None:
         """Save diagram to file
