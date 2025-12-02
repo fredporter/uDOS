@@ -1,0 +1,383 @@
+{
+  "id": "first-aid-kit-inventory",
+  "title": "First Aid Kit Inventory Checklist",
+  "category": "emergency",
+  "description": "Comprehensive wilderness/emergency first aid kit assembly and inventory",
+  "version": "1.0.0",
+  "created": "2025-12-02T22:00:00Z",
+  "updated": "2025-12-02T22:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "beginner",
+  "estimated_time": "1-2 hours",
+  "prerequisites": [
+    "Access to pharmacy and outdoor supply store",
+    "Budget ($50-150)",
+    "Waterproof container"
+  ],
+  "related_guides": [
+    "medical/emergency_cpr",
+    "medical/wound_care_basics",
+    "medical/burns_treatment",
+    "medical/fracture_stabilization"
+  ],
+  "tags": [
+    "emergency",
+    "first-aid",
+    "medical",
+    "wilderness",
+    "safety",
+    "trauma-care"
+  ],
+  "items": [
+    {
+      "id": "container",
+      "category": "Container Requirements",
+      "text": "Waterproof container or dry bag",
+      "priority": "high",
+      "required": true
+    },
+    {
+      "id": "container-label",
+      "category": "Container Requirements",
+      "text": "Red cross symbol or 'FIRST AID' label",
+      "priority": "medium",
+      "required": true
+    },
+    {
+      "id": "adhesive-bandages-small",
+      "category": "Wound Care - Bandages",
+      "text": "Adhesive bandages, small (fingertip, knuckle)",
+      "priority": "high",
+      "required": true,
+      "quantity": 20,
+      "notes": "Variety pack recommended"
+    },
+    {
+      "id": "adhesive-bandages-medium",
+      "category": "Wound Care - Bandages",
+      "text": "Adhesive bandages, medium (standard strips)",
+      "priority": "high",
+      "required": true,
+      "quantity": 10
+    },
+    {
+      "id": "butterfly-closures",
+      "category": "Wound Care - Bandages",
+      "text": "Butterfly closures for small lacerations",
+      "priority": "high",
+      "required": true,
+      "quantity": 10
+    },
+    {
+      "id": "gauze-2x2",
+      "category": "Wound Care - Bandages",
+      "text": "Sterile gauze pads, 2x2 inch",
+      "priority": "high",
+      "required": true,
+      "quantity": 5
+    },
+    {
+      "id": "gauze-4x4",
+      "category": "Wound Care - Bandages",
+      "text": "Sterile gauze pads, 4x4 inch",
+      "priority": "high",
+      "required": true,
+      "quantity": 10
+    },
+    {
+      "id": "trauma-pads",
+      "category": "Wound Care - Bandages",
+      "text": "Trauma pads, 5x9 inch for large wounds",
+      "priority": "medium",
+      "required": true,
+      "quantity": 2
+    },
+    {
+      "id": "medical-tape-cloth",
+      "category": "Wound Care - Securing",
+      "text": "Medical tape, cloth (1 inch wide)",
+      "priority": "high",
+      "required": true,
+      "quantity": 1,
+      "notes": "1 roll"
+    },
+    {
+      "id": "elastic-bandage-2in",
+      "category": "Wound Care - Securing",
+      "text": "Elastic bandage/ACE wrap, 2-inch width",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "triangular-bandage",
+      "category": "Wound Care - Securing",
+      "text": "Triangular bandage for sling/tourniquet",
+      "priority": "medium",
+      "required": true,
+      "quantity": 2
+    },
+    {
+      "id": "safety-pins",
+      "category": "Wound Care - Securing",
+      "text": "Safety pins, various sizes",
+      "priority": "low",
+      "required": true,
+      "quantity": 12
+    },
+    {
+      "id": "antiseptic-wipes",
+      "category": "Wound Treatment",
+      "text": "Antiseptic wipes (alcohol or benzalkonium)",
+      "priority": "high",
+      "required": true,
+      "quantity": 20
+    },
+    {
+      "id": "antibiotic-ointment",
+      "category": "Wound Treatment",
+      "text": "Triple antibiotic ointment",
+      "priority": "high",
+      "required": true,
+      "quantity": 1,
+      "notes": "Tube or 15+ packets"
+    },
+    {
+      "id": "hydrocortisone",
+      "category": "Wound Treatment",
+      "text": "Hydrocortisone cream 1% for itching/rash",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "burn-gel",
+      "category": "Wound Treatment",
+      "text": "Burn gel or aloe vera",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "medical-scissors",
+      "category": "Instruments & Tools",
+      "text": "Medical scissors or trauma shears",
+      "priority": "high",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "tweezers",
+      "category": "Instruments & Tools",
+      "text": "Tweezers, fine point for splinters/ticks",
+      "priority": "high",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "thermometer",
+      "category": "Instruments & Tools",
+      "text": "Digital thermometer, waterproof",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "penlight",
+      "category": "Instruments & Tools",
+      "text": "Penlight or small LED flashlight",
+      "priority": "medium",
+      "required": false,
+      "quantity": 1
+    },
+    {
+      "id": "ibuprofen",
+      "category": "Medications - Pain Relief",
+      "text": "Ibuprofen 200mg tablets",
+      "priority": "high",
+      "required": true,
+      "quantity": 20,
+      "notes": "Pain, fever, inflammation"
+    },
+    {
+      "id": "acetaminophen",
+      "category": "Medications - Pain Relief",
+      "text": "Acetaminophen 500mg tablets",
+      "priority": "high",
+      "required": true,
+      "quantity": 20,
+      "notes": "Pain, fever (liver-safe)"
+    },
+    {
+      "id": "aspirin",
+      "category": "Medications - Pain Relief",
+      "text": "Aspirin 325mg tablets",
+      "priority": "medium",
+      "required": true,
+      "quantity": 10,
+      "notes": "Heart attack response"
+    },
+    {
+      "id": "anti-diarrheal",
+      "category": "Medications - Gastrointestinal",
+      "text": "Anti-diarrheal (Imodium) tablets",
+      "priority": "medium",
+      "required": true,
+      "quantity": 10
+    },
+    {
+      "id": "antacid",
+      "category": "Medications - Gastrointestinal",
+      "text": "Antacid tablets (Tums)",
+      "priority": "low",
+      "required": false,
+      "quantity": 10
+    },
+    {
+      "id": "antihistamine",
+      "category": "Medications - Allergy",
+      "text": "Antihistamine (Benadryl 25mg) tablets",
+      "priority": "high",
+      "required": true,
+      "quantity": 20,
+      "notes": "Allergies, sleep aid"
+    },
+    {
+      "id": "epipen",
+      "category": "Medications - Allergy",
+      "text": "EpiPen auto-injector",
+      "priority": "critical",
+      "required": false,
+      "quantity": 2,
+      "notes": "CRITICAL if severe allergies"
+    },
+    {
+      "id": "tourniquet",
+      "category": "Trauma - Bleeding Control",
+      "text": "Tourniquet (CAT or SOFTT)",
+      "priority": "critical",
+      "required": true,
+      "quantity": 1,
+      "notes": "Life-threatening limb bleeding"
+    },
+    {
+      "id": "hemostatic-gauze",
+      "category": "Trauma - Bleeding Control",
+      "text": "Hemostatic gauze (QuikClot)",
+      "priority": "high",
+      "required": true,
+      "quantity": 2,
+      "notes": "Severe bleeding control"
+    },
+    {
+      "id": "nitrile-gloves",
+      "category": "Trauma - Bleeding Control",
+      "text": "Nitrile gloves, various sizes",
+      "priority": "high",
+      "required": true,
+      "quantity": 10,
+      "notes": "Infection control, pairs"
+    },
+    {
+      "id": "sam-splint",
+      "category": "Trauma - Fracture",
+      "text": "SAM splint (moldable aluminum)",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1,
+      "notes": "Fractures, sprains"
+    },
+    {
+      "id": "cpr-shield",
+      "category": "Trauma - Airway",
+      "text": "CPR face shield",
+      "priority": "medium",
+      "required": true,
+      "quantity": 2,
+      "notes": "Barrier protection"
+    },
+    {
+      "id": "cold-packs",
+      "category": "Environmental",
+      "text": "Instant cold packs",
+      "priority": "medium",
+      "required": false,
+      "quantity": 3,
+      "notes": "Sprains, heat exhaustion"
+    },
+    {
+      "id": "space-blanket",
+      "category": "Environmental",
+      "text": "Space blanket/emergency bivvy",
+      "priority": "high",
+      "required": true,
+      "quantity": 2,
+      "notes": "Hypothermia, shock"
+    },
+    {
+      "id": "sunscreen",
+      "category": "Environmental",
+      "text": "Sunscreen SPF 30+",
+      "priority": "medium",
+      "required": false,
+      "quantity": 1,
+      "notes": "Small bottle"
+    },
+    {
+      "id": "hand-sanitizer",
+      "category": "Hygiene",
+      "text": "Hand sanitizer (60%+ alcohol)",
+      "priority": "high",
+      "required": true,
+      "quantity": 1,
+      "notes": "2oz bottle"
+    },
+    {
+      "id": "face-masks",
+      "category": "Hygiene",
+      "text": "Face masks (N95 or surgical)",
+      "priority": "low",
+      "required": false,
+      "quantity": 5
+    },
+    {
+      "id": "medical-info-cards",
+      "category": "Documentation",
+      "text": "Personal medical info cards (allergies, blood type)",
+      "priority": "high",
+      "required": true,
+      "quantity": 1
+    },
+    {
+      "id": "first-aid-guide",
+      "category": "Documentation",
+      "text": "Wilderness First Aid pocket guide",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1,
+      "notes": "Laminated cards"
+    },
+    {
+      "id": "inventory-list",
+      "category": "Documentation",
+      "text": "Inventory checklist (this document)",
+      "priority": "medium",
+      "required": true,
+      "quantity": 1,
+      "notes": "Laminated, inside lid"
+    }
+  ],
+  "completion_criteria": {
+    "required_items": 35,
+    "recommended_items": 42,
+    "weight_target": "2-3 lbs",
+    "container_waterproof": true,
+    "training_required": "Wilderness First Aid (WFA)"
+  },
+  "maintenance": {
+    "check_frequency": "monthly",
+    "replace_expired": "every 6 months",
+    "full_inventory": "annually",
+    "test_accessibility": "before each trip"
+  }
+}
