@@ -1,12 +1,13 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.1.12 ✅ **STABLE** (uPY Migration Complete)
-**Active Development:** None (consolidation complete)
-**Status:** Production ready, 64/64 tests passing, migration complete
-**Test Coverage:** Full test suite (command registry, preprocessor, parser)
+**Current Version:** v2.0.1 ✅ **STABLE** (Project Structure Reorganization)
+**Active Development:** Core consolidation (Phase 1: Root cleanup)
+**Status:** Production ready, 111/111 tests passing, professional structure
+**Test Coverage:** Full test suite (command registry, preprocessor, parser, adventure, etc.)
 **Last Updated:** December 2, 2025
 
 **Release History:**
+- v2.0.1 - Project Structure Reorganization (Dec 2, 2025) ✅ **STABLE** (dev/ vs sandbox/ separation)
 - v1.1.12 - uPY Migration Complete (Dec 2025) ✅ **STABLE** (backward compatibility removed)
 - v1.1.9+ - uPY Syntax Overhaul (Dec 2025) ✅ **COMPLETE** (Round 3 + Option 1)
 - v1.1.7 - Nano Banana Complete (Dec 2025) ✅ **STABLE**
@@ -18,14 +19,97 @@
 - v1.1.1 - uCODE Modern Syntax (35 tests, 100%) ✅
 - v1.1.0 - Core System (1,810 tests, 100%) ✅
 
-**Recent Milestones (v1.1.7):**
-- ✅ Nano Banana system complete (8/8 tasks, 100%)
-- ✅ 4 production workflow examples (~300 lines)
-- ✅ Comprehensive documentation (tutorial + reference)
-- ✅ Testing framework (smoke tests passing)
-- ✅ Full PNG→SVG pipeline operational
+**Recent Milestones (v2.0.1):**
+- ✅ Project structure reorganized (/dev/ vs /sandbox/)
+- ✅ Development files tracked in git (/dev/)
+- ✅ Runtime files gitignored (/sandbox/)
+- ✅ Professional structure (Unix conventions)
+- ✅ All 111 tests passing
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. uDOS calculates work through cron patterns and organic pacing.
+
+---
+
+## ✅ v2.0.1 - Project Structure Reorganization (COMPLETE - Dec 2, 2025)
+
+**Released:** December 2, 2025
+**Status:** ✅ **STABLE** - Production ready
+**Test Coverage:** 111/111 tests passing
+**Impact:** Low risk, high value organizational improvement
+
+### Objectives Achieved
+
+Clean separation between development files (tracked in git) and runtime files (gitignored). Professional project structure following Unix conventions with clear mental model for contributors.
+
+### Completed Changes
+
+**1. ✅ Directory Structure**
+- Created `/dev/` directory (tracked in git)
+  - `dev/tools/` - Development utilities (migrate_upy.py)
+  - `dev/roadmap/` - Project planning (10 files)
+  - `dev/sessions/` - Development logs (20 files)
+  - `dev/scripts/` - Automation scripts (ready)
+- Cleaned `/sandbox/` to runtime-only (gitignored)
+  - `sandbox/ucode/` - User scripts
+  - `sandbox/user/` - User data
+  - `sandbox/logs/` - Runtime logs
+  - `sandbox/drafts/` - Temporary content
+- Simplified `/bin/` to launchers only (2 files)
+
+**2. ✅ File Migrations**
+- Moved `bin/migrate_upy.py` → `dev/tools/`
+- Moved `sandbox/dev/roadmap/` → `dev/roadmap/` (10 files)
+- Moved `sandbox/dev/*.md` → `dev/sessions/` (18 files)
+- Removed `sandbox/dev/` (entire directory)
+
+**3. ✅ Git Configuration**
+- Updated `.gitignore` for clean dev/runtime separation
+- `/dev/` - Fully tracked (development files)
+- `/sandbox/` - Fully gitignored (runtime files)
+- Simpler rules (was 10+ lines, now 3)
+
+**4. ✅ Path References**
+- Updated 15 files with `sandbox/dev/` → `dev/` references
+- Bulk replacement via perl across codebase
+- All imports and paths verified working
+
+**5. ✅ Documentation**
+- Created `dev/README.md` - Development workspace guide
+- Updated `sandbox/README.md` - Runtime workspace guide (v2.0.1)
+- Updated `.github/copilot-instructions.md` - Complete workspace docs
+- Created `dev/sessions/reorganization-v2.0.1-complete.md` - Completion report
+
+### Benefits
+
+**Clear Mental Model:**
+- `/dev/` = Development (tracked)
+- `/sandbox/` = Runtime (gitignored)
+- `/bin/` = Launchers
+
+**Professional Structure:**
+- Follows Unix conventions
+- Easier onboarding
+- Discoverable file locations
+
+**Git Clarity:**
+- No mixed tracked/gitignored
+- Simple .gitignore rules
+- Clean commit history
+
+**Security:**
+- `.env` clearly gitignored
+- No accidental commits of user data
+
+### Files Changed
+
+- **Modified:** 9 files
+- **Added:** 20 files (tracked in new /dev/ location)
+- **Deleted:** 31 files (moved/consolidated)
+- **Renames:** 29 detected by git
+
+### Documentation
+
+See: `dev/sessions/reorganization-v2.0.1-complete.md` for full details.
 
 ---
 
