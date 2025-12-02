@@ -153,12 +153,12 @@ memory/**/*
 !memory/config/
 !memory/config/.gitkeep
 
-# Development Workspace (v2.0.1 structure - tracked in git)
+# Development Workspace (v1.1.13 structure - tracked in git)
 # ----------------------
 !dev/
 !dev/**/*
 
-# Sandbox - Runtime Only (v2.0.1 - gitignored, user workspace)
+# Sandbox - Runtime Only (v1.1.13 - gitignored, user workspace)
 # ----------------------
 sandbox/
 sandbox/**/*

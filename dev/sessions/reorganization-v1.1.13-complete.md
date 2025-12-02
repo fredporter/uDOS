@@ -1,7 +1,7 @@
 # Option 2 Reorganization Complete
 
 **Date:** December 2, 2025
-**Version:** 2.0.1
+**Version:** 1.1.13
 **Status:** ✅ Complete - All Tests Passing (111/111)
 
 ---
@@ -18,7 +18,7 @@ sandbox/dev/          # Mixed tracked/gitignored (confusing)
 bin/migrate_upy.py    # Tools in wrong location
 ```
 
-**After (v2.0.1):**
+**After (v1.1.13):**
 ```
 dev/                  # Development files (tracked in git)
 ├── tools/            # migrate_upy.py and utilities
@@ -77,7 +77,7 @@ bin/                  # Launchers only (2 files)
 
 **Updated `.gitignore`:**
 ```diff
-+ # Development Workspace (v2.0.1 structure - tracked in git)
++ # Development Workspace (v1.1.13 structure - tracked in git)
 + !dev/
 + !dev/**/*
 
@@ -88,7 +88,7 @@ bin/                  # Launchers only (2 files)
 - sandbox/dev/notes/
 - (10+ more sandbox/dev/ rules)
 
-+ # Sandbox - Runtime Only (v2.0.1 - gitignored)
++ # Sandbox - Runtime Only (v1.1.13 - gitignored)
 + sandbox/
 + sandbox/**/*
 + !sandbox/README.md
@@ -113,7 +113,7 @@ bin/                  # Launchers only (2 files)
 8. `core/data/graphics/README.md` - Reference update
 9. `core/utils/startup_welcome.py` - Path reference
 10. `uDOS.code-workspace` - VS Code workspace config
-11. `sandbox/README.md` - Complete rewrite (v2.0.1)
+11. `sandbox/README.md` - Complete rewrite (v1.1.13)
 12. `dev/README.md` - New documentation
 
 **Pattern:** All `sandbox/dev/` → `dev/` (bulk replacement via perl)
@@ -279,7 +279,7 @@ pytest memory/ucode/ -v
 ### Immediate
 
 1. ✅ Commit reorganization changes
-2. ✅ Update CHANGELOG.md with v2.0.1 entry
+2. ✅ Update CHANGELOG.md with v1.1.13 entry
 3. ✅ Test with fresh clone
 4. ✅ Update any CI/CD scripts if needed
 
@@ -303,7 +303,7 @@ pytest memory/ucode/ -v
 ## Commit Message
 
 ```
-feat: reorganize project structure (v2.0.1)
+feat: reorganize project structure (v1.1.13)
 
 - Create /dev/ directory for tracked development files
 - Move bin/migrate_upy.py → dev/tools/
@@ -329,7 +329,7 @@ Impact: Low risk, high value
 
 **Updated:**
 - `.github/copilot-instructions.md` - Complete workspace guide
-- `sandbox/README.md` - Runtime workspace v2.0.1
+- `sandbox/README.md` - Runtime workspace v1.1.13
 - `dev/README.md` - Development workspace guide (new)
 
 **See Also:**

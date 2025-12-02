@@ -4,7 +4,7 @@
 
 uDOS is an **offline-first operating system** for survival knowledge, mapping, and text-based computing. It prioritizes minimal design, offline functionality, and human-centric interfaces.
 
-## Development Workspace: `/dev/` (v2.0.1)
+## Development Workspace: `/dev/` (v1.1.13)
 
 **CRITICAL**: Development files (tracked in git) belong in `/dev/`. User runtime files (gitignored) belong in `/sandbox/`.
 
