@@ -328,57 +328,8 @@ class GeminiGenerator:
         except Exception as e:
             raise RuntimeError(f"Nano Banana image generation failed: {str(e)}")
 
-    def generate_svg(self, subject: str, diagram_type: str = "flowchart",
-                    requirements: List[str] = None) -> Tuple[str, Dict]:
-        """
-        Generate Technical-Kinetic SVG diagram (LEGACY - direct text-to-SVG).
-
-        ⚠️ DEPRECATED: Use generate_image_svg() for better quality via Nano Banana.
-
-        This method uses text-based generation which produces inconsistent results.
-        Kept for backward compatibility only.
-
-        Args:
-            subject: Diagram subject/topic
-            diagram_type: Type (flowchart, architecture, organic, schematic)
-            requirements: Additional requirements list
-
-        Returns:
-            (svg_content, metadata_dict)
-        """
-        # Get prompt template
-        template = self.prompts['prompts']['svg_generation_technical_kinetic']['template']
-
-        # Format requirements
-        if requirements:
-            req_text = "\n".join(f"- {r}" for r in requirements)
-        else:
-            req_text = "(standard diagram)"
-
-        # Build prompt
-        prompt = template.format(
-            diagram_type=diagram_type,
-            subject=subject,
-            requirements=req_text
-        )
-
-        # Generate SVG
-        svg_content = self._call_api(prompt)
-
-        # Validate SVG
-        is_valid, issues = self._validate_svg(svg_content)
-
-        metadata = {
-            'subject': subject,
-            'diagram_type': diagram_type,
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'model': self.model_name,
-            'svg_valid': is_valid,
-            'validation_issues': issues,
-            'size_bytes': len(svg_content.encode('utf-8'))
-        }
-
-        return svg_content, metadata
+    # generate_svg() method removed in v1.1.5.3
+    # Use generate_image_svg() for SVG generation via Nano Banana
 
     def generate_ascii(self, subject: str, max_width: int = 80,
                       max_height: int = 24) -> Tuple[str, Dict]:

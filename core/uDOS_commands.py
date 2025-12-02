@@ -170,10 +170,6 @@ class CommandHandler:
         }
         self.story_handler = StoryHandler(story_components)
 
-        # v1.1.5 - SVG Graphics Extension handler (DEPRECATED - use GENERATE SVG)
-        from core.commands.svg_handler import SVGHandler
-        self.svg_handler = SVGHandler(viewport=viewport, logger=logger)
-
         # v1.1.6 - LOGS Command handler (Logging System Management)
         from core.commands.logs_handler import create_logs_handler
         self.logs_handler = create_logs_handler()
@@ -357,15 +353,16 @@ class CommandHandler:
             elif module == "GENERATE":
                 return self.generate_handler.handle_command(params)
 
-            # v1.1.5 - SVG Graphics Extension (DEPRECATED - use GENERATE SVG)
+            # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use GENERATE SVG)
             elif module == "SVG":
-                deprecation_msg = (
-                    "⚠️  The SVG command is deprecated in v1.1.6\n"
-                    "💡 Use: GENERATE SVG <description> [options]\n\n"
-                    "Running legacy SVG command...\n\n"
+                return (
+                    "❌ SVG command removed in v1.1.5.3\n\n"
+                    "Use: GENERATE SVG <description>\n\n"
+                    "Examples:\n"
+                    "  GENERATE SVG water purification flowchart\n"
+                    "  GENERATE SVG solar still diagram\n\n"
+                    "The GENERATE command provides better quality via Nano Banana.\n"
                 )
-                result = self.svg_handler.handle_command(params)
-                return deprecation_msg + result
 
             # v1.1.6 - LOGS System Management
             elif module == "LOGS":
