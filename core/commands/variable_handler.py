@@ -1,11 +1,16 @@
 """
-uDOS v1.1.12 - Variable Command Handler
+uDOS v1.1.14 - Variable Command Handler
 
 Handles variable operations: GET, SET, HISTORY
-Manages STORY fields, CONFIG settings, and SYSTEM values.
+Manages STORY fields, CONFIG settings, SYSTEM values, and v1.1.14 scopes:
+- MISSION variables (ID, NAME, STATUS, PROGRESS, START_TIME, OBJECTIVE)
+- CHECKLIST variables (ACTIVE, COMPLETED_ITEMS, TOTAL_ITEMS, PROGRESS_PCT)
+- WORKFLOW variables (NAME, PHASE, ITERATION, ERRORS, ELAPSED_TIME)
 """
 
 from .base_handler import BaseCommandHandler
+from pathlib import Path
+import json
 
 
 class VariableHandler(BaseCommandHandler):
@@ -13,7 +18,7 @@ class VariableHandler(BaseCommandHandler):
 
     def handle_get(self, params, grid, parser):
         """
-        GET field value from story/config/system interactively or explicitly.
+        GET field value from story/config/system/mission/checklist/workflow.
 
         Usage:
             GET                          → Interactive field browser
@@ -21,6 +26,9 @@ class VariableHandler(BaseCommandHandler):
             GET STORY.USER_NAME          → Get story field (explicit)
             GET CONFIG.GEMINI_API_KEY    → Get config field
             GET SYSTEM.THEME             → Get system setting
+            GET MISSION.STATUS           → Get current mission status
+            GET CHECKLIST.PROGRESS_PCT   → Get checklist completion percentage
+            GET WORKFLOW.PHASE           → Get current workflow phase
 
         Returns:
             Field value or interactive picker result
@@ -99,11 +107,18 @@ class VariableHandler(BaseCommandHandler):
         if '.' not in field_path:
             field_path = f"STORY.{field_path}"
 
-        # Parse field source (STORY.*, CONFIG.*, SYSTEM.*)
+        # Parse field source (STORY.*, CONFIG.*, SYSTEM.*, MISSION.*, CHECKLIST.*, WORKFLOW.*)
         source, *path_parts = field_path.split('.')
         remaining_path = '.'.join(path_parts)
 
-        if source == 'STORY':
+        # v1.1.14: Handle new variable scopes
+        if source == 'MISSION':
+            return self._get_mission_variable(remaining_path)
+        elif source == 'CHECKLIST':
+            return self._get_checklist_variable(remaining_path)
+        elif source == 'WORKFLOW':
+            return self._get_workflow_variable(remaining_path)
+        elif source == 'STORY':
             value = self.story_manager.get_field(field_path, default="<not set>")
             # Mask password display
             if 'PASSWORD' in field_path.upper() and value != "<not set>":
@@ -126,7 +141,7 @@ class VariableHandler(BaseCommandHandler):
         else:
             return self.output_formatter.format_error(
                 f"Unknown field source: {source}",
-                "Valid sources: STORY, SYSTEM, CONFIG\n" +
+                "Valid sources: STORY, SYSTEM, CONFIG, MISSION, CHECKLIST, WORKFLOW\n" +
                 "💡 Tip: Just use field name for STORY fields (e.g., GET USER_NAME)"
             )
 
@@ -292,3 +307,109 @@ class VariableHandler(BaseCommandHandler):
 
         output += "╚════════════════════════════════════════════════════════════════════════╝"
         return output
+
+    # v1.1.14: Mission/Checklist/Workflow variable getters
+
+    def _get_mission_variable(self, field: str) -> str:
+        """
+        Get mission variable from workflow state.
+
+        Fields:
+            ID, NAME, STATUS, PROGRESS, START_TIME, OBJECTIVE
+        """
+        state_file = Path("memory/workflows/state/current.json")
+        if not state_file.exists():
+            return f"MISSION.{field} = <no active mission>"
+
+        try:
+            with open(state_file, 'r') as f:
+                state = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return f"MISSION.{field} = <error reading state>"
+
+        current_mission = state.get('current_mission')
+        if not current_mission:
+            return f"MISSION.{field} = <no active mission>"
+
+        # Map field names to state data
+        mission_data = {
+            'ID': current_mission,
+            'NAME': current_mission.replace('-', ' ').title(),
+            'STATUS': state.get('status', 'UNKNOWN'),
+            'PROGRESS': f"{state.get('missions_completed', 0)}/{state.get('missions_total', 0)}",
+            'START_TIME': state.get('last_active', 'N/A'),
+            'OBJECTIVE': 'See mission file for objective'
+        }
+
+        value = mission_data.get(field.upper(), '<unknown field>')
+        return f"MISSION.{field} = {value}"
+
+    def _get_checklist_variable(self, field: str) -> str:
+        """
+        Get checklist variable from checklist state.
+
+        Fields:
+            ACTIVE, COMPLETED_ITEMS, TOTAL_ITEMS, PROGRESS_PCT
+        """
+        state_file = Path("memory/system/user/checklist_state.json")
+        if not state_file.exists():
+            return f"CHECKLIST.{field} = <no checklist state>"
+
+        try:
+            with open(state_file, 'r') as f:
+                state = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return f"CHECKLIST.{field} = <error reading state>"
+
+        checklists = state.get('checklists', {})
+
+        if field.upper() == 'ACTIVE':
+            active_count = len([c for c in checklists.values() if c.get('completed_items')])
+            return f"CHECKLIST.ACTIVE = {active_count}"
+        elif field.upper() == 'COMPLETED_ITEMS':
+            total_completed = sum(len(c.get('completed_items', [])) for c in checklists.values())
+            return f"CHECKLIST.COMPLETED_ITEMS = {total_completed}"
+        elif field.upper() == 'TOTAL_ITEMS':
+            # This would require loading all checklist files - return placeholder
+            return f"CHECKLIST.TOTAL_ITEMS = <requires checklist scan>"
+        elif field.upper() == 'PROGRESS_PCT':
+            # Calculate from first active checklist
+            if checklists:
+                first_checklist = list(checklists.values())[0]
+                completed = len(first_checklist.get('completed_items', []))
+                total = first_checklist.get('total_items', 1)
+                pct = int((completed / total) * 100) if total > 0 else 0
+                return f"CHECKLIST.PROGRESS_PCT = {pct}%"
+            return f"CHECKLIST.PROGRESS_PCT = 0%"
+        else:
+            return f"CHECKLIST.{field} = <unknown field>"
+
+    def _get_workflow_variable(self, field: str) -> str:
+        """
+        Get workflow variable from workflow execution state.
+
+        Fields:
+            NAME, PHASE, ITERATION, ERRORS, ELAPSED_TIME
+        """
+        # Check for active workflow state (could be tracked in current.json or separate file)
+        state_file = Path("memory/workflows/state/current.json")
+        if not state_file.exists():
+            return f"WORKFLOW.{field} = <no active workflow>"
+
+        try:
+            with open(state_file, 'r') as f:
+                state = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return f"WORKFLOW.{field} = <error reading state>"
+
+        # Map field names to state data (these would be populated during workflow execution)
+        workflow_data = {
+            'NAME': state.get('current_mission', '<none>'),
+            'PHASE': 'IDLE',  # Would be set during execution (INIT, SETUP, EXECUTE, etc.)
+            'ITERATION': 0,
+            'ERRORS': 0,
+            'ELAPSED_TIME': '0s'
+        }
+
+        value = workflow_data.get(field.upper(), '<unknown field>')
+        return f"WORKFLOW.{field} = {value}"

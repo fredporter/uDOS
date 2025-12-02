@@ -239,6 +239,17 @@ Type 'GUIDE LIST <category>' to browse guides
             output.append("")
             output.append(f"Progress: {progress['completed']}/{len(steps)} steps complete")
 
+        # v1.1.14: Show related checklists if any
+        related_checklists = self._find_related_checklists(guide_info['id'])
+        if related_checklists:
+            output.append("")
+            output.append("📋 Related Checklists:")
+            output.append("─" * 60)
+            for checklist in related_checklists:
+                output.append(f"  • {checklist}")
+            output.append("")
+            output.append("💡 Tip: CHECKLIST LOAD <name> to open a checklist")
+
         output.append("")
         output.append(f"💡 Tip: GUIDE START {guide_info['id']} to begin")
         output.append("")
@@ -617,6 +628,59 @@ Type 'GUIDE LIST <category>' to browse guides
         try:
             # Update current guide progress
             if self.current_guide:
+                self.progress_data[self.current_guide] = {
+                    'completed': len(self.completed_steps),
+                    'total': len(self.guide_steps),
+                    'completed_steps': list(self.completed_steps),
+                    'last_step': self.current_step,
+                    'last_updated': datetime.now().isoformat()
+                }
+
+            # Write to file
+            self.progress_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.progress_file, 'w') as f:
+                json.dump(self.progress_data, f, indent=2)
+
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error saving guide progress: {e}")
+
+    def _find_related_checklists(self, guide_id: str) -> List[str]:
+        """
+        Find checklists related to this guide.
+        
+        v1.1.14: Checks checklist JSON files for related_guides field.
+        
+        Args:
+            guide_id: Guide identifier (e.g., 'water/purification')
+            
+        Returns:
+            List of checklist titles
+        """
+        checklists_dir = Path("knowledge/checklists")
+        if not checklists_dir.exists():
+            return []
+        
+        related = []
+        
+        # Scan all checklist files
+        for checklist_file in checklists_dir.rglob("*.json"):
+            try:
+                with open(checklist_file, 'r') as f:
+                    data = json.load(f)
+                    
+                # Check if this guide is in the checklist's related_guides
+                related_guides = data.get('related_guides', [])
+                for guide_ref in related_guides:
+                    # Match on partial path (e.g., 'water' matches 'water/purification')
+                    if guide_id.startswith(guide_ref) or guide_ref in guide_id:
+                        related.append(data.get('title', checklist_file.stem))
+                        break
+                        
+            except (json.JSONDecodeError, IOError):
+                continue
+        
+        return related
                 self.progress_data[self.current_guide] = {
                     'completed': len(self.completed_steps),
                     'total': len(self.guide_steps),
