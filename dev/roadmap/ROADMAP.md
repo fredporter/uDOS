@@ -71,34 +71,175 @@ uDOS/
 
 ---
 
-## 🎯 Active Development: v1.1.14 - Unified Task Management System
+## 🎯 Active Development: v1.1.15 - Graphics Infrastructure Enhancement
 
 **Target:** Q1 2026
-**Status:** 🔄 Planning phase
-**Complexity:** Medium (consolidation + new features)
+**Status:** 🔄 Planning phase (Research)
+**Complexity:** Medium-High (new capabilities + integration)
+**Priority:** High - Blocks content quality improvements
 
-### Vision
+### Strategic Rationale
 
-Unify isolated workflow/mission/checklist systems into a cohesive JSON-based task management architecture with real-time dashboard visualization and gameplay variable integration.
+**Why graphics first?** Before expanding knowledge bank content (136+ guides), improve visual tools to ensure consistent, high-quality diagrams across all content. Better tools → better content → then systematic upgrade pass.
 
-### Core Objectives
+**User-Referenced Standards:**
+- [Typora Mermaid Support](https://support.typora.io/Draw-Diagrams-With-Markdown/) - Markdown-based diagrams
+- [GitHub Diagram Formats](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams) - Mermaid, GeoJSON, ASCII STL
+- [ASCII Diagrams](https://asciidiagrams.github.io/) - Refined, less chunky style
 
-1. **Checklist System** - JSON-based interactive checklists with progress tracking
-2. **Workflow Integration** - Migrate .uscript → .upy, expose WORKFLOW commands in main CLI
-3. **Mission-Workflow Linking** - Bidirectional integration between missions and workflows
-4. **Dashboard MVP** - Flask web server with NES-style retro UI
-5. **Variable System Extension** - MISSION/CHECKLIST/WORKFLOW scopes for $VARIABLES
-6. **Archive Command** - Proper archival system for completed work
+### Current Gaps Analysis
 
-### Design Decisions
+**Existing Graphics Infrastructure (v1.1.13):**
+✅ `diagram_handler.py` - ASCII art library browser (13 types, 880 lines)
+  - Commands: LIST, SEARCH, SHOW, RENDER, COPY, EXPORT, TYPES, GENERATE
+  - Storage: `core/data/diagrams/`
+  - **Limitation:** Pre-built library only, no dynamic generation
 
-**Dashboard Implementation:** ✅ **Flask Web Server**
-- Real-time updates via polling/WebSocket
-- Interactive controls (pause/resume missions)
-- NES.css styling (8-bit Nintendo aesthetic)
-- Multiple widget types (progress bars, meters, status panels)
+✅ `generate_handler.py` - Nano Banana SVG pipeline (580 lines)
+  - Pipeline: Style Guide → Gemini 2.5 Flash (PNG) → Vectorize → SVG
+  - Commands: GENERATE SVG/DIAGRAM/ASCII/TELETEXT
+  - **Limitation:** No text-to-diagram (Mermaid), ASCII described as "chunky"
 
-**Checklist Progress Persistence:** ✅ **`memory/user/checklist_state.json`**
+**Missing Capabilities:**
+❌ Mermaid diagram support (sequence, flowchart, Gantt, class, state, pie, gitgraph, mindmap)
+❌ GitHub diagram formats (GeoJSON/TopoJSON maps, ASCII STL 3D models)
+❌ Refined ASCII graphics (asciidiagrams.github.io quality)
+❌ Text-to-diagram conversion (markdown code blocks → rendered diagrams)
+⚠️ Nano Banana needs finetuning for technical survival diagrams
+⚠️ Workflow cycles need improvement for diagram generation iteration
+
+### Phase 1: Mermaid Integration (Tasks 1-2)
+
+**Goal:** Enable Mermaid diagram generation for decision trees, flowcharts, state machines
+
+**Research (Task 1):**
+- Server-side rendering: mermaid-cli + puppeteer (offline-compatible)
+- Client-side rendering: Web dashboard integration (requires browser)
+- Hybrid approach: Pre-render in workflow, display in dashboard
+- **Decision criteria:** Offline-first design, minimal dependencies, integration with existing GENERATE system
+
+**Implementation (Task 2):**
+```python
+# core/commands/mermaid_handler.py (new)
+class MermaidHandler:
+    """
+    Mermaid diagram generation and management.
+    
+    Commands:
+    - MERMAID RENDER <type> <code|file>  # Generate diagram
+    - MERMAID EXPORT <format>            # Export to SVG/PNG
+    - MERMAID LIST                       # List supported types
+    - MERMAID VALIDATE <code>            # Syntax check
+    
+    Supported types (Typora-compatible):
+    - sequence, flowchart, gantt, class, state, pie
+    - gitgraph, mindmap, timeline, quadrant
+    
+    Output: sandbox/drafts/mermaid/
+    """
+```
+
+**Integration Points:**
+- Extend `generate_handler.py` to recognize markdown code blocks
+- Add `GUIDE RENDER` command to process guides with embedded Mermaid
+- Store templates in `core/data/diagrams/mermaid/`
+- Dashboard preview support (if client-side rendering chosen)
+
+### Phase 2: GitHub Diagram Formats (Task 3)
+
+**Goal:** Support GeoJSON/TopoJSON maps and ASCII STL 3D models
+
+**GeoJSON/TopoJSON Maps:**
+- Use case: Navigation guides, territory mapping, resource locations
+- Integration: Extend `generate_handler.py` with map rendering
+- Libraries: geojson.io, leaflet.js (for web dashboard)
+- Offline: Pre-render to static images/SVG
+
+**ASCII STL 3D Models:**
+- Use case: Tool designs, shelter structures, trap diagrams
+- Parser: Read ASCII STL syntax from code blocks
+- Renderer: Three.js (web dashboard) or raytracing (static images)
+- Storage: `extensions/assets/data/models/`
+
+**Example Use Cases:**
+```markdown
+# Navigation Guide: Finding Water Sources
+
+```geojson
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {"name": "River", "type": "freshwater"},
+    "geometry": {"type": "LineString", "coordinates": [...]}
+  }]
+}
+```
+
+# Shelter Design: A-Frame Structure
+
+```stl
+solid a_frame_shelter
+  facet normal 0.0 1.0 0.0
+    outer loop
+      vertex 0.0 0.0 0.0
+      vertex 3.0 2.0 0.0
+      vertex 0.0 0.0 4.0
+    endloop
+  endfacet
+endsolid
+```
+```
+
+### Phase 3: ASCII Graphics Refinement (Task 4)
+
+**Goal:** Improve ASCII art quality to match asciidiagrams.github.io standard
+
+**Current Issues:**
+- "Chunky" appearance (thick lines, excessive spacing)
+- Limited box-drawing character support
+- Poor flowchart/table generation
+
+**Improvements:**
+- Unicode box-drawing: ┌─┐ │ └─┘ ├─┤ ┬ ┴ ┼
+- Better alignment algorithms (less whitespace)
+- Cleaner line styles (single/double/dashed)
+- Improved table formatting (compact, aligned)
+- Enhanced flowchart generation (decision diamonds, rounded boxes)
+
+**Update Targets:**
+- `core/services/ascii_generator.py` (or create if missing)
+- `core/data/diagrams/` library (add refined examples)
+- `diagram_handler.py` GENERATE command (use new renderer)
+
+**Test Cases:**
+```
+Before (chunky):          After (refined):
++-------+-------+         ┌───────┬───────┐
+| Cell1 | Cell2 |         │ Cell1 │ Cell2 │
++-------+-------+         ├───────┼───────┤
+| Cell3 | Cell4 |         │ Cell3 │ Cell4 │
++-------+-------+         └───────┴───────┘
+```
+
+### Phase 4: Nano Banana Finetuning (Task 5)
+
+**Goal:** Optimize AI diagram generation for technical survival content
+
+**Current Pipeline:**
+Style Guide → Gemini 2.5 Flash (PNG) → Vectorize (potrace/vtracer) → Cleanup → SVG
+
+**Optimization Areas:**
+
+1. **Prompt Engineering:**
+   - Technical diagram templates (water purification, fire selection, shelter types)
+   - Consistent visual style (minimal, clear, educational)
+   - Label placement optimization
+   - Color palette for different guide categories
+
+2. **Vectorization Quality:**
+   - Tune potrace parameters (threshold, turnpolicy, alphamax)
+   - Experiment with vtracer settings (color mode, hierarchical, mode)
 - Centralized user-specific state
 - Follows existing `user.json` pattern
 - Survives system updates
