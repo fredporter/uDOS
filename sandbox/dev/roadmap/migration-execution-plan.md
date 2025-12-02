@@ -94,13 +94,13 @@ Files using old format:
 
 ## Success Criteria
 
-✅ New .upy files load with UPYParser  
-✅ COMMAND(args) syntax works in parser  
-✅ Old .uscript files still work (deprecated)  
-✅ All tests passing (64/64)  
-✅ Old format files archived  
-✅ New example files created  
-⏸️  Documentation updated (Phase 5)  
+✅ New .upy files load with UPYParser
+✅ COMMAND(args) syntax works in parser
+✅ Old .uscript files still work (deprecated)
+✅ All tests passing (64/64)
+✅ Old format files archived
+✅ New example files created
+⏸️  Documentation updated (Phase 5)
 
 ---
 
