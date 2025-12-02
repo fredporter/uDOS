@@ -1,4338 +1,811 @@
 # Command Reference
 
-Complete guide to all uDOS commands
+**Version:** v1.1.15 (Graphics Infrastructure Complete)
+**Format:** uPY (Python-like syntax)
+**Last Updated:** December 3, 2025
 
-> **💡 Quick Tip**: Use `HELP` in uDOS for built-in command help, or `HELP DETAILED` for comprehensive documentation.
+Complete reference for all uDOS commands with uPY syntax examples.
 
----
-
-## 🚀 Quick Reference Card
-
-### Current Status
-- **Version**: v1.1.14 (Checklist System Complete)
-- **Tests**: 111/111 tests passing (100%)
-- **Documentation**: Complete with systems integration
-- **Latest**: Checklist system, Dashboard, Variable scopes
-
-### Essential Commands (Most Common)
-```bash
-# Getting Help
-HELP                      # Show all commands
-HELP <command>            # Show specific command help
-HELP DETAILED             # Complete documentation
-STATUS                    # System status
-VERSION                   # Show version info
-
-# File Operations
-LIST [path]               # List directory contents
-LOAD <file>               # Load file into memory
-SAVE <file>               # Save current content
-EDIT <file>               # Edit file in micro editor
-
-# Content Generation (v1.1.6+)
-OK <task>                 # Generate content with AI (OK Assist)
-OK ASK <question>         # Ask AI assistant
-GENERATE SVG <desc>       # Generate PNG→SVG diagram (Nano Banana)
-GENERATE DIAGRAM <desc>   # Alias for GENERATE SVG
-GENERATE ASCII <desc>     # Generate ASCII art (offline)
-GENERATE guide <topic>    # Legacy guide generation
-GENERATE diagram <topic>  # Legacy SVG diagram (deprecated)
-REFRESH                   # Update content to latest standards
-
-# Knowledge Bank
-GUIDE LIST [category]     # List knowledge guides (v1.1.14+)
-GUIDE SHOW <guide>        # Display guide with related checklists
-GUIDE START <guide>       # Interactive guide with progress tracking
-MEMORY                    # Access personal knowledge
-PRIVATE                   # Private notes/content
-SHARED                    # Shared knowledge base
-COMMUNITY                 # Community contributions
-KB <topic>                # Quick knowledge lookup (legacy)
-
-# Checklists (v1.1.14+)
-CHECKLIST LIST            # List all checklists
-CHECKLIST LOAD <id>       # Load checklist for tracking
-CHECKLIST COMPLETE <item> # Mark checklist item complete
-CHECKLIST STATUS          # Show current checklist state
-CHECKLIST PROGRESS        # Show completion statistics
-
-# Missions (v1.1.14+)
-MISSION CREATE <id> <title>  # Create new mission
-MISSION START <id>        # Start mission execution
-MISSION STATUS            # Show active mission state
-MISSION COMPLETE <id>     # Complete mission
-
-# System Variables (v1.1.14+)
-GET MISSION.<field>       # Get mission variable (STATUS, PROGRESS, ID, etc.)
-GET CHECKLIST.<field>     # Get checklist variable (ACTIVE, PROGRESS_PCT, etc.)
-GET WORKFLOW.<field>      # Get workflow variable (PHASE, ITERATION, ERRORS, etc.)
-
-# Archive System (v1.1.14+)
-ARCHIVE LIST [type]       # List archived items (mission, checklist, workflow)
-ARCHIVE mission <id>      # Archive completed mission
-ARCHIVE checklist <id>    # Archive checklist
-ARCHIVE restore <type> <id>  # Restore archived item
-
-# Grid & Panels
-GRID                      # Show grid system
-NEW GRID <name>           # Create new grid
-PANEL <name>              # Access panel
-TILE <coords>             # Geographic tile data
-
-# Adventures (v2.0.0)
-STORY START <adventure>   # Start interactive adventure
-STORY CONTINUE            # Progress through story
-STORY CHOICE <number>     # Make a choice
-STORY STATUS              # Check progress
-STORY SAVE <name>         # Save progress
-STORY LOAD <name>         # Load saved game
-
-# Navigation
-MAP                       # Show current position
-GOTO <location>           # Navigate to location
-MOVE <direction>          # Move in direction
-LEVEL                     # Show current level
-
-# System
-REBOOT                    # Restart uDOS
-CLEAR                     # Clear screen
-SETUP                     # Run first-time setup
-REPAIR                    # Run diagnostics
-CONFIG                    # View/edit configuration
-
-# Automation (uCODE)
-RUN <script.uscript>      # Execute uCODE script
-DEBUG <script>            # Debug uCODE script
-```
-
-### By Category
-| Category | Common Commands |
-|----------|----------------|
-| **Files** | `LIST`, `LOAD`, `SAVE`, `EDIT` |
-| **AI Content** | `OK`, `OK ASK`, `GENERATE`, `REFRESH` |
-| **Knowledge (v1.1.14)** | `GUIDE LIST/SHOW/START`, `CHECKLIST`, `MISSION` |
-| **Variables (v1.1.14)** | `GET MISSION.*`, `GET CHECKLIST.*`, `GET WORKFLOW.*` |
-| **Archive (v1.1.14)** | `ARCHIVE LIST`, `ARCHIVE mission/checklist/workflow`, `ARCHIVE restore` |
-| **Legacy Knowledge** | `MEMORY`, `PRIVATE`, `SHARED`, `KB` |
-| **Grid** | `GRID`, `NEW GRID`, `PANEL`, `TILE` |
-| **Adventures** | `STORY START`, `STORY CONTINUE`, `STORY CHOICE`, `STORY SAVE/LOAD` |
-| **Navigation** | `MAP`, `GOTO`, `MOVE`, `LEVEL` |
-| **System** | `STATUS`, `VIEWPORT`, `REPAIR`, `CONFIG` |
-| **Automation** | `RUN <script>`, `DEBUG <script>` |
-| **CLI (v1.0.6+)** | `HISTORY`, `THEME`, `SESSION`, `PROGRESS`, `LAYOUT` |
-| **Utilities** | `HELP`, `CLEAR`, `SETUP`, `REBOOT` |
-
-### Quick Command Tables
-
-#### 📁 File Operations
-| Command | Description | Example |
-|---------|-------------|---------|
-| `LIST` | List directory contents | `LIST knowledge/water/` |
-| `LOAD` | Load file into memory | `LOAD README.MD` |
-| `SAVE` | Save current content | `SAVE output.txt` |
-| `EDIT` | Edit file with micro | `EDIT config.json` |
-
-# Content Generation (OK Assist + Nano Banana)
-| Command | Description | Example |
-|---------|-------------|---------|
-| `OK` | General AI task | `OK create water purification guide` |
-| `OK ASK` | Ask AI question | `OK ASK how to start fire without matches` |
-| `OK DEV` | Development assistance | `OK DEV explain this code` |
-| `READ` | Read content for context | `READ water-guide.md` |
-| `GENERATE SVG` | Generate PNG→SVG diagram (v1.1.6+) | `GENERATE SVG water filter` |
-| `GENERATE DIAGRAM` | Alias for GENERATE SVG | `GENERATE DIAGRAM fire triangle` |
-| `GENERATE ASCII` | Generate ASCII art (offline) | `GENERATE ASCII water cycle --width 100` |
-| `GENERATE` | Legacy guide generation | `GENERATE guide water/purification` |
-
-#### 📚 Knowledge Bank
-| Command | Description | Example |
-|---------|-------------|---------|
-| `MEMORY` | Personal knowledge | `MEMORY list` |
-| `PRIVATE` | Private content | `PRIVATE add note` |
-| `SHARED` | Shared knowledge | `SHARED search water` |
-| `COMMUNITY` | Community content | `COMMUNITY latest` |
-| `KB` | Quick lookup | `KB water purification` |
-
-#### 🎨 Content Generation
-| Command | Description | Example |
-|---------|-------------|---------|
-| `GENERATE` | Create content | `GENERATE guide water/purification` |
-| `CONVERT` | Format conversion | `CONVERT pdf-to-md manual.pdf` |
-| `REFRESH` | Update content | `REFRESH --check all` |
-| `BATCH` | Batch operations | `BATCH category=water type=guide` |
-
-#### 🗺️ Navigation
-| Command | Description | Example |
-|---------|-------------|---------|
-| `MAP` | Show map | `MAP` |
-| `GOTO` | Navigate to | `GOTO 10,5` |
-| `MOVE` | Move direction | `MOVE north` |
-| `LEVEL` | Current level | `LEVEL` |
-| `GOUP` | Ascend level | `GOUP` |
-| `GODOWN` | Descend level | `GODOWN` |
-
-#### 🔧 System
-| Command | Description | Example |
-|---------|-------------|---------|
-| `STATUS` | System status | `STATUS` |
-| `REBOOT` | Restart system | `REBOOT` |
-| `REPAIR` | Diagnostics | `REPAIR MODE 1` |
-| `CONFIG` | Configuration | `CONFIG theme teletext-green` |
-| `VIEWPORT` | Display settings | `VIEWPORT` |
-
-#### 🐛 Debugging
-| Command | Description | Example |
-|---------|-------------|---------|
-| `DEBUG` | Start debugger | `DEBUG script.uscript` |
-| `BREAK` | Set breakpoint | `BREAK 10` |
-| `STEP` | Step through | `STEP` |
-| `CONTINUE` | Continue execution | `CONTINUE` |
-| `INSPECT` | Inspect variable | `INSPECT $count` |
-| `WATCH` | Watch expression | `WATCH $total > 100` |
-
-### uCODE Script Quick Reference
-
-#### Basic Syntax
-```uscript
-# Comment
-[COMMAND|parameter|option]
-$variable = "value"
-```
-
-#### Common Patterns
-```uscript
-# Generate content
-[GENERATE|guide|water/purification]
-[GENERATE|diagram|fire/triangle|format=svg]
-
-# Variables
-$category = "water"
-$topic = "purification"
-[GENERATE|guide|$category/$topic]
-
-# Conditionals
-if [SEARCH|quality<0.8] then
-  [REFRESH|--force]
-fi
-
-# Loops
-for cat in water,fire,shelter
-  [GENERATE|guide|$cat/basics]
-done
-
-# Command chaining
-[SEARCH|category=water] |> [REFRESH|--check] |> [REPORT]
-```
-
-#### Example Script
-```uscript
----
-title: Daily Maintenance
-version: 1.0.0
----
-
-# Check quality
-[REFRESH|--check|all]
-
-# Update if needed
-if quality < 0.8 then
-  [REFRESH|all]
-  [NOTIFY|Content updated]
-fi
-
-# Rebuild indexes
-[MANAGE|index|rebuild]
-```
-
-### Development Quick Start
-
-#### Setup Environment
-```bash
-# Clone repository
-git clone https://github.com/fredporter/uDOS.git
-cd uDOS
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Launch uDOS
-./start_udos.sh
-```
-
-#### Configure OK Assist (Optional)
-```bash
-# Create .env file
-echo 'GEMINI_API_KEY=your_key_here' > .env
-
-# Or set via command
-CONFIG SET GEMINI_API_KEY your_key_here
-```
-
-#### Run Tests
-```bash
-# All tests
-pytest memory/tests/
-
-# Specific version
-pytest memory/tests/test_v1_0_*.py
-
-# With coverage
-pytest --cov=core --cov-report=html
-```
-
-### File Locations
-
-#### Core System
-```
-core/                     # Core uDOS system
-├── commands/            # Command handlers
-├── services/            # Business logic
-├── ucode/              # uCODE language
-├── utils/              # Utilities
-└── config.py           # Configuration
-```
-
-#### User Data
-```
-memory/                 # User workspace
-├── personal/          # Personal content
-├── private/           # Private notes
-├── shared/            # Shared knowledge
-└── logs/              # System logs
-
-knowledge/             # Knowledge base
-├── water/            # Water category
-├── fire/             # Fire category
-├── shelter/          # Shelter category
-└── ...               # Other categories
-```
-
-### Configuration Options
-
-#### Theme Selection
-```bash
-CONFIG theme default              # Standard theme
-CONFIG theme teletext-green       # Teletext style
-CONFIG theme dungeon             # RPG dungeon
-CONFIG theme cyberpunk           # Cyberpunk aesthetic
-```
-
-#### AI Model Selection
-```bash
-CONFIG ai-model gemini-2.0-flash-exp     # Latest (recommended)
-CONFIG ai-model gemini-1.5-flash         # Stable
-CONFIG ai-model gemini-1.5-pro           # Advanced
-```
-
-### Troubleshooting Quick Fix
-
-```bash
-# Command not found
-HELP                    # Check available commands
-STATUS                  # Verify system status
-
-# API key errors
-CONFIG SET GEMINI_API_KEY your_key_here
-
-# Performance issues
-CLEAR                   # Clear screen/cache
-REBOOT                  # Restart system
-REPAIR MODE 1           # Run diagnostics
-```
-
-**See full guide:** [Troubleshooting-Complete.md](Troubleshooting-Complete.md)
+> **💡 Quick Help**: Type `HELP` in uDOS for command list, or `HELP <command>` for specific help.
 
 ---
 
-## Command Index
-
-| Category | Commands |
-|:---------|:---------|
-| **File Operations** | [LIST](#list), [LOAD](#load), [SAVE](#save), [EDIT](#edit) |
-| **Grid Management** | [GRID](#grid), [NEW GRID](#new-grid), [GRID LIST](#grid-list), [SHOW GRID](#show-grid) |
-| **Assisted Task** | [OK ASK](#ok-ask), [OK DEV](#ok-dev), [READ](#read) |
-| **Automation** | [RUN](#run) |
-| **Knowledge Bank (v1.0.20)** | [MEMORY](#memory), [PRIVATE](#private), [SHARED](#shared), [COMMUNITY](#community), [KB](#kb) |
-| **Geographic Data (v1.0.20b)** | [TILE](#tile-commands) |
-| **Display System (v1.0.21)** | [PANEL](#panel-commands) |
-| **Debugging** | [DEBUG](#debug), [BREAK](#break), [STEP](#step), [CONTINUE](#continue), [INSPECT](#inspect), [WATCH](#watch), [STACK](#stack), [MODIFY](#modify), [PROFILE](#profile), [HISTORY](#history) |
-| **System** | [REBOOT](#reboot), [STATUS](#status), [VIEWPORT](#viewport), [PALETTE](#palette), [REPAIR](#repair) |
-| **History** | [UNDO](#undo), [REDO](#redo), [RESTORE](#restore) |
-| **Navigation** | [MAP](#map), [GOTO](#goto), [MOVE](#move), [LEVEL](#level), [GODOWN](#godown), [GOUP](#goup) |
-| **Utilities** | [HELP](#help), [CLEAR](#clear), [SETUP](#setup) |
-
----
-
-## Command Evolution by Version
-
-uDOS commands have been developed systematically, focusing on core functionality:
-
-### 🧪 v1.0.1 - System Commands Foundation
-**SYSTEM category commands** - Core infrastructure and diagnostics
-- **HELP**: Interactive command search and categorization
-- **STATUS**: System state and resource monitoring
-- **REPAIR**: Diagnostic modes with auto-fix capabilities
-- **VIEWPORT**: Terminal size and display management
-- **PALETTE**: Visual color tests and grayscale gradients
-- **REBOOT**: System restart and state reset
-
-### 📁 v1.0.2 - File Operations
-**File management** - Core data handling operations
-- **LIST**: Directory contents and file browsing
-- **LOAD**: File loading into memory/grids
-- **SAVE**: File persistence and export
-- **EDIT**: File editing and modification
-
-### � v1.0.3 - Grid System
-**Workspace organization** - Flexible data visualization
-- **GRID**: Grid creation and management
-- **NEW GRID**: Initialize new grid workspaces
-- **GRID LIST**: List all active grids
-- **SHOW GRID**: Display grid contents
-
-### �️ v1.0.4 - Navigation System
-**Spatial movement** - Intuitive positioning and traversal
-- **MAP**: Display current location and surroundings
-- **GOTO**: Jump to specific coordinates or locations
-- **MOVE**: Relative position changes
-- **LEVEL**: Current level/depth display
-- **GODOWN**: Descend one level
-- **GOUP**: Ascend one level
-
-### 🐛 v1.0.17 - Interactive Debugger
-**Developer tools** - Full debugging environment for uCODE scripts
-- **DEBUG**: Start/stop debugging sessions with breakpoints
-- **BREAK**: Breakpoint management (set, clear, enable, disable, conditional)
-- **STEP**: Step execution (over, into, out)
-- **CONTINUE**: Resume execution until next breakpoint
-- **INSPECT**: Variable inspection (specific or all variables)
-- **WATCH**: Watch expression management
-- **STACK**: Call stack display
-- **MODIFY**: Runtime variable modification
-- **PROFILE**: Performance profiling and analysis
-- **HISTORY**: Variable change history tracking
-
-### ✓ v1.1.14 - Integrated Knowledge & Checklists
-**Systems integration** - Mission planning, checklists, and progress tracking
-- **GUIDE**: Interactive knowledge guides with progress tracking (replaces KB)
-- **CHECKLIST**: Load and complete actionable checklists (LIST, LOAD, COMPLETE, STATUS, PROGRESS, RESET)
-- **MISSION**: Project management with workflow integration (CREATE, START, STATUS, COMPLETE)
-- **ARCHIVE**: Archive completed work (mission, checklist, workflow) with restoration
-- **GET**: Access system variables ($MISSION.*, $CHECKLIST.*, $WORKFLOW.*)
-- **Dashboard**: Real-time web dashboard (Flask + NES.css) at http://127.0.0.1:5050
-- **Integration**: Bidirectional linking between guides, checklists, and missions
-
-**Key Features**:
-- 10 JSON checklists across 5 categories (emergency, daily, projects, seasonal, learning)
-- 126+ actionable checklist items with priority levels
-- Mission schema with workflow_script, related_guides, related_checklists fields
-- Variable system for cross-system state access
-- Real-time dashboard with auto-refresh (5s intervals)
-- Archive system with timestamp and metadata preservation
-
----
-
-## File Operations
-
-### CATALOG
-
-**Purpose**: List directory contents
-
-**Syntax**:
-```
-CATALOG ["<path>"] [TO "<panel>"]
-```
-
-**Parameters**:
-- `path` (optional) - Directory to list (default: current directory)
-- `panel` (optional) - Panel to output results (default: `main`)
-
-**Examples**:
-```
-🔮 > CATALOG
-🔮 > CATALOG "data"
-🔮 > CATALOG "./" TO "files"
-```
-
-**Output**:
-```
-📁 ./data
-  ├── COMMANDS.UDO (15.2 KB)
-  ├── LEXICON.UDO (8.4 KB)
-  ├── PALETTE.UDO (7.1 KB)
-  └── WORLDMAP.UDO (12.3 KB)
-```
-
-**uCODE**: `[FILE|LIST*<path>*<panel>]`
-
----
-
-### LOAD
-
-**Purpose**: Load file content into a panel
-
-**Syntax**:
-```
-LOAD "<file>" [TO "<panel>"]
-```
-
-**Parameters**:
-- `file` (required) - Path to file
-- `panel` (optional) - Target panel (default: `main`)
-
-**Examples**:
-```
-🔮 > LOAD "README.MD"
-🔮 > LOAD "data/COMMANDS.UDO" TO "config"
-🔮 > LOAD "script.uscript" TO "code"
-```
-
-**Output**:
-```
-✅ SUCCESS: File loaded into 'main' (361 lines)
-💡 Try: SHOW "main"
-```
-
-**Tab Completion**: File paths auto-complete
-
-**uCODE**: `[FILE|LOAD*<file>*<panel>]`
-
----
-
-### SAVE
-
-**Purpose**: Save panel content to a file
-
-**Syntax**:
-```
-SAVE "<panel>" TO "<file>"
-```
-
-**Parameters**:
-- `panel` (required) - Source panel name
-- `file` (required) - Target file path
-
-**Examples**:
-```
-🔮 > SAVE "main" TO "output.txt"
-🔮 > SAVE "notes" TO "sandbox/mynotes.md"
-🔮 > SAVE "config" TO "data/settings.json"
-```
-
-**Output**:
-```
-✅ SUCCESS: Panel 'main' saved to 'output.txt'
-```
-
-**Notes**:
-- Creates directories if needed
-- Overwrites existing files
-- Adds to UNDO stack
-
-**uCODE**: `[FILE|SAVE*<panel>*<file>]`
-
----
-
-### EDIT
-
-**Purpose**: Open file in default text editor
-
-**Syntax**:
-```
-EDIT "<file>"
-```
-
-**Parameters**:
-- `file` (required) - Path to file
-
-**Examples**:
-```
-🔮 > EDIT "README.MD"
-🔮 > EDIT "data/SETUP.USC"
-```
-
-**Output**:
-```
-📝 Opening 'README.MD' in typora...
-💡 File will be opened in your default editor
-```
-
-**Notes**:
-- Uses system default editor
-- Auto-installs typo editor if available
-- Returns to uDOS after closing
-
-**uCODE**: `[SYSTEM|EDIT*<file>]`
-
----
-
-### FILE PICK
-
-**Purpose**: Interactive file picker with fuzzy search
-
-**Syntax**:
-```
-FILE PICK [pattern]
-```
-
-**Parameters**:
-- `pattern` (optional) - Search pattern for filtering files
-
-**Examples**:
-```
-🔮 > FILE PICK
-🔮 > FILE PICK readme
-🔮 > FILE PICK .py
-```
-
-**Output**:
-```
-📁 File Picker - Found 15 files (relevance 0.8+)
-1. README.MD (1.0) - 5.2KB, modified 2h ago ✓
-2. readme.txt (0.9) - 1.1KB, modified 1d ago
-3. READBOOK.md (0.8) - 3.4KB, modified 3d ago
-Select file (1-15): 1
-✅ Selected: README.MD
-```
-
-**Features**:
-- Fuzzy search with relevance scoring
-- Git status integration (✓ = tracked)
-- File type classification and size display
-- Automatic access tracking for recent files
-
-**uCODE**: `[FILE|PICK*<pattern>]`
-
----
-
-### FILE RECENT
-
-**Purpose**: Display recently accessed files
-
-**Syntax**:
-```
-FILE RECENT [count] [workspace]
-```
-
-**Parameters**:
-- `count` (optional) - Number of files to show (default: 20)
-- `workspace` (optional) - Filter by workspace
-
-**Examples**:
-```
-🔮 > FILE RECENT
-🔮 > FILE RECENT 10
-🔮 > FILE RECENT sandbox 5
-```
-
-**Output**:
-```
-📊 Recent Files (last 20)
-1. README.MD (accessed 3 times, last: 15m ago)
-2. config.json (accessed 7 times, last: 1h ago)
-3. script.py (accessed 2 times, last: 3h ago)
-```
-
-**Features**:
-- SQLite persistence for access history
-- Access frequency counting
-- Workspace filtering available
-- File existence verification
-
-**uCODE**: `[FILE|RECENT*<count>*<workspace>]`
-
----
-
-### FILE BATCH
-
-**Purpose**: Batch operations on multiple files
-
-**Syntax**:
-```
-FILE BATCH [DELETE|COPY|MOVE] <pattern> [destination]
-```
-
-**Parameters**:
-- `operation` (required) - DELETE, COPY, or MOVE
-- `pattern` (required) - File pattern or search term
-- `destination` (optional) - Target directory for COPY/MOVE
-
-**Examples**:
-```
-🔮 > FILE BATCH DELETE *.tmp
-🔮 > FILE BATCH COPY *.md backup/
-🔮 > FILE BATCH MOVE test* archive/
-```
-
-**Output**:
-```
-🔍 Found 5 files matching '*.tmp'
-⚠️  DELETE operation will permanently remove files
-Continue? (y/N): y
-✅ Deleted 5 files successfully
-```
-
-**Features**:
-- Pattern matching with fuzzy search
-- Safety confirmations for destructive operations
-- Progress tracking for large operations
-- Detailed error reporting
-
-**uCODE**: `[FILE|BATCH*<operation>*<pattern>*<destination>]`
-
----
-
-### FILE BOOKMARKS
-
-**Purpose**: Manage persistent file bookmarks
-
-**Syntax**:
-```
-FILE BOOKMARKS [ADD|REMOVE] [filename]
-```
-
-**Parameters**:
-- `action` (optional) - ADD or REMOVE bookmark
-- `filename` (optional) - File to bookmark/unbookmark
-
-**Examples**:
-```
-🔮 > FILE BOOKMARKS
-🔮 > FILE BOOKMARKS ADD README.MD
-🔮 > FILE BOOKMARKS REMOVE config
-```
-
-**Output**:
-```
-📚 File Bookmarks (3 total)
-1. 🔖 README.MD - Project documentation
-2. 🔖 config.json - System configuration
-3. 🔖 startup.sh - Launch script
-```
-
-**Features**:
-- SQLite persistence for bookmarks
-- Custom bookmark names and tags
-- File existence verification
-- Interactive add/remove operations
-
-**uCODE**: `[FILE|BOOKMARKS*<action>*<filename>]`
-
----
-
-### FILE PREVIEW
-
-**Purpose**: Preview file content with metadata
-
-**Syntax**:
-```
-FILE PREVIEW <filename>
-```
-
-**Parameters**:
-- `filename` (required) - File to preview
-
-**Examples**:
-```
-🔮 > FILE PREVIEW README.MD
-🔮 > FILE PREVIEW config.json
-```
-
-**Output**:
-```
-📄 README.MD (5.2KB, modified 2h ago) ✓
-─────────────────────────────────────
-# uDOS Project
-
-This is the main documentation for...
-[Content preview - first 20 lines]
-─────────────────────────────────────
-📊 361 lines, 15,432 chars, 2,847 words
-```
-
-**Features**:
-- Content preview for text files (first 20 lines)
-- File metadata and git status integration
-- Text statistics for text files
-- Binary file detection and safe handling
-
-**uCODE**: `[FILE|PREVIEW*<filename>]`
-
----
-
-### FILE INFO
-
-**Purpose**: Comprehensive file information and statistics
-
-**Syntax**:
-```
-FILE INFO <filename>
-```
-
-**Parameters**:
-- `filename` (required) - File to analyze
-
-**Examples**:
-```
-🔮 > FILE INFO README.MD
-🔮 > FILE INFO script.py
-```
-
-**Output**:
-```
-📋 File Information: README.MD
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📂 Location: /Users/user/project/README.MD
-📏 Size: 5.2KB (5,247 bytes)
-📅 Created: Nov 1, 2025 14:23:45
-📝 Modified: Nov 2, 2025 09:15:32
-👁️  Accessed: Nov 2, 2025 11:30:22
-📊 Content: 361 lines, 15,432 chars, 2,847 words
-🔖 Bookmarked: Yes (added 2d ago)
-📈 Access History: 8 times (last: 15m ago)
-💡 Suggested: EDIT, LOAD TO panel, BOOKMARKS
-```
-
-**Features**:
-- Complete file metadata and timestamps
-- Text analysis for readable files
-- Access history from tracking database
-- Bookmark status and git integration
-- Contextual command suggestions
-
-**uCODE**: `[FILE|INFO*<filename>]`
-
----
-
-## Knowledge Base
-
-### KNOWLEDGE SEARCH
-
-**Purpose**: Full-text search of knowledge base
-
-**Syntax**:
-```
-KNOWLEDGE SEARCH <query> [category] [limit]
-```
-
-**Parameters**:
-- `query` (required) - Search terms
-- `category` (optional) - Limit to specific category
-- `limit` (optional) - Maximum results (default: 10)
-
-**Examples**:
-```
-🔮 > KNOWLEDGE SEARCH "ASK command"
-🔮 > KNOWLEDGE SEARCH mapping commands 5
-🔮 > KNOWLEDGE SEARCH python concepts
-```
-
-**Output**:
-```
-🔍 Knowledge Search: "ASK command" (3 results)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. ASK Command Reference (commands) - Score: 0.95
-   📄 Complete guide to ASK command with AI integration
-   🏷️  #command #AI #help #assistant
-
-2. Command Architecture (concepts) - Score: 0.82
-   📄 Handler patterns and command routing
-   🏷️  #architecture #development #patterns
-
-3. FAQ: Common Questions (faq) - Score: 0.71
-   📄 Frequently asked questions about commands
-   🏷️  #help #troubleshooting #guide
-```
-
-**Features**:
-- BM25 relevance scoring with SQLite FTS5
-- Category filtering for focused searches
-- Tag-based content organization
-- Fuzzy matching for typos and partial terms
-
-**uCODE**: `[KNOWLEDGE|SEARCH*<query>*<category>*<limit>]`
-
----
-
-### KNOWLEDGE LIST
-
-**Purpose**: Browse knowledge by categories and topics
-
-**Syntax**:
-```
-KNOWLEDGE LIST [category]
-```
-
-**Parameters**:
-- `category` (optional) - Specific category to list
-
-**Examples**:
-```
-🔮 > KNOWLEDGE LIST
-🔮 > KNOWLEDGE LIST commands
-🔮 > KNOWLEDGE LIST concepts
-```
-
-**Output**:
-```
-📚 Knowledge Categories (3 total, 2,847 words)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📂 commands (3 items, 1,234 words)
-   • ASK Command Reference - AI assistance guide
-   • MAP Command Reference - Navigation and mapping
-   • SYSTEM Command Reference - System management
-
-📂 concepts (1 item, 987 words)
-   • Command Architecture - Handler patterns and design
-
-📂 faq (2 items, 626 words)
-   • Common Questions - Troubleshooting guide
-   • Getting Started - Quick start tutorial
-```
-
-**Features**:
-- Hierarchical category organization
-- Word count statistics per category
-- Auto-organization by folder structure
-- Quick navigation to content
-
-**uCODE**: `[KNOWLEDGE|LIST*<category>]`
-
----
-
-### KNOWLEDGE SHOW
-
-**Purpose**: Display full knowledge content
-
-**Syntax**:
-```
-KNOWLEDGE SHOW <title|path>
-```
-
-**Parameters**:
-- `title|path` (required) - Knowledge item title or file path
-
-**Examples**:
-```
-🔮 > KNOWLEDGE SHOW "ASK Command Reference"
-🔮 > KNOWLEDGE SHOW commands/MAP.md
-```
-
-**Output**:
-```
-📖 ASK Command Reference (commands)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[Full content displayed in panel]
-
-# ASK Command Reference
-
-The ASK command provides OK assisted assistance...
-[Complete document content]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 1,234 words | 🏷️  #command #AI #help #assistant
-💡 Try: KNOWLEDGE SEARCH related topics
-```
-
-**Features**:
-- Full content display with panel integration
-- Rich formatting preservation
-- Metadata and tag display
-- Related content suggestions
-
-**uCODE**: `[KNOWLEDGE|SHOW*<title>]`
-
----
-
-### KNOWLEDGE INDEX
-
-**Purpose**: Reindex knowledge base with change detection
-
-**Syntax**:
-```
-KNOWLEDGE INDEX [--force]
-```
-
-**Parameters**:
-- `--force` (optional) - Force complete reindexing
-
-**Examples**:
-```
-🔮 > KNOWLEDGE INDEX
-🔮 > KNOWLEDGE INDEX --force
-```
-
-**Output**:
-```
-🔄 Indexing Knowledge Base...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📂 Scanning knowledge/ directory...
-✅ commands/ASK.md - Updated (checksum changed)
-✅ commands/MAP.md - No changes
-✅ concepts/command-architecture.md - New file
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 Indexing complete: 6 files, 2,847 words total
-⚡ Full-text search ready (SQLite FTS5)
-```
-
-**Features**:
-- Automatic change detection with checksums
-- Incremental updates for efficiency
-- Force reindex option for complete refresh
-- Progress reporting with file status
-
-**uCODE**: `[KNOWLEDGE|INDEX*<force>]`
-
----
-
-### KNOWLEDGE STATS
-
-**Purpose**: Knowledge base metrics and analytics
-
-**Syntax**:
-```
-KNOWLEDGE STATS
-```
-
-**Examples**:
-```
-🔮 > KNOWLEDGE STATS
-```
-
-**Output**:
-```
-📊 Knowledge Base Statistics
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📚 Content Overview
-   • Total Items: 6 files
-   • Total Words: 2,847 words
-   • Total Size: 47.3KB
-   • Last Updated: 2h ago
-
-📂 Category Breakdown
-   • commands: 3 items (43.4%) - 1,234 words
-   • concepts: 1 item (16.7%) - 987 words
-   • faq: 2 items (33.3%) - 626 words
-
-🔍 Search Performance
-   • Database Size: 234KB
-   • FTS Index: Optimized
-   • Average Query Time: <10ms
-   • Total Searches: 47 queries
-```
-
-**Features**:
-- Comprehensive content metrics
-- Category distribution analysis
-- Search performance statistics
-- Visual percentage breakdowns
-
-**uCODE**: `[KNOWLEDGE|STATS]`
-
----
-
-### KNOWLEDGE CATEGORIES
-
-**Purpose**: Category management and overview
-
-**Syntax**:
-```
-KNOWLEDGE CATEGORIES
-```
-
-**Examples**:
-```
-🔮 > KNOWLEDGE CATEGORIES
-```
-
-**Output**:
-```
-📂 Knowledge Categories Overview
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. commands (3 items) ████████████░░░░ 43.4%
-   📖 Command references and usage guides
-   🔍 Most Recent: ASK Command Reference (updated 2h ago)
-
-2. concepts (1 item) ██████░░░░░░░░░░ 16.7%
-   📖 System architecture and design patterns
-   🔍 Most Recent: Command Architecture (updated 1d ago)
-
-3. faq (2 items) ████████░░░░░░░░ 33.3%
-   📖 Frequently asked questions and troubleshooting
-   🔍 Most Recent: Common Questions (updated 3d ago)
-
-💡 Try: KNOWLEDGE LIST <category> to browse content
-```
-
-**Features**:
-- Visual category distribution with progress bars
-- Recent activity tracking per category
-- Category descriptions and purposes
-- Navigation suggestions for browsing
-
-**uCODE**: `[KNOWLEDGE|CATEGORIES]`
-
----
-
-## Grid Management
-
-### GRID PANEL CREATE
-
-**Purpose**: Create a new named panel
-
-**Syntax**:
-```
-GRID PANEL CREATE "<name>"
-```
-
-**Parameters**:
-- `name` (required) - Panel name (unique)
-
-**Examples**:
-```
-🔮 > GRID PANEL CREATE "notes"
-🔮 > GRID PANEL CREATE "temp"
-🔮 > GRID PANEL CREATE "analysis-results"
-```
-
-**Output**:
-```
-✅ Panel 'notes' created
-💡 Try: LOAD "file.txt" TO "notes"
-```
-
-**uCODE**: `[GRID|PANEL*CREATE*<name>]`
-
----
-
-### GRID PANELS LIST
-
-**Purpose**: Show all panels and their status
-
-**Syntax**:
-```
-GRID PANELS LIST
-```
-
-**Examples**:
-```
-🔮 > GRID PANELS LIST
-```
-
-**Output**:
-```
-📋 Active Panels:
-  • main (3,421 bytes) - Last modified: 2025-10-30 20:53:28
-  • notes (0 bytes) - Empty
-  • config (15,234 bytes) - Last modified: 2025-10-30 19:15:42
-
-Total: 3 panels
-```
-
-**uCODE**: `[GRID|PANELS*LIST]`
-
----
-
-### SHOW
-
-**Purpose**: Display panel contents
-
-**Syntax**:
-```
-SHOW "<panel>"
-```
-
-**Parameters**:
-- `panel` (required) - Panel name
-
-**Examples**:
-```
-🔮 > SHOW "main"
-🔮 > SHOW "notes"
-```
-
-**Output**:
-```
-═══════════════════════════════════════
-Panel: main (361 lines)
-═══════════════════════════════════════
-[panel contents displayed...]
-═══════════════════════════════════════
-```
-
-**Tab Completion**: Panel names auto-complete
-
-**uCODE**: `[GRID|SHOW*<panel>]`
-
----
-
-## AI & Analysis
-
-### ASK
-
-**Purpose**: Query OK Assistant (or offline engine)
-
-**Syntax**:
-```
-ASK "<question>" [FROM "<panel>"]
-```
-
-**Parameters**:
-- `question` (required) - Your question
-- `panel` (optional) - Panel to use as context
-
-**Examples**:
-```
-🔮 > ASK "What is uDOS?"
-🔮 > ASK "Explain this code" FROM "main"
-🔮 > ASK "Summarize the file"
-```
-
-**Online Output**:
-```
-🤖 OK Assistant:
-uDOS is a human-readable CLI framework that combines natural
-language commands with AI integration. It features...
-```
-
-**Offline Output**:
-```
-🔌 OFFLINE MODE - Using local logic engine
-Based on the patterns I recognize, this appears to be...
-```
-
-**uCODE**: `[AI|ASK*<question>*<panel>]`
-
----
-
-### ANALYZE
-
-**Purpose**: Offline content analysis
-
-**Syntax**:
-```
-ANALYZE "<panel>"
-```
-
-**Parameters**:
-- `panel` (required) - Panel to analyze
-
-**Examples**:
-```
-🔮 > ANALYZE "main"
-🔮 > ANALYZE "code"
-```
-
-**Output**:
-```
-📊 Analysis Results for 'main':
-  • Lines: 361
-  • Words: 2,147
-  • Characters: 15,234
-  • Code blocks: 12
-  • Links: 8
-  • Sentiment: Informative
-```
-
-**uCODE**: `[AI|ANALYZE*<panel>]`
-
----
-
-### SVG
-
-**Purpose**: Generate vector diagrams with artistic styles (v1.1.5+)
-
-**Syntax**:
-```
-SVG <description> [--style <style>] [--save <filename>]
-```
-
-**Parameters**:
-- `description` (required) - What to diagram (5-15 words optimal)
-- `style` (optional) - Artistic style: lineart, blueprint, sketch, isometric (default: lineart)
-- `save` (optional) - Custom filename (auto-generates if omitted)
-
-**Styles**:
-- **lineart**: Clean black lines, minimal (icons, diagrams)
-- **blueprint**: Blue technical plans with grid (documentation, plans)
-- **sketch**: Hand-drawn organic look (field notes, informal)
-- **isometric**: 3D isometric projection (architecture, layouts)
-
-**Examples**:
-```
-🔮 > SVG water filter diagram
-🔮 > SVG fire triangle showing heat oxygen fuel --style lineart
-🔮 > SVG A-frame shelter construction --style blueprint
-🔮 > SVG campfire setup --style sketch --save my-campfire.svg
-🔮 > SVG rainwater collection system --style isometric
-```
-
-**Output**:
-```
-✅ SVG diagram generated: sandbox/drafts/svg/water-filter-diagram.svg
-   Style: lineart
-   Size: 445 chars
-   Valid: ✓
-```
-
-**Features**:
-- AI-powered with Gemini (optional, has fallback)
-- 4 artistic styles for different use cases
-- Auto-validates SVG XML
-- Saves to sandbox/drafts/svg/
-- Works offline (template fallback)
-
-**See Also**:
-- **[Nano Banana Integration Guide](Nano-Banana-Integration)** - v1.1.6 PNG→SVG pipeline (recommended)
-- **[SVG Command Reference](SVG-Command-Reference)** - Legacy SVG command (deprecated in v1.1.6)
-- **[SVG Example Gallery](SVG-Example-Gallery)** - Visual examples
-- **[SVG Developer Guide](SVG-Extension-Developer-Guide)** - Extension API
-- **[Content Generation](Content-Generation)** - Complete generation guide
-
-**Migration Note**: For new projects, use `GENERATE SVG` instead of the legacy `SVG` command. The new command uses Gemini 2.5 Flash Image (Nano Banana) with a PNG→SVG pipeline for superior quality and Technical-Kinetic compliance.
-
-**uCODE**: `[SVG|<description>*<style>*<filename>]`
-
----
-
-### GENERATE SVG (Nano Banana)
-
-**Purpose**: Generate vector diagrams via PNG→SVG pipeline (v1.1.7+)
-
-**Syntax**:
-```
-GENERATE SVG <description> [options]
-GENERATE DIAGRAM <description> [options]  # Alias
-```
-
-**Parameters**:
-- `description` (required) - Subject to diagram (5-15 words optimal)
-- `--style <style>` - Visual style (default: technical-kinetic)
-- `--type <type>` - Diagram type (default: flowchart)
-- `--save <file>` - Custom filename (auto-generates if omitted)
-- `--pro` - Use Nano Banana Pro (slower, higher quality)
-- `--strict` - Enforce strict Technical-Kinetic validation
-- `--no-preview` - Skip preview hints
-
-**Styles**:
-- `technical-kinetic` (default) - MCM geometry, 2-3px strokes, monochrome
-- `hand-illustrative` - Organic lines, hand-drawn aesthetic
-- `hybrid` - Mix of technical and hand-drawn elements
-
-**Diagram Types**:
-- `flowchart` (default) - Process flows, curved conduits
-- `architecture` - System architecture, MCM structures
-- `kinetic-flow` - Mechanical systems, gears, motion
-- `schematic` - Technical schematics, circuit-like layouts
-
-**Examples**:
-```
-🔮 > GENERATE SVG water purification filter
-🔮 > GENERATE SVG fire triangle --style hand-illustrative
-🔮 > GENERATE DIAGRAM shelter frame --type architecture --pro
-🔮 > GENERATE SVG gear mechanism --type kinetic-flow --strict --save gears.svg
-```
-
-**Output**:
-```
-✅ SVG diagram generated: water purification filter
-   Style: technical-kinetic
-   Type: flowchart
-   Vectorizer: potrace
-   Time: 18.3s
-   Saved: sandbox/drafts/svg/water-purification-filter-technical-kinetic-20251201.svg
-   Validation: ✅ Technical-Kinetic compliant
-
-🔧 Next Steps:
-   - Edit: open -a 'Inkscape' sandbox/drafts/svg/water-purification-filter-*.svg
-   - Regenerate: GENERATE SVG water purification filter --style hand-illustrative
-   - Refine: GENERATE SVG water purification filter --pro --strict
-```
-
-**Pipeline**:
-1. Load style guide (0-14 reference PNGs)
-2. Generate PNG with Gemini 2.5 Flash Image (Nano Banana)
-3. Vectorize PNG→SVG (potrace or vtracer)
-4. Validate Technical-Kinetic compliance
-5. Save to sandbox/drafts/svg/
-
-**Performance**:
-- Standard mode: <30s typical (15-20s average)
-- Pro mode (`--pro`): <60s typical (30-45s average)
-- Requires: GEMINI_API_KEY in .env
-
-**Workflow Examples**:
-
-See `sandbox/workflow/examples/` for complete workflow scripts:
-- `nano_banana_quick_start.uscript` - Beginner tutorial
-- `nano_banana_batch.uscript` - Batch generation with rate limiting
-- `nano_banana_quality_check.uscript` - Quality validation + retry logic
-- `nano_banana_styles_demo.uscript` - Demonstrate all styles/types
-
-**uCODE**: `[GENERATE|SVG*<description>*<style>*<type>*<options>]`
-
-**See Also**:
-- **[Nano Banana Integration Guide](Nano-Banana-Integration)** - Complete pipeline documentation
-- **[Tutorial: Nano Banana Quick Start](Tutorial-Nano-Banana)** - Step-by-step beginner guide
-- **[SVG Command Reference](SVG-Command-Reference)** - Legacy SVG command (deprecated)
-- **[Content Generation](Content-Generation)** - Complete generation system guide
-
----
-
-## Automation
-
-### RUN
-
-**Purpose**: Execute a script file
-
-**Syntax**:
-```
-RUN "<script>"
-```
-
-**Parameters**:
-- `script` (required) - Path to `.uscript` file
-
-**Examples**:
-```
-🔮 > RUN "shakedown.uscript"
-🔮 > RUN "data/SETUP.USC"
-🔮 > RUN "knowledge/demos/demo.uscript"
-```
-
-**Output**:
-```
-🚀 Executing script: shakedown.uscript
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[script execution output...]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Script completed
-```
-
-**Script Format**: uCODE or regular commands
-
-**uCODE**: `[SYSTEM|RUN*<script>]`
-
----
-
-### STORY
-
-**Purpose**: Interactive adventure system with branching narratives, survival mechanics, and save/load functionality
-
-**Syntax**:
-```
-STORY LIST
-STORY START <adventure>
-STORY CONTINUE
-STORY CHOICE <number>
-STORY STATUS
-STORY SAVE <name>
-STORY LOAD <name>
-```
-
-**Parameters**:
-- `adventure` - Name of adventure file (.upy or .json)
-- `number` - Choice option number (1-9)
-- `name` - Save file name (auto-adds .json)
-
-**Examples**:
-```
-🔮 > STORY LIST
-📚 Available Adventures:
-  • first-steps (.upy) - Learn wilderness survival basics
-
-🔮 > STORY START first-steps
-✅ Adventure started: first-steps
-   Format: .upy
-   Session ID: 42
-
-📊 Player stats initialized
-💡 Use 'STORY CONTINUE' to begin
-
-🔮 > STORY CONTINUE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📖 You wake up beside a stream in unfamiliar wilderness.
-The sun is high overhead. You're thirsty and exhausted.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Use 'STORY CONTINUE' to proceed
-
-🔮 > STORY CHOICE 1
-✅ Choice recorded: 1
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📖 You follow the stream upstream...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔼 Thirst: -20
-⭐ +100 XP (water) - Found clean water
-📦 Added: Water Bottle (CONTAINER) x1
-
-🔮 > STORY STATUS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 Adventure Progress
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Adventure: first-steps
-Progress:  18/30 events (60%)
-Status:    Active
-
-┌─ CHARACTER STATS ──────────┐
-│ Health:  ████████░░ 80%   │
-│ Thirst:  ██░░░░░░░░ 20%   │
-│ Hunger:  ███░░░░░░░ 30%   │
-│ Fatigue: █████░░░░░ 50%   │
-└────────────────────────────┘
-
-💡 Use 'STORY CONTINUE' to proceed
-💡 Use 'STORY SAVE' to preserve progress
-
-🔮 > STORY SAVE my-progress
-💾 Progress saved: my-progress.json
-   Adventure: first-steps (event 18/30)
-   Stats: Health 80, Thirst 20, Hunger 30, Fatigue 50
-   XP: 2,450
-   Inventory: 8 items
-
-🔮 > STORY LOAD my-progress
-📂 Loaded save: my-progress.json
-   Adventure: first-steps
-   Saved: 2024-12-02 14:23:15
-   Progress: 18/30 events
-
-💡 Use 'STORY STATUS' to check state
-💡 Use 'STORY CONTINUE' to resume
-```
-
-**Features**:
-
-1. **Event Processing** (8 types):
-   - `NARRATIVE` - Story text display
-   - `CHOICE` - Player decisions with branching
-   - `GOTO` - Label-based navigation
-   - `SET_STAT` - Modify survival stats (health/thirst/hunger/fatigue)
-   - `AWARD_XP` - Grant experience points
-   - `ADD_ITEM` / `REMOVE_ITEM` - Inventory management
-   - `CHECK_STAT` / `CHECK_ITEM` / `CHECK_XP` - Conditionals
-   - `SPRITE` / `OBJECT` - Display character stats/inventory
-
-2. **Game Integration**:
-   - **SurvivalService**: Track health, thirst, hunger, fatigue (0-100)
-   - **XPService**: Experience points across 9 categories
-   - **InventoryService**: Item management with categories and weight
-   - **ScenarioEngine**: Event processing and state management
-
-3. **Choice System**:
-   - 2-9 options per choice
-   - Automatic branching (option N → event N+1)
-   - Validation and error handling
-   - Support for GOTO-based path convergence
-
-4. **Save/Load System**:
-   - JSON-based saves in `sandbox/user/saves/`
-   - Complete state preservation:
-     - Survival stats (all 4 stats)
-     - Total XP (across all categories)
-     - Complete inventory (items with full details)
-     - Scenario position (event index, choice state)
-   - Version tracking (2.0.0)
-   - Timestamp and progress metadata
-
-**Adventure File Format (.upy)**:
-
-```python
-# ========================================
-# METADATA
-# ========================================
-# metadata.name: "First Steps"
-# metadata.description: "Learn wilderness survival"
-# metadata.author: "uDOS Team"
-# metadata.version: "1.0.0"
-
-# ========================================
-# LABELS (for branching)
-# ========================================
-@start
-@water_found
-@victory
-
-# ========================================
-# EVENTS
-# ========================================
-
-# Event 1: Opening
-NARRATIVE
-You wake up beside a stream.
-END
-
-# Event 2: First choice
-CHOICE
-What do you do?
-1. Find water
-2. Build shelter
-3. Explore area
-END
-
-# Event 3: Find water (option 1)
-NARRATIVE
-You follow the stream upstream.
-After 30 minutes, you find a spring.
-END
-SET_STAT thirst 0
-ADD_ITEM "Water Bottle" CONTAINER 1 0.5
-AWARD_XP water 100 "Found clean water"
-
-# Event 4: Build shelter (option 2)
-NARRATIVE
-You gather branches and build a lean-to.
-END
-SET_STAT fatigue 70
-AWARD_XP shelter 150 "Built first shelter"
-
-# Event 5: Explore (option 3)
-NARRATIVE
-You scout the area.
-END
-AWARD_XP navigation 50 "Scouted surroundings"
-
-# Event 6: Convergence
-@water_found
-NARRATIVE
-As evening approaches, you need camp.
-END
-SPRITE
-OBJECT
-```
-
-**uPY Commands (15 total)**:
-- `NARRATIVE` / `END` - Multi-line story text
-- `CHOICE` / `END` - Player decisions
-- `GOTO @label` - Jump to label
-- `SET_STAT health 90` - Modify stat
-- `AWARD_XP survival 50 "reason"` - Grant XP
-- `ADD_ITEM "Rope" TOOL 1 1.5` - Give item
-- `REMOVE_ITEM "Rope" 1` - Take item
-- `CHECK_STAT health > 50` - Conditional check
-- `CHECK_ITEM "Rope"` - Item possession check
-- `CHECK_XP > 100` - XP threshold check
-- `SPRITE` - Show character stats UI
-- `OBJECT` - Show inventory UI
-- `VARIABLE x 10` - Set variable
-- `CONDITION x > 5` - If statement
-- `SCRIPT` / `END` - Custom code block
-
-**Integration with Core Services**:
-
-```python
-# Example: Internal flow
-handler = StoryHandler(components={
-    'scenario_service': ScenarioService(),
-    'xp_service': XPService(),
-    'inventory_service': InventoryService(),
-    'survival_service': SurvivalService()
-})
-
-# Start adventure → Parse .upy → Load events
-handler.handle('START', ['first-steps'])
-# → parse_upy_adventure() → register scenario → start session
-
-# Continue → Process next event
-handler.handle('CONTINUE', [])
-# → scenario_engine.process_event() → execute event actions
-
-# Choice → Validate → Branch
-handler.handle('CHOICE', ['1'])
-# → validate option → jump to path → continue
-
-# Save → Capture state → Write JSON
-handler.handle('SAVE', ['my-save'])
-# → collect stats/XP/inventory/position → save to file
-
-# Load → Parse JSON → Restore state
-handler.handle('LOAD', ['my-save'])
-# → restart adventure → restore stats/XP/inventory → resume
-```
-
-**Related Documentation**:
-- [Adventure Scripting Guide](Adventure-Scripting-Guide.md) - Complete .upy format reference
-- [uCODE Language](uCODE-Language.md) - Script automation
-- [Getting Started](Getting-Started.md#story-mode) - Tutorial walkthrough
-
-**uCODE**: `[STORY|START*first-steps]`, `[STORY|CONTINUE]`, `[STORY|CHOICE*1]`
-
-**Status**: ✅ Complete (v2.0.0 - Round 2)
-**Tests**: 32 passing (integration + save/load)
-**Examples**: `sandbox/ucode/adventures/first-steps.upy` (280 lines, 30 events)
-
----
-
-## uPY Commands (v1.1.9+)
-
-Modern Python-like scripting commands for .upy files. See [uCODE Language Reference](uCODE-Language.md#upy-syntax-v119) for complete syntax.
-
-### Variable Assignment
-
-**Purpose**: Assign values to variables with clean syntax
-
-**Syntax**:
-```upy
-$VARIABLE-NAME = value
-```
-
-**Parameters**:
-- `$VARIABLE-NAME` - Variable name with $ prefix (UPPERCASE-HYPHEN convention)
-- `value` - String (single quotes), number, or expression
-
-**Examples**:
-```upy
-$HP = 100
-$NAME = 'Hero'
-$GOLD = 50
-$MAX-HP = 100
-$LEVEL = 1
-
-# Expressions
-$TOTAL = $HP + $MANA
-$PERCENT = ($HP / $MAX-HP) * 100
-```
-
-**See**: [Migration Guide](Migration-Guide-v1.1.9.md#variables)
-
----
-
-### PRINT (Enhanced)
-
-**Purpose**: Output text with variable substitution and emojis
-
-**Syntax**:
-```upy
-PRINT("text with $VARIABLES and :emoji:")
-```
-
-**Parameters**:
-- `text` - String with double quotes
-- `$VARIABLES` - Automatically substituted
-- `:emoji:` - Emoji codes (80+ available)
-
-**Examples**:
-```upy
-PRINT("Hello, world!")
-PRINT("Player: $NAME")
-PRINT(":heart: HP: $HP")
-PRINT(":coin: Gold: $GOLD coins")
-PRINT(":check: Quest complete!")
-```
-
-**Common Emojis**:
-- `:heart:` ♥ - Health
-- `:coin:` ⊚ - Currency
-- `:sword:` † - Attack
-- `:check:` ✓ - Success
-- `:warning:` ⚠ - Warning
-
-**See**: [Emoji Reference](Emoji-Reference.md)
-
----
-
-### FUNCTION
-
-**Purpose**: Define reusable code blocks with parameters and return values
-
-**Syntax**:
-```upy
-FUNCTION [@FUNCTION-NAME($PARAM1, $PARAM2)
-    # Function body
-    RETURN value
-]
-```
-
-**Parameters**:
-- `@FUNCTION-NAME` - Function name with @ prefix (UPPERCASE-HYPHEN)
-- `$PARAM1, $PARAM2` - Parameters (comma-separated, $ prefix)
-- `RETURN value` - Optional return statement
-
-**Examples**:
-
-Basic function:
-```upy
-FUNCTION [@GREET($NAME)
-    PRINT("Hello, $NAME!")
-]
-
-@GREET('Hero')  # Call function
-```
-
-With return value:
-```upy
-FUNCTION [@CALCULATE-DAMAGE($BASE, $ARMOR)
-    $DAMAGE = $BASE - $ARMOR
-    IF {$DAMAGE < 0 | RETURN 0}
-    RETURN $DAMAGE
-]
-
-$FINAL-DAMAGE = @CALCULATE-DAMAGE(50, 20)
-PRINT(":sword: Damage: $FINAL-DAMAGE")
-```
-
-Multiple parameters:
-```upy
-FUNCTION [@CHECK-HEALTH($HP, $MAX-HP)
-    $PERCENT = ($HP / $MAX-HP) * 100
-    IF {$PERCENT >= 75 | RETURN 'healthy'}
-    IF {$PERCENT >= 50 | RETURN 'moderate'}
-    IF {$PERCENT >= 25 | RETURN 'low'}
-    RETURN 'critical'
-]
-
-$STATUS = @CHECK-HEALTH($HP, $MAX-HP)
-PRINT(":heart: Status: $STATUS")
-```
-
-**See**: [Function Programming Guide](Function-Programming-Guide.md)
-
----
-
-### JSON.load
-
-**Purpose**: Load JSON file into memory for manipulation
-
-**Syntax**:
-```upy
-JSON.load("filename.json")
-```
-
-**Parameters**:
-- `filename.json` - Path to JSON file (double quotes)
-
-**Examples**:
-```upy
-JSON.load("player.json")
-JSON.load("data/config.json")
-JSON.load("inventory.json")
-```
-
-**Data Access**:
-```upy
-# Dot notation for nested fields
-$NAME = player.name
-$HP = player.stats.health
-$GOLD = player.inventory.gold
-
-# Array indexing
-$FIRST-ITEM = player.inventory.items[0]
-$QUEST-NAME = player.quests[1].name
-```
-
-**See**: [uCODE Language Reference](uCODE-Language.md#json-support)
-
----
-
-### JSON.save
-
-**Purpose**: Save modified JSON data back to file
-
-**Syntax**:
-```upy
-JSON.save("filename.json")
-```
-
-**Parameters**:
-- `filename.json` - Path to JSON file (double quotes)
-
-**Examples**:
-```upy
-# Modify data
-player.stats.health = 100
-player.inventory.gold = player.inventory.gold + 50
-
-# Save changes
-JSON.save("player.json")
-PRINT(":check: Player data saved!")
-```
-
-**Complete workflow**:
-```upy
-# Load JSON
-JSON.load("player.json")
-
-# Read data
-$HP = player.stats.health
-PRINT(":heart: Current HP: $HP")
-
-# Modify data
-player.stats.health = 100
-player.inventory.gold = player.inventory.gold + 100
-player.inventory.items.append("Magic Sword")
-
-# Save changes
-JSON.save("player.json")
-PRINT(":check: Saved!")
-```
-
----
-
-### IF (Inline)
-
-**Purpose**: One-line conditional execution
-
-**Syntax**:
-```upy
-IF {condition | statement}
-IF {condition | RETURN value}
-```
-
-**Parameters**:
-- `condition` - Boolean expression
-- `statement` - Command to execute if true
-- `|` - Pipe separator (required)
-
-**Examples**:
-```upy
-# Simple conditionals
-IF {$HP <= 0 | PRINT(":skull: Game Over")}
-IF {$GOLD >= 100 | PRINT(":coin: Can afford item")}
-IF {$LEVEL > 5 | $DAMAGE = $DAMAGE * 2}
-
-# In functions (early return)
-FUNCTION [@VALIDATE($VALUE)
-    IF {$VALUE < 0 | RETURN 0}
-    IF {$VALUE > 100 | RETURN 100}
-    RETURN $VALUE
-]
-```
-
-**Operators**:
-- `==` - Equal to
-- `!=` - Not equal
-- `<`, `>`, `<=`, `>=` - Comparison
-- `and`, `or` - Logical operators
-
-**See**: [Migration Guide](Migration-Guide-v1.1.9.md#conditionals)
-
----
-
-### Emoji Codes
-
-**Purpose**: Insert Unicode symbols with readable codes
-
-**Syntax**:
-```upy
-:emoji-code:
-```
-
-**Categories** (80+ total):
-
-**Status Indicators:**
-- `:check:` ✓ - Success
-- `:cross:` ✗ - Failure
-- `:warning:` ⚠ - Warning
-- `:info:` ⓘ - Information
-- `:star:` ⭐ - Important
-
-**Game Items:**
-- `:heart:` ♥ - Health
-- `:sword:` † - Weapon
-- `:shield:` ◊ - Armor
-- `:coin:` ⊚ - Currency
-- `:gem:` ◆ - Gems
-- `:key:` ⚷ - Keys
-- `:potion:` ⚗ - Potions
-
-**Combat:**
-- `:crossed_swords:` ⚔ - Battle
-- `:boom:` ⚡ - Explosion
-- `:fire:` ▲ - Fire
-- `:bolt:` ↯ - Lightning
-- `:skull:` ☠ - Death
-
-**Directions:**
-- `:up:` ↑ - North
-- `:down:` ↓ - South
-- `:left:` ← - West
-- `:right:` → - East
-
-**UI Elements:**
-- `:menu:` ≡ - Menu
-- `:home:` ⌂ - Home
-- `:gear:` ⚙ - Settings
-- `:search:` ⌕ - Search
-
-**Examples**:
-```upy
-PRINT(":heart: HP: $HP/$MAX-HP")
-PRINT(":sword: Attack: $ATTACK")
-PRINT(":shield: Defense: $DEFENSE")
-PRINT(":coin: Gold: $GOLD")
-PRINT(":check: Quest Complete!")
-PRINT(":warning: Low health!")
-PRINT(":crossed_swords: Combat started!")
-```
-
-**See**: [Emoji Reference](Emoji-Reference.md) for complete list
+## 📋 Command Categories
+
+- [System Commands](#system-commands) - Core system operations
+- [File Operations](#file-operations) - File management
+- [Content Generation](#content-generation) - AI-powered creation
+- [Knowledge & Guides](#knowledge--guides) - Knowledge bank access
+- [Missions & Workflows](#missions--workflows) - Task management
+- [Graphics & Diagrams](#graphics--diagrams) - Visual content
+- [Scripts & Adventures](#scripts--adventures) - Interactive content
+- [Variables & Data](#variables--data) - Data management
+- [Extensions](#extensions) - Extension system
 
 ---
 
 ## System Commands
 
-### REBOOT
+### HELP
+Show command help and documentation.
 
-**Purpose**: Restart uDOS and re-detect system
-
-**Syntax**:
+**Syntax:**
 ```
-REBOOT
-RESTART  # Alias
-```
-
-**Examples**:
-```
-🔮 > REBOOT
+HELP                    # List all commands
+HELP <command>          # Command-specific help
+HELP DETAILED           # Full documentation
 ```
 
-**Pre-Flight Checks**:
-- ✅ USER.UDO validation
-- ✅ System health
-- ✅ File structure
-- ✅ Viewport detection
-- ✅ Color capability test
-
-**Output**:
+**Examples:**
+```upy
+HELP
+HELP GENERATE
+HELP MISSION
 ```
-🔄 REBOOT PRE-FLIGHT CHECK
-============================================================
-✅ User profile OK (fredbook)
-✅ Python version OK
-✅ All dependencies available
-✅ Viewport detected
-
-🔄 VIEWPORT & COLOR TEST
-[Full splash screen with ASCII art and color tests...]
-
-🔄 Restarting uDOS...
-```
-
-**uCODE**: `[SYSTEM|REBOOT]`
-
----
 
 ### STATUS
+Display system status and active processes.
 
-**Purpose**: Show comprehensive system status
-
-**Syntax**:
+**Syntax:**
 ```
-STATUS
-```
-
-**Examples**:
-```
-🔮 > STATUS
+STATUS                  # Overall system status
+STATUS VERBOSE          # Detailed status
 ```
 
-**Output**:
+### VERSION
+Show uDOS version information.
+
+**Syntax:**
 ```
-============================================================
-📊 uDOS SYSTEM STATUS
-============================================================
-
-🌐 Connection: ONLINE (Gemini API reachable)
-📐 Display: 120×40 (DESKTOP), Grid: 7×2
-👤 User: fredbook (America/New_York)
-🗺️  Location: New York (40.71°N, 74.01°W)
-📜 History: 5 actions in undo stack
-🎯 Map: SURFACE layer at (0, 0)
-🏥 System Health: All OK
-
-🎨 Quick Test: R:██  G:██  Y:██  B:██  P:██  C:██ | ██████
+VERSION                 # Current version
 ```
 
-**uCODE**: `[SYSTEM|STATUS]`
+### REBOOT
+Restart the uDOS system.
 
----
-
-### VIEWPORT
-
-**Purpose**: Display terminal dimensions and grid
-
-**Syntax**:
+**Syntax:**
 ```
-VIEWPORT
+REBOOT                  # Restart system
 ```
 
-**Examples**:
+**⚠️ Warning:** Saves all state before restarting.
+
+### CLEAR
+Clear the terminal screen.
+
+**Syntax:**
 ```
-🔮 > VIEWPORT
+CLEAR                   # Clear screen
 ```
 
-**Output**:
-```
-📐 Viewport Specifications:
-  Terminal: 120×40 characters
-  Device Type: DESKTOP
-  Grid: 7×2 cells (16×16 per cell)
-  Total Cells: 14
+### CONFIG
+View or modify system configuration.
 
-[ASCII grid visualization...]
+**Syntax:**
+```
+CONFIG                  # Show all settings
+CONFIG <key>            # Show specific setting
+CONFIG <key> <value>    # Update setting
 ```
 
-**uCODE**: `[SYSTEM|VIEWPORT]`
+**Examples:**
+```upy
+CONFIG                      # View all
+CONFIG theme galaxy         # Set theme
+CONFIG username "Fred"      # Set username
+```
+
+### SETTINGS
+Alias for CONFIG command.
 
 ---
 
-### PALETTE
+## File Operations
 
-**Purpose**: Display color palette with visual tests
+### LIST
+List directory contents.
 
-**Syntax**:
+**Syntax:**
 ```
-PALETTE
-```
-
-**Examples**:
-```
-🔮 > PALETTE
+LIST [path]             # List directory
+LS [path]               # Alias
 ```
 
-**Output**:
-```
-🎨 POLAROID COLOR PALETTE
-============================================================
-Name: Polaroid
-Version: 1.0
-Description: High-contrast photo-inspired color system
-
-[Full color visualization with blocks, gradients, ASCII art...]
-
-📋 COLOR REFERENCE:
-PRIMARY:
-  ███ Polaroid Red     (tput:196) #FF1744 - Errors, alerts
-  ███ Polaroid Green   (tput:46)  #00E676 - Success
-  [... etc ...]
+**Examples:**
+```upy
+LIST                    # Current directory
+LIST knowledge/water    # Specific path
+LS memory/missions      # Using alias
 ```
 
-**uCODE**: `[SYSTEM|PALETTE]`
+### SHOW
+Display file contents.
 
----
-
-### REPAIR
-
-**Purpose**: Fix system issues automatically
-
-**Syntax**:
+**Syntax:**
 ```
-REPAIR [<component>]
+SHOW <file>             # Display file
+CAT <file>              # Alias
+VIEW <file>             # Alias
 ```
 
-**Parameters**:
-- `component` (optional) - Specific component (default: ALL)
-
-**Examples**:
-```
-🔮 > REPAIR
-🔮 > REPAIR DEPENDENCIES
-🔮 > REPAIR FILES
+**Examples:**
+```upy
+SHOW knowledge/water/boiling.md
+CAT memory/missions/water-setup.json
 ```
 
-**Output**:
+### EDIT
+Open file in micro editor.
+
+**Syntax:**
 ```
-🔧 System Repair Initiated
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Checking dependencies... OK
-✅ Validating file structure... OK
-✅ Verifying configurations... OK
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ System health restored
+EDIT <file>             # Edit file
+EDIT <file> <line>      # Edit at line number
 ```
 
-**uCODE**: `[SYSTEM|REPAIR*<component>]`
-
----
-
-## History Commands
-
-### UNDO
-
-**Purpose**: Undo last reversible action
-
-**Syntax**:
-```
-UNDO
+**Examples:**
+```upy
+EDIT README.md
+EDIT core/config.py 45
 ```
 
-**Examples**:
-```
-🔮 > UNDO
-```
+### NEW
+Create new file.
 
-**Output**:
+**Syntax:**
 ```
-⏪ Undone: panel_modify (main)
-💡 Use REDO to reapply
+NEW <file>              # Create empty file
+NEW <file> <content>    # Create with content
 ```
 
-**Reversible Actions**:
-- Panel creation/deletion
-- Panel modifications
-- File operations
-
-**uCODE**: `[SYSTEM|UNDO]`
-
----
-
-### REDO
-
-**Purpose**: Redo last undone action
-
-**Syntax**:
-```
-REDO
+**Examples:**
+```upy
+NEW memory/notes.md
+NEW test.upy "PRINT('Hello world')"
 ```
 
-**Examples**:
+### DELETE
+Delete file or directory.
+
+**Syntax:**
 ```
-🔮 > REDO
+DELETE <path>           # Delete file/directory
+RM <path>               # Alias
 ```
 
-**Output**:
+**⚠️ Warning:** Permanent deletion, use carefully.
+
+### COPY
+Copy file or directory.
+
+**Syntax:**
 ```
-⏩ Redone: panel_modify (main)
+COPY <source> <dest>    # Copy file
+CP <source> <dest>      # Alias
 ```
 
-**uCODE**: `[SYSTEM|REDO]`
+### MOVE
+Move or rename file/directory.
+
+**Syntax:**
+```
+MOVE <source> <dest>    # Move/rename
+MV <source> <dest>      # Alias
+```
+
+### RUN
+Execute uPY script file.
+
+**Syntax:**
+```
+RUN <script.upy>        # Execute script
+```
+
+**Examples:**
+```upy
+RUN memory/tests/shakedown.upy
+RUN workflows/water-purification.upy
+```
+
+**Note:** Use `.upy` extension (Python-like format), not `.uscript`
 
 ---
 
-### RESTORE
+## Content Generation
 
-**Purpose**: Restore to previous session
+### GENERATE
+Unified AI content generation system (Nano Banana pipeline).
 
-**Syntax**:
+**Syntax:**
 ```
-RESTORE [<session_number>]
+GENERATE SVG <description>                          # Generate PNG→SVG diagram
+GENERATE SVG --survival <category>/<prompt> [opts]  # Use survival templates
+GENERATE ASCII <type> <content> [width] [height]    # Generate ASCII art
+GENERATE --survival-help                            # Show survival prompts
 ```
 
-**Parameters**:
-- `session_number` (optional) - Session to restore (default: previous)
+**SVG Options:**
+- `--pro` - Professional style (clean, technical)
+- `--strict` - Strict compliance mode
+- `--refined` - Refined aesthetic
 
-**Examples**:
-```
-🔮 > RESTORE
-🔮 > RESTORE 25
-```
-
-**Output**:
-```
-🔄 Restoring session #25...
-✅ Session restored (12 actions undone)
-```
-
-**uCODE**: `[SYSTEM|RESTORE*<session>]`
-
----
-
-## Navigation & Mapping Commands
-
-### MAP STATUS
-
-**Purpose**: Show current location and system status
-
-**Syntax**:
-```
-MAP STATUS
-```
-
-**Examples**:
-```
-🔮 > MAP STATUS
-```
-
-**Output**:
-```
-🗺️  Map Status
-==============================
-Current Location: Melbourne, Australia
-TIZO Code: MEL
-Cell Reference: JN196
-Coordinates: -37.81°, 144.96°
-Timezone: AEST (+10:00)
-Accessible Layers: SURFACE, CLOUD-OC, SATELLITE-OC, DUNGEON-1
-
-Use 'MAP VIEW' to see the area around you.
-```
-
-**uCODE**: `[MAP|STATUS]`
-
----
-
-### MAP VIEW
-
-**Purpose**: Generate ASCII map of current area
-
-**Syntax**:
-```
-MAP VIEW [width] [height]
-```
-
-**Parameters**:
-- `width` (optional) - Map width in characters (default: 40)
-- `height` (optional) - Map height in characters (default: 20)
-
-**Examples**:
-```
-🔮 > MAP VIEW
-🔮 > MAP VIEW 60 30
-🔮 > MAP VIEW 25 12
-```
-
-**Output**:
-```
-ASCII Map View - Center: JN196
-========================================
-~..~..~..~..~..~..~..~..~..~..~..~..~..~
-.                                       .
-~                                       ~
-.                                       .
-~                                       ~
-.                                       .
-~                     ◉                 ~
-.                                       .
-~                                       ~
-.                                       .
-~..~..~..~..~..~..~..~..~..~..~..~..~..~
-
-Legend: ◉ Your Position, ~ Water, . Land
-```
-
-**uCODE**: `[MAP|VIEW*<width>*<height>]`
-
----
-
-### MAP CITIES
-
-**Purpose**: List cities globally or in a region
-
-**Syntax**:
-```
-MAP CITIES [cell] [radius]
-```
-
-**Parameters**:
-- `cell` (optional) - Center cell for regional search
-- `radius` (optional) - Search radius in cells (default: global)
-
-**Examples**:
-```
-🔮 > MAP CITIES
-🔮 > MAP CITIES JN196 5
-🔮 > MAP CITIES LON 10
-```
-
-**Output**:
-```
-🏙️  TIZO Cities (20 total):
-AKL: Auckland, New Zealand (LB194)
-BER: Berlin, Germany (CT52)
-BJS: Beijing, China (IB72)
-BOM: Mumbai, India (FV105)
-MEL: Melbourne, Australia (JN196)
-SYD: Sydney, Australia (JV189)
-...
-```
-
-**uCODE**: `[MAP|CITIES*<cell>*<radius>]`
-
----
-
-### MAP CELL
-
-**Purpose**: Get detailed information about a specific cell
-
-**Syntax**:
-```
-MAP CELL <cell_reference>
-```
-
-**Parameters**:
-- `cell_reference` (required) - Cell in A1-RL270 format
-
-**Examples**:
-```
-🔮 > MAP CELL JN196
-🔮 > MAP CELL CB54
-🔮 > MAP CELL PD68
-```
-
-**Output**:
-```
-📍 Cell Information: JN196
-==============================
-Center Coordinates: -38.09°, 145.12°
-Bounds: -38.41° to -37.78° (lat)
-        144.75° to 145.50° (lon)
-
-🏙️  City in this cell:
-Name: Melbourne, Australia
-TIZO Code: MEL
-Timezone: AEST (+10:00)
-Population: MAJOR
-Connection Quality: {'oceania': 'NATIVE', 'asia': 'FAST'}
-```
-
-**uCODE**: `[MAP|CELL*<cell>]`
-
----
-
-### MAP NAVIGATE
-
-**Purpose**: Calculate navigation between locations
-
-**Syntax**:
-```
-MAP NAVIGATE <from> <to>
-```
-
-**Parameters**:
-- `from` (required) - Starting location (TIZO code or cell reference)
-- `to` (required) - Destination location (TIZO code or cell reference)
-
-**Examples**:
-```
-🔮 > MAP NAVIGATE MEL SYD
-🔮 > MAP NAVIGATE JN196 JV189
-🔮 > MAP NAVIGATE LON NYC
-```
-
-**Output**:
-```
-🧭 Navigation: Melbourne (MEL) → Sydney (SYD)
-========================================
-From Cell: JN196
-To Cell: JV189
-Distance: 729.3 km
-Cell Distance: 8 cells
-Bearing: 49.6° (NE)
-```
-
-**uCODE**: `[MAP|NAVIGATE*<from>*<to>]`
-
----
-
-### MAP LOCATE
-
-**Purpose**: Set location to a TIZO city
-
-**Syntax**:
-```
-MAP LOCATE <tizo_code>
-```
-
-**Parameters**:
-- `tizo_code` (required) - 3-letter TIZO city code
-
-**Examples**:
-```
-🔮 > MAP LOCATE MEL
-🔮 > MAP LOCATE LON
-🔮 > MAP LOCATE NYC
-```
-
-**Output**:
-```
-📍 Location set to Melbourne, Australia (MEL)
-Cell: JN196
-```
+**SVG Examples:**
+```upy
+# General SVG generation
+GENERATE SVG water purification flowchart
+GENERATE SVG shelter building sequence
 
-**Available TIZO Codes**: MEL, SYD, AKL, LON, BER, FRA, MOS, NYC, LA, SFO, TOR, VAN, TYO, BJS, HKG, SIN, BOM, DEL, DXB, JNB
+# Survival templates (optimized prompts)
+GENERATE SVG --survival water/purification_flow --pro
+GENERATE SVG --survival fire/methods_comparison --strict
+GENERATE SVG --survival shelter/types_hierarchy --refined
 
-**uCODE**: `[MAP|LOCATE*<tizo>]`
-
----
-
-### MAP GOTO
-
-**Purpose**: Move to specific coordinates or cell
-
-**Syntax**:
-```
-MAP GOTO <cell_reference>
-MAP GOTO <lat> <lon>
-```
-
-**Parameters**:
-- `cell_reference` (required) - Cell in A1-RL270 format
-- `lat` `lon` (required) - Latitude and longitude coordinates
-
-**Examples**:
-```
-🔮 > MAP GOTO JN196
-🔮 > MAP GOTO -37.81 144.96
-🔮 > MAP GOTO CB54
-```
-
-**Output**:
-```
-🎯 Moving to cell JN196
-Coordinates: -38.09°, 145.12°
-Location: Melbourne, Australia (MEL)
-```
-
-**uCODE**: `[MAP|GOTO*<location>]`
-
----
-
-### MAP LAYERS
-
-**Purpose**: Show accessible layers from current location
-
-**Syntax**:
-```
-MAP LAYERS
-```
-
-**Examples**:
-```
-🔮 > MAP LAYERS
-```
-
-**Output**:
-```
-🌍 Accessible Layers from MEL:
-  SURFACE
-  CLOUD-OC
-  SATELLITE-OC
-  DUNGEON-1
-
-🌐 Connection Quality:
-  Oceania: NATIVE
-  Asia: FAST
-  Americas: STANDARD
-  Europe: SLOW
-```
-
-**uCODE**: `[MAP|LAYERS]`
-
----
-
-### MAP TELETEXT
-
-**Purpose**: Generate teletext-style map with mosaic block art
-
-**Syntax**:
-```
-MAP TELETEXT [width] [height]
-```
-
-**Parameters**:
-- `width` (optional) - Map width in characters (default: 40)
-- `height` (optional) - Map height in characters (default: 20)
-
-**Examples**:
-```
-🔮 > MAP TELETEXT
-🔮 > MAP TELETEXT 60 30
-🔮 > MAP TELETEXT 25 12
-```
-
-**Output**:
-```
-🖥️  Teletext Map Generated
-===================================
-Location: Melbourne, Australia
-Cell: JN196
-Size: 40×20 characters
-Style: Mosaic block art
-
-� File saved: output/teletext/udos_teletext_map_20251102_032408.html
-🌐 Open in web browser to view
-💡 Use MAP WEB to start local server
-```
-
-**uCODE**: `[MAP|TELETEXT*<width>*<height>]`
-
----
-
-### MAP WEB
-
-**Purpose**: Open teletext maps in browser or start web server
-
-**Syntax**:
-```
-MAP WEB [server]
-```
-
-**Parameters**:
-- `server` (optional) - Start HTTP server instead of opening file
-
-**Examples**:
-```
-🔮 > MAP WEB
-🔮 > MAP WEB SERVER
-```
-
-**Output**:
-```
-🌐 Teletext Map Opened
-=========================
-File: udos_teletext_map_20251102_032408.html
-URL: file:///path/to/map.html
-
-💡 Map should open in your default browser
-�️  Use MAP WEB SERVER for local HTTP server
-```
-
-**Server Mode**:
-```
-🚀 Teletext Web Server Started
-==============================
-Server URL: http://localhost:8080
-Port: 8080
-
-🌐 Browser should open automatically
-📁 All teletext maps available at server root
-🛑 Press Ctrl+C in terminal to stop server
-```
-
-**uCODE**: `[MAP|WEB*<mode>]`
-
-**uCODE**: `[MAP|MOVE*<dx>*<dy>]`
-
----
-
-### LAYER
-
-**Purpose**: Show available layers
-
-**Syntax**:
+# List available survival prompts
+GENERATE --survival-help
 ```
-LAYER
-```
 
-**Examples**:
-```
-🔮 > LAYER
-```
+**ASCII Types:**
+- `box` - Box with title
+- `panel` - Info panel
+- `table` - Data table
+- `flowchart` - Simple flowchart
+- `progress` - Progress bar
+- `list` - Bulleted list
+- `banner` - Large banner text
+- `tree` - Tree structure
 
-**Output**:
+**ASCII Examples:**
+```upy
+GENERATE ASCII box "Water Sources" 40 5
+GENERATE ASCII table "Method,Time,Difficulty" "Friction,10min,Hard;Flint,2min,Easy"
+GENERATE ASCII progress "Purification" 75 30
 ```
-🏔️  Available Layers:
-  SATELLITE  (+100)  Space view
-  CLOUD      (+50)   Aerial
-→ SURFACE    (0)     Ground level  ← You are here
-  DUNGEON-1  (-10)   First underground
-  DUNGEON-2  (-20)   Deeper
-  DUNGEON-3  (-30)   Even deeper
-  MINES      (-50)   Mining level
-  CORE       (-100)  Bottom
-```
-
-**uCODE**: `[MAP|LAYER]`
-
----
-
-### DESCEND
-
-**Purpose**: Go down one layer
 
-**Syntax**:
-```
-DESCEND
-```
+**Output:**
+- SVG: `memory/drafts/svg/`
+- ASCII: Terminal + save option
 
-**Examples**:
-```
-🔮 > DESCEND
-```
+### MERMAID
+Create Mermaid.js diagrams (flowcharts, sequence, gantt, etc.).
 
-**Output**:
+**Syntax:**
 ```
-⬇️  Descended to DUNGEON-1 (depth: -10)
-[Map display for new layer...]
+MERMAID CREATE <type>               # Interactive creation
+MERMAID RENDER <file.mmd>           # Render diagram
+MERMAID LIST                        # Show supported types
+MERMAID EXAMPLES                    # Show examples
 ```
-
-**uCODE**: `[MAP|DESCEND]`
-
----
 
-### ASCEND
+**Supported Types:**
+- `flowchart` - Flowchart diagrams
+- `sequence` - Sequence diagrams
+- `gantt` - Gantt charts
+- `class` - Class diagrams
+- `state` - State machines
+- `pie` - Pie charts
+- `gitgraph` - Git graphs
+- `mindmap` - Mind maps
+- `timeline` - Timelines
+- `quadrant` - Quadrant charts
 
-**Purpose**: Go up one layer
-
-**Syntax**:
+**Examples:**
+```upy
+MERMAID CREATE flowchart
+MERMAID RENDER memory/diagrams/process.mmd
+MERMAID LIST
 ```
-ASCEND
-```
 
-**Examples**:
-```
-🔮 > ASCEND
-```
+### GEOJSON / GEODIAGRAM
+Create geographic maps (GeoJSON format for GitHub).
 
-**Output**:
+**Syntax:**
 ```
-⬆️  Ascended to SURFACE (depth: 0)
-[Map display for new layer...]
+GEOJSON CREATE <type>               # Create map
+GEOJSON POINT <name> <lat> <lon>    # Add point
+GEOJSON LINE <name> <coords>        # Add line
+GEOJSON POLY <name> <coords>        # Add polygon
 ```
-
-**uCODE**: `[MAP|ASCEND]`
-
----
 
-## CLI Features (v1.0.6+)
-
-### HISTORY
-
-**Purpose**: Enhanced command history management with SQLite persistence and intelligent search
-
-**Syntax**:
+**Examples:**
+```upy
+GEOJSON CREATE point "Water Source" -33.87 151.21
+GEOJSON CREATE line "Trail Route" "[[-33.87,151.21],[-33.88,151.22]]"
 ```
-HISTORY LIST [count]
-HISTORY SEARCH <term>
-HISTORY STATS
-HISTORY CLEAR
-HISTORY EXPORT <file>
-```
 
-**Parameters**:
-- `count` (optional) - Number of recent commands to show (default: 10)
-- `term` - Search term for fuzzy matching
-- `file` - Export filename (JSON format)
+### STL
+Create 3D models in ASCII STL format (for GitHub 3D viewer).
 
-**Examples**:
+**Syntax:**
 ```
-🔮 > HISTORY LIST
-🔮 > HISTORY LIST 20
-🔮 > HISTORY SEARCH file
-🔮 > HISTORY SEARCH map
-🔮 > HISTORY STATS
-🔮 > HISTORY CLEAR
-🔮 > HISTORY EXPORT backup.json
+STL CREATE <type>                   # Create 3D model
+STL EXAMPLES                        # Show examples
 ```
 
-**Features**:
-- **SQLite persistence** - Commands survive restarts
-- **Fuzzy search** with relevance scoring
-- **Usage statistics** and frequency tracking
-- **Smart deduplication** - No repeated commands within 5 minutes
-- **JSON export** for backup and sharing
+### TYPORA
+Enhanced diagram support for Typora editor (13 diagram types).
 
-**Output Examples**:
+**Syntax:**
 ```
-📜 Command History (Last 10):
-  1. MAP GOTO TOKYO
-  2. THEME SET cyberpunk
-  3. LOAD "data.txt"
-  4. HISTORY SEARCH file
-
-🔍 Search results for "file":
-  1. FILE SEARCH *.py
-  2. LOAD "myfile.txt"
-  3. SAVE "output.json"
-
-📊 Usage Statistics:
-  Total commands: 147
-  Unique commands: 89
-  Most used: MAP (23 times)
+TYPORA LIST                         # Show supported types
+TYPORA CREATE <type>                # Create diagram
+TYPORA HELP                         # Integration guide
 ```
 
 ---
 
-### THEME
+## Knowledge & Guides
 
-**Purpose**: Dynamic color theme management with accessibility support
+### GUIDE
+Interactive knowledge guide system with progress tracking.
 
-**Syntax**:
+**Syntax:**
 ```
-THEME LIST
-THEME SET <name>
-THEME INFO
-THEME ACCESSIBILITY ON|OFF
-THEME CONTRAST ON|OFF
-THEME COLORBLIND <type>
-THEME CREATE <name>
-```
-
-**Parameters**:
-- `name` - Theme name (classic, cyberpunk, accessibility, monochrome)
-- `type` - Colorblind type (deuteranopia, protanopia, tritanopia)
-
-**Examples**:
-```
-🔮 > THEME LIST
-🔮 > THEME SET cyberpunk
-🔮 > THEME SET accessibility
-🔮 > THEME INFO
-🔮 > THEME ACCESSIBILITY ON
-🔮 > THEME CONTRAST ON
-🔮 > THEME COLORBLIND deuteranopia
-🔮 > THEME CREATE mytheme
+GUIDE LIST [category]               # List guides
+GUIDE SHOW <guide>                  # Display guide
+GUIDE START <guide>                 # Interactive mode
+GUIDE PROGRESS                      # Show progress
+GUIDE SEARCH <query>                # Search guides
 ```
 
-**Available Themes**:
-- **classic** - Traditional terminal colors
-- **cyberpunk** - Neon-inspired futuristic theme
-- **accessibility** - High contrast, accessible colors
-- **monochrome** - Black and white for maximum compatibility
+**Categories:**
+- `water` - Water purification & storage
+- `fire` - Fire starting & management
+- `shelter` - Shelter building
+- `food` - Food & foraging
+- `navigation` - Navigation & wayfinding
+- `medical` - First aid & health
 
-**Accessibility Features**:
-- **High contrast mode** for enhanced visibility
-- **Colorblind support** for deuteranopia, protanopia, tritanopia
-- **Screen reader optimization** with accessible formatting
-- **Custom theme creation** for personal preferences
-
-**Output Examples**:
-```
-🎨 Available Themes:
-  • classic (active)
-  • cyberpunk
-  • accessibility
-  • monochrome
-
-🎨 Current Theme: cyberpunk
-  Primary: #00ff41
-  Secondary: #ff00ff
-  Accent: #ffff00
-  Background: #000000
-  Accessibility: OFF
+**Examples:**
+```upy
+GUIDE LIST water
+GUIDE SHOW water/boiling
+GUIDE START water/purification
+GUIDE SEARCH "emergency"
 ```
 
----
+### DIAGRAM
+Browse ASCII diagram library.
 
-### SESSION
-
-**Purpose**: Workspace state persistence with save/restore functionality
-
-**Syntax**:
+**Syntax:**
 ```
-SESSION LIST
-SESSION SAVE [name] [description]
-SESSION LOAD <id>
-SESSION DELETE <id>
-SESSION CURRENT
-SESSION AUTO ON|OFF
-SESSION CHECKPOINT [description]
-SESSION EXPORT <id> <file>
-SESSION IMPORT <file> [name]
+DIAGRAM LIST [type]                 # List diagrams
+DIAGRAM SEARCH <query>              # Search diagrams
+DIAGRAM SHOW <name>                 # Display diagram
+DIAGRAM TYPES                       # Show categories
+DIAGRAM EXPORT <name> <file>        # Save to file
 ```
 
-**Parameters**:
-- `name` - Session name (optional)
-- `description` - Session description (optional)
-- `id` - Session ID number
-- `file` - Import/export filename
-
-**Examples**:
-```
-🔮 > SESSION LIST
-🔮 > SESSION SAVE dev_work "Development session"
-🔮 > SESSION SAVE
-🔮 > SESSION LOAD 1
-🔮 > SESSION DELETE 2
-🔮 > SESSION CURRENT
-🔮 > SESSION AUTO ON
-🔮 > SESSION CHECKPOINT "Before refactor"
-🔮 > SESSION EXPORT 1 backup.json
-🔮 > SESSION IMPORT backup.json restored_session
+**Examples:**
+```upy
+DIAGRAM LIST
+DIAGRAM SEARCH water
+DIAGRAM SHOW water_filter
+DIAGRAM TYPES
 ```
 
-**Session Types**:
-- **Manual** - User-created sessions
-- **Automatic** - Auto-saved at intervals
-- **Checkpoint** - Milestone markers
-- **Backup** - Safety snapshots
+### CHECKLIST
+Task checklist management.
 
-**What's Saved**:
-- Command history
-- Current working directory
-- Active files and bookmarks
-- Theme and layout settings
-- Environment variables
-
-**Output Examples**:
+**Syntax:**
 ```
-💾 Available Sessions:
-  1. dev_work (2024-11-02 13:45) - Development session
-  2. auto_save_001 (2024-11-02 14:12) - Automatic save
-  3. checkpoint_001 (2024-11-02 14:30) - Before refactor
+CHECKLIST LIST                      # List all checklists
+CHECKLIST LOAD <id>                 # Load checklist
+CHECKLIST SHOW                      # Show current
+CHECKLIST COMPLETE <item>           # Mark complete
+CHECKLIST PROGRESS                  # Show stats
+CHECKLIST RESET                     # Reset progress
+```
 
-💾 Current Session: dev_work
-  Created: 2024-11-02 13:45:23
-  Commands: 47
-  Files: 3 active
-  Auto-save: ON
+**Examples:**
+```upy
+CHECKLIST LIST
+CHECKLIST LOAD emergency/72-hour-kit
+CHECKLIST COMPLETE "Water bottles"
+CHECKLIST PROGRESS
 ```
 
 ---
 
-### PROGRESS
+## Missions & Workflows
 
-**Purpose**: Real-time progress indicators for long-running operations
+### MISSION
+Mission management and execution.
 
-**Syntax**:
+**Syntax:**
 ```
-PROGRESS TEST
-PROGRESS TEST MULTI
-PROGRESS TEST SEARCH
-PROGRESS LIST
-PROGRESS CANCEL [id]
-PROGRESS DEMO
-```
-
-**Parameters**:
-- `id` (optional) - Progress indicator ID to cancel
-
-**Examples**:
-```
-🔮 > PROGRESS TEST
-🔮 > PROGRESS TEST MULTI
-🔮 > PROGRESS TEST SEARCH
-🔮 > PROGRESS LIST
-🔮 > PROGRESS CANCEL 1
-🔮 > PROGRESS DEMO
+MISSION CREATE <id> <title>         # Create mission
+MISSION START <id>                  # Start mission
+MISSION STATUS                      # Show status
+MISSION COMPLETE <id>               # Mark complete
+MISSION LIST                        # List missions
+MISSION ABORT <id>                  # Abort mission
 ```
 
-**Progress Types**:
-- **Determinate** - Known progress (0-100%)
-- **Indeterminate** - Unknown duration spinner
-- **Multi-stage** - Multiple phases
-- **Parallel** - Multiple simultaneous operations
-
-**Features**:
-- **Real-time updates** with animated indicators
-- **Time estimation** and speed calculation
-- **Cancellation support** with Ctrl+C
-- **Background processing** with status updates
-- **Integration** with FILE SEARCH and other operations
-
-**Output Examples**:
-```
-⏳ Processing files... ████████████████████ 100% (47/47) [2.3s]
-
-⚙️  Multi-stage operation:
-  Stage 1: Scanning files    ████████████████████ 100%
-  Stage 2: Processing data   ██████████░░░░░░░░░░  50%
-  Stage 3: Generating output ░░░░░░░░░░░░░░░░░░░░   0%
-
-📊 Active Progress Indicators:
-  1. File search (87% complete, ~15s remaining)
-  2. Data export (45% complete, ~30s remaining)
+**Examples:**
+```upy
+MISSION CREATE water-purify "Water Purification Setup"
+MISSION START water-purify
+MISSION STATUS
+MISSION COMPLETE water-purify
 ```
 
----
+### WORKFLOW
+Workflow automation (.upy scripts).
 
-### LAYOUT
-
-**Purpose**: Responsive terminal layouts that adapt to screen size
-
-**Syntax**:
+**Syntax:**
 ```
-LAYOUT INFO
-LAYOUT MODE <mode>
-LAYOUT RESIZE
-LAYOUT AUTO ON|OFF
-LAYOUT CONFIG <setting> <value>
-LAYOUT TEST
-LAYOUT DEMO
-LAYOUT SPLIT <content1> <content2>
+WORKFLOW RUN <script.upy>           # Execute workflow
+WORKFLOW LIST                       # List workflows
+WORKFLOW STATUS                     # Show execution state
 ```
 
-**Parameters**:
-- `mode` - Layout mode (compact, standard, expanded, split, dashboard)
-- `setting` - Configuration setting name
-- `value` - Configuration value
-- `content1`, `content2` - Content for split layout
-
-**Examples**:
-```
-🔮 > LAYOUT INFO
-🔮 > LAYOUT MODE compact
-🔮 > LAYOUT MODE expanded
-🔮 > LAYOUT RESIZE
-🔮 > LAYOUT AUTO ON
-🔮 > LAYOUT CONFIG margin 2
-🔮 > LAYOUT TEST
-🔮 > LAYOUT DEMO
-🔮 > LAYOUT SPLIT "File list" "Content view"
+**Examples:**
+```upy
+WORKFLOW RUN memory/workflows/missions/water-setup.upy
+WORKFLOW STATUS
 ```
 
-**Layout Modes**:
-- **compact** - Mobile/small screen optimized
-- **standard** - Default balanced layout
-- **expanded** - Wide screen with extra details
-- **split** - Two-panel layout for large screens
-- **dashboard** - Information-dense overview
+### ARCHIVE
+Archive completed work.
 
-**Features**:
-- **Automatic resize detection** with background monitoring
-- **Mobile-friendly** responsive design for small screens
-- **Wide-screen enhancements** for large displays
-- **Split-pane support** for multi-tasking
-- **Configurable margins** and spacing
-
-**Output Examples**:
+**Syntax:**
 ```
-📐 Layout Information:
-  Current mode: standard
-  Screen size: 120×30
-  Auto-resize: ON
-  Margin: 2
-  Split mode: OFF
+ARCHIVE LIST [type]                 # List archived items
+ARCHIVE mission <id>                # Archive mission
+ARCHIVE checklist <id>              # Archive checklist
+ARCHIVE workflow <id>               # Archive workflow
+ARCHIVE restore <type> <id>         # Restore item
+```
 
-📱 Compact Mode (Mobile Optimized):
-┌─────────────────────┐
-│ uDOS v1.0.6         │
-│ =================== │
-│ > COMMAND           │
-│ Result here...      │
-└─────────────────────┘
-
-🖥️  Expanded Mode (Wide Screen):
-┌─────────────────────────────────────────────────────────────┐
-│ uDOS v1.0.6                    Session: dev_work    14:30   │
-│ =========================================================== │
-│ > COMMAND                                Status: ✅ Ready   │
-│ Detailed result with extra information...                   │
-│ Additional context and metadata displayed here.             │
-└─────────────────────────────────────────────────────────────┘
+**Examples:**
+```upy
+ARCHIVE LIST mission
+ARCHIVE mission water-purify
+ARCHIVE restore mission water-purify
 ```
 
 ---
 
-### CLI Features Best Practices
+## Graphics & Diagrams
 
-#### Workflow Optimization
-1. **Start sessions** - `SESSION AUTO ON` for safety
-2. **Use themes** - Match environment (dark/light/accessibility)
-3. **Leverage completion** - Tab for faster command entry
-4. **Search history** - Find previous solutions quickly
-5. **Monitor progress** - Long operations show indicators
+### DRAW
+Generate ASCII/Teletext graphics (offline).
 
-#### Accessibility
-1. **Enable accessibility mode** - `THEME ACCESSIBILITY ON`
-2. **Use high contrast** - `THEME CONTRAST ON`
-3. **Set colorblind support** - `THEME COLORBLIND <type>`
-4. **Compact layouts** - `LAYOUT MODE compact` for mobile
-
-#### Power User Tips
-1. **Checkpoint frequently** - `SESSION CHECKPOINT "desc"`
-2. **Export sessions** - Share configurations
-3. **Use split layouts** - `LAYOUT MODE split` for wide screens
-4. **Monitor stats** - `HISTORY STATS` for usage insights
-
-#### Technical Implementation
-
-**Core Services:**
+**Syntax:**
 ```
-core/services/
-├── enhanced_history.py      # SQLite-based command history
-├── theme_manager.py         # Dynamic color themes
-├── progress_manager.py      # Real-time progress indicators
-├── session_manager.py       # Workspace state persistence
-└── layout_manager.py        # Responsive terminal layouts
+DRAW <type> <params>                # Generate graphic
 ```
 
-**Command Integration:**
-```
-core/commands/
-├── system_handler.py        # Central command routing
-└── enhanced_file_handler.py # Progress-enabled file operations
-```
-
-**Utilities:**
-```
-core/utils/
-└── completer.py             # Advanced tab completion
+**Examples:**
+```upy
+DRAW box "Title" 40 5
+DRAW banner "WARNING"
 ```
 
-**Performance Features:**
-- Lazy loading of all services
-- Efficient caching in history/completion
-- Background processing for progress
-- Smart deduplication for storage
-- Configurable limits for resources
+### PANEL
+Teletext-style UI panels.
 
-**Cross-Platform Support:**
-- Full unicode with ASCII fallback
-- ANSI color compatibility
-- Responsive design for all screens
-- Mobile terminal optimization
-- macOS, Linux, Windows (WSL) support
+**Syntax:**
+```
+PANEL <name>                        # Show panel
+PANEL LIST                          # List panels
+```
+
+---
+
+## Scripts & Adventures
+
+### STORY
+Interactive adventure system (uPY powered).
+
+**Syntax:**
+```
+STORY START <adventure>             # Start adventure
+STORY CONTINUE                      # Continue story
+STORY CHOICE <number>               # Make choice
+STORY STATUS                        # Check progress
+STORY SAVE <name>                   # Save game
+STORY LOAD <name>                   # Load game
+```
+
+**Examples:**
+```upy
+STORY START survival_intro
+STORY CHOICE 1
+STORY SAVE "day1"
+```
+
+---
+
+## Variables & Data
+
+### GET
+Get system variable value.
+
+**Syntax:**
+```
+GET <variable>                      # Get value
+GET MISSION.<field>                 # Mission variables
+GET CHECKLIST.<field>               # Checklist variables
+GET WORKFLOW.<field>                # Workflow variables
+```
+
+**Mission Variables:**
+- `MISSION.ID` - Current mission ID
+- `MISSION.NAME` - Mission name
+- `MISSION.STATUS` - Status (ACTIVE|PAUSED|COMPLETE)
+- `MISSION.PROGRESS` - Progress metrics
+- `MISSION.START_TIME` - Start timestamp
+
+**Checklist Variables:**
+- `CHECKLIST.ACTIVE` - Active checklist count
+- `CHECKLIST.PROGRESS_PCT` - Completion percentage
+- `CHECKLIST.COMPLETED` - Completed items
+- `CHECKLIST.TOTAL` - Total items
+
+**Workflow Variables:**
+- `WORKFLOW.NAME` - Workflow name
+- `WORKFLOW.PHASE` - Execution phase
+- `WORKFLOW.ITERATION` - Loop iteration
+- `WORKFLOW.ERRORS` - Error count
+- `WORKFLOW.ELAPSED_TIME` - Runtime seconds
+
+**Examples:**
+```upy
+GET MISSION.STATUS
+GET CHECKLIST.PROGRESS_PCT
+GET WORKFLOW.PHASE
+```
+
+### SET
+Set system variable value.
+
+**Syntax:**
+```
+SET <variable> <value>              # Set value
+```
+
+**Examples:**
+```upy
+SET theme galaxy
+SET username "Fred"
+```
+
+---
+
+## Extensions
+
+### POKE
+Extension and server management.
+
+**Syntax:**
+```
+POKE LIST                           # List servers
+POKE START <extension>              # Start server
+POKE STOP <extension>               # Stop server
+POKE STATUS                         # Show status
+POKE RESTART <extension>            # Restart server
+```
+
+**Examples:**
+```upy
+POKE LIST
+POKE START dashboard
+POKE STOP teletext
+POKE STATUS
+```
+
+### EXTENSION
+Extension system management.
+
+**Syntax:**
+```
+EXTENSION LIST                      # List extensions
+EXTENSION INFO <name>               # Extension details
+EXTENSION ENABLE <name>             # Enable extension
+EXTENSION DISABLE <name>            # Disable extension
+```
+
+**Examples:**
+```upy
+EXTENSION LIST
+EXTENSION INFO typora-diagrams
+```
 
 ---
 
 ## Utility Commands
 
-### HELP
+### TREE
+Display directory structure.
 
-**Purpose**: Show command help
-
-**Syntax**:
-```
-HELP [<command>]
-```
-
-**Parameters**:
-- `command` (optional) - Specific command (default: ALL)
-
-**Examples**:
-```
-🔮 > HELP
-🔮 > HELP LOAD
-🔮 > HELP MAP
-```
-
-**Output**:
-```
-📖 HELP: LOAD
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Syntax: LOAD "<file>" [TO "<panel>"]
-Description: Loads a file's content into a panel.
-
-Examples:
-  LOAD "README.MD"
-  LOAD "data/config.json" TO "settings"
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-**uCODE**: `[SYSTEM|HELP*<command>]`
-
----
-
-### CLS
-
-**Purpose**: Clear terminal screen
-
-**Syntax**:
-```
-CLS
-CLEAR  # Alias
-```
-
-**Examples**:
-```
-🔮 > CLS
-```
-
-**Output**: (Screen cleared)
-
-**uCODE**: `[SYSTEM|CLS]`
-
----
-
-### SETUP
-
-**Purpose**: Run interactive setup wizard
-
-**Syntax**:
-```
-SETUP
-```
-
-**Examples**:
-```
-🔮 > SETUP
-```
-
-**Output**:
-```
-🔧 USER PROFILE SETUP
-============================================================
-Running setup script: data/SETUP.USC
-[Interactive prompts for user data...]
-✅ User profile configured
-```
-
-**uCODE**: `[SYSTEM|SETUP]`
-
----
-
-## Debugging Commands
-
-### DEBUG
-
-**Purpose**: Start, stop, or check status of debugging sessions
-
-**Syntax**:
-```
-DEBUG <script>          # Start debugging a script
-DEBUG STATUS            # Show debugger status
-DEBUG STOP              # Stop current debugging session
-```
-
-**Parameters**:
-- `script` - Path to .uscript file to debug
-- `STATUS` - Show current debugger state
-- `STOP` - Terminate active debugging
-
-**Examples**:
-```
-🔮 > DEBUG "memory/tests/debug_test.uscript"
-🐛 Debugger started for: memory/tests/debug_test.uscript
-💡 Use BREAK <line> to set breakpoints, CONTINUE to run
-
-🔮 > DEBUG STATUS
-🐛 Debugger Status:
-   State: PAUSED
-   Script: debug_test.uscript
-   Line: 15
-   Breakpoints: 3 active
-
-🔮 > DEBUG STOP
-✅ Debugging session stopped
-```
-
-**Output**:
-```
-🐛 Debugger started for: script.uscript
-💡 Use BREAK <line> to set breakpoints
-💡 Use CONTINUE to start execution
-```
-
-**uCODE**: `[SYSTEM|DEBUG*<script>]`
-
----
-
-### BREAK
-
-**Purpose**: Manage breakpoints (set, clear, list, enable, disable, conditional)
-
-**Syntax**:
-```
-BREAK <line>                # Set breakpoint at line number
-BREAK <line> IF <condition> # Set conditional breakpoint
-BREAK LIST                  # List all breakpoints
-BREAK CLEAR <line>          # Clear specific breakpoint
-BREAK CLEAR ALL             # Clear all breakpoints
-BREAK DISABLE <line>        # Disable breakpoint (keep it)
-BREAK ENABLE <line>         # Re-enable disabled breakpoint
-```
-
-**Parameters**:
-- `line` - Line number (1-based)
-- `condition` - Boolean expression (e.g., `x > 10`, `name == "test"`)
-
-**Examples**:
-```
-🔮 > BREAK 15
-✅ Breakpoint set at line 15
-
-🔮 > BREAK 25 IF count > 100
-✅ Conditional breakpoint set at line 25: count > 100
-
-🔮 > BREAK LIST
-🐛 Active Breakpoints:
-   Line 15 (enabled)
-   Line 25 (enabled, condition: count > 100)
-   Line 42 (disabled)
-
-🔮 > BREAK DISABLE 15
-✅ Breakpoint at line 15 disabled
-
-🔮 > BREAK CLEAR ALL
-✅ All breakpoints cleared
-```
-
-**Notes**:
-- Conditional breakpoints evaluated at runtime
-- Disabled breakpoints kept but not triggered
-- Line numbers are 1-based (first line = 1)
-
-**uCODE**: `[SYSTEM|BREAK*<line>*<condition>]`
-
----
-
-### STEP
-
-**Purpose**: Step through code execution (over, into, out)
-
-**Syntax**:
-```
-STEP                    # Step over (execute next line)
-STEP INTO               # Step into function call
-STEP OUT                # Step out of current function
-```
-
-**Examples**:
-```
-🔮 > STEP
-🐛 Stepped to line 16
-   x = 42
-
-🔮 > STEP INTO
-🐛 Stepped into function 'calculate' at line 8
-   params: [5, 10]
-
-🔮 > STEP OUT
-🐛 Stepped out to line 17
-   result = 50
-```
-
-**Output**:
-```
-🐛 Stepped to line 16
-   Current values:
-   x = 42
-   y = "test"
-```
-
-**uCODE**: `[SYSTEM|STEP*<mode>]`
-
----
-
-### CONTINUE
-
-**Purpose**: Resume execution until next breakpoint or script end
-
-**Syntax**:
-```
-CONTINUE                # Continue execution
-```
-
-**Examples**:
-```
-🔮 > CONTINUE
-🐛 Execution paused at breakpoint (line 25)
-   count = 150
-
-🔮 > CONTINUE
-✅ Script execution completed
-```
-
-**Output**:
-```
-🐛 Running...
-🐛 Breakpoint hit at line 25
-```
-
-**uCODE**: `[SYSTEM|CONTINUE]`
-
----
-
-### INSPECT
-
-**Purpose**: Inspect variable values during debugging
-
-**Syntax**:
-```
-INSPECT <variable>      # Inspect specific variable
-INSPECT ALL             # Show all variables in current scope
-```
-
-**Parameters**:
-- `variable` - Variable name to inspect
-- `ALL` - Show all variables
-
-**Examples**:
-```
-🔮 > INSPECT count
-🐛 Variable: count
-   Type: int
-   Value: 150
-   Last changed: line 23
-
-🔮 > INSPECT ALL
-🐛 Current Variables:
-   count = 150 (int)
-   name = "test" (str)
-   items = [1, 2, 3] (list)
-   active = true (bool)
-```
-
-**Output**:
-```
-🐛 Variable: x
-   Type: int
-   Value: 42
-   Last changed: line 15
-```
-
-**uCODE**: `[SYSTEM|INSPECT*<variable>]`
-
----
-
-### WATCH
-
-**Purpose**: Watch variable values across execution
-
-**Syntax**:
-```
-WATCH <variable>        # Add variable to watch list
-WATCH LIST              # Show all watched variables
-WATCH CLEAR <variable>  # Remove from watch list
-WATCH CLEAR ALL         # Clear all watches
-```
-
-**Parameters**:
-- `variable` - Variable name to watch
-
-**Examples**:
-```
-🔮 > WATCH count
-✅ Watching variable: count
-
-🔮 > WATCH x
-✅ Watching variable: x
-
-🔮 > WATCH LIST
-🐛 Watched Variables:
-   count = 150
-   x = 42
-
-🔮 > WATCH CLEAR count
-✅ Stopped watching: count
-```
-
-**Notes**:
-- Watches persist across breakpoints
-- Shows current value at each step
-- Useful for tracking state changes
-
-**uCODE**: `[SYSTEM|WATCH*<variable>]`
-
----
-
-### STACK
-
-**Purpose**: Display call stack during debugging
-
-**Syntax**:
-```
-STACK                   # Show full call stack
-```
-
-**Examples**:
-```
-🔮 > STACK
-🐛 Call Stack:
-   #0 calculate() at line 15
-   #1 process_data() at line 28
-   #2 main() at line 42
-   #3 <script> at line 1
-```
-
-**Output**:
-```
-🐛 Call Stack (3 frames):
-   #0 inner_function() at line 8
-   #1 outer_function() at line 15
-   #2 <main> at line 1
-```
-
-**uCODE**: `[SYSTEM|STACK]`
-
----
-
-### MODIFY
-
-**Purpose**: Modify variable values during debugging
-
-**Syntax**:
-```
-MODIFY <variable> = <value>
-```
-
-**Parameters**:
-- `variable` - Variable name to modify
-- `value` - New value to assign
-
-**Examples**:
-```
-🔮 > MODIFY count = 200
-✅ Variable 'count' modified: 150 → 200
-
-🔮 > MODIFY name = "debug"
-✅ Variable 'name' modified: "test" → "debug"
-
-🔮 > MODIFY active = false
-✅ Variable 'active' modified: true → false
-```
-
-**Notes**:
-- Changes take effect immediately
-- Type coercion applied automatically
-- Useful for testing edge cases
-
-**uCODE**: `[SYSTEM|MODIFY*<variable>*<value>]`
-
----
-
-### PROFILE
-
-**Purpose**: Performance profiling and analysis
-
-**Syntax**:
-```
-PROFILE                 # Show full performance profile
-PROFILE TOP <n>         # Show top N slowest lines
-PROFILE CLEAR           # Clear profiling data
-PROFILE AUTO ON         # Enable automatic profiling
-PROFILE AUTO OFF        # Disable automatic profiling
-```
-
-**Parameters**:
-- `n` - Number of top results to show (default: 10)
-
-**Examples**:
-```
-🔮 > PROFILE
-🐛 Performance Profile:
-   Line 15: 0.0023s (150 executions)
-   Line 28: 0.0156s (1 execution)
-   Line 42: 0.0001s (300 executions)
-   Total: 0.0180s
-
-🔮 > PROFILE TOP 3
-🐛 Top 3 Slowest Lines:
-   1. Line 28: 0.0156s
-   2. Line 15: 0.0023s
-   3. Line 42: 0.0001s
-
-🔮 > PROFILE AUTO ON
-✅ Auto-profiling enabled
-```
-
-**Notes**:
-- Tracks execution time per line
-- Shows execution count
-- Auto-profiling runs in background
-
-**uCODE**: `[SYSTEM|PROFILE*<mode>]`
-
----
-
-### HISTORY
-
-**Purpose**: View variable change history
-
-**Syntax**:
-```
-HISTORY <variable>      # Show change history for variable
-HISTORY ALL             # Show all variable histories
-```
-
-**Parameters**:
-- `variable` - Variable name to track
-
-**Examples**:
-```
-🔮 > HISTORY count
-🐛 Change History: count
-   Line 5: undefined → 0
-   Line 12: 0 → 50
-   Line 23: 50 → 150
-   Line 35: 150 → 200
-
-🔮 > HISTORY ALL
-🐛 Variable Change History:
-   count: 4 changes
-   name: 2 changes
-   active: 1 change
-```
-
-**Output**:
-```
-🐛 History: count
-   Line 12: 0 → 50
-   Line 23: 50 → 150
-```
-
-**uCODE**: `[SYSTEM|HISTORY*<variable>]`
-
----
-
-## 🧠 Knowledge Bank Commands (v1.0.20)
-
-### MEMORY
-
-**Purpose**: Cross-tier memory search and operations
-
-**Syntax**:
-```
-MEMORY STATUS           # Show all tiers status
-MEMORY SEARCH <query>   # Search across all accessible tiers
-MEMORY STATS            # Statistics across tiers
-```
-
-**Examples**:
-```
-🔮 > MEMORY STATUS
-🧠 Memory System Status
-   PRIVATE: 12 items (encrypted)
-   SHARED: 8 items (3 shared with you)
-   COMMUNITY: 5 groups
-   PUBLIC: 245 knowledge items
-
-🔮 > MEMORY SEARCH "water purification"
-Found in PRIVATE: 2 results
-Found in SHARED: 1 result
-Found in PUBLIC: 8 results
-```
-
-**uCODE**: `[MEMORY|COMMAND*PARAMS]`
-
----
-
-### PRIVATE
-
-**Purpose**: Encrypted personal data storage (Tier 1)
-
-**Syntax**:
-```
-PRIVATE ADD <key> <data>    # Store encrypted data
-PRIVATE GET <key>           # Retrieve data
-PRIVATE LIST                # List all keys
-PRIVATE DELETE <key>        # Remove entry
-PRIVATE SEARCH <query>      # Search private data
-```
-
-**Security**:
-- AES-256 encryption
-- Password-protected
-- Auto-lock after inactivity
-
-**Examples**:
-```
-🔮 > PRIVATE ADD password "mySecretPass123"
-🔒 Data encrypted and stored in PRIVATE tier
-
-🔮 > PRIVATE GET password
-🔓 Decrypted: mySecretPass123
-
-🔮 > PRIVATE SEARCH "password"
-Found 3 encrypted entries matching "password"
-```
-
-**uCODE**: `[PRIVATE|COMMAND*PARAMS]`
-
----
-
-### SHARED
-
-**Purpose**: Explicit permission-based sharing (Tier 2)
-
-**Syntax**:
-```
-SHARED ADD <key> <data>         # Add shareable data
-SHARED SHARE <key> <user>       # Grant access
-SHARED REVOKE <key> <user>      # Remove access
-SHARED LIST                     # Show shared items
-SHARED PERMISSIONS <key>        # View who has access
-```
-
-**Examples**:
-```
-🔮 > SHARED ADD recipe "Family pasta recipe: ..."
-✅ Added to SHARED tier
-
-🔮 > SHARED SHARE recipe alice
-✅ Granted alice access to "recipe"
-
-🔮 > SHARED PERMISSIONS recipe
-👥 Shared with: alice, bob
-```
-
-**uCODE**: `[SHARED|COMMAND*PARAMS]`
-
----
-
-### COMMUNITY
-
-**Purpose**: Group collaboration with access control (Tier 3)
-
-**Syntax**:
-```
-COMMUNITY CREATE <group>        # Create group
-COMMUNITY JOIN <group>          # Join existing group
-COMMUNITY POST <group> <data>   # Post to group
-COMMUNITY LIST                  # List your groups
-COMMUNITY MEMBERS <group>       # Show group members
-```
-
-**Examples**:
-```
-🔮 > COMMUNITY CREATE survivors
-✅ Created group: survivors
-
-🔮 > COMMUNITY POST survivors "Found clean water source at 34.5N, 118.2W"
-✅ Posted to survivors group
-
-🔮 > COMMUNITY MEMBERS survivors
-👥 Members (5): alice, bob, charlie, dana, eve
-```
-
-**uCODE**: `[COMMUNITY|COMMAND*PARAMS]`
-
----
-
-### KB (Knowledge Bank)
-
-**Purpose**: Public knowledge base with full-text search (Tier 4)
-
-**Syntax**:
-```
-KB SEARCH <query>       # Full-text search
-KB ADD <topic> <data>   # Contribute knowledge
-KB GET <topic>          # Retrieve topic
-KB LIST <category>      # Browse by category
-KB STATS                # Database statistics
-```
-
-**Examples**:
-```
-🔮 > KB SEARCH "first aid"
-📚 Found 23 results:
-   1. Basic First Aid Kit Contents
-   2. CPR Procedure Steps
-   3. Treating Burns and Wounds
-   ...
-
-🔮 > KB GET "water purification"
-💧 Water Purification Methods:
-   1. Boiling (most reliable)
-   2. Chemical tablets (portable)
-   3. UV light (solar)
-   ...
-```
-
-**uCODE**: `[KB|COMMAND*PARAMS]`
-
----
-
-## 🗺️ TILE Commands (v1.0.20b)
-
-### TILE INFO
-
-**Purpose**: Get comprehensive location information
-
-**Syntax**:
-```
-TILE INFO <location>    # City or country info
-```
-
-**Examples**:
-```
-🔮 > TILE INFO Tokyo
-🏙️  Tokyo, JP
-📍 Location:
-   Coordinates: 35.6762°, 139.6503°
-   TIZO Code: T001
-   Elevation: 40 meters
-
-🌍 Demographics:
-   Population: 37,400,000
-   Region: Asia-Pacific
-
-🌡️  Climate: subtropical
-🕐 Time: Asia/Tokyo
-```
-
-**uCODE**: `[TILE|INFO*<location>]`
-
----
-
-### TILE SEARCH
-
-**Purpose**: Search cities and countries
-
-**Syntax**:
-```
-TILE SEARCH <query>     # Search by name
-```
-
-**Examples**:
-```
-🔮 > TILE SEARCH Paris
-🔍 Search Results (3):
-🏙️  Paris, FR (TIZO: T023)
-🏙️  Paris, US (TIZO: T145)
-🌏 Paraguay (PY)
-```
-
-**uCODE**: `[TILE|SEARCH*<query>]`
-
----
-
-### TILE NEARBY
-
-**Purpose**: Find nearby cities within radius
-
-**Syntax**:
-```
-TILE NEARBY <location> [radius_km]
-```
-
-**Examples**:
-```
-🔮 > TILE NEARBY London 500
-🗺️  Cities near London (within 500km):
-  109.2km - Birmingham, GB
-  212.5km - Amsterdam, NL
-  344.0km - Paris, FR
-  491.3km - Brussels, BE
-```
-
-**uCODE**: `[TILE|NEARBY*<location>*<radius>]`
-
----
-
-### TILE WEATHER
-
-**Purpose**: Get climate information
-
-**Syntax**:
-```
-TILE WEATHER <location>
-```
-
-**Examples**:
-```
-🔮 > TILE WEATHER Sydney
-🌡️  Climate: Sydney, AU
-🌍 Climate Type: Temperate (Cfb)
-
-🌡️  Temperature Range: 8°C to 26°C
-🌧️  Annual Rainfall: 1200-1500mm
-
-📝 Description: Mild temperatures year-round
-🌿 Vegetation: Temperate forests
-📅 Seasons: 4
-```
-
-**uCODE**: `[TILE|WEATHER*<location>]`
-
----
-
-### TILE TIMEZONE
-
-**Purpose**: Detailed timezone information
-
-**Syntax**:
-```
-TILE TIMEZONE <location>
-```
-
-**Examples**:
-```
-🔮 > TILE TIMEZONE New_York
-🕐 America/New_York
-
-⏰ Time Offsets:
-   Standard: UTC-05:00
-   DST: UTC-04:00
-   Zone: EST/EDT
-
-🌍 DST Information:
-   Active: Yes
-   Starts: 2nd Sunday March 2:00 AM
-   Ends: 1st Sunday November 2:00 AM
-
-🏙️  Major Cities: New York, Washington DC, Miami
-```
-
-**uCODE**: `[TILE|TIMEZONE*<location>]`
-
----
-
-### TILE TERRAIN
-
-**Purpose**: Terrain type information
-
-**Syntax**:
-```
-TILE TERRAIN [type]     # Show terrain info or list all
-```
-
-**Examples**:
-```
-🔮 > TILE TERRAIN ocean
-🗺️  Ocean Terrain
-
-🎨 Visuals:
-   ASCII: ≈
-   Symbol: ~
-   Color: blue
-
-📐 Elevation Range: -11000m to 0m
-🚶 Traversable: No
-💧 Water Source: Yes
-
-📝 Description: Deep ocean waters
-```
-
-**uCODE**: `[TILE|TERRAIN*<type>]`
-
----
-
-### TILE ROUTE
-
-**Purpose**: Route planning between locations
-
-**Syntax**:
-```
-TILE ROUTE <from> <to>
-```
-
-**Examples**:
-```
-🔮 > TILE ROUTE Tokyo London
-🧭 Route: Tokyo → London
-
-📍 From: Tokyo, JP
-   TIZO: T001
-   Timezone: Asia/Tokyo
-   Climate: subtropical
-
-📍 To: London, GB
-   TIZO: T045
-   Timezone: Europe/London
-   Climate: temperate
-
-📏 Distance: 9584.5 km (5954.7 miles)
-🧭 Bearing: 312.4° (NW)
-```
-
-**uCODE**: `[TILE|ROUTE*<from>*<to>]`
-
----
-
-### TILE CONVERT
-
-**Purpose**: Unit conversions
-
-**Syntax**:
-```
-TILE CONVERT <value> <from> <to>
-```
-
-**Supported Units**:
-- Temperature: C, F, K
-- Distance: km, mi, m, ft
-- Mass: kg, lb
-
-**Examples**:
-```
-🔮 > TILE CONVERT 100 km mi
-100 km = 62.14 miles
-
-🔮 > TILE CONVERT 32 C F
-32°C = 89.60°F
-
-🔮 > TILE CONVERT 5 kg lb
-5 kg = 11.02 lbs
-```
-
-**uCODE**: `[TILE|CONVERT*<value>*<from>*<to>]`
-
----
-
-## 📺 PANEL Commands (v1.0.21)
-
-The PANEL command provides a teletext-style character display system inspired by C64 screen memory. Create character-based panels, manipulate individual characters with POKE, and embed displays in markdown files.
-
-### PANEL CREATE
-
-**Purpose**: Create a new character panel with specified dimensions
-
-**Syntax**:
-```
-PANEL CREATE <name> <width> <height> <tier>
-```
-
-**Parameters**:
-- `name`: Panel identifier (alphanumeric, no spaces)
-- `width`: Width in characters (1-320)
-- `height`: Height in characters (1-160)
-- `tier`: Screen tier 0-14 (validates max dimensions)
-
-**Examples**:
-```
-🔮 > PANEL CREATE main 80 45 7
-✅ Panel 'main' created: 80×45 chars (Tier 7: Notebook)
-
-🔮 > PANEL CREATE dashboard 120 67 9
-✅ Panel 'dashboard' created: 120×67 chars (Tier 9: Large Desktop)
-```
-
-**uCODE**: `[PANEL|CREATE*main*80*45*7]`
-
----
-
-### PANEL SHOW
-
-**Purpose**: Display panel contents with optional C64-style border
-
-**Syntax**:
-```
-PANEL SHOW <name>         # Display without border
-PANEL SHOW <name> border  # Display with C64-style border
-```
-
-**Examples**:
-```
-🔮 > PANEL SHOW main
-[Panel contents displayed]
-
-🔮 > PANEL SHOW main border
-▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-▓                   ▓
-▓  Panel contents   ▓
-▓                   ▓
-▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-```
-
-**uCODE**: `[PANEL|SHOW*main]` or `[PANEL|SHOW*main*border]`
-
----
-
-### PANEL POKE
-
-**Purpose**: Write a single character at x,y coordinates (C64-style)
-
-**Syntax**:
-```
-PANEL POKE <name> <x> <y> <char>
-```
-
-**Parameters**:
-- `x`: Column position (0-based, left to right)
-- `y`: Row position (0-based, top to bottom)
-- `char`: Single character (supports Unicode)
-
-**Examples**:
-```
-🔮 > PANEL POKE main 0 0 █
-✅ Character written at (0,0)
-
-🔮 > PANEL POKE main 10 5 ☀
-✅ Character written at (10,5)
-```
-
-**Origin**: Top-left is (0,0), x increases right, y increases down
-
-**uCODE**: `[PANEL|POKE*main*0*0*█]`
-
----
-
-### PANEL WRITE
-
-**Purpose**: Write a text string at x,y position
-
-**Syntax**:
-```
-PANEL WRITE <name> <x> <y> <text>
-```
-
-**Examples**:
-```
-🔮 > PANEL WRITE main 10 5 Hello World!
-✅ Text written at (10,5)
-
-🔮 > PANEL WRITE main 10 6 Temperature: 24°C ☀
-✅ Text written at (10,6)
-```
-
-**uCODE**: `[PANEL|WRITE*main*10*5*Hello World!]`
-
----
-
-### PANEL EMBED
-
-**Purpose**: Export panel to markdown file as code block
-
-**Syntax**:
-```
-PANEL EMBED <name> <filepath.md>
-```
-
-**Examples**:
-```
-🔮 > PANEL EMBED diagram core/datas/memory.md
-✅ Panel embedded in core/datas/memory.md
-```
-
-Embedded content appears as:
-````markdown
-## Diagram
-```
-[Panel content here as ASCII art]
-```
-````
-
-**uCODE**: `[PANEL|EMBED*diagram*core/datas/memory.md]`
-
----
-
-### PANEL SIZE
-
-**Purpose**: Display screen tier information
-
-**Syntax**:
-```
-PANEL SIZE
-```
-
-**Output**:
-```
-Screen Tiers:
-  0: Watch (20×10 chars) - Wearable displays
-  1: Phone Small (30×20 chars) - Compact smartphone
-  ...
-  7: Notebook (80×45 chars) - Standard laptop ⭐
-  ...
-  14: 8K (320×160 chars) - Maximum resolution
-```
-
-⭐ **Tier 7 (Notebook 80×45)** is the most common target.
-
-**uCODE**: `[PANEL|SIZE]`
-
----
-
-### PANEL INFO
-
-**Purpose**: Display panel statistics and metadata
-
-**Syntax**:
-```
-PANEL INFO <name>
+**Syntax:**
 ```
-
-**Output**:
-```
-Panel: main
-Size: 80×45 characters (3600 total)
-Tier: 7 (Notebook - 80×45)
-Characters: 450 (12.5% filled)
-Created: 2025-01-16 14:30:00
-```
-
-**uCODE**: `[PANEL|INFO*main]`
-
----
-
-### PANEL LIST
-
-**Purpose**: Display all active panels with statistics
-
-**Syntax**:
-```
-PANEL LIST
-```
-
-**Output**:
-```
-Active Panels:
-  main: 80×45 chars (Tier 7) - 450/3600 chars (12.5%)
-  dashboard: 120×67 chars (Tier 9) - 1200/8040 chars (15%)
+TREE [path] [depth]                 # Show tree
 ```
-
-**uCODE**: `[PANEL|LIST]`
-
----
 
-### PANEL CLEAR
-
-**Purpose**: Reset panel buffer to spaces (blank panel)
-
-**Syntax**:
-```
-PANEL CLEAR <name>
+**Examples:**
+```upy
+TREE                                # Current dir
+TREE knowledge 2                    # 2 levels deep
 ```
 
-**uCODE**: `[PANEL|CLEAR*main]`
+### CLEAN
+Clean workspace (remove temp files).
 
----
-
-### PANEL DELETE
-
-**Purpose**: Remove panel from memory
-
-**Syntax**:
+**Syntax:**
 ```
-PANEL DELETE <name>
+CLEAN                               # Clean workspace
+CLEAN --dry-run                     # Preview only
 ```
-
-**uCODE**: `[PANEL|DELETE*main]`
 
----
+### TIDY
+Organize workspace files.
 
-### Teletext Graphics Reference
-
-The PANEL system supports full Unicode characters:
-
-**Block Characters**:
-```
-█ ▓ ▒ ░  (Full, dark, medium, light blocks)
-▀ ▄ ▌ ▐  (Half blocks - top, bottom, left, right)
+**Syntax:**
 ```
-
-**Box Drawing**:
-```
-┌ ┬ ┐  (Top corners and T-junction)
-├ ┼ ┤  (Side T-junctions and cross)
-└ ┴ ┘  (Bottom corners and T-junction)
-─ │    (Horizontal and vertical lines)
+TIDY                                # Tidy workspace
+TIDY --report                       # Show report
 ```
 
-**Double Lines**:
-```
-╔ ╦ ╗  (Double top)
-╠ ╬ ╣  (Double sides)
-╚ ╩ ╝  (Double bottom)
-═ ║    (Double horizontal and vertical)
-```
+### LOGS
+View system logs.
 
-**Emoji**:
+**Syntax:**
 ```
-☀ ☁ 🌧 ❄  (Weather)
-✓ ✗ ⚠ ℹ  (Status)
-← → ↑ ↓  (Arrows)
+LOGS                                # Recent logs
+LOGS --tail                         # Follow logs
+LOGS --level ERROR                  # Filter level
 ```
 
 ---
 
-### Example 1: Progress Bar
+## uPY Script Commands
 
-```
-🔮 > PANEL CREATE progress 60 5 7
-🔮 > PANEL WRITE progress 5 2 [████████████████████░░░░░░░░] 75%
-🔮 > PANEL SHOW progress
+Commands for use within .upy scripts:
+
+### PRINT
+Output text (with variable substitution and emoji).
+
+**Syntax:**
+```upy
+PRINT("message")                    # Simple output
+PRINT("Hello $name")                # Variable substitution
+PRINT(":check: Done!")              # Emoji codes
 ```
 
-Output:
+### FUNCTION
+Define reusable functions.
+
+**Syntax:**
+```upy
+FUNCTION [@NAME($PARAMS)
+    # Function body
+    RETURN value
+]
 ```
-[████████████████████░░░░░░░░] 75%
+
+**Example:**
+```upy
+FUNCTION [@GREET($NAME)
+    PRINT("Hello, $NAME!")
+    RETURN ":wave:"
+]
+
+@GREET("Fred")                      # Call function
+```
+
+### IF
+Conditional execution.
+
+**Syntax:**
+```upy
+# Inline conditional
+IF {condition | statement}
+
+# Block conditional
+IF condition THEN
+    statements
+ELSE
+    statements
+ENDIF
+```
+
+**Example:**
+```upy
+IF {$HP < 20 | PRINT(":warning: Low health!")}
+
+IF $SCORE > 100 THEN
+    PRINT(":trophy: You win!")
+ELSE
+    PRINT("Keep trying!")
+ENDIF
+```
+
+### JSON
+JSON data operations.
+
+**Syntax:**
+```upy
+JSON.load("file.json")              # Load JSON
+JSON.save("file.json")              # Save JSON
+player.stats.health = 100           # Dot notation
+player.inventory.append("sword")    # Array operations
 ```
 
 ---
 
-### Example 2: Weather Display
+## Deprecated Commands
 
-```
-🔮 > PANEL CREATE weather 50 10 7
-🔮 > PANEL POKE weather 5 2 ☀
-🔮 > PANEL WRITE weather 8 2 Sydney: 24°C Clear
-🔮 > PANEL POKE weather 5 4 ☁
-🔮 > PANEL WRITE weather 8 4 London: 12°C Cloudy
-🔮 > PANEL SHOW weather border
-🔮 > PANEL EMBED weather data/weather/current.md
-```
+These commands have been removed or replaced:
 
----
+### ❌ DIAGRAM GENERATE
+**Removed in:** v1.1.15
+**Use instead:** `GENERATE SVG --survival <category>/<prompt>`
 
-### Integration
+### ❌ SVG
+**Removed in:** v1.1.5.3
+**Use instead:** `GENERATE SVG <description>`
 
-**With Markdown Viewer**:
-1. Create panel: `PANEL CREATE diagram 60 20 7`
-2. Draw content: `PANEL WRITE diagram 10 5 System Architecture`
-3. Embed: `PANEL EMBED diagram core/datas/architecture.md`
-4. View: Start markdown viewer at `http://localhost:9000`
+### ❌ KB
+**Removed in:** v2.0.0
+**Use instead:** `GUIDE` command
 
-**With uSCRIPT**:
-See `knowledge/demos/panel_demo.uscript` for comprehensive examples.
+### ❌ GRID
+**Removed in:** v1.0.32
+**Use instead:** `TREE`, `PANEL`, file commands
 
-**Full Documentation**: `docs/commands/PANEL.md`
+### ❌ .uscript format
+**Replaced by:** `.upy` format (Python-like syntax)
+**Migration:** See [uPY Quick Start](Tutorial-uPY-Quick-Start)
 
 ---
 
-## Command Aliases
+## Quick Tips
 
-Many commands have shorter or themed aliases:
-
-| Standard | Alias | Theme |
-|:---------|:------|:------|
-| CATALOG | LIST | ZAP (Dungeon) |
-| LOAD | - | CAST |
-| SAVE | - | SCRIBE |
-| ASK | - | CONSULT |
-| REBOOT | RESTART | - |
-| CLS | CLEAR | - |
-
----
-
-## Tab Completion
-
-uDOS provides smart context-aware completion:
-
-| After Typing | Press Tab | Result |
-|:-------------|:----------|:-------|
-| `LO` | Tab | `LOAD` |
-| `LOAD "` | Tab | List of files |
-| `SHOW "` | Tab | List of panels |
-| `RUN "` | Tab | List of .uscript files |
-| `[` | - | Command menu appears |
-
----
-
-## Command Palette (Dashboard)
-
-The Command Palette provides quick access to all dashboard functionality through a modern, searchable interface while maintaining uDOS's retro aesthetic.
-
-### Opening the Palette
-- Press `Cmd/Ctrl + K` in the dashboard
-- Search bar appears with fuzzy matching
-
-### Features
-- **Fuzzy search** - Type partial command names
-- **Keyboard navigation** - Arrow keys + Enter
-- **Categorized commands** - System, View, Files, Server
-- **Real-time results** - Updates as you type
-- **Theme-aware** - Adapts to current theme
-
-### Command Categories
-
-The palette organizes dashboard commands into:
-
-- **System**: Core dashboard operations
-- **View**: Navigation and display options
-- **Files**: File system operations
-- **Server**: Server management commands
-
-### Technical Integration
-
-For extension developers adding custom commands:
-
-```javascript
-// Register a custom command
-dashboardAPI.commandPalette.registerCommand(
-    'category',    // Command category
-    'name',        // Command name
-    'description', // Command description
-    () => {        // Command action
-        // Implementation
-    }
-);
+**Finding Commands:**
+```upy
+HELP                                # All commands
+GUIDE SEARCH <topic>                # Search knowledge
+DIAGRAM SEARCH <query>              # Search diagrams
 ```
 
-The Command Palette integrates with:
-- Dashboard API for core functionality
-- Theme system for consistent styling
-- Module system for extensibility
-- Socket.IO for real-time updates
+**Common Workflows:**
+```upy
+# Generate diagram
+GENERATE SVG --survival water/purification_flow --pro
 
-### Best Practices
+# Start mission
+MISSION CREATE water "Water Setup"
+MISSION START water
 
-**Command Names:**
-- Use clear, descriptive names
-- Follow existing naming patterns
-- Include relevant keywords
+# Run workflow
+WORKFLOW RUN memory/workflows/missions/water-setup.upy
 
-**Categories:**
-- Use existing categories when possible
-- Create new categories sparingly
-- Keep categories logical and focused
+# Check progress
+GET MISSION.PROGRESS
+GET CHECKLIST.PROGRESS_PCT
+```
 
-**Descriptions:**
-- Be clear and concise
-- Include key functionality
-- Mention important side effects
-
----
-
-## Next Steps
-
-- [uCODE Language](uCODE-Language) - Internal command format
-- [Script Automation](Script-Automation) - Batch operations
-- [Tutorials](Tutorials) - Step-by-step guides
+**File Management:**
+```upy
+LIST memory/missions                # Browse
+SHOW mission.json                   # View
+EDIT mission.json                   # Edit
+RUN script.upy                      # Execute
+```
 
 ---
 
-*Master these commands to wield the full power of uDOS!* 🔮
+## See Also
+
+- [uPY Quick Start](Tutorial-uPY-Quick-Start) - Learn uPY syntax
+- [uPY Cheat Sheet](uPY-Cheat-Sheet) - Quick reference
+- [Getting Started](Getting-Started) - Complete beginner guide
+- [Nano Banana Integration](Nano-Banana-Integration) - AI diagram generation
+- [Graphics System](Graphics-System) - Visual content creation
+
+---
+
+**Last Updated:** December 3, 2025
+**Version:** v1.1.15 (Graphics Infrastructure Complete)
