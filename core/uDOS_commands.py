@@ -17,7 +17,7 @@ Author: Fred Porter
 
 import json
 from pathlib import Path
-from core.theme_loader import load_theme
+from core.services.theme.theme_loader import load_theme
 
 
 class CommandHandler:
@@ -479,8 +479,8 @@ class CommandHandler:
 
 # Example Usage (for testing)
 if __name__ == '__main__':
-    from core.uDOS_grid import Grid
-    from core.uDOS_parser import Parser
+    from core.services.uDOS_grid import Grid
+    from core.interpreters.uDOS_parser import Parser
 
     grid = Grid()
     parser = Parser()

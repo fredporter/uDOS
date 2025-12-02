@@ -169,7 +169,7 @@ class FastStartup:
         if self.verbose:
             print(f"\n{TeletextChars.PENDING} Running system health check...")
 
-        from core.uDOS_startup import check_system_health
+        from core.services.uDOS_startup import check_system_health
 
         health = check_system_health(verbose=self.verbose, return_dict=False)
 

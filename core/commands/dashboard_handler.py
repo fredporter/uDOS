@@ -122,7 +122,7 @@ class DashboardHandler(BaseCommandHandler):
         status += "║ " + "─"*67 + "║\n"
 
         try:
-            from core.uDOS_startup import check_python_version, check_dependencies
+            from core.services.uDOS_startup import check_python_version, check_dependencies
             py_ok = check_python_version()
             dep_result = check_dependencies()
             dep_ok = dep_result.status == "success"

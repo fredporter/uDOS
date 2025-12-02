@@ -23,9 +23,9 @@ from logging.handlers import RotatingFileHandler
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 try:
-    from core.uDOS_parser import Parser
+    from core.interpreters.uDOS_parser import Parser
     from core.uDOS_commands import CommandHandler
-    from core.uDOS_grid import Grid
+    from core.services.uDOS_grid import Grid
     from core.services.session_logger import SessionLogger  # v1.1.6: Backward-compatible wrapper
     from core.utils.files import WorkspaceManager
     from core.services.history import CommandHistory

@@ -14,8 +14,8 @@ import json
 import shutil
 from pathlib import Path
 from .base_handler import BaseCommandHandler
-from core.theme_manager import ThemeManager
-from core.theme_builder import ThemeBuilder
+from core.services.theme.theme_manager import ThemeManager
+from core.services.theme.theme_builder import ThemeBuilder
 from core.uDOS_main import get_config  # v1.5.0 Unified configuration
 
 

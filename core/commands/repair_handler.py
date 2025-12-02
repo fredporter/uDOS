@@ -35,7 +35,7 @@ class RepairHandler(BaseCommandHandler):
         Returns:
             Repair results or health report
         """
-        from core.uDOS_startup import (
+        from core.services.uDOS_startup import (
             check_system_health,
             repair_system,
             get_health_report,
@@ -303,7 +303,7 @@ class RepairHandler(BaseCommandHandler):
         # 1. Git pull
         result += "🔄 Updating uDOS repository...\n"
         try:
-            from core.uDOS_startup import repair_git_pull
+            from core.services.uDOS_startup import repair_git_pull
             success, message = repair_git_pull(verbose=False)
             if success:
                 result += f"✅ Repository updated: {message}\n"
@@ -318,7 +318,7 @@ class RepairHandler(BaseCommandHandler):
         # 2. Pip upgrade
         result += "\n📦 Upgrading pip...\n"
         try:
-            from core.uDOS_startup import repair_pip_upgrade
+            from core.services.uDOS_startup import repair_pip_upgrade
             success, message = repair_pip_upgrade(verbose=False)
             if success:
                 result += f"✅ Pip upgraded: {message}\n"

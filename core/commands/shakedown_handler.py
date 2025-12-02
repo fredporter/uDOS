@@ -428,7 +428,7 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("─" * 63)
 
         try:
-            from core.uDOS_startup import check_system_health
+            from core.services.uDOS_startup import check_system_health
             output.append(f"  ✅ Health check imports successfully")
             self._add_test("Startup: health check import", True)
 

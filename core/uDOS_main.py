@@ -179,7 +179,7 @@ def initialize_system(is_script_mode=False, run_health_check=False, use_fast_sta
         if not is_script_mode and run_health_check:
             print("🏥 System health...", end=" ", flush=True)
 
-        from core.uDOS_startup import quick_health_check, check_system_health, repair_system
+        from core.services.uDOS_startup import quick_health_check, check_system_health, repair_system
 
         is_healthy, message = quick_health_check()
         health = None  # Initialize health variable
