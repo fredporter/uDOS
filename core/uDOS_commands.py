@@ -156,6 +156,10 @@ class CommandHandler:
         from core.commands.checklist_handler import ChecklistHandler
         self.checklist_handler = ChecklistHandler(config=config)
 
+        # v1.1.14 - ARCHIVE handler (Historical Data Management)
+        from core.commands.archive_handler import ArchiveHandler
+        self.archive_handler = ArchiveHandler(**handler_kwargs)
+
         # Get variable_manager from components (if available)
         components = {
             'config': None,
@@ -352,6 +356,10 @@ class CommandHandler:
             # v1.1.14 - Checklist Task Management
             elif module == "CHECKLIST":
                 return self.checklist_handler.handle(command, params)
+
+            # v1.1.14 - Archive Management System
+            elif module == "ARCHIVE":
+                return self.archive_handler.handle(params, grid, parser)
 
             # v1.1.4 - DRAW Diagram Generation (ASCII/Teletext graphics)
             elif module == "DRAW":
