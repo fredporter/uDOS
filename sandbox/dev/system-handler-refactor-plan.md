@@ -202,15 +202,48 @@ def handle_clean(self, params, grid, parser):
 - Estimated: ~200 lines
 - Expected: system_handler.py 1,126 → ~926 lines
 
-## Next Steps
+### ✅ Phase 3 Complete: Output/Extension Commands Extracted (Dec 2, 2025)
 
-1. ✅ Create variable_handler.py with GET, SET, HISTORY commands
-2. ✅ Update system_handler.py to delegate to VariableHandler
-3. ✅ Test all variable commands work (111/111 tests pass)
-4. ⏳ Commit "Core: Extract variable commands to VariableHandler"
-5. Create environment_handler.py
-6. Extract environment commands
-7. Test and commit
-8. Extract POKE/output commands
-9. Final testing
-10. Update documentation
+**Created:** `core/commands/output_handler.py` (417 lines)
+**Modified:** `core/commands/system_handler.py` (674 lines, down from 1,098)
+
+**Changes:**
+- Moved handle_output (main handler) → OutputHandler
+- Moved _handle_output_list, _status, _start, _stop, _health, _restart (server mgmt) → OutputHandler
+- Moved _handle_extension_discover, _info, _info_basic, _install, _uninstall, _marketplace → OutputHandler
+- Total extracted: 424 lines
+- Actual reduction: 1,098 → 674 = 424 lines
+
+**Testing:** All 111 tests passing ✅
+**Commit:** c372358a
+
+## System Handler Refactoring COMPLETE ✅
+
+### Summary
+
+**Original:** 1,342 lines (bloated, mixed responsibilities)
+**Final:** 674 lines (clean routing layer)
+**Reduction:** 668 lines (50%)
+
+**Extracted Handlers:**
+1. variable_handler.py (294 lines) - GET, SET, HISTORY
+2. environment_handler.py (233 lines) - SETTINGS, CLEAN, DEV MODE  
+3. output_handler.py (417 lines) - POKE, servers, extensions
+
+**Total:** 944 lines of specialized code extracted and modularized
+
+### Completion Checklist
+
+✅ Phase 1: Variable commands extracted (d4f3790e)
+✅ Phase 2: Environment commands extracted (45624b13)
+✅ Phase 3: Output/extension commands extracted (c372358a)
+✅ All 111 tests passing
+✅ Clean delegation pattern
+✅ Proper lazy loading
+✅ Documentation updated
+
+## Next Steps (Post-Refactoring)
+
+1. Update core-cleanup-plan-v1.1.12.md (mark Phase 2 complete)
+2. Update ROADMAP.MD (mark system handler refactoring complete)
+3. Consider future Phase 3 tasks from v1.1.5.x backlog
