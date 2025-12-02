@@ -107,9 +107,9 @@ After each phase:
 - [x] All file pickers show .upy files
 - [x] All paths point to current structure
 - [x] Deprecation warnings accurate
-- [ ] All tests passing (pending test run)
+- [x] All tests passing (Phase 1 complete)
 
-## Completed Changes
+## Phase 1 Complete ✅
 
 ### Files Modified (12 files):
 
@@ -134,10 +134,24 @@ After each phase:
 - ✅ Deprecation messages accurate
 - ⚠️ validator.py still references .uscript (needs decision: migrate or deprecate)
 
-### Next Steps
+## Phase 2: System Handler Refactoring (PLANNED)
 
-1. Run test suite to verify no regressions
-2. Test file picker functionality
-3. Test .upy script execution
-4. Decide on validator.py fate (migrate to .upy or mark deprecated)
-5. Commit changes
+See: `sandbox/dev/system-handler-refactor-plan.md`
+
+**Current Status:** 1,534 lines
+**Analysis Complete:** Identified 287 lines of variable commands to extract
+
+**Planned Actions:**
+1. Extract Variable Commands (GET, SET, HISTORY) → variable_handler.py (287 lines)
+2. Extract Environment Commands (CLEAN, SETTINGS, DEV MODE) → environment_handler.py (~150 lines)
+3. Consolidate POKE/Output → extensions handler (~200 lines)
+
+**Expected Result:** system_handler.py: 1,534 → ~900 lines (42% reduction)
+
+### Next Steps (Ready for Implementation)
+
+1. Create variable_handler.py with extracted methods
+2. Update system_handler.py delegation
+3. Test variable commands
+4. Commit refactoring
+5. Repeat for environment commands
