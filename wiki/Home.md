@@ -38,7 +38,6 @@
 - [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ NEW - Quick syntax reference
 - [Emoji Reference](Emoji-Reference) - Complete emoji code catalog (80+ symbols)
 - [Function Programming Guide](Function-Programming-Guide) - Tutorial with examples
-- [Migration Guide v1.1.9](Migration-Guide-v1.1.9) - Upgrade from v1.1.8
 
 **Total Documentation:** 10 wiki pages, ~4,000 lines
 

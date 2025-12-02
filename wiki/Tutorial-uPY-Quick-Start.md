@@ -298,7 +298,6 @@ JSON.save("data.json")           # Save
 ### More Tutorials
 - [Function Programming Guide](Function-Programming-Guide.md) - Deep dive into functions
 - [Emoji Reference](Emoji-Reference.md) - All 80+ emoji codes
-- [Migration Guide](Migration-Guide-v1.1.9.md) - Upgrade from v1.1.8
 
 ### Example Projects
 Try building:
@@ -443,7 +442,6 @@ PRINT(":check: Game saved!")
 - **[All Commands](Command-Reference.md#upy-commands-v119)** - Command documentation
 - **[Emoji Codes](Emoji-Reference.md)** - All 80+ emojis
 - **[Functions Guide](Function-Programming-Guide.md)** - Advanced functions
-- **[Migration Guide](Migration-Guide-v1.1.9.md)** - From v1.1.8
 
 ---
 

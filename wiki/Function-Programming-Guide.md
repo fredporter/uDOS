@@ -581,7 +581,6 @@ FUNCTION [@COUNTDOWN($N)
 - [Emoji Reference](Emoji-Reference.md) - All emoji codes
 - [uCODE Language Reference](uCODE-Language.md) - Complete language guide
 - [Command Reference](Command-Reference.md) - All commands
-- [Migration Guide v1.1.9](Migration-Guide.md) - Upgrading guide
 
 ---
 

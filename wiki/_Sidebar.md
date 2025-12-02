@@ -39,7 +39,6 @@
 - **[uPY Cheat Sheet](uPY-Cheat-Sheet)** ⭐ v1.1.9+ - Quick syntax reference
 - **[Emoji Reference](Emoji-Reference)** ⭐ v1.1.9+ - 80+ emoji codes
 - **[Function Programming Guide](Function-Programming-Guide)** ⭐ v1.1.9+ - Functions tutorial
-- **[Migration Guide v1.1.9](Migration-Guide-v1.1.9)** ⭐ NEW - uPY syntax upgrade
 
 ### Knowledge & Content
 - **[Knowledge System](Knowledge-System)** - 4-tier knowledge bank

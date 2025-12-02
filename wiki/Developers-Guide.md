@@ -1848,13 +1848,12 @@ Related to #456
 
 ## Related Documentation
 
-- [Development History](Development-History) - Complete version history
 - [Command Reference](Command-Reference) - All available commands
 - [Extensions System](Extensions-System) - Extension documentation
 - [Knowledge System](Knowledge-System) - Knowledge bank architecture
 - [Philosophy](Philosophy) - Project philosophy and vision
 - [Contributing](../CONTRIBUTING.md) - Contributing guidelines
-- [ROADMAP](../ROADMAP.MD) - Future development plans
+- [ROADMAP](../dev/roadmap/ROADMAP.md) - Future development plans
 
 ---
 

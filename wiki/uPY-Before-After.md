@@ -390,7 +390,14 @@ PRINT("Status: $STATUS")
 4. ✅ **Refactor to functions**: Extract repeated logic
 5. ✅ **Add JSON**: Replace manual data handling
 
-**[Complete Migration Guide →](Migration-Guide-v1.1.9.md)**
+## Migration Tips
+
+**Upgrading from v1.1.8 or earlier?** The uPY format is designed for easy migration:
+
+1. Scripts are now Python-like with clear syntax
+2. Variables use `$VARIABLE` format (no changes needed)
+3. Commands use standard syntax: `COMMAND args`
+4. See [uPY Quick Start](Tutorial-uPY-Quick-Start.md) for complete guide
 
 ---
 

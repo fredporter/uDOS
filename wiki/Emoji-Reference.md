@@ -402,7 +402,7 @@ PRINT(":sparkles: +50 XP")
 
 - [Function Programming Guide](Function-Programming-Guide.md)
 - [uCODE Language Reference](uCODE-Language.md)
-- [Migration Guide v1.1.9](Migration-Guide.md)
+- [Tutorial: uPY Quick Start](Tutorial-uPY-Quick-Start.md)
 - [Command Reference](Command-Reference.md)
 
 ---

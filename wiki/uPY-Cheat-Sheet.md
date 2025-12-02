@@ -300,7 +300,6 @@ IF {$HP == 0 | ...}
 - **[Language Reference](uCODE-Language.md#upy-syntax-v119)** - Complete syntax
 - **[Emoji Reference](Emoji-Reference.md)** - All emoji codes
 - **[Function Guide](Function-Programming-Guide.md)** - Advanced functions
-- **[Migration Guide](Migration-Guide-v1.1.9.md)** - Upgrade from v1.1.8
 - **[Command Reference](Command-Reference.md#upy-commands-v119)** - All commands
 
 ---
