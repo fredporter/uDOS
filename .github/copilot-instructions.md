@@ -183,9 +183,24 @@ data = pattern.load()  # Returns dict with pattern data
 
 ## Version 1.1.12 Changes (Current)
 
-### Data Consolidation
+### Recent Completions (December 2025)
 
-**COMPLETED** (Dec 2025):
+**v1.1.5.1 - System Handler Refactoring** ✅
+- Refactored `system_handler.py`: 1,342 → 674 lines (50% reduction)
+- Created 3 specialized handlers:
+  - `variable_handler.py` (294 lines) - GET/SET/HISTORY commands
+  - `environment_handler.py` (233 lines) - SETTINGS/CLEAN/DEV MODE
+  - `output_handler.py` (417 lines) - POKE/servers/extensions
+- All 111 tests passing
+
+**v1.1.5.2 - Dead Code Removal** ✅
+- Removed 5 unused documentation handlers (1,604 lines):
+  - `doc_handler.py`, `docs_unified_handler.py`, `manual_handler.py`
+  - `handbook_handler.py`, `example_handler.py`
+- None were routed in `uDOS_commands.py` (completely inactive)
+- GUIDE handler provides all knowledge access (active, working)
+
+**Data Consolidation** ✅
 - `knowledge/system/` → `core/data/` (60+ files)
 - `knowledge/geography/` → `extensions/assets/data/` (8 files)
 - `extensions/ai/` → `extensions/assistant/`
@@ -291,20 +306,37 @@ Available via `Ctrl+Shift+P` → "Run Task":
 - Use type hints in Python
 - Keep knowledge bank read-only (guides are curated)
 
+## Command Handler Architecture (As of Dec 2025)
+
+**Active Handlers** (46 total in `core/commands/`):
+- **Knowledge**: `guide_handler.py` (interactive guides with progress tracking)
+- **System**: `system_handler.py` (routing), `variable_handler.py`, `environment_handler.py`, `output_handler.py`
+- **Files**: `file_handler.py` (NEW/DELETE/COPY/MOVE/etc.)
+- **Memory**: `memory_commands.py` (4-tier system), `private_commands.py`, `shared_commands.py`, `community_commands.py`
+- **Graphics**: `diagram_handler.py`, `panel_handler.py`, `generate_handler.py`, `sprite_handler.py`
+- **Assistant**: `assistant_handler.py` (Gemini integration)
+- **Extensions**: `extension_handler.py`, `workflow_handler.py`
+- See `core/uDOS_commands.py` for complete routing map
+
+**Deprecated/Removed**:
+- ❌ DOC, MANUAL, HANDBOOK, EXAMPLE handlers (removed v1.1.5.2)
+- ❌ KB handler (redirects to GUIDE as of v2.0.0)
+- ❌ .uscript format (use .upy only)
+
 ## Current Focus (v1.1.12)
 
-**uPY Migration & Cleanup**:
-- Core data minimization complete
-- Grid system standardized (2-letter format)
-- TILE code system (no coordinates)
-- Wiki consolidation (comprehensive guides)
-- Sandbox as primary dev workspace
+**Recent Achievements**:
+- ✅ System handler refactoring (50% reduction)
+- ✅ Dead code removal (1,604 lines cleaned)
+- ✅ Core data minimization complete
+- ✅ Grid system standardized (2-letter TILE codes)
+- ✅ Sandbox as primary dev workspace
 
-**Next Steps**:
+**Next Priorities**:
+- v1.1.5.3: Deprecated code removal & utilities refactoring
+- v1.1.6: Nano Banana workflow integration
 - Extension system improvements
-- Web interface enhancements
 - Knowledge bank expansion
-- Mobile/PWA support (future)
 
 ---
 
