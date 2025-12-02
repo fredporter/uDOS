@@ -2,9 +2,9 @@
 
 Complete guide for uDOS developers and contributors covering architecture, APIs, workflows, and best practices.
 
-**Version:** v1.0.0+
+**Version:** v1.1.15 (Graphics Infrastructure Complete)
 **Status:** Production Ready
-**Last Updated:** November 26, 2025
+**Last Updated:** December 3, 2025
 
 ---
 
@@ -130,27 +130,27 @@ core/data/                      # Core data files
 #### Extensions
 ```
 extensions/                     # Extension system
-├── core/                       # Bundled extensions
-│   ├── ok-assist/             # AI content generation
+├── assistant/                  # AI assistant (Gemini integration)
+│   ├── assistant_handler.py   # Main handler
+│   └── prompts/               # Prompt templates
+├── assets/                     # Shared assets
+│   ├── fonts/                 # Font files (Mallard, etc.)
+│   ├── icons/                 # Icon sets
+│   └── data/                  # Shared data files
+├── core/                       # Core extensions
+│   ├── dashboard/             # System dashboard (web UI)
 │   ├── extension_manager.py   # Extension installation
-│   └── extension_dev_tools.py # Development tools
-├── bundled/                    # Pre-installed (git tracked)
-│   └── web/                   # Web interfaces
-│       ├── dashboard/         # System dashboard
-│       ├── teletext/          # Retro interface
-│       └── system-desktop/    # Classic desktop UI
+│   └── server_manager.py      # Server management
+├── play/                       # Gameplay extensions
+│   ├── map_engine/            # Map rendering & TILE system
+│   ├── xp_system/             # XP tracking
+│   └── data/                  # Geography data (cities, etc.)
+├── web/                        # Web interfaces
+│   ├── teletext/              # Teletext rendering
+│   └── terminal/              # Terminal UI
+├── bundled/                    # Pre-installed extensions
 ├── cloned/                     # External deps (git ignored)
-│   ├── typo/                  # Markdown editor
-│   ├── micro/                 # Terminal editor
-│   └── monaspace-fonts/       # Fonts
-├── templates/                  # Extension templates
-│   ├── web_extension/
-│   ├── cli_extension/
-│   └── service_extension/
 └── setup/                      # Installation scripts
-    ├── setup_all.sh
-    ├── setup_typo.sh
-    └── setup_micro.sh
 ```
 
 #### Knowledge & Documentation
@@ -359,13 +359,9 @@ User Input
 
 ## Development Workflow
 
-### Dev Rounds Approach
+### Development Process
 
-The uDOS development follows a structured **dev rounds approach** where each version (v1.0.1 through v1.0.5+) focuses on specific feature sets. Each round includes automated testing, operator review checkpoints, and mandatory wiki updates.
-
-### Standard Dev Round Process
-
-#### 1. Round Preparation
+#### 1. Setup Development Environment
 ```bash
 # Open workspace
 code uDOS.code-workspace
@@ -374,80 +370,44 @@ code uDOS.code-workspace
 # Task: "Check Virtual Environment"
 
 # Run shakedown tests
-# Task: "Shakedown Terminal Core"
+# Task: "Run Shakedown Test"
 ```
 
 #### 2. Development Phase
-- Implement features for current round
-- Use `core/dev_logger.py` for structured logging
-- Run tests frequently: `pytest -q memory/tests`
-- Generate dev summaries: `python -m core.copilot_summary "feature implemented"`
+- Implement features incrementally
+- Follow `/dev/` workspace conventions (see `.github/copilot-instructions.md`)
+- Run tests frequently: `pytest memory/ucode/ -v`
+- Use structured logging via `core/uDOS_logger.py`
+- Update ROADMAP.md in `dev/roadmap/` as work progresses
 
-#### 3. Round Completion Checklist
+#### 3. Testing & Validation
 
-Each round has specific VS Code tasks for validation:
-
-**v1.0.1 System Commands**
+**Core Tests:**
 ```bash
-# Task: "Dev Round: v1.0.1 System Check"
+# Run full test suite
+pytest memory/ucode/ -v
+
+# Run shakedown test
+./start_udos.sh memory/tests/shakedown.upy
+
+# Check for errors
+# In uDOS: STATUS
 ```
-- ✅ HELP command implemented
-- ✅ STATUS --live working
-- ✅ REPAIR auto functional
-- ✅ DASHBOARD CLI operational
-- ⚠️ **Operator**: Review and adjust as needed
 
-**v1.0.2 File Operations**
-```bash
-# Task: "Dev Round: v1.0.2 File Ops Check"
-```
-- ✅ NEW file creation
-- ✅ EDIT file modification
-- ✅ COPY file operations
-- ✅ MOVE file operations
-- ✅ SEARCH functionality
-- ✅ BATCH operations
-- ⚠️ **Operator**: Review and adjust as needed
+**Manual Testing:**
+- Test new commands interactively
+- Verify file operations
+- Check extension integration
+- Validate uPY script execution
 
-**v1.0.3 Mapping System**
-```bash
-# Task: "Dev Round: v1.0.3 Mapping Check"
-```
-- ✅ APAC-centred grid implemented
-- ✅ TIZO location system
-- ✅ Zoom functionality
-- ✅ MAP VIEW working
-- ⚠️ **Operator**: Review and adjust as needed
+#### 4. Documentation Updates
 
-**v1.0.4 Teletext Integration**
-```bash
-# Task: "Dev Round: v1.0.4 Teletext Check"
-```
-- ✅ TELETEXT output rendering
-- ✅ MAP WEB integration
-- ✅ Output formatting
-- ⚠️ **Operator**: Review and adjust as needed
-
-**v1.0.5 Web Infrastructure**
-```bash
-# Task: "Dev Round: v1.0.5 Web Infra Check"
-```
-- ✅ OUTPUT START command
-- ✅ OUTPUT STOP command
-- ✅ OUTPUT STATUS command
-- ✅ Web server functionality
-- ⚠️ **Operator**: Review and adjust as needed
-
-#### 4. Wiki Update (Mandatory)
-
-**Required wiki updates after each round:**
-1. Update `wiki/Development-History.md` with:
-   - Features implemented in this round
-   - Technical achievements
-   - Any architectural changes
-   - Lessons learned
-2. Update `wiki/Command-Reference.md` if new commands added
-3. Update `QUICK-START.md` (root) if user experience changed
+**Required updates:**
+1. Update `wiki/Command-Reference.md` if new commands added
+2. Update relevant wiki pages for feature changes
+3. Add examples to `memory/ucode/examples/` if applicable
+4. Update `CHANGELOG.md` with version notes
+5. Keep `dev/roadmap/ROADMAP.md` current
 
 ### Testing Integration
 
@@ -1046,10 +1006,10 @@ from core.ucode.validator import UCodeValidator
 validator = UCodeValidator()
 
 # Validate script file
-is_valid, errors = validator.validate_file("script.uscript")
+is_valid, errors = validator.validate_file("script.upy")
 
 # Lint script with details
-stats = validator.lint("script.uscript")
+stats = validator.lint("script.upy")
 # Returns: {
 #   'lines': 100,
 #   'commands': 25,
@@ -1060,11 +1020,11 @@ stats = validator.lint("script.uscript")
 # }
 
 # Validate script content
-script_content = "[GENERATE|guide|water]"
+script_content = "PRINT('Hello world')"
 is_valid, errors = validator.validate_script(script_content)
 
 # Strict mode (warnings as errors)
-is_valid, errors = validator.validate_file("script.uscript", strict=True)
+is_valid, errors = validator.validate_file("script.upy", strict=True)
 ```
 
 #### UCodeParser - Parse Scripts
@@ -1076,14 +1036,14 @@ from core.ucode.parser import UCodeParser
 parser = UCodeParser()
 
 # Parse script file
-commands = parser.parse_file("script.uscript")
+commands = parser.parse_file("script.upy")
 
 # Parse individual command
-command = parser.parse_command("[GENERATE|guide|water|$topic]")
+command = parser.parse_command("GENERATE SVG water purification")
 # Returns: {
 #   'command': 'GENERATE',
-#   'params': ['guide', 'water', '$topic'],
-#   'variables': ['topic'],
+#   'subcommand': 'SVG',
+#   'params': ['water', 'purification'],
 #   'line': 1
 # }
 
@@ -1091,7 +1051,7 @@ command = parser.parse_command("[GENERATE|guide|water|$topic]")
 variables = parser.extract_variables(script_content)
 
 # Get YAML frontmatter
-metadata = parser.parse_frontmatter("script.uscript")
+metadata = parser.parse_frontmatter("script.upy")
 ```
 
 ### OK Assist (AI) API
