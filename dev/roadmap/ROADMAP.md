@@ -1,45 +1,76 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.1.13 ✅ **STABLE** (Project Structure Reorganization)
-**Status:** Production ready, 111/111 tests passing
+**Current Version:** v1.1.15 🚧 **IN PROGRESS** (Graphics Infrastructure Enhancement)
+**Status:** Pre-Task 5 reorganization complete, ready for Nano Banana finetuning
 **Last Updated:** December 2, 2025
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns.
 
 ---
 
-## 📍 Current Release: v1.1.13 (December 2025)
+## 📍 Previous Release: v1.1.14 (December 2025)
 
 **Status:** ✅ **COMPLETE** - Production ready
-**Test Coverage:** 111/111 tests passing (100%)
-**Completion Date:** December 2, 2025
+**Release Date:** December 2, 2025
 
-### What's New
+### Mission Control & Integration Systems
 
-- **Project Structure:** Clean separation between `/dev/` (tracked) and `/memory/` (unified user workspace)
-- **Development Workspace:** Organized tools, roadmaps, and session logs in `/dev/`
-- **User Workspace:** Consolidated `/sandbox/` → `/memory/` for simpler mental model
-- **Memory Consolidation:** Merged 721 files, removed 5 directories, renamed 23 .uscript → .upy
-- **Directory Cleanup:** `/data/` databases → `memory/user/`, flattened logs, merged shared+groups→community
-- **Professional Organization:** Unix-style conventions, clear file lifecycle
-- **Git Clarity:** Simple .gitignore rules, selective tracking (ucode/ only)
+**Completed Features:**
+- ✅ Checklist system with JSON schema validation
+- ✅ Mission-workflow-checklist integration
+- ✅ Archive handler for completed work
+- ✅ Variable system extensions (MISSION.*, CHECKLIST.*, WORKFLOW.*)
+- ✅ Dashboard MVP with NES.css styling (port 5050 → archived)
+- ✅ Mission Control dashboard (port 5000)
+- ✅ 10 checklists across emergency/daily/project/seasonal categories
+- ✅ Complete wiki documentation
 
-### Directory Structure
+**See below for full v1.1.14 details**
 
-```
-uDOS/
-├── dev/                    # Development workspace (tracked in git)
-│   ├── tools/              # Development utilities (migrate_upy.py)
-│   ├── roadmap/            # This file - project planning
-│   ├── sessions/           # Development session logs
-│   └── scripts/            # Automation scripts
-│
+---
+
+## 📍 Current Release: v1.1.15 (December 2025)
+
+**Status:** 🚧 **IN PROGRESS** - Graphics Infrastructure Enhancement
+**Phase:** Pre-Task 5 complete, ready for Nano Banana finetuning
+**Completion:** Tasks 1-4 complete (Research, Mermaid, GitHub diagrams, ASCII refinement)
+
+### What's New in v1.1.15
+
+**Graphics Infrastructure (Tasks 1-4 Complete):**
+- ✅ **Mermaid Diagrams** - 12 diagram types with server-side rendering (826 lines)
+- ✅ **GitHub Diagrams** - Native GeoJSON maps + ASCII STL 3D models (1,050 lines)
+- ✅ **ASCII Graphics** - Unicode box-drawing + 2 house styles, 51 diagrams extracted
+- ✅ **Typora Support** - 13 diagram types with offline WYSIWYG editing (1,900+ lines)
+- 🚧 **Nano Banana** - PNG→SVG vectorization (Task 5 in progress)
+
+**Extensions Reorganization (Pre-Task 5):**
+- ✅ Archived redundant `extensions/web/dashboard` (replaced by mission-control)
+- ✅ Removed deprecated `marked` extension (replaced by Typo)
+- ✅ Moved `extensions/assets/data/` → `extensions/play/data/` (better scoping)
+- ✅ Updated server configurations and port registry
+- ✅ Created comprehensive PORT-REGISTRY.md
+
+**Data Organization:**
+- ✅ GeoJSON examples: `extensions/play/data/examples/`
+- ✅ STL 3D models: `extensions/play/data/models/`
+- ✅ ASCII diagrams: `core/data/diagrams/` (56 files)
 ├── memory/                 # Unified user workspace (tracked selectively)
 │   ├── ucode/              # Core distributable .upy scripts + tests
 │   │   └── stdlib/         # Standard library (merged from modules/)
 │   ├── missions/           # Mission definitions and state
 │   ├── workflows/          # Workflow templates and active runs (.upy format)
 │   ├── checklists/         # Checklist progress and state
+│   ├── scenarios/          # Scenario definitions (JSON)
+│   ├── sessions/           # Session management
+│   ├── system/             # System files (archived/, backup/, themes/, user/)
+│   ├── community/          # Community content (merged from shared/groups/)
+│   ├── logs/               # Session and runtime logs (flattened)
+│   ├── docs/               # Draft documentation
+│   ├── drafts/             # Work in progress (typora/, png/, vectorized/, svg/, ascii/)
+│   ├── private/            # Private user content
+│   ├── public/             # Public user content
+│   └── barter/             # Barter system datagress and state
 │   ├── scenarios/          # Scenario definitions (JSON)
 │   ├── sessions/           # Session management
 │   ├── archived/           # Completed/archived work
@@ -57,17 +88,27 @@ uDOS/
 ├── core/                   # Core system (required, stable)
 ├── extensions/             # Extension system
 ├── knowledge/              # Public knowledge bank (read-only)
-└── wiki/                   # GitHub wiki (documentation)
-```
+├── core/                   # Core system (required, stable)
+│   └── data/diagrams/      # ASCII diagrams (blocks/, plain/, mermaid/) - 56 files
+├── extensions/             # Extension system
+│   ├── core/               # Core extensions (terminal, dashboard, mission-control, etc.)
+│   │   ├── typora-diagrams/  # 13 diagram types support
+│   │   └── svg_generator/    # Nano Banana vectorization
+**Changes in v1.1.15:**
+- Removed `extensions/web/dashboard/` (archived, replaced by mission-control)
+- Removed `extensions/cloned/marked/` (replaced by Typo)
+- Moved `extensions/assets/data/` → `extensions/play/data/` (better scoping)
+- Created graphics workspaces: `memory/drafts/typora/`, `png/`, `vectorized/`
+- Added 4 new handlers: `mermaid_handler.py`, `github_diagrams_handler.py`, `typora-diagrams/handler.py`
+- Enhanced `generate_handler.py` with ASCII integration
+- Created `extensions/PORT-REGISTRY.md` (comprehensive server documentation)
+## 🎯 Active Development: v1.1.15 - Graphics Infrastructure Enhancement
 
-**Changes in v1.1.13:**
-- Removed `/sandbox/` (721 files merged into `/memory/`)
-- Removed `/data/` (databases moved to `memory/user/`)
-- Removed `inbox/`, `shared/`, `groups/`, `modules/` (consolidated)
-- Flattened `logs/sessions/` → `logs/`
-- Renamed all `.uscript` → `.upy` (23 files)
-
-**Note:** `/memory/` replaces old `/sandbox/` split for v1.1.13+ unified workspace.
+**Target:** Q1 2026
+**Status:** 🚧 Task 5 in progress (Nano Banana finetuning)
+**Completed:** Tasks 1-4 (Research, Mermaid, GitHub diagrams, ASCII refinement)
+**Complexity:** Medium-High (new capabilities + integration)
+**Priority:** High - Blocks content quality improvementsv1.1.13+ unified workspace.
 
 ---
 
@@ -98,20 +139,20 @@ uDOS/
 ✅ `generate_handler.py` - Nano Banana SVG pipeline (580 lines)
   - Pipeline: Style Guide → Gemini 2.5 Flash (PNG) → Vectorize → SVG
   - Commands: GENERATE SVG/DIAGRAM/ASCII/TELETEXT
-  - **Limitation:** No text-to-diagram (Mermaid), ASCII described as "chunky"
-
-**Missing Capabilities:**
-❌ Mermaid diagram support (sequence, flowchart, Gantt, class, state, pie, gitgraph, mindmap)
-❌ GitHub diagram formats (GeoJSON/TopoJSON maps, ASCII STL 3D models)
-❌ Refined ASCII graphics (asciidiagrams.github.io quality)
-❌ Text-to-diagram conversion (markdown code blocks → rendered diagrams)
-⚠️ Nano Banana needs finetuning for technical survival diagrams
-⚠️ Workflow cycles need improvement for diagram generation iteration
-
-### Phase 1: Mermaid Integration (Tasks 1-2)
+### Phase 1: Mermaid Integration ✅ COMPLETE (Tasks 1-2)
 
 **Goal:** Enable Mermaid diagram generation for decision trees, flowcharts, state machines
 
+**Research (Task 1):** ✅ COMPLETE
+- Completed format compatibility analysis (8,000+ lines)
+- Evaluated Mermaid.js, PlantUML, D2, Graphviz
+- Decision: Hybrid server-side + fallback rendering
+- Implementation recommendations documented
+
+**Implementation (Task 2):** ✅ COMPLETE (Commit 01fe7d0d)
+```python
+# core/commands/mermaid_handler.py (826 lines)
+class MermaidHandler:
 **Research (Task 1):**
 - Server-side rendering: mermaid-cli + puppeteer (offline-compatible)
 - Client-side rendering: Web dashboard integration (requires browser)
@@ -138,26 +179,31 @@ class MermaidHandler:
     Output: sandbox/drafts/mermaid/
     """
 ```
+**Completed Features:**
+- ✅ 7 commands: CREATE, RENDER, EXPORT, VALIDATE, LIST, EXAMPLES, HELP
+- ✅ 12 diagram types supported (flowchart, sequence, gantt, class, state, pie, etc.)
+- ✅ Server-side rendering with mermaid-cli + fallback ASCII
+- ✅ Templates in `core/data/diagrams/mermaid/`
+- ✅ Integrated with GENERATE command
 
-**Integration Points:**
-- Extend `generate_handler.py` to recognize markdown code blocks
-- Add `GUIDE RENDER` command to process guides with embedded Mermaid
-- Store templates in `core/data/diagrams/mermaid/`
-- Dashboard preview support (if client-side rendering chosen)
-
-### Phase 2: GitHub Diagram Formats (Task 3)
-
+### Phase 2: GitHub Diagram Formats ✅ COMPLETE (Task 3)
 **Goal:** Support GeoJSON/TopoJSON maps and ASCII STL 3D models
 
+**Implementation:** ✅ COMPLETE (Commit 1794161b, 1,050 lines)
+
 **GeoJSON/TopoJSON Maps:**
-- Use case: Navigation guides, territory mapping, resource locations
-- Integration: Extend `generate_handler.py` with map rendering
-- Libraries: geojson.io, leaflet.js (for web dashboard)
-- Offline: Pre-render to static images/SVG
+- ✅ Use case: Navigation guides, territory mapping, resource locations
+- ✅ 4 creation modes: point, line, polygon, multi-feature
+- ✅ Template library with survival scenarios
+- ✅ Output: `memory/drafts/github_diagrams/geojson/`
+- ✅ Example: `extensions/play/data/examples/survival_area_map.geojson`
 
 **ASCII STL 3D Models:**
-- Use case: Tool designs, shelter structures, trap diagrams
-- Parser: Read ASCII STL syntax from code blocks
+- ✅ Use case: Tool designs, shelter structures, trap diagrams
+- ✅ 4 template types: shelter, tool, trap, cube
+- ✅ ASCII STL syntax generation
+- ✅ Storage: `extensions/play/data/models/`
+- ✅ Examples: a_frame.stl, hand_axe.stllocks
 - Renderer: Three.js (web dashboard) or raytracing (static images)
 - Storage: `extensions/assets/data/models/`
 
@@ -185,40 +231,24 @@ solid a_frame_shelter
       vertex 0.0 0.0 0.0
       vertex 3.0 2.0 0.0
       vertex 0.0 0.0 4.0
-    endloop
-  endfacet
-endsolid
-```
-```
-
-### Phase 3: ASCII Graphics Refinement (Task 4)
+### Phase 3: ASCII Graphics Refinement ✅ COMPLETE (Task 4)
 
 **Goal:** Improve ASCII art quality to match asciidiagrams.github.io standard
 
-**Current Issues:**
-- "Chunky" appearance (thick lines, excessive spacing)
-- Limited box-drawing character support
-- Poor flowchart/table generation
+**Implementation:** ✅ COMPLETE (Commit 18a46379, 1,200+ lines)
 
-**Improvements:**
-- Unicode box-drawing: ┌─┐ │ └─┘ ├─┤ ┬ ┴ ┼
-- Better alignment algorithms (less whitespace)
-- Cleaner line styles (single/double/dashed)
-- Improved table formatting (compact, aligned)
-- Enhanced flowchart generation (decision diamonds, rounded boxes)
-- Two house styles: Plain ASCII (max compatibility) + Block shading (visual hierarchy)
+**Achievements:**
+- ✅ Created `core/services/ascii_generator.py` (450 lines)
+- ✅ Unicode box-drawing: ┌─┐ │ └─┘ ├─┤ ┬ ┴ ┼
+- ✅ Two house styles: Plain ASCII + Block shading (█▓▒░)
+- ✅ 9 generation methods: box, panel, table, flowchart, progress, list, banner, tree, save
+- ✅ Extracted 51 diagrams from graphics1/2.md:
+  - 25 block-shaded diagrams (`core/data/diagrams/blocks/`)
+  - 26 plain ASCII diagrams (`core/data/diagrams/plain/`)
+- ✅ Integrated with `generate_handler.py` (250 lines added)
+- ✅ Complete test suite (`memory/ucode/test_ascii_generator.py`)
 
-**Reference Library:**
-- `dev/roadmap/graphics1.md` - 25 panel-style diagrams with block shading (█▓▒░)
-- `dev/roadmap/graphics2.md` - 25 plain ASCII diagrams (no block characters)
-- Includes: system architecture, flows, pipelines, tables, progress bars, theatre layouts
-
-**Update Targets:**
-- `core/services/ascii_generator.py` (or create if missing)
-- `core/data/diagrams/` library (add 50 refined examples from graphics1/2.md)
-- `diagram_handler.py` GENERATE command (use new renderer)
-
-**Test Cases:**
+**Quality Improvement:**
 ```
 Before (chunky):          After (refined):
 +-------+-------+         ┌───────┬───────┐
@@ -228,13 +258,42 @@ Before (chunky):          After (refined):
 +-------+-------+         └───────┴───────┘
 ```
 
-### Phase 4: Nano Banana Finetuning (Task 5)
+### Phase 3.5: Typora Diagram Support ✅ COMPLETE (Pre-Task 5)
 
-**Goal:** Optimize AI diagram generation for technical survival content
+**Goal:** Enable offline WYSIWYG diagram editing with 13 diagram types
+
+**Implementation:** ✅ COMPLETE (Commit 4643dee7, 1,900+ lines)
+
+**Features:**
+- ✅ Extension: `extensions/core/typora-diagrams/`
+- ✅ Handler: 450+ lines with 6 commands
+- ✅ Documentation: 1,000+ line README with 15+ syntax examples
+- ✅ Examples: 3 survival-focused diagrams (water, mission, knowledge)
+- ✅ 13 diagram types: Mermaid (12) + js-sequence + flowchart.js
+**Goal:** Optimize AI diagram generation for survival-specific diagrams
 
 **Current Pipeline:**
 Style Guide → Gemini 2.5 Flash (PNG) → Vectorize (potrace/vtracer) → Cleanup → SVG
 
+**Ready State (Pre-Task 5 Complete):**
+- ✅ Workspace created: `memory/drafts/typora/`, `png/`, `vectorized/`
+- ✅ Data organized: `extensions/play/data/examples/` (GeoJSON), `models/` (STL)
+- ✅ 56 reference diagrams in `core/data/diagrams/`
+- ✅ Extensions cleaned up and documented
+- ✅ Server ports verified and documented
+
+**Optimization Areas:**
+
+1. **Prompt Engineering:**
+   - Survival-specific templates (water purification, fire selection, shelter types)
+   - Consistent visual style (minimal, clear, educational)
+   - Label placement optimization
+   - Color palette for different guide categories
+
+2. **Vectorization Quality:**
+   - Tune potrace parameters (threshold, turnpolicy, alphamax)
+   - Experiment with vtracer settings (color mode, hierarchical, mode)
+   - Category-specific parameter sets
 **Optimization Areas:**
 
 1. **Prompt Engineering:**
@@ -618,19 +677,21 @@ GENERATE SVG "wolf portrait" wildlife detailed
 ```
 
 ---
+**Completed Versions:** 15 in progress (v1.1.0 - v1.1.14 complete, v1.1.15 in progress)
+**Test Coverage:** 111/111 passing (100%)
+**Total Lines of Code:** ~55,000 (core + extensions)
+**Knowledge Articles:** 136 guides across 6 categories
+**Wiki Pages:** 30+ comprehensive documentation pages
+**Extensions:** 15+ core, 3 cloned (micro, typo, coreui)
 
-## 🔮 Future Releases (v1.1.18+)
-
-### v1.1.18+ - Variable System (Deferred from v1.1.9)
-- JSON-defined variables (`core/data/variables/*.json`)
-- SPRITE variables (HP, XP, level, stats)
-- OBJECT variables (items, equipment, inventory)
-- Scope management (global, session, script, local)
-
-### v1.1.19+ - Play Extension (Deferred from v1.1.9)
-- STORY command migration (old .uscript → .upy)
-- Integration with new variable system
-- Gameplay mechanics refinement
+**v1.1.15 Graphics Infrastructure Stats:**
+- Handlers created: 4 (mermaid, github_diagrams, typora-diagrams, ascii_generator service)
+- Lines added: ~5,000 (handlers, diagrams, examples, docs)
+- Diagrams created: 56 ASCII + 4 GeoJSON/STL examples
+- Extensions cleaned: 2 removed (web/dashboard, cloned/marked)
+- Reorganizations: 1 major (data → play/data)
+- Documentation: PORT-REGISTRY.md, updated README, session logs
+- Commits: 7 (compatibility, ASCII lib, Mermaid, GitHub, ASCII refinement, Typora, reorganization, cleanup)
 
 ---
 
