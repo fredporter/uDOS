@@ -46,7 +46,7 @@ def get_mission_status():
         "missions_completed": 0,
         "missions_failed": 0
     })
-    
+
     missions = []
     if state.get('current_mission'):
         mission_file = Path(f"memory/workflows/missions/{state['current_mission']}.json")
@@ -60,7 +60,7 @@ def get_mission_status():
                 if step.get('status') == 'completed'
             )
             progress_pct = int((completed_steps / total_steps * 100)) if total_steps > 0 else 0
-            
+
             missions.append({
                 'id': mission_data.get('id'),
                 'title': mission_data.get('title'),
@@ -70,7 +70,7 @@ def get_mission_status():
                 'completed_steps': completed_steps,
                 'total_steps': total_steps
             })
-    
+
     return {
         'active_missions': missions,
         'total_missions': state.get('missions_total', 0),
@@ -83,13 +83,13 @@ def get_checklist_status():
     """Get checklist completion status."""
     state_file = Path("memory/system/user/checklist_state.json")
     state = load_json_safe(state_file, {"checklists": {}})
-    
+
     checklists = []
     for checklist_id, checklist_data in state.get('checklists', {}).items():
         completed = len(checklist_data.get('completed_items', []))
         total = checklist_data.get('total_items', 1)
         progress_pct = int((completed / total * 100)) if total > 0 else 0
-        
+
         checklists.append({
             'id': checklist_id,
             'title': checklist_id.replace('-', ' ').title(),
@@ -97,7 +97,7 @@ def get_checklist_status():
             'total_items': total,
             'progress': progress_pct
         })
-    
+
     return {
         'active_checklists': checklists,
         'total_completed': sum(c['completed_items'] for c in checklists),
@@ -112,7 +112,7 @@ def get_workflow_status():
         "current_mission": None,
         "status": "IDLE"
     })
-    
+
     return {
         'current_workflow': state.get('current_mission'),
         'phase': state.get('status', 'IDLE'),
@@ -128,7 +128,7 @@ def get_xp_status():
         "total_xp_earned": 0,
         "achievements_unlocked": []
     })
-    
+
     return {
         'total_xp': state.get('total_xp_earned', 0),
         'achievements': state.get('achievements_unlocked', []),
@@ -188,7 +188,7 @@ def run_dashboard(port=PORT, host=HOST, debug=False):
 ║  Press Ctrl+C to stop                                             ║
 ╚═══════════════════════════════════════════════════════════════════╝
     """)
-    
+
     app.run(host=host, port=port, debug=debug)
 
 

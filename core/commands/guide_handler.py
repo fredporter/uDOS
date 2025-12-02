@@ -648,27 +648,27 @@ Type 'GUIDE LIST <category>' to browse guides
     def _find_related_checklists(self, guide_id: str) -> List[str]:
         """
         Find checklists related to this guide.
-        
+
         v1.1.14: Checks checklist JSON files for related_guides field.
-        
+
         Args:
             guide_id: Guide identifier (e.g., 'water/purification')
-            
+
         Returns:
             List of checklist titles
         """
         checklists_dir = Path("knowledge/checklists")
         if not checklists_dir.exists():
             return []
-        
+
         related = []
-        
+
         # Scan all checklist files
         for checklist_file in checklists_dir.rglob("*.json"):
             try:
                 with open(checklist_file, 'r') as f:
                     data = json.load(f)
-                    
+
                 # Check if this guide is in the checklist's related_guides
                 related_guides = data.get('related_guides', [])
                 for guide_ref in related_guides:
@@ -676,10 +676,10 @@ Type 'GUIDE LIST <category>' to browse guides
                     if guide_id.startswith(guide_ref) or guide_ref in guide_id:
                         related.append(data.get('title', checklist_file.stem))
                         break
-                        
+
             except (json.JSONDecodeError, IOError):
                 continue
-        
+
         return related
                 self.progress_data[self.current_guide] = {
                     'completed': len(self.completed_steps),

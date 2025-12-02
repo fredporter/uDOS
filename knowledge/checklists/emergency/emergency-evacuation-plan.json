@@ -1,0 +1,153 @@
+{
+  "id": "emergency-evacuation-plan",
+  "title": "Emergency Evacuation Checklist",
+  "category": "emergency",
+  "description": "Critical checklist for rapid emergency evacuation from home or location",
+  "version": "1.0.0",
+  "created": "2025-12-02T00:00:00Z",
+  "updated": "2025-12-02T00:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "beginner",
+  "estimated_time": "15-30 minutes (depends on emergency)",
+  "prerequisites": [
+    "Pre-packed bug-out bag",
+    "Designated meeting point",
+    "Emergency contact list"
+  ],
+  "related_guides": [
+    "survival/evacuation",
+    "navigation/route-planning"
+  ],
+  "related_checklists": [
+    "72-hour-bug-out-bag"
+  ],
+  "tags": [
+    "emergency",
+    "evacuation",
+    "safety",
+    "disaster"
+  ],
+  "items": [
+    {
+      "id": "assess_threat",
+      "text": "Assess immediate threat level and type (fire, flood, etc.)",
+      "priority": "critical",
+      "category": "Assessment"
+    },
+    {
+      "id": "alert_family",
+      "text": "Alert all family members immediately",
+      "priority": "critical",
+      "category": "Communication"
+    },
+    {
+      "id": "grab_bugout",
+      "text": "Grab pre-packed bug-out bag",
+      "priority": "critical",
+      "category": "Supplies"
+    },
+    {
+      "id": "emergency_docs",
+      "text": "Secure emergency documents (IDs, insurance, cash)",
+      "priority": "critical",
+      "category": "Documents"
+    },
+    {
+      "id": "medications",
+      "text": "Grab essential medications and medical supplies",
+      "priority": "critical",
+      "category": "Medical"
+    },
+    {
+      "id": "phone_charger",
+      "text": "Take phone and portable charger",
+      "priority": "high",
+      "category": "Communication"
+    },
+    {
+      "id": "water_bottles",
+      "text": "Fill water bottles if time permits",
+      "priority": "high",
+      "category": "Supplies",
+      "optional": true
+    },
+    {
+      "id": "pets",
+      "text": "Secure pets (carriers, leashes)",
+      "priority": "high",
+      "category": "Family",
+      "optional": true
+    },
+    {
+      "id": "utilities_off",
+      "text": "Turn off gas, water, electricity if safe to do so",
+      "priority": "medium",
+      "category": "Safety",
+      "optional": true,
+      "notes": "Only if time permits and safe"
+    },
+    {
+      "id": "lock_doors",
+      "text": "Lock doors and windows",
+      "priority": "medium",
+      "category": "Security",
+      "optional": true
+    },
+    {
+      "id": "notify_authorities",
+      "text": "Call emergency services if needed (911)",
+      "priority": "critical",
+      "category": "Communication"
+    },
+    {
+      "id": "follow_route",
+      "text": "Follow pre-planned evacuation route",
+      "priority": "high",
+      "category": "Navigation"
+    },
+    {
+      "id": "meeting_point",
+      "text": "Arrive at designated meeting point",
+      "priority": "critical",
+      "category": "Navigation"
+    },
+    {
+      "id": "headcount",
+      "text": "Confirm all family members accounted for",
+      "priority": "critical",
+      "category": "Safety"
+    },
+    {
+      "id": "contact_network",
+      "text": "Contact emergency contact network",
+      "priority": "high",
+      "category": "Communication"
+    },
+    {
+      "id": "assess_shelter",
+      "text": "Assess need for emergency shelter",
+      "priority": "high",
+      "category": "Shelter"
+    },
+    {
+      "id": "monitor_situation",
+      "text": "Monitor emergency alerts and updates",
+      "priority": "medium",
+      "category": "Information"
+    },
+    {
+      "id": "document_damage",
+      "text": "Document property damage with photos (if safe)",
+      "priority": "low",
+      "category": "Insurance",
+      "optional": true
+    }
+  ],
+  "metadata": {
+    "season": "all",
+    "location_type": "any",
+    "skill_level": "novice",
+    "critical_time": "5-15 minutes",
+    "review_frequency": "monthly"
+  }
+}

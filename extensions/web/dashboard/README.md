@@ -1,7 +1,7 @@
 # uDOS Dashboard Extension
 
-**Version:** 1.0.0  
-**Type:** Web UI Extension  
+**Version:** 1.0.0
+**Type:** Web UI Extension
 **Port:** 5050 (configurable)
 
 ## Overview
@@ -269,5 +269,5 @@ MIT License - Part of uDOS v1.1.14+
 
 ---
 
-**Last Updated:** December 2, 2025  
+**Last Updated:** December 2, 2025
 **Compatibility:** uDOS v1.1.14+

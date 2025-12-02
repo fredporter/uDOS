@@ -17,22 +17,22 @@ async function updateDashboard() {
     try {
         const response = await fetch('/api/status');
         const data = await response.json();
-        
+
         // Update missions
         updateMissions(data.missions);
-        
+
         // Update checklists
         updateChecklists(data.checklists);
-        
+
         // Update workflow
         updateWorkflow(data.workflow);
-        
+
         // Update XP
         updateXP(data.xp);
-        
+
         // Update timestamp
         updateTimestamp();
-        
+
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
     }
@@ -40,7 +40,7 @@ async function updateDashboard() {
 
 function updateMissions(missions) {
     const container = document.getElementById('missions-container');
-    
+
     if (!missions.active_missions || missions.active_missions.length === 0) {
         container.innerHTML = '<div class="stat"><span class="stat-label">No active missions</span></div>';
     } else {
@@ -57,14 +57,14 @@ function updateMissions(missions) {
             </div>
         `).join('');
     }
-    
+
     document.getElementById('total-missions').textContent = missions.total_missions;
     document.getElementById('completed-missions').textContent = missions.completed_missions;
 }
 
 function updateChecklists(checklists) {
     const container = document.getElementById('checklists-container');
-    
+
     if (!checklists.active_checklists || checklists.active_checklists.length === 0) {
         container.innerHTML = '<div class="stat"><span class="stat-label">No active checklists</span></div>';
     } else {
@@ -78,7 +78,7 @@ function updateChecklists(checklists) {
             </div>
         `).join('');
     }
-    
+
     document.getElementById('total-items').textContent = checklists.total_items;
     document.getElementById('completed-items').textContent = checklists.total_completed;
 }
@@ -86,12 +86,12 @@ function updateChecklists(checklists) {
 function updateWorkflow(workflow) {
     const currentWorkflow = workflow.current_workflow || 'None';
     const phase = workflow.phase || 'IDLE';
-    
+
     document.getElementById('current-workflow').textContent = currentWorkflow;
     document.getElementById('workflow-phase').textContent = phase;
     document.getElementById('checkpoints').textContent = workflow.checkpoints_saved || 0;
     document.getElementById('perfect-streak').textContent = workflow.perfect_streak || 0;
-    
+
     // Update phase status color
     const phaseElement = document.getElementById('workflow-phase');
     if (phase === 'IDLE') {
@@ -103,9 +103,9 @@ function updateWorkflow(workflow) {
 
 function updateXP(xp) {
     document.getElementById('total-xp').textContent = `${xp.total_xp} XP`;
-    
+
     const achievementsContainer = document.getElementById('achievements-container');
-    
+
     if (!xp.achievements || xp.achievements.length === 0) {
         achievementsContainer.innerHTML = '<div style="font-size: 10px; color: #6c757d;">No achievements yet</div>';
     } else {
@@ -119,10 +119,10 @@ function updateXP(xp) {
 document.addEventListener('DOMContentLoaded', () => {
     // Initial load
     updateDashboard();
-    
+
     // Set up auto-refresh
     setInterval(updateDashboard, REFRESH_INTERVAL);
-    
+
     console.log('🎮 uDOS Dashboard initialized');
     console.log(`Auto-refresh enabled: ${REFRESH_INTERVAL/1000}s`);
 });
