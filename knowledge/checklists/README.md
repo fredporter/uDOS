@@ -4,7 +4,7 @@
 
 **Status**: 🔄 **IN PROGRESS** - v1.1.14 implementation (JSON format, persistence, dashboard)
 **Target:** 200+ actionable checklists across 5 categories
-**Format:** JSON with progress persistence in `memory/user/checklist_state.json`
+**Format:** JSON with progress persistence in `memory/system/user/checklist_state.json`
 
 ---
 
@@ -19,7 +19,7 @@
    - Metadata (difficulty, time, prerequisites)
 
 2. **Progress Persistence**
-   - State saved to `memory/user/checklist_state.json`
+   - State saved to `memory/system/user/checklist_state.json`
    - Survives system restarts
    - Per-user tracking
    - Easy backup/restore

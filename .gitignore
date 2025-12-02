@@ -171,9 +171,7 @@ memory/**/*
 memory/missions/**/*
 memory/workflows/**/*
 memory/checklists/**/*
-memory/archived/**/*
-memory/user/**/*
-memory/logs/**/*
+memory/system/user/**/*
 memory/private/**/*
 memory/shared/**/*
 memory/groups/**/*

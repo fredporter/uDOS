@@ -230,7 +230,7 @@
 - **Extensions/Core**: Removed duplicates, centralized assets library
 - **Memory**: Flattened from 28 to 16 directories (43% reduction)
 - **Logs**: All logs in flat memory/logs/ (no subdirectories)
-- **User Data**: Consolidated in memory/user/ (databases, configs, planets)
+- **User Data**: Consolidated in memory/system/user/ (databases, configs, planets)
 - **Planet System**: Workspace renamed to Planet, linked to universe.json
 
 🌍 **Planet System** - Workspace metaphor
@@ -388,7 +388,7 @@ Architecture Improvements:
 ✅ Memory: 28 → 16 directories (43% reduction)
 ✅ Extensions/Core: Removed duplicates, centralized assets
 ✅ All logs: Flat memory/logs/ structure
-✅ User data: Consolidated in memory/user/
+✅ User data: Consolidated in memory/system/user/
 
 Platform Support:
 ✅ macOS 11+ (Intel & Apple Silicon)

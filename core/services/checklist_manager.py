@@ -27,7 +27,7 @@ class ChecklistManager:
         """
         self.config = config
         self.checklist_dir = Path("knowledge/checklists")
-        self.state_file = Path("memory/user/checklist_state.json")
+        self.state_file = Path("memory/system/user/checklist_state.json")
         self.schema_file = Path("core/data/schemas/checklist.schema.json")
         self.state = self._load_state()
         self.schema = self._load_schema()

@@ -175,7 +175,7 @@
       "instructions": [
         "1. Copy this template to create a new profile",
         "2. Customize font_settings, color_scheme, and character_mappings",
-        "3. Save to memory/user/font-profile-{your-name}.json",
+        "3. Save to memory/system/user/font-profile-{your-name}.json",
         "4. Load profile in Character Editor or uDOS settings",
         "5. Export modified fonts in TTF/OTF format if desired"
       ],

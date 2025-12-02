@@ -321,7 +321,7 @@
       },
 
       "custom_mapping_template": {
-        "location": "memory/user/",
+        "location": "memory/system/user/",
         "filename_pattern": "font-profile-{name}.json",
         "description": "User can create custom character mappings",
         "editable_fields": [
@@ -361,7 +361,7 @@
       "character_editor": {
         "editable_fonts": ["PetMe64", "PetMe128", "Mallard", "Chicago"],
         "supports_custom_profiles": true,
-        "profile_storage": "memory/user/",
+        "profile_storage": "memory/system/user/",
         "export_formats": ["ttf", "otf", "json"]
       },
 
@@ -377,7 +377,7 @@
       "uDOS_settings": {
         "config_key": "font_system",
         "load_on_startup": true,
-        "user_overrides": "memory/user/font-preferences.json"
+        "user_overrides": "memory/system/user/font-preferences.json"
       },
 
       "uDOS_graphics": {
