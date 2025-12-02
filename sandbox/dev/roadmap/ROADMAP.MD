@@ -1376,11 +1376,80 @@ Status: Deferred to future cleanup (low priority)
 
 ## 🔶 v1.1.5.2 - Important Consolidation (Repository Cleanup Phase 2)
 
-**Complexity:** Medium (3 tasks, architectural improvements)
+**Complexity:** Medium (3 tasks, code quality improvements)
 **Dependencies:** v1.1.5.1 complete ✅
-**Status:** Ready to begin
-**Timeline:** 7-10 days
+**Status:** ✅ **COMPLETE** (Completed December 2, 2025)
+**Timeline:** Completed in 3 hours (vs projected 7-10 days)
 **Location:** Command handlers, workspace organization
+
+### Objectives
+
+Address code bloat through investigation-driven cleanup. Focus on removing dead code rather than premature consolidation.
+
+### Tasks
+
+**Task 1: Documentation Handler Investigation & Cleanup** ✅ **COMPLETE** (December 2, 2025)
+
+Investigation revealed 5 documentation handlers (1,604 lines) that were:
+- Fully implemented but never routed in `uDOS_commands.py`
+- Completely unreachable by users (dead code)
+- Redundant with active GUIDE handler
+
+Removed handlers:
+- ✅ `doc_handler.py` (262 lines) - Wiki/docs browser
+- ✅ `docs_unified_handler.py` (352 lines) - Unified interface
+- ✅ `manual_handler.py` (265 lines) - Command reference
+- ✅ `handbook_handler.py` (312 lines) - 4-volume reader
+- ✅ `example_handler.py` (413 lines) - Code examples
+
+Results:
+- 1,604 lines of dead code removed
+- All 111 tests passing (no regressions)
+- Clearer command structure (GUIDE for knowledge, DIAGRAM for visuals)
+
+**Task 2: Memory Handler Documentation** ⏸️ **DEFERRED**
+
+Status: Memory handlers already well-documented and clean (no action needed)
+- `memory_commands.py` - Primary 4-tier interface
+- `memory_unified_handler.py` - Experimental alternate (documented)
+- `memory_manager.py` - Service layer
+
+**Task 3: Session Log Archiving** ⏸️ **DEFERRED**
+
+Status: Deferred to future cleanup (low priority)
+
+### Success Metrics
+
+- ✅ Dead code removed: 1,604 lines (vs projected ~1,100 lines)
+- ✅ Investigation-first approach validated assumptions
+- ✅ Tests: 111/111 passing (no regressions)
+- ✅ Command clarity improved (active handlers only)
+
+### Commits
+
+- eb6cd7c4 - Core: Remove 5 unused documentation handlers (1,604 lines)
+
+### Lessons Learned
+
+**Investigation before execution critical:**
+- Original plan assumed handlers needed "consolidation"
+- Reality: handlers were never activated (dead code)
+- Removal > Refactoring for unused code
+
+**Design philosophy upheld:**
+- ✅ Minimal design (removed unused features)
+- ✅ Clear architecture (what exists is what works)
+- ✅ Reduced technical debt (no misleading code)
+
+---
+
+## 🔵 v1.1.5.3 - Nice-to-Have Consolidation (Repository Cleanup Phase 3)
+
+**Complexity:** Low (4 tasks, code quality improvements)
+**Dependencies:** v1.1.5.2 complete ✅
+**Status:** Ready to begin
+**Timeline:** 5-7 days
+**Location:** Utilities, deprecated code, test organization
 
 ### Objectives
 
