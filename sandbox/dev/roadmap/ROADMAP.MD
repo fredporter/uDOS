@@ -941,8 +941,10 @@ cat sandbox/dev/round-<N>-progress.md
   - 1,342 → 674 lines (50% reduction)
   - Created: variable_handler.py (294 lines), environment_handler.py (233 lines), output_handler.py (417 lines)
   - All 111 tests passing
-- ⏸️ **v1.1.5.2 Task 1** - Knowledge/Memory handler investigation
-- ⏸️ **v1.1.5.2 Task 2** - Documentation handler consolidation (6 → 1)
+- ✅ **v1.1.5.2 Task 1** - Documentation handler cleanup (COMPLETE - Dec 2, 2025)
+  - Removed 5 dead handlers: 1,604 lines of unreachable code
+  - All 111 tests passing (no regressions)
+- ⏸️ **v1.1.5.2 Task 2** - Memory handler documentation (no action needed - already clean)
 - ⏸️ **v1.1.5.3** - All 4 tasks (shared utilities, base handler, deprecated code removal, test theme relocation)
 
 ### Core Cleanup (Dec 2, 2025) ✅
@@ -952,26 +954,26 @@ cat sandbox/dev/round-<N>-progress.md
 - ✅ Updated deprecation messages to v1.1.12
 - ✅ Added deprecation warning to config_manager.py
 - ✅ System handler refactored into 3 specialized handlers
+- ✅ Removed 5 unused documentation handlers (1,604 lines)
 - ⚠️ validator.py still references .uscript (needs decision)
 
 ### Priority Recommendations
 
 **High Priority (Blocking):**
-1. ~~System handler refactoring (v1.1.5.1 Task 2)~~ ✅ COMPLETE - Reduces technical debt
-2. Nano Banana workflow integration - Complete v1.1.6 deliverables
-3. Variable Definition System (Round 1) - Foundation for gameplay
-2. Nano Banana workflow integration - Complete v1.1.6 deliverables
-3. Variable Definition System (Round 1) - Foundation for gameplay
+1. ~~System handler refactoring (v1.1.5.1 Task 2)~~ ✅ COMPLETE
+2. ~~Documentation handler cleanup (v1.1.5.2 Task 1)~~ ✅ COMPLETE
+3. Nano Banana workflow integration - Complete v1.1.6 deliverables
+4. Variable Definition System (Round 1) - Foundation for gameplay
 
 **Medium Priority (Enhancement):**
-4. Play Extension .upy migration (Round 2) - Modernize existing features
-5. Documentation handler consolidation (v1.1.5.2 Task 2) - Reduce duplication
+5. Play Extension .upy migration (Round 2) - Modernize existing features
 6. Nano Banana testing refactor - Fix integration test issues
 
 **Low Priority (Cleanup):**
 7. Shared utilities module (v1.1.5.3) - Code quality
-8. ConfigManager deprecation - Already using new Config class
-9. Test theme relocation - Minor organizational improvement
+8. Deprecated code removal (v1.1.5.3 Task 3) - Quick cleanup
+9. ConfigManager deprecation - Already using new Config class
+10. Test theme relocation - Minor organizational improvement
 
 ---
 
