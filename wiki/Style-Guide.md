@@ -38,7 +38,7 @@ This document outlines the design and style conventions for uDOS, ensuring a con
 
 ## 2. Retro CSS Frameworks
 
-uDOS v1.0.0 integrates multiple retro-themed CSS frameworks to create authentic vintage computing experiences across all web extensions. Each framework is carefully chosen to match the extension's purpose and aesthetic.
+uDOS v1.1.15 integrates multiple retro-themed CSS frameworks to create authentic vintage computing experiences across all web extensions. Each framework is carefully chosen to match the extension's purpose and aesthetic.
 
 ### Framework Implementation Matrix
 
@@ -100,7 +100,7 @@ Features:
 </div>
 <input type="text" class="nes-input is-dark">
 <button class="nes-btn is-primary">Execute</button>
-<span class="nes-badge is-success">v1.0.0</span>
+<span class="nes-badge is-success">v1.1.15</span>
 ```
 
 ### classic.css - Mac OS 8.1 Interface
@@ -253,7 +253,7 @@ The `LEXICON.UDO` file in the `/data` directory defines the thematic "skin" of t
 
 ### uDOS Core Font System
 
-uDOS v1.0.0 uses a curated collection of retro fonts stored in `extensions/assets/fonts/` with comprehensive fallback stacks for reliability. The font system is managed by the Asset Manager and integrated across all extensions.
+uDOS v1.1.15 uses a curated collection of retro fonts stored in `extensions/assets/fonts/` with comprehensive fallback stacks for reliability. The font system is managed by the Asset Manager and integrated across all extensions.
 
 **Font Management:** See [ASSETS-GUIDE](ASSETS-GUIDE.md) for programmatic font loading and the complete font catalog.
 
@@ -399,7 +399,7 @@ FONT INFO              # Current configuration
 
 ### Synthwave DOS Color System
 
-uDOS v1.0.0 uses the **Synthwave DOS** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
+uDOS v1.1.15 uses the **Synthwave DOS** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
 
 **Primary Color Reference:**
 
@@ -1130,7 +1130,7 @@ function adaptGrid() {
 
 ## 13. Graphics and Diagrams
 
-**Version:** v1.1.1+ (November 2025)
+**Version:** v1.1.15 (Graphics Infrastructure Complete - December 2025)
 **Philosophy:** Text-first, offline-compatible, chunky teletext aesthetic
 
 ### Core Principles
@@ -1421,7 +1421,7 @@ maps.json           Map terrain
 
 ### Examples in Knowledge Bank
 
-**Current Coverage (v1.1.1):**
+**Current Coverage (v1.1.15):**
 - Water guides: 17/25 have diagrams (68%)
 - Fire guides: 12/20 have diagrams (60%)
 - Shelter guides: 13/20 have diagrams (65%)
@@ -1434,20 +1434,25 @@ maps.json           Map terrain
 - `knowledge/fire/bow_drill_technique.md` - Flow diagram
 - `knowledge/shelter/lean-to_construction.md` - Flow diagram
 
-### Deprecated: SVG Graphics
+### SVG Graphics Evolution
 
-**Status:** Removed in v1.1.1 (November 2025)
+**Status:** Replaced by Nano Banana integration in v1.1.15 (December 2025)
 
-- 135 SVG files deleted
-- `knowledge/diagrams/` folder removed
-- All graphics now embedded as ASCII/teletext
-- SVG generation deferred to v1.1.2 as optional extension
+**Graphics System Evolution:**
+- **ASCII/Teletext graphics**: Core system (always available, offline)
+- **SVG generation**: Nano Banana pipeline - `GENERATE SVG --survival <category>/<prompt>`
+- **MERMAID, GEOJSON, STL, TYPORA**: GitHub diagrams integration (v1.1.14+)
 
-**Rationale:**
-- Offline-first priority
-- Terminal-native rendering
-- Consistent chunky aesthetic
-- Easier maintenance (text-based)
+**Historical:**
+- v1.1.1: Removed 135 static SVG files, embedded diagrams as ASCII/teletext
+- v1.1.6: Added Nano Banana AI-powered SVG generation
+- v1.1.14: Integrated GitHub diagrams (Mermaid, GeoJSON, STL)
+- v1.1.15: Graphics infrastructure complete with survival prompts
+
+**Current Approach:**
+- Offline-first: ASCII/Teletext for core content
+- AI-powered: SVG generation via Nano Banana when API available
+- GitHub integration: Mermaid/GeoJSON/STL for technical diagrams
 
 ---
 
@@ -1519,6 +1524,6 @@ For updates to this style guide, see the [Contributing Guide](https://github.com
 
 ---
 
-**Last Updated:** November 27, 2025
+**Last Updated:** December 3, 2025
 **Maintainer:** Fred Porter
 **License:** MIT License
