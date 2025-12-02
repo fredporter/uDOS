@@ -152,6 +152,10 @@ class CommandHandler:
         from core.commands.sprite_handler import SpriteHandler
         from core.commands.object_handler import ObjectHandler
 
+        # v1.1.14 - CHECKLIST handler (Task Management System)
+        from core.commands.checklist_handler import ChecklistHandler
+        self.checklist_handler = ChecklistHandler(config=config)
+
         # Get variable_manager from components (if available)
         components = {
             'config': None,
@@ -344,6 +348,10 @@ class CommandHandler:
 
             elif module == "DIAGRAM":
                 return self.diagram_handler.handle(command, params)
+
+            # v1.1.14 - Checklist Task Management
+            elif module == "CHECKLIST":
+                return self.checklist_handler.handle(command, params)
 
             # v1.1.4 - DRAW Diagram Generation (ASCII/Teletext graphics)
             elif module == "DRAW":
