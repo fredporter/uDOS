@@ -369,6 +369,10 @@ class CommandHandler:
             elif module == "GENERATE":
                 return self.generate_handler.handle_command(params)
 
+            # v1.1.15 - MERMAID Text-to-Diagram System
+            elif module == "MERMAID":
+                return self.mermaid_handler.handle_command(params)
+
             # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use GENERATE SVG)
             elif module == "SVG":
                 return (
