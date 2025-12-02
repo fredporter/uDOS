@@ -115,7 +115,7 @@
       },
       "motion": {
         "style": "curved arc with arrow",
-        "motion_lines": 2-3,
+        "motion_lines": "2-3",
         "spacing": 4,
         "stroke_width": 2.0
       }

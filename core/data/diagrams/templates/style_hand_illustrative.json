@@ -41,15 +41,15 @@
     "wavy_lines": {
       "description": "Parallel wavy lines following contour for shading",
       "wavelength": 12,
-      "amplitude": 2-4,
-      "spacing": 5-7,
+      "amplitude": "2-4",
+      "spacing": "5-7",
       "stroke_width": 1.0,
       "use_cases": ["leaf_surfaces", "skin_texture", "fabric", "organic_shading"]
     },
     "undulating": {
       "description": "Irregular organic texture lines",
       "variation": "high",
-      "spacing": 4-6,
+      "spacing": "4-6",
       "stroke_width": 1.0,
       "follow_contour": true,
       "use_cases": ["bark_texture", "rough_surfaces", "rock", "ground"]
@@ -61,24 +61,24 @@
         "medium": "8px average spacing",
         "heavy": "5px average spacing"
       },
-      "dot_radius": 0.5-1.0,
+      "dot_radius": "0.5-1.0",
       "variation": "random placement within grid",
       "use_cases": ["soft_shadows", "flower_centers", "granular_textures"]
     },
     "cross_contour": {
       "description": "Lines following 3D form curves",
       "direction": "perpendicular to form axis",
-      "spacing": 6-10,
+      "spacing": "6-10",
       "stroke_width": 1.0,
       "curve_variation": "natural",
       "use_cases": ["cylindrical_forms", "rounded_objects", "depth_indication"]
     },
     "feathering": {
       "description": "Short tapering strokes radiating from edge",
-      "length": 5-15,
-      "spacing": 3-5,
+      "length": "5-15",
+      "spacing": "3-5",
       "taper": "gradual",
-      "stroke_width": 1.0-2.0,
+      "stroke_width": "1.0-2.0",
       "use_cases": ["soft_edges", "fur_texture", "feather_detail", "grass"]
     }
   },
@@ -95,19 +95,19 @@
       "style": "slightly irregular cylinder",
       "texture": "smooth or textured with lines",
       "nodes": "slight thickening at joints",
-      "stroke_width": 2.5-3.0
+      "stroke_width": "2.5-3.0"
     },
     "roots": {
       "style": "branching, tapering",
       "texture": "undulating lines for bark",
       "root_hairs": "fine lines (1.0px)",
-      "stroke_width": 2.5 (main), 2.0 (branches), 1.5 (hairs)
+      "stroke_width": "2.5 (main), 2.0 (branches), 1.5 (hairs)"
     },
     "flowers": {
       "petals": "organic curves, slight asymmetry",
       "center": "stipple or radial lines",
       "stamens": "fine lines with dot anthers",
-      "stroke_width": 2.0 (petals), 1.5 (details)
+      "stroke_width": "2.0 (petals), 1.5 (details)"
     }
   },
   "typography": {
