@@ -9,10 +9,10 @@ Complete guide to all uDOS commands
 ## 🚀 Quick Reference Card
 
 ### Current Status
-- **Version**: v1.1.7 (Nano Banana Complete)
-- **Tests**: Smoke tests passing (integration suite in v1.1.8)
-- **Documentation**: Complete with workflow examples
-- **Next**: Test suite overhaul (v1.1.8)
+- **Version**: v1.1.14 (Checklist System Complete)
+- **Tests**: 111/111 tests passing (100%)
+- **Documentation**: Complete with systems integration
+- **Latest**: Checklist system, Dashboard, Variable scopes
 
 ### Essential Commands (Most Common)
 ```bash
@@ -40,11 +40,38 @@ GENERATE diagram <topic>  # Legacy SVG diagram (deprecated)
 REFRESH                   # Update content to latest standards
 
 # Knowledge Bank
+GUIDE LIST [category]     # List knowledge guides (v1.1.14+)
+GUIDE SHOW <guide>        # Display guide with related checklists
+GUIDE START <guide>       # Interactive guide with progress tracking
 MEMORY                    # Access personal knowledge
 PRIVATE                   # Private notes/content
 SHARED                    # Shared knowledge base
 COMMUNITY                 # Community contributions
-KB <topic>                # Quick knowledge lookup
+KB <topic>                # Quick knowledge lookup (legacy)
+
+# Checklists (v1.1.14+)
+CHECKLIST LIST            # List all checklists
+CHECKLIST LOAD <id>       # Load checklist for tracking
+CHECKLIST COMPLETE <item> # Mark checklist item complete
+CHECKLIST STATUS          # Show current checklist state
+CHECKLIST PROGRESS        # Show completion statistics
+
+# Missions (v1.1.14+)
+MISSION CREATE <id> <title>  # Create new mission
+MISSION START <id>        # Start mission execution
+MISSION STATUS            # Show active mission state
+MISSION COMPLETE <id>     # Complete mission
+
+# System Variables (v1.1.14+)
+GET MISSION.<field>       # Get mission variable (STATUS, PROGRESS, ID, etc.)
+GET CHECKLIST.<field>     # Get checklist variable (ACTIVE, PROGRESS_PCT, etc.)
+GET WORKFLOW.<field>      # Get workflow variable (PHASE, ITERATION, ERRORS, etc.)
+
+# Archive System (v1.1.14+)
+ARCHIVE LIST [type]       # List archived items (mission, checklist, workflow)
+ARCHIVE mission <id>      # Archive completed mission
+ARCHIVE checklist <id>    # Archive checklist
+ARCHIVE restore <type> <id>  # Restore archived item
 
 # Grid & Panels
 GRID                      # Show grid system
@@ -83,7 +110,10 @@ DEBUG <script>            # Debug uCODE script
 |----------|----------------|
 | **Files** | `LIST`, `LOAD`, `SAVE`, `EDIT` |
 | **AI Content** | `OK`, `OK ASK`, `GENERATE`, `REFRESH` |
-| **Knowledge** | `MEMORY`, `PRIVATE`, `SHARED`, `KB` |
+| **Knowledge (v1.1.14)** | `GUIDE LIST/SHOW/START`, `CHECKLIST`, `MISSION` |
+| **Variables (v1.1.14)** | `GET MISSION.*`, `GET CHECKLIST.*`, `GET WORKFLOW.*` |
+| **Archive (v1.1.14)** | `ARCHIVE LIST`, `ARCHIVE mission/checklist/workflow`, `ARCHIVE restore` |
+| **Legacy Knowledge** | `MEMORY`, `PRIVATE`, `SHARED`, `KB` |
 | **Grid** | `GRID`, `NEW GRID`, `PANEL`, `TILE` |
 | **Adventures** | `STORY START`, `STORY CONTINUE`, `STORY CHOICE`, `STORY SAVE/LOAD` |
 | **Navigation** | `MAP`, `GOTO`, `MOVE`, `LEVEL` |
@@ -385,6 +415,24 @@ uDOS commands have been developed systematically, focusing on core functionality
 - **MODIFY**: Runtime variable modification
 - **PROFILE**: Performance profiling and analysis
 - **HISTORY**: Variable change history tracking
+
+### ✓ v1.1.14 - Integrated Knowledge & Checklists
+**Systems integration** - Mission planning, checklists, and progress tracking
+- **GUIDE**: Interactive knowledge guides with progress tracking (replaces KB)
+- **CHECKLIST**: Load and complete actionable checklists (LIST, LOAD, COMPLETE, STATUS, PROGRESS, RESET)
+- **MISSION**: Project management with workflow integration (CREATE, START, STATUS, COMPLETE)
+- **ARCHIVE**: Archive completed work (mission, checklist, workflow) with restoration
+- **GET**: Access system variables ($MISSION.*, $CHECKLIST.*, $WORKFLOW.*)
+- **Dashboard**: Real-time web dashboard (Flask + NES.css) at http://127.0.0.1:5050
+- **Integration**: Bidirectional linking between guides, checklists, and missions
+
+**Key Features**:
+- 10 JSON checklists across 5 categories (emergency, daily, projects, seasonal, learning)
+- 126+ actionable checklist items with priority levels
+- Mission schema with workflow_script, related_guides, related_checklists fields
+- Variable system for cross-system state access
+- Real-time dashboard with auto-refresh (5s intervals)
+- Archive system with timestamp and metadata preservation
 
 ---
 
