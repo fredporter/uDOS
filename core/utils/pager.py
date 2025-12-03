@@ -2,7 +2,7 @@
 uDOS Simple Pager - Page breaks for long output
 
 Displays content page-by-page when it exceeds viewport height.
-Uses block graphics for progress bar and styled options.
+Uses block graphics for progress bar and arrow key navigation.
 
 Author: uDOS Development Team
 Date: December 3, 2025
@@ -10,6 +10,8 @@ Date: December 3, 2025
 
 import sys
 import shutil
+import termios
+import tty
 from typing import List, Optional
 
 
@@ -39,9 +41,47 @@ class SimplePager:
         self.viewport_height = viewport_height
         self.viewport_width = viewport_width
 
+    def _get_key(self) -> str:
+        """
+        Get a single keypress from user (cross-platform).
+
+        Returns:
+            Key code as string ('up', 'down', 'esc', 'enter', or character)
+        """
+        try:
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)
+
+                # Handle escape sequences (arrow keys)
+                if ch == '\x1b':  # ESC
+                    # Check if this is an escape sequence or just ESC key
+                    ch2 = sys.stdin.read(1)
+                    if ch2 == '[':  # Arrow key sequence
+                        ch3 = sys.stdin.read(1)
+                        if ch3 == 'A':
+                            return 'up'
+                        elif ch3 == 'B':
+                            return 'down'
+                        else:
+                            return 'esc'
+                    else:
+                        return 'esc'
+                elif ch == '\r' or ch == '\n':
+                    return 'enter'
+                else:
+                    return ch
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        except Exception:
+            # Fallback for non-Unix systems
+            return input().strip().lower() or 'enter'
+
     def _draw_progress_bar(self, page_num: int, total_pages: int, at_end: bool = False) -> str:
         """
-        Draw block graphics progress bar with styled options.
+        Draw block graphics progress bar with navigation hints.
 
         Args:
             page_num: Current page number
@@ -59,13 +99,13 @@ class SimplePager:
         progress_pct = page_num / total_pages
 
         # Determine available width for progress bar
-        # Format: "█████░░░ Page 3/7 [YES|NO|OK]"
+        # Format: "█████░░░ Page 3/7 [↓/ENTER|↑|ESC]"
         info_text = f" Page {page_num}/{total_pages} "
 
         if at_end:
-            options_text = "[OK]"
+            options_text = "[ENTER=OK|ESC]"
         else:
-            options_text = "[YES|NO]"
+            options_text = "[↓/ENTER|↑|ESC]"
 
         # Reserve space for info and options
         reserved_width = len(info_text) + len(options_text) + 2
@@ -89,7 +129,12 @@ class SimplePager:
 
     def page(self, text: str, title: Optional[str] = None) -> None:
         """
-        Display text with page breaks.
+        Display text with page breaks and arrow key navigation.
+
+        Navigation:
+            Down Arrow/ENTER - Next page
+            Up Arrow - Previous page
+            ESC - Quit paging
 
         Args:
             text: Text to display
@@ -105,9 +150,12 @@ class SimplePager:
         # Paginate
         page_num = 1
         total_pages = (len(lines) + self.viewport_height - 1) // self.viewport_height
-        start_idx = 0
 
-        while start_idx < len(lines):
+        while True:
+            # Calculate line range for current page
+            start_idx = (page_num - 1) * self.viewport_height
+            end_idx = min(start_idx + self.viewport_height, len(lines))
+
             # Clear screen (optional - can be disabled for accessibility)
             # print('\033[2J\033[H', end='')
 
@@ -119,35 +167,36 @@ class SimplePager:
                 print()
 
             # Show page content
-            end_idx = min(start_idx + self.viewport_height, len(lines))
             for line in lines[start_idx:end_idx]:
                 print(line)
 
             # Show block graphics progress bar
-            is_last_page = end_idx >= len(lines)
+            is_last_page = page_num >= total_pages
             progress_bar = self._draw_progress_bar(page_num, total_pages, at_end=is_last_page)
             print(f"\n{progress_bar}", flush=True)
 
-            if not is_last_page:
-                # Not the last page - wait for input
-                try:
-                    response = input().strip().lower()
-                    if response in ('n', 'no', 'q'):
-                        print("\n⚠️  Paging cancelled")
-                        break
-                    # Any other input (ENTER, 'y', 'yes', etc.) continues
-                except (KeyboardInterrupt, EOFError):
-                    print("\n\n⚠️  Paging cancelled")
-                    break
+            # Get user input
+            try:
+                key = self._get_key()
 
-                start_idx = end_idx
-                page_num += 1
-            else:
-                # Last page - wait for acknowledgment
-                try:
-                    input()  # Just wait for ENTER/OK
-                except (KeyboardInterrupt, EOFError):
-                    pass
+                if key == 'esc':
+                    print("\n⚠️  Paging cancelled")
+                    break
+                elif key == 'down' or key == 'enter':
+                    if is_last_page:
+                        # On last page, ENTER exits
+                        break
+                    else:
+                        # Move to next page
+                        page_num += 1
+                elif key == 'up':
+                    if page_num > 1:
+                        # Move to previous page
+                        page_num -= 1
+                    # If already on first page, do nothing
+
+            except (KeyboardInterrupt, EOFError):
+                print("\n\n⚠️  Paging cancelled")
                 break
 
     def page_lines(self, lines: List[str], title: Optional[str] = None) -> None:
