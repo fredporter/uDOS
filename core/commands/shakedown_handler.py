@@ -89,7 +89,7 @@ class ShakedownHandler(BaseCommandHandler):
         self._test_generate_system(output, verbose)
         self._test_offline_engine(output, verbose)
         self._test_api_monitoring(output, verbose)
-        
+
         if not quick:
             self._test_performance_validation(output, verbose)
             self._test_logging_system(output, verbose)
@@ -728,23 +728,23 @@ class ShakedownHandler(BaseCommandHandler):
         try:
             from core.commands.generate_handler import GenerateHandler
             handler_path = self.root / "core" / "commands" / "generate_handler.py"
-            
+
             if handler_path.exists():
                 with open(handler_path) as f:
                     content = f.read()
-                
+
                 # Check for v1.2.0 commands
                 has_do = '"DO"' in content or "'DO'" in content
                 has_redo = '"REDO"' in content or "'REDO'" in content
                 has_guide = '"GUIDE"' in content or "'GUIDE'" in content
                 has_status = '"STATUS"' in content or "'STATUS'" in content
                 has_clear = '"CLEAR"' in content or "'CLEAR'" in content
-                
+
                 all_commands = has_do and has_redo and has_guide and has_status and has_clear
                 symbol = "✅" if all_commands else "⚠️"
                 output.append(f"  {symbol} GENERATE commands: DO, REDO, GUIDE, STATUS, CLEAR")
                 self._add_test("GENERATE: commands complete", all_commands)
-                
+
         except Exception as e:
             output.append(f"  ❌ GENERATE handler check failed: {e}")
             self._add_test("GENERATE: commands complete", False, str(e))
@@ -768,26 +768,26 @@ class ShakedownHandler(BaseCommandHandler):
         try:
             from core.interpreters.offline import OfflineEngine
             engine = OfflineEngine()
-            
+
             # Test simple query
             start_time = time.time()
             result = engine.answer("What is water purification?")
             duration = time.time() - start_time
-            
+
             has_answer = result and 'answer' in result
             fast = duration < 0.5
-            
+
             symbol = "✅" if has_answer and fast else "⚠️"
             output.append(f"  {symbol} Simple query: {duration*1000:.0f}ms, {'success' if has_answer else 'failed'}")
             self._add_test("Offline: simple query", has_answer and fast, duration=duration)
-            
+
             # Test confidence scoring
             if has_answer and 'confidence' in result:
                 conf = result['confidence']
                 symbol = "✅" if 0 <= conf <= 100 else "⚠️"
                 output.append(f"  {symbol} Confidence scoring: {conf:.1f}%")
                 self._add_test("Offline: confidence scoring", 0 <= conf <= 100)
-            
+
         except Exception as e:
             output.append(f"  ❌ Offline engine test failed: {e}")
             self._add_test("Offline: engine functional", False, str(e))
@@ -804,14 +804,14 @@ class ShakedownHandler(BaseCommandHandler):
             from core.services.api_monitor import APIMonitor
             output.append(f"  ✅ APIMonitor imports successfully")
             self._add_test("API: APIMonitor import", True)
-            
+
             # Check rate limiting config
             monitor = APIMonitor()
             has_limits = hasattr(monitor, 'rate_limits') or hasattr(monitor, 'limits')
             symbol = "✅" if has_limits else "⚠️"
             output.append(f"  {symbol} Rate limiting configured")
             self._add_test("API: rate limiting", has_limits)
-            
+
         except ImportError as e:
             output.append(f"  ❌ APIMonitor import failed: {e}")
             self._add_test("API: APIMonitor import", False, str(e))
@@ -821,7 +821,7 @@ class ShakedownHandler(BaseCommandHandler):
             from core.services.priority_queue import PriorityQueue
             output.append(f"  ✅ PriorityQueue imports successfully")
             self._add_test("API: PriorityQueue import", True)
-            
+
         except ImportError as e:
             output.append(f"  ❌ PriorityQueue import failed: {e}")
             self._add_test("API: PriorityQueue import", False, str(e))
@@ -830,17 +830,17 @@ class ShakedownHandler(BaseCommandHandler):
         try:
             from core.utils.variables import VariableManager
             vm = VariableManager({})
-            
+
             # Check for v1.2.0 variables
             has_prompt_vars = any('PROMPT.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
             has_generate_vars = any('GENERATE.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
             has_api_vars = any('API.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
-            
+
             all_vars = has_prompt_vars or has_generate_vars or has_api_vars
             symbol = "✅" if all_vars else "⚠️"
             output.append(f"  {symbol} Workflow variables (PROMPT.*, GENERATE.*, API.*)")
             self._add_test("API: workflow variables", all_vars)
-            
+
         except Exception as e:
             output.append(f"  ⚠️  Workflow variables check skipped: {e}")
 
@@ -857,18 +857,18 @@ class ShakedownHandler(BaseCommandHandler):
             monitor = get_performance_monitor()
             output.append(f"  ✅ PerformanceMonitor imports successfully")
             self._add_test("Performance: monitor import", True)
-            
+
             # Test metrics collection
             stats = monitor.get_all_time_stats()
             has_stats = isinstance(stats, dict) and 'total_queries' in stats
             symbol = "✅" if has_stats else "⚠️"
             output.append(f"  {symbol} Metrics collection: {stats.get('total_queries', 0)} queries tracked")
             self._add_test("Performance: metrics collection", has_stats)
-            
+
             # Test success criteria validation
             validation = monitor.validate_success_criteria()
             all_passed = validation.get('all_passed', False)
-            
+
             if all_passed:
                 output.append(f"  ✅ Success criteria: ALL MET")
                 self._add_test("Performance: success criteria", True)
@@ -880,7 +880,7 @@ class ShakedownHandler(BaseCommandHandler):
                     for f in failed:
                         output.append(f"      - {f}")
                 self._add_test("Performance: success criteria", False, f"{len(failed)} criteria not met")
-                
+
         except ImportError as e:
             output.append(f"  ❌ PerformanceMonitor import failed: {e}")
             self._add_test("Performance: monitor import", False, str(e))
@@ -898,7 +898,7 @@ class ShakedownHandler(BaseCommandHandler):
             logger = get_unified_logger()
             output.append(f"  ✅ UnifiedLogger imports successfully")
             self._add_test("Logging: unified logger import", True)
-            
+
             # Check log directory
             log_dir = Path("memory/logs")
             if log_dir.exists():
@@ -906,12 +906,12 @@ class ShakedownHandler(BaseCommandHandler):
                 symbol = "✅" if len(log_files) > 0 else "⚠️"
                 output.append(f"  {symbol} Log directory: {len(log_files)} log files")
                 self._add_test("Logging: log directory", len(log_files) > 0)
-                
+
                 # Check for expected log files
                 expected_logs = ['system.log', 'performance.log', 'command.log']
                 found_logs = [f.name for f in log_files]
                 missing = [log for log in expected_logs if log not in found_logs]
-                
+
                 if not missing:
                     output.append(f"  ✅ All expected logs present")
                     self._add_test("Logging: expected logs", True)
@@ -921,7 +921,7 @@ class ShakedownHandler(BaseCommandHandler):
             else:
                 output.append(f"  ⚠️  Log directory not found (will be created on first use)")
                 self._add_test("Logging: log directory", True)  # OK if not exists yet
-                
+
         except ImportError as e:
             output.append(f"  ❌ UnifiedLogger import failed: {e}")
             self._add_test("Logging: unified logger import", False, str(e))
@@ -930,7 +930,7 @@ class ShakedownHandler(BaseCommandHandler):
         try:
             from core.services.unified_logger import MinimalFormatter
             formatter = MinimalFormatter('system')
-            
+
             # Test formatting
             import logging
             record = logging.LogRecord(
@@ -938,17 +938,17 @@ class ShakedownHandler(BaseCommandHandler):
                 msg='Test message', args=(), exc_info=None
             )
             formatted = formatter.format(record)
-            
+
             # Check for minimal format: [TIMESTAMP][CAT][LVL] Message
             has_timestamp = '[' in formatted and ']' in formatted
             has_category = '[SYS]' in formatted or '[' in formatted
             has_level = '[I]' in formatted or '[' in formatted
-            
+
             is_minimal = has_timestamp and has_category and has_level
             symbol = "✅" if is_minimal else "⚠️"
             output.append(f"  {symbol} Minimal format: {'correct' if is_minimal else 'incorrect'}")
             self._add_test("Logging: minimal format", is_minimal)
-            
+
         except Exception as e:
             output.append(f"  ⚠️  Format test skipped: {e}")
 

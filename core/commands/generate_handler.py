@@ -29,6 +29,8 @@ import json
 from .base_handler import BaseCommandHandler
 from core.services.api_monitor import get_api_monitor, APIRequest, Priority as APIPriority
 from core.services.priority_queue import get_priority_queue, Priority as QueuePriority
+from core.services.performance_monitor import get_performance_monitor
+from core.services.unified_logger import log_performance, log_api, log_error, log_command
 
 
 class GenerateHandler(BaseCommandHandler):
@@ -58,6 +60,9 @@ class GenerateHandler(BaseCommandHandler):
         # API monitoring and throttling
         self.api_monitor = get_api_monitor()
         self.priority_queue = get_priority_queue()
+
+        # Performance monitoring (v1.2.1)
+        self.performance_monitor = get_performance_monitor()
 
         # Generation history (for REDO)
         self.generation_history: List[Dict[str, Any]] = []
@@ -202,6 +207,8 @@ class GenerateHandler(BaseCommandHandler):
             return self._handle_teletext(sub_params)
         elif subcommand == "STATUS":
             return self._handle_status()
+        elif subcommand == "VALIDATE":
+            return self._handle_validate()
         elif subcommand == "CLEAR":
             return self._handle_clear()
         elif subcommand == "HELP":
@@ -277,6 +284,22 @@ Examples:
             # Offline answer good enough
             self.stats['total_requests'] += 1
             self.stats['offline_requests'] += 1
+
+            # Track performance (v1.2.1)
+            duration = duration_ms / 1000.0
+            self.performance_monitor.track_query(
+                query_type='DO',
+                mode='offline',
+                duration=duration,
+                cost=0.0,
+                confidence=offline_response.confidence * 100,
+                success=True
+            )
+
+            # Log to unified logger
+            log_performance('DO', duration, offline=True,
+                          confidence=offline_response.confidence * 100,
+                          method=offline_response.method)
 
             # Store in history
             self._add_to_history({
@@ -396,6 +419,21 @@ Confidence: {offline_response.confidence:.0%}
                 self.stats['total_requests'] += 1
                 self.stats['online_requests'] += 1
                 self.stats['total_cost'] += cost
+
+                # Track performance (v1.2.1)
+                duration = gemini_duration / 1000.0
+                self.performance_monitor.track_query(
+                    query_type='DO',
+                    mode='gemini',
+                    duration=duration,
+                    cost=cost,
+                    tokens=int((len(query.split()) + len(gemini_response.split())) * 1.3),
+                    success=True
+                )
+
+                # Log to unified logger
+                log_performance('DO', duration, offline=False, mode='gemini', cost=cost)
+                log_api('gemini', duration, cost, success=True, operation='DO')
 
                 # Store in history
                 self._add_to_history({
@@ -794,6 +832,73 @@ History:
 💡 Use GENERATE CLEAR to clear history
 """
 
+    # ========== VALIDATE Command (v1.2.1) ==========
+
+    def _handle_validate(self) -> str:
+        """
+        Validate v1.2.0 success criteria.
+        
+        Checks:
+        1. Offline query rate ≥90%
+        2. Cost reduction ≥99%
+        3. Average response time <500ms
+        4. P95 response time <500ms
+        
+        Returns:
+            Validation report with success criteria status
+        """
+        # Get validation results
+        validation = self.performance_monitor.validate_success_criteria()
+        
+        # Build report
+        report = "📊 GENERATE System Validation (v1.2.0 Success Criteria)\n\n"
+        
+        # Overall status
+        all_passed = all(validation.values())
+        status = "✅ ALL CRITERIA MET" if all_passed else "❌ CRITERIA NOT MET"
+        report += f"{status}\n\n"
+        
+        # Individual criteria
+        report += "Criteria:\n"
+        
+        # 1. Offline rate
+        icon = "✅" if validation['offline_rate'] else "❌"
+        stats = self.performance_monitor.get_session_stats()
+        offline_pct = stats.get('offline_rate', 0)
+        report += f"  {icon} Offline Query Rate: {offline_pct:.1f}% (target: ≥90%)\n"
+        
+        # 2. Cost reduction
+        icon = "✅" if validation['cost_reduction'] else "❌"
+        cost_reduction = stats.get('cost_reduction', 0)
+        report += f"  {icon} Cost Reduction: {cost_reduction:.1f}% (target: ≥99%)\n"
+        
+        # 3. Average response time
+        icon = "✅" if validation['avg_response_time'] else "❌"
+        avg_time = stats.get('avg_duration', 0) * 1000  # Convert to ms
+        report += f"  {icon} Avg Response Time: {avg_time:.0f}ms (target: <500ms)\n"
+        
+        # 4. P95 response time
+        icon = "✅" if validation['p95_response_time'] else "❌"
+        p95_time = stats.get('p95_duration', 0) * 1000  # Convert to ms
+        report += f"  {icon} P95 Response Time: {p95_time:.0f}ms (target: <500ms)\n"
+        
+        # Session summary
+        report += f"\nSession Summary:\n"
+        report += f"  Total Queries: {stats.get('total_queries', 0)}\n"
+        report += f"  Offline Queries: {stats.get('offline_queries', 0)}\n"
+        report += f"  Online Queries: {stats.get('online_queries', 0)}\n"
+        report += f"  Total Cost: ${stats.get('total_cost', 0):.4f}\n"
+        report += f"  Cost Savings: ${stats.get('cost_savings', 0):.4f}\n"
+        
+        # Performance report
+        report += f"\n{self.performance_monitor.generate_report()}"
+        
+        # Log validation
+        log_performance('VALIDATE', 0.0, offline=True, 
+                       validation=all_passed, criteria=validation)
+        
+        return report
+
     # ========== CLEAR Command ==========
 
     def _handle_clear(self) -> str:
@@ -830,6 +935,7 @@ OFFLINE-FIRST COMMANDS (No API Key Required):
   GENERATE DO <question>              - Offline-first Q&A (knowledge bank + FAQ)
   GENERATE REDO [modification]        - Retry last generation
   GENERATE STATUS                     - Show usage statistics
+  GENERATE VALIDATE                   - Validate v1.2.0 success criteria
   GENERATE CLEAR                      - Clear history
 
 ONLINE COMMANDS (Require Gemini API Key):
