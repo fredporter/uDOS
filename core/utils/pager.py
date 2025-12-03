@@ -61,10 +61,14 @@ class SimplePager:
                     ch2 = sys.stdin.read(1)
                     if ch2 == '[':  # Arrow key sequence
                         ch3 = sys.stdin.read(1)
-                        if ch3 == 'A':
+                        if ch3 == 'A':  # Up arrow
                             return 'up'
-                        elif ch3 == 'B':
+                        elif ch3 == 'B':  # Down arrow
                             return 'down'
+                        elif ch3 == 'C':  # Right arrow
+                            return 'down'  # Treat right as down (next page)
+                        elif ch3 == 'D':  # Left arrow
+                            return 'up'  # Treat left as up (prev page)
                         else:
                             return 'esc'
                     else:
@@ -99,13 +103,13 @@ class SimplePager:
         progress_pct = page_num / total_pages
 
         # Determine available width for progress bar
-        # Format: "█████░░░ Page 3/7 [↓/ENTER|↑|ESC]"
+        # Format: "█████░░░ Page 3/7 [↓→/ENTER|↑←|ESC]"
         info_text = f" Page {page_num}/{total_pages} "
 
         if at_end:
             options_text = "[ENTER=OK|ESC]"
         else:
-            options_text = "[↓/ENTER|↑|ESC]"
+            options_text = "[↓→/ENTER|↑←|ESC]"
 
         # Reserve space for info and options
         reserved_width = len(info_text) + len(options_text) + 2
