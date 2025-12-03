@@ -14,13 +14,13 @@ The `ASSISTANT` and `OK ASK` commands are **deprecated** as of v1.2.0 and will b
 
 ### Benefits of GENERATE DO
 
-✅ **90%+ queries answered offline** (completely free)  
-✅ **Cost tracking and rate limiting** (predictable API costs)  
-✅ **Better knowledge bank integration** (166+ survival guides)  
-✅ **Confidence-based fallback** (smart online/offline switching)  
-✅ **Generation history** (REDO last query with modifications)  
-✅ **API monitoring** (budgets, alerts, statistics)  
-✅ **Workflow variables** (control via $GENERATE.*, $API.*, $PROMPT.*)  
+✅ **90%+ queries answered offline** (completely free)
+✅ **Cost tracking and rate limiting** (predictable API costs)
+✅ **Better knowledge bank integration** (166+ survival guides)
+✅ **Confidence-based fallback** (smart online/offline switching)
+✅ **Generation history** (REDO last query with modifications)
+✅ **API monitoring** (budgets, alerts, statistics)
+✅ **Workflow variables** (control via $GENERATE.*, $API.*, $PROMPT.*)
 
 ### What You Lose
 
@@ -290,7 +290,7 @@ GENERATE DO shelter types
 
 1. **OK DEV** - Removed (was GitHub Copilot CLI, unrelated to AI generation)
    - **Migration:** Use GitHub Copilot Chat directly in VS Code
-   
+
 2. **ASSISTANT HISTORY** - Replaced by `GENERATE STATUS`
    - **Migration:** Use `GENERATE STATUS` for detailed history/stats
 
@@ -299,7 +299,7 @@ GENERATE DO shelter types
 1. **Default is offline-first** (was online-only)
    - **Impact:** Faster responses, zero cost for 90%+ queries
    - **Fix:** None needed, better behavior
-   
+
 2. **Confidence thresholds** (new feature)
    - **Impact:** Low-confidence offline answers may fall back to Gemini
    - **Fix:** Set `GENERATE.MODE offline` to prevent fallback
@@ -404,7 +404,7 @@ GENERATE DO query 2
 ### "Offline confidence too low"
 
 **Cause:** Query not in knowledge bank, Gemini not configured
-**Fix:** 
+**Fix:**
 1. Rephrase query with more specific keywords
 2. Or configure Gemini: Add `GEMINI_API_KEY` to `.env`
 
