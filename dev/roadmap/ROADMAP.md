@@ -1,14 +1,110 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.0 ✅ **COMPLETE** (GENERATE Consolidation + Structure Reorganization)
-**Next Version:** v1.2.1 📋 **PLANNED** (Performance Validation)
+**Current Version:** v1.2.1 🚧 **IN PROGRESS** (Performance Validation & Unified Logging)
+**Previous Version:** v1.2.0 ✅ **COMPLETE** (GENERATE Consolidation + Structure Reorganization)
+**Next Version:** v1.2.2 📋 **PLANNED** (Knowledge Expansion)
 **Last Updated:** December 3, 2025
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns.
 
 ---
 
-## 📍 Current Release: v1.2.0 (December 2025)
+## 📍 Current Release: v1.2.1 (December 2025)
+
+**Status:** 🚧 **IN PROGRESS** - Performance Validation & Unified Logging
+**Started:** December 3, 2025
+**Progress:** Part 1 Complete (3/6 tasks), Part 2 In Progress (3/6 tasks)
+**Target:** Full system performance validation with unified logging
+
+### Mission: Validate v1.2.0 Performance & Unify System Logging
+
+Validate that v1.2.0 GENERATE consolidation achieves stated success criteria (90%+ offline, 99% cost reduction, <500ms response) and implement unified logging system for system-wide monitoring and debugging.
+
+### Part 1: Infrastructure ✅ COMPLETE
+
+**Task 1: Unified Logging System** ✅ COMPLETE (Commit: eb69be45)
+- Created `core/services/unified_logger.py` (456 lines)
+- Minimal/abbreviated format: `[TIMESTAMP][CAT][LVL] Message`
+- Single location: `memory/logs/` (flat structure)
+- Log types: system, api, performance, debug, error, command
+- Categories: SYS, API, PERF, DBG, ERR, CMD (abbreviated)
+- Levels: D, I, W, E, C (single char)
+- In-memory performance metrics aggregation
+- Automatic error logging to error.log
+- 30-day retention with auto-cleanup
+
+**Task 2: Performance Metrics Collection** ✅ COMPLETE (Commit: eb69be45)
+- Created `core/services/performance_monitor.py` (389 lines)
+- Tracks v1.2.0 success criteria:
+  * Offline query rate ≥90%
+  * Cost reduction ≥99%
+  * Average response time <500ms
+  * P95 response time <500ms
+- Historical data persistence (performance-history.json)
+- Session-based tracking with snapshots
+- Automatic validation and report generation
+- Baseline comparison ($0.01/query old system)
+
+**Task 3: SHAKEDOWN Command Expansion** ✅ COMPLETE (Commit: eb69be45)
+- Expanded `core/commands/shakedown_handler.py` (+287 lines)
+- Updated to v1.2.1
+- New test methods (5 total):
+  * `_test_generate_system()` - GENERATE consolidation
+  * `_test_offline_engine()` - Offline AI functionality
+  * `_test_api_monitoring()` - API monitor and rate limiting
+  * `_test_performance_validation()` - Metrics validation
+  * `_test_logging_system()` - Unified logging
+- ~30+ new tests added
+- Performance-only mode: `SHAKEDOWN --perf` (planned)
+
+### Part 2: Integration & Validation 🚧 IN PROGRESS
+
+**Task 4: DEV MODE Integration** 📋 PLANNED
+- Step-through execution for uPY scripts
+- Variable inspection at breakpoints
+- Trace logging to debug.log
+- Script performance profiling
+- Integration with unified logger
+
+**Task 5: GENERATE Handler Integration** 🚧 IN PROGRESS
+- Integrate performance monitor with all query paths
+- Track offline/online queries automatically
+- Log API calls with cost/duration
+- Update STATUS command with metrics
+- Add VALIDATE command for success criteria
+
+**Task 6: Documentation & ROADMAP Update** 📋 PLANNED
+- Create `wiki/Logging-System.md`
+- Create `wiki/Performance-Validation.md`
+- Update `wiki/Command-Reference.md` (SHAKEDOWN)
+- Update ROADMAP.md with v1.2.1 completion
+
+### Total Impact (Part 1)
+
+**Code Delivered:**
+- New files: 2 (unified_logger.py, performance_monitor.py)
+- Modified files: 1 (shakedown_handler.py)
+- Total lines: ~1,132 (456 + 389 + 287)
+
+**Features:**
+- Unified logging system with minimal format
+- Performance monitoring and validation
+- Success criteria validation (v1.2.0)
+- Expanded SHAKEDOWN testing (~30+ new tests)
+- Historical performance tracking
+- Automatic report generation
+
+**Files Created:**
+- `core/services/unified_logger.py`
+- `core/services/performance_monitor.py`
+- `dev/roadmap/v1.2.1-COMPLETE.md`
+
+**Commits:**
+- eb69be45 - feat(v1.2.1): Add unified logging and performance monitoring - Part 1
+
+---
+
+## 📍 Previous Release: v1.2.0 (December 2025)
 
 **Status:** ✅ **COMPLETE** - GENERATE Consolidation + Structure Reorganization
 **Delivered:** December 3, 2025
