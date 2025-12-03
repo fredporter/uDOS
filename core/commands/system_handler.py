@@ -129,6 +129,14 @@ class SystemCommandHandler(BaseCommandHandler):
             self._environment_handler = EnvironmentHandler(**self.__dict__)
         return self._environment_handler
 
+    @property
+    def output_handler(self):
+        """Lazy load output handler."""
+        if not hasattr(self, '_output_handler') or self._output_handler is None:
+            from .output_handler import OutputHandler
+            self._output_handler = OutputHandler(**self.__dict__)
+        return self._output_handler
+
     def handle_help(self, params, grid, parser):
         """Quick help - shows essential commands and both syntaxes."""
         from .display_handler import DisplayHandler
@@ -214,7 +222,6 @@ class SystemCommandHandler(BaseCommandHandler):
             'BLANK': self.handle_blank,
             'SPLASH': self.handle_splash,
             'HELP': self.handle_help,
-            'HISTORY': self.handle_history,
             'PROGRESS': self.handle_progress,
             'LAYOUT': self.handle_layout,
             'STATUS': self.handle_status,
@@ -235,6 +242,9 @@ class SystemCommandHandler(BaseCommandHandler):
             'SERVER': self.handle_output,
             'GET': self.handle_get,
             'SET': self.handle_set,
+            'HISTORY': self.handle_history,
+            'SESSION': self.handle_session,
+            'RESTORE': self.handle_restore,
             'CONFIG_PLANET': self.handle_config_planet,
             'LOCATE': self.handle_locate,
             'DEV': self.handle_dev_mode,
@@ -580,10 +590,43 @@ class SystemCommandHandler(BaseCommandHandler):
         """Manage web servers and extensions - delegates to OutputHandler."""
         return self.output_handler.handle_output(params, grid, parser)
 
+    def handle_get(self, params, grid, parser):
+        """GET field value - delegates to VariableHandler."""
+        return self.variable_handler.handle_get(params, grid, parser)
 
     def handle_set(self, params, grid, parser):
         """SET field value - delegates to VariableHandler."""
         return self.variable_handler.handle_set(params, grid, parser)
+
+    def handle_history(self, params, grid, parser):
+        """HISTORY command - show variable change history - delegates to VariableHandler."""
+        return self.variable_handler.handle_history(params, grid, parser)
+
+    def handle_session(self, params, grid, parser):
+        """SESSION command - session management - delegates to SessionHandler."""
+        from .session_handler import SessionHandler
+        session_handler = SessionHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return session_handler.handle_session(params, grid, parser)
+
+    def handle_restore(self, params, grid, parser):
+        """RESTORE command - restore to previous session - delegates to SessionHandler."""
+        from .session_handler import SessionHandler
+        session_handler = SessionHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+        return session_handler.handle_restore(params, grid, parser)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # v1.0.32: PLANET SYSTEM COMMANDS

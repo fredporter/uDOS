@@ -419,39 +419,6 @@ def main():
                 # Don't fail startup if welcome fails
                 pass
 
-            # v1.0.32: Planet selection on first run
-            try:
-                from core.services.planet_manager import PlanetManager
-                pm = PlanetManager()
-
-                # Check if this is first time using planet system
-                current_planet = pm.get_current()
-                if not current_planet:
-                    # Offer planet setup
-                    print()
-                    print("="*viewport.width)
-                    print("🪐 PLANET SYSTEM INITIALIZATION")
-                    print("="*viewport.width)
-                    print()
-                    print("uDOS v1.0.32 introduces the Planet System - your workspaces")
-                    print("are now visualized as planets in solar systems!")
-                    print()
-                    print("The default planet 'Earth' has been created for you.")
-                    print("You can create additional planets anytime with: CONFIG PLANET NEW")
-                    print()
-
-                    # Set Earth as default
-                    earth = pm.list_planets()[0] if pm.list_planets() else None
-                    if earth:
-                        print(f"✅ Active Planet: {earth.icon} {earth.name} ({earth.solar_system})")
-                        print()
-                        print("💡 Tip: Use LOCATE CITY to set your Earth location for")
-                        print("   location-aware survival knowledge and world maps!")
-                        print()
-            except Exception as e:
-                # Don't fail startup if planet setup fails
-                pass
-
             print()  # Blank line
 
         command_handler = CommandHandler(

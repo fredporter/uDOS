@@ -134,29 +134,74 @@ class ConfigurationHandler(BaseCommandHandler):
 
                 if not current_location or current_location == 'Unknown':
                     if self.input_manager:
-                        use_detected = self.input_manager.prompt_choice(
-                            message="Use detected location?",
-                            choices=["Yes", "No, enter manually"],
-                            default="Yes"
-                        )
+                        # Load cities from cities.json
+                        cities_data = self._load_cities_list()
 
-                        if use_detected == "Yes":
-                            config.set_user('USER_PROFILE.LOCATION', detected_city)
-                            config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
-                            output.append(f"✅ Location set to: {detected_city}")
-                            output.append(f"✅ Timezone set to: {detected_tz}")
-                            changes_made = True
-                        else:
-                            location = self.input_manager.prompt_user(
-                                message="Enter your location (city, country):",
-                                default=detected_city,
-                                required=False
+                        if cities_data:
+                            # Offer to use detected or select from list
+                            use_detected = self.input_manager.prompt_choice(
+                                message="Use detected location?",
+                                choices=["Yes", "No, select from list"],
+                                default="Yes"
                             )
-                            if location:
-                                config.set_user('USER_PROFILE.LOCATION', location)
-                                config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
-                                output.append(f"✅ Location set to: {location}")
+
+                            if use_detected == "Yes":
+                                # Find full city info from cities.json
+                                city_info = next((c for c in cities_data if c['name'] == detected_city), None)
+                                if city_info:
+                                    config.set_user('USER_PROFILE.LOCATION', city_info['name'])
+                                    config.set_user('USER_PROFILE.TIMEZONE', city_info['timezone']['name'])
+                                else:
+                                    config.set_user('USER_PROFILE.LOCATION', detected_city)
+                                    config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
+                                output.append(f"✅ Location set to: {detected_city}")
+                                output.append(f"✅ Timezone set to: {detected_tz}")
                                 changes_made = True
+                            else:
+                                # Show cities selection
+                                city_names = [f"{c['name']}, {c['country']}" for c in cities_data]
+                                selected = self.input_manager.prompt_choice(
+                                    message="Select your location:",
+                                    choices=city_names[:20],  # Show first 20 cities
+                                    default=city_names[0] if city_names else ""
+                                )
+
+                                if selected:
+                                    # Extract city name
+                                    city_name = selected.split(',')[0].strip()
+                                    city_info = next((c for c in cities_data if c['name'] == city_name), None)
+
+                                    if city_info:
+                                        config.set_user('USER_PROFILE.LOCATION', city_info['name'])
+                                        config.set_user('USER_PROFILE.TIMEZONE', city_info['timezone']['name'])
+                                        output.append(f"✅ Location set to: {city_info['name']}, {city_info['country']}")
+                                        output.append(f"✅ Timezone set to: {city_info['timezone']['name']}")
+                                        changes_made = True
+                        else:
+                            # Fallback to manual entry if cities.json not available
+                            use_detected = self.input_manager.prompt_choice(
+                                message="Use detected location?",
+                                choices=["Yes", "No, enter manually"],
+                                default="Yes"
+                            )
+
+                            if use_detected == "Yes":
+                                config.set_user('USER_PROFILE.LOCATION', detected_city)
+                                config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
+                                output.append(f"✅ Location set to: {detected_city}")
+                                output.append(f"✅ Timezone set to: {detected_tz}")
+                                changes_made = True
+                            else:
+                                location = self.input_manager.prompt_user(
+                                    message="Enter your location (city, country):",
+                                    default=detected_city,
+                                    required=False
+                                )
+                                if location:
+                                    config.set_user('USER_PROFILE.LOCATION', location)
+                                    config.set_user('USER_PROFILE.TIMEZONE', detected_tz)
+                                    output.append(f"✅ Location set to: {location}")
+                                    changes_made = True
                     else:
                         output.append(f"Current location: {current_location}")
                         output.append("💡 To change: SETUP location <city>")
@@ -259,8 +304,14 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("")
         output.append("🌐 CONNECTION & SERVICES:")
         output.append("-" * 40)
-        connection_mode = self.connection.get_mode() if self.connection else 'OFFLINE'
-        internet_available = self.connection.is_online() if self.connection else False
+
+        # Handle connection object safely (might be boolean or ConnectionMonitor)
+        if self.connection and hasattr(self.connection, 'get_mode'):
+            connection_mode = self.connection.get_mode()
+            internet_available = self.connection.is_online()
+        else:
+            connection_mode = 'OFFLINE'
+            internet_available = False
 
         output.append(f"  Connection: {connection_mode}")
         output.append(f"  Internet: {'✓ Available' if internet_available else '✗ Offline'}")
@@ -1692,3 +1743,15 @@ class ConfigurationHandler(BaseCommandHandler):
                 f"Failed to set config: {key}",
                 error_details=str(e)
             )
+
+    def _load_cities_list(self):
+        """Load cities from cities.json for location selection."""
+        try:
+            cities_path = Path('core/data/geography/cities.json')
+            if cities_path.exists():
+                with open(cities_path, 'r') as f:
+                    data = json.load(f)
+                    return data.get('cities', [])
+        except Exception:
+            pass
+        return None

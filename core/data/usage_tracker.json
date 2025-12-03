@@ -1,45 +1,47 @@
 {
   "command_counts": {
-    "HELP": 27,
-    "DASH": 6,
+    "HELP": 30,
+    "DASH": 8,
     "SHOW": 4,
     "CONFIG": 11,
-    "OUTPUT": 6,
+    "OUTPUT": 8,
     "SETUP": 2,
-    "HISTORY": 1,
+    "HISTORY": 2,
     "STATUS": 3,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "ERROR": 4,
+    "ERROR": 5,
     "LIST": 2,
-    "WIZARD": 1,
+    "WIZARD": 2,
     "CATEGORIES": 1,
-    "$1": 1,
-    "REBOOT": 2,
+    "$1": 2,
+    "REBOOT": 4,
     "MENU": 2,
     "RUN": 1,
     "FETCH": 1
   },
   "success_counts": {
-    "HELP": 22,
-    "DASH": 5,
+    "HELP": 25,
+    "DASH": 7,
     "SHOW": 4,
     "CONFIG": 9,
-    "OUTPUT": 5,
+    "OUTPUT": 7,
     "SETUP": 1,
-    "HISTORY": 1,
+    "HISTORY": 2,
     "STATUS": 3,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
     "LIST": 2,
-    "WIZARD": 1,
+    "WIZARD": 2,
     "CATEGORIES": 1,
     "MENU": 2,
-    "FETCH": 1
+    "FETCH": 1,
+    "REBOOT": 2,
+    "$1": 1
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 4,
+    "ERROR": 5,
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 2,
@@ -718,7 +720,114 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "REBOOT",
+      "timestamp": "2025-12-03T19:46:22.788205",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "REBOOT",
+      "timestamp": "2025-12-03T19:48:02.936324",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "WIZARD",
+      "timestamp": "2025-12-03T20:29:09.860897",
+      "params": [
+        "WIZARD"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-03T20:43:44.354901",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-12-03T20:43:48.320826",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-12-03T20:44:05.365316",
+      "params": [
+        "dashboard"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "$1",
+      "timestamp": "2025-12-03T20:44:30.036892",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-03T20:44:32.217818",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "OUTPUT",
+      "timestamp": "2025-12-03T20:44:47.684815",
+      "params": [
+        "dashboard"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "DASH",
+      "timestamp": "2025-12-03T20:44:53.854367",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-03T20:46:05.643456",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-03T20:46:07.445543",
+      "params": [
+        "Invalid command: stats"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "HISTORY",
+      "timestamp": "2025-12-03T20:46:09.829933",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-01T17:47:28.659670"
+  "last_updated": "2025-12-03T20:46:09.829965"
 }

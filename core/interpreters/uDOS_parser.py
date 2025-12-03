@@ -4,7 +4,7 @@ import json
 import re
 
 class Parser:
-    def __init__(self, commands_file='core/data/commands.json', theme='dungeon'):
+    def __init__(self, commands_file='core/data/commands.json', theme='default'):
         commands_list = self.load_json(commands_file)['COMMANDS']
         self.commands = {cmd['NAME']: cmd for cmd in commands_list}
 

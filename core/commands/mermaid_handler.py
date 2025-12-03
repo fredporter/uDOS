@@ -150,13 +150,13 @@ class MermaidHandler:
             )
             if result.returncode == 0:
                 if self.logger:
-                    self.logger.info(f"mermaid-cli available: {result.stdout.strip()}")
+                    self.logger.log('EVENT', f"mermaid-cli available: {result.stdout.strip()}")
                 return True
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
 
         if self.logger:
-            self.logger.warning("mermaid-cli (mmdc) not found. Install: npm install -g @mermaid-js/mermaid-cli")
+            self.logger.log('WARNING', "mermaid-cli (mmdc) not found. Install: npm install -g @mermaid-js/mermaid-cli")
         return False
 
     def handle_command(self, params):
@@ -323,7 +323,7 @@ For more info: https://mermaid.js.org/
                 self.last_diagram_path = output_file
 
                 if self.logger:
-                    self.logger.info(f"Rendered Mermaid diagram: {output_file}")
+                    self.logger.log('EVENT', f"Rendered Mermaid diagram: {output_file}")
 
                 return f"""
 ✅ Diagram rendered successfully!

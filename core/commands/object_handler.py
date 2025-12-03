@@ -6,6 +6,7 @@ Handles loading, querying, and managing OBJECT variables (items, equipment, cons
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from core.commands.base_handler import BaseCommandHandler
 
 try:
     from jsonschema import validate, ValidationError
@@ -14,19 +15,30 @@ except ImportError:
     JSONSCHEMA_AVAILABLE = False
 
 
-class ObjectHandler:
+class ObjectHandler(BaseCommandHandler):
     """Handler for OBJECT commands (item/object management)."""
 
     def __init__(self, components: Dict[str, Any]):
         """Initialize object handler with system components."""
+        # Initialize base handler
+        super().__init__(
+            theme=components.get('theme', 'default'),
+            connection=components.get('connection'),
+            viewport=components.get('viewport'),
+            user_manager=components.get('user_manager'),
+            history=components.get('history'),
+            command_history=components.get('command_history'),
+            logger=components.get('logger'),
+            main_handler=components.get('main_handler')
+        )
+
         self.components = components
         self.config = components.get('config')
         self.var_manager = components.get('variable_manager')
-        self.logger = components.get('logger')
-        
+
         # Load object schema
         self.schema = self._load_schema()
-        
+
         # Item catalog (loaded from files)
         self.catalog = {}
 
@@ -45,17 +57,17 @@ class ObjectHandler:
     def handle(self, args: list) -> bool:
         """
         Handle OBJECT commands.
-        
+
         Commands:
             OBJECT LOAD <file>              - Load objects catalog from JSON
             OBJECT LIST [category]          - List all objects (optionally by category)
             OBJECT INFO <name>              - Show object details
             OBJECT SEARCH <query>           - Search objects by name/description
             OBJECT FILTER <key>=<value>     - Filter objects by property
-        
+
         Args:
             args: Command arguments
-            
+
         Returns:
             True if command handled successfully
         """
@@ -149,7 +161,7 @@ class ObjectHandler:
         for name, obj in self.catalog.items():
             if category_filter and obj.get('category', '').lower() != category_filter:
                 continue
-            
+
             items.append({
                 'name': name,
                 'category': obj.get('category', 'unknown'),
@@ -202,10 +214,10 @@ class ObjectHandler:
         crafting = obj.get('crafting', {})
 
         print(f"\n=== {display.get('display_name', name)} {display.get('icon', '')} ===")
-        
+
         if display.get('description'):
             print(f"\n{display.get('description')}")
-        
+
         if display.get('flavor_text'):
             print(f'"{display.get("flavor_text")}"')
 
@@ -293,7 +305,7 @@ class ObjectHandler:
         for name, obj in self.catalog.items():
             # Search in name, display name, description
             display = obj.get('display', {})
-            if (query in name.lower() or 
+            if (query in name.lower() or
                 query in display.get('display_name', '').lower() or
                 query in display.get('description', '').lower()):
                 results.append({
@@ -361,7 +373,7 @@ class ObjectHandler:
             # Navigate to property
             current = obj
             found = False
-            
+
             # Try direct property
             if key in current:
                 if str(current[key]).lower() == value:

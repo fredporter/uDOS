@@ -121,8 +121,25 @@ class UnifiedSelector:
             import time
             start_time = time.time()
 
+        # Check terminal size for advanced mode
+        use_advanced = self.advanced_mode
+        if use_advanced:
+            try:
+                import shutil
+                cols, rows = shutil.get_terminal_size()
+                # Need minimum size for prompt_toolkit to render properly
+                # Menu needs at least 10 rows for display
+                min_rows_needed = min(len(config.items) + 5, config.max_display + 5)
+                if rows < min_rows_needed or cols < 40:
+                    print(f"⚠️  Terminal too small for interactive menu ({cols}x{rows})")
+                    print(f"   Using numbered menu instead (needs {min_rows_needed}+ rows, 40+ cols)")
+                    use_advanced = False
+            except Exception:
+                # If we can't detect size, try advanced mode anyway
+                pass
+
         # Choose implementation based on capabilities
-        if self.advanced_mode:
+        if use_advanced:
             result = self._select_advanced(config)
         else:
             result = self._select_fallback(config)
@@ -154,6 +171,8 @@ class UnifiedSelector:
         the retro aesthetic, and works across platforms.
         """
         try:
+            import sys
+            import io
             from prompt_toolkit import Application
             from prompt_toolkit.key_binding import KeyBindings
             from prompt_toolkit.keys import Keys
@@ -339,14 +358,35 @@ class UnifiedSelector:
                 mouse_support=False
             )
 
-            # Run application
-            app.run()
+            # Run application - suppress "Window too small" messages
+            # Capture stderr to prevent prompt_toolkit's error messages
+            old_stderr = sys.stderr
+            try:
+                # Redirect stderr to suppress "Window too small..." message
+                sys.stderr = io.StringIO()
+                app.run()
+            except Exception as run_error:
+                # Restore stderr before handling error
+                sys.stderr = old_stderr
+                # Check if it's a size-related error
+                error_msg = str(run_error).lower()
+                if 'too small' in error_msg or 'size' in error_msg or 'window' in error_msg:
+                    raise Exception("Terminal too small for interactive mode")
+                raise  # Re-raise other errors
+            finally:
+                # Always restore stderr
+                sys.stderr = old_stderr
 
             return result_holder["value"]
 
         except Exception as e:
-            # Fallback on any error
-            print(f"⚠️  Advanced mode failed ({e}), falling back to numbered menu")
+            # Fallback on any error (including terminal size issues)
+            error_msg = str(e).lower()
+            if 'too small' in error_msg or 'size' in error_msg or 'window' in error_msg:
+                print(f"⚠️  Terminal too small for interactive menu")
+                print(f"   Using numbered menu instead...")
+            else:
+                print(f"⚠️  Interactive mode unavailable, using numbered menu")
             if self.analytics:
                 self.analytics.track_error(
                     error=e,

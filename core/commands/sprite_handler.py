@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from datetime import datetime, UTC
 from typing import Dict, Any, Optional
+from core.commands.base_handler import BaseCommandHandler
 
 try:
     from jsonschema import validate, ValidationError
@@ -15,15 +16,26 @@ except ImportError:
     JSONSCHEMA_AVAILABLE = False
 
 
-class SpriteHandler:
+class SpriteHandler(BaseCommandHandler):
     """Handler for SPRITE commands (character/entity management)."""
 
     def __init__(self, components: Dict[str, Any]):
         """Initialize sprite handler with system components."""
+        # Initialize base handler
+        super().__init__(
+            theme=components.get('theme', 'default'),
+            connection=components.get('connection'),
+            viewport=components.get('viewport'),
+            user_manager=components.get('user_manager'),
+            history=components.get('history'),
+            command_history=components.get('command_history'),
+            logger=components.get('logger'),
+            main_handler=components.get('main_handler')
+        )
+
         self.components = components
         self.config = components.get('config')
         self.var_manager = components.get('variable_manager')
-        self.logger = components.get('logger')
 
         # Load sprite schema
         self.schema = self._load_schema()

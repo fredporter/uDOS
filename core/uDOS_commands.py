@@ -161,7 +161,7 @@ class CommandHandler:
         except ImportError:
             self.typora_handler = None
             if logger:
-                logger.debug("Typora diagrams extension not available")
+                logger.log('EVENT', "Typora diagrams extension not available")
 
         # v1.1.9 - SPRITE & OBJECT handlers (Round 1 Variable System)
         from core.commands.sprite_handler import SpriteHandler
@@ -169,7 +169,7 @@ class CommandHandler:
 
         # v1.1.14 - CHECKLIST handler (Task Management System)
         from core.commands.checklist_handler import ChecklistHandler
-        self.checklist_handler = ChecklistHandler(config=config)
+        self.checklist_handler = ChecklistHandler(config=None)
 
         # v1.1.14 - ARCHIVE handler (Historical Data Management)
         from core.commands.archive_handler import ArchiveHandler
@@ -182,6 +182,10 @@ class CommandHandler:
         # v1.1.16 - UNDO/REDO handler (Version History Management)
         from core.commands.undo_handler import create_handler as create_undo_handler
         self.undo_handler = create_undo_handler(viewport=viewport, logger=logger)
+
+        # v1.1.5.1 - SESSION handler (Session management, history, undo/redo, restore)
+        from core.commands.session_handler import SessionHandler
+        self.session_handler = SessionHandler(**handler_kwargs)
 
         # Get variable_manager from components (if available)
         components = {
@@ -404,6 +408,10 @@ class CommandHandler:
 
             elif module == "REDO":
                 return self.undo_handler.handle_redo(params, grid, parser)
+
+            # v1.1.5.1 - SESSION, HISTORY, RESTORE commands
+            elif module in ["SESSION", "HISTORY", "RESTORE"]:
+                return self.session_handler.handle(module, params, grid, parser)
 
             # v1.1.4 - DRAW Diagram Generation (ASCII/Teletext graphics)
             elif module == "DRAW":

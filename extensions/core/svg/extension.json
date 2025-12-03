@@ -45,7 +45,6 @@
         "name": "SVGGenerator",
         "description": "AI-powered SVG generation service",
         "file": "svg_generator.py"
-        }
       }
     ]
   },

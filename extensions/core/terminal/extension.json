@@ -1,0 +1,43 @@
+{
+  "id": "terminal",
+  "name": "Web Terminal",
+  "version": "1.0.0",
+  "description": "Browser-based terminal interface with command history and auto-completion",
+  "author": "uDOS Core Team",
+  "license": "MIT",
+  "category": "core",
+  "type": "interface",
+  "status": "active",
+
+  "dependencies": {
+    "uDOS": ">=1.0.0",
+    "python": ">=3.10"
+  },
+
+  "requires_network": false,
+  "requires_api_key": false,
+
+  "server": {
+    "enabled": true,
+    "default_port": 9001,
+    "auto_start": false,
+    "open_browser": true,
+    "entry_point": "index.html",
+    "static_files": ["static/", "fonts/", "terminal.css"]
+  },
+
+  "features": {
+    "command_history": true,
+    "auto_completion": true,
+    "syntax_highlighting": false,
+    "file_upload": false,
+    "clipboard_support": true
+  },
+
+  "ui": {
+    "web_dashboard": true,
+    "real_time_updates": true,
+    "responsive": true,
+    "theme": "retro-terminal"
+  }
+}

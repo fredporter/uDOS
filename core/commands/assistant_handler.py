@@ -23,7 +23,7 @@ Version: 1.2.0 (Deprecated)
 Previous: 1.1.0 (Active)
 """
 
-from typing import Optional
+from typing import Optional, Dict
 from .base_handler import BaseCommandHandler
 
 

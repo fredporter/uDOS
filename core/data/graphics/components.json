@@ -1,0 +1,187 @@
+{
+  "name": "Diagram Components Library",
+  "description": "Reusable components for building ASCII/teletext diagrams",
+  "version": "1.0.0",
+  "boxes": {
+    "simple": {
+      "corners": ["┌", "┐", "└", "┘"],
+      "edges": ["─", "│"],
+      "junctions": ["├", "┤", "┬", "┴", "┼"]
+    },
+    "double": {
+      "corners": ["╔", "╗", "╚", "╝"],
+      "edges": ["═", "║"],
+      "junctions": ["╠", "╣", "╦", "╩", "╬"]
+    },
+    "heavy": {
+      "corners": ["┏", "┓", "┗", "┛"],
+      "edges": ["━", "┃"],
+      "junctions": ["┣", "┫", "┳", "┻", "╋"]
+    },
+    "rounded": {
+      "corners": ["╭", "╮", "╰", "╯"],
+      "edges": ["─", "│"],
+      "junctions": ["├", "┤", "┬", "┴", "┼"]
+    },
+    "block": {
+      "corners": ["█", "█", "█", "█"],
+      "edges": ["█", "█"],
+      "fills": ["█", "▓", "▒", "░"]
+    }
+  },
+  "shapes": {
+    "diamond": {
+      "pattern": [
+        "    ◆",
+        "   ╱ ╲",
+        "  ╱   ╲",
+        " ╱     ╲",
+        "◆───────◆",
+        " ╲     ╱",
+        "  ╲   ╱",
+        "   ╲ ╱",
+        "    ◆"
+      ],
+      "text_area": {
+        "start_row": 2,
+        "end_row": 6,
+        "center": true
+      }
+    },
+    "parallelogram": {
+      "pattern": [
+        "   ┌──────────┐",
+        "  ╱          ╱│",
+        " └──────────┘ │",
+        "  │          │╱",
+        "  └──────────┘"
+      ],
+      "text_area": {
+        "start_row": 1,
+        "end_row": 3,
+        "center": true
+      }
+    },
+    "ellipse": {
+      "pattern": [
+        "   ╭────────╮",
+        "  ╱          ╲",
+        " │            │",
+        "  ╲          ╱",
+        "   ╰────────╯"
+      ],
+      "text_area": {
+        "start_row": 2,
+        "end_row": 2,
+        "center": true
+      }
+    }
+  },
+  "connectors": {
+    "straight": {
+      "horizontal": "─",
+      "vertical": "│"
+    },
+    "arrows": {
+      "right": "→",
+      "left": "←",
+      "up": "↑",
+      "down": "↓",
+      "bidirectional_h": "↔",
+      "bidirectional_v": "↕"
+    },
+    "curved": {
+      "top_left": "╭",
+      "top_right": "╮",
+      "bottom_left": "╰",
+      "bottom_right": "╯"
+    },
+    "branching": {
+      "t_down": "┬",
+      "t_up": "┴",
+      "t_right": "├",
+      "t_left": "┤",
+      "cross": "┼"
+    }
+  },
+  "fills": {
+    "solid": "█",
+    "dense": "▓",
+    "medium": "▒",
+    "light": "░",
+    "none": " "
+  },
+  "markers": {
+    "bullet": "●",
+    "hollow_bullet": "○",
+    "square": "■",
+    "hollow_square": "□",
+    "diamond": "◆",
+    "hollow_diamond": "◇",
+    "check": "✓",
+    "cross": "✗",
+    "star": "★",
+    "hollow_star": "☆"
+  },
+  "text_formatting": {
+    "max_width": 80,
+    "alignment": ["left", "center", "right"],
+    "wrapping": true,
+    "truncation": "...",
+    "padding": {
+      "horizontal": 1,
+      "vertical": 0
+    }
+  },
+  "color_mapping": {
+    "teletext": {
+      "0": "black",
+      "1": "red",
+      "2": "green",
+      "3": "yellow",
+      "4": "blue",
+      "5": "magenta",
+      "6": "cyan",
+      "7": "white"
+    },
+    "ansi_codes": {
+      "reset": "\u001b[0m",
+      "bold": "\u001b[1m",
+      "dim": "\u001b[2m",
+      "fg_black": "\u001b[30m",
+      "fg_red": "\u001b[31m",
+      "fg_green": "\u001b[32m",
+      "fg_yellow": "\u001b[33m",
+      "fg_blue": "\u001b[34m",
+      "fg_magenta": "\u001b[35m",
+      "fg_cyan": "\u001b[36m",
+      "fg_white": "\u001b[37m",
+      "bg_black": "\u001b[40m",
+      "bg_red": "\u001b[41m",
+      "bg_green": "\u001b[42m",
+      "bg_yellow": "\u001b[43m",
+      "bg_blue": "\u001b[44m",
+      "bg_magenta": "\u001b[45m",
+      "bg_cyan": "\u001b[46m",
+      "bg_white": "\u001b[47m"
+    }
+  },
+  "rendering_rules": {
+    "box": {
+      "min_width": 10,
+      "min_height": 3,
+      "auto_size": true,
+      "fit_text": true
+    },
+    "connector": {
+      "min_length": 1,
+      "auto_route": true,
+      "avoid_overlap": true
+    },
+    "text": {
+      "overflow": "wrap",
+      "vertical_align": "center",
+      "horizontal_align": "center"
+    }
+  }
+}

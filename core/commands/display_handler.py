@@ -246,7 +246,7 @@ class DisplayHandler(BaseCommandHandler):
             if help_text.count('\n') > 20:
                 page_output(help_text, title="uDOS Command Reference")
                 return ""  # Already displayed via pager
-            
+
             return help_text
 
         # HELP <command>: Show detailed help for specific command

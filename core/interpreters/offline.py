@@ -49,6 +49,7 @@ class OfflineEngine:
         # Load components
         self.faq = self.load_knowledge()  # Legacy name for FAQ data
         self.knowledge = self.faq  # Alias for backward compatibility
+        self.faq_database = self.faq.get('FAQ', {})  # For shakedown test
         self.prompt_templates = self.load_prompt_templates()
         self.is_online = self.check_connection()
         self.command_history = []  # Track recent commands for context
@@ -660,7 +661,12 @@ class OfflineEngine:
         response = intent_data.get('RESPONSE_TEMPLATE', '{info}')
         info = f"Available commands: CATALOG, LOAD, SAVE, ASK, GRID, HELP, REPAIR, UNDO, REDO"
 
-        return response.format(topic=topic or 'commands', info=info)
+        try:
+            # Try to format with all possible variables
+            return response.format(topic=topic or 'commands', info=info, command=topic or 'help')
+        except KeyError:
+            # Fallback if template has other variables
+            return info
 
     def _handle_file_suggestion(self, user_input, intent_data):
         """Handle file finding requests."""

@@ -18,7 +18,22 @@ Version: 1.1.14
 """
 
 from core.services.checklist_manager import ChecklistManager
-from core.theme_manager import get_color
+
+
+# ANSI color codes for terminal output
+def get_color(name: str) -> str:
+    """Get ANSI color code by name."""
+    colors = {
+        'HEADER': '\033[95m',      # Magenta
+        'OKBLUE': '\033[94m',      # Blue
+        'OKGREEN': '\033[92m',     # Green
+        'WARNING': '\033[93m',     # Yellow
+        'FAIL': '\033[91m',        # Red
+        'ENDC': '\033[0m',         # Reset
+        'BOLD': '\033[1m',         # Bold
+        'UNDERLINE': '\033[4m',    # Underline
+    }
+    return colors.get(name, '')
 
 
 class ChecklistHandler:

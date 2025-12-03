@@ -62,7 +62,6 @@ class DashboardHandler(BaseCommandHandler):
         status += "║ " + "─"*77 + "║\n"
 
         username = config.username or 'user'
-        project = config.get('project_name', 'uDOS')
         location = config.location or 'Unknown'
         timezone = config.timezone or 'UTC'
 
@@ -75,10 +74,10 @@ class DashboardHandler(BaseCommandHandler):
         planet = config.get('planet', 'Earth')
         galaxy = config.get('galaxy', 'Milky Way')
 
-        status += f"║  Name: {username[:30].ljust(30)} Project: {project[:30].ljust(30)}  ║\n"
+        status += f"║  Name: {username[:30].ljust(30)} Timezone: {timezone[:30].ljust(30)}  ║\n"
         status += f"║  Location: {location[:66].ljust(66)}  ║\n"
         status += f"║  Planet: {planet[:30].ljust(30)} Galaxy: {galaxy[:30].ljust(30)}  ║\n"
-        status += f"║  Time: {current_time} {timezone.ljust(20)} Date: {current_date.ljust(20)}  ║\n"
+        status += f"║  Time: {current_time.ljust(20)} Date: {current_date.ljust(30)}  ║\n"
 
         status += "╠" + "═"*78 + "╣\n"
 

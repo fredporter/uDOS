@@ -83,16 +83,6 @@
         "maxLength": 500
       }
     },
-    "PROJECT-NAME": {
-      "type": "string",
-      "description": "Current project name",
-      "scope": "script",
-      "default": "",
-      "validation": {
-        "pattern": "^[a-zA-Z0-9_-]*$",
-        "maxLength": 100
-      }
-    },
     "PROJECT-PATH": {
       "type": "string",
       "description": "Current project path",

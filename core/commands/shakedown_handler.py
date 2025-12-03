@@ -178,17 +178,19 @@ class ShakedownHandler(BaseCommandHandler):
                 output.append(f"  {symbol} core/{dir_name}/ removed")
             self._add_test(f"Architecture: core/{dir_name} removed", removed)
 
-        # Check flattened files
-        flattened_files = [
-            "config_manager.py", "theme_manager.py", "theme_loader.py",
-            "theme_builder.py"
+        # Check flattened files (v1.5.0: moved to core/services/ hierarchy)
+        service_files = [
+            ("config_manager.py", "services"),
+            ("theme_manager.py", "services/theme"),
+            ("theme_loader.py", "services/theme"),
+            ("theme_builder.py", "services/theme")
         ]
-        for file_name in flattened_files:
-            exists = (core_path / file_name).exists()
+        for file_name, subdir in service_files:
+            exists = (core_path / subdir / file_name).exists()
             symbol = "✅" if exists else "❌"
             if verbose or not exists:
-                output.append(f"  {symbol} core/{file_name} flattened")
-            self._add_test(f"Architecture: {file_name} flattened", exists)
+                output.append(f"  {symbol} core/{subdir}/{file_name}")
+            self._add_test(f"Architecture: {file_name} in services", exists)
 
         output.append("")
 
@@ -473,10 +475,10 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("─" * 63)
 
         modules = [
-            ("core.uDOS_parser", "Parser"),
-            ("core.uDOS_logger", "Logger"),
-            ("core.config_manager", "Config Manager"),
-            ("core.theme_manager", "Theme Manager"),
+            ("core.interpreters.uDOS_parser", "Parser"),
+            ("core.services.session_logger", "Logger"),
+            ("core.config", "Config Manager"),
+            ("core.services.theme.theme_manager", "Theme Manager"),
             ("core.services.planet_manager", "Planet Manager"),
         ]
 
@@ -639,7 +641,11 @@ class ShakedownHandler(BaseCommandHandler):
             import json
             with open(prompts_path) as f:
                 data = json.load(f)
-                prompt_count = len(data.get("prompts", {}))
+                # Count prompts across all categories
+                if "categories" in data:
+                    prompt_count = sum(len(cat.get("prompts", {})) for cat in data["categories"].values())
+                else:
+                    prompt_count = len(data.get("prompts", {}))
                 symbol = "✅" if prompt_count >= 13 else "⚠️"
                 output.append(f"  {symbol} {prompt_count} survival diagram prompts")
                 self._add_test("GENERATE: survival prompts", prompt_count >= 13)
@@ -771,10 +777,10 @@ class ShakedownHandler(BaseCommandHandler):
 
             # Test simple query
             start_time = time.time()
-            result = engine.answer("What is water purification?")
+            result = engine.generate("What is water purification?")
             duration = time.time() - start_time
 
-            has_answer = result and 'answer' in result
+            has_answer = result and hasattr(result, 'content') and result.content
             fast = duration < 0.5
 
             symbol = "✅" if has_answer and fast else "⚠️"
@@ -782,8 +788,8 @@ class ShakedownHandler(BaseCommandHandler):
             self._add_test("Offline: simple query", has_answer and fast, duration=duration)
 
             # Test confidence scoring
-            if has_answer and 'confidence' in result:
-                conf = result['confidence']
+            if has_answer and hasattr(result, 'confidence'):
+                conf = result.confidence * 100  # Convert 0.0-1.0 to percentage
                 symbol = "✅" if 0 <= conf <= 100 else "⚠️"
                 output.append(f"  {symbol} Confidence scoring: {conf:.1f}%")
                 self._add_test("Offline: confidence scoring", 0 <= conf <= 100)
@@ -807,7 +813,7 @@ class ShakedownHandler(BaseCommandHandler):
 
             # Check rate limiting config
             monitor = APIMonitor()
-            has_limits = hasattr(monitor, 'rate_limits') or hasattr(monitor, 'limits')
+            has_limits = hasattr(monitor, 'rate_config') and monitor.rate_config is not None
             symbol = "✅" if has_limits else "⚠️"
             output.append(f"  {symbol} Rate limiting configured")
             self._add_test("API: rate limiting", has_limits)

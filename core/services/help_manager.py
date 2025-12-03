@@ -300,12 +300,12 @@ class HelpManager:
                 help_text += f"║  {cmd_name:<18} - {desc.ljust(56)}║\n"
 
         help_text += "╚" + "═"*78 + "╝\n"
-        
+
         # Use pager for long output
         if help_text.count('\n') > 20:
             page_output(help_text, title=full_cat_name or category_name)
             return ""  # Already displayed via pager
-        
+
         return help_text
 
     def format_search_results(self, query: str, limit: int = 10) -> str:
@@ -339,12 +339,12 @@ class HelpManager:
         help_text += "║".ljust(79) + "║\n"
         help_text += "║  💡 Use 'HELP <command>' for details".ljust(79) + "║\n"
         help_text += "╚" + "═"*78 + "╝\n"
-        
+
         # Use pager for long output
         if help_text.count('\n') > 20:
             page_output(help_text, title=f"Search: {query}")
             return ""  # Already displayed via pager
-        
+
         return help_text
 
     def _wrap_text(self, text: str, indent: int = 4) -> str:
