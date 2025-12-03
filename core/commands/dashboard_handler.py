@@ -48,10 +48,43 @@ class DashboardHandler(BaseCommandHandler):
             return self._status_snapshot()
 
     def _status_snapshot(self):
-        """Display a single snapshot of system status."""
-        status = "╔" + "═"*68 + "╗\n"
-        status += "║" + "📊 uDOS SYSTEM STATUS".center(68) + "║\n"
-        status += "╠" + "═"*68 + "╣\n"
+        """Display a single snapshot of system status with enhanced ASCII dashboard."""
+        # Get configuration
+        config = get_config()
+
+        # Build comprehensive dashboard
+        status = "╔" + "═"*78 + "╗\n"
+        status += "║" + "📊 uDOS SYSTEM DASHBOARD".center(78) + "║\n"
+        status += "╠" + "═"*78 + "╣\n"
+
+        # User & Location Information
+        status += "║ " + "👤 USER PROFILE".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
+
+        username = config.username or 'user'
+        project = config.get('project_name', 'uDOS')
+        location = config.location or 'Unknown'
+        timezone = config.timezone or 'UTC'
+
+        # Get current time
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        current_date = now.strftime("%Y-%m-%d")
+
+        # Get planet/galaxy info from config or defaults
+        planet = config.get('planet', 'Earth')
+        galaxy = config.get('galaxy', 'Milky Way')
+
+        status += f"║  Name: {username[:30].ljust(30)} Project: {project[:30].ljust(30)}  ║\n"
+        status += f"║  Location: {location[:66].ljust(66)}  ║\n"
+        status += f"║  Planet: {planet[:30].ljust(30)} Galaxy: {galaxy[:30].ljust(30)}  ║\n"
+        status += f"║  Time: {current_time} {timezone.ljust(20)} Date: {current_date.ljust(20)}  ║\n"
+
+        status += "╠" + "═"*78 + "╣\n"
+
+        # Connection & Display Status
+        status += "║ " + "🔌 SYSTEM STATUS".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
 
         # Connection status with color-coded indicator
         if self.connection:
@@ -62,29 +95,19 @@ class DashboardHandler(BaseCommandHandler):
             else:
                 conn_icon = "🔴"
                 conn_status = "OFFLINE"
-            status += f"║ {conn_icon} Connectivity: {conn_status.ljust(54)} ║\n"
+            status += f"║  Connectivity: {conn_icon} {conn_status.ljust(61)} ║\n"
 
         # Viewport info
         if self.viewport:
             specs = self.viewport.get_grid_specs()
-            status += f"║ 📐 Display: {specs['terminal_width']}×{specs['terminal_height']} chars".ljust(68) + " ║\n"
-            status += f"║    Device Type: {specs['device_type'].ljust(50)} ║\n"
+            status += f"║  Display: 📐 {specs['terminal_width']}×{specs['terminal_height']} chars".ljust(78) + " ║\n"
+            status += f"║  Device: {specs['device_type'].ljust(68)} ║\n"
 
-        # User info - enhanced with location
-        config = get_config()
-        name = config.username or 'user'
-        project = config.get('project_name', 'uDOS')
-        location = config.location or 'Unknown'
-        timezone = config.timezone or 'UTC'
-
-        status += f"║ 👤 User: {name[:20]} ({project[:30]})" + " "*(68-len(f"User: {name[:20]} ({project[:30]})") -4) + "║\n"
-        status += f"║ 📍 Location: {location}, {timezone}" + " "*(68-len(f"Location: {location}, {timezone}") -4) + "║\n"
-
-        status += "╠" + "═"*68 + "╣\n"
+        status += "╠" + "═"*78 + "╣\n"
 
         # Web Extension Servers with visual status bars
-        status += "║ " + "🌐 WEB SERVERS".ljust(67) + "║\n"
-        status += "║ " + "─"*67 + "║\n"
+        status += "║ " + "🌐 WEB SERVERS".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
 
         # Import ServerManager if available
         try:
@@ -104,22 +127,22 @@ class DashboardHandler(BaseCommandHandler):
                     filled = min(bar_length, int((uptime / 3600) * bar_length))  # 1 hour = full bar
                     bar = "█" * filled + "░" * (bar_length - filled)
 
-                    status_line = f" ✅ {srv_name[:16].ljust(16)} {bar} {uptime_str.rjust(8)}"
-                    status += f"║{status_line.ljust(68)}║\n"
-                    status += f"║    {url.ljust(64)}║\n"
+                    status_line = f"  ✅ {srv_name[:16].ljust(16)} {bar} {uptime_str.rjust(8)}"
+                    status += f"║{status_line.ljust(78)}║\n"
+                    status += f"║     {url.ljust(73)}║\n"
 
             if not any_running:
-                status += "║  ⭕ No servers running" + " "*44 + "║\n"
-                status += "║     💡 Use: OUTPUT START teletext (or dashboard/typo)" + " "*7 + "║\n"
+                status += "║  ⭕ No servers running" + " "*54 + "║\n"
+                status += "║     💡 Use: OUTPUT START teletext (or dashboard/typora)" + " "*17 + "║\n"
         except Exception as e:
-            status += "║  📡 Web servers not configured" + " "*36 + "║\n"
-            status += "║     💡 Available when extensions loaded" + " "*24 + "║\n"
+            status += "║  📡 Web servers not configured" + " "*46 + "║\n"
+            status += "║     💡 Available when extensions loaded" + " "*34 + "║\n"
 
-        status += "╠" + "═"*68 + "╣\n"
+        status += "╠" + "═"*78 + "╣\n"
 
         # System health and resources
-        status += "║ " + "🏥 SYSTEM HEALTH".ljust(67) + "║\n"
-        status += "║ " + "─"*67 + "║\n"
+        status += "║ " + "🏥 SYSTEM HEALTH".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
 
         try:
             from core.services.uDOS_startup import check_python_version, check_dependencies
@@ -127,8 +150,11 @@ class DashboardHandler(BaseCommandHandler):
             dep_result = check_dependencies()
             dep_ok = dep_result.status == "success"
 
-            status += f"║  Python: {'✅ ' + sys.version.split()[0] if py_ok else '⚠️  WARNING'}" + " "*(68-len(f"Python: {'✅ ' + sys.version.split()[0] if py_ok else '⚠️  WARNING'}") -3) + "║\n"
-            status += f"║  Dependencies: {'✅ All installed' if dep_ok else '⚠️  Issues detected'}" + " "*(68-len(f"Dependencies: {'✅ All installed' if dep_ok else '⚠️  Issues detected'}") -3) + "║\n"
+            py_status = f"✅ {sys.version.split()[0]}" if py_ok else "⚠️  WARNING"
+            status += f"║  Python: {py_status.ljust(68)} ║\n"
+
+            dep_status = "✅ All installed" if dep_ok else "⚠️  Issues detected"
+            status += f"║  Dependencies: {dep_status.ljust(63)} ║\n"
 
             # Add system resources
             try:
@@ -141,27 +167,27 @@ class DashboardHandler(BaseCommandHandler):
                 mem_emoji = '✅' if mem < 70 else '⚠️' if mem < 90 else '🔴'
                 disk_emoji = '✅' if disk < 80 else '⚠️' if disk < 95 else '🔴'
 
-                status += f"║  CPU: {cpu_emoji} {cpu:.1f}%  Memory: {mem_emoji} {mem:.1f}%  Disk: {disk_emoji} {disk:.1f}%" + " "*(68-len(f"CPU: {cpu_emoji} {cpu:.1f}%  Memory: {mem_emoji} {mem:.1f}%  Disk: {disk_emoji} {disk:.1f}%") -3) + "║\n"
+                status += f"║  CPU: {cpu_emoji} {cpu:5.1f}%  Memory: {mem_emoji} {mem:5.1f}%  Disk: {disk_emoji} {disk:5.1f}%".ljust(78) + " ║\n"
             except ImportError:
-                status += "║  Resources: 💡 Install psutil for monitoring" + " "*21 + "║\n"
+                status += "║  Resources: 💡 Install psutil for monitoring" + " "*31 + "║\n"
         except Exception as e:
-            status += "║  Health check: ⚠️  Unable to verify" + " "*30 + "║\n"
+            status += "║  Health check: ⚠️  Unable to verify" + " "*40 + "║\n"
 
         # History stats if available
         if self.history:
             undo_count = len(self.history.undo_stack)
             redo_count = len(self.history.redo_stack)
             history_str = f"History: {undo_count} undo / {redo_count} redo available"
-            status += f"║  {history_str}" + " "*(68-len(history_str) -3) + "║\n"
+            status += f"║  {history_str}".ljust(78) + " ║\n"
 
         # API Quotas (if resource manager available)
         try:
             from core.services.resource_manager import get_resource_manager
             rm = get_resource_manager()
 
-            status += "╠" + "═"*68 + "╣\n"
-            status += "║ " + "🔑 API QUOTAS".ljust(67) + "║\n"
-            status += "║ " + "─"*67 + "║\n"
+            status += "╠" + "═"*78 + "╣\n"
+            status += "║ " + "🔑 API QUOTAS".ljust(77) + "║\n"
+            status += "║ " + "─"*77 + "║\n"
 
             for provider in ['gemini', 'github']:
                 quota_info = rm.check_api_quota(provider)
@@ -169,7 +195,7 @@ class DashboardHandler(BaseCommandHandler):
                     percent = quota_info['percent']
                     emoji = "✅" if percent < 50 else "⚠️" if percent < 80 else "🔴"
                     quota_str = f"{provider.upper()}: {emoji} {quota_info['used']}/{quota_info['limit']} ({percent}%)"
-                    status += f"║  {quota_str}" + " "*(68-len(quota_str) -3) + "║\n"
+                    status += f"║  {quota_str}".ljust(78) + " ║\n"
         except Exception:
             pass  # Skip quota section if not available
 
@@ -179,25 +205,26 @@ class DashboardHandler(BaseCommandHandler):
             archive_mgr = ArchiveManager()
             health = archive_mgr.get_health_metrics()
 
-            status += "╠" + "═"*68 + "╣\n"
-            status += "║ " + "📦 ARCHIVE SYSTEM".ljust(67) + "║\n"
-            status += "║ " + "─"*67 + "║\n"
+            status += "╠" + "═"*78 + "╣\n"
+            status += "║ " + "📦 ARCHIVE SYSTEM".ljust(77) + "║\n"
+            status += "║ " + "─"*77 + "║\n"
 
             # Total stats
             total_size_mb = round(health['total_size'] / (1024 * 1024), 2)
             emoji = "✅" if total_size_mb < 100 else "⚠️" if total_size_mb < 500 else "🔴"
 
-            status += f"║  Archives: {health['total_archives']}  Files: {health['total_files']}  Size: {emoji} {total_size_mb} MB" + " "*(68-len(f"Archives: {health['total_archives']}  Files: {health['total_files']}  Size: {emoji} {total_size_mb} MB") -3) + "║\n"
+            archive_stats = f"Archives: {health['total_archives']}  Files: {health['total_files']}  Size: {emoji} {total_size_mb} MB"
+            status += f"║  {archive_stats}".ljust(78) + " ║\n"
 
             # Warnings
             if health['warnings']:
                 for warning in health['warnings'][:2]:  # Show max 2 warnings
-                    warn_text = warning[:62]  # Truncate long warnings
-                    status += f"║  ⚠️  {warn_text}" + " "*(68-len(warn_text) -6) + "║\n"
+                    warn_text = warning[:70]  # Truncate long warnings
+                    status += f"║  ⚠️  {warn_text}".ljust(78) + " ║\n"
         except Exception:
             pass  # Skip archive section if not available
 
-        status += "╚" + "═"*68 + "╝\n"
+        status += "╚" + "═"*78 + "╝\n"
         status += "\n💡 Tips: STATUS --live (monitoring) | RESOURCE STATUS (detailed quotas)\n"
 
         return status
@@ -266,18 +293,12 @@ class DashboardHandler(BaseCommandHandler):
 
     def handle_dashboard(self, params, grid, parser):
         """
-        DEPRECATED: Use STATUS for text dashboard or POKE DASHBOARD for web.
+        Display system dashboard (alias for STATUS command).
 
-        This command is deprecated in v1.1.12. Use:
-        - STATUS - Text-based system dashboard (TUI)
-        - POKE DASHBOARD - Web-based dashboard
+        DASH is now an alias for STATUS, showing enhanced ASCII dashboard
+        with user info, location, planet, galaxy, time, and system metrics.
         """
-        return ("⚠️  DASH command deprecated in v1.1.12\n\n"
-               "Use instead:\n"
-               "  STATUS - Text-based system dashboard\n"
-               "  POKE DASHBOARD - Web-based NES dashboard\n\n"
-               "Redirecting to STATUS...\n\n" +
-               self._status_snapshot())
+        return self._status_snapshot()
 
     def handle_viewport(self, params, grid, parser):
         """Display viewport visualization."""
