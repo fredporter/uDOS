@@ -27,7 +27,7 @@ import time
 import json
 
 from .base_handler import BaseCommandHandler
-from core.services.api_monitor import get_api_monitor, APIRequest, Priority as APIPriority
+from core.services.api_monitor import get_api_monitor, APIRequest
 from core.services.priority_queue import get_priority_queue, Priority as QueuePriority
 from core.services.performance_monitor import get_performance_monitor
 from core.services.unified_logger import log_performance, log_api, log_error, log_command
@@ -854,35 +854,35 @@ History:
         report = "📊 GENERATE System Validation (v1.2.0 Success Criteria)\n\n"
 
         # Overall status
-        all_passed = all(validation.values())
+        all_passed = validation['all_passed']
         status = "✅ ALL CRITERIA MET" if all_passed else "❌ CRITERIA NOT MET"
         report += f"{status}\n\n"
 
         # Individual criteria
         report += "Criteria:\n"
+        criteria = validation['criteria']
 
-        # 1. Offline rate
-        icon = "✅" if validation['offline_rate'] else "❌"
-        stats = self.performance_monitor.get_session_stats()
-        offline_pct = stats.get('offline_rate', 0)
-        report += f"  {icon} Offline Query Rate: {offline_pct:.1f}% (target: ≥90%)\n"
+        for name, details in criteria.items():
+            icon = "✅" if details['passed'] else "❌"
+            desc = details['description']
+            actual = details['actual']
+            target = details['target']
 
-        # 2. Cost reduction
-        icon = "✅" if validation['cost_reduction'] else "❌"
-        cost_reduction = stats.get('cost_reduction', 0)
-        report += f"  {icon} Cost Reduction: {cost_reduction:.1f}% (target: ≥99%)\n"
+            # Format based on type
+            if 'rate' in name:
+                actual_str = f"{actual*100:.1f}%"
+                target_str = f"{target*100:.0f}%"
+            elif 'cost' in name:
+                actual_str = f"{actual:.1f}%"
+                target_str = f"{target:.0f}%"
+            else:  # response time
+                actual_str = f"{actual*1000:.0f}ms"
+                target_str = f"{target*1000:.0f}ms"
 
-        # 3. Average response time
-        icon = "✅" if validation['avg_response_time'] else "❌"
-        avg_time = stats.get('avg_duration', 0) * 1000  # Convert to ms
-        report += f"  {icon} Avg Response Time: {avg_time:.0f}ms (target: <500ms)\n"
-
-        # 4. P95 response time
-        icon = "✅" if validation['p95_response_time'] else "❌"
-        p95_time = stats.get('p95_duration', 0) * 1000  # Convert to ms
-        report += f"  {icon} P95 Response Time: {p95_time:.0f}ms (target: <500ms)\n"
+            report += f"  {icon} {desc}: {actual_str} (target: {target_str})\n"
 
         # Session summary
+        stats = validation['session_stats']
         report += f"\nSession Summary:\n"
         report += f"  Total Queries: {stats.get('total_queries', 0)}\n"
         report += f"  Offline Queries: {stats.get('offline_queries', 0)}\n"
@@ -895,11 +895,9 @@ History:
 
         # Log validation
         log_performance('VALIDATE', 0.0, offline=True,
-                       validation=all_passed, criteria=validation)
+                       validation=all_passed, criteria_met=sum(1 for c in criteria.values() if c['passed']))
 
-        return report
-
-    # ========== CLEAR Command ==========
+        return report    # ========== CLEAR Command ==========
 
     def _handle_clear(self) -> str:
         """Clear generation history."""
