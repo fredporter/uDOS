@@ -31,7 +31,7 @@ pip install flask flask-socketio psutil
 
 ```bash
 # In uDOS:
-EXTENSION ENABLE mission-control
+EXTENSION ENABLE mission
 ```
 
 ### Access Dashboard
@@ -187,7 +187,7 @@ broadcast_resource_update({
 ### File Structure
 
 ```
-extensions/core/mission-control/
+extensions/core/mission/
 ├── extension.json           # Extension manifest
 ├── dashboard.html           # Main UI template
 ├── dashboard.css            # Styling
@@ -237,7 +237,7 @@ Edit `dashboard.css` root variables:
 ### Dashboard Won't Load
 
 1. Check uDOS server is running
-2. Check extension is enabled: `EXTENSION STATUS mission-control`
+2. Check extension is enabled: `EXTENSION STATUS mission`
 3. Check Flask/SocketIO installed: `pip list | grep -i flask`
 4. Check console for errors (F12 in browser)
 

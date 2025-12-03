@@ -25,14 +25,14 @@ Additional services not in server_manager.py:
 
 | Port | Service | Location | Type | Description |
 |------|---------|----------|------|-------------|
-| **5000** | Mission Control | `extensions/core/mission-control/` | Embedded | Real-time mission tracking |
+| **5000** | Mission Control | `extensions/core/mission/` | Embedded | Real-time mission tracking |
 | **8080** | Map Server | `extensions/play/commands/map_handler.py` | Dynamic | Planet map visualization |
 
 ## Port Allocation Rules
 
 ### Reserved Ranges
 
-- **5000-5099**: Extension-specific servers (mission-control, etc.)
+- **5000-5099**: Extension-specific servers (mission, etc.)
 - **8800-8899**: Core web extensions (dashboard, terminal, desktop)
 - **9000-9099**: Display extensions (teletext, etc.)
 

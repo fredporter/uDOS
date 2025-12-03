@@ -12,7 +12,7 @@
   "dependencies": {
     "uDOS": ">=1.1.4",
     "python": ">=3.10",
-    "extensions": ["ok_assistant"]
+    "extensions": []
   },
 
   "requires_api": {
@@ -45,6 +45,7 @@
         "name": "SVGGenerator",
         "description": "AI-powered SVG generation service",
         "file": "svg_generator.py"
+        }
       }
     ]
   },

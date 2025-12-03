@@ -22,7 +22,13 @@ from datetime import datetime
 from collections import defaultdict, Counter
 
 from core.services.session_analytics import CommandTrace, ErrorEntry, FeedbackEntry
-from extensions.core.ok_assistant import GeminiCLI
+
+# Note: OK Assistant deprecated - use extensions/assistant (v1.2.0)
+try:
+    from extensions.assistant.gemini_service import get_gemini_service
+    GeminiCLI = get_gemini_service  # Compatibility alias
+except ImportError:
+    GeminiCLI = None  # Gemini extension optional
 
 
 @dataclass

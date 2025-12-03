@@ -35,16 +35,17 @@ The uDOS extensions system provides dual-interface capabilities (Terminal + Web)
 
 ```
 extensions/
-├── core/                       # ✅ CORE EXTENSIONS (v1.1.15)
+├── core/                       # ✅ CORE EXTENSIONS (v1.2.0 - Reorganized)
 │   ├── terminal/              # Retro terminal (PetMe font, Synthwave DOS)
 │   ├── dashboard/             # System dashboard (NES.css, port 8888)
-│   ├── mission-control/       # Mission tracker dashboard (port 5000)
+│   ├── mission/               # Mission tracker dashboard (port 5000) [renamed from mission-control]
 │   ├── desktop/               # System 7 desktop environment
 │   ├── teletext/              # BBC Teletext with WebSocket streaming
-│   ├── ok_assistant/          # Gemini AI assistant integration
-│   ├── svg_generator/         # Nano Banana PNG→SVG vectorization
-│   ├── typora-diagrams/       # Typora diagram templates (13 types)
+│   ├── svg/                   # Nano Banana PNG→SVG vectorization [renamed from svg_generator]
 │   ├── shared/                # Base server, port manager, common utilities
+│   ├── .archive/              # Archived extensions
+│   │   ├── ok_assistant/      # MOVED to extensions/assistant/ (v1.2.0)
+│   │   └── typora-diagrams/   # DEPRECATED (unused diagram templates)
 │   └── extension_dev_tools.py # Development utilities
 │
 ├── play/                       # ✅ PLAY EXTENSION
