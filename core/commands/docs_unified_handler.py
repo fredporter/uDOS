@@ -33,6 +33,7 @@ import json
 import re
 from datetime import datetime
 from core.commands.base_handler import BaseCommandHandler
+from core.utils.pager import page_output
 
 
 class DocsUnifiedHandler(BaseCommandHandler):
@@ -272,7 +273,14 @@ All legacy commands still work with deprecation notices.
         output.append(f"💡 Tip: DOCS SHOW <name> to view")
         output.append("")
 
-        return "\n".join(output)
+        result = "\n".join(output)
+
+        # Use pager for long output
+        if len(output) > 20:
+            page_output(result, title="Documentation Library")
+            return ""  # Already displayed via pager
+
+        return result
 
     def _search(self, args: List[str]) -> str:
         """Search all documentation"""
@@ -318,7 +326,14 @@ All legacy commands still work with deprecation notices.
         output.append(f"💡 Tip: DOCS SHOW <name> to view")
         output.append("")
 
-        return "\n".join(output)
+        result = "\n".join(output)
+
+        # Use pager for long output
+        if len(output) > 20:
+            page_output(result, title=f"Search: {query}")
+            return ""  # Already displayed via pager
+
+        return result
 
     def _show(self, args: List[str]) -> str:
         """Display content with smart type detection"""
@@ -378,7 +393,14 @@ All legacy commands still work with deprecation notices.
         output.append(f"   DOCS REVIEW {item['id']} - Assess content quality")
         output.append("")
 
-        return "\n".join(output)
+        result = "\n".join(output)
+
+        # Use pager for long output
+        if len(output) > 20:
+            page_output(result, title=item['title'])
+            return ""  # Already displayed via pager
+
+        return result
 
     def _show_diagram(self, item: Dict, content_data: Dict) -> str:
         """Display diagram"""
@@ -395,7 +417,14 @@ All legacy commands still work with deprecation notices.
         output.append(f"💡 Tip: DOCS REVIEW {item['id']} to assess quality")
         output.append("")
 
-        return "\n".join(output)
+        result = "\n".join(output)
+
+        # Use pager for long output
+        if len(output) > 20:
+            page_output(result, title=item['title'])
+            return ""  # Already displayed via pager
+
+        return result
 
     def _show_generic(self, item: Dict, content_data: Dict) -> str:
         """Display generic content"""
@@ -406,7 +435,14 @@ All legacy commands still work with deprecation notices.
         output.append(content_data.get('content', ''))
         output.append("")
 
-        return "\n".join(output)
+        result = "\n".join(output)
+
+        # Use pager for long output
+        if len(output) > 20:
+            page_output(result, title=item['title'])
+            return ""  # Already displayed via pager
+
+        return result
 
     def _start(self, args: List[str]) -> str:
         """Start interactive learning session"""
