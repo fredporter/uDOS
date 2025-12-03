@@ -13,13 +13,14 @@ Files created:
 - memory/structure.txt (excludes sandbox/logs)
 - knowledge/structure.txt (full knowledge tree)
 
-Version: 1.0.0
+Version: 1.1.0 (Added pager support for long trees)
 """
 
 import os
 from pathlib import Path
 from typing import List, Set, Optional, Dict
 import fnmatch
+from core.utils.pager import page_output
 
 
 class TreeHandler:
@@ -303,19 +304,33 @@ class TreeHandler:
             if subcommand == 'MEMORY':
                 # MEMORY TREE - show memory tree
                 tree = self.generate_memory_tree()
-                return f"\n{tree}\n\n💡 Saved to: memory/structure.txt"
+                output = f"\n{tree}\n\n💡 Saved to: memory/structure.txt"
+
+                # Use pager if output is long
+                lines = output.split('\n')
+                if len(lines) > 20:
+                    page_output(output, title="Memory Tree")
+                    return ""  # Empty string since pager already displayed
+                return output
 
             elif subcommand == 'KNOWLEDGE':
                 # KNOWLEDGE TREE - show knowledge tree
                 tree = self.generate_knowledge_tree()
-                return f"\n{tree}\n\n💡 Saved to: knowledge/structure.txt"
+                output = f"\n{tree}\n\n💡 Saved to: knowledge/structure.txt"
+
+                # Use pager if output is long
+                lines = output.split('\n')
+                if len(lines) > 20:
+                    page_output(output, title="Knowledge Tree")
+                    return ""  # Empty string since pager already displayed
+                return output
 
         # TREE - update all files and show root tree (FULL, not truncated)
         results = self.save_structure_files()
         root_tree = self.generate_root_tree()
 
         output = []
-        output.append("📁 Directory Structure Updated\\n")
+        output.append("📁 Directory Structure Updated\n")
         output.append("=" * 70)
         output.append("")
 
@@ -332,4 +347,12 @@ class TreeHandler:
         output.append("=" * 70)
         output.append("💡 Use: MEMORY TREE or KNOWLEDGE TREE to view those trees")
 
-        return "\\n".join(output)
+        full_output = "\n".join(output)
+
+        # Use pager if output is long
+        lines = full_output.split('\n')
+        if len(lines) > 20:
+            page_output(full_output, title="Directory Tree")
+            return ""  # Empty string since pager already displayed
+
+        return full_output
