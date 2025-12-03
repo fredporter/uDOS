@@ -44,6 +44,9 @@ class VariableManager:
         self._init_system_vars()
         self._init_user_vars()
         self._init_path_vars()
+        self._init_prompt_vars()
+        self._init_generate_vars()
+        self._init_api_vars()
 
     def _load_schemas(self):
         """Load all JSON variable schemas from core/data/variables/."""
@@ -299,6 +302,88 @@ class VariableManager:
             if var_name not in self.variables['global']:
                 self.variables['global'][var_name] = value
 
+    def _init_prompt_vars(self):
+        """Initialize PROMPT.* variables for AI prompt injection."""
+        prompt_vars = {
+            # System prompts (configurable per context)
+            'PROMPT.SYSTEM': lambda: self._get_prompt_config('system', 'You are a helpful survival knowledge assistant.'),
+            'PROMPT.USER': lambda: self._get_prompt_config('user', ''),
+            'PROMPT.CONTEXT': lambda: self._get_prompt_config('context', ''),
+            
+            # Prompt templates
+            'PROMPT.TEMPLATE.QA': lambda: self._get_prompt_template('qa'),
+            'PROMPT.TEMPLATE.GUIDE': lambda: self._get_prompt_template('guide'),
+            'PROMPT.TEMPLATE.SUMMARY': lambda: self._get_prompt_template('summary'),
+            'PROMPT.TEMPLATE.ENHANCE': lambda: self._get_prompt_template('enhance'),
+            
+            # Prompt modifiers
+            'PROMPT.TONE': lambda: self._get_prompt_config('tone', 'professional'),
+            'PROMPT.COMPLEXITY': lambda: self._get_prompt_config('complexity', 'detailed'),
+            'PROMPT.AUDIENCE': lambda: self._get_prompt_config('audience', 'general'),
+        }
+
+        for var_name, value in prompt_vars.items():
+            if var_name not in self.variables['session']:
+                self.variables['session'][var_name] = value
+
+    def _init_generate_vars(self):
+        """Initialize GENERATE.* variables for generation tracking and control."""
+        generate_vars = {
+            # Generation mode control
+            'GENERATE.MODE': lambda: self._get_generate_config('mode', 'auto'),  # auto, offline, online
+            'GENERATE.PRIORITY': lambda: self._get_generate_config('priority', 'normal'),  # critical, high, normal, low
+            'GENERATE.STYLE': lambda: self._get_generate_config('style', 'balanced'),  # concise, balanced, detailed
+            'GENERATE.FORMAT': lambda: self._get_generate_config('format', 'text'),  # text, markdown, json
+            
+            # Generation statistics (read-only)
+            'GENERATE.TOTAL_REQUESTS': lambda: self._get_generate_stat('total_requests', 0),
+            'GENERATE.OFFLINE_REQUESTS': lambda: self._get_generate_stat('offline_requests', 0),
+            'GENERATE.ONLINE_REQUESTS': lambda: self._get_generate_stat('online_requests', 0),
+            'GENERATE.SUCCESS_RATE': lambda: self._get_generate_success_rate(),
+            
+            # Current generation context
+            'GENERATE.LAST_QUERY': lambda: self._get_generate_stat('last_query', ''),
+            'GENERATE.LAST_METHOD': lambda: self._get_generate_stat('last_method', ''),
+            'GENERATE.LAST_CONFIDENCE': lambda: self._get_generate_stat('last_confidence', 0.0),
+            'GENERATE.LAST_COST': lambda: self._get_generate_stat('last_cost', 0.0),
+        }
+
+        for var_name, value in generate_vars.items():
+            if var_name not in self.variables['session']:
+                self.variables['session'][var_name] = value
+
+    def _init_api_vars(self):
+        """Initialize API.* variables for API monitoring and cost tracking."""
+        api_vars = {
+            # API usage statistics (read-only)
+            'API.REQUESTS': lambda: self._get_api_stat('total_requests', 0),
+            'API.REQUESTS_TODAY': lambda: self._get_api_stat('requests_today', 0),
+            'API.REQUESTS_HOUR': lambda: self._get_api_stat('requests_hour', 0),
+            
+            # Cost tracking
+            'API.COST': lambda: self._get_api_stat('total_cost', 0.0),
+            'API.COST_TODAY': lambda: self._get_api_stat('cost_today', 0.0),
+            'API.COST_HOUR': lambda: self._get_api_stat('cost_hour', 0.0),
+            
+            # Budget management
+            'API.BUDGET': lambda: self._get_api_config('daily_budget', 1.0),
+            'API.BUDGET_REMAINING': lambda: self._get_api_budget_remaining(),
+            'API.BUDGET_PERCENT': lambda: self._get_api_budget_percent(),
+            
+            # Rate limiting
+            'API.RATE_LIMIT': lambda: self._get_api_config('requests_per_second', 2.0),
+            'API.RATE_REMAINING': lambda: self._get_api_rate_remaining(),
+            
+            # Service status
+            'API.OFFLINE_AVAILABLE': lambda: self._get_api_service_status('offline', True),
+            'API.GEMINI_AVAILABLE': lambda: self._get_api_service_status('gemini', False),
+            'API.BANANA_AVAILABLE': lambda: self._get_api_service_status('banana', False),
+        }
+
+        for var_name, value in api_vars.items():
+            if var_name not in self.variables['session']:
+                self.variables['session'][var_name] = value
+
     def _get_story_value(self, section: str, key: str, default: str = '') -> str:
         """
         Retrieve value from STORY.UDO data.
@@ -353,6 +438,182 @@ class VariableManager:
         except Exception:
             pass
         return 'main'
+
+    # ========== Prompt Variable Helpers ==========
+
+    def _get_prompt_config(self, key: str, default: str = '') -> str:
+        """Get prompt configuration value."""
+        try:
+            if 'env' in self.components:
+                env = self.components['env']
+                if hasattr(env, 'prompt_config'):
+                    return env.prompt_config.get(key, default)
+        except Exception:
+            pass
+        return default
+
+    def _get_prompt_template(self, template_type: str) -> str:
+        """Get prompt template by type."""
+        templates = {
+            'qa': 'Answer the following question concisely and accurately: {query}',
+            'guide': 'Create a detailed guide about {topic}. Include practical steps, safety considerations, and common mistakes to avoid.',
+            'summary': 'Summarize the following content in {length} style: {content}',
+            'enhance': 'Improve and expand the following content while maintaining its core message: {content}'
+        }
+        return templates.get(template_type, '')
+
+    # ========== Generate Variable Helpers ==========
+
+    def _get_generate_config(self, key: str, default: Any) -> Any:
+        """Get GENERATE configuration value."""
+        try:
+            if 'env' in self.components:
+                env = self.components['env']
+                if hasattr(env, 'generate_config'):
+                    return env.generate_config.get(key, default)
+        except Exception:
+            pass
+        return default
+
+    def _get_generate_stat(self, key: str, default: Any) -> Any:
+        """Get GENERATE statistics value."""
+        try:
+            if 'generate_handler' in self.components:
+                handler = self.components['generate_handler']
+                if hasattr(handler, 'stats'):
+                    return handler.stats.get(key, default)
+                # Check generation history for last_* values
+                if key.startswith('last_') and hasattr(handler, 'generation_history'):
+                    if handler.generation_history:
+                        last_gen = handler.generation_history[-1]
+                        stat_key = key.replace('last_', '')
+                        return last_gen.get(stat_key, default)
+        except Exception:
+            pass
+        return default
+
+    def _get_generate_success_rate(self) -> float:
+        """Calculate GENERATE success rate."""
+        try:
+            if 'generate_handler' in self.components:
+                handler = self.components['generate_handler']
+                if hasattr(handler, 'stats'):
+                    total = handler.stats.get('total_requests', 0)
+                    if total == 0:
+                        return 0.0
+                    # Assume all completed requests are successful (could enhance with failure tracking)
+                    return 100.0
+        except Exception:
+            pass
+        return 0.0
+
+    # ========== API Variable Helpers ==========
+
+    def _get_api_stat(self, key: str, default: Any) -> Any:
+        """Get API monitoring statistics."""
+        try:
+            from core.services.api_monitor import get_api_monitor
+            monitor = get_api_monitor()
+            stats = monitor.get_stats()
+            
+            # Map stat keys
+            key_mapping = {
+                'total_requests': 'total_requests',
+                'requests_today': 'requests_today',
+                'requests_hour': 'requests_hour',
+                'total_cost': 'total_cost',
+                'cost_today': 'daily_cost',
+                'cost_hour': 'hourly_cost'
+            }
+            
+            mapped_key = key_mapping.get(key, key)
+            return stats.get(mapped_key, default)
+        except Exception:
+            pass
+        return default
+
+    def _get_api_config(self, key: str, default: Any) -> Any:
+        """Get API configuration value."""
+        try:
+            from core.services.api_monitor import get_api_monitor
+            monitor = get_api_monitor()
+            
+            # Rate limit config
+            if key == 'requests_per_second':
+                return monitor.rate_config.requests_per_second
+            elif key == 'daily_budget':
+                return monitor.budget_config.daily_budget_usd
+            
+        except Exception:
+            pass
+        return default
+
+    def _get_api_budget_remaining(self) -> float:
+        """Calculate remaining API budget for today."""
+        try:
+            from core.services.api_monitor import get_api_monitor
+            monitor = get_api_monitor()
+            stats = monitor.get_stats()
+            daily_budget = monitor.budget_config.daily_budget_usd
+            daily_cost = stats.get('daily_cost', 0.0)
+            return max(0.0, daily_budget - daily_cost)
+        except Exception:
+            pass
+        return 0.0
+
+    def _get_api_budget_percent(self) -> float:
+        """Calculate API budget usage percentage."""
+        try:
+            from core.services.api_monitor import get_api_monitor
+            monitor = get_api_monitor()
+            stats = monitor.get_stats()
+            daily_budget = monitor.budget_config.daily_budget_usd
+            daily_cost = stats.get('daily_cost', 0.0)
+            if daily_budget == 0:
+                return 0.0
+            return (daily_cost / daily_budget) * 100
+        except Exception:
+            pass
+        return 0.0
+
+    def _get_api_rate_remaining(self) -> int:
+        """Get remaining API requests before rate limit."""
+        try:
+            from core.services.api_monitor import get_api_monitor
+            monitor = get_api_monitor()
+            # Simple check - how many requests in last second
+            now = __import__('time').time()
+            recent = [r for r in monitor.requests_last_second if now - r.timestamp < 1.0]
+            limit = int(monitor.rate_config.requests_per_second)
+            return max(0, limit - len(recent))
+        except Exception:
+            pass
+        return 0
+
+    def _get_api_service_status(self, service: str, default: bool = False) -> bool:
+        """Check if an API service is available."""
+        try:
+            if service == 'offline':
+                # Offline engine always available
+                return True
+            elif service == 'gemini':
+                # Check if Gemini extension is available
+                try:
+                    from extensions.assistant.gemini_service import get_gemini_service
+                    svc = get_gemini_service()
+                    return svc.is_available
+                except ImportError:
+                    return False
+            elif service == 'banana':
+                # Check if Banana service is configured
+                if 'env' in self.components:
+                    env = self.components['env']
+                    if hasattr(env, 'config_manager'):
+                        return env.config_manager.get_env('BANANA_API_KEY') is not None
+                return False
+        except Exception:
+            pass
+        return default
 
     def resolve(self, template: str, extra_vars: Optional[Dict[str, Any]] = None) -> str:
         """
