@@ -309,13 +309,13 @@ class VariableManager:
             'PROMPT.SYSTEM': lambda: self._get_prompt_config('system', 'You are a helpful survival knowledge assistant.'),
             'PROMPT.USER': lambda: self._get_prompt_config('user', ''),
             'PROMPT.CONTEXT': lambda: self._get_prompt_config('context', ''),
-            
+
             # Prompt templates
             'PROMPT.TEMPLATE.QA': lambda: self._get_prompt_template('qa'),
             'PROMPT.TEMPLATE.GUIDE': lambda: self._get_prompt_template('guide'),
             'PROMPT.TEMPLATE.SUMMARY': lambda: self._get_prompt_template('summary'),
             'PROMPT.TEMPLATE.ENHANCE': lambda: self._get_prompt_template('enhance'),
-            
+
             # Prompt modifiers
             'PROMPT.TONE': lambda: self._get_prompt_config('tone', 'professional'),
             'PROMPT.COMPLEXITY': lambda: self._get_prompt_config('complexity', 'detailed'),
@@ -334,13 +334,13 @@ class VariableManager:
             'GENERATE.PRIORITY': lambda: self._get_generate_config('priority', 'normal'),  # critical, high, normal, low
             'GENERATE.STYLE': lambda: self._get_generate_config('style', 'balanced'),  # concise, balanced, detailed
             'GENERATE.FORMAT': lambda: self._get_generate_config('format', 'text'),  # text, markdown, json
-            
+
             # Generation statistics (read-only)
             'GENERATE.TOTAL_REQUESTS': lambda: self._get_generate_stat('total_requests', 0),
             'GENERATE.OFFLINE_REQUESTS': lambda: self._get_generate_stat('offline_requests', 0),
             'GENERATE.ONLINE_REQUESTS': lambda: self._get_generate_stat('online_requests', 0),
             'GENERATE.SUCCESS_RATE': lambda: self._get_generate_success_rate(),
-            
+
             # Current generation context
             'GENERATE.LAST_QUERY': lambda: self._get_generate_stat('last_query', ''),
             'GENERATE.LAST_METHOD': lambda: self._get_generate_stat('last_method', ''),
@@ -359,21 +359,21 @@ class VariableManager:
             'API.REQUESTS': lambda: self._get_api_stat('total_requests', 0),
             'API.REQUESTS_TODAY': lambda: self._get_api_stat('requests_today', 0),
             'API.REQUESTS_HOUR': lambda: self._get_api_stat('requests_hour', 0),
-            
+
             # Cost tracking
             'API.COST': lambda: self._get_api_stat('total_cost', 0.0),
             'API.COST_TODAY': lambda: self._get_api_stat('cost_today', 0.0),
             'API.COST_HOUR': lambda: self._get_api_stat('cost_hour', 0.0),
-            
+
             # Budget management
             'API.BUDGET': lambda: self._get_api_config('daily_budget', 1.0),
             'API.BUDGET_REMAINING': lambda: self._get_api_budget_remaining(),
             'API.BUDGET_PERCENT': lambda: self._get_api_budget_percent(),
-            
+
             # Rate limiting
             'API.RATE_LIMIT': lambda: self._get_api_config('requests_per_second', 2.0),
             'API.RATE_REMAINING': lambda: self._get_api_rate_remaining(),
-            
+
             # Service status
             'API.OFFLINE_AVAILABLE': lambda: self._get_api_service_status('offline', True),
             'API.GEMINI_AVAILABLE': lambda: self._get_api_service_status('gemini', False),
@@ -515,7 +515,7 @@ class VariableManager:
             from core.services.api_monitor import get_api_monitor
             monitor = get_api_monitor()
             stats = monitor.get_stats()
-            
+
             # Map stat keys
             key_mapping = {
                 'total_requests': 'total_requests',
@@ -525,7 +525,7 @@ class VariableManager:
                 'cost_today': 'daily_cost',
                 'cost_hour': 'hourly_cost'
             }
-            
+
             mapped_key = key_mapping.get(key, key)
             return stats.get(mapped_key, default)
         except Exception:
@@ -537,13 +537,13 @@ class VariableManager:
         try:
             from core.services.api_monitor import get_api_monitor
             monitor = get_api_monitor()
-            
+
             # Rate limit config
             if key == 'requests_per_second':
                 return monitor.rate_config.requests_per_second
             elif key == 'daily_budget':
                 return monitor.budget_config.daily_budget_usd
-            
+
         except Exception:
             pass
         return default

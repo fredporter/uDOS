@@ -214,14 +214,138 @@ RUN workflows/water-purification.upy
 ## Content Generation
 
 ### GENERATE
-Unified AI content generation system (Nano Banana pipeline).
+**v1.2.0** - Unified AI generation system with offline-first architecture.
+
+**Commands:**
+```
+GENERATE DO <query>                                 # Offline-first Q&A (90%+ free!)
+GENERATE REDO [modifications]                       # Retry last generation
+GENERATE GUIDE <category> <topic>                   # Generate knowledge guide
+GENERATE SVG <description>                          # Generate PNG→SVG diagram
+GENERATE ASCII <type> <content> [width] [height]    # Generate ASCII art
+GENERATE TELETEXT <content>                         # Generate BBC teletext
+GENERATE STATUS                                     # Show usage statistics
+GENERATE CLEAR                                      # Clear generation history
+```
+
+**Architecture (3-tier intelligence):**
+1. **Offline Engine** (90%+ queries, zero cost)
+   - FAQ database (70% confidence)
+   - Knowledge bank synthesis (30% confidence)
+   - Instant responses, no API calls
+2. **Gemini Extension** (fallback, <10% queries)
+   - Activated when offline confidence < 50%
+   - Optional (requires GEMINI_API_KEY)
+   - Cost tracking and rate limiting
+3. **Banana** (image generation only)
+   - Explicit SVG/diagram requests
+   - PNG→SVG conversion pipeline
+
+---
+
+#### GENERATE DO (Offline-First Q&A)
+
+**NEW in v1.2.0** - Ask questions with intelligent offline-first answering.
 
 **Syntax:**
 ```
-GENERATE SVG <description>                          # Generate PNG→SVG diagram
-GENERATE SVG --survival <category>/<prompt> [opts]  # Use survival templates
-GENERATE ASCII <type> <content> [width] [height]    # Generate ASCII art
-GENERATE --survival-help                            # Show survival prompts
+GENERATE DO <query>                 # Ask any question
+GENERATE DO --mode offline <query>  # Force offline only
+GENERATE DO --mode online <query>   # Force Gemini (if available)
+```
+
+**Examples:**
+```upy
+GENERATE DO how do I purify water?
+GENERATE DO what's the best fire starting method in wet conditions?
+GENERATE DO explain grid system
+GENERATE DO --mode offline water sources
+
+# With workflow variables
+SET GENERATE.MODE offline
+GENERATE DO shelter building basics
+```
+
+**How It Works:**
+1. Searches 166+ survival guides in knowledge bank
+2. Checks FAQ database (40+ common questions)
+3. If confidence ≥ 50%: Returns offline answer (FREE)
+4. If confidence < 50%: Falls back to Gemini (if configured)
+5. Tracks costs, rate limits, and statistics
+
+**Output:**
+```
+✅ Knowledge Bank (Offline - No API Cost)
+Confidence: 85%
+
+[Answer content with sources]
+
+📚 Sources (3):
+  • knowledge/water/purification.md
+  • knowledge/water/boiling.md
+  • knowledge/water/filtration.md
+
+💡 Related:
+  • water filtration methods
+  • emergency water sources
+```
+
+---
+
+#### GENERATE REDO (Retry Generation)
+
+**Syntax:**
+```
+GENERATE REDO                       # Retry exact same query
+GENERATE REDO [modifications]       # Retry with changes
+```
+
+**Examples:**
+```upy
+# First query
+GENERATE DO fire starting methods
+
+# Retry with modification
+GENERATE REDO in wet conditions
+GENERATE REDO without matches
+```
+
+**Use Cases:**
+- Refine answer with additional constraints
+- Try online fallback if offline answer insufficient
+- Regenerate with different prompt variables
+
+---
+
+#### GENERATE GUIDE (Create Knowledge Guides)
+
+**Requires Gemini** - Generate complete knowledge bank guides.
+
+**Syntax:**
+```
+GENERATE GUIDE <category> <topic>   # Create new guide
+```
+
+**Examples:**
+```upy
+GENERATE GUIDE water "solar distillation"
+GENERATE GUIDE fire "char cloth making"
+GENERATE GUIDE shelter "emergency bivouac"
+```
+
+**Output:**
+- File: `knowledge/<category>/<topic>.md`
+- Includes: Steps, safety, materials, common mistakes
+- Metadata: Difficulty, time, complexity level
+
+---
+
+#### GENERATE SVG/ASCII/TELETEXT (Graphics)
+
+**SVG Diagrams (Nano Banana pipeline):**
+```
+GENERATE SVG <description>                          # General diagram
+GENERATE SVG --survival <category>/<prompt> [opts]  # Survival templates
 ```
 
 **SVG Options:**
@@ -231,28 +355,17 @@ GENERATE --survival-help                            # Show survival prompts
 
 **SVG Examples:**
 ```upy
-# General SVG generation
 GENERATE SVG water purification flowchart
-GENERATE SVG shelter building sequence
-
-# Survival templates (optimized prompts)
 GENERATE SVG --survival water/purification_flow --pro
 GENERATE SVG --survival fire/methods_comparison --strict
-GENERATE SVG --survival shelter/types_hierarchy --refined
-
-# List available survival prompts
-GENERATE --survival-help
 ```
 
-**ASCII Types:**
-- `box` - Box with title
-- `panel` - Info panel
-- `table` - Data table
-- `flowchart` - Simple flowchart
-- `progress` - Progress bar
-- `list` - Bulleted list
-- `banner` - Large banner text
-- `tree` - Tree structure
+**ASCII Art:**
+```
+GENERATE ASCII <type> <content> [width] [height]
+```
+
+**ASCII Types:** box, panel, table, flowchart, progress, list, banner, tree
 
 **ASCII Examples:**
 ```upy
@@ -261,9 +374,90 @@ GENERATE ASCII table "Method,Time,Difficulty" "Friction,10min,Hard;Flint,2min,Ea
 GENERATE ASCII progress "Purification" 75 30
 ```
 
-**Output:**
+**Teletext Graphics:**
+```upy
+GENERATE TELETEXT "Welcome to uDOS"
+```
+
+**Output Locations:**
 - SVG: `memory/drafts/svg/`
-- ASCII: Terminal + save option
+- ASCII: Terminal display + optional save
+- Teletext: `memory/drafts/teletext/`
+
+---
+
+#### GENERATE STATUS (Monitor Usage)
+
+**Show generation statistics and API monitoring.**
+
+**Syntax:**
+```
+GENERATE STATUS                     # Full status report
+```
+
+**Output:**
+```
+📊 GENERATE System Status
+
+Services:
+  Offline Engine: ✅ Active
+  Gemini Extension: ✅ Active
+
+Usage Statistics:
+  Total Requests: 47
+  Offline Requests: 42 (89%)
+  Online Requests: 5 (11%)
+  Total Cost: $0.0012
+  Avg Cost/Request: $0.0000
+
+History:
+  Generation History: 47 items
+
+API Monitoring:
+  Rate Limit: 2.0 req/sec (1 remaining)
+  Budget: $0.0012 / $1.00 daily (0%)
+  Requests Today: 5
+
+🚨 Active Alerts:
+  [None]
+```
+
+---
+
+#### GENERATE CLEAR (Clear History)
+
+**Clear generation history (keeps statistics).**
+
+**Syntax:**
+```
+GENERATE CLEAR                      # Clear all history
+```
+
+---
+
+### Migration from ASSISTANT
+
+**⚠️ DEPRECATED**: `ASSISTANT` and `OK ASK` commands replaced by `GENERATE DO`.
+
+**Old Syntax → New Syntax:**
+```upy
+# OLD (deprecated)
+ASSISTANT ASK how do I purify water?
+OK ASK what's the best fire method?
+
+# NEW (recommended)
+GENERATE DO how do I purify water?
+GENERATE DO what's the best fire method?
+```
+
+**Why Switch?**
+- ✅ 90%+ queries answered offline (FREE)
+- ✅ Cost tracking and rate limiting
+- ✅ Better knowledge bank integration
+- ✅ Confidence-based fallback
+- ✅ Generation history (REDO support)
+
+**See:** [Migration Guide](Migration-Guide-ASSISTANT-to-GENERATE.md)
 
 ### MERMAID
 Create Mermaid.js diagrams (flowcharts, sequence, gantt, etc.).
