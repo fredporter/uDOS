@@ -14,6 +14,7 @@ Commands:
 """
 
 from .base_handler import BaseCommandHandler
+from core.utils.pager import page_output
 
 
 class DisplayHandler(BaseCommandHandler):
@@ -241,11 +242,46 @@ class DisplayHandler(BaseCommandHandler):
             help_text += "║  📖 Full docs: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║\n"
             help_text += "╚" + "═"*78 + "╝\n"
 
+            # Use pager for long output
+            if help_text.count('\n') > 20:
+                page_output(help_text, title="uDOS Command Reference")
+                return ""  # Already displayed via pager
+            
             return help_text
 
         # HELP <command>: Show detailed help for specific command
         else:
             cmd_name = params[0].upper()
+
+            # Check if it's a category shortcut (e.g., SYSTEM, FILE, DISPLAY)
+            category_shortcuts = {
+                'SYSTEM': '📊 System & Info',
+                'CONTROL': '🔧 System Control',
+                'FILE': '📝 File Operations',
+                'FILES': '📝 File Operations',
+                'KNOWLEDGE': '💾 Knowledge & Memory',
+                'MEMORY': '💾 Knowledge & Memory',
+                'DISPLAY': '🎨 Display & Themes',
+                'THEME': '🎨 Display & Themes',
+                'THEMES': '🎨 Display & Themes',
+                'SEARCH': '🔍 Search & Navigation',
+                'NAVIGATION': '🔍 Search & Navigation',
+                'CONFIG': '⚙️  Configuration',
+                'CONFIGURATION': '⚙️  Configuration',
+                'AUTOMATION': '🎮 Automation & Missions',
+                'MISSIONS': '🎮 Automation & Missions',
+            }
+
+            if cmd_name in category_shortcuts:
+                category = category_shortcuts[cmd_name]
+                return self.help_manager.format_help_category(category)
+
+            # Check if it's a full category name
+            category_names = [cat.upper() for cat in self.help_manager.categories.keys()]
+            if cmd_name in category_names:
+                return (f"💡 '{cmd_name}' is a category, not a command.\n"
+                       f"Try: HELP CATEGORY {cmd_name}")
+
             return self.help_manager.format_help_detailed(cmd_name)
 
     def handle_layout(self, params, grid, parser):
