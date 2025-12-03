@@ -43,10 +43,10 @@ class AssistantCommandHandler(BaseCommandHandler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Lazy load extension handler
         self._extension_handler = None
-        
+
         # Legacy properties (for backward compatibility)
         self.gemini = None  # Lazy initialization
         self._workspace_manager = None
@@ -106,7 +106,7 @@ class AssistantCommandHandler(BaseCommandHandler):
     def _initialize_gemini(self):
         """
         DEPRECATED: Initialize Gemini service (now in extension).
-        
+
         Returns None for backward compatibility.
         Extension handler will manage Gemini initialization.
         """
@@ -116,7 +116,7 @@ class AssistantCommandHandler(BaseCommandHandler):
     def _check_api_access(self, operation: str) -> tuple[bool, Optional[str]]:
         """
         DEPRECATED: Check API access (kept for backward compatibility).
-        
+
         All users can now access commands - extension handles permissions.
         """
         # Always allow - extension will handle permission checks
@@ -127,7 +127,7 @@ class AssistantCommandHandler(BaseCommandHandler):
                       success: bool = True, error: str = None):
         """
         DEPRECATED: Log API usage (now handled by extension).
-        
+
         Kept for backward compatibility but does nothing.
         """
         # Extension handler now manages API logging
@@ -165,17 +165,17 @@ class AssistantCommandHandler(BaseCommandHandler):
                 'grid': grid,
                 'user_role': self.user_role
             }
-            
+
             # Route to extension (it will show its own deprecation notice)
             return self.extension_handler.handle(command, params, context)
-        
+
         # Extension not available - show helpful message
         if command == "ASSISTANT" or command == "OK":
             if not params:
                 return deprecation_warning + self._handle_ok_help()
 
             subcommand = params[0].upper()
-            
+
             if subcommand == "ASK":
                 return f"""{deprecation_warning}❌ Assistant extension not available
 
@@ -212,7 +212,7 @@ Required: GEMINI_API_KEY in .env
 
 💡 Use GENERATE STATUS instead (works offline)
 """
-        
+
         # Other commands
         if command == "ANALYZE":
             return f"{deprecation_warning}Use GENERATE DO to analyze content"
@@ -231,7 +231,7 @@ Required: GEMINI_API_KEY in .env
 """
         if self.extension_handler:
             return self.extension_handler.handle('ASSISTANT', ['STATUS'])
-        
+
         return f"""{deprecation_notice}❌ Assistant extension not available
 
 Extension moved to: extensions/assistant/
@@ -270,7 +270,7 @@ Migration: wiki/Migration-Guide-Assistant-to-Generate.md
                 'grid': grid
             }
             return self.extension_handler._handle_ask(params, context)
-        
+
         return """❌ Assistant extension not available
 
 💡 Use GENERATE DO instead (offline-first, no API key):
@@ -302,7 +302,7 @@ Example:
         """
         if self.extension_handler:
             return self.extension_handler._handle_clear()
-        
+
         return "❌ Assistant extension not available. Use GENERATE CLEAR instead."
 
     def _handle_dev(self, params):
@@ -453,7 +453,7 @@ Run: copilot auth login
     def _search_local_knowledge(self, question):
         """
         DEPRECATED: Search local knowledge base (now in offline engine).
-        
+
         Kept for backward compatibility but returns empty results.
         """
         return {
@@ -466,7 +466,7 @@ Run: copilot auth login
     def _generate_fallback_response(self, question, knowledge_context):
         """
         DEPRECATED: Generate fallback response (now in offline engine).
-        
+
         Returns migration message.
         """
         return "Use GENERATE DO for offline-first AI responses."

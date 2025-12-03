@@ -1,9 +1,9 @@
 # AI Assistant Extension
 
-**Status:** Active (Deprecated)  
-**Version:** 1.0.0  
-**Category:** AI / Service  
-**Requires:** API Key (GEMINI_API_KEY)  
+**Status:** Active (Deprecated)
+**Version:** 1.0.0
+**Category:** AI / Service
+**Requires:** API Key (GEMINI_API_KEY)
 
 ---
 
@@ -319,17 +319,17 @@ gemini = get_gemini_service(config_manager=config)
 if gemini.is_available:
     # Ask question
     response = gemini.ask("how do I purify water?")
-    
+
     # With context
     response = gemini.ask("explain this", context={
         'workspace': 'memory',
         'files': ['guide.md'],
         'local_knowledge': kb_results
     })
-    
+
     # Get status
     status = gemini.get_status()
-    
+
     # Clear history
     gemini.clear_history()
 ```

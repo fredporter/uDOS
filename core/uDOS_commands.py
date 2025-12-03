@@ -142,9 +142,9 @@ class CommandHandler:
         from core.commands.draw_handler import DrawHandler
         self.draw_handler = DrawHandler(viewport=viewport, logger=logger)
 
-        # v1.1.6 - GENERATE handler (unified generation system via Nano Banana)
+        # v1.2.0 - GENERATE handler (unified offline-first generation system)
         from core.commands.generate_handler import GenerateHandler
-        self.generate_handler = GenerateHandler(viewport=viewport, logger=logger)
+        self.generate_handler = GenerateHandler(**handler_kwargs)
 
         # v1.1.15 - MERMAID handler (Mermaid.js diagram integration)
         from core.commands.mermaid_handler import MermaidHandler
@@ -409,9 +409,9 @@ class CommandHandler:
             elif module == "DRAW":
                 return self.draw_handler.handle(command, params)
 
-            # v1.1.6 - GENERATE Unified Generation System (Nano Banana pipeline)
+            # v1.2.0 - GENERATE Unified Generation System (Offline-first AI + Nano Banana)
             elif module == "GENERATE":
-                return self.generate_handler.handle_command(params)
+                return self.generate_handler.handle(command, params, grid)
 
             # v1.1.15 - MERMAID Text-to-Diagram System
             elif module == "MERMAID":

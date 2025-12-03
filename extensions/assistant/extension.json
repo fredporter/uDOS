@@ -20,7 +20,7 @@
   "requires_network": true,
   "requires_api_key": true,
   "api_key_env_var": "GEMINI_API_KEY",
-  
+
   "requires_permissions": [
     "internet",
     "api_access",
