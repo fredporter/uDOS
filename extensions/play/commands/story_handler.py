@@ -61,8 +61,8 @@ class StoryHandler:
         self.current_adventure = None
         self.current_session_id = None
         self.current_choice_options = None  # Store current choice options
-        self.adventure_dir = Path("sandbox/ucode/adventures")
-        self.save_dir = Path("sandbox/user/saves")
+        self.adventure_dir = Path("memory/ucode/adventures")
+        self.save_dir = Path("memory/workflows/state")
         self.save_dir.mkdir(parents=True, exist_ok=True)
 
     def handle(self, command: str, params: list) -> str:

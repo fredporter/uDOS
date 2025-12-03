@@ -38,7 +38,7 @@ class StoryHandler:
         self.var_manager = components.get('variable_manager')
 
         # Story system paths
-        self.adventures_dir = Path("memory/workflows/missions")
+        self.adventures_dir = Path("memory/ucode/adventures")
         self.state_dir = Path("memory/workflows/state")
         self.checkpoints_dir = Path("memory/workflows/checkpoints")
 

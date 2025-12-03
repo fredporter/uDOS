@@ -6,7 +6,7 @@ Manages adventure scenarios, quests, and game state.
 import sqlite3
 import os
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Dict, List, Optional, Any
 
@@ -329,7 +329,7 @@ class ScenarioService:
             (session_id, var_name, var_value, var_type, last_updated)
             VALUES (?, ?, ?, ?, ?)
         """, (session_id, var_name, value_json, var_type,
-              datetime.utcnow().isoformat()))
+              datetime.now(UTC).isoformat()))
 
         conn.commit()
         conn.close()

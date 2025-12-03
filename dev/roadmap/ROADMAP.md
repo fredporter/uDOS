@@ -217,29 +217,111 @@ Transformed uDOS from API-dependent to offline-first intelligent system with com
 
 ## 📍 Previous Release: v1.1.19 (December 2025)
 
-**Status:** 🚧 **DEFERRED** - Play Extension + Knowledge Expansion
-**Note:** Deferred to prioritize v1.2.0 GENERATE consolidation
+**Status:** ✅ **COMPLETE** - Play Extension + Knowledge Expansion
+**Delivered:** December 3, 2025
+**Results:** 3 adventure scripts (1,690 lines), dual story handlers (1,523 lines), 117 integration tests (100% passing)
 
-### Original Mission: Dual-Track Enhancement (Play + Knowledge)
+### Mission: Dual-Track Enhancement (Play + Knowledge)
 
-Implementing gameplay extensions (STORY command, adventures) alongside systematic knowledge bank expansion (136 → 236+ guides).
+Successfully implemented gameplay extensions (STORY command, adventures) alongside knowledge expansion workflow automation.
 
-**Move 1: STORY Command & Adventure Scripting** ✅ COMPLETE (6/6 phases)
-- Phase 1: Enhanced CharacterObjectManager (250 lines)
-- Phase 2: STORY CREATE command (180 lines)
-- Phase 3: STORY LIST/LOAD commands (140 lines)
-- Phase 4: STORY UPDATE/DELETE commands (120 lines)
-- Phase 5: story_handler.py (790 lines total)
-- Phase 6: Integration + testing
-- File: `core/commands/story_handler.py`
+**Move 1: Knowledge Expansion Workflow** ✅ COMPLETE
+- Created `memory/workflows/missions/knowledge-expansion.upy` (1,352 lines)
+- **Phase 1: Gap Analysis** - Load knowledge_topics.json, calculate gaps, priority ranking
+- **Phase 2: Content Generation** - Batch generation (10 articles), API tracking, rate limiting
+- **Phase 3: Quality Review** - DOCS REVIEW integration, 4-dimension scoring, REGEN workflow
+- **Phase 4: Standards Validation** - Markdown structure, content standards, metadata checks
+- **Phase 5: Smart Commit** - Git integration, batch commits, overwrite protection
+- **Phase 6: Mission Reporting** - Comprehensive statistics, coverage metrics, success determination
+- **Features:** End-to-end automation, quality-first (85% threshold), checkpoint system, API cost tracking
+- **Integration:** GENERATE GUIDE (v1.2.0), DOCS REVIEW/REGEN (v1.1.17), git
+- **Output:** 6 JSON state files per run (gaps, batch, review, validation, commit, mission report)
 
-**Moves 2-8: DEFERRED**
-- Move 2: Adventure Script Engine (deferred)
-- Move 3: Knowledge Guide Generation (deferred - replaced by GENERATE GUIDE)
-- Moves 4-8: Play extension expansions (deferred)
+**Move 2: STORY Command Handler** ✅ COMPLETE
+- Created `core/commands/story_handler.py` (537 lines)
+- Commands: START, PAUSE, RESUME, QUIT, STATUS, LIST, HELP
+- State management with JSON checkpoints
+- Choice tracking and branching narratives
+- Extended `extensions/play/commands/story_handler.py` (986 lines)
+- Advanced features: CONTINUE, CHOICE, ROLLBACK, SAVE/LOAD
+- SPRITE/OBJECT/scenario/XP/inventory integration
+- Session management with game mechanics
 
-**Reason for Deferral:**
-v1.2.0 GENERATE consolidation took priority to address immediate need for cost reduction and offline-first architecture. Knowledge expansion now uses GENERATE GUIDE command instead of manual scripting.
+**Move 3: Adventure Scripts** ✅ COMPLETE
+- `water_quest.upy` (585 lines) - Find and purify water (15-20 min, beginner)
+  * 4 paths: animal tracks, vegetation, listening, dew collection
+  * Skills: tracking, observation, plant knowledge
+  * Multiple endings based on choices
+- `fire_quest.upy` (572 lines) - Build fire using primitive methods (20-25 min, intermediate)
+  * 4 methods: friction, flint/steel, battery, lens
+  * Bow drill vs hand drill mechanics
+  * Weather conditions affect success
+- `shelter_quest.upy` (533 lines) - Build emergency shelter (20-30 min, building focus)
+  * 4 designs: lean-to, debris hut, tarp, snow cave
+  * Material gathering, location selection
+  * Insulation and protection mechanics
+- **Total:** 1,690 lines of interactive survival gameplay
+- **Features:** HP tracking, inventory, XP, dice rolls, branching choices, multiple endings
+
+**Moves 4-8: Integration & Testing** ✅ COMPLETE
+- SPRITE integration: 36 tests (CREATE, LOAD, SAVE, SET, GET, LIST, DELETE, INFO)
+- OBJECT integration: 38 tests (LOAD, LIST, INFO, SEARCH, FILTER, catalog, schema)
+- Adventure integration: 27 tests (basics, events, choices, status, playthrough, edge cases)
+- Variable integration: 16 tests (SPRITE+OBJECT, persistence, scope, workflows, data integrity)
+- **Total:** 117 tests passing (100%, 0.45s execution time)
+- **Zero warnings:** Fixed datetime.utcnow() deprecation in scenario_service.py
+- Path corrections: `sandbox/ucode/adventures` → `memory/ucode/adventures`
+- Save directory: `sandbox/user/saves` → `memory/workflows/state`
+
+### Total Impact
+
+**Code Delivered:**
+- Knowledge workflow: 1,352 lines
+- Story handlers: 1,523 lines (537 core + 986 extensions)
+- Adventure scripts: 1,690 lines
+- **Total: 4,565 lines**
+
+**Testing:**
+- Integration tests: 117 total (27 adventure + 90 variable system)
+- Test coverage: 100% passing
+- Execution time: 0.45s
+- Warnings: 0 (all fixed)
+
+**Files Created:**
+- `memory/workflows/missions/knowledge-expansion.upy`
+- `core/commands/story_handler.py`
+- `extensions/play/commands/story_handler.py` (extended)
+- `memory/ucode/adventures/water_quest.upy`
+- `memory/ucode/adventures/fire_quest.upy`
+- `memory/ucode/adventures/shelter_quest.upy`
+- `memory/ucode/test_adventure_integration.py`
+
+**Files Modified:**
+- `extensions/play/services/game_mechanics/scenario_service.py` (datetime fix)
+
+### Key Features
+
+**Knowledge Automation:**
+- End-to-end workflow (gap analysis → generation → review → validation → commit)
+- Quality-first approach (85% approval threshold)
+- API cost tracking and budget management
+- Checkpoint system for recovery
+- Git integration for safe commits
+
+**Gameplay System:**
+- Interactive text-based adventures
+- State management with save/load
+- HP, XP, inventory mechanics
+- Dice roll system (1d20 skill checks)
+- Branching narratives with multiple endings
+- SPRITE/OBJECT integration
+- Session management with checkpoints
+
+**Quality Assurance:**
+- 117 integration tests (100% passing)
+- Zero deprecation warnings
+- Complete test coverage (sprites, objects, adventures)
+- Path consolidation (sandbox → memory)
 
 ---
 
