@@ -1,0 +1,151 @@
+{
+  "type": "FeatureCollection",
+  "name": "uDOS_TILE_Grid_Layer_100",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "AA340",
+      "properties": {
+        "tile_code": "AA340-100",
+        "name": "Sydney Basin",
+        "layer": 100,
+        "elevation_m": 58,
+        "terrain": "plains",
+        "biome": "temperate",
+        "population_density": "high",
+        "cell_size_km": 83.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [151.2093, -33.8688],
+          [151.2093, -33.4355],
+          [151.6426, -33.4355],
+          [151.6426, -33.8688],
+          [151.2093, -33.8688]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "JF57",
+      "properties": {
+        "tile_code": "JF57-100",
+        "name": "London Region",
+        "layer": 100,
+        "elevation_m": 11,
+        "terrain": "plains",
+        "biome": "temperate",
+        "population_density": "high",
+        "cell_size_km": 83.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-0.1278, 51.5074],
+          [-0.1278, 51.9407],
+          [0.3055, 51.9407],
+          [0.3055, 51.5074],
+          [-0.1278, 51.5074]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "LB110",
+      "properties": {
+        "tile_code": "LB110-100",
+        "name": "Tokyo Region",
+        "layer": 100,
+        "elevation_m": 40,
+        "terrain": "plains",
+        "biome": "humid_subtropical",
+        "population_density": "very_high",
+        "cell_size_km": 83.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [139.6503, 35.6762],
+          [139.6503, 36.1095],
+          [140.0836, 36.1095],
+          [140.0836, 35.6762],
+          [139.6503, 35.6762]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "QD95",
+      "properties": {
+        "tile_code": "QD95-100",
+        "name": "New York Region",
+        "layer": 100,
+        "elevation_m": 10,
+        "terrain": "plains",
+        "biome": "humid_subtropical",
+        "population_density": "very_high",
+        "cell_size_km": 83.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-74.0060, 40.7128],
+          [-74.0060, 41.1461],
+          [-73.5727, 41.1461],
+          [-73.5727, 40.7128],
+          [-74.0060, 40.7128]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "QB185",
+      "properties": {
+        "tile_code": "QB185-100",
+        "name": "Pacific Ocean",
+        "layer": 100,
+        "elevation_m": -4000,
+        "terrain": "water",
+        "biome": "ocean",
+        "population_density": "none",
+        "cell_size_km": 83.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-160.0, 0.0],
+          [-160.0, 0.433],
+          [-159.567, 0.433],
+          [-159.567, 0.0],
+          [-160.0, 0.0]
+        ]]
+      }
+    }
+  ],
+  "metadata": {
+    "description": "uDOS TILE grid system - Layer 100 (world/continent level)",
+    "version": "1.0.0",
+    "created": "2025-12-04",
+    "grid_system": {
+      "columns": 480,
+      "rows": 270,
+      "total_cells": 129600,
+      "cell_size_km": 83.3,
+      "layer_range": "100-199"
+    },
+    "visualization": {
+      "github_maps": "Paste this GeoJSON into https://github.com/<user>/<repo>/new/main",
+      "geojson_io": "https://geojson.io for interactive preview",
+      "mapshaper": "https://mapshaper.org for editing"
+    },
+    "sample_size": "5 tiles shown (expandable to all 129,600 cells)",
+    "future_expansion": "v1.2.4+ will export full grid with all populated tiles"
+  }
+}

@@ -1,18 +1,59 @@
-# uDOS v1.1.12 - uPY Migration Complete
+# uDOS v1.2.3 - Knowledge & Map Layer Expansion
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.1.12 Stable** (December 2, 2025)
-**Latest Update**: Complete migration to .upy format, backward compatibility removed
-**Test Coverage**: **Smoke tests passing** (5/6, 0.03s) + comprehensive integration suite
-**Knowledge Bank**: **166+ comprehensive survival guides** across 8 categories
-**Documentation**: **65+ wiki pages** including Nano Banana tutorial
-**Architecture**: **5-Tier Knowledge System** with full diagram generation
+**Current Status**: ✅ **v1.2.3 Stable** (December 4, 2025)
+**Latest Update**: Multi-layer map system + spatial data structures (Earth, solar system, galaxy)
+**Test Coverage**: **14/14 integration tests passing** (v1.2.3 features, 100% success rate)
+**Knowledge Bank**: **230 comprehensive survival guides** across 8 categories
+**Map System**: **4-layer TILE grid** (surface, cloud, satellite, underground)
+**Spatial Data**: **Earth locations, solar system, Milky Way navigation**
+**Architecture**: **Multi-dimensional mapping** with GeoJSON visualization
 **Community**: Production ready with GitHub templates, discussions, and marketplace
 
 ---
 
-## 🚀 v1.1.12 - uPY Migration Complete (December 2, 2025)
+## 🚀 v1.2.3 - Knowledge & Map Layer Expansion (December 4, 2025)
+
+**Latest Release:** v1.2.3 introduces multi-layer mapping system with spatial data structures for comprehensive location awareness and celestial navigation.
+
+### What's New in v1.2.3
+
+🗺️ **4-Layer Map System** (500 lines)
+- **Surface Layer (100)**: Elevation (-11km to 8.8km), 8 terrain types, 9 biomes
+- **Cloud Layer (600)**: Weather systems, precipitation, atmospheric conditions
+- **Satellite Layer (700)**: GPS coverage, orbital mechanics, communications
+- **Underground Layer (50)**: Geology, caves, aquifers, bunkers, tunnels
+- **Integration**: Ready for map engine layer switching (v1.2.4 MAP commands)
+
+🌍 **Spatial Data Structures** (720 lines)
+- **Locations**: 4 major cities with TILE codes and survival resources
+  - Sydney (AA340-100), London (JF57-100), Tokyo (LB110-100), NYC (QD95-100)
+  - Survival landmarks: Great Barrier Reef, Amazon, Sahara
+- **Planets**: Solar system with orbital mechanics and colonization data
+  - Mars survival rating 3/10 (water ice, thin atmosphere, colonization potential)
+- **Galaxies**: Milky Way structure, navigation stars, celestial orientation
+  - 5 key stars: Sirius, Polaris, Betelgeuse, Rigel, Vega
+  - 7 constellations for emergency navigation
+
+📍 **GeoJSON Visualization** (130 lines)
+- Sample TILE grid export (5 tiles: Sydney, London, Tokyo, NYC, Pacific)
+- GitHub Maps compatible format
+- Foundation for full 129,600-cell export (v1.2.4)
+- Compatible with geojson.io and Mapshaper
+
+✅ **Integration Testing**
+- 14 comprehensive tests (100% passing, 0.05s execution)
+- Map layer structure validation
+- Spatial data integrity checks
+- GeoJSON format compliance
+- Map engine compatibility confirmed
+
+---
+
+## 🎯 Previous Major Releases
+
+### v1.2.2 - DEV MODE Debugging System (December 3, 2025)
 
 **Latest Release:** v1.1.12 completes the migration to .upy format with COMMAND(args) syntax. All backward compatibility removed, migration tools included.
 

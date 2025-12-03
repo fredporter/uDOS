@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Solar System Planets Database",
+  "description": "Planetary data for navigation, orbital mechanics, and future expansion",
+  "version": "1.0.0",
+  "last_updated": "2025-12-04",
+
+  "star": {
+    "name": "Sol (Sun)",
+    "type": "G-type main-sequence star",
+    "mass_kg": 1.989e30,
+    "radius_km": 696000,
+    "surface_temp_k": 5778,
+    "age_years": 4.6e9,
+    "luminosity_watts": 3.828e26
+  },
+
+  "planets": [
+    {
+      "id": "mercury",
+      "name": "Mercury",
+      "type": "terrestrial",
+      "order": 1,
+      "orbital_data": {
+        "semi_major_axis_au": 0.387,
+        "orbital_period_days": 88,
+        "eccentricity": 0.206,
+        "inclination_deg": 7.0
+      },
+      "physical_data": {
+        "mass_kg": 3.285e23,
+        "radius_km": 2439.7,
+        "density_g_cm3": 5.427,
+        "gravity_m_s2": 3.7,
+        "escape_velocity_km_s": 4.3
+      },
+      "atmosphere": {
+        "present": false,
+        "surface_pressure_pa": 0,
+        "composition": {}
+      },
+      "temperature": {
+        "min_k": 100,
+        "max_k": 700,
+        "average_k": 440
+      },
+      "survival_rating": 0,
+      "notes": "Extreme temperatures, no atmosphere, radiation exposure"
+    },
+    {
+      "id": "venus",
+      "name": "Venus",
+      "type": "terrestrial",
+      "order": 2,
+      "orbital_data": {
+        "semi_major_axis_au": 0.723,
+        "orbital_period_days": 225,
+        "eccentricity": 0.007,
+        "inclination_deg": 3.4
+      },
+      "physical_data": {
+        "mass_kg": 4.867e24,
+        "radius_km": 6051.8,
+        "density_g_cm3": 5.243,
+        "gravity_m_s2": 8.87,
+        "escape_velocity_km_s": 10.4
+      },
+      "atmosphere": {
+        "present": true,
+        "surface_pressure_pa": 9.2e6,
+        "composition": {
+          "CO2": 96.5,
+          "N2": 3.5
+        }
+      },
+      "temperature": {
+        "surface_k": 737,
+        "cloud_layer_k": 300
+      },
+      "survival_rating": 0,
+      "notes": "Crushing pressure, sulfuric acid clouds, extreme heat"
+    },
+    {
+      "id": "earth",
+      "name": "Earth",
+      "type": "terrestrial",
+      "order": 3,
+      "orbital_data": {
+        "semi_major_axis_au": 1.0,
+        "orbital_period_days": 365.25,
+        "eccentricity": 0.017,
+        "inclination_deg": 0.0
+      },
+      "physical_data": {
+        "mass_kg": 5.972e24,
+        "radius_km": 6371,
+        "density_g_cm3": 5.514,
+        "gravity_m_s2": 9.807,
+        "escape_velocity_km_s": 11.2
+      },
+      "atmosphere": {
+        "present": true,
+        "surface_pressure_pa": 101325,
+        "composition": {
+          "N2": 78.08,
+          "O2": 20.95,
+          "Ar": 0.93,
+          "CO2": 0.04
+        }
+      },
+      "temperature": {
+        "min_k": 184,
+        "max_k": 330,
+        "average_k": 288
+      },
+      "moons": [
+        {
+          "name": "Luna (Moon)",
+          "radius_km": 1737.4,
+          "orbital_period_days": 27.3,
+          "distance_km": 384400
+        }
+      ],
+      "survival_rating": 10,
+      "notes": "Home planet, optimal conditions for human life"
+    },
+    {
+      "id": "mars",
+      "name": "Mars",
+      "type": "terrestrial",
+      "order": 4,
+      "orbital_data": {
+        "semi_major_axis_au": 1.524,
+        "orbital_period_days": 687,
+        "eccentricity": 0.093,
+        "inclination_deg": 1.85
+      },
+      "physical_data": {
+        "mass_kg": 6.39e23,
+        "radius_km": 3389.5,
+        "density_g_cm3": 3.933,
+        "gravity_m_s2": 3.71,
+        "escape_velocity_km_s": 5.0
+      },
+      "atmosphere": {
+        "present": true,
+        "surface_pressure_pa": 600,
+        "composition": {
+          "CO2": 95.32,
+          "N2": 2.7,
+          "Ar": 1.6
+        }
+      },
+      "temperature": {
+        "min_k": 130,
+        "max_k": 308,
+        "average_k": 210
+      },
+      "moons": [
+        {"name": "Phobos", "radius_km": 11.3},
+        {"name": "Deimos", "radius_km": 6.2}
+      ],
+      "survival_rating": 3,
+      "notes": "Low pressure, cold, but water ice present. Best colonization candidate.",
+      "resources": {
+        "water_ice": true,
+        "minerals": ["iron oxide", "silicates"],
+        "soil": "regolith suitable for greenhouses"
+      }
+    },
+    {
+      "id": "jupiter",
+      "name": "Jupiter",
+      "type": "gas giant",
+      "order": 5,
+      "orbital_data": {
+        "semi_major_axis_au": 5.203,
+        "orbital_period_days": 4333,
+        "eccentricity": 0.048,
+        "inclination_deg": 1.3
+      },
+      "physical_data": {
+        "mass_kg": 1.898e27,
+        "radius_km": 69911,
+        "density_g_cm3": 1.326,
+        "gravity_m_s2": 24.79,
+        "escape_velocity_km_s": 59.5
+      },
+      "atmosphere": {
+        "present": true,
+        "composition": {
+          "H2": 89.8,
+          "He": 10.2
+        }
+      },
+      "moons": 95,
+      "major_moons": ["Io", "Europa", "Ganymede", "Callisto"],
+      "survival_rating": 0,
+      "notes": "No solid surface, extreme radiation. Moons (Europa) may have subsurface oceans."
+    }
+  ],
+
+  "dwarf_planets": [
+    {
+      "id": "pluto",
+      "name": "Pluto",
+      "orbital_period_days": 90560,
+      "distance_au": 39.5,
+      "radius_km": 1188,
+      "moons": ["Charon", "Nix", "Hydra"]
+    }
+  ],
+
+  "navigation_data": {
+    "description": "Planetary positions for celestial navigation",
+    "use_cases": [
+      "Star chart generation",
+      "Time calculation from planetary positions",
+      "Emergency navigation without GPS"
+    ],
+    "future_integration": "v1.2.5+ mesh networking may use planetary positions for time sync"
+  },
+
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "NASA JPL Horizons",
+      "IAU planetary data",
+      "Wikipedia solar system"
+    ],
+    "future_expansion": "v2.0.0+ may include exoplanets, asteroid belt, Kuiper belt"
+  }
+}

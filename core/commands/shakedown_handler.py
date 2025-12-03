@@ -321,36 +321,223 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("")
 
     def _test_dev_mode(self, output: List[str], verbose: bool):
-        """Test DEV MODE security system."""
-        output.append("🔒 DEV MODE Security Tests")
+        """Test DEV MODE debugging system (v1.2.2)."""
+        output.append("🐛 DEV MODE Debugging Tests (v1.2.2)")
         output.append("─" * 63)
 
-        # Test DEV MODE manager import
+        # Test 1: Debug Engine import
         try:
-            from core.services.dev_mode_manager import DevModeManager
-            output.append(f"  ✅ DevModeManager imports successfully")
-            self._add_test("DEV MODE: import", True)
+            from core.services.debug_engine import DebugEngine, Breakpoint, CallFrame
+            output.append(f"  ✅ DebugEngine imports successfully")
+            self._add_test("DEV MODE: DebugEngine import", True)
 
             if verbose:
-                manager = DevModeManager()
-                dangerous_cmds = len(manager.dangerous_commands)
-                output.append(f"     └─ {dangerous_cmds} dangerous commands protected")
-
-                # Check if active
-                is_active = manager.is_active()
-                status = "active" if is_active else "inactive"
-                output.append(f"     └─ Status: {status}")
+                from core.services.unified_logger import UnifiedLogger
+                logger = UnifiedLogger()
+                debug = DebugEngine(logger)
+                output.append(f"     └─ DebugEngine initialized")
         except Exception as e:
-            output.append(f"  ❌ DevModeManager import failed: {e}")
-            self._add_test("DEV MODE: import", False, str(e))
+            output.append(f"  ❌ DebugEngine import failed: {e}")
+            self._add_test("DEV MODE: DebugEngine import", False, str(e))
+            return
 
-        # Check log directory
-        log_dir = self.root / "memory" / "logs" / "dev_mode"
-        exists = log_dir.exists()
+        # Test 2: DEV MODE handler import
+        try:
+            from core.commands.dev_mode_handler import DevModeHandler
+            output.append(f"  ✅ DevModeHandler imports successfully")
+            self._add_test("DEV MODE: handler import", True)
+        except Exception as e:
+            output.append(f"  ❌ DevModeHandler import failed: {e}")
+            self._add_test("DEV MODE: handler import", False, str(e))
+            return
+
+        # Test 3: uPY executor import with debug support
+        try:
+            from core.runtime.upy_executor import UPYExecutor, UPYExecutionContext
+            output.append(f"  ✅ UPYExecutor imports successfully")
+            self._add_test("DEV MODE: uPY executor import", True)
+        except Exception as e:
+            output.append(f"  ❌ UPYExecutor import failed: {e}")
+            self._add_test("DEV MODE: uPY executor import", False, str(e))
+            return
+
+        # Test 4: Breakpoint management
+        try:
+            from core.services.debug_engine import DebugEngine
+            from core.services.unified_logger import UnifiedLogger
+
+            logger = UnifiedLogger()
+            debug = DebugEngine(logger)
+
+            # Set breakpoint
+            debug.set_breakpoint(10)
+            assert 10 in debug.breakpoints
+
+            # Conditional breakpoint
+            debug.set_breakpoint(20, "counter > 5")
+            assert debug.breakpoints[20].condition == "counter > 5"
+
+            # Remove breakpoint
+            debug.remove_breakpoint(10)
+            assert 10 not in debug.breakpoints
+
+            output.append(f"  ✅ Breakpoint management working")
+            self._add_test("DEV MODE: breakpoint management", True)
+
+            if verbose:
+                output.append(f"     └─ Set, remove, conditional breakpoints verified")
+        except Exception as e:
+            output.append(f"  ❌ Breakpoint management failed: {e}")
+            self._add_test("DEV MODE: breakpoint management", False, str(e))
+
+        # Test 5: Variable inspection
+        try:
+            debug = DebugEngine()
+            test_vars = {'counter': 10, 'name': 'test', 'nested': {'value': 42}}
+
+            # Inspect simple variable
+            value = debug.inspect_variable('counter', test_vars)
+            assert value == 10
+
+            # Inspect nested variable
+            nested_value = debug.inspect_variable('nested.value', test_vars)
+            assert nested_value == 42
+
+            output.append(f"  ✅ Variable inspection working")
+            self._add_test("DEV MODE: variable inspection", True)
+
+            if verbose:
+                output.append(f"     └─ Simple and nested variable access verified")
+        except Exception as e:
+            output.append(f"  ❌ Variable inspection failed: {e}")
+            self._add_test("DEV MODE: variable inspection", False, str(e))
+
+        # Test 6: Call stack tracking
+        try:
+            from core.services.debug_engine import DebugEngine, CallFrame
+
+            debug = DebugEngine()
+            frame = CallFrame("test.upy", 15, "main", {'x': 1})
+            debug.call_stack.append(frame)
+
+            stack = debug.get_call_stack()
+            assert len(stack) == 1
+            assert stack[0]['script'] == 'test.upy'
+            assert stack[0]['line'] == 15
+
+            output.append(f"  ✅ Call stack tracking working")
+            self._add_test("DEV MODE: call stack", True)
+        except Exception as e:
+            output.append(f"  ❌ Call stack tracking failed: {e}")
+            self._add_test("DEV MODE: call stack", False, str(e))
+
+        # Test 7: Watch list
+        try:
+            debug = DebugEngine()
+            debug.add_watch('counter')
+            debug.add_watch('status')
+
+            assert 'counter' in debug.watch_vars
+            assert 'status' in debug.watch_vars
+
+            debug.remove_watch('counter')
+            assert 'counter' not in debug.watch_vars
+
+            output.append(f"  ✅ Watch list working")
+            self._add_test("DEV MODE: watch list", True)
+        except Exception as e:
+            output.append(f"  ❌ Watch list failed: {e}")
+            self._add_test("DEV MODE: watch list", False, str(e))
+
+        # Test 8: State persistence
+        try:
+            from core.services.debug_engine import DebugEngine
+            import tempfile
+
+            debug = DebugEngine()
+            debug.set_breakpoint(10)
+            debug.add_watch('test_var')
+            debug.enable()
+
+            # Save state
+            temp_path = Path(tempfile.mktemp(suffix='.json'))
+            debug.save_state(temp_path)
+            assert temp_path.exists()
+
+            # Load state into new instance
+            debug2 = DebugEngine()
+            debug2.load_state(temp_path)
+            assert debug2.enabled == True
+            assert 10 in debug2.breakpoints
+            assert 'test_var' in debug2.watch_vars
+
+            # Cleanup
+            temp_path.unlink()
+
+            output.append(f"  ✅ State persistence working")
+            self._add_test("DEV MODE: state persistence", True)
+        except Exception as e:
+            output.append(f"  ❌ State persistence failed: {e}")
+            self._add_test("DEV MODE: state persistence", False, str(e))
+
+        # Test 9: #BREAK directive support
+        try:
+            from core.runtime.upy_executor import execute_upy_code
+
+            code = """
+SPRITE-SET('test'|1)
+#BREAK
+SPRITE-SET('test'|2)
+"""
+            # Note: Can't fully test pause behavior without interactive loop
+            # But we can verify it doesn't crash
+            result = execute_upy_code(code, debug_mode=False)
+
+            output.append(f"  ✅ #BREAK directive supported")
+            self._add_test("DEV MODE: #BREAK directive", True)
+        except Exception as e:
+            output.append(f"  ❌ #BREAK directive failed: {e}")
+            self._add_test("DEV MODE: #BREAK directive", False, str(e))
+
+        # Test 10: DEV MODE commands
+        try:
+            from core.commands.dev_mode_handler import DevModeHandler
+
+            handler = DevModeHandler()
+
+            # Test ENABLE
+            result = handler.handle(['MODE', 'ENABLE'])
+            assert 'ENABLED' in result
+            assert handler.debug_engine.enabled == True
+
+            # Test STATUS
+            result = handler.handle(['MODE', 'STATUS'])
+            assert 'DEV MODE Status' in result
+
+            # Test BREAK
+            result = handler.handle(['BREAK', '15'])
+            assert '15' in result
+
+            # Test DISABLE
+            result = handler.handle(['MODE', 'DISABLE'])
+            assert 'DISABLED' in result
+
+            output.append(f"  ✅ DEV MODE commands working")
+            self._add_test("DEV MODE: commands", True)
+
+            if verbose:
+                output.append(f"     └─ ENABLE, STATUS, BREAK, DISABLE verified")
+        except Exception as e:
+            output.append(f"  ❌ DEV MODE commands failed: {e}")
+            self._add_test("DEV MODE: commands", False, str(e))
+
+        # Check debug test script
+        test_script = self.root / "memory" / "tests" / "debug_test.upy"
+        exists = test_script.exists()
         symbol = "✅" if exists else "⚠️"
         if verbose or not exists:
-            output.append(f"  {symbol} sandbox/logs/dev_mode/ {'exists' if exists else 'will be created on first use'}")
-        self._add_test("DEV MODE: log directory", True)  # OK if not exists yet
+            output.append(f"  {symbol} debug_test.upy {'exists' if exists else 'created'}")
+        self._add_test("DEV MODE: test script", exists)
 
         output.append("")
 

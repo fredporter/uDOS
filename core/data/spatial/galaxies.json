@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Galactic and Universal Structures Database",
+  "description": "Milky Way, neighboring galaxies, and cosmic structures for navigation and context",
+  "version": "1.0.0",
+  "last_updated": "2025-12-04",
+
+  "home_galaxy": {
+    "id": "milky_way",
+    "name": "Milky Way",
+    "type": "barred spiral galaxy",
+    "diameter_ly": 105700,
+    "thickness_ly": 1000,
+    "mass_solar_masses": 1.5e12,
+    "age_years": 13.6e9,
+    "stars_estimated": 400e9,
+    "black_hole_center": {
+      "name": "Sagittarius A*",
+      "mass_solar_masses": 4.3e6,
+      "distance_from_sol_ly": 26000
+    },
+    "solar_system_location": {
+      "galactic_arm": "Orion Arm (Orion Spur)",
+      "distance_from_center_ly": 26000,
+      "orbital_period_years": 225e6,
+      "orbital_velocity_km_s": 220
+    },
+    "structure": {
+      "central_bulge": {
+        "radius_ly": 10000,
+        "description": "Dense stellar concentration"
+      },
+      "spiral_arms": [
+        {"name": "Perseus Arm", "notable_features": ["Star clusters"]},
+        {"name": "Orion Arm", "notable_features": ["Solar System location"]},
+        {"name": "Sagittarius Arm", "notable_features": ["Dense star formation"]},
+        {"name": "Scutum-Centaurus Arm", "notable_features": ["Major arm"]}
+      ],
+      "halo": {
+        "radius_ly": 100000,
+        "description": "Globular clusters and dark matter"
+      }
+    }
+  },
+
+  "local_group": {
+    "description": "Galaxy cluster containing Milky Way",
+    "member_count": 54,
+    "diameter_ly": 10e6,
+    "mass_solar_masses": 2e12,
+    "major_members": [
+      {
+        "name": "Andromeda Galaxy (M31)",
+        "type": "spiral",
+        "distance_ly": 2.54e6,
+        "diameter_ly": 220000,
+        "stars_estimated": 1e12,
+        "approaching_velocity_km_s": 110,
+        "collision_with_milky_way_years": 4.5e9,
+        "notable": "Largest galaxy in Local Group"
+      },
+      {
+        "name": "Triangulum Galaxy (M33)",
+        "type": "spiral",
+        "distance_ly": 2.73e6,
+        "diameter_ly": 60000,
+        "stars_estimated": 40e9,
+        "notable": "Third largest in Local Group"
+      },
+      {
+        "name": "Large Magellanic Cloud",
+        "type": "irregular dwarf",
+        "distance_ly": 163000,
+        "diameter_ly": 14000,
+        "stars_estimated": 20e9,
+        "visible_hemisphere": "southern",
+        "notable": "Satellite galaxy of Milky Way, visible to naked eye"
+      },
+      {
+        "name": "Small Magellanic Cloud",
+        "type": "irregular dwarf",
+        "distance_ly": 200000,
+        "diameter_ly": 7000,
+        "stars_estimated": 3e9,
+        "visible_hemisphere": "southern",
+        "notable": "Satellite galaxy, Southern Cross navigation reference"
+      }
+    ]
+  },
+
+  "navigation_stars": {
+    "description": "Brightest stars for celestial navigation",
+    "stars": [
+      {
+        "name": "Sirius",
+        "constellation": "Canis Major",
+        "distance_ly": 8.6,
+        "apparent_magnitude": -1.46,
+        "type": "A-type main sequence",
+        "navigation_use": "Brightest star, southern hemisphere reference"
+      },
+      {
+        "name": "Polaris (North Star)",
+        "constellation": "Ursa Minor",
+        "distance_ly": 433,
+        "apparent_magnitude": 1.98,
+        "type": "F-type supergiant",
+        "navigation_use": "North celestial pole, latitude determination"
+      },
+      {
+        "name": "Betelgeuse",
+        "constellation": "Orion",
+        "distance_ly": 548,
+        "apparent_magnitude": 0.42,
+        "type": "Red supergiant",
+        "navigation_use": "Orion belt reference, equator crossing"
+      },
+      {
+        "name": "Rigel",
+        "constellation": "Orion",
+        "distance_ly": 863,
+        "apparent_magnitude": 0.13,
+        "type": "Blue supergiant",
+        "navigation_use": "Orion belt, southern cross reference"
+      },
+      {
+        "name": "Vega",
+        "constellation": "Lyra",
+        "distance_ly": 25,
+        "apparent_magnitude": 0.03,
+        "type": "A-type main sequence",
+        "navigation_use": "Summer triangle, northern hemisphere"
+      }
+    ]
+  },
+
+  "constellations": {
+    "northern_hemisphere": [
+      {"name": "Ursa Major", "stars": 7, "navigation": "Big Dipper points to Polaris"},
+      {"name": "Ursa Minor", "stars": 7, "navigation": "Contains Polaris (North Star)"},
+      {"name": "Cassiopeia", "stars": 5, "navigation": "W-shape opposite Big Dipper"},
+      {"name": "Orion", "stars": 7, "navigation": "Belt points to Sirius, visible globally"}
+    ],
+    "southern_hemisphere": [
+      {"name": "Southern Cross", "stars": 5, "navigation": "Points to south celestial pole"},
+      {"name": "Centaurus", "stars": 11, "navigation": "Contains Alpha/Beta Centauri pointers"},
+      {"name": "Scorpius", "stars": 18, "navigation": "Antares red giant marker"}
+    ],
+    "equatorial": [
+      {"name": "Orion", "stars": 7, "navigation": "Visible both hemispheres, equator crossing"}
+    ]
+  },
+
+  "cosmic_scale": {
+    "light_year_km": 9.461e12,
+    "parsec_ly": 3.26,
+    "astronomical_unit_km": 1.496e8,
+    "observable_universe_diameter_ly": 93e9,
+    "age_of_universe_years": 13.8e9
+  },
+
+  "survival_applications": {
+    "navigation": [
+      "Use Polaris for latitude in northern hemisphere",
+      "Southern Cross for south celestial pole",
+      "Star positions for time estimation",
+      "Constellation patterns for direction finding"
+    ],
+    "timekeeping": [
+      "Stellar positions for hour angle",
+      "Seasonal constellation changes",
+      "Lunar phases from Earth-Sun-Moon geometry"
+    ],
+    "future_expansion": [
+      "v1.2.5+: Star chart generation for offline navigation",
+      "v2.0.0+: Planetary position calculator",
+      "v3.0.0+: Deep space visualization"
+    ]
+  },
+
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "NASA exoplanet archive",
+      "European Space Agency Gaia mission",
+      "IAU constellation database",
+      "Celestial navigation references"
+    ],
+    "future_expansion": "Star catalog, exoplanets, quasars, galaxy clusters"
+  }
+}

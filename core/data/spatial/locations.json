@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Earth Locations Database",
+  "description": "Major cities, landmarks, and survival-relevant locations with TILE codes",
+  "version": "1.0.0",
+  "last_updated": "2025-12-04",
+
+  "continents": {
+    "oceania": {
+      "name": "Oceania",
+      "tile_range": {"col_min": "AA", "col_max": "DZ", "row_min": 290, "row_max": 380},
+      "major_cities": 12,
+      "population": 42000000
+    },
+    "asia": {
+      "name": "Asia",
+      "tile_range": {"col_min": "EA", "col_max": "NZ", "row_min": 50, "row_max": 220},
+      "major_cities": 48,
+      "population": 4600000000
+    },
+    "europe": {
+      "name": "Europe",
+      "tile_range": {"col_min": "HA", "col_max": "LZ", "row_min": 40, "row_max": 120},
+      "major_cities": 28,
+      "population": 750000000
+    },
+    "africa": {
+      "name": "Africa",
+      "tile_range": {"col_min": "JA", "col_max": "NZ", "row_min": 120, "row_max": 280},
+      "major_cities": 22,
+      "population": 1300000000
+    },
+    "north_america": {
+      "name": "North America",
+      "tile_range": {"col_min": "OA", "col_max": "SZ", "row_min": 30, "row_max": 180},
+      "major_cities": 35,
+      "population": 580000000
+    },
+    "south_america": {
+      "name": "South America",
+      "tile_range": {"col_min": "PA", "col_max": "TZ", "row_min": 200, "row_max": 350},
+      "major_cities": 18,
+      "population": 430000000
+    }
+  },
+
+  "major_cities": [
+    {
+      "id": "sydney",
+      "name": "Sydney",
+      "country": "Australia",
+      "continent": "oceania",
+      "tile_code": "AA340-100",
+      "coordinates": {"lat": -33.8688, "lon": 151.2093},
+      "population": 5300000,
+      "elevation_m": 58,
+      "timezone": "Australia/Sydney",
+      "survival_resources": {
+        "water": ["Sydney Harbor", "Warragamba Dam", "Desalination plant"],
+        "shelter": ["Caves in Royal National Park", "Urban structures"],
+        "food": ["Coastal fishing", "Urban farming areas"],
+        "climate": "temperate oceanic"
+      }
+    },
+    {
+      "id": "london",
+      "name": "London",
+      "country": "United Kingdom",
+      "continent": "europe",
+      "tile_code": "JF57-100",
+      "coordinates": {"lat": 51.5074, "lon": -0.1278},
+      "population": 9000000,
+      "elevation_m": 11,
+      "timezone": "Europe/London",
+      "survival_resources": {
+        "water": ["Thames River", "Aquifers", "Reservoirs"],
+        "shelter": ["Underground tunnels", "Historic bunkers"],
+        "food": ["Thames fishing", "Parks/green spaces"],
+        "climate": "temperate maritime"
+      }
+    },
+    {
+      "id": "tokyo",
+      "name": "Tokyo",
+      "country": "Japan",
+      "continent": "asia",
+      "tile_code": "LB110-100",
+      "coordinates": {"lat": 35.6762, "lon": 139.6503},
+      "population": 37400000,
+      "elevation_m": 40,
+      "timezone": "Asia/Tokyo",
+      "survival_resources": {
+        "water": ["Tonegawa River", "Arakawa River", "Reservoirs"],
+        "shelter": ["Earthquake-proof bunkers", "Metro tunnels"],
+        "food": ["Tokyo Bay fishing", "Rice paddies nearby"],
+        "climate": "humid subtropical"
+      }
+    },
+    {
+      "id": "new_york",
+      "name": "New York",
+      "country": "United States",
+      "continent": "north_america",
+      "tile_code": "QD95-100",
+      "coordinates": {"lat": 40.7128, "lon": -74.0060},
+      "population": 18800000,
+      "elevation_m": 10,
+      "timezone": "America/New_York",
+      "survival_resources": {
+        "water": ["Hudson River", "East River", "Aquifers"],
+        "shelter": ["Subway system", "Basements", "Parks"],
+        "food": ["Harbor fishing", "Urban gardens"],
+        "climate": "humid subtropical"
+      }
+    }
+  ],
+
+  "survival_landmarks": [
+    {
+      "id": "great_barrier_reef",
+      "name": "Great Barrier Reef",
+      "type": "marine ecosystem",
+      "tile_code": "AB315-100",
+      "coordinates": {"lat": -18.2871, "lon": 147.6992},
+      "resources": {
+        "food": "Abundant fish, shellfish, seaweed",
+        "water": "Rainwater collection, desalination",
+        "shelter": "Islands, coral cays",
+        "hazards": ["Jellyfish", "Sharks", "Sun exposure"]
+      }
+    },
+    {
+      "id": "amazon_rainforest",
+      "name": "Amazon Rainforest",
+      "type": "tropical forest",
+      "tile_code": "RB240-100",
+      "coordinates": {"lat": -3.4653, "lon": -62.2159},
+      "resources": {
+        "food": "Wild fruits, nuts, game animals",
+        "water": "Rivers, rainfall abundant",
+        "shelter": "Natural canopy, caves",
+        "medicinal_plants": true,
+        "hazards": ["Venomous animals", "Disease", "Navigation difficulty"]
+      }
+    },
+    {
+      "id": "sahara_desert",
+      "name": "Sahara Desert",
+      "type": "desert",
+      "tile_code": "KF180-100",
+      "coordinates": {"lat": 23.4162, "lon": 25.6628},
+      "resources": {
+        "food": "Scarce - lizards, insects, oasis plants",
+        "water": "Rare oases, underground aquifers",
+        "shelter": "Caves, rock formations",
+        "hazards": ["Extreme heat", "Dehydration", "Sandstorms"]
+      }
+    }
+  ],
+
+  "coordinate_system": {
+    "grid_dimensions": {"columns": 480, "rows": 270},
+    "cell_size_km": 83.3,
+    "total_cells": 129600,
+    "layer_100_coverage": "global",
+    "conversion_utils": "core/utils/grid_utils.py"
+  },
+
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "GeoNames database",
+      "UN population data",
+      "Survival location databases"
+    ],
+    "future_expansion": "v1.2.4+ will add 200+ additional cities and landmarks"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "layer_id": 700,
+  "layer_name": "satellite",
+  "layer_type": "orbital",
+  "description": "Satellite orbital layer - space infrastructure, communication nodes, navigation",
+  "version": "1.0.0",
+  "altitude_range": {
+    "min_km": 160,
+    "max_km": 36000,
+    "geostationary_km": 35786
+  },
+  "orbit_types": {
+    "LEO": {
+      "name": "Low Earth Orbit",
+      "altitude_km": 400,
+      "period_minutes": 90,
+      "use_cases": ["ISS", "Starlink", "observation"]
+    },
+    "MEO": {
+      "name": "Medium Earth Orbit",
+      "altitude_km": 20200,
+      "period_minutes": 720,
+      "use_cases": ["GPS", "GLONASS", "Galileo"]
+    },
+    "GEO": {
+      "name": "Geostationary Orbit",
+      "altitude_km": 35786,
+      "period_minutes": 1436,
+      "use_cases": ["communications", "weather", "broadcast"]
+    }
+  },
+  "satellite_types": {
+    "communications": {
+      "symbol": "C",
+      "function": "Data relay",
+      "typical_orbit": "GEO"
+    },
+    "navigation": {
+      "symbol": "N",
+      "function": "GPS/positioning",
+      "typical_orbit": "MEO"
+    },
+    "observation": {
+      "symbol": "O",
+      "function": "Earth monitoring",
+      "typical_orbit": "LEO"
+    },
+    "weather": {
+      "symbol": "W",
+      "function": "Meteorology",
+      "typical_orbit": "GEO"
+    },
+    "space_station": {
+      "symbol": "S",
+      "function": "Research",
+      "typical_orbit": "LEO"
+    }
+  },
+  "sample_coverage": {
+    "AA340": {
+      "name": "Sydney Coverage",
+      "visible_satellites": 8,
+      "gps_available": true,
+      "communications": ["Optus D3", "Intelsat"],
+      "observation_passes_per_day": 4
+    },
+    "JF57": {
+      "name": "London Coverage",
+      "visible_satellites": 12,
+      "gps_available": true,
+      "communications": ["Inmarsat", "Eutelsat"],
+      "observation_passes_per_day": 6
+    }
+  },
+  "mesh_integration": {
+    "description": "Future v1.2.9 integration for satellite-assisted mesh routing",
+    "capabilities": [
+      "Long-range message relay via LEO satellites",
+      "GPS time synchronization for mesh nodes",
+      "Satellite internet fallback for cloud sync"
+    ],
+    "protocols": ["LoRa satellite modems", "Iridium short-burst data"]
+  },
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "CelesTrak satellite database",
+      "N2YO satellite tracking"
+    ],
+    "update_frequency": "hourly (TLE updates)",
+    "last_updated": "2025-12-04"
+  }
+}

@@ -32,7 +32,7 @@ Date: 2025-12-03
 
 import logging
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 import json
 
@@ -278,7 +278,7 @@ class UnifiedLogger:
     def save_performance_snapshot(self):
         """Save performance metrics snapshot to file."""
         metrics = self.get_performance_metrics()
-        metrics['timestamp'] = datetime.now(UTC).isoformat()
+        metrics['timestamp'] = datetime.now(timezone.utc).isoformat()
 
         snapshot_file = self.log_dir / f"performance-snapshot-{datetime.now().strftime('%Y%m%d')}.json"
         with open(snapshot_file, 'w') as f:
@@ -290,7 +290,7 @@ class UnifiedLogger:
         Args:
             days: Number of days to keep (default: 30)
         """
-        cutoff = datetime.now(UTC).timestamp() - (days * 24 * 60 * 60)
+        cutoff = datetime.now(timezone.utc).timestamp() - (days * 24 * 60 * 60)
 
         for log_file in self.log_dir.glob("*.log"):
             if log_file.stat().st_mtime < cutoff:

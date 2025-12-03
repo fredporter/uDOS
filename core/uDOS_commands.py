@@ -228,6 +228,10 @@ class CommandHandler:
         from core.commands.extension_handler import create_extension_handler
         self.extension_handler = create_extension_handler(viewport=viewport, logger=logger)
 
+        # v1.2.2 - DEV MODE Debugging System
+        from core.commands.dev_mode_handler import DevModeHandler
+        self.dev_mode_handler = DevModeHandler()
+
         # Now set main_handler reference on all handlers (v2.0.0: removed bank_handler)
         for handler in [self.assistant_handler, self.file_handler,
                        self.system_handler]:
@@ -492,6 +496,10 @@ class CommandHandler:
             # v1.1.8 - EXTENSION Management (Extension Polish)
             elif module == "EXTENSION" or module == "EXT":
                 return self.extension_handler.handle_command([command] + params)
+
+            # v1.2.2 - DEV MODE Interactive Debugging
+            elif module == "DEV":
+                return self.dev_mode_handler.handle([command] + params)
 
             # v1.1.2 - Mission Control & Workflow Automation
             elif module == "MISSION":
