@@ -1,7 +1,7 @@
 # Running Knowledge Expansion Workflow - Quick Start Guide
 
-**Date:** December 3, 2025  
-**Workflow:** `memory/workflows/missions/knowledge-expansion.upy`  
+**Date:** December 3, 2025
+**Workflow:** `memory/workflows/missions/knowledge-expansion.upy`
 **Status:** ⚠️  **NOT YET EXECUTABLE** - Dependencies incomplete
 
 ---
@@ -244,7 +244,7 @@ Example:
    ```bash
    # Check what exists
    ls -la knowledge/water/
-   
+
    # Compare to topics list
    cat core/data/knowledge_topics.json | grep "water"
    ```

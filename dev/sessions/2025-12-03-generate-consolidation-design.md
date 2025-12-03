@@ -1,7 +1,7 @@
 # GENERATE Command Consolidation - Architecture Design
 
-**Date:** December 3, 2025  
-**Version:** v1.2.0 (Architecture Redesign)  
+**Date:** December 3, 2025
+**Version:** v1.2.0 (Architecture Redesign)
 **Status:** 🚧 PLANNING
 
 ---
@@ -70,7 +70,7 @@ Subcommands:
   ASCII <description>     - Generate ASCII art
   TELETEXT <description>  - Generate teletext graphics
   HELP                    - Show command reference
-  
+
 Options:
   --offline               - Force offline mode (no API calls)
   --online                - Allow API calls (if available)
@@ -180,21 +180,21 @@ memory/
 ```python
 class GenerateHandler:
     """Unified generation system with offline-first AI."""
-    
+
     def __init__(self, components):
         self.offline_engine = OfflineEngine()  # Primary AI
         self.gemini_ext = None  # Lazy load if available
         self.banana_ext = None  # Lazy load if available
         self.api_monitor = APIMonitor()
         self.priority_queue = PriorityQueue()
-        
+
     def handle_command(self, params):
         """Route GENERATE subcommands."""
         if not params:
             return self._show_help()
-            
+
         subcommand = params[0].upper()
-        
+
         if subcommand == "DO":
             return self._generate_default(params[1:])
         elif subcommand == "REDO":
@@ -204,16 +204,16 @@ class GenerateHandler:
         elif subcommand in ["SVG", "DIAGRAM"]:
             return self._generate_svg(params[1:])
         # ... etc
-    
+
     def _generate_default(self, params):
         """Default generation using 3-tier system."""
         query = " ".join(params)
-        
+
         # Tier 1: Try offline engine first
         offline_result = self.offline_engine.generate(query)
         if offline_result.confidence > 0.85:
             return offline_result.content
-        
+
         # Tier 2: Fall back to Gemini if available
         if self._has_gemini_extension():
             # Check rate limits and cost budget
@@ -221,7 +221,7 @@ class GenerateHandler:
                 gemini_result = self.gemini_ext.generate(query)
                 self.api_monitor.log_request()
                 return gemini_result
-        
+
         # Return best offline result with disclaimer
         return f"{offline_result.content}\n\n⚠️  Limited local data. Install Gemini extension for enhanced results."
 ```
@@ -233,31 +233,31 @@ class GenerateHandler:
 ```python
 class OfflineEngine:
     """Enhanced offline AI using knowledge bank, FAQ, and templates."""
-    
+
     def __init__(self):
         self.knowledge_manager = get_knowledge_manager()
         self.faq_system = FAQSystem()
         self.user_memory = UserMemory()
         self.prompt_templates = load_json("core/data/prompts.json")
-        
+
     def generate(self, query: str, context: dict = None):
         """Generate response using local resources only."""
-        
+
         # Step 1: Analyze intent
         intent = self._analyze_intent(query)
-        
+
         # Step 2: Search knowledge bank
         kb_results = self.knowledge_manager.search(query, limit=5)
-        
+
         # Step 3: Search FAQ
         faq_results = self.faq_system.search(query)
-        
+
         # Step 4: Check user memory
         user_context = self.user_memory.get_relevant_context(query)
-        
+
         # Step 5: Apply templates
         template = self._select_template(intent)
-        
+
         # Step 6: Synthesize response
         response = self._synthesize_response(
             query=query,
@@ -267,13 +267,13 @@ class OfflineEngine:
             user_context=user_context,
             template=template
         )
-        
+
         return OfflineResponse(
             content=response,
             confidence=self._calculate_confidence(kb_results, faq_results),
             sources=self._extract_sources(kb_results, faq_results)
         )
-    
+
     def _synthesize_response(self, **kwargs):
         """Intelligent response synthesis from local data."""
         # Combine knowledge bank excerpts
@@ -290,14 +290,14 @@ class OfflineEngine:
 ```python
 class GeminiExtension:
     """Gemini API integration as optional extension."""
-    
+
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
         if not self.api_key:
             raise ExtensionNotAvailableError("GEMINI_API_KEY required")
-        
+
         self.client = genai.Client(api_key=self.api_key)
-        
+
     def generate(self, query: str, context: dict = None):
         """Generate using Gemini with rate limiting."""
         # Apply rate limiting
@@ -334,28 +334,28 @@ class GeminiExtension:
 ```python
 class APIMonitor:
     """Monitor API usage, enforce rate limits, track costs."""
-    
+
     def __init__(self):
         self.requests_log = []
         self.cost_tracker = CostTracker()
         self.rate_limiter = RateLimiter()
-        
+
     def can_make_request(self, priority="normal"):
         """Check if request is allowed based on limits and budget."""
         # Check rate limit
         if not self.rate_limiter.is_allowed():
             return False
-        
+
         # Check cost budget
         if not self.cost_tracker.within_budget():
             return False
-        
+
         # Check priority queue
         if not self.priority_queue.should_process(priority):
             return False
-        
+
         return True
-    
+
     def log_request(self, tokens, cost, duration_ms):
         """Log API request for analytics."""
         self.requests_log.append({
@@ -365,7 +365,7 @@ class APIMonitor:
             "duration_ms": duration_ms
         })
         self.cost_tracker.add_cost(cost)
-    
+
     def get_stats(self):
         """Get live usage statistics."""
         return {
@@ -559,6 +559,6 @@ GEMINI_API_KEY=xxx  (still works)
 
 ---
 
-**Document Status:** Living document, updated as design evolves  
-**Last Updated:** December 3, 2025  
+**Document Status:** Living document, updated as design evolves
+**Last Updated:** December 3, 2025
 **Next Review:** After Phase 2 completion
