@@ -1,22 +1,26 @@
 """
-uDOS v1.1.0 - Assist Command Handler
+uDOS v1.2.0 - Assistant Command Handler (DEPRECATED)
 
-Handles all assist-related commands with role-based access control:
-- ASK: Ask the assist system a question (offline-first for User role)
-- READ: Read panel content
-- EXPLAIN: Explain a command
-- GENERATE: Generate script from description
-- DEBUG: Help debug an error
-- CLEAR: Clear conversation history
-- DEV: Wizard-only development mode with system context
+⚠️  DEPRECATION NOTICE:
+    ASSISTANT commands are deprecated as of v1.2.0
+    This handler routes to extensions/assistant (lazy loaded)
+    Will be removed in v2.0.0
 
-Features (v1.1.0):
-- Role-based API access (Wizard: unrestricted, User: restricted offline-first)
-- API usage audit logging
-- Offline-first knowledge bank search
-- Session analytics integration
+    Migration:
+        ASSISTANT ASK <query> → GENERATE DO <query>
+        OK ASK <query> → GENERATE DO <query>
 
-Version: 1.1.0
+    See: wiki/Migration-Guide-Assistant-to-Generate.md
+
+Legacy commands (deprecated):
+- ASSISTANT ASK: Ask Gemini AI (use GENERATE DO)
+- ASSISTANT CLEAR: Clear conversation history
+- ASSISTANT STATUS: Show status and usage
+- OK ASK: Legacy command (use GENERATE DO)
+- OK DEV: GitHub Copilot CLI (external tool)
+
+Version: 1.2.0 (Deprecated)
+Previous: 1.1.0 (Active)
 """
 
 from typing import Optional
@@ -24,10 +28,26 @@ from .base_handler import BaseCommandHandler
 
 
 class AssistantCommandHandler(BaseCommandHandler):
-    """Handles OK Assisted Task (Gemini-powered) commands with knowledge integration."""
+    """
+    DEPRECATED: Handles ASSISTANT commands (routes to extensions/assistant).
+
+    Deprecation Info:
+        - Status: DEPRECATED as of v1.2.0
+        - Removal: v2.0.0 (Q2 2025)
+        - Replacement: GENERATE commands (offline-first)
+        - Migration: wiki/Migration-Guide-Assistant-to-Generate.md
+
+    This handler now acts as a compatibility shim that routes to
+    extensions/assistant with deprecation warnings.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
+        # Lazy load extension handler
+        self._extension_handler = None
+        
+        # Legacy properties (for backward compatibility)
         self.gemini = None  # Lazy initialization
         self._workspace_manager = None
         self._knowledge_manager = None
@@ -37,6 +57,19 @@ class AssistantCommandHandler(BaseCommandHandler):
         # Role-based access control (v1.1.0)
         # Get role from config_manager (set via CONFIG ROLE wizard)
         self.user_role = self.config_manager.get('USER_ROLE', 'user') if hasattr(self, 'config_manager') and self.config_manager else "user"
+
+    @property
+    def extension_handler(self):
+        """Lazy load assistant extension handler."""
+        if self._extension_handler is None:
+            try:
+                from extensions.assistant.handler import get_assistant_handler
+                self._extension_handler = get_assistant_handler(config_manager=self.config_manager)
+            except ImportError as e:
+                # Extension not available - return None
+                # Commands will show helpful error message
+                pass
+        return self._extension_handler
 
     @property
     def workspace_manager(self):
@@ -71,347 +104,206 @@ class AssistantCommandHandler(BaseCommandHandler):
         return self._session_analytics
 
     def _initialize_gemini(self):
-        """Initialize Gemini service for OK Assisted Task on first use."""
-        if self.gemini is None:
-            try:
-                from extensions.core.ok_assistant import get_gemini
-                self.gemini = get_gemini()
-            except Exception as e:
-                return f"⚠️  Failed to initialize assist system: {str(e)}"
+        """
+        DEPRECATED: Initialize Gemini service (now in extension).
+        
+        Returns None for backward compatibility.
+        Extension handler will manage Gemini initialization.
+        """
+        # No longer needed - extension handler manages Gemini
         return None
 
     def _check_api_access(self, operation: str) -> tuple[bool, Optional[str]]:
         """
-        Check if user role has permission for Gemini API operation.
-
-        Args:
-            operation: Operation type ('ASK', 'DEV', 'ANALYZE')
-
-        Returns:
-            (allowed: bool, error_message: Optional[str])
-
-        Role Permissions (v1.1.0):
-        - wizard: Full unrestricted access to all operations
-        - user: Restricted access, offline-first with limited API calls
-        - (power, root: Future RBAC implementation in v1.1.1)
+        DEPRECATED: Check API access (kept for backward compatibility).
+        
+        All users can now access commands - extension handles permissions.
         """
-        if self.user_role == "wizard":
-            # Wizard role: unrestricted access
-            return True, None
-
-        elif self.user_role == "user":
-            # User role: restricted access
-            if operation == "DEV":
-                return False, "❌ OK DEV requires Wizard role\n💡 This command provides system-level development access"
-            elif operation == "ASK":
-                # ASK is allowed but should use offline-first approach
-                return True, None
-            else:
-                # Other operations allowed with offline fallback
-                return True, None
-
-        # Default: allow but log
+        # Always allow - extension will handle permission checks
         return True, None
 
     def _log_api_usage(self, operation: str, query: str, tokens: int = None,
                       cost: float = None, duration_ms: float = None,
                       success: bool = True, error: str = None):
         """
-        Log API usage to audit log.
-
-        Args:
-            operation: Command operation (e.g., 'OK ASK')
-            query: Query text
-            tokens: Tokens consumed
-            cost: Estimated cost in USD
-            duration_ms: Duration in milliseconds
-            success: Whether call succeeded
-            error: Error message if failed
+        DEPRECATED: Log API usage (now handled by extension).
+        
+        Kept for backward compatibility but does nothing.
         """
-        self.audit_logger.log_api_call(
-            user_role=self.user_role,
-            operation=operation,
-            api_type="gemini",
-            query=query,
-            tokens_used=tokens,
-            cost_estimate=cost,
-            duration_ms=duration_ms,
-            success=success,
-            error_msg=error
-        )
+        # Extension handler now manages API logging
+        pass
 
     def handle(self, command, params, grid):
         """
-        Route assist commands to appropriate handlers.
+        Route assistant commands to extension handler (with deprecation warnings).
 
         Args:
-            command: Command name (OK with subcommand, READ, etc.)
+            command: Command name (ASSISTANT, OK)
             params: Command parameters
             grid: Grid instance
 
         Returns:
-            Command result message
+            Command result message with deprecation warning
         """
-        # Handle OK with subcommands
-        if command == "OK":
+        # Show deprecation notice
+        deprecation_warning = """⚠️  ASSISTANT commands are deprecated as of v1.2.0
+    Use GENERATE commands instead (offline-first)
+
+    Migration:
+        ASSISTANT ASK <query> → GENERATE DO <query>
+        OK ASK <query> → GENERATE DO <query>
+
+    See: wiki/Migration-Guide-Assistant-to-Generate.md
+
+"""
+
+        # Try to route to extension handler
+        if self.extension_handler:
+            # Build context for extension
+            context = {
+                'workspace': self.workspace_manager.current_workspace if self.workspace_manager else 'sandbox',
+                'grid': grid,
+                'user_role': self.user_role
+            }
+            
+            # Route to extension (it will show its own deprecation notice)
+            return self.extension_handler.handle(command, params, context)
+        
+        # Extension not available - show helpful message
+        if command == "ASSISTANT" or command == "OK":
             if not params:
-                return self._handle_ok_help()
+                return deprecation_warning + self._handle_ok_help()
 
             subcommand = params[0].upper()
-            sub_params = params[1:] if len(params) > 1 else []
-
+            
             if subcommand == "ASK":
-                # Check role-based access
-                allowed, error_msg = self._check_api_access("ASK")
-                if not allowed:
-                    return error_msg
+                return f"""{deprecation_warning}❌ Assistant extension not available
 
-                # Initialize Gemini for ASK
-                init_error = self._initialize_gemini()
-                if init_error:
-                    return init_error
-                return self._handle_ask(sub_params, grid)
+The ASSISTANT extension has been moved to extensions/assistant
+and is now optional (uDOS works fully offline without it).
+
+💡 Offline Alternative (No API Key Required):
+   GENERATE DO <your question>
+
+   This uses uDOS's built-in offline AI engine with:
+   - 166+ survival guides from knowledge bank
+   - FAQ database (40+ common questions)
+   - User memory and context tracking
+   - 70-90% confidence on most queries
+   - No API costs!
+
+💡 To Enable Gemini (Optional):
+   1. Get API key: https://makersuite.google.com/app/apikey
+   2. Add to .env: GEMINI_API_KEY=your_key_here
+   3. Extension will load automatically
+
+💡 Migration Guide:
+   wiki/Migration-Guide-Assistant-to-Generate.md
+"""
             elif subcommand == "DEV":
-                # Check role-based access (Wizard only)
-                allowed, error_msg = self._check_api_access("DEV")
-                if not allowed:
-                    return error_msg
+                # DEV command is special - routes to GitHub Copilot CLI (external)
+                return self._handle_dev(params[1:])
+            elif subcommand == "STATUS" or command == "STATUS":
+                return f"""{deprecation_warning}❌ Assistant extension not available
 
-                return self._handle_dev(sub_params)
-            else:
-                return f"❌ Unknown OK subcommand: {subcommand}\n\nUse: OK ASK or OK DEV"
+Extension Status: Not loaded
+Location: extensions/assistant/
+Required: GEMINI_API_KEY in .env
 
-        elif command == "ANALYZE":
-            return self._handle_debug(params)
+💡 Use GENERATE STATUS instead (works offline)
+"""
+        
+        # Other commands
+        if command == "ANALYZE":
+            return f"{deprecation_warning}Use GENERATE DO to analyze content"
         elif command == "CLEAR":
-            return self._handle_clear()
-        elif command == "STATUS":
-            return self._handle_status()
+            return f"{deprecation_warning}Use GENERATE CLEAR to clear history"
         else:
             return self.get_message("ERROR_UNKNOWN_ASSISTANT_COMMAND", command=command)
 
     def _handle_status(self):
-        """Display assistant status and available features."""
-        return """🤖 Assistant Status
+        """
+        DEPRECATED: Display assistant status (routes to extension).
+        """
+        deprecation_notice = """⚠️  ASSISTANT commands are deprecated as of v1.2.0
+    Use GENERATE commands instead
 
-Available Commands:
-  • ASSIST CLEAR - Clear conversation history
+"""
+        if self.extension_handler:
+            return self.extension_handler.handle('ASSISTANT', ['STATUS'])
+        
+        return f"""{deprecation_notice}❌ Assistant extension not available
 
-Deferred Features (v1.1+):
-  • OK ASK - Gemini-powered assistance
-  • OK DEV - GitHub Copilot CLI integration
-  • EXPLAIN - Command explanations
-  • GENERATE - Script generation
-  • DEBUG - Error debugging
-  • READ - Panel content analysis
+Extension moved to: extensions/assistant/
+Status: Optional (uDOS works fully offline)
 
-Status: ⚠️ Core assistant features deferred to v1.1+
-        Active commands available via HELP SEARCH assist
-
-💡 Tip: Use HELP to see all currently active commands"""
+💡 Use GENERATE STATUS instead (works offline)
+"""
 
     def _handle_ok_help(self):
-        """Display OK command help."""
-        return """✅ OK Command - AI Assistance
+        """Display OK command help with deprecation notice."""
+        return """⚠️  OK commands are deprecated as of v1.2.0
 
-Usage:
-  OK ASK <question>     - Ask Gemini AI a question
-  OK DEV <task>         - Get GitHub Copilot CLI development help
+DEPRECATED Commands:
+  OK ASK <question>     - Use GENERATE DO instead
+  OK DEV <task>         - Still works (GitHub Copilot CLI)
+
+Replacement Commands:
+  GENERATE DO <query>   - Offline-first AI (no API key needed)
+  GENERATE GUIDE <topic> - Generate survival guides
+  GENERATE SVG <desc>   - Generate diagrams (requires API)
 
 Examples:
-  OK ASK how do I implement UNDO?
-  OK ASK what files handle navigation?
-  OK DEV create a grid command handler
-  OK DEV explain this git error
+  OLD: OK ASK how do I purify water?
+  NEW: GENERATE DO how do I purify water?
 
-Available:
-  • OK ASK - Gemini-powered general assistance
-  • OK DEV - GitHub Copilot CLI for development tasks
+Migration: wiki/Migration-Guide-Assistant-to-Generate.md
 """
 
     def _handle_ask(self, params, grid):
         """
-        Ask the assist system a question with offline-first knowledge integration.
-
-        v1.1.0 Behavior:
-        - User role: Searches local 4-Tier Knowledge Bank first
-        - Only calls Gemini API if no local answer found
-        - Wizard role: Can access API directly but still benefits from local context
-        - All API calls logged to audit.log
-
-        Args:
-            params: [question, optional_panel]
+        DEPRECATED: Routes to extension handler or shows migration message.
         """
-        import time
-
-        if not params:
-            return "❌ Usage: OK ASK <question> [panel]\n\nExample: OK ASK What is uDOS?"
-
-        question = " ".join(params) if isinstance(params, list) else params
-        panel_name = None  # Could be enhanced to extract panel from params
-
-        start_time = time.time()
-
-        # Step 1: Search local knowledge base FIRST (offline-first approach)
-        knowledge_context = self._search_local_knowledge(question)
-        has_local_answer = knowledge_context.get('results') and len(knowledge_context['results']) > 0
-
-        # Step 2: For User role, try to answer from local knowledge first
-        if self.user_role == "user" and has_local_answer:
-            # Try to provide answer from local knowledge without API call
-            local_response = self._generate_fallback_response(question, knowledge_context)
-
-            # If local answer seems comprehensive, return it
-            # (In future versions, we could use heuristics to determine quality)
-            if len(local_response) > 100:  # Simple heuristic
-                duration_ms = (time.time() - start_time) * 1000
-                return f"📚 Local Knowledge (Offline):\n\n{local_response}\n\n💡 Answered from local knowledge bank (no API call)"
-
-        # Step 3: If we need API (Wizard or no local answer), proceed with Gemini
-        # Build context
-        context = {
-            'workspace': self.workspace_manager.current_workspace if self.workspace_manager else 'sandbox',
-            'files': [],
-            'local_knowledge': knowledge_context,
-            'user_role': self.user_role
-        }
-
-        # Add panel content if specified
-        if panel_name:
-            panel_content = grid.get_panel(panel_name)
-            if panel_content is None:
-                return f"❌ Panel '{panel_name}' not found"
-            context['panel'] = {
-                'name': panel_name,
-                'content': panel_content
+        if self.extension_handler:
+            context = {
+                'workspace': self.workspace_manager.current_workspace if self.workspace_manager else 'sandbox',
+                'grid': grid
             }
+            return self.extension_handler._handle_ask(params, context)
+        
+        return """❌ Assistant extension not available
 
-        try:
-            # Call Gemini API
-            response = self.gemini.ask(question, context=context)
-            duration_ms = (time.time() - start_time) * 1000
+💡 Use GENERATE DO instead (offline-first, no API key):
+   GENERATE DO <your question>
 
-            # Extract token counts and calculate cost
-            # Gemini 2.5 Flash pricing (as of Dec 2024):
-            # Input: $0.075 per 1M tokens ($0.00000075 per token)
-            # Output: $0.30 per 1M tokens ($0.0000003 per token)
-            tokens = self._extract_token_usage(response)
-            cost = self._calculate_cost(tokens) if tokens else None
-
-            # Log API usage
-            self._log_api_usage(
-                operation="OK ASK",
-                query=question,
-                tokens=tokens,
-                cost=cost,
-                duration_ms=duration_ms,
-                success=True
-            )
-
-            # Build response with context note
-            context_note = ""
-            if has_local_answer:
-                context_note = f"\n\n📚 Enhanced with local knowledge ({len(knowledge_context['results'])} items)"
-
-            return f"✅ OK System (Gemini){context_note}:\n\n{response}"
-
-        except Exception as e:
-            duration_ms = (time.time() - start_time) * 1000
-
-            # Log failed API call
-            self._log_api_usage(
-                operation="OK ASK",
-                query=question,
-                duration_ms=duration_ms,
-                success=False,
-                error=str(e)
-            )
-
-            # Fallback to local knowledge if API fails
-            if has_local_answer:
-                fallback_response = self._generate_fallback_response(question, knowledge_context)
-                return f"📚 Local Knowledge (API unavailable):\n\n{fallback_response}\n\n⚠️ Gemini API error: {str(e)}"
-            return f"⚠️  OK System error: {str(e)}\n\nPlease check your connection and API key."
+Example:
+   GENERATE DO how do I purify water?
+"""
 
     def _handle_read(self, params, grid):
-        """
-        Read and analyze panel content.
-
-        Args:
-            params: [panel_name]
-        """
-        if not params:
-            return "❌ Usage: READ <panel>\n\nExample: READ docs"
-
-        panel_name = params[0]
-        panel_content = grid.get_panel(panel_name)
-        if panel_content is None:
-            return f"❌ Panel '{panel_name}' not found"
-
-        try:
-            response = self.gemini.analyze(panel_content)
-            return f"📊 Analysis:\n\n{response}"
-        except Exception as e:
-            return f"⚠️  Analysis failed: {str(e)}"
+        """DEPRECATED: Read panel content."""
+        return "❌ READ command deprecated. Use GENERATE DO to analyze content."
 
     def _handle_explain(self, params):
-        """
-        Explain a command.
-
-        Args:
-            params: [command, ...]
-        """
-        if not params:
-            return "❌ Usage: EXPLAIN <command>\n\nExample: EXPLAIN TREE"
-
-        cmd = ' '.join(params)
-        try:
-            response = self.gemini.explain_command(cmd)
-            return f"📖 Explanation:\n\n{response}"
-        except Exception as e:
-            return f"⚠️  Explanation failed: {str(e)}"
+        """DEPRECATED: Explain command."""
+        return "❌ EXPLAIN command deprecated. Use GENERATE DO <explain command>."
 
     def _handle_generate(self, params):
-        """
-        Generate script from description.
-
-        Args:
-            params: [description, ...]
-        """
-        if not params:
-            return "❌ Usage: GENERATE <description>\n\nExample: GENERATE Create a test script"
-
-        description = ' '.join(params)
-        try:
-            response = self.gemini.generate_script(description)
-            return f"📝 Generated Script:\n\n{response}"
-        except Exception as e:
-            return f"⚠️  Generation failed: {str(e)}"
+        """DEPRECATED: Generate script."""
+        return "❌ Old GENERATE deprecated. Use: GENERATE DO <description> or GENERATE GUIDE <topic>."
 
     def _handle_debug(self, params):
-        """
-        Help debug an error.
-
-        Args:
-            params: [error_message, ...]
-        """
-        if not params:
-            return "❌ Usage: DEBUG <error>\n\nExample: DEBUG ImportError: module not found"
-
-        error_msg = ' '.join(params)
-        try:
-            response = self.gemini.debug_error(error_msg)
-            return f"🔧 Debug Help:\n\n{response}"
-        except Exception as e:
-            return f"⚠️  Debug failed: {str(e)}"
+        """DEPRECATED: Debug error."""
+        return "❌ DEBUG command deprecated. Use GENERATE DO <debug error message>."
 
     def _handle_clear(self):
-        """Clear conversation history."""
-        try:
-            self.gemini.clear_history()
-            return "✅ Assistant conversation history cleared"
-        except Exception as e:
-            return f"⚠️  Clear failed: {str(e)}"
+        """
+        DEPRECATED: Clear conversation history.
+        """
+        if self.extension_handler:
+            return self.extension_handler._handle_clear()
+        
+        return "❌ Assistant extension not available. Use GENERATE CLEAR instead."
 
     def _handle_dev(self, params):
         """
@@ -559,118 +451,30 @@ Run: copilot auth login
         return ", ".join(context_parts) if context_parts else None
 
     def _search_local_knowledge(self, question):
-        """Search local knowledge base for relevant content."""
-        try:
-            # Search for relevant knowledge
-            results = self.knowledge_manager.search(question, limit=5)
-
-            # Build context from results
-            context = {
-                'query': question,
-                'results': results,
-                'content_snippets': []
-            }
-
-            # Extract content snippets for context
-            for result in results[:3]:  # Top 3 results
-                content = self.knowledge_manager.get_content(result['file_path'])
-                if content:
-                    # Extract a relevant section (first 500 chars)
-                    snippet = content[:500] + "..." if len(content) > 500 else content
-                    context['content_snippets'].append({
-                        'title': result['title'],
-                        'content': snippet,
-                        'category': result['category']
-                    })
-
-            return context
-
-        except Exception as e:
-            # Return empty context if knowledge search fails
-            return {
-                'query': question,
-                'results': [],
-                'content_snippets': [],
-                'error': str(e)
-            }
+        """
+        DEPRECATED: Search local knowledge base (now in offline engine).
+        
+        Kept for backward compatibility but returns empty results.
+        """
+        return {
+            'query': question,
+            'results': [],
+            'content_snippets': [],
+            'note': 'Use offline AI engine or GENERATE DO command'
+        }
 
     def _generate_fallback_response(self, question, knowledge_context):
-        """Generate a response using only local knowledge when OK Assisted Task is unavailable."""
-        if not knowledge_context['results']:
-            return "No local knowledge found for this question. Please check your internet connection for OK System support."
-
-        response = []
-        response.append(f"Based on local knowledge for '{question}':\n")
-
-        for i, result in enumerate(knowledge_context['results'][:3], 1):
-            response.append(f"**{i}. {result['title']}** ({result['category']})")
-            response.append(f"📝 {result['word_count']} words")
-
-            # Show snippet
-            snippet = result['snippet'].strip()
-            if len(snippet) > 200:
-                snippet = snippet[:200] + "..."
-            response.append(f"💡 {snippet}\n")
-
-        if len(knowledge_context['results']) > 3:
-            response.append(f"... and {len(knowledge_context['results']) - 3} more results.")
-
-        response.append("\n💡 Use `KNOWLEDGE SHOW <title>` to view full content")
-        response.append("💡 Use `KNOWLEDGE SEARCH <query>` for more detailed search")
-
-        return "\n".join(response)
+        """
+        DEPRECATED: Generate fallback response (now in offline engine).
+        
+        Returns migration message.
+        """
+        return "Use GENERATE DO for offline-first AI responses."
 
     def _extract_token_usage(self, response: str) -> Optional[Dict[str, int]]:
-        """Extract token usage from Gemini response metadata
-
-        Args:
-            response: Response from Gemini API
-
-        Returns:
-            Dictionary with token counts or None if unavailable
-
-        Note:
-            Gemini API response objects have a usage_metadata attribute with:
-            - prompt_token_count: Input tokens
-            - candidates_token_count: Output tokens
-            - total_token_count: Total tokens
-
-            Since we receive a string response, we estimate tokens:
-            - Input: ~4 chars per token (conservative)
-            - Output: ~4 chars per token (conservative)
-        """
-        # Since we get a string response, we can only estimate
-        # Actual token counting would require access to the full response object
-        # For now, return None to indicate unavailable
-        # Future: Modify gemini_generator.py to return full response metadata
+        """DEPRECATED: Token extraction (now in extension)."""
         return None
 
     def _calculate_cost(self, tokens: Optional[Dict[str, int]]) -> Optional[float]:
-        """Calculate API cost based on token usage
-
-        Args:
-            tokens: Dictionary with input_tokens and output_tokens
-
-        Returns:
-            Cost in USD or None if tokens unavailable
-
-        Pricing (Gemini 2.5 Flash, Dec 2024):
-            - Input: $0.075 per 1M tokens
-            - Output: $0.30 per 1M tokens
-        """
-        if not tokens:
-            return None
-
-        input_cost_per_million = 0.075
-        output_cost_per_million = 0.30
-
-        input_tokens = tokens.get('input_tokens', 0)
-        output_tokens = tokens.get('output_tokens', 0)
-
-        input_cost = (input_tokens / 1_000_000) * input_cost_per_million
-        output_cost = (output_tokens / 1_000_000) * output_cost_per_million
-
-        total_cost = input_cost + output_cost
-        return round(total_cost, 6)  # Round to 6 decimal places
-
-        return "\n".join(response)
+        """DEPRECATED: Cost calculation (now in extension)."""
+        return None

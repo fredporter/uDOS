@@ -1,0 +1,147 @@
+{
+  "id": "assistant",
+  "name": "AI Assistant - Gemini Integration",
+  "version": "1.0.0",
+  "description": "AI-powered assistance using Google Gemini API. Provides conversational AI, code analysis, command explanations, script generation, and debugging help. Optional extension - uDOS works fully offline without this.",
+  "author": "uDOS Core Team",
+  "license": "MIT",
+  "category": "ai",
+  "type": "service",
+  "status": "active",
+
+  "dependencies": {
+    "uDOS": ">=1.2.0",
+    "python": ">=3.10",
+    "packages": [
+      "google-generativeai>=0.3.0"
+    ]
+  },
+
+  "requires_network": true,
+  "requires_api_key": true,
+  "api_key_env_var": "GEMINI_API_KEY",
+  
+  "requires_permissions": [
+    "internet",
+    "api_access",
+    "file_read",
+    "workspace_read"
+  ],
+
+  "commands": [
+    {
+      "name": "ASSISTANT ASK",
+      "description": "Ask Gemini AI a question (deprecated - use GENERATE DO)",
+      "deprecated": true,
+      "replacement": "GENERATE DO <query>",
+      "examples": [
+        "ASSISTANT ASK how do I purify water?",
+        "ASSISTANT ASK what's the best shelter for desert?"
+      ]
+    },
+    {
+      "name": "ASSISTANT CLEAR",
+      "description": "Clear conversation history",
+      "examples": [
+        "ASSISTANT CLEAR"
+      ]
+    },
+    {
+      "name": "ASSISTANT STATUS",
+      "description": "Show assistant status and API usage",
+      "examples": [
+        "ASSISTANT STATUS"
+      ]
+    }
+  ],
+
+  "services": [
+    "GeminiService",
+    "ConversationManager",
+    "APIUsageTracker"
+  ],
+
+  "config": {
+    "model": "gemini-2.5-flash",
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "conversation_history_limit": 100,
+    "rate_limit": {
+      "requests_per_minute": 60,
+      "requests_per_day": 1440
+    },
+    "cost_tracking": {
+      "input_cost_per_million": 0.075,
+      "output_cost_per_million": 0.30,
+      "daily_budget_usd": 1.0,
+      "warn_at_percent": 80
+    }
+  },
+
+  "features": {
+    "conversational_ai": true,
+    "code_analysis": true,
+    "command_explanation": true,
+    "script_generation": true,
+    "error_debugging": true,
+    "knowledge_integration": true,
+    "offline_fallback": true,
+    "usage_tracking": true,
+    "cost_monitoring": true
+  },
+
+  "integration": {
+    "offline_engine": {
+      "description": "Integrates with offline AI engine for hybrid approach",
+      "priority": "offline_first",
+      "fallback_threshold": 0.5
+    },
+    "knowledge_bank": {
+      "description": "Provides knowledge bank context to Gemini",
+      "enabled": true
+    },
+    "user_memory": {
+      "description": "Tracks user preferences and query history",
+      "enabled": true
+    }
+  },
+
+  "installation": {
+    "requires_setup": true,
+    "setup_steps": [
+      "Install google-generativeai package: pip install google-generativeai",
+      "Get Gemini API key from https://makersuite.google.com/app/apikey",
+      "Add to .env: GEMINI_API_KEY=your_key_here",
+      "Test with: ASSISTANT STATUS"
+    ],
+    "optional": true,
+    "graceful_degradation": "Falls back to offline AI engine if not configured"
+  },
+
+  "deprecation": {
+    "notice": "ASSISTANT commands are deprecated as of v1.2.0",
+    "replacement_commands": {
+      "ASSISTANT ASK": "GENERATE DO",
+      "OK ASK": "GENERATE DO",
+      "OK DEV": "GitHub Copilot CLI (external)"
+    },
+    "removal_version": "2.0.0",
+    "migration_guide": "wiki/Migration-Guide-Assistant-to-Generate.md"
+  },
+
+  "ui": {
+    "web_dashboard": false,
+    "real_time_updates": false,
+    "conversation_export": true
+  },
+
+  "security": {
+    "api_key_storage": "environment_variable",
+    "audit_logging": true,
+    "usage_tracking": true,
+    "rate_limiting": true,
+    "cost_alerts": true
+  }
+}
