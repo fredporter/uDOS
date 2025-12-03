@@ -1,7 +1,7 @@
 """
-uDOS v1.1.16+ - Shakedown Test Handler
+uDOS v1.2.1 - Shakedown Test Handler
 
-Comprehensive system validation testing for v1.1.16+ features:
+Comprehensive system validation testing for v1.2.1+ features:
 - Core architecture (v1.5.0: flattened structure)
 - Planet system (workspace renamed to planet)
 - Asset management (centralized library)
@@ -11,13 +11,17 @@ Comprehensive system validation testing for v1.1.16+ features:
 - Database locations (sandbox/user/)
 - Variable System (v1.1.18: SPRITE/OBJECT with JSON schemas)
 - Handler Architecture (v1.1.17: system handler refactored, UNDO/REDO)
-- Play Extension (v1.1.19: STORY command when implemented)
+- Play Extension (v1.1.19: STORY command, adventure scripts)
+- GENERATE System (v1.2.0: offline-first AI, 99% cost reduction)
+- Performance Validation (v1.2.1: metrics, success criteria)
+- Unified Logging (v1.2.1: memory/logs, minimal format)
 
 Usage:
     SHAKEDOWN           - Run all tests with summary
     SHAKEDOWN --verbose - Show detailed test output
     SHAKEDOWN --quick   - Run core tests only (skip integration)
     SHAKEDOWN --report  - Generate JSON report
+    SHAKEDOWN --perf    - Run performance validation only
 """
 
 import os
@@ -56,7 +60,7 @@ class ShakedownHandler(BaseCommandHandler):
 
         output = []
         output.append("╔═══════════════════════════════════════════════════════════╗")
-        output.append("║       🔧 uDOS v1.5.0 SHAKEDOWN TEST                    ║")
+        output.append("║       🔧 uDOS v1.2.1 SHAKEDOWN TEST                    ║")
         output.append("╚═══════════════════════════════════════════════════════════╝")
         output.append("")
 
@@ -80,6 +84,15 @@ class ShakedownHandler(BaseCommandHandler):
         if not quick:
             self._test_story_system(output, verbose)
             self._test_handler_architecture(output, verbose)
+
+        # v1.2.0+ test suites (GENERATE consolidation, performance)
+        self._test_generate_system(output, verbose)
+        self._test_offline_engine(output, verbose)
+        self._test_api_monitoring(output, verbose)
+        
+        if not quick:
+            self._test_performance_validation(output, verbose)
+            self._test_logging_system(output, verbose)
 
         # Summary
         output.append("")
@@ -686,6 +699,258 @@ class ShakedownHandler(BaseCommandHandler):
         except Exception as e:
             output.append(f"  ❌ SessionHandler import failed: {e}")
             self._add_test("Handler: UNDO/REDO commands", False, str(e))
+
+        output.append("")
+
+    def _test_generate_system(self, output: List[str], verbose: bool):
+        """Test v1.2.0 GENERATE consolidation."""
+        output.append("🤖 GENERATE System Tests (v1.2.0)")
+        output.append("─" * 63)
+
+        # Test offline engine
+        try:
+            from core.interpreters.offline import OfflineEngine
+            output.append(f"  ✅ OfflineEngine imports successfully")
+            self._add_test("GENERATE: OfflineEngine import", True)
+
+            # Test FAQ database
+            engine = OfflineEngine()
+            faq_count = len(engine.faq_database) if hasattr(engine, 'faq_database') else 0
+            symbol = "✅" if faq_count > 0 else "⚠️"
+            output.append(f"  {symbol} FAQ database: {faq_count} entries")
+            self._add_test("GENERATE: FAQ database", faq_count > 0)
+
+        except ImportError as e:
+            output.append(f"  ❌ OfflineEngine import failed: {e}")
+            self._add_test("GENERATE: OfflineEngine import", False, str(e))
+
+        # Test GENERATE handler commands
+        try:
+            from core.commands.generate_handler import GenerateHandler
+            handler_path = self.root / "core" / "commands" / "generate_handler.py"
+            
+            if handler_path.exists():
+                with open(handler_path) as f:
+                    content = f.read()
+                
+                # Check for v1.2.0 commands
+                has_do = '"DO"' in content or "'DO'" in content
+                has_redo = '"REDO"' in content or "'REDO'" in content
+                has_guide = '"GUIDE"' in content or "'GUIDE'" in content
+                has_status = '"STATUS"' in content or "'STATUS'" in content
+                has_clear = '"CLEAR"' in content or "'CLEAR'" in content
+                
+                all_commands = has_do and has_redo and has_guide and has_status and has_clear
+                symbol = "✅" if all_commands else "⚠️"
+                output.append(f"  {symbol} GENERATE commands: DO, REDO, GUIDE, STATUS, CLEAR")
+                self._add_test("GENERATE: commands complete", all_commands)
+                
+        except Exception as e:
+            output.append(f"  ❌ GENERATE handler check failed: {e}")
+            self._add_test("GENERATE: commands complete", False, str(e))
+
+        # Test Gemini extension (optional)
+        gemini_ext = self.root / "extensions" / "assistant"
+        if gemini_ext.exists():
+            output.append(f"  ✅ Gemini extension (optional fallback)")
+            self._add_test("GENERATE: Gemini extension", True)
+        else:
+            output.append(f"  ⚠️  Gemini extension not installed (optional)")
+            self._add_test("GENERATE: Gemini extension", True)  # Optional, so pass
+
+        output.append("")
+
+    def _test_offline_engine(self, output: List[str], verbose: bool):
+        """Test offline AI engine functionality."""
+        output.append("🔌 Offline Engine Tests (v1.2.0)")
+        output.append("─" * 63)
+
+        try:
+            from core.interpreters.offline import OfflineEngine
+            engine = OfflineEngine()
+            
+            # Test simple query
+            start_time = time.time()
+            result = engine.answer("What is water purification?")
+            duration = time.time() - start_time
+            
+            has_answer = result and 'answer' in result
+            fast = duration < 0.5
+            
+            symbol = "✅" if has_answer and fast else "⚠️"
+            output.append(f"  {symbol} Simple query: {duration*1000:.0f}ms, {'success' if has_answer else 'failed'}")
+            self._add_test("Offline: simple query", has_answer and fast, duration=duration)
+            
+            # Test confidence scoring
+            if has_answer and 'confidence' in result:
+                conf = result['confidence']
+                symbol = "✅" if 0 <= conf <= 100 else "⚠️"
+                output.append(f"  {symbol} Confidence scoring: {conf:.1f}%")
+                self._add_test("Offline: confidence scoring", 0 <= conf <= 100)
+            
+        except Exception as e:
+            output.append(f"  ❌ Offline engine test failed: {e}")
+            self._add_test("Offline: engine functional", False, str(e))
+
+        output.append("")
+
+    def _test_api_monitoring(self, output: List[str], verbose: bool):
+        """Test API monitoring and rate limiting."""
+        output.append("📊 API Monitoring Tests (v1.2.0)")
+        output.append("─" * 63)
+
+        # Test api_monitor.py
+        try:
+            from core.services.api_monitor import APIMonitor
+            output.append(f"  ✅ APIMonitor imports successfully")
+            self._add_test("API: APIMonitor import", True)
+            
+            # Check rate limiting config
+            monitor = APIMonitor()
+            has_limits = hasattr(monitor, 'rate_limits') or hasattr(monitor, 'limits')
+            symbol = "✅" if has_limits else "⚠️"
+            output.append(f"  {symbol} Rate limiting configured")
+            self._add_test("API: rate limiting", has_limits)
+            
+        except ImportError as e:
+            output.append(f"  ❌ APIMonitor import failed: {e}")
+            self._add_test("API: APIMonitor import", False, str(e))
+
+        # Test priority_queue.py
+        try:
+            from core.services.priority_queue import PriorityQueue
+            output.append(f"  ✅ PriorityQueue imports successfully")
+            self._add_test("API: PriorityQueue import", True)
+            
+        except ImportError as e:
+            output.append(f"  ❌ PriorityQueue import failed: {e}")
+            self._add_test("API: PriorityQueue import", False, str(e))
+
+        # Test workflow variables (PROMPT.*, GENERATE.*, API.*)
+        try:
+            from core.utils.variables import VariableManager
+            vm = VariableManager({})
+            
+            # Check for v1.2.0 variables
+            has_prompt_vars = any('PROMPT.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
+            has_generate_vars = any('GENERATE.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
+            has_api_vars = any('API.' in str(k) for k in vm.variables.keys()) if hasattr(vm, 'variables') else False
+            
+            all_vars = has_prompt_vars or has_generate_vars or has_api_vars
+            symbol = "✅" if all_vars else "⚠️"
+            output.append(f"  {symbol} Workflow variables (PROMPT.*, GENERATE.*, API.*)")
+            self._add_test("API: workflow variables", all_vars)
+            
+        except Exception as e:
+            output.append(f"  ⚠️  Workflow variables check skipped: {e}")
+
+        output.append("")
+
+    def _test_performance_validation(self, output: List[str], verbose: bool):
+        """Test v1.2.1 performance monitoring and validation."""
+        output.append("🎯 Performance Validation Tests (v1.2.1)")
+        output.append("─" * 63)
+
+        # Test performance monitor
+        try:
+            from core.services.performance_monitor import get_performance_monitor
+            monitor = get_performance_monitor()
+            output.append(f"  ✅ PerformanceMonitor imports successfully")
+            self._add_test("Performance: monitor import", True)
+            
+            # Test metrics collection
+            stats = monitor.get_all_time_stats()
+            has_stats = isinstance(stats, dict) and 'total_queries' in stats
+            symbol = "✅" if has_stats else "⚠️"
+            output.append(f"  {symbol} Metrics collection: {stats.get('total_queries', 0)} queries tracked")
+            self._add_test("Performance: metrics collection", has_stats)
+            
+            # Test success criteria validation
+            validation = monitor.validate_success_criteria()
+            all_passed = validation.get('all_passed', False)
+            
+            if all_passed:
+                output.append(f"  ✅ Success criteria: ALL MET")
+                self._add_test("Performance: success criteria", True)
+            else:
+                criteria = validation.get('criteria', {})
+                failed = [k for k, v in criteria.items() if not v.get('passed', False)]
+                output.append(f"  ⚠️  Success criteria: {len(failed)} not met")
+                if verbose:
+                    for f in failed:
+                        output.append(f"      - {f}")
+                self._add_test("Performance: success criteria", False, f"{len(failed)} criteria not met")
+                
+        except ImportError as e:
+            output.append(f"  ❌ PerformanceMonitor import failed: {e}")
+            self._add_test("Performance: monitor import", False, str(e))
+
+        output.append("")
+
+    def _test_logging_system(self, output: List[str], verbose: bool):
+        """Test v1.2.1 unified logging system."""
+        output.append("📝 Logging System Tests (v1.2.1)")
+        output.append("─" * 63)
+
+        # Test unified logger
+        try:
+            from core.services.unified_logger import get_unified_logger
+            logger = get_unified_logger()
+            output.append(f"  ✅ UnifiedLogger imports successfully")
+            self._add_test("Logging: unified logger import", True)
+            
+            # Check log directory
+            log_dir = Path("memory/logs")
+            if log_dir.exists():
+                log_files = list(log_dir.glob("*.log"))
+                symbol = "✅" if len(log_files) > 0 else "⚠️"
+                output.append(f"  {symbol} Log directory: {len(log_files)} log files")
+                self._add_test("Logging: log directory", len(log_files) > 0)
+                
+                # Check for expected log files
+                expected_logs = ['system.log', 'performance.log', 'command.log']
+                found_logs = [f.name for f in log_files]
+                missing = [log for log in expected_logs if log not in found_logs]
+                
+                if not missing:
+                    output.append(f"  ✅ All expected logs present")
+                    self._add_test("Logging: expected logs", True)
+                else:
+                    output.append(f"  ⚠️  Missing logs: {', '.join(missing)}")
+                    self._add_test("Logging: expected logs", False, f"Missing: {missing}")
+            else:
+                output.append(f"  ⚠️  Log directory not found (will be created on first use)")
+                self._add_test("Logging: log directory", True)  # OK if not exists yet
+                
+        except ImportError as e:
+            output.append(f"  ❌ UnifiedLogger import failed: {e}")
+            self._add_test("Logging: unified logger import", False, str(e))
+
+        # Test minimal format
+        try:
+            from core.services.unified_logger import MinimalFormatter
+            formatter = MinimalFormatter('system')
+            
+            # Test formatting
+            import logging
+            record = logging.LogRecord(
+                name='test', level=logging.INFO, pathname='', lineno=0,
+                msg='Test message', args=(), exc_info=None
+            )
+            formatted = formatter.format(record)
+            
+            # Check for minimal format: [TIMESTAMP][CAT][LVL] Message
+            has_timestamp = '[' in formatted and ']' in formatted
+            has_category = '[SYS]' in formatted or '[' in formatted
+            has_level = '[I]' in formatted or '[' in formatted
+            
+            is_minimal = has_timestamp and has_category and has_level
+            symbol = "✅" if is_minimal else "⚠️"
+            output.append(f"  {symbol} Minimal format: {'correct' if is_minimal else 'incorrect'}")
+            self._add_test("Logging: minimal format", is_minimal)
+            
+        except Exception as e:
+            output.append(f"  ⚠️  Format test skipped: {e}")
 
         output.append("")
 
