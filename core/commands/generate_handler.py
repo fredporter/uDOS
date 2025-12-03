@@ -27,12 +27,14 @@ import time
 import json
 
 from .base_handler import BaseCommandHandler
+from core.services.api_monitor import get_api_monitor, APIRequest, Priority as APIPriority
+from core.services.priority_queue import get_priority_queue, Priority as QueuePriority
 
 
 class GenerateHandler(BaseCommandHandler):
     """
     Unified GENERATE command handler with offline-first AI.
-    
+
     Replaces old assistant_handler and consolidates all generation commands.
     """
 
@@ -52,6 +54,10 @@ class GenerateHandler(BaseCommandHandler):
         self._vectorizer = None
         self._ascii_generator = None
         self._knowledge_manager = None
+
+        # API monitoring and throttling
+        self.api_monitor = get_api_monitor()
+        self.priority_queue = get_priority_queue()
 
         # Generation history (for REDO)
         self.generation_history: List[Dict[str, Any]] = []
@@ -207,10 +213,10 @@ class GenerateHandler(BaseCommandHandler):
     def handle_command(self, params: List[str]) -> str:
         """
         Legacy routing method for backward compatibility.
-        
+
         Args:
             params: Command parameters (same as handle())
-            
+
         Returns:
             Command result
         """
@@ -319,6 +325,38 @@ Examples:
             if self.logger:
                 self.logger.debug(f"GENERATE DO: Offline confidence {offline_response.confidence:.0%}, trying Gemini")
 
+            # Check rate limit
+            rate_check = self.api_monitor.check_rate_limit(priority=APIPriority.HIGH)
+            if not rate_check['allowed']:
+                return f"""⚠️ Rate Limit Reached (Offline Answer)
+Confidence: {offline_response.confidence:.0%}
+
+{offline_response.content}
+
+🚫 Rate Limit: {rate_check['message']}
+   Wait {rate_check.get('wait_seconds', 0):.1f}s or use offline answer
+
+💡 Offline answers have no rate limits!
+"""
+
+            # Estimate cost and check budget
+            estimated_cost = 0.0001  # Typical small query cost (~100 tokens)
+            budget_check = self.api_monitor.check_budget(
+                estimated_cost=estimated_cost,
+                priority=APIPriority.HIGH
+            )
+            if not budget_check['allowed']:
+                return f"""⚠️ Budget Limit Reached (Offline Answer)
+Confidence: {offline_response.confidence:.0%}
+
+{offline_response.content}
+
+🚫 Budget: {budget_check['message']}
+   Daily usage: ${budget_check.get('daily_cost', 0):.4f} / ${budget_check.get('daily_budget', 1.0):.2f}
+
+💡 Offline answers are free!
+"""
+
             try:
                 # Add offline results to context for Gemini
                 gemini_context = {
@@ -330,15 +368,30 @@ Examples:
                     }
                 }
 
+                gemini_start = time.time()
                 gemini_response = self.gemini_service.ask(query, context=gemini_context)
-                duration_ms = (time.time() - start_time) * 1000
+                gemini_duration = (time.time() - gemini_start) * 1000
 
-                # Get cost estimate (if available)
-                cost = 0.0
+                # Get actual cost estimate (if available)
+                cost = 0.0001  # Default estimate
                 status = self.gemini_service.get_status()
                 if status.get('total_cost_usd'):
                     # Calculate incremental cost (rough estimate)
                     cost = 0.0001  # Typical small query cost
+
+                # Record API request
+                self.api_monitor.record_request(APIRequest(
+                    timestamp=time.time(),
+                    api_type='gemini',
+                    operation='DO',
+                    tokens_input=len(query.split()) * 1.3,  # Rough estimate
+                    tokens_output=len(gemini_response.split()) * 1.3,
+                    cost=cost,
+                    duration_ms=gemini_duration,
+                    success=True,
+                    error=None,
+                    priority=APIPriority.HIGH.value
+                ))
 
                 self.stats['total_requests'] += 1
                 self.stats['online_requests'] += 1
@@ -366,9 +419,23 @@ Cost: ${cost:.4f} | Duration: {duration_ms:.0f}ms
 """
 
             except Exception as e:
-                # Gemini failed - fall back to offline response anyway
+                # Gemini failed - record and fall back to offline response
                 if self.logger:
                     self.logger.error(f"GENERATE DO: Gemini error: {e}")
+
+                # Record failed API request
+                self.api_monitor.record_request(APIRequest(
+                    timestamp=time.time(),
+                    api_type='gemini',
+                    operation='DO',
+                    tokens_input=len(query.split()) * 1.3,
+                    tokens_output=0,
+                    cost=0.0,
+                    duration_ms=(time.time() - start_time) * 1000,
+                    success=False,
+                    error=str(e),
+                    priority=APIPriority.HIGH.value
+                ))
 
                 return f"""⚠️ Offline Response (Gemini unavailable)
 Confidence: {offline_response.confidence:.0%}
@@ -559,9 +626,9 @@ Use markdown formatting."""
             # Add metadata header
             guide_content = f"""# {topic.title()}
 
-**Category:** {category or 'General'}  
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}  
-**Source:** AI-Generated (Gemini)  
+**Category:** {category or 'General'}
+**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}
+**Source:** AI-Generated (Gemini)
 
 ---
 
@@ -690,6 +757,19 @@ Preview:
         if self.gemini_service and self.gemini_service.is_available:
             gemini_status = "✅ Active"
 
+        # Get API monitor stats
+        api_stats = self.api_monitor.get_stats()
+        live_stats = self.api_monitor.get_live_stats()
+
+        # Get any alerts
+        alerts = self.api_monitor.get_alerts()
+        alerts_display = ""
+        if alerts:
+            alerts_display = "\n\n🚨 Active Alerts:\n"
+            for alert in alerts[-3:]:  # Last 3 alerts
+                icon = "⚠️" if alert['level'] == 'warning' else "❌"
+                alerts_display += f"  {icon} {alert['message']} ({alert['timestamp']})\n"
+
         return f"""📊 GENERATE System Status
 
 Uptime: {uptime_str}
@@ -708,6 +788,8 @@ Usage Statistics:
 History:
   Generation History: {len(self.generation_history)} items
   Max History: {self.max_history}
+
+{live_stats}{alerts_display}
 
 💡 Use GENERATE CLEAR to clear history
 """
