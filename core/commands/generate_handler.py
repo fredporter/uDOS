@@ -837,51 +837,51 @@ History:
     def _handle_validate(self) -> str:
         """
         Validate v1.2.0 success criteria.
-        
+
         Checks:
         1. Offline query rate ≥90%
         2. Cost reduction ≥99%
         3. Average response time <500ms
         4. P95 response time <500ms
-        
+
         Returns:
             Validation report with success criteria status
         """
         # Get validation results
         validation = self.performance_monitor.validate_success_criteria()
-        
+
         # Build report
         report = "📊 GENERATE System Validation (v1.2.0 Success Criteria)\n\n"
-        
+
         # Overall status
         all_passed = all(validation.values())
         status = "✅ ALL CRITERIA MET" if all_passed else "❌ CRITERIA NOT MET"
         report += f"{status}\n\n"
-        
+
         # Individual criteria
         report += "Criteria:\n"
-        
+
         # 1. Offline rate
         icon = "✅" if validation['offline_rate'] else "❌"
         stats = self.performance_monitor.get_session_stats()
         offline_pct = stats.get('offline_rate', 0)
         report += f"  {icon} Offline Query Rate: {offline_pct:.1f}% (target: ≥90%)\n"
-        
+
         # 2. Cost reduction
         icon = "✅" if validation['cost_reduction'] else "❌"
         cost_reduction = stats.get('cost_reduction', 0)
         report += f"  {icon} Cost Reduction: {cost_reduction:.1f}% (target: ≥99%)\n"
-        
+
         # 3. Average response time
         icon = "✅" if validation['avg_response_time'] else "❌"
         avg_time = stats.get('avg_duration', 0) * 1000  # Convert to ms
         report += f"  {icon} Avg Response Time: {avg_time:.0f}ms (target: <500ms)\n"
-        
+
         # 4. P95 response time
         icon = "✅" if validation['p95_response_time'] else "❌"
         p95_time = stats.get('p95_duration', 0) * 1000  # Convert to ms
         report += f"  {icon} P95 Response Time: {p95_time:.0f}ms (target: <500ms)\n"
-        
+
         # Session summary
         report += f"\nSession Summary:\n"
         report += f"  Total Queries: {stats.get('total_queries', 0)}\n"
@@ -889,14 +889,14 @@ History:
         report += f"  Online Queries: {stats.get('online_queries', 0)}\n"
         report += f"  Total Cost: ${stats.get('total_cost', 0):.4f}\n"
         report += f"  Cost Savings: ${stats.get('cost_savings', 0):.4f}\n"
-        
+
         # Performance report
         report += f"\n{self.performance_monitor.generate_report()}"
-        
+
         # Log validation
-        log_performance('VALIDATE', 0.0, offline=True, 
+        log_performance('VALIDATE', 0.0, offline=True,
                        validation=all_passed, criteria=validation)
-        
+
         return report
 
     # ========== CLEAR Command ==========

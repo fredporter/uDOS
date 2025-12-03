@@ -6,14 +6,14 @@ warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL 1.1.
 warnings.filterwarnings('ignore', category=FutureWarning, module='google.api_core')
 
 from .output.splash import print_splash_screen
-from .uDOS_parser import Parser
+from .interpreters.uDOS_parser import Parser
 from .uDOS_commands import CommandHandler
-from .uDOS_grid import Grid
+from .services.uDOS_grid import Grid
 from .services.session_logger import SessionLogger  # v1.1.6: Backward-compatible wrapper
 from .utils.completer import AdvancedCompleter
 from .utils.setup import SystemSetup
 from .services.history_manager import ActionHistory
-from .uDOS_startup import SystemHealth, check_system_health, repair_system
+from .services.uDOS_startup import SystemHealth, check_system_health, repair_system
 from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
