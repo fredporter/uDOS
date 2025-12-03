@@ -11,35 +11,41 @@ uDOS/
 │   │   └── feature_request.md
 │   ├── copilot-instructions.md
 │   └── PULL_REQUEST_TEMPLATE.md
+├── bin/
+│   ├── udos
+│   └── uenv.sh
 ├── core/
 │   ├── commands/
+│   │   ├── archive_handler.py
 │   │   ├── assets_handler.py
 │   │   ├── assistant_handler.py
+│   │   ├── backup_handler.py
 │   │   ├── barter_commands.py
 │   │   ├── base_handler.py
+│   │   ├── checklist_handler.py
 │   │   ├── cmd_config_planet.py
 │   │   ├── cmd_locate.py
 │   │   ├── community_commands.py
 │   │   ├── configuration_handler.py
 │   │   ├── dashboard_handler.py
 │   │   ├── debug_handler.py
-│   │   ├── diagram_handler.py
 │   │   ├── display_handler.py
-│   │   ├── doc_handler.py
 │   │   ├── docs_unified_handler.py
 │   │   ├── draw_handler.py
-│   │   ├── example_handler.py
+│   │   ├── environment_handler.py
+│   │   ├── extension_handler.py
 │   │   ├── feedback_handler.py
 │   │   ├── file_handler.py
 │   │   ├── generate_handler.py
-│   │   ├── guide_handler.py
-│   │   ├── handbook_handler.py
-│   │   ├── learn_unified_handler.py
+│   │   ├── generate_handler_old.py
+│   │   ├── github_diagrams_handler.py
 │   │   ├── logs_handler.py
-│   │   ├── manual_handler.py
 │   │   ├── memory_commands.py
 │   │   ├── memory_unified_handler.py
+│   │   ├── mermaid_handler.py
 │   │   ├── mission_handler.py
+│   │   ├── object_handler.py
+│   │   ├── output_handler.py
 │   │   ├── panel_handler.py
 │   │   ├── peek_handler.py
 │   │   ├── private_commands.py
@@ -50,14 +56,88 @@ uDOS/
 │   │   ├── session_handler.py
 │   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
-│   │   ├── svg_handler.py
+│   │   ├── sprite_handler.py
+│   │   ├── story_handler.py
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
 │   │   ├── tree_handler.py
+│   │   ├── typo_handler.py
+│   │   ├── undo_handler.py
 │   │   ├── user_handler.py
+│   │   ├── variable_handler.py
 │   │   └── workflow_handler.py
 │   ├── data/
 │   │   ├── diagrams/
+│   │   │   ├── blocks/
+│   │   │   │   ├── 02_system_info.txt
+│   │   │   │   ├── 03_system_overview.txt
+│   │   │   │   ├── 04_system_status.txt
+│   │   │   │   ├── 05_critical_alert.txt
+│   │   │   │   ├── 06_build_progress.txt
+│   │   │   │   ├── 07_deploy_to_production.txt
+│   │   │   │   ├── 08_simple_progress_bar_no_panel.txt
+│   │   │   │   ├── 09_multi_step_progress_build_test_deploy.txt
+│   │   │   │   ├── 10_ticket_purchase_flow_panels_per_step.txt
+│   │   │   │   ├── 11_simple_linear_flow_text_only.txt
+│   │   │   │   ├── 12_retry_operation.txt
+│   │   │   │   ├── 13_simple_microservice_boxes.txt
+│   │   │   │   ├── 14_microservice_map_with_panels.txt
+│   │   │   │   ├── 15_cloud_stack_simple.txt
+│   │   │   │   ├── 16_cloud_stack_with_panel_header.txt
+│   │   │   │   ├── 17_theatre_seating_simple.txt
+│   │   │   │   ├── 18_theatre_premium_section_panel.txt
+│   │   │   │   ├── 19_raw_ingestion_layer.txt
+│   │   │   │   ├── 20_transformation_layer.txt
+│   │   │   │   ├── 21_new_lead.txt
+│   │   │   │   ├── 22_metadata.txt
+│   │   │   │   ├── 23_event_performance_summary_panel.txt
+│   │   │   │   ├── 24_phase_timeline_with_panels.txt
+│   │   │   │   ├── 25_block_checklist_panel.txt
+│   │   │   │   └── 26_end_of_report.txt
+│   │   │   ├── mermaid/
+│   │   │   │   ├── flowchart_template.mmd
+│   │   │   │   ├── mindmap_template.mmd
+│   │   │   │   ├── README.md
+│   │   │   │   └── sequence_template.mmd
+│   │   │   ├── plain/
+│   │   │   │   ├── 02_simple_panel_title.txt
+│   │   │   │   ├── 03_basic_service_architecture.txt
+│   │   │   │   ├── 04_simple_linear_flow.txt
+│   │   │   │   ├── 05_basic_table.txt
+│   │   │   │   ├── 06_request_lifecycle.txt
+│   │   │   │   ├── 07_ci_cd_pipeline.txt
+│   │   │   │   ├── 08_simple_progress_bars_text_only.txt
+│   │   │   │   ├── 09_funnel_stages.txt
+│   │   │   │   ├── 10_ticket_purchase_flow.txt
+│   │   │   │   ├── 11_decision_diagram.txt
+│   │   │   │   ├── 12_microservice_map_simple.txt
+│   │   │   │   ├── 13_cloud_stack_overview.txt
+│   │   │   │   ├── 14_data_pipeline_etl.txt
+│   │   │   │   ├── 15_theatre_seating_compact.txt
+│   │   │   │   ├── 16_theatre_layout_with_areas.txt
+│   │   │   │   ├── 17_customer_lifecycle.txt
+│   │   │   │   ├── 18_timer_timeline.txt
+│   │   │   │   ├── 19_queue_worker_system.txt
+│   │   │   │   ├── 20_role_permission_model.txt
+│   │   │   │   ├── 21_event_production_pipeline.txt
+│   │   │   │   ├── 22_support_ticket_workflow.txt
+│   │   │   │   ├── 23_simple_kanban_board_layout.txt
+│   │   │   │   ├── 24_simple_menu_nav_layout.txt
+│   │   │   │   ├── 25_simple_progress_checklist.txt
+│   │   │   │   ├── 26_combined_system_overview.txt
+│   │   │   │   └── plain_01.txt
+│   │   │   ├── templates/
+│   │   │   │   ├── style_hand_illustrative.json
+│   │   │   │   ├── style_hybrid.json
+│   │   │   │   ├── style_technical_kinetic.json
+│   │   │   │   └── survival_prompts.json
+│   │   │   └── README.md
+│   │   ├── geography/
+│   │   │   ├── cities.json
+│   │   │   ├── climate.json
+│   │   │   ├── countries.json
+│   │   │   ├── terrain.json
+│   │   │   └── timezones.json
 │   │   ├── graphics/
 │   │   │   ├── blocks/
 │   │   │   │   ├── borders.json
@@ -65,15 +145,6 @@ uDOS/
 │   │   │   │   ├── maps.json
 │   │   │   │   ├── patterns.json
 │   │   │   │   └── teletext.json
-│   │   │   ├── compositions/
-│   │   │   │   ├── fire_methods_grid.txt
-│   │   │   │   ├── shelter_hierarchy_tree.txt
-│   │   │   │   └── water_purification_flow.txt
-│   │   │   ├── templates/
-│   │   │   │   ├── flowchart.json
-│   │   │   │   ├── grid.json
-│   │   │   │   ├── hierarchy.json
-│   │   │   │   └── tree.json
 │   │   │   ├── components.json
 │   │   │   └── README.md
 │   │   ├── help_templates/
@@ -85,12 +156,16 @@ uDOS/
 │   │   │   └── system_commands.json
 │   │   ├── prompts/
 │   │   │   └── gemini_prompts.json
+│   │   ├── schemas/
+│   │   │   ├── checklist.schema.json
+│   │   │   └── mission.schema.json
 │   │   ├── templates/
 │   │   │   ├── .env.example
-│   │   │   ├── crud_app.uscript
-│   │   │   ├── form_validation.uscript
-│   │   │   ├── menu_system.uscript
-│   │   │   ├── setup.uscript
+│   │   │   ├── adventure.template.upy
+│   │   │   ├── crud_app.upy
+│   │   │   ├── form_validation.upy
+│   │   │   ├── menu_system.upy
+│   │   │   ├── setup.upy
 │   │   │   ├── story.template.json
 │   │   │   ├── usage_tracker.json
 │   │   │   └── user.template.json
@@ -99,41 +174,29 @@ uDOS/
 │   │   │   │   └── README.md
 │   │   │   ├── _index.json
 │   │   │   ├── _schema.json
-│   │   │   ├── default.json
-│   │   │   ├── dungeon.json
-│   │   │   ├── foundation.json
-│   │   │   ├── galaxy.json
-│   │   │   ├── imported_test_theme.json
-│   │   │   ├── project.json
-│   │   │   ├── science.json
-│   │   │   └── teletext.json
+│   │   │   └── default.json
+│   │   ├── variables/
+│   │   │   ├── object.json
+│   │   │   ├── object.schema.json
+│   │   │   ├── sprite.json
+│   │   │   ├── sprite.schema.json
+│   │   │   ├── story.json
+│   │   │   ├── system.json
+│   │   │   └── user.json
 │   │   ├── commands.json
 │   │   ├── extensions.json
 │   │   ├── faq.json
 │   │   ├── font-profile-template.json
 │   │   ├── font-system.json
 │   │   ├── fonts.json
+│   │   ├── knowledge_topics.json
 │   │   ├── locations.json
+│   │   ├── prompts.json
 │   │   ├── resource-config.json
 │   │   ├── ucode_variables.json
 │   │   ├── universe.json
 │   │   ├── usage_tracker.json
 │   │   └── viewport.json
-│   ├── docs/
-│   │   ├── BLANK-ENHANCED.md
-│   │   ├── command-architecture.md
-│   │   ├── HELP-ENHANCED.md
-│   │   ├── KNOWLEDGE-REFERENCE.md
-│   │   ├── MAP.md
-│   │   ├── OK.md
-│   │   ├── README-FONT-SYSTEM.md
-│   │   ├── REDO.md
-│   │   ├── RESTORE.md
-│   │   ├── RUN.md
-│   │   ├── SETUP-ENHANCED.md
-│   │   ├── SYSTEM-VARIABLES.md
-│   │   ├── SYSTEM.md
-│   │   └── UNDO.md
 │   ├── input/
 │   │   ├── __init__.py
 │   │   ├── interactive.py
@@ -142,7 +205,7 @@ uDOS/
 │   ├── interpreters/
 │   │   ├── __init__.py
 │   │   ├── offline.py
-│   │   ├── ucode.py
+│   │   ├── uDOS_parser.py
 │   │   └── validator.py
 │   ├── knowledge/
 │   │   ├── __init__.py
@@ -162,10 +225,22 @@ uDOS/
 │   │   ├── splash.py
 │   │   ├── story_manager.py
 │   │   └── teletext_renderer.py
+│   ├── runtime/
+│   │   ├── __init__.py
+│   │   ├── commands.py
+│   │   ├── upy_parser.py
+│   │   └── upy_preprocessor.py
 │   ├── services/
+│   │   ├── theme/
+│   │   │   ├── theme_builder.py
+│   │   │   ├── theme_loader.py
+│   │   │   └── theme_manager.py
 │   │   ├── api_audit.py
+│   │   ├── api_monitor.py
+│   │   ├── ascii_generator.py
 │   │   ├── asset_manager.py
 │   │   ├── barter_service.py
+│   │   ├── checklist_manager.py
 │   │   ├── citation_manager.py
 │   │   ├── community_service.py
 │   │   ├── config_manager.py
@@ -176,6 +251,7 @@ uDOS/
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
+│   │   ├── extension_manager.py
 │   │   ├── gemini_generator.py
 │   │   ├── graphics_compositor.py
 │   │   ├── graphics_library.py
@@ -187,7 +263,9 @@ uDOS/
 │   │   ├── memory_manager.py
 │   │   ├── mission_manager.py
 │   │   ├── output_pacer.py
+│   │   ├── performance_monitor.py
 │   │   ├── planet_manager.py
+│   │   ├── priority_queue.py
 │   │   ├── resource_manager.py
 │   │   ├── scheduler.py
 │   │   ├── session_analytics.py
@@ -197,6 +275,11 @@ uDOS/
 │   │   ├── setup_wizard.py
 │   │   ├── sharing_service.py
 │   │   ├── standardized_input.py
+│   │   ├── typo_manager.py
+│   │   ├── uDOS_grid.py
+│   │   ├── uDOS_logger.py
+│   │   ├── uDOS_startup.py
+│   │   ├── unified_logger.py
 │   │   ├── user_manager.py
 │   │   ├── vectorizer.py
 │   │   └── viewport_manager.py
@@ -213,16 +296,18 @@ uDOS/
 │   │   └── visual_selector.py
 │   ├── utils/
 │   │   ├── alias_manager.py
+│   │   ├── archive_manager.py
 │   │   ├── autocomplete.py
+│   │   ├── command_registry.py
+│   │   ├── common.py
 │   │   ├── completer.py
 │   │   ├── error_handler.py
 │   │   ├── fast_startup.py
 │   │   ├── files.py
 │   │   ├── fuzzy_matcher.py
-│   │   ├── generate_world_map.uscript
 │   │   ├── grid_utils.py
 │   │   ├── lazy_loader.py
-│   │   ├── map_painter.uscript
+│   │   ├── pager.py
 │   │   ├── path_validator.py
 │   │   ├── performance_profiler.py
 │   │   ├── progress_manager.py
@@ -239,35 +324,15 @@ uDOS/
 │   ├── __init__.py
 │   ├── config.py
 │   ├── README.md
-│   ├── theme_builder.py
-│   ├── theme_loader.py
-│   ├── theme_manager.py
 │   ├── uDOS_commands.py
-│   ├── uDOS_grid.py
-│   ├── uDOS_logger.py
-│   ├── uDOS_main.py
-│   ├── uDOS_parser.py
-│   └── uDOS_startup.py
+│   └── uDOS_main.py
 ├── extensions/
 │   ├── api/
 │   │   ├── README.md
 │   │   └── server.py
 │   ├── assets/
 │   │   ├── data/
-│   │   │   ├── worldmap/
-│   │   │   ├── cities.json
-│   │   │   ├── cities_v2.json
-│   │   │   ├── climate.json
-│   │   │   ├── countries.json
-│   │   │   ├── credits.json
-│   │   │   ├── imperial.json
-│   │   │   ├── map_layer_100.json
-│   │   │   ├── metric.json
-│   │   │   ├── terrain.json
-│   │   │   ├── terrain_types.json
-│   │   │   ├── tile_schema.json
-│   │   │   ├── timezones.json
-│   │   │   └── tzone.json
+│   │   │   └── .gitkeep
 │   │   ├── fonts/
 │   │   │   ├── chicago/
 │   │   │   ├── mallard/
@@ -288,28 +353,30 @@ uDOS/
 │   │   │   ├── PressStart2P-Regular.ttf
 │   │   │   └── README.md
 │   │   ├── icons/
-│   │   │   ├── coreui/
-│   │   │   └── README.md
+│   │   │   └── .gitkeep
 │   │   ├── styles/
 │   │   │   ├── hand-illustrative/
 │   │   │   ├── hybrid/
 │   │   │   └── technical-kinetic/
 │   │   ├── CREDITS.md
 │   │   └── README.md
-│   ├── bundled/
-│   │   └── web/
-│   │       └── dashboard/
+│   ├── assistant/
+│   │   ├── __init__.py
+│   │   ├── extension.json
+│   │   ├── gemini_service.py
+│   │   ├── handler.py
+│   │   └── README.md
 │   ├── cloud/
-│   │   └── poke_online/
-│   │       ├── web/
-│   │       ├── __init__.py
-│   │       ├── extension.json
-│   │       ├── group_manager.py
-│   │       ├── poke_commands.py
-│   │       ├── server.py
-│   │       ├── sharing_manager.py
-│   │       ├── start_server.sh
-│   │       └── tunnel_manager.py
+│   │   ├── web/
+│   │   │   └── dashboard.html
+│   │   ├── __init__.py
+│   │   ├── extension.json
+│   │   ├── group_manager.py
+│   │   ├── poke_commands.py
+│   │   ├── server.py
+│   │   ├── sharing_manager.py
+│   │   ├── start_server.sh
+│   │   └── tunnel_manager.py
 │   ├── core/
 │   │   ├── dashboard/
 │   │   │   ├── fonts/
@@ -348,21 +415,18 @@ uDOS/
 │   │   │   ├── README.md
 │   │   │   ├── STRUCTURE.md
 │   │   │   └── TEST-RESULTS.md
-│   │   ├── mission-control/
+│   │   ├── mission/
 │   │   │   ├── dashboard.css
 │   │   │   ├── dashboard.html
 │   │   │   ├── dashboard.js
 │   │   │   ├── dashboard_handler.py
 │   │   │   ├── extension.json
 │   │   │   └── README.md
-│   │   ├── ok_assistant/
-│   │   │   ├── __init__.py
-│   │   │   └── gemini_service.py
 │   │   ├── shared/
 │   │   │   ├── __init__.py
 │   │   │   ├── base_server.py
 │   │   │   └── port_manager.py
-│   │   ├── svg_generator/
+│   │   ├── svg/
 │   │   │   ├── __init__.py
 │   │   │   ├── extension.json
 │   │   │   ├── README.md
@@ -379,6 +443,7 @@ uDOS/
 │   │   ├── terminal/
 │   │   │   ├── fonts/
 │   │   │   ├── static/
+│   │   │   ├── extension.json
 │   │   │   ├── index.html
 │   │   │   └── terminal.css
 │   │   ├── CREDITS.md
@@ -393,26 +458,27 @@ uDOS/
 │   │   │   ├── resource_handler.py
 │   │   │   ├── scenario_handler.py
 │   │   │   ├── scenario_play_handler.py
+│   │   │   ├── story_handler.py
 │   │   │   ├── survival_handler.py
 │   │   │   └── xp_handler.py
+│   │   ├── data/
+│   │   │   ├── examples/
+│   │   │   ├── layers/
+│   │   │   ├── models/
+│   │   │   ├── themes/
+│   │   │   └── worlds/
 │   │   ├── services/
+│   │   │   ├── game_mechanics/
 │   │   │   ├── __init__.py
-│   │   │   ├── barter_service.py
-│   │   │   ├── inventory_service.py
 │   │   │   ├── map_data_manager.py
-│   │   │   ├── map_engine.py
-│   │   │   ├── map_engine_old.py
-│   │   │   ├── scenario_engine.py
-│   │   │   ├── scenario_service.py
-│   │   │   ├── survival_service.py
-│   │   │   └── xp_service.py
+│   │   │   └── map_engine.py
 │   │   ├── __init__.py
 │   │   └── README.md
 │   ├── setup/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
-│   ├── web/
+│   ├── PORT-REGISTRY.md
 │   ├── QUICK-REFERENCE.md
 │   ├── README.md
 │   ├── SERVER-MANAGEMENT.md
@@ -437,10 +503,11 @@ uDOS/
 │   ├── KNOWLEDGE-SYSTEM.md
 │   ├── README.md
 │   └── structure.txt
-├── sandbox/
-│   ├── peek/
-│   │   └── .gitkeep
-│   └── sessions/
+├── scripts/
+│   ├── completion.sh
+│   └── uenv.sh
+├── udos/
+│   └── __init__.py
 ├── .env.example
 ├── .gitignore
 ├── CHANGELOG.md

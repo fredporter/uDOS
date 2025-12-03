@@ -1,13 +1,23 @@
 knowledge/
 ├── checklists/
 │   ├── daily/
+│   │   ├── daily-fire-management.json
+│   │   ├── daily-security-patrol.json
+│   │   └── water-storage-maintenance.json
 │   ├── emergency/
+│   │   ├── 72-hour-bug-out-bag.json
 │   │   ├── 72-hour-bug-out-bag.md
-│   │   └── first-aid-kit-inventory.md
+│   │   ├── emergency-evacuation-plan.json
+│   │   ├── first-aid-kit-inventory.json
+│   │   ├── first-aid-kit-inventory.md
+│   │   └── wound-care-emergency.json
 │   ├── learning/
 │   ├── projects/
-│   │   └── build-debris-hut.md
+│   │   ├── build-debris-hut.md
+│   │   ├── shelter-construction-project.json
+│   │   └── tool-making-project.json
 │   ├── seasonal/
+│   │   └── winter-preparedness.json
 │   └── README.md
 ├── communication/
 │   ├── community_coordination.md

@@ -26,6 +26,64 @@ class DashboardHandler(BaseCommandHandler):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def _load_workflow_state(self):
+        """Load current workflow state from memory/workflows/state/current.json."""
+        try:
+            state_file = Path("memory/workflows/state/current.json")
+            if state_file.exists():
+                with open(state_file, 'r') as f:
+                    return json.load(f)
+        except Exception:
+            pass
+        return None
+
+    def _get_mission_emoji(self, status):
+        """Get emoji for mission status."""
+        emoji_map = {
+            'DRAFT': '📝',
+            'ACTIVE': '⚡',
+            'PAUSED': '⏸️',
+            'COMPLETED': '✅',
+            'FAILED': '❌',
+            'ARCHIVED': '📦',
+            'IDLE': '💤'
+        }
+        return emoji_map.get(status.upper(), '❓')
+
+    def _format_elapsed_time(self, seconds):
+        """Format elapsed time in human-readable format."""
+        if not seconds or seconds == 0:
+            return "00:00:00"
+
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+    def _build_lifecycle_bar(self, steps, current_step):
+        """Build visual lifecycle progress bar."""
+        # Find current step index
+        try:
+            current_idx = steps.index(current_step)
+        except ValueError:
+            current_idx = -1
+
+        bar = ""
+        for i, step in enumerate(steps):
+            if i < current_idx:
+                bar += "✅ "  # Completed
+            elif i == current_idx:
+                bar += "⚡ "  # Current
+            else:
+                bar += "⭕ "  # Pending
+
+            # Add step name (abbreviated)
+            bar += step[:3] + " "
+
+        return bar.strip()
+
+
     def handle_status(self, params, grid, parser):
         """
         Display comprehensive system status.
@@ -51,6 +109,9 @@ class DashboardHandler(BaseCommandHandler):
         """Display a single snapshot of system status with enhanced ASCII dashboard."""
         # Get configuration
         config = get_config()
+
+        # Load workflow state
+        workflow_state = self._load_workflow_state()
 
         # Build comprehensive dashboard
         status = "╔" + "═"*78 + "╗\n"
@@ -78,6 +139,82 @@ class DashboardHandler(BaseCommandHandler):
         status += f"║  Location: {location[:66].ljust(66)}  ║\n"
         status += f"║  Planet: {planet[:30].ljust(30)} Galaxy: {galaxy[:30].ljust(30)}  ║\n"
         status += f"║  Time: {current_time.ljust(20)} Date: {current_date.ljust(30)}  ║\n"
+
+        status += "╠" + "═"*78 + "╣\n"
+
+        # Mission & Workflow Status
+        status += "║ " + "🚀 MISSION CONTROL".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
+
+        if workflow_state and workflow_state.get('current_mission'):
+            mission = workflow_state['current_mission']
+            mission_status = workflow_state.get('status', 'UNKNOWN')
+
+            # Mission name and status
+            mission_name = mission.get('name', 'Unknown')[:40]
+            status_emoji = self._get_mission_emoji(mission_status)
+            status += f"║  Active: {mission_name.ljust(40)} {status_emoji} {mission_status.ljust(10)} ║\n"
+
+            # Progress bar
+            progress = mission.get('progress', 0)
+            if isinstance(progress, str) and '/' in progress:
+                # Parse "45/55" format
+                try:
+                    current, total = map(int, progress.split('/'))
+                    percent = int((current / total) * 100) if total > 0 else 0
+                except:
+                    percent = 0
+            else:
+                percent = int(progress) if isinstance(progress, (int, float)) else 0
+
+            # Visual progress bar
+            bar_length = 30
+            filled = int((percent / 100) * bar_length)
+            bar = "█" * filled + "░" * (bar_length - filled)
+            status += f"║  Progress: [{bar}] {percent}%".ljust(78) + " ║\n"
+
+            # Mission details
+            if 'phase' in mission:
+                phase = mission['phase'][:20]
+                elapsed = mission.get('elapsed_time', 0)
+                elapsed_str = self._format_elapsed_time(elapsed)
+                status += f"║  Phase: {phase.ljust(20)} Runtime: {elapsed_str.ljust(20)} ║\n"
+
+            # Lifecycle steps
+            lifecycle_steps = ['INIT', 'SETUP', 'EXECUTE', 'MONITOR', 'COMPLETE']
+            current_phase = mission.get('phase', 'UNKNOWN').upper()
+            lifecycle_bar = self._build_lifecycle_bar(lifecycle_steps, current_phase)
+            status += f"║  Lifecycle: {lifecycle_bar.ljust(64)} ║\n"
+
+            # Checkpoint info
+            checkpoints_saved = workflow_state.get('checkpoints_saved', 0)
+            last_checkpoint = mission.get('last_checkpoint', 'None')
+            status += f"║  Checkpoints: {checkpoints_saved} saved".ljust(40)
+            status += f"Last: {str(last_checkpoint)[:20].ljust(20)}  ║\n"
+
+        else:
+            # No active mission
+            status += "║  Status: 💤 No active mission".ljust(78) + " ║\n"
+
+            # Stats
+            total = workflow_state.get('missions_total', 0) if workflow_state else 0
+            completed = workflow_state.get('missions_completed', 0) if workflow_state else 0
+            failed = workflow_state.get('missions_failed', 0) if workflow_state else 0
+
+            if total > 0:
+                status += f"║  History: {completed} completed / {failed} failed / {total} total".ljust(78) + " ║\n"
+
+                # Perfect streak
+                streak = workflow_state.get('perfect_streak', 0) if workflow_state else 0
+                if streak > 0:
+                    status += f"║  🔥 Perfect streak: {streak} missions".ljust(78) + " ║\n"
+
+                # XP earned
+                xp = workflow_state.get('total_xp_earned', 0) if workflow_state else 0
+                if xp > 0:
+                    status += f"║  ⭐ Total XP: {xp}".ljust(78) + " ║\n"
+            else:
+                status += "║  💡 Start a mission: ucode memory/workflows/missions/<mission>.upy".ljust(78) + " ║\n"
 
         status += "╠" + "═"*78 + "╣\n"
 

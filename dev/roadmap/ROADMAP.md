@@ -1,7 +1,7 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.1 ✅ **COMPLETE** (Performance Validation & Unified Logging)
-**Previous Version:** v1.2.0 ✅ **COMPLETE** (GENERATE Consolidation + Structure Reorganization)
+**Current Version:** v1.2.1+ ⚡ **ENHANCED** (Workflow Dashboard Integration)
+**Previous Version:** v1.2.1 ✅ **COMPLETE** (Performance Validation & Unified Logging)
 **Next Version:** v1.2.2 📋 **PLANNED** (Knowledge Expansion)
 **Last Updated:** December 3, 2025
 
@@ -9,7 +9,77 @@
 
 ---
 
-## 📍 Current Release: v1.2.1 (December 2025)
+## 📍 Current Enhancement: v1.2.1+ (December 2025)
+
+**Status:** ⚡ **ACTIVE** - Enhanced STATUS Dashboard with Workflow/Mission Integration
+**Started:** December 3, 2025
+**Progress:** Complete (1/1 task delivered)
+**Result:** STATUS dashboard now displays comprehensive workflow and mission information
+
+### Enhancement: Workflow & Mission Dashboard Integration ✅
+
+Integrated workflow system v2.0 with STATUS dashboard to provide real-time visibility into mission execution, lifecycle steps, checkpoints, and gameplay stats.
+
+**Task 1: Enhanced STATUS Dashboard** ✅ COMPLETE
+- Modified `core/commands/dashboard_handler.py` (+110 lines)
+- Added 🚀 MISSION CONTROL section with:
+  * Active mission display (name, status, emoji indicators)
+  * Visual progress bar (█░ blocks with percentage)
+  * Mission phase and runtime tracking
+  * Lifecycle step visualization (✅ ⚡ ⭕ indicators)
+  * Checkpoint tracking (count + last checkpoint ID)
+  * Mission history stats (completed/failed/total)
+  * Perfect streak tracking (🔥 indicator)
+  * Total XP earned (⭐ indicator)
+- Helper methods:
+  * `_load_workflow_state()` - Loads memory/workflows/state/current.json
+  * `_get_mission_emoji()` - Status emoji mapping
+  * `_format_elapsed_time()` - Runtime formatting (HH:MM:SS)
+  * `_build_lifecycle_bar()` - Visual lifecycle progress
+- Lifecycle steps: INIT → SETUP → EXECUTE → MONITOR → COMPLETE
+- Status indicators: DRAFT 📝 | ACTIVE ⚡ | PAUSED ⏸️ | COMPLETED ✅ | FAILED ❌ | IDLE 💤
+
+**Features Delivered:**
+✅ Real-time mission status visibility in STATUS dashboard
+✅ Visual progress tracking with block graphics
+✅ Lifecycle step visualization (5-phase workflow)
+✅ Checkpoint tracking and history
+✅ Gameplay integration (XP, perfect streaks)
+✅ Mission history statistics
+✅ Helpful hints when no mission active
+
+**Example Output (Active Mission):**
+```
+╠════════════════════════════════════════════════════════════════════════════╣
+║ 🚀 MISSION CONTROL                                                         ║
+║ ────────────────────────────────────────────────────────────────────────── ║
+║  Active: Knowledge Bank Generation        ⚡ ACTIVE     ║
+║  Progress: [████████████████████████░░░░░░] 81%                           ║
+║  Phase: EXECUTE              Runtime: 01:02:05                            ║
+║  Lifecycle: ✅ INI ✅ SET ⚡ EXE ⭕ MON ⭕ COM                              ║
+║  Checkpoints: 47 saved                Last: auto-checkpoint-40            ║
+╠════════════════════════════════════════════════════════════════════════════╣
+```
+
+**Example Output (Idle State):**
+```
+╠════════════════════════════════════════════════════════════════════════════╣
+║ 🚀 MISSION CONTROL                                                         ║
+║ ────────────────────────────────────────────────────────────────────────── ║
+║  Status: 💤 No active mission                                             ║
+║  💡 Start a mission: ucode memory/workflows/missions/<mission>.upy        ║
+╠════════════════════════════════════════════════════════════════════════════╣
+```
+
+**Total Impact:**
+- Modified files: 1 (dashboard_handler.py)
+- Lines added: ~110 (4 helper methods + dashboard section)
+- Integration points: memory/workflows/state/current.json
+- Visual elements: Progress bars, emoji indicators, lifecycle visualization
+
+---
+
+## 📍 Completed Release: v1.2.1 (December 2025)
 
 **Status:** ✅ **COMPLETE** - Performance Validation & Unified Logging
 **Started:** December 3, 2025
