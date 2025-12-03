@@ -175,6 +175,8 @@ class SpriteHandler(BaseCommandHandler):
             return True
 
         print("❌ Variable manager not available")
+        print("💡 The SPRITE system requires variable manager initialization")
+        print("   This feature is under development - coming soon!")
         return False
 
     def _load_sprite(self, args: list) -> bool:

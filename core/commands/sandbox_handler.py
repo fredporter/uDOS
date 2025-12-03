@@ -423,8 +423,10 @@ class SandboxHandler:
         targets = []
 
         for arg in args:
-            if not arg.startswith('--'):
-                targets.extend([t.strip().lower() for t in arg.split(',')])
+            # Skip empty strings and flags
+            if not arg or arg.startswith('--'):
+                continue
+            targets.extend([t.strip().lower() for t in arg.split(',')])
 
         if not targets:
             targets = ['all']
@@ -581,14 +583,14 @@ class SandboxHandler:
         upy_scripts = list(workflow_dir.glob('*.upy'))
         json_files = list(workflow_dir.glob('*.json'))
 
-        total = len(uscripts) + len(json_files)
+        total = len(upy_scripts) + len(json_files)
 
         if not total:
             return "✅ Workflow: Empty directory"
 
         summary = [
             "📊 Workflow Organization:",
-            f"  • uScript files: {len(uscripts)}",
+            f"  • uScript files: {len(upy_scripts)}",
             f"  • Config files: {len(json_files)}"
         ]
 

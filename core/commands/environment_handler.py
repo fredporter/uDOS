@@ -58,7 +58,7 @@ class EnvironmentHandler(BaseCommandHandler):
         except Exception as e:
             return self.output_formatter.format_error(
                 "Clean operation failed",
-                details={"Error": str(e)}
+                error_details=str(e)
             )
 
     def _clean_review_sandbox(self):
@@ -66,8 +66,7 @@ class EnvironmentHandler(BaseCommandHandler):
         sandbox_path = Path("sandbox")
         if not sandbox_path.exists():
             return self.output_formatter.format_warning(
-                "Sandbox is empty",
-                details={"Path": str(sandbox_path)}
+                f"Sandbox is empty: {sandbox_path}"
             )
 
         # Get all files in sandbox (excluding subdirectories)
@@ -78,8 +77,7 @@ class EnvironmentHandler(BaseCommandHandler):
 
         if not files:
             return self.output_formatter.format_info(
-                "Sandbox is clean",
-                details={"Message": "No files to review"}
+                "Sandbox is clean - No files to review"
             )
 
         # Format file list
@@ -115,8 +113,7 @@ class EnvironmentHandler(BaseCommandHandler):
 
         if metrics['total_archives'] == 0:
             return self.output_formatter.format_info(
-                "No archives found",
-                details={"Path": str(scan_path)}
+                f"No archives found in: {scan_path}"
             )
 
         # Build output
@@ -169,8 +166,7 @@ class EnvironmentHandler(BaseCommandHandler):
 
         if not archives:
             return self.output_formatter.format_info(
-                "No archives found to purge",
-                details={"Path": str(scan_path)}
+                f"No archives found to purge in: {scan_path}"
             )
 
         # Purge each archive

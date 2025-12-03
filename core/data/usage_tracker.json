@@ -1,9 +1,9 @@
 {
   "command_counts": {
-    "HELP": 30,
+    "HELP": 32,
     "DASH": 8,
-    "SHOW": 4,
-    "CONFIG": 11,
+    "SHOW": 5,
+    "CONFIG": 13,
     "OUTPUT": 8,
     "SETUP": 2,
     "HISTORY": 2,
@@ -11,33 +11,41 @@
     "SHAKEDOWN": 3,
     "ACCESS": 2,
     "ERROR": 5,
-    "LIST": 2,
+    "LIST": 3,
     "WIZARD": 2,
     "CATEGORIES": 1,
     "$1": 2,
     "REBOOT": 4,
     "MENU": 2,
     "RUN": 1,
-    "FETCH": 1
+    "FETCH": 1,
+    "REPORT": 1,
+    "FEEDBACK": 1,
+    "TIDY": 1,
+    "CLEAN": 1
   },
   "success_counts": {
-    "HELP": 25,
+    "HELP": 27,
     "DASH": 7,
-    "SHOW": 4,
-    "CONFIG": 9,
+    "SHOW": 5,
+    "CONFIG": 11,
     "OUTPUT": 7,
     "SETUP": 1,
     "HISTORY": 2,
     "STATUS": 3,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "LIST": 2,
+    "LIST": 3,
     "WIZARD": 2,
     "CATEGORIES": 1,
     "MENU": 2,
     "FETCH": 1,
     "REBOOT": 2,
-    "$1": 1
+    "$1": 1,
+    "REPORT": 1,
+    "FEEDBACK": 1,
+    "TIDY": 1,
+    "CLEAN": 1
   },
   "failure_counts": {
     "OUTPUT": 1,
@@ -51,33 +59,6 @@
     "RUN": 1
   },
   "recent_commands": [
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-26T18:19:32.901209",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "DASH",
-      "timestamp": "2025-11-26T18:19:35.778835",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "SHOW",
-      "timestamp": "2025-11-26T18:19:50.980897",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "CONFIG",
       "timestamp": "2025-11-26T18:20:54.954507",
@@ -827,7 +808,94 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "SHOW",
+      "timestamp": "2025-12-03T21:00:34.743815",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-03T21:01:17.191041",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "REPORT",
+      "timestamp": "2025-12-03T21:01:19.435094",
+      "params": [
+        "medium",
+        "bug"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-03T21:01:21.178499",
+      "params": [
+        "ROLE"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-03T21:01:24.671596",
+      "params": [
+        "role"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "HELP",
+      "timestamp": "2025-12-03T21:01:37.971713",
+      "params": [
+        "ALL"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "FEEDBACK",
+      "timestamp": "2025-12-03T21:01:41.848651",
+      "params": [
+        "general"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-12-03T21:01:47.860657",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "TIDY",
+      "timestamp": "2025-12-03T21:01:52.941275",
+      "params": [
+        ""
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "CLEAN",
+      "timestamp": "2025-12-03T21:01:57.305880",
+      "params": [],
+      "success": true,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-03T20:46:09.829965"
+  "last_updated": "2025-12-03T21:01:57.305908"
 }
