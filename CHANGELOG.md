@@ -9,6 +9,14 @@ and this project adheres on [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Future Development
+
+See [ROADMAP.md](dev/roadmap/ROADMAP.MD) for planned features and development priorities.
+
+---
+
+## Released
+
 ---
 
 ## [1.2.4] - 2025-12-04

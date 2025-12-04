@@ -2,20 +2,20 @@
 
 **Current Version:** v1.2.4 ✅ **COMPLETE** (Developer Experience & Hot Reload)
 **Previous Version:** v1.2.3 ✅ **COMPLETE** (Knowledge & Map Layer Expansion)
-**Next Version:** v1.2.5 ⚡ **PRIORITY** (Integration, Automation & Developer Tooling)
+**Next Version:** v1.2.10 ⚡ **PRIORITY** (VS Code Extension & Developer Tools)
 **Last Updated:** December 4, 2025
-**Roadmap Size:** 5,362 lines (streamlined, v1.2+ development focus)
+**Roadmap Size:** 5,395 lines (streamlined, v1.2+ development focus)
 
 **Recent Updates (Dec 4, 2025):**
 - ✅ v1.2.4 released - Developer Experience & Hot Reload (3,588 lines delivered)
 - ✅ v1.2.3 released - Knowledge & Map Layer Expansion (complete)
-- ✨ Added v1.2.5 - Integration, Automation & Developer Tooling (webhook + API + VS Code)
-- ✨ Renumbered v1.3.0 → v1.2.8 (Cross-Platform Distribution)
-- ✨ Renumbered v1.4.0 → v1.2.9 (Device Management & Multi-Protocol Mesh)
-- ✨ Removed all timeframes - Development measured in MOVES and STEPS, not calendar time
-- 🎯 v1.2.5 marked as PRIORITY for implementation
+- 🔄 **PRIORITY SHIFT:** Jumping to v1.2.10 (VS Code + Developer Tools) to accelerate development workflow
+- 📋 v1.2.5-v1.2.9 deferred (webhook/API/mesh features can leverage better dev tools)
+- ✨ Added knowledge quality check tasks (REGEN flagging)
+- ✨ Added image format inspection/testing tasks (SVG, ASCII art, teletext)
+- 🎯 v1.2.10 marked as PRIORITY for immediate implementation
 
-> **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns.
+> **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns. Priorities shift based on immediate needs and strategic value.
 
 ---
 
@@ -55,50 +55,833 @@
 
 ---
 
-## 📍 Next Release: v1.2.5 ⚡ **PRIORITY**
+## 📍 Next Release: v1.2.10 ⚡ **PRIORITY**
 
-**Status:** 📋 **PLANNED** - Knowledge & Map Layer Expansion
-**Complexity:** High (knowledge generation + map layers + GeoJSON + planet/galaxy data)
-**Effort:** ~45-60 MOVES (Part 1: 10-15, Part 2: 15-20, Part 3: 10-15, Part 4: 5-7, Part 5: 5-8)
-**Dependencies:** v1.2.2 complete (DEV MODE), knowledge-expansion.upy workflow ready
+**Status:** 📋 **PLANNED** - VS Code Extension & Developer Tools (Fast-Track Priority)
+**Complexity:** Medium-High (VS Code extension + .uPY language support + testing tools + knowledge quality check)
+**Effort:** ~50-70 MOVES (Part 1: 15-20, Part 2: 15-20, Part 3: 10-15, Part 4: 10-15)
+**Dependencies:** v1.2.4 complete (Hot Reload ready for extension testing)
 
-## Mission: Complete Knowledge Bank + Multi-Layer Mapping System
+### Mission: Accelerate Development Workflow with Visual Tools
+
+**Strategic Rationale:**
+🎯 **Why Jump to v1.2.10 Now:**
+- VS Code extension will **10x productivity** for all future development
+- .uPY language support makes workflow/mission development **significantly faster**
+- Sandbox testing environment enables **safe experimentation**
+- Knowledge quality tools identify guides needing **regeneration**
+- Image format validation ensures **visual content quality**
+- Better dev tools → faster implementation of v1.2.5-v1.2.9 features
 
 **Strategic Focus:**
-- **Knowledge Expansion** - Execute workflow to reach 236+ guides (current: 228)
-- **Map Layer System** - Implement full layer stack (surface, cloud, satellite, underground)
-- **Location/Planet/Galaxy JSON** - Generate comprehensive spatial data structures
-- **GeoJSON Integration** - Export map data for GitHub visualization
-- **Content Quality** - Review, validate, and enhance existing guides
-
-**Rationale:**
-- Knowledge infrastructure is production-ready (knowledge-expansion.upy v1.1.19)
-- Topic master list complete (100 planned topics in core/data/knowledge_topics.json)
-- Map engine ready for layer expansion (extensions/play/services/map_engine.py)
-- GeoJSON foundation exists (needs enhancement for layers)
-- This delivers immediate user value (vs developer tooling)
+- **VS Code Extension** - .uPY language support, syntax highlighting, IntelliSense, debugging
+- **Sandbox Testing Lab** - Isolated uDOS instances for safe script testing
+- **Knowledge Quality Check** - Scan existing 228 guides, flag outdated/incomplete for REGEN
+- **Image Format Validation** - Test SVG, ASCII art, teletext rendering quality
+- **Developer Productivity** - Fast iteration, visual feedback, comprehensive testing
 
 ---
 
-## Part 1: Knowledge Bank Expansion (Tasks 1-3)
+## Part 1: VS Code Extension Foundation (Tasks 1-4)
 
-### Task 1: Execute Knowledge Expansion Workflow 📋 PLANNED
+### Task 1: .uPY Language Support 📋 PLANNED
 
-**Objective:** Generate 8+ missing guides to reach 236 total
+**Objective:** Create VS Code extension with syntax highlighting and IntelliSense
 
-**Workflow:** `memory/workflows/missions/knowledge-expansion.upy` (1,353 lines, v1.1.19)
+**Files:**
+- `extensions/vscode-udos/package.json` (extension manifest, ~150 lines)
+- `extensions/vscode-udos/syntaxes/upy.tmLanguage.json` (TextMate grammar, ~200 lines)
+- `extensions/vscode-udos/language-configuration.json` (brackets, comments, ~50 lines)
+- `extensions/vscode-udos/src/extension.ts` (main extension, ~300 lines)
 
-**Process:**
-1. **Gap Analysis**
-   ```python
-   # Scan knowledge/ directories
-   # Compare against core/data/knowledge_topics.json (100 topics)
-   # Identify missing guides (target: 8+)
+**Features:**
+
+1. **Syntax Highlighting**
+   ```json
+   {
+     "scopeName": "source.upy",
+     "patterns": [
+       {
+         "name": "keyword.control.upy",
+         "match": "\\b(SET|GET|IF|THEN|ELSE|END|FOREACH|IN|WHILE|GUIDE|MAP|MISSION|CHECKLIST|WORKFLOW|CHECKPOINT)\\b"
+       },
+       {
+         "name": "variable.other.upy",
+         "match": "\\$[A-Z_][A-Z0-9_\\.]*"
+       },
+       {
+         "name": "string.quoted.double.upy",
+         "begin": "\"",
+         "end": "\""
+       },
+       {
+         "name": "comment.line.upy",
+         "match": "#.*$"
+       },
+       {
+         "name": "keyword.directive.upy",
+         "match": "#BREAK|#DEBUG|#TRACE"
+       }
+     ]
+   }
    ```
 
-2. **Generation**
-   ```python
-   # Use GENERATE command for each missing topic
+2. **IntelliSense (Autocomplete)**
+   ```typescript
+   // extensions/vscode-udos/src/completion.ts
+   export class UPYCompletionProvider implements vscode.CompletionItemProvider {
+       provideCompletionItems(document, position) {
+           const commands = [
+               { label: 'SET', detail: 'SET <variable> <value>', docs: 'Assign value to variable' },
+               { label: 'GUIDE ADD', detail: 'GUIDE ADD tier<N> <type> <title>', docs: 'Add knowledge guide' },
+               { label: 'MAP GOTO', detail: 'MAP GOTO <tile> <layer>', docs: 'Navigate to location' },
+               { label: 'MISSION CREATE', detail: 'MISSION CREATE <name>', docs: 'Create new mission' },
+               { label: 'WORKFLOW START', detail: 'WORKFLOW START <name>', docs: 'Start workflow execution' },
+               { label: 'CHECKPOINT SAVE', detail: 'CHECKPOINT SAVE <id>', docs: 'Save execution state' },
+               // ... 60+ uDOS commands
+           ];
+           
+           return commands.map(cmd => {
+               const item = new vscode.CompletionItem(cmd.label, vscode.CompletionItemKind.Keyword);
+               item.detail = cmd.detail;
+               item.documentation = cmd.docs;
+               return item;
+           });
+       }
+   }
+   ```
+
+3. **Hover Documentation**
+   ```typescript
+   export class UPYHoverProvider implements vscode.HoverProvider {
+       provideHover(document, position) {
+           const word = document.getText(document.getWordRangeAtPosition(position));
+           
+           const docs = {
+               'GUIDE': 'Knowledge management system\n\n**Usage:** GUIDE <command> [options]\n\n**Commands:**\n- ADD - Add new guide\n- SEARCH - Search knowledge\n- TAG - Add tags',
+               'MAP': 'Geographic navigation system\n\n**Usage:** MAP <command> [location]\n\n**Commands:**\n- GOTO - Navigate to location\n- ASCEND/DESCEND - Change layers',
+               'WORKFLOW': 'Workflow automation system\n\n**Usage:** WORKFLOW <command> [name]\n\n**Commands:**\n- START - Execute workflow\n- STATUS - Check progress',
+               // ... documentation for all commands
+           };
+           
+           return new vscode.Hover(docs[word] || '');
+       }
+   }
+   ```
+
+4. **Code Snippets**
+   ```json
+   {
+     "Mission Create": {
+       "prefix": "mission",
+       "body": [
+         "MISSION CREATE \"${1:mission-name}\"",
+         "MISSION SET objective \"${2:objective}\"",
+         "MISSION SET status ACTIVE",
+         "",
+         "# ${3:mission steps}",
+         "",
+         "MISSION COMPLETE"
+       ],
+       "description": "Create complete mission template"
+     },
+     "Workflow Loop": {
+       "prefix": "foreach",
+       "body": [
+         "FOREACH $${1:item} IN $${2:list}",
+         "    ${3:# process item}",
+         "END"
+       ],
+       "description": "For-each loop"
+     }
+   }
+   ```
+
+**Estimated:** ~700 lines (grammar + IntelliSense + snippets + extension manifest)
+
+---
+
+### Task 2: Sandbox Testing Environment 📋 PLANNED
+
+**Objective:** Safe isolated testing environment for .uPY scripts
+
+**File:** `extensions/vscode-udos/src/sandbox.ts` (~400 lines)
+
+**Features:**
+
+1. **Disposable uDOS Instances**
+   ```typescript
+   class SandboxManager {
+       private sandboxes: Map<string, UDOSSandbox> = new Map();
+       
+       createSandbox(config: SandboxConfig): UDOSSandbox {
+           const sandbox = new UDOSSandbox({
+               workspaceDir: `/tmp/udos-sandbox-${Date.now()}`,
+               memory: 'isolated',  // Fresh memory directory
+               config: 'default',   // Default configuration
+               api_port: this.findAvailablePort(),
+               cleanup: true        // Auto-delete on close
+           });
+           
+           this.sandboxes.set(sandbox.id, sandbox);
+           return sandbox;
+       }
+       
+       async runScript(sandbox: UDOSSandbox, script: string): Promise<ExecutionResult> {
+           // Execute .uPY script in sandbox via API
+           const response = await fetch(`http://localhost:${sandbox.port}/api/workflows/run`, {
+               method: 'POST',
+               body: JSON.stringify({ script, isolated: true })
+           });
+           
+           return response.json();
+       }
+   }
+   ```
+
+2. **VS Code Integration**
+   ```typescript
+   // Command: "uDOS: Run in Sandbox"
+   vscode.commands.registerCommand('udos.runInSandbox', async () => {
+       const editor = vscode.window.activeTextEditor;
+       if (!editor || editor.document.languageId !== 'upy') {
+           vscode.window.showErrorMessage('No .uPY file active');
+           return;
+       }
+       
+       const sandbox = sandboxManager.createSandbox({ name: 'test' });
+       const script = editor.document.getText();
+       
+       const panel = vscode.window.createOutputChannel('uDOS Sandbox');
+       panel.show();
+       panel.appendLine('🧪 Running in sandbox...');
+       
+       const result = await sandbox.runScript(script);
+       
+       panel.appendLine(`\n✅ Execution completed in ${result.execution_time}s`);
+       panel.appendLine(`\nOutput:\n${result.output}`);
+       
+       if (result.errors.length > 0) {
+           panel.appendLine(`\n❌ Errors:\n${result.errors.join('\n')}`);
+       }
+   });
+   ```
+
+3. **Test Comparison**
+   ```typescript
+   // Compare sandbox vs production results
+   async function compareOutputs(script: string) {
+       const sandboxResult = await sandboxManager.run(script);
+       const prodResult = await productionManager.run(script);
+       
+       return {
+           match: sandboxResult.output === prodResult.output,
+           differences: diff(sandboxResult, prodResult),
+           recommendation: sandboxResult.errors.length === 0 ? 'safe' : 'review'
+       };
+   }
+   ```
+
+**Estimated:** ~400 lines (sandbox manager + VS Code integration)
+
+---
+
+### Task 3: Script Runner & Debugger 📋 PLANNED
+
+**Objective:** Execute and debug .uPY scripts directly from VS Code
+
+**File:** `extensions/vscode-udos/src/executor.ts` (~500 lines)
+
+**Features:**
+
+1. **Run Current Script**
+   ```typescript
+   vscode.commands.registerCommand('udos.runScript', async () => {
+       const editor = vscode.window.activeTextEditor;
+       const script = editor.document.getText();
+       
+       // Show debug panel
+       const panel = vscode.window.createWebviewPanel(
+           'udosDebug',
+           'uDOS Debug Console',
+           vscode.ViewColumn.Two,
+           { enableScripts: true }
+       );
+       
+       panel.webview.html = getDebugPanelHTML();
+       
+       // Execute via API
+       const result = await fetch('http://localhost:5001/api/workflows/run', {
+           method: 'POST',
+           body: JSON.stringify({ script })
+       }).then(r => r.json());
+       
+       // Send results to panel
+       panel.webview.postMessage({
+           type: 'execution_complete',
+           result: result
+       });
+   });
+   ```
+
+2. **Debug Panel (Webview)**
+   ```html
+   <div class="debug-console">
+       <div class="header">
+           <h2>uDOS Debug Console</h2>
+           <div class="status">✅ Running</div>
+       </div>
+       
+       <div class="execution-info">
+           <div>Script: water-filter-guide.upy</div>
+           <div>Time: 1.2s</div>
+           <div>Status: Success</div>
+       </div>
+       
+       <div class="output">
+           <h3>Output:</h3>
+           <pre>SET $LOCATION "AU-SYD"
+   GUIDE ADD tier3 guide "Water Filtration"
+   ✅ Guide created: guide_abc123
+   DIAGRAM GENERATE water-filter
+   ✅ Diagram saved: water-filter.svg</pre>
+       </div>
+       
+       <div class="variables">
+           <h3>Variables:</h3>
+           <table>
+               <tr><td>$LOCATION</td><td>"AU-SYD"</td></tr>
+               <tr><td>$GUIDE.ID</td><td>"guide_abc123"</td></tr>
+               <tr><td>$DIAGRAM.PATH</td><td>"/memory/diagrams/..."</td></tr>
+           </table>
+       </div>
+   </div>
+   ```
+
+3. **Breakpoint Support**
+   ```typescript
+   // Set breakpoints in .uPY files
+   vscode.debug.registerDebugConfigurationProvider('upy', {
+       provideDebugConfigurations() {
+           return [{
+               type: 'upy',
+               request: 'launch',
+               name: 'Debug uPY Script',
+               program: '${file}',
+               stopOnEntry: true
+           }];
+       }
+   });
+   ```
+
+**Estimated:** ~500 lines (executor + debug panel + breakpoint support)
+
+---
+
+### Task 4: Knowledge Quality Check Tool 📋 PLANNED
+
+**Objective:** Scan existing 228 guides and flag outdated/incomplete content for REGEN
+
+**File:** `extensions/vscode-udos/src/knowledge-checker.ts` (~350 lines)
+
+**Features:**
+
+1. **Quality Scanner**
+   ```typescript
+   class KnowledgeQualityChecker {
+       async scanAllGuides(): Promise<QualityReport> {
+           const guides = await this.loadAllGuides();
+           const issues: QualityIssue[] = [];
+           
+           for (const guide of guides) {
+               // Check frontmatter
+               if (!guide.frontmatter) {
+                   issues.push({ file: guide.path, type: 'missing_frontmatter', severity: 'error' });
+               }
+               
+               // Check last_reviewed date
+               const lastReview = new Date(guide.frontmatter?.last_reviewed);
+               const daysSinceReview = (Date.now() - lastReview.getTime()) / (1000 * 60 * 60 * 24);
+               if (daysSinceReview > 365) {
+                   issues.push({ file: guide.path, type: 'outdated', severity: 'warning', data: { days: daysSinceReview } });
+               }
+               
+               // Check word count
+               const wordCount = guide.content.split(/\s+/).length;
+               if (wordCount < 300) {
+                   issues.push({ file: guide.path, type: 'too_short', severity: 'warning', data: { wordCount } });
+               }
+               
+               // Check for broken links
+               const links = this.extractLinks(guide.content);
+               for (const link of links) {
+                   if (!await this.linkExists(link)) {
+                       issues.push({ file: guide.path, type: 'broken_link', severity: 'error', data: { link } });
+                   }
+               }
+               
+               // Check for examples
+               if (!guide.content.includes('Example:') && !guide.content.includes('```')) {
+                   issues.push({ file: guide.path, type: 'missing_examples', severity: 'info' });
+               }
+           }
+           
+           return { totalGuides: guides.length, issues, flaggedForRegen: this.getFlaggedGuides(issues) };
+       }
+       
+       getFlaggedGuides(issues: QualityIssue[]): string[] {
+           // Flag guides with critical issues for REGEN
+           const criticalTypes = ['missing_frontmatter', 'broken_link', 'too_short', 'outdated'];
+           return [...new Set(
+               issues
+                   .filter(i => criticalTypes.includes(i.type))
+                   .map(i => i.file)
+           )];
+       }
+   }
+   ```
+
+2. **VS Code Command**
+   ```typescript
+   vscode.commands.registerCommand('udos.checkKnowledgeQuality', async () => {
+       const panel = vscode.window.createWebviewPanel(
+           'knowledgeQuality',
+           'Knowledge Quality Report',
+           vscode.ViewColumn.One,
+           {}
+       );
+       
+       const checker = new KnowledgeQualityChecker();
+       const report = await checker.scanAllGuides();
+       
+       panel.webview.html = `
+           <h1>Knowledge Quality Report</h1>
+           <p>Total Guides: ${report.totalGuides}</p>
+           <p>Issues Found: ${report.issues.length}</p>
+           <p>Flagged for REGEN: ${report.flaggedForRegen.length}</p>
+           
+           <h2>Guides Needing Regeneration (${report.flaggedForRegen.length})</h2>
+           <ul>
+               ${report.flaggedForRegen.map(f => `<li>${f}</li>`).join('')}
+           </ul>
+           
+           <h2>Issues by Type</h2>
+           ${this.groupIssuesByType(report.issues)}
+       `;
+   });
+   ```
+
+3. **REGEN Workflow Integration**
+   ```typescript
+   // Generate REGEN commands for flagged guides
+   async function generateRegenCommands(flaggedGuides: string[]): Promise<string> {
+       const commands = flaggedGuides.map(guide => {
+           const category = this.extractCategory(guide);
+           const title = this.extractTitle(guide);
+           return `GENERATE GUIDE ${category} "${title}" --complexity detailed --regen`;
+       });
+       
+       // Save to file
+       const outputPath = 'memory/workflows/missions/knowledge-regen-batch.upy';
+       await writeFile(outputPath, commands.join('\n'));
+       
+       return outputPath;
+   }
+   ```
+
+**Estimated:** ~350 lines (scanner + VS Code integration + report generation)
+
+---
+
+## Part 2: Image Format Validation (Tasks 5-7)
+
+### Task 5: SVG Diagram Inspector 📋 PLANNED
+
+**Objective:** Test and validate SVG diagram quality
+
+**File:** `extensions/vscode-udos/src/image-inspector.ts` (~300 lines)
+
+**Features:**
+
+1. **SVG Validator**
+   ```typescript
+   class SVGInspector {
+       async validateSVG(filePath: string): Promise<SVGReport> {
+           const svg = await readFile(filePath, 'utf-8');
+           
+           // Parse SVG
+           const parser = new DOMParser();
+           const doc = parser.parseFromString(svg, 'image/svg+xml');
+           
+           // Check structure
+           const issues: string[] = [];
+           
+           if (!doc.querySelector('svg')) {
+               issues.push('No <svg> root element');
+           }
+           
+           const width = doc.querySelector('svg')?.getAttribute('width');
+           const height = doc.querySelector('svg')?.getAttribute('height');
+           if (!width || !height) {
+               issues.push('Missing width/height attributes');
+           }
+           
+           // Check viewBox
+           const viewBox = doc.querySelector('svg')?.getAttribute('viewBox');
+           if (!viewBox) {
+               issues.push('Missing viewBox (affects scaling)');
+           }
+           
+           // Check for text elements (readability)
+           const texts = doc.querySelectorAll('text');
+           for (const text of texts) {
+               const fontSize = text.getAttribute('font-size');
+               if (fontSize && parseInt(fontSize) < 12) {
+                   issues.push(`Small font size (${fontSize}px) - readability concern`);
+               }
+           }
+           
+           // Check complexity (too many elements = slow render)
+           const totalElements = doc.querySelectorAll('*').length;
+           if (totalElements > 500) {
+               issues.push(`High complexity (${totalElements} elements) - may be slow to render`);
+           }
+           
+           return {
+               valid: issues.length === 0,
+               dimensions: { width, height },
+               viewBox,
+               elementCount: totalElements,
+               issues
+           };
+       }
+   }
+   ```
+
+2. **Visual Preview**
+   ```typescript
+   vscode.commands.registerCommand('udos.previewSVG', async (uri: vscode.Uri) => {
+       const panel = vscode.window.createWebviewPanel(
+           'svgPreview',
+           'SVG Preview',
+           vscode.ViewColumn.Two,
+           { enableScripts: true }
+       );
+       
+       const svg = await readFile(uri.fsPath, 'utf-8');
+       const report = await new SVGInspector().validateSVG(uri.fsPath);
+       
+       panel.webview.html = `
+           <h1>SVG Preview: ${path.basename(uri.fsPath)}</h1>
+           
+           <div class="preview">
+               ${svg}
+           </div>
+           
+           <div class="report">
+               <h2>Validation Report</h2>
+               <p>Status: ${report.valid ? '✅ Valid' : '⚠️ Issues Found'}</p>
+               <p>Dimensions: ${report.dimensions.width}x${report.dimensions.height}</p>
+               <p>Elements: ${report.elementCount}</p>
+               ${report.issues.length > 0 ? `<ul>${report.issues.map(i => `<li>${i}</li>`).join('')}</ul>` : ''}
+           </div>
+       `;
+   });
+   ```
+
+**Estimated:** ~300 lines (SVG validation + preview)
+
+---
+
+### Task 6: ASCII Art Tester 📋 PLANNED
+
+**Objective:** Validate ASCII art rendering across terminals
+
+**File:** `extensions/vscode-udos/src/ascii-tester.ts` (~250 lines)
+
+**Features:**
+
+1. **ASCII Validator**
+   ```typescript
+   class ASCIITester {
+       validateASCIIArt(content: string): ASCIIReport {
+           const lines = content.split('\n');
+           const issues: string[] = [];
+           
+           // Check width consistency
+           const widths = lines.map(l => l.length);
+           const maxWidth = Math.max(...widths);
+           const minWidth = Math.min(...widths);
+           
+           if (maxWidth - minWidth > 2) {
+               issues.push(`Inconsistent line widths (${minWidth}-${maxWidth})`);
+           }
+           
+           // Check for non-ASCII characters
+           for (let i = 0; i < lines.length; i++) {
+               for (let j = 0; j < lines[i].length; j++) {
+                   const code = lines[i].charCodeAt(j);
+                   if (code > 127) {
+                       issues.push(`Non-ASCII character at line ${i+1}, col ${j+1}: ${lines[i][j]} (code ${code})`);
+                   }
+               }
+           }
+           
+           // Check for tabs (should use spaces)
+           if (content.includes('\t')) {
+               issues.push('Contains tabs - use spaces for consistent rendering');
+           }
+           
+           return {
+               valid: issues.length === 0,
+               dimensions: { width: maxWidth, height: lines.length },
+               issues
+           };
+       }
+   }
+   ```
+
+2. **Terminal Preview**
+   ```typescript
+   vscode.commands.registerCommand('udos.previewASCII', async () => {
+       const editor = vscode.window.activeTextEditor;
+       const selection = editor.selection;
+       const text = editor.document.getText(selection.isEmpty ? undefined : selection);
+       
+       const terminal = vscode.window.createTerminal('ASCII Preview');
+       terminal.show();
+       terminal.sendText('clear');
+       terminal.sendText(`cat << 'EOF'\n${text}\nEOF`);
+   });
+   ```
+
+**Estimated:** ~250 lines (ASCII validation + terminal preview)
+
+---
+
+### Task 7: Teletext Renderer Test 📋 PLANNED
+
+**Objective:** Test teletext format rendering quality
+
+**File:** `extensions/vscode-udos/src/teletext-tester.ts` (~200 lines)
+
+**Features:**
+
+1. **Teletext Validator**
+   ```typescript
+   class TeletextTester {
+       validateTeletextPage(content: string): TeletextReport {
+           const lines = content.split('\n');
+           const issues: string[] = [];
+           
+           // Teletext pages are 24 lines × 40 columns
+           if (lines.length !== 24) {
+               issues.push(`Wrong line count: ${lines.length} (expected 24)`);
+           }
+           
+           for (let i = 0; i < lines.length; i++) {
+               if (lines[i].length !== 40) {
+                   issues.push(`Line ${i+1} wrong width: ${lines[i].length} (expected 40)`);
+               }
+           }
+           
+           // Check for valid teletext control codes
+           const controlCodes = content.match(/\x1b\[\d+m/g) || [];
+           if (controlCodes.length === 0) {
+               issues.push('No color codes found - plain text only');
+           }
+           
+           return {
+               valid: issues.length === 0,
+               pageNumber: this.extractPageNumber(content),
+               colorCodes: controlCodes.length,
+               issues
+           };
+       }
+   }
+   ```
+
+2. **Teletext Preview**
+   ```typescript
+   vscode.commands.registerCommand('udos.previewTeletext', async () => {
+       const editor = vscode.window.activeTextEditor;
+       const content = editor.document.getText();
+       
+       // Open teletext server preview
+       const panel = vscode.window.createWebviewPanel(
+           'teletextPreview',
+           'Teletext Preview',
+           vscode.ViewColumn.Two,
+           { enableScripts: true }
+       );
+       
+       panel.webview.html = `
+           <iframe src="http://localhost:9002/render?content=${encodeURIComponent(content)}" 
+                   width="800" height="600" 
+                   style="border:none; background: black;">
+           </iframe>
+       `;
+   });
+   ```
+
+**Estimated:** ~200 lines (teletext validation + preview)
+
+---
+
+## Part 3: Testing & Integration (Tasks 8-9)
+
+### Task 8: Extension Testing 📋 PLANNED
+
+**Test Scenarios:**
+
+1. **.uPY Language Support**
+   - Syntax highlighting works for all keywords
+   - IntelliSense suggests correct commands
+   - Hover docs show accurate information
+   - Snippets expand correctly
+
+2. **Sandbox Environment**
+   - Creates isolated uDOS instance
+   - Scripts execute without affecting production
+   - Cleanup removes sandbox files
+   - Multiple sandboxes can run concurrently
+
+3. **Knowledge Quality Check**
+   - Scans all 228 guides successfully
+   - Flags outdated guides (>365 days)
+   - Identifies missing frontmatter
+   - Detects broken links
+   - Generates REGEN command list
+
+4. **Image Format Validation**
+   - SVG validation catches invalid markup
+   - ASCII art width consistency checks work
+   - Teletext page dimensions validated
+   - Preview panels render correctly
+
+**Estimated:** ~200 lines (test scripts)
+
+---
+
+### Task 9: Documentation 📋 PLANNED
+
+**New Wiki Pages:**
+
+1. **`wiki/VS-Code-Extension.md`** (~600 lines)
+   - Installation guide
+   - .uPY language features
+   - Sandbox testing
+   - Knowledge quality tools
+   - Image format validation
+   - Troubleshooting
+
+2. **Update `CONTRIBUTING.md`** (+100 lines)
+   - VS Code extension development setup
+   - Using sandbox for testing
+   - Knowledge quality workflow
+
+**Estimated:** ~700 lines documentation
+
+---
+
+## Success Metrics
+
+**VS Code Extension:**
+- ✅ .uPY syntax highlighting working
+- ✅ IntelliSense suggests 60+ commands
+- ✅ Snippets for common patterns
+- ✅ Hover docs for all keywords
+
+**Sandbox Testing:**
+- ✅ Isolated instances run successfully
+- ✅ Scripts execute safely
+- ✅ Comparison with production works
+- ✅ Auto-cleanup functional
+
+**Knowledge Quality:**
+- ✅ All 228 guides scanned
+- ✅ Outdated guides flagged (target: <10)
+- ✅ Missing frontmatter identified
+- ✅ REGEN command list generated
+
+**Image Validation:**
+- ✅ SVG diagrams validated
+- ✅ ASCII art consistency checked
+- ✅ Teletext format verified
+- ✅ Visual previews working
+
+---
+
+## Deliverables Summary
+
+**Code:**
+- .uPY language support (700 lines)
+- Sandbox environment (400 lines)
+- Script executor (500 lines)
+- Knowledge quality checker (350 lines)
+- Image format validators (750 lines)
+- Testing (200 lines)
+- **Total: ~2,900 lines**
+
+**Documentation:**
+- VS Code Extension guide (600 lines)
+- CONTRIBUTING.md updates (100 lines)
+- **Total: ~700 lines**
+
+**Grand Total: ~3,600 lines delivered**
+
+---
+
+## Strategic Value
+
+- 🚀 **10x Developer Productivity:** Visual tools accelerate all future development
+- 🧪 **Safe Experimentation:** Sandbox testing prevents production issues
+- 📚 **Knowledge Quality:** Automated checking maintains guide accuracy
+- 🎨 **Visual Validation:** Ensures diagrams/art render correctly
+- 🔄 **Faster Iteration:** IntelliSense + debugging speeds up .uPY development
+- 📦 **Sets Up v1.2.5-v1.2.9:** Better tools make complex features easier to implement
+
+---
+
+## Implementation Order
+
+**Phase 1: Foundation** (MOVES 1-20)
+1. .uPY language support (syntax + IntelliSense)
+2. Extension manifest and packaging
+3. Basic VS Code integration
+
+**Phase 2: Testing Tools** (MOVES 21-40)
+1. Sandbox environment
+2. Script executor and debugger
+3. Integration testing
+
+**Phase 3: Quality Tools** (MOVES 41-60)
+1. Knowledge quality checker
+2. Image format validators
+3. Preview panels
+
+**Phase 4: Polish & Docs** (MOVES 61-70)
+1. Documentation
+2. Extension marketplace publishing
+3. User testing and feedback
+
+---
+
+## Next Steps (Post v1.2.10)
+
+With VS Code extension complete, return to deferred features with better tools:
+- **v1.2.5:** Integration, Automation & Developer Tooling (webhook + API)
+- **v1.2.6:** MeshCore Multi-Protocol Mesh Networking
+- **v1.2.7:** Music creation & cloud POKE extensions
+- **v1.2.8:** Cross-platform distribution
+- **v1.2.9:** Device management
+- **v2.0.0:** Unified distributed mesh platform
+
+The VS Code extension will accelerate development of all these features.
+
+---
+
+## Deferred Releases (Will Return After v1.2.10)
    # Parameters: category, complexity (simple/detailed/technical)
    # Output: Markdown guides with frontmatter
    ```
