@@ -38,11 +38,11 @@
             printLine('  ██║   ██║██╔══██╗██╔═══██╗██╔════╝', 'fg-yellow');
             printLine('  ██║   ██║██║  ██║██║   ██║███████╗', 'fg-green');
             printLine('  ██║   ██║██║  ██║██║   ██║╚════██║', 'fg-cyan');
-            printLine('  ╚██████╔╝██████╔╝╚██████╔╝███████║', 'fg-synthwave-blue');
+            printLine('  ╚██████╔╝██████╔╝╚██████╔╝███████║', 'fg-blue');
             printLine('   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝', 'fg-magenta');
             printLine('');
-            printLine('  uDOS v1.2.8 - Offline-First Survival OS', 'fg-cyan');
-            printLine('  ░▒▓█ Teletext Interface v2.0.0 █▓▒░', 'fg-synthwave-hot-pink');
+            printLine('  uDOS v1.2.8 - Offline-First Survival OS', 'fg-green');
+            printLine('  Teletext Interface v2.0.0', 'fg-cyan');
             printLine('');
             printLine('');
 
@@ -59,7 +59,7 @@
                 const empty = '░'.repeat(Math.floor((totalSteps - progress) / 2));
                 const percent = Math.floor((progress / totalSteps) * 100);
 
-                loaderLine.innerHTML = `<span class="fg-synthwave-pink">  LOADING: [</span><span class="fg-synthwave-cyan">${filled}</span><span class="fg-synthwave-violet">${empty}</span><span class="fg-synthwave-pink">] ${percent}%</span>`;
+                loaderLine.innerHTML = `<span class="fg-cyan">  LOADING: [</span><span class="fg-green">${filled}</span><span class="fg-magenta">${empty}</span><span class="fg-cyan">] ${percent}%</span>`;
 
                 if (progress >= totalSteps) {
                     clearInterval(interval);
