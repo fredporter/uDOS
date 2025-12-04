@@ -103,6 +103,9 @@ class CommandHandler:
         # v1.1.0 - User Feedback System
         from core.commands.user_handler import UserCommandHandler
 
+        # v1.2.8+ - Color TUI Enhancement
+        from core.commands.color_handler import handle_color
+
         # v1.0.32 - Tree Structure Generator
         from core.commands.tree_handler import TreeHandler
 
@@ -555,6 +558,12 @@ class CommandHandler:
 
                 result = handle_resource_command(command, **kwargs)
                 return result.get('output', str(result))
+
+            # v1.2.8+ - COLOR TUI Enhancement (rainbow splash, syntax highlighting, themed UI)
+            elif module == "COLOR":
+                # Join all params into single string for subcommand
+                param_str = ' '.join(params) if params else ''
+                return handle_color(param_str)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag
