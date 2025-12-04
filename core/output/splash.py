@@ -8,7 +8,7 @@ def print_splash_screen():
         from rich.text import Text
         from rich import box
 
-        console = Console()
+        console = Console(force_terminal=True, force_interactive=False)
 
         # Rainbow gradient ASCII art (each line different color)
         splash_lines = [
@@ -47,7 +47,7 @@ def print_splash_screen():
         syntax_text.append("📝 Syntax: ", style="dim")
         syntax_text.append("COMMAND(options|$VARIABLE|'string')", style="bold green")
         syntax_text.append(" or ", style="dim")
-        syntax_text.append("MODULE COMMAND (params)", style="bold magenta")
+        syntax_text.append("MODULE COMMAND(params)", style="bold magenta")
 
         # Create panel with colored border
         panel_content = Text.assemble(
@@ -71,10 +71,18 @@ def print_splash_screen():
 
         console.print(panel)
         print()  # Extra line for spacing
+        return  # Success - exit early
 
     except ImportError:
-        # Fallback to plain text if rich not available
-        splash_text = r"""
+        # Rich library not installed - use plain text fallback
+        pass
+    except Exception as e:
+        # Rich rendering failed - use plain text fallback
+        # Uncomment for debugging: print(f"DEBUG: Rich rendering failed: {e}")
+        pass
+    
+    # Fallback to plain text
+    splash_text = r"""
 ██╗   ██╗██████╗  ██████╗ ███████╗
 ██║   ██║██╔══██╗██╔═══██╗██╔════╝
 ██║   ██║██║  ██║██║   ██║███████╗
@@ -86,7 +94,7 @@ def print_splash_screen():
         print("uDOS v1.2.8 - Offline-First Survival OS")
         print("="*50)
         print("Type HELP for commands | CONFIG LIST for settings")
-        print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND (params)")
+        print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND(params)")
         print()
 
 
