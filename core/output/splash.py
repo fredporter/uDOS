@@ -45,9 +45,9 @@ def print_splash_screen():
 
         syntax_text = Text()
         syntax_text.append("📝 Syntax: ", style="dim")
-        syntax_text.append("COMMAND(args)", style="bold green")
+        syntax_text.append("COMMAND(options|$VARIABLE|'string')", style="bold green")
         syntax_text.append(" or ", style="dim")
-        syntax_text.append("[MODULE|COMMAND*PARAM]", style="bold magenta")
+        syntax_text.append("MODULE COMMAND (params)", style="bold magenta")
 
         # Create panel with colored border
         panel_content = Text.assemble(
@@ -86,7 +86,7 @@ def print_splash_screen():
         print("uDOS v1.2.8 - Offline-First Survival OS")
         print("="*50)
         print("Type HELP for commands | CONFIG LIST for settings")
-        print("Syntax: COMMAND(args) or [MODULE|COMMAND*PARAM]")
+        print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND (params)")
         print()
 
 

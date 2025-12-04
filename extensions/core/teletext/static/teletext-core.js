@@ -31,17 +31,17 @@
             // Clear output
             output.innerHTML = '';
 
-            // uDOS ASCII art logo
+            // uDOS ASCII art logo - rainbow gradient matching TUI
             printLine('');
             printLine('');
-            printLine('  ██╗   ██╗██████╗  ██████╗ ███████╗', 'fg-synthwave-pink');
-            printLine('  ██║   ██║██╔══██╗██╔═══██╗██╔════╝', 'fg-synthwave-purple');
-            printLine('  ██║   ██║██║  ██║██║   ██║███████╗', 'fg-synthwave-blue');
-            printLine('  ██║   ██║██║  ██║██║   ██║╚════██║', 'fg-synthwave-cyan');
-            printLine('  ╚██████╔╝██████╔╝╚██████╔╝███████║', 'fg-synthwave-neon-green');
-            printLine('   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝', 'fg-synthwave-violet');
+            printLine('  ██╗   ██╗██████╗  ██████╗ ███████╗', 'fg-red');
+            printLine('  ██║   ██║██╔══██╗██╔═══██╗██╔════╝', 'fg-yellow');
+            printLine('  ██║   ██║██║  ██║██║   ██║███████╗', 'fg-green');
+            printLine('  ██║   ██║██║  ██║██║   ██║╚════██║', 'fg-cyan');
+            printLine('  ╚██████╔╝██████╔╝╚██████╔╝███████║', 'fg-synthwave-blue');
+            printLine('   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝', 'fg-magenta');
             printLine('');
-            printLine('  UNIVERSAL DEVICE OPERATIONS SYSTEM', 'fg-synthwave-cyan');
+            printLine('  uDOS v1.2.8 - Offline-First Survival OS', 'fg-cyan');
             printLine('  ░▒▓█ Teletext Interface v2.0.0 █▓▒░', 'fg-synthwave-hot-pink');
             printLine('');
             printLine('');
@@ -173,8 +173,8 @@
         printLine('█▀▀ █▄█ █▄ █ ▀█▀ █ █ █   █ ▄▀▄ █ █ █▀▀', 'fg-magenta');
         printLine('▄█▄  █  █ ▀█  █  █▀█ ▀▄▀▄▀ █▀█ ▀▄▀ ██▄', 'fg-cyan');
         printLine('');
-        printLine('UNIVERSAL DEVICE OPERATIONS SYSTEM', 'fg-white');
-        printLine('░▒▓█ Teletext Interface v2.0.0 █▓▒░', 'fg-white');
+        printLine('uDOS v1.2.8 - Offline-First Survival OS', 'fg-cyan');
+        printLine('░▒▓█ Teletext Interface v2.0.0 █▓▒░', 'fg-synthwave-hot-pink');
         printLine('Teletext50 Font by 3d@galax.xyz', 'fg-white');
         printLine('');
         printLine('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'fg-magenta');
