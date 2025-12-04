@@ -374,7 +374,7 @@ STATUS --detailed
         }
 
         const word = document.getText(range);
-        
+
         // Check for command documentation
         if (this.commandDocs[word]) {
             return new vscode.Hover(new vscode.MarkdownString(this.commandDocs[word]));

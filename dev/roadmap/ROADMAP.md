@@ -140,7 +140,7 @@
                { label: 'CHECKPOINT SAVE', detail: 'CHECKPOINT SAVE <id>', docs: 'Save execution state' },
                // ... 60+ uDOS commands
            ];
-           
+
            return commands.map(cmd => {
                const item = new vscode.CompletionItem(cmd.label, vscode.CompletionItemKind.Keyword);
                item.detail = cmd.detail;
@@ -156,14 +156,14 @@
    export class UPYHoverProvider implements vscode.HoverProvider {
        provideHover(document, position) {
            const word = document.getText(document.getWordRangeAtPosition(position));
-           
+
            const docs = {
                'GUIDE': 'Knowledge management system\n\n**Usage:** GUIDE <command> [options]\n\n**Commands:**\n- ADD - Add new guide\n- SEARCH - Search knowledge\n- TAG - Add tags',
                'MAP': 'Geographic navigation system\n\n**Usage:** MAP <command> [location]\n\n**Commands:**\n- GOTO - Navigate to location\n- ASCEND/DESCEND - Change layers',
                'WORKFLOW': 'Workflow automation system\n\n**Usage:** WORKFLOW <command> [name]\n\n**Commands:**\n- START - Execute workflow\n- STATUS - Check progress',
                // ... documentation for all commands
            };
-           
+
            return new vscode.Hover(docs[word] || '');
        }
    }
@@ -213,7 +213,7 @@
    ```typescript
    class SandboxManager {
        private sandboxes: Map<string, UDOSSandbox> = new Map();
-       
+
        createSandbox(config: SandboxConfig): UDOSSandbox {
            const sandbox = new UDOSSandbox({
                workspaceDir: `/tmp/udos-sandbox-${Date.now()}`,
@@ -222,18 +222,18 @@
                api_port: this.findAvailablePort(),
                cleanup: true        // Auto-delete on close
            });
-           
+
            this.sandboxes.set(sandbox.id, sandbox);
            return sandbox;
        }
-       
+
        async runScript(sandbox: UDOSSandbox, script: string): Promise<ExecutionResult> {
            // Execute .uPY script in sandbox via API
            const response = await fetch(`http://localhost:${sandbox.port}/api/workflows/run`, {
                method: 'POST',
                body: JSON.stringify({ script, isolated: true })
            });
-           
+
            return response.json();
        }
    }
@@ -248,19 +248,19 @@
            vscode.window.showErrorMessage('No .uPY file active');
            return;
        }
-       
+
        const sandbox = sandboxManager.createSandbox({ name: 'test' });
        const script = editor.document.getText();
-       
+
        const panel = vscode.window.createOutputChannel('uDOS Sandbox');
        panel.show();
        panel.appendLine('🧪 Running in sandbox...');
-       
+
        const result = await sandbox.runScript(script);
-       
+
        panel.appendLine(`\n✅ Execution completed in ${result.execution_time}s`);
        panel.appendLine(`\nOutput:\n${result.output}`);
-       
+
        if (result.errors.length > 0) {
            panel.appendLine(`\n❌ Errors:\n${result.errors.join('\n')}`);
        }
@@ -273,7 +273,7 @@
    async function compareOutputs(script: string) {
        const sandboxResult = await sandboxManager.run(script);
        const prodResult = await productionManager.run(script);
-       
+
        return {
            match: sandboxResult.output === prodResult.output,
            differences: diff(sandboxResult, prodResult),
@@ -299,7 +299,7 @@
    vscode.commands.registerCommand('udos.runScript', async () => {
        const editor = vscode.window.activeTextEditor;
        const script = editor.document.getText();
-       
+
        // Show debug panel
        const panel = vscode.window.createWebviewPanel(
            'udosDebug',
@@ -307,15 +307,15 @@
            vscode.ViewColumn.Two,
            { enableScripts: true }
        );
-       
+
        panel.webview.html = getDebugPanelHTML();
-       
+
        // Execute via API
        const result = await fetch('http://localhost:5001/api/workflows/run', {
            method: 'POST',
            body: JSON.stringify({ script })
        }).then(r => r.json());
-       
+
        // Send results to panel
        panel.webview.postMessage({
            type: 'execution_complete',
@@ -331,13 +331,13 @@
            <h2>uDOS Debug Console</h2>
            <div class="status">✅ Running</div>
        </div>
-       
+
        <div class="execution-info">
            <div>Script: water-filter-guide.upy</div>
            <div>Time: 1.2s</div>
            <div>Status: Success</div>
        </div>
-       
+
        <div class="output">
            <h3>Output:</h3>
            <pre>SET $LOCATION "AU-SYD"
@@ -346,7 +346,7 @@
    DIAGRAM GENERATE water-filter
    ✅ Diagram saved: water-filter.svg</pre>
        </div>
-       
+
        <div class="variables">
            <h3>Variables:</h3>
            <table>
@@ -392,26 +392,26 @@
        async scanAllGuides(): Promise<QualityReport> {
            const guides = await this.loadAllGuides();
            const issues: QualityIssue[] = [];
-           
+
            for (const guide of guides) {
                // Check frontmatter
                if (!guide.frontmatter) {
                    issues.push({ file: guide.path, type: 'missing_frontmatter', severity: 'error' });
                }
-               
+
                // Check last_reviewed date
                const lastReview = new Date(guide.frontmatter?.last_reviewed);
                const daysSinceReview = (Date.now() - lastReview.getTime()) / (1000 * 60 * 60 * 24);
                if (daysSinceReview > 365) {
                    issues.push({ file: guide.path, type: 'outdated', severity: 'warning', data: { days: daysSinceReview } });
                }
-               
+
                // Check word count
                const wordCount = guide.content.split(/\s+/).length;
                if (wordCount < 300) {
                    issues.push({ file: guide.path, type: 'too_short', severity: 'warning', data: { wordCount } });
                }
-               
+
                // Check for broken links
                const links = this.extractLinks(guide.content);
                for (const link of links) {
@@ -419,16 +419,16 @@
                        issues.push({ file: guide.path, type: 'broken_link', severity: 'error', data: { link } });
                    }
                }
-               
+
                // Check for examples
                if (!guide.content.includes('Example:') && !guide.content.includes('```')) {
                    issues.push({ file: guide.path, type: 'missing_examples', severity: 'info' });
                }
            }
-           
+
            return { totalGuides: guides.length, issues, flaggedForRegen: this.getFlaggedGuides(issues) };
        }
-       
+
        getFlaggedGuides(issues: QualityIssue[]): string[] {
            // Flag guides with critical issues for REGEN
            const criticalTypes = ['missing_frontmatter', 'broken_link', 'too_short', 'outdated'];
@@ -450,21 +450,21 @@
            vscode.ViewColumn.One,
            {}
        );
-       
+
        const checker = new KnowledgeQualityChecker();
        const report = await checker.scanAllGuides();
-       
+
        panel.webview.html = `
            <h1>Knowledge Quality Report</h1>
            <p>Total Guides: ${report.totalGuides}</p>
            <p>Issues Found: ${report.issues.length}</p>
            <p>Flagged for REGEN: ${report.flaggedForRegen.length}</p>
-           
+
            <h2>Guides Needing Regeneration (${report.flaggedForRegen.length})</h2>
            <ul>
                ${report.flaggedForRegen.map(f => `<li>${f}</li>`).join('')}
            </ul>
-           
+
            <h2>Issues by Type</h2>
            ${this.groupIssuesByType(report.issues)}
        `;
@@ -480,11 +480,11 @@
            const title = this.extractTitle(guide);
            return `GENERATE GUIDE ${category} "${title}" --complexity detailed --regen`;
        });
-       
+
        // Save to file
        const outputPath = 'memory/workflows/missions/knowledge-regen-batch.upy';
        await writeFile(outputPath, commands.join('\n'));
-       
+
        return outputPath;
    }
    ```
@@ -508,30 +508,30 @@
    class SVGInspector {
        async validateSVG(filePath: string): Promise<SVGReport> {
            const svg = await readFile(filePath, 'utf-8');
-           
+
            // Parse SVG
            const parser = new DOMParser();
            const doc = parser.parseFromString(svg, 'image/svg+xml');
-           
+
            // Check structure
            const issues: string[] = [];
-           
+
            if (!doc.querySelector('svg')) {
                issues.push('No <svg> root element');
            }
-           
+
            const width = doc.querySelector('svg')?.getAttribute('width');
            const height = doc.querySelector('svg')?.getAttribute('height');
            if (!width || !height) {
                issues.push('Missing width/height attributes');
            }
-           
+
            // Check viewBox
            const viewBox = doc.querySelector('svg')?.getAttribute('viewBox');
            if (!viewBox) {
                issues.push('Missing viewBox (affects scaling)');
            }
-           
+
            // Check for text elements (readability)
            const texts = doc.querySelectorAll('text');
            for (const text of texts) {
@@ -540,13 +540,13 @@
                    issues.push(`Small font size (${fontSize}px) - readability concern`);
                }
            }
-           
+
            // Check complexity (too many elements = slow render)
            const totalElements = doc.querySelectorAll('*').length;
            if (totalElements > 500) {
                issues.push(`High complexity (${totalElements} elements) - may be slow to render`);
            }
-           
+
            return {
                valid: issues.length === 0,
                dimensions: { width, height },
@@ -567,17 +567,17 @@
            vscode.ViewColumn.Two,
            { enableScripts: true }
        );
-       
+
        const svg = await readFile(uri.fsPath, 'utf-8');
        const report = await new SVGInspector().validateSVG(uri.fsPath);
-       
+
        panel.webview.html = `
            <h1>SVG Preview: ${path.basename(uri.fsPath)}</h1>
-           
+
            <div class="preview">
                ${svg}
            </div>
-           
+
            <div class="report">
                <h2>Validation Report</h2>
                <p>Status: ${report.valid ? '✅ Valid' : '⚠️ Issues Found'}</p>
@@ -607,16 +607,16 @@
        validateASCIIArt(content: string): ASCIIReport {
            const lines = content.split('\n');
            const issues: string[] = [];
-           
+
            // Check width consistency
            const widths = lines.map(l => l.length);
            const maxWidth = Math.max(...widths);
            const minWidth = Math.min(...widths);
-           
+
            if (maxWidth - minWidth > 2) {
                issues.push(`Inconsistent line widths (${minWidth}-${maxWidth})`);
            }
-           
+
            // Check for non-ASCII characters
            for (let i = 0; i < lines.length; i++) {
                for (let j = 0; j < lines[i].length; j++) {
@@ -626,12 +626,12 @@
                    }
                }
            }
-           
+
            // Check for tabs (should use spaces)
            if (content.includes('\t')) {
                issues.push('Contains tabs - use spaces for consistent rendering');
            }
-           
+
            return {
                valid: issues.length === 0,
                dimensions: { width: maxWidth, height: lines.length },
@@ -647,7 +647,7 @@
        const editor = vscode.window.activeTextEditor;
        const selection = editor.selection;
        const text = editor.document.getText(selection.isEmpty ? undefined : selection);
-       
+
        const terminal = vscode.window.createTerminal('ASCII Preview');
        terminal.show();
        terminal.sendText('clear');
@@ -673,24 +673,24 @@
        validateTeletextPage(content: string): TeletextReport {
            const lines = content.split('\n');
            const issues: string[] = [];
-           
+
            // Teletext pages are 24 lines × 40 columns
            if (lines.length !== 24) {
                issues.push(`Wrong line count: ${lines.length} (expected 24)`);
            }
-           
+
            for (let i = 0; i < lines.length; i++) {
                if (lines[i].length !== 40) {
                    issues.push(`Line ${i+1} wrong width: ${lines[i].length} (expected 40)`);
                }
            }
-           
+
            // Check for valid teletext control codes
            const controlCodes = content.match(/\x1b\[\d+m/g) || [];
            if (controlCodes.length === 0) {
                issues.push('No color codes found - plain text only');
            }
-           
+
            return {
                valid: issues.length === 0,
                pageNumber: this.extractPageNumber(content),
@@ -706,7 +706,7 @@
    vscode.commands.registerCommand('udos.previewTeletext', async () => {
        const editor = vscode.window.activeTextEditor;
        const content = editor.document.getText();
-       
+
        // Open teletext server preview
        const panel = vscode.window.createWebviewPanel(
            'teletextPreview',
@@ -714,10 +714,10 @@
            vscode.ViewColumn.Two,
            { enableScripts: true }
        );
-       
+
        panel.webview.html = `
-           <iframe src="http://localhost:9002/render?content=${encodeURIComponent(content)}" 
-                   width="800" height="600" 
+           <iframe src="http://localhost:9002/render?content=${encodeURIComponent(content)}"
+                   width="800" height="600"
                    style="border:none; background: black;">
            </iframe>
        `;
