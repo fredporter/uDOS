@@ -37,6 +37,7 @@ class AnalyticsWidget {
         this.socket = null; // WebSocket connection
         this.connectionStatus = 'disconnected'; // disconnected | connecting | connected
         this.chartDataManager = null; // v1.2.8: Incremental updates manager
+        this.eventBuffer = null; // v1.2.8: Event buffer for disconnection handling
 
         // Check Chart.js availability
         if (this.config.useChartJs && typeof Chart === 'undefined') {
@@ -56,6 +57,16 @@ class AnalyticsWidget {
                 animationEasing: 'easeInOutQuart'
             });
             console.log('Incremental chart updates enabled');
+        }
+
+        // Initialize EventBuffer for disconnection handling (v1.2.8)
+        if (typeof EventBuffer !== 'undefined') {
+            this.eventBuffer = new EventBuffer({
+                maxSize: 100,
+                persistToStorage: true,
+                deduplicateWindow: 5000 // 5 seconds
+            });
+            console.log('Event buffer initialized');
         }
 
         this.init();
@@ -717,6 +728,9 @@ class AnalyticsWidget {
             this.socket.on('connect', () => {
                 console.log('WebSocket connected');
                 this.updateConnectionStatus('connected');
+
+                // v1.2.8: Replay buffered events on reconnection
+                this.replayBufferedEvents();
             });
 
             // Connection lost
@@ -755,6 +769,15 @@ class AnalyticsWidget {
      * v1.2.8: Use incremental updates instead of full refresh
      */
     handleWebSocketEvent(event) {
+        // v1.2.8: Buffer events when disconnected
+        if (this.connectionStatus === 'disconnected' && this.eventBuffer) {
+            const buffered = this.eventBuffer.add(event);
+            if (buffered) {
+                console.log(`Event buffered (${this.eventBuffer.size()} in buffer)`);
+            }
+            return;
+        }
+
         // v1.2.8: Incremental update if available
         if (this.chartDataManager) {
             // Add event to charts incrementally
@@ -818,6 +841,122 @@ class AnalyticsWidget {
                 totalElement.style.animation = 'flash 0.5s ease';
             }, 10);
         }
+    }
+
+    /**
+     * Replay buffered events after reconnection (v1.2.8)
+     */
+    async replayBufferedEvents() {
+        if (!this.eventBuffer || this.eventBuffer.isEmpty()) {
+            console.log('No buffered events to replay');
+            return;
+        }
+
+        const bufferedEvents = this.eventBuffer.getAll(false); // Get without clearing
+        console.log(`Replaying ${bufferedEvents.length} buffered events...`);
+
+        // Show notification
+        this.showNotification(`Replaying ${bufferedEvents.length} buffered events...`, 'info');
+
+        try {
+            // Fetch latest events from API to check for duplicates
+            const res = await fetch(`${this.config.apiBaseUrl}/webhooks/events?limit=100`);
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                const apiEventIds = new Set(data.events.map(e => e.id));
+
+                // Filter out events that were already processed by the server
+                const uniqueBufferedEvents = bufferedEvents.filter(event => {
+                    return !apiEventIds.has(event.id);
+                });
+
+                console.log(`${uniqueBufferedEvents.length} unique events to replay (${bufferedEvents.length - uniqueBufferedEvents.length} duplicates removed)`);
+
+                // Apply buffered events to charts
+                let successCount = 0;
+                let failureCount = 0;
+
+                for (const event of uniqueBufferedEvents) {
+                    if (this.chartDataManager) {
+                        const result = this.chartDataManager.addEvent(event);
+                        if (result.success) {
+                            successCount++;
+                        } else {
+                            failureCount++;
+                        }
+                    }
+                }
+
+                // Update buffer statistics
+                this.eventBuffer.markReplayed(successCount);
+
+                // Clear buffer after successful replay
+                this.eventBuffer.clear();
+
+                // Update metrics
+                if (this.chartDataManager) {
+                    this.updateMetricCards(this.chartDataManager.getMetrics());
+                }
+
+                // Show completion notification
+                if (successCount > 0) {
+                    this.showNotification(`✓ Replayed ${successCount} events`, 'success', 3000);
+                }
+
+                if (failureCount > 0) {
+                    console.warn(`Failed to replay ${failureCount} events`);
+                }
+
+                console.log('Event replay complete:', {
+                    total: bufferedEvents.length,
+                    unique: uniqueBufferedEvents.length,
+                    success: successCount,
+                    failed: failureCount,
+                    bufferStats: this.eventBuffer.getStats()
+                });
+
+            } else {
+                console.error('Failed to fetch API events for deduplication');
+                this.showNotification('Failed to replay buffered events', 'error', 5000);
+            }
+
+        } catch (error) {
+            console.error('Error replaying buffered events:', error);
+            this.showNotification('Error replaying buffered events', 'error', 5000);
+        }
+    }
+
+    /**
+     * Show toast notification (v1.2.8)
+     */
+    showNotification(message, type = 'info', duration = 5000) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <span class="notification-icon">${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span>
+            <span class="notification-message">${message}</span>
+        `;
+
+        // Add to DOM
+        document.body.appendChild(notification);
+
+        // Fade in
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+
+        // Remove after duration
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, duration);
     }
 
     /**
