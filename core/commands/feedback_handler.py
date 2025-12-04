@@ -1,20 +1,31 @@
 """
-User Feedback Handler v1.1.0
+User Feedback Handler v1.2.4
 =============================
 
 Captures user feedback during development and production:
 - FEEDBACK: General comments, confusion points, feature requests
+- FEEDBACK --github: Open pre-filled GitHub Issue/Discussion (v1.2.4)
 - REPORT: Structured error/bug reports with full context
 - Integrates with session analytics for context capture
 
 Development Methodology: Local-first, TUI-based iterative development
+
+v1.2.4 Changes:
+- Added GitHub browser integration for FEEDBACK command
+- Pre-fill URLs for Issues and Discussions (no API tokens required)
+- Minimal data collection (version, OS, mode only)
+- User confirmation before opening browser
 """
 
 import json
+import platform
+import sys
+import webbrowser
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
+from urllib.parse import urlencode
 
 from core.services.session_analytics import SessionAnalytics, FeedbackEntry
 
@@ -40,14 +51,20 @@ class BugReport:
 
 class FeedbackHandler:
     """
-    Handle user feedback collection for v1.1.0 development
+    Handle user feedback collection for v1.1.0+ development
 
     Features:
     - Quick feedback capture during TUI sessions
     - Structured bug reports with full context
     - Automatic session context attachment
     - Integration with session analytics
+    - GitHub browser integration (v1.2.4)
     """
+
+    # GitHub repository (public)
+    GITHUB_REPO = "fredporter/uDOS"
+    GITHUB_ISSUES_URL = f"https://github.com/{GITHUB_REPO}/issues/new"
+    GITHUB_DISCUSSIONS_URL = f"https://github.com/{GITHUB_REPO}/discussions/new"
 
     def __init__(self,
                  session_analytics: Optional[SessionAnalytics] = None,
@@ -105,6 +122,206 @@ class FeedbackHandler:
         return f"✅ Feedback recorded: '{message[:50]}...'\n" \
                f"   Category: {category}\n" \
                f"   Thank you for helping improve uDOS!"
+
+    def handle_github_feedback(self,
+                               feedback_type: str = "discussion",
+                               category: str = "general",
+                               pre_fill: Optional[str] = None,
+                               auto_open: bool = False) -> str:
+        """
+        Open GitHub Issue or Discussion with pre-filled template
+
+        Args:
+            feedback_type: "issue" for bug reports, "discussion" for general feedback
+            category: Feedback category (bug, feature, question, idea)
+            pre_fill: Optional pre-filled text
+            auto_open: Skip confirmation and open immediately
+
+        Returns:
+            Confirmation message with URL
+        """
+        # Collect minimal system info (no sensitive data)
+        system_info = self._collect_system_info()
+
+        # Generate pre-filled URL
+        if feedback_type == "issue":
+            url = self._generate_issue_url(category, pre_fill, system_info)
+            template_type = "Bug Report" if category == "bug" else "Feature Request"
+        else:
+            url = self._generate_discussion_url(category, pre_fill, system_info)
+            template_type = "Discussion"
+
+        # Format confirmation message
+        output = [
+            f"🌐 GitHub {template_type} Ready",
+            "=" * 60,
+            "",
+            f"Category: {category}",
+            f"System: {system_info['os']} | uDOS {system_info['version']}",
+            "",
+            "This will open GitHub in your browser with a pre-filled template.",
+            "No API tokens required - all data stays local until you submit.",
+            "",
+            f"URL: {url[:80]}...",
+            ""
+        ]
+
+        if not auto_open:
+            output.append("Run again with --open flag to launch browser:")
+            output.append(f"  FEEDBACK --github --open --{feedback_type} --{category}")
+            return "\n".join(output)
+
+        # Open browser
+        try:
+            webbrowser.open(url)
+            output.append("✅ Browser opened successfully")
+            output.append("   Complete the template and submit on GitHub")
+        except Exception as e:
+            output.append(f"❌ Failed to open browser: {e}")
+            output.append(f"   Copy URL manually: {url}")
+
+        return "\n".join(output)
+
+    def _collect_system_info(self) -> Dict[str, str]:
+        """
+        Collect minimal system information (no sensitive data)
+
+        Returns:
+            Dictionary with version, OS, Python version
+        """
+        # Get uDOS version from setup.py or fallback
+        try:
+            from pathlib import Path
+            setup_path = Path(__file__).parent.parent.parent / "setup.py"
+            version = "1.2.4"  # Default to current dev version
+            if setup_path.exists():
+                with open(setup_path) as f:
+                    for line in f:
+                        if "version=" in line:
+                            version = line.split('"')[1]
+                            break
+        except:
+            version = "unknown"
+
+        return {
+            "version": version,
+            "os": f"{platform.system()} {platform.release()}",
+            "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+            "mode": "interactive"  # Could be extended to detect dev/assist modes
+        }
+
+    def _generate_issue_url(self,
+                           category: str,
+                           pre_fill: Optional[str],
+                           system_info: Dict[str, str]) -> str:
+        """
+        Generate pre-filled GitHub Issue URL
+
+        Args:
+            category: Issue category (bug, feature)
+            pre_fill: Optional pre-filled description
+            system_info: System information dict
+
+        Returns:
+            GitHub Issue URL with query parameters
+        """
+        # Determine issue template
+        if category == "bug":
+            title_prefix = "[Bug]"
+            template = f"""**Describe the bug**
+{pre_fill or 'A clear description of what the bug is.'}
+
+**Steps to Reproduce**
+1. Go to '...'
+2. Run command '...'
+3. See error
+
+**Expected behavior**
+What you expected to happen.
+
+**Actual behavior**
+What actually happened.
+
+**System Information**
+- uDOS Version: {system_info['version']}
+- OS: {system_info['os']}
+- Python: {system_info['python']}
+- Mode: {system_info['mode']}
+
+**Additional context**
+Add any other context about the problem here.
+"""
+        else:  # feature request
+            title_prefix = "[Feature]"
+            default_feature_desc = "A clear description of the feature you'd like to see."
+            template = f"""**Feature Description**
+{pre_fill or default_feature_desc}
+
+**Use Case**
+Why is this feature needed? What problem does it solve?
+
+**Proposed Solution**
+How would you like this to work?
+
+**Alternatives Considered**
+Other approaches you've thought about.
+
+**System Information**
+- uDOS Version: {system_info['version']}
+- OS: {system_info['os']}
+
+**Additional context**
+Add any other context or screenshots here.
+"""
+
+        # URL encode parameters
+        params = {
+            "title": f"{title_prefix} ",
+            "body": template,
+            "labels": category
+        }
+
+        return f"{self.GITHUB_ISSUES_URL}?{urlencode(params)}"
+
+    def _generate_discussion_url(self,
+                                 category: str,
+                                 pre_fill: Optional[str],
+                                 system_info: Dict[str, str]) -> str:
+        """
+        Generate pre-filled GitHub Discussion URL
+
+        Args:
+            category: Discussion category (general, question, idea)
+            pre_fill: Optional pre-filled content
+            system_info: System information dict
+
+        Returns:
+            GitHub Discussion URL with query parameters
+        """
+        # Map categories to discussion categories
+        category_map = {
+            "general": "General",
+            "question": "Q&A",
+            "idea": "Ideas",
+            "show": "Show and tell"
+        }
+
+        discussion_category = category_map.get(category, "General")
+
+        template = f"""{pre_fill or 'Share your thoughts, questions, or ideas about uDOS...'}
+
+**System Information** (optional)
+- uDOS Version: {system_info['version']}
+- OS: {system_info['os']}
+"""
+
+        # URL encode parameters
+        params = {
+            "category": discussion_category,
+            "body": template
+        }
+
+        return f"{self.GITHUB_DISCUSSIONS_URL}?{urlencode(params)}"
 
     def handle_report(self,
                      title: str,

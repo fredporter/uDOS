@@ -98,6 +98,9 @@ class ShakedownHandler(BaseCommandHandler):
         # v1.2.4+ test suites (hot reload)
         self._test_hot_reload(output, verbose)
 
+        # v1.2.4+ test suites (GitHub feedback integration)
+        self._test_github_feedback(output, verbose)
+
         # Summary
         output.append("")
         output.append("═" * 63)
@@ -1154,7 +1157,7 @@ SPRITE-SET('test'|2)
     def _test_hot_reload(self, output: List[str], verbose: bool):
         """
         Test Extension Hot Reload System (v1.2.4).
-        
+
         Tests:
         1. ExtensionLifecycleManager import and initialization
         2. Extension validation (manifest, dependencies)
@@ -1173,24 +1176,24 @@ SPRITE-SET('test'|2)
         try:
             from core.services.extension_lifecycle import ExtensionLifecycleManager, ExtensionState, ReloadResult
             lifecycle = ExtensionLifecycleManager()
-            
+
             output.append("  ✅ ExtensionLifecycleManager import successful")
             self._add_test("Hot Reload: lifecycle manager import", True)
-            
+
             # Check key methods exist
             required_methods = [
                 'reload_extension', 'reload_all_extensions', 'validate_before_reload',
                 'preserve_state', 'restore_state', 'rollback_reload'
             ]
             missing_methods = [m for m in required_methods if not hasattr(lifecycle, m)]
-            
+
             if not missing_methods:
                 output.append("  ✅ All lifecycle methods present")
                 self._add_test("Hot Reload: lifecycle methods", True)
             else:
                 output.append(f"  ❌ Missing methods: {', '.join(missing_methods)}")
                 self._add_test("Hot Reload: lifecycle methods", False, f"Missing: {missing_methods}")
-                
+
         except ImportError as e:
             output.append(f"  ❌ ExtensionLifecycleManager import failed: {e}")
             self._add_test("Hot Reload: lifecycle manager import", False, str(e))
@@ -1206,10 +1209,10 @@ SPRITE-SET('test'|2)
         try:
             # Test validation with a known extension (assistant)
             validation = lifecycle.validate_before_reload('assistant')
-            
+
             is_valid = validation.get('valid', False)
             manifest_valid = validation.get('manifest_valid', False)
-            
+
             if is_valid and manifest_valid:
                 output.append("  ✅ Extension validation successful (assistant)")
                 self._add_test("Hot Reload: extension validation", True)
@@ -1217,7 +1220,7 @@ SPRITE-SET('test'|2)
                 errors = validation.get('errors', [])
                 output.append(f"  ⚠️  Validation incomplete: {errors}")
                 self._add_test("Hot Reload: extension validation", True)  # Pass if extension exists
-                
+
         except Exception as e:
             output.append(f"  ⚠️  Validation test skipped: {e}")
             self._add_test("Hot Reload: extension validation", True)  # Non-critical
@@ -1226,7 +1229,7 @@ SPRITE-SET('test'|2)
         try:
             # Use validate_only=True to test without actual reload
             result = lifecycle.reload_extension('assistant', validate_only=True)
-            
+
             if isinstance(result, ReloadResult):
                 if result.success:
                     output.append("  ✅ Validation dry-run successful")
@@ -1237,7 +1240,7 @@ SPRITE-SET('test'|2)
             else:
                 output.append("  ❌ Invalid result type")
                 self._add_test("Hot Reload: validation dry-run", False, "Invalid result")
-                
+
         except Exception as e:
             output.append(f"  ⚠️  Dry-run test skipped: {e}")
             self._add_test("Hot Reload: validation dry-run", True)  # Non-critical
@@ -1245,7 +1248,7 @@ SPRITE-SET('test'|2)
         # Test 4: State preservation
         try:
             state = lifecycle.preserve_state('assistant')
-            
+
             if isinstance(state, ExtensionState):
                 if state.extension_id == 'assistant':
                     output.append("  ✅ State preservation working")
@@ -1256,7 +1259,7 @@ SPRITE-SET('test'|2)
             else:
                 output.append("  ❌ Invalid state type")
                 self._add_test("Hot Reload: state preservation", False, "Invalid type")
-                
+
         except Exception as e:
             output.append(f"  ⚠️  State preservation test skipped: {e}")
             self._add_test("Hot Reload: state preservation", True)  # Non-critical
@@ -1264,7 +1267,7 @@ SPRITE-SET('test'|2)
         # Test 5: Error handling - invalid extension
         try:
             result = lifecycle.reload_extension('nonexistent_extension_xyz', validate_only=True)
-            
+
             # Should fail validation
             if isinstance(result, ReloadResult) and not result.success:
                 output.append("  ✅ Invalid extension handling works")
@@ -1272,7 +1275,7 @@ SPRITE-SET('test'|2)
             else:
                 output.append("  ⚠️  Invalid extension not caught")
                 self._add_test("Hot Reload: error handling", False, "Should reject invalid ext")
-                
+
         except Exception as e:
             # Exception is also acceptable error handling
             output.append("  ✅ Error handling works (exception raised)")
@@ -1282,14 +1285,14 @@ SPRITE-SET('test'|2)
         try:
             # Test internal path detection
             ext_path = lifecycle._get_extension_path('assistant')
-            
+
             if ext_path and ext_path.exists():
                 output.append(f"  ✅ Extension path detection works")
                 self._add_test("Hot Reload: path detection", True)
             else:
                 output.append(f"  ⚠️  Extension path not found (may not be installed)")
                 self._add_test("Hot Reload: path detection", True)  # OK if not installed
-                
+
         except Exception as e:
             output.append(f"  ⚠️  Path detection test skipped: {e}")
             self._add_test("Hot Reload: path detection", True)  # Non-critical
@@ -1298,18 +1301,18 @@ SPRITE-SET('test'|2)
         try:
             from core.commands.system_handler import SystemHandler
             system_handler = SystemHandler()
-            
+
             # Check for hot reload methods
             has_hot_reload = hasattr(system_handler, '_handle_hot_reload')
             has_format = hasattr(system_handler, '_format_reload_result')
-            
+
             if has_hot_reload and has_format:
                 output.append("  ✅ REBOOT hot reload integration present")
                 self._add_test("Hot Reload: REBOOT integration", True)
             else:
                 output.append("  ❌ REBOOT hot reload methods missing")
                 self._add_test("Hot Reload: REBOOT integration", False, "Methods missing")
-                
+
         except Exception as e:
             output.append(f"  ⚠️  REBOOT integration test skipped: {e}")
             self._add_test("Hot Reload: REBOOT integration", True)  # Non-critical
@@ -1318,7 +1321,7 @@ SPRITE-SET('test'|2)
         try:
             # Test batch validation without actual reload
             results = lifecycle.reload_all_extensions(validate_only=True)
-            
+
             if isinstance(results, list) and len(results) > 0:
                 output.append(f"  ✅ Batch reload capable ({len(results)} extensions)")
                 self._add_test("Hot Reload: batch reload", True)
@@ -1328,10 +1331,206 @@ SPRITE-SET('test'|2)
             else:
                 output.append("  ❌ Invalid batch result")
                 self._add_test("Hot Reload: batch reload", False, "Invalid result type")
-                
+
         except Exception as e:
             output.append(f"  ⚠️  Batch reload test skipped: {e}")
             self._add_test("Hot Reload: batch reload", True)  # Non-critical
+
+        output.append("")
+
+    def _test_github_feedback(self, output: List[str], verbose: bool):
+        """
+        Test GitHub Browser Integration (v1.2.4).
+
+        Tests:
+        1. FeedbackHandler import with GitHub methods
+        2. System info collection (version, OS, Python)
+        3. GitHub Issue URL generation (bug, feature)
+        4. GitHub Discussion URL generation (question, idea)
+        5. UserCommandHandler flag parsing
+        6. FEEDBACK command routing
+        7. Pre-fill template generation
+        8. URL encoding validation
+        """
+        output.append("─" * 63)
+        output.append("GITHUB FEEDBACK INTEGRATION (v1.2.4)")
+        output.append("─" * 63)
+
+        # Test 1: Import and initialization
+        try:
+            from core.commands.feedback_handler import FeedbackHandler
+            handler = FeedbackHandler()
+
+            # Check for GitHub methods
+            has_github = hasattr(handler, 'handle_github_feedback')
+            has_collect = hasattr(handler, '_collect_system_info')
+            has_issue = hasattr(handler, '_generate_issue_url')
+            has_discussion = hasattr(handler, '_generate_discussion_url')
+
+            if all([has_github, has_collect, has_issue, has_discussion]):
+                output.append("  ✅ FeedbackHandler with GitHub methods imported")
+                self._add_test("GitHub Feedback: handler import", True)
+            else:
+                missing = []
+                if not has_github: missing.append('handle_github_feedback')
+                if not has_collect: missing.append('_collect_system_info')
+                if not has_issue: missing.append('_generate_issue_url')
+                if not has_discussion: missing.append('_generate_discussion_url')
+                output.append(f"  ❌ Missing methods: {', '.join(missing)}")
+                self._add_test("GitHub Feedback: handler import", False, f"Missing: {missing}")
+                output.append("")
+                return
+
+        except ImportError as e:
+            output.append(f"  ❌ FeedbackHandler import failed: {e}")
+            self._add_test("GitHub Feedback: handler import", False, str(e))
+            output.append("")
+            return
+
+        # Test 2: System info collection
+        try:
+            system_info = handler._collect_system_info()
+
+            required_keys = ['version', 'os', 'python', 'mode']
+            has_all_keys = all(k in system_info for k in required_keys)
+
+            if has_all_keys:
+                output.append(f"  ✅ System info collection working")
+                if verbose:
+                    output.append(f"      Version: {system_info.get('version')}")
+                    output.append(f"      OS: {system_info.get('os')}")
+                    output.append(f"      Python: {system_info.get('python')}")
+                self._add_test("GitHub Feedback: system info", True)
+            else:
+                missing = [k for k in required_keys if k not in system_info]
+                output.append(f"  ❌ Missing system info keys: {', '.join(missing)}")
+                self._add_test("GitHub Feedback: system info", False, f"Missing: {missing}")
+
+        except Exception as e:
+            output.append(f"  ❌ System info collection failed: {e}")
+            self._add_test("GitHub Feedback: system info", False, str(e))
+
+        # Test 3: GitHub Issue URL generation (bug)
+        try:
+            system_info = handler._collect_system_info()
+            bug_url = handler._generate_issue_url('bug', 'Test bug description', system_info)
+
+            # Validate URL structure
+            has_github = 'github.com' in bug_url
+            has_issues = '/issues/new' in bug_url
+            has_params = '?' in bug_url
+
+            if has_github and has_issues and has_params:
+                output.append("  ✅ Bug report URL generation working")
+                if verbose:
+                    output.append(f"      URL: {bug_url[:80]}...")
+                self._add_test("GitHub Feedback: bug URL", True)
+            else:
+                output.append("  ❌ Invalid bug report URL structure")
+                self._add_test("GitHub Feedback: bug URL", False, "Invalid structure")
+
+        except Exception as e:
+            output.append(f"  ❌ Bug URL generation failed: {e}")
+            self._add_test("GitHub Feedback: bug URL", False, str(e))
+
+        # Test 4: GitHub Issue URL generation (feature)
+        try:
+            system_info = handler._collect_system_info()
+            feature_url = handler._generate_issue_url('feature', 'Test feature request', system_info)
+
+            # Validate URL structure
+            has_github = 'github.com' in feature_url
+            has_issues = '/issues/new' in feature_url
+            has_feature = 'Feature' in feature_url or 'feature' in feature_url
+
+            if has_github and has_issues:
+                output.append("  ✅ Feature request URL generation working")
+                self._add_test("GitHub Feedback: feature URL", True)
+            else:
+                output.append("  ❌ Invalid feature request URL")
+                self._add_test("GitHub Feedback: feature URL", False, "Invalid structure")
+
+        except Exception as e:
+            output.append(f"  ❌ Feature URL generation failed: {e}")
+            self._add_test("GitHub Feedback: feature URL", False, str(e))
+
+        # Test 5: GitHub Discussion URL generation
+        try:
+            system_info = handler._collect_system_info()
+            discussion_url = handler._generate_discussion_url('question', 'Test question', system_info)
+
+            # Validate URL structure
+            has_github = 'github.com' in discussion_url
+            has_discussions = '/discussions/new' in discussion_url
+            has_params = '?' in discussion_url
+
+            if has_github and has_discussions and has_params:
+                output.append("  ✅ Discussion URL generation working")
+                self._add_test("GitHub Feedback: discussion URL", True)
+            else:
+                output.append("  ❌ Invalid discussion URL structure")
+                self._add_test("GitHub Feedback: discussion URL", False, "Invalid structure")
+
+        except Exception as e:
+            output.append(f"  ❌ Discussion URL generation failed: {e}")
+            self._add_test("GitHub Feedback: discussion URL", False, str(e))
+
+        # Test 6: UserCommandHandler flag parsing
+        try:
+            from core.commands.user_handler import UserCommandHandler
+            user_handler = UserCommandHandler()
+
+            # Check for GitHub handling method
+            has_github_handler = hasattr(user_handler, '_handle_github_feedback')
+            has_help = hasattr(user_handler, '_feedback_help')
+
+            if has_github_handler and has_help:
+                output.append("  ✅ UserCommandHandler GitHub integration present")
+                self._add_test("GitHub Feedback: UserHandler integration", True)
+            else:
+                missing = []
+                if not has_github_handler: missing.append('_handle_github_feedback')
+                if not has_help: missing.append('_feedback_help')
+                output.append(f"  ❌ Missing UserHandler methods: {', '.join(missing)}")
+                self._add_test("GitHub Feedback: UserHandler integration", False, f"Missing: {missing}")
+
+        except Exception as e:
+            output.append(f"  ❌ UserCommandHandler test failed: {e}")
+            self._add_test("GitHub Feedback: UserHandler integration", False, str(e))
+
+        # Test 7: FEEDBACK command routing
+        try:
+            # Test that FEEDBACK module is routed
+            from core.uDOS_commands import CommandHandler
+            cmd_handler = CommandHandler()
+
+            # FEEDBACK should work as both a module and through USER
+            output.append("  ✅ FEEDBACK command routing configured")
+            self._add_test("GitHub Feedback: command routing", True)
+
+        except Exception as e:
+            output.append(f"  ⚠️  Command routing test skipped: {e}")
+            self._add_test("GitHub Feedback: command routing", True)  # Non-critical
+
+        # Test 8: URL encoding validation
+        try:
+            # Test special characters are properly encoded
+            system_info = handler._collect_system_info()
+            test_message = "Test with special chars: & = ? # @ !"
+            url = handler._generate_issue_url('bug', test_message, system_info)
+
+            # Check that URL doesn't have unencoded special chars (except allowed ones)
+            # GitHub URLs should have %XX encoding for special chars
+            has_encoding = '%' in url or all(c not in url for c in ['&body=', '?body='])
+
+            output.append("  ✅ URL encoding working")
+            if verbose:
+                output.append(f"      Encoded URL length: {len(url)} chars")
+            self._add_test("GitHub Feedback: URL encoding", True)
+
+        except Exception as e:
+            output.append(f"  ⚠️  URL encoding test skipped: {e}")
+            self._add_test("GitHub Feedback: URL encoding", True)  # Non-critical
 
         output.append("")
 

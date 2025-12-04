@@ -481,6 +481,10 @@ class CommandHandler:
             elif module == "USER":
                 return self.user_handler.handle(command, params, grid)
 
+            # v1.2.4 - FEEDBACK shortcut (routes to USER handler)
+            elif module == "FEEDBACK":
+                return self.user_handler.handle("FEEDBACK", params, grid)
+
             # v1.0.32 - TREE Directory Structure Generator
             elif module == "TREE":
                 return self.tree_handler.handle(params)
