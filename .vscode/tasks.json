@@ -101,6 +101,29 @@
                 "reveal": "silent"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "npm: compile - extensions/vscode-udos",
+            "type": "npm",
+            "script": "compile",
+            "path": "extensions/vscode-udos/",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "npm: watch - extensions/vscode-udos",
+            "type": "npm",
+            "script": "watch",
+            "path": "extensions/vscode-udos/",
+            "isBackground": true,
+            "group": "build",
+            "presentation": {
+                "reveal": "never"
+            },
+            "problemMatcher": "$tsc-watch"
         }
     ]
 }

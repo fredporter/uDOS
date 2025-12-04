@@ -1,0 +1,22 @@
+# Test Mission - Water Filter Construction
+
+MISSION CREATE "Water Filter Construction"
+SET priority "high"
+SET location "AA340"
+
+# Add knowledge guide
+GUIDE ADD tier3 guide "DIY Water Filter"
+
+# Navigate to location
+MAP GOTO AA340 100
+
+# Check mission status
+IF $MISSION.STATUS == "ACTIVE" THEN
+    CHECKPOINT SAVE "mission-start"
+
+    # Log progress
+    ECHO "Mission started at $LOCATION"
+END IF
+
+# Complete mission
+MISSION COMPLETE

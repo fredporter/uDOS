@@ -2,6 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run VS Code Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode-udos"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/extensions/vscode-udos/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: compile - extensions/vscode-udos"
+        },
+        {
             "name": "uDOS: Interactive Mode",
             "type": "python",
             "request": "launch",

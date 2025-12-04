@@ -1,0 +1,18 @@
+# Workflow Example - Knowledge Generation
+
+# Generate water purification guide
+GENERATE GUIDE "Water Purification Methods" \
+    --category water \
+    --complexity detailed \
+    --include "boiling, filtration, chemical treatment"
+
+# Create SVG diagram
+GENERATE DIAGRAM "water-filter-diagram" \
+    --type "water filter cross-section" \
+    --style technical
+
+# Save checkpoint
+CHECKPOINT SAVE "knowledge-gen-complete"
+
+# Verify results
+STATUS --show generate
