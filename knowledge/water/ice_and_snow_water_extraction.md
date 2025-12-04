@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Ice And Snow Water Extraction"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Ice And Snow Water Extraction
 
 **Category:** water

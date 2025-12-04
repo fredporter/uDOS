@@ -1,3 +1,13 @@
+---
+tier: 2
+category: medical
+title: "Heat Exhaustion"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Heat Exhaustion
 
 **Category:** medical

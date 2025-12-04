@@ -1,3 +1,13 @@
+---
+tier: 1
+category: medical
+title: "Basic CPR (Cardiopulmonary Resuscitation)"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Basic CPR (Cardiopulmonary Resuscitation)
 
 **Category**: Survival > First Aid

@@ -1,3 +1,13 @@
+---
+tier: 1
+category: food
+title: "Edible Plants Identification"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Edible Plants Identification
 
 **Category:** food

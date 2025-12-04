@@ -1,3 +1,13 @@
+---
+tier: 3
+category: shelter
+title: "Natural Shelter Modifications"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Natural Shelter Modifications
 
 **Category:** shelter

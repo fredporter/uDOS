@@ -1,3 +1,13 @@
+---
+tier: 2
+category: water
+title: "Water Filtration Systems"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Water Filtration Systems
 
 **Category:** water

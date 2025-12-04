@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Long-Term Water Storage"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Long-Term Water Storage
 
 **Category:** water

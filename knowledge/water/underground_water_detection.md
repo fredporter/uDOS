@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Underground Water Detection"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Underground Water Detection
 
 **Category:** water

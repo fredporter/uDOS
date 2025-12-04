@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Rainwater Harvesting Systems"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Rainwater Harvesting Systems
 
 **Category**: Water Systems

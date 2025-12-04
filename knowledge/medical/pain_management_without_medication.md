@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Pain Management Without Medication"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Pain Management Without Medication
 
 **Category:** Medical

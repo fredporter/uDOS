@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Spring Water Identification"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Spring Water Identification
 
 **Category:** water

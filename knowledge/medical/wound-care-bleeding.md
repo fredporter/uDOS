@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "First Aid: Wound Care & Bleeding Control"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # First Aid: Wound Care & Bleeding Control
 
 **Category**: Medical Knowledge

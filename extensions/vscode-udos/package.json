@@ -4,7 +4,6 @@
   "description": "Language support for uDOS .uPY scripting language - syntax highlighting, IntelliSense, debugging, and sandbox testing",
   "version": "1.0.0",
   "publisher": "udos",
-  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -21,14 +20,7 @@
     "offline",
     "knowledge"
   ],
-  "activationEvents": [
-    "onLanguage:upy",
-    "onCommand:udos.runScript",
-    "onCommand:udos.runInSandbox",
-    "onCommand:udos.checkKnowledgeQuality",
-    "onCommand:udos.previewSVG",
-    "onCommand:udos.previewASCII"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
@@ -41,11 +33,7 @@
         "extensions": [
           ".upy"
         ],
-        "configuration": "./language-configuration.json",
-        "icon": {
-          "light": "./images/file-icon.png",
-          "dark": "./images/file-icon.png"
-        }
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: fire
+title: "Fire Reflector Construction"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Fire Reflector Construction
 
 **Category:** fire

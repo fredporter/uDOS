@@ -1,3 +1,13 @@
+---
+tier: 1
+category: fire
+title: "Coal Bed Preservation"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Coal Bed Preservation
 
 **Category:** fire

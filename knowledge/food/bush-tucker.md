@@ -1,3 +1,13 @@
+---
+tier: 2
+category: food
+title: "Native Edible Plants (Bush Tucker)"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Native Edible Plants (Bush Tucker)
 
 **Category:** Food & Foraging

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: food
+title: "Fish Trap Construction"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Fish Trap Construction
 
 **Category**: Food

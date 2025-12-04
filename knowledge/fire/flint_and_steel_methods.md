@@ -1,3 +1,13 @@
+---
+tier: 3
+category: fire
+title: "Flint And Steel Methods"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Flint And Steel Methods
 
 **Category:** fire

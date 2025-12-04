@@ -1,3 +1,13 @@
+---
+tier: 3
+category: navigation
+title: "Navigation & Wayfinding"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Navigation & Wayfinding
 
 **Progress: 20 guides completed | 20.0% of 100 target**

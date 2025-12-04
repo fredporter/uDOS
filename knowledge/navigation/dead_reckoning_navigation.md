@@ -1,3 +1,13 @@
+---
+tier: 3
+category: navigation
+title: "Dead Reckoning Navigation"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Dead Reckoning Navigation
 
 **Category:** navigation

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: navigation
+title: "GPS Basics and Backup Methods"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # GPS Basics and Backup Methods
 
 **Category:** Navigation

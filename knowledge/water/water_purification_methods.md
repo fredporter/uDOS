@@ -1,3 +1,13 @@
+---
+tier: 2
+category: water
+title: "Water Purification Methods"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Water Purification Methods
 
 **Category:** water

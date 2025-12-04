@@ -1,3 +1,13 @@
+---
+tier: 2
+category: food
+title: "Wild Edible Roots And Tubers"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Wild Edible Roots And Tubers
 
 **Category**: Food

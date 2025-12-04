@@ -1,3 +1,13 @@
+---
+tier: 3
+category: fire
+title: "Fire Banking Overnight"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Fire Banking Overnight
 
 **Category:** fire

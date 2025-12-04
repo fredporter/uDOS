@@ -1,3 +1,13 @@
+---
+tier: 1
+category: water
+title: "Rainwater Collection"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Rainwater Collection
 
 **Category:** water

@@ -1,3 +1,13 @@
+---
+tier: 1
+category: shelter
+title: "Elevated Platform Shelters"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Elevated Platform Shelters
 
 **Category:** shelter

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: food
+title: "Food Preservation: Drying & Dehydration"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Food Preservation: Drying & Dehydration
 
 **Category**: Food Production

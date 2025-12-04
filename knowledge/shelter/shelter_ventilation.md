@@ -1,3 +1,13 @@
+---
+tier: 2
+category: shelter
+title: "Shelter Ventilation"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Shelter Ventilation
 
 **Category:** shelter

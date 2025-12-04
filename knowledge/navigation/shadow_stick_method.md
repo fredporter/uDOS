@@ -1,3 +1,13 @@
+---
+tier: 3
+category: navigation
+title: "Shadow Stick Method"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Shadow Stick Method
 
 **Category:** navigation

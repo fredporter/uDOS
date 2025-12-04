@@ -1,3 +1,13 @@
+---
+tier: 2
+category: water
+title: "Water Procurement & Purification"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Water Procurement & Purification
 
 **Category:** Water | **Target:** 150 guides | **Current:** 26 guides (17.3%)

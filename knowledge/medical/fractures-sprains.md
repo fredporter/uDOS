@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Fractures, Sprains & Strains"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Fractures, Sprains & Strains
 
 **Category:** Medical - Essential Knowledge

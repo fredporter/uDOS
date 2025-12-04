@@ -1,3 +1,13 @@
+---
+tier: 3
+category: shelter
+title: "Tropical Shelter Building"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Tropical Shelter Building
 
 **Category:** shelter

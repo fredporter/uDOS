@@ -1,7 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
-        
+
         {
             "name": "Run VS Code Extension",
             "type": "extensionHost",
@@ -15,19 +15,18 @@
         },
         {
             "name": "uDOS: Interactive Mode",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env",
             "python": "${workspaceFolder}/.venv/bin/python",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Check Virtual Environment"
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "uDOS: Run Shakedown Script",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",
             "args": ["memory/tests/shakedown.uscript"],
@@ -35,41 +34,49 @@
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env",
             "python": "${workspaceFolder}/.venv/bin/python",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Check Virtual Environment"
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "uDOS: Integration Tests v1.0.2",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/.venv/bin/python",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Check Virtual Environment"
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "uDOS: Standalone Tests v1.0.2",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/sandbox/tests/test_v1_0_2_standalone.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/.venv/bin/python",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Check Virtual Environment"
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "Python: Debug Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "uPY: Debug Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/uDOS.py",
+            "args": ["${file}"],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/bin/python",
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Check Virtual Environment"
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

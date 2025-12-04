@@ -1,3 +1,13 @@
+---
+tier: 2
+category: food
+title: "Foraging Safety"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Foraging Safety
 
 **Category:** food

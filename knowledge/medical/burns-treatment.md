@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Burns Treatment & Prevention"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Burns Treatment & Prevention
 
 **Category:** Medical - Essential Knowledge

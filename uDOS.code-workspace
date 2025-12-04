@@ -38,7 +38,21 @@
 			{
 				"file": ".github/copilot-instructions.md"
 			}
-		]
+		],
+		"files.associations": {
+			"*.upy": "upy"
+		},
+		"[upy]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true,
+			"editor.quickSuggestions": {
+				"other": true,
+				"comments": false,
+				"strings": false
+			},
+			"editor.snippetSuggestions": "top",
+			"editor.wordBasedSuggestions": "off"
+		}
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -228,6 +242,28 @@
 				],
 				"group": "build",
 				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Extension: Compile uDOS Language Support",
+				"type": "shell",
+				"command": "cd extensions/vscode-udos && npm run compile",
+				"group": "build",
+				"problemMatcher": "$tsc"
+			},
+			{
+				"label": "Extension: Watch Mode",
+				"type": "shell",
+				"command": "cd extensions/vscode-udos && npm run watch",
+				"group": "build",
+				"isBackground": true,
+				"problemMatcher": "$tsc-watch"
+			},
+			{
+				"label": "Extension: Package VSIX",
+				"type": "shell",
+				"command": "cd extensions/vscode-udos && npm run package",
+				"group": "build",
+				"dependsOn": "Extension: Compile uDOS Language Support"
 			}
 		],
 		"inputs": [

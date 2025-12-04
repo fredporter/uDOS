@@ -1,3 +1,13 @@
+---
+tier: 3
+category: shelter
+title: "Group Shelter Construction"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Group Shelter Construction
 
 **Category:** shelter

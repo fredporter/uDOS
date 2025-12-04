@@ -1,3 +1,13 @@
+---
+tier: 2
+category: food
+title: "Insect Protein Sources"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Insect Protein Sources
 
 **Category**: Food

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Australian Snakebite Treatment Guide"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Australian Snakebite Treatment Guide
 
 **Location:** Australia-wide (AEST/AEDT/ACST/AWST)

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Transpiration Bag Technique"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Transpiration Bag Technique
 
 **Category:** water

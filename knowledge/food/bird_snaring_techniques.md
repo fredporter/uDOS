@@ -1,3 +1,13 @@
+---
+tier: 1
+category: food
+title: "Bird Snaring Techniques"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Bird Snaring Techniques
 
 **Category**: Food

@@ -1,0 +1,76 @@
+#!/usr/bin/env udos
+# Test File: Extension Feature Demo
+# Purpose: Test VS Code extension capabilities
+
+# This file demonstrates all extension features:
+# - Syntax highlighting
+# - IntelliSense autocomplete
+# - Code snippets
+# - Hover documentation
+
+# === Test 1: Variable Autocomplete ===
+# Type $MIS and autocomplete should suggest $MISSION
+SET $test_var "Hello uDOS"
+SET $counter 42
+
+# === Test 2: Property Completion ===
+# Type $MISSION. and see properties: ID, NAME, STATUS, PROGRESS, etc.
+GET $MISSION.STATUS
+GET $WORKFLOW.PHASE
+
+# === Test 3: Command Completion ===
+# Type GUI and autocomplete should show GUIDE commands
+GUIDE SEARCH "water"
+GUIDE LIST fire
+
+# === Test 4: Map Navigation ===
+MAP GOTO AA340 100        # Sydney - should show hover docs
+MAP SEARCH "London"
+MAP INFO
+
+# === Test 5: Control Flow (Syntax Highlighting) ===
+IF $counter > 10 THEN
+    ECHO "Counter is large: $counter"
+ELSE
+    ECHO "Counter is small: $counter"
+END
+
+# === Test 6: Loops ===
+FOREACH $item IN $list
+    ECHO "Processing: $item"
+END
+
+WHILE $counter < 100
+    SET $counter ($counter + 1)
+END
+
+# === Test 7: Mission System ===
+MISSION CREATE "Extension Test Mission"
+MISSION START
+MISSION STATUS
+
+# === Test 8: Comments & Strings ===
+# This is a comment - should be colored differently
+ECHO "This is a string with 'quotes'"
+ECHO 'Single quoted string with "double quotes"'
+
+# === Test 9: Snippets ===
+# Try typing these and pressing Tab:
+# - mission (full mission template)
+# - workflow (workflow template)
+# - foreach (loop template)
+# - if (conditional template)
+# - guide (knowledge guide template)
+
+# === Test 10: System Commands ===
+STATUS --detailed
+SETTINGS
+CLEAN --scan
+BACKUP test.upy
+
+# Success! If you see:
+# ✅ Syntax highlighting (colors for commands, variables, comments)
+# ✅ Autocomplete suggestions when typing
+# ✅ Documentation when hovering
+# ✅ Snippets expanding
+# Then the extension is working correctly!

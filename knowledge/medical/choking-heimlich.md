@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Choking & Airway Obstruction"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Choking & Airway Obstruction
 
 **Category:** Medical - Critical Emergency

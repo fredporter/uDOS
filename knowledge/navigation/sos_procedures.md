@@ -1,3 +1,13 @@
+---
+tier: 1
+category: navigation
+title: "Sos Procedures"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Sos Procedures
 
 **Category:** navigation

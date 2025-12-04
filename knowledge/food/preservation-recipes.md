@@ -1,3 +1,13 @@
+---
+tier: 3
+category: food
+title: "Food Preservation Recipes"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Food Preservation Recipes
 
 **Category:** Food & Self-Sufficiency | Priority: Important

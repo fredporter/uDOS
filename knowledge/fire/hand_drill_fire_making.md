@@ -1,3 +1,13 @@
+---
+tier: 3
+category: fire
+title: "Hand Drill Fire Making"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Hand Drill Fire Making
 
 **Category:** fire

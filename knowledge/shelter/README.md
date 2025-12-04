@@ -1,3 +1,13 @@
+---
+tier: 2
+category: shelter
+title: "Shelter Construction & Site Management"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Shelter Construction & Site Management
 
 **Progress: 20 guides completed | 16.7% of 120 target**

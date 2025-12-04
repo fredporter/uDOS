@@ -1,3 +1,13 @@
+---
+tier: 1
+category: shelter
+title: "Camouflage Techniques"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Camouflage Techniques
 
 **Category:** shelter

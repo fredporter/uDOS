@@ -1,3 +1,13 @@
+---
+tier: 3
+category: navigation
+title: "Watch Navigation Technique"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Watch Navigation Technique
 
 **Category:** navigation

@@ -1,3 +1,13 @@
+---
+tier: 1
+category: navigation
+title: "Route Planning"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Route Planning
 
 **Category:** navigation

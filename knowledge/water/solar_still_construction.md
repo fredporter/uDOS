@@ -1,3 +1,13 @@
+---
+tier: 2
+category: water
+title: "Solar Still Construction"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Solar Still Construction
 
 **Category:** water

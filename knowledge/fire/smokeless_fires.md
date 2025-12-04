@@ -1,3 +1,13 @@
+---
+tier: 2
+category: fire
+title: "Smokeless Fires"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Smokeless Fires
 
 **Category:** fire

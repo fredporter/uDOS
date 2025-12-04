@@ -1,3 +1,13 @@
+---
+tier: 1
+category: water
+title: "Emergency Water Sources"
+complexity: basic
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Emergency Water Sources
 
 **Category:** water

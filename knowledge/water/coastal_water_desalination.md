@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Coastal Water Desalination"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Coastal Water Desalination
 
 **Category:** water

@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Fracture Treatment"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Fracture Treatment
 
 **Category:** medical

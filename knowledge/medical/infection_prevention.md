@@ -1,3 +1,13 @@
+---
+tier: 3
+category: medical
+title: "Infection Prevention"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Infection Prevention
 
 **Category:** Medical

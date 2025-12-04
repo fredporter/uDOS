@@ -1,3 +1,13 @@
+---
+tier: 3
+category: water
+title: "Desert Water Procurement"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Desert Water Procurement
 
 **Category:** water

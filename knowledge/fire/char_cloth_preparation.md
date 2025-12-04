@@ -1,3 +1,13 @@
+---
+tier: 2
+category: fire
+title: "Char Cloth Preparation"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Char Cloth Preparation
 
 **Category:** fire

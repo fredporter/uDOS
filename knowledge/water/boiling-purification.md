@@ -1,3 +1,13 @@
+---
+tier: 2
+category: water
+title: "Water Purification: Boiling Method"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Water Purification: Boiling Method
 
 **Category**: Water Systems

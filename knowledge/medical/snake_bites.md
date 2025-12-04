@@ -1,3 +1,13 @@
+---
+tier: 2
+category: medical
+title: "Snake Bites"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Snake Bites
 
 **Category:** medical

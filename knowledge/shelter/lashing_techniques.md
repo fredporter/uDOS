@@ -1,3 +1,13 @@
+---
+tier: 3
+category: shelter
+title: "Lashing Techniques"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Lashing Techniques
 
 **Category:** shelter

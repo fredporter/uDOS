@@ -1,3 +1,13 @@
+---
+tier: 2
+category: shelter
+title: "Knot Tying"
+complexity: intermediate
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Knot Tying
 
 **Category:** shelter

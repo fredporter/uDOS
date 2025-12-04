@@ -1,3 +1,13 @@
+---
+tier: 3
+category: fire
+title: "Improvised Fire Starters"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Improvised Fire Starters
 
 **Category:** fire

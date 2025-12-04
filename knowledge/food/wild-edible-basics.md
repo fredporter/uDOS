@@ -1,3 +1,13 @@
+---
+tier: 3
+category: food
+title: "Wild Edible Plants: Basics & Safety"
+complexity: advanced
+last_updated: 2025-12-04
+author: uDOS
+version: 1.1
+---
+
 # Wild Edible Plants: Basics & Safety
 
 **Category**: Food Production
