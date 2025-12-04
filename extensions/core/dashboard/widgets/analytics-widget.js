@@ -1,5 +1,5 @@
 /**
- * analytics-widget.js - Webhook Analytics Dashboard Widget (v1.2.7)
+ * analytics-widget.js - Webhook Analytics Dashboard Widget (v1.2.8)
  *
  * Displays webhook event analytics with Chart.js visualizations:
  * - Events over time (line chart)
@@ -9,7 +9,12 @@
  * - Recent errors list
  * - Event history table
  *
- * Requires: Chart.js 4.x, chart-utils.js
+ * v1.2.8 Features:
+ * - Incremental chart updates (no full refresh)
+ * - Event buffering during disconnection
+ * - Connection latency monitoring
+ *
+ * Requires: Chart.js 4.x, chart-utils.js, chart-data-manager.js
  */
 
 class AnalyticsWidget {
@@ -21,6 +26,7 @@ class AnalyticsWidget {
             days: config.days || 7,
             useChartJs: config.useChartJs !== false, // Enable Chart.js by default
             useWebSocket: config.useWebSocket !== false, // Enable WebSocket by default
+            incrementalUpdates: config.incrementalUpdates !== false, // v1.2.8
             ...config
         };
 
@@ -30,6 +36,7 @@ class AnalyticsWidget {
         this.charts = {}; // Store Chart.js instances
         this.socket = null; // WebSocket connection
         this.connectionStatus = 'disconnected'; // disconnected | connecting | connected
+        this.chartDataManager = null; // v1.2.8: Incremental updates manager
 
         // Check Chart.js availability
         if (this.config.useChartJs && typeof Chart === 'undefined') {
@@ -39,6 +46,16 @@ class AnalyticsWidget {
 
         if (this.config.useChartJs && typeof ChartUtils !== 'undefined') {
             ChartUtils.initDefaults();
+        }
+
+        // Initialize ChartDataManager for incremental updates (v1.2.8)
+        if (this.config.incrementalUpdates && typeof ChartDataManager !== 'undefined') {
+            this.chartDataManager = new ChartDataManager({
+                maxDataPoints: 100,
+                animationDuration: 300,
+                animationEasing: 'easeInOutQuart'
+            });
+            console.log('Incremental chart updates enabled');
         }
 
         this.init();
@@ -242,6 +259,11 @@ class AnalyticsWidget {
                 }
             }
         );
+
+        // v1.2.8: Register with ChartDataManager for incremental updates
+        if (this.chartDataManager) {
+            this.chartDataManager.registerChart('timeline', this.charts.timeline);
+        }
     }
 
     renderTimelineChart() {
@@ -297,6 +319,11 @@ class AnalyticsWidget {
                 }
             }
         );
+
+        // v1.2.8: Register with ChartDataManager for incremental updates
+        if (this.chartDataManager) {
+            this.chartDataManager.registerChart('platform', this.charts.platform);
+        }
     }
 
     renderPlatformChart() {
@@ -379,10 +406,14 @@ class AnalyticsWidget {
         // Create gauge chart
         if (document.getElementById('success-rate-gauge-chart')) {
             this.charts.successGauge = ChartUtils.createSuccessRateGauge(
-            this.charts.successGauge = ChartUtils.createSuccessRateGauge(
                 'success-rate-gauge-chart',
                 successRate
             );
+
+            // v1.2.8: Register with ChartDataManager for incremental updates
+            if (this.chartDataManager) {
+                this.chartDataManager.registerChart('gauge', this.charts.successGauge);
+            }
         }
     }
 
@@ -408,6 +439,11 @@ class AnalyticsWidget {
                 }
             }
         );
+
+        // v1.2.8: Register with ChartDataManager for incremental updates
+        if (this.chartDataManager) {
+            this.chartDataManager.registerChart('histogram', this.charts.responseTime);
+        }
     }
     updateEventsList() {
         const container = document.getElementById('recent-events');
@@ -716,14 +752,72 @@ class AnalyticsWidget {
 
     /**
      * Handle incoming WebSocket events
+     * v1.2.8: Use incremental updates instead of full refresh
      */
     handleWebSocketEvent(event) {
-        // Increment event counter
-        this.incrementEventCount();
+        // v1.2.8: Incremental update if available
+        if (this.chartDataManager) {
+            // Add event to charts incrementally
+            const result = this.chartDataManager.addEvent(event);
 
-        // Refresh analytics to get updated data
-        // In future, we could update incrementally instead of full refresh
-        this.loadAnalytics();
+            if (result.success) {
+                console.log(`Incremental update: ${result.duration.toFixed(2)}ms (avg: ${this.chartDataManager.stats.avgUpdateDuration.toFixed(2)}ms)`);
+
+                // Update metric cards (no API call needed)
+                this.updateMetricCards(this.chartDataManager.getMetrics());
+
+                // Flash animation for visual feedback
+                this.flashEventCounter();
+            } else {
+                console.error('Incremental update failed, falling back to full refresh');
+                this.loadAnalytics();
+            }
+        } else {
+            // Legacy: Full refresh
+            this.incrementEventCount();
+            this.loadAnalytics();
+        }
+    }
+
+    /**
+     * Update metric cards from in-memory metrics (v1.2.8)
+     */
+    updateMetricCards(metrics) {
+        const totalElement = document.getElementById('metric-total');
+        const successRateElement = document.getElementById('metric-success-rate');
+        const avgTimeElement = document.getElementById('metric-avg-time');
+        const errorsElement = document.getElementById('metric-errors');
+
+        if (totalElement) {
+            totalElement.textContent = metrics.totalEvents.toLocaleString();
+        }
+
+        if (successRateElement) {
+            successRateElement.textContent = `${metrics.successRate.toFixed(1)}%`;
+            successRateElement.className = `metric-value ${metrics.successRate >= 90 ? 'success' : metrics.successRate >= 75 ? 'warning' : 'error'}`;
+        }
+
+        if (avgTimeElement) {
+            avgTimeElement.textContent = `${metrics.avgResponseTime.toFixed(0)}ms`;
+        }
+
+        if (errorsElement) {
+            errorsElement.textContent = metrics.failureCount.toLocaleString();
+            errorsElement.className = `metric-value ${metrics.failureCount === 0 ? 'success' : 'error'}`;
+        }
+    }
+
+    /**
+     * Flash animation for event counter (v1.2.8)
+     */
+    flashEventCounter() {
+        const totalElement = document.getElementById('metric-total');
+        if (totalElement) {
+            totalElement.style.animation = 'none';
+            setTimeout(() => {
+                totalElement.style.animation = 'flash 0.5s ease';
+            }, 10);
+        }
     }
 
     /**
