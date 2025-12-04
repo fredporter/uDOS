@@ -93,14 +93,14 @@ class AnalyticsTestSuite:
             import json as json_module
             webhook_file = 'memory/system/webhooks.json'
             with open(webhook_file, 'r') as f:
-                webhooks = json_module.load(f)
+                webhook_data = json_module.load(f)
 
-            for webhook in webhooks:
+            for webhook in webhook_data['webhooks']:
                 if webhook['id'] == self.webhook_id:
                     webhook['secret'] = TEST_SECRET
 
             with open(webhook_file, 'w') as f:
-                json_module.dump(webhooks, f, indent=2)
+                json_module.dump(webhook_data, f, indent=2)
 
             print(f"  ✓ Webhook secret configured")
             self.passed += 1
