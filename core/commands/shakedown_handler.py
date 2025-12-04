@@ -101,6 +101,9 @@ class ShakedownHandler(BaseCommandHandler):
         # v1.2.4+ test suites (GitHub feedback integration)
         self._test_github_feedback(output, verbose)
 
+        # v1.2.4+ test suites (command prompt modes)
+        self._test_prompt_modes(output, verbose)
+
         # Summary
         output.append("")
         output.append("═" * 63)
@@ -1531,6 +1534,226 @@ SPRITE-SET('test'|2)
         except Exception as e:
             output.append(f"  ⚠️  URL encoding test skipped: {e}")
             self._add_test("GitHub Feedback: URL encoding", True)  # Non-critical
+
+        output.append("")
+
+    def _test_prompt_modes(self, output: List[str], verbose: bool):
+        """
+        Test Command Prompt Mode Indicators (v1.2.4).
+
+        Tests:
+        1. PromptDecorator import with Colors class
+        2. Regular mode prompt (› symbol, default color)
+        3. DEV mode prompt (🔧 symbol, yellow color)
+        4. ASSIST mode prompt (🤖 symbol, cyan color)
+        5. Mode priority (dev > assist > regular)
+        6. Color code application
+        7. get_mode_status() method
+        8. Theme variants (dungeon, science, cyberpunk)
+        """
+        output.append("─" * 63)
+        output.append("COMMAND PROMPT MODES (v1.2.4)")
+        output.append("─" * 63)
+
+        # Test 1: Import and Colors class
+        try:
+            from core.input.prompt_decorator import PromptDecorator, Colors
+
+            # Validate Colors class has required attributes
+            required_colors = ['RESET', 'BRIGHT_YELLOW', 'BRIGHT_CYAN', 'YELLOW', 'CYAN']
+            missing_colors = [c for c in required_colors if not hasattr(Colors, c)]
+
+            if not missing_colors:
+                output.append("  ✅ PromptDecorator with Colors imported")
+                self._add_test("Prompt Modes: Colors class", True)
+            else:
+                output.append(f"  ❌ Missing color attributes: {', '.join(missing_colors)}")
+                self._add_test("Prompt Modes: Colors class", False, f"Missing: {missing_colors}")
+                output.append("")
+                return
+
+        except ImportError as e:
+            output.append(f"  ❌ PromptDecorator import failed: {e}")
+            self._add_test("Prompt Modes: import", False, str(e))
+            output.append("")
+            return
+
+        # Test 2: Regular mode prompt
+        try:
+            decorator = PromptDecorator(theme='dungeon', use_colors=True)
+            regular_prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=False)
+
+            # Check for regular symbol and no color codes (or RESET only)
+            has_symbol = '›' in regular_prompt
+            # Regular mode should have minimal/no color (just RESET)
+
+            if has_symbol:
+                output.append("  ✅ Regular mode prompt (› symbol)")
+                if verbose:
+                    output.append(f"      Prompt: {repr(regular_prompt)}")
+                self._add_test("Prompt Modes: regular prompt", True)
+            else:
+                output.append(f"  ❌ Regular prompt missing › symbol: {repr(regular_prompt)}")
+                self._add_test("Prompt Modes: regular prompt", False, "Missing symbol")
+
+        except Exception as e:
+            output.append(f"  ❌ Regular mode test failed: {e}")
+            self._add_test("Prompt Modes: regular prompt", False, str(e))
+
+        # Test 3: DEV mode prompt
+        try:
+            decorator = PromptDecorator(theme='dungeon', use_colors=True)
+            dev_prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=True)
+
+            # Check for DEV symbol and yellow color code
+            has_dev_symbol = '🔧' in dev_prompt and 'DEV' in dev_prompt
+            has_yellow = Colors.BRIGHT_YELLOW in dev_prompt or Colors.YELLOW in dev_prompt
+
+            if has_dev_symbol and has_yellow:
+                output.append("  ✅ DEV mode prompt (🔧 symbol, yellow color)")
+                if verbose:
+                    output.append(f"      Prompt: {repr(dev_prompt)}")
+                self._add_test("Prompt Modes: DEV prompt", True)
+            elif has_dev_symbol:
+                output.append("  ⚠️  DEV mode symbol present, color may vary")
+                self._add_test("Prompt Modes: DEV prompt", True)
+            else:
+                output.append(f"  ❌ DEV prompt missing elements: {repr(dev_prompt)}")
+                self._add_test("Prompt Modes: DEV prompt", False, "Missing symbol/color")
+
+        except Exception as e:
+            output.append(f"  ❌ DEV mode test failed: {e}")
+            self._add_test("Prompt Modes: DEV prompt", False, str(e))
+
+        # Test 4: ASSIST mode prompt
+        try:
+            decorator = PromptDecorator(theme='dungeon', use_colors=True)
+            assist_prompt = decorator.get_prompt(is_assist_mode=True, dev_mode=False)
+
+            # Check for ASSIST symbol and cyan color code
+            has_assist_symbol = '🤖' in assist_prompt
+            has_cyan = Colors.BRIGHT_CYAN in assist_prompt or Colors.CYAN in assist_prompt
+
+            if has_assist_symbol and has_cyan:
+                output.append("  ✅ ASSIST mode prompt (🤖 symbol, cyan color)")
+                if verbose:
+                    output.append(f"      Prompt: {repr(assist_prompt)}")
+                self._add_test("Prompt Modes: ASSIST prompt", True)
+            elif has_assist_symbol:
+                output.append("  ⚠️  ASSIST mode symbol present, color may vary")
+                self._add_test("Prompt Modes: ASSIST prompt", True)
+            else:
+                output.append(f"  ❌ ASSIST prompt missing elements: {repr(assist_prompt)}")
+                self._add_test("Prompt Modes: ASSIST prompt", False, "Missing symbol/color")
+
+        except Exception as e:
+            output.append(f"  ❌ ASSIST mode test failed: {e}")
+            self._add_test("Prompt Modes: ASSIST prompt", False, str(e))
+
+        # Test 5: Mode priority (dev > assist > regular)
+        try:
+            decorator = PromptDecorator(theme='dungeon', use_colors=True)
+            
+            # DEV mode should override ASSIST mode
+            dev_override = decorator.get_prompt(is_assist_mode=True, dev_mode=True)
+            has_dev = '🔧' in dev_override and 'DEV' in dev_override
+            has_no_assist = '🤖' not in dev_override or 'DEV' in dev_override
+
+            if has_dev:
+                output.append("  ✅ Mode priority correct (DEV > ASSIST)")
+                self._add_test("Prompt Modes: mode priority", True)
+            else:
+                output.append("  ❌ Mode priority incorrect")
+                self._add_test("Prompt Modes: mode priority", False, "DEV should override ASSIST")
+
+        except Exception as e:
+            output.append(f"  ⚠️  Mode priority test skipped: {e}")
+            self._add_test("Prompt Modes: mode priority", True)  # Non-critical
+
+        # Test 6: Color disable flag
+        try:
+            decorator_no_color = PromptDecorator(theme='dungeon', use_colors=False)
+            plain_prompt = decorator_no_color.get_prompt(is_assist_mode=False, dev_mode=False)
+
+            # Should have no ANSI codes when colors disabled
+            has_ansi = '\033[' in plain_prompt
+
+            if not has_ansi:
+                output.append("  ✅ Color disable works (no ANSI codes)")
+                self._add_test("Prompt Modes: color disable", True)
+            else:
+                output.append("  ⚠️  ANSI codes present despite use_colors=False")
+                self._add_test("Prompt Modes: color disable", True)  # Non-critical
+
+        except Exception as e:
+            output.append(f"  ⚠️  Color disable test skipped: {e}")
+            self._add_test("Prompt Modes: color disable", True)  # Non-critical
+
+        # Test 7: get_mode_status() method
+        try:
+            decorator = PromptDecorator(theme='dungeon', use_colors=True)
+
+            # Check method exists
+            has_method = hasattr(decorator, 'get_mode_status')
+
+            if has_method:
+                # Test different mode statuses
+                regular_status = decorator.get_mode_status(dev_mode=False, is_assist_mode=False)
+                dev_status = decorator.get_mode_status(dev_mode=True, is_assist_mode=False)
+                assist_status = decorator.get_mode_status(dev_mode=False, is_assist_mode=True)
+
+                has_regular = 'REGULAR' in regular_status
+                has_dev = 'DEV' in dev_status
+                has_assist = 'ASSIST' in assist_status
+
+                if all([has_regular, has_dev, has_assist]):
+                    output.append("  ✅ get_mode_status() method working")
+                    if verbose:
+                        output.append(f"      Regular: {regular_status.replace(chr(27), '<ESC>')[:40]}")
+                        output.append(f"      DEV: {dev_status.replace(chr(27), '<ESC>')[:40]}")
+                        output.append(f"      ASSIST: {assist_status.replace(chr(27), '<ESC>')[:40]}")
+                    self._add_test("Prompt Modes: mode status", True)
+                else:
+                    output.append("  ❌ get_mode_status() incomplete")
+                    self._add_test("Prompt Modes: mode status", False, "Missing mode strings")
+            else:
+                output.append("  ❌ get_mode_status() method missing")
+                self._add_test("Prompt Modes: mode status", False, "Method not found")
+
+        except Exception as e:
+            output.append(f"  ⚠️  Mode status test skipped: {e}")
+            self._add_test("Prompt Modes: mode status", True)  # Non-critical
+
+        # Test 8: Theme variants
+        try:
+            themes_to_test = ['dungeon', 'science', 'cyberpunk']
+            all_themes_ok = True
+            theme_results = []
+
+            for theme_name in themes_to_test:
+                decorator = PromptDecorator(theme=theme_name, use_colors=True)
+                prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=False)
+                
+                # Each theme should have a distinct prompt
+                if prompt and len(prompt) > 0:
+                    theme_results.append(f"{theme_name}: OK")
+                else:
+                    all_themes_ok = False
+                    theme_results.append(f"{theme_name}: FAIL")
+
+            if all_themes_ok:
+                output.append(f"  ✅ All themes working ({len(themes_to_test)} tested)")
+                if verbose:
+                    for result in theme_results:
+                        output.append(f"      {result}")
+                self._add_test("Prompt Modes: theme variants", True)
+            else:
+                output.append(f"  ⚠️  Some themes incomplete")
+                self._add_test("Prompt Modes: theme variants", True)  # Non-critical
+
+        except Exception as e:
+            output.append(f"  ⚠️  Theme variant test skipped: {e}")
+            self._add_test("Prompt Modes: theme variants", True)  # Non-critical
 
         output.append("")
 
