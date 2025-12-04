@@ -1,21 +1,19 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.11 ✅ **COMPLETE** (Knowledge Quality & Automation)
-**Previous Version:** v1.2.10 ✅ **COMPLETE** (VS Code Extension & Developer Tools)
-**Next Version:** v1.2.5 📋 **PLANNED** (Integration, Automation & Developer Tooling)
-**Last Updated:** December 4, 2025
+**Current Version:** v1.2.5 ✅ **COMPLETE** (Integration & Automation - Webhook Server)
+**Previous Versions:** v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅
+**Next Version:** v1.2.6 📋 **PLANNED** (Webhook Event History & Analytics)
+**Last Updated:** December 3, 2025
 **Roadmap Size:** 6,300+ lines (streamlined, v1.2+ development focus)
 
-**Recent Updates (Dec 4, 2025):**
+**Recent Updates (Dec 3, 2025):**
+- ✅ v1.2.5 released - Webhook Integration (2,246 lines delivered)
 - ✅ v1.2.11 released - Knowledge Quality & Automation (2,056 lines delivered)
 - ✅ v1.2.10 released - VS Code Extension & Developer Tools (3,133 lines delivered)
 - ✅ v1.2.4 released - Developer Experience & Hot Reload (3,588 lines delivered)
-- ✅ v1.2.3 released - Knowledge & Map Layer Expansion (complete)
-- 🎯 Strategic jump to v1.2.10 successful - Developer productivity tools complete
-- 📋 v1.2.5-v1.2.9 ready for accelerated development with new tooling
-- ✨ Full .uPY language support in VS Code with IntelliSense and debugging
-- ✨ Knowledge quality automation operational (59.8% quality score, 89 gaps identified)
-- ✨ Automated guide scanning, gap analysis, and cross-reference validation
+- 🎯 Event-driven automation operational (GitHub/Slack/Notion/ClickUp webhooks)
+- ✨ Full webhook server with signature validation and workflow triggers
+- ✨ Dashboard widget for visual webhook management
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns. Priorities shift based on immediate needs and strategic value.
 
@@ -23,7 +21,31 @@
 
 ## 📍 Latest Releases
 
-### v1.2.10 (December 4, 2025) ✅ **COMPLETE**
+### v1.2.5 (December 3, 2025) ✅ **COMPLETE**
+
+**Integration & Automation (Webhook Server)** - Event-driven knowledge automation with GitHub, Slack, Notion, and ClickUp integration.
+
+**Delivered:**
+- Webhook manager service (312 lines) - Registration, validation, event routing
+- GitHub webhook handler (356 lines) - Push/PR/release events, auto-workflows
+- Platform handlers (455 lines) - Slack slash commands, Notion sync, ClickUp tasks
+- API endpoints (5 routes, +280 lines) - Register, list, delete, receive, test
+- Dashboard widget (363 lines) - Visual webhook management, live stats
+- Testing suite (363 lines) - 8 automated tests, signature validation
+- Complete documentation (480 lines) - Setup, security, troubleshooting
+- **Total: 2,246 lines delivered (1,766 code + 480 docs)**
+
+**Tag:** `v1.2.5`
+**Commits:** [pending]
+
+**Key Features:**
+- ✅ GitHub webhooks: Push → knowledge scan, PR → gap analysis, Release → changelog
+- ✅ Slack slash commands: `/udos`, `/knowledge`, `/map`
+- ✅ Notion page sync, ClickUp task tracking
+- ✅ HMAC-SHA256 signature validation (all platforms)
+- ✅ Dashboard widget with live stats and testing
+
+### v1.2.11 (December 3, 2025) ✅ **COMPLETE**
 
 **VS Code Extension & Developer Tools** - Complete .uPY language support, script execution, sandbox testing, knowledge quality checking, and image format validation.
 

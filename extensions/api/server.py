@@ -946,6 +946,311 @@ def api_knowledge_tiers():
 
 
 # ============================================================================
+# WEBHOOK ENDPOINTS (v1.2.5)
+# ============================================================================
+
+from core.services.webhook_manager import get_webhook_manager
+from core.services.github_webhook_handler import get_github_handler
+from core.services.platform_webhook_handlers import (
+    get_slack_handler, get_notion_handler, get_clickup_handler
+)
+
+@app.route('/api/webhooks/register', methods=['POST'])
+def webhook_register():
+    """
+    Register a new webhook.
+
+    POST /api/webhooks/register
+    {
+        "platform": "github|slack|notion|clickup",
+        "events": ["push", "pull_request", ...],
+        "actions": [
+            {"event": "push", "workflow": "knowledge-update", "args": {...}},
+            ...
+        ]
+    }
+    """
+    try:
+        data = request.get_json()
+        platform = data.get('platform')
+        events = data.get('events', [])
+        actions = data.get('actions', [])
+
+        if not platform or not events:
+            return jsonify({
+                "status": "error",
+                "message": "Missing required fields: platform, events"
+            }), 400
+
+        wh_manager = get_webhook_manager()
+        webhook = wh_manager.register_webhook(platform, events, actions)
+
+        api_logger.info(f'Registered webhook: {webhook.id} for {platform}')
+
+        return jsonify({
+            "status": "success",
+            "webhook": {
+                "id": webhook.id,
+                "platform": webhook.platform,
+                "url": f"http://localhost:5000{webhook.url}",
+                "secret": webhook.secret,
+                "events": webhook.events,
+                "created": webhook.created
+            }
+        })
+    except Exception as e:
+        api_logger.error(f'Webhook registration error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/list')
+def webhook_list():
+    """
+    List all registered webhooks.
+
+    GET /api/webhooks/list?platform=github
+    """
+    try:
+        platform = request.args.get('platform')
+        wh_manager = get_webhook_manager()
+        webhooks = wh_manager.list_webhooks(platform)
+
+        return jsonify({
+            "status": "success",
+            "count": len(webhooks),
+            "webhooks": [
+                {
+                    "id": wh.id,
+                    "platform": wh.platform,
+                    "url": wh.url,
+                    "events": wh.events,
+                    "enabled": wh.enabled,
+                    "trigger_count": wh.trigger_count,
+                    "last_triggered": wh.last_triggered,
+                    "created": wh.created
+                }
+                for wh in webhooks
+            ]
+        })
+    except Exception as e:
+        api_logger.error(f'Webhook list error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/delete/<webhook_id>', methods=['DELETE'])
+def webhook_delete(webhook_id):
+    """Delete a webhook."""
+    try:
+        wh_manager = get_webhook_manager()
+        success = wh_manager.delete_webhook(webhook_id)
+
+        if success:
+            api_logger.info(f'Deleted webhook: {webhook_id}')
+            return jsonify({"status": "success", "message": "Webhook deleted"})
+        else:
+            return jsonify({"status": "error", "message": "Webhook not found"}), 404
+    except Exception as e:
+        api_logger.error(f'Webhook deletion error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/receive/<platform>', methods=['POST'])
+def webhook_receive(platform):
+    """
+    Receive webhook events from external platforms.
+
+    POST /api/webhooks/receive/github
+    Headers:
+        X-Hub-Signature-256: sha256=...  (GitHub)
+        X-Slack-Signature: v0=...        (Slack)
+        X-Notion-Signature: ...          (Notion)
+        X-ClickUp-Signature: ...         (ClickUp)
+    Body: Platform-specific JSON payload
+    """
+    try:
+        wh_manager = get_webhook_manager()
+
+        # Get raw payload for signature validation
+        payload = request.get_data()
+        data = request.get_json()
+
+        # Platform-specific signature validation
+        signature_valid = False
+        webhook_secret = None
+
+        # Find webhook by platform (simplified - in production use webhook_id)
+        webhooks = wh_manager.list_webhooks(platform)
+        if not webhooks:
+            api_logger.warning(f'No webhooks registered for platform: {platform}')
+            return jsonify({"status": "error", "message": "No webhooks configured"}), 404
+
+        webhook = webhooks[0]  # Use first webhook for platform
+        webhook_secret = webhook.secret
+        # Validate signature based on platform
+        if platform == 'github':
+            signature = request.headers.get('X-Hub-Signature-256', '')
+            signature_valid = wh_manager.validate_signature_github(
+                payload, signature, webhook_secret
+            )
+            event_type = request.headers.get('X-GitHub-Event', 'unknown')
+
+            # Process GitHub event with specialized handler
+            github_handler = get_github_handler()
+            github_result = github_handler.process_event(event_type, data)
+
+            api_logger.info(f'GitHub event processed: {github_result.get("status")}')
+
+            # Use GitHub handler's actions if available
+            if github_result.get('status') == 'processed':
+                github_actions = github_result.get('actions', [])
+                for gh_action in github_actions:
+                    if gh_action.get('type') == 'workflow':
+                        workflow_name = gh_action.get('name')
+                        workflow_result = execute_command(f"WORKFLOW RUN {workflow_name}")
+                        results.append({
+                            "workflow": workflow_name,
+                            "status": workflow_result.get('status'),
+                            "output": workflow_result.get('output'),
+                            "github_trigger": event_type
+                        })
+
+        elif platform == 'slack':
+        elif platform == 'slack':
+            signature = request.headers.get('X-Slack-Signature', '')
+            timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
+            signature_valid = wh_manager.validate_signature_slack(
+                timestamp, signature, payload.decode(), webhook_secret
+            )
+            event_type = data.get('type', 'unknown')
+
+            # Process Slack event
+            slack_handler = get_slack_handler()
+            slack_result = slack_handler.process_event(event_type, data)
+
+            # Handle URL verification challenge
+            if slack_result.get('status') == 'verification':
+                return jsonify({'challenge': slack_result.get('challenge')})
+
+            api_logger.info(f'Slack event processed: {slack_result.get("status")}')
+
+        elif platform == 'notion':
+            signature = request.headers.get('X-Notion-Signature', '')
+            signature_valid = wh_manager.validate_signature_notion(
+                payload, signature, webhook_secret
+            )
+            event_type = data.get('type', 'unknown')
+
+            # Process Notion event
+            notion_handler = get_notion_handler()
+            notion_result = notion_handler.process_event(event_type, data)
+
+            api_logger.info(f'Notion event processed: {notion_result.get("status")}')
+
+        elif platform == 'clickup':
+            signature = request.headers.get('X-ClickUp-Signature', '')
+            signature_valid = wh_manager.validate_signature_clickup(
+                payload, signature, webhook_secret
+            )
+            event_type = data.get('event', 'unknown')
+
+            # Process ClickUp event
+            clickup_handler = get_clickup_handler()
+            clickup_result = clickup_handler.process_event(event_type, data)
+
+            api_logger.info(f'ClickUp event processed: {clickup_result.get("status")}')
+
+        else:
+            return jsonify({"status": "error", "message": "Unknown platform"}), 400
+
+        # Check signature
+        if not signature_valid:
+            api_logger.warning(f'Invalid webhook signature from {platform}')
+            return jsonify({"status": "error", "message": "Invalid signature"}), 401
+
+        # Record trigger
+        wh_manager.record_trigger(webhook.id)
+
+        # Get actions for this event
+        actions = wh_manager.get_actions_for_event(webhook.id, event_type)
+
+        api_logger.info(f'Webhook received: {platform}/{event_type} - {len(actions)} actions')
+
+        # Execute workflows for this event
+        results = []
+        for action in actions:
+            workflow = action.get('workflow')
+            args = action.get('args', {})
+
+            # Merge webhook data with action args
+            workflow_args = {**args, 'webhook_data': data}
+
+            # Execute workflow via uDOS WORKFLOW command
+            # Note: This requires WORKFLOW command to accept JSON args
+            workflow_result = execute_command(f"WORKFLOW RUN {workflow}")
+            results.append({
+                "workflow": workflow,
+                "status": workflow_result.get('status'),
+                "output": workflow_result.get('output')
+            })
+
+        # Trigger any registered event handlers
+        wh_manager.trigger_event_handlers(f"{platform}.{event_type}", data)
+
+        return jsonify({
+            "status": "success",
+            "platform": platform,
+            "event": event_type,
+            "actions_triggered": len(results),
+            "results": results
+        })
+
+    except Exception as e:
+        api_logger.error(f'Webhook receive error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/test/<webhook_id>', methods=['POST'])
+def webhook_test(webhook_id):
+    """
+    Test a webhook with sample data.
+
+    POST /api/webhooks/test/wh_abc123
+    {
+        "event": "push",
+        "test_data": {...}
+    }
+    """
+    try:
+        data = request.get_json()
+        event = data.get('event', 'test')
+        test_data = data.get('test_data', {})
+
+        wh_manager = get_webhook_manager()
+        webhook = wh_manager.get_webhook(webhook_id)
+
+        if not webhook:
+            return jsonify({"status": "error", "message": "Webhook not found"}), 404
+
+        # Get actions for test event
+        actions = wh_manager.get_actions_for_event(webhook_id, event)
+
+        api_logger.info(f'Testing webhook {webhook_id} with event {event}')
+
+        return jsonify({
+            "status": "success",
+            "webhook_id": webhook_id,
+            "event": event,
+            "actions_found": len(actions),
+            "actions": actions,
+            "test_data": test_data
+        })
+
+    except Exception as e:
+        api_logger.error(f'Webhook test error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ============================================================================
 # SERVER INITIALIZATION
 # ============================================================================
 
@@ -955,7 +1260,7 @@ def main():
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
 
     startup_msg = f"""\n{"="*70}
-🌀 uDOS v1.0.20 - Teletext API Server
+🌀 uDOS v1.2.5 - Teletext API Server + Webhook Integration
 {"="*70}
 
 🌐 Server: http://localhost:{port}
@@ -973,7 +1278,8 @@ API Documentation:
   Theme:     /api/theme/*     (8 endpoints)
   Grid:      /api/grid/*      (8 endpoints)
   Assist:    /api/assist/*    (6 endpoints)
-  Knowledge: /api/knowledge/* (5 endpoints) [NEW]
+  Knowledge: /api/knowledge/* (5 endpoints)
+  Webhooks:  /api/webhooks/*  (5 endpoints) [NEW v1.2.5]
   Core:      /api/command, /api/health
 {"="*70}
 
