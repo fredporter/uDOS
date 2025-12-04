@@ -385,7 +385,7 @@ def main():
         # Display startup information
         if not is_script_mode:
             print(f"\n{user_manager.get_user_greeting()}")
-            print(f"🌐 {connection.get_mode()} | 📐 {viewport.width}×{viewport.height} ({viewport.device_type}) | 🔢 Session #{move_stats['session_number']} | 🎯 {move_stats['total_moves']} moves")
+            print(f"🌐 {connection.get_mode()} | 📐 {viewport.width}×{viewport.height} ({viewport.device_type}) | 🎯 {move_stats['total_moves']} moves")
 
             # Check lifespan status
             lifespan_status = user_manager.check_lifespan_status(move_stats['total_moves'])
