@@ -4,12 +4,14 @@ Thank you for your interest in contributing to uDOS! This document provides guid
 
 ## Project Overview
 
-uDOS v1.1.0 is a secure, dual-interface CLI framework with:
-- **1,810 passing tests** (100% coverage)
-- Sandbox architecture with 5-tier knowledge system
+uDOS v1.2.4 is a secure, offline-first operating system for survival knowledge with:
+- **Extension Hot Reload System** (v1.2.4) - No full restarts needed
+- **GitHub Browser Integration** - Direct feedback via browser
+- **Visual Mode Indicators** - Color-coded prompts (regular/dev/assist)
+- **1,810+ passing tests** (100% coverage)
+- Sandbox architecture with 4-tier knowledge system
 - DEV MODE with authentication and permissions
-- Dual interface (Terminal + Web GUI)
-- Offline knowledge management
+- Offline knowledge management (136+ guides)
 - Cross-platform support (macOS/Linux/Windows)
 
 ## Project Structure
@@ -62,23 +64,30 @@ uDOS/
    - Write code following our style guide
    - Add tests for new features
    - Update documentation
+   - **Use hot reload** for faster development (v1.2.4)
 
 5. **Test your changes**
    ```bash
    # Run all tests
    pytest memory/tests/
 
-   # Run specific test suite
-   pytest memory/tests/test_v1_1_2_*.py
+   # Run SHAKEDOWN comprehensive validation
+   ./start_udos.sh
+   > SHAKEDOWN
 
    # With coverage
    pytest memory/tests/ --cov=core --cov-report=html
    ```
 
-6. **Submit a pull request**
-   - Push your branch to your fork
-   - Create a pull request with clear description
-   - Reference any related issues
+6. **Submit feedback or pull request**
+   ```bash
+   # Quick GitHub feedback (v1.2.4)
+   > FEEDBACK --github --feature --open
+
+   # Or traditional PR workflow
+   git push origin feature/your-feature-name
+   # Then create PR on GitHub
+   ```
 
 ## Development Guidelines
 
@@ -147,6 +156,79 @@ test(memory): Add 4-tier encryption test suite
 - Include example usage in README
 - Add tests (minimum 90% coverage)
 
+## Hot Reload Workflow (v1.2.4)
+
+### Development with Hot Reload
+
+**No more full restarts!** Use hot reload for faster extension development:
+
+```bash
+# Reload a single extension after code changes
+> REBOOT --extension assistant
+
+# Reload all extensions
+> REBOOT --extensions
+
+# Validate changes without reloading (dry-run)
+> REBOOT --extension assistant --validate
+
+# Full system restart (if needed)
+> REBOOT
+```
+
+### Hot Reload Features
+
+1. **Targeted Reload** - Reload only the extension you're working on
+2. **State Preservation** - Session variables and config preserved
+3. **Automatic Rollback** - Reverts on import errors
+4. **Dependency Validation** - Checks manifest and dependencies
+5. **Health Checks** - Validates extension after reload
+
+### Best Practices for Hot Reload
+
+```python
+# 1. Design for reloadability
+class MyExtension:
+    def __init__(self):
+        # Initialize state here
+        self.session_vars = {}
+
+    def cleanup(self):
+        # Clean up resources before reload
+        pass
+
+# 2. Use module-level state carefully
+# Avoid global state that persists across reloads
+# Use extension.session_vars instead
+
+# 3. Test reload behavior
+def test_extension_reload():
+    # Load extension
+    ext = load_extension('my-extension')
+
+    # Modify code
+    # ...
+
+    # Reload and verify
+    reload_extension('my-extension')
+    ext = load_extension('my-extension')
+    assert ext is not None
+```
+
+### When to Use Full Restart
+
+Use `REBOOT` (full restart) when:
+- Core system files changed (`core/uDOS_main.py`, `core/config.py`)
+- Command routing changed (`core/uDOS_commands.py`)
+- Major dependency updates
+- Virtual environment changes
+
+Use `REBOOT --extension` (hot reload) when:
+- Extension code changed
+- Extension commands changed
+- Extension handlers modified
+- Extension configuration updated
+
 ## Pull Request Process
 
 1. **Update documentation**
@@ -177,6 +259,48 @@ test(memory): Add 4-tier encryption test suite
    - Any breaking changes?
    - Related issues?
 
+## GitHub Feedback Integration (v1.2.4)
+
+### Quick Feedback via Browser
+
+**New in v1.2.4**: Submit feedback directly through GitHub without leaving uDOS:
+
+```bash
+# Report a bug (opens pre-filled GitHub Issue)
+> FEEDBACK --github --bug --open
+
+# Request a feature (opens pre-filled GitHub Issue)
+> FEEDBACK --github --feature --open
+
+# Ask a question (opens pre-filled GitHub Discussion)
+> FEEDBACK --github --question --open
+
+# Share an idea (opens pre-filled GitHub Discussion)
+> FEEDBACK --github --idea --open
+
+# Preview URL before opening
+> FEEDBACK --github --bug  # Shows URL, requires --open to launch
+```
+
+### What Data is Sent?
+
+**Minimal, non-sensitive data only:**
+- uDOS version (e.g., "1.2.4")
+- Operating system (e.g., "macOS 14.1")
+- Python version (e.g., "3.11.5")
+- Mode (e.g., "interactive")
+
+**No API tokens required** - Everything stays local until you manually submit via browser.
+
+### Local Feedback (Alternative)
+
+Prefer to keep feedback local? Use the traditional command:
+
+```bash
+# Saves to memory/logs/user_feedback.jsonl
+> FEEDBACK "Your feedback message here"
+```
+
 ## Testing Guide
 
 ### Running Tests
@@ -184,10 +308,16 @@ test(memory): Add 4-tier encryption test suite
 # All tests
 pytest memory/tests/
 
+# SHAKEDOWN comprehensive validation (v1.2.4+)
+./start_udos.sh
+> SHAKEDOWN                    # Run all tests
+> SHAKEDOWN --verbose          # Detailed output
+> SHAKEDOWN --quick            # Core tests only
+> SHAKEDOWN --report           # Generate JSON report
+
 # Specific milestone
 pytest memory/tests/test_v1_1_0_*.py  # v1.1.0 (268 tests)
 pytest memory/tests/test_v1_1_1_*.py  # v1.1.1 (327 tests)
-pytest sandbox/tests/  # All tests (1,810 tests)
 
 # With coverage
 pytest memory/tests/ --cov=core --cov-report=html
@@ -198,6 +328,28 @@ pytest memory/tests/test_v1_1_2_rbac.py -v
 # Specific test function
 pytest memory/tests/test_v1_1_2_rbac.py::TestRBAC::test_role_creation -v
 ```
+
+### SHAKEDOWN Test Coverage (v1.2.4)
+
+The SHAKEDOWN command provides comprehensive system validation:
+
+- **Core Architecture** - Project structure, file organization
+- **Planet System** - Workspace management
+- **Asset Management** - Centralized library
+- **DEV MODE** - Security system validation
+- **Memory Structure** - 4-tier system
+- **Database Locations** - Sandbox/user paths
+- **Variable System** - SPRITE/OBJECT with JSON schemas
+- **Handler Architecture** - Command routing
+- **Play Extension** - STORY command, adventures
+- **GENERATE System** - Offline-first AI
+- **Performance** - Metrics, success criteria
+- **Logging** - Unified logging system
+- **Hot Reload** (v1.2.4) - Extension lifecycle, REBOOT variants
+- **GitHub Feedback** (v1.2.4) - Browser integration, URL generation
+- **Prompt Modes** (v1.2.4) - Visual indicators, color codes
+
+**Total**: 100+ validation tests across 15+ subsystems
 
 ### Writing Tests
 ```python
@@ -256,13 +408,45 @@ All submissions require code review:
 
 ### Documentation
 - [Architecture Overview](wiki/Architecture.md)
-- [Release v1.1.0](wiki/Release-v1.1.0.md)
-- [Latest Development](wiki/Latest-Development.md)
-- [ROADMAP](ROADMAP.MD)
+- [Developers Guide](wiki/Developers-Guide.md)
+- [Extension Development](wiki/Extension-Development.md)
+- [Hot Reload System](wiki/Hot-Reload.md) (v1.2.4)
+- [GitHub Feedback Guide](wiki/GitHub-Feedback.md) (v1.2.4)
+- [ROADMAP](dev/roadmap/ROADMAP.MD)
 
-### Development
-- [Testing Guide](dev/docs/guides/TESTING.md) (if available)
-- [Style Guide](dev/docs/guides/STYLE.md) (if available)
+### Developer Experience (v1.2.4)
+
+**Visual Mode Indicators** - Color-coded prompts:
+- `›` - Regular mode (default color)
+- `🔧 DEV›` - DEV mode (yellow)
+- `🤖 OK›` - Assist mode (cyan)
+
+**Hot Reload Workflow:**
+```bash
+# Edit extension code...
+> REBOOT --extension my-extension  # Reload in <1 second
+# Test changes immediately, no full restart!
+```
+
+**GitHub Integration:**
+```bash
+> FEEDBACK --github --bug --open   # Report bugs instantly
+> FEEDBACK --github --feature      # Request features
+```
+
+**Comprehensive Testing:**
+```bash
+> SHAKEDOWN                        # 100+ validation tests
+> SHAKEDOWN --verbose              # Detailed diagnostics
+```
+
+### Development Tips
+
+1. **Use Hot Reload** - Save 10-30 seconds per test cycle
+2. **Run SHAKEDOWN** - Catch integration issues early
+3. **GitHub Feedback** - Share ideas/bugs without context switching
+4. **Watch Modes** - Visual prompts prevent mistakes (DEV mode warnings)
+5. **Iterate Fast** - Hot reload + SHAKEDOWN = rapid development
 
 ## Community Guidelines
 
