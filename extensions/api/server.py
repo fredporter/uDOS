@@ -1086,6 +1086,10 @@ def webhook_receive(platform):
 
         webhook = webhooks[0]  # Use first webhook for platform
         webhook_secret = webhook.secret
+
+        # Initialize results list
+        results = []
+
         # Validate signature based on platform
         if platform == 'github':
             signature = request.headers.get('X-Hub-Signature-256', '')
@@ -1114,7 +1118,6 @@ def webhook_receive(platform):
                             "github_trigger": event_type
                         })
 
-        elif platform == 'slack':
         elif platform == 'slack':
             signature = request.headers.get('X-Slack-Signature', '')
             timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
@@ -1175,8 +1178,7 @@ def webhook_receive(platform):
 
         api_logger.info(f'Webhook received: {platform}/{event_type} - {len(actions)} actions')
 
-        # Execute workflows for this event
-        results = []
+        # Execute workflows for this event (if not already executed by platform handler)
         for action in actions:
             workflow = action.get('workflow')
             args = action.get('args', {})

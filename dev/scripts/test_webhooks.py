@@ -16,7 +16,7 @@ from typing import Dict, List
 class WebhookTester:
     """Test webhook integration."""
 
-    def __init__(self, api_url: str = "http://localhost:5000"):
+    def __init__(self, api_url: str = "http://localhost:5001"):
         self.api_url = api_url
         self.webhooks = []
         self.test_results = []
