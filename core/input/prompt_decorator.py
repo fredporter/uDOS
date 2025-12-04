@@ -23,7 +23,7 @@ class Colors:
     """ANSI color codes for terminal styling"""
     RESET = '\033[0m'
     BOLD = '\033[1m'
-    
+
     # Standard colors
     BLACK = '\033[30m'
     RED = '\033[31m'
@@ -33,7 +33,7 @@ class Colors:
     MAGENTA = '\033[35m'
     CYAN = '\033[36m'
     WHITE = '\033[37m'
-    
+
     # Bright colors
     BRIGHT_BLACK = '\033[90m'
     BRIGHT_RED = '\033[91m'
@@ -51,14 +51,14 @@ class PromptDecorator:
     def __init__(self, theme: str = 'dungeon', use_colors: bool = True):
         """
         Initialize with theme.
-        
+
         Args:
             theme: Theme name (dungeon, science, cyberpunk)
             use_colors: Whether to use ANSI colors (disable for plain terminals)
         """
         self.theme = theme
         self.use_colors = use_colors
-        
+
         # v1.2.4: Enhanced theme configuration with colors and symbols
         self.themes = {
             'dungeon': {
@@ -105,7 +105,7 @@ class PromptDecorator:
 
         Returns:
             Formatted prompt string with ANSI colors and mode symbols
-            
+
         Mode Priority (highest to lowest):
             1. DEV MODE (🔧 yellow) - Security-elevated operations
             2. ASSIST MODE (🤖 cyan) - AI assistant active
@@ -134,11 +134,11 @@ class PromptDecorator:
     def get_mode_status(self, dev_mode: bool = False, is_assist_mode: bool = False) -> str:
         """
         Get current mode status string for display.
-        
+
         Args:
             dev_mode: Whether DEV MODE is active
             is_assist_mode: Whether ASSIST MODE is active
-            
+
         Returns:
             Status string describing current mode
         """

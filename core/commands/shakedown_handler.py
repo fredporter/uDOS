@@ -1653,7 +1653,7 @@ SPRITE-SET('test'|2)
         # Test 5: Mode priority (dev > assist > regular)
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
-            
+
             # DEV mode should override ASSIST mode
             dev_override = decorator.get_prompt(is_assist_mode=True, dev_mode=True)
             has_dev = '🔧' in dev_override and 'DEV' in dev_override
@@ -1733,7 +1733,7 @@ SPRITE-SET('test'|2)
             for theme_name in themes_to_test:
                 decorator = PromptDecorator(theme=theme_name, use_colors=True)
                 prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=False)
-                
+
                 # Each theme should have a distinct prompt
                 if prompt and len(prompt) > 0:
                     theme_results.append(f"{theme_name}: OK")

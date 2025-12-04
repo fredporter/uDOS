@@ -1,28 +1,61 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.2 ✅ **COMPLETE** (DEV MODE Debugging System)
-**Previous Version:** v1.2.1+ ⚡ **ENHANCED** (Workflow Dashboard Integration)
-**Next Version:** v1.2.3 ⚡ **PRIORITY** (Knowledge & Map Layer Expansion)
+**Current Version:** v1.2.4 ✅ **COMPLETE** (Developer Experience & Hot Reload)
+**Previous Version:** v1.2.3 ✅ **COMPLETE** (Knowledge & Map Layer Expansion)
+**Next Version:** v1.2.5 ⚡ **PRIORITY** (Integration, Automation & Developer Tooling)
 **Last Updated:** December 4, 2025
-**Roadmap Size:** 4,264 lines (streamlined, v1.2+ development focus)
+**Roadmap Size:** 5,362 lines (streamlined, v1.2+ development focus)
 
 **Recent Updates (Dec 4, 2025):**
+- ✅ v1.2.4 released - Developer Experience & Hot Reload (3,588 lines delivered)
+- ✅ v1.2.3 released - Knowledge & Map Layer Expansion (complete)
+- ✨ Added v1.2.5 - Integration, Automation & Developer Tooling (webhook + API + VS Code)
 - ✨ Renumbered v1.3.0 → v1.2.8 (Cross-Platform Distribution)
 - ✨ Renumbered v1.4.0 → v1.2.9 (Device Management & Multi-Protocol Mesh)
 - ✨ Removed all timeframes - Development measured in MOVES and STEPS, not calendar time
-- 🎯 v1.2.3 marked as PRIORITY for implementation
+- 🎯 v1.2.5 marked as PRIORITY for implementation
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns.
 
 ---
 
-## 📍 Latest Release: v1.2.2 (December 2025)
+## 📍 Latest Releases
 
-✅ **COMPLETE** - DEV MODE Debugging System (archived to `dev/roadmap/.archive/v1.2.2-complete.md`)
+### v1.2.4 (December 4, 2025) ✅ **COMPLETE**
+
+**Developer Experience & Hot Reload** - Fast iteration cycle with extension hot reload, GitHub-centric feedback, and enhanced documentation.
+
+**Delivered:**
+- Extension hot reload system (621 lines) - <1s reload vs 3-10s restart
+- GitHub browser integration (499 lines) - Privacy-first feedback workflow
+- Command prompt mode indicators (270 lines) - Visual DEV/ASSIST/regular modes
+- Developer documentation (1,015 lines) - Complete guides for hot reload + GitHub feedback
+- SHAKEDOWN tests (24 tests, 100% passing)
+- **Total: 3,588 lines delivered**
+
+**Tag:** `v1.2.4`
+**Commits:** fcb85650, 9460052d, b84c19c1, 289ffe6c, 3929894c, d93ce95e
+
+### v1.2.3 (December 4, 2025) ✅ **COMPLETE**
+
+**Knowledge & Map Layer Expansion** - Multi-layer mapping system with spatial data structures.
+
+**Delivered:**
+- 4 map layers (surface, cloud, satellite, underground) - 500 lines
+- Spatial data (Earth, planets, galaxies) - 720 lines
+- GeoJSON visualization - 130 lines
+- Integration tests - 300 lines
+- **Total: 1,650 lines delivered**
+
+**Tag:** `v1.2.3`
+
+### v1.2.2 (December 2025) ✅ **COMPLETE**
+
+**DEV MODE Debugging System** (archived to `dev/roadmap/.archive/v1.2.2-complete.md`)
 
 ---
 
-## 📍 Next Release: v1.2.3 ⚡ **PRIORITY**
+## 📍 Next Release: v1.2.5 ⚡ **PRIORITY**
 
 **Status:** 📋 **PLANNED** - Knowledge & Map Layer Expansion
 **Complexity:** High (knowledge generation + map layers + GeoJSON + planet/galaxy data)
@@ -1345,10 +1378,1106 @@ Wiki:
 
 ## 📍 Future Release: v1.2.5
 
+**Status:** 📋 **PLANNED** - Integration, Automation & Developer Tooling (Webhook + API + VS Code)
+**Complexity:** High (webhook server + API extensions + GitHub webhooks + VS Code extension)
+**Effort:** ~60-80 MOVES (Part 1: 15-20, Part 2: 20-25, Part 3: 15-20, Part 4: 10-15)
+**Dependencies:** v1.2.4 complete (Developer Experience & Hot Reload)
+
+### Mission: Event-Driven Automation Hub + Programmable API + Developer Lab
+
+**Strategic Focus:**
+- **Webhook Server** - Event-driven integration with cloud platforms (Slack, Notion, ClickUp, GitHub)
+- **Enhanced API Server** - Extend existing `extensions/api/server.py` with webhook endpoints
+- **GitHub Webhooks** - Automated knowledge updates, scenario triggers, audit trails
+- **VS Code Extension** - Developer lab environment with .uPY language support, testing, virtualisation
+- **POKE WEB Integration** - Webhook/API endpoints exposed via existing POKE WEB dashboard
+
+**Architectural Foundation:**
+- ✅ API Server exists: `extensions/api/server.py` (1,000 lines, 60+ REST endpoints)
+- ✅ POKE WEB exists: Dashboard server with real-time WebSocket (`extensions/core/dashboard/`)
+- ✅ Server Manager exists: Unified server lifecycle (`extensions/server_manager.py`)
+- ✅ Extension System: Hot reload ready (v1.2.4)
+- 🆕 Add webhook receiver endpoints to API server
+- 🆕 Integrate webhook triggers with workflow automation
+- 🆕 Create VS Code extension for .uPY development
+
+**Integration Points:**
+- **POKE WEB** → `POKE DASHBOARD` (port 5555) - Add webhook management panel
+- **API Server** → `POKE START api` (port 5001) - Extend with `/api/webhooks/*` routes
+- **Server Manager** → Already manages both servers in unified lifecycle
+- **Real-time Updates** → Webhook events push to dashboard via existing WebSocket
+
+---
+
+## Part 1: Webhook Server Infrastructure (Tasks 1-4)
+
+### Task 1: Webhook Receiver Endpoints 📋 PLANNED
+
+**Objective:** Extend API server with webhook receiver infrastructure
+
+**File:** `extensions/api/server.py` (+300 lines)
+
+**New Endpoints:**
+```python
+# Webhook Management
+@app.route('/api/webhooks/register', methods=['POST'])
+def webhook_register():
+    """Register new webhook endpoint."""
+    # Creates unique webhook URL, stores config in memory/system/webhooks.json
+    # Returns: {id, url, secret, platform, events}
+
+@app.route('/api/webhooks/list')
+def webhook_list():
+    """List all registered webhooks."""
+
+@app.route('/api/webhooks/delete/<webhook_id>', methods=['DELETE'])
+def webhook_delete(webhook_id):
+    """Delete webhook registration."""
+
+# Webhook Receivers (platform-specific)
+@app.route('/api/webhooks/receive/slack', methods=['POST'])
+def webhook_slack():
+    """Receive Slack webhooks."""
+    # Validates signature, parses payload, triggers workflow
+
+@app.route('/api/webhooks/receive/notion', methods=['POST'])
+def webhook_notion():
+    """Receive Notion webhooks."""
+
+@app.route('/api/webhooks/receive/clickup', methods=['POST'])
+def webhook_clickup():
+    """Receive ClickUp webhooks."""
+
+@app.route('/api/webhooks/receive/github', methods=['POST'])
+def webhook_github():
+    """Receive GitHub webhooks."""
+    # Validates X-Hub-Signature, parses push/PR/release events
+
+# Webhook Testing
+@app.route('/api/webhooks/test/<webhook_id>', methods=['POST'])
+def webhook_test(webhook_id):
+    """Test webhook with mock payload."""
+```
+
+**Data Structure:**
+```json
+// memory/system/webhooks.json
+{
+  "webhooks": [
+    {
+      "id": "wh_abc123",
+      "platform": "github",
+      "url": "http://localhost:5001/api/webhooks/receive/github",
+      "secret": "generated_secret_key",
+      "events": ["push", "pull_request", "release"],
+      "actions": [
+        {
+          "event": "push",
+          "workflow": "memory/workflows/missions/github-sync.upy",
+          "params": {"tier": 3, "category": "code"}
+        }
+      ],
+      "created": "2025-12-04T10:00:00Z",
+      "last_triggered": "2025-12-04T14:30:00Z",
+      "trigger_count": 42
+    }
+  ]
+}
+```
+
+**Security:**
+- HMAC signature validation (GitHub X-Hub-Signature, Slack X-Slack-Signature)
+- Secret key per webhook (generated on registration)
+- Rate limiting (configurable per platform)
+- IP whitelisting (optional, configurable)
+
+**Estimated:** ~300 lines (webhook endpoints + validation)
+
+---
+
+### Task 2: Webhook-Triggered Workflows 📋 PLANNED
+
+**Objective:** Connect webhook events to .uPY workflow automation
+
+**File:** `core/services/webhook_processor.py` (NEW, ~400 lines)
+
+**Features:**
+
+1. **Event Normalization**
+   ```python
+   class WebhookProcessor:
+       def normalize_event(self, platform: str, payload: dict) -> dict:
+           """Convert platform-specific payload to unified event format."""
+           # Slack: message → {type: "message", channel, text, user, timestamp}
+           # GitHub: push → {type: "push", repo, branch, commits[], author}
+           # Notion: page_update → {type: "page_update", page_id, title, content}
+           # ClickUp: task_update → {type: "task_update", task_id, status, assignee}
+   ```
+
+2. **Workflow Triggering**
+   ```python
+   def trigger_workflow(self, webhook_id: str, event: dict) -> dict:
+       """Execute workflow based on webhook configuration."""
+       # Load webhook config
+       # Match event type to configured actions
+       # Execute .uPY script with event context
+       # Return execution result
+   ```
+
+3. **Context Injection**
+   ```python
+   # Workflow receives event data as variables
+   # Example: memory/workflows/missions/github-sync.upy
+   SET $WEBHOOK.PLATFORM "github"
+   SET $WEBHOOK.EVENT "push"
+   SET $WEBHOOK.REPO $EVENT.repository
+   SET $WEBHOOK.BRANCH $EVENT.branch
+   SET $WEBHOOK.COMMITS_COUNT (COUNT $EVENT.commits)
+
+   # Process commits
+   FOREACH $commit IN $EVENT.commits
+       GUIDE ADD tier3 code $commit.message
+       GUIDE TAG $commit.sha $WEBHOOK.REPO
+   END
+   ```
+
+4. **Memory Tier Integration**
+   - Tier 2 (Private): Webhook configs, secrets, audit logs
+   - Tier 3 (Shared): Synchronized knowledge, documentation
+   - Tier 4 (Community): Public content, collaboration data
+
+**Integration with POKE WEB:**
+```python
+# Real-time webhook activity in dashboard
+@socketio.on('webhook_activity')
+def push_webhook_event(webhook_id, event):
+    """Push webhook event to dashboard clients."""
+    emit('webhook_triggered', {
+        'webhook_id': webhook_id,
+        'platform': event['platform'],
+        'type': event['type'],
+        'timestamp': event['timestamp']
+    }, broadcast=True)
+```
+
+**Estimated:** ~400 lines (processor + workflow integration)
+
+---
+
+### Task 3: GitHub Webhooks Deep Integration 📋 PLANNED
+
+**Objective:** Automated knowledge sync from GitHub repositories
+
+**File:** `extensions/api/github_webhook_handler.py` (NEW, ~500 lines)
+
+**GitHub Events Supported:**
+1. **Push Events** - Code/documentation changes
+2. **Pull Request Events** - Review workflow integration
+3. **Release Events** - Version tracking, changelog sync
+4. **Issues/Discussions** - Feedback loop integration
+
+**Automation Workflows:**
+
+**1. Push Event → Knowledge Sync**
+```python
+# memory/workflows/missions/github-push-sync.upy
+# Triggered on: GitHub push to main branch
+
+GUIDE SEARCH $WEBHOOK.REPO tier3
+IF (NOT_FOUND) THEN
+    GUIDE ADD tier3 code $WEBHOOK.REPO
+    GUIDE TAG github $WEBHOOK.REPO
+END
+
+FOREACH $commit IN $WEBHOOK.COMMITS
+    SET $message $commit.message
+    SET $files_changed (COUNT $commit.modified)
+
+    # Add commit as knowledge entry
+    GUIDE ADD tier3 changelog "$message"
+    GUIDE LINK $commit.sha $WEBHOOK.REPO
+
+    # If documentation changed, generate diagram
+    IF (CONTAINS $commit.modified "README.md" OR CONTAINS $commit.modified "wiki/") THEN
+        DIAGRAM GENERATE $commit.files[0] --output memory/diagrams/
+        GUIDE ATTACH $commit.sha diagram
+    END
+END
+
+# Notify via POKE WEB dashboard
+POKE NOTIFY "GitHub Push: $WEBHOOK.COMMITS_COUNT commits to $WEBHOOK.BRANCH"
+```
+
+**2. Pull Request → Review Workflow**
+```python
+# memory/workflows/missions/github-pr-review.upy
+# Triggered on: GitHub PR opened/updated
+
+SET $pr_number $WEBHOOK.PULL_REQUEST.number
+SET $pr_title $WEBHOOK.PULL_REQUEST.title
+SET $pr_author $WEBHOOK.PULL_REQUEST.user
+
+# Create mission for PR review
+MISSION CREATE "Review PR #$pr_number: $pr_title"
+MISSION SET objective "Review and test changes"
+MISSION SET assignee $pr_author
+MISSION SET status ACTIVE
+
+# Add PR files to review checklist
+CHECKLIST CREATE "pr-review-$pr_number"
+FOREACH $file IN $WEBHOOK.PULL_REQUEST.changed_files
+    CHECKLIST ADD "Review $file"
+END
+
+# Notify team
+POKE NOTIFY "New PR #$pr_number: $pr_title by $pr_author"
+```
+
+**3. Release Event → Version Tracking**
+```python
+# memory/workflows/missions/github-release-sync.upy
+# Triggered on: GitHub release published
+
+SET $version $WEBHOOK.RELEASE.tag_name
+SET $changelog $WEBHOOK.RELEASE.body
+
+# Update version tracking
+GUIDE ADD tier3 release "Version $version"
+GUIDE SET content $changelog
+GUIDE TAG release $version
+
+# Archive previous version
+ARCHIVE VERSION (PREVIOUS $version)
+
+# Generate release announcement
+GENERATE ANNOUNCEMENT --template release --output memory/docs/releases/$version.md
+```
+
+**Integration with Existing Systems:**
+- ✅ Uses existing `extensions/api/server.py` webhook endpoints
+- ✅ Leverages existing `GUIDE` commands (knowledge system)
+- ✅ Integrates with `MISSION` system (workflow management)
+- ✅ Pushes notifications to `POKE DASHBOARD` (real-time updates)
+- ✅ Stores audit logs in `memory/logs/webhooks.jsonl`
+
+**Estimated:** ~500 lines (GitHub handler + 3 workflow templates)
+
+---
+
+### Task 4: POKE WEB Dashboard Integration 📋 PLANNED
+
+**Objective:** Add webhook management panel to existing dashboard
+
+**File:** `extensions/core/dashboard/static/webhooks.html` (NEW, ~400 lines)
+
+**Dashboard Panel: "Webhooks"**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🔔 WEBHOOK MANAGEMENT                                    [REFRESH]  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│ Active Webhooks (3)                                     [+ REGISTER] │
+│ ────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ 🐙 GitHub - fredporter/uDOS                          🟢 Active      │
+│    Events: push, pull_request, release                              │
+│    Last Trigger: 2 minutes ago (push to main)                       │
+│    Total Triggers: 147                                              │
+│    [Test] [Edit] [Delete]                                           │
+│                                                                      │
+│ 💬 Slack - #dev-channel                              🟢 Active      │
+│    Events: message, file_share                                      │
+│    Last Trigger: 5 minutes ago (message)                            │
+│    Total Triggers: 1,203                                            │
+│    [Test] [Edit] [Delete]                                           │
+│                                                                      │
+│ 📝 Notion - Team Wiki                                🟡 Testing     │
+│    Events: page_update, database_update                             │
+│    Last Trigger: Never                                              │
+│    Total Triggers: 0                                                │
+│    [Test] [Edit] [Delete]                                           │
+│                                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│ Recent Activity (last 10)                                           │
+│ ────────────────────────────────────────────────────────────────── │
+│                                                                      │
+│ 14:32:15  🐙 GitHub › push to main › 3 commits                     │
+│           └─ Workflow: github-sync.upy ✅ Success (1.2s)           │
+│                                                                      │
+│ 14:27:03  💬 Slack › message in #dev-channel                       │
+│           └─ Workflow: slack-notify.upy ✅ Success (0.3s)          │
+│                                                                      │
+│ 14:15:22  🐙 GitHub › pull_request opened #42                      │
+│           └─ Workflow: pr-review.upy ✅ Success (2.1s)             │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Real-time Updates via WebSocket:**
+```javascript
+// extensions/core/dashboard/static/js/webhooks.js
+socket.on('webhook_triggered', function(data) {
+    // Update activity log
+    addWebhookActivity(data);
+
+    // Update trigger count
+    updateWebhookStats(data.webhook_id);
+
+    // Show toast notification
+    showToast(`${data.platform} webhook triggered: ${data.type}`);
+});
+```
+
+**New API Routes (extend existing dashboard server):**
+```python
+# extensions/core/dashboard/server/webhook_routes.py (NEW)
+@dashboard.route('/webhooks')
+def webhooks_panel():
+    """Render webhooks management panel."""
+
+@dashboard.route('/api/webhooks/activity')
+def webhook_activity():
+    """Get recent webhook activity."""
+
+@dashboard.route('/api/webhooks/stats')
+def webhook_stats():
+    """Get webhook statistics."""
+```
+
+**Integration with Existing Dashboard:**
+- Add "Webhooks" tab to main navigation
+- Reuse existing NES theme styling
+- WebSocket connection already established (extend events)
+- Server already running on port 5555 (`POKE DASHBOARD`)
+
+**Estimated:** ~400 lines (HTML panel + JavaScript + routes)
+
+---
+
+## Part 2: Enhanced API Server (Tasks 5-7)
+
+### Task 5: Workflow Execution API 📋 PLANNED
+
+**Objective:** Enable external systems to run .uPY workflows via API
+
+**File:** `extensions/api/server.py` (+250 lines)
+
+**New Endpoints:**
+```python
+@app.route('/api/workflows/list')
+def api_workflows_list():
+    """List all available workflows."""
+    # Scans memory/workflows/missions/*.upy
+    # Returns: [{id, name, description, params[], created, last_run}]
+
+@app.route('/api/workflows/run/<workflow_id>', methods=['POST'])
+def api_workflow_run(workflow_id):
+    """Execute workflow with parameters."""
+    # POST body: {params: {key: value}}
+    # Executes .uPY script with injected variables
+    # Returns: {status, output, execution_time, errors[]}
+
+@app.route('/api/workflows/status/<execution_id>')
+def api_workflow_status(execution_id):
+    """Get workflow execution status."""
+    # Returns: {status: "running|completed|failed", progress: 75, output}
+
+@app.route('/api/workflows/stop/<execution_id>', methods=['POST'])
+def api_workflow_stop(execution_id):
+    """Stop running workflow."""
+```
+
+**Async Execution with Progress Tracking:**
+```python
+# Background workflow execution
+import threading
+from queue import Queue
+
+workflow_executions = {}  # {execution_id: {status, output, progress}}
+
+def execute_workflow_async(execution_id, workflow_path, params):
+    """Run workflow in background thread."""
+    workflow_executions[execution_id] = {
+        'status': 'running',
+        'progress': 0,
+        'output': [],
+        'started': datetime.now().isoformat()
+    }
+
+    # Execute .uPY script via Parser
+    result = parser.parse_file(workflow_path, variables=params)
+
+    workflow_executions[execution_id].update({
+        'status': 'completed' if result.success else 'failed',
+        'progress': 100,
+        'completed': datetime.now().isoformat()
+    })
+```
+
+**Integration Examples:**
+
+**Slack Bot:**
+```python
+# Slack slash command: /udos run water-filter-guide
+@slack_app.command("/udos")
+def handle_udos_command(ack, command):
+    ack()
+
+    # Call uDOS API
+    response = requests.post('http://localhost:5001/api/workflows/run/water-filter-guide',
+                            json={'params': {'location': command['text']}})
+
+    return f"Workflow started: {response.json()['execution_id']}"
+```
+
+**Notion Automation:**
+```python
+# When page tagged "generate-diagram" → trigger uDOS
+notion_client.on_page_update(lambda page:
+    requests.post('http://localhost:5001/api/workflows/run/diagram-generator',
+                 json={'params': {'page_id': page.id, 'content': page.content}})
+)
+```
+
+**Estimated:** ~250 lines (workflow API + async execution)
+
+---
+
+### Task 6: Memory API Extensions 📋 PLANNED
+
+**Objective:** Extend existing knowledge API with tier-aware operations
+
+**File:** `extensions/api/server.py` (+200 lines)
+
+**Enhanced Memory Endpoints:**
+```python
+@app.route('/api/memory/add', methods=['POST'])
+def api_memory_add():
+    """Add content to memory tier."""
+    # POST: {tier: 2, type: "note|guide|doc", title, content, tags[], source}
+    # Executes: GUIDE ADD tier<N> <type> <title>
+    # Returns: {id, tier, created, url}
+
+@app.route('/api/memory/search')
+def api_memory_search():
+    """Search across memory tiers."""
+    # GET params: ?query=water&tiers=2,3&tags=survival
+    # Executes: GUIDE SEARCH <query> --tiers 2,3 --tags survival
+    # Returns: [{id, tier, title, excerpt, relevance, tags[]}]
+
+@app.route('/api/memory/sync', methods=['POST'])
+def api_memory_sync():
+    """Sync content from external source."""
+    # POST: {source: "notion|slack|github", source_id, content, metadata}
+    # Auto-determines tier based on source:
+    #   - Notion personal → Tier 2 (Private)
+    #   - Slack team → Tier 3 (Shared)
+    #   - GitHub public → Tier 4 (Community)
+
+@app.route('/api/memory/export/<tier>')
+def api_memory_export(tier):
+    """Export tier as JSON/markdown archive."""
+    # Returns: ZIP file with all tier content
+```
+
+**Tier Routing Logic:**
+```python
+def determine_tier(source: str, metadata: dict) -> int:
+    """Auto-determine memory tier based on source."""
+    if source == "notion":
+        return 2 if metadata.get('workspace') == 'personal' else 3
+    elif source == "slack":
+        return 3 if metadata.get('channel_type') == 'private' else 4
+    elif source == "github":
+        return 4 if metadata.get('repo_visibility') == 'public' else 3
+    else:
+        return 2  # Default to private
+```
+
+**Citation & Traceability:**
+```python
+# All synced content includes source metadata
+{
+  "id": "guide_abc123",
+  "tier": 3,
+  "title": "Water Filtration Setup",
+  "content": "...",
+  "source": {
+    "platform": "notion",
+    "source_id": "page_xyz789",
+    "synced_at": "2025-12-04T14:00:00Z",
+    "original_url": "https://notion.so/page_xyz789"
+  },
+  "tags": ["water", "survival", "equipment"]
+}
+```
+
+**Estimated:** ~200 lines (memory API extensions)
+
+---
+
+### Task 7: Map & Mission API 📋 PLANNED
+
+**Objective:** Expose map and mission systems via API for external dashboards
+
+**File:** `extensions/api/server.py` (+150 lines)
+
+**Map API:**
+```python
+@app.route('/api/map/status')
+def api_map_status():
+    """Get current map position and layer."""
+    # Returns: {tile, layer, zoom, location_name, coordinates}
+
+@app.route('/api/map/goto', methods=['POST'])
+def api_map_goto():
+    """Move to location."""
+    # POST: {tile: "AS-JP-TYO", layer: "surface"}
+    # Executes: MAP GOTO AS-JP-TYO SURFACE
+
+@app.route('/api/map/locations')
+def api_map_locations():
+    """List all locations (cities, regions)."""
+    # Returns GeoJSON FeatureCollection
+
+@app.route('/api/map/history')
+def api_map_history():
+    """Get location history."""
+    # Returns: [{tile, layer, timestamp, duration}]
+```
+
+**Mission API:**
+```python
+@app.route('/api/missions/list')
+def api_missions_list():
+    """List all missions."""
+    # Returns: [{id, name, status, progress, created, objective}]
+
+@app.route('/api/missions/create', methods=['POST'])
+def api_mission_create():
+    """Create new mission."""
+    # POST: {name, objective, workflow_id}
+
+@app.route('/api/missions/update/<mission_id>', methods=['PATCH'])
+def api_mission_update(mission_id):
+    """Update mission status/progress."""
+    # PATCH: {status: "ACTIVE|PAUSED|COMPLETED", progress: "45/55"}
+
+@app.route('/api/missions/<mission_id>')
+def api_mission_get(mission_id):
+    """Get mission details."""
+```
+
+**External Dashboard Integration Example:**
+```javascript
+// Custom web dashboard (outside uDOS)
+async function loadMissionStatus() {
+    const missions = await fetch('http://localhost:5001/api/missions/list').then(r => r.json());
+    const active = missions.filter(m => m.status === 'ACTIVE');
+
+    displayMissions(active);
+}
+
+// Real-time updates via polling or WebSocket
+setInterval(loadMissionStatus, 5000);
+```
+
+**Estimated:** ~150 lines (map + mission API)
+
+---
+
+## Part 3: VS Code Extension - Developer Lab (Tasks 8-11)
+
+### Task 8: .uPY Language Support 📋 PLANNED
+
+**Objective:** Create VS Code extension with .uPY syntax highlighting and IntelliSense
+
+**Files:**
+- `extensions/vscode-udos/package.json` (extension manifest)
+- `extensions/vscode-udos/syntaxes/upy.tmLanguage.json` (TextMate grammar)
+- `extensions/vscode-udos/language-configuration.json` (brackets, comments, etc.)
+
+**Features:**
+
+1. **Syntax Highlighting**
+   ```json
+   {
+     "scopeName": "source.upy",
+     "patterns": [
+       {
+         "name": "keyword.control.upy",
+         "match": "\\b(SET|GET|IF|THEN|ELSE|END|FOREACH|IN|WHILE|GUIDE|MAP|MISSION|CHECKLIST)\\b"
+       },
+       {
+         "name": "variable.other.upy",
+         "match": "\\$[A-Z_][A-Z0-9_\\.]*"
+       },
+       {
+         "name": "string.quoted.double.upy",
+         "begin": "\"",
+         "end": "\""
+       },
+       {
+         "name": "comment.line.upy",
+         "match": "#.*$"
+       }
+     ]
+   }
+   ```
+
+2. **IntelliSense (Autocomplete)**
+   ```typescript
+   // extensions/vscode-udos/src/completion.ts
+   export class UPYCompletionProvider implements vscode.CompletionItemProvider {
+       provideCompletionItems(document, position) {
+           const commands = [
+               { label: 'SET', detail: 'SET <variable> <value>' },
+               { label: 'GUIDE ADD', detail: 'GUIDE ADD tier<N> <type> <title>' },
+               { label: 'MAP GOTO', detail: 'MAP GOTO <tile> <layer>' },
+               // ... 60+ uDOS commands
+           ];
+
+           return commands.map(cmd => new vscode.CompletionItem(cmd.label));
+       }
+   }
+   ```
+
+3. **Hover Documentation**
+   ```typescript
+   export class UPYHoverProvider implements vscode.HoverProvider {
+       provideHover(document, position) {
+           const word = document.getText(document.getWordRangeAtPosition(position));
+
+           const docs = {
+               'GUIDE': 'Knowledge management system\n\nUsage: GUIDE <command> [options]',
+               'MAP': 'Geographic navigation system\n\nUsage: MAP <command> [location]',
+               // ... documentation for all commands
+           };
+
+           return new vscode.Hover(docs[word] || '');
+       }
+   }
+   ```
+
+4. **Snippets**
+   ```json
+   {
+     "Guide Add": {
+       "prefix": "guidea",
+       "body": [
+         "GUIDE ADD tier${1:3} ${2:note} \"${3:title}\"",
+         "GUIDE SET content \"${4:content}\"",
+         "GUIDE TAG ${5:tag}"
+       ]
+     },
+     "Mission Create": {
+       "prefix": "missionc",
+       "body": [
+         "MISSION CREATE \"${1:name}\"",
+         "MISSION SET objective \"${2:objective}\"",
+         "MISSION SET status ${3:ACTIVE}"
+       ]
+     }
+   }
+   ```
+
+**Estimated:** ~600 lines (grammar + IntelliSense + snippets)
+
+---
+
+### Task 9: uDOS Dev Instance Integration 📋 PLANNED
+
+**Objective:** Run .uPY scripts from VS Code with sandboxed testing
+
+**File:** `extensions/vscode-udos/src/executor.ts` (~400 lines)
+
+**Features:**
+
+1. **Run Current Script**
+   - Command: "uDOS: Run Current Script"
+   - Executes via API: `POST /api/workflows/run/<script>`
+   - Shows output in VS Code terminal
+
+2. **Sandbox Mode**
+   - Creates disposable uDOS instance
+   - Isolated memory (doesn't affect main system)
+   - Fresh state for each run
+
+3. **Debug Panel**
+   ```
+   ┌────────────────────────────────────────────┐
+   │ uDOS Debug Console                         │
+   ├────────────────────────────────────────────┤
+   │ Running: water-filter-guide.upy            │
+   │ Execution Time: 1.2s                       │
+   │ Status: ✅ Success                         │
+   │                                            │
+   │ Output:                                    │
+   │ ──────                                     │
+   │ SET $LOCATION "AU-SYD"                     │
+   │ GUIDE ADD tier3 guide "Water Filtration"   │
+   │ ✅ Guide created: guide_abc123             │
+   │ DIAGRAM GENERATE water-filter              │
+   │ ✅ Diagram saved: water-filter.svg         │
+   │                                            │
+   │ Variables:                                 │
+   │   $LOCATION = "AU-SYD"                     │
+   │   $GUIDE.ID = "guide_abc123"               │
+   │   $DIAGRAM.PATH = "/memory/diagrams/..."   │
+   └────────────────────────────────────────────┘
+   ```
+
+4. **Watch Mode**
+   - Auto-run on file save
+   - Incremental execution (only changed lines)
+   - Hot reload integration (v1.2.4)
+
+**Estimated:** ~400 lines (executor + debug panel)
+
+---
+
+### Task 10: Webhook Testing Panel 📋 PLANNED
+
+**Objective:** Test webhooks with mock payloads from VS Code
+
+**File:** `extensions/vscode-udos/src/webhook-tester.ts` (~300 lines)
+
+**Features:**
+
+1. **Mock Payload Library**
+   ```json
+   // extensions/vscode-udos/fixtures/github-push.json
+   {
+     "ref": "refs/heads/main",
+     "commits": [
+       {
+         "id": "abc123",
+         "message": "Add water purification guide",
+         "modified": ["knowledge/water/purification.md"]
+       }
+     ]
+   }
+   ```
+
+2. **Test Panel**
+   ```
+   ┌────────────────────────────────────────────┐
+   │ Webhook Tester                             │
+   ├────────────────────────────────────────────┤
+   │ Platform: [GitHub ▾]                       │
+   │ Event:    [push    ▾]                      │
+   │ Fixture:  [Sample Push (3 commits) ▾]      │
+   │                                            │
+   │ Payload Preview:                           │
+   │ {                                          │
+   │   "ref": "refs/heads/main",                │
+   │   "commits": [...]                         │
+   │ }                                          │
+   │                                            │
+   │ [Edit Payload] [Save Fixture] [Send Test]  │
+   │                                            │
+   │ Response:                                  │
+   │ ✅ Webhook received                        │
+   │ ✅ Workflow triggered: github-sync.upy     │
+   │ ✅ Execution completed in 1.8s             │
+   └────────────────────────────────────────────┘
+   ```
+
+3. **Auto-generation**
+   - Record real webhook → save as fixture
+   - Modify fields (commit count, branch, etc.)
+   - Replay with variations
+
+**Estimated:** ~300 lines (tester UI + fixtures)
+
+---
+
+### Task 11: Multi-Instance Mesh Simulation 📋 PLANNED
+
+**Objective:** Visualize and test knowledge sync between uDOS instances
+
+**File:** `extensions/vscode-udos/src/mesh-simulator.ts` (~400 lines)
+
+**Features:**
+
+1. **Instance Spawner**
+   ```typescript
+   class MeshSimulator {
+       instances: UDOSInstance[] = [];
+
+       spawnInstance(config: {name: string, port: number, tier: number}) {
+           // Start isolated uDOS instance
+           // Unique memory directory
+           // Unique API port
+       }
+
+       connectInstances(from: string, to: string) {
+           // Establish mesh link
+           // Configure barter/sync rules
+       }
+   }
+   ```
+
+2. **Visual Graph**
+   ```
+   ┌────────────────────────────────────────────┐
+   │ Mesh Network Simulation                    │
+   ├────────────────────────────────────────────┤
+   │                                            │
+   │      [Alice]                               │
+   │       / \                                  │
+   │      /   \                                 │
+   │   [Bob] [Carol]                            │
+   │     |       |                              │
+   │     +-------+                              │
+   │      \     /                               │
+   │       [Dave]                               │
+   │                                            │
+   │ Active Connections: 5                      │
+   │ Synced Items: 47                           │
+   │ Pending: 3                                 │
+   │                                            │
+   │ [Sync Trigger] [Reset] [Export Log]        │
+   └────────────────────────────────────────────┘
+   ```
+
+3. **Scenario Testing**
+   - Trigger knowledge sync
+   - Simulate network partition
+   - Test conflict resolution
+   - Verify tier permissions
+
+**Estimated:** ~400 lines (simulator + UI)
+
+---
+
+## Part 4: Documentation & Testing (Tasks 12-14)
+
+### Task 12: Integration Testing 📋 PLANNED
+
+**Test Scenarios:**
+
+1. **Webhook End-to-End**
+   - Register GitHub webhook via API
+   - Send mock push event
+   - Verify workflow execution
+   - Check knowledge added to tier 3
+   - Confirm dashboard notification
+
+2. **API Workflow Execution**
+   - Call `/api/workflows/run/water-filter-guide`
+   - Monitor execution status
+   - Verify output matches expected
+   - Check async execution completes
+
+3. **VS Code Extension**
+   - Run .uPY script from editor
+   - Verify syntax highlighting
+   - Test autocomplete
+   - Check debug panel output
+
+4. **POKE WEB Dashboard**
+   - Access webhook panel
+   - View recent activity
+   - Test webhook registration UI
+   - Verify real-time updates via WebSocket
+
+**Estimated:** ~300 lines (test scripts)
+
+---
+
+### Task 13: Documentation 📋 PLANNED
+
+**New Wiki Pages:**
+
+1. **`wiki/Webhook-Integration.md`** (~800 lines)
+   - Overview and architecture
+   - Platform guides (Slack, Notion, ClickUp, GitHub)
+   - Workflow examples
+   - Security best practices
+   - Troubleshooting
+
+2. **`wiki/API-Reference.md`** (enhance existing, +400 lines)
+   - Webhook endpoints
+   - Workflow execution API
+   - Memory API
+   - Map/Mission API
+
+3. **`wiki/VS-Code-Extension.md`** (~600 lines)
+   - Installation guide
+   - .uPY language features
+   - Sandbox testing
+   - Webhook tester
+   - Mesh simulator
+
+**Updated Files:**
+- `CONTRIBUTING.md` (+100 lines) - VS Code extension development
+- `README.md` (+50 lines) - Webhook/API highlights
+- `CHANGELOG.md` (v1.2.5 entry)
+
+**Estimated:** ~1,950 lines documentation
+
+---
+
+### Task 14: Release & Packaging 📋 PLANNED
+
+**VS Code Extension:**
+- Package as `.vsix` file
+- Publish to VS Code Marketplace
+- Add to `extensions/vscode-udos/` in repo
+- GitHub Release with extension download
+
+**Server Configuration:**
+- Add webhook server to `extensions/server_manager.py`
+- Update port registry (PORT-REGISTRY.md)
+- Configure auto-start (optional)
+
+**Examples & Templates:**
+- 10+ webhook workflow templates (`memory/workflows/examples/webhooks/`)
+- Sample VS Code workspace (`.vscode/udos-dev.code-workspace`)
+- Postman/Thunder Client collection (API testing)
+
+**Estimated:** ~200 lines (packaging scripts)
+
+---
+
+## Success Metrics
+
+**Webhook Server:**
+- ✅ 4 platforms supported (Slack, Notion, ClickUp, GitHub)
+- ✅ HMAC signature validation working
+- ✅ Webhook events trigger .uPY workflows
+- ✅ Real-time dashboard updates via WebSocket
+- ✅ Audit log with all webhook activity
+
+**Enhanced API:**
+- ✅ 15+ new endpoints (webhooks, workflows, memory, map, missions)
+- ✅ Async workflow execution with progress tracking
+- ✅ Auto-tier routing for synced content
+- ✅ External dashboard integration examples working
+
+**GitHub Webhooks:**
+- ✅ Push events → knowledge sync
+- ✅ PR events → mission creation
+- ✅ Release events → version tracking
+- ✅ Automated diagram generation
+
+**VS Code Extension:**
+- ✅ .uPY syntax highlighting
+- ✅ IntelliSense with 60+ commands
+- ✅ Run scripts from editor (sandbox mode)
+- ✅ Webhook testing panel
+- ✅ Mesh simulator (multi-instance)
+- ✅ Published to VS Code Marketplace
+
+**POKE WEB Integration:**
+- ✅ Webhook management panel in dashboard
+- ✅ Real-time activity log
+- ✅ Webhook registration UI
+- ✅ Stats and monitoring
+
+---
+
+## Deliverables Summary
+
+**Code:**
+- Webhook receiver endpoints (+300 lines)
+- Webhook processor (+400 lines)
+- GitHub webhook handler (+500 lines)
+- Dashboard webhook panel (+400 lines)
+- Workflow execution API (+250 lines)
+- Memory API extensions (+200 lines)
+- Map/Mission API (+150 lines)
+- VS Code extension (~1,700 lines)
+- **Total: ~3,900 lines**
+
+**Data:**
+- Webhook configuration schema
+- 10+ workflow templates (~1,500 lines)
+- Mock webhook fixtures (~500 lines)
+- **Total: ~2,000 lines**
+
+**Documentation:**
+- Webhook Integration guide (800 lines)
+- API Reference updates (400 lines)
+- VS Code Extension guide (600 lines)
+- CONTRIBUTING.md updates (100 lines)
+- CHANGELOG entry (150 lines)
+- **Total: ~2,050 lines**
+
+**Infrastructure:**
+- VS Code extension package (.vsix)
+- Marketplace listing
+- API collection (Postman/Thunder Client)
+- Docker compose (optional multi-instance testing)
+
+**Grand Total: ~7,950 lines delivered**
+
+---
+
+## Strategic Value
+
+- 🔄 **Event-Driven Architecture** - React to cloud events in real-time
+- 🌐 **API-First Design** - uDOS becomes programmable service
+- 🔗 **Deep GitHub Integration** - Automated knowledge sync from repositories
+- 🎨 **Visual Development** - VS Code lab environment for .uPY
+- 🧪 **Sandbox Testing** - Safe experimentation without affecting main system
+- 📊 **Real-time Monitoring** - Dashboard shows all webhook activity
+- 🤝 **External Integrations** - Slack, Notion, ClickUp workflows
+- 🚀 **Developer Productivity** - Fast iteration with hot reload + autocomplete
+
+---
+
+## Implementation Order
+
+**Phase 1: Webhook Infrastructure** (MOVES 1-20)
+1. Webhook receiver endpoints (API server extension)
+2. Webhook processor (event normalization)
+3. Dashboard webhook panel (POKE WEB)
+4. Basic GitHub webhook handler
+
+**Phase 2: API Extensions** (MOVES 21-45)
+1. Workflow execution API
+2. Memory API extensions
+3. Map/Mission API
+4. Integration testing
+
+**Phase 3: VS Code Extension** (MOVES 46-65)
+1. .uPY language support (syntax + IntelliSense)
+2. Script executor (sandbox mode)
+3. Webhook testing panel
+4. Mesh simulator (advanced)
+
+**Phase 4: Documentation & Release** (MOVES 66-80)
+1. Wiki documentation (3 new pages)
+2. Workflow templates (10+ examples)
+3. VS Code extension packaging
+4. Marketplace publishing
+
+**Total Estimated Time:** 80 MOVES (organic pacing, no deadlines)
+
+---
+
+## Next Steps (Post v1.2.5)
+
+This sets up:
+- **v1.2.6:** MeshCore Multi-Protocol Mesh Networking (LoRa + Bluetooth + NFC)
+- **v1.2.7:** Music creation & cloud POKE extensions
+- **v1.2.8:** Cross-platform distribution (Tauri desktop + PWA + marketplace)
+- **v1.2.9:** Device management & multi-protocol mesh
+- **v2.0.0:** Unified distributed mesh platform
+
+The webhook/API foundation enables all future integrations while VS Code extension becomes the standard development environment.
+
+---
+
+## 📍 Future Release: v1.2.6
+
 **Status:** 📋 **PLANNED** - MeshCore Multi-Protocol Mesh Networking (LoRa + Bluetooth + NFC)
 **Complexity:** High (multi-protocol mesh + GeoJSON mapping + encryption + hardware)
 **Effort:** ~50-70 MOVES (Part 1: 12-15, Part 2: 15-20, Part 3: 15-22, Part 4: 8-13)
-**Dependencies:** v1.2.4 complete (Developer Experience & Hot Reload)
+**Dependencies:** v1.2.5 complete (Integration, Automation & Developer Tooling)
 
 ### Mission: Decentralized Multi-Protocol Mesh Communication & Location Sharing
 

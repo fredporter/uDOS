@@ -103,7 +103,7 @@ class UserCommandHandler:
         """
         Handle FEEDBACK command.
 
-        Format: 
+        Format:
             FEEDBACK <message> [<category>] - Local feedback
             FEEDBACK --github [--open] [--issue|--discussion] [--bug|--feature|--question] - GitHub
 
@@ -136,7 +136,7 @@ class UserCommandHandler:
         # Handle local feedback (original behavior)
         # Filter out any flags to get actual message
         message_parts = [p for p in params if not p.startswith("--")]
-        
+
         if not message_parts:
             return "❌ FEEDBACK requires a message\n" \
                    "   Usage: FEEDBACK \"<your feedback>\" [TYPE <category>]\n" \
@@ -203,30 +203,30 @@ class UserCommandHandler:
 
 Local Feedback (saved to memory/logs/):
   FEEDBACK "<message>" [TYPE <category>]
-  
+
   Categories: general, confusion, request, praise
-  
+
   Example:
     FEEDBACK "Love the hot reload feature!"
     FEEDBACK "Confused about workflow syntax" TYPE confusion
 
 GitHub Feedback (browser-based, no API key needed):
   FEEDBACK --github [--open] [--issue|--discussion] [--category]
-  
+
   Types:
     --issue       : Bug report or feature request
     --discussion  : General feedback, questions, ideas
-  
+
   Categories:
     --bug         : Report a bug (creates Issue)
     --feature     : Request a feature (creates Issue)
     --question    : Ask a question (creates Discussion)
     --idea        : Share an idea (creates Discussion)
     --general     : General feedback (creates Discussion)
-  
+
   Flags:
     --open        : Automatically open browser (skip confirmation)
-  
+
   Examples:
     FEEDBACK --github --bug
     FEEDBACK --github --feature --open
