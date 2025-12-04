@@ -80,7 +80,7 @@ def print_splash_screen():
         # Rich rendering failed - use plain text fallback
         # Uncomment for debugging: print(f"DEBUG: Rich rendering failed: {e}")
         pass
-    
+
     # Fallback to plain text
     splash_text = r"""
 ██╗   ██╗██████╗  ██████╗ ███████╗
@@ -90,12 +90,12 @@ def print_splash_screen():
 ╚██████╔╝██████╔╝╚██████╔╝███████║
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
-        print(splash_text)
-        print("uDOS v1.2.8 - Offline-First Survival OS")
-        print("="*50)
-        print("Type HELP for commands | CONFIG LIST for settings")
-        print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND(params)")
-        print()
+    print(splash_text)
+    print("uDOS v1.2.8 - Offline-First Survival OS")
+    print("="*50)
+    print("Type HELP for commands | CONFIG LIST for settings")
+    print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND(params)")
+    print()
 
 
 def print_viewport_measurement(viewport, delay=1.0):
