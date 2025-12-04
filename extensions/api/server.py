@@ -1226,6 +1226,17 @@ def webhook_receive(platform):
 
         response_data["event_id"] = event_id
 
+        # Broadcast event via WebSocket for real-time dashboard updates
+        socketio.emit('webhook_event', {
+            'event_id': event_id,
+            'platform': platform,
+            'event_type': event_type,
+            'response_status': 'success',
+            'execution_time_ms': execution_time_ms,
+            'timestamp': time.time(),
+            'actions_triggered': len(results)
+        })
+
         return jsonify(response_data)
 
     except Exception as e:
@@ -1234,7 +1245,7 @@ def webhook_receive(platform):
         # Record failed event
         execution_time_ms = (time.time() - start_time) * 1000
         try:
-            event_store.record_event(
+            event_id = event_store.record_event(
                 webhook_id=webhook.id if 'webhook' in locals() else "unknown",
                 platform=platform,
                 event_type=event_type if 'event_type' in locals() else "unknown",
@@ -1245,6 +1256,17 @@ def webhook_receive(platform):
                 execution_time_ms=execution_time_ms,
                 error=str(e)
             )
+
+            # Broadcast error event via WebSocket
+            socketio.emit('webhook_event', {
+                'event_id': event_id,
+                'platform': platform,
+                'event_type': event_type if 'event_type' in locals() else "unknown",
+                'response_status': 'error',
+                'execution_time_ms': execution_time_ms,
+                'timestamp': time.time(),
+                'error': str(e)
+            })
         except:
             pass  # Don't fail if event recording fails
 
@@ -1295,6 +1317,60 @@ def webhook_test(webhook_id):
 # ============================================================================
 # WEBHOOK ANALYTICS ENDPOINTS (v1.2.6)
 # ============================================================================
+
+@app.route('/api/webhooks/events/test', methods=['POST'])
+def create_test_webhook_event():
+    """
+    Create a test webhook event and emit it via WebSocket (for testing only).
+    
+    POST /api/webhooks/events/test
+    {
+        "platform": "github",
+        "event_type": "push",
+        "webhook_id": "wh_test123"
+    }
+    """
+    try:
+        data = request.get_json() or {}
+        platform = data.get('platform', 'github')
+        event_type = data.get('event_type', 'test')
+        webhook_id = data.get('webhook_id', 'wh_test_001')
+        
+        event_store = get_event_store()
+        
+        # Record test event
+        event_id = event_store.record_event(
+            webhook_id=webhook_id,
+            platform=platform,
+            event_type=event_type,
+            payload={"test": True, "message": "Test webhook event"},
+            headers=dict(request.headers),
+            response_status="success",
+            response_data={"test": True},
+            execution_time_ms=10.5
+        )
+        
+        # Broadcast event via WebSocket
+        socketio.emit('webhook_event', {
+            'event_id': event_id,
+            'platform': platform,
+            'event_type': event_type,
+            'response_status': 'success',
+            'execution_time_ms': 10.5,
+            'timestamp': time.time(),
+            'test': True
+        })
+        
+        return jsonify({
+            "status": "success",
+            "event_id": event_id,
+            "message": "Test event created and broadcasted"
+        })
+        
+    except Exception as e:
+        api_logger.error(f'Test event error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/api/webhooks/events', methods=['GET'])
 def list_webhook_events():

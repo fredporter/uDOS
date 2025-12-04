@@ -8,6 +8,9 @@
     <!-- Chart.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+    <!-- Socket.IO from CDN -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
     <!-- Analytics Widget CSS -->
     <link rel="stylesheet" href="../widgets/analytics-widget.css">
 
@@ -116,6 +119,55 @@
             margin-top: 10px;
             text-align: center;
         }
+
+        /* Connection Status Indicator */
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .connection-status .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .connection-status.connected .status-dot {
+            background: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .connection-status.connecting .status-dot {
+            background: #FFC107;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        .connection-status.disconnected .status-dot {
+            background: #666;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes flash {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(76, 175, 80, 0.2); }
+        }
     </style>
 </head>
 <body>
@@ -126,13 +178,14 @@
     </div>
 
     <div class="info-box">
-        <h3>📊 Chart.js Features</h3>
+        <h3>📊 v1.2.7 Features</h3>
         <ul>
+            <li><strong>Real-time Updates:</strong> WebSocket connection for instant event notifications</li>
             <li><strong>Events Timeline:</strong> Line chart showing webhook events over time</li>
             <li><strong>Platform Distribution:</strong> Doughnut chart breaking down events by platform</li>
             <li><strong>Success Rate Gauge:</strong> Semi-circle gauge showing webhook success rate</li>
-            <li><strong>Interactive:</strong> Click on charts to filter and explore data</li>
-            <li><strong>Auto-refresh:</strong> Updates every 30 seconds with latest data</li>
+            <li><strong>Interactive Charts:</strong> Click on charts to filter and explore data</li>
+            <li><strong>Connection Status:</strong> Live indicator showing WebSocket connection state</li>
         </ul>
     </div>
 

@@ -20,6 +20,7 @@ class AnalyticsWidget {
             refreshInterval: config.refreshInterval || 30000, // 30 seconds
             days: config.days || 7,
             useChartJs: config.useChartJs !== false, // Enable Chart.js by default
+            useWebSocket: config.useWebSocket !== false, // Enable WebSocket by default
             ...config
         };
 
@@ -27,6 +28,8 @@ class AnalyticsWidget {
         this.events = [];
         this.refreshTimer = null;
         this.charts = {}; // Store Chart.js instances
+        this.socket = null; // WebSocket connection
+        this.connectionStatus = 'disconnected'; // disconnected | connecting | connected
 
         // Check Chart.js availability
         if (this.config.useChartJs && typeof Chart === 'undefined') {
@@ -43,6 +46,11 @@ class AnalyticsWidget {
         this.render();
         this.loadAnalytics();
         this.startAutoRefresh();
+
+        // Initialize WebSocket connection if enabled
+        if (this.config.useWebSocket) {
+            this.initWebSocket();
+        }
     }
 
     render() {
@@ -51,6 +59,10 @@ class AnalyticsWidget {
                 <div class="widget-header">
                     <h2>📊 Webhook Analytics</h2>
                     <div class="widget-controls">
+                        <span id="connection-status" class="connection-status disconnected" title="WebSocket Disconnected">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Offline</span>
+                        </span>
                         <select id="analytics-period" class="period-selector">
                             <option value="1">Last 24 Hours</option>
                             <option value="7" selected>Last 7 Days</option>
@@ -60,6 +72,7 @@ class AnalyticsWidget {
                             🔄
                         </button>
                     </div>
+                </div>
                 </div>
 
                 <div class="analytics-grid">
@@ -94,7 +107,7 @@ class AnalyticsWidget {
                             <canvas id="platform-chart"></canvas>
                         </div>
                     </div>
-                    
+
                     <!-- Response Time Chart -->
                     <div class="charts-row">
                         <div class="chart-container">
@@ -194,7 +207,7 @@ class AnalyticsWidget {
             this.analytics.failed_events.toLocaleString();
     updateCharts() {
         if (!this.analytics) return;
-        
+
         if (this.config.useChartJs) {
             this.renderTimelineChartJs();
             this.renderPlatformChartJs();
@@ -372,16 +385,16 @@ class AnalyticsWidget {
             );
         }
     }
-    
+
     renderResponseTimeHistogram() {
         if (typeof ChartUtils === 'undefined') return;
         if (!this.events || this.events.length === 0) return;
-        
+
         // Destroy existing chart
         if (this.charts.responseTime) {
             this.charts.responseTime.destroy();
         }
-        
+
         // Create histogram chart
         this.charts.responseTime = ChartUtils.createResponseTimeHistogram(
             'response-time-chart',
@@ -622,6 +635,12 @@ class AnalyticsWidget {
     destroy() {
         this.stopAutoRefresh();
 
+        // Disconnect WebSocket
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+        }
+
         // Destroy all Chart.js instances
         if (this.config.useChartJs) {
             Object.values(this.charts).forEach(chart => {
@@ -634,7 +653,126 @@ class AnalyticsWidget {
 
         this.container.innerHTML = '';
     }
+
+    /**
+     * Initialize WebSocket connection for real-time updates
+     */
+    initWebSocket() {
+        // Check if Socket.IO is available
+        if (typeof io === 'undefined') {
+            console.warn('Socket.IO not loaded, WebSocket disabled');
+            this.config.useWebSocket = false;
+            return;
+        }
+
+        const serverUrl = this.config.apiBaseUrl.replace('/api', '');
+        this.updateConnectionStatus('connecting');
+
+        try {
+            this.socket = io(serverUrl, {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: Infinity
+            });
+
+            // Connection established
+            this.socket.on('connect', () => {
+                console.log('WebSocket connected');
+                this.updateConnectionStatus('connected');
+            });
+
+            // Connection lost
+            this.socket.on('disconnect', (reason) => {
+                console.log('WebSocket disconnected:', reason);
+                this.updateConnectionStatus('disconnected');
+            });
+
+            // Reconnecting
+            this.socket.on('reconnecting', (attemptNumber) => {
+                console.log(`WebSocket reconnecting (attempt ${attemptNumber})`);
+                this.updateConnectionStatus('connecting');
+            });
+
+            // Webhook event received
+            this.socket.on('webhook_event', (event) => {
+                console.log('Received webhook event:', event);
+                this.handleWebSocketEvent(event);
+            });
+
+            // Error handling
+            this.socket.on('connect_error', (error) => {
+                console.error('WebSocket connection error:', error);
+                this.updateConnectionStatus('disconnected');
+            });
+
+        } catch (error) {
+            console.error('Failed to initialize WebSocket:', error);
+            this.config.useWebSocket = false;
+            this.updateConnectionStatus('disconnected');
+        }
+    }
+
+    /**
+     * Handle incoming WebSocket events
+     */
+    handleWebSocketEvent(event) {
+        // Increment event counter
+        this.incrementEventCount();
+
+        // Refresh analytics to get updated data
+        // In future, we could update incrementally instead of full refresh
+        this.loadAnalytics();
+    }
+
+    /**
+     * Update connection status indicator
+     */
+    updateConnectionStatus(status) {
+        this.connectionStatus = status;
+
+        const statusElement = document.getElementById('connection-status');
+        if (!statusElement) return;
+
+        statusElement.className = `connection-status ${status}`;
+
+        const statusText = statusElement.querySelector('.status-text');
+        const statusTitle = {
+            connected: 'WebSocket Connected',
+            connecting: 'WebSocket Connecting...',
+            disconnected: 'WebSocket Disconnected'
+        };
+
+        if (statusText) {
+            statusText.textContent = {
+                connected: 'Live',
+                connecting: 'Connecting',
+                disconnected: 'Offline'
+            }[status];
+        }
+
+        statusElement.title = statusTitle[status] || 'Unknown Status';
+    }
+
+    /**
+     * Increment event counter (visual feedback)
+     */
+    incrementEventCount() {
+        const totalElement = document.querySelector('#total-events .metric-value');
+        if (totalElement) {
+            const current = parseInt(totalElement.textContent.replace(/,/g, '')) || 0;
+            totalElement.textContent = (current + 1).toLocaleString();
+
+            // Flash animation
+            totalElement.style.animation = 'none';
+            setTimeout(() => {
+                totalElement.style.animation = 'flash 0.5s ease';
+            }, 10);
+        }
+    }
 }
 
 // Make available globally
 window.AnalyticsWidget = AnalyticsWidget;
+
