@@ -453,6 +453,6 @@ python extensions/api/server.py
 
 ---
 
-**Version:** v1.2.7 Phase 2  
-**Last Updated:** December 5, 2025  
+**Version:** v1.2.7 Phase 2
+**Last Updated:** December 5, 2025
 **Status:** Complete and operational

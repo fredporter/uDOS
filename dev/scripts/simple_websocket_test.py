@@ -64,7 +64,7 @@ def test_websocket_events():
             "events": ["push"],
             "secret": "test_secret_123"
         }
-        
+
         response = requests.post(f"{API_BASE_URL}/webhooks/register", json=webhook_data)
         if response.status_code != 200:
             print(f"   ❌ Failed to register webhook: {response.text}")
@@ -117,7 +117,7 @@ def test_websocket_events():
 if __name__ == '__main__':
     success = test_websocket_events()
     print("\n" + "=" * 60)
-    
+
     if success:
         print("✅ WebSocket integration working!")
         print("\nNext: Open analytics-demo.html to see real-time updates")
@@ -127,6 +127,6 @@ if __name__ == '__main__':
         print("  1. Check server logs: extensions/api/server.log")
         print("  2. Verify Flask-SocketIO is running")
         print("  3. Make sure port 5001 is accessible")
-    
+
     print("=" * 60)
     sys.exit(0 if success else 1)

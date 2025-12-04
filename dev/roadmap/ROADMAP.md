@@ -3,8 +3,9 @@
 **Current Version:** v1.2.7 ✅ **COMPLETE** (Chart.js Visualizations & WebSocket Real-Time Updates)
 **Previous Versions:** v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅
 **Next Version:** v1.2.8 📋 **PLANNED** (Incremental Updates & Event Buffering)
+**Upcoming:** v1.2.9 📋 **PLANNED** (Gmail Cloud Sync)
 **Last Updated:** December 5, 2025
-**Roadmap Size:** 6,300+ lines (streamlined, v1.2+ development focus)
+**Roadmap Size:** 6,600+ lines (streamlined, v1.2+ development focus)
 
 **Recent Updates (Dec 5, 2025):**
 - ✅ v1.2.7 released - Chart.js & WebSocket Real-Time (1,800+ lines delivered)
@@ -4504,7 +4505,309 @@ v1.2.7 established real-time WebSocket updates, but currently refreshes entire a
 
 ---
 
-## 📍 Future Release: v1.2.9 (Previously v1.2.7)
+## 📍 Upcoming Release: v1.2.9
+
+**Status:** 📋 **PLANNED** - Gmail Cloud Sync for Memory & Shared Content
+**Complexity:** Medium-High (OAuth2 + Google Drive API + sync engine)
+**Effort:** ~35-45 MOVES (Part 1: 12-15, Part 2: 10-12, Part 3: 8-10, Part 4: 5-8)
+**Dependencies:** v1.2.8 complete (Incremental updates provide sync foundation)
+**Target:** ~1,200-1,500 lines
+
+### Mission: Secure Cloud Synchronization with Personal Gmail
+
+**Strategic Rationale:**
+Users need to sync essential uDOS content across devices while maintaining offline-first principles. Gmail OAuth provides:
+- Zero onboarding friction (most users already have Gmail)
+- Secure Google authentication (no password handling)
+- 15 MB personal Google Drive storage for text-based sync
+- Privacy-first architecture (user controls what syncs)
+
+**Strategic Focus:**
+- **Gmail OAuth Integration** - Login with personal Gmail account
+- **Google Drive Sync** - 15 MB allocation for memory/shared content
+- **Email Integration** - Convert .eml to uDOS-flavored .md, tasks.json
+- **Selective Sync** - User controls which tiers sync (Tier 1 always offline-only)
+- **Conflict Resolution** - Last-write-wins with local commit history
+
+---
+
+### Part 1: Gmail Authentication (Tasks 1-2)
+
+**Objective:** Implement Gmail OAuth login and token management
+
+**Task 1: OAuth2 Flow Implementation** 📋 PLANNED
+- **File:** `core/services/gmail_auth.py` (~350 lines)
+- **Features:**
+  - Google OAuth2 authentication flow
+  - Browser-based consent screen
+  - Access token and refresh token management
+  - Secure token storage in .env (encrypted)
+  - Token expiry handling and auto-refresh
+  - User profile retrieval (email, name, ID)
+
+**Commands:**
+```python
+LOGIN GMAIL              # Start OAuth flow
+LOGOUT GMAIL             # Revoke tokens
+STATUS GMAIL             # Show connection status
+```
+
+**OAuth Scopes:**
+- `https://www.googleapis.com/auth/drive.appdata` - App folder access only
+- `https://www.googleapis.com/auth/gmail.readonly` - Read emails
+- `https://www.googleapis.com/auth/gmail.send` - Send emails
+- `https://www.googleapis.com/auth/userinfo.email` - User profile
+
+**Task 2: Gmail API Integration** 📋 PLANNED
+- **File:** `core/services/gmail_service.py` (~300 lines)
+- **Features:**
+  - List emails with filters
+  - Download .eml files
+  - Convert .eml to uDOS .md format
+  - Parse email metadata (from, to, subject, date)
+  - Extract tasks from email content
+  - Delete emails from server (download & delete workflow)
+  - Send emails from uDOS
+
+**Estimated:** ~650 lines
+
+---
+
+### Part 2: Google Drive Sync Engine (Tasks 3-5)
+
+**Objective:** Sync memory/shared content to Google Drive (15 MB limit)
+
+**Task 3: Drive API Integration** 📋 PLANNED
+- **File:** `core/services/drive_sync.py` (~400 lines)
+- **Features:**
+  - Create `/uDOS-sync/` folder in user's Drive
+  - Upload/download files
+  - 15 MB storage quota management
+  - File versioning and conflict detection
+  - Incremental sync (only changed files)
+  - Bandwidth optimization (compress text files)
+
+**Drive Folder Structure:**
+```
+/uDOS-sync/
+├── memory/
+│   ├── docs/              # User documentation
+│   ├── shared/            # Community/public content
+│   │   ├── groups/
+│   │   ├── public/
+│   │   └── metadata/
+│   └── ucode/             # .uPY scripts
+├── config/
+│   ├── sync-manifest.json # What's synced, when, checksums
+│   └── user-settings.json # Sync preferences
+└── metadata/
+    └── sync-history.jsonl # Sync log
+```
+
+**Task 4: Selective Sync Configuration** 📋 PLANNED
+- **File:** `core/services/sync_config.py` (~200 lines)
+- **Features:**
+  - User-defined sync rules
+  - Tier-based filtering (Tier 1 always excluded)
+  - File type filters (include .md, .upy, .json; exclude binaries)
+  - Size limits per file type
+  - Sync schedule (manual, on-exit, periodic)
+
+**Sync Rules Example:**
+```json
+{
+  "enabled": true,
+  "tiers": {
+    "tier1": false,          // Never sync (offline-only)
+    "tier2": true,           // Sync shared content
+    "tier3": true            // Sync public content
+  },
+  "paths": {
+    "memory/docs": true,
+    "memory/shared": true,
+    "memory/ucode": true,
+    "memory/missions": false, // Keep local
+    "memory/workflows": false // Keep local
+  },
+  "file_types": [".md", ".upy", ".json", ".txt"],
+  "max_file_size_mb": 1,
+  "total_quota_mb": 15,
+  "schedule": "manual"        // manual | on-exit | hourly
+}
+```
+
+**Task 5: Conflict Resolution** 📋 PLANNED
+- **File:** `core/services/sync_resolver.py` (~250 lines)
+- **Features:**
+  - Detect conflicts (modified on multiple devices)
+  - Last-write-wins strategy (configurable)
+  - Local commit history (keep last 5 versions)
+  - Conflict notification in STATUS
+  - Manual merge tool for critical files
+
+**Estimated:** ~850 lines
+
+---
+
+### Part 3: Email to uDOS Conversion (Tasks 6-7)
+
+**Objective:** Convert emails to uDOS-flavored markdown and tasks
+
+**Task 6: Email to Markdown Converter** 📋 PLANNED
+- **File:** `core/services/email_converter.py` (~300 lines)
+- **Features:**
+  - Parse .eml format
+  - Extract headers (From, To, Subject, Date, CC, BCC)
+  - Convert HTML body to markdown
+  - Preserve attachments metadata
+  - Generate uDOS frontmatter
+  - Store in `memory/docs/email/`
+
+**Output Format:**
+```markdown
+---
+type: email
+from: sender@example.com
+to: user@gmail.com
+subject: Project Update
+date: 2025-12-05T10:30:00Z
+gmail_message_id: 18c5f2a1b3d4e5f6
+attachments:
+  - diagram.svg (stored separately)
+tags: [work, project-alpha]
+---
+
+# Project Update
+
+Email body converted to markdown...
+
+- **Action Items:**
+  - [ ] Review diagram
+  - [ ] Schedule meeting
+```
+
+**Task 7: Tasks Extraction** 📋 PLANNED
+- **File:** `core/services/email_tasks.py` (~200 lines)
+- **Features:**
+  - Detect task patterns in email body
+  - Parse markdown checkboxes `- [ ]`
+  - Identify action items (words: "TODO", "Action:", "Next steps")
+  - Generate tasks.json entries
+  - Link tasks to source email
+
+**Tasks JSON Output:**
+```json
+{
+  "tasks": [
+    {
+      "id": "task_001",
+      "title": "Review diagram",
+      "source": "email",
+      "email_id": "18c5f2a1b3d4e5f6",
+      "created": "2025-12-05T10:30:00Z",
+      "status": "todo",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Estimated:** ~500 lines
+
+---
+
+### Part 4: Commands & Integration (Tasks 8-9)
+
+**Objective:** User-facing commands for sync and email management
+
+**Task 8: Sync Commands** 📋 PLANNED
+- **File:** `core/commands/sync_handler.py` (~250 lines)
+- **Commands:**
+  ```
+  SYNC NOW                    # Start manual sync
+  SYNC STATUS                 # Show sync state, last sync time
+  SYNC CONFIG                 # Show/edit sync configuration
+  SYNC CONFLICTS              # List and resolve conflicts
+  SYNC HISTORY                # Show sync log
+  SYNC QUOTA                  # Show Drive usage (X/15 MB)
+  ```
+
+**Task 9: Email Commands** 📋 PLANNED
+- **File:** `core/commands/email_handler.py` (~200 lines)
+- **Commands:**
+  ```
+  EMAIL LIST                  # List recent emails
+  EMAIL DOWNLOAD <id>         # Download and convert specific email
+  EMAIL SYNC                  # Download all unread, convert, delete from Gmail
+  EMAIL SEND <to> <subject>   # Send email from uDOS
+  EMAIL TASKS                 # Show tasks extracted from emails
+  ```
+
+**Estimated:** ~450 lines
+
+---
+
+### Testing & Documentation
+
+**Task 10: Testing Suite** 📋 PLANNED
+- **File:** `dev/scripts/test_gmail_sync.py` (~200 lines)
+- Test OAuth flow
+- Validate Drive sync (upload/download/conflict)
+- Email conversion accuracy
+- Task extraction
+- Quota enforcement
+
+**Task 11: Documentation** 📋 PLANNED
+- **File:** `wiki/Gmail-Cloud-Sync.md` (~400 lines)
+- Setup guide (OAuth consent screen)
+- Security and privacy
+- Sync configuration
+- Email workflow
+- Troubleshooting
+
+**Estimated:** ~600 lines
+
+---
+
+### Summary
+
+**Total Estimated Effort:** ~3,050 lines (code + tests + docs)
+
+**Deliverables:**
+- ✅ Gmail OAuth authentication (~650 lines)
+- ✅ Google Drive sync engine (~850 lines)
+- ✅ Email to markdown converter (~500 lines)
+- ✅ Sync & email commands (~450 lines)
+- ✅ Testing suite (~200 lines)
+- ✅ Complete documentation (~400 lines)
+
+**Key Features:**
+- Secure Gmail login (no password handling)
+- 15 MB Google Drive storage for text-based sync
+- Email to .md conversion (download & delete)
+- Task extraction from emails
+- Selective sync (user controls what syncs)
+- Tier 1 always offline-only
+- Conflict resolution with local history
+- Bandwidth optimized (compress, incremental)
+
+**Privacy & Security:**
+- OAuth scopes limited to app folder only
+- Tokens encrypted in .env
+- User controls all sync settings
+- Email deleted from Gmail after download
+- No access to user's personal Drive files
+- Tier 1 never syncs (survival knowledge stays offline)
+
+**Dependencies:**
+- v1.2.8 incremental updates (sync state management)
+- Google OAuth2 client library
+- Google Drive API v3
+- Email parsing libraries (email, html2text)
+
+---
+
+## 📍 Future Release: v1.2.10 (Previously v1.2.9)
 
 **Status:** 📋 **PLANNED** - Cloud POKE Extension Publishing & HTTPS Hosting
 **Complexity:** High (HTTPS server + security + access control + cloud integration)

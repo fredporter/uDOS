@@ -1322,7 +1322,7 @@ def webhook_test(webhook_id):
 def create_test_webhook_event():
     """
     Create a test webhook event and emit it via WebSocket (for testing only).
-    
+
     POST /api/webhooks/events/test
     {
         "platform": "github",
@@ -1335,9 +1335,9 @@ def create_test_webhook_event():
         platform = data.get('platform', 'github')
         event_type = data.get('event_type', 'test')
         webhook_id = data.get('webhook_id', 'wh_test_001')
-        
+
         event_store = get_event_store()
-        
+
         # Record test event
         event_id = event_store.record_event(
             webhook_id=webhook_id,
@@ -1349,7 +1349,7 @@ def create_test_webhook_event():
             response_data={"test": True},
             execution_time_ms=10.5
         )
-        
+
         # Broadcast event via WebSocket
         socketio.emit('webhook_event', {
             'event_id': event_id,
@@ -1360,13 +1360,13 @@ def create_test_webhook_event():
             'timestamp': time.time(),
             'test': True
         })
-        
+
         return jsonify({
             "status": "success",
             "event_id": event_id,
             "message": "Test event created and broadcasted"
         })
-        
+
     except Exception as e:
         api_logger.error(f'Test event error: {e}', exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
