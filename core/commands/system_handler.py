@@ -444,9 +444,31 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_reboot(self, params, grid, parser):
         """
-        Restart the entire uDOS system.
-        Equivalent to exiting and re-running uDOS.py
+        Restart the uDOS system or reload extensions.
+
+        Variants:
+            REBOOT                  - Full system restart
+            REBOOT --extensions     - Reload all extensions (no core restart)
+            REBOOT --extension <id> - Reload single extension
+            REBOOT --validate       - Dry-run validation (no actual reload)
+
+        Args:
+            params: List with optional flags and extension ID
+            grid: Grid instance (unused)
+            parser: Parser instance (unused)
+
+        Returns:
+            Reboot status message or reload results
         """
+        # Parse flags
+        flags = [p for p in params if p.startswith('--')]
+        args = [p for p in params if not p.startswith('--')]
+
+        # Hot reload variants (v1.2.4+)
+        if '--extensions' in flags or '--extension' in flags or '--validate' in flags:
+            return self._handle_hot_reload(flags, args)
+
+        # Original full system reboot
         output = "\n🔄 REBOOTING uDOS SYSTEM...\n\n"
         output += "✅ Saving current state...\n"
         output += "✅ Clearing memory buffers...\n"
@@ -463,10 +485,116 @@ class SystemCommandHandler(BaseCommandHandler):
 
         output += "✅ Reinitializing components...\n\n"
         output += "🚀 System restart initiated!\n"
-        output += "Welcome back to uDOS v1.0.0\n\n"
+        output += "Welcome back to uDOS v1.2.4\n\n"
 
         # Set the reboot flag to trigger restart in main loop
         self.reboot_requested = True
+
+        return output
+
+    def _handle_hot_reload(self, flags, args):
+        """
+        Handle extension hot reload (REBOOT --extensions/--extension/--validate).
+
+        Args:
+            flags: List of flags (--extensions, --extension, --validate)
+            args: List of arguments (extension ID for --extension)
+
+        Returns:
+            Reload result message
+        """
+        try:
+            from core.services.extension_lifecycle import ExtensionLifecycleManager
+            from core.services.extension_manager import ExtensionManager
+        except ImportError as e:
+            return f"❌ Hot reload not available: {e}\n💡 Falling back to full REBOOT\n"
+
+        # Get extension manager instance
+        try:
+            ext_manager = ExtensionManager()
+        except:
+            ext_manager = None
+
+        # Create lifecycle manager
+        lifecycle = ExtensionLifecycleManager(ext_manager)
+
+        # Determine mode
+        validate_only = '--validate' in flags
+        single_extension = '--extension' in flags
+        all_extensions = '--extensions' in flags
+
+        output = "\n"
+
+        # Single extension reload
+        if single_extension:
+            if not args:
+                return "❌ Error: --extension requires extension ID\n💡 Usage: REBOOT --extension <id>\n"
+
+            ext_id = args[0]
+            output += f"🔄 {'VALIDATING' if validate_only else 'RELOADING'} EXTENSION: {ext_id}\n\n"
+
+            result = lifecycle.reload_extension(ext_id, validate_only)
+            output += self._format_reload_result(result, validate_only)
+
+        # All extensions reload
+        elif all_extensions:
+            output += f"🔄 {'VALIDATING' if validate_only else 'RELOADING'} ALL EXTENSIONS\n\n"
+
+            results = lifecycle.reload_all_extensions(validate_only)
+            for result in results:
+                output += self._format_reload_result(result, validate_only)
+                output += "\n"
+
+        else:
+            # Just --validate without --extension/--extensions
+            return "❌ Error: --validate requires --extension <id> or --extensions\n💡 Usage: REBOOT --validate --extension <id>\n"
+
+        return output
+
+    def _format_reload_result(self, result, validate_only=False):
+        """
+        Format reload result for display.
+
+        Args:
+            result: ReloadResult object
+            validate_only: Whether this was a validation-only run
+
+        Returns:
+            Formatted result string
+        """
+        from core.services.extension_lifecycle import ReloadResult
+
+        if not isinstance(result, ReloadResult):
+            return "❌ Invalid result format\n"
+
+        output = ""
+
+        if result.success:
+            if validate_only:
+                output += f"✅ Validation passed for '{result.extension_id}'\n"
+                output += f"   📋 Extension is ready for reload\n"
+            else:
+                output += f"✅ Extension '{result.extension_id}' reloaded successfully!\n"
+                if result.state_preserved:
+                    output += f"   💾 State preserved\n"
+                if result.modules_reloaded > 0:
+                    output += f"   🔄 Modules reloaded: {result.modules_reloaded}\n"
+                if result.commands_registered > 0:
+                    output += f"   ⚡ Commands registered: {result.commands_registered}\n"
+                output += f"   🚀 Changes are now active (no full restart needed)\n"
+        else:
+            output += f"❌ {result.message}\n"
+            if result.errors:
+                output += f"   📋 Errors:\n"
+                for error in result.errors[:3]:  # Limit to 3 errors
+                    # Shorten error messages
+                    error_line = error.split('\n')[0][:80]
+                    output += f"      • {error_line}\n"
+
+        if result.warnings:
+            output += f"   ⚠️  Warnings:\n"
+            for warning in result.warnings[:3]:  # Limit to 3 warnings
+                output += f"      • {warning}\n"
 
         return output
 
