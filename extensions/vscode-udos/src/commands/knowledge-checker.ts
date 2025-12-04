@@ -43,7 +43,7 @@ export async function checkKnowledgeQuality(context: vscode.ExtensionContext): P
     }
 
     const knowledgeRoot = path.join(workspaceFolder.uri.fsPath, 'knowledge');
-    
+
     if (!fs.existsSync(knowledgeRoot)) {
         vscode.window.showErrorMessage('Knowledge directory not found');
         return;
@@ -59,12 +59,12 @@ export async function checkKnowledgeQuality(context: vscode.ExtensionContext): P
 
         // Scan all guides
         const guides = await scanKnowledgeBase(knowledgeRoot);
-        
+
         progress.report({ message: `Analyzing ${guides.length} guides...` });
 
         // Run quality checks
         const report = await analyzeQuality(guides, (current, total) => {
-            progress.report({ 
+            progress.report({
                 message: `Analyzing ${current}/${total}...`,
                 increment: (1 / total) * 100
             });
@@ -104,13 +104,13 @@ async function scanKnowledgeBase(knowledgeRoot: string): Promise<GuideMetadata[]
 
     for (const category of categories) {
         const categoryPath = path.join(knowledgeRoot, category);
-        
+
         if (!fs.existsSync(categoryPath)) {
             continue;
         }
 
         const files = fs.readdirSync(categoryPath);
-        
+
         for (const file of files) {
             if (!file.endsWith('.md')) {
                 continue;
@@ -123,7 +123,7 @@ async function scanKnowledgeBase(knowledgeRoot: string): Promise<GuideMetadata[]
             // Extract frontmatter
             const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
             let frontmatter: any = null;
-            
+
             if (frontmatterMatch) {
                 try {
                     // Parse YAML frontmatter (simple parser)
@@ -153,7 +153,7 @@ async function scanKnowledgeBase(knowledgeRoot: string): Promise<GuideMetadata[]
 function parseFrontmatter(yamlText: string): any {
     const result: any = {};
     const lines = yamlText.split('\n');
-    
+
     for (const line of lines) {
         const match = line.match(/^(\w+):\s*(.+)$/);
         if (match) {
@@ -168,7 +168,7 @@ function parseFrontmatter(yamlText: string): any {
             }
         }
     }
-    
+
     return result;
 }
 
@@ -178,7 +178,7 @@ async function analyzeQuality(
 ): Promise<QualityReport> {
     const issues: QualityIssue[] = [];
     const categories: Record<string, number> = {};
-    
+
     let totalWordCount = 0;
     let withFrontmatter = 0;
     let withExamples = 0;
@@ -208,7 +208,7 @@ async function analyzeQuality(
         if (guide.frontmatter?.last_reviewed) {
             const lastReview = new Date(guide.frontmatter.last_reviewed);
             const daysSinceReview = (Date.now() - lastReview.getTime()) / (1000 * 60 * 60 * 24);
-            
+
             if (daysSinceReview > 365) {
                 outdated++;
                 issues.push({
@@ -223,7 +223,7 @@ async function analyzeQuality(
 
         // Check word count
         totalWordCount += guide.wordCount;
-        
+
         if (guide.wordCount < 300) {
             issues.push({
                 file: guide.path,
@@ -315,7 +315,7 @@ async function generateRegenScript(workspaceRoot: string, flaggedGuides: string[
         const parts = relativePath.split(path.sep);
         const category = parts[0];
         const fileName = parts[parts.length - 1].replace('.md', '');
-        
+
         // Read file to get title
         const content = fs.readFileSync(guidePath, 'utf-8');
         const titleMatch = content.match(/^#\s+(.+)$/m);

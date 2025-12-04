@@ -171,7 +171,7 @@ function validateSVG(content: string): SVGReport {
 function validateASCII(content: string): ASCIIReport {
     const issues: string[] = [];
     const lines = content.split('\n');
-    
+
     // Check width consistency
     const widths = lines.map(l => l.length);
     const maxWidth = Math.max(...widths);

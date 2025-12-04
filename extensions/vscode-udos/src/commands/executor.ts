@@ -30,7 +30,7 @@ export async function runScript(context: vscode.ExtensionContext): Promise<void>
     const config = vscode.workspace.getConfiguration('udos');
     const apiUrl = config.get<string>('apiUrl', 'http://localhost:5001');
     const showExecutionTime = config.get<boolean>('showExecutionTime', true);
-    
+
     const script = editor.document.getText();
     const scriptName = path.basename(editor.document.fileName);
 
@@ -90,7 +90,7 @@ export async function runInSandbox(context: vscode.ExtensionContext): Promise<vo
     const config = vscode.workspace.getConfiguration('udos');
     const apiUrl = config.get<string>('apiUrl', 'http://localhost:5001');
     const autoCleanup = config.get<boolean>('sandboxAutoCleanup', true);
-    
+
     const script = editor.document.getText();
     const scriptName = path.basename(editor.document.fileName);
 
@@ -102,7 +102,7 @@ export async function runInSandbox(context: vscode.ExtensionContext): Promise<vo
         workspace: `/tmp/udos-sandbox-${Date.now()}`,
         created: new Date()
     };
-    
+
     sandboxes.set(sandboxId, sandbox);
 
     // Create debug panel
@@ -159,7 +159,7 @@ export async function runInSandbox(context: vscode.ExtensionContext): Promise<vo
             sandbox.workspace
         );
         vscode.window.showErrorMessage(`Sandbox failed: ${error.message}`);
-        
+
         if (autoCleanup) {
             cleanupSandbox(sandboxId);
         }
@@ -170,7 +170,7 @@ async function executeScript(apiUrl: string, script: string, isolated: boolean):
     try {
         // Try to use node-fetch if available, otherwise use fetch API
         const fetch = (globalThis as any).fetch || require('node-fetch');
-        
+
         const response = await fetch(`${apiUrl}/api/workflows/run`, {
             method: 'POST',
             headers: {
@@ -188,7 +188,7 @@ async function executeScript(apiUrl: string, script: string, isolated: boolean):
         }
 
         const data = await response.json();
-        
+
         return {
             success: data.success ?? true,
             output: data.output || data.result || '',

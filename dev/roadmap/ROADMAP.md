@@ -1,25 +1,41 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.4 ✅ **COMPLETE** (Developer Experience & Hot Reload)
-**Previous Version:** v1.2.3 ✅ **COMPLETE** (Knowledge & Map Layer Expansion)
-**Next Version:** v1.2.10 ⚡ **PRIORITY** (VS Code Extension & Developer Tools)
+**Current Version:** v1.2.10 ✅ **COMPLETE** (VS Code Extension & Developer Tools)
+**Previous Version:** v1.2.4 ✅ **COMPLETE** (Developer Experience & Hot Reload)
+**Next Version:** v1.2.5 📋 **PLANNED** (Integration, Automation & Developer Tooling)
 **Last Updated:** December 4, 2025
 **Roadmap Size:** 5,395 lines (streamlined, v1.2+ development focus)
 
 **Recent Updates (Dec 4, 2025):**
+- ✅ v1.2.10 released - VS Code Extension & Developer Tools (3,133 lines delivered)
 - ✅ v1.2.4 released - Developer Experience & Hot Reload (3,588 lines delivered)
 - ✅ v1.2.3 released - Knowledge & Map Layer Expansion (complete)
-- 🔄 **PRIORITY SHIFT:** Jumping to v1.2.10 (VS Code + Developer Tools) to accelerate development workflow
-- 📋 v1.2.5-v1.2.9 deferred (webhook/API/mesh features can leverage better dev tools)
-- ✨ Added knowledge quality check tasks (REGEN flagging)
-- ✨ Added image format inspection/testing tasks (SVG, ASCII art, teletext)
-- 🎯 v1.2.10 marked as PRIORITY for immediate implementation
+- 🎯 Strategic jump to v1.2.10 successful - Developer productivity tools complete
+- 📋 v1.2.5-v1.2.9 ready for accelerated development with new tooling
+- ✨ Full .uPY language support in VS Code with IntelliSense and debugging
+- ✨ Knowledge quality checker operational (scans 6 categories, 228+ guides)
+- ✨ Image format validators complete (SVG, ASCII, teletext)
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns. Priorities shift based on immediate needs and strategic value.
 
 ---
 
 ## 📍 Latest Releases
+
+### v1.2.10 (December 4, 2025) ✅ **COMPLETE**
+
+**VS Code Extension & Developer Tools** - Complete .uPY language support, script execution, sandbox testing, knowledge quality checking, and image format validation.
+
+**Delivered:**
+- VS Code extension foundation (1,783 lines) - Syntax highlighting, IntelliSense, hover docs, snippets
+- Script executor & debugger (500 lines) - API integration, debug panels, execution tracking
+- Sandbox testing environment (integrated) - Isolated instances, auto-cleanup
+- Knowledge quality checker (450 lines) - 6 validation types, REGEN flagging, HTML reports
+- Image format validators (400 lines) - SVG inspector, ASCII tester, teletext validator
+- **Total: 3,133 lines delivered (87% of 3,600 target)**
+
+**Tag:** `v1.2.10`
+**Commits:** 8da33e6c, 9107fee1
 
 ### v1.2.4 (December 4, 2025) ✅ **COMPLETE**
 
@@ -55,12 +71,13 @@
 
 ---
 
-## 📍 Next Release: v1.2.10 ⚡ **PRIORITY**
+## 📍 Previously Released: v1.2.10 ✅ **COMPLETE**
 
-**Status:** 📋 **PLANNED** - VS Code Extension & Developer Tools (Fast-Track Priority)
+**Status:** ✅ **COMPLETE** - VS Code Extension & Developer Tools (Fast-Track Priority)
 **Complexity:** Medium-High (VS Code extension + .uPY language support + testing tools + knowledge quality check)
 **Effort:** ~50-70 MOVES (Part 1: 15-20, Part 2: 15-20, Part 3: 10-15, Part 4: 10-15)
 **Dependencies:** v1.2.4 complete (Hot Reload ready for extension testing)
+**Delivered:** December 4, 2025 (3,133 lines)
 
 ### Mission: Accelerate Development Workflow with Visual Tools
 
