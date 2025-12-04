@@ -1,0 +1,198 @@
+{
+  "name": "uPY Language",
+  "scopeName": "source.upy",
+  "fileTypes": ["upy"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#directives" },
+    { "include": "#keywords" },
+    { "include": "#commands" },
+    { "include": "#variables" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.upy",
+          "match": "#(?!BREAK|DEBUG|TRACE|REGION|ENDREGION).*$"
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "name": "keyword.control.directive.upy",
+          "match": "\\b(#BREAK|#DEBUG|#TRACE|#REGION|#ENDREGION)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.flow.upy",
+          "match": "\\b(IF|THEN|ELSE|ENDIF|END|FOREACH|IN|WHILE|BREAK|CONTINUE|RETURN|FUNCTION)\\b"
+        },
+        {
+          "name": "keyword.other.upy",
+          "match": "\\b(SET|GET|UNSET|EXPORT|IMPORT|INCLUDE)\\b"
+        },
+        {
+          "name": "constant.language.boolean.upy",
+          "match": "\\b(TRUE|FALSE|NULL|NONE)\\b"
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "support.function.knowledge.upy",
+          "match": "\\b(GUIDE|KB|KNOWLEDGE)\\s+(ADD|SEARCH|LIST|TAG|UPDATE|DELETE|EXPORT|IMPORT|STATS)\\b"
+        },
+        {
+          "name": "support.function.map.upy",
+          "match": "\\b(MAP|LOCATION)\\s+(GOTO|ASCEND|DESCEND|SEARCH|INFO|DISTANCE|ROUTE|NEARBY|LAYER)\\b"
+        },
+        {
+          "name": "support.function.mission.upy",
+          "match": "\\b(MISSION)\\s+(CREATE|START|PAUSE|RESUME|COMPLETE|FAIL|STATUS|LIST|UPDATE|DELETE)\\b"
+        },
+        {
+          "name": "support.function.workflow.upy",
+          "match": "\\b(WORKFLOW)\\s+(START|STOP|PAUSE|RESUME|STATUS|LIST|CREATE|DELETE)\\b"
+        },
+        {
+          "name": "support.function.checkpoint.upy",
+          "match": "\\b(CHECKPOINT)\\s+(SAVE|LOAD|LIST|DELETE|RESTORE)\\b"
+        },
+        {
+          "name": "support.function.checklist.upy",
+          "match": "\\b(CHECKLIST)\\s+(CREATE|ADD|CHECK|UNCHECK|STATUS|DELETE|EXPORT)\\b"
+        },
+        {
+          "name": "support.function.diagram.upy",
+          "match": "\\b(DIAGRAM|GENERATE|SPRITE|PANEL|TELETEXT)\\s+(GENERATE|CREATE|RENDER|EXPORT|LIST)\\b"
+        },
+        {
+          "name": "support.function.file.upy",
+          "match": "\\b(NEW|DELETE|COPY|MOVE|READ|WRITE|APPEND|LIST|FIND)\\b"
+        },
+        {
+          "name": "support.function.memory.upy",
+          "match": "\\b(MEMORY)\\s+(STORE|RECALL|LIST|SEARCH|DELETE|EXPORT|IMPORT)\\b"
+        },
+        {
+          "name": "support.function.assistant.upy",
+          "match": "\\b(ASSISTANT|ASK|CHAT|GENERATE)\\s+(QUERY|SEARCH|SUMMARIZE|TRANSLATE|CODE)\\b"
+        },
+        {
+          "name": "support.function.system.upy",
+          "match": "\\b(STATUS|SETTINGS|THEME|CLEAN|TIDY|BACKUP|RESTORE|UNDO|REDO|ARCHIVE|REPAIR)\\b"
+        },
+        {
+          "name": "support.function.extension.upy",
+          "match": "\\b(EXTENSION)\\s+(LIST|INFO|ENABLE|DISABLE|INSTALL|UNINSTALL|UPDATE)\\b"
+        },
+        {
+          "name": "support.function.poke.upy",
+          "match": "\\b(POKE)\\s+(WEB|API|TELETEXT|DASHBOARD)\\b"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.language.system.upy",
+          "match": "\\$(?:SYSTEM|USER|ENV|CONFIG|THEME|MODE|DEBUG|DEV_MODE)\\b"
+        },
+        {
+          "name": "variable.language.location.upy",
+          "match": "\\$(?:LOCATION|TILE|LAYER|GRID|COORD|ALTITUDE|DEPTH)\\b"
+        },
+        {
+          "name": "variable.language.mission.upy",
+          "match": "\\$MISSION\\.(?:ID|NAME|STATUS|PROGRESS|START_TIME|OBJECTIVE|NOTES)\\b"
+        },
+        {
+          "name": "variable.language.workflow.upy",
+          "match": "\\$WORKFLOW\\.(?:NAME|PHASE|ITERATION|ERRORS|ELAPSED_TIME|STATUS)\\b"
+        },
+        {
+          "name": "variable.language.checkpoint.upy",
+          "match": "\\$CHECKPOINT\\.(?:ID|TIMESTAMP|DATA|PREVIOUS|NEXT)\\b"
+        },
+        {
+          "name": "variable.language.guide.upy",
+          "match": "\\$GUIDE\\.(?:ID|TITLE|CATEGORY|TAGS|PATH|CONTENT)\\b"
+        },
+        {
+          "name": "variable.other.upy",
+          "match": "\\$[A-Z_][A-Z0-9_]*(?:\\.[A-Z_][A-Z0-9_]*)*"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.upy",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.upy",
+              "match": "\\\\."
+            },
+            {
+              "include": "#variables"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.upy",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.upy",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.upy",
+          "match": "\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.upy",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.upy",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.logical.upy",
+          "match": "\\b(AND|OR|NOT)\\b"
+        },
+        {
+          "name": "keyword.operator.arithmetic.upy",
+          "match": "\\+|\\-|\\*|\\/|%"
+        },
+        {
+          "name": "keyword.operator.assignment.upy",
+          "match": "="
+        }
+      ]
+    }
+  }
+}

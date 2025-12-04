@@ -1,0 +1,238 @@
+{
+  "Mission Template": {
+    "prefix": "mission",
+    "body": [
+      "# Mission: ${1:mission-name}",
+      "# Objective: ${2:objective}",
+      "",
+      "MISSION CREATE \"${1:mission-name}\"",
+      "MISSION SET objective \"${2:objective}\"",
+      "MISSION SET status ACTIVE",
+      "",
+      "# Mission steps",
+      "${3:# Step 1: Setup}",
+      "CHECKPOINT SAVE ${1:mission-name}_step_1",
+      "",
+      "${4:# Step 2: Execute}",
+      "CHECKPOINT SAVE ${1:mission-name}_step_2",
+      "",
+      "${5:# Step 3: Verify}",
+      "",
+      "MISSION COMPLETE"
+    ],
+    "description": "Create complete mission template"
+  },
+  "Workflow Template": {
+    "prefix": "workflow",
+    "body": [
+      "# Workflow: ${1:workflow-name}",
+      "# Purpose: ${2:purpose}",
+      "",
+      "SET \\$WORKFLOW.NAME \"${1:workflow-name}\"",
+      "SET \\$WORKFLOW.PHASE \"INIT\"",
+      "",
+      "# Initialization",
+      "${3:# Setup code}",
+      "",
+      "SET \\$WORKFLOW.PHASE \"EXECUTE\"",
+      "",
+      "# Main execution",
+      "${4:# Main code}",
+      "",
+      "SET \\$WORKFLOW.PHASE \"COMPLETE\"",
+      "ECHO \"Workflow ${1:workflow-name} completed\""
+    ],
+    "description": "Create workflow template"
+  },
+  "For Each Loop": {
+    "prefix": "foreach",
+    "body": [
+      "FOREACH \\$${1:item} IN \\$${2:list}",
+      "    ${3:# Process item}",
+      "    ECHO \"Processing: \\$${1:item}\"",
+      "END"
+    ],
+    "description": "For-each loop over items"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "SET \\$${1:count} 0",
+      "WHILE \\$${1:count} < ${2:max}",
+      "    ${3:# Loop body}",
+      "    SET \\$${1:count} (\\$${1:count} + 1)",
+      "END"
+    ],
+    "description": "While loop with counter"
+  },
+  "If-Then-Else": {
+    "prefix": "if",
+    "body": [
+      "IF ${1:condition} THEN",
+      "    ${2:# True block}",
+      "ELSE",
+      "    ${3:# False block}",
+      "END"
+    ],
+    "description": "If-then-else conditional"
+  },
+  "Guide Creation": {
+    "prefix": "guide",
+    "body": [
+      "GUIDE ADD tier${1:3} guide \"${2:title}\"",
+      "GUIDE TAG \\$GUIDE.ID ${3:tags}",
+      "ECHO \"Guide created: \\$GUIDE.ID\""
+    ],
+    "description": "Create new knowledge guide"
+  },
+  "Map Navigation": {
+    "prefix": "map",
+    "body": [
+      "MAP GOTO ${1:tile} ${2:layer}",
+      "MAP INFO",
+      "MAP NEARBY ${3:radius}"
+    ],
+    "description": "Navigate to location and get info"
+  },
+  "Checkpoint Save/Restore": {
+    "prefix": "checkpoint",
+    "body": [
+      "# Save checkpoint",
+      "CHECKPOINT SAVE ${1:checkpoint_id}",
+      "",
+      "${2:# Risky operation}",
+      "",
+      "# Restore if needed",
+      "# CHECKPOINT RESTORE ${1:checkpoint_id}"
+    ],
+    "description": "Save checkpoint with optional restore"
+  },
+  "Generate Knowledge": {
+    "prefix": "gen-guide",
+    "body": [
+      "GENERATE GUIDE ${1:category} \"${2:title}\" --complexity ${3:detailed}",
+      "ECHO \"Generated guide: \\$GUIDE.ID\"",
+      "GUIDE TAG \\$GUIDE.ID ${4:tags}"
+    ],
+    "description": "Generate knowledge guide with AI"
+  },
+  "Generate Diagram": {
+    "prefix": "gen-diagram",
+    "body": [
+      "GENERATE DIAGRAM ${1:category} \"${2:subject}\"",
+      "ECHO \"Generated diagram: \\$DIAGRAM.PATH\""
+    ],
+    "description": "Generate SVG diagram with AI"
+  },
+  "Error Handling": {
+    "prefix": "try",
+    "body": [
+      "# Attempt operation",
+      "${1:# Risky operation}",
+      "",
+      "IF \\$LAST_ERROR != NULL THEN",
+      "    ECHO \"Error occurred: \\$LAST_ERROR\"",
+      "    ${2:# Error handling}",
+      "    CHECKPOINT RESTORE ${3:last_good_state}",
+      "END"
+    ],
+    "description": "Error handling pattern"
+  },
+  "Batch Processing": {
+    "prefix": "batch",
+    "body": [
+      "# Batch processing",
+      "SET \\$COUNT 0",
+      "SET \\$ERRORS 0",
+      "",
+      "FOREACH \\$${1:item} IN \\$${2:list}",
+      "    ${3:# Process item}",
+      "    ",
+      "    IF \\$LAST_ERROR != NULL THEN",
+      "        SET \\$ERRORS (\\$ERRORS + 1)",
+      "    ELSE",
+      "        SET \\$COUNT (\\$COUNT + 1)",
+      "    END",
+      "    ",
+      "    # Checkpoint every 10 items",
+      "    IF (\\$COUNT % 10) == 0 THEN",
+      "        CHECKPOINT SAVE batch_progress_\\$COUNT",
+      "    END",
+      "END",
+      "",
+      "ECHO \"Processed: \\$COUNT items, Errors: \\$ERRORS\""
+    ],
+    "description": "Batch processing with error tracking and checkpoints"
+  },
+  "Progress Tracker": {
+    "prefix": "progress",
+    "body": [
+      "SET \\$TOTAL ${1:100}",
+      "SET \\$CURRENT 0",
+      "",
+      "WHILE \\$CURRENT < \\$TOTAL",
+      "    ${2:# Work item}",
+      "    ",
+      "    SET \\$CURRENT (\\$CURRENT + 1)",
+      "    SET \\$PERCENT ((\\$CURRENT * 100) / \\$TOTAL)",
+      "    ECHO \"Progress: \\$PERCENT%\"",
+      "END"
+    ],
+    "description": "Progress tracking loop"
+  },
+  "File Header": {
+    "prefix": "header",
+    "body": [
+      "# ═══════════════════════════════════════════════════════════════════",
+      "# ${1:Script Name}",
+      "# ───────────────────────────────────────────────────────────────────",
+      "# Purpose: ${2:purpose}",
+      "# Author: ${3:author}",
+      "# Created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      "# Version: ${4:1.0.0}",
+      "# ═══════════════════════════════════════════════════════════════════",
+      "",
+      "$0"
+    ],
+    "description": "File header with metadata"
+  },
+  "Debug Output": {
+    "prefix": "debug",
+    "body": [
+      "#DEBUG",
+      "ECHO \"[DEBUG] ${1:message}\"",
+      "GET \\$${2:variable}",
+      "ECHO \"[DEBUG] \\$${2:variable} = \\$VALUE\""
+    ],
+    "description": "Debug output with variable inspection"
+  },
+  "Knowledge Search": {
+    "prefix": "search",
+    "body": [
+      "# Search knowledge base",
+      "GUIDE SEARCH \"${1:query}\"",
+      "",
+      "FOREACH \\$guide IN \\$RESULTS",
+      "    GUIDE INFO \\$guide",
+      "    ${2:# Process result}",
+      "END"
+    ],
+    "description": "Search and iterate knowledge guides"
+  },
+  "Cleanup Handler": {
+    "prefix": "cleanup",
+    "body": [
+      "# Cleanup handler",
+      "FUNCTION cleanup",
+      "    ${1:# Cleanup code}",
+      "    CHECKPOINT SAVE final_state",
+      "    CLEAN --tidy",
+      "    ECHO \"Cleanup complete\"",
+      "END",
+      "",
+      "# Register cleanup on exit",
+      "ON_EXIT cleanup"
+    ],
+    "description": "Cleanup function for script exit"
+  }
+}
