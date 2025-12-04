@@ -21,9 +21,7 @@ def show_v1_0_30_welcome(viewport_width: int = 70):
     """
     width = min(viewport_width, 70)
 
-    print()
     print("  ✨ uDOS v1.0.30 | 📺 Teletext UI | ✏️  Micro Editor | 📁 File Picker | 📋 Copy/Paste")
-    print()
 
 
 def offer_demo(skip_prompt: bool = False) -> bool:
