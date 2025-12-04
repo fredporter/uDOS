@@ -23,16 +23,7 @@ def show_v1_0_30_welcome(viewport_width: int = 70):
 
     print()
     print("═" * width)
-    print("  ✨ Welcome to uDOS v1.0.30!")
-    print("═" * width)
-    print()
-    print("  New in this version:")
-    print("  📺 Teletext-style block character UI")
-    print("  ✏️  Built-in micro editor (FILE EDIT/VIEW)")
-    print("  📁 Knowledge file picker (.md & .upy)")
-    print("  🔧 Robust CLI with fallback mode")
-    print("  📋 Better copy-paste support")
-    print()
+    print("  ✨ uDOS v1.0.30 | 📺 Teletext UI | ✏️  Micro Editor | 📁 File Picker | 📋 Copy/Paste")
     print("═" * width)
     print()
 

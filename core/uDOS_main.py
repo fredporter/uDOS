@@ -385,12 +385,7 @@ def main():
         # Display startup information
         if not is_script_mode:
             print(f"\n{user_manager.get_user_greeting()}")
-            print(f"🌐 Mode: {connection.get_mode()}")
-            print(f"📐 Viewport: {viewport.width}×{viewport.height} ({viewport.device_type})")
-
-            project_name = story_data.get('STORY', {}).get('PROJECT_NAME', 'Unknown Quest')
-            print(f"📖 Project: {project_name}")
-            print(f"🔢 Session: #{move_stats['session_number']} | 🎯 Moves: {move_stats['total_moves']}")
+            print(f"🌐 {connection.get_mode()} | 📐 {viewport.width}×{viewport.height} ({viewport.device_type}) | 🔢 Session #{move_stats['session_number']} | 🎯 {move_stats['total_moves']} moves")
 
             # Check lifespan status
             lifespan_status = user_manager.check_lifespan_status(move_stats['total_moves'])
