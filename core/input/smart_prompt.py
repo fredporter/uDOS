@@ -203,7 +203,8 @@ class SmartPrompt:
 
             # Define prompt style
             self.style = Style.from_dict({
-                'prompt': '#00ff00 bold',  # Green prompt
+                'prompt': 'ansigreen bold',  # Green prompt
+                '': '',  # Default style
                 'completion-menu.completion': 'bg:#008888 #ffffff',
                 'completion-menu.completion.current': 'bg:#00aaaa #000000 bold',
                 'scrollbar.background': 'bg:#88aaaa',
@@ -256,13 +257,13 @@ class SmartPrompt:
             self.use_fallback = True
             self.fallback_reason = f"Prompt test failed: {str(e)}"
 
-    def ask(self, prompt_text: str = "uDOS> ", multiline: bool = False) -> str:
+    def ask(self, prompt_text: str = "> ", multiline: bool = False) -> str:
         """
         Display prompt and get user input with autocomplete.
         Uses fallback mode if prompt_toolkit has issues.
 
         Args:
-            prompt_text: Prompt string to display
+            prompt_text: Prompt string to display (plain text, styling handled internally)
             multiline: Whether to allow multiline input
 
         Returns:
@@ -273,8 +274,15 @@ class SmartPrompt:
             return self._ask_fallback(prompt_text)
 
         try:
+            # Format prompt for prompt_toolkit (handles styling properly)
+            from prompt_toolkit.formatted_text import FormattedText
+
+            formatted_prompt = FormattedText([
+                ('class:prompt', prompt_text)
+            ])
+
             user_input = prompt(
-                prompt_text,
+                formatted_prompt,
                 completer=self.completer,
                 complete_while_typing=True,
                 history=self.pt_history,
