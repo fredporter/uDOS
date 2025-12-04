@@ -1,13 +1,15 @@
 /**
- * analytics-widget.js - Webhook Analytics Dashboard Widget (v1.2.6)
+ * analytics-widget.js - Webhook Analytics Dashboard Widget (v1.2.7)
  *
- * Displays webhook event analytics with charts and metrics:
+ * Displays webhook event analytics with Chart.js visualizations:
  * - Events over time (line chart)
- * - Platform distribution (pie chart)
+ * - Platform distribution (doughnut chart)
  * - Success rate gauge
- * - Average response time metric
+ * - Response time histogram
  * - Recent errors list
  * - Event history table
+ *
+ * Requires: Chart.js 4.x, chart-utils.js
  */
 
 class AnalyticsWidget {
@@ -17,17 +19,27 @@ class AnalyticsWidget {
             apiBaseUrl: config.apiBaseUrl || 'http://localhost:5001/api',
             refreshInterval: config.refreshInterval || 30000, // 30 seconds
             days: config.days || 7,
+            useChartJs: config.useChartJs !== false, // Enable Chart.js by default
             ...config
         };
 
         this.analytics = null;
         this.events = [];
         this.refreshTimer = null;
+        this.charts = {}; // Store Chart.js instances
+
+        // Check Chart.js availability
+        if (this.config.useChartJs && typeof Chart === 'undefined') {
+            console.warn('Chart.js not loaded, falling back to canvas rendering');
+            this.config.useChartJs = false;
+        }
+
+        if (this.config.useChartJs && typeof ChartUtils !== 'undefined') {
+            ChartUtils.initDefaults();
+        }
 
         this.init();
-    }
-
-    init() {
+    }    init() {
         this.render();
         this.loadAnalytics();
         this.startAutoRefresh();
@@ -80,6 +92,14 @@ class AnalyticsWidget {
                         <div class="chart-container">
                             <h3>Platform Distribution</h3>
                             <canvas id="platform-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Response Time Chart -->
+                    <div class="charts-row">
+                        <div class="chart-container">
+                            <h3>Response Time Distribution</h3>
+                            <canvas id="response-time-chart"></canvas>
                         </div>
                     </div>
 
@@ -172,30 +192,48 @@ class AnalyticsWidget {
 
         document.getElementById('metric-errors').textContent =
             this.analytics.failed_events.toLocaleString();
-
-        // Color code success rate
-        const successRateEl = document.getElementById('metric-success-rate');
-        if (this.analytics.success_rate >= 95) {
-            successRateEl.style.color = '#4CAF50'; // Green
-        } else if (this.analytics.success_rate >= 80) {
-            successRateEl.style.color = '#FF9800'; // Orange
-        } else {
-            successRateEl.style.color = '#F44336'; // Red
-        }
-    }
-
     updateCharts() {
         if (!this.analytics) return;
+        
+        if (this.config.useChartJs) {
+            this.renderTimelineChartJs();
+            this.renderPlatformChartJs();
+            this.renderSuccessRateGauge();
+            this.renderResponseTimeHistogram();
+        } else {
+            this.renderTimelineChart();
+            this.renderPlatformChart();
+        }
+    }    renderTimelineChartJs() {
+        if (typeof ChartUtils === 'undefined') return;
 
-        this.renderTimelineChart();
-        this.renderPlatformChart();
+        const eventsOverTime = this.analytics.events_over_time || [];
+
+        // Destroy existing chart
+        if (this.charts.timeline) {
+            this.charts.timeline.destroy();
+        }
+
+        // Create new chart
+        this.charts.timeline = ChartUtils.createTimelineChart(
+            'events-timeline-chart',
+            eventsOverTime,
+            {
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const date = eventsOverTime[index].date;
+                        console.log(`Clicked on ${date}: ${eventsOverTime[index].count} events`);
+                        // Could filter events by date here
+                    }
+                }
+            }
+        );
     }
 
     renderTimelineChart() {
         const ctx = document.getElementById('events-timeline-chart').getContext('2d');
 
-        // Simple timeline (could use Chart.js for better charts)
-        // For now, render basic bars
         const canvas = ctx.canvas;
         canvas.width = canvas.parentElement.clientWidth - 20;
         canvas.height = 200;
@@ -209,6 +247,43 @@ class AnalyticsWidget {
         ctx.fillText('Events timeline visualization', canvas.width / 2, canvas.height / 2);
         ctx.fillText(`${this.analytics.total_events} events in last ${this.config.days} days`,
                      canvas.width / 2, canvas.height / 2 + 20);
+    }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw placeholder
+        ctx.fillStyle = '#333';
+        ctx.font = '14px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Events timeline visualization', canvas.width / 2, canvas.height / 2);
+        ctx.fillText(`${this.analytics.total_events} events in last ${this.config.days} days`,
+                     canvas.width / 2, canvas.height / 2 + 20);
+    }
+
+    renderPlatformChartJs() {
+        if (typeof ChartUtils === 'undefined') return;
+
+        const platforms = this.analytics.by_platform || {};
+
+        // Destroy existing chart
+        if (this.charts.platform) {
+            this.charts.platform.destroy();
+        }
+
+        // Create new chart
+        this.charts.platform = ChartUtils.createPlatformChart(
+            'platform-chart',
+            platforms,
+            {
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const platform = Object.keys(platforms)[index];
+                        console.log(`Clicked on ${platform}: ${platforms[platform]} events`);
+                        // Could filter events by platform here
+                    }
+                }
+            }
+        );
     }
 
     renderPlatformChart() {
@@ -266,6 +341,61 @@ class AnalyticsWidget {
         });
     }
 
+    renderSuccessRateGauge() {
+        if (typeof ChartUtils === 'undefined') return;
+
+        const successRate = this.analytics.success_rate || 0;
+
+        // Add gauge canvas if not exists
+        let gaugeContainer = document.querySelector('.success-rate-gauge');
+        if (!gaugeContainer) {
+            const metricCard = document.getElementById('metric-success-rate').closest('.metric-card');
+            if (metricCard) {
+                gaugeContainer = document.createElement('div');
+                gaugeContainer.className = 'success-rate-gauge';
+                gaugeContainer.innerHTML = '<canvas id="success-rate-gauge-chart" width="150" height="100"></canvas>';
+                metricCard.appendChild(gaugeContainer);
+            }
+        }
+
+        // Destroy existing chart
+        if (this.charts.successGauge) {
+            this.charts.successGauge.destroy();
+        }
+
+        // Create gauge chart
+        if (document.getElementById('success-rate-gauge-chart')) {
+            this.charts.successGauge = ChartUtils.createSuccessRateGauge(
+            this.charts.successGauge = ChartUtils.createSuccessRateGauge(
+                'success-rate-gauge-chart',
+                successRate
+            );
+        }
+    }
+    
+    renderResponseTimeHistogram() {
+        if (typeof ChartUtils === 'undefined') return;
+        if (!this.events || this.events.length === 0) return;
+        
+        // Destroy existing chart
+        if (this.charts.responseTime) {
+            this.charts.responseTime.destroy();
+        }
+        
+        // Create histogram chart
+        this.charts.responseTime = ChartUtils.createResponseTimeHistogram(
+            'response-time-chart',
+            this.events.filter(e => e.execution_time_ms),
+            {
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        console.log('Clicked on response time bin:', elements[0].index);
+                        // Could filter events by response time range
+                    }
+                }
+            }
+        );
+    }
     updateEventsList() {
         const container = document.getElementById('recent-events');
 
@@ -491,6 +621,17 @@ class AnalyticsWidget {
 
     destroy() {
         this.stopAutoRefresh();
+
+        // Destroy all Chart.js instances
+        if (this.config.useChartJs) {
+            Object.values(this.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            this.charts = {};
+        }
+
         this.container.innerHTML = '';
     }
 }

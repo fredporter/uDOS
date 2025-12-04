@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Analytics Dashboard - uDOS v1.2.7</title>
+
+    <!-- Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Analytics Widget CSS -->
+    <link rel="stylesheet" href="../widgets/analytics-widget.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+            font-size: 32px;
+        }
+
+        .page-header p {
+            margin: 5px 0;
+            color: #888;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #66BB6A;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+        }
+
+        .btn-secondary:hover {
+            background: #42A5F5;
+        }
+
+        #analytics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+            color: #888;
+        }
+
+        .success-rate-gauge {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>🌀 Webhook Analytics Dashboard</h1>
+        <p><span class="status-indicator"></span> uDOS v1.2.7 - Chart.js Integration Demo</p>
+        <p style="color: #666;">Real-time webhook event monitoring and analytics</p>
+    </div>
+
+    <div class="info-box">
+        <h3>📊 Chart.js Features</h3>
+        <ul>
+            <li><strong>Events Timeline:</strong> Line chart showing webhook events over time</li>
+            <li><strong>Platform Distribution:</strong> Doughnut chart breaking down events by platform</li>
+            <li><strong>Success Rate Gauge:</strong> Semi-circle gauge showing webhook success rate</li>
+            <li><strong>Interactive:</strong> Click on charts to filter and explore data</li>
+            <li><strong>Auto-refresh:</strong> Updates every 30 seconds with latest data</li>
+        </ul>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="analyticsWidget.loadAnalytics()">🔄 Refresh Now</button>
+        <button class="btn btn-secondary" onclick="toggleChartMode()">🎨 Toggle Chart Mode</button>
+        <button class="btn btn-secondary" onclick="showChartInfo()">ℹ️ Chart Info</button>
+    </div>
+
+    <!-- Analytics Widget Container -->
+    <div id="analytics-container"></div>
+
+    <!-- Chart Utilities -->
+    <script src="../widgets/chart-utils.js"></script>
+
+    <!-- Analytics Widget -->
+    <script src="../widgets/analytics-widget.js"></script>
+
+    <script>
+        // Initialize analytics widget
+        let analyticsWidget;
+        let useChartJs = true;
+
+        function initWidget() {
+            analyticsWidget = new AnalyticsWidget('analytics-container', {
+                apiBaseUrl: 'http://localhost:5001/api',
+                refreshInterval: 30000,
+                days: 7,
+                useChartJs: useChartJs
+            });
+
+            // Make available globally for debugging
+            window.analyticsWidget = analyticsWidget;
+        }
+
+        function toggleChartMode() {
+            useChartJs = !useChartJs;
+
+            if (analyticsWidget) {
+                analyticsWidget.destroy();
+            }
+
+            initWidget();
+
+            const mode = useChartJs ? 'Chart.js' : 'Canvas';
+            alert(`Switched to ${mode} rendering mode`);
+        }
+
+        function showChartInfo() {
+            const info = `
+Webhook Analytics Dashboard v1.2.7
+
+Current Configuration:
+- API Base: ${analyticsWidget.config.apiBaseUrl}
+- Refresh Interval: ${analyticsWidget.config.refreshInterval / 1000}s
+- Time Period: Last ${analyticsWidget.config.days} days
+- Chart Mode: ${analyticsWidget.config.useChartJs ? 'Chart.js' : 'Canvas'}
+
+Chart.js Features:
+✓ Line chart for event timeline
+✓ Doughnut chart for platform distribution
+✓ Gauge chart for success rate
+✓ Interactive tooltips and legends
+✓ Click handlers for filtering
+✓ Responsive design
+
+Analytics Metrics:
+- Total events
+- Success rate (%)
+- Average response time (ms)
+- Platform breakdown
+- Event type distribution
+- Recent errors
+
+Press OK to continue monitoring...
+            `;
+
+            alert(info.trim());
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            console.log('🌀 uDOS Webhook Analytics Dashboard v1.2.7');
+            console.log('Chart.js version:', typeof Chart !== 'undefined' ? Chart.version : 'Not loaded');
+
+            initWidget();
+
+            // Check server connection
+            fetch('http://localhost:5001/api/health')
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ API server connected:', data);
+                })
+                .catch(err => {
+                    console.error('❌ API server not responding:', err);
+                    alert('Warning: API server not responding. Start server with:\npython extensions/api/server.py');
+                });
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (analyticsWidget) {
+                analyticsWidget.destroy();
+            }
+        });
+    </script>
+</body>
+</html>
