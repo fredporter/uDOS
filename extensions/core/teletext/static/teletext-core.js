@@ -167,13 +167,16 @@
         // Focus input
         input.focus();
 
-        // Welcome message - functional color scheme matching TUI
+        // Welcome message with rainbow splash matching TUI
         printLine('P100  uDOS TELETEXT  100  ' + new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + '  ' + new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' }), 'fg-cyan');
         printLine('');
-        printLine('uDOS v1.2.8 - Offline-First Survival OS', 'fg-green');
-        printLine('Teletext Interface v2.0.0', 'fg-yellow');
+        printLine('█▀▀ █▄█ █▄ █ ▀█▀ █ █ █   █ ▄▀▄ █ █ █▀▀', 'fg-red');
+        printLine('▄█▄  █  █ ▀█  █  █▀█ ▀▄▀▄▀ █▀█ ▀▄▀ ██▄', 'fg-yellow');
         printLine('');
-        printLine('─────────────────────────────────────────', 'fg-cyan');
+        printLine('uDOS v1.2.8 - Offline-First Survival OS', 'fg-green');
+        printLine('Teletext Interface v2.0.0', 'fg-cyan');
+        printLine('');
+        printLine('────────────────────────────────────────', 'fg-magenta');
 
         // Block graphics demo at launch
         showBlocksDemo();
