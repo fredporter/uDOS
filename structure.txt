@@ -29,6 +29,7 @@ uDOS/
 │   │   ├── configuration_handler.py
 │   │   ├── dashboard_handler.py
 │   │   ├── debug_handler.py
+│   │   ├── dev_mode_handler.py
 │   │   ├── display_handler.py
 │   │   ├── docs_unified_handler.py
 │   │   ├── draw_handler.py
@@ -159,11 +160,18 @@ uDOS/
 │   │   ├── schemas/
 │   │   │   ├── checklist.schema.json
 │   │   │   └── mission.schema.json
+│   │   ├── spatial/
+│   │   │   ├── galaxies.json
+│   │   │   ├── locations.json
+│   │   │   └── planets.json
 │   │   ├── templates/
 │   │   │   ├── .env.example
 │   │   │   ├── adventure.template.upy
 │   │   │   ├── crud_app.upy
 │   │   │   ├── form_validation.upy
+│   │   │   ├── knowledge-guide-tier1.md
+│   │   │   ├── knowledge-guide-tier2.md
+│   │   │   ├── knowledge-guide-tier3.md
 │   │   │   ├── menu_system.upy
 │   │   │   ├── setup.upy
 │   │   │   ├── story.template.json
@@ -196,7 +204,8 @@ uDOS/
 │   │   ├── ucode_variables.json
 │   │   ├── universe.json
 │   │   ├── usage_tracker.json
-│   │   └── viewport.json
+│   │   ├── viewport.json
+│   │   └── webhooks.json
 │   ├── input/
 │   │   ├── __init__.py
 │   │   ├── interactive.py
@@ -228,6 +237,7 @@ uDOS/
 │   ├── runtime/
 │   │   ├── __init__.py
 │   │   ├── commands.py
+│   │   ├── upy_executor.py
 │   │   ├── upy_parser.py
 │   │   └── upy_preprocessor.py
 │   ├── services/
@@ -245,26 +255,33 @@ uDOS/
 │   │   ├── community_service.py
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
+│   │   ├── cross_reference_validator.py
+│   │   ├── debug_engine.py
 │   │   ├── dev_mode_manager.py
 │   │   ├── diagram_compositor.py
 │   │   ├── diagram_generator.py
 │   │   ├── editor_manager.py
 │   │   ├── encryption_service.py
 │   │   ├── error_handler.py
+│   │   ├── extension_lifecycle.py
 │   │   ├── extension_manager.py
 │   │   ├── gemini_generator.py
+│   │   ├── github_webhook_handler.py
 │   │   ├── graphics_compositor.py
 │   │   ├── graphics_library.py
 │   │   ├── help_manager.py
 │   │   ├── history_manager.py
 │   │   ├── input_manager.py
 │   │   ├── intelligent_error_handler.py
+│   │   ├── knowledge_gap_analyzer.py
+│   │   ├── knowledge_metrics.py
 │   │   ├── logging_manager.py
 │   │   ├── memory_manager.py
 │   │   ├── mission_manager.py
 │   │   ├── output_pacer.py
 │   │   ├── performance_monitor.py
 │   │   ├── planet_manager.py
+│   │   ├── platform_webhook_handlers.py
 │   │   ├── priority_queue.py
 │   │   ├── resource_manager.py
 │   │   ├── scheduler.py
@@ -282,7 +299,9 @@ uDOS/
 │   │   ├── unified_logger.py
 │   │   ├── user_manager.py
 │   │   ├── vectorizer.py
-│   │   └── viewport_manager.py
+│   │   ├── viewport_manager.py
+│   │   ├── webhook_event_store.py
+│   │   └── webhook_manager.py
 │   ├── ui/
 │   │   ├── __init__.py
 │   │   ├── file_picker.py
@@ -326,6 +345,7 @@ uDOS/
 │   ├── README.md
 │   ├── uDOS_commands.py
 │   └── uDOS_main.py
+├── data/
 ├── extensions/
 │   ├── api/
 │   │   ├── README.md
@@ -384,6 +404,8 @@ uDOS/
 │   │   │   ├── server/
 │   │   │   ├── services/
 │   │   │   ├── static/
+│   │   │   ├── widgets/
+│   │   │   ├── analytics-demo.html
 │   │   │   ├── app.py
 │   │   │   ├── config.json
 │   │   │   ├── CREDITS.md
@@ -463,6 +485,7 @@ uDOS/
 │   │   │   └── xp_handler.py
 │   │   ├── data/
 │   │   │   ├── examples/
+│   │   │   ├── geojson/
 │   │   │   ├── layers/
 │   │   │   ├── models/
 │   │   │   ├── themes/
@@ -478,6 +501,44 @@ uDOS/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
+│   ├── vscode-udos/
+│   │   ├── images/
+│   │   │   ├── file-icon.svg
+│   │   │   ├── icon.png
+│   │   │   └── icon.svg
+│   │   ├── out/
+│   │   │   ├── commands/
+│   │   │   ├── providers/
+│   │   │   ├── extension.d.ts
+│   │   │   ├── extension.js
+│   │   │   └── extension.js.map
+│   │   ├── snippets/
+│   │   │   └── upy.json
+│   │   ├── src/
+│   │   │   ├── commands/
+│   │   │   ├── providers/
+│   │   │   ├── snippets/
+│   │   │   └── extension.ts
+│   │   ├── syntaxes/
+│   │   │   └── upy.tmLanguage.json
+│   │   ├── test-examples/
+│   │   │   ├── feature-test.upy
+│   │   │   ├── knowledge-workflow.upy
+│   │   │   └── water-filter-mission.upy
+│   │   ├── DEMO.md
+│   │   ├── enable-extension.sh
+│   │   ├── EXTENSION-SETUP.md
+│   │   ├── language-configuration.json
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   ├── QUICK-START-WORKSPACE.md
+│   │   ├── QUICK-START.md
+│   │   ├── README.md
+│   │   ├── setup.sh
+│   │   ├── TESTING-GUIDE.md
+│   │   ├── TROUBLESHOOTING.md
+│   │   ├── tsconfig.json
+│   │   └── WORKSPACE-INTEGRATION.md
 │   ├── PORT-REGISTRY.md
 │   ├── QUICK-REFERENCE.md
 │   ├── README.md

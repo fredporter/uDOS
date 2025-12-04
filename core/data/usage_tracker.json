@@ -7,11 +7,11 @@
     "OUTPUT": 8,
     "SETUP": 2,
     "HISTORY": 2,
-    "STATUS": 3,
+    "STATUS": 4,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "ERROR": 5,
-    "LIST": 3,
+    "ERROR": 6,
+    "LIST": 4,
     "WIZARD": 2,
     "CATEGORIES": 1,
     "$1": 2,
@@ -32,10 +32,10 @@
     "OUTPUT": 7,
     "SETUP": 1,
     "HISTORY": 2,
-    "STATUS": 3,
+    "STATUS": 4,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "LIST": 3,
+    "LIST": 4,
     "WIZARD": 2,
     "CATEGORIES": 1,
     "MENU": 2,
@@ -49,7 +49,7 @@
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 5,
+    "ERROR": 6,
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 2,
@@ -59,31 +59,6 @@
     "RUN": 1
   },
   "recent_commands": [
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-26T18:20:54.954507",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "DASH",
-      "timestamp": "2025-11-26T18:20:59.731418",
-      "params": [
-        ""
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-11-26T18:21:21.373259",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "OUTPUT",
       "timestamp": "2025-11-26T18:21:28.600770",
@@ -895,7 +870,30 @@
       "params": [],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "STATUS",
+      "timestamp": "2025-12-05T01:20:12.067392",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "LIST",
+      "timestamp": "2025-12-05T01:21:05.600746",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T01:21:11.535782",
+      "params": [
+        "Invalid command: hello"
+      ],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-03T21:01:57.305908"
+  "last_updated": "2025-12-05T01:21:18.712770"
 }

@@ -1,11 +1,11 @@
 /**
  * Event Buffer
- * 
+ *
  * Circular buffer for webhook events during WebSocket disconnection.
  * Queues events for replay on reconnection to prevent data loss.
- * 
+ *
  * Part of v1.2.8: Incremental Updates & Event Buffering (Part 2)
- * 
+ *
  * @version 1.0.0
  * @author uDOS Development Team
  */
@@ -37,7 +37,7 @@ class EventBuffer {
 
     /**
      * Add event to buffer
-     * 
+     *
      * @param {Object} event - Webhook event data
      * @returns {boolean} True if added, false if deduplicated
      */
@@ -84,7 +84,7 @@ class EventBuffer {
 
     /**
      * Check if event is duplicate (within deduplication window)
-     * 
+     *
      * @param {Object} event - Event to check
      * @returns {boolean} True if duplicate
      */
@@ -105,7 +105,7 @@ class EventBuffer {
 
     /**
      * Get all buffered events
-     * 
+     *
      * @param {boolean} clear - Clear buffer after retrieval (default: true)
      * @returns {Array} Buffered events
      */
@@ -121,7 +121,7 @@ class EventBuffer {
 
     /**
      * Get buffered events since timestamp
-     * 
+     *
      * @param {number} timestamp - Timestamp in milliseconds
      * @returns {Array} Events buffered after timestamp
      */
@@ -131,7 +131,7 @@ class EventBuffer {
 
     /**
      * Peek at buffered events without removing
-     * 
+     *
      * @param {number} count - Number of events to peek (default: all)
      * @returns {Array} Events (most recent first)
      */
@@ -142,7 +142,7 @@ class EventBuffer {
 
     /**
      * Get buffer size
-     * 
+     *
      * @returns {number} Number of buffered events
      */
     size() {
@@ -151,7 +151,7 @@ class EventBuffer {
 
     /**
      * Check if buffer is empty
-     * 
+     *
      * @returns {boolean} True if empty
      */
     isEmpty() {
@@ -160,7 +160,7 @@ class EventBuffer {
 
     /**
      * Check if buffer is full
-     * 
+     *
      * @returns {boolean} True if at capacity
      */
     isFull() {
@@ -182,7 +182,7 @@ class EventBuffer {
 
     /**
      * Mark events as replayed
-     * 
+     *
      * @param {number} count - Number of events replayed
      */
     markReplayed(count) {
@@ -191,7 +191,7 @@ class EventBuffer {
 
     /**
      * Get buffer statistics
-     * 
+     *
      * @returns {Object} Statistics
      */
     getStats() {
@@ -274,7 +274,7 @@ class EventBuffer {
 
     /**
      * Export buffer state for debugging
-     * 
+     *
      * @returns {Object} Buffer state
      */
     exportState() {
@@ -288,7 +288,7 @@ class EventBuffer {
 
     /**
      * Import buffer state (for testing/recovery)
-     * 
+     *
      * @param {Object} state - State from exportState()
      */
     importState(state) {
@@ -307,7 +307,7 @@ class EventBuffer {
 
     /**
      * Get age of oldest buffered event
-     * 
+     *
      * @returns {number} Age in milliseconds (0 if empty)
      */
     getOldestEventAge() {
@@ -319,7 +319,7 @@ class EventBuffer {
 
     /**
      * Remove old events (beyond retention period)
-     * 
+     *
      * @param {number} maxAge - Maximum age in milliseconds (default: 1 hour)
      * @returns {number} Number of events removed
      */

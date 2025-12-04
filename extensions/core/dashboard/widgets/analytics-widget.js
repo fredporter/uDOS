@@ -38,6 +38,9 @@ class AnalyticsWidget {
         this.connectionStatus = 'disconnected'; // disconnected | connecting | connected
         this.chartDataManager = null; // v1.2.8: Incremental updates manager
         this.eventBuffer = null; // v1.2.8: Event buffer for disconnection handling
+        this.latencyHistory = []; // v1.2.8: Rolling latency measurements
+        this.latencyPingInterval = null; // v1.2.8: Ping interval timer
+        this.lastPingTime = null; // v1.2.8: Last ping timestamp
 
         // Check Chart.js availability
         if (this.config.useChartJs && typeof Chart === 'undefined') {
@@ -731,12 +734,18 @@ class AnalyticsWidget {
 
                 // v1.2.8: Replay buffered events on reconnection
                 this.replayBufferedEvents();
+
+                // v1.2.8: Start latency measurement
+                this.startLatencyMeasurement();
             });
 
             // Connection lost
             this.socket.on('disconnect', (reason) => {
                 console.log('WebSocket disconnected:', reason);
                 this.updateConnectionStatus('disconnected');
+
+                // v1.2.8: Stop latency measurement
+                this.stopLatencyMeasurement();
             });
 
             // Reconnecting
@@ -749,6 +758,11 @@ class AnalyticsWidget {
             this.socket.on('webhook_event', (event) => {
                 console.log('Received webhook event:', event);
                 this.handleWebSocketEvent(event);
+            });
+
+            // v1.2.8: Pong response for latency measurement
+            this.socket.on('pong', (timestamp) => {
+                this.handlePongResponse(timestamp);
             });
 
             // Error handling
@@ -986,6 +1000,102 @@ class AnalyticsWidget {
         }
 
         statusElement.title = statusTitle[status] || 'Unknown Status';
+    }
+
+    /**
+     * Start measuring WebSocket latency
+     * Sends ping every 10 seconds, server responds with pong
+     */
+    startLatencyMeasurement() {
+        // Clear any existing interval
+        this.stopLatencyMeasurement();
+
+        // Send initial ping
+        this.sendLatencyPing();
+
+        // Set up periodic pings (every 10 seconds)
+        this.latencyPingInterval = setInterval(() => {
+            this.sendLatencyPing();
+        }, 10000);
+    }
+
+    /**
+     * Stop measuring WebSocket latency
+     */
+    stopLatencyMeasurement() {
+        if (this.latencyPingInterval) {
+            clearInterval(this.latencyPingInterval);
+            this.latencyPingInterval = null;
+        }
+        this.lastPingTime = null;
+        this.latencyHistory = [];
+    }
+
+    /**
+     * Send ping with current timestamp
+     */
+    sendLatencyPing() {
+        if (this.socket && this.socket.connected) {
+            this.lastPingTime = Date.now();
+            this.socket.emit('ping', this.lastPingTime);
+        }
+    }
+
+    /**
+     * Handle pong response from server
+     * @param {number} timestamp - Original timestamp sent with ping
+     */
+    handlePongResponse(timestamp) {
+        if (!this.lastPingTime) return;
+
+        // Calculate round-trip time (RTT) in milliseconds
+        const latency = Date.now() - timestamp;
+
+        // Add to history (keep last 10 measurements)
+        this.latencyHistory.push(latency);
+        if (this.latencyHistory.length > 10) {
+            this.latencyHistory.shift();
+        }
+
+        // Update display
+        this.updateLatencyDisplay();
+    }
+
+    /**
+     * Update latency display in connection status tooltip
+     */
+    updateLatencyDisplay() {
+        if (this.latencyHistory.length === 0) return;
+
+        // Calculate average latency from last 10 pings
+        const avgLatency = Math.round(
+            this.latencyHistory.reduce((sum, val) => sum + val, 0) / this.latencyHistory.length
+        );
+
+        // Update connection status tooltip with latency info
+        const statusElement = document.getElementById('connection-status');
+        if (!statusElement) return;
+
+        const color = this.getLatencyColor(avgLatency);
+        const latencyText = `${avgLatency}ms`;
+
+        // Update tooltip with latency information
+        const baseTitle = statusElement.title.split('\n')[0]; // Keep first line
+        statusElement.title = `${baseTitle}\nLatency: ${latencyText} (avg of ${this.latencyHistory.length} pings)`;
+
+        // Optional: Add visual indicator to status element
+        statusElement.setAttribute('data-latency', color);
+    }
+
+    /**
+     * Get color code based on latency threshold
+     * @param {number} latency - Latency in milliseconds
+     * @returns {string} Color code: 'green', 'yellow', or 'red'
+     */
+    getLatencyColor(latency) {
+        if (latency < 100) return 'green';      // Excellent: <100ms
+        if (latency < 500) return 'yellow';     // Good: 100-500ms
+        return 'red';                           // Poor: >500ms
     }
 
     /**

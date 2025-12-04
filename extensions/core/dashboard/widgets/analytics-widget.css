@@ -522,3 +522,37 @@
 .notification-error .notification-icon {
     color: #f44336;
 }
+
+/* Connection Status Latency Indicator (v1.2.8 Task 6) */
+#connection-status[data-latency="green"]::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4CAF50;
+    margin-left: 8px;
+    box-shadow: 0 0 4px #4CAF50;
+}
+
+#connection-status[data-latency="yellow"]::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FFC107;
+    margin-left: 8px;
+    box-shadow: 0 0 4px #FFC107;
+}
+
+#connection-status[data-latency="red"]::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f44336;
+    margin-left: 8px;
+    box-shadow: 0 0 4px #f44336;
+}
