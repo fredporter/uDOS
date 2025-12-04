@@ -77,30 +77,30 @@
      * Shows standard Unicode block drawing characters
      */
     function showBlocksDemo() {
-        printLine('═══ TELETEXT BLOCK GRAPHICS ═══', 'fg-synthwave-pink');
+        printLine('═══ TELETEXT BLOCK GRAPHICS ═══', 'fg-cyan');
         printLine('');
 
-        // Block drawing characters demo - synthwave rainbow
+        // Block drawing characters demo - rainbow gradient matching TUI
         const blocks = [
-            { text: '▀▄█▌▐░▒▓', color: 'fg-synthwave-pink' },
-            { text: '▀▀▀▀▀▀▀▀', color: 'fg-synthwave-purple' },
-            { text: '▄▄▄▄▄▄▄▄', color: 'fg-synthwave-blue' },
-            { text: '████████', color: 'fg-synthwave-cyan' },
-            { text: '▌▌▌▌▌▌▌▌', color: 'fg-synthwave-neon-green' },
-            { text: '▐▐▐▐▐▐▐▐', color: 'fg-yellow' },
-            { text: '░░░░░░░░', color: 'fg-synthwave-orange' },
-            { text: '▒▒▒▒▒▒▒▒', color: 'fg-synthwave-hot-pink' },
-            { text: '▓▓▓▓▓▓▓▓', color: 'fg-synthwave-violet' }
+            { text: '▀▄█▌▐░▒▓', color: 'fg-red' },
+            { text: '▀▀▀▀▀▀▀▀', color: 'fg-yellow' },
+            { text: '▄▄▄▄▄▄▄▄', color: 'fg-green' },
+            { text: '████████', color: 'fg-cyan' },
+            { text: '▌▌▌▌▌▌▌▌', color: 'fg-blue' },
+            { text: '▐▐▐▐▐▐▐▐', color: 'fg-magenta' },
+            { text: '░░░░░░░░', color: 'fg-red' },
+            { text: '▒▒▒▒▒▒▒▒', color: 'fg-yellow' },
+            { text: '▓▓▓▓▓▓▓▓', color: 'fg-green' }
         ];
 
         blocks.forEach(block => printLine(block.text, block.color));
         printLine('');
-        printLine('Box Drawing:', 'fg-synthwave-orange');
-        printLine('┌─────────────────────────────┐', 'fg-synthwave-cyan');
-        printLine('│ TELETEXT50 BLOCK GRAPHICS  │', 'fg-synthwave-pink');
-        printLine('├─────────────────────────────┤', 'fg-synthwave-purple');
-        printLine('│ ▀▄█▌▐░▒▓ ║═╔╗╚╝╠╣╦╩╬       │', 'fg-synthwave-blue');
-        printLine('└─────────────────────────────┘', 'fg-synthwave-cyan');
+        printLine('Box Drawing:', 'fg-yellow');
+        printLine('┌─────────────────────────────┐', 'fg-cyan');
+        printLine('│ TELETEXT50 BLOCK GRAPHICS  │', 'fg-white');
+        printLine('├─────────────────────────────┤', 'fg-cyan');
+        printLine('│ ▀▄█▌▐░▒▓ ║═╔╗╚╝╠╣╦╩╬       │', 'fg-green');
+        printLine('└─────────────────────────────┘', 'fg-cyan');
         printLine('');
     }
 
@@ -109,27 +109,27 @@
      * Uses standard Unicode block drawing characters
      */
     function showBlocks() {
-        printLine('═══ TELETEXT BLOCK GRAPHICS ═══', 'fg-synthwave-pink');
+        printLine('═══ TELETEXT BLOCK GRAPHICS ═══', 'fg-cyan');
         printLine('');
 
-        // Standard Unicode blocks - synthwave colors
-        printLine('Block Elements:', 'fg-synthwave-orange');
-        printLine('▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █', 'fg-synthwave-cyan');
-        printLine('▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐', 'fg-synthwave-purple');
-        printLine('░ ▒ ▓ ▔ ▕ ▖ ▗ ▘', 'fg-synthwave-blue');
-        printLine('▙ ▚ ▛ ▜ ▝ ▞ ▟', 'fg-synthwave-hot-pink');
+        // Standard Unicode blocks - functional colors
+        printLine('Block Elements:', 'fg-yellow');
+        printLine('▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █', 'fg-cyan');
+        printLine('▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐', 'fg-green');
+        printLine('░ ▒ ▓ ▔ ▕ ▖ ▗ ▘', 'fg-blue');
+        printLine('▙ ▚ ▛ ▜ ▝ ▞ ▟', 'fg-magenta');
         printLine('');
 
-        printLine('Box Drawing:', 'fg-synthwave-orange');
-        printLine('─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼', 'fg-synthwave-neon-green');
-        printLine('═ ║ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬', 'fg-synthwave-violet');
+        printLine('Box Drawing:', 'fg-yellow');
+        printLine('─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼', 'fg-green');
+        printLine('═ ║ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬', 'fg-cyan');
         printLine('╭ ╮ ╯ ╰ ╱ ╲ ╳', 'fg-yellow');
         printLine('');
 
-        printLine('Pattern Demo:', 'fg-synthwave-orange');
-        printLine('████░░░░▓▓▓▓▒▒▒▒', 'fg-synthwave-cyan');
-        printLine('▀▀▀▀▄▄▄▄█████████', 'fg-synthwave-pink');
-        printLine('▌▌▌▌▐▐▐▐░░▒▒▓▓██', 'fg-synthwave-neon-green');
+        printLine('Pattern Demo:', 'fg-yellow');
+        printLine('████░░░░▓▓▓▓▒▒▒▒', 'fg-cyan');
+        printLine('▀▀▀▀▄▄▄▄█████████', 'fg-red');
+        printLine('▌▌▌▌▐▐▐▐░░▒▒▓▓██', 'fg-green');
         printLine('');
     }
 
@@ -167,17 +167,13 @@
         // Focus input
         input.focus();
 
-        // Welcome message - synthwave teletext style
-        printLine('P100  uDOS TELETEXT  100  ' + new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + '  ' + new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' }), 'fg-white');
+        // Welcome message - functional color scheme matching TUI
+        printLine('P100  uDOS TELETEXT  100  ' + new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + '  ' + new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' }), 'fg-cyan');
         printLine('');
-        printLine('█▀▀ █▄█ █▄ █ ▀█▀ █ █ █   █ ▄▀▄ █ █ █▀▀', 'fg-magenta');
-        printLine('▄█▄  █  █ ▀█  █  █▀█ ▀▄▀▄▀ █▀█ ▀▄▀ ██▄', 'fg-cyan');
+        printLine('uDOS v1.2.8 - Offline-First Survival OS', 'fg-green');
+        printLine('Teletext Interface v2.0.0', 'fg-yellow');
         printLine('');
-        printLine('uDOS v1.2.8 - Offline-First Survival OS', 'fg-cyan');
-        printLine('░▒▓█ Teletext Interface v2.0.0 █▓▒░', 'fg-synthwave-hot-pink');
-        printLine('Teletext50 Font by 3d@galax.xyz', 'fg-white');
-        printLine('');
-        printLine('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'fg-magenta');
+        printLine('─────────────────────────────────────────', 'fg-cyan');
 
         // Block graphics demo at launch
         showBlocksDemo();
@@ -218,14 +214,14 @@
                 const data = await response.json();
                 state.coreConnected = true;
                 updateStatus('🟢 ONLINE');
-                printLine('API CONNECTED', 'fg-synthwave-neon-green');
+                printLine('API CONNECTED', 'fg-green');
             } else {
                 throw new Error('API unavailable');
             }
         } catch (error) {
             state.coreConnected = false;
             updateStatus('🔴 OFFLINE');
-            printLine('API OFFLINE - STANDALONE MODE', 'fg-synthwave-orange');
+            printLine('API OFFLINE - STANDALONE MODE', 'fg-yellow');
         }
     }
 
