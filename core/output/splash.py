@@ -1,8 +1,80 @@
 def print_splash_screen():
     """
-    Prints the uDOS splash screen.
+    Prints the uDOS splash screen with rainbow gradient colors.
     """
-    splash_text = r"""
+    try:
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.text import Text
+        from rich import box
+
+        console = Console()
+
+        # Rainbow gradient ASCII art (each line different color)
+        splash_lines = [
+            "██╗   ██╗██████╗  ██████╗ ███████╗",
+            "██║   ██║██╔══██╗██╔═══██╗██╔════╝",
+            "██║   ██║██║  ██║██║   ██║███████╗",
+            "██║   ██║██║  ██║██║   ██║╚════██║",
+            "╚██████╔╝██████╔╝╚██████╔╝███████║",
+            " ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝"
+        ]
+
+        # Rainbow gradient colors (vivid palette)
+        colors = ["red", "yellow", "green", "cyan", "blue", "magenta"]
+
+        # Build colored splash
+        splash_text = Text()
+        for i, line in enumerate(splash_lines):
+            splash_text.append(line + "\n", style=f"bold {colors[i % len(colors)]}")
+
+        # Subtitle with gradient
+        subtitle = Text()
+        subtitle.append("uDOS ", style="bold cyan")
+        subtitle.append("v1.2.8", style="bold yellow")
+        subtitle.append(" - ", style="white")
+        subtitle.append("Offline-First Survival OS", style="bold green")
+
+        # Commands help
+        help_text = Text()
+        help_text.append("💡 Type ", style="dim")
+        help_text.append("HELP", style="bold cyan")
+        help_text.append(" for commands | ", style="dim")
+        help_text.append("CONFIG LIST", style="bold yellow")
+        help_text.append(" for settings", style="dim")
+
+        syntax_text = Text()
+        syntax_text.append("📝 Syntax: ", style="dim")
+        syntax_text.append("COMMAND(args)", style="bold green")
+        syntax_text.append(" or ", style="dim")
+        syntax_text.append("[MODULE|COMMAND*PARAM]", style="bold magenta")
+
+        # Create panel with colored border
+        panel_content = Text.assemble(
+            splash_text,
+            "\n",
+            subtitle,
+            "\n",
+            ("─" * 60, "dim"),
+            "\n",
+            help_text,
+            "\n",
+            syntax_text
+        )
+
+        panel = Panel(
+            panel_content,
+            border_style="bold cyan",
+            box=box.DOUBLE,
+            padding=(1, 2)
+        )
+
+        console.print(panel)
+        print()  # Extra line for spacing
+
+    except ImportError:
+        # Fallback to plain text if rich not available
+        splash_text = r"""
 ██╗   ██╗██████╗  ██████╗ ███████╗
 ██║   ██║██╔══██╗██╔═══██╗██╔════╝
 ██║   ██║██║  ██║██║   ██║███████╗
@@ -10,17 +82,17 @@ def print_splash_screen():
 ╚██████╔╝██████╔╝╚██████╔╝███████║
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
-    print(splash_text)
-    print("uDOS v1.1.6 - Offline-First Survival OS")
-    print("="*50)
-    print("Type HELP for commands | CONFIG LIST for settings")
-    print("Syntax: COMMAND [params] or [MODULE|COMMAND*PARAM]")
-    print()
+        print(splash_text)
+        print("uDOS v1.2.8 - Offline-First Survival OS")
+        print("="*50)
+        print("Type HELP for commands | CONFIG LIST for settings")
+        print("Syntax: COMMAND(args) or [MODULE|COMMAND*PARAM]")
+        print()
 
 
 def print_viewport_measurement(viewport, delay=1.0):
     """
-    Display full-screen viewport measurement with block graphics.
+    Display full-screen viewport measurement with colorful block graphics.
     Shows terminal dimensions and grid visualization.
 
     Args:
@@ -31,6 +103,92 @@ def print_viewport_measurement(viewport, delay=1.0):
     import sys
 
     try:
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.table import Table
+        from rich.text import Text
+        from rich import box
+
+        console = Console()
+
+        width = viewport.width
+        height = viewport.height
+        device = viewport.device_type
+
+        # Clear screen for full effect (only if stdout is a terminal)
+        if sys.stdout.isatty():
+            console.clear()
+
+        # Calculate grid specs
+        specs = viewport.get_grid_specs()
+        grid_w = specs['grid_width']
+        grid_h = specs['grid_height']
+        total_cells = specs['total_cells']
+
+        # Create measurement table
+        table = Table(
+            title="🌀 uDOS VIEWPORT MEASUREMENT",
+            title_style="bold cyan",
+            border_style="bold blue",
+            show_header=False,
+            box=box.DOUBLE,
+            padding=(0, 2)
+        )
+
+        table.add_column("Property", style="bold yellow", no_wrap=True)
+        table.add_column("Value", style="bold green")
+
+        table.add_row("📐 Terminal Size", f"{width} × {height} characters")
+        table.add_row("🖥️  Device Type", device)
+        table.add_row("📊 Grid Dimensions", f"{grid_w} × {grid_h} cells")
+        table.add_row("🔢 Total Cells", f"{total_cells:,}")
+
+        console.print(table)
+
+        # Visual boundary representation
+        console.print()
+        console.print("[bold cyan]TERMINAL BOUNDARY VISUALIZATION[/]", justify="center")
+        console.print()
+
+        # Create visual grid with colored borders
+        inner_width = min(width - 8, 60)
+
+        # Top border
+        top_border = Text()
+        top_border.append("    ┌", style="bold cyan")
+        top_border.append("─" * (inner_width - 2), style="cyan")
+        top_border.append("┐", style="bold cyan")
+        console.print(top_border)
+
+        # Middle rows with gradient
+        colors = ['cyan', 'blue', 'magenta', 'blue', 'cyan']
+        for i in range(5):
+            color = colors[i]
+            row = Text()
+            row.append("    │", style=f"bold {color}")
+            row.append(" " * (inner_width - 2))
+            row.append("│", style=f"bold {color}")
+            console.print(row)
+
+        # Bottom border
+        bottom_border = Text()
+        bottom_border.append("    └", style="bold cyan")
+        bottom_border.append("─" * (inner_width - 2), style="cyan")
+        bottom_border.append("┘", style="bold cyan")
+        console.print(bottom_border)
+
+        # Status message
+        console.print()
+        status = Text()
+        status.append("✓ ", style="bold green")
+        status.append("Viewport detected successfully", style="green")
+        console.print(status, justify="center")
+
+        # Delay before continuing
+        time.sleep(delay)
+
+    except ImportError:
+        # Fallback to plain text if rich not available
         width = viewport.width
         height = viewport.height
         device = viewport.device_type
