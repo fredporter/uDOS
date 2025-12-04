@@ -954,6 +954,7 @@ from core.services.github_webhook_handler import get_github_handler
 from core.services.platform_webhook_handlers import (
     get_slack_handler, get_notion_handler, get_clickup_handler
 )
+from core.services.webhook_event_store import get_event_store
 
 @app.route('/api/webhooks/register', methods=['POST'])
 def webhook_register():
@@ -1067,6 +1068,10 @@ def webhook_receive(platform):
         X-ClickUp-Signature: ...         (ClickUp)
     Body: Platform-specific JSON payload
     """
+    start_time = time.time()
+    event_store = get_event_store()
+    event_id = None
+
     try:
         wh_manager = get_webhook_manager()
 
@@ -1198,16 +1203,51 @@ def webhook_receive(platform):
         # Trigger any registered event handlers
         wh_manager.trigger_event_handlers(f"{platform}.{event_type}", data)
 
-        return jsonify({
+        response_data = {
             "status": "success",
             "platform": platform,
             "event": event_type,
             "actions_triggered": len(results),
             "results": results
-        })
+        }
+
+        # Record successful event
+        execution_time_ms = (time.time() - start_time) * 1000
+        event_id = event_store.record_event(
+            webhook_id=webhook.id,
+            platform=platform,
+            event_type=event_type,
+            payload=data,
+            headers=dict(request.headers),
+            response_status="success",
+            response_data=response_data,
+            execution_time_ms=execution_time_ms
+        )
+
+        response_data["event_id"] = event_id
+
+        return jsonify(response_data)
 
     except Exception as e:
         api_logger.error(f'Webhook receive error: {e}', exc_info=True)
+
+        # Record failed event
+        execution_time_ms = (time.time() - start_time) * 1000
+        try:
+            event_store.record_event(
+                webhook_id=webhook.id if 'webhook' in locals() else "unknown",
+                platform=platform,
+                event_type=event_type if 'event_type' in locals() else "unknown",
+                payload=data if 'data' in locals() else {},
+                headers=dict(request.headers),
+                response_status="error",
+                response_data={"error": str(e)},
+                execution_time_ms=execution_time_ms,
+                error=str(e)
+            )
+        except:
+            pass  # Don't fail if event recording fails
+
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -1249,6 +1289,187 @@ def webhook_test(webhook_id):
 
     except Exception as e:
         api_logger.error(f'Webhook test error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ============================================================================
+# WEBHOOK ANALYTICS ENDPOINTS (v1.2.6)
+# ============================================================================
+
+@app.route('/api/webhooks/events', methods=['GET'])
+def list_webhook_events():
+    """
+    List webhook event history with filtering.
+
+    GET /api/webhooks/events?platform=github&limit=50&offset=0&webhook_id=wh_abc123&event_type=push
+    """
+    try:
+        event_store = get_event_store()
+
+        platform = request.args.get('platform')
+        webhook_id = request.args.get('webhook_id')
+        event_type = request.args.get('event_type')
+        limit = int(request.args.get('limit', 50))
+        offset = int(request.args.get('offset', 0))
+
+        events = event_store.list_events(
+            platform=platform,
+            webhook_id=webhook_id,
+            event_type=event_type,
+            limit=limit,
+            offset=offset
+        )
+
+        return jsonify({
+            "status": "success",
+            "events": events,
+            "count": len(events),
+            "limit": limit,
+            "offset": offset
+        })
+
+    except Exception as e:
+        api_logger.error(f'List events error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/events/<event_id>', methods=['GET'])
+def get_webhook_event(event_id):
+    """
+    Get specific webhook event details.
+
+    GET /api/webhooks/events/evt_abc123
+    """
+    try:
+        event_store = get_event_store()
+        event = event_store.get_event(event_id)
+
+        if not event:
+            return jsonify({"status": "error", "message": "Event not found"}), 404
+
+        return jsonify({
+            "status": "success",
+            "event": event
+        })
+
+    except Exception as e:
+        api_logger.error(f'Get event error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/events/<event_id>/replay', methods=['POST'])
+def replay_webhook_event(event_id):
+    """
+    Replay a webhook event.
+
+    POST /api/webhooks/events/evt_abc123/replay
+    """
+    try:
+        event_store = get_event_store()
+        event = event_store.replay_event(event_id)
+
+        if not event:
+            return jsonify({"status": "error", "message": "Event not found"}), 404
+
+        # Re-execute webhook with original payload
+        wh_manager = get_webhook_manager()
+        webhook = wh_manager.get_webhook(event['webhook_id'])
+
+        if not webhook:
+            return jsonify({"status": "error", "message": "Webhook not found"}), 404
+
+        # Get actions for event type
+        actions = wh_manager.get_actions_for_event(event['webhook_id'], event['event_type'])
+        results = []
+
+        for action in actions:
+            if action['type'] == 'workflow':
+                workflow_path = action.get('workflow')
+                if workflow_path:
+                    api_logger.info(f"Replaying workflow {workflow_path} for event {event_id}")
+                    results.append({
+                        "action": "workflow",
+                        "workflow": workflow_path,
+                        "status": "triggered"
+                    })
+            elif action['type'] == 'command':
+                command = action.get('command')
+                if command:
+                    api_logger.info(f"Replaying command {command} for event {event_id}")
+                    results.append({
+                        "action": "command",
+                        "command": command,
+                        "status": "triggered"
+                    })
+
+        return jsonify({
+            "status": "success",
+            "event_id": event_id,
+            "original_event": event,
+            "actions_triggered": len(results),
+            "results": results
+        })
+
+    except Exception as e:
+        api_logger.error(f'Replay event error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/analytics', methods=['GET'])
+def get_webhook_analytics():
+    """
+    Get webhook analytics and metrics.
+
+    GET /api/webhooks/analytics?days=7
+    """
+    try:
+        event_store = get_event_store()
+        days = int(request.args.get('days', 7))
+
+        analytics = event_store.get_analytics(days=days)
+
+        return jsonify({
+            "status": "success",
+            "analytics": analytics,
+            "period_days": days
+        })
+
+    except Exception as e:
+        api_logger.error(f'Get analytics error: {e}', exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/webhooks/events/<event_id>', methods=['DELETE'])
+def delete_webhook_event(event_id):
+    """
+    Delete a webhook event from history.
+
+    DELETE /api/webhooks/events/evt_abc123
+    """
+    try:
+        event_store = get_event_store()
+
+        # Verify event exists
+        event = event_store.get_event(event_id)
+        if not event:
+            return jsonify({"status": "error", "message": "Event not found"}), 404
+
+        # Delete event
+        conn = event_store._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM webhook_events WHERE id = ?', (event_id,))
+        conn.commit()
+        conn.close()
+
+        api_logger.info(f'Deleted webhook event {event_id}')
+
+        return jsonify({
+            "status": "success",
+            "message": f"Event {event_id} deleted"
+        })
+
+    except Exception as e:
+        api_logger.error(f'Delete event error: {e}', exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
