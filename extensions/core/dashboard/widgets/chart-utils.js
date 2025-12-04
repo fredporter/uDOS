@@ -426,6 +426,198 @@ class ChartUtils {
             }
         });
     }
+
+    /**
+     * v1.2.8: Animation configurations for incremental updates
+     */
+
+    /**
+     * Get optimized animation config for incremental chart updates.
+     *
+     * @param {string} chartType - Chart type (timeline, platform, gauge, histogram)
+     * @param {string} updateMode - 'active' | 'quiet' | 'none'
+     * @returns {Object} Animation configuration
+     */
+    static getIncrementalAnimationConfig(chartType, updateMode = 'active') {
+        const baseConfig = {
+            duration: 300,
+            easing: 'easeInOutQuart'
+        };
+
+        if (updateMode === 'none') {
+            return { duration: 0 };
+        }
+
+        if (updateMode === 'quiet') {
+            return { duration: 150, easing: 'easeOutCubic' };
+        }
+
+        // Chart-specific optimizations
+        const configs = {
+            timeline: {
+                duration: 300,
+                easing: 'easeInOutQuart',
+                x: {
+                    type: 'number',
+                    duration: 200,
+                    from: (ctx) => {
+                        // Slide in from right for new points
+                        const chart = ctx.chart;
+                        const meta = chart.getDatasetMeta(0);
+                        if (ctx.index === meta.data.length - 1) {
+                            return chart.chartArea.right;
+                        }
+                        return ctx.parsed.x;
+                    }
+                },
+                y: {
+                    type: 'number',
+                    duration: 300,
+                    from: 0
+                }
+            },
+            platform: {
+                duration: 400,
+                easing: 'easeOutElastic',
+                delay: (ctx) => ctx.index * 50 // Stagger animation
+            },
+            gauge: {
+                duration: 600,
+                easing: 'easeInOutCubic',
+                // Smooth needle sweep
+                numbers: {
+                    duration: 800,
+                    properties: ['circumference', 'rotation']
+                }
+            },
+            histogram: {
+                duration: 350,
+                easing: 'easeOutBack',
+                y: {
+                    type: 'number',
+                    duration: 350,
+                    from: 0,
+                    easing: 'easeOutBounce'
+                }
+            }
+        };
+
+        return configs[chartType] || baseConfig;
+    }
+
+    /**
+     * Configure chart for optimal incremental updates.
+     *
+     * @param {Chart} chart - Chart.js instance
+     * @param {string} chartType - Chart type
+     */
+    static configureIncrementalUpdates(chart, chartType) {
+        if (!chart) return;
+
+        // Set animation config
+        chart.options.animation = this.getIncrementalAnimationConfig(chartType);
+
+        // Optimize rendering
+        chart.options.animation.onProgress = null; // Remove progress callbacks for performance
+        chart.options.animation.onComplete = null;
+
+        // Enable hover animations
+        chart.options.hover = {
+            animationDuration: 200,
+            mode: 'nearest',
+            intersect: true
+        };
+
+        // Optimize transitions
+        chart.options.transitions = {
+            active: {
+                animation: {
+                    duration: 200
+                }
+            },
+            resize: {
+                animation: {
+                    duration: 0 // No animation on resize
+                }
+            },
+            show: {
+                animations: {
+                    x: {
+                        from: 0
+                    },
+                    y: {
+                        from: 0
+                    }
+                }
+            },
+            hide: {
+                animations: {
+                    x: {
+                        to: 0
+                    },
+                    y: {
+                        to: 0
+                    }
+                }
+            }
+        };
+    }
+
+    /**
+     * Create flash animation effect for metric updates.
+     *
+     * @param {HTMLElement} element - Element to flash
+     * @param {string} color - Flash color (default: #4CAF50)
+     * @param {number} duration - Animation duration in ms (default: 500)
+     */
+    static flashElement(element, color = '#4CAF50', duration = 500) {
+        if (!element) return;
+
+        const originalColor = element.style.color;
+        const originalTransform = element.style.transform;
+
+        // Flash animation
+        element.style.transition = `color ${duration}ms ease, transform ${duration}ms ease`;
+        element.style.color = color;
+        element.style.transform = 'scale(1.1)';
+
+        setTimeout(() => {
+            element.style.color = originalColor;
+            element.style.transform = originalTransform;
+
+            // Clean up
+            setTimeout(() => {
+                element.style.transition = '';
+            }, duration);
+        }, duration / 2);
+    }
+
+    /**
+     * Smooth scroll animation for charts.
+     *
+     * @param {Chart} chart - Chart.js instance
+     * @param {number} targetIndex - Target data point index
+     * @param {number} duration - Scroll duration in ms (default: 400)
+     */
+    static scrollToDataPoint(chart, targetIndex, duration = 400) {
+        if (!chart || targetIndex < 0) return;
+
+        const meta = chart.getDatasetMeta(0);
+        if (!meta.data[targetIndex]) return;
+
+        const element = meta.data[targetIndex];
+        const chartArea = chart.chartArea;
+
+        // Calculate target position
+        const targetX = element.x;
+        const centerX = (chartArea.left + chartArea.right) / 2;
+        const offsetX = targetX - centerX;
+
+        // Animate pan
+        chart.pan({
+            x: -offsetX
+        }, undefined, duration);
+    }
 }
 
 // Make available globally

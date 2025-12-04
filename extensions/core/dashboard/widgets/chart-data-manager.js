@@ -58,10 +58,14 @@ class ChartDataManager {
         }
 
         this.charts.set(type, chartInstance);
-        console.log(`Registered ${type} chart for incremental updates`);
-    }
 
-    /**
+        // v1.2.8: Configure optimized animations for incremental updates
+        if (typeof ChartUtils !== 'undefined' && ChartUtils.configureIncrementalUpdates) {
+            ChartUtils.configureIncrementalUpdates(chartInstance, type);
+        }
+
+        console.log(`Registered ${type} chart for incremental updates`);
+    }    /**
      * Add a single event to all relevant charts
      *
      * @param {Object} event - Webhook event data
