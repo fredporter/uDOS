@@ -1,25 +1,58 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.6 ✅ **COMPLETE** (Webhook Event History & Analytics)
-**Previous Versions:** v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅
-**Next Version:** v1.2.7 📋 **PLANNED** (Cloud Sync & Advanced Visualizations)
+**Current Version:** v1.2.7 ✅ **COMPLETE** (Chart.js Visualizations & WebSocket Real-Time Updates)
+**Previous Versions:** v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅
+**Next Version:** v1.2.8 📋 **PLANNED** (Incremental Updates & Event Buffering)
 **Last Updated:** December 5, 2025
 **Roadmap Size:** 6,300+ lines (streamlined, v1.2+ development focus)
 
 **Recent Updates (Dec 5, 2025):**
+- ✅ v1.2.7 released - Chart.js & WebSocket Real-Time (1,800+ lines delivered)
 - ✅ v1.2.6 released - Webhook Analytics & Event History (2,595 lines delivered)
 - ✅ v1.2.5 released - Webhook Integration (2,246 lines delivered)
 - ✅ v1.2.11 released - Knowledge Quality & Automation (2,056 lines delivered)
-- ✅ v1.2.10 released - VS Code Extension & Developer Tools (3,133 lines delivered)
-- 🎯 Complete event tracking with SQLite storage and analytics
-- ✨ Event replay system for debugging webhook workflows
-- ✨ Analytics dashboard with metrics and visualizations
+- 🎯 Professional chart visualizations with Chart.js 4.x
+- ✨ WebSocket real-time updates with <100ms latency
+- ✨ Connection status indicators and auto-reconnection
 
 > **Philosophy:** Development measured in STEPS and MOVES, not time. Work proceeds through organic pacing and cron patterns. Priorities shift based on immediate needs and strategic value.
 
 ---
 
 ## 📍 Latest Releases
+
+### v1.2.7 (December 5, 2025) ✅ **COMPLETE**
+
+**Chart.js Visualizations & WebSocket Real-Time Updates** - Professional interactive charts and instant event notifications via WebSocket broadcasting.
+
+**Delivered (Phase 1 - Chart.js Integration):**
+- Chart utilities library (450 lines) - Timeline, platform, gauge, histogram charts
+- Analytics widget enhancements (+173 lines) - Chart.js rendering with interactive features
+- Demo page (220 lines) - Complete interactive demonstration
+- **Phase 1 Total: 600+ lines**
+
+**Delivered (Phase 2 - WebSocket Real-Time):**
+- Server-side broadcasting (60 lines) - Socket.IO event emission on webhook processing
+- Client-side WebSocket integration (200 lines) - Real-time updates, connection management
+- Connection status UI (55 lines) - Visual indicators with pulse/blink animations
+- Testing infrastructure (440 lines) - WebSocket test scripts and validation
+- Complete documentation (500 lines) - Architecture, usage, troubleshooting
+- **Phase 2 Total: 1,200+ lines**
+
+**Combined Total: ~1,800 lines delivered**
+
+**Tags:** Phase 1: `6bb94690`, Phase 2: `cf4e085c`
+
+**Key Features:**
+- ✅ Chart.js 4.4.0 integration with professional visualizations
+- ✅ Interactive charts: timeline, platform distribution, success gauge, response histogram
+- ✅ WebSocket real-time broadcasting (<100ms latency)
+- ✅ Connection status indicator (Live/Connecting/Offline)
+- ✅ Auto-reconnect with exponential backoff
+- ✅ Multi-client synchronization
+- ✅ Flash animation feedback
+- ✅ Fallback to polling for older browsers
+- ✅ Complete testing and documentation
 
 ### v1.2.6 (December 5, 2025) ✅ **COMPLETE**
 
@@ -4318,7 +4351,160 @@ The groovebox extension demonstrates uDOS as a creative platform while maintaini
 
 ---
 
-## 📍 Future Release: v1.2.7
+## 📍 Next Priority: v1.2.8
+
+**Status:** 📋 **PLANNED** - Incremental Chart Updates & Event Buffering
+**Complexity:** Medium (Client-side optimizations + state management)
+**Effort:** ~25-35 MOVES (Part 1: 10-15, Part 2: 8-12, Part 3: 7-8)
+**Dependencies:** v1.2.7 complete (Chart.js & WebSocket integration)
+**Target:** ~800-1,000 lines
+
+### Mission: Optimize Real-Time Analytics Performance
+
+**Strategic Rationale:**
+v1.2.7 established real-time WebSocket updates, but currently refreshes entire analytics dataset on each event. v1.2.8 will optimize this by:
+- Incrementally updating chart data (add new points without full refresh)
+- Buffering events during disconnection for replay
+- Adding connection quality metrics (latency, uptime)
+- Improving animation performance with smooth transitions
+
+**Strategic Focus:**
+- **Incremental Chart Updates** - Update individual data points instead of full dataset refresh
+- **Event Buffering** - Queue events during disconnection, replay on reconnect
+- **Connection Metrics** - Display WebSocket latency, uptime, and health
+- **Performance Optimization** - Reduce CPU/memory usage for long-running dashboards
+
+---
+
+### Part 1: Incremental Chart Updates (Tasks 1-3)
+
+**Objective:** Update charts incrementally instead of full refresh on each event
+
+**Task 1: Chart Data Manager** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/chart-data-manager.js` (~250 lines)
+- **Features:**
+  - Maintain chart datasets in memory
+  - Add single data points to existing charts
+  - Handle data point limits (e.g., keep last 100 points)
+  - Smooth chart animations for new data
+  - Efficient data structure updates
+
+**Task 2: Incremental Update Logic** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/analytics-widget.js` (+150 lines)
+- **Changes:**
+  - Replace full `loadAnalytics()` with `addEventToCharts(event)`
+  - Update only affected chart datasets
+  - Increment metric counters without API call
+  - Recalculate success rate, avg response time
+  - Animate chart transitions
+
+**Task 3: Chart Animation Tuning** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/chart-utils.js` (+100 lines)
+- **Features:**
+  - Configure smooth transitions (300ms ease-in-out)
+  - Add slide-in animation for new data points
+  - Update gauge needle animation
+  - Histogram bin recalculation optimization
+
+**Estimated:** ~500 lines
+
+---
+
+### Part 2: Event Buffering System (Tasks 4-5)
+
+**Objective:** Queue events during disconnection and replay on reconnect
+
+**Task 4: Event Buffer Implementation** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/event-buffer.js` (~200 lines)
+- **Features:**
+  - Circular buffer for event queue (max 100 events)
+  - Timestamps and sequence numbers
+  - Deduplication logic
+  - Persist to localStorage for page refresh
+  - Clear buffer after successful replay
+
+**Task 5: Reconnection Replay Logic** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/analytics-widget.js` (+100 lines)
+- **Changes:**
+  - Buffer events when connectionStatus === 'disconnected'
+  - On reconnect, fetch missed events from API
+  - Merge buffered events with API response
+  - Apply buffered events to charts
+  - Show "Replaying X buffered events" notification
+
+**Estimated:** ~300 lines
+
+---
+
+### Part 3: Connection Metrics & Health (Tasks 6-7)
+
+**Objective:** Display connection quality and health metrics
+
+**Task 6: Latency Measurement** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/analytics-widget.js` (+80 lines)
+- **Features:**
+  - Ping/pong latency measurement
+  - Rolling average (last 10 pings)
+  - Display in connection status tooltip
+  - Color-code latency (green <100ms, yellow <500ms, red >500ms)
+
+**Task 7: Connection Health Dashboard** 📋 PLANNED
+- **File:** `extensions/core/dashboard/widgets/connection-health.js` (~150 lines)
+- **Features:**
+  - Uptime counter (time connected)
+  - Reconnection attempt history
+  - Event receive rate (events/minute)
+  - Connection quality indicator
+  - Expand/collapse panel in dashboard
+
+**Estimated:** ~230 lines
+
+---
+
+### Testing & Documentation
+
+**Task 8: Testing Suite** 📋 PLANNED
+- **File:** `dev/scripts/test_incremental_updates.py` (~150 lines)
+- Test incremental chart updates
+- Validate event buffering during disconnection
+- Measure performance improvements
+- Load testing with rapid events
+
+**Task 9: Documentation** 📋 PLANNED
+- **File:** `wiki/Incremental-Chart-Updates.md` (~200 lines)
+- Architecture and implementation details
+- Performance benchmarks
+- Event buffering guide
+- Connection health metrics reference
+
+**Estimated:** ~350 lines
+
+---
+
+### Summary
+
+**Total Estimated Effort:** ~1,380 lines (code + tests + docs)
+
+**Expected Performance Improvements:**
+- 90% reduction in API calls (incremental updates vs. full refresh)
+- 70% reduction in DOM updates (update data points, not entire charts)
+- Zero data loss during disconnection (event buffering)
+- Better user experience (smooth animations, connection quality feedback)
+
+**Deliverables:**
+- ✅ Incremental chart updates (500 lines)
+- ✅ Event buffering system (300 lines)
+- ✅ Connection health metrics (230 lines)
+- ✅ Testing suite (150 lines)
+- ✅ Complete documentation (200 lines)
+
+**Dependencies:**
+- v1.2.7 Chart.js integration (chart instances, data structures)
+- v1.2.7 WebSocket connection (event reception, status management)
+
+---
+
+## 📍 Future Release: v1.2.9 (Previously v1.2.7)
 
 **Status:** 📋 **PLANNED** - Cloud POKE Extension Publishing & HTTPS Hosting
 **Complexity:** High (HTTPS server + security + access control + cloud integration)
