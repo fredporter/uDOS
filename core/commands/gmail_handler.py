@@ -56,8 +56,10 @@ def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, A
         return _handle_email(parts[2:], config)
     elif subcommand == 'IMPORT':
         return _handle_import(parts[2:], config)
-    else:
-        return f"❌ Unknown Gmail command: {subcommand}\n\n{_show_help()}"
+    elif subcommand == 'QUOTA':
+        return _handle_quota(config)
+    elif subcommand == 'CONFIG':
+        return _handle_config(parts[2:], config)
     else:
         return f"❌ Unknown Gmail command: {subcommand}\n\n{_show_help()}"
 
@@ -226,6 +228,10 @@ def _handle_email(parts: list, config) -> str:
         return _handle_email_list(parts[1:], config)
     elif subcommand == 'SEND':
         return _handle_email_send(parts[1:], config)
+    elif subcommand == 'DOWNLOAD':
+        return _handle_email_download(parts[1:], config)
+    elif subcommand == 'TASKS':
+        return _handle_email_tasks(parts[1:], config)
     else:
         return f"❌ Unknown EMAIL subcommand: {subcommand}"
 
@@ -684,6 +690,237 @@ def _handle_import(parts: list, config) -> str:
     return '\n'.join(output)
 
 
+def _handle_quota(config) -> str:
+    """
+    Show Drive quota usage.
+
+    Returns:
+        Quota information
+    """
+    auth = get_gmail_auth(config)
+
+    if not auth.is_authenticated():
+        return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
+
+    drive = get_drive_service()
+
+    if not drive.is_available():
+        return "❌ Drive service not available"
+
+    quota = drive.get_quota()
+
+    if not quota:
+        return "❌ Could not retrieve quota information"
+
+    # Convert bytes to MB
+    used_mb = quota.get('used', 0) / (1024 * 1024)
+    total_mb = quota.get('total', 0) / (1024 * 1024)
+    percent = (used_mb / total_mb * 100) if total_mb > 0 else 0
+
+    # For uDOS sync, we recommend max 15 MB
+    sync_limit = 15
+    sync_percent = (used_mb / sync_limit * 100) if sync_limit > 0 else 0
+
+    output = [
+        "═══ Google Drive Quota ═══\n",
+        f"Total Drive Storage: {total_mb:.1f} MB",
+        f"Used: {used_mb:.1f} MB ({percent:.1f}%)",
+        f"Available: {total_mb - used_mb:.1f} MB\n",
+        f"uDOS Sync Limit: {sync_limit} MB (recommended)",
+        f"Sync Usage: {used_mb:.2f} MB ({sync_percent:.1f}% of limit)"
+    ]
+
+    if used_mb > sync_limit:
+        output.append(f"\n⚠️  Warning: Exceeding recommended sync limit by {used_mb - sync_limit:.1f} MB")
+        output.append("   Consider cleaning up old files or increasing limit.")
+    elif used_mb > sync_limit * 0.8:
+        output.append(f"\n⚠️  Approaching sync limit ({sync_limit - used_mb:.1f} MB remaining)")
+
+    return '\n'.join(output)
+
+
+def _handle_config(parts: list, config) -> str:
+    """
+    Show or modify sync configuration.
+
+    Commands:
+    - CONFIG GMAIL - Show current config
+    - CONFIG GMAIL SET <key> <value> - Update setting
+
+    Returns:
+        Config information
+    """
+    sync_mgr = get_sync_manager()
+
+    if not parts:
+        # Show current config
+        cfg = sync_mgr.get_config()
+
+        output = [
+            "═══ Sync Configuration ═══\n",
+            f"Enabled: {cfg['enabled']}",
+            f"Mode: {cfg['mode']}",
+            f"Interval: {cfg['interval']}s",
+            f"Conflict strategy: {cfg['conflict_strategy']}\n",
+            "Syncable directories:"
+        ]
+
+        for dir_path, enabled in cfg.get('paths', {}).items():
+            status = "✓" if enabled else "✗"
+            output.append(f"  {status} {dir_path}")
+
+        output.extend([
+            "",
+            f"File types: {', '.join(cfg.get('file_types', []))}",
+            f"Max file size: {cfg.get('max_file_size_mb', 1)} MB",
+            f"Total quota: {cfg.get('total_quota_mb', 15)} MB"
+        ])
+
+        return '\n'.join(output)
+
+    subcommand = parts[0].upper()
+
+    if subcommand == 'SET':
+        if len(parts) < 3:
+            return "❌ Usage: CONFIG GMAIL SET <key> <value>"
+
+        key = parts[1].lower()
+        value = parts[2]
+
+        # Update config
+        try:
+            if key == 'interval':
+                sync_mgr.set_interval(int(value))
+                return f"✅ Interval set to {value}s"
+            elif key == 'strategy':
+                if value in ['newest-wins', 'local-wins', 'cloud-wins', 'manual']:
+                    sync_mgr.set_conflict_strategy(ConflictStrategy(value))
+                    return f"✅ Conflict strategy set to {value}"
+                else:
+                    return f"❌ Invalid strategy. Use: newest-wins, local-wins, cloud-wins, or manual"
+            else:
+                return f"❌ Unknown config key: {key}"
+        except Exception as e:
+            return f"❌ Error updating config: {e}"
+    else:
+        return f"❌ Unknown CONFIG subcommand: {subcommand}"
+
+
+def _handle_email_download(parts: list, config) -> str:
+    """
+    Download specific email by ID and convert to markdown.
+
+    Args:
+        parts: [message_id]
+        config: Config instance
+
+    Returns:
+        Download status
+    """
+    if not parts:
+        return "❌ Missing message ID\n\nUsage: EMAIL DOWNLOAD <message_id>"
+
+    gmail = get_gmail_service()
+
+    if not gmail.is_available():
+        return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
+
+    message_id = parts[0]
+    converter = get_email_converter()
+
+    try:
+        # Get full message
+        msg = gmail.get_message(message_id)
+
+        if not msg:
+            return f"❌ Message not found: {message_id}"
+
+        # Auto-convert
+        result = converter.auto_convert(msg)
+
+        if result['success']:
+            return (
+                f"✅ Email downloaded and converted\n\n"
+                f"Type: {result['type']}\n"
+                f"File: {result['filename']}\n"
+                f"Path: {result['path']}\n\n"
+                f"Subject: {msg['subject']}\n"
+                f"From: {msg['from']}\n"
+                f"Date: {msg['date']}"
+            )
+        else:
+            return f"❌ Conversion failed: {result.get('error', 'Unknown error')}"
+
+    except Exception as e:
+        return f"❌ Error downloading email: {e}"
+
+
+def _handle_email_tasks(parts: list, config) -> str:
+    """
+    Show tasks extracted from emails.
+
+    Lists all tasks found in emails with source information.
+
+    Returns:
+        Task list
+    """
+    gmail = get_gmail_service()
+
+    if not gmail.is_available():
+        return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
+
+    parser = get_email_parser()
+
+    # Get recent emails
+    query = ' '.join(parts) if parts else "is:unread"
+    messages = gmail.get_messages(query=query, max_results=20)
+
+    if not messages:
+        return f"No emails found for query: {query}"
+
+    all_tasks = []
+
+    for msg in messages:
+        parsed = parser.parse_email(msg)
+        tasks = parsed['tasks']
+
+        if tasks:
+            for task in tasks:
+                all_tasks.append({
+                    'text': task['text'],
+                    'deadline': task.get('deadline'),
+                    'priority': parsed.get('priority', 'medium'),
+                    'email_subject': msg['subject'],
+                    'email_from': msg['from'],
+                    'email_date': msg['date']
+                })
+
+    if not all_tasks:
+        return f"No tasks found in {len(messages)} email(s)"
+
+    output = [f"📋 Found {len(all_tasks)} task(s) in {len(messages)} email(s)\n"]
+
+    for i, task in enumerate(all_tasks, 1):
+        output.append(f"{i}. {task['text']}")
+        output.append(f"   From: {task['email_from']}")
+        output.append(f"   Email: {task['email_subject']}")
+
+        if task['deadline']:
+            output.append(f"   Deadline: {task['deadline']}")
+
+        if task['priority'] != 'medium':
+            output.append(f"   Priority: {task['priority']}")
+
+        output.append("")
+
+    output.extend([
+        "Use 'IMPORT GMAIL --type=checklist' to create task list",
+        "Use 'IMPORT GMAIL --type=mission' to create mission workflow"
+    ])
+
+    return '\n'.join(output)
+
+
 def _show_help() -> str:
     """
     Show Gmail command help.
@@ -692,74 +929,90 @@ def _show_help() -> str:
         Help text
     """
     return """
-Gmail Cloud Integration Commands
+Gmail Cloud Integration Commands - v1.2.9
 
 Authentication:
   LOGIN GMAIL       - Start OAuth2 authentication
   LOGOUT GMAIL      - Revoke tokens and logout
-  STATUS GMAIL      - Show auth status and quota
+  STATUS GMAIL      - Show auth status and Drive quota
 
 Email Operations:
-  EMAIL LIST [query]          - List recent emails
-  EMAIL SEND <to> <subject>   - Send email
+  EMAIL LIST [query]                - List recent emails
+  EMAIL SEND <to> <subject>         - Send email
+  EMAIL DOWNLOAD <id>               - Download and convert email
+  EMAIL TASKS [query]               - Show tasks from emails
 
-Email Import (NEW in Part 3):
-  IMPORT GMAIL [query]                    - Import emails (auto-detect type)
-  IMPORT GMAIL --preview [query]          - Preview without importing
-  IMPORT GMAIL --type=<type> [query]      - Force specific type
-  IMPORT GMAIL --limit=<n> [query]        - Limit results
+Email Import:
+  IMPORT GMAIL [query]              - Import emails (auto-detect type)
+  IMPORT GMAIL --preview [query]    - Preview without importing
+  IMPORT GMAIL --type=<type> [query] - Force specific type
+  IMPORT GMAIL --limit=<n> [query]  - Limit results
 
   Types: note, checklist, mission
   Auto-detection: 3+ tasks=mission, 1-2 tasks=checklist, 0 tasks=note
 
 Cloud Sync:
-  SYNC GMAIL                  - Run sync now
-  SYNC GMAIL STATUS           - Show sync status
-  SYNC GMAIL ENABLE [mode]    - Enable auto-sync
-  SYNC GMAIL DISABLE          - Disable auto-sync
-  SYNC GMAIL CHANGES          - Show pending changes
-  SYNC GMAIL HISTORY [limit]  - Show sync history
+  SYNC GMAIL                        - Run sync now
+  SYNC GMAIL STATUS                 - Show sync status
+  SYNC GMAIL ENABLE [mode]          - Enable auto-sync
+  SYNC GMAIL DISABLE                - Disable auto-sync
+  SYNC GMAIL CHANGES                - Show pending changes
+  SYNC GMAIL HISTORY [limit]        - Show sync history
 
-Coming Soon (Part 4):
-  DRIVE UPLOAD <file>    - Upload to App Data
-  DRIVE LIST             - List cloud files
+Quota & Configuration:
+  QUOTA GMAIL                       - Show Drive quota usage
+  CONFIG GMAIL                      - Show sync configuration
+  CONFIG GMAIL SET <key> <value>    - Update setting
+
+  Config keys: interval, strategy
+  Strategies: newest-wins, local-wins, cloud-wins, manual
 
 Examples:
+  # Authentication
   LOGIN GMAIL
   STATUS GMAIL
+  QUOTA GMAIL
+
+  # Email operations
   EMAIL LIST is:unread from:boss
+  EMAIL TASKS is:unread
+  EMAIL DOWNLOAD msg_abc123
+
+  # Import workflows
   IMPORT GMAIL --preview is:unread
-  IMPORT GMAIL --type=mission from:boss
+  IMPORT GMAIL --type=mission from:boss subject:project
+  IMPORT GMAIL --limit=5 is:starred
+
+  # Sync operations
   SYNC GMAIL ENABLE auto --interval=300
   SYNC GMAIL CHANGES
+  SYNC GMAIL STATUS
   SYNC GMAIL HISTORY 20
 
+  # Configuration
+  CONFIG GMAIL
+  CONFIG GMAIL SET interval 600
+  CONFIG GMAIL SET strategy local-wins
+
 Syncable Directories:
-  - memory/missions
-  - memory/workflows
-  - memory/checklists
-  - memory/system/user
-  - memory/docs
-  - memory/drafts
+  ✓ memory/missions
+  ✓ memory/workflows
+  ✓ memory/checklists
+  ✓ memory/system/user
+  ✓ memory/docs
+  ✓ memory/drafts
 
 Conflict Resolution:
-  - newest-wins (default)
-  - local-wins
-  - cloud-wins
-  - manual
-"""
+  • newest-wins (default) - Use most recently modified
+  • local-wins - Always prefer local version
+  • cloud-wins - Always prefer cloud version
+  • manual - Prompt user for each conflict
 
-Coming Soon (Parts 2-4):
-  SYNC GMAIL             - Sync data to Drive
-  EMAIL IMPORT           - Convert emails to tasks
-  DRIVE UPLOAD <file>    - Upload to App Data
-  DRIVE LIST             - List cloud files
-
-Examples:
-  LOGIN GMAIL
-  STATUS GMAIL
-  EMAIL LIST is:unread from:boss
-  EMAIL SEND colleague@company.com "Meeting Notes"
+Security:
+  • OAuth2 (no password storage)
+  • Encrypted token storage
+  • App-data-only Drive access
+  • User controls all sync settings
 """
 
 
@@ -769,5 +1022,8 @@ GMAIL_COMMANDS = {
     'LOGOUT': handle_gmail_command,
     'STATUS': handle_gmail_command,
     'SYNC': handle_gmail_command,
-    'EMAIL': handle_gmail_command
+    'EMAIL': handle_gmail_command,
+    'IMPORT': handle_gmail_command,
+    'QUOTA': handle_gmail_command,
+    'CONFIG': handle_gmail_command
 }
