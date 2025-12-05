@@ -119,7 +119,6 @@ class CommandHandler:
         from core.commands.mission_handler import handle_mission_command
         from core.commands.schedule_handler import handle_schedule_command
         from core.commands.workflow_handler import handle_workflow_command
-        from core.commands.resource_handler import handle_resource_command
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
@@ -528,6 +527,8 @@ class CommandHandler:
 
             # v1.1.2 - Resource Management
             elif module == "RESOURCE":
+                from core.commands.resource_handler import handle_resource_command
+
                 # If no command provided, show help
                 if not command or command.strip() == '':
                     result = handle_resource_command('HELP')

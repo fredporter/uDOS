@@ -359,7 +359,7 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     GREEN = '\033[1;32m'
     BLUE = '\033[34m'
     RESET = '\033[0m'
-    
+
     # Build colored help text using ANSI codes
     help_lines = []
 

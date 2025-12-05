@@ -10,7 +10,7 @@
     "STATUS": 4,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "ERROR": 6,
+    "ERROR": 12,
     "LIST": 4,
     "WIZARD": 2,
     "CATEGORIES": 1,
@@ -49,7 +49,7 @@
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 6,
+    "ERROR": 12,
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 2,
@@ -59,63 +59,6 @@
     "RUN": 1
   },
   "recent_commands": [
-    {
-      "command": "OUTPUT",
-      "timestamp": "2025-11-26T18:21:28.600770",
-      "params": [
-        "start",
-        "dashboard"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "OUTPUT",
-      "timestamp": "2025-11-26T18:21:39.869782",
-      "params": [
-        "start",
-        "desktop"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "OUTPUT",
-      "timestamp": "2025-11-26T18:22:21.894864",
-      "params": [
-        "start",
-        "terminal"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "OUTPUT",
-      "timestamp": "2025-11-26T18:53:47.114768",
-      "params": [
-        "start",
-        "terminal"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "OUTPUT",
-      "timestamp": "2025-11-26T20:20:30.487583",
-      "params": [
-        "start",
-        "terminal"
-      ],
-      "success": true,
-      "context": {}
-    },
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-11-29T13:33:20.192399",
-      "params": [],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "SETUP",
       "timestamp": "2025-11-29T13:34:03.721377",
@@ -893,7 +836,61 @@
       ],
       "success": false,
       "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.195655",
+      "params": [
+        "Invalid command: echo \"RESOURCE HELP\" "
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.209401",
+      "params": [
+        "Invalid command: import sys"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.232287",
+      "params": [
+        "Invalid command: sys.path.insert(0, '/Users/fredbook/Code/uDOS')"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.251393",
+      "params": [
+        "Invalid command: from core.commands.resource_handler import handle_resource_command"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.273841",
+      "params": [
+        "Invalid command: result = handle_resource_command('HELP')"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-05T16:15:41.281578",
+      "params": [
+        "Invalid command: \""
+      ],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-05T01:21:18.712770"
+  "last_updated": "2025-12-05T16:17:19.787248"
 }
