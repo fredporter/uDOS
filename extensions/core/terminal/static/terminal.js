@@ -63,20 +63,25 @@
             const loadingScreen = document.getElementById('loadingScreen');
             loadingScreen.innerHTML = '';
 
-            // Create splash content
+            // Create splash content with fixed positioning
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; padding: 10px; font-family: "C64 User Mono", monospace; line-height: 1.1; max-width: 100%; overflow: hidden;';
+            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.2; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
 
-            // uDOS ASCII art logo - matching TUI and teletext (rainbow gradient)
+            // Enhanced uDOS ASCII art logo with border (rainbow gradient)
             const logo = [
-                { text: '  ██╗   ██╗██████╗  ██████╗ ███████╗', color: '#FF0000' },
-                { text: '  ██║   ██║██╔══██╗██╔═══██╗██╔════╝', color: '#FFFF00' },
-                { text: '  ██║   ██║██║  ██║██║   ██║███████╗', color: '#00FF00' },
-                { text: '  ██║   ██║██║  ██║██║   ██║╚════██║', color: '#00FFFF' },
-                { text: '  ╚██████╔╝██████╔╝╚██████╔╝███████║', color: '#0000FF' },
-                { text: '   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝', color: '#FF00FF' },
                 { text: '', color: '#FFFFFF' },
-                { text: '  uDOS v2.0.0 - Terminal Interface', color: '#00d4ff' }
+                { text: '╔═══════════════════════════════════════╗', color: '#FF0000' },
+                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#FF0000' },
+                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#FFFF00' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#00FF00' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00FFFF' },
+                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#0000FF' },
+                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#FF00FF' },
+                { text: '╠═══════════════════════════════════════╣', color: '#00d4ff' },
+                { text: '║   UNIVERSAL DEVICE OPERATIONS SYSTEM  ║', color: '#00d4ff' },
+                { text: '║         Terminal Interface v2.0       ║', color: '#9d4edd' },
+                { text: '╚═══════════════════════════════════════╝', color: '#ff006e' },
+                { text: '', color: '#FFFFFF' }
             ];
 
             logo.forEach(line => {
@@ -84,27 +89,38 @@
                 lineDiv.textContent = line.text;
                 lineDiv.style.color = line.color;
                 lineDiv.style.fontWeight = 'bold';
-                lineDiv.style.fontSize = '14px';
+                lineDiv.style.fontSize = '13px';
+                lineDiv.style.lineHeight = '1.3';
                 splash.appendChild(lineDiv);
             });
 
-            // Loading bar container
-            const loaderContainer = document.createElement('div');
-            loaderContainer.style.cssText = 'margin: 15px auto; width: 90%; max-width: 350px;';
+            // Spacer
+            const spacer = document.createElement('div');
+            spacer.style.height = '20px';
+            splash.appendChild(spacer);
 
-            const loaderText = document.createElement('div');
-            loaderText.textContent = '▶ INITIALIZING...';
-            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 8px; font-weight: bold; font-size: 12px;';
-            loaderContainer.appendChild(loaderText);
+            // Enhanced loading section
+            const loaderContainer = document.createElement('div');
+            loaderContainer.style.cssText = 'margin: 0 auto; width: 100%; max-width: 450px;';
+
+            // System status box
+            const statusBox = document.createElement('div');
+            statusBox.style.cssText = 'border: 1px solid #00d4ff; padding: 12px; background: rgba(0, 0, 0, 0.3); margin-bottom: 15px;';
+
+            const loaderHeader = document.createElement('div');
+            loaderHeader.textContent = '▶ SYSTEM INITIALIZATION';
+            loaderHeader.style.cssText = 'color: #00D9FF; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #00d4ff; padding-bottom: 5px;';
+            statusBox.appendChild(loaderHeader);
 
             const progressBar = document.createElement('div');
-            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8; font-size: 12px;';
-            loaderContainer.appendChild(progressBar);
+            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8; font-size: 13px; margin: 10px 0;';
+            statusBox.appendChild(progressBar);
 
             const statusText = document.createElement('div');
-            statusText.style.cssText = 'color: #50b818; margin-top: 8px; font-size: 11px;';
-            loaderContainer.appendChild(statusText);
+            statusText.style.cssText = 'color: #50b818; font-size: 12px; min-height: 20px;';
+            statusBox.appendChild(statusText);
 
+            loaderContainer.appendChild(statusBox);
             splash.appendChild(loaderContainer);
             loadingScreen.appendChild(splash);
 
@@ -139,32 +155,33 @@
             let progress = 0;
             const totalSteps = 40;
             const statusMessages = [
-                'KERNEL...',
-                'MEMORY...',
-                'FILESYSTEMS...',
-                'EXTENSIONS...',
-                'CORE...',
-                'READY'
+                '⚙  LOADING KERNEL...',
+                '⚙  INITIALIZING MEMORY...',
+                '⚙  MOUNTING FILESYSTEMS...',
+                '⚙  LOADING EXTENSIONS...',
+                '⚙  CONNECTING TO CORE...',
+                '✓  SYSTEM READY'
             ];
             let statusIndex = 0;
 
             const interval = setInterval(() => {
                 progress++;
-                const filled = '█'.repeat(Math.floor(progress * 0.6));
-                const empty = '░'.repeat(Math.floor((totalSteps - progress) * 0.6));
+                const barWidth = 30;
+                const filled = '█'.repeat(Math.floor((progress / totalSteps) * barWidth));
+                const empty = '░'.repeat(barWidth - filled.length);
                 const percent = Math.floor((progress / totalSteps) * 100);
 
                 progressBar.textContent = `[${filled}${empty}] ${percent}%`;
 
                 // Update status message
                 if (progress % 7 === 0 && statusIndex < statusMessages.length) {
-                    statusText.textContent = '▸ ' + statusMessages[statusIndex];
+                    statusText.textContent = statusMessages[statusIndex];
                     statusIndex++;
                 }
 
                 if (progress >= totalSteps) {
                     clearInterval(interval);
-                    statusText.textContent = '✓ SYSTEM READY';
+                    statusText.textContent = '✓  SYSTEM READY';
                     statusText.style.color = '#00FF00';
                     setTimeout(() => {
                         resolve();
