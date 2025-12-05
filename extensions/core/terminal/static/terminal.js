@@ -121,7 +121,7 @@
                 'READY TO OPERATE'
             ];
             let statusIndex = 0;
-            
+
             const interval = setInterval(() => {
                 progress++;
                 const filled = '█'.repeat(Math.floor(progress * 0.6));
@@ -129,7 +129,7 @@
                 const percent = Math.floor((progress / totalSteps) * 100);
 
                 progressBar.textContent = `[${filled}${empty}] ${percent}%`;
-                
+
                 // Update status message
                 if (progress % 7 === 0 && statusIndex < statusMessages.length) {
                     statusText.textContent = '▸ ' + statusMessages[statusIndex];
@@ -145,21 +145,6 @@
                     }, 500);
                 }
             }, 80); // 3.2 seconds total
-        });
-    }
-                const filled = '█'.repeat(Math.floor(progress / 2));
-                const empty = '░'.repeat(Math.floor((totalSteps - progress) / 2));
-                const percent = Math.floor((progress / totalSteps) * 100);
-
-                progressBar.textContent = `[${filled}${empty}] ${percent}%`;
-
-                if (progress >= totalSteps) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        resolve();
-                    }, 300);
-                }
-            }, 100); // 5 seconds total
         });
     }
 
