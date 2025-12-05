@@ -17,6 +17,7 @@ import re
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 from core.runtime.upy_lists import ListOperations
+from core.runtime.upy_file_io import FileIO, FileIOError
 
 
 class UPYRuntimeError(Exception):
@@ -48,7 +49,10 @@ class UPYRuntime:
         self.variables: Dict[str, Any] = {}
         self.functions: Dict[str, Dict] = {}
         self.labels: Dict[str, int] = {}
-        self.output: List[str] = []        # System variables (read-only)
+        self.output: List[str] = []
+        self.file_io = FileIO()  # File I/O manager
+
+        # System variables (read-only)
         self.system_vars = {
             'MISSION.ID': 'test-mission',
             'MISSION.NAME': 'Test Mission',
@@ -565,6 +569,158 @@ class UPYRuntime:
 
             else:
                 raise UPYRuntimeError(f"Unknown LIST operation: {operation}")
+
+        elif command == 'FILE':
+            # FILE operations: READ, WRITE, EXISTS, DELETE, SIZE, LIST
+            if not params:
+                raise UPYRuntimeError("FILE command requires operation")
+
+            operation = params[0].upper()
+
+            if operation == 'READ':
+                # Format: FILE|READ|filepath|var_name (var_name optional)
+                if len(params) < 2:
+                    raise UPYRuntimeError("FILE READ requires filepath")
+                filepath = params[1]
+                var_name = params[2] if len(params) > 2 else None
+
+                try:
+                    content = self.file_io.read_file(filepath)
+                    if var_name:
+                        self.set_variable(var_name, content)
+                    return content
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'WRITE':
+                # Format: FILE|WRITE|filepath|content|append (append optional)
+                if len(params) < 3:
+                    raise UPYRuntimeError("FILE WRITE requires filepath and content")
+                filepath = params[1]
+                content = params[2]
+                append = params[3].upper() == 'APPEND' if len(params) > 3 else False
+
+                try:
+                    self.file_io.write_file(filepath, content, append=append)
+                    return True
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'EXISTS':
+                # Format: FILE|EXISTS|filepath
+                if len(params) < 2:
+                    raise UPYRuntimeError("FILE EXISTS requires filepath")
+                filepath = params[1]
+                return self.file_io.file_exists(filepath)
+
+            elif operation == 'DELETE':
+                # Format: FILE|DELETE|filepath
+                if len(params) < 2:
+                    raise UPYRuntimeError("FILE DELETE requires filepath")
+                filepath = params[1]
+
+                try:
+                    return self.file_io.delete_file(filepath)
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'SIZE':
+                # Format: FILE|SIZE|filepath
+                if len(params) < 2:
+                    raise UPYRuntimeError("FILE SIZE requires filepath")
+                filepath = params[1]
+
+                try:
+                    return self.file_io.get_file_size(filepath)
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'LIST':
+                # Format: FILE|LIST|dirpath|pattern (pattern optional)
+                if len(params) < 2:
+                    raise UPYRuntimeError("FILE LIST requires directory path")
+                dirpath = params[1]
+                pattern = params[2] if len(params) > 2 else '*'
+
+                try:
+                    return self.file_io.list_files(dirpath, pattern)
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            else:
+                raise UPYRuntimeError(f"Unknown FILE operation: {operation}")
+
+        elif command == 'JSON':
+            # JSON operations: PARSE, STRINGIFY, READ, WRITE
+            if not params:
+                raise UPYRuntimeError("JSON command requires operation")
+
+            operation = params[0].upper()
+
+            if operation == 'PARSE':
+                # Format: JSON|PARSE|json_string|var_name (var_name optional)
+                if len(params) < 2:
+                    raise UPYRuntimeError("JSON PARSE requires JSON string")
+                json_string = params[1]
+                var_name = params[2] if len(params) > 2 else None
+
+                try:
+                    data = self.file_io.parse_json(json_string)
+                    if var_name:
+                        self.set_variable(var_name, data)
+                    return data
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'STRINGIFY':
+                # Format: JSON|STRINGIFY|var_name|result_var|indent (result_var and indent optional)
+                if len(params) < 2:
+                    raise UPYRuntimeError("JSON STRINGIFY requires variable name")
+                var_name = params[1]
+                result_var = params[2] if len(params) > 2 else None
+                indent = int(params[3]) if len(params) > 3 else None
+
+                data = self.get_variable(var_name)
+                try:
+                    json_string = self.file_io.stringify_json(data, indent=indent)
+                    if result_var:
+                        self.set_variable(result_var, json_string)
+                    return json_string
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'READ':
+                # Format: JSON|READ|filepath|var_name (var_name optional)
+                if len(params) < 2:
+                    raise UPYRuntimeError("JSON READ requires filepath")
+                filepath = params[1]
+                var_name = params[2] if len(params) > 2 else None
+
+                try:
+                    data = self.file_io.read_json(filepath)
+                    if var_name:
+                        self.set_variable(var_name, data)
+                    return data
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            elif operation == 'WRITE':
+                # Format: JSON|WRITE|filepath|var_name|indent (indent optional)
+                if len(params) < 3:
+                    raise UPYRuntimeError("JSON WRITE requires filepath and variable name")
+                filepath = params[1]
+                var_name = params[2]
+                indent = int(params[3]) if len(params) > 3 else 2
+
+                data = self.get_variable(var_name)
+                try:
+                    self.file_io.write_json(filepath, data, indent=indent)
+                    return True
+                except FileIOError as e:
+                    raise UPYRuntimeError(str(e))
+
+            else:
+                raise UPYRuntimeError(f"Unknown JSON operation: {operation}")
 
         elif command == 'EXIT':
             code = int(params[0]) if params else 0
