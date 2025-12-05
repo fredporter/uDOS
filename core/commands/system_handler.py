@@ -468,23 +468,49 @@ class SystemCommandHandler(BaseCommandHandler):
         if '--extensions' in flags or '--extension' in flags or '--validate' in flags:
             return self._handle_hot_reload(flags, args)
 
-        # Original full system reboot
-        output = "\n🔄 REBOOTING uDOS SYSTEM...\n\n"
-        output += "✅ Saving current state...\n"
-        output += "✅ Clearing memory buffers...\n"
+        # Original full system reboot with progress indicators
+        import time
 
-        # Refresh viewport detection
+        output = "\n🔄 REBOOTING uDOS SYSTEM...\n\n"
+
+        # Progress bar helper
+        def progress_bar(current, total, width=30):
+            filled = int(width * current / total)
+            bar = '█' * filled + '░' * (width - filled)
+            percent = int(100 * current / total)
+            return f"[{bar}] {percent}%"
+
+        # Step 1: Save state
+        output += f"{progress_bar(1, 5)} Saving current state...\r"
+        time.sleep(0.1)
+        output += f"\r✅ Saving current state...                           \n"
+
+        # Step 2: Clear buffers
+        output += f"{progress_bar(2, 5)} Clearing memory buffers...\r"
+        time.sleep(0.1)
+        output += f"\r✅ Clearing memory buffers...                        \n"
+
+        # Step 3: Refresh viewport detection
+        output += f"{progress_bar(3, 5)} Refreshing viewport...\r"
+        time.sleep(0.1)
         try:
             from core.services.viewport_manager import ViewportManager
             viewport = ViewportManager()
             viewport_info = viewport.refresh_viewport()
             tier = viewport_info["screen_tier"]
-            output += f"🖥️  Viewport refreshed: {tier['label']} ({tier['actual_width_cells']}×{tier['actual_height_cells']} cells)\n"
+            output += f"\r🖥️  Viewport refreshed: {tier['label']} ({tier['actual_width_cells']}×{tier['actual_height_cells']} cells)\n"
         except Exception as e:
-            output += f"⚠️  Viewport refresh warning: {str(e)}\n"
+            output += f"\r⚠️  Viewport refresh warning: {str(e)}\n"
 
-        output += "✅ Reinitializing components...\n\n"
-        output += "🚀 System restart initiated!\n"
+        # Step 4: Reinitialize components
+        output += f"{progress_bar(4, 5)} Reinitializing components...\r"
+        time.sleep(0.1)
+        output += f"\r✅ Reinitializing components...                      \n"
+
+        # Step 5: Complete
+        output += f"{progress_bar(5, 5)} System ready!\r"
+        time.sleep(0.2)
+        output += f"\r🚀 System restart initiated!                         \n"
         output += "Welcome back to uDOS v1.2.4\n\n"
 
         # Set the reboot flag to trigger restart in main loop

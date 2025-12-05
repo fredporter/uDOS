@@ -574,10 +574,23 @@
     },
     {
       "NAME": "REBOOT",
-      "SYNTAX": "REBOOT",
-      "DESCRIPTION": "Restarts uDOS, re-detecting system settings and viewport size.",
-      "UCODE_TEMPLATE": "[SYSTEM|REBOOT]",
-      "DEFAULT_PARAMS": {}
+      "SYNTAX": "REBOOT [--extensions] [--extension <id>] [--validate]",
+      "DESCRIPTION": "Restarts uDOS or reloads extensions. Full restart re-detects system settings and viewport. Hot reload variants (v1.2.4+): --extensions (reload all extensions), --extension <id> (reload single extension), --validate (dry-run validation).",
+      "UCODE_TEMPLATE": "[SYSTEM|REBOOT*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--extensions": "Reload all extensions without full system restart",
+        "--extension <id>": "Reload a single extension by ID",
+        "--validate": "Validate extension without reloading (dry-run)"
+      },
+      "EXAMPLES": [
+        "REBOOT",
+        "REBOOT --extensions",
+        "REBOOT --extension assistant",
+        "REBOOT --validate --extension play-map"
+      ]
     },
     {
       "NAME": "DESTROY",

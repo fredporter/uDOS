@@ -388,7 +388,16 @@ def main():
         # Display startup information
         if not is_script_mode:
             print(f"\n{user_manager.get_user_greeting()}")
-            print(f"🌐 {connection.get_mode()} | 📐 {viewport.width}×{viewport.height} ({viewport.device_type}) | 🎯 {move_stats['total_moves']} moves")
+
+            # ASCII dashboard style status line
+            conn_status = connection.get_mode()
+            viewport_info = f"{viewport.width}×{viewport.height}"
+            device_type = viewport.device_type.upper()
+            moves_info = f"{move_stats['total_moves']} moves"
+
+            print(f"┌{'─'*67}┐")
+            print(f"│ 🌐 {conn_status:<13} │ 📐 {viewport_info:<5} {device_type:<18} │ 🎯 {moves_info:<17}")
+            print(f"└{'─'*67}┘")
 
             # Check lifespan status
             lifespan_status = user_manager.check_lifespan_status(move_stats['total_moves'])

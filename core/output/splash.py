@@ -153,44 +153,34 @@ def print_viewport_measurement(viewport, delay=1.0):
 
         console.print(table)
 
-        # Visual boundary representation
-        console.print()
-        console.print("[bold cyan]TERMINAL BOUNDARY VISUALIZATION[/]", justify="center")
+        # Visual boundary representation - compact ASCII dashboard
         console.print()
 
-        # Create visual grid with colored borders
-        inner_width = min(width - 8, 60)
+        # Title bar - aligned to 50 chars total width
+        console.print(f"    [bold cyan]┌─ VIEWPORT {'─' * 39}┐[/]")
 
-        # Top border
-        top_border = Text()
-        top_border.append("    ┌", style="bold cyan")
-        top_border.append("─" * (inner_width - 2), style="cyan")
-        top_border.append("┐", style="bold cyan")
-        console.print(top_border)
+        # Info row - aligned
+        info_text = f"{width}×{height} • {grid_w}×{grid_h} grid • {device}"
+        console.print(f"    [bold cyan]│[/] [yellow]{info_text:^46}[/] [bold cyan]│[/]")
 
-        # Middle rows with gradient
+        # Separator - aligned
+        console.print(f"    [bold cyan]├{'─' * 48}┤[/]")
+
+        # Visual grid - aligned inner box (44 chars)
         colors = ['cyan', 'blue', 'magenta', 'blue', 'cyan']
         for i in range(5):
             color = colors[i]
-            row = Text()
-            row.append("    │", style=f"bold {color}")
-            row.append(" " * (inner_width - 2))
-            row.append("│", style=f"bold {color}")
-            console.print(row)
+            if i == 0:
+                inner = f"[dim]┌{'─' * 44}┐[/]"
+            elif i == 4:
+                inner = f"[dim]└{'─' * 44}┘[/]"
+            else:
+                inner = f"[dim]│{' ' * 44}│[/]"
+            console.print(f"    [bold {color}]│[/] {inner} [bold {color}]│[/]")
 
-        # Bottom border
-        bottom_border = Text()
-        bottom_border.append("    └", style="bold cyan")
-        bottom_border.append("─" * (inner_width - 2), style="cyan")
-        bottom_border.append("┘", style="bold cyan")
-        console.print(bottom_border)
-
-        # Status message
+        # Bottom with status - aligned
+        console.print(f"    [bold cyan]└─ Detected {'─' * 39}┘[/]")
         console.print()
-        status = Text()
-        status.append("✓ ", style="bold green")
-        status.append("Viewport detected successfully", style="green")
-        console.print(status, justify="center")
 
         # Delay before continuing
         time.sleep(delay)

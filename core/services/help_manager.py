@@ -248,15 +248,18 @@ class HelpManager:
 
         help_text += "║".ljust(79) + "║\n"
 
-        # Syntax
+        # Syntax with highlighting
         help_text += "║  Syntax:".ljust(79) + "║\n"
-        help_text += f"║    {syntax}".ljust(79) + "║\n"
+        highlighted_syntax = self._highlight_syntax(syntax)
+        # Wrap syntax if too long
+        help_text += self._wrap_colored_text(highlighted_syntax, 4)
 
         # uCODE template if available
         if ucode:
             help_text += "║".ljust(79) + "║\n"
             help_text += "║  uCODE Format:".ljust(79) + "║\n"
-            help_text += f"║    {ucode}".ljust(79) + "║\n"
+            highlighted_ucode = self._highlight_ucode(ucode)
+            help_text += self._wrap_colored_text(highlighted_ucode, 4)
 
         # Related commands
         related = self.get_related_commands(cmd_name)
@@ -373,6 +376,122 @@ class HelpManager:
             lines.append(line.ljust(79) + "║\n")
 
         return "".join(lines)
+
+    def _wrap_colored_text(self, text: str, indent: int = 4) -> str:
+        """
+        Wrap text with ANSI color codes to fit within help box.
+        Correctly calculates visible length excluding color codes.
+
+        Args:
+            text: Text with ANSI codes to wrap
+            indent: Number of spaces to indent
+
+        Returns:
+            Wrapped text lines with proper padding
+        """
+        # Strip ANSI codes to get visible text
+        visible_text = re.sub(r'\033\[[0-9;]+m', '', text)
+
+        # If fits on one line, return it
+        max_width = 75 - indent  # 79 total - 4 for "║   " - indent
+        if len(visible_text) <= max_width:
+            padding = 79 - indent - len(visible_text) - 1  # -1 for "║"
+            return f"║{' ' * indent}{text}" + " " * padding + "║\n"
+
+        # Otherwise, wrap it (simple word wrap for now)
+        # For complex cases, just truncate with ellipsis
+        visible_truncated = visible_text[:max_width-3] + "..."
+        # Find corresponding position in colored text (approximate)
+        truncate_pos = len(text) * (max_width-3) // len(visible_text)
+        colored_truncated = text[:truncate_pos] + "..."
+
+        padding = 79 - indent - len(visible_truncated) - 1
+        return f"║{' ' * indent}{colored_truncated}" + " " * padding + "║\n"
+
+    def _highlight_syntax(self, syntax: str) -> str:
+        """
+        Apply syntax highlighting to command syntax.
+
+        Highlights:
+        - Command names: CYAN (uppercase words at start)
+        - Flags: YELLOW (--flag)
+        - Parameters: MAGENTA (<param>)
+        - Optional parts: DIM ([optional])
+        - Operators: GREEN (|)
+
+        Args:
+            syntax: Raw syntax string
+
+        Returns:
+            Syntax with ANSI color codes
+        """
+        # Color codes
+        CYAN = '\033[0;36m'
+        YELLOW = '\033[1;33m'
+        MAGENTA = '\033[0;35m'
+        GREEN = '\033[0;32m'
+        DIM = '\033[2m'
+        NC = '\033[0m'
+
+        # Highlight command name (first uppercase word)
+        result = re.sub(r'^([A-Z]+)', f'{CYAN}\\1{NC}', syntax)
+
+        # Highlight flags (--flag)
+        result = re.sub(r'(--[a-z\-]+)', f'{YELLOW}\\1{NC}', result)
+
+        # Highlight parameters (<param>)
+        result = re.sub(r'(<[^>]+>)', f'{MAGENTA}\\1{NC}', result)
+
+        # Highlight optional brackets
+        result = re.sub(r'(\[)', f'{DIM}\\1', result)
+        result = re.sub(r'(\])', f'\\1{NC}', result)
+
+        # Highlight pipe operators
+        result = re.sub(r'(\|)', f'{GREEN}\\1{NC}', result)
+
+        return result
+
+    def _highlight_ucode(self, ucode: str) -> str:
+        """
+        Apply syntax highlighting to uCODE template.
+
+        Highlights:
+        - Brackets: CYAN ([ ])
+        - Module names: GREEN (SYSTEM, FILE, etc.)
+        - Separators: YELLOW (|)
+        - Variables: MAGENTA ($1, $2, etc.)
+        - Wildcards: YELLOW (*)
+
+        Args:
+            ucode: Raw uCODE template string
+
+        Returns:
+            uCODE with ANSI color codes
+        """
+        # Color codes
+        CYAN = '\033[0;36m'
+        YELLOW = '\033[1;33m'
+        MAGENTA = '\033[0;35m'
+        GREEN = '\033[0;32m'
+        NC = '\033[0m'
+
+        # Highlight brackets
+        result = ucode.replace('[', f'{CYAN}[{NC}')
+        result = result.replace(']', f'{CYAN}]{NC}')
+
+        # Highlight module names (uppercase words)
+        result = re.sub(r'\b([A-Z]+)\b', f'{GREEN}\\1{NC}', result)
+
+        # Highlight separators
+        result = result.replace('|', f'{YELLOW}|{NC}')
+
+        # Highlight wildcards
+        result = result.replace('*', f'{YELLOW}*{NC}')
+
+        # Highlight variables
+        result = re.sub(r'(\$\d+)', f'{MAGENTA}\\1{NC}', result)
+
+        return result
 
     def get_all_commands(self) -> List[str]:
         """Get list of all command names."""

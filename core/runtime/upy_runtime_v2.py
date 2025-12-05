@@ -16,6 +16,7 @@ Syntax Support:
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
+from core.runtime.upy_lists import ListOperations
 
 
 class UPYRuntimeError(Exception):
@@ -135,15 +136,23 @@ class UPYRuntime:
 
     def evaluate_value(self, value: str) -> Any:
         """
-        Evaluate value - try function calls, math expressions, then numbers, then string.
+        Evaluate value - try function calls, list literals, math expressions, then numbers, then string.
 
         Args:
             value: String value to evaluate
 
         Returns:
-            Evaluated value (int, float, or string)
+            Evaluated value (int, float, list, or string)
         """
         value = value.strip()
+
+        # Check for list literals: [item1, item2, item3]
+        if value.startswith('[') and value.endswith(']'):
+            try:
+                return ListOperations.parse_list_literal(value)
+            except Exception:
+                # Fall through if parsing fails
+                pass
 
         # Check for function calls: @function(args)
         func_call_pattern = re.compile(r'^@([a-zA-Z_][a-zA-Z0-9_-]*)\(([^\)]*)\)$')
@@ -386,6 +395,176 @@ class UPYRuntime:
             var_name = params[0] if params else ''
             var_name = var_name.strip('{}$')
             return self.get_variable(var_name)
+
+        elif command == 'LIST':
+            # LIST operations: CREATE, APPEND, REMOVE, INSERT, GET, SET, SIZE, SLICE, etc.
+            if not params:
+                return []
+
+            operation = params[0].upper()
+
+            if operation == 'CREATE':
+                # Format: LIST|CREATE|var_name|item1|item2|...
+                if len(params) < 2:
+                    return []
+                var_name = params[1]
+                items = params[2:] if len(params) > 2 else []
+                new_list = ListOperations.create_list(items)
+                self.set_variable(var_name, new_list)
+                return new_list
+
+            elif operation == 'APPEND':
+                # Format: LIST|APPEND|var_name|item
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST APPEND requires variable name and item")
+                var_name = params[1]
+                item = params[2]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                ListOperations.append(lst, item)
+                return lst
+
+            elif operation == 'REMOVE':
+                # Format: LIST|REMOVE|var_name|item
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST REMOVE requires variable name and item")
+                var_name = params[1]
+                item = params[2]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                try:
+                    ListOperations.remove(lst, item)
+                except ValueError:
+                    print(f"⚠️  Item '{item}' not in list")
+                return lst
+
+            elif operation == 'INSERT':
+                # Format: LIST|INSERT|var_name|index|item
+                if len(params) < 4:
+                    raise UPYRuntimeError("LIST INSERT requires variable name, index, and item")
+                var_name = params[1]
+                index = int(params[2])
+                item = params[3]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                ListOperations.insert(lst, index, item)
+                return lst
+
+            elif operation == 'GET':
+                # Format: LIST|GET|var_name|index
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST GET requires variable name and index")
+                var_name = params[1]
+                index = int(params[2])
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                try:
+                    return ListOperations.get(lst, index)
+                except IndexError:
+                    raise UPYRuntimeError(f"Index {index} out of range for list {var_name}")
+
+            elif operation == 'SET':
+                # Format: LIST|SET|var_name|index|value
+                if len(params) < 4:
+                    raise UPYRuntimeError("LIST SET requires variable name, index, and value")
+                var_name = params[1]
+                index = int(params[2])
+                value = params[3]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                try:
+                    ListOperations.set(lst, index, value)
+                except IndexError:
+                    raise UPYRuntimeError(f"Index {index} out of range for list {var_name}")
+                return lst
+
+            elif operation == 'SIZE':
+                # Format: LIST|SIZE|var_name
+                if len(params) < 2:
+                    raise UPYRuntimeError("LIST SIZE requires variable name")
+                var_name = params[1]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                return ListOperations.size(lst)
+
+            elif operation == 'SLICE':
+                # Format: LIST|SLICE|var_name|start|end (end optional)
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST SLICE requires variable name and start index")
+                var_name = params[1]
+                start = int(params[2])
+                end = int(params[3]) if len(params) > 3 else None
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                return ListOperations.slice(lst, start, end)
+
+            elif operation == 'CONTAINS':
+                # Format: LIST|CONTAINS|var_name|item
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST CONTAINS requires variable name and item")
+                var_name = params[1]
+                item = params[2]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                return ListOperations.contains(lst, item)
+
+            elif operation == 'INDEX':
+                # Format: LIST|INDEX|var_name|item
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST INDEX requires variable name and item")
+                var_name = params[1]
+                item = params[2]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                try:
+                    return ListOperations.index_of(lst, item)
+                except ValueError:
+                    return -1  # Not found
+
+            elif operation == 'CLEAR':
+                # Format: LIST|CLEAR|var_name
+                if len(params) < 2:
+                    raise UPYRuntimeError("LIST CLEAR requires variable name")
+                var_name = params[1]
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                ListOperations.clear(lst)
+                return lst
+
+            elif operation == 'JOIN':
+                # Format: LIST|JOIN|var_name|separator (separator optional, default comma)
+                if len(params) < 2:
+                    raise UPYRuntimeError("LIST JOIN requires variable name")
+                var_name = params[1]
+                separator = params[2] if len(params) > 2 else ','
+                lst = self.get_variable(var_name)
+                if not isinstance(lst, list):
+                    raise UPYRuntimeError(f"Variable {var_name} is not a list")
+                return ListOperations.join(lst, separator)
+
+            elif operation == 'SPLIT':
+                # Format: LIST|SPLIT|var_name|text|separator (separator optional)
+                if len(params) < 3:
+                    raise UPYRuntimeError("LIST SPLIT requires variable name and text")
+                var_name = params[1]
+                text = params[2]
+                separator = params[3] if len(params) > 3 else ','
+                new_list = ListOperations.split(text, separator)
+                self.set_variable(var_name, new_list)
+                return new_list
+
+            else:
+                raise UPYRuntimeError(f"Unknown LIST operation: {operation}")
 
         elif command == 'EXIT':
             code = int(params[0]) if params else 0

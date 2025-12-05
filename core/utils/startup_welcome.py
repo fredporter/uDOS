@@ -19,9 +19,12 @@ def show_v1_0_30_welcome(viewport_width: int = 70):
     Args:
         viewport_width: Terminal width for formatting
     """
-    width = min(viewport_width, 70)
+    width = min(viewport_width, 88)
 
-    print("  ✨ uDOS v1.0.30 | 📺 Teletext UI | ✏️  Micro Editor | 📁 File Picker | 📋 Copy/Paste")
+    print("\n┌───────────────────────────────────────────────────────────────────┐")
+    print("│ ✨ uDOS v1.0.30  │ 📺 Teletext UI  ")
+    print("│ ✏️  Micro Editor  │ 📁 File Picker  │ 📋 Copy/Paste  ")
+    print("└───────────────────────────────────────────────────────────────────┘")
 
 
 def offer_demo(skip_prompt: bool = False) -> bool:

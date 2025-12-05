@@ -47,19 +47,29 @@ class FastStartup:
             Dictionary of initialized components
         """
         if self.verbose and not is_script_mode:
-            print("⚙️  Initializing system...", flush=True)
+            print("\n┌─────────────────────────────────────────┐", flush=True)
+            print("│ ⚙️  SYSTEM INITIALIZATION              │", flush=True)
+            print("└─────────────────────────────────────────┘", flush=True)
+
+        # Detect viewport width for column layout
+        try:
+            from core.utils.viewport import ViewportDetector
+            vp = ViewportDetector()
+            viewport_width = vp.width if hasattr(vp, 'width') else 80
+        except:
+            viewport_width = 80
 
         # Step 1: Viewport (cached if available)
         if self.verbose and not is_script_mode:
-            print("  • Viewport detection", end="", flush=True)
+            print("  [1/4] Viewport detection...", end="", flush=True)
         viewport = self._init_viewport(is_script_mode)
         self.components['viewport'] = viewport
         if self.verbose and not is_script_mode:
-            print(f" ✓", flush=True)
+            print("\r  [✓] Viewport detection     (cached)  ", flush=True)
 
         # Step 2: User profile (required by main)
         if self.verbose and not is_script_mode:
-            print("  • User profile", end="", flush=True)
+            print("  [2/4] User profile...", end="", flush=True)
         from core.services.user_manager import UserManager
         user_manager = UserManager()
         viewport_data = viewport.get_status_summary()
@@ -74,21 +84,21 @@ class FastStartup:
             session_id = f"session_{int(time.time())}"
             user_manager.update_session_data(session_id, viewport_data)
             if self.verbose and not is_script_mode:
-                print(f" ✓", flush=True)
+                print("\r  [✓] User profile          (loaded)  ", flush=True)
 
         self.components['user_manager'] = user_manager
 
         # Step 3: Story/User data (quick load)
         if self.verbose and not is_script_mode:
-            print("  • Loading configuration", end="", flush=True)
+            print("  [3/4] Configuration...", end="", flush=True)
         story_data = self._init_story(is_script_mode)
         self.components['story_data'] = story_data
         if self.verbose and not is_script_mode:
-            print(f" ✓", flush=True)
+            print("\r  [✓] Configuration         (ready)   ", flush=True)
 
         # Step 4: Connection (initialize, but don't check unless needed)
         if self.verbose and not is_script_mode:
-            print("  • Network status", end="", flush=True)
+            print("  [4/4] Network status...", end="", flush=True)
         from core.services.connection_manager import ConnectionMonitor
         connection = ConnectionMonitor()
         # Don't check internet unless explicitly requested (saves time)
@@ -96,7 +106,8 @@ class FastStartup:
             connection.check_internet_connection()
         self.components['connection'] = connection
         if self.verbose and not is_script_mode:
-            print(f" ✓", flush=True)
+            status = "online" if connection.has_internet() else "offline"
+            print(f"\r  [✓] Network status        ({status})  ", flush=True)
 
         # Step 5: Optional health check
         if self.run_health_check and not is_script_mode:

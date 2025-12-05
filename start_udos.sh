@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Startup banner
 echo -e "${CYAN}╔═══════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.1.6 Startup${NC}            ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  🌀 ${GREEN}uDOS v1.1.6 Startup${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════╝${NC}"
 echo ""
 
@@ -37,8 +37,30 @@ print_error() {
     echo -e "${RED}[✗]${NC} $1"
 }
 
+# Progress indicator with enhanced visibility
+show_progress() {
+    local current=$1
+    local total=$2
+    local width=35
+    local percentage=$((current * 100 / total))
+    local filled=$((current * width / total))
+    local empty=$((width - filled))
+
+    printf "\r${CYAN}┌─ "
+    printf "%${filled}s" | tr ' ' '█'
+    printf "%${empty}s" | tr ' ' '░'
+    printf " ─┐ ${GREEN}%3d%%${NC}" "$percentage"
+}
+
+# Total checks for progress bar
+TOTAL_CHECKS=6
+CURRENT_CHECK=0
+
 # Check Python version
-print_status "Checking Python version..."
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -ne " Checking Python version...     "
+sleep 0.1
 
 # If venv exists, check its Python version instead of system Python
 if [ -d ".venv" ]; then
@@ -47,7 +69,7 @@ if [ -d ".venv" ]; then
     VENV_PYTHON_MINOR=$(echo $VENV_PYTHON_VERSION | cut -d'.' -f2)
 
     if [ "$VENV_PYTHON_MAJOR" -eq 3 ] && [ "$VENV_PYTHON_MINOR" -ge 12 ]; then
-        print_success "Python ${VENV_PYTHON_VERSION} (from virtual environment)"
+        echo -e "\r${GREEN}[✓]${NC} Python ${VENV_PYTHON_VERSION} (venv)                         "
         PYTHON_VERSION=$VENV_PYTHON_VERSION
         PYTHON_MAJOR=$VENV_PYTHON_MAJOR
         PYTHON_MINOR=$VENV_PYTHON_MINOR
@@ -61,12 +83,12 @@ if [ "$SKIP_PYTHON_CHECK" != "true" ] && command -v python3 &> /dev/null; then
     PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
 
     if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]); then
-        print_error "Python $PYTHON_VERSION is too old (minimum: 3.8)"
-        print_error "Please upgrade Python and try again"
+        echo -e "\r${RED}[✗]${NC} Python $PYTHON_VERSION is too old (minimum: 3.8)      "
+        echo -e "${RED}[✗]${NC} Please upgrade Python and try again"
         exit 1
     elif [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -eq 9 ]; then
-        print_warning "Python $PYTHON_VERSION is end-of-life (EOL October 2025)"
-        print_warning "Security updates are no longer available for this version"
+        echo -e "\r${YELLOW}[⚠]${NC} Python $PYTHON_VERSION is end-of-life (EOL October 2025)      "
+        echo -e "${YELLOW}[⚠]${NC} Security updates are no longer available for this version"
         echo ""
         echo -e "${YELLOW}Would you like to upgrade Python now?${NC}"
         echo -e "  ${CYAN}1)${NC} Yes - Auto-install Python 3.12 (Homebrew required)"
@@ -182,54 +204,60 @@ if [ "$SKIP_PYTHON_CHECK" != "true" ] && command -v python3 &> /dev/null; then
                 ;;
         esac
     else
-        print_success "Python ${PYTHON_VERSION} found"
+        echo -e "\r${GREEN}[✓]${NC} Python ${PYTHON_VERSION} found                          "
     fi
 elif [ "$SKIP_PYTHON_CHECK" != "true" ]; then
-    print_error "Python 3 not found!"
-    print_error "Install Python 3.8+ and try again"
+    echo -e "\r${RED}[✗]${NC} Python 3 not found!                              "
+    echo -e "${RED}[✗]${NC} Install Python 3.8+ and try again"
     exit 1
 fi
 
 # Check Node.js version (for web extensions)
-print_status "Checking Node.js version..."
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -ne " Checking Node.js version...     "
+sleep 0.1
 if command -v node &> /dev/null; then
     NODE_VERSION=$(node --version | cut -d'v' -f2)
     NODE_MAJOR=$(echo $NODE_VERSION | cut -d'.' -f1)
 
     if [ "$NODE_MAJOR" -lt 18 ]; then
-        print_warning "Node.js $NODE_VERSION found (minimum: 18 for typo editor)"
-        print_status "  Some web extensions may not work. Upgrade recommended."
-        echo -e "  ${BLUE}└─${NC} Download: ${CYAN}https://nodejs.org${NC}"
+        echo -e "\r${YELLOW}[⚠]${NC} Node.js $NODE_VERSION (upgrade needed)                "
     elif [ "$NODE_MAJOR" -eq 18 ]; then
-        print_warning "Node.js $NODE_VERSION (EOL: April 2025)"
-        print_status "  Consider upgrading to Node.js 20 LTS or 22 LTS"
-        print_success "Node.js ${NODE_VERSION} (compatible)"
+        echo -e "\r${GREEN}[✓]${NC} Node.js ${NODE_VERSION} (EOL soon)                     "
     else
-        print_success "Node.js ${NODE_VERSION} found"
+        echo -e "\r${GREEN}[✓]${NC} Node.js ${NODE_VERSION} found                          "
     fi
 else
-    print_warning "Node.js not found (optional for web extensions)"
-    print_status "  Install Node.js 18+ to enable typo editor"
-    echo -e "  ${BLUE}└─${NC} Download: ${CYAN}https://nodejs.org${NC}"
+    echo -e "\r${YELLOW}[⚠]${NC} Node.js not found (optional)                     "
 fi
 
 # Check/Create virtual environment
-print_status "Checking virtual environment..."
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -ne " Checking virtual environment...  "
+sleep 0.1
 if [ ! -d ".venv" ]; then
-    print_warning "Virtual environment not found. Creating..."
+    echo -e "\r${YELLOW}[⚠]${NC} Creating virtual environment...                  "
     python3 -m venv .venv
-    print_success "Virtual environment created"
+    echo -e "\r${GREEN}[✓]${NC} Virtual environment created                      "
 else
-    print_success "Virtual environment found"
+    echo -e "\r${GREEN}[✓]${NC} Virtual environment found                        "
 fi
 
 # Activate the virtual environment
-print_status "Activating virtual environment..."
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -ne " Activating virtual environment... "
+sleep 0.1
 source .venv/bin/activate
-print_success "Virtual environment activated"
+echo -e "\r${GREEN}[✓]${NC} Virtual environment activated                    "
 
 # Explicitly check and install dependencies if needed
-print_status "Checking Python dependencies..."
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -ne " Checking Python dependencies...  "
+sleep 0.1
 MISSING_DEPS=0
 MISSING_LIST=""
 for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests" "psutil"; do
@@ -259,16 +287,15 @@ for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests"
 done
 
 if [ $MISSING_DEPS -eq 1 ]; then
-    print_warning "Missing packages: $MISSING_LIST"
-    print_status "Installing missing dependencies..."
+    echo -e "\r${YELLOW}[⚠]${NC} Installing missing: $MISSING_LIST...             "
     if [ -f "requirements.txt" ]; then
         python3 -m pip install -q -r requirements.txt 2>&1 | grep -v "WARNING: You are using pip" | grep -v "You should consider upgrading" || true
-        print_success "Dependencies installed"
+        echo -e "\r${GREEN}[✓]${NC} Dependencies installed                           "
     else
-        print_error "requirements.txt not found"
+        echo -e "\r${RED}[✗]${NC} requirements.txt not found                       "
     fi
 else
-    print_success "All dependencies satisfied"
+    echo -e "\r${GREEN}[✓]${NC} All dependencies satisfied                       "
 fi
 
 # Check for pip upgrades (non-blocking)
@@ -297,9 +324,15 @@ done
 
 # Skip JSON validation - Python will handle errors at runtime
 
-# Display startup summary
+# Final system ready check
+CURRENT_CHECK=$((CURRENT_CHECK + 1))
+show_progress $CURRENT_CHECK $TOTAL_CHECKS
+echo -e " System ready!                    "
+sleep 0.2
+
+# Display startup complete
 echo ""
-print_success "System ready"
+echo -e "${GREEN}[✓]${NC} All checks passed - starting uDOS..."
 echo ""
 
 # Run the main application with any provided arguments
