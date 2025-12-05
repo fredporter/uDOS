@@ -67,15 +67,16 @@
             const splash = document.createElement('div');
             splash.style.cssText = 'text-align: center; padding: 10px; font-family: "C64 User Mono", monospace; line-height: 1.1; max-width: 100%; overflow: hidden;';
 
-            // Compact uDOS logo in C64 block graphics (rainbow gradient)
+            // uDOS logo with C64/teletext block graphics (▀ ▄ ▌ ▐ █ ░ ▒ ▓)
             const logo = [
-                { text: '▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
-                { text: '█ █  █ ████   ███   ███            █', color: '#FF8C00' },
-                { text: '█ █  █ █   █ █   █ █               █', color: '#FFD700' },
-                { text: '█ █  █ █   █ █   █  ██  ▄▄▄▄▄▄▄▄▄▄▄█', color: '#00FF00' },
-                { text: '█  ██  ████   ███   ██  █ uDOS █  █', color: '#00CED1' },
-                { text: '█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█ v2.0 █▄▄█', color: '#9370DB' },
-                { text: '', color: '#FF00FF' }
+                { text: '▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
+                { text: '█▌█  █ █▀▀█  █▀▀▄  █▀▀█  █▀▀▀          ▐█', color: '#FF4500' },
+                { text: '█▌█  █ █  █  █  █  █  █  ▀▀▀█          ▐█', color: '#FF8C00' },
+                { text: '█▌█  █ █  █  █  █  █  █     █          ▐█', color: '#FFD700' },
+                { text: '█ ▀▀ █ █▄▄█  █▄▄▀  █▄▄█  ▄▄▄█  ▄▄▄▄▄▄▄▄▐█', color: '#00FF00' },
+                { text: '█▌                         █░░ uDOS ░░█▐█', color: '#00CED1' },
+                { text: '█ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  █▒ v2.0.0 ▒█ █', color: '#9370DB' },
+                { text: '▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', color: '#FF00FF' }
             ];
 
             logo.forEach(line => {
