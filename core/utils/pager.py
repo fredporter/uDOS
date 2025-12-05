@@ -14,6 +14,8 @@ import termios
 import tty
 from typing import List, Optional
 
+from core.output.color_ui import ColorUI
+
 
 class SimplePager:
     """Simple text pager with block graphics progress bar."""
@@ -40,6 +42,7 @@ class SimplePager:
 
         self.viewport_height = viewport_height
         self.viewport_width = viewport_width
+        self.color_ui = ColorUI()  # Initialize ColorUI for colored output
 
     def _get_key(self) -> str:
         """
@@ -165,9 +168,9 @@ class SimplePager:
 
             # Show title if provided
             if title:
-                print(f"╔{'═' * (len(title) + 2)}╗")
-                print(f"║ {title} ║")
-                print(f"╚{'═' * (len(title) + 2)}╝")
+                self.color_ui.print(f"╔{'═' * (len(title) + 2)}╗", 'cyan')
+                self.color_ui.print(f"║ {title} ║", 'cyan')
+                self.color_ui.print(f"╚{'═' * (len(title) + 2)}╝", 'cyan')
                 print()
 
             # Show page content
@@ -177,14 +180,14 @@ class SimplePager:
             # Show block graphics progress bar
             is_last_page = page_num >= total_pages
             progress_bar = self._draw_progress_bar(page_num, total_pages, at_end=is_last_page)
-            print(f"\n{progress_bar}", flush=True)
+            self.color_ui.print(f"\n{progress_bar}", 'yellow', flush=True)
 
             # Get user input
             try:
                 key = self._get_key()
 
                 if key == 'esc':
-                    print("\n⚠️  Paging cancelled")
+                    self.color_ui.print("\n⚠️  Paging cancelled", 'yellow')
                     break
                 elif key == 'down' or key == 'enter':
                     if is_last_page:
@@ -200,7 +203,7 @@ class SimplePager:
                     # If already on first page, do nothing
 
             except (KeyboardInterrupt, EOFError):
-                print("\n\n⚠️  Paging cancelled")
+                self.color_ui.print("\n\n⚠️  Paging cancelled", 'yellow')
                 break
 
     def page_lines(self, lines: List[str], title: Optional[str] = None) -> None:

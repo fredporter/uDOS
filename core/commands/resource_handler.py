@@ -17,6 +17,10 @@ Version: 1.1.2
 from typing import Any, Dict, Optional
 
 from core.services.resource_manager import get_resource_manager
+from core.output.color_ui import ColorUI
+
+# Initialize ColorUI for colored output
+color_ui = ColorUI()
 
 
 def handle_resource_command(command: str, **kwargs) -> Dict[str, Any]:
@@ -353,114 +357,115 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
 
     Usage: RESOURCE HELP
     """
-    help_text = """
-📊 RESOURCE Commands - Resource Monitoring & Management
-
-═══════════════════════════════════════════════════════════════
-
-Commands:
-
-  RESOURCE STATUS
-    Show overview of all resources (quotas, disk, CPU, memory)
-
-  RESOURCE QUOTA [provider]
-    Check API quota for specific provider (gemini, github)
-    If no provider specified, shows all quotas
-
-  RESOURCE ALLOCATE mission_id --api N --disk M --priority P
-    Allocate resources for a mission
-
-    Arguments:
-      mission_id    Mission identifier
-      --api N       Number of API calls to reserve
-      --disk M      Disk space to reserve (MB)
-      --priority P  Priority level (CRITICAL, HIGH, MEDIUM, LOW)
-
-    Example:
-      RESOURCE ALLOCATE content-gen --api 500 --disk 200 --priority HIGH
-
-  RESOURCE RELEASE mission_id
-    Release resources allocated to a mission
-
-  RESOURCE THROTTLE mission_id [provider]
-    Check if mission should be throttled due to resource constraints
-
-    Arguments:
-      mission_id  Mission identifier
-      provider    API provider to check (default: gemini)
-
-  RESOURCE SUMMARY
-    Complete resource dashboard with progress bars
-    Shows quotas, disk, CPU, memory, and active allocations
-
-  RESOURCE HELP
-    Show this help message
-
-═══════════════════════════════════════════════════════════════
-
-Resource Types:
-
-  🔑 API Quotas
-     - Daily/hourly limits per provider
-     - Auto-reset based on provider schedule
-     - Tracked per mission
-
-  💾 Disk Space
-     - Sandbox directory usage
-     - System disk usage
-     - Warning thresholds (80%, 90%)
-
-  ⚡ System Resources
-     - CPU usage monitoring
-     - Memory usage tracking
-     - Performance thresholds
-
-═══════════════════════════════════════════════════════════════
-
-Priority Levels:
-
-  ⚡ CRITICAL  - Highest priority, can preempt others
-  🔥 HIGH      - High priority
-  📊 MEDIUM    - Default priority
-  🔧 LOW       - Lowest priority
-
-Higher priority missions can preempt lower priority missions when
-resources are constrained.
-
-═══════════════════════════════════════════════════════════════
-
-Status Indicators:
-
-  ✅ OK        - Resource usage is healthy
-  ⚠️  WARNING  - Usage approaching limits
-  ❌ CRITICAL  - Usage at or exceeding limits
-
-═══════════════════════════════════════════════════════════════
-
-Examples:
-
-  # Check all resources
-  RESOURCE STATUS
-
-  # Check Gemini API quota
-  RESOURCE QUOTA gemini
-
-  # Allocate resources for content generation mission
-  RESOURCE ALLOCATE content-gen --api 300 --disk 100 --priority HIGH
-
-  # Check if mission should be throttled
-  RESOURCE THROTTLE content-gen
-
-  # View complete dashboard
-  RESOURCE SUMMARY
-
-  # Release resources when mission completes
-  RESOURCE RELEASE content-gen
-
-═══════════════════════════════════════════════════════════════
-"""
+    # Build colored help text using ColorUI
+    help_lines = []
+    
+    help_lines.append(color_ui.format("📊 RESOURCE Commands - Resource Monitoring & Management", 'cyan', bold=True))
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
+    help_lines.append("")
+    help_lines.append(color_ui.format("Commands:", 'yellow', bold=True))
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE STATUS", 'green', bold=True))
+    help_lines.append("    Show overview of all resources (quotas, disk, CPU, memory)")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE QUOTA [provider]", 'green', bold=True))
+    help_lines.append("    Check API quota for specific provider (gemini, github)")
+    help_lines.append("    If no provider specified, shows all quotas")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE ALLOCATE mission_id --api N --disk M --priority P", 'green', bold=True))
+    help_lines.append("    Allocate resources for a mission")
+    help_lines.append("")
+    help_lines.append(color_ui.format("    Arguments:", 'yellow'))
+    help_lines.append("      mission_id    Mission identifier")
+    help_lines.append("      --api N       Number of API calls to reserve")
+    help_lines.append("      --disk M      Disk space to reserve (MB)")
+    help_lines.append("      --priority P  Priority level (CRITICAL, HIGH, MEDIUM, LOW)")
+    help_lines.append("")
+    help_lines.append(color_ui.format("    Example:", 'yellow'))
+    help_lines.append("      RESOURCE ALLOCATE content-gen --api 500 --disk 200 --priority HIGH")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE RELEASE mission_id", 'green', bold=True))
+    help_lines.append("    Release resources allocated to a mission")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE THROTTLE mission_id [provider]", 'green', bold=True))
+    help_lines.append("    Check if mission should be throttled due to resource constraints")
+    help_lines.append("")
+    help_lines.append(color_ui.format("    Arguments:", 'yellow'))
+    help_lines.append("      mission_id  Mission identifier")
+    help_lines.append("      provider    API provider to check (default: gemini)")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE SUMMARY", 'green', bold=True))
+    help_lines.append("    Complete resource dashboard with progress bars")
+    help_lines.append("    Shows quotas, disk, CPU, memory, and active allocations")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  RESOURCE HELP", 'green', bold=True))
+    help_lines.append("    Show this help message")
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
+    help_lines.append("")
+    help_lines.append(color_ui.format("Resource Types:", 'yellow', bold=True))
+    help_lines.append("")
+    help_lines.append(color_ui.format("  🔑 API Quotas", 'cyan'))
+    help_lines.append("     - Daily/hourly limits per provider")
+    help_lines.append("     - Auto-reset based on provider schedule")
+    help_lines.append("     - Tracked per mission")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  💾 Disk Space", 'cyan'))
+    help_lines.append("     - Sandbox directory usage")
+    help_lines.append("     - System disk usage")
+    help_lines.append("     - Warning thresholds (80%, 90%)")
+    help_lines.append("")
+    help_lines.append(color_ui.format("  ⚡ System Resources", 'cyan'))
+    help_lines.append("     - CPU usage monitoring")
+    help_lines.append("     - Memory usage tracking")
+    help_lines.append("     - Performance thresholds")
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
+    help_lines.append("")
+    help_lines.append(color_ui.format("Priority Levels:", 'yellow', bold=True))
+    help_lines.append("")
+    help_lines.append("  ⚡ CRITICAL  - Highest priority, can preempt others")
+    help_lines.append("  🔥 HIGH      - High priority")
+    help_lines.append("  📊 MEDIUM    - Default priority")
+    help_lines.append("  🔧 LOW       - Lowest priority")
+    help_lines.append("")
+    help_lines.append("Higher priority missions can preempt lower priority missions when")
+    help_lines.append("resources are constrained.")
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
+    help_lines.append("")
+    help_lines.append(color_ui.format("Status Indicators:", 'yellow', bold=True))
+    help_lines.append("")
+    help_lines.append("  ✅ OK        - Resource usage is healthy")
+    help_lines.append("  ⚠️  WARNING  - Usage approaching limits")
+    help_lines.append("  ❌ CRITICAL  - Usage at or exceeding limits")
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
+    help_lines.append("")
+    help_lines.append(color_ui.format("Examples:", 'yellow', bold=True))
+    help_lines.append("")
+    help_lines.append("  # Check all resources")
+    help_lines.append("  RESOURCE STATUS")
+    help_lines.append("")
+    help_lines.append("  # Check Gemini API quota")
+    help_lines.append("  RESOURCE QUOTA gemini")
+    help_lines.append("")
+    help_lines.append("  # Allocate resources for content generation mission")
+    help_lines.append("  RESOURCE ALLOCATE content-gen --api 300 --disk 100 --priority HIGH")
+    help_lines.append("")
+    help_lines.append("  # Check if mission should be throttled")
+    help_lines.append("  RESOURCE THROTTLE content-gen")
+    help_lines.append("")
+    help_lines.append("  # View complete dashboard")
+    help_lines.append("  RESOURCE SUMMARY")
+    help_lines.append("")
+    help_lines.append("  # Release resources when mission completes")
+    help_lines.append("  RESOURCE RELEASE content-gen")
+    help_lines.append("")
+    help_lines.append(color_ui.format("═" * 63, 'blue'))
 
     return {
         'success': True,
-        'output': help_text
+        'output': '\n'.join(help_lines)
     }
