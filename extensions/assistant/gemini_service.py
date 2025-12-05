@@ -198,7 +198,7 @@ class GeminiService:
         """
         username = self.username or 'user'
         installation_id = self.installation_id or 'default'
-        workspace = context.get('workspace', 'sandbox') if context else 'sandbox'
+        workspace = context.get('workspace', 'memory') if context else 'memory'
 
         system_context = f"""You are uDOS AI Assistant, helping user '{username}' (installation: {installation_id}).
 

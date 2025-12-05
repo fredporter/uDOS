@@ -135,8 +135,8 @@ class GroupManager:
             project_root = Path(__file__).parent.parent.parent.parent
 
         self.project_root = Path(project_root)
-        self.groups_file = self.project_root / "sandbox" / "user" / "poke_groups.json"
-        self.members_file = self.project_root / "sandbox" / "user" / "poke_members.json"
+        self.groups_file = self.project_root / "memory" / "shared" / "groups" / "poke_groups.json"
+        self.members_file = self.project_root / "memory" / "shared" / "groups" / "poke_members.json"
 
         self.groups: Dict[str, GroupInfo] = {}
         self.members: Dict[str, List[GroupMember]] = {}  # group_id -> members
@@ -227,7 +227,7 @@ class GroupManager:
             expires_at = datetime.now() + timedelta(hours=expires_hours)
 
         # Create shared workspace directory
-        workspace_path = self.project_root / "sandbox" / "groups" / group_id
+        workspace_path = self.project_root / "memory" / "shared" / "groups" / group_id
         workspace_path.mkdir(parents=True, exist_ok=True)
 
         group = GroupInfo(

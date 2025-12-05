@@ -16,7 +16,7 @@ class StoryManager:
     Provides unified access to user data, session tracking, and story fields.
     """
 
-    def __init__(self, story_path: str = "sandbox/user/user.json"):
+    def __init__(self, story_path: str = "memory/bank/user/user.json"):
         """
         Initialize story manager.
 
@@ -388,7 +388,7 @@ class StoryManager:
             return False
 
 
-def create_story_manager(story_path: str = "sandbox/user/user.json") -> StoryManager:
+def create_story_manager(story_path: str = "memory/bank/user/user.json") -> StoryManager:
     """
     Factory function to create StoryManager instance.
 

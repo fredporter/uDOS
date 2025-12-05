@@ -70,19 +70,25 @@ extensions/clone/monaspace-fonts/
 !extensions/native/.gitkeep
 !extensions/cloned/.gitkeep
 
-# Sandbox - Working Directory (User Workspace)
+# Sandbox - DEPRECATED (v1.2.12+)
 # ----------------------
-# This is NOT tracked - users work here temporarily
-sandbox/san
-sandbox/*.txt
-sandbox/*.md
-sandbox/*.json
-sandbox/.server_state.json
-sandbox/ucode/*.uscript
-sandbox/ucode/*.udo
-sandbox/ucode/*.py
-sandbox/ucode/*.upy
-sandbox/ucode/*.sh
+# Sandbox directory deprecated - use memory/ instead
+# Only track DEPRECATED.md notice file
+sandbox/
+!sandbox/DEPRECATED.md
+
+# Memory - Working Directory (User Workspace)
+# ----------------------
+# Core scripts and tests are tracked in memory/ucode/
+# Everything else is user workspace (gitignored)
+memory/
+!memory/ucode/
+!memory/ucode/**
+!memory/README.md
+!memory/README-*.md
+!memory/.gitkeep
+!memory/pytest.ini
+!memory/structure.txt
 
 # User Customization Files (Track Templates Only)
 # ----------------------
@@ -125,8 +131,6 @@ backups/
 /output
 /data/
 /data
-/sandbox/
-/sandbox
 *.output
 
 # Test Files - Only in Proper Locations

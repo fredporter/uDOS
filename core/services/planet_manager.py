@@ -8,7 +8,7 @@ Features:
 - Planet CRUD operations (create, list, set, delete)
 - Solar system selection (Earth, Mars, custom planets)
 - Current location tracking (lat/lon for Earth)
-- Per-planet memory/sandbox isolation
+- Per-planet memory isolation
 - Integration with world map data (250 cities, 50 countries)
 
 Philosophy: The planet metaphor makes workspaces intuitive and connects to
@@ -109,7 +109,7 @@ class PlanetManager:
             config_dir: Configuration directory (default: memory/)
         """
         if config_dir is None:
-            config_dir = Path("sandbox/user")
+            config_dir = Path("memory/bank/user")
 
         self.config_dir = Path(config_dir)
         self.config_dir.mkdir(parents=True, exist_ok=True)

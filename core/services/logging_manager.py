@@ -2,7 +2,7 @@
 Logging Manager - Flat Directory Structure with Filename-Based Categorization
 
 This module provides centralized logging with:
-- Flat directory structure (sandbox/logs/)
+- Flat directory structure (memory/logs/)
 - Filename-based categorization (prefix-date.log)
 - Automatic log rotation (daily)
 - Retention policy enforcement (auto-delete old logs)
@@ -15,7 +15,7 @@ Usage:
 
     logger = get_logger('system-startup')
     logger.info('uDOS starting...')
-    # Creates: sandbox/logs/system-startup-2025-11-28.log
+    # Creates: memory/logs/system-startup-2025-11-28.log
 
 Version: 1.1.6
 """
@@ -37,7 +37,7 @@ class FlatFileHandler(logging.FileHandler):
 
         Args:
             category: Log category (e.g., 'system-startup', 'ucode-execution')
-            log_dir: Base log directory (sandbox/logs/)
+            log_dir: Base log directory (memory/logs/)
             date_format: Date format for filename (default: YYYY-MM-DD)
         """
         self.category = category
@@ -161,7 +161,7 @@ class LoggingManager:
         'mission': None    # Mission logs: never auto-delete
     }
 
-    def __init__(self, log_dir: str = "sandbox/logs"):
+    def __init__(self, log_dir: str = "memory/logs"):
         """Initialize logging manager.
 
         Args:
@@ -288,7 +288,7 @@ class LoggingManager:
             return None
 
         # Create archive directory
-        archive_dir = Path("sandbox/trash/logs-archive")
+        archive_dir = Path("memory/logs/.archive")
         archive_dir.mkdir(parents=True, exist_ok=True)
 
         # Create tar.gz archive

@@ -21,7 +21,7 @@ class Logger:
     - MOVES tracking (INPUT/OUTPUT pairs)
     - Backward compatibility with existing code
     """
-    def __init__(self, log_dir="sandbox/logs"):
+    def __init__(self, log_dir="memory/logs"):
         """
         Initialize the logger with new logging manager backend.
         """

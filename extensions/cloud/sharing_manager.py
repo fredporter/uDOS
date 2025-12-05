@@ -111,7 +111,7 @@ class SharingManager:
             project_root = Path(__file__).parent.parent.parent.parent
 
         self.project_root = Path(project_root)
-        self.shares_file = self.project_root / "sandbox" / "user" / "poke_shares.json"
+        self.shares_file = self.project_root / "memory" / "shared" / "public" / "poke_shares.json"
         self.shares: Dict[str, ShareInfo] = {}
 
         # Create directories

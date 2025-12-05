@@ -191,8 +191,8 @@ class SpriteHandler(BaseCommandHandler):
         # Resolve path
         path = Path(filepath)
         if not path.is_absolute():
-            # Try sandbox/user/ first
-            user_path = 'sandbox/user/' + filepath
+            # Try memory/bank/user/ first
+            user_path = 'memory/bank/user/' + filepath
             is_valid, path, error = self.validate_file_path(user_path, must_exist=True)
             if not is_valid:
                 # Try filepath as-is
@@ -263,8 +263,8 @@ class SpriteHandler(BaseCommandHandler):
         # Resolve path
         path = Path(filepath)
         if not path.is_absolute():
-            # Default to sandbox/user/
-            path = Path('sandbox/user') / filepath
+            # Default to memory/bank/user/
+            path = Path('memory/bank/user') / filepath
 
         # Create directory if needed
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -521,5 +521,5 @@ class SpriteHandler(BaseCommandHandler):
         print("  SPRITE CREATE HERO")
         print("  SPRITE SET HERO.stats.hp = 50")
         print("  SPRITE GET HERO.stats.level")
-        print("  SPRITE LOAD WARRIOR sandbox/user/warrior.json")
+        print("  SPRITE LOAD WARRIOR memory/bank/user/warrior.json")
         print("  SPRITE SAVE HERO hero.json")

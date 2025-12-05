@@ -21,7 +21,7 @@ class SessionLogger:
     Wraps new logging system while maintaining old Logger interface.
     """
 
-    def __init__(self, log_dir: str = "sandbox/logs"):
+    def __init__(self, log_dir: str = "memory/logs"):
         """Initialize session logger.
 
         Args:

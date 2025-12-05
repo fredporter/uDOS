@@ -314,10 +314,10 @@ class Mission:
 class MissionManager:
     """Manages all missions and their lifecycle."""
 
-    def __init__(self, missions_dir: str = "sandbox/workflow/missions"):
+    def __init__(self, missions_dir: str = "memory/missions"):
         self.missions_dir = Path(missions_dir)
         self.missions_dir.mkdir(parents=True, exist_ok=True)
-        self.templates_dir = Path("sandbox/workflow/templates/missions")
+        self.templates_dir = Path("memory/workflows/templates/missions")
         self.templates_dir.mkdir(parents=True, exist_ok=True)
         self.missions: Dict[str, Mission] = {}
         self.templates_cache: Dict[str, dict] = {}

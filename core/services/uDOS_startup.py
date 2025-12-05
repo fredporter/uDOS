@@ -163,7 +163,6 @@ def check_critical_files() -> HealthCheckResult:
         "core",
         "core/data",
         "core/data/themes",
-        "sandbox",
         "memory",
     ]
 
@@ -320,9 +319,8 @@ def check_permissions() -> HealthCheckResult:
 
     # Directories that need write permission
     writable_dirs = [
-        "sandbox",
         "memory",
-        "sandbox/logs",
+        "memory/logs",
     ]
 
     for dir_path in writable_dirs:
@@ -613,7 +611,7 @@ def check_pip_version() -> HealthCheckResult:
                                 result.add_warning(
                                     f"pip {current_version} is outdated (latest: {available_version})",
                                     f"Upgrade with: {sys.executable} -m pip install --upgrade pip\n"
-                                    f"To suppress this warning: touch sandbox/user/.pip_update_suppressed"
+                                    f"To suppress this warning: touch memory/bank/system/.pip_update_suppressed"
                                 )
                                 break
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
@@ -1191,7 +1189,7 @@ def repair_permissions() -> List[str]:
     repaired = []
     root = get_udos_root()
 
-    writable_dirs = ["sandbox", "memory", "sandbox/logs"]
+    writable_dirs = ["memory", "memory/logs"]
 
     for dir_path in writable_dirs:
         full_path = root / dir_path

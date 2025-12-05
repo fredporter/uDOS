@@ -187,7 +187,7 @@ class ServerManager:
         python_executable = f"{self.root.parent}/.venv/bin/python"
         command = command.replace("python", python_executable, 1)
 
-        full_command = f"cd {self.root.parent} && source .venv/bin/activate && {env_vars}{command} > sandbox/logs/{server_key}_server.log 2>&1 &"
+        full_command = f"cd {self.root.parent} && source .venv/bin/activate && {env_vars}{command} > memory/logs/{server_key}_server.log 2>&1 &"
 
         os.system(full_command)
 
@@ -205,7 +205,7 @@ class ServerManager:
             return True
         else:
             print(f"❌ {server['name']} failed to start on port {start_port}: {status}")
-            log_path = f"sandbox/logs/{server_key}_server.log"
+            log_path = f"memory/logs/{server_key}_server.log"
             print(f"   Check log for details: {log_path}")
             return False
 

@@ -2,7 +2,7 @@
 uDOS v1.1.12 - Environment Command Handler
 
 Handles environment and workspace management: CLEAN, SETTINGS, DEV MODE
-Manages sandbox cleanup, system configuration, and development mode access.
+Manages archive cleanup, system configuration, and development mode access.
 """
 
 from pathlib import Path
@@ -17,7 +17,7 @@ class EnvironmentHandler(BaseCommandHandler):
         Clean workspace files and manage archives.
 
         Commands:
-        - CLEAN              - Review sandbox files (legacy behavior)
+        - CLEAN              - Show archive system usage
         - CLEAN --scan       - Scan all .archive/ folders for statistics
         - CLEAN --purge [N]  - Purge old archive files (default: 30 days)
         - CLEAN --dry-run    - Preview what would be purged
@@ -52,8 +52,8 @@ class EnvironmentHandler(BaseCommandHandler):
             elif purge_mode or dry_run:
                 return self._clean_purge_archives(retention_days, dry_run, custom_path)
             else:
-                # Legacy behavior: review sandbox files
-                return self._clean_review_sandbox()
+                # Show deprecation notice for legacy sandbox
+                return self._clean_deprecated_notice()
 
         except Exception as e:
             return self.output_formatter.format_error(
@@ -61,43 +61,33 @@ class EnvironmentHandler(BaseCommandHandler):
                 error_details=str(e)
             )
 
-    def _clean_review_sandbox(self):
-        """Legacy CLEAN behavior: review sandbox files."""
-        sandbox_path = Path("sandbox")
-        if not sandbox_path.exists():
-            return self.output_formatter.format_warning(
-                f"Sandbox is empty: {sandbox_path}"
-            )
-
-        # Get all files in sandbox (excluding subdirectories)
-        files = []
-        for item in sandbox_path.iterdir():
-            if item.is_file() and not item.name.startswith('.'):
-                files.append(item)
-
-        if not files:
-            return self.output_formatter.format_info(
-                "Sandbox is clean - No files to review"
-            )
-
-        # Format file list
-        file_list = []
-        for f in files:
-            size = f.stat().st_size
-            modified = f.stat().st_mtime
-            from datetime import datetime
-            mod_time = datetime.fromtimestamp(modified).strftime('%Y-%m-%d %H:%M')
-            file_list.append(f"  • {f.name} ({size} bytes, modified {mod_time})")
-
-        files_text = '\n'.join(file_list)
-
+    def _clean_deprecated_notice(self):
+        """Show notice that sandbox is deprecated."""
         return self.output_formatter.format_panel(
-            "Sandbox Review",
-            f"Found {len(files)} file(s) in sandbox:\n\n{files_text}\n\n" +
-            "💡 Use FILE BATCH or WORKSPACE commands to manage these files\n" +
-            "   - WORKSPACE MOVE <file> TO shared\n" +
-            "   - WORKSPACE MOVE <file> TO private\n" +
-            "   - DELETE <file>\n\n" +
+            "CLEAN - Sandbox Deprecated",
+            "⚠️  The sandbox/ directory has been deprecated in favor of memory/\n\n" +
+            "New structure:\n" +
+            "  • memory/logs/           - All log files\n" +
+            "  • memory/bank/user/      - User data (user.json)\n" +
+            "  • memory/bank/system/    - System config\n" +
+            "  • memory/bank/data/      - Application data\n" +
+            "  • memory/shared/groups/  - Group workspaces\n" +
+            "  • memory/shared/public/  - Public content\n\n" +
+            "Archive system:\n" +
+            "  • Use --scan to view archive health across workspace\n" +
+            "  • Use --purge [days] to clean old backups\n" +
+            "  • All directories support .archive/ folders\n\n" +
+            "Old sandbox/ files have been moved to:\n" +
+            "  • sandbox/.archive/user/ (archived)\n" +
+            "  • sandbox/.archive/logs/ (archived)\n\n" +
+            "💡 Use: CLEAN --scan    (view archive status)\n" +
+            "       CLEAN --purge 30 (remove backups >30 days)",
+            style="info"
+        )
+
+    def _clean_review_sandbox(self):
+        """Legacy CLEAN behavior: deprecated."""
+        return self._clean_deprecated_notice()
             "💡 Use CLEAN --scan to check .archive/ folders"
         )
 
@@ -353,7 +343,7 @@ class EnvironmentHandler(BaseCommandHandler):
             "║  Security:                                                ║\n"
             "║                                                           ║\n"
             "║  • Requires master user credentials (.env)                ║\n"
-            "║  • All operations logged to sandbox/logs/dev_mode.log      ║\n"
+            "║  • All operations logged to memory/logs/dev_mode.log      ║\n"
             "║  • Session auto-expires after 1 hour of inactivity        ║\n"
             "║  • Never enable on production systems                     ║\n"
             "║                                                           ║\n"

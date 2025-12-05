@@ -88,7 +88,7 @@ class SessionAnalytics:
     - AI-powered assistance
     """
 
-    def __init__(self, session_dir: str = "sandbox/logs/sessions", log_dir: str = "sandbox/logs"):
+    def __init__(self, session_dir: str = "memory/logs/sessions", log_dir: str = "memory/logs"):
         """
         Initialize session analytics.
 

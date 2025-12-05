@@ -74,7 +74,7 @@ class AliasManager:
         'stat': 'STATUS',
     }
 
-    def __init__(self, user_data_path: str = "sandbox/user/USER.UDT", logger=None):
+    def __init__(self, user_data_path: str = "memory/bank/user/USER.UDT", logger=None):
         """Initialize alias manager"""
         self.user_data_path = Path(user_data_path)
         self.logger = logger
@@ -506,6 +506,6 @@ See also: HISTORY (command history), DOCS (documentation)
 
 
 # Convenience function
-def create_alias_manager(user_data_path: str = "sandbox/user/USER.UDT", logger=None):
+def create_alias_manager(user_data_path: str = "memory/bank/user/USER.UDT", logger=None):
     """Create alias manager instance"""
     return AliasManager(user_data_path=user_data_path, logger=logger)

@@ -10,7 +10,7 @@ Commands:
 
 Files created:
 - structure.txt (root - excludes /knowledge, respects .gitignore)
-- memory/structure.txt (excludes sandbox/logs)
+- memory/structure.txt (excludes memory/logs)
 - knowledge/structure.txt (full knowledge tree)
 
 Version: 1.1.0 (Added pager support for long trees)
@@ -208,7 +208,7 @@ class TreeHandler:
         return "\n".join(lines)
 
     def generate_memory_tree(self) -> str:
-        """Generate memory directory tree (excludes sandbox/logs)."""
+        """Generate memory directory tree (excludes memory/logs)."""
         memory_path = self.base_path / 'memory'
 
         if not memory_path.exists():

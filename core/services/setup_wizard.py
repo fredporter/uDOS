@@ -35,7 +35,7 @@ class SetupWizard:
             story_manager: StoryManager instance for story.json access
             output_formatter: OutputFormatter instance for consistent output
         """
-        self.config_file = "sandbox/user/USER.UDT"
+        self.config_file = "memory/bank/user/USER.UDT"
         self.themes_dir = Path("core/data/themes")
         self.user_config = {}
 
@@ -62,7 +62,7 @@ class SetupWizard:
         if self._story_manager is None:
             from core.output.story_manager import StoryManager
             # Use same file as Config reads from
-            self._story_manager = StoryManager(story_path="sandbox/user/user.json")
+            self._story_manager = StoryManager(story_path="memory/bank/user/user.json")
         return self._story_manager
 
     @property

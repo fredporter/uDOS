@@ -391,7 +391,7 @@ class AutocompleteService:
             if not partial_path:
                 # Suggest common directories
                 return [
-                    {'argument': 'sandbox/', 'type': 'directory'},
+                    {'argument': 'memory/', 'type': 'directory'},
                     {'argument': 'memory/', 'type': 'directory'},
                     {'argument': 'scripts/', 'type': 'directory'},
                 ]

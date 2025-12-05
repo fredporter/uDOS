@@ -45,7 +45,7 @@ class APIAuditLogger:
     """
     Audit logger for external API calls.
 
-    Logs all API usage to SANDBOX/logs/audit.log with:
+    Logs all API usage to memory/logs/audit.log with:
     - Timestamp and user role
     - Operation and API type
     - Token usage and cost
@@ -53,7 +53,7 @@ class APIAuditLogger:
     - Success/failure status
     """
 
-    def __init__(self, log_dir: str = "sandbox/logs"):
+    def __init__(self, log_dir: str = "memory/logs"):
         """
         Initialize audit logger.
 

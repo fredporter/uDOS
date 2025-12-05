@@ -57,7 +57,7 @@ class Config:
 
         self.project_root = project_root
         self.env_file = project_root / '.env'
-        self.user_config_file = project_root / 'sandbox' / 'user' / 'user.json'
+        self.user_config_file = project_root / 'memory' / 'bank' / 'user' / 'user.json'
 
         self._env_loaded = False
         self._user_config: Optional[Dict] = None

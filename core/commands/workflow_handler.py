@@ -43,10 +43,10 @@ class WorkflowHandler(BaseCommandHandler):
             config: uDOS configuration instance
         """
         super().__init__(config)
-        self.log_dir = Path("sandbox/logs")
+        self.log_dir = Path("memory/logs")
         self.log_file = self.log_dir / "workflow.log"
-        self.checkpoint_dir = Path("sandbox/workflow/checkpoints")
-        self.reports_dir = Path("sandbox/workflow/reports")
+        self.checkpoint_dir = Path("memory/workflows/checkpoints")
+        self.reports_dir = Path("memory/workflows/reports")
         self.background_processes: Dict[str, subprocess.Popen] = {}
 
         # Ensure directories exist
@@ -157,7 +157,7 @@ class WorkflowHandler(BaseCommandHandler):
             WORKFLOW LOAD_JSON <filepath> [--var=name]
 
         Examples:
-            WORKFLOW LOAD_JSON sandbox/data/config.json
+            WORKFLOW LOAD_JSON memory/bank/data/config.json
             WORKFLOW LOAD_JSON data.json --var=mydata
         """
         if not args:
@@ -263,7 +263,7 @@ class WorkflowHandler(BaseCommandHandler):
             WORKFLOW ENSURE_DIR <path>
 
         Examples:
-            WORKFLOW ENSURE_DIR sandbox/workflow/missions/my-mission
+            WORKFLOW ENSURE_DIR memory/workflows/missions/my-mission
         """
         if not args:
             return "❌ Usage: WORKFLOW ENSURE_DIR <path>"
@@ -594,7 +594,7 @@ class WorkflowHandler(BaseCommandHandler):
 
         Examples:
             WORKFLOW FIND_FILES "*.py"
-            WORKFLOW FIND_FILES "test_*.py" --path=sandbox/tests
+            WORKFLOW FIND_FILES "test_*.py" --path=memory/ucode/tests
         """
         if not args:
             return "❌ Usage: WORKFLOW FIND_FILES <pattern> [--path=dir]"
@@ -834,7 +834,7 @@ Examples:
         help_text += f"  {highlight_syntax('WORKFLOW(RUN_PYTHON|scripts/process.py|--background|--id=worker)')}\n"
         help_text += f"  {highlight_syntax('WORKFLOW(TIMESTAMP|--format=human)')}\n"
         help_text += f"  {highlight_syntax('WORKFLOW(EXTRACT_METRIC|r\"(\\\\d+) complete\"|\"Tasks: 25 complete\")')}\n"
-        help_text += "\n💡 All WORKFLOW commands log to: sandbox/logs/workflow.log"
+        help_text += "\n💡 All WORKFLOW commands log to: memory/logs/workflow.log"
 
         return help_text.strip()
 

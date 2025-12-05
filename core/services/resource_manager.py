@@ -32,7 +32,7 @@ class ResourceManager:
     Tracks:
     - API quotas (daily/hourly limits per provider)
     - Rate limits (requests per minute)
-    - Disk space (sandbox usage + warnings)
+    - Disk space (memory usage + warnings)
     - CPU usage (background monitoring)
     - Memory usage (system + process)
     - Resource allocation per mission
@@ -59,8 +59,8 @@ class ResourceManager:
             config_path: Path to resource config JSON (default: core/data/resource-config.json)
         """
         self.config_path = config_path or "core/data/resource-config.json"
-        self.state_path = "sandbox/user/resource-state.json"
-        self.log_path = "sandbox/logs/resources.log"
+        self.state_path = "memory/bank/system/resource-state.json"
+        self.log_path = "memory/logs/resources.log"
 
         # Ensure directories exist
         os.makedirs(os.path.dirname(self.state_path), exist_ok=True)
@@ -328,21 +328,21 @@ class ResourceManager:
 
     def get_disk_usage(self) -> Dict[str, Any]:
         """
-        Get disk usage statistics for sandbox directory.
+        Get disk usage statistics for memory directory.
 
         Returns:
-            Dict with sandbox_mb, total_mb, percent, status (ok/warning/critical)
+            Dict with memory_mb, total_mb, percent, status (ok/warning/critical)
         """
-        sandbox_path = Path('sandbox')
+        memory_path = Path('memory')
 
-        # Calculate sandbox directory size
-        sandbox_mb = 0
-        if sandbox_path.exists():
-            for file in sandbox_path.rglob('*'):
+        # Calculate memory directory size
+        memory_mb = 0
+        if memory_path.exists():
+            for file in memory_path.rglob('*'):
                 if file.is_file():
-                    sandbox_mb += file.stat().st_size
+                    memory_mb += file.stat().st_size
 
-        sandbox_mb = sandbox_mb / (1024 * 1024)  # Convert to MB
+        memory_mb = memory_mb / (1024 * 1024)  # Convert to MB
 
         # Get total disk space
         disk = psutil.disk_usage('.')
@@ -361,7 +361,7 @@ class ResourceManager:
             status = 'ok'
 
         return {
-            'sandbox_mb': round(sandbox_mb, 2),
+            'memory_mb': round(memory_mb, 2),
             'total_mb': round(total_mb, 2),
             'used_mb': round(used_mb, 2),
             'free_mb': round(free_mb, 2),

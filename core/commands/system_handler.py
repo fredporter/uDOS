@@ -480,7 +480,7 @@ class SystemCommandHandler(BaseCommandHandler):
         for i, (step_name, completion_msg) in enumerate(steps, 1):
             output += f"  [{i}/4] {step_name}..."
             time.sleep(0.05)  # Brief pause for visual feedback
-            
+
             if i == 3:  # Viewport detection
                 try:
                     from core.services.viewport_manager import ViewportManager

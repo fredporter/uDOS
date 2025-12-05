@@ -8,7 +8,7 @@ Features:
   - SVG validation (well-formed XML)
   - Post-processing and refinement
   - Terminal preview (ASCII conversion)
-  - Export to sandbox/drafts/svg/
+  - Export to memory/drafts/svg/
 
 Author: uDOS Core Team
 Version: 1.0.0
@@ -75,7 +75,7 @@ class SVGGenerator:
             config: Optional Config instance
         """
         self.config = config or (Config() if Config else None)
-        self.output_dir = Path('sandbox/drafts/svg')
+        self.output_dir = Path('memory/drafts/svg')
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Get Gemini generator if available

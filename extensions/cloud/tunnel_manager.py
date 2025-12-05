@@ -320,7 +320,7 @@ class TunnelManager:
     Provides lifecycle management, security controls, and monitoring.
     """
 
-    def __init__(self, config_dir: str = "sandbox/user"):
+    def __init__(self, config_dir: str = "memory/bank/system"):
         """
         Initialize tunnel manager.
 

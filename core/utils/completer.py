@@ -368,7 +368,7 @@ class AdvancedCompleter(Completer):
 
     def _get_file_completions(self, partial_path):
         """
-        Get file completions for sandbox/ and memory/ directories.
+        Get file completions for memory/ directory (sandbox deprecated).
 
         Args:
             partial_path: Partial path typed by user
@@ -381,18 +381,24 @@ class AdvancedCompleter(Completer):
         relative_path = ''
 
         if partial_path.startswith('sandbox/') or partial_path.startswith('sandbox\\'):
-            search_dir = 'sandbox'
-            relative_path = partial_path[8:]  # Remove 'sandbox/'
+            # Sandbox deprecated - redirect to memory
+            yield Completion(
+                'memory/',
+                start_position=-len(partial_path),
+                display='📁 memory/ (sandbox deprecated)',
+                display_meta='use memory/ instead'
+            )
+            return
         elif partial_path.startswith('memory/') or partial_path.startswith('memory\\'):
             search_dir = 'memory'
             relative_path = partial_path[7:]  # Remove 'memory/'
         elif partial_path.lower().startswith('s') and 'sandbox'.startswith(partial_path.lower()):
-            # Typing 's', 'sa', 'san', etc. - suggest 'sandbox/'
+            # Typing 's', 'sa', 'san', etc. - suggest memory instead
             yield Completion(
-                'sandbox/',
+                'memory/',
                 start_position=-len(partial_path),
-                display='📁 sandbox/',
-                display_meta='directory'
+                display='📁 memory/ (not sandbox)',
+                display_meta='sandbox deprecated'
             )
         elif partial_path.lower().startswith('m') and 'memory'.startswith(partial_path.lower()):
             # Typing 'm', 'me', 'mem', etc. - suggest 'memory/'
@@ -403,13 +409,7 @@ class AdvancedCompleter(Completer):
                 display_meta='directory'
             )
         elif not partial_path:
-            # No path typed - suggest both directories
-            yield Completion(
-                'sandbox/',
-                start_position=0,
-                display='📁 sandbox/',
-                display_meta='directory'
-            )
+            # No path typed - suggest memory directory
             yield Completion(
                 'memory/',
                 start_position=0,

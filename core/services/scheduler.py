@@ -270,7 +270,7 @@ class Scheduler:
             return instance
         return cls._instance
 
-    def __init__(self, tasks_dir: str = "sandbox/workflow/schedules", _force_new: bool = False):
+    def __init__(self, tasks_dir: str = "memory/workflows/schedules", _force_new: bool = False):
         # Skip re-initialization for singleton
         if not _force_new and hasattr(self, '_initialized'):
             return

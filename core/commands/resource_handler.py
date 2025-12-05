@@ -87,7 +87,7 @@ def _handle_status(**kwargs) -> Dict[str, Any]:
     # Disk Space
     emoji = "✅" if disk['status'] == 'ok' else "⚠️" if disk['status'] == 'warning' else "❌"
     lines.append("💾 Disk Space:")
-    lines.append(f"  {emoji} Sandbox: {disk['sandbox_mb']} MB")
+    lines.append(f"  {emoji} Memory: {disk['memory_mb']} MB")
     lines.append(f"  {emoji} System: {disk['used_mb']:.0f}/{disk['total_mb']:.0f} MB ({disk['percent']}%)")
     lines.append("")
 

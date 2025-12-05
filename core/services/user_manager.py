@@ -12,7 +12,7 @@ class UserManager:
     Manages user profile and system configuration in user.json.
     """
 
-    def __init__(self, user_file='sandbox/user/user.json', template_file='core/data/templates/user.template.json'):
+    def __init__(self, user_file='memory/bank/user/user.json', template_file='core/data/templates/user.template.json'):
         self.user_file = user_file
         self.template_file = template_file
         self.user_data = None
@@ -80,11 +80,18 @@ class UserManager:
                     "COUNTRY": "Unknown",
                     "LATITUDE": 0,
                     "LONGITUDE": 0,
+                    "TILE_CODE": "",
                     "MAP_POSITION": {
                         "X": 0,
                         "Y": 0
                     },
                     "CURRENT_LAYER": "SURFACE"
+                },
+                "SPATIAL_DATA": {
+                    "PLANET": "Earth",
+                    "GALAXY": "Milky Way",
+                    "PLANET_ID": "earth",
+                    "GALAXY_ID": "milky_way"
                 },
                 "SESSION_DATA": {
                     "CURRENT_SESSION": f"session_{int(time.time())}",
@@ -96,7 +103,7 @@ class UserManager:
                     "interface": {
                         "theme": "dungeon"
                     },
-                    "workspace_preference": "sandbox"
+                    "workspace_preference": "memory"
                 }
             }
 
@@ -120,12 +127,35 @@ class UserManager:
             else:
                 user_config['USER_PROFILE']['TIMEZONE'] = current_tz
 
-            # Location - use city selector
+            # Location - use city selector with grid code
             current_loc = user_config.get('USER_PROFILE', {}).get('LOCATION', detected_city)
-            location = self._select_city(current_loc)
-            user_config['USER_PROFILE']['LOCATION'] = location
+            location_data = self._select_city(current_loc)
+            user_config['USER_PROFILE']['LOCATION'] = location_data['name']
 
-            # Theme selection - use theme selector - use selector
+            # Update location data with city details
+            if 'LOCATION_DATA' not in user_config:
+                user_config['LOCATION_DATA'] = {}
+            user_config['LOCATION_DATA']['CITY'] = location_data['name']
+            user_config['LOCATION_DATA']['COUNTRY'] = location_data.get('country', 'Unknown')
+            user_config['LOCATION_DATA']['TILE_CODE'] = location_data.get('tile_code', '')
+            user_config['LOCATION_DATA']['LATITUDE'] = location_data.get('latitude', 0)
+            user_config['LOCATION_DATA']['LONGITUDE'] = location_data.get('longitude', 0)
+
+            # Planet selection
+            current_planet = user_config.get('SPATIAL_DATA', {}).get('PLANET', 'Earth')
+            planet_data = self._select_planet(current_planet)
+            if 'SPATIAL_DATA' not in user_config:
+                user_config['SPATIAL_DATA'] = {}
+            user_config['SPATIAL_DATA']['PLANET'] = planet_data['name']
+            user_config['SPATIAL_DATA']['PLANET_ID'] = planet_data['id']
+
+            # Galaxy selection
+            current_galaxy = user_config.get('SPATIAL_DATA', {}).get('GALAXY', 'Milky Way')
+            galaxy_data = self._select_galaxy(current_galaxy)
+            user_config['SPATIAL_DATA']['GALAXY'] = galaxy_data['name']
+            user_config['SPATIAL_DATA']['GALAXY_ID'] = galaxy_data['id']
+
+            # Theme selection - use theme selector
             current_theme = user_config.get('system_settings', {}).get('interface', {}).get('theme', 'dungeon')
             theme = self._select_theme(current_theme)
             if 'system_settings' not in user_config:
@@ -185,63 +215,209 @@ class UserManager:
                     pass
             return ''
 
-    def _select_city(self, default_city: str = "Sydney") -> str:
-        """Interactive city selector using cities.json."""
+    def _select_city(self, default_city: str = "Sydney") -> dict:
+        """Interactive city selector using cities.json with grid code display."""
         try:
             import json
             cities_file = Path(__file__).parent.parent / 'data' / 'geography' / 'cities.json'
-            
+
             if not cities_file.exists():
                 # Fallback to manual input
-                return input(f"📍 Location [{default_city}]: ").strip() or default_city
-            
+                city_name = input(f"📍 Location [{default_city}]: ").strip() or default_city
+                return {'name': city_name, 'country': 'Unknown', 'tile_code': '', 'latitude': 0, 'longitude': 0}
+
             with open(cities_file) as f:
                 cities_data = json.load(f)
-            
+
             cities = cities_data.get('cities', [])
             if not cities:
-                return input(f"📍 Location [{default_city}]: ").strip() or default_city
-            
-            # Create options list
-            city_names = sorted([c['name'] for c in cities])
-            
-            # Find default index
-            try:
-                default_index = city_names.index(default_city)
-            except ValueError:
-                default_index = 0
-            
+                city_name = input(f"📍 Location [{default_city}]: ").strip() or default_city
+                return {'name': city_name, 'country': 'Unknown', 'tile_code': '', 'latitude': 0, 'longitude': 0}
+
+            # Create options with grid codes
+            city_options = []
+            city_map = {}
+            for city in cities:
+                tile_code = city.get('tile_code', city.get('grid_cell', ''))
+                display_name = f"{city['name']:<20} {city.get('country', ''):<15} [{tile_code}]"
+                city_options.append(display_name)
+                city_map[display_name] = city
+
+            # Sort and find default
+            city_options = sorted(city_options)
+            default_index = 0
+            for i, opt in enumerate(city_options):
+                if default_city in opt:
+                    default_index = i
+                    break
+
             print(f"\n📍 Select your location (↑↓ arrows, Enter to select):")
-            
+            print("   Format: City               Country         [Grid Code]")
+
             # Use standardized selector
             from core.input.standardized_input import StandardizedInput
             input_service = StandardizedInput()
-            selected = input_service.select_option(
+            selected_display = input_service.select_option(
                 title="Location",
-                options=city_names,
+                options=city_options,
                 default_index=default_index,
                 show_title=False
             )
-            
-            return selected
-            
+
+            selected_city = city_map[selected_display]
+            print(f"   ✓ Selected: {selected_city['name']} [{selected_city.get('tile_code', '')}]")
+
+            return {
+                'name': selected_city['name'],
+                'country': selected_city.get('country', 'Unknown'),
+                'tile_code': selected_city.get('tile_code', selected_city.get('grid_cell', '')),
+                'latitude': selected_city.get('latitude', 0),
+                'longitude': selected_city.get('longitude', 0)
+            }
+
         except Exception as e:
             # Fallback to manual input
-            return input(f"📍 Location [{default_city}]: ").strip() or default_city
+            city_name = input(f"📍 Location [{default_city}]: ").strip() or default_city
+            return {'name': city_name, 'country': 'Unknown', 'tile_code': '', 'latitude': 0, 'longitude': 0}    def _select_planet(self, default_planet: str = "Earth") -> dict:
+        """Interactive planet selector using planets.json."""
+        try:
+            import json
+            planets_file = Path(__file__).parent.parent / 'data' / 'spatial' / 'planets.json'
+
+            if not planets_file.exists():
+                # Fallback to manual input
+                planet_name = input(f"🪐 Planet [{default_planet}]: ").strip() or default_planet
+                return {'name': planet_name, 'id': planet_name.lower()}
+
+            with open(planets_file) as f:
+                planets_data = json.load(f)
+
+            planets = planets_data.get('planets', [])
+            if not planets:
+                planet_name = input(f"🪐 Planet [{default_planet}]: ").strip() or default_planet
+                return {'name': planet_name, 'id': planet_name.lower()}
+
+            # Create options list
+            planet_options = []
+            planet_map = {}
+            for planet in planets:
+                display_name = f"{planet['name']:<15} ({planet.get('type', 'unknown')})"
+                planet_options.append(display_name)
+                planet_map[display_name] = planet
+
+            # Find default index
+            default_index = 0
+            for i, opt in enumerate(planet_options):
+                if default_planet in opt:
+                    default_index = i
+                    break
+
+            print(f"\n🪐 Select your planet (↑↓ arrows, Enter to select):")
+
+            # Use standardized selector
+            from core.input.standardized_input import StandardizedInput
+            input_service = StandardizedInput()
+            selected_display = input_service.select_option(
+                title="Planet",
+                options=planet_options,
+                default_index=default_index,
+                show_title=False
+            )
+
+            selected_planet = planet_map[selected_display]
+            print(f"   ✓ Selected: {selected_planet['name']}")
+
+            return {
+                'name': selected_planet['name'],
+                'id': selected_planet['id']
+            }
+
+        except Exception as e:
+            # Fallback to manual input
+            planet_name = input(f"🪐 Planet [{default_planet}]: ").strip() or default_planet
+            return {'name': planet_name, 'id': planet_name.lower()}
+
+    def _select_galaxy(self, default_galaxy: str = "Milky Way") -> dict:
+        """Interactive galaxy selector using galaxies.json."""
+        try:
+            import json
+            galaxies_file = Path(__file__).parent.parent / 'data' / 'spatial' / 'galaxies.json'
+
+            if not galaxies_file.exists():
+                # Fallback to manual input
+                galaxy_name = input(f"🌌 Galaxy [{default_galaxy}]: ").strip() or default_galaxy
+                return {'name': galaxy_name, 'id': galaxy_name.lower().replace(' ', '_')}
+
+            with open(galaxies_file) as f:
+                galaxies_data = json.load(f)
+
+            # Build galaxy list (home galaxy + local group)
+            galaxy_options = []
+            galaxy_map = {}
+
+            # Add home galaxy (Milky Way)
+            home = galaxies_data.get('home_galaxy', {})
+            if home:
+                display_name = f"{home['name']:<30} (Home - {home.get('type', 'unknown')})"
+                galaxy_options.append(display_name)
+                galaxy_map[display_name] = {'name': home['name'], 'id': home['id']}
+
+            # Add local group galaxies
+            local_group = galaxies_data.get('local_group', {}).get('major_members', [])
+            for galaxy in local_group:
+                dist_mly = galaxy.get('distance_ly', 0) / 1e6
+                display_name = f"{galaxy['name']:<30} ({dist_mly:.2f} Mly away)"
+                galaxy_options.append(display_name)
+                # Create ID from name
+                galaxy_id = galaxy['name'].lower().replace(' ', '_').replace('(', '').replace(')', '')
+                galaxy_map[display_name] = {'name': galaxy['name'], 'id': galaxy_id}
+
+            if not galaxy_options:
+                galaxy_name = input(f"🌌 Galaxy [{default_galaxy}]: ").strip() or default_galaxy
+                return {'name': galaxy_name, 'id': galaxy_name.lower().replace(' ', '_')}
+
+            # Find default index
+            default_index = 0
+            for i, opt in enumerate(galaxy_options):
+                if default_galaxy in opt:
+                    default_index = i
+                    break
+
+            print(f"\n🌌 Select your galaxy (↑↓ arrows, Enter to select):")
+
+            # Use standardized selector
+            from core.input.standardized_input import StandardizedInput
+            input_service = StandardizedInput()
+            selected_display = input_service.select_option(
+                title="Galaxy",
+                options=galaxy_options,
+                default_index=default_index,
+                show_title=False
+            )
+
+            selected_galaxy = galaxy_map[selected_display]
+            print(f"   ✓ Selected: {selected_galaxy['name']}")
+
+            return selected_galaxy
+
+        except Exception as e:
+            # Fallback to manual input
+            galaxy_name = input(f"🌌 Galaxy [{default_galaxy}]: ").strip() or default_galaxy
+            return {'name': galaxy_name, 'id': galaxy_name.lower().replace(' ', '_')}
 
     def _select_theme(self, default_theme: str = "dungeon") -> str:
         """Interactive theme selector."""
         try:
             themes = ['dungeon', 'galaxy', 'foundation', 'science', 'project']
-            
+
             # Find default index
             try:
                 default_index = themes.index(default_theme)
             except ValueError:
                 default_index = 0
-            
+
             print(f"\n🎨 Select your theme (↑↓ arrows, Enter to select):")
-            
+
             # Use standardized selector
             from core.input.standardized_input import StandardizedInput
             input_service = StandardizedInput()
@@ -251,9 +427,9 @@ class UserManager:
                 default_index=default_index,
                 show_title=False
             )
-            
+
             return selected
-            
+
         except Exception:
             # Fallback to manual input
             print("\n🎨 Available themes: dungeon, galaxy, foundation, science, project")

@@ -23,8 +23,8 @@ from shared import get_port_manager, BaseExtensionServer, BaseExtensionHandler
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'core'))
 from services.resource_manager import get_resource_manager
 
-# Setup logging to sandbox/logs
-LOG_DIR = Path(__file__).parent.parent.parent / 'sandbox' / 'logs'
+# Setup logging to memory/logs
+LOG_DIR = Path(__file__).parent.parent.parent / 'memory' / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configure logging
