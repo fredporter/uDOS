@@ -67,18 +67,16 @@
             const splash = document.createElement('div');
             splash.style.cssText = 'text-align: center; padding: 10px; font-family: "C64 User Mono", monospace; line-height: 1.1; max-width: 100%; overflow: hidden;';
 
-            // Clean "U" logo with C64/teletext block graphics (rainbow gradient)
+            // uDOS ASCII art logo - matching TUI and teletext (rainbow gradient)
             const logo = [
-                { text: '▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
-                { text: '█▌                       ▐█', color: '#FF4500' },
-                { text: '█▌  █▀▀▄       █▀▀▄     ▐█', color: '#FF8C00' },
-                { text: '█▌  █  █       █  █     ▐█', color: '#FFD700' },
-                { text: '█▌  █  █       █  █     ▐█', color: '#ADFF2F' },
-                { text: '█▌  █  █       █  █     ▐█', color: '#00FF00' },
-                { text: '█▌   ▀▀         ▀▀      ▐█', color: '#00CED1' },
-                { text: '█▌                       ▐█', color: '#00BFFF' },
-                { text: '█▌   uDOS v2.0.0         ▐█', color: '#9370DB' },
-                { text: '▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', color: '#FF00FF' }
+                { text: '  ██╗   ██╗██████╗  ██████╗ ███████╗', color: '#FF0000' },
+                { text: '  ██║   ██║██╔══██╗██╔═══██╗██╔════╝', color: '#FFFF00' },
+                { text: '  ██║   ██║██║  ██║██║   ██║███████╗', color: '#00FF00' },
+                { text: '  ██║   ██║██║  ██║██║   ██║╚════██║', color: '#00FFFF' },
+                { text: '  ╚██████╔╝██████╔╝╚██████╔╝███████║', color: '#0000FF' },
+                { text: '   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝', color: '#FF00FF' },
+                { text: '', color: '#FFFFFF' },
+                { text: '  uDOS v2.0.0 - Terminal Interface', color: '#00d4ff' }
             ];
 
             logo.forEach(line => {
