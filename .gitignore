@@ -103,8 +103,13 @@ data/USER.UDO
 !knowledge/**/*.UDT
 !memory/templates/*.UDT
 
-# Session & Server State
+# Logs & Session State (v1.2.12+)
 # ----------------------
+# Flat structure: memory/logs/*.log, memory/logs/session-*.json
+memory/logs/*.log
+memory/logs/*.jsonl
+memory/logs/session-*.json
+memory/logs/*_server.log
 memory/workflows/logs/
 memory/workflows/logs/**/*
 *.pid
