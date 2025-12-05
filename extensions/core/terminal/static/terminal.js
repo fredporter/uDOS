@@ -65,7 +65,7 @@
 
             // Create splash content with fixed positioning
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.3; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
+            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
 
             // uDOS ASCII art logo - muted C64 synthwave colors
             const logo = [
@@ -90,7 +90,10 @@
                 lineDiv.style.color = line.color;
                 lineDiv.style.fontWeight = 'bold';
                 lineDiv.style.fontSize = '13px';
-                lineDiv.style.lineHeight = '1.3';
+                lineDiv.style.lineHeight = '1.0';
+                lineDiv.style.margin = '0';
+                lineDiv.style.padding = '0';
+                lineDiv.style.whiteSpace = 'pre';
                 splash.appendChild(lineDiv);
             });
 
