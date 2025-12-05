@@ -44,6 +44,8 @@ def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, A
     if len(parts) < 2:
         return _show_help()
 
+    subcommand = parts[1].upper()
+
     if subcommand == 'LOGIN':
         return _handle_login(config)
     elif subcommand == 'LOGOUT':

@@ -114,22 +114,22 @@ def test_email_parser():
     print("Email Parser Test - v1.2.9")
     print("=" * 60)
     print()
-    
+
     parser = get_email_parser()
-    
+
     for i, email in enumerate(TEST_EMAILS, 1):
         print(f"Test {i}: {email['subject']}")
         print("-" * 60)
-        
+
         # Parse email
         parsed = parser.parse_email(email)
-        
+
         # Show metadata
         metadata = parsed['metadata']
         print(f"From: {metadata['from']['name']} <{metadata['from']['email']}>")
         print(f"Date: {metadata['date']}")
         print(f"Priority: {parsed['priority']}")
-        
+
         # Show tasks
         tasks = parsed['tasks']
         print(f"Tasks found: {len(tasks)}")
@@ -137,20 +137,20 @@ def test_email_parser():
             print(f"  • {task['text']}")
             if task.get('deadline'):
                 print(f"    Deadline: {task['deadline']}")
-        
+
         # Show URLs
         urls = parsed['urls']
         if urls:
             print(f"URLs found: {len(urls)}")
             for url in urls:
                 print(f"  - {url}")
-        
+
         # Show deadline
         if parsed.get('deadline'):
             print(f"Overall deadline: {parsed['deadline']}")
-        
+
         print()
-    
+
     print("✅ Email parser tests complete\n")
 
 
@@ -160,23 +160,23 @@ def test_email_converter():
     print("Email Converter Test - v1.2.9")
     print("=" * 60)
     print()
-    
+
     converter = get_email_converter()
-    
+
     for i, email in enumerate(TEST_EMAILS, 1):
         print(f"Test {i}: {email['subject']}")
         print("-" * 60)
-        
+
         # Test auto-detection
         result = converter.auto_convert(email)
-        
+
         if result['success']:
             print(f"✅ Auto-converted to: {result['type']}")
             print(f"   File: {result['filename']}")
-            
+
             if 'task_count' in result:
                 print(f"   Tasks: {result['task_count']}")
-            
+
             # Show file contents (first few lines)
             filepath = Path(result['path'])
             if filepath.exists():
@@ -189,9 +189,9 @@ def test_email_converter():
                     print(f"   ... ({len(content.split('\n')) - 10} more lines)")
         else:
             print(f"❌ Conversion failed: {result.get('error')}")
-        
+
         print()
-    
+
     print("✅ Email converter tests complete\n")
 
 
@@ -201,27 +201,27 @@ def test_conversion_types():
     print("Conversion Types Test - v1.2.9")
     print("=" * 60)
     print()
-    
+
     converter = get_email_converter()
     email = TEST_EMAILS[0]  # Weekly Tasks email
-    
+
     # Test each conversion type
     types = ['note', 'checklist', 'mission']
-    
+
     for conv_type in types:
         print(f"Testing conversion to {conv_type}...")
         print("-" * 60)
-        
+
         if conv_type == 'note':
             result = converter.convert_to_note(email)
         elif conv_type == 'checklist':
             result = converter.convert_to_checklist(email)
         elif conv_type == 'mission':
             result = converter.convert_to_mission(email)
-        
+
         if result['success']:
             print(f"✅ Created {result['type']}: {result['filename']}")
-            
+
             # Check file exists
             filepath = Path(result['path'])
             if filepath.exists():
@@ -229,9 +229,9 @@ def test_conversion_types():
                 print(f"   Size: {size} bytes")
         else:
             print(f"❌ Failed: {result.get('error')}")
-        
+
         print()
-    
+
     print("✅ Conversion types tests complete\n")
 
 
@@ -240,20 +240,20 @@ def test_summary():
     print("=" * 60)
     print("Test Summary")
     print("=" * 60)
-    
+
     converter = get_email_converter()
-    
+
     # Count created files
     notes = list(converter.docs_dir.glob('*.md'))
     checklists = list(converter.checklists_dir.glob('*.md'))
     missions = list(converter.missions_dir.glob('*.upy'))
-    
+
     print(f"Files created:")
     print(f"  Notes: {len(notes)} in {converter.docs_dir}")
     print(f"  Checklists: {len(checklists)} in {converter.checklists_dir}")
     print(f"  Missions: {len(missions)} in {converter.missions_dir}")
     print()
-    
+
     print("✅ All conversion tests passed!")
     print()
     print("Next steps:")

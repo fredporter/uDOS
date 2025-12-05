@@ -55,7 +55,7 @@ class SyncStatus(Enum):
 class SyncEngine:
     """
     Core synchronization engine for Google Drive.
-    
+
     Handles:
     - Change detection (local vs cloud)
     - Bidirectional sync operations
@@ -63,7 +63,7 @@ class SyncEngine:
     - Incremental updates
     - Metadata management
     """
-    
+
     # Syncable directories (relative to project root)
     SYNC_DIRS = [
         "memory/missions",
@@ -73,7 +73,7 @@ class SyncEngine:
         "memory/docs",
         "memory/drafts"
     ]
-    
+
     # Files to exclude from sync
     EXCLUDE_PATTERNS = [
         ".archive",
@@ -85,29 +85,29 @@ class SyncEngine:
         ".gmail_token.enc",
         "gmail_credentials.json"
     ]
-    
+
     def __init__(self, project_root: Optional[Path] = None):
         """
         Initialize sync engine.
-        
+
         Args:
             project_root: Project root path (defaults to auto-detect)
         """
         self.project_root = project_root or Path(__file__).parent.parent.parent
         self.drive = get_drive_service()
-        
+
         # Metadata storage
         self.metadata_dir = self.project_root / "memory" / "system" / "sync"
         self.metadata_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_file = self.metadata_dir / "sync_metadata.json"
-        
+
         # Load metadata
         self.metadata = self._load_metadata()
-    
+
     def _load_metadata(self) -> Dict[str, Any]:
         """
         Load sync metadata from disk.
-        
+
         Returns:
             Metadata dictionary with file tracking info
         """
@@ -117,13 +117,13 @@ class SyncEngine:
                     return json.load(f)
             except Exception:
                 pass
-        
+
         return {
             'files': {},  # {local_path: {cloud_id, md5, modified, synced_at}}
             'last_sync': None,
             'conflict_strategy': ConflictStrategy.NEWEST_WINS.value
         }
-    
+
     def _save_metadata(self) -> None:
         """Save sync metadata to disk."""
         try:
@@ -131,14 +131,14 @@ class SyncEngine:
                 json.dump(self.metadata, f, indent=2, default=str)
         except Exception as e:
             print(f"Warning: Failed to save metadata: {e}")
-    
+
     def _compute_md5(self, file_path: Path) -> str:
         """
         Compute MD5 hash of file.
-        
+
         Args:
             file_path: Path to file
-            
+
         Returns:
             MD5 hash string
         """
@@ -147,19 +147,19 @@ class SyncEngine:
             for chunk in iter(lambda: f.read(8192), b''):
                 md5.update(chunk)
         return md5.hexdigest()
-    
+
     def _should_exclude(self, path: Path) -> bool:
         """
         Check if file should be excluded from sync.
-        
+
         Args:
             path: File or directory path
-            
+
         Returns:
             True if should exclude, False otherwise
         """
         path_str = str(path)
-        
+
         for pattern in self.EXCLUDE_PATTERNS:
             if pattern.startswith('*'):
                 # Extension pattern
@@ -167,33 +167,33 @@ class SyncEngine:
                     return True
             elif pattern in path_str:
                 return True
-        
+
         return False
-    
+
     def get_local_files(self) -> List[Path]:
         """
         Get list of all syncable local files.
-        
+
         Returns:
             List of Path objects for files to sync
         """
         files = []
-        
+
         for sync_dir in self.SYNC_DIRS:
             dir_path = self.project_root / sync_dir
             if not dir_path.exists():
                 continue
-            
+
             for file_path in dir_path.rglob('*'):
                 if file_path.is_file() and not self._should_exclude(file_path):
                     files.append(file_path)
-        
+
         return files
-    
+
     def detect_changes(self) -> Dict[str, List[Path]]:
         """
         Detect changes between local and cloud.
-        
+
         Returns:
             Dictionary with categorized changes:
             {
@@ -213,22 +213,22 @@ class SyncEngine:
             'modified_cloud': [],
             'conflicts': []
         }
-        
+
         if not self.drive.is_available():
             return changes
-        
+
         # Get local files
         local_files = self.get_local_files()
         local_paths = {self._get_relative_path(f): f for f in local_files}
-        
+
         # Get cloud files
         cloud_files = self.drive.list_files()
         cloud_map = {f['name']: f for f in cloud_files}
-        
+
         # Check local files
         for rel_path, file_path in local_paths.items():
             rel_path_str = str(rel_path)
-            
+
             if rel_path_str not in cloud_map:
                 # New local file
                 changes['new_local'].append(file_path)
@@ -237,12 +237,12 @@ class SyncEngine:
                 cloud_file = cloud_map[rel_path_str]
                 local_md5 = self._compute_md5(file_path)
                 cloud_md5 = cloud_file.get('md5Checksum', '')
-                
+
                 if local_md5 != cloud_md5:
                     # File modified - check which is newer
                     local_mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
                     cloud_mtime = datetime.fromisoformat(cloud_file['modifiedTime'].replace('Z', '+00:00'))
-                    
+
                     if local_mtime > cloud_mtime:
                         changes['modified_local'].append(file_path)
                     elif cloud_mtime > local_mtime:
@@ -250,7 +250,7 @@ class SyncEngine:
                     else:
                         # Same timestamp but different content - conflict
                         changes['conflicts'].append(file_path)
-        
+
         # Check cloud files (for deletions)
         for cloud_name, cloud_file in cloud_map.items():
             if cloud_name not in local_paths:
@@ -262,49 +262,49 @@ class SyncEngine:
                 else:
                     # Not in metadata - new cloud file
                     changes['new_cloud'].append(cloud_name)
-        
+
         return changes
-    
+
     def _get_relative_path(self, file_path: Path) -> Path:
         """
         Get relative path from project root.
-        
+
         Args:
             file_path: Absolute file path
-            
+
         Returns:
             Relative path from project root
         """
         return file_path.relative_to(self.project_root)
-    
+
     def upload_file(self, file_path: Path) -> Dict[str, Any]:
         """
         Upload file to Google Drive.
-        
+
         Args:
             file_path: Local file path
-            
+
         Returns:
             Upload result dictionary
         """
         if not self.drive.is_available():
             return {'success': False, 'error': 'Not authenticated'}
-        
+
         rel_path = self._get_relative_path(file_path)
         cloud_name = str(rel_path)
-        
+
         # Check if file already exists in cloud
         cloud_files = self.drive.list_files(name_filter=cloud_name)
-        
+
         if cloud_files:
             # File exists - delete old version first
             for cloud_file in cloud_files:
                 if cloud_file['name'] == cloud_name:
                     self.drive.delete_file(cloud_file['id'])
-        
+
         # Upload new version
         result = self.drive.upload_file(file_path, cloud_name=cloud_name)
-        
+
         if result['success']:
             # Update metadata
             self.metadata['files'][cloud_name] = {
@@ -314,23 +314,23 @@ class SyncEngine:
                 'synced_at': datetime.now().isoformat()
             }
             self._save_metadata()
-        
+
         return result
-    
+
     def download_file(self, cloud_name: str, local_path: Optional[Path] = None) -> Dict[str, Any]:
         """
         Download file from Google Drive.
-        
+
         Args:
             cloud_name: Cloud file name (relative path)
             local_path: Optional local destination (defaults to cloud_name)
-            
+
         Returns:
             Download result dictionary
         """
         if not self.drive.is_available():
             return {'success': False, 'error': 'Not authenticated'}
-        
+
         # Get cloud file
         cloud_files = self.drive.list_files(name_filter=cloud_name)
         cloud_file = None
@@ -338,20 +338,20 @@ class SyncEngine:
             if f['name'] == cloud_name:
                 cloud_file = f
                 break
-        
+
         if not cloud_file:
             return {'success': False, 'error': f'File not found in cloud: {cloud_name}'}
-        
+
         # Determine local path
         if local_path is None:
             local_path = self.project_root / cloud_name
-        
+
         # Ensure directory exists
         local_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Download
         success = self.drive.download_file(cloud_file['id'], local_path)
-        
+
         if success:
             # Update metadata
             self.metadata['files'][cloud_name] = {
@@ -361,53 +361,53 @@ class SyncEngine:
                 'synced_at': datetime.now().isoformat()
             }
             self._save_metadata()
-            
+
             return {'success': True, 'local_path': str(local_path)}
         else:
             return {'success': False, 'error': 'Download failed'}
-    
+
     def resolve_conflict(self, file_path: Path, strategy: ConflictStrategy) -> Dict[str, Any]:
         """
         Resolve sync conflict using specified strategy.
-        
+
         Args:
             file_path: Conflicted file path
             strategy: Conflict resolution strategy
-            
+
         Returns:
             Resolution result dictionary
         """
         rel_path = str(self._get_relative_path(file_path))
-        
+
         if strategy == ConflictStrategy.LOCAL_WINS:
             # Upload local version
             return self.upload_file(file_path)
-        
+
         elif strategy == ConflictStrategy.CLOUD_WINS:
             # Download cloud version
             return self.download_file(rel_path, file_path)
-        
+
         elif strategy == ConflictStrategy.NEWEST_WINS:
             # Compare timestamps and keep newest
             local_mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
-            
+
             cloud_files = self.drive.list_files(name_filter=rel_path)
             cloud_file = None
             for f in cloud_files:
                 if f['name'] == rel_path:
                     cloud_file = f
                     break
-            
+
             if not cloud_file:
                 return self.upload_file(file_path)
-            
+
             cloud_mtime = datetime.fromisoformat(cloud_file['modifiedTime'].replace('Z', '+00:00'))
-            
+
             if local_mtime >= cloud_mtime:
                 return self.upload_file(file_path)
             else:
                 return self.download_file(rel_path, file_path)
-        
+
         elif strategy == ConflictStrategy.MANUAL:
             # Return conflict info for manual resolution
             return {
@@ -416,16 +416,16 @@ class SyncEngine:
                 'file': str(file_path),
                 'message': 'Manual conflict resolution required'
             }
-        
+
         return {'success': False, 'error': 'Unknown strategy'}
-    
+
     def sync_all(self, strategy: Optional[ConflictStrategy] = None) -> Dict[str, Any]:
         """
         Perform full bidirectional sync.
-        
+
         Args:
             strategy: Conflict resolution strategy (defaults to metadata setting)
-            
+
         Returns:
             Sync result summary
         """
@@ -435,14 +435,14 @@ class SyncEngine:
                 'error': 'Not authenticated',
                 'stats': {}
             }
-        
+
         # Use provided strategy or default
         if strategy is None:
             strategy = ConflictStrategy(self.metadata.get('conflict_strategy', 'newest-wins'))
-        
+
         # Detect changes
         changes = self.detect_changes()
-        
+
         stats = {
             'uploaded': 0,
             'downloaded': 0,
@@ -450,9 +450,9 @@ class SyncEngine:
             'conflicts': 0,
             'errors': 0
         }
-        
+
         errors = []
-        
+
         # Upload new files
         for file_path in changes['new_local']:
             result = self.upload_file(file_path)
@@ -461,7 +461,7 @@ class SyncEngine:
             else:
                 stats['errors'] += 1
                 errors.append(f"Upload failed: {file_path}")
-        
+
         # Upload modified files
         for file_path in changes['modified_local']:
             result = self.upload_file(file_path)
@@ -470,7 +470,7 @@ class SyncEngine:
             else:
                 stats['errors'] += 1
                 errors.append(f"Upload failed: {file_path}")
-        
+
         # Download new files
         for cloud_name in changes['new_cloud']:
             result = self.download_file(cloud_name)
@@ -479,7 +479,7 @@ class SyncEngine:
             else:
                 stats['errors'] += 1
                 errors.append(f"Download failed: {cloud_name}")
-        
+
         # Download modified files
         for file_path in changes['modified_cloud']:
             rel_path = str(self._get_relative_path(file_path))
@@ -489,7 +489,7 @@ class SyncEngine:
             else:
                 stats['errors'] += 1
                 errors.append(f"Download failed: {rel_path}")
-        
+
         # Resolve conflicts
         for file_path in changes['conflicts']:
             result = self.resolve_conflict(file_path, strategy)
@@ -501,7 +501,7 @@ class SyncEngine:
             else:
                 stats['errors'] += 1
                 errors.append(f"Conflict resolution failed: {file_path}")
-        
+
         # Delete from cloud (if files deleted locally)
         for cloud_name in changes['deleted_local']:
             cloud_files = self.drive.list_files(name_filter=cloud_name)
@@ -515,11 +515,11 @@ class SyncEngine:
                     else:
                         stats['errors'] += 1
                         errors.append(f"Delete failed: {cloud_name}")
-        
+
         # Update last sync time
         self.metadata['last_sync'] = datetime.now().isoformat()
         self._save_metadata()
-        
+
         return {
             'success': stats['errors'] == 0,
             'stats': stats,

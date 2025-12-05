@@ -42,19 +42,19 @@ Gmail Cloud Sync enables:
    - Enable APIs:
      - Gmail API
      - Google Drive API
-   
+
 2. **OAuth2 Credentials**
    - Navigate to: APIs & Services → Credentials
    - Create OAuth 2.0 Client ID
      - Application type: Desktop app
      - Name: "uDOS Desktop"
    - Download JSON credentials
-   
+
 3. **Install Credentials**
    ```bash
    # Place downloaded credentials in:
    memory/system/user/gmail_credentials.json
-   
+
    # Verify file exists:
    ls memory/system/user/gmail_credentials.json
    ```
@@ -75,7 +75,7 @@ Gmail Cloud Sync enables:
    ```
    LOGIN GMAIL
    ```
-   
+
    This will:
    - Open browser for Google consent
    - Request Gmail and Drive permissions
@@ -792,6 +792,6 @@ SYNC GMAIL
 
 ---
 
-**Version:** 1.2.9  
-**Last Updated:** December 5, 2025  
+**Version:** 1.2.9
+**Last Updated:** December 5, 2025
 **Status:** ✅ Production Ready
