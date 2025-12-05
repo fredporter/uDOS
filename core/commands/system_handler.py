@@ -138,19 +138,12 @@ class SystemCommandHandler(BaseCommandHandler):
         return self._output_handler
 
     def handle_help(self, params, grid, parser):
-        """Quick help - shows essential commands and both syntaxes."""
-        from .display_handler import DisplayHandler
+        """Enhanced help system with section navigation (v1.2.9+)."""
+        from .help_v2_handler import create_help_handler
 
-        # Delegate to display_handler for full help functionality
-        display_handler = DisplayHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return display_handler.handle_help(params, grid, parser)
+        # Use new HelpV2Handler for comprehensive, navigable help
+        help_handler = create_help_handler()
+        return help_handler.handle(params)
 
     def handle_blank(self, params, grid, parser):
         """Clear screen (BLANK) - delegates to DisplayHandler."""
