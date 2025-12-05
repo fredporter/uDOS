@@ -17,6 +17,7 @@ Commands:
 import shlex
 from typing import Optional
 from core.services.mission_manager import get_mission_manager, MissionPriority
+from core.output.syntax_highlighter import highlight_syntax, format_error
 
 
 def handle_mission_command(command_line: str) -> str:
@@ -650,7 +651,7 @@ def _handle_template(args: str) -> str:
 
 def _show_mission_help() -> str:
     """Show mission command help."""
-    return """📋 MISSION Commands:
+    help_text = """📋 MISSION Commands:
 
 MISSION CREATE <id> <title> [options]
    Create new mission
@@ -697,10 +698,13 @@ MISSION CLONE <source_id> <new_id>
    Clone an existing mission with new ID
 
 Examples:
-  MISSION CREATE my-novel "Write Science Fiction Novel" --priority=high
-  MISSION TEMPLATES creative-writing
-  MISSION TEMPLATE novel
-  MISSION CREATE --template novel --id my-novel --vars "NOVEL_TITLE=The Nexus,AUTHOR_NAME=Jane Doe,GENRE=Sci-Fi"
-  MISSION START my-novel
-  MISSION STATUS my-novel
 """
+    # Add highlighted examples
+    help_text += f"  {highlight_syntax('MISSION(CREATE|my-novel|\"Write Science Fiction Novel\"|--priority=high)')}\n"
+    help_text += f"  {highlight_syntax('MISSION(TEMPLATES|creative-writing)')}\n"
+    help_text += f"  {highlight_syntax('MISSION(TEMPLATE|novel)')}\n"
+    help_text += f"  {highlight_syntax('MISSION(CREATE|--template novel|--id my-novel|--vars \"NOVEL_TITLE=The Nexus,AUTHOR_NAME=Jane Doe,GENRE=Sci-Fi\")')}\n"
+    help_text += f"  {highlight_syntax('MISSION(START|my-novel)')}\n"
+    help_text += f"  {highlight_syntax('MISSION(STATUS|my-novel)')}\n"
+
+    return help_text

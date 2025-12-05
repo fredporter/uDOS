@@ -835,7 +835,7 @@ Examples:
         help_text += f"  {highlight_syntax('WORKFLOW(TIMESTAMP|--format=human)')}\n"
         help_text += f"  {highlight_syntax('WORKFLOW(EXTRACT_METRIC|r\"(\\\\d+) complete\"|\"Tasks: 25 complete\")')}\n"
         help_text += "\n💡 All WORKFLOW commands log to: sandbox/logs/workflow.log"
-        
+
         return help_text.strip()
 
 

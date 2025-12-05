@@ -526,7 +526,7 @@ Examples:
         help_text += f"  {highlight_syntax('TILE(CONVERT|100|km|mi)')}\n"
         help_text += f"  {highlight_syntax('TILE(TERRAIN|ocean)')}\n"
         help_text += "\nIntegration: Works with v1.0.20 Knowledge Bank & v1.0.3 MAP system"
-        
+
         return help_text
 
 
