@@ -7,10 +7,10 @@
             "type": "extensionHost",
             "request": "launch",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode-udos"
+                "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode"
             ],
             "outFiles": [
-                "${workspaceFolder}/extensions/vscode-udos/out/**/*.js"
+                "${workspaceFolder}/extensions/vscode/out/**/*.js"
             ]
         },
         {

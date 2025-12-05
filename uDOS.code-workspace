@@ -246,14 +246,14 @@
 			{
 				"label": "Extension: Compile uDOS Language Support",
 				"type": "shell",
-				"command": "cd extensions/vscode-udos && npm run compile",
+				"command": "cd extensions/vscode && npm run compile",
 				"group": "build",
 				"problemMatcher": "$tsc"
 			},
 			{
 				"label": "Extension: Watch Mode",
 				"type": "shell",
-				"command": "cd extensions/vscode-udos && npm run watch",
+				"command": "cd extensions/vscode && npm run watch",
 				"group": "build",
 				"isBackground": true,
 				"problemMatcher": "$tsc-watch"
@@ -261,7 +261,7 @@
 			{
 				"label": "Extension: Package VSIX",
 				"type": "shell",
-				"command": "cd extensions/vscode-udos && npm run package",
+				"command": "cd extensions/vscode && npm run package",
 				"group": "build",
 				"dependsOn": "Extension: Compile uDOS Language Support"
 			}

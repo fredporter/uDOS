@@ -103,10 +103,10 @@
             "problemMatcher": []
         },
         {
-            "label": "npm: compile - extensions/vscode-udos",
+            "label": "npm: compile - extensions/vscode",
             "type": "npm",
             "script": "compile",
-            "path": "extensions/vscode-udos/",
+            "path": "extensions/vscode/",
             "group": "build",
             "presentation": {
                 "reveal": "silent"
@@ -114,10 +114,10 @@
             "problemMatcher": "$tsc"
         },
         {
-            "label": "npm: watch - extensions/vscode-udos",
+            "label": "npm: watch - extensions/vscode",
             "type": "npm",
             "script": "watch",
-            "path": "extensions/vscode-udos/",
+            "path": "extensions/vscode/",
             "isBackground": true,
             "group": "build",
             "presentation": {

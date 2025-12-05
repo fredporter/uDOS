@@ -501,7 +501,7 @@ uDOS/
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
-│   ├── vscode-udos/
+│   ├── vscode/
 │   │   ├── images/
 │   │   │   ├── file-icon.svg
 │   │   │   ├── icon.png
