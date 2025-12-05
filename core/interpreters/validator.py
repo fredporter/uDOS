@@ -1,9 +1,15 @@
 """
 uCODE Syntax Validator and Parser
-v1.4.0 Phase 4.2 - Command Set Consolidation
+v2.0.2 - Updated for uPY v2.0.2 syntax
 
-Validates and parses uCODE scripts (.uscript files).
-Supports [COMMAND|option|$variable] syntax with advanced features.
+Validates and parses uCODE scripts (.upy files).
+Supports v2.0.2 syntax:
+  - Variables: {$variable}
+  - Commands: (command|params)
+  - Conditionals: [IF condition: action]
+  - THEN/ELSE: [IF cond THEN: action ELSE: action]
+  - Long form: IF/ELSE IF/END IF
+  - Functions: @name(...): expression and FUNCTION/END FUNCTION
 """
 
 import re
@@ -214,13 +220,44 @@ class CommandRegistry:
 
 
 class UCodeParser:
-    """Parser for uCODE syntax."""
+    """Parser for uCODE syntax - v2.0.2."""
 
-    # Regex patterns
-    COMMAND_PATTERN = re.compile(r'\[([A-Z_]+)(?:\|([^\]]+))?\]')
-    VARIABLE_PATTERN = re.compile(r'\$([a-zA-Z_][a-zA-Z0-9_]*)')
-    COMMENT_PATTERN = re.compile(r'(?:#|//)\s*(.+)$')
-    STRING_PATTERN = re.compile(r'"([^"]*)"')
+    # v2.0.2 Regex patterns
+    # Variables: {$name}
+    VARIABLE_PATTERN = re.compile(r'\{\$([a-zA-Z_][a-zA-Z0-9_.-]*)\}')
+    
+    # Commands: (COMMAND|param1|param2)
+    COMMAND_PATTERN = re.compile(r'\(([A-Z_]+)(?:\|([^\)]+))?\)')
+    
+    # Short conditionals: [IF condition: action]
+    SHORT_COND_PATTERN = re.compile(r'\[IF\s+(.+?):\s*(.+?)\]')
+    
+    # Medium conditionals: [IF cond THEN: action ELSE: action]
+    MEDIUM_COND_PATTERN = re.compile(r'\[IF\s+(.+?)\s+THEN:\s*(.+?)(?:\s+ELSE:\s*(.+?))?\]')
+    
+    # Ternary: [condition ? action : else_action]
+    TERNARY_PATTERN = re.compile(r'\[(.+?)\s*\?\s*(.+?)\s*:\s*(.+?)\]')
+    
+    # Long form conditionals (IF/END IF)
+    LONG_IF_START = re.compile(r'^IF\s+(.+?)$', re.MULTILINE)
+    LONG_ELSE_IF = re.compile(r'^ELSE\s+IF\s+(.+?)$', re.MULTILINE)
+    LONG_ELSE = re.compile(r'^ELSE$', re.MULTILINE)
+    LONG_END_IF = re.compile(r'^END\s+IF$', re.MULTILINE)
+    
+    # Short functions: @name(...): expression
+    SHORT_FUNC_PATTERN = re.compile(r'@([a-z_][a-z0-9_]*)\(([^\)]*)\):\s*(.+?)$')
+    
+    # Long functions: FUNCTION/END FUNCTION
+    LONG_FUNC_START = re.compile(r'^FUNCTION\s+([a-z_][a-z0-9_]*)\(([^\)]*)\)$', re.MULTILINE)
+    LONG_FUNC_END = re.compile(r'^END\s+FUNCTION$', re.MULTILINE)
+    
+    # Comments and strings
+    COMMENT_PATTERN = re.compile(r'#\s*(.+)$')
+    STRING_PATTERN = re.compile(r"'([^']*)'")
+    
+    # Keywords for v2.0.2
+    KEYWORDS = ['IF', 'ELSE', 'END IF', 'THEN', 'FUNCTION', 'END FUNCTION', 
+                'RETURN', 'FOREACH', 'WHILE', 'END', 'LABEL', 'BRANCH']
 
     def __init__(self):
         self.errors: List[ValidationError] = []
@@ -277,20 +314,59 @@ class UCodeParser:
             return {}
 
     def _parse_commands(self, content: str) -> List[Dict]:
-        """Parse commands from content."""
+        """Parse commands from content - v2.0.2 syntax."""
         commands = []
         lines = content.split('\n')
 
         for line_num, line in enumerate(lines, 1):
-            # Skip empty lines and markdown headers
+            # Skip empty lines and comments
             if not line.strip() or line.strip().startswith('#'):
                 continue
 
-            # Find commands in line
+            # Parse v2.0.2 command syntax: (COMMAND|params)
             for match in self.COMMAND_PATTERN.finditer(line):
                 command = self._parse_command(match, line_num, match.start())
                 if command:
                     commands.append(command)
+            
+            # Parse short conditionals: [IF ...: ...]
+            for match in self.SHORT_COND_PATTERN.finditer(line):
+                commands.append({
+                    "type": "conditional_short",
+                    "condition": match.group(1),
+                    "action": match.group(2),
+                    "line": line_num
+                })
+            
+            # Parse medium conditionals: [IF ... THEN: ... ELSE: ...]
+            for match in self.MEDIUM_COND_PATTERN.finditer(line):
+                commands.append({
+                    "type": "conditional_medium",
+                    "condition": match.group(1),
+                    "then_action": match.group(2),
+                    "else_action": match.group(3) or None,
+                    "line": line_num
+                })
+            
+            # Parse ternary: [cond ? action : else]
+            for match in self.TERNARY_PATTERN.finditer(line):
+                commands.append({
+                    "type": "conditional_ternary",
+                    "condition": match.group(1),
+                    "then_action": match.group(2),
+                    "else_action": match.group(3),
+                    "line": line_num
+                })
+            
+            # Parse short functions: @name(...): expr
+            for match in self.SHORT_FUNC_PATTERN.finditer(line):
+                commands.append({
+                    "type": "function_short",
+                    "name": match.group(1),
+                    "params": match.group(2).split('|') if match.group(2) else [],
+                    "expression": match.group(3),
+                    "line": line_num
+                })
 
         return commands
 
@@ -374,20 +450,20 @@ class UCodeParser:
             ))
 
     def validate_variables(self, content: str) -> List[ValidationError]:
-        """Validate variable usage."""
+        """Validate variable usage - v2.0.2 {$var} syntax."""
         errors = []
         lines = content.split('\n')
 
         for line_num, line in enumerate(lines, 1):
-            # Find variable assignments
-            assignment_match = re.match(r'\s*\$([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)', line)
+            # Find variable assignments in SET commands: SET (var|value)
+            assignment_match = re.match(r'\s*SET\s*\(([a-zA-Z_][a-zA-Z0-9_.-]*)\|', line)
             if assignment_match:
                 var_name = assignment_match.group(1)
 
                 # Check for reserved variable names
                 if CommandRegistry.is_reserved_var(var_name):
                     errors.append(ValidationError(
-                        f"Cannot assign to reserved variable: ${var_name}",
+                        f"Cannot assign to reserved variable: {var_name}",
                         line=line_num, column=0,
                         severity="error"
                     ))
@@ -395,15 +471,16 @@ class UCodeParser:
                     # Track defined variables
                     self.variables[var_name] = True
 
-            # Find variable usage
+            # Find variable usage {$var}
             for match in self.VARIABLE_PATTERN.finditer(line):
                 var_name = match.group(1)
 
-                # Warn about undefined variables (unless reserved)
-                if not CommandRegistry.is_reserved_var(var_name) and \
+                # Warn about undefined variables (unless reserved or system)
+                if not CommandRegistry.is_reserved_var(var_name.upper()) and \
+                   '.' not in var_name and \
                    var_name not in self.variables:
                     errors.append(ValidationError(
-                        f"Variable ${var_name} used before assignment",
+                        f"Variable {{{var_name}}} used before assignment",
                         line=line_num, column=match.start(),
                         severity="warning"
                     ))
@@ -419,14 +496,14 @@ class UCodeValidator:
 
     def validate_file(self, filepath: Path) -> Tuple[bool, List[ValidationError]]:
         """
-        Validate a .uscript file.
+        Validate a .upy file (v2.0.2).
 
         Returns:
             (is_valid, errors_and_warnings)
         """
-        if not filepath.suffix == '.uscript':
+        if filepath.suffix not in ['.upy', '.uscript']:
             return False, [ValidationError(
-                f"File must have .uscript extension, got {filepath.suffix}",
+                f"File must have .upy or .uscript extension, got {filepath.suffix}",
                 line=0, column=0
             )]
 
@@ -503,7 +580,7 @@ def main():
     parser.add_argument(
         'files',
         nargs='+',
-        help='.uscript files to validate'
+        help='.upy or .uscript files to validate'
     )
     parser.add_argument(
         '--lint',

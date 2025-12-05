@@ -1,5 +1,5 @@
 #!/usr/bin/env udos
-# uPY CRUD App Template v2.0
+# uPY v2.0.2 CRUD App Template
 # Create, Read, Update, Delete operations
 
 # Initialize task list
@@ -7,90 +7,102 @@ SET (tasks|[])
 SET (task_count|0)
 SET (running|true)
 
-PRINT [==========================================]
-PRINT [  Task Manager]
-PRINT [==========================================]
+PRINT (==========================================)
+PRINT (  Task Manager)
+PRINT (==========================================)
 
-# Main loop
-LABEL [LOOP]
-{IF running == false: END}
+# Main loop - v2.0.2 short conditional
+LABEL (LOOP)
+[IF {$running} == false: END]
 
-PRINT []
-CHOICE [Choose an action:]
-  OPTION [Create Task] → CREATE
-  OPTION [View Tasks] → READ
-  OPTION [Update Task] → UPDATE
-  OPTION [Delete Task] → DELETE
-  OPTION [Exit] → EXIT
+PRINT ()
+CHOICE (Choose an action:)
+  OPTION (Create Task|CREATE)
+  OPTION (View Tasks|READ)
+  OPTION (Update Task|UPDATE)
+  OPTION (Delete Task|DELETE)
+  OPTION (Exit|EXIT)
 
-# CREATE
-LABEL [CREATE]
-PRINT []
-PRINT [Create New Task]
-PRINT [==========================================]
-INPUT [Enter task description:] → task_desc
-{IF task_desc == '': PRINT [Task cannot be empty!]}
-{IF task_desc == '': BRANCH [LOOP]}
-SET (task_count|$task_count + 1)
-APPEND (tasks|'$task_count. $task_desc')
-PRINT [Task created successfully!]
-BRANCH [LOOP]
+# CREATE - v2.0.2 medium form with THEN/ELSE
+LABEL (CREATE)
+PRINT ()
+PRINT (Create New Task)
+PRINT (==========================================)
+INPUT (Enter task description:) → {$task_desc}
+[IF {$task_desc} == '' THEN: PRINT (Task cannot be empty!) | BRANCH (LOOP)]
+SET (task_count|{$task_count} + 1)
+APPEND (tasks|{$task_count}. {$task_desc})
+PRINT (Task created successfully!)
+BRANCH (LOOP)
 
 # READ
-LABEL [READ]
-PRINT []
-PRINT [All Tasks]
-PRINT [==========================================]
-{IF task_count == 0: PRINT [No tasks found.]}
-FOREACH task IN tasks
-  PRINT [$task]
-END_FOR
-PRINT []
-INPUT [Press ENTER to continue] → continue
-BRANCH [LOOP]
-
+# READ
+LABEL (READ)
+PRINT ()
+PRINT (All Tasks)
+PRINT (==========================================)
+[IF {$task_count} == 0: PRINT (No tasks found.)]
+FOREACH {$task} IN {$tasks}
+  PRINT ({$task})
+END
+PRINT ()
+INPUT (Press ENTER to continue) → {$continue}
+BRANCH (LOOP)
 # UPDATE
-LABEL [UPDATE]
-PRINT []
-PRINT [Update Task]
-PRINT [==========================================]
-{IF task_count == 0: PRINT [No tasks to update.]}
-{IF task_count == 0: BRANCH [LOOP]}
-FOREACH task IN tasks
-  PRINT [$task]
-END_FOR
-PRINT []
-INPUT [Enter task number to update:] → task_num
-{IF task_num < 1: PRINT [Invalid task number!]}
-{IF task_num < 1: BRANCH [LOOP]}
-{IF task_num > task_count: PRINT [Invalid task number!]}
-{IF task_num > task_count: BRANCH [LOOP]}
-INPUT [Enter new description:] → new_desc
-SET (tasks[$task_num - 1]|'$task_num. $new_desc')
-PRINT [Task updated successfully!]
-BRANCH [LOOP]
+# UPDATE - v2.0.2 long form for complex logic
+LABEL (UPDATE)
+PRINT ()
+PRINT (Update Task)
+PRINT (==========================================)
+IF {$task_count} == 0
+  PRINT (No tasks to update.)
+  BRANCH (LOOP)
+END IF
 
+FOREACH {$task} IN {$tasks}
+  PRINT ({$task})
+END
+PRINT ()
+INPUT (Enter task number to update:) → {$task_num}
+IF {$task_num} < 1
+  PRINT (Invalid task number!)
+  BRANCH (LOOP)
+END IF
+IF {$task_num} > {$task_count}
+  PRINT (Invalid task number!)
 # DELETE
-LABEL [DELETE]
-PRINT []
-PRINT [Delete Task]
-PRINT [==========================================]
-{IF task_count == 0: PRINT [No tasks to delete.]}
-{IF task_count == 0: BRANCH [LOOP]}
-FOREACH task IN tasks
-  PRINT [$task]
-END_FOR
-PRINT []
-INPUT [Enter task number to delete:] → task_num
-{IF task_num < 1: PRINT [Invalid task number!]}
-{IF task_num < 1: BRANCH [LOOP]}
-{IF task_num > task_count: PRINT [Invalid task number!]}
-{IF task_num > task_count: BRANCH [LOOP]}
-REMOVE (tasks[$task_num - 1])
-SET (task_count|$task_count - 1)
-PRINT [Task deleted successfully!]
-BRANCH [LOOP]
+LABEL (DELETE)
+PRINT ()
+PRINT (Delete Task)
+PRINT (==========================================)
+IF {$task_count} == 0
+  PRINT (No tasks to delete.)
+  BRANCH (LOOP)
+END IF
 
+FOREACH {$task} IN {$tasks}
+  PRINT ({$task})
+END
+PRINT ()
+INPUT (Enter task number to delete:) → {$task_num}
+IF {$task_num} < 1
+  PRINT (Invalid task number!)
+  BRANCH (LOOP)
+ELSE IF {$task_num} > {$task_count}
+  PRINT (Invalid task number!)
+  BRANCH (LOOP)
+END IF
+REMOVE (tasks[{$task_num} - 1])
+SET (task_count|{$task_count} - 1)
+PRINT (Task deleted successfully!)
+BRANCH (LOOP)
+
+# EXIT
+LABEL (EXIT)
+PRINT ()
+PRINT (Goodbye!)
+SET (running|false)
+BRANCH (LOOP)
 # EXIT
 LABEL [EXIT]
 PRINT []

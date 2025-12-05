@@ -52,12 +52,18 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
     Executes a uDOS script file (.upy format only).
 
     v1.1.12: Uses UPYParser for new COMMAND(args) syntax.
+    v2.0.2: Updated for v2.0.2 syntax support.
     Backward compatibility for .uscript removed in v1.1.12.
     """
+    from pathlib import Path
+    
     try:
+        # Convert string path to Path object
+        script_file = Path(script_path) if isinstance(script_path, str) else script_path
+        
         # v1.1.12: Only .upy files supported
-        if not script_path.lower().endswith('.upy'):
-            error_msg = f"❌ Unsupported file format. Only .upy files are supported.\n   Convert with: python bin/migrate_upy.py {script_path}"
+        if not str(script_file).lower().endswith('.upy'):
+            error_msg = f"❌ Unsupported file format. Only .upy files are supported.\n   Convert with: python bin/migrate_upy.py {script_file}"
             logger.log(error_msg)
             print(error_msg)
             return
@@ -69,17 +75,17 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
         preprocessor = UPYPreprocessor()
         upy_parser = UPYParser()
 
-        logger.log(f"🔷 Running uPY script: {script_path}")
+        logger.log(f"🔷 Running uPY script: {script_file}")
 
         # Preprocess and execute
         try:
-            code = preprocessor.preprocess(script_path)
+            code = preprocessor.preprocess(script_file)
             result = upy_parser.execute(code)
             if result:
                 logger.log(result)
                 print(result)
         except Exception as e:
-            error_msg = f"❌ Error executing '{script_path}': {e}"
+            error_msg = f"❌ Error executing '{script_file}': {e}"
             logger.log(error_msg)
             print(error_msg)
 

@@ -192,7 +192,7 @@ END IF
 FUNCTION battle_check({$enemy_level})
   ROLL (1d20) → {$attack}
   SET {$defense|{$SPRITE-LEVEL} + 10}
-  
+
   IF {$attack} > {$defense}
     PRINT ('Hit!')
     XP (+25)

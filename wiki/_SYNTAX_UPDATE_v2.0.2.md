@@ -90,7 +90,7 @@ END IF
 FUNCTION battle_check({$enemy_level})
   ROLL (1d20) → {$attack}
   SET {$defense|{$SPRITE-LEVEL} + 10}
-  
+
   IF {$attack} > {$defense}
     PRINT ('Hit! Damage dealt.')
     XP (+25)
@@ -236,7 +236,7 @@ END IF
 # Complex function
 FUNCTION battle_round({$enemy})
   ROLL (1d20) → {$roll}
-  
+
   IF {$roll} >= 18
     PRINT ('Critical hit!')
     SET {$damage|30}
@@ -254,7 +254,7 @@ FUNCTION battle_round({$enemy})
     SET {$damage|0}
     HP (-5)
   END IF
-  
+
   RETURN {$damage}
 END FUNCTION
 
