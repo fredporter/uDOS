@@ -65,18 +65,18 @@
 
             // Create splash content with fixed positioning
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.2; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
+            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.3; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
 
-            // Enhanced uDOS ASCII art logo with border (rainbow gradient)
+            // uDOS ASCII art logo - muted C64 synthwave colors
             const logo = [
                 { text: '', color: '#FFFFFF' },
-                { text: '╔═══════════════════════════════════════╗', color: '#FF0000' },
-                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#FF0000' },
-                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#FFFF00' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#00FF00' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00FFFF' },
-                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#0000FF' },
-                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#FF00FF' },
+                { text: '╔═══════════════════════════════════════╗', color: '#e94560' },
+                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#e94560' },
+                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#f0e858' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#50b818' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00d4ff' },
+                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#9d4edd' },
+                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#ff006e' },
                 { text: '╠═══════════════════════════════════════╣', color: '#00d4ff' },
                 { text: '║   UNIVERSAL DEVICE OPERATIONS SYSTEM  ║', color: '#00d4ff' },
                 { text: '║         Terminal Interface v2.0       ║', color: '#9d4edd' },
