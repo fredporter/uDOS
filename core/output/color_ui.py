@@ -16,7 +16,8 @@ class ColorUI:
     """Enhanced color UI utilities for terminal display."""
 
     def __init__(self):
-        self.console = Console()
+        # Force color output even if terminal detection fails
+        self.console = Console(force_terminal=True, force_interactive=True)
         self.themes = {
             'foundation': {'primary': 'cyan', 'secondary': 'blue', 'accent': 'white'},
             'galaxy': {'primary': 'magenta', 'secondary': 'purple', 'accent': 'cyan'},
