@@ -14,7 +14,7 @@ import termios
 import tty
 from typing import List, Optional
 
-from core.output.color_ui import ColorUI
+from rich.console import Console
 
 
 class SimplePager:
@@ -42,7 +42,7 @@ class SimplePager:
 
         self.viewport_height = viewport_height
         self.viewport_width = viewport_width
-        self.color_ui = ColorUI()  # Initialize ColorUI for colored output
+        self.console = Console()  # Initialize rich console for colored output
 
     def _get_key(self) -> str:
         """
@@ -168,9 +168,9 @@ class SimplePager:
 
             # Show title if provided
             if title:
-                print(self.color_ui.format(f"╔{'═' * (len(title) + 2)}╗", 'cyan'))
-                print(self.color_ui.format(f"║ {title} ║", 'cyan'))
-                print(self.color_ui.format(f"╚{'═' * (len(title) + 2)}╝", 'cyan'))
+                self.console.print(f"[cyan]╔{'═' * (len(title) + 2)}╗[/]")
+                self.console.print(f"[cyan]║ {title} ║[/]")
+                self.console.print(f"[cyan]╚{'═' * (len(title) + 2)}╝[/]")
                 print()
 
             # Show page content
@@ -180,14 +180,15 @@ class SimplePager:
             # Show block graphics progress bar
             is_last_page = page_num >= total_pages
             progress_bar = self._draw_progress_bar(page_num, total_pages, at_end=is_last_page)
-            print(self.color_ui.format(f"\n{progress_bar}", 'yellow'), flush=True)
+            self.console.print(f"[yellow]\n{progress_bar}[/]", end="")
+            sys.stdout.flush()
 
             # Get user input
             try:
                 key = self._get_key()
 
                 if key == 'esc':
-                    print(self.color_ui.format("\n⚠️  Paging cancelled", 'yellow'))
+                    self.console.print("[yellow]\n⚠️  Paging cancelled[/]")
                     break
                 elif key == 'down' or key == 'enter':
                     if is_last_page:
@@ -203,7 +204,7 @@ class SimplePager:
                     # If already on first page, do nothing
 
             except (KeyboardInterrupt, EOFError):
-                print(self.color_ui.format("\n\n⚠️  Paging cancelled", 'yellow'))
+                self.console.print("[yellow]\n\n⚠️  Paging cancelled[/]")
                 break
 
     def page_lines(self, lines: List[str], title: Optional[str] = None) -> None:
