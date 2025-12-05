@@ -35,31 +35,31 @@ STORY RUN my_adventure
 ### Minimal Adventure Example
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env udos
 # Simple adventure script
 
 # Initialize character
-SET [$SPRITE-NAME = "Hero"]
-SET [$SPRITE-HP = 100]
-SET [$SPRITE-XP = 0]
+SET (SPRITE-NAME|'Hero')
+SET (SPRITE-HP|100)
+SET (SPRITE-XP|0)
 
 # Story intro
-PRINT [Welcome to the adventure, $SPRITE-NAME!]
-PRINT [You stand at a crossroads...]
+PRINT ['Welcome to the adventure, $SPRITE-NAME!']
+PRINT ['You stand at a crossroads...']
 
 # Simple choice
-CHOICE [Which path do you take?]
-  OPTION [Go left] → BRANCH-LEFT
-  OPTION [Go right] → BRANCH-RIGHT
+CHOICE ['Which path do you take?']
+  OPTION ['Go left'] → BRANCH-LEFT
+  OPTION ['Go right'] → BRANCH-RIGHT
 
 LABEL [BRANCH-LEFT]
-PRINT [You chose the left path and found treasure!]
+PRINT ['You chose the left path and found treasure!']
 XP [+50]
 ITEM [treasure_chest]
 END
 
 LABEL [BRANCH-RIGHT]
-PRINT [You chose the right path and avoided danger!]
+PRINT ['You chose the right path and avoided danger!']
 HP [+10]
 END
 ```
@@ -116,14 +116,14 @@ Display text to the player.
 
 **Syntax:**
 ```python
-PRINT [text with $VARIABLES]
+PRINT ['text with $VARIABLES']
 ```
 
 **Examples:**
 ```python
-PRINT [Welcome to the adventure!]
-PRINT [Your current HP: $SPRITE-HP/$SPRITE-HP-MAX]
-PRINT [You have $SPRITE-GOLD gold coins.]
+PRINT ['Welcome to the adventure!']
+PRINT ['Your current HP: $SPRITE-HP/$SPRITE-HP-MAX']
+PRINT ['You have $SPRITE-GOLD gold coins.']
 PRINT []  # Blank line
 ```
 
@@ -141,27 +141,27 @@ Set a variable value.
 
 **Syntax:**
 ```python
-SET [$VARIABLE-NAME = value]
+SET (VARIABLE-NAME|value)
 ```
 
 **Examples:**
 ```python
-# Strings (use quotes)
-SET [$SPRITE-NAME = "Alice"]
-SET [$LOCATION = "forest"]
+# Strings (use single quotes)
+SET (SPRITE-NAME|'Alice')
+SET (LOCATION|'forest')
 
 # Numbers (no quotes)
-SET [$SPRITE-HP = 100]
-SET [$SPRITE-LEVEL = 1]
-SET [$COUNTER = 0]
+SET (SPRITE-HP|100)
+SET (SPRITE-LEVEL|1)
+SET (COUNTER|0)
 
 # Floats
-SET [$RATIO = 0.75]
-SET [$MULTIPLIER = 1.5]
+SET (RATIO|0.75)
+SET (MULTIPLIER|1.5)
 
 # Arrays
-SET [$SPRITE-INVENTORY = []]
-SET [$STORY-FLAGS = []]
+SET (SPRITE-INVENTORY|[])
+SET (STORY-FLAGS|[])
 ```
 
 **Valid Variable Names:**
@@ -294,15 +294,15 @@ CHOICE [Question text?]
 
 **Examples:**
 ```python
-CHOICE [What do you do?]
-  OPTION [Fight the monster] → BRANCH-COMBAT
-  OPTION [Try to sneak past] → BRANCH-STEALTH
-  OPTION [Run away] → BRANCH-FLEE
+CHOICE ['What do you do?']
+  OPTION ['Fight the monster'] → BRANCH-COMBAT
+  OPTION ['Try to sneak past'] → BRANCH-STEALTH
+  OPTION ['Run away'] → BRANCH-FLEE
 
-CHOICE [Which path?]
-  OPTION [North (forest)] → BRANCH-FOREST
-  OPTION [South (river)] → BRANCH-RIVER
-  OPTION [East (mountain)] → BRANCH-MOUNTAIN
+CHOICE ['Which path?']
+  OPTION ['North (forest)'] → BRANCH-FOREST
+  OPTION ['South (river)'] → BRANCH-RIVER
+  OPTION ['East (mountain)'] → BRANCH-MOUNTAIN
 ```
 
 **Rules:**
@@ -359,7 +359,7 @@ Roll dice and store result.
 
 **Syntax:**
 ```python
-ROLL [dice] → $VARIABLE
+ROLL [dice] → VARIABLE
 ```
 
 **Dice Notation:**
@@ -370,19 +370,17 @@ ROLL [dice] → $VARIABLE
 
 **Examples:**
 ```python
-ROLL [1d20] → $ATTACK-ROLL
-ROLL [2d6] → $DAMAGE
-ROLL [1d100] → $LUCK-CHECK
-ROLL [3d8] → $FIREBALL-DAMAGE
+ROLL [1d20] → ATTACK-ROLL
+ROLL [2d6] → DAMAGE
+ROLL [1d100] → LUCK-CHECK
+ROLL [3d8] → FIREBALL-DAMAGE
 ```
 
 **Usage with IF:**
 ```python
-ROLL [1d20] → $SEARCH-ROLL
-IF [$SEARCH-ROLL >= 15]
-  PRINT [You found treasure!]
-  ITEM [gold_coins]
-ENDIF
+ROLL [1d20] → SEARCH-ROLL
+{IF SEARCH-ROLL >= 15: PRINT ['You found treasure!']}
+{IF SEARCH-ROLL >= 15: ITEM [gold_coins]}
 ```
 
 ---
@@ -395,9 +393,7 @@ Conditional execution.
 
 **Syntax:**
 ```python
-IF [$VARIABLE comparison value]
-  # Commands to execute if true
-ENDIF
+{IF condition: COMMAND()}
 ```
 
 **Comparisons:**
@@ -411,42 +407,22 @@ ENDIF
 **Examples:**
 ```python
 # Numeric comparison
-IF [$SPRITE-HP < 30]
-  PRINT [You're badly wounded!]
-  HP [+10]  # Emergency healing
-ENDIF
+{IF SPRITE-HP < 30: PRINT ['You’re badly wounded!']}
+{IF SPRITE-HP < 30: HP [+10]}  # Emergency healing
 
 # Greater than or equal
-IF [$SPRITE-LEVEL >= 5]
-  PRINT [You're strong enough to enter!]
-  BRANCH [DUNGEON]
-ENDIF
+{IF SPRITE-LEVEL >= 5: PRINT ['You’re strong enough to enter!']}
+{IF SPRITE-LEVEL >= 5: BRANCH [DUNGEON]}
 
 # String comparison
-IF [$SPRITE-NAME == "Alice"]
-  PRINT [Hello, Alice!]
-ENDIF
+{IF SPRITE-NAME == 'Alice': PRINT ['Hello, Alice!']}
 
 # Multiple conditions
-IF [$ROLL-RESULT >= 18]
-  PRINT [Critical success!]
-  XP [+100]
-ENDIF
+{IF ROLL-RESULT >= 18: PRINT ['Critical success!']}
+{IF ROLL-RESULT >= 18: XP [+100]}
 
-IF [$ROLL-RESULT < 5]
-  PRINT [Critical failure!]
-  HP [-20]
-ENDIF
-```
-
-**Nested IF (not recommended):**
-```python
-# Works but complex - use branching instead
-IF [$SPRITE-LEVEL >= 3]
-  IF [$SPRITE-GOLD >= 100]
-    PRINT [You can afford the upgrade!]
-  ENDIF
-ENDIF
+{IF ROLL-RESULT < 5: PRINT ['Critical failure!']}
+{IF ROLL-RESULT < 5: HP [-20]}
 ```
 
 ---
@@ -464,18 +440,18 @@ END
 
 **Examples:**
 ```python
-PRINT [You have completed the quest!]
+PRINT ['You have completed the quest!']
 XP [+500]
 FLAG [quest_complete]
 END
 
 # Multiple endings
 LABEL [ENDING-VICTORY]
-PRINT [You saved the kingdom!]
+PRINT ['You saved the kingdom!']
 END
 
 LABEL [ENDING-DEFEAT]
-PRINT [You were defeated...]
+PRINT ['You were defeated...']
 END
 ```
 
@@ -522,16 +498,14 @@ SET [$SPRITE-NAME = "Ranger"]
 SET [$SPRITE-HP = 100]
 SET [$SPRITE-HP-MAX = 100]
 SET [$SPRITE-LEVEL = 1]
-SET [$SPRITE-STRENGTH = 14]
-SET [$SPRITE-DEXTERITY = 16]
-SET [$SPRITE-INTELLIGENCE = 10]
+SET (SPRITE-STRENGTH|14)
+SET (SPRITE-DEXTERITY|16)
+SET (SPRITE-INTELLIGENCE|10)
 
 # Use in gameplay
-ROLL [1d20] → $ATTACK-ROLL
-IF [$ATTACK-ROLL >= $SPRITE-DEXTERITY]
-  PRINT [Your attack hits!]
-  HP [-10]
-ENDIF
+ROLL [1d20] → ATTACK-ROLL
+{IF ATTACK-ROLL >= SPRITE-DEXTERITY: PRINT ['Your attack hits!']}
+{IF ATTACK-ROLL >= SPRITE-DEXTERITY: HP [-10]}
 ```
 
 ### STORY Variables (Progression)
@@ -557,15 +531,13 @@ STORY-DIFFICULTY        # String - Difficulty level
 **Example Usage:**
 ```python
 # Track progress
-SET [$STORY-CURRENT = "water_quest"]
-SET [$STORY-CHAPTER = 1]
+SET (STORY-CURRENT|'water_quest')
+SET (STORY-CHAPTER|1)
 FLAG [found_water_source]
 FLAG [purified_water]
 
 # Check progress
-IF [$STORY-CHAPTER >= 3]
-  PRINT [You've come far in your journey...]
-ENDIF
+{IF STORY-CHAPTER >= 3: PRINT ['You’ve come far in your journey...']}
 ```
 
 ### OBJECT Variables (Items)
@@ -607,40 +579,38 @@ OBJECT-OWNER         # String - Owner ID
 
 ### Linear Story
 ```python
-PRINT [Part 1]
-PRINT [Part 2]
-PRINT [Part 3]
+PRINT ['Part 1']
+PRINT ['Part 2']
+PRINT ['Part 3']
 END
 ```
 
 ### Branching Story
 ```python
-CHOICE [Fork in the road?]
-  OPTION [Left] → BRANCH-LEFT
-  OPTION [Right] → BRANCH-RIGHT
+CHOICE ['Fork in the road?']
+  OPTION ['Left'] → BRANCH-LEFT
+  OPTION ['Right'] → BRANCH-RIGHT
 
 LABEL [BRANCH-LEFT]
-PRINT [You went left...]
+PRINT ['You went left...']
 BRANCH [REUNION]
 
 LABEL [BRANCH-RIGHT]
-PRINT [You went right...]
+PRINT ['You went right...']
 BRANCH [REUNION]
 
 LABEL [REUNION]
-PRINT [The paths meet again.]
+PRINT ['The paths meet again.']
 END
 ```
 
 ### Conditional Story
 ```python
-ROLL [1d20] → $LUCK
-IF [$LUCK >= 15]
-  PRINT [You got lucky!]
-  BRANCH [SUCCESS]
-ENDIF
+ROLL [1d20] → LUCK
+{IF LUCK >= 15: PRINT ['You got lucky!']}
+{IF LUCK >= 15: BRANCH [SUCCESS]}
 
-PRINT [Not lucky this time.]
+PRINT ['Not lucky this time.']
 BRANCH [FAILURE]
 
 LABEL [SUCCESS]
@@ -660,21 +630,21 @@ END
 
 ```python
 # Full character setup
-SET [$SPRITE-NAME = "Aria"]
-SET [$SPRITE-HP = 100]
-SET [$SPRITE-HP-MAX = 100]
-SET [$SPRITE-LEVEL = 1]
-SET [$SPRITE-XP = 0]
-SET [$SPRITE-GOLD = 50]
+SET (SPRITE-NAME|'Aria')
+SET (SPRITE-HP|100)
+SET (SPRITE-HP-MAX|100)
+SET (SPRITE-LEVEL|1)
+SET (SPRITE-XP|0)
+SET (SPRITE-GOLD|50)
 
 # Ability scores
-SET [$SPRITE-STRENGTH = 12]
-SET [$SPRITE-DEXTERITY = 16]
-SET [$SPRITE-INTELLIGENCE = 14]
-SET [$SPRITE-STAMINA = 100]
+SET (SPRITE-STRENGTH|12)
+SET (SPRITE-DEXTERITY|16)
+SET (SPRITE-INTELLIGENCE|14)
+SET (SPRITE-STAMINA|100)
 
 # Starting equipment
-SET [$SPRITE-INVENTORY = []]
+SET (SPRITE-INVENTORY|[])
 ITEM [short_sword]
 ITEM [leather_armor]
 ITEM [health_potion]
@@ -683,30 +653,28 @@ ITEM [health_potion]
 ### Combat Example
 
 ```python
-PRINT [A goblin attacks!]
+PRINT ['A goblin attacks!']
 PRINT []
 
-ROLL [1d20] → $ATTACK-ROLL
+ROLL [1d20] → ATTACK-ROLL
 PRINT [🎲 Attack roll: $ATTACK-ROLL]
 
-IF [$ATTACK-ROLL >= 12]
-  PRINT [You hit the goblin!]
-  ROLL [1d8] → $DAMAGE
-  PRINT [💥 Damage: $DAMAGE]
-  XP [+25]
-  BRANCH [VICTORY]
-ENDIF
+{IF ATTACK-ROLL >= 12: PRINT ['You hit the goblin!']}
+{IF ATTACK-ROLL >= 12: ROLL [1d8] → DAMAGE}
+{IF ATTACK-ROLL >= 12: PRINT [💥 Damage: $DAMAGE]}
+{IF ATTACK-ROLL >= 12: XP [+25]}
+{IF ATTACK-ROLL >= 12: BRANCH [VICTORY]}
 
-PRINT [You missed!]
-PRINT [The goblin strikes back!]
+PRINT ['You missed!']
+PRINT ['The goblin strikes back!']
 HP [-8]
 
-CHOICE [What now?]
-  OPTION [Attack again] → BRANCH-COMBAT
-  OPTION [Flee] → BRANCH-FLEE
+CHOICE ['What now?']
+  OPTION ['Attack again'] → BRANCH-COMBAT
+  OPTION ['Flee'] → BRANCH-FLEE
 
 LABEL [VICTORY]
-PRINT [The goblin is defeated!]
+PRINT ['The goblin is defeated!']
 ITEM [goblin_ear]
 XP [+50]
 END
@@ -737,16 +705,16 @@ PRINT [❤️  HP fully restored!]
 
 ```python
 LABEL [CHAPTER-1]
-SET [$STORY-CHAPTER = 1]
+SET (STORY-CHAPTER|1)
 FLAG [chapter_1_started]
-PRINT [Chapter 1: The Beginning]
+PRINT ['Chapter 1: The Beginning']
 # ... story ...
 BRANCH [CHAPTER-2]
 
 LABEL [CHAPTER-2]
-SET [$STORY-CHAPTER = 2]
+SET (STORY-CHAPTER|2)
 FLAG [chapter_2_started]
-PRINT [Chapter 2: The Journey]
+PRINT ['Chapter 2: The Journey']
 # ... story ...
 END
 ```
@@ -755,15 +723,15 @@ END
 
 ```python
 # Start quest
-PRINT [A villager asks for your help...]
+PRINT ['A villager asks for your help...']
 FLAG [water_quest_started]
 
 # Quest progress
-PRINT [You found the well!]
+PRINT ['You found the well!']
 FLAG [well_discovered]
 
 # Quest completion
-PRINT [You purified the water!]
+PRINT ['You purified the water!']
 FLAG [water_quest_complete]
 XP [+200]
 ```
@@ -773,13 +741,8 @@ XP [+200]
 ```python
 LABEL [ENDING-CHECK]
 
-IF [$STORY-FLAGS-contains-"saved_village"]
-  BRANCH [ENDING-HERO]
-ENDIF
-
-IF [$SPRITE-LEVEL >= 10]
-  BRANCH [ENDING-CHAMPION]
-ENDIF
+{IF STORY-FLAGS-contains-'saved_village': BRANCH [ENDING-HERO]}
+{IF SPRITE-LEVEL >= 10: BRANCH [ENDING-CHAMPION]}
 
 BRANCH [ENDING-SURVIVOR]
 
@@ -788,7 +751,7 @@ PRINT [==========================================]
 PRINT [  ENDING: HERO OF THE PEOPLE]
 PRINT [==========================================]
 XP [+1000]
-SET [$STORY-ENDING = "hero"]
+SET (STORY-ENDING|'hero')
 END
 
 LABEL [ENDING-CHAMPION]
@@ -796,7 +759,7 @@ PRINT [==========================================]
 PRINT [  ENDING: LEGENDARY CHAMPION]
 PRINT [==========================================]
 XP [+500]
-SET [$STORY-ENDING = "champion"]
+SET (STORY-ENDING|'champion')
 END
 
 LABEL [ENDING-SURVIVOR]
@@ -804,7 +767,7 @@ PRINT [==========================================]
 PRINT [  ENDING: SURVIVOR]
 PRINT [==========================================]
 XP [+100]
-SET [$STORY-ENDING = "survivor"]
+SET (STORY-ENDING|'survivor')
 END
 ```
 
@@ -815,120 +778,110 @@ END
 ### Example 1: Simple Exploration
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env udos
 # Simple exploration adventure
 
-SET [$SPRITE-NAME = "Explorer"]
-SET [$SPRITE-HP = 100]
-SET [$SPRITE-XP = 0]
+SET (SPRITE-NAME|'Explorer')
+SET (SPRITE-HP|100)
+SET (SPRITE-XP|0)
 
-PRINT [You enter a dark cave...]
+PRINT ['You enter a dark cave...']
 PRINT []
 
-CHOICE [What do you do?]
-  OPTION [Light a torch] → BRANCH-TORCH
-  OPTION [Feel along the walls] → BRANCH-WALLS
+CHOICE ['What do you do?']
+  OPTION ['Light a torch'] → BRANCH-TORCH
+  OPTION ['Feel along the walls'] → BRANCH-WALLS
 
 LABEL [BRANCH-TORCH]
-PRINT [The torch illuminates ancient paintings!]
+PRINT ['The torch illuminates ancient paintings!']
 XP [+30]
 FLAG [saw_paintings]
 END
 
 LABEL [BRANCH-WALLS]
-PRINT [You feel smooth stone carved with symbols...]
-ROLL [1d20] → $PERCEPTION
-IF [$PERCEPTION >= 14]
-  PRINT [You found a secret passage!]
-  XP [+50]
-  FLAG [found_secret]
-ENDIF
+PRINT ['You feel smooth stone carved with symbols...']
+ROLL [1d20] → PERCEPTION
+{IF PERCEPTION >= 14: PRINT ['You found a secret passage!']}
+{IF PERCEPTION >= 14: XP [+50]}
+{IF PERCEPTION >= 14: FLAG [found_secret]}
 END
 ```
 
 ### Example 2: Survival Challenge
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env udos
 # Survival challenge
 
-SET [$SPRITE-NAME = "Survivor"]
-SET [$SPRITE-HP = 80]  # Start damaged
-SET [$SPRITE-STAMINA = 100]
+SET (SPRITE-NAME|'Survivor')
+SET (SPRITE-HP|80)  # Start damaged
+SET (SPRITE-STAMINA|100)
 
-PRINT [You're stranded with limited supplies...]
-PRINT [Current HP: $SPRITE-HP]
+PRINT ['You’re stranded with limited supplies...']
+PRINT ['Current HP: $SPRITE-HP']
 PRINT []
 
-CHOICE [Priorities?]
-  OPTION [Find water (critical)] → BRANCH-WATER
-  OPTION [Build shelter (important)] → BRANCH-SHELTER
-  OPTION [Find food (can wait)] → BRANCH-FOOD
+CHOICE ['Priorities?']
+  OPTION ['Find water (critical)'] → BRANCH-WATER
+  OPTION ['Build shelter (important)'] → BRANCH-SHELTER
+  OPTION ['Find food (can wait)'] → BRANCH-FOOD
 
 LABEL [BRANCH-WATER]
-PRINT [You search for water...]
-ROLL [1d20] → $SEARCH
-IF [$SEARCH >= 12]
-  PRINT [You found a stream!]
-  HP [+20]
-  XP [+40]
-  FLAG [found_water]
-ENDIF
-IF [$SEARCH < 12]
-  PRINT [No water found. Dehydration worsens.]
-  HP [-10]
-ENDIF
+PRINT ['You search for water...']
+ROLL [1d20] → SEARCH
+{IF SEARCH >= 12: PRINT ['You found a stream!']}
+{IF SEARCH >= 12: HP [+20]}
+{IF SEARCH >= 12: XP [+40]}
+{IF SEARCH >= 12: FLAG [found_water]}
+{IF SEARCH < 12: PRINT ['No water found. Dehydration worsens.']}
+{IF SEARCH < 12: HP [-10]}
 END
 
 LABEL [BRANCH-SHELTER]
-PRINT [You build a lean-to shelter...]
+PRINT ['You build a lean-to shelter...']
 XP [+30]
 FLAG [built_shelter]
 END
 
 LABEL [BRANCH-FOOD]
-PRINT [You search for food...]
-ROLL [1d20] → $FORAGE
-IF [$FORAGE >= 14]
-  PRINT [Found berries!]
-  HP [+5]
-  XP [+20]
-ENDIF
+PRINT ['You search for food...']
+ROLL [1d20] → FORAGE
+{IF FORAGE >= 14: PRINT ['Found berries!']}
+{IF FORAGE >= 14: HP [+5]}
+{IF FORAGE >= 14: XP [+20]}
 END
 ```
 
 ### Example 3: Skill Check Challenge
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env udos
 # Skill-based challenge
 
-SET [$SPRITE-NAME = "Rogue"]
-SET [$SPRITE-DEXTERITY = 16]
-SET [$SPRITE-HP = 100]
+SET (SPRITE-NAME|'Rogue')
+SET (SPRITE-DEXTERITY|16)
+SET (SPRITE-HP|100)
 
-PRINT [You encounter a locked chest...]
+PRINT ['You encounter a locked chest...']
 PRINT []
 
-CHOICE [How do you open it?]
-  OPTION [Pick the lock (DEX check)] → BRANCH-LOCKPICK
-  OPTION [Force it open (STR check)] → BRANCH-FORCE
-  OPTION [Leave it alone] → BRANCH-LEAVE
+CHOICE ['How do you open it?']
+  OPTION ['Pick the lock (DEX check)'] → BRANCH-LOCKPICK
+  OPTION ['Force it open (STR check)'] → BRANCH-FORCE
+  OPTION ['Leave it alone'] → BRANCH-LEAVE
 
 LABEL [BRANCH-LOCKPICK]
-PRINT [You attempt to pick the lock...]
-ROLL [1d20] → $LOCKPICK-ROLL
+PRINT ['You attempt to pick the lock...']
+ROLL [1d20] → LOCKPICK-ROLL
 
 # Add DEX modifier
-SET [$TOTAL = $LOCKPICK-ROLL]
+SET (TOTAL|LOCKPICK-ROLL)
 PRINT [🎲 Roll: $LOCKPICK-ROLL + DEX ($SPRITE-DEXTERITY) = ???]
 
-IF [$LOCKPICK-ROLL >= 12]
-  PRINT [Success! The lock clicks open.]
-  ITEM [treasure]
-  XP [+60]
-  FLAG [picked_lock]
-ENDIF
+{IF LOCKPICK-ROLL >= 12: PRINT ['Success! The lock clicks open.']}
+{IF LOCKPICK-ROLL >= 12: ITEM [treasure]}
+{IF LOCKPICK-ROLL >= 12: XP [+60]}
+{IF LOCKPICK-ROLL >= 12: FLAG [picked_lock]}
 
 IF [$LOCKPICK-ROLL < 12]
   PRINT [Failed! The lock holds firm.]
@@ -945,7 +898,7 @@ XP [+20]
 END
 
 LABEL [BRANCH-LEAVE]
-PRINT [You leave the chest unopened.]
+PRINT ['You leave the chest unopened.']
 XP [+5]
 END
 ```
@@ -961,13 +914,13 @@ END
 # ==========================================
 # INITIALIZATION
 # ==========================================
-SET [$SPRITE-HP = 100]
+SET (SPRITE-HP|100)
 
 # ==========================================
 # CHAPTER 1
 # ==========================================
 LABEL [CHAPTER-1]
-PRINT [Story begins...]
+PRINT ['Story begins...']
 
 # ==========================================
 # ENDINGS
@@ -1003,31 +956,27 @@ CHOICE [Direction?]
 
 ```python
 # Too easy: Everything succeeds
-IF [$ROLL >= 2]  # 95% success rate
+{IF ROLL >= 2: ...}  # 95% success rate
 
 # Balanced: Challenging but fair
-IF [$ROLL >= 12]  # 45% success rate
+{IF ROLL >= 12: ...}  # 45% success rate
 
 # Too hard: Almost always fails
-IF [$ROLL >= 19]  # 10% success rate
+{IF ROLL >= 19: ...}  # 10% success rate
 ```
 
 ### 5. Provide Feedback
 
 ```python
 # Good: Player knows what happened
-ROLL [1d20] → $ATTACK
+ROLL [1d20] → ATTACK
 PRINT [🎲 Attack roll: $ATTACK]
-IF [$ATTACK >= 15]
-  PRINT [Critical hit! 20 damage!]
-  HP [-20]
-ENDIF
+{IF ATTACK >= 15: PRINT ['Critical hit! 20 damage!']}
+{IF ATTACK >= 15: HP [-20]}
 
 # Bad: Silent result
-ROLL [1d20] → $ATTACK
-IF [$ATTACK >= 15]
-  HP [-20]
-ENDIF
+ROLL [1d20] → ATTACK
+{IF ATTACK >= 15: HP [-20]}
 ```
 
 ### 6. Award Progress
@@ -1052,9 +1001,7 @@ XP [+100]
 # Good: Explain complex logic
 # Check if player found all 3 keys
 # before allowing entry to vault
-IF [$KEY-COUNT >= 3]
-  BRANCH [VAULT-ENTRY]
-ENDIF
+{IF KEY-COUNT >= 3: BRANCH [VAULT-ENTRY]}
 ```
 
 ---
@@ -1096,8 +1043,8 @@ Error: IF without ENDIF
 #### Check Variable Values
 ```python
 # Print variables for debugging
-PRINT [DEBUG: HP=$SPRITE-HP, XP=$SPRITE-XP]
-PRINT [DEBUG: ROLL=$ROLL-RESULT]
+PRINT ['DEBUG: HP=$SPRITE-HP, XP=$SPRITE-XP']
+PRINT ['DEBUG: ROLL=$ROLL-RESULT']
 ```
 
 #### Test Specific Branches
@@ -1115,8 +1062,8 @@ PRINT [FLAGS: $STORY-FLAGS]
 #### Trace Execution
 ```python
 # Add markers to see execution path
-PRINT [>>> Entering combat section]
-PRINT [>>> Combat complete]
+PRINT ['>>> Entering combat section']
+PRINT ['>>> Combat complete']
 ```
 
 ---
@@ -1126,51 +1073,39 @@ PRINT [>>> Combat complete]
 ### State Machine Pattern
 
 ```python
-SET [$GAME-STATE = "exploring"]
+SET (GAME-STATE|'exploring')
 
 LABEL [MAIN-LOOP]
 
-IF [$GAME-STATE == "exploring"]
-  BRANCH [STATE-EXPLORING]
-ENDIF
-
-IF [$GAME-STATE == "combat"]
-  BRANCH [STATE-COMBAT]
-ENDIF
-
-IF [$GAME-STATE == "dialogue"]
-  BRANCH [STATE-DIALOGUE]
-ENDIF
+{IF GAME-STATE == 'exploring': BRANCH [STATE-EXPLORING]}
+{IF GAME-STATE == 'combat': BRANCH [STATE-COMBAT]}
+{IF GAME-STATE == 'dialogue': BRANCH [STATE-DIALOGUE]}
 
 END
 
 LABEL [STATE-EXPLORING]
-PRINT [You explore the area...]
-SET [$GAME-STATE = "combat"]
+PRINT ['You explore the area...']
+SET (GAME-STATE|'combat')
 BRANCH [MAIN-LOOP]
 
 LABEL [STATE-COMBAT]
-PRINT [A battle begins!]
-SET [$GAME-STATE = "exploring"]
+PRINT ['A battle begins!']
+SET (GAME-STATE|'exploring')
 BRANCH [MAIN-LOOP]
 ```
 
 ### Random Events
 
 ```python
-ROLL [1d100] → $RANDOM-EVENT
+ROLL [1d100] → RANDOM-EVENT
 
-IF [$RANDOM-EVENT <= 20]
-  PRINT [A merchant appears!]
-  BRANCH [EVENT-MERCHANT]
-ENDIF
+{IF RANDOM-EVENT <= 20: PRINT ['A merchant appears!']}
+{IF RANDOM-EVENT <= 20: BRANCH [EVENT-MERCHANT]}
 
-IF [$RANDOM-EVENT <= 40]
-  PRINT [You find a trap!]
-  HP [-10]
-ENDIF
+{IF RANDOM-EVENT <= 40: PRINT ['You find a trap!']}
+{IF RANDOM-EVENT <= 40: HP [-10]}
 
-PRINT [Nothing happens.]
+PRINT ['Nothing happens.']
 ```
 
 ### Inventory Checks (Future)

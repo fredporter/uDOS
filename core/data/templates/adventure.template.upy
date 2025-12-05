@@ -1,453 +1,76 @@
-#!/usr/bin/env python3
-# uPY Adventure Template - Survival Quest
-# Demonstrates all available .upy syntax for adventure scripting
-# Replace {ADVENTURE_NAME} with your adventure name
+#!/usr/bin/env udos
+# uPY Adventure Template v2.0 - Survival Quest
+# Clean, minimal syntax for interactive storytelling
 
-# ============================================================
-# ADVENTURE INITIALIZATION
-# ============================================================
+# Character variables (no $ in assignment, | separator)
+SET (SPRITE-NAME|'Survivor')
+SET (SPRITE-HP|100)
+SET (SPRITE-HP-MAX|100)
+SET (SPRITE-LEVEL|1)
+SET (SPRITE-XP|0)
 
-# Set character variables
-SET [$SPRITE-NAME = "Survivor"]
-SET [$SPRITE-HP = 100]
-SET [$SPRITE-HP-MAX = 100]
-SET [$SPRITE-LEVEL = 1]
-SET [$SPRITE-XP = 0]
-SET [$SPRITE-GOLD = 50]
-SET [$SPRITE-INVENTORY = []]
-
-# Set story variables
-SET [$STORY-CURRENT = "{ADVENTURE_NAME}"]
-SET [$STORY-CHAPTER = 1]
-SET [$STORY-FLAGS = []]
-
-# ============================================================
-# CHAPTER 1: INTRODUCTION
-# ============================================================
-
-PRINT []
+# Story intro
 PRINT [==========================================]
-PRINT [  {ADVENTURE_NAME}]
+PRINT [  Survival Quest]
 PRINT [==========================================]
 PRINT []
 PRINT [You are $SPRITE-NAME, stranded in the wilderness.]
 PRINT [Your goal: Survive and find your way home.]
 PRINT []
 
-# Set initial location
-SET [$SPRITE-LOCATION = "AA340"]
-
-# Award starting XP for beginning the journey
+# Set location
+SET (SPRITE-LOCATION|'AA340')
 XP [+10]
-PRINT [💡 Type 'STATUS' anytime to check your progress]
-PRINT []
 
-# ============================================================
-# MAIN CHOICE BRANCH
-# ============================================================
-
+# Main choice
 LABEL [START]
 
 PRINT [You stand at the edge of a dense forest.]
-PRINT [Several paths stretch before you...]
 PRINT []
 
 CHOICE [Which path will you take?]
-  OPTION [Follow the river downstream] → BRANCH-RIVER
-  OPTION [Climb the nearby hill for a better view] → BRANCH-HILL
-  OPTION [Search the forest for shelter] → BRANCH-FOREST
-  OPTION [Stay put and build a signal fire] → BRANCH-FIRE
-
-# ============================================================
-# BRANCH 1: RIVER PATH
-# ============================================================
-
-LABEL [BRANCH-RIVER]
-
-PRINT []
-PRINT [You decide to follow the river downstream...]
-PRINT [The sound of rushing water fills the air.]
-PRINT []
-
-# Roll for exploration success
-PRINT [🎲 Rolling for exploration...]
-ROLL [1d20] → $EXPLORATION-ROLL
-
-# Conditional based on roll
-IF [$EXPLORATION-ROLL >= 15]
-  PRINT [Success! You rolled $EXPLORATION-ROLL]
-  PRINT [You discover a fresh water spring!]
-  PRINT []
-
-  # Award XP for success
-  XP [+50]
-
-  # Add item to inventory
-  ITEM [water_bottle]
-  PRINT [You fill your water bottle from the spring.]
-
-  # Set story flag
-  FLAG [found_water_source]
-
-  # Restore some HP
-  HP [+10]
-
-  BRANCH [RIVER-SUCCESS]
-ENDIF
-
-# If roll failed (< 15)
-PRINT [You rolled $EXPLORATION-ROLL - not quite enough...]
-PRINT [The path is treacherous. You slip on wet rocks.]
-HP [-15]
-PRINT []
-
-CHOICE [The river is too dangerous. What now?]
-  OPTION [Try climbing the hill instead] → BRANCH-HILL
-  OPTION [Return to the forest] → BRANCH-FOREST
-
-# ============================================================
-# RIVER SUCCESS CONTINUATION
-# ============================================================
-
-LABEL [RIVER-SUCCESS]
-
-PRINT [Following the river further, you spot something...]
-PRINT [A small fishing village in the distance!]
-PRINT []
-
-CHOICE [Do you approach the village?]
-  OPTION [Yes, seek help from the villagers] → BRANCH-VILLAGE
-  OPTION [No, continue on your own] → BRANCH-SOLO
-
-# ============================================================
-# BRANCH 2: HILL PATH
-# ============================================================
-
-LABEL [BRANCH-HILL]
-
-PRINT []
-PRINT [You begin the steep climb up the hill...]
-PRINT []
-
-# Check if player has climbing gear
-SET [$HAS-ROPE = 0]
-# (In a real adventure, check inventory for rope item)
-
-# Roll with modifier if player has rope
-IF [$HAS-ROPE == 1]
-  PRINT [You use your rope for extra support.]
-  ROLL [1d20+5] → $CLIMB-ROLL
-ENDIF
-
-IF [$HAS-ROPE == 0]
-  ROLL [1d20] → $CLIMB-ROLL
-ENDIF
-
-PRINT [🎲 Climbing roll: $CLIMB-ROLL]
-PRINT []
-
-IF [$CLIMB-ROLL >= 12]
-  PRINT [You reach the summit successfully!]
-  PRINT [From here, you can see for miles...]
-  PRINT []
-
-  XP [+40]
-  FLAG [climbed_hill]
-
-  PRINT [You spot:]
-  PRINT [  • A river to the west]
-  PRINT [  • Dense forest to the south]
-  PRINT [  • Smoke rising in the distance (northeast)]
-  PRINT []
-
-  CHOICE [Where do you head next?]
-    OPTION [Investigate the smoke] → BRANCH-SMOKE
-    OPTION [Head to the river] → BRANCH-RIVER
-    OPTION [Enter the forest] → BRANCH-FOREST
-ENDIF
-
-IF [$CLIMB-ROLL < 12]
-  PRINT [The climb is too difficult!]
-  HP [-20]
-  PRINT [You slide back down, exhausted.]
-  PRINT []
-  BRANCH [START]
-ENDIF
-
-# ============================================================
-# BRANCH 3: FOREST PATH
-# ============================================================
-
-LABEL [BRANCH-FOREST]
-
-PRINT []
-PRINT [You enter the thick forest...]
-PRINT [Branches crack underfoot as you navigate the undergrowth.]
-PRINT []
-
-# Multiple skill checks in forest
-PRINT [🎲 Searching for shelter...]
-ROLL [1d20] → $SEARCH-ROLL
-
-IF [$SEARCH-ROLL >= 16]
-  PRINT [Perfect! You found an abandoned cabin!]
-  XP [+60]
-  FLAG [found_shelter]
-  ITEM [cabin_key]
-
-  PRINT []
-  PRINT [Inside the cabin, you find:]
-  PRINT [  • A rusty knife]
-  PRINT [  • Canned food (3 days worth)]
-  PRINT [  • A worn map]
-
-  ITEM [rusty_knife]
-  ITEM [canned_food]
-  ITEM [old_map]
-
-  HP [+25]
-  PRINT [You rest and recover in the shelter.]
-
-  BRANCH [CABIN-FOUND]
-ENDIF
-
-IF [$SEARCH-ROLL >= 10]
-  PRINT [You found a small cave for temporary shelter.]
-  XP [+30]
-  FLAG [found_cave]
-  HP [+10]
-
-  BRANCH [CAVE-FOUND]
-ENDIF
-
-# Search failed
-PRINT [No shelter found. The night will be cold...]
-HP [-10]
-PRINT []
-
-CHOICE [Night is falling. What do you do?]
-  OPTION [Build a fire] → BRANCH-FIRE
-  OPTION [Keep searching] → BRANCH-FOREST
-  OPTION [Return to start] → BRANCH-START]
-
-# ============================================================
-# BRANCH 4: FIRE PATH
-# ============================================================
-
-LABEL [BRANCH-FIRE]
-
-PRINT []
-PRINT [You decide to build a signal fire...]
-PRINT []
-
-# Check for fire-starting items
-PRINT [Gathering materials...]
-
-ROLL [1d20] → $FIRE-ROLL
-PRINT [🎲 Fire-building roll: $FIRE-ROLL]
-
-IF [$FIRE-ROLL >= 14]
-  PRINT []
-  PRINT [Success! The fire roars to life!]
-  PRINT [Smoke billows into the sky...]
-
-  XP [+45]
-  FLAG [built_signal_fire]
-
-  PRINT []
-  PRINT [After an hour, you see movement in the distance.]
-  PRINT [A rescue team has spotted your signal!]
-
-  BRANCH [ENDING-RESCUE]
-ENDIF
-
-# Fire partially successful
-IF [$FIRE-ROLL >= 8]
-  PRINT []
-  PRINT [You manage a small fire, but it's not very visible.]
-  XP [+20]
-
-  CHOICE [The fire is weak. What now?]
-    OPTION [Add more wood and wait] → BRANCH-FIRE-WAIT
-    OPTION [Give up and explore] → BRANCH-START
-ENDIF
-
-# Fire failed
-PRINT []
-PRINT [The wood is too wet. The fire won't start!]
-HP [-5]
-
-CHOICE [Fire-building failed. Try something else?]
-  OPTION [Search for dry wood] → BRANCH-FOREST
-  OPTION [Go to the river] → BRANCH-RIVER
-
-# ============================================================
-# CABIN CONTINUATION
-# ============================================================
-
-LABEL [CABIN-FOUND]
-
-PRINT []
-PRINT [You spend the night in the cabin, well-rested.]
-PRINT []
-
-# Next morning
-SET [$STORY-CHAPTER = 2]
-PRINT [Chapter 2: The Journey Home]
-PRINT []
-
-PRINT [The map shows a town 10 miles north.]
-
-CHOICE [Will you attempt the journey?]
-  OPTION [Yes, head north to town] → BRANCH-TOWN
-  OPTION [No, stay at cabin and signal for help] → BRANCH-CABIN-SIGNAL
-
-# ============================================================
-# CAVE CONTINUATION
-# ============================================================
-
-LABEL [CAVE-FOUND]
-
-PRINT []
-PRINT [The cave provides basic shelter from the elements.]
-PRINT []
-
-ROLL [1d20] → $NIGHT-ROLL
-
-IF [$NIGHT-ROLL >= 13]
-  PRINT [You sleep soundly and wake refreshed.]
-  HP [+15]
-ENDIF
-
-IF [$NIGHT-ROLL < 13]
-  PRINT [Strange sounds keep you awake all night...]
-  HP [-5]
-ENDIF
-
-PRINT []
+  OPTION [Follow the river] → RIVER
+  OPTION [Climb the hill] → HILL
+  OPTION [Build a fire] → FIRE
+
+# River path
+LABEL [RIVER]
+PRINT [You follow the river downstream...]
+ROLL [1d20] → roll
+{IF roll >= 15: XP [+50]}
+{IF roll >= 15: PRINT [You found a water source!]}
+{IF roll < 15: HP [-10]}
+{IF roll < 15: PRINT [You slip on wet rocks.]}
+END
+
+# Hill path
+LABEL [HILL]
+PRINT [You climb the steep hill...]
+ROLL [1d20] → roll
+{IF roll >= 12: XP [+40]}
+{IF roll >= 12: PRINT [You reach the summit!]}
+{IF roll < 12: HP [-15]}
+{IF roll < 12: PRINT [The climb was too difficult.]}
+END
+
+# Fire path
+LABEL [FIRE]
+PRINT [You build a signal fire...]
+ROLL [1d20] → roll
+{IF roll >= 14: PRINT [Rescue team spotted your signal!]}
+{IF roll >= 14: BRANCH [RESCUED]}
+{IF roll < 14: PRINT [The fire is too small...]}
 BRANCH [START]
 
-# ============================================================
-# VILLAGE ENCOUNTER
-# ============================================================
-
-LABEL [BRANCH-VILLAGE]
-
-PRINT []
-PRINT [You approach the fishing village cautiously...]
-PRINT [Villagers eye you with curiosity.]
-PRINT []
-
-FLAG [met_villagers]
-
-PRINT [An elderly fisherman approaches:]
-PRINT ["You look lost, stranger. Need help?"]
-PRINT []
-
-CHOICE [How do you respond?]
-  OPTION [Accept help] → BRANCH-VILLAGE-HELP
-  OPTION [Trade for supplies] → BRANCH-VILLAGE-TRADE
-  OPTION [Leave the village] → BRANCH-SOLO
-
-# ============================================================
-# ENDINGS
-# ============================================================
-
-LABEL [ENDING-RESCUE]
-
+# Rescued ending
+LABEL [RESCUED]
 PRINT []
 PRINT [==========================================]
-PRINT [  ENDING: RESCUED]
+PRINT [  YOU WERE RESCUED!]
 PRINT [==========================================]
 PRINT []
-PRINT [The rescue team brings you to safety!]
-PRINT [Your survival skills and quick thinking saved you.]
-PRINT []
-PRINT [Final Stats:]
-PRINT [  Level: $SPRITE-LEVEL]
-PRINT [  XP: $SPRITE-XP]
-PRINT [  HP: $SPRITE-HP/$SPRITE-HP-MAX]
-PRINT []
-
 XP [+100]
-
-SET [$STORY-ENDING = "rescued"]
 FLAG [adventure_complete]
-
-PRINT [🏆 Achievement Unlocked: "The Survivor"]
-PRINT []
-
 END
 
-LABEL [ENDING-SOLO]
-
-PRINT []
-PRINT [==========================================]
-PRINT [  ENDING: LONE SURVIVOR]
-PRINT [==========================================]
-PRINT []
-PRINT [You choose to continue alone...]
-PRINT [Your journey is far from over...]
-PRINT []
-
-XP [+75]
-SET [$STORY-ENDING = "solo_survivor"]
-
-PRINT [To be continued...]
-PRINT []
-
-END
-
-# ============================================================
-# TEMPLATE INSTRUCTIONS
-# ============================================================
-#
-# Commands Available:
-#   SET [$VAR = value]              - Set variable
-#   PRINT [text with $VARS]         - Display text
-#   CHOICE [question]               - Present choices
-#     OPTION [text] → BRANCH-label  - Choice option
-#   LABEL [name]                    - Define label
-#   BRANCH [label]                  - Jump to label
-#   ROLL [1d20] → $VAR              - Roll dice
-#   IF [$VAR > value]               - Conditional
-#   ENDIF                           - End conditional
-#   XP [+/-amount]                  - Modify XP
-#   HP [+/-amount]                  - Modify HP
-#   ITEM [item_id]                  - Add to inventory
-#   FLAG [flag_name]                - Set story flag
-#   END                             - End adventure
-#
-# Variables Available:
-#   SPRITE-NAME, SPRITE-HP, SPRITE-HP-MAX
-#   SPRITE-LEVEL, SPRITE-XP, SPRITE-GOLD
-#   SPRITE-INVENTORY, SPRITE-LOCATION
-#   SPRITE-STRENGTH, SPRITE-DEXTERITY
-#   SPRITE-INTELLIGENCE, SPRITE-STAMINA
-#
-#   STORY-CURRENT, STORY-CHAPTER
-#   STORY-FLAGS, STORY-CHOICES
-#   STORY-QUEST-ACTIVE, STORY-QUEST-COMPLETED
-#
-# Dice Notation:
-#   1d20      - Roll 1 twenty-sided die
-#   2d6       - Roll 2 six-sided dice
-#   1d20+5    - Roll with modifier
-#
-# Comparisons:
-#   >   Greater than
-#   <   Less than
-#   >=  Greater than or equal
-#   <=  Less than or equal
-#   ==  Equal
-#   !=  Not equal
-#
-# Best Practices:
-#   - Use meaningful LABEL names
-#   - Always provide at least 2 CHOICEs
-#   - Award XP for player progress
-#   - Use FLAGS to track story events
-#   - Include multiple paths and endings
-#   - Test all branches thoroughly
-#
-# ============================================================
+# Template guide in comments above

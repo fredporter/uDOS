@@ -1,113 +1,99 @@
-# ====================================
-# CRUD Application Template
-# Creates a basic CRUD (Create, Read, Update, Delete) application
-# Modern uCODE v1.1.2+ syntax
-# ====================================
+#!/usr/bin/env udos
+# uPY CRUD App Template v2.0
+# Create, Read, Update, Delete operations
 
-# Import required modules
-IMPORT validators
-IMPORT string_utils
+# Initialize task list
+SET (tasks|[])
+SET (task_count|0)
+SET (running|true)
 
-# Initialize data storage
-SPRITE-SET('[items'|'= []]')
+PRINT [==========================================]
+PRINT [  Task Manager]
+PRINT [==========================================]
 
-# ====================================
-# FUNCTION: create_item
-# ====================================
-FUNCTION create_item(name, value)
-    TRY
-        # Validate inputs
-        CALL validate_required(name, "name")
-        CALL validate_required(value, "value")
+# Main loop
+LABEL [LOOP]
+{IF running == false: END}
 
-        # Create item
-        SPRITE-SET('[item'|'= CONCAT name WITH ":" WITH value]')
-        SPRITE-SET('[items'|'= APPEND items WITH item]')
+PRINT []
+CHOICE [Choose an action:]
+  OPTION [Create Task] → CREATE
+  OPTION [View Tasks] → READ
+  OPTION [Update Task] → UPDATE
+  OPTION [Delete Task] → DELETE
+  OPTION [Exit] → EXIT
 
-        RETURN "✅ Created item: " + item
-    CATCH error
-        GET [ERROR]
-        RETURN "❌ Create failed: " + ERROR
-    ENDTRY
-ENDFUNCTION
+# CREATE
+LABEL [CREATE]
+PRINT []
+PRINT [Create New Task]
+PRINT [==========================================]
+INPUT [Enter task description:] → task_desc
+{IF task_desc == '': PRINT [Task cannot be empty!]}
+{IF task_desc == '': BRANCH [LOOP]}
+SET (task_count|$task_count + 1)
+APPEND (tasks|'$task_count. $task_desc')
+PRINT [Task created successfully!]
+BRANCH [LOOP]
 
-# ====================================
-# FUNCTION: read_item
-# ====================================
-FUNCTION read_item(index)
-    TRY
-        # Validate index
-        CALL is_number(index)
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
+# READ
+LABEL [READ]
+PRINT []
+PRINT [All Tasks]
+PRINT [==========================================]
+{IF task_count == 0: PRINT [No tasks found.]}
+FOREACH task IN tasks
+  PRINT [$task]
+END_FOR
+PRINT []
+INPUT [Press ENTER to continue] → continue
+BRANCH [LOOP]
 
-        # Get item
-        SPRITE-SET('[item'|'= GET items AT index]')
-        RETURN "📖 Item: " + item
-    CATCH error
-        GET[ERROR]
-        RETURN "❌ Read failed: " + ERROR
-    ENDTRY
-ENDFUNCTION
+# UPDATE
+LABEL [UPDATE]
+PRINT []
+PRINT [Update Task]
+PRINT [==========================================]
+{IF task_count == 0: PRINT [No tasks to update.]}
+{IF task_count == 0: BRANCH [LOOP]}
+FOREACH task IN tasks
+  PRINT [$task]
+END_FOR
+PRINT []
+INPUT [Enter task number to update:] → task_num
+{IF task_num < 1: PRINT [Invalid task number!]}
+{IF task_num < 1: BRANCH [LOOP]}
+{IF task_num > task_count: PRINT [Invalid task number!]}
+{IF task_num > task_count: BRANCH [LOOP]}
+INPUT [Enter new description:] → new_desc
+SET (tasks[$task_num - 1]|'$task_num. $new_desc')
+PRINT [Task updated successfully!]
+BRANCH [LOOP]
 
-# ====================================
-# FUNCTION: update_item
-# ====================================
-FUNCTION update_item(index, new_name, new_value)
-    TRY
-        # Validate index
-        CALL is_number(index)
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Index must be a number"
+# DELETE
+LABEL [DELETE]
+PRINT []
+PRINT [Delete Task]
+PRINT [==========================================]
+{IF task_count == 0: PRINT [No tasks to delete.]}
+{IF task_count == 0: BRANCH [LOOP]}
+FOREACH task IN tasks
+  PRINT [$task]
+END_FOR
+PRINT []
+INPUT [Enter task number to delete:] → task_num
+{IF task_num < 1: PRINT [Invalid task number!]}
+{IF task_num < 1: BRANCH [LOOP]}
+{IF task_num > task_count: PRINT [Invalid task number!]}
+{IF task_num > task_count: BRANCH [LOOP]}
+REMOVE (tasks[$task_num - 1])
+SET (task_count|$task_count - 1)
+PRINT [Task deleted successfully!]
+BRANCH [LOOP]
 
-        # Validate inputs
-        CALL validate_required(new_name, "name")
-        CALL validate_required(new_value, "value")
-
-        # Update item
-        SPRITE-SET('[new_item'|'= CONCAT new_name WITH ":" WITH new_value]')
-        SPRITE-SET('[items'|'= UPDATE items AT index WITH new_item]')
-
-        RETURN "✅ Updated item: " + new_item
-    CATCH error
-        GET [ERROR]
-        RETURN "❌ Update failed: " + ERROR
-    ENDTRY
-ENDFUNCTION
-
-# ====================================
-# FUNCTION: delete_item
-# ====================================
-FUNCTION delete_item(index)
-    TRY
-        # Validate index
-        CALL is_number(index)
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
-
-        # Delete item
-        SPRITE-SET('[items'|'= REMOVE items AT index]')
-
-        RETURN "✅ Deleted item at index " + index
-    CATCH error
-        GET[ERROR]
-        RETURN "❌ Delete failed: " + ERROR
-    ENDTRY
-ENDFUNCTION
-
-# ====================================
-# FUNCTION: list_all
-# ====================================
-FUNCTION list_all()
-    SPRITE-SET('[count'|'= COUNT items]')
-    {IF {count == 0}:
-
-    RETURN "📋 Total items: " + count
-ENDFUNCTION
-
-# Export all CRUD functions
-EXPORT create_item
-EXPORT read_item
-EXPORT update_item
-EXPORT delete_item
-EXPORT list_all
+# EXIT
+LABEL [EXIT]
+PRINT []
+PRINT [Goodbye!]
+SET (running|false)
+BRANCH [LOOP]

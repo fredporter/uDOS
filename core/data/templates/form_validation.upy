@@ -1,154 +1,68 @@
-# ====================================
-# Form Validation Template
-# Provides a complete form validation system
-# Modern uCODE v1.1.2+ syntax
-# ====================================
+#!/usr/bin/env udos
+# uPY Form Validation Template v2.0
+# Input validation with error handling
 
-# Import validators module
-IMPORT validators
+PRINT [==========================================]
+PRINT [  User Registration Form]
+PRINT [==========================================]
+PRINT []
 
-# ====================================
-# FUNCTION: validate_username
-# ====================================
-FUNCTION validate_username(username)
-    TRY
-        # Check required
-        CALL validate_required(username, "username")
+# Username validation
+LABEL [USERNAME_INPUT]
+INPUT [Enter username (3-20 characters):] → username
+SET (username_length|LEN($username))
+{IF username_length < 3: PRINT [Username too short!]}
+{IF username_length < 3: BRANCH [USERNAME_INPUT]}
+{IF username_length > 20: PRINT [Username too long!]}
+{IF username_length > 20: BRANCH [USERNAME_INPUT]}
+PRINT [✓ Username accepted]
+PRINT []
 
-        # Check length
-        CALL length(username)
-        GET [RETURN_VALUE]
-        SPRITE-SET('[len'|'= RETURN_VALUE]')
+# Email validation
+LABEL [EMAIL_INPUT]
+INPUT [Enter email address:] → email
+{IF '@' NOT IN email: PRINT [Invalid email format!]}
+{IF '@' NOT IN email: BRANCH [EMAIL_INPUT]}
+{IF '.' NOT IN email: PRINT [Invalid email format!]}
+{IF '.' NOT IN email: BRANCH [EMAIL_INPUT]}
+PRINT [✓ Email accepted]
+PRINT []
 
-        CALL is_in_range(len, 3, 20)
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
+# Password validation
+LABEL [PASSWORD_INPUT]
+INPUT [Enter password (min 8 characters):] → password
+SET (password_length|LEN($password))
+{IF password_length < 8: PRINT [Password too short!]}
+{IF password_length < 8: BRANCH [PASSWORD_INPUT]}
+PRINT [✓ Password accepted]
+PRINT []
 
-        RETURN true
-    CATCH error
-        GET[ERROR]
-        RETURN ERROR
-    ENDTRY
-ENDFUNCTION
+# Confirm password
+LABEL [PASSWORD_CONFIRM]
+INPUT [Confirm password:] → password_confirm
+{IF password != password_confirm: PRINT [Passwords do not match!]}
+{IF password != password_confirm: BRANCH [PASSWORD_CONFIRM]}
+PRINT [✓ Password confirmed]
+PRINT []
 
-# ====================================
-# FUNCTION: validate_email
-# ====================================
-FUNCTION validate_email(email)
-    TRY
-        # Check required
-        CALL validate_required(email, "email")
+# Age validation
+LABEL [AGE_INPUT]
+INPUT [Enter age (must be 13 or older):] → age
+{IF age < 13: PRINT [You must be 13 or older to register!]}
+{IF age < 13: BRANCH [AGE_INPUT]}
+{IF age > 120: PRINT [Please enter a valid age!]}
+{IF age > 120: BRANCH [AGE_INPUT]}
+PRINT [✓ Age accepted]
+PRINT []
 
-        # Check contains @
-        CALL contains(email, "@")
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
-
-        # Check contains .
-        CALL contains(email, ".")
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
-
-        RETURN true
-    CATCH error
-        GET[ERROR]
-        RETURN ERROR
-    ENDTRY
-ENDFUNCTION
-
-# ====================================
-# FUNCTION: validate_password
-# ====================================
-FUNCTION validate_password(password)
-    TRY
-        # Check required
-        CALL validate_required(password, "password")
-
-        # Check length
-        CALL length(password)
-        GET [RETURN_VALUE]
-        SPRITE-SET('[len'|'= RETURN_VALUE]')
-
-        CALL is_in_range(len, 8, 50)
-        GET [RETURN_VALUE]
-        {IF {RETURN_VALUE == "false"}:
-
-        RETURN true
-    CATCH error
-        GET[ERROR]
-        RETURN ERROR
-    ENDTRY
-ENDFUNCTION
-
-# ====================================
-# FUNCTION: validate_age
-# ====================================
-FUNCTION validate_age(age)
-    TRY
-        # Check required
-        CALL validate_required(age, "age")
-
-        # Check is number
-        CALL is_number(age)
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Age must be a number"
-
-        # Check range
-        CALL is_in_range(age, 1, 150)
-        GET[RETURN_VALUE]
-        IF{RETURN_VALUE == "false"} THEN THROW "Age must be 1-150"
-
-        RETURN true
-    CATCH error
-        GET[ERROR]
-        RETURN ERROR
-    ENDTRY
-ENDFUNCTION
-
-# ====================================
-# FUNCTION: validate_form
-# ====================================
-FUNCTION validate_form(username, email, password, age)
-    SET[errors = []]
-
-    # Validate username
-    CALL validate_username(username)
-    GET[RETURN_VALUE]
-    IF RETURN_VALUE != "true"
-        SET[errors = APPEND errors WITH RETURN_VALUE]
-    ENDIF
-
-    # Validate email
-    CALL validate_email(email)
-    GET[RETURN_VALUE]
-    IF RETURN_VALUE != "true"
-        SET[errors = APPEND errors WITH RETURN_VALUE]
-    ENDIF
-
-    # Validate password
-    CALL validate_password(password)
-    GET[RETURN_VALUE]
-    IF RETURN_VALUE != "true"
-        SET[errors = APPEND errors WITH RETURN_VALUE]
-    ENDIF
-
-    # Validate age
-    CALL validate_age(age)
-    GET[RETURN_VALUE]
-    IF RETURN_VALUE != "true"
-        SET[errors = APPEND errors WITH RETURN_VALUE]
-    ENDIF
-
-    # Check if any errors
-    SET[error_count = COUNT errors]
-    IF{error_count > 0} THEN RETURN errors
-
-    RETURN "✅ Form is valid"
-ENDFUNCTION
-
-# Export all validation functions
-EXPORT validate_username
-EXPORT validate_email
-EXPORT validate_password
-EXPORT validate_age
-EXPORT validate_form
+# Summary
+PRINT [==========================================]
+PRINT [  Registration Summary]
+PRINT [==========================================]
+PRINT [Username: $username]
+PRINT [Email: $email]
+PRINT [Age: $age]
+PRINT []
+PRINT [Registration complete!]
+XP [+50]
+END

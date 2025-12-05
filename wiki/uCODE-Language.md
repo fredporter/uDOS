@@ -1,1290 +1,1098 @@
 # uCODE Language Specification
 
-**Version:** 2.0.0 (with v1.1.9+ uPY Syntax)
-**Status:** Production - v1.1.9+ Complete
-**Last Updated:** January 2025
+**Version:** 2.0.2 (uPY v2.0 Clean Syntax)
+**Status:** Production
+**Last Updated:** December 5, 2025
 
 ---
 
 ## Overview
 
-uCODE is a human-readable, markdown-compatible scripting language for uDOS automation. It combines the simplicity of shortcodes with the power of full scripting, enabling both quick one-liners and complex workflows.
+uCODE is uDOS's command language and scripting system. It provides both interactive commands and programmable scripts for survival knowledge, mapping, content generation, and system automation.
 
-**uPY (Python-like extension)** adds modern programming features: variables with `$` prefix, assignment operator `=`, emoji codes with `:emoji:` syntax, function definitions with `@` prefix, and full JSON support.
+**uPY (uPython)** is the scripting extension with variables, functions, and control flow - designed as a minimal, educational gateway to Python.
 
 ### Design Principles
 
-1. **Human-Readable**: Natural language-like syntax
-2. **Markdown-Compatible**: Works in .md and .uscript files
-3. **Progressive Complexity**: Simple commands → complex scripts
-4. **CLI Integration**: Every uCODE command maps to CLI
-5. **Self-Documenting**: Inline help and examples
-6. **Modern Extensions**: uPY adds variables, functions, emojis, JSON
+1. **Minimal Design**: Essential features only, no bloat
+2. **Offline-First**: Full functionality without internet/API
+3. **Human-Centric**: Clear language, practical focus
+4. **Text-First**: Terminal-based, ASCII graphics
+5. **Educational**: Gateway to Python programming
 
 ---
 
-## Modern Syntax (v1.1.1+)
+## uPY v2.0 Syntax
 
-### Output Commands
-
-**PRINT** - Modern output command (replaces ECHO)
-
-```uscript
-# Bracket syntax (three equivalent formats)
-PRINT[Hello World]
-PRINT [Hello World]
-[PRINT|Hello World]
-
-# With template strings
-PRINT[User: ${name}]
-PRINT[Status: ${status}, Count: ${count}]
-
-# Traditional syntax (still supported)
-PRINT "Hello World"
-PRINT "Value: ${x}"
-```
-
-**Template Strings** - Variable substitution with `${var}`:
-
-```uscript
-SET[name = Alice]
-SET[age = 30]
-PRINT[${name} is ${age} years old]
-```
-
-### Variable Commands
-
-**SET** - Assign variables:
-
-```uscript
-# Modern bracket syntax
-SET[name = Alice]
-SET[count = 42]
-SET[active = true]
-
-# Traditional syntax
-SET name = "Alice"
-SET count = 42
-```
-
-**GET** - Retrieve variable value:
-
-```uscript
-# Modern bracket syntax
-GET[name]
-GET [count]
-[GET|active]
-
-# Traditional syntax
-GET name
-```
-
-### Conditional Commands
-
-**One-line IF** - Simple conditionals with curly braces:
-
-```uscript
-# Modern one-line syntax
-IF{x > 5} THEN PRINT[x is large]
-IF{status == "active"} THEN PRINT[Running]
-IF{count == 0} THEN PRINT[Empty]
-
-# Traditional one-line
-IF x > 5 THEN PRINT "x is large"
-
-# Multi-line blocks (for complex logic)
-IF x > 5
-    PRINT[x is large]
-    SET[result = pass]
-ELSE
-    PRINT[x is small]
-    SET[result = fail]
-ENDIF
-```
-
-**See Also:** [uCODE Syntax Quick Reference](uCODE-Syntax-Quick-Reference.md) for complete modern syntax guide.
-
----
-
-## uPY Syntax (v1.1.9+)
-
-Modern Python-like syntax extensions for advanced scripting.
-
-### Variables with $ Prefix
-
-Variables in uPY use the `$` prefix for clear identification:
-
-```upy
-# Variable assignment
-$NAME = 'Hero'
-$HP = 100
-$GOLD = 50
-
-# Using variables
-PRINT("Player: $NAME")
-PRINT("HP: $HP")
-PRINT("Gold: $GOLD")
-```
-
-**Variable Names:**
-- Start with letter or underscore
-- Contain letters, numbers, underscores, hyphens
-- Case-sensitive
-- Examples: `$PLAYER-HP`, `$max_health`, `$Item_Count`
-
-### Assignment Operator
-
-Clean assignment with `=`:
-
-```upy
-# Simple assignment
-$X = 10
-$NAME = 'Alice'
-$ACTIVE = true
-
-# Expressions
-$TOTAL = $HP + $MANA
-$PERCENT = ($HP / $MAX-HP) * 100
-$NEW-GOLD = $GOLD + 100
-```
-
-### Emoji Codes
-
-Use emoji with `:emoji:` syntax (80+ codes available):
-
-```upy
-# Status indicators
-PRINT(":check: Quest complete!")
-PRINT(":cross: Failed to load")
-PRINT(":warning: Low health")
-
-# Game items
-PRINT(":heart: HP: $HP")
-PRINT(":coin: Gold: $GOLD")
-PRINT(":sword: Attack: $ATTACK")
-
-# Directions
-PRINT(":up: Go north")
-PRINT(":down: Go south")
-PRINT(":left: Go west")
-PRINT(":right: Go east")
-```
-
-**Category Examples:**
-- **Status**: `:check:` ✓, `:cross:` ✗, `:warning:` ⚠
-- **Items**: `:heart:` ♥, `:coin:` ⊚, `:sword:` †
-- **Directions**: `:up:` ↑, `:down:` ↓, `:left:` ←, `:right:` →
-- **UI**: `:menu:` ≡, `:home:` ⌂, `:gear:` ⚙
-
-**See:** [Emoji Reference](Emoji-Reference.md) for complete list.
-
-### Functions
-
-Define reusable code blocks with `@` prefix:
-
-```upy
-# Function definition
-FUNCTION [@GREET($NAME)
-    PRINT("Hello, $NAME!")
-]
-
-# Function call
-@GREET('Hero')  # Output: Hello, Hero!
-```
-
-**With return values:**
-
-```upy
-FUNCTION [@CALCULATE-DAMAGE($BASE, $ARMOR)
-    $DAMAGE = $BASE - $ARMOR
-    IF {$DAMAGE < 0 | RETURN 0}
-    RETURN $DAMAGE
-]
-
-$FINAL-DAMAGE = @CALCULATE-DAMAGE(50, 20)  # 30
-PRINT(":crossed_swords: Damage: $FINAL-DAMAGE")
-```
-
-**Multiple parameters:**
-
-```upy
-FUNCTION [@CHECK-HEALTH($HP, $MAX-HP)
-    $PERCENT = ($HP / $MAX-HP) * 100
-
-    IF {$PERCENT >= 75 | RETURN 'healthy'}
-    IF {$PERCENT >= 50 | RETURN 'moderate'}
-    IF {$PERCENT >= 25 | RETURN 'low'}
-    RETURN 'critical'
-]
-
-$STATUS = @CHECK-HEALTH($HP, $MAX-HP)
-PRINT(":heart: Health: $STATUS")
-```
-
-**See:** [Function Programming Guide](Function-Programming-Guide.md) for complete guide.
-
-### JSON Support
-
-Load, manipulate, and save JSON data:
-
-```upy
-# Load JSON file
-JSON.load("player.json")
-
-# Access with dot notation
-$NAME = player.name
-$HP = player.stats.health
-$GOLD = player.inventory.gold
-
-# Access arrays
-$FIRST-ITEM = player.inventory.items[0]
-$QUEST-NAME = player.quests[1].name
-
-# Modify data
-player.stats.health = 100
-player.inventory.gold = player.inventory.gold + 50
-
-# Add to arrays
-player.inventory.items.append("Health Potion")
-
-# Save changes
-JSON.save("player.json")
-```
-
-**Complete example:**
-
-```upy
-# Load player data
-JSON.load("player.json")
-
-# Check health
-IF {player.stats.health < 50 | PRINT(":warning: Low health!")}
-
-# Add quest reward
-player.inventory.gold = player.inventory.gold + 100
-player.inventory.items.append("Magic Sword")
-
-# Update stats
-player.stats.level = player.stats.level + 1
-player.stats.max_health = player.stats.max_health + 10
-
-# Save changes
-JSON.save("player.json")
-PRINT(":check: Player data saved!")
-```
-
-### Inline Conditionals
-
-Compact conditionals with curly braces:
-
-```upy
-# One-line conditionals
-IF {$HP <= 0 | PRINT(":skull: Game Over")}
-IF {$GOLD >= 100 | PRINT(":coin: Can afford item")}
-IF {$LEVEL > 5 | $DAMAGE = $DAMAGE * 2}
-
-# With return (in functions)
-IF {$X < 0 | RETURN 0}
-IF {$HP <= 0 | RETURN 'dead'}
-```
-
-### PRINT Enhancements
-
-Print with variable substitution and emojis:
-
-```upy
-# Simple print
-PRINT("Hello, world!")
-
-# Variable substitution
-$NAME = 'Hero'
-PRINT("Welcome, $NAME!")
-
-# Multiple variables
-PRINT("HP: $HP / Gold: $GOLD")
-
-# With emojis
-PRINT(":heart: Health: $HP")
-PRINT(":coin: Gold: $GOLD coins")
-
-# Expressions (evaluated first)
-$TOTAL = $HP + $MANA
-PRINT("Total: $TOTAL")
-```
-
----
-
-## Basic uCODE Syntax
-
-### Command Structure
-
-```
-[COMMAND|option|$variable]
-```
-
-**Components:**
-- `COMMAND`: Action to perform (uppercase by convention)
-- `option`: Optional parameters (lowercase)
-- `$variable`: Dynamic values (prefixed with $)
-
-**Examples:**
-```
-[HELP]                          # Show help
-[HELP|commands]                 # List all commands
-[HELP|GENERATE]                 # Help for specific command
-[VERSION]                       # Show version
-[STATUS]                        # System status
-```
+Clean, minimal Python-like syntax for scripting.
 
 ### Variables
 
-```
-$USER           # Current username
-$HOME           # Home directory
-$CATEGORY       # Current category context
-$DATE           # Current date (YYYY-MM-DD)
-$TIME           # Current time (HH:MM:SS)
-$WORKSPACE      # Workspace root path
+**Always use {$var}** - Clear, consistent variable syntax:
+
+```upy
+# Assignment
+SET {$name|'Alice'}
+SET {$count|42}
+SET {$active|true}
+
+# Using in strings (interpolation)
+PRINT ('Hello {$name}!')
+PRINT ('Count: {$count}')
+
+# Conditions
+[IF {$count} > 5: PRINT ('Large')]
+[IF {$name} == 'Alice': XP (+10)]
 ```
 
-**Custom Variables:**
-```
-$topic = "water purification"
-$format = "svg"
-$complexity = "detailed"
+### Output
+
+**Single quotes in (parentheses)** - Clean output with interpolation:
+
+```upy
+PRINT ('Hello, world!')
+PRINT ('HP: {$hp}/{$max_hp}')
+PRINT ()  # Blank line
+
+# System variables use {$}
+PRINT ('Location: {$SPRITE-LOCATION}')
+PRINT ('Mission: {$MISSION.NAME}')
 ```
 
-### Comments
+### Conditionals
+
+**Three formats** - Choose based on complexity:
+
+**1. Short form (one-line):**
+```upy
+[IF {$hp} < 30: PRINT ('Low health!')]
+[IF {$hp} < 30: HP (+20) | PRINT ('Healed!')]  # Multiple actions with |
+```
+
+**2. Medium form (inline THEN/ELSE):**
+```upy
+[IF {$hp} < 30 THEN: HP (+20) ELSE: PRINT ('Healthy')]
+[IF {$gold} >= 100 THEN: ITEM (sword) ELSE: PRINT ('Need more gold')]
+[{$hp} < 30 ? HP (+20) : PRINT ('OK')]  # Ternary style
+```
+
+**3. Long form (multi-line, no indents):**
+```upy
+IF {$hp} < 30
+  HP (+20)
+  PRINT ('Emergency healing!')
+  FLAG (used_healing)
+ELSE IF {$hp} < 60
+  HP (+10)
+  PRINT ('Minor healing')
+ELSE
+  PRINT ('Health is fine')
+END IF
+```
+
+**Delimiters:**
+- `:` - THEN separator
+- `|` - Multiple actions
+- `?` - Ternary condition
+- `THEN/ELSE` - Explicit keywords
+
+### Functions
+
+**Three formats** - Choose based on complexity:
+
+**1. Short form (single expression):**
+```upy
+@add({$a}|{$b}): RETURN {$a} + {$b}
+@greet({$name}): PRINT ('Hello {$name}!')
+```
+
+**2. Medium form (one-line multi-action):**
+```upy
+@heal({$amount}): SET {$SPRITE-HP|{$SPRITE-HP} + {$amount}} | PRINT ('Healed {$amount}!')
+```
+
+**3. Long form (multi-line, no indents):**
+```upy
+FUNCTION heal_player({$amount})
+  SET {$old_hp|{$SPRITE-HP}}
+  SET {$SPRITE-HP|{$SPRITE-HP} + {$amount}}
+  [IF {$SPRITE-HP} > {$SPRITE-HP-MAX}: SET {$SPRITE-HP|{$SPRITE-HP-MAX}}]
+  SET {$healed|{$SPRITE-HP} - {$old_hp}}
+  PRINT ('Healed {$healed} HP!')
+  RETURN {$healed}
+END FUNCTION
+```
+
+**Calling:**
+```upy
+@greet('Hero')           # Short form
+SET {$result|@add(5|3)}  # With return value
+```
+
+### Loops
+
+**FOREACH** - Iterate over collections:
+
+```upy
+FOREACH {$item} IN {$items}
+  PRINT ('Processing {$item}...')
+END_FOR
+```
+
+### Bracket & Separator Rules
+
+**Three bracket types:**
+- `{$variable}` - All variables (assignment, interpolation, system)
+- `(command|params)` - Commands and functions
+- `[condition]` - Short-form conditionals (one-line only)
+
+**Delimiters:**
+- `|` - Separator for params/multiple actions (no spaces)
+- `:` - THEN separator in conditionals
+- `?` - Ternary condition marker
+- `→` - Result assignment (ROLL, function returns)
+
+```upy
+# Good
+SET {$var|value}
+@function({$arg1}|{$arg2}|{$arg3})
+[IF {$hp} < 30: HP (+20) | PRINT ('Healed!')]
+[{$hp} < 30 ? HP (+20) : PRINT ('OK')]
+
+# Bad
+SET {$var, value}     # No commas
+SET {$var * value}    # No asterisks
+SET {$var | value}    # No spaces around |
+```
+
+**Format choice:**
+- **Short `[...]`**: 1-2 actions, simple conditions
+- **Medium `[... THEN: ... ELSE: ...]`**: Branching logic, inline
+- **Long `IF/END IF`**: 3+ lines, complex logic, multiple branches
+
+**Complete syntax reference:** [uPY-Syntax-v2.md](uPY-Syntax-v2.md)
+
+---
+
+---
+
+## HELP System
+
+Interactive help with command categories, examples, and navigation.
+
+### HELP Navigation
+
+```bash
+HELP                    # Main menu with categories
+HELP <category>         # List commands in category
+HELP <command>          # Detailed command help
+HELP <command> examples # Usage examples
+```
+
+### Main Menu
 
 ```
-# This is a comment
-// Also a comment
-[COMMENT|This is an inline comment]
+╔═══════════════════════════════════════════════════════════════════════╗
+║                        uDOS v1.1.16 - HELP SYSTEM                      ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  📚 COMMAND CATEGORIES                                                 ║
+║                                                                        ║
+║  1. 🎓 KNOWLEDGE        - Guides, learning, skills (GUIDE, LEARN)     ║
+║  2. 🗺️  MAPPING          - Navigation, terrain, routes (TILE, MAP)     ║
+║  3. 🎮 ADVENTURE        - RPG system, quests (XP, HP, ITEM, ROLL)     ║
+║  4. 🎨 GRAPHICS         - Diagrams, panels, sprites (PANEL, DRAW)     ║
+║  5. 💾 MEMORY           - 4-tier storage (MEMORY, PRIVATE, SHARED)    ║
+║  6. 📁 FILES            - File operations (NEW, DELETE, COPY, MOVE)   ║
+║  7. ⚙️  SYSTEM          - Settings, backup, repair (STATUS, CLEAN)    ║
+║  8. 🌐 SERVERS          - Web interfaces (POKE, dashboard, teletext)  ║
+║  9. 🤖 ASSISTANT        - AI helper (GENERATE, ASK, ANALYZE)          ║
+║  10. 🔧 WORKFLOWS       - Automation, missions (WORKFLOW, MISSION)    ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  USAGE                                                                 ║
+║    HELP <category>     - List commands in category (e.g., HELP KNOWLEDGE) ║
+║    HELP <command>      - Show detailed help (e.g., HELP GUIDE)        ║
+║    HELP <cmd> examples - Show usage examples                          ║
+║                                                                        ║
+║  NAVIGATION                                                            ║
+║    [1-10]   Select category    [Q] Quit                               ║
+║    [N]ext   Previous page      [S]earch commands                      ║
+╚═══════════════════════════════════════════════════════════════════════╝
 ```
+
+### Category View - Example: HELP KNOWLEDGE
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                     📚 KNOWLEDGE COMMANDS (6)                          ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  GUIDE (category/topic)         - Interactive survival guides         ║
+║    Example: GUIDE (water/purification)                                ║
+║    Categories: water, fire, shelter, food, medical, navigation        ║
+║                                                                        ║
+║  LEARN (topic)                  - Quick reference cards                ║
+║    Example: LEARN (knots)                                             ║
+║    Shows: Essential steps, safety warnings, skill level               ║
+║                                                                        ║
+║  SEARCH (query)                 - Search knowledge bank                ║
+║    Example: SEARCH (emergency first aid)                              ║
+║    Filters: category, complexity, tags                                ║
+║                                                                        ║
+║  LIST (category)                - Browse available content             ║
+║    Example: LIST (medical)                                            ║
+║    Shows: Title, complexity, last updated                             ║
+║                                                                        ║
+║  PROGRESS                       - Track learning progress              ║
+║    Shows completed guides, skill levels, achievements                 ║
+║                                                                        ║
+║  BOOKMARK (guide)               - Save guide for quick access          ║
+║    Example: BOOKMARK (water/purification)                             ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  TIPS                                                                  ║
+║    • All guides work offline - no internet required                   ║
+║    • Use GUIDE --interactive for step-by-step walkthroughs           ║
+║    • Track progress across all 6 survival categories                  ║
+║                                                                        ║
+║  [B]ack to menu    [1-6] Select command    [Q]uit                     ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+### Command Detail - Example: HELP GUIDE
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                          GUIDE - Interactive Guides                    ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  DESCRIPTION                                                           ║
+║    Access interactive survival guides with progress tracking and      ║
+║    step-by-step instructions. All content works offline.              ║
+║                                                                        ║
+║  SYNTAX                                                                ║
+║    GUIDE (category/topic)                                             ║
+║    GUIDE (category/topic) --interactive                               ║
+║    GUIDE (category/topic) --complexity <simple|detailed|technical>    ║
+║                                                                        ║
+║  PARAMETERS                                                            ║
+║    category     - water, fire, shelter, food, medical, navigation     ║
+║    topic        - Specific guide (e.g., purification, knots, triage)  ║
+║    --interactive - Step-by-step walkthrough mode                      ║
+║    --complexity  - Guide detail level (default: detailed)             ║
+║                                                                        ║
+║  EXAMPLES                                                              ║
+║    GUIDE (water/purification)                                         ║
+║      → Boiling, filtration, chemical treatment methods                ║
+║                                                                        ║
+║    GUIDE (fire/friction) --interactive                                ║
+║      → Step-by-step fire-starting with bow drill                      ║
+║                                                                        ║
+║    GUIDE (medical/triage) --complexity technical                      ║
+║      → Advanced triage protocols and decision trees                   ║
+║                                                                        ║
+║    GUIDE (shelter)                                                     ║
+║      → List all shelter guides (lean-to, debris hut, etc.)            ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  RELATED COMMANDS                                                      ║
+║    LEARN (topic)      - Quick reference cards                         ║
+║    SEARCH (query)     - Find guides by keyword                        ║
+║    PROGRESS           - Track completed guides                        ║
+║                                                                        ║
+║  [E]xamples    [B]ack to category    [Q]uit                           ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+### Examples View - HELP GUIDE examples
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                      GUIDE - Usage Examples                            ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  EXAMPLE 1: Basic Guide Access                                        ║
+║    GUIDE (water/purification)                                         ║
+║                                                                        ║
+║    Output:                                                             ║
+║    ┌─────────────────────────────────────────────────┐                ║
+║    │ 💧 Water Purification Guide                     │                ║
+║    │ Complexity: Detailed | Duration: 15 min         │                ║
+║    ├─────────────────────────────────────────────────┤                ║
+║    │ Methods:                                        │                ║
+║    │ 1. Boiling (most reliable)                     │                ║
+║    │ 2. Filtration (portable)                       │                ║
+║    │ 3. Chemical treatment (iodine/chlorine)        │                ║
+║    │ 4. UV purification (equipment required)        │                ║
+║    └─────────────────────────────────────────────────┘                ║
+║                                                                        ║
+║  EXAMPLE 2: Interactive Walkthrough                                   ║
+║    GUIDE (fire/friction) --interactive                                ║
+║                                                                        ║
+║    → Guides you through bow drill fire-starting with:                 ║
+║      • Step-by-step instructions                                      ║
+║      • Progress checkpoints                                           ║
+║      • Troubleshooting tips                                           ║
+║      • Mark completion for XP                                         ║
+║                                                                        ║
+║  EXAMPLE 3: Technical Depth                                           ║
+║    GUIDE (medical/wound-care) --complexity technical                  ║
+║                                                                        ║
+║    → Advanced content with:                                           ║
+║      • Medical terminology                                            ║
+║      • Detailed procedures                                            ║
+║      • Decision trees                                                 ║
+║      • Contraindications                                              ║
+║                                                                        ║
+║  EXAMPLE 4: Browse Category                                           ║
+║    GUIDE (shelter)                                                     ║
+║                                                                        ║
+║    → Lists all 20 shelter guides:                                     ║
+║      • Lean-to construction                                           ║
+║      • Debris hut                                                     ║
+║      • Snow cave                                                      ║
+║      • Tarp shelters                                                  ║
+║      • ... and 16 more                                                ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  [B]ack to command help    [Q]uit                                      ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+### Pagination System
+
+Commands with many results auto-paginate:
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    🗺️  MAPPING COMMANDS (Page 1/2)                     ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  TILE INFO <location>           - City/country information             ║
+║  TILE SEARCH <query>            - Find cities/countries                ║
+║  TILE NEARBY <location> [km]    - Cities within radius                 ║
+║  TILE WEATHER <location>        - Climate zone (Köppen)                ║
+║  TILE TIMEZONE <location>       - Timezone + DST                       ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  [N]ext page    [P]revious    [B]ack to menu    [Q]uit                ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+(Press N for next page...)
+
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    🗺️  MAPPING COMMANDS (Page 2/2)                     ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  TILE TERRAIN [type]            - Terrain definitions (24 types)       ║
+║  TILE ROUTE <from> <to>         - Calculate distance + bearing        ║
+║  TILE CONVERT <val> <from> <to> - Unit conversion (temp, dist, mass)  ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  [P]revious page    [B]ack to menu    [Q]uit                          ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+### Search Functionality
+
+```bash
+HELP --search <query>
+HELP /search <query>
+```
+
+Example:
+
+```
+> HELP --search water
+
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    🔍 Search Results: "water" (8 matches)              ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  1. GUIDE water/purification    - Water purification methods           ║
+║  2. GUIDE water/collection      - Collecting water sources             ║
+║  3. GUIDE water/storage         - Safe water storage                   ║
+║  4. TILE WEATHER                - Climate (includes rainfall)          ║
+║  5. DRAW water-cycle            - Diagram: water cycle                 ║
+║  6. GENERATE guide water        - Generate water guides                ║
+║  7. MEMORY tier1                - Includes water guides                ║
+║  8. LEARN hydration             - Hydration best practices             ║
+║                                                                        ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║  [1-8] Select    [R]efine search    [B]ack    [Q]uit                  ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+### Syntax Highlighting (Terminal Colors)
+
+When terminal supports ANSI colors:
+
+```bash
+# Command syntax highlighting
+GUIDE (water/purification) --interactive
+│     │                  └─ Option (cyan)
+│     └─ Parameter (green)
+└─ Command (yellow bold)
+
+# Code examples in HELP
+SET {$hp|100}
+│    │   └─ Value (magenta)
+│    └─ Variable (green)
+└─ Command (yellow)
+
+[IF {$hp} < 30: PRINT ('Low health!')]
+│   │    │  │        │
+│   │    │  │        └─ String (cyan)
+│   │    │  └─ Command (yellow)
+│   │    └─ Operator (red)
+│   └─ Variable (green)
+└─ Keyword (blue bold)
+```
+
+### Quick Reference Cards
+
+Compact command summaries:
+
+```bash
+HELP --quick <command>
+```
+
+Example:
+
+```
+┌─────────────────────────────────────────────────┐
+│ GUIDE - Quick Reference                         │
+├─────────────────────────────────────────────────┤
+│ Purpose: Interactive survival guides            │
+│                                                 │
+│ Basic:   GUIDE (water/purification)             │
+│ Options: --interactive, --complexity <level>    │
+│                                                 │
+│ Common:                                         │
+│   GUIDE fire      List fire guides              │
+│   GUIDE --help    Full documentation            │
+└─────────────────────────────────────────────────┘
+```
+
+---
 
 ---
 
 ## Command Categories
 
-### 1. GENERATE Commands
+Complete reference for all uDOS commands organized by category.
 
-Create content (guides, diagrams, checklists).
+### 1. 🎓 KNOWLEDGE Commands
 
-```
-[GENERATE|guide|water/purification]
-[GENERATE|diagram|fire/triangle|format=svg]
-[GENERATE|checklist|emergency/evacuation]
-[GENERATE|batch|category=water|type=guide|count=10]
-```
+Access survival guides, learning resources, and skill tracking.
 
-**Parameters:**
-- `type`: guide, diagram, checklist, reference
-- `category`: water, fire, shelter, food, medical, navigation, tools, communication
-- `format`: ascii, teletext, svg, markdown
-- `complexity`: simple, detailed, technical
-- `style`: technical, hand-drawn, hybrid
-- `perspective`: isometric, top-down, side, 3d
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `GUIDE (cat/topic)` | Interactive survival guides | `GUIDE (water/purification)` |
+| `LEARN (topic)` | Quick reference cards | `LEARN (knots)` |
+| `SEARCH (query)` | Search knowledge bank | `SEARCH (first aid)` |
+| `LIST (category)` | Browse available content | `LIST (medical)` |
+| `PROGRESS` | Track learning progress | `PROGRESS` |
+| `BOOKMARK (guide)` | Save for quick access | `BOOKMARK (fire/friction)` |
 
-### 2. CONVERT Commands
+**Categories:** water, fire, shelter, food, medical, navigation, tools, communication
 
-Transform content between formats.
+### 2. 🗺️ MAPPING Commands
 
-```
-[CONVERT|pdf-to-md|manual.pdf]
-[CONVERT|html-to-teletext|page.html]
-[CONVERT|svg-to-ascii|diagram.svg]
-[CONVERT|batch|source=pdfs/|target=knowledge/]
-```
+Geographic data, terrain, navigation, and routing.
 
-### 3. REFRESH Commands
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `TILE INFO (loc)` | City/country information | `TILE INFO (Tokyo)` |
+| `TILE SEARCH (q)` | Find cities/countries | `TILE SEARCH (Paris)` |
+| `TILE NEARBY (loc) (km)` | Cities within radius | `TILE NEARBY (Sydney) (500)` |
+| `TILE WEATHER (loc)` | Climate zone (Köppen) | `TILE WEATHER (Brisbane)` |
+| `TILE TIMEZONE (loc)` | Timezone + DST | `TILE TIMEZONE (London)` |
+| `TILE TERRAIN (type)` | Terrain definitions | `TILE TERRAIN (forest)` |
+| `TILE ROUTE (from) (to)` | Distance + bearing | `TILE ROUTE (NYC) (London)` |
+| `TILE CONVERT (v) (f) (t)` | Unit conversion | `TILE CONVERT (100) (C) (F)` |
 
-Update content to new standards.
+**Data:** 250 cities, 50 countries, 120 timezones, 24 terrain types
 
-```
-[REFRESH|--check|all]
-[REFRESH|water]
-[REFRESH|--force|knowledge/water/purification.md]
-[REFRESH|category=$CATEGORY|--report]
-```
+### 3. 🎮 ADVENTURE Commands
 
-### 4. MANAGE Commands
+RPG system for interactive storytelling and missions.
 
-Organize and maintain content.
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `XP (+/-amount)` | Gain/lose experience | `XP (+50)` |
+| `HP (+/-amount)` | Modify health | `HP (-10)` |
+| `ITEM (item_id)` | Add to inventory | `ITEM (sword)` |
+| `FLAG (event)` | Set story flag | `FLAG (met_wizard)` |
+| `ROLL (dice)` | Roll dice | `ROLL (1d20)` |
+| `CHOICE (text)` | Present options | `CHOICE ('Which path?')` |
+| `LABEL (name)` | Define jump point | `LABEL (FOREST)` |
+| `BRANCH (label)` | Jump to label | `BRANCH (COMBAT)` |
+| `END` | Terminate adventure | `END` |
 
-```
-[MANAGE|index|rebuild]
-[MANAGE|tags|update]
-[MANAGE|links|validate]
-[MANAGE|cleanup|temp-files]
-[MANAGE|backup|knowledge/]
-```
+**System Variables:** `$SPRITE-NAME`, `$SPRITE-HP`, `$SPRITE-LEVEL`, `$SPRITE-XP`
 
-### 5. SEARCH Commands
+### 4. 🎨 GRAPHICS Commands
 
-Find and filter content.
+Create diagrams, panels, and ASCII art.
 
-```
-[SEARCH|water purification]
-[SEARCH|category=medical|tag=emergency]
-[SEARCH|type=diagram|format=svg]
-[SEARCH|quality<0.8]
-```
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `PANEL CREATE (n) (w) (h) (t)` | Create display panel | `PANEL CREATE (map) (80) (40) (4)` |
+| `PANEL WRITE (n) (x) (y) (t)` | Write text at position | `PANEL WRITE (map) (10) (5) ('Hello')` |
+| `PANEL BLOCK (n) (x) (y) (b)` | Place block graphic | `PANEL BLOCK (map) (0) (0) (full)` |
+| `PANEL TERRAIN (n) (x) (y) (w) (h) (t)` | Fill with terrain | `PANEL TERRAIN (map) (0) (0) (40) (20) (forest)` |
+| `PANEL SHOW (n)` | Display panel | `PANEL SHOW (map)` |
+| `DRAW (type) (desc)` | Generate diagram | `DRAW (water) (filter)` |
+| `SPRITE (name)` | ASCII character art | `SPRITE (hero)` |
 
-### 6. MISSION Commands
+**Panel Tiers:** 0-14 (Watch to 8K displays)
 
-Execute complex workflows.
+### 5. 💾 MEMORY Commands
 
-```
-[MISSION|start|complete_knowledge_bank]
-[MISSION|status|current]
-[MISSION|complete|task-1]
-[MISSION|abort|current]
-```
+4-tier knowledge storage system.
 
-### 7. CONFIG Commands
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `MEMORY` | Access public tier | `MEMORY` |
+| `PRIVATE` | Personal tier | `PRIVATE` |
+| `SHARED` | Community tier | `SHARED` |
+| `COMMUNITY` | Global tier | `COMMUNITY` |
 
-Manage settings and preferences.
+**Tiers:**
+- **Tier 1 (Public)**: General knowledge, read-only
+- **Tier 2 (Private)**: Personal notes, full access
+- **Tier 3 (Shared)**: Team collaboration
+- **Tier 4 (Community)**: Global contributions
 
-```
-[CONFIG|theme|teletext-green]
-[CONFIG|ai-model|gemini-2.5-flash]
-[CONFIG|output-dir|knowledge/custom/]
-[CONFIG|get|theme]
-[CONFIG|list]
-```
+### 6. 📁 FILE Commands
 
-### 8. SYSTEM Commands
+File system operations.
 
-System operations and monitoring.
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `NEW (file)` | Create new file | `NEW (script.upy)` |
+| `DELETE (file)` | Delete file (soft) | `DELETE (old.txt)` |
+| `COPY (src) (dst)` | Copy file | `COPY (a.txt) (b.txt)` |
+| `MOVE (src) (dst)` | Move/rename file | `MOVE (old.txt) (new.txt)` |
+| `SHOW (file)` | Display contents | `SHOW (config.json)` |
+| `EDIT (file)` | Open in editor | `EDIT (script.upy)` |
+| `RUN (file)` | Execute script | `RUN (adventure.upy)` |
 
-```
-[SYSTEM|status]
-[SYSTEM|logs|tail]
-[SYSTEM|clear-cache]
-[SYSTEM|version]
-[SYSTEM|diagnostics]
-```
+**Note:** DELETE uses soft-delete with 7-day recovery window (`.archive/deleted/`)
 
----
+### 7. ⚙️ SYSTEM Commands
 
-## Advanced Syntax
+System settings, maintenance, and diagnostics.
 
-### Command Chaining
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `STATUS` | System status | `STATUS` |
+| `CLEAN` | Remove temp files | `CLEAN` |
+| `CLEAN --scan` | Archive health metrics | `CLEAN --scan` |
+| `BACKUP (file)` | Create backup | `BACKUP (config.json)` |
+| `UNDO (file)` | Revert to previous | `UNDO (script.upy)` |
+| `REDO (file)` | Re-apply changes | `REDO (script.upy)` |
+| `REPAIR` | Diagnose issues | `REPAIR` |
+| `REPAIR RECOVER (f)` | Restore deleted file | `REPAIR RECOVER (data.txt)` |
+| `SETTINGS` | View/edit settings | `SETTINGS` |
+| `DEV MODE` | Toggle dev mode | `DEV MODE` |
 
-Use `|>` to pipe output between commands:
+**Archive System:** Universal `.archive/` folders for version history and backups
 
-```
-[SEARCH|category=water] |> [REFRESH|--check] |> [REPORT]
-```
+### 8. 🌐 SERVER Commands
 
-### Conditional Execution
+Web-based extension servers.
 
-```
-if [SEARCH|quality<0.7] then
-  [REFRESH|--force|all]
-  [NOTIFY|Quality improved]
-fi
-```
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `POKE START (name)` | Start server | `POKE START (dashboard)` |
+| `POKE STOP (name)` | Stop server | `POKE STOP (terminal)` |
+| `POKE STATUS (name)` | Check server health | `POKE STATUS` |
+| `POKE RESTART (name)` | Restart server | `POKE RESTART (typo)` |
+| `POKE LIST` | List available servers | `POKE LIST` |
+| `POKE HEALTH` | System-wide health | `POKE HEALTH` |
 
-**Compact syntax:**
-```
-[IF|quality<0.7|REFRESH|--force]
-```
+**Available Servers:**
+- `dashboard` - NES-style dashboard (8887)
+- `terminal` - C64 PETSCII terminal (8890)
+- `teletext` - BBC Teletext viewer (9002)
+- `markdown` - Knowledge viewer (9000)
+- `character` - Pixel art editor (8891)
+- `typo` - Web markdown editor (5173)
 
-### Loops
+### 9. 🤖 ASSISTANT Commands
 
-```
-for category in water fire shelter food
-  [GENERATE|guide|$category/basics]
-  [GENERATE|diagram|$category/overview|format=svg]
-done
-```
+AI-powered content generation and analysis (requires Gemini API key).
 
-**Compact syntax:**
-```
-[FOR|category|water,fire,shelter|GENERATE|guide|$category/basics]
-```
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `GENERATE guide (topic)` | Generate survival guide | `GENERATE guide (water filter)` |
+| `GENERATE diagram (desc)` | Create diagram | `GENERATE diagram (fire triangle)` |
+| `ASK (question)` | Ask AI assistant | `ASK (how to purify water)` |
+| `ANALYZE (file)` | Analyze content | `ANALYZE (guide.md)` |
+| `EXPLAIN (topic)` | Get explanation | `EXPLAIN (friction fire)` |
 
-### Variables and Substitution
+**Note:** Works offline without API key (limited functionality)
 
-```
-$categories = "water,fire,shelter,food,medical,navigation,tools,communication"
-$formats = "ascii,teletext,svg"
+### 10. 🔧 WORKFLOW Commands
 
-[FOR|cat|$categories|GENERATE|guide|$cat/overview]
-```
+Automation, missions, and task management.
 
-### Multi-line Scripts
+| Command | Description | Example |
+|:--------|:------------|:--------|
+| `WORKFLOW (script)` | Run workflow | `WORKFLOW (setup.upy)` |
+| `MISSION (name)` | Start mission | `MISSION (water_quest)` |
+| `MISSION STATUS` | Check progress | `MISSION STATUS` |
+| `MISSION COMPLETE` | Mark complete | `MISSION COMPLETE` |
+| `CHECKPOINT` | Save state | `CHECKPOINT` |
+| `CHECKPOINT LOAD (id)` | Restore state | `CHECKPOINT LOAD (1)` |
 
-```uscript
-# Daily content maintenance workflow
-
-# 1. Check quality
-[REFRESH|--check|all] |> [REPORT|save=logs/quality_$DATE.txt]
-
-# 2. Update low-quality content
-if [SEARCH|quality<0.8|count] > 10 then
-  [REFRESH|all]
-  [NOTIFY|Updated low-quality content]
-fi
-
-# 3. Rebuild indexes
-[MANAGE|index|rebuild]
-[MANAGE|tags|update]
-
-# 4. Backup
-[MANAGE|backup|knowledge/|target=backups/knowledge_$DATE/]
-
-# 5. Generate report
-[REPORT|daily|email=$USER@localhost]
-```
+**Workflow Files:** `.upy` scripts in `memory/workflows/`
 
 ---
 
-## Script Files (.uscript)
+## Script Files (.upy)
+
+uPY adventure and workflow scripts.
 
 ### File Structure
 
-```uscript
----
-title: Startup Options
-description: Configure environment on startup
-version: 1.0.0
-author: uDOS
----
+```upy
+#!/usr/bin/env udos
+# Adventure Title
+# Description of what this script does
 
-# Startup Configuration
+# Initialization
+SET {$SPRITE-NAME|'Hero'}
+SET {$SPRITE-HP|100}
+SET {$SPRITE-LEVEL|1}
 
-## Environment Setup
-[CONFIG|theme|teletext-green]
-[CONFIG|output-dir|knowledge/]
-[CONFIG|ai-model|gemini-2.5-flash]
+# Story content
+PRINT ('Welcome to the adventure, {$SPRITE-NAME}!')
+PRINT ()
 
-## Load Extensions
-[EXTENSION|load|ok-assist]
-[EXTENSION|load|teletext-renderer]
+# Choices and branching
+CHOICE ('Which path?')
+  OPTION ('Forest') → FOREST
+  OPTION ('Cave') → CAVE
 
-## Verify System
-[SYSTEM|diagnostics]
-[SYSTEM|status]
+LABEL (FOREST)
+PRINT ('You enter the forest...')
+ROLL (1d20) → {$perception}
 
-## Welcome Message
-[NOTIFY|uDOS ready - Type HELP for commands]
+# Short form conditional
+[IF {$perception} >= 15: PRINT ('You found treasure!') | XP (+50)]
+
+# Medium form conditional
+[IF {$perception} < 15 THEN: PRINT ('Nothing here.') ELSE: PRINT ('Keep searching...')]
+END
+
+LABEL (CAVE)
+PRINT ('You enter the dark cave...')
+
+# Long form conditional
+IF {$SPRITE-HP} > 50
+  PRINT ('You feel confident')
+  HP (-10)
+ELSE
+  PRINT ('Too risky!')
+  BRANCH (FOREST)
+END IF
+END
 ```
 
-### Metadata Block
+### Metadata Comments
 
-YAML frontmatter (optional):
-```yaml
----
-title: Script Name
-description: What this script does
-version: 1.0.0
-author: Username
-tags: [automation, maintenance, content]
-schedule: "0 0 * * *"  # cron format
----
+Use comments for script metadata:
+
+```upy
+#!/usr/bin/env udos
+# Title: Water Quest
+# Author: uDOS
+# Version: 1.0.0
+# Description: Learn water purification through interactive adventure
+# Category: water
+# Difficulty: beginner
+# Duration: 15 minutes
 ```
 
-### Sections
+### Common Patterns
 
-Use markdown headers to organize:
-```uscript
-# Main Script Title
-
-## Section 1: Setup
-[commands here]
-
-## Section 2: Processing
-[commands here]
-
-## Section 3: Cleanup
-[commands here]
+**Character Setup:**
+```upy
+SET {$SPRITE-NAME|'Survivor'}
+SET {$SPRITE-HP|100}
+SET {$SPRITE-HP-MAX|100}
+SET {$SPRITE-LEVEL|1}
+SET {$SPRITE-XP|0}
+SET {$SPRITE-LOCATION|'AA340'}  # Sydney grid tile
 ```
 
----
+**Skill Checks:**
+```upy
+# Short form
+ROLL (1d20) → {$skill_check}
+[IF {$skill_check} >= 15: PRINT ('Success!') | XP (+30)]
+[IF {$skill_check} < 15: PRINT ('Failed!') | HP (-10)]
 
-## Command Reference Format
+# Medium form (inline)
+[IF {$skill_check} >= 15 THEN: PRINT ('Success!') | XP (+30) ELSE: PRINT ('Failed!') | HP (-10)]
 
-### Template
-
-```
-COMMAND_NAME [options] [arguments]
-
-Description:
-  Brief description of what the command does.
-
-Options:
-  --option1       Description of option 1
-  --option2=VAL   Description of option 2 (with value)
-
-Arguments:
-  arg1            Description of argument 1
-  arg2            Description of argument 2 (optional)
-
-Examples:
-  [COMMAND|arg1]
-  [COMMAND|arg1|--option1]
-  [COMMAND|arg1|--option2=value]
-
-Related:
-  - RELATED_COMMAND1
-  - RELATED_COMMAND2
+# Long form (complex logic)
+ROLL (1d20) → {$skill_check}
+IF {$skill_check} >= 18
+  PRINT ('Critical success!')
+  XP (+50)
+  ITEM (rare_loot)
+ELSE IF {$skill_check} >= 15
+  PRINT ('Success!')
+  XP (+30)
+ELSE IF {$skill_check} >= 10
+  PRINT ('Partial success')
+  XP (+10)
+ELSE
+  PRINT ('Failed!')
+  HP (-10)
+END IF
 ```
 
----
+**Inventory Management:**
+```upy
+ITEM (water_bottle)
+ITEM (first_aid_kit)
+ITEM (compass)
 
-## Integration with CLI
+# Shop system with conditionals
+[IF {$gold} >= 100 THEN: ITEM (sword) | SET {$gold|{$gold} - 100} ELSE: PRINT ('Not enough gold!')]
 
-Every uCODE command maps to a CLI command:
-
-```bash
-# uCODE
-[GENERATE|guide|water/purification]
-
-# CLI equivalent
-udos generate guide water/purification
-
-# Python API
-from core.commands import generate
-generate.create_guide("water/purification")
+# Ternary style
+[{$gold} >= 50 ? ITEM (potion) : PRINT ('Need 50 gold')]
 ```
 
----
-
-## Validation Rules
-
-### Syntax Rules
-
-1. Commands must be in square brackets
-2. Command names must be uppercase
-3. Parameters separated by pipes (|)
-4. Variables prefixed with $
-5. Strings can be quoted: "value with spaces"
-6. Comments start with # or //
-
-### Parameter Rules
-
-1. Options start with -- (double dash)
-2. Flags: --flag (boolean)
-3. Values: --option=value
-4. Short forms: -f (single dash)
-
-### Variable Rules
-
-1. Must start with letter or underscore
-2. Can contain letters, numbers, underscores
-3. Case-sensitive
-4. Reserved: USER, HOME, DATE, TIME, WORKSPACE, CATEGORY
-
-### Naming Conventions
-
-- **Commands**: UPPERCASE_WITH_UNDERSCORES
-- **Options**: lowercase-with-hyphens
-- **Variables**: $lowercase_with_underscores
-- **Files**: lowercase_with_underscores.uscript
+**Progress Tracking:**
+```upy
+FLAG (started_quest)
+FLAG (found_water_source)
+FLAG (purified_water)
+FLAG (quest_complete)
+```
 
 ---
 
-## Error Handling
+## System Variables
 
-### Try-Catch Blocks
+Built-in variables (always use $ prefix).
 
-```
-try
-  [GENERATE|guide|water/purification]
-catch error
-  [LOG|ERROR|Failed to generate: $error]
-  [NOTIFY|Generation failed]
-finally
-  [CLEANUP]
-done
-```
+### Character System
 
-**Compact syntax:**
-```
-[TRY|GENERATE|guide|water/purification|CATCH|LOG|ERROR]
+```upy
+{$SPRITE-NAME}          # Character name
+{$SPRITE-HP}            # Current health
+{$SPRITE-HP-MAX}        # Maximum health
+{$SPRITE-LEVEL}         # Character level
+{$SPRITE-XP}            # Experience points
+{$SPRITE-GOLD}          # Currency
+{$SPRITE-LOCATION}      # Current TILE code
+{$SPRITE-INVENTORY}     # Items array
 ```
 
-### Error Codes
+### Mission System
 
-- `0`: Success
-- `1`: General error
-- `2`: Invalid syntax
-- `3`: Missing parameter
-- `4`: File not found
-- `5`: Permission denied
-- `10-99`: Command-specific errors
+```upy
+{$MISSION.ID}           # Mission identifier
+{$MISSION.NAME}         # Mission title
+{$MISSION.STATUS}       # DRAFT|ACTIVE|PAUSED|COMPLETED|FAILED
+{$MISSION.PROGRESS}     # Progress string (e.g., "45/55")
+{$MISSION.START_TIME}   # ISO timestamp
+{$MISSION.OBJECTIVE}    # Mission goal
+```
+
+### Workflow System
+
+```upy
+{$WORKFLOW.NAME}        # Current workflow script
+{$WORKFLOW.PHASE}       # INIT|SETUP|EXECUTE|MONITOR|COMPLETE
+{$WORKFLOW.ITERATION}   # Loop iteration count
+{$WORKFLOW.ERRORS}      # Error count
+{$WORKFLOW.ELAPSED_TIME} # Seconds since start
+```
+
+### Checkpoint System
+
+```upy
+{$CHECKPOINT.ID}        # Checkpoint identifier
+{$CHECKPOINT.TIMESTAMP} # When saved
+{$CHECKPOINT.DATA}      # Serialized state
+{$CHECKPOINT.PREVIOUS}  # Previous checkpoint (linked list)
+{$CHECKPOINT.NEXT}      # Next checkpoint
+```
+
+### Environment
+
+```upy
+{$USER}                 # Current username
+{$HOME}                 # Home directory
+{$DATE}                 # Current date (YYYY-MM-DD)
+{$TIME}                 # Current time (HH:MM:SS)
+{$WORKSPACE}            # Workspace root path
+{$THEME}                # Active theme name
+```
 
 ---
 
 ## Best Practices
 
-### 1. Use Descriptive Variable Names
+### 1. Clear Variable Names
 
-```
+```upy
 # Good
-$water_guide_count = 26
-$target_quality = 0.8
+SET {$player_health|100}
+SET {$quest_status|'active'}
+SET {$water_sources_found|3}
 
 # Bad
-$x = 26
-$t = 0.8
+SET {$h|100}
+SET {$s|'active'}
+SET {$x|3}
 ```
 
-### 2. Add Comments
+### 2. Use Comments
 
-```
-# Check quality before refreshing
-[REFRESH|--check|all]
+```upy
+# Check health before combat
+[IF {$SPRITE-HP} < 30: PRINT ('⚠️  Low health!')]
+[IF {$SPRITE-HP} < 30: HP (+20)]  # Emergency healing
 
-# Only refresh if quality is low
-if quality < 0.8 then
-  [REFRESH|all]
-fi
-```
-
-### 3. Group Related Commands
-
-```
-# Quality Maintenance
-[REFRESH|--check|all]
-[MANAGE|links|validate]
-[MANAGE|tags|update]
-
-# Backup
-[MANAGE|backup|knowledge/]
+# Award experience for discovery
+XP (+50)
 ```
 
-### 4. Use Constants
+### 3. Consistent Formatting
 
-```
-$QUALITY_THRESHOLD = 0.8
-$BACKUP_DIR = "backups/"
-$CATEGORIES = "water,fire,shelter,food,medical,navigation,tools,communication"
+```upy
+# Good: Consistent spacing and structure
+SET {$name|'Hero'}
+SET {$hp|100}
+SET {$level|1}
+
+PRINT ('Character: {$name}')
+PRINT ('HP: {$hp}')
+PRINT ('Level: {$level}')
+
+# Bad: Inconsistent
+SET{$name|'Hero'}
+SET {$hp|100}
+  SET {$level|1}
+PRINT ('Character: {$name}')
+   PRINT('HP: {$hp}')
 ```
 
-### 5. Handle Errors
+### 4. Error Handling
 
+```upy
+# Short form - quick checks
+[IF {$SPRITE-HP} <= 0: PRINT ('Game Over!') | END]
+
+# Medium form - branching
+[IF {$SPRITE-HP} <= 0 THEN: PRINT ('Game Over!') | END ELSE: PRINT ('Still alive!')]
+
+# Long form - complex validation
+ROLL (1d20) → {$attack}
+PRINT ('Attack roll: {$attack}')
+
+IF {$attack} >= 18
+  PRINT ('Critical hit!')
+  SET {$damage|{$damage} * 2}
+ELSE IF {$attack} >= 15
+  PRINT ('Hit!')
+ELSE IF {$attack} >= 10
+  PRINT ('Glancing blow')
+  SET {$damage|{$damage} / 2}
+ELSE
+  PRINT ('Miss!')
+  SET {$damage|0}
+END IF
 ```
-try
-  [GENERATE|guide|$category/$topic]
-catch
-  [LOG|ERROR|Failed: $category/$topic]
-  [NOTIFY|Generation failed - check logs]
-done
+
+### 5. Modular Design
+
+```upy
+# Break scripts into labeled sections
+LABEL (INIT)
+# Initialization code
+BRANCH (START)
+
+LABEL (START)
+# Main story
+BRANCH (CHOICE1)
+
+LABEL (CHOICE1)
+# First decision point
+CHOICE ('What do you do?')
+  OPTION ('Fight') → COMBAT
+  OPTION ('Flee') → ESCAPE
 ```
 
 ---
 
 ## Examples
 
-### Simple One-Liners
+### Simple Adventure Script
 
-```
-[HELP]
-[GENERATE|guide|water/purification]
-[REFRESH|--check|all]
-[SEARCH|emergency medical]
-[CONFIG|theme|teletext-green]
-```
+```upy
+#!/usr/bin/env udos
+# Quick survival scenario
 
-### Medium Complexity
+SET {$SPRITE-NAME|'Survivor'}
+SET {$SPRITE-HP|80}
 
-```
-# Generate water category diagrams
-$category = "water"
-[GENERATE|diagram|$category/purification|format=svg|complexity=detailed]
-[GENERATE|diagram|$category/collection|format=ascii|complexity=simple]
-[GENERATE|diagram|$category/storage|format=teletext|complexity=technical]
-```
+PRINT ('You wake up in the wilderness...')
+PRINT ('HP: {$SPRITE-HP}/100')
+PRINT ()
 
-### Complex Workflow
+CHOICE ('Your priority?')
+  OPTION ('Find water') → WATER
+  OPTION ('Build shelter') → SHELTER
+  OPTION ('Make fire') → FIRE
 
-```uscript
----
-title: Weekly Content Maintenance
-description: Check quality, update content, generate reports
-version: 1.0.0
----
+LABEL (WATER)
+PRINT ('You search for water...')
+ROLL (1d20) → {$search}
 
-# Weekly Maintenance Workflow
+# Medium form with THEN/ELSE
+[IF {$search} >= 12 THEN: PRINT ('Found a stream!') | HP (+15) | XP (+40) ELSE: PRINT ('No water found.') | HP (-5)]
+END
 
-## 1. Quality Audit
-[REFRESH|--check|all] |> [REPORT|save=logs/quality_weekly.txt]
+LABEL (SHELTER)
+PRINT ('You build a lean-to shelter...')
+XP (+30)
+FLAG (shelter_built)
+PRINT ('You feel safer.')
+END
 
-## 2. Identify Low Quality
-$low_quality = [SEARCH|quality<0.7|--list]
+LABEL (FIRE)
+PRINT ('You attempt to start a fire...')
+ROLL (1d20) → {$fire_check}
 
-## 3. Update Content
-if $low_quality.count > 0 then
-  [LOG|INFO|Found $low_quality.count low-quality files]
-  [REFRESH|--force|all]
-  [NOTIFY|Updated $low_quality.count files]
-else
-  [LOG|INFO|All content meets quality standards]
-fi
-
-## 4. Rebuild Indexes
-[MANAGE|index|rebuild]
-[MANAGE|tags|update]
-[MANAGE|links|validate]
-
-## 5. Generate New Content
-for category in water fire shelter food
-  [GENERATE|guide|$category/weekly_tip_$DATE]
-done
-
-## 6. Backup
-[MANAGE|backup|knowledge/|target=backups/weekly_$DATE/]
-
-## 7. Summary Report
-[REPORT|weekly|email=admin@localhost]
-[LOG|INFO|Weekly maintenance complete]
+# Long form with ELSE IF
+IF {$fire_check} >= 18
+  PRINT ('Perfect fire! Warm and bright.')
+  XP (+75)
+  HP (+10)
+ELSE IF {$fire_check} >= 14
+  PRINT ('Success! Fire lit.')
+  XP (+50)
+ELSE IF {$fire_check} >= 10
+  PRINT ('Smoking... keep trying.')
+  XP (+10)
+ELSE
+  PRINT ('Failed. No fire.')
+END IF
+END
 ```
 
----
+### Workflow Script
 
-## Complete Command Reference
+```upy
+#!/usr/bin/env udos
+# Daily maintenance workflow
 
-### TILE Commands - Geographic Reference System
+PRINT ('Starting daily maintenance...')
+PRINT ()
 
-Geographic data and mapping system with 250 cities, 50 countries, 120 timezones.
+# Check system health
+STATUS
 
-#### TILE INFO
-Get comprehensive information about any city or country
+# Clean temporary files
+CLEAN
 
-```bash
-TILE INFO <location>
+# Create backup
+SET {$backup_date|{$DATE}}
+BACKUP (memory/user/config.json)
+
+# Scan archives
+CLEAN --scan
+
+# Report
+PRINT ()
+PRINT ('Maintenance complete!')
+PRINT ('Backup: backup_{$backup_date}')
 ```
 
-**Examples:**
-```bash
-TILE INFO Tokyo          # City information with TIZO code
-TILE INFO France         # Country demographics and details
-```
+### Interactive Learning Script
 
-#### TILE SEARCH
-Search for cities or countries by name
+```upy
+#!/usr/bin/env udos
+# Water purification tutorial
 
-```bash
-TILE SEARCH <query>
-```
+SET {$knowledge_level|0}
 
-#### TILE NEARBY
-Find cities within a specified radius (default: 500km)
+# Define helper function (short form)
+@award_xp({$amount}): XP (+{$amount}) | PRINT ('Earned {$amount} XP!')
 
-```bash
-TILE NEARBY <location> [radius_km]
-```
+# Define completion checker (long form)
+FUNCTION check_completion({$current}|{$total})
+  SET {$percent|({$current} / {$total}) * 100}
+  PRINT ('Progress: {$current}/{$total} ({$percent}%)')
+  [IF {$current} >= {$total}: RETURN true ELSE: RETURN false]
+END FUNCTION
 
-Uses Haversine formula for accurate great-circle distances.
+PRINT ('===========================================')
+PRINT ('  Water Purification Tutorial')
+PRINT ('===========================================')
+PRINT ()
 
-#### TILE WEATHER
-Get climate zone information (Köppen classification)
+# Step 1: Boiling
+PRINT ('Step 1: Boiling Water')
+GUIDE (water/boiling) --interactive
+SET {$knowledge_level|{$knowledge_level} + 1}
+@award_xp(25)
 
-```bash
-TILE WEATHER <location>
-```
+# Step 2: Filtration
+PRINT ()
+PRINT ('Step 2: Water Filtration')
+GUIDE (water/filtration) --interactive
+SET {$knowledge_level|{$knowledge_level} + 1}
+@award_xp(25)
 
-Returns climate type, temperature range, rainfall, vegetation.
+# Step 3: Chemical Treatment
+PRINT ()
+PRINT ('Step 3: Chemical Treatment')
+GUIDE (water/chemical) --interactive
+SET {$knowledge_level|{$knowledge_level} + 1}
+@award_xp(25)
 
-#### TILE TIMEZONE
-Detailed timezone information with DST rules
+# Completion
+PRINT ()
+SET {$complete|@check_completion({$knowledge_level}|3)}
 
-```bash
-TILE TIMEZONE <location>
-```
-
-Shows UTC offsets, DST schedules, major cities in timezone.
-
-#### TILE TERRAIN
-Terrain type definitions and characteristics
-
-```bash
-TILE TERRAIN [type]      # Specific type or list all 24 types
-```
-
-**Terrain Types:** ocean, river, lake, beach, desert, plains, grassland, forest, jungle, hills, mountains, glacier, tundra, ice sheet, swamp, wetland, canyon, plateau, volcanic, urban, farmland, badlands.
-
-#### TILE ROUTE
-Calculate routes between locations with distance and bearing
-
-```bash
-TILE ROUTE <from> <to>
-```
-
-Returns distance (km/miles), bearing (8-point compass), climate comparison.
-
-#### TILE CONVERT
-Convert between measurement units
-
-```bash
-TILE CONVERT <value> <from_unit> <to_unit>
-```
-
-**Supported:**
-- **Temperature:** C ↔ F ↔ K
-- **Distance:** km ↔ mi, m ↔ ft
-- **Mass:** kg ↔ lb
-
-**Examples:**
-```bash
-TILE CONVERT 100 C F     # 100°C = 212.00°F
-TILE CONVERT 100 km mi   # 100 km = 62.14 miles
-TILE CONVERT 50 kg lb    # 50 kg = 110.23 lbs
+IF {$complete}
+  PRINT ('===========================================')
+  PRINT ('  Tutorial Complete!')
+  PRINT ('===========================================')
+  PRINT ('Total XP Gained: 75')
+  FLAG (water_tutorial_complete)
+  ITEM (water_expert_badge)
+ELSE
+  PRINT ('Tutorial incomplete. Review lessons.')
+END IF
 ```
 
 ---
 
-### POKE Commands - Server Management
+## See Also
 
-Manage web-based extension servers (non-blocking architecture).
-
-#### POKE START
-Start a server in background
-
-```bash
-POKE START <name> [--port N] [--no-browser]
-```
-
-**Available Servers:**
-- `dashboard` - NES-style dashboard (port 8887)
-- `terminal` - C64 PETSCII terminal (port 8890)
-- `teletext` - BBC Teletext viewer (port 9002)
-- `markdown` - Knowledge viewer (port 9000)
-- `character` - Pixel art editor (port 8891)
-- `typo` - Web markdown editor (port 5173, requires Node.js)
-
-**Examples:**
-```bash
-POKE START typo              # Start with defaults
-POKE START dashboard         # Port 8887, auto-open browser
-POKE START terminal --port 9000  # Custom port
-POKE START teletext --no-browser # Don't open browser
-```
-
-#### POKE STATUS
-Check server status and health
-
-```bash
-POKE STATUS [name]
-```
-
-Shows: PID, URL, port availability, uptime, log file location.
-
-**Status Indicators:**
-- 🟢 Running and responding
-- 🟡 Process alive but port not ready (starting)
-- ❌ Not running
-
-#### POKE STOP
-Stop a running server (graceful shutdown)
-
-```bash
-POKE STOP <name>
-```
-
-Sends SIGTERM, waits 5 seconds, then SIGKILL if needed.
-
-#### POKE RESTART
-Restart a server (stop + start)
-
-```bash
-POKE RESTART <name>
-```
-
-#### POKE LIST
-List all available servers with install status
-
-```bash
-POKE LIST
-```
-
-#### POKE HEALTH
-System-wide health report
-
-```bash
-POKE HEALTH
-```
-
-Shows running/stopped count, system health percentage.
-
-**State Management:**
-- State file: `sandbox/.server_state.json`
-- Logs: `sandbox/logs/<name>_<port>.log`
-- Process spawning: `subprocess.Popen` with `start_new_session=True`
+- **[uPY-Syntax-v2.md](uPY-Syntax-v2.md)** - Complete v2.0 syntax reference
+- **[uPY-Syntax-Rules.md](uPY-Syntax-Rules.md)** - Quick 3-rule guide
+- **[Adventure-Scripting.md](Adventure-Scripting.md)** - Interactive storytelling
+- **[Command-Reference.md](Command-Reference.md)** - All commands
+- **[Function-Programming-Guide.md](Function-Programming-Guide.md)** - Advanced functions
 
 ---
 
-### PANEL Commands - Teletext Graphics System
-
-Character-based display panels with teletext-style graphics.
-
-#### PANEL CREATE
-Create a new display panel
-
-```bash
-PANEL CREATE <name> <width> <height> <tier>
-```
-
-**Screen Tiers (0-14):**
-| Tier | Name | Dimensions | Use Case |
-|:----:|:-----|:-----------|:---------|
-| 0 | Watch | 20×10 | Tiny displays |
-| 1 | Mobile | 40×20 | Phone screens |
-| 2 | Tablet | 60×30 | Tablet displays |
-| 3 | Laptop | 80×40 | Laptop screens |
-| 4 | Desktop | 120×60 | Desktop monitors |
-| 5 | 2K | 160×80 | 2K displays |
-| 6 | 4K | 240×120 | 4K monitors |
-| 7 | 8K | 320×160 | 8K displays |
-
-**Example:**
-```bash
-PANEL CREATE dashboard 80 25 4  # Desktop-sized panel
-```
-
-#### PANEL SHOW
-Display panel contents
-
-```bash
-PANEL SHOW <name> [border]
-```
-
-**Border styles:**
-- `border` - C64-style ▓ blocks
-- No argument - Clean box drawing
-
-#### PANEL LIST
-Show all panels with dimensions and tier
-
-```bash
-PANEL LIST
-```
-
-#### PANEL INFO
-Get panel statistics (size, memory, fill percentage)
-
-```bash
-PANEL INFO <name>
-```
-
-#### PANEL CLEAR
-Clear panel buffer (fill with spaces)
-
-```bash
-PANEL CLEAR <name>
-```
-
-#### PANEL DELETE
-Remove panel from memory
-
-```bash
-PANEL DELETE <name>
-```
-
-#### PANEL POKE
-Write single character at position (C64-style, 0-based coordinates)
-
-```bash
-PANEL POKE <name> <x> <y> <character>
-```
-
-**Example:**
-```bash
-PANEL POKE dashboard 10 5 █     # Place solid block
-PANEL POKE dashboard 0 0 @      # Top-left marker
-```
-
-#### PANEL WRITE
-Write text string at position
-
-```bash
-PANEL WRITE <name> <x> <y> <text>
-```
-
-Supports Unicode and emoji, auto-wraps at panel boundary.
-
-#### PANEL FILL
-Fill rectangular area with character
-
-```bash
-PANEL FILL <name> <x> <y> <width> <height> <character>
-```
-
-**Use cases:** Borders, backgrounds, box drawing, separators.
-
-#### PANEL BLOCK
-Place teletext block graphic
-
-```bash
-PANEL BLOCK <name> <x> <y> <block_type>
-```
-
-**Block Types:**
-- **Shading:** `full` (█), `dark` (▓), `medium` (▒), `light` (░)
-- **Half blocks:** `top` (▀), `bottom` (▄), `left` (▌), `right` (▐)
-- **Quarter blocks:** `topleft` (▘), `topright` (▝), `bottomleft` (▖), `bottomright` (▗)
-- **Mosaic:** `checkerboard` (▚), `diagonal1` (▞), `diagonal2` (▚)
-
-#### PANEL PATTERN
-Fill area with repeating pattern
-
-```bash
-PANEL PATTERN <name> <x> <y> <width> <height> <pattern>
-```
-
-**Patterns:** `checkerboard`, `gradient`, `waves`, `dots`, `diagonal`
-
-#### PANEL TERRAIN
-Fill area with terrain graphics
-
-```bash
-PANEL TERRAIN <name> <x> <y> <width> <height> <terrain>
-```
-
-**Terrain Types (16):**
-- **Water:** `ocean_deep`, `ocean`, `ocean_shallow`, `coast`, `water`, `river`, `lake`
-- **Land:** `plains`, `grassland`, `forest`, `jungle`, `desert`, `tundra`, `ice`
-- **Elevation:** `hills`, `mountains`
-
-#### PANEL COLOR
-Apply color to region (terminal support required)
-
-```bash
-PANEL COLOR <name> <x> <y> <width> <height> <color>
-```
-
-**Colors:** red, green, blue, yellow, cyan, magenta, white, black, orange, purple, brown, gray
-
-#### PANEL BLOCKS
-List all 24 block types with symbols
-
-```bash
-PANEL BLOCKS
-```
-
-#### PANEL COLORS
-List available colors
-
-```bash
-PANEL COLORS
-```
-
-#### PANEL TERRAINS
-List all terrain types with symbols
-
-```bash
-PANEL TERRAINS
-```
-
-#### PANEL SIZE
-List all screen tiers with dimensions
-
-```bash
-PANEL SIZE
-```
-
-#### PANEL EMBED
-Export panel to markdown file
-
-```bash
-PANEL EMBED <name> <filename.md>
-```
-
-Creates markdown file with panel contents in fenced code block.
-
-**Example Use Case:**
-```bash
-# Create progress bar
-PANEL CREATE progress 50 3 1
-PANEL FILL progress 0 0 50 1 ═
-PANEL WRITE progress 2 1 "Loading..."
-PANEL FILL progress 2 2 30 1 █
-PANEL FILL progress 32 2 18 1 ░
-PANEL EMBED progress docs/progress.md
-```
-
----
-
-## Future Enhancements
-
-### Planned Features (Future Release)
-
-1. **Parallel Execution**
-   ```
-   [PARALLEL|
-     [GENERATE|guide|water/purification]
-     [GENERATE|guide|fire/starting]
-     [GENERATE|guide|shelter/basics]
-   ]
-   ```
-
-2. **Remote Execution**
-   ```
-   [REMOTE|peer-node-1|GENERATE|guide|water/purification]
-   ```
-
-3. **Event Triggers**
-   ```
-   on [FILE_CREATED|knowledge/*.md] then
-     [REFRESH|--check|$FILE]
-   done
-   ```
-
-4. **Macros**
-   ```
-   macro QUALITY_CHECK
-     [REFRESH|--check|all]
-     [REPORT|save=logs/quality_$DATE.txt]
-   end
-
-   [QUALITY_CHECK]  # Expands to macro content
-   ```
-
-5. **Interactive Prompts**
-   ```
-   $category = [PROMPT|Select category|water,fire,shelter]
-   [GENERATE|guide|$category/overview]
-   ```
-
----
-
-## Migration from v1.x
-
-### Old Syntax (v1.x)
-
-```
-GENERATE guide water/purification
-REFRESH --check all
-```
-
-### Alternative Bracket Syntax (Planned)
-
-```
-[GENERATE|guide|water/purification]
-[REFRESH|--check|all]
-```
-
-**Planned for future release** - Will maintain backward compatibility with current space-separated syntax.
-
----
-
-## Appendix A: Complete Command List
-
-See [UCODE_REFERENCE.md](UCODE_REFERENCE.md) for complete command reference.
-
-## Appendix B: Grammar Specification
-
-See [UCODE_GRAMMAR.md](UCODE_GRAMMAR.md) for formal BNF grammar.
-
-## Appendix C: Migration Guide
-
-See [UCODE_MIGRATION.md](UCODE_MIGRATION.md) for future syntax migration information.
-
----
-
+**Version:** uCODE v2.0 / uPY v2.0
+**Last Updated:** December 5, 2025
 **Maintainer:** @fredporter
 **License:** See LICENSE.txt
-**Feedback:** GitHub Issues or community forum

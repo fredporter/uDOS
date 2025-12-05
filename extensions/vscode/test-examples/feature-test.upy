@@ -10,8 +10,8 @@
 
 # === Test 1: Variable Autocomplete ===
 # Type $MIS and autocomplete should suggest $MISSION
-SET $test_var "Hello uDOS"
-SET $counter 42
+SET (test_var|'Hello uDOS')              # No $ in assignment, | separator
+SET (counter|42)
 
 # === Test 2: Property Completion ===
 # Type $MISSION. and see properties: ID, NAME, STATUS, PROGRESS, etc.
@@ -29,19 +29,16 @@ MAP SEARCH "London"
 MAP INFO
 
 # === Test 5: Control Flow (Syntax Highlighting) ===
-IF $counter > 10 THEN
-    ECHO "Counter is large: $counter"
-ELSE
-    ECHO "Counter is small: $counter"
-END
+{IF counter > 10: PRINT('Counter is large: $counter')}   # No $ in condition
+{IF counter <= 10: PRINT('Counter is small: $counter')}
 
 # === Test 6: Loops ===
-FOREACH $item IN $list
-    ECHO "Processing: $item"
+FOREACH item IN list                     # No $ prefix needed
+PRINT('Processing: $item')               # $ for string interpolation
 END
 
-WHILE $counter < 100
-    SET $counter ($counter + 1)
+WHILE counter < 100
+SET (counter|counter + 1)                # No $ in assignment
 END
 
 # === Test 7: Mission System ===
@@ -51,8 +48,8 @@ MISSION STATUS
 
 # === Test 8: Comments & Strings ===
 # This is a comment - should be colored differently
-ECHO "This is a string with 'quotes'"
-ECHO 'Single quoted string with "double quotes"'
+PRINT('This is a string with "quotes"')  # Single quotes default
+PRINT("Double quotes with 'single' inside")  # Both accepted
 
 # === Test 9: Snippets ===
 # Try typing these and pressing Tab:

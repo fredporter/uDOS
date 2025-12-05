@@ -2,14 +2,73 @@
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.2.3 Stable** (December 4, 2025)
+**Current Status**: ✅ **v1.2.3 Stable** (December 5, 2025)
 **Latest Update**: Multi-layer map system + spatial data structures (Earth, solar system, galaxy)
+**uPY Syntax**: ✨ **v2.0.2** - Three-format system (short/medium/long) for conditionals and functions
 **Test Coverage**: **14/14 integration tests passing** (v1.2.3 features, 100% success rate)
 **Knowledge Bank**: **230 comprehensive survival guides** across 8 categories
 **Map System**: **4-layer TILE grid** (surface, cloud, satellite, underground)
 **Spatial Data**: **Earth locations, solar system, Milky Way navigation**
 **Architecture**: **Multi-dimensional mapping** with GeoJSON visualization
 **Community**: Production ready with GitHub templates, discussions, and marketplace
+
+---
+
+## ✨ uPY v2.0.2 - Three-Format Syntax System (December 5, 2025)
+
+**Major Language Update:** uPY now supports three formats for conditionals and functions - choose based on complexity!
+
+### Syntax Highlights
+
+**Three Bracket Types:**
+- `{$variable}` - All variables (assignment, interpolation, system)
+- `(command|params)` - Commands and functions
+- `[condition]` - Short-form conditionals
+
+**Three Complexity Levels:**
+
+```upy
+# SHORT FORM (1-2 actions)
+[IF {$hp} < 30: HP (+20) | PRINT ('Healed!')]
+@greet({$name}): PRINT ('Hello {$name}!')
+
+# MEDIUM FORM (inline branching)
+[IF {$gold} >= 100 THEN: ITEM (sword) ELSE: PRINT ('Need gold')]
+[{$hp} < 30 ? HP (+20) : PRINT ('OK')]  # Ternary
+
+# LONG FORM (complex logic, no indents required)
+IF {$hp} < 30
+  HP (+50)
+  PRINT ('Emergency!')
+  FLAG (critical)
+ELSE IF {$hp} < 60
+  HP (+20)
+ELSE
+  PRINT ('Healthy')
+END IF
+
+FUNCTION battle_check({$level})
+  ROLL (1d20) → {$roll}
+  IF {$roll} >= 15
+    XP (+50)
+    RETURN true
+  ELSE
+    RETURN false
+  END IF
+END FUNCTION
+```
+
+**Key Features:**
+- ✅ Progressive complexity (beginner → advanced)
+- ✅ No indentation required (line-by-line)
+- ✅ Human-readable keywords (THEN, ELSE, END IF)
+- ✅ Multiple delimiters (`:` `|` `?` `→`)
+- ✅ Python-like function syntax
+
+**Documentation:**
+- [uCODE-Language.md](wiki/uCODE-Language.md) - Complete spec
+- [uPY-Syntax-v2.0.1.md](wiki/uPY-Syntax-v2.0.1.md) - Full reference
+- [uPY-Syntax-Rules.md](wiki/uPY-Syntax-Rules.md) - Quick card
 
 ---
 

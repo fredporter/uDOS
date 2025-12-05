@@ -1,110 +1,84 @@
 # uCODE Syntax Quick Reference
 
-**Version:** 1.1.2 (Modern Syntax with @variables)
-**Last Updated:** November 30, 2025
+**Version:** 2.0.0 (uPY v2.0 - Clean Minimal Syntax)
+**Last Updated:** December 5, 2025
 
 ---
 
-## Modern Syntax (v1.1.1+)
+## Modern Syntax (v2.0)
 
 ### Output Commands
 
 ```uscript
-# Modern PRINT command with space (preferred)
-PRINT [Hello World]
+# PRINT command with single quotes (preferred)
+PRINT ['Hello World']
 PRINT []
-PRINT [System: @name]
+PRINT ['System: $name']
 
-# Traditional spacing (still supported)
-PRINT[Hello World]
-
-# With variables - BOTH syntaxes work:
-PRINT [User: @username]           # Clean @ syntax (recommended)
-PRINT [User: ${username}]         # Traditional ${} syntax
+# With variables - $ for interpolation only:
+PRINT ['User: $username']           # Clean syntax (recommended)
+PRINT ['Value: $x, Status: $status']
 
 # Multiple variables
-PRINT [Value: @x, Status: @status]
-PRINT [Found @count @item in @location]
+PRINT ['Found $count $item in $location']
 ```
 
 ### Variable Commands
 
 ```uscript
-# SET - Assign variables (with space)
-SET [name = Alice]
-SET [count = 42]
-SET [status = active]
-
-# Traditional (no space, still works)
-SET[name=Alice]
+# SET - Assign variables (| separator, no $ in assignment)
+SET (name|'Alice')
+SET (count|42)
+SET (status|'active')
 
 # GET - Retrieve variable value
 GET [name]
 GET [count]
 
 # Variable references in expressions:
-SET [total = @count + 10]
-SET [message = Hello @name]
+SET (total|count + 10)
+SET (message|'Hello $name')
 ```
 
-### Variable Syntax - Two Options
+### Variable Syntax - Single Style
 
-uCODE supports **two variable syntaxes** for maximum readability:
+uPY v2.0 uses **$ only for string interpolation**:
 
-| Syntax | Example | Use Case |
-|--------|---------|----------|
-| `@variable` | `PRINT [@username]` | **Recommended** - Cleaner, more visual |
-| `${variable}` | `PRINT [${username}]` | Traditional - Shell-style compatibility |
+| Context | Syntax | Example |
+|---------|--------|---------|
+| **Assignment** | No $ | `SET (username|'Alice')` |
+| **Interpolation** | Use $ | `PRINT ['Hello $username']` |
+| **Conditions** | No $ | `{IF count > 5: ...}` |
 
-**Both work identically!** Use `@var` for cleaner code.
+**Rule:** $ only when interpolating into strings.
 
 ```uscript
-# Example comparison:
-SET [name = Alice]
-SET [age = 30]
-SET [city = Brisbane]
+# Example:
+SET (name|'Alice')
+SET (age|30)
+SET (city|'Brisbane')
 
-# Clean @ syntax (recommended)
-PRINT [@name is @age years old and lives in @city]
-
-# Traditional ${} syntax
-PRINT [${name} is ${age} years old and lives in ${city}]
-
-# Mix them if you want (but stay consistent)
-PRINT [@name (age: ${age}) - @city]
+# Clean $ syntax (interpolation only)
+PRINT ['$name is $age years old and lives in $city']
 ```
 
 ### Conditional Commands
 
 ```uscript
-# One-line IF with space before brace
-IF {@x > 5} THEN PRINT [x is large]
-IF {@status == "active"} THEN PRINT [System running]
-IF {@count == 0} THEN PRINT [Empty]
-
-# Multi-line IF blocks (for complex logic)
-IF @x > 5
-    PRINT [x is large]
-    SET [result = pass]
-ENDIF
-
-IF @status == "active"
-    PRINT [System active]
-ELSE
-    PRINT [System inactive]
-ENDIF
+# Inline IF with curly braces
+{IF x > 5: PRINT ['x is large']}
+{IF status == 'active': PRINT ['System running']}
+{IF count == 0: PRINT ['Empty']}
 ```
 
 ### Template Strings
 
-```uscript
-# Variable substitution - use @var or ${var}
-SET [name = Alice]
-SET [age = 30]
+# Variable substitution - use $ for interpolation
+SET (name|'Alice')
+SET (age|30)
 
-PRINT [User: @name]                          # Clean
-PRINT [@name is @age years old]              # Multiple vars
-PRINT [System: @name (${status})]            # Can mix styles
+PRINT ['User: $name']                       # Clean
+PRINT ['$name is $age years old']           # Multiple vars
 ```
 
 ---
@@ -113,79 +87,75 @@ PRINT [System: @name (${status})]            # Can mix styles
 
 ### Output: ECHO vs PRINT
 
-| Old Syntax (v1.0.x) | Modern Syntax (v1.1.2) |
-|---------------------|------------------------|
-| `ECHO "Hello"` | `PRINT [Hello]` |
-| `ECHO "Value: " + var` | `PRINT [Value: @var]` |
+| Old Syntax (v1.x) | Modern Syntax (v2.0) |
+|-------------------|----------------------|
+| `ECHO "Hello"` | `PRINT ['Hello']` |
+| `ECHO "Value: " + var` | `PRINT ['Value: $var']` |
 | `ECHO ""` | `PRINT []` |
 
-**Note:** ECHO is deprecated but still works. Use PRINT for new code.
+**Note:** ECHO is deprecated. Use PRINT.
 
 ### Variables: SET/GET
 
-| Old Syntax | Modern Syntax (v1.1.2) |
-|------------|------------------------|
-| `SET name = "Alice"` | `SET [name = Alice]` |
-| `ECHO "${name}"` | `PRINT [@name]` |
+| Old Syntax | Modern Syntax (v2.0) |
+|------------|----------------------|
+| `SET name = "Alice"` | `SET (name|'Alice')` |
+| `ECHO "${name}"` | `PRINT ['$name']` |
 | `GET name` | `GET [name]` |
 
 ### Variable References
 
 | Style | Syntax | Example |
 |-------|--------|---------|
-| **Modern** | `@variable` | `PRINT [Hello @name]` |
-| Traditional | `${variable}` | `PRINT [Hello ${name}]` |
-| Old (deprecated) | `$variable` | `PRINT "Hello $name"` |
-
----
+| **v2.0** | `$variable` | `PRINT ['Hello $name']` |
+| Old (v1.x) | `@variable` | Deprecated |
+| Old (v1.x) | `${variable}` | Deprecated |---
 
 ## Style Guide
 
-### Recommended Modern Style (v1.1.2+)
+### Recommended Modern Style (v2.0)
 
 ```uscript
-# 1. Always use spaces after commands
-SET [count = 0]           # ✅ Good
-SET[count=0]              # ❌ Old style
+# 1. Use | separator in SET (no spaces/commas/asterisks)
+SET (count|0)             # ✅ Good
+SET (count | 0)           # ❌ No spaces around |
+SET (count, 0)            # ❌ No commas
 
-# 2. Use @var for variables (cleaner)
-PRINT [@count items]      # ✅ Recommended
-PRINT [${count} items]    # ✅ Works but verbose
+# 2. Use $ only for interpolation
+PRINT ['$count items']    # ✅ Recommended
+SET (count|42)            # ✅ No $ in assignment
+{IF count > 5: ...}       # ✅ No $ in conditions
 
-# 3. Space before braces in IF
-IF {@status == "ok"}      # ✅ Good
-IF{@status == "ok"}       # ❌ Old style
+# 3. Use single quotes (default)
+PRINT ['Hello']           # ✅ Good
+PRINT ["Hello"]           # ✅ Works but prefer '
 
 # 4. Consistent naming
-SET [user_name = Alice]   # ✅ snake_case
-SET [userName = Alice]    # ⚠️  camelCase works but inconsistent
-SET [CONSTANT_VAL = 100]  # ✅ UPPER for constants
+SET (user_name|'Alice')   # ✅ snake_case
+SET (CONSTANT_VAL|100)    # ✅ UPPER for constants
 ```
 
 ### Complete Example
 
 ```uscript
-# Modern uCODE v1.1.2+ style
-SET [app_name = uDOS]
-SET [version = 1.1.2]
-SET [status = active]
-SET [user_count = 42]
+# Modern uPY v2.0 style
+SET (app_name|'uDOS')
+SET (version|'2.0')
+SET (status|'active')
+SET (user_count|42)
 
 PRINT [==============================]
-PRINT [@app_name v@version]
+PRINT ['$app_name v$version']
 PRINT [==============================]
-PRINT [Status: @status]
-PRINT [Users: @user_count]
+PRINT ['Status: $status']
+PRINT ['Users: $user_count']
 
-IF {@status == "active"}
-    PRINT [✅ System operational]
-    SET [message = All systems go!]
-ELSE
-    PRINT [⚠️  System offline]
-    SET [message = Maintenance mode]
-ENDIF
+{IF status == 'active': PRINT ['✅ System operational']}
+{IF status == 'active': SET (message|'All systems go!')}
+{IF status != 'active': PRINT ['⚠️  System offline']}
+{IF status != 'active': SET (message|'Maintenance mode')}
 
-PRINT [@message]
+PRINT ['$message']
 ```
 
 ---
@@ -194,7 +164,7 @@ PRINT [@message]
 
 ### Updating Old Scripts
 
-**Old (v1.0.x):**
+**Old (v1.x):**
 ```uscript
 SET name "Alice"
 SET score 85
@@ -203,40 +173,42 @@ ECHO "Score: ${score}"
 IF{score > 80} THEN ECHO "Pass"
 ```
 
-**New (v1.1.2+):**
+**New (v2.0):**
 ```uscript
-SET [name = Alice]
-SET [score = 85]
-PRINT [User: @name]
-PRINT [Score: @score]
-IF {@score > 80} THEN PRINT [Pass]
+SET (name|'Alice')
+SET (score|85)
+PRINT ['User: $name']
+PRINT ['Score: $score']
+{IF score > 80: PRINT ['Pass']}
 ```
 
 ### Quick Find/Replace
 
-1. `SET name` → `SET [name`
-2. `ECHO "` → `PRINT [`
-3. `${var}` → `@var` (optional but cleaner)
-4. `IF{` → `IF {` (add space)
+1. `SET [name = value]` → `SET (name|value)`
+2. `ECHO "text"` → `PRINT ['text']`
+3. `@var` → `$var` (in interpolation)
+4. `${var}` → `$var` (simpler)
+5. `IF {condition}` → `{IF condition: COMMAND()}`
 
 ---
 
 ## Summary
 
-✅ **Use Modern Syntax:**
-- `PRINT [...]` with spaces
-- `SET [var = value]` with spaces
-- `@variable` for cleaner variable references
-- `IF {@condition}` with space before brace
+✅ **Use v2.0 Syntax:**
+- `PRINT ['...']` with single quotes
+- `SET (var|value)` with | separator
+- `$variable` for string interpolation only
+- `{IF condition: COMMAND()}` inline conditionals
 
-📘 **Both syntaxes work:**
-- `@var` (recommended) and `${var}` (traditional)
-- Choose one style and stay consistent
+📘 **Key Rules:**
+- No $ in assignments: `SET (name|'Alice')` not `SET ($name|'Alice')`
+- No $ in conditions: `{IF count > 5: ...}` not `{IF $count > 5: ...}`
+- $ only for interpolation: `PRINT ['Hello $name']`
 
 🔄 **Migration:**
-- Old scripts still work
-- Update gradually to modern syntax
-- Use style guide for new code
+- Old scripts may need syntax updates
+- Use v2.0 syntax for all new code
+- Follow minimal Python-like style
 | `SET var = "value"` | `SET[var = value]` |
 | `SET count = 10` | `SET[count = 10]` |
 | `GET var` | `GET[var]` |
@@ -317,44 +289,34 @@ GET [name]
 
 ### Simple Output
 ```uscript
-PRINT[Starting process...]
-PRINT[Step 1: Initialize]
-PRINT[Step 2: Execute]
-PRINT[Done!]
+PRINT ['Starting process...']
+PRINT ['Step 1: Initialize']
+PRINT ['Step 2: Execute']
+PRINT ['Done!']
 ```
 
 ### Variables and Output
 ```uscript
-SET[user = Alice]
-SET[score = 95]
-PRINT[User ${user} scored ${score}]
+SET (user|'Alice')
+SET (score|95)
+PRINT ['User $user scored $score']
 ```
 
 ### Conditional Logic
 ```uscript
-SET[score = 85]
+SET (score|85)
 
-IF{score >= 90} THEN PRINT[Grade: A]
-IF{score >= 80} THEN PRINT[Grade: B]
-IF{score < 60} THEN PRINT[Grade: F]
+{IF score >= 90: PRINT ['Grade: A']}
+{IF score >= 80: PRINT ['Grade: B']}
+{IF score < 60: PRINT ['Grade: F']}
 ```
 
 ### Loops with Variables
 ```uscript
-FOR item IN water fire shelter
-    PRINT[Processing ${item}...]
-    [KNOWLEDGE|SEARCH|${item}]
-ENDFOR
-```
-
-### Error Handling
-```uscript
-TRY
-    SET[result = dangerous_operation()]
-    PRINT[Success: ${result}]
-CATCH error
-    PRINT[Error: ${error}]
-ENDTRY
+FOREACH item IN ['water'|'fire'|'shelter']
+  PRINT ['Processing $item...']
+  [KNOWLEDGE|SEARCH|$item]
+END_FOR
 ```
 
 ---
@@ -363,18 +325,19 @@ ENDTRY
 
 ### ✅ Do
 
-- Use `PRINT[]` for new scripts
-- Use template strings `${var}` for variable substitution
-- Use one-line `IF{}` for simple conditions
-- Use bracket syntax for consistency
-- Quote strings in conditions: `IF{name == "Alice"}`
+- Use `PRINT ['...']` with single quotes
+- Use `SET (var|value)` with | separator
+- Use $ only for string interpolation: `'$var'`
+- Use inline `{IF condition: CMD()}` for simple logic
+- Quote strings in conditions: `{IF name == 'Alice': ...}`
 
 ### ❌ Don't
 
-- Use `ECHO` in new code (deprecated)
-- Use old-style string concatenation with `+`
-- Mix bracket styles inconsistently
-- Forget quotes in string comparisons
+- Use `ECHO` (deprecated, use PRINT)
+- Use $ in assignments: `SET ($var|...)` is wrong
+- Use $ in conditions: `{IF $count > 5: ...}` is wrong
+- Mix separators: use | only (no commas, spaces, asterisks)
+- Use complex nested conditionals (use BRANCH/LABEL instead)
 
 ---
 

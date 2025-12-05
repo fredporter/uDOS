@@ -1,8 +1,8 @@
 # Test Mission - Water Filter Construction
 
-MISSION CREATE "Water Filter Construction"
-SET priority "high"
-SET location "AA340"
+MISSION CREATE 'Water Filter Construction'
+SET (priority|'high')                    # No $ in assignment
+SET (location|'AA340')                   # | separator only
 
 # Add knowledge guide
 GUIDE ADD tier3 guide "DIY Water Filter"
@@ -11,12 +11,8 @@ GUIDE ADD tier3 guide "DIY Water Filter"
 MAP GOTO AA340 100
 
 # Check mission status
-IF $MISSION.STATUS == "ACTIVE" THEN
-    CHECKPOINT SAVE "mission-start"
-
-    # Log progress
-    ECHO "Mission started at $LOCATION"
-END IF
+{IF MISSION.STATUS == 'ACTIVE': CHECKPOINT SAVE 'mission-start'}
+{IF MISSION.STATUS == 'ACTIVE': PRINT('Mission started at $LOCATION')}
 
 # Complete mission
 MISSION COMPLETE
