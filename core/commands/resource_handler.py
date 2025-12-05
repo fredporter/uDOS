@@ -467,8 +467,8 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
 
     # Print with rich console for color support
     console.print('\n'.join(help_lines))
-    
+
     return {
         'success': True,
-        'output': '✅ Help displayed'
+        'output': ''  # Already printed with colors above
     }
