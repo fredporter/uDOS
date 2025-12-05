@@ -440,3 +440,50 @@ body {
     font-size: 0.7rem;
     opacity: 0.8;
 }
+
+/* ===== SYNTAX HIGHLIGHTING ===== */
+.syn-command {
+    color: var(--syn-cyan);
+    font-weight: bold;
+}
+
+.syn-function {
+    color: #50b818; /* Green */
+    font-weight: bold;
+}
+
+.syn-string {
+    color: #f0e858; /* Yellow */
+}
+
+.syn-comment {
+    color: var(--syn-dim);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.syn-number {
+    color: var(--syn-purple);
+}
+
+.syn-variable {
+    color: #68d0a8; /* Cyan-green */
+    font-weight: bold;
+}
+
+.syn-operator {
+    color: var(--syn-accent);
+}
+
+.syn-bracket {
+    color: var(--syn-text);
+}
+
+.syn-separator {
+    color: var(--syn-dim);
+}
+
+.syn-prompt {
+    color: var(--syn-accent);
+    font-weight: bold;
+}

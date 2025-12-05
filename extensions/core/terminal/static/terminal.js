@@ -15,6 +15,19 @@
         udosApiUrl: 'http://localhost:5001/api'
     };
 
+    // Syntax highlighting patterns (uPY style)
+    const syntaxPatterns = {
+        command: /\b([A-Z][A-Z_]*)\s*\(/g,              // COMMAND(
+        function: /\b([a-z_][a-z0-9_]*)\s*\(/g,         // function(
+        string: /(["'])(?:(?=(\\?))\2.)*?\1/g,         // "string" or 'string'
+        comment: /#.*$/gm,                              // # comment
+        number: /\b\d+\.?\d*\b/g,                      // 123 or 123.45
+        variable: /\$[A-Z_][A-Z0-9_.]*/g,               // $VARIABLE or $VAR.PROP
+        operator: /[+\-*/=<>!&|]+/g,                    // operators
+        bracket: /[\(\)\[\]\{\}]/g,                    // brackets
+        separator: /[,;:]/g                             // separators
+    };
+
     // DOM Elements
     let terminal, output, input, loadingScreen, functionKeys;
 
@@ -205,7 +218,7 @@
      * Execute command
      */
     async function executeCommand(command) {
-        printLine(`> ${command}`);
+        printCommand(command);
 
         // Local commands
         const cmd = command.toLowerCase();
@@ -220,9 +233,34 @@
             printLine('  HELP     - SHOW THIS MESSAGE');
             printLine('  CLEAR    - CLEAR SCREEN');
             printLine('  STATUS   - SHOW SYSTEM STATUS');
+            printLine('  DEMO     - SHOW SYNTAX HIGHLIGHTING DEMO');
             printLine('  EXIT     - CLOSE TERMINAL');
             printLine('');
             printLine('USE FUNCTION KEYS FOR QUICK ACCESS');
+            return;
+        }
+
+        if (cmd === 'demo') {
+            printLine('===== SYNTAX HIGHLIGHTING DEMO =====');
+            printLine('');
+            printLine('uPY COMMAND EXAMPLES:', false);
+            printLine('', false);
+            printCommand('GUIDE(water)');
+            printCommand('SET($LOCATION, "AU-BNE")');
+            printCommand('MEMORY STORE("survival_kit", $ITEMS)');
+            printCommand('MAP DISPLAY($LOCATION, zoom=5)');
+            printCommand('CALC(45 + 67 * 2)');
+            printCommand('# This is a comment');
+            printLine('');
+            printLine('COLOR LEGEND:', false);
+            printLine('  COMMANDS (CYAN) - Uppercase functions', false);
+            printLine('  functions (GREEN) - Lowercase functions', false);
+            printLine('  "strings" (YELLOW) - Text in quotes', false);
+            printLine('  $VARIABLES (CYAN-GREEN) - Variables', false);
+            printLine('  123 (PURPLE) - Numbers', false);
+            printLine('  +*/ (RED) - Operators', false);
+            printLine('  # comments (GRAY) - Comments', false);
+            printLine('');
             return;
         }
 
@@ -389,11 +427,69 @@
     }
 
     /**
+     * Highlight syntax in text
+     */
+    function highlightSyntax(text) {
+        // Skip highlighting for plain messages (all lowercase or starting with special chars)
+        if (text.startsWith('=') || text.startsWith('*') || text.startsWith('-') || 
+            text === text.toLowerCase() || !text.includes('(')) {
+            return text; // Return plain text
+        }
+
+        let highlighted = text;
+        const replacements = [];
+
+        // Detect each pattern and store replacements
+        for (const [type, pattern] of Object.entries(syntaxPatterns)) {
+            const regex = new RegExp(pattern.source, pattern.flags);
+            let match;
+            
+            while ((match = regex.exec(text)) !== null) {
+                replacements.push({
+                    start: match.index,
+                    end: match.index + match[0].length,
+                    original: match[0],
+                    type: type
+                });
+            }
+        }
+
+        // Sort by position (descending) to replace from end to start
+        replacements.sort((a, b) => b.start - a.start);
+
+        // Apply highlighting (from end to start to preserve positions)
+        for (const repl of replacements) {
+            const before = highlighted.substring(0, repl.start);
+            const after = highlighted.substring(repl.end);
+            const colored = `<span class="syn-${repl.type}">${repl.original}</span>`;
+            highlighted = before + colored + after;
+        }
+
+        return highlighted;
+    }
+
+    /**
      * Print line to output
      */
-    function printLine(text) {
+    function printLine(text, enableHighlight = false) {
         const line = document.createElement('div');
-        line.textContent = text;
+        
+        if (enableHighlight) {
+            line.innerHTML = highlightSyntax(text);
+        } else {
+            line.textContent = text;
+        }
+        
+        output.appendChild(line);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    /**
+     * Print highlighted command (for echoing user input)
+     */
+    function printCommand(command) {
+        const line = document.createElement('div');
+        line.innerHTML = '<span class="syn-prompt">&gt; </span>' + highlightSyntax(command);
         output.appendChild(line);
         output.scrollTop = output.scrollHeight;
     }
