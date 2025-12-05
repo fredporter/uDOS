@@ -244,3 +244,194 @@ def highlight_file(filepath: str, language: Optional[str] = None,
                   line_numbers: bool = True, theme: str = 'monokai') -> None:
     """Highlight file in any language."""
     get_simple_highlighter().highlight_file(filepath, language, line_numbers, theme)
+
+
+# ANSI-based syntax highlighting for terminal output (no rich dependency)
+class ANSISyntaxHighlighter:
+    """ANSI-based syntax highlighter for uPY/uCODE commands."""
+
+    # ANSI color codes
+    COMMAND = '\033[1;32m'      # Bright green
+    PARAM = '\033[36m'          # Cyan
+    VARIABLE = '\033[1;33m'     # Bright yellow
+    FLAG = '\033[35m'           # Magenta
+    STRING = '\033[37m'         # White
+    PIPE = '\033[36m'           # Cyan
+    BRACKET = '\033[90m'        # Dim gray
+    RESET = '\033[0m'
+
+    # Text formatting
+    CYAN = '\033[1;36m'
+    YELLOW = '\033[1;33m'
+    GREEN = '\033[1;32m'
+    BLUE = '\033[34m'
+    RED = '\033[31m'
+    MAGENTA = '\033[35m'
+
+    @classmethod
+    def highlight(cls, text: str) -> str:
+        """
+        Apply syntax highlighting to uPY/uCODE command syntax.
+
+        Supports:
+        - COMMAND(params)
+        - [MODULE|COMMAND*PARAM]
+        - $VARIABLES
+        - --flags
+        - 'strings'
+
+        Args:
+            text: Command text to highlight
+
+        Returns:
+            Text with ANSI color codes
+        """
+        if not text or not any(char in text for char in '()[]|$'):
+            return text
+
+        result = text
+        result = cls._highlight_command_parens(result)
+        result = cls._highlight_ucode_brackets(result)
+        result = cls._highlight_variables(result)
+        result = cls._highlight_flags(result)
+        result = cls._highlight_strings(result)
+
+        return result
+
+    @classmethod
+    def _highlight_command_parens(cls, text: str) -> str:
+        """Highlight COMMAND(params) syntax."""
+        pattern = r'\b([A-Z][A-Z0-9_]*)\(([^)]*)\)'
+
+        def replace_match(match):
+            command = match.group(1)
+            params = match.group(2)
+
+            result = f"{cls.COMMAND}{command}{cls.RESET}{cls.BRACKET}({cls.RESET}"
+
+            if params:
+                parts = params.split('|')
+                highlighted_parts = []
+
+                for part in parts:
+                    part = part.strip()
+                    if not part:
+                        continue
+
+                    if part.startswith('$'):
+                        highlighted_parts.append(f"{cls.VARIABLE}{part}{cls.RESET}")
+                    elif part.startswith('--'):
+                        highlighted_parts.append(f"{cls.FLAG}{part}{cls.RESET}")
+                    elif part.startswith("'") and part.endswith("'"):
+                        highlighted_parts.append(f"{cls.STRING}{part}{cls.RESET}")
+                    else:
+                        highlighted_parts.append(f"{cls.PARAM}{part}{cls.RESET}")
+
+                result += f"{cls.PIPE}|{cls.RESET}".join(highlighted_parts)
+
+            result += f"{cls.BRACKET}){cls.RESET}"
+            return result
+
+        return re.sub(pattern, replace_match, text)
+
+    @classmethod
+    def _highlight_ucode_brackets(cls, text: str) -> str:
+        """Highlight [MODULE|COMMAND*PARAM] uCODE syntax."""
+        pattern = r'\[([A-Z][A-Z0-9_]*)\|([A-Z][A-Z0-9_]*)(?:\*([^\]]*))?\]'
+
+        def replace_match(match):
+            module = match.group(1)
+            command = match.group(2)
+            params = match.group(3) or ''
+
+            result = f"{cls.BRACKET}[{cls.RESET}"
+            result += f"{cls.COMMAND}{module}{cls.RESET}"
+            result += f"{cls.PIPE}|{cls.RESET}"
+            result += f"{cls.PARAM}{command}{cls.RESET}"
+
+            if params:
+                result += f"{cls.PIPE}*{cls.RESET}"
+                result += f"{cls.PARAM}{params}{cls.RESET}"
+
+            result += f"{cls.BRACKET}]{cls.RESET}"
+            return result
+
+        return re.sub(pattern, replace_match, text)
+
+    @classmethod
+    def _highlight_variables(cls, text: str) -> str:
+        """Highlight $VARIABLES."""
+        # Simple pattern without lookbehind - just match $VAR and check if already colored
+        pattern = r'(\$[A-Z_][A-Z0-9_]*)'
+
+        def replace_var(match):
+            var = match.group(1)
+            # Check if already inside ANSI codes
+            start_pos = match.start()
+            if start_pos > 0:
+                preceding = text[max(0, start_pos-10):start_pos]
+                if '\033[' in preceding and '\033[0m' not in preceding:
+                    return var  # Already colored
+            return f"{cls.VARIABLE}{var}{cls.RESET}"
+
+        return re.sub(pattern, replace_var, text)
+
+    @classmethod
+    def _highlight_flags(cls, text: str) -> str:
+        """Highlight --flags."""
+        # Simple pattern without lookbehind
+        pattern = r'(--[a-z][a-z0-9-]*)'
+
+        def replace_flag(match):
+            flag = match.group(1)
+            # Check if already inside ANSI codes
+            start_pos = match.start()
+            if start_pos > 0:
+                preceding = text[max(0, start_pos-10):start_pos]
+                if '\033[' in preceding and '\033[0m' not in preceding:
+                    return flag  # Already colored
+            return f"{cls.FLAG}{flag}{cls.RESET}"
+
+        return re.sub(pattern, replace_flag, text)
+
+    @classmethod
+    def _highlight_strings(cls, text: str) -> str:
+        """Highlight 'strings'."""
+        # Simple pattern without lookbehind
+        pattern = r"('([^']*)')"
+
+        def replace_str(match):
+            string = match.group(1)
+            # Check if already inside ANSI codes
+            start_pos = match.start()
+            if start_pos > 0:
+                preceding = text[max(0, start_pos-10):start_pos]
+                if '\033[' in preceding and '\033[0m' not in preceding:
+                    return string  # Already colored
+            return f"{cls.STRING}{string}{cls.RESET}"
+
+        return re.sub(pattern, replace_str, text)
+
+    @classmethod
+    def format_error(cls, title: str, reason: str, hint: Optional[str] = None) -> str:
+        """Format a colored error message."""
+        lines = []
+        lines.append(f"{cls.RED}💀 {title}{cls.RESET}")
+        lines.append(f"   {cls.YELLOW}Reason:{cls.RESET} {cls.highlight(reason)}")
+
+        if hint:
+            lines.append(f"   {cls.CYAN}💡 {cls.highlight(hint)}{cls.RESET}")
+
+        return '\n'.join(lines)
+
+
+# Convenience functions for ANSI highlighting
+def highlight_syntax(text: str) -> str:
+    """Highlight uPY/uCODE syntax in text with ANSI colors."""
+    return ANSISyntaxHighlighter.highlight(text)
+
+
+def format_error(title: str, reason: str, hint: Optional[str] = None) -> str:
+    """Format a colored error message with syntax highlighting."""
+    return ANSISyntaxHighlighter.format_error(title, reason, hint)
+
