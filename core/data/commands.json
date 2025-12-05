@@ -220,10 +220,7 @@
       "NAME": "HELP",
       "SYNTAX": "HELP [<command_name>]",
       "DESCRIPTION": "Provides help for a specific command.",
-      "UCODE_TEMPLATE": "[SYSTEM|HELP*$1]",
-      "DEFAULT_PARAMS": {
-        "$1": "ALL"
-      }
+      "UCODE_TEMPLATE": "[SYSTEM|HELP*$1]"
     },
     {
       "NAME": "FEEDBACK",

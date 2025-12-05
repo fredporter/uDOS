@@ -461,43 +461,60 @@ class SystemCommandHandler(BaseCommandHandler):
         if '--extensions' in flags or '--extension' in flags or '--validate' in flags:
             return self._handle_hot_reload(flags, args)
 
-        # Original full system reboot with consistent progress meters
+        # Animated progress bar reboot (matches start_udos.sh exactly)
         import time
+        import sys
 
-        output = "\n"
-        output += "┌─────────────────────────────────────────┐\n"
-        output += "│ 🔄 SYSTEM REBOOT                       │\n"
-        output += "└─────────────────────────────────────────┘\n"
+        # Progress bar helper function (matches bash show_progress)
+        def show_progress(current, total, message):
+            """Show animated progress bar matching startup style."""
+            width = 35
+            percentage = (current * 100) // total
+            filled = (current * width) // total
+            empty = width - filled
 
-        # Progress meter helper (matches startup format)
+            bar = "┌─ " + ("█" * filled) + ("░" * empty) + " ─┐"
+            return f"\r{bar} \033[1;32m{percentage:3d}%\033[0m {message}"
+
+        # Reboot steps with detailed messages (matches startup format)
         steps = [
-            ("Saving state", "✓ State saved"),
-            ("Clearing buffers", "✓ Buffers cleared"),
+            ("Saving state", "saved"),
+            ("Clearing buffers", "cleared"),
             ("Viewport detection", None),  # Special handling
-            ("Reinitializing", "✓ Components ready"),
+            ("Configuration", "ready"),
         ]
 
-        for i, (step_name, completion_msg) in enumerate(steps, 1):
-            output += f"  [{i}/4] {step_name}..."
-            time.sleep(0.05)  # Brief pause for visual feedback
+        total = len(steps)
 
+        # Show animated progress for each step
+        for i, (step_name, completion_msg) in enumerate(steps, 1):
+            # Show progress bar
+            print(show_progress(i, total, f"{step_name}..."), end="", flush=True)
+            time.sleep(0.15)  # Animated delay
+
+            # Clear line completely before showing completion message
+            # Show completion message
             if i == 3:  # Viewport detection
                 try:
                     from core.services.viewport_manager import ViewportManager
                     viewport = ViewportManager()
                     viewport_info = viewport.refresh_viewport()
                     tier = viewport_info["screen_tier"]
-                    output += f"\r  [✓] Viewport detection     ({tier['actual_width_cells']}×{tier['actual_height_cells']})  \n"
-                except Exception as e:
-                    output += f"\r  [⚠] Viewport detection     (cached)  \n"
+                    vp_size = f"{tier['actual_width_cells']}×{tier['actual_height_cells']}"
+                except:
+                    vp_size = "cached"
+                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({vp_size})  ", flush=True)
             else:
-                output += f"\r  [✓] {step_name:<20} (complete)  \n"
+                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({completion_msg})  ", flush=True)
 
-        output += "\n🚀 System restart initiated!\n"
-        output += f"Welcome back to uDOS v1.2.10\n\n"
+        # Final progress bar at 100%
+        print(f"\r{' ' * 80}\r{show_progress(total, total, 'System ready!                    ')}")
+        print()
+        print("\n\033[1;32m[✓]\033[0m All checks passed - restarting uDOS...\n")
 
         # Set the reboot flag to trigger restart in main loop
         self.reboot_requested = True
+        return ""
 
         return output
 

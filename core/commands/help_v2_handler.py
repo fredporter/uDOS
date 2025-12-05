@@ -14,6 +14,30 @@ Author: uDOS Development Team
 
 from typing import List, Dict, Optional
 from core.output.syntax_highlighter import highlight_syntax
+import re
+
+# ANSI color codes for command highlighting
+CMD_COLOR = '\033[1;32m'  # Bright green for commands
+RESET = '\033[0m'
+
+
+def colorize_command(text: str) -> str:
+    """Colorize command names in text (e.g., 'HELP FILES' -> colored 'HELP' and 'FILES')."""
+    # Match uppercase words (commands)
+    return re.sub(r'\b([A-Z][A-Z0-9_]+)\b', f'{CMD_COLOR}\\1{RESET}', text)
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text for length calculation."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    return ansi_escape.sub('', text)
+
+
+def pad_to_border(text: str, total_width: int = 79) -> str:
+    """Pad text to fit border width, accounting for ANSI codes."""
+    visible_len = len(strip_ansi(text))
+    padding_needed = total_width - visible_len
+    return text + ' ' * padding_needed
 
 
 class HelpV2Handler:
@@ -79,7 +103,7 @@ class HelpV2Handler:
         # Special commands
         if subcommand == 'SEARCH':
             if len(params) < 2:
-                return "❌ Usage: HELP SEARCH <query>\n💡 Example: HELP SEARCH workflow"
+                return "Usage: HELP SEARCH <query>\nExample: HELP SEARCH workflow"
             query = ' '.join(params[1:]).lower()
             return self._search_commands(query)
 
@@ -95,38 +119,38 @@ class HelpV2Handler:
 
         # Header
         lines.append("╔" + "═"*78 + "╗")
-        lines.append("║" + " "*23 + "📚 uDOS HELP SYSTEM v2.0" + " "*30 + "║")
+        lines.append("║" + " "*26 + "uDOS HELP SYSTEM v2.0" + " "*31 + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
         # Section Selector
-        lines.append("║  🎯 QUICK NAVIGATION:".ljust(79) + "║")
+        lines.append("║  QUICK NAVIGATION:".ljust(79) + "║")
         lines.append("║  " + "─"*76 + "║")
-        lines.append("║  📝 HELP FILES         - File operations (NEW, EDIT, DELETE, COPY, etc.)" + " "*6 + "║")
-        lines.append("║  🔧 HELP SYSTEM        - System commands (STATUS, REPAIR, BACKUP, etc.)" + " "*6 + "║")
-        lines.append("║  📚 HELP KNOWLEDGE     - Knowledge bank & guides (GUIDE, SEARCH)" + " "*14 + "║")
-        lines.append("║  💾 HELP MEMORY        - Memory system (MEMORY, SHARED, PRIVATE)" + " "*13 + "║")
-        lines.append("║  🎨 HELP GRAPHICS      - Graphics & diagrams (SVG, DIAGRAM, PANEL)" + " "*10 + "║")
-        lines.append("║  🗺️  HELP MAPPING       - Map & grid system (TILE, LAYER, LOCATE)" + " "*11 + "║")
-        lines.append("║  ☁️  HELP CLOUD         - Cloud sync (GMAIL, SYNC, EMAIL, IMPORT)" + " "*11 + "║")
-        lines.append("║  ⚙️  HELP AUTOMATION    - Missions & workflows (MISSION, SCHEDULE)" + " "*10 + "║")
-        lines.append("║  🖥️  HELP DISPLAY       - Display & themes (PANEL, THEME, LAYOUT)" + " "*11 + "║")
-        lines.append("║  🔬 HELP ADVANCED      - Advanced tools (DEV MODE, RESOURCE, LOGS)" + " "*8 + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP FILES") + "         - File operations (NEW, EDIT, DELETE, COPY, etc.)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP SYSTEM") + "        - System commands (STATUS, REPAIR, BACKUP, etc.)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP KNOWLEDGE") + "     - Knowledge bank & guides (GUIDE, SEARCH)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP MEMORY") + "        - Memory system (MEMORY, SHARED, PRIVATE)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP GRAPHICS") + "      - Graphics & diagrams (SVG, DIAGRAM, PANEL)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP MAPPING") + "       - Map & grid system (TILE, LAYER, LOCATE)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP CLOUD") + "         - Cloud sync (GMAIL, SYNC, EMAIL, IMPORT)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP AUTOMATION") + "    - Missions & workflows (MISSION, SCHEDULE)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP DISPLAY") + "       - Display & themes (PANEL, THEME, LAYOUT)", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP ADVANCED") + "      - Advanced tools (DEV MODE, RESOURCE, LOGS)", 76) + "║")
         lines.append("║" + " "*78 + "║")
 
         # Special Features
-        lines.append("║  💡 SPECIAL FEATURES:".ljust(79) + "║")
+        lines.append("║  SPECIAL FEATURES:".ljust(79) + "║")
         lines.append("║  " + "─"*76 + "║")
-        lines.append("║  🔍 HELP SEARCH <query>       - Search all commands" + " "*26 + "║")
-        lines.append("║  📄 HELP QUICK                - One-page quick reference" + " "*20 + "║")
-        lines.append("║  📖 HELP <command>            - Detailed help for specific command" + " "*9 + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP SEARCH") + " <query>       - Search all commands", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP QUICK") + "                - One-page quick reference", 76) + "║")
+        lines.append("║  " + pad_to_border(colorize_command("HELP") + " <command>            - Detailed help for specific command", 76) + "║")
         lines.append("║" + " "*78 + "║")
 
         # Footer
         lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  📚 Full documentation: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║")
-        lines.append("║  💬 Get support: File an issue on GitHub".ljust(79) + "║")
-        lines.append("║  ⚡ uDOS version: 1.2.9 (Gmail Cloud Sync)".ljust(79) + "║")
+        lines.append("║  Full documentation: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║")
+        lines.append("║  Get support: File an issue on GitHub".ljust(79) + "║")
+        lines.append("║  uDOS version: 1.2.9 (Gmail Cloud Sync)".ljust(79) + "║")
         lines.append("╚" + "═"*78 + "╝")
 
         return '\n'.join(lines)
@@ -134,20 +158,22 @@ class HelpV2Handler:
     def _show_section(self, section: str) -> str:
         """Show commands for a specific section."""
         if section not in self.sections:
-            return f"❌ Unknown section: {section}\n💡 Try: HELP for all sections"
+            return f"Unknown section: {section}\nTry: HELP for all sections"
 
         section_data = self.sections[section]
         lines = []
 
         # Header
         lines.append("╔" + "═"*78 + "╗")
-        lines.append(f"║  {section_data['icon']} {section_data['title']:<72} ║")
+        header_text = f"{section_data['icon']} {section_data['title']}"
+        lines.append("║  " + pad_to_border(header_text, 76) + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
         # Commands
         for cmd in section_data['commands']:
-            lines.append(f"║  {cmd['name']:<20}".ljust(79) + "║")
+            cmd_name_colored = colorize_command(cmd['name'])
+            lines.append("║  " + pad_to_border(cmd_name_colored, 76) + "║")
             lines.append(f"║    {cmd['desc']:<73} ║")
             lines.append("║" + " "*78 + "║")
 
@@ -155,10 +181,7 @@ class HelpV2Handler:
             lines.append("║    Syntax:".ljust(79) + "║")
             for syntax in cmd['syntax']:
                 highlighted = highlight_syntax(syntax)
-                # Strip ANSI for length calculation
-                clean = syntax
-                padding = 79 - len(f"║      {clean}")
-                lines.append(f"║      {highlighted}" + " "*padding + "║")
+                lines.append("║      " + pad_to_border(highlighted, 72) + "║")
 
             lines.append("║" + " "*78 + "║")
 
@@ -167,15 +190,13 @@ class HelpV2Handler:
                 lines.append("║    Examples:".ljust(79) + "║")
                 for example in cmd['examples']:
                     highlighted = highlight_syntax(example)
-                    clean = example
-                    padding = 79 - len(f"║      {clean}")
-                    lines.append(f"║      {highlighted}" + " "*padding + "║")
+                    lines.append("║      " + pad_to_border(highlighted, 72) + "║")
                 lines.append("║" + " "*78 + "║")
 
         # Footer
         lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  💡 Tip: Use HELP <command> for more details".ljust(79) + "║")
-        lines.append("║  🔍 Try: HELP SEARCH <keyword> to find related commands".ljust(79) + "║")
+        lines.append("║  " + pad_to_border("Tip: Use " + colorize_command("HELP") + " <command> for more details", 76) + "║")
+        lines.append("║  " + pad_to_border("Try: " + colorize_command("HELP SEARCH") + " <keyword> to find related commands", 76) + "║")
         lines.append("╚" + "═"*78 + "╝")
 
         return '\n'.join(lines)
@@ -185,40 +206,40 @@ class HelpV2Handler:
         lines = []
 
         lines.append("╔" + "═"*78 + "╗")
-        lines.append("║" + " "*22 + "⚡ QUICK REFERENCE CARD" + " "*33 + "║")
+        lines.append("║" + " "*25 + "QUICK REFERENCE CARD" + " "*33 + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
         # Most used commands by category
         quick_cmds = [
-            ("📝 Files", [
+            ("Files", [
                 ("NEW <file>", "Create new file"),
                 ("EDIT <file>", "Edit file"),
                 ("DELETE <file>", "Delete file"),
                 ("SHOW <file>", "Display file"),
             ]),
-            ("🔧 System", [
+            ("System", [
                 ("STATUS", "System overview"),
                 ("REPAIR", "Fix system issues"),
                 ("BACKUP <file>", "Create backup"),
                 ("CLEAN", "Clean workspace"),
             ]),
-            ("📚 Knowledge", [
+            ("Knowledge", [
                 ("GUIDE <topic>", "Interactive guide"),
                 ("SEARCH <query>", "Search knowledge"),
             ]),
-            ("☁️ Cloud", [
+            ("Cloud", [
                 ("LOGIN GMAIL", "Authenticate"),
                 ("SYNC GMAIL", "Sync files"),
                 ("EMAIL LIST", "List emails"),
                 ("IMPORT GMAIL", "Import emails"),
             ]),
-            ("⚙️ Automation", [
+            ("Automation", [
                 ("MISSION CREATE", "New mission"),
                 ("WORKFLOW RUN", "Run workflow"),
                 ("SCHEDULE ADD", "Schedule task"),
             ]),
-            ("🎨 Graphics", [
+            ("Graphics", [
                 ("SVG <name>", "Generate SVG"),
                 ("DIAGRAM <topic>", "Create diagram"),
                 ("PANEL <content>", "Display panel"),
@@ -226,22 +247,25 @@ class HelpV2Handler:
         ]
 
         for category, commands in quick_cmds:
-            lines.append(f"║  {category}".ljust(79) + "║")
+            category_colored = colorize_command(category)
+            lines.append("║  " + pad_to_border(category_colored, 76) + "║")
             lines.append("║  " + "─"*76 + "║")
             for cmd, desc in commands:
-                lines.append(f"║    {cmd:<25} {desc:<49} ║")
+                cmd_colored = colorize_command(cmd)
+                line_text = f"{cmd_colored:<25} {desc}"
+                lines.append("║    " + pad_to_border(line_text, 74) + "║")
             lines.append("║" + " "*78 + "║")
 
         # Common patterns
-        lines.append("║  💡 Common Patterns:".ljust(79) + "║")
+        lines.append("║  Common Patterns:".ljust(79) + "║")
         lines.append("║  " + "─"*76 + "║")
-        lines.append("║    $VARIABLE                   Use environment variables" + " "*18 + "║")
-        lines.append("║    COMMAND --flag              Add options to commands" + " "*21 + "║")
-        lines.append("║    COMMAND < input > output    Redirect input/output" + " "*23 + "║")
+        lines.append("║    " + pad_to_border("$VARIABLE                   Use environment variables", 74) + "║")
+        lines.append("║    " + pad_to_border("COMMAND --flag              Add options to commands", 74) + "║")
+        lines.append("║    " + pad_to_border("COMMAND < input > output    Redirect input/output", 74) + "║")
         lines.append("║" + " "*78 + "║")
 
         lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  📖 For detailed help: HELP <section> or HELP <command>".ljust(79) + "║")
+        lines.append("║  " + pad_to_border("For detailed help: " + colorize_command("HELP") + " <section> or " + colorize_command("HELP") + " <command>", 76) + "║")
         lines.append("╚" + "═"*78 + "╝")
 
         return '\n'.join(lines)
@@ -263,22 +287,23 @@ class HelpV2Handler:
                     })
 
         if not results:
-            return f"❌ No commands found matching '{query}'\n💡 Try broader search terms or HELP for all sections"
+            return f"No commands found matching '{query}'\nTry broader search terms or HELP for all sections"
 
         # Format results
         lines = []
         lines.append("╔" + "═"*78 + "╗")
-        lines.append(f"║  🔍 Search Results for: {query:<54} ║")
+        lines.append("║  🔍 " + pad_to_border(f"Search Results for: {query}", 74) + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
         for result in results:
-            lines.append(f"║  {result['icon']} {result['name']:<25} ({result['section']})".ljust(79) + "║")
+            result_line = f"{result['icon']} {colorize_command(result['name']):<25} ({result['section']})"
+            lines.append("║  " + pad_to_border(result_line, 76) + "║")
             lines.append(f"║    {result['desc']:<73} ║")
             lines.append("║" + " "*78 + "║")
 
         lines.append("╠" + "═"*78 + "╣")
-        lines.append(f"║  Found {len(results)} command(s). Use HELP <command> for details.".ljust(79) + "║")
+        lines.append("║  " + pad_to_border(f"Found {len(results)} command(s). Use " + colorize_command("HELP") + " <command> for details.", 76) + "║")
         lines.append("╚" + "═"*78 + "╝")
 
         return '\n'.join(lines)
@@ -291,14 +316,15 @@ class HelpV2Handler:
                 if cmd['name'].upper() == command.upper():
                     return self._format_command_detail(cmd, section_data)
 
-        return f"❌ Unknown command: {command}\n💡 Try: HELP SEARCH {command.lower()}"
+        return f"Unknown command: {command}\nTry: HELP SEARCH {command.lower()}"
 
     def _format_command_detail(self, cmd: Dict, section: Dict) -> str:
         """Format detailed help for a single command."""
         lines = []
 
         lines.append("╔" + "═"*78 + "╗")
-        lines.append(f"║  {section['icon']} {cmd['name']:<72} ║")
+        cmd_header = f"{section['icon']} {colorize_command(cmd['name'])}"
+        lines.append("║  " + pad_to_border(cmd_header, 76) + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
@@ -311,9 +337,7 @@ class HelpV2Handler:
         lines.append("║  " + "─"*76 + "║")
         for syntax in cmd['syntax']:
             highlighted = highlight_syntax(syntax)
-            clean = syntax
-            padding = 79 - len(f"║    {clean}")
-            lines.append(f"║    {highlighted}" + " "*padding + "║")
+            lines.append("║    " + pad_to_border(highlighted, 74) + "║")
         lines.append("║" + " "*78 + "║")
 
         # Examples
@@ -322,9 +346,7 @@ class HelpV2Handler:
             lines.append("║  " + "─"*76 + "║")
             for example in cmd['examples']:
                 highlighted = highlight_syntax(example)
-                clean = example
-                padding = 79 - len(f"║    {clean}")
-                lines.append(f"║    {highlighted}" + " "*padding + "║")
+                lines.append("║    " + pad_to_border(highlighted, 74) + "║")
             lines.append("║" + " "*78 + "║")
 
         # Related commands
@@ -352,7 +374,7 @@ class HelpV2Handler:
             lines.append("║" + " "*78 + "║")
 
         lines.append("╠" + "═"*78 + "╣")
-        lines.append(f"║  💡 See also: HELP {section['title'][:20]}".ljust(79) + "║")
+        lines.append("║  " + pad_to_border("See also: " + colorize_command("HELP") + f" {section['title'][:20]}", 76) + "║")
         lines.append("╚" + "═"*78 + "╝")
 
         return '\n'.join(lines)

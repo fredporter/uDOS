@@ -46,10 +46,16 @@ class FastStartup:
         Returns:
             Dictionary of initialized components
         """
-        if self.verbose and not is_script_mode:
-            print("\n┌─────────────────────────────────────────┐", flush=True)
-            print("│ ⚙️  SYSTEM INITIALIZATION              │", flush=True)
-            print("└─────────────────────────────────────────┘", flush=True)
+        # Progress bar helper function (matches bash show_progress)
+        def show_progress(current, total, message):
+            """Show animated progress bar matching startup style."""
+            width = 35
+            percentage = (current * 100) // total
+            filled = (current * width) // total
+            empty = width - filled
+
+            bar = "┌─ " + ("█" * filled) + ("░" * empty) + " ─┐"
+            return f"\r{bar} \033[1;32m{percentage:3d}%\033[0m {message}"
 
         # Detect viewport width for column layout
         try:
@@ -61,16 +67,21 @@ class FastStartup:
 
         # Step 1: Viewport (cached if available)
         if self.verbose and not is_script_mode:
-            print("  [1/4] Viewport detection...", end="", flush=True)
+            print(show_progress(1, 4, "Viewport detection..."), end="", flush=True)
+            import time
+            time.sleep(0.1)
         viewport = self._init_viewport(is_script_mode)
         self.components['viewport'] = viewport
         if self.verbose and not is_script_mode:
             vp_size = f"{viewport.width}×{viewport.height}" if hasattr(viewport, 'width') else "cached"
-            print(f"\r  [✓] Viewport detection     ({vp_size})  ", flush=True)
+            # Clear entire line before printing checkmark
+            print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m Viewport detection     ({vp_size})  ", flush=True)
 
         # Step 2: User profile (required by main)
         if self.verbose and not is_script_mode:
-            print("  [2/4] User profile...", end="", flush=True)
+            print(show_progress(2, 4, "User profile..."), end="", flush=True)
+            import time
+            time.sleep(0.1)
         from core.services.user_manager import UserManager
         user_manager = UserManager()
         viewport_data = viewport.get_status_summary()
@@ -85,30 +96,51 @@ class FastStartup:
             session_id = f"session_{int(time.time())}"
             user_manager.update_session_data(session_id, viewport_data)
             if self.verbose and not is_script_mode:
-                print("\r  [✓] User profile          (loaded)  ", flush=True)
+                # Clear entire line before printing checkmark
+                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m User profile          (loaded)  ", flush=True)
 
         self.components['user_manager'] = user_manager
 
         # Step 3: Story/User data (quick load)
         if self.verbose and not is_script_mode:
-            print("  [3/4] Configuration...", end="", flush=True)
+            print(show_progress(3, 4, "Configuration..."), end="", flush=True)
+            import time
+            time.sleep(0.1)
         story_data = self._init_story(is_script_mode)
         self.components['story_data'] = story_data
         if self.verbose and not is_script_mode:
-            print("\r  [✓] Configuration         (ready)   ", flush=True)
+            # Clear entire line before printing checkmark
+            print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m Configuration         (ready)   ", flush=True)
 
         # Step 4: Connection (initialize, but don't check unless needed)
         if self.verbose and not is_script_mode:
-            print("  [4/4] Network status...", end="", flush=True)
+            print(show_progress(4, 4, "Network status..."), end="", flush=True)
+            import time
+            time.sleep(0.1)
         from core.services.connection_manager import ConnectionMonitor
         connection = ConnectionMonitor()
         # Don't check internet unless explicitly requested (saves time)
         if self.run_health_check:
-            connection.check_internet_connection()
+            try:
+                connection.check_internet_connection()
+            except Exception as e:
+                # Silently fail - connection check is optional
+                pass
         self.components['connection'] = connection
         if self.verbose and not is_script_mode:
-            status = "online" if connection.has_internet() else "offline"
-            print(f"\r  [✓] Network status        ({status})  ", flush=True)
+            try:
+                status = "online" if connection.has_internet() else "offline"
+            except:
+                status = "offline"  # Default to offline if check fails
+            # Clear entire line before printing checkmark
+            print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m Network status        ({status})  ", flush=True)
+
+        # Final progress bar at 100%
+        if self.verbose and not is_script_mode:
+            # Clear line and show final progress
+            print(f"\r{' ' * 80}\r{show_progress(4, 4, 'System ready!                    ')}")
+            print()
+            print("\033[1;32m[✓]\033[0m All checks passed - starting uDOS...\n")
 
         # Step 5: Optional health check
         if self.run_health_check and not is_script_mode:

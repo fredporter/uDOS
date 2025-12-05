@@ -68,6 +68,14 @@ class ConnectionMonitor:
 
         return status
 
+    def has_internet(self):
+        """Check if internet connection is available.
+
+        Returns:
+            bool: True if online, False otherwise
+        """
+        return self.is_online
+
     def get_mode(self):
         """
         Determine operational mode based on connectivity.
