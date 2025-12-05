@@ -17,10 +17,11 @@ Version: 1.1.2
 from typing import Any, Dict, Optional
 
 from core.services.resource_manager import get_resource_manager
-from rich.console import Console
+from core.output.color_ui import get_color_ui
 
-# Initialize rich console for colored output
-console = Console()
+# Get shared ColorUI instance for colored output
+color_ui = get_color_ui()
+console = color_ui.console
 
 
 def handle_resource_command(command: str, **kwargs) -> Dict[str, Any]:

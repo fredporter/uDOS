@@ -14,7 +14,7 @@ import termios
 import tty
 from typing import List, Optional
 
-from rich.console import Console
+from core.output.color_ui import get_color_ui
 
 
 class SimplePager:
@@ -42,7 +42,9 @@ class SimplePager:
 
         self.viewport_height = viewport_height
         self.viewport_width = viewport_width
-        self.console = Console()  # Initialize rich console for colored output
+        # Use shared ColorUI console for consistent color rendering
+        color_ui = get_color_ui()
+        self.console = color_ui.console
 
     def _get_key(self) -> str:
         """
