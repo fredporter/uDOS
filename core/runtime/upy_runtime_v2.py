@@ -133,6 +133,40 @@ class UPYRuntime:
 
         return self.var_pattern.sub(replacer, text)
 
+    def evaluate_value(self, value: str) -> Any:
+        """
+        Evaluate value - try math expression first, then number, then string.
+
+        Args:
+            value: String value to evaluate
+
+        Returns:
+            Evaluated value (int, float, or string)
+        """
+        # Check if it contains math operators
+        has_math = any(op in value for op in ['+', '-', '*', '/', '%', '**', '(', ')'])
+
+        if has_math:
+            # Try to evaluate as math expression
+            try:
+                from core.runtime.upy_math import evaluate
+                # Build variables dict for math parser
+                result = evaluate(value, self.variables)
+                return result
+            except Exception as e:
+                # Fall through to simple conversion
+                pass
+
+        # Try to convert to number
+        try:
+            if '.' in value:
+                return float(value)
+            else:
+                return int(value)
+        except ValueError:
+            # Return as string
+            return value
+
     def parse_command(self, text: str) -> Optional[Tuple[str, List[str]]]:
         """
         Parse command: (COMMAND|param1|param2)
@@ -255,14 +289,8 @@ class UPYRuntime:
                 var_name = params[0].strip()
                 value = params[1].strip() if len(params) > 1 else ''
                 value = self.substitute_variables(value)
-                # Try to convert to number
-                try:
-                    if '.' in value:
-                        value = float(value)
-                    else:
-                        value = int(value)
-                except ValueError:
-                    pass
+                # Evaluate math expressions or convert to number
+                value = self.evaluate_value(value)
                 self.set_variable(var_name, value)
                 return value
             elif len(params) == 1 and '|' in params[0]:
@@ -271,14 +299,8 @@ class UPYRuntime:
                 var_name = parts[0].strip()
                 value = parts[1].strip() if len(parts) > 1 else ''
                 value = self.substitute_variables(value)
-                # Try to convert to number
-                try:
-                    if '.' in value:
-                        value = float(value)
-                    else:
-                        value = int(value)
-                except ValueError:
-                    pass
+                # Evaluate math expressions or convert to number
+                value = self.evaluate_value(value)
                 self.set_variable(var_name, value)
                 return value
 
