@@ -14,8 +14,6 @@ import termios
 import tty
 from typing import List, Optional
 
-from core.output.color_ui import get_color_ui
-
 
 class SimplePager:
     """Simple text pager with block graphics progress bar."""
@@ -42,9 +40,6 @@ class SimplePager:
 
         self.viewport_height = viewport_height
         self.viewport_width = viewport_width
-        # Use shared ColorUI console for consistent color rendering
-        color_ui = get_color_ui()
-        self.console = color_ui.console
 
     def _get_key(self) -> str:
         """
@@ -165,14 +160,19 @@ class SimplePager:
             start_idx = (page_num - 1) * self.viewport_height
             end_idx = min(start_idx + self.viewport_height, len(lines))
 
+            # ANSI color codes
+            CYAN = '\033[36m'
+            YELLOW = '\033[33m'
+            RESET = '\033[0m'
+
             # Clear screen (optional - can be disabled for accessibility)
             # print('\033[2J\033[H', end='')
 
             # Show title if provided
             if title:
-                self.console.print(f"[cyan]╔{'═' * (len(title) + 2)}╗[/]")
-                self.console.print(f"[cyan]║ {title} ║[/]")
-                self.console.print(f"[cyan]╚{'═' * (len(title) + 2)}╝[/]")
+                print(f"{CYAN}╔{'═' * (len(title) + 2)}╗{RESET}")
+                print(f"{CYAN}║ {title} ║{RESET}")
+                print(f"{CYAN}╚{'═' * (len(title) + 2)}╝{RESET}")
                 print()
 
             # Show page content
@@ -182,15 +182,14 @@ class SimplePager:
             # Show block graphics progress bar
             is_last_page = page_num >= total_pages
             progress_bar = self._draw_progress_bar(page_num, total_pages, at_end=is_last_page)
-            self.console.print(f"[yellow]\n{progress_bar}[/]", end="")
-            sys.stdout.flush()
+            print(f"{YELLOW}\n{progress_bar}{RESET}", end="", flush=True)
 
             # Get user input
             try:
                 key = self._get_key()
 
                 if key == 'esc':
-                    self.console.print("[yellow]\n⚠️  Paging cancelled[/]")
+                    print(f"{YELLOW}\n⚠️  Paging cancelled{RESET}")
                     break
                 elif key == 'down' or key == 'enter':
                     if is_last_page:
@@ -206,7 +205,7 @@ class SimplePager:
                     # If already on first page, do nothing
 
             except (KeyboardInterrupt, EOFError):
-                self.console.print("[yellow]\n\n⚠️  Paging cancelled[/]")
+                print(f"{YELLOW}\n\n⚠️  Paging cancelled{RESET}")
                 break
 
     def page_lines(self, lines: List[str], title: Optional[str] = None) -> None:
