@@ -18,6 +18,8 @@ from pathlib import Path
 from core.services.gmail_auth import get_gmail_auth
 from core.services.gmail_service import get_gmail_service, get_drive_service
 from core.services.sync_manager import get_sync_manager, SyncMode, ConflictStrategy
+from core.services.email_parser import get_email_parser
+from core.services.email_converter import get_email_converter
 
 
 def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, Any]] = None) -> str:
@@ -42,8 +44,6 @@ def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, A
     if len(parts) < 2:
         return _show_help()
 
-    subcommand = parts[1].upper()
-
     if subcommand == 'LOGIN':
         return _handle_login(config)
     elif subcommand == 'LOGOUT':
@@ -54,6 +54,10 @@ def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, A
         return _handle_sync(parts[2:], config)
     elif subcommand == 'EMAIL':
         return _handle_email(parts[2:], config)
+    elif subcommand == 'IMPORT':
+        return _handle_import(parts[2:], config)
+    else:
+        return f"❌ Unknown Gmail command: {subcommand}\n\n{_show_help()}"
     else:
         return f"❌ Unknown Gmail command: {subcommand}\n\n{_show_help()}"
 
@@ -309,7 +313,7 @@ def _handle_email_send(parts: list, config) -> str:
 def _handle_sync(parts: list, config) -> str:
     """
     Handle SYNC GMAIL subcommands.
-    
+
     Commands:
     - SYNC GMAIL - Run sync now
     - SYNC GMAIL STATUS - Show sync status
@@ -317,27 +321,27 @@ def _handle_sync(parts: list, config) -> str:
     - SYNC GMAIL DISABLE - Disable auto-sync
     - SYNC GMAIL CHANGES - Show pending changes
     - SYNC GMAIL HISTORY - Show sync history
-    
+
     Args:
         parts: Command parts after SYNC
         config: Config instance
-        
+
     Returns:
         Formatted output
     """
     auth = get_gmail_auth(config)
-    
+
     if not auth.is_authenticated():
         return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
-    
+
     sync_mgr = get_sync_manager()
-    
+
     if not parts:
         # Default: run sync now
         return _sync_now(sync_mgr)
-    
+
     subcommand = parts[0].upper()
-    
+
     if subcommand == 'NOW':
         return _sync_now(sync_mgr)
     elif subcommand == 'STATUS':
@@ -357,9 +361,9 @@ def _handle_sync(parts: list, config) -> str:
 def _sync_now(sync_mgr) -> str:
     """Run sync operation now."""
     output = ["🔄 Starting sync...\n"]
-    
+
     result = sync_mgr.sync_now()
-    
+
     if result['success']:
         stats = result['stats']
         output.extend([
@@ -374,38 +378,38 @@ def _sync_now(sync_mgr) -> str:
             "❌ Sync failed\n",
             f"Errors: {result.get('stats', {}).get('errors', 0)}"
         ])
-        
+
         if result.get('errors'):
             output.append("\nDetails:")
             for error in result['errors'][:5]:  # Show first 5
                 output.append(f"  • {error}")
-    
+
     return '\n'.join(output)
 
 
 def _sync_status(sync_mgr) -> str:
     """Show sync status."""
     status = sync_mgr.get_status()
-    
+
     output = ["═══ Sync Status ═══\n"]
-    
+
     if status['enabled']:
         output.append(f"✅ Auto-sync enabled ({status['mode']})")
         output.append(f"Interval: {status['interval']}s")
     else:
         output.append("❌ Auto-sync disabled")
-    
+
     output.extend([
         f"Conflict strategy: {status['conflict_strategy']}",
         ""
     ])
-    
+
     if status['last_sync']:
         output.extend([
             f"Last sync: {status['time_since_sync']} ago",
             ""
         ])
-        
+
         if status['last_stats']:
             stats = status['last_stats']
             output.extend([
@@ -418,12 +422,12 @@ def _sync_status(sync_mgr) -> str:
             ])
     else:
         output.append("No sync performed yet")
-    
+
     output.append(f"\nTotal syncs: {status['total_syncs']}")
-    
+
     if status['background_running']:
         output.append("🔄 Background sync active")
-    
+
     return '\n'.join(output)
 
 
@@ -431,12 +435,12 @@ def _sync_enable(sync_mgr, parts: list) -> str:
     """Enable auto-sync."""
     mode = SyncMode.AUTO
     interval = 300  # 5 minutes default
-    
+
     # Parse options
     if parts:
         if parts[0].upper() == 'SCHEDULED':
             mode = SyncMode.SCHEDULED
-        
+
         # Check for interval
         for i, part in enumerate(parts):
             if part.startswith('--interval='):
@@ -444,10 +448,10 @@ def _sync_enable(sync_mgr, parts: list) -> str:
                     interval = int(part.split('=')[1])
                 except ValueError:
                     return "❌ Invalid interval value"
-    
+
     sync_mgr.enable(mode)
     sync_mgr.set_interval(interval)
-    
+
     return (
         f"✅ Auto-sync enabled\n"
         f"Mode: {mode.value}\n"
@@ -465,14 +469,14 @@ def _sync_disable(sync_mgr) -> str:
 def _sync_changes(sync_mgr) -> str:
     """Show pending changes."""
     changes = sync_mgr.get_changes()
-    
+
     total = sum(len(v) for v in changes.values())
-    
+
     if total == 0:
         return "✅ No pending changes - everything in sync"
-    
+
     output = [f"📋 Found {total} pending change(s)\n"]
-    
+
     if changes['new_local']:
         output.append(f"New local files ({len(changes['new_local'])}):")
         for path in changes['new_local'][:5]:
@@ -480,7 +484,7 @@ def _sync_changes(sync_mgr) -> str:
         if len(changes['new_local']) > 5:
             output.append(f"  ... and {len(changes['new_local']) - 5} more")
         output.append("")
-    
+
     if changes['modified_local']:
         output.append(f"Modified local files ({len(changes['modified_local'])}):")
         for path in changes['modified_local'][:5]:
@@ -488,7 +492,7 @@ def _sync_changes(sync_mgr) -> str:
         if len(changes['modified_local']) > 5:
             output.append(f"  ... and {len(changes['modified_local']) - 5} more")
         output.append("")
-    
+
     if changes['new_cloud']:
         output.append(f"New cloud files ({len(changes['new_cloud'])}):")
         for name in changes['new_cloud'][:5]:
@@ -496,7 +500,7 @@ def _sync_changes(sync_mgr) -> str:
         if len(changes['new_cloud']) > 5:
             output.append(f"  ... and {len(changes['new_cloud']) - 5} more")
         output.append("")
-    
+
     if changes['modified_cloud']:
         output.append(f"Modified cloud files ({len(changes['modified_cloud'])}):")
         for path in changes['modified_cloud'][:5]:
@@ -504,7 +508,7 @@ def _sync_changes(sync_mgr) -> str:
         if len(changes['modified_cloud']) > 5:
             output.append(f"  ... and {len(changes['modified_cloud']) - 5} more")
         output.append("")
-    
+
     if changes['conflicts']:
         output.append(f"⚠️  Conflicts ({len(changes['conflicts'])}):")
         for path in changes['conflicts'][:5]:
@@ -512,9 +516,9 @@ def _sync_changes(sync_mgr) -> str:
         if len(changes['conflicts']) > 5:
             output.append(f"  ... and {len(changes['conflicts']) - 5} more")
         output.append("")
-    
+
     output.append("Use 'SYNC GMAIL' to sync now")
-    
+
     return '\n'.join(output)
 
 
@@ -526,27 +530,157 @@ def _sync_history(sync_mgr, parts: list) -> str:
             limit = int(parts[0])
         except ValueError:
             pass
-    
+
     history = sync_mgr.get_history(limit)
-    
+
     if not history:
         return "No sync history yet"
-    
+
     output = [f"📜 Last {len(history)} sync operation(s)\n"]
-    
+
     for i, entry in enumerate(history, 1):
         timestamp = entry['timestamp'][:19]  # Remove timezone
         success = "✅" if entry['success'] else "❌"
         stats = entry['stats']
-        
+
         output.append(f"{i}. {timestamp} {success}")
         output.append(f"   Up:{stats.get('uploaded', 0)} Down:{stats.get('downloaded', 0)} Del:{stats.get('deleted', 0)} Err:{stats.get('errors', 0)}")
-        
+
         if entry.get('errors'):
             output.append(f"   Errors: {len(entry['errors'])}")
-        
+
         output.append("")
-    
+
+    return '\n'.join(output)
+
+
+def _handle_import(parts: list, config) -> str:
+    """
+    Handle EMAIL IMPORT subcommands.
+
+    Commands:
+    - IMPORT GMAIL [query] - Import emails as notes/tasks/missions
+    - IMPORT GMAIL --preview [query] - Preview without importing
+    - IMPORT GMAIL --type=<note|checklist|mission> [query]
+
+    Args:
+        parts: Command parts after IMPORT
+        config: Config instance
+
+    Returns:
+        Formatted output
+    """
+    gmail = get_gmail_service()
+
+    if not gmail.is_available():
+        return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
+
+    parser = get_email_parser()
+    converter = get_email_converter()
+
+    # Parse options
+    preview_only = False
+    import_type = 'auto'  # auto, note, checklist, mission
+    query = []
+    max_results = 10
+
+    for part in parts:
+        if part.startswith('--preview'):
+            preview_only = True
+        elif part.startswith('--type='):
+            import_type = part.split('=')[1].lower()
+        elif part.startswith('--limit='):
+            try:
+                max_results = int(part.split('=')[1])
+            except ValueError:
+                pass
+        else:
+            query.append(part)
+
+    query_str = ' '.join(query)
+
+    # Get emails
+    output = [f"📥 Importing emails{' (preview mode)' if preview_only else ''}"]
+    if query_str:
+        output.append(f"Query: {query_str}")
+    output.append("")
+
+    messages = gmail.get_messages(query=query_str, max_results=max_results)
+
+    if not messages:
+        return '\n'.join(output) + "No emails found."
+
+    output.append(f"Found {len(messages)} email(s)\n")
+
+    # Process each email
+    results = {
+        'note': 0,
+        'checklist': 0,
+        'mission': 0,
+        'errors': 0
+    }
+
+    for i, msg in enumerate(messages, 1):
+        subject = msg.get('subject', 'No Subject')
+        from_addr = msg.get('from', 'Unknown')
+
+        output.append(f"{i}. {subject}")
+        output.append(f"   From: {from_addr}")
+
+        if preview_only:
+            # Just parse and show what would be created
+            parsed = parser.parse_email(msg)
+            task_count = len(parsed.get('tasks', []))
+
+            if import_type == 'auto':
+                if task_count >= 3:
+                    suggested = 'mission'
+                elif task_count > 0:
+                    suggested = 'checklist'
+                else:
+                    suggested = 'note'
+            else:
+                suggested = import_type
+
+            output.append(f"   → Would create: {suggested} ({task_count} tasks)")
+        else:
+            # Actually import
+            try:
+                if import_type == 'auto':
+                    result = converter.auto_convert(msg)
+                elif import_type == 'note':
+                    result = converter.convert_to_note(msg)
+                elif import_type == 'checklist':
+                    result = converter.convert_to_checklist(msg)
+                elif import_type == 'mission':
+                    result = converter.convert_to_mission(msg)
+                else:
+                    result = {'success': False, 'error': f'Unknown type: {import_type}'}
+
+                if result['success']:
+                    conv_type = result['type']
+                    results[conv_type] += 1
+                    output.append(f"   ✅ Created {conv_type}: {result['filename']}")
+                else:
+                    results['errors'] += 1
+                    output.append(f"   ❌ Failed: {result.get('error', 'Unknown error')}")
+
+            except Exception as e:
+                results['errors'] += 1
+                output.append(f"   ❌ Error: {e}")
+
+        output.append("")
+
+    # Summary
+    if not preview_only:
+        output.append("=" * 60)
+        output.append("Import Summary:")
+        output.append(f"  Notes: {results['note']}")
+        output.append(f"  Checklists: {results['checklist']}")
+        output.append(f"  Missions: {results['mission']}")
+        if results['errors'] > 0:
+            output.append(f"  Errors: {results['errors']}")
+
     return '\n'.join(output)
 
 
@@ -569,7 +703,16 @@ Email Operations:
   EMAIL LIST [query]          - List recent emails
   EMAIL SEND <to> <subject>   - Send email
 
-Cloud Sync (NEW in Part 2):
+Email Import (NEW in Part 3):
+  IMPORT GMAIL [query]                    - Import emails (auto-detect type)
+  IMPORT GMAIL --preview [query]          - Preview without importing
+  IMPORT GMAIL --type=<type> [query]      - Force specific type
+  IMPORT GMAIL --limit=<n> [query]        - Limit results
+
+  Types: note, checklist, mission
+  Auto-detection: 3+ tasks=mission, 1-2 tasks=checklist, 0 tasks=note
+
+Cloud Sync:
   SYNC GMAIL                  - Run sync now
   SYNC GMAIL STATUS           - Show sync status
   SYNC GMAIL ENABLE [mode]    - Enable auto-sync
@@ -577,8 +720,7 @@ Cloud Sync (NEW in Part 2):
   SYNC GMAIL CHANGES          - Show pending changes
   SYNC GMAIL HISTORY [limit]  - Show sync history
 
-Coming Soon (Parts 3-4):
-  EMAIL IMPORT           - Convert emails to tasks
+Coming Soon (Part 4):
   DRIVE UPLOAD <file>    - Upload to App Data
   DRIVE LIST             - List cloud files
 
@@ -586,6 +728,8 @@ Examples:
   LOGIN GMAIL
   STATUS GMAIL
   EMAIL LIST is:unread from:boss
+  IMPORT GMAIL --preview is:unread
+  IMPORT GMAIL --type=mission from:boss
   SYNC GMAIL ENABLE auto --interval=300
   SYNC GMAIL CHANGES
   SYNC GMAIL HISTORY 20
