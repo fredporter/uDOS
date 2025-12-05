@@ -278,7 +278,9 @@ class UserManager:
         except Exception as e:
             # Fallback to manual input
             city_name = input(f"📍 Location [{default_city}]: ").strip() or default_city
-            return {'name': city_name, 'country': 'Unknown', 'tile_code': '', 'latitude': 0, 'longitude': 0}    def _select_planet(self, default_planet: str = "Earth") -> dict:
+            return {'name': city_name, 'country': 'Unknown', 'tile_code': '', 'latitude': 0, 'longitude': 0}
+
+    def _select_planet(self, default_planet: str = "Earth") -> dict:
         """Interactive planet selector using planets.json."""
         try:
             import json
