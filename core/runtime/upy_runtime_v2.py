@@ -144,14 +144,14 @@ class UPYRuntime:
             Evaluated value (int, float, or string)
         """
         value = value.strip()
-        
+
         # Check for function calls: @function(args)
         func_call_pattern = re.compile(r'^@([a-zA-Z_][a-zA-Z0-9_-]*)\(([^\)]*)\)$')
         match = func_call_pattern.match(value)
         if match:
             func_name = match.group(1)
             args_str = match.group(2)
-            
+
             # Parse arguments (pipe-separated or comma-separated)
             args = []
             if args_str.strip():
@@ -172,7 +172,7 @@ class UPYRuntime:
                             current_arg = []
                         else:
                             current_arg.append(char)
-                    
+
                     # Add last argument
                     if current_arg:
                         args.append(''.join(current_arg).strip())
@@ -192,15 +192,15 @@ class UPYRuntime:
                             current_arg = []
                         else:
                             current_arg.append(char)
-                    
+
                     # Add last argument
                     if current_arg:
                         args.append(''.join(current_arg).strip())
-            
+
             # Call function
             result = self.call_function(func_name, args)
             return result
-        
+
         # Check if it contains math operators
         has_math = any(op in value for op in ['+', '-', '*', '/', '%', '**', '(', ')'])
 
@@ -236,15 +236,15 @@ class UPYRuntime:
         text = text.strip()
         if not text.startswith('(') or not text.endswith(')'):
             return None
-        
+
         # Remove outer parentheses
         inner = text[1:-1]
-        
+
         # Split on | but respect nested parentheses
         parts = []
         current = []
         paren_depth = 0
-        
+
         for char in inner:
             if char == '(':
                 paren_depth += 1
@@ -257,17 +257,17 @@ class UPYRuntime:
                 current = []
             else:
                 current.append(char)
-        
+
         # Add last part
         if current:
             parts.append(''.join(current))
-        
+
         if not parts:
             return None
-        
+
         command = parts[0].strip().upper()
         params = [self.substitute_variables(p.strip()) for p in parts[1:]]
-        
+
         return (command, params)
 
     def evaluate_condition(self, condition: str) -> bool:
@@ -488,7 +488,7 @@ class UPYRuntime:
 
             # Execute line normally
             result = self.execute_line(line)
-            
+
             # Check if line returned early (nested RETURN)
             if isinstance(result, tuple) and len(result) == 2 and result[0] == 'RETURN':
                 return_value = result[1]
@@ -592,7 +592,7 @@ class UPYRuntime:
             if match:
                 func_name = match.group(1)
                 args_str = match.group(2)
-                
+
                 # Parse arguments (pipe-separated)
                 args = []
                 if args_str.strip():
@@ -611,11 +611,11 @@ class UPYRuntime:
                             current_arg = []
                         else:
                             current_arg.append(char)
-                    
+
                     # Add last argument
                     if current_arg:
                         args.append(''.join(current_arg).strip())
-                
+
                 # Call function
                 return self.call_function(func_name, args)
 
@@ -656,13 +656,13 @@ class UPYRuntime:
                 # Parse function signature
                 func_pattern = re.compile(r'FUNCTION\s+\[@([a-zA-Z_][a-zA-Z0-9_-]*)\(([^\)]*)\)')
                 match = func_pattern.match(line)
-                
+
                 if not match:
                     raise UPYRuntimeError(f"Invalid FUNCTION syntax: {line}", i)
-                
+
                 func_name = match.group(1)
                 params_str = match.group(2)
-                
+
                 # Parse parameters
                 params = []
                 if params_str.strip():
@@ -672,24 +672,24 @@ class UPYRuntime:
                         if param.startswith('$'):
                             param = param[1:]  # Remove $ prefix
                         params.append(param)
-                
+
                 # Collect function body (until closing ])
                 i += 1
                 func_body = []
-                
+
                 while i < len(lines):
                     body_line = lines[i].strip()
-                    
+
                     # Check for closing bracket
                     if body_line == ']':
                         # Define function
                         self.define_function(func_name, params, func_body)
                         break
-                    
+
                     # Add to body (including empty lines for structure)
                     func_body.append(lines[i].rstrip())
                     i += 1
-                
+
                 i += 1
                 continue
 
