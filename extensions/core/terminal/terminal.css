@@ -66,7 +66,6 @@ body {
     justify-content: center;
     z-index: 1000;
     background: #6076c5;
-    transition: background 0.3s ease-in-out;
 }
 
 /* C64 Screen - Centered */

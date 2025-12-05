@@ -65,23 +65,17 @@
 
             // Create splash content with fixed positioning
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
+            splash.style.cssText = 'font-family: "C64 User Mono", monospace; line-height: 1.0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: inline-block;';
 
             // uDOS ASCII art logo - muted C64 synthwave colors with background fill
             const logo = [
-                { text: '', color: '#FFFFFF', bg: 'transparent' },
-                { text: '╔═══════════════════════════════════════╗', color: '#e94560', bg: '#2a0a0f' },
-                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#e94560', bg: '#2a0a0f' },
-                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#f0e858', bg: '#2a2414' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#50b818', bg: '#0f1d06' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00d4ff', bg: '#002833' },
-                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#9d4edd', bg: '#1a0f28' },
-                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#ff006e', bg: '#280016' },
-                { text: '╠═══════════════════════════════════════╣', color: '#00d4ff', bg: '#002833' },
-                { text: '║   UNIVERSAL DEVICE OPERATIONS SYSTEM  ║', color: '#00d4ff', bg: '#002833' },
-                { text: '║         Terminal Interface v2.0       ║', color: '#9d4edd', bg: '#1a0f28' },
-                { text: '╚═══════════════════════════════════════╝', color: '#ff006e', bg: '#280016' },
-                { text: '', color: '#FFFFFF', bg: 'transparent' }
+                { text: '╔═══════════════════════════╗', color: '#e94560', bg: '#2a0a0f' },
+                { text: '║ ██╗   ██╗██████╗ ██╗   ██╗║', color: '#e94560', bg: '#2a0a0f' },
+                { text: '║ ██║   ██║██╔══██╗╚██╗ ██╔╝║', color: '#f0e858', bg: '#2a2414' },
+                { text: '║ ██║   ██║██████╔╝ ╚████╔╝ ║', color: '#50b818', bg: '#0f1d06' },
+                { text: '║ ██║   ██║██╔═══╝   ╚██╔╝  ║', color: '#00d4ff', bg: '#002833' },
+                { text: '║ ╚██████╔╝██║        ██║   ║', color: '#9d4edd', bg: '#1a0f28' },
+                { text: '╚═══════════════════════════╝', color: '#ff006e', bg: '#280016' }
             ];
 
             logo.forEach(line => {
@@ -90,13 +84,18 @@
                 lineDiv.style.color = line.color;
                 lineDiv.style.backgroundColor = line.bg;
                 lineDiv.style.fontWeight = 'bold';
-                lineDiv.style.fontSize = '13px';
-                lineDiv.style.lineHeight = '1.0';
+                lineDiv.style.fontSize = '16px';
+                lineDiv.style.lineHeight = '16px';
+                lineDiv.style.height = '16px';
                 lineDiv.style.margin = '0';
-                lineDiv.style.padding = '2px 0';
+                lineDiv.style.padding = '0';
                 lineDiv.style.whiteSpace = 'pre';
                 lineDiv.style.display = 'block';
-                lineDiv.style.minHeight = '16px';
+                lineDiv.style.overflow = 'hidden';
+                lineDiv.style.letterSpacing = '0';
+                lineDiv.style.fontSmoothing = 'never';
+                lineDiv.style.webkitFontSmoothing = 'none';
+                lineDiv.style.textAlign = 'left';
                 splash.appendChild(lineDiv);
             });
 
@@ -107,11 +106,11 @@
 
             // Enhanced loading section
             const loaderContainer = document.createElement('div');
-            loaderContainer.style.cssText = 'margin: 0 auto; width: 100%; max-width: 450px;';
+            loaderContainer.style.cssText = 'margin: 0 auto; width: 100%; max-width: 450px; text-align: center;';
 
             // System status box
             const statusBox = document.createElement('div');
-            statusBox.style.cssText = 'border: 1px solid #00d4ff; padding: 12px; background: rgba(0, 0, 0, 0.3); margin-bottom: 15px;';
+            statusBox.style.cssText = 'border: 1px solid #00d4ff; padding: 12px; background: rgba(0, 0, 0, 0.3); margin-bottom: 15px; height: 100px;';
 
             const loaderHeader = document.createElement('div');
             loaderHeader.textContent = '▶ SYSTEM INITIALIZATION';
@@ -123,39 +122,51 @@
             statusBox.appendChild(progressBar);
 
             const statusText = document.createElement('div');
-            statusText.style.cssText = 'color: #50b818; font-size: 12px; min-height: 20px;';
+            statusText.style.cssText = 'color: #50b818; font-size: 12px; height: 20px;';
             statusBox.appendChild(statusText);
 
             loaderContainer.appendChild(statusBox);
             splash.appendChild(loaderContainer);
             loadingScreen.appendChild(splash);
 
-            // Add pulsing background effect (5 cycles)
+            // Add C64-style vertical color bar cycling (5 cycles)
             let pulseCount = 0;
             const maxPulses = 5;
             const pulseColors = [
-                '#6076c5', // Original C64 blue
-                '#7086d5',
-                '#8096e5',
-                '#7086d5',
-                '#6076c5'
+                '#6076c5', // Light blue (C64 default)
+                '#4c5cb8', // Medium blue
+                '#3842a5', // Dark blue
+                '#883fc7', // Purple
+                '#c73f5e', // Red
+                '#ff6b3d', // Orange
+                '#ffcd3d', // Yellow
+                '#50e678', // Green
+                '#3fc7c7', // Cyan
+                '#6076c5'  // Back to light blue
             ];
             let pulseIndex = 0;
 
-            const pulseInterval = setInterval(() => {
+            const backgroundPulse = setInterval(() => {
                 if (pulseCount >= maxPulses) {
-                    clearInterval(pulseInterval);
-                    loadingScreen.style.background = '#6076c5'; // Reset to original
+                    clearInterval(backgroundPulse);
+                    loadingScreen.style.background = '#6076c5';
                     return;
                 }
 
-                loadingScreen.style.background = pulseColors[pulseIndex % pulseColors.length];
+                // Create vertical color bars
+                const color1 = pulseColors[pulseIndex % pulseColors.length];
+                const color2 = pulseColors[(pulseIndex + 1) % pulseColors.length];
+                const color3 = pulseColors[(pulseIndex + 2) % pulseColors.length];
+                const color4 = pulseColors[(pulseIndex + 3) % pulseColors.length];
+
+                loadingScreen.style.background = `linear-gradient(to right, ${color1} 0%, ${color1} 25%, ${color2} 25%, ${color2} 50%, ${color3} 50%, ${color3} 75%, ${color4} 75%, ${color4} 100%)`;
+
                 pulseIndex++;
 
                 if (pulseIndex % pulseColors.length === 0) {
                     pulseCount++;
                 }
-            }, 200); // Pulse every 200ms
+            }, 100); // Fast cycling for rainbow effect
 
             // Animate loader with status messages
             let progress = 0;
