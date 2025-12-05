@@ -168,9 +168,9 @@ class SimplePager:
 
             # Show title if provided
             if title:
-                self.color_ui.print(f"╔{'═' * (len(title) + 2)}╗", 'cyan')
-                self.color_ui.print(f"║ {title} ║", 'cyan')
-                self.color_ui.print(f"╚{'═' * (len(title) + 2)}╝", 'cyan')
+                print(self.color_ui.format(f"╔{'═' * (len(title) + 2)}╗", 'cyan'))
+                print(self.color_ui.format(f"║ {title} ║", 'cyan'))
+                print(self.color_ui.format(f"╚{'═' * (len(title) + 2)}╝", 'cyan'))
                 print()
 
             # Show page content
@@ -180,14 +180,14 @@ class SimplePager:
             # Show block graphics progress bar
             is_last_page = page_num >= total_pages
             progress_bar = self._draw_progress_bar(page_num, total_pages, at_end=is_last_page)
-            self.color_ui.print(f"\n{progress_bar}", 'yellow', flush=True)
+            print(self.color_ui.format(f"\n{progress_bar}", 'yellow'), flush=True)
 
             # Get user input
             try:
                 key = self._get_key()
 
                 if key == 'esc':
-                    self.color_ui.print("\n⚠️  Paging cancelled", 'yellow')
+                    print(self.color_ui.format("\n⚠️  Paging cancelled", 'yellow'))
                     break
                 elif key == 'down' or key == 'enter':
                     if is_last_page:
@@ -203,7 +203,7 @@ class SimplePager:
                     # If already on first page, do nothing
 
             except (KeyboardInterrupt, EOFError):
-                self.color_ui.print("\n\n⚠️  Paging cancelled", 'yellow')
+                print(self.color_ui.format("\n\n⚠️  Paging cancelled", 'yellow'))
                 break
 
     def page_lines(self, lines: List[str], title: Optional[str] = None) -> None:
