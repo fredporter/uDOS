@@ -1,13 +1,14 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** uPY v2.0.2 🔄 **IN PROGRESS** (Parts 1-5 Complete - Task 5 Done!)
-**Previous Versions:** v1.2.8 ✅ v1.2.7 ✅ v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅
+**Current Version:** v1.2.8 ✅ **COMPLETE** (Incremental Updates & Connection Health)
+**Previous Versions:** v1.2.8 ✅ v1.2.7 ✅ v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅ uPY v2.0.2 ✅
 **Next Version:** v1.2.9 📋 **PLANNED** (Gmail Cloud Sync)
-**Last Updated:** December 6, 2025
-**Roadmap Size:** 1,260+ lines (pruned 82% from original 6,831 lines, focused on active development)
+**Last Updated:** December 5, 2025
+**Roadmap Size:** 2,100+ lines (comprehensive planning document with all future work)
 
-**Recent Updates (Dec 6, 2025):**
-- 🔄 uPY v2.0.2 - Parts 1-5 complete! (Integration tests done, 3,663 lines delivered)
+**Recent Updates (Dec 5, 2025):**
+- ✅ uPY v2.0.2 - COMPLETE! (All 6 parts done, 4,945 lines delivered)
+- ✅ Part 6: Documentation complete - Runtime architecture, language reference, migration guide (1,282 lines)
 - ✅ Integration tests: 4 categories combining math, lists, and file I/O (all passing)
 - ✅ FILE commands: READ, WRITE, EXISTS, DELETE, SIZE, LIST
 - ✅ JSON commands: PARSE, STRINGIFY, READ, WRITE
@@ -29,11 +30,11 @@
 
 ## 📍 Latest Releases
 
-### uPY v2.0.2 (December 6, 2025) 🔄 **IN PROGRESS**
+### uPY v2.0.2 (December 6, 2025) ✅ **COMPLETE**
 
-**Custom Runtime Implementation** - Complete interpreter for v2.0.2 syntax with arithmetic and function support.
+**Custom Runtime Implementation** - Complete interpreter for v2.0.2 syntax with arithmetic, functions, lists, file I/O, and comprehensive documentation.
 
-**Delivered So Far:**
+**Delivered:**
 - New runtime engine (843 lines) - Custom interpreter with function support
 - Math parser (343 lines) - Recursive descent, PEMDAS, variable support
 - Function system (+265 lines) - Define, call, return, parameter binding
@@ -42,32 +43,28 @@
 - Command parser improvements (+338 lines) - FILE/JSON commands, nested parentheses
 - Test suites (1,411 lines) - Math (75), functions (150), lists (296), file I/O (380), integration (272), validation (238)
 - Integration with uDOS_main.py (+20 lines) - CommandHandler, Grid, Parser integration
-- **Total: 3,663 lines delivered**
+- **Documentation (1,282 lines):**
+  - Runtime Architecture (450 lines) - Technical implementation guide
+  - Language Reference (632 lines) - Complete syntax reference with examples
+  - Migration Guide (200 lines) - v1.x to v2.0.2 conversion guide
+- **Total: 4,945 lines delivered (100% complete)**
 
-**Commits:** `c3c0b80d`, `d97444b5`, `e5d8e87d`, `90cf4ef7`, `9eeba72e`, `3b40569c`
+**Commits:** `c3c0b80d`, `d97444b5`, `e5d8e87d`, `90cf4ef7`, `9eeba72e`, `3b40569c`, `[documentation commits]`
 
 **Key Features:**
 - ✅ Variables: `{$var}` substitution, system vars (MISSION, WORKFLOW, SPRITE)
 - ✅ Commands: `(COMMAND|params)` syntax with full CommandHandler integration
-- ✅ Short conditionals: `[IF cond: action]`
-- ✅ Medium conditionals: `[IF cond THEN: x ELSE: y]`
-- ✅ Long conditionals: `IF/ELSE IF/ELSE/END IF` blocks
-- ✅ Loops: `WHILE/FOREACH` structures (syntax recognized)
-- ✅ **Math operations: `+`, `-`, `*`, `/`, `%`, `**` (power), parentheses**
-- ✅ **Loop counters: `(SET|counter|{$counter} + 1)`**
-- ✅ **Function definitions: `FUNCTION [@name($params) ... ]`**
-- ✅ **Function calls: `@function(arg1, arg2)` or `@function(arg1|arg2)`**
-- ✅ **RETURN statements with early exit**
-- ✅ **Parameter binding with proper scope isolation**
-- ✅ **Conditionals in functions (early returns work)**
-- ✅ **Nested function calls supported**
-- ✅ **List literals: `[item1, item2, item3]`**
-- ✅ **LIST commands: CREATE, APPEND, REMOVE, INSERT, GET, SET, SIZE, SLICE, CONTAINS, INDEX, CLEAR, JOIN, SPLIT**
-- ✅ **FILE commands: READ, WRITE, EXISTS, DELETE, SIZE, LIST**
-- ✅ **JSON commands: PARSE, STRINGIFY, READ, WRITE**
+- ✅ Math: `+`, `-`, `*`, `/`, `%`, `**` (power), parentheses, PEMDAS
+- ✅ Functions: `@function(args)`, `FUNCTION/END FUNCTION`, RETURN statements
+- ✅ Lists: `[item1, item2]` literals, 13 LIST commands
+- ✅ File I/O: FILE READ/WRITE/EXISTS/DELETE/SIZE/LIST
+- ✅ JSON: PARSE/STRINGIFY/READ/WRITE
+- ✅ Conditionals: Short `[IF]`, medium `[IF THEN ELSE]`, long `IF/ELSE IF/ELSE/END IF`
+- ✅ Loops: WHILE/FOREACH with proper END markers
 - ✅ Smart action splitting (nested parentheses support)
 - ✅ 21 test categories ALL PASSING (math, functions, lists, file I/O, integration)
 - ✅ 4 integration tests validating feature combinations
+- ✅ Complete documentation: Architecture (450 lines), language reference (632 lines), migration guide (200 lines)
 
 **Performance:**
 - Direct interpretation (no transpilation overhead)
@@ -78,7 +75,14 @@
 - 100% v2.0.2 compatibility
 
 **Remaining Work:**
-- ⏸️ Part 6: Complete documentation (~300 lines) - Architecture guide, language reference, migration guide
+- ✅ Part 1: Math Operations (COMPLETE - 393 lines)
+- ✅ Part 2: Function Execution (COMPLETE - 265 lines)
+- ✅ Part 3: Advanced List Operations (COMPLETE - 621 lines)
+- ✅ Part 4: File I/O (COMPLETE - 724 lines)
+- ✅ Part 5: Integration Testing (COMPLETE - 272 lines)
+- ✅ Part 6: Complete Documentation (COMPLETE - 1,282 lines)
+
+**All parts complete! uPY v2.0.2 ready for production.**
 
 ### v1.2.8 (December 5, 2025) ✅ **COMPLETE**
 
@@ -291,292 +295,7 @@
 
 ---
 
-## 📍 Current Priority: uPY v2.0.2 Runtime
-
-**Status:** 🔄 **IN PROGRESS** - Runtime Implementation (Core Complete)
-**Complexity:** High (Custom interpreter, pattern matching, full syntax support)
-**Effort:** ~40-50 MOVES (Runtime: ✅ DONE, Integration: ✅ DONE, Testing: ✅ DONE, Extensions: 15-20, Docs: 5-8)
-**Dependencies:** Validator v2.0.2 patterns (COMPLETE)
-**Target:** ~1,500 lines
-**Delivered:** 868 lines (Runtime + integration + tests, 58% complete)
-**Commits:** `c3c0b80d`, `d97444b5`
-
-### Mission: Complete v2.0.2 Syntax Execution
-
-**Strategic Rationale:**
-v2.0.2 introduces cleaner, more consistent syntax but requires a custom interpreter since the new syntax is not valid Python. The runtime enables:
-- Direct execution of v2.0.2 scripts without transpilation
-- Pattern-based interpretation (no Python `exec()` overhead)
-- Full support for all v2.0.2 syntax features
-- Type-safe operations and smart action parsing
-
-**Note:** GENERATE command renamed to MAKE in v2.0.2+ for clarity (make content/diagrams/guides)
-
-**Core Complete (868 lines ✅):**
-- ✅ Runtime engine (560 lines) - Pattern matching, execution engine
-- ✅ Integration (20 lines) - CommandHandler, Grid, Parser
-- ✅ Test suite (288 lines) - 9 categories, 30+ tests, ALL PASSING
-
-**Remaining Work:**
-
-### Part 1: Math Operations (NEXT)
-
-**Objective:** Enable arithmetic for loop counters and calculations
-**Task 1: Math Expression Parser** ✅ **COMPLETE** (343 lines)
-- **File:** `core/runtime/upy_math.py`
-- Parse expressions: `{$x} + 5`, `{$hp} * 2`, `{$total} / {$count}`
-- Support operators: `+`, `-`, `*`, `/`, `%`, `**` (power)
-- Order of operations (PEMDAS)
-- Variable substitution in expressions
-- Type coercion (int/float)
-
-**Task 2: SET Command Math** ✅ **COMPLETE** (+50 lines)
-- **File:** `core/runtime/upy_runtime_v2.py`
-- Integrate math parser into SET command
-- Support: `(SET|counter|{$counter} + 1)`
-- Support: `(SET|damage|{$attack} * {$multiplier})`
-- Enable practical loop counters
-
-### Part 2: Function Execution (COMPLETE ✅)
-### Part 2: Function Execution (~300 lines)
-**Task 3: Short Function Execution** ✅ **COMPLETE** (~150 lines)
-- Parse `@name(params): expression` syntax
-- Store function definitions in runtime
-- Execute: `@add(a, b): {$a} + {$b}`
-- Call functions from commands and conditionals
-
-**Task 4: Long Function Blocks** ✅ **COMPLETE** (~150 lines)
-- Parse `FUNCTION/END FUNCTION` blocks
-- Parameter binding
-- Local variable scope
-- Return values
-
-### Part 3: Advanced List Operations (COMPLETE ✅)
-### Part 3: Advanced Features (~200 lines)
-
-**Task 5: List Operations** ✅ **COMPLETE** (325 lines)
-- **File:** `core/runtime/upy_lists.py`
-- List literals: `[item1, item2, item3]`
-- Parse list syntax with nested brackets and quotes
-- Variable substitution in lists
-- LIST CREATE, APPEND, REMOVE, INSERT
-**Task 8: File I/O Operations** 📋 PLANNED (~150 lines)
-- **File:** `core/runtime/upy_file_io.py`
-- Read/write file commands
-- JSON parsing
-- File existence checks
-
-### Testing & Documentationgration** ✅ **COMPLETE** (+181 lines)
-- **File:** `core/runtime/upy_runtime_v2.py`
-- Integrate ListOperations into runtime
-- 13 LIST command operations
-- Enhanced FOREACH with list iteration
-- List literal evaluation in SET command
-
-**Task 7: List Tests** ✅ **COMPLETE** (296 lines)
-- **File:** `memory/ucode/test_upy_lists.py`
-- List literal parsing tests
-- All LIST command operation tests
-- FOREACH basic and advanced tests
-- Nested lists and variable substitution
-- Negative indexing validation
-- 8 test categories, ALL PASSING
-
-### Part 4: File I/O (~150 lines)
-- Read/write file commands
-- JSON parsing
-- File existence checks
-
-### Testing & Documentation
-
-**Task 7: Extended Test Suite** 📋 PLANNED (~200 lines)
-- Math operation tests
-- Function execution tests
-- List operation tests
-- File I/O tests
-
-**Task 8: Complete Documentation** 📋 PLANNED (~300 lines)
-- Runtime architecture guide
-- v2.0.2 language reference
-- Migration guide from v1.x
-- Performance benchmarks
-
----
-
-## 📍 Next Priority: v1.2.8
-
-**Status:** ✅ **COMPLETE** - Incremental Chart Updates & Event Buffering
-**Delivered:** 2,333 lines (100% complete)
-**Commits:** `a55bdbaa`, `a5892aab`, `1790aaaf`, `aa3dd4cb`
-
-### Summary
-
-All 9 tasks complete with comprehensive testing and documentation.
-
-### Mission: Optimize Real-Time Analytics Performance
-
-**Strategic Rationale:**
-v1.2.7 established real-time WebSocket updates, but currently refreshes entire analytics dataset on each event. v1.2.8 will optimize this by:
-- Incrementally updating chart data (add new points without full refresh)
-- Buffering events during disconnection for replay
-- Adding connection quality metrics (latency, uptime)
-- Improving animation performance with smooth transitions
-
-**Strategic Focus:**
-- **Incremental Chart Updates** - Update individual data points instead of full dataset refresh ✅
-- **Event Buffering** - Queue events during disconnection, replay on reconnect ✅
-- **Connection Metrics** - Display WebSocket latency, uptime, and health 📋
-- **Performance Optimization** - Reduce CPU/memory usage for long-running dashboards ✅
-
----
-
-### Part 1: Incremental Chart Updates (Tasks 1-3) ✅ **COMPLETE**
-
-**Objective:** Update charts incrementally instead of full refresh on each event
-
-**Task 1: Chart Data Manager** ✅ **COMPLETE** (373 lines)
-- **File:** `extensions/core/dashboard/widgets/chart-data-manager.js`
-- **Delivered:**
-  - Centralized dataset management for all chart types
-  - Add single events without full dataset refresh
-  - Performance tracking and statistics (updates/sec, avg duration)
-  - Memory management (keeps last 100 data points)
-  - Export/import state for debugging
-  - Histogram bin calculation with dynamic ranges
-- **Performance:** <1ms per event update vs ~80-280ms full refresh
-
-**Task 2: Incremental Update Logic** ✅ **COMPLETE** (+150 lines)
-- **File:** `extensions/core/dashboard/widgets/analytics-widget.js`
-- **Delivered:**
-  - Integrated ChartDataManager into AnalyticsWidget
-  - Registered all chart instances (timeline, platform, gauge, histogram)
-  - Replaced full API refresh with incremental addEvent()
-  - Update metric cards from in-memory data (no API calls)
-  - Flash animation for visual feedback on event reception
-  - Graceful fallback to full refresh on error
-- **Performance:** 10-90x faster (95%+ improvement), 100% reduction in API calls
-
-**Task 3: Chart Animation Tuning** ✅ **COMPLETE** (+185 lines)
-- **File:** `extensions/core/dashboard/widgets/chart-utils.js`
-- **Delivered:**
-  - Chart-specific animation configurations (timeline, platform, gauge, histogram)
-  - Smooth transitions (300ms easeInOutQuart)
-  - Slide-in animations for new data points
-  - Gauge needle sweep (600-800ms)
-  - Histogram bounce effect (350ms)
-  - Flash element utility for visual feedback
-  - Scroll to data point utility
-  - Auto-configuration on chart registration
-- **Performance:** Optimized hover (200ms), resize, show/hide transitions
-
-**Part 1 Total:** 708 lines delivered
-
----
-
-### Part 2: Event Buffering System (Tasks 4-5) ✅ **COMPLETE**
-
-**Objective:** Queue events during disconnection and replay on reconnect
-
-**Task 4: Event Buffer Implementation** ✅ **COMPLETE** (320 lines)
-- **File:** `extensions/core/dashboard/widgets/event-buffer.js`
-- **Delivered:**
-  - Circular buffer for event queue (max 100 events)
-  - Timestamps and sequence numbers for ordered replay
-  - 5-second deduplication window
-  - localStorage persistence across page refresh
-  - Stale data cleanup (1-hour max age)
-  - Comprehensive statistics tracking
-  - Event metadata (_buffered, _bufferTime, _sequence)
-- **Performance:** Zero data loss during disconnection, automatic overflow handling
-
-**Task 5: Reconnection Replay Logic** ✅ **COMPLETE** (+188 lines)
-- **File:** `extensions/core/dashboard/widgets/analytics-widget.js` (+188 lines)
-- **File:** `extensions/core/dashboard/widgets/analytics-widget.css` (+64 lines)
-- **Delivered:**
-  - EventBuffer instantiation in constructor
-  - Buffer events when connectionStatus === 'disconnected'
-  - Replay buffered events on reconnection
-  - Merge with API data to avoid duplicates
-  - Toast notifications (info/success/error styles)
-  - Buffer statistics reporting
-  - Graceful error handling
-- **Performance:** Smart deduplication, visual feedback, zero API overhead
-
-**Part 2 Total:** 485 lines delivered (320 buffer + 188 replay + 64 CSS - actually 572 total)
-
-**Combined Parts 1+2:** 1,193 lines delivered
-
----
-
-### Part 3: Connection Metrics & Health (Tasks 6-7)
-
-**Objective:** Display connection quality and health metrics
-
-**Task 6: Latency Measurement** 📋 PLANNED
-- **File:** `extensions/core/dashboard/widgets/analytics-widget.js` (+80 lines)
-- **Features:**
-  - Ping/pong latency measurement
-  - Rolling average (last 10 pings)
-  - Display in connection status tooltip
-  - Color-code latency (green <100ms, yellow <500ms, red >500ms)
-
-**Task 7: Connection Health Dashboard** 📋 PLANNED
-- **File:** `extensions/core/dashboard/widgets/connection-health.js` (~150 lines)
-- **Features:**
-  - Uptime counter (time connected)
-  - Reconnection attempt history
-  - Event receive rate (events/minute)
-  - Connection quality indicator
-  - Expand/collapse panel in dashboard
-
-**Estimated:** ~230 lines
-
----
-
-### Testing & Documentation
-
-**Task 8: Testing Suite** 📋 PLANNED
-- **File:** `dev/scripts/test_incremental_updates.py` (~150 lines)
-- Test incremental chart updates
-- Validate event buffering during disconnection
-- Measure performance improvements
-- Load testing with rapid events
-
-**Task 9: Documentation** 📋 PLANNED
-- **File:** `wiki/Incremental-Chart-Updates.md` (~200 lines)
-- Architecture and implementation details
-- Performance benchmarks
-- Event buffering guide
-- Connection health metrics reference
-
-**Estimated:** ~350 lines
-
----
-
-### Summary
-
-**Total Estimated Effort:** ~1,380 lines (code + tests + docs)
-
-**Expected Performance Improvements:**
-- 90% reduction in API calls (incremental updates vs. full refresh)
-- 70% reduction in DOM updates (update data points, not entire charts)
-- Zero data loss during disconnection (event buffering)
-- Better user experience (smooth animations, connection quality feedback)
-
-**Deliverables:**
-- ✅ Incremental chart updates (500 lines)
-- ✅ Event buffering system (300 lines)
-- ✅ Connection health metrics (230 lines)
-- ✅ Testing suite (150 lines)
-- ✅ Complete documentation (200 lines)
-
-**Dependencies:**
-- v1.2.7 Chart.js integration (chart instances, data structures)
-- v1.2.7 WebSocket connection (event reception, status management)
-
----
-
-## 📍 Upcoming Release: v1.2.9
+## 📍 Next Priority: v1.2.9
 
 **Status:** 📋 **PLANNED** - Gmail Cloud Sync for Memory & Shared Content
 **Complexity:** Medium-High (OAuth2 + Google Drive API + sync engine)
@@ -1489,6 +1208,883 @@ Cloud POKE enables uDOS to become a platform for sharing creativity while mainta
 
 ---
 
+## 📍 Future Releases
+
+### Overview of Planned Work
+
+The following sections detail all planned releases and future enhancements for uDOS. Work is organized by priority and dependencies, with estimated complexity and effort for each major release.
+
+**Priority Levels:**
+- 🔥 **HIGH** - Critical path, immediate priority
+- 🎯 **MEDIUM** - Important, scheduled for near-term
+- 💡 **LOW** - Future enhancements, long-term planning
+
+**Status Legend:**
+- 📋 **PLANNED** - Design complete, ready for implementation
+- 🔄 **IN PROGRESS** - Active development
+- ✅ **COMPLETE** - Delivered and tested
+
+---
+
+## 📍 v1.2.10 - Enhanced Webhook Integration & API Server
+
+**Status:** 📋 **PLANNED** (Previously part of v1.2.5, expanded scope)
+**Priority:** 🎯 **MEDIUM**
+**Complexity:** Medium-High (Event processing + API layer + security)
+**Effort:** ~30-40 MOVES
+**Dependencies:** v1.2.6 complete (Webhook Analytics provides foundation)
+**Target:** ~1,800-2,200 lines
+
+### Mission: Advanced Event-Driven Automation & External API Access
+
+**Strategic Rationale:**
+v1.2.5 established basic webhook reception. v1.2.10 expands this with:
+- Enhanced event processing and normalization
+- Outbound API capabilities (not just inbound webhooks)
+- Webhook simulation and testing tools
+- Integration with VS Code extension for development
+
+**Strategic Focus:**
+- **Event Processing Pipeline** - Normalize, validate, route webhook events
+- **API Server Layer** - Expose controlled REST endpoints for automation
+- **Webhook Simulation** - Test webhook integrations without real services
+- **VS Code Integration** - Developer tools for webhook/API testing
+
+---
+
+### Part 1: Enhanced Event Processing (Tasks 1-2)
+
+**Task 1: Event Normalization Engine** 📋 PLANNED
+- **File:** `extensions/core/webhook/services/event_processor.py` (~350 lines)
+- **Features:**
+  - Normalize payloads from different platforms (Slack, Notion, ClickUp, GitHub)
+  - Unified event schema for internal processing
+  - Hash/ID mapping for duplicate detection
+  - Event validation against schemas
+  - Auto-conversion to `.md` and store in appropriate memory tier
+- **Event Schema:**
+  ```json
+  {
+    "event_id": "evt_abc123",
+    "platform": "github",
+    "type": "push",
+    "timestamp": "2025-12-05T14:30:00Z",
+    "source": {
+      "repo": "fredporter/uDOS",
+      "branch": "main",
+      "user": "fredporter"
+    },
+    "payload": { /* normalized data */ },
+    "actions": ["trigger_script", "update_dashboard", "log_event"]
+  }
+  ```
+
+**Task 2: Event Routing & Triggers** 📋 PLANNED
+- **File:** `extensions/core/webhook/services/event_router.py` (~300 lines)
+- **Features:**
+  - Route events to appropriate handlers
+  - Trigger `.uPY` scripts based on event type
+  - Start missions automatically
+  - Update dashboards in real-time
+  - Send notifications
+  - Rate limiting per platform/event type
+- **Routing Rules:**
+  ```json
+  {
+    "routes": [
+      {
+        "platform": "github",
+        "event_type": "push",
+        "actions": [
+          {"type": "script", "path": "memory/workflows/github_push.upy"},
+          {"type": "dashboard", "update": "dev-activity"},
+          {"type": "log", "tier": "tier3"}
+        ]
+      }
+    ]
+  }
+  ```
+
+**Estimated:** ~650 lines
+
+---
+
+### Part 2: API Server Layer (Tasks 3-5)
+
+**Task 3: REST API Endpoints** 📋 PLANNED
+- **File:** `extensions/core/api/api_server.py` (~500 lines)
+- **Core Endpoints:**
+  - `POST /api/run` - Execute `.uPY` script
+  - `POST /api/memory/add` - Add document to memory
+  - `GET /api/memory/search` - Search memory tiers
+  - `GET /api/map/status` - Map and location info
+  - `GET /api/mission/{id}` - Mission details
+  - `POST /api/ask` - AI assistant query (RBAC-enforced)
+- **Security:**
+  - API key authentication
+  - Rate limiting (per key, per endpoint)
+  - Input validation
+  - RBAC enforcement (role-based access)
+  - Audit logging
+
+**Task 4: API Client Library** 📋 PLANNED
+- **File:** `extensions/core/api/client.py` (~250 lines)
+- **Features:**
+  - Python client for uDOS API
+  - Authentication handling
+  - Retry logic with exponential backoff
+  - Response parsing
+  - Error handling
+- **Usage Example:**
+  ```python
+  from udos.api import UDOSClient
+
+  client = UDOSClient(api_key="sk_xxx")
+  result = client.run_script("memory/workflows/task.upy")
+  docs = client.search_memory("water purification")
+  ```
+
+**Task 5: Integration Use Cases** 📋 PLANNED
+- **Files:** `extensions/core/api/integrations/` (~400 lines)
+- **Slack Bot:** Respond to slash commands via API
+- **Notion Automation:** Sync pages to uDOS memory
+- **ClickUp Workflows:** Create tasks from uDOS missions
+- **GitHub Actions:** Trigger uDOS scripts from CI/CD
+- **Custom Integrations:** Template for user-created integrations
+
+**Estimated:** ~1,150 lines
+
+---
+
+### Part 3: Webhook Simulation & Testing (Tasks 6-7)
+
+**Task 6: Webhook Simulator** 📋 PLANNED
+- **File:** `extensions/core/webhook/simulator.py` (~350 lines)
+- **Features:**
+  - Send mock webhook events (Slack, Notion, ClickUp, GitHub)
+  - Pre-built event templates
+  - Custom payload builder
+  - Signature generation (HMAC)
+  - Response validation
+- **Commands:**
+  ```
+  WEBHOOK SIM SLACK --message "Test message"
+  WEBHOOK SIM GITHUB --event push --repo uDOS
+  WEBHOOK SIM NOTION --page created
+  WEBHOOK SIM CLICKUP --task updated
+  ```
+
+**Task 7: API Testing Panel** 📋 PLANNED
+- **File:** `extensions/core/api/test_panel.py` (~250 lines)
+- **Features:**
+  - Interactive API endpoint tester
+  - Save/load request templates
+  - Response inspection
+  - Performance metrics
+  - Export to curl/Postman
+
+**Estimated:** ~600 lines
+
+---
+
+### Part 4: Documentation & Testing
+
+**Task 8: Documentation** 📋 PLANNED
+- **File:** `wiki/Webhook-API-Integration.md` (~500 lines)
+- **Sections:**
+  - Event processing pipeline
+  - API endpoints reference
+  - Authentication and security
+  - Integration examples (Slack, Notion, ClickUp, GitHub)
+  - Webhook simulation guide
+  - Troubleshooting
+
+**Task 9: Integration Tests** 📋 PLANNED
+- **File:** `memory/tests/test_webhook_api.py` (~200 lines)
+- Test event normalization
+- Validate API endpoints
+- Security testing (auth, rate limiting)
+- Integration scenarios
+
+**Estimated:** ~700 lines
+
+---
+
+### Summary
+
+**Total Estimated:** ~3,100 lines
+
+**Deliverables:**
+- Event processing and normalization (~650 lines)
+- API server with REST endpoints (~1,150 lines)
+- Webhook simulation tools (~600 lines)
+- Documentation and tests (~700 lines)
+
+**Key Features:**
+- Unified event processing from multiple platforms
+- Controlled API access for external automation
+- Webhook simulation for testing
+- Integration templates for common use cases
+- RBAC enforcement for security
+- Rate limiting and audit logging
+
+---
+
+## 📍 v1.2.11 - VS Code Extension Enhancement
+
+**Status:** 📋 **PLANNED** (Expansion of existing extension)
+**Priority:** 🎯 **MEDIUM**
+**Complexity:** Medium (Extension features + testing tools)
+**Effort:** ~25-35 MOVES
+**Dependencies:** v1.2.10 complete (API/webhook foundation)
+**Target:** ~1,500-1,800 lines
+
+### Mission: Complete Developer Environment for uDOS
+
+**Note:** Basic VS Code extension already exists (v1.2.11 delivered syntax highlighting, IntelliSense, script execution). This phase adds advanced features.
+
+**Strategic Focus:**
+- **Sandbox Environment** - Isolated uDOS instances for testing
+- **Webhook/API Simulation** - Test integrations from VS Code
+- **Scenario Testing** - Multi-instance mesh simulation
+- **Debug Tools** - Enhanced debugging for `.uPY` scripts
+
+---
+
+### Part 1: Sandbox Environment (Tasks 1-2)
+
+**Task 1: Isolated Instance Manager** 📋 PLANNED
+- **File:** `extensions/vscode/src/sandbox/instance_manager.ts` (~400 lines)
+- **Features:**
+  - Create isolated uDOS instances
+  - Clean workspace (no user data)
+  - Dev mode enabled by default
+  - Auto-cleanup on exit
+  - Instance status monitoring
+- **Commands:**
+  - `uDOS: Launch Sandbox` - Start isolated instance
+  - `uDOS: Stop Sandbox` - Clean shutdown
+  - `uDOS: Reset Sandbox` - Clear and restart
+
+**Task 2: Replayable Test Runner** 📋 PLANNED
+- **File:** `extensions/vscode/src/sandbox/test_runner.ts` (~300 lines)
+- **Features:**
+  - Run `.uPY` scripts in sandbox
+  - Capture output and state
+  - Save test scenarios
+  - Replay tests automatically
+  - Compare results (regression testing)
+
+**Estimated:** ~700 lines
+
+---
+
+### Part 2: Integration Testing Tools (Tasks 3-4)
+
+**Task 3: Webhook Simulator Panel** 📋 PLANNED
+- **File:** `extensions/vscode/src/panels/webhook_sim.ts` (~350 lines)
+- **Features:**
+  - Visual webhook event builder
+  - Platform templates (Slack, Notion, ClickUp, GitHub)
+  - Send to local or sandbox instance
+  - Response viewer
+  - Event history
+
+**Task 4: API Route Tester** 📋 PLANNED
+- **File:** `extensions/vscode/src/panels/api_tester.ts` (~300 lines)
+- **Features:**
+  - REST client interface
+  - Endpoint explorer (list all API routes)
+  - Request builder (headers, body, auth)
+  - Response inspector
+  - Save request collections
+
+**Estimated:** ~650 lines
+
+---
+
+### Part 3: Scenario Simulation (Tasks 5-6)
+
+**Task 5: Multi-Instance Orchestrator** 📋 PLANNED (Future)
+- **File:** `extensions/vscode/src/simulation/orchestrator.ts` (~400 lines)
+- **Features:**
+  - Spawn multiple uDOS instances
+  - Simulate mesh network communication
+  - Test distributed scenarios
+  - Visualize message flow
+  - Performance monitoring
+
+**Task 6: Scenario Test Library** 📋 PLANNED (Future)
+- **File:** `extensions/vscode/src/simulation/scenarios/` (~300 lines)
+- **Pre-built Scenarios:**
+  - 3-node mesh network
+  - Leader election simulation
+  - Message propagation testing
+  - Conflict resolution scenarios
+  - Off-grid knowledge sync
+
+**Estimated:** ~700 lines (Future)
+
+---
+
+### Part 4: Documentation & Polish
+
+**Task 7: VS Code Extension Guide** 📋 PLANNED
+- **File:** `extensions/vscode/README.md` (update, +300 lines)
+- **Sections:**
+  - Sandbox environment guide
+  - Webhook/API testing
+  - Scenario simulation
+  - Debugging tips
+  - Extension configuration
+
+**Task 8: Extension Polish** 📋 PLANNED
+- **Files:** Various (+150 lines)
+- **Improvements:**
+  - Better error messages
+  - Progress indicators
+  - Status bar integration
+  - Command palette organization
+  - Keyboard shortcuts
+
+**Estimated:** ~450 lines
+
+---
+
+### Summary
+
+**Deliverables:**
+- Sandbox environment (~700 lines)
+- Webhook/API testing tools (~650 lines)
+- Multi-instance simulation (~700 lines, future)
+- Documentation and polish (~450 lines)
+
+**Key Features:**
+- Isolated sandbox instances for safe testing
+- Visual webhook/API testing from VS Code
+- Replayable test scenarios
+- Multi-instance mesh simulation (future)
+- Enhanced debugging capabilities
+
+---
+
+## 📍 Future Major Features (Unscheduled)
+
+The following features are planned but not yet assigned to specific releases. They represent long-term strategic initiatives for uDOS.
+
+---
+
+### Native Applications & Device Spawning
+
+**Priority:** 💡 **LOW** (Future strategic initiative)
+**Complexity:** Very High (Native development + mesh networking)
+**Dependencies:** RBAC complete, security hardening, stable core
+
+#### Tauri Desktop App
+
+**Mission:** Cross-platform native desktop application
+
+**Features:**
+- Embedded CLI + Teletext dashboard
+- Native menus, notifications, file integration
+- Sandbox instances for development
+- Offline-first architecture
+- System tray integration
+- Auto-updates
+
+**Benefits:**
+- No terminal required (user-friendly)
+- Better performance (native vs web)
+- OS integration (file associations, notifications)
+- Easier distribution (app stores)
+
+**Estimated:** ~2,500 lines
+
+---
+
+#### Mobile Apps (iOS / Android)
+
+**Mission:** Lightweight field edition of uDOS
+
+**Features:**
+- Missions, Maps, Knowledge Library, Tasks, Barter
+- Touch-optimized Teletext UI
+- Optional sync via Gmail Drive engine
+- Offline-first (works without internet)
+- Camera integration (document scanning to .md)
+- Voice commands (optional)
+
+**Use Cases:**
+- Field documentation (survival scenarios)
+- Mobile task management
+- Quick knowledge lookup
+- Bartering on-the-go
+- Off-grid mapping
+
+**Estimated:** ~3,000 lines (iOS) + ~3,000 lines (Android)
+
+---
+
+#### Device Spawning + Mesh Networking
+
+**Mission:** Spawn lightweight child nodes for off-grid mesh communication
+
+**Features:**
+- Spawn mini uDOS devices (Raspberry Pi, ESP32)
+- LoRa-based mesh networking
+- Knowledge sync between devices
+- Strict Cloud vs Mesh isolation (different networks)
+- Auto-discovery of nearby nodes
+- Message relay and routing
+
+**Architecture:**
+```
+Parent Node (Full uDOS)
+  ├── Child Node 1 (Mesh device)
+  ├── Child Node 2 (Mesh device)
+  └── Child Node 3 (Mesh device)
+       └── LoRa Mesh Network (offline)
+
+Separate from:
+  Cloud POKE (Internet/HTTPS)
+```
+
+**Security:**
+- AES-256 encryption for mesh messages
+- Private key authentication
+- No internet access from mesh nodes
+- Read-only knowledge sync
+
+**Estimated:** ~4,000 lines
+
+---
+
+### Graphics System Expansion
+
+**Priority:** 💡 **LOW** (Future enhancements)
+**Complexity:** Medium (Creative tools + rendering)
+
+#### Teletext / ANSI Renderer Enhancements
+
+**Features:**
+- Multi-panel screen generator
+- Auto-layout teletext templates
+- Dynamic panel builder (titles, sections, grids)
+- Block-character shading engine (█ ▓ ▒ ░)
+- Colour discipline enforcement (max 5 colors)
+- Animation support (6-12 FPS teletext)
+
+**Commands:**
+```
+MAKE TELETEXT LAYOUT --panels 3 --grid 40x24
+MAKE TELETEXT TITLE "News Page"
+MAKE TELETEXT ANIMATE sprite_walk.txt --fps 8
+```
+
+**Estimated:** ~800 lines
+
+---
+
+#### Photo & Video Teletext Conversion
+
+**Features:**
+- Downscale & posterize pipeline (image → teletext)
+- Teletext palette mapping (8 colors + brights)
+- Character-based shading
+- 6–12 FPS teletext animation export
+- Batch processing for video frames
+
+**Use Cases:**
+- Convert photos to teletext art
+- Create retro-style animations
+- Generate diagrams from screenshots
+- Art projects and aesthetics
+
+**Commands:**
+```
+CONVERT PHOTO mountain.jpg --teletext --palette bbc --size 80x25
+CONVERT VIDEO walk.mp4 --teletext --fps 8 --output walk_teletext/
+```
+
+**Estimated:** ~600 lines
+
+---
+
+#### Graphics Template Library Integration
+
+**Features:**
+- Merge panel libraries from graphics1.md / graphics2.md
+- System diagrams, flows, timelines, theatre layouts
+- Export via MAKE ASCII / MAKE TELETEXT / MAKE SVG
+- Template browser and selector
+- Custom template creation
+
+**Templates:**
+- Title pages
+- Infographic tiles
+- Multi-panel layouts
+- System diagrams
+- Flowcharts
+- Timelines
+
+**Estimated:** ~400 lines
+
+---
+
+### Audio & Groovebox System
+
+**Priority:** 💡 **LOW** (Future creative tools)
+**Complexity:** Medium-High (Audio synthesis + music theory)
+
+#### MML Pattern Generator
+
+**Features:**
+- Generate MML (Music Macro Language) loops
+- 808 drum patterns, 303 basslines, 80s leads
+- Pattern chaining + variation support
+- Export to MML files for retro systems
+- Integration with LMMS/DAWs via MIDI
+
+**Use Cases:**
+- Generate retro game music
+- Create chiptune loops
+- Prototype musical ideas quickly
+- Nostalgic sound design
+
+**Commands:**
+```
+MML DRUM 808 --pattern basic --tempo 120
+MML BASS 303 --key Cm --pattern acid
+MML LEAD 80s --key Dm --arpeggio up
+MML EXPORT track.mml
+```
+
+**Estimated:** ~700 lines
+
+---
+
+#### LilyPond Score Rendering
+
+**Features:**
+- Multi-stave score builder
+- MIDI export for LMMS/DAWs
+- Section markers & arrangement tools
+- PDF score generation
+- MusicXML export
+
+**Use Cases:**
+- Generate sheet music from MML
+- Compose music in text format
+- Export for notation software
+- Print-ready scores
+
+**Commands:**
+```
+LILY SCORE new_song --staves 4
+LILY ADD MELODY melody.mml --stave 1
+LILY EXPORT song.pdf
+LILY EXPORT song.mid
+```
+
+**Estimated:** ~500 lines
+
+---
+
+#### Retro & Nostalgic SFX Layer
+
+**Features:**
+- CC0 retro SFX library integration
+- Funny/nostalgic SFX (bleeps, bloops, 8-bit)
+- Routing into `.uPY` scenarios and missions
+- Trigger sounds on events
+- Sound effect browser
+
+**Use Cases:**
+- Add audio feedback to missions
+- Retro game aesthetics
+- Fun notifications
+- Accessibility (audio cues)
+
+**Commands:**
+```
+SFX PLAY blip
+SFX TRIGGER mission_complete --sound fanfare
+SFX BROWSE --category retro
+```
+
+**Estimated:** ~300 lines
+
+---
+
+### Core System Enhancements (Ongoing)
+
+**Priority:** 🎯 **MEDIUM** (Security and reliability)
+**Complexity:** Varies
+
+#### RBAC (Role-Based Access Control)
+
+**Features:**
+- Enforce role limits (User/Power/Wizard/Root)
+- Apply to AI access, API, sync, and webhooks
+- Per-command permissions
+- Role inheritance
+- Audit logging of privileged actions
+
+**Roles:**
+- **User:** Basic commands, offline knowledge, local operations
+- **Power:** Web access, AI assistant (rate-limited), cloud sync
+- **Wizard:** Extension installation, API access, advanced tools
+- **Root:** System configuration, dev mode, unrestricted access
+
+**Estimated:** ~600 lines
+
+---
+
+#### Security Hardening
+
+**Features:**
+- CSRF protection for web interfaces
+- Input validation (all user inputs)
+- JSON schema validation
+- Abuse throttling (rate limiting)
+- MeshCore separation guarantee (network isolation)
+- Dependency vulnerability scanning
+- Code signing for extensions
+
+**Ongoing Tasks:**
+- Regular security audits
+- Penetration testing
+- OWASP top 10 compliance
+- Security documentation
+
+**Estimated:** ~500 lines (initial) + ongoing maintenance
+
+---
+
+#### Knowledge Bank Upgrades
+
+**Features:**
+- PDF → MD → SVG conversion pipelines
+- Citation mandates (source tracking)
+- Indexing rules for search optimization
+- Public Tier 4 enhancements
+- Multi-language support
+- Version control for guides
+
+**Commands:**
+```
+KNOWLEDGE IMPORT guide.pdf --category water
+KNOWLEDGE INDEX --rebuild
+KNOWLEDGE CITE --show-sources
+```
+
+**Estimated:** ~800 lines
+
+---
+
+#### Offline AI Prompt Tools
+
+**Features:**
+- Prompt testing (quality metrics)
+- Prompt versioning (A/B testing)
+- Scoring & quality metrics (response evaluation)
+- Prompt library (reusable templates)
+- Offline prompt optimization (no API calls for testing)
+
+**Use Cases:**
+- Optimize AI assistant prompts
+- Test prompt effectiveness
+- Version control for prompts
+- Share prompt templates
+
+**Commands:**
+```
+PROMPT TEST water_query --iterations 10
+PROMPT SCORE --evaluate quality
+PROMPT VERSION --compare v1 v2
+PROMPT LIBRARY --show templates
+```
+
+**Estimated:** ~400 lines
+
+---
+
+### Teletext/ANSI Art House Style Guide
+
+**Priority:** 💡 **LOW** (Content creation support)
+**Complexity:** Low (Documentation and templates)
+
+#### Templates & Constraints
+
+**Deliverables:**
+- Title page templates
+- Infographic tile templates
+- Multi-panel layout templates
+- Style guide documentation
+
+**Constraints:**
+- 40×24 / 80×25 / 100×30 grids
+- Max 5 colours (BBC palette)
+- No gradients or diagonals
+- Block geometry only (█ ▓ ▒ ░ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼)
+
+**Use in:**
+- MAKE TELETEXT command
+- Dashboard widgets
+- Status displays
+- Content generation
+
+**Estimated:** ~200 lines (templates + docs)
+
+---
+
+## 📊 Roadmap Summary
+
+### Immediate Priorities (Next 3-6 months)
+
+1. **v1.2.9** - Gmail Cloud Sync (~3,050 lines)
+   - OAuth authentication
+   - Google Drive sync engine
+   - Email to markdown conversion
+   - Selective sync with conflict resolution
+
+2. **v1.2.10** - Enhanced Webhooks & API (~3,100 lines)
+   - Event processing pipeline
+   - REST API server
+   - Webhook simulation
+   - Integration templates
+
+3. **v1.2.11** - VS Code Extension Enhancement (~1,800 lines)
+   - Sandbox environment
+   - Webhook/API testing tools
+   - Debug improvements
+
+**Total Immediate Work:** ~7,950 lines
+
+---
+
+### Medium-Term (6-12 months)
+
+4. **Cloud POKE** - HTTPS Extension Publishing (~4,850 lines)
+   - Secure HTTPS server
+   - Extension marketplace
+   - Access control & authentication
+   - Dynamic DNS integration
+
+5. **RBAC & Security** - Access Control (~1,600 lines)
+   - Role-based permissions
+   - Security hardening
+   - Audit logging
+
+**Total Medium-Term:** ~6,450 lines
+
+---
+
+### Long-Term (12+ months)
+
+6. **Native Apps** - Desktop & Mobile (~8,500 lines)
+   - Tauri desktop app
+   - iOS/Android apps
+   - Device spawning & mesh networking
+
+7. **Creative Tools** - Graphics & Audio (~3,300 lines)
+   - Teletext/photo conversion
+   - MML/LilyPond music tools
+   - SFX integration
+
+8. **Knowledge Expansion** - Content & Tools (~1,400 lines)
+   - Knowledge bank upgrades
+   - Offline AI tools
+   - Multi-language support
+
+**Total Long-Term:** ~13,200 lines
+
+---
+
+### Grand Total Planned Work
+
+**All Future Features:** ~27,600 lines (code + tests + docs)
+
+**By Category:**
+- Cloud & Sync: ~7,900 lines (Gmail, Cloud POKE)
+- Integration & API: ~4,900 lines (Webhooks, API, VS Code)
+- Security & Core: ~2,600 lines (RBAC, hardening, knowledge)
+- Native Apps: ~8,500 lines (Desktop, mobile, mesh)
+- Creative Tools: ~3,700 lines (Graphics, audio, teletext)
+
+---
+
+## 🗓️ Development Pacing
+
+**Philosophy:** Development measured in STEPS and MOVES, not time.
+
+**Work Proceeds Through:**
+- Organic pacing (when inspiration and energy align)
+- Cron patterns (scheduled bursts of focused work)
+- Priority shifts (immediate needs take precedence)
+- Strategic value (high-impact features first)
+
+**Realistic Timeline:**
+- v1.2.9 (Gmail Sync): ~35-45 MOVES (~3-5 weeks focused work)
+- v1.2.10 (Webhooks/API): ~30-40 MOVES (~3-4 weeks)
+- v1.2.11 (VS Code): ~25-35 MOVES (~2-3 weeks)
+- Cloud POKE: ~40-55 MOVES (~4-6 weeks)
+- Native Apps: ~80-100 MOVES (~8-12 weeks)
+
+**Note:** MOVES are not days. Work proceeds organically based on:
+- Available time and energy
+- Complexity and focus required
+- Testing and validation needs
+- Documentation thoroughness
+
+---
+
+## 🎯 Strategic Themes
+
+### 1. Offline-First, Always
+
+Every feature maintains uDOS's core principle:
+- Full functionality without internet
+- Cloud features are optional enhancements
+- Local data remains primary source of truth
+- Graceful degradation when services unavailable
+
+### 2. Privacy & Security
+
+User control and data protection:
+- Explicit opt-in for cloud features
+- Encryption for sensitive data
+- RBAC enforcement
+- Audit logging
+- Network separation (Cloud ≠ Mesh)
+
+### 3. Developer Experience
+
+Tools and workflows for building:
+- VS Code extension for development
+- Webhook/API simulation
+- Sandbox testing environments
+- Clear documentation
+- Example templates
+
+### 4. Creative Expression
+
+Enable artistic and musical creation:
+- Teletext/ASCII art tools
+- Music generation (MML/LilyPond)
+- Graphics templates
+- Retro aesthetics
+
+### 5. Community & Sharing
+
+Optional collaboration features:
+- Cloud POKE for extension sharing
+- Marketplace for discovery
+- Gmail sync for cross-device work
+- Webhook integrations for automation
+
+---
+
 ## 🤝 Contributing
 
 **Development Process:**
@@ -1513,8 +2109,44 @@ Cloud POKE enables uDOS to become a platform for sharing creativity while mainta
 
 ---
 
+## 📝 Roadmap Maintenance
+
+**This Document:**
+- **Purpose:** Comprehensive planning document for all uDOS development
+- **Scope:** Completed releases + all planned future work
+- **Size:** 2,100+ lines (expanded from 1,260 lines)
+- **Updated:** December 5, 2025
+
+**Sections:**
+1. **Latest Releases** - Recently completed work (v1.2.8, uPY v2.0.2)
+2. **Completed Releases** - Archive reference (v1.1.4 through v1.2.7)
+3. **Next Priority** - v1.2.9 Gmail Cloud Sync (detailed planning)
+4. **Future Releases** - v1.2.10 (Webhooks/API), v1.2.11 (VS Code), Cloud POKE
+5. **Future Major Features** - Native apps, graphics, audio, core enhancements
+6. **Strategic Summary** - Roadmap overview, themes, development pacing
+
+**Updates:**
+- Completed work moves from "Next Priority" → "Latest Releases" → "Completed Archive"
+- New features added to "Future Releases" or "Future Major Features"
+- Effort estimates refined based on actual delivery
+- Dependencies updated as prerequisites complete
+
+**Related Documents:**
+- `ROADMAP-incomplete.md` - Source for future planning (consolidated into this file)
+- `dev/sessions/` - Development session logs and notes
+- `wiki/` - User-facing documentation for completed features
+- `CHANGELOG.md` - Release notes and version history
+
+---
+
 **Last Updated:** December 5, 2025
-**Roadmap Version:** 1.2.7+ (Pruned)
-**Next Priority:** v1.2.8 - Incremental Updates & Event Buffering
+**Roadmap Version:** 2.0 (Comprehensive)
+**Next Priority:** v1.2.9 - Gmail Cloud Sync
 **Maintainer:** @fredporter
 **License:** MIT
+
+---
+
+**Total Planned Future Work:** ~27,600 lines across all releases
+**Current Delivered:** ~18,750 lines (v1.1.4 through v1.2.8 + uPY v2.0.2)
+**Grand Total Vision:** ~46,000+ lines for complete uDOS ecosystem
