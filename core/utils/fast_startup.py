@@ -65,7 +65,8 @@ class FastStartup:
         viewport = self._init_viewport(is_script_mode)
         self.components['viewport'] = viewport
         if self.verbose and not is_script_mode:
-            print("\r  [✓] Viewport detection     (cached)  ", flush=True)
+            vp_size = f"{viewport.width}×{viewport.height}" if hasattr(viewport, 'width') else "cached"
+            print(f"\r  [✓] Viewport detection     ({vp_size})  ", flush=True)
 
         # Step 2: User profile (required by main)
         if self.verbose and not is_script_mode:

@@ -461,50 +461,40 @@ class SystemCommandHandler(BaseCommandHandler):
         if '--extensions' in flags or '--extension' in flags or '--validate' in flags:
             return self._handle_hot_reload(flags, args)
 
-        # Original full system reboot with progress indicators
+        # Original full system reboot with consistent progress meters
         import time
 
-        output = "\n🔄 REBOOTING uDOS SYSTEM...\n\n"
+        output = "\n"
+        output += "┌─────────────────────────────────────────┐\n"
+        output += "│ 🔄 SYSTEM REBOOT                       │\n"
+        output += "└─────────────────────────────────────────┘\n"
 
-        # Progress bar helper
-        def progress_bar(current, total, width=30):
-            filled = int(width * current / total)
-            bar = '█' * filled + '░' * (width - filled)
-            percent = int(100 * current / total)
-            return f"[{bar}] {percent}%"
+        # Progress meter helper (matches startup format)
+        steps = [
+            ("Saving state", "✓ State saved"),
+            ("Clearing buffers", "✓ Buffers cleared"),
+            ("Viewport detection", None),  # Special handling
+            ("Reinitializing", "✓ Components ready"),
+        ]
 
-        # Step 1: Save state
-        output += f"{progress_bar(1, 5)} Saving current state...\r"
-        time.sleep(0.1)
-        output += f"\r✅ Saving current state...                           \n"
+        for i, (step_name, completion_msg) in enumerate(steps, 1):
+            output += f"  [{i}/4] {step_name}..."
+            time.sleep(0.05)  # Brief pause for visual feedback
+            
+            if i == 3:  # Viewport detection
+                try:
+                    from core.services.viewport_manager import ViewportManager
+                    viewport = ViewportManager()
+                    viewport_info = viewport.refresh_viewport()
+                    tier = viewport_info["screen_tier"]
+                    output += f"\r  [✓] Viewport detection     ({tier['actual_width_cells']}×{tier['actual_height_cells']})  \n"
+                except Exception as e:
+                    output += f"\r  [⚠] Viewport detection     (cached)  \n"
+            else:
+                output += f"\r  [✓] {step_name:<20} (complete)  \n"
 
-        # Step 2: Clear buffers
-        output += f"{progress_bar(2, 5)} Clearing memory buffers...\r"
-        time.sleep(0.1)
-        output += f"\r✅ Clearing memory buffers...                        \n"
-
-        # Step 3: Refresh viewport detection
-        output += f"{progress_bar(3, 5)} Refreshing viewport...\r"
-        time.sleep(0.1)
-        try:
-            from core.services.viewport_manager import ViewportManager
-            viewport = ViewportManager()
-            viewport_info = viewport.refresh_viewport()
-            tier = viewport_info["screen_tier"]
-            output += f"\r🖥️  Viewport refreshed: {tier['label']} ({tier['actual_width_cells']}×{tier['actual_height_cells']} cells)\n"
-        except Exception as e:
-            output += f"\r⚠️  Viewport refresh warning: {str(e)}\n"
-
-        # Step 4: Reinitialize components
-        output += f"{progress_bar(4, 5)} Reinitializing components...\r"
-        time.sleep(0.1)
-        output += f"\r✅ Reinitializing components...                      \n"
-
-        # Step 5: Complete
-        output += f"{progress_bar(5, 5)} System ready!\r"
-        time.sleep(0.2)
-        output += f"\r🚀 System restart initiated!                         \n"
-        output += "Welcome back to uDOS v1.2.4\n\n"
+        output += "\n🚀 System restart initiated!\n"
+        output += f"Welcome back to uDOS v1.2.10\n\n"
 
         # Set the reboot flag to trigger restart in main loop
         self.reboot_requested = True

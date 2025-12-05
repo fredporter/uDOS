@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime
 from getpass import getuser
+from pathlib import Path
 import time
 
 class UserManager:
@@ -119,31 +120,19 @@ class UserManager:
             else:
                 user_config['USER_PROFILE']['TIMEZONE'] = current_tz
 
-            # Location defaults to timezone city (modifiable)
+            # Location - use city selector
             current_loc = user_config.get('USER_PROFILE', {}).get('LOCATION', detected_city)
-            location = input(f"📍 Location [{current_loc}]: ").strip()
-            if location:
-                user_config['USER_PROFILE']['LOCATION'] = location
-            else:
-                user_config['USER_PROFILE']['LOCATION'] = current_loc
+            location = self._select_city(current_loc)
+            user_config['USER_PROFILE']['LOCATION'] = location
 
-            # Project name
-            project_name = input(f"🎯 Project name [{user_config.get('PROJECT', {}).get('NAME', 'uDOS Development')}]: ").strip()
-            if project_name:
-                if 'PROJECT' not in user_config:
-                    user_config['PROJECT'] = {}
-                user_config['PROJECT']['NAME'] = project_name
-
-            # Theme selection
-            print("\n🎨 Available themes: dungeon, galaxy, foundation, science, project")
+            # Theme selection - use theme selector - use selector
             current_theme = user_config.get('system_settings', {}).get('interface', {}).get('theme', 'dungeon')
-            theme = input(f"Theme [{current_theme}]: ").strip().lower()
-            if theme in ['dungeon', 'galaxy', 'foundation', 'science', 'project']:
-                if 'system_settings' not in user_config:
-                    user_config['system_settings'] = {}
-                if 'interface' not in user_config['system_settings']:
-                    user_config['system_settings']['interface'] = {}
-                user_config['system_settings']['interface']['theme'] = theme
+            theme = self._select_theme(current_theme)
+            if 'system_settings' not in user_config:
+                user_config['system_settings'] = {}
+            if 'interface' not in user_config['system_settings']:
+                user_config['system_settings']['interface'] = {}
+            user_config['system_settings']['interface']['theme'] = theme
 
         # Update session data
         if 'SESSION_DATA' not in user_config:
@@ -195,6 +184,81 @@ class UserManager:
                 except:
                     pass
             return ''
+
+    def _select_city(self, default_city: str = "Sydney") -> str:
+        """Interactive city selector using cities.json."""
+        try:
+            import json
+            cities_file = Path(__file__).parent.parent / 'data' / 'geography' / 'cities.json'
+            
+            if not cities_file.exists():
+                # Fallback to manual input
+                return input(f"📍 Location [{default_city}]: ").strip() or default_city
+            
+            with open(cities_file) as f:
+                cities_data = json.load(f)
+            
+            cities = cities_data.get('cities', [])
+            if not cities:
+                return input(f"📍 Location [{default_city}]: ").strip() or default_city
+            
+            # Create options list
+            city_names = sorted([c['name'] for c in cities])
+            
+            # Find default index
+            try:
+                default_index = city_names.index(default_city)
+            except ValueError:
+                default_index = 0
+            
+            print(f"\n📍 Select your location (↑↓ arrows, Enter to select):")
+            
+            # Use standardized selector
+            from core.input.standardized_input import StandardizedInput
+            input_service = StandardizedInput()
+            selected = input_service.select_option(
+                title="Location",
+                options=city_names,
+                default_index=default_index,
+                show_title=False
+            )
+            
+            return selected
+            
+        except Exception as e:
+            # Fallback to manual input
+            return input(f"📍 Location [{default_city}]: ").strip() or default_city
+
+    def _select_theme(self, default_theme: str = "dungeon") -> str:
+        """Interactive theme selector."""
+        try:
+            themes = ['dungeon', 'galaxy', 'foundation', 'science', 'project']
+            
+            # Find default index
+            try:
+                default_index = themes.index(default_theme)
+            except ValueError:
+                default_index = 0
+            
+            print(f"\n🎨 Select your theme (↑↓ arrows, Enter to select):")
+            
+            # Use standardized selector
+            from core.input.standardized_input import StandardizedInput
+            input_service = StandardizedInput()
+            selected = input_service.select_option(
+                title="Theme",
+                options=themes,
+                default_index=default_index,
+                show_title=False
+            )
+            
+            return selected
+            
+        except Exception:
+            # Fallback to manual input
+            print("\n🎨 Available themes: dungeon, galaxy, foundation, science, project")
+            theme = input(f"Theme [{default_theme}]: ").strip().lower()
+            return theme if theme in themes else default_theme
 
     def get_user_data(self):
         """
