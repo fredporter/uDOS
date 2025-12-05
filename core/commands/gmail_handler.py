@@ -17,6 +17,7 @@ from pathlib import Path
 
 from core.services.gmail_auth import get_gmail_auth
 from core.services.gmail_service import get_gmail_service, get_drive_service
+from core.services.sync_manager import get_sync_manager, SyncMode, ConflictStrategy
 
 
 def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, Any]] = None) -> str:
@@ -49,6 +50,8 @@ def handle_gmail_command(parts: list, config=None, context: Optional[Dict[str, A
         return _handle_logout(config)
     elif subcommand == 'STATUS':
         return _handle_status(config)
+    elif subcommand == 'SYNC':
+        return _handle_sync(parts[2:], config)
     elif subcommand == 'EMAIL':
         return _handle_email(parts[2:], config)
     else:
@@ -303,6 +306,250 @@ def _handle_email_send(parts: list, config) -> str:
     )
 
 
+def _handle_sync(parts: list, config) -> str:
+    """
+    Handle SYNC GMAIL subcommands.
+    
+    Commands:
+    - SYNC GMAIL - Run sync now
+    - SYNC GMAIL STATUS - Show sync status
+    - SYNC GMAIL ENABLE - Enable auto-sync
+    - SYNC GMAIL DISABLE - Disable auto-sync
+    - SYNC GMAIL CHANGES - Show pending changes
+    - SYNC GMAIL HISTORY - Show sync history
+    
+    Args:
+        parts: Command parts after SYNC
+        config: Config instance
+        
+    Returns:
+        Formatted output
+    """
+    auth = get_gmail_auth(config)
+    
+    if not auth.is_authenticated():
+        return "❌ Not authenticated. Use 'LOGIN GMAIL' first."
+    
+    sync_mgr = get_sync_manager()
+    
+    if not parts:
+        # Default: run sync now
+        return _sync_now(sync_mgr)
+    
+    subcommand = parts[0].upper()
+    
+    if subcommand == 'NOW':
+        return _sync_now(sync_mgr)
+    elif subcommand == 'STATUS':
+        return _sync_status(sync_mgr)
+    elif subcommand == 'ENABLE':
+        return _sync_enable(sync_mgr, parts[1:])
+    elif subcommand == 'DISABLE':
+        return _sync_disable(sync_mgr)
+    elif subcommand == 'CHANGES':
+        return _sync_changes(sync_mgr)
+    elif subcommand == 'HISTORY':
+        return _sync_history(sync_mgr, parts[1:])
+    else:
+        return f"❌ Unknown SYNC subcommand: {subcommand}\n\nUse 'SYNC GMAIL' for help."
+
+
+def _sync_now(sync_mgr) -> str:
+    """Run sync operation now."""
+    output = ["🔄 Starting sync...\n"]
+    
+    result = sync_mgr.sync_now()
+    
+    if result['success']:
+        stats = result['stats']
+        output.extend([
+            "✅ Sync completed successfully\n",
+            f"Uploaded: {stats['uploaded']}",
+            f"Downloaded: {stats['downloaded']}",
+            f"Deleted: {stats['deleted']}",
+            f"Conflicts resolved: {stats['conflicts']}"
+        ])
+    else:
+        output.extend([
+            "❌ Sync failed\n",
+            f"Errors: {result.get('stats', {}).get('errors', 0)}"
+        ])
+        
+        if result.get('errors'):
+            output.append("\nDetails:")
+            for error in result['errors'][:5]:  # Show first 5
+                output.append(f"  • {error}")
+    
+    return '\n'.join(output)
+
+
+def _sync_status(sync_mgr) -> str:
+    """Show sync status."""
+    status = sync_mgr.get_status()
+    
+    output = ["═══ Sync Status ═══\n"]
+    
+    if status['enabled']:
+        output.append(f"✅ Auto-sync enabled ({status['mode']})")
+        output.append(f"Interval: {status['interval']}s")
+    else:
+        output.append("❌ Auto-sync disabled")
+    
+    output.extend([
+        f"Conflict strategy: {status['conflict_strategy']}",
+        ""
+    ])
+    
+    if status['last_sync']:
+        output.extend([
+            f"Last sync: {status['time_since_sync']} ago",
+            ""
+        ])
+        
+        if status['last_stats']:
+            stats = status['last_stats']
+            output.extend([
+                "Last sync stats:",
+                f"  Uploaded: {stats.get('uploaded', 0)}",
+                f"  Downloaded: {stats.get('downloaded', 0)}",
+                f"  Deleted: {stats.get('deleted', 0)}",
+                f"  Conflicts: {stats.get('conflicts', 0)}",
+                f"  Errors: {stats.get('errors', 0)}"
+            ])
+    else:
+        output.append("No sync performed yet")
+    
+    output.append(f"\nTotal syncs: {status['total_syncs']}")
+    
+    if status['background_running']:
+        output.append("🔄 Background sync active")
+    
+    return '\n'.join(output)
+
+
+def _sync_enable(sync_mgr, parts: list) -> str:
+    """Enable auto-sync."""
+    mode = SyncMode.AUTO
+    interval = 300  # 5 minutes default
+    
+    # Parse options
+    if parts:
+        if parts[0].upper() == 'SCHEDULED':
+            mode = SyncMode.SCHEDULED
+        
+        # Check for interval
+        for i, part in enumerate(parts):
+            if part.startswith('--interval='):
+                try:
+                    interval = int(part.split('=')[1])
+                except ValueError:
+                    return "❌ Invalid interval value"
+    
+    sync_mgr.enable(mode)
+    sync_mgr.set_interval(interval)
+    
+    return (
+        f"✅ Auto-sync enabled\n"
+        f"Mode: {mode.value}\n"
+        f"Interval: {interval}s\n\n"
+        f"Use 'SYNC GMAIL DISABLE' to stop."
+    )
+
+
+def _sync_disable(sync_mgr) -> str:
+    """Disable auto-sync."""
+    sync_mgr.disable()
+    return "✅ Auto-sync disabled"
+
+
+def _sync_changes(sync_mgr) -> str:
+    """Show pending changes."""
+    changes = sync_mgr.get_changes()
+    
+    total = sum(len(v) for v in changes.values())
+    
+    if total == 0:
+        return "✅ No pending changes - everything in sync"
+    
+    output = [f"📋 Found {total} pending change(s)\n"]
+    
+    if changes['new_local']:
+        output.append(f"New local files ({len(changes['new_local'])}):")
+        for path in changes['new_local'][:5]:
+            output.append(f"  • {path}")
+        if len(changes['new_local']) > 5:
+            output.append(f"  ... and {len(changes['new_local']) - 5} more")
+        output.append("")
+    
+    if changes['modified_local']:
+        output.append(f"Modified local files ({len(changes['modified_local'])}):")
+        for path in changes['modified_local'][:5]:
+            output.append(f"  • {path}")
+        if len(changes['modified_local']) > 5:
+            output.append(f"  ... and {len(changes['modified_local']) - 5} more")
+        output.append("")
+    
+    if changes['new_cloud']:
+        output.append(f"New cloud files ({len(changes['new_cloud'])}):")
+        for name in changes['new_cloud'][:5]:
+            output.append(f"  • {name}")
+        if len(changes['new_cloud']) > 5:
+            output.append(f"  ... and {len(changes['new_cloud']) - 5} more")
+        output.append("")
+    
+    if changes['modified_cloud']:
+        output.append(f"Modified cloud files ({len(changes['modified_cloud'])}):")
+        for path in changes['modified_cloud'][:5]:
+            output.append(f"  • {path}")
+        if len(changes['modified_cloud']) > 5:
+            output.append(f"  ... and {len(changes['modified_cloud']) - 5} more")
+        output.append("")
+    
+    if changes['conflicts']:
+        output.append(f"⚠️  Conflicts ({len(changes['conflicts'])}):")
+        for path in changes['conflicts'][:5]:
+            output.append(f"  • {path}")
+        if len(changes['conflicts']) > 5:
+            output.append(f"  ... and {len(changes['conflicts']) - 5} more")
+        output.append("")
+    
+    output.append("Use 'SYNC GMAIL' to sync now")
+    
+    return '\n'.join(output)
+
+
+def _sync_history(sync_mgr, parts: list) -> str:
+    """Show sync history."""
+    limit = 10
+    if parts:
+        try:
+            limit = int(parts[0])
+        except ValueError:
+            pass
+    
+    history = sync_mgr.get_history(limit)
+    
+    if not history:
+        return "No sync history yet"
+    
+    output = [f"📜 Last {len(history)} sync operation(s)\n"]
+    
+    for i, entry in enumerate(history, 1):
+        timestamp = entry['timestamp'][:19]  # Remove timezone
+        success = "✅" if entry['success'] else "❌"
+        stats = entry['stats']
+        
+        output.append(f"{i}. {timestamp} {success}")
+        output.append(f"   Up:{stats.get('uploaded', 0)} Down:{stats.get('downloaded', 0)} Del:{stats.get('deleted', 0)} Err:{stats.get('errors', 0)}")
+        
+        if entry.get('errors'):
+            output.append(f"   Errors: {len(entry['errors'])}")
+        
+        output.append("")
+    
+    return '\n'.join(output)
+
+
 def _show_help() -> str:
     """
     Show Gmail command help.
@@ -319,8 +566,44 @@ Authentication:
   STATUS GMAIL      - Show auth status and quota
 
 Email Operations:
-  EMAIL LIST [query]     - List recent emails
-  EMAIL SEND <to> <subject> - Send email
+  EMAIL LIST [query]          - List recent emails
+  EMAIL SEND <to> <subject>   - Send email
+
+Cloud Sync (NEW in Part 2):
+  SYNC GMAIL                  - Run sync now
+  SYNC GMAIL STATUS           - Show sync status
+  SYNC GMAIL ENABLE [mode]    - Enable auto-sync
+  SYNC GMAIL DISABLE          - Disable auto-sync
+  SYNC GMAIL CHANGES          - Show pending changes
+  SYNC GMAIL HISTORY [limit]  - Show sync history
+
+Coming Soon (Parts 3-4):
+  EMAIL IMPORT           - Convert emails to tasks
+  DRIVE UPLOAD <file>    - Upload to App Data
+  DRIVE LIST             - List cloud files
+
+Examples:
+  LOGIN GMAIL
+  STATUS GMAIL
+  EMAIL LIST is:unread from:boss
+  SYNC GMAIL ENABLE auto --interval=300
+  SYNC GMAIL CHANGES
+  SYNC GMAIL HISTORY 20
+
+Syncable Directories:
+  - memory/missions
+  - memory/workflows
+  - memory/checklists
+  - memory/system/user
+  - memory/docs
+  - memory/drafts
+
+Conflict Resolution:
+  - newest-wins (default)
+  - local-wins
+  - cloud-wins
+  - manual
+"""
 
 Coming Soon (Parts 2-4):
   SYNC GMAIL             - Sync data to Drive
@@ -341,5 +624,6 @@ GMAIL_COMMANDS = {
     'LOGIN': handle_gmail_command,
     'LOGOUT': handle_gmail_command,
     'STATUS': handle_gmail_command,
+    'SYNC': handle_gmail_command,
     'EMAIL': handle_gmail_command
 }

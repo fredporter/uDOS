@@ -42,11 +42,11 @@ def test_authentication():
     print("Gmail Authentication Test - v1.2.9")
     print("=" * 60)
     print()
-    
+
     # Initialize config
     config = Config()
     auth = get_gmail_auth(config)
-    
+
     # Test 1: Check if already authenticated
     print("Test 1: Check existing authentication")
     print("-" * 60)
@@ -60,7 +60,7 @@ def test_authentication():
         print("❌ Not authenticated")
         print("   Run LOGIN GMAIL in uDOS to authenticate")
     print()
-    
+
     # Test 2: Check credentials file
     print("Test 2: Check OAuth credentials file")
     print("-" * 60)
@@ -74,7 +74,7 @@ def test_authentication():
         print("   2. Download JSON")
         print("   3. Save as gmail_credentials.json")
     print()
-    
+
     # Test 3: Check token encryption
     print("Test 3: Check token encryption")
     print("-" * 60)
@@ -82,7 +82,7 @@ def test_authentication():
     if token_path.exists():
         print(f"✅ Encrypted token exists: {token_path}")
         print(f"   Size: {token_path.stat().st_size} bytes")
-        
+
         # Try to load and decrypt
         try:
             loaded = auth.load_credentials()
@@ -96,7 +96,7 @@ def test_authentication():
         print(f"ℹ️  No encrypted token yet: {token_path}")
         print("   Will be created after LOGIN GMAIL")
     print()
-    
+
     # Test 4: Check encryption key
     print("Test 4: Check encryption key")
     print("-" * 60)
@@ -113,14 +113,14 @@ def test_authentication():
         print("❌ .env file missing")
         print("   Copy from .env.example or will be created on first run")
     print()
-    
+
     # Test 5: Gmail service availability
     print("Test 5: Gmail service availability")
     print("-" * 60)
     gmail = get_gmail_service()
     if gmail.is_available():
         print("✅ Gmail service available")
-        
+
         # Try to get labels
         labels = gmail.get_labels()
         if labels:
@@ -131,27 +131,27 @@ def test_authentication():
     else:
         print("❌ Gmail service not available (not authenticated)")
     print()
-    
+
     # Test 6: Drive service availability
     print("Test 6: Drive service availability")
     print("-" * 60)
     drive = get_drive_service()
     if drive.is_available():
         print("✅ Drive service available")
-        
+
         # Get quota
         quota = drive.get_quota_usage()
         used_mb = quota['used'] / (1024 * 1024)
         limit_mb = quota['limit'] / (1024 * 1024)
         print(f"✅ App Data quota: {used_mb:.2f} MB / {limit_mb:.2f} MB")
-        
+
         # List files
         files = drive.list_files()
         print(f"   Files in App Data: {len(files)}")
     else:
         print("❌ Drive service not available (not authenticated)")
     print()
-    
+
     # Summary
     print("=" * 60)
     print("Test Summary")

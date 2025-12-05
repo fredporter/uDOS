@@ -531,12 +531,12 @@ class CommandHandler:
                 return handle_workflow_command(command, params, config)
 
             # v1.2.9 - Gmail Cloud Integration
-            elif module == "GMAIL" or module == "LOGIN" or module == "LOGOUT" or module == "EMAIL":
-                # Route LOGIN GMAIL, LOGOUT GMAIL, STATUS GMAIL, EMAIL LIST, etc.
+            elif module == "GMAIL" or module == "LOGIN" or module == "LOGOUT" or module == "EMAIL" or module == "SYNC":
+                # Route LOGIN GMAIL, LOGOUT GMAIL, STATUS GMAIL, EMAIL LIST, SYNC GMAIL, etc.
                 from core.config import Config
                 config = Config()
                 # Reconstruct command line for gmail handler
-                if module == "GMAIL":
+                if module == "GMAIL" or module == "SYNC":
                     parts = [module, command] + params
                 else:
                     # LOGIN/LOGOUT/EMAIL are shortcuts to GMAIL subcommands
