@@ -65,19 +65,16 @@
 
             // Create splash content
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; padding: 20px; font-family: "C64 User Mono", monospace; line-height: 1.2;';
+            splash.style.cssText = 'text-align: center; padding: 10px; font-family: "C64 User Mono", monospace; line-height: 1.1; max-width: 100%; overflow: hidden;';
 
-            // uDOS logo in C64 block graphics (rainbow gradient)
+            // Compact uDOS logo in C64 block graphics (rainbow gradient)
             const logo = [
-                { text: '  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
-                { text: '  █ █  █ ████   ███   ███                              █', color: '#FF4500' },
-                { text: '  █ █  █ █   █ █   █ █                                 █', color: '#FF8C00' },
-                { text: '  █ █  █ █   █ █   █  ██                               █', color: '#FFD700' },
-                { text: '  █ █  █ █   █ █   █    █                              █', color: '#ADFF2F' },
-                { text: '  █ █  █ █   █ █   █ █  █  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█', color: '#00FF00' },
-                { text: '  █  ██  ████   ███   ██   █ UNIVERSAL DEVICE OPS █    █', color: '#00CED1' },
-                { text: '  █                         █    SYSTEM v2.0.0    █    █', color: '#00BFFF' },
-                { text: '  █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█', color: '#9370DB' },
+                { text: '▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
+                { text: '█ █  █ ████   ███   ███            █', color: '#FF8C00' },
+                { text: '█ █  █ █   █ █   █ █               █', color: '#FFD700' },
+                { text: '█ █  █ █   █ █   █  ██  ▄▄▄▄▄▄▄▄▄▄▄█', color: '#00FF00' },
+                { text: '█  ██  ████   ███   ██  █ uDOS █  █', color: '#00CED1' },
+                { text: '█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█ v2.0 █▄▄█', color: '#9370DB' },
                 { text: '', color: '#FF00FF' }
             ];
 
@@ -86,24 +83,25 @@
                 lineDiv.textContent = line.text;
                 lineDiv.style.color = line.color;
                 lineDiv.style.fontWeight = 'bold';
+                lineDiv.style.fontSize = '14px';
                 splash.appendChild(lineDiv);
             });
 
             // Loading bar container
             const loaderContainer = document.createElement('div');
-            loaderContainer.style.cssText = 'margin: 30px auto; width: 400px;';
+            loaderContainer.style.cssText = 'margin: 15px auto; width: 90%; max-width: 350px;';
 
             const loaderText = document.createElement('div');
-            loaderText.textContent = '▶ INITIALIZING SYSTEM...';
-            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 10px; font-weight: bold;';
+            loaderText.textContent = '▶ INITIALIZING...';
+            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 8px; font-weight: bold; font-size: 12px;';
             loaderContainer.appendChild(loaderText);
 
             const progressBar = document.createElement('div');
-            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8; font-size: 14px;';
+            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8; font-size: 12px;';
             loaderContainer.appendChild(progressBar);
 
             const statusText = document.createElement('div');
-            statusText.style.cssText = 'color: #50b818; margin-top: 10px; font-size: 12px;';
+            statusText.style.cssText = 'color: #50b818; margin-top: 8px; font-size: 11px;';
             loaderContainer.appendChild(statusText);
 
             splash.appendChild(loaderContainer);
@@ -120,17 +118,17 @@
                 '#6076c5'
             ];
             let pulseIndex = 0;
-            
+
             const pulseInterval = setInterval(() => {
                 if (pulseCount >= maxPulses) {
                     clearInterval(pulseInterval);
                     loadingScreen.style.background = '#6076c5'; // Reset to original
                     return;
                 }
-                
+
                 loadingScreen.style.background = pulseColors[pulseIndex % pulseColors.length];
                 pulseIndex++;
-                
+
                 if (pulseIndex % pulseColors.length === 0) {
                     pulseCount++;
                 }
@@ -140,12 +138,12 @@
             let progress = 0;
             const totalSteps = 40;
             const statusMessages = [
-                'LOADING KERNEL...',
-                'INITIALIZING MEMORY...',
-                'MOUNTING FILESYSTEMS...',
-                'LOADING EXTENSIONS...',
-                'CONNECTING TO CORE...',
-                'READY TO OPERATE'
+                'KERNEL...',
+                'MEMORY...',
+                'FILESYSTEMS...',
+                'EXTENSIONS...',
+                'CORE...',
+                'READY'
             ];
             let statusIndex = 0;
 
