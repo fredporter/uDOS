@@ -885,6 +885,20 @@ def handle_subscribe(data):
         start_update_broadcaster()
 
 
+@socketio.on('ping')
+def handle_ping(timestamp):
+    """
+    Handle latency measurement ping (v1.2.8).
+
+    Responds immediately with pong containing original timestamp
+    for round-trip latency calculation.
+
+    Args:
+        timestamp: Client timestamp when ping was sent
+    """
+    emit('pong', timestamp)
+
+
 # ============================================================================
 # KNOWLEDGE BANK API (v1.0.20 - 4-Tier Knowledge System)
 # ============================================================================
