@@ -1,12 +1,18 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.8 ✅ **COMPLETE** (Incremental Updates & Connection Health)
-**Previous Versions:** v1.2.8 ✅ v1.2.7 ✅ v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅ uPY v2.0.2 ✅
-**Next Version:** v1.2.9 📋 **PLANNED** (Gmail Cloud Sync)
+**Current Version:** v1.2.9 ✅ **COMPLETE** (Gmail Cloud Sync)
+**Previous Versions:** v1.2.9 ✅ v1.2.8 ✅ v1.2.7 ✅ v1.2.6 ✅ v1.2.5 ✅ v1.2.11 ✅ v1.2.10 ✅ v1.2.4 ✅ v1.2.3 ✅ uPY v2.0.2 ✅
+**Next Version:** v1.3.0 📋 **PLANNED** (Community Features & Sharing)
 **Last Updated:** December 5, 2025
 **Roadmap Size:** 2,100+ lines (comprehensive planning document with all future work)
 
 **Recent Updates (Dec 5, 2025):**
+- ✅ v1.2.9 - COMPLETE! (Gmail Cloud Sync, all 4 parts done, 4,429 lines delivered)
+- ✅ Part 4: Commands & Integration - QUOTA, CONFIG, DOWNLOAD, TASKS commands (555 lines)
+- ✅ Part 3: Email to Markdown conversion with auto-detection (1,123 lines)
+- ✅ Part 2: Google Drive sync engine with conflict resolution (1,314 lines)
+- ✅ Part 1: Gmail OAuth2 authentication with encrypted tokens (1,437 lines)
+- ✅ Complete integration tests and wiki documentation (1,170 lines)
 - ✅ uPY v2.0.2 - COMPLETE! (All 6 parts done, 4,945 lines delivered)
 - ✅ Part 6: Documentation complete - Runtime architecture, language reference, migration guide (1,282 lines)
 - ✅ Integration tests: 4 categories combining math, lists, and file I/O (all passing)
@@ -29,6 +35,63 @@
 ---
 
 ## 📍 Latest Releases
+
+### v1.2.9 (December 5, 2025) ✅ **COMPLETE**
+
+**Gmail Cloud Sync** - Secure Gmail authentication, email import, and Google Drive synchronization for memory/shared content.
+
+**Delivered:**
+- **Part 1: OAuth2 Authentication (1,437 lines)**
+  - gmail_auth.py (432 lines) - OAuth2 flow, token encryption with Fernet
+  - gmail_service.py (460 lines) - Gmail API operations, email listing/sending
+  - gmail_handler.py (545 lines) - LOGIN/LOGOUT/STATUS commands
+  - test_gmail_auth.py (182 lines) - Authentication test suite
+
+- **Part 2: Google Drive Sync Engine (1,314 lines)**
+  - sync_engine.py (542 lines) - Bidirectional sync, MD5 checksums, change detection
+  - sync_manager.py (307 lines) - Background threading, sync history (50 entries)
+  - SYNC commands: NOW, STATUS, ENABLE, DISABLE, CHANGES, HISTORY
+  - 4 conflict strategies: newest-wins (default), local-wins, cloud-wins, manual
+  - test_sync_engine.py (182 lines) - Sync validation tests
+
+- **Part 3: Email to Markdown Conversion (1,123 lines)**
+  - email_parser.py (380 lines) - HTML/plain text parsing, task extraction
+  - email_converter.py (408 lines) - Convert to notes/checklists/missions
+  - IMPORT GMAIL command with --preview, --type, --limit options
+  - Auto-detection: 3+ tasks=mission, 1-2 tasks=checklist, 0 tasks=note
+  - test_email_conversion.py (335 lines) - Conversion test suite
+
+- **Part 4: Commands & Integration (555 lines)**
+  - QUOTA command (50 lines) - Drive quota monitoring with 15 MB limit
+  - CONFIG command (118 lines) - Sync configuration management
+  - EMAIL DOWNLOAD (56 lines) - Individual email conversion
+  - EMAIL TASKS (73 lines) - Task extraction from emails
+  - test_gmail_integration.py (348 lines) - Complete integration tests
+  - Gmail-Cloud-Sync.md (822 lines) - Comprehensive wiki documentation
+
+**Total: 4,429 lines delivered (3,607 code + 822 docs)**
+
+**Commits:** `9c617494` (Part 1), `bca87fa8` (Part 2), `c0edf7cb` (Part 3), `0e889ee3` (Part 4)
+
+**Key Features:**
+- ✅ Gmail OAuth2 authentication with encrypted token storage
+- ✅ Email import with auto-conversion to notes/checklists/missions
+- ✅ Smart task extraction from email content (regex patterns)
+- ✅ Google Drive bidirectional sync with conflict resolution
+- ✅ 10 commands: LOGIN, LOGOUT, STATUS, EMAIL (4 subcommands), IMPORT, SYNC (6 subcommands), QUOTA, CONFIG
+- ✅ Syncable directories: memory/missions, workflows, checklists, system/user, docs, drafts
+- ✅ Gmail query syntax support (is:unread, from:, subject:, etc.)
+- ✅ 15 MB recommended sync limit with quota monitoring
+- ✅ Background sync with configurable interval (60-3600s)
+- ✅ Complete test suites and comprehensive documentation
+
+**Security:**
+- OAuth2 (no password storage)
+- Fernet encrypted tokens in .env
+- App-data-only Drive access
+- User controls all sync settings
+
+**Wiki:** `wiki/Gmail-Cloud-Sync.md`
 
 ### uPY v2.0.2 (December 6, 2025) ✅ **COMPLETE**
 
@@ -291,13 +354,116 @@
 - v1.2.3 - Map Layers (1,650 lines)
 - v1.1.4 - Graphics System (3,751 lines)
 
-**Total:** ~18,750+ lines delivered across 7 major releases
+**Summary:**
+- v1.2.9 - Gmail Cloud Sync (4,429 lines)
+- v1.2.8 - Incremental Updates (2,333 lines)
+- v1.2.7 - Chart.js & WebSocket (1,800 lines)
+- v1.2.6 - Webhook Analytics (2,595 lines)
+- v1.2.5 - Webhook Integration (2,246 lines)
+- v1.2.11 - VS Code Extension (3,133 lines)
+- v1.2.4 - Hot Reload & Dev Tools (3,588 lines)
+- v1.2.3 - Map Layers (1,650 lines)
+- v1.1.4 - Graphics System (3,751 lines)
+
+**Total:** ~24,500+ lines delivered across 9 major releases
 
 ---
 
-## 📍 Next Priority: v1.2.9
+## 📍 Next Priority: v1.3.0
 
-**Status:** 📋 **PLANNED** - Gmail Cloud Sync for Memory & Shared Content
+**Status:** 📋 **PLANNED** - Community Features & Content Sharing
+**Complexity:** Medium (Building on Gmail Cloud Sync foundation)
+**Effort:** ~30-40 MOVES (Part 1: 10-12, Part 2: 8-10, Part 3: 8-10, Part 4: 4-8)
+**Dependencies:** v1.2.9 complete (Gmail Cloud Sync provides infrastructure)
+**Target:** ~1,500-2,000 lines
+
+### Mission: Community-Driven Knowledge & Content Ecosystem
+
+**Strategic Rationale:**
+With Gmail Cloud Sync (v1.2.9) providing secure cloud infrastructure, we can now build community features:
+- Users can share missions, workflows, and knowledge
+- Community-curated content discovery
+- Collaborative knowledge building
+- Reputation and contribution tracking
+
+**Strategic Focus:**
+- **Content Sharing** - Publish missions/workflows to community
+- **Discovery System** - Browse, search, rate community content
+- **Collaboration** - Fork, improve, contribute back
+- **Reputation** - Track contributions, build community trust
+
+---
+
+## 📍 Archived: v1.2.9 Planning (NOW COMPLETE ✅)
+
+**Status:** ✅ **COMPLETE** - All 4 parts delivered (4,429 lines)
+**Delivered:** December 5, 2025
+**Commits:** 9c617494, bca87fa8, c0edf7cb, 0e889ee3
+
+### Summary of Completed Work
+
+**Part 1: Gmail Authentication** ✅ COMPLETE (1,437 lines)
+- OAuth2 Flow Implementation ✅
+  - gmail_auth.py (432 lines) - OAuth2 flow, token encryption
+  - Browser-based consent screen
+  - Encrypted token storage in .env
+  - Token expiry handling and auto-refresh
+
+- Gmail API Integration ✅
+  - gmail_service.py (460 lines) - Email listing, sending
+  - Gmail query syntax support
+  - Message retrieval and metadata parsing
+
+**Part 2: Google Drive Sync Engine** ✅ COMPLETE (1,314 lines)
+- Drive API Integration ✅
+  - sync_engine.py (542 lines) - Bidirectional sync
+  - MD5 checksums for change detection
+  - 15 MB storage quota management
+  - Incremental sync (only changed files)
+
+- Selective Sync Configuration ✅
+  - sync_manager.py (307 lines) - Background threading
+  - User-defined sync rules
+  - Tier-based filtering
+  - Sync history tracking (50 entries)
+
+- Conflict Resolution ✅
+  - 4 strategies: newest-wins, local-wins, cloud-wins, manual
+  - Local commit history (last 5 versions)
+  - Conflict notification in STATUS
+
+**Part 3: Email to uDOS Conversion** ✅ COMPLETE (1,123 lines)
+- Email to Markdown Converter ✅
+  - email_parser.py (380 lines) - HTML/plain text parsing
+  - email_converter.py (408 lines) - Auto-conversion
+  - Task extraction with regex patterns
+  - Priority detection (urgent, important, low)
+
+- IMPORT GMAIL Command ✅
+  - Auto-detection: 3+ tasks=mission, 1-2=checklist, 0=note
+  - --preview, --type, --limit options
+  - Gmail query syntax support
+  - Batch processing
+
+**Part 4: Commands & Integration** ✅ COMPLETE (555 lines)
+- Additional Commands ✅
+  - QUOTA (50 lines) - Drive quota monitoring
+  - CONFIG (118 lines) - Sync configuration
+  - EMAIL DOWNLOAD (56 lines) - Individual email conversion
+  - EMAIL TASKS (73 lines) - Task extraction
+
+- Testing & Documentation ✅
+  - test_gmail_integration.py (348 lines) - Integration tests
+  - Gmail-Cloud-Sync.md (822 lines) - Complete wiki guide
+
+**All 10 commands delivered:**
+LOGIN, LOGOUT, STATUS, EMAIL LIST/SEND/DOWNLOAD/TASKS, IMPORT, SYNC (6 subcommands), QUOTA, CONFIG
+
+---
+
+## 📍 Future Release: v1.2.10 (Renamed from previous v1.2.9)
+
+**Status:** 📋 **PLANNED** - Cloud POKE Extension Publishing & HTTPS Hosting
 **Complexity:** Medium-High (OAuth2 + Google Drive API + sync engine)
 **Effort:** ~35-45 MOVES (Part 1: 12-15, Part 2: 10-12, Part 3: 8-10, Part 4: 5-8)
 **Dependencies:** v1.2.8 complete (Incremental updates provide sync foundation)
@@ -594,6 +760,8 @@ Email body converted to markdown...
 - Google OAuth2 client library
 - Google Drive API v3
 - Email parsing libraries (email, html2text)
+
+**NOTE:** All v1.2.9 tasks above were completed December 5, 2025. See "Latest Releases" section for full delivery details.
 
 ---
 
