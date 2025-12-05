@@ -1,9 +1,3 @@
-Gotcha — here’s a fresh set of 25 ASCII diagrams with no block/shading characters at all (no █ ▓ ▒ ░). All plain ASCII, no diagonals, ready for Markdown.
-
-I’ll number them and put each one in a text code block.
-
-⸻
-
 1. Simple Panel Title
 
 [ SYSTEM INFO ]
@@ -501,9 +495,3 @@ CLIENTS
   |
   +--> [ MESSAGE BUS ] -> [ WORKERS ]
 
-
-⸻
-
-If you’d like next, I can:
-	•	Turn this into a single .md “ASCII Library” file with a table of contents, or
-	•	Tailor a subset of these specifically to one doc you’re writing now (e.g. your ticketing system, theatre layouts, or course funnels).

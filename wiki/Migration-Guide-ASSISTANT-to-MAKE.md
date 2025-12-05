@@ -1,10 +1,10 @@
-# Migration Guide: ASSISTANT → GENERATE
+# Migration Guide: ASSISTANT → MAKE
 
-**Version:** v1.2.0 GENERATE Consolidation
+**Version:** v1.2.0 MAKE Consolidation
 **Migration Difficulty:** Easy (15 minutes)
 **Last Updated:** December 3, 2025
 
-Complete guide to migrating from deprecated `ASSISTANT`/`OK ASK` commands to the new `GENERATE DO` system.
+Complete guide to migrating from deprecated `ASSISTANT`/`OK ASK` commands to the new `MAKE DO` system.
 
 ---
 
@@ -12,7 +12,7 @@ Complete guide to migrating from deprecated `ASSISTANT`/`OK ASK` commands to the
 
 The `ASSISTANT` and `OK ASK` commands are **deprecated** as of v1.2.0 and will be removed in v1.3.0.
 
-### Benefits of GENERATE DO
+### Benefits of MAKE DO
 
 ✅ **90%+ queries answered offline** (completely free)
 ✅ **Cost tracking and rate limiting** (predictable API costs)
@@ -20,11 +20,11 @@ The `ASSISTANT` and `OK ASK` commands are **deprecated** as of v1.2.0 and will b
 ✅ **Confidence-based fallback** (smart online/offline switching)
 ✅ **Generation history** (REDO last query with modifications)
 ✅ **API monitoring** (budgets, alerts, statistics)
-✅ **Workflow variables** (control via $GENERATE.*, $API.*, $PROMPT.*)
+✅ **Workflow variables** (control via $MAKE.*, $API.*, $PROMPT.*)
 
 ### What You Lose
 
-❌ None - `GENERATE DO` is a superset of ASSISTANT functionality
+❌ None - `MAKE DO` is a superset of ASSISTANT functionality
 
 ---
 
@@ -40,8 +40,8 @@ OK ASK what's the best fire starting method?
 
 **New:**
 ```upy
-GENERATE DO how do I purify water?
-GENERATE DO what's the best fire starting method?
+MAKE DO how do I purify water?
+MAKE DO what's the best fire starting method?
 ```
 
 **Result:** Same answer, but 90%+ chance it's offline (free)
@@ -58,8 +58,8 @@ ASSISTANT ASK what about in the desert?
 
 **New:**
 ```upy
-GENERATE DO how do I build a shelter?
-GENERATE REDO in the desert
+MAKE DO how do I build a shelter?
+MAKE REDO in the desert
 ```
 
 **Result:** REDO reuses context, faster than new query
@@ -75,7 +75,7 @@ OK CLEAR
 
 **New:**
 ```upy
-GENERATE CLEAR
+MAKE CLEAR
 ```
 
 ---
@@ -89,7 +89,7 @@ OK STATUS
 
 **New:**
 ```upy
-GENERATE STATUS
+MAKE STATUS
 ```
 
 **Result:** Much more detailed stats (offline/online split, costs, rate limits)
@@ -103,7 +103,7 @@ GENERATE STATUS
 **New capability** - Guarantee free answer (no API calls):
 
 ```upy
-GENERATE DO --mode offline water purification methods
+MAKE DO --mode offline water purification methods
 ```
 
 **Use Case:** Cost-sensitive environments, offline operation
@@ -115,7 +115,7 @@ GENERATE DO --mode offline water purification methods
 **New capability** - Force Gemini even if offline available:
 
 ```upy
-GENERATE DO --mode online detailed analysis of water chemistry
+MAKE DO --mode online detailed analysis of water chemistry
 ```
 
 **Use Case:** Need maximum accuracy for complex questions
@@ -127,9 +127,9 @@ GENERATE DO --mode online detailed analysis of water chemistry
 **New capability** - Refine answers without retyping:
 
 ```upy
-GENERATE DO fire starting methods
-GENERATE REDO without matches or lighters
-GENERATE REDO in wet conditions
+MAKE DO fire starting methods
+MAKE REDO without matches or lighters
+MAKE REDO in wet conditions
 ```
 
 **Use Case:** Iterative refinement, exploring variations
@@ -145,31 +145,31 @@ GENERATE REDO in wet conditions
 ```upy
 # Set custom system prompt
 SET PROMPT.SYSTEM "You are a wilderness survival expert with 20 years experience"
-GENERATE DO water sources in desert
+MAKE DO water sources in desert
 
 # Set response tone
 SET PROMPT.TONE technical
-GENERATE DO water filtration physics
+MAKE DO water filtration physics
 
 # Set detail level
 SET PROMPT.COMPLEXITY simple
-GENERATE DO how to start fire
+MAKE DO how to start fire
 ```
 
-### GENERATE.* Variables (Control Generation Mode)
+### MAKE.* Variables (Control Generation Mode)
 
 ```upy
 # Force offline-only mode
-SET GENERATE.MODE offline
-GENERATE DO fire starting
+SET MAKE.MODE offline
+MAKE DO fire starting
 
 # Set priority for rate limiting
-SET GENERATE.PRIORITY high
-GENERATE DO emergency water purification
+SET MAKE.PRIORITY high
+MAKE DO emergency water purification
 
 # Set response style
-SET GENERATE.STYLE concise
-GENERATE DO shelter types
+SET MAKE.STYLE concise
+MAKE DO shelter types
 ```
 
 ### API.* Variables (Monitor Costs)
@@ -181,16 +181,16 @@ GET API.BUDGET_REMAINING
 
 # Conditional generation based on budget
 IF $API.BUDGET_PERCENT < 80 THEN
-  GENERATE DO complex multi-part query
+  MAKE DO complex multi-part query
 ELSE
-  GENERATE DO --mode offline simple query
+  MAKE DO --mode offline simple query
 ENDIF
 
 # Monitor service availability
 IF $API.GEMINI_AVAILABLE THEN
-  GENERATE DO detailed analysis
+  MAKE DO detailed analysis
 ELSE
-  GENERATE DO --mode offline basic answer
+  MAKE DO --mode offline basic answer
 ENDIF
 ```
 
@@ -198,7 +198,7 @@ ENDIF
 
 ## 📊 Comparison Table
 
-| Feature | ASSISTANT/OK ASK | GENERATE DO | Notes |
+| Feature | ASSISTANT/OK ASK | MAKE DO | Notes |
 |---------|------------------|-------------|-------|
 | **Basic Q&A** | ✅ | ✅ | Same functionality |
 | **Offline-first** | ❌ | ✅ | 90%+ free answers |
@@ -224,13 +224,13 @@ ENDIF
 
 ```bash
 # In terminal (from uDOS root)
-find memory/ -name "*.upy" -exec sed -i '' 's/ASSISTANT ASK/GENERATE DO/g' {} \;
-find memory/ -name "*.upy" -exec sed -i '' 's/OK ASK/GENERATE DO/g' {} \;
-find memory/ -name "*.upy" -exec sed -i '' 's/OK CLEAR/GENERATE CLEAR/g' {} \;
-find memory/ -name "*.upy" -exec sed -i '' 's/OK STATUS/GENERATE STATUS/g' {} \;
+find memory/ -name "*.upy" -exec sed -i '' 's/ASSISTANT ASK/MAKE DO/g' {} \;
+find memory/ -name "*.upy" -exec sed -i '' 's/OK ASK/MAKE DO/g' {} \;
+find memory/ -name "*.upy" -exec sed -i '' 's/OK CLEAR/MAKE CLEAR/g' {} \;
+find memory/ -name "*.upy" -exec sed -i '' 's/OK STATUS/MAKE STATUS/g' {} \;
 ```
 
-**Or manually:** Search your scripts for `ASSISTANT` and `OK ASK`, replace with `GENERATE DO`
+**Or manually:** Search your scripts for `ASSISTANT` and `OK ASK`, replace with `MAKE DO`
 
 ---
 
@@ -240,13 +240,13 @@ Test your most-used workflows to verify they work:
 
 ```upy
 # Test basic query
-GENERATE DO water purification
+MAKE DO water purification
 
 # Test with workflow
 RUN memory/workflows/missions/knowledge-expansion.upy
 
 # Check statistics
-GENERATE STATUS
+MAKE STATUS
 ```
 
 ---
@@ -274,12 +274,12 @@ Force offline mode for cost-sensitive workflows:
 
 ```upy
 # In your workflow script
-SET GENERATE.MODE offline
+SET MAKE.MODE offline
 
-# All subsequent GENERATE DO commands will be offline-only
-GENERATE DO fire methods
-GENERATE DO water sources
-GENERATE DO shelter types
+# All subsequent MAKE DO commands will be offline-only
+MAKE DO fire methods
+MAKE DO water sources
+MAKE DO shelter types
 ```
 
 ---
@@ -291,8 +291,8 @@ GENERATE DO shelter types
 1. **OK DEV** - Removed (was GitHub Copilot CLI, unrelated to AI generation)
    - **Migration:** Use GitHub Copilot Chat directly in VS Code
 
-2. **ASSISTANT HISTORY** - Replaced by `GENERATE STATUS`
-   - **Migration:** Use `GENERATE STATUS` for detailed history/stats
+2. **ASSISTANT HISTORY** - Replaced by `MAKE STATUS`
+   - **Migration:** Use `MAKE STATUS` for detailed history/stats
 
 ### Changed Behavior
 
@@ -302,7 +302,7 @@ GENERATE DO shelter types
 
 2. **Confidence thresholds** (new feature)
    - **Impact:** Low-confidence offline answers may fall back to Gemini
-   - **Fix:** Set `GENERATE.MODE offline` to prevent fallback
+   - **Fix:** Set `MAKE.MODE offline` to prevent fallback
 
 ---
 
@@ -310,13 +310,13 @@ GENERATE DO shelter types
 
 After migrating, verify these scenarios work:
 
-- [ ] Basic query: `GENERATE DO how do I purify water?`
-- [ ] Retry query: `GENERATE REDO in emergency situations`
-- [ ] Status check: `GENERATE STATUS`
-- [ ] History clear: `GENERATE CLEAR`
-- [ ] Offline mode: `GENERATE DO --mode offline fire starting`
+- [ ] Basic query: `MAKE DO how do I purify water?`
+- [ ] Retry query: `MAKE REDO in emergency situations`
+- [ ] Status check: `MAKE STATUS`
+- [ ] History clear: `MAKE CLEAR`
+- [ ] Offline mode: `MAKE DO --mode offline fire starting`
 - [ ] Workflow integration: `RUN memory/workflows/missions/test.upy`
-- [ ] Variable access: `GET GENERATE.TOTAL_REQUESTS`
+- [ ] Variable access: `GET MAKE.TOTAL_REQUESTS`
 - [ ] Budget check: `GET API.BUDGET_REMAINING`
 
 ---
@@ -329,11 +329,11 @@ Default to offline mode in workflows:
 
 ```upy
 # At start of workflow
-SET GENERATE.MODE offline
+SET MAKE.MODE offline
 
 # Your queries here (all offline)
-GENERATE DO query 1
-GENERATE DO query 2
+MAKE DO query 1
+MAKE DO query 2
 ```
 
 ### 2. Use REDO for Refinement
@@ -342,11 +342,11 @@ Instead of repeating queries, refine with REDO:
 
 ```upy
 # First query
-GENERATE DO water purification methods
+MAKE DO water purification methods
 
 # Refine (reuses context, faster)
-GENERATE REDO using only natural materials
-GENERATE REDO in tropical environments
+MAKE REDO using only natural materials
+MAKE REDO in tropical environments
 ```
 
 ### 3. Monitor Budget
@@ -360,11 +360,11 @@ GET API.BUDGET_REMAINING
 # Conditional based on budget
 IF $API.BUDGET_PERCENT < 50 THEN
   # Proceed with online queries
-  GENERATE DO complex analysis
+  MAKE DO complex analysis
 ELSE
   # Use offline fallback
   LOG "Budget low, using offline mode"
-  SET GENERATE.MODE offline
+  SET MAKE.MODE offline
 ENDIF
 ```
 
@@ -379,15 +379,15 @@ SET PROMPT.TONE professional
 SET PROMPT.COMPLEXITY detailed
 
 # All queries inherit settings
-GENERATE DO query 1
-GENERATE DO query 2
+MAKE DO query 1
+MAKE DO query 2
 ```
 
 ---
 
 ## 📚 Additional Resources
 
-- [GENERATE Command Reference](Command-Reference.md#generate)
+- [MAKE Command Reference](Command-Reference.md#generate)
 - [Workflow Variables Guide](Workflows.md#variables)
 - [API Monitoring Guide](API-Monitoring.md)
 - [v1.2.0 Design Document](../dev/roadmap/v1.2.0-generate-consolidation.md)
@@ -396,7 +396,7 @@ GENERATE DO query 2
 
 ## 🆘 Troubleshooting
 
-### "Command not found: GENERATE DO"
+### "Command not found: MAKE DO"
 
 **Cause:** Using older version (< v1.2.0)
 **Fix:** Update to v1.2.0 or later
@@ -413,14 +413,14 @@ GENERATE DO query 2
 **Cause:** Too many API requests per second
 **Fix:**
 1. Wait 1 second
-2. Or set `GENERATE.MODE offline`
+2. Or set `MAKE.MODE offline`
 3. Or increase rate limit: `CONFIG api_rate_limit 5.0`
 
 ### "Budget limit exceeded"
 
 **Cause:** Daily/hourly API budget spent
 **Fix:**
-1. Use offline mode: `GENERATE DO --mode offline`
+1. Use offline mode: `MAKE DO --mode offline`
 2. Or increase budget: `CONFIG api_budget_daily 2.0`
 3. Or wait for next period
 
@@ -431,7 +431,7 @@ GENERATE DO query 2
 Having issues with migration?
 
 1. **Check logs:** `memory/logs/dev.log`
-2. **Test setup:** `GENERATE STATUS`
+2. **Test setup:** `MAKE STATUS`
 3. **Report bug:** [GitHub Issues](https://github.com/fredporter/uDOS/issues)
 
 ---

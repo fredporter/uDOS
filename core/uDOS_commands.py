@@ -144,9 +144,9 @@ class CommandHandler:
         from core.commands.draw_handler import DrawHandler
         self.draw_handler = DrawHandler(viewport=viewport, logger=logger)
 
-        # v1.2.0 - GENERATE handler (unified offline-first generation system)
-        from core.commands.generate_handler import GenerateHandler
-        self.generate_handler = GenerateHandler(**handler_kwargs)
+        # v2.0.2 - MAKE handler (unified offline-first generation system, renamed from GENERATE)
+        from core.commands.make_handler import MakeHandler
+        self.make_handler = MakeHandler(**handler_kwargs)
 
         # v1.1.15 - MERMAID handler (Mermaid.js diagram integration)
         from core.commands.mermaid_handler import MermaidHandler
@@ -423,9 +423,10 @@ class CommandHandler:
             elif module == "DRAW":
                 return self.draw_handler.handle(command, params)
 
-            # v1.2.0 - GENERATE Unified Generation System (Offline-first AI + Nano Banana)
-            elif module == "GENERATE":
-                return self.generate_handler.handle(command, params, grid)
+            # v2.0.2 - MAKE Unified Generation System (Offline-first AI + Nano Banana)
+            # Renamed from GENERATE for clarity
+            elif module == "MAKE" or module == "GENERATE":  # Support both for backward compatibility
+                return self.make_handler.handle(command, params, grid)
 
             # v1.1.15 - MERMAID Text-to-Diagram System
             elif module == "MERMAID":
@@ -447,15 +448,15 @@ class CommandHandler:
                         "Make sure the handler.py file exists and is importable.\n"
                     )
 
-            # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use GENERATE SVG)
+            # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use MAKE SVG)
             elif module == "SVG":
                 return (
                     "❌ SVG command removed in v1.1.5.3\n\n"
-                    "Use: GENERATE SVG <description>\n\n"
+                    "Use: MAKE SVG <description>\n\n"
                     "Examples:\n"
-                    "  GENERATE SVG water purification flowchart\n"
-                    "  GENERATE SVG solar still diagram\n\n"
-                    "The GENERATE command provides better quality via Nano Banana.\n"
+                    "  MAKE SVG water purification flowchart\n"
+                    "  MAKE SVG solar still diagram\n\n"
+                    "The MAKE command provides better quality via Nano Banana.\n"
                 )
 
             # v1.1.6 - LOGS System Management

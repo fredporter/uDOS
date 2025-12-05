@@ -1,5 +1,5 @@
 """
-uDOS v1.2.0 - GENERATE Command Handler (Unified)
+uDOS v2.0.2 - MAKE Command Handler (Unified Content Generation)
 
 Consolidated generation system with offline-first AI:
 - DO: Offline-first Q&A using knowledge bank → Gemini fallback
@@ -10,13 +10,14 @@ Consolidated generation system with offline-first AI:
 - TELETEXT: Generate BBC-style teletext graphics
 - STATUS: Show generation statistics
 - CLEAR: Clear generation history
+- VALIDATE: Validate system performance criteria
 
 Architecture:
 - Offline Engine (90%+ queries) → Gemini Extension (fallback) → Banana (images)
 - Cost tracking, rate limiting, priority queues
-- Workflow variable support ($GENERATE.*, $PROMPT.*, $API.*)
+- Workflow variable support ($MAKE.*, $PROMPT.*, $API.*)
 
-Version: 1.2.0 (Task 4 - GENERATE Consolidation)
+Version: 2.0.2 (Renamed from GENERATE for clarity)
 Author: uDOS Development Team
 """
 
@@ -33,16 +34,17 @@ from core.services.performance_monitor import get_performance_monitor
 from core.services.unified_logger import log_performance, log_api, log_error, log_command
 
 
-class GenerateHandler(BaseCommandHandler):
+class MakeHandler(BaseCommandHandler):
     """
-    Unified GENERATE command handler with offline-first AI.
+    Unified MAKE command handler with offline-first AI.
 
-    Replaces old assistant_handler and consolidates all generation commands.
+    Replaces old GENERATE command (renamed for clarity in v2.0.2).
+    Consolidates all content generation: guides, diagrams, ASCII art, teletext.
     """
 
     def __init__(self, **kwargs):
         """
-        Initialize unified GENERATE handler.
+        Initialize unified MAKE handler.
 
         Args:
             **kwargs: Standard handler dependencies (theme, viewport, logger, etc.)

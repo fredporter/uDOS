@@ -238,6 +238,40 @@
 
 **DEV MODE Debugging System** (archived to `dev/roadmap/.archive/v1.2.2-complete.md`)
 
+### v1.1.4 (November 2025) ✅ **COMPLETE**
+
+**Graphics System & Visual Output** - Complete graphics system with 4 output formats and AI-assisted diagram generation.
+
+**Delivered:**
+- DRAW command handler (526 lines) - AI-assisted diagrams with 4 types (FLOW, TREE, GRID, HIERARCHY)
+- Graphics library (450 lines) - Box-drawing characters, templates, color support
+- Diagram compositor (350 lines) - Canvas rendering, node/connection model
+- Diagram generator (400 lines) - Auto type detection, text parsing, AI integration
+- SPRITE command handler (526 lines) - Character/entity management with JSON schema
+- PANEL library (902 lines) - 50+ ASCII panel examples (solid, shaded, progress bars)
+- Teletext extension (active) - BBC-style rendering, 8-color palette, grid layouts
+- SVG extension (active) - Vector diagram generation
+- Graphics documentation (597 lines) - Complete wiki guide
+- **Total: 3,751 lines delivered**
+
+**Test Coverage:** 120 tests (100% passing)
+
+**Commands:**
+- `DRAW [TYPE] <description>` - Generate diagrams (FLOW/TREE/GRID/HIERARCHY)
+- `SPRITE [CREATE|LOAD|SAVE|SET|GET] <args>` - Manage sprite entities
+- `MAKE SVG <description>` - Generate vector diagrams (formerly GENERATE)
+- `MAKE ASCII <description>` - Generate ASCII art
+- `MAKE TELETEXT <description>` - Generate teletext graphics
+
+**Graphic Formats:**
+1. **ASCII Diagrams** - Box-drawing, FLOW/TREE/GRID/HIERARCHY types
+2. **Teletext** - BBC MODE 7 style, 40×24 / 80×25 / 100×30 grids
+3. **SVG** - Vector graphics via Gemini AI (Nano Banana pipeline)
+4. **SPRITE** - JSON-based character entities with $SPRITE variables
+
+**Tag:** `v1.1.4`
+**Wiki:** `wiki/Graphics-System.md`
+
 ---
 
 ## 📍 Completed Releases Archive
@@ -251,8 +285,9 @@
 - v1.2.11 - VS Code Extension (3,133 lines)
 - v1.2.4 - Hot Reload & Dev Tools (3,588 lines)
 - v1.2.3 - Map Layers (1,650 lines)
+- v1.1.4 - Graphics System (3,751 lines)
 
-**Total:** ~15,000+ lines delivered across 6 major releases
+**Total:** ~18,750+ lines delivered across 7 major releases
 
 ---
 
@@ -274,6 +309,8 @@ v2.0.2 introduces cleaner, more consistent syntax but requires a custom interpre
 - Pattern-based interpretation (no Python `exec()` overhead)
 - Full support for all v2.0.2 syntax features
 - Type-safe operations and smart action parsing
+
+**Note:** GENERATE command renamed to MAKE in v2.0.2+ for clarity (make content/diagrams/guides)
 
 **Core Complete (868 lines ✅):**
 - ✅ Runtime engine (560 lines) - Pattern matching, execution engine

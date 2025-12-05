@@ -7,16 +7,16 @@ uDOS v1.2.0 - Assistant Command Handler (DEPRECATED)
     Will be removed in v2.0.0
 
     Migration:
-        ASSISTANT ASK <query> → GENERATE DO <query>
-        OK ASK <query> → GENERATE DO <query>
+        ASSISTANT ASK <query> → MAKE DO <query>
+        OK ASK <query> → MAKE DO <query>
 
-    See: wiki/Migration-Guide-Assistant-to-Generate.md
+    See: wiki/Migration-Guide-Assistant-to-Make.md
 
 Legacy commands (deprecated):
-- ASSISTANT ASK: Ask Gemini AI (use GENERATE DO)
+- ASSISTANT ASK: Ask Gemini AI (use MAKE DO)
 - ASSISTANT CLEAR: Clear conversation history
 - ASSISTANT STATUS: Show status and usage
-- OK ASK: Legacy command (use GENERATE DO)
+- OK ASK: Legacy command (use MAKE DO)
 - OK DEV: GitHub Copilot CLI (external tool)
 
 Version: 1.2.0 (Deprecated)
@@ -35,7 +35,7 @@ class AssistantCommandHandler(BaseCommandHandler):
         - Status: DEPRECATED as of v1.2.0
         - Removal: v2.0.0 (Q2 2025)
         - Replacement: GENERATE commands (offline-first)
-        - Migration: wiki/Migration-Guide-Assistant-to-Generate.md
+        - Migration: wiki/Migration-Guide-Assistant-to-Make.md
 
     This handler now acts as a compatibility shim that routes to
     extensions/assistant with deprecation warnings.
@@ -150,10 +150,10 @@ class AssistantCommandHandler(BaseCommandHandler):
     Use GENERATE commands instead (offline-first)
 
     Migration:
-        ASSISTANT ASK <query> → GENERATE DO <query>
-        OK ASK <query> → GENERATE DO <query>
+        ASSISTANT ASK <query> → MAKE DO <query>
+        OK ASK <query> → MAKE DO <query>
 
-    See: wiki/Migration-Guide-Assistant-to-Generate.md
+    See: wiki/Migration-Guide-Assistant-to-Make.md
 
 """
 
@@ -183,7 +183,7 @@ The ASSISTANT extension has been moved to extensions/assistant
 and is now optional (uDOS works fully offline without it).
 
 💡 Offline Alternative (No API Key Required):
-   GENERATE DO <your question>
+   MAKE DO <your question>
 
    This uses uDOS's built-in offline AI engine with:
    - 166+ survival guides from knowledge bank
@@ -198,7 +198,7 @@ and is now optional (uDOS works fully offline without it).
    3. Extension will load automatically
 
 💡 Migration Guide:
-   wiki/Migration-Guide-Assistant-to-Generate.md
+   wiki/Migration-Guide-Assistant-to-Make.md
 """
             elif subcommand == "DEV":
                 # DEV command is special - routes to GitHub Copilot CLI (external)
@@ -210,14 +210,14 @@ Extension Status: Not loaded
 Location: extensions/assistant/
 Required: GEMINI_API_KEY in .env
 
-💡 Use GENERATE STATUS instead (works offline)
+💡 Use MAKE STATUS instead (works offline)
 """
 
         # Other commands
         if command == "ANALYZE":
-            return f"{deprecation_warning}Use GENERATE DO to analyze content"
+            return f"{deprecation_warning}Use MAKE DO to analyze content"
         elif command == "CLEAR":
-            return f"{deprecation_warning}Use GENERATE CLEAR to clear history"
+            return f"{deprecation_warning}Use MAKE CLEAR to clear history"
         else:
             return self.get_message("ERROR_UNKNOWN_ASSISTANT_COMMAND", command=command)
 
@@ -237,7 +237,7 @@ Required: GEMINI_API_KEY in .env
 Extension moved to: extensions/assistant/
 Status: Optional (uDOS works fully offline)
 
-💡 Use GENERATE STATUS instead (works offline)
+💡 Use MAKE STATUS instead (works offline)
 """
 
     def _handle_ok_help(self):
@@ -245,19 +245,19 @@ Status: Optional (uDOS works fully offline)
         return """⚠️  OK commands are deprecated as of v1.2.0
 
 DEPRECATED Commands:
-  OK ASK <question>     - Use GENERATE DO instead
+  OK ASK <question>     - Use MAKE DO instead
   OK DEV <task>         - Still works (GitHub Copilot CLI)
 
 Replacement Commands:
-  GENERATE DO <query>   - Offline-first AI (no API key needed)
-  GENERATE GUIDE <topic> - Generate survival guides
-  GENERATE SVG <desc>   - Generate diagrams (requires API)
+  MAKE DO <query>   - Offline-first AI (no API key needed)
+  MAKE GUIDE <topic> - Generate survival guides
+  MAKE SVG <desc>   - Generate diagrams (requires API)
 
 Examples:
   OLD: OK ASK how do I purify water?
-  NEW: GENERATE DO how do I purify water?
+  NEW: MAKE DO how do I purify water?
 
-Migration: wiki/Migration-Guide-Assistant-to-Generate.md
+Migration: wiki/Migration-Guide-Assistant-to-Make.md
 """
 
     def _handle_ask(self, params, grid):
@@ -273,28 +273,28 @@ Migration: wiki/Migration-Guide-Assistant-to-Generate.md
 
         return """❌ Assistant extension not available
 
-💡 Use GENERATE DO instead (offline-first, no API key):
-   GENERATE DO <your question>
+💡 Use MAKE DO instead (offline-first, no API key):
+   MAKE DO <your question>
 
 Example:
-   GENERATE DO how do I purify water?
+   MAKE DO how do I purify water?
 """
 
     def _handle_read(self, params, grid):
         """DEPRECATED: Read panel content."""
-        return "❌ READ command deprecated. Use GENERATE DO to analyze content."
+        return "❌ READ command deprecated. Use MAKE DO to analyze content."
 
     def _handle_explain(self, params):
         """DEPRECATED: Explain command."""
-        return "❌ EXPLAIN command deprecated. Use GENERATE DO <explain command>."
+        return "❌ EXPLAIN command deprecated. Use MAKE DO <explain command>."
 
     def _handle_generate(self, params):
         """DEPRECATED: Generate script."""
-        return "❌ Old GENERATE deprecated. Use: GENERATE DO <description> or GENERATE GUIDE <topic>."
+        return "❌ Old GENERATE deprecated. Use: MAKE DO <description> or MAKE GUIDE <topic>."
 
     def _handle_debug(self, params):
         """DEPRECATED: Debug error."""
-        return "❌ DEBUG command deprecated. Use GENERATE DO <debug error message>."
+        return "❌ DEBUG command deprecated. Use MAKE DO <debug error message>."
 
     def _handle_clear(self):
         """
@@ -303,7 +303,7 @@ Example:
         if self.extension_handler:
             return self.extension_handler._handle_clear()
 
-        return "❌ Assistant extension not available. Use GENERATE CLEAR instead."
+        return "❌ Assistant extension not available. Use MAKE CLEAR instead."
 
     def _handle_dev(self, params):
         """
@@ -460,7 +460,7 @@ Run: copilot auth login
             'query': question,
             'results': [],
             'content_snippets': [],
-            'note': 'Use offline AI engine or GENERATE DO command'
+            'note': 'Use offline AI engine or MAKE DO command'
         }
 
     def _generate_fallback_response(self, question, knowledge_context):
@@ -469,7 +469,7 @@ Run: copilot auth login
 
         Returns migration message.
         """
-        return "Use GENERATE DO for offline-first AI responses."
+        return "Use MAKE DO for offline-first AI responses."
 
     def _extract_token_usage(self, response: str) -> Optional[Dict[str, int]]:
         """DEPRECATED: Token extraction (now in extension)."""
