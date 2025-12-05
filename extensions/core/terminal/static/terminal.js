@@ -28,6 +28,30 @@
         separator: /[,;:]/g                             // separators
     };
 
+    // Color utilities (inline color support like teletext)
+    const colors = {
+        cyan: '#00d4ff',
+        green: '#50b818',
+        yellow: '#f0e858',
+        red: '#e94560',
+        purple: '#9d4edd',
+        pink: '#ff006e',
+        white: '#f1f1f1',
+        gray: '#a0a0a0',
+        blue: '#181090'
+    };
+
+    /**
+     * Colorize text with inline color tags
+     * Supports: {cyan:text}, {green:text}, {yellow:text}, etc.
+     */
+    function colorize(text) {
+        const colorPattern = /\{(cyan|green|yellow|red|purple|pink|white|gray|blue):([^}]+)\}/g;
+        return text.replace(colorPattern, (match, color, content) => {
+            return `<span style="color: ${colors[color]}; font-weight: bold;">${content}</span>`;
+        });
+    }
+
     // DOM Elements
     let terminal, output, input, loadingScreen, functionKeys;
 
@@ -41,63 +65,88 @@
 
             // Create splash content
             const splash = document.createElement('div');
-            splash.style.cssText = 'text-align: center; padding: 20px; font-family: "C64 User Mono", monospace;';
+            splash.style.cssText = 'text-align: center; padding: 20px; font-family: "C64 User Mono", monospace; line-height: 1.2;';
 
-            // uDOS ASCII art logo - simple U
+            // uDOS logo in C64 block graphics (rainbow gradient)
             const logo = [
-                '',
-                '',
-                '  ██       ██',
-                '  ██       ██',
-                '  ██       ██',
-                '  ██       ██',
-                '  ██       ██',
-                '  ██       ██',
-                '  ███████████',
-                '',
-                '  UNIVERSAL DEVICE OPERATIONS SYSTEM',
-                '          VERSION 2.0.0',
-                '',
-                ''
+                { text: '  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', color: '#FF0000' },
+                { text: '  █ █  █ ████   ███   ███                              █', color: '#FF4500' },
+                { text: '  █ █  █ █   █ █   █ █                                 █', color: '#FF8C00' },
+                { text: '  █ █  █ █   █ █   █  ██                               █', color: '#FFD700' },
+                { text: '  █ █  █ █   █ █   █    █                              █', color: '#ADFF2F' },
+                { text: '  █ █  █ █   █ █   █ █  █  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█', color: '#00FF00' },
+                { text: '  █  ██  ████   ███   ██   █ UNIVERSAL DEVICE OPS █    █', color: '#00CED1' },
+                { text: '  █                         █    SYSTEM v2.0.0    █    █', color: '#00BFFF' },
+                { text: '  █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█', color: '#9370DB' },
+                { text: '', color: '#FF00FF' }
             ];
 
-            logo.forEach((line, i) => {
+            logo.forEach(line => {
                 const lineDiv = document.createElement('div');
-                lineDiv.textContent = line;
-                // U in cyan, text in gray/pink
-                if (i >= 2 && i <= 8) {
-                    lineDiv.style.color = '#00D9FF'; // Cyan for U
-                } else if (i === 10) {
-                    lineDiv.style.color = '#A5A5A5'; // Gray for subtitle
-                } else if (i === 11) {
-                    lineDiv.style.color = '#FD79A8'; // Pink for version
-                } else {
-                    lineDiv.style.color = '#6C5CE7'; // Purple for empty lines
-                }
+                lineDiv.textContent = line.text;
+                lineDiv.style.color = line.color;
+                lineDiv.style.fontWeight = 'bold';
                 splash.appendChild(lineDiv);
             });
 
             // Loading bar container
             const loaderContainer = document.createElement('div');
-            loaderContainer.style.cssText = 'margin: 20px auto; width: 300px;';
+            loaderContainer.style.cssText = 'margin: 30px auto; width: 400px;';
 
             const loaderText = document.createElement('div');
-            loaderText.textContent = 'LOADING:';
-            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 10px;';
+            loaderText.textContent = '▶ INITIALIZING SYSTEM...';
+            loaderText.style.cssText = 'color: #00D9FF; margin-bottom: 10px; font-weight: bold;';
             loaderContainer.appendChild(loaderText);
 
             const progressBar = document.createElement('div');
-            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8;';
+            progressBar.style.cssText = 'font-family: monospace; color: #FD79A8; font-size: 14px;';
             loaderContainer.appendChild(progressBar);
+
+            const statusText = document.createElement('div');
+            statusText.style.cssText = 'color: #50b818; margin-top: 10px; font-size: 12px;';
+            loaderContainer.appendChild(statusText);
 
             splash.appendChild(loaderContainer);
             loadingScreen.appendChild(splash);
 
-            // Animate loader
+            // Animate loader with status messages
             let progress = 0;
-            const totalSteps = 50;
+            const totalSteps = 40;
+            const statusMessages = [
+                'LOADING KERNEL...',
+                'INITIALIZING MEMORY...',
+                'MOUNTING FILESYSTEMS...',
+                'LOADING EXTENSIONS...',
+                'CONNECTING TO CORE...',
+                'READY TO OPERATE'
+            ];
+            let statusIndex = 0;
+            
             const interval = setInterval(() => {
                 progress++;
+                const filled = '█'.repeat(Math.floor(progress * 0.6));
+                const empty = '░'.repeat(Math.floor((totalSteps - progress) * 0.6));
+                const percent = Math.floor((progress / totalSteps) * 100);
+
+                progressBar.textContent = `[${filled}${empty}] ${percent}%`;
+                
+                // Update status message
+                if (progress % 7 === 0 && statusIndex < statusMessages.length) {
+                    statusText.textContent = '▸ ' + statusMessages[statusIndex];
+                    statusIndex++;
+                }
+
+                if (progress >= totalSteps) {
+                    clearInterval(interval);
+                    statusText.textContent = '✓ SYSTEM READY';
+                    statusText.style.color = '#00FF00';
+                    setTimeout(() => {
+                        resolve();
+                    }, 500);
+                }
+            }, 80); // 3.2 seconds total
+        });
+    }
                 const filled = '█'.repeat(Math.floor(progress / 2));
                 const empty = '░'.repeat(Math.floor((totalSteps - progress) / 2));
                 const percent = Math.floor((progress / totalSteps) * 100);
@@ -153,9 +202,9 @@
         // Focus input
         input.focus();
 
-        // Welcome message
-        printLine('**** uDOS UNIVERSAL DEVICE OPERATIONS ****');
-        printLine('TERMINAL MODE v2.0.0');
+        // Welcome message with colors
+        printColor('**** uDOS UNIVERSAL DEVICE OPERATIONS ****', 'cyan');
+        printColor('TERMINAL MODE v2.0.0', 'purple');
         printLine('');
 
         // Check API connection
@@ -229,22 +278,22 @@
         }
 
         if (cmd === 'help') {
-            printLine('AVAILABLE COMMANDS:');
-            printLine('  HELP     - SHOW THIS MESSAGE');
-            printLine('  CLEAR    - CLEAR SCREEN');
-            printLine('  STATUS   - SHOW SYSTEM STATUS');
-            printLine('  DEMO     - SHOW SYNTAX HIGHLIGHTING DEMO');
-            printLine('  EXIT     - CLOSE TERMINAL');
+            printColor('AVAILABLE COMMANDS:', 'cyan');
+            printLine('{green:  HELP}     - SHOW THIS MESSAGE');
+            printLine('{green:  CLEAR}    - CLEAR SCREEN');
+            printLine('{green:  STATUS}   - SHOW SYSTEM STATUS');
+            printLine('{green:  DEMO}     - SHOW SYNTAX HIGHLIGHTING DEMO');
+            printLine('{green:  EXIT}     - CLOSE TERMINAL');
             printLine('');
-            printLine('USE FUNCTION KEYS FOR QUICK ACCESS');
+            printLine('{yellow:USE FUNCTION KEYS FOR QUICK ACCESS}');
             return;
         }
 
         if (cmd === 'demo') {
-            printLine('===== SYNTAX HIGHLIGHTING DEMO =====');
+            printColor('===== SYNTAX HIGHLIGHTING DEMO =====', 'cyan');
             printLine('');
-            printLine('uPY COMMAND EXAMPLES:', false);
-            printLine('', false);
+            printLine('{yellow:uPY COMMAND EXAMPLES:}');
+            printLine('');
             printCommand('GUIDE(water)');
             printCommand('SET($LOCATION, "AU-BNE")');
             printCommand('MEMORY STORE("survival_kit", $ITEMS)');
@@ -252,22 +301,25 @@
             printCommand('CALC(45 + 67 * 2)');
             printCommand('# This is a comment');
             printLine('');
-            printLine('COLOR LEGEND:', false);
-            printLine('  COMMANDS (CYAN) - Uppercase functions', false);
-            printLine('  functions (GREEN) - Lowercase functions', false);
-            printLine('  "strings" (YELLOW) - Text in quotes', false);
-            printLine('  $VARIABLES (CYAN-GREEN) - Variables', false);
-            printLine('  123 (PURPLE) - Numbers', false);
-            printLine('  +*/ (RED) - Operators', false);
-            printLine('  # comments (GRAY) - Comments', false);
+            printLine('{green:INLINE COLOR EXAMPLES:}');
+            printLine('');
+            printLine('{cyan:Cyan text} - INFO');
+            printLine('{green:Green text} - SUCCESS');
+            printLine('{yellow:Yellow text} - WARNING');
+            printLine('{red:Red text} - ERROR');
+            printLine('{purple:Purple text} - SYSTEM');
+            printLine('{pink:Pink text} - HIGHLIGHT');
+            printLine('');
+            printColor('✓ COLOR SYSTEM ACTIVE', 'green');
             printLine('');
             return;
         }
 
         if (cmd === 'status') {
-            printLine(`TERMINAL: READY`);
-            printLine(`API: ${state.coreConnected ? 'CONNECTED' : 'DISCONNECTED'}`);
-            printLine(`HISTORY: ${state.commandHistory.length} COMMANDS`);
+            printColor('SYSTEM STATUS:', 'cyan');
+            printLine(`{green:TERMINAL:} READY`);
+            printLine(`{${state.coreConnected ? 'green' : 'red'}:API:} ${state.coreConnected ? 'CONNECTED' : 'DISCONNECTED'}`);
+            printLine(`{purple:HISTORY:} ${state.commandHistory.length} COMMANDS`);
             return;
         }
 
@@ -417,13 +469,16 @@
             const response = await fetch(`${state.udosApiUrl}/status`);
             if (response.ok) {
                 state.coreConnected = true;
-                printLine('API SERVER: CONNECTED');
+                printColor('✓ API SERVER: CONNECTED', 'green');
             }
         } catch (error) {
             state.coreConnected = false;
-            printLine('API SERVER: OFFLINE');
-            printLine('START WITH: cd extensions/api && python server.py');
+            printColor('⚠ API SERVER: OFFLINE', 'yellow');
+            printLine('{gray:START WITH: cd extensions/api && python server.py}');
         }
+        printLine('');
+        printColor('READY.', 'green');
+        printLine('');
     }
 
     /**
@@ -431,7 +486,7 @@
      */
     function highlightSyntax(text) {
         // Skip highlighting for plain messages (all lowercase or starting with special chars)
-        if (text.startsWith('=') || text.startsWith('*') || text.startsWith('-') || 
+        if (text.startsWith('=') || text.startsWith('*') || text.startsWith('-') ||
             text === text.toLowerCase() || !text.includes('(')) {
             return text; // Return plain text
         }
@@ -443,7 +498,7 @@
         for (const [type, pattern] of Object.entries(syntaxPatterns)) {
             const regex = new RegExp(pattern.source, pattern.flags);
             let match;
-            
+
             while ((match = regex.exec(text)) !== null) {
                 replacements.push({
                     start: match.index,
@@ -473,13 +528,28 @@
      */
     function printLine(text, enableHighlight = false) {
         const line = document.createElement('div');
-        
+
         if (enableHighlight) {
             line.innerHTML = highlightSyntax(text);
         } else {
-            line.textContent = text;
+            // Check for color tags and apply them
+            if (text.includes('{') && text.includes(':')) {
+                line.innerHTML = colorize(text);
+            } else {
+                line.textContent = text;
+            }
         }
-        
+
+        output.appendChild(line);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    /**
+     * Print colored line (convenience function)
+     */
+    function printColor(text, color) {
+        const line = document.createElement('div');
+        line.innerHTML = `<span style="color: ${colors[color] || colors.cyan}; font-weight: bold;">${text}</span>`;
         output.appendChild(line);
         output.scrollTop = output.scrollHeight;
     }
