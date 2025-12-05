@@ -24,6 +24,7 @@ Usage Examples:
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 from core.services.asset_manager import get_asset_manager
+from core.output.syntax_highlighter import highlight_syntax
 import json
 
 
@@ -423,11 +424,11 @@ class AssetsHandler:
         output.append("")
         output.append("=" * 80)
         output.append("Examples:")
-        output.append("  ASSETS LIST fonts")
-        output.append("  ASSETS SEARCH teletext")
-        output.append("  ASSETS INFO mac-checkerboard")
-        output.append("  ASSETS PREVIEW teletext-single")
-        output.append("  ASSETS LOAD chicago")
+        output.append(f"  {highlight_syntax('ASSETS(LIST|fonts)')}")
+        output.append(f"  {highlight_syntax('ASSETS(SEARCH|teletext)')}")
+        output.append(f"  {highlight_syntax('ASSETS(INFO|mac-checkerboard)')}")
+        output.append(f"  {highlight_syntax('ASSETS(PREVIEW|teletext-single)')}")
+        output.append(f"  {highlight_syntax('ASSETS(LOAD|chicago)')}")
         output.append("=" * 80)
 
         return "\n".join(output)

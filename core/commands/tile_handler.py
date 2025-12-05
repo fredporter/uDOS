@@ -23,6 +23,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 import math
+from core.output.syntax_highlighter import highlight_syntax
 
 
 class TILECommandHandler(BaseCommandHandler):
@@ -494,7 +495,7 @@ Use TILE CONVERT HELP for unit list"""
 
     def _handle_help(self):
         """Display TILE command help."""
-        return """🗺️  TILE System Commands (v1.0.20b)
+        help_text = """🗺️  TILE System Commands (v1.0.20b)
 {'='*50}
 
 📍 Location Information:
@@ -514,17 +515,19 @@ Use TILE CONVERT HELP for unit list"""
    TILE CONVERT <val> <from> <to> - Unit conversions
 
 Examples:
-  TILE INFO Tokyo
-  TILE SEARCH Paris
-  TILE NEARBY London 500
-  TILE WEATHER Sydney
-  TILE TIMEZONE New_York
-  TILE ROUTE Tokyo London
-  TILE CONVERT 100 km mi
-  TILE TERRAIN ocean
-
-Integration: Works with v1.0.20 Knowledge Bank & v1.0.3 MAP system
 """
+        # Add highlighted examples
+        help_text += f"  {highlight_syntax('TILE(INFO|Tokyo)')}\n"
+        help_text += f"  {highlight_syntax('TILE(SEARCH|Paris)')}\n"
+        help_text += f"  {highlight_syntax('TILE(NEARBY|London|500)')}\n"
+        help_text += f"  {highlight_syntax('TILE(WEATHER|Sydney)')}\n"
+        help_text += f"  {highlight_syntax('TILE(TIMEZONE|New_York)')}\n"
+        help_text += f"  {highlight_syntax('TILE(ROUTE|Tokyo|London)')}\n"
+        help_text += f"  {highlight_syntax('TILE(CONVERT|100|km|mi)')}\n"
+        help_text += f"  {highlight_syntax('TILE(TERRAIN|ocean)')}\n"
+        help_text += "\nIntegration: Works with v1.0.20 Knowledge Bank & v1.0.3 MAP system"
+        
+        return help_text
 
 
 # Export handler

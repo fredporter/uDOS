@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 import glob
 import psutil
+from core.output.syntax_highlighter import highlight_syntax
 
 from core.config import Config
 from core.commands.base_handler import BaseCommandHandler
@@ -826,14 +827,15 @@ class WorkflowHandler(BaseCommandHandler):
 ═══════════════════════════════════════════════════════════════
 
 Examples:
-  WORKFLOW LOG "Mission started" --level=info
-  WORKFLOW LOAD_JSON data.json --var=config
-  WORKFLOW RUN_PYTHON scripts/process.py --background --id=worker
-  WORKFLOW TIMESTAMP --format=human
-  WORKFLOW EXTRACT_METRIC r"(\\d+) complete" "Tasks: 25 complete"
-
-💡 All WORKFLOW commands log to: sandbox/logs/workflow.log
 """
+        # Add highlighted examples
+        help_text += f"  {highlight_syntax('WORKFLOW(LOG|\"Mission started\"|--level=info)')}\n"
+        help_text += f"  {highlight_syntax('WORKFLOW(LOAD_JSON|data.json|--var=config)')}\n"
+        help_text += f"  {highlight_syntax('WORKFLOW(RUN_PYTHON|scripts/process.py|--background|--id=worker)')}\n"
+        help_text += f"  {highlight_syntax('WORKFLOW(TIMESTAMP|--format=human)')}\n"
+        help_text += f"  {highlight_syntax('WORKFLOW(EXTRACT_METRIC|r\"(\\\\d+) complete\"|\"Tasks: 25 complete\")')}\n"
+        help_text += "\n💡 All WORKFLOW commands log to: sandbox/logs/workflow.log"
+        
         return help_text.strip()
 
 
