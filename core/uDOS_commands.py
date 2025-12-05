@@ -185,6 +185,10 @@ class CommandHandler:
         from core.commands.undo_handler import create_handler as create_undo_handler
         self.undo_handler = create_undo_handler(viewport=viewport, logger=logger)
 
+        # v1.2.9 - Gmail Cloud Integration handler (OAuth2, Email, Drive sync)
+        from core.commands.gmail_handler import handle_gmail_command
+        self.gmail_handler = handle_gmail_command
+
         # v1.1.5.1 - SESSION handler (Session management, history, undo/redo, restore)
         from core.commands.session_handler import SessionHandler
         self.session_handler = SessionHandler(**handler_kwargs)
@@ -525,6 +529,19 @@ class CommandHandler:
                 from core.config import Config
                 config = Config()
                 return handle_workflow_command(command, params, config)
+
+            # v1.2.9 - Gmail Cloud Integration
+            elif module == "GMAIL" or module == "LOGIN" or module == "LOGOUT" or module == "EMAIL":
+                # Route LOGIN GMAIL, LOGOUT GMAIL, STATUS GMAIL, EMAIL LIST, etc.
+                from core.config import Config
+                config = Config()
+                # Reconstruct command line for gmail handler
+                if module == "GMAIL":
+                    parts = [module, command] + params
+                else:
+                    # LOGIN/LOGOUT/EMAIL are shortcuts to GMAIL subcommands
+                    parts = [module, command] + params if command else [module] + params
+                return self.gmail_handler(parts, config=config)
 
             # v1.1.2 - Resource Management
             elif module == "RESOURCE":

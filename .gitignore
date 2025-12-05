@@ -8,6 +8,11 @@
 .env.local
 *.key
 
+# Gmail OAuth2 credentials and tokens (v1.2.9+)
+memory/system/user/gmail_credentials.json
+memory/system/user/.gmail_token.enc
+*.gmail_token*
+
 # Python Runtime
 # ----------------------
 __pycache__/
