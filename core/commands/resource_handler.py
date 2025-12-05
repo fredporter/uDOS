@@ -465,8 +465,9 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     help_lines.append("")
     help_lines.append("[blue]" + "═" * 63 + "[/]")
 
-    # Print with rich console for color support
-    console.print('\n'.join(help_lines))
+    # Print with rich console for color support - print each line separately
+    for line in help_lines:
+        console.print(line)
 
     return {
         'success': True,
