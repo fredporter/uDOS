@@ -67,33 +67,36 @@
             const splash = document.createElement('div');
             splash.style.cssText = 'text-align: center; font-family: "C64 User Mono", monospace; line-height: 1.0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px;';
 
-            // uDOS ASCII art logo - muted C64 synthwave colors
+            // uDOS ASCII art logo - muted C64 synthwave colors with background fill
             const logo = [
-                { text: '', color: '#FFFFFF' },
-                { text: '╔═══════════════════════════════════════╗', color: '#e94560' },
-                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#e94560' },
-                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#f0e858' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#50b818' },
-                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00d4ff' },
-                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#9d4edd' },
-                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#ff006e' },
-                { text: '╠═══════════════════════════════════════╣', color: '#00d4ff' },
-                { text: '║   UNIVERSAL DEVICE OPERATIONS SYSTEM  ║', color: '#00d4ff' },
-                { text: '║         Terminal Interface v2.0       ║', color: '#9d4edd' },
-                { text: '╚═══════════════════════════════════════╝', color: '#ff006e' },
-                { text: '', color: '#FFFFFF' }
+                { text: '', color: '#FFFFFF', bg: 'transparent' },
+                { text: '╔═══════════════════════════════════════╗', color: '#e94560', bg: '#2a0a0f' },
+                { text: '║  ██╗   ██╗██████╗  ██████╗ ███████╗  ║', color: '#e94560', bg: '#2a0a0f' },
+                { text: '║  ██║   ██║██╔══██╗██╔═══██╗██╔════╝  ║', color: '#f0e858', bg: '#2a2414' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║███████╗  ║', color: '#50b818', bg: '#0f1d06' },
+                { text: '║  ██║   ██║██║  ██║██║   ██║╚════██║  ║', color: '#00d4ff', bg: '#002833' },
+                { text: '║  ╚██████╔╝██████╔╝╚██████╔╝███████║  ║', color: '#9d4edd', bg: '#1a0f28' },
+                { text: '║   ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝  ║', color: '#ff006e', bg: '#280016' },
+                { text: '╠═══════════════════════════════════════╣', color: '#00d4ff', bg: '#002833' },
+                { text: '║   UNIVERSAL DEVICE OPERATIONS SYSTEM  ║', color: '#00d4ff', bg: '#002833' },
+                { text: '║         Terminal Interface v2.0       ║', color: '#9d4edd', bg: '#1a0f28' },
+                { text: '╚═══════════════════════════════════════╝', color: '#ff006e', bg: '#280016' },
+                { text: '', color: '#FFFFFF', bg: 'transparent' }
             ];
 
             logo.forEach(line => {
                 const lineDiv = document.createElement('div');
                 lineDiv.textContent = line.text;
                 lineDiv.style.color = line.color;
+                lineDiv.style.backgroundColor = line.bg;
                 lineDiv.style.fontWeight = 'bold';
                 lineDiv.style.fontSize = '13px';
                 lineDiv.style.lineHeight = '1.0';
                 lineDiv.style.margin = '0';
-                lineDiv.style.padding = '0';
+                lineDiv.style.padding = '2px 0';
                 lineDiv.style.whiteSpace = 'pre';
+                lineDiv.style.display = 'block';
+                lineDiv.style.minHeight = '16px';
                 splash.appendChild(lineDiv);
             });
 
