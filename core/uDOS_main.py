@@ -56,11 +56,11 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
     Backward compatibility for .uscript removed in v1.1.12.
     """
     from pathlib import Path
-    
+
     try:
         # Convert string path to Path object
         script_file = Path(script_path) if isinstance(script_path, str) else script_path
-        
+
         # v1.1.12: Only .upy files supported
         if not str(script_file).lower().endswith('.upy'):
             error_msg = f"❌ Unsupported file format. Only .upy files are supported.\n   Convert with: python bin/migrate_upy.py {script_file}"
@@ -68,22 +68,19 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
             print(error_msg)
             return
 
-        # Use UPYParser for COMMAND(args) syntax
-        from core.runtime.upy_parser import UPYParser
-        from core.runtime.upy_preprocessor import UPYPreprocessor
+        # Use v2.0.2 runtime for (COMMAND|args) syntax
+        from core.runtime.upy_runtime_v2 import UPYRuntime
 
-        preprocessor = UPYPreprocessor()
-        upy_parser = UPYParser()
+        runtime = UPYRuntime(command_handler=command_handler, grid=grid, parser=parser)
 
-        logger.log(f"🔷 Running uPY script: {script_file}")
+        logger.log(f"🔷 Running uPY v2.0.2 script: {script_file}")
 
-        # Preprocess and execute
+        # Execute script
         try:
-            code = preprocessor.preprocess(script_file)
-            result = upy_parser.execute(code)
-            if result:
+            output = runtime.execute_file(script_file)
+            if output:
+                result = '\n'.join(output)
                 logger.log(result)
-                print(result)
         except Exception as e:
             error_msg = f"❌ Error executing '{script_file}': {e}"
             logger.log(error_msg)

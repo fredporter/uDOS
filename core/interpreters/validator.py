@@ -225,38 +225,38 @@ class UCodeParser:
     # v2.0.2 Regex patterns
     # Variables: {$name}
     VARIABLE_PATTERN = re.compile(r'\{\$([a-zA-Z_][a-zA-Z0-9_.-]*)\}')
-    
+
     # Commands: (COMMAND|param1|param2)
     COMMAND_PATTERN = re.compile(r'\(([A-Z_]+)(?:\|([^\)]+))?\)')
-    
+
     # Short conditionals: [IF condition: action]
     SHORT_COND_PATTERN = re.compile(r'\[IF\s+(.+?):\s*(.+?)\]')
-    
+
     # Medium conditionals: [IF cond THEN: action ELSE: action]
     MEDIUM_COND_PATTERN = re.compile(r'\[IF\s+(.+?)\s+THEN:\s*(.+?)(?:\s+ELSE:\s*(.+?))?\]')
-    
+
     # Ternary: [condition ? action : else_action]
     TERNARY_PATTERN = re.compile(r'\[(.+?)\s*\?\s*(.+?)\s*:\s*(.+?)\]')
-    
+
     # Long form conditionals (IF/END IF)
     LONG_IF_START = re.compile(r'^IF\s+(.+?)$', re.MULTILINE)
     LONG_ELSE_IF = re.compile(r'^ELSE\s+IF\s+(.+?)$', re.MULTILINE)
     LONG_ELSE = re.compile(r'^ELSE$', re.MULTILINE)
     LONG_END_IF = re.compile(r'^END\s+IF$', re.MULTILINE)
-    
+
     # Short functions: @name(...): expression
     SHORT_FUNC_PATTERN = re.compile(r'@([a-z_][a-z0-9_]*)\(([^\)]*)\):\s*(.+?)$')
-    
+
     # Long functions: FUNCTION/END FUNCTION
     LONG_FUNC_START = re.compile(r'^FUNCTION\s+([a-z_][a-z0-9_]*)\(([^\)]*)\)$', re.MULTILINE)
     LONG_FUNC_END = re.compile(r'^END\s+FUNCTION$', re.MULTILINE)
-    
+
     # Comments and strings
     COMMENT_PATTERN = re.compile(r'#\s*(.+)$')
     STRING_PATTERN = re.compile(r"'([^']*)'")
-    
+
     # Keywords for v2.0.2
-    KEYWORDS = ['IF', 'ELSE', 'END IF', 'THEN', 'FUNCTION', 'END FUNCTION', 
+    KEYWORDS = ['IF', 'ELSE', 'END IF', 'THEN', 'FUNCTION', 'END FUNCTION',
                 'RETURN', 'FOREACH', 'WHILE', 'END', 'LABEL', 'BRANCH']
 
     def __init__(self):
@@ -328,7 +328,7 @@ class UCodeParser:
                 command = self._parse_command(match, line_num, match.start())
                 if command:
                     commands.append(command)
-            
+
             # Parse short conditionals: [IF ...: ...]
             for match in self.SHORT_COND_PATTERN.finditer(line):
                 commands.append({
@@ -337,7 +337,7 @@ class UCodeParser:
                     "action": match.group(2),
                     "line": line_num
                 })
-            
+
             # Parse medium conditionals: [IF ... THEN: ... ELSE: ...]
             for match in self.MEDIUM_COND_PATTERN.finditer(line):
                 commands.append({
@@ -347,7 +347,7 @@ class UCodeParser:
                     "else_action": match.group(3) or None,
                     "line": line_num
                 })
-            
+
             # Parse ternary: [cond ? action : else]
             for match in self.TERNARY_PATTERN.finditer(line):
                 commands.append({
@@ -357,7 +357,7 @@ class UCodeParser:
                     "else_action": match.group(3),
                     "line": line_num
                 })
-            
+
             # Parse short functions: @name(...): expr
             for match in self.SHORT_FUNC_PATTERN.finditer(line):
                 commands.append({
