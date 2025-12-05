@@ -19,6 +19,76 @@ from typing import Any, Dict, Optional
 from core.services.resource_manager import get_resource_manager
 
 
+def _highlight_upy_syntax(text: str) -> str:
+    """
+    Apply syntax highlighting to uPY/uCODE command syntax.
+
+    Highlights:
+    - COMMAND names in bright green
+    - Parameters after | in cyan
+    - Variables ($VAR) in yellow
+    - Flags (--flag) in magenta
+    - Strings in white
+
+    Args:
+        text: Command text to highlight
+
+    Returns:
+        Text with ANSI color codes applied
+    """
+    # ANSI codes
+    GREEN = '\033[1;32m'      # Command names
+    CYAN = '\033[36m'         # Parameters
+    YELLOW = '\033[1;33m'     # Variables
+    MAGENTA = '\033[35m'      # Flags
+    RESET = '\033[0m'
+
+    # Don't highlight if no command syntax
+    if '(' not in text:
+        return text
+
+    result = text
+
+    # Highlight COMMAND(...)
+    import re
+
+    # Match COMMAND(params)
+    pattern = r'([A-Z]+)\(([^)]+)\)'
+
+    def highlight_match(match):
+        command = match.group(1)
+        params = match.group(2)
+
+        # Highlight command name
+        highlighted = f"{GREEN}{command}{RESET}("
+
+        # Split params by |
+        param_parts = params.split('|')
+        highlighted_params = []
+
+        for i, part in enumerate(param_parts):
+            part = part.strip()
+
+            # Variables ($VAR)
+            if part.startswith('$'):
+                highlighted_params.append(f"{YELLOW}{part}{RESET}")
+            # Flags (--flag)
+            elif part.startswith('--'):
+                highlighted_params.append(f"{MAGENTA}{part}{RESET}")
+            # Regular params
+            else:
+                highlighted_params.append(f"{CYAN}{part}{RESET}")
+
+        highlighted += f"{CYAN}|{RESET}".join(highlighted_params)
+        highlighted += ")"
+
+        return highlighted
+
+    result = re.sub(pattern, highlight_match, result)
+
+    return result
+
+
 def handle_resource_command(command: str, **kwargs) -> Dict[str, Any]:
     """
     Main entry point for RESOURCE commands.
@@ -360,7 +430,7 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     BLUE = '\033[34m'
     RESET = '\033[0m'
 
-    # Build colored help text using ANSI codes
+    # Build colored help text using ANSI codes with syntax highlighting
     help_lines = []
 
     help_lines.append(f"{CYAN}📊 RESOURCE Commands - Resource Monitoring & Management{RESET}")
@@ -369,14 +439,14 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     help_lines.append("")
     help_lines.append(f"{YELLOW}Commands:{RESET}")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(STATUS){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(STATUS)')}")
     help_lines.append("    Show overview of all resources (quotas, disk, CPU, memory)")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(QUOTA|provider){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(QUOTA|provider)')}")
     help_lines.append("    Check API quota for specific provider (gemini, github)")
     help_lines.append("    If no provider specified, shows all quotas")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(ALLOCATE|$MISSION_ID|--api N|--disk M|--priority P){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(ALLOCATE|$MISSION_ID|--api N|--disk M|--priority P)')}")
     help_lines.append("    Allocate resources for a mission")
     help_lines.append("")
     help_lines.append(f"{YELLOW}    Arguments:{RESET}")
@@ -386,23 +456,23 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     help_lines.append("      --priority P  Priority level (CRITICAL, HIGH, MEDIUM, LOW)")
     help_lines.append("")
     help_lines.append(f"{YELLOW}    Example:{RESET}")
-    help_lines.append("      RESOURCE(ALLOCATE|content-gen|--api 500|--disk 200|--priority HIGH)")
+    help_lines.append(f"      {_highlight_upy_syntax('RESOURCE(ALLOCATE|content-gen|--api 500|--disk 200|--priority HIGH)')}")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(RELEASE|$MISSION_ID){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(RELEASE|$MISSION_ID)')}")
     help_lines.append("    Release resources allocated to a mission")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(THROTTLE|$MISSION_ID|provider){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(THROTTLE|$MISSION_ID|provider)')}")
     help_lines.append("    Check if mission should be throttled due to resource constraints")
     help_lines.append("")
     help_lines.append(f"{YELLOW}    Arguments:{RESET}")
     help_lines.append("      $MISSION_ID Mission identifier")
     help_lines.append("      provider    API provider to check (default: gemini)")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(SUMMARY){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(SUMMARY)')}")
     help_lines.append("    Complete resource dashboard with progress bars")
     help_lines.append("    Shows quotas, disk, CPU, memory, and active allocations")
     help_lines.append("")
-    help_lines.append(f"{GREEN}  RESOURCE(HELP){RESET}")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(HELP)')}")
     help_lines.append("    Show this help message")
     help_lines.append("")
     help_lines.append(f"{BLUE}{'═' * 63}{RESET}")
@@ -449,22 +519,22 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
     help_lines.append(f"{YELLOW}Examples:{RESET}")
     help_lines.append("")
     help_lines.append("  # Check all resources")
-    help_lines.append("  RESOURCE(STATUS)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(STATUS)')}")
     help_lines.append("")
     help_lines.append("  # Check Gemini API quota")
-    help_lines.append("  RESOURCE(QUOTA|gemini)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(QUOTA|gemini)')}")
     help_lines.append("")
     help_lines.append("  # Allocate resources for content generation mission")
-    help_lines.append("  RESOURCE(ALLOCATE|content-gen|--api 300|--disk 100|--priority HIGH)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(ALLOCATE|content-gen|--api 300|--disk 100|--priority HIGH)')}")
     help_lines.append("")
     help_lines.append("  # Check if mission should be throttled")
-    help_lines.append("  RESOURCE(THROTTLE|content-gen)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(THROTTLE|content-gen)')}")
     help_lines.append("")
     help_lines.append("  # View complete dashboard")
-    help_lines.append("  RESOURCE(SUMMARY)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(SUMMARY)')}")
     help_lines.append("")
     help_lines.append("  # Release resources when mission completes")
-    help_lines.append("  RESOURCE(RELEASE|content-gen)")
+    help_lines.append(f"  {_highlight_upy_syntax('RESOURCE(RELEASE|content-gen)')}")
     help_lines.append("")
     help_lines.append(f"{BLUE}{'═' * 63}{RESET}")
 
@@ -476,8 +546,6 @@ def _handle_help(**kwargs) -> Dict[str, Any]:
         'success': True,
         'output': ''  # Already printed with colors above
     }
-    help_lines.append("      --api N       Number of API calls to reserve")
-    help_lines.append("      --disk M      Disk space to reserve (MB)")
     help_lines.append("      --priority P  Priority level (CRITICAL, HIGH, MEDIUM, LOW)")
     help_lines.append("")
     help_lines.append("[yellow]    Example:[/]")
