@@ -279,7 +279,7 @@ html, body {
 }
 
 body {
-  background: var(--c64-black);
+  background: #000000;
   color: var(--teletext-fg);
   margin: 0;
   padding: 0;
@@ -288,7 +288,7 @@ body {
 }
 
 .teletext {
-  background: var(--c64-black);
+  background: #000000;
   line-height: 1.2;
   padding: 0;
   margin: 0;
@@ -307,25 +307,25 @@ body {
    ============================================ */
 
 .header {
-  background: var(--c64-blue);
-  color: var(--c64-yellow);
+  background: #0000FF;
+  color: #FFFF00;
   padding: 0 1ch;
   display: flex;
   justify-content: space-between;
-  border-bottom: 2px solid var(--c64-cyan);
+  border-bottom: 2px solid #00FFFF;
   font-weight: bold;
 }
 
 .header .title {
-  color: var(--c64-yellow);
+  color: #FFFF00;
 }
 
 .header .page {
-  color: var(--c64-white);
+  color: #FFFFFF;
 }
 
 .header .clock {
-  color: var(--c64-cyan);
+  color: #00FFFF;
 }
 
 /* ============================================
@@ -342,48 +342,17 @@ body {
 }
 
 /* ============================================
-   COLOR CLASSES (Standard Teletext)
+   BACKGROUND COLOR CLASSES
    ============================================ */
 
-.fg-black { color: var(--c64-black); }
-.fg-red { color: var(--c64-red); }
-.fg-green { color: var(--c64-green); }
-.fg-yellow { color: var(--c64-yellow); }
-.fg-blue { color: var(--c64-blue); }
-.fg-magenta { color: var(--c64-purple); }
-.fg-cyan { color: var(--c64-cyan); }
-.fg-white { color: var(--c64-white); }
-
-.bg-black { background-color: var(--c64-black); }
-.bg-red { background-color: var(--c64-red); }
-.bg-green { background-color: var(--c64-green); }
-.bg-yellow { background-color: var(--c64-yellow); }
-.bg-blue { background-color: var(--c64-blue); }
-.bg-magenta { background-color: var(--c64-purple); }
-.bg-cyan { background-color: var(--c64-cyan); }
-.bg-white { background-color: var(--c64-white); }
-
-/* ============================================
-   EXTENDED C64 COLORS
-   ============================================ */
-
-.fg-orange { color: var(--c64-orange); }
-.fg-brown { color: var(--c64-brown); }
-.fg-light-red { color: var(--c64-light-red); }
-.fg-dark-gray { color: var(--c64-dark-gray); }
-.fg-gray { color: var(--c64-gray); }
-.fg-light-green { color: var(--c64-light-green); }
-.fg-light-blue { color: var(--c64-light-blue); }
-.fg-light-gray { color: var(--c64-light-gray); }
-
-.bg-orange { background-color: var(--c64-orange); }
-.bg-brown { background-color: var(--c64-brown); }
-.bg-light-red { background-color: var(--c64-light-red); }
-.bg-dark-gray { background-color: var(--c64-dark-gray); }
-.bg-gray { background-color: var(--c64-gray); }
-.bg-light-green { background-color: var(--c64-light-green); }
-.bg-light-blue { background-color: var(--c64-light-blue); }
-.bg-light-gray { background-color: var(--c64-light-gray); }
+.bg-black { background-color: #000000; }
+.bg-red { background-color: #FF0000; }
+.bg-green { background-color: #00FF00; }
+.bg-yellow { background-color: #FFFF00; }
+.bg-blue { background-color: #0000FF; }
+.bg-magenta { background-color: #FF00FF; }
+.bg-cyan { background-color: #00FFFF; }
+.bg-white { background-color: #FFFFFF; }
 
 /* ============================================
    TELETEXT EFFECTS
