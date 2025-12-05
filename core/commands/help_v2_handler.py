@@ -159,7 +159,7 @@ class HelpV2Handler:
                 clean = syntax
                 padding = 79 - len(f"║      {clean}")
                 lines.append(f"║      {highlighted}" + " "*padding + "║")
-            
+
             lines.append("║" + " "*78 + "║")
 
             # Examples
