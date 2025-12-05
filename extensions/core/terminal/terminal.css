@@ -65,20 +65,8 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-}
-
-/* Fullscreen Rainbow Border */
-.loading-screen:before {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    content: "";
     background: #6076c5;
-    z-index: -1;
-    /* Rainbow border animation */
-    animation: rainbow-border 2s linear infinite;
+    transition: background 0.3s ease-in-out;
 }
 
 /* C64 Screen - Centered */
@@ -91,54 +79,7 @@ body {
     z-index: -1;
 }
 
-/* Simplified rainbow border - color bars only */
-@keyframes rainbow-border {
-    0% {
-        background-image: linear-gradient(to bottom,
-            #882000 10%, #68d0a8 10%, #68d0a8 12%, #a838a0 12%, #a838a0 18%,
-            #50b818 18%, #50b818 27%, #181090 27%, #181090 38%, #f0e858 38%,
-            #f0e858 41%, #a04800 41%, #a04800 56%, #472b1b 56%, #472b1b 61%,
-            #c87870 61%, #c87870 66%, #484848 66%, #484848 68%, #808080 68%,
-            #808080 75%, #98ff98 75%, #98ff98 77%, #5090d0 77%, #5090d0 92%,
-            #b8b8b8 92%, #b8b8b8 94%, #000000 94%, #000000 97%, #ffffff 97%);
-    }
-    25% {
-        background-image: linear-gradient(to bottom,
-            #ffffff 5%, #000000 5%, #000000 10%, #b8b8b8 10%, #b8b8b8 16%,
-            #5090d0 16%, #5090d0 23%, #98ff98 23%, #98ff98 28%, #808080 28%,
-            #808080 33%, #484848 33%, #484848 40%, #c87870 40%, #c87870 46%,
-            #472b1b 46%, #472b1b 51%, #a04800 51%, #a04800 57%, #f0e858 57%,
-            #f0e858 62%, #181090 62%, #181090 69%, #50b818 69%, #50b818 78%,
-            #a838a0 78%, #a838a0 86%, #68d0a8 86%, #68d0a8 95%, #882000 95%);
-    }
-    50% {
-        background-image: linear-gradient(to bottom,
-            #50b818 5%, #a838a0 5%, #a838a0 14%, #68d0a8 14%, #68d0a8 22%,
-            #882000 22%, #882000 31%, #ffffff 31%, #ffffff 38%, #000000 38%,
-            #000000 43%, #b8b8b8 43%, #b8b8b8 49%, #5090d0 49%, #5090d0 54%,
-            #98ff98 54%, #98ff98 60%, #808080 60%, #808080 67%, #484848 67%,
-            #484848 72%, #c87870 72%, #c87870 77%, #472b1b 77%, #472b1b 84%,
-            #a04800 84%, #a04800 90%, #f0e858 90%, #f0e858 95%, #181090 95%);
-    }
-    75% {
-        background-image: linear-gradient(to bottom,
-            #98ff98 5%, #808080 5%, #808080 14%, #484848 14%, #484848 22%,
-            #c87870 22%, #c87870 31%, #472b1b 31%, #472b1b 38%, #a04800 38%,
-            #a04800 43%, #f0e858 43%, #f0e858 49%, #181090 49%, #181090 54%,
-            #50b818 54%, #50b818 60%, #a838a0 60%, #a838a0 67%, #68d0a8 67%,
-            #68d0a8 72%, #882000 72%, #882000 77%, #ffffff 77%, #ffffff 84%,
-            #000000 84%, #000000 90%, #b8b8b8 90%, #b8b8b8 95%, #5090d0 95%);
-    }
-    100% {
-        background-image: linear-gradient(to bottom,
-            #882000 10%, #68d0a8 10%, #68d0a8 12%, #a838a0 12%, #a838a0 18%,
-            #50b818 18%, #50b818 27%, #181090 27%, #181090 38%, #f0e858 38%,
-            #f0e858 41%, #a04800 41%, #a04800 56%, #472b1b 56%, #472b1b 61%,
-            #c87870 61%, #c87870 66%, #484848 66%, #484848 68%, #808080 68%,
-            #808080 75%, #98ff98 75%, #98ff98 77%, #5090d0 77%, #5090d0 92%,
-            #b8b8b8 92%, #b8b8b8 94%, #000000 94%, #000000 97%, #ffffff 97%);
-    }
-}/* Loading text */
+/* Loading text */
 .loading {
     line-height: 1;
     list-style: none;

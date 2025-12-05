@@ -109,6 +109,33 @@
             splash.appendChild(loaderContainer);
             loadingScreen.appendChild(splash);
 
+            // Add pulsing background effect (5 cycles)
+            let pulseCount = 0;
+            const maxPulses = 5;
+            const pulseColors = [
+                '#6076c5', // Original C64 blue
+                '#7086d5',
+                '#8096e5',
+                '#7086d5',
+                '#6076c5'
+            ];
+            let pulseIndex = 0;
+            
+            const pulseInterval = setInterval(() => {
+                if (pulseCount >= maxPulses) {
+                    clearInterval(pulseInterval);
+                    loadingScreen.style.background = '#6076c5'; // Reset to original
+                    return;
+                }
+                
+                loadingScreen.style.background = pulseColors[pulseIndex % pulseColors.length];
+                pulseIndex++;
+                
+                if (pulseIndex % pulseColors.length === 0) {
+                    pulseCount++;
+                }
+            }, 200); // Pulse every 200ms
+
             // Animate loader with status messages
             let progress = 0;
             const totalSteps = 40;
