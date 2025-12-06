@@ -1,0 +1,157 @@
+{
+  "webhook_system": {
+    "version": "1.2.10",
+    "enabled": true,
+    "platforms": {
+      "github": {
+        "enabled": true,
+        "webhook_url": "/webhooks/github",
+        "secret_env": "GITHUB_WEBHOOK_SECRET",
+        "events": [
+          "push",
+          "pull_request",
+          "issues",
+          "release",
+          "star"
+        ],
+        "filters": {
+          "repositories": [],
+          "branches": [],
+          "exclude_bots": true
+        }
+      },
+      "slack": {
+        "enabled": true,
+        "webhook_url": "/webhooks/slack",
+        "secret_env": "SLACK_SIGNING_SECRET",
+        "events": [
+          "message",
+          "reaction_added",
+          "app_mention",
+          "slash_command"
+        ],
+        "filters": {
+          "channels": [],
+          "exclude_bots": true
+        }
+      },
+      "notion": {
+        "enabled": false,
+        "webhook_url": "/webhooks/notion",
+        "secret_env": "NOTION_WEBHOOK_SECRET",
+        "events": [
+          "page.updated",
+          "page.created",
+          "database.item.created",
+          "database.item.updated"
+        ],
+        "filters": {
+          "databases": [],
+          "page_types": []
+        }
+      },
+      "clickup": {
+        "enabled": false,
+        "webhook_url": "/webhooks/clickup",
+        "secret_env": "CLICKUP_WEBHOOK_SECRET",
+        "events": [
+          "taskCreated",
+          "taskUpdated",
+          "taskDeleted",
+          "taskCommentPosted",
+          "taskStatusUpdated"
+        ],
+        "filters": {
+          "spaces": [],
+          "lists": [],
+          "statuses": []
+        }
+      }
+    },
+    "routing": {
+      "max_history": 1000,
+      "retry_failed": true,
+      "max_retries": 3,
+      "script_timeout": 30,
+      "stop_on_error": false,
+      "default_routes": [
+        {
+          "name": "log_all_events",
+          "pattern": {
+            "event_type": ".*"
+          },
+          "action": "log",
+          "priority": 10,
+          "enabled": true
+        },
+        {
+          "name": "github_push_notification",
+          "pattern": {
+            "platform": "github",
+            "event_type": "code.pushed"
+          },
+          "action": "notify",
+          "priority": 50,
+          "enabled": true
+        },
+        {
+          "name": "slack_mention_response",
+          "pattern": {
+            "platform": "slack",
+            "event_type": "message.mentioned"
+          },
+          "action": "script",
+          "script": "memory/workflows/missions/slack_auto_response.upy",
+          "priority": 60,
+          "enabled": false
+        }
+      ]
+    },
+    "security": {
+      "verify_signatures": true,
+      "allowed_ips": [],
+      "rate_limit": {
+        "enabled": true,
+        "max_requests": 100,
+        "window_seconds": 60
+      }
+    },
+    "storage": {
+      "event_history_path": "memory/logs/webhook_events.jsonl",
+      "max_file_size_mb": 50,
+      "rotate_logs": true,
+      "retention_days": 30
+    },
+    "notifications": {
+      "enabled": true,
+      "channels": {
+        "terminal": true,
+        "dashboard": true,
+        "desktop": false
+      },
+      "filters": {
+        "min_priority": 50,
+        "event_types": [
+          "code.pushed",
+          "code.pull_request.opened",
+          "message.mentioned",
+          "task.created"
+        ]
+      }
+    }
+  },
+  "custom_mappings": {
+    "github": {
+      "workflow_run.completed": "ci.workflow.completed",
+      "deployment.created": "deployment.started"
+    },
+    "slack": {
+      "channel_created": "workspace.channel.created"
+    }
+  },
+  "script_bindings": {
+    "code.pushed": "memory/workflows/missions/on_code_push.upy",
+    "code.pull_request.opened": "memory/workflows/missions/on_pr_opened.upy",
+    "task.created": "memory/workflows/missions/on_task_created.upy"
+  }
+}
