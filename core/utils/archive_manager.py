@@ -25,6 +25,9 @@ Features:
 import os
 import json
 import shutil
+import gzip
+import tarfile
+import hashlib
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any
@@ -45,6 +48,11 @@ class ArchiveManager:
     SUBDIR_BACKUPS = "backups"
     SUBDIR_DELETED = "deleted"
     SUBDIR_COMPLETED = "completed"
+
+    # Performance optimization: Cache health metrics
+    _health_cache: Optional[Dict[str, Any]] = None
+    _health_cache_time: float = 0
+    HEALTH_CACHE_TTL = 300  # 5 minutes
 
     def __init__(self, root_path: Optional[Path] = None):
         """Initialize archive manager.
@@ -362,12 +370,25 @@ class ArchiveManager:
 
         return purged
 
-    def get_health_metrics(self) -> Dict[str, Any]:
+    def get_health_metrics(self, force_refresh: bool = False) -> Dict[str, Any]:
         """Get health metrics for all archives in workspace.
+
+        Uses caching to avoid expensive filesystem scans on every call.
+
+        Args:
+            force_refresh: Force refresh cache even if valid
 
         Returns:
             Dictionary with overall archive health metrics
         """
+        # Check cache validity
+        now = time.time()
+        if not force_refresh and self._health_cache is not None:
+            cache_age = now - self._health_cache_time
+            if cache_age < self.HEALTH_CACHE_TTL:
+                return self._health_cache
+
+        # Cache miss or expired - recalculate
         archives = self.scan_archives()
 
         metrics = {
@@ -375,7 +396,9 @@ class ArchiveManager:
             "total_files": sum(a["total_files"] for a in archives),
             "total_size_mb": sum(a["total_size_mb"] for a in archives),
             "archives": archives,
-            "warnings": []
+            "warnings": [],
+            "cached_at": datetime.now().isoformat(),
+            "cache_ttl": self.HEALTH_CACHE_TTL
         }
 
         # Check for warnings
@@ -383,7 +406,7 @@ class ArchiveManager:
             # Warn if archive > 100MB
             if archive["total_size_mb"] > 100:
                 metrics["warnings"].append(
-                    f"Large archive: {archive['path']} ({archive['total_size_mb']} MB)"
+                    f"Large archive: {archive['path']} ({archive['total_size_mb']:.1f} MB)"
                 )
 
             # Warn if deleted files exist (should be purged)
@@ -393,4 +416,130 @@ class ArchiveManager:
                     f"Unpurged deleted files: {archive['path']} ({deleted_count} files)"
                 )
 
+        # Update cache
+        self._health_cache = metrics
+        self._health_cache_time = now
+
         return metrics
+
+    def clear_health_cache(self):
+        """Clear health metrics cache to force refresh on next call."""
+        self._health_cache = None
+        self._health_cache_time = 0
+
+    # ========== Compression Methods (v1.1.18) ==========
+
+    def compress_file(self, file_path: Path, output_path: Optional[Path] = None) -> Path:
+        """Compress a file using gzip.
+
+        Args:
+            file_path: Path to file to compress
+            output_path: Optional output path (default: {file_path}.gz)
+
+        Returns:
+            Path to compressed file
+        """
+        if output_path is None:
+            output_path = Path(str(file_path) + '.gz')
+
+        with open(file_path, 'rb') as f_in:
+            with gzip.open(output_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        return output_path
+
+    def decompress_file(self, compressed_path: Path, output_path: Optional[Path] = None) -> Path:
+        """Decompress a gzipped file.
+
+        Args:
+            compressed_path: Path to compressed file (.gz)
+            output_path: Optional output path (default: remove .gz extension)
+
+        Returns:
+            Path to decompressed file
+        """
+        if output_path is None:
+            if compressed_path.suffix == '.gz':
+                output_path = compressed_path.with_suffix('')
+            else:
+                output_path = compressed_path.parent / f"{compressed_path.stem}_decompressed"
+
+        with gzip.open(compressed_path, 'rb') as f_in:
+            with open(output_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        return output_path
+
+    def compress_archive_directory(self, archive_path: Path, subdir: str = "backups") -> Dict[str, Any]:
+        """Compress all files in an archive subdirectory.
+
+        Args:
+            archive_path: Path to .archive/ folder
+            subdir: Subdirectory to compress (backups, versions, etc.)
+
+        Returns:
+            Statistics: files compressed, space saved, errors
+        """
+        target_dir = archive_path / subdir
+        if not target_dir.exists():
+            return {"error": f"Directory not found: {target_dir}"}
+
+        stats = {
+            "files_processed": 0,
+            "files_compressed": 0,
+            "original_size_mb": 0,
+            "compressed_size_mb": 0,
+            "space_saved_mb": 0,
+            "errors": []
+        }
+
+        for file_path in target_dir.rglob('*'):
+            if not file_path.is_file():
+                continue
+
+            # Skip already compressed files
+            if file_path.suffix == '.gz':
+                continue
+
+            stats["files_processed"] += 1
+            original_size = file_path.stat().st_size
+
+            try:
+                compressed_path = self.compress_file(file_path)
+                compressed_size = compressed_path.stat().st_size
+
+                # Only keep compressed if it's actually smaller
+                if compressed_size < original_size:
+                    file_path.unlink()  # Remove original
+                    stats["files_compressed"] += 1
+                    stats["original_size_mb"] += original_size / (1024 * 1024)
+                    stats["compressed_size_mb"] += compressed_size / (1024 * 1024)
+                else:
+                    compressed_path.unlink()  # Remove compressed, keep original
+
+            except Exception as e:
+                stats["errors"].append(f"{file_path.name}: {str(e)}")
+
+        stats["space_saved_mb"] = stats["original_size_mb"] - stats["compressed_size_mb"]
+        stats["compression_ratio"] = (
+            (1 - stats["compressed_size_mb"] / stats["original_size_mb"]) * 100
+            if stats["original_size_mb"] > 0 else 0
+        )
+
+        return stats
+
+    def get_file_hash(self, file_path: Path) -> str:
+        """Calculate SHA256 hash of file content.
+
+        Args:
+            file_path: Path to file
+
+        Returns:
+            Hex digest of SHA256 hash
+        """
+        sha256 = hashlib.sha256()
+        with open(file_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(8192), b''):
+                sha256.update(chunk)
+        return sha256.hexdigest()
+

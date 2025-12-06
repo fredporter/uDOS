@@ -906,37 +906,37 @@ SPRITE-SET('test'|2)
         output.append("")
 
     def _test_generate_system(self, output: List[str], verbose: bool):
-        """Test v1.2.0 GENERATE consolidation."""
-        output.append("🤖 GENERATE System Tests (v1.2.0)")
+        """Test v2.0.2 MAKE system (renamed from GENERATE)."""
+        output.append("🤖 MAKE System Tests (v2.0.2)")
         output.append("─" * 63)
 
         # Test offline engine
         try:
             from core.interpreters.offline import OfflineEngine
             output.append(f"  ✅ OfflineEngine imports successfully")
-            self._add_test("GENERATE: OfflineEngine import", True)
+            self._add_test("MAKE: OfflineEngine import", True)
 
             # Test FAQ database
             engine = OfflineEngine()
             faq_count = len(engine.faq_database) if hasattr(engine, 'faq_database') else 0
             symbol = "✅" if faq_count > 0 else "⚠️"
             output.append(f"  {symbol} FAQ database: {faq_count} entries")
-            self._add_test("GENERATE: FAQ database", faq_count > 0)
+            self._add_test("MAKE: FAQ database", faq_count > 0)
 
         except ImportError as e:
             output.append(f"  ❌ OfflineEngine import failed: {e}")
-            self._add_test("GENERATE: OfflineEngine import", False, str(e))
+            self._add_test("MAKE: OfflineEngine import", False, str(e))
 
-        # Test GENERATE handler commands
+        # Test MAKE handler commands (v2.0.2 - renamed from GENERATE)
         try:
-            from core.commands.generate_handler import GenerateHandler
-            handler_path = self.root / "core" / "commands" / "generate_handler.py"
+            from core.commands.make_handler import MakeHandler
+            handler_path = self.root / "core" / "commands" / "make_handler.py"
 
             if handler_path.exists():
                 with open(handler_path) as f:
                     content = f.read()
 
-                # Check for v1.2.0 commands
+                # Check for v2.0.2 commands
                 has_do = '"DO"' in content or "'DO'" in content
                 has_redo = '"REDO"' in content or "'REDO'" in content
                 has_guide = '"GUIDE"' in content or "'GUIDE'" in content
@@ -945,21 +945,21 @@ SPRITE-SET('test'|2)
 
                 all_commands = has_do and has_redo and has_guide and has_status and has_clear
                 symbol = "✅" if all_commands else "⚠️"
-                output.append(f"  {symbol} GENERATE commands: DO, REDO, GUIDE, STATUS, CLEAR")
-                self._add_test("GENERATE: commands complete", all_commands)
+                output.append(f"  {symbol} MAKE commands: DO, REDO, GUIDE, STATUS, CLEAR")
+                self._add_test("MAKE: commands complete", all_commands)
 
         except Exception as e:
-            output.append(f"  ❌ GENERATE handler check failed: {e}")
-            self._add_test("GENERATE: commands complete", False, str(e))
+            output.append(f"  ❌ MAKE handler check failed: {e}")
+            self._add_test("MAKE: commands complete", False, str(e))
 
         # Test Gemini extension (optional)
         gemini_ext = self.root / "extensions" / "assistant"
         if gemini_ext.exists():
             output.append(f"  ✅ Gemini extension (optional fallback)")
-            self._add_test("GENERATE: Gemini extension", True)
+            self._add_test("MAKE: Gemini extension", True)
         else:
             output.append(f"  ⚠️  Gemini extension not installed (optional)")
-            self._add_test("GENERATE: Gemini extension", True)  # Optional, so pass
+            self._add_test("MAKE: Gemini extension", True)  # Optional, so pass
 
         output.append("")
 
@@ -1583,39 +1583,38 @@ SPRITE-SET('test'|2)
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
             regular_prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=False)
 
-            # Check for regular symbol and no color codes (or RESET only)
-            has_symbol = '›' in regular_prompt
-            # Regular mode should have minimal/no color (just RESET)
+            # Check for regular symbol - v1.2.4 simplified to '> '
+            has_symbol = '> ' in regular_prompt
 
             if has_symbol:
-                output.append("  ✅ Regular mode prompt (› symbol)")
+                output.append("  ✅ Regular mode prompt ('> ' symbol)")
                 if verbose:
                     output.append(f"      Prompt: {repr(regular_prompt)}")
                 self._add_test("Prompt Modes: regular prompt", True)
             else:
-                output.append(f"  ❌ Regular prompt missing › symbol: {repr(regular_prompt)}")
+                output.append(f"  ❌ Regular prompt missing '> ' symbol: {repr(regular_prompt)}")
                 self._add_test("Prompt Modes: regular prompt", False, "Missing symbol")
 
         except Exception as e:
             output.append(f"  ❌ Regular mode test failed: {e}")
             self._add_test("Prompt Modes: regular prompt", False, str(e))
 
-        # Test 3: DEV mode prompt
+        # Test 3: DEV mode prompt (v1.2.4 - text-based)
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
             dev_prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=True)
 
-            # Check for DEV symbol and yellow color code
-            has_dev_symbol = '🔧' in dev_prompt and 'DEV' in dev_prompt
+            # Check for DEV indicator - v1.2.4 simplified to '[DEV] '
+            has_dev_symbol = '[DEV]' in dev_prompt or 'DEV' in dev_prompt
             has_yellow = Colors.BRIGHT_YELLOW in dev_prompt or Colors.YELLOW in dev_prompt
 
             if has_dev_symbol and has_yellow:
-                output.append("  ✅ DEV mode prompt (🔧 symbol, yellow color)")
+                output.append("  ✅ DEV mode prompt ('[DEV]' text, yellow color)")
                 if verbose:
                     output.append(f"      Prompt: {repr(dev_prompt)}")
                 self._add_test("Prompt Modes: DEV prompt", True)
             elif has_dev_symbol:
-                output.append("  ⚠️  DEV mode symbol present, color may vary")
+                output.append("  ⚠️  DEV mode text present, color may vary")
                 self._add_test("Prompt Modes: DEV prompt", True)
             else:
                 output.append(f"  ❌ DEV prompt missing elements: {repr(dev_prompt)}")
@@ -1625,26 +1624,26 @@ SPRITE-SET('test'|2)
             output.append(f"  ❌ DEV mode test failed: {e}")
             self._add_test("Prompt Modes: DEV prompt", False, str(e))
 
-        # Test 4: ASSIST mode prompt
+        # Test 4: ASSIST mode prompt (v1.2.4 - text-based)
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
             assist_prompt = decorator.get_prompt(is_assist_mode=True, dev_mode=False)
 
-            # Check for ASSIST symbol and cyan color code
-            has_assist_symbol = '🤖' in assist_prompt
+            # Check for ASSIST indicator - v1.2.4 simplified to '[AI] '
+            has_assist_symbol = '[AI]' in assist_prompt or 'AI' in assist_prompt
             has_cyan = Colors.BRIGHT_CYAN in assist_prompt or Colors.CYAN in assist_prompt
 
             if has_assist_symbol and has_cyan:
-                output.append("  ✅ ASSIST mode prompt (🤖 symbol, cyan color)")
+                output.append("  ✅ ASSIST mode prompt ('[AI]' text, cyan color)")
                 if verbose:
                     output.append(f"      Prompt: {repr(assist_prompt)}")
                 self._add_test("Prompt Modes: ASSIST prompt", True)
             elif has_assist_symbol:
-                output.append("  ⚠️  ASSIST mode symbol present, color may vary")
+                output.append("  ⚠️  ASSIST mode text present, color may vary")
                 self._add_test("Prompt Modes: ASSIST prompt", True)
             else:
                 output.append(f"  ❌ ASSIST prompt missing elements: {repr(assist_prompt)}")
-                self._add_test("Prompt Modes: ASSIST prompt", False, "Missing symbol/color")
+                self._add_test("Prompt Modes: ASSIST prompt", False, "Missing text/color")
 
         except Exception as e:
             output.append(f"  ❌ ASSIST mode test failed: {e}")
@@ -1656,8 +1655,10 @@ SPRITE-SET('test'|2)
 
             # DEV mode should override ASSIST mode
             dev_override = decorator.get_prompt(is_assist_mode=True, dev_mode=True)
-            has_dev = '🔧' in dev_override and 'DEV' in dev_override
-            has_no_assist = '🤖' not in dev_override or 'DEV' in dev_override
+            # v1.2.4 - check for text-based '[DEV]' not emoji
+            has_dev = '[DEV]' in dev_override or 'DEV' in dev_override
+            has_no_assist = '[AI]' not in dev_override or 'DEV' in dev_override
+            has_no_assist = '[AI]' not in dev_override or 'DEV' in dev_override
 
             if has_dev:
                 output.append("  ✅ Mode priority correct (DEV > ASSIST)")

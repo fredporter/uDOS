@@ -46,8 +46,11 @@ class BackupHandler(BaseCommandHandler):
             return self._restore_backup(params[1:])
         elif subcommand == 'CLEAN':
             return self._clean_backups(params[1:])
+        elif subcommand == 'COMPRESS':
+            return self._compress_archives(params[1:])
         else:
             # Default: create backup
+            return self._create_backup(params)
             return self._create_backup(params)
 
     def _create_backup(self, params: List[str]) -> str:
@@ -55,7 +58,7 @@ class BackupHandler(BaseCommandHandler):
         from core.utils.archive_manager import ArchiveManager
 
         if not params:
-            return "❌ No file specified\nUsage: BACKUP <file> [--to <archive_path>]"
+            return "❌ No file specified\nUsage: BACKUP <file> [--to <archive_path>] [--compress]"
 
         # Parse file path
         file_path = Path(params[0])
@@ -65,7 +68,8 @@ class BackupHandler(BaseCommandHandler):
         if not file_path.is_file():
             return f"❌ Not a file: {file_path}"
 
-        # Parse custom archive path
+        # Parse flags
+        compress = '--compress' in params or '-c' in params
         archive_path = None
         if '--to' in params:
             idx = params.index('--to')
@@ -77,15 +81,39 @@ class BackupHandler(BaseCommandHandler):
             archive_mgr = ArchiveManager()
             backup_path = archive_mgr.add_backup(file_path, archive_path)
 
-            # Get backup info
-            size = backup_path.stat().st_size
-            size_kb = round(size / 1024, 2)
+            original_size = backup_path.stat().st_size
+            original_size_kb = round(original_size / 1024, 2)
+
+            # Compress if requested
+            if compress:
+                compressed_path = archive_mgr.compress_file(backup_path)
+                compressed_size = compressed_path.stat().st_size
+                compressed_size_kb = round(compressed_size / 1024, 2)
+                
+                # Only keep compressed if smaller
+                if compressed_size < original_size:
+                    backup_path.unlink()
+                    backup_path = compressed_path
+                    savings = round((1 - compressed_size / original_size) * 100, 1)
+                    
+                    return (
+                        "✅ Backup created and compressed successfully\n\n"
+                        f"File:         {file_path.name}\n"
+                        f"Backup:       {backup_path.name}\n"
+                        f"Original:     {original_size_kb} KB\n"
+                        f"Compressed:   {compressed_size_kb} KB\n"
+                        f"Space saved:  {savings}%\n"
+                        f"Archive:      {backup_path.parent}\n\n"
+                        f"💡 Restore with: BACKUP RESTORE {backup_path.name}"
+                    )
+                else:
+                    compressed_path.unlink()
 
             return (
                 "✅ Backup created successfully\n\n"
                 f"File:    {file_path.name}\n"
                 f"Backup:  {backup_path.name}\n"
-                f"Size:    {size_kb} KB\n"
+                f"Size:    {original_size_kb} KB\n"
                 f"Archive: {backup_path.parent}\n\n"
                 f"💡 Restore with: BACKUP RESTORE {backup_path.name}"
             )
@@ -236,22 +264,35 @@ class BackupHandler(BaseCommandHandler):
             return f"❌ Backup not found: {backup_name}"
 
         try:
+            # Check if backup is compressed
+            is_compressed = backup_file.suffix == '.gz'
+            
             # Extract original filename (remove timestamp prefix)
-            original_name = "_".join(backup_name.split("_")[2:])
+            filename_to_process = backup_name.replace('.gz', '') if is_compressed else backup_name
+            original_name = "_".join(filename_to_process.split("_")[2:])
 
             # Determine restore path
             if restore_path is None:
                 restore_path = backup_file.parent.parent.parent / original_name
 
-            # Restore (copy, don't move)
-            import shutil
-            shutil.copy2(backup_file, restore_path)
+            # Restore file
+            if is_compressed:
+                # Decompress during restore
+                decompressed = archive_mgr.decompress_file(backup_file, restore_path)
+                size_kb = round(decompressed.stat().st_size / 1024, 2)
+                compression_note = " (decompressed from .gz)"
+            else:
+                # Direct copy
+                import shutil
+                shutil.copy2(backup_file, restore_path)
+                size_kb = round(restore_path.stat().st_size / 1024, 2)
+                compression_note = ""
 
             return (
-                "✅ Backup restored successfully\n\n"
+                f"✅ Backup restored successfully{compression_note}\n\n"
                 f"Backup:   {backup_name}\n"
                 f"Restored: {restore_path}\n"
-                f"Size:     {round(restore_path.stat().st_size / 1024, 2)} KB"
+                f"Size:     {size_kb} KB"
             )
 
         except Exception as e:
@@ -312,6 +353,47 @@ class BackupHandler(BaseCommandHandler):
 
         return '\n'.join(lines)
 
+    def _compress_archives(self, params: List[str]) -> str:
+        """Batch compress backups in an archive directory."""
+        if not params:
+            return "❌ No directory specified\nUsage: BACKUP COMPRESS <directory>"
+
+        from core.utils.archive_manager import ArchiveManager
+        archive_mgr = ArchiveManager()
+
+        archive_path = Path(params[0])
+        if not archive_path.exists():
+            return f"❌ Directory not found: {archive_path}"
+
+        if not (archive_path / '.archive').exists():
+            return f"❌ Not an archive directory: {archive_path}"
+
+        try:
+            # Compress backups subdirectory
+            stats = archive_mgr.compress_archive_directory(
+                archive_path / '.archive',
+                subdir='backups'
+            )
+
+            if stats['files_compressed'] == 0:
+                return "No uncompressed backups found to compress"
+
+            # Format output
+            return (
+                "╔═══════════════════════════════════════════════════════════╗\n"
+                "║  Backup Compression Complete                              ║\n"
+                "╠═══════════════════════════════════════════════════════════╣\n"
+                f"║  Files compressed:  {stats['files_compressed']:<38} ║\n"
+                f"║  Space saved:       {stats['space_saved_mb']:.2f} MB{' ' * (34 - len(f'{stats['space_saved_mb']:.2f}'))} ║\n"
+                f"║  Compression ratio: {stats['compression_ratio']:.1f}%{' ' * (36 - len(f'{stats['compression_ratio']:.1f}'))} ║\n"
+                "╠═══════════════════════════════════════════════════════════╣\n"
+                f"║  Archive: {str(archive_path)[-47:]:<49} ║\n"
+                "╚═══════════════════════════════════════════════════════════╝"
+            )
+
+        except Exception as e:
+            return f"❌ Compression failed: {str(e)}"
+
     def _show_help(self) -> str:
         """Show BACKUP command help."""
         return """╔═══════════════════════════════════════════════════════════╗
@@ -321,6 +403,10 @@ class BackupHandler(BaseCommandHandler):
 ║  BACKUP <file>                                            ║
 ║    Create timestamped backup of file                      ║
 ║    Example: BACKUP config.json                            ║
+║                                                           ║
+║  BACKUP <file> --compress                                 ║
+║    Create compressed backup (saves 50-70% space)          ║
+║    Example: BACKUP large_file.json --compress             ║
 ║                                                           ║
 ║  BACKUP <file> --to <path>                                ║
 ║    Backup to specific archive directory                   ║
@@ -332,10 +418,15 @@ class BackupHandler(BaseCommandHandler):
 ║                                                           ║
 ║  BACKUP RESTORE <backup_name>                             ║
 ║    Restore a backup to original location                  ║
+║    (Automatically decompresses .gz files)                 ║
 ║    Example: BACKUP RESTORE 20251203_120000_config.json    ║
 ║                                                           ║
 ║  BACKUP RESTORE <backup_name> --to <path>                 ║
 ║    Restore backup to custom location                      ║
+║                                                           ║
+║  BACKUP COMPRESS <directory>                              ║
+║    Batch compress all backups in archive directory        ║
+║    Example: BACKUP COMPRESS memory/workflows/.archive     ║
 ║                                                           ║
 ║  BACKUP CLEAN [days]                                      ║
 ║    Clean backups older than N days (default: 30)          ║
@@ -345,9 +436,16 @@ class BackupHandler(BaseCommandHandler):
 ║    Preview what would be deleted                          ║
 ║                                                           ║
 ╠═══════════════════════════════════════════════════════════╣
+║  Compression:                                             ║
+║    Uses gzip compression (50-70% savings for text files)  ║
+║    Only keeps compressed if smaller than original         ║
+║    Decompression is automatic during RESTORE              ║
+║                                                           ║
 ║  Backup Format:                                           ║
 ║    YYYYMMDD_HHMMSS_original_filename.ext                  ║
+║    YYYYMMDD_HHMMSS_original_filename.ext.gz (compressed)  ║
 ║    Example: 20251203_143022_config.json                   ║
+║              20251203_143022_config.json.gz               ║
 ║                                                           ║
 ║  Storage Location:                                        ║
 ║    <file_directory>/.archive/backups/                     ║
