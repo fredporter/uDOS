@@ -57,9 +57,12 @@ class BackupHandler(BaseCommandHandler):
             return self._clean_backups(params[1:])
         elif subcommand == 'COMPRESS':
             return self._compress_archives(params[1:])
+        elif subcommand == 'SEARCH':
+            return self._search_backups(params[1:])
+        elif subcommand == 'INDEX':
+            return self._manage_index(params[1:])
         else:
             # Default: create backup
-            return self._create_backup(params)
             return self._create_backup(params)
 
     def _create_backup(self, params: List[str]) -> str:
@@ -101,6 +104,15 @@ class BackupHandler(BaseCommandHandler):
                         f"Status:       Unchanged\n"
                     )
 
+                # Add to index
+                self._index_backup(
+                    file_path=file_path,
+                    backup_path=result['backup_path'],
+                    backup_type=result['backup_type'],
+                    backup_size=result['size_backup'],
+                    base_backup_path=result.get('base_backup')
+                )
+
                 backup_type = "Full" if result['backup_type'] == 'full' else "Incremental (diff)"
                 original_kb = round(result['size_original'] / 1024, 2)
                 backup_kb = round(result['size_backup'] / 1024, 2)
@@ -131,6 +143,9 @@ class BackupHandler(BaseCommandHandler):
             original_size = backup_path.stat().st_size
             original_size_kb = round(original_size / 1024, 2)
 
+            # Add to index
+            self._index_backup(file_path, backup_path, 'full', original_size)
+
             # Compress if requested
             if compress:
                 compressed_path = archive_mgr.compress_file(backup_path)
@@ -142,6 +157,9 @@ class BackupHandler(BaseCommandHandler):
                     backup_path.unlink()
                     backup_path = compressed_path
                     savings = round((1 - compressed_size / original_size) * 100, 1)
+
+                    # Update index with compressed version
+                    self._index_backup(file_path, backup_path, 'compressed', compressed_size, compression='gzip')
 
                     return (
                         "✅ Backup created and compressed successfully\n\n"
@@ -463,6 +481,202 @@ class BackupHandler(BaseCommandHandler):
         except Exception as e:
             return f"❌ Compression failed: {str(e)}"
 
+    def _search_backups(self, params: List[str]) -> str:
+        """Search for backups across workspace."""
+        from core.utils.archive_index import get_archive_index
+
+        if not params:
+            return "❌ No search query specified\nUsage: BACKUP SEARCH <query> [--limit N]"
+
+        query = params[0]
+        limit = 50
+
+        # Parse limit flag
+        if '--limit' in params:
+            try:
+                idx = params.index('--limit')
+                if idx + 1 < len(params):
+                    limit = int(params[idx + 1])
+            except (ValueError, IndexError):
+                pass
+
+        try:
+            index = get_archive_index()
+            results = index.search(query, limit=limit)
+
+            if not results:
+                return f"No backups found matching: {query}"
+
+            # Format output
+            lines = [
+                "╔═══════════════════════════════════════════════════════════╗",
+                f"║  Backup Search Results: '{query}'                         ║",
+                "╠═══════════════════════════════════════════════════════════╣",
+                f"║  Found: {len(results)} file(s)                                        ║",
+                "╠═══════════════════════════════════════════════════════════╣"
+            ]
+
+            for result in results[:10]:  # Show first 10
+                file_name = result['file_name'][:45]
+                backup_count = result['backup_count']
+                latest = result['latest_backup'] or 'N/A'
+                size_mb = result['total_backup_size'] / (1024 * 1024) if result['total_backup_size'] else 0
+
+                lines.append(f"║  📁 {file_name:<45}               ║")
+                lines.append(f"║     {backup_count} backup(s) | Latest: {latest[:15]} | {size_mb:.2f} MB  ║")
+
+            if len(results) > 10:
+                lines.append("╠═══════════════════════════════════════════════════════════╣")
+                lines.append(f"║  ... {len(results) - 10} more results (use --limit to see all)     ║")
+
+            lines.extend([
+                "╠═══════════════════════════════════════════════════════════╣",
+                "║  💡 View details: BACKUP LIST <filename>                  ║",
+                "╚═══════════════════════════════════════════════════════════╝"
+            ])
+
+            return '\n'.join(lines)
+
+        except Exception as e:
+            return f"❌ Search failed: {str(e)}"
+
+    def _manage_index(self, params: List[str]) -> str:
+        """Manage backup index (rebuild, stats)."""
+        from core.utils.archive_index import get_archive_index
+        from core.utils.archive_manager import ArchiveManager
+
+        if not params:
+            return self._show_index_stats()
+
+        subcommand = params[0].upper()
+
+        if subcommand == 'REBUILD':
+            return self._rebuild_index()
+        elif subcommand == 'STATS':
+            return self._show_index_stats()
+        else:
+            return "❌ Unknown INDEX command\nUsage: BACKUP INDEX [REBUILD|STATS]"
+
+    def _rebuild_index(self) -> str:
+        """Rebuild index from all .archive directories."""
+        from core.utils.archive_index import get_archive_index
+        from core.utils.archive_manager import ArchiveManager
+
+        try:
+            index = get_archive_index()
+            archive_mgr = ArchiveManager()
+
+            # Get all .archive directories
+            archives = archive_mgr.scan_archives()
+            archive_dirs = [Path(a['path']) for a in archives]
+
+            if not archive_dirs:
+                return "No .archive directories found in workspace"
+
+            # Progress tracking
+            progress_msgs = []
+
+            def progress_callback(current, total, message):
+                if current % 50 == 0 or current == total:
+                    progress_msgs.append(f"{current}/{total}: {message}")
+
+            # Rebuild index
+            index.rebuild_index(archive_dirs, progress_callback=progress_callback)
+
+            # Get stats
+            stats = index.get_stats()
+
+            return (
+                "╔═══════════════════════════════════════════════════════════╗\n"
+                "║  Index Rebuild Complete                                   ║\n"
+                "╠═══════════════════════════════════════════════════════════╣\n"
+                f"║  Files indexed:     {stats['file_count']:<37} ║\n"
+                f"║  Backups indexed:   {stats['backup_count']:<37} ║\n"
+                f"║  Total size:        {stats['total_size'] / (1024*1024):.2f} MB{' ' * (29 - len(f\"{stats['total_size'] / (1024*1024):.2f}\"))} ║\n"
+                "╠═══════════════════════════════════════════════════════════╣\n"
+                "║  💡 Search backups: BACKUP SEARCH <query>                 ║\n"
+                "╚═══════════════════════════════════════════════════════════╝"
+            )
+
+        except Exception as e:
+            return f"❌ Index rebuild failed: {str(e)}"
+
+    def _show_index_stats(self) -> str:
+        """Show index statistics."""
+        from core.utils.archive_index import get_archive_index
+
+        try:
+            index = get_archive_index()
+            stats = index.get_stats()
+
+            lines = [
+                "╔═══════════════════════════════════════════════════════════╗",
+                "║  Backup Index Statistics                                  ║",
+                "╠═══════════════════════════════════════════════════════════╣",
+                f"║  Files tracked:     {stats['file_count']:<37} ║",
+                f"║  Backups tracked:   {stats['backup_count']:<37} ║",
+                f"║  Total size:        {stats['total_size'] / (1024*1024):.2f} MB{' ' * (29 - len(f\"{stats['total_size'] / (1024*1024):.2f}\"))} ║",
+                f"║  Last updated:      {stats['last_updated'][:19]:<29} ║",
+                "╠═══════════════════════════════════════════════════════════╣"
+            ]
+
+            # Breakdown by type
+            if stats['type_breakdown']:
+                lines.append("║  Backup Types:                                            ║")
+                for backup_type, type_stats in stats['type_breakdown'].items():
+                    count = type_stats['count']
+                    size_mb = type_stats['size'] / (1024 * 1024)
+                    lines.append(f"║    {backup_type.capitalize():<15} {count:>5} backups | {size_mb:>8.2f} MB  ║")
+
+            lines.extend([
+                "╠═══════════════════════════════════════════════════════════╣",
+                "║  💡 Rebuild index: BACKUP INDEX REBUILD                   ║",
+                "╚═══════════════════════════════════════════════════════════╝"
+            ])
+
+            return '\n'.join(lines)
+
+        except Exception as e:
+            return f"❌ Failed to get index stats: {str(e)}"
+
+    def _index_backup(self, file_path: Path, backup_path: Path, backup_type: str,
+                      backup_size: int, compression: Optional[str] = None,
+                      base_backup_path: Optional[Path] = None):
+        """Add backup to search index.
+
+        Args:
+            file_path: Original file path
+            backup_path: Path to backup file
+            backup_type: 'full', 'incremental', or 'compressed'
+            backup_size: Size of backup in bytes
+            compression: Compression type ('gzip' or None)
+            base_backup_path: Base backup for incremental backups
+        """
+        try:
+            from core.utils.archive_index import get_archive_index
+
+            # Extract timestamp from backup filename
+            backup_name = backup_path.name
+            name_parts = backup_name.split('_', 2)
+            if len(name_parts) >= 2:
+                timestamp = f"{name_parts[0]}_{name_parts[1]}"
+            else:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            index = get_archive_index()
+            index.add_backup(
+                file_path=file_path,
+                backup_path=backup_path,
+                backup_type=backup_type,
+                backup_size=backup_size,
+                timestamp=timestamp,
+                compression=compression,
+                base_backup_path=base_backup_path
+            )
+        except Exception:
+            # Silently fail indexing - don't break backup operation
+            pass
+
     def _show_help(self) -> str:
         """Show BACKUP command help."""
         return """╔═══════════════════════════════════════════════════════════╗
@@ -505,6 +719,18 @@ class BackupHandler(BaseCommandHandler):
 ║    Batch compress all backups in archive directory        ║
 ║    Example: BACKUP COMPRESS memory/workflows/.archive     ║
 ║                                                           ║
+║  BACKUP SEARCH <query> [--limit N]                        ║
+║    Search for backups across workspace (fuzzy match)      ║
+║    Example: BACKUP SEARCH config                          ║
+║              BACKUP SEARCH workflow --limit 100           ║
+║                                                           ║
+║  BACKUP INDEX [REBUILD|STATS]                             ║
+║    Manage backup search index                             ║
+║    REBUILD - Scan all .archive directories and rebuild    ║
+║    STATS   - Show index statistics                        ║
+║    Example: BACKUP INDEX REBUILD                          ║
+║              BACKUP INDEX STATS                           ║
+║                                                           ║
 ║  BACKUP CLEAN [days]                                      ║
 ║    Clean backups older than N days (default: 30)          ║
 ║    Example: BACKUP CLEAN 60                               ║
@@ -513,6 +739,12 @@ class BackupHandler(BaseCommandHandler):
 ║    Preview what would be deleted                          ║
 ║                                                           ║
 ╠═══════════════════════════════════════════════════════════╣
+║  Search & Indexing:                                       ║
+║    SQLite-based index for fast search across workspace    ║
+║    Auto-updates when backups are created                  ║
+║    Fuzzy matching on file names and paths                 ║
+║    Run BACKUP INDEX REBUILD after restoring from cloud    ║
+║                                                           ║
 ║  Incremental Backups (.diff files):                       ║
 ║    Uses unified diff format to store only changes         ║
 ║    80-90% savings for text files with minor edits         ║
@@ -536,6 +768,7 @@ class BackupHandler(BaseCommandHandler):
 ║                                                           ║
 ║  Storage Location:                                        ║
 ║    <file_directory>/.archive/backups/                     ║
+║    Index database: ~/.udos/archive_index.db               ║
 ║                                                           ║
 ║  Retention Policy:                                        ║
 ║    Default: 30 days                                       ║
