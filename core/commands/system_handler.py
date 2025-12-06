@@ -97,6 +97,66 @@ class SystemCommandHandler(BaseCommandHandler):
             self._usage_tracker = UsageTracker()
         return self._usage_tracker
 
+    def _get_display_handler(self):
+        """Helper to create DisplayHandler with current context."""
+        from .display_handler import DisplayHandler
+        return DisplayHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
+    def _get_dashboard_handler(self):
+        """Helper to create DashboardHandler with current context."""
+        from .dashboard_handler import DashboardHandler
+        return DashboardHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
+    def _get_config_handler(self):
+        """Helper to create ConfigurationHandler with current context."""
+        from .configuration_handler import ConfigurationHandler
+        return ConfigurationHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
+    def _get_repair_handler(self):
+        """Helper to create RepairHandler with current context."""
+        from .repair_handler import RepairHandler
+        return RepairHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
+    def _get_shakedown_handler(self):
+        """Helper to create ShakedownHandler with current context."""
+        from .shakedown_handler import ShakedownHandler
+        return ShakedownHandler(
+            connection=self.connection,
+            viewport=self.viewport,
+            user_manager=self.user_manager,
+            history=self.history,
+            theme=self.theme,
+            logger=self.logger
+        )
+
     @property
     def dev_mode_manager(self):
         """Lazy load DEV MODE manager (v1.5.0)."""
@@ -147,55 +207,19 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_blank(self, params, grid, parser):
         """Clear screen (BLANK) - delegates to DisplayHandler."""
-        from .display_handler import DisplayHandler
-        display_handler = DisplayHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return display_handler.handle_blank(params, grid, parser)
+        return self._get_display_handler().handle_blank(params, grid, parser)
 
     def handle_splash(self, params, grid, parser):
         """Show splash screen - delegates to DisplayHandler."""
-        from .display_handler import DisplayHandler
-        display_handler = DisplayHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return display_handler.handle_splash(params, grid, parser)
+        return self._get_display_handler().handle_splash(params, grid, parser)
 
     def handle_layout(self, params, grid, parser):
         """Screen layout management - delegates to DisplayHandler."""
-        from .display_handler import DisplayHandler
-        display_handler = DisplayHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return display_handler.handle_layout(params, grid, parser)
+        return self._get_display_handler().handle_layout(params, grid, parser)
 
     def handle_progress(self, params, grid, parser):
         """Show progress indicators - delegates to DisplayHandler."""
-        from .display_handler import DisplayHandler
-        display_handler = DisplayHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return display_handler.handle_progress(params, grid, parser)
+        return self._get_display_handler().handle_progress(params, grid, parser)
 
     def handle(self, command, params, grid, parser):
         """
@@ -265,146 +289,38 @@ class SystemCommandHandler(BaseCommandHandler):
             return f"❌ Error creating custom theme: {e}"
 
     def handle_repair(self, params, grid, parser):
-        """
-        System diagnostics and repair with extension management.
-        Delegates to specialized RepairHandler for comprehensive functionality.
-        """
-        from .repair_handler import RepairHandler
-
-        # Create repair handler with same context
-        repair_handler = RepairHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return repair_handler.handle_repair(params, grid, parser)
+        """System diagnostics and repair - delegates to RepairHandler."""
+        return self._get_repair_handler().handle_repair(params, grid, parser)
 
     def handle_shakedown(self, params, grid, parser):
-        """
-        Comprehensive v1.5.0 system validation test suite.
-        Delegates to specialized ShakedownHandler for test execution.
-        """
-        from .shakedown_handler import ShakedownHandler
-
-        # Create shakedown handler with same context
-        shakedown_handler = ShakedownHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return shakedown_handler.handle(params)
+        """Comprehensive system validation test suite - delegates to ShakedownHandler."""
+        return self._get_shakedown_handler().handle(params)
 
     def handle_status(self, params, grid, parser):
-        """
-        Display comprehensive system status.
-        Delegates to specialized DashboardHandler for functionality.
-        """
-        from .dashboard_handler import DashboardHandler
-
-        # Create dashboard handler with same context
-        dashboard_handler = DashboardHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return dashboard_handler.handle_status(params, grid, parser)
+        """Display comprehensive system status - delegates to DashboardHandler."""
+        return self._get_dashboard_handler().handle_status(params, grid, parser)
 
     def handle_dashboard(self, params, grid, parser):
-        """
-        Display system dashboard.
-        Delegates to specialized DashboardHandler for functionality.
-        """
-        from .dashboard_handler import DashboardHandler
-
-        # Create dashboard handler with same context
-        dashboard_handler = DashboardHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return dashboard_handler.handle_dashboard(params, grid, parser)
+        """Display system dashboard - delegates to DashboardHandler."""
+        return self._get_dashboard_handler().handle_dashboard(params, grid, parser)
 
     def handle_viewport(self, params, grid, parser):
-        """
-        Display viewport visualization.
-        Delegates to specialized DashboardHandler for functionality.
-        """
-        from .dashboard_handler import DashboardHandler
-
-        # Create dashboard handler with same context
-        dashboard_handler = DashboardHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return dashboard_handler.handle_viewport(params, grid, parser)
+        """Display viewport visualization - delegates to DashboardHandler."""
+        return self._get_dashboard_handler().handle_viewport(params, grid, parser)
 
     def handle_palette(self, params, grid, parser):
-        """
-        Display color palette.
-        Delegates to specialized DashboardHandler for functionality.
-        """
-        from .dashboard_handler import DashboardHandler
-
-        # Create dashboard handler with same context
-        dashboard_handler = DashboardHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return dashboard_handler.handle_palette(params, grid, parser)
+        """Display color palette - delegates to DashboardHandler."""
+        return self._get_dashboard_handler().handle_palette(params, grid, parser)
 
     def handle_settings(self, params, grid, parser):
         """Manage system settings - delegates to EnvironmentHandler."""
         return self.environment_handler.handle_settings(params, grid, parser)
 
     def handle_config(self, params, grid, parser):
-        """
-        Manage configuration files.
-        Supports CONFIG ROLE to assign wizard/dev roles.
-        Delegates to specialized ConfigurationHandler for functionality.
-        """
-        # Handle CONFIG ROLE subcommand
+        """Manage configuration files - supports CONFIG ROLE and delegates to ConfigurationHandler."""
         if params and params[0].upper() == 'ROLE':
             return self._handle_config_role(params[1:] if len(params) > 1 else [])
-
-        from .configuration_handler import ConfigurationHandler
-
-        # Create configuration handler with same context
-        config_handler = ConfigurationHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-
-        return config_handler.handle_config(params, grid, parser)
+        return self._get_config_handler().handle_config(params, grid, parser)
 
     def _handle_config_role(self, params):
         """Handle CONFIG ROLE subcommand for wizard/dev role assignment."""
@@ -458,25 +374,12 @@ class SystemCommandHandler(BaseCommandHandler):
         args = [p for p in params if not p.startswith('--')]
 
         # Hot reload variants (v1.2.4+)
-        if '--extensions' in flags or '--extension' in flags or '--validate' in flags:
+        if flags:
             return self._handle_hot_reload(flags, args)
 
-        # Animated progress bar reboot (matches start_udos.sh exactly)
+        # Animated progress bar reboot (matches start_udos.sh)
         import time
-        import sys
 
-        # Progress bar helper function (matches bash show_progress)
-        def show_progress(current, total, message):
-            """Show animated progress bar matching startup style."""
-            width = 35
-            percentage = (current * 100) // total
-            filled = (current * width) // total
-            empty = width - filled
-
-            bar = "┌─ " + ("█" * filled) + ("░" * empty) + " ─┐"
-            return f"\r{bar} \033[1;32m{percentage:3d}%\033[0m {message}"
-
-        # Reboot steps with detailed messages (matches startup format)
         steps = [
             ("Saving state", "saved"),
             ("Clearing buffers", "cleared"),
@@ -484,39 +387,38 @@ class SystemCommandHandler(BaseCommandHandler):
             ("Configuration", "ready"),
         ]
 
-        total = len(steps)
-
-        # Show animated progress for each step
+        # Show progress for each step
         for i, (step_name, completion_msg) in enumerate(steps, 1):
-            # Show progress bar
-            print(show_progress(i, total, f"{step_name}..."), end="", flush=True)
-            time.sleep(0.15)  # Animated delay
+            print(self._show_progress(i, len(steps), f"{step_name}..."), end="", flush=True)
+            time.sleep(0.15)
 
-            # Clear line completely before showing completion message
-            # Show completion message
+            # Clear line and show completion
             if i == 3:  # Viewport detection
                 try:
                     from core.services.viewport_manager import ViewportManager
-                    viewport = ViewportManager()
-                    viewport_info = viewport.refresh_viewport()
-                    tier = viewport_info["screen_tier"]
-                    vp_size = f"{tier['actual_width_cells']}×{tier['actual_height_cells']}"
+                    vp = ViewportManager()
+                    tier = vp.refresh_viewport()["screen_tier"]
+                    size = f"{tier['actual_width_cells']}×{tier['actual_height_cells']}"
                 except:
-                    vp_size = "cached"
-                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({vp_size})  ", flush=True)
+                    size = "cached"
+                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({size})  ", flush=True)
             else:
                 print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({completion_msg})  ", flush=True)
 
-        # Final progress bar at 100%
-        print(f"\r{' ' * 80}\r{show_progress(total, total, 'System ready!                    ')}")
-        print()
+        # Final progress bar
+        print(f"\r{' ' * 80}\r{self._show_progress(len(steps), len(steps), 'System ready!')}")
         print("\n\033[1;32m[✓]\033[0m All checks passed - restarting uDOS...\n")
 
-        # Set the reboot flag to trigger restart in main loop
         self.reboot_requested = True
         return ""
 
-        return output
+    def _show_progress(self, current, total, message):
+        """Show animated progress bar matching startup style."""
+        width = 35
+        percentage = (current * 100) // total
+        filled = (current * width) // total
+        bar = "┌─ " + ("█" * filled) + ("░" * (width - filled)) + " ─┐"
+        return f"\r{bar} \033[1;32m{percentage:3d}%\033[0m {message}"
 
     def _handle_hot_reload(self, flags, args):
         """
@@ -625,46 +527,15 @@ class SystemCommandHandler(BaseCommandHandler):
         return output
 
     def handle_destroy(self, params, grid, parser):
-        """
-        Destructive reset command with safety confirmations.
-        Supports: --all, --env, --reset flags
-
-        Args:
-            params: List with optional flags (--all, --env, --reset)
-            grid: Grid instance (unused)
-            parser: Parser instance (unused)
-
-        Returns:
-            Destruction confirmation or cancellation message
-        """
+        """Destructive reset command with safety confirmations."""
         from core.commands.sandbox_handler import SandboxHandler
 
-        # Safety confirmation required
         destruction_type = params[0] if params else None
 
-        # Handle confirmation (if user types DESTROY CONFIRM after warning)
-        if destruction_type and destruction_type.upper() == "CONFIRM":
-            # This shouldn't be reached normally - confirmation happens via re-entering command
-            return "⚠️  Please re-enter DESTROY command with flag (--reset, --env, or --all)"
+        # Map valid flags to modes
+        mode_map = {"--reset": "reset", "--env": "env", "--all": "all"}
 
-        # Map destruction types to sandbox modes
-        sandbox_mode_map = {
-            "--reset": "reset",
-            "--env": "env",
-            "--all": "all"
-        }
-
-        # Warning message based on destruction type
-        if destruction_type == "--all":
-            warning_msg = "⚠️  DANGER: This will DELETE ALL user data, sandbox, and logs!"
-            target = "sandbox (all folders except protected)"
-        elif destruction_type == "--env":
-            warning_msg = "⚠️  This will clean environment files and cached data"
-            target = "environment files (.env, .venv cache)"
-        elif destruction_type == "--reset":
-            warning_msg = "⚠️  This will reset sandbox to pristine state"
-            target = "sandbox (preserving user/ and tests/)"
-        else:
+        if not destruction_type or destruction_type not in mode_map:
             return ("❌ DESTROY requires a flag\n\n"
                    "Available options:\n"
                    "  DESTROY --reset    Reset sandbox (safe - preserves user/tests)\n"
@@ -672,14 +543,8 @@ class SystemCommandHandler(BaseCommandHandler):
                    "  DESTROY --all      Delete all sandbox data (DANGER!)\n\n"
                    "⚠️  All DESTROY operations require confirmation")
 
-        # Execute destruction via sandbox handler
-        mode = sandbox_mode_map.get(destruction_type)
-        if mode:
-            sandbox_handler = SandboxHandler()
-            result = sandbox_handler.destroy_sandbox(mode=mode)
-            return result
-        else:
-            return f"❌ Unknown destruction mode: {destruction_type}"
+        # Execute via sandbox handler
+        return SandboxHandler().destroy_sandbox(mode=mode_map[destruction_type])
 
     # ======================================================================
     # STUB METHODS - To be implemented or moved to other handlers
@@ -758,85 +623,33 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_session(self, params, grid, parser):
         """SESSION command - session management - delegates to SessionHandler."""
-        from .session_handler import SessionHandler
-        session_handler = SessionHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return session_handler.handle_session(params, grid, parser)
+        return self._get_session_handler().handle_session(params, grid, parser)
 
     def handle_restore(self, params, grid, parser):
         """RESTORE command - restore to previous session - delegates to SessionHandler."""
-        from .session_handler import SessionHandler
-        session_handler = SessionHandler(
-            connection=self.connection,
-            viewport=self.viewport,
-            user_manager=self.user_manager,
-            history=self.history,
-            theme=self.theme,
-            logger=self.logger
-        )
-        return session_handler.handle_restore(params, grid, parser)
+        return self._get_session_handler().handle_restore(params, grid, parser)
+
+    def _get_user_data(self):
+        """Helper to get user data dictionary."""
+        return {'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'}
+
+    def _format_cmd_result(self, result):
+        """Helper to format command result with success/error prefix."""
+        return result['message'] if result['success'] else f"❌ {result['message']}"
 
     # ═══════════════════════════════════════════════════════════════════════════
     # v1.0.32: PLANET SYSTEM COMMANDS
     # ═══════════════════════════════════════════════════════════════════════════
 
     def handle_config_planet(self, params, grid, parser):
-        """
-        Handle CONFIG PLANET commands.
-        Delegates to cmd_config_planet for all planet management.
-
-        Args:
-            params: Command parameters
-            grid: Grid instance (unused)
-            parser: Parser instance (unused)
-
-        Returns:
-            Command result message
-        """
+        """Handle CONFIG PLANET commands - delegates to cmd_config_planet."""
         from core.commands.cmd_config_planet import cmd_config_planet
-
-        user_data = {
-            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
-        }
-
-        result = cmd_config_planet(user_data, params)
-
-        if result['success']:
-            return result['message']
-        else:
-            return f"❌ {result['message']}"
+        return self._format_cmd_result(cmd_config_planet(self._get_user_data(), params))
 
     def handle_locate(self, params, grid, parser):
-        """
-        Handle LOCATE command.
-        Delegates to cmd_locate for location management.
-
-        Args:
-            params: Command parameters
-            grid: Grid instance (unused)
-            parser: Parser instance (unused)
-
-        Returns:
-            Command result message
-        """
+        """Handle LOCATE command - delegates to cmd_locate."""
         from core.commands.cmd_locate import cmd_locate
-
-        user_data = {
-            'username': getattr(self.user_manager, 'current_user', 'user') if self.user_manager else 'user'
-        }
-
-        result = cmd_locate(user_data, params)
-
-        if result['success']:
-            return result['message']
-        else:
-            return f"❌ {result['message']}"
+        return self._format_cmd_result(cmd_locate(self._get_user_data(), params))
 
     def handle_dev_mode(self, params, grid, parser):
         """Handle DEV MODE commands - delegates to EnvironmentHandler."""
