@@ -28,6 +28,7 @@ import shutil
 import gzip
 import tarfile
 import hashlib
+import difflib
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any
@@ -542,4 +543,305 @@ class ArchiveManager:
             for chunk in iter(lambda: f.read(8192), b''):
                 sha256.update(chunk)
         return sha256.hexdigest()
+
+    # ========== Incremental Backup Methods (v1.1.18 Part 2) ==========
+
+    def create_incremental_backup(self, file_path: Path, archive_dir: Optional[Path] = None) -> Dict[str, Any]:
+        """Create incremental backup using diffs.
+
+        Instead of storing full file copies, stores unified diffs from previous version.
+        Expected 80-90% storage reduction for text files.
+
+        Args:
+            file_path: File to backup
+            archive_dir: Archive directory (defaults to file's parent .archive/)
+
+        Returns:
+            Dictionary with backup info: {
+                'backup_path': Path to backup (full or diff),
+                'backup_type': 'full' or 'incremental',
+                'base_backup': Path to base backup (for incremental),
+                'size_original': Original file size,
+                'size_backup': Backup file size,
+                'savings_percent': Storage savings percentage
+            }
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        # Get or create archive
+        if archive_dir is None:
+            archive_dir = self.create_archive(file_path.parent)
+
+        backups_dir = archive_dir / self.SUBDIR_BACKUPS
+        backups_dir.mkdir(parents=True, exist_ok=True)
+
+        # Find most recent backup
+        pattern = f"*_{file_path.name}"
+        existing_backups = sorted(
+            [b for b in backups_dir.glob(pattern) if not b.name.endswith('.diff')],
+            key=os.path.getmtime,
+            reverse=True
+        )
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        original_size = file_path.stat().st_size
+
+        # If no previous backup exists, create full backup
+        if not existing_backups:
+            backup_name = f"{timestamp}_{file_path.name}"
+            backup_path = backups_dir / backup_name
+            shutil.copy2(file_path, backup_path)
+
+            return {
+                'backup_path': backup_path,
+                'backup_type': 'full',
+                'base_backup': None,
+                'size_original': original_size,
+                'size_backup': backup_path.stat().st_size,
+                'savings_percent': 0.0
+            }
+
+        # Create incremental backup (diff)
+        base_backup = existing_backups[0]
+
+        # Read files as text lines
+        try:
+            with open(base_backup, 'r', encoding='utf-8') as f:
+                base_lines = f.readlines()
+            with open(file_path, 'r', encoding='utf-8') as f:
+                current_lines = f.readlines()
+        except UnicodeDecodeError:
+            # Binary file - fall back to full backup
+            backup_name = f"{timestamp}_{file_path.name}"
+            backup_path = backups_dir / backup_name
+            shutil.copy2(file_path, backup_path)
+
+            return {
+                'backup_path': backup_path,
+                'backup_type': 'full',
+                'base_backup': None,
+                'size_original': original_size,
+                'size_backup': backup_path.stat().st_size,
+                'savings_percent': 0.0
+            }
+
+        # Generate unified diff
+        diff = difflib.unified_diff(
+            base_lines,
+            current_lines,
+            fromfile=str(base_backup),
+            tofile=str(file_path),
+            lineterm=''
+        )
+        diff_lines = list(diff)
+
+        # If diff is empty (no changes), skip backup
+        if not diff_lines:
+            return {
+                'backup_path': base_backup,
+                'backup_type': 'unchanged',
+                'base_backup': base_backup,
+                'size_original': original_size,
+                'size_backup': 0,
+                'savings_percent': 100.0
+            }
+
+        # Save diff file
+        diff_name = f"{timestamp}_{file_path.name}.diff"
+        diff_path = backups_dir / diff_name
+
+        with open(diff_path, 'w', encoding='utf-8') as f:
+            # Store metadata in first line
+            metadata = {
+                'base_backup': base_backup.name,
+                'timestamp': timestamp,
+                'original_size': original_size
+            }
+            f.write(f"# DIFF_METADATA: {json.dumps(metadata)}\n")
+            f.write('\n'.join(diff_lines))
+
+        diff_size = diff_path.stat().st_size
+        savings = (1 - diff_size / original_size) * 100 if original_size > 0 else 0
+
+        return {
+            'backup_path': diff_path,
+            'backup_type': 'incremental',
+            'base_backup': base_backup,
+            'size_original': original_size,
+            'size_backup': diff_size,
+            'savings_percent': savings
+        }
+
+    def apply_incremental_backup(self, diff_path: Path, output_path: Optional[Path] = None) -> Path:
+        """Restore file from incremental backup by applying diff.
+
+        Args:
+            diff_path: Path to .diff file
+            output_path: Optional output path (default: extract from metadata)
+
+        Returns:
+            Path to restored file
+        """
+        if not diff_path.exists():
+            raise FileNotFoundError(f"Diff file not found: {diff_path}")
+
+        # Read diff file
+        with open(diff_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Extract metadata from first line
+        if not lines or not lines[0].startswith('# DIFF_METADATA:'):
+            raise ValueError(f"Invalid diff file (missing metadata): {diff_path}")
+
+        metadata_str = lines[0].replace('# DIFF_METADATA:', '').strip()
+        metadata = json.loads(metadata_str)
+
+        base_backup_name = metadata['base_backup']
+        base_backup = diff_path.parent / base_backup_name
+
+        if not base_backup.exists():
+            raise FileNotFoundError(f"Base backup not found: {base_backup}")
+
+        # Read base file
+        with open(base_backup, 'r', encoding='utf-8') as f:
+            base_lines = f.readlines()
+
+        # Parse diff (skip metadata line)
+        diff_lines = lines[1:]
+
+        # Apply diff using difflib
+        # Parse the diff to extract changes
+        patched_lines = self._apply_unified_diff(base_lines, diff_lines)
+
+        # Determine output path
+        if output_path is None:
+            # Extract original filename from diff file name
+            # Format: YYYYMMDD_HHMMSS_filename.ext.diff
+            original_name = '_'.join(diff_path.stem.split('_')[2:])
+            output_path = diff_path.parent.parent.parent / original_name
+
+        # Write restored file
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.writelines(patched_lines)
+
+        return output_path
+
+    def _apply_unified_diff(self, base_lines: List[str], diff_lines: List[str]) -> List[str]:
+        """Apply unified diff to base content.
+
+        Args:
+            base_lines: Original file lines
+            diff_lines: Unified diff lines
+
+        Returns:
+            Patched file lines
+        """
+        # Simple diff application (works for most cases)
+        # For production, consider using patch library
+
+        result = []
+        base_idx = 0
+        i = 0
+
+        while i < len(diff_lines):
+            line = diff_lines[i]
+
+            # Skip diff headers
+            if line.startswith('---') or line.startswith('+++'):
+                i += 1
+                continue
+
+            # Parse hunk header: @@ -old_start,old_count +new_start,new_count @@
+            if line.startswith('@@'):
+                # Extract line numbers
+                parts = line.split()
+                if len(parts) >= 3:
+                    old_range = parts[1].lstrip('-').split(',')
+                    old_start = int(old_range[0]) - 1  # Convert to 0-indexed
+
+                    # Copy unchanged lines before this hunk
+                    while base_idx < old_start and base_idx < len(base_lines):
+                        result.append(base_lines[base_idx])
+                        base_idx += 1
+
+                i += 1
+                continue
+
+            # Process diff lines
+            if line.startswith('-'):
+                # Removed line - skip in base
+                base_idx += 1
+            elif line.startswith('+'):
+                # Added line - add to result
+                result.append(line[1:])
+            elif line.startswith(' '):
+                # Context line - copy from base
+                if base_idx < len(base_lines):
+                    result.append(base_lines[base_idx])
+                    base_idx += 1
+
+            i += 1
+
+        # Append remaining base lines
+        while base_idx < len(base_lines):
+            result.append(base_lines[base_idx])
+            base_idx += 1
+
+        return result
+
+    def get_backup_chain(self, file_name: str, archive_dir: Path) -> List[Dict[str, Any]]:
+        """Get the backup chain for a file (full backup + incremental diffs).
+
+        Args:
+            file_name: Name of the file
+            archive_dir: Archive directory containing backups
+
+        Returns:
+            List of backup info dicts in chronological order
+        """
+        backups_dir = archive_dir / self.SUBDIR_BACKUPS
+        if not backups_dir.exists():
+            return []
+
+        # Find all backups (full + diffs) - use two patterns
+        full_pattern = f"*_{file_name}"
+        diff_pattern = f"*_{file_name}.diff"
+
+        full_backups = list(backups_dir.glob(full_pattern))
+        diff_backups = list(backups_dir.glob(diff_pattern))
+
+        # Combine and sort by modification time
+        all_backups = sorted(
+            full_backups + diff_backups,
+            key=os.path.getmtime
+        )
+
+        chain = []
+        for backup_path in all_backups:
+            is_diff = backup_path.suffix == '.diff'
+
+            info = {
+                'path': backup_path,
+                'name': backup_path.name,
+                'type': 'incremental' if is_diff else 'full',
+                'size': backup_path.stat().st_size,
+                'timestamp': datetime.fromtimestamp(backup_path.stat().st_mtime)
+            }
+
+            # Extract base backup for diffs
+            if is_diff:
+                try:
+                    with open(backup_path, 'r', encoding='utf-8') as f:
+                        first_line = f.readline()
+                    if first_line.startswith('# DIFF_METADATA:'):
+                        metadata_str = first_line.replace('# DIFF_METADATA:', '').strip()
+                        metadata = json.loads(metadata_str)
+                        info['base_backup'] = metadata['base_backup']
+                except Exception:
+                    pass
+
+            chain.append(info)
+
+        return chain
 

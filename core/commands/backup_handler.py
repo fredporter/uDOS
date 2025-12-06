@@ -4,12 +4,21 @@ uDOS v1.1.16 - BACKUP Command Handler
 Handles file backup operations with .archive/ integration.
 
 Commands:
-- BACKUP <file>              - Create timestamped backup
-- BACKUP <file> --to <path>  - Backup to specific archive
-- BACKUP LIST [file]         - List backups for file
-- BACKUP RESTORE <backup>    - Restore a backup
-- BACKUP CLEAN [days]        - Clean old backups (default: 30 days)
-- BACKUP HELP                - Show help
+- BACKUP <file>                      - Create timestamped backup
+- BACKUP <file> --incremental        - Create diff-based incremental backup (80-90% savings)
+- BACKUP <file> --compress           - Create compressed backup (50-70% savings)
+- BACKUP <file> --to <path>          - Backup to specific archive
+- BACKUP LIST [file]                 - List backups for file
+- BACKUP RESTORE <backup>            - Restore a backup (handles .diff and .gz)
+- BACKUP CLEAN [days]                - Clean old backups (default: 30 days)
+- BACKUP HELP                        - Show help
+
+Incremental Backups:
+- First backup is always full
+- Subsequent --incremental backups store only changes (unified diff)
+- Typical savings: 80-90% for text files with minor edits
+- Unchanged files are skipped (100% savings)
+- RESTORE automatically handles .diff files
 """
 
 from pathlib import Path
@@ -58,7 +67,7 @@ class BackupHandler(BaseCommandHandler):
         from core.utils.archive_manager import ArchiveManager
 
         if not params:
-            return "❌ No file specified\nUsage: BACKUP <file> [--to <archive_path>] [--compress]"
+            return "❌ No file specified\nUsage: BACKUP <file> [--to <archive_path>] [--compress] [--incremental]"
 
         # Parse file path
         file_path = Path(params[0])
@@ -70,6 +79,7 @@ class BackupHandler(BaseCommandHandler):
 
         # Parse flags
         compress = '--compress' in params or '-c' in params
+        incremental = '--incremental' in params or '-i' in params
         archive_path = None
         if '--to' in params:
             idx = params.index('--to')
@@ -77,8 +87,45 @@ class BackupHandler(BaseCommandHandler):
                 archive_path = Path(params[idx + 1]) / '.archive'
 
         try:
-            # Create backup
             archive_mgr = ArchiveManager()
+
+            # Create incremental backup if requested
+            if incremental:
+                result = archive_mgr.create_incremental_backup(file_path, archive_path)
+
+                if result['backup_type'] == 'unchanged':
+                    return (
+                        "ℹ️  No changes detected - backup skipped\n\n"
+                        f"File:         {file_path.name}\n"
+                        f"Last backup:  {result['base_backup'].name}\n"
+                        f"Status:       Unchanged\n"
+                    )
+
+                backup_type = "Full" if result['backup_type'] == 'full' else "Incremental (diff)"
+                original_kb = round(result['size_original'] / 1024, 2)
+                backup_kb = round(result['size_backup'] / 1024, 2)
+
+                output = (
+                    f"✅ {backup_type} backup created successfully\n\n"
+                    f"File:         {file_path.name}\n"
+                    f"Backup:       {result['backup_path'].name}\n"
+                    f"Type:         {result['backup_type']}\n"
+                    f"Original:     {original_kb} KB\n"
+                    f"Backup size:  {backup_kb} KB\n"
+                    f"Space saved:  {result['savings_percent']:.1f}%\n"
+                )
+
+                if result['base_backup']:
+                    output += f"Base backup:  {result['base_backup'].name}\n"
+
+                output += (
+                    f"Archive:      {result['backup_path'].parent}\n\n"
+                    f"💡 Restore with: BACKUP RESTORE {result['backup_path'].name}"
+                )
+
+                return output
+
+            # Create regular backup
             backup_path = archive_mgr.add_backup(file_path, archive_path)
 
             original_size = backup_path.stat().st_size
@@ -89,13 +136,13 @@ class BackupHandler(BaseCommandHandler):
                 compressed_path = archive_mgr.compress_file(backup_path)
                 compressed_size = compressed_path.stat().st_size
                 compressed_size_kb = round(compressed_size / 1024, 2)
-                
+
                 # Only keep compressed if smaller
                 if compressed_size < original_size:
                     backup_path.unlink()
                     backup_path = compressed_path
                     savings = round((1 - compressed_size / original_size) * 100, 1)
-                    
+
                     return (
                         "✅ Backup created and compressed successfully\n\n"
                         f"File:         {file_path.name}\n"
@@ -264,23 +311,45 @@ class BackupHandler(BaseCommandHandler):
             return f"❌ Backup not found: {backup_name}"
 
         try:
-            # Check if backup is compressed
+            # Check backup type
             is_compressed = backup_file.suffix == '.gz'
-            
+            is_incremental = backup_file.suffix == '.diff'
+
             # Extract original filename (remove timestamp prefix)
-            filename_to_process = backup_name.replace('.gz', '') if is_compressed else backup_name
+            if is_incremental:
+                filename_to_process = backup_name.replace('.diff', '')
+            elif is_compressed:
+                filename_to_process = backup_name.replace('.gz', '')
+            else:
+                filename_to_process = backup_name
+
             original_name = "_".join(filename_to_process.split("_")[2:])
 
             # Determine restore path
             if restore_path is None:
                 restore_path = backup_file.parent.parent.parent / original_name
 
-            # Restore file
-            if is_compressed:
+            # Restore file based on type
+            if is_incremental:
+                # Apply incremental backup (diff)
+                restored_file = archive_mgr.apply_incremental_backup(backup_file, restore_path)
+                size_kb = round(restored_file.stat().st_size / 1024, 2)
+
+                # Get base backup info for user feedback
+                with open(backup_file, 'r') as f:
+                    first_line = f.readline().strip()
+                    if first_line.startswith('# BASE:'):
+                        base_backup = first_line.split('BASE:')[1].split('|')[0].strip()
+                        compression_note = f" (incremental from {base_backup})"
+                    else:
+                        compression_note = " (incremental backup)"
+
+            elif is_compressed:
                 # Decompress during restore
                 decompressed = archive_mgr.decompress_file(backup_file, restore_path)
                 size_kb = round(decompressed.stat().st_size / 1024, 2)
                 compression_note = " (decompressed from .gz)"
+
             else:
                 # Direct copy
                 import shutil
@@ -404,7 +473,13 @@ class BackupHandler(BaseCommandHandler):
 ║    Create timestamped backup of file                      ║
 ║    Example: BACKUP config.json                            ║
 ║                                                           ║
-║  BACKUP <file> --compress                                 ║
+║  BACKUP <file> --incremental (or -i)                      ║
+║    Create diff-based incremental backup (80-90% savings)  ║
+║    First backup is full, subsequent are diffs             ║
+║    Unchanged files are skipped (100% savings)             ║
+║    Example: BACKUP config.json --incremental              ║
+║                                                           ║
+║  BACKUP <file> --compress (or -c)                         ║
 ║    Create compressed backup (saves 50-70% space)          ║
 ║    Example: BACKUP large_file.json --compress             ║
 ║                                                           ║
@@ -414,12 +489,14 @@ class BackupHandler(BaseCommandHandler):
 ║                                                           ║
 ║  BACKUP LIST [file]                                       ║
 ║    List all backups or backups for specific file          ║
+║    Shows full and incremental (.diff) backups             ║
 ║    Example: BACKUP LIST config.json                       ║
 ║                                                           ║
 ║  BACKUP RESTORE <backup_name>                             ║
 ║    Restore a backup to original location                  ║
-║    (Automatically decompresses .gz files)                 ║
+║    (Automatically handles .gz and .diff files)            ║
 ║    Example: BACKUP RESTORE 20251203_120000_config.json    ║
+║              BACKUP RESTORE 20251203_120000_config.diff   ║
 ║                                                           ║
 ║  BACKUP RESTORE <backup_name> --to <path>                 ║
 ║    Restore backup to custom location                      ║
@@ -436,16 +513,26 @@ class BackupHandler(BaseCommandHandler):
 ║    Preview what would be deleted                          ║
 ║                                                           ║
 ╠═══════════════════════════════════════════════════════════╣
-║  Compression:                                             ║
+║  Incremental Backups (.diff files):                       ║
+║    Uses unified diff format to store only changes         ║
+║    80-90% savings for text files with minor edits         ║
+║    Binary files automatically use full backup             ║
+║    Unchanged files are skipped (100% savings)             ║
+║    RESTORE automatically reconstructs original            ║
+║                                                           ║
+║  Compression (.gz files):                                 ║
 ║    Uses gzip compression (50-70% savings for text files)  ║
 ║    Only keeps compressed if smaller than original         ║
 ║    Decompression is automatic during RESTORE              ║
 ║                                                           ║
-║  Backup Format:                                           ║
-║    YYYYMMDD_HHMMSS_original_filename.ext                  ║
-║    YYYYMMDD_HHMMSS_original_filename.ext.gz (compressed)  ║
+║  Backup Formats:                                          ║
+║    Regular:     YYYYMMDD_HHMMSS_original_filename.ext     ║
+║    Compressed:  YYYYMMDD_HHMMSS_original_filename.ext.gz  ║
+║    Incremental: YYYYMMDD_HHMMSS_original_filename.diff    ║
+║                                                           ║
 ║    Example: 20251203_143022_config.json                   ║
-║              20251203_143022_config.json.gz               ║
+║             20251203_143022_config.json.gz                ║
+║             20251203_143022_config.diff                   ║
 ║                                                           ║
 ║  Storage Location:                                        ║
 ║    <file_directory>/.archive/backups/                     ║
